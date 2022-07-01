@@ -13,6 +13,7 @@
       square
       style="width: 600px; z-index: 2000"
     >
+      <selector></selector>
       <div class="close">
         <q-btn
           dense
@@ -27,7 +28,13 @@
 </template>
 
 <script>
-import { initmap } from "../api/map";
+import {
+  create_map_layer,
+  create_map,
+  insert_maplayer,
+  switch_map,
+} from "../api/map";
+import Selector from "../components/selector.vue";
 export default {
   name: "Index",
   data() {
@@ -37,8 +44,14 @@ export default {
     };
   },
   methods: {},
+  components: {
+    Selector,
+  },
   mounted() {
-    this.map = initmap(this.map);
+    //初始化地图
+    this.map = create_map();
+    let base_map_layer = create_map_layer("twt");
+    this.map = insert_maplayer(this.map, base_map_layer);
   },
 };
 </script>

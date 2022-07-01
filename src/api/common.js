@@ -1,9 +1,10 @@
 import { Notify } from 'quasar'
-function create_notify(type = 'positive', msg) {
+function create_notify(msg, type = 'positive') {
     Notify.create({
         type: type,
         message: msg,
-        position: 'top'
+        position: 'top',
+        timeout: 1000,
     })
 }
 export { create_notify }

@@ -5,9 +5,9 @@ const routes = [
     component: () => import('pages/Index.vue'),
   },
   {
-    path: '/:catchAll(.*)*',
-    component: () => import('pages/ErrorNotFound.vue')
-  }
+    path: '/login',
+    component: () => import('pages/Login.vue'),
+  },
 ]
 
 export default routes

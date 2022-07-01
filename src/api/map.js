@@ -28,7 +28,7 @@ function create_map_layer(area_idx) {
     return tiles
 }
 // 注册地图参数
-function create_map(map_data) {
+function create_map() {
     //设置地图要使用的坐标参考系（CRS），本地图使用simple类型CRS，将经度和纬度直接映射到x和y。
     let mapCRS = L.Util.extend({}, L.CRS.Simple, {
         //用给定的系数表示变换对象。
@@ -61,25 +61,21 @@ function create_map(map_data) {
         ),
         attributionControl: false,
         zoomControl: false,
-        ...map_data
     }
     let map = L.map('map', map_setting);
     return map
 }
 //注册地图
-function initmap(map, area_idx = 'twt', mapset = '') {
-    map = create_map(mapset);
-    let map_layer = create_map_layer(area_idx);
+function insert_maplayer(map, map_layer) {
     map.addLayer(map_layer);
     return map;
 }
 //切换地图
-function switch_map(map, area_idx) {
-    var T = new maplayer(area_idx);
+function switch_map(map, map_layer) {
     map.eachLayer(layer => {
         map.removeLayer(layer);
     });
-    map.addLayer(T);
+    map.addLayer(map_layer);
     return map
 }
 //添加地图蒙层(群岛)
@@ -106,4 +102,10 @@ function add_map_overlay_qd(type, index) {
     let imageBounds = [qd_postion[type]]
     return L.imageOverlay(imageUrl, imageBounds)
 }
-export { initmap, switch_map, add_map_overlay_qd }
+export {
+    create_map_layer,
+    create_map,
+    insert_maplayer,
+    switch_map,
+    add_map_overlay_qd
+}

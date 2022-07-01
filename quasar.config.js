@@ -81,7 +81,22 @@ module.exports = configure(function (/* ctx */) {
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#devServer
     devServer: {
       // https: true
-      open: true // opens browser window automatically
+      open: true, // opens browser window automatically
+      proxy: {
+        // 将所有以/api开头的请求代理
+        '/api': {
+          target: 'http://momincong.com:8982',
+          changeOrigin: true,
+          pathRewrite: {
+            '^/api': '/'
+          }
+        },
+        // '/HotUpdate': {
+        //   target: 'https://yuanshen.site',
+        //   changeOrigin: true,
+        //   secrue: false,
+        // }
+      }
     },
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#framework
@@ -99,10 +114,14 @@ module.exports = configure(function (/* ctx */) {
       // directives: [],
 
       // Quasar plugins
-      plugins: []
+      plugins: [
+        'Cookies',
+        'Notify',
+        'Dialog'
+      ]
     },
     htmlVariables: {
-      productName: '原神地图打点页——v3',
+      productName: '原神地图打点页_v3',
     },
     // animations: 'all', // --- includes all animations
     // https://v2.quasar.dev/options/animations
