@@ -87,9 +87,7 @@ module.exports = configure(function (/* ctx */) {
         '/api': {
           target: 'http://momincong.com:8982',
           changeOrigin: true,
-          pathRewrite: {
-            '^/api': '/'
-          }
+          rewrite: path => path.replace(/^\/api/, '')
         },
         // '/HotUpdate': {
         //   target: 'https://yuanshen.site',

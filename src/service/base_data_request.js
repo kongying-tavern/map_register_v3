@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { create_notify } from "../api/common"
 // const baseurl='http://momincong.com:8982'
-async function defalut_request(method, url, data) {
+async function default_request(method, url, data) {
     try {
         return await axios({
             method: method,
@@ -27,7 +27,7 @@ async function defalut_request(method, url, data) {
  * @returns 地区信息
  */
 function query_area(data) {
-    return defalut_request('get', `/api/area/list`, data)
+    return default_request('post', `/api/area/list`, data)
 }
 export {
     query_area
