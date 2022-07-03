@@ -11,7 +11,7 @@
       v-show="selector_show"
       class="absolute-top-left full-height q-pa-sm"
       square
-      style="width: 600px; z-index: 2000"
+      style="width: 500px; z-index: 2000"
     >
       <selector></selector>
       <div class="close">

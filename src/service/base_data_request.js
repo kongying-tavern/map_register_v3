@@ -1,7 +1,8 @@
 import axios from 'axios'
 import { create_notify } from "../api/common"
-// const baseurl='http://momincong.com:8982'
-async function default_request(method, url, data) {
+// const baseurl = 'http://momincong.com:8982/api'
+const baseurl = 'http://localhost:9000/api'
+async function default_request(method, url, data = undefined) {
     try {
         return await axios({
             method: method,
@@ -22,13 +23,15 @@ async function default_request(method, url, data) {
     }
 }
 /**
+ * 列出地区
  * @param {Number} parentId 父级ID,默认为-1
  * @param {Boolean} isTraverse 是否遍历子地区
  * @returns 地区信息
  */
-function query_area(data) {
-    return default_request('post', `/api/area/list`, data)
+function query_main_area(data) {
+    return default_request('post', `${baseurl}/area/get/list`, data)
 }
+
 export {
-    query_area
+    query_main_area,
 }
