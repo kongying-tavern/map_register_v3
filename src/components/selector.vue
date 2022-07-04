@@ -1,42 +1,39 @@
 <template>
   <div class="full-width row q-pa-sm">
     <div class="col-12">
-      <q-tabs
-        dense
-        v-model="selected_id_list.main_area_id"
-        class="text-primary"
-      >
-        <q-tab v-for="i in area_list" :name="i.areaId" :label="i.name" />
+      <q-tabs dense inline-label v-model="handle_type" class="text-primary">
+        <q-tab name="打点" icon="mdi-map-marker-radius" label="打点" />
+        <q-tab name="审核" icon="mdi-checkbox-multiple-marked" label="审核" />
+        <q-tab name="编辑" icon="mdi-circle-edit-outline" label="编辑" />
       </q-tabs>
+    </div>
+    <div class="col-12">
+      <q-separator />
+    </div>
+    <div class="col-12">
+      <layer-register v-show="handle_type == '打点'"></layer-register>
     </div>
   </div>
 </template>
 
 <script>
-import { query_main_area } from "../service/base_data_request";
+import LayerRegister from "../components/register.vue";
 export default {
   name: "Selector",
   data() {
     return {
-      selected_id_list: {
-        main_area_id: "",
-        child_area_id: "",
-      },
-      area_list: [],
+      handle_type: "打点",
     };
   },
-  methods: {},
-  mounted() {
-    //查询所有地区
-    query_main_area({
-      parentId: -1,
-      isTraverse: true,
-    }).then((res) => {
-      this.area_list = res.data.data;
-    });
+  components: {
+    LayerRegister,
   },
+  methods: {},
 };
 </script>
 
 <style>
+.q-tab-panel {
+  padding: 2px;
+}
 </style>

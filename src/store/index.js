@@ -15,11 +15,11 @@ import { createStore } from 'vuex'
 export default store(function (/* { ssrContext } */) {
   const Store = createStore({
     state: {
-      save_data: null,
+      map: null,
     },
     mutations: {
-      record_savedata(state, data) {
-        state.save_data = data;
+      record_map(state, data) {
+        state.map = data;
       }
     },
     // enable strict mode (adds overhead!)

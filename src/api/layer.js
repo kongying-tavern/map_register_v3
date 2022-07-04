@@ -32,56 +32,25 @@ function create_icon_options(data, type = "off") {
     return options
 }
 /**
-* 将获取的点位组信息转化成leaflet的geojson对象
-* @param {Object} data 点位组对象信息
-* @returns {Object} geojson对象
-*/
-function create_geojson(data) {
-    let item_list = [
-        {
-            type: "FeatureCollection",
-            features: [],
-        },
-    ];
-    for (let i of data) {
-        item_list[0].features.push({
-            geometry: {
-                type: "Point",
-                coordinates: i.position.split(","),
-            },
-            type: "Feature",
-            properties: {
-                popTitle: i.title,
-                popupContent: i.content,
-            },
-            data: {
-                ...i
-            }
-        });
-    }
-    return item_list
-}
-/**
 * 生成点位组
 * @param {array} layergroup_data  要生成点位的点位组对象数组
 * @param {Object} map map实例对象
 * @returns {Object} markerClusterGroup对象（聚合后的点位组）
  */
-function layergroup_register(layergroup_data, map) {
-    let select_Layer = L.layerGroup(map);
-    //生成点位
-    L.geoJSON(layergroup_data, {
-        pointToLayer: function (feature, latlng) {
-            let marker = L.marker([latlng.lng, latlng.lat], {
-                icon: L.icon(create_icon_options(feature))
-            });
-            return marker.addTo(select_Layer)
-        },
-    });
-    return select_Layer
+function layergroup_register(data, map) {
+    // let select_Layer = L.layerGroup(map);
+    // //生成点位
+    // L.geoJSON(layergroup_data, {
+    //     pointToLayer: function (feature, latlng) {
+    //         let marker = L.marker([latlng.lng, latlng.lat], {
+    //             icon: L.icon(create_icon_options(feature))
+    //         });
+    //         return marker.addTo(select_Layer)
+    //     },
+    // });
+    // return select_Layer
 }
 export {
     create_icon_options,
-    create_geojson,
     layergroup_register,
 }

@@ -11,9 +11,14 @@
       v-show="selector_show"
       class="absolute-top-left full-height q-pa-sm"
       square
-      style="width: 500px; z-index: 2000"
+      style="width: 600px; z-index: 2000"
     >
-      <selector></selector>
+      <q-scroll-area
+        :thumb-style="{ background: 'none' }"
+        style="width: 100%; height: 100%"
+      >
+        <selector></selector>
+      </q-scroll-area>
       <div class="close">
         <q-btn
           dense
@@ -47,11 +52,13 @@ export default {
   components: {
     Selector,
   },
+
   mounted() {
     //初始化地图
     this.map = create_map();
     let base_map_layer = create_map_layer("twt");
     this.map = insert_maplayer(this.map, base_map_layer);
+    this.$store.commit("record_map", map);
   },
 };
 </script>
@@ -67,6 +74,7 @@ export default {
 }
 .close {
   position: absolute;
+  top: 10px;
   right: -15px;
   z-index: 1500;
 }
