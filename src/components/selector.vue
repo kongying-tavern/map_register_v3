@@ -1,5 +1,5 @@
 <template>
-  <div class="full-width row q-pa-sm">
+  <div class="full-width row">
     <div class="col-12">
       <q-tabs dense inline-label v-model="handle_type" class="text-primary">
         <q-tab name="打点" icon="mdi-map-marker-radius" label="打点" />

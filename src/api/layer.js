@@ -1,9 +1,9 @@
 //点位相关
 import * as L from 'leaflet'
 import "leaflet/dist/leaflet.css";
-import "../api/leaflet_markercluster/leaflet.markercluster-src.js";
-import "../api/leaflet_markercluster/MarkerCluster.css"
-import "../api/leaflet_markercluster/MarkerCluster.Default.css"
+// import "../api/leaflet_markercluster/leaflet.markercluster-src.js";
+// import "../api/leaflet_markercluster/MarkerCluster.css"
+// import "../api/leaflet_markercluster/MarkerCluster.Default.css"
 /**
 * 生成点位背景
 * @param {Object} data 点位数据对象
@@ -12,8 +12,7 @@ import "../api/leaflet_markercluster/MarkerCluster.Default.css"
 */
 function create_icon_options(data, type = "off") {
     let options = {
-        className: `mark-${data.data.id}`,
-        iconUrl: data.data.icon,
+        iconUrl: 'https://assets.yuanshen.site/icons/286.png',
         shadowUrl: `https://assets.yuanshen.site/icons/loc_02_${type}.png`,
         iconSize: [22, 22], // size of the icon
         shadowSize: [32, 36], // size of the shadow
@@ -33,11 +32,20 @@ function create_icon_options(data, type = "off") {
 }
 /**
 * 生成点位组
-* @param {array} layergroup_data  要生成点位的点位组对象数组
+* @param {array} data  要生成点位的点位数据数组
 * @param {Object} map map实例对象
 * @returns {Object} markerClusterGroup对象（聚合后的点位组）
  */
 function layergroup_register(data, map) {
+    let featureGroup = L.featureGroup();
+    for (let i of data) {
+        let marker = L.marker(i.position.split(','), {
+            icon: L.icon(create_icon_options(i.videoPath))
+        })
+        featureGroup.addLayer(marker);
+    }
+    featureGroup.addTo(map);
+    return map
     // let select_Layer = L.layerGroup(map);
     // //生成点位
     // L.geoJSON(layergroup_data, {
