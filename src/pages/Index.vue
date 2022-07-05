@@ -17,7 +17,33 @@
         :thumb-style="{ background: 'none' }"
         style="width: 100%; height: 100%"
       >
-        <selector></selector>
+        <div class="full-width row">
+          <div class="col-12">
+            <q-tabs
+              dense
+              inline-label
+              v-model="handle_type"
+              class="text-primary"
+            >
+              <q-tab name="打点" icon="mdi-map-marker-radius" label="打点" />
+              <q-tab
+                name="审核"
+                icon="mdi-checkbox-multiple-marked"
+                label="审核"
+              />
+              <q-tab name="编辑" icon="mdi-circle-edit-outline" label="编辑" />
+            </q-tabs>
+          </div>
+          <div class="col-12">
+            <q-separator />
+          </div>
+          <div class="col-12">
+            <layer-register
+              :map="map"
+              v-show="handle_type == '打点'"
+            ></layer-register>
+          </div>
+        </div>
       </q-scroll-area>
       <div class="close">
         <q-btn
@@ -39,26 +65,25 @@ import {
   insert_maplayer,
   switch_map,
 } from "../api/map";
-import Selector from "../components/selector.vue";
+import LayerRegister from "../components/register.vue";
 export default {
   name: "Index",
   data() {
     return {
       map: "",
       selector_show: true,
+      handle_type: "打点",
     };
   },
   methods: {},
   components: {
-    Selector,
+    LayerRegister,
   },
-
   mounted() {
     //初始化地图
     this.map = create_map();
     let base_map_layer = create_map_layer("twt");
     this.map = insert_maplayer(this.map, base_map_layer);
-    this.$store.commit("record_map", map);
   },
 };
 </script>

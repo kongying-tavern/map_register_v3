@@ -25,6 +25,7 @@ export default {
       handle_type: "打点",
     };
   },
+  props: ["map"],
   components: {
     LayerRegister,
   },

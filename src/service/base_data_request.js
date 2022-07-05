@@ -53,29 +53,32 @@ function query_itemtype(self = 0, data) {
 function query_itemlist(data) {
     return default_request('post', `${baseurl}/item/get/list`, data)
 }
+// /**
+//  * 列出物品id列表
+//  * @param {Array} typeIdList 物品类型ID列表
+//  * @param {Array} areaIdList 地区ID列表
+//  * @param {Array} itemIdList 物品ID列表
+//  * @param {Number} getBeta 获取测试点位,默认为0，不获取，为1时只获取测试点位
+//  * @returns 物品点位id信息
+//  */
+// function query_itemlayer_idlist(data) {
+//     return default_request('post', `${baseurl}/marker/get/id`, data)
+// }
 /**
- * 列出物品id列表
+ * 列出物品信息列表
  * @param {Array} typeIdList 物品类型ID列表
  * @param {Array} areaIdList 地区ID列表
  * @param {Array} itemIdList 物品ID列表
- * @param {Number} getBeta 获取测试点位,默认为0，不获取，为1时只获取测试点位
- * @returns 物品点位id信息
- */
-function query_itemlayer_idlist(data) {
-    return default_request('post', `${baseurl}/marker/get/id`, data)
-}
-/**
- * 列出物品信息列表
- * @param {Array} data 物品类型ID列表
+ * @param {Number} getBeta 获取测试点位,默认为0，不获取，为1时只获取测试点
  * @returns 物品点位id信息
  */
 function query_itemlayer_infolist(data) {
-    return default_request('post', `${baseurl}/marker/get/list_byid`, data)
+    return default_request('post', `${baseurl}/marker/get/list_byinfo`, data)
 }
 export {
     query_area,
     query_itemtype,
     query_itemlist,
-    query_itemlayer_idlist,
+    // query_itemlayer_idlist,
     query_itemlayer_infolist
 }

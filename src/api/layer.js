@@ -36,27 +36,16 @@ function create_icon_options(data, type = "off") {
 * @param {Object} map map实例对象
 * @returns {Object} markerClusterGroup对象（聚合后的点位组）
  */
-function layergroup_register(data, map) {
-    let featureGroup = L.featureGroup();
+function layergroup_register(data) {
+    let layerGroup = L.layerGroup();
     for (let i of data) {
         let marker = L.marker(i.position.split(','), {
-            icon: L.icon(create_icon_options(i.videoPath))
+            icon: L.icon(create_icon_options()),
+            data: { ...i }
         })
-        featureGroup.addLayer(marker);
+        layerGroup.addLayer(marker);
     }
-    featureGroup.addTo(map);
-    return map
-    // let select_Layer = L.layerGroup(map);
-    // //生成点位
-    // L.geoJSON(layergroup_data, {
-    //     pointToLayer: function (feature, latlng) {
-    //         let marker = L.marker([latlng.lng, latlng.lat], {
-    //             icon: L.icon(create_icon_options(feature))
-    //         });
-    //         return marker.addTo(select_Layer)
-    //     },
-    // });
-    // return select_Layer
+    return layerGroup
 }
 export {
     create_icon_options,

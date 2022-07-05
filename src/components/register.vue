@@ -68,7 +68,6 @@
         :columns="layer_columns"
         selection="multiple"
         v-model:selected="selected_layer_list"
-        :rows-per-page-options="[0]"
         class="table_class"
         :class="{ on: !panel }"
       >
@@ -150,14 +149,15 @@
 </template>
 
 <script>
+import { createApp } from "vue";
 import {
   query_area,
   query_itemtype,
   query_itemlist,
-  query_itemlayer_idlist,
   query_itemlayer_infolist,
 } from "../service/base_data_request";
 import { layergroup_register } from "../api/layer";
+import PopupWindow from "./dialogs/popup_window.vue";
 export default {
   name: "LayerRegister",
   data() {
@@ -173,10 +173,16 @@ export default {
       layer_data: [],
       layer_columns: [
         {
-          name: "id",
+          name: "markerId",
           align: "center",
           label: "点位id",
           field: "markerId",
+        },
+        {
+          name: "markerTitle",
+          align: "center",
+          label: "点位名称",
+          field: "markerTitle",
         },
         {
           name: "content",
@@ -192,7 +198,12 @@ export default {
         },
       ],
       selected_layer_list: [],
+      handle_layergroup: null,
     };
+  },
+  props: ["map"],
+  components: {
+    PopupWindow,
   },
   methods: {
     //清除已查询列表
@@ -216,21 +227,40 @@ export default {
     },
     //查询单个物品下属所有点位
     select_item_layers(value) {
+      if (this.handle_layergroup != null) {
+        this.map.removeLayer(this.handle_layergroup);
+        this.handle_layergroup = null;
+      }
       this.layer_data = [];
       this.loading = true;
-      query_itemlayer_idlist({
+      query_itemlayer_infolist({
         typeIdList: [],
         areaIdList: [],
         itemIdList: [value],
         getBeta: 0,
       }).then((res) => {
-        console.log(res);
-        query_itemlayer_infolist(res.data.data).then((res) => {
-          this.loading = false;
-          this.layer_data = res.data.data;
-          layergroup_register(this.layer_data, this.$store.state.map);
+        this.loading = false;
+        this.layer_data = res.data.data;
+        this.handle_layergroup = layergroup_register(this.layer_data);
+        this.handle_layergroup.eachLayer((layer) => {
+          this.layer_window_register(layer);
         });
+        this.map.addLayer(this.handle_layergroup);
       });
+    },
+
+    //为点位绑定弹窗
+    layer_window_register(layer) {
+      //需要指定一个dom元素用于绑定组件，且需要为其指定宽度，否则leaflet弹窗无法获取容器宽度导致组件内容无法完全展示
+      layer.bindPopup(`123`);
+      //   layer.on("popupopen", () => {
+      //     let app = createApp(PopupWindow, {
+      //       map: this.map,
+      //       layer_detail: layer,
+      //     });
+      //     //使用createApp将popup组件挂载至popup弹窗内id为popup_window的dom对象上
+      //     app.mount("#popup_window");
+      //   });
     },
   },
   mounted() {
