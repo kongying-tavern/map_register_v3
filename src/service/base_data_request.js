@@ -75,10 +75,22 @@ function query_itemlist(data) {
 function query_itemlayer_infolist(data) {
     return default_request('post', `${baseurl}/marker/get/list_byinfo`, data)
 }
+/**
+ * 列出物品点位信息
+ * @param {Array} typeIdList 物品类型ID列表
+ * @param {Array} tagList 标签名列表
+ * @param {Number} current 当前页，从0开始
+ * @param {Number} size 每页大小，默认为10
+ * @returns 物品点位id信息
+ */
+function query_itemlayer_icon(data) {
+    return default_request('post', `${baseurl}/tag/get/list`, data)
+}
 export {
     query_area,
     query_itemtype,
     query_itemlist,
     // query_itemlayer_idlist,
-    query_itemlayer_infolist
+    query_itemlayer_infolist,
+    query_itemlayer_icon
 }

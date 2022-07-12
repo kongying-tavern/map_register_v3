@@ -2,15 +2,24 @@
 import * as L from 'leaflet'
 import "leaflet/dist/leaflet.css";
 //初始化地图中心和地图尺寸
-const mapCenter = [3568, 6286], mapSize = [12288, 15360]
-//注册地图瓦片
-function create_map_layer(area_idx) {
+/**
+ * 注册地图瓦片
+ * @param {string} area_idx 地图别名 twt25：大世界 qd28：梦想群岛 yxg2：渊下宫/三界路飨祭 qd:群岛1 qd2:群岛2 
+ * @param {Array} mapCenter 地图中心坐标
+ * @param {Array} mapSize 地图尺寸
+ * @returns 地图瓦片对象
+ */
+function create_map_layer(area_idx, mapCenter, mapSize) {
+    let imgform = 'png'
+    if (area_idx == 'qd' || area_idx == 'qd1') {
+        imgform = 'jpg'
+    }
     L.TileLayer.T = L.TileLayer.extend({
         getTileUrl: function (coords) {
             var x = coords.x,
                 y = coords.y,
                 z = coords.z + 13
-            return `https://assets.yuanshen.site/tiles_${area_idx}/${z}/${x}_${y}.png`
+            return `https://assets.yuanshen.site/tiles_${area_idx}/${z}/${x}_${y}.${imgform}`
         },
         //如果此项为true，在平移后不可见的切片被放入一个队列中，在新的切片开始可见时他们会被取回（而不是动态地创建一个新的）。这理论上可以降低内存使用率并可以去除在需要新的切片时预留内存。
         reuseTiles: true,
@@ -27,8 +36,15 @@ function create_map_layer(area_idx) {
     });
     return tiles
 }
-// 注册地图参数
-function create_map() {
+/**
+ * 生成地图
+ * @param {string} area_idx 地图别名 twt25：大世界 qd28：梦想群岛 yxg2：渊下宫/三界路飨祭 qd:群岛1 qd2:群岛2 
+ * @param {object} settings leaflet 地图设置
+ * @param {Array} mapCenter 地图中心坐标
+ * @param {Array} mapSize 地图尺寸
+ * @returns 地图对象
+ */
+function create_map(area_idx, settings, mapCenter = [3568, 6286], mapSize = [12288, 15360]) {
     //设置地图要使用的坐标参考系（CRS），本地图使用simple类型CRS，将经度和纬度直接映射到x和y。
     let mapCRS = L.Util.extend({}, L.CRS.Simple, {
         //用给定的系数表示变换对象。
@@ -61,21 +77,11 @@ function create_map() {
         ),
         attributionControl: false,
         zoomControl: false,
+        ...settings
     }
-    let map = L.map('map', map_setting);
-    return map
-}
-//注册地图
-function insert_maplayer(map, map_layer) {
-    map.addLayer(map_layer);
-    return map;
-}
-//切换地图
-function switch_map(map, map_layer) {
-    map.eachLayer(layer => {
-        map.removeLayer(layer);
-    });
-    map.addLayer(map_layer);
+
+    let tiles = create_map_layer(area_idx, mapCenter, mapSize)
+    let map = L.map('map', map_setting).addLayer(tiles);
     return map
 }
 //添加地图蒙层(群岛)
@@ -105,7 +111,5 @@ function add_map_overlay_qd(type, index) {
 export {
     create_map_layer,
     create_map,
-    insert_maplayer,
-    switch_map,
     add_map_overlay_qd
 }

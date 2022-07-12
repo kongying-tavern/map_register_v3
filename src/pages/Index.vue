@@ -38,10 +38,24 @@
             <q-separator />
           </div>
           <div class="col-12">
-            <layer-register
-              :map="map"
-              v-show="handle_type == '打点'"
-            ></layer-register>
+            <q-tab-panels v-model="handle_type" animated>
+              <q-tab-panel name="打点">
+                <layer-register
+                  :map="map"
+                  @map_switch="map_switch"
+                  v-show="handle_type == '打点'"
+                ></layer-register>
+              </q-tab-panel>
+
+              <q-tab-panel name="审核"> </q-tab-panel>
+
+              <q-tab-panel name="编辑">
+                <layer-register
+                  :map="map"
+                  v-show="handle_type == '审核'"
+                ></layer-register>
+              </q-tab-panel>
+            </q-tab-panels>
           </div>
         </div>
       </q-scroll-area>
@@ -55,35 +69,98 @@
         />
       </div>
     </q-card>
+    <!-- 额外操作器 -->
+    <q-card
+      v-if="area.name == '梦想群岛'"
+      class="absolute-top-right q-pa-md"
+      style="z-index: 9000"
+    >
+      <div style="width: 300px" v-if="extra_show == true">
+        <q-btn
+          dense
+          flat
+          color="white"
+          text-color="black"
+          icon="mdi-close"
+          class="absolute-top-right"
+          @click="extra_show = false"
+        />
+        <island-selector :map="map"></island-selector>
+      </div>
+      <div v-else>
+        <q-btn
+          dense
+          flat
+          color="primary"
+          icon="mdi-island"
+          class="absolute-top-right"
+          @click="extra_show = true"
+        />
+      </div>
+    </q-card>
   </q-layout>
 </template>
 
 <script>
-import {
-  create_map_layer,
-  create_map,
-  insert_maplayer,
-  switch_map,
-} from "../api/map";
+import { create_map } from "../api/map";
 import LayerRegister from "../components/register.vue";
+import IslandSelector from "../components/v2.8/island_selector.vue";
 export default {
   name: "Index",
+  setup() {
+    let map = "";
+    return { map };
+  },
   data() {
     return {
-      map: "",
+      area: {},
       selector_show: true,
       handle_type: "打点",
+      extra_show: false,
     };
   },
-  methods: {},
+  methods: {
+    init_map() {
+      //初始化地图
+      this.map = create_map("twt25");
+    },
+    //切换地图
+    map_switch(area) {
+      this.area = area;
+      switch (area.name) {
+        case "梦想群岛":
+          this.extra_show = true;
+          this.map.remove();
+          this.map = create_map(
+            "qd28",
+            {
+              center: [600, -2190],
+              zoom: -2,
+            },
+            [3568, 6286],
+            [8192, 8192]
+          );
+          break;
+        default:
+          this.map.remove();
+          this.map = create_map("twt25");
+          break;
+      }
+    },
+  },
   components: {
     LayerRegister,
+    IslandSelector,
   },
   mounted() {
-    //初始化地图
-    this.map = create_map();
-    let base_map_layer = create_map_layer("twt");
-    this.map = insert_maplayer(this.map, base_map_layer);
+    this.init_map();
+  },
+  watch: {
+    handle_type: function (val) {
+      this.$store.commit("type_switch", val);
+      this.map.remove();
+      this.init_map();
+    },
   },
 };
 </script>
@@ -102,5 +179,8 @@ export default {
   top: 10px;
   right: -15px;
   z-index: 1500;
+}
+.q-tab-panel {
+  padding: 0;
 }
 </style>

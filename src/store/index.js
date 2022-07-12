@@ -16,10 +16,14 @@ export default store(function (/* { ssrContext } */) {
   const Store = createStore({
     state: {
       map: null,
+      handle_type: '打点'
     },
     mutations: {
       record_map(state, data) {
         state.map = data;
+      },
+      type_switch(state, data) {
+        state.handle_type = data;
       }
     },
     // enable strict mode (adds overhead!)
