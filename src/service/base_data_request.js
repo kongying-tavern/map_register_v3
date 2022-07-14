@@ -1,8 +1,8 @@
 import axios from 'axios'
 import { Cookies } from 'quasar'
 import { create_notify } from "../api/common"
-// const baseurl = 'http://momincong.com:8101/api'
-const baseurl = 'http://localhost:9000/api/api'
+const baseurl = 'https://cloud.yuanshen.site/api'
+// const baseurl = 'http://localhost:9000/api/api'
 async function default_request(method, url, data = undefined) {
     try {
         return await axios({

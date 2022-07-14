@@ -1,12 +1,12 @@
 <template>
-  <q-card class="q-pa-md" style="max-width: 100vw">
+  <q-card class="q-pa-md" style="max-width: 50vw">
     <!-- <div><q-toggle v-model="extra_mode" label="高级模式" /></div> -->
     <div class="row justify-between">
       <q-list bordered separator style="min-width: 500px">
-        <q-item v-show="layer_info.markerId == '' ? false : true">
+        <q-item v-show="layer_info.id == '' ? false : true">
           <q-item-section> 点位编号 </q-item-section>
           <q-item-section>
-            <q-input outlined v-model="layer_info.markerId" readonly> </q-input>
+            <q-input outlined v-model="layer_info.id" readonly> </q-input>
           </q-item-section>
         </q-item>
         <q-item>
@@ -103,6 +103,14 @@
             />
           </q-item-section>
         </q-item> -->
+        <q-item
+          v-if="propdata.type == 1 && propdata.list.area.name == '梦想群岛'"
+        >
+          <q-item-section> 所属岛屿 </q-item-section>
+          <q-item-section>
+            <island-selector @callback="island_callback"></island-selector>
+          </q-item-section>
+        </q-item>
       </q-list>
       <!-- <q-list v-show="extra_mode" bordered separator style="margin-left: 10px">
       </q-list> -->
@@ -151,7 +159,14 @@ import {
   query_itemlist,
   upload_img,
 } from "../../service/base_data_request";
+import {
+  upload_layer,
+  upload_layer_extralabel,
+  edit_layer,
+} from "../../service/edit_request";
 import ImgCut from "./vue-cropper.vue";
+import IslandSelector from "../v2.8/island_value_selector.vue";
+import { create_notify } from "../../api/common";
 export default {
   name: "LayerEdit",
   props: ["propdata"],
@@ -159,7 +174,7 @@ export default {
     return {
       extra_mode: false,
       layer_info: {
-        markerId: "",
+        id: "",
         markerTitle: "",
         content: "",
         picture: "",
@@ -174,10 +189,12 @@ export default {
       item_count: 1,
       item_child_count: [],
       page_loading: true,
+      island_callback_data: null,
     };
   },
   components: {
     ImgCut,
+    IslandSelector,
   },
   methods: {
     //查看大图
@@ -210,29 +227,29 @@ export default {
       this.layer_info.picture = data;
     },
     //提交要上传的数据
-    upload_layerdata() {
-      console.log(this.propdata, this.layer_info);
+    async upload_layerdata() {
+      this.loading = true;
       let upload_data = {
-        itemIdList: [],
+        itemList: [],
         markerTitle: this.layer_info.markerTitle,
-        position: this.layer_info.position,
+        position: this.propdata.position,
         picture: this.layer_info.picture,
         hiddenFlag: this.propdata.list.item.hiddenFlag,
-        markerCreatorId: "",
+        markerCreatorId: Number(localStorage.getItem("_yuanshen_dadian_user")),
         videoPath: "",
-        pictureCreatorId: "",
+        pictureCreatorId: Number(localStorage.getItem("_yuanshen_dadian_user")),
         refreshTime: this.propdata.list.item.defaultRefreshTime,
         content: this.layer_info.content,
       };
       //如果是多item，则逐个插入，否则单独插入
       if (this.item_child_count.length != 0) {
         for (let i of this.item_child_value_list)
-          upload_data.itemIdList.push({
+          upload_data.itemList.push({
             itemId: i.value,
             count: this.propdata.list.item.defaultCount,
           });
       } else {
-        upload_data.itemIdList.push({
+        upload_data.itemList.push({
           itemId: this.propdata.list.item.itemId,
           count: this.propdata.list.item.defaultCount,
         });
@@ -240,11 +257,47 @@ export default {
       //如果上传了图片，将其上传至图床
       if (upload_data.picture.indexOf("base64") != -1) {
         let date = Date.now();
-        upload_img(date, upload_data.picture).then((res) => {
-          upload_data.picture = `https://yuanshen.site${res.data.path}`;
-        });
+        let res = await upload_img(date, upload_data.picture);
+        upload_data.picture = `https://yuanshen.site${res.data.path}`;
       }
-      console.log(upload_data);
+      //根据类型不同走不同的接口
+      switch (this.propdata.type) {
+        case 1:
+          //如果有海岛的数据，则验证一下
+          if (this.propdata.list.area.name == "梦想群岛") {
+            if (this.island_callback_data == null) {
+              alert("请正确选择岛屿及其形态");
+              return;
+            }
+          }
+          upload_layer(upload_data).then((res) => {
+            if (res.data.code == 200) {
+              if (this.propdata.list.area.name == "梦想群岛") {
+                upload_layer_extralabel({
+                  markerId: res.data.data,
+                  markerExtraContent: this.island_callback_data,
+                  isRelated: upload_data.itemList.length > 1 ? 1 : 0,
+                }).then((res) => {
+                  create_notify(res.data.message);
+                  this.loading = false;
+                });
+              }
+              create_notify(res.data.message);
+            }
+          });
+          break;
+        case 2:
+          upload_data = {
+            ...upload_data,
+            id: this.propdata.data.id,
+            position: this.propdata.data.position,
+          };
+          edit_layer(upload_data).then((res) => {
+            create_notify(res.data.message);
+            this.loading = false;
+          });
+          break;
+      }
     },
     //取消新增
     add_cancel() {
@@ -252,8 +305,13 @@ export default {
         this.$emit("add_cancel");
       }
     },
+    //海岛回调
+    island_callback(val) {
+      this.island_callback_data = val;
+    },
   },
   mounted() {
+    console.log(this.propdata);
     this.layer_info = { ...this.layer_info, ...this.propdata.data };
     //如果有子分类的话，查询子分类的各项选项
     if (this.propdata.list.item_child.length != 0) {

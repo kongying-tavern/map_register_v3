@@ -136,14 +136,18 @@
             flat
             color="primary"
             label="取消"
-            @click="add_mode_switch(false)"
+            @click="refresh_layers"
           ></q-btn>
         </q-card-section>
       </q-card>
     </q-dialog>
     <!-- 点位新增/编辑弹窗 -->
-    <q-dialog v-model="layer_edit_window">
-      <layer-edit :propdata="edit_data"></layer-edit>
+    <q-dialog v-model="layer_edit_window" :persistent="true">
+      <layer-edit
+        :propdata="edit_data"
+        @add_cancel="refresh_layers"
+        @refresh="refresh"
+      ></layer-edit>
     </q-dialog>
     <q-inner-loading :showing="loading">
       <q-spinner-gears size="50px" color="primary" />
@@ -194,6 +198,7 @@ export default {
       panel: true,
       edit_data: {},
       layer_edit_window: false,
+      add_layer: null,
     };
   },
   methods: {
@@ -267,6 +272,11 @@ export default {
       }
       this.select_item_layers(arr);
     },
+    //刷新回调
+    refresh() {
+      alert(1);
+      this.clearlayers();
+    },
     //查询点位信息
     select_item_layers(value) {
       this.clearlayers();
@@ -324,6 +334,7 @@ export default {
     //查询点位并渲染至地图上
     paint_layers(value) {
       for (let i of value) {
+        console.log(i)
         this.handle_layergroup.addLayer(layer_register(i, i.icon.url));
       }
       this.layer_eventbind();
@@ -337,6 +348,7 @@ export default {
         layer.on({
           popupopen: (layer) => {
             this.handle_layer = layer;
+
             this.popup_window_show = true;
           },
           dragstart: (layer) => {
@@ -353,9 +365,7 @@ export default {
     //解绑未选中点位的拖动
     unbinddrag(draglayer) {
       this.handle_layergroup.eachLayer((layer) => {
-        if (
-          layer.options.data.markerId != draglayer.target.options.data.markerId
-        ) {
+        if (layer.options.data.id != draglayer.target.options.data.id) {
           layer.dragging.disable();
         }
       });
@@ -371,7 +381,7 @@ export default {
       this.map.flyTo(location, zoom);
       let list = this.handle_layergroup.getLayers();
       for (let i of list) {
-        if (i.options.data.markerId == data.markerId) {
+        if (i.options.data.id == data.id) {
           if (i.isPopupOpen() != true) {
             i.openPopup();
           }
@@ -380,26 +390,30 @@ export default {
     },
     //刷新当前点位组
     refresh_layers() {
+      this.edit_data.position = "";
+      this.loading = false;
+      this.add_mode = false;
       this.clearlayers();
       this.paint_layers(this.handle_layer_list_data);
+      this.map.off("click");
     },
     add_mode_on() {
       this.add_mode = true;
       this.loading = true;
       this.map.on("click", (event) => {
-        let marker = L.marker([event.latlng.lat, event.latlng.lng], {
-          icon: create_icon_options("", "unsubmit"),
+        this.add_layer = L.marker([event.latlng.lat, event.latlng.lng], {
+          icon: L.icon(create_icon_options("", "unsubmit")),
         });
-        this.handle_layergroup.addLayer(marker);
+        this.edit_data.position = `${event.latlng.lat},${event.latlng.lng}`;
+        this.handle_layergroup.addLayer(this.add_layer);
+        this.add_mode = false;
+        this.edit_mode(1);
       });
-    },
-    add_mode_off() {
-      this.add_mode = false;
-      this.loading = false;
     },
     //编辑弹窗的模式函数
     edit_mode(type, data) {
       this.edit_data = {
+        ...this.edit_data,
         type: type,
         data: data,
         list: {
@@ -417,7 +431,8 @@ export default {
     table_callback(callback) {
       switch (callback.type) {
         case 1:
-          this.add_mode_switch(true);
+          this.add_mode = true;
+          this.add_mode_on();
           // this.edit_mode(1, callback.data);
           break;
         case 2:
@@ -493,7 +508,7 @@ export default {
           if (this.handle_layergroup.getLayers().length == 0) {
             alert("未选择物品，请先选择物品");
           } else if (this.add_mode == false) {
-            this.add_mode_switch(true);
+            this.add_mode_on();
           }
           break;
       }

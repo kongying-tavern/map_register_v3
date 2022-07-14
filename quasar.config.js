@@ -85,15 +85,10 @@ module.exports = configure(function (/* ctx */) {
       proxy: {
         // 将所有以/api开头的请求代理
         '/api': {
-          target: 'http://momincong.com:8101',
+          target: 'https://cloud.yuanshen.site',
           changeOrigin: true,
           rewrite: path => path.replace(/^\/api/, '')
         },
-        // '/HotUpdate': {
-        //   target: 'https://yuanshen.site',
-        //   changeOrigin: true,
-        //   secrue: false,
-        // }
       }
     },
 

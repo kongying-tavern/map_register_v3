@@ -1,7 +1,7 @@
 <template>
   <q-table
     title="点位表"
-    row-key="markerId"
+    row-key="id"
     :rows="formdata"
     :columns="layer_columns"
     selection="multiple"
@@ -109,10 +109,10 @@ export default {
       layer_data: [],
       layer_columns: [
         {
-          name: "markerId",
+          name: "id",
           align: "center",
           label: "点位id",
-          field: "markerId",
+          field: "id",
         },
         {
           name: "markerTitle",

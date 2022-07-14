@@ -1,7 +1,7 @@
 <template>
   <div id="opened_popup row">
     <div class="text">
-      <p>{{ layer_data.markerTitle }} id:{{ layer_data.markerId }}</p>
+      <p>{{ layer_data.markerTitle }} id:{{ layer_data.id }}</p>
       <q-img
         class="layer_img"
         :src="
@@ -57,6 +57,7 @@ export default {
   mounted() {},
   watch: {
     layer: function (val) {
+      console.log(val);
       this.layer_data = val.target.options.data;
     },
   },

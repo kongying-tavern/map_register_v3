@@ -74,6 +74,7 @@ export default {
           this.$q.cookies.set("_yuanshen_dadian_token", res.data.access_token, {
             expires: `${res.data.expires_in}s`,
           });
+          localStorage.setItem("_yuanshen_dadian_user", res.data.userId);
           this.$router.push("/");
         })
         .catch((err) => {
