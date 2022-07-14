@@ -18,7 +18,7 @@
         style="width: 100%; height: 100%"
       >
         <div class="full-width row">
-          <div class="col-12">
+          <div class="col-12" v-show="false">
             <q-tabs
               dense
               inline-label
@@ -34,7 +34,7 @@
               <q-tab name="编辑" icon="mdi-circle-edit-outline" label="编辑" />
             </q-tabs>
           </div>
-          <div class="col-12">
+          <div class="col-12" v-show="false">
             <q-separator />
           </div>
           <div class="col-12">

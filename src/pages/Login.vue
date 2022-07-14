@@ -54,6 +54,7 @@
 </template>
 
 <script>
+import { get_token } from "../service/user_log_request";
 import { create_notify } from "../api/common";
 export default {
   name: "logon",
@@ -67,8 +68,21 @@ export default {
   methods: {
     log() {
       this.loading = true;
+      get_token(this.username, this.password)
+        .then((res) => {
+          this.loading = false;
+          this.$q.cookies.set("_yuanshen_dadian_token", res.data.access_token, {
+            expires: `${res.data.expires_in}s`,
+          });
+          this.$router.push("/");
+        })
+        .catch((err) => {
+          this.loading = false;
+          create_notify(err.response.data.error, "negative");
+        });
     },
   },
+  mounted() {},
 };
 </script>
 

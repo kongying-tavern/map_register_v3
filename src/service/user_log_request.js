@@ -1,19 +1,23 @@
 import axios from 'axios'
-//授权码登录模式
-function gitee_login_typeauthcode(data) {
+import { create_notify } from "../api/common"
+// const baseurl = 'http://momincong.com:8101/api'
+const baseurl = 'http://localhost:9000/api'
+//登录获取token
+function get_token(username, password, grant_type = 'password') {
+    var data = new FormData();
+    data.append('grant_type', grant_type);
+    data.append('username', username);
+    data.append('password', password);
     return axios({
         method: 'post',
-        url: 'https://gitee.com/oauth/token',
-        params: {
-            grant_type: 'authorization_code',
-            code: data.code,
-            client_id: '277ea02bae5fce96d432b7609ba03266482c00ef2d99639c71f5d3389ff01228',
-            redirect_uri: 'http://localhost:8080/',
-            client_secret: 'bf49d65a1a9e66878a29ff71756d599243206959d24cc1dc623de3d8dfcfb049',
-        }
+        url: `${baseurl}/oauth/token`,
+        headers: {
+            'Content-Type': 'multipart/form-data',
+            'Authorization': 'Basic Y2xpZW50OnNlY3JldA=='
+        },
+        data: data
     })
 }
-//
 export {
-    gitee_login_typeauthcode
+    get_token
 }

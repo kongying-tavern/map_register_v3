@@ -85,7 +85,7 @@ module.exports = configure(function (/* ctx */) {
       proxy: {
         // 将所有以/api开头的请求代理
         '/api': {
-          target: 'http://momincong.com:8982',
+          target: 'http://momincong.com:8101',
           changeOrigin: true,
           rewrite: path => path.replace(/^\/api/, '')
         },

@@ -80,7 +80,9 @@ export default {
       this.map.addLayer(this.handle_group);
     },
   },
-  mounted() {},
+  mounted() {
+    this.return_islandtype();
+  },
 };
 </script>
 

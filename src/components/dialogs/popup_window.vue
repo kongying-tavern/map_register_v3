@@ -5,7 +5,7 @@
       <q-img
         class="layer_img"
         :src="
-          layer_data.picture == null
+          layer_data.picture == ''
             ? 'https://assets.yuanshen.site/images/noImage.png'
             : layer_data.picture
         "

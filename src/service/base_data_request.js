@@ -1,20 +1,30 @@
 import axios from 'axios'
+import { Cookies } from 'quasar'
 import { create_notify } from "../api/common"
-// const baseurl = 'http://momincong.com:8982/api'
-const baseurl = 'http://localhost:9000/api'
+// const baseurl = 'http://momincong.com:8101/api'
+const baseurl = 'http://localhost:9000/api/api'
 async function default_request(method, url, data = undefined) {
     try {
         return await axios({
             method: method,
             url: url,
             data: JSON.stringify(data),
+            transformRequest: (data) => {
+                if (Cookies.get('_yuanshen_dadian_token') == null) {
+                    alert('登录认证已失效，请重新登录！')
+                    window.location.reload();
+                }
+                return data
+            },
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${Cookies.get('_yuanshen_dadian_token')}`
             }
         })
     } catch (error) {
         if (error.response) {
-            create_notify(error.response.data.msg, 'negative')
+            create_notify(`${error.response.status} ${error.response.statusText}`, 'negative')
+
         } else if (error.request) {
             create_notify('链接失败，请稍后重试', 'negative')
         } else {
@@ -86,11 +96,31 @@ function query_itemlayer_infolist(data) {
 function query_itemlayer_icon(data) {
     return default_request('post', `${baseurl}/tag/get/list`, data)
 }
+/**
+ * 上传图片
+ * @param {Array} file_data 图片的base64
+ * @param {Array} file_name 图片名字
+ * @returns 物品点位id信息
+ */
+function upload_img(file_name, file_data) {
+    let data = new FormData();
+    data.append('file_name', file_name);
+    data.append('file_data', file_data)
+    return axios({
+        method: 'post',
+        data: data,
+        url: 'https://dadian.yuanshen.site/upload.php',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        }
+    })
+}
 export {
     query_area,
     query_itemtype,
     query_itemlist,
     // query_itemlayer_idlist,
     query_itemlayer_infolist,
-    query_itemlayer_icon
+    query_itemlayer_icon,
+    upload_img
 }
