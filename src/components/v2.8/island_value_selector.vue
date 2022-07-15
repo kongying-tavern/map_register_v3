@@ -73,6 +73,7 @@ export default {
       },
     };
   },
+  props: ["propdata"],
   methods: {
     extra_select_check(value) {
       this.callback_data.island_type = [];
@@ -98,6 +99,27 @@ export default {
 
       deep: true,
     },
+  },
+  mounted() {
+    if (this.propdata != undefined) {
+      if (this.propdata.markerExtraContent != null) {
+        let data = JSON.parse(this.propdata.markerExtraContent);
+        this.callback_data.island_name = this.island_name_list.find(
+          (item) => item.value == data["2_8_island"].island_name
+        );
+        let index = this.island_name_list.findIndex(
+          (item) => item.value == data["2_8_island"].island_name
+        );
+        let arr = [];
+        for (let i of data["2_8_island"].island_state) {
+          let item = this.island_type_list[index].find(
+            (item) => item.value == i
+          );
+          arr.push(item);
+        }
+        this.callback_data.island_type = arr;
+      }
+    }
   },
 };
 </script>

@@ -70,6 +70,7 @@ export default {
       this.loading = true;
       get_token(this.username, this.password)
         .then((res) => {
+          create_notify("登录成功！");
           this.loading = false;
           this.$q.cookies.set("_yuanshen_dadian_token", res.data.access_token, {
             expires: `${res.data.expires_in}s`,

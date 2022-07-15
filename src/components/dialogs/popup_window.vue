@@ -57,7 +57,6 @@ export default {
   mounted() {},
   watch: {
     layer: function (val) {
-      console.log(val);
       this.layer_data = val.target.options.data;
     },
   },

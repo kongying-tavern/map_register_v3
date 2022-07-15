@@ -72,6 +72,7 @@
             </q-btn>
           </q-item-section>
         </q-item>
+        <!-- 如果是宝箱的话，提供品质和方式选择 -->
         <q-item
           v-if="propdata.list.item_child.length != 0"
           v-for="(i, index) in propdata.list.item_child"
@@ -103,12 +104,14 @@
             />
           </q-item-section>
         </q-item> -->
-        <q-item
-          v-if="propdata.type == 1 && propdata.list.area.name == '梦想群岛'"
-        >
+        <!-- 如果是海岛的点位的话，提供岛屿形态的选择 -->
+        <q-item v-if="propdata.list.area.name == '金苹果群岛'">
           <q-item-section> 所属岛屿 </q-item-section>
           <q-item-section>
-            <island-selector @callback="island_callback"></island-selector>
+            <island-selector
+              :propdata="propdata.data"
+              @callback="island_callback"
+            ></island-selector>
           </q-item-section>
         </q-item>
       </q-list>
@@ -123,7 +126,7 @@
         style="margin-left: 20px"
         v-close-popup
         label="取消"
-        @click="add_cancel"
+        @click="cancel"
       />
     </div>
     <!-- 裁剪弹窗 -->
@@ -147,7 +150,7 @@
         </q-img>
       </q-card>
     </q-dialog>
-    <q-inner-loading :showing="page_loading">
+    <q-inner-loading :showing="loading">
       <q-spinner-gears size="50px" color="primary" />
     </q-inner-loading>
   </q-card>
@@ -188,7 +191,8 @@ export default {
       item_child_options_list: [],
       item_count: 1,
       item_child_count: [],
-      page_loading: true,
+      loading: false,
+      island_propdata: null,
       island_callback_data: null,
     };
   },
@@ -264,15 +268,16 @@ export default {
       switch (this.propdata.type) {
         case 1:
           //如果有海岛的数据，则验证一下
-          if (this.propdata.list.area.name == "梦想群岛") {
+          if (this.propdata.list.area.name == "金苹果群岛") {
             if (this.island_callback_data == null) {
               alert("请正确选择岛屿及其形态");
               return;
             }
           }
           upload_layer(upload_data).then((res) => {
+            create_notify(res.data.message);
             if (res.data.code == 200) {
-              if (this.propdata.list.area.name == "梦想群岛") {
+              if (this.propdata.list.area.name == "金苹果群岛") {
                 upload_layer_extralabel({
                   markerId: res.data.data,
                   markerExtraContent: this.island_callback_data,
@@ -280,9 +285,11 @@ export default {
                 }).then((res) => {
                   create_notify(res.data.message);
                   this.loading = false;
+                  this.$emit("refresh");
                 });
+              } else {
+                this.$emit("refresh");
               }
-              create_notify(res.data.message);
             }
           });
           break;
@@ -295,23 +302,21 @@ export default {
           edit_layer(upload_data).then((res) => {
             create_notify(res.data.message);
             this.loading = false;
+            this.$emit("refresh");
           });
           break;
-      }
-    },
-    //取消新增
-    add_cancel() {
-      if (this.propdata.type == 1) {
-        this.$emit("add_cancel");
       }
     },
     //海岛回调
     island_callback(val) {
       this.island_callback_data = val;
     },
+    //取消
+    cancel() {
+      this.$emit("cancel");
+    },
   },
   mounted() {
-    console.log(this.propdata);
     this.layer_info = { ...this.layer_info, ...this.propdata.data };
     //如果有子分类的话，查询子分类的各项选项
     if (this.propdata.list.item_child.length != 0) {
@@ -357,7 +362,6 @@ export default {
                 }
               }
             }
-            break;
         }
         this.page_loading = false;
       });

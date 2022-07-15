@@ -69,9 +69,17 @@
         />
       </div>
     </q-card>
+    <q-btn
+      dense
+      color="primary"
+      icon="mdi-menu"
+      class="absolute-top-left"
+      @click="selector_show = true"
+      style="z-index: 1500"
+    />
     <!-- 额外操作器 -->
     <q-card
-      v-if="area.name == '梦想群岛'"
+      v-if="area.name == '金苹果群岛'"
       class="absolute-top-right q-pa-md"
       style="z-index: 9000"
     >
@@ -128,7 +136,7 @@ export default {
     map_switch(area) {
       this.area = area;
       switch (area.name) {
-        case "梦想群岛":
+        case "金苹果群岛":
           this.extra_show = true;
           this.map.remove();
           this.map = create_map(

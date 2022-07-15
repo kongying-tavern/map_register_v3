@@ -82,14 +82,14 @@ module.exports = configure(function (/* ctx */) {
     devServer: {
       // https: true
       open: true, // opens browser window automatically
-      proxy: {
-        // 将所有以/api开头的请求代理
-        '/api': {
-          target: 'https://cloud.yuanshen.site',
-          changeOrigin: true,
-          rewrite: path => path.replace(/^\/api/, '')
-        },
-      }
+      // proxy: {
+      //   // 将所有以/api开头的请求代理
+      //   '/api': {
+      //     target: 'https://cloud.yuanshen.site',
+      //     changeOrigin: true,
+      //     rewrite: path => path.replace(/^\/api/, '')
+      //   },
+      // }
     },
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#framework

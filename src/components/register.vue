@@ -16,6 +16,7 @@
               <q-list style="min-width: 100px; max-height: 350px">
                 <q-item
                   v-for="i in area_list"
+                  v-show="i.name == '金苹果群岛'"
                   clickable
                   v-close-popup
                   @click="switch_area(i)"
@@ -130,22 +131,24 @@
       <q-card style="width: 350px">
         <q-card-section> 点击地图新增点位 </q-card-section>
         <q-card-section class="row">
-          <q-btn flat color="primary" label="确定"></q-btn>
           <q-btn
             v-close-popup
             flat
             color="primary"
             label="取消"
-            @click="refresh_layers"
+            @click="add_mode_off"
           ></q-btn>
         </q-card-section>
       </q-card>
     </q-dialog>
     <!-- 点位新增/编辑弹窗 -->
-    <q-dialog v-model="layer_edit_window" :persistent="true">
+    <q-dialog
+      v-model="layer_edit_window"
+      :persistent="handle_type == 1 ? true : false"
+    >
       <layer-edit
         :propdata="edit_data"
-        @add_cancel="refresh_layers"
+        @cancel="add_mode_off"
         @refresh="refresh"
       ></layer-edit>
     </q-dialog>
@@ -169,10 +172,11 @@ import {
   layer_mark,
   create_icon_options,
 } from "../api/layer";
+import { delete_layer } from "../service/edit_request";
 import LayerTable from "./register/layer_table.vue";
 import PopupWindow from "./dialogs/popup_window.vue";
 import LayerEdit from "./dialogs/layer_edit_window.vue";
-import { event } from "quasar";
+import { create_notify } from "../api/common";
 export default {
   name: "Selector",
   data() {
@@ -191,14 +195,14 @@ export default {
       type_child_list: [],
       selected_item: null,
       item_list: [],
-      handle_layergroup: {},
       handle_layer_list_data: [],
       handle_layer: null,
       popup_window_show: false,
       panel: true,
       edit_data: {},
       layer_edit_window: false,
-      add_layer: null,
+      new_layer_id: 0,
+      handle_type: 0,
     };
   },
   methods: {
@@ -272,11 +276,6 @@ export default {
       }
       this.select_item_layers(arr);
     },
-    //刷新回调
-    refresh() {
-      alert(1);
-      this.clearlayers();
-    },
     //查询点位信息
     select_item_layers(value) {
       this.clearlayers();
@@ -334,8 +333,9 @@ export default {
     //查询点位并渲染至地图上
     paint_layers(value) {
       for (let i of value) {
-        console.log(i)
-        this.handle_layergroup.addLayer(layer_register(i, i.icon.url));
+        this.handle_layergroup.addLayer(
+          layer_register(i, i.icon.url == undefined ? "" : i.icon.url)
+        );
       }
       this.layer_eventbind();
       this.map.addLayer(this.handle_layergroup);
@@ -348,7 +348,6 @@ export default {
         layer.on({
           popupopen: (layer) => {
             this.handle_layer = layer;
-
             this.popup_window_show = true;
           },
           dragstart: (layer) => {
@@ -390,30 +389,36 @@ export default {
     },
     //刷新当前点位组
     refresh_layers() {
-      this.edit_data.position = "";
-      this.loading = false;
-      this.add_mode = false;
       this.clearlayers();
       this.paint_layers(this.handle_layer_list_data);
-      this.map.off("click");
     },
+    //添加模式
     add_mode_on() {
       this.add_mode = true;
       this.loading = true;
       this.map.on("click", (event) => {
-        this.add_layer = L.marker([event.latlng.lat, event.latlng.lng], {
-          icon: L.icon(create_icon_options("", "unsubmit")),
+        let marker = L.marker([event.latlng.lat, event.latlng.lng], {
+          icon: L.icon(create_icon_options("")),
         });
-        this.edit_data.position = `${event.latlng.lat},${event.latlng.lng}`;
-        this.handle_layergroup.addLayer(this.add_layer);
-        this.add_mode = false;
-        this.edit_mode(1);
+        this.handle_layergroup.addLayer(marker);
+        this.new_layer_id = marker._leaflet_id;
+        this.edit_mode(1, undefined, `${event.latlng.lat},${event.latlng.lng}`);
       });
     },
+    //添加模式
+    add_mode_off() {
+      this.add_mode = false;
+      this.loading = false;
+      this.map.off("click");
+      if (this.new_layer_id != 0) {
+        this.handle_layergroup.removeLayer(this.new_layer_id);
+        this.new_layer_id = 0;
+      }
+    },
     //编辑弹窗的模式函数
-    edit_mode(type, data) {
+    edit_mode(type, data, position) {
+      this.handle_type = type;
       this.edit_data = {
-        ...this.edit_data,
         type: type,
         data: data,
         list: {
@@ -424,6 +429,7 @@ export default {
           ),
           item_child: this.type_child_list,
         },
+        position: position,
       };
       this.layer_edit_window = true;
     },
@@ -431,8 +437,7 @@ export default {
     table_callback(callback) {
       switch (callback.type) {
         case 1:
-          this.add_mode = true;
-          this.add_mode_on();
+          this.add_mode_on(true);
           // this.edit_mode(1, callback.data);
           break;
         case 2:
@@ -440,6 +445,9 @@ export default {
           break;
         case 3:
           this.edit_mode(2, callback.data);
+          break;
+        case 4:
+          this.delete_layer(callback.data);
           break;
         case 5:
           this.panel = !this.panel;
@@ -455,6 +463,28 @@ export default {
         case 1:
           this.mark_layer(data.layer);
           break;
+        case 3:
+          this.delete_layer(data.data);
+          break;
+      }
+    },
+    //完成后，刷新当前点位
+    refresh() {
+      this.add_mode_off();
+      this.layer_edit_window = false;
+      if (this.batch_mode == true) {
+        this.record_chest_list(true);
+      } else {
+        this.select_item_layers(this.selected_item);
+      }
+    },
+    //删除点位
+    delete_layer(data) {
+      if (confirm("你确定要删除这个点位么，该操作不可撤销") == true) {
+        delete_layer(data.id).then((res) => {
+          create_notify(res.data.message);
+          this.refresh();
+        });
       }
     },
   },
