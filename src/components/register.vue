@@ -190,7 +190,7 @@ export default {
     return {
       add_mode: false,
       loading: true,
-      batch_mode: true,
+      batch_mode: false,
       dragmode: false,
       drag_window: false,
       selected_area: null,
@@ -241,7 +241,7 @@ export default {
       this.loading = true;
       this.clearlayers();
       this.clearlist();
-
+      this.batch_mode = false;
       this.selected_type = this.type_list.find((item) => item.typeId == value);
       if (!this.selected_type.isFinal) {
         query_itemtype(1, {
@@ -277,6 +277,7 @@ export default {
       this.selected_item = null;
       let arr = [];
       if (value) {
+        this.batch_mode = true;
         for (let i of this.item_list) {
           arr.push(i.itemId);
         }
