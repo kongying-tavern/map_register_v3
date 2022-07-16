@@ -12,7 +12,7 @@
       multiple
       use-chips
       stack-label
-      v-show="callback_data.island_name != null"
+      v-show="callback_data.island_name != null && island_isempty == false"
       v-model="callback_data.island_type"
       :options="island_type_options"
       label="岛屿形态"
@@ -28,6 +28,7 @@ export default {
     return {
       island_name: null,
       island_name_list: [
+        { label: "无", value: "0" },
         { label: "危危岛", value: "ww" },
         { label: "破破岛", value: "pp" },
         { label: "双双岛", value: "ss" },
@@ -38,6 +39,7 @@ export default {
       bd_left: null,
       bd_right: null,
       island_type_list: [
+        { label: "无", value: "0" },
         [
           { label: "初始", value: "0" },
           { label: "沉入水下", value: "1" },
@@ -71,6 +73,7 @@ export default {
         island_name: null,
         island_type: [],
       },
+      island_isempty: false,
     };
   },
   props: ["propdata"],
@@ -79,22 +82,31 @@ export default {
       this.callback_data.island_type = [];
       let index = this.island_name_list.findIndex((item) => item == value);
       this.island_type_options = this.island_type_list[index];
+      if (value.value == "0") {
+        this.island_isempty = true;
+      } else {
+        this.island_isempty = false;
+      }
     },
   },
   watch: {
     callback_data: {
       handler(val) {
-        let arr = [];
-        for (let i of val.island_type) {
-          arr.push(i.value);
+        if (val.island_name.value != "0") {
+          let arr = [];
+          for (let i of val.island_type) {
+            arr.push(i.value);
+          }
+          let data = JSON.stringify({
+            "2_8_island": {
+              island_name: val.island_name.value,
+              island_state: arr,
+            },
+          });
+          this.$emit("callback", data);
+        } else {
+          this.$emit("callback", 0);
         }
-        let data = JSON.stringify({
-          "2_8_island": {
-            island_name: val.island_name.value,
-            island_state: arr,
-          },
-        });
-        this.$emit("callback", data);
       },
 
       deep: true,
@@ -102,7 +114,10 @@ export default {
   },
   mounted() {
     if (this.propdata != undefined) {
-      if (this.propdata.markerExtraContent != null) {
+      if (
+        this.propdata.markerExtraContent != null &&
+        this.propdata.markerExtraContent != "{}"
+      ) {
         let data = JSON.parse(this.propdata.markerExtraContent);
         this.callback_data.island_name = this.island_name_list.find(
           (item) => item.value == data["2_8_island"].island_name
@@ -117,8 +132,16 @@ export default {
           );
           arr.push(item);
         }
+        this.extra_select_check(this.callback_data.island_name);
         this.callback_data.island_type = arr;
+      } else {
+        this.callback_data.island_name = this.island_name_list[0];
+        this.island_isempty = true;
       }
+    } else {
+      this.callback_data.island_name = this.island_name_list[0];
+      this.island_isempty = true;
+      this.$emit("callback", 0);
     }
   },
 };

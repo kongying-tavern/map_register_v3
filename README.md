@@ -2,23 +2,20 @@
 
 A Quasar Project
 
-## Install the dependencies
+## 安装依赖
 ```bash
 yarn
 # or
 npm install
 ```
 
-### Start the app in development mode (hot-code reloading, error reporting, etc.)
+### 进入开发模式
 ```bash
 quasar dev
 ```
 
 
-### Build the app for production
+### 打包
 ```bash
 quasar build
 ```
-
-### Customize the configuration
-See [Configuring quasar.config.js](https://v2.quasar.dev/quasar-cli-vite/quasar-config-js).

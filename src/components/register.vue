@@ -114,7 +114,12 @@
       <q-card style="width: 350px">
         <q-card-section> 确认将点位移动至这个位置吗？ </q-card-section>
         <q-card-section class="row">
-          <q-btn flat color="primary" label="确定"></q-btn>
+          <q-btn
+            flat
+            color="primary"
+            label="确定"
+            @click="upload_position"
+          ></q-btn>
           <q-btn v-close-popup flat color="primary" label="继续拖动"></q-btn>
           <q-btn
             flat
@@ -165,6 +170,7 @@ import {
   query_itemlist,
   query_itemlayer_icon,
   query_itemlayer_infolist,
+  check_img,
 } from "../service/base_data_request";
 import {
   layer_register,
@@ -172,6 +178,7 @@ import {
   layer_mark,
   create_icon_options,
 } from "../api/layer";
+import { edit_layer } from "../service/edit_request";
 import { delete_layer } from "../service/edit_request";
 import LayerTable from "./register/layer_table.vue";
 import PopupWindow from "./dialogs/popup_window.vue";
@@ -355,8 +362,9 @@ export default {
             this.handle_layer = layer;
             this.unbinddrag(layer);
           },
-          dragend: () => {
+          dragend: (layer) => {
             this.drag_window = true;
+            this.handle_layer = layer;
           },
         });
       });
@@ -452,6 +460,9 @@ export default {
         case 5:
           this.panel = !this.panel;
           break;
+        case 6:
+          this.refresh();
+          break;
       }
     },
     //点位弹窗回调
@@ -462,6 +473,11 @@ export default {
           break;
         case 1:
           this.mark_layer(data.layer);
+          break;
+        case 2:
+          this.handle_layergroup.eachLayer((layer) => {
+            layer.dragging.enable();
+          });
           break;
         case 3:
           this.delete_layer(data.data);
@@ -486,6 +502,22 @@ export default {
           this.refresh();
         });
       }
+    },
+    //提交点位位置改动
+    upload_position() {
+      console.log(this.handle_layer);
+      let position = this.handle_layer.target._latlng;
+      position = `${position.lat},${position.lng}`;
+      edit_layer({
+        position: position,
+        id: this.handle_layer.target.options.data.id,
+        markerCreatorId: Number(localStorage.getItem("_yuanshen_dadian_user")),
+      }).then((res) => {
+        this.dragmode = false;
+        this.drag_window = false;
+        this.refresh();
+        create_notify(res.data.message);
+      });
     },
   },
   mounted() {
@@ -556,5 +588,10 @@ export default {
 <style scoped>
 #popup_window {
   width: 300px;
+}
+</style>
+<style>
+.q-scrollarea__content {
+  width: 100%;
 }
 </style>

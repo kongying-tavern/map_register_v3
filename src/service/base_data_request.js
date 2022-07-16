@@ -115,6 +115,10 @@ function upload_img(file_name, file_data) {
         }
     })
 }
+//检验图片是否有效
+function check_img(url) {
+    return axios.get(url);
+}
 export {
     query_area,
     query_itemtype,
@@ -122,5 +126,6 @@ export {
     // query_itemlayer_idlist,
     query_itemlayer_infolist,
     query_itemlayer_icon,
-    upload_img
+    upload_img,
+    check_img
 }

@@ -48,10 +48,13 @@ function delete_layer(data) {
 function upload_layer_extralabel(data) {
     return default_request('put', `${baseurl}/marker/extra`, data)
 }
-
+function edit_layer_extralabel(data) {
+    return default_request('post', `${baseurl}/marker/extra`, data)
+}
 export {
     upload_layer,
     edit_layer,
     delete_layer,
-    upload_layer_extralabel
+    upload_layer_extralabel,
+    edit_layer_extralabel
 }

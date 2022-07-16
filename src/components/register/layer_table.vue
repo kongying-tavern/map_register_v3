@@ -4,9 +4,10 @@
     row-key="id"
     :rows="formdata"
     :columns="layer_columns"
+    :rows-per-page-options="[0, 10, 20, 50]"
     selection="multiple"
     v-model:selected="selected_layer_list"
-    style="width: 98%; margin: 1px auto; max-height: 90vh"
+    style="width: 99%; margin: 1px auto; max-height: 90vh"
   >
     <!-- 表格头插槽 -->
     <template v-slot:top-right>
@@ -63,8 +64,9 @@
         />
         <q-btn
           color="primary"
-          label="批量修改"
-          :disable="selected_layer_list.length == 0"
+          :disable="propitem == null"
+          label="刷新"
+          @click="callback(6)"
         />
       </div>
     </template>

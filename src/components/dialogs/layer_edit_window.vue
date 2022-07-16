@@ -20,6 +20,31 @@
             </q-input>
           </q-item-section>
         </q-item>
+        <!-- 如果是宝箱的话，提供品质和方式选择 -->
+        <q-item
+          v-if="propdata.list.item_child.length != 0"
+          v-for="(i, index) in propdata.list.item_child"
+        >
+          <q-item-section> {{ i.name }} </q-item-section>
+          <q-item-section>
+            <q-select
+              outlined
+              v-model="item_child_value_list[index]"
+              :options="item_child_options_list[index]"
+              :label="i.name"
+            />
+          </q-item-section>
+        </q-item>
+        <!-- 如果是海岛的点位的话，提供岛屿形态的选择 -->
+        <q-item v-if="propdata.list.area.name == '金苹果群岛'">
+          <q-item-section> 所属岛屿 </q-item-section>
+          <q-item-section>
+            <island-selector
+              :propdata="propdata.data"
+              @callback="island_callback"
+            ></island-selector>
+          </q-item-section>
+        </q-item>
         <q-item>
           <q-item-section> 点位说明 </q-item-section>
           <q-item-section>
@@ -72,25 +97,14 @@
             </q-btn>
           </q-item-section>
         </q-item>
-        <!-- 如果是宝箱的话，提供品质和方式选择 -->
-        <q-item
-          v-if="propdata.list.item_child.length != 0"
-          v-for="(i, index) in propdata.list.item_child"
-        >
-          <q-item-section> {{ i.name }} </q-item-section>
+        <q-item>
+          <q-item-section> 点位显示/隐藏 </q-item-section>
           <q-item-section>
-            <q-select
-              outlined
-              v-model="item_child_value_list[index]"
-              :options="item_child_options_list[index]"
-              :label="i.name"
+            <q-checkbox
+              v-model="layer_info.hiddenFlag"
+              :true-value="0"
+              :false-value="1"
             />
-            <!-- <q-checkbox
-              v-model="item_child_count[index]"
-              :true-value="1"
-              :false-value="0"
-              label="是否计数"
-            /> -->
           </q-item-section>
         </q-item>
         <!-- <q-item v-else>
@@ -104,19 +118,7 @@
             />
           </q-item-section>
         </q-item> -->
-        <!-- 如果是海岛的点位的话，提供岛屿形态的选择 -->
-        <q-item v-if="propdata.list.area.name == '金苹果群岛'">
-          <q-item-section> 所属岛屿 </q-item-section>
-          <q-item-section>
-            <island-selector
-              :propdata="propdata.data"
-              @callback="island_callback"
-            ></island-selector>
-          </q-item-section>
-        </q-item>
       </q-list>
-      <!-- <q-list v-show="extra_mode" bordered separator style="margin-left: 10px">
-      </q-list> -->
     </div>
     <div style="margin-top: 10px">
       <q-btn color="primary" label="保存" @click="upload_layerdata" />
@@ -165,6 +167,7 @@ import {
 import {
   upload_layer,
   upload_layer_extralabel,
+  edit_layer_extralabel,
   edit_layer,
 } from "../../service/edit_request";
 import ImgCut from "./vue-cropper.vue";
@@ -181,6 +184,7 @@ export default {
         markerTitle: "",
         content: "",
         picture: "",
+        hiddenFlag: 0,
       },
       cropper_window: false,
       fullimg_window: false,
@@ -234,16 +238,24 @@ export default {
     async upload_layerdata() {
       this.loading = true;
       let upload_data = {
+        id: undefined,
         itemList: [],
         markerTitle: this.layer_info.markerTitle,
         position: this.propdata.position,
         picture: this.layer_info.picture,
-        hiddenFlag: this.propdata.list.item.hiddenFlag,
+        hiddenFlag:
+          this.propdata.list.item == undefined
+            ? 0
+            : this.propdata.list.item.hiddenFlag,
         markerCreatorId: Number(localStorage.getItem("_yuanshen_dadian_user")),
         videoPath: "",
         pictureCreatorId: Number(localStorage.getItem("_yuanshen_dadian_user")),
-        refreshTime: this.propdata.list.item.defaultRefreshTime,
+        refreshTime:
+          this.propdata.list.item.defaultRefreshTime == undefined
+            ? 0
+            : this.propdata.list.item.hiddenFlag,
         content: this.layer_info.content,
+        markerExtraContent: undefined,
       };
       //如果是多item，则逐个插入，否则单独插入
       if (this.item_child_count.length != 0) {
@@ -264,20 +276,21 @@ export default {
         let res = await upload_img(date, upload_data.picture);
         upload_data.picture = `https://yuanshen.site${res.data.path}`;
       }
+      //如果有海岛的数据，则验证一下
+      if (this.propdata.list.area.name == "金苹果群岛") {
+        if (this.island_callback_data == null) {
+          alert("请正确选择岛屿及其形态");
+          this.loading = false;
+          return;
+        }
+      }
       //根据类型不同走不同的接口
       switch (this.propdata.type) {
         case 1:
-          //如果有海岛的数据，则验证一下
-          if (this.propdata.list.area.name == "金苹果群岛") {
-            if (this.island_callback_data == null) {
-              alert("请正确选择岛屿及其形态");
-              return;
-            }
-          }
           upload_layer(upload_data).then((res) => {
             create_notify(res.data.message);
-            if (res.data.code == 200) {
-              if (this.propdata.list.area.name == "金苹果群岛") {
+            if (this.propdata.list.area.name == "金苹果群岛") {
+              if (this.island_callback_data != 0) {
                 upload_layer_extralabel({
                   markerId: res.data.data,
                   markerExtraContent: this.island_callback_data,
@@ -288,6 +301,7 @@ export default {
                   this.$emit("refresh");
                 });
               } else {
+                this.loading = false;
                 this.$emit("refresh");
               }
             }
@@ -298,11 +312,30 @@ export default {
             ...upload_data,
             id: this.propdata.data.id,
             position: this.propdata.data.position,
+            hiddenFlag: this.layer_info.hiddenFlag,
+            markerExtraContent: this.propdata.data.markerExtraContent,
           };
           edit_layer(upload_data).then((res) => {
             create_notify(res.data.message);
-            this.loading = false;
-            this.$emit("refresh");
+            if (
+              JSON.stringify(JSON.parse(this.island_callback_data)) !=
+              JSON.stringify(JSON.parse(upload_data.markerExtraContent))
+            ) {
+              edit_layer_extralabel({
+                isRelated: upload_data.itemList.length > 1 ? 1 : 0,
+                markerId: upload_data.id,
+                markerExtraContent:
+                  this.island_callback_data == 0
+                    ? null
+                    : this.island_callback_data,
+              }).then((res) => {
+                this.loading = false;
+                this.$emit("refresh");
+              });
+            } else {
+              this.loading = false;
+              this.$emit("refresh");
+            }
           });
           break;
       }
