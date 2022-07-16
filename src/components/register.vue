@@ -79,7 +79,7 @@
           <div class="col-12 row content-start">
             <div v-for="i in item_list" style="width: 33%">
               <q-radio
-                :disable="batch_mode"
+                :disable="batch_mode && type_child_list.length != 0"
                 v-model="selected_item"
                 :val="i.itemId"
                 :label="i.name"
