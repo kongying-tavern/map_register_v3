@@ -251,7 +251,7 @@ export default {
         videoPath: "",
         pictureCreatorId: Number(localStorage.getItem("_yuanshen_dadian_user")),
         refreshTime:
-          this.propdata.list.item.defaultRefreshTime == undefined
+          this.propdata.list.item == undefined
             ? 0
             : this.propdata.list.item.hiddenFlag,
         content: this.layer_info.content,
