@@ -14,7 +14,8 @@
       style="width: 600px; z-index: 2000"
     >
       <q-scroll-area
-        :thumb-style="{ background: 'none' }"
+        :bar-style="{ width: '1px' }"
+        :thumb-style="{ background: 'none', width: '1px' }"
         style="width: 100%; height: 100%"
       >
         <div class="full-width row">
@@ -162,6 +163,9 @@ export default {
   },
   mounted() {
     this.init_map();
+    if (localStorage.getItem("marked_layers") == null) {
+      localStorage.setItem("marked_layers", JSON.stringify([]));
+    }
   },
   watch: {
     handle_type: function (val) {

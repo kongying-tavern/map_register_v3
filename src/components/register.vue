@@ -210,6 +210,7 @@ export default {
       layer_edit_window: false,
       new_layer_id: 0,
       handle_type: 0,
+      mark_layer_set: [],
     };
   },
   methods: {
@@ -354,6 +355,11 @@ export default {
     layer_eventbind() {
       //为点位绑定弹窗事件和拖动事件
       this.handle_layergroup.eachLayer((layer) => {
+        let layerid = layer.options.data.id;
+        let marklist = JSON.parse(localStorage.getItem("marked_layers"));
+        if (marklist.findIndex((item) => item == layerid) != -1) {
+          layer_mark(layer);
+        }
         layer.bindPopup(this.$refs.window);
         layer.on({
           popupopen: (layer) => {
@@ -384,6 +390,16 @@ export default {
     mark_layer(layer) {
       let marklayer = this.handle_layergroup.getLayer(layer.target._leaflet_id);
       layer_mark(marklayer);
+      let layerid = layer.target.options.data.id;
+      let arr = JSON.parse(localStorage.getItem("marked_layers"));
+      let index = arr.findIndex((item) => item == layerid);
+      if (index == -1) {
+        arr.push(layerid);
+        localStorage.setItem("marked_layers", JSON.stringify(arr));
+      } else {
+        arr.splice(index, 1);
+        localStorage.setItem("marked_layers", JSON.stringify(arr));
+      }
     },
     //聚焦点位
     focus_layer(data, zoom = 1) {
