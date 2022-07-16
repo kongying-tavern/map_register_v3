@@ -194,7 +194,6 @@ export default {
       item_child_value_list: [],
       item_child_options_list: [],
       item_count: 1,
-      item_child_count: [],
       loading: false,
       island_propdata: null,
       island_callback_data: null,
@@ -251,32 +250,31 @@ export default {
         content: this.layer_info.content,
         markerExtraContent: undefined,
       };
-      //如果是多item，则逐个插入，否则单独插入
-      if (this.item_child_count.length != 0) {
-        for (let i of this.item_child_value_list)
-          upload_data.itemList.push({
-            itemId: i.value,
-            count: 1,
-          });
-      } else {
-        upload_data.itemList.push({
-          itemId: this.propdata.list.item.itemId,
-          count: this.propdata.list.item.defaultCount,
-        });
-      }
       //如果上传了图片，将其上传至图床
       if (upload_data.picture.indexOf("base64") != -1) {
         let date = Date.now();
         let res = await upload_img(date, upload_data.picture);
         upload_data.picture = `https://yuanshen.site${res.data.path}`;
       }
-      //如果有海岛的数据，则验证一下
-      if (this.propdata.list.area.name == "金苹果群岛") {
-        if (this.island_callback_data == null) {
-          alert("请正确选择岛屿及其形态");
+      //宝箱品质和方式至少选择一个
+      if (this.propdata.list.item_child.length != 0) {
+        if (this.item_child_value_list.length == 0) {
+          alert("请选择宝箱品质或打开方式");
           this.loading = false;
           return;
+        } else {
+          for (let i of this.item_child_value_list) {
+            upload_data.itemList.push({
+              count: 1,
+              itemId: i.value,
+            });
+          }
         }
+      } else {
+        upload_data.itemList.push({
+          count: this.propdata.list.item.defaultCount,
+          itemId: this.propdata.list.item.itemId,
+        });
       }
       //根据类型不同走不同的接口
       switch (this.propdata.type) {
@@ -381,15 +379,16 @@ export default {
           //如果是编辑的话，匹配下拉列表的选项
           case 2:
             this.item_child_value_list = [];
-            for (let i of this.propdata.data.itemList) {
-              this.item_child_count.push(i.count);
-              for (let j of this.item_child_options_list) {
-                let item = j.find((item) => item.value == i.itemId);
-                if (item != undefined) {
-                  this.item_child_value_list.push(item);
+            for(let i of this.item_child_options_list){
+              for(let j of this.propdata.data.itemList){
+                let item =i.find(item=>item.value==j.itemId)
+                if(item!=undefined){
+                  this.item_child_value_list.push(item)
                 }
               }
             }
+            console.log(this.item_child_value_list,this.item_child_options_list);
+            break;
         }
         this.page_loading = false;
       });
