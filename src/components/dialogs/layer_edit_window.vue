@@ -243,17 +243,11 @@ export default {
         markerTitle: this.layer_info.markerTitle,
         position: this.propdata.position,
         picture: this.layer_info.picture,
-        hiddenFlag:
-          this.propdata.list.item == undefined
-            ? 0
-            : this.propdata.list.item.hiddenFlag,
+        hiddenFlag: 0,
         markerCreatorId: Number(localStorage.getItem("_yuanshen_dadian_user")),
         videoPath: "",
         pictureCreatorId: Number(localStorage.getItem("_yuanshen_dadian_user")),
-        refreshTime:
-          this.propdata.list.item == undefined
-            ? 0
-            : this.propdata.list.item.refreshTime,
+        refreshTime: 0,
         content: this.layer_info.content,
         markerExtraContent: undefined,
       };
@@ -262,7 +256,7 @@ export default {
         for (let i of this.item_child_value_list)
           upload_data.itemList.push({
             itemId: i.value,
-            count: this.propdata.list.item.defaultCount,
+            count: 1,
           });
       } else {
         upload_data.itemList.push({
@@ -313,6 +307,7 @@ export default {
             id: this.propdata.data.id,
             position: this.propdata.data.position,
             hiddenFlag: this.layer_info.hiddenFlag,
+            refreshTime: this.layer_info.refreshTime,
             markerExtraContent: this.propdata.data.markerExtraContent,
           };
           edit_layer(upload_data).then((res) => {
