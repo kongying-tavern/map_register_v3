@@ -253,7 +253,7 @@ export default {
         refreshTime:
           this.propdata.list.item == undefined
             ? 0
-            : this.propdata.list.item.hiddenFlag,
+            : this.propdata.list.item.refreshTime,
         content: this.layer_info.content,
         markerExtraContent: undefined,
       };
