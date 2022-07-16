@@ -190,7 +190,7 @@ export default {
     return {
       add_mode: false,
       loading: true,
-      batch_mode: false,
+      batch_mode: true,
       dragmode: false,
       drag_window: false,
       selected_area: null,
@@ -216,7 +216,6 @@ export default {
     //清除子分类和物品选择
     clearlist() {
       this.callback_list = {};
-      this.batch_mode = false;
       this.layer_list = null;
       this.item_list = [];
       this.selected_type_child_index = null;
@@ -268,6 +267,7 @@ export default {
       }).then((res) => {
         this.loading = false;
         this.item_list = res.data.data.record;
+        this.record_chest_list(true);
       });
     },
     //记录宝箱全选时的itemid数组
