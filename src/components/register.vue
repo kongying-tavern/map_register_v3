@@ -267,7 +267,9 @@ export default {
       }).then((res) => {
         this.loading = false;
         this.item_list = res.data.data.record;
-        this.record_chest_list(true);
+        if (this.type_child_list.length != 0) {
+          this.record_chest_list(true);
+        }
       });
     },
     //记录宝箱全选时的itemid数组
