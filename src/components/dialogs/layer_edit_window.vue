@@ -264,10 +264,12 @@ export default {
           return;
         } else {
           for (let i of this.item_child_value_list) {
-            upload_data.itemList.push({
-              count: 1,
-              itemId: i.value,
-            });
+            if (i != undefined) {
+              upload_data.itemList.push({
+                count: 1,
+                itemId: i.value,
+              });
+            }
           }
         }
       } else {
@@ -379,15 +381,18 @@ export default {
           //如果是编辑的话，匹配下拉列表的选项
           case 2:
             this.item_child_value_list = [];
-            for(let i of this.item_child_options_list){
-              for(let j of this.propdata.data.itemList){
-                let item =i.find(item=>item.value==j.itemId)
-                if(item!=undefined){
-                  this.item_child_value_list.push(item)
+            for (let i of this.item_child_options_list) {
+              for (let j of this.propdata.data.itemList) {
+                let item = i.find((item) => item.value == j.itemId);
+                if (item != undefined) {
+                  this.item_child_value_list.push(item);
                 }
               }
             }
-            console.log(this.item_child_value_list,this.item_child_options_list);
+            console.log(
+              this.item_child_value_list,
+              this.item_child_options_list
+            );
             break;
         }
         this.page_loading = false;
