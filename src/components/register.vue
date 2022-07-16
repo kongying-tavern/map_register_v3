@@ -550,9 +550,6 @@ export default {
       );
     //快捷键
     document.onkeyup = (event) => {
-      if (this.$store.state.handle_type == "审核") {
-        return;
-      }
       switch (event.keyCode) {
         //D键，直接拖拽
         case 68:

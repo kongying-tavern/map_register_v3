@@ -38,10 +38,6 @@
                   <td class="text-center">新增点位</td>
                 </tr>
                 <tr>
-                  <td class="text-center">ESC</td>
-                  <td class="text-center">取消点位新增</td>
-                </tr>
-                <tr>
                   <td class="text-center">D</td>
                   <td class="text-center">拖拽点位</td>
                 </tr>
