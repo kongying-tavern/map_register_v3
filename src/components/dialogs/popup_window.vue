@@ -18,6 +18,7 @@
         </template>
       </q-img>
       <p>点位描述：{{ layer_data.content }}</p>
+      <p>点位显示状态：{{ layerhidden }}</p>
     </div>
     <div class="btns row justify-between">
       <q-btn
@@ -55,8 +56,16 @@ export default {
     mark_layer() {},
   },
   mounted() {},
+  computed: {
+    layerhidden() {
+      if (this.layer != null) {
+        return this.layer.target.options.data.hiddenFlag == 0 ? "显示" : "隐藏";
+      }
+    },
+  },
   watch: {
     layer: function (val) {
+      console.log(val);
       this.layer_data = val.target.options.data;
     },
   },
