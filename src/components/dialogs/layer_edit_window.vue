@@ -97,14 +97,30 @@
             </q-btn>
           </q-item-section>
         </q-item>
+          <q-item-section></q-item-section>
         <q-item>
-          <q-item-section> 点位显示/隐藏 </q-item-section>
+          <q-item-section></q-item-section>
           <q-item-section>
             <q-checkbox
+              v-if="!is_neigui"
               v-model="layer_info.hiddenFlag"
               :true-value="0"
               :false-value="1"
+              label="点位显示/隐藏"
             />
+            <q-toggle
+              v-else
+              v-model="layer_info.hiddenFlag"
+              toggle-indeterminate
+              :true-value="0"
+              :false-value="1"
+              :indeterminate-value="2"
+              :label="{
+                0: '显示点位',
+                1: '隐藏点位',
+                2: '内鬼点位',
+              }[layer_info.hiddenFlag] || '点位显示/隐藏'">
+            </q-toggle>
           </q-item-section>
         </q-item>
         <!-- <q-item v-else>
@@ -170,7 +186,7 @@ import {
   edit_layer_extralabel,
   edit_layer,
 } from "../../service/edit_request";
-import { get_user_id } from "../../service/user_info"
+import { get_user_id, has_user_role } from "../../service/user_info"
 import ImgCut from "./vue-cropper.vue";
 import IslandSelector from "../v2.8/island_value_selector.vue";
 import { create_notify } from "../../api/common";
@@ -199,6 +215,11 @@ export default {
       island_propdata: null,
       island_callback_data: null,
     };
+  },
+  computed: {
+    is_neigui() {
+      return has_user_role('MAP_NEIGUI');
+    }
   },
   components: {
     ImgCut,
