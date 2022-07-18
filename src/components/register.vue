@@ -172,6 +172,7 @@ import {
   query_itemlayer_infolist,
   check_img,
 } from "../service/base_data_request";
+import { get_user_id } from "../service/user_info";
 import {
   layer_register,
   layergroup_register,
@@ -530,7 +531,7 @@ export default {
       edit_layer({
         position: position,
         id: this.handle_layer.target.options.data.id,
-        markerCreatorId: Number(localStorage.getItem("_yuanshen_dadian_user")),
+        markerCreatorId: get_user_id(),
       }).then((res) => {
         this.dragmode = false;
         this.drag_window = false;

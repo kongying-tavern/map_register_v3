@@ -170,6 +170,7 @@ import {
   edit_layer_extralabel,
   edit_layer,
 } from "../../service/edit_request";
+import { get_user_id } from "../../service/user_info"
 import ImgCut from "./vue-cropper.vue";
 import IslandSelector from "../v2.8/island_value_selector.vue";
 import { create_notify } from "../../api/common";
@@ -243,9 +244,9 @@ export default {
         position: this.propdata.position,
         picture: this.layer_info.picture,
         hiddenFlag: 0,
-        markerCreatorId: Number(localStorage.getItem("_yuanshen_dadian_user")),
+        markerCreatorId: get_user_id(),
         videoPath: "",
-        pictureCreatorId: Number(localStorage.getItem("_yuanshen_dadian_user")),
+        pictureCreatorId: get_user_id(),
         refreshTime: 0,
         content: this.layer_info.content,
         markerExtraContent: undefined,

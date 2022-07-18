@@ -11,8 +11,7 @@
 
 const { configure } = require('quasar/wrappers');
 
-
-module.exports = configure(function (/* ctx */) {
+module.exports = configure(function (ctx) {
   return {
 
 
@@ -62,7 +61,9 @@ module.exports = configure(function (/* ctx */) {
 
       // publicPath: '/',
       // analyze: true,
-      // env: {},
+      env: {
+        API_BASE: ctx.dev ? 'http://localhost:8000' : 'https://cloud.yuanshen.site'
+      },
       // rawDefine: {}
       // ignorePublicFolder: true,
       // minify: false,

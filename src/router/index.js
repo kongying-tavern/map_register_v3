@@ -1,7 +1,7 @@
 import { route } from 'quasar/wrappers'
 import { createRouter, createMemoryHistory, createWebHistory, createWebHashHistory } from 'vue-router'
 import routes from './routes'
-import { Cookies } from 'quasar'
+import { get_user_token } from '../service/user_info'
 /*
  * If not building with SSR mode, you can
  * directly export the Router instantiation;
@@ -27,10 +27,10 @@ export default route(function (/* { store, ssrContext } */) {
   })
   Router.beforeEach((to, from, next) => {
     //鉴定token是否过期
-    if (Cookies.get('_yuanshen_dadian_token') == null && to.path != "/login") {
+    if (get_user_token() == null && to.path != "/login") {
       next({ path: '/login' })
     }
-    else if (Cookies.get('_yuanshen_dadian_token') != null && to.path == "/login") {
+    else if (get_user_token() != null && to.path == "/login") {
       next({ path: '/' })
     }
     else {

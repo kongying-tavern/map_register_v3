@@ -1,7 +1,7 @@
 import axios from 'axios'
-import { Cookies } from 'quasar'
+import { get_user_token } from './user_info'
 import { create_notify } from "../api/common"
-const baseurl = 'https://cloud.yuanshen.site/api'
+const baseurl = `${process.env.API_BASE}/api`
 // const baseurl = 'http://localhost:9000/api/api'
 async function default_request(method, url, data = undefined) {
     try {
@@ -10,7 +10,7 @@ async function default_request(method, url, data = undefined) {
             url: url,
             data: JSON.stringify(data),
             transformRequest: (data) => {
-                if (Cookies.get('_yuanshen_dadian_token') == null) {
+                if (get_user_token() == null) {
                     alert('登录认证已失效，请重新登录！')
                     window.location.reload();
                 }
@@ -18,7 +18,7 @@ async function default_request(method, url, data = undefined) {
             },
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${Cookies.get('_yuanshen_dadian_token')}`
+                'Authorization': `Bearer ${get_user_token()}`
             }
         })
     } catch (error) {

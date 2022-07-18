@@ -7,7 +7,7 @@ function get_token(username, password, grant_type = 'password') {
     data.append('password', password);
     return axios({
         method: 'post',
-        url: `https://cloud.yuanshen.site/oauth/token`,
+        url: `${process.env.API_BASE}/oauth/token`,
         headers: {
             'Content-Type': 'multipart/form-data',
             'Authorization': 'Basic Y2xpZW50OnNlY3JldA=='
