@@ -7,19 +7,24 @@ import "leaflet/dist/leaflet.css";
  * @param {string} area_idx 地图别名 twt25：大世界 qd28：梦想群岛 yxg2：渊下宫/三界路飨祭 qd:群岛1 qd2:群岛2 
  * @param {Array} mapCenter 地图中心坐标
  * @param {Array} mapSize 地图尺寸
+ * @param {Array} mapTilesOffset 地图瓦片的偏移
  * @returns 地图瓦片对象
  */
-function create_map_layer(area_idx, mapCenter, mapSize) {
+function create_map_layer(area_idx, mapCenter, mapSize, mapTilesOffset = [0, 0]) {
     let imgform = 'png'
     if (area_idx == 'qd' || area_idx == 'qd1') {
         imgform = 'jpg'
+    }
+    let tiles_preUrl = 'https://assets.yuanshen.site/tiles_'
+    if (area_idx == 'twt29'){
+        tiles_preUrl = 'https://tiles.yuanshen.site/d/tiles/tiles_'
     }
     L.TileLayer.T = L.TileLayer.extend({
         getTileUrl: function (coords) {
             var x = coords.x,
                 y = coords.y,
                 z = coords.z + 13
-            return `https://assets.yuanshen.site/tiles_${area_idx}/${z}/${x}_${y}.${imgform}`
+            return `${tiles_preUrl}${area_idx}/${z}/${x}_${y}.${imgform}`
         },
         //如果此项为true，在平移后不可见的切片被放入一个队列中，在新的切片开始可见时他们会被取回（而不是动态地创建一个新的）。这理论上可以降低内存使用率并可以去除在需要新的切片时预留内存。
         reuseTiles: true,
@@ -30,8 +35,8 @@ function create_map_layer(area_idx, mapCenter, mapSize) {
         maxNativeZoom: 0,
         minNativeZoom: -3,
         bounds: L.latLngBounds(
-            L.latLng(-mapCenter[0], -mapCenter[1]),
-            L.latLng(mapSize[0] - mapCenter[0], mapSize[1] - mapCenter[1])
+            L.latLng(-mapCenter[0] + mapTilesOffset[0], -mapCenter[1] + mapTilesOffset[1]),
+            L.latLng(mapSize[0] - mapCenter[0] + mapTilesOffset[0], mapSize[1] - mapCenter[1] + mapTilesOffset[1])
         ),
     });
     return tiles
@@ -44,7 +49,7 @@ function create_map_layer(area_idx, mapCenter, mapSize) {
  * @param {Array} mapSize 地图尺寸
  * @returns 地图对象
  */
-function create_map(area_idx, settings, mapCenter = [3568, 6286], mapSize = [12288, 15360]) {
+function create_map(area_idx, settings, mapCenter = [3568, 6286], mapSize = [12288, 15360], mapTilesOffset = [0, 0]) {
     //设置地图要使用的坐标参考系（CRS），本地图使用simple类型CRS，将经度和纬度直接映射到x和y。
     let mapCRS = L.Util.extend({}, L.CRS.Simple, {
         //用给定的系数表示变换对象。
@@ -72,15 +77,15 @@ function create_map(area_idx, settings, mapCenter = [3568, 6286], mapSize = [122
         zoom: -4,
         tap: false,
         maxBounds: L.latLngBounds(
-            L.latLng(-mapCenter[0] - 10000, -mapCenter[1] - 10000),
-            L.latLng(mapSize[0] - mapCenter[0] + 10000, mapSize[1] - mapCenter[1] + 10000)
+            L.latLng(-mapCenter[0] + mapTilesOffset[0] - 10000, -mapCenter[1] + mapTilesOffset[1] - 10000),
+            L.latLng(mapSize[0] - mapCenter[0] + mapTilesOffset[0] + 10000, mapSize[1] - mapCenter[1] + mapTilesOffset[1] + 10000)
         ),
         attributionControl: false,
         zoomControl: false,
         ...settings
     }
 
-    let tiles = create_map_layer(area_idx, mapCenter, mapSize)
+    let tiles = create_map_layer(area_idx, mapCenter, mapSize, mapTilesOffset)
     let map = L.map('map', map_setting).addLayer(tiles);
     return map
 }

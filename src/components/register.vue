@@ -23,6 +23,15 @@
                 >
                   <q-item-section>{{ i.name }}</q-item-section>
                 </q-item>
+                <q-item
+                  v-for="i in area_list"
+                  v-show="i.name == '须弥'"
+                  clickable
+                  v-close-popup
+                  @click="switch_area(i)"
+                >
+                  <q-item-section>{{ i.name }}</q-item-section>
+                </q-item>
               </q-list>
             </q-menu>
           </q-btn>

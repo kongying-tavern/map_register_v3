@@ -150,6 +150,20 @@ export default {
             [8192, 8192]
           );
           break;
+        case "须弥":
+          this.extra_show = false;
+          this.map.remove();
+          this.map = create_map(
+            "twt29",
+            {
+              center: [2576, 1742],
+              zoom: -2,
+            },
+            [3568, 6286],
+            [14080, 15360],
+            [-1792, 0]
+          );
+          break;
         default:
           this.map.remove();
           this.map = create_map("twt25");
