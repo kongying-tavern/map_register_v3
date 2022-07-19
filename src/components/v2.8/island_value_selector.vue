@@ -1,23 +1,10 @@
 <template>
   <div>
-    <q-select
-      outlined
-      v-model="callback_data.island_name"
-      :options="island_name_list"
-      label="选择岛屿"
-      @update:model-value="extra_select_check"
-    />
-    <q-select
-      outlined
-      multiple
-      use-chips
-      stack-label
-      v-show="callback_data.island_name != null && island_isempty == false"
-      v-model="callback_data.island_type"
-      :options="island_type_options"
-      label="岛屿形态"
-      style="margin-top: 10px"
-    />
+    <q-select outlined v-model="callback_data.island_name" :options="island_name_list" label="选择岛屿"
+      @update:model-value="extra_select_check" />
+    <q-select outlined multiple use-chips stack-label
+      v-show="callback_data.island_name != null && island_isempty == false" v-model="callback_data.island_type"
+      :options="island_type_options" label="岛屿形态" style="margin-top: 10px" />
   </div>
 </template>
 
@@ -49,7 +36,10 @@ export default {
           { label: "低", value: "1" },
           { label: "高", value: "2" },
         ],
-        [{ label: "初始", value: "0" }],
+        [
+          { label: "初始", value: "0" },
+          { label: "最终形态", value: "3" }
+        ],
         [
           { label: "初始", value: "0-0" },
           { label: "任意-优悠", value: "0-1" },
@@ -116,7 +106,8 @@ export default {
     if (this.propdata != undefined) {
       if (
         this.propdata.markerExtraContent != null &&
-        this.propdata.markerExtraContent != "{}"
+        this.propdata.markerExtraContent != "{}" &&
+        this.propdata.markerExtraContent != "0"
       ) {
         let data = JSON.parse(this.propdata.markerExtraContent);
         this.callback_data.island_name = this.island_name_list.find(

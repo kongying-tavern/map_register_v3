@@ -156,8 +156,7 @@ export default {
           this.map = create_map(
             "twt29",
             {
-              center: [2576, 1742],
-              zoom: -2,
+              center: [0, 1742]
             },
             [3568, 6286],
             [14080, 15360],
