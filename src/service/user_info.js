@@ -19,7 +19,9 @@ function get_user_id() {
 }
 
 function set_user_roles(roles = []) {
-  Cookies.set("_yuanshen_dadian_roles", roles.join(","));
+  Cookies.set("_yuanshen_dadian_roles", roles.join(","),{
+    expires: '28800s',
+  });
 }
 
 function get_user_roles() {
