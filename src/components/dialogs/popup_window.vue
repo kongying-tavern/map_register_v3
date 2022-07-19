@@ -1,3 +1,10 @@
+<!--
+ * @Description:
+ * @Author: HuangWenXin
+ * @Date: 2022-07-19 10:30:27
+ * @LastEditors: HuangWenXin
+ * @LastEditTime: 2022-07-19 18:40:02
+-->
 <template>
   <div id="opened_popup row">
     <div class="text">
@@ -58,9 +65,25 @@ export default {
   mounted() {},
   computed: {
     layerhidden() {
-      if (this.layer != null) {
-        return this.layer.target.options.data.hiddenFlag == 0 ? "显示" : "隐藏";
+      if (this.layer != null && this.layer_data != null) {
+        let hiddenState = ""
+        switch(this.layer_data.hiddenFlag){
+          case 0:
+            hiddenState = "显示"
+            break
+          case 1:
+            hiddenState = "隐藏"
+            break
+          case 2:
+            hiddenState = "内鬼"
+            break
+          default:
+            hiddenState = "未知"
+            break
+        }
+        return hiddenState;
       }
+      else return "未知"
     },
   },
   watch: {

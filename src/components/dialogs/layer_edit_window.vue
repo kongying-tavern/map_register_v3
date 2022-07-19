@@ -321,6 +321,10 @@ export default {
                 this.$emit("refresh");
               }
             }
+            else{
+              this.loading = false;
+              this.$emit("refresh");
+            }
           });
           break;
         case 2:
