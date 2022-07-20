@@ -16,9 +16,9 @@ function create_map_layer(area_idx, mapCenter, mapSize, mapTilesOffset = [0, 0])
         imgform = 'jpg'
     }
     let tiles_preUrl = 'https://assets.yuanshen.site/tiles_'
-    if (area_idx == 'twt29'){
-        tiles_preUrl = 'https://tiles.yuanshen.site/d/tiles/tiles_'
-    }
+    // if (area_idx == 'twt29'){
+    //     tiles_preUrl = 'https://tiles.yuanshen.site/d/tiles/tiles_'
+    // }
     L.TileLayer.T = L.TileLayer.extend({
         getTileUrl: function (coords) {
             var x = coords.x,
