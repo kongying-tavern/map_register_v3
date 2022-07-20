@@ -33,8 +33,8 @@ export default {
         ],
         [
           { label: "初始", value: "0" },
-          { label: "低", value: "1" },
-          { label: "高", value: "2" },
+          { label: "低", value: "2" },
+          { label: "高", value: "1" },
         ],
         [
           { label: "初始", value: "0" },
