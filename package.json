@@ -6,7 +6,7 @@
   "author": "blacklotus <595272421@qq.com>",
   "private": true,
   "scripts": {
-    "test": "echo \"No test specified\" && exit 0"
+    "dev": "quasar dev"
   },
   "dependencies": {
     "@kangc/v-md-editor": "^2.3.15",
@@ -23,7 +23,8 @@
   },
   "devDependencies": {
     "@quasar/app-vite": "^1.0.0",
-    "autoprefixer": "^10.4.2"
+    "autoprefixer": "^10.4.2",
+    "dotenv": "^16.0.1"
   },
   "engines": {
     "node": "^18 || ^16 || ^14.19",

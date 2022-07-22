@@ -319,10 +319,11 @@ export default {
         for (let i of this.item_list) {
           arr.push(i.itemId);
         }
+        this.select_item_layers(arr);
       } else {
-        arr = [];
+        this.clearlayers();
+        this.handle_layer_list_data = [];
       }
-      this.select_item_layers(arr);
     },
     //查询点位信息
     select_item_layers(value) {
