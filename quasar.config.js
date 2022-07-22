@@ -9,9 +9,22 @@
 // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js
 
 
+const fs = require('fs');
+const path = require('path');
+const dotenv = require('dotenv');
 const { configure } = require('quasar/wrappers');
 
-module.exports = configure(function (ctx) {
+let env = {};
+let envPathLocal = path.resolve(__dirname, './.env.local');
+let envPath = path.resolve(__dirname, './.env');
+
+if(fs.existsSync(envPathLocal)) {
+  env = dotenv.config({ path: envPathLocal }).parsed;
+} else {
+  env = dotenv.config({ path: envPath }).parsed;
+}
+
+module.exports = configure(function (/** ctx */) {
   return {
 
 
@@ -61,9 +74,7 @@ module.exports = configure(function (ctx) {
 
       // publicPath: '/',
       // analyze: true,
-      env: {
-        API_BASE: ctx.dev ? 'http://localhost:8000' : 'https://cloud.yuanshen.site'
-      },
+      env,
       // rawDefine: {}
       // ignorePublicFolder: true,
       // minify: false,
