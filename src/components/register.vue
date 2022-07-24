@@ -34,7 +34,25 @@
                 </q-item>
                 <q-item
                   v-for="i in area_list"
+                  v-show="i.name == '蒙德'"
+                  clickable
+                  v-close-popup
+                  @click="switch_area(i)"
+                >
+                  <q-item-section>{{ i.name }}</q-item-section>
+                </q-item>
+                <q-item
+                  v-for="i in area_list"
                   v-show="i.name == '龙脊雪山'"
+                  clickable
+                  v-close-popup
+                  @click="switch_area(i)"
+                >
+                  <q-item-section>{{ i.name }}</q-item-section>
+                </q-item>
+                <q-item
+                  v-for="i in area_list"
+                  v-show="i.name == '璃月'"
                   clickable
                   v-close-popup
                   @click="switch_area(i)"
@@ -52,7 +70,52 @@
                 </q-item>
                 <q-item
                   v-for="i in area_list"
-                  v-show="i.name == '璃月'"
+                  v-show="i.name == '地下矿区'"
+                  clickable
+                  v-close-popup
+                  @click="switch_area(i)"
+                >
+                  <q-item-section>{{ i.name }}</q-item-section>
+                </q-item>
+                                <q-item
+                  v-for="i in area_list"
+                  v-show="i.name == '稻妻'"
+                  clickable
+                  v-close-popup
+                  @click="switch_area(i)"
+                >
+                  <q-item-section>{{ i.name }}</q-item-section>
+                </q-item>
+                <q-item
+                  v-for="i in area_list"
+                  v-show="i.name == '稻妻2'"
+                  clickable
+                  v-close-popup
+                  @click="switch_area(i)"
+                >
+                  <q-item-section>{{ i.name }}</q-item-section>
+                </q-item>
+                <q-item
+                  v-for="i in area_list"
+                  v-show="i.name == '鹤观'"
+                  clickable
+                  v-close-popup
+                  @click="switch_area(i)"
+                >
+                  <q-item-section>{{ i.name }}</q-item-section>
+                </q-item>
+                <q-item
+                  v-for="i in area_list"
+                  v-show="i.name == '渊下宫'"
+                  clickable
+                  v-close-popup
+                  @click="switch_area(i)"
+                >
+                  <q-item-section>{{ i.name }}</q-item-section>
+                </q-item>
+                <q-item
+                  v-for="i in area_list"
+                  v-show="i.name == '三界路飨祭'"
                   clickable
                   v-close-popup
                   @click="switch_area(i)"
