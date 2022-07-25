@@ -10,6 +10,8 @@ function get_user_token() {
   return Cookies.get('_yuanshen_dadian_token')
 }
 
+
+
 function set_user_id(user_id = 0) {
   localStorage.setItem("_yuanshen_dadian_user", user_id);
 }
@@ -19,7 +21,7 @@ function get_user_id() {
 }
 
 function set_user_roles(roles = []) {
-  Cookies.set("_yuanshen_dadian_roles", roles.join(","),{
+  Cookies.set("_yuanshen_dadian_roles", roles.join(","), {
     expires: '28800s',
   });
 }
@@ -42,5 +44,5 @@ export {
   get_user_id,
   set_user_roles,
   get_user_roles,
-  has_user_role
+  has_user_role,
 }

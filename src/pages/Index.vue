@@ -114,6 +114,8 @@
 import { create_map } from "../api/map";
 import LayerRegister from "../components/register.vue";
 import IslandSelector from "../components/v2.8/island_selector.vue";
+import { refresh_token } from "../service/user_log_request";
+import { set_user_token } from "../service/user_info";
 export default {
   name: "Index",
   setup() {
@@ -156,7 +158,7 @@ export default {
           this.map = create_map(
             "twt29",
             {
-              center: [0, 1742]
+              center: [0, 1742],
             },
             [3568, 6286],
             [14080, 15360],
@@ -179,6 +181,15 @@ export default {
     if (localStorage.getItem("marked_layers") == null) {
       localStorage.setItem("marked_layers", JSON.stringify([]));
     }
+    setInterval(() => {
+      refresh_token().then((res) => {
+        set_user_token(res.data.access_token, res.data.expires_in);
+        localStorage.setItem(
+          "_yuanshen_dadian_refresh_token",
+          res.data.refresh_token
+        );
+      });
+    }, 1800000);
   },
   watch: {
     handle_type: function (val) {

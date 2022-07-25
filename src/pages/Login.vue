@@ -55,7 +55,11 @@
 
 <script>
 import { get_token } from "../service/user_log_request";
-import { set_user_token, set_user_id, set_user_roles } from "../service/user_info"
+import {
+  set_user_token,
+  set_user_id,
+  set_user_roles,
+} from "../service/user_info";
 import { create_notify } from "../api/common";
 export default {
   name: "logon",
@@ -72,14 +76,18 @@ export default {
       get_token(this.username, this.password)
         .then((res) => {
           this.loading = false;
-          set_user_token(res.data.access_token, res.data.expires_in)
+          set_user_token(res.data.access_token, res.data.expires_in);
           set_user_id(res.data.userId);
           set_user_roles(res.data.userRoles || []);
+          localStorage.setItem(
+            "_yuanshen_dadian_refresh_token",
+            res.data.refresh_token
+          );
           this.$router.push("/");
           create_notify("登录成功！");
         })
         .catch((err) => {
-          console.log(err)
+          console.log(err);
           this.loading = false;
           create_notify(err.response.data.error, "negative");
         });
