@@ -98,6 +98,7 @@
       <layer-table
         :propdata="handle_layer_list_data"
         :propitem="batch_mode == true ? 'all' : selected_item"
+        :collapsed="!panel"
         @callback="table_callback"
       ></layer-table>
     </div>

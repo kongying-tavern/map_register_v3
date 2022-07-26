@@ -7,7 +7,10 @@
     :rows-per-page-options="[0, 10, 20, 50]"
     selection="multiple"
     v-model:selected="selected_layer_list"
-    style="width: 99%; margin: 1px auto; max-height: 90vh"
+    style="width: 99%; margin: 1px auto;"
+    separator="vertical"
+    :style="{ maxHeight: collapsed ? '90vh' : '54vh' }"
+    class="sticky-header"
   >
     <!-- 表格头插槽 -->
     <template v-slot:top-right>
@@ -78,21 +81,24 @@
       </q-td>
     </template>
     <!-- 编辑插槽 -->
+    <template v-slot:header-cell-handle="props">
+      <q-th class="text-left sticky-column sticky-right">操作</q-th>
+    </template>
     <template v-slot:body-cell-handle="props">
-      <q-td class="text-center">
+      <q-td class="text-center sticky-column sticky-right">
         <a href="javascript:;" @click="callback(2, props.row)">定位</a>
         <a
           href="javascript:;"
           style="margin-left: 10px"
-          @click="callback(3, props.row)"
-          >编辑</a
-        >
+          @click="callback(3, props.row)">
+          编辑
+        </a>
         <a
           href="javascript:;"
           style="margin-left: 10px"
-          @click="callback(4, props.row)"
-          >删除</a
-        >
+          @click="callback(4, props.row)">
+          删除
+        </a>
       </q-td>
     </template>
   </q-table>
@@ -101,7 +107,7 @@
 <script>
 export default {
   name: "LayerTable",
-  props: ["propdata", "propitem"],
+  props: ["propdata", "propitem", "collapsed"],
   data() {
     return {
       layer_data: [],
@@ -111,24 +117,28 @@ export default {
           align: "center",
           label: "点位id",
           field: "id",
+          align: "left",
         },
         {
           name: "markerTitle",
           align: "center",
           label: "点位名称",
           field: "markerTitle",
+          align: "left",
         },
         {
           name: "content",
           align: "center",
           label: "描述",
           field: "content",
+          align: "left",
         },
         {
           name: "handle",
           align: "center",
           label: "操作",
           field: "handle",
+          align: "left",
         },
       ],
       selected_layer_list: [],
@@ -161,5 +171,27 @@ export default {
   width: 200px;
   white-space: pre-wrap; /* CSS 2.1 */
   word-wrap: break-word;
+}
+</style>
+
+<style lang="scss" scoped>
+.sticky-header {
+  & :deep thead tr:first-child th {
+    background-color: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+  }
+}
+.sticky-column {
+  background-color: #fff;
+  position: sticky;
+  z-index: 1;
+  &.sticky-right {
+    right: 0;
+  }
+  &.sticky-left {
+    left: 0;
+  }
 }
 </style>
