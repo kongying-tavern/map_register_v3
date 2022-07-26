@@ -335,6 +335,11 @@ export default {
                   );
                   i.icon = icon;
                 }
+                if (i.icon == undefined) {
+                  i.icon = {
+                    url: "",
+                  };
+                }
               }
             }
             this.handle_layer_list_data = layerlist.data.data;
