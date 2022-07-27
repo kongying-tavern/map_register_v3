@@ -430,7 +430,7 @@ export default {
           this.layer_info = {
             ...this.layer_info,
             markerTitle: `${this.propdata.list.item.name}`,
-            content: `这是一个${this.propdata.list.item.defaultContent}`,
+            content: `${this.propdata.list.item.defaultContent}`,
           };
           break;
         //如果是编辑的话，匹配下拉列表的选项
