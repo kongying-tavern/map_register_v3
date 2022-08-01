@@ -9,24 +9,19 @@
 // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js
 
 
-const fs = require('fs');
-const path = require('path');
-const dotenv = require('dotenv');
 const { configure } = require('quasar/wrappers');
 
-let env = {};
-let envPathLocal = path.resolve(__dirname, './.env.local');
-let envPath = path.resolve(__dirname, './.env');
 
-if(fs.existsSync(envPathLocal)) {
-  env = dotenv.config({ path: envPathLocal }).parsed;
-} else {
-  env = dotenv.config({ path: envPath }).parsed;
-}
-
-module.exports = configure(function (/** ctx */) {
+module.exports = configure(function (/* ctx */) {
   return {
-
+    eslint: {
+      // fix: true,
+      // include = [],
+      // exclude = [],
+      // rawOptions = {},
+      warnings: true,
+      errors: true
+    },
 
     // https://v2.quasar.dev/quasar-cli/prefetch-feature
     // preFetch: true,
@@ -35,8 +30,8 @@ module.exports = configure(function (/** ctx */) {
     // --> boot files are part of "main.js"
     // https://v2.quasar.dev/quasar-cli/boot-files
     boot: [
-
-      'axios',
+      
+      
     ],
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#css
@@ -47,7 +42,7 @@ module.exports = configure(function (/** ctx */) {
     // https://github.com/quasarframework/quasar/tree/dev/extras
     extras: [
       // 'ionicons-v4',
-      'mdi-v5',
+      // 'mdi-v5',
       // 'fontawesome-v6',
       // 'eva-icons',
       // 'themify',
@@ -61,7 +56,7 @@ module.exports = configure(function (/** ctx */) {
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#build
     build: {
       target: {
-        browser: ['es2019', 'edge88', 'firefox78', 'chrome87', 'safari13.1'],
+        browser: [ 'es2019', 'edge88', 'firefox78', 'chrome87', 'safari13.1' ],
         node: 'node16'
       },
 
@@ -74,7 +69,7 @@ module.exports = configure(function (/** ctx */) {
 
       // publicPath: '/',
       // analyze: true,
-      env,
+      // env: {},
       // rawDefine: {}
       // ignorePublicFolder: true,
       // minify: false,
@@ -84,7 +79,7 @@ module.exports = configure(function (/** ctx */) {
       // extendViteConf (viteConf) {},
       // viteVuePluginOptions: {},
 
-
+      
       // vitePlugins: [
       //   [ 'package-name', { ..options.. } ]
       // ]
@@ -93,15 +88,7 @@ module.exports = configure(function (/** ctx */) {
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#devServer
     devServer: {
       // https: true
-      open: true, // opens browser window automatically
-      // proxy: {
-      //   // 将所有以/api开头的请求代理
-      //   '/api': {
-      //     target: 'https://cloud.yuanshen.site',
-      //     changeOrigin: true,
-      //     rewrite: path => path.replace(/^\/api/, '')
-      //   },
-      // }
+      open: true // opens browser window automatically
     },
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#framework
@@ -109,7 +96,7 @@ module.exports = configure(function (/** ctx */) {
       config: {},
 
       // iconSet: 'material-icons', // Quasar icon set
-      lang: 'zh-CN', // Quasar language pack
+      // lang: 'en-US', // Quasar language pack
 
       // For special cases outside of where the auto-import strategy can have an impact
       // (like functional components as one of the examples),
@@ -119,16 +106,9 @@ module.exports = configure(function (/** ctx */) {
       // directives: [],
 
       // Quasar plugins
-      plugins: [
-        'Cookies',
-        'Notify',
-        'Dialog',
-        'Loading'
-      ]
+      plugins: []
     },
-    htmlVariables: {
-      productName: '原神地图打点页_v3',
-    },
+
     // animations: 'all', // --- includes all animations
     // https://v2.quasar.dev/options/animations
     animations: [],
@@ -148,7 +128,7 @@ module.exports = configure(function (/** ctx */) {
     // https://v2.quasar.dev/quasar-cli/developing-ssr/configuring-ssr
     ssr: {
       // ssrPwaHtmlFilename: 'offline.html', // do NOT use index.html as name!
-      // will mess up SSR
+                                          // will mess up SSR
 
       // extendSSRWebserverConf (esbuildConf) {},
       // extendPackageJson (json) {},
@@ -159,7 +139,7 @@ module.exports = configure(function (/** ctx */) {
       // manualPostHydrationTrigger: true,
 
       prodPort: 3000, // The default port that the production server should use
-      // (gets superseded if process.env.PORT is specified at runtime)
+                      // (gets superseded if process.env.PORT is specified at runtime)
 
       middlewares: [
         'render' // keep this as last one
@@ -214,7 +194,7 @@ module.exports = configure(function (/** ctx */) {
       builder: {
         // https://www.electron.build/configuration/configuration
 
-        appId: 'quasar-project'
+        appId: 'map-register-v3'
       }
     },
 

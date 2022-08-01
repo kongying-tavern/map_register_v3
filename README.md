@@ -1,21 +1,41 @@
-# Quasar App (quasar-project)
+# Quasar App (map-register-v3)
 
 A Quasar Project
 
-## 安装依赖
+## Install the dependencies
 ```bash
 yarn
 # or
 npm install
 ```
 
-### 进入开发模式
+### Start the app in development mode (hot-code reloading, error reporting, etc.)
 ```bash
 quasar dev
 ```
 
 
-### 打包
+### Lint the files
+```bash
+yarn lint
+# or
+npm run lint
+```
+
+
+### Format the files
+```bash
+yarn format
+# or
+npm run format
+```
+
+
+
+### Build the app for production
 ```bash
 quasar build
 ```
+
+### Customize the configuration
+See [Configuring quasar.config.js](https://v2.quasar.dev/quasar-cli-vite/quasar-config-js).
