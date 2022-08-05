@@ -23,8 +23,8 @@ module.exports = {
     // but leave only one uncommented!
     // See https://eslint.vuejs.org/rules/#available-rules
     'plugin:vue/vue3-essential', // Priority A: Essential (Error Prevention)
-    // 'plugin:vue/vue3-strongly-recommended', // Priority B: Strongly Recommended (Improving Readability)
-    // 'plugin:vue/vue3-recommended', // Priority C: Recommended (Minimizing Arbitrary Choices and Cognitive Overhead)
+    'plugin:vue/vue3-strongly-recommended', // Priority B: Strongly Recommended (Improving Readability)
+    'plugin:vue/vue3-recommended', // Priority C: Recommended (Minimizing Arbitrary Choices and Cognitive Overhead)
 
     // https://github.com/prettier/eslint-config-prettier#installation
     // usage with Prettier, provided by 'eslint-config-prettier'.
@@ -61,14 +61,80 @@ module.exports = {
     // allow debugger during development only
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
 
-    'camelcase': 'error',
-    'quotes': [ 'error', 'single' ],
+    // eslint basic
+    camelcase: 'error',
+    quotes: [ 'error', 'single' ],
     'no-trailing-spaces': 'error',
     'comma-spacing': 'error',
-    'comma-style': 'error',
+    'eol-last': [ 'error', 'always' ],
+    indent: [ 'error', 2 ],
+
+    // eslint rules related to vue
     'array-bracket-newline': [ 'error', 'consistent' ],
-    'array-bracket-spacing': [ 'error', 'always' ],
+    'array-bracket-spacing': [ 'error', 'always', {
+      singleValue: false,
+      objectsInArrays: false,
+      arraysInArrays: false
+    }],
+    'arrow-spacing': [ 'error', {
+      before: true, after: true
+    }],
+    'block-spacing': [ 'error', 'always' ],
     'comma-dangle': [ 'error', 'never' ],
-    'eol-last': [ 'error', 'always' ]
+    'comma-style': 'error',
+    'dot-location': [ 'error', 'property' ],
+    'key-spacing': [ 'error', {
+      beforeColon: false,
+      afterColon: true,
+      mode: 'strict'
+    }],
+    'object-curly-newline': [ 'error', 'always' ],
+    'object-curly-spacing': [ 'error', 'always' ],
+    'object-property-newline': [ 'error', {
+      allowAllPropertiesOnSameLine: true
+    }],
+    'dot-notation': 'error',
+    'quote-props': [ 'error', 'as-needed' ],
+
+    // vue rules similar to eslint
+    'vue/array-bracket-newline': [ 'error', 'consistent' ],
+    'vue/array-bracket-spacing': [ 'error', 'always', {
+      singleValue: false,
+      objectsInArrays: false,
+      arraysInArrays: false
+    }],
+    'vue/arrow-spacing': [ 'error', {
+      before: true, after: true
+    }],
+    'vue/block-spacing': [ 'error', 'always' ],
+    'vue/comma-dangle': [ 'error', 'never' ],
+    'vue/comma-style': 'error',
+    'vue/dot-location': [ 'error', 'property' ],
+    'vue/key-spacing': [ 'error', {
+      beforeColon: false,
+      afterColon: true,
+      mode: 'strict'
+    }],
+    'vue/object-curly-newline': [ 'error', 'always' ],
+    'vue/object-curly-spacing': [ 'error', 'always' ],
+    'vue/object-property-newline': [ 'error', {
+      allowAllPropertiesOnSameLine: true
+    }],
+    'vue/dot-notation': 'error',
+    'vue/quote-props': [ 'error', 'as-needed' ],
+
+    // vue rules
+    'vue/max-attributes-per-line': [ 'error', {
+      singleline: {
+        max: 3
+      },
+      multiline: {
+        max: 1
+      }
+    }],
+    'vue/html-self-closing': 'error',
+    'vue/html-indent': [ 'error', 2 ],
+    'vue/singleline-html-element-content-newline': 'error',
+    'vue/html-closing-bracket-newline': 'error'
   }
 };
