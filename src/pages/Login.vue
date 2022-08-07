@@ -2,7 +2,7 @@
   <q-card class="row fixed-center justify-center login">
     <q-card-section class="col-12">
       <div class="text-h5 text-center">
-        v3
+        {{ title }}
       </div>
     </q-card-section>
     <q-card-section class="col-10">
@@ -50,6 +50,11 @@ export default defineComponent({
         username: '',
         password: ''
       }
+    }
+  },
+  computed: {
+    title() {
+      return process.env.VITE_TITLE
     }
   }
 })

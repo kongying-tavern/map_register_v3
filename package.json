@@ -17,12 +17,13 @@
     "vue-router": "^4.0.0"
   },
   "devDependencies": {
-    "eslint": "^8.10.0",
-    "eslint-plugin-vue": "^9.0.0",
-    "eslint-config-prettier": "^8.1.0",
-    "prettier": "^2.5.1",
     "@quasar/app-vite": "^1.0.0",
-    "autoprefixer": "^10.4.2"
+    "autoprefixer": "^10.4.2",
+    "dotenv": "^16.0.1",
+    "eslint": "^8.10.0",
+    "eslint-config-prettier": "^8.1.0",
+    "eslint-plugin-vue": "^9.0.0",
+    "prettier": "^2.5.1"
   },
   "engines": {
     "node": "^18 || ^16 || ^14.19",
