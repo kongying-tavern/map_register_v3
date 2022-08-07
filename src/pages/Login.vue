@@ -1,16 +1,14 @@
 <template>
   <q-layout>
     <div class="logon row">
-      <q-card
-        class="
+      <q-card class="
           log_card
           absolute-center
           row
           justify-center
           q-pa-md
           col-lg-3 col-md-5 col-sm-6
-        "
-      >
+        ">
         <q-card-section class="row col-12">
           <div class="col-12" style="margin-top: 25px">
             <p class="log_title">空荧酒馆地图点位标记系统</p>
@@ -25,26 +23,14 @@
             </q-input>
           </div>
           <div style="margin-top: 15px">
-            <q-input
-              filled
-              v-model="password"
-              label="密码"
-              type="password"
-              @keyup.enter="log"
-            >
+            <q-input filled v-model="password" label="密码" type="password" @keyup.enter="log">
               <template v-slot:prepend>
                 <q-icon name="vpn_key" />
               </template>
             </q-input>
           </div>
           <div style="margin-top: 15px">
-            <q-btn
-              color="primary"
-              label="登录"
-              class="logon_btn full-width"
-              @click="log"
-              :loading="loading"
-            />
+            <q-btn color="primary" label="登录" class="logon_btn full-width" @click="log" :loading="loading" />
           </div>
         </q-card-section>
       </q-card>
@@ -54,70 +40,77 @@
 </template>
 
 <script>
-import { get_token } from "../service/user_log_request";
-import {
-  set_user_token,
-  set_user_id,
-  set_user_roles,
-} from "../service/user_info";
-import { create_notify } from "../api/common";
-export default {
-  name: "logon",
-  data() {
-    return {
-      username: "",
-      password: "",
-      loading: false,
-    };
-  },
-  methods: {
-    log() {
-      this.loading = true;
-      get_token(this.username, this.password)
-        .then((res) => {
-          this.loading = false;
-          set_user_token(res.data.access_token, res.data.expires_in);
-          set_user_id(res.data.userId);
-          set_user_roles(res.data.userRoles || []);
-          localStorage.setItem(
-            "_yuanshen_dadian_refresh_token",
-            res.data.refresh_token
-          );
-          this.$router.push("/");
-          create_notify("登录成功！");
-        })
-        .catch((err) => {
-          console.log(err);
-          this.loading = false;
-          create_notify(err.response.data.error, "negative");
-        });
+  import {
+    get_token
+  } from "../service/user_log_request";
+  import {
+    set_user_token,
+    set_user_id,
+    set_user_roles,
+  } from "../service/user_info";
+  import {
+    create_notify
+  } from "../api/common";
+  export default {
+    name: "logon",
+    data() {
+      return {
+        username: "",
+        password: "",
+        loading: false,
+      };
     },
-  },
-  mounted() {},
-};
+    methods: {
+      log() {
+        this.loading = true;
+        get_token(this.username, this.password)
+          .then((res) => {
+            this.loading = false;
+            set_user_token(res.data.access_token, res.data.expires_in);
+            set_user_id(res.data.userId);
+            set_user_roles(res.data.userRoles || []);
+            localStorage.setItem(
+              "_yuanshen_dadian_refresh_token",
+              res.data.refresh_token
+            );
+            this.$router.push("/");
+            create_notify("登录成功！");
+          })
+          .catch((err) => {
+            console.log(err);
+            this.loading = false;
+            create_notify(err.response.data.error, "negative");
+          });
+      },
+    },
+    mounted() {},
+  };
 </script>
 
 <style lang="scss">
-.log_card {
-  width: 500px;
-  .logo {
-    display: block;
-    margin: 0 auto;
-    width: 150px;
-    height: 150px;
+  .log_card {
+    width: 500px;
+
+    .logo {
+      display: block;
+      margin: 0 auto;
+      width: 150px;
+      height: 150px;
+    }
+
+    .log_title {
+      width: 100%;
+      font-size: 28px;
+      font-weight: bold;
+      text-align: center;
+    }
   }
-  .log_title {
+
+  .copyright {
     width: 100%;
-    font-size: 28px;
-    font-weight: bold;
     text-align: center;
+    color: rgba(0, 0, 0, 0.45);
+    font-size: 16px;
+    bottom: 10px;
   }
-}
-.copyright {
-  width: 100%;
-  text-align: center;
-  color: rgba(0, 0, 0, 0.45);
-  font-size: 16px;
-  bottom: 10px;
-}
 </style>

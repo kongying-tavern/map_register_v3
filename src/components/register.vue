@@ -10,7 +10,7 @@
           <q-btn
             color="primary"
             :label="selected_area == null ? '选择地区' : selected_area.name"
-            style="width: 100%"
+            style="width: 100%;"
           >
             <q-menu>
               <q-list style="min-width: 100px; max-height: 350px">
@@ -148,9 +148,13 @@
       </q-card>
     </q-dialog>
     <!-- 点位新增/编辑弹窗 -->
-    <q-dialog
+   <!-- <q-dialog
       v-model="layer_edit_window"
       :persistent="handle_type == 1 ? true : false"
+    > -->
+    <q-dialog
+      v-model="layer_edit_window"
+      :persistent="true"
     >
       <layer-edit
         :propdata="edit_data"

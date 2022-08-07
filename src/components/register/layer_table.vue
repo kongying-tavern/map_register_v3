@@ -8,7 +8,7 @@
     selection="multiple"
     v-model:selected="selected_layer_list"
     style="width: 99%; margin: 1px auto;"
-    separator="vertical"
+    separator="cell"
     :style="{ maxHeight: collapsed ? '90vh' : '54vh' }"
     class="sticky-header"
   >
