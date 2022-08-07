@@ -68,6 +68,7 @@ module.exports = {
     'comma-spacing': 'error',
     'eol-last': [ 'error', 'always' ],
     indent: [ 'error', 2 ],
+    'template-curly-spacing': [ 'error', 'never' ],
 
     // eslint rules related to vue
     'array-bracket-newline': [ 'error', 'consistent' ],
@@ -135,6 +136,7 @@ module.exports = {
     'vue/html-self-closing': 'error',
     'vue/html-indent': [ 'error', 2 ],
     'vue/singleline-html-element-content-newline': 'error',
-    'vue/html-closing-bracket-newline': 'error'
+    'vue/html-closing-bracket-newline': 'error',
+    'vue/mustache-interpolation-spacing': [ 'error', 'always' ]
   }
 };
