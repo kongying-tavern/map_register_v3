@@ -8,12 +8,13 @@
 // Configuration for your app
 // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js
 
+const path = require('path')
 const environ = require('./environ')
 const {
   configure
 } = require('quasar/wrappers');
 
-module.exports = configure(function (/* ctx */) {
+module.exports = configure(function(/* ctx */) {
   return {
     eslint: {
       // fix: true,
@@ -65,6 +66,9 @@ module.exports = configure(function (/* ctx */) {
 
       // publicPath: '/',
       // analyze: true,
+      alias: {
+        '@': path.resolve(__dirname, './src')
+      },
       env: {
         ...environ
       }

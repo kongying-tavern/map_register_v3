@@ -31,7 +31,12 @@
           </template>
         </q-input>
 
-        <q-btn label="登录" class="field full-width" color="primary" />
+        <q-btn
+          label="登录"
+          class="field full-width"
+          color="primary"
+          @click="login"
+        />
       </q-form>
     </q-card-section>
   </q-card>
@@ -41,6 +46,7 @@
 import {
   defineComponent
 } from 'vue'
+import apiOauthToken from '@/api/oauth/token'
 
 export default defineComponent({
   name: 'PageLogin',
@@ -55,6 +61,14 @@ export default defineComponent({
   computed: {
     title() {
       return process.env.VITE_TITLE
+    }
+  },
+  methods: {
+    login() {
+      apiOauthToken.token(this.form)
+        .then(res => {
+          console.log(res);
+        })
     }
   }
 })
