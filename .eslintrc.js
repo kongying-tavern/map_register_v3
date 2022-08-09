@@ -65,64 +65,88 @@ module.exports = {
     camelcase: 'error',
     quotes: [ 'error', 'single' ],
     'no-trailing-spaces': 'error',
-    'comma-spacing': 'error',
+    'comma-spacing': 'warn',
     'eol-last': [ 'error', 'always' ],
     indent: [ 'error', 2 ],
-    'template-curly-spacing': [ 'error', 'never' ],
+    'template-curly-spacing': [ 'warn', 'never' ],
+    'no-multi-spaces': [ 'error', {
+      ignoreEOLComments: true
+    }],
+    'space-before-blocks': [ 'error', 'always' ],
+    'space-before-function-paren': [ 'error', {
+      anonymous: 'never',
+      named: 'never',
+      asyncArrow: 'always'
+    }],
+    'spaced-comment': [ 'error', 'always' ],
 
     // eslint rules related to vue
-    'array-bracket-newline': [ 'error', 'consistent' ],
-    'array-bracket-spacing': [ 'error', 'always', {
+    'array-bracket-newline': [ 'warn', 'consistent' ],
+    'array-bracket-spacing': [ 'warn', 'always', {
       singleValue: false,
       objectsInArrays: false,
       arraysInArrays: false
     }],
-    'arrow-spacing': [ 'error', {
-      before: true, after: true
+    'arrow-spacing': [ 'warn', {
+      before: true,
+      after: true
     }],
-    'block-spacing': [ 'error', 'always' ],
-    'comma-dangle': [ 'error', 'never' ],
-    'comma-style': 'error',
-    'dot-location': [ 'error', 'property' ],
-    'key-spacing': [ 'error', {
+    'block-spacing': [ 'warn', 'always' ],
+    'comma-dangle': [ 'warn', 'never' ],
+    'comma-style': 'warn',
+    'dot-location': [ 'warn', 'property' ],
+    'key-spacing': [ 'warn', {
       beforeColon: false,
       afterColon: true,
       mode: 'strict'
     }],
-    'object-curly-newline': [ 'error', 'always' ],
-    'object-curly-spacing': [ 'error', 'always' ],
-    'object-property-newline': [ 'error', {
+    'object-curly-newline': [ 'warn', 'always' ],
+    'object-curly-spacing': [ 'warn', 'always' ],
+    'object-property-newline': [ 'warn', {
       allowAllPropertiesOnSameLine: true
     }],
-    'dot-notation': 'error',
-    'quote-props': [ 'error', 'as-needed' ],
+    'dot-notation': 'warn',
+    'quote-props': [ 'warn', 'as-needed' ],
+    'space-in-parens': [ 'warn', 'never' ],
+    'space-infix-ops': 'warn',
+    'space-unary-ops': [ 'warn', {
+      words: true,
+      nonwords: false
+    }],
 
     // vue rules similar to eslint
-    'vue/array-bracket-newline': [ 'error', 'consistent' ],
-    'vue/array-bracket-spacing': [ 'error', 'always', {
+    'vue/array-bracket-newline': [ 'warn', 'consistent' ],
+    'vue/array-bracket-spacing': [ 'warn', 'always', {
       singleValue: false,
       objectsInArrays: false,
       arraysInArrays: false
     }],
-    'vue/arrow-spacing': [ 'error', {
-      before: true, after: true
+    'vue/arrow-spacing': [ 'warn', {
+      before: true,
+      after: true
     }],
-    'vue/block-spacing': [ 'error', 'always' ],
-    'vue/comma-dangle': [ 'error', 'never' ],
-    'vue/comma-style': 'error',
-    'vue/dot-location': [ 'error', 'property' ],
-    'vue/key-spacing': [ 'error', {
+    'vue/block-spacing': [ 'warn', 'always' ],
+    'vue/comma-dangle': [ 'warn', 'never' ],
+    'vue/comma-style': 'warn',
+    'vue/dot-location': [ 'warn', 'property' ],
+    'vue/key-spacing': [ 'warn', {
       beforeColon: false,
       afterColon: true,
       mode: 'strict'
     }],
-    'vue/object-curly-newline': [ 'error', 'always' ],
-    'vue/object-curly-spacing': [ 'error', 'always' ],
-    'vue/object-property-newline': [ 'error', {
+    'vue/object-curly-newline': [ 'warn', 'always' ],
+    'vue/object-curly-spacing': [ 'warn', 'always' ],
+    'vue/object-property-newline': [ 'warn', {
       allowAllPropertiesOnSameLine: true
     }],
-    'vue/dot-notation': 'error',
-    'vue/quote-props': [ 'error', 'as-needed' ],
+    'vue/dot-notation': 'warn',
+    'vue/quote-props': [ 'warn', 'as-needed' ],
+    'vue/space-in-parens': [ 'warn', 'never' ],
+    'vue/space-infix-ops': 'warn',
+    'vue/space-unary-ops': [ 'warn', {
+      words: true,
+      nonwords: false
+    }],
 
     // vue rules
     'vue/max-attributes-per-line': [ 'error', {
