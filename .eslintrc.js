@@ -62,94 +62,104 @@ module.exports = {
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
 
     // eslint basic
-    camelcase: 'error',
-    quotes: [ 'error', 'single' ],
-    'no-trailing-spaces': 'error',
+    camelcase: ['warn', {
+      properties: 'never'
+    }],
+    quotes: ['warn', 'single'],
+    'no-trailing-spaces': 'warn',
     'comma-spacing': 'warn',
-    'eol-last': [ 'error', 'always' ],
-    indent: [ 'error', 2 ],
-    'template-curly-spacing': [ 'warn', 'never' ],
-    'no-multi-spaces': [ 'error', {
+    'eol-last': ['warn', 'always'],
+    indent: ['warn', 2],
+    'template-curly-spacing': ['warn', 'never'],
+    'no-multi-spaces': ['warn', {
       ignoreEOLComments: true
     }],
-    'space-before-blocks': [ 'error', 'always' ],
-    'space-before-function-paren': [ 'error', {
+    'space-before-blocks': ['warn', 'always'],
+    'space-before-function-paren': ['warn', {
       anonymous: 'never',
       named: 'never',
       asyncArrow: 'always'
     }],
-    'spaced-comment': [ 'error', 'always' ],
+    'spaced-comment': ['warn', 'always'],
 
     // eslint rules related to vue
-    'array-bracket-newline': [ 'warn', 'consistent' ],
-    'array-bracket-spacing': [ 'warn', 'always', {
+    'array-bracket-newline': ['warn', 'consistent'],
+    'array-bracket-spacing': ['warn', 'never', {
       singleValue: false,
       objectsInArrays: false,
       arraysInArrays: false
     }],
-    'arrow-spacing': [ 'warn', {
+    'arrow-spacing': ['warn', {
       before: true,
       after: true
     }],
-    'block-spacing': [ 'warn', 'always' ],
-    'comma-dangle': [ 'warn', 'never' ],
+    'block-spacing': ['warn', 'always'],
+    'comma-dangle': ['warn', 'never'],
     'comma-style': 'warn',
-    'dot-location': [ 'warn', 'property' ],
-    'key-spacing': [ 'warn', {
+    'dot-location': ['warn', 'property'],
+    'key-spacing': ['warn', {
       beforeColon: false,
       afterColon: true,
       mode: 'strict'
     }],
-    'object-curly-newline': [ 'warn', 'always' ],
-    'object-curly-spacing': [ 'warn', 'always' ],
-    'object-property-newline': [ 'warn', {
-      allowAllPropertiesOnSameLine: true
+    'object-curly-newline': ['warn', {
+      minProperties: 1,
+      consistent: true
+    }],
+    'object-curly-spacing': ['warn', 'never'],
+    'object-property-newline': ['warn', {
+      allowAllPropertiesOnSameLine: false
     }],
     'dot-notation': 'warn',
-    'quote-props': [ 'warn', 'as-needed' ],
-    'space-in-parens': [ 'warn', 'never' ],
+    'quote-props': ['warn', 'as-needed'],
+    'space-in-parens': ['warn', 'never'],
     'space-infix-ops': 'warn',
-    'space-unary-ops': [ 'warn', {
+    'space-unary-ops': ['warn', {
       words: true,
       nonwords: false
     }],
+    'no-useless-concat': 'error',
 
     // vue rules similar to eslint
-    'vue/array-bracket-newline': [ 'warn', 'consistent' ],
-    'vue/array-bracket-spacing': [ 'warn', 'always', {
+    'vue/array-bracket-newline': ['warn', 'consistent'],
+    'vue/array-bracket-spacing': ['warn', 'never', {
       singleValue: false,
       objectsInArrays: false,
       arraysInArrays: false
     }],
-    'vue/arrow-spacing': [ 'warn', {
+    'vue/arrow-spacing': ['warn', {
       before: true,
       after: true
     }],
-    'vue/block-spacing': [ 'warn', 'always' ],
-    'vue/comma-dangle': [ 'warn', 'never' ],
+    'vue/block-spacing': ['warn', 'always'],
+    'vue/comma-dangle': ['warn', 'never'],
     'vue/comma-style': 'warn',
-    'vue/dot-location': [ 'warn', 'property' ],
-    'vue/key-spacing': [ 'warn', {
+    'vue/dot-location': ['warn', 'property'],
+    'vue/key-spacing': ['warn', {
       beforeColon: false,
       afterColon: true,
       mode: 'strict'
     }],
-    'vue/object-curly-newline': [ 'warn', 'always' ],
-    'vue/object-curly-spacing': [ 'warn', 'always' ],
-    'vue/object-property-newline': [ 'warn', {
-      allowAllPropertiesOnSameLine: true
+    'vue/object-curly-newline': ['warn', {
+      minProperties: 1,
+      consistent: true
+    }],
+    'vue/object-curly-spacing': ['warn', 'never'],
+    'vue/object-property-newline': ['warn', {
+      allowAllPropertiesOnSameLine: false
     }],
     'vue/dot-notation': 'warn',
-    'vue/quote-props': [ 'warn', 'as-needed' ],
-    'vue/space-in-parens': [ 'warn', 'never' ],
+    'vue/quote-props': ['warn', 'as-needed'],
+    'vue/space-in-parens': ['warn', 'never'],
     'vue/space-infix-ops': 'warn',
-    'vue/space-unary-ops': [ 'warn', {
+    'vue/space-unary-ops': ['warn', {
       words: true,
       nonwords: false
     }],
+    'vue/no-useless-concat': 'error',
 
     // vue rules
-    'vue/max-attributes-per-line': [ 'error', {
+    'vue/max-attributes-per-line': ['warn', {
       singleline: {
         max: 3
       },
@@ -158,9 +168,16 @@ module.exports = {
       }
     }],
     'vue/html-self-closing': 'error',
-    'vue/html-indent': [ 'error', 2 ],
-    'vue/singleline-html-element-content-newline': 'error',
-    'vue/html-closing-bracket-newline': 'error',
-    'vue/mustache-interpolation-spacing': [ 'error', 'always' ]
+    'vue/html-indent': ['warn', 2],
+    'vue/singleline-html-element-content-newline': 'warn',
+    'vue/html-closing-bracket-newline': 'warn',
+    'vue/mustache-interpolation-spacing': ['warn', 'always'],
+    'vue/attributes-order': 'warn',
+    'vue/component-tags-order': ['error', {
+      order: ['template', 'script', 'style']
+    }],
+    'vue/no-lone-template': 'error',
+    'vue/order-in-components': 'error',
+    'vue/this-in-template': 'error'
   }
 };
