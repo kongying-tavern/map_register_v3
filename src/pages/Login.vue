@@ -46,13 +46,17 @@
 import {
   defineComponent
 } from 'vue'
-import apiOauthToken from '@/api/oauth/token'
+import {
+  saveUser
+} from '@/utils/auth.js'
+import apiOauthToken from '@/api/oauth/token.js'
 
 export default defineComponent({
   name: 'PageLogin',
   data() {
     return {
       form: {
+        grant_type: 'password',
         username: '',
         password: ''
       }
@@ -67,7 +71,11 @@ export default defineComponent({
     login() {
       apiOauthToken.token(this.form)
         .then(res => {
-          console.log(res);
+          saveUser(res);
+          this.$q.notify({
+            type: 'positive',
+            message: '登录成功'
+          })
         })
     }
   }
