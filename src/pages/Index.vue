@@ -128,48 +128,27 @@ export default {
       selector_show: true,
       handle_type: "打点",
       extra_show: false,
+
+      map_name: '金苹果群岛'
     };
   },
   methods: {
     init_map() {
       //初始化地图
-      this.map = create_map("twt25");
+      this.map = create_map("提瓦特2.5");
     },
     //切换地图
     map_switch(area) {
       this.area = area;
-      switch (area.name) {
-        case "金苹果群岛":
-          this.extra_show = true;
-          this.map.remove();
-          this.map = create_map(
-            "qd28",
-            {
-              center: [600, -2190],
-              zoom: -2,
-            },
-            [3568, 6286],
-            [8192, 8192]
-          );
-          break;
-        case "须弥":
-          this.extra_show = false;
-          this.map.remove();
-          this.map = create_map(
-            "twt29",
-            {
-              center: [0, 1742],
-            },
-            [3568, 6286],
-            [14080, 15360],
-            [-1792, 0]
-          );
-          break;
-        default:
-          this.map.remove();
-          this.map = create_map("twt25");
-          break;
+      this.map_name = area.name;
+
+      this.extra_show = false;
+      if(area.name === '金苹果群岛') {
+        this.extra_show = true;
       }
+
+        this.map.remove();
+        this.map = create_map(area.name)
     },
   },
   components: {
