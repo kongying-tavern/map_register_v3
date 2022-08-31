@@ -13,53 +13,48 @@
       square
       style="width: 600px; z-index: 2000"
     >
-      <q-scroll-area
-        :bar-style="{ width: '1px' }"
-        :thumb-style="{ background: 'none', width: '1px' }"
-        style="width: 100%; height: 100%"
-      >
-        <div class="full-width row">
-          <div class="col-12" v-show="false">
-            <q-tabs
-              dense
-              inline-label
-              v-model="handle_type"
-              class="text-primary"
-            >
-              <q-tab name="打点" icon="mdi-map-marker-radius" label="打点" />
-              <q-tab
-                name="审核"
-                icon="mdi-checkbox-multiple-marked"
-                label="审核"
-              />
-              <q-tab name="编辑" icon="mdi-circle-edit-outline" label="编辑" />
-            </q-tabs>
-          </div>
-          <div class="col-12" v-show="false">
-            <q-separator />
-          </div>
-          <div class="col-12">
-            <q-tab-panels v-model="handle_type" animated>
-              <q-tab-panel name="打点">
-                <layer-register
-                  :map="map"
-                  @map_switch="map_switch"
-                  v-show="handle_type == '打点'"
-                ></layer-register>
-              </q-tab-panel>
-
-              <q-tab-panel name="审核"> </q-tab-panel>
-
-              <q-tab-panel name="编辑">
-                <layer-register
-                  :map="map"
-                  v-show="handle_type == '审核'"
-                ></layer-register>
-              </q-tab-panel>
-            </q-tab-panels>
-          </div>
+      <div class="full-width row">
+        <div class="col-12" v-show="false">
+          <q-tabs
+            dense
+            inline-label
+            v-model="handle_type"
+            class="text-primary"
+          >
+            <q-tab name="打点" icon="mdi-map-marker-radius" label="打点" />
+            <q-tab
+              name="审核"
+              icon="mdi-checkbox-multiple-marked"
+              label="审核"
+            />
+            <q-tab name="编辑" icon="mdi-circle-edit-outline" label="编辑" />
+          </q-tabs>
         </div>
-      </q-scroll-area>
+      </div>
+
+      <q-tab-panels
+        v-model="handle_type"
+        animated
+        class="absolute-full q-pa-md">
+        <q-tab-panel name="打点" class="relative-position">
+          <layer-register
+            :map="map"
+            @map_switch="map_switch"
+            v-show="handle_type == '打点'"
+          >
+          </layer-register>
+        </q-tab-panel>
+
+        <q-tab-panel name="审核"></q-tab-panel>
+
+        <q-tab-panel name="编辑">
+          <layer-register
+            :map="map"
+            v-show="handle_type == '审核'"
+          ></layer-register>
+        </q-tab-panel>
+      </q-tab-panels>
+
       <div class="close">
         <q-btn
           dense
@@ -84,7 +79,7 @@
       class="absolute-top-right q-pa-md"
       style="z-index: 9000"
     >
-      <div style="width: 300px" v-if="extra_show == true">
+      <div style="width: 300px" v-if="extra_show === true">
         <q-btn
           dense
           flat
@@ -118,12 +113,9 @@ import { refresh_token } from "../service/user_log_request";
 import { set_user_token } from "../service/user_info";
 export default {
   name: "Index",
-  setup() {
-    let map = "";
-    return { map };
-  },
   data() {
     return {
+      map: null,
       area: {},
       selector_show: true,
       handle_type: "打点",
@@ -147,8 +139,8 @@ export default {
         this.extra_show = true;
       }
 
-        this.map.remove();
-        this.map = create_map(area.name)
+      this.map.remove();
+      this.map = create_map(area.name)
     },
   },
   components: {
@@ -179,6 +171,7 @@ export default {
   },
 };
 </script>
+
 <style scoped>
 @import url("https://yuanshen.site/css/background.css");
 #map {

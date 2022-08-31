@@ -1,162 +1,158 @@
 <template>
-  <div class="row" style="margin-top: 10px">
-    <div class="row col-12" v-show="panel">
-      <!-- 地区和分类选择 -->
-      <q-stepper
-        v-model="selector_step"
-        style="width: 100%;"
-        header-nav
-        bordered
-        animated>
-        <q-step
-          :name="1"
-          title="选择地区"
-          :caption="`当前选择：${selected_area_name}`"
-          icon="place"
-          active-icon="place"
-          :done="selector_step === 1">
-          <div class="q-gutter-md">
+  <div class="absolute-full marker-action-container">
+
+    <!-- 地区和分类选择 -->
+    <q-stepper
+      v-model="selector_step"
+      class="full-width marker-action-stepper flex-none"
+      header-nav
+      bordered
+      animated>
+      <q-step
+        :name="1"
+        title="选择地区"
+        :caption="`当前选择：${selected_area_name}`"
+        icon="place"
+        active-icon="place"
+        :done="selector_step === 1">
+        <div class="q-gutter-md">
+          <q-btn
+            v-for="i in area_list"
+            v-show="i.name.indexOf('阶段') === -1"
+            :color="selected_area_id === i.areaId ? 'primary': 'white'"
+            :text-color="selected_area_id === i.areaId ? 'white': 'black'"
+            @click="switch_area(i)">
+            <q-item-section>{{ i.name }}</q-item-section>
+          </q-btn>
+        </div>
+      </q-step>
+
+      <q-step
+        :name="2"
+        title="选择分类"
+        :caption="`当前选择：${selected_type_name}`"
+        icon="bookmarks"
+        active-icon="bookmarks"
+        :done="selector_step === 2">
+        <div v-if="selected_area_id <= 0">
+          尚未选择地区，请
+          <q-chip
+            outline
+            square
+            color="primary"
+            clickable
+            text-color="white"
+            icon="place"
+            @click="() => { selector_step = 1; }">
+            前去选择
+          </q-chip>
+        </div>
+        <div v-else class="q-gutter-md">
+          <template v-for="i in type_list">
             <q-btn
-              v-for="i in area_list"
-              v-show="i.name.indexOf('阶段') === -1"
-              :color="selected_area_id === i.areaId ? 'primary': 'white'"
-              :text-color="selected_area_id === i.areaId ? 'white': 'black'"
-              @click="switch_area(i)">
+              v-if="i.isFinal"
+              :color="selected_type_id === i.typeId ? 'primary': 'white'"
+              :text-color="selected_type_id === i.typeId ? 'white': 'black'"
+              @click="select_type_list(i)">
               <q-item-section>{{ i.name }}</q-item-section>
             </q-btn>
-          </div>
-        </q-step>
+            <q-btn-dropdown
+              v-else
+              :label="i.name"
+              :color="type_child_ids.indexOf(selected_type_id) !== -1 ? 'primary': 'white'"
+              :text-color="type_child_ids.indexOf(selected_type_id) !== -1 ? 'white': 'black'"
+              dropdown-icon="change_history">
+              <q-list>
+                <q-item
+                  v-for="j in type_child_list"
+                  :class="[
+                    j.typeId === selected_type_id ? 'bg-blue': 'bg-white',
+                    j.typeId === selected_type_id ? 'text-white': 'text-black'
+                  ].join(' ')"
+                  clickable
+                  @click="select_type_list(j)">
+                  <q-item-section>{{ j.name }}</q-item-section>
+                </q-item>
+              </q-list>
+            </q-btn-dropdown>
+          </template>
+        </div>
+      </q-step>
 
-        <q-step
-          :name="2"
-          title="选择分类"
-          :caption="`当前选择：${selected_type_name}`"
-          icon="bookmarks"
-          active-icon="bookmarks"
-          :done="selector_step === 2">
-          <div v-if="selected_area_id <= 0">
-            尚未选择地区，请
-            <q-chip
-              outline
-              square
-              color="primary"
-              clickable
-              text-color="white"
-              icon="place"
-              @click="() => { selector_step = 1; }">
-              前去选择
-            </q-chip>
-          </div>
-          <div v-else class="q-gutter-md">
-            <template v-for="i in type_list">
-              <q-btn
-                v-if="i.isFinal"
-                :color="selected_type_id === i.typeId ? 'primary': 'white'"
-                :text-color="selected_type_id === i.typeId ? 'white': 'black'"
-                @click="select_type_list(i)">
-                <q-item-section>{{ i.name }}</q-item-section>
-              </q-btn>
-              <q-btn-dropdown
-                v-else
-                :label="i.name"
-                :color="type_child_ids.indexOf(selected_type_id) !== -1 ? 'primary': 'white'"
-                :text-color="type_child_ids.indexOf(selected_type_id) !== -1 ? 'white': 'black'"
-                dropdown-icon="change_history">
-                <q-list>
-                  <q-item
-                    v-for="j in type_child_list"
-                    :class="[
-                      j.typeId === selected_type_id ? 'bg-blue': 'bg-white',
-                      j.typeId === selected_type_id ? 'text-white': 'text-black'
-                    ].join(' ')"
-                    clickable
-                    @click="select_type_list(j)">
-                    <q-item-section>{{ j.name }}</q-item-section>
-                  </q-item>
-                </q-list>
-              </q-btn-dropdown>
-            </template>
-          </div>
-        </q-step>
-
-        <q-step
-          :name="3"
-          title="选择物品"
-          icon="pets"
-          active-icon="pets"
-          :done="selector_step === 3">
-          <div v-if="selected_area_id <= 0">
-            尚未选择地区，请
-            <q-chip
-              outline
-              square
-              color="primary"
-              clickable
-              text-color="white"
-              icon="place"
-              @click="() => { selector_step = 1; }">
-              前去选择
-            </q-chip>
-          </div>
-          <div v-else-if="selected_type_id <= 0">
-            尚未选择分类，请
-            <q-chip
-              outline
-              square
-              color="primary"
-              clickable
-              text-color="white"
-              icon="bookmarks"
-              @click="() => { selector_step = 2; }">
-              前去选择
-            </q-chip>
-          </div>
-          <q-scroll-area
-            v-else
-            :thumb-style="{ background: 'none' }"
-            style="width: 100%; height: 220px;">
-            <div class="row">
-              <div class="col-4">
-                <q-radio
-                  v-model="selected_item"
-                  :val="null"
-                  label="全部"
-                  checked-icon="task_alt"
-                  unchecked-icon="panorama_fish_eye"
-                  @update:model-value="select_item_layers">
-                </q-radio>
-              </div>
-              <div
-                v-for="i in item_list"
-                class="col-4">
-                <q-radio
-                  v-model="selected_item"
-                  :val="i"
-                  :label="i.name"
-                  checked-icon="task_alt"
-                  unchecked-icon="panorama_fish_eye"
-                  @update:model-value="select_item_layers">
-                </q-radio>
-              </div>
+      <q-step
+        :name="3"
+        title="选择物品"
+        icon="pets"
+        active-icon="pets"
+        :done="selector_step === 3">
+        <div v-if="selected_area_id <= 0">
+          尚未选择地区，请
+          <q-chip
+            outline
+            square
+            color="primary"
+            clickable
+            text-color="white"
+            icon="place"
+            @click="() => { selector_step = 1; }">
+            前去选择
+          </q-chip>
+        </div>
+        <div v-else-if="selected_type_id <= 0">
+          尚未选择分类，请
+          <q-chip
+            outline
+            square
+            color="primary"
+            clickable
+            text-color="white"
+            icon="bookmarks"
+            @click="() => { selector_step = 2; }">
+            前去选择
+          </q-chip>
+        </div>
+        <q-scroll-area
+          v-else
+          :thumb-style="{ background: 'none' }"
+          style="width: 100%; height: 220px;">
+          <div class="row">
+            <div class="col-4">
+              <q-radio
+                v-model="selected_item"
+                :val="null"
+                label="全部"
+                checked-icon="task_alt"
+                unchecked-icon="panorama_fish_eye"
+                @update:model-value="select_item_layers">
+              </q-radio>
             </div>
-          </q-scroll-area>
-        </q-step>
-      </q-stepper>
+            <div
+              v-for="i in item_list"
+              class="col-4">
+              <q-radio
+                v-model="selected_item"
+                :val="i"
+                :label="i.name"
+                checked-icon="task_alt"
+                unchecked-icon="panorama_fish_eye"
+                @update:model-value="select_item_layers">
+              </q-radio>
+            </div>
+          </div>
+        </q-scroll-area>
+      </q-step>
+    </q-stepper>
 
-      <q-separator vertical spaced />
-    </div>
-    <div class="col-12" v-show="panel">
-      <q-separator spaced />
-    </div>
+    <q-separator spaced class="flex-none" />
+
     <!-- 点位信息表 -->
-    <div class="row col-12">
-      <layer-table
-        :propdata="handle_layer_list_data"
-        :propitem="selected_item"
-        :collapsed="!panel"
-        @callback="table_callback"
-      ></layer-table>
-    </div>
+    <layer-table
+      class="full-width flex-auto"
+      :propdata="handle_layer_list_data"
+      :propitem="selected_item"
+      @callback="table_callback">
+    </layer-table>
+
     <!-- 地图上点位的弹窗 -->
     <div id="popup_window" ref="window" v-show="popup_window_show">
       <popup-window
@@ -261,10 +257,10 @@ export default {
       type_child_list: [],
       item_list: [],
 
+      stepper_collapsed: false,
       handle_layer_list_data: [],
       handle_layer: null,
       popup_window_show: false,
-      panel: true,
       edit_data: {},
       layer_edit_window: false,
       new_layer_id: 0,
@@ -537,7 +533,7 @@ export default {
           this.delete_layer(callback.data);
           break;
         case 5:
-          this.panel = !this.panel;
+          this.stepper_collapsed = !this.stepper_collapsed;
           break;
         case 6:
           this.refresh();
@@ -670,14 +666,30 @@ export default {
 };
 </script>
 
+<style>
+.q-scrollarea__content {
+  width: 100%;
+}
+</style>
+
 <style scoped>
 #popup_window {
   width: 300px;
 }
 </style>
 
-<style>
-.q-scrollarea__content {
-  width: 100%;
+<style lang="scss" scoped>
+.marker-action-container {
+  display: flex;
+  flex-direction: column;
+  .marker-action-stepper {}
+  .flex-none {
+    flex: none;
+    position: relative;
+  }
+  .flex-auto {
+    flex: auto;
+    position: relative;
+  }
 }
 </style>
