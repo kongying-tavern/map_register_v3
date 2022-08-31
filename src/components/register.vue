@@ -1,94 +1,149 @@
 <template>
   <div class="row" style="margin-top: 10px">
-    <div class="row col-12" v-show="panel" style="height: 370px">
-      <div style="width: 18%">
-        <!-- 地区和分类选择 -->
-        <q-scroll-area
-          :thumb-style="{ background: 'none' }"
-          style="width: 100%; height: 100%"
-        >
-          <q-btn
-            color="primary"
-            :label="selected_area == null ? '选择地区' : selected_area.name"
-            style="width: 100%"
-          >
-            <q-menu>
-              <q-list style="min-width: 100px; max-height: 350px">
-                <q-item
-                  v-for="i in area_list"
-                  v-show="i.name.indexOf('阶段') == -1 ? true : false"
-                  clickable
-                  v-close-popup
-                  @click="switch_area(i)"
-                >
-                  <q-item-section>{{ i.name }}</q-item-section>
-                </q-item>
-              </q-list>
-            </q-menu>
-          </q-btn>
-          <q-tabs
-            v-model="selected_type_index"
-            dense
-            vertical
-            class="text-primary"
-            style="margin-top: 5px"
-            @update:model-value="select_type_list"
-          >
-            <q-tab
-              v-for="i in type_list"
-              :name="i.typeId"
-              :label="i.name"
-              :disable="selected_area == null"
-            />
-          </q-tabs>
-        </q-scroll-area>
-      </div>
-      <q-separator vertical spaced />
-      <div style="width: 75%">
-        <!-- 物品选择 -->
-        <q-scroll-area
-          :thumb-style="{ background: 'none' }"
-          style="width: 100%; height: 370px"
-        >
-          <!-- 宝箱的额外分类 -->
-          <div v-if="type_child_list.length != 0" class="row">
-            <div class="col-12">
-              <q-tabs
-                v-model="selected_type_child_index"
-                dense
-                class="text-primary"
-                @update:model-value="selected_item_list"
-              >
-                <q-tab
-                  v-for="i in type_child_list"
-                  :name="i.typeId"
-                  :label="i.name"
-                />
-              </q-tabs>
-            </div>
+    <div class="row col-12" v-show="panel">
+      <!-- 地区和分类选择 -->
+      <q-stepper
+        v-model="selector_step"
+        style="width: 100%;"
+        header-nav
+        bordered
+        animated>
+        <q-step
+          :name="1"
+          title="选择地区"
+          :caption="`当前选择：${selected_area_name}`"
+          icon="place"
+          active-icon="place"
+          :done="selector_step === 1">
+          <div class="q-gutter-md">
+            <q-btn
+              v-for="i in area_list"
+              v-show="i.name.indexOf('阶段') === -1"
+              :color="selected_area_id === i.areaId ? 'primary': 'white'"
+              :text-color="selected_area_id === i.areaId ? 'white': 'black'"
+              @click="switch_area(i)">
+              <q-item-section>{{ i.name }}</q-item-section>
+            </q-btn>
+          </div>
+        </q-step>
 
-            <div class="col-12" v-show="selected_type_child_index != null">
-              <q-toggle
-                v-model="batch_mode"
-                @update:model-value="record_chest_list"
-                label="查看全部"
-              />
-            </div>
+        <q-step
+          :name="2"
+          title="选择分类"
+          :caption="`当前选择：${selected_type_name}`"
+          icon="bookmarks"
+          active-icon="bookmarks"
+          :done="selector_step === 2">
+          <div v-if="selected_area_id <= 0">
+            尚未选择地区，请
+            <q-chip
+              outline
+              square
+              color="primary"
+              clickable
+              text-color="white"
+              icon="place"
+              @click="() => { selector_step = 1; }">
+              前去选择
+            </q-chip>
           </div>
-          <!-- 物品单选选项组 -->
-          <div class="col-12 row content-start">
-            <div v-for="i in item_list" style="width: 33%">
-              <q-radio
-                :disable="batch_mode && type_child_list.length != 0"
-                v-model="selected_item"
-                :val="i.itemId"
+          <div v-else class="q-gutter-md">
+            <template v-for="i in type_list">
+              <q-btn
+                v-if="i.isFinal"
+                :color="selected_type_id === i.typeId ? 'primary': 'white'"
+                :text-color="selected_type_id === i.typeId ? 'white': 'black'"
+                @click="select_type_list(i)">
+                <q-item-section>{{ i.name }}</q-item-section>
+              </q-btn>
+              <q-btn-dropdown
+                v-else
                 :label="i.name"
-                @update:model-value="select_item_layers"
-              />
-            </div>
+                :color="type_child_ids.indexOf(selected_type_id) !== -1 ? 'primary': 'white'"
+                :text-color="type_child_ids.indexOf(selected_type_id) !== -1 ? 'white': 'black'"
+                dropdown-icon="change_history">
+                <q-list>
+                  <q-item
+                    v-for="j in type_child_list"
+                    :class="[
+                      j.typeId === selected_type_id ? 'bg-blue': 'bg-white',
+                      j.typeId === selected_type_id ? 'text-white': 'text-black'
+                    ].join(' ')"
+                    clickable
+                    @click="select_type_list(j)">
+                    <q-item-section>{{ j.name }}</q-item-section>
+                  </q-item>
+                </q-list>
+              </q-btn-dropdown>
+            </template>
           </div>
-        </q-scroll-area>
-      </div>
+        </q-step>
+
+        <q-step
+          :name="3"
+          title="选择物品"
+          icon="pets"
+          active-icon="pets"
+          :done="selector_step === 3">
+          <div v-if="selected_area_id <= 0">
+            尚未选择地区，请
+            <q-chip
+              outline
+              square
+              color="primary"
+              clickable
+              text-color="white"
+              icon="place"
+              @click="() => { selector_step = 1; }">
+              前去选择
+            </q-chip>
+          </div>
+          <div v-else-if="selected_type_id <= 0">
+            尚未选择分类，请
+            <q-chip
+              outline
+              square
+              color="primary"
+              clickable
+              text-color="white"
+              icon="bookmarks"
+              @click="() => { selector_step = 2; }">
+              前去选择
+            </q-chip>
+          </div>
+          <q-scroll-area
+            v-else
+            :thumb-style="{ background: 'none' }"
+            style="width: 100%; height: 220px;">
+            <div class="row">
+              <div class="col-4">
+                <q-radio
+                  v-model="selected_item"
+                  :val="null"
+                  label="全部"
+                  checked-icon="task_alt"
+                  unchecked-icon="panorama_fish_eye"
+                  @update:model-value="select_item_layers">
+                </q-radio>
+              </div>
+              <div
+                v-for="i in item_list"
+                class="col-4">
+                <q-radio
+                  v-model="selected_item"
+                  :val="i"
+                  :label="i.name"
+                  checked-icon="task_alt"
+                  unchecked-icon="panorama_fish_eye"
+                  @update:model-value="select_item_layers">
+                </q-radio>
+              </div>
+            </div>
+          </q-scroll-area>
+        </q-step>
+      </q-stepper>
+
+      <q-separator vertical spaced />
     </div>
     <div class="col-12" v-show="panel">
       <q-separator spaced />
@@ -97,7 +152,7 @@
     <div class="row col-12">
       <layer-table
         :propdata="handle_layer_list_data"
-        :propitem="batch_mode == true ? 'all' : selected_item"
+        :propitem="selected_item"
         :collapsed="!panel"
         @callback="table_callback"
       ></layer-table>
@@ -165,6 +220,7 @@
 </template>
 
 <script>
+import _ from 'lodash'
 import {
   query_area,
   query_itemtype,
@@ -192,18 +248,19 @@ export default {
     return {
       add_mode: false,
       loading: true,
-      batch_mode: false,
       dragmode: false,
       drag_window: false,
+
+      selector_step: 1,
       selected_area: null,
-      area_list: [],
-      selected_type_index: null,
       selected_type: null,
-      type_list: [],
-      selected_type_child_index: null,
-      type_child_list: [],
       selected_item: null,
+
+      area_list: [],
+      type_list: [],
+      type_child_list: [],
       item_list: [],
+
       handle_layer_list_data: [],
       handle_layer: null,
       popup_window_show: false,
@@ -215,14 +272,44 @@ export default {
       mark_layer_set: [],
     };
   },
+  computed: {
+    selected_area_id() {
+      return (this.selected_area || {}).areaId || 0;
+    },
+    selected_area_name() {
+      return (this.selected_area || {}).name || ''
+    },
+    selected_type_id() {
+      return (this.selected_type || {}).typeId || 0;
+    },
+    selected_type_name() {
+      return (this.selected_type || {}).name || '';
+    },
+    selected_item_id() {
+      return (this.selected_item || {}).itemId || 0;
+    },
+    selected_item_name() {
+      return (this.selected_item || {}).name || '';
+    },
+    selected_item_icontag() {
+      return (this.selected_item || {}).iconTag || '';
+    },
+    type_child_ids() {
+      return _.map(this.type_child_list || [], v => v.typeId)
+    },
+    item_ids() {
+      return _.map(this.item_list || [], v => v.itemId);
+    },
+    item_icontags() {
+      return _.chain(this.item_list || []).map(v => v.iconTag).filter(v => v).value();
+    }
+  },
   methods: {
     //清除子分类和物品选择
     clearlist() {
       this.callback_list = {};
       this.layer_list = null;
       this.item_list = [];
-      this.selected_type_child_index = null;
-      this.type_child_list = [];
       this.selected_item = null;
       this.handle_layer_list_data = [];
     },
@@ -233,7 +320,7 @@ export default {
     },
     //切换地区
     switch_area(area) {
-      this.selected_type_index = null;
+      this.selected_type = null;
       this.clearlist();
       this.clearlayers();
       this.selected_area = area;
@@ -244,106 +331,61 @@ export default {
       this.loading = true;
       this.clearlayers();
       this.clearlist();
-      this.batch_mode = false;
-      this.selected_type = this.type_list.find((item) => item.typeId == value);
-      if (!this.selected_type.isFinal) {
-        query_itemtype(1, {
-          current: 1,
-          typeIdList: [this.selected_type.typeId],
-          size: 999,
-        }).then((res) => {
-          this.loading = false;
-          this.type_child_list = res.data.data.record;
-        });
-      } else {
-        this.selected_item_list(value);
-      }
+      this.selected_type = value;
+      this.select_item_list(value.typeId);
     },
     //查询类型下属的物品列表
-    selected_item_list(value) {
+    select_item_list(value) {
       this.loading = true;
       query_itemlist({
         typeIdList: [value],
-        areaIdList: [this.selected_area.areaId],
+        areaIdList: [this.selected_area_id],
         current: 0,
         size: 999,
       }).then((res) => {
         this.loading = false;
         this.item_list = res.data.data.record;
-        if (this.type_child_list.length != 0) {
-          this.record_chest_list(true);
-        }
+        this.select_item_layers(null);
       });
-    },
-    //记录宝箱全选时的itemid数组
-    record_chest_list(value) {
-      this.selected_item = null;
-      let arr = [];
-      if (value) {
-        this.batch_mode = true;
-        for (let i of this.item_list) {
-          arr.push(i.itemId);
-        }
-        this.select_item_layers(arr);
-      } else {
-        this.clearlayers();
-        this.handle_layer_list_data = [];
-      }
     },
     //查询点位信息
     select_item_layers(value) {
       this.clearlayers();
       this.loading = true;
-      let icontag;
-      if (typeof value == "number") {
-        value = Array.of(value);
-        icontag = Array.of(
-          this.item_list.find((item) => item.itemId == value).iconTag
-        );
-      } else {
-        icontag = [];
-        for (let i of value) {
-          icontag.push(this.item_list.find((item) => item.itemId == i).iconTag);
-        }
-      }
+      this.selected_item = value;
+
+      let icon_tags = this.selected_item_id <= 0 ? this.item_icontags : [this.selected_item_icontag]
+      let item_ids = this.selected_item_id <= 0 ? this.item_ids : [this.selected_item_id]
+
       //查询点位图标和点位数据
       this.$axios
         .all([
           query_itemlayer_icon({
             size: 999,
-            tagList: icontag,
+            tagList: icon_tags,
             typeIdList: [],
             current: 0,
           }),
           query_itemlayer_infolist({
             typeIdList: [],
             areaIdList: [],
-            itemIdList: value,
+            itemIdList: item_ids,
             getBeta: 0,
           }),
         ])
         .then(
           this.$axios.spread((iconlist, layerlist) => {
-            for (let i of layerlist.data.data) {
-              let iconinfo;
-              for (let j of i.itemList) {
-                iconinfo = this.item_list.find(
-                  (item) => item.itemId == j.itemId
-                );
-                if (iconinfo != undefined) {
-                  let icon = iconlist.data.data.record.find(
-                    (item) => item.tag == iconinfo.iconTag
-                  );
-                  i.icon = icon;
-                }
-                if (i.icon == undefined) {
-                  i.icon = {
-                    url: "",
-                  };
-                }
-              }
-            }
-            this.handle_layer_list_data = layerlist.data.data;
+            let icon_records = iconlist.data.data.record || []
+            let layer_records = layerlist.data.data || []
+            let icon_map = _.chain(icon_records).map(v => [v.tag, v.url]).fromPairs().value()
+            let layer_record_list = _.map(layer_records, v => {
+              let iconTag = v.iconTag || '';
+              let icon = iconTag ? '' : (icon_map[iconTag] || '');
+              v.icon = icon;
+              return v;
+            });
+
+            this.handle_layer_list_data = layer_record_list;
             this.paint_layers(this.handle_layer_list_data);
             this.loading = false;
           })
@@ -515,11 +557,7 @@ export default {
     refresh() {
       this.add_mode_off();
       this.layer_edit_window = false;
-      if (this.batch_mode == true) {
-        this.record_chest_list(true);
-      } else {
-        this.select_item_layers(this.selected_item);
-      }
+      this.select_item_layers(this.selected_item);
     },
     //删除点位
     delete_layer(data) {
@@ -532,7 +570,6 @@ export default {
     },
     //提交点位位置改动
     upload_position() {
-      console.log(this.handle_layer);
       let position = this.handle_layer.target._latlng;
       position = `${position.lat},${position.lng}`;
       edit_layer({
@@ -574,7 +611,21 @@ export default {
           }
           this.type_list = typelist.data.data.record;
         })
-      );
+      )
+      .then(() => {
+        let type_not_final = _.find(this.type_list, v => !v.isFinal)
+        if(type_not_final) {
+          return query_itemtype(1, {
+            current: 1,
+            typeIdList: [type_not_final.typeId],
+            size: 999,
+          }).then((res) => {
+            this.loading = false;
+            this.type_child_list = res.data.data.record;
+          });
+        }
+      })
+      ;
     //快捷键
     document.onkeyup = (event) => {
       switch (event.keyCode) {
@@ -614,6 +665,7 @@ export default {
   width: 300px;
 }
 </style>
+
 <style>
 .q-scrollarea__content {
   width: 100%;
