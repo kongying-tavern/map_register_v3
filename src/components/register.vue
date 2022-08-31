@@ -302,6 +302,9 @@ export default {
     },
     item_icontags() {
       return _.chain(this.item_list || []).map(v => v.iconTag).filter(v => v).value();
+    },
+    item_icontag_map() {
+      return _.chain(this.item_list || []).filter(v => v && v.iconTag).map(v => [v.itemId, v.iconTag]).fromPairs().value();
     }
   },
   methods: {
@@ -357,30 +360,37 @@ export default {
       let icon_tags = this.selected_item_id <= 0 ? this.item_icontags : [this.selected_item_icontag]
       let item_ids = this.selected_item_id <= 0 ? this.item_ids : [this.selected_item_id]
 
+      let icon_getter = icon_tags.length > 0 ?
+        query_itemlayer_icon({
+          size: 999,
+          tagList: icon_tags,
+          typeIdList: [],
+          current: 0,
+        }) : Promise.resolve({data: {data: {record: []}}});
+      let item_getter = item_ids.length > 0 ?
+        query_itemlayer_infolist({
+          typeIdList: [],
+          areaIdList: [],
+          itemIdList: item_ids,
+          getBeta: 0,
+        }) : Promise.resolve({data: {data: []}})
+
       //查询点位图标和点位数据
       this.$axios
         .all([
-          query_itemlayer_icon({
-            size: 999,
-            tagList: icon_tags,
-            typeIdList: [],
-            current: 0,
-          }),
-          query_itemlayer_infolist({
-            typeIdList: [],
-            areaIdList: [],
-            itemIdList: item_ids,
-            getBeta: 0,
-          }),
+          icon_getter,
+          item_getter,
         ])
         .then(
           this.$axios.spread((iconlist, layerlist) => {
-            let icon_records = iconlist.data.data.record || []
-            let layer_records = layerlist.data.data || []
-            let icon_map = _.chain(icon_records).map(v => [v.tag, v.url]).fromPairs().value()
+            let icon_records = iconlist.data.data.record || [];
+            let layer_records = layerlist.data.data || [];
+            let icon_map = _.chain(icon_records).map(v => [v.tag, v]).fromPairs().value();
             let layer_record_list = _.map(layer_records, v => {
-              let iconTag = v.iconTag || '';
-              let icon = iconTag ? '' : (icon_map[iconTag] || '');
+              let itemId = _.get(v, 'itemList.0.itemId', 0);
+              let itemIconTag = this.item_icontag_map[itemId] || ''
+              let iconDefault = {url: ''};
+              let icon = itemIconTag ? (icon_map[itemIconTag] || iconDefault) : iconDefault;
               v.icon = icon;
               return v;
             });
