@@ -1,10 +1,10 @@
 <template>
   <div class="absolute-full marker-action-container">
-
     <!-- 地区和分类选择 -->
     <q-stepper
       v-model="selector_step"
       class="full-width flex-none"
+      header-class="stepper-header"
       header-nav
       flat
       bordered
@@ -139,7 +139,7 @@
           :bar-style="scroll_area_bar_style"
           :thumb-style="scroll_area_thumb_style">
           <div class="row">
-            <div class="col-4">
+            <div v-if="item_all_allowable" class="col-4">
               <q-radio
                 v-model="selected_item"
                 :val="null"
@@ -336,7 +336,7 @@ export default {
       return (this.selected_item || {}).itemId || 0;
     },
     selected_item_name() {
-      if(_.isNil(this.selected_item)) {
+      if(this.item_all_allowable && _.isNil(this.selected_item)) {
         return '全部';
       }
       return (this.selected_item || {}).name || '';
@@ -349,6 +349,10 @@ export default {
     },
     item_ids() {
       return _.map(this.item_list || [], v => v.itemId);
+    },
+    item_all_allowable() {
+      let pid = (this.selected_type || {}).parentId
+      return pid && pid !== -1;
     },
     item_icontags() {
       return _.chain(this.item_list || []).map(v => v.iconTag).filter(v => v).value();
@@ -404,7 +408,9 @@ export default {
       }).then((res) => {
         this.loading = false;
         this.item_list = res.data.data.record;
-        this.select_item_layers(null);
+        if(this.item_all_allowable) {
+          this.select_item_layers(null);
+        }
       });
     },
     //查询点位信息
@@ -413,8 +419,8 @@ export default {
       this.loading = true;
       this.selected_item = value;
 
-      let icon_tags = this.selected_item_id <= 0 ? this.item_icontags : [this.selected_item_icontag]
-      let item_ids = this.selected_item_id <= 0 ? this.item_ids : [this.selected_item_id]
+      let icon_tags = this.item_all_allowable && this.selected_item_id <= 0 ? this.item_icontags : [this.selected_item_icontag]
+      let item_ids = this.item_all_allowable && this.selected_item_id <= 0 ? this.item_ids : [this.selected_item_id]
 
       let icon_getter = icon_tags.length > 0 ?
         query_itemlayer_icon({
@@ -739,6 +745,9 @@ export default {
 </style>
 
 <style lang="scss" scoped>
+::v-deep .stepper-header {
+  flex-wrap: nowrap !important;
+}
 .marker-action-container {
   display: flex;
   flex-direction: column;
