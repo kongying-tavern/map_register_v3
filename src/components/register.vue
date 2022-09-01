@@ -17,7 +17,10 @@
         :caption="`当前选择：${selected_area_name}`"
         icon="place"
         active-icon="place"
-        :done="selector_step === 1"
+        :active-color="stepper_collapsed ? 'blue-10' : 'primary'"
+        done-icon="place"
+        :done-color="stepper_collapsed ? 'blue-10' : 'primary'"
+        :done="stepper_collapsed || selector_step === 1"
         :header-nav="!stepper_collapsed">
         <q-scroll-area
           class="absolute-full q-pa-md"
@@ -44,7 +47,10 @@
         :caption="`当前选择：${selected_type_name}`"
         icon="bookmarks"
         active-icon="bookmarks"
-        :done="selector_step === 2"
+        :active-color="stepper_collapsed ? 'blue-10' : 'primary'"
+        done-icon="bookmarks"
+        :done-color="stepper_collapsed ? 'blue-10' : 'primary'"
+        :done="stepper_collapsed || selector_step === 2"
         :header-nav="!stepper_collapsed">
         <div v-if="selected_area_id <= 0">
           尚未选择地区，请
@@ -105,7 +111,10 @@
         :caption="`当前选择：${selected_item_name}`"
         icon="pets"
         active-icon="pets"
-        :done="selector_step === 3"
+        :active-color="stepper_collapsed ? 'blue-10' : 'primary'"
+        done-icon="pets"
+        :done-color="stepper_collapsed ? 'blue-10' : 'primary'"
+        :done="stepper_collapsed || selector_step === 3"
         :header-nav="!stepper_collapsed">
         <div v-if="selected_area_id <= 0">
           尚未选择地区，请
