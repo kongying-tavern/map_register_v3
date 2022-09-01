@@ -8,9 +8,15 @@ import "leaflet/dist/leaflet.css";
  * 获取地图瓦片配置
  */
 const map_tiles_config = {
-    '提瓦特2.5': {
+    '提瓦特-base0': {
         extension: 'png',
-        code: 'twt25'
+        code: 'twt29',
+        settings: {
+          center: [0, 1742],
+        },
+        center: [3568, 6286],
+        size: [14080, 15360],
+        tilesOffset: [-1792, 0]
     },
     '提瓦特-base1': {
         extension: 'png',
@@ -51,16 +57,6 @@ const map_tiles_config = {
             center: [2000, 300],
             zoom: -4
         }
-    },
-    '须弥': {
-        extension: 'png',
-        code: 'twt29',
-        settings: {
-          center: [0, 1742],
-        },
-        center: [3568, 6286],
-        size: [14080, 15360],
-        tilesOffset: [-1792, 0]
     }
 };
 
@@ -107,7 +103,7 @@ function create_map_layer(area_idx, mapCenter, mapSize, mapTilesOffset = [0, 0],
  * @returns 地图对象
  */
 function create_map(area_name = '') {
-    let tiles_config = map_tiles_config[area_name] || map_tiles_config['提瓦特2.5'];
+    let tiles_config = map_tiles_config[area_name] || map_tiles_config['提瓦特-base0'];
     let tiles_extend_name = tiles_config.extend || '';
     if(tiles_extend_name) {
         tiles_config = _.defaultsDeep({}, tiles_config, map_tiles_config[tiles_extend_name] || {});
