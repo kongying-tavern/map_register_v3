@@ -4,36 +4,48 @@
     <!-- 地区和分类选择 -->
     <q-stepper
       v-model="selector_step"
-      class="full-width marker-action-stepper flex-none"
+      class="full-width flex-none"
       header-nav
+      flat
       bordered
       animated>
       <q-step
+        class="marker-action-step"
+        :class="{hidden: stepper_collapsed}"
         :name="1"
         title="选择地区"
         :caption="`当前选择：${selected_area_name}`"
         icon="place"
         active-icon="place"
-        :done="selector_step === 1">
-        <div class="q-gutter-md">
-          <q-btn
-            v-for="i in area_list"
-            v-show="i.name.indexOf('阶段') === -1"
-            :color="selected_area_id === i.areaId ? 'primary': 'white'"
-            :text-color="selected_area_id === i.areaId ? 'white': 'black'"
-            @click="switch_area(i)">
-            <q-item-section>{{ i.name }}</q-item-section>
-          </q-btn>
-        </div>
+        :done="selector_step === 1"
+        :header-nav="!stepper_collapsed">
+        <q-scroll-area
+          class="absolute-full q-pa-md"
+          :bar-style="scroll_area_bar_style"
+          :thumb-style="scroll_area_thumb_style">
+          <div class="q-gutter-md">
+            <q-btn
+              v-for="i in area_list"
+              v-show="i.name.indexOf('阶段') === -1"
+              :color="selected_area_id === i.areaId ? 'primary': 'white'"
+              :text-color="selected_area_id === i.areaId ? 'white': 'black'"
+              @click="switch_area(i)">
+              <q-item-section>{{ i.name }}</q-item-section>
+            </q-btn>
+          </div>
+        </q-scroll-area>
       </q-step>
 
       <q-step
+        class="marker-action-step"
+        :class="{hidden: stepper_collapsed}"
         :name="2"
         title="选择分类"
         :caption="`当前选择：${selected_type_name}`"
         icon="bookmarks"
         active-icon="bookmarks"
-        :done="selector_step === 2">
+        :done="selector_step === 2"
+        :header-nav="!stepper_collapsed">
         <div v-if="selected_area_id <= 0">
           尚未选择地区，请
           <q-chip
@@ -47,44 +59,53 @@
             前去选择
           </q-chip>
         </div>
-        <div v-else class="q-gutter-md">
-          <template v-for="i in type_list">
-            <q-btn
-              v-if="i.isFinal"
-              :color="selected_type_id === i.typeId ? 'primary': 'white'"
-              :text-color="selected_type_id === i.typeId ? 'white': 'black'"
-              @click="select_type_list(i)">
-              <q-item-section>{{ i.name }}</q-item-section>
-            </q-btn>
-            <q-btn-dropdown
-              v-else
-              :label="i.name"
-              :color="type_child_ids.indexOf(selected_type_id) !== -1 ? 'primary': 'white'"
-              :text-color="type_child_ids.indexOf(selected_type_id) !== -1 ? 'white': 'black'"
-              dropdown-icon="change_history">
-              <q-list>
-                <q-item
-                  v-for="j in type_child_list"
-                  :class="[
-                    j.typeId === selected_type_id ? 'bg-blue': 'bg-white',
-                    j.typeId === selected_type_id ? 'text-white': 'text-black'
-                  ].join(' ')"
-                  clickable
-                  @click="select_type_list(j)">
-                  <q-item-section>{{ j.name }}</q-item-section>
-                </q-item>
-              </q-list>
-            </q-btn-dropdown>
-          </template>
-        </div>
+        <q-scroll-area
+          v-else
+          class="absolute-full q-pa-md"
+          :bar-style="scroll_area_bar_style"
+          :thumb-style="scroll_area_thumb_style">
+          <div class="q-gutter-md">
+            <template v-for="i in type_list">
+              <q-btn
+                v-if="i.isFinal"
+                :color="selected_type_id === i.typeId ? 'primary': 'white'"
+                :text-color="selected_type_id === i.typeId ? 'white': 'black'"
+                @click="select_type_list(i)">
+                <q-item-section>{{ i.name }}</q-item-section>
+              </q-btn>
+              <q-btn-dropdown
+                v-else
+                :label="i.name"
+                :color="type_child_ids.indexOf(selected_type_id) !== -1 ? 'primary': 'white'"
+                :text-color="type_child_ids.indexOf(selected_type_id) !== -1 ? 'white': 'black'"
+                dropdown-icon="change_history">
+                <q-list>
+                  <q-item
+                    v-for="j in type_child_list"
+                    :class="[
+                      j.typeId === selected_type_id ? 'bg-blue': 'bg-white',
+                      j.typeId === selected_type_id ? 'text-white': 'text-black'
+                    ].join(' ')"
+                    clickable
+                    @click="select_type_list(j)">
+                    <q-item-section>{{ j.name }}</q-item-section>
+                  </q-item>
+                </q-list>
+              </q-btn-dropdown>
+            </template>
+          </div>
+        </q-scroll-area>
       </q-step>
 
       <q-step
+        class="marker-action-step"
+        :class="{hidden: stepper_collapsed}"
         :name="3"
         title="选择物品"
         icon="pets"
         active-icon="pets"
-        :done="selector_step === 3">
+        :done="selector_step === 3"
+        :header-nav="!stepper_collapsed">
         <div v-if="selected_area_id <= 0">
           尚未选择地区，请
           <q-chip
@@ -113,8 +134,9 @@
         </div>
         <q-scroll-area
           v-else
-          :thumb-style="{ background: 'none' }"
-          style="width: 100%; height: 220px;">
+          class="absolute-full q-pa-sm"
+          :bar-style="scroll_area_bar_style"
+          :thumb-style="scroll_area_thumb_style">
           <div class="row">
             <div class="col-4">
               <q-radio
@@ -141,9 +163,22 @@
           </div>
         </q-scroll-area>
       </q-step>
-    </q-stepper>
 
-    <q-separator spaced class="flex-none" />
+      <!-- 步骤下部导航部分 -->
+      <template #navigation>
+        <q-stepper-navigation class="flex-none">
+          <div class="q-pt-md marker-action-toggle">
+            <q-space></q-space>
+            <span
+              class="flex-none cursor-pointer text text-bold text-right text-grey-8"
+              @click="toggle_stepper">
+              <q-icon :name="stepper_collapse_icon" right></q-icon>
+              {{stepper_collapse_text}}
+            </span>
+          </div>
+        </q-stepper-navigation>
+      </template>
+    </q-stepper>
 
     <!-- 点位信息表 -->
     <layer-table
@@ -209,6 +244,7 @@
         @refresh="refresh"
       ></layer-edit>
     </q-dialog>
+
     <q-inner-loading :showing="loading">
       <q-spinner-gears size="50px" color="primary" />
     </q-inner-loading>
@@ -242,6 +278,20 @@ export default {
   name: "Selector",
   data() {
     return {
+      scroll_area_bar_style: {
+        width: '10px',
+        borderRadius: '5px',
+        backgroundColor: '#dedede',
+        opacity: .3
+      },
+      scroll_area_thumb_style: {
+        width: '6px',
+        borderRadius: '3px',
+        backgroundColor: '#dadada',
+        margin: '2px',
+        opacity: 1
+      },
+
       add_mode: false,
       loading: true,
       dragmode: false,
@@ -301,6 +351,12 @@ export default {
     },
     item_icontag_map() {
       return _.chain(this.item_list || []).filter(v => v && v.iconTag).map(v => [v.itemId, v.iconTag]).fromPairs().value();
+    },
+    stepper_collapse_icon() {
+      return this.stepper_collapsed ? 'keyboard_double_arrow_down' : 'keyboard_double_arrow_up';
+    },
+    stepper_collapse_text() {
+      return this.stepper_collapsed ? '展开' : '收起';
     }
   },
   methods: {
@@ -532,13 +588,13 @@ export default {
         case 4:
           this.delete_layer(callback.data);
           break;
-        case 5:
-          this.stepper_collapsed = !this.stepper_collapsed;
-          break;
         case 6:
           this.refresh();
           break;
       }
+    },
+    toggle_stepper() {
+      this.stepper_collapsed = !this.stepper_collapsed;
     },
     //点位弹窗回调
     pop_callback(data) {
@@ -682,7 +738,19 @@ export default {
 .marker-action-container {
   display: flex;
   flex-direction: column;
-  .marker-action-stepper {}
+  .marker-action-step {
+    position: relative;
+    min-height: 20vh;
+    max-height: 30vh
+  }
+  .marker-action-toggle {
+    display: flex;
+    flex-direction: row;
+    .text {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+  }
   .flex-none {
     flex: none;
     position: relative;

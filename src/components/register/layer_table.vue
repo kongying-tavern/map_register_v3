@@ -48,12 +48,6 @@
             </q-tooltip>
           </q-btn>
           <q-btn
-            color="primary"
-            label="展开/收起筛选"
-            style="margin-right: 10px"
-            @click="callback(5)"
-          />
-          <q-btn
             :disable="propitem == null"
             color="primary"
             style="margin-right: 10px"
