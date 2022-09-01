@@ -169,7 +169,32 @@
       <template #navigation>
         <q-stepper-navigation class="flex-none">
           <div class="q-pt-md marker-action-toggle">
-            <q-space></q-space>
+            <q-space v-if="stepper_collapsed"></q-space>
+            <div
+              v-else
+              class="flex-auto q-gutter-md">
+              <q-btn
+                v-if="selector_step > 1"
+                label="上一步"
+                icon="arrow_back"
+                color="primary"
+                size="sm"
+                rounded
+                glossy
+                @click="() => { selector_step -= 1; }">
+              </q-btn>
+
+              <q-btn
+                v-if="selector_step < 3"
+                label="下一步"
+                icon-right="arrow_forward"
+                color="primary"
+                size="sm"
+                rounded
+                glossy
+                @click="() => { selector_step += 1; }">
+              </q-btn>
+            </div>
             <span
               class="flex-none cursor-pointer text text-bold text-right text-grey-8"
               @click="toggle_stepper">
