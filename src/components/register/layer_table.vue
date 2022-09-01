@@ -49,15 +49,19 @@
           </q-btn>
           <q-btn
             :disable="propitem == null"
-            color="primary"
+            color="secondary"
+            label="新增"
+            icon="add"
+            dense
             style="margin-right: 10px"
             @click="callback(1)"
-            label="新增"
           />
           <q-btn
-            color="primary"
             :disable="propitem == null"
+            color="orange"
             label="刷新"
+            icon="refresh"
+            dense
             @click="callback(6)"
           />
         </div>
@@ -78,20 +82,46 @@
         <q-th class="text-left sticky-column sticky-right">操作</q-th>
       </template>
       <template v-slot:body-cell-handle="props">
-        <q-td class="text-center sticky-column sticky-right">
-          <a href="javascript:;" @click="callback(2, props.row)">定位</a>
-          <a
-            href="javascript:;"
-            style="margin-left: 10px"
+        <q-td class="text-center sticky-column sticky-right q-gutter-sm">
+          <q-btn
+            icon="place"
+            color="blue-5"
+            dense
+            round
+            glossy
+            @click="callback(2, props.row)">
+            <q-tooltip
+              anchor="top middle"
+              self="top middle">
+              定位
+            </q-tooltip>
+          </q-btn>
+          <q-btn
+            icon="edit"
+            color="yellow-9"
+            dense
+            round
+            glossy
             @click="callback(3, props.row)">
-            编辑
-          </a>
-          <a
-            href="javascript:;"
-            style="margin-left: 10px"
+            <q-tooltip
+              anchor="top middle"
+              self="top middle">
+              编辑
+            </q-tooltip>
+          </q-btn>
+          <q-btn
+            icon="delete"
+            color="red-6"
+            dense
+            round
+            glossy
             @click="callback(4, props.row)">
-            删除
-          </a>
+            <q-tooltip
+              anchor="top middle"
+              self="top middle">
+              删除
+            </q-tooltip>
+          </q-btn>
         </q-td>
       </template>
     </q-table>
