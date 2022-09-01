@@ -102,6 +102,7 @@
         :class="{hidden: stepper_collapsed}"
         :name="3"
         title="选择物品"
+        :caption="`当前选择：${selected_item_name}`"
         icon="pets"
         active-icon="pets"
         :done="selector_step === 3"
@@ -335,6 +336,9 @@ export default {
       return (this.selected_item || {}).itemId || 0;
     },
     selected_item_name() {
+      if(_.isNil(this.selected_item)) {
+        return '全部';
+      }
       return (this.selected_item || {}).name || '';
     },
     selected_item_icontag() {
