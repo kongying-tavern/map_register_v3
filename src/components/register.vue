@@ -483,7 +483,8 @@ export default {
             let layer_records = layerlist.data.data || [];
             let icon_map = _.chain(icon_records).map(v => [v.tag, v]).fromPairs().value();
             let layer_record_list = _.map(layer_records, v => {
-              let itemId = _.get(v, 'itemList.0.itemId', 0);
+              let itemIds = _.map(v.itemList || [], 'itemId');
+              let itemId = _.find(itemIds, v => !!this.item_icontag_map[v])
               let itemIconTag = this.item_icontag_map[itemId] || ''
               let iconDefault = {url: ''};
               let icon = itemIconTag ? (icon_map[itemIconTag] || iconDefault) : iconDefault;
