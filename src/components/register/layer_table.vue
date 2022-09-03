@@ -12,8 +12,69 @@
       separator="vertical"
       virtual-scroll
       :virtual-scroll-item-size="40"
+      :filter="filter_text"
+      :filter-method="applyFilter"
     >
       <!-- 表格头插槽 -->
+      <template #top-left>
+        <div class="q-table__title">
+          点位
+          <div
+            class="inline-block"
+            style="margin-left: 20px;">
+            <q-input
+              v-model="filter_text"
+              dense
+              outlined
+              rounded
+              debounce="300"
+              color="primary">
+              <template #prepend>
+                <q-icon name="search" />
+              </template>
+              <template #append>
+                <q-icon
+                  class="cursor-pointer"
+                  name="close"
+                  @click="clearFilter" />
+                <q-icon
+                  class="cursor-pointer"
+                  name="info"
+                  tag="div">
+                  <q-tooltip
+                    anchor="bottom middle"
+                    self="top middle">
+                    <q-markup-table
+                      dark
+                      dense
+                      separator="none"
+                      flat
+                      style="background: none"
+                    >
+                      <thead>
+                        <tr>
+                          <th class="text-center">搜索内容</th>
+                          <th class="text-center">功能</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td class="text-center">#ID</td>
+                          <td class="text-center">定位ID</td>
+                        </tr>
+                        <tr>
+                          <td class="text-center">内容</td>
+                          <td class="text-center">搜索点位/描述</td>
+                        </tr>
+                      </tbody>
+                    </q-markup-table>
+                  </q-tooltip>
+                </q-icon>
+              </template>
+            </q-input>
+          </div>
+        </div>
+      </template>
       <template #top-right>
         <div class="layer_table row">
           <q-btn
@@ -21,12 +82,13 @@
             dense
             color="primary"
             icon="mdi-help-box"
-            style="margin-right: 20px"
+            style="margin-right: 5px"
           >
             <q-tooltip>
               <q-markup-table
                 dark
-                :separator="'none'"
+                dense
+                separator="none"
                 flat
                 style="background: none"
               >
@@ -143,17 +205,21 @@
 </template>
 
 <script>
+import _ from 'lodash';
+
 export default {
   name: "LayerTable",
   props: ["propdata", "propitem"],
   data() {
     return {
+      filter_text: '',
+
       layer_data: [],
       layer_columns: [
         {
           name: "id",
           align: "center",
-          label: "点位id",
+          label: "点位ID",
           field: "id",
           align: "left",
         },
@@ -189,6 +255,33 @@ export default {
         data: data,
       });
     },
+    clearFilter() {
+      this.filter_text = ''
+    },
+    applyFilter(rows, terms, cols, getCellValue) {
+      if(!this.formdata || this.formdata.length <= 0) {
+        return [];
+      } else if(!terms) {
+        return this.formdata;
+      }
+
+      let list = [];
+      let termsStr = terms || '';
+      // ID
+      if(_.startsWith(termsStr, '#')) {
+        let markerIdStr = termsStr.replace(/^#/gui, '');
+        list = _.filter(this.formdata, v => v.id && v.id.toString() === markerIdStr);
+      } else {
+        list = _.filter(this.formdata, v => {
+          let markerTitle = v.markerTitle || '';
+          let markerContent = v.content || '';
+          return markerTitle.indexOf(termsStr) !== -1 || markerContent.indexOf(termsStr) !== -1;
+        });
+      }
+
+      return list;
+      console.log(rows, terms, cols, getCellValue)
+    }
   },
   computed: {
     formdata() {
