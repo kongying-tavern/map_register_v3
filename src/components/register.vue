@@ -610,7 +610,7 @@ export default {
           item: this.item_list.find(
             (item) => item.itemId == this.selected_item
           ),
-          item_child: this.type_child_list,
+          item_child: this.item_all_allowable ? this.type_child_list : [],
         },
         position: position,
       };
