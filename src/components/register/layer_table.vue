@@ -1,6 +1,7 @@
 <template>
   <div>
     <q-table
+      class="sticky-header absolute-full"
       title="点位表"
       row-key="id"
       :rows="formdata"
@@ -9,10 +10,11 @@
       selection="multiple"
       v-model:selected="selected_layer_list"
       separator="vertical"
-      class="sticky-header absolute-full"
+      virtual-scroll
+      :virtual-scroll-item-size="40"
     >
       <!-- 表格头插槽 -->
-      <template v-slot:top-right>
+      <template #top-right>
         <div class="layer_table row">
           <q-btn
             flat
@@ -47,27 +49,39 @@
               </q-markup-table>
             </q-tooltip>
           </q-btn>
-          <q-btn
-            :disable="propitem == null"
-            color="secondary"
-            label="新增"
-            icon="add"
-            dense
-            style="margin-right: 10px"
-            @click="callback(1)"
-          />
-          <q-btn
-            :disable="propitem == null"
-            color="orange"
-            label="刷新"
-            icon="refresh"
-            dense
-            @click="callback(6)"
-          />
+          <div>
+            <q-tooltip
+              v-if="propitem === null"
+              anchor="bottom middle"
+              self="top middle">
+              未选择具体分类，无法操作
+            </q-tooltip>
+            <q-btn
+              :disable="propitem === null"
+              color="secondary"
+              label="新增"
+              icon="add"
+              dense
+              rounded
+              glossy
+              style="margin-right: 10px"
+              @click="callback(1)"
+            />
+            <q-btn
+              :disable="propitem === null"
+              color="orange"
+              label="刷新"
+              icon="refresh"
+              dense
+              rounded
+              glossy
+              @click="callback(6)"
+            />
+          </div>
         </div>
       </template>
       <!-- 描述插槽 -->
-      <template v-slot:body-cell-content="props">
+      <template #body-cell-content="props">
         <q-td class="text-center">
           <div class="long_text ellipsis">
             {{ props.row.content }}
@@ -78,10 +92,10 @@
         </q-td>
       </template>
       <!-- 编辑插槽 -->
-      <template v-slot:header-cell-handle="props">
+      <template #header-cell-handle="props">
         <q-th class="text-left sticky-column sticky-right">操作</q-th>
       </template>
-      <template v-slot:body-cell-handle="props">
+      <template #body-cell-handle="props">
         <q-td class="text-center sticky-column sticky-right q-gutter-sm">
           <q-btn
             icon="place"
