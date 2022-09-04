@@ -147,11 +147,28 @@
         </div>
       </template>
       <!-- 描述插槽 -->
+      <template #header-cell-content="props">
+        <q-th class="text-left">
+          描述
+          <q-icon
+            style="padding-left: 10px;"
+            class="cursor-pointer text-blue-7"
+            :name="table_content_full_icon"
+            size="sm"
+            @click="() => { table_content_full = !table_content_full; }">
+            <q-tooltip
+              anchor="bottom right"
+              self="bottom left">
+              显示/隐藏完整描述
+            </q-tooltip>
+          </q-icon>
+        </q-th>
+      </template>
       <template #body-cell-content="props">
-        <q-td class="text-center">
-          <div class="long_text ellipsis">
+        <q-td class="text-left">
+          <div :class="table_content_full_class">
             {{ props.row.content }}
-            <q-tooltip v-if="props.row.content.length > 10">
+            <q-tooltip v-if="!table_content_full && props.row.content.length > 10">
               <div class="text-warp">{{ props.row.content }}</div>
             </q-tooltip>
           </div>
@@ -217,6 +234,7 @@ export default {
   data() {
     return {
       filter_text: '',
+      table_content_full: false,
 
       layer_data: [],
       layer_columns: [
@@ -229,14 +247,12 @@ export default {
         },
         {
           name: "markerTitle",
-          align: "center",
           label: "点位名称",
           field: "markerTitle",
           align: "left",
         },
         {
           name: "content",
-          align: "center",
           label: "描述",
           field: "content",
           align: "left",
@@ -299,15 +315,26 @@ export default {
       this.layer_data = [...this.propdata];
       return this.layer_data;
     },
+    table_content_full_class() {
+      return this.table_content_full ? 'long_text text-wrap' : 'short_text ellipsis';
+    },
+    table_content_full_icon() {
+      return this.table_content_full ? 'blur_on' : 'blur_off';
+    }
   },
 };
 </script>
 
 <style scoped>
-.long_text {
+.short_text {
   width: 150px;
   margin: 0 auto;
-  text-align: center;
+}
+.long_text {
+  width: 200px;
+  margin: 0 auto;
+  word-wrap: break-word;
+  white-space: normal;
 }
 .text-warp {
   width: 200px;
