@@ -778,7 +778,7 @@ export default {
 </style>
 
 <style lang="scss" scoped>
-::v-deep .stepper-header {
+:deep(.stepper-header) {
   flex-wrap: nowrap !important;
 }
 .marker-action-container {
