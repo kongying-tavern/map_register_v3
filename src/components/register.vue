@@ -608,9 +608,7 @@ export default {
         list: {
           area: this.selected_area,
           type: this.selected_type,
-          item: this.item_list.find(
-            (item) => item.itemId == this.selected_item
-          ),
+          item: this.selected_item,
           item_child: this.item_all_allowable ? this.type_child_list : [],
         },
         position: position,
