@@ -63,6 +63,10 @@
                           <td class="text-center">定位ID</td>
                         </tr>
                         <tr>
+                          <td class="text-center">!内容</td>
+                          <td class="text-center">反向搜索点位/描述</td>
+                        </tr>
+                        <tr>
                           <td class="text-center">内容</td>
                           <td class="text-center">搜索点位/描述</td>
                         </tr>
@@ -271,6 +275,13 @@ export default {
       if(_.startsWith(termsStr, '#')) {
         let markerIdStr = termsStr.replace(/^#/gui, '');
         list = _.filter(this.formdata, v => v.id && v.id.toString() === markerIdStr);
+      } else if(_.startsWith(termsStr, '!')) {
+        let filterStr = termsStr.replace(/^!/gui, '');
+        list = _.filter(this.formdata, v => {
+          let markerTitle = v.markerTitle || '';
+          let markerContent = v.content || '';
+          return markerTitle.indexOf(filterStr) === -1 && markerContent.indexOf(filterStr) === -1;
+        });
       } else {
         list = _.filter(this.formdata, v => {
           let markerTitle = v.markerTitle || '';
