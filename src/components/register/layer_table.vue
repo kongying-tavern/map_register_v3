@@ -64,11 +64,11 @@
                         </tr>
                         <tr>
                           <td class="text-center">!内容</td>
-                          <td class="text-center">反向搜索点位/描述</td>
+                          <td class="text-center">反向搜索标题/描述</td>
                         </tr>
                         <tr>
                           <td class="text-center">内容</td>
-                          <td class="text-center">搜索点位/描述</td>
+                          <td class="text-center">搜索标题/描述</td>
                         </tr>
                       </tbody>
                     </q-markup-table>
