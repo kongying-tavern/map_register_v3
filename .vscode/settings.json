@@ -1,7 +1,8 @@
 {
   "editor.bracketPairColorization.enabled": true,
   "editor.guides.bracketPairs": true,
-  "editor.formatOnSave": true,
+  // formater 由 eslint 代理
+  "editor.formatOnSave": false,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.codeActionsOnSave": ["source.fixAll.eslint"],
   "eslint.validate": ["javascript", "javascriptreact", "typescript", "vue"],
