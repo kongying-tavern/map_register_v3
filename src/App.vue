@@ -2,12 +2,6 @@
   <router-view />
 </template>
 
-<script>
-import {
-  defineComponent
-} from 'vue';
-
-export default defineComponent({
-  name: 'App'
-});
+<script setup lang="ts">
+/** component name 为该组件的文件名，一般不再需要额外定义 */
 </script>
