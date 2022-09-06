@@ -4,5 +4,11 @@
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.codeActionsOnSave": ["source.fixAll.eslint"],
-  "eslint.validate": ["javascript", "javascriptreact", "typescript", "vue"]
+  "eslint.validate": ["javascript", "javascriptreact", "typescript", "vue"],
+  // 默认使用 CRLF 作为换行符
+  "files.eol": "\r\n",
+  // .env 开头的文件均识别为环境变量文件以提供语法高亮
+  "files.associations": {
+    ".env*": "dotenv"
+  }
 }
