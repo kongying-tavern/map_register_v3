@@ -30,4 +30,5 @@ yarn.lock
 *.njsproj
 *.sln
 
-/env.local
+# 忽略本地环境变量
+.env.*local

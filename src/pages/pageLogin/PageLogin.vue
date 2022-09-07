@@ -8,26 +8,26 @@
     <q-card-section class="col-10">
       <q-form>
         <q-input
-          v-model="form.username"
+          v-model="loginForm.username"
           type="text"
           label="用户名"
           filled
           class="field"
         >
           <template #prepend>
-            <q-icon name="account_circle"/>
+            <q-icon name="account_circle" />
           </template>
         </q-input>
 
         <q-input
-          v-model="form.password"
+          v-model="loginForm.password"
           type="password"
           label="密码"
           filled
           class="field"
         >
           <template #prepend>
-            <q-icon name="key"/>
+            <q-icon name="key" />
           </template>
         </q-input>
 
@@ -42,44 +42,11 @@
   </q-card>
 </template>
 
-<script>
-import {
-  defineComponent
-} from 'vue'
-import {
-  saveUser
-} from '@/utils/auth.js'
-import apiOauthToken from '@/api/oauth/token.js'
+<script setup lang="ts">
+import { useLoginForm } from './hooks'
 
-export default defineComponent({
-  name: 'PageLogin',
-  data() {
-    return {
-      form: {
-        grant_type: 'password',
-        username: '',
-        password: ''
-      }
-    }
-  },
-  computed: {
-    title() {
-      return process.env.VITE_TITLE
-    }
-  },
-  methods: {
-    login() {
-      apiOauthToken.token(this.form)
-        .then(res => {
-          saveUser(res);
-          this.$q.notify({
-            type: 'positive',
-            message: '登录成功'
-          })
-        })
-    }
-  }
-})
+const title = process.env.VITE_TITLE
+const { loginForm, login } = useLoginForm()
 </script>
 
 <style lang="scss" scoped>
