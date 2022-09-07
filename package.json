@@ -28,6 +28,7 @@
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-vue": "^9.0.0",
     "prettier": "^2.7.1",
+    "vite": "^2.9.1",
     "vue-eslint-parser": "^9.0.3"
   },
   "engines": {

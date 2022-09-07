@@ -12,9 +12,27 @@ interface ImportMetaEnv {
 
   /**
    * 接口地址
-   * @default https://cloud.yuanshen.site
+   * @default /dev-api
    */
   readonly VITE_API_BASE: string
+
+  /**
+   * 开发模式下跨域代理
+   * @default https://test.yuanshen.site
+   */
+  readonly VITE_API_PROXY_TARGET: string
+
+  /**
+   * 开发模式下自动填充用户名
+   * @default ''
+   */
+  readonly VITE_AUTO_COMPLETE_USERNAME: string
+
+  /**
+   * 开发模式下自动填充密码
+   * @default ''
+   */
+  readonly VITE_AUTO_COMPLETE_PASSWORD: string
 }
 
 interface ImportMeta {

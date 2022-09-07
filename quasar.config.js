@@ -1,18 +1,13 @@
 /* eslint-env node */
-
-/*
- * This file runs in a Node context (it's NOT transpiled by Babel), so use only
- * the ES6 features that are supported by your Node version. https://node.green/
- */
-
-// Configuration for your app
-// https://v2.quasar.dev/quasar-cli-vite/quasar-config-js
-
 const { resolve } = require('path')
-const environ = require('./environ')
 const { configure } = require('quasar/wrappers')
+const { loadEnv } = require('vite')
 
-module.exports = configure((/** context */) => {
+module.exports = configure(({ dev, prod }) => {
+  const envMode = dev ? 'development' : prod ? 'production' : 'stage'
+  const ENV = loadEnv(envMode, '.')
+  console.log('[ENV]', ENV)
+
   return {
     supportTS: true,
 
@@ -69,9 +64,7 @@ module.exports = configure((/** context */) => {
       alias: {
         '@': resolve(__dirname, './src'),
       },
-      env: {
-        ...environ,
-      },
+      env: ENV,
       // rawDefine: {}
       // ignorePublicFolder: true,
       // minify: false,
@@ -86,10 +79,16 @@ module.exports = configure((/** context */) => {
       // ]
     },
 
-    // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#devServer
     devServer: {
-      // https: true
-      open: true, // opens browser window automatically
+      cors: true,
+      proxy: {
+        [ENV.VITE_API_BASE]: {
+          target: ENV.VITE_API_PROXY_TARGET,
+          changeOrigin: true,
+          rewrite: (path) =>
+            path.replace(new RegExp(`${ENV.VITE_API_BASE}`), ''),
+        },
+      },
     },
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#framework

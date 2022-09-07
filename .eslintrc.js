@@ -55,7 +55,8 @@ module.exports = {
   // add your custom rules here
   rules: {
     'prettier/prettier': 'warn',
-    '@typescript-eslint/no-var-requires': 'warn',
+    '@typescript-eslint/no-var-requires': 'off',
+    '@typescript-eslint/no-explicit-any': 'off',
     //   "prefer-promise-reject-errors": "off",
     //   // allow debugger during development only
     //   "no-debugger": process.env.NODE_ENV === "production" ? "error" : "off",
