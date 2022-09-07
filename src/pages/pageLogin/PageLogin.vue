@@ -35,6 +35,7 @@
           label="登录"
           class="field full-width"
           color="primary"
+          :loading="loading"
           @click="login"
         />
       </q-form>
@@ -46,7 +47,7 @@
 import { useLoginForm } from './hooks'
 
 const title = process.env.VITE_TITLE
-const { loginForm, login } = useLoginForm()
+const { loginForm, loading, login } = useLoginForm()
 </script>
 
 <style lang="scss" scoped>
