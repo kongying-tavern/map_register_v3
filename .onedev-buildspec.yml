@@ -1,0 +1,59 @@
+version: 18
+jobs:
+- name: CI/CD
+  jobExecutor: genshin-map-shell
+  steps:
+  - !CheckoutStep
+    name: checkout
+    cloneCredential: !DefaultCredential {}
+    withLfs: false
+    withSubmodules: false
+    checkoutPath: '@secret:workspace-path@'
+    condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
+  - !CommandStep
+    name: build & test
+    runInContainer: false
+    image: node:10.16-alpine
+    interpreter: !DefaultInterpreter
+      commands:
+      - yarn
+      - quasar build
+      - sudo systemctl daemon-reload
+      - sudo /bin/systemctl restart genshin-map-admin
+    useTTY: false
+    condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
+  triggers:
+  - !BranchUpdateTrigger {}
+  retryCondition: never
+  maxRetries: 3
+  retryDelay: 30
+  cpuRequirement: 250
+  memoryRequirement: 256
+  caches:
+  - key: npm-cache
+    path: ~/.npm
+  timeout: 3600
+- name: push to github
+  jobExecutor: genshin-map-shell
+  steps:
+  - !PushRepository
+    name: push to github
+    remoteUrl: https://github.com/kongying-tavern/map_register_v3.git
+    userName: momentderek
+    passwordSecret: push-secret
+    withLfs: false
+    force: false
+    condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
+  triggers:
+  - !DependencyFinishedTrigger
+    projects: map_register_v3
+  jobDependencies:
+  - jobName: CI/CD
+    requireSuccessful: true
+    artifacts: '**'
+  retryCondition: never
+  maxRetries: 3
+  retryDelay: 30
+  cpuRequirement: 250
+  memoryRequirement: 256
+  timeout: 3600
