@@ -4,6 +4,16 @@ jobs:
   jobExecutor: genshin-map-shell
   steps:
   - !CommandStep
+    name: cd the workspace and pull from oneDev
+    runInContainer: false
+    interpreter: !DefaultInterpreter
+      commands:
+      - cd @secret:workspace-path@
+      - git pull
+      - git checkout refactor
+    useTTY: false
+    condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
+  - !CommandStep
     name: build & test
     runInContainer: false
     image: node:10.16-alpine
@@ -13,16 +23,6 @@ jobs:
       - quasar build
       - sudo systemctl daemon-reload
       - sudo /bin/systemctl restart genshin-map-admin
-    useTTY: false
-    condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
-  - !CommandStep
-    name: cd the workspace and pull from oneDev
-    runInContainer: false
-    interpreter: !DefaultInterpreter
-      commands:
-      - cd @secret:workspace-path@
-      - git pull
-      - git checkout refactor
     useTTY: false
     condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
   triggers:
