@@ -14,13 +14,29 @@ jobs:
     useTTY: false
     condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
   - !CommandStep
-    name: build & test
+    name: download dependency
     runInContainer: false
     image: node:10.16-alpine
     interpreter: !DefaultInterpreter
       commands:
       - yarn
+    useTTY: false
+    condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
+  - !CommandStep
+    name: build
+    runInContainer: false
+    interpreter: !ShellInterpreter
+      shell: bash
+      commands:
       - quasar build
+    useTTY: false
+    condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
+  - !CommandStep
+    name: restart service
+    runInContainer: false
+    interpreter: !ShellInterpreter
+      shell: bash
+      commands:
       - sudo systemctl daemon-reload
       - sudo /bin/systemctl restart genshin-map-admin
     useTTY: false
