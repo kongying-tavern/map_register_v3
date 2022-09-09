@@ -19,6 +19,7 @@ jobs:
     image: node:10.16-alpine
     interpreter: !DefaultInterpreter
       commands:
+      - cd @secret:workspace-path@
       - yarn
     useTTY: false
     condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
@@ -28,6 +29,7 @@ jobs:
     interpreter: !ShellInterpreter
       shell: bash
       commands:
+      - cd @secret:workspace-path@
       - quasar build
     useTTY: false
     condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
