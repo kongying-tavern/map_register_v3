@@ -1,0 +1,80 @@
+version: 18
+jobs:
+- name: CI/CD
+  jobExecutor: genshin-map-shell
+  steps:
+  - !CommandStep
+    name: cd the workspace and pull from oneDev
+    runInContainer: false
+    interpreter: !DefaultInterpreter
+      commands:
+      - cd @secret:workspace-path@
+      - git checkout dev
+      - git pull
+    useTTY: false
+    condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
+  - !CommandStep
+    name: download dependency
+    runInContainer: false
+    image: node:10.16-alpine
+    interpreter: !DefaultInterpreter
+      commands:
+      - cd @secret:workspace-path@
+      - yarn
+    useTTY: false
+    condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
+  - !CommandStep
+    name: build
+    runInContainer: false
+    interpreter: !ShellInterpreter
+      shell: bash
+      commands:
+      - cd @secret:workspace-path@
+      - quasar build
+    useTTY: false
+    condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
+  - !CommandStep
+    name: restart service
+    runInContainer: false
+    interpreter: !ShellInterpreter
+      shell: bash
+      commands:
+      - sudo systemctl daemon-reload
+      - sudo /bin/systemctl restart genshin-map-admin
+    useTTY: false
+    condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
+  triggers:
+  - !BranchUpdateTrigger {}
+  retryCondition: never
+  maxRetries: 3
+  retryDelay: 30
+  cpuRequirement: 250
+  memoryRequirement: 256
+  caches:
+  - key: npm-cache
+    path: ~/.npm
+  timeout: 3600
+- name: push to github
+  jobExecutor: genshin-map-shell
+  steps:
+  - !PushRepository
+    name: push to github
+    remoteUrl: https://github.com/kongying-tavern/map_register_v3.git
+    userName: momentderek
+    passwordSecret: push-secret
+    withLfs: false
+    force: false
+    condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
+  triggers:
+  - !DependencyFinishedTrigger
+    projects: map_register_v3
+  jobDependencies:
+  - jobName: CI/CD
+    requireSuccessful: true
+    artifacts: '**'
+  retryCondition: '"Log" contains "无法访问"'
+  maxRetries: 10
+  retryDelay: 30
+  cpuRequirement: 250
+  memoryRequirement: 256
+  timeout: 3600
