@@ -72,8 +72,8 @@ jobs:
   - jobName: CI/CD
     requireSuccessful: true
     artifacts: '**'
-  retryCondition: never
-  maxRetries: 3
+  retryCondition: '"Log" contains "无法访问"'
+  maxRetries: 10
   retryDelay: 30
   cpuRequirement: 250
   memoryRequirement: 256
