@@ -6,6 +6,7 @@
  */
 const flatFilterApi = (tree, seed = []) => {
   return tree.reduce((nodes, node) => {
+    // apifox 的 apiDetail 分类为接口定义，其余均为目录或文档定义
     if (node.type === 'apiDetail') nodes.push(node)
     if (node.children) flatFilterApi(node.children, nodes)
     return nodes
