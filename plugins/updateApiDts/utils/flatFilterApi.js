@@ -1,8 +1,8 @@
 /**
  * 扁平化接口类型节点
- * @param {import('../updateApiDts').ApiTree[]} tree
- * @param {import('../updateApiDts').ApiTree[]} seed
- * @returns {import('../updateApiDts').ApiTree[]}
+ * @param {import('../types').ApiTree[]} tree
+ * @param {import('../types').ApiTree[]} seed
+ * @returns {import('../types').ApiTree[]}
  */
 const flatFilterApi = (tree, seed = []) => {
   return tree.reduce((nodes, node) => {
