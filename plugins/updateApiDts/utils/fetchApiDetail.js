@@ -1,5 +1,7 @@
 /**
- * 更新
+ * 根据接口列表并发请求其详细定义
+ * ### 需要注意的事:
+ * 1. 不保证可用性，可能会被 apifox 封号
  * @param {import('got').Got} got
  * @param {import('../types').ApiTree[]} apis
  * @returns {Promise<import('../types').ApiDetail[]>}
