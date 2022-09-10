@@ -2,6 +2,7 @@
 const { resolve } = require('path')
 const { configure } = require('quasar/wrappers')
 const { loadEnv } = require('vite')
+const { updateApiDts } = require('./plugins')
 
 module.exports = configure(({ dev, prod }) => {
   const envMode = dev ? 'development' : prod ? 'production' : 'stage'
@@ -74,13 +75,17 @@ module.exports = configure(({ dev, prod }) => {
       // extendViteConf (viteConf) {},
       // viteVuePluginOptions: {},
 
-      // vitePlugins: [
-      //   [ 'package-name', { ..options.. } ]
-      // ]
+      vitePlugins: [
+        updateApiDts({
+          id: 'd2c2dae2-e260-417a-9527-c12f6f67aa17',
+          password: '4aYl0pGf',
+        }),
+      ],
     },
 
     devServer: {
       cors: true,
+      open: false,
       proxy: {
         [ENV.VITE_API_BASE]: {
           target: ENV.VITE_API_PROXY_TARGET,
