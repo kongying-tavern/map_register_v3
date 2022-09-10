@@ -28,8 +28,8 @@ const updateApiDts = (options) => {
     id,
     password,
     saveRaw = false,
-    name = 'index',
-    tempName = 'api_dts.json',
+    name = 'definitions',
+    tempName = 'api_dts',
     refreshInterval = 600000,
   } = options
 
@@ -44,10 +44,8 @@ const updateApiDts = (options) => {
       startTime = time
       try {
         const { root } = viteConfig
-        const {
-          outDir = join(root, 'src/api/definitions'),
-          tempDir = join(root, 'temp'),
-        } = options
+        const { outDir = join(root, 'src/api'), tempDir = join(root, 'temp') } =
+          options
 
         // quasar 不支持顶部 ESM 导入，只能通过异步导入
         const { got } = await import('got')
@@ -136,7 +134,7 @@ const updateApiDts = (options) => {
         Logger.error('无法更新接口信息')
         Logger.error(err)
       } finally {
-        await new Promise((resolve) => setTimeout(resolve, 600000))
+        Logger.info(`执行完毕，CD in ${refreshInterval}s`)
       }
     },
   }

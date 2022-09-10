@@ -9,7 +9,7 @@ export interface UpdateApiDtsOptions {
   saveRaw?: boolean
   /**
    * 类型文件的输出目录
-   * @default `${viteConfig.root}/src/api/definitions`
+   * @default `${viteConfig.root}/src/api`
    */
   outDir?: string
   /**
@@ -19,7 +19,7 @@ export interface UpdateApiDtsOptions {
   tempDir?: string
   /**
    * 类型文件的文件名
-   * @default 'index'
+   * @default 'definitions'
    */
   name?: string
   /**
