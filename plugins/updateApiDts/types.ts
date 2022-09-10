@@ -7,6 +7,26 @@ export interface UpdateApiDtsOptions {
   password: string
   /** 保留原始数据到缓存的 json 对象上 */
   saveRaw?: boolean
+  /**
+   * 类型文件的输出目录
+   * @default `${viteConfig.root}/src/api/definitions`
+   */
+  outDir?: string
+  /**
+   * 缓存文件的输出路径
+   * @default `${viteConfig.root}/temp`
+   */
+  tempDir?: string
+  /**
+   * 类型文件的文件名
+   * @default 'index'
+   */
+  name?: string
+  /**
+   * 缓存文件的输出名称
+   * @default 'api_dts'
+   */
+  tempName?: string
 }
 
 export type ApifoxHttpMethods = 'post' | 'get' | 'put' | 'delete' | 'options'

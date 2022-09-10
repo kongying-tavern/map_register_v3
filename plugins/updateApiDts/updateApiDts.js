@@ -1,5 +1,5 @@
 const { writeFile } = require('fs/promises')
-const { resolve, join } = require('path')
+const { join } = require('path')
 const { cloneDeep } = require('lodash')
 const { compile } = require('json-schema-to-typescript')
 const {
@@ -22,7 +22,13 @@ const {
  * @returns {import('vite').Plugin}
  */
 const updateApiDts = (options) => {
-  const { id, password, saveRaw = false } = options
+  const {
+    id,
+    password,
+    saveRaw = false,
+    name = 'index',
+    tempName = 'api_dts.json',
+  } = options
 
   /** @type {import('vite').Plugin} */
   const plugin = {
@@ -32,9 +38,15 @@ const updateApiDts = (options) => {
     configResolved: async (viteConfig) => {
       try {
         const { root } = viteConfig
+        const {
+          outDir = join(root, 'src/api/definitions'),
+          tempDir = join(root, 'temp'),
+        } = options
+
+        // quasar 不支持顶部 ESM 导入，只能通过异步导入
         const { got } = await import('got')
         const { parse: cookieParse } = await import('tough-cookie')
-        const tempPath = resolve(root, 'temp')
+
         Logger.info('正在更新接口定义中...')
 
         /** @type {import('jsonschema').Schema} */
@@ -99,7 +111,7 @@ const updateApiDts = (options) => {
 
         // ==================== 写入到本地调试文件 ====================
         const apiJson = JSON.stringify(cache, null, 2)
-        await writeFile(join(tempPath, `api_docs.json`), apiJson)
+        await writeFile(join(tempDir, `${tempName}.json`), apiJson)
 
         // ==================== 生成 TS 类型文件 ====================
         const dts = await compile(cache, 'ApiDoc', {
@@ -111,7 +123,7 @@ const updateApiDts = (options) => {
             endOfLine: 'crlf',
           },
         })
-        await writeFile(join(tempPath, 'api_dts.ts'), dts)
+        await writeFile(join(outDir, `${name}.ts`), dts)
 
         Logger.info('接口信息更新成功')
       } catch (err) {
