@@ -6,22 +6,23 @@ const {
   Logger,
   flatFilterApi,
   fetchApiDetails,
+  transformApiDetail,
   transformDataSchema,
 } = require('./utils')
 const {
   AUTH_URL,
   SUMMARIES_URL,
   DOCS_URL,
-  COMMON_HEADERS,
+  getCommonHeaders,
 } = require('./config')
 
 /**
  * 自动更新接口类型的钩子
- * @param {import('./updateApiDts').UpdateApiDtsOptions} options
+ * @param {import('./types').UpdateApiDtsOptions} options
  * @returns {import('vite').Plugin}
  */
 const updateApiDts = (options) => {
-  const { id, password } = options
+  const { id, password, saveRaw = false } = options
 
   /** @type {import('vite').Plugin} */
   const plugin = {
@@ -36,8 +37,13 @@ const updateApiDts = (options) => {
         const tempPath = resolve(root, 'temp')
         Logger.info('正在更新接口定义中...')
 
+        /** @type {import('jsonschema').Schema} */
         const cache = {
           $schema: 'http://json-schema.org/draft-07/schema',
+          type: 'object',
+          title: 'ApiTypeMap',
+          description: '全接口请求体的类型与响应成功的类型',
+          properties: {},
         }
 
         // ==================== 获取 cookies ====================
@@ -52,34 +58,33 @@ const updateApiDts = (options) => {
           }, [])
           .join(';')
         /** @type {import('got').Headers} */
-        const headers = { ...COMMON_HEADERS, Cookie: cookies }
+        const headers = { ...getCommonHeaders(id), Cookie: cookies }
         const request = got.extend({ headers })
 
         // ==================== 获取接口概述 ====================
         const summaryUrl = `${SUMMARIES_URL}/${id}`
         Logger.info('fetch:', summaryUrl)
 
-        /** @type {import('./updateApiDts').ApifoxDocResponse<import('./updateApiDts').ApifoxDocData>} */
+        /** @type {import('./types').ApifoxDocResponse<import('./types').ApifoxDocData>} */
         const { data: summires } = await request.get(summaryUrl).json()
-        cache['x-raw-summires'] = summires
+        saveRaw && (cache['x-raw-summires'] = summires)
 
         // ==================== 获取数据模型 ====================
         const docsUrl = `${DOCS_URL}/${id}/data-schemas`
         Logger.info('fetch:', docsUrl)
 
-        /** @type {import('./updateApiDts').ApifoxDocResponse<import('./updateApiDts').DataSchema[]>} */
+        /** @type {import('./types').ApifoxDocResponse<import('./types').DataSchema[]>} */
         const { data: dataSchema } = await request.get(docsUrl).json()
-        // cache['x-raw-dataSchema'] = cloneDeep(dataSchema)
-        cache['x-raw-dataSchema'] = dataSchema
+        saveRaw && (cache['x-raw-dataSchema'] = cloneDeep(dataSchema))
         cache.definitions = transformDataSchema(dataSchema).properties
 
         // ==================== 获取接口树形配置 ====================
         const treeUrl = `${DOCS_URL}/${id}/http-api-tree`
         Logger.info('fetch:', treeUrl)
-        /** @type {import('./updateApiDts').ApifoxDocResponse<import('./updateApiDts').ApiTree[]>} */
+        /** @type {import('./types').ApifoxDocResponse<import('./types').ApiTree[]>} */
         const { data: apiTree } = await request.get(treeUrl).json()
         const apiList = flatFilterApi(apiTree)
-        cache['x-raw-apiList'] = apiList
+        saveRaw && (cache['x-raw-apiList'] = apiList)
 
         // ==================== 获取接口详情 ====================
         const client = got.extend({
@@ -88,27 +93,21 @@ const updateApiDts = (options) => {
         })
         Logger.info('fetch api details...')
         const details = await fetchApiDetails(client, apiList)
-        cache['x-raw-apiDetails'] = details
+        const detailProperties = transformApiDetail(details)
+        cache.properties = detailProperties
+        saveRaw && (cache['x-raw-apiDetails'] = details)
 
         // ==================== 写入到本地调试文件 ====================
         const apiJson = JSON.stringify(cache, null, 2)
         await writeFile(join(tempPath, `api_docs.json`), apiJson)
 
+        // ==================== 生成 TS 类型文件 ====================
         const dts = await compile(cache, 'ApiDoc', {
-          unreachableDefinitions: true,
+          unreachableDefinitions: false,
           additionalProperties: false,
-          // $refOptions: {
-          //   resolve: {
-          //     file: {
-          //       canRead: true,
-          //     },
-          //   },
-          //   dereference: {
-          //     circular: true,
-          //   },
-          // },
           style: {
             semi: false,
+            singleQuote: true,
             endOfLine: 'crlf',
           },
         })
