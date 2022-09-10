@@ -27,6 +27,13 @@ export interface UpdateApiDtsOptions {
    * @default 'api_dts'
    */
   tempName?: string
+  /**
+   * 刷新间隔，默认 10 分钟
+   * 1. 每次热更新时都会执行该插件
+   * 2. 为了避免请求过于频繁被 apifox 干掉，不建议你将时间调的太小
+   * @default 600000
+   */
+  refreshInterval?: number
 }
 
 export type ApifoxHttpMethods = 'post' | 'get' | 'put' | 'delete' | 'options'

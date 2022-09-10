@@ -16,6 +16,8 @@ const {
   getCommonHeaders,
 } = require('./config')
 
+let startTime
+
 /**
  * 自动更新接口类型的钩子
  * @param {import('./types').UpdateApiDtsOptions} options
@@ -28,6 +30,7 @@ const updateApiDts = (options) => {
     saveRaw = false,
     name = 'index',
     tempName = 'api_dts.json',
+    refreshInterval = 600000,
   } = options
 
   /** @type {import('vite').Plugin} */
@@ -36,6 +39,9 @@ const updateApiDts = (options) => {
     apply: 'serve',
 
     configResolved: async (viteConfig) => {
+      const time = new Date().getTime()
+      if (startTime && time - startTime < refreshInterval) return
+      startTime = time
       try {
         const { root } = viteConfig
         const {
