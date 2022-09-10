@@ -1,5 +1,14 @@
 import type { JSONSchema } from 'json-schema-to-typescript'
 
+export interface UpdateApiDtsOptions {
+  /** api 文档 id */
+  id: string
+  /** 登录密码 */
+  password: string
+  /** 保留原始数据到缓存的 json 对象上 */
+  saveRaw?: boolean
+}
+
 export type ApifoxHttpMethods = 'post' | 'get' | 'put' | 'delete' | 'options'
 
 export interface ApifoxObjectBase {
@@ -20,13 +29,6 @@ export interface ApifoxObjectBase {
   folderId?: number
   creatorId?: number
   editorId?: number
-}
-
-export interface UpdateApiDtsOptions {
-  /** api 文档 id */
-  id: string
-  /** 登录密码 */
-  password: srtring
 }
 
 export interface ApiFolders extends ApifoxObjectBase {
@@ -125,7 +127,6 @@ export interface ApiDetail extends ApifoxObjectBase {
     cookie: unknown[]
     header: unknown[]
   }
-  auth: Record<string, any>
   commonResponseStatus: Record<string, any>
   advancedSettings: Record<string, any>
   mockScript: Record<string, any>
@@ -143,4 +144,53 @@ export interface ApiDetail extends ApifoxObjectBase {
 
 export interface DataSchema extends ApifoxObjectBase {
   jsonSchema: ApifoxJSONSchema
+}
+
+/**
+ * @example
+ * ```
+ * const apiTypeMap = {
+ *   post: {
+ *     type: 'object',
+ *     properties: {
+ *       '/login': {
+ *           type: 'object',
+ *           properties: {
+ *             request: {
+ *               username: { type: 'string' },
+ *               password: { type: 'string' },
+ *             },
+ *             response: {
+ *               token: { type: 'string' },
+ *             },
+ *           },
+ *         },
+ *       },
+ *     },
+ *   },
+ * }
+ * ```
+ */
+export interface ApiTypeMap {
+  [method: string]: {
+    type: 'object'
+    properties: {
+      [path: string]: {
+        /** 名称，生成接口名称 */
+        title: string
+        /** 描述，生成注释 */
+        description: string
+        type: 'object'
+        properties: {
+          type: 'object'
+          properties: {
+            /** 生成请求类型 */
+            request: Record<string, any>
+            /** 生成响应类型 */
+            response: Record<string, any>
+          }
+        }
+      }
+    }
+  }
 }
