@@ -7,9 +7,10 @@ const DOCS_URL = 'https://www.apifox.cn/api/v1/shared-docs'
 
 /**
  * 伪装头
- * @type {import('got').Headers}
+ * @param {string} id
+ * @returns {import('got').Headers}
  */
-const COMMON_HEADERS = {
+const getCommonHeaders = (id) => ({
   Accept: `*/*`,
   'Accept-Encoding': 'gzip, deflate, br',
   'Accept-Language': 'zh-CN',
@@ -21,19 +22,18 @@ const COMMON_HEADERS = {
   Pragma: 'no-cache',
   'sec-ch-ua': `"Microsoft Edge";v="105", " Not;A Brand";v="99", "Chromium";v="105"`,
   'sec-ch-ua-platform': 'Windows',
-  Referer:
-    'https://www.apifox.cn/apidoc/shared-d2c2dae2-e260-417a-9527-c12f6f67aa17',
+  Referer: `https://www.apifox.cn/apidoc/shared-${id}`,
   'Sec-Fetch-Dest': 'empty',
   'Sec-Fetch-Mode': 'cors',
   'Sec-Fetch-Site': 'same-origin',
   'User-Agent':
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36 Edg/105.0.1343.27',
   'X-Client-Version': '1.4.12',
-}
+})
 
 module.exports = {
   AUTH_URL,
   SUMMARIES_URL,
   DOCS_URL,
-  COMMON_HEADERS,
+  getCommonHeaders,
 }
