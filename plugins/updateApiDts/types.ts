@@ -1,4 +1,4 @@
-import type { JSONSchema } from 'json-schema-to-typescript'
+import type { Schema } from 'jsonschema'
 
 export interface UpdateApiDtsOptions {
   /** api 文档 id */
@@ -119,7 +119,7 @@ export interface ApiTree {
   type: 'doc' | 'apiDetailFolder' | 'apiDetail'
 }
 
-export interface ApifoxJSONSchema extends JSONSchema {
+export interface ApifoxJSONSchema extends Schema {
   'x-apifox-overrides'?: Record<string, ApifoxJSONSchema>
   'x-apifox-refs'?: Record<string, ApifoxJSONSchema>
   'x-apifox-orders'?: string[]
@@ -212,12 +212,14 @@ export interface ApiTypeMap {
           type: 'object'
           properties: {
             /** 生成请求类型 */
-            request: Record<string, any>
+            request: Schema
             /** 生成响应类型 */
-            response: Record<string, any>
+            response: Schema
           }
+          required: string[]
         }
       }
     }
+    required: string[]
   }
 }

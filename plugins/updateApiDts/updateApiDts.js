@@ -111,6 +111,7 @@ const updateApiDts = (options) => {
         const details = await fetchApiDetails(client, apiList)
         const detailProperties = transformApiDetail(details)
         cache.properties = detailProperties
+        cache.required = Object.keys(detailProperties)
         saveRaw && (cache['x-raw-apiDetails'] = details)
 
         // ==================== 写入到本地调试文件 ====================

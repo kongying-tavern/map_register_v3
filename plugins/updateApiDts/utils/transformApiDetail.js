@@ -1,4 +1,4 @@
-const { set, upperFirst, camelCase } = require('lodash')
+const { set, get, upperFirst, camelCase } = require('lodash')
 const deApifoxRefs = require('./deApifoxRefs')
 
 /**
@@ -48,7 +48,12 @@ const transformApiDetail = (details) => {
         request,
         response,
       },
+      required: ['request', 'response'],
     })
+
+    const pathRequired = new Set(get(properties, [method, 'required']) ?? [])
+    pathRequired.add(path)
+    set(properties, [method, 'required'], [...pathRequired])
   })
 
   return properties
