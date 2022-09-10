@@ -1,8 +1,8 @@
 /**
  * 更新
  * @param {import('got').Got} got
- * @param {import('../updateApiDts').ApiTree[]} apis
- * @returns {Promise<unknown>}
+ * @param {import('../types').ApiTree[]} apis
+ * @returns {Promise<import('../types').ApiDetail[]>}
  */
 const fetchApiDetail = async (got, apis) => {
   const mission = apis.map(async (api) => {
