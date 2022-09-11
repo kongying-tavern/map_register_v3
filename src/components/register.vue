@@ -148,11 +148,14 @@
           :bar-style="scroll_area_bar_style"
           :thumb-style="scroll_area_thumb_style">
           <div class="row">
-            <div v-if="item_all_allowable" class="col-4">
+            <div
+              v-if="item_all_allowable"
+              class="col-4 item-entry">
               <q-radio
                 v-model="selected_item"
                 :val="null"
                 label="全部"
+                dense
                 checked-icon="task_alt"
                 unchecked-icon="panorama_fish_eye"
                 @update:model-value="select_item_layers">
@@ -160,13 +163,17 @@
             </div>
             <div
               v-for="i in item_list"
-              class="col-4">
+              class="col-4 item-entry"
+              :class="{active: selected_item_id === i.itemId}">
               <q-radio
                 v-model="selected_item"
                 :val="i"
                 :label="i.name"
-                checked-icon="task_alt"
-                unchecked-icon="panorama_fish_eye"
+                dense
+                size="lg"
+                :keep-color="false"
+                :checked-icon="`img:${get_icon_url_by_tag(i.iconTag)}`"
+                :unchecked-icon="`img:${get_icon_url_by_tag(i.iconTag)}`"
                 @update:model-value="select_item_layers">
               </q-radio>
             </div>
@@ -342,6 +349,8 @@ export default {
       type_child_list: [],
       item_list: [],
 
+      icon_map: {},
+
       stepper_collapsed: false,
       handle_layer_list_data: [],
       handle_layer: null,
@@ -390,9 +399,6 @@ export default {
     },
     item_icontags() {
       return _.chain(this.item_list || []).map(v => v.iconTag).filter(v => v).value();
-    },
-    item_icontag_map() {
-      return _.chain(this.item_list || []).filter(v => v && v.iconTag).map(v => [v.itemId, v.iconTag]).fromPairs().value();
     },
     stepper_collapse_icon() {
       return this.stepper_collapsed ? 'keyboard_double_arrow_down' : 'keyboard_double_arrow_up';
@@ -453,16 +459,8 @@ export default {
       this.loading = true;
       this.selected_item = value;
 
-      let icon_tags = this.item_all_allowable && this.selected_item_id <= 0 ? this.item_icontags : [this.selected_item_icontag]
       let item_ids = this.item_all_allowable && this.selected_item_id <= 0 ? this.item_ids : [this.selected_item_id]
 
-      let icon_getter = icon_tags.length > 0 ?
-        query_itemlayer_icon({
-          size: 999,
-          tagList: icon_tags,
-          typeIdList: [],
-          current: 0,
-        }) : Promise.resolve({data: {data: {record: []}}});
       let item_getter = item_ids.length > 0 ?
         query_itemlayer_infolist({
           typeIdList: [],
@@ -474,21 +472,17 @@ export default {
       //查询点位图标和点位数据
       this.$axios
         .all([
-          icon_getter,
           item_getter,
         ])
         .then(
-          this.$axios.spread((iconlist, layerlist) => {
-            let icon_records = iconlist.data.data.record || [];
+          this.$axios.spread((layerlist) => {
             let layer_records = layerlist.data.data || [];
-            let icon_map = _.chain(icon_records).map(v => [v.tag, v]).fromPairs().value();
             let layer_record_list = _.map(layer_records, v => {
-              let itemIds = _.map(v.itemList || [], 'itemId');
-              let itemId = _.find(itemIds, v => !!this.item_icontag_map[v])
-              let itemIconTag = this.item_icontag_map[itemId] || ''
-              let iconDefault = {url: ''};
-              let icon = itemIconTag ? (icon_map[itemIconTag] || iconDefault) : iconDefault;
-              v.icon = icon;
+              let itemIdsData = _.map(v.itemList || [], 'itemId');
+              let itemIdsSel = item_ids || []
+              let itemIdIcon = _.first(_.intersection(itemIdsData, itemIdsSel));
+              let iconUrl = this.get_icon_url_by_id(itemIdIcon);
+              v.icon = {url: iconUrl}
               return v;
             });
 
@@ -639,6 +633,14 @@ export default {
     toggle_stepper() {
       this.stepper_collapsed = !this.stepper_collapsed;
     },
+    get_icon_url_by_tag(icontag = '') {
+      return _.get(this.icon_map, [icontag, 'url'], 'https://assets.yuanshen.site/icons/-1.png');
+    },
+    get_icon_url_by_id(id = 0) {
+      let item_found = _.find(this.item_list, v => v.itemId === id);
+      let icon_tag = _.get(item_found, 'iconTag', '');
+      return this.get_icon_url_by_tag(icon_tag);
+    },
     //点位弹窗回调
     pop_callback(data) {
       switch (data.type) {
@@ -704,17 +706,17 @@ export default {
           typeIdList: [],
           size: 999,
         }),
+        query_itemlayer_icon({
+          "size": 9999,
+          "current": 0
+        }),
       ])
       .then(
-        this.$axios.spread((arealist, typelist) => {
+        this.$axios.spread((arealist, typelist, iconlist) => {
           this.loading = false;
-          this.area_list = [];
-          for (let i of arealist.data.data) {
-            if (i.isFinal) {
-              this.area_list.push(i);
-            }
-          }
+          this.area_list = _.filter(arealist.data.data, v => v.isFinal)
           this.type_list = typelist.data.data.record;
+          this.icon_map = _.keyBy(iconlist.data.data.record || [], 'tag')
         })
       )
       .then(() => {
@@ -780,6 +782,14 @@ export default {
 <style lang="scss" scoped>
 :deep(.stepper-header) {
   flex-wrap: nowrap !important;
+}
+.item-entry {
+  line-height: 2.5rem;
+  border-radius: 1.2rem;
+  padding-left: .4rem;
+  &.active {
+    background-color: #e3eefa;
+  }
 }
 .marker-action-container {
   display: flex;
