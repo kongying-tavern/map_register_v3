@@ -24,7 +24,10 @@
           </div>
         </template>
       </q-img>
-      <p>点位描述：{{ layer_data.content }}</p>
+      <p>
+        <div>点位描述：</div>
+        <div class="text_nl">{{ layer_data.content }}</div>
+      </p>
       <p>点位显示状态：{{ layerhidden }}</p>
     </div>
     <div class="btns row justify-between">
@@ -94,7 +97,13 @@ export default {
   },
 };
 </script>
-<style scoped>
+
+<style lang="scss" scoped>
+.text_nl {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
 p {
   margin: 10px auto;
   font-size: 16px;
