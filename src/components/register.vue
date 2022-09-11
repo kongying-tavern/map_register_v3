@@ -649,7 +649,7 @@ export default {
       this.stepper_collapsed = !this.stepper_collapsed;
     },
     get_icon_url(icontag = '') {
-      return _.get(this.icon_map, [icontag, 'url'], '');
+      return _.get(this.icon_map, [icontag, 'url'], 'https://assets.yuanshen.site/icons/-1.png');
     },
     //点位弹窗回调
     pop_callback(data) {
