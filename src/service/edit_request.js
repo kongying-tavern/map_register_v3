@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { get_user_token } from './user_info'
 import { create_notify } from "../api/common"
-const baseurl = `${process.env.API_BASE}/api`
+const baseurl = `${process.env.VITE_API_BASE}/api`
 // const baseurl = 'http://localhost:9000/api/api'
 async function default_request(method, url, data = undefined) {
     try {
