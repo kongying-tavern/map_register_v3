@@ -169,7 +169,7 @@
           <div :class="table_content_full_class">
             {{ props.row.content }}
             <q-tooltip v-if="!table_content_full && props.row.content.length > 10">
-              <div class="text-warp">{{ props.row.content }}</div>
+              <div class="tooltip_text text_nl">{{ props.row.content }}</div>
             </q-tooltip>
           </div>
         </q-td>
@@ -316,7 +316,7 @@ export default {
       return this.layer_data;
     },
     table_content_full_class() {
-      return this.table_content_full ? 'long_text text-wrap' : 'short_text ellipsis';
+      return this.table_content_full ? 'text_nl long_text text-wrap' : 'short_text ellipsis';
     },
     table_content_full_icon() {
       return this.table_content_full ? 'blur_on' : 'blur_off';
@@ -333,12 +333,12 @@ export default {
 .long_text {
   width: 200px;
   margin: 0 auto;
-  word-wrap: break-word;
-  white-space: normal;
 }
-.text-warp {
+.tooltip_text {
   width: 200px;
-  white-space: pre-wrap; /* CSS 2.1 */
+}
+.text_nl {
+  white-space: pre-wrap;
   word-wrap: break-word;
 }
 </style>
