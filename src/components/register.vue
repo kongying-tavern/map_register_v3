@@ -172,8 +172,8 @@
                 dense
                 size="lg"
                 :keep-color="false"
-                :checked-icon="`img:${get_icon_url(i.iconTag)}`"
-                :unchecked-icon="`img:${get_icon_url(i.iconTag)}`"
+                :checked-icon="`img:${get_icon_url_by_tag(i.iconTag)}`"
+                :unchecked-icon="`img:${get_icon_url_by_tag(i.iconTag)}`"
                 @update:model-value="select_item_layers">
               </q-radio>
             </div>
@@ -400,9 +400,6 @@ export default {
     item_icontags() {
       return _.chain(this.item_list || []).map(v => v.iconTag).filter(v => v).value();
     },
-    item_icontag_map() {
-      return _.chain(this.item_list || []).filter(v => v && v.iconTag).map(v => [v.itemId, v.iconTag]).fromPairs().value();
-    },
     stepper_collapse_icon() {
       return this.stepper_collapsed ? 'keyboard_double_arrow_down' : 'keyboard_double_arrow_up';
     },
@@ -462,16 +459,8 @@ export default {
       this.loading = true;
       this.selected_item = value;
 
-      let icon_tags = this.item_all_allowable && this.selected_item_id <= 0 ? this.item_icontags : [this.selected_item_icontag]
       let item_ids = this.item_all_allowable && this.selected_item_id <= 0 ? this.item_ids : [this.selected_item_id]
 
-      let icon_getter = icon_tags.length > 0 ?
-        query_itemlayer_icon({
-          size: 999,
-          tagList: icon_tags,
-          typeIdList: [],
-          current: 0,
-        }) : Promise.resolve({data: {data: {record: []}}});
       let item_getter = item_ids.length > 0 ?
         query_itemlayer_infolist({
           typeIdList: [],
@@ -483,21 +472,17 @@ export default {
       //查询点位图标和点位数据
       this.$axios
         .all([
-          icon_getter,
           item_getter,
         ])
         .then(
-          this.$axios.spread((iconlist, layerlist) => {
-            let icon_records = iconlist.data.data.record || [];
+          this.$axios.spread((layerlist) => {
             let layer_records = layerlist.data.data || [];
-            let icon_map = _.chain(icon_records).map(v => [v.tag, v]).fromPairs().value();
             let layer_record_list = _.map(layer_records, v => {
-              let itemIds = _.map(v.itemList || [], 'itemId');
-              let itemId = _.find(itemIds, v => !!this.item_icontag_map[v])
-              let itemIconTag = this.item_icontag_map[itemId] || ''
-              let iconDefault = {url: ''};
-              let icon = itemIconTag ? (icon_map[itemIconTag] || iconDefault) : iconDefault;
-              v.icon = icon;
+              let itemIdsData = _.map(v.itemList || [], 'itemId');
+              let itemIdsSel = item_ids || []
+              let itemIdIcon = _.first(_.intersection(itemIdsData, itemIdsSel));
+              let iconUrl = this.get_icon_url_by_id(itemIdIcon);
+              v.icon = {url: iconUrl}
               return v;
             });
 
@@ -648,8 +633,13 @@ export default {
     toggle_stepper() {
       this.stepper_collapsed = !this.stepper_collapsed;
     },
-    get_icon_url(icontag = '') {
+    get_icon_url_by_tag(icontag = '') {
       return _.get(this.icon_map, [icontag, 'url'], 'https://assets.yuanshen.site/icons/-1.png');
+    },
+    get_icon_url_by_id(id = 0) {
+      let item_found = _.find(this.item_list, v => v.itemId === id);
+      let icon_tag = _.get(item_found, 'iconTag', '');
+      return this.get_icon_url_by_tag(icon_tag);
     },
     //点位弹窗回调
     pop_callback(data) {
