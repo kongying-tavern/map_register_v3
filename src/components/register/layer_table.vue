@@ -236,6 +236,8 @@ export default {
       filter_text: '',
       table_content_full: false,
 
+      icon_data: {},
+
       layer_data: [],
       layer_columns: [
         {
@@ -307,7 +309,6 @@ export default {
       }
 
       return list;
-      console.log(rows, terms, cols, getCellValue)
     }
   },
   computed: {

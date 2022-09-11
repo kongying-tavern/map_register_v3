@@ -148,11 +148,14 @@
           :bar-style="scroll_area_bar_style"
           :thumb-style="scroll_area_thumb_style">
           <div class="row">
-            <div v-if="item_all_allowable" class="col-4">
+            <div
+              v-if="item_all_allowable"
+              class="col-4 item-entry">
               <q-radio
                 v-model="selected_item"
                 :val="null"
                 label="全部"
+                dense
                 checked-icon="task_alt"
                 unchecked-icon="panorama_fish_eye"
                 @update:model-value="select_item_layers">
@@ -160,13 +163,17 @@
             </div>
             <div
               v-for="i in item_list"
-              class="col-4">
+              class="col-4 item-entry"
+              :class="{active: selected_item_id === i.itemId}">
               <q-radio
                 v-model="selected_item"
                 :val="i"
                 :label="i.name"
-                checked-icon="task_alt"
-                unchecked-icon="panorama_fish_eye"
+                dense
+                size="lg"
+                :keep-color="false"
+                :checked-icon="`img:${get_icon_url(i.iconTag)}`"
+                :unchecked-icon="`img:${get_icon_url(i.iconTag)}`"
                 @update:model-value="select_item_layers">
               </q-radio>
             </div>
@@ -341,6 +348,8 @@ export default {
       type_list: [],
       type_child_list: [],
       item_list: [],
+
+      icon_map: {},
 
       stepper_collapsed: false,
       handle_layer_list_data: [],
@@ -639,6 +648,9 @@ export default {
     toggle_stepper() {
       this.stepper_collapsed = !this.stepper_collapsed;
     },
+    get_icon_url(icontag = '') {
+      return _.get(this.icon_map, [icontag, 'url'], '');
+    },
     //点位弹窗回调
     pop_callback(data) {
       switch (data.type) {
@@ -704,17 +716,17 @@ export default {
           typeIdList: [],
           size: 999,
         }),
+        query_itemlayer_icon({
+          "size": 9999,
+          "current": 0
+        }),
       ])
       .then(
-        this.$axios.spread((arealist, typelist) => {
+        this.$axios.spread((arealist, typelist, iconlist) => {
           this.loading = false;
-          this.area_list = [];
-          for (let i of arealist.data.data) {
-            if (i.isFinal) {
-              this.area_list.push(i);
-            }
-          }
+          this.area_list = _.filter(arealist.data.data, v => v.isFinal)
           this.type_list = typelist.data.data.record;
+          this.icon_map = _.keyBy(iconlist.data.data.record || [], 'tag')
         })
       )
       .then(() => {
@@ -780,6 +792,14 @@ export default {
 <style lang="scss" scoped>
 :deep(.stepper-header) {
   flex-wrap: nowrap !important;
+}
+.item-entry {
+  line-height: 2.5rem;
+  border-radius: 1.2rem;
+  padding-left: .4rem;
+  &.active {
+    background-color: #e3eefa;
+  }
 }
 .marker-action-container {
   display: flex;
