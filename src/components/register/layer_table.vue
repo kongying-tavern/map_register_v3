@@ -325,25 +325,26 @@ export default {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .short_text {
   width: 150px;
   margin: 0 auto;
 }
+
 .long_text {
   width: 200px;
   margin: 0 auto;
 }
+
 .tooltip_text {
   width: 200px;
 }
+
 .text_nl {
   white-space: pre-wrap;
   word-wrap: break-word;
 }
-</style>
 
-<style lang="scss" scoped>
 .sticky-header {
   & :deep thead tr:first-child th {
     background-color: #fff;
