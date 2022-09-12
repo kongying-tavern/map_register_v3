@@ -359,6 +359,7 @@ export default {
       layer_edit_window: false,
       new_layer_id: 0,
       handle_type: 0,
+      handle_layergroup: null,
       mark_layer_set: [],
     };
   },
@@ -432,8 +433,8 @@ export default {
     //如果有子分类的话，进行查询，生成子分类tabs
     select_type_list(value) {
       this.loading = true;
-      this.clearlayers();
       this.clearlist();
+      this.clearlayers();
       this.selected_type = value;
       this.select_item_list(value.typeId);
     },
@@ -496,7 +497,7 @@ export default {
     paint_layers(value) {
       for (let i of value) {
         this.handle_layergroup.addLayer(
-          layer_register(i, i.icon.url == undefined ? "" : i.icon.url)
+          layer_register(i, _.isNil(i.icon.url) ? "" : i.icon.url)
         );
       }
       this.layer_eventbind();
