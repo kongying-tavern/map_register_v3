@@ -40,7 +40,7 @@ export default route((/* { store, ssrContext } */) => {
 
   Router.beforeEach(
     beforeEachGuard(Router, {
-      debug: true,
+      debug: import.meta.env.DEV,
     }),
   )
 
