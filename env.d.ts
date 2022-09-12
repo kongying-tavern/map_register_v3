@@ -23,6 +23,11 @@ interface ImportMetaEnv {
   readonly VITE_API_PROXY_TARGET: string
 
   /**
+   * 路由创建历史记录的模式
+   */
+  VITE_ROUTER_MODE: 'history' | 'hash' | 'memory'
+
+  /**
    * 开发模式下自动填充用户名
    * @default ''
    */
