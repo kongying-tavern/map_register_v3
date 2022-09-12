@@ -13,6 +13,7 @@ const {
   AUTH_URL,
   SUMMARIES_URL,
   DOCS_URL,
+  HEADER_ADDITIONAL,
   getCommonHeaders,
 } = require('./config')
 
@@ -128,7 +129,8 @@ const updateApiDts = (options) => {
             endOfLine: 'crlf',
           },
         })
-        await writeFile(join(outDir, `${name}.ts`), dts)
+        const content = `${HEADER_ADDITIONAL}${dts}`
+        await writeFile(join(outDir, `${name}.ts`), content)
 
         Logger.info('接口信息更新成功')
       } catch (err) {

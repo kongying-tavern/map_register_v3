@@ -31,9 +31,13 @@ const getCommonHeaders = (id) => ({
   'X-Client-Version': '1.4.12',
 })
 
+/** 生成的 TS 文件的头部附加信息 */
+const HEADER_ADDITIONAL = `/* eslint-disable @typescript-eslint/ban-types */\n`
+
 module.exports = {
   AUTH_URL,
   SUMMARIES_URL,
   DOCS_URL,
+  HEADER_ADDITIONAL,
   getCommonHeaders,
 }
