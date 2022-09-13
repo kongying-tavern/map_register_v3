@@ -127,7 +127,7 @@ export default {
   methods: {
     init_map() {
       //初始化地图
-      this.map = create_map("提瓦特2.5");
+      this.map = create_map("提瓦特-base0");
     },
     //切换地图
     map_switch(area) {
