@@ -9,8 +9,8 @@ jobs:
     interpreter: !DefaultInterpreter
       commands:
       - cd @secret:workspace-path@
-      - git checkout dev
-      - git pull
+      - git checkout dev -f
+      - git pull -r --autostash
     useTTY: false
     condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
   - !CommandStep
