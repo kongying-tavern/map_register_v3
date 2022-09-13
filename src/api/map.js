@@ -24,6 +24,13 @@ const map_tiles_config = {
         size: [12288, 15360]
     },
 
+    '沙漠': {
+        extend: '提瓦特-base0',
+        code: 'twt31',
+        size: [16384, 15360],
+        tilesOffset: [-4864, 0]
+    },
+
     '金苹果群岛': {
         extension: 'png',
         code: 'qd28',
