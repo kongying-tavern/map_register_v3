@@ -5,7 +5,9 @@ import {
   createWebHistory,
   createWebHashHistory,
 } from 'vue-router'
+import type { RouterHistory, RouterScrollBehavior } from 'vue-router'
 import routes from './routes'
+import { beforeEachGuard } from './guards'
 
 /*
  * If not building with SSR mode, you can
@@ -15,26 +17,32 @@ import routes from './routes'
  * async/await or return a Promise which resolves
  * with the Router instance.
  */
-
 export default route((/* { store, ssrContext } */) => {
-  const createHistory = process.env.SERVER
-    ? createMemoryHistory
-    : process.env.VUE_ROUTER_MODE === 'history'
-    ? createWebHistory
-    : createWebHashHistory
+  const history: RouterHistory = (
+    {
+      history: createWebHistory,
+      hash: createWebHashHistory,
+      memory: createMemoryHistory,
+    }[import.meta.env.VITE_ROUTER_MODE] ?? createWebHashHistory
+  )(import.meta.env.BASE_URL)
+
+  const scrollBehavior: RouterScrollBehavior = () => ({
+    top: 0,
+    left: 0,
+    behavior: 'smooth',
+  })
 
   const Router = createRouter({
-    scrollBehavior: () => ({
-      left: 0,
-      top: 0,
-    }),
     routes,
-
-    // Leave this as is and make changes in quasar.conf.js instead!
-    // quasar.conf.js -> build -> vueRouterMode
-    // quasar.conf.js -> build -> publicPath
-    history: createHistory(process.env.VUE_ROUTER_BASE),
+    history,
+    scrollBehavior,
   })
+
+  Router.beforeEach(
+    beforeEachGuard(Router, {
+      debug: import.meta.env.DEV,
+    }),
+  )
 
   return Router
 })
