@@ -1,14 +1,18 @@
 <template>
   <div class="user_table_container">
     <q-table
+      :ref="tableRef"
       v-model:pagination="paginationParams"
       :rows-per-page-options="[10, 20, 30, 50]"
       title="角色管理"
       class="user_table"
       :rows="rows"
       :columns="columns"
+      :loading="loading"
+      :filter="filterValue"
       row-key="charactor"
       dense
+      @request="onRequest"
     >
       <template #body-cell-actions="props">
         <q-td :props="props">
@@ -22,14 +26,28 @@
           ></q-btn>
         </q-td>
       </template>
+
       <template #top-right>
+        <q-select
+          v-model="filterKey"
+          :options="['昵称', '用户名']"
+          label="筛选项"
+          borderless
+          style="min-width: 75px; margin-right: 8px"
+        ></q-select>
+        <q-input v-model="filterValue" debounce="300" placeholder="搜索">
+          <template #append>
+            <q-icon name="search" />
+          </template>
+        </q-input>
         <div class="table_actions">
           <user-create />
           <user-import />
-          <q-btn icon="refresh" @click="refreshTable"></q-btn>
+          <q-btn icon="refresh" @click="onRequest"></q-btn>
         </div>
       </template>
     </q-table>
+
     <q-dialog v-model="dialogVisible" persistent>
       <q-card class="user_editor">
         <q-card-section class="row items-center q-pb-none">
@@ -42,11 +60,11 @@
             <q-input
               label="id"
               value=""
-              :model-value="formData.userId"
+              :model-value="formData.id"
               disable
             ></q-input>
             <q-input v-model="formData.username" label="用户名"></q-input>
-            <q-input v-model="formData.nickName" label="昵称"></q-input>
+            <q-input v-model="formData.nickname" label="昵称"></q-input>
             <q-input v-model="formData.qq" label="qq"></q-input>
             <q-input v-model="formData.phone" label="电话"></q-input>
           </q-form>
@@ -61,20 +79,18 @@
 </template>
 
 <script lang="ts">
-import { fetch_user_list } from '@/api/user'
 import { onMounted, ref } from 'vue'
 import UserCreate from './UserCreate.vue'
 import UserImport from './UserImport.vue'
-import { UserData, RoleData } from '@/api/user'
+import { UserData, RoleData, fetch_user_list } from '@/api/system/user'
+import { QTableProps } from 'node_modules/quasar/dist/types'
 
-// const initialPagination = {
-//   sortBy: 'desc',
-//   descending: false,
-//   rowsPerPage: 20,
-// }
 const paginationParams = ref({
+  sortBy: 'desc',
+  descending: false,
   page: 1,
-  rowsPerPage: 20,
+  rowsPerPage: 10,
+  rowsNumber: 10,
 })
 
 const columns = [
@@ -83,68 +99,80 @@ const columns = [
     required: true,
     label: 'ID',
     align: 'left',
-    field: (row: UserData) => row.userId,
+    field: (row: UserData) => row.id,
     sortable: true,
   },
-  { name: 'username', label: '用户名', field: (row: UserData) => row.username },
-  { name: 'nickname', label: '昵称', field: (row: UserData) => row.nickName },
-  { name: 'qq', label: 'qq', field: (row: UserData) => row.qq },
-  { name: 'phone', label: '电话', field: (row: UserData) => row.phone },
+  {
+    name: 'username',
+    label: '用户名',
+    align: 'left',
+    field: (row: UserData) => row.username,
+  },
+  {
+    name: 'nickname',
+    label: '昵称',
+    align: 'left',
+    field: (row: UserData) => row.nickname,
+  },
+  { name: 'qq', label: 'qq', align: 'left', field: (row: UserData) => row.qq },
+  {
+    name: 'phone',
+    label: '电话',
+    align: 'left',
+    field: (row: UserData) => row.phone,
+    format: (val: string) => val || '-',
+  },
   {
     name: 'roles',
     label: '角色',
+    align: 'left',
     field: (row: UserData) => row.roleList?.items,
     format: (val: RoleData[]) => val?.length || '-',
-    sortable: true,
   },
   { name: 'actions', label: '操作', align: 'center', field: '' },
-  // { name: 'calcium', label: 'Calcium (%)', field: 'calcium', sortable: true, sort: (a, b) => parseInt(a, 10) - parseInt(b, 10) },
-  // { name: 'iron', label: 'Iron (%)', field: 'iron', sortable: true, sort: (a, b) => parseInt(a, 10) - parseInt(b, 10) }
 ]
-const rows = [
-  {
-    userId: '1',
-    username: 'test',
-    nickName: '用户昵称',
-    qq: '789456123',
-    phone: '',
-  },
-  {
-    userId: '2',
-    username: 'test',
-    nickName: '用户昵称',
-    qq: '789456123',
-    phone: '',
-  },
-  {
-    userId: '3',
-    username: 'test',
-    nickName: '用户昵称',
-    qq: '789456123',
-    phone: '',
-    roleList: {
-      items: [
-        {
-          id: 123,
-          name: '可莉',
-          code: 'KLEE',
-          sort: 9999,
-        },
-      ],
-    },
-  },
-]
-const refreshTable = () => {
-  fetch_user_list({ current: 1, size: 20 })
+const tableRef = ref()
+const rows = ref<UserData[]>([])
+const dialogVisible = ref(false)
+const formData = ref({})
+const loading = ref(false)
+const filterKey = ref<'昵称' | '用户名'>('昵称')
+const filterValue = ref('')
+const onRequest = (props: QTableProps) => {
+  const { pagination, filter } = props
+  loading.value = true
+  fetch_user_list({
+    current: pagination?.page || 1,
+    size: pagination?.rowsPerPage || 10,
+    nickname: filterKey.value === '昵称' ? filter : '',
+    username: filterKey.value === '用户名' ? filter : '',
+    sort: [],
+  }).then((res: any) => {
+    loading.value = false
+    if (res.code === 200) {
+      rows.value.splice(0, rows.value.length, ...res.data.record)
+      paginationParams.value = {
+        rowsPerPage: 10,
+        page: 1,
+        sortBy: 'desc',
+        descending: false,
+        ...pagination,
+        rowsNumber: res.data.total,
+      }
+      filterValue.value = filter
+    }
+  })
 }
-onMounted(() => {
-  refreshTable()
-})
+
 export default {
   components: { UserCreate, UserImport },
   setup() {
-    const dialogVisible = ref(false)
-    const formData = ref({})
+    onMounted(() => {
+      onRequest({
+        pagination: paginationParams.value,
+        filter: filterValue.value,
+      })
+    })
     const onClickEdit = (props: { row: UserData }) => {
       dialogVisible.value = true
       formData.value = props.row
@@ -153,13 +181,17 @@ export default {
       console.log(formData.value)
     }
     return {
+      tableRef,
       columns,
       rows,
+      filterValue,
+      filterKey,
       paginationParams,
+      loading,
       onClickEdit,
       dialogVisible,
       formData,
-      refreshTable,
+      onRequest,
       editUser,
     }
   },
@@ -168,9 +200,6 @@ export default {
 <style scoped lang="scss">
 .user_table_container {
   margin: 4rem;
-}
-.table_actions button {
-  margin: 0 0.5rem;
 }
 .user_table {
   // max-width: 800px;

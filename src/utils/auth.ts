@@ -32,3 +32,7 @@ export const saveUser = (auth: UserAuthOptions = {}) => {
   LocalStorage.set(KEY_USER_ID, userId)
   LocalStorage.set(KEY_USER_ROLES, userRoles)
 }
+
+export const getToken = () => {
+  return LocalStorage.getItem(KEY_ACCESS_TOKEN)
+}

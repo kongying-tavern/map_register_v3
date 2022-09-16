@@ -1,4 +1,5 @@
-import { request } from '@/utils'
+import { getToken, request } from '@/utils'
+
 export type UserSearchFilter = {
   current: number
   size: number
@@ -8,12 +9,12 @@ export type UserSearchFilter = {
 }
 export interface UserProfile {
   username?: string
-  nickName?: string
+  nickname?: string
   qq?: string
   phone?: string
 }
 export interface UserData extends UserProfile {
-  userId: number
+  id: number
   roleList: {
     items: RoleData[]
   }
@@ -26,7 +27,7 @@ export type RoleData = {
 }
 export function fetch_user_list(data: UserSearchFilter) {
   return request({
-    url: '/user/info/userList',
+    url: 'system/user/info/userList',
     method: 'post',
     data: data,
   })

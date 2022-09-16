@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { getToken } from './auth'
 
 const service = axios.create({
   baseURL: import.meta.env.VITE_API_BASE,
@@ -15,6 +16,8 @@ service.interceptors.request.use(
     if (!config.headers) {
       config.headers = {}
     }
+    const token = getToken()
+    if (token) config.headers['Authorization'] = `Bearer ${token}`
     config.headers['Content-Type'] = 'application/json'
 
     return config
