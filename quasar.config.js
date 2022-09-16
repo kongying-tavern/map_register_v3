@@ -35,7 +35,7 @@ module.exports = configure(({ dev, prod }) => {
     // https://github.com/quasarframework/quasar/tree/dev/extras
     extras: [
       // 'ionicons-v4',
-      // 'mdi-v5',
+      'mdi-v5',
       // 'fontawesome-v6',
       // 'eva-icons',
       // 'themify',
@@ -116,7 +116,7 @@ module.exports = configure(({ dev, prod }) => {
       // directives: [],
 
       // Quasar plugins
-      plugins: ['LocalStorage', 'Notify', 'Dialog'],
+      plugins: ['LocalStorage', 'Notify', 'Dialog', 'Loading'],
     },
 
     // animations: 'all', // --- includes all animations

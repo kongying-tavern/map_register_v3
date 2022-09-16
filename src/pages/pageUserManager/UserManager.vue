@@ -222,7 +222,7 @@ export default {
         filter: filterValue.value,
       })
     })
-    const rowDoubleClick = (event: Event, row: UserData, index: number) => {
+    const rowDoubleClick = (event: Event, row: UserData) => {
       formData.value = row
       dialogEditVisible.value = true
     }
