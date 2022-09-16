@@ -7,54 +7,87 @@
   />
 
   <q-dialog v-model="dialogVisible" persistent>
-    <q-card class="user_editor" style="min-width: 30rem">
+    <q-card class="user_create" style="min-width: 30rem">
       <q-card-section class="row items-center q-pb-none">
         <div class="text-h6">新增用户</div>
         <q-space />
         <q-btn v-close-popup icon="close" flat round dense />
       </q-card-section>
       <q-card-section>
-        <q-form class="user_create_form">
+        <q-form
+          class="user_create_form"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+        >
           <q-input
             v-model="formData.username"
+            for="username"
+            autocomplete="off"
             :rules="[(val) => val.length >= 5 || '请至少输入5个字符']"
             label="用户名"
           ></q-input>
           <q-input
-            v-model="formData.nickname"
-            :rules="[(val) => val.length >= 3 || '请至少输入1个字符']"
-            label="昵称"
+            v-model="formData.password"
+            for="password"
+            type="password"
+            autocomplete="off"
+            :rules="[(val) => val.length >= 6 || '密码最少6位']"
+            label="密码"
           ></q-input>
-          <q-input v-model="formData.qq" label="qq"></q-input>
-          <q-input v-model="formData.phone" label="电话"></q-input>
+          <q-input
+            v-model="formData.passwordRepeat"
+            :rules="[
+              (value) => value === formData.password || '两次密码不一致',
+            ]"
+            lazy-rules
+            type="password"
+            autocomplete="off"
+            label="再次输入密码"
+          ></q-input>
         </q-form>
       </q-card-section>
-      <q-card-section>
+      <q-card-actions>
+        <q-space />
         <q-btn label="取消" @click="dialogVisible = false" />
         <q-btn label="确认" color="primary" @click="onConfirm" />
-      </q-card-section>
+      </q-card-actions>
     </q-card>
   </q-dialog>
 </template>
 <script lang="ts">
+import { create_user } from '@/api/system/user'
+import { useQuasar } from 'quasar'
 import { defineComponent, ref } from 'vue'
 const formData = ref({
   username: '',
-  nickname: '',
-  qq: '',
-  phone: '',
+  password: '',
+  passwordRepeat: '',
 })
-const onConfirm = () => {
-  if (
-    formData.value.nickname.length > 0 &&
-    formData.value.username.length >= 5
-  ) {
-    console.log('confirm', formData.value)
-  }
-}
+
 const dialogVisible = ref(false)
 export default defineComponent({
   setup() {
+    const $q = useQuasar()
+    const onConfirm = () => {
+      const form = formData.value
+      if (form.password === form.passwordRepeat) {
+        create_user({ username: form.username, password: form.password })
+          .then((res: any) => {
+            if (res.code === 200) {
+              $q.notify({ type: 'positive', message: '注册成功' })
+            }
+          })
+          .catch((err) => {
+            console.log(err)
+            $q.notify({ type: 'negative', message: JSON.stringify(err) })
+          })
+          .then(() => {
+            dialogVisible.value = false
+          })
+      }
+      console.log('')
+    }
     return {
       formData,
       dialogVisible,
@@ -64,11 +97,11 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss">
-.table_action_btn {
-  margin-right: 8px;
+<style lang="scss" scoped>
+.q-card__actions {
+  padding: 16px;
 }
-.table_action_btn:first-child {
-  margin-left: 8px;
+.table_action_btn {
+  margin: 0 8px 0 16px;
 }
 </style>

@@ -28,28 +28,48 @@
       </template>
 
       <template #top-right>
-        <q-select
-          v-model="filterKey"
-          :options="['昵称', '用户名']"
-          label="筛选项"
-          borderless
-          style="min-width: 75px; margin-right: 8px"
-        ></q-select>
-        <q-input v-model="filterValue" debounce="300" placeholder="搜索">
-          <template #append>
-            <q-icon name="search" />
-          </template>
-        </q-input>
-        <div class="table_actions">
-          <user-create />
-          <user-import />
-          <q-btn icon="refresh" @click="onRequest"></q-btn>
+        <div class="table_top_right">
+          <div class="table_actions">
+            <user-create />
+            <user-import />
+            <q-btn icon="refresh" @click="onRequest"></q-btn>
+          </div>
+
+          <div class="table_search">
+            <q-option-group
+              v-model="orderBy"
+              dense
+              title="排序"
+              :options="[
+                { label: '昵称升序', value: 'nickname+' },
+                { label: '创建时间升序', value: 'createTime+' },
+                { label: '昵称降序', value: 'nickname-' },
+                { label: '创建时间降序', value: 'createTime-' },
+              ]"
+              @update:model-value="
+                onRequest({ pagination: paginationParams, filter: filterValue })
+              "
+            />
+            <div class="search_group">
+              <q-select
+                v-model="filterKey"
+                :options="['昵称', '用户名']"
+                label="筛选项"
+                borderless
+              ></q-select>
+              <q-input v-model="filterValue" debounce="800" placeholder="搜索">
+                <template #append>
+                  <q-icon name="search" />
+                </template>
+              </q-input>
+            </div>
+          </div>
         </div>
       </template>
     </q-table>
 
-    <q-dialog v-model="dialogVisible" persistent>
-      <q-card class="user_editor">
+    <q-dialog v-model="dialogEditVisible" persistent>
+      <q-card class="user_edit">
         <q-card-section class="row items-center q-pb-none">
           <div class="text-h6">编辑用户</div>
           <q-space />
@@ -69,10 +89,12 @@
             <q-input v-model="formData.phone" label="电话"></q-input>
           </q-form>
         </q-card-section>
-        <q-card-section>
-          <q-btn label="取消" @click="dialogVisible = false" />
+        <q-card-actions>
+          <q-btn flat label="删除用户" style="color: red" @click="deleteUser" />
+          <q-space />
+          <q-btn label="取消" @click="dialogEditVisible = false" />
           <q-btn label="确认" color="primary" @click="editUser" />
-        </q-card-section>
+        </q-card-actions>
       </q-card>
     </q-dialog>
   </div>
@@ -82,9 +104,19 @@
 import { onMounted, ref } from 'vue'
 import UserCreate from './UserCreate.vue'
 import UserImport from './UserImport.vue'
-import { UserData, RoleData, fetch_user_list } from '@/api/system/user'
+import {
+  UserData,
+  RoleData,
+  fetch_user_list,
+  update_user,
+} from '@/api/system/user'
 import { QTableProps } from 'node_modules/quasar/dist/types'
-
+import { useQuasar } from 'quasar'
+type TableOrderOption =
+  | 'nickname+'
+  | 'createTime+'
+  | 'nickname-'
+  | 'createTime-'
 const paginationParams = ref({
   sortBy: 'desc',
   descending: false,
@@ -133,20 +165,31 @@ const columns = [
 ]
 const tableRef = ref()
 const rows = ref<UserData[]>([])
-const dialogVisible = ref(false)
-const formData = ref({})
+const dialogEditVisible = ref(false)
+const formData = ref<UserData>({
+  id: -1,
+  nickname: '',
+  username: '',
+  phone: '',
+  qq: '',
+})
 const loading = ref(false)
+const orderBy = ref<TableOrderOption>('createTime-')
 const filterKey = ref<'昵称' | '用户名'>('昵称')
 const filterValue = ref('')
 const onRequest = (props: QTableProps) => {
   const { pagination, filter } = props
   loading.value = true
+  const searchKeyObj: any = {}
+  if (filterValue.value !== '' && filterKey.value === '昵称')
+    searchKeyObj['nickname'] = filter
+  if (filterValue.value !== '' && filterKey.value === '用户名')
+    searchKeyObj['username'] = filter
   fetch_user_list({
     current: pagination?.page || 1,
     size: pagination?.rowsPerPage || 10,
-    nickname: filterKey.value === '昵称' ? filter : '',
-    username: filterKey.value === '用户名' ? filter : '',
-    sort: [],
+    ...searchKeyObj,
+    sort: [orderBy.value],
   }).then((res: any) => {
     loading.value = false
     if (res.code === 200) {
@@ -167,6 +210,7 @@ const onRequest = (props: QTableProps) => {
 export default {
   components: { UserCreate, UserImport },
   setup() {
+    const $q = useQuasar()
     onMounted(() => {
       onRequest({
         pagination: paginationParams.value,
@@ -174,25 +218,47 @@ export default {
       })
     })
     const onClickEdit = (props: { row: UserData }) => {
-      dialogVisible.value = true
-      formData.value = props.row
+      dialogEditVisible.value = true
+      formData.value = { ...props.row }
     }
     const editUser = () => {
       console.log(formData.value)
+      update_user(formData.value)
+        .then((res: any) => {
+          if (res.code === 200) {
+            dialogEditVisible.value = false
+            $q.notify({ type: 'positive', message: '修改成功' })
+          }
+        })
+        .catch((err) => {
+          console.log(err)
+          $q.notify({ type: 'negative', message: JSON.stringify(err) })
+        })
+        .then(() => {
+          onRequest({
+            pagination: paginationParams.value,
+            filter: filterValue.value,
+          })
+        })
+    }
+    const deleteUser = () => {
+      console.log('deleteUser')
     }
     return {
       tableRef,
       columns,
       rows,
+      orderBy,
       filterValue,
       filterKey,
       paginationParams,
       loading,
       onClickEdit,
-      dialogVisible,
+      dialogEditVisible,
       formData,
       onRequest,
       editUser,
+      deleteUser,
     }
   },
 }
@@ -203,7 +269,7 @@ export default {
 }
 .user_table {
   // max-width: 800px;
-  min-width: 300px;
+  min-width: 540px;
 
   thead tr:last-child th:last-child {
     background-color: #fff;
@@ -214,13 +280,47 @@ export default {
     right: 0;
     z-index: 1;
   }
+  .table_top_right {
+    min-width: 400px;
+    max-width: 60vw;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    .table_actions,
+    .table_search {
+      display: flex;
+      justify-content: flex-end;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+    .table_search {
+      min-width: 300px;
+      margin-top: 16px;
+      .search_group {
+        display: flex;
+      }
+      .q-option-group {
+        display: flex;
+        flex-wrap: wrap;
+        width: 220px;
+        align-items: center;
+        div {
+          width: 115px;
+        }
+      }
+      .q-select {
+        width: 80px;
+        margin: 0 8px 0 16px;
+      }
+      .q-input {
+        max-width: 200px;
+      }
+    }
+  }
 }
-.user_editor {
+.user_edit {
   min-width: 30rem;
   background: #fff;
-
-  button {
-    margin: 1rem 1rem 0 0;
-  }
+  padding-bottom: 16px;
 }
 </style>
