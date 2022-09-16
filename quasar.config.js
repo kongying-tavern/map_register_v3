@@ -116,7 +116,7 @@ module.exports = configure(({ dev, prod }) => {
       // directives: [],
 
       // Quasar plugins
-      plugins: ['LocalStorage', 'Notify'],
+      plugins: ['LocalStorage', 'Notify', 'Dialog'],
     },
 
     // animations: 'all', // --- includes all animations

@@ -98,10 +98,7 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.q-card__actions {
-  padding: 16px;
-}
 .table_action_btn {
-  margin: 0 8px 0 16px;
+  margin-right: 8px;
 }
 </style>

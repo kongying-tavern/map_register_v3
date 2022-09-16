@@ -7,7 +7,7 @@
   />
 
   <q-dialog v-model="dialogVisible" @hide="clearData">
-    <q-card class="dialog_container">
+    <q-card class="dialog_import">
       <q-card-section horizontal class="file_picker">
         <q-file
           v-model="csvFile"
@@ -30,9 +30,9 @@
             />
           </template>
         </q-file>
-        <q-checkbox v-model="csvHasHeader" label="csv文件含表头" />
       </q-card-section>
       <q-card-section v-if="csvFile" class="csv-preview">
+        <q-checkbox v-model="csvHasHeader" label="csv文件含表头" />
         <q-table
           dense
           :columns="columns"
@@ -129,10 +129,11 @@ export default defineComponent({
   },
 })
 </script>
-<style scoped lang="scss">
-.dialog_container {
-  width: 60rem;
-  max-width: 80vw;
+<style lang="scss" scoped>
+.dialog_import {
+  width: 72vw;
+  min-width: 360px;
+  max-width: 840px;
   height: 50rem;
   max-height: 85vh;
   display: flex;
@@ -146,9 +147,8 @@ export default defineComponent({
     flex: 1;
     text-align: center;
   }
-
-  .q-card__actions {
-    margin: 16px;
-  }
+}
+.table_action_btn {
+  margin-right: 8px;
 }
 </style>

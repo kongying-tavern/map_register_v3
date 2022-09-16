@@ -1,10 +1,11 @@
 <template>
   <div class="user_table_container">
+    <h3>用户管理</h3>
     <q-table
       :ref="tableRef"
       v-model:pagination="paginationParams"
       :rows-per-page-options="[10, 20, 30, 50]"
-      title="角色管理"
+      title="用户管理"
       class="user_table"
       :rows="rows"
       :columns="columns"
@@ -13,6 +14,7 @@
       row-key="charactor"
       dense
       @request="onRequest"
+      @row-dblclick="rowDoubleClick"
     >
       <template #body-cell-actions="props">
         <q-td :props="props">
@@ -26,43 +28,45 @@
           ></q-btn>
         </q-td>
       </template>
-
       <template #top-right>
-        <div class="table_top_right">
-          <div class="table_actions">
-            <user-create />
-            <user-import />
-            <q-btn icon="refresh" @click="onRequest"></q-btn>
-          </div>
-
-          <div class="table_search">
-            <q-option-group
-              v-model="orderBy"
-              dense
-              title="排序"
-              :options="[
-                { label: '昵称升序', value: 'nickname+' },
-                { label: '创建时间升序', value: 'createTime+' },
-                { label: '昵称降序', value: 'nickname-' },
-                { label: '创建时间降序', value: 'createTime-' },
-              ]"
-              @update:model-value="
-                onRequest({ pagination: paginationParams, filter: filterValue })
-              "
-            />
-            <div class="search_group">
-              <q-select
-                v-model="filterKey"
-                :options="['昵称', '用户名']"
-                label="筛选项"
-                borderless
-              ></q-select>
-              <q-input v-model="filterValue" debounce="800" placeholder="搜索">
-                <template #append>
-                  <q-icon name="search" />
-                </template>
-              </q-input>
-            </div>
+        <div class="table_actions">
+          <user-create />
+          <user-import />
+        </div>
+      </template>
+      <template #top-left>
+        <div class="table_search">
+          <q-option-group
+            v-model="orderBy"
+            dense
+            title="排序"
+            :options="[
+              { label: '昵称升序', value: 'nickname+' },
+              { label: '创建时间升序', value: 'createTime+' },
+              { label: '昵称降序', value: 'nickname-' },
+              { label: '创建时间降序', value: 'createTime-' },
+            ]"
+            @update:model-value="
+              onRequest({ pagination: paginationParams, filter: filterValue })
+            "
+          />
+          <div class="search_group">
+            <q-select
+              v-model="filterKey"
+              :options="['昵称', '用户名']"
+              label="筛选项"
+              borderless
+            ></q-select>
+            <q-input
+              v-model="filterValue"
+              borderless
+              debounce="800"
+              placeholder="搜索"
+            >
+              <template #append>
+                <q-icon name="search" />
+              </template>
+            </q-input>
           </div>
         </div>
       </template>
@@ -109,6 +113,7 @@ import {
   RoleData,
   fetch_user_list,
   update_user,
+  delete_user,
 } from '@/api/system/user'
 import { QTableProps } from 'node_modules/quasar/dist/types'
 import { useQuasar } from 'quasar'
@@ -217,12 +222,15 @@ export default {
         filter: filterValue.value,
       })
     })
+    const rowDoubleClick = (event: Event, row: UserData, index: number) => {
+      formData.value = row
+      dialogEditVisible.value = true
+    }
     const onClickEdit = (props: { row: UserData }) => {
       dialogEditVisible.value = true
       formData.value = { ...props.row }
     }
     const editUser = () => {
-      console.log(formData.value)
       update_user(formData.value)
         .then((res: any) => {
           if (res.code === 200) {
@@ -241,8 +249,43 @@ export default {
           })
         })
     }
-    const deleteUser = () => {
-      console.log('deleteUser')
+    const onClickDeleteUser = () => {
+      const userData = formData.value
+      $q.dialog({
+        title: '删除用户',
+        message: `确认删除用户
+                  [ID] ${userData.id}
+                  [username] ${userData.username}
+                  [nickname] ${userData.nickname} ?`,
+        cancel: true,
+        persistent: true,
+      }).onOk(() => {
+        deleteUser(userData)
+      })
+    }
+    const deleteUser = (userData: UserData) => {
+      delete_user(userData.id)
+        .then((res: any) => {
+          if (res.code === 200)
+            $q.notify({
+              type: 'positive',
+              message: `成功删除用户
+                  [ID] ${userData.id}
+                  [username] ${userData.username}
+                  [nickname] ${userData.nickname} `,
+            })
+        })
+        .catch((err) => {
+          console.log(err)
+          $q.notify({ type: 'negative', message: JSON.stringify(err) })
+        })
+        .then(() => {
+          dialogEditVisible.value = false
+          onRequest({
+            pagination: paginationParams.value,
+            filter: filterValue.value,
+          })
+        })
     }
     return {
       tableRef,
@@ -253,23 +296,28 @@ export default {
       filterKey,
       paginationParams,
       loading,
+      rowDoubleClick,
       onClickEdit,
       dialogEditVisible,
       formData,
       onRequest,
       editUser,
-      deleteUser,
+      deleteUser: onClickDeleteUser,
     }
   },
 }
 </script>
 <style scoped lang="scss">
 .user_table_container {
-  margin: 4rem;
+  margin: min(32px, 4vw);
+
+  h3 {
+    margin-block: 16px;
+  }
 }
+
 .user_table {
-  // max-width: 800px;
-  min-width: 540px;
+  overflow: hidden;
 
   thead tr:last-child th:last-child {
     background-color: #fff;
@@ -280,41 +328,42 @@ export default {
     right: 0;
     z-index: 1;
   }
-  .table_top_right {
-    min-width: 400px;
-    max-width: 60vw;
+  .q-table__control {
+    width: 100% !important;
+  }
+  .table_actions,
+  .table_search {
     display: flex;
+    justify-content: flex-start;
+    width: 100%;
     flex-wrap: wrap;
-    justify-content: flex-end;
-    .table_actions,
-    .table_search {
+    margin: 8px 0;
+  }
+  .table_search {
+    min-width: 180px;
+    display: flex;
+    .search_group {
       display: flex;
-      justify-content: flex-end;
-      width: 100%;
-      flex-wrap: wrap;
-    }
-    .table_search {
-      min-width: 300px;
-      margin-top: 16px;
-      .search_group {
-        display: flex;
-      }
-      .q-option-group {
-        display: flex;
-        flex-wrap: wrap;
-        width: 220px;
-        align-items: center;
-        div {
-          width: 115px;
-        }
-      }
-      .q-select {
-        width: 80px;
-        margin: 0 8px 0 16px;
-      }
+      border: 1px solid#cfcfcf;
+      padding-right: 8px;
+      border-radius: 4px;
+
       .q-input {
-        max-width: 200px;
+        max-width: 280px;
+        min-width: 120px;
+        flex: 1;
       }
+    }
+    .q-option-group {
+      display: flex;
+      flex-wrap: wrap;
+      width: 240px;
+      align-items: center;
+      margin: 8px 0;
+    }
+    .q-select {
+      width: 80px;
+      margin: 0 8px 0 16px;
     }
   }
 }
