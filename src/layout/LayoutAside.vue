@@ -23,6 +23,7 @@
 
   .layout-aside__header {
     height: var(--c-header-height);
+    line-height: var(--c-header-height);
   }
 
   .layout-aside__main {
