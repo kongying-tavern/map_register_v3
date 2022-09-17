@@ -23,9 +23,12 @@ export const beforeEachGuard = (
       debug && console.log('[beforeEachGuard] 目标路由不存在，重定向到登录页')
       return next('/login')
     }
-    if (!tokenValid && to.path !== '/login') return next('/login')
-    // if (tokenValid && to.path === '/login') return next('/')
-    else if (tokenValid) return next()
-    else return next('/login')
+
+    if (!tokenValid && to.path !== '/login') {
+      debug && console.log('[beforeEachGuard]', '用户凭证过期，重定向到登录页')
+      return next('/login')
+    }
+
+    next()
   }
 }
