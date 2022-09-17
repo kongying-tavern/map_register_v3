@@ -106,8 +106,8 @@
 
 <script lang="ts">
 import { onMounted, ref } from 'vue'
-import UserCreate from './UserCreate.vue'
-import UserImport from './UserImport.vue'
+import UserCreate from '@/components/UserCreate.vue'
+import UserImport from '@/components/UserImport.vue'
 import {
   UserData,
   RoleData,

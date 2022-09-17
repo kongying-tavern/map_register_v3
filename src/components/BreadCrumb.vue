@@ -1,13 +1,30 @@
 <template>
-  <div v-if="!['/login', '/'].includes(pathname)" class="breadcrumb_nav">
+  <div v-if="!['/login', '/'].includes($route.path)" class="breadcrumb_nav">
     <div
-      v-for="(p, index) in pathList"
-      :key="p"
+      v-for="(p, index) in [
+        'Home',
+        ...$route.path.split('/').filter((item) => item !== ''),
+      ]"
+      :key="index"
       class="breadcrumb_item"
-      :class="{ active: index === pathList.length - 1 }"
+      :class="{
+        active:
+          index === $route.path.split('/').filter((item) => item !== '').length,
+      }"
     >
-      <span v-if="index === pathList.length - 1">{{ p }}</span>
-      <a v-else :href="'/' + pathList.slice(0, index).join('/')">
+      <!-- <span
+        v-if="
+          index === $route.path.split('/').filter((item) => item !== '').length
+        "
+        >{{ p }}</span
+      > -->
+      <a
+        :href="
+          index === $route.path.split('/').filter((item) => item !== '').length
+            ? $route.path
+            : `/${$route.path.slice(0, $route.path.lastIndexOf('/'))}`
+        "
+      >
         {{ p }}
       </a>
     </div>
@@ -15,21 +32,18 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from 'vue'
+import { defineComponent } from 'vue'
 
 export default defineComponent({
   name: 'BreadCrumb',
   setup() {
-    const pathname = computed(() => window.location.pathname)
-    const pathList = computed(() => {
-      if (!pathname.value) return []
-      return pathname.value.split('/').filter((item) => item !== '')
-    })
-    console.log(pathname, pathList.value)
-    const breadcrumbList = ['Home', ...pathList.value]
+    // const pathname = window.location.pathname
+    // const pathList = pathname.split('/').filter((item) => item !== '')
+    // console.log(pathname, pathList)
+    // const breadcrumbList = ['Home', ...pathList]
     return {
-      pathname,
-      pathList: breadcrumbList,
+      // pathname,
+      // pathList: breadcrumbList,
     }
   },
 })
@@ -50,12 +64,12 @@ export default defineComponent({
     margin: 0;
     position: relative;
     cursor: default;
+    height: 24px;
 
     a {
       padding: 4px 6px;
       border-radius: 3px;
       text-decoration: none;
-      line-height: 17px;
       color: #767c82;
     }
     a:hover {
@@ -63,7 +77,12 @@ export default defineComponent({
     }
 
     &.active {
-      color: rgb(51, 54, 57);
+      a {
+        color: rgb(51, 54, 57);
+      }
+      a:hover {
+        background-color: none;
+      }
     }
   }
   .breadcrumb_item:not(:last-child)::after {
