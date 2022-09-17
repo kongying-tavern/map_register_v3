@@ -6,27 +6,15 @@
       :rows-per-page-options="[10, 20, 30, 50]"
       title="用户管理"
       class="user_table"
+      dense
       :rows="rows"
       :columns="columns"
       :loading="loading"
       :filter="filterValue"
+      separator="vertical"
       row-key="charactor"
-      dense
       @request="onRequest"
-      @row-dblclick="rowDoubleClick"
     >
-      <template #body-cell-actions="props">
-        <q-td :props="props">
-          <q-btn
-            dense
-            round
-            flat
-            color="grey"
-            icon="edit"
-            @click="onClickEdit(props)"
-          ></q-btn>
-        </q-td>
-      </template>
       <template #top-right>
         <div class="table_actions">
           <UserCreate />
@@ -69,6 +57,76 @@
           </div>
         </div>
       </template>
+
+      <!-- Table Popup Edit -->
+      <template #body="props">
+        <q-tr :props="props">
+          <q-td key="id" :props="props">
+            {{ props.row.id }}
+          </q-td>
+          <q-td key="username" :props="props">
+            {{ props.row.username }}
+            <q-popup-edit
+              v-slot="scope"
+              v-model="props.row.username"
+              buttons
+              cover="false"
+              @save="(val: string) => editUser({...props.row, username: val})"
+            >
+              <q-input v-model="scope.value" type="text" dense autofocus />
+            </q-popup-edit>
+          </q-td>
+          <q-td key="nickname" :props="props">
+            <div class="text-pre-wrap">{{ props.row.nickname }}</div>
+            <q-popup-edit
+              v-slot="scope"
+              v-model="props.row.nickname"
+              buttons
+              cover="false"
+              @save="(val: string) => editUser({...props.row, nickname: val})"
+            >
+              <q-input v-model="scope.value" type="text" dense autofocus />
+            </q-popup-edit>
+          </q-td>
+          <q-td key="qq" :props="props">
+            {{ props.row.qq }}
+            <q-popup-edit
+              v-slot="scope"
+              v-model="props.row.qq"
+              buttons
+              cover="false"
+              @save="(val: string) => editUser({...props.row, qq: val})"
+            >
+              <q-input v-model="scope.value" type="number" dense autofocus />
+            </q-popup-edit>
+          </q-td>
+          <q-td key="phone" :props="props">
+            <div class="text-pre-wrap">{{ props.row.phone }}</div>
+            <q-popup-edit
+              v-slot="scope"
+              v-model="props.row.phone"
+              buttons
+              cover="false"
+              @save="(val: string) => editUser({...props.row, phone: val})"
+            >
+              <q-input v-model="scope.value" type="number" dense autofocus />
+            </q-popup-edit>
+          </q-td>
+          <q-td key="roles" :props="props">{{
+            props.row.roleList?.items.length || '-'
+          }}</q-td>
+          <q-td key="actions" :props="props">
+            <q-btn
+              dense
+              round
+              flat
+              color="grey"
+              icon="edit"
+              @click="onClickEdit(props)"
+            ></q-btn>
+          </q-td>
+        </q-tr>
+      </template>
     </q-table>
 
     <q-dialog v-model="dialogEditVisible" persistent>
@@ -93,10 +151,19 @@
           </q-form>
         </q-card-section>
         <q-card-actions>
-          <q-btn flat label="删除用户" style="color: red" @click="deleteUser" />
+          <q-btn
+            flat
+            label="删除用户"
+            style="color: red"
+            @click="onClickDeleteUser"
+          />
           <q-space />
           <q-btn label="取消" @click="dialogEditVisible = false" />
-          <q-btn label="确认" color="primary" @click="editUser" />
+          <q-btn
+            label="确认"
+            color="primary"
+            @click="() => editUser(formData)"
+          />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -109,7 +176,6 @@ import UserCreate from '@/components/UserCreate.vue'
 import UserImport from '@/components/UserImport.vue'
 import {
   UserData,
-  RoleData,
   fetchUserList,
   updateUser,
   deleteUser,
@@ -130,42 +196,13 @@ const paginationParams = ref({
 })
 
 const columns = [
-  {
-    name: 'id',
-    required: true,
-    label: 'ID',
-    align: 'left',
-    field: (row: UserData) => row.id,
-    sortable: true,
-  },
-  {
-    name: 'username',
-    label: '用户名',
-    align: 'left',
-    field: (row: UserData) => row.username,
-  },
-  {
-    name: 'nickname',
-    label: '昵称',
-    align: 'left',
-    field: (row: UserData) => row.nickname,
-  },
-  { name: 'qq', label: 'qq', align: 'left', field: (row: UserData) => row.qq },
-  {
-    name: 'phone',
-    label: '电话',
-    align: 'left',
-    field: (row: UserData) => row.phone,
-    format: (val: string) => val || '-',
-  },
-  {
-    name: 'roles',
-    label: '角色',
-    align: 'left',
-    field: (row: UserData) => row.roleList?.items,
-    format: (val: RoleData[]) => val?.length || '-',
-  },
-  { name: 'actions', label: '操作', align: 'center', field: '' },
+  { name: 'id', label: 'ID', align: 'left', required: true },
+  { name: 'username', label: '用户名', align: 'left' },
+  { name: 'nickname', label: '昵称', align: 'left' },
+  { name: 'qq', label: 'QQ', align: 'left' },
+  { name: 'phone', label: '电话', align: 'left' },
+  { name: 'roles', label: '角色', align: 'left' },
+  { name: 'actions', label: '操作', align: 'right' },
 ]
 const tableRef = ref()
 const rows = ref<UserData[]>([])
@@ -229,16 +266,12 @@ export default {
         filter: filterValue.value,
       })
     })
-    const rowDoubleClick = (event: Event, row: UserData) => {
-      formData.value = row
-      dialogEditVisible.value = true
-    }
     const onClickEdit = (props: { row: UserData }) => {
       dialogEditVisible.value = true
       formData.value = { ...props.row }
     }
-    const editUser = () => {
-      updateUser(formData.value)
+    const editUser = (data: UserData) => {
+      updateUser(data)
         .then((res: any) => {
           if (res.code === 200) {
             dialogEditVisible.value = false
@@ -300,13 +333,12 @@ export default {
       filterKey,
       paginationParams,
       loading,
-      rowDoubleClick,
       onClickEdit,
       dialogEditVisible,
       formData,
       onRequest,
       editUser,
-      deleteUser: onClickDeleteUser,
+      onClickDeleteUser,
     }
   },
 }
@@ -328,6 +360,7 @@ export default {
     position: sticky;
     right: 0;
     z-index: 1;
+    width: 64px;
   }
   .q-table__control {
     width: 100% !important;
