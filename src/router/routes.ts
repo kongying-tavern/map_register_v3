@@ -9,6 +9,7 @@ const routes: RouteRecordRaw[] = [
       icon: 'home',
     },
     component: () => import('@/layout/LayoutIndex.vue'),
+    // TODO: 重定向应该是动态获取的
     redirect: '/users',
     children: [
       {
