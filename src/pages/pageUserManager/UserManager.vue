@@ -70,7 +70,7 @@
               v-slot="scope"
               v-model="props.row.username"
               buttons
-              cover="false"
+              :cover="false"
               @save="(val: string) => editUser({...props.row, username: val})"
             >
               <q-input v-model="scope.value" type="text" dense autofocus />
@@ -82,7 +82,7 @@
               v-slot="scope"
               v-model="props.row.nickname"
               buttons
-              cover="false"
+              :cover="false"
               @save="(val: string) => editUser({...props.row, nickname: val})"
             >
               <q-input v-model="scope.value" type="text" dense autofocus />
@@ -94,7 +94,7 @@
               v-slot="scope"
               v-model="props.row.qq"
               buttons
-              cover="false"
+              :cover="false"
               @save="(val: string) => editUser({...props.row, qq: val})"
             >
               <q-input v-model="scope.value" type="number" dense autofocus />
@@ -106,7 +106,7 @@
               v-slot="scope"
               v-model="props.row.phone"
               buttons
-              cover="false"
+              :cover="false"
               @save="(val: string) => editUser({...props.row, phone: val})"
             >
               <q-input v-model="scope.value" type="number" dense autofocus />
