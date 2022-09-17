@@ -6,8 +6,10 @@
       <div class="text">顶部</div>
     </div>
 
-    <div class="layout-main">
-      <BreadCrumb />
+    <LayoutPage class="layout-main">
+      <template #header>
+        <BreadCrumb />
+      </template>
       <router-view>
         <template #default="{ Component, route }">
           <transition name="slide-x" mode="out-in" appear>
@@ -17,12 +19,13 @@
           </transition>
         </template>
       </router-view>
-    </div>
+    </LayoutPage>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { BreadCrumb } from '@/components'
+import { LayoutPage } from '@/layout'
 </script>
 
 <style lang="scss" scoped>
