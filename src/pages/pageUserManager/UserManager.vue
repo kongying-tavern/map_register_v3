@@ -30,8 +30,8 @@
       </template>
       <template #top-right>
         <div class="table_actions">
-          <user-create />
-          <user-import />
+          <UserCreate />
+          <UserImport />
         </div>
       </template>
       <template #top-left>
