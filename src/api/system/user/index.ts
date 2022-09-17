@@ -1,4 +1,4 @@
-import { getToken, request } from '@/utils'
+import { request } from '@/utils'
 
 export type UserSearchFilter = {
   current: number

@@ -5,7 +5,7 @@ const KEY_REFRESH_TOKEN = '__ys_dadian_refresh_token'
 const KEY_EXPIRES = '__ys_dadian_expires'
 const KEY_USER_ID = '__ys_dadian_user_id'
 const KEY_USER_ROLES = '__ys_dadian_user_roles'
-
+const DEBUG = import.meta.env.DEV
 export interface UserAuthOptions {
   access_token?: string
   refresh_token?: string
@@ -33,6 +33,18 @@ export const saveUser = (auth: UserAuthOptions = {}) => {
   LocalStorage.set(KEY_USER_ROLES, userRoles)
 }
 
-export const getToken = () => {
+export const get_user_token = () => {
   return LocalStorage.getItem(KEY_ACCESS_TOKEN)
+}
+
+export const validate_user_token = () => {
+  const expires: number | null = LocalStorage.getItem(KEY_EXPIRES)
+  if (!expires || !get_user_token()) return false
+  DEBUG &&
+    console.log(
+      'token expires in ' +
+        (expires - new Date().valueOf()) / 1000 / 60 +
+        ' min',
+    )
+  return expires > new Date().valueOf()
 }

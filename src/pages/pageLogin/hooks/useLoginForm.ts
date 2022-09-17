@@ -25,7 +25,7 @@ export const useLoginForm = () => {
         type: 'positive',
         message: '登录成功',
       })
-      router.push('/home')
+      router.push('/')
     } catch (err) {
       $q.notify({
         type: 'negative',

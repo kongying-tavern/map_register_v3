@@ -182,40 +182,48 @@ const loading = ref(false)
 const orderBy = ref<TableOrderOption>('createTime-')
 const filterKey = ref<'昵称' | '用户名'>('昵称')
 const filterValue = ref('')
-const onRequest = (props: QTableProps) => {
-  const { pagination, filter } = props
-  loading.value = true
-  const searchKeyObj: any = {}
-  if (filterValue.value !== '' && filterKey.value === '昵称')
-    searchKeyObj['nickname'] = filter
-  if (filterValue.value !== '' && filterKey.value === '用户名')
-    searchKeyObj['username'] = filter
-  fetch_user_list({
-    current: pagination?.page || 1,
-    size: pagination?.rowsPerPage || 10,
-    ...searchKeyObj,
-    sort: [orderBy.value],
-  }).then((res: any) => {
-    loading.value = false
-    if (res.code === 200) {
-      rows.value.splice(0, rows.value.length, ...res.data.record)
-      paginationParams.value = {
-        rowsPerPage: 10,
-        page: 1,
-        sortBy: 'desc',
-        descending: false,
-        ...pagination,
-        rowsNumber: res.data.total,
-      }
-      filterValue.value = filter
-    }
-  })
-}
 
 export default {
   components: { UserCreate, UserImport },
   setup() {
     const $q = useQuasar()
+    const onRequest = (props: QTableProps) => {
+      const { pagination, filter } = props
+      loading.value = true
+      const searchKeyObj: any = {}
+      if (filterValue.value !== '' && filterKey.value === '昵称')
+        searchKeyObj['nickname'] = filter
+      if (filterValue.value !== '' && filterKey.value === '用户名')
+        searchKeyObj['username'] = filter
+      fetch_user_list({
+        current: pagination?.page || 1,
+        size: pagination?.rowsPerPage || 10,
+        ...searchKeyObj,
+        sort: [orderBy.value],
+      })
+        .then((res: any) => {
+          loading.value = false
+          if (res.code === 200) {
+            rows.value.splice(0, rows.value.length, ...res.data.record)
+            paginationParams.value = {
+              rowsPerPage: 10,
+              page: 1,
+              sortBy: 'desc',
+              descending: false,
+              ...pagination,
+              rowsNumber: res.data.total,
+            }
+            filterValue.value = filter
+          }
+        })
+        .catch((err) => {
+          loading.value = false
+          $q.notify({
+            type: 'negative',
+            message: 'fetch_user_list Error' + JSON.stringify(err),
+          })
+        })
+    }
     onMounted(() => {
       onRequest({
         pagination: paginationParams.value,
@@ -309,7 +317,7 @@ export default {
 </script>
 <style scoped lang="scss">
 .user_table_container {
-  margin: min(32px, 4vw);
+  margin: 16px min(32px, 4vw);
 
   h3 {
     margin-block: 16px;
