@@ -1,6 +1,5 @@
 <template>
   <div class="user_table_container">
-    <h3>用户管理</h3>
     <q-table
       :ref="tableRef"
       v-model:pagination="paginationParams"
@@ -312,13 +311,10 @@ export default {
   },
 }
 </script>
+
 <style scoped lang="scss">
 .user_table_container {
-  margin: 16px min(32px, 4vw);
-
-  h3 {
-    margin-block: 16px;
-  }
+  margin: 1em;
 }
 
 .user_table {

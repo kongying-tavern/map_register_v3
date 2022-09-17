@@ -3,7 +3,7 @@
     <div class="layout-aside">侧边栏</div>
 
     <div class="layout-header">
-      <div class="text">顶部</div>
+      <div>顶部</div>
     </div>
 
     <LayoutPage class="layout-main">
@@ -29,24 +29,7 @@ import { LayoutPage } from '@/layout'
 </script>
 
 <style lang="scss" scoped>
-.text {
-  @media (prefers-color-scheme: no-preference) {
-    &::after {
-      content: 'no-preference';
-    }
-  }
-  @media (prefers-color-scheme: light) {
-    &::after {
-      content: 'light';
-    }
-  }
-  @media (prefers-color-scheme: dark) {
-    &::after {
-      content: 'dark';
-    }
-  }
-}
-
+// TODO: 变量抽离
 .layout-contianer {
   --c-bg-color: #fff;
   --c-aside-width: 200px;
