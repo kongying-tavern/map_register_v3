@@ -15,16 +15,21 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
-let path = window.location.pathname
-const pathList = ['Home', ...path.split('/').filter((item) => item !== '')]
-console.log('111', pathList)
+import { computed, defineComponent } from 'vue'
+
 export default defineComponent({
   name: 'BreadCrumb',
   setup() {
+    const pathname = computed(() => window.location.pathname)
+    const pathList = computed(() => {
+      if (!pathname.value) return []
+      return pathname.value.split('/').filter((item) => item !== '')
+    })
+    console.log(pathname, pathList.value)
+    const breadcrumbList = ['Home', ...pathList.value]
     return {
-      pathname: path,
-      pathList,
+      pathname,
+      pathList: breadcrumbList,
     }
   },
 })

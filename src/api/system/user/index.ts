@@ -25,20 +25,20 @@ export type RoleData = {
   code: string
   sort: number
 }
-export function fetch_user_list(data: UserSearchFilter) {
+export function fetchUserList(data: UserSearchFilter) {
   return request({
     url: 'system/user/info/userList',
     method: 'post',
     data: data,
   })
 }
-export function delete_user(userid: number) {
+export function deleteUser(userid: number) {
   return request({
     url: `system/user/${userid}`,
     method: 'delete',
   })
 }
-export function update_user(data: UserData) {
+export function updateUser(data: UserData) {
   return request({
     url: 'system/user/update',
     method: 'post',
@@ -52,7 +52,7 @@ export function update_user(data: UserData) {
   })
 }
 
-export function create_user(data: { username: string; password: string }) {
+export function createUser(data: { username: string; password: string }) {
   return request({
     url: 'system/user/register',
     method: 'post',

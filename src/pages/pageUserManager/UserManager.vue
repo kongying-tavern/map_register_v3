@@ -111,9 +111,9 @@ import UserImport from './UserImport.vue'
 import {
   UserData,
   RoleData,
-  fetch_user_list,
-  update_user,
-  delete_user,
+  fetchUserList,
+  updateUser,
+  deleteUser,
 } from '@/api/system/user'
 import { QTableProps } from 'node_modules/quasar/dist/types'
 import { useQuasar } from 'quasar'
@@ -195,7 +195,7 @@ export default {
         searchKeyObj['nickname'] = filter
       if (filterValue.value !== '' && filterKey.value === '用户名')
         searchKeyObj['username'] = filter
-      fetch_user_list({
+      fetchUserList({
         current: pagination?.page || 1,
         size: pagination?.rowsPerPage || 10,
         ...searchKeyObj,
@@ -239,7 +239,7 @@ export default {
       formData.value = { ...props.row }
     }
     const editUser = () => {
-      update_user(formData.value)
+      updateUser(formData.value)
         .then((res: any) => {
           if (res.code === 200) {
             dialogEditVisible.value = false
@@ -268,32 +268,29 @@ export default {
         cancel: true,
         persistent: true,
       }).onOk(() => {
-        deleteUser(userData)
-      })
-    }
-    const deleteUser = (userData: UserData) => {
-      delete_user(userData.id)
-        .then((res: any) => {
-          if (res.code === 200)
-            $q.notify({
-              type: 'positive',
-              message: `成功删除用户
+        deleteUser(userData.id)
+          .then((res: any) => {
+            if (res.code === 200)
+              $q.notify({
+                type: 'positive',
+                message: `成功删除用户
                   [ID] ${userData.id}
                   [username] ${userData.username}
                   [nickname] ${userData.nickname} `,
-            })
-        })
-        .catch((err) => {
-          console.log(err)
-          $q.notify({ type: 'negative', message: JSON.stringify(err) })
-        })
-        .then(() => {
-          dialogEditVisible.value = false
-          onRequest({
-            pagination: paginationParams.value,
-            filter: filterValue.value,
+              })
           })
-        })
+          .catch((err: any) => {
+            console.log(err)
+            $q.notify({ type: 'negative', message: JSON.stringify(err) })
+          })
+          .then(() => {
+            dialogEditVisible.value = false
+            onRequest({
+              pagination: paginationParams.value,
+              filter: filterValue.value,
+            })
+          })
+      })
     }
     return {
       tableRef,

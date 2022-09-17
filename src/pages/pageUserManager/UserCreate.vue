@@ -56,7 +56,7 @@
   </q-dialog>
 </template>
 <script lang="ts">
-import { create_user } from '@/api/system/user'
+import { createUser } from '@/api/system/user'
 import { useQuasar } from 'quasar'
 import { defineComponent, ref } from 'vue'
 const formData = ref({
@@ -72,13 +72,13 @@ export default defineComponent({
     const onConfirm = () => {
       const form = formData.value
       if (form.password === form.passwordRepeat) {
-        create_user({ username: form.username, password: form.password })
+        createUser({ username: form.username, password: form.password })
           .then((res: any) => {
             if (res.code === 200) {
               $q.notify({ type: 'positive', message: '注册成功' })
             }
           })
-          .catch((err) => {
+          .catch((err: any) => {
             console.log(err)
             $q.notify({ type: 'negative', message: JSON.stringify(err) })
           })

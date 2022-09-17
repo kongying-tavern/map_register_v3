@@ -1,4 +1,4 @@
-import { validate_user_token } from '@/utils'
+import { validateUserToken } from '@/utils'
 import type { NavigationGuardWithThis, Router } from 'vue-router'
 
 interface BeforeEachGuardOptions {
@@ -17,8 +17,7 @@ export const beforeEachGuard = (
     const routes = router.getRoutes()
     debug && console.log('[beforeEachGuard]', routes)
     const isRouteExist = routes.find((route) => route.path === to.path)
-    const tokenValid = validate_user_token()
-
+    const tokenValid = validateUserToken()
     if (!isRouteExist) {
       debug && console.log('[beforeEachGuard] 目标路由不存在，重定向到登录页')
       return next('/login')
@@ -29,6 +28,6 @@ export const beforeEachGuard = (
       return next('/login')
     }
 
-    next()
+    return next()
   }
 }

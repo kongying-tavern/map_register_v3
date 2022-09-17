@@ -33,13 +33,13 @@ export const saveUser = (auth: UserAuthOptions = {}) => {
   LocalStorage.set(KEY_USER_ROLES, userRoles)
 }
 
-export const get_user_token = () => {
+export const getUserToken = () => {
   return LocalStorage.getItem(KEY_ACCESS_TOKEN)
 }
 
-export const validate_user_token = () => {
+export const validateUserToken = () => {
   const expires: number | null = LocalStorage.getItem(KEY_EXPIRES)
-  if (!expires || !get_user_token()) return false
+  if (!expires || !getUserToken()) return false
   DEBUG &&
     console.log(
       'token expires in ' +
