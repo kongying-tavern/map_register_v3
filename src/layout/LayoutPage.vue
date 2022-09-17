@@ -17,6 +17,7 @@
   gap: 0.5em;
   flex-direction: column;
   overflow: hidden;
+  transition: width 0.2s ease, background-color 0.2s;
 
   .layout-page__main {
     flex: 1;
