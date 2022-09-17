@@ -5,9 +5,7 @@
       <AppSidemenu></AppSidemenu>
     </LayoutAside>
 
-    <div class="layout-header">
-      <div>顶部</div>
-    </div>
+    <LayoutHeader>顶部</LayoutHeader>
 
     <LayoutPage>
       <template #header>
@@ -28,7 +26,7 @@
 
 <script lang="ts" setup>
 import { AppSidemenu, BreadCrumb } from '@/components'
-import { LayoutAside, LayoutPage } from '@/layout'
+import { LayoutAside, LayoutHeader, LayoutPage } from '@/layout'
 </script>
 
 <style lang="scss" scoped>
@@ -49,13 +47,5 @@ import { LayoutAside, LayoutPage } from '@/layout'
   display: grid;
   grid-template-columns: auto 1fr;
   grid-template-rows: auto 1fr;
-
-  .layout-header {
-    display: flex;
-    height: var(--c-header-height);
-    background-color: var(--c-bg-color);
-    box-shadow: var(--c-header-shdow);
-    transition: background-color 0.2s;
-  }
 }
 </style>
