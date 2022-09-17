@@ -1,0 +1,15 @@
+.slide-x {
+  &-enter-active, &-leave-active {
+    transition: transform 0.2s, opacity 0.3s ease-out;
+  }
+
+  &-enter-from {
+    opacity: 0;
+    transform: translateX(-15px);
+  }
+
+  &-leave-to {
+    opacity: 0;
+    transform: translateX(15px);
+  }
+}

@@ -1,6 +1,17 @@
-// app global css in SCSS form
-.q-dialog {
-    .q-card__actions {
-        padding: 16px;
-    }
+@import './transition/index.scss';
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  width: 100vw;
+  height: 100vh;
+}
+
+#q-app {
+  width: 100%;
+  height: 100%;
 }
