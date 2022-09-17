@@ -106,6 +106,7 @@ module.exports = configure(({ dev, prod }) => {
       },
 
       // iconSet: 'material-icons', // Quasar icon set
+      lang: 'zh-CN',
       // lang: 'en-US', // Quasar language pack
 
       // For special cases outside of where the auto-import strategy can have an impact
