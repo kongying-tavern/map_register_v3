@@ -61,7 +61,8 @@
         <q-icon name="mdi-import" size="48px" color="grey-5" />
         <span>点击或者拖动文件到该区域以预览 </span>
       </q-card-section>
-      <q-card-actions align="right">
+      <q-card-actions>
+        <q-space />
         <q-btn label="取消" @click="dialogVisible = false" />
         <q-btn
           label="确定"

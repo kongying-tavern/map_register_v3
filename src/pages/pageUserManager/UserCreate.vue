@@ -55,46 +55,45 @@
     </q-card>
   </q-dialog>
 </template>
-<script lang="ts">
-import { createUser } from '@/api/system/user'
+<script lang="ts" setup>
+import { createUser, UserData } from '@/api/system/user'
 import { useQuasar } from 'quasar'
-import { defineComponent, ref } from 'vue'
+import { ref } from 'vue'
 const formData = ref({
   username: '',
   password: '',
   passwordRepeat: '',
 })
-
+const emit = defineEmits<{
+  (e: 'refresh'): void
+}>()
 const dialogVisible = ref(false)
-export default defineComponent({
-  setup() {
-    const $q = useQuasar()
-    const onConfirm = () => {
-      const form = formData.value
-      if (form.password === form.passwordRepeat) {
-        createUser({ username: form.username, password: form.password })
-          .then((res: any) => {
-            if (res.code === 200) {
-              $q.notify({ type: 'positive', message: '注册成功' })
-            }
-          })
-          .catch((err: any) => {
-            console.log(err)
-            $q.notify({ type: 'negative', message: JSON.stringify(err) })
-          })
-          .then(() => {
-            dialogVisible.value = false
-          })
-      }
-      console.log('')
-    }
-    return {
-      formData,
-      dialogVisible,
-      onConfirm,
-    }
-  },
-})
+const $q = useQuasar()
+const onConfirm = () => {
+  const form = formData.value
+  if (form.password === form.passwordRepeat) {
+    createUser({ username: form.username, password: form.password })
+      .then((res: any) => {
+        if (res.code === 200) {
+          $q.notify({ type: 'positive', message: '注册成功' })
+          emit('refresh')
+        }
+      })
+      .catch((err: any) => {
+        console.log(err)
+        $q.notify({ type: 'negative', message: JSON.stringify(err) })
+      })
+      .then(() => {
+        dialogVisible.value = false
+      })
+  }
+}
+
+defineExpose<{
+  formData: UserData
+  dialogVisible: boolean
+  onConfirm: void
+}>()
 </script>
 
 <style lang="scss" scoped>

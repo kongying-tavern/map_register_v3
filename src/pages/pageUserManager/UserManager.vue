@@ -17,8 +17,8 @@
     >
       <template #top-right>
         <div class="table_actions">
-          <UserCreate />
-          <UserImport />
+          <UserCreate @refresh="refreshTable" />
+          <UserImport @refresh="refreshTable" />
         </div>
       </template>
       <template #top-left>
@@ -114,57 +114,15 @@
             <UserRoleEditor :user="props.row" :options="roleOptions" />
           </q-td>
           <q-td key="actions" :props="props">
-            <q-btn
-              dense
-              round
-              flat
-              color="grey"
-              icon="edit"
-              @click="onClickEdit(props)"
-            ></q-btn>
+            <UserProfileEditor
+              :user="props.row"
+              @update="rowUpdate"
+              @refresh="refreshTable"
+            />
           </q-td>
         </q-tr>
       </template>
     </q-table>
-
-    <q-dialog v-model="dialogEditVisible" persistent>
-      <q-card class="user_edit">
-        <q-card-section class="row items-center q-pb-none">
-          <div class="text-h6">编辑用户</div>
-          <q-space />
-          <q-btn v-close-popup icon="close" flat round dense />
-        </q-card-section>
-        <q-card-section>
-          <q-form>
-            <q-input
-              label="id"
-              value=""
-              :model-value="formData.id"
-              disable
-            ></q-input>
-            <q-input v-model="formData.username" label="用户名"></q-input>
-            <q-input v-model="formData.nickname" label="昵称"></q-input>
-            <q-input v-model="formData.qq" label="qq"></q-input>
-            <q-input v-model="formData.phone" label="电话"></q-input>
-          </q-form>
-        </q-card-section>
-        <q-card-actions>
-          <q-btn
-            flat
-            label="删除用户"
-            style="color: red"
-            @click="onClickDeleteUser"
-          />
-          <q-space />
-          <q-btn label="取消" @click="dialogEditVisible = false" />
-          <q-btn
-            label="确认"
-            color="primary"
-            @click="() => editUser(formData)"
-          />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
   </div>
 </template>
 
@@ -172,16 +130,11 @@
 import { onMounted, ref } from 'vue'
 import UserCreate from './UserCreate.vue'
 import UserImport from './UserImport.vue'
-import {
-  UserData,
-  fetchUserList,
-  updateUser,
-  deleteUser,
-  RoleData,
-} from '@/api/system/user'
+import { UserData, fetchUserList, RoleData } from '@/api/system/user'
 import { QTableProps, useQuasar } from 'quasar'
 import UserRoleEditor from './UserRoleEditor.vue'
 import { useRoleOptions } from './hooks'
+import UserProfileEditor from './UserProfileEditor.vue'
 type TableOrderOption =
   | 'nickname+'
   | 'createTime+'
@@ -206,14 +159,6 @@ const columns = [
 ]
 const tableRef = ref()
 const rows = ref<UserData[]>([])
-const dialogEditVisible = ref(false)
-const formData = ref<UserData>({
-  id: -1,
-  nickname: '',
-  username: '',
-  phone: '',
-  qq: '',
-})
 const loading = ref(false)
 const orderBy = ref<TableOrderOption>('createTime-')
 const filterKey = ref<'昵称' | '用户名'>('昵称')
@@ -221,7 +166,7 @@ const filterValue = ref('')
 const roleOptions = ref<RoleData[]>([])
 
 export default {
-  components: { UserCreate, UserImport, UserRoleEditor },
+  components: { UserCreate, UserImport, UserRoleEditor, UserProfileEditor },
   setup() {
     const $q = useQuasar()
     const onRequest = (props: QTableProps) => {
@@ -270,65 +215,16 @@ export default {
         roleOptions.value = res
       })
     })
-    const onClickEdit = (props: { row: UserData }) => {
-      dialogEditVisible.value = true
-      formData.value = { ...props.row }
+
+    const rowUpdate = (data: UserData) => {
+      rows.value = rows.value.map((row) => (row.id === data.id ? data : row))
     }
-    const editUser = (data: UserData) => {
-      updateUser(data)
-        .then((res: any) => {
-          if (res.code === 200) {
-            dialogEditVisible.value = false
-            $q.notify({ type: 'positive', message: '修改成功' })
-          }
-        })
-        .catch((err) => {
-          console.log(err)
-          $q.notify({ type: 'negative', message: JSON.stringify(err) })
-        })
-        .then(() => {
-          onRequest({
-            pagination: paginationParams.value,
-            filter: filterValue.value,
-          })
-        })
-    }
-    const onClickDeleteUser = () => {
-      const userData = formData.value
-      $q.dialog({
-        title: '删除用户',
-        message: `确认删除用户
-                  [ID] ${userData.id}
-                  [username] ${userData.username}
-                  [nickname] ${userData.nickname} ?`,
-        cancel: true,
-        persistent: true,
-      }).onOk(() => {
-        deleteUser(userData.id)
-          .then((res: any) => {
-            if (res.code === 200)
-              $q.notify({
-                type: 'positive',
-                message: `成功删除用户
-                  [ID] ${userData.id}
-                  [username] ${userData.username}
-                  [nickname] ${userData.nickname} `,
-              })
-          })
-          .catch((err: any) => {
-            console.log(err)
-            $q.notify({ type: 'negative', message: JSON.stringify(err) })
-          })
-          .then(() => {
-            dialogEditVisible.value = false
-            onRequest({
-              pagination: paginationParams.value,
-              filter: filterValue.value,
-            })
-          })
+    const refreshTable = () => {
+      onRequest({
+        pagination: paginationParams.value,
+        filter: filterValue.value,
       })
     }
-
     return {
       tableRef,
       columns,
@@ -338,13 +234,10 @@ export default {
       filterKey,
       paginationParams,
       loading,
-      onClickEdit,
-      dialogEditVisible,
-      formData,
       onRequest,
-      editUser,
-      onClickDeleteUser,
       roleOptions,
+      rowUpdate,
+      refreshTable,
     }
   },
 }
@@ -406,10 +299,5 @@ export default {
       margin: 0 8px 0 16px;
     }
   }
-}
-.user_edit {
-  min-width: 30rem;
-  background: #fff;
-  padding-bottom: 16px;
 }
 </style>
