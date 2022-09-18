@@ -111,47 +111,7 @@
             </q-popup-edit>
           </q-td>
           <q-td key="roles" :props="props" style="width: 240px">
-            <UserRoleTag
-              v-for="role in props.row.roleList"
-              :key="role.id"
-              :role="role"
-            />
-            <q-popup-edit
-              v-slot="scope"
-              v-model="props.row.roleList"
-              :cover="false"
-            >
-              <q-select
-                v-model="scope.value"
-                multiple
-                counter
-                :options="roleOptions"
-                option-label="name"
-                option-value="id"
-                @update:model-value="(val:any)=>updateUserRole(val)"
-              >
-                <template #selected>
-                  <UserRoleTag
-                    v-for="role in props.row.roleList"
-                    :key="role.id"
-                    :role="role"
-                  />
-                </template>
-                <template #option="{ itemProps, opt, selected, toggleOption }">
-                  <q-item v-bind="itemProps">
-                    <q-item-section>
-                      <q-item-label>{{ opt.name }}</q-item-label>
-                    </q-item-section>
-                    <q-item-section side>
-                      <q-toggle
-                        :model-value="selected"
-                        @update:model-value="toggleOption(opt)"
-                      />
-                    </q-item-section>
-                  </q-item>
-                </template>
-              </q-select>
-            </q-popup-edit>
+            <UserRoleEditor :user="props.row" :options="roleOptions" />
           </q-td>
           <q-td key="actions" :props="props">
             <q-btn
@@ -220,8 +180,8 @@ import {
   RoleData,
 } from '@/api/system/user'
 import { QTableProps, useQuasar } from 'quasar'
-import { useRoleOptions } from './hooks/index'
-import UserRoleTag from './UserRoleTag.vue'
+import UserRoleEditor from './UserRoleEditor.vue'
+import { useRoleOptions } from './hooks'
 type TableOrderOption =
   | 'nickname+'
   | 'createTime+'
@@ -261,7 +221,7 @@ const filterValue = ref('')
 const roleOptions = ref<RoleData[]>([])
 
 export default {
-  components: { UserCreate, UserImport, UserRoleTag },
+  components: { UserCreate, UserImport, UserRoleEditor },
   setup() {
     const $q = useQuasar()
     const onRequest = (props: QTableProps) => {
@@ -368,9 +328,7 @@ export default {
           })
       })
     }
-    const updateUserRole = (value: any, scope: any) => {
-      console.log(value, scope.value)
-    }
+
     return {
       tableRef,
       columns,
@@ -387,7 +345,6 @@ export default {
       editUser,
       onClickDeleteUser,
       roleOptions,
-      updateUserRole,
     }
   },
 }

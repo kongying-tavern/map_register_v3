@@ -6,3 +6,24 @@ export const getRoleList = () => {
     method: 'get',
   })
 }
+export const assignUserRole = (userId: number, roleId: number) => {
+  return request({
+    url: 'system/role/user',
+    method: 'put',
+    data: {
+      userId,
+      roleId,
+    },
+  })
+}
+
+export const removeUserRole = (userId: number, roleId: number) => {
+  return request({
+    url: 'system/role/user',
+    method: 'delete',
+    data: {
+      userId,
+      roleId,
+    },
+  })
+}

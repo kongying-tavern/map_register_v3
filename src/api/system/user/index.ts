@@ -7,17 +7,13 @@ export type UserSearchFilter = {
   sort?: string[]
   username?: string
 }
-export interface UserProfile {
+export interface UserData {
+  id: number
   username?: string
   nickname?: string
   qq?: string
   phone?: string
-}
-export interface UserData extends UserProfile {
-  id: number
-  roleList?: {
-    items: RoleData[]
-  } | null
+  roleList?: RoleData[]
 }
 export type RoleData = {
   id: number
