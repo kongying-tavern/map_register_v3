@@ -34,7 +34,10 @@
               { label: '创建时间降序', value: 'createTime-' },
             ]"
             @update:model-value="
-              onRequest({ pagination: paginationParams, filter: filterValue })
+              onRequest({
+                pagination: { ...paginationParams, page: 1 },
+                filter: filterValue,
+              })
             "
           />
           <div class="search_group">
@@ -44,12 +47,7 @@
               label="筛选项"
               borderless
             ></q-select>
-            <q-input
-              v-model="filterValue"
-              borderless
-              debounce="800"
-              placeholder="搜索"
-            >
+            <q-input v-model="filterValue" debounce="800" placeholder="搜索">
               <template #append>
                 <q-icon name="search" />
               </template>
@@ -112,9 +110,49 @@
               <q-input v-model="scope.value" type="number" dense autofocus />
             </q-popup-edit>
           </q-td>
-          <q-td key="roles" :props="props">{{
-            props.row.roleList?.items.length || '-'
-          }}</q-td>
+          <q-td key="roles" :props="props" style="width: 240px">
+            <UserRoleTag
+              v-for="role in props.row.roleList"
+              :key="role.id"
+              :role="role"
+            />
+            <q-popup-edit
+              v-slot="scope"
+              v-model="props.row.roleList"
+              :cover="false"
+            >
+              <q-select
+                v-model="scope.value"
+                multiple
+                counter
+                :options="roleOptions"
+                option-label="name"
+                option-value="id"
+                @update:model-value="(val:any)=>updateUserRole(val)"
+              >
+                <template #selected>
+                  <UserRoleTag
+                    v-for="role in props.row.roleList"
+                    :key="role.id"
+                    :role="role"
+                  />
+                </template>
+                <template #option="{ itemProps, opt, selected, toggleOption }">
+                  <q-item v-bind="itemProps">
+                    <q-item-section>
+                      <q-item-label>{{ opt.name }}</q-item-label>
+                    </q-item-section>
+                    <q-item-section side>
+                      <q-toggle
+                        :model-value="selected"
+                        @update:model-value="toggleOption(opt)"
+                      />
+                    </q-item-section>
+                  </q-item>
+                </template>
+              </q-select>
+            </q-popup-edit>
+          </q-td>
           <q-td key="actions" :props="props">
             <q-btn
               dense
@@ -172,16 +210,18 @@
 
 <script lang="ts">
 import { onMounted, ref } from 'vue'
-import UserCreate from '@/components/UserCreate.vue'
-import UserImport from '@/components/UserImport.vue'
+import UserCreate from './UserCreate.vue'
+import UserImport from './UserImport.vue'
 import {
   UserData,
   fetchUserList,
   updateUser,
   deleteUser,
+  RoleData,
 } from '@/api/system/user'
-import { QTableProps } from 'node_modules/quasar/dist/types'
-import { useQuasar } from 'quasar'
+import { QTableProps, useQuasar } from 'quasar'
+import { useRoleOptions } from './hooks/index'
+import UserRoleTag from './UserRoleTag.vue'
 type TableOrderOption =
   | 'nickname+'
   | 'createTime+'
@@ -218,9 +258,10 @@ const loading = ref(false)
 const orderBy = ref<TableOrderOption>('createTime-')
 const filterKey = ref<'昵称' | '用户名'>('昵称')
 const filterValue = ref('')
+const roleOptions = ref<RoleData[]>([])
 
 export default {
-  components: { UserCreate, UserImport },
+  components: { UserCreate, UserImport, UserRoleTag },
   setup() {
     const $q = useQuasar()
     const onRequest = (props: QTableProps) => {
@@ -264,6 +305,9 @@ export default {
       onRequest({
         pagination: paginationParams.value,
         filter: filterValue.value,
+      })
+      useRoleOptions().then((res) => {
+        roleOptions.value = res
       })
     })
     const onClickEdit = (props: { row: UserData }) => {
@@ -324,6 +368,9 @@ export default {
           })
       })
     }
+    const updateUserRole = (value: any, scope: any) => {
+      console.log(value, scope.value)
+    }
     return {
       tableRef,
       columns,
@@ -339,6 +386,8 @@ export default {
       onRequest,
       editUser,
       onClickDeleteUser,
+      roleOptions,
+      updateUserRole,
     }
   },
 }
@@ -346,7 +395,7 @@ export default {
 
 <style scoped lang="scss">
 .user_table_container {
-  margin: 1em;
+  padding: 1rem;
 }
 
 .user_table {
@@ -378,7 +427,7 @@ export default {
     display: flex;
     .search_group {
       display: flex;
-      border: 1px solid#cfcfcf;
+      // border: 1px solid#cfcfcf;
       padding-right: 8px;
       border-radius: 4px;
 

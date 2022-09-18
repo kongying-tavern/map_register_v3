@@ -25,16 +25,6 @@ const route = useRoute()
 <style lang="scss" scoped>
 // TODO: 变量抽离
 .breadcrumb_nav {
-  padding: 0 0.5em;
-  display: flex;
-
-  .breadcrumb_item {
-    padding: 0.2em 0.4em;
-    transition: background-color 0.2s ease;
-    border-radius: 4px;
-  }
-  .breadcrumb_item:hover {
-    background-color: rgba(46, 51, 56, 0.09);
-  }
+  padding: 0 1rem;
 }
 </style>
