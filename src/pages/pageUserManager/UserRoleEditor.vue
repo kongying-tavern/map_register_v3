@@ -1,6 +1,6 @@
 <template>
-  <UserRoleTag v-for="role in roleList" :key="role.id" :role="role" />
-  <q-popup-edit v-slot="scope" v-model="roleList" fit :cover="false">
+  <UserRoleTag v-for="role in user.roleList" :key="role.id" :role="role" />
+  <q-popup-edit v-slot="scope" :model-value="user.roleList" fit :cover="false">
     <q-select
       v-model="scope.value"
       multiple
@@ -10,7 +10,11 @@
       option-value="id"
     >
       <template #selected>
-        <UserRoleTag v-for="role in roleList" :key="role.id" :role="role" />
+        <UserRoleTag
+          v-for="role in user.roleList"
+          :key="role.id"
+          :role="role"
+        />
       </template>
       <template #option="{ itemProps, opt, selected, toggleOption }">
         <q-item v-bind="itemProps">
@@ -32,7 +36,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
 import { UserData } from '@/api/system/user'
 import UserRoleTag from './UserRoleTag.vue'
 import type { RoleData } from '@/api/system/user/index'
@@ -44,18 +47,24 @@ const props = defineProps<{
   options: RoleData[]
 }>()
 
-const roleList = ref<RoleData[]>(props.user.roleList || [])
+const emit = defineEmits<{
+  (e: 'update', row: UserData): void
+}>()
+
 const updateUserRole = (
   opt: RoleData,
   selected: boolean,
   onSucceed: () => void,
 ) => {
-  console.log(opt, selected)
+  const source = props.user.roleList || []
   if (selected)
     removeUserRole(props.user.id, opt.id)
       .then(() => {
         onSucceed()
-        roleList.value = roleList.value.filter((role) => role.id !== opt.id)
+        emit('update', {
+          ...props.user,
+          roleList: source.filter((role) => role.id !== opt.id),
+        })
         $q.notify({
           type: 'positive',
           message: '用户角色更新成功！',
@@ -72,7 +81,7 @@ const updateUserRole = (
     assignUserRole(props.user.id, opt.id)
       .then(() => {
         onSucceed()
-        roleList.value?.push(opt)
+        emit('update', { ...props.user, roleList: [...source, opt] })
         $q.notify({
           type: 'positive',
           message: '用户角色更新成功！',
@@ -89,6 +98,5 @@ const updateUserRole = (
 
 defineExpose({
   updateUserRole,
-  roleList,
 })
 </script>

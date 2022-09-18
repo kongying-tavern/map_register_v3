@@ -111,7 +111,11 @@
             </q-popup-edit>
           </q-td>
           <q-td key="roles" :props="props" style="width: 240px">
-            <UserRoleEditor :user="props.row" :options="roleOptions" />
+            <UserRoleEditor
+              :user="props.row"
+              :options="roleOptions"
+              @update="rowUpdate"
+            />
           </q-td>
           <q-td key="actions" :props="props">
             <UserProfileEditor
