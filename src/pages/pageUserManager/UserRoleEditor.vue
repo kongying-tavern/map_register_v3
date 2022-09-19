@@ -1,8 +1,29 @@
 <template>
-  <UserRoleTag v-for="role in user.roleList" :key="role.id" :role="role" />
-  <q-popup-edit v-slot="scope" :model-value="user.roleList" fit :cover="false">
+  <div class="table_cell_content table_cell_roles">
+    <UserRoleTag
+      v-for="role in user.roleList?.slice(0, 2)"
+      :key="role.id"
+      :role="role"
+    />
+    <!-- 3个及以上省略 -->
+    <q-chip
+      v-if="user.roleList && user.roleList?.length > 2"
+      square
+      outline
+      color="grey-6"
+      style="padding: 0.5em 0.3em"
+      :label="'+' + (user.roleList.length - 2)"
+    />
+  </div>
+  <q-popup-edit
+    v-slot="scope"
+    :model-value="user.roleList"
+    fit
+    anchor="top left"
+  >
     <q-select
       v-model="scope.value"
+      dense
       multiple
       counter
       :options="options"
@@ -10,11 +31,13 @@
       option-value="id"
     >
       <template #selected>
-        <UserRoleTag
-          v-for="role in user.roleList"
-          :key="role.id"
-          :role="role"
-        />
+        <div class="selected_roles">
+          <UserRoleTag
+            v-for="role in user.roleList"
+            :key="role.id"
+            :role="role"
+          />
+        </div>
       </template>
       <template #option="{ itemProps, opt, selected, toggleOption }">
         <q-item v-bind="itemProps">
@@ -100,3 +123,9 @@ defineExpose({
   updateUserRole,
 })
 </script>
+
+<style scoped>
+.selected_roles {
+  width: 200px;
+}
+</style>

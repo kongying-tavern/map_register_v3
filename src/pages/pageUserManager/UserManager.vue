@@ -1,133 +1,103 @@
 <template>
-  <div class="user_table_container">
-    <q-table
-      :ref="tableRef"
-      v-model:pagination="paginationParams"
-      :rows-per-page-options="[10, 20, 30, 50]"
-      title="用户管理"
-      class="user_table"
-      dense
-      :rows="rows"
-      :columns="columns"
-      :loading="loading"
-      :filter="filterValue"
-      separator="vertical"
-      row-key="charactor"
-      @request="onRequest"
-    >
-      <template #top-right>
-        <div class="table_actions">
-          <UserCreate @refresh="refreshTable" />
-          <UserImport @refresh="refreshTable" />
+  <q-table
+    :ref="tableRef"
+    v-model:pagination="paginationParams"
+    :rows-per-page-options="[10, 20, 30, 50]"
+    title="用户管理"
+    class="user_table"
+    dense
+    :rows="rows"
+    :columns="columns"
+    :loading="loading"
+    :filter="filterValue"
+    separator="vertical"
+    row-key="charactor"
+    @request="onRequest"
+  >
+    <template #top-right>
+      <div class="table_actions">
+        <UserCreate @refresh="refreshTable" />
+        <UserImport @refresh="refreshTable" />
+      </div>
+    </template>
+    <template #top-left>
+      <div class="table_search">
+        <q-option-group
+          v-model="orderBy"
+          dense
+          title="排序"
+          :options="[
+            { label: '昵称升序', value: 'nickname+' },
+            { label: '创建时间升序', value: 'createTime+' },
+            { label: '昵称降序', value: 'nickname-' },
+            { label: '创建时间降序', value: 'createTime-' },
+          ]"
+          @update:model-value="
+            onRequest({
+              pagination: { ...paginationParams, page: 1 },
+              filter: filterValue,
+            })
+          "
+        />
+        <div class="search_group">
+          <q-select
+            v-model="filterKey"
+            :options="['昵称', '用户名']"
+            label="筛选项"
+            borderless
+          ></q-select>
+          <q-input v-model="filterValue" debounce="800" placeholder="搜索">
+            <template #append>
+              <q-icon name="search" />
+            </template>
+          </q-input>
         </div>
-      </template>
-      <template #top-left>
-        <div class="table_search">
-          <q-option-group
-            v-model="orderBy"
-            dense
-            title="排序"
-            :options="[
-              { label: '昵称升序', value: 'nickname+' },
-              { label: '创建时间升序', value: 'createTime+' },
-              { label: '昵称降序', value: 'nickname-' },
-              { label: '创建时间降序', value: 'createTime-' },
-            ]"
-            @update:model-value="
-              onRequest({
-                pagination: { ...paginationParams, page: 1 },
-                filter: filterValue,
-              })
-            "
-          />
-          <div class="search_group">
-            <q-select
-              v-model="filterKey"
-              :options="['昵称', '用户名']"
-              label="筛选项"
-              borderless
-            ></q-select>
-            <q-input v-model="filterValue" debounce="800" placeholder="搜索">
-              <template #append>
-                <q-icon name="search" />
-              </template>
-            </q-input>
-          </div>
-        </div>
-      </template>
+      </div>
+    </template>
 
-      <!-- Table Popup Edit -->
-      <template #body="props">
-        <q-tr :props="props">
-          <q-td key="id" :props="props">
-            {{ props.row.id }}
-          </q-td>
-          <q-td key="username" :props="props">
-            {{ props.row.username }}
-            <q-popup-edit
-              v-slot="scope"
-              v-model="props.row.username"
-              buttons
-              :cover="false"
-              @save="(val: string) => editUser({...props.row, username: val})"
-            >
-              <q-input v-model="scope.value" type="text" dense autofocus />
-            </q-popup-edit>
-          </q-td>
-          <q-td key="nickname" :props="props">
-            <div class="text-pre-wrap">{{ props.row.nickname }}</div>
-            <q-popup-edit
-              v-slot="scope"
-              v-model="props.row.nickname"
-              buttons
-              :cover="false"
-              @save="(val: string) => editUser({...props.row, nickname: val})"
-            >
-              <q-input v-model="scope.value" type="text" dense autofocus />
-            </q-popup-edit>
-          </q-td>
-          <q-td key="qq" :props="props">
-            {{ props.row.qq }}
-            <q-popup-edit
-              v-slot="scope"
-              v-model="props.row.qq"
-              buttons
-              :cover="false"
-              @save="(val: string) => editUser({...props.row, qq: val})"
-            >
-              <q-input v-model="scope.value" type="number" dense autofocus />
-            </q-popup-edit>
-          </q-td>
-          <q-td key="phone" :props="props">
-            <div class="text-pre-wrap">{{ props.row.phone }}</div>
-            <q-popup-edit
-              v-slot="scope"
-              v-model="props.row.phone"
-              buttons
-              :cover="false"
-              @save="(val: string) => editUser({...props.row, phone: val})"
-            >
-              <q-input v-model="scope.value" type="number" dense autofocus />
-            </q-popup-edit>
-          </q-td>
-          <q-td key="roles" :props="props" style="width: 240px">
-            <UserRoleEditor
-              :user="props.row"
-              :options="roleOptions"
-              @update="rowUpdate"
-            />
-          </q-td>
-          <q-td key="actions" :props="props">
-            <UserProfileEditor
-              :user="props.row"
-              @update="rowUpdate"
-              @refresh="refreshTable"
-            />
-          </q-td>
-        </q-tr>
-      </template>
-    </q-table>
-  </div>
+    <!-- Table Popup Edit -->
+    <template #body="props">
+      <q-tr :props="props">
+        <q-td key="id" :props="props">
+          {{ props.row.id }}
+        </q-td>
+        <q-td key="username" :props="props">
+          <TableCell
+            :row-data="props.row"
+            field="username"
+            @update="updateRow"
+          />
+        </q-td>
+        <q-td key="nickname" :props="props">
+          <TableCell
+            :row-data="props.row"
+            field="nickname"
+            @update="updateRow"
+          />
+        </q-td>
+        <q-td key="qq" :props="props">
+          <TableCell :row-data="props.row" field="qq" @update="updateRow" />
+        </q-td>
+        <q-td key="phone" :props="props">
+          <TableCell :row-data="props.row" field="phone" @update="updateRow" />
+        </q-td>
+        <q-td key="roles" :props="props" style="width: 250px">
+          <UserRoleEditor
+            :user="props.row"
+            :options="roleOptions"
+            @update="rowUpdate"
+          />
+        </q-td>
+        <q-td key="actions" :props="props">
+          <UserProfileEditor
+            :user="props.row"
+            @update="rowUpdate"
+            @refresh="refreshTable"
+          />
+        </q-td>
+      </q-tr>
+    </template>
+  </q-table>
 </template>
 
 <script lang="ts">
@@ -139,6 +109,7 @@ import { QTableProps, useQuasar } from 'quasar'
 import UserRoleEditor from './UserRoleEditor.vue'
 import { useRoleOptions } from './hooks'
 import UserProfileEditor from './UserProfileEditor.vue'
+import TableCell from './TableCell.vue'
 type TableOrderOption =
   | 'nickname+'
   | 'createTime+'
@@ -170,7 +141,13 @@ const filterValue = ref('')
 const roleOptions = ref<RoleData[]>([])
 
 export default {
-  components: { UserCreate, UserImport, UserRoleEditor, UserProfileEditor },
+  components: {
+    UserCreate,
+    UserImport,
+    UserRoleEditor,
+    UserProfileEditor,
+    TableCell,
+  },
   setup() {
     const $q = useQuasar()
     const onRequest = (props: QTableProps) => {
@@ -247,26 +224,19 @@ export default {
 }
 </script>
 
-<style scoped lang="scss">
-.user_table_container {
-  padding: 1rem;
-}
-
+<style lang="scss">
 .user_table {
+  margin: 0 8px 8px;
   overflow: hidden;
+  max-height: calc(100% - 8px);
 
-  thead tr:last-child th:last-child {
-    background-color: #fff;
-  }
   th:last-child,
   td:last-child {
     position: sticky;
     right: 0;
     z-index: 1;
     width: 64px;
-  }
-  .q-table__control {
-    width: 100% !important;
+    background: #fff;
   }
   .table_actions,
   .table_search {

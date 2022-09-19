@@ -100,4 +100,7 @@ defineExpose<{
 .table_action_btn {
   margin-right: 8px;
 }
+.q-card__actions {
+  padding: 16px;
+}
 </style>

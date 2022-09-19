@@ -117,10 +117,15 @@ defineExpose({
 })
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .user_edit {
   min-width: 30rem;
-  background: #fff;
-  padding-bottom: 16px;
+
+  .q-card__actions .q-btn {
+    min-width: 64px;
+  }
+  .q-card__actions {
+    padding: 16px;
+  }
 }
 </style>

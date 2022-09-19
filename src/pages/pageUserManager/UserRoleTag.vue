@@ -18,7 +18,9 @@ const mapRoleTagProps = (role: string) => {
     ADMIN: { color: 'red', textColor: 'white' },
     MAP_MANAGER: { color: 'blue', textColor: 'white' },
     MAP_NEIGUI: { textColor: 'orange', outline: true },
+    MAP_PUNCTUATE: { textColor: 'teal', outline: true },
     MAP_USER: { textColor: 'blue-grey', outline: true },
+    VISITOR: { textColor: 'grey-8', outline: true },
   }
   return list[role]
 }
