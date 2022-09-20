@@ -158,7 +158,7 @@
                 dense
                 checked-icon="task_alt"
                 unchecked-icon="panorama_fish_eye"
-                @update:model-value="select_item_layers">
+                @update:model-value="fetch_item_layers">
               </q-radio>
             </div>
             <div
@@ -174,7 +174,7 @@
                 :keep-color="false"
                 :checked-icon="`img:${get_icon_url_by_tag(i.iconTag)}`"
                 :unchecked-icon="`img:${get_icon_url_by_tag(i.iconTag)}`"
-                @update:model-value="select_item_layers">
+                @update:model-value="fetch_item_layers">
               </q-radio>
             </div>
           </div>
@@ -347,9 +347,9 @@ export default {
       area_list: [],
       type_list: [],
       type_child_list: [],
-      item_list: [],
 
       icon_map: {},
+      item_map: {},
 
       stepper_collapsed: false,
       handle_layer_list_data: [],
@@ -391,6 +391,11 @@ export default {
     type_child_ids() {
       return _.map(this.type_child_list || [], v => v.typeId)
     },
+    item_list() {
+      let item_key = `${this.selected_area_id}-${this.selected_type_id}`;
+      let item_list = _.get(this.item_map, item_key, []);
+      return item_list;
+    },
     item_ids() {
       return _.map(this.item_list || [], v => v.itemId);
     },
@@ -429,33 +434,45 @@ export default {
       this.clearlayers();
       this.selected_area = area;
       this.$emit("map_switch", this.selected_area);
+      this.fetch_item_list();
     },
     //如果有子分类的话，进行查询，生成子分类tabs
     select_type_list(value) {
-      this.loading = true;
       this.clearlist();
       this.clearlayers();
       this.selected_type = value;
-      this.select_item_list(value.typeId);
+      if(this.item_all_allowable) {
+        this.fetch_item_layers(null)
+      }
     },
-    //查询类型下属的物品列表
-    select_item_list(value) {
+    fetch_item_list() {
       this.loading = true;
       query_itemlist({
-        typeIdList: [value],
         areaIdList: [this.selected_area_id],
         current: 0,
-        size: 999,
-      }).then((res) => {
+        size: 9999,
+      })
+      .then((res) => {
         this.loading = false;
-        this.item_list = res.data.data.record;
-        if(this.item_all_allowable) {
-          this.select_item_layers(null);
-        }
+        let data = res.data.data.record || [];
+        let item_list = _.flatMap(data, item => {
+          let area_id = _.toNumber(item.areaId) || 0;
+          let type_id_list = item.typeIdList || [];
+
+          return _.map(type_id_list, type_id => {
+            let item_key = `${area_id}-${type_id}`;
+            let row = _.cloneDeep(item);
+            row.itemKey = item_key;
+            row.typeIdList = [type_id];
+            return row;
+          });
+        });
+        let item_map = _.groupBy(item_list, 'itemKey');
+        this.item_map = item_map;
       });
     },
     //查询点位信息
-    select_item_layers(value) {
+    fetch_item_layers(value) {
       this.clearlayers();
       this.loading = true;
       this.selected_item = value;
@@ -665,7 +682,7 @@ export default {
     refresh() {
       this.add_mode_off();
       this.layer_edit_window = false;
-      this.select_item_layers(this.selected_item);
+      this.fetch_item_layers(this.selected_item);
     },
     //删除点位
     delete_layer(data) {
