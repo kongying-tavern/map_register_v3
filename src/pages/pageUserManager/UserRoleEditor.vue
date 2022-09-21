@@ -42,7 +42,9 @@
       <template #option="{ itemProps, opt, selected, toggleOption }">
         <q-item v-bind="itemProps">
           <q-item-section>
-            <q-item-label>{{ opt.name }}</q-item-label>
+            <q-item-label>
+              <UserRoleTag :role="opt" />
+            </q-item-label>
           </q-item-section>
           <q-item-section side>
             <q-toggle

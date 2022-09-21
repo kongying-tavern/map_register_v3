@@ -17,10 +17,10 @@ const mapRoleTagProps = (role: string) => {
   const list: { [role: string]: QChipProps } = {
     ADMIN: { color: 'red', textColor: 'white' },
     MAP_MANAGER: { color: 'blue', textColor: 'white' },
-    MAP_NEIGUI: { textColor: 'orange', outline: true },
+    MAP_NEIGUI: { textColor: 'orange-10', outline: true },
     MAP_PUNCTUATE: { textColor: 'teal', outline: true },
-    MAP_USER: { textColor: 'blue-grey', outline: true },
-    VISITOR: { textColor: 'grey-8', outline: true },
+    MAP_USER: { textColor: 'brown', outline: true },
+    VISITOR: { textColor: 'blue-grey', outline: true },
   }
   return list[role]
 }

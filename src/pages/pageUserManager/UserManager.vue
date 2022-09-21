@@ -83,7 +83,10 @@
         </q-td>
         <q-td key="roles" style="width: 250px">
           <UserRoleEditor
-            :user="props.row"
+            :user="{
+              ...props.row, 
+              roleList: props.row.roleList.sort((a: RoleData,b: RoleData)=>(a.sort-b.sort))
+            }"
             :options="roleOptions"
             @update="rowUpdate"
           />
@@ -177,6 +180,12 @@ export default {
               rowsNumber: res.data.total,
             }
             filterValue.value = filter
+          } else {
+            $q.notify({
+              type: 'negative',
+              message: res.message,
+            })
+            console.error(res)
           }
         })
         .catch((err) => {
@@ -192,8 +201,9 @@ export default {
         pagination: paginationParams.value,
         filter: filterValue.value,
       })
-      useRoleOptions().then((res) => {
-        roleOptions.value = res
+      useRoleOptions().then((res: { data: RoleData[] }) => {
+        console.log(res)
+        roleOptions.value = res.data.sort((a, b) => a.sort - b.sort)
       })
     })
 
