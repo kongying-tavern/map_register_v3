@@ -58,37 +58,37 @@
     <!-- Table Popup Edit -->
     <template #body="props">
       <q-tr :props="props">
-        <q-td key="id" :props="props">
+        <q-td key="id">
           {{ props.row.id }}
         </q-td>
-        <q-td key="username" :props="props">
+        <q-td key="username">
           <TableCell
             :row-data="props.row"
             field="username"
             @update="updateRow"
           />
         </q-td>
-        <q-td key="nickname" :props="props">
+        <q-td key="nickname">
           <TableCell
             :row-data="props.row"
             field="nickname"
             @update="updateRow"
           />
         </q-td>
-        <q-td key="qq" :props="props">
-          <TableCell :row-data="props.row" field="qq" @update="updateRow" />
+        <q-td key="qq">
+          {{ props.row.qq }}
         </q-td>
-        <q-td key="phone" :props="props">
+        <q-td key="phone">
           <TableCell :row-data="props.row" field="phone" @update="updateRow" />
         </q-td>
-        <q-td key="roles" :props="props" style="width: 250px">
+        <q-td key="roles" style="width: 250px">
           <UserRoleEditor
             :user="props.row"
             :options="roleOptions"
             @update="rowUpdate"
           />
         </q-td>
-        <q-td key="actions" :props="props">
+        <q-td key="actions">
           <UserProfileEditor
             :user="props.row"
             @update="rowUpdate"
@@ -251,7 +251,6 @@ export default {
     display: flex;
     .search_group {
       display: flex;
-      // border: 1px solid#cfcfcf;
       padding-right: 8px;
       border-radius: 4px;
 
