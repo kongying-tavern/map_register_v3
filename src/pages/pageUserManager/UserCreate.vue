@@ -3,6 +3,8 @@
     class="table_action_btn"
     icon-right="add"
     label="新增用户"
+    color="primary"
+    outline
     @click="dialogVisible = true"
   />
 
@@ -99,8 +101,5 @@ defineExpose<{
 <style lang="scss" scoped>
 .table_action_btn {
   margin-right: 8px;
-}
-.q-card__actions {
-  padding: 16px;
 }
 </style>

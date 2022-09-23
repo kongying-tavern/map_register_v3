@@ -2,22 +2,25 @@
   <q-table
     :ref="tableRef"
     v-model:pagination="paginationParams"
+    v-model:selected="selected"
     :rows-per-page-options="[10, 20, 30, 50]"
     title="用户管理"
     class="user_table"
     dense
     :rows="rows"
+    row-key="id"
+    selection="multiple"
     :columns="columns"
     :loading="loading"
     :filter="filterValue"
     separator="vertical"
-    row-key="charactor"
+    :selected-rows-label="getSelectedString"
     @request="onRequest"
   >
     <template #top-right>
       <div class="table_actions">
+        <UserDelete :selected="selected" @refresh="refreshTable" />
         <UserCreate @refresh="refreshTable" />
-        <UserImport @refresh="refreshTable" />
       </div>
     </template>
     <template #top-left>
@@ -55,50 +58,48 @@
       </div>
     </template>
 
-    <!-- Table Popup Edit -->
-    <template #body="props">
-      <q-tr :props="props">
-        <q-td key="id">
-          {{ props.row.id }}
-        </q-td>
-        <q-td key="username">
-          <TableCell
-            :row-data="props.row"
-            field="username"
-            @update="updateRow"
-          />
-        </q-td>
-        <q-td key="nickname">
-          <TableCell
-            :row-data="props.row"
-            field="nickname"
-            @update="updateRow"
-          />
-        </q-td>
-        <q-td key="qq">
-          {{ props.row.qq }}
-        </q-td>
-        <q-td key="phone">
-          <TableCell :row-data="props.row" field="phone" @update="updateRow" />
-        </q-td>
-        <q-td key="roles" style="width: 250px">
-          <UserRoleEditor
-            :user="{
+    <!-- Table Cell with Popup Edit -->
+    <template #body-cell-id="props">
+      <td>{{ props.row.id }}</td>
+    </template>
+    <template #body-cell-username="props">
+      <td>
+        <TableCell :row-data="props.row" field="username" @update="updateRow" />
+      </td>
+    </template>
+    <template #body-cell-nickname="props">
+      <td>
+        <TableCell :row-data="props.row" field="nickname" @update="updateRow" />
+      </td>
+    </template>
+    <template #body-cell-qq="props">
+      <td>{{ props.row.qq }}</td>
+    </template>
+    <template #body-cell-phone="props">
+      <td>
+        <TableCell :row-data="props.row" field="phone" @update="updateRow" />
+      </td>
+    </template>
+    <template #body-cell-roles="props">
+      <td>
+        <UserRoleEditor
+          :user="{
               ...props.row, 
               roleList: props.row.roleList.sort((a: RoleData,b: RoleData)=>(a.sort-b.sort))
             }"
-            :options="roleOptions"
-            @update="rowUpdate"
-          />
-        </q-td>
-        <q-td key="actions">
-          <UserProfileEditor
-            :user="props.row"
-            @update="rowUpdate"
-            @refresh="refreshTable"
-          />
-        </q-td>
-      </q-tr>
+          :options="roleOptions"
+          @update="rowUpdate"
+        />
+      </td>
+    </template>
+    <template #body-cell-actions="props">
+      <td>
+        <UserProfileEditor
+          :user="props.row"
+          @update="rowUpdate"
+          @refresh="refreshPage"
+        />
+      </td>
     </template>
   </q-table>
 </template>
@@ -106,13 +107,13 @@
 <script lang="ts">
 import { onMounted, ref } from 'vue'
 import UserCreate from './UserCreate.vue'
-import UserImport from './UserImport.vue'
 import { UserData, fetchUserList, RoleData } from '@/api/system/user'
 import { QTableProps, useQuasar } from 'quasar'
 import UserRoleEditor from './UserRoleEditor.vue'
 import { useRoleOptions } from './hooks'
 import UserProfileEditor from './UserProfileEditor.vue'
 import TableCell from './TableCell.vue'
+import UserDelete from './UserDelete.vue'
 type TableOrderOption =
   | 'nickname+'
   | 'createTime+'
@@ -137,6 +138,7 @@ const columns = [
 ]
 const tableRef = ref()
 const rows = ref<UserData[]>([])
+const selected = ref<UserData[]>([])
 const loading = ref(false)
 const orderBy = ref<TableOrderOption>('createTime-')
 const filterKey = ref<'昵称' | '用户名'>('昵称')
@@ -146,10 +148,10 @@ const roleOptions = ref<RoleData[]>([])
 export default {
   components: {
     UserCreate,
-    UserImport,
     UserRoleEditor,
     UserProfileEditor,
     TableCell,
+    UserDelete,
   },
   setup() {
     const $q = useQuasar()
@@ -212,9 +214,18 @@ export default {
     }
     const refreshTable = () => {
       onRequest({
+        pagination: { ...paginationParams.value, page: 1 },
+        filter: filterValue.value,
+      })
+    }
+    const refreshPage = () => {
+      onRequest({
         pagination: paginationParams.value,
         filter: filterValue.value,
       })
+    }
+    const getSelectedString = () => {
+      return `已选择${selected.value.length}个用户, 共有 ${paginationParams.value.rowsNumber}个用户`
     }
     return {
       tableRef,
@@ -226,9 +237,12 @@ export default {
       paginationParams,
       loading,
       onRequest,
+      selected,
       roleOptions,
       rowUpdate,
       refreshTable,
+      refreshPage,
+      getSelectedString,
     }
   },
 }
