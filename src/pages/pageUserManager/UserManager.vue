@@ -94,6 +94,11 @@
     </template>
     <template #body-cell-actions="props">
       <td>
+        <UserPasswordReset
+          :user="props.row"
+          @update="rowUpdate"
+          @refresh="refreshPage"
+        />
         <UserProfileEditor
           :user="props.row"
           @update="rowUpdate"
@@ -114,6 +119,7 @@ import { useRoleOptions } from './hooks'
 import UserProfileEditor from './UserProfileEditor.vue'
 import TableCell from './TableCell.vue'
 import UserDelete from './UserDelete.vue'
+import UserPasswordReset from './UserPasswordReset.vue'
 type TableOrderOption =
   | 'nickname+'
   | 'createTime+'
@@ -128,13 +134,13 @@ const paginationParams = ref({
 })
 
 const columns = [
-  { name: 'id', label: 'ID', align: 'left', required: true },
-  { name: 'username', label: '用户名', align: 'left' },
-  { name: 'nickname', label: '昵称', align: 'left' },
-  { name: 'qq', label: 'QQ', align: 'left' },
-  { name: 'phone', label: '电话', align: 'left' },
-  { name: 'roles', label: '角色', align: 'left' },
-  { name: 'actions', label: '操作', align: 'right' },
+  { name: 'id', label: 'ID', align: 'center', required: true },
+  { name: 'username', label: '用户名', align: 'center' },
+  { name: 'nickname', label: '昵称', align: 'center' },
+  { name: 'qq', label: 'QQ', align: 'center' },
+  { name: 'phone', label: '电话', align: 'center' },
+  { name: 'roles', label: '角色', align: 'center' },
+  { name: 'actions', label: '操作', align: 'center' },
 ]
 const tableRef = ref()
 const rows = ref<UserData[]>([])
@@ -152,6 +158,7 @@ export default {
     UserProfileEditor,
     TableCell,
     UserDelete,
+    UserPasswordReset,
   },
   setup() {
     const $q = useQuasar()

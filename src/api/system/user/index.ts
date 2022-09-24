@@ -55,3 +55,15 @@ export function createUser(data: { username: string; password: string }) {
     data: data,
   })
 }
+
+export function changeUserPassword(data: {
+  userId: number
+  password: string
+  oldPassword: string
+}) {
+  return request({
+    url: 'system/user/update_password',
+    method: 'post',
+    data,
+  })
+}

@@ -1,12 +1,7 @@
 <template>
-  <q-btn
-    dense
-    round
-    flat
-    color="grey"
-    icon="edit"
-    @click="dialogVisible = true"
-  ></q-btn>
+  <q-btn dense flat color="primary" @click="dialogVisible = true"
+    >编辑用户</q-btn
+  >
   <q-dialog :model-value="dialogVisible" persistent>
     <q-card class="user_edit">
       <q-form @submit.prevent="onSubmit">
@@ -23,19 +18,11 @@
           />
         </q-card-section>
         <q-card-section>
-          <q-input v-model="formData.id" name="id" label="id" disable></q-input>
-          <q-input
-            :model-value="user.username"
-            name="username"
-            label="用户名"
-          ></q-input>
-          <q-input
-            v-model="formData.nickname"
-            name="nickname"
-            label="昵称"
-          ></q-input>
-          <q-input v-model="formData.qq" name="qq" label="qq"></q-input>
-          <q-input v-model="formData.phone" name="phone" label="电话"></q-input>
+          <q-input v-model="formData.id" name="id" label="id" disable />
+          <q-input v-model="formData.username" name="username" label="用户名" />
+          <q-input v-model="formData.nickname" name="nickname" label="昵称" />
+          <q-input v-model="formData.qq" name="qq" label="qq" />
+          <q-input v-model="formData.phone" name="phone" label="电话" />
         </q-card-section>
         <q-card-actions>
           <q-btn

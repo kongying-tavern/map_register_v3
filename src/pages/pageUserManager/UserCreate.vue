@@ -28,7 +28,7 @@
             autocomplete="off"
             :rules="[(val) => val.length >= 5 || '请至少输入5个字符']"
             label="用户名"
-          ></q-input>
+          />
           <q-input
             v-model="formData.password"
             for="password"
@@ -36,7 +36,7 @@
             autocomplete="off"
             :rules="[(val) => val.length >= 6 || '密码最少6位']"
             label="密码"
-          ></q-input>
+          />
           <q-input
             v-model="formData.passwordRepeat"
             :rules="[
@@ -46,7 +46,7 @@
             type="password"
             autocomplete="off"
             label="再次输入密码"
-          ></q-input>
+          />
         </q-form>
       </q-card-section>
       <q-card-actions>
