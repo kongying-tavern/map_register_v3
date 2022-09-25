@@ -281,6 +281,9 @@
       :persistent="handle_type == 1 ? true : false"
     >
       <layer-edit
+        :basic-types="type_map"
+        :basic-icon="icon_map"
+        :basic-items="item_patched_list"
         :propdata="edit_data"
         @cancel="add_mode_off"
         @refresh="refresh"
@@ -347,9 +350,9 @@ export default {
       area_list: [],
       type_list: [],
       type_child_list: [],
+      item_full_list: [],
 
       icon_map: {},
-      item_map: {},
 
       stepper_collapsed: false,
       handle_layer_list_data: [],
@@ -391,6 +394,29 @@ export default {
     type_child_ids() {
       return _.map(this.type_child_list || [], v => v.typeId)
     },
+    type_map() {
+      return _.keyBy([...this.type_list, ...this.type_child_list], 'typeId');
+    },
+    item_patched_list() {
+      let item_list = _.flatMap(this.item_full_list, item => {
+        let area_id = _.toNumber(item.areaId) || 0;
+        let type_id_list = item.typeIdList || [];
+
+        return _.map(type_id_list, type_id => {
+          let item_key = `${area_id}-${type_id}`;
+          let row = _.cloneDeep(item);
+
+          row.itemKey = item_key;
+          row.typeId = type_id;
+          row.typeIdList = [type_id];
+          return row;
+        });
+      });
+      return item_list;
+    },
+    item_map() {
+      return _.groupBy(this.item_patched_list, 'itemKey');
+    },
     item_list() {
       let item_key = `${this.selected_area_id}-${this.selected_type_id}`;
       let item_list = _.get(this.item_map, item_key, []);
@@ -418,7 +444,6 @@ export default {
     clearlist() {
       this.callback_list = {};
       this.layer_list = null;
-      this.item_list = [];
       this.selected_item = null;
       this.handle_layer_list_data = [];
     },
@@ -455,20 +480,7 @@ export default {
       .then((res) => {
         this.loading = false;
         let data = res.data.data.record || [];
-        let item_list = _.flatMap(data, item => {
-          let area_id = _.toNumber(item.areaId) || 0;
-          let type_id_list = item.typeIdList || [];
-
-          return _.map(type_id_list, type_id => {
-            let item_key = `${area_id}-${type_id}`;
-            let row = _.cloneDeep(item);
-            row.itemKey = item_key;
-            row.typeIdList = [type_id];
-            return row;
-          });
-        });
-        let item_map = _.groupBy(item_list, 'itemKey');
-        this.item_map = item_map;
+        this.item_full_list = data;
       });
     },
     //查询点位信息
@@ -805,7 +817,8 @@ export default {
   line-height: 2.5rem;
   border-radius: 1.2rem;
   padding-left: .4rem;
-  &.active {
+  &.active,
+  &:hover {
     background-color: #e3eefa;
   }
 }
