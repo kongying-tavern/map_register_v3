@@ -12,15 +12,21 @@
           <q-item v-show="layer_info.id == '' ? false : true">
             <q-item-section side top> 点位编号 </q-item-section>
             <q-item-section>
-              <q-input outlined v-model="layer_info.id" readonly> </q-input>
+              <q-input
+                v-model="layer_info.id"
+                outlined
+                dense
+                readonly>
+              </q-input>
             </q-item-section>
           </q-item>
           <q-item>
             <q-item-section side top> 点位名称 </q-item-section>
             <q-item-section>
               <q-input
-                outlined
                 v-model="layer_info.markerTitle"
+                outlined
+                dense
                 placeholder="点位名称"
               >
               </q-input>
@@ -65,8 +71,9 @@
                   </div>
                   <div class="col text-right">
                     <q-btn
+                      v-if="!item_selector_open"
                       icon="close"
-                      color="red-4"
+                      color="red-6"
                       size="md"
                       plain
                       dense
@@ -102,10 +109,11 @@
             <q-item-section side top> 点位说明 </q-item-section>
             <q-item-section>
               <q-input
-                outlined
+                v-model="layer_info.content"
                 type="textarea"
                 style="white-space: pre-line"
-                v-model="layer_info.content"
+                outlined
+                dense
                 placeholder="点位说明"
               >
               </q-input>
@@ -114,10 +122,11 @@
           <q-item>
             <q-item-section side top> 点位图像 </q-item-section>
             <q-item-section>
-              <div class="row justify-center">
+              <div class="row q-gutter-x-md">
                 <q-img
+                  class="col image-box"
                   :src="
-                    layer_info.picture == ''
+                    layer_info.picture === ''
                       ? 'https://assets.yuanshen.site/images/noImage.png'
                       : layer_info.picture
                   "
@@ -133,21 +142,43 @@
                     </div>
                   </template>
                 </q-img>
+                <div class="col-auto q-gutter-y-sm">
+                  <q-btn
+                    class="row"
+                    label="上传图像"
+                    icon="upload"
+                    size="md"
+                    plain
+                    color="primary"
+                    @click="open_filepicker">
+                    <q-file
+                      v-show="false"
+                      v-model="upload_img_file"
+                      ref="img_upload"
+                      label="Standard"
+                      @update:model-value="upload_crooper_img" />
+                  </q-btn>
+
+                  <q-btn
+                    class="row"
+                    label="清除图像"
+                    icon="delete"
+                    size="md"
+                    plain
+                    color="red-6"
+                    @click="del_img">
+                  </q-btn>
+
+                  <q-btn
+                    class="row"
+                    label="预览"
+                    icon="search"
+                    size="md"
+                    plain
+                    @click="check_fullimg">
+                  </q-btn>
+                </div>
               </div>
-              <q-btn
-                label="上传图像"
-                @click="open_filepicker"
-                color="primary"
-                style="margin-top: 20px"
-              >
-                <q-file
-                  v-show="false"
-                  v-model="upload_img_file"
-                  ref="img_upload"
-                  label="Standard"
-                  @update:model-value="upload_crooper_img"
-                />
-              </q-btn>
             </q-item-section>
           </q-item>
             <q-item-section></q-item-section>
@@ -159,6 +190,7 @@
                 v-model="layer_info.hiddenFlag"
                 :true-value="0"
                 :false-value="1"
+                dense
                 label="点位显示/隐藏"
               />
               <q-toggle
@@ -168,6 +200,7 @@
                 :true-value="0"
                 :false-value="1"
                 :indeterminate-value="2"
+                dense
                 :label="{
                   0: '显示点位',
                   1: '隐藏点位',
@@ -342,9 +375,12 @@ export default {
   methods: {
     //查看大图
     check_fullimg() {
-      if (this.layer_info.picture != "") {
+      if (this.layer_info.picture !== "") {
         this.fullimg_window = true;
       }
+    },
+    del_img() {
+      this.layer_info.picture = "";
     },
     //开启文件选择器
     open_filepicker() {
@@ -442,5 +478,9 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss" scoped>
+.image-box {
+  border-radius: 6px;
+  border: 1px dashed #aaa;
+}
 </style>

@@ -52,7 +52,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .item-group {
   & + .item-group {
     border-top: 1px solid #ddd;
