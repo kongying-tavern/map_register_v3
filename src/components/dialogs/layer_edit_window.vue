@@ -132,7 +132,7 @@
                   "
                   spinner-color="white"
                   style="height: 150px; max-width: 150px; cursor: pointer"
-                  @click="check_fullimg"
+                  @click="img_preview"
                 >
                   <template v-slot:error>
                     <div
@@ -141,6 +141,11 @@
                       没有相关图片
                     </div>
                   </template>
+                  <q-inner-loading
+                    :showing="loading_img"
+                    label="图片上传中..."
+                    label-class="primary"
+                    label-style="font-size: 1.1em" />
                 </q-img>
                 <div class="col-auto q-gutter-y-sm">
                   <q-btn
@@ -150,13 +155,13 @@
                     size="md"
                     plain
                     color="primary"
-                    @click="open_filepicker">
+                    @click="img_picker_popup">
                     <q-file
                       v-show="false"
-                      v-model="upload_img_file"
+                      v-model="image_upload_file"
                       ref="img_upload"
                       label="Standard"
-                      @update:model-value="upload_crooper_img" />
+                      @update:model-value="img_upload" />
                   </q-btn>
 
                   <q-btn
@@ -166,7 +171,7 @@
                     size="md"
                     plain
                     color="red-6"
-                    @click="del_img">
+                    @click="img_delete">
                   </q-btn>
 
                   <q-btn
@@ -175,7 +180,7 @@
                     icon="search"
                     size="md"
                     plain
-                    @click="check_fullimg">
+                    @click="img_preview">
                   </q-btn>
                 </div>
               </div>
@@ -223,7 +228,7 @@
         </q-list>
       </div>
       <div style="margin-top: 10px">
-        <q-btn color="primary" label="保存" @click="upload_layerdata" />
+        <q-btn color="primary" label="保存" @click="save" />
         <q-btn
           color="primary"
           flat
@@ -244,17 +249,18 @@
     </div>
 
     <!-- 裁剪弹窗 -->
-    <q-dialog v-model="cropper_window">
-      <img-cut :crooper_img="upload_img_base64" @screenshot="cut_img"></img-cut>
+    <q-dialog v-model="image_upload_cropper_open">
+
+      <img-cut :crooper_img="image_upload_base64" @screenshot="img_crop"></img-cut>
     </q-dialog>
     <!-- 查看大图弹窗 -->
-    <q-dialog v-model="fullimg_window">
+    <q-dialog v-model="image_preview_open">
       <q-card style="width: 50vw; height: 50vh">
         <q-img
           :src="layer_info.picture"
           spinner-color="white"
           style="height: 100%; max-width: 100%"
-          @click="check_fullimg"
+          @click="img_preview"
         >
           <template v-slot:error>
             <div class="absolute-full flex flex-center bg-negative text-white">
@@ -273,22 +279,18 @@
 <script>
 import _ from 'lodash'
 import {
-  query_itemtype,
-  query_itemlist,
   upload_img,
 } from "../../service/base_data_request";
 import {
-  upload_layer,
-  upload_layer_extralabel,
   edit_layer_extralabel,
+  upload_layer,
   edit_layer,
 } from "../../service/edit_request";
 import { get_user_id, has_user_role } from "../../service/user_info";
 import ImgCut from "./vue-cropper.vue";
 import IslandSelector from "../v2.8/island_value_selector.vue";
-import { create_notify } from "../../api/common";
-import { list } from 'postcss';
 import ItemSelector from './item_selector.vue';
+import { create_notify } from "../../api/common";
 
 const icon_no_img = 'https://assets.yuanshen.site/icons/-1.png';
 export default {
@@ -298,24 +300,27 @@ export default {
     return {
       extra_mode: false,
       layer_info_default: {
-        id: "",
-        markerTitle: "",
-        content: "",
-        picture: "",
+        id: null,
+        markerTitle: '',
+        content: '',
+        position: '',
         hiddenFlag: 0,
+        picture: '',
+        pictureCreatorId: 0,
+        videoPath: '',
+        refreshTime: 0,
+        markerCreatorId: get_user_id(),
         itemList: []
       },
       layer_info: {},
       item_selector_open: false,
       item_selector_index: -1,
-      cropper_window: false,
-      fullimg_window: false,
-      cropper_img: "",
-      upload_img_file: null,
-      upload_img_base64: "",
-      item_child_value_list: [],
-      item_child_options_list: [],
+      image_upload_cropper_open: false,
+      image_preview_open: false,
+      image_upload_file: null,
+      image_upload_base64: "",
       loading: false,
+      loading_img: false,
       island_propdata: null,
       island_callback_data: null,
     };
@@ -374,36 +379,50 @@ export default {
   },
   methods: {
     //查看大图
-    check_fullimg() {
+    img_preview() {
       if (this.layer_info.picture !== "") {
-        this.fullimg_window = true;
+        this.image_preview_open = true;
       }
     },
-    del_img() {
+    img_delete() {
       this.layer_info.picture = "";
+      this.layer_info.pictureCreatorId = get_user_id();
     },
     //开启文件选择器
-    open_filepicker() {
+    img_picker_popup() {
       this.$refs.img_upload.pickFiles();
     },
     //上传图片加以裁剪，以及裁剪前处理
-    upload_crooper_img() {
-      if (this.upload_img_file != null) {
+    img_upload() {
+      if (this.image_upload_file != null) {
         //将图片转化为base64
-        let img = this.upload_img_file;
+        let img = this.image_upload_file;
         let fr = new FileReader();
         fr.readAsDataURL(img);
         fr.onload = (res) => {
-          this.upload_img_base64 = res.target.result;
+          this.image_upload_base64 = res.target.result;
           //在转换完成后清除file，以重新触发input事件
-          this.upload_img_file = null;
+          this.image_upload_file = null;
         };
-        this.cropper_window = true;
+        this.image_upload_cropper_open = true;
       }
     },
     //返回裁剪后的数据
-    cut_img(data) {
-      this.layer_info.picture = data;
+    img_crop(data) {
+      if (_.isString(data) && data.indexOf("base64") !== -1) {
+        this.loading_img = true;
+        upload_img(Date.now(), data)
+          .then(res => {
+            let img_path = _.get(res, 'data.path', '');
+            if(img_path) {
+              this.layer_info.picture = `https://yuanshen.site${img_path}`;
+              this.layer_info.pictureCreatorId = get_user_id();
+            }
+          })
+          .finally(() => {
+            this.loading_img = false;
+          });
+      }
     },
     item_add() {
       this.layer_info.itemList.push({
@@ -436,34 +455,33 @@ export default {
     item_get_name(itemId = 0) {
       return _.get(this.item_map, [itemId, 'name'], '');
     },
-    //提交要上传的数据
-    async upload_layerdata() {
-      this.loading = true;
-      let upload_data = {
-        id: undefined,
-        itemList: [],
-        markerTitle: this.layer_info.markerTitle,
-        position: this.propdata.position,
-        picture: this.layer_info.picture,
-        hiddenFlag: 0,
-        markerCreatorId: get_user_id(),
-        videoPath: "",
-        pictureCreatorId: get_user_id(),
-        refreshTime: 0,
-        content: this.layer_info.content,
-        markerExtraContent: -1,
-        itemList: this.layer_info.itemList || []
-      };
-      //如果上传了图片，将其上传至图床
-      if (upload_data.picture.indexOf("base64") != -1) {
-        let date = Date.now();
-        let res = await upload_img(date, upload_data.picture);
-        upload_data.picture = `https://yuanshen.site${res.data.path}`;
-      }
-    },
     //海岛回调
     island_callback(val) {
       this.island_callback_data = val;
+    },
+    //提交要上传的数据
+    save() {
+      this.loading = true;
+      let save_promise = null;
+      if(this.layer_info.id) {
+        save_promise = edit_layer
+      } else {
+        save_promise = upload_layer
+      }
+      save_promise(this.layer_info)
+        .then(res => {
+          if(res.data.data) {
+            create_notify('保存成功', 'positive');
+          } else {
+            let message = res.data.message || '';
+            if(message) {
+              create_notify(message, 'negative');
+            } else {
+              create_notify('保存失败', 'negative');
+            }
+          }
+        })
+      this.$emit("refresh");
     },
     //取消
     cancel() {
