@@ -9,7 +9,7 @@
     <div class="col">
       <div class="row justify-between">
         <q-list bordered separator style="width: 100%;">
-          <q-item v-show="layer_info.id == '' ? false : true">
+          <q-item v-show="layer_info.id">
             <q-item-section side top> 点位编号 </q-item-section>
             <q-item-section>
               <q-input
@@ -297,7 +297,8 @@ import { create_notify } from "../../api/common";
 const icon_no_img = 'https://assets.yuanshen.site/icons/-1.png';
 export default {
   name: "LayerEdit",
-  props: ["propdata", "basicTypes", "basicIcon", "basicItems"],
+  props: [
+    "propdata", "basicTypes", "basicIcon", "basicItems", "selArea", "selType", "selItem"],
   data() {
     return {
       extra_mode: false,
@@ -475,6 +476,7 @@ export default {
       } else {
         save_promise = upload_layer
       }
+      this.loading = true;
       save_promise(this.layer_info)
         .then(res => {
           if(res.data.data) {
@@ -488,7 +490,10 @@ export default {
             }
           }
         })
-      this.$emit("refresh");
+        .finally(() => {
+          this.loading = false;
+          this.$emit("refresh");
+        })
     },
     //取消
     cancel() {
@@ -498,7 +503,39 @@ export default {
   },
   mounted() {
     this.layer_info = _.defaultsDeep({}, this.propdata.data, this.layer_info_default)
-    //如果有子分类的话，查询子分类的各项选项
+
+    // 如果是新数据
+    if(!this.layer_info.id) {
+      this.layer_info.position = this.propdata.position || ''
+      this.layer_info.content = _.get(this.selItem, 'defaultContent', '');
+
+      // 构造标题
+      let title_tpl = _.get(this.selType || {}, 'content', '');
+      let title_renderer = _.template(title_tpl, {
+        interpolate: /{{([\s\S]+?)}}/g
+      });
+      let title_data = {
+        area: this.selArea || {},
+        type: this.selType || {},
+        item: this.selItem || {}
+      };
+      let title_str = title_renderer(title_data);
+      this.layer_info.markerTitle = title_str;
+
+      // 构造关联类别
+      if(!this.layer_info.itemList) {
+        this.layer_info.itemList = [];
+      }
+      if (this.layer_info.itemList.length <= 0) {
+        let item_sel = this.selItem || {};
+        let item_link = {
+          itemId: item_sel.itemId,
+          count: item_sel.defaultCount
+        };
+        this.layer_info.itemList.push(item_link);
+      }
+
+    }
   },
 };
 </script>
