@@ -53,10 +53,12 @@
                     <q-btn
                       size="md"
                       icon="edit"
+                      :color="item_selector_open && itemIndex === item_selector_index ? 'amber' : 'white'"
+                      :text-color="item_selector_open && itemIndex === item_selector_index ? 'white' : 'black'"
                       plain
                       dense
                       round
-                      @click="item_select(itemIndex)">
+                      @click="item_select_toggle(itemIndex)">
                     </q-btn>
                   </div>
                   <div class="col-2">
@@ -430,10 +432,15 @@ export default {
         count: 1,
       });
     },
-    item_select(index = -1) {
+    item_select_toggle(index = -1) {
       if(this.layer_info.itemList[index]) {
-        this.item_selector_index = index;
-        this.item_selector_open = true;
+        if(this.item_selector_open) {
+          this.item_selector_index = -1;
+          this.item_selector_open = false;
+        } else {
+          this.item_selector_index = index;
+          this.item_selector_open = true;
+        }
       }
     },
     item_update(item = {}) {
