@@ -244,10 +244,9 @@
     </div>
     <div
       v-show="item_selector_open"
-      class="col relative-position q-ml-md q-my-md">
+      class="col relative-position q-ml-md">
       <item-selector
-        class="absolute-full"
-        style="overflow: auto;"
+        class="absolute-full overflow-hidden"
         :item-config="item_config"
         @update="item_update">
       </item-selector>
