@@ -158,7 +158,7 @@
                 dense
                 checked-icon="task_alt"
                 unchecked-icon="panorama_fish_eye"
-                @update:model-value="select_item_layers">
+                @update:model-value="fetch_item_layers">
               </q-radio>
             </div>
             <div
@@ -174,7 +174,7 @@
                 :keep-color="false"
                 :checked-icon="`img:${get_icon_url_by_tag(i.iconTag)}`"
                 :unchecked-icon="`img:${get_icon_url_by_tag(i.iconTag)}`"
-                @update:model-value="select_item_layers">
+                @update:model-value="fetch_item_layers">
               </q-radio>
             </div>
           </div>
@@ -281,6 +281,12 @@
       :persistent="handle_type == 1 ? true : false"
     >
       <layer-edit
+        :basic-types="type_map"
+        :basic-icon="icon_map"
+        :basic-items="item_patched_list"
+        :sel-area="selected_area"
+        :sel-type="selected_type"
+        :sel-item="selected_item"
         :propdata="edit_data"
         @cancel="add_mode_off"
         @refresh="refresh"
@@ -347,7 +353,7 @@ export default {
       area_list: [],
       type_list: [],
       type_child_list: [],
-      item_list: [],
+      item_full_list: [],
 
       icon_map: {},
 
@@ -391,6 +397,34 @@ export default {
     type_child_ids() {
       return _.map(this.type_child_list || [], v => v.typeId)
     },
+    type_map() {
+      return _.keyBy([...this.type_list, ...this.type_child_list], 'typeId');
+    },
+    item_patched_list() {
+      let item_list = _.flatMap(this.item_full_list, item => {
+        let area_id = _.toNumber(item.areaId) || 0;
+        let type_id_list = item.typeIdList || [];
+
+        return _.map(type_id_list, type_id => {
+          let item_key = `${area_id}-${type_id}`;
+          let row = _.cloneDeep(item);
+
+          row.itemKey = item_key;
+          row.typeId = type_id;
+          row.typeIdList = [type_id];
+          return row;
+        });
+      });
+      return item_list;
+    },
+    item_map() {
+      return _.groupBy(this.item_patched_list, 'itemKey');
+    },
+    item_list() {
+      let item_key = `${this.selected_area_id}-${this.selected_type_id}`;
+      let item_list = _.get(this.item_map, item_key, []);
+      return item_list;
+    },
     item_ids() {
       return _.map(this.item_list || [], v => v.itemId);
     },
@@ -413,7 +447,6 @@ export default {
     clearlist() {
       this.callback_list = {};
       this.layer_list = null;
-      this.item_list = [];
       this.selected_item = null;
       this.handle_layer_list_data = [];
     },
@@ -429,33 +462,32 @@ export default {
       this.clearlayers();
       this.selected_area = area;
       this.$emit("map_switch", this.selected_area);
+      this.fetch_item_list();
     },
     //如果有子分类的话，进行查询，生成子分类tabs
     select_type_list(value) {
-      this.loading = true;
       this.clearlist();
       this.clearlayers();
       this.selected_type = value;
-      this.select_item_list(value.typeId);
+      if(this.item_all_allowable) {
+        this.fetch_item_layers(null)
+      }
     },
-    //查询类型下属的物品列表
-    select_item_list(value) {
+    fetch_item_list() {
       this.loading = true;
       query_itemlist({
-        typeIdList: [value],
         areaIdList: [this.selected_area_id],
         current: 0,
-        size: 999,
-      }).then((res) => {
+        size: 9999,
+      })
+      .then((res) => {
         this.loading = false;
-        this.item_list = res.data.data.record;
-        if(this.item_all_allowable) {
-          this.select_item_layers(null);
-        }
+        let data = res.data.data.record || [];
+        this.item_full_list = data;
       });
     },
     //查询点位信息
-    select_item_layers(value) {
+    fetch_item_layers(value) {
       this.clearlayers();
       this.loading = true;
       this.selected_item = value;
@@ -665,7 +697,7 @@ export default {
     refresh() {
       this.add_mode_off();
       this.layer_edit_window = false;
-      this.select_item_layers(this.selected_item);
+      this.fetch_item_layers(this.selected_item);
     },
     //删除点位
     delete_layer(data) {
@@ -788,7 +820,8 @@ export default {
   line-height: 2.5rem;
   border-radius: 1.2rem;
   padding-left: .4rem;
-  &.active {
+  &.active,
+  &:hover {
     background-color: #e3eefa;
   }
 }

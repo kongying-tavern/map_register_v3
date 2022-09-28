@@ -120,7 +120,7 @@
               v-if="propitem === null"
               anchor="bottom middle"
               self="top middle">
-              未选择具体分类，无法操作
+              未选择具体物品，无法操作
             </q-tooltip>
             <q-btn
               :disable="propitem === null"
