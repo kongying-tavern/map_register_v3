@@ -341,6 +341,10 @@ export default {
         .value();
       return type_list;
     },
+    type_map() {
+      let type_map = _.keyBy(this.type_list, 'typeId');
+      return type_map;
+    },
     item_packed_list() {
       let packed_list = _.map(this.basicItems, v => {
         let icon_tag = v.iconTag || '';
@@ -470,6 +474,22 @@ export default {
     },
     //提交要上传的数据
     save() {
+      let validate_res = this.save_validate();
+      if (validate_res.length > 0) {
+        create_notify(validate_res.join('<br>'), 'negative', {
+          timeout: 5000,
+          html: true,
+          actions: [
+            {
+              icon: 'close',
+              color: 'white',
+              dense: true
+            }
+          ]
+        });
+        return;
+      }
+
       this.loading = true;
       let save_promise = null;
       if(this.layer_info.id) {
@@ -478,6 +498,7 @@ export default {
         save_promise = upload_layer
       }
       this.loading = true;
+
       save_promise(this.layer_info)
         .then(res => {
           let code = res.data.code;
@@ -515,6 +536,40 @@ export default {
           this.loading = false;
           this.$emit("refresh");
         })
+    },
+    save_validate() {
+      let errors = [];
+      let item_list = _.filter(this.layer_info.itemList || [], v => v && _.isFinite(v.itemId) && v.itemId > 0);
+
+      // 关联物品校验
+      if(item_list.length === 0) {
+        errors.push('请选择关联物品');
+        return errors;
+      }
+
+      // 重复项选择校验
+      let item_ids_uniq = _.chain(item_list).map(v => v.itemId).uniq().value();
+      if(item_list.length !== item_ids_uniq.length) {
+        errors.push('物品中存在重复项，请修改');
+      }
+
+      // 宝箱类别判断
+      let item_list_entries = _.chain(item_ids_uniq)
+        .map(v => this.item_map[v])
+        .filter(v => v)
+        .value();
+      let item_list_types = _.chain(item_list_entries)
+        .map(v => v.typeIdList || [])
+        .flattenDeep()
+        .map(v => _.get(this.type_map, [v, 'name'], ''))
+        .filter(v => v)
+        .value();
+      let item_list_companion_1 = _.filter(item_list_types, v => v === '获取方式' || v === '宝箱品质');
+      if (item_list_companion_1.length === 1) {
+        errors.push('获取方式和宝箱品质需同时选中');
+      }
+
+      return errors;
     },
     //取消
     cancel() {
@@ -576,7 +631,6 @@ export default {
         };
         this.layer_info.itemList.push(item_link);
       }
-
     }
   },
 };
