@@ -3,7 +3,7 @@
     class="row q-pa-md"
     style="min-width: 550px; max-width: 60vw;"
     :style="{
-      width: item_selector_open ? '60vw' : 'auto',
+      width: item_selector_open ? '60vw' : '550px',
     }">
     <!-- <div><q-toggle v-model="extra_mode" label="高级模式" /></div> -->
     <div class="col">
@@ -101,8 +101,9 @@
             <q-item-section side top> 所属岛屿 </q-item-section>
             <q-item-section>
               <island-selector
-                :propdata="propdata.data"
-                @callback="island_callback"
+                ref="island_selector"
+                :extra-data="layer_extra_data"
+                @update="island_callback"
               ></island-selector>
             </q-item-section>
           </q-item>
@@ -241,7 +242,9 @@
         />
       </div>
     </div>
-    <div v-show="item_selector_open" class="col relative-position q-ml-md q-my-md">
+    <div
+      v-show="item_selector_open"
+      class="col relative-position q-ml-md q-my-md">
       <item-selector
         class="absolute-full"
         style="overflow: auto;"
@@ -301,7 +304,7 @@ export default {
     "propdata", "basicTypes", "basicIcon", "basicItems", "selArea", "selType", "selItem"],
   data() {
     return {
-      extra_mode: false,
+      layer_extra_data: {},
       layer_info_default: {
         id: null,
         markerTitle: '',
@@ -324,8 +327,6 @@ export default {
       image_upload_base64: "",
       loading: false,
       loading_img: false,
-      island_propdata: null,
-      island_callback_data: null,
     };
   },
   computed: {
@@ -465,7 +466,7 @@ export default {
     },
     //海岛回调
     island_callback(val) {
-      this.island_callback_data = val;
+      this.layer_extra_data['2_8_island'] = val;
     },
     //提交要上传的数据
     save() {
@@ -479,16 +480,36 @@ export default {
       this.loading = true;
       save_promise(this.layer_info)
         .then(res => {
-          if(res.data.data) {
-            create_notify('保存成功', 'positive');
+          let code = res.data.code;
+          let data = res.data.data;
+          let markerId = this.layer_info.id ? this.layer_info.id : data;
+
+          if (code === 200) {
+            return markerId;
           } else {
-            let message = res.data.message || '';
-            if(message) {
-              create_notify(message, 'negative');
+            if (data) {
+              throw data;
             } else {
-              create_notify('保存失败', 'negative');
+              throw '保存失败';
             }
           }
+        })
+        .then(markerId => {
+          if(_.isFinite(markerId) && markerId > 0 && _.isPlainObject(this.layer_extra_data) && !_.isEmpty(this.layer_extra_data)) {
+            return edit_layer_extralabel({
+              markerId,
+              markerExtraContent: JSON.stringify(this.layer_extra_data),
+              isRelated: 0
+            });
+          } else {
+            return Promise.resolve();
+          }
+        })
+        .then(() => {
+          create_notify('保存成功', 'positive');
+        })
+        .catch(err => {
+          create_notify(err, 'negative');
         })
         .finally(() => {
           this.loading = false;
@@ -502,7 +523,28 @@ export default {
     },
   },
   mounted() {
-    this.layer_info = _.defaultsDeep({}, this.propdata.data, this.layer_info_default)
+    let layer_info = _.defaultsDeep({}, this.propdata.data, this.layer_info_default);
+    layer_info = _.omit(layer_info, 'version');
+    this.layer_info = layer_info;
+
+    // 获取附加数据
+    let extra_data = this.layer_info.markerExtraContent || '';
+    try {
+      let extra_data_json = JSON.parse(extra_data);
+      if(_.isPlainObject(extra_data_json)) {
+        this.layer_extra_data = extra_data_json;
+      } else {
+        this.layer_extra_data = {};
+      }
+    } catch(e) {
+      this.layer_extra_data = {};
+    }
+    this.$nextTick()
+      .then(() => {
+        if(this.$refs.island_selector) {
+          this.$refs.island_selector.load_data();
+        }
+      });
 
     // 如果是新数据
     if(!this.layer_info.id) {
