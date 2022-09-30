@@ -452,6 +452,7 @@ export default {
       if(this.layer_info.itemList[this.item_selector_index]) {
         this.layer_info.itemList[this.item_selector_index].itemId = item.itemId;
         this.layer_info.itemList[this.item_selector_index].count = item.defaultCount;
+        this.layer_info.refreshTime = item.defaultRefreshTime || 0;
       }
       this.item_selector_open = false;
       this.item_selector_index = -1;
@@ -638,6 +639,7 @@ export default {
           count: item_sel.defaultCount
         };
         this.layer_info.itemList.push(item_link);
+        this.layer_info.refreshTime = item_sel.defaultRefreshTime || 0;
       }
     }
   },
