@@ -461,6 +461,9 @@ export default {
         this.layer_info.itemList.splice(index, 1);
       }
     },
+    item_remove_empty(item_list = []) {
+      return _.filter(item_list, v => v && _.isFinite(v.itemId) && v.itemId > 0);
+    },
     item_get_image(itemId = 0) {
       return _.get(this.item_map, [itemId, 'iconUrl'], icon_no_img);
     },
@@ -474,8 +477,8 @@ export default {
     //提交要上传的数据
     save() {
       let validate_res = this.save_validate();
-      if (validate_res.length > 0) {
-        create_notify(validate_res.join('<br>'), 'negative', {
+      if (validate_res.errors.length > 0) {
+        create_notify(validate_res.errors.join('<br>'), 'negative', {
           timeout: 5000,
           html: true,
           actions: [
@@ -488,6 +491,8 @@ export default {
         });
         return;
       }
+      // 将经过过滤后的数据设置回提交数据池
+      this.layer_info.itemList = validate_res.items || [];
 
       this.loading = true;
       let save_promise = null;
@@ -537,19 +542,23 @@ export default {
         })
     },
     save_validate() {
-      let errors = [];
-      let item_list = _.filter(this.layer_info.itemList || [], v => v && _.isFinite(v.itemId) && v.itemId > 0);
+      let data_pack = {
+        errors: [],
+        items: this.layer_info.itemList || []
+      };
+      data_pack.items = this.item_remove_empty(data_pack.items);
+
 
       // 关联物品校验
-      if(item_list.length === 0) {
-        errors.push('请选择关联物品');
-        return errors;
+      if(data_pack.items.length === 0) {
+        data_pack.errors.push('请选择关联物品');
+        return data_pack;
       }
 
       // 重复项选择校验
-      let item_ids_uniq = _.chain(item_list).map(v => v.itemId).uniq().value();
-      if(item_list.length !== item_ids_uniq.length) {
-        errors.push('物品中存在重复项，请修改');
+      let item_ids_uniq = _.chain(data_pack.items).map(v => v.itemId).uniq().value();
+      if(data_pack.items.length !== item_ids_uniq.length) {
+        data_pack.errors.push('物品中存在重复项，请修改');
       }
 
       // 宝箱类别判断
@@ -565,10 +574,10 @@ export default {
         .value();
       let item_list_companion_1 = _.filter(item_list_types, v => v === '获取方式' || v === '宝箱品质');
       if (item_list_companion_1.length === 1) {
-        errors.push('获取方式和宝箱品质需同时选中');
+        data_pack.errors.push('获取方式和宝箱品质需同时选中');
       }
 
-      return errors;
+      return data_pack;
     },
     //取消
     cancel() {
