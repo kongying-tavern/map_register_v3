@@ -10,27 +10,19 @@ import "leaflet/dist/leaflet.css";
 const map_tiles_config = {
     '提瓦特-base0': {
         extension: 'png',
-        code: 'twt29',
+        code: 'twt31',
         settings: {
           center: [0, 1742],
         },
         center: [3568, 6286],
-        size: [14080, 15360],
-        tilesOffset: [-1792, 0]
+        size: [16384, 15360],
+        tilesOffset: [-4864, 0]
     },
     '提瓦特-base1': {
         extension: 'png',
         center: [3568, 6286],
         size: [12288, 15360]
     },
-
-    '沙漠': {
-        extend: '提瓦特-base0',
-        code: 'twt31',
-        size: [16384, 15360],
-        tilesOffset: [-4864, 0]
-    },
-
     '金苹果群岛': {
         extension: 'png',
         code: 'qd28',
