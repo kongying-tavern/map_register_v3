@@ -12,7 +12,7 @@
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "Node",
     "lib": ["DOM", "ESNext", "ScriptHost"],
-    "types": ["vite/client"],
+    "types": ["vite/client", "@quasar/app-vite/types/globals"],
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
