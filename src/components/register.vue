@@ -322,6 +322,7 @@ import LayerTable from "./register/layer_table.vue";
 import PopupWindow from "./dialogs/popup_window.vue";
 import LayerEdit from "./dialogs/layer_edit_window.vue";
 import { create_notify } from "../api/common";
+
 export default {
   name: "Selector",
   data() {
@@ -411,7 +412,6 @@ export default {
 
           row.itemKey = item_key;
           row.typeId = type_id;
-          row.typeIdList = [type_id];
           return row;
         });
       });
