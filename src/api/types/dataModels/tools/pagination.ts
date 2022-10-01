@@ -1,5 +1,5 @@
 /** 分页请求 */
-export interface PaginationRequest {
+export interface Pagination {
   /**
    * 当前页，从0开始，从0开始
    */

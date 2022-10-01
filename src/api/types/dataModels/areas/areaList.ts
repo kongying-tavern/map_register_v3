@@ -1,3 +1,3 @@
-import type { AreaInfo } from '.'
+import type { Area } from '.'
 
-export type AreaList = AreaInfo[]
+export type AreaList = Area[]

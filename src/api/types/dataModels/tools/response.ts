@@ -1,5 +1,5 @@
 /** 响应信息 */
-export interface ResponseInfo<T = any> {
+export interface Response<T = any> {
   /**
    * 返回标记，成功标记=0，失败标记=1
    */

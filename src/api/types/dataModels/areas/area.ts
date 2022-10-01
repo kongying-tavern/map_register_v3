@@ -1,7 +1,7 @@
 /**
  * 地区信息
  */
-export interface AreaInfo {
+export interface Area {
   /**
    * 地区ID
    */
