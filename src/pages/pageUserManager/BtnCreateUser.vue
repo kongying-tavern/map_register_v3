@@ -1,9 +1,9 @@
 <template>
   <q-btn
-    class="table_action_btn"
     icon-right="add"
     label="新增用户"
     color="primary"
+    style="margin-left: 8px"
     outline
     @click="dialogVisible = true"
   />
@@ -136,9 +136,6 @@ const onConfirm = () => {
 </script>
 
 <style lang="scss" scoped>
-.table_action_btn {
-  margin-right: 8px;
-}
 .user_create_type {
   display: flex;
   .q-select.q-field {

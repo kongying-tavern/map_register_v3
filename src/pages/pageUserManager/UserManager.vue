@@ -19,8 +19,13 @@
   >
     <template #top-right>
       <div class="table_actions">
-        <UserDelete :selected="selected" @refresh="refreshTable" />
-        <UserCreate @refresh="refreshTable" />
+        <BtnRoleManager
+          :users="selected"
+          :options="roleOptions"
+          @update="rowUpdate"
+        />
+        <BtnDelete :selected="selected" @refresh="refreshTable" />
+        <BtnCreate @refresh="refreshTable" />
       </div>
     </template>
     <template #top-left>
@@ -111,14 +116,15 @@
 
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue'
-import UserCreate from './UserCreate.vue'
 import { UserData, fetchUserList, RoleData } from '@/api/system/user'
 import { QTableColumn, QTableProps, useQuasar } from 'quasar'
 import UserRoleEditor from './UserRoleEditor.vue'
 import { useRoleOptions } from './hooks'
 import UserProfileEditor from './UserProfileEditor.vue'
 import TableCell from './TableCell.vue'
-import UserDelete from './UserDelete.vue'
+import BtnDelete from './BtnDeleteUser.vue'
+import BtnCreate from './BtnCreateUser.vue'
+import BtnRoleManager from './BtnRoleManager.vue'
 import UserPasswordReset from './UserPasswordReset.vue'
 import { messageFrom } from '@/utils'
 type TableOrderOption =
@@ -208,6 +214,9 @@ onMounted(() => {
 })
 
 const rowUpdate = (data: UserData) => {
+  selected.value = selected.value.map((row) =>
+    row.id === data.id ? data : row,
+  )
   rows.value = rows.value.map((row) => (row.id === data.id ? data : row))
 }
 const refreshTable = () => {
