@@ -1,18 +1,18 @@
 <template>
-  <div class="table_cell_content table_cell_roles">
+  <div :key="displayCount" class="table_cell_content table_cell_roles">
     <UserRoleTag
-      v-for="role in user.roleList?.slice(0, 2)"
+      v-for="role in user.roleList?.slice(0, displayCount)"
       :key="role.id"
       :role="role"
     />
     <!-- 3个及以上省略 -->
     <q-chip
-      v-if="user.roleList && user.roleList?.length > 2"
+      v-if="user.roleList && user.roleList?.length > displayCount"
       square
       outline
       color="grey-6"
       style="padding: 0.5em 0.3em"
-      :label="'+' + (user.roleList.length - 2)"
+      :label="'+' + (user.roleList.length - displayCount)"
     />
   </div>
   <q-popup-edit
@@ -65,13 +65,30 @@ import { UserData } from '@/api/system/user'
 import UserRoleTag from './UserRoleTag.vue'
 import type { RoleData } from '@/api/system/user/index'
 import { assignUserRole, removeUserRole } from '@/api/system/role/index'
-import { useQuasar } from 'quasar'
+import { debounce, useQuasar } from 'quasar'
+import { onMounted, onUnmounted, ref } from 'vue'
+import { messageFrom } from '@/utils'
 const $q = useQuasar()
 const props = defineProps<{
   user: UserData
   options: RoleData[]
 }>()
+const computeDisplayThreshold = () =>
+  Math.max(Math.floor((window.innerWidth * 0.18 - 28) / 100), 2)
+const displayCount = ref(computeDisplayThreshold())
+const handleResize = debounce(() => {
+  if (displayCount.value !== computeDisplayThreshold()) {
+    displayCount.value = computeDisplayThreshold()
+    console.log(Math.max(Math.floor((window.innerWidth * 0.16) / 100), 2))
+  }
+})
 
+onMounted(() => {
+  window.addEventListener('resize', handleResize)
+})
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+})
 const emit = defineEmits<{
   (e: 'update', row: UserData): void
 }>()
@@ -84,7 +101,7 @@ const updateUserRole = (
   const source = props.user.roleList || []
   if (selected)
     removeUserRole(props.user.id, opt.id)
-      .then(() => {
+      .then((res: any) => {
         onSucceed()
         emit('update', {
           ...props.user,
@@ -92,38 +109,40 @@ const updateUserRole = (
         })
         $q.notify({
           type: 'positive',
-          message: '用户角色更新成功！',
+          message: res.message,
         })
       })
       .catch((err) => {
         console.error(err)
         $q.notify({
           type: 'negative',
-          message: 'Update user role Error: ' + JSON.stringify(err),
+          message: messageFrom(err),
         })
       })
   else
     assignUserRole(props.user.id, opt.id)
-      .then(() => {
+      .then((res: any) => {
         onSucceed()
         emit('update', { ...props.user, roleList: [...source, opt] })
         $q.notify({
           type: 'positive',
-          message: '用户角色更新成功！',
+          message: res.message,
         })
       })
       .catch((err) => {
         console.error(err)
         $q.notify({
           type: 'negative',
-          message: 'Update user role Error: ' + JSON.stringify(err),
+          message: messageFrom(err),
         })
       })
 }
 </script>
 
 <style scoped>
-.selected_roles {
-  width: 200px;
+.table_cell_content.table_cell_roles {
+  max-width: 18vw;
+  min-width: 240px;
+  overflow: hidden;
 }
 </style>

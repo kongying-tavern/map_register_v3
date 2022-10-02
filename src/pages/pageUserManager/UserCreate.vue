@@ -69,6 +69,7 @@
 </template>
 <script lang="ts" setup>
 import { createQQUser, createUser } from '@/api/system/user'
+import { messageFrom } from '@/utils'
 import { useQuasar } from 'quasar'
 import { ref } from 'vue'
 const formData = ref({
@@ -88,34 +89,46 @@ const onConfirm = () => {
     if (registrationType.value.value === 'username') {
       createUser({ username: form.username, password: form.password })
         .then((res: any) => {
-          if (res.code === 200) {
-            $q.notify({ type: 'positive', message: '注册成功' })
-            emit('refresh')
-          }
+          if (res.code === 200) emit('refresh')
+          $q.notify({
+            type: res.code === 200 ? 'positive' : 'negative',
+            message: res.message,
+          })
         })
         .catch((err: any) => {
           console.log(err)
-          $q.notify({ type: 'negative', message: JSON.stringify(err) })
+          $q.notify({ type: 'negative', message: messageFrom(err) })
         })
         .then(() => {
           dialogVisible.value = false
+          formData.value = {
+            username: '',
+            password: '',
+            passwordRepeat: '',
+          }
         })
     }
 
     if (registrationType.value.value === 'qq') {
       createQQUser({ username: form.username, password: form.password })
         .then((res: any) => {
-          if (res.code === 200) {
-            $q.notify({ type: 'positive', message: '注册成功' })
-            emit('refresh')
-          }
+          if (res.code === 200) emit('refresh')
+          $q.notify({
+            type: res.code === 200 ? 'positive' : 'negative',
+            message: res.message,
+          })
         })
         .catch((err: any) => {
           console.log(err)
-          $q.notify({ type: 'negative', message: JSON.stringify(err) })
+          $q.notify({ type: 'negative', message: messageFrom(err) })
         })
         .then(() => {
           dialogVisible.value = false
+          formData.value = {
+            username: '',
+            password: '',
+            passwordRepeat: '',
+          }
         })
     }
   }

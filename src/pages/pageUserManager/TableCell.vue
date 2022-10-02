@@ -37,6 +37,7 @@
 </template>
 <script lang="ts" setup>
 import { updateUser, UserData } from '@/api/system/user'
+import { messageFrom } from '@/utils'
 import { useQuasar } from 'quasar'
 import { ref } from 'vue'
 const $q = useQuasar()
@@ -51,16 +52,15 @@ const emit = defineEmits<{
 const editUser = (data: UserData) => {
   updateUser(data)
     .then((res: any) => {
-      if (res.code === 200) {
-        $q.notify({ type: 'positive', message: '修改成功' })
-        emit('update', data)
-      } else {
-        $q.notify({ type: 'negative', message: JSON.stringify(res.data) })
-      }
+      if (res.code === 200) emit('update', data)
+      $q.notify({
+        type: res.code === 200 ? 'positive' : 'negative',
+        message: messageFrom(res),
+      })
     })
     .catch((err) => {
       console.log(err)
-      $q.notify({ type: 'negative', message: JSON.stringify(err) })
+      $q.notify({ type: 'negative', message: messageFrom(err) })
     })
 }
 </script>

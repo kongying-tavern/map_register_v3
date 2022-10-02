@@ -64,6 +64,7 @@
 
 <script setup lang="ts">
 import { changeUserPassword, UserData } from '@/api/system/user'
+import { messageFrom } from '@/utils'
 import { useQuasar } from 'quasar'
 import { ref } from 'vue'
 
@@ -92,15 +93,16 @@ const onSubmit = () => {
     .then((res: any) => {
       if (res.code === 200) {
         dialogVisible.value = false
-        $q.notify({ type: 'positive', message: '密码修改成功' })
         emit('refresh')
-      } else {
-        $q.notify({ type: 'negative', message: res.data })
       }
+      $q.notify({
+        type: res.code === 200 ? 'positive' : 'negative',
+        message: messageFrom(res),
+      })
     })
     .catch((err) => {
       console.log(err)
-      $q.notify({ type: 'negative', message: JSON.stringify(err) })
+      $q.notify({ type: 'negative', message: messageFrom(err) })
     })
 }
 </script>

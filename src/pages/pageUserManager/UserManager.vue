@@ -81,7 +81,7 @@
       </td>
     </template>
     <template #body-cell-roles="props">
-      <td>
+      <td class="q-table--col-auto-width">
         <UserRoleEditor
           :user="{
               ...props.row, 
@@ -120,6 +120,7 @@ import UserProfileEditor from './UserProfileEditor.vue'
 import TableCell from './TableCell.vue'
 import UserDelete from './UserDelete.vue'
 import UserPasswordReset from './UserPasswordReset.vue'
+import { messageFrom } from '@/utils'
 type TableOrderOption =
   | 'nickname+'
   | 'createTime+'
@@ -182,7 +183,7 @@ const onRequest = (props: QTableProps) => {
       } else {
         $q.notify({
           type: 'negative',
-          message: res.message,
+          message: messageFrom(res),
         })
         console.error(res)
       }

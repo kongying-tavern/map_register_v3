@@ -35,6 +35,12 @@
           :rows="usersToDelete"
           :columns="[
             {
+              name: 'id',
+              align: 'left',
+              label: 'ID',
+              field: 'id',
+            },
+            {
               name: 'username',
               align: 'left',
               label: '用户名',
@@ -57,6 +63,9 @@
         >
           <template #body="props">
             <q-tr>
+              <q-td key="id">
+                {{ props.row.id }}
+              </q-td>
               <q-td key="username">
                 {{ props.row.username }}
               </q-td>
@@ -98,6 +107,7 @@
 import { deleteUser, UserData } from '@/api/system/user'
 import UserRoleTag from './UserRoleTag.vue'
 import { ref } from 'vue'
+import { useQuasar } from 'quasar'
 
 const props = defineProps<{
   selected: UserData[]
@@ -108,6 +118,7 @@ const loading = ref(false)
 const emit = defineEmits<{
   (e: 'refresh'): void
 }>()
+const $q = useQuasar()
 const deleteSelectedUsers = () => {
   const getDeleteSingleUserPromise = (id: number) => {
     return deleteUser(id).then((res) => {
@@ -116,13 +127,19 @@ const deleteSelectedUsers = () => {
     })
   }
 
-  Promise.all(
-    props.selected.map((item) => getDeleteSingleUserPromise(item.id)),
-  ).then((res) => {
-    console.log(res)
-    dialogVisible.value = false
-    emit('refresh')
-  })
+  Promise.all(props.selected.map((item) => getDeleteSingleUserPromise(item.id)))
+    .then((res: any) => {
+      console.log(res)
+      dialogVisible.value = false
+      emit('refresh')
+      $q.notify({
+        type: res.code === 200 ? 'positive' : 'negative',
+        message: res.message,
+      })
+    })
+    .catch((err) => {
+      console.log(err)
+    })
 }
 </script>
 
