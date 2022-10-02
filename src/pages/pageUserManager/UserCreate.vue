@@ -22,19 +22,29 @@
           autocorrect="off"
           autocapitalize="off"
         >
-          <q-input
-            v-model="formData.username"
-            for="username"
-            autocomplete="off"
-            :rules="[(val) => val.length >= 5 || '请至少输入5个字符']"
-            label="用户名"
-          />
+          <div class="user_create_type">
+            <q-select
+              v-model="registrationType"
+              :options="[
+                { label: '用户名', value: 'username' },
+                { label: 'qq', value: 'qq' },
+              ]"
+            />
+            <q-input
+              v-model="formData.username"
+              for="username"
+              autocomplete="off"
+              :rules="[(val) => val.length >= 5 || '请至少输入5个字符']"
+              lazy-rules
+            />
+          </div>
           <q-input
             v-model="formData.password"
             for="password"
             type="password"
             autocomplete="off"
             :rules="[(val) => val.length >= 6 || '密码最少6位']"
+            lazy-rules
             label="密码"
           />
           <q-input
@@ -58,7 +68,7 @@
   </q-dialog>
 </template>
 <script lang="ts" setup>
-import { createUser } from '@/api/system/user'
+import { createQQUser, createUser } from '@/api/system/user'
 import { useQuasar } from 'quasar'
 import { ref } from 'vue'
 const formData = ref({
@@ -66,6 +76,7 @@ const formData = ref({
   password: '',
   passwordRepeat: '',
 })
+const registrationType = ref({ label: '用户名', value: 'username' })
 const emit = defineEmits<{
   (e: 'refresh'): void
 }>()
@@ -74,20 +85,39 @@ const $q = useQuasar()
 const onConfirm = () => {
   const form = formData.value
   if (form.password === form.passwordRepeat) {
-    createUser({ username: form.username, password: form.password })
-      .then((res: any) => {
-        if (res.code === 200) {
-          $q.notify({ type: 'positive', message: '注册成功' })
-          emit('refresh')
-        }
-      })
-      .catch((err: any) => {
-        console.log(err)
-        $q.notify({ type: 'negative', message: JSON.stringify(err) })
-      })
-      .then(() => {
-        dialogVisible.value = false
-      })
+    if (registrationType.value.value === 'username') {
+      createUser({ username: form.username, password: form.password })
+        .then((res: any) => {
+          if (res.code === 200) {
+            $q.notify({ type: 'positive', message: '注册成功' })
+            emit('refresh')
+          }
+        })
+        .catch((err: any) => {
+          console.log(err)
+          $q.notify({ type: 'negative', message: JSON.stringify(err) })
+        })
+        .then(() => {
+          dialogVisible.value = false
+        })
+    }
+
+    if (registrationType.value.value === 'qq') {
+      createQQUser({ username: form.username, password: form.password })
+        .then((res: any) => {
+          if (res.code === 200) {
+            $q.notify({ type: 'positive', message: '注册成功' })
+            emit('refresh')
+          }
+        })
+        .catch((err: any) => {
+          console.log(err)
+          $q.notify({ type: 'negative', message: JSON.stringify(err) })
+        })
+        .then(() => {
+          dialogVisible.value = false
+        })
+    }
   }
 }
 </script>
@@ -95,5 +125,14 @@ const onConfirm = () => {
 <style lang="scss" scoped>
 .table_action_btn {
   margin-right: 8px;
+}
+.user_create_type {
+  display: flex;
+  .q-select.q-field {
+    min-width: 84px;
+  }
+  .q-input.q-field {
+    flex: 1;
+  }
 }
 </style>

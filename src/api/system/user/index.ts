@@ -56,6 +56,14 @@ export function createUser(data: { username: string; password: string }) {
   })
 }
 
+export function createQQUser(data: { username: string; password: string }) {
+  return request({
+    url: 'system/user/register/qq',
+    method: 'post',
+    data: data,
+  })
+}
+
 export function changeUserPassword(data: {
   userId: number
   password: string
