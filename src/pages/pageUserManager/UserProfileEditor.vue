@@ -99,9 +99,6 @@ const onClickDeleteUser = () => {
       })
   })
 }
-defineExpose({
-  onSubmit,
-})
 </script>
 
 <style scoped lang="scss">

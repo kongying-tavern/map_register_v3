@@ -120,10 +120,6 @@ const updateUserRole = (
         })
       })
 }
-
-defineExpose({
-  updateUserRole,
-})
 </script>
 
 <style scoped>

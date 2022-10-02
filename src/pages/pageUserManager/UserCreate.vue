@@ -58,7 +58,7 @@
   </q-dialog>
 </template>
 <script lang="ts" setup>
-import { createUser, UserData } from '@/api/system/user'
+import { createUser } from '@/api/system/user'
 import { useQuasar } from 'quasar'
 import { ref } from 'vue'
 const formData = ref({
@@ -90,12 +90,6 @@ const onConfirm = () => {
       })
   }
 }
-
-defineExpose<{
-  formData: UserData
-  dialogVisible: boolean
-  onConfirm: void
-}>()
 </script>
 
 <style lang="scss" scoped>

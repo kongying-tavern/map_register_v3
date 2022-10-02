@@ -103,12 +103,6 @@ const onSubmit = () => {
       $q.notify({ type: 'negative', message: JSON.stringify(err) })
     })
 }
-
-defineExpose({
-  onSubmit,
-  formData,
-  passwordRepeat,
-})
 </script>
 
 <style scoped lang="scss">

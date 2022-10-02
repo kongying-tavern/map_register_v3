@@ -56,7 +56,7 @@
           ]"
         >
           <template #body="props">
-            <q-tr :props="props">
+            <q-tr>
               <q-td key="username">
                 {{ props.row.username }}
               </q-td>
@@ -124,13 +124,6 @@ const deleteSelectedUsers = () => {
     emit('refresh')
   })
 }
-
-defineExpose({
-  deleteSelectedUsers,
-  dialogVisible,
-  usersToDelete,
-  loading,
-})
 </script>
 
 <style scoped lang="scss">

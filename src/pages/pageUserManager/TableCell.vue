@@ -63,9 +63,6 @@ const editUser = (data: UserData) => {
       $q.notify({ type: 'negative', message: JSON.stringify(err) })
     })
 }
-defineExpose({
-  user,
-})
 </script>
 
 <style>
