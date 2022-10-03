@@ -469,7 +469,12 @@ export default {
       return _.get(this.item_map, [itemId, 'iconUrl'], icon_no_img);
     },
     item_get_name(itemId = 0) {
-      return _.get(this.item_map, [itemId, 'name'], '');
+      let item_config = this.item_map[itemId] || {};
+      let item_name = item_config.name || '';
+      let type_id = +item_config.typeId || 0;
+      let type_name = _.get(this.type_map, [type_id, 'name'], '');
+      let item_compound_name = `${type_name} - ${item_name}`;
+      return item_compound_name;
     },
     //海岛回调
     island_callback(val) {
