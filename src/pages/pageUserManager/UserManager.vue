@@ -23,8 +23,8 @@
           :options="roleOptions"
           @update="rowUpdate"
         />
-        <BtnDelete :selected="selected" @refresh="refresh" />
-        <BtnCreate @refresh="refresh" />
+        <BtnDeleteUser :selected="selected" @refresh="refresh" />
+        <BtnCreateUser @refresh="refresh" />
       </div>
     </template>
     <template #top-left>
@@ -81,7 +81,7 @@
         <UserRoleEditor
           :user="{
               ...props.row,
-              roleList: props.row.roleList.sort((a: RoleData, b: RoleData)=>(a.sort - b.sort))
+              roleList: props.row.roleList.sort((a: RoleData, b: RoleData) => (a.sort - b.sort))
             }"
           :options="roleOptions"
           @update="rowUpdate"
@@ -108,14 +108,16 @@
 <script lang="ts" setup>
 import type { RoleData } from '@/api/system/user'
 import type { QTableColumn } from 'quasar'
-import UserRoleEditor from './UserRoleEditor.vue'
 import { useRoleOptions, useSelected, useUserList } from './hooks'
-import UserProfileEditor from './UserProfileEditor.vue'
-import TableCell from './TableCell.vue'
-import BtnDelete from './BtnDeleteUser.vue'
-import BtnCreate from './BtnCreateUser.vue'
-import BtnRoleManager from './BtnRoleManager.vue'
-import UserPasswordReset from './UserPasswordReset.vue'
+import {
+  UserRoleEditor,
+  UserProfileEditor,
+  TableCell,
+  BtnDeleteUser,
+  BtnCreateUser,
+  BtnRoleManager,
+  UserPasswordReset,
+} from './components'
 
 const columns: QTableColumn[] = [
   { name: 'id', field: 'id', label: 'ID', align: 'center', required: true },
