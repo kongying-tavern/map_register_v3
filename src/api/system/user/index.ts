@@ -1,4 +1,6 @@
 import { request } from '@/utils'
+import type { UserData } from './fetchUserList'
+export * from './fetchUserList'
 
 export type UserSearchFilter = {
   current: number
@@ -7,27 +9,13 @@ export type UserSearchFilter = {
   sort?: string[]
   username?: string
 }
-export interface UserData {
-  id: number
-  username?: string
-  nickname?: string
-  qq?: string
-  phone?: string
-  roleList?: RoleData[]
-}
 export type RoleData = {
   id: number
   name: string
   code: string
   sort: number
 }
-export function fetchUserList(data: UserSearchFilter) {
-  return request({
-    url: 'system/user/info/userList',
-    method: 'post',
-    data: data,
-  })
-}
+
 export function deleteUser(userid: number) {
   return request({
     url: `system/user/${userid}`,
