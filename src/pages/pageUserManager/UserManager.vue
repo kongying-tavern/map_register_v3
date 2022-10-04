@@ -1,13 +1,12 @@
 <template>
   <q-table
-    :ref="tableRef"
     v-model:pagination="paginationParams"
     v-model:selected="selected"
     :rows-per-page-options="[10, 20, 30, 50]"
     title="用户管理"
     class="user_table"
     dense
-    :rows="rows"
+    :rows="userList"
     row-key="id"
     selection="multiple"
     :columns="columns"
@@ -15,7 +14,7 @@
     :filter="filterValue"
     separator="vertical"
     :selected-rows-label="getSelectedString"
-    @request="onRequest"
+    @request="refresh"
   >
     <template #top-right>
       <div class="table_actions">
@@ -24,8 +23,8 @@
           :options="roleOptions"
           @update="rowUpdate"
         />
-        <BtnDelete :selected="selected" @refresh="refreshTable" />
-        <BtnCreate @refresh="refreshTable" />
+        <BtnDelete :selected="selected" @refresh="refresh" />
+        <BtnCreate @refresh="refresh" />
       </div>
     </template>
     <template #top-left>
@@ -40,21 +39,20 @@
             { label: '昵称降序', value: 'nickname-' },
             { label: '创建时间降序', value: 'createTime-' },
           ]"
-          @update:model-value="
-            onRequest({
-              pagination: { ...paginationParams, page: 1 },
-              filter: filterValue,
-            })
-          "
+          @update:model-value="refresh"
         />
         <div class="search_group">
           <q-select
             v-model="filterKey"
-            :options="['昵称', '用户名']"
+            :options="[
+              { label: '昵称', value: 'nickname' },
+              { label: '用户名', value: 'username' },
+            ]"
             label="筛选项"
             borderless
+            @update:model-value="refresh"
           ></q-select>
-          <q-input v-model="filterValue" debounce="800" placeholder="搜索">
+          <q-input v-model="filterValue" :debounce="800" placeholder="搜索">
             <template #append>
               <q-icon name="search" />
             </template>
@@ -63,10 +61,6 @@
       </div>
     </template>
 
-    <!-- Table Cell with Popup Edit -->
-    <template #body-cell-id="props">
-      <td>{{ props.row.id }}</td>
-    </template>
     <template #body-cell-username="props">
       <td>
         <TableCell :row-data="props.row" field="username" @update="rowUpdate" />
@@ -77,9 +71,6 @@
         <TableCell :row-data="props.row" field="nickname" @update="rowUpdate" />
       </td>
     </template>
-    <template #body-cell-qq="props">
-      <td>{{ props.row.qq }}</td>
-    </template>
     <template #body-cell-phone="props">
       <td>
         <TableCell :row-data="props.row" field="phone" @update="rowUpdate" />
@@ -89,8 +80,8 @@
       <td class="q-table--col-auto-width">
         <UserRoleEditor
           :user="{
-              ...props.row, 
-              roleList: props.row.roleList.sort((a: RoleData,b: RoleData)=>(a.sort-b.sort))
+              ...props.row,
+              roleList: props.row.roleList.sort((a: RoleData, b: RoleData)=>(a.sort - b.sort))
             }"
           :options="roleOptions"
           @update="rowUpdate"
@@ -102,12 +93,12 @@
         <UserPasswordReset
           :user="props.row"
           @update="rowUpdate"
-          @refresh="refreshPage"
+          @refresh="refresh"
         />
         <UserProfileEditor
           :user="props.row"
           @update="rowUpdate"
-          @refresh="refreshPage"
+          @refresh="refresh"
         />
       </td>
     </template>
@@ -115,128 +106,46 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue'
-import { UserData, fetchUserList, RoleData } from '@/api/system/user'
-import { QTableColumn, QTableProps, useQuasar } from 'quasar'
+import type { RoleData } from '@/api/system/user'
+import type { QTableColumn } from 'quasar'
 import UserRoleEditor from './UserRoleEditor.vue'
-import { useRoleOptions } from './hooks'
+import { useRoleOptions, useSelected, useUserList } from './hooks'
 import UserProfileEditor from './UserProfileEditor.vue'
 import TableCell from './TableCell.vue'
 import BtnDelete from './BtnDeleteUser.vue'
 import BtnCreate from './BtnCreateUser.vue'
 import BtnRoleManager from './BtnRoleManager.vue'
 import UserPasswordReset from './UserPasswordReset.vue'
-import { messageFrom } from '@/utils'
-type TableOrderOption =
-  | 'nickname+'
-  | 'createTime+'
-  | 'nickname-'
-  | 'createTime-'
-const paginationParams = ref({
-  sortBy: 'desc',
-  descending: false,
-  page: 1,
-  rowsPerPage: 10,
-  rowsNumber: 10,
-})
 
 const columns: QTableColumn[] = [
-  { name: 'id', label: 'ID', align: 'center', required: true, field: '' },
-  { name: 'username', label: '用户名', align: 'center', field: '' },
-  { name: 'nickname', label: '昵称', align: 'center', field: '' },
-  { name: 'qq', label: 'QQ', align: 'center', field: '' },
-  { name: 'phone', label: '电话', align: 'center', field: '' },
-  { name: 'roles', label: '角色', align: 'center', field: '' },
-  { name: 'actions', label: '操作', align: 'center', field: '' },
+  { name: 'id', field: 'id', label: 'ID', align: 'center', required: true },
+  { name: 'username', field: 'username', label: '用户名', align: 'center' },
+  { name: 'nickname', field: 'nickname', label: '昵称', align: 'center' },
+  { name: 'qq', field: 'qq', label: 'QQ', align: 'center' },
+  { name: 'phone', field: 'phone', label: '电话', align: 'center' },
+  { name: 'roles', field: 'roles', label: '角色', align: 'center' },
+  { name: 'actions', field: 'actions', label: '操作', align: 'center' },
 ]
-const tableRef = ref()
-const rows = ref<UserData[]>([])
-const selected = ref<UserData[]>([])
-const loading = ref(false)
-const orderBy = ref<TableOrderOption>('createTime-')
-const filterKey = ref<'昵称' | '用户名'>('昵称')
-const filterValue = ref('')
-const roleOptions = ref<RoleData[]>([])
 
-const $q = useQuasar()
-const onRequest = (props: QTableProps) => {
-  const { pagination, filter } = props
-  loading.value = true
-  const searchKeyObj: any = {}
-  if (filterValue.value !== '' && filterKey.value === '昵称')
-    searchKeyObj['nickname'] = filter
-  if (filterValue.value !== '' && filterKey.value === '用户名')
-    searchKeyObj['username'] = filter
-  fetchUserList({
-    current: pagination?.page || 1,
-    size: pagination?.rowsPerPage || 10,
-    ...searchKeyObj,
-    sort: [orderBy.value],
-  })
-    .then((res: any) => {
-      loading.value = false
-      if (res.code === 200) {
-        rows.value.splice(0, rows.value.length, ...res.data.record)
-        paginationParams.value = {
-          rowsPerPage: 10,
-          page: 1,
-          sortBy: 'desc',
-          descending: false,
-          ...pagination,
-          rowsNumber: res.data.total,
-        }
-        filterValue.value = filter
-      } else {
-        $q.notify({
-          type: 'negative',
-          message: messageFrom(res),
-        })
-        console.error(res)
-      }
-    })
-    .catch((err) => {
-      loading.value = false
-      $q.notify({
-        type: 'negative',
-        message: 'fetch_user_list Error' + JSON.stringify(err),
-      })
-    })
-}
-onMounted(() => {
-  onRequest({
-    pagination: paginationParams.value,
-    filter: filterValue.value,
-  })
-  useRoleOptions().then((res: { data: RoleData[] }) => {
-    console.log(res)
-    roleOptions.value = res.data.sort((a, b) => a.sort - b.sort)
-  })
+const {
+  userList,
+  loading,
+  filterKey,
+  filterValue,
+  orderBy,
+  paginationParams,
+  refresh,
+} = useUserList()
+
+const { roleOptions } = useRoleOptions()
+
+const { selected, getSelectedString, rowUpdate } = useSelected({
+  userList,
+  paginationParams,
 })
-
-const rowUpdate = (data: UserData) => {
-  selected.value = selected.value.map((row) =>
-    row.id === data.id ? data : row,
-  )
-  rows.value = rows.value.map((row) => (row.id === data.id ? data : row))
-}
-const refreshTable = () => {
-  onRequest({
-    pagination: { ...paginationParams.value, page: 1 },
-    filter: filterValue.value,
-  })
-}
-const refreshPage = () => {
-  onRequest({
-    pagination: paginationParams.value,
-    filter: filterValue.value,
-  })
-}
-const getSelectedString = () => {
-  return `已选择${selected.value.length}个用户, 共有 ${paginationParams.value.rowsNumber}个用户`
-}
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .user_table {
   margin: 0 8px 8px;
   overflow: hidden;
