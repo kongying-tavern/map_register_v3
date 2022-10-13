@@ -9,11 +9,12 @@ interface RoleHookOptions {
 export const useRoleOptions = (options: RoleHookOptions = {}) => {
   const { immediate = true } = options
 
-  const unsortedRoles = ref<RoleData[]>([])
-  const roleOptions = computed(() =>
-    unsortedRoles.value.sort((a, b) => a.sort - b.sort),
-  )
   const loading = ref(false)
+  const unsortedRoles = ref<RoleData[]>([])
+
+  const rolesSort = (a: RoleData, b: RoleData) => a.sort - b.sort
+
+  const roleOptions = computed(() => unsortedRoles.value.sort(rolesSort))
 
   const refresh = async () => {
     loading.value = true
@@ -29,5 +30,5 @@ export const useRoleOptions = (options: RoleHookOptions = {}) => {
 
   immediate && refresh()
 
-  return { roleOptions, loading, refresh }
+  return { roleOptions, loading, refresh, rolesSort }
 }

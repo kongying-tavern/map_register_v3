@@ -80,9 +80,9 @@
       <td class="q-table--col-auto-width">
         <UserRoleEditor
           :user="{
-              ...props.row,
-              roleList: props.row.roleList.sort((a: RoleData, b: RoleData) => (a.sort - b.sort))
-            }"
+            ...props.row,
+            roleList: props.row.roleList.sort(rolesSort),
+          }"
           :options="roleOptions"
           @update="rowUpdate"
         />
@@ -106,7 +106,6 @@
 </template>
 
 <script lang="ts" setup>
-import type { RoleData } from '@/api/system/user'
 import type { QTableColumn } from 'quasar'
 import { useRoleOptions, useSelected, useUserList } from './hooks'
 import {
@@ -139,7 +138,7 @@ const {
   refresh,
 } = useUserList()
 
-const { roleOptions } = useRoleOptions()
+const { roleOptions, rolesSort } = useRoleOptions()
 
 const { selected, getSelectedString, rowUpdate } = useSelected({
   userList,
@@ -152,6 +151,7 @@ const { selected, getSelectedString, rowUpdate } = useSelected({
   margin: 0 8px 8px;
   overflow: hidden;
   max-height: calc(100% - 8px);
+  box-shadow: none;
 
   th:last-child,
   td:last-child {
