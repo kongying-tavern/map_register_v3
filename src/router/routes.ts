@@ -1,4 +1,3 @@
-import { h } from 'vue'
 import type { RouteRecordRaw } from 'vue-router'
 
 // TODO: 后期按模块抽离或做动态化
@@ -23,7 +22,7 @@ const routes: RouteRecordRaw[] = [
           title: '物品管理',
           icon: 'widgets',
         },
-        component: () => h('div', {}, '物品管理'),
+        component: () => import('@/pages/pageItemManager/ItemManager.vue'),
       },
       {
         path: '/type',
@@ -31,7 +30,7 @@ const routes: RouteRecordRaw[] = [
           title: '类型管理',
           icon: 'widgets',
         },
-        component: () => h('div', {}, '类型管理'),
+        component: () => import('@/pages/pageTypeManager/TypeManager.vue'),
       },
     ],
   },
