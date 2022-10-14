@@ -21,10 +21,3 @@
 import { useRoute } from 'vue-router'
 const route = useRoute()
 </script>
-
-<style lang="scss" scoped>
-// TODO: 变量抽离
-.breadcrumb_nav {
-  padding: 0 1rem;
-}
-</style>
