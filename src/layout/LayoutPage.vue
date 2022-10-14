@@ -21,7 +21,8 @@
 
   .layout-page__main {
     flex: 1;
-    overflow: auto;
+    overflow: hidden;
+    overflow-y: auto;
   }
 }
 </style>
