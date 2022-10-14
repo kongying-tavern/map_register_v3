@@ -1,6 +1,8 @@
 import type { Schema } from 'jsonschema'
 
 export interface UpdateApiDtsOptions {
+  /** 是否禁用 */
+  disabled?: boolean
   /** api 文档 id */
   id: string
   /** 登录密码 */

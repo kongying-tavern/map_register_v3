@@ -26,6 +26,7 @@ let startTime
  */
 const updateApiDts = (options) => {
   const {
+    disabled = false,
     id,
     password,
     saveRaw = false,
@@ -40,6 +41,7 @@ const updateApiDts = (options) => {
     apply: 'serve',
 
     configResolved: async (viteConfig) => {
+      if (disabled) return
       const time = new Date().getTime()
       if (startTime && time - startTime < refreshInterval) return
       startTime = time

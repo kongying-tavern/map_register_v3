@@ -77,6 +77,7 @@ module.exports = configure(({ dev, prod }) => {
 
       vitePlugins: [
         updateApiDts({
+          disabled: true,
           id: 'd2c2dae2-e260-417a-9527-c12f6f67aa17',
           password: '4aYl0pGf',
           saveRaw: true,
