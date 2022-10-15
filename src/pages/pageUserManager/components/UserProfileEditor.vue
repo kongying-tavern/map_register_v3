@@ -84,8 +84,8 @@ const onClickDeleteUser = () => {
           />
         </q-card-section>
         <q-card-section>
-          <q-input v-model="formData.id" name="id" label="id" disable />
-          <q-input v-model="formData.username" name="username" label="用户名" />
+          <q-input v-model="formData.id" name="id" label="id" readonly />
+          <q-input v-model="formData.username" name="username" label="用户名" readonly />
           <q-input v-model="formData.nickname" name="nickname" label="昵称" />
           <q-input v-model="formData.qq" name="qq" label="qq" />
           <q-input v-model="formData.phone" name="phone" label="电话" />

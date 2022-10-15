@@ -66,9 +66,11 @@ const onSubmit = () => {
             />
           </q-card-section>
           <q-card-section>
-            ID: {{ user.id }} <br>
-            {{ user.username && `用户名: ${user.username}` }} <br>
-            {{ user.nickname && `昵称: ${user.nickname}` }}
+            <q-input
+              v-model="formData.userId"
+              label="ID"
+              readonly
+            />
             <q-input
               v-model="formData.oldPassword"
               type="password"
