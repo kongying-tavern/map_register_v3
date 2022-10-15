@@ -1,3 +1,59 @@
+<script lang="ts" setup>
+import { ref } from 'vue'
+import { useQuasar } from 'quasar'
+import UsersPreview from './UsersPreviewTable.vue'
+import UserRoleTag from './UserRoleTag.vue'
+import System from '@/api/system'
+import { messageFrom } from '@/utils'
+const props = defineProps<{
+  users: API.SysUserVo[]
+  options: API.SysRoleVo[]
+}>()
+const emit = defineEmits<{
+  (e: 'update', user: API.SysUserVo): void
+}>()
+const previewData = ref<API.SysUserVo[]>(props.users)
+
+const displayValue = ref<API.SysRoleVo>()
+const dialogVisible = ref(false)
+
+const $q = useQuasar()
+
+const updateUserRole = (role: API.SysRoleVo) => {
+  const usersToUpdate = props.users.filter(user =>
+    user.roleList?.find(roleItem => role.id === roleItem.id),
+  )
+  Promise.all(
+    usersToUpdate.map(user =>
+      System.role.addRoleToUser({
+        userId: user.id,
+        roleId: role.id,
+      }),
+    ),
+  )
+    .then(() => {
+      props.users.forEach(user =>
+        emit('update', { ...user, roleList: [role] }),
+      )
+      previewData.value = previewData.value.map(user => ({
+        ...user,
+        roleList: [role],
+      }))
+      $q.notify({
+        type: 'positive',
+        message: '成功',
+      })
+    })
+    .catch((err) => {
+      console.error(err)
+      $q.notify({
+        type: 'negative',
+        message: messageFrom(err),
+      })
+    })
+}
+</script>
+
 <template>
   <q-btn
     class="table_action_btn"
@@ -17,7 +73,9 @@
   <q-dialog v-model="dialogVisible">
     <q-card class="user_delete" style="min-width: 40rem">
       <q-card-section class="row items-center q-pb-none">
-        <div class="text-h6">批量配置用户角色</div>
+        <div class="text-h6">
+          批量配置用户角色
+        </div>
         <q-space />
         <q-btn v-close-popup icon="close" flat round dense />
       </q-card-section>
@@ -52,52 +110,3 @@
     </q-card>
   </q-dialog>
 </template>
-<script lang="ts" setup>
-import UsersPreview from './UsersPreviewTable.vue'
-import { RoleData, UserData } from '@/api/system/user'
-import { ref } from 'vue'
-import { assignUserRole } from '@/api/system/role'
-import { messageFrom } from '@/utils'
-import { useQuasar } from 'quasar'
-import UserRoleTag from './UserRoleTag.vue'
-const props = defineProps<{
-  users: UserData[]
-  options: RoleData[]
-}>()
-const previewData = ref<UserData[]>(props.users)
-
-const displayValue = ref<RoleData>()
-const dialogVisible = ref(false)
-
-const emit = defineEmits<{
-  (e: 'update', user: UserData): void
-}>()
-const $q = useQuasar()
-
-const updateUserRole = (value: RoleData) => {
-  const usersToUpdate = props.users.filter((user) =>
-    user.roleList?.find((role) => role.id === value.id),
-  )
-  Promise.all(usersToUpdate.map((user) => assignUserRole(user.id, value.id)))
-    .then(() => {
-      props.users.forEach((user) =>
-        emit('update', { ...user, roleList: [value] }),
-      )
-      previewData.value = previewData.value.map((user) => ({
-        ...user,
-        roleList: [value],
-      }))
-      $q.notify({
-        type: 'positive',
-        message: '成功',
-      })
-    })
-    .catch((err) => {
-      console.error(err)
-      $q.notify({
-        type: 'negative',
-        message: messageFrom(err),
-      })
-    })
-}
-</script>

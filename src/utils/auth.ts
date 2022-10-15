@@ -39,12 +39,13 @@ export const getUserToken = () => {
 
 export const validateUserToken = (debug = false) => {
   const expires: number | null = LocalStorage.getItem(KEY_EXPIRES)
-  if (!expires || !getUserToken()) return false
-  debug &&
-    console.log(
-      'token expires in ' +
-        (expires - new Date().valueOf()) / 1000 / 60 +
-        ' min',
+  if (!expires || !getUserToken())
+    return false
+  debug
+    && console.log(
+      `token expires in ${
+        (expires - new Date().valueOf()) / 1000 / 60
+        } min`,
     )
   return expires > new Date().valueOf()
 }

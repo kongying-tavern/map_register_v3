@@ -1,9 +1,9 @@
 import { route } from 'quasar/wrappers'
 import {
-  createRouter,
   createMemoryHistory,
-  createWebHistory,
+  createRouter,
   createWebHashHistory,
+  createWebHistory,
 } from 'vue-router'
 import type { RouterHistory, RouterScrollBehavior } from 'vue-router'
 import routes from './routes'

@@ -1,8 +1,15 @@
+<script lang="ts" setup>
+import { AppSidemenu, BreadCrumb } from '@/components'
+import { LayoutAside, LayoutHeader, LayoutPage } from '@/layout'
+</script>
+
 <template>
   <div class="layout-contianer">
     <LayoutAside>
-      <template #header>logo</template>
-      <AppSidemenu></AppSidemenu>
+      <template #header>
+        logo
+      </template>
+      <AppSidemenu />
     </LayoutAside>
 
     <LayoutHeader>顶部</LayoutHeader>
@@ -23,11 +30,6 @@
     </LayoutPage>
   </div>
 </template>
-
-<script lang="ts" setup>
-import { AppSidemenu, BreadCrumb } from '@/components'
-import { LayoutAside, LayoutHeader, LayoutPage } from '@/layout'
-</script>
 
 <style lang="scss" scoped>
 // TODO: 变量抽离

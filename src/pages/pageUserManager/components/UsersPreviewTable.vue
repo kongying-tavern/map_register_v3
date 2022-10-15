@@ -1,3 +1,10 @@
+<script lang="ts" setup>
+import UserRoleTag from './UserRoleTag.vue'
+defineProps<{
+  users: API.SysUserVo[]
+}>()
+</script>
+
 <template>
   <q-table
     class="user_delete_table"
@@ -60,11 +67,3 @@
     </template>
   </q-table>
 </template>
-
-<script lang="ts" setup>
-import { UserData } from '@/api/system/user'
-import UserRoleTag from './UserRoleTag.vue'
-defineProps<{
-  users: UserData[]
-}>()
-</script>

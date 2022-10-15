@@ -1,12 +1,78 @@
+<script setup lang="ts">
+import { useQuasar } from 'quasar'
+import { ref } from 'vue'
+import System from '@/api/system'
+import { messageFrom } from '@/utils'
+
+const props = defineProps<{
+  user: API.SysUserVo
+}>()
+const emit = defineEmits<{
+  (e: 'update', row: API.SysUserVo): void
+  (e: 'refresh'): void
+}>()
+const $q = useQuasar()
+const dialogVisible = ref(false)
+const formData: any = ref({
+  ...props.user,
+})
+
+const onSubmit = () => {
+  System.sysUserController.updateUser({}, formData.value)
+    .then((res: any) => {
+      if (res.code === 200)
+        emit('update', formData.value)
+      dialogVisible.value = false
+      $q.notify({
+        type: res.code === 200 ? 'positive' : 'negative',
+        message: res.message,
+      })
+    })
+    .catch((err) => {
+      console.log(err)
+      $q.notify({ type: 'negative', message: messageFrom(err) })
+    })
+}
+
+const onClickDeleteUser = () => {
+  $q.dialog({
+    title: '删除用户',
+    message: `确认删除用户 ID - ${props.user.id}?`,
+    cancel: true,
+    persistent: true,
+  }).onOk(() => {
+    if (!props.user.id)
+      return
+    System.sysUserController.deleteUser({ workId: props.user.id })
+      .then((res: any) => {
+        $q.notify({
+          type: res.code === 200 ? 'positive' : 'negative',
+          message: res.message,
+        })
+        emit('refresh')
+      })
+      .catch((err: any) => {
+        console.log(err)
+        $q.notify({ type: 'negative', message: messageFrom(err) })
+      })
+      .then(() => {
+        dialogVisible.value = false
+      })
+  })
+}
+</script>
+
 <template>
-  <q-btn dense flat color="primary" @click="dialogVisible = true"
-    >编辑用户</q-btn
-  >
+  <q-btn dense flat color="primary" @click="dialogVisible = true">
+    编辑用户
+  </q-btn>
   <q-dialog :model-value="dialogVisible" persistent>
     <q-card class="user_edit">
       <q-form @submit.prevent="onSubmit">
         <q-card-section class="row items-center q-pb-none">
-          <div class="text-h6">编辑用户</div>
+          <div class="text-h6">
+            编辑用户
+          </div>
           <q-space />
           <q-btn
             v-close-popup
@@ -39,67 +105,6 @@
     </q-card>
   </q-dialog>
 </template>
-
-<script setup lang="ts">
-import { deleteUser, updateUser, UserData } from '@/api/system/user'
-import { messageFrom } from '@/utils'
-import { useQuasar } from 'quasar'
-import { ref } from 'vue'
-
-const props = defineProps<{
-  user: UserData
-}>()
-const emit = defineEmits<{
-  (e: 'update', row: UserData): void
-  (e: 'refresh'): void
-}>()
-const $q = useQuasar()
-const dialogVisible = ref(false)
-const formData: any = ref({
-  ...props.user,
-})
-
-const onSubmit = () => {
-  updateUser(formData.value)
-    .then((res: any) => {
-      if (res.code === 200) emit('update', formData.value)
-      dialogVisible.value = false
-      $q.notify({
-        type: res.code === 200 ? 'positive' : 'negative',
-        message: res.message,
-      })
-    })
-    .catch((err) => {
-      console.log(err)
-      $q.notify({ type: 'negative', message: messageFrom(err) })
-    })
-}
-
-const onClickDeleteUser = () => {
-  $q.dialog({
-    title: '删除用户',
-    message: `确认删除用户 ID - ${props.user.id}?`,
-    cancel: true,
-    persistent: true,
-  }).onOk(() => {
-    deleteUser(props.user.id)
-      .then((res: any) => {
-        $q.notify({
-          type: res.code === 200 ? 'positive' : 'negative',
-          message: res.message,
-        })
-        emit('refresh')
-      })
-      .catch((err: any) => {
-        console.log(err)
-        $q.notify({ type: 'negative', message: messageFrom(err) })
-      })
-      .then(() => {
-        dialogVisible.value = false
-      })
-  })
-}
-</script>
 
 <style scoped lang="scss">
 .user_edit {

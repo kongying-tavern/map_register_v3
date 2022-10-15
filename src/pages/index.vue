@@ -1,10 +1,3 @@
-<template>
-  <div class="index_page">
-    <a href="/login">Login</a>
-    <br />
-    <a href="/users">Users</a>
-  </div>
-</template>
 <script lang="ts">
 import { defineComponent } from 'vue'
 
@@ -15,6 +8,14 @@ export default defineComponent({
   },
 })
 </script>
+
+<template>
+  <div class="index_page">
+    <a href="/login">Login</a>
+    <br>
+    <a href="/users">Users</a>
+  </div>
+</template>
 
 <style lang="scss" scoped>
 .index_page {

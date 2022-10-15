@@ -1,3 +1,40 @@
+<script setup lang="ts">
+import { useQuasar } from 'quasar'
+import { ref } from 'vue'
+import UserRoleTag from './UserRoleTag.vue'
+import System from '@/api/system'
+import { messageFrom } from '@/utils'
+const props = defineProps<{
+  user: API.SysUserVo
+  options: API.SysRoleVo[]
+}>()
+const emit = defineEmits<{
+  (e: 'update', row: API.SysUserVo): void
+}>()
+const $q = useQuasar()
+const displayCount = ref(1)
+const updateUserRole = (opt: API.SysRoleVo) => {
+  System.role.addRoleToUser({
+    userId: props.user.id,
+    roleId: opt.id,
+  })
+    .then((res: any) => {
+      emit('update', { ...props.user, roleList: [opt] })
+      $q.notify({
+        type: 'positive',
+        message: res.message,
+      })
+    })
+    .catch((err) => {
+      console.error(err)
+      $q.notify({
+        type: 'negative',
+        message: messageFrom(err),
+      })
+    })
+}
+</script>
+
 <template>
   <div :key="displayCount" class="table_cell_content table_cell_roles">
     <UserRoleTag
@@ -11,7 +48,7 @@
       outline
       color="grey-6"
       style="padding: 0.5em 0.3em"
-      :label="'+' + (user.roleList.length - displayCount)"
+      :label="`+${user.roleList.length - displayCount}`"
     />
   </div>
   <q-popup-edit
@@ -49,44 +86,6 @@
     </q-select>
   </q-popup-edit>
 </template>
-
-<script setup lang="ts">
-import { UserData } from '@/api/system/user'
-import UserRoleTag from './UserRoleTag.vue'
-import type { RoleData } from '@/api/system/user/index'
-import { assignUserRole } from '@/api/system/role/index'
-import { useQuasar } from 'quasar'
-import { ref } from 'vue'
-import { messageFrom } from '@/utils'
-const $q = useQuasar()
-const props = defineProps<{
-  user: UserData
-  options: RoleData[]
-}>()
-
-const displayCount = ref(1)
-const emit = defineEmits<{
-  (e: 'update', row: UserData): void
-}>()
-
-const updateUserRole = (opt: RoleData) => {
-  assignUserRole(props.user.id, opt.id)
-    .then((res: any) => {
-      emit('update', { ...props.user, roleList: [opt] })
-      $q.notify({
-        type: 'positive',
-        message: res.message,
-      })
-    })
-    .catch((err) => {
-      console.error(err)
-      $q.notify({
-        type: 'negative',
-        message: messageFrom(err),
-      })
-    })
-}
-</script>
 
 <style scoped>
 .table_cell_content.table_cell_roles {

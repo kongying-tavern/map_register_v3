@@ -1,4 +1,4 @@
-import { GenerateServiceProps } from 'openapi2ts'
+import type { GenerateServiceProps } from 'openapi2ts'
 
 export interface Openapi2tsOptions extends GenerateServiceProps {
   /** openAPI 3.0 的地址 */

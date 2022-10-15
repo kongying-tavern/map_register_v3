@@ -1,5 +1,5 @@
 /* eslint-env node */
-const { resolve } = require('path')
+const { resolve, join } = require('path')
 const { configure } = require('quasar/wrappers')
 const { loadEnv } = require('vite')
 const { openapi2ts } = require('./plugins')
@@ -13,11 +13,11 @@ module.exports = configure(({ dev, prod }) => {
     supportTS: true,
 
     eslint: {
-      // fix: true,
+      fix: true,
       // include = [],
       // exclude = [],
       // rawOptions = {},
-      warnings: true,
+      // warnings: true,
       errors: true,
     },
 
@@ -76,10 +76,22 @@ module.exports = configure(({ dev, prod }) => {
       // viteVuePluginOptions: {},
 
       vitePlugins: [
-        openapi2ts({
-          schemaPath: ENV.VITE_OPENAPI_DOC_PATH,
-          requestImportStatement: `import { request } from '@/utils'`,
-        }),
+        openapi2ts([
+          {
+            schemaPath: 'http://ddns.minemc.top:13010/api/v3/api-docs',
+            requestImportStatement: 'import { request } from \'@/utils\'',
+            serversPath: join('./src/api'),
+            apiPrefix: '\'/api\'',
+            projectName: 'api',
+          },
+          {
+            schemaPath: 'http://ddns.minemc.top:13010/system/v3/api-docs',
+            requestImportStatement: 'import { request } from \'@/utils\'',
+            serversPath: join('./src/api'),
+            apiPrefix: '\'/system\'',
+            projectName: 'system',
+          },
+        ]),
       ],
     },
 
@@ -90,7 +102,7 @@ module.exports = configure(({ dev, prod }) => {
         [ENV.VITE_API_BASE]: {
           target: ENV.VITE_API_PROXY_TARGET,
           changeOrigin: true,
-          rewrite: (path) =>
+          rewrite: path =>
             path.replace(new RegExp(`${ENV.VITE_API_BASE}`), ''),
         },
       },

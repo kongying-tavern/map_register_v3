@@ -1,3 +1,35 @@
+<script lang="ts" setup>
+import { useQuasar } from 'quasar'
+import { ref } from 'vue'
+import System from '@/api/system'
+import { messageFrom } from '@/utils'
+
+const props = defineProps<{
+  rowData: API.SysUserVo
+  field: 'username' | 'nickname' | 'qq' | 'phone'
+}>()
+const emit = defineEmits<{
+  (e: 'update', row: API.SysUserVo): void
+}>()
+const $q = useQuasar()
+const user = ref(props.rowData)
+const editUser = (data: API.SysUserVo) => {
+  System.sysUserController.updateUser({}, data)
+    .then((res: any) => {
+      if (res.code === 200)
+        emit('update', data)
+      $q.notify({
+        type: res.code === 200 ? 'positive' : 'negative',
+        message: messageFrom(res),
+      })
+    })
+    .catch((err) => {
+      // console.log(err)
+      $q.notify({ type: 'negative', message: messageFrom(err) })
+    })
+}
+</script>
+
 <template>
   <div class="table_cell_content" @click="user = rowData">
     {{ rowData[field] || '-' }}
@@ -7,7 +39,7 @@
     v-model="user[field]"
     style="display: flex"
     anchor="center left"
-    @save="(val: string) => editUser({...user, [field]: val})"
+    @save="(val: string) => editUser({ ...user, [field]: val })"
   >
     <q-input v-model="scope.value" type="text" dense autofocus>
       <template #after>
@@ -26,8 +58,8 @@
           color="positive"
           icon="check_circle"
           :disable="
-            scope.validate(scope.value) === false ||
-            scope.initialValue === scope.value
+            scope.validate(scope.value) === false
+              || scope.initialValue === scope.value
           "
           @click.stop.prevent="scope.set"
         />
@@ -35,35 +67,6 @@
     </q-input>
   </q-popup-edit>
 </template>
-<script lang="ts" setup>
-import { updateUser, UserData } from '@/api/system/user'
-import { messageFrom } from '@/utils'
-import { useQuasar } from 'quasar'
-import { ref } from 'vue'
-const $q = useQuasar()
-const props = defineProps<{
-  rowData: UserData
-  field: 'username' | 'nickname' | 'qq' | 'phone'
-}>()
-const user = ref(props.rowData)
-const emit = defineEmits<{
-  (e: 'update', row: UserData): void
-}>()
-const editUser = (data: UserData) => {
-  updateUser(data)
-    .then((res: any) => {
-      if (res.code === 200) emit('update', data)
-      $q.notify({
-        type: res.code === 200 ? 'positive' : 'negative',
-        message: messageFrom(res),
-      })
-    })
-    .catch((err) => {
-      console.log(err)
-      $q.notify({ type: 'negative', message: messageFrom(err) })
-    })
-}
-</script>
 
 <style>
 .table_cell_content {

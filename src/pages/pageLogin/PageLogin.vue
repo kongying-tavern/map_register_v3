@@ -1,3 +1,10 @@
+<script setup lang="ts">
+import { useLoginForm } from './hooks'
+
+const title = process.env.VITE_TITLE
+const { loginForm, loading, login } = useLoginForm()
+</script>
+
 <template>
   <q-card class="row fixed-center justify-center login">
     <q-card-section class="col-12">
@@ -42,13 +49,6 @@
     </q-card-section>
   </q-card>
 </template>
-
-<script setup lang="ts">
-import { useLoginForm } from './hooks'
-
-const title = process.env.VITE_TITLE
-const { loginForm, loading, login } = useLoginForm()
-</script>
 
 <style lang="scss" scoped>
 .login {

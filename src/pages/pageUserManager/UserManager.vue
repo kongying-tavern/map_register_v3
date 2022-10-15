@@ -1,3 +1,44 @@
+<script lang="ts" setup>
+import type { QTableColumn } from 'quasar'
+import { useRoleOptions, useSelected, useUserList } from './hooks'
+import {
+  BtnCreateUser,
+  BtnDeleteUser,
+  BtnRoleManager,
+  TableCell,
+  UserPasswordReset,
+  UserProfileEditor,
+  UserRoleEditor,
+} from './components'
+
+const columns: QTableColumn[] = [
+  { name: 'id', field: 'id', label: 'ID', align: 'center', required: true },
+  { name: 'username', field: 'username', label: '用户名', align: 'center' },
+  { name: 'nickname', field: 'nickname', label: '昵称', align: 'center' },
+  { name: 'qq', field: 'qq', label: 'QQ', align: 'center' },
+  { name: 'phone', field: 'phone', label: '电话', align: 'center' },
+  { name: 'roles', field: 'roles', label: '角色', align: 'center' },
+  { name: 'actions', field: 'actions', label: '操作', align: 'center' },
+]
+
+const {
+  userList,
+  loading,
+  filterKey,
+  filterValue,
+  orderBy,
+  paginationParams,
+  refresh,
+} = useUserList()
+
+const { roleOptions, rolesSort } = useRoleOptions()
+
+const { selected, getSelectedString, rowUpdate } = useSelected({
+  userList,
+  paginationParams,
+})
+</script>
+
 <template>
   <q-table
     v-model:pagination="paginationParams"
@@ -51,7 +92,7 @@
             label="筛选项"
             borderless
             @update:model-value="refresh"
-          ></q-select>
+          />
           <q-input v-model="filterValue" :debounce="800" placeholder="搜索">
             <template #append>
               <q-icon name="search" />
@@ -104,47 +145,6 @@
     </template>
   </q-table>
 </template>
-
-<script lang="ts" setup>
-import type { QTableColumn } from 'quasar'
-import { useRoleOptions, useSelected, useUserList } from './hooks'
-import {
-  UserRoleEditor,
-  UserProfileEditor,
-  TableCell,
-  BtnDeleteUser,
-  BtnCreateUser,
-  BtnRoleManager,
-  UserPasswordReset,
-} from './components'
-
-const columns: QTableColumn[] = [
-  { name: 'id', field: 'id', label: 'ID', align: 'center', required: true },
-  { name: 'username', field: 'username', label: '用户名', align: 'center' },
-  { name: 'nickname', field: 'nickname', label: '昵称', align: 'center' },
-  { name: 'qq', field: 'qq', label: 'QQ', align: 'center' },
-  { name: 'phone', field: 'phone', label: '电话', align: 'center' },
-  { name: 'roles', field: 'roles', label: '角色', align: 'center' },
-  { name: 'actions', field: 'actions', label: '操作', align: 'center' },
-]
-
-const {
-  userList,
-  loading,
-  filterKey,
-  filterValue,
-  orderBy,
-  paginationParams,
-  refresh,
-} = useUserList()
-
-const { roleOptions, rolesSort } = useRoleOptions()
-
-const { selected, getSelectedString, rowUpdate } = useSelected({
-  userList,
-  paginationParams,
-})
-</script>
 
 <style lang="scss" scoped>
 .user_table {

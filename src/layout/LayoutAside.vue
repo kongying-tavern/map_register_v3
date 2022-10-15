@@ -1,11 +1,11 @@
 <template>
   <div class="layout-aside" v-bind="$attrs">
     <div class="layout-aside__header">
-      <slot name="header"></slot>
+      <slot name="header" />
     </div>
 
     <div class="layout-aside__main">
-      <slot name="default"></slot>
+      <slot name="default" />
     </div>
   </div>
 </template>

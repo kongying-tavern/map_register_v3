@@ -1,3 +1,76 @@
+<script lang="ts" setup>
+import { useQuasar } from 'quasar'
+import { ref } from 'vue'
+import System from '@/api/system'
+import { messageFrom } from '@/utils'
+
+const emit = defineEmits<{
+  (e: 'refresh'): void
+}>()
+const formData = ref({
+  username: '',
+  password: '',
+  passwordRepeat: '',
+})
+const registrationType = ref({ label: '用户名', value: 'username' })
+const dialogVisible = ref(false)
+const $q = useQuasar()
+const onConfirm = () => {
+  const form = formData.value
+  if (form.password === form.passwordRepeat) {
+    if (registrationType.value.value === 'username') {
+      System.sysUserController
+        .registerUser({ username: form.username, password: form.password })
+        .then((res: any) => {
+          if (res.code === 200)
+            emit('refresh')
+          $q.notify({
+            type: res.code === 200 ? 'positive' : 'negative',
+            message: res.message,
+          })
+        })
+        .catch((err: any) => {
+          // console.log(err)
+          $q.notify({ type: 'negative', message: messageFrom(err) })
+        })
+        .then(() => {
+          dialogVisible.value = false
+          formData.value = {
+            username: '',
+            password: '',
+            passwordRepeat: '',
+          }
+        })
+    }
+
+    if (registrationType.value.value === 'qq') {
+      System.sysUserController
+        .registerUserByQQ({ username: form.username, password: form.password })
+        .then((res: any) => {
+          if (res.code === 200)
+            emit('refresh')
+          $q.notify({
+            type: res.code === 200 ? 'positive' : 'negative',
+            message: res.message,
+          })
+        })
+        .catch((err: any) => {
+          // console.log(err)
+          $q.notify({ type: 'negative', message: messageFrom(err) })
+        })
+        .then(() => {
+          dialogVisible.value = false
+          formData.value = {
+            username: '',
+            password: '',
+            passwordRepeat: '',
+          }
+        })
+    }
+  }
+}
+</script>
+
 <template>
   <q-btn
     icon-right="add"
@@ -11,7 +84,9 @@
   <q-dialog v-model="dialogVisible" persistent>
     <q-card class="user_create" style="min-width: 30rem">
       <q-card-section class="row items-center q-pb-none">
-        <div class="text-h6">新增用户</div>
+        <div class="text-h6">
+          新增用户
+        </div>
         <q-space />
         <q-btn v-close-popup icon="close" flat round dense />
       </q-card-section>
@@ -67,73 +142,6 @@
     </q-card>
   </q-dialog>
 </template>
-<script lang="ts" setup>
-import { createQQUser, createUser } from '@/api/system/user'
-import { messageFrom } from '@/utils'
-import { useQuasar } from 'quasar'
-import { ref } from 'vue'
-const formData = ref({
-  username: '',
-  password: '',
-  passwordRepeat: '',
-})
-const registrationType = ref({ label: '用户名', value: 'username' })
-const emit = defineEmits<{
-  (e: 'refresh'): void
-}>()
-const dialogVisible = ref(false)
-const $q = useQuasar()
-const onConfirm = () => {
-  const form = formData.value
-  if (form.password === form.passwordRepeat) {
-    if (registrationType.value.value === 'username') {
-      createUser({ username: form.username, password: form.password })
-        .then((res: any) => {
-          if (res.code === 200) emit('refresh')
-          $q.notify({
-            type: res.code === 200 ? 'positive' : 'negative',
-            message: res.message,
-          })
-        })
-        .catch((err: any) => {
-          console.log(err)
-          $q.notify({ type: 'negative', message: messageFrom(err) })
-        })
-        .then(() => {
-          dialogVisible.value = false
-          formData.value = {
-            username: '',
-            password: '',
-            passwordRepeat: '',
-          }
-        })
-    }
-
-    if (registrationType.value.value === 'qq') {
-      createQQUser({ username: form.username, password: form.password })
-        .then((res: any) => {
-          if (res.code === 200) emit('refresh')
-          $q.notify({
-            type: res.code === 200 ? 'positive' : 'negative',
-            message: res.message,
-          })
-        })
-        .catch((err: any) => {
-          console.log(err)
-          $q.notify({ type: 'negative', message: messageFrom(err) })
-        })
-        .then(() => {
-          dialogVisible.value = false
-          formData.value = {
-            username: '',
-            password: '',
-            passwordRepeat: '',
-          }
-        })
-    }
-  }
-}
-</script>
 
 <style lang="scss" scoped>
 .user_create_type {

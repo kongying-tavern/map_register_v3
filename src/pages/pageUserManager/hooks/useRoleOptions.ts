@@ -1,6 +1,5 @@
-import { getRoleList } from '@/api/system/role'
 import { computed, ref } from 'vue'
-import type { RoleData } from '@/api/system/user'
+import System from '@/api/system'
 
 interface RoleHookOptions {
   immediate?: boolean
@@ -10,20 +9,25 @@ export const useRoleOptions = (options: RoleHookOptions = {}) => {
   const { immediate = true } = options
 
   const loading = ref(false)
-  const unsortedRoles = ref<RoleData[]>([])
+  const unsortedRoles = ref<API.SysRoleVo[]>([])
 
-  const rolesSort = (a: RoleData, b: RoleData) => a.sort - b.sort
+  const rolesSort = (
+    { sort: sortA = 0 }: API.SysRoleVo,
+    { sort: sortB = 0 }: API.SysRoleVo,
+  ) => sortA - sortB
 
   const roleOptions = computed(() => unsortedRoles.value.sort(rolesSort))
 
   const refresh = async () => {
     loading.value = true
     try {
-      const res = await getRoleList()
-      unsortedRoles.value = res.data
-    } catch {
+      const res = await System.role.listRole()
+      unsortedRoles.value = res.data ?? []
+    }
+    catch {
       unsortedRoles.value = []
-    } finally {
+    }
+    finally {
       loading.value = false
     }
   }

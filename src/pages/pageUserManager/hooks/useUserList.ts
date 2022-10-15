@@ -1,14 +1,13 @@
 import { reactive, ref } from 'vue'
-import { fetchUserList } from '@/api/system/user'
 import { useQuasar } from 'quasar'
-import { messageFrom } from '@/utils'
-import type { UserData, UserListReq, UserListRes } from '@/api/system/user'
 import type { QTableProps } from 'quasar'
+import { messageFrom } from '@/utils'
+import System from '@/api/system'
 
 interface UserListHookOptions {
   immediate?: boolean
-  params?: () => UserListReq
-  onSuccess?: (res: UserListRes) => void
+  params?: () => API.SysUserSearchVo
+  onSuccess?: (res: API.RPageListVoSysUserVo) => void
   onError?: () => void
 }
 
@@ -17,7 +16,7 @@ export const useUserList = (options: UserListHookOptions = {}) => {
 
   const $q = useQuasar()
 
-  const userList = ref<UserData[]>([])
+  const userList = ref<API.SysRoleVo[]>([])
   const loading = ref(false)
   const orderBy = ref<
     'nickname+' | 'createTime+' | 'nickname-' | 'createTime-'
@@ -37,7 +36,7 @@ export const useUserList = (options: UserListHookOptions = {}) => {
   const refresh = async () => {
     loading.value = true
     try {
-      const res = await fetchUserList({
+      const res = await System.sysUserController.getUserList({
         current: paginationParams.page,
         size: paginationParams.rowsPerPage,
         sort: [orderBy.value],
@@ -46,10 +45,11 @@ export const useUserList = (options: UserListHookOptions = {}) => {
           : undefined),
         ...params?.(),
       })
-      userList.value = res.data.record
-      paginationParams.rowsNumber = res.data.total
+      userList.value = res.data?.record ?? []
+      paginationParams.rowsNumber = res.data?.total ?? 0
       onSuccess?.(res)
-    } catch (err) {
+    }
+    catch (err) {
       userList.value = []
       paginationParams.rowsNumber = 0
       onError?.()
@@ -57,7 +57,8 @@ export const useUserList = (options: UserListHookOptions = {}) => {
         type: 'negative',
         message: `fetch user list error: ${messageFrom(err)}`,
       })
-    } finally {
+    }
+    finally {
       loading.value = false
     }
   }

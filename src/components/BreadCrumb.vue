@@ -1,8 +1,13 @@
+<script lang="ts" setup>
+import { useRoute } from 'vue-router'
+const route = useRoute()
+</script>
+
 <template>
   <div class="breadcrumb_nav">
     <q-breadcrumbs>
       <template #separator>
-        <q-icon size="1.5em" name="chevron_right" color="primary"></q-icon>
+        <q-icon size="1.5em" name="chevron_right" color="primary" />
       </template>
 
       <q-breadcrumbs-el
@@ -16,8 +21,3 @@
     </q-breadcrumbs>
   </div>
 </template>
-
-<script lang="ts" setup>
-import { useRoute } from 'vue-router'
-const route = useRoute()
-</script>

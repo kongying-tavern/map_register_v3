@@ -1,13 +1,13 @@
 import { reactive, ref } from 'vue'
 import { useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
-import { token } from '@/api/oauth/token'
-import { saveUser, messageFrom } from '@/utils'
+import { messageFrom, saveUser } from '@/utils'
+import Oauth from '@/api/oauth'
 
 /** 登录逻辑封装 */
 export const useLoginForm = () => {
   const loading = ref(false)
-  const loginForm = reactive({
+  const loginForm = reactive<API.SysTokenVO>({
     grant_type: 'password',
     username: import.meta.env.VITE_AUTO_COMPLETE_USERNAME ?? '',
     password: import.meta.env.VITE_AUTO_COMPLETE_PASSWORD ?? '',
@@ -19,19 +19,21 @@ export const useLoginForm = () => {
   const login = async () => {
     try {
       loading.value = true
-      const res = await token(loginForm)
+      const res = await Oauth.oauth.token(loginForm)
+      router.push('/')
       saveUser(res as any)
       $q.notify({
         type: 'positive',
         message: '登录成功',
       })
-      router.push('/')
-    } catch (err) {
+    }
+    catch (err) {
       $q.notify({
         type: 'negative',
         message: messageFrom(err),
       })
-    } finally {
+    }
+    finally {
       loading.value = false
     }
   }

@@ -1,6 +1,6 @@
 <template>
   <div class="layout-header" v-bind="$attrs">
-    <slot></slot>
+    <slot />
   </div>
 </template>
 
