@@ -2,7 +2,7 @@
 const { resolve } = require('path')
 const { configure } = require('quasar/wrappers')
 const { loadEnv } = require('vite')
-const { updateApiDts } = require('./plugins')
+const { openapi2ts } = require('./plugins')
 
 module.exports = configure(({ dev, prod }) => {
   const envMode = dev ? 'development' : prod ? 'production' : 'stage'
@@ -76,11 +76,9 @@ module.exports = configure(({ dev, prod }) => {
       // viteVuePluginOptions: {},
 
       vitePlugins: [
-        updateApiDts({
-          disabled: true,
-          id: 'd2c2dae2-e260-417a-9527-c12f6f67aa17',
-          password: '4aYl0pGf',
-          saveRaw: true,
+        openapi2ts({
+          schemaPath: ENV.VITE_OPENAPI_DOC_PATH,
+          requestImportStatement: `import { request } from '@/utils'`,
         }),
       ],
     },

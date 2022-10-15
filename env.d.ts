@@ -38,6 +38,11 @@ interface ImportMetaEnv {
    * @default ''
    */
   readonly VITE_AUTO_COMPLETE_PASSWORD: string
+
+  /**
+   * 开发模式下 openAPI 3.0
+   */
+  readonly VITE_OPENAPI_DOC_PATH: string
 }
 
 interface ImportMeta {

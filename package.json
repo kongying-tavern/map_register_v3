@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "quasar dev",
     "build": "quasar build",
-    "lint": "eslint --ext .js,.vue ./",
+    "lint": "eslint ./src/* --fix",
     "format": "prettier --write \"**/*.{js,vue,scss,html,md,json}\" --ignore-path .gitignore"
   },
   "dependencies": {
@@ -34,6 +34,7 @@
     "json-schema-to-typescript": "^11.0.2",
     "json-schema-traverse": "^1.0.0",
     "jsonschema": "^1.4.1",
+    "openapi2ts": "^1.1.7",
     "postcss": "^8.4.16",
     "prettier": "^2.7.1",
     "tough-cookie": "^4.1.2",
