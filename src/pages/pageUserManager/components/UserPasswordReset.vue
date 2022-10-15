@@ -48,62 +48,62 @@ const onSubmit = () => {
     @click="dialogVisible = true"
   >
     修改密码
+    <q-dialog :model-value="dialogVisible" persistent>
+      <q-card class="user_edit">
+        <q-form @submit.prevent="onSubmit">
+          <q-card-section class="row items-center q-pb-none">
+            <div class="text-h6">
+              修改密码
+            </div>
+            <q-space />
+            <q-btn
+              v-close-popup
+              icon="close"
+              flat
+              round
+              dense
+              @click="dialogVisible = false"
+            />
+          </q-card-section>
+          <q-card-section>
+            ID: {{ user.id }} <br>
+            {{ user.username && `用户名: ${user.username}` }} <br>
+            {{ user.nickname && `昵称: ${user.nickname}` }}
+            <q-input
+              v-model="formData.oldPassword"
+              type="password"
+              name="password"
+              autocomplete="off"
+              label="原密码"
+            />
+            <q-input
+              v-model="formData.password"
+              :rules="[(val) => val.length >= 6 || '密码最少6位']"
+              type="password"
+              name="password-new"
+              autocomplete="off"
+              label="新密码"
+            />
+            <q-input
+              v-model="passwordRepeat"
+              :rules="[
+                (value) => value === formData.password || '两次密码不一致',
+              ]"
+              lazy-rules
+              type="password"
+              autocomplete="off"
+              label="再次输入新密码"
+            />
+          </q-card-section>
+          <q-card-actions>
+            <q-space />
+            <q-btn label="取消" @click="dialogVisible = false" />
+            <q-btn type="submit" label="确认" color="primary" />
+          </q-card-actions>
+        </q-form>
+      </q-card>
+    </q-dialog>
   </q-btn>
-  <q-dialog :model-value="dialogVisible" persistent>
-    <q-card class="user_edit">
-      <q-form @submit.prevent="onSubmit">
-        <q-card-section class="row items-center q-pb-none">
-          <div class="text-h6">
-            修改密码
-          </div>
-          <q-space />
-          <q-btn
-            v-close-popup
-            icon="close"
-            flat
-            round
-            dense
-            @click="dialogVisible = false"
-          />
-        </q-card-section>
-        <q-card-section>
-          ID: {{ user.id }} <br>
-          {{ user.username && `用户名: ${user.username}` }} <br>
-          {{ user.nickname && `昵称: ${user.nickname}` }}
-          <q-input
-            v-model="formData.oldPassword"
-            type="password"
-            name="password"
-            autocomplete="off"
-            label="原密码"
-          />
-          <q-input
-            v-model="formData.password"
-            :rules="[(val) => val.length >= 6 || '密码最少6位']"
-            type="password"
-            name="password-new"
-            autocomplete="off"
-            label="新密码"
-          />
-          <q-input
-            v-model="passwordRepeat"
-            :rules="[
-              (value) => value === formData.password || '两次密码不一致',
-            ]"
-            lazy-rules
-            type="password"
-            autocomplete="off"
-            label="再次输入新密码"
-          />
-        </q-card-section>
-        <q-card-actions>
-          <q-space />
-          <q-btn label="取消" @click="dialogVisible = false" />
-          <q-btn type="submit" label="确认" color="primary" />
-        </q-card-actions>
-      </q-form>
-    </q-card>
-  </q-dialog>
 </template>
 
 <style scoped lang="scss">

@@ -63,27 +63,27 @@ const deleteSelectedUsers = () => {
     "
   >
     批量删除
+    <q-dialog v-model="dialogVisible" persistent>
+      <q-card class="user_delete" style="min-width: 40rem">
+        <q-card-section class="row items-center q-pb-none">
+          <div class="text-h6">
+            批量删除用户
+          </div>
+          <q-space />
+          <q-btn v-close-popup icon="close" flat round dense />
+        </q-card-section>
+        <q-card-section>
+          <p>是否确认删除以下{{ selected.length }} 个用户</p>
+          <UsersPreview :users="usersToDelete" />
+        </q-card-section>
+        <q-card-actions>
+          <q-space />
+          <q-btn label="取消" @click="dialogVisible = false" />
+          <q-btn label="确认" color="primary" @click="deleteSelectedUsers" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-btn>
-  <q-dialog v-model="dialogVisible" persistent>
-    <q-card class="user_delete" style="min-width: 40rem">
-      <q-card-section class="row items-center q-pb-none">
-        <div class="text-h6">
-          批量删除用户
-        </div>
-        <q-space />
-        <q-btn v-close-popup icon="close" flat round dense />
-      </q-card-section>
-      <q-card-section>
-        <p>是否确认删除以下{{ selected.length }} 个用户</p>
-        <UsersPreview :users="usersToDelete" />
-      </q-card-section>
-      <q-card-actions>
-        <q-space />
-        <q-btn label="取消" @click="dialogVisible = false" />
-        <q-btn label="确认" color="primary" @click="deleteSelectedUsers" />
-      </q-card-actions>
-    </q-card>
-  </q-dialog>
 </template>
 
 <style scoped lang="scss">

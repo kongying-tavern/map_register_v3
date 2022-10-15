@@ -79,68 +79,68 @@ const onConfirm = () => {
     style="margin-left: 8px"
     outline
     @click="dialogVisible = true"
-  />
-
-  <q-dialog v-model="dialogVisible" persistent>
-    <q-card class="user_create" style="min-width: 30rem">
-      <q-card-section class="row items-center q-pb-none">
-        <div class="text-h6">
-          新增用户
-        </div>
-        <q-space />
-        <q-btn v-close-popup icon="close" flat round dense />
-      </q-card-section>
-      <q-card-section>
-        <q-form
-          class="user_create_form"
-          autocomplete="off"
-          autocorrect="off"
-          autocapitalize="off"
-        >
-          <div class="user_create_type">
-            <q-select
-              v-model="registrationType"
-              :options="[
-                { label: '用户名', value: 'username' },
-                { label: 'qq', value: 'qq' },
-              ]"
+  >
+    <q-dialog v-model="dialogVisible" persistent>
+      <q-card class="user_create" style="min-width: 30rem">
+        <q-card-section class="row items-center q-pb-none">
+          <div class="text-h6">
+            新增用户
+          </div>
+          <q-space />
+          <q-btn v-close-popup icon="close" flat round dense />
+        </q-card-section>
+        <q-card-section>
+          <q-form
+            class="user_create_form"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+          >
+            <div class="user_create_type">
+              <q-select
+                v-model="registrationType"
+                :options="[
+                  { label: '用户名', value: 'username' },
+                  { label: 'qq', value: 'qq' },
+                ]"
+              />
+              <q-input
+                v-model="formData.username"
+                for="username"
+                autocomplete="off"
+                :rules="[(val) => val.length >= 5 || '请至少输入5个字符']"
+                lazy-rules
+              />
+            </div>
+            <q-input
+              v-model="formData.password"
+              for="password"
+              type="password"
+              autocomplete="off"
+              :rules="[(val) => val.length >= 6 || '密码最少6位']"
+              lazy-rules
+              label="密码"
             />
             <q-input
-              v-model="formData.username"
-              for="username"
-              autocomplete="off"
-              :rules="[(val) => val.length >= 5 || '请至少输入5个字符']"
+              v-model="formData.passwordRepeat"
+              :rules="[
+                (value) => value === formData.password || '两次密码不一致',
+              ]"
               lazy-rules
+              type="password"
+              autocomplete="off"
+              label="再次输入密码"
             />
-          </div>
-          <q-input
-            v-model="formData.password"
-            for="password"
-            type="password"
-            autocomplete="off"
-            :rules="[(val) => val.length >= 6 || '密码最少6位']"
-            lazy-rules
-            label="密码"
-          />
-          <q-input
-            v-model="formData.passwordRepeat"
-            :rules="[
-              (value) => value === formData.password || '两次密码不一致',
-            ]"
-            lazy-rules
-            type="password"
-            autocomplete="off"
-            label="再次输入密码"
-          />
-        </q-form>
-      </q-card-section>
-      <q-card-actions>
-        <q-space />
-        <q-btn label="取消" @click="dialogVisible = false" />
-        <q-btn label="确认" color="primary" @click="onConfirm" />
-      </q-card-actions>
-    </q-card>
-  </q-dialog>
+          </q-form>
+        </q-card-section>
+        <q-card-actions>
+          <q-space />
+          <q-btn label="取消" @click="dialogVisible = false" />
+          <q-btn label="确认" color="primary" @click="onConfirm" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+  </q-btn>
 </template>
 
 <style lang="scss" scoped>
