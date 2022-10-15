@@ -103,20 +103,18 @@ const { selected, getSelectedString, rowUpdate } = useSelected({
     </template>
 
     <template #body-cell-username="props">
-      <td>
-        <TableCell :row-data="props.row" field="username" @update="rowUpdate" />
-      </td>
+      <TableCell :row-data="props.row" field="username" readonly />
     </template>
     <template #body-cell-nickname="props">
-      <td>
-        <TableCell :row-data="props.row" field="nickname" @update="rowUpdate" />
-      </td>
+      <TableCell :row-data="props.row" field="nickname" @update="rowUpdate" />
+    </template>
+    <template #body-cell-qq="props">
+      <TableCell :row-data="props.row" field="qq" @update="rowUpdate" />
     </template>
     <template #body-cell-phone="props">
-      <td>
-        <TableCell :row-data="props.row" field="phone" @update="rowUpdate" />
-      </td>
+      <TableCell :row-data="props.row" field="phone" @update="rowUpdate" />
     </template>
+
     <template #body-cell-roles="props">
       <td class="q-table--col-auto-width">
         <UserRoleEditor
@@ -129,6 +127,7 @@ const { selected, getSelectedString, rowUpdate } = useSelected({
         />
       </td>
     </template>
+
     <template #body-cell-actions="props">
       <td>
         <UserPasswordReset
