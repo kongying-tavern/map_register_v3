@@ -18,5 +18,10 @@
       "@/*": ["src/*"]
     }
   },
-  "exclude": ["dist", ".vscode", "node_modules", "public"]
+  "exclude": ["dist", ".vscode", "node_modules", "public"],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ]
 }
