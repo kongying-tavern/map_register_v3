@@ -1,9 +1,24 @@
 import { request } from '@/utils';
 
-/** 新增分类 类型id在创建后返回 PUT /tag_type/update */
+/** 新增分类 类型id在创建后返回 PUT /tag_type/add */
 export async function addTagType(body: API.TagTypeVo, options?: { [key: string]: any }) {
-  return request<API.RLong>(`/api/tag_type/update`, {
+  return request<API.RLong>(`/api/tag_type/add`, {
     method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
+/** 修改分类 由类型ID来定位修改一个分类 POST /tag_type/update */
+export async function updateTagType(
+  body: API.TagTypeVo,
+  options?: { [key: string]: any },
+) {
+  return request<API.RBoolean>(`/api/tag_type/update`, {
+    method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
@@ -18,21 +33,6 @@ export async function listTagType(
   options?: { [key: string]: any },
 ) {
   return request<API.RPageListVoTagTypeVo>(`/api/tag_type/get/list`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    data: body,
-    ...(options || {}),
-  });
-}
-
-/** 修改分类 由类型ID来定位修改一个分类 POST /tag_type/add */
-export async function updateTagType(
-  body: API.TagTypeVo,
-  options?: { [key: string]: any },
-) {
-  return request<API.RBoolean>(`/api/tag_type/add`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

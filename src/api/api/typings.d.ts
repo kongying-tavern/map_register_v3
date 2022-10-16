@@ -40,33 +40,6 @@ declare namespace API {
     iconTag?: string;
   };
 
-  type MarkerSingleVo = {
-    /** 乐观锁：修改次数 */
-    version?: number;
-    /** 点位ID */
-    id?: number;
-    /** 点位名称 */
-    markerTitle?: string;
-    /** 点位坐标 */
-    position?: string;
-    /** 点位物品列表 */
-    itemList?: MarkerItemLinkVo[];
-    /** 点位说明 */
-    content?: string;
-    /** 点位图片 */
-    picture?: string;
-    /** 点位初始标记者 */
-    markerCreatorId?: number;
-    /** 点位图片上传者 */
-    pictureCreatorId?: number;
-    /** 点位视频 */
-    videoPath?: string;
-    /** 刷新时间 */
-    refreshTime?: number;
-    /** 隐藏标志 */
-    hiddenFlag?: number;
-  };
-
   type MarkerSinglePunctuateVo = {
     /** 乐观锁：修改次数 */
     version?: number;
@@ -125,6 +98,33 @@ declare namespace API {
     methodType?: number;
   };
 
+  type MarkerSingleVo = {
+    /** 乐观锁：修改次数 */
+    version?: number;
+    /** 点位ID */
+    id?: number;
+    /** 点位名称 */
+    markerTitle?: string;
+    /** 点位坐标 */
+    position?: string;
+    /** 点位物品列表 */
+    itemList?: MarkerItemLinkVo[];
+    /** 点位说明 */
+    content?: string;
+    /** 点位图片 */
+    picture?: string;
+    /** 点位初始标记者 */
+    markerCreatorId?: number;
+    /** 点位图片上传者 */
+    pictureCreatorId?: number;
+    /** 点位视频 */
+    videoPath?: string;
+    /** 刷新时间 */
+    refreshTime?: number;
+    /** 隐藏标志 */
+    hiddenFlag?: number;
+  };
+
   type MarkerExtraVo = {
     /** 乐观锁：修改次数 */
     version?: number;
@@ -136,35 +136,6 @@ declare namespace API {
     parentId?: number;
     /** 关联其他点位Flag */
     isRelated?: number;
-  };
-
-  type ItemVo = {
-    /** 乐观锁：修改次数 */
-    version?: number;
-    /** 物品ID */
-    itemId?: number;
-    /** 物品名称 */
-    name?: string;
-    /** 物品类型ID列表 */
-    typeIdList?: number[];
-    /** 地区ID（须确保是末端地区） */
-    areaId?: number;
-    /** 默认描述模板;用于提交新物品点位时的描述模板 */
-    defaultContent?: string;
-    /** 图标标签 */
-    iconTag?: string;
-    /** 图标样式类型 */
-    iconStyleType?: number;
-    /** 隐藏标志 */
-    hiddenFlag?: number;
-    /** 刷新时间(单位:毫秒) */
-    defaultRefreshTime?: number;
-    /** 物品排序 */
-    sortIndex?: number;
-    /** 默认物品数量 */
-    defaultCount?: number;
-    /** 查询条件下物品总数 */
-    count?: number;
   };
 
   type ItemTypeVo = {
@@ -195,6 +166,35 @@ declare namespace API {
     message?: string;
     data?: number[];
     time?: string;
+  };
+
+  type ItemVo = {
+    /** 乐观锁：修改次数 */
+    version?: number;
+    /** 物品ID */
+    itemId?: number;
+    /** 物品名称 */
+    name?: string;
+    /** 物品类型ID列表 */
+    typeIdList?: number[];
+    /** 地区ID（须确保是末端地区） */
+    areaId?: number;
+    /** 默认描述模板;用于提交新物品点位时的描述模板 */
+    defaultContent?: string;
+    /** 图标标签 */
+    iconTag?: string;
+    /** 图标样式类型 */
+    iconStyleType?: number;
+    /** 隐藏标志 */
+    hiddenFlag?: number;
+    /** 刷新时间(单位:毫秒) */
+    defaultRefreshTime?: number;
+    /** 物品排序 */
+    sortIndex?: number;
+    /** 默认物品数量 */
+    defaultCount?: number;
+    /** 查询条件下物品总数 */
+    count?: number;
   };
 
   type IconTypeVo = {
@@ -522,17 +522,6 @@ declare namespace API {
     time?: string;
   };
 
-  type ItemSearchVo = {
-    /** 末端物品类型ID列表 */
-    typeIdList?: number[];
-    /** 末端地区ID列表 */
-    areaIdList?: number[];
-    /** 当前页，从0开始 */
-    current?: number;
-    /** 每页大小，默认为10 */
-    size?: number;
-  };
-
   type PageListVoItemVo = {
     record?: ItemVo[];
     total?: number;
@@ -546,6 +535,17 @@ declare namespace API {
     message?: string;
     data?: PageListVoItemVo;
     time?: string;
+  };
+
+  type ItemSearchVo = {
+    /** 末端物品类型ID列表 */
+    typeIdList?: number[];
+    /** 末端地区ID列表 */
+    areaIdList?: number[];
+    /** 当前页，从0开始 */
+    current?: number;
+    /** 每页大小，默认为10 */
+    size?: number;
   };
 
   type RListItemVo = {
