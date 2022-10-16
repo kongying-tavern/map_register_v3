@@ -30,7 +30,7 @@ const router = createRouter({
 
 router.beforeEach(
   beforeEachGuard(router, {
-    // debug: import.meta.env.DEV,
+    debug: import.meta.env.DEV,
   }),
 )
 

@@ -17,7 +17,7 @@ export const beforeEachGuard = (
     const routes = router.getRoutes()
     debug && console.log('[beforeEachGuard]', routes)
     const isRouteExist = routes.find(route => route.path === to.path)
-    const tokenValid = validateUserToken(debug)
+    const tokenValid = validateUserToken()
     if (!isRouteExist) {
       debug && console.log('[beforeEachGuard] 目标路由不存在，重定向到登录页')
       return next('/login')
