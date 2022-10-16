@@ -12,11 +12,11 @@
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "Node",
     "lib": ["DOM", "ESNext", "ScriptHost"],
-    "types": ["vite/client", "@quasar/app-vite/types/globals"],
+    "types": ["vite/client", "element-plus/global"],
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
     }
   },
-  "exclude": ["dist", ".vscode", ".quasar", "node_modules", "public"]
+  "exclude": ["dist", ".vscode", "node_modules", "public"]
 }
