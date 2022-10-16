@@ -13,7 +13,7 @@ export const authInfo = useLocalStorage<Partial<UserAuthOptions>>('__ys_dadian_a
 export const saveUser = (auth: UserAuthOptions = {}) => {
   authInfo.value = {
     ...auth,
-    expiresTime: new Date().getTime() + (auth.expires_in ?? 0),
+    expiresTime: new Date().getTime() + 1000 * (auth.expires_in ?? 0),
   }
 }
 
