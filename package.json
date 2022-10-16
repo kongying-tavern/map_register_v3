@@ -6,9 +6,9 @@
   "author": "Alex Fang <deeno@qq.com>",
   "private": true,
   "scripts": {
-    "dev": "quasar dev",
-    "build": "quasar build",
-    "lint": "eslint ./src/* --fix",
+    "dev": "pnpm run lint && quasar dev",
+    "build": "pnpm run lint && quasar build",
+    "lint": "eslint ./src/**/*.{js,jsx,ts,tsx,vue} --fix",
     "format": "prettier --write \"**/*.{js,vue,scss,html,md,json}\" --ignore-path .gitignore"
   },
   "dependencies": {

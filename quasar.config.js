@@ -6,6 +6,7 @@ const { openapi2ts } = require('./plugins')
 
 module.exports = configure(({ dev, prod }) => {
   const envMode = dev ? 'development' : prod ? 'production' : 'stage'
+  console.log('[mode]', envMode)
   const ENV = loadEnv(envMode, '.')
   console.log('[ENV]', ENV)
 
@@ -14,10 +15,7 @@ module.exports = configure(({ dev, prod }) => {
 
     eslint: {
       fix: true,
-      // include = [],
-      // exclude = [],
-      // rawOptions = {},
-      // warnings: true,
+      include: ['src/**/*.{js,jsx,ts,tsx,vue}'],
       errors: true,
     },
 
