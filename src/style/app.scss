@@ -1,4 +1,6 @@
-@import './quasar-reset/index.scss';
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
 @import './transition/index.scss';
 
 * {
@@ -12,11 +14,7 @@ body {
   height: 100vh;
 }
 
-#q-app {
+#app {
   width: 100%;
   height: 100%;
-}
-
-.q-card__actions {
-  padding: 16px;
 }
