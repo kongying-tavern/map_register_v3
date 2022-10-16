@@ -1,5 +1,5 @@
 import { reactive, ref } from 'vue'
-import { useQuasar } from 'quasar'
+import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { messageFrom, saveUser } from '@/utils'
 import Oauth from '@/api/oauth'
@@ -13,7 +13,6 @@ export const useLoginForm = () => {
     password: import.meta.env.VITE_AUTO_COMPLETE_PASSWORD ?? '',
   })
 
-  const $q = useQuasar()
   const router = useRouter()
 
   const login = async () => {
@@ -22,16 +21,10 @@ export const useLoginForm = () => {
       const res = await Oauth.oauth.token(loginForm)
       router.push('/')
       saveUser(res as any)
-      $q.notify({
-        type: 'positive',
-        message: '登录成功',
-      })
+      ElMessage.success('登录成功')
     }
     catch (err) {
-      $q.notify({
-        type: 'negative',
-        message: messageFrom(err),
-      })
+      ElMessage.error(messageFrom(err))
     }
     finally {
       loading.value = false
