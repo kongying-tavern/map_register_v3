@@ -1,37 +1,32 @@
 <script setup lang="ts">
-import { useQuasar } from 'quasar'
 import { ref } from 'vue'
+import { ElMessage } from 'element-plus'
 import UserRoleTag from './UserRoleTag.vue'
 import System from '@/api/system'
 import { messageFrom } from '@/utils'
+
 const props = defineProps<{
   user: API.SysUserVo
   options: API.SysRoleVo[]
 }>()
-const emit = defineEmits<{
+const emits = defineEmits<{
   (e: 'update', row: API.SysUserVo): void
 }>()
-const $q = useQuasar()
+
 const displayCount = ref(1)
-const updateUserRole = (opt: API.SysRoleVo) => {
-  System.role.addRoleToUser({
-    userId: props.user.id,
-    roleId: opt.id,
-  })
-    .then((res: any) => {
-      emit('update', { ...props.user, roleList: [opt] })
-      $q.notify({
-        type: 'positive',
-        message: res.message,
-      })
+
+const updateUserRole = async (opt: API.SysRoleVo) => {
+  try {
+    const res = await System.role.addRoleToUser({
+      userId: props.user.id,
+      roleId: opt.id,
     })
-    .catch((err) => {
-      console.error(err)
-      $q.notify({
-        type: 'negative',
-        message: messageFrom(err),
-      })
-    })
+    ElMessage.success(res.message ?? '成功')
+    emits('update', { ...props.user, roleList: [opt] })
+  }
+  catch (err) {
+    ElMessage.error(messageFrom(err))
+  }
 }
 </script>
 

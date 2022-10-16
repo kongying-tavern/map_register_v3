@@ -4,20 +4,23 @@ import { LayoutAside, LayoutHeader, LayoutPage } from '@/layout'
 </script>
 
 <template>
-  <div class="layout-contianer">
+  <div class="layout-contianer w-full h-full grid overflow-hidden">
     <LayoutAside>
       <template #header>
-        logo
+        <div class="h-full grid place-items-center text-sm">
+          管理系统
+        </div>
       </template>
       <AppSidemenu />
     </LayoutAside>
 
-    <LayoutHeader>顶部</LayoutHeader>
+    <LayoutHeader>
+      <div class="h-full flex-1 flex items-center text-sm px-4">
+        <BreadCrumb />
+      </div>
+    </LayoutHeader>
 
     <LayoutPage>
-      <template #header>
-        <BreadCrumb />
-      </template>
       <router-view>
         <template #default="{ Component, route }">
           <transition name="slide-x" mode="out-in" appear>
@@ -40,9 +43,6 @@ import { LayoutAside, LayoutHeader, LayoutPage } from '@/layout'
   --c-header-height: 60px;
   --c-header-shdow: 2px 0 8px #1d23290d;
 
-  width: 100%;
-  height: 100%;
-  display: grid;
   grid-template-columns: auto 1fr;
   grid-template-rows: auto 1fr;
 }

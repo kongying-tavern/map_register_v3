@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useQuasar } from 'quasar'
+import { ElMessage, ElNotification } from 'element-plus'
 import { ref } from 'vue'
 
 const csvFile = ref<File | null>(null)
@@ -54,43 +54,32 @@ const readUploadedFileAsText = (inputFile: File) => {
   })
 }
 
-const $q = useQuasar()
-
-const previewFileData = (value: File) => {
-  readUploadedFileAsText(value)
-    .then((res) => {
-      newUserList.value = []
-      if (typeof res === 'string' && res.length > 0) {
-        const rows = res.split('\n')
-        rows.forEach((row) => {
-          const rowData = row.split(',')
-          newUserList.value.push({
-            username: rowData[0],
-            password: rowData[1],
-          })
+const previewFileData = async (value: File) => {
+  try {
+    const res = await readUploadedFileAsText(value)
+    newUserList.value = []
+    if (typeof res === 'string' && res.length > 0) {
+      const rows = res.split('\n')
+      rows.forEach((row) => {
+        const rowData = row.split(',')
+        newUserList.value.push({
+          username: rowData[0],
+          password: rowData[1],
         })
-      }
-      $q.loading.hide()
-    })
-    .catch((err) => {
-      $q.loading.hide()
-      $q.notify({
-        type: 'negative',
-        message: `FileReader Error ${JSON.stringify(err)}`,
       })
-    })
+    }
+  }
+  catch (err) {
+    ElMessage.error(`FileReader Error ${JSON.stringify(err)}`)
+  }
 }
 
 const onFileDrop = (e: DragEvent) => {
   const files = e.dataTransfer?.files
   if (!files || files.length === 0)
-    $q.notify({ type: 'negative', message: '选择文件出错' })
-  if (files && files.length > 1) {
-    $q.notify({
-      type: 'warning',
-      message: '已选多个文件，将默认读取第一个文件',
-    })
-  }
+    return ElNotification.error('选择文件出错')
+  if (files && files.length > 1)
+    ElNotification.info('已选多个文件，将默认读取第一个文件')
   if (files && files.length > 0) {
     previewFileData(files[0])
     csvFile.value = files[0]
@@ -99,18 +88,13 @@ const onFileDrop = (e: DragEvent) => {
 
 const onFileSelect = (event: Event) => {
   const target = event.target as HTMLInputElement
-  if (!target.files || target.files.length === 0) { $q.notify({ type: 'warning', message: '已取消' }) }
-  else if (target.files[0].size > FILE_MAX_LIMIT_KB * 1024) {
-    $q.notify({
-      type: 'negative',
-      message: `文件超过${FILE_MAX_LIMIT_KB}kb`,
-    })
-  }
-  else {
-    $q.loading.show()
-    previewFileData(target.files[0])
-    csvFile.value = target.files[0]
-  }
+  if (!target.files || target.files.length === 0)
+    return ElNotification.error('已取消')
+  if (target.files[0].size > FILE_MAX_LIMIT_KB * 1024)
+    return ElNotification.error(`文件超过${FILE_MAX_LIMIT_KB}kb`)
+
+  previewFileData(target.files[0])
+  csvFile.value = target.files[0]
 }
 </script>
 
@@ -238,11 +222,6 @@ const onFileSelect = (event: Event) => {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-
-    &:hover,
-    &.active {
-      border-color: $primary;
-    }
     span {
       color: rgb(51, 54, 57);
       font-size: 1rem;

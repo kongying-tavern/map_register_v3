@@ -1,6 +1,10 @@
+<script lang="ts" setup>
+const ctx = getCurrentInstance()
+</script>
+
 <template>
-  <div class="layout-page" v-bind="$attrs">
-    <div class="layout-page__header">
+  <div class="layout-page p-4" v-bind="$attrs">
+    <div v-if="ctx?.slots.header" class="layout-page__header">
       <slot name="header" />
     </div>
 
@@ -12,9 +16,7 @@
 
 <style lang="scss" scoped>
 .layout-page {
-  padding: 1em;
   display: flex;
-  gap: 0.5em;
   flex-direction: column;
   overflow: hidden;
   transition: width 0.2s ease, background-color 0.2s;

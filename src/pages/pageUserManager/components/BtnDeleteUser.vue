@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useQuasar } from 'quasar'
+import { ElMessage } from 'element-plus'
 import UsersPreview from './UsersPreviewTable.vue'
 import System from '@/api/system'
 import { messageFrom } from '@/utils'
@@ -8,14 +8,15 @@ import { messageFrom } from '@/utils'
 const props = defineProps<{
   selected: API.SysUserVo[]
 }>()
-const emit = defineEmits<{
+const emits = defineEmits<{
   (e: 'refresh'): void
 }>()
+
 const dialogVisible = ref(false)
 const usersToDelete = ref<API.SysUserVo[]>([...props.selected])
 const loading = ref(false)
-const $q = useQuasar()
-const deleteSelectedUsers = () => {
+
+const deleteSelectedUsers = async () => {
   const getDeleteSingleUserPromise = (workId?: number) => {
     if (!workId)
       return
@@ -27,22 +28,14 @@ const deleteSelectedUsers = () => {
     })
   }
 
-  Promise.all(props.selected.map(item => getDeleteSingleUserPromise(item.id)))
-    .then((res: any) => {
-      // console.log(res)
-      dialogVisible.value = false
-      emit('refresh')
-      $q.notify({
-        type: 'positive',
-        message: '成功',
-      })
-    })
-    .catch((err) => {
-      $q.notify({
-        type: 'positive',
-        message: messageFrom(err),
-      })
-    })
+  try {
+    await Promise.all(props.selected.map(item => getDeleteSingleUserPromise(item.id)))
+    dialogVisible.value = false
+    emits('refresh')
+  }
+  catch (err) {
+    ElMessage.error(messageFrom(err))
+  }
 }
 </script>
 

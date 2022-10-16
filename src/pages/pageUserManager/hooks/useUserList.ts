@@ -1,6 +1,5 @@
 import { reactive, ref } from 'vue'
-import { useQuasar } from 'quasar'
-import type { QTableProps } from 'quasar'
+import { ElMessage } from 'element-plus'
 import { messageFrom } from '@/utils'
 import System from '@/api/system'
 
@@ -14,18 +13,14 @@ interface UserListHookOptions {
 export const useUserList = (options: UserListHookOptions = {}) => {
   const { immediate = true, params, onError, onSuccess } = options
 
-  const $q = useQuasar()
-
-  const userList = ref<API.SysRoleVo[]>([])
+  const userList = ref<API.SysUserVo[]>([])
   const loading = ref(false)
   const orderBy = ref<
     'nickname+' | 'createTime+' | 'nickname-' | 'createTime-'
   >('createTime-')
   const filterKey = ref({ label: '昵称', value: 'nickname' })
   const filterValue = ref('')
-  const paginationParams = reactive<
-    Required<Required<QTableProps>['pagination']>
-  >({
+  const paginationParams = reactive({
     descending: false,
     sortBy: 'desc',
     page: 1,
@@ -53,10 +48,7 @@ export const useUserList = (options: UserListHookOptions = {}) => {
       userList.value = []
       paginationParams.rowsNumber = 0
       onError?.()
-      $q.notify({
-        type: 'negative',
-        message: `fetch user list error: ${messageFrom(err)}`,
-      })
+      ElMessage.error(messageFrom(err))
     }
     finally {
       loading.value = false

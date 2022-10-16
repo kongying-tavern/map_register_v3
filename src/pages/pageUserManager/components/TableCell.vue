@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { useQuasar } from 'quasar'
 import { ref } from 'vue'
+import { ElMessage } from 'element-plus'
 import System from '@/api/system'
 import { messageFrom } from '@/utils'
 
@@ -14,20 +14,16 @@ const emits = defineEmits<{
   (e: 'update', row: API.SysUserVo): void
 }>()
 
-const $q = useQuasar()
 const user = ref(props.rowData)
 const editUser = async ({ id, roleList, username, ...rest }: API.SysUserVo) => {
   const covertData = { userId: id, ...rest }
   try {
     const res = await System.sysUserController.updateUser({}, covertData)
     emits('update', covertData)
-    $q.notify({
-      type: 'positive',
-      message: messageFrom(res.message),
-    })
+    ElMessage.success(res.message ?? '成功')
   }
   catch (err) {
-    $q.notify({ type: 'negative', message: messageFrom(err) })
+    ElMessage.error(messageFrom(err))
   }
 }
 </script>

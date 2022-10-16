@@ -1,12 +1,13 @@
 <script lang="ts" setup>
-import { useQuasar } from 'quasar'
 import { ref } from 'vue'
+import { ElMessage } from 'element-plus'
 import System from '@/api/system'
 import { messageFrom } from '@/utils'
 
-const emit = defineEmits<{
+const emits = defineEmits<{
   (e: 'refresh'): void
 }>()
+
 const formData = ref({
   username: '',
   password: '',
@@ -14,65 +15,40 @@ const formData = ref({
 })
 const registrationType = ref({ label: '用户名', value: 'username' })
 const dialogVisible = ref(false)
-const $q = useQuasar()
-const onConfirm = () => {
+
+const onConfirm = async () => {
   const form = formData.value
-  if (form.password === form.passwordRepeat) {
+  const { username, password, passwordRepeat } = formData.value
+  if (password !== passwordRepeat)
+    return
+
+  try {
     if (registrationType.value.value === 'username') {
-      System.sysUserController
-        .registerUser({ username: form.username, password: form.password })
-        .then((res: any) => {
-          if (res.code === 200)
-            emit('refresh')
-          $q.notify({
-            type: res.code === 200 ? 'positive' : 'negative',
-            message: res.message,
-          })
-        })
-        .catch((err: any) => {
-          // console.log(err)
-          $q.notify({ type: 'negative', message: messageFrom(err) })
-        })
-        .then(() => {
-          dialogVisible.value = false
-          formData.value = {
-            username: '',
-            password: '',
-            passwordRepeat: '',
-          }
-        })
+      const res = await System.sysUserController.registerUser({ username, password })
+      ElMessage.success(res.message ?? '成功')
     }
 
     if (registrationType.value.value === 'qq') {
-      System.sysUserController
-        .registerUserByQQ({ username: form.username, password: form.password })
-        .then((res: any) => {
-          if (res.code === 200)
-            emit('refresh')
-          $q.notify({
-            type: res.code === 200 ? 'positive' : 'negative',
-            message: res.message,
-          })
-        })
-        .catch((err: any) => {
-          // console.log(err)
-          $q.notify({ type: 'negative', message: messageFrom(err) })
-        })
-        .then(() => {
-          dialogVisible.value = false
-          formData.value = {
-            username: '',
-            password: '',
-            passwordRepeat: '',
-          }
-        })
+      const res = await System.sysUserController.registerUserByQQ({ username: form.username, password: form.password })
+      ElMessage.success(res.message ?? '成功')
     }
+
+    emits('refresh')
+    dialogVisible.value = false
+    formData.value = {
+      username: '',
+      password: '',
+      passwordRepeat: '',
+    }
+  }
+  catch (err) {
+    ElMessage.error(messageFrom(err))
   }
 }
 </script>
 
 <template>
-  <q-btn
+  <el-button
     icon-right="add"
     label="新增用户"
     color="primary"
@@ -80,8 +56,8 @@ const onConfirm = () => {
     outline
     @click="dialogVisible = true"
   >
-    <q-dialog v-model="dialogVisible" persistent>
-      <q-card class="user_create" style="min-width: 30rem">
+    <el-dialog v-model="dialogVisible">
+      <el-card style="min-width: 30rem">
         <q-card-section class="row items-center q-pb-none">
           <div class="text-h6">
             新增用户
@@ -138,9 +114,9 @@ const onConfirm = () => {
           <q-btn label="取消" @click="dialogVisible = false" />
           <q-btn label="确认" color="primary" @click="onConfirm" />
         </q-card-actions>
-      </q-card>
-    </q-dialog>
-  </q-btn>
+      </el-card>
+    </el-dialog>
+  </el-button>
 </template>
 
 <style lang="scss" scoped>

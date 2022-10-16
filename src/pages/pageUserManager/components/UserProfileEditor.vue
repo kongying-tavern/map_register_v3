@@ -1,64 +1,47 @@
 <script setup lang="ts">
-import { useQuasar } from 'quasar'
 import { ref } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import System from '@/api/system'
 import { messageFrom } from '@/utils'
 
 const props = defineProps<{
   user: API.SysUserVo
 }>()
-const emit = defineEmits<{
+const emits = defineEmits<{
   (e: 'update', row: API.SysUserVo): void
   (e: 'refresh'): void
 }>()
-const $q = useQuasar()
+
 const dialogVisible = ref(false)
 const formData: any = ref({
   ...props.user,
 })
 
-const onSubmit = () => {
-  System.sysUserController.updateUser({}, formData.value)
-    .then((res: any) => {
-      if (res.code === 200)
-        emit('update', formData.value)
-      dialogVisible.value = false
-      $q.notify({
-        type: res.code === 200 ? 'positive' : 'negative',
-        message: res.message,
-      })
-    })
-    .catch((err) => {
-      console.log(err)
-      $q.notify({ type: 'negative', message: messageFrom(err) })
-    })
+const onSubmit = async () => {
+  try {
+    const res = await System.sysUserController.updateUser({}, formData.value)
+    ElMessage.success(res.message ?? '成功')
+  }
+  catch (err) {
+    ElMessage.error(messageFrom(err))
+  }
 }
 
-const onClickDeleteUser = () => {
-  $q.dialog({
-    title: '删除用户',
-    message: `确认删除用户 ID - ${props.user.id}?`,
-    cancel: true,
-    persistent: true,
-  }).onOk(() => {
-    if (!props.user.id)
-      return
-    System.sysUserController.deleteUser({ workId: props.user.id })
-      .then((res: any) => {
-        $q.notify({
-          type: res.code === 200 ? 'positive' : 'negative',
-          message: res.message,
-        })
-        emit('refresh')
-      })
-      .catch((err: any) => {
-        console.log(err)
-        $q.notify({ type: 'negative', message: messageFrom(err) })
-      })
-      .then(() => {
-        dialogVisible.value = false
-      })
-  })
+const onClickDeleteUser = async () => {
+  if (!props.user.id)
+    return
+  try {
+    await ElMessageBox
+      .confirm(`确认删除用户 ID - ${props.user.id}?`, '删除用户')
+      // cancel with no action
+      .catch(() => false)
+    const res = await System.sysUserController.deleteUser({ workId: props.user.id })
+    ElMessage.success(res.message ?? '成功')
+    emits('refresh')
+  }
+  catch (err) {
+    ElMessage.error(messageFrom(err))
+  }
 }
 </script>
 

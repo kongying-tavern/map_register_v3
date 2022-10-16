@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { useQuasar } from 'quasar'
 import { ref } from 'vue'
+import { ElMessage } from 'element-plus'
 import System from '@/api/system'
 import { messageFrom } from '@/utils'
 
 const props = defineProps<{
   user: API.SysUserVo
 }>()
-const emit = defineEmits<{
+const emits = defineEmits<{
   (e: 'refresh'): void
 }>()
-const $q = useQuasar()
+
 const dialogVisible = ref(false)
 const formData = ref({
   userId: props.user.id,
@@ -20,22 +20,16 @@ const formData = ref({
 
 const passwordRepeat = ref('')
 
-const onSubmit = () => {
-  System.sysUserController.updateUserPassword({}, formData.value)
-    .then((res: any) => {
-      if (res.code === 200) {
-        dialogVisible.value = false
-        emit('refresh')
-      }
-      $q.notify({
-        type: res.code === 200 ? 'positive' : 'negative',
-        message: messageFrom(res),
-      })
-    })
-    .catch((err) => {
-      console.log(err)
-      $q.notify({ type: 'negative', message: messageFrom(err) })
-    })
+const onSubmit = async () => {
+  try {
+    const res = await System.sysUserController.updateUserPassword({}, formData.value)
+    dialogVisible.value = false
+    emits('refresh')
+    ElMessage.success(res.message ?? '成功')
+  }
+  catch (err) {
+    ElMessage.error(messageFrom(err))
+  }
 }
 </script>
 

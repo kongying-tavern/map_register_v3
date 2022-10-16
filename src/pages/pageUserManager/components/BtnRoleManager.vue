@@ -1,56 +1,44 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
-import { useQuasar } from 'quasar'
+import { ElMessage } from 'element-plus'
 import UsersPreview from './UsersPreviewTable.vue'
 import UserRoleTag from './UserRoleTag.vue'
 import System from '@/api/system'
 import { messageFrom } from '@/utils'
+
 const props = defineProps<{
   users: API.SysUserVo[]
   options: API.SysRoleVo[]
 }>()
-const emit = defineEmits<{
+const emits = defineEmits<{
   (e: 'update', user: API.SysUserVo): void
 }>()
-const previewData = ref<API.SysUserVo[]>(props.users)
 
+const previewData = ref<API.SysUserVo[]>(props.users)
 const displayValue = ref<API.SysRoleVo>()
 const dialogVisible = ref(false)
 
-const $q = useQuasar()
-
-const updateUserRole = (role: API.SysRoleVo) => {
+const updateUserRole = async (role: API.SysRoleVo) => {
   const usersToUpdate = props.users.filter(user =>
     user.roleList?.find(roleItem => role.id === roleItem.id),
   )
-  Promise.all(
-    usersToUpdate.map(user =>
-      System.role.addRoleToUser({
-        userId: user.id,
-        roleId: role.id,
-      }),
-    ),
-  )
-    .then(() => {
-      props.users.forEach(user =>
-        emit('update', { ...user, roleList: [role] }),
-      )
-      previewData.value = previewData.value.map(user => ({
-        ...user,
-        roleList: [role],
-      }))
-      $q.notify({
-        type: 'positive',
-        message: '成功',
-      })
-    })
-    .catch((err) => {
-      console.error(err)
-      $q.notify({
-        type: 'negative',
-        message: messageFrom(err),
-      })
-    })
+  try {
+    await Promise.all(usersToUpdate.map(user => System.role.addRoleToUser({ userId: user.id, roleId: role.id })))
+    props.users.forEach(user =>
+      emits('update', { ...user, roleList: [role] }),
+    )
+    props.users.forEach(user =>
+      emits('update', { ...user, roleList: [role] }),
+    )
+    previewData.value = previewData.value.map(user => ({
+      ...user,
+      roleList: [role],
+    }))
+    ElMessage.success('成功')
+  }
+  catch (err) {
+    ElMessage.error(messageFrom(err))
+  }
 }
 </script>
 

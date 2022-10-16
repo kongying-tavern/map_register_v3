@@ -1,30 +1,28 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 
 const route = useRoute()
-const router = useRouter()
 
-const tabs = computed(
+const routeItems = computed(
   () => route.matched.find(item => item.path === '/')?.children ?? [],
 )
-
-const current = computed({
-  get: () => route.path,
-  set: (path) => {
-    router.push(path)
-  },
-})
 </script>
 
 <template>
-  <q-tabs v-model="current" vertical dense class="text-teal">
-    <q-tab
-      v-for="item in tabs"
+  <el-menu :default-active="route.path" router class="app-sidemenu h-full">
+    <el-menu-item
+      v-for="item in routeItems"
       :key="item.path"
-      :name="item.path"
-      :icon="item.meta?.icon"
-      :label="item.meta?.title"
-    />
-  </q-tabs>
+      :index="item.path"
+    >
+      {{ item.meta?.title }}
+    </el-menu-item>
+  </el-menu>
 </template>
+
+<style lang="scss" scoped>
+.app-sidemenu {
+  border-right: none;
+}
+</style>
