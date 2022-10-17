@@ -1,4 +1,4 @@
-import { reactive, ref } from 'vue'
+import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { messageFrom } from '@/utils'
 import System from '@/api/system'
@@ -6,8 +6,8 @@ import System from '@/api/system'
 interface UserListHookOptions {
   immediate?: boolean
   params?: () => API.SysUserSearchVo
-  onSuccess?: (res: API.RPageListVoSysUserVo) => void
-  onError?: () => void
+  onSuccess?: (res: API.PageListVoSysUserVo) => void
+  onError?: (reqData: API.SysUserSearchVo) => void
 }
 
 export const useUserList = (options: UserListHookOptions = {}) => {
@@ -15,39 +15,26 @@ export const useUserList = (options: UserListHookOptions = {}) => {
 
   const userList = ref<API.SysUserVo[]>([])
   const loading = ref(false)
-  const orderBy = ref<
-    'nickname+' | 'createTime+' | 'nickname-' | 'createTime-'
-  >('createTime-')
+  const orderBy = ref<'nickname+' | 'createTime+' | 'nickname-' | 'createTime-'>('createTime-')
   const filterKey = ref({ label: '昵称', value: 'nickname' })
   const filterValue = ref('')
-  const paginationParams = reactive({
-    descending: false,
-    sortBy: 'desc',
-    page: 1,
-    rowsPerPage: 10,
-    rowsNumber: 0,
-  })
 
   const refresh = async () => {
     loading.value = true
+    const requestData: API.SysUserSearchVo = {
+      sort: [orderBy.value],
+      ...(filterValue.value
+        ? { [filterKey.value.value]: filterValue.value }
+        : undefined),
+      ...params?.(),
+    }
     try {
-      const res = await System.sysUserController.getUserList({
-        current: paginationParams.page,
-        size: paginationParams.rowsPerPage,
-        sort: [orderBy.value],
-        ...(filterValue.value
-          ? { [filterKey.value.value]: filterValue.value }
-          : undefined),
-        ...params?.(),
-      })
-      userList.value = res.data?.record ?? []
-      paginationParams.rowsNumber = res.data?.total ?? 0
-      onSuccess?.(res)
+      const { data = {} } = await System.sysUserController.getUserList(requestData)
+      userList.value = data.record ?? []
+      onSuccess?.(data)
     }
     catch (err) {
-      userList.value = []
-      paginationParams.rowsNumber = 0
-      onError?.()
+      onError?.(requestData)
       ElMessage.error(messageFrom(err))
     }
     finally {
@@ -55,12 +42,13 @@ export const useUserList = (options: UserListHookOptions = {}) => {
     }
   }
 
-  immediate && refresh()
+  onMounted(() => {
+    immediate && refresh()
+  })
 
   return {
     userList,
     loading,
-    paginationParams,
     orderBy,
     filterKey,
     filterValue,
