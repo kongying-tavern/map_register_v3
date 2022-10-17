@@ -1,16 +1,24 @@
-const { join } = require('path')
-const { readFile, writeFile, readdir } = require('fs/promises')
-const { generateService } = require('openapi2ts')
+import { join } from 'path'
+import { readFile, readdir, writeFile } from 'fs/promises'
+import type { Plugin } from 'vite'
+import { generateService } from 'openapi2ts'
+import type { GenerateServiceProps } from 'openapi2ts'
+
+export interface Openapi2tsOptions extends GenerateServiceProps {
+  /** openAPI 3.0 的地址 */
+  schemaPath: string
+  /** 自定义请求方法路径 */
+  requestLibPath?: string
+  /** 自定义请求方法表达式，优先级高于 `requestLibPath` */
+  requestImportStatement?: string
+}
 
 /**
  * 自动更新接口类型的钩子
- * @param {import('./types').Openapi2tsOptions[]} optionList
- * @returns {import('vite').Plugin}
  */
-const openapi2ts = (optionList) => {
+export const openapi2ts = (optionList: Openapi2tsOptions[]): Plugin => {
   let initFlag = false
-  /** @type {import('vite').Plugin} */
-  const plugin = {
+  const plugin: Plugin = {
     name: 'openapi-to-ts',
     apply: 'serve',
     configResolved: async ({ root }) => {
@@ -48,5 +56,3 @@ const openapi2ts = (optionList) => {
   }
   return plugin
 }
-
-module.exports = openapi2ts
