@@ -20,17 +20,7 @@ import { LayoutAside, LayoutHeader, LayoutPage } from '@/layout'
       </div>
     </LayoutHeader>
 
-    <LayoutPage>
-      <router-view>
-        <template #default="{ Component, route }">
-          <transition name="slide-x" mode="out-in" appear>
-            <keep-alive>
-              <component :is="Component" :key="route.fullPath" />
-            </keep-alive>
-          </transition>
-        </template>
-      </router-view>
-    </LayoutPage>
+    <LayoutPage />
   </div>
 </template>
 
