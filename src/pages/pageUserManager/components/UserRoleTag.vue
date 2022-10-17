@@ -43,17 +43,16 @@ const requestEdit = () => {
       v-model="internalValue"
       :options="selectOptions"
       class="w-full"
-      size="small"
       tabindex="0"
       multiple
       collapse-tags
     />
     <div v-else class="flex gap-1" @click.stop="requestEdit">
-      <el-tag v-if="props.modelValue.length" size="small" disable-transitions>
+      <el-tag v-if="props.modelValue.length" disable-transitions>
         {{ props.modelValue[0].name }}
       </el-tag>
-      <el-tag v-if="props.modelValue.length > 1" size="small" disable-transitions>
-        +1
+      <el-tag v-if="props.modelValue.length > 1" disable-transitions>
+        +{{ props.modelValue.length - 1 }}
       </el-tag>
     </div>
   </div>
