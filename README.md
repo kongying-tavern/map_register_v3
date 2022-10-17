@@ -1,25 +1,42 @@
-# Quasar App (map-register-v3)
+# 空荧酒馆地图点位标记系统
 
-A Quasar Project
+地图后台
 
-## Install the dependencies
+## 安装依赖
 
 ```bash
+# 推荐
+pnpm i
+# or
 yarn
 # or
 npm install
 ```
 
-### Start the app in development mode (hot-code reloading, error reporting, etc.)
+### 添加依赖
+
+非打包依赖请务必安装到 `devDependencies` 字段中
+
+```base
+pnpm add <package-name> [--save-dev, --save-peer]
+```
+
+### 开发模式
 
 ```bash
-quasar dev
+pnpm dev
+# or
+yarn run dev
+# or
+yarn run dev
 ```
 
 ### Lint the files
 
 ```bash
-yarn lint
+pnpm run lint
+# or
+yarn run lint
 # or
 npm run lint
 ```
@@ -27,17 +44,19 @@ npm run lint
 ### Format the files
 
 ```bash
-yarn format
+pnpm run format
+# or
+yarn run format
 # or
 npm run format
 ```
 
-### Build the app for production
+### 构建生产模式
 
 ```bash
-quasar build
+pnpm run build
+# or
+yarn run build
+# or
+npm run build
 ```
-
-### Customize the configuration
-
-See [Configuring quasar.config.js](https://v2.quasar.dev/quasar-cli-vite/quasar-config-js).
