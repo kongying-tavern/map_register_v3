@@ -20,7 +20,7 @@ jobs:
     interpreter: !DefaultInterpreter
       commands:
       - cd @secret:workspace-path@
-      - yarn
+      - npx pnpm i
     useTTY: false
     condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
   - !CommandStep
@@ -30,7 +30,7 @@ jobs:
       shell: bash
       commands:
       - cd @secret:workspace-path@
-      - quasar build
+      - npx pnpm run build
     useTTY: false
     condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
   - !CommandStep
