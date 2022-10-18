@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { AnyColumn } from 'element-plus/es/components/table-v2/src/common'
 import { useRoleEdit, useUserList/* , useSelected */ } from './hooks'
-import { TableCell, UserRoleTag } from './components'
+import { TableCell, TableFilter, UserRoleTag } from './components'
 import { usePagination } from '@/hooks'
 
 const columns: (AnyColumn & { readonly?: boolean })[] = [
@@ -38,12 +38,16 @@ const { height } = useElementSize(tableRef)
 </script>
 
 <template>
-  <div class="h-full flex flex-col gap-4 overflow-hidden">
-    <div ref="tableRef" class="flex-1" :style="{ height: '50vh' }">
-      <el-table
-        :data="userList"
-        :height="height"
-      >
+  <div class="h-full flex flex-col gap-2 overflow-hidden">
+    <TableFilter />
+
+    <div class="flex justify-between text-sm">
+      <div>左侧</div>
+      <div>右侧</div>
+    </div>
+
+    <div ref="tableRef" class="flex-1 overflow-hidden" :style="{ height: '50vh' }">
+      <el-table :data="userList" :height="height" border class="user-table rounded">
         <el-table-column type="selection" />
 
         <el-table-column
@@ -101,3 +105,11 @@ const { height } = useElementSize(tableRef)
     />
   </div>
 </template>
+
+<style lang="scss" scoped>
+.user-table {
+  :deep(.el-table__cell) {
+    padding: 6px 0;
+  }
+}
+</style>
