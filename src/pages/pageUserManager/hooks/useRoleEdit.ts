@@ -32,6 +32,10 @@ export const useRoleEdit = (options: RoleEditHookOptions) => {
     },
   })
 
+  const isEditable = (index: number) => {
+    return index === editIndex.value
+  }
+
   const activeEdit = (index: number) => {
     editIndex.value = index
   }
@@ -69,5 +73,5 @@ export const useRoleEdit = (options: RoleEditHookOptions) => {
     }
   }
 
-  return { editIndex, editLoading, saveEdit, activeEdit, exitEdit }
+  return { editIndex, editLoading, isEditable, saveEdit, activeEdit, exitEdit }
 }

@@ -15,14 +15,14 @@ export const useUserList = (options: UserListHookOptions = {}) => {
 
   const userList = ref<API.SysUserVo[]>([])
   const loading = ref(false)
-  const orderBy = ref<'nickname+' | 'createTime+' | 'nickname-' | 'createTime-'>('createTime-')
   const filterKey = ref({ label: '昵称', value: 'nickname' })
   const filterValue = ref('')
+  const sorts = ref<('createTime+' | 'createTime-' | 'nickname+' | 'nickname-')[]>(['createTime-'])
 
   const refresh = async () => {
     loading.value = true
     const requestData: API.SysUserSearchVo = {
-      sort: [orderBy.value],
+      sort: sorts.value,
       ...(filterValue.value
         ? { [filterKey.value.value]: filterValue.value }
         : undefined),
@@ -42,6 +42,8 @@ export const useUserList = (options: UserListHookOptions = {}) => {
     }
   }
 
+  watch(sorts, refresh)
+
   onMounted(() => {
     immediate && refresh()
   })
@@ -49,9 +51,9 @@ export const useUserList = (options: UserListHookOptions = {}) => {
   return {
     userList,
     loading,
-    orderBy,
     filterKey,
     filterValue,
+    sorts,
     refresh,
   }
 }

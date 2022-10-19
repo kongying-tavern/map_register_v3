@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { AnyColumn } from 'element-plus/es/components/table-v2/src/common'
 import { useRoleEdit, useUserList/* , useSelected */ } from './hooks'
-import { TableCell, TableFilter, UserRoleTag } from './components'
+import { TableCell, TableFilter, UserRoleTag, UserSorter } from './components'
 import { usePagination } from '@/hooks'
 
 const columns: (AnyColumn & { readonly?: boolean })[] = [
@@ -13,7 +13,12 @@ const columns: (AnyColumn & { readonly?: boolean })[] = [
 ]
 const { pagination, layout } = usePagination()
 
-const { userList, /* loading, filterKey, filterValue, orderBy, */refresh } = useUserList({
+const sortOptions = [
+  { name: '昵称', field: 'nickname' },
+  { name: '注册时间', field: 'createTime' },
+]
+
+const { userList, loading, sorts, /* filterKey, filterValue */refresh } = useUserList({
   onSuccess: ({ total = 0 }) => {
     pagination.value.total = total
   },
@@ -23,7 +28,7 @@ const { userList, /* loading, filterKey, filterValue, orderBy, */refresh } = use
   }),
 })
 
-const { editIndex, editLoading, activeEdit, saveEdit } = useRoleEdit({
+const { editIndex, editLoading, isEditable, activeEdit, saveEdit } = useRoleEdit({
   userList,
 })
 
@@ -41,13 +46,15 @@ const { height } = useElementSize(tableRef)
   <div class="h-full flex flex-col gap-2 overflow-hidden">
     <TableFilter />
 
-    <div class="flex justify-between text-sm">
-      <div>左侧</div>
-      <div>右侧</div>
+    <div class="flex gap-2 items-center">
+      <div class="text-sm w-10">
+        排序
+      </div>
+      <UserSorter v-model="sorts" :options="sortOptions" />
     </div>
 
     <div ref="tableRef" class="flex-1 overflow-hidden" :style="{ height: '50vh' }">
-      <el-table :data="userList" :height="height" border class="user-table rounded">
+      <el-table v-loading="loading" element-loading-text="载入中..." :data="userList" :height="height" border class="user-table">
         <el-table-column type="selection" />
 
         <el-table-column
@@ -72,14 +79,14 @@ const { height } = useElementSize(tableRef)
         <!-- TODO: 角色的编辑在另一个接口 -->
         <el-table-column label="角色" prop="roleList" :width="230">
           <template #default="{ $index }">
-            <UserRoleTag v-model="userList[$index].roleList" :edit-mode="editIndex === $index" @active="() => activeEdit($index)" />
+            <UserRoleTag v-model="userList[$index].roleList" :edit-mode="isEditable($index)" @active="() => activeEdit($index)" />
           </template>
         </el-table-column>
 
         <el-table-column fixed="right" label="操作">
           <template #default="{ $index }">
             <div class="flex">
-              <el-button v-if="editIndex === $index" :loading="editLoading" @click.stop="saveEdit">
+              <el-button v-if="isEditable($index)" :loading="editLoading" @click.stop="saveEdit">
                 保存
               </el-button>
               <el-button v-else @click.stop="() => activeEdit($index)">
