@@ -18,7 +18,7 @@ const sortOptions = [
   { name: '注册时间', field: 'createTime' },
 ]
 
-const { userList, loading, sorts, /* filterKey, filterValue */refresh } = useUserList({
+const { userList, loading, sorts, filterKey, filterValue, refresh } = useUserList({
   onSuccess: ({ total = 0 }) => {
     pagination.value.total = total
   },
@@ -28,7 +28,7 @@ const { userList, loading, sorts, /* filterKey, filterValue */refresh } = useUse
   }),
 })
 
-const { editIndex, editLoading, isEditable, activeEdit, saveEdit } = useRoleEdit({
+const { editLoading, isEditable, activeEdit, saveEdit } = useRoleEdit({
   userList,
 })
 
@@ -44,13 +44,9 @@ const { height } = useElementSize(tableRef)
 
 <template>
   <div class="h-full flex flex-col gap-2 overflow-hidden">
-    <TableFilter />
-
-    <div class="flex gap-2 items-center">
-      <div class="text-sm w-10">
-        排序
-      </div>
+    <div class="flex gap-8 items-center">
       <UserSorter v-model="sorts" :options="sortOptions" />
+      <TableFilter v-model="filterValue" v-model:filter-key="filterKey" />
     </div>
 
     <div ref="tableRef" class="flex-1 overflow-hidden" :style="{ height: '50vh' }">
@@ -64,13 +60,12 @@ const { height } = useElementSize(tableRef)
           :label="column.title"
           :width="column.width"
           :fixed="column.fixed"
-          show-overflow-tooltip
         >
           <template #default="{ row, $index }">
             <TableCell
               v-model="row[column.dataKey ?? '']"
               :readonly="column.readonly"
-              :edit-mode="editIndex === $index"
+              :edit-mode="isEditable($index)"
               @active="() => activeEdit($index)"
             />
           </template>

@@ -34,7 +34,10 @@ const selectedMap = computed({
 </script>
 
 <template>
-  <div class="flex">
+  <div class="flex items-center">
+    <div class="text-sm w-10">
+      排序
+    </div>
     <UserSortBtn v-for="opt in props.options" :key="opt.field" v-model="selectedMap" :option="opt" />
   </div>
 </template>
