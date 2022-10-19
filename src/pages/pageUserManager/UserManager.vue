@@ -18,7 +18,7 @@ const sortOptions = [
   { name: '注册时间', field: 'createTime' },
 ]
 
-const { userList, loading, sorts, filterKey, filterValue, refresh } = useUserList({
+const { userList, loading, deleteLoading, sorts, filterKey, filterValue, refresh, deleteRow } = useUserList({
   onSuccess: ({ total = 0 }) => {
     pagination.value.total = total
   },
@@ -79,16 +79,16 @@ const { height } = useElementSize(tableRef)
           </template>
         </el-table-column>
 
-        <el-table-column fixed="right" label="操作" :width="160">
+        <el-table-column fixed="right" label="操作" :width="200">
           <template #default="{ $index }">
             <div class="flex">
               <el-button v-if="isEditable($index)" :loading="editLoading" type="primary" plain @click.stop="saveEdit">
                 保存
               </el-button>
-              <el-button v-else @click.stop="() => activeEdit($index)">
+              <el-button v-else :loading="deleteLoading" @click.stop="() => activeEdit($index)">
                 编辑
               </el-button>
-              <el-button type="danger" plain>
+              <el-button type="danger" plain @click.stop="() => deleteRow($index)">
                 删除
               </el-button>
             </div>

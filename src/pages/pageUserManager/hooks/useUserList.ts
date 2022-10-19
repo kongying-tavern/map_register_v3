@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { messageFrom } from '@/utils'
 import System from '@/api/system'
 
@@ -59,12 +59,35 @@ export const useUserList = (options: UserListHookOptions = {}) => {
     immediate && refresh()
   })
 
+  const deleteLoading = ref(false)
+
+  const deleteRow = async (index: number) => {
+    try {
+      const { id, username } = userList.value[index] ?? {}
+      const confirm = await ElMessageBox.confirm(`确认删除用户: ${username} (id: ${id})`).catch(() => false)
+      if (!confirm || !id)
+        return
+      deleteLoading.value = true
+      const res = await System.sysUserController.deleteUser({ workId: id })
+      ElMessage.success(res.message ?? '删除成功')
+      refresh()
+    }
+    catch (err) {
+      ElMessage.error(messageFrom(err))
+    }
+    finally {
+      deleteLoading.value = false
+    }
+  }
+
   return {
     userList,
     loading,
+    deleteLoading,
     filterKey,
     filterValue,
     sorts,
     refresh,
+    deleteRow,
   }
 }
