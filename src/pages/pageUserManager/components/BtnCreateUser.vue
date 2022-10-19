@@ -1,11 +1,12 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
-import { ElMessage } from 'element-plus'
+import type { FormItemRule, FormRules } from 'element-plus'
+import { ElForm, ElMessage } from 'element-plus'
 import System from '@/api/system'
 import { messageFrom } from '@/utils'
 
 const emits = defineEmits<{
-  (e: 'refresh'): void
+  (e: 'success'): void
 }>()
 
 const formData = ref({
@@ -13,110 +14,120 @@ const formData = ref({
   password: '',
   passwordRepeat: '',
 })
-const registrationType = ref({ label: '用户名', value: 'username' })
+const registrationType = ref('username')
 const dialogVisible = ref(false)
+const loading = ref(false)
+const formRef = ref<InstanceType<typeof ElForm> | null>(null)
+
+const closeDialog = () => {
+  if (loading.value)
+    return
+  dialogVisible.value = false
+}
+
+const beforeClose = (done: () => void) => {
+  if (loading.value)
+    return
+  done()
+}
+
+const lengthCheck = (name: string, len: number): FormItemRule => ({
+  required: true,
+  message: `${name}至少需要 ${len} 个字符`,
+  pattern: new RegExp(`\\S{${len}}`),
+  trigger: 'blur',
+})
+const emptyRule: FormItemRule = { message: '不能含有空白字符', pattern: /^\S+$/, trigger: 'blur' }
+
+const rules: FormRules = {
+  username: [lengthCheck('用户名', 6), emptyRule],
+  password: [lengthCheck('密码', 6), emptyRule],
+  passwordRepeat: [
+    lengthCheck('密码', 6),
+    emptyRule,
+    {
+      validator: () => {
+        if (formData.value.passwordRepeat !== formData.value.password)
+          return new Error('两次输入的密码不一致')
+        return true
+      },
+      trigger: 'blur',
+    },
+  ],
+}
+
+const resetFormState = () => {
+  formData.value = {
+    username: '',
+    password: '',
+    passwordRepeat: '',
+  }
+  registrationType.value = 'username'
+  formRef.value?.resetFields()
+}
 
 const onConfirm = async () => {
-  const form = formData.value
-  const { username, password, passwordRepeat } = formData.value
-  if (password !== passwordRepeat)
-    return
-
   try {
-    if (registrationType.value.value === 'username') {
-      const res = await System.sysUserController.registerUser({ username, password })
-      ElMessage.success(res.message ?? '成功')
-    }
-
-    if (registrationType.value.value === 'qq') {
-      const res = await System.sysUserController.registerUserByQQ({ username: form.username, password: form.password })
-      ElMessage.success(res.message ?? '成功')
-    }
-
-    emits('refresh')
+    await formRef.value?.validate().catch((err) => {
+      throw new Error(`字段 [${Object.keys(err).join(', ')}] 未通过校验`)
+    })
+    const { username, password } = formData.value
+    loading.value = true
+    const res = await System.sysUserController[
+      registrationType.value === 'username'
+        ? 'registerUser'
+        : 'registerUserByQQ'
+    ]({ username, password })
+    ElMessage.success(res.message ?? '注册成功')
     dialogVisible.value = false
-    formData.value = {
-      username: '',
-      password: '',
-      passwordRepeat: '',
-    }
+    resetFormState()
+    emits('success')
   }
   catch (err) {
     ElMessage.error(messageFrom(err))
+  }
+  finally {
+    loading.value = false
   }
 }
 </script>
 
 <template>
-  <el-button
-    icon-right="add"
-    label="新增用户"
-    color="primary"
-    style="margin-left: 8px"
-    outline
-    @click="dialogVisible = true"
-  >
-    <el-dialog v-model="dialogVisible">
-      <el-card style="min-width: 30rem">
-        <q-card-section class="row items-center q-pb-none">
-          <div class="text-h6">
-            新增用户
-          </div>
-          <q-space />
-          <q-btn v-close-popup icon="close" flat round dense />
-        </q-card-section>
-        <q-card-section>
-          <q-form
-            class="user_create_form"
-            autocomplete="off"
-            autocorrect="off"
-            autocapitalize="off"
-          >
-            <div class="user_create_type">
-              <q-select
-                v-model="registrationType"
-                :options="[
-                  { label: '用户名', value: 'username' },
-                  { label: 'qq', value: 'qq' },
-                ]"
-              />
-              <q-input
-                v-model="formData.username"
-                for="username"
-                autocomplete="off"
-                :rules="[(val) => val.length >= 5 || '请至少输入5个字符']"
-                lazy-rules
-              />
-            </div>
-            <q-input
-              v-model="formData.password"
-              for="password"
-              type="password"
-              autocomplete="off"
-              :rules="[(val) => val.length >= 6 || '密码最少6位']"
-              lazy-rules
-              label="密码"
-            />
-            <q-input
-              v-model="formData.passwordRepeat"
-              :rules="[
-                (value) => value === formData.password || '两次密码不一致',
-              ]"
-              lazy-rules
-              type="password"
-              autocomplete="off"
-              label="再次输入密码"
-            />
-          </q-form>
-        </q-card-section>
-        <q-card-actions>
-          <q-space />
-          <q-btn label="取消" @click="dialogVisible = false" />
-          <q-btn label="确认" color="primary" @click="onConfirm" />
-        </q-card-actions>
-      </el-card>
+  <div class="flex justify-end" v-bind="$attrs">
+    <el-button type="primary" @click="dialogVisible = true">
+      新增用户
+    </el-button>
+
+    <el-dialog v-model="dialogVisible" title="新增用户" width="320px" :before-close="beforeClose" @closed="resetFormState">
+      <ElForm ref="formRef" :model="formData" :rules="rules">
+        <el-form-item prop="username">
+          <el-input v-model="formData.username">
+            <template #prepend>
+              <el-select v-model="registrationType" class="w-24">
+                <el-option label="用户名" value="username" />
+                <el-option label="QQ" value="qq" />
+              </el-select>
+            </template>
+          </el-input>
+        </el-form-item>
+        <el-form-item label="密码" label-width="96px" prop="password">
+          <el-input v-model="formData.password" type="password" show-password />
+        </el-form-item>
+        <el-form-item label="确认密码" label-width="96px" prop="passwordRepeat">
+          <el-input v-model="formData.passwordRepeat" type="password" show-password />
+        </el-form-item>
+      </ElForm>
+
+      <template #footer>
+        <el-button @click="closeDialog">
+          取消
+        </el-button>
+        <el-button type="primary" :loading="loading" @click="onConfirm">
+          确认
+        </el-button>
+      </template>
     </el-dialog>
-  </el-button>
+  </div>
 </template>
 
 <style lang="scss" scoped>

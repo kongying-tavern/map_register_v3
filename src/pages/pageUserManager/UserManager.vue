@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { AnyColumn } from 'element-plus/es/components/table-v2/src/common'
 import { useRoleEdit, useUserList/* , useSelected */ } from './hooks'
-import { TableCell, TableFilter, UserRoleTag, UserSorter } from './components'
+import { BtnCreateUser, TableCell, TableFilter, UserRoleTag, UserSorter } from './components'
 import { usePagination } from '@/hooks'
 
 const columns: (AnyColumn & { readonly?: boolean })[] = [
@@ -44,9 +44,10 @@ const { height } = useElementSize(tableRef)
 
 <template>
   <div class="h-full flex flex-col gap-2 overflow-hidden">
-    <div class="flex gap-8 items-center">
+    <div class="flex gap-8 items-center justify-between">
       <UserSorter v-model="sorts" :options="sortOptions" />
       <TableFilter v-model="filterValue" v-model:filter-key="filterKey" />
+      <BtnCreateUser class="flex-1" @success="refresh" />
     </div>
 
     <div ref="tableRef" class="flex-1 overflow-hidden" :style="{ height: '50vh' }">
@@ -78,14 +79,17 @@ const { height } = useElementSize(tableRef)
           </template>
         </el-table-column>
 
-        <el-table-column fixed="right" label="操作">
+        <el-table-column fixed="right" label="操作" :width="160">
           <template #default="{ $index }">
             <div class="flex">
-              <el-button v-if="isEditable($index)" :loading="editLoading" @click.stop="saveEdit">
+              <el-button v-if="isEditable($index)" :loading="editLoading" type="primary" plain @click.stop="saveEdit">
                 保存
               </el-button>
               <el-button v-else @click.stop="() => activeEdit($index)">
                 编辑
+              </el-button>
+              <el-button type="danger" plain>
+                删除
               </el-button>
             </div>
           </template>
