@@ -7,10 +7,11 @@ export interface UserAuthOptions {
   userRoles?: string[]
 }
 
-export const authInfo = useLocalStorage<Partial<UserAuthOptions>>('__ys_dadian_auth', {})
+export const useAuthInfo = () => useLocalStorage<Partial<UserAuthOptions>>('__ys_dadian_auth', {})
 
 /** 将用户凭证存储到本地 */
 export const saveUser = (auth: UserAuthOptions = {}) => {
+  const authInfo = useAuthInfo()
   authInfo.value = {
     ...auth,
     expiresTime: new Date().getTime() + 1000 * (auth.expires_in ?? 0),
@@ -18,6 +19,7 @@ export const saveUser = (auth: UserAuthOptions = {}) => {
 }
 
 export const validateUserToken = () => {
+  const authInfo = useAuthInfo()
   const { expiresTime = 0, access_token = '' } = authInfo.value
   if (!access_token)
     return false

@@ -1,6 +1,17 @@
 <script lang="ts" setup>
 import { AppSidemenu, BreadCrumb } from '@/components'
 import { LayoutAside, LayoutHeader, LayoutPage } from '@/layout'
+import { useAuthInfo } from '@/utils'
+
+const router = useRouter()
+
+const handleCommand = (command: string) => {
+  const authInfo = useAuthInfo()
+  if (command === 'logout') {
+    authInfo.value = null
+    router.push('/login')
+  }
+}
 </script>
 
 <template>
@@ -15,8 +26,18 @@ import { LayoutAside, LayoutHeader, LayoutPage } from '@/layout'
     </LayoutAside>
 
     <LayoutHeader>
-      <div class="h-full flex-1 flex items-center text-sm px-4">
+      <div class="h-full flex-1 flex items-center justify-between text-sm px-4">
         <BreadCrumb />
+        <el-dropdown @command="handleCommand">
+          <el-avatar :size="36" src="https://uploadstatic.mihoyo.com/contentweb/20210817/2021081714114216212.png" />
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item command="logout">
+                退出账户
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
       </div>
     </LayoutHeader>
 

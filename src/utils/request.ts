@@ -1,10 +1,10 @@
 import axios from 'axios'
 import type { AxiosRequestConfig } from 'axios'
-import { authInfo } from './auth'
+import { useAuthInfo } from './auth'
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE,
-  timeout: 2000,
+  timeout: 5000,
 })
 
 axiosInstance.interceptors.request.use(
@@ -17,6 +17,7 @@ axiosInstance.interceptors.request.use(
     if (!config.headers)
       config.headers = {}
 
+    const authInfo = useAuthInfo()
     const { access_token } = authInfo.value
     if (access_token)
       config.headers.Authorization = `Bearer ${access_token}`
