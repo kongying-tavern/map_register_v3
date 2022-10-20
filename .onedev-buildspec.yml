@@ -40,8 +40,9 @@ jobs:
     interpreter: !ShellInterpreter
       shell: bash
       commands:
-      - sudo systemctl daemon-reload
-      - sudo /bin/systemctl restart genshin-map-admin
+      # - sudo systemctl daemon-reload
+      # - sudo /bin/systemctl restart genshin-map-admin
+      - sudo yarn run preview
     useTTY: false
     condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
   triggers:
