@@ -12,7 +12,7 @@ export default defineConfig(({ mode }) => {
   return {
     server: {
       host: '0.0.0.0',
-      port: 4090,
+      port: 9000,
       proxy: {
         [ENV.VITE_API_BASE]: {
           target: ENV.VITE_API_PROXY_TARGET,
@@ -21,6 +21,11 @@ export default defineConfig(({ mode }) => {
             path.replace(new RegExp(`${ENV.VITE_API_BASE}`), ''),
         },
       },
+    },
+    
+    preview: {
+      host: '0.0.0.0',
+      port: 9000,
     },
 
     resolve: {
