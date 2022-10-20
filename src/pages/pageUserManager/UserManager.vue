@@ -4,10 +4,19 @@ import { useRoleEdit, useUserList/* , useSelected */ } from './hooks'
 import { BtnCreateUser, TableCell, TableFilter, UserRoleTag, UserSorter } from './components'
 import { usePagination } from '@/hooks'
 
-const columns: (AnyColumn & { readonly?: boolean })[] = [
+export interface CustomTableColumn {
+  title: AnyColumn['title']
+  dataKey: AnyColumn['dataKey']
+  width?: AnyColumn['width']
+  readonly?: boolean
+  fixed?: AnyColumn['fixed']
+  minWidth?: number
+}
+
+const columns: CustomTableColumn[] = [
   { title: 'ID', dataKey: 'id', width: 100, readonly: true, fixed: true },
-  { title: '用户名', dataKey: 'username', width: 150, readonly: true, fixed: true },
-  { title: '昵称', dataKey: 'nickname', width: 150 },
+  { title: '用户名', dataKey: 'username', minWidth: 150, readonly: true, fixed: true },
+  { title: '昵称', dataKey: 'nickname', minWidth: 150 },
   { title: 'QQ', dataKey: 'qq', width: 150 },
   { title: '电话', dataKey: 'phone', width: 200 },
 ]
@@ -60,6 +69,7 @@ const { height } = useElementSize(tableRef)
           :prop="column.dataKey"
           :label="column.title"
           :width="column.width"
+          :min-width="column.minWidth"
           :fixed="column.fixed"
         >
           <template #default="{ row, $index }">
