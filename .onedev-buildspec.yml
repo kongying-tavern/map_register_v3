@@ -9,9 +9,8 @@ jobs:
     interpreter: !DefaultInterpreter
       commands:
       - cd @secret:workspace-path@
-      - git checkout ./auto-imports.d.ts
-      - git checkout -q refactor
-      - git pull -r
+      - git checkout refactor
+      - git pull
     useTTY: false
     condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
   - !CommandStep
@@ -21,7 +20,8 @@ jobs:
     interpreter: !DefaultInterpreter
       commands:
       - cd @secret:workspace-path@
-      - npx pnpm i
+      - rm -rf ./node_modules
+      - yarn
     useTTY: false
     condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
   - !CommandStep
