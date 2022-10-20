@@ -21,7 +21,7 @@ jobs:
       commands:
       - cd @secret:workspace-path@
       - sudo rm -rf ./node_modules
-      - yarn
+      - sudo pnpm i
     useTTY: false
     condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
   - !CommandStep
@@ -31,7 +31,7 @@ jobs:
       shell: bash
       commands:
       - cd @secret:workspace-path@
-      - npx pnpm run build
+      - sudo pnpm run build
     useTTY: false
     condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
   - !CommandStep
@@ -40,10 +40,8 @@ jobs:
     interpreter: !ShellInterpreter
       shell: bash
       commands:
-      # - sudo systemctl daemon-reload
-      # - sudo /bin/systemctl restart genshin-map-admin
-      - cd @secret:workspace-path@
-      - yarn run preview
+      - sudo systemctl daemon-reload
+      - sudo /bin/systemctl restart genshin-map-admin
     useTTY: false
     condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
   triggers:
