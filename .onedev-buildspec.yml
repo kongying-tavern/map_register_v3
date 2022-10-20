@@ -20,7 +20,7 @@ jobs:
     interpreter: !DefaultInterpreter
       commands:
       - cd @secret:workspace-path@
-      - rm -rf ./node_modules
+      - sudo rm -rf ./node_modules
       - yarn
     useTTY: false
     condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
@@ -42,7 +42,7 @@ jobs:
       commands:
       # - sudo systemctl daemon-reload
       # - sudo /bin/systemctl restart genshin-map-admin
-      - sudo yarn run preview
+      - yarn run preview
     useTTY: false
     condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
   triggers:
