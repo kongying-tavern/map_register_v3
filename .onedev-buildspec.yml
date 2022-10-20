@@ -9,6 +9,7 @@ jobs:
     interpreter: !DefaultInterpreter
       commands:
       - cd @secret:workspace-path@
+      - git checkout ./auto-imports.d.ts
       - git checkout -q refactor
       - git pull -r
     useTTY: false
