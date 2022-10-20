@@ -3,6 +3,7 @@ import { defineConfig, loadEnv } from 'vite'
 import Vue from '@vitejs/plugin-vue'
 import VueJsx from '@vitejs/plugin-vue-jsx'
 import AutoImport from 'unplugin-auto-import/vite'
+import { getMHYProxys } from './.vite'
 import { openapi2ts } from './plugins'
 
 export default defineConfig(({ mode }) => {
@@ -14,6 +15,7 @@ export default defineConfig(({ mode }) => {
       host: '0.0.0.0',
       port: 9000,
       proxy: {
+        ...getMHYProxys(),
         [ENV.VITE_API_BASE]: {
           target: ENV.VITE_API_PROXY_TARGET,
           changeOrigin: true,
@@ -41,7 +43,7 @@ export default defineConfig(({ mode }) => {
       Vue(),
       VueJsx(),
       AutoImport({
-        imports: ['vue', '@vueuse/core'],
+        imports: ['vue', '@vueuse/core', 'vue-router'],
       }),
       openapi2ts([
         {

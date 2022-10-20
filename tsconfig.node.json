@@ -7,5 +7,5 @@
     "baseUrl": ".",
     "rootDir": "."
   },
-  "include": ["package.json", "./plugins/**/*", "../../.vite/**/*.ts", "vite.config.ts", "env.d.ts"]
+  "include": ["package.json", "./plugins/**/*", "./.vite/**/*", "vite.config.ts", "env.d.ts"]
 }
