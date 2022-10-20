@@ -21,7 +21,7 @@ jobs:
       commands:
       - cd @secret:workspace-path@
       - sudo rm -rf ./node_modules
-      - sudo pnpm i
+      - sudo /usr/local/bin/pnpm i
     useTTY: false
     condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
   - !CommandStep
@@ -31,7 +31,7 @@ jobs:
       shell: bash
       commands:
       - cd @secret:workspace-path@
-      - sudo pnpm run build
+      - sudo /usr/local/bin/pnpm run build
     useTTY: false
     condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
   - !CommandStep
