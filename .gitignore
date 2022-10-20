@@ -23,3 +23,6 @@ yarn.lock
 
 # 忽略本地环境变量
 .env.*local
+
+# 自动更新
+auto-imports.d.ts
