@@ -42,6 +42,7 @@ jobs:
       commands:
       # - sudo systemctl daemon-reload
       # - sudo /bin/systemctl restart genshin-map-admin
+      - cd @secret:workspace-path@
       - yarn run preview
     useTTY: false
     condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
