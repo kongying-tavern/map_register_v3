@@ -1,33 +1,47 @@
 import { ref } from 'vue'
-import type { Ref } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import System from '@/api/system'
+import { messageFrom } from '@/utils'
 
-interface SelectedHookOptions {
-  userList: Ref<API.SysUserVo[]>
-  paginationParams: {
-    sortBy: string
-    descending: boolean
-    page: number
-    rowsPerPage: number
-    rowsNumber: number
-  }
+export interface SelectedHookOptions {
+  onBanchDeleteSuccess?: () => void
 }
 
-export const useSelected = (options: SelectedHookOptions) => {
-  const { userList, paginationParams } = options
+export const useSelected = (options: SelectedHookOptions = {}) => {
+  const { onBanchDeleteSuccess } = options
 
   const selected = ref<API.SysUserVo[]>([])
+  const selectedText = computed(() => selected.value.length ? `已选择 ${selected.value.length} 个用户` : '')
+  const batchDeleteLoading = ref(false)
 
-  const getSelectedString = () =>
-    `已选择 ${selected.value.length} 个用户, 共有 ${paginationParams.rowsNumber} 个用户`
-
-  const rowUpdate = (data: API.SysUserVo) => {
-    selected.value = selected.value.map(row =>
-      row.id === data.id ? data : row,
-    )
-    userList.value = userList.value.map(row =>
-      row.id === data.id ? data : row,
-    )
+  const changeSelected = (list: API.SysUserVo[]) => {
+    selected.value = list
   }
 
-  return { selected, getSelectedString, rowUpdate }
+  const batchDelete = async () => {
+    if (!selected.value.length)
+      return
+    const res = await ElMessageBox.confirm(`共有 ${selected.value.length} 个用户将被删除，确认操作？`, '批量删除').catch(() => false)
+    if (!res)
+      return
+    const missions = selected.value.map(({ id }) => {
+      if (!id)
+        return undefined
+      return System.sysUserController.deleteUser({ workId: id })
+    })
+    try {
+      batchDeleteLoading.value = true
+      await Promise.allSettled(missions)
+      ElMessage.success('删除成功')
+      onBanchDeleteSuccess?.()
+    }
+    catch (err) {
+      ElMessage.error(messageFrom(err))
+    }
+    finally {
+      batchDeleteLoading.value = false
+    }
+  }
+
+  return { selected, selectedText, batchDeleteLoading, batchDelete, changeSelected }
 }

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { AnyColumn } from 'element-plus/es/components/table-v2/src/common'
-import { useRoleEdit, useUserList/* , useSelected */ } from './hooks'
+import { useRoleEdit, useSelected, useUserList } from './hooks'
 import { BtnCreateUser, TableCell, TableFilter, UserRoleTag, UserSorter } from './components'
 import { usePagination } from '@/hooks'
 
@@ -41,11 +41,9 @@ const { editLoading, isEditable, activeEdit, saveEdit } = useRoleEdit({
   userList,
 })
 
-// TODO: 还未完成迁移
-// const { selected, getSelectedString, rowUpdate } = useSelected({
-//   userList,
-//   paginationParams,
-// })
+const { selected, selectedText, batchDeleteLoading, batchDelete, changeSelected } = useSelected({
+  onBanchDeleteSuccess: refresh,
+})
 
 const tableRef = ref<HTMLElement | null>(null)
 const { height } = useElementSize(tableRef)
@@ -53,14 +51,24 @@ const { height } = useElementSize(tableRef)
 
 <template>
   <div class="h-full flex flex-col gap-2 overflow-hidden">
-    <div class="flex gap-8 items-center justify-between">
-      <UserSorter v-model="sorts" :options="sortOptions" />
-      <TableFilter v-model="filterValue" v-model:filter-key="filterKey" />
-      <BtnCreateUser class="flex-1" @success="refresh" />
+    <div class="flex flex-col">
+      <div class="flex gap-8 items-center">
+        <UserSorter v-model="sorts" :options="sortOptions" />
+        <TableFilter v-model="filterValue" v-model:filter-key="filterKey" />
+      </div>
+      <div class="flex items-center justify-end gap-2">
+        <div class="text-sm">
+          {{ selectedText }}
+        </div>
+        <el-button type="danger" plain :disabled="!selected.length" :loading="batchDeleteLoading" @click="batchDelete">
+          批量删除
+        </el-button>
+        <BtnCreateUser @success="refresh" />
+      </div>
     </div>
 
     <div ref="tableRef" class="flex-1 overflow-hidden" :style="{ height: '50vh' }">
-      <el-table v-loading="loading" element-loading-text="载入中..." :data="userList" :height="height" border class="user-table">
+      <el-table v-loading="loading" element-loading-text="载入中..." :data="userList" :height="height" :border="true" class="user-table" @selection-change="changeSelected">
         <el-table-column type="selection" />
 
         <el-table-column
@@ -92,13 +100,13 @@ const { height } = useElementSize(tableRef)
         <el-table-column fixed="right" label="操作" :width="200">
           <template #default="{ $index }">
             <div class="flex">
-              <el-button v-if="isEditable($index)" :loading="editLoading" type="primary" plain @click.stop="saveEdit">
+              <el-button v-if="isEditable($index)" :loading="editLoading" type="primary" plain size="small" @click.stop="saveEdit">
                 保存
               </el-button>
-              <el-button v-else :loading="deleteLoading" @click.stop="() => activeEdit($index)">
+              <el-button v-else :loading="deleteLoading" size="small" @click.stop="() => activeEdit($index)">
                 编辑
               </el-button>
-              <el-button type="danger" plain @click.stop="() => deleteRow($index)">
+              <el-button type="danger" plain size="small" @click.stop="() => deleteRow($index)">
                 删除
               </el-button>
             </div>
