@@ -34,8 +34,8 @@ export const beforeEachGuard = (
       return next('/login')
     }
 
-    // 当本地存储的 id 不存在时更新用户信息（用于应对刷新）
-    if (!userStore.info.id)
+    // 当本地存储的 id 不存在时（用于应对刷新）或与鉴权信息不一致时（用于应对直接输入登录地址的跳转）更新用户信息
+    if (!userStore.info.id || userStore.info.id !== userStore.auth.userId)
       userStore.updateUserInfo()
 
     return next()
