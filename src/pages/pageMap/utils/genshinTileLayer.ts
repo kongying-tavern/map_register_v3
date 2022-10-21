@@ -1,7 +1,7 @@
 import type { TileLayerOptions } from 'leaflet'
 import L from 'leaflet'
 import type { MapNameEnum, MapTileConfig } from '../configs'
-import { getTileConfig } from '.'
+import { TileUtil } from '.'
 
 const TILES_URL_PREFIX = 'https://assets.yuanshen.site/tiles_'
 const DEFAULT_TILE_OPTIONS: TileLayerOptions = {
@@ -14,7 +14,7 @@ const DEFAULT_TILE_OPTIONS: TileLayerOptions = {
 export class GenshinTileLayer extends L.TileLayer {
   constructor(name: MapNameEnum, options?: TileLayerOptions) {
     super('', options)
-    this.tileConfig = getTileConfig(name)
+    this.tileConfig = TileUtil.getConfig(name)
   }
 
   /**
@@ -25,7 +25,7 @@ export class GenshinTileLayer extends L.TileLayer {
   reuseTiles = true
   /** 切片原始配置 */
   readonly tileConfig: MapTileConfig
-
+  /** 切片缓存 */
   static instanceRecord = new Map<MapNameEnum, GenshinTileLayer>()
 
   getTileUrl(coords: L.Coords): string {
@@ -39,7 +39,7 @@ export class GenshinTileLayer extends L.TileLayer {
     if (this.instanceRecord.has(name))
       return this.instanceRecord.get(name) as GenshinTileLayer
 
-    const config = getTileConfig(name)
+    const config = TileUtil.getConfig(name)
     const { code, extension, center = [3568, 6286], tilesOffset = [0, 0], size = [12288, 15360] } = config
     if (!code)
       throw new Error('unknown map code')

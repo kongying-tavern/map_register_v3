@@ -10,20 +10,27 @@ interface MapHookOptions {
 export const useMap = (ele: Ref<HTMLElement | null>, options: MapHookOptions = {}) => {
   const { mapOptions } = options
 
-  const mapRef = ref<L.Map | null>(null) as Ref<L.Map>
-  const layerRef = ref<L.Layer | null>(null) as Ref<L.Layer>
+  const map = ref<L.Map | null>(null) as Ref<L.Map | null>
+  const zoom = ref(NaN)
 
+  /** 事件初始化 */
+  const initHandler = (map: L.Map) => {
+    zoom.value = map.getZoom()
+    map.on('zoomend', () => {
+      zoom.value = map.getZoom() ?? 0
+    })
+  }
+
+  /** 切换地图 */
   const switchMap = (name: MapNameEnum) => {
     if (!ele.value)
       return
 
     const tile = GenshinTileLayer.getLayer(name)
 
-    if (mapRef.value) {
-      layerRef.value && mapRef.value.removeLayer(layerRef.value)
-      mapRef.value.addLayer(tile)
-      layerRef.value = tile
-      return
+    if (map.value) {
+      map.value.off()
+      map.value.remove()
     }
 
     const { settings, center = [0, 0], size = [0, 0], tilesOffset = [0, 0] } = tile.tileConfig
@@ -34,7 +41,7 @@ export const useMap = (ele: Ref<HTMLElement | null>, options: MapHookOptions = {
 
     const mapCRS = MapUtil.getMapCRS(centerX, centerY, w, h)
 
-    mapRef.value = L.map(ele.value, {
+    const newMap = L.map(ele.value, {
       crs: mapCRS,
       center: [2576, 1742],
       zoomDelta: 0,
@@ -52,8 +59,19 @@ export const useMap = (ele: Ref<HTMLElement | null>, options: MapHookOptions = {
       ...settings,
       ...mapOptions,
     }).addLayer(tile)
-    layerRef.value = tile
+
+    map.value = newMap
+
+    initHandler(newMap)
   }
 
-  return { switchMap }
+  /** 卸载前清理掉事件和渲染器以避免内存泄漏 */
+  onBeforeUnmount(() => {
+    if (!map.value)
+      return
+    map.value.off()
+    map.value.remove()
+  })
+
+  return { map, zoom, switchMap }
 }

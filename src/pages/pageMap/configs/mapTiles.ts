@@ -1,10 +1,16 @@
 export enum MapNameEnum {
-  TIVAT_BASE_0 = '提瓦特-base0',
-  TIVAT_BASE_1 = '提瓦特-base1',
+  /** 提瓦特 */
+  TIVAT_MASTER = '提瓦特',
+  /** 非地图，仅用于继承 */
+  TIVAT_EXTEND_BASE = 'base',
+  /** 金苹果群岛 */
   GOLDEN_APPLE_ISLANDS = '金苹果群岛',
-  UNDERGROUND_MINIG_AREA = '地下矿区',
+  /** 层岩巨渊 */
+  CENG_YAN_JU_YUAN = '层岩巨渊',
+  /** 渊下宫 */
   YUAN_XIA_GONG = '渊下宫',
-  SANJIE_ROAD_FEAST = '三界路飨祭',
+  /** 三界路飨祭 */
+  SAN_JIE_LU_XIANG_JI = '三界路飨祭',
 }
 
 export interface MapTileConfig {
@@ -24,8 +30,9 @@ export interface MapTileConfig {
   extend?: MapNameEnum
 }
 
+/** 地图切片配置 */
 export const mapTiles: Record<MapNameEnum, MapTileConfig> = {
-  [MapNameEnum.TIVAT_BASE_0]: {
+  [MapNameEnum.TIVAT_MASTER]: {
     extension: 'png',
     code: 'twt31',
     settings: {
@@ -35,7 +42,7 @@ export const mapTiles: Record<MapNameEnum, MapTileConfig> = {
     size: [16384, 15360],
     tilesOffset: [-4864, 0],
   },
-  [MapNameEnum.TIVAT_BASE_1]: {
+  [MapNameEnum.TIVAT_EXTEND_BASE]: {
     extension: 'png',
     center: [3568, 6286],
     size: [12288, 15360],
@@ -50,8 +57,8 @@ export const mapTiles: Record<MapNameEnum, MapTileConfig> = {
     center: [3568, 6286],
     size: [8192, 8192],
   },
-  [MapNameEnum.UNDERGROUND_MINIG_AREA]: {
-    extend: MapNameEnum.TIVAT_BASE_1,
+  [MapNameEnum.CENG_YAN_JU_YUAN]: {
+    extend: MapNameEnum.TIVAT_EXTEND_BASE,
     code: 'cyjy',
     settings: {
       center: [1800, -500],
@@ -59,18 +66,22 @@ export const mapTiles: Record<MapNameEnum, MapTileConfig> = {
     },
   },
   [MapNameEnum.YUAN_XIA_GONG]: {
-    extend: MapNameEnum.TIVAT_BASE_1,
+    extend: MapNameEnum.TIVAT_EXTEND_BASE,
     code: 'yxg',
+    size: [12288, 12288],
+    tilesOffset: [0, 0],
     settings: {
-      center: [2000, 300],
+      center: [3568, 600],
       zoom: -4,
     },
   },
-  [MapNameEnum.SANJIE_ROAD_FEAST]: {
-    extend: MapNameEnum.TIVAT_BASE_1,
-    code: 'yxg',
+  [MapNameEnum.SAN_JIE_LU_XIANG_JI]: {
+    extend: MapNameEnum.TIVAT_EXTEND_BASE,
+    code: 'yxg2',
+    size: [12288, 12288],
+    tilesOffset: [0, 0],
     settings: {
-      center: [2000, 300],
+      center: [3568, 600],
       zoom: -4,
     },
   },
