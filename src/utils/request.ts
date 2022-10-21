@@ -1,6 +1,7 @@
+// TODO: 迁移
 import axios from 'axios'
 import type { AxiosRequestConfig } from 'axios'
-import { useAuthInfo } from './auth'
+import { useUserStore } from '@/stores'
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE,
@@ -17,10 +18,9 @@ axiosInstance.interceptors.request.use(
     if (!config.headers)
       config.headers = {}
 
-    const authInfo = useAuthInfo()
-    const { access_token } = authInfo.value
-    if (access_token)
-      config.headers.Authorization = `Bearer ${access_token}`
+    const userStore = useUserStore()
+    if (userStore.auth.access_token)
+      config.headers.Authorization = `Bearer ${userStore.auth.access_token}`
     config.headers['Content-Type'] = 'application/json'
 
     return config

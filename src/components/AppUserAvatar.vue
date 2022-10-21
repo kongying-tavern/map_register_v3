@@ -1,14 +1,12 @@
 <script lang="ts" setup>
 import { router } from '@/router'
-import { useAuthInfo } from '@/utils'
 import { useUserStore } from '@/stores'
 
 const userStore = useUserStore()
 
 const handleCommand = (command: string) => {
-  const authInfo = useAuthInfo()
   if (command === 'logout') {
-    authInfo.value = null
+    userStore.logout()
     router.push('/login')
   }
 }

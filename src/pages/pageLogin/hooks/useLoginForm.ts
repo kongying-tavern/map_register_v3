@@ -1,8 +1,8 @@
 import { reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
-import { messageFrom, saveUser } from '@/utils'
-import Oauth from '@/api/oauth'
+import { messageFrom } from '@/utils'
+import { useUserStore } from '@/stores'
 
 /** 登录逻辑封装 */
 export const useLoginForm = () => {
@@ -14,13 +14,13 @@ export const useLoginForm = () => {
   })
 
   const router = useRouter()
+  const userStore = useUserStore()
 
   const login = async () => {
     try {
       loading.value = true
-      const res = await Oauth.oauth.token(loginForm)
+      await userStore.login(loginForm)
       router.push('/')
-      saveUser(res as any)
       ElMessage.success('登录成功')
     }
     catch (err) {

@@ -1,1 +1,1 @@
-export * from './userInfo'
+export * from './user'

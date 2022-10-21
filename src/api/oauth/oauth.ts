@@ -10,7 +10,7 @@ export async function token(
     const value = body[key as keyof typeof body]
     form.append(key, value)
   }
-  return request<API.RBoolean>('/oauth/token', {
+  return request<API.SysToken>('/oauth/token', {
     method: 'POST',
     headers: {
       'Content-Type': 'multipart/form-data',
