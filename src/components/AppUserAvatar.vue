@@ -2,12 +2,22 @@
 import { router } from '@/router'
 import { useUserStore } from '@/stores'
 
+defineProps<{
+  mapMode?: boolean
+}>()
+
 const userStore = useUserStore()
 
 const handleCommand = (command: string) => {
   if (command === 'logout') {
     userStore.logout()
     router.push('/login')
+  }
+  else if (command === 'toManager') {
+    router.push('/')
+  }
+  else if (command === 'toMap') {
+    router.push('/map')
   }
 }
 </script>
@@ -24,6 +34,12 @@ const handleCommand = (command: string) => {
       <el-dropdown-menu>
         <el-dropdown-item>
           登录身份：{{ userStore.info.nickname }}
+        </el-dropdown-item>
+        <el-dropdown-item v-if="mapMode" divided command="toManager">
+          管理中心
+        </el-dropdown-item>
+        <el-dropdown-item v-else divided command="toMap">
+          大地图
         </el-dropdown-item>
         <el-dropdown-item divided command="logout">
           退出账户

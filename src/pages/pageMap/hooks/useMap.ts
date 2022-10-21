@@ -2,16 +2,23 @@ import L from 'leaflet'
 import type { Ref } from 'vue'
 import type { MapNameEnum } from '../configs'
 import { GenshinTileLayer, MapUtil } from '../utils'
+import { mapTiles } from '../configs'
 
 interface MapHookOptions {
   mapOptions?: L.MapOptions
 }
+
+const tileOptions = Object.entries(mapTiles).reduce((seed, [key, mapTileConfig]) => {
+  mapTileConfig.code && seed.push(key as MapNameEnum)
+  return seed
+}, [] as MapNameEnum[])
 
 export const useMap = (ele: Ref<HTMLElement | null>, options: MapHookOptions = {}) => {
   const { mapOptions } = options
 
   const map = ref<L.Map | null>(null) as Ref<L.Map | null>
   const zoom = ref(NaN)
+  const mapName = ref<MapNameEnum>(tileOptions[0])
 
   /** 事件初始化 */
   const initHandler = (map: L.Map) => {
@@ -65,6 +72,12 @@ export const useMap = (ele: Ref<HTMLElement | null>, options: MapHookOptions = {
     initHandler(newMap)
   }
 
+  watch(mapName, switchMap)
+
+  onMounted(() => {
+    switchMap(mapName.value)
+  })
+
   /** 卸载前清理掉事件和渲染器以避免内存泄漏 */
   onBeforeUnmount(() => {
     if (!map.value)
@@ -73,5 +86,5 @@ export const useMap = (ele: Ref<HTMLElement | null>, options: MapHookOptions = {
     map.value.remove()
   })
 
-  return { map, zoom, switchMap }
+  return { map, mapName, zoom, tileOptions, switchMap }
 }

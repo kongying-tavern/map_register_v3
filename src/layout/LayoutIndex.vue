@@ -1,11 +1,13 @@
 <script lang="ts" setup>
 import { AppSidemenu, AppUserAvatar, BreadCrumb } from '@/components'
+import { useTheme } from '@/hooks'
 import { LayoutAside, LayoutHeader, LayoutPage } from '@/layout'
 
-const router = useRouter()
-const backToMap = () => {
-  router.push('/map')
-}
+// TODO: 管理这边还没适配黑暗模式，先这么用着
+const { isDark } = useTheme()
+onBeforeMount(() => {
+  isDark.value = false
+})
 </script>
 
 <template>
@@ -22,9 +24,6 @@ const backToMap = () => {
     <LayoutHeader>
       <div class="h-full flex-1 flex items-center justify-between text-sm px-4 gap-4">
         <BreadCrumb class="flex-1" />
-        <el-button text size="large" @click="backToMap">
-          返回地图
-        </el-button>
         <AppUserAvatar />
       </div>
     </LayoutHeader>
