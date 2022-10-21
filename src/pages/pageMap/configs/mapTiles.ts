@@ -1,8 +1,6 @@
 export enum MapNameEnum {
   /** 提瓦特 */
   TIVAT_MASTER = '提瓦特',
-  /** 非地图，仅用于继承 */
-  TIVAT_EXTEND_BASE = 'base',
   /** 金苹果群岛 */
   GOLDEN_APPLE_ISLANDS = '金苹果群岛',
   /** 层岩巨渊 */
@@ -11,6 +9,8 @@ export enum MapNameEnum {
   YUAN_XIA_GONG = '渊下宫',
   /** 三界路飨祭 */
   SAN_JIE_LU_XIANG_JI = '三界路飨祭',
+  /** 非地图，仅用于继承 */
+  EXTEND_0 = 'extend_0',
 }
 
 export interface MapTileConfig {
@@ -32,57 +32,50 @@ export interface MapTileConfig {
 
 /** 地图切片配置 */
 export const mapTiles: Record<MapNameEnum, MapTileConfig> = {
-  [MapNameEnum.TIVAT_MASTER]: {
+  [MapNameEnum.EXTEND_0]: {
     extension: 'png',
+    center: [3568, 6286],
+    tilesOffset: [0, 0],
+    settings: {
+      center: [0, 0],
+      zoom: -4,
+    },
+  },
+  [MapNameEnum.TIVAT_MASTER]: {
+    extend: MapNameEnum.EXTEND_0,
     code: 'twt31',
+    size: [16384, 15360],
+    tilesOffset: [-4864, 0],
     settings: {
       center: [0, 1742],
     },
-    center: [3568, 6286],
-    size: [16384, 15360],
-    tilesOffset: [-4864, 0],
-  },
-  [MapNameEnum.TIVAT_EXTEND_BASE]: {
-    extension: 'png',
-    center: [3568, 6286],
-    size: [12288, 15360],
   },
   [MapNameEnum.GOLDEN_APPLE_ISLANDS]: {
-    extension: 'png',
+    extend: MapNameEnum.EXTEND_0,
     code: 'qd28',
+    size: [8192, 8192],
     settings: {
-      center: [600, -2190],
+      center: [600, -3000],
       zoom: -2,
     },
-    center: [3568, 6286],
-    size: [8192, 8192],
   },
   [MapNameEnum.CENG_YAN_JU_YUAN]: {
-    extend: MapNameEnum.TIVAT_EXTEND_BASE,
+    extend: MapNameEnum.EXTEND_0,
     code: 'cyjy',
+    size: [12288, 12288],
     settings: {
       center: [1800, -500],
       zoom: -3,
     },
   },
   [MapNameEnum.YUAN_XIA_GONG]: {
-    extend: MapNameEnum.TIVAT_EXTEND_BASE,
+    extend: MapNameEnum.EXTEND_0,
     code: 'yxg',
     size: [12288, 12288],
-    tilesOffset: [0, 0],
-    settings: {
-      center: [3568, 600],
-      zoom: -4,
-    },
   },
   [MapNameEnum.SAN_JIE_LU_XIANG_JI]: {
-    extend: MapNameEnum.TIVAT_EXTEND_BASE,
+    extend: MapNameEnum.EXTEND_0,
     code: 'yxg2',
     size: [12288, 12288],
-    tilesOffset: [0, 0],
-    settings: {
-      center: [3568, 600],
-      zoom: -4,
-    },
   },
 }
