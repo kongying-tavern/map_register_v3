@@ -3,7 +3,7 @@ export interface UserAuthOptions {
   refresh_token?: string
   expires_in?: number
   expiresTime?: number
-  userId?: string
+  userId?: number
   userRoles?: string[]
 }
 

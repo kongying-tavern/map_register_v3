@@ -1,5 +1,6 @@
 import type { NavigationGuardWithThis, Router } from 'vue-router'
-import { validateUserToken } from '@/utils'
+import { useAuthInfo, validateUserToken } from '@/utils'
+import { useUserStore } from '@/stores'
 
 interface BeforeEachGuardOptions {
   debug?: boolean
@@ -32,6 +33,12 @@ export const beforeEachGuard = (
       debug && console.log('[beforeEachGuard]', '用户凭证过期，重定向到登录页')
       return next('/login')
     }
+
+    // 当本地存储的 id 不存在时更新用户信息（用于应对刷新）
+    const userAuth = useAuthInfo()
+    const userStore = useUserStore()
+    if (!userStore.info.id)
+      userStore.updateUserInfo(userAuth.value.userId)
 
     return next()
   }
