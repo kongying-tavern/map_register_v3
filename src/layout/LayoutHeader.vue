@@ -10,7 +10,7 @@
   height: var(--c-header-height);
   line-height: var(--c-header-height);
   justify-content: space-between;
-  background-color: var(--c-bg-color);
+  background-color: var(--el-bg-color);
   box-shadow: var(--c-header-shdow);
   transition: background-color 0.2s;
 }

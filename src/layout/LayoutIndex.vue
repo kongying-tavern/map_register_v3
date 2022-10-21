@@ -35,7 +35,6 @@ onBeforeMount(() => {
 <style lang="scss" scoped>
 // TODO: 变量抽离
 .layout-contianer {
-  --c-bg-color: #fff;
   --c-aside-width: 120px;
   --c-aside-shadow: 0 2px 8px #1d23290d;
   --c-header-height: 60px;

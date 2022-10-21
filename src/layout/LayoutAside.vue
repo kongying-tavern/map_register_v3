@@ -15,7 +15,7 @@
   width: var(--c-aside-width);
   grid-row-start: span 2;
   box-shadow: var(--c-aside-shadow);
-  background-color: var(--c-bg-color);
+  background-color: var(--el-bg-color);
   transition: width 0.2s ease, background-color 0.2s;
   display: flex;
   flex-direction: column;
