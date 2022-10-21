@@ -1,6 +1,11 @@
 <script lang="ts" setup>
 import { AppSidemenu, AppUserAvatar, BreadCrumb } from '@/components'
 import { LayoutAside, LayoutHeader, LayoutPage } from '@/layout'
+
+const router = useRouter()
+const backToMap = () => {
+  router.push('/map')
+}
 </script>
 
 <template>
@@ -15,8 +20,11 @@ import { LayoutAside, LayoutHeader, LayoutPage } from '@/layout'
     </LayoutAside>
 
     <LayoutHeader>
-      <div class="h-full flex-1 flex items-center justify-between text-sm px-4">
-        <BreadCrumb />
+      <div class="h-full flex-1 flex items-center justify-between text-sm px-4 gap-4">
+        <BreadCrumb class="flex-1" />
+        <el-button text size="large" @click="backToMap">
+          返回地图
+        </el-button>
         <AppUserAvatar />
       </div>
     </LayoutHeader>

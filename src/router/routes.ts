@@ -35,11 +35,11 @@ const routes: RouteRecordRaw[] = [
     ],
   },
   {
-    path: '/marker',
+    path: '/map',
     meta: {
-      title: '打点页',
+      title: '地图页',
     },
-    // component: () => import(''),
+    component: () => import('@/pages/pageMap/PageMap.vue'),
     children: [],
   },
   {

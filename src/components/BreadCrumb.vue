@@ -6,7 +6,7 @@ const route = useRoute()
 </script>
 
 <template>
-  <el-breadcrumb :separator-icon="ArrowRight">
+  <el-breadcrumb :separator-icon="ArrowRight" v-bind="$attrs">
     <el-breadcrumb-item
       v-for="item in route.matched"
       :key="item.path"
