@@ -17,7 +17,7 @@ export const useMap = (ele: Ref<HTMLElement | null>, options: MapHookOptions = {
   const { mapOptions } = options
 
   const map = ref<L.Map | null>(null) as Ref<L.Map | null>
-  const zoom = ref(NaN)
+  const zoom = ref(-4)
   const mapName = ref<MapNameEnum>(tileOptions[0])
 
   /** 事件初始化 */
@@ -49,13 +49,14 @@ export const useMap = (ele: Ref<HTMLElement | null>, options: MapHookOptions = {
     const mapCRS = MapUtil.getMapCRS(centerX, centerY, w, h)
 
     const newMap = L.map(ele.value, {
+      zoom: zoom.value,
+      ...settings,
+      ...mapOptions,
       crs: mapCRS,
-      center: [2576, 1742],
       zoomDelta: 0,
       zoomSnap: 0.5,
       maxZoom: 2,
       minZoom: -4,
-      zoom: -4,
       tap: false,
       attributionControl: false,
       zoomControl: false,
@@ -63,8 +64,6 @@ export const useMap = (ele: Ref<HTMLElement | null>, options: MapHookOptions = {
         L.latLng(-centerX + offsetX - 10000, -centerY + offsetY - 10000),
         L.latLng(w - centerX + offsetX + 10000, h - centerY + offsetY + 10000),
       ),
-      ...settings,
-      ...mapOptions,
     }).addLayer(tile)
 
     map.value = newMap
