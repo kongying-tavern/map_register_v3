@@ -2,7 +2,7 @@
 import { useRoleOptions } from '../hooks'
 
 const props = withDefaults(defineProps<{
-  modelValue: API.SysRoleVo[]
+  modelValue: API.SysRoleVo[] | API.SysRoleVo
   editMode?: boolean
 }>(), {
   modelValue: () => [],
@@ -13,21 +13,19 @@ const emits = defineEmits<{
   (e: 'active'): void
 }>()
 
-const { selectOptions, roleValueMap } = useRoleOptions({
+const { roleOptions, selectOptions, roleValueMap } = useRoleOptions({
   publicMode: true,
 })
 
 const internalValue = computed({
-  get: () => props.modelValue.map(role => role.id),
-  set: (roleIds) => {
-    const roles = roleIds.reduce((seed, id) => {
-      if (id) {
-        const findRole = roleValueMap.value[id]
-        findRole && seed.push(findRole)
-      }
-      return seed
-    }, [] as API.SysRoleVo[])
-    emits('update:modelValue', roles)
+  get: () => Array.isArray(props.modelValue) ? props.modelValue[0]?.id : props.modelValue?.id,
+  set: (roleId) => {
+    const role = roleOptions.value.find(role => role.id === roleId)
+    if (!role) {
+      emits('update:modelValue', [])
+      return
+    }
+    emits('update:modelValue', [role])
   },
 })
 
@@ -44,15 +42,13 @@ const requestEdit = () => {
       :options="selectOptions"
       class="w-full"
       tabindex="0"
-      multiple
+      filterable
+      clearable
       collapse-tags
     />
-    <div v-else class="flex gap-1" @click.stop="requestEdit">
-      <el-tag v-if="props.modelValue.length" disable-transitions>
-        {{ props.modelValue[0].name }}
-      </el-tag>
-      <el-tag v-if="props.modelValue.length > 1" disable-transitions>
-        +{{ props.modelValue.length - 1 }}
+    <div v-else class="flex" @click.stop="requestEdit">
+      <el-tag v-if="internalValue !== undefined" disable-transitions>
+        {{ roleValueMap[internalValue]?.name }}
       </el-tag>
     </div>
   </div>

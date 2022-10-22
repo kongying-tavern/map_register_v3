@@ -56,14 +56,22 @@ export const useRoleEdit = (options: RoleEditHookOptions) => {
     try {
       editLoading.value = true
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { id, username, roleList, ...rest } = userList.value[editIndex.value]
-      const res = await System.sysUserController.updateUser({}, {
-        ...rest,
-        userId: id,
-      })
+      const { id: userId, username, roleList = [], ...rest } = userList.value[editIndex.value]
+      // 更新用户信息需要的全部请求
+      const mission = [
+        // 修改用户信息
+        System.sysUserController.updateUser({}, { ...rest, userId }),
+      ]
+      const [newRoleId, oldRoleId] = [roleList[0]?.id, rowCache.value?.roleList?.[0]?.id]
+      const isRoleDiff = newRoleId !== oldRoleId
+      if (isRoleDiff) {
+        // 修改用户角色
+        mission.push(System.role.addRoleToUser({ userId, roleId: newRoleId }))
+      }
+      await Promise.allSettled(mission)
       resetFlag.value = false
       exitEdit()
-      ElMessage.success(res.message ?? '修改成功')
+      ElMessage.success('修改成功')
     }
     catch (err) {
       ElMessage.error(messageFrom(err))
