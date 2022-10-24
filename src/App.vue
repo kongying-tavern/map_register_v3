@@ -1,7 +1,9 @@
 <script setup lang="ts">
-/** component name 为该组件的文件名，一般不再需要额外定义 */
+import { AppDialogProvider } from '@/components'
 </script>
 
 <template>
   <router-view />
+
+  <AppDialogProvider />
 </template>

@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 import type { AnyColumn } from 'element-plus/es/components/table-v2/src/common'
+import { ElButton } from 'element-plus'
 import { useRoleEdit, useSelected, useUserList } from './hooks'
 import { BtnCreateUser, TableCell, TableFilter, UserRoleTag, UserSorter } from './components'
-import { usePagination } from '@/hooks'
+import { useGlobalDialog, usePagination } from '@/hooks'
 
 export interface CustomTableColumn {
   title: AnyColumn['title']
@@ -47,6 +48,21 @@ const { selected, selectedText, batchDeleteLoading, batchDelete, changeSelected 
 
 const tableRef = ref<HTMLElement | null>(null)
 const { height } = useElementSize(tableRef)
+
+const { DialogService } = useGlobalDialog()
+
+const callDialog = () => {
+  DialogService
+    .open(() => h(
+      'div',
+      { class: 'bg-slate-500 bg-opacity-50 p-4' },
+      { default: () => 'Hello world' },
+    ))
+    .config({
+      title: '来自弹窗服务',
+      width: '400px',
+    })
+}
 </script>
 
 <template>
@@ -60,9 +76,9 @@ const { height } = useElementSize(tableRef)
         <div class="text-sm">
           {{ selectedText }}
         </div>
-        <el-button type="danger" plain :disabled="!selected.length" :loading="batchDeleteLoading" @click="batchDelete">
+        <ElButton type="danger" plain :disabled="!selected.length" :loading="batchDeleteLoading" @click="batchDelete">
           批量删除
-        </el-button>
+        </ElButton>
         <BtnCreateUser @success="refresh" />
       </div>
     </div>
@@ -97,18 +113,21 @@ const { height } = useElementSize(tableRef)
           </template>
         </el-table-column>
 
-        <el-table-column fixed="right" label="操作" :width="200">
+        <el-table-column fixed="right" label="操作" :width="240">
           <template #default="{ $index }">
             <div class="flex">
-              <el-button v-if="isEditable($index)" :loading="editLoading" type="primary" plain size="small" @click.stop="saveEdit">
+              <ElButton @click="callDialog">
+                修改密码
+              </ElButton>
+              <ElButton v-if="isEditable($index)" :loading="editLoading" type="primary" plain size="small" @click.stop="saveEdit">
                 保存
-              </el-button>
-              <el-button v-else :loading="deleteLoading" size="small" @click.stop="() => activeEdit($index)">
+              </ElButton>
+              <ElButton v-else :loading="deleteLoading" size="small" @click.stop="() => activeEdit($index)">
                 编辑
-              </el-button>
-              <el-button type="danger" plain size="small" @click.stop="() => deleteRow($index)">
+              </ElButton>
+              <ElButton type="danger" plain size="small" @click.stop="() => deleteRow($index)">
                 删除
-              </el-button>
+              </ElButton>
             </div>
           </template>
         </el-table-column>
