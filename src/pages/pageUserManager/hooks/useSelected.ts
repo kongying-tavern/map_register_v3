@@ -4,11 +4,11 @@ import System from '@/api/system'
 import { messageFrom } from '@/utils'
 
 export interface SelectedHookOptions {
-  onBanchDeleteSuccess?: () => void
+  onBatchDeleteSuccess?: () => void
 }
 
 export const useSelected = (options: SelectedHookOptions = {}) => {
-  const { onBanchDeleteSuccess } = options
+  const { onBatchDeleteSuccess } = options
 
   const selected = ref<API.SysUserVo[]>([])
   const selectedText = computed(() => selected.value.length ? `已选择 ${selected.value.length} 个用户` : '')
@@ -33,7 +33,7 @@ export const useSelected = (options: SelectedHookOptions = {}) => {
       batchDeleteLoading.value = true
       await Promise.allSettled(missions)
       ElMessage.success('删除成功')
-      onBanchDeleteSuccess?.()
+      onBatchDeleteSuccess?.()
     }
     catch (err) {
       ElMessage.error(messageFrom(err))

@@ -42,7 +42,7 @@ const { editLoading, isEditable, activeEdit, saveEdit } = useRoleEdit({
 })
 
 const { selected, selectedText, batchDeleteLoading, batchDelete, changeSelected } = useSelected({
-  onBanchDeleteSuccess: refresh,
+  onBatchDeleteSuccess: refresh,
 })
 
 const tableRef = ref<HTMLElement | null>(null)
