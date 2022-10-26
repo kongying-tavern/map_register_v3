@@ -34,8 +34,10 @@ axiosInstance.interceptors.request.use(
 
 axiosInstance.interceptors.response.use(
   (response) => {
-    // todo: response handler
-    return response.data
+    const { data } = response
+    if (data.error)
+      return Promise.reject(new Error(data.message))
+    return data
   },
   (error) => {
     // todo: response handler
