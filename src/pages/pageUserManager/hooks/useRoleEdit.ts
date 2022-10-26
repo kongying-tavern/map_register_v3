@@ -1,8 +1,10 @@
 import { ElMessage } from 'element-plus'
 import { cloneDeep } from 'lodash'
 import type { Ref } from 'vue'
+import { UserPasswordEditor } from '../components'
 import { messageFrom } from '@/utils'
 import System from '@/api/system'
+import { useGlobalDialog } from '@/hooks'
 
 export interface RoleEditHookOptions {
   userList: Ref<API.SysUserVo[]>
@@ -81,5 +83,15 @@ export const useRoleEdit = (options: RoleEditHookOptions) => {
     }
   }
 
-  return { editIndex, editLoading, isEditable, saveEdit, activeEdit, exitEdit }
+  const { DialogService } = useGlobalDialog()
+
+  const openPwdEditorDialog = async (index: number) => {
+    await DialogService
+      .config({ title: '修改密码', width: '400px' })
+      .props({ user: userList.value[index] })
+      .open(UserPasswordEditor)
+      .afterClosed<boolean>()
+  }
+
+  return { editIndex, editLoading, isEditable, saveEdit, activeEdit, exitEdit, openPwdEditorDialog }
 }

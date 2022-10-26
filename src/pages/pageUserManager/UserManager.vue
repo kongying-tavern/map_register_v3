@@ -3,7 +3,7 @@ import type { AnyColumn } from 'element-plus/es/components/table-v2/src/common'
 import { ElButton } from 'element-plus'
 import { useRoleEdit, useSelected, useUserList } from './hooks'
 import { BtnCreateUser, TableCell, TableFilter, UserRoleTag, UserSorter } from './components'
-import { useGlobalDialog, usePagination } from '@/hooks'
+import { usePagination } from '@/hooks'
 
 export interface CustomTableColumn {
   title: AnyColumn['title']
@@ -38,31 +38,15 @@ const { userList, loading, deleteLoading, sorts, filterKey, filterValue, refresh
   }),
 })
 
-const { editLoading, isEditable, activeEdit, saveEdit } = useRoleEdit({
+const { editLoading, isEditable, activeEdit, saveEdit, openPwdEditorDialog } = useRoleEdit({
   userList,
 })
 
 const { selected, selectedText, batchDeleteLoading, batchDelete, changeSelected } = useSelected({
   onBatchDeleteSuccess: refresh,
 })
-
 const tableRef = ref<HTMLElement | null>(null)
 const { height } = useElementSize(tableRef)
-
-const { DialogService } = useGlobalDialog()
-
-const callDialog = () => {
-  DialogService
-    .open(() => h(
-      'div',
-      { class: 'bg-slate-500 bg-opacity-50 p-4' },
-      { default: () => 'Hello world' },
-    ))
-    .config({
-      title: '来自弹窗服务',
-      width: '400px',
-    })
-}
 </script>
 
 <template>
@@ -113,17 +97,17 @@ const callDialog = () => {
           </template>
         </el-table-column>
 
-        <el-table-column fixed="right" label="操作" :width="240">
+        <el-table-column fixed="right" label="操作" :width="220">
           <template #default="{ $index }">
             <div class="flex">
-              <ElButton @click="callDialog">
-                修改密码
-              </ElButton>
               <ElButton v-if="isEditable($index)" :loading="editLoading" type="primary" plain size="small" @click.stop="saveEdit">
                 保存
               </ElButton>
               <ElButton v-else :loading="deleteLoading" size="small" @click.stop="() => activeEdit($index)">
                 编辑
+              </ElButton>
+              <ElButton size="small" @click="() => openPwdEditorDialog($index)">
+                修改密码
               </ElButton>
               <ElButton type="danger" plain size="small" @click.stop="() => deleteRow($index)">
                 删除
