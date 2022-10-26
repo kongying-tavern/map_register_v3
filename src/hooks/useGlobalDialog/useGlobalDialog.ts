@@ -1,5 +1,6 @@
 import { onBeforeRouteLeave } from 'vue-router'
 import { DialogService } from './dialogService'
+import { DialogController } from './dialogController'
 
 export interface PropsOptions {
   /** 合并模式 */
@@ -19,11 +20,11 @@ export interface PropsOptions {
 */
 export const useGlobalDialog = () => {
   onBeforeRouteLeave(() => {
-    DialogService.close()
+    DialogController.close(undefined, true)
   })
 
   onBeforeUnmount(() => {
-    DialogService.close()
+    DialogController.close(undefined, true)
   })
 
   return { DialogService }
