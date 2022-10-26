@@ -1,11 +1,21 @@
 <script lang="ts" setup>
-import { useGlobalDialogContext } from '@/hooks/useGlobalDialog'
+import { buttons, dialogProps, component as is, payloadCache, props, resetState, resolveResult, visible } from '@/hooks/useGlobalDialog/dialogContext'
 
-const { DialogController, dialogProps, is, visible } = useGlobalDialogContext()
+const beforeClose = (done: () => void) => {
+  if (!payloadCache.value)
+    resolveResult()
+  done()
+}
 </script>
 
 <template>
-  <el-dialog v-model="visible" v-bind="dialogProps">
-    <component :is="is" :dialog-controller="DialogController" />
+  <el-dialog v-model="visible" v-bind="dialogProps" :before-close="beforeClose" @closed="resetState">
+    <component :is="is" v-bind="props" />
+
+    <template v-if="buttons.size" #footer>
+      <el-button v-for="[role, button] in buttons" :key="role" v-bind="button.props" @click="button.onClick">
+        {{ button.text }}
+      </el-button>
+    </template>
   </el-dialog>
 </template>
