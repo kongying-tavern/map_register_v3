@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
-import type { FormItemRule, FormRules } from 'element-plus'
+import type { FormRules } from 'element-plus'
 import { ElForm, ElMessage } from 'element-plus'
+import { emptyCheck, lengthCheck } from '../utils/formRules'
 import System from '@/api/system'
 import { messageFrom } from '@/utils'
 
@@ -31,20 +32,12 @@ const beforeClose = (done: () => void) => {
   done()
 }
 
-const lengthCheck = (name: string, len: number): FormItemRule => ({
-  required: true,
-  message: `${name}至少需要 ${len} 个字符`,
-  pattern: new RegExp(`\\S{${len}}`),
-  trigger: 'blur',
-})
-const emptyRule: FormItemRule = { message: '不能含有空白字符', pattern: /^\S+$/, trigger: 'blur' }
-
 const rules: FormRules = {
-  username: [lengthCheck('用户名', 6), emptyRule],
-  password: [lengthCheck('密码', 6), emptyRule],
+  username: [lengthCheck('用户名', 6), emptyCheck()],
+  password: [lengthCheck('密码', 6), emptyCheck()],
   passwordRepeat: [
     lengthCheck('密码', 6),
-    emptyRule,
+    emptyCheck(),
     {
       validator: () => {
         if (formData.value.passwordRepeat !== formData.value.password)
