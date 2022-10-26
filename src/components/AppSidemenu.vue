@@ -1,18 +1,15 @@
 <script lang="ts" setup>
-import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { useUserStore } from '@/stores'
 
 const route = useRoute()
-
-const routeItems = computed(
-  () => route.matched.find(item => item.path === '/')?.children ?? [],
-)
+const userStore = useUserStore()
 </script>
 
 <template>
   <el-menu :default-active="route.path" router class="app-sidemenu h-full">
     <el-menu-item
-      v-for="item in routeItems"
+      v-for="item in userStore.menuRoutes"
       :key="item.path"
       :index="item.path"
     >

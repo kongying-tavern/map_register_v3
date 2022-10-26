@@ -16,6 +16,29 @@ export const useUserStore = defineStore('user-info', {
     auth: localUserAuth.value,
     info: localUserInfo.value,
   }),
+  getters: {
+    /** TODO: 等后端返回改为单角色后就不需要这个了 */
+    role: (state) => {
+      return state.info.roleList?.[0]
+    },
+    /** 根据权限筛选出的全部可访问路由，只能在 router 以外的地方调用 */
+    routes: (state) => {
+      const router = useRouter()
+      const { roleList = [] } = state.info
+      if (!roleList.length)
+        return []
+      return router.getRoutes().filter(record => record.meta?.roles?.includes(roleList[0]?.code ?? '') ?? true)
+    },
+    /** 根据权限筛选出的一级菜单的路由 */
+    menuRoutes: (state) => {
+      const router = useRouter()
+      const routes = router.getRoutes().find(item => item.path === '/')?.children ?? []
+      const { roleList = [] } = state.info
+      if (!roleList.length)
+        return []
+      return routes.filter(record => record.meta?.roles?.includes(roleList[0]?.code ?? '') ?? true)
+    },
+  },
   actions: {
     /** 计算 token 到期时间 */
     getExpressTime(expiresIn?: number) {

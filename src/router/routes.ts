@@ -1,4 +1,5 @@
 import type { RouteRecordRaw } from 'vue-router'
+import { RoleTypeEnum } from '@/shared'
 
 // TODO: 后期按模块抽离或做动态化
 const routes: RouteRecordRaw[] = [
@@ -6,16 +7,8 @@ const routes: RouteRecordRaw[] = [
     path: '/',
     meta: { title: 'Home', icon: 'home' },
     component: () => import('@/layout/LayoutIndex.vue'),
-    redirect: '/users', // TODO: 重定向应该是动态获取的
+    redirect: '/map', // TODO: 重定向应该是动态获取的
     children: [
-      {
-        path: '/users',
-        meta: {
-          title: '用户管理',
-          icon: 'widgets',
-        },
-        component: () => import('@/pages/pageUserManager/UserManager.vue'),
-      },
       {
         path: '/items',
         meta: {
@@ -31,6 +24,15 @@ const routes: RouteRecordRaw[] = [
           icon: 'widgets',
         },
         component: () => import('@/pages/pageTypeManager/TypeManager.vue'),
+      },
+      {
+        path: '/users',
+        meta: {
+          title: '用户管理',
+          icon: 'widgets',
+          roles: [RoleTypeEnum.ADMIN],
+        },
+        component: () => import('@/pages/pageUserManager/UserManager.vue'),
       },
     ],
   },

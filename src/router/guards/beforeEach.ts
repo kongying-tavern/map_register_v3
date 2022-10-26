@@ -1,4 +1,6 @@
+import { ElMessage } from 'element-plus'
 import type { NavigationGuardWithThis, Router } from 'vue-router'
+import { isInPermissionList, isInWhiteList } from '../utils'
 import { useUserStore } from '@/stores'
 
 interface BeforeEachGuardOptions {
@@ -14,23 +16,26 @@ export const beforeEachGuard = (
   return (to, from, next) => {
     debug && console.log('[beforeEachGuard]', `"${from.path}" => "${to.path}"`)
 
-    // TODO: 抽离
-    // 白名单直接跳转
-    if (to.path === '/login')
-      return next()
+    if (isInWhiteList(to))
+      return next(true)
 
     const routes = router.getRoutes()
     debug && console.log('[beforeEachGuard]', routes)
     const isRouteExist = routes.find(route => route.path === to.path)
     if (!isRouteExist) {
-      debug && console.log('[beforeEachGuard] 目标路由不存在，重定向到登录页')
-      return next('/login')
+      ElMessage.error('目标路由不存在')
+      return next(false)
+    }
+
+    if (!isInPermissionList(to)) {
+      ElMessage.error('没有访问权限')
+      return next(false)
     }
 
     const userStore = useUserStore()
     const tokenValid = userStore.validateUserToken()
-    if (!tokenValid && to.path !== '/login') {
-      debug && console.log('[beforeEachGuard]', '用户凭证过期，重定向到登录页')
+    if (!tokenValid) {
+      ElMessage.error('用户凭证无效')
       return next('/login')
     }
 
@@ -38,6 +43,6 @@ export const beforeEachGuard = (
     if (!userStore.info.id || userStore.info.id !== userStore.auth.userId)
       userStore.updateUserInfo()
 
-    return next()
+    return next(true)
   }
 }

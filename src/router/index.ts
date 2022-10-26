@@ -5,8 +5,10 @@ import {
   createWebHistory,
 } from 'vue-router'
 import type { RouterHistory, RouterScrollBehavior } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import routes from './routes'
 import { beforeEachGuard } from './guards'
+import { messageFrom } from '@/utils'
 
 const history: RouterHistory = (
   {
@@ -33,5 +35,9 @@ router.beforeEach(
     debug: import.meta.env.DEV,
   }),
 )
+
+router.onError((err) => {
+  ElMessage.error(messageFrom(err))
+})
 
 export { router }
