@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import type { AnyColumn } from 'element-plus/es/components/table-v2/src/common'
-import { ElButton } from 'element-plus'
 import { useRoleEdit, useSelected, useUserList } from './hooks'
 import { BtnCreateUser, TableCell, TableFilter, UserRoleTag, UserSorter } from './components'
 import { usePagination } from '@/hooks'
@@ -60,15 +59,23 @@ const { height } = useElementSize(tableRef)
         <div class="text-sm">
           {{ selectedText }}
         </div>
-        <ElButton type="danger" plain :disabled="!selected.length" :loading="batchDeleteLoading" @click="batchDelete">
+        <el-button type="danger" plain :disabled="!selected.length" :loading="batchDeleteLoading" @click="batchDelete">
           批量删除
-        </ElButton>
+        </el-button>
         <BtnCreateUser @success="refresh" />
       </div>
     </div>
 
     <div ref="tableRef" class="flex-1 overflow-hidden" :style="{ height: '50vh' }">
-      <el-table v-loading="loading" element-loading-text="载入中..." :data="userList" :height="height" :border="true" class="user-table" @selection-change="changeSelected">
+      <el-table
+        v-loading="loading"
+        element-loading-text="载入中..."
+        :data="userList"
+        :height="height"
+        :border="true"
+        class="user-table"
+        @selection-change="changeSelected"
+      >
         <el-table-column type="selection" />
 
         <el-table-column
@@ -90,7 +97,6 @@ const { height } = useElementSize(tableRef)
           </template>
         </el-table-column>
 
-        <!-- TODO: 角色的编辑在另一个接口 -->
         <el-table-column label="角色" prop="roleList" :width="230">
           <template #default="{ $index }">
             <UserRoleTag v-model="userList[$index].roleList" :edit-mode="isEditable($index)" @active="() => activeEdit($index)" />
@@ -99,20 +105,18 @@ const { height } = useElementSize(tableRef)
 
         <el-table-column fixed="right" label="操作" :width="220">
           <template #default="{ $index }">
-            <div class="flex">
-              <ElButton v-if="isEditable($index)" :loading="editLoading" type="primary" plain size="small" @click.stop="saveEdit">
-                保存
-              </ElButton>
-              <ElButton v-else :loading="deleteLoading" size="small" @click.stop="() => activeEdit($index)">
-                编辑
-              </ElButton>
-              <ElButton size="small" @click="() => openPwdEditorDialog($index)">
-                修改密码
-              </ElButton>
-              <ElButton type="danger" plain size="small" @click.stop="() => deleteRow($index)">
-                删除
-              </ElButton>
-            </div>
+            <el-button v-if="isEditable($index)" :loading="editLoading" type="primary" plain size="small" @click.stop="saveEdit">
+              保存
+            </el-button>
+            <el-button v-else :loading="deleteLoading" size="small" @click.stop="() => activeEdit($index)">
+              编辑
+            </el-button>
+            <el-button size="small" @click="() => openPwdEditorDialog($index)">
+              修改密码
+            </el-button>
+            <el-button type="danger" plain size="small" @click="() => deleteRow($index)">
+              删除
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
