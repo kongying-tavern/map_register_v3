@@ -65,7 +65,7 @@ export const useUserList = (options: UserListHookOptions = {}) => {
     try {
       const { id, username } = userList.value[index] ?? {}
       const confirm = await ElMessageBox.confirm(`确认删除用户: ${username} (id: ${id})`).catch(() => false)
-      if (!confirm || !id)
+      if (!confirm || id === undefined)
         return
       deleteLoading.value = true
       const res = await System.sysUserController.deleteUser({ workId: id })
