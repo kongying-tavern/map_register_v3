@@ -20,6 +20,7 @@ const columns: CustomTableColumn[] = [
   { title: 'QQ', dataKey: 'qq', width: 150 },
   { title: '电话', dataKey: 'phone', width: 200 },
 ]
+
 const { pagination, layout } = usePagination()
 
 const sortOptions = [
@@ -44,6 +45,7 @@ const { editLoading, isEditable, activeEdit, saveEdit, openPwdEditorDialog } = u
 const { selected, selectedText, batchDeleteLoading, batchDelete, changeSelected } = useSelected({
   onBatchDeleteSuccess: refresh,
 })
+
 const tableRef = ref<HTMLElement | null>(null)
 const { height } = useElementSize(tableRef)
 </script>

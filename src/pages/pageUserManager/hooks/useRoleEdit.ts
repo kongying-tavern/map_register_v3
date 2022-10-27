@@ -10,6 +10,7 @@ export interface RoleEditHookOptions {
   userList: Ref<API.SysUserVo[]>
 }
 
+/** 用户信息相关业务逻辑封装 */
 export const useRoleEdit = (options: RoleEditHookOptions) => {
   const { userList } = options
 

@@ -7,6 +7,10 @@ export interface SelectedHookOptions {
   onBatchDeleteSuccess?: () => void
 }
 
+/**
+ * 行选择相关逻辑封装
+ * @todo 批量删除后续可能会添加单独的接口
+ */
 export const useSelected = (options: SelectedHookOptions = {}) => {
   const { onBatchDeleteSuccess } = options
 

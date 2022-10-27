@@ -7,6 +7,7 @@ export interface PaginationState {
   pageSize: number
 }
 
+/** el-pagination 的控制器单元 */
 export enum PgUnit {
   SIZE = 'sizes',
   PREV = 'prev',
@@ -25,6 +26,10 @@ export interface PaginationHookOptions {
   units?: PgUnit[]
 }
 
+/**
+ * 分页数据封装
+ * @todo 考虑抽离为公共 hook
+ */
 export const usePagination = (options: PaginationHookOptions = {}) => {
   const { init, units = [PgUnit.TOTAL, PgUnit.SIZE, PgUnit.PREV, PgUnit.PAGER, PgUnit.NEXT, PgUnit.JUMPER] } = options
 

@@ -16,6 +16,7 @@ interface UserListHookOptions {
   onError?: (reqData: API.SysUserSearchVo) => void
 }
 
+/** 列表数据与核心操作封装 */
 export const useUserList = (options: UserListHookOptions = {}) => {
   const { immediate = true, filterDebounceTime = 500, params, onError, onSuccess } = options
 
