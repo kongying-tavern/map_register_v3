@@ -1,14 +1,16 @@
 {
   "name": "map-register-v3",
   "version": "0.0.1",
-  "description": "A Quasar Project",
-  "productName": "Quasar App",
+  "description": "地图后台",
+  "productName": "空荧酒馆地图点位标记系统",
   "author": "Alex Fang <deeno@qq.com>",
   "private": true,
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:dev": "vite build --mode development",
     "preview": "vite preview",
+    "preview:dev": "vite preview --mode development",
     "lint": "eslint ./src/**/*.{js,jsx,ts,tsx,vue} --fix",
     "format": "prettier --write \"**/*.{js,vue,scss,html,md,json}\" --ignore-path .gitignore"
   },
