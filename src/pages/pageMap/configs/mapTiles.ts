@@ -35,6 +35,7 @@ export const mapTiles: Record<MapNameEnum, MapTileConfig> = {
   [MapNameEnum.EXTEND_0]: {
     extension: 'png',
     center: [3568, 6286],
+    size: [12288, 12288],
     tilesOffset: [0, 0],
     settings: {
       center: [0, 0],
@@ -62,7 +63,6 @@ export const mapTiles: Record<MapNameEnum, MapTileConfig> = {
   [MapNameEnum.CENG_YAN_JU_YUAN]: {
     extend: MapNameEnum.EXTEND_0,
     code: 'cyjy',
-    size: [12288, 12288],
     settings: {
       center: [1800, -500],
       zoom: -3,
@@ -71,11 +71,16 @@ export const mapTiles: Record<MapNameEnum, MapTileConfig> = {
   [MapNameEnum.YUAN_XIA_GONG]: {
     extend: MapNameEnum.EXTEND_0,
     code: 'yxg',
-    size: [12288, 12288],
   },
   [MapNameEnum.SAN_JIE_LU_XIANG_JI]: {
     extend: MapNameEnum.EXTEND_0,
     code: 'yxg2',
-    size: [12288, 12288],
   },
 }
+
+export const tileOptions = Object
+  .entries(mapTiles)
+  .reduce((seed, [key, mapTileConfig]) => {
+    mapTileConfig.code && seed.push(key as MapNameEnum)
+    return seed
+  }, [] as MapNameEnum[])
