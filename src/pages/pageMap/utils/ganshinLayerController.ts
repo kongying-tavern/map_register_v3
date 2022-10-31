@@ -16,7 +16,7 @@ export class GenshinLayerController {
   private initBaseLayersRadios = () => {
     const radios = this.instance.querySelectorAll<HTMLInputElement>('input[type=radio]') ?? []
     radios.forEach((radio) => {
-      const key = `${radio.parentElement?.children.item(1)?.innerHTML}`
+      const key = `${radio.parentElement?.children.item(1)?.innerHTML}`.trim()
       this.baseLayersRadios[key] = radio
       this.baseLayersOptions.push({ label: key, value: radio })
     })
@@ -26,7 +26,7 @@ export class GenshinLayerController {
   private initOverlaysChecboxs = () => {
     const checkboxes = this.instance.querySelectorAll<HTMLInputElement>('input[type=checkbox]') ?? []
     checkboxes.forEach((checkbox) => {
-      const key = `${checkbox.parentElement?.children.item(1)?.innerHTML}`
+      const key = `${checkbox.parentElement?.children.item(1)?.innerHTML}`.trim()
       this.overlaysChecboxs[key] = checkbox
       this.overlaysOptions.push({ label: key, value: checkbox })
     })

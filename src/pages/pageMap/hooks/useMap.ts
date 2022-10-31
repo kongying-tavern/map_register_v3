@@ -21,7 +21,6 @@ export const useMap = (ele: Ref<HTMLElement | null>) => {
       attributionControl: false,
       zoomControl: false,
     })
-    newMap.init()
     map.value = newMap
   })
 

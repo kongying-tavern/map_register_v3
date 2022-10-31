@@ -1,6 +1,7 @@
 import L from 'leaflet'
 import type { MapNameEnum } from '../configs'
 import { mapTiles } from '../configs'
+
 import { GenshinLayerController, GenshinTileLayer, TileUtil } from '.'
 
 export class GenshinMap extends L.Map {
@@ -15,7 +16,6 @@ export class GenshinMap extends L.Map {
 
     super(ele, {
       ...options,
-      layers: [],
     })
 
     const layerController = L
@@ -39,18 +39,24 @@ export class GenshinMap extends L.Map {
     const controller = new GenshinLayerController(controllerElement)
     this.layerController = controller
 
+    const firstMapName = controller.baseLayersOptions[0].label as MapNameEnum
+    // 当窗口长宽比低于 1200/776 时，这里需要选择两次，否则地图可能渲染不正确
+    // 我也不知道为什么，不信的话你可以注释掉其中一次，并将窗口调整为 1200*777 试试看
+    this.switchMap(firstMapName)
+    this.switchMap(firstMapName)
+
     return this
   }
 
   readonly layerController: GenshinLayerController
 
-  init = () => {
-    console.log('init')
-    this.eachLayer((layer) => {
-      console.log(layer)
-    })
-    // L.Map 没有切换地图的 API，这里 hack 一下，通过点击 DOM 的方式触发内部事件
-    this.layerController.switchBaseLayer(this.layerController.baseLayersOptions[0].label)
+  private mountedLayer: GenshinTileLayer | null = null
+
+  switchMap = (name: MapNameEnum) => {
+    this.mountedLayer && this.removeLayer(this.mountedLayer)
+    const layer = GenshinTileLayer.getLayer(name)
+    this.addLayer(layer)
+    this.mountedLayer = layer
   }
 
   setCRS = (crs: L.CRS) => {
