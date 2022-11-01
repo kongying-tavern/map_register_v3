@@ -1,4 +1,5 @@
 import L from 'leaflet'
+import type { Ref } from 'vue'
 import type { MapNameEnum } from '../configs'
 import { mapTiles } from '../configs'
 
@@ -33,6 +34,7 @@ export class GenshinMap extends L.Map {
       this.flyTo(tileInfo.settings.center ?? [0, 0], tileInfo.settings.zoom ?? 0, {
         duration: 0.1,
       })
+      this.currentLayer.value = ev.layer as GenshinTileLayer
     })
 
     const controllerElement = layerController.getContainer() as HTMLElement
@@ -50,16 +52,21 @@ export class GenshinMap extends L.Map {
 
   readonly layerController: GenshinLayerController
 
-  private mountedLayer: GenshinTileLayer | null = null
+  currentLayer = ref(null) as Ref<GenshinTileLayer | null>
 
   switchMap = (name: MapNameEnum) => {
-    this.mountedLayer && this.removeLayer(this.mountedLayer)
+    this.currentLayer.value && this.removeLayer(this.currentLayer.value)
     const layer = GenshinTileLayer.getLayer(name)
     this.addLayer(layer)
-    this.mountedLayer = layer
   }
 
   setCRS = (crs: L.CRS) => {
     this.options.crs = crs
+  }
+
+  /** @overwrite */
+  addLayer(layer: GenshinTileLayer): this {
+    super.addLayer(layer)
+    return this
   }
 }

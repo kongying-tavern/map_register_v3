@@ -1,6 +1,7 @@
 import type { TileLayerOptions } from 'leaflet'
 import L from 'leaflet'
 import type { MapNameEnum, MapTileConfig } from '../configs'
+import type { GenshinMap } from '.'
 import { TileUtil } from '.'
 
 const TILES_URL_PREFIX = 'https://assets.yuanshen.site/tiles_'
@@ -14,9 +15,12 @@ const DEFAULT_TILE_OPTIONS: TileLayerOptions = {
 export class GenshinTileLayer extends L.TileLayer {
   constructor(name: MapNameEnum, options?: TileLayerOptions) {
     super('', options)
+    this.name = name
     this.tileConfig = TileUtil.getConfig(name)
   }
 
+  /** 图层名称 */
+  name: MapNameEnum
   /**
    * 如果此项为 `true`，在平移后不可见的切片被放入一个队列中，
    * 在新的切片开始可见时他们会被取回（而不是动态地创建一个新的）。
@@ -61,5 +65,11 @@ export class GenshinTileLayer extends L.TileLayer {
     const layer = new GenshinTileLayer(name, options)
     this.instanceRecord.set(name, layer)
     return layer
+  }
+
+  /** @overwrite */
+  addTo(map: GenshinMap | L.LayerGroup<any>): this {
+    super.addTo(map)
+    return this
   }
 }
