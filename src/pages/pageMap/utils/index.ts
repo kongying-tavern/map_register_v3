@@ -1,4 +1,3 @@
-export * from './ganshinLayerController'
 export * from './genshinMap'
 export * from './genshinTileLayer'
 export * from './mapUtil'
