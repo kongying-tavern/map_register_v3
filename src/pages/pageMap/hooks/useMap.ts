@@ -1,9 +1,16 @@
-import L from 'leaflet'
-import type { Ref, ShallowRef } from 'vue'
+import type { Ref } from 'vue'
 import { GenshinMap } from '../utils'
 
 export const useMap = (ele: Ref<HTMLElement | null>) => {
-  const map = shallowRef(null) as ShallowRef<GenshinMap | null>
+  const map = ref<GenshinMap | null>(null) as Ref<GenshinMap | null>
+  const hookUnregisters = shallowRef<(() => void)[]>([])
+  const mapCreatedHook = createEventHook<GenshinMap>()
+
+  const onMapCreated = (cb: (mapInstance: GenshinMap) => void) => {
+    const { off } = mapCreatedHook.on(cb)
+    hookUnregisters.value.push(off)
+    return off
+  }
 
   onMounted(() => {
     if (!ele.value)
@@ -13,16 +20,17 @@ export const useMap = (ele: Ref<HTMLElement | null>) => {
       zoom: -4,
       maxZoom: 2,
       minZoom: -4,
-      maxBounds: L.latLngBounds(
-        L.latLng(-10000, -10000),
-        L.latLng(10000, 10000),
-      ),
       tap: false,
       attributionControl: false,
       zoomControl: false,
     })
     map.value = newMap
+    mapCreatedHook.trigger(newMap)
   })
 
-  return { map }
+  onBeforeUnmount(() => {
+    hookUnregisters.value.forEach(off => off())
+  })
+
+  return { map, onMapCreated }
 }

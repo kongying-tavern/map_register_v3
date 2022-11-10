@@ -77,10 +77,3 @@ export const mapTiles: Record<MapNameEnum, MapTileConfig> = {
     code: 'yxg2',
   },
 }
-
-export const tileOptions = Object
-  .entries(mapTiles)
-  .reduce((seed, [key, mapTileConfig]) => {
-    mapTileConfig.code && seed.push(key as MapNameEnum)
-    return seed
-  }, [] as MapNameEnum[])

@@ -20,7 +20,7 @@ export class GenshinTileLayer extends L.TileLayer {
   }
 
   /** 图层名称 */
-  name: MapNameEnum
+  name: string
   /**
    * 如果此项为 `true`，在平移后不可见的切片被放入一个队列中，
    * 在新的切片开始可见时他们会被取回（而不是动态地创建一个新的）。
