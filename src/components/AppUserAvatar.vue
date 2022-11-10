@@ -9,16 +9,12 @@ defineProps<{
 const userStore = useUserStore()
 
 const handleCommand = async (command: string) => {
-  if (command === 'logout') {
+  if (command === 'logout')
     userStore.logout()
-    await router.push('/login')
-  }
-  else if (command === 'toManager') {
+  else if (command === 'toManager')
     await router.push('/items')
-  }
-  else if (command === 'toMap') {
+  else if (command === 'toMap')
     await router.push('/map')
-  }
 }
 </script>
 

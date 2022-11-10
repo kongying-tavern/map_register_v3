@@ -17,6 +17,11 @@ export const useLayer = (mapRef: Ref<GenshinMap | null>) => {
     return tileLayerObj
   })
 
+  const layerOptions = computed(() => Object.keys(layers.value).map(name => ({
+    label: name,
+    value: name,
+  })))
+
   const activeLayer = ref<GenshinTileLayer | null>(null) as Ref<GenshinTileLayer | null>
 
   const selectLayer = (name: string) => {
@@ -37,5 +42,14 @@ export const useLayer = (mapRef: Ref<GenshinMap | null>) => {
     activeLayer.value = layer
   }
 
-  return { layers, activeLayer, selectLayer }
+  const activeName = computed({
+    get: () => activeLayer.value?.name,
+    set: (name) => {
+      if (!name)
+        return
+      selectLayer(name)
+    },
+  })
+
+  return { layers, activeLayer, activeName, layerOptions, selectLayer }
 }

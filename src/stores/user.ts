@@ -3,6 +3,7 @@ import { ElMessage } from 'element-plus'
 import System from '@/api/system'
 import Oauth from '@/api/oauth'
 import { messageFrom } from '@/utils'
+import { router } from '@/router'
 
 export interface UserAuth extends API.SysToken {
   express_time: number
@@ -55,6 +56,7 @@ export const useUserStore = defineStore('user-info', {
       this.info = {}
       localUserAuth.value = null
       localUserInfo.value = null
+      router.push('/login')
     },
     /** 登录（密码模式） */
     async login(loginForm: API.SysTokenVO) {
