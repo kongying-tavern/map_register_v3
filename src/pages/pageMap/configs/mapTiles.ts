@@ -49,6 +49,8 @@ export const mapTiles: Record<MapNameEnum, MapTileConfig> = {
     tilesOffset: [-4864, 0],
     settings: {
       center: [0, 1742],
+      // 初始缩放比率较低时会有奇怪的 bug
+      zoom: -2,
     },
   },
   [MapNameEnum.GOLDEN_APPLE_ISLANDS]: {
