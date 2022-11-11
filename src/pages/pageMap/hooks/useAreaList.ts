@@ -13,6 +13,7 @@ export const useAreaList = (options: AreaListHookOptions = {}) => {
   const { immediate = true } = options
 
   const areaList = ref<API.AreaVo[]>([])
+  const areaId = ref<number>()
 
   const areaTree = computed(() => array2Tree(areaList.value, {
     idKey: 'areaId',
@@ -32,5 +33,5 @@ export const useAreaList = (options: AreaListHookOptions = {}) => {
 
   immediate && onMounted(() => nextTick(updateList))
 
-  return { areaList, areaTree, updateList }
+  return { areaId, areaList, areaTree, updateList }
 }
