@@ -21,17 +21,17 @@ jobs:
       commands:
       - cd @secret:workspace-path@
       - sudo rm -rf ./node_modules
-      - sudo /usr/local/bin/pnpm i
+      - /usr/local/bin/pnpm i
     useTTY: false
     condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
   - !CommandStep
-    name: build for stage
+    name: build
     runInContainer: false
     interpreter: !ShellInterpreter
       shell: bash
       commands:
       - cd @secret:workspace-path@
-      - sudo /usr/local/bin/pnpm run build:stage
+      - /usr/local/bin/pnpm run build
     useTTY: false
     condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
   - !CommandStep
