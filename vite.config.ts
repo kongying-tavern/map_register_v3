@@ -28,6 +28,15 @@ export default defineConfig(({ mode }) => {
     preview: {
       host: '0.0.0.0',
       port: 13101,
+      proxy: {
+        ...getMHYProxys(),
+        [ENV.VITE_API_BASE]: {
+          target: ENV.VITE_API_PROXY_TARGET,
+          changeOrigin: true,
+          rewrite: path =>
+            path.replace(new RegExp(`${ENV.VITE_API_BASE}`), ''),
+        },
+      },
     },
 
     resolve: {
