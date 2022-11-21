@@ -1,6 +1,4 @@
-export * from './useAreaList'
 export * from './useIconMap'
 export * from './useItemList'
 export * from './useLayer'
 export * from './useMap'
-export * from './useTypeMap'

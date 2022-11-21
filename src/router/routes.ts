@@ -10,10 +10,18 @@ const routes: RouteRecordRaw[] = [
     redirect: '/map', // TODO: 重定向应该是动态获取的
     children: [
       {
+        path: '/markers',
+        meta: {
+          title: '点位管理',
+          roles: [RoleTypeEnum.ADMIN],
+        },
+        component: () => import('@/pages/pageMarkerManager/MarkerManager.vue'),
+      },
+      {
         path: '/items',
         meta: {
           title: '物品管理',
-          icon: 'widgets',
+          roles: [RoleTypeEnum.ADMIN],
         },
         component: () => import('@/pages/pageItemManager/ItemManager.vue'),
       },
@@ -21,7 +29,7 @@ const routes: RouteRecordRaw[] = [
         path: '/type',
         meta: {
           title: '类型管理',
-          icon: 'widgets',
+          roles: [RoleTypeEnum.ADMIN],
         },
         component: () => import('@/pages/pageTypeManager/TypeManager.vue'),
       },
@@ -29,7 +37,6 @@ const routes: RouteRecordRaw[] = [
         path: '/users',
         meta: {
           title: '用户管理',
-          icon: 'widgets',
           roles: [RoleTypeEnum.ADMIN],
         },
         component: () => import('@/pages/pageUserManager/UserManager.vue'),

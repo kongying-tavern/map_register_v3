@@ -1,4 +1,6 @@
+export * from './useAreaList'
 export * from './useFetch'
 export * from './useGlobalDialog'
 export * from './usePagination'
 export * from './useTheme'
+export * from './useTypeList'

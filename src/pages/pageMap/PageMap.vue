@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 import 'leaflet/dist/leaflet.css'
 import { CtrlItemGroup } from './components'
-import { useAreaList, useItemList, useLayer, useMap, useTypeList } from './hooks'
+import { useItemList, useLayer, useMap } from './hooks'
 import { AppUserAvatar } from '@/components'
+import { useAreaList, useTypeList } from '@/hooks'
 
 const containerRef = ref<HTMLElement | null>(null)
 
@@ -47,12 +48,9 @@ const itemId = ref<number>()
           v-model="areaId"
           :data="areaTree"
           :props="{ label: 'name', value: 'areaId' }"
-          class="w-30"
           placeholder="地区"
           filterable
           clearable
-          collapse-tags
-          collapse-tags-tooltip
         />
         <el-tree-select
           v-model="typeId"
