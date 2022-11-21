@@ -1,8 +1,12 @@
+import type { Ref } from 'vue'
 import { listArea } from '@/api/api/area'
-import { array2Tree } from '@/utils'
+import { array2Tree, messageFrom } from '@/utils'
 
 export interface AreaListHookOptions {
   immediate?: boolean
+  loading?: Ref<boolean>
+  onSuccess?: (res: API.RListAreaVo) => void
+  onError?: (err: Error) => void
 }
 
 export interface AreaTreeItem extends API.AreaVo {
@@ -10,7 +14,7 @@ export interface AreaTreeItem extends API.AreaVo {
 }
 
 export const useAreaList = (options: AreaListHookOptions = {}) => {
-  const { immediate = true } = options
+  const { immediate = true, loading = ref(false), onSuccess, onError } = options
 
   const areaList = ref<API.AreaVo[]>([])
   const areaId = ref<number>()
@@ -22,13 +26,22 @@ export const useAreaList = (options: AreaListHookOptions = {}) => {
   }))
 
   const updateList = async () => {
-    const { data = [] } = await listArea({}, {
-      isTestUser: false,
-      isTraverse: true,
-      parentId: -1,
-    })
-    areaList.value = data
-    console.log(areaTree.value)
+    try {
+      loading.value = true
+      const res = await listArea({}, {
+        isTestUser: false,
+        isTraverse: true,
+        parentId: -1,
+      })
+      areaList.value = res.data ?? []
+      onSuccess?.(res)
+    }
+    catch (err) {
+      onError?.(err instanceof Error ? err : new Error(messageFrom(err)))
+    }
+    finally {
+      loading.value = false
+    }
   }
 
   immediate && onMounted(() => nextTick(updateList))

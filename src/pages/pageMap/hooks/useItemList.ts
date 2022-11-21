@@ -1,40 +1,37 @@
-import type { Ref } from 'vue'
 import Api from '@/api/api'
-import { messageFrom } from '@/utils'
+import type { FetchHookOptions } from '@/hooks'
+import { useFetchHook } from '@/hooks'
 
-interface ItemListHookOptions {
+interface ItemListHookOptions extends FetchHookOptions<API.RPageListVoItemVo> {
   params?: () => API.ItemSearchVo
-  onSuccess?: (data: API.PageListVoItemVo) => void
-  onError?: (err: Error) => void
-  loading?: Ref<boolean>
 }
 
 export const useItemList = (options: ItemListHookOptions = {}) => {
-  const { loading = ref(false), params, onSuccess, onError } = options
+  const { immediate = false, loading = ref(false), params, onSuccess, onError } = options
 
   const itemList = ref<API.ItemVo[]>([])
 
-  const updateItemList = async () => {
-    try {
-      loading.value = true
-      const { data = {} } = await Api.item.listItemIdByType({}, {
-        areaIdList: [],
-        current: 1,
-        size: 10,
-        typeIdList: [],
-        ...params?.(),
-      })
-      const { record = [] } = data
-      itemList.value = record
-      onSuccess?.(data)
-    }
-    catch (err) {
-      onError?.(err instanceof Error ? err : new Error(messageFrom(err)))
-    }
-    finally {
-      loading.value = false
-    }
-  }
+  const watchParams = computed(() => params?.())
 
-  return { itemList, loading, updateItemList }
+  const { refresh } = useFetchHook({
+    immediate,
+    loading,
+    onRequest: () => Api.item.listItemIdByType({}, {
+      areaIdList: [],
+      current: 1,
+      size: 10,
+      typeIdList: [],
+      ...watchParams.value,
+    }),
+    onSuccess: (res) => {
+      itemList.value = res?.data?.record ?? []
+      onSuccess?.(res)
+    },
+    onError,
+  })
+
+  if (params)
+    watch(watchParams, refresh, { deep: true })
+
+  return { itemList, loading, updateItemList: refresh }
 }

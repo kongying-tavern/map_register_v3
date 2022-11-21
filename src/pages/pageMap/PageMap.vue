@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import 'leaflet/dist/leaflet.css'
-import { useAreaList, useItemList, useLayer, useMap } from './hooks'
+import { CtrlItemGroup } from './components'
+import { useAreaList, useItemList, useLayer, useMap, useTypeList } from './hooks'
 import { AppUserAvatar } from '@/components'
 
 const containerRef = ref<HTMLElement | null>(null)
@@ -13,39 +14,57 @@ onMapCreated(() => {
 })
 
 const { areaId, areaTree } = useAreaList()
+const { typeId, typeTree } = useTypeList({
+  onSuccess: res => console.log('[type list]', res.data?.record),
+})
 
-const { loading: itemListLoading, updateItemList } = useItemList({
+const { itemList } = useItemList({
   params: () => ({
-    areaIdList: areaId.value !== undefined ? [areaId.value] : [],
+    areaIdList: !Number.isInteger(areaId.value) || !areaId.value ? [] : [areaId.value],
+    typeIdList: !Number.isInteger(typeId.value) || !typeId.value ? [] : [typeId.value],
     size: 1000,
   }),
-  onSuccess: data => console.log('[updateItemList]', data.record),
+  onSuccess: (res) => {
+    console.log('[item list]', res?.data?.record)
+  },
 })
+
+const itemId = ref<number>()
 </script>
 
 <template>
   <div class="w-full h-full relative overflow-hidden">
     <div ref="containerRef" class="genshin-map absolute w-full h-full" style="background: #000" />
 
-    <div class="custom-control-panel absolute left-2 top-2 bg-slate-600 rounded flex flex-col p-2 gap-2">
+    <div class="custom-control-panel absolute left-2 top-2 bottom-2 bg-slate-600 rounded flex flex-col items-start p-2 gap-2">
       <el-select-v2
         v-model="activeName"
         :options="layerOptions"
         filterable
       />
-      <el-tree-select
-        v-model="areaId"
-        :data="areaTree"
-        :props="{ label: 'name', value: 'areaId' }"
-        placeholder="地区"
-        filterable
-        clearable
-        collapse-tags
-        collapse-tags-tooltip
-      />
-      <el-button :loading="itemListLoading" @click="updateItemList">
-        请求物品列表
-      </el-button>
+      <div class="flex gap-1">
+        <el-tree-select
+          v-model="areaId"
+          :data="areaTree"
+          :props="{ label: 'name', value: 'areaId' }"
+          placeholder="地区"
+          filterable
+          clearable
+          collapse-tags
+          collapse-tags-tooltip
+        />
+        <el-tree-select
+          v-model="typeId"
+          :data="typeTree"
+          :props="{ label: 'name', value: 'typeId' }"
+          placeholder="类型"
+          filterable
+          clearable
+          collapse-tags
+          collapse-tags-tooltip
+        />
+      </div>
+      <CtrlItemGroup v-model="itemId" class="flex-1" :item-list="itemList" :area-id="areaId" />
     </div>
 
     <div class="custom-control-panel absolute right-2 top-2 bg-slate-600 rounded">
