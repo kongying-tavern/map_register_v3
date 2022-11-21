@@ -38,7 +38,7 @@ const proxySelect = (ev: MouseEvent) => {
 
 <template>
   <div
-    class="custom-scrollbar-y w-full overflow-y-auto bg-gray-700 rounded grid grid-cols-5 content-start gap-1 text-xs text-slate-300 p-1"
+    class="custom-scrollbar-y w-full overflow-y-auto bg-gray-700 rounded grid grid-cols-4 content-start gap-1 text-xs text-slate-300 p-1"
     @click="proxySelect"
   >
     <div

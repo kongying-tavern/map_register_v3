@@ -47,6 +47,7 @@ const itemId = ref<number>()
           v-model="areaId"
           :data="areaTree"
           :props="{ label: 'name', value: 'areaId' }"
+          class="w-30"
           placeholder="地区"
           filterable
           clearable
@@ -57,6 +58,7 @@ const itemId = ref<number>()
           v-model="typeId"
           :data="typeTree"
           :props="{ label: 'name', value: 'typeId' }"
+          class="w-30"
           placeholder="类型"
           filterable
           clearable
