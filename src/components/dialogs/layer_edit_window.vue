@@ -217,6 +217,20 @@
               </q-toggle>
             </q-item-section>
           </q-item>
+
+          <q-item>
+            <q-item-section side top> 点位视频 </q-item-section>
+            <q-item-section>
+              <q-input
+                v-model="layer_info.videoPath"
+                outlined
+                dense
+                placeholder="点位视频"
+              >
+              </q-input>
+            </q-item-section>
+          </q-item>
+
           <!-- <q-item v-else>
             <q-item-section> 是否计数 </q-item-section>
             <q-item-section>
