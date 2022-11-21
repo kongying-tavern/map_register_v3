@@ -25,13 +25,13 @@ jobs:
     useTTY: false
     condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
   - !CommandStep
-    name: build
+    name: build for development
     runInContainer: false
     interpreter: !ShellInterpreter
       shell: bash
       commands:
       - cd @secret:workspace-path@
-      - sudo /usr/local/bin/pnpm run build
+      - sudo /usr/local/bin/pnpm run build:dev
     useTTY: false
     condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
   - !CommandStep
