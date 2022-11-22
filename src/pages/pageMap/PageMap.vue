@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import 'leaflet/dist/leaflet.css'
+import L from 'leaflet'
 import { CtrlItemGroup } from './components'
-import { useItemList, useLayer, useMap } from './hooks'
+import { useItemList, useLayer, useMap, useMarker } from './hooks'
 import type { MapNameEnum } from './configs'
 import { mapTiles } from './configs'
 import { AppUserAvatar } from '@/components'
@@ -23,6 +24,8 @@ const filterForm = useUrlSearchParams('history', {
   },
 })
 
+const areaInitHook = createEventHook<void>()
+
 /**
  * 选择地区时会自动切换地图
  * @TODO 地图焦点自动移动到对应的地区中心
@@ -43,10 +46,7 @@ const setMapNameByAreaId = (id?: number) => {
 }
 
 const { areaTree } = useAreaList({
-  onSuccess: (res) => {
-    filterForm.areaId && setMapNameByAreaId(Number(filterForm.areaId))
-    console.log(res.data)
-  },
+  onSuccess: () => areaInitHook.trigger(),
 })
 
 const areaId = computed({
@@ -57,6 +57,11 @@ const areaId = computed({
   },
 })
 
+const itemId = computed({
+  get: () => Number(filterForm.itemId),
+  set: v => filterForm.itemId = v,
+})
+
 const { itemList } = useItemList({
   params: () => ({
     areaIdList: !areaId.value || Number.isNaN(areaId.value) ? [] : [areaId.value],
@@ -65,6 +70,30 @@ const { itemList } = useItemList({
   onSuccess: (res) => {
     console.log('[item list]', res?.data?.record)
   },
+})
+
+const markerGroup = ref<L.Layer | null>(null)
+
+const { updateMarkerList } = useMarker({
+  params: () => ({
+    itemIdList: isNaN(itemId.value) ? [] : [itemId.value],
+    // areaIdList: areaId.value === undefined ? [] : [areaId.value],
+    // typeIdList: [],
+  }),
+  onSuccess: ({ data = [] }) => {
+    const mapMarkers = computed(() => data.map(({ position = '0,0', content = '' }) => L
+      .marker(position.split(',').map(Number) as [number, number])
+      .bindPopup(content),
+    ))
+    markerGroup.value && map.value?.removeLayer(markerGroup.value as L.Layer)
+    markerGroup.value = L.layerGroup(mapMarkers.value)
+    map.value?.addLayer(markerGroup.value as L.Layer)
+  },
+})
+
+areaInitHook.on(() => {
+  filterForm.areaId !== undefined && setMapNameByAreaId(Number(filterForm.areaId))
+  filterForm.itemId !== undefined && updateMarkerList()
 })
 
 const collapsed = ref(false)
