@@ -2,7 +2,7 @@
 import { useIconMap } from '../hooks'
 
 const props = defineProps<{
-  modelValue?: number
+  modelValue?: number | string
   itemList: API.ItemVo[]
 }>()
 
@@ -17,7 +17,10 @@ const { iconMap } = useIconMap({
 })
 
 const internalBind = computed({
-  get: () => props.modelValue,
+  get: () => {
+    const numLike = Number(props.modelValue)
+    return isNaN(numLike) ? undefined : numLike
+  },
   set: id => emits('update:modelValue', id),
 })
 
@@ -38,7 +41,7 @@ const proxySelect = (ev: MouseEvent) => {
 
 <template>
   <div
-    class="custom-scrollbar-y w-full overflow-y-auto bg-gray-700 rounded grid grid-cols-4 content-start gap-1 text-xs text-slate-300 p-1"
+    class="custom-scrollbar-y w-80 overflow-y-auto bg-gray-700 rounded grid grid-cols-4 content-start gap-1 text-xs text-slate-300 p-1"
     @click="proxySelect"
   >
     <div
@@ -50,15 +53,24 @@ const proxySelect = (ev: MouseEvent) => {
       }"
       class="map-list-item rounded flex flex-col gap-1 items-center cursor-pointer"
     >
-      <div class="w-14 h-14 rounded bg-gray-800">
-        <img
+      <div class="w-14 h-14 rounded grid place-items-center bg-gray-800 overflow-hidden">
+        <el-image
           :src="iconMap[item.iconTag ?? '']"
           :alt="item.name"
-          class="w-full h-full align-middle object-contain"
+          lazy
+          class="w-4/5 h-4/5 bg-transparent"
+          style="--el-fill-color-light: transparent"
+          fit="contain"
           decoding="async"
-          loading="lazy"
           referrerpolicy="no-referrer"
         >
+          <template #placeholder>
+            <div v-loading="true" class="w-full h-full" element-loading-background="transparent" />
+          </template>
+          <template #error>
+            <img class="w-full h-full object-contain" src="https://assets.yuanshen.site/icons/-1.png">
+          </template>
+        </el-image>
       </div>
       <span class="w-full align-middle whitespace-nowrap overflow-hidden text-center text-ellipsis">{{ item.name }}</span>
     </div>
@@ -75,7 +87,7 @@ const proxySelect = (ev: MouseEvent) => {
 
 .map-list-item {
   border: 1px solid transparent;
-  transition: all ease 100ms;
+  transition: all ease 176ms;
   padding: 4px;
   width: 100%;
 

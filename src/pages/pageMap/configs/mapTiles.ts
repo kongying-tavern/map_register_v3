@@ -4,7 +4,7 @@ export enum MapNameEnum {
   /** 金苹果群岛 */
   GOLDEN_APPLE_ISLANDS = '金苹果群岛',
   /** 层岩巨渊 */
-  CENG_YAN_JU_YUAN = '层岩巨渊',
+  CENG_YAN_JU_YUAN = '层岩巨渊（地下矿区）',
   /** 渊下宫 */
   YUAN_XIA_GONG = '渊下宫',
   /** 三界路飨祭 */
@@ -22,10 +22,12 @@ export interface MapTileConfig {
   tilesOffset?: [x: number, y: number]
   /** 尺寸 */
   size?: [w: number, h: number]
-  /** 其他设置 */
+  /** 其他地图设置 */
   settings?: L.MapOptions
   /** 图片后缀名 */
   extension?: string
+  /** 当前地图包含的地区 id */
+  areaIds: number[]
   /** 继承配置 */
   extend?: MapNameEnum
 }
@@ -33,6 +35,7 @@ export interface MapTileConfig {
 /** 地图切片配置 */
 export const mapTiles: Record<MapNameEnum, MapTileConfig> = {
   [MapNameEnum.EXTEND_0]: {
+    areaIds: [],
     extension: 'png',
     center: [3568, 6286],
     size: [12288, 12288],
@@ -44,6 +47,7 @@ export const mapTiles: Record<MapNameEnum, MapTileConfig> = {
   },
   [MapNameEnum.TIVAT_MASTER]: {
     extend: MapNameEnum.EXTEND_0,
+    areaIds: [1, 2, 3, 5, 6, 11, 12, 13, 14, 17, 18, 19, 21],
     code: 'twt31',
     size: [16384, 15360],
     tilesOffset: [-4864, 0],
@@ -55,6 +59,7 @@ export const mapTiles: Record<MapNameEnum, MapTileConfig> = {
   },
   [MapNameEnum.GOLDEN_APPLE_ISLANDS]: {
     extend: MapNameEnum.EXTEND_0,
+    areaIds: [7, 8, 9, 10],
     code: 'qd28',
     size: [8192, 8192],
     settings: {
@@ -64,6 +69,7 @@ export const mapTiles: Record<MapNameEnum, MapTileConfig> = {
   },
   [MapNameEnum.CENG_YAN_JU_YUAN]: {
     extend: MapNameEnum.EXTEND_0,
+    areaIds: [4],
     code: 'cyjy',
     settings: {
       center: [1800, -500],
@@ -72,10 +78,12 @@ export const mapTiles: Record<MapNameEnum, MapTileConfig> = {
   },
   [MapNameEnum.YUAN_XIA_GONG]: {
     extend: MapNameEnum.EXTEND_0,
+    areaIds: [15],
     code: 'yxg',
   },
   [MapNameEnum.SAN_JIE_LU_XIANG_JI]: {
     extend: MapNameEnum.EXTEND_0,
+    areaIds: [16],
     code: 'yxg2',
   },
 }
