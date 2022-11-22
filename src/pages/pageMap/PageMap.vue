@@ -110,7 +110,7 @@ const collapsed = ref(false)
   --clip-height: 0;
 
   z-index: 1000;
-  transition: all ease 100ms;
+  transition: all ease 300ms;
   clip-path: inset(0 0 var(--clip-height) round 0.25rem);
 
   &.collapsed {
