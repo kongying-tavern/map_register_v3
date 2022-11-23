@@ -13,7 +13,7 @@ export interface MarkerHookOptions extends FetchHookOptions<API.RListMarkerVo> {
 }
 
 export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOptions) => {
-  const { watchParams = true, selectedItem, params, onSuccess, ...rest } = options
+  const { watchParams = true, selectedItem, loading = ref(false), params, onSuccess, ...rest } = options
 
   const markerList = ref<API.MarkerVo[]>([])
   const queryBody = computed(() => params?.())
@@ -47,7 +47,9 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
           offset: { x: 0, y: 0 },
         },
       })
-      marker.bindPopup(content) // 绑定说明
+      // 绑定说明
+      // TODO 后期改为全局单例组件
+      marker.bindPopup(content)
       return marker
     })
 
@@ -58,6 +60,7 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
 
   const { refresh } = useFetchHook({
     ...rest,
+    loading,
     onRequest: () => Api.marker.searchMarker({}, { ...queryBody.value }),
     onSuccess: (res) => {
       markerList.value = res.data ?? []
@@ -81,5 +84,5 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
   iconLoadedHook.on(createMarkerWhenReady)
   markerLoadedHook.on(createMarkerWhenReady)
 
-  return { markerList, markerLayer: markerLayerCache, updateMarkerList: refresh }
+  return { markerList, markerLayer: markerLayerCache, loading, updateMarkerList: refresh }
 }

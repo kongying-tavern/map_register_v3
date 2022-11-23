@@ -21,6 +21,7 @@ export const useMap = (ele: Ref<HTMLElement | null>) => {
       maxZoom: 2,
       minZoom: -4,
       tap: false,
+      zoomAnimation: false,
       attributionControl: false,
       zoomControl: false,
       preferCanvas: true,

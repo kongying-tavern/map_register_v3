@@ -15,9 +15,8 @@ const { map, onMapCreated } = useMap(containerRef)
 const { layers, activeName, selectLayer } = useLayer(map)
 
 // 地图初始化完成后触发
-onMapCreated((mapInstance) => {
+onMapCreated(() => {
   selectLayer(Object.keys(layers.value)[0])
-  mapInstance.flyTo([0, 0])
 })
 
 // ==================== 地区相关 ====================
@@ -94,6 +93,11 @@ const { updateMarkerList } = useMarker(map, {
   },
 })
 
+const iconUrl = computed(() => {
+  const iconTag = selectedItem?.value?.iconTag
+  return iconMap.value[iconTag ?? '']
+})
+
 // ==================== 其他 ====================
 
 areaInitHook.on(() => {
@@ -110,7 +114,7 @@ const collapsed = ref(false)
     <div ref="containerRef" class="genshin-map absolute w-full h-full" style="background: #000" />
 
     <div
-      class="custom-control-panel absolute left-2 top-2 bottom-2 bg-slate-600 rounded flex flex-col items-start p-2 gap-2"
+      class="custom-control-panel absolute left-2 top-2 bottom-2 bg-slate-600 bg-opacity-70 backdrop-blur rounded flex flex-col items-start p-2 gap-2"
       :class="{ collapsed }"
     >
       <div class="w-full flex justify-between gap-1">
@@ -121,8 +125,21 @@ const collapsed = ref(false)
           :default-expanded-keys="areaId === undefined ? [] : [areaId]"
           node-key="areaId"
           placeholder="请选择地区"
-          filterable
         />
+        <el-image
+          :src="iconUrl"
+          :alt="selectedItem?.name"
+          lazy
+          class="w-8 h-8 align-middle bg-gray-800 rounded border border-x-amber-300"
+          style="--el-fill-color-light: transparent"
+          fit="contain"
+          decoding="async"
+          referrerpolicy="no-referrer"
+        >
+          <template #error>
+            <img class="w-full h-full object-contain" src="https://assets.yuanshen.site/icons/-1.png">
+          </template>
+        </el-image>
         <el-button type="primary" @click="collapsed = !collapsed">
           {{ collapsed ? '展开' : '折叠' }}
         </el-button>
@@ -135,7 +152,7 @@ const collapsed = ref(false)
       />
     </div>
 
-    <div class="custom-control-panel absolute right-2 top-2 bg-slate-600 rounded">
+    <div class="custom-control-panel absolute right-2 top-2 bg-slate-600 bg-opacity-70 backdrop-blur rounded">
       <AppUserAvatar map-mode />
     </div>
   </div>
