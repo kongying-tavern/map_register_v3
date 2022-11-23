@@ -61,7 +61,11 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
   const { refresh } = useFetchHook({
     ...rest,
     loading,
-    onRequest: () => Api.marker.searchMarker({}, { ...queryBody.value }),
+    onRequest: async () => {
+      if (!queryBody.value?.itemIdList?.length)
+        return {}
+      return await Api.marker.searchMarker({}, { ...queryBody.value })
+    },
     onSuccess: (res) => {
       markerList.value = res.data ?? []
       markerLoadedHook.trigger()

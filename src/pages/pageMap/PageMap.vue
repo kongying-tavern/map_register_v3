@@ -127,6 +127,7 @@ const collapsed = ref(false)
           placeholder="请选择地区"
         />
         <el-image
+          v-if="selectedItem"
           :src="iconUrl"
           :alt="selectedItem?.name"
           lazy
