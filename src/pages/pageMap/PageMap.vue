@@ -1,21 +1,28 @@
 <script lang="ts" setup>
 import 'leaflet/dist/leaflet.css'
-import L from 'leaflet'
 import { CtrlItemGroup } from './components'
 import { useItemList, useLayer, useMap, useMarker } from './hooks'
 import type { MapNameEnum } from './configs'
 import { mapTiles } from './configs'
 import { AppUserAvatar } from '@/components'
-import { useAreaList } from '@/hooks'
+import { useAreaList, useIconList } from '@/hooks'
 
 const containerRef = ref<HTMLElement | null>(null)
 
+// ==================== 地图相关 ====================
+
 const { map, onMapCreated } = useMap(containerRef)
 const { layers, activeName, selectLayer } = useLayer(map)
-onMapCreated(() => {
+
+// 地图初始化完成后触发
+onMapCreated((mapInstance) => {
   selectLayer(Object.keys(layers.value)[0])
+  mapInstance.flyTo([0, 0])
 })
 
+// ==================== 地区相关 ====================
+
+// 筛选物品所需的数据
 const filterForm = useUrlSearchParams('history', {
   removeNullishValues: true,
   initialValue: {
@@ -23,8 +30,6 @@ const filterForm = useUrlSearchParams('history', {
     areaId: 2 as undefined | number,
   },
 })
-
-const areaInitHook = createEventHook<void>()
 
 /**
  * 选择地区时会自动切换地图
@@ -39,11 +44,12 @@ const setMapNameByAreaId = (id?: number) => {
       continue
     if (config.areaIds.includes(id)) {
       activeName.value = key
-      map.value?.flyTo([0, 0])
       return
     }
   }
 }
+
+const areaInitHook = createEventHook<void>()
 
 const { areaTree } = useAreaList({
   onSuccess: () => areaInitHook.trigger(),
@@ -57,6 +63,8 @@ const areaId = computed({
   },
 })
 
+// ==================== 物品相关 ====================
+
 const itemId = computed({
   get: () => Number(filterForm.itemId),
   set: v => filterForm.itemId = v,
@@ -67,35 +75,33 @@ const { itemList } = useItemList({
     areaIdList: !areaId.value || Number.isNaN(areaId.value) ? [] : [areaId.value],
     size: 1000,
   }),
-  onSuccess: (res) => {
-    console.log('[item list]', res?.data?.record)
-  },
 })
 
-const markerGroup = ref<L.Layer | null>(null)
+const selectedItem = computed(() => itemList.value.find(item => item.itemId === itemId.value))
 
-const { updateMarkerList } = useMarker({
+// ==================== 点位相关 ====================
+
+/** 图标表 */
+const { iconMap } = useIconList()
+
+const { updateMarkerList } = useMarker(map, {
+  selectedItem,
   params: () => ({
     itemIdList: isNaN(itemId.value) ? [] : [itemId.value],
-    // areaIdList: areaId.value === undefined ? [] : [areaId.value],
-    // typeIdList: [],
   }),
-  onSuccess: ({ data = [] }) => {
-    const mapMarkers = computed(() => data.map(({ position = '0,0', content = '' }) => L
-      .marker(position.split(',').map(Number) as [number, number])
-      .bindPopup(content),
-    ))
-    markerGroup.value && map.value?.removeLayer(markerGroup.value as L.Layer)
-    markerGroup.value = L.layerGroup(mapMarkers.value)
-    map.value?.addLayer(markerGroup.value as L.Layer)
+  onSuccess: (res) => {
+    console.log('[marker list]', res.data)
   },
 })
+
+// ==================== 其他 ====================
 
 areaInitHook.on(() => {
   filterForm.areaId !== undefined && setMapNameByAreaId(Number(filterForm.areaId))
   filterForm.itemId !== undefined && updateMarkerList()
 })
 
+/** 控制侧边栏折叠 */
 const collapsed = ref(false)
 </script>
 
@@ -122,8 +128,9 @@ const collapsed = ref(false)
         </el-button>
       </div>
       <CtrlItemGroup
-        v-model="filterForm.itemId"
+        v-model="itemId"
         :item-list="itemList"
+        :icon-map="iconMap"
         class="flex-1"
       />
     </div>

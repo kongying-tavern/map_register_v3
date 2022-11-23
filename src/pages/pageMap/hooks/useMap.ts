@@ -23,6 +23,7 @@ export const useMap = (ele: Ref<HTMLElement | null>) => {
       tap: false,
       attributionControl: false,
       zoomControl: false,
+      preferCanvas: true,
     })
     map.value = newMap
     mapCreatedHook.trigger(newMap)

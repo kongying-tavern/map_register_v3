@@ -1,20 +1,13 @@
 <script lang="ts" setup>
-import { useIconMap } from '../hooks'
-
 const props = defineProps<{
   modelValue?: number | string
   itemList: API.ItemVo[]
+  iconMap: Record<string, string>
 }>()
 
 const emits = defineEmits<{
   (e: 'update:modelValue', v?: number): void
 }>()
-
-const { iconMap } = useIconMap({
-  onSuccess: ({ data }) => {
-    console.log('[icon map]', data)
-  },
-})
 
 const internalBind = computed({
   get: () => {
@@ -64,9 +57,6 @@ const proxySelect = (ev: MouseEvent) => {
           decoding="async"
           referrerpolicy="no-referrer"
         >
-          <template #placeholder>
-            <div v-loading="true" class="w-full h-full" element-loading-background="transparent" />
-          </template>
           <template #error>
             <img class="w-full h-full object-contain" src="https://assets.yuanshen.site/icons/-1.png">
           </template>
@@ -82,6 +72,14 @@ const proxySelect = (ev: MouseEvent) => {
   scrollbar-width: 10px;
   &::-webkit-scrollbar {
     width: 10px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: #AA9172;
+    border: 1px solid #2F3846;
+    border-radius: 2px;
+  }
+  &::-webkit-scrollbar-track {
+    background-color: #2F3846;
   }
 }
 
