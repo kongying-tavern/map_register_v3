@@ -12,16 +12,21 @@ export interface FetchHookOptions<T = any> {
 export const useFetchHook = <T>(options: FetchHookOptions<T> = {}) => {
   const { immediate, loading = ref(false), onRequest, onSuccess, onError } = options
 
+  const onSuccessHook = createEventHook<T>()
+  const onErrorHook = createEventHook<Error>()
+
   const refresh = async () => {
     try {
       loading.value = true
       if (onRequest) {
         const res = await onRequest()
         onSuccess?.(res)
+        onSuccessHook.trigger(res)
       }
     }
     catch (err) {
       onError?.(err instanceof Error ? err : new Error(messageFrom(err)))
+      onErrorHook.trigger(err instanceof Error ? err : new Error(messageFrom(err)))
     }
     finally {
       loading.value = false
@@ -30,5 +35,5 @@ export const useFetchHook = <T>(options: FetchHookOptions<T> = {}) => {
 
   immediate && onMounted(refresh)
 
-  return { loading, refresh }
+  return { loading, refresh, onSuccess: onSuccessHook.on, onError: onErrorHook.on }
 }
