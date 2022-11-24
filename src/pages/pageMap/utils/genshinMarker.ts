@@ -22,18 +22,17 @@ const doDraw = (ctx: CanvasRenderingContext2D, fn: () => void) => {
 /** @plugin leaflet-canvas-markers */
 L.Canvas.include({
   _updateImg(layer: Record<string, any> & { options: GenshinLayerOptions }) {
-    const ctx = this._ctx as CanvasRenderingContext2D
     const { img } = layer.options
     const { width: rW, height: rH } = img.el
     const [w, h] = img.size
     const [halfW, halfH] = [w / 2, h / 2]
     const p = layer._point.round()
-    let { x, y } = p
-    x += img.offset.x
-    y += img.offset.y
+    let [x, y] = [p.x + img.offset.x, p.y + img.offset.y]
     ;[x, y] = img.rotate ? [-halfW, -halfH] : [x - halfH, y - halfH]
     const center = [x + halfW, y + halfH] as const
     const radius = Math.max(w, h) / 2
+
+    const ctx = this._ctx as CanvasRenderingContext2D
 
     doDraw(ctx, () => {
       ctx.beginPath()

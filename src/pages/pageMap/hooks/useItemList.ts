@@ -3,17 +3,18 @@ import type { FetchHookOptions } from '@/hooks'
 import { useFetchHook } from '@/hooks'
 
 interface ItemListHookOptions extends FetchHookOptions<API.RPageListVoItemVo> {
+  watchParams?: boolean
   params?: () => API.ItemSearchVo
 }
 
 export const useItemList = (options: ItemListHookOptions = {}) => {
-  const { immediate = false, loading = ref(false), params, onSuccess, onError } = options
+  const { immediate = false, watchParams = true, loading = ref(false), params } = options
 
   const itemList = ref<API.ItemVo[]>([])
 
-  const watchParams = computed(() => params?.())
+  const fetchParams = computed(() => params?.())
 
-  const { refresh } = useFetchHook({
+  const { refresh, onSuccess, ...rest } = useFetchHook({
     immediate,
     loading,
     onRequest: () => Api.item.listItemIdByType({}, {
@@ -21,17 +22,15 @@ export const useItemList = (options: ItemListHookOptions = {}) => {
       current: 1,
       size: 10,
       typeIdList: [],
-      ...watchParams.value,
+      ...fetchParams.value,
     }),
-    onSuccess: (res) => {
-      itemList.value = res?.data?.record ?? []
-      onSuccess?.(res)
-    },
-    onError,
   })
 
-  if (params)
-    watch(watchParams, refresh, { deep: true })
+  onSuccess((res) => {
+    itemList.value = res?.data?.record ?? []
+  })
 
-  return { itemList, loading, updateItemList: refresh }
+  watchParams && params && watch(fetchParams, refresh, { deep: true })
+
+  return { itemList, updateItemList: refresh, onSuccess, ...rest }
 }

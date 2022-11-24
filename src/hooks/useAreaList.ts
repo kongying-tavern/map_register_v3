@@ -1,6 +1,7 @@
 import type { Ref } from 'vue'
-import { listArea } from '@/api/api/area'
-import { array2Tree, messageFrom } from '@/utils'
+import Api from '@/api/api'
+import { array2Tree } from '@/utils'
+import { useFetchHook } from '@/hooks'
 
 export interface AreaListHookOptions {
   immediate?: boolean
@@ -14,7 +15,7 @@ export interface AreaTreeItem extends API.AreaVo {
 }
 
 export const useAreaList = (options: AreaListHookOptions = {}) => {
-  const { immediate = true, loading = ref(false), onSuccess, onError } = options
+  const { immediate = true, loading = ref(false) } = options
 
   const areaList = ref<API.AreaVo[]>([])
 
@@ -24,26 +25,15 @@ export const useAreaList = (options: AreaListHookOptions = {}) => {
     rootId: -1,
   }))
 
-  const updateList = async () => {
-    try {
-      loading.value = true
-      const res = await listArea({}, {
-        isTestUser: false,
-        isTraverse: true,
-        parentId: -1,
-      })
-      areaList.value = res.data ?? []
-      onSuccess?.(res)
-    }
-    catch (err) {
-      onError?.(err instanceof Error ? err : new Error(messageFrom(err)))
-    }
-    finally {
-      loading.value = false
-    }
-  }
+  const { refresh, onSuccess, ...rest } = useFetchHook({
+    immediate,
+    loading,
+    onRequest: () => Api.area.listArea({}, { isTestUser: false, isTraverse: true, parentId: -1 }),
+  })
 
-  immediate && onMounted(updateList)
+  onSuccess((res) => {
+    areaList.value = res.data ?? []
+  })
 
-  return { areaList, areaTree, updateList }
+  return { areaList, areaTree, updateAreaList: refresh, onSuccess, ...rest }
 }

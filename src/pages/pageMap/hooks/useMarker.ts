@@ -13,22 +13,22 @@ export interface MarkerHookOptions extends FetchHookOptions<API.RListMarkerVo> {
 }
 
 export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOptions) => {
-  const { watchParams = true, selectedItem, loading = ref(false), params, onSuccess, ...rest } = options
+  const { immediate = false, watchParams = true, selectedItem, loading = ref(false), params } = options
 
+  /** 点位列表 */
   const markerList = ref<API.MarkerVo[]>([])
-  const queryBody = computed(() => params?.())
+  /** 请求参数 */
+  const fetchParams = computed(() => params?.())
+  /** 点位图层缓存 */
   const markerLayerCache = ref<L.Layer | null>(null)
-  const iconLoadedHook = createEventHook<void>()
-  const markerLoadedHook = createEventHook<void>()
+  /** 点位准备渲染的回调函数 */
   const preMarkerCreateCb = ref<(() => void) | null>(null)
 
-  const { iconMap } = useIconList({
+  const { iconMap, onSuccess: OnIconFetched } = useIconList({
     immediate: true,
-    onSuccess: () => {
-      iconLoadedHook.trigger()
-    },
   })
 
+  /** 当前选择的 item 对应的图片地址 */
   const iconUrl = computed(() => {
     const iconTag = selectedItem?.value?.iconTag
     return iconMap.value[iconTag ?? '']
@@ -58,35 +58,33 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
     map.value?.addLayer(markerLayerCache.value as L.Layer)
   }
 
-  const { refresh } = useFetchHook({
-    ...rest,
-    loading,
-    onRequest: async () => {
-      if (!queryBody.value?.itemIdList?.length)
-        return {}
-      return await Api.marker.searchMarker({}, { ...queryBody.value })
-    },
-    onSuccess: (res) => {
-      markerList.value = res.data ?? []
-      markerLoadedHook.trigger()
-      onSuccess?.(res)
-    },
-  })
-
-  watchParams && params && watch(queryBody, refresh, { deep: true })
-
+  /** 当图标和点位均准备好时才开始渲染 */
   const createMarkerWhenReady = () => {
     if (!preMarkerCreateCb.value) {
       preMarkerCreateCb.value = createMarkers
       return
     }
-    createMarkers()
+    preMarkerCreateCb.value()
   }
 
-  // 仅当 icons 准备好时才进行 markers 的创建
-  // TODO：逻辑需要改善
-  iconLoadedHook.on(createMarkerWhenReady)
-  markerLoadedHook.on(createMarkerWhenReady)
+  const { refresh, onSuccess: OnMarkerFetched, ...rest } = useFetchHook({
+    immediate,
+    loading,
+    onRequest: async () => {
+      if (!fetchParams.value?.itemIdList?.length)
+        return {}
+      return await Api.marker.searchMarker({}, { ...fetchParams.value })
+    },
+  })
 
-  return { markerList, markerLayer: markerLayerCache, loading, updateMarkerList: refresh }
+  OnIconFetched(createMarkerWhenReady)
+
+  OnMarkerFetched(({ data = [] }) => {
+    markerList.value = data
+    createMarkerWhenReady()
+  })
+
+  watchParams && params && watch(fetchParams, refresh, { deep: true })
+
+  return { markerList, markerLayer: markerLayerCache, updateMarkerList: refresh, createMarkerWhenReady, ...rest }
 }

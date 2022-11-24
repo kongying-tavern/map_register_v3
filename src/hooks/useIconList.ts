@@ -4,13 +4,15 @@ import { useFetchHook } from '@/hooks'
 
 interface IconsHookOptions extends FetchHookOptions<API.RPageListVoIconVo> {
   debounceTime?: number
+  /** 首次请求的总数 */
+  preFetchCount?: number
   params?: () => API.IconSearchVo
 }
 
 const iconList = ref<API.IconVo[]>([])
 
 export const useIconList = (options: IconsHookOptions = {}) => {
-  const { immediate, loading = ref(false), debounceTime = 1000, params, onSuccess, onError } = options
+  const { immediate = true, loading = ref(false), debounceTime = 1000, preFetchCount = 500, params } = options
 
   const iconMap = computed(() => iconList.value.reduce((seed, { name, url }) => {
     if (name && url)
@@ -18,30 +20,29 @@ export const useIconList = (options: IconsHookOptions = {}) => {
     return seed
   }, {} as Record<string, string>))
 
-  const { refresh } = useFetchHook({
+  const { refresh, onSuccess, ...rest } = useFetchHook({
     immediate,
     loading,
     onRequest: async () => {
-      let res = await Api.icon.listIcon({})
-      if (res.data?.total ?? 0 > 10) {
+      // 两次请求，第一次获取定量，如果总数大于定量，则第二次请求全部
+      let res = await Api.icon.listIcon({ size: preFetchCount })
+      if ((res.data?.total ?? 0) > preFetchCount) {
+        console.log('第二次')
         res = await Api.icon.listIcon({
-          iconIdList: [],
-          typeIdList: [],
           current: 1,
-          size: res.data?.total,
+          size: res.data?.total ?? preFetchCount,
           ...params?.(),
         })
       }
       return res
     },
-    onSuccess: (res) => {
-      iconList.value = res.data?.record ?? []
-      onSuccess?.(res)
-    },
-    onError,
+  })
+
+  onSuccess(({ data: { record = [] } = {} }) => {
+    iconList.value = record
   })
 
   const updateIconList = useDebounceFn(refresh, debounceTime)
 
-  return { iconList, iconMap, loading, updateIconList }
+  return { iconList, iconMap, updateIconList, onSuccess, ...rest }
 }

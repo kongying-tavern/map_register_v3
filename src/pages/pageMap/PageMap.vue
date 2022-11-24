@@ -48,11 +48,7 @@ const setMapNameByAreaId = (id?: number) => {
   }
 }
 
-const areaInitHook = createEventHook<void>()
-
-const { areaTree } = useAreaList({
-  onSuccess: () => areaInitHook.trigger(),
-})
+const { areaTree, onSuccess: onAreaFetched } = useAreaList()
 
 const areaId = computed({
   get: () => !areaTree.value.length ? undefined : Number(filterForm.areaId),
@@ -81,16 +77,15 @@ const selectedItem = computed(() => itemList.value.find(item => item.itemId === 
 // ==================== 点位相关 ====================
 
 /** 图标表 */
-const { iconMap } = useIconList()
+const { iconMap } = useIconList({
+  immediate: false,
+})
 
-const { updateMarkerList } = useMarker(map, {
+const { createMarkerWhenReady, updateMarkerList } = useMarker(map, {
   selectedItem,
   params: () => ({
     itemIdList: isNaN(itemId.value) ? [] : [itemId.value],
   }),
-  onSuccess: (res) => {
-    console.log('[marker list]', res.data)
-  },
 })
 
 const iconUrl = computed(() => {
@@ -100,9 +95,12 @@ const iconUrl = computed(() => {
 
 // ==================== 其他 ====================
 
-areaInitHook.on(() => {
+onAreaFetched(() => {
   filterForm.areaId !== undefined && setMapNameByAreaId(Number(filterForm.areaId))
-  filterForm.itemId !== undefined && updateMarkerList()
+  if (filterForm.itemId !== undefined) {
+    createMarkerWhenReady()
+    updateMarkerList()
+  }
 })
 
 /** 控制侧边栏折叠 */
