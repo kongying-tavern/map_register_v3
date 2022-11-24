@@ -52,7 +52,7 @@ const { height } = useElementSize(tableRef)
 
 <template>
   <div class="h-full flex flex-col gap-2 overflow-hidden">
-    <div class="flex flex-col">
+    <div class="flex flex-col gap-2">
       <div class="flex gap-8 items-center">
         <UserSorter v-model="sorts" :options="sortOptions" />
         <TableFilter v-model="filterValue" v-model:filter-key="filterKey" />
