@@ -3,23 +3,18 @@ import type { TableV2Props } from 'element-plus'
 import { useMarkerList } from './hooks'
 import { useAreaList, useTypeList } from '@/hooks'
 
-const isEmpty = (v: unknown): v is void => {
-  return !v
-}
+const areaId = ref()
 
-const { areaId, areaTree } = useAreaList()
+const { areaTree } = useAreaList()
 const { typeId, typeTree, onTypeLoad } = useTypeList()
 
 const { markerList, loading, updateMarkerList } = useMarkerList({
-  params: () => ({
-    areaIdList: isEmpty(areaId.value) ? [] : [areaId.value],
-    itemIdList: isEmpty(typeId.value) ? [] : [typeId.value],
-    typeIdList: [],
-    getBeta: false,
-  }),
-  onSuccess: (res) => {
-    console.log('[useMarkerList]', res.data)
-  },
+  // params: () => ({
+  //   areaIdList: isEmpty(areaId.value) ? [] : [areaId.value],
+  //   itemIdList: isEmpty(typeId.value) ? [] : [typeId.value],
+  //   typeIdList: [],
+  //   getBeta: false,
+  // }),
 })
 
 const columns: TableV2Props['columns'] = [
@@ -53,8 +48,8 @@ const columns: TableV2Props['columns'] = [
         clearable
         collapse-tags-tooltip
       />
-      <el-button @click="updateMarkerList">
-        筛选
+      <el-button disabled type="primary" @click="updateMarkerList">
+        筛选（待修改）
       </el-button>
     </div>
 
