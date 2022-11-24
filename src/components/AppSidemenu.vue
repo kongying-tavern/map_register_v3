@@ -20,6 +20,20 @@ const userStore = useUserStore()
 
 <style lang="scss" scoped>
 .app-sidemenu {
+  --el-menu-item-height: 44px;
+
   border-right: none;
+
+  :deep(.el-menu-item) {
+    clip-path: inset(3px 5px round 6px);
+
+    &:active {
+      background-color: var(--el-color-primary-light-7);
+    }
+
+    &.is-active {
+      background-color: var(--el-menu-hover-bg-color);
+    }
+  }
 }
 </style>

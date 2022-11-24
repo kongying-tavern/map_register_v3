@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { AppSidemenu, AppUserAvatar, BreadCrumb } from '@/components'
+import { AppBreadCrumb, AppLogo, AppSidemenu, AppUserAvatar } from '@/components'
 import { useTheme } from '@/hooks'
 import { LayoutAside, LayoutHeader, LayoutPage } from '@/layout'
 
@@ -14,16 +14,14 @@ onBeforeMount(() => {
   <div class="layout-contianer w-full h-full grid overflow-hidden">
     <LayoutAside>
       <template #header>
-        <div class="h-full grid place-items-center text-sm">
-          管理系统
-        </div>
+        <AppLogo />
       </template>
       <AppSidemenu />
     </LayoutAside>
 
     <LayoutHeader>
       <div class="h-full flex-1 flex items-center justify-between text-sm px-4 gap-4">
-        <BreadCrumb class="flex-1" />
+        <AppBreadCrumb class="flex-1" />
         <AppUserAvatar />
       </div>
     </LayoutHeader>
