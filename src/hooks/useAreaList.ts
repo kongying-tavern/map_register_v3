@@ -1,4 +1,4 @@
-import type { Ref } from 'vue'
+import type { ComputedRef, Ref } from 'vue'
 import Api from '@/api/api'
 import { array2Tree } from '@/utils'
 import { useFetchHook } from '@/hooks'
@@ -19,6 +19,11 @@ export const useAreaList = (options: AreaListHookOptions = {}) => {
 
   const areaList = ref<API.AreaVo[]>([])
 
+  const areaMap = computed(() => Object.fromEntries(areaList.value.map(area => [
+    area.areaId as number,
+    area,
+  ]))) as ComputedRef<Record<number, API.AreaVo>>
+
   const areaTree = computed(() => array2Tree(areaList.value, {
     idKey: 'areaId',
     pidKey: 'parentId',
@@ -35,5 +40,5 @@ export const useAreaList = (options: AreaListHookOptions = {}) => {
     areaList.value = res.data ?? []
   })
 
-  return { areaList, areaTree, updateAreaList: refresh, onSuccess, ...rest }
+  return { areaList, areaTree, areaMap, updateAreaList: refresh, onSuccess, ...rest }
 }

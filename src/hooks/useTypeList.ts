@@ -12,7 +12,7 @@ export interface ExtraItemTypeVo extends API.ItemTypeVo {
 }
 
 export const useTypeList = (options: TypeHookOptions = {}) => {
-  const { immediate = true, loading = ref(false), params, onSuccess, onError } = options
+  const { immediate = true, loading = ref(false), params } = options
 
   const typeList = ref<API.ItemTypeVo[]>([])
 
@@ -27,15 +27,17 @@ export const useTypeList = (options: TypeHookOptions = {}) => {
     return items.map(item => ({ ...item, children: [] }))
   }
 
-  const { refresh } = useFetchHook({
+  const { refresh, onSuccess, ...rest } = useFetchHook({
     immediate,
     loading,
     onRequest: () => Api.itemType.listItemType({ self: 1 }, { typeIdList: [], current: 1, size: 1000, ...params?.() }),
     onSuccess: (res) => {
       typeList.value = withChildren(res?.data?.record ?? [])
-      onSuccess?.(res)
     },
-    onError,
+  })
+
+  onSuccess(({ data: { record = [] } = {} }) => {
+    typeList.value = withChildren(record)
   })
 
   const onTypeLoad = async (node: Node, resolve: (data: ExtraItemTypeVo[]) => void) => {
@@ -48,5 +50,5 @@ export const useTypeList = (options: TypeHookOptions = {}) => {
     resolve(withChildren(record))
   }
 
-  return { typeId, typeList, typeTree, loading, updateTypeList: refresh, onTypeLoad }
+  return { typeId, typeList, typeTree, updateTypeList: refresh, onTypeLoad, onSuccess, ...rest }
 }
