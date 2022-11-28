@@ -31,7 +31,7 @@ jobs:
       shell: bash
       commands:
       - cd @secret:workspace-path@
-      - /usr/local/bin/pnpm run build
+      - /usr/local/bin/pnpm run build:dev
     useTTY: false
     condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
   - !CommandStep
