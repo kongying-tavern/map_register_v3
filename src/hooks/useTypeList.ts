@@ -9,6 +9,7 @@ export interface TypeHookOptions extends FetchHookOptions<API.RPageListVoItemTyp
 
 export interface ExtraItemTypeVo extends API.ItemTypeVo {
   children: ExtraItemTypeVo[]
+  isLeaf: boolean
 }
 
 export const useTypeList = (options: TypeHookOptions = {}) => {
@@ -24,7 +25,11 @@ export const useTypeList = (options: TypeHookOptions = {}) => {
   const typeId = ref<number>()
 
   const withChildren = (items: API.ItemTypeVo[]) => {
-    return items.map(item => ({ ...item, children: [] }))
+    return items.map(item => ({
+      ...item,
+      children: [],
+      isLeaf: item.typeId !== 9,
+    }))
   }
 
   const { refresh, onSuccess, ...rest } = useFetchHook({
@@ -41,9 +46,9 @@ export const useTypeList = (options: TypeHookOptions = {}) => {
   })
 
   const onTypeLoad = async (node: Node, resolve: (data: ExtraItemTypeVo[]) => void) => {
-    if (node.level === 0)
-      return
     const data = node.data as ExtraItemTypeVo
+    if (node.level === 0 || data.typeId !== 9)
+      return
     const { data: { record = [] } = {} } = await Api
       .itemType
       .listItemType({ self: 1 }, { current: 1, size: 1000, typeIdList: [data.typeId as number] })

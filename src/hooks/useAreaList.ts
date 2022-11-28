@@ -3,10 +3,10 @@ import Api from '@/api/api'
 import { array2Tree } from '@/utils'
 import { useFetchHook } from '@/hooks'
 
-export interface AreaListHookOptions {
+export interface AreaListHookOptions<T> {
   immediate?: boolean
   loading?: Ref<boolean>
-  onSuccess?: (res: API.RListAreaVo) => void
+  onSuccess?: (res: API.RListAreaVo) => T[]
   onError?: (err: Error) => void
 }
 
@@ -14,7 +14,7 @@ export interface AreaTreeItem extends API.AreaVo {
   children?: AreaTreeItem[]
 }
 
-export const useAreaList = (options: AreaListHookOptions = {}) => {
+export const useAreaList = <T = any>(options: AreaListHookOptions<T> = {}) => {
   const { immediate = true, loading = ref(false) } = options
 
   const areaList = ref<API.AreaVo[]>([])

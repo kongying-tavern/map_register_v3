@@ -3,12 +3,11 @@ import type { FetchHookOptions } from '@/hooks'
 import { useFetchHook } from '@/hooks'
 
 interface ItemListHookOptions extends FetchHookOptions<API.RPageListVoItemVo> {
-  watchParams?: boolean
   params?: () => API.ItemSearchVo
 }
 
 export const useItemList = (options: ItemListHookOptions = {}) => {
-  const { immediate = false, watchParams = true, loading = ref(false), params } = options
+  const { immediate = false, loading = ref(false), params } = options
 
   const itemList = ref<API.ItemVo[]>([])
 
@@ -26,7 +25,7 @@ export const useItemList = (options: ItemListHookOptions = {}) => {
     itemList.value = (res?.data?.record ?? []).sort((a, b) => Number(a.itemId) - Number(b.itemId))
   })
 
-  watchParams && params && watch(fetchParams, refresh, { deep: true })
+  const { pause, resume } = pausableWatch(fetchParams, refresh, { deep: true })
 
-  return { itemList, updateItemList: refresh, onSuccess, ...rest }
+  return { itemList, updateItemList: refresh, onSuccess, pause, resume, ...rest }
 }

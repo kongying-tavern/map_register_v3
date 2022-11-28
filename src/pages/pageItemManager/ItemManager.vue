@@ -1,27 +1,23 @@
 <script lang="tsx" setup>
 import { ElButton } from 'element-plus'
 import type { AnyColumn } from 'element-plus/es/components/table-v2/src/common'
-import { PgUnit, useAreaList, useItemList, usePagination, useTypeList } from '@/hooks'
+import { PgUnit, useAreaList, useIconList, useItemList, usePagination, useTypeList } from '@/hooks'
 
 const { pagination, layout } = usePagination({
   units: [PgUnit.PREV, PgUnit.PAGER, PgUnit.NEXT],
 })
+const checkedArea = ref<API.AreaVo>()
+const checkedType = ref<API.ItemTypeVo>()
 
 const { areaMap, areaTree, loading: areaLoading } = useAreaList({
   immediate: true,
 })
-const checkedArea = ref<API.AreaVo>()
-const onAreaCheckedChange = (area: API.AreaVo) => {
-  checkedArea.value = area
-}
+
+const { iconMap } = useIconList()
 
 const { typeList, loading: typeLoading, onTypeLoad } = useTypeList()
-const checkedType = ref<API.ItemTypeVo>()
-const onTypeCheckedChange = (typeItem: API.ItemTypeVo) => {
-  checkedType.value = typeItem
-}
 
-const { itemList, loading: itemLoading, onSuccess: onItemListFetched } = useItemList({
+const { itemList, loading: itemLoading, onSuccess: onItemListFetched, pause, resume } = useItemList({
   immediate: true,
   params: () => ({
     areaIdList: checkedArea.value ? [checkedArea.value.areaId as number] : [],
@@ -30,6 +26,30 @@ const { itemList, loading: itemLoading, onSuccess: onItemListFetched } = useItem
     size: pagination.value.pageSize,
   }),
 })
+
+/** 在部分参数切换后重置页数 */
+const resetPagination = () => {
+  pause()
+  pagination.value.current = 1
+  pagination.value.pageSize = 10
+  resume()
+}
+
+const onAreaCheckedChange = (area: API.AreaVo) => {
+  // TODO 过滤非端点选项
+  if ([undefined, 1, 5, 7, 11, 18].includes(area.areaId))
+    return
+  resetPagination()
+  checkedArea.value = area
+}
+
+const onTypeCheckedChange = (typeItem: API.ItemTypeVo) => {
+  // TODO 目前只有宝箱(id = 9)分类存在子分类，先这样处理
+  if (typeItem.typeId === 9)
+    return
+  resetPagination()
+  checkedType.value = typeItem
+}
 
 onItemListFetched(({ data: { record = [], total = 0 } = {} }) => {
   console.log('[物品列表]', record)
@@ -43,9 +63,20 @@ const columns: AnyColumn[] = [
   { title: '物品ID', dataKey: 'itemId', width: 50 },
   { title: '名称', dataKey: 'name', width: 200 },
   {
+    title: '图标',
+    width: 200,
+    cellRenderer: ({ rowData }) => <img
+      class="w-8 h-8 object-contain rounded-full bg-slate-700"
+      src={iconMap.value[rowData.iconTag ?? '']}
+      referrerpolicy="no-referrer"
+    />,
+  },
+  {
     title: '地区',
     width: 200,
-    cellRenderer: ({ rowData }) => <div>{areaMap.value[rowData.areaId]?.name ?? rowData.areaId}</div>,
+    cellRenderer: ({ rowData }) => <div>
+      {areaMap.value[rowData.areaId]?.name ?? rowData.areaId}
+    </div>,
   },
   {
     title: '操作',
@@ -63,7 +94,6 @@ const columns: AnyColumn[] = [
         v-loading="areaLoading"
         :data="areaTree"
         :props="{ label: 'name', value: 'areaId' }"
-        :expand-on-click-node="false"
         class="flex-1 overflow-auto"
         accordion
         node-key="areaId"
@@ -74,9 +104,8 @@ const columns: AnyColumn[] = [
       <el-tree
         v-loading="typeLoading"
         :data="typeList"
-        :props="{ label: 'name', value: 'typeId' }"
+        :props="{ label: 'name', value: 'typeId', isLeaf: 'isLeaf' }"
         :load="onTypeLoad"
-        :expand-on-click-node="false"
         class="flex-1 overflow-auto"
         lazy
         accordion
