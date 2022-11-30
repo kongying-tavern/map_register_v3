@@ -6,7 +6,7 @@ import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import App from './App.vue'
 import './style/app.scss'
 import { router } from '@/router'
-import { serviceWorker } from '@/worker'
+import { createServiceWorker } from '@/worker'
 import 'element-plus/dist/index.css'
 import 'element-plus/theme-chalk/dark/css-vars.css'
 
@@ -16,9 +16,11 @@ for (const [key, icon] of Object.entries(ElemenePlusIconsVue))
   app.component(key, icon)
 
 app
-  .use(serviceWorker)
   .use(createPinia())
   .use(router)
+  .use(createServiceWorker({
+    scope: '/',
+  }))
   .use(ElementPlus, {
     locale: zhCn,
   })
