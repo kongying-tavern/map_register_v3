@@ -25,12 +25,11 @@ const filterForm = useUrlSearchParams('history', {
   removeNullishValues: true,
   initialValue: {
     areaId: 2 as undefined | number,
-    // itemKey 来自于 item 的 iconTag 字段，这里用 iconTag 而不是 itemId 的原因：
+    // 这里用 iconName 而不是 itemId 的原因：
     // 1. 不同地区存在相同的物品，但其 itemId 不同
     // TODO 可能存在的问题：
-    // 1. 不同的物品拥有同一个 iconTag，比如 A、B 都使用 "无" 的情况
-    itemKey: undefined as undefined | string,
-    // itemId: undefined as undefined | number,
+    // 1. 不同的物品拥有同一个 iconName
+    iconName: undefined as undefined | string,
   },
 })
 
@@ -71,12 +70,12 @@ const { itemList, loading: itemLoading, onSuccess: onItemsFetched } = useItemLis
   }),
 })
 
-const selectedItem = computed(() => itemList.value.find(item => item.iconTag === filterForm.itemKey))
+const selectedItem = computed(() => itemList.value.find(item => item.name === filterForm.iconName))
 
 onItemsFetched(() => {
   // 在物品列表加载完成后，如果当前已选的同类物品不在列表内，则清除已选项
   if (!selectedItem.value)
-    filterForm.itemKey = undefined
+    filterForm.iconName = undefined
 })
 
 // ==================== 点位相关 ====================
@@ -137,7 +136,7 @@ const collapsed = ref(false)
           fit="contain"
           decoding="async"
           referrerpolicy="no-referrer"
-          @click="(filterForm.itemKey = undefined)"
+          @click="(filterForm.iconName = undefined)"
         >
           <template #error>
             <img class="w-full h-full object-contain" src="https://assets.yuanshen.site/icons/-1.png">
@@ -148,10 +147,11 @@ const collapsed = ref(false)
         </el-button>
       </div>
       <CtrlItemGroup
-        v-model="filterForm.itemKey"
+        v-model="filterForm.iconName"
         :item-list="itemList"
         :icon-map="iconMap"
         :loading="itemLoading"
+        item-key-name="name"
         class="flex-1"
       />
     </div>

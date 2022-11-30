@@ -1,10 +1,13 @@
 <script lang="ts" setup>
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   modelValue?: string | string
+  itemKeyName?: keyof API.ItemVo
   itemList: API.ItemVo[]
   iconMap: Record<string, string>
   loading: boolean
-}>()
+}>(), {
+  itemKeyName: 'itemId',
+})
 
 const emits = defineEmits<{
   (e: 'update:modelValue', v?: string): void
@@ -33,9 +36,9 @@ const proxySelect = (ev: MouseEvent) => {
     <div
       v-for="item in itemList"
       :key="item.itemId"
-      :data-bind-key="item.iconTag"
+      :data-bind-key="item[itemKeyName]"
       :class="{
-        actived: internalBind === item.iconTag,
+        actived: internalBind === item[itemKeyName],
       }"
       class="item-selector rounded flex flex-col gap-1 items-center cursor-pointer"
     >
