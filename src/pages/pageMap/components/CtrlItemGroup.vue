@@ -1,50 +1,43 @@
 <script lang="ts" setup>
 const props = defineProps<{
-  modelValue?: number | string
+  modelValue?: string | string
   itemList: API.ItemVo[]
   iconMap: Record<string, string>
+  loading: boolean
 }>()
 
 const emits = defineEmits<{
-  (e: 'update:modelValue', v?: number): void
+  (e: 'update:modelValue', v?: string): void
 }>()
 
 const internalBind = computed({
-  get: () => {
-    const numLike = Number(props.modelValue)
-    return isNaN(numLike) ? undefined : numLike
-  },
-  set: id => emits('update:modelValue', id),
+  get: () => props.modelValue,
+  set: v => emits('update:modelValue', v),
 })
 
 const proxySelect = (ev: MouseEvent) => {
   for (const ele of ev.composedPath()) {
-    const itemId = (ele as HTMLElement)?.dataset?.gItemId
-    if (itemId === undefined)
+    const itemKey = (ele as HTMLElement)?.dataset?.bindKey
+    if (itemKey === undefined)
       continue
-    const parsedId = parseInt(itemId)
-    if (props.modelValue === parsedId) {
-      internalBind.value = undefined
-      return
-    }
-    internalBind.value = parsedId
+    internalBind.value = internalBind.value === itemKey ? undefined : itemKey
   }
 }
 </script>
 
 <template>
   <div
-    class="custom-scrollbar-y w-80 overflow-y-auto bg-gray-700 rounded grid grid-cols-4 content-start gap-1 text-xs text-slate-300 p-1"
+    class="items-panel w-80 overflow-y-auto bg-gray-700 rounded grid grid-cols-4 content-start gap-1 text-xs text-slate-300 p-1"
     @click="proxySelect"
   >
     <div
       v-for="item in itemList"
       :key="item.itemId"
-      :data-g-item-id="item.itemId"
+      :data-bind-key="item.iconTag"
       :class="{
-        actived: internalBind === item.itemId,
+        actived: internalBind === item.iconTag,
       }"
-      class="map-list-item rounded flex flex-col gap-1 items-center cursor-pointer"
+      class="item-selector rounded flex flex-col gap-1 items-center cursor-pointer"
     >
       <div class="w-14 h-14 rounded grid place-items-center bg-gray-800 overflow-hidden">
         <el-image
@@ -64,12 +57,17 @@ const proxySelect = (ev: MouseEvent) => {
       </div>
       <span class="w-full align-middle whitespace-nowrap overflow-hidden text-center text-ellipsis">{{ item.name }}</span>
     </div>
+    <div v-if="!loading" class="col-span-4 text-center py-4">
+      没有更多物品了
+    </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
-.custom-scrollbar-y {
+.items-panel {
+  position: relative;
   scrollbar-width: 10px;
+
   &::-webkit-scrollbar {
     width: 10px;
   }
@@ -83,11 +81,13 @@ const proxySelect = (ev: MouseEvent) => {
   }
 }
 
-.map-list-item {
+.item-selector {
   border: 1px solid transparent;
   transition: all ease 176ms;
   padding: 4px;
   width: 100%;
+  content-visibility: auto;
+  contain-intrinsic-size: 86px;
 
   &:hover {
     background-color: rgb(124, 124, 124, 0.5);

@@ -24,8 +24,13 @@ onActivated(() => {
 const filterForm = useUrlSearchParams('history', {
   removeNullishValues: true,
   initialValue: {
-    itemId: undefined as undefined | number,
     areaId: 2 as undefined | number,
+    // itemKey 来自于 item 的 iconTag 字段，这里用 iconTag 而不是 itemId 的原因：
+    // 1. 不同地区存在相同的物品，但其 itemId 不同
+    // TODO 可能存在的问题：
+    // 1. 不同的物品拥有同一个 iconTag，比如 A、B 都使用 "无" 的情况
+    itemKey: undefined as undefined | string,
+    // itemId: undefined as undefined | number,
   },
 })
 
@@ -59,19 +64,20 @@ const areaId = computed({
 
 // ==================== 物品相关 ====================
 
-const itemId = computed({
-  get: () => Number(filterForm.itemId),
-  set: v => filterForm.itemId = v,
-})
-
-const { itemList } = useItemList({
+const { itemList, loading: itemLoading, onSuccess: onItemsFetched } = useItemList({
   params: () => ({
     areaIdList: !areaId.value || Number.isNaN(areaId.value) ? [] : [areaId.value],
     size: 1000,
   }),
 })
 
-const selectedItem = computed(() => itemList.value.find(item => item.itemId === itemId.value))
+const selectedItem = computed(() => itemList.value.find(item => item.iconTag === filterForm.itemKey))
+
+onItemsFetched(() => {
+  // 在物品列表加载完成后，如果当前已选的同类物品不在列表内，则清除已选项
+  if (!selectedItem.value)
+    filterForm.itemKey = undefined
+})
 
 // ==================== 点位相关 ====================
 
@@ -83,20 +89,17 @@ const { iconMap } = useIconList({
 const { createMarkerWhenReady, updateMarkerList } = useMarker(map, {
   selectedItem,
   params: () => ({
-    itemIdList: isNaN(itemId.value) ? [] : [itemId.value],
+    itemIdList: selectedItem.value?.itemId === undefined ? [] : [selectedItem.value.itemId],
   }),
 })
 
-const iconUrl = computed(() => {
-  const iconTag = selectedItem?.value?.iconTag
-  return iconMap.value[iconTag ?? '']
-})
+const iconUrl = computed(() => iconMap.value[selectedItem?.value?.iconTag ?? ''])
 
 // ==================== 其他 ====================
 
 onAreaFetched(() => {
   filterForm.areaId !== undefined && setMapNameByAreaId(Number(filterForm.areaId))
-  if (filterForm.itemId !== undefined) {
+  if (selectedItem.value?.itemId !== undefined) {
     createMarkerWhenReady()
     updateMarkerList()
   }
@@ -120,6 +123,7 @@ const collapsed = ref(false)
           :data="areaTree"
           :props="{ label: 'name', value: 'areaId' }"
           :default-expanded-keys="areaId === undefined ? [] : [areaId]"
+          accordion
           node-key="areaId"
           placeholder="请选择地区"
         />
@@ -128,11 +132,12 @@ const collapsed = ref(false)
           :src="iconUrl"
           :alt="selectedItem?.name"
           lazy
-          class="w-8 h-8 align-middle bg-gray-800 rounded border border-x-amber-300"
+          class="w-8 h-8 align-middle bg-gray-800 rounded border border-x-amber-300 cursor-pointer"
           style="--el-fill-color-light: transparent"
           fit="contain"
           decoding="async"
           referrerpolicy="no-referrer"
+          @click="(filterForm.itemKey = undefined)"
         >
           <template #error>
             <img class="w-full h-full object-contain" src="https://assets.yuanshen.site/icons/-1.png">
@@ -143,9 +148,10 @@ const collapsed = ref(false)
         </el-button>
       </div>
       <CtrlItemGroup
-        v-model="itemId"
+        v-model="filterForm.itemKey"
         :item-list="itemList"
         :icon-map="iconMap"
+        :loading="itemLoading"
         class="flex-1"
       />
     </div>
