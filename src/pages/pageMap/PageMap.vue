@@ -11,11 +11,10 @@ const containerRef = ref<HTMLElement | null>(null)
 
 // ==================== 地图相关 ====================
 
-const { map, onMapCreated } = useMap(containerRef)
+const { map } = useMap(containerRef)
 const { layers, activeName, selectLayer } = useLayer(map)
 
-// 地图初始化完成后触发
-onMapCreated(() => {
+onActivated(() => {
   selectLayer(Object.keys(layers.value)[0])
 })
 
