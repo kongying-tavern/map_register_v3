@@ -132,7 +132,7 @@ const collapsed = ref(false)
           :src="iconUrl"
           :alt="selectedItem?.name"
           lazy
-          class="w-8 h-8 align-middle bg-gray-800 rounded border border-x-amber-300 cursor-pointer"
+          class="selected-item-bar w-8 h-8 align-middle bg-gray-800 rounded border border-x-amber-300 cursor-pointer"
           style="--el-fill-color-light: transparent"
           fit="contain"
           decoding="async"
@@ -172,6 +172,29 @@ const collapsed = ref(false)
 
   &.collapsed {
     --clip-height: calc(100% - 48px);
+  }
+}
+
+.selected-item-bar {
+  position: relative;
+  overflow: visible;
+
+  &::before, &::after {
+    content: '';
+    position: absolute;
+    right: -6px;
+    top: -6px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  &::before {
+    background-color: var(--el-color-danger);
+  }
+  &::after {
+    background-color: var(--el-color-white);
+    clip-path: inset(6px 3px);
   }
 }
 </style>
