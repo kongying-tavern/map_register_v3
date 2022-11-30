@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import 'leaflet/dist/leaflet.css'
-import { CtrlItemGroup } from './components'
+import { ContextMenu, CtrlItemGroup } from './components'
 import { useItemList, useLayer, useMap, useMarker } from './hooks'
 import type { MapNameEnum } from './configs'
 import { mapTiles } from './configs'
@@ -159,6 +159,8 @@ const collapsed = ref(false)
     <div class="custom-control-panel absolute right-2 top-2 bg-slate-600 bg-opacity-70 backdrop-blur rounded">
       <AppUserAvatar map-mode />
     </div>
+
+    <ContextMenu :target="containerRef" />
   </div>
 </template>
 

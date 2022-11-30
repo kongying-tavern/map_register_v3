@@ -27,6 +27,9 @@ export const useMap = (ele: Ref<HTMLElement | null>) => {
       preferCanvas: true,
     })
     map.value = newMap
+    newMap.addEventListener('contextmenu', (ev) => {
+      console.log('[map contextmenu]', ev)
+    })
     mapCreatedHook.trigger(newMap)
   })
 
