@@ -55,7 +55,7 @@ const proxySelect = (ev: MouseEvent) => {
           style="--el-fill-color-light: transparent"
           fit="contain"
           decoding="async"
-          referrer-policy="no-referrer"
+          referrerpolicy="no-referrer"
         >
           <template #error>
             <img class="w-full h-full object-contain" src="https://assets.yuanshen.site/icons/-1.png">
