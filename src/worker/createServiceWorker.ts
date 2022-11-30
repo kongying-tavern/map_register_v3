@@ -18,7 +18,7 @@ export const createServiceWorker = (options: ServiceWorkerInstallerOptions = {})
         logger.info('已存在 service worker')
         return
       }
-      const swRegistration = await navigator.serviceWorker.register('./serviceWorker.ts', { scope })
+      const swRegistration = await navigator.serviceWorker.register('./serviceWorker.js', { scope })
       logger.info('注册成功', swRegistration)
     }
     catch (err) {
