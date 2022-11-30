@@ -1,4 +1,5 @@
 import { join, resolve } from 'path'
+import type { ProxyOptions } from 'vite'
 import { defineConfig, loadEnv } from 'vite'
 import Vue from '@vitejs/plugin-vue'
 import VueJsx from '@vitejs/plugin-vue-jsx'
@@ -10,33 +11,28 @@ export default defineConfig(({ mode }) => {
   const ENV = loadEnv(mode, '.') as ImportMetaEnv
   console.log('[ENV]', ENV)
 
+  const proxy: Record<string, string | ProxyOptions> = {
+    ...getMHYProxys(),
+    [ENV.VITE_API_BASE]: {
+      target: ENV.VITE_API_PROXY_TARGET,
+      changeOrigin: true,
+      rewrite: path => path.replace(new RegExp(`${ENV.VITE_API_BASE}`), ''),
+    },
+  }
+
   return {
     server: {
       host: '0.0.0.0',
       port: 9000,
-      proxy: {
-        ...getMHYProxys(),
-        [ENV.VITE_API_BASE]: {
-          target: ENV.VITE_API_PROXY_TARGET,
-          changeOrigin: true,
-          rewrite: path =>
-            path.replace(new RegExp(`${ENV.VITE_API_BASE}`), ''),
-        },
-      },
+      cors: true,
+      proxy,
     },
 
     preview: {
       host: '0.0.0.0',
       port: 13101,
-      proxy: {
-        ...getMHYProxys(),
-        [ENV.VITE_API_BASE]: {
-          target: ENV.VITE_API_PROXY_TARGET,
-          changeOrigin: true,
-          rewrite: path =>
-            path.replace(new RegExp(`${ENV.VITE_API_BASE}`), ''),
-        },
-      },
+      cors: true,
+      proxy,
     },
 
     resolve: {
