@@ -109,7 +109,7 @@ const collapsed = ref(false)
 </script>
 
 <template>
-  <div class="w-full h-full relative overflow-hidden">
+  <div class="genshin-map-container w-full h-full relative overflow-hidden">
     <div ref="containerRef" class="genshin-map absolute w-full h-full" style="background: #000" />
 
     <div
@@ -165,6 +165,12 @@ const collapsed = ref(false)
 </template>
 
 <style lang="scss" scoped>
+.genshin-map-container {
+  .genshin-map {
+    cursor: crosshair;
+  }
+}
+
 .custom-control-panel {
   --clip-height: 0;
 
