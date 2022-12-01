@@ -8,6 +8,7 @@ export interface GenshinLayerOptions extends Record<string, any> {
     rotate: number
     size: [number, number]
     url: string
+    active?: boolean
   }
   prevLatlng: { lat: number; lng: number }
   radius: number
@@ -24,7 +25,11 @@ L.Canvas.include({
   _updateImg(layer: Record<string, any> & { options: GenshinLayerOptions }) {
     const { img } = layer.options
     const { width: rW, height: rH } = img.el
-    const [w, h] = img.size
+    let [w, h] = img.size
+    if (img.active) {
+      w += 8
+      h += 8
+    }
     const [halfW, halfH] = [w / 2, h / 2]
     const p = layer._point.round()
     let [x, y] = [p.x + img.offset.x, p.y + img.offset.y]
@@ -38,7 +43,7 @@ L.Canvas.include({
       ctx.beginPath()
       ctx.arc(...center, radius, 0, 2 * Math.PI)
       ctx.closePath()
-      ctx.fillStyle = '#323947'
+      ctx.fillStyle = img.active ? 'rgba(55, 255, 82, 0.6)' : '#323947'
       ctx.fill()
     })
 
@@ -56,7 +61,7 @@ L.Canvas.include({
       ctx.arc(...center, radius - 1, 0, 2 * Math.PI)
       ctx.closePath()
       ctx.lineWidth = 2
-      ctx.strokeStyle = '#D3BC8E'
+      ctx.strokeStyle = img.active ? '#3ACD52' : '#D3BC8E'
       ctx.stroke()
     })
 
