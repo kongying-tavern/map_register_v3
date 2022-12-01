@@ -168,6 +168,15 @@ const collapsed = ref(false)
 .genshin-map-container {
   .genshin-map {
     cursor: crosshair;
+
+    :deep(.leaflet-popup-content-wrapper) {
+      border-radius: 4px;
+      padding: 8px;
+    }
+
+    :deep(.leaflet-popup-content) {
+      margin: 0;
+    }
   }
 }
 

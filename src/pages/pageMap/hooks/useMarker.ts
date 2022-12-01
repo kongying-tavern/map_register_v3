@@ -1,7 +1,7 @@
 import type { Ref } from 'vue'
 import L from 'leaflet'
 import type { GenshinMap } from '../utils'
-import { canvasMarker } from '../utils'
+import { canvasMarker, createContent } from '../utils'
 import Api from '@/api/api'
 import type { FetchHookOptions } from '@/hooks'
 import { useFetchHook, useIconList } from '@/hooks'
@@ -36,7 +36,7 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
 
   const createMarkers = () => {
     const mapMarkers = markerList.value.map((markerInfo) => {
-      const { position = '0,0', content = '暂无说明' } = markerInfo
+      const { position = '0,0' } = markerInfo
       const coordinates = L.latLng(position.split(',').map(Number) as [number, number])
       const marker = canvasMarker(coordinates, {
         prevLatlng: coordinates,
@@ -48,8 +48,10 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
         },
       })
       // 绑定说明
-      // TODO 后期改为全局单例组件
-      marker.bindPopup(content)
+      marker.bindPopup(createContent(markerInfo), {
+        closeButton: false,
+        minWidth: 199,
+      })
       return marker
     })
 

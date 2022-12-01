@@ -1,3 +1,4 @@
+export * from './createPopupContent'
 export * from './genshinMap'
 export * from './genshinMarker'
 export * from './genshinTileLayer'
