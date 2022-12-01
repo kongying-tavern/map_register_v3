@@ -1,6 +1,6 @@
 import type { Ref } from 'vue'
 import L from 'leaflet'
-import type { GenshinMap } from '../utils'
+import type { GenshinLayerOptions, GenshinMap } from '../utils'
 import { canvasMarker, createContent } from '../utils'
 import Api from '@/api/api'
 import type { FetchHookOptions } from '@/hooks'
@@ -47,10 +47,19 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
           offset: { x: 0, y: 0 },
         },
       })
+      marker.addEventListener('popupopen', () => {
+        (marker.options as GenshinLayerOptions).img.active = true
+        marker.redraw()
+      })
+      marker.addEventListener('popupclose', () => {
+        (marker.options as GenshinLayerOptions).img.active = false
+        marker.redraw()
+      })
       // 绑定说明
       marker.bindPopup(createContent(markerInfo), {
         closeButton: false,
-        minWidth: 199,
+        minWidth: 223,
+        maxWidth: 223,
       })
       return marker
     })
