@@ -51,8 +51,23 @@ export async function moveItemType(
   });
 }
 
-/** 列出物品类型 不递归遍历，只遍历子级；{self}表示查询自身还是查询子级，0为查询自身，1为查询子级 POST /item_type/get/list/${param0} */
+/** 列出所有物品类型 返回所有可访问的物品类型 POST /item_type/get/list_all */
 export async function listItemType(
+  params: {
+    // header
+},
+  options?: { [key: string]: any },
+) {
+  return request<API.RListItemTypeVo>(`/api/item_type/get/list_all`, {
+    method: 'POST',
+    headers: {},
+    params: { ...params },
+    ...(options || {}),
+  });
+}
+
+/** 列出物品类型 不递归遍历，只遍历子级；{self}表示查询自身还是查询子级，0为查询自身，1为查询子级 POST /item_type/get/list/${param0} */
+export async function listItemType1(
   params: {
     // header
 // path

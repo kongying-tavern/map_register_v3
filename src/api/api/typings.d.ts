@@ -507,6 +507,15 @@ declare namespace API {
     time?: string;
   };
 
+  type RListItemTypeVo = {
+    error?: boolean;
+    errorStatus?: number;
+    errorData?: Record<string, any>;
+    message?: string;
+    data?: ItemTypeVo[];
+    time?: string;
+  };
+
   type PageListVoItemTypeVo = {
     record?: ItemTypeVo[];
     total?: number;
