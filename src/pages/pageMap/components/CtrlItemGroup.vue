@@ -1,4 +1,7 @@
 <script lang="ts" setup>
+import { groupBy } from 'lodash'
+import { useTypeList } from '@/hooks'
+
 const props = withDefaults(defineProps<{
   modelValue?: string | string
   itemKeyName?: keyof API.ItemVo
@@ -26,41 +29,54 @@ const proxySelect = (ev: MouseEvent) => {
     internalBind.value = internalBind.value === itemKey ? undefined : itemKey
   }
 }
+
+const { typeList } = useTypeList()
+
+const typeMap = computed(() => Object.fromEntries(typeList.value.map(tp => [tp.typeId as number, tp.name as string])))
+
+const groupedItems = computed(() => groupBy(props.itemList, item => item.typeIdList?.[0] ?? -1))
 </script>
 
 <template>
   <div
-    class="items-panel w-80 overflow-y-auto bg-gray-700 rounded grid grid-cols-4 content-start gap-1 text-xs text-slate-300 p-1"
+    class="items-panel w-80 overflow-y-auto bg-gray-700 bg-opacity-70 rounded text-xs text-slate-300 p-1"
     @click="proxySelect"
   >
-    <div
-      v-for="item in itemList"
-      :key="item.itemId"
-      :data-bind-key="item[itemKeyName]"
-      :class="{
-        actived: internalBind === item[itemKeyName],
-      }"
-      class="item-selector rounded flex flex-col gap-1 items-center cursor-pointer"
-    >
-      <div class="w-14 h-14 rounded grid place-items-center bg-gray-800 overflow-hidden">
-        <el-image
-          :src="iconMap[item.iconTag ?? '']"
-          :alt="item.name"
-          lazy
-          class="w-4/5 h-4/5 bg-transparent"
-          style="--el-fill-color-light: transparent"
-          fit="contain"
-          decoding="async"
-          referrerpolicy="no-referrer"
-        >
-          <template #error>
-            <img class="w-full h-full object-contain" src="https://assets.yuanshen.site/icons/-1.png">
-          </template>
-        </el-image>
+    <div v-for="(items, key) of groupedItems" :key="key" class="grid grid-cols-4 gap-1 content-start pb-2">
+      <div class="item-group-label genshin-text col-span-4 p-2 flex items-center gap-2 text-sm">
+        {{ typeMap[key] ?? key }}
       </div>
-      <span class="w-full align-middle whitespace-nowrap overflow-hidden text-center text-ellipsis">{{ item.name }}</span>
+      <div
+        v-for="item in items"
+        :key="item.itemId"
+        :data-bind-key="item[itemKeyName]"
+        :class="{
+          actived: internalBind === item[itemKeyName],
+        }"
+        class="item-selector rounded flex flex-col gap-1 items-center cursor-pointer"
+      >
+        <div class="w-14 h-14 rounded grid place-items-center bg-gray-800 overflow-hidden">
+          <el-image
+            :src="iconMap[item.iconTag ?? '']"
+            :alt="item.name"
+            :title="item.name"
+            lazy
+            class="w-4/5 h-4/5 bg-transparent"
+            style="--el-fill-color-light: transparent"
+            fit="contain"
+            decoding="async"
+            referrerpolicy="no-referrer"
+          >
+            <template #error>
+              <img class="w-full h-full object-contain" src="https://assets.yuanshen.site/icons/-1.png">
+            </template>
+          </el-image>
+        </div>
+        <span class="w-full align-middle whitespace-nowrap overflow-hidden text-center text-ellipsis">{{ item.name }}</span>
+      </div>
     </div>
-    <div v-if="!loading" class="col-span-4 text-center py-4">
+
+    <div v-if="!loading" class="text-center py-4">
       没有更多物品了
     </div>
   </div>
@@ -81,6 +97,22 @@ const proxySelect = (ev: MouseEvent) => {
   }
   &::-webkit-scrollbar-track {
     background-color: #2F3846;
+  }
+}
+
+.item-group-label {
+  color: #d3bc8e;
+  &::before {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background-color: #d3bc8e;
+  }
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background-color: #d3bc8e;
   }
 }
 
