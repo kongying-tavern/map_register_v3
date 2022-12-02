@@ -1,11 +1,11 @@
 <script lang="ts" setup>
 import 'leaflet/dist/leaflet.css'
 import { ContextMenu, CtrlItemGroup } from './components'
-import { useItemList, useLayer, useMap, useMarker } from './hooks'
+import { useLayer, useMap, useMarker } from './hooks'
 import type { MapNameEnum } from './configs'
 import { mapTiles } from './configs'
 import { AppUserAvatar } from '@/components'
-import { useAreaList, useIconList } from '@/hooks'
+import { useAreaList, useIconList, useItemList } from '@/hooks'
 
 const containerRef = ref<HTMLElement | null>(null)
 

@@ -5,12 +5,10 @@ export interface FetchHookOptions<T = any> {
   loading?: Ref<boolean>
   immediate?: boolean
   onRequest?: () => Promise<T>
-  onSuccess?: (res: T) => void
-  onError?: (err: Error) => void
 }
 
 export const useFetchHook = <T>(options: FetchHookOptions<T> = {}) => {
-  const { immediate, loading = ref(false), onRequest, onSuccess, onError } = options
+  const { immediate, loading = ref(false), onRequest } = options
 
   const onSuccessHook = createEventHook<T>()
   const onErrorHook = createEventHook<Error>()
@@ -20,12 +18,10 @@ export const useFetchHook = <T>(options: FetchHookOptions<T> = {}) => {
       loading.value = true
       if (onRequest) {
         const res = await onRequest()
-        onSuccess?.(res)
         onSuccessHook.trigger(res)
       }
     }
     catch (err) {
-      onError?.(err instanceof Error ? err : new Error(messageFrom(err)))
       onErrorHook.trigger(err instanceof Error ? err : new Error(messageFrom(err)))
     }
     finally {
