@@ -7,6 +7,7 @@ export interface ServiceWorkerInstallerOptions {
   scope?: string
 }
 
+/** 用于注册 service worker */
 export const createServiceWorker = (options: ServiceWorkerInstallerOptions = {}): Plugin => ({
   install: async () => {
     const { scope = '/' } = options
