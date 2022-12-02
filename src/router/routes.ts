@@ -10,14 +10,6 @@ const routes: RouteRecordRaw[] = [
     redirect: '/map', // TODO: 重定向应该是动态获取的
     children: [
       {
-        path: '/markers',
-        meta: {
-          title: '点位管理',
-          roles: [RoleTypeEnum.ADMIN],
-        },
-        component: () => import('@/pages/pageMarkerManager/MarkerManager.vue'),
-      },
-      {
         path: '/items',
         meta: {
           title: '物品管理',
