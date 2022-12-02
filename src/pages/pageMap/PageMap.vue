@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import 'leaflet/dist/leaflet.css'
-import { ContextMenu, ItemRadioGroup, ItemStepFilter } from './components'
+import { AreaPanel, ContextMenu, ItemPanel, ItemStepFilter, TypePanel } from './components'
 import { useLayer, useMap, useMarker } from './hooks'
 import type { MapNameEnum } from './configs'
 import { mapTiles } from './configs'
@@ -51,10 +51,10 @@ const setMapNameByAreaId = (id?: number) => {
   }
 }
 
-const { areaTree, onSuccess: onAreaFetched } = useAreaList()
+const { areaList, onSuccess: onAreaFetched } = useAreaList()
 
 const areaId = computed({
-  get: () => !areaTree.value.length ? undefined : Number(filterForm.areaId),
+  get: () => !areaList.value.length ? undefined : Number(filterForm.areaId),
   set: (v) => {
     filterForm.areaId = v
     setMapNameByAreaId(v)
@@ -70,7 +70,15 @@ const { itemList, loading: itemLoading, onSuccess: onItemsFetched } = useItemLis
   }),
 })
 
-const selectedItem = computed(() => itemList.value.find(item => item.name === filterForm.iconName))
+const selectedType = ref<number>()
+const filteredItemList = computed(() => {
+  const typeId = selectedType.value
+  if (typeId === undefined)
+    return []
+  return itemList.value.filter(item => item.typeIdList?.includes(typeId))
+})
+
+const selectedItem = computed(() => filteredItemList.value.find(item => item.name === filterForm.iconName))
 
 onItemsFetched(() => {
   // 在物品列表加载完成后，如果当前已选的同类物品不在列表内，则清除已选项
@@ -102,7 +110,14 @@ onAreaFetched(() => {
   }
 })
 
+const steps = ['选择地区', '选择分类', '选择物品']
 const step = ref(0)
+
+const next = (v?: string | number) => {
+  if (v === undefined)
+    return
+  step.value < steps.length - 1 && (step.value += 1)
+}
 </script>
 
 <template>
@@ -110,34 +125,39 @@ const step = ref(0)
     <div ref="containerRef" class="genshin-map absolute w-full h-full" style="background: #000" />
 
     <div class="custom-control-panel left-2 top-2 bottom-2 flex flex-col p-2 gap-2">
-      <ItemStepFilter v-model="step" class="bg-gray-700 bg-opacity-70" />
+      <ItemStepFilter
+        v-model="step"
+        :step-names="['选择地区', '选择分类', '选择物品']"
+        class="bg-gray-700 bg-opacity-70"
+      />
 
       <div class="filter-content rounded w-full flex-1 overflow-hidden bg-gray-700 bg-opacity-70">
         <KeepAlive>
-          <el-tree-select
+          <AreaPanel
             v-if="(step === 0)"
             v-model="areaId"
-            :data="areaTree"
-            :props="{ label: 'name', value: 'areaId' }"
-            :default-expanded-keys="areaId === undefined ? [] : [areaId]"
-            accordion
-            node-key="areaId"
-            placeholder="请选择地区"
+            :area-list="areaList"
+            :icon-map="iconMap"
+            class="h-full"
+            @change="next"
           />
         </KeepAlive>
         <KeepAlive>
-          <div v-if="(step === 1)">
-            选择分类
-          </div>
+          <TypePanel
+            v-if="(step === 1)"
+            v-model="selectedType"
+            :icon-map="iconMap"
+            class="h-full"
+            @change="next"
+          />
         </KeepAlive>
         <KeepAlive>
-          <ItemRadioGroup
+          <ItemPanel
             v-if="(step === 2)"
             v-model="filterForm.iconName"
-            :item-list="itemList"
+            :item-list="filteredItemList"
             :icon-map="iconMap"
             :loading="itemLoading"
-            item-key-name="name"
             class="h-full"
           />
         </KeepAlive>

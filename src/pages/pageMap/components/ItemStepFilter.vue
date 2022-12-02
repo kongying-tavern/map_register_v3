@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 const props = defineProps<{
   modelValue: number
+  stepNames: string[]
 }>()
 
 const emits = defineEmits<{
@@ -12,6 +13,8 @@ const activeStep = computed({
   set: v => emits('update:modelValue', v),
 })
 
+const leftCorrection = computed(() => `${activeStep.value === 0 ? 2 : 0}px`)
+
 const stepRef = ref<HTMLElement | null>(null)
 const { width } = useElementSize(stepRef)
 </script>
@@ -20,28 +23,27 @@ const { width } = useElementSize(stepRef)
   <div
     v-bind="$attrs"
     ref="stepRef"
-    class="item-step-panel w-full flex flex-nowrap rounded overflow-hidden relative"
+    class="item-step-panel w-full flex rounded relative text-white"
     :style="{
       '--step': activeStep,
-      '--step-width': `${width / 3}px`,
+      '--step-width': `${width / stepNames.length}px`,
+      '--left-correction': leftCorrection,
     }"
   >
-    <div class="step-unit" :class="{ actived: activeStep === 0 }" @click="(activeStep = 0)">
-      选择地区
-    </div>
-    <div class="step-unit" :class="{ actived: activeStep === 1 }" @click="(activeStep = 1)">
-      选择分类
-    </div>
-    <div class="step-unit" :class="{ actived: activeStep === 2 }" @click="(activeStep = 2)">
-      选择物品
+    <div
+      v-for="(step, index) in stepNames"
+      :key="step"
+      :class="{ actived: activeStep === index }"
+      class="step-unit"
+      @click="(activeStep = index)"
+    >
+      {{ step }}
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
 .item-step-panel {
-  color: #fff;
-
   &::before {
     content: '';
     position: absolute;
@@ -54,7 +56,7 @@ const { width } = useElementSize(stepRef)
       2px
       calc(2px + (2 - var(--step)) * var(--step-width))
       2px
-      calc(2px + var(--step) * var(--step-width))
+      calc(var(--left-correction) + var(--step) * var(--step-width))
       round 4px
     );
     z-index: -1;
@@ -79,10 +81,13 @@ const { width } = useElementSize(stepRef)
     top: 0;
     width: 100%;
     height: 100%;
-    clip-path: inset(2px round 4px);
+    clip-path: inset(2px 2px 2px 0 round 4px);
     background-color: transparent;
     z-index: -1;
     transition: all 150ms ease-in-out;
+  }
+  &:first-of-type::before {
+    clip-path: inset(2px round 4px);
   }
   &:not(.actived):hover::before {
     background-color: rgba(255, 255, 255, 0.4);

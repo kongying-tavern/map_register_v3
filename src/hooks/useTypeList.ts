@@ -23,7 +23,6 @@ export const useTypeList = (options: FetchHookOptions<API.RPageListVoItemTypeVo>
 
   onSuccess(({ data = [] }) => {
     typeList.value = data
-    console.log(typeTree)
   })
 
   return { typeList, typeTree, updateTypeList, onSuccess, ...rest }
