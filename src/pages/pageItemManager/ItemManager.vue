@@ -15,7 +15,7 @@ const { areaMap, areaTree, loading: areaLoading } = useAreaList({
 
 const { iconMap } = useIconList()
 
-const { typeList, loading: typeLoading, onTypeLoad } = useTypeList()
+const { typeList, loading: typeLoading } = useTypeList()
 
 const { itemList, loading: itemLoading, onSuccess: onItemListFetched, pause, resume } = useItemList({
   immediate: true,
@@ -105,9 +105,7 @@ const columns: AnyColumn[] = [
         v-loading="typeLoading"
         :data="typeList"
         :props="{ label: 'name', value: 'typeId', isLeaf: 'isLeaf' }"
-        :load="onTypeLoad"
         class="flex-1 overflow-auto"
-        lazy
         accordion
         node-key="typeId"
         highlight-current
