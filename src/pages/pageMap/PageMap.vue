@@ -204,27 +204,4 @@ const next = (v?: string | number) => {
 .filter-content {
   width: 400px;
 }
-
-.selected-item-bar {
-  position: relative;
-  overflow: visible;
-
-  &::before, &::after {
-    content: '';
-    position: absolute;
-    right: -6px;
-    top: -6px;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    pointer-events: none;
-  }
-  &::before {
-    background-color: var(--el-color-danger);
-  }
-  &::after {
-    background-color: var(--el-color-white);
-    clip-path: inset(6px 3px);
-  }
-}
 </style>
