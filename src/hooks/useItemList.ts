@@ -1,3 +1,4 @@
+import type { Ref } from 'vue'
 import Api from '@/api/api'
 import type { FetchHookOptions } from '@/hooks'
 import { useFetchHook } from '@/hooks'
@@ -10,7 +11,7 @@ interface ItemListHookOptions extends FetchHookOptions<API.RPageListVoItemVo> {
 export const useItemList = (options: ItemListHookOptions = {}) => {
   const { immediate = true, loading = ref(false), params } = options
 
-  const itemList = ref<API.ItemVo[]>([])
+  const itemList = ref<API.ItemVo[]>([]) as Ref<API.ItemVo[]>
 
   const fetchParams = computed(() => params?.())
 

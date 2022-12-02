@@ -1,59 +1,22 @@
-import type Node from 'element-plus/es/components/tree/src/model/node'
 import type { FetchHookOptions } from '@/hooks'
 import { useFetchHook } from '@/hooks'
 import Api from '@/api/api'
 
-export interface TypeHookOptions extends FetchHookOptions<API.RPageListVoItemTypeVo> {
-  params?: () => API.PageAndTypeListVo
-}
-
-export interface ExtraItemTypeVo extends API.ItemTypeVo {
-  children: ExtraItemTypeVo[]
-  isLeaf: boolean
-}
-
-export const useTypeList = (options: TypeHookOptions = {}) => {
-  const { immediate = true, loading = ref(false), params } = options
+/** 物品类型列表与相关操作方法 */
+export const useTypeList = (options: FetchHookOptions<API.RPageListVoItemTypeVo> = {}) => {
+  const { immediate = true, loading = ref(false) } = options
 
   const typeList = ref<API.ItemTypeVo[]>([])
 
-  // TODO 未完成
-  const typeTree = computed(() => {
-    return typeList.value
-  })
-
-  const typeId = ref<number>()
-
-  const withChildren = (items: API.ItemTypeVo[]) => {
-    return items.map(item => ({
-      ...item,
-      children: [],
-      isLeaf: item.typeId !== 9,
-    }))
-  }
-
-  const { refresh, onSuccess, ...rest } = useFetchHook({
+  const { refresh: updateTypeList, onSuccess, ...rest } = useFetchHook({
     immediate,
     loading,
-    onRequest: () => Api.itemType.listItemType({ self: 1 }, { typeIdList: [], current: 1, size: 1000, ...params?.() }),
-    onSuccess: (res) => {
-      typeList.value = withChildren(res?.data?.record ?? [])
-    },
+    onRequest: () => Api.itemType.listItemType({}),
   })
 
-  onSuccess(({ data: { record = [] } = {} }) => {
-    typeList.value = withChildren(record)
+  onSuccess(({ data = [] }) => {
+    typeList.value = data
   })
 
-  const onTypeLoad = async (node: Node, resolve: (data: ExtraItemTypeVo[]) => void) => {
-    const data = node.data as ExtraItemTypeVo
-    if (node.level === 0 || data.typeId !== 9)
-      return
-    const { data: { record = [] } = {} } = await Api
-      .itemType
-      .listItemType({ self: 1 }, { current: 1, size: 1000, typeIdList: [data.typeId as number] })
-    resolve(withChildren(record))
-  }
-
-  return { typeId, typeList, typeTree, updateTypeList: refresh, onTypeLoad, onSuccess, ...rest }
+  return { typeList, updateTypeList, onSuccess, ...rest }
 }

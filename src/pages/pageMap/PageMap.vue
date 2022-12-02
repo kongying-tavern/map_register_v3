@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import 'leaflet/dist/leaflet.css'
-import { ContextMenu, CtrlItemGroup } from './components'
+import { ContextMenu, ItemRadioGroup, ItemStepFilter } from './components'
 import { useLayer, useMap, useMarker } from './hooks'
 import type { MapNameEnum } from './configs'
 import { mapTiles } from './configs'
@@ -92,8 +92,6 @@ const { createMarkerWhenReady, updateMarkerList } = useMarker(map, {
   }),
 })
 
-const iconUrl = computed(() => iconMap.value[selectedItem?.value?.iconTag ?? ''])
-
 // ==================== 其他 ====================
 
 onAreaFetched(() => {
@@ -104,59 +102,53 @@ onAreaFetched(() => {
   }
 })
 
-/** 控制侧边栏折叠 */
-const collapsed = ref(false)
+const step = ref(0)
 </script>
 
 <template>
   <div class="genshin-map-container w-full h-full relative overflow-hidden">
     <div ref="containerRef" class="genshin-map absolute w-full h-full" style="background: #000" />
 
-    <div
-      class="custom-control-panel absolute left-2 top-2 bottom-2 bg-slate-600 bg-opacity-70 backdrop-blur rounded flex flex-col items-start p-2 gap-2"
-      :class="{ collapsed }"
-    >
-      <div class="w-full flex justify-between gap-1">
-        <el-tree-select
-          v-model="areaId"
-          :data="areaTree"
-          :props="{ label: 'name', value: 'areaId' }"
-          :default-expanded-keys="areaId === undefined ? [] : [areaId]"
-          accordion
-          node-key="areaId"
-          placeholder="请选择地区"
-        />
-        <el-image
-          v-if="selectedItem"
-          :src="iconUrl"
-          :alt="selectedItem?.name"
-          lazy
-          class="selected-item-bar w-8 h-8 align-middle bg-gray-800 rounded border border-x-amber-300 cursor-pointer"
-          style="--el-fill-color-light: transparent"
-          fit="contain"
-          decoding="async"
-          referrerpolicy="no-referrer"
-          @click="(filterForm.iconName = undefined)"
-        >
-          <template #error>
-            <img class="w-full h-full object-contain" src="https://assets.yuanshen.site/icons/-1.png">
-          </template>
-        </el-image>
-        <el-button type="primary" @click="collapsed = !collapsed">
-          {{ collapsed ? '展开' : '折叠' }}
-        </el-button>
+    <div class="custom-control-panel left-2 top-2 bottom-2 flex flex-col p-2 gap-2">
+      <ItemStepFilter v-model="step" class="bg-gray-700 bg-opacity-70" />
+
+      <div class="filter-content rounded w-full flex-1 overflow-hidden bg-gray-700 bg-opacity-70">
+        <KeepAlive>
+          <el-tree-select
+            v-if="(step === 0)"
+            v-model="areaId"
+            :data="areaTree"
+            :props="{ label: 'name', value: 'areaId' }"
+            :default-expanded-keys="areaId === undefined ? [] : [areaId]"
+            accordion
+            node-key="areaId"
+            placeholder="请选择地区"
+          />
+        </KeepAlive>
+        <KeepAlive>
+          <div v-if="(step === 1)">
+            选择分类
+          </div>
+        </KeepAlive>
+        <KeepAlive>
+          <ItemRadioGroup
+            v-if="(step === 2)"
+            v-model="filterForm.iconName"
+            :item-list="itemList"
+            :icon-map="iconMap"
+            :loading="itemLoading"
+            item-key-name="name"
+            class="h-full"
+          />
+        </KeepAlive>
       </div>
-      <CtrlItemGroup
-        v-model="filterForm.iconName"
-        :item-list="itemList"
-        :icon-map="iconMap"
-        :loading="itemLoading"
-        item-key-name="name"
-        class="flex-1"
-      />
+
+      <div class="w-full rounded flex-1 bg-gray-700 bg-opacity-70 text-white">
+        点位列表
+      </div>
     </div>
 
-    <div class="custom-control-panel absolute right-2 top-2 bg-slate-600 bg-opacity-70 backdrop-blur rounded">
+    <div class="custom-control-panel right-2 top-2">
       <AppUserAvatar map-mode />
     </div>
 
@@ -181,15 +173,16 @@ const collapsed = ref(false)
 }
 
 .custom-control-panel {
-  --clip-height: 0;
-
+  position: absolute;
   z-index: 1000;
   transition: all ease 300ms;
-  clip-path: inset(0 0 var(--clip-height) round 0.25rem);
+  background-color: rgba(111, 118, 124, 0.7);
+  backdrop-filter: blur(12px);
+  border-radius: 4px;
+}
 
-  &.collapsed {
-    --clip-height: calc(100% - 48px);
-  }
+.filter-content {
+  width: 400px;
 }
 
 .selected-item-bar {

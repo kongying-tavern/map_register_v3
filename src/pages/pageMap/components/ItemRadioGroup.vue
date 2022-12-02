@@ -1,16 +1,13 @@
 <script lang="ts" setup>
-import { groupBy } from 'lodash'
-import { useTypeList } from '@/hooks'
+import { useIconList } from '@/hooks'
 
-const props = withDefaults(defineProps<{
+const props = defineProps<{
   modelValue?: string | string
-  itemKeyName?: keyof API.ItemVo
   itemList: API.ItemVo[]
   iconMap: Record<string, string>
   loading: boolean
-}>(), {
-  itemKeyName: 'itemId',
-})
+  itemKeyName: keyof API.ItemVo
+}>()
 
 const emits = defineEmits<{
   (e: 'update:modelValue', v?: string): void
@@ -21,6 +18,7 @@ const internalBind = computed({
   set: v => emits('update:modelValue', v),
 })
 
+/** 通过事件委托选择 item，降低 DOM 上监听器的注册数量 */
 const proxySelect = (ev: MouseEvent) => {
   for (const ele of ev.composedPath()) {
     const itemKey = (ele as HTMLElement)?.dataset?.bindKey
@@ -30,54 +28,49 @@ const proxySelect = (ev: MouseEvent) => {
   }
 }
 
-const { typeList } = useTypeList()
-
-const typeMap = computed(() => Object.fromEntries(typeList.value.map(tp => [tp.typeId as number, tp.name as string])))
-
-const groupedItems = computed(() => groupBy(props.itemList, item => item.typeIdList?.[0] ?? -1))
+const { iconMap } = useIconList({
+  immediate: false,
+})
 </script>
 
 <template>
   <div
-    class="items-panel w-80 overflow-y-auto bg-gray-700 bg-opacity-70 rounded text-xs text-slate-300 p-1"
+    v-bind="$attrs"
+    class="items-panel overflow-y-auto text-xs text-slate-300 p-1"
     @click="proxySelect"
   >
-    <div v-for="(items, key) of groupedItems" :key="key" class="grid grid-cols-4 gap-1 content-start pb-2">
-      <div class="item-group-label genshin-text col-span-4 p-2 flex items-center gap-2 text-sm">
-        {{ typeMap[key] ?? key }}
-      </div>
+    <div class="grid grid-cols-3 gap-1 content-start">
       <div
-        v-for="item in items"
+        v-for="item in itemList"
         :key="item.itemId"
         :data-bind-key="item[itemKeyName]"
         :class="{
           actived: internalBind === item[itemKeyName],
         }"
-        class="item-selector rounded flex flex-col gap-1 items-center cursor-pointer"
+        class="item-selector w-full h-10 rounded p-1 flex gap-1 overflow-hidden cursor-pointer"
       >
-        <div class="w-14 h-14 rounded grid place-items-center bg-gray-800 overflow-hidden">
+        <div class="h-full aspect-square rounded grid place-items-center bg-gray-800">
           <el-image
             :src="iconMap[item.iconTag ?? '']"
             :alt="item.name"
             :title="item.name"
             lazy
-            class="w-4/5 h-4/5 bg-transparent"
-            style="--el-fill-color-light: transparent"
             fit="contain"
             decoding="async"
             referrerpolicy="no-referrer"
+            class="w-4/5 h-4/5 bg-transparent"
+            style="--el-fill-color-light: transparent"
           >
             <template #error>
               <img class="w-full h-full object-contain" src="https://assets.yuanshen.site/icons/-1.png">
             </template>
           </el-image>
         </div>
-        <span class="w-full align-middle whitespace-nowrap overflow-hidden text-center text-ellipsis">{{ item.name }}</span>
-      </div>
-    </div>
 
-    <div v-if="!loading" class="text-center py-4">
-      没有更多物品了
+        <div class="flex-1 align-middle whitespace-nowrap overflow-hidden text-ellipsis leading-7">
+          {{ item.name }}
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -100,29 +93,9 @@ const groupedItems = computed(() => groupBy(props.itemList, item => item.typeIdL
   }
 }
 
-.item-group-label {
-  color: #d3bc8e;
-  &::before {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background-color: #d3bc8e;
-  }
-  &::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background-color: #d3bc8e;
-  }
-}
-
 .item-selector {
   border: 1px solid transparent;
   transition: all ease 176ms;
-  padding: 4px;
-  width: 100%;
-  content-visibility: auto;
-  contain-intrinsic-size: 86px;
 
   &:hover {
     background-color: rgb(124, 124, 124, 0.5);
