@@ -15,7 +15,7 @@ const { areaMap, areaTree, loading: areaLoading } = useAreaList({
 
 const { iconMap } = useIconList()
 
-const { typeList, loading: typeLoading } = useTypeList()
+const { typeTree, loading: typeLoading } = useTypeList()
 
 const { itemList, loading: itemLoading, onSuccess: onItemListFetched, pause, resume } = useItemList({
   immediate: true,
@@ -103,7 +103,7 @@ const columns: AnyColumn[] = [
       <div>类型</div>
       <el-tree
         v-loading="typeLoading"
-        :data="typeList"
+        :data="typeTree"
         :props="{ label: 'name', value: 'typeId', isLeaf: 'isLeaf' }"
         class="flex-1 overflow-auto"
         accordion
