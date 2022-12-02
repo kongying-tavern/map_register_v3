@@ -25,6 +25,7 @@ const filterForm = useUrlSearchParams('history', {
   removeNullishValues: true,
   initialValue: {
     areaId: 2 as undefined | number,
+    typeId: undefined as undefined | number,
     // 这里用 iconName 而不是 itemId 的原因：
     // 1. 不同地区存在相同的物品，但其 itemId 不同
     // TODO 可能存在的问题：
@@ -63,14 +64,17 @@ const areaId = computed({
 
 // ==================== 物品相关 ====================
 
-const { itemList, loading: itemLoading, onSuccess: onItemsFetched } = useItemList({
+const { itemList, loading: itemLoading } = useItemList({
   params: () => ({
     areaIdList: !areaId.value || Number.isNaN(areaId.value) ? [] : [areaId.value],
     size: 1000,
   }),
 })
 
-const selectedType = ref<number>()
+const selectedType = computed({
+  get: () => Number(filterForm.typeId),
+  set: v => filterForm.typeId = v,
+})
 const filteredItemList = computed(() => {
   const typeId = selectedType.value
   if (typeId === undefined)
@@ -80,8 +84,9 @@ const filteredItemList = computed(() => {
 
 const selectedItem = computed(() => filteredItemList.value.find(item => item.name === filterForm.iconName))
 
-onItemsFetched(() => {
-  // 在物品列表加载完成后，如果当前已选的同类物品不在列表内，则清除已选项
+// 在物品列表变更后，如果当前已选的同类物品不在列表内，则清除已选项
+// TODO 初次加载时可能无法保留状态
+watch(filteredItemList, () => {
   if (!selectedItem.value)
     filterForm.iconName = undefined
 })
