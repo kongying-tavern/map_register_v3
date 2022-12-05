@@ -9,6 +9,11 @@ const props = defineProps<{
 }>()
 
 const { pagination, layout } = usePagination({
+  init: {
+    current: 1,
+    total: 0,
+    pageSize: 15,
+  },
   units: [PgUnit.TOTAL, PgUnit.PREV, PgUnit.PAGER, PgUnit.NEXT],
 })
 const pagableList = computed(() => {
@@ -17,7 +22,7 @@ const pagableList = computed(() => {
 })
 
 const containerRef = ref<HTMLElement | null>(null)
-const { height, width } = useElementSize(containerRef)
+const { width } = useElementSize(containerRef)
 
 const columns = ref<Partial<Column>[]>([
   { title: 'ID', dataKey: 'id', width: 70 },
@@ -33,7 +38,6 @@ const debugText = () => {
 <template>
   <div v-bind="$attrs" ref="containerRef" class="flex flex-col overflow-hidden">
     <el-table
-      :height="height"
       :width="width"
       :data="pagableList"
       :style="{
@@ -65,7 +69,7 @@ const debugText = () => {
       :layout="layout"
       :total="markerList.length"
       :pager-count="5"
-      class="table-pagination w-full flex gap-1 justify-center text-sm"
+      class="table-pagination w-full flex gap-1 justify-center text-sm py-1"
     />
   </div>
 </template>
