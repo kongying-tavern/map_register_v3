@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import 'leaflet/dist/leaflet.css'
-import { AreaPanel, ContextMenu, ItemPanel, ItemStepFilter, TypePanel } from './components'
+import { ContextMenu, ControlPanel } from './components'
 import { useLayer, useMap, useMarker } from './hooks'
 import type { MapNameEnum } from './configs'
 import { mapTiles } from './configs'
@@ -114,68 +114,24 @@ onAreaFetched(() => {
     updateMarkerList()
   }
 })
-
-const steps = ['选择地区', '选择分类', '选择物品']
-const step = ref(0)
-
-const next = (v?: string | number) => {
-  if (v === undefined)
-    return
-  step.value < steps.length - 1 && (step.value += 1)
-}
 </script>
 
 <template>
   <div class="genshin-map-container w-full h-full relative overflow-hidden">
     <div ref="containerRef" class="genshin-map absolute w-full h-full" style="background: #000" />
 
-    <div class="custom-control-panel left-2 top-2 bottom-2 flex flex-col p-2 gap-2">
-      <ItemStepFilter
-        v-model="step"
-        :step-names="['选择地区', '选择分类', '选择物品']"
-        class="bg-gray-700 bg-opacity-70"
-      />
+    <ControlPanel
+      v-model:area-id="areaId"
+      v-model:icon-name="filterForm.iconName"
+      v-model:type="selectedType"
+      :area-list="areaList"
+      :item-list="filteredItemList"
+      :item-loading="itemLoading"
+      :icon-map="iconMap"
+      class="custom-control-panel left-2 top-2 bottom-2 flex flex-col p-2 gap-2"
+    />
 
-      <div class="filter-content rounded w-full flex-1 overflow-hidden bg-gray-700 bg-opacity-70">
-        <KeepAlive>
-          <AreaPanel
-            v-if="(step === 0)"
-            v-model="areaId"
-            :area-list="areaList"
-            :icon-map="iconMap"
-            class="h-full"
-            @change="next"
-          />
-        </KeepAlive>
-        <KeepAlive>
-          <TypePanel
-            v-if="(step === 1)"
-            v-model="selectedType"
-            :icon-map="iconMap"
-            class="h-full"
-            @change="next"
-          />
-        </KeepAlive>
-        <KeepAlive>
-          <ItemPanel
-            v-if="(step === 2)"
-            v-model="filterForm.iconName"
-            :item-list="filteredItemList"
-            :icon-map="iconMap"
-            :loading="itemLoading"
-            class="h-full"
-          />
-        </KeepAlive>
-      </div>
-
-      <div class="w-full rounded flex-1 bg-gray-700 bg-opacity-70 text-white">
-        点位列表
-      </div>
-    </div>
-
-    <div class="custom-control-panel right-2 top-2">
-      <AppUserAvatar map-mode />
-    </div>
+    <AppUserAvatar map-mode class="custom-control-panel right-2 top-2" />
 
     <ContextMenu :target="containerRef" />
   </div>
@@ -204,9 +160,5 @@ const next = (v?: string | number) => {
   background-color: rgba(111, 118, 124, 0.7);
   backdrop-filter: blur(12px);
   border-radius: 4px;
-}
-
-.filter-content {
-  width: 400px;
 }
 </style>

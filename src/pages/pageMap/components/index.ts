@@ -1,5 +1,6 @@
 export { default as AreaPanel } from './AreaPanel.vue'
 export { default as ContextMenu } from './ContextMenu.vue'
+export { default as ControlPanel } from './ControlPanel.vue'
 export { default as ItemPanel } from './ItemPanel.vue'
 export { default as ItemStepFilter } from './ItemStepFilter.vue'
 export { default as RadioCardGroup } from './RadioCardGroup.vue'

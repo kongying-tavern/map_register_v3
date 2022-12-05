@@ -20,7 +20,7 @@ const handleCommand = async (command: string) => {
 
 <template>
   <el-dropdown trigger="click" @command="handleCommand">
-    <el-button text size="large" :style="{ padding: '4px 8px' }">
+    <el-button v-bind="$attrs" text size="large" :style="{ padding: '4px 8px' }">
       <el-avatar :size="30" src="https://uploadstatic.mihoyo.com/contentweb/20210817/2021081714114216212.png" />
       <el-icon class="pl-1">
         <ArrowDown />
