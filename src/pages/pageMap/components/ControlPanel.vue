@@ -48,10 +48,10 @@ const next = (v?: string | number) => {
     <ItemStepFilter
       v-model="step"
       :step-names="['选择地区', '选择分类', '选择物品']"
-      class="bg-gray-700 bg-opacity-70"
+      class="content"
     />
 
-    <div class="filter-content rounded w-full flex-1 overflow-hidden bg-gray-700 bg-opacity-70">
+    <div class="filter-content content overflow-hidden">
       <KeepAlive>
         <AreaPanel
           v-if="(step === 0)"
@@ -79,13 +79,20 @@ const next = (v?: string | number) => {
       </KeepAlive>
     </div>
 
-    <div class="w-full rounded flex-1 bg-gray-700 bg-opacity-70 text-white">
+    <div class="content text-white">
       点位列表
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
+.content {
+  background-color: rgba(50, 57, 71, 0.7);
+  width: 100%;
+  height: 100%;
+  border-radius: 4px;
+}
+
 .filter-content {
   width: 400px;
 }

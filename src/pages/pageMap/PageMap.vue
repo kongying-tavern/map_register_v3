@@ -128,7 +128,7 @@ onAreaFetched(() => {
       :item-list="filteredItemList"
       :item-loading="itemLoading"
       :icon-map="iconMap"
-      class="custom-control-panel left-2 top-2 bottom-2 flex flex-col p-2 gap-2"
+      class="custom-control-panel left-control-panel left-2 top-2 bottom-2 grid p-2 gap-2"
     />
 
     <AppUserAvatar map-mode class="custom-control-panel right-2 top-2" />
@@ -153,12 +153,16 @@ onAreaFetched(() => {
   }
 }
 
+.left-control-panel {
+  grid-template-rows: auto 14rem 1fr;
+}
+
 .custom-control-panel {
   position: absolute;
   z-index: 1000;
   transition: all ease 300ms;
-  background-color: rgba(111, 118, 124, 0.7);
-  backdrop-filter: blur(12px);
+  background-color: rgba(111, 118, 124, 0.6);
+  backdrop-filter: blur(56px);
   border-radius: 4px;
 }
 </style>
