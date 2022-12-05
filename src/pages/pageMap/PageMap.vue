@@ -98,7 +98,7 @@ const { iconMap } = useIconList({
   immediate: false,
 })
 
-const { createMarkerWhenReady, updateMarkerList } = useMarker(map, {
+const { markerList, createMarkerWhenReady, updateMarkerList } = useMarker(map, {
   selectedItem,
   params: () => ({
     itemIdList: selectedItem.value?.itemId === undefined ? [] : [selectedItem.value.itemId],
@@ -125,10 +125,11 @@ onAreaFetched(() => {
       v-model:icon-name="filterForm.iconName"
       v-model:type="selectedType"
       :area-list="areaList"
+      :marker-list="markerList"
       :item-list="filteredItemList"
       :item-loading="itemLoading"
       :icon-map="iconMap"
-      class="custom-control-panel left-control-panel left-2 top-2 bottom-2 grid p-2 gap-2"
+      class="custom-control-panel left-2 top-2 bottom-2 grid p-2 gap-2"
     />
 
     <AppUserAvatar map-mode class="custom-control-panel right-2 top-2" />
@@ -153,16 +154,12 @@ onAreaFetched(() => {
   }
 }
 
-.left-control-panel {
-  grid-template-rows: auto 14rem 1fr;
-}
-
 .custom-control-panel {
   position: absolute;
   z-index: 1000;
   transition: all ease 300ms;
-  background-color: rgba(111, 118, 124, 0.6);
+  background-color: rgb(41 37 36 / 0.7);
   backdrop-filter: blur(56px);
-  border-radius: 4px;
+  border-radius: 8px;
 }
 </style>

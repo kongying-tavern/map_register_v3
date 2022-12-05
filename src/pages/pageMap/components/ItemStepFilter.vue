@@ -51,7 +51,7 @@ const { width } = useElementSize(stepRef)
     top: 0;
     width: 100%;
     height: 100%;
-    background: rgba(255, 255, 255, 0.7);
+    background: rgb(138, 133, 125);
     clip-path: inset(
       2px
       calc(2px + (2 - var(--step)) * var(--step-width))

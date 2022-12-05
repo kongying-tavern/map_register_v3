@@ -1,13 +1,14 @@
 <script lang="ts" setup>
-import { AreaPanel, ItemPanel, ItemStepFilter, TypePanel } from '.'
+import { AreaPanel, ItemPanel, ItemStepFilter, MarkersTable, TypePanel } from '.'
 
 const props = defineProps<{
   areaId?: number
-  selectedType?: number
+  type?: number
   iconName?: string
   areaList: API.AreaVo[]
   iconMap: Record<string, string>
   itemList: API.ItemVo[]
+  markerList: API.MarkerVo[]
   itemLoading?: boolean
 }>()
 
@@ -24,7 +25,7 @@ const bindAreaId = computed({
 })
 
 const bindType = computed({
-  get: () => props.selectedType,
+  get: () => props.type,
   set: v => emits('update:type', v),
 })
 
@@ -36,6 +37,12 @@ const bindItemName = computed({
 const steps = ['选择地区', '选择分类', '选择物品']
 const step = ref(0)
 
+const trName = ref('slide-x-r')
+
+watch(step, (newStep, oldStep) => {
+  trName.value = newStep > oldStep ? 'slide-x-r' : 'slide-x-l'
+})
+
 const next = (v?: string | number) => {
   if (v === undefined)
     return
@@ -44,7 +51,7 @@ const next = (v?: string | number) => {
 </script>
 
 <template>
-  <div v-bind="$attrs">
+  <div class="left-control-panel" v-bind="$attrs">
     <ItemStepFilter
       v-model="step"
       :step-names="['选择地区', '选择分类', '选择物品']"
@@ -52,45 +59,55 @@ const next = (v?: string | number) => {
     />
 
     <div class="filter-content content overflow-hidden">
-      <KeepAlive>
-        <AreaPanel
-          v-if="(step === 0)"
-          v-model="bindAreaId"
-          :area-list="areaList"
-          :icon-map="iconMap"
-          class="h-full"
-          @change="next"
-        />
-        <TypePanel
-          v-else-if="(step === 1)"
-          v-model="bindType"
-          :icon-map="iconMap"
-          class="h-full"
-          @change="next"
-        />
-        <ItemPanel
-          v-else-if="(step === 2)"
-          v-model="bindItemName"
-          :item-list="itemList"
-          :icon-map="iconMap"
-          :loading="itemLoading"
-          class="h-full"
-        />
-      </KeepAlive>
+      <Transition :name="trName" mode="out-in" appear>
+        <KeepAlive>
+          <AreaPanel
+            v-if="(step === 0)"
+            v-model="bindAreaId"
+            :area-list="areaList"
+            :icon-map="iconMap"
+            class="h-full"
+            @change="next"
+          />
+          <TypePanel
+            v-else-if="(step === 1)"
+            v-model="bindType"
+            :icon-map="iconMap"
+            class="h-full"
+            @change="next"
+          />
+          <div v-else-if="!bindType" class="h-full grid place-items-center text-white">
+            <el-button link type="primary" @click="(step -= 1)">
+              请选择分类
+            </el-button>
+          </div>
+          <ItemPanel
+            v-else-if="(step === 2)"
+            v-model="bindItemName"
+            :item-list="itemList"
+            :icon-map="iconMap"
+            :loading="itemLoading"
+            class="h-full"
+          />
+        </KeepAlive>
+      </Transition>
     </div>
 
-    <div class="content text-white">
-      点位列表
-    </div>
+    <MarkersTable :marker-list="markerList" class="content" />
   </div>
 </template>
 
 <style lang="scss" scoped>
+.left-control-panel {
+  grid-template-rows: auto 15rem 1fr;
+}
+
 .content {
-  background-color: rgba(50, 57, 71, 0.7);
+  border: 1px solid rgb(134, 128, 120);
   width: 100%;
   height: 100%;
   border-radius: 4px;
+  background-color: rgba(94, 94, 94, 0.3);
 }
 
 .filter-content {
