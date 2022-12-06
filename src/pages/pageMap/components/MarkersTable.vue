@@ -6,6 +6,7 @@ import { PgUnit, usePagination } from '@/hooks'
 
 const props = defineProps<{
   markerList: API.MarkerVo[]
+  loading?: boolean
 }>()
 
 const { pagination, layout } = usePagination({
@@ -16,9 +17,14 @@ const { pagination, layout } = usePagination({
   },
   units: [PgUnit.TOTAL, PgUnit.PREV, PgUnit.PAGER, PgUnit.NEXT],
 })
+
 const pagableList = computed(() => {
   const { current, pageSize } = pagination.value
   return props.markerList.slice((current - 1) * pageSize, current * pageSize)
+})
+
+watch(() => props.markerList, () => {
+  pagination.value.current = 1
 })
 
 const containerRef = ref<HTMLElement | null>(null)
@@ -36,7 +42,7 @@ const debugText = () => {
 </script>
 
 <template>
-  <div v-bind="$attrs" ref="containerRef" class="flex flex-col overflow-hidden">
+  <div v-bind="$attrs" ref="containerRef" v-loading="loading" element-loading-background="rgba(33, 33, 33, 0.7)" class="flex flex-col overflow-hidden text-white">
     <el-table
       :width="width"
       :data="pagableList"
@@ -83,8 +89,8 @@ const debugText = () => {
   --el-bg-color: rgba(124, 124, 124, 0.1);
   --el-table-row-hover-bg-color: rgba(124, 124, 124, 0.5);
 
-  color: #CBD5EE;
   background-color: transparent;
+  color: #FFF;
 
   :deep(.el-button+.el-button) {
     margin-left: 4px;
@@ -92,9 +98,11 @@ const debugText = () => {
 }
 
 .table-pagination {
-  --el-pagination-button-disabled-bg-color: rgba(124, 124, 124, 0.1);
-  --el-pagination-bg-color: rgba(124, 124, 124, 0.1);
-  --el-pagination-button-color: #CBD5EE;
-  --el-text-color-regular: #CBD5EE;
+  --el-pagination-button-disabled-bg-color: rgba(124, 124, 124, 0.3);
+  --el-pagination-bg-color: rgba(124, 124, 124, 0.3);
+  --el-pagination-text-color: #FFF;
+  --el-pagination-hover-color: var(--el-color-primary-light-3);
+  --el-pagination-button-color: var(--el-pagination-text-color);
+  --el-text-color-regular: var(--el-pagination-text-color);
 }
 </style>

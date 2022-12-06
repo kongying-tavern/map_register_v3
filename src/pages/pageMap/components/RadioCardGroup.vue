@@ -45,9 +45,9 @@ const proxySelect = (ev: MouseEvent) => {
         :class="{
           actived: internalBind === item[dataKey],
         }"
-        class="item-selector w-full h-10 rounded p-1 flex gap-1 overflow-hidden cursor-pointer"
+        class="item-selector w-full h-10 rounded p-1 flex gap-1 overflow-hidden cursor-pointer transition-all duration-150"
       >
-        <slot :item="item">
+        <slot :item="item" :actived="internalBind === item[dataKey]">
           {{ item[dataKey] }}
         </slot>
       </div>
@@ -74,8 +74,7 @@ const proxySelect = (ev: MouseEvent) => {
 }
 
 .item-selector {
-  border: 1px solid transparent;
-  transition: all ease 176ms;
+  color: #FFF;
 
   &:hover {
     background-color: rgb(124, 124, 124, 0.5);
@@ -86,8 +85,7 @@ const proxySelect = (ev: MouseEvent) => {
   }
 
   &.actived {
-    background-color: rgba(55, 255, 82, 0.3);
-    border-color: rgba(55, 255, 82, 0.6);
+    background-color: rgba(35, 35, 35, 0.7);
   }
 }
 </style>

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { AreaPanel, ItemPanel, ItemStepFilter, MarkersTable, TypePanel } from '.'
+import { FilterArea, FilterItem, FilterStep, FilterType, MarkersTable } from '.'
 
 const props = defineProps<{
   areaId?: number
@@ -9,6 +9,7 @@ const props = defineProps<{
   iconMap: Record<string, string>
   itemList: API.ItemVo[]
   markerList: API.MarkerVo[]
+  markerLoading?: boolean
   itemLoading?: boolean
 }>()
 
@@ -52,16 +53,16 @@ const next = (v?: string | number) => {
 
 <template>
   <div class="left-control-panel" v-bind="$attrs">
-    <ItemStepFilter
+    <FilterStep
       v-model="step"
       :step-names="['选择地区', '选择分类', '选择物品']"
       class="content"
     />
 
-    <div class="filter-content content overflow-hidden">
+    <div class="content">
       <Transition :name="trName" mode="out-in" appear>
         <KeepAlive>
-          <AreaPanel
+          <FilterArea
             v-if="(step === 0)"
             v-model="bindAreaId"
             :area-list="areaList"
@@ -69,7 +70,7 @@ const next = (v?: string | number) => {
             class="h-full"
             @change="next"
           />
-          <TypePanel
+          <FilterType
             v-else-if="(step === 1)"
             v-model="bindType"
             :icon-map="iconMap"
@@ -81,7 +82,7 @@ const next = (v?: string | number) => {
               请选择分类
             </el-button>
           </div>
-          <ItemPanel
+          <FilterItem
             v-else-if="(step === 2)"
             v-model="bindItemName"
             :item-list="itemList"
@@ -93,13 +94,14 @@ const next = (v?: string | number) => {
       </Transition>
     </div>
 
-    <MarkersTable :marker-list="markerList" class="content" />
+    <MarkersTable :marker-list="markerList" :loading="markerLoading" class="content" />
   </div>
 </template>
 
 <style lang="scss" scoped>
 .left-control-panel {
   grid-template-rows: auto 15rem 1fr;
+  width: 432px;
 }
 
 .content {
@@ -108,9 +110,11 @@ const next = (v?: string | number) => {
   height: 100%;
   border-radius: 4px;
   background-color: rgba(94, 94, 94, 0.3);
-}
+  transition: all ease 150ms;
+  overflow: hidden;
 
-.filter-content {
-  width: 400px;
+  &:hover {
+    background-color: rgba(134, 128, 120, 0.3);
+  }
 }
 </style>

@@ -98,7 +98,7 @@ const { iconMap } = useIconList({
   immediate: false,
 })
 
-const { markerList, createMarkerWhenReady, updateMarkerList } = useMarker(map, {
+const { markerList, loading: markerLoading, createMarkerWhenReady, updateMarkerList } = useMarker(map, {
   selectedItem,
   params: () => ({
     itemIdList: selectedItem.value?.itemId === undefined ? [] : [selectedItem.value.itemId],
@@ -126,6 +126,7 @@ onAreaFetched(() => {
       v-model:type="selectedType"
       :area-list="areaList"
       :marker-list="markerList"
+      :marker-loading="markerLoading"
       :item-list="filteredItemList"
       :item-loading="itemLoading"
       :icon-map="iconMap"
