@@ -1,9 +1,10 @@
 import type { Ref } from 'vue'
 import { ElMessage } from 'element-plus'
+import { cloneDeep } from 'lodash'
 import type { MapNameEnum } from '../configs'
 import { mapTiles } from '../configs'
 import type { GenshinMap } from '../utils'
-import { GenshinTileLayer } from '../utils'
+import { GenshinTileLayer, TileUtil } from '../utils'
 
 export const useLayer = (mapRef: Ref<GenshinMap | null>) => {
   const layers = computed(() => {
@@ -17,12 +18,13 @@ export const useLayer = (mapRef: Ref<GenshinMap | null>) => {
     return tileLayerObj
   })
 
-  const layerOptions = computed(() => Object.keys(layers.value).map(name => ({
-    label: name,
-    value: name,
-  })))
-
   const activeLayer = ref<GenshinTileLayer | null>(null) as Ref<GenshinTileLayer | null>
+
+  const layerConfig = computed(() => {
+    if (!activeLayer.value)
+      return
+    return cloneDeep(TileUtil.getConfig(activeLayer.value.name as MapNameEnum))
+  })
 
   const selectLayer = (name: string) => {
     const layer = layers.value[name]
@@ -38,7 +40,8 @@ export const useLayer = (mapRef: Ref<GenshinMap | null>) => {
       return
     mapRef.value.eachLayer(l => mapRef.value?.removeLayer(l))
     layer.addTo(mapRef.value)
-    mapRef.value.addBaseLayer(layer)
+    mapRef.value.configBaseLayer(layer)
+    mapRef.value.fireEvent('baselayerchange', mapRef.value)
     activeLayer.value = layer
   }
 
@@ -51,5 +54,5 @@ export const useLayer = (mapRef: Ref<GenshinMap | null>) => {
     },
   })
 
-  return { layers, activeLayer, activeName, layerOptions, selectLayer }
+  return { layers, activeLayer, activeName, layerConfig, selectLayer }
 }

@@ -29,9 +29,6 @@ const mapStore = defineStore('map-info', {
     center: format(mapData.center, (res = [0, 0] as [number, number]) => (res).map(Number) as [number, number]),
     iconName: mapData.iconName,
   }),
-  getters: {
-
-  },
 })
 
 export const useMapStore = () => {

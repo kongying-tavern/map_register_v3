@@ -9,7 +9,7 @@ export class GenshinMap extends L.Map {
     return this
   }
 
-  addBaseLayer = (layer: GenshinTileLayer) => {
+  configBaseLayer = (layer: GenshinTileLayer) => {
     const tileInfo = TileUtil.getTileInfo(layer.name as MapNameEnum)
     this.setCRS(tileInfo.crs)
     this.setMaxBounds(tileInfo.bounds)

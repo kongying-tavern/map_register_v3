@@ -1,38 +1,49 @@
 <script lang="ts" setup>
 import 'leaflet/dist/leaflet.css'
+import type { LeafletEvent } from 'leaflet'
 import { ContextMenu, ControlPanel } from './components'
 import { useLayer, useMap, useMarker } from './hooks'
 import type { MapNameEnum } from './configs'
 import { mapTiles } from './configs'
+import type { GenshinMap } from './utils'
 import { AppUserAvatar } from '@/components'
 import { useAreaList, useIconList, useItemList } from '@/hooks'
-
-const containerRef = ref<HTMLElement | null>(null)
+import { useMapStore } from '@/stores'
 
 // ==================== 地图相关 ====================
+const containerRef = ref<HTMLElement | null>(null)
+const mapStore = useMapStore()
 
-const { map } = useMap(containerRef)
-const { layers, activeName, selectLayer } = useLayer(map)
+const { map, on: onMapEvent } = useMap(containerRef)
+const { layers, activeName, layerConfig, selectLayer } = useLayer(map)
 
-onActivated(() => {
-  selectLayer(Object.keys(layers.value)[0])
+onMounted(() => {
+  if (!mapStore.areaId)
+    selectLayer(Object.keys(layers.value)[0])
 })
+
+onMapEvent('baselayerchange', () => {
+  if (!mapStore.center) {
+    mapStore.center = layerConfig.value?.settings?.center as [number, number]
+    mapStore.zoom = layerConfig.value?.settings?.zoom as number
+    return
+  }
+  map.value?.flyTo(mapStore.center, mapStore.zoom ?? 0, {
+    duration: 0.1,
+  })
+})
+
+onMapEvent('zoom', (ev) => {
+  mapStore.zoom = (ev.target as GenshinMap).getZoom()
+})
+
+onMapEvent('drag', useDebounceFn((ev: LeafletEvent) => {
+  const center = (ev.target as GenshinMap).getCenter()
+  mapStore.center = [Math.floor(center.lat), Math.floor(center.lng)]
+}, 200))
 
 // ==================== 地区相关 ====================
-
-// 筛选物品所需的数据
-const filterForm = useUrlSearchParams('history', {
-  removeNullishValues: true,
-  initialValue: {
-    areaId: 2 as undefined | number,
-    typeId: undefined as undefined | number,
-    // 这里用 iconName 而不是 itemId 的原因：
-    // 1. 不同地区存在相同的物品，但其 itemId 不同
-    // TODO 可能存在的问题：
-    // 1. 不同的物品拥有同一个 iconName
-    iconName: undefined as undefined | string,
-  },
-})
+const { areaList, onSuccess: onAreaFetched } = useAreaList()
 
 /**
  * 选择地区时会自动切换地图
@@ -46,53 +57,44 @@ const setMapNameByAreaId = (id?: number) => {
     if (!config)
       continue
     if (config.areaIds.includes(id)) {
+      mapStore.areaId = id
       activeName.value = key
+      mapStore.center = undefined
       return
     }
   }
 }
 
-const { areaList, onSuccess: onAreaFetched } = useAreaList()
-
 const areaId = computed({
-  get: () => !areaList.value.length ? undefined : Number(filterForm.areaId),
-  set: (v) => {
-    filterForm.areaId = v
-    setMapNameByAreaId(v)
-  },
+  get: () => !areaList.value.length ? undefined : mapStore.areaId,
+  set: setMapNameByAreaId,
 })
 
 // ==================== 物品相关 ====================
-
 const { itemList, loading: itemLoading } = useItemList({
   params: () => ({
-    areaIdList: !areaId.value || Number.isNaN(areaId.value) ? [] : [areaId.value],
+    areaIdList: areaId.value === undefined ? [] : [areaId.value],
     size: 1000,
   }),
 })
 
-const selectedType = computed({
-  get: () => Number(filterForm.typeId),
-  set: v => filterForm.typeId = v,
-})
 const filteredItemList = computed(() => {
-  const typeId = selectedType.value
+  const { typeId } = mapStore
   if (typeId === undefined)
     return []
   return itemList.value.filter(item => item.typeIdList?.includes(typeId))
 })
 
-const selectedItem = computed(() => filteredItemList.value.find(item => item.name === filterForm.iconName))
+const selectedItem = computed(() => filteredItemList.value.find(item => item.name === mapStore.iconName))
 
 // 在物品列表变更后，如果当前已选的同类物品不在列表内，则清除已选项
 // TODO 初次加载时可能无法保留状态
-watch(filteredItemList, () => {
+watch(() => [mapStore.areaId, mapStore.typeId], () => {
   if (!selectedItem.value)
-    filterForm.iconName = undefined
+    mapStore.iconName = undefined
 })
 
 // ==================== 点位相关 ====================
-
 /** 图标表 */
 const { iconMap } = useIconList({
   immediate: false,
@@ -106,9 +108,8 @@ const { markerList, loading: markerLoading, createMarkerWhenReady, updateMarkerL
 })
 
 // ==================== 其他 ====================
-
 onAreaFetched(() => {
-  filterForm.areaId !== undefined && setMapNameByAreaId(Number(filterForm.areaId))
+  mapStore.areaId !== undefined && setMapNameByAreaId(mapStore.areaId)
   if (selectedItem.value?.itemId !== undefined) {
     createMarkerWhenReady()
     updateMarkerList()
@@ -122,8 +123,9 @@ onAreaFetched(() => {
 
     <ControlPanel
       v-model:area-id="areaId"
-      v-model:icon-name="filterForm.iconName"
-      v-model:type="selectedType"
+      v-model:icon-name="mapStore.iconName"
+      v-model:type="mapStore.typeId"
+      v-model:step="mapStore.step"
       :area-list="areaList"
       :marker-list="markerList"
       :marker-loading="markerLoading"
