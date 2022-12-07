@@ -55,30 +55,32 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
         offset: [0, 0],
       }
 
+      const markerOptions = marker.options as GenshinLayerOptions
+
       marker.addEventListener('click', () => {
-        (marker.options as GenshinLayerOptions).img.popperOpen = true
+        markerOptions.img.popperOpen = true
         marker.bindPopup(popper, popperOptions).openPopup(coordinates)
         marker.redraw()
       })
       marker.addEventListener('popupclose', () => {
-        (marker.options as GenshinLayerOptions).img.popperOpen = false
+        markerOptions.img.popperOpen = false
         marker.unbindPopup()
         marker.redraw()
       })
       marker.addEventListener('mousedown', () => {
-        (marker.options as GenshinLayerOptions).img.active = true
+        markerOptions.img.active = true
         const stop = useEventListener('pointerup', () => {
-          (marker.options as GenshinLayerOptions).img.active = false
+          markerOptions.img.active = false
           stop()
         })
         marker.redraw()
       })
       marker.addEventListener('mouseover', () => {
-        (marker.options as GenshinLayerOptions).img.hover = true
+        markerOptions.img.hover = true
         marker.redraw()
       })
       marker.addEventListener('mouseout', () => {
-        (marker.options as GenshinLayerOptions).img.hover = false
+        markerOptions.img.hover = false
         marker.redraw()
       })
 
