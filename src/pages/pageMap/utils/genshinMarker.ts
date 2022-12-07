@@ -8,7 +8,11 @@ export interface GenshinLayerOptions extends Record<string, any> {
     rotate: number
     size: [number, number]
     url: string
+    hover?: boolean
     active?: boolean
+    finished?: boolean
+    hiddenFlag?: number
+    popperOpen?: boolean
   }
   prevLatlng: { lat: number; lng: number }
   radius: number
@@ -20,16 +24,22 @@ const doDraw = (ctx: CanvasRenderingContext2D, fn: () => void) => {
   ctx.restore()
 }
 
-/** @plugin leaflet-canvas-markers */
+/**
+ * 点位图标绘制逻辑
+ * @plugin fork from leaflet-canvas-markers
+ */
 L.Canvas.include({
   _updateImg(layer: Record<string, any> & { options: GenshinLayerOptions }) {
     const { img } = layer.options
     const { width: rW, height: rH } = img.el
+    const { hover, active, popperOpen } = img
+
+    // 根据状态调整视觉尺寸
     let [w, h] = img.size
-    if (img.active) {
-      w += 8
-      h += 8
-    }
+    w = active ? w - 2 : popperOpen ? w + 4 : w
+    h = active ? h - 2 : popperOpen ? h + 4 : h
+
+    // 基本参数计算
     const [halfW, halfH] = [w / 2, h / 2]
     const p = layer._point.round()
     let [x, y] = [p.x + img.offset.x, p.y + img.offset.y]
@@ -41,12 +51,19 @@ L.Canvas.include({
 
     doDraw(ctx, () => {
       ctx.beginPath()
+      // 绘制图标阴影
+      ctx.shadowBlur = 10
+      ctx.shadowColor = 'rgb(50, 57, 71)'
+      ctx.shadowOffsetX = 0
+      ctx.shadowOffsetY = 0
+      // 绘制图标背景
       ctx.arc(...center, radius, 0, 2 * Math.PI)
       ctx.closePath()
-      ctx.fillStyle = img.active ? 'rgba(55, 255, 82, 0.6)' : '#323947'
+      ctx.fillStyle = 'rgb(50, 57, 71)'
       ctx.fill()
     })
 
+    // 绘制位图内容
     doDraw(ctx, () => {
       if (img.rotate) {
         ctx.translate(x, y)
@@ -56,21 +73,22 @@ L.Canvas.include({
       ctx.drawImage(img.el, sx, sy, swidth, sheight, dx + x, dy + y, width, height)
     })
 
-    doDraw(ctx, () => {
+    // 绘制 hover | active 蒙层
+    hover && doDraw(ctx, () => {
       ctx.beginPath()
-      ctx.arc(...center, radius - 1, 0, 2 * Math.PI)
+      ctx.arc(...center, radius, 0, 2 * Math.PI)
       ctx.closePath()
-      ctx.lineWidth = 2
-      ctx.strokeStyle = img.active ? '#3ACD52' : '#D3BC8E'
-      ctx.stroke()
+      ctx.fillStyle = active ? 'rgb(0, 0, 0, 0.2)' : 'rgb(255, 255, 255, 0.2)'
+      ctx.fill()
     })
 
+    // 绘制边框
     doDraw(ctx, () => {
       ctx.beginPath()
       ctx.arc(...center, radius, 0, 2 * Math.PI)
       ctx.closePath()
-      ctx.lineWidth = 1
-      ctx.strokeStyle = '#323947'
+      ctx.lineWidth = 2
+      ctx.strokeStyle = popperOpen ? 'rgb(58, 205, 82)' : '#D3BC8E'
       ctx.stroke()
     })
   },

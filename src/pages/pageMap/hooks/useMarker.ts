@@ -29,11 +29,9 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
   })
 
   /** 当前选择的 item 对应的图片地址 */
-  const iconUrl = computed(() => {
-    const iconTag = selectedItem?.value?.iconTag
-    return iconMap.value[iconTag ?? '']
-  })
+  const iconUrl = computed(() => iconMap.value[selectedItem?.value?.iconTag ?? ''])
 
+  /** 创建点位实例 */
   const createMarkers = () => {
     const mapMarkers = markerList.value.map((markerInfo) => {
       const { position = '0,0' } = markerInfo
@@ -45,22 +43,45 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
           size: [32, 32],
           rotate: 90,
           offset: { x: 0, y: 0 },
+          hiddenFlag: markerInfo.hiddenFlag,
         },
       })
-      marker.addEventListener('popupopen', () => {
-        (marker.options as GenshinLayerOptions).img.active = true
-        marker.redraw()
-      })
-      marker.addEventListener('popupclose', () => {
-        (marker.options as GenshinLayerOptions).img.active = false
-        marker.redraw()
-      })
-      // 绑定说明
-      marker.bindPopup(createContent(markerInfo), {
+
+      const popper = createContent(markerInfo)
+      const popperOptions: L.PopupOptions = {
         closeButton: false,
         minWidth: 223,
         maxWidth: 223,
+        offset: [0, 0],
+      }
+
+      marker.addEventListener('click', () => {
+        (marker.options as GenshinLayerOptions).img.popperOpen = true
+        marker.bindPopup(popper, popperOptions).openPopup(coordinates)
+        marker.redraw()
       })
+      marker.addEventListener('popupclose', () => {
+        (marker.options as GenshinLayerOptions).img.popperOpen = false
+        marker.unbindPopup()
+        marker.redraw()
+      })
+      marker.addEventListener('mousedown', () => {
+        (marker.options as GenshinLayerOptions).img.active = true
+        const stop = useEventListener('pointerup', () => {
+          (marker.options as GenshinLayerOptions).img.active = false
+          stop()
+        })
+        marker.redraw()
+      })
+      marker.addEventListener('mouseover', () => {
+        (marker.options as GenshinLayerOptions).img.hover = true
+        marker.redraw()
+      })
+      marker.addEventListener('mouseout', () => {
+        (marker.options as GenshinLayerOptions).img.hover = false
+        marker.redraw()
+      })
+
       return marker
     })
 
