@@ -52,7 +52,7 @@ export const mapTiles: Record<MapNameEnum, MapTileConfig> = {
     size: [16384, 15360],
     tilesOffset: [-4864, 0],
     settings: {
-      center: [0, 1742],
+      center: [0, 0],
       // 初始缩放比率较低时会有奇怪的 bug
       zoom: -2,
     },
@@ -63,7 +63,7 @@ export const mapTiles: Record<MapNameEnum, MapTileConfig> = {
     code: 'qd28',
     size: [8192, 8192],
     settings: {
-      center: [600, -3000],
+      center: [488, -2235],
       zoom: -2,
     },
   },
