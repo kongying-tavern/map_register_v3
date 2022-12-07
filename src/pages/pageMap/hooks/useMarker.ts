@@ -1,5 +1,6 @@
 import type { Ref } from 'vue'
 import L from 'leaflet'
+import { ElMessage } from 'element-plus'
 import type { GenshinLayerOptions, GenshinMap } from '../utils'
 import { canvasMarker, createContent } from '../utils'
 import Api from '@/api/api'
@@ -24,7 +25,7 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
   /** 点位准备渲染的回调函数 */
   const preMarkerCreateCb = ref<(() => void) | null>(null)
 
-  const { iconMap, onSuccess: OnIconFetched } = useIconList({
+  const { iconMap, onSuccess: onIconFetched } = useIconList({
     immediate: true,
   })
 
@@ -101,7 +102,7 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
     preMarkerCreateCb.value()
   }
 
-  const { refresh, onSuccess: OnMarkerFetched, ...rest } = useFetchHook({
+  const { refresh: updateMarkerList, onSuccess: onMarkerFetched, onError, ...rest } = useFetchHook({
     immediate,
     loading,
     onRequest: async () => {
@@ -111,14 +112,20 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
     },
   })
 
-  OnIconFetched(createMarkerWhenReady)
+  onIconFetched(createMarkerWhenReady)
 
-  OnMarkerFetched(({ data = [] }) => {
+  onMarkerFetched(({ data = [] }) => {
     markerList.value = data
     createMarkerWhenReady()
   })
 
-  watchParams && params && watch(fetchParams, refresh, { deep: true })
+  onError(() => {
+    markerList.value = []
+    ElMessage.error('点位加载失败')
+    createMarkerWhenReady()
+  })
 
-  return { markerList, markerLayer: markerLayerCache, updateMarkerList: refresh, createMarkerWhenReady, ...rest }
+  watchParams && params && watch(fetchParams, updateMarkerList, { deep: true })
+
+  return { markerList, markerLayer: markerLayerCache, updateMarkerList, createMarkerWhenReady, onError, ...rest }
 }
