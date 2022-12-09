@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { FullScreen, Minus } from '@element-plus/icons-vue'
 import { FilterArea, FilterItem, FilterStep, FilterType, MarkersTable } from '.'
 
 const props = defineProps<{
@@ -55,15 +56,32 @@ const next = (v?: string | number) => {
     return
   bindStep.value < steps.length - 1 && (bindStep.value += 1)
 }
+
+const minus = ref(false)
 </script>
 
 <template>
-  <div class="left-control-panel" v-bind="$attrs">
-    <FilterStep
-      v-model="bindStep"
-      :step-names="steps"
-      class="content"
-    />
+  <div class="left-control-panel" :class="{ minus }" v-bind="$attrs">
+    <div class="w-full flex gap-2">
+      <FilterStep
+        v-model="bindStep"
+        :step-names="steps"
+        class="content flex-1"
+      />
+      <div
+        class="content grid place-items-center aspect-square cursor-pointer hover:brightness-125"
+        :style="{ width: 'auto' }"
+        :title="minus ? '展开' : '折叠'"
+        @click="(minus = !minus)"
+      >
+        <el-icon v-if="!minus">
+          <Minus />
+        </el-icon>
+        <el-icon v-else>
+          <FullScreen />
+        </el-icon>
+      </div>
+    </div>
 
     <div class="content">
       <Transition :name="trName" mode="out-in" appear>
@@ -106,11 +124,22 @@ const next = (v?: string | number) => {
 
 <style lang="scss" scoped>
 .left-control-panel {
+  --clip-rest: calc(100% - 31px - 1rem);
+  --transform-x: calc(1rem + 31px - 100%);
+
   grid-template-rows: auto 15rem 1fr;
   width: 432px;
+  clip-path: inset(0 0);
+  transform: translate(0, 0);
+  transition: var(--el-transition-all);
+  &.minus {
+    clip-path: inset(8px 8px var(--clip-rest) var(--clip-rest) round 8px);
+    transform: translate(var(--transform-x), -8px);
+  }
 }
 
 .content {
+  color: white;
   border: 1px solid rgb(134, 128, 120);
   width: 100%;
   height: 100%;
@@ -118,9 +147,5 @@ const next = (v?: string | number) => {
   background-color: rgba(94, 94, 94, 0.3);
   transition: all ease 150ms;
   overflow: hidden;
-
-  &:hover {
-    background-color: rgba(134, 128, 120, 0.3);
-  }
 }
 </style>

@@ -154,7 +154,6 @@ onAreaFetched(() => {
 .custom-control-panel {
   position: absolute;
   z-index: 1000;
-  transition: all ease 300ms;
   background: var(--bg-color);
   backdrop-filter: blur(56px);
   border-radius: 8px;
