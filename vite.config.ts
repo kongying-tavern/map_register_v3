@@ -52,14 +52,14 @@ export default defineConfig(({ mode }) => {
       }),
       openapi2ts([
         {
-          schemaPath: 'http://ddns.minemc.top:13010/api/v3/api-docs',
+          schemaPath: `${ENV.VITE_API_PROXY_TARGET}/api/v3/api-docs`,
           requestImportStatement: 'import { request } from \'@/utils\'',
           serversPath: join('./src/api'),
           apiPrefix: '\'/api\'',
           projectName: 'api',
         },
         {
-          schemaPath: 'http://ddns.minemc.top:13010/system/v3/api-docs',
+          schemaPath: `${ENV.VITE_API_PROXY_TARGET}/system/v3/api-docs`,
           requestImportStatement: 'import { request } from \'@/utils\'',
           serversPath: join('./src/api'),
           apiPrefix: '\'/system\'',
