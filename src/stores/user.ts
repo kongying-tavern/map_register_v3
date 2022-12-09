@@ -4,10 +4,16 @@ import System from '@/api/system'
 import Oauth from '@/api/oauth'
 import { messageFrom } from '@/utils'
 import { router } from '@/router'
+import { RoleTypeEnum } from '@/shared'
 
 export interface UserAuth extends API.SysToken {
   express_time: number
 }
+
+/** 具有打点权的角色 */
+const ACCESSABLE_ROLES = [RoleTypeEnum.ADMIN, RoleTypeEnum.MAP_MANAGER, RoleTypeEnum.MAP_NEIGUI, RoleTypeEnum.MAP_PUNCTUATE]
+/** 属于管理员的角色 */
+const ADMIN_ROLES = [RoleTypeEnum.ADMIN, RoleTypeEnum.MAP_MANAGER]
 
 const localUserInfo = useLocalStorage<API.SysUserVo>('__ys_user_info', {})
 const localUserAuth = useLocalStorage<Partial<UserAuth>>('__ys_dadian_auth', {})
@@ -21,6 +27,14 @@ export const useUserStore = defineStore('user-info', {
     /** TODO: 等后端返回改为单角色后就不需要这个了 */
     role: (state) => {
       return state.info.roleList?.[0]
+    },
+    /** 用户是否具有打点权 */
+    hasPunctauteRights: ({ auth: { userRoles = [] } }) => {
+      return userRoles.some(role => ACCESSABLE_ROLES.includes(role as RoleTypeEnum))
+    },
+    /** 用户是否为管理员 */
+    isAdmin: ({ auth: { userRoles = [] } }) => {
+      return userRoles.some(role => ADMIN_ROLES.includes(role as RoleTypeEnum))
     },
     /** 根据权限筛选出的全部可访问路由，只能在 router 以外的地方调用 */
     routes: (state) => {
@@ -60,18 +74,13 @@ export const useUserStore = defineStore('user-info', {
     },
     /** 登录（密码模式） */
     async login(loginForm: API.SysTokenVO) {
-      try {
-        const auth = await Oauth.oauth.token(loginForm)
-        const userAuth: UserAuth = {
-          ...auth,
-          express_time: this.getExpressTime(auth.expires_in),
-        }
-        this.auth = userAuth
-        localUserAuth.value = userAuth
+      const auth = await Oauth.oauth.token(loginForm)
+      const userAuth: UserAuth = {
+        ...auth,
+        express_time: this.getExpressTime(auth.expires_in),
       }
-      catch (err) {
-        ElMessage.error(messageFrom(err))
-      }
+      this.auth = userAuth
+      localUserAuth.value = userAuth
     },
     /** 更新用户信息 */
     async updateUserInfo() {
