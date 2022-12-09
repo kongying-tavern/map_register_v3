@@ -20,7 +20,13 @@ const onClick = () => {
       {{ markerInfo.id }} - {{ markerInfo.markerTitle }}
     </div>
     <div>({{ ceil(latlng.lat) }}, {{ ceil(latlng.lng) }})</div>
-    <img v-if="markerInfo.picture" src="{picture}" alt="点位说明" class="w-full aspect-square object-cover rounded">
+    <img
+      v-if="markerInfo.picture"
+      :src="markerInfo.picture"
+      alt="点位说明"
+      referrerpolicy="no-referrer"
+      class="w-full aspect-square object-cover rounded"
+    >
     <div class="w-full">
       <span
         v-for="text in markerInfo.content?.split('\n').filter(Boolean)"
