@@ -63,11 +63,6 @@ const minus = ref(false)
 <template>
   <div class="left-control-panel" :class="{ minus }" v-bind="$attrs">
     <div class="w-full flex gap-2">
-      <FilterStep
-        v-model="bindStep"
-        :step-names="steps"
-        class="content flex-1"
-      />
       <div
         class="content grid place-items-center aspect-square cursor-pointer hover:brightness-125"
         :style="{ width: 'auto' }"
@@ -81,6 +76,11 @@ const minus = ref(false)
           <FullScreen />
         </el-icon>
       </div>
+      <FilterStep
+        v-model="bindStep"
+        :step-names="steps"
+        class="content flex-1"
+      />
     </div>
 
     <div class="content">
@@ -125,7 +125,7 @@ const minus = ref(false)
 <style lang="scss" scoped>
 .left-control-panel {
   --clip-rest: calc(100% - 31px - 1rem);
-  --transform-x: calc(1rem + 31px - 100%);
+  --content-radius: 4px;
 
   grid-template-rows: auto 15rem 1fr;
   width: 432px;
@@ -133,8 +133,9 @@ const minus = ref(false)
   transform: translate(0, 0);
   transition: var(--el-transition-all);
   &.minus {
-    clip-path: inset(8px 8px var(--clip-rest) var(--clip-rest) round 8px);
-    transform: translate(var(--transform-x), -8px);
+    --content-radius: 8px;
+    clip-path: inset(8px var(--clip-rest) var(--clip-rest) 8px round 8px);
+    transform: translate(-8px, -8px);
   }
 }
 
@@ -143,9 +144,9 @@ const minus = ref(false)
   border: 1px solid rgb(134, 128, 120);
   width: 100%;
   height: 100%;
-  border-radius: 4px;
+  border-radius: var(--content-radius);
   background-color: rgba(94, 94, 94, 0.3);
-  transition: all ease 150ms;
+  transition: var(--el-transition-all);
   overflow: hidden;
 }
 </style>
