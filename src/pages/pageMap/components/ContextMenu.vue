@@ -1,86 +1,63 @@
 <script lang="ts" setup>
-import { ElMessage } from 'element-plus'
+/**
+ * 需要注意，由于当前组件是手动渲染到 leaflet marker DOM 节点上的。
+ * 由于缺少 app 上下文，无法使用依赖注入与生命周期钩子（inject、pinia、hooks 等）。
+ * 但是响应式系统本身还是能使用的（如 props、ref 等）。
+ */
+import { ElIcon } from 'element-plus'
+import { Plus, Refresh, Setting } from '@element-plus/icons-vue'
+import type L from 'leaflet'
+import { ceil } from 'lodash'
 
 const props = defineProps<{
-  target: HTMLElement | null
+  latlng: L.LatLng
+  hasPunctauteRights: boolean
 }>()
 
-// 右键菜单
-const { x, y } = useMouse()
+const emits = defineEmits<{
+  (e: 'command', v: string, payload?: any): void
+}>()
 
-const contextmenuVisible = ref(false)
-const activePos = ref({
-  x: 0,
-  y: 0,
-})
-
-const contextTarget = toRef(props, 'target')
 const contextmenuRef = ref<HTMLElement | null>(null)
 
-useEventListener(contextTarget, 'contextmenu', (ev) => {
-  ev.preventDefault()
-  contextmenuVisible.value = true
-  activePos.value = {
-    x: x.value + 16,
-    y: y.value + 16,
-  }
-})
-
-useEventListener('pointerdown', (ev) => {
-  if (!ev.composedPath().find(el => (el as HTMLElement) === contextmenuRef.value))
-    contextmenuVisible.value = false
-})
-
-const onCommand = (ev: Event) => {
-  const triggerItem = ev
-    .composedPath()
-    .find(el => (el as HTMLElement).dataset?.command) as HTMLElement | undefined
-  if (!triggerItem)
+const createMarker = () => {
+  if (!props.hasPunctauteRights)
     return
-  contextmenuVisible.value = false
-  ElMessage.info(`右键菜单开发中: ${triggerItem.dataset.command}`)
+  emits('command', 'add')
 }
 </script>
 
 <template>
-  <Transition name="fade">
+  <div
+    ref="contextmenuRef"
+    class="context-menu w-full h-full rounded-md grid grid-cols-2 grid-rows-2 gap-2 text-white shadow-xl text-sm"
+  >
     <div
-      v-if="contextmenuVisible"
-      ref="contextmenuRef"
-      class="context-menu rounded-md bg-stone-800 bg-opacity-70 fixed left-0 top-0 p-1 grid grid-cols-2 gap-1 text-white shadow-xl"
-      :style="{
-        '--x': `${activePos.x}px`,
-        '--y': `${activePos.y}px`,
-      }"
-      @click="onCommand"
+      data-command="add"
+      class="context-menu-item rounded col-span-2"
+      :class="{ disabled: !hasPunctauteRights }"
+      :title="!hasPunctauteRights ? '没有权限' : undefined"
+      @click="createMarker"
     >
-      <div data-command="Add" class="context-menu-item rounded hover:bg-stone-600 active:bg-stone-500 bg-opacity-70">
-        <el-icon><Plus /></el-icon>
-        <div>新增点位</div>
-      </div>
-      <div data-command="Edit" class="context-menu-item rounded hover:bg-stone-600 active:bg-stone-500 bg-opacity-70">
-        <el-icon><Edit /></el-icon>
-        <div>编辑点位</div>
-      </div>
-      <div data-command="Refresh" class="context-menu-item rounded hover:bg-stone-600 active:bg-stone-500 bg-opacity-70">
-        <el-icon><Refresh /></el-icon>
-        <div>刷新点位</div>
-      </div>
-      <div data-command="Setting" class="context-menu-item rounded hover:bg-stone-600 active:bg-stone-500 bg-opacity-70">
-        <el-icon><Setting /></el-icon>
-        <div>设置</div>
-      </div>
+      <ElIcon><Plus /></ElIcon>
+      <div>新增点位</div>
+      <div>({{ ceil(latlng.lat, 2) }}, {{ ceil(latlng.lng, 2) }})</div>
     </div>
-  </Transition>
+
+    <div data-command="refresh" class="context-menu-item" @click="() => emits('command', 'refresh')">
+      <ElIcon><Refresh /></ElIcon>
+      <div>刷新点位</div>
+    </div>
+
+    <div data-command="setting" class="context-menu-item disabled" title="设置面板开发中">
+      <ElIcon><Setting /></ElIcon>
+      <div>设置</div>
+    </div>
+  </div>
 </template>
 
 <style lang="scss" scoped>
 .context-menu {
-  transform: translate(var(--x), var(--y));
-  z-index: 900;
-  font-size: 14px;
-  backdrop-filter: blur(24px);
-
   &::before {
     content: '';
     position: absolute;
@@ -96,15 +73,29 @@ const onCommand = (ev: Event) => {
 }
 
 .context-menu-item {
-  width: 80px;
-  height: 80px;
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   padding: 4px;
+  gap: 4px;
+  border-radius: 4px;
   cursor: pointer;
   user-select: none;
-  gap: 4px;
+  transition: background-color ease 100ms;
+  &:not(.disabled) {
+    &:hover {
+      background-color: rgba(87 83 78 / 0.7);
+    }
+    &:active {
+      background-color: rgba(120 113 118 / 0.7);
+    }
+  }
+  &.disabled {
+    color: gray;
+    cursor: not-allowed;
+  }
 }
 </style>
