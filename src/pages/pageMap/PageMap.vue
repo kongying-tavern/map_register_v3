@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import 'leaflet/dist/leaflet.css'
 import type { LeafletEvent } from 'leaflet'
-import { ContextMenu, ControlPanel } from './components'
-import { useLayer, useMap, useMarker } from './hooks'
+import { ControlPanel } from './components'
+import { useContextMenu, useLayer, useMap, useMarker } from './hooks'
 import type { MapNameEnum } from './configs'
 import { mapTiles } from './configs'
 import type { GenshinMap } from './utils'
@@ -14,7 +14,7 @@ import { useMapStore } from '@/stores'
 const containerRef = ref<HTMLElement | null>(null)
 const mapStore = useMapStore()
 
-const { map, on: onMapEvent } = useMap(containerRef)
+const { map, stopPropagationSignal, on: onMapEvent } = useMap(containerRef)
 const { layers, activeName, layerConfig, selectLayer } = useLayer(map)
 
 onMounted(() => {
@@ -102,10 +102,16 @@ const { iconMap } = useIconList({
 
 const { markerList, loading: markerLoading, createMarkerWhenReady, updateMarkerList } = useMarker(map, {
   selectedItem,
+  stopPropagationSignal,
   params: () => ({
     itemIdList: selectedItem.value?.itemId === undefined ? [] : [selectedItem.value.itemId],
   }),
 })
+
+const { show: openContextMenu } = useContextMenu({
+  refreshMarkers: updateMarkerList,
+})
+onMapEvent('contextmenu', openContextMenu)
 
 // ==================== 其他 ====================
 onAreaFetched(() => {
@@ -136,32 +142,20 @@ onAreaFetched(() => {
     />
 
     <AppUserAvatar map-mode class="custom-control-panel right-2 top-2" />
-
-    <ContextMenu :target="containerRef" />
   </div>
 </template>
 
+<style lang="scss">
+// global
+@import '@/style/leaflet/index.scss';
+</style>
+
 <style lang="scss" scoped>
-.genshin-map-container {
-  .genshin-map {
-    cursor: crosshair;
-
-    :deep(.leaflet-popup-content-wrapper) {
-      border-radius: 4px;
-      padding: 8px;
-    }
-
-    :deep(.leaflet-popup-content) {
-      margin: 0;
-    }
-  }
-}
-
 .custom-control-panel {
   position: absolute;
   z-index: 1000;
   transition: all ease 300ms;
-  background-color: rgb(41 37 36 / 0.7);
+  background: var(--bg-color);
   backdrop-filter: blur(56px);
   border-radius: 8px;
 }
