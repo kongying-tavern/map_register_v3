@@ -7,6 +7,11 @@ interface ItemListHookOptions extends FetchHookOptions<API.RPageListVoItemVo> {
   params?: () => API.ItemSearchVo
 }
 
+interface ItemUpdateHookOptions extends FetchHookOptions<API.ItemVo> {
+  params?: () => API.ItemVo[]
+  editSame?: boolean
+}
+
 /** 物品列表与相关操作方法 */
 export const useItemList = (options: ItemListHookOptions = {}) => {
   const { immediate = true, loading = ref(false), params } = options
@@ -33,4 +38,21 @@ export const useItemList = (options: ItemListHookOptions = {}) => {
   const { pause, resume } = pausableWatch(fetchParams, updateItemList, { deep: true })
 
   return { itemList, updateItemList, onSuccess, pause, resume, ...rest }
+}
+
+/** 修改某几个物品 */
+export const useItemUpdate = (options: ItemUpdateHookOptions = {}) => {
+  const { immediate = true, editSame = false, loading = ref(false), params } = options
+
+  const fetchParams = computed(() => params?.())
+
+  const rest = useFetchHook({
+    immediate,
+    loading,
+    onRequest: async () => Api.item.updateItem({ editSame: editSame ? 1 : 0 }, fetchParams.value ?? []),
+  })
+
+  const { pause, resume } = pausableWatch(fetchParams, rest.refresh, { deep: true })
+
+  return { pause, resume, ...rest }
 }

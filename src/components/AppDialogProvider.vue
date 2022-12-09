@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { buttons, dialogProps, component as is, payloadCache, props, resetState, resolveResult, visible } from '@/hooks/useGlobalDialog/dialogContext'
+import { buttons, dialogProps, eventListener, component as is, payloadCache, props, resetState, resolveResult, visible } from '@/hooks/useGlobalDialog/dialogContext'
 
 const beforeClose = (done: () => void) => {
   if (!payloadCache.value)
@@ -10,7 +10,7 @@ const beforeClose = (done: () => void) => {
 
 <template>
   <el-dialog v-model="visible" v-bind="dialogProps" :before-close="beforeClose" @closed="resetState">
-    <component :is="is" v-bind="props" />
+    <component :is="is" v-bind="props" v-on="eventListener" />
 
     <template v-if="buttons.size" #footer>
       <el-button v-for="[role, button] in buttons" :key="role" v-bind="button.props" @click="button.onClick">

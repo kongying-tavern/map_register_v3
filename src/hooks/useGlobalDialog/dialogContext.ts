@@ -8,6 +8,8 @@ export const component = shallowRef<Component | null>(null)
 export const closeResolver = ref<((payload: any) => void) | null>(null)
 export const payloadCache = ref<any>()
 export const buttons = ref<Map<string, FooterButton>>(new Map())
+/** 弹窗内部事件处理 */
+export const eventListener = ref<Record<string, (event: string) => void>>({})
 
 export interface FooterButton {
   text: string
@@ -23,6 +25,7 @@ export const resetState = () => {
   component.value = null
   closeResolver.value = null
   buttons.value.clear()
+  eventListener.value = {}
 }
 
 /** 该方法仅用于保证外部 afterClosed 被调用 */

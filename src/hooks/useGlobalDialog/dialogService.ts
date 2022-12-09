@@ -1,6 +1,6 @@
 import type { Component } from 'vue'
 import type { DialogProps } from 'element-plus'
-import { component, dialogProps, props, visible } from './dialogContext'
+import { component, dialogProps, eventListener, props, visible } from './dialogContext'
 import { DialogController } from './dialogController'
 
 export interface PropsOptions {
@@ -37,6 +37,15 @@ export class DialogService {
     else {
       props.value = propsObj
     }
+    return this
+  }
+
+  /** 传递给弹窗默认插槽上的组件的事件监听器 */
+  static listeners = <T extends Record<string, (event: string) => void>>(listenersObj: T) => {
+    eventListener.value = {
+      ...listenersObj,
+    }
+
     return this
   }
 

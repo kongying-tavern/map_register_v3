@@ -1,6 +1,7 @@
 <script lang="tsx" setup>
 import { ElButton } from 'element-plus'
 import type { AnyColumn } from 'element-plus/es/components/table-v2/src/common'
+import { useItemEdit } from './hooks'
 import { PgUnit, useAreaList, useIconList, useItemList, usePagination, useTypeList } from '@/hooks'
 
 const { pagination, layout } = usePagination({
@@ -9,15 +10,15 @@ const { pagination, layout } = usePagination({
 const checkedArea = ref<API.AreaVo>()
 const checkedType = ref<API.ItemTypeVo>()
 
-const { areaMap, areaTree, loading: areaLoading } = useAreaList({
+const { areaMap, areaTree, loading: areaLoading, areaList } = useAreaList({
   immediate: true,
 })
 
-const { iconMap } = useIconList()
+const { iconMap, iconList } = useIconList()
 
 const { typeTree, loading: typeLoading } = useTypeList()
 
-const { itemList, loading: itemLoading, onSuccess: onItemListFetched, pause, resume } = useItemList({
+const { itemList, loading: itemLoading, onSuccess: onItemListFetched, pause, resume, updateItemList } = useItemList({
   immediate: true,
   params: () => ({
     areaIdList: checkedArea.value ? [checkedArea.value.areaId as number] : [],
@@ -56,6 +57,14 @@ onItemListFetched(({ data: { record = [], total = 0 } = {} }) => {
   pagination.value.total = total
 })
 
+const { openItemDetailEditorDialog } = useItemEdit({
+  itemList,
+})
+
+const onItemDetailEditSuccess = () => {
+  updateItemList()
+}
+
 const containerRef = ref<HTMLElement | null>(null)
 const { height, width } = useElementSize(containerRef)
 
@@ -81,7 +90,20 @@ const columns: AnyColumn[] = [
   {
     title: '操作',
     width: 200,
-    cellRenderer: () => <ElButton>编辑</ElButton>,
+    cellRenderer: ({ rowIndex }) => <ElButton
+      onClick={() => {
+        openItemDetailEditorDialog(rowIndex, {
+          props: {
+            iconList: iconList.value,
+            areaList: areaList.value,
+            iconMap: iconMap.value
+          },
+          listeners: {
+            success: onItemDetailEditSuccess,
+          },
+        })
+      }}
+    >编辑</ElButton>,
   },
 ]
 </script>
