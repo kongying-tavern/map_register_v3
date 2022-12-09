@@ -9,7 +9,8 @@ jobs:
     interpreter: !DefaultInterpreter
       commands:
       - cd @secret:workspace-path@
-      - git checkout refactor
+      - git checkout -q refactor
+      - git checkout . && git clean -xdf
       - git pull
     useTTY: false
     condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
