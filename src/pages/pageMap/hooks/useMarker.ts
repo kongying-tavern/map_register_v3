@@ -1,20 +1,23 @@
 import type { Ref } from 'vue'
+import { render } from 'vue'
 import L from 'leaflet'
 import { ElMessage } from 'element-plus'
 import type { GenshinLayerOptions, GenshinMap } from '../utils'
-import { canvasMarker, createContent } from '../utils'
+import { PopupContent } from '../components'
+import { canvasMarker } from '../utils'
 import Api from '@/api/api'
 import type { FetchHookOptions } from '@/hooks'
 import { useFetchHook, useIconList } from '@/hooks'
 
 export interface MarkerHookOptions extends FetchHookOptions<API.RListMarkerVo> {
   watchParams?: boolean
-  selectedItem?: Ref<API.ItemVo | undefined>
+  stopPropagationSignal: Ref<boolean>
+  selectedItem: Ref<API.ItemVo | undefined>
   params?: () => API.MarkerSearchVo
 }
 
 export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOptions) => {
-  const { immediate = false, watchParams = true, selectedItem, loading = ref(false), params } = options
+  const { immediate = false, stopPropagationSignal, watchParams = true, selectedItem, loading = ref(false), params } = options
 
   /** 点位列表 */
   const markerList = ref<API.MarkerVo[]>([])
@@ -30,7 +33,7 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
   })
 
   /** 当前选择的 item 对应的图片地址 */
-  const iconUrl = computed(() => iconMap.value[selectedItem?.value?.iconTag ?? ''])
+  const iconUrl = computed(() => iconMap.value[selectedItem.value?.iconTag ?? ''])
 
   /** 创建点位实例 */
   const createMarkers = () => {
@@ -48,13 +51,14 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
         },
       })
 
-      const popper = createContent(markerInfo)
+      const popper = L.DomUtil.create('div', 'w-full h-full')
       const popperOptions: L.PopupOptions = {
         closeButton: false,
         minWidth: 223,
         maxWidth: 223,
         offset: [0, 0],
       }
+      render(h(PopupContent, { markerInfo, latlng: coordinates }), popper)
 
       const markerOptions = marker.options as GenshinLayerOptions
 
@@ -83,6 +87,9 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
       marker.addEventListener('mouseout', () => {
         markerOptions.img.hover = false
         marker.redraw()
+      })
+      marker.addEventListener('contextmenu', () => {
+        stopPropagationSignal.value = true
       })
 
       return marker
