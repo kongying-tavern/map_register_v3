@@ -7,6 +7,7 @@ export const useMap = (ele: Ref<HTMLElement | null>) => {
   const hookUnregisters = shallowRef<(() => void)[]>([])
   const listeners = shallowRef<[string, (...args: any[]) => any][]>([])
   const mapCreatedHook = createEventHook<GenshinMap>()
+  const stopPropagationSignal = ref(false)
 
   const onMapCreated = (cb: (mapInstance: GenshinMap) => void) => {
     const { off } = mapCreatedHook.on(cb)
@@ -14,14 +15,22 @@ export const useMap = (ele: Ref<HTMLElement | null>) => {
     return off
   }
 
+  const callWithSignal = (fn: (...args: any[]) => void, ...args: any[]) => {
+    if (stopPropagationSignal.value) {
+      stopPropagationSignal.value = false
+      return
+    }
+    fn(...args)
+  }
+
   const on = <T extends keyof LeafletEventHandlerFnMap>(type: T, fn: LeafletEventHandlerFnMap[T]) => {
     if (!fn)
       return
     if (!map.value) {
-      listeners.value.push([type, fn])
+      listeners.value.push([type, (...args) => callWithSignal(fn, ...args)])
       return
     }
-    map.value.addEventListener(type, fn as any)
+    map.value.addEventListener(type, (...args) => callWithSignal(fn, ...args))
   }
 
   onMounted(() => {
@@ -38,7 +47,7 @@ export const useMap = (ele: Ref<HTMLElement | null>) => {
       zoomControl: false,
       preferCanvas: true,
     })
-    listeners.value.forEach(([type, fn]) => newMap.addEventListener(type, fn))
+    listeners.value.forEach(([type, fn]) => newMap.addEventListener(type, (...args) => callWithSignal(fn, ...args)))
     map.value = newMap
     mapCreatedHook.trigger(newMap)
   })
@@ -50,5 +59,5 @@ export const useMap = (ele: Ref<HTMLElement | null>) => {
     hookUnregisters.value.forEach(off => off())
   })
 
-  return { map, on, onMapCreated }
+  return { map, stopPropagationSignal, on, onMapCreated }
 }
