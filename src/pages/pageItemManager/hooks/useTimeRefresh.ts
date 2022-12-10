@@ -76,7 +76,9 @@ export const useTimeRefresh = (options: FormTimeRefreshParamHooksOptions) => {
     get: () => _refreshTimeOptionsIndex.value,
     set: (index) => {
       switch (index) {
-        case 0 : resetRefreshTime(); break
+        case 0 :
+          resetRefreshTime()
+          break
         case 1 : resetRefreshTime({
           days: 1,
           hour: 0,

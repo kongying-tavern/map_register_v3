@@ -96,7 +96,7 @@ const columns: AnyColumn[] = [
           props: {
             iconList: iconList.value,
             areaList: areaList.value,
-            iconMap: iconMap.value
+            iconMap: iconMap.value,
           },
           listeners: {
             success: onItemDetailEditSuccess,

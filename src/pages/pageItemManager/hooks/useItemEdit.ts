@@ -21,8 +21,8 @@ export const useItemEdit = (options: ItemEditHookOptions) => {
 
   const editOptions = useRowEdit({
     rowList: itemList,
-    saveHandler: async (_, newRowData) => {
-
+    saveHandler: async () => {
+      /** @TODO 保留行内编辑能力 */
     },
   })
 
