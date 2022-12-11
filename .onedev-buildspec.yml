@@ -10,8 +10,8 @@ jobs:
       commands:
       - cd @secret:workspace-path@
       - git checkout -q refactor
-      - git checkout . && git clean -xdf
-      - git pull
+      - git checkout . && git clean -xdf -e .env.*.local
+      - git pull -r --autostash
     useTTY: false
     condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
   - !CommandStep
@@ -28,21 +28,19 @@ jobs:
   - !CommandStep
     name: build
     runInContainer: false
-    interpreter: !ShellInterpreter
-      shell: bash
+    interpreter: !DefaultInterpreter
       commands:
       - cd @secret:workspace-path@
       - /usr/local/bin/pnpm run build:dev
     useTTY: false
     condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
   - !CommandStep
-    name: restart service
+    name: move dist
     runInContainer: false
-    interpreter: !ShellInterpreter
-      shell: bash
+    interpreter: !DefaultInterpreter
       commands:
-      - sudo systemctl daemon-reload
-      - sudo /bin/systemctl restart genshin-map-admin
+      - cd @secret:workspace-path@
+      - cp -rf dist/** /www/wwwroot/map_register_v3
     useTTY: false
     condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
   triggers:
