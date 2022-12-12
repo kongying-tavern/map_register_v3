@@ -347,7 +347,7 @@ export default {
       return has_user_role('MAP_NEIGUI');
     },
     type_list() {
-      let type_list = _.chain(this.basicTypes)
+      const type_list = _.chain(this.basicTypes)
         .values()
         .filter(v => v.isFinal)
         .sortBy(v => -v.sortIndex)
@@ -355,35 +355,35 @@ export default {
       return type_list;
     },
     type_map() {
-      let type_map = _.keyBy(this.type_list, 'typeId');
+      const type_map = _.keyBy(this.type_list, 'typeId');
       return type_map;
     },
     item_packed_list() {
-      let packed_list = _.map(this.basicItems, v => {
-        let icon_tag = v.iconTag || '';
-        let icon_url = _.get(this.basicIcon, [icon_tag, 'url'], icon_no_img);
+      const packed_list = _.map(this.basicItems, v => {
+        const icon_tag = v.iconTag || '';
+        const icon_url = _.get(this.basicIcon, [icon_tag, 'url'], icon_no_img);
         v.iconUrl = icon_url;
         return v;
       });
       return packed_list;
     },
     item_map() {
-      let item_map = _.keyBy(this.item_packed_list, 'itemId');
+      const item_map = _.keyBy(this.item_packed_list, 'itemId');
       return item_map;
     },
     item_groups() {
-      let item_groups = _.chain(this.item_packed_list)
+      const item_groups = _.chain(this.item_packed_list)
         .groupBy('typeId')
         .value();
       return item_groups;
     },
     item_config() {
-      let item_groups = _
+      const item_groups = _
         .chain(this.type_list)
         .map(v => {
-          let type = v;
-          let type_id = v.typeId;
-          let itemList = this.item_groups[type_id] || {};
+          const type = v;
+          const type_id = v.typeId;
+          const itemList = this.item_groups[type_id] || {};
           return {
             type,
             itemList
@@ -399,7 +399,7 @@ export default {
     ItemSelector
   },
   methods: {
-    //查看大图
+    // 查看大图
     img_preview() {
       if (this.layer_info.picture !== "") {
         this.image_preview_open = true;
@@ -409,32 +409,33 @@ export default {
       this.layer_info.picture = "";
       this.layer_info.pictureCreatorId = get_user_id();
     },
-    //开启文件选择器
+    // 开启文件选择器
     img_picker_popup() {
       this.$refs.img_upload.pickFiles();
     },
-    //上传图片加以裁剪，以及裁剪前处理
+    // 上传图片加以裁剪，以及裁剪前处理
     img_upload() {
       if (this.image_upload_file != null) {
-        //将图片转化为base64
-        let img = this.image_upload_file;
-        let fr = new FileReader();
+        // 将图片转化为base64
+        const img = this.image_upload_file;
+        const fr = new FileReader();
         fr.readAsDataURL(img);
         fr.onload = (res) => {
           this.image_upload_base64 = res.target.result;
-          //在转换完成后清除file，以重新触发input事件
+          // 在转换完成后清除file，以重新触发input事件
           this.image_upload_file = null;
         };
+
         this.image_upload_cropper_open = true;
       }
     },
-    //返回裁剪后的数据
+    // 返回裁剪后的数据
     img_crop(data) {
       if (_.isString(data) && data.indexOf("base64") !== -1) {
         this.loading_img = true;
         upload_img(Date.now(), data)
           .then(res => {
-            let img_path = _.get(res, 'data.path', '');
+            const img_path = _.get(res, 'data.path', '');
             if(img_path) {
               this.layer_info.picture = `https://yuanshen.site${img_path}`;
               this.layer_info.pictureCreatorId = get_user_id();
@@ -468,6 +469,7 @@ export default {
         this.layer_info.itemList[this.item_selector_index].count = item.defaultCount;
         this.layer_info.refreshTime = item.defaultRefreshTime || 0;
       }
+
       this.item_selector_open = false;
       this.item_selector_index = -1;
     },
@@ -483,20 +485,20 @@ export default {
       return _.get(this.item_map, [itemId, 'iconUrl'], icon_no_img);
     },
     item_get_name(itemId = 0) {
-      let item_config = this.item_map[itemId] || {};
-      let item_name = item_config.name || '';
-      let type_id = +item_config.typeId || 0;
-      let type_name = _.get(this.type_map, [type_id, 'name'], '');
-      let item_compound_name = `${type_name} - ${item_name}`;
+      const item_config = this.item_map[itemId] || {};
+      const item_name = item_config.name || '';
+      const type_id = Number(item_config.typeId) || 0;
+      const type_name = _.get(this.type_map, [type_id, 'name'], '');
+      const item_compound_name = `${type_name} - ${item_name}`;
       return item_compound_name;
     },
-    //海岛回调
+    // 海岛回调
     island_callback(val) {
       this.layer_extra_data['2_8_island'] = val;
     },
-    //提交要上传的数据
+    // 提交要上传的数据
     save() {
-      let validate_res = this.save_validate();
+      const validate_res = this.save_validate();
       if (validate_res.errors.length > 0) {
         create_notify(validate_res.errors.join('<br>'), 'negative', {
           timeout: 5000,
@@ -511,6 +513,7 @@ export default {
         });
         return;
       }
+
       // 将经过过滤后的数据设置回提交数据池
       this.layer_info.itemList = validate_res.items || [];
 
@@ -521,23 +524,25 @@ export default {
       } else {
         save_promise = upload_layer
       }
+
       this.loading = true;
 
       save_promise(this.layer_info)
         .then(res => {
-          let code = res.data.code;
-          let data = res.data.data;
-          let markerId = this.layer_info.id ? this.layer_info.id : data;
+          const {code} = res.data;
+          const {data} = res.data;
+          const markerId = this.layer_info.id ? this.layer_info.id : data;
 
           if (code === 200) {
             return markerId;
-          } else {
+          }
+ 
             if (data) {
               throw data;
             } else {
               throw '保存失败';
             }
-          }
+          
         })
         .then(markerId => {
           if(_.isFinite(markerId) && markerId > 0 && _.isPlainObject(this.layer_extra_data) && !_.isEmpty(this.layer_extra_data)) {
@@ -546,9 +551,10 @@ export default {
               markerExtraContent: JSON.stringify(this.layer_extra_data),
               isRelated: 0
             });
-          } else {
-            return Promise.resolve();
           }
+ 
+            return Promise.resolve();
+          
         })
         .then(() => {
           create_notify('保存成功', 'positive');
@@ -562,7 +568,7 @@ export default {
         })
     },
     save_validate() {
-      let data_pack = {
+      const data_pack = {
         errors: [],
         items: this.layer_info.itemList || []
       };
@@ -576,30 +582,30 @@ export default {
       }
 
       // 重复项选择校验
-      let item_ids_uniq = _.chain(data_pack.items).map(v => v.itemId).uniq().value();
+      const item_ids_uniq = _.chain(data_pack.items).map(v => v.itemId).uniq().value();
       if(data_pack.items.length !== item_ids_uniq.length) {
         data_pack.errors.push('物品中存在重复项，请修改');
       }
 
       // 宝箱类别判断
-      let item_list_entries = _.chain(item_ids_uniq)
+      const item_list_entries = _.chain(item_ids_uniq)
         .map(v => this.item_map[v])
         .filter(v => v)
         .value();
-      let item_list_types = _.chain(item_list_entries)
+      const item_list_types = _.chain(item_list_entries)
         .map(v => v.typeIdList || [])
         .flattenDeep()
         .map(v => _.get(this.type_map, [v, 'name'], ''))
         .filter(v => v)
         .value();
-      let item_list_companion_1 = _.filter(item_list_types, v => v === '获取方式' || v === '宝箱品质');
+      const item_list_companion_1 = _.filter(item_list_types, v => v === '获取方式' || v === '宝箱品质');
       if (item_list_companion_1.length === 1) {
         data_pack.errors.push('获取方式和宝箱品质需同时选中');
       }
 
       return data_pack;
     },
-    //取消
+    // 取消
     cancel() {
       this.layer_info = {};
       this.$emit("cancel");
@@ -611,9 +617,9 @@ export default {
     this.layer_info = layer_info;
 
     // 获取附加数据
-    let extra_data = this.layer_info.markerExtraContent || '';
+    const extra_data = this.layer_info.markerExtraContent || '';
     try {
-      let extra_data_json = JSON.parse(extra_data);
+      const extra_data_json = JSON.parse(extra_data);
       if(_.isPlainObject(extra_data_json)) {
         this.layer_extra_data = extra_data_json;
       } else {
@@ -622,6 +628,7 @@ export default {
     } catch(e) {
       this.layer_extra_data = {};
     }
+
     this.$nextTick()
       .then(() => {
         if(this.$refs.island_selector) {
@@ -635,25 +642,26 @@ export default {
       this.layer_info.content = _.get(this.selItem, 'defaultContent', '');
 
       // 构造标题
-      let title_tpl = _.get(this.selType || {}, 'content', '');
-      let title_renderer = _.template(title_tpl, {
+      const title_tpl = _.get(this.selType || {}, 'content', '');
+      const title_renderer = _.template(title_tpl, {
         interpolate: /{{([\s\S]+?)}}/g
       });
-      let title_data = {
+      const title_data = {
         area: this.selArea || {},
         type: this.selType || {},
         item: this.selItem || {}
       };
-      let title_str = title_renderer(title_data);
+      const title_str = title_renderer(title_data);
       this.layer_info.markerTitle = title_str;
 
       // 构造关联类别
       if(!this.layer_info.itemList) {
         this.layer_info.itemList = [];
       }
+
       if (this.layer_info.itemList.length <= 0) {
-        let item_sel = this.selItem || {};
-        let item_link = {
+        const item_sel = this.selItem || {};
+        const item_link = {
           itemId: item_sel.itemId,
           count: item_sel.defaultCount
         };

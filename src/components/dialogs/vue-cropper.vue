@@ -63,7 +63,7 @@ export default {
         canMoveBox: true, // 截图框能否拖动
         original: true, // 上传图片按照原始比例渲染
         centerBox: true, // 截图框是否被限制在图片里面
-        infoTrue: false, // true 为展示真实输出图片宽高 false 展示看到的截图框宽高
+        infoTrue: false, // True 为展示真实输出图片宽高 false 展示看到的截图框宽高
       },
     };
   },
@@ -72,9 +72,9 @@ export default {
   },
   props: ["crooper_img"],
   methods: {
-    //预览图生成
+    // 预览图生成
     img_perview(data) {
-      var previews = data;
+      const previews = data;
       this.perview_img_style = {
         width: previews.w + "px",
         height: previews.h + "px",
@@ -84,7 +84,7 @@ export default {
       };
       this.perview_img = data;
     },
-    //截图
+    // 截图
     cut_img() {
       this.$refs.cropper.getCropData((data) => {
         this.$emit("screenshot", data);

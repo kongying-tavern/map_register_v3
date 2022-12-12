@@ -2,18 +2,19 @@ import axios from 'axios'
 import { get_user_token } from './user_info'
 import { create_notify } from "../api/common"
 const baseurl = `${process.env.VITE_API_BASE}/api`
-// const baseurl = 'http://localhost:9000/api/api'
+// Const baseurl = 'http://localhost:9000/api/api'
 async function default_request(method, url, data = undefined) {
     try {
         return await axios({
-            method: method,
-            url: url,
+            method,
+            url,
             data: JSON.stringify(data),
-            transformRequest: (data) => {
+            transformRequest(data) {
                 if (get_user_token() == null) {
                     alert('登录认证已失效，请重新登录！')
                     window.location.reload();
                 }
+
                 return data
             },
             headers: {
@@ -32,6 +33,7 @@ async function default_request(method, url, data = undefined) {
         }
     }
 }
+
 /**
  * 列出地区
  * @param {Number} parentId 父级ID,默认为-1
@@ -41,6 +43,7 @@ async function default_request(method, url, data = undefined) {
 function query_area(data) {
     return default_request('post', `${baseurl}/area/get/list`, data)
 }
+
 /**
  * 列出物品类型
  * @param {Number} self 查询自身还是查询子级，0为查询自身，1为查询子级
@@ -52,6 +55,7 @@ function query_area(data) {
 function query_itemtype(self = 0, data) {
     return default_request('post', `${baseurl}/item/get/type/${self}`, data)
 }
+
 /**
  * 列出物品列表
  * @param {Array} typeIdList 末端物品类型ID列表
@@ -63,6 +67,7 @@ function query_itemtype(self = 0, data) {
 function query_itemlist(data) {
     return default_request('post', `${baseurl}/item/get/list`, data)
 }
+
 // /**
 //  * 列出物品id列表
 //  * @param {Array} typeIdList 物品类型ID列表
@@ -85,6 +90,7 @@ function query_itemlist(data) {
 function query_itemlayer_infolist(data) {
     return default_request('post', `${baseurl}/marker/get/list_byinfo`, data)
 }
+
 /**
  * 列出物品点位信息
  * @param {Array} typeIdList 物品类型ID列表
@@ -96,6 +102,7 @@ function query_itemlayer_infolist(data) {
 function query_itemlayer_icon(data) {
     return default_request('post', `${baseurl}/tag/get/list`, data)
 }
+
 /**
  * 上传图片
  * @param {Array} file_data 图片的base64
@@ -103,27 +110,29 @@ function query_itemlayer_icon(data) {
  * @returns 物品点位id信息
  */
 function upload_img(file_name, file_data) {
-    let data = new FormData();
+    const data = new FormData();
     data.append('file_name', file_name);
     data.append('file_data', file_data)
     return axios({
         method: 'post',
-        data: data,
+        data,
         url: 'https://dadian.yuanshen.site/upload.php',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
         }
     })
 }
-//检验图片是否有效
+
+// 检验图片是否有效
 function check_img(url) {
     return axios.get(url);
 }
+
 export {
     query_area,
     query_itemtype,
     query_itemlist,
-    // query_itemlayer_idlist,
+    // Query_itemlayer_idlist,
     query_itemlayer_infolist,
     query_itemlayer_icon,
     upload_img,

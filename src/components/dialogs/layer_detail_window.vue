@@ -134,30 +134,31 @@ export default {
     ImgCut,
   },
   methods: {
-    //开启文件选择器
+    // 开启文件选择器
     open_filepicker() {
       this.$refs.img_upload.pickFiles();
     },
-    //上传图片加以裁剪，以及裁剪前处理
+    // 上传图片加以裁剪，以及裁剪前处理
     upload_crooper_img() {
       if (this.upload_img_file != null) {
-        //将图片转化为base64
-        let img = this.upload_img_file;
-        let fr = new FileReader();
+        // 将图片转化为base64
+        const img = this.upload_img_file;
+        const fr = new FileReader();
         fr.readAsDataURL(img);
         fr.onload = (res) => {
           this.upload_img_base64 = res.target.result;
-          //在转换完成后清除file，以重新触发input事件
+          // 在转换完成后清除file，以重新触发input事件
           this.upload_img_file = null;
         };
+
         this.cropper_window = true;
       }
     },
-    //返回裁剪后的数据
+    // 返回裁剪后的数据
     cut_img(data) {
       this.cropper_img = data;
     },
-    //查看大图
+    // 查看大图
     check_fullimg() {
       this.fullimg_window = true;
     },

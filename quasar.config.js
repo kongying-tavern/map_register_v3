@@ -15,8 +15,8 @@ const dotenv = require('dotenv');
 const { configure } = require('quasar/wrappers');
 
 let env = {};
-let envPathLocal = path.resolve(__dirname, './.env.local');
-let envPath = path.resolve(__dirname, './.env');
+const envPathLocal = path.resolve(__dirname, './.env.local');
+const envPath = path.resolve(__dirname, './.env');
 
 if(fs.existsSync(envPathLocal)) {
   env = dotenv.config({ path: envPathLocal }).parsed;
@@ -24,8 +24,7 @@ if(fs.existsSync(envPathLocal)) {
   env = dotenv.config({ path: envPath }).parsed;
 }
 
-module.exports = configure(function (/** ctx */) {
-  return {
+module.exports = configure((/** ctx */) => ({
 
 
     // https://v2.quasar.dev/quasar-cli/prefetch-feature
@@ -54,8 +53,8 @@ module.exports = configure(function (/** ctx */) {
       // 'line-awesome',
       // 'roboto-font-latin-ext', // this or either 'roboto-font', NEVER both!
 
-      'roboto-font', // optional, you are not bound to it
-      'material-icons', // optional, you are not bound to it
+      'roboto-font', // Optional, you are not bound to it
+      'material-icons', // Optional, you are not bound to it
     ],
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#build
@@ -65,7 +64,7 @@ module.exports = configure(function (/** ctx */) {
         node: 'node16'
       },
 
-      vueRouterMode: 'hash', // available values: 'hash', 'history'
+      vueRouterMode: 'hash', // Available values: 'hash', 'history'
       // vueRouterBase,
       // vueDevtools,
       // vueOptionsAPI: false,
@@ -75,7 +74,7 @@ module.exports = configure(function (/** ctx */) {
       // publicPath: '/',
       // analyze: true,
       env,
-      // rawDefine: {}
+      // RawDefine: {}
       // ignorePublicFolder: true,
       // minify: false,
       // polyfillModulePreload: true,
@@ -92,8 +91,8 @@ module.exports = configure(function (/** ctx */) {
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#devServer
     devServer: {
-      // https: true
-      open: true, // opens browser window automatically
+      // Https: true
+      open: true, // Opens browser window automatically
       proxy: {
         // 将所有以/api开头的请求代理
         '/api': {
@@ -108,7 +107,7 @@ module.exports = configure(function (/** ctx */) {
     framework: {
       config: {},
 
-      // iconSet: 'material-icons', // Quasar icon set
+      // IconSet: 'material-icons', // Quasar icon set
       lang: 'zh-CN', // Quasar language pack
 
       // For special cases outside of where the auto-import strategy can have an impact
@@ -129,7 +128,7 @@ module.exports = configure(function (/** ctx */) {
     htmlVariables: {
       productName: '原神地图打点页_v3',
     },
-    // animations: 'all', // --- includes all animations
+    // Animations: 'all', // --- includes all animations
     // https://v2.quasar.dev/options/animations
     animations: [],
 
@@ -147,7 +146,7 @@ module.exports = configure(function (/** ctx */) {
 
     // https://v2.quasar.dev/quasar-cli/developing-ssr/configuring-ssr
     ssr: {
-      // ssrPwaHtmlFilename: 'offline.html', // do NOT use index.html as name!
+      // SsrPwaHtmlFilename: 'offline.html', // do NOT use index.html as name!
       // will mess up SSR
 
       // extendSSRWebserverConf (esbuildConf) {},
@@ -155,25 +154,25 @@ module.exports = configure(function (/** ctx */) {
 
       pwa: false,
 
-      // manualStoreHydration: true,
+      // ManualStoreHydration: true,
       // manualPostHydrationTrigger: true,
 
       prodPort: 3000, // The default port that the production server should use
       // (gets superseded if process.env.PORT is specified at runtime)
 
       middlewares: [
-        'render' // keep this as last one
+        'render' // Keep this as last one
       ]
     },
 
     // https://v2.quasar.dev/quasar-cli/developing-pwa/configuring-pwa
     pwa: {
-      workboxMode: 'generateSW', // or 'injectManifest'
+      workboxMode: 'generateSW', // Or 'injectManifest'
       injectPwaMetaTags: true,
       swFilename: 'sw.js',
       manifestFilename: 'manifest.json',
       useCredentialsForManifestTag: false,
-      // extendGenerateSWOptions (cfg) {}
+      // ExtendGenerateSWOptions (cfg) {}
       // extendInjectManifestOptions (cfg) {},
       // extendManifestJson (json) {}
       // extendPWACustomSWConf (esbuildConf) {}
@@ -181,7 +180,7 @@ module.exports = configure(function (/** ctx */) {
 
     // Full list of options: https://v2.quasar.dev/quasar-cli/developing-cordova-apps/configuring-cordova
     cordova: {
-      // noIosLegacyBuildFlag: true, // uncomment only if you know what you are doing
+      // NoIosLegacyBuildFlag: true, // uncomment only if you know what you are doing
     },
 
     // Full list of options: https://v2.quasar.dev/quasar-cli/developing-capacitor-apps/configuring-capacitor
@@ -191,7 +190,7 @@ module.exports = configure(function (/** ctx */) {
 
     // Full list of options: https://v2.quasar.dev/quasar-cli/developing-electron-apps/configuring-electron
     electron: {
-      // extendElectronMainConf (esbuildConf)
+      // ExtendElectronMainConf (esbuildConf)
       // extendElectronPreloadConf (esbuildConf)
 
       inspectPort: 5858,
@@ -224,8 +223,7 @@ module.exports = configure(function (/** ctx */) {
         'my-content-script'
       ],
 
-      // extendBexScriptsConf (esbuildConf) {}
+      // ExtendBexScriptsConf (esbuildConf) {}
       // extendBexManifestJson (json) {}
     }
-  }
-});
+  }));

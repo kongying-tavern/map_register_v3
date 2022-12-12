@@ -1,7 +1,7 @@
 import axios from 'axios'
-//登录获取token
+// 登录获取token
 function get_token(username, password, grant_type = 'password') {
-    var data = new FormData();
+    const data = new FormData();
     data.append('grant_type', grant_type);
     data.append('username', username);
     data.append('password', password);
@@ -12,9 +12,10 @@ function get_token(username, password, grant_type = 'password') {
             'Content-Type': 'multipart/form-data',
             'Authorization': 'Basic Y2xpZW50OnNlY3JldA=='
         },
-        data: data
+        data
     })
 }
+
 function refresh_token() {
     return axios({
         method: 'post',
@@ -29,6 +30,7 @@ function refresh_token() {
         }
     });
 }
+
 export {
     get_token, refresh_token
 

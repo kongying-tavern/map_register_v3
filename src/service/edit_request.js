@@ -2,18 +2,19 @@ import axios from 'axios'
 import { get_user_token } from './user_info'
 import { create_notify } from "../api/common"
 const baseurl = `${process.env.VITE_API_BASE}/api`
-// const baseurl = 'http://localhost:9000/api/api'
+// Const baseurl = 'http://localhost:9000/api/api'
 async function default_request(method, url, data = undefined) {
     try {
         return await axios({
-            method: method,
-            url: url,
+            method,
+            url,
             data: JSON.stringify(data),
-            transformRequest: (data) => {
+            transformRequest(data) {
                 if (get_user_token() == null) {
                     alert('登录认证已失效，请重新登录！')
                     window.location.reload();
                 }
+
                 return data
             },
             headers: {
@@ -32,25 +33,31 @@ async function default_request(method, url, data = undefined) {
         }
     }
 }
-//上传点位
+
+// 上传点位
 function upload_layer(data) {
     return default_request('put', `${baseurl}/marker/single`, data)
 }
-//修改点位
+
+// 修改点位
 function edit_layer(data) {
     return default_request('post', `${baseurl}/marker/single`, data)
 }
-//删除点位
+
+// 删除点位
 function delete_layer(data) {
     return default_request('delete', `${baseurl}/marker/${data}`)
 }
-//上传点位额外信息
+
+// 上传点位额外信息
 function upload_layer_extralabel(data) {
     return default_request('put', `${baseurl}/marker/extra`, data)
 }
+
 function edit_layer_extralabel(data) {
     return default_request('post', `${baseurl}/marker/extra`, data)
 }
+
 export {
     upload_layer,
     edit_layer,

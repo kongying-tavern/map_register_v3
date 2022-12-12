@@ -390,6 +390,7 @@ export default {
       if(this.item_all_allowable && _.isNil(this.selected_item)) {
         return '全部';
       }
+
       return (this.selected_item || {}).name || '';
     },
     selected_item_icontag() {
@@ -402,13 +403,13 @@ export default {
       return _.keyBy([...this.type_list, ...this.type_child_list], 'typeId');
     },
     item_patched_list() {
-      let item_list = _.flatMap(this.item_full_list, item => {
-        let area_id = _.toNumber(item.areaId) || 0;
-        let type_id_list = item.typeIdList || [];
+      const item_list = _.flatMap(this.item_full_list, item => {
+        const area_id = _.toNumber(item.areaId) || 0;
+        const type_id_list = item.typeIdList || [];
 
         return _.map(type_id_list, type_id => {
-          let item_key = `${area_id}-${type_id}`;
-          let row = _.cloneDeep(item);
+          const item_key = `${area_id}-${type_id}`;
+          const row = _.cloneDeep(item);
 
           row.itemKey = item_key;
           row.typeId = type_id;
@@ -421,15 +422,15 @@ export default {
       return _.groupBy(this.item_patched_list, 'itemKey');
     },
     item_list() {
-      let item_key = `${this.selected_area_id}-${this.selected_type_id}`;
-      let item_list = _.get(this.item_map, item_key, []);
+      const item_key = `${this.selected_area_id}-${this.selected_type_id}`;
+      const item_list = _.get(this.item_map, item_key, []);
       return item_list;
     },
     item_ids() {
       return _.map(this.item_list || [], v => v.itemId);
     },
     item_all_allowable() {
-      let pid = (this.selected_type || {}).parentId
+      const pid = (this.selected_type || {}).parentId
       return pid && pid !== -1;
     },
     item_icontags() {
@@ -443,19 +444,19 @@ export default {
     }
   },
   methods: {
-    //清除子分类和物品选择
+    // 清除子分类和物品选择
     clearlist() {
       this.callback_list = {};
       this.layer_list = null;
       this.selected_item = null;
       this.handle_layer_list_data = [];
     },
-    //清理点位
+    // 清理点位
     clearlayers() {
       this.map.removeLayer(this.handle_layergroup);
       this.handle_layergroup.clearLayers();
     },
-    //切换地区
+    // 切换地区
     switch_area(area) {
       this.selected_type = null;
       this.clearlist();
@@ -464,7 +465,7 @@ export default {
       this.$emit("map_switch", this.selected_area);
       this.fetch_item_list();
     },
-    //如果有子分类的话，进行查询，生成子分类tabs
+    // 如果有子分类的话，进行查询，生成子分类tabs
     select_type_list(value) {
       this.clearlist();
       this.clearlayers();
@@ -482,19 +483,19 @@ export default {
       })
       .then((res) => {
         this.loading = false;
-        let data = res.data.data.record || [];
+        const data = res.data.data.record || [];
         this.item_full_list = data;
       });
     },
-    //查询点位信息
+    // 查询点位信息
     fetch_item_layers(value) {
       this.clearlayers();
       this.loading = true;
       this.selected_item = value;
 
-      let item_ids = this.item_all_allowable && this.selected_item_id <= 0 ? this.item_ids : [this.selected_item_id]
+      const item_ids = this.item_all_allowable && this.selected_item_id <= 0 ? this.item_ids : [this.selected_item_id]
 
-      let item_getter = item_ids.length > 0 ?
+      const item_getter = item_ids.length > 0 ?
         query_itemlayer_infolist({
           typeIdList: [],
           areaIdList: [],
@@ -502,19 +503,19 @@ export default {
           getBeta: 0,
         }) : Promise.resolve({data: {data: []}})
 
-      //查询点位图标和点位数据
+      // 查询点位图标和点位数据
       this.$axios
         .all([
           item_getter,
         ])
         .then(
           this.$axios.spread((layerlist) => {
-            let layer_records = layerlist.data.data || [];
-            let layer_record_list = _.map(layer_records, v => {
-              let itemIdsData = _.map(v.itemList || [], 'itemId');
-              let itemIdsSel = item_ids || []
-              let itemIdIcon = _.first(_.intersection(itemIdsData, itemIdsSel));
-              let iconUrl = this.get_icon_url_by_id(itemIdIcon);
+            const layer_records = layerlist.data.data || [];
+            const layer_record_list = _.map(layer_records, v => {
+              const itemIdsData = _.map(v.itemList || [], 'itemId');
+              const itemIdsSel = item_ids || []
+              const itemIdIcon = _.first(_.intersection(itemIdsData, itemIdsSel));
+              const iconUrl = this.get_icon_url_by_id(itemIdIcon);
               v.icon = {url: iconUrl}
               return v;
             });
@@ -525,25 +526,27 @@ export default {
           })
         );
     },
-    //查询点位并渲染至地图上
+    // 查询点位并渲染至地图上
     paint_layers(value) {
-      for (let i of value) {
+      for (const i of value) {
         this.handle_layergroup.addLayer(
           layer_register(i, _.isNil(i.icon.url) ? "" : i.icon.url)
         );
       }
+
       this.layer_eventbind();
       this.map.addLayer(this.handle_layergroup);
     },
-    //为点位绑定事件
+    // 为点位绑定事件
     layer_eventbind() {
-      //为点位绑定弹窗事件和拖动事件
+      // 为点位绑定弹窗事件和拖动事件
       this.handle_layergroup.eachLayer((layer) => {
-        let layerid = layer.options.data.id;
-        let marklist = JSON.parse(localStorage.getItem("marked_layers"));
+        const layerid = layer.options.data.id;
+        const marklist = JSON.parse(localStorage.getItem("marked_layers"));
         if (marklist.findIndex((item) => item == layerid) != -1) {
           layer_mark(layer);
         }
+
         layer.bindPopup(this.$refs.window);
         layer.on({
           popupopen: (layer) => {
@@ -562,7 +565,7 @@ export default {
         });
       });
     },
-    //解绑未选中点位的拖动
+    // 解绑未选中点位的拖动
     unbinddrag(draglayer) {
       this.handle_layergroup.eachLayer((layer) => {
         if (layer.options.data.id != draglayer.target.options.data.id) {
@@ -570,13 +573,13 @@ export default {
         }
       });
     },
-    //标记点位
+    // 标记点位
     mark_layer(layer) {
-      let marklayer = this.handle_layergroup.getLayer(layer.target._leaflet_id);
+      const marklayer = this.handle_layergroup.getLayer(layer.target._leaflet_id);
       layer_mark(marklayer);
-      let layerid = layer.target.options.data.id;
-      let arr = JSON.parse(localStorage.getItem("marked_layers"));
-      let index = arr.findIndex((item) => item == layerid);
+      const layerid = layer.target.options.data.id;
+      const arr = JSON.parse(localStorage.getItem("marked_layers"));
+      const index = arr.findIndex((item) => item == layerid);
       if (index == -1) {
         arr.push(layerid);
         localStorage.setItem("marked_layers", JSON.stringify(arr));
@@ -585,12 +588,12 @@ export default {
         localStorage.setItem("marked_layers", JSON.stringify(arr));
       }
     },
-    //聚焦点位
+    // 聚焦点位
     focus_layer(data, zoom = 1) {
-      let location = data.position.split(",");
+      const location = data.position.split(",");
       this.map.flyTo(location, zoom);
-      let list = this.handle_layergroup.getLayers();
-      for (let i of list) {
+      const list = this.handle_layergroup.getLayers();
+      for (const i of list) {
         if (i.options.data.id == data.id) {
           if (i.isPopupOpen() != true) {
             i.openPopup();
@@ -598,17 +601,17 @@ export default {
         }
       }
     },
-    //刷新当前点位组
+    // 刷新当前点位组
     refresh_layers() {
       this.clearlayers();
       this.paint_layers(this.handle_layer_list_data);
     },
-    //添加模式
+    // 添加模式
     add_mode_on() {
       this.add_mode = true;
       this.loading = true;
       this.map.on("click", (event) => {
-        let marker = L.marker([event.latlng.lat, event.latlng.lng], {
+        const marker = L.marker([event.latlng.lat, event.latlng.lng], {
           icon: L.icon(create_icon_options("")),
         });
         this.handle_layergroup.addLayer(marker);
@@ -616,7 +619,7 @@ export default {
         this.edit_mode(1, undefined, `${event.latlng.lat},${event.latlng.lng}`);
       });
     },
-    //添加模式
+    // 添加模式
     add_mode_off() {
       this.add_mode = false;
       this.loading = false;
@@ -626,28 +629,28 @@ export default {
         this.new_layer_id = 0;
       }
     },
-    //编辑弹窗的模式函数
+    // 编辑弹窗的模式函数
     edit_mode(type, data, position) {
       this.handle_type = type;
       this.edit_data = {
-        type: type,
-        data: data,
+        type,
+        data,
         list: {
           area: this.selected_area,
           type: this.selected_type,
           item: this.selected_item,
           item_child: this.item_all_allowable ? this.type_child_list : [],
         },
-        position: position,
+        position,
       };
       this.layer_edit_window = true;
     },
-    //表格操作的回调函数
+    // 表格操作的回调函数
     table_callback(callback) {
       switch (callback.type) {
         case 1:
           this.add_mode_on(true);
-          // this.edit_mode(1, callback.data);
+          // This.edit_mode(1, callback.data);
           break;
         case 2:
           this.focus_layer(callback.data);
@@ -670,11 +673,11 @@ export default {
       return _.get(this.icon_map, [icontag, 'url'], 'https://assets.yuanshen.site/icons/-1.png');
     },
     get_icon_url_by_id(id = 0) {
-      let item_found = _.find(this.item_list, v => v.itemId === id);
-      let icon_tag = _.get(item_found, 'iconTag', '');
+      const item_found = _.find(this.item_list, v => v.itemId === id);
+      const icon_tag = _.get(item_found, 'iconTag', '');
       return this.get_icon_url_by_tag(icon_tag);
     },
-    //点位弹窗回调
+    // 点位弹窗回调
     pop_callback(data) {
       switch (data.type) {
         case 0:
@@ -693,13 +696,13 @@ export default {
           break;
       }
     },
-    //完成后，刷新当前点位
+    // 完成后，刷新当前点位
     refresh() {
       this.add_mode_off();
       this.layer_edit_window = false;
       this.fetch_item_layers(this.selected_item);
     },
-    //删除点位
+    // 删除点位
     delete_layer(data) {
       if (confirm("你确定要删除这个点位么，该操作不可撤销") == true) {
         delete_layer(data.id).then((res) => {
@@ -708,12 +711,12 @@ export default {
         });
       }
     },
-    //提交点位位置改动
+    // 提交点位位置改动
     upload_position() {
       let position = this.handle_layer.target._latlng;
       position = `${position.lat},${position.lng}`;
       edit_layer({
-        position: position,
+        position,
         id: this.handle_layer.target.options.data.id,
         markerCreatorId: get_user_id(),
       }).then((res) => {
@@ -725,9 +728,9 @@ export default {
     },
   },
   mounted() {
-    //注册点位组
+    // 注册点位组
     this.handle_layergroup = layergroup_register();
-    //查询地区和分类
+    // 查询地区和分类
     this.$axios
       .all([
         query_area({
@@ -753,7 +756,7 @@ export default {
         })
       )
       .then(() => {
-        let type_not_final = _.find(this.type_list, v => !v.isFinal)
+        const type_not_final = _.find(this.type_list, v => !v.isFinal)
         if(type_not_final) {
           return query_itemtype(1, {
             current: 1,
@@ -766,27 +769,29 @@ export default {
         }
       })
       ;
-    //快捷键
+    // 快捷键
     document.onkeyup = (event) => {
       switch (event.keyCode) {
-        //D键，直接拖拽
+        // D键，直接拖拽
         case 68:
           if (this.handle_layergroup.getLayers().length == 0) {
             alert("未选择物品，请先选择物品");
-            return;
+            
           } else if (this.dragmode == false) {
             this.handle_layergroup.eachLayer((layer) => {
               layer.dragging.enable();
             });
           }
+
           break;
-        //`键，新增模式
+        // `键，新增模式
         case 192:
           if (this.handle_layergroup.getLayers().length == 0) {
             alert("未选择物品，请先选择物品");
           } else if (this.add_mode == false) {
             this.add_mode_on();
           }
+
           break;
       }
     };

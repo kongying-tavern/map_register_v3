@@ -27,13 +27,13 @@ function set_user_roles(roles = []) {
 }
 
 function get_user_roles() {
-  let rolesStr = Cookies.get("_yuanshen_dadian_roles");
-  let roles = (rolesStr || "").split(",").filter(v => v);
+  const rolesStr = Cookies.get("_yuanshen_dadian_roles");
+  const roles = (rolesStr || "").split(",").filter(v => v);
   return roles;
 }
 
 function has_user_role(role = '') {
-  let roles = get_user_roles();
+  const roles = get_user_roles();
   return roles.indexOf(role) !== -1;
 }
 

@@ -60,23 +60,25 @@ export default {
   props: ["map"],
   methods: {
     get_options(index) {
-      let option = [];
-      for (let [key, value] of island_type_list[index].entries()) {
+      const option = [];
+      for (const [key, value] of island_type_list[index].entries()) {
         option.push({
           label: value,
           value: key,
         });
       }
+
       return option;
     },
     return_islandtype() {
       this.handle_group.clearLayers();
-      let islandshort = ["ww", "pp", "ss", "bd"];
-      for (let i in this.island_type_index) {
-        let img = add_map_overlay_qd(islandshort[i], this.island_type_index[i]);
+      const islandshort = ["ww", "pp", "ss", "bd"];
+      for (const i in this.island_type_index) {
+        const img = add_map_overlay_qd(islandshort[i], this.island_type_index[i]);
         this.handle_group.addLayer(img);
         this.island_map.set(islandshort[i], img);
       }
+
       this.map.addLayer(this.handle_group);
     },
   },

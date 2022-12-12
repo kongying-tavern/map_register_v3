@@ -126,10 +126,10 @@ export default {
   },
   methods: {
     init_map() {
-      //初始化地图
+      // 初始化地图
       this.map = create_map("提瓦特-base0");
     },
-    //切换地图
+    // 切换地图
     map_switch(area) {
       this.area = area;
       this.map_name = area.name;
@@ -152,6 +152,7 @@ export default {
     if (localStorage.getItem("marked_layers") == null) {
       localStorage.setItem("marked_layers", JSON.stringify([]));
     }
+
     setInterval(() => {
       refresh_token().then((res) => {
         set_user_token(res.data.access_token, res.data.expires_in);
@@ -163,7 +164,7 @@ export default {
     }, 1800000);
   },
   watch: {
-    handle_type: function (val) {
+    handle_type (val) {
       this.$store.commit("type_switch", val);
       this.map.remove();
       this.init_map();

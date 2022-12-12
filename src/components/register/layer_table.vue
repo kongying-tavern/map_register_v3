@@ -273,8 +273,8 @@ export default {
   methods: {
     callback(type, data) {
       this.$emit("callback", {
-        type: type,
-        data: data,
+        type,
+        data,
       });
     },
     clearFilter() {
@@ -283,27 +283,29 @@ export default {
     applyFilter(rows, terms, cols, getCellValue) {
       if(!this.formdata || this.formdata.length <= 0) {
         return [];
-      } else if(!terms) {
+      }
+
+ if(!terms) {
         return this.formdata;
       }
 
       let list = [];
-      let termsStr = terms || '';
+      const termsStr = terms || '';
       // ID
       if(_.startsWith(termsStr, '#')) {
-        let markerIdStr = termsStr.replace(/^#/gui, '');
+        const markerIdStr = termsStr.replace(/^#/gui, '');
         list = _.filter(this.formdata, v => v.id && v.id.toString() === markerIdStr);
       } else if(_.startsWith(termsStr, '!')) {
-        let filterStr = termsStr.replace(/^!/gui, '');
+        const filterStr = termsStr.replace(/^!/gui, '');
         list = _.filter(this.formdata, v => {
-          let markerTitle = v.markerTitle || '';
-          let markerContent = v.content || '';
+          const markerTitle = v.markerTitle || '';
+          const markerContent = v.content || '';
           return markerTitle.indexOf(filterStr) === -1 && markerContent.indexOf(filterStr) === -1;
         });
       } else {
         list = _.filter(this.formdata, v => {
-          let markerTitle = v.markerTitle || '';
-          let markerContent = v.content || '';
+          const markerTitle = v.markerTitle || '';
+          const markerContent = v.content || '';
           return markerTitle.indexOf(termsStr) !== -1 || markerContent.indexOf(termsStr) !== -1;
         });
       }

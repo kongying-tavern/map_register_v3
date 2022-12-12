@@ -70,14 +70,14 @@ export default {
   },
   computed: {
     item_config_filtered() {
-      let filter_text = (this.item_filter_text || '').trim();
+      const filter_text = (this.item_filter_text || '').trim();
       if(!filter_text) {
         return this.itemConfig;
       }
 
-      let config = _.map(this.itemConfig, v => {
-        let row = _.cloneDeep(v);
-        let item_list = _.filter(row.itemList || [], item => item && item.name && item.name.indexOf(filter_text) !== -1);
+      const config = _.map(this.itemConfig, v => {
+        const row = _.cloneDeep(v);
+        const item_list = _.filter(row.itemList || [], item => item && item.name && item.name.indexOf(filter_text) !== -1);
         row.itemList = item_list;
         return row;
       });

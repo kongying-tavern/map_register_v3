@@ -54,15 +54,15 @@ export default {
   },
   props: ["layer", "map"],
   methods: {
-    //向父组件传递事件类型
+    // 向父组件传递事件类型
     callback_handle(type) {
       this.$emit("callback", {
-        type: type,
+        type,
         layer: this.layer,
         data: this.layer_data,
       });
     },
-    //标记点位
+    // 标记点位
     mark_layer() {},
   },
   mounted() {},
@@ -84,13 +84,15 @@ export default {
             hiddenState = "未知"
             break
         }
+
         return hiddenState;
       }
-      else return "未知"
+
+      return "未知"
     },
   },
   watch: {
-    layer: function (val) {
+    layer (val) {
       console.log(val);
       this.layer_data = val.target.options.data;
     },

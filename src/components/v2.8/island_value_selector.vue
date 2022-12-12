@@ -101,22 +101,23 @@ export default {
   },
   computed: {
     island_options_state() {
-      let found_selector = _.find(this.island_options, v => v.value === this.island_data.island_name) || {}
-      let states = found_selector.children || []
+      const found_selector = _.find(this.island_options, v => v.value === this.island_data.island_name) || {}
+      const states = found_selector.children || []
       return states;
     },
     island_data_parsed() {
       if(_.isNil(this.island_data.island_name)) {
         return null;
       }
+
       return this.island_data;
     }
   },
   methods: {
     load_data() {
-      let island_data = _.get(this.extraData, '2_8_island', null) || {}
-      let island_name = _.get(island_data, 'island_name', null);
-      let island_state = _.get(island_data, 'island_state', []);
+      const island_data = _.get(this.extraData, '2_8_island', null) || {}
+      const island_name = _.get(island_data, 'island_name', null);
+      const island_state = _.get(island_data, 'island_state', []);
 
       this.island_data = {
         island_name,

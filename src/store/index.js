@@ -1,7 +1,7 @@
 import { store } from 'quasar/wrappers'
 import { createStore } from 'vuex'
 
-// import example from './module-example'
+// Import example from './module-example'
 
 /*
  * If not building with SSR mode, you can
@@ -12,7 +12,7 @@ import { createStore } from 'vuex'
  * with the Store instance.
  */
 
-export default store(function (/* { ssrContext } */) {
+export default store((/* { ssrContext } */) => {
   const Store = createStore({
     state: {
       map: null,
@@ -26,7 +26,7 @@ export default store(function (/* { ssrContext } */) {
         state.handle_type = data;
       }
     },
-    // enable strict mode (adds overhead!)
+    // Enable strict mode (adds overhead!)
     // for dev mode and --debug builds only
     strict: process.env.DEBUGGING
   })
