@@ -62,7 +62,7 @@ import {
 } from "../service/user_info";
 import { create_notify } from "../api/common";
 export default {
-  name: "logon",
+  name: "PageLogin",
   data() {
     return {
       username: "",

@@ -10,7 +10,7 @@ async function default_request(method, url, data = undefined) {
             url,
             data: JSON.stringify(data),
             transformRequest(data) {
-                if (get_user_token() == null) {
+                if (get_user_token() === null) {
                     alert('登录认证已失效，请重新登录！')
                     window.location.reload();
                 }

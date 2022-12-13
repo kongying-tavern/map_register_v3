@@ -112,7 +112,7 @@ import IslandSelector from "../components/v2.8/island_selector.vue";
 import { refresh_token } from "../service/user_log_request";
 import { set_user_token } from "../service/user_info";
 export default {
-  name: "Index",
+  name: "PageIndex",
   data() {
     return {
       map: null,
@@ -149,7 +149,7 @@ export default {
   },
   mounted() {
     this.init_map();
-    if (localStorage.getItem("marked_layers") == null) {
+    if (localStorage.getItem("marked_layers") === null) {
       localStorage.setItem("marked_layers", JSON.stringify([]));
     }
 

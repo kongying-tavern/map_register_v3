@@ -24,11 +24,11 @@
           </div>
         </template>
       </q-img>
-      <p>
+      <div style="font-size: 1rem;">
         <div>点位描述：</div>
         <div class="text_nl">{{ layer_data.content }}</div>
-      </p>
-      <p>点位显示状态：{{ layerhidden }}</p>
+      </div>
+      <p>点位显示状态：{{ layer_hidden }}</p>
     </div>
     <div class="btns row justify-between">
       <q-btn
@@ -67,8 +67,8 @@ export default {
   },
   mounted() {},
   computed: {
-    layerhidden() {
-      if (this.layer != null && this.layer_data != null) {
+    layer_hidden() {
+      if (this.layer !== null && this.layer_data !== null) {
         let hiddenState = ""
         switch(this.layer_data.hiddenFlag){
           case 0:

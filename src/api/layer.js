@@ -13,7 +13,7 @@ import "leaflet/dist/leaflet.css";
 function create_icon_options(url, type = "off") {
     let options = {
         type,
-        iconUrl: url == '' ? 'https://assets.yuanshen.site/icons/-1.png' : url,
+        iconUrl: url || 'https://assets.yuanshen.site/icons/-1.png',
         shadowUrl: `https://assets.yuanshen.site/icons/loc_02_${type}.png`,
         iconSize: [22, 22], // Size of the icon
         shadowSize: [32, 36], // Size of the shadow
@@ -21,7 +21,7 @@ function create_icon_options(url, type = "off") {
         shadowAnchor: [16, 35], // The same for the shadow
         popupAnchor: [0, -35], // Point from which the popup should open relative to the iconAnchor
     };
-    if (type == 'none') {
+    if (type === 'none') {
         options = {
             ...options,
             iconSize: [22, 22], // Size of the icon
@@ -71,7 +71,7 @@ function layergroup_register(data = [], iconurl) {
 function layer_mark(layer) {
     const {type} = layer.options.icon.options;
     let icon = ''
-    if (type == 'on') {
+    if (type === 'on') {
         icon = L.icon(create_icon_options(layer.options.icon.options.iconUrl, 'off'))
     }
     else {
@@ -88,11 +88,11 @@ function layer_mark(layer) {
 * @param {array} layer  要着色的点位
 * @returns {Object} 着色后的点位
 */
-function layer_dye(layer, type) {
-    const icon = L.icon(create_icon_options(layer.options.icon.options.iconUrl, type));
-    layer = layer.setIcon(icon);
-    return layer
-}
+// function layer_dye(layer, type) {
+//     const icon = L.icon(create_icon_options(layer.options.icon.options.iconUrl, type));
+//     layer = layer.setIcon(icon);
+//     return layer
+// }
 
 export {
     create_icon_options,

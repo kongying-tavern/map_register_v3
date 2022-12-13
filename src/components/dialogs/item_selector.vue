@@ -21,14 +21,17 @@
       </q-input>
     </div>
     <div class="flex-auto overflow-auto q-mb-sm">
-      <template v-for="itemGroup in item_config_filtered">
+      <template
+        v-for="(itemGroup, itemGroupIndex) in item_config_filtered"
+        :key="itemGroupIndex">
         <div
           v-if="itemGroup.itemList && itemGroup.itemList.length"
           class="item-group">
           <label class="title">{{itemGroup.type.name}}</label>
           <div class="row">
             <div
-              v-for="item in itemGroup.itemList"
+              v-for="(item, itemIndex) in itemGroup.itemList"
+              :key="itemIndex"
               class="col-6 item-entry cursor-pointer"
               @click="item_update(item)">
               <q-radio

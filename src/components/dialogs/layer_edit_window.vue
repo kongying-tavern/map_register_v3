@@ -40,6 +40,7 @@
               <div>
                 <div
                   v-for="(item, itemIndex) in layer_info.itemList"
+                  :key="itemIndex"
                   class="row q-gutter-x-md q-gutter-y-sm">
                   <div class="col-7 q-gutter-x-sm">
                     <q-chip v-if="item.itemId" plain>
@@ -415,7 +416,7 @@ export default {
     },
     // 上传图片加以裁剪，以及裁剪前处理
     img_upload() {
-      if (this.image_upload_file != null) {
+      if (this.image_upload_file !== null) {
         // 将图片转化为base64
         const img = this.image_upload_file;
         const fr = new FileReader();
@@ -536,13 +537,13 @@ export default {
           if (code === 200) {
             return markerId;
           }
- 
+
             if (data) {
               throw data;
             } else {
-              throw '保存失败';
+              throw new Error('保存失败');
             }
-          
+
         })
         .then(markerId => {
           if(_.isFinite(markerId) && markerId > 0 && _.isPlainObject(this.layer_extra_data) && !_.isEmpty(this.layer_extra_data)) {
@@ -552,9 +553,9 @@ export default {
               isRelated: 0
             });
           }
- 
+
             return Promise.resolve();
-          
+
         })
         .then(() => {
           create_notify('保存成功', 'positive');
@@ -625,7 +626,7 @@ export default {
       } else {
         this.layer_extra_data = {};
       }
-    } catch(e) {
+    } catch(_) {
       this.layer_extra_data = {};
     }
 

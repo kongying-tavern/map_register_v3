@@ -27,10 +27,10 @@ export default route((/* { store, ssrContext } */) => {
   })
   Router.beforeEach((to, from, next) => {
     // 鉴定token是否过期
-    if (get_user_token() == null && to.path != "/login") {
+    if (get_user_token() === null && to.path !== "/login") {
       next({ path: '/login' })
     }
-    else if (get_user_token() != null && to.path == "/login") {
+    else if (get_user_token() !== null && to.path === "/login") {
       next({ path: '/' })
     }
     else {

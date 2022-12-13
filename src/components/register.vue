@@ -28,8 +28,8 @@
           :thumb-style="scroll_area_thumb_style">
           <div class="q-gutter-md">
             <q-btn
-              v-for="i in area_list"
-              v-show="i.name.indexOf('阶段') === -1"
+              v-for="(i, idx) in area_list"
+              :key="idx"
               :color="selected_area_id === i.areaId ? 'primary': 'white'"
               :text-color="selected_area_id === i.areaId ? 'white': 'black'"
               @click="switch_area(i)">
@@ -71,7 +71,9 @@
           :bar-style="scroll_area_bar_style"
           :thumb-style="scroll_area_thumb_style">
           <div class="q-gutter-md">
-            <template v-for="i in type_list">
+            <template
+              v-for="(i, idx) in type_list"
+              :key="idx">
               <q-btn
                 v-if="i.isFinal"
                 :color="selected_type_id === i.typeId ? 'primary': 'white'"
@@ -87,7 +89,8 @@
                 dropdown-icon="change_history">
                 <q-list>
                   <q-item
-                    v-for="j in type_child_list"
+                    v-for="(j, idxChild) in type_child_list"
+                    :key="idxChild"
                     :class="[
                       j.typeId === selected_type_id ? 'bg-blue': 'bg-white',
                       j.typeId === selected_type_id ? 'text-white': 'text-black'
@@ -162,7 +165,8 @@
               </q-radio>
             </div>
             <div
-              v-for="i in item_list"
+              v-for="(i, idx) in item_list"
+              :key="idx"
               class="col-4 item-entry"
               :class="{active: selected_item_id === i.itemId}">
               <q-radio
@@ -307,7 +311,6 @@ import {
   query_itemlist,
   query_itemlayer_icon,
   query_itemlayer_infolist,
-  check_img,
 } from "../service/base_data_request";
 import { get_user_id } from "../service/user_info";
 import {
@@ -324,7 +327,7 @@ import LayerEdit from "./dialogs/layer_edit_window.vue";
 import { create_notify } from "../api/common";
 
 export default {
-  name: "Selector",
+  name: "DialogSelector",
   data() {
     return {
       scroll_area_bar_style: {
@@ -543,7 +546,7 @@ export default {
       this.handle_layergroup.eachLayer((layer) => {
         const layerid = layer.options.data.id;
         const marklist = JSON.parse(localStorage.getItem("marked_layers"));
-        if (marklist.findIndex((item) => item == layerid) != -1) {
+        if (marklist.findIndex((item) => item === layerid) !== -1) {
           layer_mark(layer);
         }
 
@@ -568,7 +571,7 @@ export default {
     // 解绑未选中点位的拖动
     unbinddrag(draglayer) {
       this.handle_layergroup.eachLayer((layer) => {
-        if (layer.options.data.id != draglayer.target.options.data.id) {
+        if (layer.options.data.id !== draglayer.target.options.data.id) {
           layer.dragging.disable();
         }
       });
@@ -579,8 +582,8 @@ export default {
       layer_mark(marklayer);
       const layerid = layer.target.options.data.id;
       const arr = JSON.parse(localStorage.getItem("marked_layers"));
-      const index = arr.findIndex((item) => item == layerid);
-      if (index == -1) {
+      const index = arr.findIndex((item) => item === layerid);
+      if (index === -1) {
         arr.push(layerid);
         localStorage.setItem("marked_layers", JSON.stringify(arr));
       } else {
@@ -594,8 +597,8 @@ export default {
       this.map.flyTo(location, zoom);
       const list = this.handle_layergroup.getLayers();
       for (const i of list) {
-        if (i.options.data.id == data.id) {
-          if (i.isPopupOpen() != true) {
+        if (i.options.data.id === data.id) {
+          if (i.isPopupOpen() !== true) {
             i.openPopup();
           }
         }
@@ -624,7 +627,7 @@ export default {
       this.add_mode = false;
       this.loading = false;
       this.map.off("click");
-      if (this.new_layer_id != 0) {
+      if (this.new_layer_id !== 0) {
         this.handle_layergroup.removeLayer(this.new_layer_id);
         this.new_layer_id = 0;
       }
@@ -704,7 +707,7 @@ export default {
     },
     // 删除点位
     delete_layer(data) {
-      if (confirm("你确定要删除这个点位么，该操作不可撤销") == true) {
+      if (confirm("你确定要删除这个点位么，该操作不可撤销") === true) {
         delete_layer(data.id).then((res) => {
           create_notify(res.data.message);
           this.refresh();
@@ -774,10 +777,10 @@ export default {
       switch (event.keyCode) {
         // D键，直接拖拽
         case 68:
-          if (this.handle_layergroup.getLayers().length == 0) {
+          if (this.handle_layergroup.getLayers().length === 0) {
             alert("未选择物品，请先选择物品");
-            
-          } else if (this.dragmode == false) {
+
+          } else if (this.dragmode === false) {
             this.handle_layergroup.eachLayer((layer) => {
               layer.dragging.enable();
             });
@@ -786,9 +789,9 @@ export default {
           break;
         // `键，新增模式
         case 192:
-          if (this.handle_layergroup.getLayers().length == 0) {
+          if (this.handle_layergroup.getLayers().length === 0) {
             alert("未选择物品，请先选择物品");
-          } else if (this.add_mode == false) {
+          } else if (this.add_mode === false) {
             this.add_mode_on();
           }
 

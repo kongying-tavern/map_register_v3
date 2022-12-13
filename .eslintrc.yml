@@ -12,5 +12,11 @@ parserOptions:
 plugins:
   - vue
   - prettier
+globals:
+  L: readonly
 rules:
-  camelcase: 'off'
+  camelcase: off
+  default-case: off
+  no-alert: off
+  guard-for-in: off
+  vue/no-side-effects-in-computed-properties: off

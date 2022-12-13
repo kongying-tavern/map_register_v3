@@ -140,7 +140,7 @@ export default {
     },
     // 上传图片加以裁剪，以及裁剪前处理
     upload_crooper_img() {
-      if (this.upload_img_file != null) {
+      if (this.upload_img_file !== null) {
         // 将图片转化为base64
         const img = this.upload_img_file;
         const fr = new FileReader();

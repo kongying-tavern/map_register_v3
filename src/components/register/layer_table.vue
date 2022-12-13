@@ -147,7 +147,7 @@
         </div>
       </template>
       <!-- 描述插槽 -->
-      <template #header-cell-content="props">
+      <template #header-cell-content>
         <q-th class="text-left">
           描述
           <q-icon
@@ -175,7 +175,7 @@
         </q-td>
       </template>
       <!-- 编辑插槽 -->
-      <template #header-cell-handle="props">
+      <template #header-cell-handle>
         <q-th class="text-left sticky-column sticky-right">操作</q-th>
       </template>
       <template #body-cell-handle="props">
@@ -242,7 +242,6 @@ export default {
       layer_columns: [
         {
           name: "id",
-          align: "center",
           label: "点位ID",
           field: "id",
           align: "left",
@@ -261,7 +260,6 @@ export default {
         },
         {
           name: "handle",
-          align: "center",
           label: "操作",
           field: "handle",
           align: "left",
@@ -280,12 +278,12 @@ export default {
     clearFilter() {
       this.filter_text = ''
     },
-    applyFilter(rows, terms, cols, getCellValue) {
+    applyFilter(rows, terms, cols, getCellValue) { // eslint-disable-line
       if(!this.formdata || this.formdata.length <= 0) {
         return [];
       }
 
- if(!terms) {
+      if(!terms) {
         return this.formdata;
       }
 
