@@ -135,12 +135,12 @@ export default {
       this.map_name = area.name;
 
       this.extra_show = false;
-      if(area.name === '金苹果群岛') {
+      if(area.code === 'A:APPLE:2_8') {
         this.extra_show = true;
       }
 
       this.map.remove();
-      this.map = create_map(area.name)
+      this.map = create_map(area.code)
     },
   },
   components: {

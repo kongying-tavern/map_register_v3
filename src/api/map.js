@@ -23,8 +23,9 @@ const map_tiles_config = {
         center: [3568, 6286],
         size: [12288, 15360]
     },
-    '金苹果群岛': {
+    'A:APPLE:2_8': {
         extension: 'png',
+        name: '金苹果群岛',
         code: 'qd28',
         settings: {
             center: [600, -2190],
@@ -33,29 +34,42 @@ const map_tiles_config = {
         center: [3568, 6286],
         size: [8192, 8192]
     },
-    '地下矿区': {
+    'A:LY:CENGYAN_UG': {
         extend: '提瓦特-base1',
+        name: '地下矿区',
         code: 'cyjy',
         settings: {
             center: [1800, -500],
             zoom: -3
         }
     },
-    '渊下宫': {
+    'A:DQ:YUANXIAGONG': {
         extend: '提瓦特-base1',
+        name: '渊下宫',
         code: 'yxg',
         settings: {
             center: [2000, 300],
             zoom: -4
         }
     },
-    '三界路飨祭': {
+    'A:DQ:SANJIE': {
         extend: '提瓦特-base1',
+        name: '三界路飨祭',
         code: 'yxg',
         settings: {
             center: [2000, 300],
             zoom: -4
         }
+    },
+    'A:XM:DESERT2': {
+        name: '千壑沙地',
+        code: 'twt34',
+        settings: {
+          center: [0, 1742],
+        },
+        center: [3568, 6286],
+        size: [16384, 15360],
+        tilesOffset: [-4864, 0]
     }
 };
 
@@ -101,8 +115,8 @@ function create_map_layer(area_idx, mapCenter, mapSize, mapTilesOffset = [0, 0],
  * @param {Array} mapSize 地图尺寸
  * @returns 地图对象
  */
-function create_map(area_name = '') {
-    let tiles_config = map_tiles_config[area_name] || map_tiles_config['提瓦特-base0'];
+function create_map(area_config_code = '') {
+    let tiles_config = map_tiles_config[area_config_code] || map_tiles_config['提瓦特-base0'];
     const tiles_extend_name = tiles_config.extend || '';
     if(tiles_extend_name) {
         tiles_config = _.defaultsDeep({}, tiles_config, map_tiles_config[tiles_extend_name] || {});
