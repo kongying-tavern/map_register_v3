@@ -23,6 +23,26 @@ const map_tiles_config = {
         center: [3568, 6286],
         size: [12288, 15360]
     },
+    '金苹果-base0': {
+        extension: 'jpg',
+        settings: {
+            center: [600, -2190],
+            zoom: -2
+        },
+        center: [3568, 6286],
+        size: [8192, 8192]
+    },
+    'A:APPLE:1_6_STG1': {
+        extend: '金苹果-base0',
+        name: '涨潮群岛',
+        code: 'qd',
+
+    },
+    'A:APPLE:1_6_STG2': {
+        extend: '金苹果-base0',
+        name: '退潮群岛',
+        code: 'qd1',
+    },
     'A:APPLE:2_8': {
         extension: 'png',
         name: '金苹果群岛',
