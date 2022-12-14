@@ -1,38 +1,7 @@
-import axios from 'axios'
-import { get_user_token } from './user_info'
-import { create_notify } from "../api/common"
+import default_request from './default_request'
 const baseurl = `${process.env.VITE_API_BASE}/api`
 // Const baseurl = 'http://localhost:9000/api/api'
-async function default_request(method, url, data = undefined) {
-    try {
-        return await axios({
-            method,
-            url,
-            data: JSON.stringify(data),
-            transformRequest(data) {
-                if (get_user_token() === null) {
-                    window.alert('登录认证已失效，请重新登录！')
-                    window.location.reload();
-                }
 
-                return data
-            },
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${get_user_token()}`
-            }
-        })
-    } catch (error) {
-        if (error.response) {
-            create_notify(`${error.response.status} ${error.response.statusText}`, 'negative')
-
-        } else if (error.request) {
-            create_notify('链接失败，请稍后重试', 'negative')
-        } else {
-            create_notify(error.message, 'negative')
-        }
-    }
-}
 
 // 上传点位
 function upload_layer(data) {

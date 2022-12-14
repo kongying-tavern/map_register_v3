@@ -530,20 +530,9 @@ export default {
 
       save_promise(this.layer_info)
         .then(res => {
-          const {code} = res.data;
           const {data} = res.data;
           const markerId = this.layer_info.id ? this.layer_info.id : data;
-
-          if (code === 200) {
-            return markerId;
-          }
-
-            if (data) {
-              throw data;
-            } else {
-              throw new Error('保存失败');
-            }
-
+          return markerId;
         })
         .then(markerId => {
           if(_.isFinite(markerId) && markerId > 0 && _.isPlainObject(this.layer_extra_data) && !_.isEmpty(this.layer_extra_data)) {
