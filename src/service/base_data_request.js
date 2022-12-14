@@ -23,7 +23,7 @@ function query_area(data) {
  * @returns 物品类型信息
  */
 function query_itemtype(self = 0, data) {
-    return default_request('post', `${baseurl}/item/get/type/${self}`, data)
+    return default_request('post', `${baseurl}/item_type/get/list/${self}`, data)
 }
 
 /**
