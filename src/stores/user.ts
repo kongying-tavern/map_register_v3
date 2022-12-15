@@ -64,6 +64,29 @@ export const useUserStore = defineStore('user-info', {
       const { access_token = '', express_time = 0 } = this.auth
       return access_token && express_time > new Date().getTime()
     },
+    /** 设置鉴权信息 */
+    setAuth(auth: API.SysToken) {
+      const userAuth: UserAuth = {
+        ...auth,
+        express_time: this.getExpressTime(auth.expires_in),
+      }
+      this.auth = userAuth
+      localUserAuth.value = userAuth
+    },
+    /** 刷新鉴权信息 */
+    async refreshAuth() {
+      if (!this.auth.refresh_token || !this.auth.express_time)
+        return
+      const restTime = new Date(this.auth.express_time).getTime() - new Date().getTime()
+      // 剩余时间小于 60 秒时才刷新
+      if (restTime > 60 * 1000)
+        return
+      const auth = await Oauth.oauth.refresh({
+        grant_type: 'refresh_token',
+        refresh_token: this.auth.refresh_token,
+      })
+      this.setAuth(auth)
+    },
     /** 登出并清理鉴权信息 */
     logout() {
       this.auth = {}
@@ -75,12 +98,7 @@ export const useUserStore = defineStore('user-info', {
     /** 登录（密码模式） */
     async login(loginForm: API.SysTokenVO) {
       const auth = await Oauth.oauth.token(loginForm)
-      const userAuth: UserAuth = {
-        ...auth,
-        express_time: this.getExpressTime(auth.expires_in),
-      }
-      this.auth = userAuth
-      localUserAuth.value = userAuth
+      this.setAuth(auth)
     },
     /** 更新用户信息 */
     async updateUserInfo() {

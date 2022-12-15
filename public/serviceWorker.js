@@ -6,6 +6,14 @@
 self.onfetch = (ev) => {
   const { url } = ev.request
 
+  clients
+    .get(ev.clientId)
+    .then((client) => {
+      client.postMessage({
+        name: 'refreshAuthIfProssible',
+      })
+    })
+
   if (!url.match(/^.+\.(png|jpeg|jpg|jxl|jp2|webp|bmp)$/)?.[1]) return
 
   // TODO 错误处理

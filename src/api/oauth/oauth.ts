@@ -23,3 +23,19 @@ export async function token(
     ...(options || {}),
   })
 }
+
+export async function refresh(header: API.SysRefreshVO) {
+  const params = new URLSearchParams()
+  for (const key in header)
+    params.append(key, header[key as keyof API.SysRefreshVO])
+  return request<API.SysToken>(`/oauth/token?${params.toString()}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8',
+    },
+    auth: {
+      username: 'client',
+      password: 'secret',
+    },
+  })
+}
