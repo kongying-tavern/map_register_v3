@@ -39,12 +39,13 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
 
   /** 创建点位实例 */
   const createMarkers = () => {
-    const mapMarkers = markerList.value.map((markerInfo, index) => {
+    const mapMarkers = markerList.value.map((markerInfo) => {
       const { position = '0,0' } = markerInfo
       const coordinates = L.latLng(position.split(',').map(Number) as [number, number])
       const marker = canvasMarker(coordinates, {
         prevLatlng: coordinates,
         img: {
+          markerId: markerInfo.id,
           url: iconUrl.value,
           size: [32, 32],
           rotate: 90,
@@ -93,8 +94,6 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
       marker.addEventListener('contextmenu', () => {
         stopPropagationSignal.value = true
       })
-
-      markerList.value[index].mapMarker = marker
 
       return marker
     })

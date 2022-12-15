@@ -42,14 +42,21 @@ const columns = ref<Partial<Column & { dataKey: string }>[]>([
 
 const { isDark } = useTheme()
 
-const flyToMarker = ({ mapMarker }: LinkedMapMarker) => {
-  if (!map?.value || !mapMarker)
+const flyToMarker = ({ id }: LinkedMapMarker) => {
+  if (!map?.value)
     return
-  const { lat, lng } = mapMarker.getLatLng()
-  map.value.flyTo([lat - 200, lng], 0, {
-    animate: false,
-  })
-  mapMarker && mapMarker.fire('click')
+  const layers = (map.value as any)._layers as Record<string, L.Marker>
+  for (const key in layers) {
+    const marker = layers[key]
+    const { markerId } = (marker as any).options?.img ?? {}
+    if (markerId === undefined || markerId !== id)
+      continue
+    const { lat, lng } = marker.getLatLng()
+    map.value.flyTo([lat - 200, lng], 0, {
+      animate: false,
+    })
+    marker.fire('click')
+  }
 }
 </script>
 
