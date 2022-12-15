@@ -78,8 +78,8 @@ export const useUserStore = defineStore('user-info', {
       if (!this.auth.refresh_token || !this.auth.express_time)
         return
       const restTime = new Date(this.auth.express_time).getTime() - new Date().getTime()
-      // 剩余时间小于 60 秒时才刷新
-      if (restTime > 60 * 1000)
+      // 剩余时间小于一定范围时才刷新
+      if (restTime > import.meta.env.VITE_TOKEN_REFRESH_REST_TIME * 1000)
         return
       const auth = await Oauth.oauth.refresh({
         grant_type: 'refresh_token',
