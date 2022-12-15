@@ -32,7 +32,8 @@ export const useContextMenu = (options: ContextMenuHookOptions) => {
       .config({
         title: `新增点位：(${ceil(lat, 2)}, ${ceil(lng, 2)})`,
         top: '5vh',
-        width: '400px',
+        width: 'fit-content',
+        class: 'transition-all',
       })
       .props(props)
       .open(MarkerEditForm)
