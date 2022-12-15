@@ -1,13 +1,15 @@
 <script lang="ts" setup>
 import type { Column } from 'element-plus'
-import { ElMessage } from 'element-plus'
-import { Delete } from '@element-plus/icons-vue'
-import { markerListInjection } from '../shared'
-import { PgUnit, usePagination } from '@/hooks'
+import { Position } from '@element-plus/icons-vue'
+import { mapInjection, markerListInjection } from '../shared'
+import type { LinkedMapMarker } from '../hooks'
+import { PgUnit, usePagination, useTheme } from '@/hooks'
 
 defineProps<{
   loading?: boolean
 }>()
+
+const map = inject(mapInjection)
 
 const markerList = inject(markerListInjection, ref([]))
 
@@ -15,7 +17,7 @@ const { pagination, layout } = usePagination({
   init: {
     current: 1,
     total: 0,
-    pageSize: 15,
+    pageSize: 10,
   },
   units: [PgUnit.TOTAL, PgUnit.PREV, PgUnit.PAGER, PgUnit.NEXT],
 })
@@ -38,8 +40,16 @@ const columns = ref<Partial<Column & { dataKey: string }>[]>([
   { title: '说明', dataKey: 'content' },
 ])
 
-const debugText = () => {
-  ElMessage.warning('操作栏开发中')
+const { isDark } = useTheme()
+
+const flyToMarker = ({ mapMarker }: LinkedMapMarker) => {
+  if (!map?.value || !mapMarker)
+    return
+  const { lat, lng } = mapMarker.getLatLng()
+  map.value.flyTo([lat - 200, lng], 0, {
+    animate: false,
+  })
+  mapMarker && mapMarker.fire('click')
 }
 </script>
 
@@ -68,12 +78,15 @@ const debugText = () => {
       </el-table-column>
 
       <el-table-column label="操作" :width="60">
-        <el-button type="danger" size="small" :icon="Delete" @click="debugText" />
+        <template #default="{ row }">
+          <el-button color="#AA9172" :dark="isDark" size="small" :icon="Position" @click="flyToMarker(row)" />
+        </template>
       </el-table-column>
     </el-table>
 
     <el-pagination
       v-model:current-page="pagination.current"
+      v-model:page-size="pagination.pageSize"
       :layout="layout"
       :total="markerList.length"
       :pager-count="5"

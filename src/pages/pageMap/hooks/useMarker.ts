@@ -16,11 +16,15 @@ export interface MarkerHookOptions extends FetchHookOptions<API.RListMarkerVo> {
   params?: () => API.MarkerSearchVo
 }
 
+export interface LinkedMapMarker extends API.MarkerVo {
+  mapMarker?: L.CircleMarker<any>
+}
+
 export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOptions) => {
   const { immediate = false, stopPropagationSignal, watchParams = true, selectedItem, loading = ref(false), params } = options
 
   /** 点位列表 */
-  const markerList = ref<API.MarkerVo[]>([])
+  const markerList = ref<LinkedMapMarker[]>([])
   /** 请求参数 */
   const fetchParams = computed(() => params?.())
   /** 点位图层缓存 */
@@ -35,7 +39,7 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
 
   /** 创建点位实例 */
   const createMarkers = () => {
-    const mapMarkers = markerList.value.map((markerInfo) => {
+    const mapMarkers = markerList.value.map((markerInfo, index) => {
       const { position = '0,0' } = markerInfo
       const coordinates = L.latLng(position.split(',').map(Number) as [number, number])
       const marker = canvasMarker(coordinates, {
@@ -89,6 +93,8 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
       marker.addEventListener('contextmenu', () => {
         stopPropagationSignal.value = true
       })
+
+      markerList.value[index].mapMarker = marker
 
       return marker
     })

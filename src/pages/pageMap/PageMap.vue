@@ -2,7 +2,7 @@
 import 'leaflet/dist/leaflet.css'
 import type { LeafletEvent } from 'leaflet'
 import { ControlPanel } from './components'
-import { areaListInjection, iconMapInjection, itemListInjection, markerListInjection } from './shared'
+import { areaListInjection, iconMapInjection, itemListInjection, mapInjection, markerListInjection } from './shared'
 import { useContextMenu, useLayer, useMap, useMarker } from './hooks'
 import type { MapNameEnum } from './configs'
 import { mapTiles } from './configs'
@@ -49,6 +49,7 @@ const { areaList, onSuccess: onAreaFetched } = useAreaList()
 /**
  * 选择地区时会自动切换地图
  * @TODO 地图焦点自动移动到对应的地区中心
+ * @注意 需要在 ../config/mapTiles 里配置地图与地区关联 id
  */
 const setMapNameByAreaId = (id?: number) => {
   if (id === undefined)
@@ -120,6 +121,7 @@ onAreaFetched(() => {
 })
 
 // ==================== 依赖注入 ====================
+provide(mapInjection, map)
 provide(areaListInjection, areaList)
 provide(itemListInjection, filteredItemList)
 provide(markerListInjection, markerList)

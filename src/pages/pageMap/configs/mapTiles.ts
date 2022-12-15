@@ -47,7 +47,7 @@ export const mapTiles: Record<MapNameEnum, MapTileConfig> = {
   },
   [MapNameEnum.TIVAT_MASTER]: {
     extend: MapNameEnum.EXTEND_0,
-    areaIds: [1, 2, 3, 5, 6, 11, 12, 13, 14, 17, 18, 19, 21],
+    areaIds: [1, 2, 3, 5, 6, 11, 12, 13, 14, 17, 18, 19, 21, 22],
     code: 'twt31',
     size: [16384, 15360],
     tilesOffset: [-4864, 0],
