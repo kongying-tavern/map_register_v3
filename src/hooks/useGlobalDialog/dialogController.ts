@@ -1,8 +1,25 @@
+import type { DialogProps } from 'element-plus'
 import type { FooterButton } from './dialogContext'
-import { buttons, closeResolver, resolveResult, visible } from './dialogContext'
+import { buttons, closeResolver, dialogProps, resolveResult, visible } from './dialogContext'
+import type { PropsOptions } from './dialogService'
 
 /** 弹窗控制器，由子组件调用 */
 export class DialogController {
+  /** 传递给 el-dialog 的属性 */
+  static config = (propsObj: Omit<Partial<DialogProps>, 'modelValue'>, options: PropsOptions = {}) => {
+    const { merge } = options
+    if (merge) {
+      dialogProps.value = {
+        ...dialogProps.value,
+        ...propsObj,
+      }
+    }
+    else {
+      dialogProps.value = propsObj
+    }
+    return this
+  }
+
   static close = <T>(payload?: T, ignoreResult = false) => {
     visible.value = false
     !ignoreResult && resolveResult(payload)
