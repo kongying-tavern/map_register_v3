@@ -37,7 +37,7 @@ const proxySelect = (ev: MouseEvent) => {
     class="item-radio-group overflow-y-auto text-xs text-slate-300 p-1"
     @click="proxySelect"
   >
-    <div class="grid grid-cols-3 gap-1 content-start">
+    <div v-if="itemList.length" class="grid grid-cols-3 gap-1 content-start">
       <div
         v-for="item in itemList"
         :key="item[itemKey ?? dataKey]"
@@ -52,6 +52,11 @@ const proxySelect = (ev: MouseEvent) => {
         </slot>
       </div>
     </div>
+    <slot v-else name="empty">
+      <div class="w-full h-full grid place-items-center">
+        无内容
+      </div>
+    </slot>
   </div>
 </template>
 
