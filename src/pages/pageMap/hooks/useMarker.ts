@@ -28,9 +28,7 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
   /** 点位准备渲染的回调函数 */
   const preMarkerCreateCb = ref<(() => void) | null>(null)
 
-  const { iconMap, onSuccess: onIconFetched } = useIconList({
-    immediate: true,
-  })
+  const { iconMap, onSuccess: onIconFetched } = useIconList()
 
   /** 当前选择的 item 对应的图片地址 */
   const iconUrl = computed(() => iconMap.value[selectedItem.value?.iconTag ?? ''])
@@ -134,5 +132,5 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
 
   watchParams && params && watch(fetchParams, updateMarkerList, { deep: true })
 
-  return { markerList, markerLayer: markerLayerCache, updateMarkerList, createMarkerWhenReady, onError, ...rest }
+  return { iconMap, markerList, markerLayer: markerLayerCache, updateMarkerList, createMarkerWhenReady, onError, ...rest }
 }

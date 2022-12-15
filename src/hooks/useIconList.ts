@@ -3,7 +3,6 @@ import type { FetchHookOptions } from '@/hooks'
 import { useFetchHook } from '@/hooks'
 
 interface IconsHookOptions extends FetchHookOptions<API.RPageListVoIconVo> {
-  debounceTime?: number
   /** 首次请求的总数 */
   preFetchCount?: number
   params?: () => API.IconSearchVo
@@ -12,7 +11,7 @@ interface IconsHookOptions extends FetchHookOptions<API.RPageListVoIconVo> {
 const iconList = ref<API.IconVo[]>([])
 
 export const useIconList = (options: IconsHookOptions = {}) => {
-  const { immediate = true, loading = ref(false), debounceTime = 1000, preFetchCount = 500, params } = options
+  const { immediate = true, loading = ref(false), preFetchCount = 500, params } = options
 
   const iconMap = computed(() => iconList.value.reduce((seed, { name, url }) => {
     if (name && url)
@@ -20,7 +19,7 @@ export const useIconList = (options: IconsHookOptions = {}) => {
     return seed
   }, {} as Record<string, string>))
 
-  const { refresh, onSuccess, ...rest } = useFetchHook({
+  const { refresh: updateIconList, onSuccess, ...rest } = useFetchHook({
     immediate,
     loading,
     onRequest: async () => {
@@ -41,8 +40,6 @@ export const useIconList = (options: IconsHookOptions = {}) => {
   onSuccess(({ data: { record = [] } = {} }) => {
     iconList.value = record
   })
-
-  const updateIconList = useDebounceFn(refresh, debounceTime)
 
   return { iconList, iconMap, updateIconList, onSuccess, ...rest }
 }

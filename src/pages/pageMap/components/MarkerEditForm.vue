@@ -4,14 +4,15 @@ import { useMarkerStage } from '../hooks'
 import { GlobalDialogController } from '@/hooks'
 import { useUserStore } from '@/stores'
 
-defineProps<{
+const props = defineProps<{
   latlng: L.LatLng
+  selectedItem?: API.ItemVo
 }>()
 
 const userStore = useUserStore()
 
 const { markerData, loading } = useMarkerStage({
-  markerTitle: '',
+  markerTitle: props.selectedItem?.name ?? '',
   content: '',
   hiddenFlag: 0,
   itemList: [],
