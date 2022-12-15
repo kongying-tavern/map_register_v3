@@ -8,7 +8,9 @@ declare namespace API {
   };
 
   type RBoolean = {
-    code?: number;
+    error?: boolean;
+    errorStatus?: number;
+    errorData?: Record<string, any>;
     message?: string;
     data?: boolean;
     time?: string;
@@ -34,7 +36,9 @@ declare namespace API {
   };
 
   type RLong = {
-    code?: number;
+    error?: boolean;
+    errorStatus?: number;
+    errorData?: Record<string, any>;
     message?: string;
     data?: number;
     time?: string;
@@ -59,7 +63,9 @@ declare namespace API {
   };
 
   type RPageListVoSysUserVo = {
-    code?: number;
+    error?: boolean;
+    errorStatus?: number;
+    errorData?: Record<string, any>;
     message?: string;
     data?: PageListVoSysUserVo;
     time?: string;
@@ -94,16 +100,90 @@ declare namespace API {
   };
 
   type RSysUserVo = {
-    code?: number;
+    error?: boolean;
+    errorStatus?: number;
+    errorData?: Record<string, any>;
     message?: string;
     data?: SysUserVo;
     time?: string;
   };
 
   type RListSysRoleVo = {
-    code?: number;
+    error?: boolean;
+    errorStatus?: number;
+    errorData?: Record<string, any>;
     message?: string;
     data?: SysRoleVo[];
+    time?: string;
+  };
+
+  type ArchiveVo = {
+    /** 存档ID */
+    id?: number;
+    /** 存档名称 */
+    name?: string;
+    /** 槽位顺序 */
+    slotIndex?: number;
+    /** 创建时间 */
+    createTime?: string;
+    /** 更新时间 */
+    updateTime?: string;
+    /** 存档 */
+    archive?: string;
+    /** 存档历史下标 */
+    historyIndex?: number;
+  };
+
+  type RArchiveVo = {
+    error?: boolean;
+    errorStatus?: number;
+    errorData?: Record<string, any>;
+    message?: string;
+    data?: ArchiveVo;
+    time?: string;
+  };
+
+  type ArchiveHistoryVo = {
+    /** 存档ID */
+    id?: number;
+    /** 存档名称 */
+    name?: string;
+    /** 槽位顺序 */
+    slotIndex?: number;
+    /** 创建时间 */
+    createTime?: string;
+    /** 更新时间 */
+    updateTime?: string;
+    /** 存档列表 */
+    archive?: string[];
+    /** 存档历史下标 */
+    historyIndex?: number;
+  };
+
+  type RArchiveHistoryVo = {
+    error?: boolean;
+    errorStatus?: number;
+    errorData?: Record<string, any>;
+    message?: string;
+    data?: ArchiveHistoryVo;
+    time?: string;
+  };
+
+  type RListArchiveVo = {
+    error?: boolean;
+    errorStatus?: number;
+    errorData?: Record<string, any>;
+    message?: string;
+    data?: ArchiveVo[];
+    time?: string;
+  };
+
+  type RListArchiveHistoryVo = {
+    error?: boolean;
+    errorStatus?: number;
+    errorData?: Record<string, any>;
+    message?: string;
+    data?: ArchiveHistoryVo[];
     time?: string;
   };
 }

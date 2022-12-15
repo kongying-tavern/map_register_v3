@@ -1,12 +1,5 @@
 
 declare namespace API {
-  type RBoolean = {
-    code?: number;
-    message?: string;
-    data?: boolean;
-    time?: string;
-  };
-
   type TagTypeVo = {
     /** 乐观锁：修改次数 */
     version?: number;
@@ -21,9 +14,20 @@ declare namespace API {
   };
 
   type RLong = {
-    code?: number;
+    error?: boolean;
+    errorStatus?: number;
+    errorData?: Record<string, any>;
     message?: string;
     data?: number;
+    time?: string;
+  };
+
+  type RBoolean = {
+    error?: boolean;
+    errorStatus?: number;
+    errorData?: Record<string, any>;
+    message?: string;
+    data?: boolean;
     time?: string;
   };
 
@@ -34,33 +38,6 @@ declare namespace API {
     count?: number;
     /** 图标标签 */
     iconTag?: string;
-  };
-
-  type MarkerSingleVo = {
-    /** 乐观锁：修改次数 */
-    version?: number;
-    /** 点位ID */
-    id?: number;
-    /** 点位名称 */
-    markerTitle?: string;
-    /** 点位坐标 */
-    position?: string;
-    /** 点位物品列表 */
-    itemList?: MarkerItemLinkVo[];
-    /** 点位说明 */
-    content?: string;
-    /** 点位图片 */
-    picture?: string;
-    /** 点位初始标记者 */
-    markerCreatorId?: number;
-    /** 点位图片上传者 */
-    pictureCreatorId?: number;
-    /** 点位视频 */
-    videoPath?: string;
-    /** 刷新时间 */
-    refreshTime?: number;
-    /** 隐藏标志 */
-    hiddenFlag?: number;
   };
 
   type MarkerSinglePunctuateVo = {
@@ -121,6 +98,33 @@ declare namespace API {
     methodType?: number;
   };
 
+  type MarkerSingleVo = {
+    /** 乐观锁：修改次数 */
+    version?: number;
+    /** 点位ID */
+    id?: number;
+    /** 点位名称 */
+    markerTitle?: string;
+    /** 点位坐标 */
+    position?: string;
+    /** 点位物品列表 */
+    itemList?: MarkerItemLinkVo[];
+    /** 点位说明 */
+    content?: string;
+    /** 点位图片 */
+    picture?: string;
+    /** 点位初始标记者 */
+    markerCreatorId?: number;
+    /** 点位图片上传者 */
+    pictureCreatorId?: number;
+    /** 点位视频 */
+    videoPath?: string;
+    /** 刷新时间 */
+    refreshTime?: number;
+    /** 隐藏标志 */
+    hiddenFlag?: number;
+  };
+
   type MarkerExtraVo = {
     /** 乐观锁：修改次数 */
     version?: number;
@@ -132,6 +136,36 @@ declare namespace API {
     parentId?: number;
     /** 关联其他点位Flag */
     isRelated?: number;
+  };
+
+  type ItemTypeVo = {
+    /** 乐观锁：修改次数 */
+    version?: number;
+    /** 类型ID */
+    typeId?: number;
+    /** 图标标签 */
+    iconTag?: string;
+    /** 类型名 */
+    name?: string;
+    /** 类型补充说明 */
+    content?: string;
+    /** 父级类型ID（无父级则为-1） */
+    parentId?: number;
+    /** 是否为末端类型 */
+    isFinal?: boolean;
+    /** 隐藏标志 */
+    hiddenFlag?: number;
+    /** 物品类型排序 */
+    sortIndex?: number;
+  };
+
+  type RListLong = {
+    error?: boolean;
+    errorStatus?: number;
+    errorData?: Record<string, any>;
+    message?: string;
+    data?: number[];
+    time?: string;
   };
 
   type ItemVo = {
@@ -161,34 +195,6 @@ declare namespace API {
     defaultCount?: number;
     /** 查询条件下物品总数 */
     count?: number;
-  };
-
-  type ItemTypeVo = {
-    /** 乐观锁：修改次数 */
-    version?: number;
-    /** 类型ID */
-    typeId?: number;
-    /** 图标标签 */
-    iconTag?: string;
-    /** 类型名 */
-    name?: string;
-    /** 类型补充说明 */
-    content?: string;
-    /** 父级类型ID（无父级则为-1） */
-    parentId?: number;
-    /** 是否为末端类型 */
-    isFinal?: boolean;
-    /** 隐藏标志 */
-    hiddenFlag?: number;
-    /** 物品类型排序 */
-    sortIndex?: number;
-  };
-
-  type RListLong = {
-    code?: number;
-    message?: string;
-    data?: number[];
-    time?: string;
   };
 
   type IconTypeVo = {
@@ -242,19 +248,6 @@ declare namespace API {
     sortIndex?: number;
   };
 
-  type TagVo = {
-    /** 乐观锁：修改次数 */
-    version?: number;
-    /** 标签名 */
-    tag?: string;
-    /** 标签类型ID列表 */
-    typeIdList?: number[];
-    /** 图标ID */
-    iconId?: number;
-    /** 图标url */
-    url?: string;
-  };
-
   type PageAndTypeListVo = {
     /** 当前页，从0开始 */
     current?: number;
@@ -271,14 +264,31 @@ declare namespace API {
   };
 
   type RPageListVoTagTypeVo = {
-    code?: number;
+    error?: boolean;
+    errorStatus?: number;
+    errorData?: Record<string, any>;
     message?: string;
     data?: PageListVoTagTypeVo;
     time?: string;
   };
 
+  type TagVo = {
+    /** 乐观锁：修改次数 */
+    version?: number;
+    /** 标签名 */
+    tag?: string;
+    /** 标签类型ID列表 */
+    typeIdList?: number[];
+    /** 图标ID */
+    iconId?: number;
+    /** 图标url */
+    url?: string;
+  };
+
   type RTagVo = {
-    code?: number;
+    error?: boolean;
+    errorStatus?: number;
+    errorData?: Record<string, any>;
     message?: string;
     data?: TagVo;
     time?: string;
@@ -302,7 +312,9 @@ declare namespace API {
   };
 
   type RPageListVoTagVo = {
-    code?: number;
+    error?: boolean;
+    errorStatus?: number;
+    errorData?: Record<string, any>;
     message?: string;
     data?: PageListVoTagVo;
     time?: string;
@@ -365,7 +377,9 @@ declare namespace API {
   };
 
   type RPageListVoMarkerPunctuateVo = {
-    code?: number;
+    error?: boolean;
+    errorStatus?: number;
+    errorData?: Record<string, any>;
     message?: string;
     data?: PageListVoMarkerPunctuateVo;
     time?: string;
@@ -385,7 +399,9 @@ declare namespace API {
   };
 
   type RListMarkerPunctuateVo = {
-    code?: number;
+    error?: boolean;
+    errorStatus?: number;
+    errorData?: Record<string, any>;
     message?: string;
     data?: MarkerPunctuateVo[];
     time?: string;
@@ -398,7 +414,9 @@ declare namespace API {
   };
 
   type RPageListVoMarkerSinglePunctuateVo = {
-    code?: number;
+    error?: boolean;
+    errorStatus?: number;
+    errorData?: Record<string, any>;
     message?: string;
     data?: PageListVoMarkerSinglePunctuateVo;
     time?: string;
@@ -411,7 +429,9 @@ declare namespace API {
   };
 
   type RPageListVoMarkerExtraPunctuateVo = {
-    code?: number;
+    error?: boolean;
+    errorStatus?: number;
+    errorData?: Record<string, any>;
     message?: string;
     data?: PageListVoMarkerExtraPunctuateVo;
     time?: string;
@@ -457,7 +477,9 @@ declare namespace API {
   };
 
   type RPageListVoMarkerVo = {
-    code?: number;
+    error?: boolean;
+    errorStatus?: number;
+    errorData?: Record<string, any>;
     message?: string;
     data?: PageListVoMarkerVo;
     time?: string;
@@ -477,9 +499,20 @@ declare namespace API {
   };
 
   type RListMarkerVo = {
-    code?: number;
+    error?: boolean;
+    errorStatus?: number;
+    errorData?: Record<string, any>;
     message?: string;
     data?: MarkerVo[];
+    time?: string;
+  };
+
+  type RListItemTypeVo = {
+    error?: boolean;
+    errorStatus?: number;
+    errorData?: Record<string, any>;
+    message?: string;
+    data?: ItemTypeVo[];
     time?: string;
   };
 
@@ -490,9 +523,26 @@ declare namespace API {
   };
 
   type RPageListVoItemTypeVo = {
-    code?: number;
+    error?: boolean;
+    errorStatus?: number;
+    errorData?: Record<string, any>;
     message?: string;
     data?: PageListVoItemTypeVo;
+    time?: string;
+  };
+
+  type PageListVoItemVo = {
+    record?: ItemVo[];
+    total?: number;
+    size?: number;
+  };
+
+  type RPageListVoItemVo = {
+    error?: boolean;
+    errorStatus?: number;
+    errorData?: Record<string, any>;
+    message?: string;
+    data?: PageListVoItemVo;
     time?: string;
   };
 
@@ -507,21 +557,10 @@ declare namespace API {
     size?: number;
   };
 
-  type PageListVoItemVo = {
-    record?: ItemVo[];
-    total?: number;
-    size?: number;
-  };
-
-  type RPageListVoItemVo = {
-    code?: number;
-    message?: string;
-    data?: PageListVoItemVo;
-    time?: string;
-  };
-
   type RListItemVo = {
-    code?: number;
+    error?: boolean;
+    errorStatus?: number;
+    errorData?: Record<string, any>;
     message?: string;
     data?: ItemVo[];
     time?: string;
@@ -534,14 +573,18 @@ declare namespace API {
   };
 
   type RPageListVoIconTypeVo = {
-    code?: number;
+    error?: boolean;
+    errorStatus?: number;
+    errorData?: Record<string, any>;
     message?: string;
     data?: PageListVoIconTypeVo;
     time?: string;
   };
 
   type RIconVo = {
-    code?: number;
+    error?: boolean;
+    errorStatus?: number;
+    errorData?: Record<string, any>;
     message?: string;
     data?: IconVo;
     time?: string;
@@ -569,7 +612,9 @@ declare namespace API {
   };
 
   type RPageListVoIconVo = {
-    code?: number;
+    error?: boolean;
+    errorStatus?: number;
+    errorData?: Record<string, any>;
     message?: string;
     data?: PageListVoIconVo;
     time?: string;
@@ -610,14 +655,18 @@ declare namespace API {
   };
 
   type RPageListVoHistoryVo = {
-    code?: number;
+    error?: boolean;
+    errorStatus?: number;
+    errorData?: Record<string, any>;
     message?: string;
     data?: PageListVoHistoryVo;
     time?: string;
   };
 
   type RAreaVo = {
-    code?: number;
+    error?: boolean;
+    errorStatus?: number;
+    errorData?: Record<string, any>;
     message?: string;
     data?: AreaVo;
     time?: string;
@@ -633,21 +682,27 @@ declare namespace API {
   };
 
   type RListAreaVo = {
-    code?: number;
+    error?: boolean;
+    errorStatus?: number;
+    errorData?: Record<string, any>;
     message?: string;
     data?: AreaVo[];
     time?: string;
   };
 
   type RString = {
-    code?: number;
+    error?: boolean;
+    errorStatus?: number;
+    errorData?: Record<string, any>;
     message?: string;
     data?: string;
     time?: string;
   };
 
   type RListString = {
-    code?: number;
+    error?: boolean;
+    errorStatus?: number;
+    errorData?: Record<string, any>;
     message?: string;
     data?: string[];
     time?: string;
