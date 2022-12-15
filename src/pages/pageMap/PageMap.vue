@@ -2,12 +2,13 @@
 import 'leaflet/dist/leaflet.css'
 import type { LeafletEvent } from 'leaflet'
 import { ControlPanel } from './components'
+import { areaListInjection, iconMapInjection, itemListInjection, markerListInjection } from './shared'
 import { useContextMenu, useLayer, useMap, useMarker } from './hooks'
 import type { MapNameEnum } from './configs'
 import { mapTiles } from './configs'
 import type { GenshinMap } from './utils'
 import { AppUserAvatar } from '@/components'
-import { useAreaList, useIconList, useItemList } from '@/hooks'
+import { useAreaList, useItemList } from '@/hooks'
 import { useMapStore } from '@/stores'
 
 // ==================== 地图相关 ====================
@@ -95,12 +96,7 @@ watch(() => [mapStore.areaId, mapStore.typeId], () => {
 })
 
 // ==================== 点位相关 ====================
-/** 图标表 */
-const { iconMap } = useIconList({
-  immediate: false,
-})
-
-const { markerList, loading: markerLoading, createMarkerWhenReady, updateMarkerList } = useMarker(map, {
+const { iconMap, markerList, loading: markerLoading, createMarkerWhenReady, updateMarkerList } = useMarker(map, {
   selectedItem,
   stopPropagationSignal,
   params: () => ({
@@ -108,7 +104,8 @@ const { markerList, loading: markerLoading, createMarkerWhenReady, updateMarkerL
   }),
 })
 
-const { show: openContextMenu } = useContextMenu({
+const { openContextMenu } = useContextMenu({
+  selectedItem,
   refreshMarkers: updateMarkerList,
 })
 onMapEvent('contextmenu', openContextMenu)
@@ -121,6 +118,12 @@ onAreaFetched(() => {
     updateMarkerList()
   }
 })
+
+// ==================== 依赖注入 ====================
+provide(areaListInjection, areaList)
+provide(itemListInjection, filteredItemList)
+provide(markerListInjection, markerList)
+provide(iconMapInjection, iconMap)
 </script>
 
 <template>
@@ -132,12 +135,8 @@ onAreaFetched(() => {
       v-model:icon-name="mapStore.iconName"
       v-model:type="mapStore.typeId"
       v-model:step="mapStore.step"
-      :area-list="areaList"
-      :marker-list="markerList"
       :marker-loading="markerLoading"
-      :item-list="filteredItemList"
       :item-loading="itemLoading"
-      :icon-map="iconMap"
       class="custom-control-panel left-2 top-2 bottom-2 grid p-2 gap-2"
     />
 

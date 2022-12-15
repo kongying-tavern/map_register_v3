@@ -1,10 +1,10 @@
 <script lang="ts" setup>
+import { iconMapInjection } from '../shared'
 import { RadioCardGroup, RadioCardItem } from '.'
 import { useTypeList } from '@/hooks'
 
 const props = defineProps<{
   modelValue?: number
-  iconMap: Record<string, string>
 }>()
 
 const emits = defineEmits<{
@@ -20,6 +20,8 @@ const internalBind = computed({
     emits('change', formatValue || undefined)
   },
 })
+
+const iconMap = inject(iconMapInjection, ref<Record<string, string>>({}))
 
 const { typeList } = useTypeList()
 

@@ -2,12 +2,14 @@
 import type { Column } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { Delete } from '@element-plus/icons-vue'
+import { markerListInjection } from '../shared'
 import { PgUnit, usePagination } from '@/hooks'
 
-const props = defineProps<{
-  markerList: API.MarkerVo[]
+defineProps<{
   loading?: boolean
 }>()
+
+const markerList = inject(markerListInjection, ref([]))
 
 const { pagination, layout } = usePagination({
   init: {
@@ -20,17 +22,17 @@ const { pagination, layout } = usePagination({
 
 const pagableList = computed(() => {
   const { current, pageSize } = pagination.value
-  return props.markerList.slice((current - 1) * pageSize, current * pageSize)
+  return markerList.value.slice((current - 1) * pageSize, current * pageSize)
 })
 
-watch(() => props.markerList, () => {
+watch(() => markerList.value, () => {
   pagination.value.current = 1
 })
 
 const containerRef = ref<HTMLElement | null>(null)
 const { width } = useElementSize(containerRef)
 
-const columns = ref<Partial<Column>[]>([
+const columns = ref<Partial<Column & { dataKey: string }>[]>([
   { title: 'ID', dataKey: 'id', width: 70 },
   { title: '名称', dataKey: 'markerTitle', width: 110 },
   { title: '说明', dataKey: 'content' },

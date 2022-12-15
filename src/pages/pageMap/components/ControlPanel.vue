@@ -7,10 +7,6 @@ const props = defineProps<{
   type?: number
   step?: string | number
   iconName?: string
-  areaList: API.AreaVo[]
-  iconMap: Record<string, string>
-  itemList: API.ItemVo[]
-  markerList: API.MarkerVo[]
   markerLoading?: boolean
   itemLoading?: boolean
 }>()
@@ -69,11 +65,9 @@ const minus = ref(false)
         :title="minus ? '展开' : '折叠'"
         @click="(minus = !minus)"
       >
-        <el-icon v-if="!minus">
-          <Minus />
-        </el-icon>
-        <el-icon v-else>
-          <FullScreen />
+        <el-icon>
+          <Minus v-if="!minus" />
+          <FullScreen v-else />
         </el-icon>
       </div>
       <FilterStep
@@ -86,39 +80,22 @@ const minus = ref(false)
     <div class="content">
       <Transition :name="trName" mode="out-in" appear>
         <KeepAlive>
-          <FilterArea
-            v-if="(bindStep === 0)"
-            v-model="bindAreaId"
-            :area-list="areaList"
-            :icon-map="iconMap"
-            class="h-full"
-            @change="next"
-          />
-          <FilterType
-            v-else-if="(bindStep === 1)"
-            v-model="bindType"
-            :icon-map="iconMap"
-            class="h-full"
-            @change="next"
-          />
+          <FilterArea v-if="(bindStep === 0)" v-model="bindAreaId" class="h-full" @change="next" />
+
+          <FilterType v-else-if="(bindStep === 1)" v-model="bindType" class="h-full" @change="next" />
+
           <div v-else-if="!bindType" class="h-full grid place-items-center text-white">
             <el-button link type="primary" @click="(bindStep -= 1)">
               请选择分类
             </el-button>
           </div>
-          <FilterItem
-            v-else-if="(bindStep === 2)"
-            v-model="bindItemName"
-            :item-list="itemList"
-            :icon-map="iconMap"
-            :loading="itemLoading"
-            class="h-full"
-          />
+
+          <FilterItem v-else-if="(bindStep === 2)" v-model="bindItemName" :loading="itemLoading" class="h-full" />
         </KeepAlive>
       </Transition>
     </div>
 
-    <MarkersTable :marker-list="markerList" :loading="markerLoading" class="content" />
+    <MarkersTable :loading="markerLoading" class="content" />
   </div>
 </template>
 
