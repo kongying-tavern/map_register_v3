@@ -17,9 +17,7 @@ defineProps<{
       :src="src"
       :alt="title"
       :title="title"
-      lazy
       fit="contain"
-      decoding="async"
       referrerpolicy="no-referrer"
       class="w-4/5 h-4/5 bg-transparent"
       style="--el-fill-color-light: transparent"
