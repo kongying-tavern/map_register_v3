@@ -20,6 +20,14 @@ export interface LinkedMapMarker extends API.MarkerVo {
   mapMarker?: L.CircleMarker<any>
 }
 
+const popper = L.DomUtil.create('div', 'w-full h-full')
+const popperOptions: L.PopupOptions = {
+  closeButton: false,
+  minWidth: 223,
+  maxWidth: 223,
+  offset: [0, 0],
+}
+
 export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOptions) => {
   const { immediate = false, stopPropagationSignal, watchParams = true, selectedItem, loading = ref(false), params } = options
 
@@ -39,7 +47,7 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
 
   /** 创建点位实例 */
   const createMarkers = () => {
-    const mapMarkers = markerList.value.map((markerInfo) => {
+    const mapper = (markerInfo: API.MarkerVo) => {
       const { position = '0,0' } = markerInfo
       const coordinates = L.latLng(position.split(',').map(Number) as [number, number])
       const marker = canvasMarker(coordinates, {
@@ -54,20 +62,12 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
         },
       })
 
-      const popper = L.DomUtil.create('div', 'w-full h-full')
-      const popperOptions: L.PopupOptions = {
-        closeButton: false,
-        minWidth: 223,
-        maxWidth: 223,
-        offset: [0, 0],
-      }
-      render(h(PopupContent, { markerInfo, latlng: coordinates }), popper)
-
       const markerOptions = marker.options as GenshinLayerOptions
 
       marker.addEventListener('click', () => {
         markerOptions.img.popperOpen = true
         marker.bindPopup(popper, popperOptions).openPopup(coordinates)
+        render(h(PopupContent, { markerInfo, latlng: coordinates }), popper)
         marker.redraw()
       })
       marker.addEventListener('popupclose', () => {
@@ -96,7 +96,8 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
       })
 
       return marker
-    })
+    }
+    const mapMarkers = markerList.value.map(mapper)
 
     markerLayerCache.value && map.value?.removeLayer(markerLayerCache.value as L.Layer)
     markerLayerCache.value = L.layerGroup(mapMarkers)
