@@ -305,7 +305,7 @@ import {
   upload_layer,
   edit_layer,
 } from "../../service/edit_request";
-import { get_user_id, has_user_role } from "../../service/user_info";
+import { get_user_id, is_neigui } from "../../service/user_info";
 import ImgCut from "./vue-cropper.vue";
 import IslandSelector from "../v2.8/island_value_selector.vue";
 import ItemSelector from './item_selector.vue';
@@ -344,9 +344,7 @@ export default {
     };
   },
   computed: {
-    is_neigui() {
-      return has_user_role('MAP_NEIGUI');
-    },
+    is_neigui,
     type_list() {
       const type_list = _.chain(this.basicTypes)
         .values()

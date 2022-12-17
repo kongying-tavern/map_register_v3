@@ -37,6 +37,10 @@ function has_user_role(role = '') {
   return roles.indexOf(role) !== -1;
 }
 
+function is_neigui() {
+  return has_user_role('MAP_NEIGUI');
+}
+
 export {
   set_user_token,
   get_user_token,
@@ -45,4 +49,5 @@ export {
   set_user_roles,
   get_user_roles,
   has_user_role,
+  is_neigui
 }

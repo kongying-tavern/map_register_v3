@@ -2,6 +2,7 @@
 import _ from 'lodash'
 import * as L from 'leaflet'
 import "leaflet/dist/leaflet.css";
+import { is_neigui } from 'src/service/user_info';
 
 // 初始化地图中心和地图尺寸
 /**
@@ -80,9 +81,11 @@ const map_tiles_config = {
             center: [2000, 300],
             zoom: -4
         }
-    },
-    'A:XM:DESERT2': {
-        name: '千壑沙地',
+    }
+};
+
+const map_tiles_neigui_config = {
+    '提瓦特-base0': {
         code: 'twt34',
         settings: {
           center: [0, 1742],
@@ -136,10 +139,11 @@ function create_map_layer(area_idx, mapCenter, mapSize, mapTilesOffset = [0, 0],
  * @returns 地图对象
  */
 function create_map(area_config_code = '') {
-    let tiles_config = map_tiles_config[area_config_code] || map_tiles_config['提瓦特-base0'];
+    const map_load_config = is_neigui() ? _.defaults({}, map_tiles_neigui_config, map_tiles_config) : map_tiles_config;
+    let tiles_config = map_load_config[area_config_code] || map_load_config['提瓦特-base0'];
     const tiles_extend_name = tiles_config.extend || '';
     if(tiles_extend_name) {
-        tiles_config = _.defaultsDeep({}, tiles_config, map_tiles_config[tiles_extend_name] || {});
+        tiles_config = _.defaultsDeep({}, tiles_config, map_load_config[tiles_extend_name] || {});
     }
 
     const area_code = tiles_config.code;
