@@ -72,26 +72,21 @@ export const useContextMenu = (options: ContextMenuHookOptions) => {
     const content = h(ContextMenu, {
       latlng: ev.latlng,
       hasPunctauteRights: userStore.hasPunctauteRights,
-      onCommand: (command: string) => {
-        (ev.target as GenshinMap).closePopup(menu) // 可选: 触发命令前关闭已经打开的右键菜单
-        onCommand(command)
-      },
+      onCommand,
     })
 
-    /** 绑定右键菜单的组件、事件，并在地图指定位置打开右键菜单 */
+    // 由于组件是虚拟 DOM，在渲染前是没有宽高的，所以这里的父元素必须预先指定尺寸
+    const div = L.DomUtil.create('div')
+    div.style.width = '172px'
+    div.style.height = '172px'
+    render(content, div)
+
     menu
-      .setContent(() => {
-        const div = L.DomUtil.create('div')
-        // 由于组件是虚拟 DOM，在渲染前是没有宽高的，所以这里的父元素必须预先指定尺寸
-        div.style.width = '172px'
-        div.style.height = '172px'
-        render(content, div)
-        return div
-      })
+      .setContent(div)
       .setLatLng(ev.latlng)
       .openOn(ev.target)
 
-    closeCB.value = () => (ev.target as GenshinMap).closePopup(menu)
+    closeCB.value = () => (ev.target as GenshinMap).closePopup()
 
     return menu
   }

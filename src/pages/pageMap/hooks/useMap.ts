@@ -37,12 +37,13 @@ export const useMap = (ele: Ref<HTMLElement | null>) => {
     if (!ele.value)
       return
     const newMap = new GenshinMap(ele.value, {
-      center: [0, 0],
-      zoom: -4,
+      center: [-5948, 2176],
+      zoom: -3,
       maxZoom: 2,
       minZoom: -4,
       tap: false,
-      zoomAnimation: false,
+      zoomAnimation: true,
+      fadeAnimation: true,
       attributionControl: false,
       zoomControl: false,
       preferCanvas: true,

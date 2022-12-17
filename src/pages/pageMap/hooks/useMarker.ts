@@ -54,25 +54,22 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
         },
       })
 
-      const popper = L.DomUtil.create('div', 'w-full h-full')
-      const popperOptions: L.PopupOptions = {
-        closeButton: false,
-        minWidth: 223,
-        maxWidth: 223,
-        offset: [0, 0],
-      }
-      render(h(PopupContent, { markerInfo, latlng: coordinates }), popper)
-
       const markerOptions = marker.options as GenshinLayerOptions
 
       marker.addEventListener('click', () => {
+        if (!map.value)
+          return
         markerOptions.img.popperOpen = true
-        marker.bindPopup(popper, popperOptions).openPopup(coordinates)
-        marker.redraw()
-      })
-      marker.addEventListener('popupclose', () => {
-        markerOptions.img.popperOpen = false
-        marker.unbindPopup()
+        const popperDOM = L.DomUtil.create('div', 'w-full h-full')
+        render(h(PopupContent, { markerInfo, latlng: coordinates }), popperDOM)
+        L.popup({ closeButton: false, minWidth: 223, maxWidth: 223, offset: [0, 0] })
+          .setContent(popperDOM)
+          .setLatLng(coordinates)
+          .openOn(map.value)
+        map.value.addOneTimeEventListener('popupclose', () => {
+          markerOptions.img.popperOpen = false
+          marker.redraw()
+        })
         marker.redraw()
       })
       marker.addEventListener('mousedown', () => {
