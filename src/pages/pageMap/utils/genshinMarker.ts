@@ -52,7 +52,7 @@ L.Canvas.include({
     doDraw(ctx, () => {
       ctx.beginPath()
       // 绘制图标阴影
-      ctx.shadowBlur = 10
+      ctx.shadowBlur = 3
       ctx.shadowColor = 'rgb(50, 57, 71)'
       ctx.shadowOffsetX = 0
       ctx.shadowOffsetY = 0
