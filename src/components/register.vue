@@ -226,7 +226,16 @@
           :thumb-style="scroll_area_thumb_style"
         >
           <div class="row">
-            <div v-if="item_all_allowable" class="col-4 item-entry">
+            <div
+              v-if="item_all_allowable"
+              class="col-4 cursor-pointer item-entry"
+              @click="
+                () => {
+                  selected_item = null;
+                  fetch_item_layers(null);
+                }
+              "
+            >
               <q-radio
                 v-model="selected_item"
                 :val="null"
@@ -241,8 +250,14 @@
             <div
               v-for="(i, idx) in item_list"
               :key="idx"
-              class="col-4 item-entry"
+              class="col-4 cursor-pointer item-entry"
               :class="{ active: selected_item_id === i.itemId }"
+              @click="
+                () => {
+                  selected_item = i;
+                  fetch_item_layers(i);
+                }
+              "
             >
               <q-radio
                 v-model="selected_item"
