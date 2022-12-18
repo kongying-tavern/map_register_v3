@@ -19,16 +19,15 @@
       <template #top-left>
         <div class="q-table__title">
           点位
-          <div
-            class="inline-block"
-            style="margin-left: 20px;">
+          <div class="inline-block" style="margin-left: 20px">
             <q-input
               v-model="filter_text"
               dense
               outlined
               rounded
               debounce="300"
-              color="primary">
+              color="primary"
+            >
               <template #prepend>
                 <q-icon name="search" />
               </template>
@@ -36,14 +35,10 @@
                 <q-icon
                   class="cursor-pointer"
                   name="close"
-                  @click="clearFilter" />
-                <q-icon
-                  class="cursor-pointer"
-                  name="info"
-                  tag="div">
-                  <q-tooltip
-                    anchor="bottom middle"
-                    self="top middle">
+                  @click="clearFilter"
+                />
+                <q-icon class="cursor-pointer" name="info" tag="div">
+                  <q-tooltip anchor="bottom middle" self="top middle">
                     <q-markup-table
                       dark
                       dense
@@ -119,7 +114,8 @@
             <q-tooltip
               v-if="propitem === null"
               anchor="bottom middle"
-              self="top middle">
+              self="top middle"
+            >
               未选择具体物品，无法操作
             </q-tooltip>
             <q-btn
@@ -151,14 +147,17 @@
         <q-th class="text-left">
           描述
           <q-icon
-            style="padding-left: 10px;"
+            style="padding-left: 10px"
             class="cursor-pointer text-blue-7"
             :name="table_content_full_icon"
             size="sm"
-            @click="() => { table_content_full = !table_content_full; }">
-            <q-tooltip
-              anchor="bottom right"
-              self="bottom left">
+            @click="
+              () => {
+                table_content_full = !table_content_full;
+              }
+            "
+          >
+            <q-tooltip anchor="bottom right" self="bottom left">
               显示/隐藏完整描述
             </q-tooltip>
           </q-icon>
@@ -168,7 +167,9 @@
         <q-td class="text-left">
           <div :class="table_content_full_class">
             {{ props.row.content }}
-            <q-tooltip v-if="!table_content_full && props.row.content.length > 10">
+            <q-tooltip
+              v-if="!table_content_full && props.row.content.length > 10"
+            >
               <div class="tooltip_text text_nl">{{ props.row.content }}</div>
             </q-tooltip>
           </div>
@@ -186,12 +187,9 @@
             dense
             round
             glossy
-            @click="callback(2, props.row)">
-            <q-tooltip
-              anchor="top middle"
-              self="top middle">
-              定位
-            </q-tooltip>
+            @click="callback(2, props.row)"
+          >
+            <q-tooltip anchor="top middle" self="top middle"> 定位 </q-tooltip>
           </q-btn>
           <q-btn
             icon="edit"
@@ -199,12 +197,9 @@
             dense
             round
             glossy
-            @click="callback(3, props.row)">
-            <q-tooltip
-              anchor="top middle"
-              self="top middle">
-              编辑
-            </q-tooltip>
+            @click="callback(3, props.row)"
+          >
+            <q-tooltip anchor="top middle" self="top middle"> 编辑 </q-tooltip>
           </q-btn>
           <q-btn
             icon="delete"
@@ -212,12 +207,9 @@
             dense
             round
             glossy
-            @click="callback(4, props.row)">
-            <q-tooltip
-              anchor="top middle"
-              self="top middle">
-              删除
-            </q-tooltip>
+            @click="callback(4, props.row)"
+          >
+            <q-tooltip anchor="top middle" self="top middle"> 删除 </q-tooltip>
           </q-btn>
         </q-td>
       </template>
@@ -226,14 +218,14 @@
 </template>
 
 <script>
-import _ from 'lodash';
+import _ from "lodash";
 
 export default {
   name: "LayerTable",
   props: ["propdata", "propitem"],
   data() {
     return {
-      filter_text: '',
+      filter_text: "",
       table_content_full: false,
 
       icon_data: {},
@@ -276,40 +268,49 @@ export default {
       });
     },
     clearFilter() {
-      this.filter_text = ''
+      this.filter_text = "";
     },
     applyFilter(rows, terms, cols, getCellValue) { // eslint-disable-line
-      if(!this.formdata || this.formdata.length <= 0) {
+      if (!this.formdata || this.formdata.length <= 0) {
         return [];
       }
 
-      if(!terms) {
+      if (!terms) {
         return this.formdata;
       }
 
       let list = [];
-      const termsStr = terms || '';
+      const termsStr = terms || "";
       // ID
-      if(_.startsWith(termsStr, '#')) {
-        const markerIdStr = termsStr.replace(/^#/gui, '');
-        list = _.filter(this.formdata, v => v.id && v.id.toString() === markerIdStr);
-      } else if(_.startsWith(termsStr, '!')) {
-        const filterStr = termsStr.replace(/^!/gui, '');
-        list = _.filter(this.formdata, v => {
-          const markerTitle = v.markerTitle || '';
-          const markerContent = v.content || '';
-          return markerTitle.indexOf(filterStr) === -1 && markerContent.indexOf(filterStr) === -1;
+      if (_.startsWith(termsStr, "#")) {
+        const markerIdStr = termsStr.replace(/^#/giu, "");
+        list = _.filter(
+          this.formdata,
+          (v) => v.id && v.id.toString() === markerIdStr
+        );
+      } else if (_.startsWith(termsStr, "!")) {
+        const filterStr = termsStr.replace(/^!/giu, "");
+        list = _.filter(this.formdata, (v) => {
+          const markerTitle = v.markerTitle || "";
+          const markerContent = v.content || "";
+          return (
+            markerTitle.indexOf(filterStr) === -1 &&
+            markerContent.indexOf(filterStr) === -1
+          );
         });
       } else {
-        list = _.filter(this.formdata, v => {
-          const markerTitle = v.markerTitle || '';
-          const markerContent = v.content || '';
-          return markerTitle.indexOf(termsStr) !== -1 || markerContent.indexOf(termsStr) !== -1;
+        list = _.filter(this.formdata, (v) => {
+          const markerTitle = v.markerTitle || "";
+          const markerContent = v.content || "";
+          return (
+            markerTitle.indexOf(termsStr) !== -1 ||
+            markerContent.indexOf(termsStr) !== -1
+          );
         });
       }
 
       return list;
-    }
+    },
   },
   computed: {
     formdata() {
@@ -317,11 +318,13 @@ export default {
       return this.layer_data;
     },
     table_content_full_class() {
-      return this.table_content_full ? 'text_nl long_text text-wrap' : 'short_text ellipsis';
+      return this.table_content_full
+        ? "text_nl long_text text-wrap"
+        : "short_text ellipsis";
     },
     table_content_full_icon() {
-      return this.table_content_full ? 'blur_on' : 'blur_off';
-    }
+      return this.table_content_full ? "blur_on" : "blur_off";
+    },
   },
 };
 </script>

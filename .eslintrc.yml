@@ -20,3 +20,4 @@ rules:
   no-alert: off
   guard-for-in: off
   vue/no-side-effects-in-computed-properties: off
+  prettier/prettier: error

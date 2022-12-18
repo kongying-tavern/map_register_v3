@@ -74,7 +74,10 @@ export default {
       this.handle_group.clearLayers();
       const islandshort = ["ww", "pp", "ss", "bd"];
       for (const i in this.island_type_index) {
-        const img = add_map_overlay_qd(islandshort[i], this.island_type_index[i]);
+        const img = add_map_overlay_qd(
+          islandshort[i],
+          this.island_type_index[i]
+        );
         this.handle_group.addLayer(img);
         this.island_map.set(islandshort[i], img);
       }
@@ -88,5 +91,4 @@ export default {
 };
 </script>
 
-<style>
-</style>
+<style></style>

@@ -8,7 +8,8 @@
         rounded
         placeholder="请输入关键词"
         debounce="300"
-        color="primary">
+        color="primary"
+      >
         <template #prepend>
           <q-icon name="search" />
         </template>
@@ -16,24 +17,28 @@
           <q-icon
             class="cursor-pointer"
             name="close"
-            @click="item_filter_clear" />
+            @click="item_filter_clear"
+          />
         </template>
       </q-input>
     </div>
     <div class="flex-auto overflow-auto q-mb-sm">
       <template
         v-for="(itemGroup, itemGroupIndex) in item_config_filtered"
-        :key="itemGroupIndex">
+        :key="itemGroupIndex"
+      >
         <div
           v-if="itemGroup.itemList && itemGroup.itemList.length"
-          class="item-group">
-          <label class="title">{{itemGroup.type.name}}</label>
+          class="item-group"
+        >
+          <label class="title">{{ itemGroup.type.name }}</label>
           <div class="row">
             <div
               v-for="(item, itemIndex) in itemGroup.itemList"
               :key="itemIndex"
               class="col-6 item-entry cursor-pointer"
-              @click="item_update(item)">
+              @click="item_update(item)"
+            >
               <q-radio
                 v-model="item_selected"
                 :val="item"
@@ -43,7 +48,8 @@
                 :keep-color="false"
                 :checked-icon="`img:${item.iconUrl}`"
                 :unchecked-icon="`img:${item.iconUrl}`"
-                @update:model-value="item_update">
+                @update:model-value="item_update"
+              >
               </q-radio>
             </div>
           </div>
@@ -54,7 +60,7 @@
 </template>
 
 <script>
-import _ from 'lodash';
+import _ from "lodash";
 
 export default {
   props: {
@@ -62,42 +68,45 @@ export default {
       type: Array,
       default() {
         return [];
-      }
-    }
+      },
+    },
   },
   data() {
     return {
-      item_filter_text: '',
-      item_selected: {}
-    }
+      item_filter_text: "",
+      item_selected: {},
+    };
   },
   computed: {
     item_config_filtered() {
-      const filter_text = (this.item_filter_text || '').trim();
-      if(!filter_text) {
+      const filter_text = (this.item_filter_text || "").trim();
+      if (!filter_text) {
         return this.itemConfig;
       }
 
-      const config = _.map(this.itemConfig, v => {
+      const config = _.map(this.itemConfig, (v) => {
         const row = _.cloneDeep(v);
-        const item_list = _.filter(row.itemList || [], item => item && item.name && item.name.indexOf(filter_text) !== -1);
+        const item_list = _.filter(
+          row.itemList || [],
+          (item) => item && item.name && item.name.indexOf(filter_text) !== -1
+        );
         row.itemList = item_list;
         return row;
       });
 
       return config;
-    }
+    },
   },
   methods: {
     item_update(item = {}) {
       this.item_selected = item;
-      this.$emit('update', this.item_selected)
+      this.$emit("update", this.item_selected);
     },
     item_filter_clear() {
-      this.item_filter_text = '';
-    }
-  }
-}
+      this.item_filter_text = "";
+    },
+  },
+};
 </script>
 
 <style lang="scss" scoped>
@@ -127,7 +136,7 @@ export default {
 .item-entry {
   line-height: 2.5rem;
   border-radius: 1.2rem;
-  padding-left: .4rem;
+  padding-left: 0.4rem;
 
   &:hover {
     background-color: #e3eefa;

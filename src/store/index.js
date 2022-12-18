@@ -1,5 +1,5 @@
-import { store } from 'quasar/wrappers'
-import { createStore } from 'vuex'
+import { store } from "quasar/wrappers";
+import { createStore } from "vuex";
 
 // Import example from './module-example'
 
@@ -16,7 +16,7 @@ export default store((/* { ssrContext } */) => {
   const Store = createStore({
     state: {
       map: null,
-      handle_type: '打点'
+      handle_type: "打点",
     },
     mutations: {
       record_map(state, data) {
@@ -24,12 +24,12 @@ export default store((/* { ssrContext } */) => {
       },
       type_switch(state, data) {
         state.handle_type = data;
-      }
+      },
     },
     // Enable strict mode (adds overhead!)
     // for dev mode and --debug builds only
-    strict: process.env.DEBUGGING
-  })
+    strict: process.env.DEBUGGING,
+  });
 
-  return Store
-})
+  return Store;
+});

@@ -13,7 +13,8 @@
           outlined
           dense
           size="sm"
-          @update:model-value="island_select_main" />
+          @update:model-value="island_select_main"
+        />
         <q-select
           class="col"
           v-if="island_options_state.length > 0"
@@ -27,22 +28,23 @@
           size="sm"
           multiple
           use-chips
-          @update:model-value="island_update" />
+          @update:model-value="island_update"
+        />
       </div>
     </q-item-section>
   </q-item>
 </template>
 
 <script>
-import _ from 'lodash';
-import funcExtraData from '../../extra-data'
+import _ from "lodash";
+import funcExtraData from "../../extra-data";
 
 export default {
-  name: 'Plugin28IslandEdit',
+  name: "Plugin28IslandEdit",
   setup() {
     return {
-      ...funcExtraData
-    }
+      ...funcExtraData,
+    };
   },
   data() {
     return {
@@ -54,7 +56,7 @@ export default {
           children: [
             { label: "初始", value: "0" },
             { label: "沉入水下", value: "1" },
-          ]
+          ],
         },
         {
           label: "破破岛",
@@ -63,15 +65,15 @@ export default {
             { label: "初始", value: "0" },
             { label: "低", value: "2" },
             { label: "高", value: "1" },
-          ]
+          ],
         },
         {
           label: "双双岛",
           value: "ss",
           children: [
             { label: "初始", value: "0" },
-            { label: "最终形态", value: "3" }
-          ]
+            { label: "最终形态", value: "3" },
+          ],
         },
         {
           label: "布丁岛",
@@ -93,53 +95,58 @@ export default {
             { label: "浮光-优悠", value: "2-1" },
             { label: "浮光-浮光", value: "2-2" },
             { label: "浮光-磐固", value: "2-3" },
-          ]
+          ],
         },
-      ]
+      ],
     };
   },
   computed: {
     island_data() {
-      const island_data = _.get(this.layer_extra_data, '2_8_island', null) || {}
-      const island_name = _.get(island_data, 'island_name', null);
-      const island_state = _.get(island_data, 'island_state', []);
+      const island_data =
+        _.get(this.layer_extra_data, "2_8_island", null) || {};
+      const island_name = _.get(island_data, "island_name", null);
+      const island_state = _.get(island_data, "island_state", []);
 
       return {
         island_name,
-        island_state
+        island_state,
       };
     },
     island_options_state() {
-      const found_selector = _.find(this.island_options, v => v.value === this.island_data.island_name) || {}
-      const states = found_selector.children || []
+      const found_selector =
+        _.find(
+          this.island_options,
+          (v) => v.value === this.island_data.island_name
+        ) || {};
+      const states = found_selector.children || [];
       return states;
     },
     island_data_parsed() {
-      if(_.isNil(this.island_data.island_name)) {
+      if (_.isNil(this.island_data.island_name)) {
         return null;
       }
 
       return this.island_data;
-    }
+    },
   },
   methods: {
     load_data() {
-      const island_data = _.get(this.extraData, '2_8_island', null) || {}
-      const island_name = _.get(island_data, 'island_name', null);
-      const island_state = _.get(island_data, 'island_state', []);
+      const island_data = _.get(this.extraData, "2_8_island", null) || {};
+      const island_name = _.get(island_data, "island_name", null);
+      const island_state = _.get(island_data, "island_state", []);
 
       this.island_data = {
         island_name,
-        island_state
-      }
+        island_state,
+      };
     },
     island_select_main() {
       this.island_data.island_state = [];
       this.island_update();
     },
     island_update() {
-      this.put_marker_extra_data_entry('2_8_island', this.island_data_parsed);
-    }
-  }
-}
+      this.put_marker_extra_data_entry("2_8_island", this.island_data_parsed);
+    },
+  },
+};
 </script>

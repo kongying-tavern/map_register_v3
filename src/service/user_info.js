@@ -1,16 +1,14 @@
-import { Cookies } from "quasar"
+import { Cookies } from "quasar";
 
-function set_user_token(token = '', expires = '') {
+function set_user_token(token = "", expires = "") {
   Cookies.set("_yuanshen_dadian_token", token, {
     expires: `${expires}s`,
   });
 }
 
 function get_user_token() {
-  return Cookies.get('_yuanshen_dadian_token')
+  return Cookies.get("_yuanshen_dadian_token");
 }
-
-
 
 function set_user_id(user_id = 0) {
   localStorage.setItem("_yuanshen_dadian_user", user_id);
@@ -22,23 +20,23 @@ function get_user_id() {
 
 function set_user_roles(roles = []) {
   Cookies.set("_yuanshen_dadian_roles", roles.join(","), {
-    expires: '28800s',
+    expires: "28800s",
   });
 }
 
 function get_user_roles() {
   const rolesStr = Cookies.get("_yuanshen_dadian_roles");
-  const roles = (rolesStr || "").split(",").filter(v => v);
+  const roles = (rolesStr || "").split(",").filter((v) => v);
   return roles;
 }
 
-function has_user_role(role = '') {
+function has_user_role(role = "") {
   const roles = get_user_roles();
   return roles.indexOf(role) !== -1;
 }
 
 function is_neigui() {
-  return has_user_role('MAP_NEIGUI');
+  return has_user_role("MAP_NEIGUI");
 }
 
 export {
@@ -49,5 +47,5 @@ export {
   set_user_roles,
   get_user_roles,
   has_user_role,
-  is_neigui
-}
+  is_neigui,
+};

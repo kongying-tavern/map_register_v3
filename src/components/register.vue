@@ -8,10 +8,11 @@
       header-nav
       flat
       bordered
-      animated>
+      animated
+    >
       <q-step
         class="marker-action-step"
-        :class="{hidden: stepper_collapsed}"
+        :class="{ hidden: stepper_collapsed }"
         :name="1"
         title="选择地区"
         :caption="`当前选择：${selected_area_name}`"
@@ -21,57 +22,59 @@
         done-icon="place"
         :done-color="stepper_collapsed ? 'blue-10' : 'primary'"
         :done="stepper_collapsed || selector_step === 1"
-        :header-nav="!stepper_collapsed">
-        <div style="display: flex;" class="absolute-full q-pa-sm">
-          <q-list
-            style="flex: 4; overflow-y: auto;"
-            dense>
-            <template
-              v-for="(i, idx) in area_list_top"
-              :key="idx">
+        :header-nav="!stepper_collapsed"
+      >
+        <div style="display: flex" class="absolute-full q-pa-sm">
+          <q-list style="flex: 4; overflow-y: auto" dense>
+            <template v-for="(i, idx) in area_list_top" :key="idx">
               <q-separator v-if="idx > 0"></q-separator>
               <q-item
                 clickable
                 :active="test_area_select(i)"
                 active-class="bg-primary text-white"
-                @click="switch_area(i)">
-                <q-item-section>{{i.name}}</q-item-section>
+                @click="switch_area(i)"
+              >
+                <q-item-section>{{ i.name }}</q-item-section>
                 <q-item-section avatar>
                   <q-avatar
                     v-if="i.hiddenFlag === 1"
                     size="md"
-                    icon="visibility_off" />
+                    icon="visibility_off"
+                  />
                   <q-avatar
                     v-else-if="i.hiddenFlag === 2"
                     size="md"
-                    icon="lens_blur" />
+                    icon="lens_blur"
+                  />
                 </q-item-section>
               </q-item>
             </template>
           </q-list>
           <q-list
             v-if="area_list_child.length > 0"
-            style="flex: 5; overflow-y: auto;"
-            dense>
-            <template
-              v-for="(i, idx) in area_list_child"
-              :key="idx">
+            style="flex: 5; overflow-y: auto"
+            dense
+          >
+            <template v-for="(i, idx) in area_list_child" :key="idx">
               <q-separator v-if="idx > 0"></q-separator>
               <q-item
                 clickable
                 :active="test_area_select(i)"
                 active-class="bg-primary text-white"
-                @click="switch_area(i)">
-                <q-item-section>{{i.name}}</q-item-section>
+                @click="switch_area(i)"
+              >
+                <q-item-section>{{ i.name }}</q-item-section>
                 <q-item-section avatar>
                   <q-avatar
                     v-if="i.hiddenFlag === 1"
                     size="md"
-                    icon="visibility_off" />
+                    icon="visibility_off"
+                  />
                   <q-avatar
                     v-else-if="i.hiddenFlag === 2"
                     size="md"
-                    icon="lens_blur" />
+                    icon="lens_blur"
+                  />
                 </q-item-section>
               </q-item>
             </template>
@@ -81,7 +84,7 @@
 
       <q-step
         class="marker-action-step"
-        :class="{hidden: stepper_collapsed}"
+        :class="{ hidden: stepper_collapsed }"
         :name="2"
         title="选择分类"
         :caption="`当前选择：${selected_type_name}`"
@@ -91,7 +94,8 @@
         done-icon="bookmarks"
         :done-color="stepper_collapsed ? 'blue-10' : 'primary'"
         :done="stepper_collapsed || selector_step === 2"
-        :header-nav="!stepper_collapsed">
+        :header-nav="!stepper_collapsed"
+      >
         <div v-if="selected_area_id <= 0">
           尚未选择地区，请
           <q-chip
@@ -101,7 +105,12 @@
             clickable
             text-color="white"
             icon="place"
-            @click="() => { selector_step = 1; }">
+            @click="
+              () => {
+                selector_step = 1;
+              }
+            "
+          >
             前去选择
           </q-chip>
         </div>
@@ -109,34 +118,48 @@
           v-else
           class="absolute-full q-pa-md"
           :bar-style="scroll_area_bar_style"
-          :thumb-style="scroll_area_thumb_style">
+          :thumb-style="scroll_area_thumb_style"
+        >
           <div class="q-gutter-md">
-            <template
-              v-for="(i, idx) in type_list"
-              :key="idx">
+            <template v-for="(i, idx) in type_list" :key="idx">
               <q-btn
                 v-if="i.isFinal"
-                :color="selected_type_id === i.typeId ? 'primary': 'white'"
-                :text-color="selected_type_id === i.typeId ? 'white': 'black'"
-                @click="select_type_list(i)">
+                :color="selected_type_id === i.typeId ? 'primary' : 'white'"
+                :text-color="selected_type_id === i.typeId ? 'white' : 'black'"
+                @click="select_type_list(i)"
+              >
                 <q-item-section>{{ i.name }}</q-item-section>
               </q-btn>
               <q-btn-dropdown
                 v-else
                 :label="i.name"
-                :color="type_child_ids.indexOf(selected_type_id) !== -1 ? 'primary': 'white'"
-                :text-color="type_child_ids.indexOf(selected_type_id) !== -1 ? 'white': 'black'"
-                dropdown-icon="change_history">
+                :color="
+                  type_child_ids.indexOf(selected_type_id) !== -1
+                    ? 'primary'
+                    : 'white'
+                "
+                :text-color="
+                  type_child_ids.indexOf(selected_type_id) !== -1
+                    ? 'white'
+                    : 'black'
+                "
+                dropdown-icon="change_history"
+              >
                 <q-list>
                   <q-item
                     v-for="(j, idxChild) in type_child_list"
                     :key="idxChild"
-                    :class="[
-                      j.typeId === selected_type_id ? 'bg-blue': 'bg-white',
-                      j.typeId === selected_type_id ? 'text-white': 'text-black'
-                    ].join(' ')"
+                    :class="
+                      [
+                        j.typeId === selected_type_id ? 'bg-blue' : 'bg-white',
+                        j.typeId === selected_type_id
+                          ? 'text-white'
+                          : 'text-black',
+                      ].join(' ')
+                    "
                     clickable
-                    @click="select_type_list(j)">
+                    @click="select_type_list(j)"
+                  >
                     <q-item-section>{{ j.name }}</q-item-section>
                   </q-item>
                 </q-list>
@@ -148,7 +171,7 @@
 
       <q-step
         class="marker-action-step"
-        :class="{hidden: stepper_collapsed}"
+        :class="{ hidden: stepper_collapsed }"
         :name="3"
         title="选择物品"
         :caption="`当前选择：${selected_item_name}`"
@@ -158,7 +181,8 @@
         done-icon="pets"
         :done-color="stepper_collapsed ? 'blue-10' : 'primary'"
         :done="stepper_collapsed || selector_step === 3"
-        :header-nav="!stepper_collapsed">
+        :header-nav="!stepper_collapsed"
+      >
         <div v-if="selected_area_id <= 0">
           尚未选择地区，请
           <q-chip
@@ -168,7 +192,12 @@
             clickable
             text-color="white"
             icon="place"
-            @click="() => { selector_step = 1; }">
+            @click="
+              () => {
+                selector_step = 1;
+              }
+            "
+          >
             前去选择
           </q-chip>
         </div>
@@ -181,7 +210,12 @@
             clickable
             text-color="white"
             icon="bookmarks"
-            @click="() => { selector_step = 2; }">
+            @click="
+              () => {
+                selector_step = 2;
+              }
+            "
+          >
             前去选择
           </q-chip>
         </div>
@@ -189,11 +223,10 @@
           v-else
           class="absolute-full q-pa-sm"
           :bar-style="scroll_area_bar_style"
-          :thumb-style="scroll_area_thumb_style">
+          :thumb-style="scroll_area_thumb_style"
+        >
           <div class="row">
-            <div
-              v-if="item_all_allowable"
-              class="col-4 item-entry">
+            <div v-if="item_all_allowable" class="col-4 item-entry">
               <q-radio
                 v-model="selected_item"
                 :val="null"
@@ -201,14 +234,16 @@
                 dense
                 checked-icon="task_alt"
                 unchecked-icon="panorama_fish_eye"
-                @update:model-value="fetch_item_layers">
+                @update:model-value="fetch_item_layers"
+              >
               </q-radio>
             </div>
             <div
               v-for="(i, idx) in item_list"
               :key="idx"
               class="col-4 item-entry"
-              :class="{active: selected_item_id === i.itemId}">
+              :class="{ active: selected_item_id === i.itemId }"
+            >
               <q-radio
                 v-model="selected_item"
                 :val="i"
@@ -218,7 +253,8 @@
                 :keep-color="false"
                 :checked-icon="`img:${get_icon_url_by_tag(i.iconTag)}`"
                 :unchecked-icon="`img:${get_icon_url_by_tag(i.iconTag)}`"
-                @update:model-value="fetch_item_layers">
+                @update:model-value="fetch_item_layers"
+              >
               </q-radio>
             </div>
           </div>
@@ -227,12 +263,10 @@
 
       <!-- 步骤下部导航部分 -->
       <template #navigation>
-        <q-stepper-navigation class="flex-none" style="padding: 10px 8px;">
+        <q-stepper-navigation class="flex-none" style="padding: 10px 8px">
           <div class="marker-action-toggle">
             <q-space v-if="stepper_collapsed"></q-space>
-            <div
-              v-else
-              class="flex-auto q-gutter-md">
+            <div v-else class="flex-auto q-gutter-md">
               <q-btn
                 v-if="selector_step > 1"
                 label="上一步"
@@ -241,7 +275,12 @@
                 size="sm"
                 rounded
                 glossy
-                @click="() => { selector_step -= 1; }">
+                @click="
+                  () => {
+                    selector_step -= 1;
+                  }
+                "
+              >
               </q-btn>
 
               <q-btn
@@ -252,14 +291,20 @@
                 size="sm"
                 rounded
                 glossy
-                @click="() => { selector_step += 1; }">
+                @click="
+                  () => {
+                    selector_step += 1;
+                  }
+                "
+              >
               </q-btn>
             </div>
             <span
               class="flex-none cursor-pointer text text-bold text-right text-grey-8"
-              @click="toggle_stepper">
+              @click="toggle_stepper"
+            >
               <q-icon :name="stepper_collapse_icon" right></q-icon>
-              {{stepper_collapse_text}}
+              {{ stepper_collapse_text }}
             </span>
           </div>
         </q-stepper-navigation>
@@ -271,7 +316,8 @@
       class="full-width flex-auto"
       :propdata="handle_layer_list_data"
       :propitem="selected_item"
-      @callback="table_callback">
+      @callback="table_callback"
+    >
     </layer-table>
 
     <!-- 地图上点位的弹窗 -->
@@ -344,7 +390,7 @@
 </template>
 
 <script>
-import _ from 'lodash'
+import _ from "lodash";
 import {
   query_area,
   query_itemtype,
@@ -371,17 +417,17 @@ export default {
   data() {
     return {
       scroll_area_bar_style: {
-        width: '10px',
-        borderRadius: '5px',
-        backgroundColor: '#dedede',
-        opacity: .3
+        width: "10px",
+        borderRadius: "5px",
+        backgroundColor: "#dedede",
+        opacity: 0.3,
       },
       scroll_area_thumb_style: {
-        width: '6px',
-        borderRadius: '3px',
-        backgroundColor: '#dadada',
-        margin: '2px',
-        opacity: 1
+        width: "6px",
+        borderRadius: "3px",
+        backgroundColor: "#dadada",
+        margin: "2px",
+        opacity: 1,
       },
 
       add_mode: false,
@@ -419,29 +465,29 @@ export default {
       return (this.selected_area || {}).areaId || 0;
     },
     selected_area_name() {
-      return (this.selected_area || {}).name || ''
+      return (this.selected_area || {}).name || "";
     },
     selected_type_id() {
       return (this.selected_type || {}).typeId || 0;
     },
     selected_type_name() {
-      return (this.selected_type || {}).name || '';
+      return (this.selected_type || {}).name || "";
     },
     selected_item_id() {
       return (this.selected_item || {}).itemId || 0;
     },
     selected_item_name() {
-      if(this.item_all_allowable && _.isNil(this.selected_item)) {
-        return '全部';
+      if (this.item_all_allowable && _.isNil(this.selected_item)) {
+        return "全部";
       }
 
-      return (this.selected_item || {}).name || '';
+      return (this.selected_item || {}).name || "";
     },
     selected_item_icontag() {
-      return (this.selected_item || {}).iconTag || '';
+      return (this.selected_item || {}).iconTag || "";
     },
     area_map() {
-      return _.groupBy(this.area_list, 'parentId');
+      return _.groupBy(this.area_list, "parentId");
     },
     area_list_top() {
       return this.area_map[-1] || [];
@@ -450,17 +496,17 @@ export default {
       return this.area_map[this.selected_top_area_id || 0] || [];
     },
     type_child_ids() {
-      return _.map(this.type_child_list || [], v => v.typeId)
+      return _.map(this.type_child_list || [], (v) => v.typeId);
     },
     type_map() {
-      return _.keyBy([...this.type_list, ...this.type_child_list], 'typeId');
+      return _.keyBy([...this.type_list, ...this.type_child_list], "typeId");
     },
     item_patched_list() {
-      const item_list = _.flatMap(this.item_full_list, item => {
+      const item_list = _.flatMap(this.item_full_list, (item) => {
         const area_id = _.toNumber(item.areaId) || 0;
         const type_id_list = item.typeIdList || [];
 
-        return _.map(type_id_list, type_id => {
+        return _.map(type_id_list, (type_id) => {
           const item_key = `${area_id}-${type_id}`;
           const row = _.cloneDeep(item);
 
@@ -472,7 +518,7 @@ export default {
       return item_list;
     },
     item_map() {
-      return _.groupBy(this.item_patched_list, 'itemKey');
+      return _.groupBy(this.item_patched_list, "itemKey");
     },
     item_list() {
       const item_key = `${this.selected_area_id}-${this.selected_type_id}`;
@@ -480,21 +526,26 @@ export default {
       return item_list;
     },
     item_ids() {
-      return _.map(this.item_list || [], v => v.itemId);
+      return _.map(this.item_list || [], (v) => v.itemId);
     },
     item_all_allowable() {
-      const pid = (this.selected_type || {}).parentId
+      const pid = (this.selected_type || {}).parentId;
       return pid && pid !== -1;
     },
     item_icontags() {
-      return _.chain(this.item_list || []).map(v => v.iconTag).filter(v => v).value();
+      return _.chain(this.item_list || [])
+        .map((v) => v.iconTag)
+        .filter((v) => v)
+        .value();
     },
     stepper_collapse_icon() {
-      return this.stepper_collapsed ? 'keyboard_double_arrow_down' : 'keyboard_double_arrow_up';
+      return this.stepper_collapsed
+        ? "keyboard_double_arrow_down"
+        : "keyboard_double_arrow_up";
     },
     stepper_collapse_text() {
-      return this.stepper_collapsed ? '展开' : '收起';
-    }
+      return this.stepper_collapsed ? "展开" : "收起";
+    },
   },
   methods: {
     // 清除子分类和物品选择
@@ -511,7 +562,7 @@ export default {
     },
     // 切换地区
     switch_area(area) {
-      if(area.isFinal) {
+      if (area.isFinal) {
         this.selected_type = null;
         this.clearlist();
         this.clearlayers();
@@ -524,13 +575,17 @@ export default {
       }
     },
     test_area_select(area) {
-      console.log(area.isFinal, area.areaId, this.selected_area_id, this.selected_top_area_id);
-      if(area.isFinal) {
+      console.log(
+        area.isFinal,
+        area.areaId,
+        this.selected_area_id,
+        this.selected_top_area_id
+      );
+      if (area.isFinal) {
         return area.areaId === this.selected_area_id;
       }
- 
-        return area.areaId === this.selected_top_area_id;
-      
+
+      return area.areaId === this.selected_top_area_id;
     },
     // 如果有子分类的话，进行查询，生成子分类tabs
     select_type_list(value) {
@@ -538,7 +593,7 @@ export default {
       this.clearlayers();
       this.selected_type = value;
       this.selector_step = 3;
-      if(this.item_all_allowable) {
+      if (this.item_all_allowable) {
         this.fetch_item_layers(null);
       }
     },
@@ -548,8 +603,7 @@ export default {
         areaIdList: [this.selected_area_id],
         current: 0,
         size: 9999,
-      })
-      .then((res) => {
+      }).then((res) => {
         this.loading = false;
         const data = res.data.data.record || [];
         this.item_full_list = data;
@@ -561,38 +615,39 @@ export default {
       this.loading = true;
       this.selected_item = value;
 
-      const item_ids = this.item_all_allowable && this.selected_item_id <= 0 ? this.item_ids : [this.selected_item_id]
+      const item_ids =
+        this.item_all_allowable && this.selected_item_id <= 0
+          ? this.item_ids
+          : [this.selected_item_id];
 
-      const item_getter = item_ids.length > 0 ?
-        query_itemlayer_infolist({
-          typeIdList: [],
-          areaIdList: [],
-          itemIdList: item_ids,
-          getBeta: 0,
-        }) : Promise.resolve({data: {data: []}})
+      const item_getter =
+        item_ids.length > 0
+          ? query_itemlayer_infolist({
+              typeIdList: [],
+              areaIdList: [],
+              itemIdList: item_ids,
+              getBeta: 0,
+            })
+          : Promise.resolve({ data: { data: [] } });
 
       // 查询点位图标和点位数据
-      this.$axios
-        .all([
-          item_getter,
-        ])
-        .then(
-          this.$axios.spread((layerlist) => {
-            const layer_records = layerlist.data.data || [];
-            const layer_record_list = _.map(layer_records, v => {
-              const itemIdsData = _.map(v.itemList || [], 'itemId');
-              const itemIdsSel = item_ids || []
-              const itemIdIcon = _.first(_.intersection(itemIdsData, itemIdsSel));
-              const iconUrl = this.get_icon_url_by_id(itemIdIcon);
-              v.icon = {url: iconUrl}
-              return v;
-            });
+      this.$axios.all([item_getter]).then(
+        this.$axios.spread((layerlist) => {
+          const layer_records = layerlist.data.data || [];
+          const layer_record_list = _.map(layer_records, (v) => {
+            const itemIdsData = _.map(v.itemList || [], "itemId");
+            const itemIdsSel = item_ids || [];
+            const itemIdIcon = _.first(_.intersection(itemIdsData, itemIdsSel));
+            const iconUrl = this.get_icon_url_by_id(itemIdIcon);
+            v.icon = { url: iconUrl };
+            return v;
+          });
 
-            this.handle_layer_list_data = layer_record_list;
-            this.paint_layers(this.handle_layer_list_data);
-            this.loading = false;
-          })
-        );
+          this.handle_layer_list_data = layer_record_list;
+          this.paint_layers(this.handle_layer_list_data);
+          this.loading = false;
+        })
+      );
     },
     // 查询点位并渲染至地图上
     paint_layers(value) {
@@ -643,7 +698,9 @@ export default {
     },
     // 标记点位
     mark_layer(layer) {
-      const marklayer = this.handle_layergroup.getLayer(layer.target._leaflet_id);
+      const marklayer = this.handle_layergroup.getLayer(
+        layer.target._leaflet_id
+      );
       layer_mark(marklayer);
       const layerid = layer.target.options.data.id;
       const arr = JSON.parse(localStorage.getItem("marked_layers"));
@@ -737,12 +794,16 @@ export default {
     toggle_stepper() {
       this.stepper_collapsed = !this.stepper_collapsed;
     },
-    get_icon_url_by_tag(icontag = '') {
-      return _.get(this.icon_map, [icontag, 'url'], 'https://assets.yuanshen.site/icons/-1.png');
+    get_icon_url_by_tag(icontag = "") {
+      return _.get(
+        this.icon_map,
+        [icontag, "url"],
+        "https://assets.yuanshen.site/icons/-1.png"
+      );
     },
     get_icon_url_by_id(id = 0) {
-      const item_found = _.find(this.item_list, v => v.itemId === id);
-      const icon_tag = _.get(item_found, 'iconTag', '');
+      const item_found = _.find(this.item_list, (v) => v.itemId === id);
+      const icon_tag = _.get(item_found, "iconTag", "");
       return this.get_icon_url_by_tag(icon_tag);
     },
     // 点位弹窗回调
@@ -811,21 +872,21 @@ export default {
           size: 999,
         }),
         query_itemlayer_icon({
-          "size": 9999,
-          "current": 0
+          size: 9999,
+          current: 0,
         }),
       ])
       .then(
         this.$axios.spread((arealist, typelist, iconlist) => {
           this.loading = false;
-          this.area_list = arealist.data.data || []
+          this.area_list = arealist.data.data || [];
           this.type_list = typelist.data.data.record;
-          this.icon_map = _.keyBy(iconlist.data.data.record || [], 'tag')
+          this.icon_map = _.keyBy(iconlist.data.data.record || [], "tag");
         })
       )
       .then(() => {
-        const type_not_final = _.find(this.type_list, v => !v.isFinal)
-        if(type_not_final) {
+        const type_not_final = _.find(this.type_list, (v) => !v.isFinal);
+        if (type_not_final) {
           return query_itemtype(1, {
             current: 1,
             typeIdList: [type_not_final.typeId],
@@ -835,8 +896,7 @@ export default {
             this.type_child_list = res.data.data.record;
           });
         }
-      })
-      ;
+      });
     // 快捷键
     document.onkeyup = (event) => {
       switch (event.keyCode) {
@@ -844,7 +904,6 @@ export default {
         case 68:
           if (this.handle_layergroup.getLayers().length === 0) {
             alert("未选择物品，请先选择物品");
-
           } else if (this.dragmode === false) {
             this.handle_layergroup.eachLayer((layer) => {
               layer.dragging.enable();
@@ -892,7 +951,7 @@ export default {
 .item-entry {
   line-height: 2.5rem;
   border-radius: 1.2rem;
-  padding-left: .4rem;
+  padding-left: 0.4rem;
   &.active,
   &:hover {
     background-color: #e3eefa;
@@ -904,7 +963,7 @@ export default {
   .marker-action-step {
     position: relative;
     min-height: 20vh;
-    max-height: 30vh
+    max-height: 30vh;
   }
   .marker-action-toggle {
     display: flex;

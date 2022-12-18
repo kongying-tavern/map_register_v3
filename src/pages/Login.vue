@@ -2,14 +2,7 @@
   <q-layout>
     <div class="logon row">
       <q-card
-        class="
-          log_card
-          absolute-center
-          row
-          justify-center
-          q-pa-md
-          col-lg-3 col-md-5 col-sm-6
-        "
+        class="log_card absolute-center row justify-center q-pa-md col-lg-3 col-md-5 col-sm-6"
       >
         <q-card-section class="row col-12">
           <div class="col-12" style="margin-top: 25px">

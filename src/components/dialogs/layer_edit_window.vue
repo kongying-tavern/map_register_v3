@@ -1,22 +1,19 @@
 <template>
   <q-card
     class="row q-pa-md"
-    style="min-width: 550px; max-width: 60vw;"
+    style="min-width: 550px; max-width: 60vw"
     :style="{
       width: item_selector_open ? '60vw' : '550px',
-    }">
+    }"
+  >
     <!-- <div><q-toggle v-model="extra_mode" label="高级模式" /></div> -->
     <div class="col">
       <div class="row justify-between">
-        <q-list bordered separator style="width: 100%;">
+        <q-list bordered separator style="width: 100%">
           <q-item v-show="layer_info.id">
             <q-item-section side top> 点位编号 </q-item-section>
             <q-item-section>
-              <q-input
-                v-model="layer_info.id"
-                outlined
-                dense
-                readonly>
+              <q-input v-model="layer_info.id" outlined dense readonly>
               </q-input>
             </q-item-section>
           </q-item>
@@ -41,35 +38,40 @@
                 <div
                   v-for="(item, itemIndex) in layer_info.itemList"
                   :key="itemIndex"
-                  class="row q-gutter-x-md q-gutter-y-sm">
+                  class="row q-gutter-x-md q-gutter-y-sm"
+                >
                   <div class="col-7 q-gutter-x-sm">
                     <q-chip v-if="item.itemId" plain>
                       <q-avatar size="sm">
-                        <img :src="item_get_image(item.itemId)">
+                        <img :src="item_get_image(item.itemId)" />
                       </q-avatar>
-                      {{item_get_name(item.itemId)}}
+                      {{ item_get_name(item.itemId) }}
                     </q-chip>
                     <q-chip v-else>请选择物品</q-chip>
 
                     <q-btn
                       size="md"
                       icon="edit"
-                      :color="item_selector_open && itemIndex === item_selector_index ? 'amber' : 'white'"
-                      :text-color="item_selector_open && itemIndex === item_selector_index ? 'white' : 'black'"
+                      :color="
+                        item_selector_open && itemIndex === item_selector_index
+                          ? 'amber'
+                          : 'white'
+                      "
+                      :text-color="
+                        item_selector_open && itemIndex === item_selector_index
+                          ? 'white'
+                          : 'black'
+                      "
                       plain
                       dense
                       round
-                      @click="item_select_toggle(itemIndex)">
+                      @click="item_select_toggle(itemIndex)"
+                    >
                     </q-btn>
                   </div>
                   <div class="col-2">
-                    <q-input
-                      v-model="item.count"
-                      plain
-                      dense>
-                      <template #prepend>
-                        &times;
-                      </template>
+                    <q-input v-model="item.count" plain dense>
+                      <template #prepend> &times; </template>
                     </q-input>
                   </div>
                   <div class="col text-right">
@@ -81,7 +83,8 @@
                       plain
                       dense
                       round
-                      @click="item_del(itemIndex)">
+                      @click="item_del(itemIndex)"
+                    >
                     </q-btn>
                   </div>
                 </div>
@@ -91,16 +94,15 @@
                 color="primary"
                 icon="add"
                 plain
-                @click="item_add">
+                @click="item_add"
+              >
                 添加关联物品
               </q-btn>
             </q-item-section>
           </q-item>
 
           <!-- 添加字段插件 -->
-          <PluginAdapter
-            :area="selArea">
-          </PluginAdapter>
+          <PluginAdapter :area="selArea"> </PluginAdapter>
 
           <q-item>
             <q-item-section side top> 点位说明 </q-item-section>
@@ -142,7 +144,8 @@
                     :showing="loading_img"
                     label="图片上传中..."
                     label-class="primary"
-                    label-style="font-size: 1.1em" />
+                    label-style="font-size: 1.1em"
+                  />
                 </q-img>
                 <div class="col-auto q-gutter-y-sm">
                   <q-btn
@@ -152,13 +155,15 @@
                     size="md"
                     plain
                     color="primary"
-                    @click="img_picker_popup">
+                    @click="img_picker_popup"
+                  >
                     <q-file
                       v-show="false"
                       v-model="image_upload_file"
                       ref="img_upload"
                       label="Standard"
-                      @update:model-value="img_upload" />
+                      @update:model-value="img_upload"
+                    />
                   </q-btn>
 
                   <q-btn
@@ -168,7 +173,8 @@
                     size="md"
                     plain
                     color="red-6"
-                    @click="img_delete">
+                    @click="img_delete"
+                  >
                   </q-btn>
 
                   <q-btn
@@ -177,13 +183,14 @@
                     icon="search"
                     size="md"
                     plain
-                    @click="img_preview">
+                    @click="img_preview"
+                  >
                   </q-btn>
                 </div>
               </div>
             </q-item-section>
           </q-item>
-            <q-item-section></q-item-section>
+          <q-item-section></q-item-section>
           <q-item>
             <q-item-section side top> &emsp;&emsp;&emsp;&emsp; </q-item-section>
             <q-item-section>
@@ -203,11 +210,14 @@
                 :false-value="1"
                 :indeterminate-value="2"
                 dense
-                :label="{
-                  0: '显示点位',
-                  1: '隐藏点位',
-                  2: '内鬼点位',
-                }[layer_info.hiddenFlag] || '点位显示/隐藏'">
+                :label="
+                  {
+                    0: '显示点位',
+                    1: '隐藏点位',
+                    2: '内鬼点位',
+                  }[layer_info.hiddenFlag] || '点位显示/隐藏'
+                "
+              >
               </q-toggle>
             </q-item-section>
           </q-item>
@@ -250,20 +260,21 @@
         />
       </div>
     </div>
-    <div
-      v-show="item_selector_open"
-      class="col relative-position q-ml-md">
+    <div v-show="item_selector_open" class="col relative-position q-ml-md">
       <item-selector
         class="absolute-full overflow-hidden"
         :item-config="item_config"
-        @update="item_update">
+        @update="item_update"
+      >
       </item-selector>
     </div>
 
     <!-- 裁剪弹窗 -->
     <q-dialog v-model="image_upload_cropper_open">
-
-      <img-cut :crooper_img="image_upload_base64" @screenshot="img_crop"></img-cut>
+      <img-cut
+        :crooper_img="image_upload_base64"
+        @screenshot="img_crop"
+      ></img-cut>
     </q-dialog>
     <!-- 查看大图弹窗 -->
     <q-dialog v-model="image_preview_open">
@@ -289,11 +300,9 @@
 </template>
 
 <script>
-import _ from 'lodash'
-import funcExtraData from '../extra-data'
-import {
-  upload_img,
-} from "../../service/base_data_request";
+import _ from "lodash";
+import funcExtraData from "../extra-data";
+import { upload_img } from "../../service/base_data_request";
 import {
   edit_layer_extralabel,
   upload_layer,
@@ -302,32 +311,40 @@ import {
 import { get_user_id, is_neigui } from "../../service/user_info";
 import ImgCut from "./vue-cropper.vue";
 import PluginAdapter from "../plugins/index.vue";
-import ItemSelector from './item_selector.vue';
+import ItemSelector from "./item_selector.vue";
 import { create_notify } from "../../api/common";
 
-const icon_no_img = 'https://assets.yuanshen.site/icons/-1.png';
+const icon_no_img = "https://assets.yuanshen.site/icons/-1.png";
 export default {
   name: "LayerEdit",
-  props: ["propdata", "basicTypes", "basicIcon", "basicItems", "selArea", "selType", "selItem"],
+  props: [
+    "propdata",
+    "basicTypes",
+    "basicIcon",
+    "basicItems",
+    "selArea",
+    "selType",
+    "selItem",
+  ],
   setup() {
     return {
-      ...funcExtraData
-    }
+      ...funcExtraData,
+    };
   },
   data() {
     return {
       layer_info_default: {
         id: null,
-        markerTitle: '',
-        content: '',
-        position: '',
+        markerTitle: "",
+        content: "",
+        position: "",
         hiddenFlag: 0,
-        picture: '',
+        picture: "",
         pictureCreatorId: 0,
-        videoPath: '',
+        videoPath: "",
         refreshTime: 0,
         markerCreatorId: get_user_id(),
-        itemList: []
+        itemList: [],
       },
       layer_info: {},
       item_selector_open: false,
@@ -345,54 +362,53 @@ export default {
     type_list() {
       const type_list = _.chain(this.basicTypes)
         .values()
-        .filter(v => v.isFinal)
-        .sortBy(v => -v.sortIndex)
+        .filter((v) => v.isFinal)
+        .sortBy((v) => -v.sortIndex)
         .value();
       return type_list;
     },
     type_map() {
-      const type_map = _.keyBy(this.type_list, 'typeId');
+      const type_map = _.keyBy(this.type_list, "typeId");
       return type_map;
     },
     item_packed_list() {
-      const packed_list = _.map(this.basicItems, v => {
-        const icon_tag = v.iconTag || '';
-        const icon_url = _.get(this.basicIcon, [icon_tag, 'url'], icon_no_img);
+      const packed_list = _.map(this.basicItems, (v) => {
+        const icon_tag = v.iconTag || "";
+        const icon_url = _.get(this.basicIcon, [icon_tag, "url"], icon_no_img);
         v.iconUrl = icon_url;
         return v;
       });
       return packed_list;
     },
     item_map() {
-      const item_map = _.keyBy(this.item_packed_list, 'itemId');
+      const item_map = _.keyBy(this.item_packed_list, "itemId");
       return item_map;
     },
     item_groups() {
       const item_groups = _.chain(this.item_packed_list)
-        .groupBy('typeId')
+        .groupBy("typeId")
         .value();
       return item_groups;
     },
     item_config() {
-      const item_groups = _
-        .chain(this.type_list)
-        .map(v => {
+      const item_groups = _.chain(this.type_list)
+        .map((v) => {
           const type = v;
           const type_id = v.typeId;
           const itemList = this.item_groups[type_id] || {};
           return {
             type,
-            itemList
-          }
+            itemList,
+          };
         })
         .value();
       return item_groups;
-    }
+    },
   },
   components: {
     ImgCut,
     ItemSelector,
-    PluginAdapter
+    PluginAdapter,
   },
   methods: {
     // 查看大图
@@ -430,9 +446,9 @@ export default {
       if (_.isString(data) && data.indexOf("base64") !== -1) {
         this.loading_img = true;
         upload_img(Date.now(), data)
-          .then(res => {
-            const img_path = _.get(res, 'data.path', '');
-            if(img_path) {
+          .then((res) => {
+            const img_path = _.get(res, "data.path", "");
+            if (img_path) {
               this.layer_info.picture = `https://yuanshen.site${img_path}`;
               this.layer_info.pictureCreatorId = get_user_id();
             }
@@ -449,8 +465,8 @@ export default {
       });
     },
     item_select_toggle(index = -1) {
-      if(this.layer_info.itemList[index]) {
-        if(this.item_selector_open) {
+      if (this.layer_info.itemList[index]) {
+        if (this.item_selector_open) {
           this.item_selector_index = -1;
           this.item_selector_open = false;
         } else {
@@ -460,9 +476,10 @@ export default {
       }
     },
     item_update(item = {}) {
-      if(this.layer_info.itemList[this.item_selector_index]) {
+      if (this.layer_info.itemList[this.item_selector_index]) {
         this.layer_info.itemList[this.item_selector_index].itemId = item.itemId;
-        this.layer_info.itemList[this.item_selector_index].count = item.defaultCount;
+        this.layer_info.itemList[this.item_selector_index].count =
+          item.defaultCount;
         this.layer_info.refreshTime = item.defaultRefreshTime || 0;
       }
 
@@ -470,21 +487,24 @@ export default {
       this.item_selector_index = -1;
     },
     item_del(index = -1) {
-      if(this.layer_info.itemList[index]) {
+      if (this.layer_info.itemList[index]) {
         this.layer_info.itemList.splice(index, 1);
       }
     },
     item_remove_empty(item_list = []) {
-      return _.filter(item_list, v => v && _.isFinite(v.itemId) && v.itemId > 0);
+      return _.filter(
+        item_list,
+        (v) => v && _.isFinite(v.itemId) && v.itemId > 0
+      );
     },
     item_get_image(itemId = 0) {
-      return _.get(this.item_map, [itemId, 'iconUrl'], icon_no_img);
+      return _.get(this.item_map, [itemId, "iconUrl"], icon_no_img);
     },
     item_get_name(itemId = 0) {
       const item_config = this.item_map[itemId] || {};
-      const item_name = item_config.name || '';
+      const item_name = item_config.name || "";
       const type_id = Number(item_config.typeId) || 0;
-      const type_name = _.get(this.type_map, [type_id, 'name'], '');
+      const type_name = _.get(this.type_map, [type_id, "name"], "");
       const item_compound_name = `${type_name} - ${item_name}`;
       return item_compound_name;
     },
@@ -492,16 +512,16 @@ export default {
     save() {
       const validate_res = this.save_validate();
       if (validate_res.errors.length > 0) {
-        create_notify(validate_res.errors.join('<br>'), 'negative', {
+        create_notify(validate_res.errors.join("<br>"), "negative", {
           timeout: 5000,
           html: true,
           actions: [
             {
-              icon: 'close',
-              color: 'white',
-              dense: true
-            }
-          ]
+              icon: "close",
+              color: "white",
+              dense: true,
+            },
+          ],
         });
         return;
       }
@@ -511,77 +531,86 @@ export default {
 
       this.loading = true;
       let save_promise = null;
-      if(this.layer_info.id) {
-        save_promise = edit_layer
+      if (this.layer_info.id) {
+        save_promise = edit_layer;
       } else {
-        save_promise = upload_layer
+        save_promise = upload_layer;
       }
 
       this.loading = true;
 
       save_promise(this.layer_info)
-        .then(res => {
-          const {data} = res.data;
+        .then((res) => {
+          const { data } = res.data;
           const markerId = this.layer_info.id ? this.layer_info.id : data;
           return markerId;
         })
-        .then(markerId => {
-          if(_.isFinite(markerId) && markerId > 0 && _.isPlainObject(this.layer_extra_data) && !_.isEmpty(this.layer_extra_data)) {
+        .then((markerId) => {
+          if (
+            _.isFinite(markerId) &&
+            markerId > 0 &&
+            _.isPlainObject(this.layer_extra_data) &&
+            !_.isEmpty(this.layer_extra_data)
+          ) {
             return edit_layer_extralabel({
               markerId,
               markerExtraContent: JSON.stringify(this.layer_extra_data),
-              isRelated: 0
+              isRelated: 0,
             });
           }
 
-            return Promise.resolve();
-
+          return Promise.resolve();
         })
         .then(() => {
-          create_notify('保存成功', 'positive');
+          create_notify("保存成功", "positive");
         })
-        .catch(err => {
-          create_notify(err, 'negative');
+        .catch((err) => {
+          create_notify(err, "negative");
         })
         .finally(() => {
           this.loading = false;
           this.$emit("refresh");
-        })
+        });
     },
     save_validate() {
       const data_pack = {
         errors: [],
-        items: this.layer_info.itemList || []
+        items: this.layer_info.itemList || [],
       };
       data_pack.items = this.item_remove_empty(data_pack.items);
 
-
       // 关联物品校验
-      if(data_pack.items.length === 0) {
-        data_pack.errors.push('请选择关联物品');
+      if (data_pack.items.length === 0) {
+        data_pack.errors.push("请选择关联物品");
         return data_pack;
       }
 
       // 重复项选择校验
-      const item_ids_uniq = _.chain(data_pack.items).map(v => v.itemId).uniq().value();
-      if(data_pack.items.length !== item_ids_uniq.length) {
-        data_pack.errors.push('物品中存在重复项，请修改');
+      const item_ids_uniq = _.chain(data_pack.items)
+        .map((v) => v.itemId)
+        .uniq()
+        .value();
+      if (data_pack.items.length !== item_ids_uniq.length) {
+        data_pack.errors.push("物品中存在重复项，请修改");
       }
 
       // 宝箱类别判断
       const item_list_entries = _.chain(item_ids_uniq)
-        .map(v => this.item_map[v])
-        .filter(v => v)
+        .map((v) => this.item_map[v])
+        .filter((v) => v)
         .value();
       const item_list_types = _.chain(item_list_entries)
-        .map(v => v.typeIdList || [])
+        .map((v) => v.typeIdList || [])
         .flattenDeep()
-        .map(v => _.get(this.type_map, [v, 'name'], ''))
-        .filter(v => v)
+        .map((v) => _.get(this.type_map, [v, "name"], ""))
+        .filter((v) => v)
         .value();
-      const item_list_companion_1 = _.filter(item_list_types, v => v === '获取方式' || v === '宝箱品质');
+      const item_list_companion_1 = _.filter(
+        item_list_types,
+        (v) => v === "获取方式" || v === "宝箱品质"
+      );
       if (item_list_companion_1.length === 1) {
-        data_pack.errors.push('获取方式和宝箱品质需同时选中');
+        data_pack.errors.push("获取方式和宝箱品质需同时选中");
       }
 
       return data_pack;
@@ -593,33 +622,37 @@ export default {
     },
   },
   mounted() {
-    let layer_info = _.defaultsDeep({}, this.propdata.data, this.layer_info_default);
-    layer_info = _.omit(layer_info, 'version');
+    let layer_info = _.defaultsDeep(
+      {},
+      this.propdata.data,
+      this.layer_info_default
+    );
+    layer_info = _.omit(layer_info, "version");
     this.layer_info = layer_info;
 
     // 获取附加数据
-    this.set_marker_extra_data(this.layer_info.markerExtraContent || '');
+    this.set_marker_extra_data(this.layer_info.markerExtraContent || "");
 
     // 如果是新数据
-    if(!this.layer_info.id) {
-      this.layer_info.position = this.propdata.position || ''
-      this.layer_info.content = _.get(this.selItem, 'defaultContent', '');
+    if (!this.layer_info.id) {
+      this.layer_info.position = this.propdata.position || "";
+      this.layer_info.content = _.get(this.selItem, "defaultContent", "");
 
       // 构造标题
-      const title_tpl = _.get(this.selType || {}, 'content', '');
+      const title_tpl = _.get(this.selType || {}, "content", "");
       const title_renderer = _.template(title_tpl, {
-        interpolate: /{{([\s\S]+?)}}/g
+        interpolate: /{{([\s\S]+?)}}/g,
       });
       const title_data = {
         area: this.selArea || {},
         type: this.selType || {},
-        item: this.selItem || {}
+        item: this.selItem || {},
       };
       const title_str = title_renderer(title_data);
       this.layer_info.markerTitle = title_str;
 
       // 构造关联类别
-      if(!this.layer_info.itemList) {
+      if (!this.layer_info.itemList) {
         this.layer_info.itemList = [];
       }
 
@@ -627,7 +660,7 @@ export default {
         const item_sel = this.selItem || {};
         const item_link = {
           itemId: item_sel.itemId,
-          count: item_sel.defaultCount
+          count: item_sel.defaultCount,
         };
         this.layer_info.itemList.push(item_link);
         this.layer_info.refreshTime = item_sel.defaultRefreshTime || 0;

@@ -1,7 +1,7 @@
-import axios from 'axios'
-import default_request from './default_request'
+import axios from "axios";
+import default_request from "./default_request";
 
-const baseurl = `${process.env.VITE_API_BASE}/api`
+const baseurl = `${process.env.VITE_API_BASE}/api`;
 // Const baseurl = 'http://localhost:9000/api/api'
 
 /**
@@ -11,7 +11,7 @@ const baseurl = `${process.env.VITE_API_BASE}/api`
  * @returns 地区信息
  */
 function query_area(data) {
-    return default_request('post', `${baseurl}/area/get/list`, data)
+  return default_request("post", `${baseurl}/area/get/list`, data);
 }
 
 /**
@@ -23,7 +23,7 @@ function query_area(data) {
  * @returns 物品类型信息
  */
 function query_itemtype(self = 0, data) {
-    return default_request('post', `${baseurl}/item_type/get/list/${self}`, data)
+  return default_request("post", `${baseurl}/item_type/get/list/${self}`, data);
 }
 
 /**
@@ -35,7 +35,7 @@ function query_itemtype(self = 0, data) {
  * @returns 物品列表信息
  */
 function query_itemlist(data) {
-    return default_request('post', `${baseurl}/item/get/list`, data)
+  return default_request("post", `${baseurl}/item/get/list`, data);
 }
 
 // /**
@@ -58,7 +58,7 @@ function query_itemlist(data) {
  * @returns 物品点位id信息
  */
 function query_itemlayer_infolist(data) {
-    return default_request('post', `${baseurl}/marker/get/list_byinfo`, data)
+  return default_request("post", `${baseurl}/marker/get/list_byinfo`, data);
 }
 
 /**
@@ -70,7 +70,7 @@ function query_itemlayer_infolist(data) {
  * @returns 物品点位id信息
  */
 function query_itemlayer_icon(data) {
-    return default_request('post', `${baseurl}/tag/get/list`, data)
+  return default_request("post", `${baseurl}/tag/get/list`, data);
 }
 
 /**
@@ -80,31 +80,31 @@ function query_itemlayer_icon(data) {
  * @returns 物品点位id信息
  */
 function upload_img(file_name, file_data) {
-    const data = new FormData();
-    data.append('file_name', file_name);
-    data.append('file_data', file_data)
-    return axios({
-        method: 'post',
-        data,
-        url: 'https://dadian.yuanshen.site/upload.php',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        }
-    })
+  const data = new FormData();
+  data.append("file_name", file_name);
+  data.append("file_data", file_data);
+  return axios({
+    method: "post",
+    data,
+    url: "https://dadian.yuanshen.site/upload.php",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+  });
 }
 
 // 检验图片是否有效
 function check_img(url) {
-    return axios.get(url);
+  return axios.get(url);
 }
 
 export {
-    query_area,
-    query_itemtype,
-    query_itemlist,
-    // Query_itemlayer_idlist,
-    query_itemlayer_infolist,
-    query_itemlayer_icon,
-    upload_img,
-    check_img
-}
+  query_area,
+  query_itemtype,
+  query_itemlist,
+  // Query_itemlayer_idlist,
+  query_itemlayer_infolist,
+  query_itemlayer_icon,
+  upload_img,
+  check_img,
+};

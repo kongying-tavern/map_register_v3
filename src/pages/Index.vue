@@ -15,12 +15,7 @@
     >
       <div class="full-width row">
         <div class="col-12" v-show="false">
-          <q-tabs
-            dense
-            inline-label
-            v-model="handle_type"
-            class="text-primary"
-          >
+          <q-tabs dense inline-label v-model="handle_type" class="text-primary">
             <q-tab name="打点" icon="mdi-map-marker-radius" label="打点" />
             <q-tab
               name="审核"
@@ -35,7 +30,8 @@
       <q-tab-panels
         v-model="handle_type"
         animated
-        class="absolute-full q-pa-md">
+        class="absolute-full q-pa-md"
+      >
         <q-tab-panel name="打点" class="relative-position">
           <layer-register
             :map="map"
@@ -121,7 +117,7 @@ export default {
       handle_type: "打点",
       extra_show: false,
 
-      map_name: '金苹果群岛'
+      map_name: "金苹果群岛",
     };
   },
   methods: {
@@ -135,12 +131,12 @@ export default {
       this.map_name = area.name;
 
       this.extra_show = false;
-      if(area.code === 'A:APPLE:2_8') {
+      if (area.code === "A:APPLE:2_8") {
         this.extra_show = true;
       }
 
       this.map.remove();
-      this.map = create_map(area.code)
+      this.map = create_map(area.code);
     },
   },
   components: {
@@ -164,7 +160,7 @@ export default {
     }, 1800000);
   },
   watch: {
-    handle_type (val) {
+    handle_type(val) {
       this.$store.commit("type_switch", val);
       this.map.remove();
       this.init_map();

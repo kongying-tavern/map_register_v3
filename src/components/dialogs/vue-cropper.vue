@@ -42,7 +42,7 @@
 </template>
 
 <script>
-import 'vue-cropper/dist/index.css'
+import "vue-cropper/dist/index.css";
 import { VueCropper } from "vue-cropper";
 export default {
   name: "ImgCut",

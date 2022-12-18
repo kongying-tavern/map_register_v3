@@ -24,7 +24,7 @@
           </div>
         </template>
       </q-img>
-      <div style="font-size: 1rem;">
+      <div style="font-size: 1rem">
         <div>点位描述：</div>
         <div class="text_nl">{{ layer_data.content }}</div>
       </div>
@@ -69,30 +69,30 @@ export default {
   computed: {
     layer_hidden() {
       if (this.layer !== null && this.layer_data !== null) {
-        let hiddenState = ""
-        switch(this.layer_data.hiddenFlag){
+        let hiddenState = "";
+        switch (this.layer_data.hiddenFlag) {
           case 0:
-            hiddenState = "显示"
-            break
+            hiddenState = "显示";
+            break;
           case 1:
-            hiddenState = "隐藏"
-            break
+            hiddenState = "隐藏";
+            break;
           case 2:
-            hiddenState = "内鬼"
-            break
+            hiddenState = "内鬼";
+            break;
           default:
-            hiddenState = "未知"
-            break
+            hiddenState = "未知";
+            break;
         }
 
         return hiddenState;
       }
 
-      return "未知"
+      return "未知";
     },
   },
   watch: {
-    layer (val) {
+    layer(val) {
       console.log(val);
       this.layer_data = val.target.options.data;
     },

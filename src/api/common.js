@@ -1,13 +1,13 @@
-import { Notify } from 'quasar'
+import { Notify } from "quasar";
 
-function create_notify(msg, type = 'positive', options = {}) {
-    Notify.create({
-        type,
-        message: msg,
-        position: 'top',
-        timeout: 1000,
-        ...options
-    })
+function create_notify(msg, type = "positive", options = {}) {
+  Notify.create({
+    type,
+    message: msg,
+    position: "top",
+    timeout: 1000,
+    ...options,
+  });
 }
 
-export { create_notify }
+export { create_notify };

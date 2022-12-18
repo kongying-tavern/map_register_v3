@@ -50,12 +50,7 @@
                 >
                   <template v-slot:error>
                     <div
-                      class="
-                        absolute-full
-                        flex flex-center
-                        bg-primary
-                        text-white
-                      "
+                      class="absolute-full flex flex-center bg-primary text-white"
                     >
                       没有相关图片
                     </div>
@@ -169,5 +164,4 @@ export default {
 };
 </script>
 
-<style>
-</style>
+<style></style>
