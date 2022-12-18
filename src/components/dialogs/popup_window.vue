@@ -93,7 +93,6 @@ export default {
   },
   watch: {
     layer(val) {
-      console.log(val);
       this.layer_data = val.target.options.data;
     },
   },

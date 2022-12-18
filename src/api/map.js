@@ -102,6 +102,9 @@ const map_plugin_config = {
   "A:APPLE:2_8": {
     extra: ["2_8_island"],
   },
+  "A:XM:FOREST": {
+    extra: ["sumeru_underground"],
+  },
 };
 
 function get_map_plugin_config(area_code = "") {

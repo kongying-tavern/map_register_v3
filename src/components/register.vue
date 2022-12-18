@@ -575,12 +575,6 @@ export default {
       }
     },
     test_area_select(area) {
-      console.log(
-        area.isFinal,
-        area.areaId,
-        this.selected_area_id,
-        this.selected_top_area_id
-      );
       if (area.isFinal) {
         return area.areaId === this.selected_area_id;
       }
