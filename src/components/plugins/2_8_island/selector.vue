@@ -24,8 +24,8 @@
 </template>
 
 <script>
-import { layergroup_register } from "../../api/layer";
-import { add_map_overlay_qd } from "../../api/map";
+import { layergroup_register } from "../../../api/layer";
+import { add_map_overlay_qd } from "../../../api/map";
 const island_name_list = ["危危岛", "破破岛", "双双岛", "布丁岛"];
 const island_color = ["purple", "cyan", "primary", "red"];
 const island_type_list = [
@@ -46,7 +46,7 @@ const island_type_list = [
   ],
 ];
 export default {
-  name: "IslandSelector",
+  name: "Plugin28IslandSelector",
   data() {
     return {
       island_name_list,

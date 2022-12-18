@@ -1,44 +1,47 @@
 <template>
-  <div class="row q-gutter-x-md content-top">
-    <q-select
-      class="col-4"
-      v-model="island_data.island_name"
-      :options="island_options"
-      emit-value
-      map-options
-      label="选择岛屿"
-      outlined
-      dense
-      size="sm"
-      @update:model-value="island_select_main" />
-    <q-select
-      class="col"
-      v-if="island_options_state.length > 0"
-      v-model="island_data.island_state"
-      :options="island_options_state"
-      emit-value
-      map-options
-      label="岛屿形态"
-      outlined
-      dense
-      size="sm"
-      multiple
-      use-chips
-      @update:model-value="island_update" />
-  </div>
+  <q-item>
+    <q-item-section side top> 所属岛屿 </q-item-section>
+    <q-item-section>
+      <div class="row q-gutter-x-md content-top">
+        <q-select
+          class="col-4"
+          v-model="island_data.island_name"
+          :options="island_options"
+          emit-value
+          map-options
+          label="选择岛屿"
+          outlined
+          dense
+          size="sm"
+          @update:model-value="island_select_main" />
+        <q-select
+          class="col"
+          v-if="island_options_state.length > 0"
+          v-model="island_data.island_state"
+          :options="island_options_state"
+          emit-value
+          map-options
+          label="岛屿形态"
+          outlined
+          dense
+          size="sm"
+          multiple
+          use-chips
+          @update:model-value="island_update" />
+      </div>
+    </q-item-section>
+  </q-item>
 </template>
 
 <script>
 import _ from 'lodash';
+import funcExtraData from '../../extra-data'
 
 export default {
-  name: "IslandSelector",
-  props: {
-    extraData: {
-      type: Object,
-      default() {
-        return {};
-      }
+  name: 'Plugin28IslandEdit',
+  setup() {
+    return {
+      ...funcExtraData
     }
   },
   data() {
@@ -92,14 +95,20 @@ export default {
             { label: "浮光-磐固", value: "2-3" },
           ]
         },
-      ],
-      island_data: {
-        island_name: null,
-        island_state: []
-      },
+      ]
     };
   },
   computed: {
+    island_data() {
+      const island_data = _.get(this.layer_extra_data, '2_8_island', null) || {}
+      const island_name = _.get(island_data, 'island_name', null);
+      const island_state = _.get(island_data, 'island_state', []);
+
+      return {
+        island_name,
+        island_state
+      };
+    },
     island_options_state() {
       const found_selector = _.find(this.island_options, v => v.value === this.island_data.island_name) || {}
       const states = found_selector.children || []
@@ -129,7 +138,7 @@ export default {
       this.island_update();
     },
     island_update() {
-      this.$emit('update', this.island_data_parsed);
+      this.put_marker_extra_data_entry('2_8_island', this.island_data_parsed);
     }
   }
 }

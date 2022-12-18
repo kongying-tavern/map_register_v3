@@ -97,17 +97,10 @@
             </q-item-section>
           </q-item>
 
-          <!-- 如果是海岛的点位的话，提供岛屿形态的选择 -->
-          <q-item v-if="propdata.list.area.name == '金苹果群岛'">
-            <q-item-section side top> 所属岛屿 </q-item-section>
-            <q-item-section>
-              <island-selector
-                ref="island_selector"
-                :extra-data="layer_extra_data"
-                @update="island_callback"
-              ></island-selector>
-            </q-item-section>
-          </q-item>
+          <!-- 添加字段插件 -->
+          <PluginAdapter
+            :area="selArea">
+          </PluginAdapter>
 
           <q-item>
             <q-item-section side top> 点位说明 </q-item-section>
@@ -297,6 +290,7 @@
 
 <script>
 import _ from 'lodash'
+import funcExtraData from '../extra-data'
 import {
   upload_img,
 } from "../../service/base_data_request";
@@ -307,18 +301,21 @@ import {
 } from "../../service/edit_request";
 import { get_user_id, is_neigui } from "../../service/user_info";
 import ImgCut from "./vue-cropper.vue";
-import IslandSelector from "../v2.8/island_value_selector.vue";
+import PluginAdapter from "../plugins/index.vue";
 import ItemSelector from './item_selector.vue';
 import { create_notify } from "../../api/common";
 
 const icon_no_img = 'https://assets.yuanshen.site/icons/-1.png';
 export default {
   name: "LayerEdit",
-  props: [
-    "propdata", "basicTypes", "basicIcon", "basicItems", "selArea", "selType", "selItem"],
+  props: ["propdata", "basicTypes", "basicIcon", "basicItems", "selArea", "selType", "selItem"],
+  setup() {
+    return {
+      ...funcExtraData
+    }
+  },
   data() {
     return {
-      layer_extra_data: {},
       layer_info_default: {
         id: null,
         markerTitle: '',
@@ -394,8 +391,8 @@ export default {
   },
   components: {
     ImgCut,
-    IslandSelector,
-    ItemSelector
+    ItemSelector,
+    PluginAdapter
   },
   methods: {
     // 查看大图
@@ -490,10 +487,6 @@ export default {
       const type_name = _.get(this.type_map, [type_id, 'name'], '');
       const item_compound_name = `${type_name} - ${item_name}`;
       return item_compound_name;
-    },
-    // 海岛回调
-    island_callback(val) {
-      this.layer_extra_data['2_8_island'] = val;
     },
     // 提交要上传的数据
     save() {
@@ -605,24 +598,7 @@ export default {
     this.layer_info = layer_info;
 
     // 获取附加数据
-    const extra_data = this.layer_info.markerExtraContent || '';
-    try {
-      const extra_data_json = JSON.parse(extra_data);
-      if(_.isPlainObject(extra_data_json)) {
-        this.layer_extra_data = extra_data_json;
-      } else {
-        this.layer_extra_data = {};
-      }
-    } catch(_) {
-      this.layer_extra_data = {};
-    }
-
-    this.$nextTick()
-      .then(() => {
-        if(this.$refs.island_selector) {
-          this.$refs.island_selector.load_data();
-        }
-      });
+    this.set_marker_extra_data(this.layer_info.markerExtraContent || '');
 
     // 如果是新数据
     if(!this.layer_info.id) {

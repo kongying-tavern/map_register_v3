@@ -97,6 +97,19 @@ const map_tiles_neigui_config = {
 };
 
 /**
+ * 获取地图插件配置
+ */
+const map_plugin_config = {
+    'A:APPLE:2_8': {
+        extra: ['2_8_island']
+    },
+};
+
+function get_map_plugin_config(area_code = '') {
+    return map_plugin_config[area_code] || {};
+}
+
+/**
  * 注册地图瓦片
  * @param {string} area_idx 地图别名 twt25：大世界 qd28：梦想群岛 yxg2：渊下宫/三界路飨祭 qd:群岛1 qd2:群岛2
  * @param {Array} mapCenter 地图中心坐标
@@ -224,6 +237,7 @@ function add_map_overlay_qd(type, index) {
 }
 
 export {
+    get_map_plugin_config,
     create_map_layer,
     create_map,
     add_map_overlay_qd

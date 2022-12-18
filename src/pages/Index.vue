@@ -108,7 +108,7 @@
 <script>
 import { create_map } from "../api/map";
 import LayerRegister from "../components/register.vue";
-import IslandSelector from "../components/v2.8/island_selector.vue";
+import IslandSelector from "../components/plugins/2_8_island/selector.vue";
 import { refresh_token } from "../service/user_log_request";
 import { set_user_token } from "../service/user_info";
 export default {
