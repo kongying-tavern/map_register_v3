@@ -22,21 +22,61 @@
         :done-color="stepper_collapsed ? 'blue-10' : 'primary'"
         :done="stepper_collapsed || selector_step === 1"
         :header-nav="!stepper_collapsed">
-        <q-scroll-area
-          class="absolute-full q-pa-md"
-          :bar-style="scroll_area_bar_style"
-          :thumb-style="scroll_area_thumb_style">
-          <div class="q-gutter-md">
-            <q-btn
-              v-for="(i, idx) in area_list"
-              :key="idx"
-              :color="selected_area_id === i.areaId ? 'primary': 'white'"
-              :text-color="selected_area_id === i.areaId ? 'white': 'black'"
-              @click="switch_area(i)">
-              <q-item-section>{{ i.name }}</q-item-section>
-            </q-btn>
-          </div>
-        </q-scroll-area>
+        <div style="display: flex;" class="absolute-full q-pa-sm">
+          <q-list
+            style="flex: 4; overflow-y: auto;"
+            dense>
+            <template
+              v-for="(i, idx) in area_list_top"
+              :key="idx">
+              <q-separator v-if="idx > 0"></q-separator>
+              <q-item
+                clickable
+                :active="test_area_select(i)"
+                active-class="bg-primary text-white"
+                @click="switch_area(i)">
+                <q-item-section>{{i.name}}</q-item-section>
+                <q-item-section avatar>
+                  <q-avatar
+                    v-if="i.hiddenFlag === 1"
+                    size="md"
+                    icon="visibility_off" />
+                  <q-avatar
+                    v-else-if="i.hiddenFlag === 2"
+                    size="md"
+                    icon="lens_blur" />
+                </q-item-section>
+              </q-item>
+            </template>
+          </q-list>
+          <q-list
+            v-if="area_list_child.length > 0"
+            style="flex: 5; overflow-y: auto;"
+            dense>
+            <template
+              v-for="(i, idx) in area_list_child"
+              :key="idx">
+              <q-separator v-if="idx > 0"></q-separator>
+              <q-item
+                clickable
+                :active="test_area_select(i)"
+                active-class="bg-primary text-white"
+                @click="switch_area(i)">
+                <q-item-section>{{i.name}}</q-item-section>
+                <q-item-section avatar>
+                  <q-avatar
+                    v-if="i.hiddenFlag === 1"
+                    size="md"
+                    icon="visibility_off" />
+                  <q-avatar
+                    v-else-if="i.hiddenFlag === 2"
+                    size="md"
+                    icon="lens_blur" />
+                </q-item-section>
+              </q-item>
+            </template>
+          </q-list>
+        </div>
       </q-step>
 
       <q-step
@@ -187,8 +227,8 @@
 
       <!-- 步骤下部导航部分 -->
       <template #navigation>
-        <q-stepper-navigation class="flex-none">
-          <div class="q-pt-md marker-action-toggle">
+        <q-stepper-navigation class="flex-none" style="padding: 10px 8px;">
+          <div class="marker-action-toggle">
             <q-space v-if="stepper_collapsed"></q-space>
             <div
               v-else
@@ -350,6 +390,7 @@ export default {
       drag_window: false,
 
       selector_step: 1,
+      selected_top_area_id: null,
       selected_area: null,
       selected_type: null,
       selected_item: null,
@@ -398,6 +439,15 @@ export default {
     },
     selected_item_icontag() {
       return (this.selected_item || {}).iconTag || '';
+    },
+    area_map() {
+      return _.groupBy(this.area_list, 'parentId');
+    },
+    area_list_top() {
+      return this.area_map[-1] || [];
+    },
+    area_list_child() {
+      return this.area_map[this.selected_top_area_id || 0] || [];
     },
     type_child_ids() {
       return _.map(this.type_child_list || [], v => v.typeId)
@@ -461,20 +511,35 @@ export default {
     },
     // 切换地区
     switch_area(area) {
-      this.selected_type = null;
-      this.clearlist();
-      this.clearlayers();
-      this.selected_area = area;
-      this.$emit("map_switch", this.selected_area);
-      this.fetch_item_list();
+      if(area.isFinal) {
+        this.selected_type = null;
+        this.clearlist();
+        this.clearlayers();
+        this.selected_area = area;
+        this.$emit("map_switch", this.selected_area);
+        this.fetch_item_list();
+        this.selector_step = 2;
+      } else {
+        this.selected_top_area_id = area.areaId || 0;
+      }
+    },
+    test_area_select(area) {
+      console.log(area.isFinal, area.areaId, this.selected_area_id, this.selected_top_area_id);
+      if(area.isFinal) {
+        return area.areaId === this.selected_area_id;
+      }
+ 
+        return area.areaId === this.selected_top_area_id;
+      
     },
     // 如果有子分类的话，进行查询，生成子分类tabs
     select_type_list(value) {
       this.clearlist();
       this.clearlayers();
       this.selected_type = value;
+      this.selector_step = 3;
       if(this.item_all_allowable) {
-        this.fetch_item_layers(null)
+        this.fetch_item_layers(null);
       }
     },
     fetch_item_list() {
@@ -753,7 +818,7 @@ export default {
       .then(
         this.$axios.spread((arealist, typelist, iconlist) => {
           this.loading = false;
-          this.area_list = _.filter(arealist.data.data, v => v.isFinal)
+          this.area_list = arealist.data.data || []
           this.type_list = typelist.data.data.record;
           this.icon_map = _.keyBy(iconlist.data.data.record || [], 'tag')
         })
