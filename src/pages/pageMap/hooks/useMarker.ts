@@ -39,7 +39,7 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
 
   /** 创建点位实例 */
   const createMarkers = () => {
-    const mapMarkers = markerList.value.map((markerInfo) => {
+    const mapper = (markerInfo: API.MarkerVo) => {
       const { position = '0,0' } = markerInfo
       const coordinates = L.latLng(position.split(',').map(Number) as [number, number])
       const marker = canvasMarker(coordinates, {
@@ -93,7 +93,8 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
       })
 
       return marker
-    })
+    }
+    const mapMarkers = markerList.value.map(mapper)
 
     markerLayerCache.value && map.value?.removeLayer(markerLayerCache.value as L.Layer)
     markerLayerCache.value = L.layerGroup(mapMarkers)
