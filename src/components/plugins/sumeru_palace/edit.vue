@@ -50,7 +50,7 @@ export default {
     return {
       palace_options: [
         { label: "无", value: null },
-        { label: "荼诃", value: "th" },
+        { label: "地下", value: "ug" },
         {
           label: "圣显",
           value: "sx",
