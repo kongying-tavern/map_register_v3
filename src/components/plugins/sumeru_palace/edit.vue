@@ -82,7 +82,7 @@ export default {
           label: "王陵",
           value: "wl",
           children: [
-            { label: "王陵 · 上", value: "0" },
+            { label: "王陵 · 初", value: "0" },
             { label: "王陵 · 上", value: "1" },
             { label: "王陵 · 中", value: "2" },
             { label: "王陵 · 下", value: "3" },
