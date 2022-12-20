@@ -9,6 +9,76 @@ import { is_neigui } from "src/service/user_info";
  * 获取地图瓦片配置
  */
 const map_tiles_config = {
+  "A:MD:MENGDE": {
+    extend: "提瓦特-base0",
+    settings: {
+      center: [1438, -3333],
+      zoom: -2.5,
+    },
+  },
+  "A:MD:XUESHAN": {
+    extend: "提瓦特-base0",
+    settings: {
+      center: [1568, -2269],
+      zoom: -0.5,
+    },
+  },
+  "A:LY:LIYUE": {
+    extend: "提瓦特-base0",
+    settings: {
+      center: [-672, -822],
+      zoom: -2,
+    },
+  },
+  "A:LY:CENGYAN": {
+    extend: "提瓦特-base0",
+    settings: {
+      center: [-1750, 126],
+      zoom: -1,
+    },
+  },
+  "A:DQ:1": {
+    extend: "提瓦特-base0",
+    settings: {
+      center: [4896, 3354],
+      zoom: -2,
+    },
+  },
+  "A:DQ:2": {
+    extend: "提瓦特-base0",
+    settings: {
+      center: [4200, 4898],
+      zoom: -2,
+    },
+  },
+  "A:DQ:HEGUAN": {
+    extend: "提瓦特-base0",
+    settings: {
+      center: [4380, 7022],
+      zoom: -2,
+    },
+  },
+  "A:XM:FOREST": {
+    extend: "提瓦特-base0",
+    settings: {
+      center: [-4184, 541],
+      zoom: -2.5,
+    },
+  },
+  "A:XM:DESERT": {
+    extend: "提瓦特-base0",
+    settings: {
+      center: [-6112, 2266],
+      zoom: -2,
+    },
+  },
+  "A:XM:DESERT2": {
+    extend: "提瓦特-base0",
+    settings: {
+      center: [-6112, 2266],
+      zoom: -2,
+    },
+  },
   "提瓦特-base0": {
     extension: "png",
     code: "twt31",
