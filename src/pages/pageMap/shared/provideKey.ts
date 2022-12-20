@@ -8,6 +8,8 @@ export const mapInjection: InjectionKey<Ref<GenshinMap | null>> = Symbol('genshi
 export const areaListInjection: InjectionKey<Ref<API.AreaVo[]>> = Symbol('areaList')
 /** 物品列表 */
 export const itemListInjection: InjectionKey<Ref<API.ItemVo[]>> = Symbol('itemList')
+/** 物品类型列表 */
+export const itemTypeInjection: InjectionKey<Ref<API.ItemTypeVo[]>> = Symbol('itemType')
 /** 图标表 */
 export const iconMapInjection: InjectionKey<Ref<Record<string, string>>> = Symbol('iconMap')
 /** 点位列表 */

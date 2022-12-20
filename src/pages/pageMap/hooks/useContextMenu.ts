@@ -9,6 +9,9 @@ import { useUserStore } from '@/stores'
 
 interface ContextMenuHookOptions {
   selectedItem: Ref<API.ItemVo | undefined>
+  itemList: Ref<API.ItemVo[]>
+  typeList: Ref<API.ItemTypeVo[]>
+  iconMap: Ref<Record<string, string>>
   refreshMarkers: () => void
 }
 
@@ -16,11 +19,14 @@ interface MarkerEditFormProps {
   hasPunctauteRights: boolean
   latlng: L.LatLng
   selectedItem?: API.ItemVo
+  itemList: API.ItemVo[]
+  typeList: API.ItemTypeVo[]
+  iconMap: Record<string, string>
 }
 
 /** 右键菜单管理 */
 export const useContextMenu = (options: ContextMenuHookOptions) => {
-  const { refreshMarkers, selectedItem } = options
+  const { refreshMarkers, selectedItem, itemList, iconMap, typeList } = options
 
   const { DialogService } = useGlobalDialog()
 
@@ -56,6 +62,9 @@ export const useContextMenu = (options: ContextMenuHookOptions) => {
           hasPunctauteRights: userStore.hasPunctauteRights,
           latlng: ev.latlng,
           selectedItem: selectedItem.value,
+          itemList: itemList.value,
+          typeList: typeList.value,
+          iconMap: iconMap.value,
         }),
         refresh: refreshMarkers,
       } as Record<string, (() => void) | undefined>)[command]?.()

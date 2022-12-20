@@ -2,13 +2,13 @@
 import 'leaflet/dist/leaflet.css'
 import type { LeafletEvent } from 'leaflet'
 import { ControlPanel } from './components'
-import { areaListInjection, iconMapInjection, itemListInjection, mapInjection, markerListInjection } from './shared'
+import { areaListInjection, iconMapInjection, itemListInjection, itemTypeInjection, mapInjection, markerListInjection } from './shared'
 import { useContextMenu, useLayer, useMap, useMarker } from './hooks'
 import type { MapNameEnum } from './configs'
 import { mapTiles } from './configs'
 import type { GenshinMap } from './utils'
 import { AppUserAvatar } from '@/components'
-import { useAreaList, useItemList } from '@/hooks'
+import { useAreaList, useItemList, useTypeList } from '@/hooks'
 import { useMapStore } from '@/stores'
 
 // ==================== 地图相关 ====================
@@ -80,6 +80,9 @@ const { itemList, loading: itemLoading } = useItemList({
   }),
 })
 
+/** 物品类型列表 */
+const { typeList } = useTypeList()
+
 const filteredItemList = computed(() => {
   const { typeId } = mapStore
   if (typeId === undefined)
@@ -106,6 +109,9 @@ const { iconMap, markerList, loading: markerLoading, createMarkerWhenReady, upda
 })
 
 const { openContextMenu } = useContextMenu({
+  itemList,
+  typeList,
+  iconMap,
   selectedItem,
   refreshMarkers: updateMarkerList,
 })
@@ -124,6 +130,7 @@ onAreaFetched(() => {
 provide(mapInjection, map)
 provide(areaListInjection, areaList)
 provide(itemListInjection, filteredItemList)
+provide(itemTypeInjection, typeList)
 provide(markerListInjection, markerList)
 provide(iconMapInjection, iconMap)
 </script>

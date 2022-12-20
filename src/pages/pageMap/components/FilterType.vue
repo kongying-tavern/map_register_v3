@@ -1,7 +1,6 @@
 <script lang="ts" setup>
-import { iconMapInjection } from '../shared'
+import { iconMapInjection, itemTypeInjection } from '../shared'
 import { RadioCardGroup, RadioCardItem } from '.'
-import { useTypeList } from '@/hooks'
 
 const props = defineProps<{
   modelValue?: number
@@ -22,8 +21,7 @@ const internalBind = computed({
 })
 
 const iconMap = inject(iconMapInjection, ref<Record<string, string>>({}))
-
-const { typeList } = useTypeList()
+const typeList = inject(itemTypeInjection, ref([]))
 
 const leafList = computed(() => typeList.value.reduce((seed, { typeId, isFinal, ...rest }) => {
   isFinal && seed.push({
