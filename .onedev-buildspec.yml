@@ -17,12 +17,11 @@ jobs:
   - !CommandStep
     name: download dependency
     runInContainer: false
-    image: node:10.16-alpine
     interpreter: !DefaultInterpreter
       commands:
       - cd @secret:workspace-path@
       - sudo rm -rf ./node_modules
-      - /usr/local/bin/pnpm i
+      - pnpm i
     useTTY: false
     condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
   - !CommandStep
@@ -31,7 +30,7 @@ jobs:
     interpreter: !DefaultInterpreter
       commands:
       - cd @secret:workspace-path@
-      - /usr/local/bin/pnpm run build:dev
+      - pnpm run build:dev
     useTTY: false
     condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
   - !CommandStep
