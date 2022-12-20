@@ -71,7 +71,7 @@ export default {
           this.loading = false;
           set_user_token(res.data.access_token, res.data.expires_in);
           set_user_id(res.data.userId);
-          set_user_roles(res.data.userRoles || []);
+          set_user_roles(res.data.userRoles || [], res.data.expires_in);
           localStorage.setItem(
             "_yuanshen_dadian_refresh_token",
             res.data.refresh_token

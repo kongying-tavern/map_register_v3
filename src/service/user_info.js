@@ -18,9 +18,9 @@ function get_user_id() {
   return Number(localStorage.getItem("_yuanshen_dadian_user"));
 }
 
-function set_user_roles(roles = []) {
+function set_user_roles(roles = [], expires = "") {
   Cookies.set("_yuanshen_dadian_roles", roles.join(","), {
-    expires: "28800s",
+    expires: `${expires}s`,
   });
 }
 

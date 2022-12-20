@@ -106,7 +106,11 @@ import { create_map } from "../api/map";
 import LayerRegister from "../components/register.vue";
 import IslandSelector from "../components/plugins/2_8_island/selector.vue";
 import { refresh_token } from "../service/user_log_request";
-import { set_user_token } from "../service/user_info";
+import {
+  set_user_token,
+  set_user_id,
+  set_user_roles,
+} from "../service/user_info";
 export default {
   name: "PageIndex",
   data() {
@@ -152,6 +156,8 @@ export default {
     setInterval(() => {
       refresh_token().then((res) => {
         set_user_token(res.data.access_token, res.data.expires_in);
+        set_user_id(res.data.userId);
+        set_user_roles(res.data.userRoles || [], res.data.expires_in);
         localStorage.setItem(
           "_yuanshen_dadian_refresh_token",
           res.data.refresh_token
