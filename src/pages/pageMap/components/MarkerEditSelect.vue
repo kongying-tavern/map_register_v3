@@ -51,9 +51,13 @@ const extraPanelRef = inject('extraPanel') as Ref<HTMLElement | null>
         :key="item.itemId"
         class="w-full rounded flex gap-1 items-center justify-between p-1"
       >
-        <img :src="iconMap[item.iconTag as string]" referrerpolicy="no-referrer" class="w-5 h-h object-cover">
+        <img
+          :src="iconMap[item.iconTag as string]"
+          class="w-7 aspect-square object-contain rounded-full bg-slate-500"
+          referrerpolicy="no-referrer"
+        >
         <div class="flex-1 text-ellipsis whitespace-nowrap overflow-hidden" :title="itemMap[item.itemId as number].name">
-          {{ itemMap[item.itemId as number].name }}
+          {{ typeMap[itemMap[item.itemId as number].typeIdList?.[0] ?? -1]?.name ?? '未分类' }} - {{ itemMap[item.itemId as number].name }}
         </div>
         <el-icon><Close /></el-icon>
         <el-input
@@ -62,7 +66,7 @@ const extraPanelRef = inject('extraPanel') as Ref<HTMLElement | null>
           type="number"
         />
       </div>
-      <div v-if="!modelValue?.length">
+      <div v-if="!modelValue?.length" class="px-2">
         未选择任何物品
       </div>
     </div>
