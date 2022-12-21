@@ -6,7 +6,7 @@ import { usePagination } from '@/hooks'
 
 export interface CustomTableColumn {
   title: AnyColumn['title']
-  dataKey: AnyColumn['dataKey']
+  dataKey: string
   width?: AnyColumn['width']
   readonly?: boolean
   fixed?: AnyColumn['fixed']

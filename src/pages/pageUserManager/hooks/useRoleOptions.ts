@@ -21,8 +21,8 @@ const publicRoleList = ref<API.SysRoleVo[]>([])
 const publicSortedRoles = computed(() => publicRoleList.value.sort(rolesSort))
 /** 提供给 el-select 的格式化选项列表 */
 const selectOptions = computed(() => publicSortedRoles.value.map(item => ({
-  label: item.name,
-  value: item.id,
+  label: item.name ?? '',
+  value: item.id ?? -1,
 })))
 /** 从值到选项的逆映射表，用于减少 find 消耗 */
 const roleValueMap = computed<Record<number, API.SysRoleVo>>(() => Object.fromEntries(publicSortedRoles.value.map((role) => {

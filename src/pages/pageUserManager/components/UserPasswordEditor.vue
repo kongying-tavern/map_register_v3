@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import type { FormRules } from 'element-plus'
-import { ElForm, ElMessage } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import { emptyCheck, lengthCheck } from '../utils/formRules'
 import System from '@/api/system'
 import { messageFrom } from '@/utils'
 import { GlobalDialogController } from '@/hooks/useGlobalDialog'
+import type { ElFormType } from '@/pages/pageItemManager/utils'
 
 const props = defineProps<{
   user: API.SysUserVo
@@ -40,7 +41,7 @@ const rules: FormRules = {
   ],
 }
 
-const formRef = ref<InstanceType<typeof ElForm> | null>(null)
+const formRef = ref<ElFormType | null>(null)
 const loading = ref(false)
 
 const onSubmit = async () => {
@@ -77,7 +78,7 @@ GlobalDialogController.registerBtn('submit', {
 </script>
 
 <template>
-  <ElForm ref="formRef" label-width="100px" :model="formData" :rules="rules">
+  <el-form ref="formRef" label-width="100px" class="p-4" :model="formData" :rules="rules">
     <el-form-item label="用户名">
       {{ props.user.username }}
     </el-form-item>
@@ -90,5 +91,5 @@ GlobalDialogController.registerBtn('submit', {
     <el-form-item prop="repeatPassword" label="确认密码">
       <el-input v-model="formData.repeatPassword" type="password" />
     </el-form-item>
-  </ElForm>
+  </el-form>
 </template>

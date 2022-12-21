@@ -115,7 +115,7 @@ const columns: AnyColumn[] = [
       <el-tree
         v-loading="areaLoading"
         :data="areaTree"
-        :props="{ label: 'name', value: 'areaId' }"
+        :props="{ label: 'name' }"
         class="flex-1 overflow-auto"
         accordion
         node-key="areaId"
@@ -126,7 +126,7 @@ const columns: AnyColumn[] = [
       <el-tree
         v-loading="typeLoading"
         :data="typeTree"
-        :props="{ label: 'name', value: 'typeId', isLeaf: 'isLeaf' }"
+        :props="{ label: 'name', isLeaf: 'isLeaf' }"
         class="flex-1 overflow-auto"
         accordion
         node-key="typeId"

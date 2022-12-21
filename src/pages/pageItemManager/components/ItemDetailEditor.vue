@@ -84,7 +84,7 @@ GlobalDialogController.registerBtn('submit', {
 </script>
 
 <template>
-  <el-form ref="formRef" label-width="60px" :model="formData" :rules="rules">
+  <el-form ref="formRef" class="p-4" label-width="60px" :model="formData" :rules="rules">
     <el-form-item label="名称" prop="name">
       <el-input v-model="formData.name" />
     </el-form-item>
@@ -155,7 +155,7 @@ GlobalDialogController.registerBtn('submit', {
       </el-col>
       <el-col :span="12">
         <el-form-item label="计数" prop="defaultCount">
-          <el-inputNumber v-model="formData.defaultCount" :max="5" :min="1" />
+          <el-input-number v-model="formData.defaultCount" :max="5" :min="1" />
         </el-form-item>
       </el-col>
     </el-row>
@@ -175,19 +175,19 @@ GlobalDialogController.registerBtn('submit', {
         </el-row>
         <el-row :gutter="5">
           <el-col :span="6">
-            <el-inputNumber v-model="refreshTime.days" :min="0" :max="7" controls-position="right" :disabled="timeSelectDisabled" />
+            <el-input-number v-model="refreshTime.days" :min="0" :max="7" controls-position="right" :disabled="timeSelectDisabled" />
           </el-col>
           <el-col :span="2">
             <span>- 天</span>
           </el-col>
           <el-col :span="6">
-            <el-inputNumber v-model="refreshTime.hour" :min="0" :max="23" controls-position="right" :disabled="timeSelectDisabled" />
+            <el-input-number v-model="refreshTime.hour" :min="0" :max="23" controls-position="right" :disabled="timeSelectDisabled" />
           </el-col>
           <el-col :span="2">
             <span>- 时</span>
           </el-col>
           <el-col :span="6">
-            <el-inputNumber v-model="refreshTime.min" :min="0" :max="59" controls-position="right" :disabled="timeSelectDisabled" />
+            <el-input-number v-model="refreshTime.min" :min="0" :max="59" controls-position="right" :disabled="timeSelectDisabled" />
           </el-col>
           <el-col :span="2">
             <span>- 分</span>
@@ -198,7 +198,7 @@ GlobalDialogController.registerBtn('submit', {
       </div>
     </el-form-item>
     <el-form-item label="排序" prop="sortIndex">
-      <el-inputNumber v-model="formData.sortIndex" :min="1" :max="99" placeholder="请输入序号（越大越前）" controls-position="right" />
+      <el-input-number v-model="formData.sortIndex" :min="1" :max="99" placeholder="请输入序号（越大越前）" controls-position="right" />
     </el-form-item>
   </el-form>
 </template>
