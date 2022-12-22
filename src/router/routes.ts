@@ -26,6 +26,14 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/pages/pageTypeManager/TypeManager.vue'),
       },
       {
+        path: '/icon',
+        meta: {
+          title: '图标管理',
+          roles: [RoleTypeEnum.ADMIN],
+        },
+        component: () => import('@/pages/pageIconManager/IconManager.vue'),
+      },
+      {
         path: '/users',
         meta: {
           title: '用户管理',
