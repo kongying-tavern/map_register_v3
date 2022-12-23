@@ -121,16 +121,6 @@ export default {
     },
   },
   methods: {
-    load_data() {
-      const palace_data = _.get(this.extraData, "sumeru_palace", null) || {};
-      const palace_name = _.get(palace_data, "palace_name", null);
-      const palace_level = _.get(palace_data, "palace_level", []);
-
-      this.palace_data = {
-        palace_name,
-        palace_level,
-      };
-    },
     palace_select_main() {
       this.palace_data.palace_level = [];
       this.palace_update();

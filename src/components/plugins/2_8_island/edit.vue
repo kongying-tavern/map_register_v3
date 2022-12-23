@@ -130,16 +130,6 @@ export default {
     },
   },
   methods: {
-    load_data() {
-      const island_data = _.get(this.extraData, "2_8_island", null) || {};
-      const island_name = _.get(island_data, "island_name", null);
-      const island_state = _.get(island_data, "island_state", []);
-
-      this.island_data = {
-        island_name,
-        island_state,
-      };
-    },
     island_select_main() {
       this.island_data.island_state = [];
       this.island_update();
