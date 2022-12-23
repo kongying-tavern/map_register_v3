@@ -14,13 +14,19 @@ const dotenv = require("dotenv");
 const { configure } = require("quasar/wrappers");
 
 let env = {};
-const envPathLocal = path.resolve(__dirname, "./.env.local");
-const envPath = path.resolve(__dirname, "./.env");
+const envName = process.env.NODE_ENV || "development";
+const envPaths = [
+  path.resolve(__dirname, `./.env.${envName}.local`),
+  path.resolve(__dirname, `./.env.${envName}`),
+  path.resolve(__dirname, "./.env.local"),
+  path.resolve(__dirname, "./.env"),
+];
 
-if (fs.existsSync(envPathLocal)) {
-  env = dotenv.config({ path: envPathLocal }).parsed;
-} else {
-  env = dotenv.config({ path: envPath }).parsed;
+for (const envPath of envPaths) {
+  if (fs.existsSync(envPath)) {
+    env = dotenv.config({ path: envPath }).parsed;
+    break;
+  }
 }
 
 module.exports = configure((/** ctx */) => ({
