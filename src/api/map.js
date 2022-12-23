@@ -108,6 +108,16 @@ const map_tiles_config = {
     name: "金苹果群岛(1.6)",
     code: "qd",
   },
+  "A:APPLE:1_6_STG1": {
+    extend: "金苹果-base0",
+    name: "金苹果群岛(1.6) - 第一阶段",
+    code: "qd1",
+  },
+  "A:APPLE:1_6_STG2": {
+    extend: "金苹果-base0",
+    name: "金苹果群岛(1.6) - 第二阶段",
+    code: "qd",
+  },
   "A:APPLE:2_8": {
     extension: "png",
     name: "金苹果群岛",
