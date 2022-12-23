@@ -103,14 +103,9 @@ const map_tiles_config = {
     center: [3568, 6286],
     size: [8192, 8192],
   },
-  "A:APPLE:1_6_STG1": {
+  "A:APPLE:1_6": {
     extend: "金苹果-base0",
-    name: "涨潮群岛",
-    code: "qd1",
-  },
-  "A:APPLE:1_6_STG2": {
-    extend: "金苹果-base0",
-    name: "退潮群岛",
+    name: "金苹果群岛(1.6)",
     code: "qd",
   },
   "A:APPLE:2_8": {
@@ -169,6 +164,9 @@ const map_tiles_neigui_config = {
  * 获取地图插件配置
  */
 const map_plugin_config = {
+  "A:APPLE:1_6": {
+    extra: ["1_6_island"],
+  },
   "A:APPLE:2_8": {
     extra: ["2_8_island"],
   },
