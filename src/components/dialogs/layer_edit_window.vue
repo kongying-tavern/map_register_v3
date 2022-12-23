@@ -102,7 +102,7 @@
           </q-item>
 
           <!-- 添加字段插件 -->
-          <PluginAdapter :area="selArea"> </PluginAdapter>
+          <ExtraAdapter :area="selArea"></ExtraAdapter>
 
           <q-item>
             <q-item-section side top> 点位说明 </q-item-section>
@@ -310,7 +310,7 @@ import {
 } from "../../service/edit_request";
 import { get_user_id, is_neigui } from "../../service/user_info";
 import ImgCut from "./vue-cropper.vue";
-import PluginAdapter from "../plugins/index.vue";
+import ExtraAdapter from "../plugins/extra-adapter.vue";
 import ItemSelector from "./item_selector.vue";
 import { create_notify } from "../../api/common";
 
@@ -408,7 +408,7 @@ export default {
   components: {
     ImgCut,
     ItemSelector,
-    PluginAdapter,
+    ExtraAdapter,
   },
   methods: {
     // 查看大图
