@@ -6,10 +6,11 @@
 self.onfetch = (ev) => {
   const { url } = ev.request
 
-  clients
+  self.clients
     .get(ev.clientId)
     .then((client) => {
-      client.postMessage({
+      // 首次登录可能还未完成初始化
+      client?.postMessage({
         name: 'refreshAuthIfProssible',
       })
     })
