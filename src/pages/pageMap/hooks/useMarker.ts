@@ -61,7 +61,13 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
           return
         markerOptions.img.popperOpen = true
         const popperDOM = L.DomUtil.create('div', 'w-full h-full')
-        render(h(PopupContent, { markerInfo, latlng: coordinates }), popperDOM)
+        render(h(PopupContent, {
+          markerInfo,
+          latlng: coordinates,
+          onClickOutside: () => {
+            map.value?.closePopup()
+          },
+        }), popperDOM)
         L.popup({ closeButton: false, minWidth: 223, maxWidth: 223, offset: [0, 0] })
           .setContent(popperDOM)
           .setLatLng(coordinates)
