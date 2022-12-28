@@ -36,7 +36,7 @@ function has_user_role(role = "") {
 }
 
 function is_neigui() {
-  return has_user_role("MAP_NEIGUI");
+  return has_user_role("MAP_NEIGUI") || has_user_role("MAP_MANAGER") || has_user_role("ADMIN");
 }
 
 export {
