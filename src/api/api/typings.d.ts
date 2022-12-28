@@ -494,8 +494,8 @@ declare namespace API {
     typeIdList?: number[];
     /** 获取测试点位，默认为false不获取，为true时只获取测试点位 */
     getBeta?: boolean;
-    /** 是否为测试打点员 */
-    isTestUser?: boolean;
+    /** 数据等级(hidden_flag范围) */
+    hiddenFlagList?: number[];
   };
 
   type RListMarkerVo = {
@@ -677,8 +677,8 @@ declare namespace API {
     parentId?: number;
     /** 是否遍历子地区 */
     isTraverse?: boolean;
-    /** 是否为测试打点员 */
-    isTestUser?: boolean;
+    /** 数据等级(hidden_flag范围) */
+    hiddenFlagList?: number[];
   };
 
   type RListAreaVo = {
