@@ -2,7 +2,7 @@
 import type L from 'leaflet'
 import type { FormRules } from 'element-plus'
 import { useMarkerStage } from '../hooks'
-import { MarkerEditSelect } from '.'
+import { MarkerEditImage, MarkerEditSelect } from '.'
 import { GlobalDialogController } from '@/hooks'
 import { useUserStore } from '@/stores'
 import type { ElFormType } from '@/pages/pageItemManager/utils'
@@ -47,7 +47,7 @@ const rules: FormRules = {
 }
 
 /** 右侧额外面板 */
-const extraVisible = ref(false)
+const extraId = ref('')
 
 /** 表单实例 */
 const formRef = ref<ElFormType | null>(null)
@@ -87,7 +87,7 @@ provide('extraPanel', extraPanelRef)
       <el-form-item label="所属物品" prop="itemList">
         <MarkerEditSelect
           v-model="form.itemList"
-          v-model:extra-visible="extraVisible"
+          v-model:extra-visible="extraId"
           :item-list="itemList"
           :type-list="typeList"
           :icon-map="iconMap"
@@ -99,7 +99,11 @@ provide('extraPanel', extraPanelRef)
       </el-form-item>
 
       <el-form-item label="点位图像">
-        <div>字段交互开发中</div>
+        <MarkerEditImage
+          v-model="form.picture"
+          v-model:extra-visible="extraId"
+          v-model:creator-id="form.pictureCreatorId"
+        />
       </el-form-item>
 
       <el-form-item label="点位视频">
@@ -118,7 +122,7 @@ provide('extraPanel', extraPanelRef)
       </el-form-item>
     </el-form>
 
-    <div class="extra-panel" :class="{ visible: extraVisible }">
+    <div class="extra-panel" :class="{ visible: extraId }">
       <div ref="extraPanelRef" class="extra-panel__content" />
     </div>
   </div>
