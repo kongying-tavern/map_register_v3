@@ -29,6 +29,7 @@ const { markerData: form, loading } = useMarkerStage({
         itemId: props.selectedItem.itemId,
       }]
     : [],
+  videoPath: '',
 })
 
 const rules: FormRules = {
@@ -44,6 +45,15 @@ const rules: FormRules = {
     message: '至少需要选择一项物品',
     trigger: 'change',
   }],
+  videoPath: [{
+    required: true,
+    validator: () => (
+      form.value.videoPath.length!=0 &&
+      form.value.videoPath.search("^https://www.bilibili.com/video/BV[a-zA-Z0-9]+")!=-1
+    ),
+    message: '视频链接不正确(需要B站链接)',
+    trigger: 'blur',
+  }]
 }
 
 /** 右侧额外面板 */
@@ -106,8 +116,8 @@ provide('extraPanel', extraPanelRef)
         />
       </el-form-item>
 
-      <el-form-item label="点位视频">
-        <div>字段交互开发中</div>
+      <el-form-item label="点位视频" prop="videoPath">
+        <el-input v-model="form.videoPath" />
       </el-form-item>
 
       <el-form-item label-width="0" style="margin-bottom: 0;">
