@@ -20,8 +20,11 @@ const emits = defineEmits<{
 
 const uploaderRef = ref<InstanceType<typeof ElUpload> | null>(null)
 
-const imgUrl = ref('')
-const imageBitMap = shallowRef<ImageBitmap | null>(null)
+const rawImage = shallowRef<Blob>()
+const rawImageBitmap = shallowRef<ImageBitmap>()
+const imgUrl = useObjectUrl(rawImage)
+const thumbnailImage = shallowRef<Blob>()
+const thumbnailUrl = useObjectUrl(thumbnailImage)
 
 const onFileChange = async (uploadFile: UploadFile) => {
   // 不需要文件列表，清理掉之前的缓存
@@ -35,10 +38,16 @@ const onFileChange = async (uploadFile: UploadFile) => {
     ElMessage.error('只能选择图像文件')
     return
   }
-  imgUrl.value && URL.revokeObjectURL(imgUrl.value)
-  imgUrl.value = URL.createObjectURL(raw)
   const blob = new Blob([await raw.arrayBuffer()])
-  imageBitMap.value = await createImageBitmap(blob)
+  const imageBitmap = await createImageBitmap(blob)
+  const { width, height } = imageBitmap
+  console.log(imageBitmap)
+  if (width < 256 || height < 256) {
+    ElMessage.error('不符合尺寸的图片，图片的长宽至少需要为 256x256')
+    return
+  }
+  rawImage.value = raw
+  rawImageBitmap.value = imageBitmap
 }
 
 const extraActive = computed(() => props.extraId === 'picture')
@@ -61,7 +70,7 @@ watch(imgUrl, (url) => {
       @change="onFileChange"
     >
       <div class="picture-uploader" :class="{ active: extraActive }">
-        <img v-if="imgUrl" :src="imgUrl" class="w-full h-full object-cover">
+        <img v-if="imgUrl" :src="thumbnailUrl ? thumbnailUrl : imgUrl" class="w-full h-full object-cover">
 
         <div v-else class="w-full h-full flex flex-col items-center justify-center">
           <ElIcon :size="24">
@@ -75,7 +84,7 @@ watch(imgUrl, (url) => {
     <el-button :icon="Setting" :type="extraActive ? 'primary' : ''" title="编辑图像" circle @click="toggleExtraPanel" />
 
     <TeleportExtra :active="extraActive">
-      <MarkerEditImageExtraPanel :image-bit-map="imageBitMap" />
+      <MarkerEditImageExtraPanel v-model:thumbnail-image="thumbnailImage" :image-bit-map="rawImageBitmap" />
     </TeleportExtra>
   </div>
 </template>

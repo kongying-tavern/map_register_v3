@@ -1,12 +1,29 @@
 <script lang="ts" setup>
-const props = defineProps<{
-  imageBitMap: ImageBitmap | null
+import { Close } from '@element-plus/icons-vue'
+
+const props = withDefaults(defineProps<{
+  imageBitMap?: ImageBitmap
+  thumbnailImage?: Blob
+  objectFit?: 'cover' | 'contain'
+}>(), {
+  objectFit: 'cover',
+})
+
+const emits = defineEmits<{
+  (e: 'update:thumbnailImage', v?: Blob): void
 }>()
 
 const { max, min } = Math
 
 const canvasRef = ref<HTMLCanvasElement | null>(null)
+const canvasCtx = computed(() => canvasRef.value?.getContext('2d') ?? null)
 const { width: w, height: h } = useElementBounding(canvasRef)
+
+/** 绑定的缩略图 */
+const internalBind = computed({
+  get: () => props.thumbnailImage,
+  set: v => emits('update:thumbnailImage', v),
+})
 
 /** canvas 中心点 x 坐标 */
 const cx = computed(() => w.value / 2)
@@ -27,7 +44,7 @@ const rw = computed(() => w.value - zw.value)
 /** 缩放后垂直方向上剩余可移动的尺寸 */
 const rh = computed(() => h.value - zh.value)
 /** 最小缩放比 */
-const minZoom = computed(() => max(w.value / iw.value, h.value / ih.value) || 1)
+const minZoom = computed(() => (props.objectFit === 'cover' ? max : min)(w.value / iw.value, h.value / ih.value) || 1)
 /** 最大缩放比 */
 const maxZoom = 2
 /** 单次放大倍率 */
@@ -39,8 +56,22 @@ const position = ref<[number, number]>([NaN, NaN])
 
 // 切换图片时重置缩放和中心点
 watch(() => props.imageBitMap, () => {
+  internalBind.value = undefined
   zoom.value = 0
   position.value = [NaN, NaN]
+})
+
+watch(zoom, (newZoom, oldZoom) => {
+  const deltaZoom = newZoom / oldZoom
+  const offsetX = deltaZoom * (position.value[0] - cx.value) + cx.value
+  const offsetY = deltaZoom * (position.value[1] - cy.value) + cy.value
+  const posX = zw.value < w.value
+    ? max(0, min(offsetX, rw.value))
+    : max(rw.value, min(offsetX, 0))
+  const posY = zh.value < h.value
+    ? max(0, min(offsetY, rh.value))
+    : max(rh.value, min(offsetY, 0))
+  position.value = [posX, posY]
 })
 
 /** 平移 */
@@ -81,15 +112,6 @@ useEventListener(canvasRef, 'pointerover', () => {
           ? minZoom.value / zoom.value
           : deltaNarrow
     zoom.value *= deltaZoom
-    const offsetX = deltaZoom * (position.value[0] - cx.value) + cx.value
-    const offsetY = deltaZoom * (position.value[1] - cy.value) + cy.value
-    const posX = zw.value < w.value
-      ? max(0, min(offsetX, rw.value))
-      : max(rw.value, min(offsetX, 0))
-    const posY = zh.value < h.value
-      ? max(0, min(offsetY, rh.value))
-      : max(rh.value, min(offsetY, 0))
-    position.value = [posX, posY]
   }, { passive: false })
   const stopListenOut = useEventListener(canvasRef, 'pointerout', () => {
     stopListenScroll()
@@ -130,22 +152,60 @@ const useRenderer = (ctx: CanvasRenderingContext2D) => {
   return render
 }
 
-onMounted(() => {
-  const ctx = canvasRef.value?.getContext('2d')
-  if (!ctx)
+/** 剪裁尺寸 */
+const clipSize = ref<[number, number]>([256, 256])
+
+/** 剪裁 */
+const clipImage = () => {
+  if (!canvasRef.value || !canvasCtx.value)
     return
-  useRenderer(ctx)()
+  const resizeCanvas = document.createElement('canvas')
+  resizeCanvas.width = clipSize.value[0]
+  resizeCanvas.height = clipSize.value[1]
+  const resizeCtx = resizeCanvas.getContext('2d')
+  if (!resizeCtx)
+    return
+  resizeCtx.drawImage(canvasRef.value, 0, 0, ...clipSize.value)
+  resizeCanvas.toBlob((blob) => {
+    if (!blob)
+      return
+    internalBind.value = blob
+  })
+}
+
+onMounted(() => {
+  if (!canvasCtx.value)
+    return
+  useRenderer(canvasCtx.value)()
 })
 </script>
 
 <template>
   <div class="h-full flex flex-col gap-2">
+    <el-alert :closable="false">
+      仅编辑缩略图，原始图像将会作为大图被一并上传
+    </el-alert>
+
     <div ref="containerRef" class="canvas-container aspect-square rounded overflow-hidden">
       <canvas ref="canvasRef" class="w-full h-full select-none" :width="w" :height="h" />
     </div>
 
-    <div class="w-full flex-1 flex justify-center">
-      <el-button>确认编辑</el-button>
+    <div class="w-full flex-1 grid grid-cols-4 grid-rows-2 gap-x-2 items-center justify-start">
+      <div class="col-span-3 flex items-center">
+        尺寸：
+        <el-input v-model="clipSize[0]" class="flex-1" disabled />
+        <el-icon :size="20" class="px-1">
+          <Close />
+        </el-icon>
+        <el-input v-model="clipSize[1]" class="flex-1" disabled />
+      </div>
+      <div class="col-span-3 row-start-2 flex items-center whitespace-nowrap">
+        缩放：
+        <el-input-number v-model="zoom" :min="minZoom" :max="maxZoom" :step="0.05" class="flex-1" />
+      </div>
+      <el-button class="row-span-2" style="height: 74px" @click="clipImage">
+        确认剪裁
+      </el-button>
     </div>
   </div>
 </template>
