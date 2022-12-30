@@ -46,7 +46,7 @@ const rules: FormRules = {
     trigger: 'change',
   }],
   videoPath: [{
-    required: true,
+    required: false,
     validator: () => (
       form.value.videoPath.length!=0 &&
       form.value.videoPath.search("^https://www.bilibili.com/video/BV[a-zA-Z0-9]+")!=-1
@@ -105,7 +105,11 @@ provide('extraPanel', extraPanelRef)
       </el-form-item>
 
       <el-form-item label="点位说明">
-        <el-input v-model="form.content" type="textarea" :rows="3" resize="none" />
+        <el-input
+          v-model="form.content"
+          :autosize="{ minRows: 3, maxRows: 6 }"
+          type="textarea"
+        />
       </el-form-item>
 
       <el-form-item label="点位图像">
