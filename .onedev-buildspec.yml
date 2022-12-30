@@ -62,7 +62,7 @@ jobs:
     userName: momentderek
     passwordSecret: push-secret
     withLfs: false
-    force: true
+    force: false
     condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
   triggers:
   - !DependencyFinishedTrigger
