@@ -7,12 +7,12 @@ const props = defineProps<{
   itemList: API.ItemVo[]
   typeList: API.ItemTypeVo[]
   iconMap: Record<string, string>
-  extraVisible: string
+  extraId: string
 }>()
 
 const emits = defineEmits<{
   (e: 'update:modelValue', v: API.MarkerItemLinkVo[]): void
-  (e: 'update:extraVisible', v: string): void
+  (e: 'update:extraId', v: string): void
 }>()
 
 /** 类型 id 与类型对象的映射 */
@@ -29,9 +29,9 @@ const itemMap = computed(() => props.itemList.reduce((seed, item) => {
   return seed
 }, {} as Record<number, API.ItemVo>))
 
-const extraActive = computed(() => props.extraVisible === 'itemList')
+const extraActive = computed(() => props.extraId === 'itemList')
 const toggleExtraPanel = () => {
-  emits('update:extraVisible', extraActive.value ? '' : 'itemList')
+  emits('update:extraId', extraActive.value ? '' : 'itemList')
 }
 </script>
 

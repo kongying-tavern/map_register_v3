@@ -47,10 +47,7 @@ const rules: FormRules = {
   }],
   videoPath: [{
     required: false,
-    validator: () => (
-      form.value.videoPath.length != 0
-      && form.value.videoPath.search('^https://www.bilibili.com/video/BV[a-zA-Z0-9]+') != -1
-    ),
+    validator: (_, value) => value.length && value.search('^https://www.bilibili.com/video/BV[a-zA-Z0-9]+') > -1,
     message: '视频链接不正确(需要B站链接)',
     trigger: 'blur',
   }],
@@ -97,21 +94,26 @@ provide('extraPanel', extraPanelRef)
       <el-form-item label="所属物品" prop="itemList">
         <MarkerEditSelect
           v-model="form.itemList"
-          v-model:extra-visible="extraId"
+          v-model:extra-id="extraId"
           :item-list="itemList"
           :type-list="typeList"
           :icon-map="iconMap"
         />
       </el-form-item>
 
-      <el-form-item label="点位说明">
-        <MarkerEditTextarea v-model="form.content" v-model:extra-visible="extraId" name="content" description="展开点位说明" />
+      <el-form-item label="点位说明" prop="content">
+        <MarkerEditTextarea
+          v-model="form.content"
+          v-model:extra-id="extraId"
+          name="content"
+          description="展开点位说明"
+        />
       </el-form-item>
 
-      <el-form-item label="点位图像">
+      <el-form-item label="点位图像" prop="picture">
         <MarkerEditImage
           v-model="form.picture"
-          v-model:extra-visible="extraId"
+          v-model:extra-id="extraId"
           v-model:creator-id="form.pictureCreatorId"
         />
       </el-form-item>

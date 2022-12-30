@@ -9,13 +9,13 @@ const props = defineProps<{
   modelValue?: string
   /** 图片上传者 id */
   creatorId?: number
-  extraVisible: string
+  extraId: string
 }>()
 
 const emits = defineEmits<{
   (e: 'update:modelValue', v?: string): void
   (e: 'update:creatorId', v?: number): void
-  (e: 'update:extraVisible', v: string): void
+  (e: 'update:extraId', v: string): void
 }>()
 
 const uploaderRef = ref<InstanceType<typeof ElUpload> | null>(null)
@@ -41,13 +41,13 @@ const onFileChange = async (uploadFile: UploadFile) => {
   imageBitMap.value = await createImageBitmap(blob)
 }
 
-const extraActive = computed(() => props.extraVisible === 'picture')
+const extraActive = computed(() => props.extraId === 'picture')
 const toggleExtraPanel = () => {
-  emits('update:extraVisible', extraActive.value ? '' : 'picture')
+  emits('update:extraId', extraActive.value ? '' : 'picture')
 }
 
 watch(imgUrl, (url) => {
-  url && emits('update:extraVisible', 'picture')
+  url && emits('update:extraId', 'picture')
 })
 </script>
 

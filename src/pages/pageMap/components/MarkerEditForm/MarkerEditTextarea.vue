@@ -6,14 +6,14 @@ import { TeleportExtra } from '.'
 
 const props = defineProps<{
   modelValue?: string
-  extraVisible: string
+  extraId: string
   name: string
   description?: string
 }>()
 
 const emits = defineEmits<{
   (e: 'update:modelValue', v?: string): void
-  (e: 'update:extraVisible', v: string): void
+  (e: 'update:extraId', v: string): void
 }>()
 
 const internalBind = computed({
@@ -21,10 +21,10 @@ const internalBind = computed({
   set: v => emits('update:modelValue', v),
 })
 
-const extraActive = computed(() => props.extraVisible === props.name)
+const extraActive = computed(() => props.extraId === props.name)
 
 const toggleExtraPanel = () => {
-  emits('update:extraVisible', extraActive.value ? '' : props.name)
+  emits('update:extraId', extraActive.value ? '' : props.name)
 }
 
 const inputRef = ref<InputInstance | null>(null)
@@ -57,7 +57,13 @@ const insertChar = async (char: string) => {
 
 <template>
   <div class="w-full flex justify-between items-start gap-1">
-    <el-input v-model="internalBind" type="textarea" resize="none" :rows="3" @blur="updateSelectionState" />
+    <el-input
+      v-model="internalBind"
+      type="textarea"
+      resize="none"
+      :rows="3"
+      @blur="updateSelectionState"
+    />
 
     <el-button :icon="Setting" :type="extraActive ? 'primary' : ''" :title="description" circle @click="toggleExtraPanel" />
 
