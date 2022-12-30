@@ -27,7 +27,7 @@ const rw = computed(() => w.value - zw.value)
 /** 缩放后垂直方向上剩余可移动的尺寸 */
 const rh = computed(() => h.value - zh.value)
 /** 最小缩放比 */
-const minZoom = computed(() => min(w.value / iw.value, h.value / ih.value) || 1)
+const minZoom = computed(() => max(w.value / iw.value, h.value / ih.value) || 1)
 /** 最大缩放比 */
 const maxZoom = 2
 /** 单次放大倍率 */

@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import type L from 'leaflet'
 import type { FormRules } from 'element-plus'
-import { useMarkerStage } from '../hooks'
-import { MarkerEditImage, MarkerEditSelect } from '.'
+import { useMarkerStage } from '../../hooks'
+import { MarkerEditImage, MarkerEditSelect, MarkerEditTextarea } from '.'
 import { GlobalDialogController } from '@/hooks'
 import { useUserStore } from '@/stores'
 import type { ElFormType } from '@/pages/pageItemManager/utils'
@@ -48,12 +48,12 @@ const rules: FormRules = {
   videoPath: [{
     required: false,
     validator: () => (
-      form.value.videoPath.length!=0 &&
-      form.value.videoPath.search("^https://www.bilibili.com/video/BV[a-zA-Z0-9]+")!=-1
+      form.value.videoPath.length != 0
+      && form.value.videoPath.search('^https://www.bilibili.com/video/BV[a-zA-Z0-9]+') != -1
     ),
     message: '视频链接不正确(需要B站链接)',
     trigger: 'blur',
-  }]
+  }],
 }
 
 /** 右侧额外面板 */
@@ -105,11 +105,7 @@ provide('extraPanel', extraPanelRef)
       </el-form-item>
 
       <el-form-item label="点位说明">
-        <el-input
-          v-model="form.content"
-          :autosize="{ minRows: 3, maxRows: 6 }"
-          type="textarea"
-        />
+        <MarkerEditTextarea v-model="form.content" v-model:extra-visible="extraId" name="content" description="展开点位说明" />
       </el-form-item>
 
       <el-form-item label="点位图像">

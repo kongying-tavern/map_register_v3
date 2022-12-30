@@ -1,7 +1,6 @@
 <script lang="ts" setup>
-import type { Ref } from 'vue'
 import { Close, Setting } from '@element-plus/icons-vue'
-import { MarkerEditSelectExtraPanel } from '.'
+import { MarkerEditSelectExtraPanel, TeleportExtra } from '.'
 
 const props = defineProps<{
   modelValue?: API.MarkerItemLinkVo[]
@@ -34,8 +33,6 @@ const extraActive = computed(() => props.extraVisible === 'itemList')
 const toggleExtraPanel = () => {
   emits('update:extraVisible', extraActive.value ? '' : 'itemList')
 }
-
-const extraPanelRef = inject('extraPanel') as Ref<HTMLElement | null>
 </script>
 
 <template>
@@ -77,17 +74,14 @@ const extraPanelRef = inject('extraPanel') as Ref<HTMLElement | null>
 
     <el-button :icon="Setting" :type="extraActive ? 'primary' : ''" title="选择物品" circle @click="toggleExtraPanel" />
 
-    <Teleport v-if="extraPanelRef && extraActive" :to="extraPanelRef">
-      <Transition name="fade">
-        <MarkerEditSelectExtraPanel
-          v-if="props.extraVisible"
-          v-model="internalBind"
-          :item-list="itemList"
-          :type-map="typeMap"
-          :icon-map="iconMap"
-        />
-      </Transition>
-    </Teleport>
+    <TeleportExtra :active="extraActive">
+      <MarkerEditSelectExtraPanel
+        v-model="internalBind"
+        :item-list="itemList"
+        :type-map="typeMap"
+        :icon-map="iconMap"
+      />
+    </TeleportExtra>
   </div>
 </template>
 

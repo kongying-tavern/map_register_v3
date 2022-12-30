@@ -2,8 +2,7 @@
 import { Plus, Setting } from '@element-plus/icons-vue'
 import type { UploadFile } from 'element-plus'
 import { ElIcon, ElMessage, ElUpload } from 'element-plus'
-import type { Ref } from 'vue'
-import { MarkerEditImageExtraPanel } from '.'
+import { MarkerEditImageExtraPanel, TeleportExtra } from '.'
 
 const props = defineProps<{
   /** 图片地址 */
@@ -42,7 +41,6 @@ const onFileChange = async (uploadFile: UploadFile) => {
   imageBitMap.value = await createImageBitmap(blob)
 }
 
-const extraPanelRef = inject('extraPanel') as Ref<HTMLElement | null>
 const extraActive = computed(() => props.extraVisible === 'picture')
 const toggleExtraPanel = () => {
   emits('update:extraVisible', extraActive.value ? '' : 'picture')
@@ -54,7 +52,7 @@ watch(imgUrl, (url) => {
 </script>
 
 <template>
-  <div class="w-full flex justify-between items-start">
+  <div class="w-full flex justify-between items-start gap-1">
     <ElUpload
       ref="uploaderRef"
       accept="image/*"
@@ -63,7 +61,7 @@ watch(imgUrl, (url) => {
       @change="onFileChange"
     >
       <div class="picture-uploader" :class="{ active: extraActive }">
-        <img v-if="imgUrl" :src="imgUrl" class="w-full h-full object-contain">
+        <img v-if="imgUrl" :src="imgUrl" class="w-full h-full object-cover">
 
         <div v-else class="w-full h-full flex flex-col items-center justify-center">
           <ElIcon :size="24">
@@ -76,19 +74,17 @@ watch(imgUrl, (url) => {
 
     <el-button :icon="Setting" :type="extraActive ? 'primary' : ''" title="编辑图像" circle @click="toggleExtraPanel" />
 
-    <Teleport v-if="extraPanelRef && extraActive" :to="extraPanelRef">
-      <Transition name="fade">
-        <MarkerEditImageExtraPanel :image-bit-map="imageBitMap" />
-      </Transition>
-    </Teleport>
+    <TeleportExtra :active="extraActive">
+      <MarkerEditImageExtraPanel :image-bit-map="imageBitMap" />
+    </TeleportExtra>
   </div>
 </template>
 
 <style lang="scss" scoped>
 .picture-uploader {
   border: 1px dashed var(--el-border-color);
-  width: 100px;
-  height: 100px;
+  width: 160px;
+  height: 160px;
   border-radius: var(--el-border-radius-base);
   transition: var(--el-transition-duration-fast);
   color: var(--el-text-color-secondary);
