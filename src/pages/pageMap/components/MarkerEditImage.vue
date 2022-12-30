@@ -87,8 +87,8 @@ watch(imgUrl, (url) => {
 <style lang="scss" scoped>
 .picture-uploader {
   border: 1px dashed var(--el-border-color);
-  width: 180px;
-  height: 180px;
+  width: 100px;
+  height: 100px;
   border-radius: var(--el-border-radius-base);
   transition: var(--el-transition-duration-fast);
   color: var(--el-text-color-secondary);
