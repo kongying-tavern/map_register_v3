@@ -193,6 +193,8 @@ declare namespace API {
     sortIndex?: number;
     /** 默认物品数量 */
     defaultCount?: number;
+    /** 特殊物品标记，二进制表示<br>低位第一位：是否为显示物品 */
+    specialFlag?: number;
     /** 查询条件下物品总数 */
     count?: number;
   };
