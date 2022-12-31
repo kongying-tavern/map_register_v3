@@ -1,10 +1,7 @@
 import { request } from '@/utils';
 
 /** 新增点位（不包括额外字段） 新增完成后返回点位ID PUT /marker/single */
-export async function createMarker(
-  body: API.MarkerSingleVo,
-  options?: { [key: string]: any },
-) {
+export async function createMarker(body: API.MarkerVo, options?: { [key: string]: any }) {
   return request<API.RLong>(`/api/marker/single`, {
     method: 'PUT',
     headers: {
@@ -16,41 +13,8 @@ export async function createMarker(
 }
 
 /** 修改点位（不包括额外字段） 根据点位ID修改点位 POST /marker/single */
-export async function updateMarker(
-  body: API.MarkerSingleVo,
-  options?: { [key: string]: any },
-) {
+export async function updateMarker(body: API.MarkerVo, options?: { [key: string]: any }) {
   return request<API.RBoolean>(`/api/marker/single`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    data: body,
-    ...(options || {}),
-  });
-}
-
-/** 新增点位额外字段信息 需保证额外字段的点位都已经添加成功 PUT /marker/extra */
-export async function addMarkerExtra(
-  body: API.MarkerExtraVo,
-  options?: { [key: string]: any },
-) {
-  return request<API.RBoolean>(`/api/marker/extra`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    data: body,
-    ...(options || {}),
-  });
-}
-
-/** 修改点位额外字段 根据点位ID修改点位额外字段 POST /marker/extra */
-export async function updateMarkerExtra(
-  body: API.MarkerExtraVo,
-  options?: { [key: string]: any },
-) {
-  return request<API.RBoolean>(`/api/marker/extra`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

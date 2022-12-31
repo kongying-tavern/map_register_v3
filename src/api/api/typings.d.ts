@@ -40,7 +40,7 @@ declare namespace API {
     iconTag?: string;
   };
 
-  type MarkerSinglePunctuateVo = {
+  type MarkerPunctuateVo = {
     /** 乐观锁：修改次数 */
     version?: number;
     /** 打点ID */
@@ -63,6 +63,8 @@ declare namespace API {
     pictureCreatorId?: number;
     /** 点位视频 */
     videoPath?: string;
+    /** 额外特殊字段 */
+    extra?: string;
     /** 点位提交者id */
     author?: number;
     /** 状态;0:暂存 1:审核中 2:不通过 */
@@ -77,28 +79,7 @@ declare namespace API {
     hiddenFlag?: number;
   };
 
-  type MarkerExtraPunctuateVo = {
-    /** 乐观锁：修改次数 */
-    version?: number;
-    /** 打点ID */
-    punctuateId?: number;
-    /** 额外特殊字段具体内容 */
-    markerExtraContent?: string;
-    /** 父点位ID */
-    parentId?: number;
-    /** 关联其他点位Flag */
-    isRelated?: number;
-    /** 点位提交者id */
-    author?: number;
-    /** 状态;0:暂存 1:审核中 2:不通过 */
-    status?: number;
-    /** 审核备注 */
-    auditRemark?: string;
-    /** 操作类型;1: 新增 2: 修改 3: 删除 */
-    methodType?: number;
-  };
-
-  type MarkerSingleVo = {
+  type MarkerVo = {
     /** 乐观锁：修改次数 */
     version?: number;
     /** 点位ID */
@@ -119,23 +100,12 @@ declare namespace API {
     pictureCreatorId?: number;
     /** 点位视频 */
     videoPath?: string;
+    /** 额外特殊字段 */
+    extra?: string;
     /** 刷新时间 */
     refreshTime?: number;
     /** 隐藏标志 */
     hiddenFlag?: number;
-  };
-
-  type MarkerExtraVo = {
-    /** 乐观锁：修改次数 */
-    version?: number;
-    /** 点位ID */
-    markerId?: number;
-    /** 额外特殊字段具体内容 */
-    markerExtraContent?: string;
-    /** 父点位ID */
-    parentId?: number;
-    /** 关联其他点位Flag */
-    isRelated?: number;
   };
 
   type ItemTypeVo = {
@@ -329,49 +299,6 @@ declare namespace API {
     size?: number;
   };
 
-  type MarkerPunctuateVo = {
-    /** 乐观锁：修改次数 */
-    version?: number;
-    /** 打点ID */
-    punctuateId?: number;
-    /** 原有点位id */
-    originalMarkerId?: number;
-    /** 点位名称 */
-    markerTitle?: string;
-    /** 点位坐标 */
-    position?: string;
-    /** 点位物品列表 */
-    itemList?: MarkerItemLinkVo[];
-    /** 点位说明 */
-    content?: string;
-    /** 点位图片 */
-    picture?: string;
-    /** 点位初始标记者 */
-    markerCreatorId?: number;
-    /** 点位图片上传者 */
-    pictureCreatorId?: number;
-    /** 点位视频 */
-    videoPath?: string;
-    /** 额外特殊字段具体内容 */
-    markerExtraContent?: string;
-    /** 父点位ID */
-    parentId?: number;
-    /** 关联其他点位Flag */
-    isRelated?: number;
-    /** 点位提交者id */
-    author?: number;
-    /** 状态;0:暂存 1:审核中 2:不通过 */
-    status?: number;
-    /** 审核备注 */
-    auditRemark?: string;
-    /** 操作类型;1: 新增 2: 修改 3: 删除 */
-    methodType?: number;
-    /** 刷新时间 */
-    refreshTime?: number;
-    /** 隐藏标志 */
-    hiddenFlag?: number;
-  };
-
   type PageListVoMarkerPunctuateVo = {
     record?: MarkerPunctuateVo[];
     total?: number;
@@ -407,69 +334,6 @@ declare namespace API {
     message?: string;
     data?: MarkerPunctuateVo[];
     time?: string;
-  };
-
-  type PageListVoMarkerSinglePunctuateVo = {
-    record?: MarkerSinglePunctuateVo[];
-    total?: number;
-    size?: number;
-  };
-
-  type RPageListVoMarkerSinglePunctuateVo = {
-    error?: boolean;
-    errorStatus?: number;
-    errorData?: Record<string, any>;
-    message?: string;
-    data?: PageListVoMarkerSinglePunctuateVo;
-    time?: string;
-  };
-
-  type PageListVoMarkerExtraPunctuateVo = {
-    record?: MarkerExtraPunctuateVo[];
-    total?: number;
-    size?: number;
-  };
-
-  type RPageListVoMarkerExtraPunctuateVo = {
-    error?: boolean;
-    errorStatus?: number;
-    errorData?: Record<string, any>;
-    message?: string;
-    data?: PageListVoMarkerExtraPunctuateVo;
-    time?: string;
-  };
-
-  type MarkerVo = {
-    /** 乐观锁：修改次数 */
-    version?: number;
-    /** 点位ID */
-    id?: number;
-    /** 点位名称 */
-    markerTitle?: string;
-    /** 点位坐标 */
-    position?: string;
-    /** 点位物品列表 */
-    itemList?: MarkerItemLinkVo[];
-    /** 点位说明 */
-    content?: string;
-    /** 点位图片 */
-    picture?: string;
-    /** 点位初始标记者 */
-    markerCreatorId?: number;
-    /** 点位图片上传者 */
-    pictureCreatorId?: number;
-    /** 点位视频 */
-    videoPath?: string;
-    /** 额外特殊字段具体内容 */
-    markerExtraContent?: string;
-    /** 父点位ID */
-    parentId?: number;
-    /** 关联其他点位Flag */
-    isRelated?: number;
-    /** 刷新时间 */
-    refreshTime?: number;
-    /** 隐藏标志 */
-    hiddenFlag?: number;
   };
 
   type PageListVoMarkerVo = {
