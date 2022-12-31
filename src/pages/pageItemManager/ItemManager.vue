@@ -1,6 +1,6 @@
 <script lang="tsx" setup>
 import type { Ref } from 'vue'
-import { useItemEdit } from './hooks'
+import { useItemCreate, useItemEdit } from './hooks'
 import { PgUnit, useAreaList, useIconList, useItemDelete, useItemList, usePagination, useTypeList } from '@/hooks'
 
 const { pagination, layout } = usePagination({
@@ -58,6 +58,17 @@ onItemListFetched(({ data: { record = [], total = 0 } = {} }) => {
 
 const { openItemDetailEditorDialog } = useItemEdit({
   itemList,
+})
+
+const onCreateItemSuccess = () => {
+  updateItemList()
+}
+
+const { openItemCreatorDialog } = useItemCreate({
+  defaultItemData: () => ({
+    areaId: checkedArea.value?.areaId,
+    typeIdList: checkedType.value ? [checkedType.value.typeId as number] : [],
+  }),
 })
 
 const onItemDetailEditSuccess = () => {
@@ -140,7 +151,21 @@ onDeleteItemSuccess(() => {
         >
           批量删除
         </el-button>
-        <el-button type="primary">
+        <el-button
+          type="primary"
+          @click="() => {
+            openItemCreatorDialog({
+              props: {
+                iconList,
+                areaList,
+                iconMap,
+              },
+              listeners: {
+                success: onCreateItemSuccess,
+              },
+            })
+          }"
+        >
           新建物品
         </el-button>
       </div>

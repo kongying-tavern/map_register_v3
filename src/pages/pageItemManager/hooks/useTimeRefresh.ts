@@ -55,12 +55,11 @@ export const useTimeRefresh = (options: FormTimeRefreshParamHooksOptions) => {
   }, { deep: true })
 
   const resetRefreshTime = (options?: RefreshTimeObj) => {
-    refreshTime.value = {
-      days: options ? options.days : 0,
-      hour: options ? options.hour : 0,
-      min: options ? options.min : 0,
-      sec: options ? options.sec : 0,
-    }
+    console.log('[resetTime]', options)
+    refreshTime.value.days = options ? options.days : 0
+    refreshTime.value.hour = options ? options.hour : 0
+    refreshTime.value.min = options ? options.min : 0
+    refreshTime.value.sec = options ? options.sec : 0
   }
 
   const _refreshTimeOptionsIndex = ref(0)
@@ -89,6 +88,7 @@ export const useTimeRefresh = (options: FormTimeRefreshParamHooksOptions) => {
       switch (index) {
         case 0 :
           resetRefreshTime()
+          timeSelectDisabled.value = true
           break
         case 1 : resetRefreshTime({
           days: 1,
@@ -96,6 +96,7 @@ export const useTimeRefresh = (options: FormTimeRefreshParamHooksOptions) => {
           min: 0,
           sec: 0,
         })
+          timeSelectDisabled.value = true
           break
         default : timeSelectDisabled.value = false
       }
