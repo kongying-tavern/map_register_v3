@@ -1,11 +1,14 @@
 <script lang="ts" setup>
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   modelValue?: string
   itemList: Record<string, any>[]
   dataKey: string
   itemKey?: string
   cancelable?: boolean
-}>()
+  cols?: 1 | 2 | 3
+}>(), {
+  cols: 2,
+})
 
 const emits = defineEmits<{
   (e: 'update:modelValue', v?: string): void
@@ -37,7 +40,15 @@ const proxySelect = (ev: MouseEvent) => {
     class="item-radio-group overflow-y-auto text-xs text-slate-300 p-1"
     @click="proxySelect"
   >
-    <div v-if="itemList.length" class="grid grid-cols-2 gap-1 content-start">
+    <div
+      v-if="itemList.length"
+      class="grid gap-1 content-start"
+      :class="{
+        'grid-cols-1': cols === 1,
+        'grid-cols-2': cols === 2,
+        'grid-cols-3': cols === 3,
+      }"
+    >
       <div
         v-for="item in itemList"
         :key="item[itemKey ?? dataKey]"
@@ -45,7 +56,7 @@ const proxySelect = (ev: MouseEvent) => {
         :class="{
           actived: internalBind === item[dataKey],
         }"
-        class="item-selector w-full h-12 rounded p-1 flex gap-2 overflow-hidden cursor-pointer transition-all duration-150"
+        class="item-selector w-full h-10 rounded p-1 flex items-center gap-2 overflow-hidden cursor-pointer transition-all duration-150"
       >
         <slot :item="item" :actived="internalBind === item[dataKey]">
           {{ item[dataKey] }}
@@ -71,7 +82,7 @@ const proxySelect = (ev: MouseEvent) => {
   &::-webkit-scrollbar-thumb {
     background-color: #AA9172;
     border: 1px solid #2F3846;
-    border-radius: 2px 4px 4px 2px;
+    border-radius: 2px;
   }
   &::-webkit-scrollbar-track {
     background-color: #2F3846;
