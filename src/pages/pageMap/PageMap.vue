@@ -75,8 +75,9 @@ const areaCode = computed({
 })
 
 const areaId = computed(() => {
-  const area: ref<API.AreaVo[]> = !areaCode.value || !areaList.value.length ? undefined : areaList.value.find(area => area.code === mapStore.areaCode)
-  return area === undefined ? undefined : area.areaId
+  if (!mapStore.areaCode)
+    return
+  return areaList.value.find(area => area.code === mapStore.areaCode)?.areaId
 })
 
 // ==================== 物品相关 ====================

@@ -103,7 +103,7 @@ export const mapTiles: Record<MapNameEnum, MapTileConfig> = {
   },
   [MapNameEnum.SAN_JIE_LU_XIANG_JI]: {
     extend: MapNameEnum.EXTEND_0,
-    areaCodes: [16],
+    areaCodes: ['A:DQ:SANJIE'],
     code: 'yxg2',
   },
 }
