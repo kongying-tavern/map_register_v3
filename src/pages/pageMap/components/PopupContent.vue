@@ -8,14 +8,23 @@ const props = defineProps<{
   latlng: L.LatLng
 }>()
 
+const emits = defineEmits<{
+  (e: 'clickOutside', v: PointerEvent): void
+}>()
+
 // TODO 按钮具体功能待添加
 const onClick = () => {
   ElMessage.success(props.markerInfo.markerTitle)
 }
+
+const containerRef = ref<HTMLElement | null>(null)
+onClickOutside(containerRef, (ev) => {
+  emits('clickOutside', ev)
+})
 </script>
 
 <template>
-  <div class="w-full h-full flex flex-col gap-2">
+  <div ref="containerRef" class="w-full h-full flex flex-col gap-2">
     <div class="font-bold">
       {{ markerInfo.id }} - {{ markerInfo.markerTitle }}
     </div>

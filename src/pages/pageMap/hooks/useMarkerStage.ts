@@ -3,17 +3,17 @@ import { useFetchHook } from '@/hooks'
 import { messageFrom } from '@/utils'
 
 /** 暂存点位管理 */
-export const useMarkerStage = (init: API.MarkerSinglePunctuateVo = {}) => {
+export const useMarkerStage = (init: API.MarkerPunctuateVo = {}) => {
   const loading = ref(false)
 
-  const markerData = ref<API.MarkerSinglePunctuateVo>(init)
+  const markerData = ref<API.MarkerPunctuateVo>(init)
 
   const successHook = createEventHook<void>()
   const errorHook = createEventHook<Error>()
 
   const { refresh: stageMarker, onSuccess: onStageSuccess, onError: onCreateError } = useFetchHook({
     loading,
-    onRequest: () => Api.punctuate.addSinglePunctuate(markerData.value),
+    onRequest: () => Api.punctuate.addSinglePunctuate({}, markerData.value),
   })
   onStageSuccess(() => successHook.trigger())
   onCreateError(errorHook.trigger)

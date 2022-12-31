@@ -3,7 +3,7 @@ import { areaListInjection, iconMapInjection } from '../shared'
 import { RadioCardGroup, RadioCardItem } from '.'
 
 const props = defineProps<{
-  modelValue?: number
+  modelValue?: string
 }>()
 
 const emits = defineEmits<{
@@ -14,26 +14,25 @@ const emits = defineEmits<{
 const internalBind = computed({
   get: () => `${props.modelValue}`,
   set: (v) => {
-    const formatValue = Number(v)
-    emits('update:modelValue', formatValue || undefined)
-    emits('change', formatValue || undefined)
+    emits('update:modelValue', `${v}` || undefined)
+    emits('change', v || undefined)
   },
 })
 
 const areaList = inject(areaListInjection, ref([]))
 const iconMap = inject(iconMapInjection, ref<Record<string, string>>({}))
 
-const leafList = computed(() => areaList.value.reduce((seed, { areaId, parentId, ...rest }) => {
+const leafList = computed(() => areaList.value.reduce((seed, { code, parentId, ...rest }) => {
   parentId !== -1 && seed.push({
     ...rest,
-    areaId: `${areaId}`,
+    areaCode: `${code}`,
   })
   return seed
 }, [] as Record<string, any>[]))
 </script>
 
 <template>
-  <RadioCardGroup v-model="internalBind" :item-list="leafList" data-key="areaId" item-key="areaId">
+  <RadioCardGroup v-model="internalBind" :item-list="leafList" data-key="areaCode" item-key="areaCode">
     <template #default="{ item, actived }">
       <RadioCardItem :src="iconMap?.[item.iconTag]" :title="item.name" :actived="actived" />
     </template>

@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { ref } from 'vue'
 import 'leaflet/dist/leaflet.css'
 import type { LeafletEvent } from 'leaflet'
 import { ControlPanel } from './components'
@@ -19,11 +20,12 @@ const { map, stopPropagationSignal, on: onMapEvent } = useMap(containerRef)
 const { layers, activeName, layerConfig, selectLayer } = useLayer(map)
 
 onMounted(() => {
-  if (!mapStore.areaId)
+  if (!mapStore.areaCode)
     selectLayer(Object.keys(layers.value)[0])
 })
 
 onMapEvent('baselayerchange', () => {
+  console.log(layerConfig.value)
   if (!mapStore.center) {
     mapStore.center = layerConfig.value?.settings?.center as [number, number]
     mapStore.zoom = layerConfig.value?.settings?.zoom as number
@@ -51,25 +53,30 @@ const { areaList, onSuccess: onAreaFetched } = useAreaList()
  * @TODO 地图焦点自动移动到对应的地区中心
  * @注意 需要在 ../config/mapTiles 里配置地图与地区关联 id
  */
-const setMapNameByAreaId = (id?: number) => {
-  if (id === undefined)
+const setMapNameByAreaCode = (code?: string) => {
+  if (!code)
     return
   for (const key in mapTiles) {
     const config = mapTiles[key as MapNameEnum]
     if (!config)
       continue
-    if (config.areaIds.includes(id)) {
-      mapStore.areaId = id
+    if (config.areaCodes.includes(code)) {
       activeName.value = key
+      mapStore.areaCode = code
       mapStore.center = undefined
       return
     }
   }
 }
 
-const areaId = computed({
-  get: () => !areaList.value.length ? undefined : mapStore.areaId,
-  set: setMapNameByAreaId,
+const areaCode = computed({
+  get: () => !areaList.value.length ? undefined : mapStore.areaCode,
+  set: setMapNameByAreaCode,
+})
+
+const areaId = computed(() => {
+  const area: ref<API.AreaVo[]> = !areaCode.value || !areaList.value.length ? undefined : areaList.value.find(area => area.code === mapStore.areaCode)
+  return area === undefined ? undefined : area.areaId
 })
 
 // ==================== 物品相关 ====================
@@ -94,7 +101,7 @@ const selectedItem = computed(() => filteredItemList.value.find(item => item.nam
 
 // 在物品列表变更后，如果当前已选的同类物品不在列表内，则清除已选项
 // TODO 初次加载时可能无法保留状态
-watch(() => [mapStore.areaId, mapStore.typeId], () => {
+watch(() => [mapStore.areaCode, mapStore.typeId], () => {
   if (!selectedItem.value)
     mapStore.iconName = undefined
 })
@@ -119,7 +126,7 @@ onMapEvent('contextmenu', openContextMenu)
 
 // ==================== 其他 ====================
 onAreaFetched(() => {
-  mapStore.areaId !== undefined && setMapNameByAreaId(mapStore.areaId)
+  mapStore.areaCode !== undefined && setMapNameByAreaCode(mapStore.areaCode)
   if (selectedItem.value?.itemId !== undefined) {
     createMarkerWhenReady()
     updateMarkerList()
@@ -140,7 +147,7 @@ provide(iconMapInjection, iconMap)
     <div ref="containerRef" class="genshin-map absolute w-full h-full" style="background: #000" />
 
     <ControlPanel
-      v-model:area-id="areaId"
+      v-model:area-code="areaCode"
       v-model:icon-name="mapStore.iconName"
       v-model:type="mapStore.typeId"
       v-model:step="mapStore.step"

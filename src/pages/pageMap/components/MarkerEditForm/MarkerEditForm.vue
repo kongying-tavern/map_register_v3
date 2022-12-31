@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import type L from 'leaflet'
 import type { FormRules } from 'element-plus'
-import { useMarkerStage } from '../hooks'
-import { MarkerEditSelect } from '.'
+import { useMarkerStage } from '../../hooks'
+import { MarkerEditImage, MarkerEditSelect, MarkerEditTextarea } from '.'
 import { GlobalDialogController } from '@/hooks'
 import { useUserStore } from '@/stores'
 import type { ElFormType } from '@/pages/pageItemManager/utils'
@@ -29,6 +29,7 @@ const { markerData: form, loading } = useMarkerStage({
         itemId: props.selectedItem.itemId,
       }]
     : [],
+  videoPath: '',
 })
 
 const rules: FormRules = {
@@ -44,10 +45,16 @@ const rules: FormRules = {
     message: '至少需要选择一项物品',
     trigger: 'change',
   }],
+  videoPath: [{
+    required: false,
+    validator: (_, value) => value.length && value.search('^https://www.bilibili.com/video/BV[a-zA-Z0-9]+') > -1,
+    message: '视频链接不正确(需要B站链接)',
+    trigger: 'blur',
+  }],
 }
 
 /** 右侧额外面板 */
-const extraVisible = ref(false)
+const extraId = ref('')
 
 /** 表单实例 */
 const formRef = ref<ElFormType | null>(null)
@@ -87,23 +94,32 @@ provide('extraPanel', extraPanelRef)
       <el-form-item label="所属物品" prop="itemList">
         <MarkerEditSelect
           v-model="form.itemList"
-          v-model:extra-visible="extraVisible"
+          v-model:extra-id="extraId"
           :item-list="itemList"
           :type-list="typeList"
           :icon-map="iconMap"
         />
       </el-form-item>
 
-      <el-form-item label="点位说明">
-        <el-input v-model="form.content" type="textarea" :rows="3" resize="none" />
+      <el-form-item label="点位说明" prop="content">
+        <MarkerEditTextarea
+          v-model="form.content"
+          v-model:extra-id="extraId"
+          name="content"
+          description="展开点位说明"
+        />
       </el-form-item>
 
-      <el-form-item label="点位图像">
-        <div>字段交互开发中</div>
+      <el-form-item label="点位图像" prop="picture">
+        <MarkerEditImage
+          v-model="form.picture"
+          v-model:extra-id="extraId"
+          v-model:creator-id="form.pictureCreatorId"
+        />
       </el-form-item>
 
-      <el-form-item label="点位视频">
-        <div>字段交互开发中</div>
+      <el-form-item label="点位视频" prop="videoPath">
+        <el-input v-model="form.videoPath" />
       </el-form-item>
 
       <el-form-item label-width="0" style="margin-bottom: 0;">
@@ -118,7 +134,7 @@ provide('extraPanel', extraPanelRef)
       </el-form-item>
     </el-form>
 
-    <div class="extra-panel" :class="{ visible: extraVisible }">
+    <div class="extra-panel" :class="{ visible: extraId }">
       <div ref="extraPanelRef" class="extra-panel__content" />
     </div>
   </div>

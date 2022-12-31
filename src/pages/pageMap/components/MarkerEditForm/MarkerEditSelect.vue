@@ -1,19 +1,18 @@
 <script lang="ts" setup>
-import type { Ref } from 'vue'
 import { Close, Setting } from '@element-plus/icons-vue'
-import { MarkerEditSelectExtraPanel } from '.'
+import { MarkerEditSelectExtraPanel, TeleportExtra } from '.'
 
 const props = defineProps<{
   modelValue?: API.MarkerItemLinkVo[]
   itemList: API.ItemVo[]
   typeList: API.ItemTypeVo[]
   iconMap: Record<string, string>
-  extraVisible: boolean
+  extraId: string
 }>()
 
 const emits = defineEmits<{
   (e: 'update:modelValue', v: API.MarkerItemLinkVo[]): void
-  (e: 'update:extraVisible', v: boolean): void
+  (e: 'update:extraId', v: string): void
 }>()
 
 /** 类型 id 与类型对象的映射 */
@@ -30,11 +29,10 @@ const itemMap = computed(() => props.itemList.reduce((seed, item) => {
   return seed
 }, {} as Record<number, API.ItemVo>))
 
+const extraActive = computed(() => props.extraId === 'itemList')
 const toggleExtraPanel = () => {
-  emits('update:extraVisible', !props.extraVisible)
+  emits('update:extraId', extraActive.value ? '' : 'itemList')
 }
-
-const extraPanelRef = inject('extraPanel') as Ref<HTMLElement | null>
 </script>
 
 <template>
@@ -43,7 +41,7 @@ const extraPanelRef = inject('extraPanel') as Ref<HTMLElement | null>
       v-bind="$attrs"
       class="marker-item-select w-full"
       :class="{
-        extraVisible,
+        extraActive,
       }"
     >
       <div
@@ -60,10 +58,13 @@ const extraPanelRef = inject('extraPanel') as Ref<HTMLElement | null>
           {{ typeMap[itemMap[item.itemId as number].typeIdList?.[0] ?? -1]?.name ?? '未分类' }} - {{ itemMap[item.itemId as number].name }}
         </div>
         <el-icon><Close /></el-icon>
-        <el-input
+        <el-input-number
           v-model="internalBind[index].count"
-          style="width: 60px"
-          type="number"
+          controls-position="right"
+          style="width: 80px"
+          step-strictly
+          :step="1"
+          :min="1"
         />
       </div>
       <div v-if="!modelValue?.length" class="px-2">
@@ -71,19 +72,16 @@ const extraPanelRef = inject('extraPanel') as Ref<HTMLElement | null>
       </div>
     </div>
 
-    <el-button :icon="Setting" :type="extraVisible ? 'primary' : ''" title="选择物品" circle @click="toggleExtraPanel" />
+    <el-button :icon="Setting" :type="extraActive ? 'primary' : ''" title="选择物品" circle @click="toggleExtraPanel" />
 
-    <Teleport v-if="extraPanelRef" :to="extraPanelRef">
-      <Transition name="fade">
-        <MarkerEditSelectExtraPanel
-          v-if="props.extraVisible"
-          v-model="internalBind"
-          :item-list="itemList"
-          :type-map="typeMap"
-          :icon-map="iconMap"
-        />
-      </Transition>
-    </Teleport>
+    <TeleportExtra :active="extraActive">
+      <MarkerEditSelectExtraPanel
+        v-model="internalBind"
+        :item-list="itemList"
+        :type-map="typeMap"
+        :icon-map="iconMap"
+      />
+    </TeleportExtra>
   </div>
 </template>
 
@@ -95,7 +93,7 @@ const extraPanelRef = inject('extraPanel') as Ref<HTMLElement | null>
   &:hover {
     border-color: var(--el-border-color-hover);
   }
-  &.extraVisible {
+  &.extraActive {
     border-color: var(--el-color-primary);
   }
 }
