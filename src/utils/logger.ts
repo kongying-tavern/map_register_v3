@@ -13,6 +13,7 @@ export class Logger {
   error = (...args: any[]) => {
     if (import.meta.env.MODE !== 'development')
       return
+
     debug && console.error(this.prefix, ...args)
   }
 }

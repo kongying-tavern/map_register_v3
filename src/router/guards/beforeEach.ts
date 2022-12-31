@@ -2,6 +2,9 @@ import { ElMessage } from 'element-plus'
 import type { NavigationGuardWithThis, Router } from 'vue-router'
 import { isInPermissionList, isInWhiteList } from '../utils'
 import { useUserStore } from '@/stores'
+import { Logger } from '@/utils'
+
+const logger = new Logger('[routerGuards]')
 
 interface BeforeEachGuardOptions {
   debug?: boolean
@@ -14,13 +17,13 @@ export const beforeEachGuard = (
   const { debug = false } = options
 
   return (to, from, next) => {
-    debug && console.log('[beforeEachGuard]', `"${from.path}" => "${to.path}"`)
+    debug && logger.info('[beforeEachGuard]', `"${from.path}" => "${to.path}"`)
 
     if (isInWhiteList(to))
       return next(true)
 
     const routes = router.getRoutes()
-    debug && console.log('[beforeEachGuard]', routes)
+    debug && logger.info('[beforeEachGuard]', routes)
     const isRouteExist = routes.find(route => route.path === to.path)
     if (!isRouteExist) {
       ElMessage.error('目标路由不存在')
