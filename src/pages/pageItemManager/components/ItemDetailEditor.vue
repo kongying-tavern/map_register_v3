@@ -1,16 +1,20 @@
 <script lang="ts" setup>
 import { cloneDeep } from 'lodash'
+import { ElMessage } from 'element-plus'
 import type { ElFormType, ItemFormRules } from '../utils'
-import { emptyCheck, lengthCheck } from '../utils'
+import { lengthCheck } from '../utils'
 import { useTimeRefresh } from '../hooks'
-import { useAreaList, useTypeList } from '@/hooks'
+import { useAreaList, useItemCreate, useItemUpdate, useTypeList } from '@/hooks'
 import { GlobalDialogController } from '@/hooks/useGlobalDialog'
+
+type EditorType = 'creator' | 'editor'
 
 const props = defineProps<{
   item: API.ItemVo
   iconList: API.IconVo[]
   areaList: API.AreaVo[]
   iconMap: Record<string, string>
+  type: EditorType
 }>()
 
 const emits = defineEmits<{
@@ -19,15 +23,15 @@ const emits = defineEmits<{
 
 const formData = ref<API.ItemVo>({})
 
-onMounted(() => {
-  formData.value = cloneDeep(props.item)
-  console.log(props.iconMap)
-})
+formData.value = cloneDeep(props.item)
+
+/**
+ * @TODO 补充表单验证规则，产品经理人呢，(╯▔皿▔)╯？
+ */
 
 const rules: ItemFormRules<API.ItemVo> = {
   name: [
     lengthCheck('blur', '名称', 10),
-    emptyCheck(),
   ],
 }
 
@@ -60,15 +64,49 @@ const hiddenFlagOptions = ref([
 
 const formRef = ref<ElFormType | null>(null)
 
+const setEditor = () => {
+  const { onSuccess, refresh } = useItemUpdate({
+    params: () => [formData.value],
+    editSame: false,
+  })
+
+  onSuccess(() => {
+    emits('success')
+    ElMessage.success('修改成功')
+    GlobalDialogController.close()
+  })
+
+  return refresh
+}
+
+const setCreator = () => {
+  const { onSuccess, refresh } = useItemCreate({
+    params: () => formData.value,
+  })
+
+  onSuccess(() => {
+    emits('success')
+    ElMessage.success('新建成功')
+    GlobalDialogController.close()
+  })
+
+  return refresh
+}
+
+const setEditorType = () => {
+  if (props.type === 'creator')
+    return setCreator()
+  else
+    return setEditor()
+}
+
+const confirm = setEditorType()
+
 const onSubmit = async () => {
-  // const { onSuccess } = useItemUpdate({
-  //   params: () => [formData.value],
-  //   editSame: false
-  // })
   const isValid = await formRef.value?.validate().catch(() => false)
   if (isValid) {
-    emits('success')
-    console.log(formData.value)
+    GlobalDialogController.updateBtnProps('submit', { props: { loading: true } })
+    await confirm()
   }
 }
 

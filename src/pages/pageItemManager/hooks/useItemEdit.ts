@@ -36,6 +36,7 @@ export const useItemEdit = (options: ItemEditHookOptions) => {
         iconList: options.props.iconList ?? [],
         areaList: options.props.areaList ?? [],
         iconMap: options.props.iconMap ?? {},
+        type: 'editor',
       })
       .listeners({
         ...options.listeners,

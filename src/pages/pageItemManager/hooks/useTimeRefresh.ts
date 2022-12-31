@@ -31,35 +31,28 @@ export const useTimeRefresh = (options: FormTimeRefreshParamHooksOptions) => {
     },
   ])
 
-  const _refreshTime = ref<RefreshTimeObj>({
+  const refreshTime = ref<RefreshTimeObj>({
     days: 0,
     hour: 0,
     min: 0,
     sec: 0,
   })
 
-  const refreshTime = computed({
-    get: () => {
-      const time = (formData.value.defaultRefreshTime ?? 0) / 1000
-      const days = Math.floor(time / 24 / 3600)
-      const hour = Math.floor(time / 3600 - days * 24)
-      const min = Math.floor(time / 60 - days * 24 * 60 - hour * 60)
-      const sec = time % 60
+  const setRefreshTime = () => {
+    const time = (formData.value.defaultRefreshTime ?? 0) / 1000
+    const days = Math.floor(time / 24 / 3600)
+    const hour = Math.floor(time / 3600 - days * 24)
+    const min = Math.floor(time / 60 - days * 24 * 60 - hour * 60)
+    const sec = time % 60
 
-      _refreshTime.value = {
-        days,
-        hour,
-        min,
-        sec,
-      }
+    refreshTime.value = { days, hour, min, sec }
+  }
 
-      return _refreshTime.value
-    },
-    set: (time) => {
-      formData.value.defaultRefreshTime = (((time.hour + time.days * 24) * 60 + time.min) * 60 + time.sec) * 1000
-      _refreshTime.value = time
-    },
-  })
+  setRefreshTime()
+
+  watch(refreshTime, (_, time) => {
+    formData.value.defaultRefreshTime = (((time.hour + time.days * 24) * 60 + time.min) * 60 + time.sec) * 1000
+  }, { deep: true })
 
   const resetRefreshTime = (options?: RefreshTimeObj) => {
     refreshTime.value = {
@@ -71,6 +64,24 @@ export const useTimeRefresh = (options: FormTimeRefreshParamHooksOptions) => {
   }
 
   const _refreshTimeOptionsIndex = ref(0)
+
+  const resetOptionIndex = () => {
+    switch (formData.value.defaultRefreshTime ?? 0) {
+      case 0 :
+        _refreshTimeOptionsIndex.value = 0
+        timeSelectDisabled.value = true
+        break
+      case 24 * 60 * 60 * 1000 :
+        _refreshTimeOptionsIndex.value = 1
+        timeSelectDisabled.value = true
+        break
+      default :
+        _refreshTimeOptionsIndex.value = 2
+        timeSelectDisabled.value = false
+    }
+  }
+
+  resetOptionIndex()
 
   const refreshTimeOptionsIndex = computed({
     get: () => _refreshTimeOptionsIndex.value,
@@ -93,5 +104,5 @@ export const useTimeRefresh = (options: FormTimeRefreshParamHooksOptions) => {
     },
   })
 
-  return { refreshTimeOptionsIndex, refreshTimeOptions, timeSelectDisabled, refreshTime, resetRefreshTime }
+  return { refreshTimeOptionsIndex, refreshTimeOptions, timeSelectDisabled, refreshTime, resetRefreshTime, resetOptionIndex }
 }

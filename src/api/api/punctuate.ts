@@ -1,30 +1,38 @@
 import { request } from '@/utils';
 
-/** 提交暂存点位（不含额外字段） 成功则返回打点提交ID PUT /punctuate/single */
+/** 提交暂存点位 成功则返回打点提交ID PUT /punctuate/ */
 export async function addSinglePunctuate(
-  body: API.MarkerSinglePunctuateVo,
+  params: {
+    // header
+},
+  body: API.MarkerPunctuateVo,
   options?: { [key: string]: any },
 ) {
-  return request<API.RLong>(`/api/punctuate/single`, {
+  return request<API.RLong>(`/api/punctuate/`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
     },
+    params: { ...params },
     data: body,
     ...(options || {}),
   });
 }
 
-/** 修改自身未提交的暂存点位（不包括额外字段） 根据点位ID修改点位 POST /punctuate/single */
+/** 修改自身未提交的暂存点位 根据点位ID修改点位 POST /punctuate/ */
 export async function updateSelfSinglePunctuate(
-  body: API.MarkerSinglePunctuateVo,
+  params: {
+    // header
+},
+  body: API.MarkerPunctuateVo,
   options?: { [key: string]: any },
 ) {
-  return request<API.RBoolean>(`/api/punctuate/single`, {
+  return request<API.RBoolean>(`/api/punctuate/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
+    params: { ...params },
     data: body,
     ...(options || {}),
   });
@@ -33,7 +41,8 @@ export async function updateSelfSinglePunctuate(
 /** 将暂存点位提交审核 将暂存点位提交审核 PUT /punctuate/push/${param0} */
 export async function pushPunctuate(
   params: {
-    // path
+    // header
+// path
     authorId: number;
   },
   options?: { [key: string]: any },
@@ -41,37 +50,8 @@ export async function pushPunctuate(
   const { authorId: param0, ...queryParams } = params;
   return request<API.RBoolean>(`/api/punctuate/push/${param0}`, {
     method: 'PUT',
+    headers: {},
     params: { ...queryParams },
-    ...(options || {}),
-  });
-}
-
-/** 提交暂存点位额外字段 在涉及的所有点位已经暂存后在使用该api PUT /punctuate/extra */
-export async function addExtraPunctuate(
-  body: API.MarkerExtraPunctuateVo,
-  options?: { [key: string]: any },
-) {
-  return request<API.RBoolean>(`/api/punctuate/extra`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    data: body,
-    ...(options || {}),
-  });
-}
-
-/** 修改自身未提交的暂存点位的额外字段 根据点位ID修改点位 POST /punctuate/extra */
-export async function updateSelfPunctuateExtra(
-  body: API.MarkerExtraPunctuateVo,
-  options?: { [key: string]: any },
-) {
-  return request<API.RBoolean>(`/api/punctuate/extra`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    data: body,
     ...(options || {}),
   });
 }
@@ -91,58 +71,33 @@ export async function listPunctuatePage(
   });
 }
 
-/** 分页查询自己提交的未通过的打点信息（不包含额外字段） 分页查询自己提交的未通过的打点信息（不包含额外字段）（打点员的API） POST /punctuate/get/page_single/${param0} */
-export async function listSelfSinglePunctuatePage(
+/** 分页查询自己提交的未通过的打点信息 分页查询自己提交的未通过的打点信息（打点员的API） POST /punctuate/get/page/${param0} */
+export async function listSelfPunctuatePage(
   params: {
-    // path
+    // header
+// path
     authorId: number;
   },
   body: API.PageSearchVo,
   options?: { [key: string]: any },
 ) {
   const { authorId: param0, ...queryParams } = params;
-  return request<API.RPageListVoMarkerSinglePunctuateVo>(
-    `/api/punctuate/get/page_single/${param0}`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      params: { ...queryParams },
-      data: body,
-      ...(options || {}),
+  return request<API.RPageListVoMarkerPunctuateVo>(`/api/punctuate/get/page/${param0}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
     },
-  );
-}
-
-/** 分页查询自己提交的未通过的打点信息（只包含额外字段） 分页查询自己提交的未通过的打点信息（只包含额外字段） （打点员的API） POST /punctuate/get/page_extra/${param0} */
-export async function listSelfExtraPunctuatePage(
-  params: {
-    // path
-    authorId: number;
-  },
-  body: API.PageSearchVo,
-  options?: { [key: string]: any },
-) {
-  const { authorId: param0, ...queryParams } = params;
-  return request<API.RPageListVoMarkerExtraPunctuateVo>(
-    `/api/punctuate/get/page_extra/${param0}`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      params: { ...queryParams },
-      data: body,
-      ...(options || {}),
-    },
-  );
+    params: { ...queryParams },
+    data: body,
+    ...(options || {}),
+  });
 }
 
 /** 删除自己未通过的提交点位 根据提交ID列表来删除提交点位，会对打点员ID进行校验 DELETE /punctuate/delete/${param1}/${param0} */
 export async function deleteSelfPunctuate(
   params: {
-    // path
+    // header
+// path
     punctuateId: number;
     authorId: number;
   },
@@ -151,6 +106,7 @@ export async function deleteSelfPunctuate(
   const { punctuateId: param0, authorId: param1, ...queryParams } = params;
   return request<API.RBoolean>(`/api/punctuate/delete/${param1}/${param0}`, {
     method: 'DELETE',
+    headers: {},
     params: { ...queryParams },
     ...(options || {}),
   });

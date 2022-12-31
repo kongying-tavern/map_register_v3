@@ -7,7 +7,7 @@ interface ItemListHookOptions extends FetchHookOptions<API.RPageListVoItemVo> {
   params?: () => API.ItemSearchVo
 }
 
-interface ItemUpdateHookOptions extends FetchHookOptions<API.ItemVo> {
+interface ItemUpdateHookOptions extends FetchHookOptions<API.RBoolean> {
   params?: () => API.ItemVo[]
   editSame?: boolean
 }
@@ -42,17 +42,58 @@ export const useItemList = (options: ItemListHookOptions = {}) => {
 
 /** 修改某几个物品 */
 export const useItemUpdate = (options: ItemUpdateHookOptions = {}) => {
-  const { immediate = true, editSame = false, loading = ref(false), params } = options
+  const { immediate = false, editSame = false, loading = ref(false), params } = options
+
+  const fetchParams = computed(() => params?.())
+
+  const { refresh, ...rest } = useFetchHook({
+    immediate,
+    loading,
+    onRequest: async () => Api.item.updateItem({ editSame: editSame ? 1 : 0 }, fetchParams.value ?? []),
+  })
+
+  return { refresh, ...rest }
+}
+
+interface ItemDeleteHookOptions extends FetchHookOptions<API.RBoolean> {
+  params: () => number[]
+}
+
+/** 按itemId列表删除几个物品 */
+export const useItemDelete = (options: ItemDeleteHookOptions) => {
+  const { immediate = false, loading = ref(false), params } = options
 
   const fetchParams = computed(() => params?.())
 
   const rest = useFetchHook({
     immediate,
     loading,
-    onRequest: async () => Api.item.updateItem({ editSame: editSame ? 1 : 0 }, fetchParams.value ?? []),
+    onRequest: async () => {
+      const missions = fetchParams.value.map(itemId => Api.item.deleteItem({ itemId }))
+      await Promise.allSettled(missions)
+      /** @TODO 批量请求，可能会遇到来自服务器或网络错误无法收集，暂时先一律忽略 */
+      return { error: false }
+    },
   })
 
-  const { pause, resume } = pausableWatch(fetchParams, rest.refresh, { deep: true })
+  return { ...rest }
+}
 
-  return { pause, resume, ...rest }
+interface ItemCreateHookOptions extends FetchHookOptions<API.RLong> {
+  params: () => API.ItemVo
+}
+
+/** 新增物品 */
+export const useItemCreate = (options: ItemCreateHookOptions) => {
+  const { immediate = false, loading = ref(false), params } = options
+
+  const fetchParams = computed(() => params?.())
+
+  const rest = useFetchHook({
+    immediate,
+    loading,
+    onRequest: async () => Api.item.createItem(fetchParams.value),
+  })
+
+  return { ...rest }
 }

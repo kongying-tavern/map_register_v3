@@ -1,13 +1,21 @@
 import type { Ref } from 'vue'
 import { messageFrom } from '@/utils'
 
-export interface FetchHookOptions<T = any> {
+interface BasicResponseBody {
+  error?: boolean
+  errorStatus?: number
+  errorData?: Record<string, any>
+  message?: string
+  time?: string
+}
+
+export interface FetchHookOptions<T extends BasicResponseBody> {
   loading?: Ref<boolean>
   immediate?: boolean
   onRequest?: () => Promise<T>
 }
 
-export const useFetchHook = <T>(options: FetchHookOptions<T> = {}) => {
+export const useFetchHook = <T extends BasicResponseBody>(options: FetchHookOptions<T> = {}) => {
   const { immediate, loading = ref(false), onRequest } = options
 
   const onSuccessHook = createEventHook<T>()
@@ -18,6 +26,9 @@ export const useFetchHook = <T>(options: FetchHookOptions<T> = {}) => {
       loading.value = true
       if (onRequest) {
         const res = await onRequest()
+        /** @TODO */
+        if (res.error)
+          throw new Error(`error in server \n ${res.errorData} \n ${res.message}`)
         onSuccessHook.trigger(res)
       }
     }
