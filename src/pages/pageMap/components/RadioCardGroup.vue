@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 const props = withDefaults(defineProps<{
-  modelValue?: string
+  modelValue?: string | number
   itemList: Record<string, any>[]
   dataKey: string
   itemKey?: string
@@ -11,7 +11,7 @@ const props = withDefaults(defineProps<{
 })
 
 const emits = defineEmits<{
-  (e: 'update:modelValue', v?: string): void
+  (e: 'update:modelValue', v?: string | number): void
 }>()
 
 const internalBind = computed({
@@ -54,11 +54,11 @@ const proxySelect = (ev: MouseEvent) => {
         :key="item[itemKey ?? dataKey]"
         :data-bind-key="item[dataKey]"
         :class="{
-          actived: internalBind === item[dataKey],
+          actived: `${internalBind}` === `${item[dataKey]}`,
         }"
         class="item-selector w-full h-10 rounded p-1 flex items-center gap-2 overflow-hidden cursor-pointer transition-all duration-150"
       >
-        <slot :item="item" :actived="internalBind === item[dataKey]">
+        <slot :item="item" :actived="`${internalBind}` === `${item[dataKey]}`">
           {{ item[dataKey] }}
         </slot>
       </div>

@@ -47,8 +47,10 @@ watch(bindStep, (newStep, oldStep) => {
   trName.value = newStep > oldStep ? 'slide-x-r' : 'slide-x-l'
 })
 
+const autoNextStep = ref(false)
+
 const next = (v?: string | number) => {
-  if (v === undefined)
+  if (v === undefined || !autoNextStep.value)
     return
   bindStep.value < steps.length - 1 && (bindStep.value += 1)
 }
@@ -75,6 +77,14 @@ const minus = ref(false)
         :step-names="steps"
         class="content flex-1"
       />
+      <div class="content px-2 flex justify-center items-center gap-1" title="满足条件时自动进入下一个选择器">
+        <div class="text-xs leading-none">
+          auto
+          <br>
+          next
+        </div>
+        <el-switch v-model="autoNextStep" />
+      </div>
     </div>
 
     <div class="content">
@@ -82,15 +92,21 @@ const minus = ref(false)
         <KeepAlive>
           <FilterArea v-if="(bindStep === 0)" v-model="bindAreaCode" class="h-full" @change="next" />
 
+          <div v-else-if="bindAreaCode === undefined" class="h-full grid place-items-center text-white">
+            <el-button link type="primary" @click="(bindStep -= 1)">
+              请选择地区
+            </el-button>
+          </div>
+
           <FilterType v-else-if="(bindStep === 1)" v-model="bindType" class="h-full" @change="next" />
+
+          <FilterItem v-else-if="(bindStep === 2)" v-model="bindItemName" :loading="itemLoading" class="h-full" />
 
           <div v-else-if="!bindType" class="h-full grid place-items-center text-white">
             <el-button link type="primary" @click="(bindStep -= 1)">
               请选择分类
             </el-button>
           </div>
-
-          <FilterItem v-else-if="(bindStep === 2)" v-model="bindItemName" :loading="itemLoading" class="h-full" />
         </KeepAlive>
       </Transition>
     </div>
@@ -119,7 +135,6 @@ const minus = ref(false)
 .content {
   color: white;
   border: 1px solid rgb(134, 128, 120);
-  width: 100%;
   height: 100%;
   border-radius: var(--content-radius);
   background-color: rgba(94, 94, 94, 0.3);
