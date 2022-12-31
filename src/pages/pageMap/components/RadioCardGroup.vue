@@ -37,7 +37,7 @@ const proxySelect = (ev: MouseEvent) => {
     class="item-radio-group overflow-y-auto text-xs text-slate-300 p-1"
     @click="proxySelect"
   >
-    <div v-if="itemList.length" class="grid grid-cols-3 gap-1 content-start">
+    <div v-if="itemList.length" class="grid grid-cols-2 gap-1 content-start">
       <div
         v-for="item in itemList"
         :key="item[itemKey ?? dataKey]"
@@ -45,7 +45,7 @@ const proxySelect = (ev: MouseEvent) => {
         :class="{
           actived: internalBind === item[dataKey],
         }"
-        class="item-selector w-full h-10 rounded p-1 flex gap-1 overflow-hidden cursor-pointer transition-all duration-150"
+        class="item-selector w-full h-12 rounded p-1 flex gap-2 overflow-hidden cursor-pointer transition-all duration-150"
       >
         <slot :item="item" :actived="internalBind === item[dataKey]">
           {{ item[dataKey] }}
