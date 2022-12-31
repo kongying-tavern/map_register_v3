@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 const mapData = useUrlSearchParams('history', {
   removeNullishValues: true,
   initialValue: {
-    areaId: 2 as undefined | number,
+    areaCode: undefined as undefined | string,
     step: 0 as undefined | number,
     typeId: undefined as undefined | number,
     zoom: 0 as undefined | number,
@@ -22,7 +22,7 @@ const format = <T>(v: T, fn: (pv: T) => NonNullable<T>) => {
 
 const mapStore = defineStore('map-info', {
   state: () => ({
-    areaId: format(mapData.areaId, Number),
+    areaCode: mapData.areaCode,
     step: format(mapData.step, Number),
     typeId: format(mapData.typeId, Number),
     zoom: format(mapData.zoom, Number),

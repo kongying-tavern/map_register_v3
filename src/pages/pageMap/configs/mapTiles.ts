@@ -26,8 +26,8 @@ export interface MapTileConfig {
   settings?: L.MapOptions
   /** 图片后缀名 */
   extension?: string
-  /** 当前地图包含的地区 id */
-  areaIds: number[]
+  /** 当前地图包含的地区 code */
+  areaCodes: string[]
   /** 继承配置 */
   extend?: MapNameEnum
 }
@@ -35,7 +35,7 @@ export interface MapTileConfig {
 /** 地图切片配置 */
 export const mapTiles: Record<MapNameEnum, MapTileConfig> = {
   [MapNameEnum.EXTEND_0]: {
-    areaIds: [],
+    areaCodes: [],
     extension: 'png',
     center: [3568, 6286],
     size: [12288, 12288],
@@ -47,7 +47,22 @@ export const mapTiles: Record<MapNameEnum, MapTileConfig> = {
   },
   [MapNameEnum.TIVAT_MASTER]: {
     extend: MapNameEnum.EXTEND_0,
-    areaIds: [1, 2, 3, 5, 6, 11, 12, 13, 14, 17, 18, 19, 21, 22],
+    areaCodes: [
+      'C:LY',
+      'A:LY:LIYUE',
+      'A:LY:CENGYAN',
+      'C:MD',
+      'A:MD:MENGDE',
+      'C:DQ',
+      'A:DQ:1',
+      'A:DQ:2',
+      'A:DQ:HEGUAN',
+      'A:MD:XUESHAN',
+      'C:XM',
+      'A:XM:FOREST',
+      'A:XM:DESERT',
+      'A:XM:DESERT2',
+    ],
     code: 'twt31',
     size: [16384, 15360],
     tilesOffset: [-4864, 0],
@@ -59,7 +74,12 @@ export const mapTiles: Record<MapNameEnum, MapTileConfig> = {
   },
   [MapNameEnum.GOLDEN_APPLE_ISLANDS]: {
     extend: MapNameEnum.EXTEND_0,
-    areaIds: [7, 8, 9, 10],
+    areaCodes: [
+      'C:APPLE',
+      'A:APPLE:1_6_STG2',
+      'A:APPLE:1_6_STG1',
+      'A:APPLE:2_8',
+    ],
     code: 'qd28',
     size: [8192, 8192],
     settings: {
@@ -69,7 +89,7 @@ export const mapTiles: Record<MapNameEnum, MapTileConfig> = {
   },
   [MapNameEnum.CENG_YAN_JU_YUAN]: {
     extend: MapNameEnum.EXTEND_0,
-    areaIds: [4],
+    areaCodes: ['A:LY:CENGYAN_UG'],
     code: 'cyjy',
     settings: {
       center: [1800, -500],
@@ -78,12 +98,12 @@ export const mapTiles: Record<MapNameEnum, MapTileConfig> = {
   },
   [MapNameEnum.YUAN_XIA_GONG]: {
     extend: MapNameEnum.EXTEND_0,
-    areaIds: [15],
+    areaCodes: ['A:DQ:YUANXIAGONG'],
     code: 'yxg',
   },
   [MapNameEnum.SAN_JIE_LU_XIANG_JI]: {
     extend: MapNameEnum.EXTEND_0,
-    areaIds: [16],
+    areaCodes: [16],
     code: 'yxg2',
   },
 }

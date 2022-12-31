@@ -3,7 +3,7 @@ import { FullScreen, Minus } from '@element-plus/icons-vue'
 import { FilterArea, FilterItem, FilterStep, FilterType, MarkersTable } from '.'
 
 const props = defineProps<{
-  areaId?: number
+  areaCode?: string
   type?: number
   step?: string | number
   iconName?: string
@@ -12,16 +12,16 @@ const props = defineProps<{
 }>()
 
 const emits = defineEmits<{
-  (e: 'update:areaId', v?: number): void
+  (e: 'update:areaCode', v?: string): void
   (e: 'update:type', v?: number): void
   (e: 'update:iconName', v?: string): void
   (e: 'changeStep', v?: number): void
   (e: 'update:step', v: number): void
 }>()
 
-const bindAreaId = computed({
-  get: () => props.areaId,
-  set: v => emits('update:areaId', v),
+const bindAreaCode = computed({
+  get: () => props.areaCode,
+  set: v => emits('update:areaCode', v),
 })
 
 const bindType = computed({
@@ -80,7 +80,7 @@ const minus = ref(false)
     <div class="content">
       <Transition :name="trName" mode="out-in" appear>
         <KeepAlive>
-          <FilterArea v-if="(bindStep === 0)" v-model="bindAreaId" class="h-full" @change="next" />
+          <FilterArea v-if="(bindStep === 0)" v-model="bindAreaCode" class="h-full" @change="next" />
 
           <FilterType v-else-if="(bindStep === 1)" v-model="bindType" class="h-full" @change="next" />
 
