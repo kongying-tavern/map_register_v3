@@ -38,7 +38,7 @@ const resetPagination = () => {
 
 const onAreaCheckedChange = (area: API.AreaVo) => {
   // TODO 过滤非端点选项
-  if ([undefined, 1, 5, 7, 11, 18].includes(area.areaId))
+  if (!area.isFinal)
     return
   resetPagination()
   checkedArea.value = area
