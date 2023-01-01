@@ -3,11 +3,13 @@ defineProps<{
   src?: string
   title?: string
   actived?: boolean
+  leaf?: boolean
 }>()
 </script>
 
 <template>
   <div
+    v-show="!leaf"
     class="h-full aspect-square rounded grid place-items-center bg-gray-800 transition-all duration-150"
     :class="{
       'bg-stone-500': actived,

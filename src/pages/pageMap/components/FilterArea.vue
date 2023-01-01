@@ -31,7 +31,7 @@ const parentAreaList = computed(() => areaList.value.filter(area => !area.isFina
 const parentAreaMap = computed(() => areaList.value.reduce((seed, area) => {
   if (area.isFinal && area.areaId !== undefined) {
     if (!(area.parentId as number in seed))
-      seed[area.parentId as number] = []
+      seed[area.parentId as number] = [area]
     else
       seed[area.parentId as number].push(area)
   }
@@ -65,14 +65,18 @@ watch(internalBind, () => {
       </template>
     </RadioCardGroup>
 
-    <div class="flex flex-col justify-center items-center text-sm px-2">
-      →
-      <div>二级地区</div>
+    <div>
+      <svg xmlns="http://www.w3.org/2000/svg" version="1.1" style="width: 2px;margin-top: 50px;">
+        <line
+          x1="0" y1="0" x2="0" y2="200"
+          style="stroke:rgb(134 128 120);stroke-width:2"
+        />
+      </svg>
     </div>
 
     <RadioCardGroup v-model="internalBind" class="flex-1" :cols="1" :item-list="leafList" data-key="code" item-key="code">
       <template #default="{ item, actived }">
-        <RadioCardItem :src="iconMap?.[item.iconTag]" :title="item.name" :actived="actived" />
+        <RadioCardItem :title="item.name" :actived="actived" leaf />
       </template>
     </RadioCardGroup>
   </div>
