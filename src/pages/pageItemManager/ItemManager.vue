@@ -52,7 +52,6 @@ const onTypeCheckedChange = (typeItem: API.ItemTypeVo) => {
 }
 
 onItemListFetched(({ data: { record = [], total = 0 } = {} }) => {
-  console.log('[物品列表]', record)
   pagination.value.total = total
 })
 
@@ -83,7 +82,6 @@ const deleteOneItem = ref<API.ItemVo[]>([])
 
 const getDeleteParams = () => {
   const transform = (items: Ref<API.ItemVo[]>) => items.value.map(item => item.itemId ?? -1).filter(id => id !== -1)
-  console.log('[点击删除]', deleteOneItem.value)
   if (deleteOneItem.value.length)
     return transform(deleteOneItem)
   return transform(selection)

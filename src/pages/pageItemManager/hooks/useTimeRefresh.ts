@@ -55,7 +55,6 @@ export const useTimeRefresh = (options: FormTimeRefreshParamHooksOptions) => {
   }, { deep: true })
 
   const resetRefreshTime = (options?: RefreshTimeObj) => {
-    console.log('[resetTime]', options)
     refreshTime.value.days = options ? options.days : 0
     refreshTime.value.hour = options ? options.hour : 0
     refreshTime.value.min = options ? options.min : 0
