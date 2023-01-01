@@ -1,7 +1,7 @@
 import { request } from '@/utils';
 
 /** 提交暂存点位 成功则返回打点提交ID PUT /punctuate/ */
-export async function addSinglePunctuate(
+export async function addPunctuate(
   params: {
     // header
 },
@@ -20,7 +20,7 @@ export async function addSinglePunctuate(
 }
 
 /** 修改自身未提交的暂存点位 根据点位ID修改点位 POST /punctuate/ */
-export async function updateSelfSinglePunctuate(
+export async function updateSelfPunctuate(
   params: {
     // header
 },

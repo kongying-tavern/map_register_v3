@@ -1,5 +1,4 @@
 import { join, resolve } from 'path'
-import { Logger } from '@/utils'
 import type { ProxyOptions } from 'vite'
 import { defineConfig, loadEnv } from 'vite'
 import Vue from '@vitejs/plugin-vue'
@@ -8,11 +7,10 @@ import AutoImport from 'unplugin-auto-import/vite'
 import { getMHYProxys } from './.vite'
 import { openapi2ts } from './plugins'
 
-const logger = new Logger("[vite]")
-
 export default defineConfig(({ mode }) => {
   const ENV = loadEnv(mode, '.') as ImportMetaEnv
-  logger.info('[ENV]', ENV)
+  // eslint-disable-next-line no-console
+  console.log('[ENV]', ENV)
 
   const proxy: Record<string, string | ProxyOptions> = {
     ...getMHYProxys(),
