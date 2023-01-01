@@ -25,7 +25,6 @@ onMounted(() => {
 })
 
 onMapEvent('baselayerchange', () => {
-  console.log(layerConfig.value)
   if (!mapStore.center) {
     mapStore.center = layerConfig.value?.settings?.center as [number, number]
     mapStore.zoom = layerConfig.value?.settings?.zoom as number

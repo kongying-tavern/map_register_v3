@@ -1,5 +1,6 @@
+import { ElMessage } from 'element-plus'
 import L from 'leaflet'
-import { getObjectFitSize } from '@/utils'
+import { getObjectFitSize, messageFrom } from '@/utils'
 
 export interface GenshinLayerOptions extends Record<string, any> {
   img: {
@@ -142,8 +143,8 @@ export const canvasMarker = (...opt: any[]) => {
         delete opt[i].pane
     }
   }
-  catch (e) {
-    console.error(e)
+  catch (err) {
+    ElMessage.error(`无法渲染点位: ${messageFrom(err)}`)
   }
   return new CanvasMarker(...opt)
 }

@@ -66,8 +66,8 @@ const confirm = async () => {
     const res = await formRef.value.validate()
     res && DialogController.close()
   }
-  catch (err) {
-    console.log('校验错误', err)
+  catch {
+    // no action
   }
 }
 

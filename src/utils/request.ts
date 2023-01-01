@@ -3,6 +3,8 @@ import axios from 'axios'
 import type { AxiosRequestConfig } from 'axios'
 import { useUserStore } from '@/stores'
 
+const debug = import.meta.env.DEV
+
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE,
   timeout: 5000,
@@ -27,7 +29,7 @@ axiosInstance.interceptors.request.use(
   },
   (error) => {
     // Do something with request error
-    console.error(error) // for debug
+    debug && console.error(error)
     Promise.reject(error)
   },
 )
@@ -41,6 +43,7 @@ axiosInstance.interceptors.response.use(
   },
   (error) => {
     // todo: response handler
+    debug && console.error(error)
     return Promise.reject(error)
   },
 )

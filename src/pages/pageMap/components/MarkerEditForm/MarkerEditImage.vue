@@ -41,7 +41,6 @@ const onFileChange = async (uploadFile: UploadFile) => {
   const blob = new Blob([await raw.arrayBuffer()])
   const imageBitmap = await createImageBitmap(blob)
   const { width, height } = imageBitmap
-  console.log(imageBitmap)
   if (width < 256 || height < 256) {
     ElMessage.error('不符合尺寸的图片，图片的长宽至少需要为 256x256')
     return

@@ -26,7 +26,6 @@ export const useIconList = (options: IconsHookOptions = {}) => {
       // 两次请求，第一次获取定量，如果总数大于定量，则第二次请求全部
       let res = await Api.icon.listIcon({ size: preFetchCount })
       if ((res.data?.total ?? 0) > preFetchCount) {
-        console.log('第二次')
         res = await Api.icon.listIcon({
           current: 1,
           size: res.data?.total ?? preFetchCount,

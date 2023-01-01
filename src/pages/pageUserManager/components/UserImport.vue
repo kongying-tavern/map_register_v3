@@ -35,7 +35,6 @@ const onConfirm = () => {
   const formData = csvHasHeader.value
     ? newUserList.value.filter((row, i) => i !== 0)
     : newUserList
-  console.log(formData)
 }
 
 const readUploadedFileAsText = (inputFile: File) => {
