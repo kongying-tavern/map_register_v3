@@ -1,4 +1,5 @@
 import axios from "axios";
+import { get_user_refresh_token } from "src/service/user_info";
 // 登录获取token
 function get_token(username, password, grant_type = "password") {
   const data = new FormData();
@@ -25,7 +26,7 @@ function refresh_token() {
       Authorization: "Basic Y2xpZW50OnNlY3JldA==",
     },
     params: {
-      refresh_token: localStorage.getItem("_yuanshen_dadian_refresh_token"),
+      refresh_token: get_user_refresh_token(),
       grant_type: "refresh_token",
     },
   });

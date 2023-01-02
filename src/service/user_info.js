@@ -5,6 +5,7 @@ function set_user_data(data = {}) {
   set_user_id(data.userId);
   set_user_roles(data.userRoles || [], data.expires_in);
   set_user_refresh_token(data.refresh_token);
+  set_user_expires(data.expires_in);
 }
 
 function get_user_token() {
@@ -37,8 +38,24 @@ function set_user_roles(roles = [], expires = "") {
   });
 }
 
+function get_user_refresh_token() {
+  return localStorage.getItem("_yuanshen_dadian_refresh_token");
+}
+
 function set_user_refresh_token(refresh_token = "") {
   localStorage.setItem("_yuanshen_dadian_refresh_token", refresh_token);
+}
+
+function get_user_expires() {
+  const expire_time = localStorage.getItem("_yuanshen_dadian_expire");
+  return Number(expire_time);
+}
+
+function set_user_expires(expire_in = 0) {
+  localStorage.setItem(
+    "_yuanshen_dadian_expire",
+    Date.now() + expire_in * 1e3 - 360e3
+  );
 }
 
 function has_user_role(role = "") {
@@ -54,6 +71,11 @@ function is_neigui() {
   );
 }
 
+function is_expired() {
+  const expire = get_user_expires();
+  return Date.now() > expire;
+}
+
 export {
   set_user_data,
   get_user_token,
@@ -62,7 +84,11 @@ export {
   set_user_id,
   get_user_roles,
   set_user_roles,
+  get_user_refresh_token,
   set_user_refresh_token,
+  get_user_expires,
+  set_user_expires,
   has_user_role,
   is_neigui,
+  is_expired,
 };

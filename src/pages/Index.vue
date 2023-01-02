@@ -109,7 +109,7 @@ import LayerRegister from "../components/register.vue";
 import IslandSelector from "../components/plugins/2_8_island/selector.vue";
 import Logout from "../components/Logout.vue";
 import { refresh_token } from "../service/user_log_request";
-import { set_user_data } from "../service/user_info";
+import { is_expired, set_user_data } from "../service/user_info";
 export default {
   name: "PageIndex",
   data() {
@@ -154,10 +154,12 @@ export default {
     }
 
     setInterval(() => {
-      refresh_token().then((res) => {
-        set_user_data(res.data || {});
-      });
-    }, 1800000);
+      if (is_expired()) {
+        refresh_token().then((res) => {
+          set_user_data(res.data || {});
+        });
+      }
+    }, 300e3);
   },
   watch: {
     handle_type(val) {

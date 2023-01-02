@@ -12,7 +12,9 @@
 </template>
 
 <script>
+import { create_notify } from "src/api/common";
 import { set_user_data } from "src/service/user_info";
+
 export default {
   name: "PluginLogout",
   methods: {
