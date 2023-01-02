@@ -48,7 +48,7 @@ const requestEdit = () => {
     />
     <div v-else class="flex" @click.stop="requestEdit">
       <el-tag v-if="internalValue !== undefined" disable-transitions>
-        {{ roleValueMap[internalValue]?.name }}
+        {{ Array.isArray(props.modelValue) ? props.modelValue[0]?.name : props.modelValue?.name }}
       </el-tag>
     </div>
   </div>
