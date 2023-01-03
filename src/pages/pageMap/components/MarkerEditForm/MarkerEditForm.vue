@@ -64,10 +64,16 @@ const confirm = async () => {
     return
   try {
     const res = await formRef.value.validate()
+    loading.value = true
+    // TODO 点位表单对应的业务逻辑，或许应该抽出
+    await new Promise(resolve => setTimeout(resolve, 500))
     res && DialogController.close()
   }
   catch {
     // no action
+  }
+  finally {
+    loading.value = false
   }
 }
 
@@ -124,11 +130,12 @@ provide('extraPanel', extraPanelRef)
 
       <el-form-item label-width="0" style="margin-bottom: 0;">
         <div class="w-full flex justify-end">
-          <el-button :loading="loading" @click="GlobalDialogController.close">
+          <el-button :disabled="loading" @click="GlobalDialogController.close">
             取消
           </el-button>
           <el-button :loading="loading" type="primary" @click="confirm">
-            {{ userStore.isAdmin ? '确认' : '提交审核' }}
+            <!-- {{ userStore.isAdmin ? '确认' : '提交审核' }} -->
+            {{ userStore.isAdmin ? '开发中' : '开发中' }}
           </el-button>
         </div>
       </el-form-item>
