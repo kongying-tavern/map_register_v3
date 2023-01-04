@@ -31,19 +31,27 @@ declare namespace API {
     time?: string;
   };
 
-  type Routeqianduanfengzhuang = {
+  type RouteVo = {
     /** 乐观锁：修改次数 */
     version?: number;
-    路线ID?: number;
-    路线名称?: string;
-    路线描述?: string;
-    点位顺序数组?: string;
-    显隐等级?: number;
-    视频地址?: string;
-    额外信息?: string;
+    /** 路线ID */
+    id?: number;
+    /** 路线名称 */
+    name?: string;
+    /** 路线描述 */
+    content?: string;
+    /** 点位顺序数组 */
+    markerList?: string;
+    /** 显隐等级 */
+    hiddenFlag?: number;
+    /** 视频地址 */
+    video?: string;
+    /** 额外信息 */
+    extra?: string;
     /** 创建人 */
     creatorId?: number;
-    创建人昵称?: string;
+    /** 创建人昵称 */
+    creatorNickname?: string;
   };
 
   type MarkerItemLinkVo = {
@@ -307,28 +315,31 @@ declare namespace API {
     time?: string;
   };
 
-  type luxianfenyechaxunqianduanfengzhuang = {
-    '路线名称模糊搜索字段'?: string;
-    '创建人昵称模糊搜索字段，此字段不能与创建人id字段共存'?: string;
-    '创建人id，此字段不能与昵称模糊搜索字段共存'?: string;
+  type RouteSearchVo = {
+    /** 路线名称模糊搜索字段 */
+    namePart?: string;
+    /** 创建人昵称模糊搜索字段，此字段不能与创建人id字段共存 */
+    creatorNicknamePart?: string;
+    /** 创建人id，此字段不能与昵称模糊搜索字段共存 */
+    creatorId?: string;
     /** 当前页，从0开始 */
-    'current'?: number;
+    current?: number;
     /** 每页大小，默认为10 */
-    'size'?: number;
+    size?: number;
   };
 
-  type PageListVoRouteqianduanfengzhuang = {
-    record?: Routeqianduanfengzhuang[];
+  type PageListVoRouteVo = {
+    record?: RouteVo[];
     total?: number;
     size?: number;
   };
 
-  type RPageListVoRouteqianduanfengzhuang = {
+  type RPageListVoRouteVo = {
     error?: boolean;
     errorStatus?: number;
     errorData?: Record<string, any>;
     message?: string;
-    data?: PageListVoRouteqianduanfengzhuang;
+    data?: PageListVoRouteVo;
     time?: string;
   };
 
@@ -339,12 +350,12 @@ declare namespace API {
     size?: number;
   };
 
-  type RListRouteqianduanfengzhuang = {
+  type RListRouteVo = {
     error?: boolean;
     errorStatus?: number;
     errorData?: Record<string, any>;
     message?: string;
-    data?: Routeqianduanfengzhuang[];
+    data?: RouteVo[];
     time?: string;
   };
 
