@@ -31,6 +31,21 @@ declare namespace API {
     time?: string;
   };
 
+  type Routeqianduanfengzhuang = {
+    /** 乐观锁：修改次数 */
+    version?: number;
+    路线ID?: number;
+    路线名称?: string;
+    路线描述?: string;
+    点位顺序数组?: string;
+    显隐等级?: number;
+    视频地址?: string;
+    额外信息?: string;
+    /** 创建人 */
+    creatorId?: number;
+    创建人昵称?: string;
+  };
+
   type MarkerItemLinkVo = {
     /** 物品id */
     itemId?: number;
@@ -292,11 +307,45 @@ declare namespace API {
     time?: string;
   };
 
+  type luxianfenyechaxunqianduanfengzhuang = {
+    '路线名称模糊搜索字段'?: string;
+    '创建人昵称模糊搜索字段，此字段不能与创建人id字段共存'?: string;
+    '创建人id，此字段不能与昵称模糊搜索字段共存'?: string;
+    /** 当前页，从0开始 */
+    'current'?: number;
+    /** 每页大小，默认为10 */
+    'size'?: number;
+  };
+
+  type PageListVoRouteqianduanfengzhuang = {
+    record?: Routeqianduanfengzhuang[];
+    total?: number;
+    size?: number;
+  };
+
+  type RPageListVoRouteqianduanfengzhuang = {
+    error?: boolean;
+    errorStatus?: number;
+    errorData?: Record<string, any>;
+    message?: string;
+    data?: PageListVoRouteqianduanfengzhuang;
+    time?: string;
+  };
+
   type PageSearchVo = {
     /** 当前页，从0开始 */
     current?: number;
     /** 每页大小，默认为10 */
     size?: number;
+  };
+
+  type RListRouteqianduanfengzhuang = {
+    error?: boolean;
+    errorStatus?: number;
+    errorData?: Record<string, any>;
+    message?: string;
+    data?: Routeqianduanfengzhuang[];
+    time?: string;
   };
 
   type PageListVoMarkerPunctuateVo = {

@@ -2,6 +2,7 @@
 // API 唯一标识：
 import * as tagType from './tagType';
 import * as tag from './tag';
+import * as route from './route';
 import * as punctuate from './punctuate';
 import * as marker from './marker';
 import * as itemType from './itemType';
@@ -18,6 +19,7 @@ import * as itemDoc from './itemDoc';
 export default {
   tagType,
   tag,
+  route,
   punctuate,
   marker,
   itemType,
