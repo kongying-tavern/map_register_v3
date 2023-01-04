@@ -1,15 +1,21 @@
 <script lang="ts" setup>
-defineProps<{
+withDefaults(defineProps<{
+  /** icon 图片地址 */
   src?: string
+  /** 选项标题 */
   title?: string
+  /** 选项是否为激活状态 */
   actived?: boolean
-  leaf?: boolean
-}>()
+  /** 是否显示 icon 图标 */
+  icon?: boolean
+}>(), {
+  icon: true,
+})
 </script>
 
 <template>
   <div
-    v-show="!leaf"
+    v-if="icon"
     class="h-full aspect-square rounded grid place-items-center bg-gray-800 transition-all duration-150"
     :class="{
       'bg-stone-500': actived,
@@ -30,7 +36,7 @@ defineProps<{
     </el-image>
   </div>
 
-  <div class="flex-1 align-middle whitespace-nowrap overflow-hidden text-ellipsis leading-7">
+  <div class="flex-1 px-2 align-middle whitespace-nowrap overflow-hidden text-ellipsis leading-7">
     {{ title }}
   </div>
 </template>

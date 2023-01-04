@@ -56,7 +56,7 @@ const proxySelect = (ev: MouseEvent) => {
         :class="{
           actived: `${internalBind}` === `${item[dataKey]}`,
         }"
-        class="item-selector w-full h-10 rounded p-1 flex items-center gap-2 overflow-hidden cursor-pointer transition-all duration-150"
+        class="item-selector w-full h-10 rounded p-1 flex items-center overflow-hidden cursor-pointer transition-all duration-150"
       >
         <slot :item="item" :actived="`${internalBind}` === `${item[dataKey]}`">
           {{ item[dataKey] }}

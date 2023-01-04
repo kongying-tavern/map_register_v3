@@ -65,18 +65,11 @@ watch(internalBind, () => {
       </template>
     </RadioCardGroup>
 
-    <div>
-      <svg xmlns="http://www.w3.org/2000/svg" version="1.1" style="width: 2px;margin-top: 50px;">
-        <line
-          x1="0" y1="0" x2="0" y2="200"
-          style="stroke:rgb(134 128 120);stroke-width:2"
-        />
-      </svg>
-    </div>
+    <div class="h-full p-1 bg-stone-500" style="clip-path: inset(16px 44%);" />
 
     <RadioCardGroup v-model="internalBind" class="flex-1" :cols="1" :item-list="leafList" data-key="code" item-key="code">
       <template #default="{ item, actived }">
-        <RadioCardItem :title="item.name" :actived="actived" leaf />
+        <RadioCardItem :title="item.name" :actived="actived" :icon="false" />
       </template>
     </RadioCardGroup>
   </div>
