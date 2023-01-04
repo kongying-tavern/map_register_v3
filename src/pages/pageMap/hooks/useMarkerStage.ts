@@ -13,7 +13,7 @@ export const useMarkerStage = (init: API.MarkerPunctuateVo = {}) => {
 
   const { refresh: stageMarker, onSuccess: onStageSuccess, onError: onCreateError } = useFetchHook({
     loading,
-    onRequest: () => Api.punctuate.addSinglePunctuate({}, markerData.value),
+    onRequest: () => Api.punctuate.addPunctuate({}, markerData.value),
   })
   onStageSuccess(() => successHook.trigger())
   onCreateError(errorHook.trigger)

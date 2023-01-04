@@ -2,10 +2,10 @@ import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 import { messageFrom } from '@/utils'
 
-export const useMarkerEdit = (init: API.MarkerSingleVo = {}) => {
+export const useMarkerEdit = (init: API.MarkerVo = {}) => {
   const loading = ref(false)
 
-  const markerData = ref<API.MarkerSingleVo>(init)
+  const markerData = ref<API.MarkerVo>(init)
 
   const { refresh: createMarker, onSuccess: onCreateSuccess, onError: onCreateError } = useFetchHook({
     loading,
