@@ -2,18 +2,12 @@ import type { Ref } from 'vue'
 import type { LeafletEventHandlerFnMap } from 'leaflet'
 import { GenshinMap } from '../utils'
 
+const map = ref<GenshinMap | null>(null) as Ref<GenshinMap | null>
+const stopPropagationSignal = ref(false)
+
 export const useMap = (ele: Ref<HTMLElement | null>) => {
-  const map = ref<GenshinMap | null>(null) as Ref<GenshinMap | null>
   const hookUnregisters = shallowRef<(() => void)[]>([])
   const listeners = shallowRef<[string, (...args: any[]) => any][]>([])
-  const mapCreatedHook = createEventHook<GenshinMap>()
-  const stopPropagationSignal = ref(false)
-
-  const onMapCreated = (cb: (mapInstance: GenshinMap) => void) => {
-    const { off } = mapCreatedHook.on(cb)
-    hookUnregisters.value.push(off)
-    return off
-  }
 
   const callWithSignal = (fn: (...args: any[]) => void, ...args: any[]) => {
     if (stopPropagationSignal.value) {
@@ -36,21 +30,22 @@ export const useMap = (ele: Ref<HTMLElement | null>) => {
   onMounted(() => {
     if (!ele.value)
       return
-    const newMap = new GenshinMap(ele.value, {
-      center: [-5948, 2176],
-      zoom: -3,
-      maxZoom: 2,
-      minZoom: -4,
-      tap: false,
-      zoomAnimation: true,
-      fadeAnimation: true,
-      attributionControl: false,
-      zoomControl: false,
-      preferCanvas: true,
-    })
-    listeners.value.forEach(([type, fn]) => newMap.addEventListener(type, (...args) => callWithSignal(fn, ...args)))
-    map.value = newMap
-    mapCreatedHook.trigger(newMap)
+    if (!map.value) {
+      const newMap = new GenshinMap(ele.value, {
+        center: [-5948, 2176],
+        zoom: -3,
+        maxZoom: 2,
+        minZoom: -4,
+        tap: false,
+        zoomAnimation: true,
+        fadeAnimation: true,
+        attributionControl: false,
+        zoomControl: false,
+        preferCanvas: true,
+      })
+      map.value = newMap
+    }
+    listeners.value.forEach(([type, fn]) => map.value?.addEventListener(type, (...args) => callWithSignal(fn, ...args)))
   })
 
   onBeforeUnmount(() => {
@@ -60,5 +55,5 @@ export const useMap = (ele: Ref<HTMLElement | null>) => {
     hookUnregisters.value.forEach(off => off())
   })
 
-  return { map, stopPropagationSignal, on, onMapCreated }
+  return { map, stopPropagationSignal, on }
 }
