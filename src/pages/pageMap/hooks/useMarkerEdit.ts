@@ -19,12 +19,12 @@ export const useMarkerEdit = (init: API.MarkerVo = {}) => {
 
   const deleteSuccessHook = createEventHook<void>()
   const deleteErrorHook = createEventHook<Error>()
-  const deleteMarker = async (markerId?: number) => {
-    if (markerId === undefined)
+  const deleteMarker = async () => {
+    if (markerData.value.id === undefined)
       return
     try {
       loading.value = true
-      await Api.marker.deleteMarker({ markerId })
+      await Api.marker.deleteMarker({ markerId: markerData.value.id })
       deleteSuccessHook.trigger()
     }
     catch (err) {

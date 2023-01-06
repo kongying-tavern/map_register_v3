@@ -17,7 +17,7 @@ export interface MarkerHookOptions extends FetchHookOptions<API.RListMarkerVo> {
 }
 
 export interface LinkedMapMarker extends API.MarkerVo {
-  mapMarker?: L.CircleMarker<any>
+  mapMarker?: L.CircleMarker
 }
 
 const popupDOM = L.DomUtil.create('div', 'w-full h-full')
@@ -38,7 +38,7 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
   const preMarkerCreateCb = ref<(() => void) | null>(null)
   /** 当前选择的 item 对应的图片地址 */
   const iconUrl = computed(() => iconMap.value[selectedItem.value?.iconTag ?? ''])
-
+  /** 点位相关方法 */
   const { refresh: updateMarkerList, onSuccess: onMarkerFetched, onError, ...rest } = useFetchHook({
     immediate,
     loading,
@@ -54,7 +54,7 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
    * 根据点位坐标将地图移动到点集中心
    * @todo 可以根据全局设置做成可选功能
    */
-  const moveToCenter = (markers: L.CircleMarker<any>[]) => {
+  const moveToCenter = (markers: L.CircleMarker[]) => {
     if (!markers.length)
       return
     const { xmin, xmax, ymin, ymax } = markers.slice(1).reduce((rect, marker) => {
@@ -104,7 +104,7 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
       render(h(PopupContent, {
         markerInfo,
         latlng: coordinates,
-        refresh: updateMarkerList,
+        onRefresh: updateMarkerList,
       }), popupDOM)
       popup.setContent(popupDOM)
         .setLatLng(coordinates)
@@ -139,7 +139,7 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
   }
 
   /** 更新点位图层 */
-  const refreshMarkerLayer = (markers: L.CircleMarker<any>[]) => {
+  const refreshMarkerLayer = (markers: L.CircleMarker[]) => {
     markerLayer.value && map.value?.removeLayer(markerLayer.value as L.Layer)
     markerLayer.value = L.layerGroup(markers)
     map.value?.addLayer(markerLayer.value as L.Layer)

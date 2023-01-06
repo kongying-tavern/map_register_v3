@@ -1,36 +1,46 @@
 <script lang="ts" setup>
 import type L from 'leaflet'
-import { ElButton, ElMessage } from 'element-plus'
+import { ElButton, ElMessage, ElMessageBox } from 'element-plus'
 import { ceil } from 'lodash'
 import { useMarkerEdit } from '../hooks'
-import { messageFrom } from '@/utils'
+import { Logger } from '@/utils'
 
 const props = defineProps<{
   markerInfo: API.MarkerVo
   latlng: L.LatLng
-  refresh: any
 }>()
 
 const emits = defineEmits<{
   (e: 'clickOutside', v: PointerEvent): void
+  (e: 'refresh'): void
 }>()
 
-// 编辑
+const logger = new Logger('[点位编辑]')
+
+const { markerData, deleteMarker, onDeleteSuccess, onDeleteError } = useMarkerEdit(props.markerInfo)
+onDeleteSuccess(() => {
+  ElMessage.success('删除成功')
+  emits('refresh')
+})
+onDeleteError((err) => {
+  ElMessage.error(err.message)
+})
+
+// TODO 编辑
 const onClickEdit = () => {
-  ElMessage.success(props.markerInfo.markerTitle)
-  props.refresh()
+  ElMessage.warning(`[开发中] 删除 ${markerData.value.markerTitle}`)
 }
 
-const onClickDel = () => {
-  const { deleteMarker, onDeleteSuccess, onDeleteError } = useMarkerEdit(props.markerInfo)
-  onDeleteSuccess(() => {
-    ElMessage.success('删除成功')
-    props.refresh()
-  })
-  onDeleteError(
-    (err) => { ElMessage.error(messageFrom(err)) },
-  )
-  deleteMarker(props.markerInfo.id)
+const onClickDel = async () => {
+  try {
+    await ElMessageBox.confirm('该操作不可逆，确认删除点位？', '确认操作', {
+      type: 'warning',
+    })
+    await deleteMarker()
+  }
+  catch (err) {
+    logger.info(err)
+  }
 }
 
 const containerRef = ref<HTMLElement | null>(null)

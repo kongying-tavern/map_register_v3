@@ -7,7 +7,6 @@ import { MarkerEditImage, MarkerEditSelect, MarkerEditTextarea } from '.'
 import { GlobalDialogController } from '@/hooks'
 import { useUserStore } from '@/stores'
 import type { ElFormType } from '@/pages/pageItemManager/utils'
-import { messageFrom } from '@/utils'
 import { DialogController } from '@/hooks/useGlobalDialog/dialogController'
 
 const props = defineProps<{
@@ -16,50 +15,73 @@ const props = defineProps<{
   typeList: API.ItemTypeVo[]
   iconMap: Record<string, string>
   selectedItem?: API.ItemVo
-  refresh: any
+}>()
+
+const emits = defineEmits<{
+  (e: 'refresh'): void
 }>()
 
 const userStore = useUserStore()
 
-const MarkerInfo = {
-  markerTitle: props.selectedItem?.name ?? '',
-  content: '',
-  hiddenFlag: 0,
-  itemList: props.selectedItem
-    ? [{
-        count: 1,
-        iconTag: props.selectedItem.iconTag,
-        itemId: props.selectedItem.itemId,
-      }]
-    : [],
-  videoPath: '',
-  markerCreatorId: userStore.info.id,
+/** 初始化新增点位信息 */
+const initFormData = (): API.MarkerVo => {
+  const { lat, lng } = props.latlng
+  return {
+    markerTitle: props.selectedItem?.name ?? '',
+    content: '',
+    hiddenFlag: 0,
+    position: `${lat},${lng}`,
+    itemList: props.selectedItem
+      ? [{
+          count: 1,
+          iconTag: props.selectedItem.iconTag,
+          itemId: props.selectedItem.itemId,
+        }]
+      : [],
+    videoPath: '',
+    markerCreatorId: userStore.info.id,
+  }
 }
 
-const { markerData: form, loading, stageMarker, onStageSuccess, onStageError, pushStagedMarker, onPushStagedSuccess, onPushStagedError } = useMarkerStage(MarkerInfo)
+/** 通用错误处理 */
+const commonErrorHandler = (err: Error) => ElMessage.error(err.message)
+
+// 非管理员走暂存审核方法
+const { markerData: form, loading, stageMarker, onStageSuccess, onStageError, pushStagedMarker, onPushStagedSuccess, onPushStagedError } = useMarkerStage(initFormData())
+onPushStagedSuccess(() => {
+  ElMessage.success('点位暂存成功')
+})
+onPushStagedError(commonErrorHandler)
+onStageError(commonErrorHandler)
+onStageSuccess(pushStagedMarker)
+
+// 管理员直接走点位创建方法
+const { createMarker: createMarkerAPI, onCreateSuccess, onCreateError } = useMarkerEdit(initFormData())
+onCreateSuccess((res) => {
+  ElMessage.success(`点位创建成功, ID 为 ${res.data}`)
+  emits('refresh')
+})
+onCreateError(commonErrorHandler)
+onCreateError(commonErrorHandler)
 
 const rules: FormRules = {
   markerTitle: [{
     required: true,
-    validator: () => (form.value.markerTitle = form.value.markerTitle?.trim() ?? '').length > 0,
+    validator: (_, value = '') => (form.value.markerTitle = value.trim()).length > 0,
     message: '标题不能为空（首尾空白字符会被去除）',
     trigger: 'blur',
   }],
   itemList: [{
     required: true,
-    validator: (_, value) => value.length > 0,
+    validator: () => (form.value.itemList ??= []).length > 0,
     message: '至少需要选择一项物品',
     trigger: 'change',
   }],
   videoPath: [{
     required: false,
-    validator: () => {
-      if (!form.value.videoPath)
-        return true
-      if (form.value.videoPath.length === 0)
-        return true
-      else
-        return form.value.videoPath.search('^https://www.bilibili.com/video/BV[a-zA-Z0-9]+') > -1
+    validator: (_, value = '') => {
+      form.value.videoPath = value.trim()
+      return !form.value.videoPath || /^https:\/\/www.bilibili.com\/video\/BV[a-zA-Z0-9]+/.test(form.value.videoPath)
     },
     message: '视频链接不正确(需要B站链接)',
     trigger: 'blur',
@@ -68,54 +90,17 @@ const rules: FormRules = {
 
 /** 点位提交API */
 const createMarker = async () => {
-  try {
-    form.value.position = `${String(Math.ceil(props.latlng.lat))},${String(Math.ceil(props.latlng.lng))}`
-    if (userStore.isAdmin) {
-      // admin, 点位提交
-      const { createMarker: createMarkerAPI, onCreateSuccess, onCreateError } = useMarkerEdit(form.value)
-      onCreateError(
-        (err) => { ElMessage.error(messageFrom(err)) },
-      )
-      onCreateSuccess(
-        (res) => {
-          ElMessage.success(`点位创建成功, ID为${res.data}`)
-          props.refresh()
-        },
-      )
-      await createMarkerAPI()
-      return true
-    }
-    else {
-      // 打点员，点位暂存
-      form.value.author = userStore.info.id
-      form.value.status = 0
-      form.value.methodType = 1
-      onPushStagedSuccess(
-        () => {
-          ElMessage.success('点位暂存成功')
-        },
-      )
-      onPushStagedError(
-        (err) => { ElMessage.error(messageFrom(err)) },
-      )
-      onStageError(
-        (err) => { ElMessage.error(messageFrom(err)) },
-      )
-      onStageSuccess(
-        (res) => {
-          pushStagedMarker()
-        },
-      )
-      stageMarker()
-      return true
-    }
+  // admin, 点位提交
+  if (userStore.isAdmin) {
+    await createMarkerAPI()
+    return true
   }
-  catch (err) {
-    return false
-  }
-  finally {
-    // do nothing
-  }
+  // 打点员，点位暂存
+  form.value.author = userStore.info.id
+  form.value.status = 0
+  form.value.methodType = 1
+  await stageMarker()
+  return true
 }
 
 /** 右侧额外面板 */

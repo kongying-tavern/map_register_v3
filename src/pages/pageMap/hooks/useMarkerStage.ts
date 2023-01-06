@@ -8,7 +8,7 @@ export const useMarkerStage = (init: API.MarkerPunctuateVo = {}) => {
 
   const markerData = ref<API.MarkerPunctuateVo>(init)
 
-  const successHook = createEventHook<any>()
+  const successHook = createEventHook<API.RBoolean>()
   const errorHook = createEventHook<Error>()
 
   const { refresh: stageMarker, onSuccess: onStageSuccess, onError: onStageError } = useFetchHook({
@@ -18,7 +18,11 @@ export const useMarkerStage = (init: API.MarkerPunctuateVo = {}) => {
 
   const { refresh: pushStagedMarker, onSuccess: onPushStagedSuccess, onError: onPushStagedError } = useFetchHook({
     loading,
-    onRequest: () => Api.punctuate.pushPunctuate({ authorId: markerData.value.author }),
+    onRequest: () => {
+      if (markerData.value.author === undefined)
+        throw new Error('用户 id 为空')
+      return Api.punctuate.pushPunctuate({ authorId: markerData.value.author })
+    },
   })
 
   const { refresh: updateStagedMarker, onSuccess: onUpdateStagedSuccess, onError: onUpdateStagedError } = useFetchHook({
@@ -33,8 +37,8 @@ export const useMarkerStage = (init: API.MarkerPunctuateVo = {}) => {
       return
     try {
       loading.value = true
-      await Api.marker.deleteMarker({ markerId })
-      successHook.trigger(true)
+      const res = await Api.marker.deleteMarker({ markerId })
+      successHook.trigger(res)
     }
     catch (err) {
       errorHook.trigger(new Error(messageFrom(err)))
