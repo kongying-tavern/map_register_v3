@@ -11,17 +11,16 @@ import { ceil } from 'lodash'
 
 const props = defineProps<{
   latlng: L.LatLng
+  selectedArea?: API.AreaVo
   hasPunctauteRights: boolean
 }>()
 
 const emits = defineEmits<{
-  (e: 'command', v: string, payload?: any): void
+  (e: 'command', v: string): void
 }>()
 
-const contextmenuRef = ref<HTMLElement | null>(null)
-
 const createMarker = () => {
-  if (!props.hasPunctauteRights)
+  if (!props.hasPunctauteRights || !props.selectedArea)
     return
   emits('command', 'add')
 }
@@ -29,14 +28,13 @@ const createMarker = () => {
 
 <template>
   <div
-    ref="contextmenuRef"
     class="context-menu w-full h-full rounded-md grid grid-cols-2 grid-rows-2 gap-2 text-white shadow-xl text-sm"
   >
     <div
       data-command="add"
       class="context-menu-item rounded col-span-2"
-      :class="{ disabled: !hasPunctauteRights }"
-      :title="!hasPunctauteRights ? '没有权限' : undefined"
+      :class="{ disabled: !hasPunctauteRights || !selectedArea }"
+      :title="!hasPunctauteRights ? '没有权限' : !selectedArea ? '未选择地区' : undefined"
       @click="createMarker"
     >
       <ElIcon><Plus /></ElIcon>

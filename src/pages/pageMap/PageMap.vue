@@ -116,6 +116,7 @@ const { iconMap, markerList, loading: markerLoading, createMarkerWhenReady, upda
 })
 
 const { openContextMenu } = useContextMenu({
+  areaList,
   itemList,
   typeList,
   iconMap,

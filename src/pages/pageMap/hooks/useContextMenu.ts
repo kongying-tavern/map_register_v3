@@ -5,29 +5,30 @@ import { ceil } from 'lodash'
 import { ContextMenu, MarkerEditForm } from '../components'
 import type { GenshinMap } from '../utils'
 import { useGlobalDialog } from '@/hooks'
-import { useUserStore } from '@/stores'
+import { useMapStore, useUserStore } from '@/stores'
 
+/** 传递给右键菜单的参数 */
 interface ContextMenuHookOptions {
   selectedItem: Ref<API.ItemVo | undefined>
+  areaList: Ref<API.AreaVo[]>
   itemList: Ref<API.ItemVo[]>
   typeList: Ref<API.ItemTypeVo[]>
   iconMap: Ref<Record<string, string>>
   refreshMarkers: () => void
 }
 
+/** 传递给新增/编辑面板的参数 */
 interface MarkerEditFormProps {
-  hasPunctauteRights: boolean
   latlng: L.LatLng
-  selectedItem?: API.ItemVo
-  itemList: API.ItemVo[]
-  typeList: API.ItemTypeVo[]
-  iconMap: Record<string, string>
-  refresh: any
+  selectedArea?: API.AreaVo
 }
 
 /** 右键菜单管理 */
 export const useContextMenu = (options: ContextMenuHookOptions) => {
-  const { refreshMarkers, selectedItem, itemList, iconMap, typeList } = options
+  const { refreshMarkers, selectedItem, areaList, itemList, iconMap, typeList } = options
+
+  const userStore = useUserStore()
+  const mapStore = useMapStore()
 
   const { DialogService } = useGlobalDialog()
 
@@ -37,22 +38,32 @@ export const useContextMenu = (options: ContextMenuHookOptions) => {
     const { lat, lng } = latlng
     DialogService
       .config({
-        title: `新增点位：(${ceil(lat, 2)}, ${ceil(lng, 2)})`,
+        title: `新增点位：${props.selectedArea?.name} - (${ceil(lat, 2)}, ${ceil(lng, 2)})`,
         top: '5vh',
         width: 'fit-content',
         class: 'transition-all',
       })
-      .props(props)
+      .props({
+        hasPunctauteRights: userStore.hasPunctauteRights,
+        selectedItem: selectedItem.value,
+        itemList: itemList.value,
+        typeList: typeList.value,
+        iconMap: iconMap.value,
+        ...props,
+      })
+      .listeners({
+        refresh: refreshMarkers,
+      })
       .open(MarkerEditForm)
   }
 
+  /** 关闭右键面板的方法 */
   const closeCB = shallowRef<(() => void) | null>(null)
 
+  // 在离开当前路由时关闭右键面板以避免奇怪的 bug
   onBeforeRouteLeave(() => {
     closeCB.value?.()
   })
-
-  const userStore = useUserStore()
 
   /** 右键菜单的弹层实例 */
   const menu = L.popup({
@@ -66,28 +77,24 @@ export const useContextMenu = (options: ContextMenuHookOptions) => {
   div.style.width = '172px'
   div.style.height = '172px'
 
-  /** 打开右键菜单 */
+  /**
+   * 打开右键菜单
+   * @注意 此处不应该传递过多业务信息，传递的信息应只与事件本身相关（如事件坐标、对象等）
+   */
   const openContextMenu = (ev: L.LeafletMouseEvent) => {
+    const selectedArea = areaList.value.find(area => area.code === mapStore.areaCode)
+
     /** 右键菜单支持的命令 */
-    const onCommand = (command: string) => {
-      ({
-        add: () => openMarkerEditPanel({
-          hasPunctauteRights: userStore.hasPunctauteRights,
-          latlng: ev.latlng,
-          selectedItem: selectedItem.value,
-          itemList: itemList.value,
-          typeList: typeList.value,
-          iconMap: iconMap.value,
-          refresh: refreshMarkers,
-        }),
-        refresh: refreshMarkers,
-      } as Record<string, (() => void) | undefined>)[command]?.()
-    }
+    const onCommand = (command: string) => ({
+      add: () => openMarkerEditPanel({ latlng: ev.latlng, selectedArea }),
+      refresh: refreshMarkers,
+    } as Record<string, () => void>)[command]?.()
 
     /** 预渲染右键菜单使用的组件 */
     render(h(ContextMenu, {
       latlng: ev.latlng,
       hasPunctauteRights: userStore.hasPunctauteRights,
+      selectedArea,
       onCommand,
     }), div)
 
