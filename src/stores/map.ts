@@ -35,6 +35,7 @@ export const useMapStore = () => {
   const store = mapStore()
   store.$subscribe((_, state) => {
     for (const key in state)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (mapData as any)[key] = state[key as keyof typeof mapData]
   })
   return store

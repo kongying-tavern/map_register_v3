@@ -45,9 +45,11 @@ const { isDark } = useTheme()
 const flyToMarker = ({ id }: LinkedMapMarker) => {
   if (!map?.value)
     return
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const layers = (map.value as any)._layers as Record<string, L.Marker>
   for (const key in layers) {
     const marker = layers[key]
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { markerId } = (marker as any).options?.img ?? {}
     if (markerId === undefined || markerId !== id)
       continue

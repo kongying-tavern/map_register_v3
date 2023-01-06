@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { ElMessage, ElNotification } from 'element-plus'
 import { ref } from 'vue'
+import type { AnyObject } from '@/shared'
 
 const csvFile = ref<File | null>(null)
 const newUserList = ref<{ username: string; password: string }[]>([])
@@ -22,19 +23,19 @@ const columns = [
   {
     name: 'username',
     label: '用户名',
-    field: (row: any) => row.username,
+    field: (row: AnyObject) => row.username,
   },
   {
     name: 'password',
     label: '密码',
-    field: (row: any) => row.password,
+    field: (row: AnyObject) => row.password,
   },
 ]
 
 const onConfirm = () => {
-  const formData = csvHasHeader.value
-    ? newUserList.value.filter((row, i) => i !== 0)
-    : newUserList
+  // const formData = csvHasHeader.value
+  //   ? newUserList.value.filter((row, i) => i !== 0)
+  //   : newUserList
 }
 
 const readUploadedFileAsText = (inputFile: File) => {

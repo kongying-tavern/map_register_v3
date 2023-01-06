@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 const debug = import.meta.env.DEV
 
 export class Logger {

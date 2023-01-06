@@ -1,8 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// 通用组件不关心传递属性的类型
 import type { Component } from 'vue'
 import type { ButtonProps, DialogProps } from 'element-plus'
+import type { AnyObject } from '@/shared'
 
 export const visible = ref(false)
-export const props = ref<Record<string, any>>({})
+export const props = ref<AnyObject>({})
 export const dialogProps = ref<Omit<Partial<DialogProps>, 'modelValue'>>({})
 export const component = shallowRef<Component | null>(null)
 export const closeResolver = ref<((payload: any) => void) | null>(null)

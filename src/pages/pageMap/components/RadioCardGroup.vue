@@ -1,7 +1,9 @@
 <script lang="ts" setup>
+import type { AnyObject } from '@/shared'
+
 const props = withDefaults(defineProps<{
   modelValue?: string | number
-  itemList: Record<string, any>[]
+  itemList: AnyObject[]
   dataKey: string
   itemKey?: string
   cancelable?: boolean

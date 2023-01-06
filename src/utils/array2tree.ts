@@ -1,3 +1,5 @@
+import type { AnyObject } from '@/shared'
+
 export interface Array2TreeOptions {
   /** 子节点数组的 key 名 */
   childrenKey?: string
@@ -9,10 +11,10 @@ export interface Array2TreeOptions {
   rootId?: string | number | symbol | bigint
 }
 
-export const array2Tree = <T extends Record<string, any>>(items: T[], options: Array2TreeOptions = {}) => {
+export const array2Tree = <T extends AnyObject>(items: T[], options: Array2TreeOptions = {}) => {
   const { childrenKey = 'children', idKey = 'id', pidKey = 'pid', rootId = 0 } = options
 
-  const itemMap: Record<string, any> = {}
+  const itemMap: AnyObject = {}
 
   return items.reduce((result, item) => {
     const id = item[idKey]

@@ -16,9 +16,10 @@ withDefaults(defineProps<{
 <template>
   <div
     v-if="icon"
-    class="h-full aspect-square rounded grid place-items-center bg-gray-800 transition-all duration-150"
+    class="h-full aspect-square rounded grid place-items-center transition-all duration-150"
     :class="{
-      'bg-stone-500': actived,
+      'bg-gray-800': !actived,
+      'bg-slate-700': actived,
     }"
   >
     <el-image

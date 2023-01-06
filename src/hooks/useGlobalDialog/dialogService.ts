@@ -2,6 +2,7 @@ import type { Component } from 'vue'
 import type { DialogProps } from 'element-plus'
 import { component, dialogProps, eventListener, props, visible } from './dialogContext'
 import { DialogController } from './dialogController'
+import type { AnyObject } from '@/shared'
 
 export interface PropsOptions {
   /** 合并模式 */
@@ -29,8 +30,7 @@ export class DialogService {
   }
 
   /** 传递给弹窗默认插槽上的组件的属性 */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static props = <T extends Record<string, any>>(propsObj: T, options: PropsOptions = {}) => {
+  static props = <T extends AnyObject>(propsObj: T, options: PropsOptions = {}) => {
     const { merge } = options
     if (merge) {
       props.value = {

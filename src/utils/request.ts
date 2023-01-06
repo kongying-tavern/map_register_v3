@@ -48,7 +48,7 @@ axiosInstance.interceptors.response.use(
   },
 )
 
-const request = async <T>(url: string, options: AxiosRequestConfig<any>) => {
+const request = async <T>(url: string, options: AxiosRequestConfig) => {
   return (await axiosInstance(url, options)) as T
 }
 

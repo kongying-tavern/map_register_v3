@@ -68,7 +68,7 @@ export class GenshinTileLayer extends L.TileLayer {
   }
 
   /** @overwrite */
-  addTo(map: GenshinMap | L.LayerGroup<any>): this {
+  addTo(map: GenshinMap | L.LayerGroup): this {
     super.addTo(map)
     return this
   }

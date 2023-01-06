@@ -3,6 +3,7 @@ import { cloneDeep } from 'lodash'
 import type { Ref } from 'vue'
 import { messageFrom } from '@/utils'
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface RowEditHookOptions<T = any> {
   rowList: Ref<T[]>
   saveHandler: EditSaveHandler<T>

@@ -1,15 +1,16 @@
 import type { Ref } from 'vue'
 import type { LeafletEventHandlerFnMap } from 'leaflet'
 import { GenshinMap } from '../utils'
+import type { AnyArray, AnyFunction } from '@/shared'
 
 const map = ref<GenshinMap | null>(null) as Ref<GenshinMap | null>
 const stopPropagationSignal = ref(false)
 
 export const useMap = (ele: Ref<HTMLElement | null>) => {
   const hookUnregisters = shallowRef<(() => void)[]>([])
-  const listeners = shallowRef<[string, (...args: any[]) => any][]>([])
+  const listeners = shallowRef<[string, AnyFunction][]>([])
 
-  const callWithSignal = (fn: (...args: any[]) => void, ...args: any[]) => {
+  const callWithSignal = (fn: AnyFunction<void>, ...args: AnyArray) => {
     if (stopPropagationSignal.value) {
       stopPropagationSignal.value = false
       return

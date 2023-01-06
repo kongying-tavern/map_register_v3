@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { iconMapInjection, itemTypeInjection } from '../shared'
 import { RadioCardGroup, RadioCardItem } from '.'
+import type { AnyObject } from '@/shared'
 
 const props = defineProps<{
   modelValue?: number
@@ -30,7 +31,7 @@ const leafList = computed(() => typeList.value.reduce((seed, { typeId, isFinal, 
     typeId: `${typeId}`,
   })
   return seed
-}, [] as Record<string, any>[]))
+}, [] as AnyObject[]))
 </script>
 
 <template>

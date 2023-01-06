@@ -13,7 +13,7 @@ const emits = defineEmits<{
 }>()
 
 const dialogVisible = ref(false)
-const formData: any = ref({
+const formData = ref({
   ...props.user,
 })
 

@@ -1,8 +1,9 @@
 import { ElMessage } from 'element-plus'
 import L from 'leaflet'
 import { getObjectFitSize, messageFrom } from '@/utils'
+import type { AnyObject } from '@/shared'
 
-export interface GenshinLayerOptions extends Record<string, any> {
+export interface GenshinLayerOptions extends AnyObject {
   img: {
     el: HTMLImageElement
     offset: { x: number; y: number }
@@ -30,7 +31,7 @@ const doDraw = (ctx: CanvasRenderingContext2D, fn: () => void) => {
  * @plugin fork from leaflet-canvas-markers
  */
 L.Canvas.include({
-  _updateImg(layer: Record<string, any> & { options: GenshinLayerOptions }) {
+  _updateImg(layer: AnyObject & { options: GenshinLayerOptions }) {
     const { img } = layer.options
     const { width: rW, height: rH } = img.el
     const { hover, active, popperOpen } = img
@@ -131,8 +132,12 @@ const CanvasMarker = L.CircleMarker.extend({
       this._renderer._updateImg(this)
     }
   },
+// TODO leaflet 类型不完善
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 }) as new (...args: any[]) => L.CircleMarker
 
+// TODO leaflet 类型不完善
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const canvasMarker = (...opt: any[]) => {
   try {
     const i = opt.findIndex(o => typeof o === 'object' && o.img)
