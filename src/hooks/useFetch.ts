@@ -1,12 +1,7 @@
 import type { Ref } from 'vue'
 import { messageFrom } from '@/utils'
 
-interface BasicResponseBody {
-  error?: boolean
-  errorStatus?: number
-  errorData?: Record<string, any>
-  message?: string
-  time?: string
+interface BasicResponseBody extends Omit<API.RBoolean, 'data'> {
 }
 
 export interface FetchHookOptions<T extends BasicResponseBody> {
@@ -26,9 +21,8 @@ export const useFetchHook = <T extends BasicResponseBody>(options: FetchHookOpti
       loading.value = true
       if (onRequest) {
         const res = await onRequest()
-        /** @TODO */
         if (res.error)
-          throw new Error(`error in server \n ${res.errorData} \n ${res.message}`)
+          throw new Error(`error in server: ${res.message}`)
         onSuccessHook.trigger(res)
       }
     }

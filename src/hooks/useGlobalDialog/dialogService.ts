@@ -29,6 +29,7 @@ export class DialogService {
   }
 
   /** 传递给弹窗默认插槽上的组件的属性 */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static props = <T extends Record<string, any>>(propsObj: T, options: PropsOptions = {}) => {
     const { merge } = options
     if (merge) {
@@ -44,7 +45,8 @@ export class DialogService {
   }
 
   /** 传递给弹窗默认插槽上的组件的事件监听器 */
-  static listeners = <T extends Record<string, (event: string) => void>>(listenersObj: T) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static listeners = <T extends Record<string, (...args: any[]) => void>>(listenersObj: T) => {
     eventListener.value = {
       ...listenersObj,
     }
