@@ -40,20 +40,13 @@ const parentAreaMap = computed(() => areaList.value.reduce((seed, area) => {
 /** 二级地区列表 */
 const leafList = computed(() => parentId.value === undefined ? [] : (parentAreaMap.value?.[parentId.value] ?? []))
 
-/** 一级地区 areaId 改变时默认选择第一个 */
-const { pause, resume } = pausableWatch(parentId, () => {
-  internalBind.value = leafList.value?.[0].code
-})
-
 /** 如果 url 参数存在已选择的二级地区 code，则初始化对应的一级地区 */
 watch(internalBind, () => {
   const childArea = areaList.value.find(area => area.code === internalBind.value)
   if (!childArea)
     return
   const parentArea = areaList.value.find(area => area.areaId === childArea?.parentId)
-  pause()
   parentId.value = parentArea?.areaId
-  resume()
 })
 </script>
 
