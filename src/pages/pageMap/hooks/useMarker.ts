@@ -39,6 +39,17 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
   /** 当前选择的 item 对应的图片地址 */
   const iconUrl = computed(() => iconMap.value[selectedItem.value?.iconTag ?? ''])
 
+  const { refresh: updateMarkerList, onSuccess: onMarkerFetched, onError, ...rest } = useFetchHook({
+    immediate,
+    loading,
+    onRequest: async () => {
+      map.value?.closePopup()
+      if (!fetchParams.value?.itemIdList?.length)
+        return {}
+      return await Api.marker.searchMarker({}, { ...fetchParams.value })
+    },
+  })
+
   /**
    * 根据点位坐标将地图移动到点集中心
    * @todo 可以根据全局设置做成可选功能
@@ -93,6 +104,7 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
       render(h(PopupContent, {
         markerInfo,
         latlng: coordinates,
+        refresh: updateMarkerList,
       }), popupDOM)
       popup.setContent(popupDOM)
         .setLatLng(coordinates)
@@ -148,17 +160,6 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
     }
     preMarkerCreateCb.value()
   }
-
-  const { refresh: updateMarkerList, onSuccess: onMarkerFetched, onError, ...rest } = useFetchHook({
-    immediate,
-    loading,
-    onRequest: async () => {
-      map.value?.closePopup()
-      if (!fetchParams.value?.itemIdList?.length)
-        return {}
-      return await Api.marker.searchMarker({}, { ...fetchParams.value })
-    },
-  })
 
   onIconFetched(createMarkerWhenReady)
 

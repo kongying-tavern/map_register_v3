@@ -1,11 +1,13 @@
 <script lang="ts" setup>
 import type L from 'leaflet'
 import type { FormRules } from 'element-plus'
-import { useMarkerStage } from '../../hooks'
+import { ElMessage } from 'element-plus'
+import { useMarkerEdit, useMarkerStage } from '../../hooks'
 import { MarkerEditImage, MarkerEditSelect, MarkerEditTextarea } from '.'
 import { GlobalDialogController } from '@/hooks'
 import { useUserStore } from '@/stores'
 import type { ElFormType } from '@/pages/pageItemManager/utils'
+import { messageFrom } from '@/utils'
 import { DialogController } from '@/hooks/useGlobalDialog/dialogController'
 
 const props = defineProps<{
@@ -14,11 +16,12 @@ const props = defineProps<{
   typeList: API.ItemTypeVo[]
   iconMap: Record<string, string>
   selectedItem?: API.ItemVo
+  refresh: any
 }>()
 
 const userStore = useUserStore()
 
-const { markerData: form, loading } = useMarkerStage({
+const MarkerInfo = {
   markerTitle: props.selectedItem?.name ?? '',
   content: '',
   hiddenFlag: 0,
@@ -30,7 +33,10 @@ const { markerData: form, loading } = useMarkerStage({
       }]
     : [],
   videoPath: '',
-})
+  markerCreatorId: userStore.info.id,
+}
+
+const { markerData: form, loading, stageMarker, onStageSuccess, onStageError, pushStagedMarker, onPushStagedSuccess, onPushStagedError } = useMarkerStage(MarkerInfo)
 
 const rules: FormRules = {
   markerTitle: [{
@@ -47,10 +53,69 @@ const rules: FormRules = {
   }],
   videoPath: [{
     required: false,
-    validator: (_, value) => value.length && value.search('^https://www.bilibili.com/video/BV[a-zA-Z0-9]+') > -1,
+    validator: () => {
+      if (!form.value.videoPath)
+        return true
+      if (form.value.videoPath.length === 0)
+        return true
+      else
+        return form.value.videoPath.search('^https://www.bilibili.com/video/BV[a-zA-Z0-9]+') > -1
+    },
     message: '视频链接不正确(需要B站链接)',
     trigger: 'blur',
   }],
+}
+
+/** 点位提交API */
+const createMarker = async () => {
+  try {
+    form.value.position = `${String(Math.ceil(props.latlng.lat))},${String(Math.ceil(props.latlng.lng))}`
+    if (userStore.isAdmin) {
+      // admin, 点位提交
+      const { createMarker: createMarkerAPI, onCreateSuccess, onCreateError } = useMarkerEdit(form.value)
+      onCreateError(
+        (err) => { ElMessage.error(messageFrom(err)) },
+      )
+      onCreateSuccess(
+        (res) => {
+          ElMessage.success(`点位创建成功, ID为${res.data}`)
+          props.refresh()
+        },
+      )
+      await createMarkerAPI()
+      return true
+    }
+    else {
+      // 打点员，点位暂存
+      form.value.author = userStore.info.id
+      form.value.status = 0
+      form.value.methodType = 1
+      onPushStagedSuccess(
+        () => {
+          ElMessage.success('点位暂存成功')
+        },
+      )
+      onPushStagedError(
+        (err) => { ElMessage.error(messageFrom(err)) },
+      )
+      onStageError(
+        (err) => { ElMessage.error(messageFrom(err)) },
+      )
+      onStageSuccess(
+        (res) => {
+          pushStagedMarker()
+        },
+      )
+      stageMarker()
+      return true
+    }
+  }
+  catch (err) {
+    return false
+  }
+  finally {
+    // do nothing
+  }
 }
 
 /** 右侧额外面板 */
@@ -66,8 +131,9 @@ const confirm = async () => {
     const res = await formRef.value.validate()
     loading.value = true
     // TODO 点位表单对应的业务逻辑，或许应该抽出
-    await new Promise(resolve => setTimeout(resolve, 500))
-    res && DialogController.close()
+    const createRes = await createMarker()
+    if (res && createRes)
+      DialogController.close()
   }
   catch {
     // no action
@@ -134,8 +200,7 @@ provide('extraPanel', extraPanelRef)
             取消
           </el-button>
           <el-button :loading="loading" type="primary" @click="confirm">
-            <!-- {{ userStore.isAdmin ? '确认' : '提交审核' }} -->
-            {{ userStore.isAdmin ? '开发中' : '开发中' }}
+            {{ userStore.isAdmin ? '确认' : '审核提交' }}
           </el-button>
         </div>
       </el-form-item>

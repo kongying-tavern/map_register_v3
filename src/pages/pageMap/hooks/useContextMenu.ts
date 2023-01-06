@@ -22,6 +22,7 @@ interface MarkerEditFormProps {
   itemList: API.ItemVo[]
   typeList: API.ItemTypeVo[]
   iconMap: Record<string, string>
+  refresh: any
 }
 
 /** 右键菜单管理 */
@@ -77,6 +78,7 @@ export const useContextMenu = (options: ContextMenuHookOptions) => {
           itemList: itemList.value,
           typeList: typeList.value,
           iconMap: iconMap.value,
+          refresh: refreshMarkers,
         }),
         refresh: refreshMarkers,
       } as Record<string, (() => void) | undefined>)[command]?.()
