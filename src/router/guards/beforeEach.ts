@@ -4,26 +4,20 @@ import { isInPermissionList, isInWhiteList } from '../utils'
 import { useUserStore } from '@/stores'
 import { Logger } from '@/utils'
 
-const logger = new Logger('[routerGuards]')
+const logger = new Logger('[beforeEachGuard]')
 
-interface BeforeEachGuardOptions {
-  debug?: boolean
-}
-
+/** 导航前置守卫，使用函数传递参数来生成一个回调，以便后期增加更多操作 */
 export const beforeEachGuard = (
   router: Router,
-  options: BeforeEachGuardOptions = {},
 ): NavigationGuardWithThis<void> => {
-  const { debug = false } = options
-
   return (to, from, next) => {
-    debug && logger.info('[beforeEachGuard]', `"${from.path}" => "${to.path}"`)
+    logger.info(`"${from.path}" => "${to.path}"`)
 
     if (isInWhiteList(to))
       return next(true)
 
     const routes = router.getRoutes()
-    debug && logger.info('[beforeEachGuard]', routes)
+    logger.info(routes)
     const isRouteExist = routes.find(route => route.path === to.path)
     if (!isRouteExist) {
       ElMessage.error('目标路由不存在')

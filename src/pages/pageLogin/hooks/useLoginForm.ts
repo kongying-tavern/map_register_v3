@@ -20,8 +20,11 @@ export const useLoginForm = () => {
     try {
       loading.value = true
       await userStore.login(loginForm)
-      router.push('/')
-      ElMessage.success('登录成功')
+      ElMessage.success({
+        message: '登录成功',
+        duration: 1000,
+      })
+      await router.push('/')
     }
     catch (err) {
       ElMessage.error(messageFrom(err))

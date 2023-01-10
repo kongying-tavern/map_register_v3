@@ -7,16 +7,32 @@ import { router } from '@/router'
 import { RoleTypeEnum } from '@/shared'
 
 export interface UserAuth extends API.SysToken {
-  express_time: number
+  expires_time: number
 }
 
 /** 具有打点权的角色 */
 const ACCESSABLE_ROLES = [RoleTypeEnum.ADMIN, RoleTypeEnum.MAP_MANAGER, RoleTypeEnum.MAP_NEIGUI, RoleTypeEnum.MAP_PUNCTUATE]
 /** 属于管理员的角色 */
 const ADMIN_ROLES = [RoleTypeEnum.ADMIN, RoleTypeEnum.MAP_MANAGER]
+/** token 刷新的阈值时间 */
+const TOKEN_REFRESH_REST_TIME = import.meta.env.VITE_TOKEN_REFRESH_REST_TIME * 1000
 
+/** 持久化存储的用户信息 */
 const localUserInfo = useLocalStorage<API.SysUserVo>('__ys_user_info', {})
+/** 持久化存储的鉴权信息 */
 const localUserAuth = useLocalStorage<Partial<UserAuth>>('__ys_dadian_auth', {})
+/** 鉴权刷新计时器 */
+const intervalRefreshTimer = ref<number>()
+
+/** 计算 token 到期时间 */
+const getExpriesTime = (expiressIn: number) => {
+  return new Date().getTime() + 1000 * expiressIn
+}
+
+/** 计算 token 剩余有效期与设定刷新阈值时间的差 */
+const differenceTokenTime = (expiresTime: number) => {
+  return new Date(expiresTime).getTime() - new Date().getTime() - TOKEN_REFRESH_REST_TIME
+}
 
 export const useUserStore = defineStore('user-info', {
   state: () => ({
@@ -55,37 +71,50 @@ export const useUserStore = defineStore('user-info', {
     },
   },
   actions: {
-    /** 计算 token 到期时间 */
-    getExpressTime(expiresIn?: number) {
-      return new Date().getTime() + 1000 * (expiresIn ?? 0)
+    /**
+     * 创建自动刷新鉴权信息的定时器
+     * @fixme 挂机时间过长时会出现奇怪的 bug
+     */
+    createRefreshTimer(expiresTime: number) {
+      if (intervalRefreshTimer.value !== undefined)
+        return
+      intervalRefreshTimer.value = window.setInterval(async () => {
+        intervalRefreshTimer.value = undefined
+        await this.refreshAuth()
+        this.createRefreshTimer(expiresTime)
+      }, differenceTokenTime(expiresTime))
     },
     /** 检查 token 是否有效 */
     validateUserToken() {
-      const { access_token = '', express_time = 0 } = this.auth
-      return access_token && express_time > new Date().getTime()
+      const { access_token, expires_time } = this.auth
+      if (!access_token || !expires_time)
+        return false
+      this.createRefreshTimer(expires_time)
+      return access_token && expires_time > new Date().getTime()
     },
     /** 设置鉴权信息 */
     setAuth(auth: API.SysToken) {
       const userAuth: UserAuth = {
         ...auth,
-        express_time: this.getExpressTime(auth.expires_in),
+        expires_time: getExpriesTime(auth.expires_in),
       }
       this.auth = userAuth
       localUserAuth.value = userAuth
     },
     /** 刷新鉴权信息 */
     async refreshAuth() {
-      if (!this.auth.refresh_token || !this.auth.express_time)
+      if (!this.auth.refresh_token || !this.auth.expires_time)
         return
-      const restTime = new Date(this.auth.express_time).getTime() - new Date().getTime()
       // 剩余时间小于一定范围时才刷新
-      if (restTime > import.meta.env.VITE_TOKEN_REFRESH_REST_TIME * 1000)
+      if (differenceTokenTime(this.auth.expires_time) > 0)
         return
       const auth = await Oauth.oauth.refresh({
         grant_type: 'refresh_token',
         refresh_token: this.auth.refresh_token,
       })
       this.setAuth(auth)
+      window.clearInterval(intervalRefreshTimer.value)
+      this.createRefreshTimer(this.auth.expires_time as number)
     },
     /** 登出并清理鉴权信息 */
     logout() {

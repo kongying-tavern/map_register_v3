@@ -30,11 +30,7 @@ const router = createRouter({
   scrollBehavior,
 })
 
-router.beforeEach(
-  beforeEachGuard(router, {
-    debug: import.meta.env.DEV,
-  }),
-)
+router.beforeEach(beforeEachGuard(router))
 
 router.onError((err) => {
   ElMessage.error(messageFrom(err))
