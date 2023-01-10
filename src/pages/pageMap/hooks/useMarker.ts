@@ -75,8 +75,8 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
     const centerLatlng: [number, number] = [(xmin + xmax) / 2, (ymin + ymax) / 2]
     // 延迟到点位渲染大致完成后再移动视野，以避免同时移动视野导致的卡顿
     setTimeout(() => {
-      map.value?.flyTo(centerLatlng, map.value.getZoom(), { duration: 0.3 })
-    }, 500)
+      map.value?.flyTo(centerLatlng, map.value.getZoom(), { duration: 0.2 })
+    }, 100)
   }
 
   /** 根据点位信息创建 canvas 图层上的点位 */

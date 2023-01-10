@@ -93,20 +93,20 @@ const minus = ref(false)
           <FilterArea v-if="(bindStep === 0)" v-model="bindAreaCode" class="h-full" @change="next" />
 
           <div v-else-if="bindAreaCode === undefined" class="h-full grid place-items-center text-white">
-            <el-button link type="primary" @click="(bindStep -= 1)">
+            <el-button link type="primary" @click="(bindStep = 0)">
               请选择地区
             </el-button>
           </div>
 
           <FilterType v-else-if="(bindStep === 1)" v-model="bindType" class="h-full" @change="next" />
 
-          <FilterItem v-else-if="(bindStep === 2)" v-model="bindItemName" :loading="itemLoading" class="h-full" />
-
           <div v-else-if="!bindType" class="h-full grid place-items-center text-white">
-            <el-button link type="primary" @click="(bindStep -= 1)">
+            <el-button link type="primary" @click="(bindStep = 1)">
               请选择分类
             </el-button>
           </div>
+
+          <FilterItem v-else-if="(bindStep === 2)" v-model="bindItemName" :loading="itemLoading" class="h-full" />
         </KeepAlive>
       </Transition>
     </div>
