@@ -3,7 +3,7 @@ import type L from 'leaflet'
 import type { FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { useMarkerEdit, useMarkerStage } from '../../hooks'
-import { MarkerEditImage, MarkerEditSelect, MarkerEditTextarea } from '.'
+import { MarkerEditImage, MarkerEditSelect, MarkerEditTextarea, plugins } from '.'
 import { GlobalDialogController } from '@/hooks'
 import { useUserStore } from '@/stores'
 import type { ElFormType } from '@/pages/pageItemManager/utils'
@@ -15,6 +15,7 @@ const props = defineProps<{
   typeList: API.ItemTypeVo[]
   iconMap: Record<string, string>
   selectedItem?: API.ItemVo
+  selectedArea?: API.AreaVo
 }>()
 
 const emits = defineEmits<{
@@ -22,7 +23,6 @@ const emits = defineEmits<{
 }>()
 
 const userStore = useUserStore()
-
 /** 初始化新增点位信息 */
 const initFormData = (): API.MarkerVo => {
   const { lat, lng } = props.latlng
@@ -56,7 +56,7 @@ onStageError(commonErrorHandler)
 onStageSuccess(pushStagedMarker)
 
 // 管理员直接走点位创建方法
-const { createMarker: createMarkerAPI, onCreateSuccess, onCreateError } = useMarkerEdit(initFormData())
+const { markerData, createMarker: createMarkerAPI, onCreateSuccess, onCreateError } = useMarkerEdit(initFormData())
 onCreateSuccess((res) => {
   ElMessage.success(`点位创建成功, ID 为 ${res.data}`)
   emits('refresh')
@@ -90,6 +90,7 @@ const rules: FormRules = {
 
 /** 点位提交API */
 const createMarker = async () => {
+  markerData.value = form.value
   // admin, 点位提交
   if (userStore.isAdmin) {
     await createMarkerAPI()
@@ -115,7 +116,6 @@ const confirm = async () => {
   try {
     const res = await formRef.value.validate()
     loading.value = true
-    // TODO 点位表单对应的业务逻辑，或许应该抽出
     const createRes = await createMarker()
     if (res && createRes)
       DialogController.close()
@@ -173,6 +173,10 @@ provide('extraPanel', extraPanelRef)
           v-model:extra-id="extraId"
           v-model:creator-id="form.pictureCreatorId"
         />
+      </el-form-item>
+
+      <el-form-item label="附加数据" prop="extra">
+        <plugins v-model="form.extra" />
       </el-form-item>
 
       <el-form-item label="点位视频" prop="videoPath">
