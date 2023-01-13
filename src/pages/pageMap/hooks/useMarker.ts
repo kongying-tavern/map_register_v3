@@ -46,6 +46,9 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
     }),
   })
 
+  /** 组件实例 */
+  const instance = getCurrentInstance()
+
   /** 点位列表 */
   const markerList = ref<LinkedMapMarker[]>([])
   /** 请求参数 */
@@ -119,14 +122,17 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
       if (!map.value)
         return
       markerOptions.img.popperOpen = true
-      render(h(PopupContent, {
+      // TODO 属性传递有点累赘，后期把部分通用 hook 改到全局状态
+      const vnode = h(PopupContent, {
         markerInfo,
         latlng: coordinates,
         iconMap,
         typeList,
         itemList,
         onRefresh: updateMarkerList,
-      }), popupDOM)
+      })
+      vnode.appContext = instance?.appContext ?? null
+      render(vnode, popupDOM)
       popup.setContent(popupDOM)
         .setLatLng(coordinates)
         .openOn(map.value)
