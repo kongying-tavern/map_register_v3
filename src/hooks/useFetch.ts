@@ -4,13 +4,19 @@ import { messageFrom } from '@/utils'
 interface BasicResponseBody extends Omit<API.RBoolean, 'data'> {
 }
 
-export interface FetchHookOptions<T extends BasicResponseBody> {
+const isBasicResponse = (v: unknown): v is BasicResponseBody => {
+  if (typeof v !== 'object' || v === null)
+    return false
+  return true
+}
+
+export interface FetchHookOptions<T> {
   loading?: Ref<boolean>
   immediate?: boolean
   onRequest?: () => Promise<T>
 }
 
-export const useFetchHook = <T extends BasicResponseBody>(options: FetchHookOptions<T> = {}) => {
+export const useFetchHook = <T>(options: FetchHookOptions<T> = {}) => {
   const { immediate, loading = ref(false), onRequest } = options
 
   const onSuccessHook = createEventHook<T>()
@@ -21,7 +27,7 @@ export const useFetchHook = <T extends BasicResponseBody>(options: FetchHookOpti
       loading.value = true
       if (onRequest) {
         const res = await onRequest()
-        if (res.error)
+        if (isBasicResponse(res) && res.error)
           throw new Error(`error in server: ${res.message}`)
         onSuccessHook.trigger(res)
       }
