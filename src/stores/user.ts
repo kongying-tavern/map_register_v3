@@ -2,13 +2,15 @@ import { defineStore } from 'pinia'
 import { ElMessage } from 'element-plus'
 import System from '@/api/system'
 import Oauth from '@/api/oauth'
-import { messageFrom } from '@/utils'
+import { Logger, messageFrom } from '@/utils'
 import { router } from '@/router'
 import { RoleTypeEnum } from '@/shared'
 
 export interface UserAuth extends API.SysToken {
   expires_time: number
 }
+
+const logger = new Logger('[user store]')
 
 /** 具有打点权的角色 */
 const ACCESSABLE_ROLES = [RoleTypeEnum.ADMIN, RoleTypeEnum.MAP_MANAGER, RoleTypeEnum.MAP_NEIGUI, RoleTypeEnum.MAP_PUNCTUATE]
@@ -29,9 +31,14 @@ const getExpriesTime = (expiressIn: number) => {
   return new Date().getTime() + 1000 * expiressIn
 }
 
+/** 计算 token 剩余有效时间 */
+const getRestTime = (expiresTime: number) => {
+  return new Date(expiresTime).getTime() - new Date().getTime()
+}
+
 /** 计算 token 剩余有效期与设定刷新阈值时间的差 */
 const differenceTokenTime = (expiresTime: number) => {
-  return new Date(expiresTime).getTime() - new Date().getTime() - TOKEN_REFRESH_REST_TIME
+  return Math.min(getRestTime(expiresTime) - TOKEN_REFRESH_REST_TIME, 1200000)
 }
 
 export const useUserStore = defineStore('user-info', {
@@ -75,21 +82,34 @@ export const useUserStore = defineStore('user-info', {
      * 创建自动刷新鉴权信息的定时器
      * @fixme 挂机时间过长时会出现奇怪的 bug
      */
-    createRefreshTimer(expiresTime: number) {
-      if (intervalRefreshTimer.value !== undefined)
+    createRefreshTimer() {
+      if (intervalRefreshTimer.value !== undefined) {
+        logger.info('已存在刷新任务，将会重用')
         return
-      intervalRefreshTimer.value = window.setInterval(async () => {
-        intervalRefreshTimer.value = undefined
+      }
+      const { expires_time } = this.auth
+      if (!expires_time) {
+        logger.error('无法获取刷新 token 所必须的信息: expires_time is invalid')
+        return
+      }
+      const refreshInterval = differenceTokenTime(expires_time)
+      logger.info(`已建立 token 刷新定时任务，剩余 ${(refreshInterval / 1000).toFixed(1)} s`)
+      intervalRefreshTimer.value = window.setTimeout(async () => {
+        this.clearRefreshTimer()
         await this.refreshAuth()
-        this.createRefreshTimer(expiresTime)
-      }, differenceTokenTime(expiresTime))
+        this.createRefreshTimer()
+      }, refreshInterval)
+    },
+    /** 清除自动刷新鉴权信息的任务，在登出时可能需要调用该方法 */
+    clearRefreshTimer() {
+      intervalRefreshTimer.value = undefined
     },
     /** 检查 token 是否有效 */
     validateUserToken() {
       const { access_token, expires_time } = this.auth
       if (!access_token || !expires_time)
         return false
-      this.createRefreshTimer(expires_time)
+      this.createRefreshTimer()
       return access_token && expires_time > new Date().getTime()
     },
     /** 设置鉴权信息 */
@@ -108,13 +128,16 @@ export const useUserStore = defineStore('user-info', {
       // 剩余时间小于一定范围时才刷新
       if (differenceTokenTime(this.auth.expires_time) > 0)
         return
-      const auth = await Oauth.oauth.refresh({
-        grant_type: 'refresh_token',
-        refresh_token: this.auth.refresh_token,
-      })
-      this.setAuth(auth)
-      window.clearInterval(intervalRefreshTimer.value)
-      this.createRefreshTimer(this.auth.expires_time as number)
+      try {
+        const auth = await Oauth.oauth.refresh({
+          grant_type: 'refresh_token',
+          refresh_token: this.auth.refresh_token,
+        })
+        this.setAuth(auth)
+      }
+      catch (err) {
+        logger.error('刷新 token 失败', err)
+      }
     },
     /** 登出并清理鉴权信息 */
     logout() {
@@ -122,6 +145,7 @@ export const useUserStore = defineStore('user-info', {
       this.info = {}
       localUserAuth.value = null
       localUserInfo.value = null
+      this.clearRefreshTimer()
       router.push('/login')
     },
     /** 登录（密码模式） */
