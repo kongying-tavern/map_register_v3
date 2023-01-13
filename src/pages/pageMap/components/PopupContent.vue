@@ -17,11 +17,15 @@ const emits = defineEmits<{
 
 const logger = new Logger('[点位编辑]')
 
-const { markerData, deleteMarker, onDeleteSuccess, onDeleteError } = useMarkerEdit(props.markerInfo)
+const markerInfoRef = toRef(props, 'markerInfo')
+
+const { markerData, deleteMarker, onDeleteSuccess, onDeleteError } = useMarkerEdit(markerInfoRef)
+
 onDeleteSuccess(() => {
   ElMessage.success('删除成功')
   emits('refresh')
 })
+
 onDeleteError((err) => {
   ElMessage.error(err.message)
 })
