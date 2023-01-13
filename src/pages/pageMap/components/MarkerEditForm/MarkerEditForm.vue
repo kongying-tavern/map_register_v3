@@ -23,10 +23,15 @@ const emits = defineEmits<{
 }>()
 
 const userStore = useUserStore()
-/** 初始化新增点位信息 */
-const initFormData = (): API.MarkerVo => {
+
+/**
+ * 初始化新增点位信息
+ * MarkerPunctuateVo 相比 MarkerVO 的字段范围更大（只少一个 id），因此使用前者的类型来初始化
+ */
+const initFormData = (): API.MarkerPunctuateVo => {
   const { lat, lng } = props.latlng
   return {
+    author: userStore.info.id,
     markerTitle: props.selectedItem?.name ?? '',
     content: '',
     hiddenFlag: 0,
@@ -43,26 +48,31 @@ const initFormData = (): API.MarkerVo => {
   }
 }
 
+const form = ref(initFormData())
+
 /** 通用错误处理 */
 const commonErrorHandler = (err: Error) => ElMessage.error(err.message)
 
 // 非管理员走暂存审核方法
-const { markerData: form, loading, stageMarker, onStageSuccess, onStageError, pushStagedMarker, onPushStagedSuccess, onPushStagedError } = useMarkerStage(initFormData())
+const { stageLoading, stageMarker, onStageError, onPushStagedSuccess, onPushStagedError } = useMarkerStage(form)
 onPushStagedSuccess(() => {
-  ElMessage.success('点位暂存成功')
+  ElMessage.success('点位提交审核成功')
 })
 onPushStagedError(commonErrorHandler)
 onStageError(commonErrorHandler)
-onStageSuccess(pushStagedMarker)
 
 // 管理员直接走点位创建方法
-const { markerData, createMarker: createMarkerAPI, onCreateSuccess, onCreateError } = useMarkerEdit(initFormData())
+const { createLoading, createMarker, onCreateSuccess, onCreateError } = useMarkerEdit(form)
 onCreateSuccess((res) => {
   ElMessage.success(`点位创建成功, ID 为 ${res.data}`)
   emits('refresh')
 })
 onCreateError(commonErrorHandler)
-onCreateError(commonErrorHandler)
+
+const loading = computed({
+  get: () => userStore.isAdmin ? createLoading.value : stageLoading.value,
+  set: v => userStore.isAdmin ? (createLoading.value = v) : (stageLoading.value = v),
+})
 
 const rules: FormRules = {
   markerTitle: [{
@@ -89,15 +99,13 @@ const rules: FormRules = {
 }
 
 /** 点位提交API */
-const createMarker = async () => {
-  markerData.value = form.value
+const commitMarker = async () => {
   // admin, 点位提交
   if (userStore.isAdmin) {
-    await createMarkerAPI()
+    await createMarker()
     return true
   }
   // 打点员，点位暂存
-  form.value.author = userStore.info.id
   form.value.status = 0
   form.value.methodType = 1
   await stageMarker()
@@ -116,7 +124,7 @@ const confirm = async () => {
   try {
     const res = await formRef.value.validate()
     loading.value = true
-    const createRes = await createMarker()
+    const createRes = await commitMarker()
     if (res && createRes)
       DialogController.close()
   }

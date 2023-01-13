@@ -1,51 +1,41 @@
+import type { Ref } from 'vue'
 import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
-import { messageFrom } from '@/utils'
 
-export const useMarkerEdit = (init: API.MarkerVo = {}) => {
-  const loading = ref(false)
+export interface MarkerFormData extends API.MarkerVo, API.MarkerPunctuateVo {}
 
-  const markerData = ref<API.MarkerVo>(init)
-
-  const { refresh: createMarker, onSuccess: onCreateSuccess, onError: onCreateError } = useFetchHook({
-    loading,
+export const useMarkerEdit = (markerData: Ref<MarkerFormData>) => {
+  const { refresh: createMarker, loading: createLoading, onSuccess: onCreateSuccess, onError: onCreateError } = useFetchHook({
     onRequest: () => Api.marker.createMarker(markerData.value),
   })
 
-  const { refresh: updateMarker, onSuccess: onEditSuccess, onError: onEditError } = useFetchHook({
-    loading,
+  const { refresh: updateMarker, loading: editLoading, onSuccess: onEditSuccess, onError: onEditError } = useFetchHook({
     onRequest: () => Api.marker.updateMarker(markerData.value),
   })
 
-  const deleteSuccessHook = createEventHook<void>()
-  const deleteErrorHook = createEventHook<Error>()
-  const deleteMarker = async () => {
-    if (markerData.value.id === undefined)
-      return
-    try {
-      loading.value = true
-      await Api.marker.deleteMarker({ markerId: markerData.value.id })
-      deleteSuccessHook.trigger()
-    }
-    catch (err) {
-      deleteErrorHook.trigger(new Error(messageFrom(err)))
-    }
-    finally {
-      loading.value = false
-    }
-  }
+  const { refresh: deleteMarker, loading: deleteLoading, onSuccess: onDeleteSuccess, onError: onDeleteError } = useFetchHook({
+    onRequest: () => {
+      if (markerData.value.id === undefined)
+        throw new Error('点位 id 为空')
+      return Api.marker.deleteMarker({ markerId: markerData.value.id })
+    },
+  })
 
   return {
     markerData,
-    loading,
+    createLoading,
+    editLoading,
+    deleteLoading,
+
     createMarker,
     updateMarker,
     deleteMarker,
+
     onCreateSuccess,
     onCreateError,
     onEditSuccess,
     onEditError,
-    onDeleteSuccess: deleteSuccessHook.on,
-    onDeleteError: deleteErrorHook.on,
+    onDeleteSuccess,
+    onDeleteError,
   }
 }
