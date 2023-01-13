@@ -1,5 +1,4 @@
 export { default as MarkerEditForm } from './MarkerEditForm.vue'
-export { default as MarkerEditFormNew } from './MarkerEditFormNew.vue'
 export { default as MarkerEditImage } from './MarkerEditImage.vue'
 export { default as MarkerEditImageExtraPanel } from './MarkerEditImageExtraPanel.vue'
 export { default as MarkerEditSelect } from './MarkerEditSelect.vue'
