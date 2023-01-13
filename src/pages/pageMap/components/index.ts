@@ -1,4 +1,4 @@
-export { MarkerEditForm } from './MarkerEditForm'
+export { MarkerEditForm, MarkerCreateForm } from './MarkerEditForm'
 export { default as ContextMenu } from './ContextMenu.vue'
 export { default as ControlPanel } from './ControlPanel.vue'
 export { default as FilterArea } from './FilterArea.vue'

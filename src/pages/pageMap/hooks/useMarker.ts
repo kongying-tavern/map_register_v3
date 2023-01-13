@@ -7,7 +7,9 @@ import { PopupContent } from '../components'
 import { canvasMarker } from '../utils'
 import Api from '@/api/api'
 import type { FetchHookOptions } from '@/hooks'
-import { useFetchHook, useIconList } from '@/hooks'
+import { useAreaList, useFetchHook, useIconList, useItemList, useTypeList } from '@/hooks'
+import { useMapStore } from '@/stores'
+// 这里无法使用inject
 
 export interface MarkerHookOptions extends FetchHookOptions<API.RListMarkerVo> {
   watchParams?: boolean
@@ -27,6 +29,22 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
   const { immediate = false, stopPropagationSignal, watchParams = true, selectedItem, loading = ref(false), params } = options
 
   const { iconMap, onSuccess: onIconFetched } = useIconList()
+
+  const { typeList } = useTypeList()
+
+  const { areaList } = useAreaList()
+  const mapStore = useMapStore()
+  const areaId = computed(() => {
+    if (!mapStore.areaCode)
+      return
+    return areaList.value.find(area => area.code === mapStore.areaCode)?.areaId
+  })
+  const { itemList } = useItemList({
+    params: () => ({
+      areaIdList: areaId.value === undefined ? [] : [areaId.value],
+      size: 1000,
+    }),
+  })
 
   /** 点位列表 */
   const markerList = ref<LinkedMapMarker[]>([])
@@ -104,6 +122,9 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
       render(h(PopupContent, {
         markerInfo,
         latlng: coordinates,
+        iconMap,
+        typeList,
+        itemList,
         onRefresh: updateMarkerList,
       }), popupDOM)
       popup.setContent(popupDOM)

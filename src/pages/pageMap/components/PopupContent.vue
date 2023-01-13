@@ -1,13 +1,20 @@
 <script lang="ts" setup>
+import type { Ref } from 'vue'
 import type L from 'leaflet'
 import { ElButton, ElMessage, ElMessageBox } from 'element-plus'
 import { ceil } from 'lodash'
-import { useMarkerEdit } from '../hooks'
+import { useMarkerEdit, useMarkerStage } from '../hooks'
+import { MarkerEditForm } from './MarkerEditForm'
 import { Logger } from '@/utils'
+import { DialogService } from '@/hooks/useGlobalDialog/dialogService'
+import { useUserStore } from '@/stores'
 
 const props = defineProps<{
   markerInfo: API.MarkerVo
   latlng: L.LatLng
+  iconMap: Ref<API.IconVo[]>
+  typeList: Ref<API.ItemTypeVo[]>
+  itemList: Ref<API.ItemVo[]>
 }>()
 
 const emits = defineEmits<{
@@ -19,8 +26,11 @@ const logger = new Logger('[点位编辑]')
 
 const markerInfoRef = toRef(props, 'markerInfo')
 
-const { markerData, deleteMarker, onDeleteSuccess, onDeleteError } = useMarkerEdit(markerInfoRef)
+/** 用户信息 */
+const userStore = useUserStore()
 
+// 管理员直接走点位删除方法
+const { deleteMarker, onDeleteSuccess, onDeleteError } = useMarkerEdit(markerInfoRef)
 onDeleteSuccess(() => {
   ElMessage.success('删除成功')
   emits('refresh')
@@ -30,16 +40,58 @@ onDeleteError((err) => {
   ElMessage.error(err.message)
 })
 
-// TODO 编辑
-const onClickEdit = () => {
-  ElMessage.warning(`[开发中] 删除 ${markerData.value.markerTitle}`)
+/** 初始化暂存点位信息 */
+const punctuateData: API.MarkerPunctuateVo = {
+  author: userStore.info.id,
+  punctuateId: props.markerInfo.id,
+  originalMarkerId: props.markerInfo.id,
+  methodType: 3, // 删除
+  status: 0,
+  version: props.markerInfo.version ? props.markerInfo.version + 1 : 1,
+  ...props.markerInfo,
 }
 
+/** 通用错误处理 */
+const commonErrorHandler = (err: Error) => ElMessage.error(err.message)
+
+// 非管理员走暂存审核方法
+const { stageMarker, onStageError, onPushStagedSuccess, onPushStagedError } = useMarkerStage(ref(punctuateData))
+onPushStagedSuccess(() => {
+  ElMessage.success('提交点位编辑请求成功')
+})
+onPushStagedError(commonErrorHandler)
+onStageError(commonErrorHandler)
+
+/** 编辑事件 */
+const onClickEdit = () => {
+  DialogService
+    .config({
+      title: `编辑点位：${props.markerInfo.id} - ${props.markerInfo.markerTitle}`,
+      top: '5vh',
+      width: 'fit-content',
+      class: 'transition-all',
+    })
+    .props({
+      ...props,
+    })
+    .listeners({
+      refresh: () => { emits('refresh') },
+    })
+    .open(MarkerEditForm)
+}
+
+/** 删除事件 */
 const onClickDel = async () => {
   try {
     await ElMessageBox.confirm('该操作不可逆，确认删除点位？', '确认操作', {
       type: 'warning',
     })
+    // 打点员删除需要过审核
+    if (!userStore.isAdmin) {
+      await stageMarker()
+      return
+    }
+    // admin直接请求
     await deleteMarker()
   }
   catch (err) {

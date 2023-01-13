@@ -2,7 +2,7 @@ import L from 'leaflet'
 import type { Ref } from 'vue'
 import { render } from 'vue'
 import { ceil } from 'lodash'
-import { ContextMenu, MarkerEditForm } from '../components'
+import { ContextMenu, MarkerCreateForm } from '../components'
 import type { GenshinMap } from '../utils'
 import { useGlobalDialog } from '@/hooks'
 import { useMapStore, useUserStore } from '@/stores'
@@ -18,7 +18,7 @@ interface ContextMenuHookOptions {
 }
 
 /** 传递给新增/编辑面板的参数 */
-interface MarkerEditFormProps {
+interface MarkerCreateFormProps {
   latlng: L.LatLng
   selectedArea?: API.AreaVo
 }
@@ -32,8 +32,8 @@ export const useContextMenu = (options: ContextMenuHookOptions) => {
 
   const { DialogService } = useGlobalDialog()
 
-  /** 打开点位编辑面板 */
-  const openMarkerEditPanel = (props: MarkerEditFormProps) => {
+  /** 打开点位新建面板 */
+  const openMarkerEditPanel = (props: MarkerCreateFormProps) => {
     const { latlng } = props
     const { lat, lng } = latlng
     DialogService
@@ -54,7 +54,7 @@ export const useContextMenu = (options: ContextMenuHookOptions) => {
       .listeners({
         refresh: refreshMarkers,
       })
-      .open(MarkerEditForm)
+      .open(MarkerCreateForm)
   }
 
   /** 关闭右键面板的方法 */

@@ -1,27 +1,28 @@
 <script lang="ts" setup>
-// 点位数据编辑界面
-// @TODO 和点位新建界面合并
+import type L from 'leaflet'
 import type { FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { useMarkerEdit, useMarkerStage } from '../../hooks'
-import { MarkerEditExtra, MarkerEditImage, MarkerEditSelect, MarkerEditTextarea } from '.'
+import { MarkerEditImage, MarkerEditSelect, MarkerEditTextarea } from '.'
 import { GlobalDialogController } from '@/hooks'
 import { useUserStore } from '@/stores'
 import type { ElFormType } from '@/pages/pageItemManager/utils'
 import { DialogController } from '@/hooks/useGlobalDialog/dialogController'
 
 const props = defineProps<{
-  markerInfo: API.MarkerVo
-  iconMap: Record<string, string>
-  typeList: API.ItemTypeVo[]
+  latlng: L.LatLng
   itemList: API.ItemVo[]
+  typeList: API.ItemTypeVo[]
+  iconMap: Record<string, string>
+  selectedItem?: API.ItemVo
+  selectedArea?: API.AreaVo
 }>()
 
 const emits = defineEmits<{
   (e: 'refresh'): void
 }>()
 
-/** 用户信息 */
+/** 用户数据 */
 const userStore = useUserStore()
 
 /**
@@ -29,14 +30,24 @@ const userStore = useUserStore()
  * MarkerPunctuateVo 相比 MarkerVO 的字段范围更大（只少一个 id），因此使用前者的类型来初始化
  */
 const initFormData = (): API.MarkerPunctuateVo => {
+  const { lat, lng } = props.latlng
   return {
     author: userStore.info.id,
-    punctuateId: props.markerInfo.id,
-    originalMarkerId: props.markerInfo.id,
+    markerTitle: props.selectedItem?.name ?? '',
+    content: '',
+    hiddenFlag: 0,
+    position: `${lat},${lng}`,
+    itemList: props.selectedItem
+      ? [{
+          count: 1,
+          iconTag: props.selectedItem.iconTag,
+          itemId: props.selectedItem.itemId,
+        }]
+      : [],
+    videoPath: '',
+    markerCreatorId: userStore.info.id,
     methodType: 2,
     status: 0,
-    version: props.markerInfo.version ? props.markerInfo.version + 1 : 1,
-    ...props.markerInfo,
   }
 }
 
@@ -49,15 +60,15 @@ const commonErrorHandler = (err: Error) => ElMessage.error(err.message)
 // 非管理员走暂存审核方法
 const { stageLoading, stageMarker, onStageError, onPushStagedSuccess, onPushStagedError } = useMarkerStage(form)
 onPushStagedSuccess(() => {
-  ElMessage.success('提交点位编辑请求成功')
+  ElMessage.success('点位提交审核成功')
 })
 onPushStagedError(commonErrorHandler)
 onStageError(commonErrorHandler)
 
-// 管理员直接走点位编辑方法
-const { createLoading, updateMarker, onCreateSuccess, onCreateError } = useMarkerEdit(form)
-onCreateSuccess(() => {
-  ElMessage.success('点位编辑成功')
+// 管理员直接走点位创建方法
+const { createLoading, createMarker, onCreateSuccess, onCreateError } = useMarkerEdit(form)
+onCreateSuccess((res) => {
+  ElMessage.success(`点位创建成功, ID 为 ${res.data}`)
   emits('refresh')
 })
 onCreateError(commonErrorHandler)
@@ -92,15 +103,16 @@ const rules: FormRules = {
   }],
 }
 
-/** 点位编辑API */
+/** 点位提交API */
 const commitMarker = async () => {
-  // admin, 点位修改
+  // admin, 点位提交
   if (userStore.isAdmin) {
-    await updateMarker()
+    await createMarker()
     return true
   }
   // 打点员，点位暂存
-  // TODO 审核方法用枚举
+  form.value.status = 0
+  form.value.methodType = 1
   await stageMarker()
   return true
 }
@@ -111,7 +123,6 @@ const extraId = ref('')
 /** 表单实例 */
 const formRef = ref<ElFormType | null>(null)
 
-/** 表单提交事件 */
 const confirm = async () => {
   if (!formRef.value)
     return
@@ -178,7 +189,7 @@ provide('extraPanel', extraPanelRef)
       </el-form-item>
 
       <el-form-item label="附加数据" prop="extra">
-        <MarkerEditExtra v-model="form.extra" />
+        <plugins v-model="form.extra" />
       </el-form-item>
 
       <el-form-item label="点位视频" prop="videoPath">
