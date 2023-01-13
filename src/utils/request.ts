@@ -1,6 +1,7 @@
 // TODO: 迁移
 import axios from 'axios'
 import type { AxiosRequestConfig } from 'axios'
+import { upperFirst } from 'lodash'
 import { useUserStore } from '@/stores'
 
 const debug = import.meta.env.DEV
@@ -21,8 +22,8 @@ axiosInstance.interceptors.request.use(
       config.headers = {}
 
     const userStore = useUserStore()
-    if (userStore.auth.access_token)
-      config.headers.Authorization = `Bearer ${userStore.auth.access_token}`
+    if (userStore.auth.token_type && userStore.auth.access_token)
+      config.headers.Authorization = `${upperFirst(userStore.auth.token_type)} ${userStore.auth.access_token}`
     config.headers['Content-Type'] = 'application/json'
 
     return config
