@@ -1,12 +1,12 @@
 <script lang="ts" setup>
 import { isArray } from 'lodash'
 
-interface palace {
+interface Palace {
   palace_name: string | null
   palace_level?: string[]
 }
 
-interface optionsVo {
+interface OptionsVo {
   label: string
   value: string
   children?: {
@@ -16,16 +16,16 @@ interface optionsVo {
 }
 
 const props = defineProps<{
-  modelValue?: palace
-  options: optionsVo[]
+  modelValue?: Palace
+  options: OptionsVo[]
 }>()
 
 const emit = defineEmits<{
-  (e: 'update:modelValue', v?: palace): void
+  (e: 'update:modelValue', v?: Palace): void
 }>()
 
-const data = ref<palace>(props.modelValue ? props.modelValue : { palace_name: '无', palace_level: [] })
-const options = ref<optionsVo[]>(props.options)
+const data = ref<Palace>(props.modelValue ? props.modelValue : { palace_name: '无', palace_level: [] })
+const options = ref<OptionsVo[]>(props.options)
 // 大赤沙海
 const ChildrenOptions = ref<{ label: string; value: string }[]>([])
 const children = ref<boolean>(false)

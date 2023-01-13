@@ -1,8 +1,9 @@
 <script lang="ts" setup>
-import { sumeruDesert, sumeruPalace } from './plugins'
+import { sumeruDesert, sumeruPalace } from './MarkerEditExtra'
 import { useMapStore } from '@/stores'
 
-interface optionsVo {
+/** 选项配置 */
+interface OptionsVo {
   label: string
   value: string
   children?: {
@@ -12,7 +13,7 @@ interface optionsVo {
 }
 
 /** extra附加数据接口 */
-interface extraVo {
+interface ExtraVo {
   inazuma_underground?: boolean
   sumeru_underground?: boolean
   sumeru_palace?: {
@@ -33,24 +34,27 @@ const emit = defineEmits<{
   (e: 'update:modelValue', v?: string): void
 }>()
 
-/** 选中地区获取 */
+// 选中地区获取
+/** 地图信息 */
 const mapStore = useMapStore()
+/** 选中地区代码 */
 const selectedAreaCode = mapStore.areaCode
 
-/** extra实例化 */
-const extra = ref<extraVo>(JSON.parse(props.modelValue ?? '{}'))
+/** extra数据 */
+const extra = ref<ExtraVo>(JSON.parse(props.modelValue ?? '{}'))
 
-/** 地区判断 */
+/** 所在地区判断 */
 const isPluginsArea = (code: string) => {
   if (!selectedAreaCode)
     return false
+  // 稻妻全地区
   if (code === 'C:DQ')
     return selectedAreaCode.search('A:DQ') > -1
 
   return code === selectedAreaCode
 }
-// 大赤沙海配置
-const palaceOptions = ref<optionsVo[]>([
+/** 大赤沙海配置 */
+const palaceOptions = ref<OptionsVo[]>([
   { label: '无', value: 'null' }, // 提交时将null转换
   { label: '地下', value: 'ug' },
   {
@@ -91,24 +95,18 @@ const palaceOptions = ref<optionsVo[]>([
     ],
   },
 ])
-// 千壑沙地
+/** 千壑沙地配置数据 */
 const desertOptions = [
   { label: '无', value: 'null' }, // 提交时将null转换
   { label: '?', value: '?' },
 ]
-const sumeru_palace = computed(() => {
-  return isPluginsArea('A:XM:DESERT')
-})
-const sumeru_desert2 = computed(() => {
-  return isPluginsArea('A:XM:DESERT2')
-})
-// 诸法丛林
+/** 诸法丛林判断 */
 const sumeru_underground = computed(() => {
   if (!extra.value.sumeru_underground && isPluginsArea('A:XM:FOREST'))
     extra.value.sumeru_underground = false
   return isPluginsArea('A:XM:FOREST')
 })
-// 稻妻
+/** 稻妻判断 */
 const inazuma_underground = computed(() => {
   if (!extra.value.inazuma_underground && isPluginsArea('C:DQ'))
     extra.value.inazuma_underground = false
@@ -137,13 +135,13 @@ watch(extra, () => {
   />
   <!-- 须弥 大赤沙海 -->
   <sumeruPalace
-    v-if="sumeru_palace"
+    v-if="isPluginsArea('A:XM:DESERT')"
     v-model="extra.sumeru_palace"
     :options="palaceOptions"
   />
   <!-- 须弥 千壑沙地 -->
   <sumeruDesert
-    v-if="sumeru_desert2"
+    v-if="isPluginsArea('A:XM:DESERT2')"
     v-model="extra.sumeru_desert2"
     :options="desertOptions"
   />
