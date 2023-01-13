@@ -6,12 +6,17 @@ export async function rejectPunctuate(
     // path
     punctuateId: number;
   },
+  body: string,
   options?: { [key: string]: any },
 ) {
   const { punctuateId: param0, ...queryParams } = params;
   return request<API.RBoolean>(`/api/punctuate_audit/reject/${param0}`, {
     method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
     params: { ...queryParams },
+    data: body,
     ...(options || {}),
   });
 }
