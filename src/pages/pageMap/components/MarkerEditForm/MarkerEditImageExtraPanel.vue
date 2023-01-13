@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { Close } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 
 const props = withDefaults(defineProps<{
   imageBitMap?: ImageBitmap
@@ -157,18 +158,24 @@ const clipSize = ref<[number, number]>([256, 256])
 
 /** 剪裁 */
 const clipImage = () => {
-  if (!canvasRef.value || !canvasCtx.value)
+  if (!canvasRef.value || !canvasCtx.value) {
+    ElMessage.error('无法获取 canvas 实例')
     return
+  }
   const resizeCanvas = document.createElement('canvas')
   resizeCanvas.width = clipSize.value[0]
   resizeCanvas.height = clipSize.value[1]
   const resizeCtx = resizeCanvas.getContext('2d')
-  if (!resizeCtx)
+  if (!resizeCtx) {
+    ElMessage.error('创建 canvas 实例失败')
     return
+  }
   resizeCtx.drawImage(canvasRef.value, 0, 0, ...clipSize.value)
   resizeCanvas.toBlob((blob) => {
-    if (!blob)
+    if (!blob) {
+      ElMessage.error('无法获取截图的二进制数据')
       return
+    }
     internalBind.value = blob
   })
 }
@@ -190,7 +197,7 @@ onMounted(() => {
       <canvas ref="canvasRef" class="w-full h-full select-none" :width="w" :height="h" />
     </div>
 
-    <div class="w-full flex-1 grid grid-cols-4 grid-rows-2 gap-x-2 items-center justify-start">
+    <div class="w-full h-20 grid grid-cols-4 grid-rows-2 gap-x-2 items-center justify-start">
       <div class="col-span-3 flex items-center">
         尺寸：
         <el-input v-model="clipSize[0]" class="flex-1" disabled />
