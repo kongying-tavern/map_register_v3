@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { sumeruDesert, sumeruPalace } from './MarkerEditExtra'
+import { SumeruDesert, SumeruPalace } from './MarkerEditExtra'
 import { useMapStore } from '@/stores'
 
 /** 选项配置 */
@@ -17,7 +17,7 @@ interface ExtraVo {
   inazuma_underground?: boolean
   sumeru_underground?: boolean
   sumeru_palace?: {
-    palace_name: string | null
+    palace_name?: string
     palace_level?: string[]
   }
   sumeru_desert2?: {
@@ -134,13 +134,13 @@ watch(extra, () => {
     inactive-text="地上"
   />
   <!-- 须弥 大赤沙海 -->
-  <sumeruPalace
+  <SumeruPalace
     v-if="isPluginsArea('A:XM:DESERT')"
     v-model="extra.sumeru_palace"
     :options="palaceOptions"
   />
   <!-- 须弥 千壑沙地 -->
-  <sumeruDesert
+  <SumeruDesert
     v-if="isPluginsArea('A:XM:DESERT2')"
     v-model="extra.sumeru_desert2"
     :options="desertOptions"

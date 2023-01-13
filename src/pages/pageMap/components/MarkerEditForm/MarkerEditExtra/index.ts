@@ -1,2 +1,2 @@
-export { default as sumeruPalace } from './sumeruPalace.vue'
-export { default as sumeruDesert } from './sumeruDesert.vue'
+export { default as SumeruPalace } from './SumeruPalace.vue'
+export { default as SumeruDesert } from './SumeruDesert.vue'

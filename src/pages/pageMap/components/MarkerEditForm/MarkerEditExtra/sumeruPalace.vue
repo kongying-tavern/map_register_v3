@@ -2,7 +2,7 @@
 import { isArray } from 'lodash'
 
 interface Palace {
-  palace_name: string | null
+  palace_name?: string
   palace_level?: string[]
 }
 
