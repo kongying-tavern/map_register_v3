@@ -1,13 +1,15 @@
+// 以下接口为手动编写
 import { request } from '@/utils'
 
-// 以下接口为手动编写
+// 开发环境暂时没有阿里云盘，这里先写死
+const DRIVE_URL = 'https://tiles.yuanshen.site'
 
 /** 云盘 - 新建文件夹`('/分类/日期')` */
 export async function mkdir(
   body: API.AliyunDriveDirVO,
   options: Record<string, any> = {},
 ) {
-  return request<API.RBase>('/api/admin/mkdir', {
+  return request<API.RBase>(`${DRIVE_URL}/api/admin/mkdir`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -23,9 +25,11 @@ export async function upload(
   options: Record<string, any> = {},
 ) {
   const formData = new FormData()
-  for (const key in body)
-    formData.append(key, body[key as keyof API.AliyunDriveUploadVO])
-  return request<API.RBase>('/api/public/upload', {
+  for (const key in body) {
+    const value = body[key as keyof API.AliyunDriveUploadVO]
+    value && formData.append(key, value)
+  }
+  return request<API.RBase>(`${DRIVE_URL}/api/public/upload`, {
     method: 'POST',
     headers: {
       'Content-Type': 'multipart/form-data',

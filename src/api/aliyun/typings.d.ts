@@ -18,6 +18,6 @@ declare namespace API {
     /** 上传路径 */
     path: string
     /** 文件夹密码 */
-    password: string
+    password?: string
   };
 }
