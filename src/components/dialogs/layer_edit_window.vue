@@ -193,7 +193,7 @@
           <q-item-section></q-item-section>
           <q-item>
             <q-item-section side top> &emsp;&emsp;&emsp;&emsp; </q-item-section>
-            <q-item-section>
+            <div>
               <q-checkbox
                 v-if="!is_neigui"
                 v-model="layer_info.hiddenFlag"
@@ -219,7 +219,7 @@
                 "
               >
               </q-toggle>
-            </q-item-section>
+            </div>
           </q-item>
 
           <q-item>
