@@ -28,8 +28,8 @@ export default {
   computed: {
     underground_type() {
       return this.layer_extra_data.dragonspine_cave === true
-        ? "山体外"
-        : "山体内";
+        ? "洞窟中"
+        : "洞窟外";
     },
   },
 };
