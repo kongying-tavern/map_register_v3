@@ -174,12 +174,29 @@ const map_tiles_neigui_config = {
  * 获取地图插件配置
  */
 const map_plugin_config = {
+  // 海岛
   "A:APPLE:1_6": {
     extra: ["1_6_island"],
   },
   "A:APPLE:2_8": {
     extra: ["2_8_island"],
   },
+
+  // 稻妻
+  "A:DQ:1": {
+    extra: ["inazuma_underground"],
+  },
+  "A:DQ:2": {
+    extra: ["inazuma_underground"],
+  },
+  "A:DQ:HEGUAN": {
+    extra: ["inazuma_underground"],
+  },
+  "A:DQ:YUANXIAGONG": {
+    extra: ["inazuma_underground"],
+  },
+
+  // 须弥
   "A:XM:FOREST": {
     extra: ["sumeru_underground"],
   },
