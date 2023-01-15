@@ -17,7 +17,7 @@
       <!-- <div v-if="is_underground" class="row q-gutter-x-md content-top">
         <q-select
           class="col-4"
-          v-model="underground_data.ug_name"
+          v-model="underground_name"
           :options="underground_options"
           emit-value
           map-options
@@ -30,7 +30,7 @@
         <q-select
           class="col"
           v-if="underground_options_state.length > 0"
-          v-model="underground_data.ug_level"
+          v-model="underground_levels"
           :options="underground_options_state"
           emit-value
           map-options
@@ -52,22 +52,19 @@ import _ from "lodash";
 import { ref, computed } from "vue";
 import funcExtraData from "../../extra-data";
 
-const build_data = (data = {}) => {
-  const ug_name = _.get(data, "ug_name", null);
-  const ug_level = _.get(data, "ug_level", []);
-
-  return {
-    ug_name,
-    ug_level,
-  };
-};
-
-const normalize_data = (data = {}) => {
-  if (_.isNil(data.ug_name)) {
+const normalize_data = (is_ug = false, name = "", levels = []) => {
+  if (!is_ug) {
     return null;
   }
 
-  return data;
+  if (!name) {
+    return null;
+  }
+
+  return {
+    ug_name: name,
+    ug_level: levels,
+  };
 };
 
 const underground_options = [{ label: "无区域", value: "ug" }];
@@ -75,46 +72,55 @@ const underground_options = [{ label: "无区域", value: "ug" }];
 export default {
   name: "PluginSumeruDesert2Edit",
   setup() {
-    const underground_data_value = ref(build_data({}));
-    const underground_data = computed({
+    const is_underground_val = ref(false);
+    const is_underground = computed({
       get() {
-        return underground_data_value.value;
+        const name_val = _.get(
+          funcExtraData.get_marker_extra_data_entry("sumeru_desert2"),
+          "ug_name"
+        );
+        return is_underground_val.value || Boolean(name_val);
       },
       set(val) {
-        underground_data_value.value = build_data(val);
+        is_underground_val.value = val;
       },
     });
-    const is_underground = ref(false);
+    const name = ref("");
+    const levels = ref([]);
     const underground_type = computed(() =>
       is_underground.value ? "地下" : "地上"
     );
 
     const underground_switch = (val) => {
       if (val) {
-        underground_data.value = { ug_name: "ug" };
+        name.value = "ug";
+        levels.value = [];
       } else {
-        underground_data.value = {};
+        name.value = "";
+        levels.value = [];
       }
 
       underground_update();
     };
 
     const underground_main_change = () => {
-      underground_data.value.ug_level = [];
+      levels.value = [];
       underground_update();
     };
 
     const underground_update = () => {
       funcExtraData.put_marker_extra_data_entry(
         "sumeru_desert2",
-        normalize_data(underground_data.value)
+        normalize_data(is_underground.value, name.value, levels.value)
       );
     };
 
     return {
       ...funcExtraData,
       is_underground,
-      underground_data,
+      underground_name: name,
+      underground_levels: levels,
+
       underground_type,
       underground_options,
 
@@ -123,12 +129,28 @@ export default {
       underground_update,
     };
   },
+  mounted() {
+    this.$nextTick().then(() => {
+      const data_val = this.get_marker_extra_data_entry("sumeru_desert2") || {};
+      const name_val = _.get(data_val, "ug_name", "");
+      const levels_val = _.get(data_val, "ug_level", []);
+      if (name_val) {
+        this.is_underground = true;
+        this.underground_name = name_val;
+        this.underground_levels = levels_val;
+      } else {
+        this.is_underground = false;
+        this.underground_name = "";
+        this.underground_levels = [];
+      }
+    });
+  },
   computed: {
     underground_options_state() {
       const found_selector =
         _.find(
           this.underground_options,
-          (v) => v.value === this.underground_data.ug_name
+          (v) => v.value === this.underground_name
         ) || {};
       const states = found_selector.children || [];
       return states;
