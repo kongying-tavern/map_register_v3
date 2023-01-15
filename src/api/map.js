@@ -208,6 +208,9 @@ const map_plugin_config = {
   "A:XM:DESERT": {
     extra: ["sumeru_palace"],
   },
+  "A:XM:DESERT2": {
+    extra: ["sumeru_desert2"],
+  },
 };
 
 function get_map_plugin_config(area_code = "") {

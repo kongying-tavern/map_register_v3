@@ -6,6 +6,7 @@
     <plInazumaUnderground v-else-if="field_name === 'inazuma_underground'" />
     <plSumeruUnderground v-else-if="field_name === 'sumeru_underground'" />
     <plSumeruPalace v-else-if="field_name === 'sumeru_palace'" />
+    <plSumeruDesert2 v-else-if="field_name === 'sumeru_desert2'" />
   </template>
 </template>
 
@@ -17,6 +18,7 @@ import plDragonspineCave from "./dragonspine_cave/edit.vue";
 import plInazumaUnderground from "./inazuma_underground/edit.vue";
 import plSumeruUnderground from "./sumeru_underground/edit.vue";
 import plSumeruPalace from "./sumeru_palace/edit.vue";
+import plSumeruDesert2 from "./sumeru_desert2/edit.vue";
 import { get_map_plugin_config } from "src/api/map";
 
 export default {
@@ -33,6 +35,7 @@ export default {
     plInazumaUnderground,
     plSumeruUnderground,
     plSumeruPalace,
+    plSumeruDesert2,
   },
   props: {
     area: {
