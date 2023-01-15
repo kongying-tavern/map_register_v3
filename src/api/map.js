@@ -182,6 +182,11 @@ const map_plugin_config = {
     extra: ["2_8_island"],
   },
 
+  // 蒙德
+  "A:MD:XUESHAN": {
+    extra: ["dragonspine_cave"],
+  },
+
   // 稻妻
   "A:DQ:1": {
     extra: ["inazuma_underground"],

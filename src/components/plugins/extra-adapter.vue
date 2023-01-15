@@ -2,6 +2,7 @@
   <template v-for="field_name in plugin_fields" :key="field_name">
     <pl16Island v-if="field_name === '1_6_island'" />
     <pl28Island v-else-if="field_name === '2_8_island'" />
+    <plDragonspineCave v-else-if="field_name === 'dragonspine_cave'" />
     <plInazumaUnderground v-else-if="field_name === 'inazuma_underground'" />
     <plSumeruUnderground v-else-if="field_name === 'sumeru_underground'" />
     <plSumeruPalace v-else-if="field_name === 'sumeru_palace'" />
@@ -12,6 +13,7 @@
 import extraData from "../extra-data";
 import pl16Island from "./1_6_island/edit.vue";
 import pl28Island from "./2_8_island/edit.vue";
+import plDragonspineCave from "./dragonspine_cave/edit.vue";
 import plInazumaUnderground from "./inazuma_underground/edit.vue";
 import plSumeruUnderground from "./sumeru_underground/edit.vue";
 import plSumeruPalace from "./sumeru_palace/edit.vue";
@@ -27,6 +29,7 @@ export default {
   components: {
     pl16Island,
     pl28Island,
+    plDragonspineCave,
     plInazumaUnderground,
     plSumeruUnderground,
     plSumeruPalace,
