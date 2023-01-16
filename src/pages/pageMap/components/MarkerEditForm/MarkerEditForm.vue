@@ -5,7 +5,7 @@ import type { FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { useMarkerEdit, useMarkerStage } from '../../hooks'
 import { MarkerEditExtra, MarkerEditImage, MarkerEditSelect, MarkerEditTextarea } from '.'
-import { GlobalDialogController } from '@/hooks'
+import { GlobalDialogController, useTypeList } from '@/hooks'
 import { useUserStore } from '@/stores'
 import type { ElFormType } from '@/pages/pageItemManager/utils'
 import { DialogController } from '@/hooks/useGlobalDialog/dialogController'
@@ -13,7 +13,6 @@ import { DialogController } from '@/hooks/useGlobalDialog/dialogController'
 const props = defineProps<{
   markerInfo: API.MarkerVo
   iconMap: Record<string, string>
-  typeList: API.ItemTypeVo[]
   itemList: API.ItemVo[]
 }>()
 
@@ -23,6 +22,8 @@ const emits = defineEmits<{
 
 /** 用户信息 */
 const userStore = useUserStore()
+
+const { typeList } = useTypeList()
 
 /**
  * 初始化新增点位信息

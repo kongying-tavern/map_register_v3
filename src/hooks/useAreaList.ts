@@ -2,6 +2,7 @@ import type { ComputedRef, Ref } from 'vue'
 import Api from '@/api/api'
 import { array2Tree } from '@/utils'
 import { useFetchHook } from '@/hooks'
+import { useMapStore } from '@/stores'
 
 export interface AreaListHookOptions {
   immediate?: boolean
@@ -12,10 +13,10 @@ export interface AreaTreeItem extends API.AreaVo {
   children?: AreaTreeItem[]
 }
 
+const areaList = ref([]) as Ref<API.AreaVo[]>
+
 export const useAreaList = (options: AreaListHookOptions = {}) => {
   const { immediate = true, loading = ref(false) } = options
-
-  const areaList = ref<API.AreaVo[]>([])
 
   const areaMap = computed(() => Object.fromEntries(areaList.value.map(area => [
     area.areaId as number,
@@ -28,6 +29,14 @@ export const useAreaList = (options: AreaListHookOptions = {}) => {
     rootId: -1,
   }))
 
+  const mapStore = useMapStore()
+
+  const selectedArea = computed(() => {
+    if (!mapStore.areaCode)
+      return
+    return areaList.value.find(area => area.code === mapStore.areaCode)?.areaId
+  })
+
   const { refresh, onSuccess, ...rest } = useFetchHook({
     immediate,
     loading,
@@ -38,5 +47,5 @@ export const useAreaList = (options: AreaListHookOptions = {}) => {
     areaList.value = res.data ?? []
   })
 
-  return { areaList, areaTree, areaMap, updateAreaList: refresh, onSuccess, ...rest }
+  return { areaList, areaTree, areaMap, selectedArea, updateAreaList: refresh, onSuccess, ...rest }
 }

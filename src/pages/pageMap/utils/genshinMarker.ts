@@ -20,9 +20,11 @@ export interface GenshinLayerOptions extends AnyObject {
   radius: number
 }
 
-const doDraw = (ctx: CanvasRenderingContext2D, fn: () => void) => {
+const doDraw = (ctx?: CanvasRenderingContext2D, fn?: () => void) => {
+  if (!ctx)
+    return
   ctx.save()
-  fn()
+  fn?.()
   ctx.restore()
 }
 

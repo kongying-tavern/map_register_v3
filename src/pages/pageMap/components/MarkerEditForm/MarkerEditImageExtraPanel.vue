@@ -162,6 +162,9 @@ const clipImage = () => {
     ElMessage.error('无法获取 canvas 实例')
     return
   }
+  // 数据为空
+  if (!props.imageBitMap)
+    return
   const resizeCanvas = document.createElement('canvas')
   resizeCanvas.width = clipSize.value[0]
   resizeCanvas.height = clipSize.value[1]
@@ -190,7 +193,9 @@ onMounted(() => {
 <template>
   <div class="h-full flex flex-col gap-2">
     <el-alert :closable="false">
-      仅编辑缩略图，原始图像将会作为大图被一并上传
+      1. 仅编辑缩略图，原始图像将会作为大图被一并上传。
+      <br>
+      2. 由于跨域策略限制，已上传的图像无法再被编辑，如需更改图片请重新上传。
     </el-alert>
 
     <div ref="containerRef" class="canvas-container aspect-square rounded overflow-hidden">
@@ -208,9 +213,9 @@ onMounted(() => {
       </div>
       <div class="col-span-3 row-start-2 flex items-center whitespace-nowrap">
         缩放：
-        <el-input-number v-model="zoom" :min="minZoom" :max="maxZoom" :step="0.05" class="flex-1" />
+        <el-input-number v-model="zoom" :min="minZoom" :max="maxZoom" :step="0.05" class="flex-1" :disabled="!imageBitMap" />
       </div>
-      <el-button class="row-span-2" style="height: 74px" @click="clipImage">
+      <el-button class="row-span-2" style="height: 74px" :disabled="!imageBitMap" @click="clipImage">
         确认剪裁
       </el-button>
     </div>

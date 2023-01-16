@@ -40,10 +40,10 @@ onMapEvent('zoom', (ev) => {
   mapStore.zoom = (ev.target as GenshinMap).getZoom()
 })
 
-onMapEvent('drag', useDebounceFn((ev: LeafletEvent) => {
+onMapEvent('move', useDebounceFn((ev: LeafletEvent) => {
   const center = (ev.target as GenshinMap).getCenter()
   mapStore.center = [Math.floor(center.lat), Math.floor(center.lng)]
-}, 200))
+}, 500))
 
 // ==================== 地区相关 ====================
 const { areaList, onSuccess: onAreaFetched } = useAreaList()
@@ -161,6 +161,7 @@ watch(() => [mapStore.areaCode, mapStore.typeId], () => {
 // ==================== 点位相关 ====================
 const { iconMap, markerList, loading: markerLoading, createMarkerWhenReady, updateMarkerList } = useMarker(map, {
   selectedItem,
+  itemList,
   stopPropagationSignal,
   params: () => ({
     itemIdList: selectedItem.value?.itemId === undefined ? [] : [selectedItem.value.itemId],

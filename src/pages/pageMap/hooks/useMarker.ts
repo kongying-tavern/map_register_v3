@@ -3,16 +3,15 @@ import { render } from 'vue'
 import L from 'leaflet'
 import { ElMessage } from 'element-plus'
 import type { GenshinLayerOptions, GenshinMap } from '../utils'
-import { PopupContent } from '../components'
+import { MarkerEditForm, PopupContent } from '../components'
 import { canvasMarker } from '../utils'
 import Api from '@/api/api'
 import type { FetchHookOptions } from '@/hooks'
-import { useAreaList, useFetchHook, useIconList, useItemList, useTypeList } from '@/hooks'
-import { useMapStore } from '@/stores'
-// 这里无法使用inject
+import { useFetchHook, useGlobalDialog, useIconList } from '@/hooks'
 
 export interface MarkerHookOptions extends FetchHookOptions<API.RListMarkerVo> {
   watchParams?: boolean
+  itemList: Ref<API.ItemVo[]>
   stopPropagationSignal: Ref<boolean>
   selectedItem: Ref<API.ItemVo | undefined>
   params?: () => API.MarkerSearchVo
@@ -26,25 +25,17 @@ const popupDOM = L.DomUtil.create('div', 'w-full h-full')
 const popup = L.popup({ closeButton: false, minWidth: 223, maxWidth: 223, offset: [0, 0] })
 
 export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOptions) => {
-  const { immediate = false, stopPropagationSignal, watchParams = true, selectedItem, loading = ref(false), params } = options
+  const {
+    immediate = false,
+    stopPropagationSignal,
+    watchParams = true,
+    itemList,
+    selectedItem,
+    loading = ref(false),
+    params,
+  } = options
 
   const { iconMap, onSuccess: onIconFetched } = useIconList()
-
-  const { typeList } = useTypeList()
-
-  const { areaList } = useAreaList()
-  const mapStore = useMapStore()
-  const areaId = computed(() => {
-    if (!mapStore.areaCode)
-      return
-    return areaList.value.find(area => area.code === mapStore.areaCode)?.areaId
-  })
-  const { itemList } = useItemList({
-    params: () => ({
-      areaIdList: areaId.value === undefined ? [] : [areaId.value],
-      size: 1000,
-    }),
-  })
 
   /** 组件实例 */
   const instance = getCurrentInstance()
@@ -67,7 +58,7 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
       map.value?.closePopup()
       if (!fetchParams.value?.itemIdList?.length)
         return {}
-      return await Api.marker.searchMarker({}, { ...fetchParams.value })
+      return await Api.marker.searchMarker({}, fetchParams.value)
     },
   })
 
@@ -100,6 +91,8 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
     }, 100)
   }
 
+  const { DialogService } = useGlobalDialog()
+
   /** 根据点位信息创建 canvas 图层上的点位 */
   const createCanvasMarker = (markerInfo: API.MarkerVo) => {
     const { position = '0,0' } = markerInfo
@@ -118,22 +111,40 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
 
     const markerOptions = marker.options as GenshinLayerOptions
 
+    const onCommand = (command: string) => ({
+      edit: () => DialogService
+        .config({
+          title: `编辑点位：${markerInfo.id} - ${markerInfo.markerTitle}`,
+          top: '5vh',
+          width: 'fit-content',
+          class: 'transition-all',
+        })
+        .props({
+          markerInfo,
+          iconMap: iconMap.value,
+          itemList: itemList.value,
+        })
+        .listeners({
+          refresh: updateMarkerList,
+        })
+        .open(MarkerEditForm),
+    } as Record<string, () => void>)[command]?.()
+
     marker.addEventListener('click', () => {
       if (!map.value)
         return
       markerOptions.img.popperOpen = true
-      // TODO 属性传递有点累赘，后期把部分通用 hook 改到全局状态
       const vnode = h(PopupContent, {
         markerInfo,
         latlng: coordinates,
-        iconMap,
-        typeList,
-        itemList,
+        onCommand,
         onRefresh: updateMarkerList,
       })
+      // 理论上给了 appContext 就可以使用依赖注入，不用再繁琐的传递属性了
       vnode.appContext = instance?.appContext ?? null
       render(vnode, popupDOM)
-      popup.setContent(popupDOM)
+      popup
+        .setContent(popupDOM)
         .setLatLng(coordinates)
         .openOn(map.value)
       map.value.addOneTimeEventListener('popupclose', () => {
