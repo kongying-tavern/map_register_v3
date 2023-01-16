@@ -5,8 +5,11 @@ import type { MapNameEnum } from '../configs'
 import { mapTiles } from '../configs'
 import type { GenshinMap } from '../utils'
 import { GenshinTileLayer, TileUtil } from '../utils'
+import { useMapStore } from '@/stores'
 
 export const useLayer = (mapRef: Ref<GenshinMap | null>) => {
+  const mapStore = useMapStore()
+
   const layers = computed(() => {
     const tileLayerObj: Record<string, GenshinTileLayer> = {}
     for (const name in mapTiles) {
@@ -41,8 +44,8 @@ export const useLayer = (mapRef: Ref<GenshinMap | null>) => {
     mapRef.value.eachLayer(l => mapRef.value?.removeLayer(l))
     layer.addTo(mapRef.value)
     mapRef.value.configBaseLayer(layer)
-    mapRef.value.fireEvent('baselayerchange', mapRef.value)
     activeLayer.value = layer
+    mapRef.value.fireEvent('baselayerchange', { layerConfig })
   }
 
   const activeName = computed({
@@ -54,5 +57,26 @@ export const useLayer = (mapRef: Ref<GenshinMap | null>) => {
     },
   })
 
-  return { layers, activeLayer, activeName, layerConfig, selectLayer }
+  /**
+   * 选择地区时会自动切换地图
+   * @TODO 地图焦点自动移动到对应的地区中心
+   * @注意 需要在 ../config/mapTiles 里配置地图与地区关联 id
+   */
+  const setMapNameByAreaCode = (code?: string) => {
+    if (!code)
+      return
+    for (const key in mapTiles) {
+      const config = mapTiles[key as MapNameEnum]
+      if (!config)
+        continue
+      if (config.areaCodes.includes(code)) {
+        activeName.value = key
+        mapStore.areaCode = code
+        mapStore.center = undefined
+        return
+      }
+    }
+  }
+
+  return { layers, activeLayer, activeName, layerConfig, selectLayer, setMapNameByAreaCode }
 }
