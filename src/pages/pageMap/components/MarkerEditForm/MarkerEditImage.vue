@@ -69,8 +69,8 @@ watch(imgUrl, (url) => {
       @change="onFileChange"
     >
       <div class="picture-uploader" :class="{ active: extraActive }">
-        <img v-if="modelValue" :src="modelValue" class="w-full h-full object-cover">
-        <img v-else-if="imgUrl" :src="thumbnailUrl || imgUrl" class="w-full h-full object-cover">
+        <img v-if="imgUrl" :src="thumbnailUrl || imgUrl" class="w-full h-full object-cover">
+        <img v-else-if="modelValue" :src="modelValue" class="w-full h-full object-cover">
         <div v-else class="w-full h-full flex flex-col items-center justify-center">
           <ElIcon :size="24">
             <Plus />
