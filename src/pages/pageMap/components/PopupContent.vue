@@ -1,24 +1,19 @@
 <script lang="ts" setup>
-import type { Ref } from 'vue'
 import type L from 'leaflet'
 import { ElButton, ElMessage, ElMessageBox } from 'element-plus'
 import { ceil } from 'lodash'
 import { useMarkerEdit, useMarkerStage } from '../hooks'
-import { MarkerEditForm } from './MarkerEditForm'
 import { Logger } from '@/utils'
-import { DialogService } from '@/hooks/useGlobalDialog/dialogService'
 import { useUserStore } from '@/stores'
 
 const props = defineProps<{
   markerInfo: API.MarkerVo
   latlng: L.LatLng
-  iconMap: Ref<API.IconVo[]>
-  typeList: Ref<API.ItemTypeVo[]>
-  itemList: Ref<API.ItemVo[]>
 }>()
 
 const emits = defineEmits<{
   (e: 'clickOutside', v: PointerEvent): void
+  (e: 'command', v: string): void
   (e: 'refresh'): void
 }>()
 
@@ -62,36 +57,21 @@ onPushStagedSuccess(() => {
 onPushStagedError(commonErrorHandler)
 onStageError(commonErrorHandler)
 
-/** 编辑事件 */
-const onClickEdit = () => {
-  DialogService
-    .config({
-      title: `编辑点位：${props.markerInfo.id} - ${props.markerInfo.markerTitle}`,
-      top: '5vh',
-      width: 'fit-content',
-      class: 'transition-all',
-    })
-    .props({
-      ...props,
-    })
-    .listeners({
-      refresh: () => { emits('refresh') },
-    })
-    .open(MarkerEditForm)
-}
-
 /** 删除事件 */
 const onClickDel = async () => {
   try {
-    await ElMessageBox.confirm('该操作不可逆，确认删除点位？', '确认操作', {
-      type: 'warning',
-    })
     // 打点员删除需要过审核
     if (!userStore.isAdmin) {
+      await ElMessageBox.confirm('删除操作将被提交到审核，确认删除点位？', '确认操作', {
+        type: 'warning',
+      })
       await stageMarker()
       return
     }
     // admin直接请求
+    await ElMessageBox.confirm('该操作不可逆，确认删除点位？', '确认操作', {
+      type: 'warning',
+    })
     await deleteMarker()
   }
   catch (err) {
@@ -114,8 +94,7 @@ onClickOutside(containerRef, (ev) => {
     <img
       v-if="markerInfo.picture"
       :src="markerInfo.picture"
-      alt="点位说明"
-      referrerpolicy="no-referrer"
+      alt="点位图像"
       class="w-full aspect-square object-cover rounded"
     >
     <div class="w-full">
@@ -126,7 +105,7 @@ onClickOutside(containerRef, (ev) => {
       >{{ text }}</span>
     </div>
     <div class="w-full flex justify-center">
-      <ElButton plain class="flex-1" size="small" type="primary" @click="onClickEdit">
+      <ElButton plain class="flex-1" size="small" type="primary" @click="() => emits('command', 'edit')">
         编辑
       </ElButton>
       <ElButton plain class="flex-1" size="small" type="danger" @click="onClickDel">

@@ -3,7 +3,7 @@ import type L from 'leaflet'
 import type { FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { useMarkerEdit, useMarkerStage } from '../../hooks'
-import { MarkerEditImage, MarkerEditSelect, MarkerEditTextarea } from '.'
+import { MarkerEditExtra, MarkerEditImage, MarkerEditSelect, MarkerEditTextarea } from '.'
 import { GlobalDialogController } from '@/hooks'
 import { useUserStore } from '@/stores'
 import type { ElFormType } from '@/pages/pageItemManager/utils'
@@ -189,7 +189,7 @@ provide('extraPanel', extraPanelRef)
       </el-form-item>
 
       <el-form-item label="附加数据" prop="extra">
-        <plugins v-model="form.extra" />
+        <MarkerEditExtra v-model="form.extra" />
       </el-form-item>
 
       <el-form-item label="点位视频" prop="videoPath">
