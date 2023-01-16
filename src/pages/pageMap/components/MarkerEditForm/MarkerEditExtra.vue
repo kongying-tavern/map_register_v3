@@ -14,6 +14,7 @@ interface OptionsVo {
 
 /** extra附加数据接口 */
 interface ExtraVo {
+  dragonspine_cave?: boolean
   inazuma_underground?: boolean
   sumeru_underground?: boolean
   sumeru_palace?: {
@@ -112,6 +113,12 @@ const inazuma_underground = computed(() => {
     extra.value.inazuma_underground = false
   return isPluginsArea('C:DQ')
 })
+/** 龙脊雪山判断 */
+const dragonspine_cave = computed(() => {
+  if (!extra.value.dragonspine_cave && isPluginsArea('A:MD:XUESHAN'))
+    extra.value.dragonspine_cave = false
+  return isPluginsArea('A:MD:XUESHAN')
+})
 
 watch(extra, () => {
   emit('update:modelValue', JSON.stringify(extra.value))
@@ -119,6 +126,13 @@ watch(extra, () => {
 </script>
 
 <template>
+  <!-- 龙脊雪山 -->
+  <el-switch
+    v-if="dragonspine_cave"
+    v-model="extra.dragonspine_cave"
+    active-text="地下"
+    inactive-text="地上"
+  />
   <!-- 须弥 诸法丛林 -->
   <el-switch
     v-if="sumeru_underground"
