@@ -14,3 +14,5 @@ export const itemTypeInjection: InjectionKey<Ref<API.ItemTypeVo[]>> = Symbol('it
 export const iconMapInjection: InjectionKey<Ref<Record<string, string>>> = Symbol('iconMap')
 /** 点位列表 */
 export const markerListInjection: InjectionKey<Ref<LinkedMapMarker[]>> = Symbol('markerList')
+/** 地下模式 */
+export const underGroundModeInjection: InjectionKey<Ref<boolean>> = Symbol('underGroundMode')
