@@ -13,12 +13,123 @@ const mapStore = useMapStore()
 const map = inject(mapInjection, ref(null))
 
 /** 须弥雨林地下图层 */
-const sumeruForestLayer = L.imageOverlay('https://v3.yuanshen.site/imgs/sumeru_undergroundmap_shade.png', [[-6299, -2190], [-838, 1906]]).setOpacity(0.75)
+const sumeruForestLayer = L.imageOverlay(
+  'https://v3.yuanshen.site/imgs/sumeru_undergroundmap_shade.png',
+  [[-6299, -2190], [-838, 1906]],
+  { opacity: 0.75 },
+)
 /** 大赤沙海基本地下图层 */
-const sumeruDesertLayer = L.imageOverlay('https://v3.yuanshen.site/imgs/固定底图.png', [[-7670, 480], [-3369, 4781]]).setOpacity(0.75)
+const sumeruDesertLayer = L.imageOverlay(
+  'https://v3.yuanshen.site/imgs/固定底图.png',
+  [[-7664, 542], [-3566, 4640]],
+  { opacity: 0.75 },
+)
+
+// 备用，位置调试，开启时需将 overlay 的 interactive 设置为 true，且 zIndex 需大于点位图层 (>100)
+// const controlLayer = ref(null) as Ref<L.ImageOverlay | null>
+// useEventListener(window, 'keydown', (ev) => {
+//   if (!controlLayer.value)
+//     return
+//   const oldBounds = controlLayer.value.getBounds()
+//   const xmin = oldBounds.getSouth()
+//   const ymin = oldBounds.getWest()
+//   const xmax = oldBounds.getNorth()
+//   const ymax = oldBounds.getEast()
+//   console.log({ xmin, ymin, xmax, ymax })
+//   if (ev.code === 'KeyW') {
+//     controlLayer.value.setBounds(L.latLngBounds(
+//       [xmin, ymin - 10],
+//       [xmax, ymax - 10],
+//     ))
+//     return
+//   }
+//   if (ev.code === 'KeyS') {
+//     controlLayer.value.setBounds(L.latLngBounds(
+//       [xmin, ymin + 10],
+//       [xmax, ymax + 10],
+//     ))
+//     return
+//   }
+//   if (ev.code === 'KeyA') {
+//     controlLayer.value.setBounds(L.latLngBounds(
+//       [xmin - 10, ymin],
+//       [xmax - 10, ymax],
+//     ))
+//     return
+//   }
+//   if (ev.code === 'KeyD') {
+//     controlLayer.value.setBounds(L.latLngBounds(
+//       [xmin + 10, ymin],
+//       [xmax + 10, ymax],
+//     ))
+//     return
+//   }
+//   if (ev.code === 'BracketLeft') {
+//     controlLayer.value.setBounds(L.latLngBounds(
+//       [xmin, ymin],
+//       [xmax + 10, ymax + 10],
+//     ))
+//     return
+//   }
+//   if (ev.code === 'BracketRight') {
+//     controlLayer.value.setBounds(L.latLngBounds(
+//       [xmin, ymin],
+//       [xmax - 10, ymax - 10],
+//     ))
+//     return
+//   }
+//   if (ev.code === 'Numpad8') {
+//     controlLayer.value.setBounds(L.latLngBounds(
+//       [xmin, ymin - 1],
+//       [xmax, ymax - 1],
+//     ))
+//     return
+//   }
+//   if (ev.code === 'Numpad2') {
+//     controlLayer.value.setBounds(L.latLngBounds(
+//       [xmin, ymin + 1],
+//       [xmax, ymax + 1],
+//     ))
+//     return
+//   }
+//   if (ev.code === 'Numpad4') {
+//     controlLayer.value.setBounds(L.latLngBounds(
+//       [xmin - 1, ymin],
+//       [xmax - 1, ymax],
+//     ))
+//     return
+//   }
+//   if (ev.code === 'Numpad6') {
+//     controlLayer.value.setBounds(L.latLngBounds(
+//       [xmin + 1, ymin],
+//       [xmax + 1, ymax],
+//     ))
+//     return
+//   }
+//   if (ev.code === 'Semicolon') {
+//     controlLayer.value.setBounds(L.latLngBounds(
+//       [xmin, ymin],
+//       [xmax + 1, ymax + 1],
+//     ))
+//     return
+//   }
+//   if (ev.code === 'Quote') {
+//     controlLayer.value.setBounds(L.latLngBounds(
+//       [xmin, ymin],
+//       [xmax - 1, ymax - 1],
+//     ))
+//     return
+//   }
+//   // eslint-disable-next-line no-console
+//   console.log(ev.code)
+// })
+// sumeruDesertLayer
+//   .addEventListener('click', (ev) => {
+//     controlLayer.value = ev.target as L.ImageOverlay
+//   })
 
 /** 用于记录已经设置为 overlay 的图层 */
-const cacheOverlayLayer = ref(null) as Ref<L.ImageOverlay | null>
+const cacheOverlayLayer = shallowRef(null) as Ref<L.ImageOverlay | null>
 
 /** 根据已选择的地区 code 解析的地区信息 */
 const areaObj = computed(() => {
