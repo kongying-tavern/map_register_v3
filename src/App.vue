@@ -22,7 +22,7 @@ const isMapPage = computed(() => route.path === '/map')
         color: isMapPage ? '#4A4F50' : undefined,
       }"
     >
-      当前应用正运行于开发环境下
+      {{ envBanner }}
     </div>
 
     <router-view v-slot="{ Component }">
