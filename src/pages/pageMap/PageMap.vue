@@ -62,10 +62,18 @@ watch(() => [mapStore.areaCode, mapStore.typeId], () => {
 })
 
 // ==================== 点位相关 ====================
+/** 显示待审核点位 */
+const showPunctuate = ref<boolean>(false)
+
+/** 显示已审核点位 */
+const showMarker = ref<boolean>(false)
+
 const { iconMap, markerList, loading: markerLoading, createMarkerWhenReady, updateMarkerList } = useMarker(map, {
   selectedItem,
   itemList,
   stopPropagationSignal,
+  showPunctuate,
+  showMarker,
   params: () => ({
     itemIdList: selectedItem.value?.itemId === undefined ? [] : [selectedItem.value.itemId],
   }),
@@ -81,6 +89,8 @@ const { openContextMenu } = useContextMenu({
 })
 onMapEvent('contextmenu', openContextMenu)
 
+watch(showPunctuate, updateMarkerList)
+watch(showMarker, updateMarkerList)
 // ==================== 其他 ====================
 onAreaFetched(() => {
   mapStore.areaCode !== undefined && setMapNameByAreaCode(mapStore.areaCode)
@@ -109,6 +119,8 @@ provide(iconMapInjection, iconMap)
       v-model:icon-name="mapStore.iconName"
       v-model:type="mapStore.typeId"
       v-model:step="mapStore.step"
+      v-model:showPunctuate="showPunctuate"
+      v-model:showMarker="showMarker"
       :marker-loading="markerLoading"
       :item-loading="itemLoading"
       class="control-unit control-bg left-2 top-2 bottom-2 grid p-2 gap-2"

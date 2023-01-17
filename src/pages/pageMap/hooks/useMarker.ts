@@ -8,16 +8,19 @@ import { canvasMarker } from '../utils'
 import Api from '@/api/api'
 import type { FetchHookOptions } from '@/hooks'
 import { useFetchHook, useGlobalDialog, useIconList } from '@/hooks'
+import { useUserStore } from '@/stores'
 
 export interface MarkerHookOptions extends FetchHookOptions<API.RListMarkerVo> {
   watchParams?: boolean
   itemList: Ref<API.ItemVo[]>
   stopPropagationSignal: Ref<boolean>
   selectedItem: Ref<API.ItemVo | undefined>
+  showPunctuate: Ref<boolean> // 显示待审核点位
+  showMarker: Ref<boolean> // 显示已审核点位
   params?: () => API.MarkerSearchVo
 }
 
-export interface LinkedMapMarker extends API.MarkerVo {
+export interface LinkedMapMarker extends API.MarkerPunctuateVo {
   mapMarker?: L.CircleMarker
 }
 
@@ -51,7 +54,7 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
   /** 当前选择的 item 对应的图片地址 */
   const iconUrl = computed(() => iconMap.value[selectedItem.value?.iconTag ?? ''])
   /** 点位相关方法 */
-  const { refresh: updateMarkerList, onSuccess: onMarkerFetched, onError, ...rest } = useFetchHook({
+  const { refresh: updatePassedMarkerList, onSuccess: onMarkerFetched, onError, ...rest } = useFetchHook({
     immediate,
     loading,
     onRequest: async () => {
@@ -59,6 +62,18 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
       if (!fetchParams.value?.itemIdList?.length)
         return {}
       return await Api.marker.searchMarker({}, fetchParams.value)
+    },
+  })
+
+  /** 待审核点位相关方法(打点员) */
+  const { refresh: updatePunctuateMarkerList, onSuccess: onPunctuateMarkerFetched, onError: onError1 } = useFetchHook({
+    immediate,
+    loading,
+    onRequest: async () => {
+      map.value?.closePopup()
+      if (!fetchParams.value?.itemIdList?.length)
+        return {}
+      return await Api.punctuate.listSelfPunctuatePage({ authorId: useUserStore().info.id ?? 0 }, { current: 0, size: 1000 })
     },
   })
 
@@ -92,6 +107,17 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
   }
 
   const { DialogService } = useGlobalDialog()
+
+  /** 刷新点位 */
+  const updateMarkerList = () => {
+    markerList.value = []
+    if (options.showPunctuate.value)
+      updatePunctuateMarkerList()
+    if (options.showMarker.value)
+      updatePassedMarkerList()
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
+    createMarkerWhenReady()
+  }
 
   /** 根据点位信息创建 canvas 图层上的点位 */
   const createCanvasMarker = (markerInfo: API.MarkerVo) => {
@@ -202,11 +228,23 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
   onIconFetched(createMarkerWhenReady)
 
   onMarkerFetched(({ data = [] }) => {
-    markerList.value = data
+    markerList.value = markerList.value.concat(data)
+    createMarkerWhenReady()
+  })
+
+  onPunctuateMarkerFetched(({ data = { record: [] } }) => {
+    const record = data.record
+    markerList.value = markerList.value.concat(record)
     createMarkerWhenReady()
   })
 
   onError(() => {
+    markerList.value = []
+    ElMessage.error('点位加载失败')
+    createMarkerWhenReady()
+  })
+
+  onError1(() => {
     markerList.value = []
     ElMessage.error('点位加载失败')
     createMarkerWhenReady()

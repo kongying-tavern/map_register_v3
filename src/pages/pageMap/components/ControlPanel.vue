@@ -9,12 +9,16 @@ const props = defineProps<{
   iconName?: string
   markerLoading?: boolean
   itemLoading?: boolean
+  showPunctuate: boolean
+  showMarker: boolean
 }>()
 
 const emits = defineEmits<{
   (e: 'update:areaCode', v?: string): void
   (e: 'update:type', v?: number): void
   (e: 'update:iconName', v?: string): void
+  (e: 'update:showPunctuate', v?: boolean): void
+  (e: 'update:showMarker', v?: boolean): void
   (e: 'changeStep', v?: number): void
   (e: 'update:step', v: number): void
 }>()
@@ -37,6 +41,16 @@ const bindStep = computed({
 const bindItemName = computed({
   get: () => props.iconName,
   set: v => emits('update:iconName', v),
+})
+
+const bindShowPunctuate = computed({
+  get: () => props.showPunctuate,
+  set: v => emits('update:showPunctuate', v),
+})
+
+const bindShowMarker = computed({
+  get: () => props.showMarker,
+  set: v => emits('update:showMarker', v),
 })
 
 const steps = ['选择地区', '选择分类', '选择物品']
@@ -109,6 +123,21 @@ const minus = ref(false)
           <FilterItem v-else-if="(bindStep === 2)" v-model="bindItemName" :loading="itemLoading" class="h-full" />
         </KeepAlive>
       </Transition>
+    </div>
+
+    <div class="w-full flex gap-2" style="height: fit-content;">
+      <div class="content px-2 flex justify-center items-center gap-1">
+        <div class="text-xs leading-none">
+          显示审核中点位
+        </div>
+        <el-switch v-model="bindShowPunctuate" />
+      </div>
+      <div class="content px-2 flex justify-center items-center gap-1">
+        <div class="text-xs leading-none">
+          显示审核通过点位
+        </div>
+        <el-switch v-model="bindShowMarker" />
+      </div>
     </div>
 
     <MarkersTable :loading="markerLoading" class="content" />
