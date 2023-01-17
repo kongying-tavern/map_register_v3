@@ -37,29 +37,23 @@ export const useMap = (ele?: Ref<HTMLElement | null>) => {
     map.value.addEventListener(type, (...args) => callWithSignal(fn, ...args))
   }
 
-  const hasEventListeners = (type: string) => {
-    if (!map.value)
-      return preloadListeners.value.find(([name]) => name === type) !== undefined
-    return map.value.hasEventListeners(type)
-  }
-
-  // 考虑到该 hook 可能被重用，需使以下监听器只会被附加一次
+  // 以下监听器只会在 ele 存在时（即 map 实例存在的组件）被附加
 
   on('zoom', (ev) => {
-    if (hasEventListeners('zoom'))
+    if (!ele)
       return
     mapStore.zoom = (ev.target as GenshinMap).getZoom()
   })
 
   on('move', useDebounceFn((ev: LeafletEvent) => {
-    if (hasEventListeners('move'))
+    if (!ele)
       return
     const center = (ev.target as GenshinMap).getCenter()
     mapStore.center = [Math.floor(center.lat), Math.floor(center.lng)]
   }, 500))
 
   on('baselayerchange', (ev: BaseLayerChangeEvent) => {
-    if (hasEventListeners('move'))
+    if (!ele)
       return
     if (!mapStore.center) {
       mapStore.center = ev.layerConfig?.settings?.center as [number, number]
