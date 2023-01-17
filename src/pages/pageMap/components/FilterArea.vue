@@ -34,11 +34,18 @@ const parentAreaMap = computed(() => areaList.value.reduce((seed, area) => {
   return seed
 }, {} as Record<string, API.AreaVo[]>))
 
+/** 切换一级地区时暂时不触发 change 事件以便用户选择二级地区 */
+const changeEventFlag = ref(true)
+
 /** 二级地区的 areaCode */
 const childAreaCode = computed({
   get: () => props.modelValue,
   set: (v) => {
     emits('update:modelValue', v)
+    if (!changeEventFlag.value) {
+      changeEventFlag.value = true
+      return
+    }
     emits('change', v)
   },
 })
@@ -60,8 +67,10 @@ const parentAreaCode = computed<string | undefined>({
       return
     }
     const parentAreaTag = v.split(':')[1]
-    if (childAreaTag.value === undefined || childAreaTag.value !== parentAreaTag)
+    if (childAreaTag.value === undefined || childAreaTag.value !== parentAreaTag) {
+      changeEventFlag.value = false
       childAreaCode.value = parentAreaMap.value[v]?.[0].code
+    }
   },
 })
 
