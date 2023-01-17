@@ -3,7 +3,7 @@ import { AppDialogProvider } from '@/components'
 
 const route = useRoute()
 
-const isDevelopmentEnv = import.meta.env.DEV
+const envBanner = (import.meta.env.VITE_ENV_BANNER || '').trim()
 const isMapPage = computed(() => route.path === '/map')
 </script>
 
@@ -12,7 +12,7 @@ const isMapPage = computed(() => route.path === '/map')
     class="w-full h-full flex flex-col items-stretch"
   >
     <div
-      v-if="isDevelopmentEnv"
+      v-if="envBanner"
       class="genshin-text text-md p-1 px-2 text-center transition-all duration-150"
       :class="{
         'text-orange-400': !isMapPage,

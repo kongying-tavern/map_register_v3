@@ -23,6 +23,11 @@ interface ImportMetaEnv {
   VITE_ROUTER_MODE: 'history' | 'hash' | 'memory'
 
   /**
+   * 顶部指示环境的置顶文本
+   */
+  readonly VITE_ENV_BANNER: string
+
+  /**
    * token 有效期小于多长时刷新（秒）
    * @default 600
    */
