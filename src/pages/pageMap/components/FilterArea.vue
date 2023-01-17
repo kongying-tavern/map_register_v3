@@ -14,10 +14,28 @@ const emits = defineEmits<{
 const areaList = inject(areaListInjection, ref([]))
 const iconMap = inject(iconMapInjection, ref<Record<string, string>>({}))
 
-/** 一级地区的 areaId */
-const parentId = ref<number>()
+/** 地区 id 与地区对象映射表 */
+const areaIdMap = computed<Record<number, API.AreaVo>>(() => Object.fromEntries(areaList.value.map(area => [area.areaId, area])))
+
+/** 一级地区列表 */
+const parentAreaList = computed(() => areaList.value.filter(area => !area.isFinal))
+
+/** 一级地区映射表，key 为一级地区 code，value 为对应的二级地区数组 */
+const parentAreaMap = computed(() => areaList.value.reduce((seed, area) => {
+  if (!area.isFinal || area.parentId === undefined || area.code === undefined)
+    return seed
+  const parentArea = areaIdMap.value[area.parentId]
+  if (parentArea.code === undefined)
+    return seed
+  if (!(parentArea.code in seed))
+    seed[parentArea.code] = [area]
+  else
+    seed[parentArea.code].push(area)
+  return seed
+}, {} as Record<string, API.AreaVo[]>))
+
 /** 二级地区的 areaCode */
-const internalBind = computed({
+const childAreaCode = computed({
   get: () => props.modelValue,
   set: (v) => {
     emits('update:modelValue', v)
@@ -25,37 +43,38 @@ const internalBind = computed({
   },
 })
 
-/** 一级地区列表 */
-const parentAreaList = computed(() => areaList.value.filter(area => !area.isFinal))
-/** 一级地区映射表，value 为对应的二级地区 */
-const parentAreaMap = computed(() => areaList.value.reduce((seed, area) => {
-  if (area.isFinal && area.areaId !== undefined) {
-    if (!(area.parentId as number in seed))
-      seed[area.parentId as number] = [area]
-    else
-      seed[area.parentId as number].push(area)
-  }
-  return seed
-}, {} as Record<number, API.AreaVo[]>))
+const childAreaTag = computed(() => childAreaCode.value?.split(':')?.[1])
+
+/** 一级地区的 code */
+const parentAreaCode = computed<string | undefined>({
+  get: () => {
+    if (props.modelValue === undefined)
+      return undefined
+    const childAreaTag = props.modelValue.split(':')[1]
+    // 根据地区代码规范，一级地区形如 C:LY，二级地区形如 A:LY:LIYUE，其中第二部分为相同的
+    return `C:${childAreaTag}`
+  },
+  set: (v) => {
+    if (v === undefined) {
+      childAreaCode.value = undefined
+      return
+    }
+    const parentAreaTag = v.split(':')[1]
+    if (childAreaTag.value === undefined || childAreaTag.value !== parentAreaTag)
+      childAreaCode.value = parentAreaMap.value[v]?.[0].code
+  },
+})
+
 /** 二级地区列表 */
-const leafList = computed(() => parentId.value === undefined ? [] : (parentAreaMap.value?.[parentId.value] ?? []))
-
-const initParentArea = () => {
-  const childArea = areaList.value.find(area => area.code === internalBind.value)
-  if (!childArea)
-    return
-  const parentArea = areaList.value.find(area => area.areaId === childArea?.parentId)
-  parentId.value = parentArea?.areaId
-}
-
-/** 如果 url 参数存在已选择的二级地区 code，则初始化对应的一级地区 */
-onMounted(initParentArea)
-watch(internalBind, initParentArea)
+const childAreaList = computed(() => parentAreaCode.value === undefined
+  ? []
+  : (parentAreaMap.value?.[parentAreaCode.value] ?? []),
+)
 </script>
 
 <template>
   <div class="flex">
-    <RadioCardGroup v-model="parentId" class="flex-1" :cols="1" :item-list="parentAreaList" data-key="areaId" item-key="areaId">
+    <RadioCardGroup v-model="parentAreaCode" class="flex-1" :cols="1" :item-list="parentAreaList" data-key="code" item-key="code">
       <template #default="{ item, actived }">
         <RadioCardItem :src="iconMap?.[item.iconTag]" :title="item.name" :actived="actived" />
       </template>
@@ -63,7 +82,7 @@ watch(internalBind, initParentArea)
 
     <div class="h-full p-1 bg-stone-500" style="clip-path: inset(16px 44%);" />
 
-    <RadioCardGroup v-model="internalBind" class="flex-1" :cols="1" :item-list="leafList" data-key="code" item-key="code">
+    <RadioCardGroup v-model="childAreaCode" class="flex-1" :cols="1" :item-list="childAreaList" data-key="code" item-key="code">
       <template #default="{ item, actived }">
         <RadioCardItem :title="item.name" :actived="actived" :icon="false" />
       </template>
