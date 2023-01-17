@@ -13,9 +13,9 @@ const mapStore = useMapStore()
 const map = inject(mapInjection, ref(null))
 
 /** 须弥雨林地下图层 */
-const sumeruForestLayer = L.imageOverlay('https://v3.yuanshen.site/imgs/sumeru_undergroundmap_shade.png', [[-6299, -2190], [-838, 1906]])
+const sumeruForestLayer = L.imageOverlay('https://v3.yuanshen.site/imgs/sumeru_undergroundmap_shade.png', [[-6299, -2190], [-838, 1906]]).setOpacity(0.75)
 /** 大赤沙海基本地下图层 */
-const sumeruDesertLayer = L.imageOverlay('https://v3.yuanshen.site/imgs/固定底图.png', [[-7670, 480], [-3369, 4781]])
+const sumeruDesertLayer = L.imageOverlay('https://v3.yuanshen.site/imgs/固定底图.png', [[-7670, 480], [-3369, 4781]]).setOpacity(0.75)
 
 /** 用于记录已经设置为 overlay 的图层 */
 const cacheOverlayLayer = ref(null) as Ref<L.ImageOverlay | null>
