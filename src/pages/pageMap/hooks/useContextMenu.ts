@@ -4,6 +4,7 @@ import { render } from 'vue'
 import { ceil } from 'lodash'
 import { ContextMenu, MarkerCreateForm } from '../components'
 import type { GenshinMap } from '../utils'
+import { useSetting } from '.'
 import { useGlobalDialog } from '@/hooks'
 import { useMapStore, useUserStore } from '@/stores'
 
@@ -31,6 +32,8 @@ export const useContextMenu = (options: ContextMenuHookOptions) => {
   const mapStore = useMapStore()
 
   const { DialogService } = useGlobalDialog()
+
+  const { openSetting } = useSetting()
 
   /** 打开点位新建面板 */
   const openMarkerEditPanel = (props: MarkerCreateFormProps) => {
@@ -88,6 +91,7 @@ export const useContextMenu = (options: ContextMenuHookOptions) => {
     const onCommand = (command: string) => ({
       add: () => openMarkerEditPanel({ latlng: ev.latlng, selectedArea }),
       refresh: refreshMarkers,
+      setting: openSetting,
     } as Record<string, () => void>)[command]?.()
 
     /** 预渲染右键菜单使用的组件 */
