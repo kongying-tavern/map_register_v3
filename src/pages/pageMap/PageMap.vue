@@ -66,7 +66,7 @@ watch(() => [mapStore.areaCode, mapStore.typeId], () => {
 const showPunctuate = ref<boolean>(false)
 
 /** 显示已审核点位 */
-const showMarker = ref<boolean>(false)
+const showMarker = ref<boolean>(true)
 
 const { iconMap, markerList, loading: markerLoading, createMarkerWhenReady, updateMarkerList } = useMarker(map, {
   selectedItem,

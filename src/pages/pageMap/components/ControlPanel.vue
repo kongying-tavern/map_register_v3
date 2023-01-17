@@ -125,7 +125,7 @@ const minus = ref(false)
       </Transition>
     </div>
 
-    <div class="w-full flex gap-2" style="height: fit-content;">
+    <div class="w-full flex gap-2">
       <div class="content px-2 flex justify-center items-center gap-1">
         <div class="text-xs leading-none">
           显示审核中点位
@@ -149,11 +149,12 @@ const minus = ref(false)
   --clip-rest: calc(100% - 31px - 1rem);
   --content-radius: 4px;
 
-  grid-template-rows: auto 15rem 1fr;
+  grid-template-rows: auto 15rem auto 1fr;
   width: 432px;
   clip-path: inset(0 0);
   transform: translate(0, 0);
   transition: var(--el-transition-all);
+
   &.minus {
     --content-radius: 8px;
     clip-path: inset(8px var(--clip-rest) var(--clip-rest) 8px round 8px);
