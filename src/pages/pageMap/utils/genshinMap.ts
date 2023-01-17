@@ -19,6 +19,24 @@ export class GenshinMap extends L.Map {
     })
   }
 
+  // FIXME 临时修复移除 L.ImageOverlay 时事件监听器没有同时移除的 bug
+  removeLayer(layer: L.Layer): this {
+    super.removeLayer(layer)
+    const events = Reflect.get(this, '_events') as Record<string, { ctx?: L.Layer; fn: Function }[]>
+    for (const key in events) {
+      events[key].forEach(({ ctx }, index) => {
+        if (!ctx)
+          return
+        const ctxId = Reflect.get(ctx, '_leaflet_id') as number
+        const layerId = Reflect.get(layer, '_leaflet_id') as number
+        if (ctxId !== layerId)
+          return
+        events[key].splice(index, 1)
+      })
+    }
+    return this
+  }
+
   setCRS = (crs: L.CRS) => {
     this.options.crs = crs
   }
