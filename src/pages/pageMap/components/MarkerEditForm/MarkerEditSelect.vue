@@ -61,7 +61,8 @@ const toggleExtraPanel = () => {
         <el-input-number
           v-model="internalBind[index].count"
           controls-position="right"
-          style="width: 80px"
+          class="tiny-input-number"
+          style="width: 64px"
           step-strictly
           :step="1"
           :min="1"
@@ -95,6 +96,21 @@ const toggleExtraPanel = () => {
   }
   &.extraActive {
     border-color: var(--el-color-primary);
+  }
+}
+
+.tiny-input-number {
+  :deep(.el-input-number__decrease) {
+    width: 20px;
+  }
+  :deep(.el-input-number__increase) {
+    width: 20px;
+  }
+  &.is-controls-right {
+    :deep(.el-input__wrapper) {
+      padding-left: 0;
+      padding-right: 20px;
+    }
   }
 }
 </style>
