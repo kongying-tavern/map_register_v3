@@ -59,6 +59,10 @@ export const useUserStore = defineStore('user-info', {
     isAdmin: ({ auth: { userRoles = [] } }) => {
       return userRoles.some(role => ADMIN_ROLES.includes(role as RoleTypeEnum))
     },
+    /** 用户是否为测试打点员 */
+    isNeigui: ({ auth: { userRoles = [] } }) => {
+      return userRoles.includes(RoleTypeEnum.MAP_NEIGUI)
+    },
     /** 根据权限筛选出的全部可访问路由，只能在 router 以外的地方调用 */
     routes: (state) => {
       const router = useRouter()

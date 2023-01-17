@@ -23,6 +23,9 @@ const emits = defineEmits<{
 /** 用户信息 */
 const userStore = useUserStore()
 
+/** 是否为测试打点员 */
+const isNeigui = userStore.isNeigui
+
 const { typeList } = useTypeList()
 
 /**
@@ -142,12 +145,20 @@ provide('extraPanel', extraPanelRef)
         <el-input v-model="form.markerTitle" />
       </el-form-item>
 
-      <el-form-item label="隐藏点位">
+      <el-form-item :label="`${isNeigui ? '测试点位' : '隐藏点位'}`">
         <el-switch
+          v-if="!isNeigui"
           v-model="form.hiddenFlag"
           :active-value="1"
           :inactive-value="0"
           :active-text="`该点位将${form.hiddenFlag === 1 ? '不' : ''}会显示在前台`"
+        />
+        <el-switch
+          v-if="isNeigui"
+          v-model="form.hiddenFlag"
+          :active-value="2"
+          :inactive-value="0"
+          :active-text="`该点位${form.hiddenFlag === 2 ? '' : '不'}为测试点位`"
         />
       </el-form-item>
 
