@@ -232,8 +232,7 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
     createMarkerWhenReady()
   })
 
-  onPunctuateMarkerFetched(({ data = { record: [] } }) => {
-    const record = data.record
+  onPunctuateMarkerFetched(({ data: { record = [] } = {} }) => {
     markerList.value = markerList.value.concat(record)
     createMarkerWhenReady()
   })
