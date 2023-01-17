@@ -1,15 +1,38 @@
 <script setup lang="ts">
 import { AppDialogProvider } from '@/components'
+
+const route = useRoute()
+
+const isDevelopmentEnv = import.meta.env.DEV
+const isMapPage = computed(() => route.path === '/map')
 </script>
 
 <template>
-  <router-view v-slot="{ Component }">
-    <Transition name="fade" mode="out-in" appear>
-      <keep-alive>
-        <component :is="Component" />
-      </keep-alive>
-    </Transition>
-  </router-view>
+  <div
+    class="w-full h-full flex flex-col items-stretch"
+  >
+    <div
+      v-if="isDevelopmentEnv"
+      class="genshin-text text-md p-1 px-2 text-center transition-all duration-150"
+      :class="{
+        'text-orange-400': !isMapPage,
+      }"
+      :style="{
+        background: isMapPage ? '#E2DED5' : 'var(--el-bg-color)',
+        color: isMapPage ? '#4A4F50' : undefined,
+      }"
+    >
+      开发环境
+    </div>
+
+    <router-view v-slot="{ Component }">
+      <Transition name="fade" mode="out-in" appear>
+        <keep-alive>
+          <component :is="Component" />
+        </keep-alive>
+      </Transition>
+    </router-view>
+  </div>
 
   <AppDialogProvider />
 </template>
