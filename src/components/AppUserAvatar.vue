@@ -8,6 +8,8 @@ defineProps<{
 
 const userStore = useUserStore()
 
+const roleName = userStore.info.roleList ? userStore.info.roleList[0].name : '暂无任何权限'
+
 const handleCommand = async (command: string) => {
   if (command === 'logout')
     userStore.logout()
@@ -29,7 +31,7 @@ const handleCommand = async (command: string) => {
     <template #dropdown>
       <el-dropdown-menu>
         <el-dropdown-item>
-          登录身份：{{ userStore.info.nickname }}
+          登录身份：{{ roleName }}
         </el-dropdown-item>
         <el-dropdown-item v-if="mapMode" divided command="toManager">
           管理中心
