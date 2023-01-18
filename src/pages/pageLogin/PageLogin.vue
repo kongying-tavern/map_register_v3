@@ -2,7 +2,7 @@
 import { useLoginForm } from './hooks'
 
 const title = import.meta.env.VITE_TITLE
-const { loginForm, loading, login } = useLoginForm()
+const { loginForm, loading, login, register } = useLoginForm()
 </script>
 
 <template>
@@ -23,6 +23,9 @@ const { loginForm, loading, login } = useLoginForm()
         </el-form-item>
         <el-button label="登录" type="primary" class="w-full" :loading="loading" @click="login">
           登录
+        </el-button>
+        <el-button label="注册" type="primary" class="w-full" :loading="loading" @click="register">
+          注册
         </el-button>
       </el-form>
     </el-card>

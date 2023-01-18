@@ -3,6 +3,7 @@ import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { messageFrom } from '@/utils'
 import { useUserStore } from '@/stores'
+import { registerUserByQQ } from '@/api/system/sysUserController'
 
 /** 登录逻辑封装 */
 export const useLoginForm = () => {
@@ -27,6 +28,23 @@ export const useLoginForm = () => {
       await router.push('/')
     }
     catch (err) {
+      // ElMessage.error(messageFrom(err))
+    }
+    finally {
+      loading.value = false
+    }
+  }
+
+  const register = async () => {
+    try {
+      loading.value = true
+      await registerUserByQQ(loginForm)
+      ElMessage.success({
+        message: '注册成功',
+        duration: 1000,
+      })
+    }
+    catch (err) {
       ElMessage.error(messageFrom(err))
     }
     finally {
@@ -34,5 +52,5 @@ export const useLoginForm = () => {
     }
   }
 
-  return { loginForm, loading, login }
+  return { loginForm, loading, login, register }
 }
