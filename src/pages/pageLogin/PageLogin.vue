@@ -21,13 +21,16 @@ const { loginForm, loading, login, register } = useLoginForm()
         <el-form-item label="密码">
           <el-input v-model="loginForm.password" type="password" />
         </el-form-item>
-        <el-button label="登录" type="primary" class="w-full" :loading="loading" @click="login">
+      </el-form>
+
+      <el-button-group class="w-full">
+        <el-button type="primary" class="w-1/2" :loading="loading" @click="login">
           登录
         </el-button>
-        <el-button label="注册" type="primary" class="w-full" :loading="loading" @click="register">
+        <el-button class="w-1/2" :loading="loading" @click="register">
           注册
         </el-button>
-      </el-form>
+      </el-button-group>
     </el-card>
   </div>
 </template>
