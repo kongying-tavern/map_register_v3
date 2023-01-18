@@ -27,7 +27,7 @@ const { loginForm, loading, login, register } = useLoginForm()
         <el-button type="primary" class="w-1/2" :loading="loading" @click="login">
           登录
         </el-button>
-        <el-button class="w-1/2" :loading="loading" @click="register">
+        <el-button class="w-1/2" :disabled="loading" @click="register">
           注册
         </el-button>
       </el-button-group>
