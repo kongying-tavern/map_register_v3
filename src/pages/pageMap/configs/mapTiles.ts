@@ -63,7 +63,7 @@ export const mapTiles: Record<MapNameEnum, MapTileConfig> = {
       'A:XM:DESERT',
       'A:XM:DESERT2',
     ],
-    code: 'twt31',
+    code: 'twt34',
     size: [16384, 15360],
     tilesOffset: [-4864, 0],
     settings: {
