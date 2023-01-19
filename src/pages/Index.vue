@@ -109,11 +109,14 @@ import LayerRegister from "../components/register.vue";
 import IslandSelector from "../components/plugins/2_8_island/selector.vue";
 import Logout from "../components/Logout.vue";
 import { refresh_token } from "../service/user_log_request";
+import { fetch_config } from "../service/config_request";
 import { is_expired, set_user_data } from "../service/user_info";
 export default {
   name: "PageIndex",
   data() {
     return {
+      config: {},
+
       map: null,
       area: {},
       selector_show: true,
@@ -127,6 +130,28 @@ export default {
     init_map() {
       // 初始化地图
       this.map = create_map("提瓦特-base0");
+    },
+    load_config() {
+      return fetch_config().then((config) => {
+        this.config = config;
+      });
+    },
+    show_notify() {
+      if (this.config.bannerText) {
+        this.$q.notify({
+          type: "info",
+          color: "primary",
+          position: "top",
+          timeout: 0,
+          message: this.config.bannerText,
+          actions: [
+            {
+              label: "我知道了",
+              color: "yellow-6",
+            },
+          ],
+        });
+      }
     },
     // 切换地图
     map_switch(area) {
@@ -148,6 +173,10 @@ export default {
     Logout,
   },
   mounted() {
+    this.load_config().then(() => {
+      this.show_notify();
+    });
+
     this.init_map();
     if (localStorage.getItem("marked_layers") === null) {
       localStorage.setItem("marked_layers", JSON.stringify([]));
