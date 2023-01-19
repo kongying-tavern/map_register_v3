@@ -1,58 +1,5 @@
 version: 18
 jobs:
-- name: CI/CD
-  jobExecutor: genshin-map-shell
-  steps:
-  - !CommandStep
-    name: cd the workspace and pull from oneDev
-    runInContainer: false
-    interpreter: !DefaultInterpreter
-      commands:
-      - cd @secret:workspace-path@
-      - git checkout -q dev
-      - git checkout . && git clean -xdf -e .env.*.local
-      - git pull -r --autostash
-    useTTY: false
-    condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
-  - !CommandStep
-    name: download dependency
-    runInContainer: false
-    interpreter: !DefaultInterpreter
-      commands:
-      - cd @secret:workspace-path@
-      - sudo rm -rf ./node_modules
-      - pnpm i
-    useTTY: false
-    condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
-  - !CommandStep
-    name: build
-    runInContainer: false
-    interpreter: !DefaultInterpreter
-      commands:
-      - cd @secret:workspace-path@
-      - pnpm run build:dev
-    useTTY: false
-    condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
-  - !CommandStep
-    name: move dist
-    runInContainer: false
-    interpreter: !DefaultInterpreter
-      commands:
-      - cd @secret:workspace-path@
-      - cp -rf dist/** /www/wwwroot/map_register_v3
-    useTTY: false
-    condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
-  triggers:
-  - !BranchUpdateTrigger {}
-  retryCondition: never
-  maxRetries: 3
-  retryDelay: 30
-  cpuRequirement: 250
-  memoryRequirement: 256
-  caches:
-  - key: npm-cache
-    path: ~/.npm
-  timeout: 3600
 - name: push to github
   jobExecutor: genshin-map-shell
   steps:
@@ -65,12 +12,7 @@ jobs:
     force: false
     condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
   triggers:
-  - !DependencyFinishedTrigger
-    projects: map_register_v3
-  jobDependencies:
-  - jobName: CI/CD
-    requireSuccessful: true
-    artifacts: '**'
+  - !BranchUpdateTrigger {}
   retryCondition: '"Log" contains "无法访问"'
   maxRetries: 10
   retryDelay: 30
