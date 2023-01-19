@@ -9,7 +9,7 @@ jobs:
     interpreter: !DefaultInterpreter
       commands:
       - cd @secret:workspace-path@
-      - git checkout -q refactor
+      - git checkout -q dev
       - git checkout . && git clean -xdf -e .env.*.local
       - git pull -r --autostash
     useTTY: false
