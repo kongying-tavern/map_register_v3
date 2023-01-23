@@ -315,6 +315,27 @@ declare namespace API {
     time?: string;
   };
 
+  type ScoreGenerateVo = {
+    /** 统计范围 */
+    scope?: string;
+    /** 开始时间 */
+    startTime?: string;
+    /** 结束时间 */
+    endTime?: string;
+    /** 统计颗粒度 */
+    span?: 'DAY';
+    generatorId?: number;
+  };
+
+  type RObject = {
+    error?: boolean;
+    errorStatus?: number;
+    errorData?: Record<string, any>;
+    message?: string;
+    data?: Record<string, any>;
+    time?: string;
+  };
+
   type RouteSearchVo = {
     /** 路线名称模糊搜索字段 */
     namePart?: string;

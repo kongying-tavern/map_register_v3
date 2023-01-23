@@ -11,6 +11,7 @@ import * as item from './item';
 import * as iconType from './iconType';
 import * as icon from './icon';
 import * as area from './area';
+import * as score from './score';
 import * as punctuateAudit from './punctuateAudit';
 import * as history from './history';
 import * as tagDoc from './tagDoc';
@@ -28,6 +29,7 @@ export default {
   iconType,
   icon,
   area,
+  score,
   punctuateAudit,
   history,
   tagDoc,
