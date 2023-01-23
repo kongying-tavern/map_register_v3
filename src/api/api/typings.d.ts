@@ -315,7 +315,7 @@ declare namespace API {
     time?: string;
   };
 
-  type ScoreGenerateVo = {
+  type ScoreParamsVo = {
     /** 统计范围 */
     scope?: string;
     /** 开始时间 */
