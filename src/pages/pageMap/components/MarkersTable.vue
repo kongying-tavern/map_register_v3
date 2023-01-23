@@ -4,6 +4,7 @@ import { Position } from '@element-plus/icons-vue'
 import { mapInjection, markerListInjection } from '../shared'
 import type { LinkedMapMarker } from '../hooks'
 import { PgUnit, usePagination, useTheme } from '@/hooks'
+import L from 'leaflet'
 
 defineProps<{
   loading?: boolean
@@ -42,23 +43,22 @@ const columns = ref<Partial<Column & { dataKey: string }>[]>([
 
 const { isDark } = useTheme()
 
-const flyToMarker = ({ id }: LinkedMapMarker) => {
+const flyToMarker = ({ id, punctuateId }: LinkedMapMarker) => {
   if (!map?.value)
     return
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const layers = (map.value as any)._layers as Record<string, L.Marker>
-  for (const key in layers) {
-    const marker = layers[key]
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { markerId } = (marker as any).options?.img ?? {}
-    if (markerId === undefined || markerId !== id)
-      continue
-    const { lat, lng } = marker.getLatLng()
-    map.value.flyTo([lat - 200, lng], 0, {
-      animate: false,
-    })
-    marker.fire('click')
-  }
+  console.log(map)
+  markerList.value.map((val) => {
+    const coordinate = val.position?.split(',').map(Number) as [number, number]
+    if(val.punctuateId === punctuateId){
+      // 审核中
+      map.value?.flyTo(coordinate, 0, {animate: false})
+    }
+    if(val.id === id){
+      console.log(val,coordinate)
+      map.value?.flyTo(coordinate, 0, {animate: false})
+    }
+    val.mapMarker?.fire('click')
+  })
 }
 </script>
 

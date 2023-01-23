@@ -20,7 +20,7 @@ export interface MarkerHookOptions extends FetchHookOptions<API.RListMarkerVo> {
   params?: () => API.MarkerSearchVo
 }
 
-export interface LinkedMapMarker extends API.MarkerPunctuateVo {
+export interface LinkedMapMarker extends API.MarkerPunctuateVo, API.MarkerVo {
   mapMarker?: L.CircleMarker
 }
 
