@@ -125,6 +125,9 @@ const extraId = ref('')
 /** 表单实例 */
 const formRef = ref<ElFormType | null>(null)
 
+// 点位描述模板
+form.value.content = props.selectedItem?.defaultContent ?? ''
+
 const confirm = async () => {
   if (!formRef.value)
     return
