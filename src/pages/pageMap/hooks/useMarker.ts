@@ -73,7 +73,7 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
       map.value?.closePopup()
       if (!fetchParams.value?.itemIdList?.length)
         return {}
-      return await Api.punctuate.listSelfPunctuatePage({ authorId: useUserStore().info.id ?? 0 }, { current: 0, size: 1000 })
+      return await Api.punctuate.listPunctuatePage({ current: 0, size: 1000 })
     },
   })
 
@@ -120,20 +120,38 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
   }
 
   /** 根据点位信息创建 canvas 图层上的点位 */
-  const createCanvasMarker = (markerInfo: API.MarkerVo) => {
+  const createCanvasMarker = (markerInfo: API.MarkerVo & API.MarkerPunctuateVo) => {
     const { position = '0,0' } = markerInfo
     const coordinates = L.latLng(position.split(',').map(Number) as [number, number])
-    const marker = canvasMarker(coordinates, {
-      prevLatlng: coordinates,
-      img: {
-        markerId: markerInfo.id,
-        url: iconUrl.value,
-        size: [32, 32],
-        rotate: 90,
-        offset: { x: 0, y: 0 },
-        hiddenFlag: markerInfo.hiddenFlag,
-      },
-    })
+    let marker: L.CircleMarker
+    if(markerInfo.punctuateId) {
+      // 审核中点位
+      marker = canvasMarker(coordinates, {
+        prevLatlng: coordinates,
+        img: {
+          markerId: markerInfo.id,
+          url: iconMap.value[markerInfo.itemList![0].iconTag ?? ''],
+          size: [32, 32],
+          rotate: 90,
+          offset: { x: 0, y: 0 },
+          hiddenFlag: markerInfo.hiddenFlag,
+        },
+      })
+    }
+    else {
+      // 已通过点位
+      marker = canvasMarker(coordinates, {
+        prevLatlng: coordinates,
+        img: {
+          markerId: markerInfo.id,
+          url: iconUrl.value,
+          size: [32, 32],
+          rotate: 90,
+          offset: { x: 0, y: 0 },
+          hiddenFlag: markerInfo.hiddenFlag,
+        },
+      })
+    }
 
     const markerOptions = marker.options as GenshinLayerOptions
 
@@ -211,6 +229,7 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
 
   /** @核心流程 创建点位实例 */
   const createMarkers = () => {
+    console.log(markerList)
     const mapMarkers = markerList.value.map(createCanvasMarker)
     refreshMarkerLayer(mapMarkers)
     moveToCenter(mapMarkers)
@@ -233,7 +252,13 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
   })
 
   onPunctuateMarkerFetched(({ data: { record = [] } = {} }) => {
-    markerList.value = markerList.value.concat(record)
+    let l: API.MarkerPunctuateVo[] = []
+    const { info: { id } } = useUserStore()
+    record.map((value) => {
+      if(value.author === id)
+        l.push(value)
+    })
+    markerList.value = markerList.value.concat(l)
     createMarkerWhenReady()
   })
 
@@ -243,10 +268,11 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
     createMarkerWhenReady()
   })
 
-  onError1(() => {
+  onError1((err) => {
     markerList.value = []
     ElMessage.error('点位加载失败')
     createMarkerWhenReady()
+    console.warn(err)
   })
 
   watchParams && params && watch(fetchParams, updateMarkerList, { deep: true })
