@@ -68,12 +68,16 @@ const showPunctuate = ref<boolean>(false)
 /** 显示已审核点位 */
 const showMarker = ref<boolean>(true)
 
+/** 仅显示地下点位 */
+const onlyUnderground = ref<boolean>(false)
+
 const { iconMap, markerList, loading: markerLoading, createMarkerWhenReady, updateMarkerList } = useMarker(map, {
   selectedItem,
   itemList,
   stopPropagationSignal,
   showPunctuate,
   showMarker,
+  onlyUnderground,
   params: () => ({
     itemIdList: selectedItem.value?.itemId === undefined ? [] : [selectedItem.value.itemId],
   }),
@@ -91,6 +95,7 @@ onMapEvent('contextmenu', openContextMenu)
 
 watch(showPunctuate, updateMarkerList)
 watch(showMarker, updateMarkerList)
+watch(onlyUnderground, updateMarkerList)
 // ==================== 其他 ====================
 onAreaFetched(() => {
   mapStore.areaCode !== undefined && setMapNameByAreaCode(mapStore.areaCode)
@@ -121,6 +126,7 @@ provide(iconMapInjection, iconMap)
       v-model:step="mapStore.step"
       v-model:showPunctuate="showPunctuate"
       v-model:showMarker="showMarker"
+      v-model:onlyUnderground="onlyUnderground"
       :marker-loading="markerLoading"
       :item-loading="itemLoading"
       class="control-unit control-bg left-2 top-2 bottom-2 grid p-2 gap-2"

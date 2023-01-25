@@ -23,6 +23,8 @@ export interface MarkerHookOptions extends FetchHookOptions<API.RListMarkerVo> {
   showPunctuate: Ref<boolean>
   /** 显示已审核点位 */
   showMarker: Ref<boolean>
+  /** 仅显示地下点位 */
+  onlyUnderground: Ref<boolean>
   /** 参数函数 */
   params?: () => API.MarkerSearchVo
 }
@@ -58,8 +60,6 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
   const markerLayer = ref<L.Layer | null>(null)
   /** 点位准备渲染的回调函数 */
   const preMarkerCreateCb = ref<(() => void) | null>(null)
-  /** 当前选择的 item 对应的图片地址 */
-  const iconUrl = computed(() => iconMap.value[selectedItem.value?.iconTag ?? ''])
   /** 点位相关方法 */
   const { refresh: updatePassedMarkerList, onSuccess: onMarkerFetched, onError, ...rest } = useFetchHook({
     immediate,
@@ -130,6 +130,11 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
     const coordinates = L.latLng(position.split(',').map(Number) as [number, number])
     const extra = JSON.parse(markerInfo.extra ?? '{}')
     const isUnderground: boolean = extra.underground?.is_underground ?? false
+    /** 当前选择的 marker 对应的图片地址 */
+    const iconUrl = computed(() => iconMap.value[markerInfo.itemList![0].iconTag ?? selectedItem.value?.iconTag ?? ''])
+    if (options.onlyUnderground.value && !isUnderground)
+      return canvasMarker(coordinates, { prevLatlng: coordinates })
+
     const marker = canvasMarker(coordinates, {
       prevLatlng: coordinates,
       img: {
