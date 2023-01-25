@@ -15,9 +15,27 @@ export interface GenshinLayerOptions extends AnyObject {
     finished?: boolean
     hiddenFlag?: number
     popperOpen?: boolean
+    isUnderground?: boolean
+  }
+  undergroundImg: {
+    el: HTMLImageElement
+    offset: { x: number; y: number }
+    rotate: number
+    size: [number, number]
+    url: string
   }
   prevLatlng: { lat: number; lng: number }
   radius: number
+}
+
+interface ImgOptions {
+  el: HTMLImageElement
+  offset: { x: number; y: number }
+  rotate: number
+  size: [number, number]
+  url: string
+  active?: boolean
+  popperOpen?: boolean
 }
 
 const doDraw = (ctx?: CanvasRenderingContext2D, fn?: () => void) => {
@@ -28,15 +46,34 @@ const doDraw = (ctx?: CanvasRenderingContext2D, fn?: () => void) => {
   ctx.restore()
 }
 
+const defaultImgOptions = {
+  rotate: 0,
+  size: [40, 40],
+  offset: { x: 0, y: 0 },
+}
+
+const undergroundImgOptions = {
+  rotate: 0,
+  size: [20, 20],
+  offset: { x: 10, y: 10 },
+  url: 'https://tiles.yuanshen.site/d/marker_image/underground.png',
+}
+
+const angleCrds = (map: L.Map, prevLatlng: L.LatLng, latlng: L.LatLng) => {
+  if (!latlng || !prevLatlng)
+    return 0
+  const pxStart = map.project(prevLatlng)
+  const pxEnd = map.project(latlng)
+  return Math.atan2(pxStart.y - pxEnd.y, pxStart.x - pxEnd.x) / Math.PI * 180 - 90
+}
+
 /**
  * 点位图标绘制逻辑
  * @plugin fork from leaflet-canvas-markers
  */
 L.Canvas.include({
-  _updateImg(layer: AnyObject & { options: GenshinLayerOptions }) {
-    const { img } = layer.options
-    const { width: rW, height: rH } = img.el
-    const { hover, active, popperOpen } = img
+  _compute(layer: AnyObject & { options: GenshinLayerOptions }, img: ImgOptions) {
+    const { active, popperOpen } = img
 
     // 根据状态调整视觉尺寸
     let [w, h] = img.size
@@ -50,6 +87,15 @@ L.Canvas.include({
     ;[x, y] = img.rotate ? [-halfW, -halfH] : [x - halfH, y - halfH]
     const center = [x + halfW, y + halfH] as const
     const radius = Math.max(w, h) / 2
+    return { w, h, x, y, center, radius }
+  },
+  _updateImg(layer: AnyObject & { options: GenshinLayerOptions }) {
+    const { img, undergroundImg } = layer.options
+    const { width: rW, height: rH } = img.el
+    const { width: urW, height: urH } = undergroundImg.el
+    const { hover, active, popperOpen } = img
+
+    const { w, h, x, y, center, radius } = this._compute(layer, img)
 
     const ctx = this._ctx as CanvasRenderingContext2D
 
@@ -95,27 +141,39 @@ L.Canvas.include({
       ctx.strokeStyle = popperOpen ? 'rgb(58, 205, 82)' : '#D3BC8E'
       ctx.stroke()
     })
+
+    // 地下点位标识绘制
+    if (img.isUnderground) {
+      const { w: uw, h: uh, x: ux, y: uy } = this._compute(layer, undergroundImg)
+      doDraw(ctx, () => {
+        if (img.rotate) {
+          ctx.translate(x, y)
+          ctx.rotate(img.rotate * Math.PI / 180)
+        }
+        const { sx, sy, swidth, sheight, x: dx, y: dy, width, height } = getObjectFitSize('contain', uw, uh, urW, urH)
+        ctx.drawImage(undergroundImg.el, sx, sy, swidth, sheight, dx + ux, dy + uy, width, height)
+      })
+    }
   },
 })
-
-const defaultImgOptions = {
-  rotate: 0,
-  size: [40, 40],
-  offset: { x: 0, y: 0 },
-}
-
-const angleCrds = (map: L.Map, prevLatlng: L.LatLng, latlng: L.LatLng) => {
-  if (!latlng || !prevLatlng)
-    return 0
-  const pxStart = map.project(prevLatlng)
-  const pxEnd = map.project(latlng)
-  return Math.atan2(pxStart.y - pxEnd.y, pxStart.x - pxEnd.x) / Math.PI * 180 - 90
-}
 
 const CanvasMarker = L.CircleMarker.extend({
   _updatePath() {
     if (!this.options.img || !this.options.img.url)
       return
+    if (!this.options.undergroundImg.el) {
+      this.options.undergroundImg = { ...undergroundImgOptions, ...this.options.undergroundImg }
+      const img = document.createElement('img')
+      img.referrerPolicy = 'no-referrer'
+      img.src = this.options.undergroundImg.url
+      img.onload = () => {
+        this.redraw()
+      }
+      img.onerror = () => {
+        this.options.undergroundImg = null
+      }
+      this.options.undergroundImg.el = img
+    }
     if (!this.options.img.el) {
       this.options.img = { ...defaultImgOptions, ...this.options.img }
       this.options.img.rotate += angleCrds(this._map, this.options.prevLatlng, this._latlng)
