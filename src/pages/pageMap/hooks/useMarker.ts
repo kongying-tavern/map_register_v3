@@ -11,12 +11,19 @@ import { useFetchHook, useGlobalDialog, useIconList } from '@/hooks'
 import { useUserStore } from '@/stores'
 
 export interface MarkerHookOptions extends FetchHookOptions<API.RListMarkerVo> {
+  /** 是否监视参数变化 */
   watchParams?: boolean
+  /** 物品列表 */
   itemList: Ref<API.ItemVo[]>
-  stopPropagationSignal: Ref<boolean>
+  /** 已选择的物品 */
   selectedItem: Ref<API.ItemVo | undefined>
-  showPunctuate: Ref<boolean> // 显示待审核点位
-  showMarker: Ref<boolean> // 显示已审核点位
+  /** 阻止点位右键事件冒泡 */
+  stopPropagationSignal: Ref<boolean>
+  /** 显示待审核点位 */
+  showPunctuate: Ref<boolean>
+  /** 显示已审核点位 */
+  showMarker: Ref<boolean>
+  /** 参数函数 */
   params?: () => API.MarkerSearchVo
 }
 
@@ -77,6 +84,15 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
     },
   })
 
+  /** 刷新点位 */
+  // TODO 优化
+  const updateMarkerList = () => {
+    if (options.showPunctuate.value)
+      updatePunctuateMarkerList()
+    if (options.showMarker.value)
+      updatePassedMarkerList()
+  }
+
   /**
    * 根据点位坐标将地图移动到点集中心
    * @todo 可以根据全局设置做成可选功能
@@ -107,17 +123,6 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
   }
 
   const { DialogService } = useGlobalDialog()
-
-  /** 刷新点位 */
-  const updateMarkerList = () => {
-    markerList.value = []
-    if (options.showPunctuate.value)
-      updatePunctuateMarkerList()
-    if (options.showMarker.value)
-      updatePassedMarkerList()
-    // eslint-disable-next-line @typescript-eslint/no-use-before-define
-    createMarkerWhenReady()
-  }
 
   /** 根据点位信息创建 canvas 图层上的点位 */
   const createCanvasMarker = (markerInfo: API.MarkerVo & API.MarkerPunctuateVo) => {
