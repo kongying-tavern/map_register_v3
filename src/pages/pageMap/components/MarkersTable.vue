@@ -4,7 +4,6 @@ import { Position } from '@element-plus/icons-vue'
 import { mapInjection, markerListInjection } from '../shared'
 import type { LinkedMapMarker } from '../hooks'
 import { PgUnit, usePagination, useTheme } from '@/hooks'
-import L from 'leaflet'
 
 defineProps<{
   loading?: boolean
@@ -46,17 +45,10 @@ const { isDark } = useTheme()
 const flyToMarker = ({ id, punctuateId }: LinkedMapMarker) => {
   if (!map?.value)
     return
-  console.log(map)
-  markerList.value.map((val) => {
+  markerList.value.forEach((val) => {
     const coordinate = val.position?.split(',').map(Number) as [number, number]
-    if(val.punctuateId === punctuateId){
-      // 审核中
-      map.value?.flyTo(coordinate, 0, {animate: false})
-    }
-    if(val.id === id){
-      console.log(val,coordinate)
-      map.value?.flyTo(coordinate, 0, {animate: false})
-    }
+    if (val.punctuateId === punctuateId || val.id === id)
+      map.value?.flyTo(coordinate, 0, { animate: false })
     val.mapMarker?.fire('click')
   })
 }

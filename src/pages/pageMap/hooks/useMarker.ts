@@ -124,7 +124,6 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
     const { position = '0,0' } = markerInfo
     const coordinates = L.latLng(position.split(',').map(Number) as [number, number])
     const extra = JSON.parse(markerInfo.extra ?? '{}')
-    console.log(extra)
     const isUnderground: boolean = extra.underground?.is_underground ?? false
     const marker = canvasMarker(coordinates, {
       prevLatlng: coordinates,
@@ -240,7 +239,7 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
   onPunctuateMarkerFetched(({ data: { record = [] } = {} }) => {
     const l: API.MarkerPunctuateVo[] = []
     const { info: { id } } = useUserStore()
-    record.map((value) => {
+    record.forEach((value) => {
       if (value.author === id)
         l.push(value)
     })
