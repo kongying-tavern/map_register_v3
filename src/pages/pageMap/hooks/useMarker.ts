@@ -8,39 +8,67 @@ import { canvasMarker } from '../utils'
 import Api from '@/api/api'
 import type { FetchHookOptions } from '@/hooks'
 import { useFetchHook, useGlobalDialog, useIconList } from '@/hooks'
-import { useUserStore } from '@/stores'
+// import { useUserStore } from '@/stores'
 
 export interface MarkerHookOptions extends FetchHookOptions<API.RListMarkerVo> {
-  /** 是否监视参数变化 */
-  watchParams?: boolean
   /** 物品列表 */
   itemList: Ref<API.ItemVo[]>
   /** 已选择的物品 */
   selectedItem: Ref<API.ItemVo | undefined>
   /** 阻止点位右键事件冒泡 */
   stopPropagationSignal: Ref<boolean>
-  /** 显示待审核点位 */
-  showPunctuate: Ref<boolean>
-  /** 显示已审核点位 */
-  showMarker: Ref<boolean>
-  /** 仅显示地下点位 */
-  onlyUnderground: Ref<boolean>
   /** 参数函数 */
-  params?: () => API.MarkerSearchVo
+  params: () => {
+    rawParams: API.MarkerSearchVo
+    /** 显示审核中点位 */
+    showPunctuateMarker: boolean
+    /** 显示审核通过点位 */
+    showAuditedMarker: boolean
+    /** 只显示地下点位 */
+    onlyUnderground: boolean
+  }
 }
 
 export interface LinkedMapMarker extends API.MarkerPunctuateVo, API.MarkerVo {
-  mapMarker?: L.CircleMarker
+  // TODO extra 类型应当通过特殊封装的 extra 解析函数来获取
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  extraObject?: any
+  coordinate: [number, number]
 }
 
 const popupDOM = L.DomUtil.create('div', 'w-full h-full')
 const popup = L.popup({ closeButton: false, minWidth: 223, maxWidth: 223, offset: [0, 0] })
 
+/** 预解析点位对象参数 */
+const createLinkMarker = (marker: API.MarkerPunctuateVo | API.MarkerVo): LinkedMapMarker => {
+  try {
+    return {
+      ...marker,
+      coordinate: marker.position ? marker.position.split(',').map(Number) as [number, number] : [0, 0],
+      extraObject: marker.extra ? JSON.parse(marker.extra) : {},
+    }
+  }
+  catch {
+    // TODO 错误处理
+    return {
+      ...marker,
+      coordinate: [0, 0],
+    }
+  }
+}
+
+/** @函数柯里化 根据是否仅显示地下点位，给出对应的处理函数 */
+const withCondition = (onlyUnderground?: boolean) =>
+  (seed: LinkedMapMarker[], marker: API.MarkerPunctuateVo | API.MarkerVo) => {
+    const linkedMarker = createLinkMarker(marker)
+    ;(!onlyUnderground || linkedMarker.extraObject.is_underground) && seed.push(linkedMarker)
+    return seed
+  }
+
 export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOptions) => {
   const {
     immediate = false,
     stopPropagationSignal,
-    watchParams = true,
     itemList,
     selectedItem,
     loading = ref(false),
@@ -55,43 +83,34 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
   /** 点位列表 */
   const markerList = ref<LinkedMapMarker[]>([])
   /** 请求参数 */
-  const fetchParams = computed(() => params?.())
+  const fetchParams = computed(() => params())
   /** 点位图层缓存 */
   const markerLayer = ref<L.Layer | null>(null)
   /** 点位准备渲染的回调函数 */
   const preMarkerCreateCb = ref<(() => void) | null>(null)
   /** 点位相关方法 */
-  const { refresh: updatePassedMarkerList, onSuccess: onMarkerFetched, onError, ...rest } = useFetchHook({
+  const { refresh: updateMarkerList, onSuccess: onMarkerFetched, onError, ...rest } = useFetchHook({
     immediate,
     loading,
     onRequest: async () => {
       map.value?.closePopup()
-      if (!fetchParams.value?.itemIdList?.length)
-        return {}
-      return await Api.marker.searchMarker({}, fetchParams.value)
+      const { rawParams, showAuditedMarker, showPunctuateMarker, onlyUnderground } = fetchParams.value
+      if (!rawParams.itemIdList?.length)
+        return []
+      let linkedMarkers: LinkedMapMarker[] = []
+      // 已通过审核点位
+      if (showAuditedMarker) {
+        const { data = [] } = await Api.marker.searchMarker({}, rawParams)
+        linkedMarkers = linkedMarkers.concat(data.reduce(withCondition(onlyUnderground), [] as LinkedMapMarker[]))
+      }
+      // 审核中点位
+      if (showPunctuateMarker) {
+        const { data: { record = [] } = {} } = await Api.punctuate.listPunctuatePage({ current: 0, size: 1000 })
+        linkedMarkers = linkedMarkers.concat(record.reduce(withCondition(onlyUnderground), [] as LinkedMapMarker[]))
+      }
+      return linkedMarkers
     },
   })
-
-  /** 待审核点位相关方法(打点员) */
-  const { refresh: updatePunctuateMarkerList, onSuccess: onPunctuateMarkerFetched, onError: onError1 } = useFetchHook({
-    immediate,
-    loading,
-    onRequest: async () => {
-      map.value?.closePopup()
-      if (!fetchParams.value?.itemIdList?.length)
-        return {}
-      return await Api.punctuate.listPunctuatePage({ current: 0, size: 1000 })
-    },
-  })
-
-  /** 刷新点位 */
-  // TODO 优化
-  const updateMarkerList = () => {
-    if (options.showPunctuate.value)
-      updatePunctuateMarkerList()
-    if (options.showMarker.value)
-      updatePassedMarkerList()
-  }
 
   /**
    * 根据点位坐标将地图移动到点集中心
@@ -125,20 +144,19 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
   const { DialogService } = useGlobalDialog()
 
   /** 根据点位信息创建 canvas 图层上的点位 */
-  const createCanvasMarker = (markerInfo: API.MarkerVo & API.MarkerPunctuateVo) => {
+  const createCanvasMarker = (markerInfo: LinkedMapMarker) => {
     const { position = '0,0' } = markerInfo
     const coordinates = L.latLng(position.split(',').map(Number) as [number, number])
     const extra = JSON.parse(markerInfo.extra ?? '{}')
     const isUnderground: boolean = extra.underground?.is_underground ?? false
     /** 当前选择的 marker 对应的图片地址 */
     const iconUrl = computed(() => iconMap.value[markerInfo.itemList![0].iconTag ?? selectedItem.value?.iconTag ?? ''])
-    if (options.onlyUnderground.value && !isUnderground)
-      return canvasMarker(coordinates, { prevLatlng: coordinates })
 
     const marker = canvasMarker(coordinates, {
       prevLatlng: coordinates,
       img: {
         markerId: markerInfo.id,
+        punctuateId: markerInfo.punctuateId,
         url: iconUrl.value,
         size: [32, 32],
         rotate: 90,
@@ -241,37 +259,18 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
 
   onIconFetched(createMarkerWhenReady)
 
-  onMarkerFetched(({ data = [] }) => {
-    markerList.value = markerList.value.concat(data)
+  onMarkerFetched((data) => {
+    markerList.value = data
     createMarkerWhenReady()
   })
 
-  onPunctuateMarkerFetched(({ data: { record = [] } = {} }) => {
-    const l: API.MarkerPunctuateVo[] = []
-    const { info: { id } } = useUserStore()
-    record.forEach((value) => {
-      if (value.author === id)
-        l.push(value)
-    })
-    markerList.value = markerList.value.concat(l)
-    createMarkerWhenReady()
-  })
-
-  onError((err) => {
-    console.warn(err)
+  onError(() => {
     markerList.value = []
     ElMessage.error('点位加载失败')
     createMarkerWhenReady()
   })
 
-  onError1((err) => {
-    markerList.value = []
-    ElMessage.error('点位加载失败')
-    createMarkerWhenReady()
-    console.warn(err)
-  })
-
-  watchParams && params && watch(fetchParams, updateMarkerList, { deep: true })
+  watch(fetchParams, updateMarkerList, { deep: true })
 
   return { iconMap, markerList, markerLayer, updateMarkerList, createMarkerWhenReady, onError, ...rest }
 }

@@ -71,15 +71,17 @@ const showMarker = ref<boolean>(true)
 /** 仅显示地下点位 */
 const onlyUnderground = ref<boolean>(false)
 
-const { iconMap, markerList, loading: markerLoading, createMarkerWhenReady, updateMarkerList } = useMarker(map, {
+const { iconMap, markerList, loading: markerLoading, updateMarkerList } = useMarker(map, {
   selectedItem,
   itemList,
   stopPropagationSignal,
-  showPunctuate,
-  showMarker,
-  onlyUnderground,
   params: () => ({
-    itemIdList: selectedItem.value?.itemId === undefined ? [] : [selectedItem.value.itemId],
+    rawParams: {
+      itemIdList: selectedItem.value?.itemId === undefined ? [] : [selectedItem.value.itemId],
+    },
+    showAuditedMarker: showMarker.value,
+    showPunctuateMarker: showPunctuate.value,
+    onlyUnderground: onlyUnderground.value,
   }),
 })
 
@@ -93,16 +95,10 @@ const { openContextMenu } = useContextMenu({
 })
 onMapEvent('contextmenu', openContextMenu)
 
-watch(showPunctuate, updateMarkerList)
-watch(showMarker, updateMarkerList)
-watch(onlyUnderground, updateMarkerList)
 // ==================== 其他 ====================
 onAreaFetched(() => {
   mapStore.areaCode !== undefined && setMapNameByAreaCode(mapStore.areaCode)
-  if (selectedItem.value?.itemId !== undefined) {
-    createMarkerWhenReady()
-    updateMarkerList()
-  }
+  updateMarkerList()
 })
 
 // ==================== 依赖注入 ====================
