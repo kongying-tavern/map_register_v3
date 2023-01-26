@@ -61,7 +61,7 @@ const createLinkMarker = (marker: API.MarkerPunctuateVo | API.MarkerVo): LinkedM
 const withCondition = (onlyUnderground?: boolean) =>
   (seed: LinkedMapMarker[], marker: API.MarkerPunctuateVo | API.MarkerVo) => {
     const linkedMarker = createLinkMarker(marker)
-    ;(!onlyUnderground || linkedMarker.extraObject.is_underground) && seed.push(linkedMarker)
+    ;(!onlyUnderground || linkedMarker.extraObject.underground?.is_underground) && seed.push(linkedMarker)
     return seed
   }
 
@@ -145,24 +145,20 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
 
   /** 根据点位信息创建 canvas 图层上的点位 */
   const createCanvasMarker = (markerInfo: LinkedMapMarker) => {
-    const { position = '0,0' } = markerInfo
-    const coordinates = L.latLng(position.split(',').map(Number) as [number, number])
-    const extra = JSON.parse(markerInfo.extra ?? '{}')
-    const isUnderground: boolean = extra.underground?.is_underground ?? false
-    /** 当前选择的 marker 对应的图片地址 */
-    const iconUrl = computed(() => iconMap.value[markerInfo.itemList![0].iconTag ?? selectedItem.value?.iconTag ?? ''])
+    const latlng = L.latLng(markerInfo.coordinate)
 
-    const marker = canvasMarker(coordinates, {
-      prevLatlng: coordinates,
+    const marker = canvasMarker(latlng, {
+      prevLatlng: latlng,
       img: {
         markerId: markerInfo.id,
         punctuateId: markerInfo.punctuateId,
-        url: iconUrl.value,
+        /** 当前 marker 对应的图片地址，不统一跟物品走，所以这里有两个可用项 */
+        url: iconMap.value[markerInfo.itemList?.[0].iconTag ?? selectedItem.value?.iconTag ?? ''],
         size: [32, 32],
         rotate: 90,
         offset: { x: 0, y: 0 },
         hiddenFlag: markerInfo.hiddenFlag,
-        isUnderground,
+        isUnderground: markerInfo.extraObject.underground?.is_underground,
       },
       undergroundImg: {},
     })
@@ -194,17 +190,15 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
       markerOptions.img.popperOpen = true
       const vnode = h(PopupContent, {
         markerInfo,
-        latlng: coordinates,
+        latlng,
         onCommand,
         onRefresh: updateMarkerList,
       })
       // 理论上给了 appContext 就可以使用依赖注入，不用再繁琐的传递属性了
       vnode.appContext = instance?.appContext ?? null
       render(vnode, popupDOM)
-      popup
-        .setContent(popupDOM)
-        .setLatLng(coordinates)
-        .openOn(map.value)
+      // 不在创建点位时预渲染 content 是为了降低点位整体的渲染用时
+      popup.setContent(popupDOM).setLatLng(latlng).openOn(map.value)
       map.value.addOneTimeEventListener('popupclose', () => {
         markerOptions.img.popperOpen = false
         marker.redraw()
