@@ -67,35 +67,36 @@ const angleCrds = (map: L.Map, prevLatlng: L.LatLng, latlng: L.LatLng) => {
   return Math.atan2(pxStart.y - pxEnd.y, pxStart.x - pxEnd.x) / Math.PI * 180 - 90
 }
 
+const getMarkerShape = (layer: AnyObject & { options: GenshinLayerOptions }, img: ImgOptions) => {
+  const { active, popperOpen } = img
+
+  // 根据状态调整视觉尺寸
+  let [w, h] = img.size
+  w = active ? w - 2 : popperOpen ? w + 4 : w
+  h = active ? h - 2 : popperOpen ? h + 4 : h
+
+  // 基本参数计算
+  const [halfW, halfH] = [w / 2, h / 2]
+  const p = layer._point.round() as { x: number; y: number }
+  let [x, y] = [p.x + img.offset.x, p.y + img.offset.y]
+  ;[x, y] = img.rotate ? [-halfW, -halfH] : [x - halfH, y - halfH]
+  const center = [x + halfW, y + halfH] as [number, number]
+  const radius = Math.max(w, h) / 2
+  return { w, h, x, y, center, radius }
+}
+
 /**
  * 点位图标绘制逻辑
  * @plugin fork from leaflet-canvas-markers
  */
 L.Canvas.include({
-  _compute(layer: AnyObject & { options: GenshinLayerOptions }, img: ImgOptions) {
-    const { active, popperOpen } = img
-
-    // 根据状态调整视觉尺寸
-    let [w, h] = img.size
-    w = active ? w - 2 : popperOpen ? w + 4 : w
-    h = active ? h - 2 : popperOpen ? h + 4 : h
-
-    // 基本参数计算
-    const [halfW, halfH] = [w / 2, h / 2]
-    const p = layer._point.round()
-    let [x, y] = [p.x + img.offset.x, p.y + img.offset.y]
-    ;[x, y] = img.rotate ? [-halfW, -halfH] : [x - halfH, y - halfH]
-    const center = [x + halfW, y + halfH] as const
-    const radius = Math.max(w, h) / 2
-    return { w, h, x, y, center, radius }
-  },
   _updateImg(layer: AnyObject & { options: GenshinLayerOptions }) {
     const { img, undergroundImg } = layer.options
     const { width: rW, height: rH } = img.el
     const { width: urW, height: urH } = undergroundImg.el
     const { hover, active, popperOpen } = img
 
-    const { w, h, x, y, center, radius } = this._compute(layer, img)
+    const { w, h, x, y, center, radius } = getMarkerShape(layer, img)
 
     const ctx = this._ctx as CanvasRenderingContext2D
 
@@ -143,20 +144,19 @@ L.Canvas.include({
     })
 
     // 地下点位标识绘制
-    if (img.isUnderground) {
-      const { w: uw, h: uh, x: ux, y: uy } = this._compute(layer, undergroundImg)
-      doDraw(ctx, () => {
-        if (img.rotate) {
-          ctx.translate(x, y)
-          ctx.rotate(img.rotate * Math.PI / 180)
-        }
-        const { sx, sy, swidth, sheight, x: dx, y: dy, width, height } = getObjectFitSize('contain', uw, uh, urW, urH)
-        ctx.drawImage(undergroundImg.el, sx, sy, swidth, sheight, dx + ux, dy + uy, width, height)
-      })
-    }
+    img.isUnderground && doDraw(ctx, () => {
+      const { w: uw, h: uh, x: ux, y: uy } = getMarkerShape(layer, undergroundImg)
+      if (img.rotate) {
+        ctx.translate(x, y)
+        ctx.rotate(img.rotate * Math.PI / 180)
+      }
+      const { sx, sy, swidth, sheight, x: dx, y: dy, width, height } = getObjectFitSize('contain', uw, uh, urW, urH)
+      ctx.drawImage(undergroundImg.el, sx, sy, swidth, sheight, dx + ux, dy + uy, width, height)
+    })
   },
 })
 
+// TODO ES5 类写法不便于调试，后续改成 ES6 class
 const CanvasMarker = L.CircleMarker.extend({
   _updatePath() {
     if (!this.options.img || !this.options.img.url)
