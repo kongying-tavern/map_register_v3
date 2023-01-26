@@ -43,8 +43,12 @@ export const useAreaList = (options: AreaListHookOptions = {}) => {
     onRequest: () => Api.area.listArea({}, { isTraverse: true, parentId: -1 }),
   })
 
-  onSuccess((res) => {
-    areaList.value = res.data ?? []
+  onSuccess(({ data = [] }) => {
+    areaList.value = data.sort(({ sortIndex: ia }, { sortIndex: ib }) => {
+      if (ia === undefined || ib === undefined)
+        return 0
+      return ib - ia
+    })
   })
 
   return { areaList, areaTree, areaMap, selectedArea, updateAreaList: refresh, onSuccess, ...rest }
