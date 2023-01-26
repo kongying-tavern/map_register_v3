@@ -31,8 +31,12 @@ export const useItemList = (options: ItemListHookOptions = {}) => {
     },
   })
 
-  onSuccess((res) => {
-    itemList.value = (res?.data?.record ?? []).sort((a, b) => Number(a.sortIndex) - Number(b.sortIndex))
+  onSuccess(({ data: { record = [] } = {} }) => {
+    itemList.value = record.sort(({ sortIndex: ia }, { sortIndex: ib }) => {
+      if (ia === undefined || ib === undefined)
+        return 0
+      return ib - ia
+    })
   })
 
   const { pause, resume } = pausableWatch(fetchParams, updateItemList, { deep: true })

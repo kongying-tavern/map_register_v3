@@ -22,7 +22,11 @@ export const useTypeList = (options: FetchHookOptions<API.RPageListVoItemTypeVo>
   })
 
   onSuccess(({ data = [] }) => {
-    typeList.value = data
+    typeList.value = data.sort(({ sortIndex: ia }, { sortIndex: ib }) => {
+      if (ia === undefined || ib === undefined)
+        return 0
+      return ib - ia
+    })
   })
 
   return { typeList, typeTree, updateTypeList, onSuccess, ...rest }
