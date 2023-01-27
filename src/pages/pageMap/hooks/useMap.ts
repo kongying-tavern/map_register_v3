@@ -39,22 +39,16 @@ export const useMap = (ele?: Ref<HTMLElement | null>) => {
 
   // 以下监听器只会在 ele 存在时（即 map 实例存在的组件）被附加
 
-  on('zoom', (ev) => {
-    if (!ele)
-      return
+  ele && on('zoom', (ev) => {
     mapStore.zoom = (ev.target as GenshinMap).getZoom()
   })
 
-  on('move', useDebounceFn((ev: LeafletEvent) => {
-    if (!ele)
-      return
+  ele && on('move', useDebounceFn((ev: LeafletEvent) => {
     const center = (ev.target as GenshinMap).getCenter()
     mapStore.center = [Math.floor(center.lat), Math.floor(center.lng)]
   }, 500))
 
-  on('baselayerchange', (ev: BaseLayerChangeEvent) => {
-    if (!ele)
-      return
+  ele && on('baselayerchange', (ev: BaseLayerChangeEvent) => {
     if (!mapStore.center) {
       mapStore.center = ev.layerConfig?.settings?.center as [number, number]
       mapStore.zoom = ev.layerConfig?.settings?.zoom as number
