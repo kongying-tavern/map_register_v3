@@ -8,6 +8,8 @@ defineProps<{
   itemLoading?: boolean
 }>()
 
+const emit = defineEmits<{ (event: 'flyto', id: number): void }>()
+
 const mapStore = useMapStore()
 
 /** 显示审核中点位切换按钮背景颜色 */
@@ -48,6 +50,13 @@ const next = (v?: string | number) => {
 
 /** 控制面板是否最小化 */
 const minus = ref(false)
+
+/** 查询ID */
+const id = ref<string>()
+
+const flyTo = () => {
+  emit('flyto', parseInt(id.value ?? '0'))
+}
 </script>
 
 <template>
@@ -139,6 +148,16 @@ const minus = ref(false)
           </el-button>
         </el-tooltip>
       </el-button-group>
+      <div>
+        <el-tooltip content="跳转到指定ID点位" placement="top">
+          <el-button size="large" style="background-color: rgba(94, 94, 94, 0.3); border-color: rgba(94, 94, 94, 0.3)" @click="flyTo">
+            <el-icon color="#FFFFFF" size="20">
+              <Search />
+            </el-icon>
+          </el-button>
+        </el-tooltip>
+        <el-input v-model="id" placeholder="请输入点位ID" input-style="width:100px" class="h-full" />
+      </div>
     </div>
 
     <MarkersTable :loading="markerLoading" class="content" />
