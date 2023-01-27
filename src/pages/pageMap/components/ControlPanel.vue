@@ -3,45 +3,12 @@ import { FullScreen, Minus } from '@element-plus/icons-vue'
 import { FilterArea, FilterItem, FilterStep, FilterType, MarkersTable } from '.'
 import { useMapStore } from '@/stores'
 
-const props = defineProps<{
-  areaCode?: string
-  type?: number
-  step?: string | number
-  iconName?: string
+defineProps<{
   markerLoading?: boolean
   itemLoading?: boolean
 }>()
 
-const emits = defineEmits<{
-  (e: 'update:areaCode', v?: string): void
-  (e: 'update:type', v?: number): void
-  (e: 'update:iconName', v?: string): void
-  (e: 'changeStep', v?: number): void
-  (e: 'update:step', v: number): void
-  (e: 'flytoId', v: number): void
-}>()
-
 const mapStore = useMapStore()
-
-const bindAreaCode = computed({
-  get: () => props.areaCode,
-  set: v => emits('update:areaCode', v),
-})
-
-const bindType = computed({
-  get: () => props.type,
-  set: v => emits('update:type', v),
-})
-
-const bindStep = computed({
-  get: () => Number(props.step) || 0,
-  set: v => emits('update:step', v),
-})
-
-const bindItemName = computed({
-  get: () => props.iconName,
-  set: v => emits('update:iconName', v),
-})
 
 /** 显示审核中点位切换按钮背景颜色 */
 const punctuateBtnColor = computed(() => {
@@ -62,7 +29,7 @@ const steps = ['选择地区', '选择分类', '选择物品']
 
 const trName = ref('slide-x-r')
 
-watch(bindStep, (newStep, oldStep) => {
+watch(() => mapStore.step, (newStep = 0, oldStep = 0) => {
   trName.value = newStep > oldStep ? 'slide-x-r' : 'slide-x-l'
 })
 
@@ -71,7 +38,11 @@ const autoNextStep = ref(false)
 const next = (v?: string | number) => {
   if (v === undefined || !autoNextStep.value)
     return
-  bindStep.value < steps.length - 1 && (bindStep.value += 1)
+  if (mapStore.step === undefined) {
+    mapStore.step = 0
+    return
+  }
+  mapStore.step < steps.length - 1 && (mapStore.step += 1)
 }
 
 const minus = ref(false)
@@ -92,7 +63,7 @@ const minus = ref(false)
         </el-icon>
       </div>
       <FilterStep
-        v-model="bindStep"
+        v-model="mapStore.step"
         :step-names="steps"
         class="content flex-1"
       />
@@ -109,23 +80,23 @@ const minus = ref(false)
     <div class="content">
       <Transition :name="trName" mode="out-in" appear>
         <KeepAlive>
-          <FilterArea v-if="(bindStep === 0)" v-model="bindAreaCode" class="h-full" @change="next" />
+          <FilterArea v-if="(mapStore.step === 0)" v-model="mapStore.areaCode" class="h-full" @change="next" />
 
-          <div v-else-if="bindAreaCode === undefined" class="h-full grid place-items-center text-white">
-            <el-button link type="primary" @click="(bindStep = 0)">
+          <div v-else-if="mapStore.areaCode === undefined" class="h-full grid place-items-center text-white">
+            <el-button link type="primary" @click="(mapStore.step = 0)">
               请选择地区
             </el-button>
           </div>
 
-          <FilterType v-else-if="(bindStep === 1)" v-model="bindType" class="h-full" @change="next" />
+          <FilterType v-else-if="(mapStore.step === 1)" v-model="mapStore.typeId" class="h-full" @change="next" />
 
-          <div v-else-if="!bindType" class="h-full grid place-items-center text-white">
-            <el-button link type="primary" @click="(bindStep = 1)">
+          <div v-else-if="!mapStore.typeId" class="h-full grid place-items-center text-white">
+            <el-button link type="primary" @click="(mapStore.step = 1)">
               请选择分类
             </el-button>
           </div>
 
-          <FilterItem v-else-if="(bindStep === 2)" v-model="bindItemName" :loading="itemLoading" class="h-full" />
+          <FilterItem v-else-if="(mapStore.step === 2)" v-model="mapStore.iconName" :loading="itemLoading" class="h-full" />
         </KeepAlive>
       </Transition>
     </div>

@@ -23,9 +23,8 @@ onMounted(() => {
 // ==================== 地区相关 ====================
 const { areaList, onSuccess: onAreaFetched } = useAreaList()
 
-const areaCode = computed({
-  get: () => !areaList.value.length ? undefined : mapStore.areaCode,
-  set: setMapNameByAreaCode,
+mapStore.$subscribe((_, { areaCode }) => {
+  setMapNameByAreaCode(!areaList.value.length ? undefined : areaCode)
 })
 
 const areaId = computed(() => {
@@ -106,10 +105,6 @@ provide(iconMapInjection, iconMap)
     <div ref="containerRef" class="genshin-map absolute w-full h-full" style="background: #000" />
 
     <ControlPanel
-      v-model:area-code="areaCode"
-      v-model:icon-name="mapStore.iconName"
-      v-model:type="mapStore.typeId"
-      v-model:step="mapStore.step"
       :marker-loading="markerLoading"
       :item-loading="itemLoading"
       class="control-unit control-bg left-2 top-2 bottom-2 grid p-2 gap-2"

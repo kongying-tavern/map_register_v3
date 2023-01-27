@@ -4,7 +4,7 @@ const mapData = useUrlSearchParams('history', {
   removeNullishValues: true,
   initialValue: {
     areaCode: undefined as undefined | string,
-    step: 0 as undefined | number,
+    step: 0,
     typeId: undefined as undefined | number,
     zoom: 0 as undefined | number,
     center: undefined as undefined | [number, number],
