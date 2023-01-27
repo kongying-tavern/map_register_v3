@@ -25,16 +25,17 @@ const onlyUndergroundBtnColor = computed(() => {
   return mapStore.onlyUnderground ? 'var(--el-color-info)' : 'rgba(94, 94, 94, 0.3)'
 })
 
+/** tab 的可用标签，仅控制视图，无业务逻辑 */
 const steps = ['选择地区', '选择分类', '选择物品']
 
-const trName = ref('slide-x-r')
-
+/** tab 过渡动画的名称，可用过渡在 src/style/transition */
+const transitionAnimationName = ref('slide-x-r')
 watch(() => mapStore.step, (newStep = 0, oldStep = 0) => {
-  trName.value = newStep > oldStep ? 'slide-x-r' : 'slide-x-l'
+  transitionAnimationName.value = newStep > oldStep ? 'slide-x-r' : 'slide-x-l'
 })
 
+/** 是否自动切换下一步筛选项 */
 const autoNextStep = ref(false)
-
 const next = (v?: string | number) => {
   if (v === undefined || !autoNextStep.value)
     return
@@ -45,6 +46,7 @@ const next = (v?: string | number) => {
   mapStore.step < steps.length - 1 && (mapStore.step += 1)
 }
 
+/** 控制面板是否最小化 */
 const minus = ref(false)
 </script>
 
@@ -78,7 +80,7 @@ const minus = ref(false)
     </div>
 
     <div class="content">
-      <Transition :name="trName" mode="out-in" appear>
+      <Transition :name="transitionAnimationName" mode="out-in" appear>
         <KeepAlive>
           <FilterArea v-if="(mapStore.step === 0)" v-model="mapStore.areaCode" class="h-full" @change="next" />
 
@@ -103,13 +105,9 @@ const minus = ref(false)
 
     <div class="w-full flex gap-2">
       <el-button-group>
-        <el-tooltip
-          content="显示审核中点位"
-          placement="top"
-        >
+        <el-tooltip content="显示审核中点位" placement="top">
           <el-button
             size="large"
-            v-bind="$attrs"
             :style="{ 'background-color': punctuateBtnColor, 'border-color': punctuateBtnColor }"
             @click="mapStore.showPunctuateMarker = !mapStore.showPunctuateMarker"
           >
@@ -118,13 +116,9 @@ const minus = ref(false)
             </el-icon>
           </el-button>
         </el-tooltip>
-        <el-tooltip
-          content="显示审核通过点位"
-          placement="top"
-        >
+        <el-tooltip content="显示审核通过点位" placement="top">
           <el-button
             size="large"
-            v-bind="$attrs"
             :style="{ 'background-color': showMarkerBtnColor, 'border-color': showMarkerBtnColor }"
             @click="mapStore.showAuditedMarker = !mapStore.showAuditedMarker"
           >
@@ -133,13 +127,9 @@ const minus = ref(false)
             </el-icon>
           </el-button>
         </el-tooltip>
-        <el-tooltip
-          content="仅显示地下点位"
-          placement="top"
-        >
+        <el-tooltip content="仅显示地下点位" placement="top">
           <el-button
             size="large"
-            v-bind="$attrs"
             :style="{ 'background-color': onlyUndergroundBtnColor, 'border-color': onlyUndergroundBtnColor }"
             @click="mapStore.onlyUnderground = !mapStore.onlyUnderground"
           >
