@@ -62,15 +62,6 @@ watch(() => [mapStore.areaCode, mapStore.typeId], () => {
 })
 
 // ==================== 点位相关 ====================
-/** 显示待审核点位 */
-const showPunctuate = ref<boolean>(false)
-
-/** 显示已审核点位 */
-const showMarker = ref<boolean>(true)
-
-/** 仅显示地下点位 */
-const onlyUnderground = ref<boolean>(false)
-
 const { iconMap, markerList, loading: markerLoading, updateMarkerList } = useMarker(map, {
   selectedItem,
   itemList,
@@ -79,9 +70,9 @@ const { iconMap, markerList, loading: markerLoading, updateMarkerList } = useMar
     rawParams: {
       itemIdList: selectedItem.value?.itemId === undefined ? [] : [selectedItem.value.itemId],
     },
-    showAuditedMarker: showMarker.value,
-    showPunctuateMarker: showPunctuate.value,
-    onlyUnderground: onlyUnderground.value,
+    showAuditedMarker: Boolean(mapStore.showAuditedMarker),
+    showPunctuateMarker: Boolean(mapStore.showPunctuateMarker),
+    onlyUnderground: Boolean(mapStore.onlyUnderground),
   }),
 })
 
@@ -108,7 +99,6 @@ provide(itemListInjection, filteredItemList)
 provide(itemTypeInjection, typeList)
 provide(markerListInjection, markerList)
 provide(iconMapInjection, iconMap)
-// provide(underGroundModeInjection, isUnderGround)
 </script>
 
 <template>
@@ -120,9 +110,6 @@ provide(iconMapInjection, iconMap)
       v-model:icon-name="mapStore.iconName"
       v-model:type="mapStore.typeId"
       v-model:step="mapStore.step"
-      v-model:showPunctuate="showPunctuate"
-      v-model:showMarker="showMarker"
-      v-model:onlyUnderground="onlyUnderground"
       :marker-loading="markerLoading"
       :item-loading="itemLoading"
       class="control-unit control-bg left-2 top-2 bottom-2 grid p-2 gap-2"

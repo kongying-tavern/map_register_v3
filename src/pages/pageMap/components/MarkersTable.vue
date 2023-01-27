@@ -9,7 +9,7 @@ defineProps<{
   loading?: boolean
 }>()
 
-const map = inject(mapInjection)
+const map = inject(mapInjection, ref(null))
 
 const markerList = inject(markerListInjection, ref([]))
 
@@ -43,7 +43,7 @@ const columns = ref<Partial<Column & { dataKey: string }>[]>([
 const { isDark } = useTheme()
 
 const flyToMarker = ({ id, punctuateId }: LinkedMapMarker) => {
-  if (!map?.value)
+  if (!map.value)
     return
 
   // TODO _layers 是私有属性
