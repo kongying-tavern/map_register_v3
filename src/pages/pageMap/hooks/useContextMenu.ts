@@ -4,9 +4,9 @@ import { render } from 'vue'
 import { ceil } from 'lodash'
 import { ContextMenu, MarkerCreateForm } from '../components'
 import type { GenshinMap } from '../utils'
-import { useSetting } from '.'
 import { useGlobalDialog } from '@/hooks'
 import { useMapStore, useUserStore } from '@/stores'
+import { AppSettings } from '@/components'
 
 /** 传递给右键菜单的参数 */
 interface ContextMenuHookOptions {
@@ -32,8 +32,6 @@ export const useContextMenu = (options: ContextMenuHookOptions) => {
   const mapStore = useMapStore()
 
   const { DialogService } = useGlobalDialog()
-
-  const { openSetting } = useSetting()
 
   /** 打开点位新建面板 */
   const openMarkerEditPanel = (props: MarkerCreateFormProps) => {
@@ -80,6 +78,17 @@ export const useContextMenu = (options: ContextMenuHookOptions) => {
   div.style.width = '172px'
   div.style.height = '172px'
 
+  const openSettingDialog = () => {
+    closeCB.value?.()
+    DialogService
+      .config({
+        title: '设置界面',
+        top: '10vh',
+        width: 'fit-content',
+      })
+      .open(AppSettings)
+  }
+
   /**
    * 打开右键菜单
    * @注意 此处不应该传递过多业务信息，传递的信息应只与事件本身相关（如事件坐标、对象等）
@@ -91,7 +100,7 @@ export const useContextMenu = (options: ContextMenuHookOptions) => {
     const onCommand = (command: string) => ({
       add: () => openMarkerEditPanel({ latlng: ev.latlng, selectedArea }),
       refresh: refreshMarkers,
-      setting: openSetting,
+      setting: openSettingDialog,
     } as Record<string, () => void>)[command]?.()
 
     /** 预渲染右键菜单使用的组件 */

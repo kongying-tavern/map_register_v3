@@ -47,7 +47,7 @@ const createMarker = () => {
       <div>刷新点位</div>
     </div>
 
-    <div data-command="setting" class="context-menu-item" title="设置面板" @click="() => emits('command', 'setting')">
+    <div data-command="setting" class="context-menu-item" @click="() => emits('command', 'setting')">
       <ElIcon><Setting /></ElIcon>
       <div>设置</div>
     </div>

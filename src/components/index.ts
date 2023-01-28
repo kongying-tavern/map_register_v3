@@ -1,5 +1,6 @@
 export { default as AppBreadCrumb } from './AppBreadCrumb.vue'
 export { default as AppDialogProvider } from './AppDialogProvider.vue'
 export { default as AppLogo } from './AppLogo.vue'
+export { default as AppSettings } from './AppSettings.vue'
 export { default as AppSidemenu } from './AppSidemenu.vue'
 export { default as AppUserAvatar } from './AppUserAvatar.vue'
