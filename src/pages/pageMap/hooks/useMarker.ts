@@ -8,7 +8,7 @@ import { canvasMarker } from '../utils'
 import Api from '@/api/api'
 import type { FetchHookOptions } from '@/hooks'
 import { useFetchHook, useGlobalDialog, useIconList } from '@/hooks'
-// import { useUserStore } from '@/stores'
+import { localSettings } from '@/stores'
 
 export interface MarkerHookOptions extends FetchHookOptions<API.RListMarkerVo> {
   /** 物品列表 */
@@ -114,10 +114,9 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
 
   /**
    * 根据点位坐标将地图移动到点集中心
-   * @todo 可以根据全局设置做成可选功能
    */
-  const moveToCenter = (markers: L.CircleMarker[]) => {
-    if (!markers.length)
+  const moveToCenter = async (markers: L.CircleMarker[]) => {
+    if (!localSettings.value.moveToCenter || !markers.length)
       return
     const { xmin, xmax, ymin, ymax } = markers.slice(1).reduce((rect, marker) => {
       const { lat, lng } = marker.getLatLng()
@@ -136,9 +135,8 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
     })())
     const centerLatlng: [number, number] = [(xmin + xmax) / 2, (ymin + ymax) / 2]
     // 延迟到点位渲染大致完成后再移动视野，以避免同时移动视野导致的卡顿
-    setTimeout(() => {
-      map.value?.flyTo(centerLatlng, map.value.getZoom(), { duration: 0.2 })
-    }, 100)
+    await new Promise(resolve => setTimeout(resolve, 100))
+    map.value?.flyTo(centerLatlng, map.value.getZoom(), { duration: 0.2 })
   }
 
   const { DialogService } = useGlobalDialog()
