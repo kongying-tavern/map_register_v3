@@ -16,6 +16,7 @@ export interface GenshinLayerOptions extends AnyObject {
     hiddenFlag?: number
     popperOpen?: boolean
     isUnderground?: boolean
+    specialFlag?: boolean
   }
   undergroundImg: {
     el: HTMLImageElement
@@ -100,7 +101,7 @@ L.Canvas.include({
 
     const ctx = this._ctx as CanvasRenderingContext2D
 
-    doDraw(ctx, () => {
+    !img.specialFlag && doDraw(ctx, () => {
       ctx.beginPath()
       // 绘制图标阴影
       ctx.shadowBlur = 3
@@ -125,7 +126,7 @@ L.Canvas.include({
     })
 
     // 绘制 hover | active 蒙层
-    hover && doDraw(ctx, () => {
+    !img.specialFlag && hover && doDraw(ctx, () => {
       ctx.beginPath()
       ctx.arc(...center, radius, 0, 2 * Math.PI)
       ctx.closePath()
@@ -134,7 +135,7 @@ L.Canvas.include({
     })
 
     // 绘制边框
-    doDraw(ctx, () => {
+    !img.specialFlag && doDraw(ctx, () => {
       ctx.beginPath()
       ctx.arc(...center, radius, 0, 2 * Math.PI)
       ctx.closePath()

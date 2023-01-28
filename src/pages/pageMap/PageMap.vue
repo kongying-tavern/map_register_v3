@@ -46,6 +46,16 @@ const { itemList, loading: itemLoading } = useItemList({
 /** 物品类型列表 */
 const { typeList } = useTypeList()
 
+// @TODO 蒙德七天神像不显示
+// @TODO 选中常驻物品会重复渲染
+const specialItemList = computed(() => {
+  const special = ['传送锚点', '七天神像', '秘境', '山洞洞口']
+  const typeId = 2
+  return itemList.value
+    .filter(item => item.typeIdList?.includes(typeId) && special.includes(item.iconTag ?? '无'))
+    .map(item => item.itemId ?? -1)
+})
+
 const filteredItemList = computed(() => {
   const { typeId } = mapStore
   if (typeId === undefined)
@@ -74,6 +84,8 @@ const { iconMap, markerList, loading: markerLoading, updateMarkerList } = useMar
     showAuditedMarker: Boolean(mapStore.showAuditedMarker),
     showPunctuateMarker: Boolean(mapStore.showPunctuateMarker),
     onlyUnderground: Boolean(mapStore.onlyUnderground),
+    showSpecial: true,
+    specialItems: specialItemList.value,
   }),
 })
 
@@ -133,6 +145,7 @@ const flyTo = async (id: number) => {
     const { data: area } = await Api.area.getArea({ areaId: items[0].areaId ?? 1 })
     mapStore.areaCode = area?.code ?? 'A:MD:MENGDE'
     mapStore.typeId = items[0].typeIdList![0]
+    // @TODO @BUG 当点位内iconTag为无时 无法正常跳转到正确物品
     mapStore.iconName = data[0].itemList![0].iconTag
     setTimeout(() => {
       flyToMarker(id)

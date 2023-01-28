@@ -2,6 +2,7 @@ import type { Ref } from 'vue'
 import { render } from 'vue'
 import L from 'leaflet'
 import { ElMessage } from 'element-plus'
+import { indexOf } from 'lodash'
 import type { GenshinLayerOptions, GenshinMap } from '../utils'
 import { MarkerEditForm, PopupContent } from '../components'
 import { canvasMarker } from '../utils'
@@ -26,6 +27,10 @@ export interface MarkerHookOptions extends FetchHookOptions<API.RListMarkerVo> {
     showAuditedMarker: boolean
     /** 只显示地下点位 */
     onlyUnderground: boolean
+    /** 常驻显示特殊点位(如: 锚点、洞口) */
+    showSpecial: boolean
+    /** 常驻显示特殊物品列表 */
+    specialItems: Array<number>
   }
 }
 
@@ -53,6 +58,7 @@ const createLinkMarker = (marker: API.MarkerPunctuateVo | API.MarkerVo): LinkedM
     return {
       ...marker,
       coordinate: [0, 0],
+      extraObject: {},
     }
   }
 }
@@ -64,6 +70,14 @@ const withCondition = (onlyUnderground?: boolean) =>
     ;(!onlyUnderground || linkedMarker.extraObject.underground?.is_underground) && seed.push(linkedMarker)
     return seed
   }
+
+const isSpecial = (itemList: Array<API.MarkerItemLinkVo>, specialItems: Array<number>): boolean => {
+  for (const i in itemList) {
+    if (indexOf(specialItems, itemList[i].itemId) !== -1)
+      return true
+  }
+  return false
+}
 
 export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOptions) => {
   const {
@@ -94,7 +108,7 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
     loading,
     onRequest: async () => {
       map.value?.closePopup()
-      const { rawParams, showAuditedMarker, showPunctuateMarker, onlyUnderground } = fetchParams.value
+      const { rawParams, showAuditedMarker, showPunctuateMarker, onlyUnderground, showSpecial, specialItems } = fetchParams.value
       if (!rawParams.itemIdList?.length)
         return []
       let linkedMarkers: LinkedMapMarker[] = []
@@ -107,6 +121,11 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
       if (showPunctuateMarker) {
         const { data: { record = [] } = {} } = await Api.punctuate.listPunctuatePage({ current: 0, size: 1000 })
         linkedMarkers = linkedMarkers.concat(record.reduce(withCondition(onlyUnderground), [] as LinkedMapMarker[]))
+      }
+      // 特殊点位
+      if (showSpecial) {
+        const { data = [] } = await Api.marker.searchMarker({}, { itemIdList: specialItems })
+        linkedMarkers = linkedMarkers.concat(data.reduce(withCondition(onlyUnderground), [] as LinkedMapMarker[]))
       }
       return linkedMarkers
     },
@@ -143,6 +162,7 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
 
   /** 根据点位信息创建 canvas 图层上的点位 */
   const createCanvasMarker = (markerInfo: LinkedMapMarker) => {
+    const { specialItems } = fetchParams.value
     const latlng = L.latLng(markerInfo.coordinate)
 
     const marker = canvasMarker(latlng, {
@@ -156,7 +176,8 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
         rotate: 90,
         offset: { x: 0, y: 0 },
         hiddenFlag: markerInfo.hiddenFlag,
-        isUnderground: markerInfo.extraObject.underground?.is_underground,
+        isUnderground: 'underground' in markerInfo.extraObject ? markerInfo.extraObject.underground.is_underground : false,
+        specialFlag: isSpecial(markerInfo.itemList ?? [], specialItems),
       },
       undergroundImg: {},
     })
@@ -256,8 +277,9 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
     createMarkerWhenReady()
   })
 
-  onError(() => {
+  onError((err) => {
     markerList.value = []
+    console.warn(err)
     ElMessage.error('点位加载失败')
     createMarkerWhenReady()
   })
