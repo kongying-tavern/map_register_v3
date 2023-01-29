@@ -59,12 +59,17 @@ onPushStagedError(commonErrorHandler)
 onStageError(commonErrorHandler)
 
 // 管理员直接走点位编辑方法
-const { createLoading, updateMarker, onCreateSuccess, onCreateError } = useMarkerEdit(form)
+const { createLoading, updateMarker, onCreateSuccess, onCreateError, onEditSuccess, onEditError } = useMarkerEdit(form)
 onCreateSuccess(() => {
   ElMessage.success('点位编辑成功')
   emits('refresh')
 })
 onCreateError(commonErrorHandler)
+onEditSuccess(() => {
+  ElMessage.success('点位编辑成功')
+  emits('refresh')
+})
+onEditError(commonErrorHandler)
 
 const loading = computed({
   get: () => userStore.isAdmin ? createLoading.value : stageLoading.value,
