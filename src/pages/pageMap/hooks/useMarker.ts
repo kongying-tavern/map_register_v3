@@ -9,10 +9,6 @@ import { canvasMarker } from '../utils'
 import Api from '@/api/api'
 import type { FetchHookOptions } from '@/hooks'
 import { useFetchHook, useGlobalDialog, useIconList } from '@/hooks'
-<<<<<<< HEAD
-import { localSettings } from '@/stores'
-=======
->>>>>>> 6b16271 (fix: 特殊点位筛选逻辑)
 
 export interface MarkerHookOptions extends FetchHookOptions<API.RListMarkerVo> {
   /** 物品列表 */
