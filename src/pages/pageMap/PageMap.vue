@@ -46,16 +46,6 @@ const { itemList, loading: itemLoading } = useItemList({
 /** 物品类型列表 */
 const { typeList } = useTypeList()
 
-// @TODO 蒙德七天神像不显示
-// @TODO 选中常驻物品会重复渲染
-const specialItemList = computed(() => {
-  const special = ['传送锚点', '七天神像', '秘境', '山洞洞口']
-  const typeId = 2
-  return itemList.value
-    .filter(item => item.typeIdList?.includes(typeId) && special.includes(item.iconTag ?? '无'))
-    .map(item => item.itemId ?? -1)
-})
-
 const filteredItemList = computed(() => {
   const { typeId } = mapStore
   if (typeId === undefined)
@@ -65,6 +55,17 @@ const filteredItemList = computed(() => {
 
 const selectedItem = computed(() => filteredItemList.value.find(item => item.name === mapStore.iconName))
 
+const specialItemList = computed(() => {
+  const special = ['传送锚点', '七天神像', '秘境', '山洞洞口', '征讨领域']
+  const typeId = 2
+  const filter = (item: API.ItemVo) => {
+    return item.name !== selectedItem.value?.name && item.typeIdList?.includes(typeId) && special.includes(item.name ?? '无')
+  }
+  if (itemList.value.filter(filter).length === 0)
+    return [1282]
+  return itemList.value
+    .filter(filter).map(item => item.itemId ?? -1)
+})
 // 在物品列表变更后，如果当前已选的同类物品不在列表内，则清除已选项
 // TODO 初次加载时可能无法保留状态
 watch(() => [mapStore.areaCode, mapStore.typeId], () => {

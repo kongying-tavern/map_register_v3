@@ -9,7 +9,10 @@ import { canvasMarker } from '../utils'
 import Api from '@/api/api'
 import type { FetchHookOptions } from '@/hooks'
 import { useFetchHook, useGlobalDialog, useIconList } from '@/hooks'
+<<<<<<< HEAD
 import { localSettings } from '@/stores'
+=======
+>>>>>>> 6b16271 (fix: 特殊点位筛选逻辑)
 
 export interface MarkerHookOptions extends FetchHookOptions<API.RListMarkerVo> {
   /** 物品列表 */
@@ -96,6 +99,8 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
 
   /** 点位列表 */
   const markerList = ref<LinkedMapMarker[]>([])
+  /** 特殊点位列表 */
+  const specialMarkerList = ref<LinkedMapMarker[]>([])
   /** 请求参数 */
   const fetchParams = computed(() => params())
   /** 点位图层缓存 */
@@ -112,6 +117,7 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
       if (!rawParams.itemIdList?.length)
         return []
       let linkedMarkers: LinkedMapMarker[] = []
+      let specialMarkers: LinkedMapMarker[] = []
       // 已通过审核点位
       if (showAuditedMarker) {
         const { data = [] } = await Api.marker.searchMarker({}, rawParams)
@@ -125,9 +131,9 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
       // 特殊点位
       if (showSpecial) {
         const { data = [] } = await Api.marker.searchMarker({}, { itemIdList: specialItems })
-        linkedMarkers = linkedMarkers.concat(data.reduce(withCondition(onlyUnderground), [] as LinkedMapMarker[]))
+        specialMarkers = data.reduce(withCondition(onlyUnderground), [] as LinkedMapMarker[])
       }
-      return linkedMarkers
+      return { linkedMarkers, specialMarkers }
     },
   })
 
@@ -247,17 +253,15 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
     return marker
   }
 
-  /** 更新点位图层 */
-  const refreshMarkerLayer = (markers: L.CircleMarker[]) => {
-    markerLayer.value && map.value?.removeLayer(markerLayer.value as L.Layer)
-    markerLayer.value = L.layerGroup(markers)
-    map.value?.addLayer(markerLayer.value as L.Layer)
-  }
-
   /** @核心流程 创建点位实例 */
   const createMarkers = () => {
+    markerLayer.value && map.value?.removeLayer(markerLayer.value as L.Layer)
+    // 普通点位
     const mapMarkers = markerList.value.map(createCanvasMarker)
-    refreshMarkerLayer(mapMarkers)
+    // 特殊点位
+    const specialMarkers = specialMarkerList.value.map(createCanvasMarker)
+    markerLayer.value = L.layerGroup(mapMarkers.concat(specialMarkers))
+    map.value?.addLayer(markerLayer.value as L.Layer)
     moveToCenter(mapMarkers)
   }
 
@@ -273,8 +277,12 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
   onIconFetched(createMarkerWhenReady)
 
   onMarkerFetched((data) => {
-    markerList.value = data
-    createMarkerWhenReady()
+    if ('linkedMarkers' in data) {
+      const { linkedMarkers, specialMarkers } = data
+      markerList.value = linkedMarkers
+      specialMarkerList.value = specialMarkers
+      createMarkerWhenReady()
+    }
   })
 
   onError((err) => {
