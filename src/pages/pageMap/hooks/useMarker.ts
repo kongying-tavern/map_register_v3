@@ -11,7 +11,7 @@ import type { FetchHookOptions } from '@/hooks'
 import { useFetchHook, useGlobalDialog, useIconList } from '@/hooks'
 import { localSettings } from '@/stores'
 import type { MarkerExtra } from '@/utils'
-import { ExtraJSON } from '@/utils'
+import { ExtraJSON, sleep } from '@/utils'
 
 export interface MarkerHookOptions extends FetchHookOptions<API.RListMarkerVo> {
   /** 物品列表 */
@@ -111,10 +111,10 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
     onRequest: async () => {
       map.value?.closePopup()
       const { rawParams, showAuditedMarker, showPunctuateMarker, onlyUnderground, showSpecial, specialItems } = fetchParams.value
-      if (!rawParams.itemIdList?.length)
-        return []
       let linkedMarkers: LinkedMapMarker[] = []
       let specialMarkers: LinkedMapMarker[] = []
+      if (!rawParams.itemIdList?.length)
+        return { linkedMarkers, specialMarkers }
       // 已通过审核点位
       if (showAuditedMarker) {
         const { data = [] } = await Api.marker.searchMarker({}, rawParams)
@@ -157,7 +157,7 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
     })())
     const centerLatlng: [number, number] = [(xmin + xmax) / 2, (ymin + ymax) / 2]
     // 延迟到点位渲染大致完成后再移动视野，以避免同时移动视野导致的卡顿
-    await new Promise(resolve => setTimeout(resolve, 100))
+    await sleep(100)
     map.value?.flyTo(centerLatlng, map.value.getZoom(), { duration: 0.2 })
   }
 
@@ -273,13 +273,10 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
 
   onIconFetched(createMarkerWhenReady)
 
-  onMarkerFetched((data) => {
-    if ('linkedMarkers' in data) {
-      const { linkedMarkers, specialMarkers } = data
-      markerList.value = linkedMarkers
-      specialMarkerList.value = specialMarkers
-      createMarkerWhenReady()
-    }
+  onMarkerFetched(({ linkedMarkers, specialMarkers }) => {
+    markerList.value = linkedMarkers
+    specialMarkerList.value = specialMarkers
+    createMarkerWhenReady()
   })
 
   onError((err) => {
