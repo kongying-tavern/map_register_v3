@@ -1,3 +1,5 @@
+@use "sass:math";
+
 .genshin-map-container {
   --bg-color: rgba(41 37 36 / 0.7);
   --border-color: #AA9172;
@@ -36,5 +38,56 @@
       margin: 0;
       color: #FFF;
     }
+  }
+}
+
+// TODO 当前参数是以尺寸 60 为基础写死的，应该改成变量
+@mixin calculateClipPath() {
+  clip-path: path('M 4 4\
+    L 11.3731 5.4712 \
+    A 28 28 0 0 1 28 0 \
+    L 28 4 \
+    A 1 1 0 1 0 28 52 \
+    A 1 1 0 1 0 28 4 \
+    L 28 0 \
+    A 28 28 0 0 1 44.6269 5.4712 \
+    L 52 4 \
+    L 50.5288 11.3731 \
+    A 28 28 0 0 1 50.5288 44.6269 \
+    L 52 52 \
+    L 44.6269 50.5288 \
+    A 28 28 0 0 1 11.3731 50.5288 \
+    L 4 52 \
+    L 5.4712 44.6269 \
+    A 28 28 0 0 1 5.4712 11.3731 \
+    L 4 4 \
+    Z');
+}
+
+// 点位激活时的光标效果
+.genshin-active-marker {
+  @keyframes scaleFadeIn {
+    0% {
+      scale: 0.9;
+      opacity: 0.8;
+    }
+    50% {
+      scale: 1.1;
+      opacity: 1;
+    }
+    100% {
+      scale: 1;
+      opacity: 0.8;
+    }
+  }
+  &::before {
+    content: '';
+    background: #FFF;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    animation: scaleFadeIn forwards;
+    animation-duration: 100ms;
+    @include calculateClipPath();
   }
 }

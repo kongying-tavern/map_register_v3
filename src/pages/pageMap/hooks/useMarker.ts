@@ -79,6 +79,15 @@ const isSpecial = (itemList: Array<API.MarkerItemLinkVo>, specialItems: Array<nu
   return false
 }
 
+// 点位激活时的光标效果
+const activeIconMarker = L.marker([0, 0], { interactive: false }).setIcon(
+  L.divIcon({
+    iconSize: [56, 56],
+    // 样式见 src/style/leaflet/index.scss
+    className: 'genshin-active-marker',
+  }),
+)
+
 export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOptions) => {
   const {
     immediate = false,
@@ -163,6 +172,19 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
 
   const { DialogService } = useGlobalDialog()
 
+  /** 点位激活时添加类似游戏中选中的效果 */
+  const addActiveIconToMarker = (latlng: L.LatLngExpression) => {
+    if (!map.value)
+      return
+    activeIconMarker
+      .removeFrom(map.value)
+      .setLatLng(latlng)
+      .addTo(map.value)
+    map.value.once('popupclose', () => {
+      map.value && activeIconMarker.removeFrom(map.value)
+    })
+  }
+
   /** 根据点位信息创建 canvas 图层上的点位 */
   const createCanvasMarker = (markerInfo: LinkedMapMarker) => {
     const { specialItems } = fetchParams.value
@@ -209,6 +231,7 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
     marker.addEventListener('click', () => {
       if (!map.value)
         return
+      marker.bringToFront()
       markerOptions.img.popperOpen = true
       const vnode = h(PopupContent, {
         markerInfo,
@@ -221,6 +244,7 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
       render(vnode, popupDOM)
       // 不在创建点位时预渲染 content 是为了降低点位整体的渲染用时
       popup.setContent(popupDOM).setLatLng(latlng).openOn(map.value)
+      addActiveIconToMarker(latlng)
       map.value.addOneTimeEventListener('popupclose', () => {
         markerOptions.img.popperOpen = false
         marker.redraw()

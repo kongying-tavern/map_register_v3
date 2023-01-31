@@ -1,6 +1,6 @@
 import { ElMessage } from 'element-plus'
 import L from 'leaflet'
-import { getObjectFitSize, messageFrom } from '@/utils'
+import { getObjectFitSize, loadImage, messageFrom } from '@/utils'
 import type { AnyObject } from '@/shared'
 
 export interface GenshinLayerOptions extends AnyObject {
@@ -53,11 +53,18 @@ const defaultImgOptions = {
   offset: { x: 0, y: 0 },
 }
 
+/** 共享的地下图片元素 */
+const undergroundImage = ref<HTMLImageElement | null>(null)
+loadImage('https://tiles.yuanshen.site/d/marker_image/underground.png', {
+  referrerPolicy: 'no-referrer',
+})
+  .then((img) => {
+    undergroundImage.value = img
+  })
 const undergroundImgOptions = {
   rotate: 0,
   size: [20, 20],
   offset: { x: 10, y: 10 },
-  url: 'https://tiles.yuanshen.site/d/marker_image/underground.png',
 }
 
 const angleCrds = (map: L.Map, prevLatlng: L.LatLng, latlng: L.LatLng) => {
@@ -69,17 +76,19 @@ const angleCrds = (map: L.Map, prevLatlng: L.LatLng, latlng: L.LatLng) => {
 }
 
 const getMarkerShape = (layer: AnyObject & { options: GenshinLayerOptions }, img: ImgOptions) => {
-  const { active, popperOpen } = img
+  const { active, popperOpen, offset } = img
 
   // 根据状态调整视觉尺寸
   let [w, h] = img.size
-  w = active ? w - 2 : popperOpen ? w + 4 : w
-  h = active ? h - 2 : popperOpen ? h + 4 : h
+  w *= active ? 0.9 : popperOpen ? 1.1 : 1
+  h *= active ? 0.9 : popperOpen ? 1.1 : 1
+  const offsetX = offset.x * (active ? 0.9 : popperOpen ? 1.1 : 1)
+  const offsetY = offset.y * (active ? 0.9 : popperOpen ? 1.1 : 1)
 
   // 基本参数计算
   const [halfW, halfH] = [w / 2, h / 2]
   const p = layer._point.round() as { x: number; y: number }
-  let [x, y] = [p.x + img.offset.x, p.y + img.offset.y]
+  let [x, y] = [p.x + offsetX, p.y + offsetY]
   ;[x, y] = img.rotate ? [-halfW, -halfH] : [x - halfH, y - halfH]
   const center = [x + halfW, y + halfH] as [number, number]
   const radius = Math.max(w, h) / 2
@@ -146,7 +155,11 @@ L.Canvas.include({
 
     // 地下点位标识绘制
     img.isUnderground && doDraw(ctx, () => {
-      const { w: uw, h: uh, x: ux, y: uy } = getMarkerShape(layer, undergroundImg)
+      const { w: uw, h: uh, x: ux, y: uy } = getMarkerShape(layer, {
+        ...undergroundImg,
+        active,
+        popperOpen,
+      })
       if (img.rotate) {
         ctx.translate(x, y)
         ctx.rotate(img.rotate * Math.PI / 180)
@@ -164,16 +177,7 @@ const CanvasMarker = L.CircleMarker.extend({
       return
     if (!this.options.undergroundImg.el) {
       this.options.undergroundImg = { ...undergroundImgOptions, ...this.options.undergroundImg }
-      const img = document.createElement('img')
-      img.referrerPolicy = 'no-referrer'
-      img.src = this.options.undergroundImg.url
-      img.onload = () => {
-        this.redraw()
-      }
-      img.onerror = () => {
-        this.options.undergroundImg = null
-      }
-      this.options.undergroundImg.el = img
+      this.options.undergroundImg.el = undergroundImage.value
     }
     if (!this.options.img.el) {
       this.options.img = { ...defaultImgOptions, ...this.options.img }
