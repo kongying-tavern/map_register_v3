@@ -11,6 +11,10 @@ export interface Array2TreeOptions {
   rootId?: string | number | symbol | bigint
 }
 
+/**
+ * 将数组转换为具有上下级关系的树形结构
+ * 每个对象必须包含能判断父子级关系的字段
+ */
 export const array2Tree = <T extends AnyObject>(items: T[], options: Array2TreeOptions = {}) => {
   const { childrenKey = 'children', idKey = 'id', pidKey = 'pid', rootId = 0 } = options
 

@@ -1,3 +1,11 @@
+/**
+ * 计算图像在区域内的适应尺寸
+ * @param type 适应模式，对应 object-fit 里的 cover 和 contain
+ * @param containerWidth 容器宽
+ * @param containerHeight 容器高
+ * @param imgWidth 图像宽
+ * @param imgHeight 图像高
+ */
 export const getObjectFitSize = (
   type: 'cover' | 'contain',
   containerWidth: number,

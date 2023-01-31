@@ -2,6 +2,7 @@
 
 const debug = import.meta.env.DEV
 
+/** 开发模式下在命令行打印信息 */
 export class Logger {
   constructor(private prefix = '') {}
 
