@@ -56,15 +56,8 @@ const filteredItemList = computed(() => {
 const selectedItem = computed(() => filteredItemList.value.find(item => item.name === mapStore.iconName))
 
 const specialItemList = computed(() => {
-  const special = ['传送锚点', '七天神像', '秘境', '山洞洞口', '征讨领域']
-  const typeId = 2
-  const filter = (item: API.ItemVo) => {
-    return item.name !== selectedItem.value?.name && item.typeIdList?.includes(typeId) && special.includes(item.name ?? '无')
-  }
-  if (itemList.value.filter(filter).length === 0)
-    return [1282]
   return itemList.value
-    .filter(filter).map(item => item.itemId ?? -1)
+    .filter(item => item.specialFlag === 1 && selectedItem.value?.itemId !== item.itemId).map(item => item.itemId ?? -1)
 })
 // 在物品列表变更后，如果当前已选的同类物品不在列表内，则清除已选项
 // TODO 初次加载时可能无法保留状态
