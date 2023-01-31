@@ -34,4 +34,14 @@ export class ExtraJSON {
       return {} as MarkerExtra
     }
   }
+
+  // TODO 不输出内容为null的字段
+  static stringify = (valueObject: MarkerExtra) => {
+    try {
+      return JSON.stringify(valueObject)
+    }
+    catch {
+      return '{}'
+    }
+  }
 }

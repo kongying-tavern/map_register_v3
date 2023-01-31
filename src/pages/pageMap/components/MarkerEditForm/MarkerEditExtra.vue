@@ -1,6 +1,8 @@
 <script lang="ts" setup>
-import { SumeruDesert, SumeruPalace } from './MarkerEditExtra'
+import { SumeruPalace } from './MarkerEditExtra'
 import { useMapStore } from '@/stores'
+import type { MarkerExtra } from '@/utils'
+import { ExtraJSON } from '@/utils'
 
 /** 选项配置 */
 interface OptionsVo {
@@ -10,21 +12,6 @@ interface OptionsVo {
     label: string
     value: string
   }[]
-}
-
-/** extra附加数据接口 */
-interface ExtraVo {
-  dragonspine_cave?: boolean
-  inazuma_underground?: boolean
-  sumeru_underground?: boolean
-  sumeru_palace?: {
-    palace_name?: string
-    palace_level?: string[]
-  }
-  sumeru_desert2?: {
-    ug_name: string
-    ug_level?: string[]
-  }
 }
 
 const props = defineProps<{
@@ -42,21 +29,20 @@ const mapStore = useMapStore()
 const selectedAreaCode = mapStore.areaCode
 
 /** extra数据 */
-const extra = ref<ExtraVo>(JSON.parse(props.modelValue ?? '{}'))
+const extra = ref<MarkerExtra>(ExtraJSON.parse(props.modelValue ?? '{}'))
+// 防止extra地下部分为空
+if (!extra.value.underground)
+  extra.value.underground = { is_underground: true, model_id: 'basic', region_name: '', region_levels: [] }
 
 /** 所在地区判断 */
 const isPluginsArea = (code: string) => {
   if (!selectedAreaCode)
     return false
-  // 稻妻全地区
-  if (code === 'C:DQ')
-    return selectedAreaCode.search('A:DQ') > -1
-
   return code === selectedAreaCode
 }
 /** 大赤沙海配置 */
 const palaceOptions = ref<OptionsVo[]>([
-  { label: '无', value: 'null' }, // 提交时将null转换
+  { label: '地上', value: 'null' }, // 提交时将null转换
   { label: '地下', value: 'ug' },
   {
     label: '圣显',
@@ -98,65 +84,41 @@ const palaceOptions = ref<OptionsVo[]>([
 ])
 /** 千壑沙地配置数据 */
 const desertOptions = [
-  { label: '无', value: 'null' }, // 提交时将null转换
-  { label: '?', value: '?' },
+  { label: '地上', value: 'null' }, // 提交时将null转换
+  { label: '地下1', value: 'ug1' },
+  { label: '地下2', value: 'ug2' },
+  { label: '地下3', value: 'ug3' },
 ]
-/** 诸法丛林判断 */
-const sumeru_underground = computed(() => {
-  if (!extra.value.sumeru_underground && isPluginsArea('A:XM:FOREST'))
-    extra.value.sumeru_underground = false
-  return isPluginsArea('A:XM:FOREST')
-})
-/** 稻妻判断 */
-const inazuma_underground = computed(() => {
-  if (!extra.value.inazuma_underground && isPluginsArea('C:DQ'))
-    extra.value.inazuma_underground = false
-  return isPluginsArea('C:DQ')
-})
-/** 龙脊雪山判断 */
-const dragonspine_cave = computed(() => {
-  if (!extra.value.dragonspine_cave && isPluginsArea('A:MD:XUESHAN'))
-    extra.value.dragonspine_cave = false
-  return isPluginsArea('A:MD:XUESHAN')
+/** 通用地下判断 */
+const isBasic = computed(() => {
+  // 通用地下地区屏蔽数组
+  const excludeList = ['A:XM:DESERT', 'A:XM:DESERT2']
+  return !excludeList.includes(selectedAreaCode ?? '')
 })
 
 watch(extra, () => {
-  emit('update:modelValue', JSON.stringify(extra.value))
+  emit('update:modelValue', ExtraJSON.stringify(extra.value))
 }, { deep: true })
 </script>
 
 <template>
-  <!-- 龙脊雪山 -->
+  <!-- 通用地下 -->
   <el-switch
-    v-if="dragonspine_cave"
-    v-model="extra.dragonspine_cave"
-    active-text="地下"
-    inactive-text="地上"
-  />
-  <!-- 须弥 诸法丛林 -->
-  <el-switch
-    v-if="sumeru_underground"
-    v-model="extra.sumeru_underground"
-    active-text="地下"
-    inactive-text="地上"
-  />
-  <!-- 稻妻 -->
-  <el-switch
-    v-if="inazuma_underground"
-    v-model="extra.inazuma_underground"
+    v-if="isBasic"
+    v-model="extra.underground!.is_underground"
     active-text="地下"
     inactive-text="地上"
   />
   <!-- 须弥 大赤沙海 -->
   <SumeruPalace
     v-if="isPluginsArea('A:XM:DESERT')"
-    v-model="extra.sumeru_palace"
+    v-model="extra"
     :options="palaceOptions"
   />
   <!-- 须弥 千壑沙地 -->
-  <SumeruDesert
+  <SumeruPalace
     v-if="isPluginsArea('A:XM:DESERT2')"
-    v-model="extra.sumeru_desert2"
+    v-model="extra"
     :options="desertOptions"
   />
 </template>
