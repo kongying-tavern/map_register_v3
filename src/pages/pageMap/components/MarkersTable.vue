@@ -9,7 +9,7 @@ defineProps<{
   loading?: boolean
 }>()
 
-const map = inject(mapInjection)
+const map = inject(mapInjection, ref(null))
 
 const markerList = inject(markerListInjection, ref([]))
 
@@ -43,14 +43,27 @@ const columns = ref<Partial<Column & { dataKey: string }>[]>([
 const { isDark } = useTheme()
 
 const flyToMarker = ({ id, punctuateId }: LinkedMapMarker) => {
-  if (!map?.value)
+  if (!map.value)
     return
-  markerList.value.forEach((val) => {
-    const coordinate = val.position?.split(',').map(Number) as [number, number]
-    if (val.punctuateId === punctuateId || val.id === id)
-      map.value?.flyTo(coordinate, 0, { animate: false })
-    val.mapMarker?.fire('click')
-  })
+
+  // TODO _layers 是私有属性
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const layers = (map.value as any)._layers as Record<string, L.Marker>
+  for (const key in layers) {
+    const marker = layers[key]
+    // layers 继承自 L.Layer
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { markerId, punctuateId: markerPunctuateId } = (marker as any).options?.img ?? {}
+    if ((markerId && markerId === id) || (markerPunctuateId && markerPunctuateId === punctuateId)) {
+      map.value.closePopup()
+      const { lat, lng } = marker.getLatLng()
+      map.value.flyTo([lat - 200, lng], 0, {
+        animate: false,
+      })
+      marker.fire('click')
+      break
+    }
+  }
 }
 </script>
 

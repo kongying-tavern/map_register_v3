@@ -1,3 +1,4 @@
+<!-- eslint-disable quote-props -->
 <script lang="ts" setup>
 import L from 'leaflet'
 import type { Ref } from 'vue'
@@ -18,6 +19,7 @@ const sumeruForestLayer = L.imageOverlay(
   [[-6299, -2190], [-838, 1906]],
   { opacity: 0.75 },
 )
+
 /** 大赤沙海基本地下图层 */
 const sumeruDesertLayer = L.imageOverlay(
   'https://v3.yuanshen.site/imgs/固定底图.png',
@@ -25,7 +27,55 @@ const sumeruDesertLayer = L.imageOverlay(
   { opacity: 0.75 },
 )
 
+/** 风蚀沙地地下图层字典 */
+const sumeruDesert2Layers: Record<string, L.ImageOverlay> = {}
+const sumeruDesert2LayersBounds: Record<string, [number, number][]> = {
+  '五绿洲': [[-6171, -730], [-6171 + 643, -730 + 390]],
+  '君王之殿1': [[-6310, 138], [-6310 + 442, 138 + 409]],
+  '君王之殿2': [[-6089, 139], [-6089 + 222, 139 + 139]],
+  '君王之殿3': [[-6368, 145], [-6368 + 435, 145 + 468]],
+  '居尔城墟·赤王神殿1': [[-7341, 1174], [-7341 + 583, 1174 + 688]],
+  '居尔城墟·赤王神殿2': [[-6886, 1577], [-6886 + 130, 1577 + 169]],
+  '居尔城墟·赤王神殿3': [[-7317, 1237], [-7317 + 581, 1237 + 482]],
+  '永恒绿洲': [[-6793, -125], [-6793 + 698, -125 + 689]],
+  '沙虫隧道1': [[-5914, -61], [-5914 + 682, -61 + 814]],
+  '沙虫隧道2': [[-5517, -19], [-5517 + 275, -19 + 506]],
+  '沙虫隧道3': [[-5490, -25], [-5490 + 180, -25 + 290]],
+  '生命之殿': [[-7612, 2], [-7612 + 643, 2 + 588]],
+  '行宫花园': [[-7219, -785], [-7219 + 507, -785 + 522]],
+  '赤王的水晶杯': [[-7043, -284], [-7043 + 769, -284 + 902]],
+  '酣乐之殿1': [[-6972, -455], [-6972 + 270, -455 + 354]],
+  '酣乐之殿2': [[-6882, -548], [-6882 + 505, -548 + 514]],
+  '酣乐之殿3': [[-6997, -496], [-6997 + 347, -496 + 178]],
+  '酣乐之殿4': [[-6904, -494], [-6904 + 285, -494 + 279]],
+  '镇灵监牢及巨人峡谷': [[-7186, 502], [-7186 + 788, 502 + 510]],
+}
+const sumeruDesert2LayersName = [
+  '五绿洲',
+  '君王之殿1',
+  '君王之殿2',
+  '君王之殿3',
+  '居尔城墟·赤王神殿1',
+  '居尔城墟·赤王神殿2',
+  '居尔城墟·赤王神殿3',
+  '永恒绿洲',
+  '沙虫隧道1',
+  '沙虫隧道2',
+  '沙虫隧道3',
+  '生命之殿',
+  '行宫花园',
+  '赤王的水晶杯',
+  '酣乐之殿1',
+  '酣乐之殿2',
+  '酣乐之殿3',
+  '酣乐之殿4',
+  '镇灵监牢及巨人峡谷',
+]
+
 // 备用，位置调试，开启时需将 overlay 的 interactive 设置为 true，且 zIndex 需大于点位图层 (>100)
+// WASD 移动左上坐标
+// 数字小键盘 移动右下坐标
+// 分号、引号 缩放
 // const controlLayer = ref(null) as Ref<L.ImageOverlay | null>
 // useEventListener(window, 'keydown', (ev) => {
 //   if (!controlLayer.value)
@@ -35,101 +85,104 @@ const sumeruDesertLayer = L.imageOverlay(
 //   const ymin = oldBounds.getWest()
 //   const xmax = oldBounds.getNorth()
 //   const ymax = oldBounds.getEast()
-//   console.log({ xmin, ymin, xmax, ymax })
+
 //   if (ev.code === 'KeyW') {
 //     controlLayer.value.setBounds(L.latLngBounds(
 //       [xmin, ymin - 10],
-//       [xmax, ymax - 10],
+//       [xmax, ymax],
 //     ))
 //     return
 //   }
 //   if (ev.code === 'KeyS') {
 //     controlLayer.value.setBounds(L.latLngBounds(
 //       [xmin, ymin + 10],
-//       [xmax, ymax + 10],
+//       [xmax, ymax],
 //     ))
 //     return
 //   }
 //   if (ev.code === 'KeyA') {
 //     controlLayer.value.setBounds(L.latLngBounds(
 //       [xmin - 10, ymin],
-//       [xmax - 10, ymax],
+//       [xmax, ymax],
 //     ))
 //     return
 //   }
 //   if (ev.code === 'KeyD') {
 //     controlLayer.value.setBounds(L.latLngBounds(
 //       [xmin + 10, ymin],
-//       [xmax + 10, ymax],
-//     ))
-//     return
-//   }
-//   if (ev.code === 'BracketLeft') {
-//     controlLayer.value.setBounds(L.latLngBounds(
-//       [xmin, ymin],
-//       [xmax + 10, ymax + 10],
-//     ))
-//     return
-//   }
-//   if (ev.code === 'BracketRight') {
-//     controlLayer.value.setBounds(L.latLngBounds(
-//       [xmin, ymin],
-//       [xmax - 10, ymax - 10],
+//       [xmax, ymax],
 //     ))
 //     return
 //   }
 //   if (ev.code === 'Numpad8') {
 //     controlLayer.value.setBounds(L.latLngBounds(
-//       [xmin, ymin - 1],
-//       [xmax, ymax - 1],
+//       [xmin, ymin],
+//       [xmax, ymax - 10],
 //     ))
 //     return
 //   }
 //   if (ev.code === 'Numpad2') {
 //     controlLayer.value.setBounds(L.latLngBounds(
-//       [xmin, ymin + 1],
-//       [xmax, ymax + 1],
+//       [xmin, ymin],
+//       [xmax, ymax + 10],
 //     ))
 //     return
 //   }
 //   if (ev.code === 'Numpad4') {
 //     controlLayer.value.setBounds(L.latLngBounds(
-//       [xmin - 1, ymin],
-//       [xmax - 1, ymax],
+//       [xmin, ymin],
+//       [xmax - 10, ymax],
 //     ))
 //     return
 //   }
 //   if (ev.code === 'Numpad6') {
 //     controlLayer.value.setBounds(L.latLngBounds(
-//       [xmin + 1, ymin],
-//       [xmax + 1, ymax],
+//       [xmin, ymin],
+//       [xmax + 10, ymax],
 //     ))
 //     return
 //   }
 //   if (ev.code === 'Semicolon') {
 //     controlLayer.value.setBounds(L.latLngBounds(
 //       [xmin, ymin],
-//       [xmax + 1, ymax + 1],
+//       [xmax + 100, ymax + 100],
 //     ))
 //     return
 //   }
 //   if (ev.code === 'Quote') {
 //     controlLayer.value.setBounds(L.latLngBounds(
 //       [xmin, ymin],
-//       [xmax - 1, ymax - 1],
+//       [xmax - 100, ymax - 100],
 //     ))
 //     return
 //   }
-//   // eslint-disable-next-line no-console
-//   console.log(ev.code)
+//   console.log([[xmin, ymin], [xmax, ymax]])
 // })
-// sumeruDesertLayer
-//   .addEventListener('click', (ev) => {
-//     controlLayer.value = ev.target as L.ImageOverlay
-//   })
+
+for (const i in sumeruDesert2LayersName) {
+  const name = sumeruDesert2LayersName[i]
+  sumeruDesert2Layers[name] = L.imageOverlay(
+    `https://assets.yuanshen.site/overlay/${name}-阴影.png`,
+    L.latLngBounds(sumeruDesert2LayersBounds[name] ?? [[0, 0], [100, 100]]),
+    { opacity: 0.75 },
+  )
+}
 
 /** 用于记录已经设置为 overlay 的图层 */
-const cacheOverlayLayer = shallowRef(null) as Ref<L.ImageOverlay | null>
+const cacheOverlayLayer = shallowRef(null) as Ref<L.ImageOverlay | L.ImageOverlay[] | null>
+
+const renderDesert2 = () => {
+  /** 默认显示图层 */
+  const init = ['五绿洲', '君王之殿1', '居尔城墟·赤王神殿1', '赤王的水晶杯', '酣乐之殿1', '镇灵监牢及巨人峡谷']
+  cacheOverlayLayer.value = []
+  for (const i in init) {
+    const name = init[i]
+    const overlayLayer = sumeruDesert2Layers[name]
+    cacheOverlayLayer.value.push(overlayLayer)
+    map.value?.addLayer(overlayLayer)
+    props.activeLayer?.setOpacity(0.7)
+  }
+}
 
 /** 根据已选择的地区 code 解析的地区信息 */
 const areaObj = computed(() => {
@@ -146,10 +199,22 @@ const areaObj = computed(() => {
 const isUnderGround = ref<boolean>(false)
 
 watch<[{ tag: string; zone: string } | null, boolean]>(() => [areaObj.value, isUnderGround.value], ([newAreaObj, visible]) => {
-  cacheOverlayLayer.value && map.value?.removeLayer(cacheOverlayLayer.value)
+  if (cacheOverlayLayer.value) {
+    if ('length' in cacheOverlayLayer.value) {
+      for (const i in cacheOverlayLayer.value)
+        cacheOverlayLayer.value[i] && map.value?.removeLayer(cacheOverlayLayer.value[i])
+    }
+    else {
+      cacheOverlayLayer.value && map.value?.removeLayer(cacheOverlayLayer.value)
+    }
+  }
   props.activeLayer?.setOpacity(1)
   if (!visible || !newAreaObj || newAreaObj.tag !== 'XM') {
     isUnderGround.value = false
+    return
+  }
+  if (newAreaObj.zone === 'DESERT2') {
+    renderDesert2()
     return
   }
   const overlayLayer = ({
@@ -159,7 +224,7 @@ watch<[{ tag: string; zone: string } | null, boolean]>(() => [areaObj.value, isU
   if (overlayLayer) {
     cacheOverlayLayer.value = overlayLayer
     map.value?.addLayer(overlayLayer)
-    props.activeLayer?.setOpacity(0.45)
+    props.activeLayer?.setOpacity(0.7)
   }
 })
 

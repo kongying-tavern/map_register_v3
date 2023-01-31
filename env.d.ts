@@ -44,6 +44,15 @@ interface ImportMetaEnv {
    * @default ''
    */
   readonly VITE_AUTO_COMPLETE_PASSWORD: string
+
+  /** 阿里云盘地址 */
+  readonly VITE_ALIYUN_BASE: string
+
+  /** 云盘图片回显地址 */
+  readonly VITE_ALIYUN_IMAGE_BASE: string
+
+  /** 点位图片上传目录 */
+  readonly VITE_ALIYUN_MARKER_FOLDER: string
 }
 
 interface ImportMeta {
