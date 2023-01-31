@@ -9,6 +9,9 @@ import { canvasMarker } from '../utils'
 import Api from '@/api/api'
 import type { FetchHookOptions } from '@/hooks'
 import { useFetchHook, useGlobalDialog, useIconList } from '@/hooks'
+import { localSettings } from '@/stores'
+import type { MarkerExtra } from '@/utils'
+import { ExtraJSON } from '@/utils'
 
 export interface MarkerHookOptions extends FetchHookOptions<API.RListMarkerVo> {
   /** 物品列表 */
@@ -34,9 +37,7 @@ export interface MarkerHookOptions extends FetchHookOptions<API.RListMarkerVo> {
 }
 
 export interface LinkedMapMarker extends API.MarkerPunctuateVo, API.MarkerVo {
-  // TODO extra 类型应当通过特殊封装的 extra 解析函数来获取
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  extraObject?: any
+  extraObject: MarkerExtra
   coordinate: [number, number]
 }
 
@@ -49,7 +50,7 @@ const createLinkMarker = (marker: API.MarkerPunctuateVo | API.MarkerVo): LinkedM
     return {
       ...marker,
       coordinate: marker.position ? marker.position.split(',').map(Number) as [number, number] : [0, 0],
-      extraObject: marker.extra ? JSON.parse(marker.extra) : {},
+      extraObject: marker.extra ? ExtraJSON.parse(marker.extra) : {},
     }
   }
   catch {
@@ -66,7 +67,7 @@ const createLinkMarker = (marker: API.MarkerPunctuateVo | API.MarkerVo): LinkedM
 const withCondition = (onlyUnderground?: boolean) =>
   (seed: LinkedMapMarker[], marker: API.MarkerPunctuateVo | API.MarkerVo) => {
     const linkedMarker = createLinkMarker(marker)
-    ;(!onlyUnderground || linkedMarker.extraObject.underground?.is_underground) && seed.push(linkedMarker)
+      ; (!onlyUnderground || linkedMarker.extraObject.underground?.is_underground) && seed.push(linkedMarker)
     return seed
   }
 
@@ -178,7 +179,7 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
         rotate: 90,
         offset: { x: 0, y: 0 },
         hiddenFlag: markerInfo.hiddenFlag,
-        isUnderground: 'underground' in markerInfo.extraObject ? markerInfo.extraObject.underground.is_underground : false,
+        isUnderground: markerInfo.extraObject.underground?.is_underground,
         specialFlag: isSpecial(markerInfo.itemList ?? [], specialItems),
       },
       undergroundImg: {},
