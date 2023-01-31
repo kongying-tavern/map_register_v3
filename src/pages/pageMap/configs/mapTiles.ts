@@ -30,6 +30,8 @@ export interface MapTileConfig {
   areaCodes: string[]
   /** 继承配置 */
   extend?: MapNameEnum
+  /** 标注 */
+  tags?: { html: string; latlng: [number, number] }[]
 }
 
 /** 地图切片配置 */
@@ -71,6 +73,12 @@ export const mapTiles: Record<MapNameEnum, MapTileConfig> = {
       // 初始缩放比率较低时会有奇怪的 bug
       zoom: -2,
     },
+    tags: [
+      { html: '天衡山', latlng: [-275, -169] },
+      { html: '桓那兰那', latlng: [-4086, -576] },
+      { html: '达马山', latlng: [-6590, 281] },
+      { html: '赤王陵', latlng: [-6848, 2306] },
+    ],
   },
   [MapNameEnum.GOLDEN_APPLE_ISLANDS]: {
     extend: MapNameEnum.EXTEND_0,

@@ -16,6 +16,7 @@ const mapData = useUrlSearchParams('history', {
     showAuditedMarker: true as undefined | boolean,
     showPunctuateMarker: false as undefined | boolean,
     onlyUnderground: false as undefined | boolean,
+    showAreaName: false as undefined | boolean,
   },
 })
 
@@ -49,6 +50,8 @@ const mapStore = defineStore('map-info', {
     showPunctuateMarker: format(mapData.showPunctuateMarker, strBoolean),
     /** 仅显示地下点位 */
     onlyUnderground: format(mapData.onlyUnderground, strBoolean),
+    /** 显示地区名称 */
+    showAreaName: format(mapData.onlyUnderground, strBoolean),
   }),
   actions: {
     /** 重置 url 地图参数 */

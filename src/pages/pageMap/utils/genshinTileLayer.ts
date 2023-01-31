@@ -12,15 +12,42 @@ const DEFAULT_TILE_OPTIONS: TileLayerOptions = {
   minNativeZoom: -3,
 }
 
+const textIcon = (html: string, size = 20) => L.divIcon({
+  html,
+  className: 'genshin-text genshin-text-stroke text-white',
+  // 考虑到性能问题，这里就不根据地图缩放来动态修改尺寸了
+  iconSize: [html.length * size * 0.75, size],
+})
+
+const textMarker = (html: string, latlng: L.LatLngExpression) => L.marker(latlng, {
+  icon: textIcon(html),
+  // TODO 好像没生效
+  zIndexOffset: -100,
+  interactive: false,
+})
+
 export class GenshinTileLayer extends L.TileLayer {
   constructor(name: MapNameEnum, options?: TileLayerOptions) {
     super('', options)
     this.name = name
     this.tileConfig = TileUtil.getConfig(name)
+    this.tileConfig.tags?.forEach(({ html, latlng }) => {
+      this.tagLayer.addLayer(textMarker(html, latlng))
+    })
+    this.on('remove', () => {
+      this.hideTag()
+    })
+    this.on('add', () => {
+      this.showTag()
+    })
   }
 
   /** 图层名称 */
   name: string
+  /** 标注图层 */
+  tagLayer = L.layerGroup([])
+  /** 标注图层是否已被添加到地图 */
+  tagLayerVisible = false
   /**
    * 如果此项为 `true`，在平移后不可见的切片被放入一个队列中，
    * 在新的切片开始可见时他们会被取回（而不是动态地创建一个新的）。
@@ -65,6 +92,22 @@ export class GenshinTileLayer extends L.TileLayer {
     const layer = new GenshinTileLayer(name, options)
     this.instanceRecord.set(name, layer)
     return layer
+  }
+
+  showTag = () => {
+    if (this.tagLayerVisible)
+      return
+    this._map.addLayer(this.tagLayer)
+    this.tagLayerVisible = true
+    return this
+  }
+
+  hideTag = () => {
+    if (!this.tagLayerVisible)
+      return
+    this._map.removeLayer(this.tagLayer)
+    this.tagLayerVisible = false
+    return this
   }
 
   /** @overwrite */
