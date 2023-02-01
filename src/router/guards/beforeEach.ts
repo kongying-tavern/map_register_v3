@@ -13,8 +13,15 @@ export const beforeEachGuard = (
   return (to, from, next) => {
     logger.info(`"${from.path}" => "${to.path}"`)
 
-    if (isInWhiteList(to))
+    const userStore = useUserStore()
+    const tokenValid = userStore.validateUserToken()
+
+    if (isInWhiteList(to)) {
+      // 如果用户已登录，但手动导航到登录页，则重定向到地图页
+      if (to.path === '/login' && tokenValid)
+        return next('/map')
       return next(true)
+    }
 
     const routes = router.getRoutes()
     logger.info(routes)
@@ -29,8 +36,6 @@ export const beforeEachGuard = (
       return next(false)
     }
 
-    const userStore = useUserStore()
-    const tokenValid = userStore.validateUserToken()
     if (!tokenValid) {
       ElMessage.error('用户凭证无效')
       return next('/login')
