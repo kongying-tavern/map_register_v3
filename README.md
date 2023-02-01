@@ -43,13 +43,7 @@ npm run lint
 
 ### Format the files
 
-```bash
-pnpm run format
-# or
-yarn run format
-# or
-npm run format
-```
+代码格式化已托管给 eslint，执行 lint 命令时会自动格式化。
 
 ### 构建生产模式
 

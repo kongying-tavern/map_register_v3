@@ -12,8 +12,7 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview --mode development",
     "preview:stage": "vite preview --mode stage",
-    "lint": "eslint ./src/**/*.{js,jsx,ts,tsx,vue} --fix",
-    "format": "prettier --write \"**/*.{js,vue,scss,html,md,json}\" --ignore-path .gitignore"
+    "lint": "eslint ./src/**/*.{js,jsx,ts,tsx,vue} --fix"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.0.10",
