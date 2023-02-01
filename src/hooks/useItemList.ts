@@ -12,11 +12,11 @@ interface ItemUpdateHookOptions extends FetchHookOptions<API.RBoolean> {
   editSame?: boolean
 }
 
+const itemList = ref<API.ItemVo[]>([]) as Ref<API.ItemVo[]>
+
 /** 物品列表与相关操作方法 */
 export const useItemList = (options: ItemListHookOptions = {}) => {
   const { immediate = true, loading = ref(false), params } = options
-
-  const itemList = ref<API.ItemVo[]>([]) as Ref<API.ItemVo[]>
 
   const fetchParams = computed(() => params?.())
 

@@ -3,9 +3,10 @@ import { render } from 'vue'
 import L from 'leaflet'
 import { ElMessage } from 'element-plus'
 import { indexOf } from 'lodash'
-import type { GenshinLayerOptions, GenshinMap } from '../utils'
+import type { GenshinLayerOptions } from '../utils'
 import { MarkerEditForm, PopupContent } from '../components'
 import { canvasMarker } from '../utils'
+import { useMap } from './useMap'
 import Api from '@/api/api'
 import type { FetchHookOptions } from '@/hooks'
 import { useFetchHook, useGlobalDialog, useIconList } from '@/hooks'
@@ -13,27 +14,29 @@ import { localSettings } from '@/stores'
 import type { MarkerExtra } from '@/utils'
 import { ExtraJSON, sleep } from '@/utils'
 
+export interface QueryParams {
+  rawParams: API.MarkerSearchVo
+  /** 显示审核中点位 */
+  showPunctuateMarker: boolean
+  /** 显示审核通过点位 */
+  showAuditedMarker: boolean
+  /** 只显示地下点位 */
+  onlyUnderground: boolean
+  /** 常驻显示特殊点位(如: 锚点、洞口) */
+  showSpecial: boolean
+  /** 常驻显示特殊物品列表 */
+  specialItems: Array<number>
+}
+
 export interface MarkerHookOptions extends FetchHookOptions<API.RListMarkerVo> {
   /** 物品列表 */
-  itemList: Ref<API.ItemVo[]>
+  itemList?: Ref<API.ItemVo[]>
   /** 已选择的物品 */
-  selectedItem: Ref<API.ItemVo | undefined>
+  selectedItem?: Ref<API.ItemVo | undefined>
   /** 阻止点位右键事件冒泡 */
-  stopPropagationSignal: Ref<boolean>
+  stopPropagationSignal?: Ref<boolean>
   /** 参数函数 */
-  params: () => {
-    rawParams: API.MarkerSearchVo
-    /** 显示审核中点位 */
-    showPunctuateMarker: boolean
-    /** 显示审核通过点位 */
-    showAuditedMarker: boolean
-    /** 只显示地下点位 */
-    onlyUnderground: boolean
-    /** 常驻显示特殊点位(如: 锚点、洞口) */
-    showSpecial: boolean
-    /** 常驻显示特殊物品列表 */
-    specialItems: Array<number>
-  }
+  params?: () => QueryParams
 }
 
 export interface LinkedMapMarker extends API.MarkerPunctuateVo, API.MarkerVo {
@@ -45,7 +48,7 @@ const popupDOM = L.DomUtil.create('div', 'w-full h-full')
 const popup = L.popup({ closeButton: false, minWidth: 223, maxWidth: 223, offset: [0, 0] })
 
 /** 预解析点位对象参数 */
-const createLinkMarker = (marker: API.MarkerPunctuateVo | API.MarkerVo): LinkedMapMarker => {
+export const createLinkMarker = (marker: API.MarkerPunctuateVo | API.MarkerVo): LinkedMapMarker => {
   try {
     return {
       ...marker,
@@ -71,7 +74,10 @@ const withCondition = (onlyUnderground?: boolean) =>
     return seed
   }
 
-const isSpecial = (itemList: Array<API.MarkerItemLinkVo>, specialItems: Array<number>): boolean => {
+/**
+ * 判断是否为特殊点位
+ */
+export const isSpecial = (itemList: Array<API.MarkerItemLinkVo>, specialItems: Array<number>): boolean => {
   for (const i in itemList) {
     if (indexOf(specialItems, itemList[i].itemId) !== -1)
       return true
@@ -88,25 +94,27 @@ const activeIconMarker = L.marker([0, 0], { interactive: false }).setIcon(
   }),
 )
 
-export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOptions) => {
+/** 点位列表 */
+const markerList = ref<LinkedMapMarker[]>([])
+
+export const useMarker = (options: MarkerHookOptions = {}) => {
   const {
     immediate = false,
-    stopPropagationSignal,
-    itemList,
-    selectedItem,
+    itemList = ref([]),
+    selectedItem = ref(undefined),
     loading = ref(false),
-    params,
+    params = () => ({} as QueryParams),
   } = options
+
+  const { map, stopPropagationSignal } = useMap()
 
   const { iconMap, onSuccess: onIconFetched } = useIconList()
 
   /** 组件实例 */
   const instance = getCurrentInstance()
 
-  /** 点位列表 */
-  const markerList = ref<LinkedMapMarker[]>([])
   /** 请求参数 */
-  const fetchParams = computed(() => params())
+  const fetchParams = computed(() => params?.() ?? {})
   /** 点位图层缓存 */
   const markerLayer = ref<L.Layer | null>(null)
   /** 点位准备渲染的回调函数 */
@@ -116,11 +124,13 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
     immediate,
     loading,
     onRequest: async () => {
+      const tempMarkers: (API.MarkerPunctuateVo | API.MarkerVo)[] = []
+      if (!map)
+        return tempMarkers
       map.value?.closePopup()
-      const { rawParams, showAuditedMarker, showPunctuateMarker, onlyUnderground, showSpecial, specialItems } = fetchParams.value
-      let linkedMarkers: LinkedMapMarker[] = []
+      const { rawParams, showAuditedMarker, showPunctuateMarker, showSpecial, specialItems } = fetchParams.value
       if (!rawParams.itemIdList?.length)
-        return linkedMarkers
+        return tempMarkers
       let { itemIdList = [] } = rawParams
       // 特殊点位
       if (showSpecial)
@@ -128,14 +138,14 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
       // 已通过审核点位
       if (showAuditedMarker) {
         const { data = [] } = await Api.marker.searchMarker({}, { ...rawParams, itemIdList })
-        linkedMarkers = linkedMarkers.concat(data.reduce(withCondition(onlyUnderground), [] as LinkedMapMarker[]))
+        data.forEach(marker => tempMarkers.push(marker))
       }
       // 审核中点位
       if (showPunctuateMarker) {
         const { data: { record = [] } = {} } = await Api.punctuate.listPunctuatePage({ current: 0, size: 1000 })
-        linkedMarkers = linkedMarkers.concat(record.reduce(withCondition(onlyUnderground), [] as LinkedMapMarker[]))
+        record.forEach(marker => tempMarkers.push(marker))
       }
-      return linkedMarkers
+      return tempMarkers
     },
   })
 
@@ -192,7 +202,7 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
         markerId: markerInfo.id,
         punctuateId: markerInfo.punctuateId,
         /** 当前 marker 对应的图片地址，不统一跟物品走，所以这里有两个可用项 */
-        url: iconMap.value[markerInfo.itemList?.[0].iconTag ?? selectedItem.value?.iconTag ?? ''],
+        url: iconMap.value[markerInfo.itemList?.[0].iconTag ?? selectedItem?.value?.iconTag ?? ''],
         size: [32, 32],
         rotate: 90,
         offset: { x: 0, y: 0 },
@@ -292,7 +302,7 @@ export const useMarker = (map: Ref<GenshinMap | null>, options: MarkerHookOption
   onIconFetched(createMarkerWhenReady)
 
   onMarkerFetched((data) => {
-    markerList.value = data
+    markerList.value = data.reduce(withCondition(fetchParams.value.onlyUnderground), [])
     createMarkerWhenReady()
   })
 
