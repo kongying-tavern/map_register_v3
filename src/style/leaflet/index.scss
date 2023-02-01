@@ -41,9 +41,9 @@
   }
 }
 
-// TODO 当前参数是以尺寸 60 为基础写死的，应该改成变量
+// TODO 当前参数是以尺寸 56 为基础写死的，应该改成变量
 @mixin calculateClipPath() {
-  clip-path: path('M 4 4\
+  clip-path: path('M 4 4 \
     L 11.3731 5.4712 \
     A 28 28 0 0 1 28 0 \
     L 28 4 \
@@ -68,11 +68,11 @@
 .genshin-active-marker {
   @keyframes scaleFadeIn {
     0% {
-      scale: 0.9;
+      scale: 1;
       opacity: 0.8;
     }
     50% {
-      scale: 1.1;
+      scale: 0.9;
       opacity: 1;
     }
     100% {
