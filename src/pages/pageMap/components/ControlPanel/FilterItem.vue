@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { iconMapInjection, itemListInjection } from '../shared'
-import { RadioCardGroup, RadioCardItem } from '.'
+import { iconMapInjection, itemListInjection } from '@/pages/pageMap/shared'
+import { RadioCardGroup, RadioCardItem } from '@/pages/pageMap/components'
 
 const props = defineProps<{
   modelValue?: string

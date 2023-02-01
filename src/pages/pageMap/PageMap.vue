@@ -130,21 +130,25 @@ const flyToMarker = (id?: number, punctuateId?: number) => {
 }
 
 const flyTo = async (id: number) => {
+  // 优先搜索当前已加载点位
+  const res = markerList.value.find(marker => marker.id === id)
+  console.log('本地搜索', res)
   const { data = [] } = await Api.marker.listMarkerById({}, [id])
-  if (data.length !== 1) {
-    ElMessage.error('点位查询失败')
-  }
-  else {
-    const { data: items = [] } = await Api.item.listItemById({}, [data[0].itemList![0].itemId ?? 0])
-    const { data: area } = await Api.area.getArea({ areaId: items[0].areaId ?? 1 })
-    mapStore.areaCode = area?.code ?? 'A:MD:MENGDE'
-    mapStore.typeId = items[0].typeIdList![0]
-    // @TODO @BUG 当点位内iconTag为无时 无法正常跳转到正确物品
-    mapStore.iconName = data[0].itemList![0].iconTag
-    setTimeout(() => {
-      flyToMarker(id)
-    }, 100)
-  }
+  console.log('网络搜索', data)
+  // if (data.length !== 1) {
+  //   ElMessage.error('点位查询失败')
+  // }
+  // else {
+  //   const { data: items = [] } = await Api.item.listItemById({}, [data[0].itemList![0].itemId ?? 0])
+  //   const { data: area } = await Api.area.getArea({ areaId: items[0].areaId ?? 1 })
+  //   mapStore.areaCode = area?.code ?? 'A:MD:MENGDE'
+  //   mapStore.typeId = items[0].typeIdList![0]
+  //   // @TODO @BUG 当点位内iconTag为无时 无法正常跳转到正确物品
+  //   mapStore.iconName = data[0].itemList![0].iconTag
+  //   setTimeout(() => {
+  //     flyToMarker(id)
+  //   }, 100)
+  // }
 }
 // ==================== 依赖注入 ====================
 provide(mapInjection, map)

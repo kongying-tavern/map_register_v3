@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { EditPen, FullScreen, Location, Minus, Place, Search } from '@element-plus/icons-vue'
 import type { Directive } from 'vue'
-import { FilterArea, FilterItem, FilterStep, FilterType, MarkersTable } from '.'
+import { FilterArea, FilterItem, FilterStep, FilterType, MarkersTable } from '@/pages/pageMap/components'
 import { useMapStore } from '@/stores'
 
 defineProps<{

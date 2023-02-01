@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import type { Column } from 'element-plus'
 import { Position } from '@element-plus/icons-vue'
-import { mapInjection, markerListInjection } from '../shared'
-import type { LinkedMapMarker } from '../hooks'
+import { mapInjection, markerListInjection } from '@/pages/pageMap/shared'
+import type { LinkedMapMarker } from '@/pages/pageMap/hooks'
 import { PgUnit, usePagination, useTheme } from '@/hooks'
 
 defineProps<{
