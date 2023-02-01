@@ -1,11 +1,9 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import 'leaflet/dist/leaflet.css'
-import { ElMessage } from 'element-plus'
 import { ControlPanel, UndergroundSwitch } from './components'
 import { areaListInjection, iconMapInjection, itemListInjection, itemTypeInjection, mapInjection, markerListInjection } from './shared'
 import { useContextMenu, useLayer, useMap, useMarker } from './hooks'
-import Api from '@/api/api'
 import { AppUserAvatar } from '@/components'
 import { useAreaList, useItemList, useTypeList } from '@/hooks'
 import { useMapStore } from '@/stores'
@@ -14,7 +12,7 @@ import { useMapStore } from '@/stores'
 const containerRef = ref<HTMLElement | null>(null)
 const mapStore = useMapStore()
 
-const { map, stopPropagationSignal, on: onMapEvent } = useMap(containerRef)
+const { map, on: onMapEvent } = useMap(containerRef)
 const { layers, activeLayer, selectLayer, setMapNameByAreaCode } = useLayer(map)
 
 onMounted(() => {
@@ -67,10 +65,9 @@ watch(() => [mapStore.areaCode, mapStore.typeId], () => {
 })
 
 // ==================== 点位相关 ====================
-const { iconMap, markerList, loading: markerLoading, updateMarkerList } = useMarker(map, {
+const { iconMap, markerList, loading: markerLoading, updateMarkerList } = useMarker({
   selectedItem,
   itemList,
-  stopPropagationSignal,
   params: () => ({
     rawParams: {
       itemIdList: selectedItem.value?.itemId === undefined ? [] : [selectedItem.value.itemId],
@@ -99,57 +96,6 @@ onAreaFetched(() => {
   updateMarkerList()
 })
 
-const flyToMarker = (id?: number, punctuateId?: number) => {
-  if (!map.value)
-    return
-
-  // TODO _layers 是私有属性
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const layers = (map.value as any)._layers as Record<string, L.Marker>
-
-  /** 查询到点位 */
-  let searched = false
-  for (const key in layers) {
-    const marker = layers[key]
-    // layers 继承自 L.Layer
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { markerId, punctuateId: markerPunctuateId } = (marker as any).options?.img ?? {}
-    if ((markerId && markerId === id) || (markerPunctuateId && markerPunctuateId === punctuateId)) {
-      map.value.closePopup()
-      const { lat, lng } = marker.getLatLng()
-      map.value.flyTo([lat - 200, lng], 0, {
-        animate: false,
-      })
-      marker.fire('click')
-      searched = true
-      break
-    }
-  }
-  if (!searched)
-    ElMessage.error('无法跳转到点位')
-}
-
-const flyTo = async (id: number) => {
-  // 优先搜索当前已加载点位
-  const res = markerList.value.find(marker => marker.id === id)
-  console.log('本地搜索', res)
-  const { data = [] } = await Api.marker.listMarkerById({}, [id])
-  console.log('网络搜索', data)
-  // if (data.length !== 1) {
-  //   ElMessage.error('点位查询失败')
-  // }
-  // else {
-  //   const { data: items = [] } = await Api.item.listItemById({}, [data[0].itemList![0].itemId ?? 0])
-  //   const { data: area } = await Api.area.getArea({ areaId: items[0].areaId ?? 1 })
-  //   mapStore.areaCode = area?.code ?? 'A:MD:MENGDE'
-  //   mapStore.typeId = items[0].typeIdList![0]
-  //   // @TODO @BUG 当点位内iconTag为无时 无法正常跳转到正确物品
-  //   mapStore.iconName = data[0].itemList![0].iconTag
-  //   setTimeout(() => {
-  //     flyToMarker(id)
-  //   }, 100)
-  // }
-}
 // ==================== 依赖注入 ====================
 provide(mapInjection, map)
 provide(areaListInjection, areaList)
@@ -167,7 +113,6 @@ provide(iconMapInjection, iconMap)
       :marker-loading="markerLoading"
       :item-loading="itemLoading"
       class="control-unit control-bg left-2 top-2 bottom-2 grid p-2 gap-2"
-      @flyto="flyTo"
     />
 
     <div class="control-unit top-2 right-2 flex gap-2">

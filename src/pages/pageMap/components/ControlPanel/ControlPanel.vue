@@ -1,17 +1,26 @@
 <script lang="ts" setup>
 import { EditPen, FullScreen, Location, Minus, Place, Search } from '@element-plus/icons-vue'
 import type { Directive } from 'vue'
+import { ElMessage } from 'element-plus'
+import type L from 'leaflet'
 import { FilterArea, FilterItem, FilterStep, FilterType, MarkersTable } from '@/pages/pageMap/components'
-import { useMapStore } from '@/stores'
+import { localSettings, useMapStore } from '@/stores'
+import { mapInjection } from '@/pages/pageMap/shared'
+import Api from '@/api/api'
+import { createLinkMarker, useMarker } from '@/pages/pageMap/hooks'
+import { sleep } from '@/utils'
 
 defineProps<{
   markerLoading?: boolean
   itemLoading?: boolean
 }>()
 
-const emit = defineEmits<{ (event: 'flyto', id: number): void }>()
-
 const mapStore = useMapStore()
+const map = inject(mapInjection, ref(null))
+
+const { markerList, createMarkerWhenReady } = useMarker({
+  immediate: false,
+})
 
 /** tab 的可用标签，仅控制视图，无业务逻辑 */
 const steps = ['选择地区', '选择分类', '选择物品']
@@ -37,7 +46,7 @@ const next = (v?: string | number) => {
 /** 控制面板是否最小化 */
 const minus = ref(false)
 
-/** 查询ID */
+/** 查询并跳转到对应 ID 的点位 */
 const queryMarkerId = ref<number>()
 const formatInput = computed({
   get: () => `${queryMarkerId.value ?? ''}`,
@@ -51,10 +60,78 @@ const formatInput = computed({
   },
 })
 
-const searchMarker = () => {
-  if (queryMarkerId.value === undefined)
+const flyToMarker = (params: { id?: number; punctuateId?: number }) => {
+  if (!map.value)
     return
-  emit('flyto', queryMarkerId.value)
+
+  const { id, punctuateId } = params
+
+  // TODO _layers 是私有属性
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const layers = (map.value as any)._layers as Record<string, L.Marker>
+
+  /** 查询到点位 */
+  for (const key in layers) {
+    const marker = layers[key]
+    // layers 继承自 L.Layer
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { markerId, punctuateId: markerPunctuateId } = (marker as any).options?.img ?? {}
+    if ((markerId && markerId === id) || (markerPunctuateId && markerPunctuateId === punctuateId)) {
+      map.value.closePopup()
+      const { lat, lng } = marker.getLatLng()
+      map.value.flyTo([lat - 200, lng], 0, {
+        animate: false,
+      })
+      marker.fire('click')
+      break
+    }
+  }
+}
+
+/** 临时点位 */
+const tempMarker = ref<API.MarkerVo | null>(null)
+
+const clearTempMarker = () => {
+  if (!tempMarker.value)
+    return
+  const findIndex = markerList.value.findIndex(marker => marker.id === tempMarker.value?.id)
+  if (findIndex < 0) {
+    tempMarker.value = null
+    return
+  }
+  markerList.value.splice(findIndex, 1)
+}
+
+// TODO 封装为组件
+const searchMarker = async () => {
+  clearTempMarker()
+  if (!map.value || !queryMarkerId.value) {
+    createMarkerWhenReady()
+    return
+  }
+  // 优先搜索当前已加载点位
+  const res = markerList.value.find(marker => marker.id === queryMarkerId.value)
+  if (res) {
+    flyToMarker({ id: queryMarkerId.value })
+    return
+  }
+  // 远程搜索
+  const { data = [] } = await Api.marker.listMarkerById({}, [queryMarkerId.value])
+  if (!data.length) {
+    ElMessage.error('找不到该点位')
+    return
+  }
+  // 点位不存在时直接创建临时点位
+  tempMarker.value = data[0]
+  const markervo = createLinkMarker(data[0])
+  markerList.value.push(markervo)
+  // 临时终止移动到点集中心
+  const tempState = localSettings.value.moveToCenter
+  localSettings.value.moveToCenter = false
+  createMarkerWhenReady()
+  await sleep(100)
+  flyToMarker({ id: queryMarkerId.value })
+  localSettings.value.moveToCenter = tempState
 }
 
 const tooltipContent = ref('')
@@ -161,7 +238,7 @@ const inactiveColor = 'rgb(120 120 120 / 0.3)'
         />
       </el-button-group>
       <div>
-        <el-input v-model="formatInput" placeholder="请输入点位ID" input-style="width:100px" class="h-full">
+        <el-input v-model="formatInput" placeholder="请输入点位ID" input-style="width:100px" class="h-full" @clear="searchMarker" @keydown.enter="searchMarker">
           <template #append>
             <el-button v-tooltip="'跳转到指定ID点位'" :icon="Search" @click="searchMarker" />
           </template>
