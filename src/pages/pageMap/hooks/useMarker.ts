@@ -9,7 +9,8 @@ import { canvasMarker } from '../utils'
 import { useMap } from './useMap'
 import Api from '@/api/api'
 import type { FetchHookOptions } from '@/hooks'
-import { useFetchHook, useGlobalDialog, useIconList } from '@/hooks'
+import { useFetchHook, useGlobalDialog, useIconList, useItemList } from '@/hooks'
+
 import { localSettings } from '@/stores'
 import type { MarkerExtra } from '@/utils'
 import { ExtraJSON, sleep } from '@/utils'
@@ -29,8 +30,6 @@ export interface QueryParams {
 }
 
 export interface MarkerHookOptions extends FetchHookOptions<API.RListMarkerVo> {
-  /** 物品列表 */
-  itemList?: Ref<API.ItemVo[]>
   /** 已选择的物品 */
   selectedItem?: Ref<API.ItemVo | undefined>
   /** 阻止点位右键事件冒泡 */
@@ -94,21 +93,22 @@ const activeIconMarker = L.marker([0, 0], { interactive: false }).setIcon(
   }),
 )
 
-/** 点位列表 */
+/** 共享的点位列表 */
 const markerList = ref<LinkedMapMarker[]>([])
+/** 共享的点位列表加载态，可覆盖 */
+const loading = ref(false)
 
 export const useMarker = (options: MarkerHookOptions = {}) => {
   const {
     immediate = false,
-    itemList = ref([]),
+    loading: scopedLoading,
     selectedItem = ref(undefined),
-    loading = ref(false),
     params = () => ({} as QueryParams),
   } = options
 
   const { map, stopPropagationSignal } = useMap()
-
-  const { iconMap, onSuccess: onIconFetched } = useIconList()
+  const { itemList } = useItemList()
+  const { iconMap, onSuccess: onIconFetched } = useIconList({ immediate: true })
 
   /** 组件实例 */
   const instance = getCurrentInstance()
@@ -122,7 +122,7 @@ export const useMarker = (options: MarkerHookOptions = {}) => {
   /** 点位相关方法 */
   const { refresh: updateMarkerList, onSuccess: onMarkerFetched, onError, ...rest } = useFetchHook({
     immediate,
-    loading,
+    loading: scopedLoading ?? loading,
     onRequest: async () => {
       const tempMarkers: (API.MarkerPunctuateVo | API.MarkerVo)[] = []
       if (!map)

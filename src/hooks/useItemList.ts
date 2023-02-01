@@ -12,17 +12,20 @@ interface ItemUpdateHookOptions extends FetchHookOptions<API.RBoolean> {
   editSame?: boolean
 }
 
+/** 共享的物品列表 */
 const itemList = ref<API.ItemVo[]>([]) as Ref<API.ItemVo[]>
+/** 共享的物品列表加载态，可覆盖 */
+const loading = ref(false)
 
 /** 物品列表与相关操作方法 */
 export const useItemList = (options: ItemListHookOptions = {}) => {
-  const { immediate = true, loading = ref(false), params } = options
+  const { immediate, loading: scopedLoading, params } = options
 
   const fetchParams = computed(() => params?.())
 
   const { refresh: updateItemList, onSuccess, ...rest } = useFetchHook({
     immediate,
-    loading,
+    loading: scopedLoading ?? loading,
     onRequest: async () => {
       const { areaIdList = [], typeIdList = [], current = 1, size = 10 } = fetchParams.value ?? {}
       if (!areaIdList.length && !typeIdList.length)

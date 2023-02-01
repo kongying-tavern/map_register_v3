@@ -3,11 +3,8 @@ import type { Column } from 'element-plus'
 import { Position } from '@element-plus/icons-vue'
 import { mapInjection, markerListInjection } from '@/pages/pageMap/shared'
 import type { LinkedMapMarker } from '@/pages/pageMap/hooks'
+import { useMarker } from '@/pages/pageMap/hooks'
 import { PgUnit, usePagination, useTheme } from '@/hooks'
-
-defineProps<{
-  loading?: boolean
-}>()
 
 const map = inject(mapInjection, ref(null))
 
@@ -41,6 +38,7 @@ const columns = ref<Partial<Column & { dataKey: string }>[]>([
 ])
 
 const { isDark } = useTheme()
+const { loading } = useMarker()
 
 const flyToMarker = ({ id, punctuateId }: LinkedMapMarker) => {
   if (!map.value)

@@ -13,9 +13,9 @@ const { areaMap, areaTree, loading: areaLoading, areaList } = useAreaList({
   immediate: true,
 })
 
-const { iconMap, iconList } = useIconList()
+const { iconMap, iconList } = useIconList({ immediate: true })
 
-const { typeTree, loading: typeLoading } = useTypeList()
+const { typeTree, loading: typeLoading } = useTypeList({ immediate: true })
 
 const { itemList, loading: itemLoading, onSuccess: onItemListFetched, pause, resume, updateItemList } = useItemList({
   immediate: true,

@@ -10,17 +10,10 @@ import Api from '@/api/api'
 import { createLinkMarker, useMarker } from '@/pages/pageMap/hooks'
 import { sleep } from '@/utils'
 
-defineProps<{
-  markerLoading?: boolean
-  itemLoading?: boolean
-}>()
-
 const mapStore = useMapStore()
 const map = inject(mapInjection, ref(null))
 
-const { markerList, createMarkerWhenReady } = useMarker({
-  immediate: false,
-})
+const { markerList, createMarkerWhenReady } = useMarker()
 
 /** tab 的可用标签，仅控制视图，无业务逻辑 */
 const steps = ['选择地区', '选择分类', '选择物品']
@@ -199,7 +192,7 @@ const inactiveColor = 'rgb(120 120 120 / 0.3)'
             </el-button>
           </div>
 
-          <FilterItem v-else-if="(mapStore.step === 2)" v-model="mapStore.iconName" :loading="itemLoading" class="h-full" />
+          <FilterItem v-else-if="(mapStore.step === 2)" v-model="mapStore.iconName" class="h-full" />
         </KeepAlive>
       </Transition>
     </div>
@@ -238,7 +231,14 @@ const inactiveColor = 'rgb(120 120 120 / 0.3)'
         />
       </el-button-group>
       <div>
-        <el-input v-model="formatInput" placeholder="请输入点位ID" input-style="width:100px" class="h-full" @clear="searchMarker" @keydown.enter="searchMarker">
+        <el-input
+          v-model="formatInput"
+          placeholder="请输入点位ID"
+          input-style="width:100px"
+          class="h-full"
+          @clear="searchMarker"
+          @keydown.enter="searchMarker"
+        >
           <template #append>
             <el-button v-tooltip="'跳转到指定ID点位'" :icon="Search" @click="searchMarker" />
           </template>
@@ -246,7 +246,7 @@ const inactiveColor = 'rgb(120 120 120 / 0.3)'
       </div>
     </div>
 
-    <MarkersTable :loading="markerLoading" class="content" />
+    <MarkersTable class="content" />
   </div>
 </template>
 

@@ -4,17 +4,13 @@ import { render } from 'vue'
 import { ceil } from 'lodash'
 import { ContextMenu, MarkerCreateForm } from '../components'
 import type { GenshinMap } from '../utils'
-import { useGlobalDialog } from '@/hooks'
+import { useAreaList, useGlobalDialog, useIconList, useItemList, useTypeList } from '@/hooks'
 import { useMapStore, useUserStore } from '@/stores'
 import { AppSettings } from '@/components'
 
 /** 传递给右键菜单的参数 */
 interface ContextMenuHookOptions {
   selectedItem: Ref<API.ItemVo | undefined>
-  areaList: Ref<API.AreaVo[]>
-  itemList: Ref<API.ItemVo[]>
-  typeList: Ref<API.ItemTypeVo[]>
-  iconMap: Ref<Record<string, string>>
   refreshMarkers: () => void
 }
 
@@ -26,10 +22,14 @@ interface MarkerCreateFormProps {
 
 /** 右键菜单管理 */
 export const useContextMenu = (options: ContextMenuHookOptions) => {
-  const { refreshMarkers, selectedItem, areaList, itemList, iconMap, typeList } = options
+  const { refreshMarkers, selectedItem } = options
 
   const userStore = useUserStore()
   const mapStore = useMapStore()
+  const { itemList } = useItemList()
+  const { iconMap } = useIconList()
+  const { areaList } = useAreaList()
+  const { typeList } = useTypeList()
 
   const { DialogService } = useGlobalDialog()
 

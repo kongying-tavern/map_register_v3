@@ -21,7 +21,7 @@ onMounted(() => {
 })
 
 // ==================== 地区相关 ====================
-const { areaList, onSuccess: onAreaFetched } = useAreaList()
+const { areaList, onSuccess: onAreaFetched } = useAreaList({ immediate: true })
 
 mapStore.$subscribe((_, { areaCode }) => {
   setMapNameByAreaCode(!areaList.value.length ? undefined : areaCode)
@@ -34,7 +34,8 @@ const areaId = computed(() => {
 })
 
 // ==================== 物品相关 ====================
-const { itemList, loading: itemLoading } = useItemList({
+const { itemList } = useItemList({
+  immediate: true,
   params: () => ({
     areaIdList: areaId.value === undefined ? [] : [areaId.value],
     size: 1000,
@@ -42,17 +43,17 @@ const { itemList, loading: itemLoading } = useItemList({
 })
 
 /** 物品类型列表 */
-const { typeList } = useTypeList()
-
+const { typeList } = useTypeList({ immediate: true })
+/** 根据已选择的物品类型显示匹配的物品列表 */
 const filteredItemList = computed(() => {
   const { typeId } = mapStore
   if (typeId === undefined)
     return []
   return itemList.value.filter(item => item.typeIdList?.includes(typeId))
 })
-
+/** 已选择的物品 */
 const selectedItem = computed(() => filteredItemList.value.find(item => item.name === mapStore.iconName))
-
+/** 特殊物品 ID 列表（如传送点、秘境等，详见 apifox 文档） */
 const specialItemList = computed(() => {
   return itemList.value
     .filter(item => item.specialFlag === 1 && selectedItem.value?.itemId !== item.itemId).map(item => item.itemId ?? -1)
@@ -65,9 +66,8 @@ watch(() => [mapStore.areaCode, mapStore.typeId], () => {
 })
 
 // ==================== 点位相关 ====================
-const { iconMap, markerList, loading: markerLoading, updateMarkerList } = useMarker({
+const { iconMap, markerList, updateMarkerList } = useMarker({
   selectedItem,
-  itemList,
   params: () => ({
     rawParams: {
       itemIdList: selectedItem.value?.itemId === undefined ? [] : [selectedItem.value.itemId],
@@ -81,10 +81,6 @@ const { iconMap, markerList, loading: markerLoading, updateMarkerList } = useMar
 })
 
 const { openContextMenu } = useContextMenu({
-  areaList,
-  itemList,
-  typeList,
-  iconMap,
   selectedItem,
   refreshMarkers: updateMarkerList,
 })
@@ -109,11 +105,7 @@ provide(iconMapInjection, iconMap)
   <div class="genshin-map-container w-full h-full relative overflow-hidden">
     <div ref="containerRef" class="genshin-map absolute w-full h-full" style="background: #000" />
 
-    <ControlPanel
-      :marker-loading="markerLoading"
-      :item-loading="itemLoading"
-      class="control-unit control-bg left-2 top-2 bottom-2 grid p-2 gap-2"
-    />
+    <ControlPanel class="control-unit control-bg left-2 top-2 bottom-2 grid p-2 gap-2" />
 
     <div class="control-unit top-2 right-2 flex gap-2">
       <UndergroundSwitch :active-layer="activeLayer" class="control-bg" />
