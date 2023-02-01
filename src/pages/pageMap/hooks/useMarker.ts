@@ -127,7 +127,6 @@ export const useMarker = (options: MarkerHookOptions = {}) => {
       const tempMarkers: (API.MarkerPunctuateVo | API.MarkerVo)[] = []
       if (!map)
         return tempMarkers
-      map.value?.closePopup()
       const { rawParams, showAuditedMarker, showPunctuateMarker, showSpecial, specialItems } = fetchParams.value
       if (!rawParams.itemIdList?.length)
         return tempMarkers
@@ -282,6 +281,7 @@ export const useMarker = (options: MarkerHookOptions = {}) => {
 
   /** @核心流程 创建点位实例 */
   const createMarkers = () => {
+    map.value?.closePopup()
     markerLayer.value && map.value?.removeLayer(markerLayer.value as L.Layer)
     // 普通点位
     const mapMarkers = markerList.value.map(createCanvasMarker)
