@@ -5,15 +5,17 @@ import { RoleTypeEnum } from '@/shared'
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
-    meta: { title: 'Home', icon: 'home' },
+    meta: { title: '地图', icon: 'HomeFilled' },
     component: () => import('@/layout/LayoutIndex.vue'),
-    redirect: '/map', // TODO: 重定向应该是动态获取的
+    redirect: '/map',
+    // 管理页直接从属于根目录
     children: [
       {
         path: '/items',
         meta: {
           title: '物品管理',
-          roles: [RoleTypeEnum.ADMIN],
+          icon: 'Files',
+          roles: [RoleTypeEnum.ADMIN, RoleTypeEnum.MAP_MANAGER],
         },
         component: () => import('@/pages/pageItemManager/ItemManager.vue'),
       },
@@ -21,7 +23,8 @@ const routes: RouteRecordRaw[] = [
         path: '/type',
         meta: {
           title: '类型管理',
-          roles: [RoleTypeEnum.ADMIN],
+          icon: 'Connection',
+          roles: [RoleTypeEnum.ADMIN, RoleTypeEnum.MAP_MANAGER],
         },
         component: () => import('@/pages/pageTypeManager/TypeManager.vue'),
       },
@@ -29,7 +32,8 @@ const routes: RouteRecordRaw[] = [
         path: '/icon',
         meta: {
           title: '图标管理',
-          roles: [RoleTypeEnum.ADMIN],
+          icon: 'Picture',
+          roles: [RoleTypeEnum.ADMIN, RoleTypeEnum.MAP_MANAGER],
         },
         component: () => import('@/pages/pageIconManager/IconManager.vue'),
       },
@@ -37,6 +41,7 @@ const routes: RouteRecordRaw[] = [
         path: '/users',
         meta: {
           title: '用户管理',
+          icon: 'User',
           roles: [RoleTypeEnum.ADMIN],
         },
         component: () => import('@/pages/pageUserManager/UserManager.vue'),

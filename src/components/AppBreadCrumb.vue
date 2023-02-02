@@ -12,7 +12,12 @@ const route = useRoute()
       :key="item.path"
       :to="item.path"
     >
-      {{ item.meta.title }}
+      <div class="flex items-center gap-1">
+        <el-icon v-if="item.meta.icon" :size="16">
+          <component :is="item.meta.icon" />
+        </el-icon>
+        {{ item.meta.title }}
+      </div>
     </el-breadcrumb-item>
   </el-breadcrumb>
 </template>
