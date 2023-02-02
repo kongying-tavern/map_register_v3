@@ -3,6 +3,7 @@ import type { RouteLocationNormalized } from 'vue-router'
 /** 路由地址白名单 */
 export const ROUTE_WHITE_LIST = Object.freeze([
   '/login',
+  '/register',
 ])
 
 /** 判断跳转目标是否处于白名单内 */

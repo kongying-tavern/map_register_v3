@@ -17,8 +17,8 @@ export const beforeEachGuard = (
     const tokenValid = userStore.validateUserToken()
 
     if (isInWhiteList(to)) {
-      // 如果用户已登录，但手动导航到登录页，则重定向到地图页
-      if (to.path === '/login' && tokenValid)
+      // 如果用户已登录，但手动导航到部分页面，则重定向到地图页
+      if (tokenValid)
         return next('/map')
       return next(true)
     }

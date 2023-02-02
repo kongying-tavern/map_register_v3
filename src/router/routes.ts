@@ -63,6 +63,13 @@ const routes: RouteRecordRaw[] = [
     },
     component: () => import('@/pages/pageLogin/PageLogin.vue'),
   },
+  {
+    path: '/register',
+    meta: {
+      title: '注册页',
+    },
+    component: () => import('@/pages/pageRegister/PageRegister.vue'),
+  },
 ]
 
 export default routes
