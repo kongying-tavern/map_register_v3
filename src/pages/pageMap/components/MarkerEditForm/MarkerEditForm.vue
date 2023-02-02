@@ -208,7 +208,7 @@ provide('extraPanel', extraPanelRef)
             取消
           </el-button>
           <el-button :loading="loading" type="primary" @click="confirm">
-            {{ userStore.isAdmin ? '确认' : '审核提交' }}
+            {{ userStore.isAdmin ? '确认' : '提交审核' }}
           </el-button>
         </div>
       </el-form-item>

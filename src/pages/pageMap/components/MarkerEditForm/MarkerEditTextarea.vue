@@ -38,6 +38,8 @@ const updateSelectionState = (ev: Event) => {
   selectionEnd.value = target.selectionEnd
 }
 
+const characters = ['「', '」', '《', '》', '【', '】', ' · ', '…', '×']
+
 const insertChar = async (char: string) => {
   let start = selectionStart.value
   let end = selectionEnd.value
@@ -72,7 +74,7 @@ const insertChar = async (char: string) => {
         <div class="flex">
           快捷标点：
           <el-button-group size="small">
-            <el-button v-for="c in ['「', '」', '《', '》', ' · ', '…', '×']" :key="c" @click="() => insertChar(c)">
+            <el-button v-for="c in characters" :key="c" @click="() => insertChar(c)">
               {{ c }}
             </el-button>
           </el-button-group>
