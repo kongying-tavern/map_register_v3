@@ -24,6 +24,7 @@ const activeName = ref('basic')
               label-position="left"
               :model="loginForm"
               :rules="rules"
+              class="pb-4"
               size="large"
             >
               <el-form-item label="用户名" prop="username">
@@ -49,7 +50,7 @@ const activeName = ref('basic')
           </el-button>
           <el-button link type="primary">
             <router-link to="/register">
-              注册
+              没有账号？去注册 →
             </router-link>
           </el-button>
         </div>
