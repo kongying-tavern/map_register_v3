@@ -6,7 +6,7 @@ import { emptyCheck, lengthCheck } from '../utils/formRules'
 import System from '@/api/system'
 import { messageFrom } from '@/utils'
 import { GlobalDialogController } from '@/hooks/useGlobalDialog'
-import type { ElFormType } from '@/pages/pageItemManager/utils'
+import type { ElFormType } from '@/shared'
 
 const props = defineProps<{
   user: API.SysUserVo

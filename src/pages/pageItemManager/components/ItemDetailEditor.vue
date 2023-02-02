@@ -1,11 +1,12 @@
 <script lang="ts" setup>
 import { cloneDeep } from 'lodash'
 import { ElMessage } from 'element-plus'
-import type { ElFormType, ItemFormRules } from '../utils'
+import type { ItemFormRules } from '../utils'
 import { lengthCheck } from '../utils'
 import { useTimeRefresh } from '../hooks'
 import { useAreaList, useItemCreate, useItemUpdate, useTypeList } from '@/hooks'
 import { GlobalDialogController } from '@/hooks/useGlobalDialog'
+import type { ElFormType } from '@/shared'
 
 type EditorType = 'creator' | 'editor'
 

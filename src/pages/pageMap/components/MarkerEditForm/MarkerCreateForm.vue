@@ -6,7 +6,7 @@ import { useMarkerEdit, useMarkerStage } from '../../hooks'
 import { MarkerEditExtra, MarkerEditImage, MarkerEditSelect, MarkerEditTextarea } from '.'
 import { GlobalDialogController } from '@/hooks'
 import { useUserStore } from '@/stores'
-import type { ElFormType } from '@/pages/pageItemManager/utils'
+import type { ElFormType } from '@/shared'
 import { DialogController } from '@/hooks/useGlobalDialog/dialogController'
 
 const props = defineProps<{
