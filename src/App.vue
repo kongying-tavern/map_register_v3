@@ -3,6 +3,10 @@ import { AppDialogProvider } from '@/components'
 
 const route = useRoute()
 
+// 根据路由名称切换网页标题
+const routeName = computed(() => `${route.meta.title ? route.meta.title : import.meta.env.VITE_TITLE}`)
+useTitle(routeName, { titleTemplate: '%s' })
+
 const envBanner = (import.meta.env.VITE_ENV_BANNER || '').trim()
 const isMapPage = computed(() => route.path === '/map')
 </script>
