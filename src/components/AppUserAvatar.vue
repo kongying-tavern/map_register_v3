@@ -10,14 +10,12 @@ const userStore = useUserStore()
 
 const roleName = userStore.info.roleList ? userStore.info.roleList[0].name : '暂无任何权限'
 
-const handleCommand = async (command: string) => {
-  if (command === 'logout')
-    userStore.logout()
-  else if (command === 'toManager')
-    await router.push('/items')
-  else if (command === 'toMap')
-    await router.push('/map')
-}
+const handleCommand = (command: string) => ({
+  logout: () => userStore.logout(),
+  toManager: () => router.push('/items'),
+  toMap: () => router.push('/map'),
+  toUserCenter: () => {},
+} as Record<string, () => void>)[command]?.()
 </script>
 
 <template>
@@ -30,7 +28,7 @@ const handleCommand = async (command: string) => {
     </el-button>
     <template #dropdown>
       <el-dropdown-menu>
-        <el-dropdown-item>
+        <el-dropdown-item command="toUserCenter">
           登录身份：{{ roleName }}
         </el-dropdown-item>
         <el-dropdown-item v-if="mapMode" divided command="toManager">
