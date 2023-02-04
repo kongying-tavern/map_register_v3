@@ -14,11 +14,12 @@ export const beforeEachGuard = (
     logger.info(`"${from.path}" => "${to.path}"`)
 
     const userStore = useUserStore()
-    const tokenValid = userStore.validateUserToken()
+    const isTokenValid = userStore.validateUserToken()
+    isTokenValid && userStore.createRefreshTimer()
 
     if (isInWhiteList(to)) {
       // 如果用户已登录，但手动导航到部分页面，则重定向到地图页
-      if (tokenValid)
+      if (isTokenValid)
         return next('/map')
       return next(true)
     }
@@ -36,7 +37,7 @@ export const beforeEachGuard = (
       return next(false)
     }
 
-    if (!tokenValid) {
+    if (!isTokenValid) {
       ElMessage.error('用户凭证无效')
       return next('/login')
     }

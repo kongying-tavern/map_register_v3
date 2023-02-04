@@ -85,6 +85,7 @@ export const useUserStore = defineStore('user-info', {
   actions: {
     /**
      * 创建自动刷新鉴权信息的定时器
+     * @注意 在重复调用时会优先复用定时器，保证在有效期内定时器的唯一性
      * @fixme 挂机时间过长时会出现奇怪的 bug
      */
     createRefreshTimer() {
@@ -98,6 +99,10 @@ export const useUserStore = defineStore('user-info', {
         return
       }
       const refreshInterval = differenceTokenTime(expires_time)
+      if (refreshInterval < 0) {
+        logger.error('token 剩余有效期小于 0')
+        return
+      }
       logger.info(`已建立 token 刷新定时任务，剩余 ${(refreshInterval / 1000).toFixed(1)} s`)
       intervalRefreshTimer.value = window.setTimeout(async () => {
         this.clearRefreshTimer()
@@ -114,7 +119,6 @@ export const useUserStore = defineStore('user-info', {
       const { access_token, expires_time } = this.auth
       if (!access_token || !expires_time)
         return false
-      this.createRefreshTimer()
       return access_token && expires_time > new Date().getTime()
     },
     /** 设置鉴权信息 */
