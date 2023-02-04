@@ -21,6 +21,7 @@ export const useRegisterForm = () => {
     ],
     password: [
       { required: true, message: '密码不能为空' },
+      { message: '密码最短需要6位数', validator: (_, value = '') => (registerForm.password = value.trim()).length >= 6 },
     ],
   }
 

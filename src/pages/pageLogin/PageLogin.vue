@@ -28,10 +28,10 @@ const activeName = ref('basic')
               size="large"
             >
               <el-form-item label="用户名" prop="username">
-                <el-input v-model="loginForm.username" type="text" />
+                <el-input v-model="loginForm.username" placeholder="请输入用户名或Q号" type="text" />
               </el-form-item>
               <el-form-item label="密码" prop="password">
-                <el-input v-model="loginForm.password" type="password" show-password />
+                <el-input v-model="loginForm.password" placeholder="请输入密码" type="password" show-password />
               </el-form-item>
             </el-form>
             <el-button-group class="w-full">

@@ -20,7 +20,7 @@ router.replace('/register')
 
       <div class="flex flex-col" style="--el-border-radius-base: 8px">
         <el-tabs v-model="activeName" class="demo-tabs">
-          <el-tab-pane label="密码注册" name="basic" class="pt-4">
+          <el-tab-pane label="Q号注册" name="basic" class="pt-4">
             <el-form
               ref="formRef"
               label-width="70px"
@@ -30,11 +30,11 @@ router.replace('/register')
               class="pb-4"
               size="large"
             >
-              <el-form-item label="用户名" prop="username">
-                <el-input v-model="registerForm.username" type="text" />
+              <el-form-item label="Q号" prop="username">
+                <el-input v-model="registerForm.username" placeholder="请输入Q号" type="text" />
               </el-form-item>
               <el-form-item label="密码" prop="password">
-                <el-input v-model="registerForm.password" type="password" show-password />
+                <el-input v-model="registerForm.password" placeholder="请输入密码" type="password" show-password />
               </el-form-item>
             </el-form>
             <el-button type="primary" class="w-full" size="large" :loading="loading" @click="register">

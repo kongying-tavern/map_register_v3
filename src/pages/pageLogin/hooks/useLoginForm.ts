@@ -10,21 +10,22 @@ import type { ElFormType } from '@/shared'
 export const useLoginForm = () => {
   const formRef = ref<ElFormType | null>(null)
 
-  const rules: FormRules = {
-    username: [
-      { required: true, message: '用户名不能为空' },
-    ],
-    password: [
-      { required: true, message: '密码不能为空' },
-    ],
-  }
-
-  const loading = ref(false)
   const loginForm = reactive<API.SysTokenVO>({
     grant_type: 'password',
     username: import.meta.env.VITE_AUTO_COMPLETE_USERNAME ?? '',
     password: import.meta.env.VITE_AUTO_COMPLETE_PASSWORD ?? '',
   })
+
+  const rules: FormRules = {
+    username: [
+      { required: true, message: '用户名不能为空', validator: (_, value = '') => (loginForm.username = value.trim()).length > 0 },
+    ],
+    password: [
+      { required: true, message: '密码不能为空', validator: (_, value = '') => (loginForm.password = value.trim()).length > 0 },
+    ],
+  }
+
+  const loading = ref(false)
 
   const router = useRouter()
   const userStore = useUserStore()
