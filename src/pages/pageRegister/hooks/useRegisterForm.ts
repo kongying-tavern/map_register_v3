@@ -9,9 +9,15 @@ import System from '@/api/system'
 export const useRegisterForm = () => {
   const formRef = ref<ElFormType | null>(null)
 
+  const registerForm = reactive<API.SysUserRegisterVo>({
+    username: '',
+    password: '',
+  })
+
   const rules: FormRules = {
     username: [
-      { required: true, message: '用户名不能为空' },
+      { required: true, message: 'QQ号不能为空' },
+      { message: 'Q号格式有误', validator: (_, value = '') => /^\d+$/.test((registerForm.username = value.trim())) },
     ],
     password: [
       { required: true, message: '密码不能为空' },
@@ -19,10 +25,6 @@ export const useRegisterForm = () => {
   }
 
   const loading = ref(false)
-  const registerForm = reactive<API.SysUserRegisterVo>({
-    username: '',
-    password: '',
-  })
 
   const register = async () => {
     if (!formRef.value)
@@ -32,9 +34,7 @@ export const useRegisterForm = () => {
       const isValid = await formRef.value.validate().catch(() => false)
       if (!isValid)
         return
-      await System.sysUserController.registerUser(registerForm, {
-        auth: { username: 'client', password: 'secret' },
-      })
+      await System.sysUserController.registerUserByQQ(registerForm)
       ElMessage.success({
         message: '注册成功',
         duration: 1000,
