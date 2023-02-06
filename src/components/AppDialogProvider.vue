@@ -9,7 +9,15 @@ const beforeClose = (done: () => void) => {
 </script>
 
 <template>
-  <el-dialog v-model="visible" v-bind="dialogProps" :before-close="beforeClose" @closed="resetState">
+  <el-dialog
+    v-model="visible"
+    v-bind="dialogProps"
+    :before-close="beforeClose"
+    :style="{
+      '--el-dialog-border-radius': '8px',
+    }"
+    @closed="resetState"
+  >
     <component :is="is" v-bind="props" v-on="eventListener" />
 
     <template v-if="buttons.size" #footer>

@@ -24,10 +24,8 @@ watch(() => mapStore.step, (newStep = 0, oldStep = 0) => {
   transitionAnimationName.value = newStep > oldStep ? 'slide-x-r' : 'slide-x-l'
 })
 
-/** 是否自动切换下一步筛选项 */
-const autoNextStep = ref(false)
 const next = (v?: string | number) => {
-  if (v === undefined || !autoNextStep.value)
+  if (v === undefined || !localSettings.value.autoTurnNext)
     return
   if (mapStore.step === undefined) {
     mapStore.step = 0
@@ -163,14 +161,6 @@ const inactiveColor = 'rgb(120 120 120 / 0.3)'
         :step-names="steps"
         class="content flex-1"
       />
-      <div class="content px-2 flex justify-center items-center gap-1" title="满足条件时自动进入下一个选择器">
-        <div class="text-xs leading-none">
-          auto
-          <br>
-          next
-        </div>
-        <el-switch v-model="autoNextStep" />
-      </div>
     </div>
 
     <div class="content">
