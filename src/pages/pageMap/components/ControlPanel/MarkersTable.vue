@@ -1,44 +1,64 @@
 <script lang="ts" setup>
 import type { Column } from 'element-plus'
 import { Position } from '@element-plus/icons-vue'
-import { mapInjection, markerListInjection } from '@/pages/pageMap/shared'
 import type { LinkedMapMarker } from '@/pages/pageMap/hooks'
-import { useMarker } from '@/pages/pageMap/hooks'
-import { PgUnit, usePagination, useTheme } from '@/hooks'
+import { useMap, useMarker } from '@/pages/pageMap/hooks'
+import { useTheme } from '@/hooks'
 
-const map = inject(mapInjection, ref(null))
+interface PaginationLike {
+  total: number
+  current: number
+  pageSize: number
+}
 
-const markerList = inject(markerListInjection, ref([]))
+const props = defineProps<{
+  pagination: PaginationLike
+}>()
 
-const { pagination, layout } = usePagination({
-  init: {
-    current: 1,
-    total: 0,
-    pageSize: 10,
-  },
-  units: [PgUnit.TOTAL, PgUnit.PREV, PgUnit.PAGER, PgUnit.NEXT],
-})
+const emits = defineEmits<{
+  (e: 'update:pagination', v: PaginationLike): void
+}>()
+
+const { map } = useMap()
+const { isDark } = useTheme()
+const { markerList, loading } = useMarker()
 
 const pagableList = computed(() => {
-  const { current, pageSize } = pagination.value
+  const { current, pageSize } = props.pagination
   return markerList.value.slice((current - 1) * pageSize, current * pageSize)
 })
 
-watch(() => markerList.value, () => {
-  pagination.value.current = 1
+watch(() => markerList.value, (list) => {
+  emits('update:pagination', {
+    ...props.pagination,
+    current: 1,
+    total: list.length,
+  })
 })
 
 const containerRef = ref<HTMLElement | null>(null)
 const { width } = useElementSize(containerRef)
+
+// 根据 table 容器高度动态计算每页项目数，最少保留 5 项
+// TODO current 随着分页变化肯定要改，但是可能会乱飘，不确定怎么写比较好
+// 考虑到正常使用时不会在 resize 的同时进行其他操作，这里先将 current 简单重置为 1
+useResizeObserver(containerRef, ([{ contentBoxSize: [{ blockSize = 0 }] = [] }]) => {
+  let { pageSize } = props.pagination
+  // 39 是当前表头高度，40.22 是单行高度（未展开时）
+  pageSize = Math.floor((blockSize - 39) / 40.22)
+  pageSize < 5 && (pageSize = 5)
+  emits('update:pagination', {
+    ...props.pagination,
+    pageSize,
+    current: 1,
+  })
+})
 
 const columns = ref<Partial<Column & { dataKey: string }>[]>([
   { title: 'ID', dataKey: 'id', width: 70 },
   { title: '名称', dataKey: 'markerTitle', width: 110 },
   { title: '说明', dataKey: 'content' },
 ])
-
-const { isDark } = useTheme()
-const { loading } = useMarker()
 
 const flyToMarker = ({ id, punctuateId }: LinkedMapMarker) => {
   if (!map.value)
@@ -66,7 +86,13 @@ const flyToMarker = ({ id, punctuateId }: LinkedMapMarker) => {
 </script>
 
 <template>
-  <div v-bind="$attrs" ref="containerRef" v-loading="loading" element-loading-background="rgba(33, 33, 33, 0.7)" class="flex flex-col overflow-hidden text-white">
+  <div
+    v-bind="$attrs"
+    ref="containerRef"
+    v-loading="loading"
+    element-loading-background="rgba(33, 33, 33, 0.7)"
+    class="flex flex-col overflow-hidden text-white"
+  >
     <el-table
       :width="width"
       :data="pagableList"
@@ -95,15 +121,6 @@ const flyToMarker = ({ id, punctuateId }: LinkedMapMarker) => {
         </template>
       </el-table-column>
     </el-table>
-
-    <el-pagination
-      v-model:current-page="pagination.current"
-      v-model:page-size="pagination.pageSize"
-      :layout="layout"
-      :total="markerList.length"
-      :pager-count="5"
-      class="table-pagination w-full flex gap-1 justify-center text-sm py-1"
-    />
   </div>
 </template>
 

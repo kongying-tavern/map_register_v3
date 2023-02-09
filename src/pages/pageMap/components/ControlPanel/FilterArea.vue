@@ -82,19 +82,28 @@ const childAreaList = computed(() => parentAreaCode.value === undefined
 </script>
 
 <template>
-  <div class="flex">
-    <RadioCardGroup v-model="parentAreaCode" class="flex-1" :cols="1" :item-list="parentAreaList" data-key="code" item-key="code">
+  <div class="flex gap-1 overflow-hidden">
+    <RadioCardGroup v-model="parentAreaCode" class="w-32" :cols="1" :item-list="parentAreaList" data-key="code" item-key="code">
       <template #default="{ item, actived }">
-        <RadioCardItem :src="iconMap?.[item.iconTag]" :title="item.name" :actived="actived" />
+        <RadioCardItem :src="iconMap?.[item.iconTag]" :title="item.name" :actived="actived" title-class="text-base text-center" />
       </template>
     </RadioCardGroup>
-
-    <div class="h-full p-1 bg-stone-500" style="clip-path: inset(16px 44%);" />
 
     <RadioCardGroup v-model="childAreaCode" class="flex-1" :cols="1" :item-list="childAreaList" data-key="code" item-key="code">
       <template #default="{ item, actived }">
         <RadioCardItem :title="item.name" :actived="actived" :icon="false" />
       </template>
+      <template #empty>
+        <div class="children-area__empty w-full h-full rounded-md text-xl flex justify-center items-center">
+          请先选择<br>一级地区
+        </div>
+      </template>
     </RadioCardGroup>
   </div>
 </template>
+
+<style lang="scss" scoped>
+.children-area__empty {
+  background: var(--content-background);
+}
+</style>

@@ -105,7 +105,7 @@ provide(iconMapInjection, iconMap)
   <div class="genshin-map-container w-full h-full relative overflow-hidden">
     <div ref="containerRef" class="genshin-map absolute w-full h-full" style="background: #000" />
 
-    <ControlPanel class="control-unit control-bg left-2 top-2 bottom-2 grid p-2 gap-2" />
+    <ControlPanel class="control-unit control-bg left-2 top-2 bottom-2" />
 
     <div class="control-unit top-2 right-2 flex gap-2">
       <UndergroundSwitch :active-layer="activeLayer" class="control-bg" />
@@ -124,11 +124,20 @@ provide(iconMapInjection, iconMap)
 .control-unit {
   position: absolute;
   z-index: 1000;
+  border-radius: 8px;
 }
 
+// TODO 考虑到字体颜色需要适配背景图像的变化，先写死
 .control-bg {
-  background: var(--bg-color);
-  backdrop-filter: blur(56px);
-  border-radius: 8px;
+  &::before {
+    content: '';
+    border-radius: 8px;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgb(48 49 51 / 0.5);
+    backdrop-filter: blur(61px);
+    z-index: -1;
+  }
 }
 </style>

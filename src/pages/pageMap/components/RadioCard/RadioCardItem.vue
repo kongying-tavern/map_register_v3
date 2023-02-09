@@ -8,6 +8,8 @@ withDefaults(defineProps<{
   actived?: boolean
   /** 是否显示 icon 图标 */
   icon?: boolean
+  /** icon 标题部分的 class */
+  titleClass?: string
 }>(), {
   icon: true,
 })
@@ -16,11 +18,8 @@ withDefaults(defineProps<{
 <template>
   <div
     v-if="icon"
-    class="h-full aspect-square rounded grid place-items-center transition-all duration-150"
-    :class="{
-      'bg-gray-800': !actived,
-      'bg-slate-700': actived,
-    }"
+    class="radio-card-item__icon h-full aspect-square rounded-lg grid place-items-center transition-all duration-150"
+    :class="{ actived }"
   >
     <el-image
       :src="src"
@@ -37,7 +36,23 @@ withDefaults(defineProps<{
     </el-image>
   </div>
 
-  <div class="flex-1 px-2 align-middle whitespace-nowrap overflow-hidden text-ellipsis leading-7">
+  <div
+    class="radio-card-item__title flex-1 px-2 align-middle whitespace-nowrap overflow-hidden text-ellipsis leading-7"
+    :class="{
+      actived,
+      [titleClass ?? '']: titleClass,
+    }"
+  >
     {{ title }}
   </div>
 </template>
+
+<style lang="scss" scoped>
+.radio-card-item__icon {
+  background: rgba(0 0 0 / 0.8);
+
+  &.actived {
+    background: rgb(48 49 51 / 0.2);
+  }
+}
+</style>

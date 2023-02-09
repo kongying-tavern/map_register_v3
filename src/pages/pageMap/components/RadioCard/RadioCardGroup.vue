@@ -39,32 +39,34 @@ const proxySelect = (ev: MouseEvent) => {
 <template>
   <div
     v-bind="$attrs"
-    class="item-radio-group overflow-y-auto text-xs text-slate-300 p-1"
+    class="item-radio-group genshin-text text-xs overflow-hidden"
     @click="proxySelect"
   >
-    <div
-      v-if="itemList.length"
-      class="grid gap-1 content-start"
-      :class="{
-        'grid-cols-1': cols === 1,
-        'grid-cols-2': cols === 2,
-        'grid-cols-3': cols === 3,
-      }"
-    >
+    <el-scrollbar v-if="itemList.length">
       <div
-        v-for="item in itemList"
-        :key="item[itemKey ?? dataKey]"
-        :data-bind-key="item[dataKey]"
+        class="grid gap-1 content-start"
         :class="{
-          actived: `${internalBind}` === `${item[dataKey]}`,
+          'grid-cols-1': cols === 1,
+          'grid-cols-2': cols === 2,
+          'grid-cols-3': cols === 3,
         }"
-        class="item-selector w-full h-10 rounded p-1 flex items-center overflow-hidden cursor-pointer transition-all duration-150"
       >
-        <slot :item="item" :actived="`${internalBind}` === `${item[dataKey]}`">
-          {{ item[dataKey] }}
-        </slot>
+        <div
+          v-for="item in itemList"
+          :key="item[itemKey ?? dataKey]"
+          :data-bind-key="item[dataKey]"
+          :class="{
+            actived: `${internalBind}` === `${item[dataKey]}`,
+          }"
+          class="item-selector w-full h-10 rounded-md flex items-center overflow-hidden cursor-pointer transition-all duration-150"
+        >
+          <slot :item="item" :actived="`${internalBind}` === `${item[dataKey]}`">
+            {{ item[dataKey] }}
+          </slot>
+        </div>
       </div>
-    </div>
+    </el-scrollbar>
+
     <slot v-else name="empty">
       <div class="w-full h-full grid place-items-center">
         无内容
@@ -75,35 +77,26 @@ const proxySelect = (ev: MouseEvent) => {
 
 <style lang="scss" scoped>
 .item-radio-group {
-  position: relative;
-  scrollbar-width: 10px;
-
-  &::-webkit-scrollbar {
-    width: 10px;
-  }
-  &::-webkit-scrollbar-thumb {
-    background-color: #AA9172;
-    border: 1px solid #2F3846;
-    border-radius: 2px;
-  }
-  &::-webkit-scrollbar-track {
-    background-color: #2F3846;
-  }
+  color: rgba(144 147 153 / 0.8);
 }
 
 .item-selector {
-  color: #FFF;
+  border: 1px solid rgba(164, 165, 168, 0.2);
+  padding: 1px;
+  color: rgb(255 255 255 / 0.8);
 
   &:hover {
-    background-color: rgb(124, 124, 124, 0.5);
+    background-color: rgb(0 0 0 / 0.2);
+    border-color: transparent;
   }
 
   &:active {
-    background-color: rgb(124, 124, 124, 0.7);
+    background-color: rgb(0 0 0 / 0.3);
   }
 
   &.actived {
-    background-color: rgba(35, 35, 35, 0.7);
+    background-color: rgb(0 0 0 / 0.5);
+    border-color: rgb(144 147 153 / 0.8);
   }
 }
 </style>
