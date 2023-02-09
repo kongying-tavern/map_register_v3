@@ -41,5 +41,23 @@ export const usePagination = (options: PaginationHookOptions = {}) => {
     pageSize: init?.pageSize ?? 10,
   })
 
-  return { pagination, layout }
+  const pages = computed(() => Math.ceil(pagination.value.total / pagination.value.pageSize))
+
+  const disabledNext = computed(() => pagination.value.current >= pages.value)
+
+  const disabledPre = computed(() => pagination.value.current <= 1)
+
+  const nextPage = () => {
+    if (disabledNext.value)
+      return
+    pagination.value.current += 1
+  }
+
+  const prePage = () => {
+    if (disabledPre.value)
+      return
+    pagination.value.current -= 1
+  }
+
+  return { pagination, pages, layout, disabledNext, disabledPre, nextPage, prePage }
 }
