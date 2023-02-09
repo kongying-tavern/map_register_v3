@@ -199,6 +199,7 @@ const { pagination, pages, disabledNext, disabledPre, nextPage, prePage } = useP
         v-model="formatInput"
         placeholder="点位ID"
         class="h-full"
+        style="--el-input-border-radius: 6px"
         @clear="searchMarker"
         @keydown.enter="searchMarker"
       >
