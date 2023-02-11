@@ -13,6 +13,20 @@ export enum MapNameEnum {
   EXTEND_0 = 'extend_0',
 }
 
+/** 地图标签配置 */
+export interface TagOptions {
+  /** 渲染内容 */
+  html: string
+  /** 坐标表达式 */
+  latlng: [number, number]
+  /** 显示的最大缩放倍率 */
+  zoomMax?: number
+  /** 显示的最小缩放倍率 */
+  zoomMin?: number
+  /** 字体尺寸 */
+  fontSize?: number
+}
+
 export interface MapTileConfig {
   /** 标号 */
   code?: string
@@ -31,7 +45,7 @@ export interface MapTileConfig {
   /** 继承配置 */
   extend?: MapNameEnum
   /** 标注 */
-  tags?: { html: string; latlng: [number, number] }[]
+  tags?: TagOptions[]
 }
 
 /** 地图切片配置 */
@@ -75,6 +89,11 @@ export const mapTiles: Record<MapNameEnum, MapTileConfig> = {
     },
     tags: [
       // 蒙德
+      { html: '明冠山地', latlng: [917, -4337], zoomMax: -1.5, zoomMin: -2.5, fontSize: 36 },
+      { html: '苍风高地', latlng: [1260, -3553], zoomMax: -1.5, zoomMin: -2.5, fontSize: 36 },
+      { html: '坠星山谷', latlng: [2295, -4122], zoomMax: -1.5, zoomMin: -2.5, fontSize: 36 },
+      { html: '坠星山谷', latlng: [2295, -4122], zoomMax: -1.5, zoomMin: -2.5, fontSize: 36 },
+      { html: '风啸山坡', latlng: [2323, -2880], zoomMax: -1.5, zoomMin: -2.5, fontSize: 36 },
       { html: '风龙废墟', latlng: [344, -4530] },
       { html: '明冠峡', latlng: [1096, -4498] },
       { html: '果酒湖', latlng: [1624, -4378] },
@@ -94,6 +113,7 @@ export const mapTiles: Record<MapNameEnum, MapTileConfig> = {
       { html: '誓言岬', latlng: [3268, -2818] },
       { html: '马斯克礁', latlng: [4012, -2882] },
       // 雪山
+      { html: '龙脊雪山', latlng: [1506, -2470], zoomMax: -1.5, zoomMin: -2.5, fontSize: 36 },
       { html: '覆雪之路', latlng: [1896, -2674] },
       { html: '眠龙谷', latlng: [1456, -2562] },
       { html: '雪葬之都 · 近郊', latlng: [1200, -2200] },
@@ -101,6 +121,12 @@ export const mapTiles: Record<MapNameEnum, MapTileConfig> = {
       { html: '寒天之钉', latlng: [1748, -2120] },
       { html: '星荧洞窟', latlng: [1588, -1950] },
       // 璃月
+      { html: '层岩巨渊', latlng: [-1851, 128], zoomMax: -1.5, zoomMin: -2.5, fontSize: 36 },
+      { html: '珉林', latlng: [-1500, -1429], zoomMax: -1.5, zoomMin: -2.5, fontSize: 36 },
+      { html: '璃沙郊', latlng: [-864, 18], zoomMax: -1.5, zoomMin: -2.5, fontSize: 36 },
+      { html: '云来海', latlng: [736, -199], zoomMax: -1.5, zoomMin: -2.5, fontSize: 36 },
+      { html: '琼玑野', latlng: [482, -1531], zoomMax: -1.5, zoomMin: -2.5, fontSize: 36 },
+      { html: '碧水原', latlng: [-205, -2507], zoomMax: -1.5, zoomMin: -2.5, fontSize: 36 },
       { html: '轻策庄', latlng: [-376, -3162] },
       { html: '无妄坡', latlng: [0, -2920] },
       { html: '石门', latlng: [240, -2778] },
@@ -170,6 +196,12 @@ export const mapTiles: Record<MapNameEnum, MapTileConfig> = {
       { html: '茂知祭场', latlng: [4230, 7674] },
       { html: '惑饲滩', latlng: [4192, 7854] },
       // 须弥（草原）
+      { html: '善见地', latlng: [-3850, 901], zoomMax: -1.5, zoomMin: -2.5, fontSize: 36 },
+      { html: '桓那兰那', latlng: [-4125, -581], zoomMax: -1.5, zoomMin: -2.5, fontSize: 36 },
+      { html: '二净甸', latlng: [-3811, -221], zoomMax: -1.5, zoomMin: -2.5, fontSize: 36 },
+      { html: '阿陀河谷', latlng: [-2897, 1305], zoomMax: -1.5, zoomMin: -2.5, fontSize: 36 },
+      { html: '道成林', latlng: [-2965, 41], zoomMax: -1.5, zoomMin: -2.5, fontSize: 36 },
+      { html: '护世森', latlng: [-2657, -1112], zoomMax: -1.5, zoomMin: -2.5, fontSize: 36 },
       { html: '无郁稠林', latlng: [-2500, -1228] },
       { html: '卡萨扎莱宫', latlng: [-2980, -930] },
       { html: '茸蕈窟', latlng: [-3250, -800] },
@@ -189,6 +221,11 @@ export const mapTiles: Record<MapNameEnum, MapTileConfig> = {
       { html: '觉王之殿', latlng: [-4280, 14] },
       { html: '往昔的桓那兰那', latlng: [-4700, 80] },
       // 须弥（沙漠）
+      { html: '千壑沙地', latlng: [-6489, 97], zoomMax: -1.5, zoomMin: -2.5, fontSize: 36 },
+      { html: '列柱沙原', latlng: [-6826, 2371], zoomMax: -1.5, zoomMin: -2.5, fontSize: 36 },
+      { html: '上风蚀地', latlng: [-5539, 3234], zoomMax: -1.5, zoomMin: -2.5, fontSize: 36 },
+      { html: '下风蚀地', latlng: [-5282, 1557], zoomMax: -1.5, zoomMin: -2.5, fontSize: 36 },
+      { html: '失落的苗圃', latlng: [-4656, 66], zoomMax: -1.5, zoomMin: -2.5, fontSize: 36 },
       { html: '「五绿洲」的孑遗', latlng: [-5600, -546] },
       { html: '「三运河之地」', latlng: [-6600, -200] },
       { html: '镔铁沙丘', latlng: [-5200, 0] },
@@ -226,7 +263,7 @@ export const mapTiles: Record<MapNameEnum, MapTileConfig> = {
     size: [8192, 8192],
     settings: {
       center: [488, -2235],
-      zoom: -2,
+      zoom: -1,
     },
   },
   [MapNameEnum.CENG_YAN_JU_YUAN]: {

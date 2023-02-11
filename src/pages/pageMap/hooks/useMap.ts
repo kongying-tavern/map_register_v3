@@ -11,11 +11,11 @@ export interface BaseLayerChangeEvent extends L.LayersControlEvent {
 
 const map = ref<GenshinMap | null>(null) as Ref<GenshinMap | null>
 const stopPropagationSignal = ref(false)
+const preloadListeners = shallowRef<[string, AnyFunction][]>([])
 
 export const useMap = (ele?: Ref<HTMLElement | null>) => {
   const mapStore = useMapStore()
 
-  const preloadListeners = shallowRef<[string, AnyFunction][]>([])
   const scopedListeners = shallowRef<[string, AnyFunction][]>([])
 
   const callWithSignal = (fn: AnyFunction<void>, ...args: AnyArray) => {
@@ -29,7 +29,7 @@ export const useMap = (ele?: Ref<HTMLElement | null>) => {
   const on = <T extends keyof LeafletEventHandlerFnMap>(type: T, fn: LeafletEventHandlerFnMap[T]) => {
     if (!fn)
       return
-    scopedListeners.value.push([type, fn])
+    scopedListeners.value.push([type, (...args) => callWithSignal(fn, ...args)])
     if (!map.value) {
       preloadListeners.value.push([type, (...args) => callWithSignal(fn, ...args)])
       return
@@ -60,24 +60,33 @@ export const useMap = (ele?: Ref<HTMLElement | null>) => {
   })
 
   onMounted(() => {
-    if (!ele?.value)
+    if (!ele?.value || map.value)
       return
-    if (!map.value) {
-      const newMap = new GenshinMap(ele.value, {
-        center: [-5948, 2176],
-        zoom: -3,
-        maxZoom: 2,
-        minZoom: -4,
-        tap: false,
-        zoomAnimation: true,
-        fadeAnimation: true,
-        attributionControl: false,
-        zoomControl: false,
-        preferCanvas: true,
-      })
-      map.value = newMap
-    }
-    preloadListeners.value.forEach(([type, fn]) => map.value?.addEventListener(type, (...args) => callWithSignal(fn, ...args)))
+    const newMap = new GenshinMap(ele.value, {
+      center: [-5948, 2176],
+      zoom: -3,
+      maxZoom: 2,
+      minZoom: -4,
+      tap: false,
+      scrollWheelZoom: false,
+      zoomAnimation: true,
+      fadeAnimation: true,
+      zoomDelta: 0.5,
+      zoomSnap: 0.5,
+      attributionControl: false,
+      zoomControl: false,
+      preferCanvas: true,
+    })
+    // 使用替代滚轮缩放
+    const { zoomDelta = 1 } = newMap.options
+    useEventListener(ele, 'wheel', (ev: WheelEvent) => {
+      const { deltaY } = ev
+      const currentZoom = newMap.getZoom()
+      const newZoom = currentZoom - (deltaY * zoomDelta / 100)
+      newMap.setZoom(newZoom, { duration: 1 })
+    })
+    preloadListeners.value.forEach(([type, fn]) => newMap.on(type, (...args) => callWithSignal(fn, ...args)))
+    map.value = newMap
   })
 
   onBeforeUnmount(() => {
@@ -86,7 +95,7 @@ export const useMap = (ele?: Ref<HTMLElement | null>) => {
       map.value = null
     }
     scopedListeners.value.forEach(([type, fn]) => {
-      map.value?.removeEventListener(type, fn)
+      map.value?.off(type, fn)
     })
   })
 

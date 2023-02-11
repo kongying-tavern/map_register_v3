@@ -5,10 +5,12 @@ import type { MapNameEnum } from '../configs'
 import { mapTiles } from '../configs'
 import type { GenshinMap } from '../utils'
 import { GenshinTileLayer, TileUtil } from '../utils'
+import { useMap } from './useMap'
 import { useMapStore } from '@/stores'
 
 export const useLayer = (mapRef: Ref<GenshinMap | null>) => {
   const mapStore = useMapStore()
+  const { on: onMapEvent } = useMap()
 
   const layers = computed(() => {
     const tileLayerObj: Record<string, GenshinTileLayer> = {}
@@ -22,6 +24,13 @@ export const useLayer = (mapRef: Ref<GenshinMap | null>) => {
   })
 
   const activeLayer = ref<GenshinTileLayer | null>(null) as Ref<GenshinTileLayer | null>
+
+  onMapEvent('zoom', (ev) => {
+    if (!activeLayer.value)
+      return
+    const zoom = (ev.target as GenshinMap).getZoom()
+    activeLayer.value.fire('zoom', { zoom })
+  })
 
   const layerConfig = computed(() => {
     if (!activeLayer.value)

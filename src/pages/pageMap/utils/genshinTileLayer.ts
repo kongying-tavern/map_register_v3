@@ -1,8 +1,8 @@
-import type { TileLayerOptions } from 'leaflet'
+import type { LeafletEvent, TileLayerOptions } from 'leaflet'
 import L from 'leaflet'
 import type { MapNameEnum, MapTileConfig } from '../configs'
 import type { GenshinMap } from '.'
-import { TileUtil } from '.'
+import { GenshinTextMarker, TileUtil } from '.'
 
 const TILES_URL_PREFIX = 'https://assets.yuanshen.site/tiles_'
 const DEFAULT_TILE_OPTIONS: TileLayerOptions = {
@@ -12,33 +12,24 @@ const DEFAULT_TILE_OPTIONS: TileLayerOptions = {
   minNativeZoom: -3,
 }
 
-const textIcon = (html: string, size = 20) => L.divIcon({
-  html,
-  className: 'genshin-text genshin-text-stroke text-white',
-  // 考虑到性能问题，这里就不根据地图缩放来动态修改尺寸了
-  iconSize: [html.length * size * 0.75, size],
-})
-
-const textMarker = (html: string, latlng: L.LatLngExpression) => L.marker(latlng, {
-  icon: textIcon(html),
-  // TODO 好像没生效
-  zIndexOffset: -100,
-  interactive: false,
-})
-
 export class GenshinTileLayer extends L.TileLayer {
   constructor(name: MapNameEnum, options?: TileLayerOptions) {
     super('', options)
     this.name = name
     this.tileConfig = TileUtil.getConfig(name)
-    this.tileConfig.tags?.forEach(({ html, latlng }) => {
-      this.tagLayer.addLayer(textMarker(html, latlng))
+    this.tileConfig.tags?.forEach(({ html, latlng, zoomMax, zoomMin, fontSize = 20 }) => {
+      this.tagLayer.addLayer(new GenshinTextMarker(latlng, { html, zoomMax, zoomMin, fontSize }))
     })
     this.on('remove', () => {
       this.hideTag()
     })
     this.on('add', () => {
       this.showTag()
+    })
+    this.on('zoom', (ev) => {
+      const { zoom } = ev as LeafletEvent & { zoom: number }
+      const fontSize = 20 * (2 ** (zoom + 3))
+      this.tagLayer.getLayers().forEach(layer => layer.fire('zoom', { zoom, fontSize }))
     })
   }
 
@@ -94,17 +85,17 @@ export class GenshinTileLayer extends L.TileLayer {
     return layer
   }
 
-  showTag = () => {
+  showTag = (): this => {
     if (this.tagLayerVisible)
-      return
+      return this
     this._map.addLayer(this.tagLayer)
     this.tagLayerVisible = true
     return this
   }
 
-  hideTag = () => {
+  hideTag = (): this => {
     if (!this.tagLayerVisible)
-      return
+      return this
     this._map.removeLayer(this.tagLayer)
     this.tagLayerVisible = false
     return this
