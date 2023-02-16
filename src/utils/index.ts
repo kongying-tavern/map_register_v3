@@ -1,3 +1,4 @@
+export * from './archive'
 export * from './array2tree'
 export * from './getObjectFitSize'
 export * from './loadImage'
