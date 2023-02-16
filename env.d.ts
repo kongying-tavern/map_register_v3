@@ -58,3 +58,13 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv
 }
+
+/** 为 2019 年的陈年老库 bz2 添加一丢丢类型支持 */
+declare module 'bz2' {
+  /**
+   * 解压 bz2 文件
+   * @param bytes 需要解压的文件
+   * @param checkCRC 是否进行 CRC 校验
+   */
+  export function decompress(bytes: Uint8Array, checkCRC?: boolean): Uint8Array
+}
