@@ -3,8 +3,9 @@ import axios from 'axios'
 import type { AxiosRequestConfig } from 'axios'
 import { upperFirst } from 'lodash'
 import { useUserStore } from '@/stores'
+import { Logger } from '@/utils'
 
-const debug = import.meta.env.DEV
+const logger = new Logger('[axios]')
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE,
@@ -17,10 +18,6 @@ axiosInstance.interceptors.request.use(
       return status === 400 || (status >= 200 && status < 300)
     }
 
-    // todo: append
-    if (!config.headers)
-      config.headers = {}
-
     const userStore = useUserStore()
     if (userStore.auth.token_type && userStore.auth.access_token)
       config.headers.Authorization = `${upperFirst(userStore.auth.token_type)} ${userStore.auth.access_token}`
@@ -29,8 +26,7 @@ axiosInstance.interceptors.request.use(
     return config
   },
   (error) => {
-    // Do something with request error
-    debug && console.error(error)
+    logger.error(error)
     Promise.reject(error)
   },
 )
@@ -43,8 +39,7 @@ axiosInstance.interceptors.response.use(
     return data
   },
   (error) => {
-    // todo: response handler
-    debug && console.error(error)
+    logger.error(error)
     return Promise.reject(error)
   },
 )
