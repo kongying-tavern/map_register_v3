@@ -25,7 +25,13 @@ export const beforeEachGuard = (
     }
 
     const routes = router.getRoutes()
-    logger.info(routes)
+
+    if (!isTokenValid) {
+      ElMessage.error('用户凭证无效')
+      userStore.logout()
+      return next(false)
+    }
+
     const isRouteExist = routes.find(route => route.path === to.path)
     if (!isRouteExist) {
       ElMessage.error('目标路由不存在')
@@ -35,11 +41,6 @@ export const beforeEachGuard = (
     if (!isInPermissionList(to)) {
       ElMessage.error('没有访问权限')
       return next(false)
-    }
-
-    if (!isTokenValid) {
-      ElMessage.error('用户凭证无效')
-      return next('/login')
     }
 
     // 当本地存储的 id 不存在时（用于应对刷新）或与鉴权信息不一致时（用于应对直接输入登录地址的跳转）更新用户信息
