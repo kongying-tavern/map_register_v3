@@ -10,7 +10,7 @@ import { useMap } from './useMap'
 import Api from '@/api/api'
 import type { FetchHookOptions } from '@/hooks'
 import { useFetchHook, useGlobalDialog, useIconList, useItemList } from '@/hooks'
-
+import db from '@/database'
 import { localSettings } from '@/stores'
 import type { MarkerExtra } from '@/utils'
 import { ExtraJSON, sleep } from '@/utils'
@@ -124,7 +124,7 @@ export const useMarker = (options: MarkerHookOptions = {}) => {
     immediate,
     loading: scopedLoading ?? loading,
     onRequest: async () => {
-      const tempMarkers: (API.MarkerPunctuateVo | API.MarkerVo)[] = []
+      let tempMarkers: (API.MarkerPunctuateVo | API.MarkerVo)[] = []
       if (!map)
         return tempMarkers
       const { rawParams, showAuditedMarker, showPunctuateMarker, showSpecial, specialItems } = fetchParams.value
@@ -136,13 +136,13 @@ export const useMarker = (options: MarkerHookOptions = {}) => {
         itemIdList = itemIdList.concat(specialItems)
       // 已通过审核点位
       if (showAuditedMarker) {
-        const { data = [] } = await Api.marker.searchMarker({}, { ...rawParams, itemIdList })
-        data.forEach(marker => tempMarkers.push(marker))
+        const data = await db.marker.where('itemIdList').anyOf(itemIdList).toArray()
+        tempMarkers = tempMarkers.concat(data)
       }
       // 审核中点位
       if (showPunctuateMarker) {
         const { data: { record = [] } = {} } = await Api.punctuate.listPunctuatePage({ current: 0, size: 1000 })
-        record.forEach(marker => tempMarkers.push(marker))
+        tempMarkers = tempMarkers.concat(record)
       }
       return tempMarkers
     },
@@ -201,7 +201,7 @@ export const useMarker = (options: MarkerHookOptions = {}) => {
         markerId: markerInfo.id,
         punctuateId: markerInfo.punctuateId,
         /** 当前 marker 对应的图片地址，不统一跟物品走，所以这里有两个可用项 */
-        url: iconMap.value[markerInfo.itemList?.[0].iconTag ?? selectedItem?.value?.iconTag ?? ''],
+        url: iconMap.value[markerInfo.itemList?.[0]?.iconTag ?? selectedItem?.value?.iconTag ?? ''],
         size: [32, 32],
         rotate: 90,
         offset: { x: 0, y: 0 },

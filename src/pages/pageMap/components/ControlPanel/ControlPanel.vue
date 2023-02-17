@@ -5,7 +5,7 @@ import { KeepAlive } from 'vue'
 import { ElMessage } from 'element-plus'
 import type L from 'leaflet'
 import { FilterArea, FilterItem, FilterStep, FilterType, MarkersTable } from '@/pages/pageMap/components'
-import { localSettings, useMapStore } from '@/stores'
+import { localSettings, useMapStore, useMarkerStore } from '@/stores'
 import Api from '@/api/api'
 import { createLinkMarker, useMap, useMarker } from '@/pages/pageMap/hooks'
 import { sleep } from '@/utils'
@@ -145,6 +145,8 @@ const { pagination, pages, disabledNext, disabledPre, nextPage, prePage } = useP
     pageSize: 20,
   },
 })
+
+const markerStore = useMarkerStore()
 </script>
 
 <template>
@@ -195,6 +197,10 @@ const { pagination, pages, disabledNext, disabledPre, nextPage, prePage } = useP
         virtual-triggering
       />
 
+      <el-button @click="markerStore.updateAll">
+        加载全部点位
+      </el-button>
+
       <el-input
         v-model="formatInput"
         placeholder="点位ID"
@@ -209,17 +215,14 @@ const { pagination, pages, disabledNext, disabledPre, nextPage, prePage } = useP
       </el-input>
 
       <div class="pagination select-none genshin-text">
-        <div class="page-unit col-span-2">
+        <div class="page-unit col-span-4">
           共 {{ pagination.total }} 项
-        </div>
-        <div class="page-unit col-span-2">
-          合 {{ pages }} 页
         </div>
         <el-button text type="primary" class="page-unit aspect-square" style="padding: 0" :disabled="loading || disabledPre" @click="prePage">
           ←
         </el-button>
         <div class="page-unit col-span-2">
-          {{ pagination.current }}
+          {{ pagination.current }} / {{ pages }}
         </div>
         <el-button text type="primary" class="page-unit aspect-square" style="padding: 0" :disabled="loading || disabledNext" @click="nextPage">
           →
