@@ -21,7 +21,6 @@ axiosInstance.interceptors.request.use(
     const userStore = useUserStore()
     if (userStore.auth.token_type && userStore.auth.access_token)
       config.headers.Authorization = `${upperFirst(userStore.auth.token_type)} ${userStore.auth.access_token}`
-    config.headers['Content-Type'] = 'application/json'
 
     return config
   },
@@ -35,7 +34,7 @@ axiosInstance.interceptors.response.use(
   (response) => {
     const { data } = response
     if (data.error)
-      return Promise.reject(new Error(data.message))
+      return Promise.reject(new Error(data.error_description))
     return data
   },
   (error) => {
