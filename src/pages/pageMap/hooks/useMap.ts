@@ -11,7 +11,6 @@ export interface BaseLayerChangeEvent extends L.LayersControlEvent {
 
 const map = ref<GenshinMap | null>(null) as Ref<GenshinMap | null>
 const stopPropagationSignal = ref(false)
-const preloadListeners = shallowRef<[string, AnyFunction][]>([])
 
 export const useMap = (ele?: Ref<HTMLElement | null>) => {
   const mapStore = useMapStore()
@@ -30,11 +29,6 @@ export const useMap = (ele?: Ref<HTMLElement | null>) => {
     if (!fn)
       return
     scopedListeners.value.push([type, (...args) => callWithSignal(fn, ...args)])
-    if (!map.value) {
-      preloadListeners.value.push([type, (...args) => callWithSignal(fn, ...args)])
-      return
-    }
-    map.value.addEventListener(type, (...args) => callWithSignal(fn, ...args))
   }
 
   // 以下监听器只会在 ele 存在时（即 map 实例存在的组件）被附加
@@ -59,6 +53,16 @@ export const useMap = (ele?: Ref<HTMLElement | null>) => {
     })
   })
 
+  // 使用替代滚轮缩放
+  ele && useEventListener(ele, 'wheel', (ev: WheelEvent) => {
+    if (!map.value)
+      return
+    const { zoomDelta = 1 } = map.value.options
+    const currentZoom = map.value.getZoom()
+    const newZoom = currentZoom - (ev.deltaY * zoomDelta / 100)
+    map.value.setZoom(newZoom, { duration: 1 })
+  })
+
   onMounted(() => {
     if (!ele?.value || map.value)
       return
@@ -77,16 +81,11 @@ export const useMap = (ele?: Ref<HTMLElement | null>) => {
       zoomControl: false,
       preferCanvas: true,
     })
-    // 使用替代滚轮缩放
-    const { zoomDelta = 1 } = newMap.options
-    useEventListener(ele, 'wheel', (ev: WheelEvent) => {
-      const { deltaY } = ev
-      const currentZoom = newMap.getZoom()
-      const newZoom = currentZoom - (deltaY * zoomDelta / 100)
-      newMap.setZoom(newZoom, { duration: 1 })
-    })
-    preloadListeners.value.forEach(([type, fn]) => newMap.on(type, (...args) => callWithSignal(fn, ...args)))
     map.value = newMap
+  })
+
+  watch(map, (mapInstance) => {
+    mapInstance && scopedListeners.value.forEach(([type, fn]) => mapInstance.on(type, (...args) => callWithSignal(fn, ...args)))
   })
 
   onBeforeUnmount(() => {
