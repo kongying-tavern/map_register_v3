@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { messageFrom } from '@/utils'
-import System from '@/api/system'
+import Api from '@/api/api'
 
 interface UserListHookOptions {
   /** 是否在组件挂载后立即发起请求 */
@@ -41,7 +41,7 @@ export const useUserList = (options: UserListHookOptions = {}) => {
       ...params?.(),
     }
     try {
-      const { data = {} } = await System.sysUserController.getUserList(requestData)
+      const { data = {} } = await Api.sysUserController.getUserList(requestData)
       userList.value = data.record ?? []
       onSuccess?.(data)
     }
@@ -69,7 +69,7 @@ export const useUserList = (options: UserListHookOptions = {}) => {
       if (!confirm || id === undefined)
         return
       deleteLoading.value = true
-      const res = await System.sysUserController.deleteUser({ workId: id })
+      const res = await Api.sysUserController.deleteUser({ workId: id })
       ElMessage.success(res.message ?? '删除成功')
       refresh()
     }

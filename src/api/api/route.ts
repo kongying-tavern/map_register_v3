@@ -1,6 +1,6 @@
 import { request } from '@/utils';
 
-/** 新增路线 返回新增路线ID PUT /route/add */
+/** 新增路线 返回新增路线ID PUT /api/route/add */
 export async function createRoute(
   params: {
     // header
@@ -19,7 +19,7 @@ export async function createRoute(
   });
 }
 
-/** 修改路线 修改路线 POST /route */
+/** 修改路线 修改路线 POST /api/route */
 export async function updateRoute(
   params: {
     // header
@@ -38,7 +38,7 @@ export async function updateRoute(
   });
 }
 
-/** 根据条件筛选分页查询路线信息 根据条件筛选分页查询路线信息，会根据当前角色决定不同的显隐等级 POST /route/get/search */
+/** 根据条件筛选分页查询路线信息 根据条件筛选分页查询路线信息，会根据当前角色决定不同的显隐等级 POST /api/route/get/search */
 export async function listRoutePageSearch(
   params: {
     // header
@@ -57,7 +57,7 @@ export async function listRoutePageSearch(
   });
 }
 
-/** 分页查询所有路线信息 分页查询所有路线信息，会根据当前角色决定不同的显隐等级 POST /route/get/page */
+/** 分页查询所有路线信息 分页查询所有路线信息，会根据当前角色决定不同的显隐等级 POST /api/route/get/page */
 export async function listRoutePage(
   params: {
     // header
@@ -76,7 +76,7 @@ export async function listRoutePage(
   });
 }
 
-/** 根据id列表查询路线信息 根据id列表查询路线信息，会根据当前角色决定不同的显隐等级 POST /route/get/list_byid */
+/** 根据id列表查询路线信息 根据id列表查询路线信息，会根据当前角色决定不同的显隐等级 POST /api/route/get/list_byid */
 export async function listRouteById(
   params: {
     // header
@@ -95,7 +95,7 @@ export async function listRouteById(
   });
 }
 
-/** 删除路线 删除路线，请在前端做二次确认 DELETE /route/${param0} */
+/** 删除路线 删除路线，请在前端做二次确认 DELETE /api/route/${param0} */
 export async function deleteRoute(
   params: {
     // header

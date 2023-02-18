@@ -3,7 +3,7 @@ import type { FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { messageFrom } from '@/utils'
 import type { ElFormType } from '@/shared'
-import System from '@/api/system'
+import Api from '@/api/api'
 
 /** 登录逻辑封装 */
 export const useRegisterForm = () => {
@@ -35,7 +35,7 @@ export const useRegisterForm = () => {
       const isValid = await formRef.value.validate().catch(() => false)
       if (!isValid)
         return
-      await System.sysUserController.registerUserByQQ(registerForm)
+      await Api.sysUserController.registerUserByQQ(registerForm)
       ElMessage.success({
         message: '注册成功',
         duration: 1000,
@@ -57,7 +57,7 @@ export const useRegisterForm = () => {
       const isValid = await formRef.value.validate().catch(() => false)
       if (!isValid)
         return
-      await System.sysUserController.registerUserByQQ(registerForm, {
+      await Api.sysUserController.registerUserByQQ(registerForm, {
         auth: { username: 'client', password: 'secret' },
       })
       ElMessage.success({

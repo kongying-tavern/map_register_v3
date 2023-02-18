@@ -1,6 +1,6 @@
 import { request } from '@/utils';
 
-/** 生成评分 生成评分数据 POST /score/generate */
+/** 生成评分 生成评分数据 POST /api/score/generate */
 export async function generate(
   params: {
     // header
@@ -19,7 +19,7 @@ export async function generate(
   });
 }
 
-/** 获取评分 获取评分数据 POST /score/data */
+/** 获取评分 获取评分数据 POST /api/score/data */
 export async function getData(body: API.ScoreParamsVo, options?: { [key: string]: any }) {
   return request<API.RObject>(`/api/score/data`, {
     method: 'POST',

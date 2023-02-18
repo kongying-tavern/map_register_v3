@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import type { FormRules } from 'element-plus'
 import { ElForm, ElMessage } from 'element-plus'
 import { emptyCheck, lengthCheck } from '../utils/formRules'
-import System from '@/api/system'
+import Api from '@/api/api'
 import { messageFrom } from '@/utils'
 
 const emits = defineEmits<{
@@ -66,7 +66,7 @@ const onConfirm = async () => {
     })
     const { username, password } = formData.value
     loading.value = true
-    const res = await System.sysUserController[
+    const res = await Api.sysUserController[
       registrationType.value === 'username'
         ? 'registerUser'
         : 'registerUserByQQ'

@@ -1,6 +1,6 @@
 import { request } from '@/utils';
 
-/** 新增分类 类型id在创建后返回 PUT /tag_type/add */
+/** 新增分类 类型id在创建后返回 PUT /api/tag_type/add */
 export async function addTagType(body: API.TagTypeVo, options?: { [key: string]: any }) {
   return request<API.RLong>(`/api/tag_type/add`, {
     method: 'PUT',
@@ -12,7 +12,7 @@ export async function addTagType(body: API.TagTypeVo, options?: { [key: string]:
   });
 }
 
-/** 修改分类 由类型ID来定位修改一个分类 POST /tag_type/update */
+/** 修改分类 由类型ID来定位修改一个分类 POST /api/tag_type/update */
 export async function updateTagType(
   body: API.TagTypeVo,
   options?: { [key: string]: any },
@@ -27,7 +27,7 @@ export async function updateTagType(
   });
 }
 
-/** 列出分类 列出标签的分类，parentID为-1的时候为列出所有的根分类，isTraverse为1时遍历所有子分类，默认为1，可分页 POST /tag_type/get/list */
+/** 列出分类 列出标签的分类，parentID为-1的时候为列出所有的根分类，isTraverse为1时遍历所有子分类，默认为1，可分页 POST /api/tag_type/get/list */
 export async function listTagType(
   body: API.PageAndTypeListVo,
   options?: { [key: string]: any },
@@ -42,7 +42,7 @@ export async function listTagType(
   });
 }
 
-/** 删除分类 这个操作会递归删除，请在前端做二次确认 DELETE /tag_type/delete/${param0} */
+/** 删除分类 这个操作会递归删除，请在前端做二次确认 DELETE /api/tag_type/delete/${param0} */
 export async function deleteTagType(
   params: {
     // path

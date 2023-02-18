@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ElMessage } from 'element-plus'
-import System from '@/api/system'
+import Api from '@/api/api'
 import Oauth from '@/api/oauth'
 import { Logger, messageFrom } from '@/utils'
 import { router } from '@/router'
@@ -170,7 +170,7 @@ export const useUserStore = defineStore('user-info', {
       if (!this.auth.userId)
         return
       try {
-        const { data = {} } = await System.sysUserController.getUserInfo({ userId: this.auth.userId })
+        const { data = {} } = await Api.sysUserController.getUserInfo({ userId: this.auth.userId })
         this.info = data
         localUserInfo.value = data
       }

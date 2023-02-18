@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import System from '@/api/system'
+import Api from '@/api/api'
 import { messageFrom } from '@/utils'
 
 const props = defineProps<{
@@ -19,7 +19,7 @@ const formData = ref({
 
 const onSubmit = async () => {
   try {
-    const res = await System.sysUserController.updateUser({}, formData.value)
+    const res = await Api.sysUserController.updateUser({}, formData.value)
     ElMessage.success(res.message ?? '成功')
   }
   catch (err) {
@@ -35,7 +35,7 @@ const onClickDeleteUser = async () => {
       .confirm(`确认删除用户 ID - ${props.user.id}?`, '删除用户')
       // cancel with no action
       .catch(() => false)
-    const res = await System.sysUserController.deleteUser({ workId: props.user.id })
+    const res = await Api.sysUserController.deleteUser({ workId: props.user.id })
     ElMessage.success(res.message ?? '成功')
     emits('refresh')
   }

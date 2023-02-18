@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import System from '@/api/system'
+import Api from '@/api/api'
 import { messageFrom } from '@/utils'
 
 export interface SelectedHookOptions {
@@ -31,7 +31,7 @@ export const useSelected = (options: SelectedHookOptions = {}) => {
     const missions = selected.value.map(({ id }) => {
       if (!id)
         return undefined
-      return System.sysUserController.deleteUser({ workId: id })
+      return Api.sysUserController.deleteUser({ workId: id })
     })
     try {
       batchDeleteLoading.value = true

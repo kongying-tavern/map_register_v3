@@ -1,5 +1,5 @@
 import { computed, ref } from 'vue'
-import System from '@/api/system'
+import Api from '@/api/api'
 
 interface RoleHookOptions {
   /** 是否在组件加载后立即更新 */
@@ -52,7 +52,7 @@ export const useRoleOptions = (options: RoleHookOptions = {}) => {
     }
     loading.value = true
     try {
-      const { data = [] } = await System.role.listRole()
+      const { data = [] } = await Api.role.listRole()
       unsortedRoles.value = data
       publicRoleList.value = data
     }

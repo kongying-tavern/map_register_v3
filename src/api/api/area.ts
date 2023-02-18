@@ -1,6 +1,6 @@
 import { request } from '@/utils';
 
-/** 新增地区 返回新增地区ID PUT /area/add */
+/** 新增地区 返回新增地区ID PUT /api/area/add */
 export async function createArea(body: API.AreaVo, options?: { [key: string]: any }) {
   return request<API.RLong>(`/api/area/add`, {
     method: 'PUT',
@@ -12,7 +12,7 @@ export async function createArea(body: API.AreaVo, options?: { [key: string]: an
   });
 }
 
-/** 修改地区 修改地区 POST /area */
+/** 修改地区 修改地区 POST /api/area */
 export async function updateArea(body: API.AreaVo, options?: { [key: string]: any }) {
   return request<API.RBoolean>(`/api/area`, {
     method: 'POST',
@@ -24,7 +24,7 @@ export async function updateArea(body: API.AreaVo, options?: { [key: string]: an
   });
 }
 
-/** 获取单个地区信息 获取单个地区信息 POST /area/get/${param0} */
+/** 获取单个地区信息 获取单个地区信息 POST /api/area/get/${param0} */
 export async function getArea(
   params: {
     // header
@@ -42,7 +42,7 @@ export async function getArea(
   });
 }
 
-/** 列出地区 可根据父级地区id列出子地区列表 POST /area/get/list */
+/** 列出地区 可根据父级地区id列出子地区列表 POST /api/area/get/list */
 export async function listArea(
   params: {
     // header
@@ -61,7 +61,7 @@ export async function listArea(
   });
 }
 
-/** 删除地区 此操作会递归删除，请在前端做二次确认 DELETE /area/${param0} */
+/** 删除地区 此操作会递归删除，请在前端做二次确认 DELETE /api/area/${param0} */
 export async function deleteArea(
   params: {
     // path

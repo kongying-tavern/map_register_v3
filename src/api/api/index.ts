@@ -1,5 +1,7 @@
 // API 更新时间：
 // API 唯一标识：
+import * as role from './role';
+import * as archive from './archive';
 import * as tagType from './tagType';
 import * as tag from './tag';
 import * as route from './route';
@@ -11,13 +13,18 @@ import * as item from './item';
 import * as iconType from './iconType';
 import * as icon from './icon';
 import * as area from './area';
+import * as sysUserController from './sysUserController';
 import * as score from './score';
 import * as punctuateAudit from './punctuateAudit';
 import * as history from './history';
 import * as tagDoc from './tagDoc';
 import * as markerDoc from './markerDoc';
 import * as itemDoc from './itemDoc';
+import * as jwkController from './jwkController';
+import * as cache from './cache';
 export default {
+  role,
+  archive,
   tagType,
   tag,
   route,
@@ -29,10 +36,13 @@ export default {
   iconType,
   icon,
   area,
+  sysUserController,
   score,
   punctuateAudit,
   history,
   tagDoc,
   markerDoc,
   itemDoc,
+  jwkController,
+  cache,
 };

@@ -1,6 +1,6 @@
 import { request } from '@/utils';
 
-/** 回滚记录 回滚记录 POST /history/rollback */
+/** 回滚记录 回滚记录 POST /api/history/rollback */
 export async function rollback(
   params: {
     // query
@@ -17,7 +17,7 @@ export async function rollback(
   });
 }
 
-/** 历史记录分页 历史记录分页 POST /history/get/list */
+/** 历史记录分页 历史记录分页 POST /api/history/get/list */
 export async function getList(
   body: API.HistorySearchVo,
   options?: { [key: string]: any },

@@ -1,6 +1,6 @@
 import { request } from '@/utils';
 
-/** 新增地区公用物品 通过ID列表批量添加地区公用物品 PUT /item_common/add */
+/** 新增地区公用物品 通过ID列表批量添加地区公用物品 PUT /api/item_common/add */
 export async function addCommonItem(body: number[], options?: { [key: string]: any }) {
   return request<API.RBoolean>(`/api/item_common/add`, {
     method: 'PUT',
@@ -12,7 +12,7 @@ export async function addCommonItem(body: number[], options?: { [key: string]: a
   });
 }
 
-/** 列出地区公用物品 列出地区公用物品 POST /item_common/get/list */
+/** 列出地区公用物品 列出地区公用物品 POST /api/item_common/get/list */
 export async function listCommonItem(
   body: API.PageSearchVo,
   options?: { [key: string]: any },
@@ -27,7 +27,7 @@ export async function listCommonItem(
   });
 }
 
-/** 删除地区公用物品 通过ID列表批量删除地区公用物品 DELETE /item_common/delete/${param0} */
+/** 删除地区公用物品 通过ID列表批量删除地区公用物品 DELETE /api/item_common/delete/${param0} */
 export async function deleteCommonItem(
   params: {
     // path

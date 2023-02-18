@@ -1,6 +1,6 @@
 import { request } from '@/utils';
 
-/** 提交暂存点位 成功则返回打点提交ID PUT /punctuate/ */
+/** 提交暂存点位 成功则返回打点提交ID PUT /api/punctuate/ */
 export async function addPunctuate(
   params: {
     // header
@@ -19,7 +19,7 @@ export async function addPunctuate(
   });
 }
 
-/** 修改自身未提交的暂存点位 根据点位ID修改点位 POST /punctuate/ */
+/** 修改自身未提交的暂存点位 根据点位ID修改点位 POST /api/punctuate/ */
 export async function updateSelfPunctuate(
   params: {
     // header
@@ -38,7 +38,7 @@ export async function updateSelfPunctuate(
   });
 }
 
-/** 将暂存点位提交审核 将暂存点位提交审核 PUT /punctuate/push/${param0} */
+/** 将暂存点位提交审核 将暂存点位提交审核 PUT /api/punctuate/push/${param0} */
 export async function pushPunctuate(
   params: {
     // header
@@ -56,7 +56,7 @@ export async function pushPunctuate(
   });
 }
 
-/** 分页查询所有打点信息 分页查询所有打点信息 POST /punctuate/get/page */
+/** 分页查询所有打点信息 分页查询所有打点信息 POST /api/punctuate/get/page */
 export async function listPunctuatePage(
   body: API.PageSearchVo,
   options?: { [key: string]: any },
@@ -71,7 +71,7 @@ export async function listPunctuatePage(
   });
 }
 
-/** 分页查询自己提交的未通过的打点信息 分页查询自己提交的未通过的打点信息（打点员的API） POST /punctuate/get/page/${param0} */
+/** 分页查询自己提交的未通过的打点信息 分页查询自己提交的未通过的打点信息（打点员的API） POST /api/punctuate/get/page/${param0} */
 export async function listSelfPunctuatePage(
   params: {
     // header
@@ -93,7 +93,7 @@ export async function listSelfPunctuatePage(
   });
 }
 
-/** 删除自己未通过的提交点位 根据提交ID列表来删除提交点位，会对打点员ID进行校验 DELETE /punctuate/delete/${param1}/${param0} */
+/** 删除自己未通过的提交点位 根据提交ID列表来删除提交点位，会对打点员ID进行校验 DELETE /api/punctuate/delete/${param1}/${param0} */
 export async function deleteSelfPunctuate(
   params: {
     // header

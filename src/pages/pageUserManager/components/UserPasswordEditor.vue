@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import type { FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { emptyCheck, lengthCheck } from '../utils/formRules'
-import System from '@/api/system'
+import Api from '@/api/api'
 import { messageFrom } from '@/utils'
 import { GlobalDialogController } from '@/hooks/useGlobalDialog'
 import type { ElFormType } from '@/shared'
@@ -52,7 +52,7 @@ const onSubmit = async () => {
     loading.value = true
     GlobalDialogController.updateBtnProps('submit', { props: { loading: loading.value } })
     const { repeatPassword, ...body } = formData.value
-    const res = await System.sysUserController.updateUserPassword({}, body)
+    const res = await Api.sysUserController.updateUserPassword({}, body)
     GlobalDialogController.close()
     ElMessage.success(res.message ?? '成功')
     emits('success')

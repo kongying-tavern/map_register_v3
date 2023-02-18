@@ -1,6 +1,6 @@
 import { request } from '@/utils';
 
-/** 新增分类 类型id在创建后返回 PUT /icon_type/add */
+/** 新增分类 类型id在创建后返回 PUT /api/icon_type/add */
 export async function addIconType(
   body: API.IconTypeVo,
   options?: { [key: string]: any },
@@ -15,7 +15,7 @@ export async function addIconType(
   });
 }
 
-/** 修改分类 由类型ID来定位修改一个分类 POST /icon_type/update */
+/** 修改分类 由类型ID来定位修改一个分类 POST /api/icon_type/update */
 export async function updateIconType(
   body: API.IconTypeVo,
   options?: { [key: string]: any },
@@ -30,7 +30,7 @@ export async function updateIconType(
   });
 }
 
-/** 列出分类 列出图标的分类，parentID为-1的时候为列出所有的根分类，isTraverse为1时遍历所有子分类，默认为1，可分页 POST /icon_type/get/list */
+/** 列出分类 列出图标的分类，parentID为-1的时候为列出所有的根分类，isTraverse为1时遍历所有子分类，默认为1，可分页 POST /api/icon_type/get/list */
 export async function listIconType(
   body: API.PageAndTypeListVo,
   options?: { [key: string]: any },
@@ -45,7 +45,7 @@ export async function listIconType(
   });
 }
 
-/** 删除分类 这个操作会递归删除，请在前端做二次确认 DELETE /icon_type/delete/${param0} */
+/** 删除分类 这个操作会递归删除，请在前端做二次确认 DELETE /api/icon_type/delete/${param0} */
 export async function deleteIconType(
   params: {
     // path

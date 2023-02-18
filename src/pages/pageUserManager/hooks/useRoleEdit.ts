@@ -3,7 +3,7 @@
 import type { Ref } from 'vue'
 import { UserPasswordEditor } from '../components'
 // import { messageFrom } from '@/utils'
-import System from '@/api/system'
+import Api from '@/api/api'
 import { useGlobalDialog } from '@/hooks'
 import { useRowEdit } from '@/hooks/useTableManipulation'
 
@@ -23,13 +23,13 @@ export const useRoleEdit = (options: RoleEditHookOptions) => {
       // 更新用户信息需要的全部请求
       const mission = [
         // 修改用户信息
-        System.sysUserController.updateUser({}, { ...rest, userId }),
+        Api.sysUserController.updateUser({}, { ...rest, userId }),
       ]
       const [newRoleId, oldRoleId] = [roleList[0]?.id, oldRowData?.roleList?.[0]?.id]
       const isRoleDiff = newRoleId !== oldRoleId
       if (isRoleDiff) {
         // 修改用户角色
-        mission.push(System.role.addRoleToUser({ userId, roleId: newRoleId }))
+        mission.push(Api.role.addRoleToUser({ userId, roleId: newRoleId }))
       }
       await Promise.allSettled(mission)
     },
