@@ -163,7 +163,7 @@ GlobalDialogController.registerBtn('submit', {
             :rules="[
               { required: true, message: '请输入物品ID', trigger: 'blur' },
               { type: 'number', message: '物品ID应为数字', trigger: 'change' },
-              { min: 1, max: 7, message: 'Length should be 3 to 5', trigger: 'blur' },
+              { min: 1, max: 7, message: '物品ID长度应为1~7', trigger: 'blur' },
             ]"
           >
             <el-input
