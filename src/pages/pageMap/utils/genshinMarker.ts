@@ -55,12 +55,9 @@ const defaultImgOptions = {
 
 /** 共享的地下图片元素 */
 const undergroundImage = ref<HTMLImageElement | null>(null)
-loadImage('https://tiles.yuanshen.site/d/marker_image/underground.png', {
-  referrerPolicy: 'no-referrer',
+loadImage('https://tiles.yuanshen.site/d/marker_image/underground.png').then((img) => {
+  undergroundImage.value = img
 })
-  .then((img) => {
-    undergroundImage.value = img
-  })
 const undergroundImgOptions = {
   rotate: 0,
   size: [20, 20],
