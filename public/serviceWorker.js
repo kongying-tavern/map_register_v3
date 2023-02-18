@@ -37,23 +37,16 @@ self.onfetch = (ev) => {
     cacheStorageName = 'other-image'
   
   const cacheRequest = async () => {
-    try {
-      // 如果匹配到缓存则直接返回
-      const cachedResult = await caches.match(ev.request)
-      if (cachedResult) {
-        ev.respondWith(cachedResult)
-        return
-      }
-  
-      // 如果匹配不到则拦截请求
-      const res = await fetch(ev.request)
-      ;(await caches.open(cacheStorageName)).put(ev.request, res.clone())
-      ev.respondWith(res)
-    }
-    catch (err) {
-      console.log(`[Service Worker] 缓存失败，已返回原始响应对象。${err.message}`)
-    }
+    // 如果匹配到缓存则直接返回
+    const cachedResult = await caches.match(ev.request)
+    if (cachedResult)
+      return cachedResult
+
+    // 如果匹配不到则拦截请求
+    const res = await fetch(ev.request)
+    ;(await caches.open(cacheStorageName)).put(ev.request, res.clone())
+    return res
   }
 
-  ev.waitUntil(cacheRequest)
+  ev.respondWith(cacheRequest())
 }
