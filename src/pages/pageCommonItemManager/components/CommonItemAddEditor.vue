@@ -134,9 +134,7 @@ GlobalDialogController.registerBtn('submit', {
               type="danger"
               plain
               size="small"
-              @click="() => {
-                removeFromItemList([row])
-              }"
+              @click="() => { removeFromItemList([row]) }"
             >
               移除
             </el-button>
@@ -144,9 +142,7 @@ GlobalDialogController.registerBtn('submit', {
         </el-table-column>
       </el-table>
     </div>
-    <el-form
-      @submit.prevent
-    >
+    <el-form @submit.prevent>
       <el-row type="flex" justify="center" :gutter="15">
         <el-col :span="14">
           <el-form-item
@@ -182,9 +178,7 @@ GlobalDialogController.registerBtn('submit', {
           <el-form-item>
             <el-button
               type="primary"
-              @click="() => {
-                add2List()
-              }"
+              @click="add2List"
             >
               添加
             </el-button>
