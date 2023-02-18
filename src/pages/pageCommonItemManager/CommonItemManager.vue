@@ -9,11 +9,11 @@ const { pagination, layout } = usePagination({
 const checkedArea = ref<API.AreaVo>()
 const checkedType = ref<API.ItemTypeVo>()
 
-const { areaMap, areaTree, loading: areaLoading, areaList } = useAreaList({
+const { areaMap, areaTree, loading: areaLoading } = useAreaList({
   immediate: true,
 })
 
-const { iconMap, iconList } = useIconList({ immediate: true })
+const { iconMap } = useIconList({ immediate: true })
 
 const { typeTree, loading: typeLoading } = useTypeList({ immediate: true })
 
@@ -87,6 +87,20 @@ onDeleteCommonItemSuccess(() => {
   removeOneItem.value = []
   updateItemList()
 })
+
+const removeOne = (row: API.ItemVo[]) => {
+  removeOneItem.value = row
+  deleteCommonItem()
+}
+
+const openAddCommonDialog = () => {
+  openItemCreatorDialog({
+    props: {},
+    listeners: {
+      success: onCreateItemSuccess,
+    },
+  })
+}
 </script>
 
 <template>
@@ -183,18 +197,7 @@ onDeleteCommonItemSuccess(() => {
         </el-button>
         <el-button
           type="primary"
-          @click="() => {
-            openItemCreatorDialog({
-              props: {
-                iconList,
-                areaList,
-                iconMap,
-              },
-              listeners: {
-                success: onCreateItemSuccess,
-              },
-            })
-          }"
+          @click="openAddCommonDialog"
         >
           批量添加
         </el-button>
@@ -230,10 +233,7 @@ onDeleteCommonItemSuccess(() => {
                 type="danger"
                 plain
                 size="small"
-                @click="() => {
-                  removeOneItem = [row]
-                  deleteCommonItem()
-                }"
+                @click="() => { removeOne([row]) }"
               >
                 移除
               </el-button>
