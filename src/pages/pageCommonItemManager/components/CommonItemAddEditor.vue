@@ -119,6 +119,7 @@ GlobalDialogController.registerBtn('submit', {
               class="w-8 h-8 object-contain rounded-full bg-slate-700"
               :src="iconMap[row.iconTag ?? '']"
               referrerpolicy="no-referrer"
+              crossorigin=""
             >
           </template>
         </el-table-column>

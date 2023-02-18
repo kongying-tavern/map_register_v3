@@ -9,11 +9,11 @@ const { pagination, layout } = usePagination({
 const checkedArea = ref<API.AreaVo>()
 const checkedType = ref<API.ItemTypeVo>()
 
-const { areaMap, areaTree, loading: areaLoading } = useAreaList({
+const { areaMap, areaTree, loading: areaLoading, areaList } = useAreaList({
   immediate: true,
 })
 
-const { iconMap } = useIconList({ immediate: true })
+const { iconMap, iconList } = useIconList({ immediate: true })
 
 const { typeTree, loading: typeLoading } = useTypeList({ immediate: true })
 
@@ -217,6 +217,7 @@ const openAddCommonDialog = () => {
               <img
                 class="w-8 h-8 object-contain rounded-full bg-slate-700"
                 :src="iconMap[row.iconTag ?? '']"
+                crossorigin=""
                 referrerpolicy="no-referrer"
               >
             </template>
@@ -233,7 +234,7 @@ const openAddCommonDialog = () => {
                 type="danger"
                 plain
                 size="small"
-                @click="() => { removeOne([row]) }"
+                @click="() => removeOne([row])"
               >
                 移除
               </el-button>
