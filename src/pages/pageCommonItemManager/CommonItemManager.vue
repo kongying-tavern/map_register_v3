@@ -9,11 +9,11 @@ const { pagination, layout } = usePagination({
 const checkedArea = ref<API.AreaVo>()
 const checkedType = ref<API.ItemTypeVo>()
 
-const { areaMap, areaTree, loading: areaLoading, areaList } = useAreaList({
+const { areaMap, areaTree, loading: areaLoading } = useAreaList({
   immediate: true,
 })
 
-const { iconMap, iconList } = useIconList({ immediate: true })
+const { iconMap } = useIconList({ immediate: true })
 
 const { typeTree, loading: typeLoading } = useTypeList({ immediate: true })
 
