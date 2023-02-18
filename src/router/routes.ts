@@ -20,6 +20,15 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/pages/pageItemManager/ItemManager.vue'),
       },
       {
+        path: '/common-items',
+        meta: {
+          title: '公共物品管理',
+          icon: 'Files',
+          roles: [RoleTypeEnum.ADMIN, RoleTypeEnum.MAP_MANAGER],
+        },
+        component: () => import('@/pages/pageCommonItemManager/CommonItemManager.vue'),
+      },
+      {
         path: '/type',
         meta: {
           title: '类型管理',
