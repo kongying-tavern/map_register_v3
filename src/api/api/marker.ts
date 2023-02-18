@@ -2,7 +2,7 @@ import { request } from '@/utils';
 
 /** 新增点位（不包括额外字段） 新增完成后返回点位ID PUT /api/marker/single */
 export async function createMarker(body: API.MarkerVo, options?: { [key: string]: any }) {
-  return request<API.RLong>(`/api/marker/single`, {
+  return request<API.RLong>('/api/marker/single', {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -14,7 +14,7 @@ export async function createMarker(body: API.MarkerVo, options?: { [key: string]
 
 /** 修改点位（不包括额外字段） 根据点位ID修改点位 POST /api/marker/single */
 export async function updateMarker(body: API.MarkerVo, options?: { [key: string]: any }) {
-  return request<API.RBoolean>(`/api/marker/single`, {
+  return request<API.RBoolean>('/api/marker/single', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -32,7 +32,7 @@ export async function listMarkerPage(
   body: API.PageSearchVo,
   options?: { [key: string]: any },
 ) {
-  return request<API.RPageListVoMarkerVo>(`/api/marker/get/page`, {
+  return request<API.RPageListVoMarkerVo>('/api/marker/get/page', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -51,7 +51,7 @@ export async function searchMarker(
   body: API.MarkerSearchVo,
   options?: { [key: string]: any },
 ) {
-  return request<API.RListMarkerVo>(`/api/marker/get/list_byinfo`, {
+  return request<API.RListMarkerVo>('/api/marker/get/list_byinfo', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -70,7 +70,7 @@ export async function listMarkerById(
   body: number[],
   options?: { [key: string]: any },
 ) {
-  return request<API.RListMarkerVo>(`/api/marker/get/list_byid`, {
+  return request<API.RListMarkerVo>('/api/marker/get/list_byid', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -89,7 +89,7 @@ export async function searchMarkerId(
   body: API.MarkerSearchVo,
   options?: { [key: string]: any },
 ) {
-  return request<API.RListLong>(`/api/marker/get/id`, {
+  return request<API.RListLong>('/api/marker/get/id', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

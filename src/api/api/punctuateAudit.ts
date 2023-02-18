@@ -42,7 +42,7 @@ export async function listAllPunctuatePage(
   body: API.PageSearchVo,
   options?: { [key: string]: any },
 ) {
-  return request<API.RPageListVoMarkerPunctuateVo>(`/api/punctuate_audit/get/page/all`, {
+  return request<API.RPageListVoMarkerPunctuateVo>('/api/punctuate_audit/get/page/all', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -57,7 +57,7 @@ export async function searchPunctuate(
   body: API.PunctuateSearchVo,
   options?: { [key: string]: any },
 ) {
-  return request<API.RListMarkerPunctuateVo>(`/api/punctuate_audit/get/list_byinfo`, {
+  return request<API.RListMarkerPunctuateVo>('/api/punctuate_audit/get/list_byinfo', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -72,7 +72,7 @@ export async function listPunctuateById(
   body: number[],
   options?: { [key: string]: any },
 ) {
-  return request<API.RListMarkerPunctuateVo>(`/api/punctuate_audit/get/list_byid`, {
+  return request<API.RListMarkerPunctuateVo>('/api/punctuate_audit/get/list_byid', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -87,7 +87,7 @@ export async function searchPunctuateId(
   body: API.PunctuateSearchVo,
   options?: { [key: string]: any },
 ) {
-  return request<API.RListLong>(`/api/punctuate_audit/get/id`, {
+  return request<API.RListLong>('/api/punctuate_audit/get/id', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

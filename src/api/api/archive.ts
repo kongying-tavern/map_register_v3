@@ -12,7 +12,7 @@ export async function createArchive(
   options?: { [key: string]: any },
 ) {
   const { slot_index: param0, name: param1, ...queryParams } = params;
-  return request<API.RBoolean>(`/api/system/archive/${param0}/${param1}`, {
+  return request<API.RBoolean>(`/system/archive/${param0}/${param1}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -34,7 +34,7 @@ export async function saveArchive(
   options?: { [key: string]: any },
 ) {
   const { slot_index: param0, ...queryParams } = params;
-  return request<API.RBoolean>(`/api/system/archive/save/${param0}`, {
+  return request<API.RBoolean>(`/system/archive/save/${param0}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -55,7 +55,7 @@ export async function getLastArchive(
   options?: { [key: string]: any },
 ) {
   const { slot_index: param0, ...queryParams } = params;
-  return request<API.RArchiveVo>(`/api/system/archive/last/${param0}`, {
+  return request<API.RArchiveVo>(`/system/archive/last/${param0}`, {
     method: 'GET',
     headers: {},
     params: { ...queryParams },
@@ -73,7 +73,7 @@ export async function getHistoryArchive(
   options?: { [key: string]: any },
 ) {
   const { slot_index: param0, ...queryParams } = params;
-  return request<API.RArchiveHistoryVo>(`/api/system/archive/history/${param0}`, {
+  return request<API.RArchiveHistoryVo>(`/system/archive/history/${param0}`, {
     method: 'GET',
     headers: {},
     params: { ...queryParams },
@@ -88,7 +88,7 @@ export async function getAllArchive(
 },
   options?: { [key: string]: any },
 ) {
-  return request<API.RListArchiveVo>(`/api/system/archive/all`, {
+  return request<API.RListArchiveVo>('/system/archive/all', {
     method: 'GET',
     headers: {},
     params: { ...params },
@@ -103,7 +103,7 @@ export async function getAllHistoryArchive(
 },
   options?: { [key: string]: any },
 ) {
-  return request<API.RListArchiveHistoryVo>(`/api/system/archive/all_history`, {
+  return request<API.RListArchiveHistoryVo>('/system/archive/all_history', {
     method: 'GET',
     headers: {},
     params: { ...params },
@@ -121,7 +121,7 @@ export async function removeArchive(
   options?: { [key: string]: any },
 ) {
   const { slot_index: param0, ...queryParams } = params;
-  return request<API.RBoolean>(`/api/system/archive/slot/${param0}`, {
+  return request<API.RBoolean>(`/system/archive/slot/${param0}`, {
     method: 'DELETE',
     headers: {},
     params: { ...queryParams },
@@ -139,7 +139,7 @@ export async function restoreArchive(
   options?: { [key: string]: any },
 ) {
   const { slot_index: param0, ...queryParams } = params;
-  return request<API.RArchiveVo>(`/api/system/archive/restore/${param0}`, {
+  return request<API.RArchiveVo>(`/system/archive/restore/${param0}`, {
     method: 'DELETE',
     headers: {},
     params: { ...queryParams },

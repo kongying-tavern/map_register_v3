@@ -51,7 +51,7 @@ export async function updateTag(
 
 /** 修改标签的分类信息 本接口仅在后台使用，故分离出来 POST /api/tag/updateType */
 export async function updateTypeInTag(body: API.TagVo, options?: { [key: string]: any }) {
-  return request<API.RBoolean>(`/api/tag/updateType`, {
+  return request<API.RBoolean>('/api/tag/updateType', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -79,7 +79,7 @@ export async function getTag(
 
 /** 列出标签 可按照分类进行查询，也可给出需要查询url的tag名称列表，可分页 POST /api/tag/get/list */
 export async function listTag(body: API.TagSearchVo, options?: { [key: string]: any }) {
-  return request<API.RPageListVoTagVo>(`/api/tag/get/list`, {
+  return request<API.RPageListVoTagVo>('/api/tag/get/list', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

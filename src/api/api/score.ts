@@ -8,7 +8,7 @@ export async function generate(
   body: API.ScoreParamsVo,
   options?: { [key: string]: any },
 ) {
-  return request<API.RObject>(`/api/score/generate`, {
+  return request<API.RObject>('/api/score/generate', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -21,7 +21,7 @@ export async function generate(
 
 /** 获取评分 获取评分数据 POST /api/score/data */
 export async function getData(body: API.ScoreParamsVo, options?: { [key: string]: any }) {
-  return request<API.RObject>(`/api/score/data`, {
+  return request<API.RObject>('/api/score/data', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

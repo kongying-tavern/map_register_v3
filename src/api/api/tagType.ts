@@ -2,7 +2,7 @@ import { request } from '@/utils';
 
 /** 新增分类 类型id在创建后返回 PUT /api/tag_type/add */
 export async function addTagType(body: API.TagTypeVo, options?: { [key: string]: any }) {
-  return request<API.RLong>(`/api/tag_type/add`, {
+  return request<API.RLong>('/api/tag_type/add', {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -17,7 +17,7 @@ export async function updateTagType(
   body: API.TagTypeVo,
   options?: { [key: string]: any },
 ) {
-  return request<API.RBoolean>(`/api/tag_type/update`, {
+  return request<API.RBoolean>('/api/tag_type/update', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -32,7 +32,7 @@ export async function listTagType(
   body: API.PageAndTypeListVo,
   options?: { [key: string]: any },
 ) {
-  return request<API.RPageListVoTagTypeVo>(`/api/tag_type/get/list`, {
+  return request<API.RPageListVoTagTypeVo>('/api/tag_type/get/list', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

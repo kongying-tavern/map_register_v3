@@ -5,7 +5,7 @@ export async function addItemType(
   body: API.ItemTypeVo,
   options?: { [key: string]: any },
 ) {
-  return request<API.RLong>(`/api/item_type/add`, {
+  return request<API.RLong>('/api/item_type/add', {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -20,7 +20,7 @@ export async function updateItemType(
   body: API.ItemTypeVo,
   options?: { [key: string]: any },
 ) {
-  return request<API.RBoolean>(`/api/item_type/update`, {
+  return request<API.RBoolean>('/api/item_type/update', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -58,7 +58,7 @@ export async function listItemType(
 },
   options?: { [key: string]: any },
 ) {
-  return request<API.RListItemTypeVo>(`/api/item_type/get/list_all`, {
+  return request<API.RListItemTypeVo>('/api/item_type/get/list_all', {
     method: 'POST',
     headers: {},
     params: { ...params },

@@ -8,7 +8,7 @@ export async function updateUser(
   body: API.SysUserUpdateDto,
   options?: { [key: string]: any },
 ) {
-  return request<API.RBoolean>(`/api/system/user/update`, {
+  return request<API.RBoolean>('/system/user/update', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -27,7 +27,7 @@ export async function updateUserPassword(
   body: API.SysUserPasswordUpdateDto,
   options?: { [key: string]: any },
 ) {
-  return request<API.RBoolean>(`/api/system/user/update_password`, {
+  return request<API.RBoolean>('/system/user/update_password', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -43,7 +43,7 @@ export async function registerUser(
   body: API.SysUserRegisterVo,
   options?: { [key: string]: any },
 ) {
-  return request<API.RLong>(`/api/system/user/register`, {
+  return request<API.RLong>('/system/user/register', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -58,7 +58,7 @@ export async function registerUserByQQ(
   body: API.SysUserRegisterVo,
   options?: { [key: string]: any },
 ) {
-  return request<API.RLong>(`/api/system/user/register/qq`, {
+  return request<API.RLong>('/system/user/register/qq', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -73,7 +73,7 @@ export async function getUserList(
   body: API.SysUserSearchVo,
   options?: { [key: string]: any },
 ) {
-  return request<API.RPageListVoSysUserVo>(`/api/system/user/info/userList`, {
+  return request<API.RPageListVoSysUserVo>('/system/user/info/userList', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -93,7 +93,7 @@ export async function getUserInfo(
   options?: { [key: string]: any },
 ) {
   const { userId: param0, ...queryParams } = params;
-  return request<API.RSysUserVo>(`/api/system/user/info/${param0}`, {
+  return request<API.RSysUserVo>(`/system/user/info/${param0}`, {
     method: 'GET',
     headers: {},
     params: { ...queryParams },
@@ -110,7 +110,7 @@ export async function deleteUser(
   options?: { [key: string]: any },
 ) {
   const { workId: param0, ...queryParams } = params;
-  return request<API.RBoolean>(`/api/system/user/${param0}`, {
+  return request<API.RBoolean>(`/system/user/${param0}`, {
     method: 'DELETE',
     params: { ...queryParams },
     ...(options || {}),

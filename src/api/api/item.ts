@@ -23,7 +23,7 @@ export async function copyItemToArea(
 
 /** 新增物品 新建成功后会返回新物品ID PUT /api/item/add */
 export async function createItem(body: API.ItemVo, options?: { [key: string]: any }) {
-  return request<API.RLong>(`/api/item/add`, {
+  return request<API.RLong>('/api/item/add', {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -83,7 +83,7 @@ export async function listItemIdByType(
   body: API.ItemSearchVo,
   options?: { [key: string]: any },
 ) {
-  return request<API.RPageListVoItemVo>(`/api/item/get/list`, {
+  return request<API.RPageListVoItemVo>('/api/item/get/list', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -102,7 +102,7 @@ export async function listItemById(
   body: number[],
   options?: { [key: string]: any },
 ) {
-  return request<API.RListItemVo>(`/api/item/get/list_byid`, {
+  return request<API.RListItemVo>('/api/item/get/list_byid', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

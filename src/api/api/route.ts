@@ -8,7 +8,7 @@ export async function createRoute(
   body: API.RouteVo,
   options?: { [key: string]: any },
 ) {
-  return request<API.RLong>(`/api/route/add`, {
+  return request<API.RLong>('/api/route/add', {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -27,7 +27,7 @@ export async function updateRoute(
   body: API.RouteVo,
   options?: { [key: string]: any },
 ) {
-  return request<API.RBoolean>(`/api/route`, {
+  return request<API.RBoolean>('/api/route', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -46,7 +46,7 @@ export async function listRoutePageSearch(
   body: API.RouteSearchVo,
   options?: { [key: string]: any },
 ) {
-  return request<API.RPageListVoRouteVo>(`/api/route/get/search`, {
+  return request<API.RPageListVoRouteVo>('/api/route/get/search', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -65,7 +65,7 @@ export async function listRoutePage(
   body: API.PageSearchVo,
   options?: { [key: string]: any },
 ) {
-  return request<API.RPageListVoRouteVo>(`/api/route/get/page`, {
+  return request<API.RPageListVoRouteVo>('/api/route/get/page', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -84,7 +84,7 @@ export async function listRouteById(
   body: number[],
   options?: { [key: string]: any },
 ) {
-  return request<API.RListRouteVo>(`/api/route/get/list_byid`, {
+  return request<API.RListRouteVo>('/api/route/get/list_byid', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

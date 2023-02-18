@@ -2,7 +2,7 @@ import { request } from '@/utils';
 
 /** 新增地区公用物品 通过ID列表批量添加地区公用物品 PUT /api/item_common/add */
 export async function addCommonItem(body: number[], options?: { [key: string]: any }) {
-  return request<API.RBoolean>(`/api/item_common/add`, {
+  return request<API.RBoolean>('/api/item_common/add', {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -17,7 +17,7 @@ export async function listCommonItem(
   body: API.PageSearchVo,
   options?: { [key: string]: any },
 ) {
-  return request<API.RPageListVoItemVo>(`/api/item_common/get/list`, {
+  return request<API.RPageListVoItemVo>('/api/item_common/get/list', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

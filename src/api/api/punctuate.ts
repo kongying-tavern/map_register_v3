@@ -8,7 +8,7 @@ export async function addPunctuate(
   body: API.MarkerPunctuateVo,
   options?: { [key: string]: any },
 ) {
-  return request<API.RLong>(`/api/punctuate/`, {
+  return request<API.RLong>('/api/punctuate/', {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -27,7 +27,7 @@ export async function updateSelfPunctuate(
   body: API.MarkerPunctuateVo,
   options?: { [key: string]: any },
 ) {
-  return request<API.RBoolean>(`/api/punctuate/`, {
+  return request<API.RBoolean>('/api/punctuate/', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -61,7 +61,7 @@ export async function listPunctuatePage(
   body: API.PageSearchVo,
   options?: { [key: string]: any },
 ) {
-  return request<API.RPageListVoMarkerPunctuateVo>(`/api/punctuate/get/page`, {
+  return request<API.RPageListVoMarkerPunctuateVo>('/api/punctuate/get/page', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

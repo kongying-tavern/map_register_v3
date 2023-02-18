@@ -2,7 +2,7 @@ import { request } from '@/utils';
 
 /** 返回点位分页bz2的md5数组 返回点位分页bz2的md5数组 GET /api/marker_doc/list_page_bz2_md5 */
 export async function listMarkerBz2MD5(options?: { [key: string]: any }) {
-  return request<API.RListString>(`/api/marker_doc/list_page_bz2_md5`, {
+  return request<API.RListString>('/api/marker_doc/list_page_bz2_md5', {
     method: 'GET',
     ...(options || {}),
   });

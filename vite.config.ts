@@ -56,7 +56,7 @@ export default defineConfig(({ mode }) => {
           schemaPath: `${ENV.VITE_API_PROXY_TARGET}/v3/api-docs`,
           requestImportStatement: 'import { request } from \'@/utils\'',
           serversPath: join('./src/api'),
-          apiPrefix: '\'/api\'',
+          apiPrefix: '',
           projectName: 'api',
         },
       ]),

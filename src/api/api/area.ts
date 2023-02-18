@@ -2,7 +2,7 @@ import { request } from '@/utils';
 
 /** 新增地区 返回新增地区ID PUT /api/area/add */
 export async function createArea(body: API.AreaVo, options?: { [key: string]: any }) {
-  return request<API.RLong>(`/api/area/add`, {
+  return request<API.RLong>('/api/area/add', {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -14,7 +14,7 @@ export async function createArea(body: API.AreaVo, options?: { [key: string]: an
 
 /** 修改地区 修改地区 POST /api/area */
 export async function updateArea(body: API.AreaVo, options?: { [key: string]: any }) {
-  return request<API.RBoolean>(`/api/area`, {
+  return request<API.RBoolean>('/api/area', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -50,7 +50,7 @@ export async function listArea(
   body: API.AreaSearchVo,
   options?: { [key: string]: any },
 ) {
-  return request<API.RListAreaVo>(`/api/area/get/list`, {
+  return request<API.RListAreaVo>('/api/area/get/list', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

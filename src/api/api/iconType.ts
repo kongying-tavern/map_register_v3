@@ -5,7 +5,7 @@ export async function addIconType(
   body: API.IconTypeVo,
   options?: { [key: string]: any },
 ) {
-  return request<API.RLong>(`/api/icon_type/add`, {
+  return request<API.RLong>('/api/icon_type/add', {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -20,7 +20,7 @@ export async function updateIconType(
   body: API.IconTypeVo,
   options?: { [key: string]: any },
 ) {
-  return request<API.RBoolean>(`/api/icon_type/update`, {
+  return request<API.RBoolean>('/api/icon_type/update', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -35,7 +35,7 @@ export async function listIconType(
   body: API.PageAndTypeListVo,
   options?: { [key: string]: any },
 ) {
-  return request<API.RPageListVoIconTypeVo>(`/api/icon_type/get/list`, {
+  return request<API.RPageListVoIconTypeVo>('/api/icon_type/get/list', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

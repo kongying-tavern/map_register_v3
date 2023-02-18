@@ -8,7 +8,7 @@ export async function rollback(
   },
   options?: { [key: string]: any },
 ) {
-  return request<API.RBoolean>(`/api/history/rollback`, {
+  return request<API.RBoolean>('/api/history/rollback', {
     method: 'POST',
     params: {
       ...params,
@@ -22,7 +22,7 @@ export async function getList(
   body: API.HistorySearchVo,
   options?: { [key: string]: any },
 ) {
-  return request<API.RPageListVoHistoryVo>(`/api/history/get/list`, {
+  return request<API.RPageListVoHistoryVo>('/api/history/get/list', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
