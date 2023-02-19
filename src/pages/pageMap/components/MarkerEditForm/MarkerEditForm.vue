@@ -3,7 +3,7 @@
 // @TODO 和点位新建界面合并
 import type { FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
-import { useMarkerEdit, useMarkerStage } from '../../hooks'
+import { useMarkerEdit } from '../../hooks'
 import { MarkerEditExtra, MarkerEditImage, MarkerEditSelect, MarkerEditTextarea } from '.'
 import { GlobalDialogController, useTypeList } from '@/hooks'
 import { useUserStore } from '@/stores'
@@ -47,34 +47,13 @@ const initFormData = (): API.MarkerPunctuateVo => {
 /** 表单数据 */
 const form = ref(initFormData())
 
-/** 通用错误处理 */
-const commonErrorHandler = (err: Error) => ElMessage.error(err.message)
-
-// 非管理员走暂存审核方法
-const { stageLoading, stageMarker, onStageError, onPushStagedSuccess, onPushStagedError } = useMarkerStage(form)
-onPushStagedSuccess(() => {
-  ElMessage.success('提交点位编辑请求成功')
-})
-onPushStagedError(commonErrorHandler)
-onStageError(commonErrorHandler)
-
 // 管理员直接走点位编辑方法
-const { createLoading, updateMarker, onCreateSuccess, onCreateError, onEditSuccess, onEditError } = useMarkerEdit(form)
-onCreateSuccess(() => {
-  ElMessage.success('点位编辑成功')
-  emits('refresh')
-})
-onCreateError(commonErrorHandler)
+const { updateMarker, onEditSuccess, onEditError } = useMarkerEdit(form)
 onEditSuccess(() => {
   ElMessage.success('点位编辑成功')
   emits('refresh')
 })
-onEditError(commonErrorHandler)
-
-const loading = computed({
-  get: () => userStore.isAdmin ? createLoading.value : stageLoading.value,
-  set: v => userStore.isAdmin ? (createLoading.value = v) : (stageLoading.value = v),
-})
+onEditError((err: Error) => ElMessage.error(err.message))
 
 /** 表单校验规则 */
 const rules: FormRules = {
@@ -101,42 +80,25 @@ const rules: FormRules = {
   }],
 }
 
-/** 点位编辑API */
-const commitMarker = async () => {
-  // admin, 点位修改
-  if (userStore.isAdmin) {
-    await updateMarker()
-    return true
-  }
-  // 打点员，点位暂存
-  // TODO 审核方法用枚举
-  await stageMarker()
-  return true
-}
-
 /** 右侧额外面板 */
 const extraId = ref('')
 
 /** 表单实例 */
 const formRef = ref<ElFormType | null>(null)
+/** 图片编辑器实例 */
+const imageEditorRef = ref<InstanceType<typeof MarkerEditImage> | null>(null)
 
 /** 表单提交事件 */
 const confirm = async () => {
   if (!formRef.value)
     return
-  try {
-    const res = await formRef.value.validate()
-    loading.value = true
-    const createRes = await commitMarker()
-    if (res && createRes)
-      DialogController.close()
-  }
-  catch {
-    // no action
-  }
-  finally {
-    loading.value = false
-  }
+  const isValid = await formRef.value.validate().catch(() => false)
+  if (!isValid)
+    return
+  const pictureUrl = await imageEditorRef.value?.uploadPicture('测试图片')
+  form.value.picture = pictureUrl
+  await updateMarker()
+  DialogController.close()
 }
 
 const extraPanelRef = ref<HTMLElement | null>(null)
@@ -188,6 +150,7 @@ provide('extraPanel', extraPanelRef)
 
       <el-form-item label="点位图像" prop="picture">
         <MarkerEditImage
+          ref="imageEditorRef"
           v-model="form.picture"
           v-model:extra-id="extraId"
           v-model:creator-id="form.pictureCreatorId"
@@ -204,10 +167,10 @@ provide('extraPanel', extraPanelRef)
 
       <el-form-item label-width="0" style="margin-bottom: 0;">
         <div class="w-full flex justify-end">
-          <el-button :disabled="loading" @click="GlobalDialogController.close">
+          <el-button @click="GlobalDialogController.close">
             取消
           </el-button>
-          <el-button :loading="loading" type="primary" @click="confirm">
+          <el-button type="primary" @click="confirm">
             {{ userStore.isAdmin ? '确认' : '提交审核' }}
           </el-button>
         </div>

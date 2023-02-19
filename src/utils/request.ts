@@ -9,7 +9,7 @@ const logger = new Logger('[axios]')
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE,
-  timeout: 5000,
+  timeout: 60000,
 })
 
 axiosInstance.interceptors.request.use(
@@ -19,7 +19,9 @@ axiosInstance.interceptors.request.use(
     }
 
     const userStore = useUserStore()
-    if (userStore.auth.token_type && userStore.auth.access_token)
+    const hasToken = config.headers.Authorization ?? config.headers.authorization
+    // 如果存在自定义的凭证信息，则不对其进行覆盖
+    if (!hasToken && userStore.auth.token_type && userStore.auth.access_token)
       config.headers.Authorization = `${upperFirst(userStore.auth.token_type)} ${userStore.auth.access_token}`
 
     return config

@@ -1,6 +1,6 @@
 import type { Ref } from 'vue'
+import type { AxiosProgressEvent } from 'axios'
 import dayjs from 'dayjs'
-import { ElMessage } from 'element-plus'
 import Aliyun from '@/api/aliyun'
 import { Logger, messageFrom } from '@/utils'
 
@@ -8,9 +8,6 @@ export interface PictureUploadHookOptions {
   rawImage: Ref<Blob | undefined>
   thumbnailImage: Ref<Blob | undefined>
 }
-
-const IMAGE_SERVER_URL = import.meta.env.VITE_ALIYUN_IMAGE_BASE
-const MARKER_IMAGE_FOLDER = import.meta.env.VITE_ALIYUN_MARKER_FOLDER
 
 const logger = new Logger('[usePictureUpload]')
 
@@ -24,27 +21,22 @@ const getRandomString = (len: number) => [...crypto.getRandomValues(new Uint8Arr
 export const usePictureUpload = (options: PictureUploadHookOptions) => {
   const { rawImage, thumbnailImage } = options
 
-  const progress = ref(0)
+  const percentage = ref(0)
   const stepContent = ref('')
   const errMsg = ref('')
-  const thumbnailImgUrl = ref('')
-  const rawImgUrl = ref('')
 
   const resetState = () => {
-    progress.value = 0
+    percentage.value = 0
     stepContent.value = ''
     errMsg.value = ''
-    thumbnailImgUrl.value = ''
-    rawImgUrl.value = ''
   }
 
-  const onUploadProgress = (ev: ProgressEvent) => {
-    if (!ev.lengthComputable)
-      return
-    progress.value = ev.loaded / ev.total
+  const onUploadProgress = ({ progress = 0 }: AxiosProgressEvent) => {
+    percentage.value = Math.floor(progress * 100)
   }
 
-  const upload = async () => {
+  /** 上传成功后返回图片的存储地址 */
+  const uploadPicture = async (filename = getRandomString(32)) => {
     resetState()
     try {
       if (!rawImage.value)
@@ -52,39 +44,49 @@ export const usePictureUpload = (options: PictureUploadHookOptions) => {
       if (!thumbnailImage.value)
         throw new Error('缩略图不能为空')
 
-      const randomFileName = getRandomString(32)
-      const today = new Date().getTime()
+      const today = dayjs()
+      const date = today.format('YYYY-MM-DD')
+      const lastModified = today.valueOf()
 
-      // 创建当日文件夹
-      stepContent.value = '初始化上传目录'
-      const path = `${MARKER_IMAGE_FOLDER}/${dayjs().format('YYYY-MM-DD')}`
-      await Aliyun.mkdir({ path })
+      // 登录获取 token
+      stepContent.value = '获取凭证'
+      const { code: c1 = 0, message: m1 = '', data: { token: authorization = '' } = {} } = await Aliyun.token()
+      if (c1 !== 200)
+        throw new Error(m1)
 
       // 上传缩略图
-      const thumbnailFilename = `${randomFileName}.jpg`
-      const thumbnailFile = blobToFile(thumbnailImage.value, thumbnailFilename, today)
-      stepContent.value = '正在上传缩略图'
-      await Aliyun.upload({ files: thumbnailFile, path }, { onUploadProgress })
+      const thumbnailFilename = `${filename}.jpg`
+      stepContent.value = '上传缩略图'
+      const { code: c2, message: m2 } = await Aliyun.upload({
+        authorization,
+        file: blobToFile(thumbnailImage.value, thumbnailFilename, lastModified),
+        path: `${import.meta.env.VITE_ALIYUN_MARKER_FOLDER}/${date}/${thumbnailFilename}`,
+      }, { onUploadProgress })
+      if (c2 !== 200)
+        throw new Error(m2)
 
       // 上传大图
-      const rawFilename = `${randomFileName}_large.jpg`
-      const rawFile = blobToFile(rawImage.value, rawFilename, today)
-      stepContent.value = '正在上传大图'
-      await Aliyun.upload({ files: rawFile, path }, { onUploadProgress })
+      const rawFilename = `${filename}_large.jpg`
+      stepContent.value = '上传大图'
+      const { code: c3, message: m3 } = await Aliyun.upload({
+        authorization,
+        file: blobToFile(rawImage.value, rawFilename, lastModified),
+        path: `${import.meta.env.VITE_ALIYUN_MARKER_FOLDER}/${date}/${rawFilename}`,
+      }, { onUploadProgress })
+      if (c3 !== 200)
+        throw new Error(m3)
 
-      // 上传图片后的地址
-      thumbnailImgUrl.value = `${IMAGE_SERVER_URL}${path}/${thumbnailFilename}`
-      rawImgUrl.value = `${IMAGE_SERVER_URL}${path}/${rawFilename}`
+      // 返回缩略图的地址
+      return `${import.meta.env.VITE_ALIYUN_IMAGE_BASE}/${import.meta.env.VITE_ALIYUN_MARKER_FOLDER}/${date}/${thumbnailFilename}`
     }
     catch (err) {
       logger.error(err)
       errMsg.value = messageFrom(err)
-      ElMessage.error(messageFrom(err))
     }
     finally {
       stepContent.value = '完成'
     }
   }
 
-  return { progress, stepContent, errMsg, thumbnailImgUrl, rawImgUrl, upload }
+  return { percentage, stepContent, errMsg, uploadPicture }
 }

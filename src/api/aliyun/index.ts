@@ -1,6 +1,6 @@
-import { mkdir, upload } from './drive'
+import { token, upload } from './drive'
 
 export default {
-  mkdir,
+  token,
   upload,
 }

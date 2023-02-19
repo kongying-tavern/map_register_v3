@@ -2,6 +2,7 @@
 import { Plus, Setting } from '@element-plus/icons-vue'
 import type { UploadFile } from 'element-plus'
 import { ElIcon, ElMessage, ElUpload } from 'element-plus'
+import { usePictureUpload } from '../../hooks'
 import { MarkerEditImageExtraPanel, TeleportExtra } from '.'
 
 const props = defineProps<{
@@ -57,10 +58,19 @@ const toggleExtraPanel = () => {
 watch(imgUrl, (url) => {
   url && emits('update:extraId', 'picture')
 })
+
+const { stepContent, percentage, errMsg, uploadPicture } = usePictureUpload({
+  rawImage,
+  thumbnailImage,
+})
+
+defineExpose({
+  uploadPicture,
+})
 </script>
 
 <template>
-  <div class="w-full flex justify-between items-start gap-1">
+  <div class="w-full flex justify-between gap-1">
     <ElUpload
       ref="uploaderRef"
       accept="image/*"
@@ -79,6 +89,11 @@ watch(imgUrl, (url) => {
         </div>
       </div>
     </ElUpload>
+
+    <div class="h-full flex flex-1 flex-col justify-end">
+      <div>{{ stepContent }}</div>
+      <el-progress text-inside :stroke-width="24" :status="errMsg ? 'exception' : ''" :percentage="percentage" />
+    </div>
 
     <el-button :icon="Setting" :type="extraActive ? 'primary' : ''" title="编辑图像" circle @click="toggleExtraPanel" />
 

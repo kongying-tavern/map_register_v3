@@ -7,17 +7,22 @@ declare namespace API {
     data?: any
   };
 
-  type AliyunDriveDirVO = {
-    /** 文件夹路径 */
-    path: string
-  };
+  type RDriveToken = {
+    code?: number
+    message?: string
+    data?: {
+      token?: string
+    }
+  }
 
   type AliyunDriveUploadVO = {
-    /** 图片文件 */
-    files: File
-    /** 上传路径 */
+    /** 图片（单文件） */
+    file: File
+    /** 上传全路径 */
     path: string
     /** 文件夹密码 */
     password?: string
+    /** token */
+    authorization: string
   };
 }
