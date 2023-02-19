@@ -34,7 +34,7 @@ axiosInstance.interceptors.response.use(
   (response) => {
     const { data } = response
     if (data.error)
-      return Promise.reject(new Error(data.error_description))
+      return Promise.reject(new Error(data.error_description ?? data.message))
     return data
   },
   (error) => {
