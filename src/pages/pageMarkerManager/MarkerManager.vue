@@ -1,21 +1,44 @@
 <script lang="ts" setup>
 import { onMounted, reactive, ref } from 'vue'
-import { useMarkerList } from './hooks'
+import { useSearchMarkerList } from './hooks'
 
-const queryForm = reactive<API.MarkerSearchVo>({
+const markerAreasOptions = [
+  { label: '蒙德', value: 0 },
+  { label: '璃月', value: 1 },
+]
+
+const markerTypeOptions = [
+  { label: '蒙德', value: 0 },
+  { label: '璃月', value: 1 },
+]
+
+const markerItemOptions = [
+  { label: '蒙德', value: 0 },
+  { label: '璃月', value: 1 },
+]
+
+const queryForm = reactive<API.MarkerSearchVo & { markerId: number | null }>({
   areaIdList: [],
   itemIdList: [],
   typeIdList: [],
   getBeta: false,
   hiddenFlagList: [],
+  markerId: null,
 })
 
 const page = ref<number>(1)
 const pageSize = ref<number>(10)
-const { markerList, totalCount, updateMarkerList } = useMarkerList({
-  immediate: true,
+
+const { markerList, totalCount, searchMarkerList } = useSearchMarkerList({
+  immediate: false,
   params: () => {
     return {
+      areaIdList: queryForm.areaIdList,
+      itemIdList: queryForm.itemIdList,
+      typeIdList: queryForm.typeIdList,
+      getBeta: queryForm.getBeta,
+      hiddenFlagList: queryForm.hiddenFlagList,
+      markerIdList: queryForm.markerId ? [queryForm.markerId] : [],
       current: page.value,
       size: pageSize.value,
     }
@@ -23,7 +46,7 @@ const { markerList, totalCount, updateMarkerList } = useMarkerList({
 })
 
 function getPageData() {
-  updateMarkerList()
+  searchMarkerList()
 }
 
 function positionFormatter(val: string) {
@@ -33,14 +56,8 @@ function positionFormatter(val: string) {
   return `(${numX}, ${numY})`
 }
 
-function handlePageSizeChange(val: number) {
-  pageSize.value = val
-  getPageData()
-}
-
-function handleCurrentPageChange(val: number) {
-  page.value = val
-  getPageData()
+function onSearch() {
+  page.value = 1
 }
 
 onMounted(() => {
@@ -54,6 +71,61 @@ onMounted(() => {
       点位管理
     </el-header>
     <el-main>
+      <el-form :inline="true" :model="queryForm">
+        <el-form-item label="点位id">
+          <el-input v-model="queryForm.markerId" placeholder="请输入id" />
+        </el-form-item>
+        <el-form-item label="地区">
+          <el-select
+            v-model="queryForm.areaIdList"
+            multiple
+            placeholder="请选择地区"
+            style="width: 240px"
+          >
+            <el-option
+              v-for="item in markerAreasOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="类型">
+          <el-select
+            v-model="queryForm.typeIdList"
+            multiple
+            placeholder="请选择点位类型"
+            style="width: 240px"
+          >
+            <el-option
+              v-for="item in markerTypeOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="物品">
+          <el-select
+            v-model="queryForm.itemIdList"
+            multiple
+            placeholder="请选择物品"
+            style="width: 240px"
+          >
+            <el-option
+              v-for="item in markerItemOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="onSearch">
+            搜索
+          </el-button>
+        </el-form-item>
+      </el-form>
       <el-table :data="markerList" border max-height="800">
         <el-table-column type="expand">
           <template #default="{ row }">
@@ -97,13 +169,11 @@ onMounted(() => {
       </el-table>
       <div class="pagination-container">
         <el-pagination
+          v-model:current-page="page"
+          v-model:page-size="pageSize"
           layout="prev, pager, next, sizes, total"
           :page-sizes="[10, 20, 50, 100]"
-          :current-page="page"
-          :page-size="pageSize"
           :total="totalCount"
-          @size-change="handlePageSizeChange"
-          @current-change="handleCurrentPageChange"
         />
       </div>
     </el-main>
