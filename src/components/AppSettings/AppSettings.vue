@@ -1,6 +1,35 @@
 <script lang="ts" setup>
 import SettingItem from './SettingItem.vue'
 import { localSettings } from '@/stores'
+
+const usageStorage = ref(0)
+const quotaStorage = ref(0)
+const cacheLaoding = ref(false)
+
+/** 计算缓存大小 */
+const calculateCaches = async () => {
+  const { usage = 0, quota = 0 } = (await navigator.storage.estimate())
+  usageStorage.value = Math.ceil(usage / (2 ** (10 * 3)))
+  quotaStorage.value = Math.ceil(quota / (2 ** (10 * 3)))
+}
+calculateCaches()
+
+/** 删除全部缓存 */
+const cleatAllCaches = async () => {
+  try {
+    cacheLaoding.value = true
+    const cacheNames = await caches.keys()
+    const missions = cacheNames.map(cacheName => caches.delete(cacheName))
+    await Promise.all(missions)
+    await calculateCaches()
+  }
+  catch {
+    // no action
+  }
+  finally {
+    cacheLaoding.value = false
+  }
+}
 </script>
 
 <template>
@@ -11,6 +40,12 @@ import { localSettings } from '@/stores'
 
     <SettingItem label="自动跳转筛选器" content="筛选器满足选择条件时自动跳转到下一级">
       <el-switch v-model="localSettings.autoTurnNext" />
+    </SettingItem>
+
+    <SettingItem label="缓存" :content="`缓存占用约 ${usageStorage} GB 大小数据，剩余配额约 ${quotaStorage} GB。`">
+      <el-button :loading="cacheLaoding" @click="cleatAllCaches">
+        删除缓存
+      </el-button>
     </SettingItem>
   </div>
 </template>
