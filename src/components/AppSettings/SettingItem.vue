@@ -11,9 +11,11 @@ defineProps<{
       <div class="text-black">
         {{ label }}
       </div>
-      <div v-if="content" class="text-gray-600 text-xs">
-        {{ content }}
-      </div>
+      <slot name="content">
+        <div v-if="content" class="text-gray-600 text-xs">
+          {{ content }}
+        </div>
+      </slot>
     </div>
     <div>
       <slot />
