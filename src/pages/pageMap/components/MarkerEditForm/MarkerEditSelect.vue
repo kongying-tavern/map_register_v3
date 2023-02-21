@@ -1,12 +1,10 @@
 <script lang="ts" setup>
 import { Close, Setting } from '@element-plus/icons-vue'
 import { MarkerEditSelectExtraPanel, TeleportExtra } from '.'
+import { useIconList, useItemList, useTypeList } from '@/hooks'
 
 const props = defineProps<{
   modelValue?: API.MarkerItemLinkVo[]
-  itemList: API.ItemVo[]
-  typeList: API.ItemTypeVo[]
-  iconMap: Record<string, string>
   extraId: string
 }>()
 
@@ -15,19 +13,12 @@ const emits = defineEmits<{
   (e: 'update:extraId', v: string): void
 }>()
 
-/** 类型 id 与类型对象的映射 */
-const typeMap = computed(() => props.typeList.reduce((seed, typeObj) => {
-  typeObj.typeId !== undefined && (seed[typeObj.typeId] = typeObj)
-  return seed
-}, {} as Record<number, API.ItemTypeVo>))
+const { typeMap } = useTypeList()
+const { itemMap } = useItemList()
+const { iconMap } = useIconList()
 
 const internalBind = ref(props.modelValue ?? [])
 watch(internalBind, v => emits('update:modelValue', v), { deep: true })
-
-const itemMap = computed(() => props.itemList.reduce((seed, item) => {
-  item.itemId !== undefined && (seed[item.itemId] = item)
-  return seed
-}, {} as Record<number, API.ItemVo>))
 
 const extraActive = computed(() => props.extraId === 'itemList')
 const toggleExtraPanel = () => {
@@ -53,6 +44,7 @@ const toggleExtraPanel = () => {
           :src="iconMap[item.iconTag as string]"
           class="w-7 aspect-square object-contain rounded-full bg-slate-500"
           referrerpolicy="no-referrer"
+          crossorigin=""
         >
         <div class="flex-1 text-ellipsis whitespace-nowrap overflow-hidden" :title="itemMap[item.itemId as number].name">
           {{ typeMap[itemMap[item.itemId as number].typeIdList?.[0] ?? -1]?.name ?? '未分类' }} - {{ itemMap[item.itemId as number].name }}
@@ -76,12 +68,7 @@ const toggleExtraPanel = () => {
     <el-button :icon="Setting" :type="extraActive ? 'primary' : ''" title="选择物品" circle @click="toggleExtraPanel" />
 
     <TeleportExtra :active="extraActive">
-      <MarkerEditSelectExtraPanel
-        v-model="internalBind"
-        :item-list="itemList"
-        :type-map="typeMap"
-        :icon-map="iconMap"
-      />
+      <MarkerEditSelectExtraPanel v-model="internalBind" />
     </TeleportExtra>
   </div>
 </template>
