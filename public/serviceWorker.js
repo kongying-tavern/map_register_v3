@@ -15,10 +15,10 @@ self.onactivate = (ev) => {
  * @todo 待封装
  */
 self.onfetch = (ev) => {
-  const { url } = ev.request
+  const { url, mode } = ev.request
 
   // 只拦截图片类型请求
-  if (url.match(/^.+\.(png|jpeg|jpg|jxl|jp2|webp|bmp)$/)?.['index'] !== 0)
+  if (url.match(/^.+\.(png|jpeg|jpg|jxl|jp2|webp|bmp)$/)?.['index'] !== 0 || mode !== 'cors')
     return
 
   // 只缓存以下几种情况
@@ -32,20 +32,27 @@ self.onfetch = (ev) => {
   else if (url.match(/http(s?):\/\/assets.yuanshen.site\/icons/)?.['index'] === 0)
     cacheStorageName = 'item-icons'
 
-  // 3. 其他图片
-  else
-    cacheStorageName = 'other-image'
-  
-  const cacheRequest = async () => {
-    // 如果匹配到缓存则直接返回
-    const cachedResult = await caches.match(ev.request)
-    if (cachedResult)
-      return cachedResult
+  if (!cacheStorageName)
+    return
 
-    // 如果匹配不到则拦截请求
-    const res = await fetch(ev.request)
-    ;(await caches.open(cacheStorageName)).put(ev.request, res.clone())
-    return res
+  const cacheRequest = async () => {
+    try {
+      // 如果匹配到缓存则直接返回
+      const cachedResult = await caches.match(ev.request)
+      if (cachedResult)
+        return cachedResult
+  
+      // 如果匹配不到则拦截请求
+      const res = await fetch(ev.request)
+      ;(await caches.open(cacheStorageName)).put(ev.request, res.clone())
+      return res
+    }
+    catch {
+      return new Response(null, {
+        status: 404,
+        statusText: 'Not Found',
+      })
+    }
   }
 
   ev.respondWith(cacheRequest())
