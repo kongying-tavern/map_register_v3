@@ -182,6 +182,7 @@ const CanvasMarker = L.CircleMarker.extend({
       const img = document.createElement('img')
       img.referrerPolicy = 'no-referrer'
       img.src = this.options.img.url
+      img.crossOrigin = ''
       img.onload = () => {
         this.redraw()
       }

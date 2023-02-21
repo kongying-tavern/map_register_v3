@@ -19,9 +19,7 @@ export const beforeEachGuard = (
 
     if (isInWhiteList(to)) {
       // 如果用户已登录，但手动导航到部分页面，则重定向到地图页
-      if (isTokenValid)
-        return next('/map')
-      return next(true)
+      return isTokenValid ? next('/map') : next(true)
     }
 
     const routes = router.getRoutes()
