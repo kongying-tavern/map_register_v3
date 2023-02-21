@@ -27,11 +27,12 @@ withDefaults(defineProps<{
       :title="title"
       fit="contain"
       referrerpolicy="no-referrer"
+      crossorigin=""
       class="w-4/5 h-4/5 bg-transparent"
       style="--el-fill-color-light: transparent"
     >
       <template #error>
-        <img class="w-full h-full object-contain" src="https://assets.yuanshen.site/icons/-1.png">
+        <img class="w-full h-full object-contain" crossorigin="" src="https://assets.yuanshen.site/icons/-1.png">
       </template>
     </el-image>
   </div>

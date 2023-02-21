@@ -94,6 +94,8 @@ onClickOutside(containerRef, (ev) => {
     <img
       v-if="markerInfo.picture"
       :src="markerInfo.picture"
+      crossorigin=""
+      referrerpolicy="no-referrer"
       alt="点位图像"
       class="w-full aspect-square object-cover rounded"
     >
