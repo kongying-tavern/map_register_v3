@@ -1,14 +1,17 @@
 <script lang="ts" setup>
+import { useIconList, useItemList, useTypeList } from '@/hooks'
+
 const props = defineProps<{
   modelValue: API.MarkerItemLinkVo[]
-  itemList: API.ItemVo[]
-  typeMap: Record<number, API.ItemTypeVo>
-  iconMap: Record<string, string>
 }>()
 
 const emits = defineEmits<{
   (e: 'update:modelValue', v: API.MarkerItemLinkVo[]): void
 }>()
+
+const { typeMap } = useTypeList()
+const { itemList } = useItemList()
+const { iconMap } = useIconList()
 
 interface ItemExtraObj extends API.ItemVo {
   active: boolean
@@ -23,11 +26,11 @@ const queryText = ref('')
 const debounceQueryText = debouncedRef(queryText, 300)
 
 /** 分类的物品列表 */
-const itemTree = computed(() => props.itemList.reduce((seed, item) => {
+const itemTree = computed(() => itemList.value.reduce((seed, item) => {
   const query = debounceQueryText.value.trim()
   item.typeIdList?.forEach((typeId) => {
     if (!seed[typeId]) {
-      const typeVO = props.typeMap[typeId]
+      const typeVO = typeMap.value[typeId]
       seed[typeId] = {
         ...typeVO,
         items: [],
@@ -83,6 +86,8 @@ const selectItem = (item: ItemExtraObj) => {
             <img
               :src="iconMap[item.iconTag as string]"
               referrerpolicy="no-referrer"
+              loading="lazy"
+              crossorigin=""
               class="w-6 aspect-square object-contain"
             >
             <div class="flex-1 leading-6 overflow-hidden text-ellipsis whitespace-nowrap">

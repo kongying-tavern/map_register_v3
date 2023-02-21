@@ -8,19 +8,21 @@ import { ElIcon } from 'element-plus'
 import { Plus, Refresh, Setting } from '@element-plus/icons-vue'
 import type L from 'leaflet'
 import { ceil } from 'lodash'
+import { useUserStore } from '@/stores'
 
 const props = defineProps<{
   latlng: L.LatLng
   selectedArea?: API.AreaVo
-  hasPunctauteRights: boolean
 }>()
 
 const emits = defineEmits<{
   (e: 'command', v: string): void
 }>()
 
+const userStore = useUserStore()
+
 const createMarker = () => {
-  if (!props.hasPunctauteRights || !props.selectedArea)
+  if (!userStore.hasPunctauteRights || !props.selectedArea)
     return
   emits('command', 'add')
 }
@@ -33,8 +35,8 @@ const createMarker = () => {
     <div
       data-command="add"
       class="context-menu-item rounded col-span-2"
-      :class="{ disabled: !hasPunctauteRights || !selectedArea }"
-      :title="!hasPunctauteRights ? '没有权限' : !selectedArea ? '未选择地区' : undefined"
+      :class="{ disabled: !userStore.hasPunctauteRights || !selectedArea }"
+      :title="!userStore.hasPunctauteRights ? '没有权限' : !selectedArea ? '未选择地区' : undefined"
       @click="createMarker"
     >
       <ElIcon><Plus /></ElIcon>

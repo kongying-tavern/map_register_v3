@@ -315,5 +315,5 @@ export const useMarker = (options: MarkerHookOptions = {}) => {
 
   watch(fetchParams, updateMarkerList, { deep: true })
 
-  return { iconMap, markerList, markerLayer, updateMarkerList, createMarkerWhenReady, onError, ...rest }
+  return { markerList, markerLayer, updateMarkerList, createMarkerWhenReady, onError, ...rest }
 }
