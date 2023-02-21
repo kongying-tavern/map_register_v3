@@ -4,8 +4,8 @@ import { render } from 'vue'
 import { ceil } from 'lodash'
 import { ContextMenu, MarkerCreateForm } from '../components'
 import type { GenshinMap } from '../utils'
-import { useAreaList, useGlobalDialog, useIconList, useItemList, useTypeList } from '@/hooks'
-import { useMapStore, useUserStore } from '@/stores'
+import { useAreaList, useGlobalDialog } from '@/hooks'
+import { useMapStore } from '@/stores'
 import { AppSettings } from '@/components'
 
 /** 传递给右键菜单的参数 */
@@ -24,13 +24,9 @@ interface MarkerCreateFormProps {
 export const useContextMenu = (options: ContextMenuHookOptions) => {
   const { refreshMarkers, selectedItem } = options
 
-  const userStore = useUserStore()
+  const ctx = getCurrentInstance()
   const mapStore = useMapStore()
-  const { itemList } = useItemList()
-  const { iconMap } = useIconList()
   const { areaList } = useAreaList()
-  const { typeList } = useTypeList()
-
   const { DialogService } = useGlobalDialog()
 
   /** 打开点位新建面板 */
@@ -45,11 +41,7 @@ export const useContextMenu = (options: ContextMenuHookOptions) => {
         class: 'transition-all',
       })
       .props({
-        hasPunctauteRights: userStore.hasPunctauteRights,
         selectedItem: selectedItem.value,
-        itemList: itemList.value,
-        typeList: typeList.value,
-        iconMap: iconMap.value,
         ...props,
       })
       .listeners({
@@ -104,12 +96,13 @@ export const useContextMenu = (options: ContextMenuHookOptions) => {
     } as Record<string, () => void>)[command]?.()
 
     /** 预渲染右键菜单使用的组件 */
-    render(h(ContextMenu, {
+    const vnode = h(ContextMenu, {
       latlng: ev.latlng,
-      hasPunctauteRights: userStore.hasPunctauteRights,
       selectedArea,
       onCommand,
-    }), div)
+    })
+    vnode.appContext = ctx?.appContext ?? null
+    render(vnode, div)
 
     menu
       .setContent(div)

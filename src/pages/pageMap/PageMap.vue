@@ -5,7 +5,7 @@ import { ControlPanel, UndergroundSwitch } from './components'
 import { areaListInjection, iconMapInjection, itemListInjection, itemTypeInjection, mapInjection, markerListInjection } from './shared'
 import { useContextMenu, useLayer, useMap, useMarker } from './hooks'
 import { AppUserAvatar } from '@/components'
-import { useAreaList, useItemList, useTypeList } from '@/hooks'
+import { useAreaList, useIconList, useItemList, useTypeList } from '@/hooks'
 import { useMapStore } from '@/stores'
 
 // ==================== 地图相关 ====================
@@ -33,7 +33,11 @@ const areaId = computed(() => {
   return areaList.value.find(area => area.code === mapStore.areaCode)?.areaId
 })
 
+// ==================== 图标相关 ====================
+const { iconMap } = useIconList({ immediate: true })
+
 // ==================== 物品相关 ====================
+
 const { itemList } = useItemList({
   immediate: true,
   params: () => ({
@@ -66,7 +70,7 @@ watch(() => [mapStore.areaCode, mapStore.typeId], () => {
 })
 
 // ==================== 点位相关 ====================
-const { iconMap, markerList, updateMarkerList } = useMarker({
+const { markerList, updateMarkerList } = useMarker({
   selectedItem,
   params: () => ({
     rawParams: {

@@ -108,7 +108,7 @@ export const useMarker = (options: MarkerHookOptions = {}) => {
 
   const { map, stopPropagationSignal } = useMap()
   const { itemList } = useItemList()
-  const { iconMap, onSuccess: onIconFetched } = useIconList({ immediate: true })
+  const { iconMap, onSuccess: onIconFetched } = useIconList()
 
   /** 组件实例 */
   const instance = getCurrentInstance()

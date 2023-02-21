@@ -16,6 +16,11 @@ interface ItemUpdateHookOptions extends FetchHookOptions<API.RBoolean> {
 const itemList = ref<API.ItemVo[]>([]) as Ref<API.ItemVo[]>
 /** 共享的物品列表加载态，可覆盖 */
 const loading = ref(false)
+/** 共享的物品id → 物品对象映射表 */
+const itemMap = computed(() => itemList.value.reduce((seed, item) => {
+  item.itemId !== undefined && (seed[item.itemId] = item)
+  return seed
+}, {} as Record<number, API.ItemVo>))
 
 /** 物品列表与相关操作方法 */
 export const useItemList = (options: ItemListHookOptions = {}) => {
@@ -44,7 +49,7 @@ export const useItemList = (options: ItemListHookOptions = {}) => {
 
   const { pause, resume } = pausableWatch(fetchParams, updateItemList, { deep: true })
 
-  return { itemList, updateItemList, onSuccess, pause, resume, ...rest }
+  return { itemList, itemMap, updateItemList, onSuccess, pause, resume, ...rest }
 }
 
 /** 修改某几个物品 */
