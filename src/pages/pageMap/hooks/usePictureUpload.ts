@@ -21,7 +21,7 @@ const getRandomString = (len: number) => [...crypto.getRandomValues(new Uint8Arr
 export const usePictureUpload = (options: PictureUploadHookOptions) => {
   const { rawImage, thumbnailImage } = options
 
-  const percentage = ref(0)
+  const percentage = ref<number | undefined>()
   const stepContent = ref('')
   const errMsg = ref('')
 
