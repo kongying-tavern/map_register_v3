@@ -100,7 +100,6 @@ L.Canvas.include({
   _updateImg(layer: AnyObject & { options: GenshinLayerOptions }) {
     const { img, undergroundImg } = layer.options
     const { width: rW, height: rH } = img.el
-    const { width: urW, height: urH } = undergroundImg.el
     const { hover, active, popperOpen } = img
 
     const { w, h, x, y, center, radius } = getMarkerShape(layer, img)
@@ -161,6 +160,7 @@ L.Canvas.include({
         ctx.translate(x, y)
         ctx.rotate(img.rotate * Math.PI / 180)
       }
+      const { width: urW, height: urH } = undergroundImg.el
       const { sx, sy, swidth, sheight, x: dx, y: dy, width, height } = getObjectFitSize('contain', uw, uh, urW, urH)
       ctx.drawImage(undergroundImg.el, sx, sy, swidth, sheight, dx + ux, dy + uy, width, height)
     })
