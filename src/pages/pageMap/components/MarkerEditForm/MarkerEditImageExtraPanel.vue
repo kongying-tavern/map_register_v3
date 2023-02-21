@@ -1,6 +1,11 @@
 <script lang="ts" setup>
 import { Close } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
+import { fromEvent as fromRefEvent } from '@vueuse/rxjs'
+import type { Observable } from 'rxjs'
+import { fromEvent, map, switchMap, takeUntil } from 'rxjs'
+import type { Ref } from 'vue'
+import { clamp } from 'lodash'
 
 const props = withDefaults(defineProps<{
   imageBitMap?: ImageBitmap
@@ -16,7 +21,7 @@ const emits = defineEmits<{
 
 const { max, min } = Math
 
-const canvasRef = ref<HTMLCanvasElement | null>(null)
+const canvasRef = ref() as Ref<HTMLCanvasElement>
 const canvasCtx = computed(() => canvasRef.value?.getContext('2d') ?? null)
 const { width: w, height: h } = useElementBounding(canvasRef)
 
@@ -55,12 +60,13 @@ const deltaNarrow = 1 / deltaEnlarge
 /** 图像左上角坐标 */
 const position = ref<[number, number]>([NaN, NaN])
 
-// 切换图片时重置缩放和中心点
-watch(() => props.imageBitMap, () => {
-  internalBind.value = undefined
-  zoom.value = 0
-  position.value = [NaN, NaN]
-})
+// ========== 事件观察者 ==========
+const wheel = fromRefEvent(canvasRef, 'wheel') as Observable<WheelEvent>
+const pointerdown = fromRefEvent(canvasRef, 'pointerdown') as Observable<PointerEvent>
+const pointerover = fromRefEvent(canvasRef, 'pointerover') as Observable<PointerEvent>
+const pointerout = fromRefEvent(canvasRef, 'pointerout') as Observable<PointerEvent>
+const pointermove = fromEvent<PointerEvent>(window, 'pointermove') as Observable<PointerEvent>
+const click = fromEvent<PointerEvent>(window, 'click')
 
 watch(zoom, (newZoom, oldZoom) => {
   const deltaZoom = newZoom / oldZoom
@@ -76,32 +82,30 @@ watch(zoom, (newZoom, oldZoom) => {
 })
 
 /** 平移 */
-useEventListener<PointerEvent>(canvasRef, 'pointerdown', ({ x: startX, y: startY }) => {
-  const [cacheX, cacheY] = position.value
-  const stopListenMove = useEventListener(window, 'pointermove', ({ x: moveX, y: moveY }) => {
-    const offsetX = cacheX + moveX - startX
-    const posX = zw.value < w.value
-      ? max(0, min(offsetX, rw.value))
-      : max(rw.value, min(offsetX, 0))
-    const offsetY = cacheY + moveY - startY
-    const posY = zh.value < h.value
-      ? max(0, min(offsetY, rh.value))
-      : max(rh.value, min(offsetY, 0))
-    position.value = [posX, posY]
-  })
-  const stopListenUp = useEventListener('click', () => {
-    stopListenMove()
-    stopListenUp()
-  })
-})
+pointerdown.pipe(
+  map(({ x, y }) => ([x, y, ...position.value])),
+  switchMap(([startX, startY, cacheX, cacheY]) => pointermove.pipe(
+    takeUntil(click),
+    takeUntil(wheel),
+    map(({ x: moveX, y: moveY }) => {
+      const offsetX = cacheX + moveX - startX
+      const posX = zw.value < w.value ? clamp(offsetX, 0, rw.value) : clamp(offsetX, rw.value, 0)
+      const offsetY = cacheY + moveY - startY
+      const posY = zh.value < h.value ? clamp(offsetY, 0, rh.value) : clamp(offsetY, rh.value, 0)
+      return [posX, posY] as [number, number]
+    }),
+  )),
+).subscribe(pos => (position.value = pos))
 
 /** 缩放 */
-useEventListener(canvasRef, 'pointerover', () => {
-  const stopListenScroll = useEventListener<WheelEvent>(canvasRef, 'wheel', (ev) => {
-    ev.preventDefault()
-    const { deltaY } = ev
-    // 滚轮向上滚则缩小图像，向下滚则放大图像
-    const deltaZoom = deltaY < 0
+pointerover.pipe(
+  switchMap(() => wheel.pipe(
+    takeUntil(pointerout),
+    map((ev) => {
+      ev.preventDefault()
+      return ev.deltaY
+    }),
+    map(deltaY => deltaY < 0
       ? zoom.value >= maxZoom
         ? 1
         : zoom.value * deltaEnlarge >= maxZoom
@@ -111,14 +115,10 @@ useEventListener(canvasRef, 'pointerover', () => {
         ? 1
         : zoom.value * deltaNarrow <= minZoom.value
           ? minZoom.value / zoom.value
-          : deltaNarrow
-    zoom.value *= deltaZoom
-  }, { passive: false })
-  const stopListenOut = useEventListener(canvasRef, 'pointerout', () => {
-    stopListenScroll()
-    stopListenOut()
-  })
-})
+          : deltaNarrow,
+    ),
+  )),
+).subscribe(deltaZoom => zoom.value *= deltaZoom)
 
 /** 渲染 */
 const useRenderer = (ctx: CanvasRenderingContext2D) => {
@@ -183,6 +183,13 @@ const clipImage = () => {
   })
 }
 
+// 切换图片时重置缩放和中心点
+watch(() => props.imageBitMap, () => {
+  internalBind.value = undefined
+  zoom.value = 0
+  position.value = [NaN, NaN]
+})
+
 onMounted(() => {
   if (!canvasCtx.value)
     return
@@ -195,7 +202,7 @@ onMounted(() => {
     <el-alert :closable="false">
       1. 仅编辑缩略图，原始图像将会作为大图被一并上传。
       <br>
-      2. 由于跨域策略限制，已上传的图像无法再被编辑，如需更改图片请重新上传。
+      2. 由于跨域策略限制，部分已上传的图像无法再被编辑，如需更改图片请重新上传。
     </el-alert>
 
     <div ref="containerRef" class="canvas-container aspect-square rounded overflow-hidden">
