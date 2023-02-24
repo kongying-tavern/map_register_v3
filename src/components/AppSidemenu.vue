@@ -21,6 +21,7 @@ const userStore = useUserStore()
 <style lang="scss" scoped>
 .app-sidemenu {
   --el-menu-item-height: 44px;
+  --el-menu-base-level-padding: 12px;
 
   border-right: none;
 
