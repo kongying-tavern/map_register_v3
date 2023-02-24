@@ -12,9 +12,7 @@ const isMapPage = computed(() => route.path === '/map')
 </script>
 
 <template>
-  <div
-    class="w-full h-full flex flex-col items-stretch"
-  >
+  <div class="w-full h-full flex flex-col items-stretch">
     <div
       v-if="envBanner"
       class="genshin-text text-md p-1 px-2 text-center transition-all duration-150"

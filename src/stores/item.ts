@@ -7,11 +7,17 @@ import Api from '@/api/api'
 import db from '@/database'
 
 const localItemMD5 = useLocalStorage('local-item-md5', '')
+const loading = ref(false)
 
 /** 本地物品数据 */
 export const useItemStore = defineStore('global-item', {
   state: () => ({
+    total: 0,
   }),
+
+  getters: {
+    updateAllLoading: () => loading.value,
+  },
 
   actions: {
     /** 获取所有物品数据的 MD5 */
@@ -48,8 +54,10 @@ export const useItemStore = defineStore('global-item', {
         background: 'rgb(0 0 0 / 0.3)',
       })
       try {
+        loading.value = true
         const startTime = dayjs()
         const total = await this.updateItemInfo()
+        this.total = await db.item.count()
         const spentTime = (dayjs().diff(startTime) / 1000).toFixed(0)
         ElNotification.success({
           title: '物品更新成功',
@@ -64,6 +72,7 @@ export const useItemStore = defineStore('global-item', {
         })
       }
       finally {
+        loading.value = false
         loadingInstance.close()
       }
     },

@@ -2,6 +2,7 @@ import type { Ref } from 'vue'
 import Api from '@/api/api'
 import type { FetchHookOptions } from '@/hooks'
 import { useFetchHook } from '@/hooks'
+import db from '@/database'
 
 interface ItemListHookOptions extends FetchHookOptions<API.RPageListVoItemVo> {
   params?: () => API.ItemSearchVo
@@ -33,13 +34,22 @@ export const useItemList = (options: ItemListHookOptions = {}) => {
     loading: scopedLoading ?? loading,
     onRequest: async () => {
       const { areaIdList = [], typeIdList = [], current = 1, size = 10 } = fetchParams.value ?? {}
-      if (!areaIdList.length && !typeIdList.length)
+      const typeId = typeIdList[0]
+      if (!areaIdList.length)
         return {}
-      return Api.item.listItemIdByType({}, { areaIdList, typeIdList, current, size })
+      const total = await db.item.count()
+      const record = await db.item
+        .where('areaId')
+        .anyOf(areaIdList)
+        .and(itemVO => typeId === undefined ? true : Boolean(itemVO.typeIdList?.includes(typeId)))
+        .offset((current - 1) * size)
+        .limit(size)
+        .toArray()
+      return { record, total }
     },
   })
 
-  onSuccess(({ data: { record = [] } = {} }) => {
+  onSuccess(({ record = [] }) => {
     itemList.value = record.sort(({ sortIndex: ia }, { sortIndex: ib }) => {
       if (ia === undefined || ib === undefined)
         return 0

@@ -5,7 +5,7 @@ import { KeepAlive } from 'vue'
 import { ElMessage } from 'element-plus'
 import type L from 'leaflet'
 import { FilterArea, FilterItem, FilterStep, FilterType, MarkersTable } from '@/pages/pageMap/components'
-import { localSettings, useItemStore, useMapStore, useMarkerStore } from '@/stores'
+import { localSettings, useMapStore } from '@/stores'
 import Api from '@/api/api'
 import { createLinkMarker, useMap, useMarker } from '@/pages/pageMap/hooks'
 import { sleep } from '@/utils'
@@ -145,9 +145,6 @@ const { pagination, pages, disabledNext, disabledPre, nextPage, prePage } = useP
     pageSize: 20,
   },
 })
-
-const markerStore = useMarkerStore()
-const itemStore = useItemStore()
 </script>
 
 <template>
@@ -197,14 +194,6 @@ const itemStore = useItemStore()
         placement="top"
         virtual-triggering
       />
-
-      <el-button @click="itemStore.updateAll">
-        更新物品数据
-      </el-button>
-
-      <el-button @click="markerStore.updateAll">
-        更新点位数据
-      </el-button>
 
       <el-input
         v-model="formatInput"

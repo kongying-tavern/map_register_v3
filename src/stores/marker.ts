@@ -6,10 +6,17 @@ import { Archive, messageFrom } from '@/utils'
 import Api from '@/api/api'
 import db from '@/database'
 
+const loading = ref(false)
+
 /** 全量点位的全局数据 */
 export const useMarkerStore = defineStore('global-marker', {
   state: () => ({
+    total: 0,
   }),
+
+  getters: {
+    updateAllLoading: () => loading.value,
+  },
 
   actions: {
     /** 获取点位分页数据的 MD5 数组 */
@@ -45,14 +52,15 @@ export const useMarkerStore = defineStore('global-marker', {
         text: '正在更新点位信息...',
         background: 'rgb(0 0 0 / 0.3)',
       })
-      ElNotification.closeAll()
       try {
+        loading.value = true
         const startTime = dayjs()
         const md5List = await this.getMarkerMD5List()
         const updatedCountList = await Promise.all(md5List.map((_, index) => this.updateMarkerInfo(index + 1, md5List[index])))
         const total = updatedCountList.reduce((sum, num) => sum + num, 0)
+        this.total = await db.marker.count()
         ElNotification.success({
-          title: '更新成功',
+          title: '点位更新成功',
           message: `本次共更新点位 ${total} 个，耗时 ${(dayjs().diff(startTime) / 1000).toFixed(0)} 秒`,
           position: 'bottom-right',
         })
@@ -64,6 +72,7 @@ export const useMarkerStore = defineStore('global-marker', {
         })
       }
       finally {
+        loading.value = false
         loadingInstance.close()
       }
     },

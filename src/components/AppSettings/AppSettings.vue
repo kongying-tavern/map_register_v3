@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import SettingItem from './SettingItem.vue'
-import { localSettings } from '@/stores'
+import { localSettings, useItemStore, useMarkerStore } from '@/stores'
 
 const usageStorage = ref(0)
 const quotaStorage = ref(0)
@@ -30,6 +30,9 @@ const cleatAllCaches = async () => {
     cacheLaoding.value = false
   }
 }
+
+const itemStore = useItemStore()
+const markerStore = useMarkerStore()
 </script>
 
 <template>
@@ -45,6 +48,18 @@ const cleatAllCaches = async () => {
     <SettingItem label="缓存" :content="`缓存占用约 ${usageStorage} GB 大小数据，剩余配额约 ${quotaStorage} GB。`">
       <el-button :loading="cacheLaoding" @click="cleatAllCaches">
         删除缓存
+      </el-button>
+    </SettingItem>
+
+    <SettingItem label="物品数据" :content="`已存储物品数据 ${itemStore.total} 项`">
+      <el-button :loading="itemStore.updateAllLoading" @click="itemStore.updateAll">
+        更新物品
+      </el-button>
+    </SettingItem>
+
+    <SettingItem label="点位数据" :content="`已存储点位数据 ${markerStore.total} 项`">
+      <el-button :loading="markerStore.updateAllLoading" @click="markerStore.updateAll">
+        更新点位
       </el-button>
     </SettingItem>
   </div>
