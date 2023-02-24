@@ -84,6 +84,11 @@ onDeleteItemSuccess(() => {
   deleteOneItem.value = []
   updateItemList()
 })
+
+const removeRow = (row: API.ItemVo) => {
+  deleteOneItem.value = [row]
+  deleteItem()
+}
 </script>
 
 <template>
@@ -178,10 +183,7 @@ onDeleteItemSuccess(() => {
                 type="danger"
                 plain
                 size="small"
-                @click="() => {
-                  deleteOneItem = [row]
-                  deleteItem()
-                }"
+                @click="() => removeRow(row)"
               >
                 删除
               </el-button>
@@ -202,3 +204,4 @@ onDeleteItemSuccess(() => {
     </div>
   </div>
 </template>
+~
