@@ -34,7 +34,6 @@ const resetPagination = () => {
 }
 
 const onAreaCheckedChange = (area: API.AreaVo) => {
-  // TODO 过滤非端点选项
   if (!area.isFinal)
     return
   resetPagination()
@@ -42,7 +41,6 @@ const onAreaCheckedChange = (area: API.AreaVo) => {
 }
 
 const onTypeCheckedChange = (typeItem: API.ItemTypeVo) => {
-  // TODO 目前只有宝箱(id = 9)分类存在子分类，先这样处理
   if (!typeItem.isFinal)
     return
   resetPagination()
