@@ -9,14 +9,12 @@ const { pagination, layout } = usePagination({
 const checkedArea = ref<API.AreaVo>()
 const checkedType = ref<API.ItemTypeVo>()
 
-const { areaMap, areaTree, loading: areaLoading, areaList } = useAreaList({
+const { areaMap, areaTree, loading: areaLoading } = useAreaList({
   immediate: true,
 })
 
-const { iconMap, iconList } = useIconList({ immediate: true })
-
+const { iconMap } = useIconList({ immediate: true })
 const { typeTree, loading: typeLoading } = useTypeList({ immediate: true })
-
 const { itemList, loading: itemLoading, onSuccess: onItemListFetched, pause, resume, updateItemList } = useItemList({
   immediate: true,
   params: () => ({
@@ -45,34 +43,27 @@ const onAreaCheckedChange = (area: API.AreaVo) => {
 
 const onTypeCheckedChange = (typeItem: API.ItemTypeVo) => {
   // TODO 目前只有宝箱(id = 9)分类存在子分类，先这样处理
-  if (typeItem.typeId === 9)
+  if (!typeItem.isFinal)
     return
   resetPagination()
   checkedType.value = typeItem
 }
 
-onItemListFetched(({ data: { record = [], total = 0 } = {} }) => {
+onItemListFetched(({ data: { total = 0 } = {} }) => {
   pagination.value.total = total
 })
 
 const { openItemDetailEditorDialog } = useItemEdit({
-  itemList,
+  onItemDetailEditSuccess: updateItemList,
 })
-
-const onCreateItemSuccess = () => {
-  updateItemList()
-}
 
 const { openItemCreatorDialog } = useItemCreate({
   defaultItemData: () => ({
     areaId: checkedArea.value?.areaId,
     typeIdList: checkedType.value ? [checkedType.value.typeId as number] : [],
   }),
+  onCreateItemSuccess: updateItemList,
 })
-
-const onItemDetailEditSuccess = () => {
-  updateItemList()
-}
 
 const containerRef = ref<HTMLElement | null>(null)
 const { height, width } = useElementSize(containerRef)
@@ -149,21 +140,7 @@ onDeleteItemSuccess(() => {
         >
           批量删除
         </el-button>
-        <el-button
-          type="primary"
-          @click="() => {
-            openItemCreatorDialog({
-              props: {
-                iconList,
-                areaList,
-                iconMap,
-              },
-              listeners: {
-                success: onCreateItemSuccess,
-              },
-            })
-          }"
-        >
+        <el-button type="primary" @click="openItemCreatorDialog">
           新建物品
         </el-button>
       </div>
@@ -188,6 +165,7 @@ onDeleteItemSuccess(() => {
               >
             </template>
           </el-table-column>
+          <el-table-column label="描述模板" prop="defaultContent" />
           <el-table-column label="地区" width="200">
             <template #default="{ row }">
               <div>{{ areaMap[row.areaId]?.name ?? row.areaId }}</div>
@@ -195,21 +173,7 @@ onDeleteItemSuccess(() => {
           </el-table-column>
           <el-table-column fixed="right" label="操作" width="200">
             <template #default="{ $index, row }">
-              <el-button
-                size="small"
-                @click="() => {
-                  openItemDetailEditorDialog($index, {
-                    props: {
-                      iconList,
-                      areaList,
-                      iconMap,
-                    },
-                    listeners: {
-                      success: onItemDetailEditSuccess,
-                    },
-                  })
-                }"
-              >
+              <el-button size="small" @click="() => openItemDetailEditorDialog($index)">
                 编辑
               </el-button>
               <el-button

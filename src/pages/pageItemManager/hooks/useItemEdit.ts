@@ -1,23 +1,15 @@
-import type { Ref } from 'vue'
 import { ItemDetailEditor } from '../components'
-import { useGlobalDialog } from '@/hooks'
+import { useGlobalDialog, useItemList } from '@/hooks'
 import { useRowEdit } from '@/hooks/useTableManipulation'
 
 export interface ItemEditHookOptions {
-  itemList: Ref<API.ItemVo[]>
-}
-
-export interface ItemDetailEditorDialogOptions {
-  props: {
-    iconList?: API.IconVo[]
-    areaList?: API.AreaVo[]
-    iconMap?: Record<string, string>
-  }
-  listeners: Record<string, (event: string) => void>
+  onItemDetailEditSuccess?: () => void
 }
 
 export const useItemEdit = (options: ItemEditHookOptions) => {
-  const { itemList } = options
+  const { onItemDetailEditSuccess } = options
+
+  const { itemList } = useItemList()
 
   const editOptions = useRowEdit({
     rowList: itemList,
@@ -28,18 +20,15 @@ export const useItemEdit = (options: ItemEditHookOptions) => {
 
   const { DialogService } = useGlobalDialog()
 
-  const openItemDetailEditorDialog = async (index: number, options: ItemDetailEditorDialogOptions) => {
+  const openItemDetailEditorDialog = async (index: number) => {
     await DialogService
       .config({ title: '编辑物品详情', width: '700px', top: '20px' })
       .props({
         item: itemList.value[index],
-        iconList: options.props.iconList ?? [],
-        areaList: options.props.areaList ?? [],
-        iconMap: options.props.iconMap ?? {},
         type: 'editor',
       })
       .listeners({
-        ...options.listeners,
+        success: () => onItemDetailEditSuccess?.(),
       })
       .open(ItemDetailEditor)
       .afterClosed<boolean>()

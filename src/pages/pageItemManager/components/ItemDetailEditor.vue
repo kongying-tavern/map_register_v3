@@ -4,7 +4,7 @@ import { ElMessage } from 'element-plus'
 import type { ItemFormRules } from '../utils'
 import { lengthCheck } from '../utils'
 import { useTimeRefresh } from '../hooks'
-import { useAreaList, useItemCreate, useItemUpdate, useTypeList } from '@/hooks'
+import { useAreaList, useIconList, useItemCreate, useItemUpdate, useTypeList } from '@/hooks'
 import { GlobalDialogController } from '@/hooks/useGlobalDialog'
 import type { ElFormType } from '@/shared'
 
@@ -12,9 +12,6 @@ type EditorType = 'creator' | 'editor'
 
 const props = defineProps<{
   item: API.ItemVo
-  iconList: API.IconVo[]
-  areaList: API.AreaVo[]
-  iconMap: Record<string, string>
   type: EditorType
 }>()
 
@@ -22,9 +19,11 @@ const emits = defineEmits<{
   (e: 'success'): void
 }>()
 
-const formData = ref<API.ItemVo>({})
+const { iconMap, iconList } = useIconList()
+const { areaList } = useAreaList()
+const { typeList } = useTypeList()
 
-formData.value = cloneDeep(props.item)
+const formData = ref<API.ItemVo>(cloneDeep(props.item))
 
 /**
  * @TODO 补充表单验证规则，产品经理人呢，(╯▔皿▔)╯？
@@ -36,14 +35,6 @@ const rules: ItemFormRules<API.ItemVo> = {
     lengthCheck('blur', '名称', 10),
   ],
 }
-
-const { typeList } = useTypeList({
-  immediate: true,
-})
-
-const { areaList } = useAreaList({
-  immediate: true,
-})
 
 const { refreshTimeOptionsIndex, refreshTimeOptions, timeSelectDisabled, refreshTime } = useTimeRefresh({
   formData,
@@ -107,10 +98,10 @@ const confirm = setEditorType()
 
 const onSubmit = async () => {
   const isValid = await formRef.value?.validate().catch(() => false)
-  if (isValid) {
-    GlobalDialogController.updateBtnProps('submit', { props: { loading: true } })
-    await confirm()
-  }
+  if (!isValid)
+    return
+  GlobalDialogController.updateBtnProps('submit', { props: { loading: true } })
+  await confirm()
 }
 
 GlobalDialogController.registerBtn('cancel', {
@@ -202,41 +193,27 @@ GlobalDialogController.registerBtn('submit', {
       </el-col>
     </el-row>
     <el-form-item label="刷新" prop="defaultRefreshTime">
-      <div style="width: 100%;">
-        <el-row :gutter="10">
-          <el-col :span="6">
-            <el-select v-model="refreshTimeOptionsIndex">
-              <el-option
-                v-for="(obj, index) in refreshTimeOptions"
-                :key="obj.value"
-                :value="index"
-                :label="obj.label"
-              />
-            </el-select>
-          </el-col>
-        </el-row>
-        <el-row :gutter="5">
-          <el-col :span="6">
-            <el-input-number v-model="refreshTime.days" :min="0" :max="7" controls-position="right" :disabled="timeSelectDisabled" />
-          </el-col>
-          <el-col :span="2">
-            <span>- 天</span>
-          </el-col>
-          <el-col :span="6">
-            <el-input-number v-model="refreshTime.hour" :min="0" :max="23" controls-position="right" :disabled="timeSelectDisabled" />
-          </el-col>
-          <el-col :span="2">
-            <span>- 时</span>
-          </el-col>
-          <el-col :span="6">
-            <el-input-number v-model="refreshTime.min" :min="0" :max="59" controls-position="right" :disabled="timeSelectDisabled" />
-          </el-col>
-          <el-col :span="2">
-            <span>- 分</span>
-          </el-col>
-        </el-row>
-        <el-row :gutter="10" />
-        <el-row :gutter="10" />
+      <div class="w-full flex justify-between">
+        <el-select v-model="refreshTimeOptionsIndex">
+          <el-option
+            v-for="(obj, index) in refreshTimeOptions"
+            :key="obj.value"
+            :value="index"
+            :label="obj.label"
+          />
+        </el-select>
+        <div class="flex">
+          <el-input-number v-model="refreshTime.days" :min="0" :max="7" controls-position="right" :disabled="timeSelectDisabled" style="width: 80px" />
+          - 天
+        </div>
+        <div class="flex">
+          <el-input-number v-model="refreshTime.hour" :min="0" :max="23" controls-position="right" :disabled="timeSelectDisabled" style="width: 80px" />
+          - 时
+        </div>
+        <div class="flex">
+          <el-input-number v-model="refreshTime.min" :min="0" :max="59" controls-position="right" :disabled="timeSelectDisabled" style="width: 80px" />
+          - 分
+        </div>
       </div>
     </el-form-item>
     <el-form-item label="排序" prop="sortIndex">
