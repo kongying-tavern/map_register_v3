@@ -10,7 +10,7 @@ interface ItemListHookOptions extends FetchHookOptions<API.RPageListVoItemVo> {
 
 interface ItemUpdateHookOptions extends FetchHookOptions<API.RBoolean> {
   params?: () => API.ItemVo[]
-  editSame?: boolean
+  editSame?: Ref<boolean>
 }
 
 /** 共享的物品列表 */
@@ -64,14 +64,14 @@ export const useItemList = (options: ItemListHookOptions = {}) => {
 
 /** 修改某几个物品 */
 export const useItemUpdate = (options: ItemUpdateHookOptions = {}) => {
-  const { immediate = false, editSame = false, loading = ref(false), params } = options
+  const { immediate = false, editSame = ref(false), loading = ref(false), params } = options
 
   const fetchParams = computed(() => params?.())
 
   const { refresh, ...rest } = useFetchHook({
     immediate,
     loading,
-    onRequest: async () => Api.item.updateItem({ editSame: editSame ? 1 : 0 }, fetchParams.value ?? []),
+    onRequest: async () => Api.item.updateItem({ editSame: editSame.value ? 1 : 0 }, fetchParams.value ?? []),
   })
 
   return { refresh, ...rest }
