@@ -94,9 +94,9 @@ onAreaFetched(() => {
 // ==================== 全量数据更新 ====================
 const itemStore = useItemStore()
 const markerStore = useMarkerStore()
-onMounted(async () => {
-  await itemStore.updateAll()
-  await markerStore.updateAll()
+onMounted(() => {
+  itemStore.backgroundUpdate()
+  markerStore.backgroundUpdate()
 })
 
 // ==================== 依赖注入 ====================

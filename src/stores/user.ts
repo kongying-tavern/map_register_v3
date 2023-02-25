@@ -5,7 +5,7 @@ import Oauth from '@/api/oauth'
 import { Logger, messageFrom } from '@/utils'
 import { router } from '@/router'
 import { RoleTypeEnum } from '@/shared'
-import { useMapStore } from '@/stores'
+import { useItemStore, useMapStore, useMarkerStore } from '@/stores'
 
 export interface UserAuth extends API.SysToken {
   expires_time: number
@@ -158,6 +158,9 @@ export const useUserStore = defineStore('user-info', {
       this.clearRefreshTimer()
       // 清除地图参数
       useMapStore().reset()
+      // 清除后台任务
+      useItemStore().clearBackgroundUpdate()
+      useMarkerStore().clearBackgroundUpdate()
       router.push('/login')
     },
     /** 登录（密码模式） */

@@ -1,13 +1,19 @@
 import { defineStore } from 'pinia'
 import type { AxiosRequestConfig } from 'axios'
-import { ElLoading, ElNotification } from 'element-plus'
+import { ElNotification } from 'element-plus'
 import dayjs from 'dayjs'
-import { Archive, messageFrom } from '@/utils'
+import { Archive, Logger, messageFrom } from '@/utils'
 import Api from '@/api/api'
 import db from '@/database'
+import { localSettings } from '@/stores'
+import { useRestTime } from '@/hooks'
 
+const logger = new Logger('[itemStore]')
 const localItemMD5 = useLocalStorage('local-item-md5', '')
 const loading = ref(false)
+const updateTimer = ref<number>()
+const updateEnd = ref<number>()
+const { restTime } = useRestTime(updateEnd)
 
 /** 本地物品数据 */
 export const useItemStore = defineStore('global-item', {
@@ -16,7 +22,10 @@ export const useItemStore = defineStore('global-item', {
   }),
 
   getters: {
+    /** 全量更新处理状态 */
     updateAllLoading: () => loading.value,
+    /** 全量更新剩余时间 */
+    updateAllRestTime: () => restTime.value,
   },
 
   actions: {
@@ -48,11 +57,6 @@ export const useItemStore = defineStore('global-item', {
 
     /** 全量更新 */
     async updateAll() {
-      const loadingInstance = ElLoading.service({
-        fullscreen: true,
-        text: '正在更新点位信息...',
-        background: 'rgb(0 0 0 / 0.3)',
-      })
       try {
         loading.value = true
         const startTime = dayjs()
@@ -73,8 +77,28 @@ export const useItemStore = defineStore('global-item', {
       }
       finally {
         loading.value = false
-        loadingInstance.close()
       }
+    },
+
+    /** 清除后台定时任务 */
+    clearBackgroundUpdate() {
+      window.clearTimeout(updateTimer.value)
+      updateTimer.value = undefined
+    },
+
+    /** 后台定时自动更新 */
+    async backgroundUpdate() {
+      if (updateTimer.value !== undefined) {
+        logger.info('已建立 item 后台更新任务，将会重用')
+        return
+      }
+      await this.updateAll()
+      const interval = (localSettings.value.autoUpdateInterval ?? 20) * 60000
+      updateEnd.value = new Date().getTime() + interval
+      updateTimer.value = window.setTimeout(() => {
+        updateTimer.value = undefined
+        this.backgroundUpdate()
+      }, interval)
     },
   },
 })
