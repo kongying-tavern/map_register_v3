@@ -37,11 +37,13 @@ export const useItemList = (options: ItemListHookOptions = {}) => {
       const typeId = typeIdList[0]
       if (!areaIdList.length)
         return {}
-      const total = await db.item.count()
-      const record = await db.item
+
+      const collection = db.item
         .where('areaId')
         .anyOf(areaIdList)
         .and(itemVO => typeId === undefined ? true : Boolean(itemVO.typeIdList?.includes(typeId)))
+      const total = await collection.count()
+      const record = await collection
         .offset((current - 1) * size)
         .limit(size)
         .toArray()
