@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { AppDialogProvider } from '@/components'
+import { AppBannerProvider, AppDialogProvider } from '@/components'
+import { visible as bannerVisible } from '@/hooks/useBanner/bannerContext'
+import { useBanner } from '@/hooks'
 
 const route = useRoute()
 
@@ -7,26 +9,19 @@ const route = useRoute()
 const routeName = computed(() => `${route.meta.title ? route.meta.title : import.meta.env.VITE_TITLE}`)
 useTitle(routeName, { titleTemplate: '%s' })
 
-const envBanner = (import.meta.env.VITE_ENV_BANNER || '').trim()
-const isMapPage = computed(() => route.path === '/map')
+// 开发模式下显示 banner
+const { show } = useBanner()
+import.meta.env.DEV && show(import.meta.env.VITE_ENV_BANNER)
 </script>
 
 <template>
-  <div class="w-full h-full flex flex-col items-stretch">
-    <div
-      v-if="envBanner"
-      class="genshin-text text-md p-1 px-2 text-center transition-all duration-150"
-      :class="{
-        'text-orange-400': !isMapPage,
-      }"
-      :style="{
-        background: isMapPage ? '#E2DED5' : 'var(--el-bg-color)',
-        color: isMapPage ? '#4A4F50' : undefined,
-      }"
-    >
-      {{ envBanner }}
-    </div>
-
+  <div
+    class="w-full h-full flex flex-col items-stretch transition-all duration-200"
+    :class="{
+      'pt-8': bannerVisible,
+      'pt-0': !bannerVisible,
+    }"
+  >
     <router-view v-slot="{ Component }">
       <Transition name="fade" mode="out-in" appear>
         <keep-alive>
@@ -35,6 +30,8 @@ const isMapPage = computed(() => route.path === '/map')
       </Transition>
     </router-view>
   </div>
+
+  <AppBannerProvider />
 
   <AppDialogProvider />
 </template>
