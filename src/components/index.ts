@@ -1,6 +1,8 @@
 export * from './AppSettings'
+export { default as AppBannerProvider } from './AppBannerProvider.vue'
 export { default as AppBreadCrumb } from './AppBreadCrumb.vue'
 export { default as AppDialogProvider } from './AppDialogProvider.vue'
 export { default as AppLogo } from './AppLogo.vue'
 export { default as AppSidemenu } from './AppSidemenu.vue'
 export { default as AppUserAvatar } from './AppUserAvatar.vue'
+export { default as AppUserInfo } from './AppUserInfo.vue'

@@ -1,20 +1,33 @@
 <script lang="ts" setup>
+import { AppUserInfo } from '.'
 import { router } from '@/router'
 import { useUserStore } from '@/stores'
+import { useGlobalDialog } from '@/hooks'
 
 defineProps<{
   mapMode?: boolean
 }>()
 
 const userStore = useUserStore()
+const roleName = computed(() => userStore.info.roleList ? userStore.info.roleList[0].name : '暂无任何权限')
 
-const roleName = userStore.info.roleList ? userStore.info.roleList[0].name : '暂无任何权限'
+const { DialogService } = useGlobalDialog()
+const openUserInfoDialog = () => {
+  DialogService
+    .config({
+      showClose: false,
+      width: 1200,
+      top: '10vh',
+      class: 'bg-transparent',
+    })
+    .open(AppUserInfo)
+}
 
 const handleCommand = (command: string) => ({
   logout: () => userStore.logout(),
   toManager: () => router.push('/items'),
   toMap: () => router.push('/map'),
-  toUserCenter: () => {},
+  toUserCenter: () => openUserInfoDialog(),
 } as Record<string, () => void>)[command]?.()
 </script>
 
