@@ -110,7 +110,5 @@ export const useSearchMarkerList = (options: MarkerSearchHookOptions = {}) => {
     }
   })
 
-  const { pause, resume } = pausableWatch(fetchParams, searchMarkerList, { deep: true })
-
-  return { markerList, totalCount, searchMarkerList, onSuccess, pause, resume, ...rest }
+  return { markerList, totalCount, searchMarkerList, onSuccess, ...rest }
 }
