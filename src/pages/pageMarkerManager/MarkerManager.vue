@@ -114,6 +114,10 @@ onMounted(() => {
   getItemType()
   getItemList()
 })
+
+watch([page, pageSize], () => {
+  getPageData()
+})
 </script>
 
 <template>
