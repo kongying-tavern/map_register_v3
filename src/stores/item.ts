@@ -6,14 +6,13 @@ import { Archive, Logger, messageFrom } from '@/utils'
 import Api from '@/api/api'
 import db from '@/database'
 import { localSettings } from '@/stores'
-import { useRestTime } from '@/hooks'
+import { secondClock } from '@/shared'
 
 const logger = new Logger('[itemStore]')
 const localItemMD5 = useLocalStorage('local-item-md5', '')
 const loading = ref(false)
 const updateTimer = ref<number>()
 const updateEnd = ref<number>()
-const { restTime } = useRestTime(updateEnd)
 
 /** 本地物品数据 */
 export const useItemStore = defineStore('global-item', {
@@ -25,7 +24,7 @@ export const useItemStore = defineStore('global-item', {
     /** 全量更新处理状态 */
     updateAllLoading: () => loading.value,
     /** 全量更新剩余时间 */
-    updateAllRestTime: () => restTime.value,
+    updateAllRestTime: () => updateEnd.value === undefined ? 0 : updateEnd.value - secondClock.value,
   },
 
   actions: {

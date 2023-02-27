@@ -6,13 +6,12 @@ import { Archive, Logger, messageFrom } from '@/utils'
 import Api from '@/api/api'
 import db from '@/database'
 import { localSettings } from '@/stores'
-import { useRestTime } from '@/hooks'
+import { secondClock } from '@/shared'
 
 const logger = new Logger('[markerStore]')
 const loading = ref(false)
 const updateTimer = ref<number>()
 const updateEnd = ref<number>()
-const { restTime } = useRestTime(updateEnd)
 
 /** 全量点位的全局数据 */
 export const useMarkerStore = defineStore('global-marker', {
@@ -24,7 +23,7 @@ export const useMarkerStore = defineStore('global-marker', {
     /** 全量更新处理状态 */
     updateAllLoading: () => loading.value,
     /** 全量更新剩余时间 */
-    updateAllRestTime: () => restTime.value,
+    updateAllRestTime: () => updateEnd.value === undefined ? 0 : updateEnd.value - secondClock.value,
   },
 
   actions: {
