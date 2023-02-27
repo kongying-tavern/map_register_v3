@@ -9,7 +9,6 @@ defineProps<{
 }>()
 
 const userStore = useUserStore()
-const roleName = computed(() => userStore.info.roleList ? userStore.info.roleList[0].name : '暂无任何权限')
 
 const { DialogService } = useGlobalDialog()
 const openUserInfoDialog = () => {
@@ -42,7 +41,7 @@ const handleCommand = (command: string) => ({
     <template #dropdown>
       <el-dropdown-menu>
         <el-dropdown-item command="toUserCenter">
-          登录身份：{{ roleName }}
+          用户中心：{{ userStore.info.nickname }}
         </el-dropdown-item>
         <el-dropdown-item v-if="mapMode" divided command="toManager">
           管理中心

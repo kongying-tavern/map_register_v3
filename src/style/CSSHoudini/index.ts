@@ -1,6 +1,8 @@
 import type { Plugin } from 'vue'
-import usercardPainter from '@/style/CSSHoudini/userCardWorklet?url'
+import userCardBorder from '@/style/CSSHoudini/userCardBorder?url'
+import userCardInfoBorder from '@/style/CSSHoudini/userCardInfoBorder?url'
 
+/** 类型补丁 */
 declare const CSS: {
   paintWorklet: Worklet
 }
@@ -8,6 +10,7 @@ declare const CSS: {
 /** 用于注册 CSS Houdini */
 export const csshoudini = (): Plugin => ({
   install: async () => {
-    CSS.paintWorklet.addModule(usercardPainter)
+    CSS.paintWorklet.addModule(userCardBorder)
+    CSS.paintWorklet.addModule(userCardInfoBorder)
   },
 })
