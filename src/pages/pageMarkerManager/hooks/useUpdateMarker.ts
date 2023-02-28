@@ -1,47 +1,47 @@
+import { ElMessage } from 'element-plus'
 import Api from '@/api/api'
 import type { FetchHookOptions } from '@/hooks'
 import { useFetchHook } from '@/hooks'
+import db from '@/database'
+import type { HiddenFlagEnum } from '@/shared'
 
-interface UpdateMarkerHookOptions extends FetchHookOptions<API.RPageListVoMarkerVo> {
-  params?: () => {
+interface UpdateMarkerHookOptions extends Omit<FetchHookOptions<API.RPageListVoMarkerVo>, 'immediate'> {
+  params: () => {
     ids: number[]
     refreshTime?: number
     content?: string
-    hiddenFlag?: number
+    hiddenFlag?: HiddenFlagEnum
   }
-  callback?: () => void
 }
 
 /** 更新点位列表 */
-export const useUpdateMarker = (options: UpdateMarkerHookOptions = {}) => {
-  const { immediate, params, callback } = options
+export const useMarkerBatchUpdate = (options: UpdateMarkerHookOptions) => {
+  const { params, ...restOptions } = options
 
-  const fetchParams = computed(() => params?.())
+  const fetchParams = computed(() => params())
 
   const { refresh: updateMarkerInfo, onSuccess, ...rest } = useFetchHook({
-    immediate,
+    ...restOptions,
     onRequest: async () => {
-      const { ids, ...rest } = fetchParams.value ?? {}
-      const data: { [key: string]: string | number } = {}
-      const promiseList: Promise<any>[] = []
-      Object.entries(rest).forEach((kv) => {
-        const [key, value] = kv
-        if (value !== undefined)
-          data[key] = value
-      })
+      const { ids = [], ...otherKeyValue } = fetchParams.value
 
-      ids?.forEach((id) => {
-        promiseList.push(Api.marker.updateMarker({ id, ...data }, {}))
+      const missions = ids.map(async (id) => {
+        const markervo = await db.marker.get(id)
+        markervo && (await Api.marker.updateMarker({ ...markervo, ...otherKeyValue }))
       })
+      await Promise.allSettled(missions)
 
-      return Promise.all(promiseList)
+      // 提交更新后确认每个更新点位的数据变化，并将数据更新至本地
+      const { data = [] } = await Api.marker.listMarkerById({}, ids)
+      await db.marker.bulkPut(data)
+
+      return ids
     },
   })
 
   onSuccess(() => {
-    if (callback)
-      callback()
+    ElMessage.success('批量更新成功')
   })
 
-  return { updateMarkerInfo, ...rest }
+  return { updateMarkerInfo, onSuccess, ...rest }
 }

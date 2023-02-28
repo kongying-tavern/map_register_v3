@@ -1,31 +1,16 @@
-import Api from '@/api/api'
-import { useFetchHook } from '@/hooks'
+import { useTypeList } from '@/hooks'
 
 /** 拉取物品类型 */
 export const useItemType = () => {
-  const itemTypeList = ref<{
-    label: string
-    value: number
-  }[]>([])
+  const { typeList } = useTypeList({ immediate: true })
 
-  const { refresh: getItemType, onSuccess, ...rest } = useFetchHook({
-    immediate: true,
-    onRequest: async () => {
-      return Api.itemType.listItemType({}, {})
-    },
-  })
+  const typeOptions = computed(() => typeList.value
+    .filter(itemType => itemType.isFinal)
+    .map(itemType => ({
+      label: `${itemType.name}`,
+      value: itemType.typeId,
+    })),
+  )
 
-  onSuccess((rsp: API.RListItemTypeVo) => {
-    itemTypeList.value = rsp.data?.map(({
-      typeId,
-      name,
-    }: any) => {
-      return {
-        label: name,
-        value: typeId,
-      }
-    }) || []
-  })
-
-  return { getItemType, itemTypeList, ...rest }
+  return { typeList, typeOptions }
 }
