@@ -1,12 +1,10 @@
-import type { PaintRenderingContext2D, PaintSize, Painter, StylePropertyMapReadOnly } from './types'
-
 /** 用户中心卡片背景的绘制类 */
-class UserCardBorder implements Painter {
+class UserCardBorder {
   static get inputProperties() {
     return ['--paint-padding']
   }
 
-  private drawPart(ctx: PaintRenderingContext2D) {
+  drawPart(ctx) {
     ctx.fillStyle = '#D5C5B3'
     ctx.beginPath()
     ctx.moveTo(0, 5)
@@ -34,7 +32,8 @@ class UserCardBorder implements Painter {
     ctx.fill()
   }
 
-  paint(ctx: PaintRenderingContext2D, { width, height }: PaintSize, properties: StylePropertyMapReadOnly) {
+  paint(ctx, size, properties) {
+    const { width, height } = size
     const padding = Number(properties.get('--paint-padding'))
 
     ctx.fillStyle = '#F0EBE3'
@@ -80,8 +79,4 @@ class UserCardBorder implements Painter {
   }
 }
 
-/**
- * @link https://developer.mozilla.org/en-US/docs/Web/API/PaintWorklet/registerPaint
- */
-declare const registerPaint: (name: string, classRef: typeof Painter) => void
 registerPaint('user-card-border', UserCardBorder)

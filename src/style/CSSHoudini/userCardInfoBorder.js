@@ -1,8 +1,6 @@
-import type { PaintRenderingContext2D, PaintSize, Painter } from './types'
-
 /** 用户中心左侧信息部分的卡片背景绘制类 */
-class UserCardInfoBorder implements Painter {
-  private drawAddonCorner(ctx: PaintRenderingContext2D) {
+class UserCardInfoBorder {
+  drawAddonCorner(ctx) {
     ctx.fillStyle = '#E4D8C1'
     ctx.beginPath()
     ctx.moveTo(4, 4)
@@ -28,10 +26,11 @@ class UserCardInfoBorder implements Painter {
     ctx.fill()
   }
 
-  paint(ctx: PaintRenderingContext2D, { width, height }: PaintSize) {
+  paint(ctx, size) {
+    const { width, height } = size
+
     ctx.fillStyle = '#F0EBE3'
     ctx.fillRect(0, 0, width, height)
-
     ctx.roundRect(6, 6, width - 12, height - 12, 37)
     ctx.strokeStyle = '#E4D8C1'
     ctx.lineWidth = 4
@@ -46,8 +45,4 @@ class UserCardInfoBorder implements Painter {
   }
 }
 
-/**
- * @link https://developer.mozilla.org/en-US/docs/Web/API/PaintWorklet/registerPaint
- */
-declare const registerPaint: (name: string, classRef: typeof Painter) => void
 registerPaint('user-card-info-border', UserCardInfoBorder)
