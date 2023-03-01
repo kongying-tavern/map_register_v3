@@ -1,6 +1,9 @@
 <script lang="ts" setup>
 import { ElNotification } from 'element-plus'
+import { PasswordEditor } from '.'
 import { useUserStore } from '@/stores'
+import { GSTab } from '@/components'
+
 const userStore = useUserStore()
 
 const checkArchive = () => {
@@ -10,6 +13,13 @@ const checkArchive = () => {
     message: '暂无存档',
   })
 }
+
+const tabs: { title: string; value: string }[] = [
+  { title: '云存档', value: 'archive' },
+  { title: '编辑信息', value: 'info' },
+  { title: '修改密码', value: 'password' },
+]
+const tab = ref('archive')
 </script>
 
 <template>
@@ -54,8 +64,12 @@ const checkArchive = () => {
       </div>
     </div>
 
-    <div class="user-action w-full h-full p-4 pl-0">
-      action
+    <div class="user-action w-full h-full p-8 pl-0">
+      <GSTab v-model="tab" :tabs="tabs" class="h-full">
+        <template #password>
+          <PasswordEditor />
+        </template>
+      </GSTab>
     </div>
   </div>
 </template>
