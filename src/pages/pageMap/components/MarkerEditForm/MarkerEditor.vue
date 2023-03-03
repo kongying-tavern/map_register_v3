@@ -18,19 +18,11 @@ const emits = defineEmits<{
 const userStore = useUserStore()
 
 /** 表单数据 */
-const form = ref<API.MarkerVo & API.MarkerPunctuateVo>({})
+const form = ref<API.MarkerVo & API.MarkerPunctuateVo>(cloneDeep(props.modelValue))
 
-const { pause, resume } = pausableWatch(form, () => {
+watch(form, () => {
   emits('update:modelValue', form.value)
 }, { deep: true })
-
-// 初始化缓存的时候不需要重复向上更新，为了避免无相递归更新，这里要暂停一次 watch
-const initFormData = () => {
-  pause()
-  form.value = cloneDeep(props.modelValue)
-  resume()
-}
-initFormData()
 
 /** 表单校验规则 */
 const rules: FormRules = {
@@ -39,6 +31,11 @@ const rules: FormRules = {
     validator: (_, value = '') => (form.value.markerTitle = value.trim()).length > 0,
     message: '标题不能为空（首尾空白字符会被去除）',
     trigger: 'blur',
+  }],
+  hiddenFlag: [{
+    required: true,
+    message: '点位标识不能为空',
+    trigger: 'change',
   }],
   itemList: [{
     required: true,
