@@ -8,7 +8,7 @@ export interface GlobalSetting {
 }
 
 // TODO 云同步设置
-export const localSettings = useLocalStorage<GlobalSetting>('global-settings', {
+export const localSettings = useLocalStorage<GlobalSetting>('__ys_global_settings', {
   moveToCenter: true,
   autoTurnNext: true,
   autoUpdateInterval: 20,
