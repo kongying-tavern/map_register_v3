@@ -36,7 +36,7 @@ export const useContextMenu = (options: ContextMenuHookOptions) => {
     DialogService
       .config({
         title: `新增点位：${props.selectedArea?.name} - (${ceil(lat, 2)}, ${ceil(lng, 2)})`,
-        top: '5vh',
+        alignCenter: true,
         width: 'fit-content',
         class: 'transition-all',
       })
@@ -75,7 +75,7 @@ export const useContextMenu = (options: ContextMenuHookOptions) => {
     DialogService
       .config({
         title: '设置界面',
-        top: '10vh',
+        alignCenter: true,
         width: 'fit-content',
       })
       .open(AppSettings)
