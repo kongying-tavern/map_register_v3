@@ -2,25 +2,29 @@ import { defineStore } from 'pinia'
 import type { AxiosRequestConfig } from 'axios'
 import { ElNotification } from 'element-plus'
 import dayjs from 'dayjs'
-import { Archive, Logger, messageFrom } from '@/utils'
+import { liveQuery } from 'dexie'
+import { Archive, messageFrom } from '@/utils'
 import Api from '@/api/api'
 import db from '@/database'
 import { localSettings } from '@/stores'
 import { secondClock } from '@/shared'
 
-const logger = new Logger('[itemStore]')
-const localItemMD5 = useLocalStorage('local-item-md5', '')
 const loading = ref(false)
 const updateTimer = ref<number>()
 const updateEnd = ref<number>()
+const total = ref(0)
+
+liveQuery(() => db.item.count()).subscribe((v) => {
+  total.value = v
+})
 
 /** 本地物品数据 */
 export const useItemStore = defineStore('global-item', {
   state: () => ({
-    total: 0,
   }),
 
   getters: {
+    total: () => total.value,
     /** 全量更新处理状态 */
     updateAllLoading: () => loading.value,
     /** 全量更新剩余时间 */
@@ -38,7 +42,7 @@ export const useItemStore = defineStore('global-item', {
     async updateItemInfo() {
       // 检查 MD5 是否有变化，如无则跳过更新
       const newMD5 = await this.getItemMD5()
-      const oldMD5 = localItemMD5.value
+      const oldMD5 = (await db.md5.get('item-0'))?.value
       if (newMD5 === oldMD5)
         return 0
       const data = await Api.itemDoc.listAllItemBz2(({
@@ -50,17 +54,21 @@ export const useItemStore = defineStore('global-item', {
       const parseredData = JSON.parse(stringData) as API.ItemVo[]
       await db.item.bulkPut(parseredData)
       // 物品信息成功之后才更新本地 MD5
-      localItemMD5.value = newMD5
+      await db.md5.put({ id: 'item-0', value: newMD5 })
       return parseredData.length
     },
 
     /** 全量更新 */
     async updateAll() {
+      const warn = ElNotification.warning({
+        title: '正在更新物品数据...',
+        duration: 0,
+        position: 'bottom-right',
+      })
       try {
         loading.value = true
         const startTime = dayjs()
         const total = await this.updateItemInfo()
-        this.total = await db.item.count()
         const spentTime = (dayjs().diff(startTime) / 1000).toFixed(0)
         ElNotification.success({
           title: '物品更新成功',
@@ -75,6 +83,7 @@ export const useItemStore = defineStore('global-item', {
         })
       }
       finally {
+        warn.close()
         loading.value = false
       }
     },
@@ -87,10 +96,8 @@ export const useItemStore = defineStore('global-item', {
 
     /** 后台定时自动更新 */
     async backgroundUpdate() {
-      if (updateTimer.value !== undefined) {
-        logger.info('已建立 item 后台更新任务，将会重用')
-        return
-      }
+      if (updateTimer.value !== undefined)
+        this.clearBackgroundUpdate()
       await this.updateAll()
       const interval = (localSettings.value.autoUpdateInterval ?? 20) * 60000
       updateEnd.value = new Date().getTime() + interval
