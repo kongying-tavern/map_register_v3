@@ -87,8 +87,8 @@ onMounted(async () => {
     thumbnailImage.value = thumbImageBlob
     // 尝试请求原始大图（不一定成功，部分以前的点位并没有上传大图）
     const largeImagePath = `${urlObj?.origin}/${folderPath}/${basename}_large.${extname}`
-    const rawImageBlob = await (await fetch(largeImagePath, { mode: 'cors' })).blob()
-    rawImage.value = rawImageBlob
+    const rawImageBlob = await (await fetch(largeImagePath, { mode: 'cors' }).catch(() => null))?.blob()
+    rawImageBlob && (rawImage.value = rawImageBlob)
   }
   catch {
     // 大图加载错误就无法编辑原图，只能上传新的来替换，这里不需要做别的处理

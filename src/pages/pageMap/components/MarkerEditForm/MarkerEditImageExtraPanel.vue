@@ -3,7 +3,7 @@ import { Close } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { fromEvent as fromRefEvent } from '@vueuse/rxjs'
 import type { Observable } from 'rxjs'
-import { fromEvent, map, switchMap, takeUntil } from 'rxjs'
+import { filter, fromEvent, map, switchMap, takeUntil } from 'rxjs'
 import type { Ref } from 'vue'
 import { clamp } from 'lodash'
 
@@ -83,6 +83,7 @@ watch(zoom, (newZoom, oldZoom) => {
 
 /** 平移 */
 pointerdown.pipe(
+  filter(() => props.imageBitMap !== undefined),
   map(({ x, y }) => ([x, y, ...position.value])),
   switchMap(([startX, startY, cacheX, cacheY]) => pointermove.pipe(
     takeUntil(click),
@@ -99,6 +100,7 @@ pointerdown.pipe(
 
 /** 缩放 */
 pointerover.pipe(
+  filter(() => props.imageBitMap !== undefined),
   switchMap(() => wheel.pipe(
     takeUntil(pointerout),
     map((ev) => {
@@ -118,10 +120,11 @@ pointerover.pipe(
           : deltaNarrow,
     ),
   )),
-).subscribe(deltaZoom => zoom.value *= deltaZoom)
+).subscribe(deltaZoom => (zoom.value *= deltaZoom))
 
 /** 渲染 */
 const useRenderer = (ctx: CanvasRenderingContext2D) => {
+  ctx.imageSmoothingEnabled = true
   ctx.imageSmoothingQuality = 'high'
 
   const clearCanvas = () => {
