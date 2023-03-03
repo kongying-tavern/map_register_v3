@@ -1,5 +1,6 @@
 export * from './useAreaList'
 export * from './useBanner'
+export * from './useGlobalDrawer'
 export * from './useFetch'
 export * from './useIconList'
 export * from './useItemList'

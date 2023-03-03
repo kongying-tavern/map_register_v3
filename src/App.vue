@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { AppBannerProvider, AppDialogProvider } from '@/components'
+import { AppBannerProvider, AppDialogProvider, AppDrawerProvider } from '@/components'
 import { visible as bannerVisible } from '@/hooks/useBanner/bannerContext'
 import { useBanner } from '@/hooks'
 import { useUserStore } from '@/stores'
@@ -36,6 +36,6 @@ useUserStore().preloadMission()
   </div>
 
   <AppBannerProvider />
-
+  <AppDrawerProvider />
   <AppDialogProvider />
 </template>
