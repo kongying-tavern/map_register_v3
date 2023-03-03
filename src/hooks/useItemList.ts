@@ -29,6 +29,18 @@ export const useItemList = (options: ItemListHookOptions = {}) => {
 
   const fetchParams = computed(() => params?.())
 
+  const cachedItemMap = reactive<Record<number, API.ItemVo | undefined>>({})
+  const getItem = (itemId?: number) => {
+    if (itemId === undefined)
+      return
+    if (cachedItemMap[itemId] === undefined) {
+      db.item.get(itemId).then((itemVo) => {
+        cachedItemMap[itemId] = itemVo
+      })
+    }
+    return cachedItemMap[itemId]
+  }
+
   const { refresh: updateItemList, onSuccess, ...rest } = useFetchHook({
     immediate,
     loading: scopedLoading ?? loading,
@@ -61,7 +73,7 @@ export const useItemList = (options: ItemListHookOptions = {}) => {
 
   const { pause, resume } = pausableWatch(fetchParams, updateItemList, { deep: true })
 
-  return { itemList, itemMap, updateItemList, onSuccess, pause, resume, ...rest }
+  return { itemList, itemMap, updateItemList, getItem, onSuccess, pause, resume, ...rest }
 }
 
 /** 修改某几个物品 */

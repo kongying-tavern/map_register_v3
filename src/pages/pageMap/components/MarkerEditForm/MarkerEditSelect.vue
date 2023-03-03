@@ -14,7 +14,7 @@ const emits = defineEmits<{
 }>()
 
 const { typeMap } = useTypeList()
-const { itemMap } = useItemList()
+const { getItem } = useItemList()
 const { iconMap } = useIconList()
 
 const internalBind = ref(props.modelValue ?? [])
@@ -46,8 +46,8 @@ const toggleExtraPanel = () => {
           referrerpolicy="no-referrer"
           crossorigin=""
         >
-        <div class="flex-1 text-ellipsis whitespace-nowrap overflow-hidden" :title="itemMap[item.itemId as number].name">
-          {{ typeMap[itemMap[item.itemId as number].typeIdList?.[0] ?? -1]?.name ?? '未分类' }} - {{ itemMap[item.itemId as number].name }}
+        <div class="flex-1 text-ellipsis whitespace-nowrap overflow-hidden" :title="getItem(item.itemId)?.name">
+          {{ typeMap[getItem(item.itemId)?.typeIdList?.[0] ?? -1]?.name ?? '未分类' }} - {{ getItem(item.itemId)?.name }}
         </div>
         <el-icon><Close /></el-icon>
         <el-input-number
