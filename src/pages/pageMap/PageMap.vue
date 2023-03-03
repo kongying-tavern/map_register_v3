@@ -6,7 +6,7 @@ import { areaListInjection, iconMapInjection, itemListInjection, itemTypeInjecti
 import { useContextMenu, useLayer, useMap, useMarker } from './hooks'
 import { AppUserAvatar } from '@/components'
 import { useAreaList, useIconList, useItemList, useTypeList } from '@/hooks'
-import { useItemStore, useMapStore, useMarkerStore } from '@/stores'
+import { useMapStore } from '@/stores'
 
 // ==================== 地图相关 ====================
 const containerRef = ref<HTMLElement | null>(null)
@@ -89,14 +89,6 @@ onMapEvent('contextmenu', openContextMenu)
 onAreaFetched(() => {
   mapStore.areaCode !== undefined && setMapNameByAreaCode(mapStore.areaCode)
   updateMarkerList()
-})
-
-// ==================== 全量数据更新 ====================
-const itemStore = useItemStore()
-const markerStore = useMarkerStore()
-onMounted(() => {
-  itemStore.backgroundUpdate()
-  markerStore.backgroundUpdate()
 })
 
 // ==================== 依赖注入 ====================

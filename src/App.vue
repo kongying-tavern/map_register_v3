@@ -2,6 +2,7 @@
 import { AppBannerProvider, AppDialogProvider } from '@/components'
 import { visible as bannerVisible } from '@/hooks/useBanner/bannerContext'
 import { useBanner } from '@/hooks'
+import { useUserStore } from '@/stores'
 
 const route = useRoute()
 
@@ -12,6 +13,9 @@ useTitle(routeName, { titleTemplate: '%s' })
 // 开发模式下显示 banner
 const { show } = useBanner()
 import.meta.env.DEV && show(import.meta.env.VITE_ENV_BANNER)
+
+// 预加载任务
+useUserStore().preloadMission()
 </script>
 
 <template>
