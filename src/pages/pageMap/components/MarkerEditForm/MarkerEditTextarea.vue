@@ -56,16 +56,25 @@ const insertChar = async (char: string) => {
 </script>
 
 <template>
-  <div class="w-full flex justify-between items-start gap-1">
-    <el-input
-      v-model="internalBind"
-      type="textarea"
-      resize="none"
-      :rows="3"
-      @blur="updateSelectionState"
-    />
+  <div class="w-full flex flex-col gap-1">
+    <div class="flex">
+      <el-button-group size="small">
+        <el-button v-for="c in characters" :key="c" @click="() => insertChar(c)">
+          {{ c }}
+        </el-button>
+      </el-button-group>
+    </div>
 
-    <el-button :icon="Setting" :type="extraActive ? 'primary' : ''" title="点位说明" circle @click="toggleExtraPanel" />
+    <div class="flex gap-1">
+      <el-input
+        v-model="internalBind"
+        type="textarea"
+        resize="none"
+        :rows="3"
+        @blur="updateSelectionState"
+      />
+      <el-button :icon="Setting" :type="extraActive ? 'primary' : ''" title="点位说明" circle @click="toggleExtraPanel" />
+    </div>
 
     <TeleportExtra :active="extraActive">
       <div class="flex flex-col gap-2">
