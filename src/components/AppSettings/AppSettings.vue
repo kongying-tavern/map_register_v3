@@ -61,7 +61,7 @@ const markerStore = useMarkerStore()
       label="物品数据"
       :content="`已存储物品数据 ${itemStore.total} 项，距离下次更新剩余 ${Math.floor(itemStore.updateAllRestTime / 1000)} 秒。`"
     >
-      <el-button :loading="itemStore.updateAllLoading" @click="itemStore.updateAll">
+      <el-button :loading="itemStore.updateAllLoading" @click="itemStore.backgroundUpdate">
         更新物品
       </el-button>
     </SettingItem>
@@ -70,7 +70,7 @@ const markerStore = useMarkerStore()
       label="点位数据"
       :content="`已存储点位数据 ${markerStore.total} 项，距离下次更新剩余 ${Math.floor(markerStore.updateAllRestTime / 1000)} 秒。`"
     >
-      <el-button :loading="markerStore.updateAllLoading" @click="markerStore.updateAll">
+      <el-button :loading="markerStore.updateAllLoading" @click="markerStore.backgroundUpdate">
         更新点位
       </el-button>
     </SettingItem>
