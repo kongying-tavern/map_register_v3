@@ -75,13 +75,20 @@ const map_tiles_config = {
   "A:XM:DESERT2": {
     extend: "提瓦特-base0",
     settings: {
-      center: [-6112, 2266],
+      center: [-6112, 266],
+      zoom: -2,
+    },
+  },
+  "A:XM:DESERT3": {
+    extend: "提瓦特-base0",
+    settings: {
+      center: [-8112, -1566],
       zoom: -2,
     },
   },
   "提瓦特-base0": {
     extension: "png",
-    code: "twt31",
+    code: "twt34",
     settings: {
       center: [0, 1742],
     },
@@ -160,13 +167,13 @@ const map_tiles_config = {
 
 const map_tiles_neigui_config = {
   "提瓦特-base0": {
-    code: "twt34",
+    code: "twt36",
     settings: {
       center: [0, 1742],
     },
     center: [3568, 6286],
-    size: [16384, 15360],
-    tilesOffset: [-4864, 0],
+    size: [17408, 15360],
+    tilesOffset: [-5888, 0],
   },
 };
 
