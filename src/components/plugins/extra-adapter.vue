@@ -7,6 +7,20 @@
     <plSumeruUnderground v-else-if="field_name === 'sumeru_underground'" />
     <plSumeruPalace v-else-if="field_name === 'sumeru_palace'" />
     <plSumeruDesert2 v-else-if="field_name === 'sumeru_desert2'" />
+    <!-- 通用地下实现   -->
+    <plUnderground
+      v-else-if="field_name === 'underground_basic'"
+      modelId="basic"
+      :undergroundDetail="false"
+    >
+    </plUnderground>
+    <plUnderground
+      v-else-if="field_name === 'underground_sumeru4'"
+      modelId="sumeru4"
+      :undergroundDetail="false"
+      :undergroundOptions="undergroundOptionsSumeru4"
+    >
+    </plUnderground>
   </template>
 </template>
 
@@ -19,12 +33,16 @@ import plInazumaUnderground from "./inazuma_underground/edit.vue";
 import plSumeruUnderground from "./sumeru_underground/edit.vue";
 import plSumeruPalace from "./sumeru_palace/edit.vue";
 import plSumeruDesert2 from "./sumeru_desert2/edit.vue";
+import plUnderground from "./underground/edit.vue";
 import { get_map_plugin_config } from "src/api/map";
+
+import { undergroundOptionsSumeru4 } from "./underground/data";
 
 export default {
   name: "PluginAdapter",
   setup() {
     return {
+      undergroundOptionsSumeru4,
       ...extraData,
     };
   },
@@ -36,6 +54,7 @@ export default {
     plSumeruUnderground,
     plSumeruPalace,
     plSumeruDesert2,
+    plUnderground,
   },
   props: {
     area: {

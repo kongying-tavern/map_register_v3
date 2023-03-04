@@ -194,6 +194,11 @@ const map_plugin_config = {
     extra: ["dragonspine_cave"],
   },
 
+  // 璃月
+  "A:LY:LIYUE": {
+    extra: ["underground_basic"],
+  },
+
   // 稻妻
   "A:DQ:1": {
     extra: ["inazuma_underground"],
@@ -217,6 +222,9 @@ const map_plugin_config = {
   },
   "A:XM:DESERT2": {
     extra: ["sumeru_desert2"],
+  },
+  "A:XM:DESERT3": {
+    extra: ["underground_sumeru4"],
   },
 };
 
