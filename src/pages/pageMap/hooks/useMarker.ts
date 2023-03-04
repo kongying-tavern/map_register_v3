@@ -4,7 +4,7 @@ import L from 'leaflet'
 import { ElMessage } from 'element-plus'
 import { indexOf } from 'lodash'
 import type { GenshinLayerOptions } from '../utils'
-import { MarkerEditForm, PopupContent } from '../components'
+import { MarkerEditPanel, MarkerPopup } from '../components'
 import { canvasMarker } from '../utils'
 import { useMap } from './useMap'
 import Api from '@/api/api'
@@ -230,7 +230,7 @@ export const useMarker = (options: MarkerHookOptions = {}) => {
         .listeners({
           refresh: updateMarkerList,
         })
-        .open(MarkerEditForm),
+        .open(MarkerEditPanel),
     } as Record<string, () => void>)[command]?.()
 
     marker.addEventListener('click', () => {
@@ -238,7 +238,7 @@ export const useMarker = (options: MarkerHookOptions = {}) => {
         return
       marker.bringToFront()
       markerOptions.img.popperOpen = true
-      const vnode = h(PopupContent, {
+      const vnode = h(MarkerPopup, {
         markerInfo,
         latlng,
         onCommand,

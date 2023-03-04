@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type L from 'leaflet'
 import { useMarkerCreate } from '../../hooks'
-import { MarkerEditor } from '.'
+import { MarkerEditorForm } from '.'
 import { GlobalDialogController } from '@/hooks'
 import { useUserStore } from '@/stores'
 import { DialogController } from '@/hooks/useGlobalDialog/dialogController'
@@ -46,7 +46,7 @@ onSuccess(() => {
 })
 
 /** 表单实例 */
-const editorRef = ref<InstanceType<typeof MarkerEditor> | null>(null)
+const editorRef = ref<InstanceType<typeof MarkerEditorForm> | null>(null)
 
 const confirm = async () => {
   const isValid = await editorRef.value?.validate().catch(() => false)
@@ -57,7 +57,7 @@ const confirm = async () => {
 </script>
 
 <template>
-  <MarkerEditor ref="editorRef" v-model="form">
+  <MarkerEditorForm ref="editorRef" v-model="form">
     <template #footer>
       <div class="w-full flex justify-end">
         <el-button :disabled="loading" @click="GlobalDialogController.close">
@@ -68,5 +68,5 @@ const confirm = async () => {
         </el-button>
       </div>
     </template>
-  </MarkerEditor>
+  </MarkerEditorForm>
 </template>

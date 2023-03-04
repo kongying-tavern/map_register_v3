@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
 import { useMarkerEdit } from '../../hooks'
-import { MarkerEditor } from '.'
+import { MarkerEditorForm } from '.'
 import { GlobalDialogController } from '@/hooks'
 import { useUserStore } from '@/stores'
 import { DialogController } from '@/hooks/useGlobalDialog/dialogController'
@@ -37,7 +37,7 @@ const { updateMarker, onEditError } = useMarkerEdit(form)
 onEditError((err: Error) => ElMessage.error(err.message))
 
 /** 编辑器实例 */
-const editorRef = ref<InstanceType<typeof MarkerEditor> | null>(null)
+const editorRef = ref<InstanceType<typeof MarkerEditorForm> | null>(null)
 
 /** 表单提交事件 */
 const confirm = async () => {
@@ -58,7 +58,7 @@ const confirm = async () => {
 </script>
 
 <template>
-  <MarkerEditor ref="editorRef" v-model="form">
+  <MarkerEditorForm ref="editorRef" v-model="form">
     <template #footer>
       <div class="w-full flex justify-end">
         <el-button @click="GlobalDialogController.close">
@@ -69,7 +69,7 @@ const confirm = async () => {
         </el-button>
       </div>
     </template>
-  </MarkerEditor>
+  </MarkerEditorForm>
 </template>
 
 <style lang="scss" scoped>

@@ -2,7 +2,7 @@ import L from 'leaflet'
 import type { Ref } from 'vue'
 import { render } from 'vue'
 import { ceil } from 'lodash'
-import { ContextMenu, MarkerCreateForm } from '../components'
+import { ContextMenu, MarkerCreatePanel } from '../components'
 import type { GenshinMap } from '../utils'
 import { useAreaList, useGlobalDialog } from '@/hooks'
 import { useMapStore } from '@/stores'
@@ -47,7 +47,7 @@ export const useContextMenu = (options: ContextMenuHookOptions) => {
       .listeners({
         refresh: refreshMarkers,
       })
-      .open(MarkerCreateForm)
+      .open(MarkerCreatePanel)
   }
 
   /** 关闭右键面板的方法 */

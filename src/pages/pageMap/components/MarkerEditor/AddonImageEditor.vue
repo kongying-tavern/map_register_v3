@@ -10,7 +10,7 @@ import { Plus, Setting } from '@element-plus/icons-vue'
 import type { UploadFile } from 'element-plus'
 import { ElIcon, ElMessage, ElUpload } from 'element-plus'
 import { usePictureUpload } from '../../hooks'
-import { MarkerEditImageExtraPanel, TeleportExtra } from '.'
+import { AddonImageEditorEP, TeleportExtra } from '.'
 import { useUserStore } from '@/stores'
 
 const props = defineProps<{
@@ -155,7 +155,7 @@ defineExpose({
     <el-button :icon="Setting" :type="extraActive ? 'primary' : ''" title="编辑图像" circle @click="toggleExtraPanel" />
 
     <TeleportExtra :active="extraActive">
-      <MarkerEditImageExtraPanel v-model:thumbnail-image="thumbnailImage" :image-bit-map="rawImageBitmap" />
+      <AddonImageEditorEP v-model:thumbnail-image="thumbnailImage" :image-bit-map="rawImageBitmap" />
     </TeleportExtra>
   </div>
 </template>

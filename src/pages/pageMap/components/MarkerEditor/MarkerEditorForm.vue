@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { FormRules } from 'element-plus'
 import { cloneDeep } from 'lodash'
-import { MarkerEditExtra, MarkerEditImage, MarkerEditSelect, MarkerEditTextarea } from '.'
+import { AddonContenEditor, AddonExtraEditor, AddonImageEditor, AddonItemSelector } from '.'
 import { useUserStore } from '@/stores'
 import type { ElFormType } from '@/shared'
 import { HiddenFlagEnum } from '@/shared'
@@ -63,7 +63,7 @@ const extraId = ref('')
 /** 表单实例 */
 const formRef = ref<ElFormType | null>(null)
 /** 图片编辑器实例 */
-const imageEditorRef = ref<InstanceType<typeof MarkerEditImage> | null>(null)
+const imageEditorRef = ref<InstanceType<typeof AddonImageEditor> | null>(null)
 
 const extraPanelRef = ref<HTMLElement | null>(null)
 provide('extraPanel', extraPanelRef)
@@ -96,15 +96,15 @@ defineExpose({
       </el-form-item>
 
       <el-form-item label="所属物品" prop="itemList">
-        <MarkerEditSelect v-model="form.itemList" v-model:extra-id="extraId" />
+        <AddonItemSelector v-model="form.itemList" v-model:extra-id="extraId" />
       </el-form-item>
 
       <el-form-item label="点位说明" prop="content">
-        <MarkerEditTextarea v-model="form.content" v-model:extra-id="extraId" />
+        <AddonContenEditor v-model="form.content" v-model:extra-id="extraId" />
       </el-form-item>
 
       <el-form-item label="点位图像" prop="picture">
-        <MarkerEditImage
+        <AddonImageEditor
           ref="imageEditorRef"
           v-model="form.picture"
           v-model:extra-id="extraId"
@@ -113,7 +113,7 @@ defineExpose({
       </el-form-item>
 
       <el-form-item label="附加数据" prop="extra">
-        <MarkerEditExtra v-model="form.extra" />
+        <AddonExtraEditor v-model="form.extra" />
       </el-form-item>
 
       <el-form-item label="点位视频" prop="videoPath">

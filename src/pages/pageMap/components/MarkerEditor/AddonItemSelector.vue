@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { Close, Setting } from '@element-plus/icons-vue'
-import { MarkerEditSelectExtraPanel, TeleportExtra } from '.'
+import { AddonItemSelectorEP, TeleportExtra } from '.'
 import { useIconList, useItemList, useTypeList } from '@/hooks'
 
 const props = defineProps<{
@@ -68,7 +68,7 @@ const toggleExtraPanel = () => {
     <el-button :icon="Setting" :type="extraActive ? 'primary' : ''" title="选择物品" circle @click="toggleExtraPanel" />
 
     <TeleportExtra :active="extraActive">
-      <MarkerEditSelectExtraPanel v-model="internalBind" />
+      <AddonItemSelectorEP v-model="internalBind" />
     </TeleportExtra>
   </div>
 </template>
