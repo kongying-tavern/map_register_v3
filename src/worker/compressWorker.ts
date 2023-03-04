@@ -1,8 +1,15 @@
 import { decompress } from 'bz2'
 
 /** 解压缩后返回文件 */
-self.onmessage = (ev: MessageEvent<Uint8Array | undefined>) => {
+self.onmessage = (ev: MessageEvent<Uint8Array | string | undefined>) => {
   const { data } = ev
+
+  // 当接收到终止信号时结束线程
+  if (typeof data === 'string') {
+    data === 'terminate' && self.close()
+    return
+  }
+
   try {
     if (!data)
       throw new Error('未传递文件')

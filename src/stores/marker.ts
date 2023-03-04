@@ -3,7 +3,7 @@ import type { AxiosRequestConfig } from 'axios'
 import { ElNotification } from 'element-plus'
 import dayjs from 'dayjs'
 import { liveQuery } from 'dexie'
-import { Archive, messageFrom } from '@/utils'
+import { Compress, messageFrom } from '@/utils'
 import Api from '@/api/api'
 import db from '@/database'
 import { localSettings } from '@/stores'
@@ -49,7 +49,7 @@ export const useMarkerStore = defineStore('global-marker', {
       } as AxiosRequestConfig)) as unknown as ArrayBuffer
       await db.md5.put({ id: `marker-${index}`, value: newMD5 })
       // 解压并更新点位数据至本地点位数据库
-      const depressedData = await Archive.decompress(new Uint8Array(data), 60000)
+      const depressedData = await Compress.decompress(new Uint8Array(data), 60000)
       const stringData = new TextDecoder('utf-8').decode(depressedData.buffer)
       const parseredData = JSON.parse(stringData) as API.MarkerVo[]
       await db.marker.bulkPut(parseredData)
