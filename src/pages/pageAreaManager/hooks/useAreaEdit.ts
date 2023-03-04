@@ -13,6 +13,8 @@ export const useRoleEdit = (options: RoleEditHookOptions) => {
   const editOptions = useRowEdit({
     rowList: areaList,
     saveHandler: async (_, newRowData) => {
+      const temp = newRowData
+      temp.version! += 1
       await Api.area.updateArea(newRowData)
     },
   })

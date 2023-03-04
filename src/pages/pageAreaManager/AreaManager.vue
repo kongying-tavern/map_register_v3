@@ -27,7 +27,8 @@ const columns: CustomTableColumn[] = [
 /** 分页 */
 const { pagination, layout } = usePagination()
 
-const { areaList, loading, deleteLoading, refresh, deleteRow } = useAreaList({
+const { areaList, parents, loading, params, deleteLoading, refresh, deleteRow } = useAreaList({
+  pagination,
   onSuccess: (area) => {
     pagination.value.total = area.length
   },
@@ -49,6 +50,23 @@ const { height } = useElementSize(tableRef)
 <template>
   <div class="h-full flex flex-col gap-2 overflow-hidden">
     <div class="flex flex-col gap-2">
+      <div class="flex gap-8 items-center">
+        <div class="text-sm">
+          选择地区：
+        </div>
+        <el-select v-model="params.parentId" placeholder="选择地区" style="width: 200px">
+          <el-option
+            label="无"
+            :value="-1"
+          />
+          <el-option
+            v-for="item in parents"
+            :key="item.areaId"
+            :label="item.name"
+            :value="item.areaId ?? -1"
+          />
+        </el-select>
+      </div>
       <div class="flex items-center justify-end gap-2">
         <div class="text-sm">
           {{ selectedText }}
