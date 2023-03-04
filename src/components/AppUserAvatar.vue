@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { AppUserInfo } from '.'
+import { AppSettings, AppUserInfo } from '.'
 import { router } from '@/router'
 import { useUserStore } from '@/stores'
 import { useGlobalDialog, useTheme } from '@/hooks'
@@ -12,6 +12,7 @@ const userStore = useUserStore()
 const { isDark } = useTheme()
 
 const { DialogService } = useGlobalDialog()
+
 const openUserInfoDialog = () => {
   DialogService
     .config({
@@ -23,12 +24,21 @@ const openUserInfoDialog = () => {
     .open(AppUserInfo)
 }
 
+const openSettingDialog = () => DialogService
+  .config({
+    title: '设置界面',
+    alignCenter: true,
+    width: 'fit-content',
+  })
+  .open(AppSettings)
+
 const handleCommand = (command: string) => ({
   logout: () => userStore.logout(),
   toManager: () => router.push('/items'),
   toMap: () => router.push('/map'),
   toUserCenter: () => openUserInfoDialog(),
   toggleThemeSchema: () => isDark.value = !isDark.value,
+  setting: () => openSettingDialog(),
 } as Record<string, () => void>)[command]?.()
 </script>
 
@@ -50,6 +60,9 @@ const handleCommand = (command: string) => ({
         </el-dropdown-item>
         <el-dropdown-item v-else command="toMap">
           地图界面
+        </el-dropdown-item>
+        <el-dropdown-item divided command="setting">
+          系统设置
         </el-dropdown-item>
         <el-dropdown-item command="toggleThemeSchema">
           {{ isDark ? '明亮' : '黑暗' }}模式
