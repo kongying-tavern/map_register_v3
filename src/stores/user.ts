@@ -5,7 +5,7 @@ import Oauth from '@/api/oauth'
 import { Logger, messageFrom } from '@/utils'
 import { router } from '@/router'
 import { RoleTypeEnum } from '@/shared'
-import { useMapStore } from '@/stores'
+import { useItemStore, useMapStore, useMarkerStore } from '@/stores'
 
 export interface UserAuth extends API.SysToken {
   expires_time: number
@@ -41,6 +41,9 @@ const getRestTime = (expiresTime: number) => {
 const differenceTokenTime = (expiresTime: number) => {
   return Math.min(getRestTime(expiresTime) - TOKEN_REFRESH_REST_TIME, 1200000)
 }
+
+/** 预加载任务是否已经执行 */
+const isImplemented = ref(false)
 
 export const useUserStore = defineStore('user-info', {
   state: () => ({
@@ -158,12 +161,16 @@ export const useUserStore = defineStore('user-info', {
       this.clearRefreshTimer()
       // 清除地图参数
       useMapStore().reset()
+      // 清除后台任务
+      useItemStore().clearBackgroundUpdate()
+      useMarkerStore().clearBackgroundUpdate()
       router.push('/login')
     },
     /** 登录（密码模式） */
     async login(loginForm: API.SysTokenVO) {
       const auth = await Oauth.oauth.token(loginForm)
       this.setAuth(auth)
+      this.preloadMission()
     },
     /** 更新用户信息 */
     async updateUserInfo() {
@@ -177,6 +184,14 @@ export const useUserStore = defineStore('user-info', {
       catch (err) {
         ElMessage.error(messageFrom(err))
       }
+    },
+    /** 预加载任务，仅在 token 可用时或登陆后运行，只会运行一次 */
+    preloadMission() {
+      if (!this.validateUserToken() || isImplemented.value)
+        return
+      useItemStore().backgroundUpdate()
+      useMarkerStore().backgroundUpdate()
+      isImplemented.value = true
     },
   },
 })

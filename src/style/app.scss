@@ -15,6 +15,20 @@ body {
   overflow: auto;
 }
 
+@supports (width: 100dvw) and (width: 100dvh) {
+  .fullscreen {
+    width: 100dvw;
+    height: 100dvh;;
+  }
+}
+
+@supports not ((width: 100dvw) or (width: 100dvh)) {
+  .fullscreen {
+    width: 100vw;
+    height: 100vh;
+  }
+}
+
 // TODO 暂时没有计划做响应式和移动端适配，尺寸下限先定死
 #app {
   min-width: 1280px;

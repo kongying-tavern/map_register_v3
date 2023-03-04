@@ -1,0 +1,13 @@
+.draw-y {
+  &-enter-active, &-leave-active {
+    transition: all 200ms;
+  }
+
+  &-enter-from {
+    transform: translateY(-32px);
+  }
+
+  &-leave-to {
+    transform: translateY(-32px);
+  }
+}

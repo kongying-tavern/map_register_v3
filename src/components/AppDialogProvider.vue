@@ -6,6 +6,8 @@ const beforeClose = (done: () => void) => {
     resolveResult()
   done()
 }
+
+const hiddenHeader = computed(() => !dialogProps.value.showClose && !dialogProps.value.title)
 </script>
 
 <template>
@@ -13,6 +15,10 @@ const beforeClose = (done: () => void) => {
     v-model="visible"
     v-bind="dialogProps"
     :before-close="beforeClose"
+    class="global-single-dialog"
+    :class="{
+      'hidden-header': hiddenHeader,
+    }"
     :style="{
       '--el-dialog-border-radius': '8px',
     }"
@@ -27,3 +33,22 @@ const beforeClose = (done: () => void) => {
     </template>
   </el-dialog>
 </template>
+
+<style lang="scss">
+.el-overlay {
+  --el-overlay-color-lighter: rgb(0 0 0 / 0.3);
+
+  background-color: transparent;
+  backdrop-filter: blur(6px);
+}
+
+.el-dialog {
+  &.bg-transparent {
+    background: transparent;
+  }
+}
+
+.hidden-header .el-dialog__header {
+  display: none;
+}
+</style>

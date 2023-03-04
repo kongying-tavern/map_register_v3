@@ -15,10 +15,10 @@ self.onactivate = (ev) => {
  * @todo 待封装
  */
 self.onfetch = (ev) => {
-  const { url, mode } = ev.request
+  const { url } = ev.request
 
   // 只拦截图片类型请求
-  if (url.match(/^.+\.(png|jpeg|jpg|jxl|jp2|webp|bmp)$/)?.['index'] !== 0 || mode !== 'cors')
+  if (url.match(/^.+\.(png|jpeg|jpg|jxl|jp2|webp|bmp)$/)?.['index'] !== 0)
     return
 
   // 只缓存以下几种情况

@@ -47,7 +47,7 @@ const onTypeCheckedChange = (typeItem: API.ItemTypeVo) => {
   checkedType.value = typeItem
 }
 
-onItemListFetched(({ data: { total = 0 } = {} }) => {
+onItemListFetched(({ total = 0 }) => {
   pagination.value.total = total
 })
 

@@ -2,6 +2,7 @@ import type { Ref } from 'vue'
 import Api from '@/api/api'
 import type { FetchHookOptions } from '@/hooks'
 import { useFetchHook } from '@/hooks'
+import db from '@/database'
 
 interface ItemListHookOptions extends FetchHookOptions<API.RPageListVoItemVo> {
   params?: () => API.ItemSearchVo
@@ -28,18 +29,41 @@ export const useItemList = (options: ItemListHookOptions = {}) => {
 
   const fetchParams = computed(() => params?.())
 
+  const cachedItemMap = reactive<Record<number, API.ItemVo | undefined>>({})
+  const getItem = (itemId?: number) => {
+    if (itemId === undefined)
+      return
+    if (cachedItemMap[itemId] === undefined) {
+      db.item.get(itemId).then((itemVo) => {
+        cachedItemMap[itemId] = itemVo
+      })
+    }
+    return cachedItemMap[itemId]
+  }
+
   const { refresh: updateItemList, onSuccess, ...rest } = useFetchHook({
     immediate,
     loading: scopedLoading ?? loading,
     onRequest: async () => {
       const { areaIdList = [], typeIdList = [], current = 1, size = 10 } = fetchParams.value ?? {}
-      if (!areaIdList.length && !typeIdList.length)
+      const typeId = typeIdList[0]
+      if (!areaIdList.length)
         return {}
-      return Api.item.listItemIdByType({}, { areaIdList, typeIdList, current, size })
+
+      const collection = db.item
+        .where('areaId')
+        .anyOf(areaIdList)
+        .and(itemVO => typeId === undefined ? true : Boolean(itemVO.typeIdList?.includes(typeId)))
+      const total = await collection.count()
+      const record = await collection
+        .offset((current - 1) * size)
+        .limit(size)
+        .toArray()
+      return { record, total }
     },
   })
 
-  onSuccess(({ data: { record = [] } = {} }) => {
+  onSuccess(({ record = [] }) => {
     itemList.value = record.sort(({ sortIndex: ia }, { sortIndex: ib }) => {
       if (ia === undefined || ib === undefined)
         return 0
@@ -49,7 +73,7 @@ export const useItemList = (options: ItemListHookOptions = {}) => {
 
   const { pause, resume } = pausableWatch(fetchParams, updateItemList, { deep: true })
 
-  return { itemList, itemMap, updateItemList, onSuccess, pause, resume, ...rest }
+  return { itemList, itemMap, updateItemList, getItem, onSuccess, pause, resume, ...rest }
 }
 
 /** 修改某几个物品 */

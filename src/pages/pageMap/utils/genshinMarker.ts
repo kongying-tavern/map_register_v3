@@ -150,7 +150,7 @@ L.Canvas.include({
     })
 
     // 地下点位标识绘制
-    img.isUnderground && doDraw(ctx, () => {
+    img.isUnderground && undergroundImg.el && doDraw(ctx, () => {
       const { w: uw, h: uh, x: ux, y: uy } = getMarkerShape(layer, {
         ...undergroundImg,
         active,

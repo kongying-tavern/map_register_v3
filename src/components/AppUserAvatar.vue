@@ -1,20 +1,34 @@
 <script lang="ts" setup>
+import { AppUserInfo } from '.'
 import { router } from '@/router'
 import { useUserStore } from '@/stores'
+import { useGlobalDialog, useTheme } from '@/hooks'
 
 defineProps<{
   mapMode?: boolean
 }>()
 
 const userStore = useUserStore()
+const { isDark } = useTheme()
 
-const roleName = userStore.info.roleList ? userStore.info.roleList[0].name : '暂无任何权限'
+const { DialogService } = useGlobalDialog()
+const openUserInfoDialog = () => {
+  DialogService
+    .config({
+      showClose: false,
+      width: 1200,
+      alignCenter: true,
+      class: 'bg-transparent',
+    })
+    .open(AppUserInfo)
+}
 
 const handleCommand = (command: string) => ({
   logout: () => userStore.logout(),
   toManager: () => router.push('/items'),
   toMap: () => router.push('/map'),
-  toUserCenter: () => {},
+  toUserCenter: () => openUserInfoDialog(),
+  toggleThemeSchema: () => isDark.value = !isDark.value,
 } as Record<string, () => void>)[command]?.()
 </script>
 
@@ -29,13 +43,16 @@ const handleCommand = (command: string) => ({
     <template #dropdown>
       <el-dropdown-menu>
         <el-dropdown-item command="toUserCenter">
-          登录身份：{{ roleName }}
+          {{ userStore.info.nickname }}
         </el-dropdown-item>
-        <el-dropdown-item v-if="mapMode" divided command="toManager">
-          管理中心
+        <el-dropdown-item v-if="mapMode" command="toManager">
+          管理界面
         </el-dropdown-item>
-        <el-dropdown-item v-else divided command="toMap">
-          大地图
+        <el-dropdown-item v-else command="toMap">
+          地图界面
+        </el-dropdown-item>
+        <el-dropdown-item command="toggleThemeSchema">
+          {{ isDark ? '明亮' : '黑暗' }}模式
         </el-dropdown-item>
         <el-dropdown-item divided command="logout">
           退出账户

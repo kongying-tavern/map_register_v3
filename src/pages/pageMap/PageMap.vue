@@ -42,21 +42,16 @@ const { itemList } = useItemList({
   immediate: true,
   params: () => ({
     areaIdList: areaId.value === undefined ? [] : [areaId.value],
+    typeIdList: mapStore.typeId ? [mapStore.typeId] : [],
     size: 1000,
   }),
 })
 
 /** 物品类型列表 */
 const { typeList } = useTypeList({ immediate: true })
-/** 根据已选择的物品类型显示匹配的物品列表 */
-const filteredItemList = computed(() => {
-  const { typeId } = mapStore
-  if (typeId === undefined)
-    return []
-  return itemList.value.filter(item => item.typeIdList?.includes(typeId))
-})
+
 /** 已选择的物品 */
-const selectedItem = computed(() => filteredItemList.value.find(item => item.name === mapStore.iconName))
+const selectedItem = computed(() => itemList.value.find(item => item.name === mapStore.iconName))
 /** 特殊物品 ID 列表（如传送点、秘境等，详见 apifox 文档） */
 const specialItemList = computed(() => {
   return itemList.value
@@ -99,7 +94,7 @@ onAreaFetched(() => {
 // ==================== 依赖注入 ====================
 provide(mapInjection, map)
 provide(areaListInjection, areaList)
-provide(itemListInjection, filteredItemList)
+provide(itemListInjection, itemList)
 provide(itemTypeInjection, typeList)
 provide(markerListInjection, markerList)
 provide(iconMapInjection, iconMap)
