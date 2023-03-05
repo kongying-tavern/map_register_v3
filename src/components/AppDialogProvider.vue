@@ -15,7 +15,8 @@ const hiddenHeader = computed(() => !dialogProps.value.showClose && !dialogProps
     v-model="visible"
     v-bind="dialogProps"
     :before-close="beforeClose"
-    class="global-single-dialog"
+    class="custom-dialog"
+    append-to-body
     :class="{
       'hidden-header': hiddenHeader,
     }"
@@ -35,20 +36,14 @@ const hiddenHeader = computed(() => !dialogProps.value.showClose && !dialogProps
 </template>
 
 <style lang="scss">
-.el-overlay {
-  --el-overlay-color-lighter: rgb(0 0 0 / 0.3);
-
-  background-color: transparent;
-  backdrop-filter: blur(6px);
-}
-
-.el-dialog {
+.custom-dialog{
   &.bg-transparent {
     background: transparent;
   }
-}
-
-.hidden-header .el-dialog__header {
-  display: none;
+  &.hidden-header {
+    .el-dialog__header {
+      display: none;
+    }
+  }
 }
 </style>
