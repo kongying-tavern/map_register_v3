@@ -133,3 +133,49 @@ export const useItemCreate = (options: ItemCreateHookOptions) => {
 
   return { ...rest }
 }
+
+interface ItemSearchHookOptions extends FetchHookOptions<API.RPageListVoItemVo> {
+  params?: () => Pick<API.ItemVo, 'name'> & Pick<API.ItemSearchVo, 'current' | 'size'>
+}
+
+/** 按名称检索物品 */
+export const useItemSearch = (options: ItemSearchHookOptions) => {
+  const { immediate = false, params, loading: scopedLoading } = options
+
+  const searchParams = computed(() => params?.())
+
+  const getItemListByName = async () => {
+    if (!searchParams.value?.name)
+      return {}
+    const { current = 1, size = 10 } = searchParams.value ?? {}
+    /** @TODO 模糊查询暂时这样实现 */
+    const collection = db.item
+      .toCollection()
+      .filter((item) => {
+        return item.name?.indexOf(searchParams.value?.name ?? '') !== -1
+      })
+    const total = await collection.count()
+    const record = await collection
+      .offset((current - 1) * size)
+      .limit(size)
+      .toArray()
+
+    return { record, total }
+  }
+
+  const { refresh: updateItemListBySearchParams, onSuccess: onSearchItemListSuccess, ...rest } = useFetchHook({
+    immediate,
+    loading: scopedLoading ?? loading,
+    onRequest: getItemListByName,
+  })
+
+  onSearchItemListSuccess(({ record = [] }) => {
+    itemList.value = record.sort(({ sortIndex: ia }, { sortIndex: ib }) => {
+      if (ia === undefined || ib === undefined)
+        return 0
+      return ib - ia
+    })
+  })
+
+  return { updateItemListBySearchParams, onSearchItemListSuccess, ...rest }
+}
