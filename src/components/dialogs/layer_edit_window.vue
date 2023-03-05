@@ -118,6 +118,18 @@
               </q-input>
             </q-item-section>
           </q-item>
+
+          <!-- 刷新时间组件 -->
+          <RefreshTimeField
+            :refreshTime="layer_info.refreshTime"
+            @update="
+              (e) => {
+                layer_info.refreshTime = e;
+              }
+            "
+          >
+          </RefreshTimeField>
+
           <q-item>
             <q-item-section side top> 点位图像 </q-item-section>
             <q-item-section>
@@ -234,18 +246,6 @@
               </q-input>
             </q-item-section>
           </q-item>
-
-          <!-- <q-item v-else>
-            <q-item-section> 是否计数 </q-item-section>
-            <q-item-section>
-              <q-checkbox
-                v-model="item_count"
-                :true-value="1"
-                :false-value="0"
-                label="是否计数"
-              />
-            </q-item-section>
-          </q-item> -->
         </q-list>
       </div>
       <div style="margin-top: 10px">
@@ -310,6 +310,7 @@ import {
 } from "../../service/edit_request";
 import { get_user_id, is_neigui } from "../../service/user_info";
 import ImgCut from "./vue-cropper.vue";
+import RefreshTimeField from "./layer_edit_refresh_time.vue";
 import ExtraAdapter from "../plugins/extra-adapter.vue";
 import ItemSelector from "./item_selector.vue";
 import { create_notify } from "../../api/common";
@@ -408,6 +409,7 @@ export default {
   components: {
     ImgCut,
     ItemSelector,
+    RefreshTimeField,
     ExtraAdapter,
   },
   methods: {
