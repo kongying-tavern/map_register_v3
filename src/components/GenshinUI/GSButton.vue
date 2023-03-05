@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 const props = defineProps<{
-  icon?: 'submit'
+  icon?: 'submit' | 'cancel'
   dark?: boolean
   disabled?: boolean
   loading?: boolean
@@ -18,8 +18,8 @@ const onClick = (ev: MouseEvent) => {
 </script>
 
 <template>
-  <button class="gs-button" :class="{ dark }" @click="onClick">
-    <div class="gs-button-icon" :class="[icon]" />
+  <button v-bind="$attrs" class="gs-button genshin-text" :class="{ dark }" @click="onClick">
+    <div v-if="icon" class="gs-button-icon" :class="[icon]" />
     <div class="gs-button-content">
       <slot name="default" />
     </div>
@@ -31,11 +31,11 @@ const onClick = (ev: MouseEvent) => {
   --bg-opacity: 1;
   --icon-opacity: 1;
 
+  display: flex;
+  width: fit-content;
   height: 40px;
   padding: 5px;
-  display: flex;
-  align-items: center;
-  border-radius: 999px;
+  border-radius: 20px;
   outline: 2px solid transparent;
   border: 2px solid transparent;
   transition:
@@ -45,6 +45,8 @@ const onClick = (ev: MouseEvent) => {
   color: #4A5366;
   filter: drop-shadow(0 0 2px rgba(128, 128, 128, 0.4));
   font-size: 18px;
+  position: relative;
+
   &:hover {
     outline-color: #FFF;
     border-color: #DAD4CB;
@@ -55,6 +57,7 @@ const onClick = (ev: MouseEvent) => {
     --bg-opacity: 0.6;
     --icon-opacity: 0.8;
     outline-color: transparent;
+    border-color: transparent;
   }
   &.dark {
     color: #ECE5D8;
@@ -73,13 +76,13 @@ const onClick = (ev: MouseEvent) => {
 }
 
 .gs-button-icon {
-  height: 100%;
+  width: 26px;
   aspect-ratio: 1 / 1;
   border-radius: 100%;
   background: #313131;
   opacity: var(--icon-opacity);
   position: relative;
-  &::before {
+  &::before, &::after {
     content: '';
     left: 0;
     top: 0;
@@ -92,9 +95,27 @@ const onClick = (ev: MouseEvent) => {
     border: 4px solid #FAC732;
     scale: 0.5 0.5;
   }
+  &.cancel::before {
+    background: #38A2E4;
+    border-radius: 2px;
+    height: 4px;
+    rotate: 45deg;
+    translate: 0 11px;
+    scale: 0.6;
+  }
+  &.cancel::after {
+    background: #38A2E4;
+    border-radius: 2px;
+    height: 4px;
+    rotate: -45deg;
+    translate: 0 11px;
+    scale: 0.6;
+  }
 }
 
 .gs-button-content {
+  white-space: nowrap;
+  padding: 0 8px;
   flex: 1;
 }
 </style>
