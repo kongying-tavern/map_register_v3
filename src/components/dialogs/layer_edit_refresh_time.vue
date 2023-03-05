@@ -119,7 +119,6 @@ onMounted(() => {
             v-model.number="refresh_hour"
             dense
             outlined
-            size="sm"
             @update:model-value="refresh_time_update"
           >
             <template #append>
@@ -131,7 +130,6 @@ onMounted(() => {
             v-model.number="refresh_min"
             dense
             outlined
-            size="sm"
             @update:model-value="refresh_time_update"
           >
             <template #append>
