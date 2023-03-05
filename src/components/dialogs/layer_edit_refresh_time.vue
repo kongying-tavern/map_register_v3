@@ -1,5 +1,5 @@
 <script setup>
-import { ref, defineProps, defineEmits, onMounted, nextTick } from "vue";
+import { ref, watch, defineProps, defineEmits, onMounted, nextTick } from "vue";
 
 const refresh_time_catagory_options = [
   { label: "不刷新", value: 0 },
@@ -38,13 +38,13 @@ const normalize_data = (
 };
 
 const props = defineProps({
-  refreshTime: {
+  modelValue: {
     type: Number,
     default: 0,
   },
 });
 
-const emits = defineEmits(["update"]);
+const emits = defineEmits(["update:modelValue"]);
 
 // 基础字段
 const refresh_category = ref(0);
@@ -55,7 +55,7 @@ const refresh_special = ref(-1);
 // 更新方法
 const refresh_time_update = () => {
   emits(
-    "update",
+    "update:modelValue",
     normalize_data(
       refresh_category.value,
       refresh_hour.value,
@@ -69,9 +69,9 @@ const refresh_category_update = () => {
   refresh_time_update();
 };
 
-onMounted(() => {
+const refresh_time_init = () => {
   nextTick().then(() => {
-    const time = props.refreshTime || 0;
+    const time = props.modelValue || 0;
     if (time === 0) {
       refresh_category.value = 0;
       refresh_min.value = 0;
@@ -90,7 +90,15 @@ onMounted(() => {
       refresh_special.value = time;
     }
   });
-});
+};
+
+watch(
+  () => props.modelValue,
+  () => {
+    refresh_time_init();
+  }
+);
+onMounted(refresh_time_init);
 </script>
 
 <template>

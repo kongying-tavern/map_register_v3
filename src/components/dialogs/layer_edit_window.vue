@@ -121,12 +121,8 @@
 
           <!-- 刷新时间组件 -->
           <RefreshTimeField
-            :refreshTime="layer_info.refreshTime"
-            @update="
-              (e) => {
-                layer_info.refreshTime = e;
-              }
-            "
+            v-model="layer_info.refreshTime"
+            @update:model-value="refresh_time_update"
           >
           </RefreshTimeField>
 
@@ -301,6 +297,7 @@
 
 <script>
 import _ from "lodash";
+import { ref } from "vue";
 import funcExtraData from "../extra-data";
 import { upload_img } from "../../service/base_data_request";
 import {
@@ -328,8 +325,11 @@ export default {
     "selItem",
   ],
   setup() {
+    const layer_info = ref({});
+
     return {
       ...funcExtraData,
+      layer_info,
     };
   },
   data() {
@@ -347,7 +347,6 @@ export default {
         markerCreatorId: get_user_id(),
         itemList: [],
       },
-      layer_info: {},
       item_selector_open: false,
       item_selector_index: -1,
       image_upload_cropper_open: false,
@@ -442,6 +441,9 @@ export default {
 
         this.image_upload_cropper_open = true;
       }
+    },
+    refresh_time_update(val) {
+      this.layer_info.refreshTime = val;
     },
     // 返回裁剪后的数据
     img_crop(data) {
