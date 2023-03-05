@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ElNotification } from 'element-plus'
-import { PasswordEditor } from '.'
+import { ArchiveSelector, PasswordEditor } from '.'
 import { useUserStore } from '@/stores'
 import { GSTab } from '@/components'
 
@@ -66,6 +66,9 @@ const tab = ref('archive')
 
     <div class="user-action w-full h-full p-8 pl-0">
       <GSTab v-model="tab" :tabs="tabs" class="h-full">
+        <template #archive>
+          <ArchiveSelector />
+        </template>
         <template #password>
           <PasswordEditor />
         </template>
