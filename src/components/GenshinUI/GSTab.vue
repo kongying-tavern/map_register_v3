@@ -135,6 +135,7 @@ const emits = defineEmits<{
 }
 
 .gs-tab-content {
+  width: 100%;
   flex: 1;
 }
 </style>
