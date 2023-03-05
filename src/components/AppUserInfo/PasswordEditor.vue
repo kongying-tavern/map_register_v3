@@ -55,7 +55,7 @@ onClickOutside(buttonRef, resetPopper)
 </script>
 
 <template>
-  <div class="h-full flex flex-col gap-4">
+  <div class="h-full flex flex-col items-center gap-4">
     <div class="gs-form-item">
       <div>旧密码</div>
       <GSInput v-model="form.oldPassword" style="width: 300px" />
@@ -74,7 +74,7 @@ onClickOutside(buttonRef, resetPopper)
         error,
       }"
     >
-      <GSButton ref="buttonRef" icon="submit" dark :loading="loading" @click="updatePassword">
+      <GSButton ref="buttonRef" icon="submit" dark style="width:370px" :loading="loading" @click="updatePassword">
         修改密码
       </GSButton>
     </el-tooltip>
