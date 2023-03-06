@@ -79,4 +79,4 @@ class UserCardBorder {
   }
 }
 
-registerPaint('user-card-border', UserCardBorder)
+globalThis.registerPaint('user-card-border', UserCardBorder)
