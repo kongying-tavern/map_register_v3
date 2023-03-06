@@ -30,7 +30,6 @@ const onInput = (ev: Event) => {
     return
   const { value } = ev.target as HTMLInputElement
   emits('update:modelValue', value)
-  inputRef.value.value = props.modelValue
 }
 </script>
 
