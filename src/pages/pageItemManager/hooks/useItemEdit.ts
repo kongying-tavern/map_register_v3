@@ -22,7 +22,7 @@ export const useItemEdit = (options: ItemEditHookOptions) => {
 
   const openItemDetailEditorDialog = async (index: number) => {
     await DialogService
-      .config({ title: '编辑物品详情', width: '700px', top: '20px' })
+      .config({ title: '编辑物品详情', width: '700px', alignCenter: true })
       .props({
         item: itemList.value[index],
         type: 'editor',

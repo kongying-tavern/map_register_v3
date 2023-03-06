@@ -24,7 +24,7 @@ export const useItemCreate = (options: ItemCreateHookOption) => {
 
   const openItemCreatorDialog = async () => {
     await DialogService
-      .config({ title: '新建物品', width: '700px', top: '20px' })
+      .config({ title: '新建物品', width: '700px', alignCenter: true })
       .props({
         item: item.value,
         type: 'creator',
