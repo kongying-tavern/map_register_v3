@@ -1,18 +1,21 @@
 <script lang="ts" setup>
 import type { Ref } from 'vue'
 
-const props = withDefaults(defineProps<{
+export interface GSInputProps {
   modelValue?: string
   disabled?: boolean
   placeholder?: string
-}>(), {
+}
+
+export interface GSInputEmits {
+  (e: 'update:modelValue', v?: string): void
+}
+
+const props = withDefaults(defineProps<GSInputProps>(), {
   modelValue: '',
   disabled: false,
 })
-
-const emits = defineEmits<{
-  (e: 'update:modelValue', v?: string): void
-}>()
+const emits = defineEmits<GSInputEmits>()
 
 const inputRef = ref<HTMLInputElement>() as Ref<HTMLInputElement>
 
