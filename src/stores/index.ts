@@ -1,3 +1,4 @@
+export * from './archive'
 export * from './item'
 export * from './map'
 export * from './marker'
