@@ -1,6 +1,7 @@
 <script lang="tsx" setup>
 import { Search } from '@element-plus/icons-vue'
 import type { Ref } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { useItemCreate, useItemEdit } from './hooks'
 import { PgUnit, useAreaList, useIconList, useItemDelete, useItemList, usePagination, useTypeList } from '@/hooks'
 
@@ -86,13 +87,23 @@ const getDeleteParams = () => {
   return transform(selection)
 }
 
-const { refresh: deleteItem, onSuccess: onDeleteItemSuccess, loading: deleteLoading } = useItemDelete({
+const { deleteItem, onSuccess: onDeleteItemSuccess, loading: deleteLoading } = useItemDelete({
   params: getDeleteParams,
+  onFetchBefore: async () =>
+    ElMessageBox
+      .confirm(`共有${getDeleteParams().length}个物品被删除，是否继续？`)
+      .then(() => true)
+      .catch(() => false)
+  ,
 })
 
 onDeleteItemSuccess(() => {
   deleteOneItem.value = []
   updateItemList()
+  ElMessage({
+    message: '删除成功',
+    type: 'success',
+  })
 })
 
 const removeRow = (row: API.ItemVo) => {

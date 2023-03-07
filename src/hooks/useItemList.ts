@@ -108,15 +108,16 @@ export const useItemUpdate = (options: ItemUpdateHookOptions = {}) => {
 
 interface ItemDeleteHookOptions extends FetchHookOptions<API.RBoolean> {
   params: () => number[]
+  onFetchBefore?: () => Promise<boolean>
 }
 
 /** 按itemId列表删除几个物品 */
 export const useItemDelete = (options: ItemDeleteHookOptions) => {
-  const { immediate = false, loading = ref(false), params } = options
+  const { immediate = false, loading = ref(false), params, onFetchBefore } = options
 
   const fetchParams = computed(() => params?.())
 
-  const rest = useFetchHook({
+  const { refresh, ...rest } = useFetchHook({
     immediate,
     loading,
     onRequest: async () => {
@@ -127,7 +128,13 @@ export const useItemDelete = (options: ItemDeleteHookOptions) => {
     },
   })
 
-  return { ...rest }
+  const deleteItem = async () => {
+    if (onFetchBefore && await onFetchBefore())
+      return
+    refresh()
+  }
+
+  return { deleteItem, ...rest }
 }
 
 interface ItemCreateHookOptions extends FetchHookOptions<API.RLong> {
