@@ -1,4 +1,5 @@
 import type { Ref } from 'vue'
+import type { Collection } from 'dexie'
 import Api from '@/api/api'
 import type { FetchHookOptions } from '@/hooks'
 import { useFetchHook } from '@/hooks'
@@ -6,6 +7,7 @@ import db from '@/database'
 
 interface ItemListHookOptions extends FetchHookOptions<API.RPageListVoItemVo> {
   params?: () => API.ItemSearchVo
+  filterOptions?: () => API.ItemVo
 }
 
 interface ItemUpdateHookOptions extends FetchHookOptions<API.RBoolean> {
@@ -25,9 +27,10 @@ const itemMap = computed(() => itemList.value.reduce((seed, item) => {
 
 /** 物品列表与相关操作方法 */
 export const useItemList = (options: ItemListHookOptions = {}) => {
-  const { immediate, loading: scopedLoading, params } = options
+  const { immediate, loading: scopedLoading, params, filterOptions } = options
 
   const fetchParams = computed(() => params?.())
+  const filterParams = computed(() => filterOptions?.())
 
   const cachedItemMap = reactive<Record<number, API.ItemVo | undefined>>({})
   const getItem = (itemId?: number) => {
@@ -47,13 +50,25 @@ export const useItemList = (options: ItemListHookOptions = {}) => {
     onRequest: async () => {
       const { areaIdList = [], typeIdList = [], current = 1, size = 10 } = fetchParams.value ?? {}
       const typeId = typeIdList[0]
-      if (!areaIdList.length)
-        return {}
+      const exp = new RegExp(`${filterParams.value?.name ?? ''}`)
+      let collection: Collection
 
-      const collection = db.item
-        .where('areaId')
-        .anyOf(areaIdList)
-        .and(itemVO => typeId === undefined ? true : Boolean(itemVO.typeIdList?.includes(typeId)))
+      if (!areaIdList.length) {
+        if (!filterParams.value?.name)
+          return {}
+        collection = db.item
+          .toCollection()
+          .filter(itemVo => exp.test(itemVo.name ?? ''))
+      }
+      else {
+        collection = db.item
+          .where('areaId')
+          .anyOf(areaIdList)
+          .and(itemVO => typeId === undefined ? true : Boolean(itemVO.typeIdList?.includes(typeId)))
+        if (filterParams.value?.name)
+          collection.filter(itemVo => exp.test(itemVo.name ?? ''))
+      }
+
       const total = await collection.count()
       const record = await collection
         .offset((current - 1) * size)
@@ -132,50 +147,4 @@ export const useItemCreate = (options: ItemCreateHookOptions) => {
   })
 
   return { ...rest }
-}
-
-interface ItemSearchHookOptions extends FetchHookOptions<API.RPageListVoItemVo> {
-  params?: () => Pick<API.ItemVo, 'name'> & Pick<API.ItemSearchVo, 'current' | 'size'>
-}
-
-/** 按名称检索物品 */
-export const useItemSearch = (options: ItemSearchHookOptions) => {
-  const { immediate = false, params, loading: scopedLoading } = options
-
-  const searchParams = computed(() => params?.())
-
-  const getItemListByName = async () => {
-    if (!searchParams.value?.name)
-      return {}
-    const { current = 1, size = 10 } = searchParams.value ?? {}
-    /** @TODO 模糊查询暂时这样实现 */
-    const collection = db.item
-      .toCollection()
-      .filter((item) => {
-        return item.name?.indexOf(searchParams.value?.name ?? '') !== -1
-      })
-    const total = await collection.count()
-    const record = await collection
-      .offset((current - 1) * size)
-      .limit(size)
-      .toArray()
-
-    return { record, total }
-  }
-
-  const { refresh: updateItemListBySearchParams, onSuccess: onSearchItemListSuccess, ...rest } = useFetchHook({
-    immediate,
-    loading: scopedLoading ?? loading,
-    onRequest: getItemListByName,
-  })
-
-  onSearchItemListSuccess(({ record = [] }) => {
-    itemList.value = record.sort(({ sortIndex: ia }, { sortIndex: ib }) => {
-      if (ia === undefined || ib === undefined)
-        return 0
-      return ib - ia
-    })
-  })
-
-  return { updateItemListBySearchParams, onSearchItemListSuccess, ...rest }
 }

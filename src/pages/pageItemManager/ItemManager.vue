@@ -2,14 +2,13 @@
 import { Search } from '@element-plus/icons-vue'
 import type { Ref } from 'vue'
 import { useItemCreate, useItemEdit } from './hooks'
-import { PgUnit, useAreaList, useIconList, useItemDelete, useItemList, useItemSearch, usePagination, useTypeList } from '@/hooks'
+import { PgUnit, useAreaList, useIconList, useItemDelete, useItemList, usePagination, useTypeList } from '@/hooks'
 
 const { pagination, layout } = usePagination({
   units: [PgUnit.PREV, PgUnit.PAGER, PgUnit.NEXT],
 })
 const checkedArea = ref<API.AreaVo>()
 const checkedType = ref<API.ItemTypeVo>()
-const searchInputAllowed = ref(false)
 const name = ref('')
 
 const { areaMap, areaTree, loading: areaLoading } = useAreaList({
@@ -26,26 +25,9 @@ const { itemList, loading: itemLoading, onSuccess: onItemListFetched, pause, res
     current: pagination.value.current,
     size: pagination.value.pageSize,
   }),
-})
-const { onSearchItemListSuccess, updateItemListBySearchParams } = useItemSearch({
-  params: () => ({
-    name: name.value,
-    current: pagination.value.current,
-    size: pagination.value.pageSize,
+  filterOptions: () => ({
+    name: name.value ?? '',
   }),
-})
-
-watch(searchInputAllowed, (newVal, _) => {
-  if (newVal) {
-    pause()
-    return
-  }
-  resume()
-})
-
-watch(() => pagination.value.current, () => {
-  if (searchInputAllowed.value)
-    updateItemListBySearchParams()
 })
 
 /** 在部分参数切换后重置页数 */
@@ -70,17 +52,12 @@ const onTypeCheckedChange = (typeItem: API.ItemTypeVo) => {
   checkedType.value = typeItem
 }
 
-const onSearchInputChange = () => {
+const onSearchTypingChange = () => {
   resetPagination()
-  if (searchInputAllowed.value)
-    pause()
+  updateItemList()
 }
 
 onItemListFetched(({ total = 0 }) => {
-  pagination.value.total = total
-})
-
-onSearchItemListSuccess(({ total = 0 }) => {
   pagination.value.total = total
 })
 
@@ -126,7 +103,7 @@ const removeRow = (row: API.ItemVo) => {
 
 <template>
   <div class="h-full flex gap-2">
-    <div v-if="!searchInputAllowed" class="h-full w-40 flex flex-col gap-2 overflow-hidden">
+    <div class="h-full w-40 flex flex-col gap-2 overflow-hidden">
       <div>地区</div>
       <el-tree
         v-loading="areaLoading"
@@ -164,21 +141,11 @@ const removeRow = (row: API.ItemVo) => {
         </div>
       </div>
       <div class="flex items-center gap-2 w-1/3">
-        <el-checkbox
-          v-model="searchInputAllowed"
-        >
-          按名称检索物品
-        </el-checkbox>
         <el-input
           v-model="name"
-          :disabled="!searchInputAllowed"
-          @change="onSearchInputChange"
-        />
-        <el-button
-          :icon="Search"
-          circle
-          :disabled="!searchInputAllowed"
-          @click="updateItemListBySearchParams"
+          placeholder="按名称检索物品"
+          :prefix-icon="Search"
+          @change="onSearchTypingChange"
         />
       </div>
       <div class="flex items-center justify-end gap-2">
