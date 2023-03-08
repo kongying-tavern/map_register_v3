@@ -1,18 +1,10 @@
 <script lang="ts" setup>
-import { ElNotification } from 'element-plus'
 import { ArchiveSelector, PasswordEditor } from '.'
-import { useUserStore } from '@/stores'
+import { useArchiveStore, useUserStore } from '@/stores'
 import { GSTab } from '@/components'
 
+const archiveStore = useArchiveStore()
 const userStore = useUserStore()
-
-const checkArchive = () => {
-  ElNotification.closeAll()
-  ElNotification.warning({
-    position: 'bottom-right',
-    message: '暂无存档',
-  })
-}
 
 const tabs: { title: string; value: string }[] = [
   { title: '云存档', value: 'archive' },
@@ -57,10 +49,15 @@ const tab = ref('archive')
       </div>
 
       <div
-        class="archive-preview flex-1 w-full grid place-items-center transition-all cursor-pointer active:brightness-95 select-none"
-        @click="checkArchive"
+        class="archive-preview flex-1 w-full flex flex-col transition-all cursor-pointer active:brightness-95 select-none"
       >
-        当前存档: 无
+        <div v-if="!archiveStore.currentArchive">
+          当前存档: 无
+        </div>
+        <template v-else>
+          <div>当前存档：{{ archiveStore.currentArchive.name }}</div>
+          <div>{{ archiveStore.currentArchive.body }}</div>
+        </template>
       </div>
     </div>
 

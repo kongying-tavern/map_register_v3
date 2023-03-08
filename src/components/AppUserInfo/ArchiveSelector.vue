@@ -1,12 +1,16 @@
 <script lang="ts" setup>
 import dayjs from 'dayjs'
-import { ArchiveCreator } from '.'
+import { storeToRefs } from 'pinia'
+import { ArchiveCreator, ArchiveViewer } from '.'
 import { useArchiveStore } from '@/stores'
 
 const archiveStore = useArchiveStore()
 archiveStore.fetchArchive()
 
-const archiveCreatorVisible = ref(false)
+const { archiveList } = storeToRefs(archiveStore)
+
+const archiveCreateIndex = ref<number>()
+const archiveViewIndex = ref<number>()
 
 const timeFormater = (time?: string) => time
   ? dayjs(time).format('YYYY-MM-DD HH:mm:ss')
@@ -19,32 +23,46 @@ const timeFormater = (time?: string) => time
       正在加载存档...
     </div>
 
-    <div
-      v-for="archive in archiveStore.archiveList"
-      :key="archive.id"
-      class="archive-item outline-card"
-    >
-      <div class="archive-banner items-center">
-        存档状态或统计图
-      </div>
-      <div class="archive-name flex justify-between items-center gap-2">
-        <div>{{ archive.id }}. {{ archive.name }}</div>
-        <div>更新时间 {{ timeFormater(archive.updateTime) }}</div>
-      </div>
-    </div>
+    <template v-else>
+      <template v-for="index in 5" :key="archiveList[index - 1] ?? (index - 1)">
+        <div
+          v-if="index > 1"
+          class="outline-card disabled-slot item-enter-anime grid place-items-center text-xl select-none cursor-not-allowed"
+        >
+          当前存档槽位暂不可用
+        </div>
 
-    <div
-      v-if="!archiveStore.fetchLoading && archiveStore.archiveList.length < 5"
-      class="archive-item outline-card"
-      @click="archiveCreatorVisible = true"
-    >
-      <div class="archive-banner empty" />
-      <div class="archive-name text-center">
-        新建存档
-      </div>
-    </div>
+        <div
+          v-else-if="archiveList[index - 1]"
+          class="archive-item outline-card item-enter-anime"
+          :class="{ disabled: index > 0 }"
+          @click="archiveViewIndex = index - 1"
+        >
+          <div class="archive-banner items-center">
+            存档状态或统计图
+          </div>
+          <div class="archive-name flex justify-between items-center gap-2">
+            <div>{{ index }}. {{ archiveList[index - 1].name }}</div>
+            <div>更新时间 {{ timeFormater(archiveList[index - 1].updateTime) }}</div>
+          </div>
+        </div>
 
-    <ArchiveCreator v-model="archiveCreatorVisible" />
+        <div
+          v-else
+          class="archive-item outline-card item-enter-anime"
+          :class="{ disabled: index > 0 }"
+          @click="archiveCreateIndex = index - 1"
+        >
+          <div class="archive-banner empty" />
+          <div class="archive-name">
+            {{ index }}. &lt;新建存档&gt;
+          </div>
+        </div>
+      </template>
+    </template>
+
+    <ArchiveCreator v-model:slot-index="archiveCreateIndex" />
+    <ArchiveViewer v-model:slot-index="archiveViewIndex" />
   </div>
 </template>
 
@@ -53,18 +71,29 @@ const timeFormater = (time?: string) => time
   outline: 2px solid transparent;
   transition: all 100ms ease;
   border-radius: 6px;
-  &:hover {
-    scale: 1.02;
-    outline-color: #FFF;
-  }
-  &:active {
-    scale: 1;
-  }
+}
+
+// TODO 等待修复存档槽位 slot_index 问题
+.disabled-slot {
+  border: 2px dashed rgb(128 128 128 / 0.5);
+  height: 96px;
+  color: rgb(128 128 128);
 }
 
 @keyframes gs-slide-in {
-  from { translate: -50px 0; opacity: 0; }
+  from { translate: -30px 0; opacity: 0; }
   to { translate: 0 0; opacity: 1; }
+}
+
+.item-enter-anime {
+  opacity: 0;
+  translate: -30px 0;
+  animation: gs-slide-in 200ms ease forwards;
+  @for $i from 1 through 5 {
+    &:nth-of-type(#{$i}) {
+      animation-delay: #{$i * 50}ms;
+    }
+  }
 }
 
 .archive-item {
@@ -73,13 +102,12 @@ const timeFormater = (time?: string) => time
   overflow: hidden;
   cursor: pointer;
   filter: drop-shadow(0 0 2px rgba(128 128 128 / 0.5));
-  animation: gs-slide-in 200ms ease forwards;
-  translate: -30px 0;
-  opacity: 0;
-  @for $i from 1 through 5 {
-    &:nth-of-type(#{$i}) {
-      animation-delay: #{$i * 50}ms;
-    }
+  &:hover {
+    scale: 1.02;
+    outline-color: #FFF;
+  }
+  &:active {
+    scale: 1;
   }
 }
 

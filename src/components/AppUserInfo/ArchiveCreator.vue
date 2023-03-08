@@ -1,18 +1,18 @@
 <script lang="ts" setup>
 import { useFetchHook } from '@/hooks'
-import { GSButton, GSInput } from '@/components'
+import { GSButton, GSCard, GSInput } from '@/components'
 import { useArchiveStore } from '@/stores'
 
 const props = defineProps<{
-  modelValue: boolean
+  slotIndex?: number
 }>()
 const emits = defineEmits<{
-  (e: 'update:modelValue', v: boolean): void
+  (e: 'update:slotIndex', v?: number): void
 }>()
 
-const visible = computed({
-  get: () => props.modelValue,
-  set: v => emits('update:modelValue', v),
+const index = computed({
+  get: () => props.slotIndex,
+  set: v => emits('update:slotIndex', v),
 })
 
 const archiveStore = useArchiveStore()
@@ -21,45 +21,50 @@ const archiveStore = useArchiveStore()
 const archiveName = ref('')
 const errMsg = ref('')
 
-const resetState = () => {
+const onCloseDialog = () => {
   archiveName.value = ''
   errMsg.value = ''
+  index.value = undefined
 }
 
 const { loading, refresh, onSuccess, onError } = useFetchHook({
   onRequest: async () => {
     errMsg.value = ''
     archiveName.value = archiveName.value.trim()
+    if (index.value === undefined)
+      throw new Error('无效的存档槽位')
     if (archiveName.value.length < 1)
       throw new Error('存档名称长度不能小于 1 个字符')
-    return await archiveStore.createArchive(archiveName.value)
+    return await archiveStore.createArchive(archiveName.value, index.value)
   },
 })
 
 onSuccess(() => {
-  visible.value = false
+  index.value = undefined
   archiveStore.fetchArchive()
 })
 
 onError((err) => {
   errMsg.value = err.message
 })
+
+const onBeforeClose = (done: () => void) => {
+  !loading.value && done()
+}
 </script>
 
 <template>
   <el-dialog
-    v-model="visible"
-    append-to-body
+    :model-value="Number.isInteger(index)"
     :show-close="false"
+    :before-close="onBeforeClose"
+    append-to-body
     align-center
     width="500px"
     class="custom-dialog hidden-header bg-transparent"
-    @closed="resetState"
+    @closed="onCloseDialog"
   >
-    <div class="gs-dialog-content flex flex-col gap-4">
-      <div class="genshin-text title text-center">
-        新建存档
-      </div>
+    <GSCard class="gap-4" :title="`新建存档 ${slotIndex}`">
       <div class="flex-1 flex flex-col mt-10 mb-10 gap-2">
         <GSInput v-model="archiveName" placeholder="请输入存档名称" />
         <div class="err-msg genshin-text text-base h-6">
@@ -67,27 +72,18 @@ onError((err) => {
         </div>
       </div>
       <div class="flex justify-between gap-4">
-        <GSButton icon="cancel" class="flex-1" @click="visible = false">
+        <GSButton icon="cancel" class="flex-1" @click="index = undefined">
           取消
         </GSButton>
         <GSButton icon="submit" class="flex-1" :loading="loading" @click="refresh">
           确定
         </GSButton>
       </div>
-    </div>
+    </GSCard>
   </el-dialog>
 </template>
 
 <style lang="scss" scoped>
-.gs-dialog-content {
-  background: paint(dark-card-border);
-  padding: 36px;
-  .title {
-    color: #D3BC8E;
-    font-size: 30px;
-  }
-}
-
 .err-msg {
   color: #CF5945;
 }
