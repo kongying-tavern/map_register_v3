@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 export interface GSButtonProps {
   icon?: 'submit' | 'cancel'
+  iconSize?: string | number
+  iconColor?: string
   dark?: boolean
   disabled?: boolean
   loading?: boolean
@@ -22,8 +24,10 @@ const onClick = (ev: MouseEvent) => {
 
 <template>
   <button v-bind="$attrs" class="gs-button genshin-text" :class="{ dark, loading, disabled }" @click="onClick">
-    <div v-if="icon" class="gs-button-icon" :class="[loading ? 'loading' : icon]" />
-    <div class="gs-button-content">
+    <div v-if="icon || $slots.icon" class="gs-button-icon" :class="[loading ? 'loading' : $slots.icon ? '' : icon]">
+      <slot name="icon" />
+    </div>
+    <div v-if="$slots.default" class="gs-button-content">
       <slot name="default" />
     </div>
   </button>
@@ -119,6 +123,9 @@ const onClick = (ev: MouseEvent) => {
   background: #313131;
   opacity: var(--icon-opacity);
   position: relative;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
   &::before, &::after {
     content: '';
     left: 0;
