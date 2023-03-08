@@ -79,9 +79,9 @@ export const mapTiles: Record<MapNameEnum, MapTileConfig> = {
       'A:XM:DESERT',
       'A:XM:DESERT2',
     ],
-    code: 'twt34',
-    size: [16384, 15360],
-    tilesOffset: [-4864, 0],
+    code: 'twt36',
+    size: [17408, 16384],
+    tilesOffset: [-5800, 0],
     settings: {
       center: [0, 0],
       // 初始缩放比率较低时会有奇怪的 bug
