@@ -28,9 +28,3 @@ body {
     height: 100vh;
   }
 }
-
-// TODO 暂时没有计划做响应式和移动端适配，尺寸下限先定死
-#app {
-  min-width: 1280px;
-  min-height: 720px;
-}
