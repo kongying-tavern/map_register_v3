@@ -117,7 +117,7 @@ export const useItemDelete = (options: ItemDeleteHookOptions) => {
 
   const fetchParams = computed(() => params?.())
 
-  const { refresh, ...rest } = useFetchHook({
+  const { refresh: apiDeleteItem, ...rest } = useFetchHook({
     immediate,
     loading,
     onRequest: async () => {
@@ -128,11 +128,7 @@ export const useItemDelete = (options: ItemDeleteHookOptions) => {
     },
   })
 
-  const deleteItem = async () => {
-    if (onFetchBefore && await onFetchBefore())
-      return
-    refresh()
-  }
+  const deleteItem = async () => (await onFetchBefore?.()) && await apiDeleteItem()
 
   return { deleteItem, ...rest }
 }
