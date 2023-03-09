@@ -5,6 +5,11 @@
 @import './transition/index.scss';
 @import './fonts/font.scss';
 
+:root {
+  // 禁用移动端点击反馈背景色
+  -webkit-tap-highlight-color: transparent;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
