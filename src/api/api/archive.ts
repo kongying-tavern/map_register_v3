@@ -1,7 +1,7 @@
 import { request } from '@/utils';
 
 /** 新建存档槽位并将存档存入 新建存档并存入，注意槽位下标不能冲突 PUT /system/archive/${param0}/${param1} */
-export async function createArchive(
+export async function createSlotAndSaveArchive(
   params: {
     // header
 // path
@@ -45,6 +45,25 @@ export async function saveArchive(
   });
 }
 
+/** 重命名指定槽位 重命名槽位，后端会对槽位校验，更新失败返回false POST /system/archive/rename/${param0}/${param1} */
+export async function renameSlot(
+  params: {
+    // header
+// path
+    slot_index: number;
+    new_name: string;
+  },
+  options?: { [key: string]: any },
+) {
+  const { slot_index: param0, new_name: param1, ...queryParams } = params;
+  return request<API.RBoolean>(`/system/archive/rename/${param0}/${param1}`, {
+    method: 'POST',
+    headers: {},
+    params: { ...queryParams },
+    ...(options || {}),
+  });
+}
+
 /** 获取指定存档槽位的当前存档 获取指定存档槽位的当前存档，获取槽位最新存档（1号历史记录的存档） GET /system/archive/last/${param0} */
 export async function getLastArchive(
   params: {
@@ -73,25 +92,10 @@ export async function getHistoryArchive(
   options?: { [key: string]: any },
 ) {
   const { slot_index: param0, ...queryParams } = params;
-  return request<API.RArchiveHistoryVo>(`/system/archive/history/${param0}`, {
+  return request<API.RArchiveSlotVo>(`/system/archive/history/${param0}`, {
     method: 'GET',
     headers: {},
     params: { ...queryParams },
-    ...(options || {}),
-  });
-}
-
-/** 获取所有槽位的最新存档 获取所有槽位的最新存档 GET /system/archive/all */
-export async function getAllArchive(
-  params: {
-    // header
-},
-  options?: { [key: string]: any },
-) {
-  return request<API.RListArchiveVo>('/system/archive/all', {
-    method: 'GET',
-    headers: {},
-    params: { ...params },
     ...(options || {}),
   });
 }
@@ -103,7 +107,7 @@ export async function getAllHistoryArchive(
 },
   options?: { [key: string]: any },
 ) {
-  return request<API.RListArchiveHistoryVo>('/system/archive/all_history', {
+  return request<API.RListArchiveSlotVo>('/system/archive/all_history', {
     method: 'GET',
     headers: {},
     params: { ...params },
