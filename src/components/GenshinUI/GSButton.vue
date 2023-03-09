@@ -24,7 +24,8 @@ const onClick = (ev: MouseEvent) => {
 
 <template>
   <button v-bind="$attrs" class="gs-button genshin-text" :class="{ dark, loading, disabled }" @click="onClick">
-    <div v-if="icon || $slots.icon" class="gs-button-icon" :class="[loading ? 'loading' : $slots.icon ? '' : icon]">
+    <div v-if="loading" class="gs-button-icon loading" />
+    <div v-else-if="icon || $slots.icon" class="gs-button-icon" :class="[$slots.icon ? '' : icon]">
       <slot name="icon" />
     </div>
     <div v-if="$slots.default" class="gs-button-content">
