@@ -35,7 +35,7 @@ const { loading, refresh, onSuccess, onError } = useFetchHook({
       throw new Error('无效的存档槽位')
     if (archiveName.value.length < 1)
       throw new Error('存档名称长度不能小于 1 个字符')
-    return await archiveStore.createArchive(archiveName.value, index.value)
+    return await archiveStore.createArchiveSlot(archiveName.value, index.value)
   },
 })
 
@@ -71,6 +71,7 @@ const onBeforeClose = (done: () => void) => {
           {{ errMsg }}
         </div>
       </div>
+
       <div class="flex justify-between gap-4">
         <GSButton icon="cancel" class="flex-1" @click="index = undefined">
           取消
@@ -78,6 +79,10 @@ const onBeforeClose = (done: () => void) => {
         <GSButton icon="submit" class="flex-1" :loading="loading" @click="refresh">
           确定
         </GSButton>
+      </div>
+
+      <div class="text-right text-gray-300 -mt-3 -mb-3">
+        注意：当前存档会被存入新存档槽
       </div>
     </GSCard>
   </el-dialog>

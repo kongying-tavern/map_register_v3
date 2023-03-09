@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 import { CaretBottom, CaretTop, DeleteFilled } from '@element-plus/icons-vue'
-import { ElLoading } from 'element-plus'
+import { ElNotification } from 'element-plus'
+import dayjs from 'dayjs'
 import { GSButton, GSCard } from '@/components'
-import type { ArchiveData } from '@/stores'
+import type { ArchiveSlotData } from '@/stores'
 import { useArchiveStore } from '@/stores'
 import { useFetchHook } from '@/hooks'
 
@@ -20,11 +21,11 @@ const index = computed({
 
 const archiveStore = useArchiveStore()
 
-const archive = ref<ArchiveData>()
+const archiveSlot = ref<ArchiveSlotData>()
 const initDialog = () => {
   if (index.value === undefined)
     return
-  archive.value = archiveStore.archiveList[index.value]
+  archiveSlot.value = archiveStore.archiveSlots[index.value]
 }
 
 // ==================== 底部信息栏 ====================
@@ -43,36 +44,27 @@ const note = (ev: Event, msg: string) => {
 const onDialogClosed = () => {
   index.value = undefined
   stopSignal.value = false
-  archive.value = undefined
+  archiveSlot.value = undefined
 }
 
 // ==================== 存档逻辑 ====================
-const { refresh: saveArchive, onSuccess } = useFetchHook({
+const { loading, refresh: saveArchive, onSuccess, onError } = useFetchHook({
   onRequest: async () => {
-    const loading = ElLoading.service({
-      background: 'rgb(0 0 0 / 0.2)',
-      fullscreen: true,
-      text: '操作中...',
-    })
-    try {
-      await archiveStore.saveArchive(index.value)
-      await archiveStore.fetchArchive()
-      loading.close()
-    }
-    catch {
-      // no action
-    }
-    finally {
-      loading.close()
-    }
+    await archiveStore.saveArchiveToSlot(index.value)
+    await archiveStore.fetchArchive()
   },
 })
 onSuccess(async () => {
   index.value = undefined
 })
+onError((err) => {
+  ElNotification.error({
+    message: err.message,
+  })
+})
 
 const loadArchive = () => {
-  archiveStore.loadArchive(index.value)
+  archiveStore.loadArchiveSlot(index.value)
   index.value = undefined
 }
 
@@ -80,7 +72,7 @@ const loadArchive = () => {
 const onAnimationEnd = (ev: AnimationEvent) => {
   if (ev.animationName !== 'anime-delete-archive')
     return
-  archiveStore.deleteArchive(index.value)
+  archiveStore.deleteArchiveSlot(index.value)
   stopSignal.value = true
   index.value = undefined
 }
@@ -90,6 +82,7 @@ const onAnimationEnd = (ev: AnimationEvent) => {
   <el-dialog
     :model-value="Number.isInteger(index)"
     :show-close="false"
+    :close-on-click-modal="!loading"
     append-to-body
     align-center
     width="500px"
@@ -97,15 +90,16 @@ const onAnimationEnd = (ev: AnimationEvent) => {
     @open="initDialog"
     @closed="onDialogClosed"
   >
-    <GSCard :title="`存档: ${archive?.name}`" class="gap-4">
-      <div class="a h-40">
-        放点啥好
+    <GSCard v-if="!archiveSlot" title="存档为空" />
+    <GSCard v-else :title="`存档: ${archiveSlot.name}`" class="gap-4">
+      <div class="flex flex-col">
+        <div v-for="(history, historyIndex) in archiveSlot.archiveList" :key="history.timestamp">
+          <div>【历史记录 {{ historyIndex + 1 }}】{{ dayjs(history.timestamp).format('YYYY-MM-DD HH:mm:ss') }}（标记点位数：{{ history.body.Data_KYJG.length }}）</div>
+        </div>
       </div>
 
-      <div>存档历史</div>
-
       <div class="flex justify-between gap-4">
-        <GSButton class="flex-1" @click="saveArchive">
+        <GSButton class="flex-1" :loading="loading" @click="saveArchive">
           <template #icon>
             <el-icon color="#FFCC33">
               <CaretTop />
@@ -116,6 +110,7 @@ const onAnimationEnd = (ev: AnimationEvent) => {
 
         <GSButton
           class="hold-and-delete"
+          :disabled="loading"
           @click="(e) => note(e, '持续按住删除按钮以确认删除')"
           @animationend="onAnimationEnd"
         >
@@ -126,7 +121,7 @@ const onAnimationEnd = (ev: AnimationEvent) => {
           </template>
         </GSButton>
 
-        <GSButton :disabled="archive?.id === archiveStore.currentArchive.id" class="flex-1" @click="loadArchive">
+        <GSButton class="flex-1" :disabled="loading" @click="loadArchive">
           <template #icon>
             <el-icon color="#FFCC33">
               <CaretBottom />
@@ -165,10 +160,11 @@ const onAnimationEnd = (ev: AnimationEvent) => {
   height: 100%;
   top: 0;
   left: 0;
+  scale: 1.8;
   position: absolute;
   border-radius: 100%;
   background: conic-gradient(#FFCC33 var(--angle), transparent var(--angle));
-  mask: radial-gradient(transparent 50%, #000 50%);
+  mask: radial-gradient(transparent 49%, #000 50%);
   animation: anime-delete-archive 3s linear forwards;
 }
 </style>

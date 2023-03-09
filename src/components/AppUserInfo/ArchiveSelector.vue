@@ -7,7 +7,7 @@ import { useArchiveStore } from '@/stores'
 const archiveStore = useArchiveStore()
 archiveStore.fetchArchive()
 
-const { archiveList } = storeToRefs(archiveStore)
+const { archiveSlots } = storeToRefs(archiveStore)
 
 const archiveCreateIndex = ref<number>()
 const archiveViewIndex = ref<number>()
@@ -24,34 +24,27 @@ const timeFormater = (time?: string) => time
     </div>
 
     <template v-else>
-      <template v-for="index in 5" :key="archiveList[index - 1] ?? (index - 1)">
+      <template v-for="(archiveSlot, index) of archiveSlots">
         <div
-          v-if="index > 1"
-          class="outline-card disabled-slot item-enter-anime grid place-items-center text-xl select-none cursor-not-allowed"
-        >
-          当前存档槽位暂不可用
-        </div>
-
-        <div
-          v-else-if="archiveList[index - 1]"
+          v-if="archiveSlot"
+          :key="archiveSlot.id"
           class="archive-item outline-card item-enter-anime"
-          :class="{ disabled: index > 0 }"
-          @click="archiveViewIndex = index - 1"
+          @click="archiveViewIndex = archiveSlot.slotIndex"
         >
           <div class="archive-banner items-center">
             存档状态或统计图
           </div>
           <div class="archive-name flex justify-between items-center gap-2">
-            <div>{{ index }}. {{ archiveList[index - 1].name }}</div>
-            <div>更新时间 {{ timeFormater(archiveList[index - 1].updateTime) }}</div>
+            <div>{{ index }}. {{ archiveSlot.name }}</div>
+            <div>更新时间 {{ timeFormater(archiveSlot.updateTime) }}</div>
           </div>
         </div>
 
         <div
           v-else
+          :key="`empty-${Number(index)}`"
           class="archive-item outline-card item-enter-anime"
-          :class="{ disabled: index > 0 }"
-          @click="archiveCreateIndex = index - 1"
+          @click="archiveCreateIndex = Number(index)"
         >
           <div class="archive-banner empty" />
           <div class="archive-name">

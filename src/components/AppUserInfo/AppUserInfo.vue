@@ -51,13 +51,7 @@ const tab = ref('archive')
       <div
         class="archive-preview flex-1 w-full flex flex-col transition-all cursor-pointer active:brightness-95 select-none"
       >
-        <div v-if="!archiveStore.currentArchive">
-          当前存档: 无
-        </div>
-        <template v-else>
-          <div>当前存档：{{ archiveStore.currentArchive.name }}</div>
-          <div>{{ archiveStore.currentArchive.body }}</div>
-        </template>
+        <div>{{ archiveStore.currentArchive.body }}</div>
       </div>
     </div>
 
