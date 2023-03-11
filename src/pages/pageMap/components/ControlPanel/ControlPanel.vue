@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { Search } from '@element-plus/icons-vue'
+import { ArrowLeft, ArrowRight, Search } from '@element-plus/icons-vue'
 import type { Directive } from 'vue'
 import { KeepAlive } from 'vue'
 import { ElMessage } from 'element-plus'
@@ -145,10 +145,12 @@ const { pagination, pages, disabledNext, disabledPre, nextPage, prePage } = useP
     pageSize: 20,
   },
 })
+
+const collapsed = ref(false)
 </script>
 
 <template>
-  <div class="left-control-panel grid p-2 gap-1" :class="{ minus }" v-bind="$attrs">
+  <div class="left-control-panel grid p-2 gap-1" :class="{ minus, collapsed }" v-bind="$attrs">
     <!-- 顶部筛选器 -->
     <div class="step-selector grid gap-1">
       <FilterStep v-model="mapStore.step" :step-names="steps" class="rounded-md overflow-hidden" />
@@ -184,7 +186,24 @@ const { pagination, pages, disabledNext, disabledPre, nextPage, prePage } = useP
     <!-- 底部表格 -->
     <MarkersTable v-model:pagination="pagination" class="content col-span-2" />
 
-    <!-- 右侧悬浮面板 -->
+    <!-- 控制面板右上悬浮面板 -->
+    <div class="absolute top-0 left-full px-2 flex flex-col gap-1">
+      <div
+        class="w-10 h-10 rounded-md \
+          bg-opacity-30 backdrop-filter backdrop-blur-3xl bg-white \
+          hover:bg-opacity-50 active:bg-opacity-40 \
+          grid place-items-center \
+          cursor-pointer transition-all"
+        @click="collapsed = !collapsed"
+      >
+        <el-icon :size="30">
+          <ArrowRight v-show="collapsed" />
+          <ArrowLeft v-show="!collapsed" />
+        </el-icon>
+      </div>
+    </div>
+
+    <!-- 控制面板右下悬浮面板 -->
     <div class="absolute bottom-0 left-full px-2 flex flex-col gap-1">
       <el-tooltip
         v-model:visible="tooltipVisible"
@@ -246,6 +265,10 @@ const { pagination, pages, disabledNext, disabledPre, nextPage, prePage } = useP
   grid-template-columns: 1fr auto;
   width: 432px;
   transition: var(--el-transition-all);
+
+  &.collapsed {
+    translate: calc(-100% - 8px) 0;
+  }
 }
 
 .step-selector {
