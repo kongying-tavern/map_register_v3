@@ -14,8 +14,8 @@ export interface CustomTableColumn {
 }
 
 const columns: CustomTableColumn[] = [
-  { title: 'ID', dataKey: 'id', width: 100, readonly: true, fixed: true },
-  { title: '用户名', dataKey: 'username', minWidth: 150, readonly: true, fixed: true },
+  { title: 'ID', dataKey: 'id', width: 100, readonly: true },
+  { title: '用户名', dataKey: 'username', minWidth: 150, readonly: true },
   { title: '昵称', dataKey: 'nickname', minWidth: 150 },
   { title: 'QQ', dataKey: 'qq', width: 150 },
   { title: '电话', dataKey: 'phone', width: 200 },
