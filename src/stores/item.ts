@@ -49,7 +49,7 @@ export const useItemStore = defineStore('global-item', {
         responseType: 'arraybuffer',
       } as AxiosRequestConfig)) as unknown as ArrayBuffer
       // 解压并更新物品数据至本地点位数据库
-      const depressedData = await Compress.decompress(new Uint8Array(data))
+      const depressedData = await Compress.decompress(new Uint8Array(data), 60000)
       const stringData = new TextDecoder('utf-8').decode(depressedData.buffer)
       const parseredData = JSON.parse(stringData) as API.ItemVo[]
       await db.item.bulkPut(parseredData)
@@ -78,7 +78,7 @@ export const useItemStore = defineStore('global-item', {
       }
       catch (err) {
         ElNotification.error({
-          title: '更新失败',
+          title: '物品更新失败',
           message: messageFrom(err),
         })
       }

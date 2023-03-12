@@ -77,7 +77,7 @@ export const useMarkerStore = defineStore('global-marker', {
       }
       catch (err) {
         ElNotification.error({
-          title: '更新失败',
+          title: '点位更新失败',
           message: messageFrom(err),
         })
       }
