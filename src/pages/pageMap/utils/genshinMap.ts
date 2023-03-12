@@ -9,6 +9,10 @@ export class GenshinMap extends L.Map {
     return this
   }
 
+  ready = new Promise<GenshinMap>((resolve) => {
+    this.whenReady(() => resolve(this))
+  })
+
   configBaseLayer = (layer: GenshinTileLayer) => {
     const tileInfo = TileUtil.getTileInfo(layer.name as MapNameEnum)
     this.setCRS(tileInfo.crs)
