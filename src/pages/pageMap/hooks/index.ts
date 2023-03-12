@@ -1,4 +1,5 @@
 export * from './useContextMenu'
+export * from './useImageOverlayControl'
 export * from './useLayer'
 export * from './useMap'
 export * from './useMarker'
