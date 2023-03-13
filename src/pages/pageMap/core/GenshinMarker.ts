@@ -1,6 +1,6 @@
 import L from 'leaflet'
 import type { UnionMarkerVo } from '@/pages/pageMap/hooks'
-import type { GenshinMarkerRender } from '@/pages/pageMap/utils'
+import type { GenshinMarkerRender } from '@/pages/pageMap/core'
 import { getObjectFitSize, loadImage } from '@/utils'
 import db from '@/database'
 
