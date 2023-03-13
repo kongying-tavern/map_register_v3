@@ -5,7 +5,7 @@ import Oauth from '@/api/oauth'
 import { Logger, messageFrom } from '@/utils'
 import { router } from '@/router'
 import { RoleTypeEnum } from '@/shared'
-import { useItemStore, useMapStore, useMarkerStore } from '@/stores'
+import { useArchiveStore, useIconStore, useItemStore, useMapStore, useMarkerStore } from '@/stores'
 
 export interface UserAuth extends API.SysToken {
   expires_time: number
@@ -186,11 +186,15 @@ export const useUserStore = defineStore('user-info', {
       }
     },
     /** 预加载任务，仅在 token 可用时或登陆后运行，只会运行一次 */
-    preloadMission() {
+    async preloadMission() {
       if (!this.validateUserToken() || isImplemented.value)
         return
       useItemStore().backgroundUpdate()
       useMarkerStore().backgroundUpdate()
+      useIconStore().backgroundUpdate()
+      const archiveStore = useArchiveStore()
+      await archiveStore.fetchArchive()
+      archiveStore.loadLatestArchive()
       isImplemented.value = true
     },
   },

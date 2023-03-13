@@ -1,4 +1,5 @@
 export * from './archive'
+export * from './icon'
 export * from './item'
 export * from './map'
 export * from './marker'

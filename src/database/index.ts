@@ -13,15 +13,18 @@ class AppDatabase extends Dexie {
   declare marker: Dexie.Table<API.MarkerVo, number>
   /** 物品表 */
   declare item: Dexie.Table<API.ItemVo, number>
+  /** 图标表 */
+  declare icon: Dexie.Table<API.IconVo, number>
   /** MD5 记录表 */
   declare md5: Dexie.Table<MD5Vo, string>
 
   constructor() {
     super('AppDatabase')
     // 只列出需要被索引的键
-    this.version(1.2).stores({
+    this.version(1.3).stores({
       marker: '&id, *itemIdList, markerTitle, markerCreatorId, pictureCreatorId, videoPath, refreshTime, hiddenFlag',
       item: '&itemId, *typeIdList, areaId, name, specialFlag, hiddenFlag',
+      icon: '&iconId, name',
       md5: '&id',
     })
     this.use(markerFormater)
