@@ -13,6 +13,7 @@ const loading = ref(false)
 const updateTimer = ref<number>()
 const updateEnd = ref<number>()
 const total = ref(0)
+const updateMissions = shallowRef<API.MarkerVo[]>([])
 
 liveQuery(() => db.marker.count()).subscribe((v) => {
   total.value = v
@@ -32,14 +33,20 @@ export const useMarkerStore = defineStore('global-marker', {
   },
 
   actions: {
-    /** 获取点位分页数据的 MD5 数组 */
-    async getMarkerMD5List() {
+    /**
+     * @internal
+     * 获取点位分页数据的 MD5 数组
+     */
+    async _getMarkerMD5List() {
       const { data = [] } = await Api.markerDoc.listMarkerBz2MD5()
       return data
     },
 
-    /** 更新分页点位数据 */
-    async updateMarkerInfo(index: number, newMD5: string) {
+    /**
+     * @internal
+     * 更新分页点位数据
+     */
+    async _updateMarkerInfo(index: number, newMD5: string) {
       // 检查 MD5 是否有变化，如无则跳过更新
       const oldMD5 = (await db.md5.get(`marker-${index}`))?.value
       if (newMD5 === oldMD5)
@@ -48,16 +55,16 @@ export const useMarkerStore = defineStore('global-marker', {
         responseType: 'arraybuffer',
       } as AxiosRequestConfig)) as unknown as ArrayBuffer
       await db.md5.put({ id: `marker-${index}`, value: newMD5 })
-      // 解压并更新点位数据至本地点位数据库
+      // 解压点位数据至任务列表
       const depressedData = await Compress.decompress(new Uint8Array(data), 60000)
       const stringData = new TextDecoder('utf-8').decode(depressedData.buffer)
       const parseredData = JSON.parse(stringData) as API.MarkerVo[]
-      await db.marker.bulkPut(parseredData)
-      return parseredData.length
+      updateMissions.value = updateMissions.value.concat(parseredData)
     },
 
     /** 全量更新 */
     async updateAll() {
+      updateMissions.value = []
       const warn = ElNotification.warning({
         title: '正在更新点位数据...',
         duration: 0,
@@ -66,9 +73,14 @@ export const useMarkerStore = defineStore('global-marker', {
       try {
         loading.value = true
         const startTime = dayjs()
-        const md5List = await this.getMarkerMD5List()
-        const updatedCountList = await Promise.all(md5List.map((_, index) => this.updateMarkerInfo(index + 1, md5List[index])))
-        const total = updatedCountList.reduce((sum, num) => sum + num, 0)
+        const md5List = await this._getMarkerMD5List()
+        await Promise.all(md5List.map((_, index) => this._updateMarkerInfo(index + 1, md5List[index])))
+        // TODO 已删除点位的点位不会被同步，需要在本地进行删除
+        await db.transaction('rw', db.marker, async () => {
+          await db.marker.bulkPut(updateMissions.value)
+        })
+        // 由于全量数据不包含已删除的点位，这里需要筛选出本地存在但在云点位中不存在的点位并删除
+        const total = updateMissions.value.length
         ElNotification.success({
           title: '点位更新成功',
           message: `本次共更新点位 ${total} 个，耗时 ${(dayjs().diff(startTime) / 1000).toFixed(0)} 秒`,
@@ -84,6 +96,7 @@ export const useMarkerStore = defineStore('global-marker', {
       finally {
         warn.close()
         loading.value = false
+        updateMissions.value = []
       }
     },
 

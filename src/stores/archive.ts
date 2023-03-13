@@ -19,6 +19,7 @@ export interface ArchiveData extends API.ArchiveVo {
 
 export interface ArchiveSlotData extends API.ArchiveSlotVo {
   archiveList: ArchiveData[]
+  timestamp: number
 }
 
 const logger = new Logger('[archive]')
@@ -65,10 +66,12 @@ export const useArchiveStore = defineStore('global-archive', {
         const archiveSlots: Record<number, ArchiveSlotData | undefined> = Object.fromEntries(
           new Array(5).fill([]).map((_, index) => [index + 1, undefined]),
         )
-        data.forEach(({ archive: historyArchives = [], slotIndex = -1, ...rest } = {}) => {
+        data.forEach(({ archive: historyArchives = [], slotIndex = -1, updateTime, ...rest } = {}) => {
           const archive = {
             ...rest,
+            updateTime,
             slotIndex,
+            timestamp: (updateTime ? new Date(updateTime) : new Date()).getTime(),
             archiveList: historyArchives.map(parserArchive).sort(({ timestamp: a }, { timestamp: b }) => b - a),
           }
           archiveSlots[slotIndex] = archive
@@ -126,6 +129,21 @@ export const useArchiveStore = defineStore('global-archive', {
       if (!(history_index in archiveList))
         throw new Error(`历史存档 ${history_index} 为空`)
       this.currentArchive = archiveList[history_index]
+    },
+
+    /** 加载最新槽位的最新存档 */
+    loadLatestArchive() {
+      let latestSlotIndex: ArchiveSlotData | undefined
+      for (const slotIndex in this.archiveSlots) {
+        const archiveSlot = this.archiveSlots[slotIndex]
+        if (!archiveSlot)
+          continue
+        if (!latestSlotIndex || archiveSlot.timestamp > latestSlotIndex.timestamp)
+          latestSlotIndex = archiveSlot
+      }
+      if (!latestSlotIndex)
+        return
+      this.loadArchiveSlot(latestSlotIndex.slotIndex)
     },
   },
 })

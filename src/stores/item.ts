@@ -52,6 +52,9 @@ export const useItemStore = defineStore('global-item', {
       const depressedData = await Compress.decompress(new Uint8Array(data), 60000)
       const stringData = new TextDecoder('utf-8').decode(depressedData.buffer)
       const parseredData = JSON.parse(stringData) as API.ItemVo[]
+      const localTotal = await db.item.count()
+      // 当本地物品数大于远程物品数时，需要同步已删除的物品，所以这里做一次清空
+      localTotal > parseredData.length && await db.item.clear()
       await db.item.bulkPut(parseredData)
       // 物品信息成功之后才更新本地 MD5
       await db.md5.put({ id: 'item-0', value: newMD5 })
