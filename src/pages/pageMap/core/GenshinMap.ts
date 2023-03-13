@@ -1,6 +1,7 @@
 import L from 'leaflet'
 import type { MapNameEnum } from '@/pages/pageMap/configs'
 import type { GenshinTileLayer } from '@/pages/pageMap/core'
+import { GenshinMarker } from '@/pages/pageMap/core'
 import { TileUtil } from '@/pages/pageMap/utils'
 
 /** 自定义点位渲染器 */
@@ -13,12 +14,33 @@ export class GenshinMarkerRender extends L.Canvas {
 const renderer = new GenshinMarkerRender()
 
 export class GenshinMap extends L.Map {
+  declare _layers: Record<string, L.Layer>
+
+  focusedMarker: GenshinMarker | null = null
+
   constructor(ele: HTMLElement, options?: L.MapOptions) {
     super(ele, {
       ...options,
       renderer,
     })
-    return this
+
+    this.on('focusmarker', (ev) => {
+      const { marker } = (ev as L.LeafletEvent & { marker: GenshinMarker })
+      this.focusedMarker?.blur()
+      this.focusedMarker = marker
+      GenshinMarker.activeIconMarker.remove()
+      GenshinMarker.activeIconMarker
+        .setLatLng(this.focusedMarker.getLatLng())
+        .addTo(this)
+    })
+    this.on('blurmarker', () => {
+      GenshinMarker.activeIconMarker.remove()
+      this.focusedMarker = null
+    })
+    this.on('popupclose', () => {
+      GenshinMarker.activeIconMarker.remove()
+      this.focusedMarker?.blur()
+    })
   }
 
   ready = new Promise<GenshinMap>((resolve) => {

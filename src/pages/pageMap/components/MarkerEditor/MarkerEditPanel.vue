@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
-import { useMarkerEdit } from '../../hooks'
-import { MarkerEditorForm } from '.'
+import { useMarkerEdit } from '@/pages/pageMap/hooks'
+import { MarkerEditorForm } from '@/pages/pageMap/components'
 import { GlobalDialogController } from '@/hooks'
 import { useUserStore } from '@/stores'
 import { DialogController } from '@/hooks/useGlobalDialog/dialogController'
@@ -9,8 +9,6 @@ import { messageFrom } from '@/utils'
 
 const props = defineProps<{
   markerInfo: API.MarkerVo
-  iconMap: Record<string, string>
-  itemList: API.ItemVo[]
 }>()
 
 const emits = defineEmits<{

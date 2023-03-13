@@ -6,10 +6,12 @@ import { ElMessage } from 'element-plus'
 import type L from 'leaflet'
 import { FilterArea, FilterItem, FilterStep, FilterType, MarkersTable } from '@/pages/pageMap/components'
 import { localSettings, useMapStore } from '@/stores'
-import Api from '@/api/api'
+import type { UnionMarkerVo } from '@/pages/pageMap/hooks'
 import { parserMarker, useMap, useMarkerList } from '@/pages/pageMap/hooks'
-import { sleep } from '@/utils'
+import { messageFrom, sleep } from '@/utils'
 import { usePagination } from '@/hooks'
+import { GenshinMarker } from '@/pages/pageMap/core'
+import db from '@/database'
 
 const mapStore = useMapStore()
 const { map } = useMap()
@@ -51,31 +53,26 @@ const formatInput = computed({
   },
 })
 
-const flyToMarker = (params: { id?: number; punctuateId?: number }) => {
+const flyToMarker = ({ id, punctuateId }: UnionMarkerVo) => {
   if (!map.value)
     return
 
-  const { id, punctuateId } = params
-
-  // TODO _layers 是私有属性
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const layers = (map.value as any)._layers as Record<string, L.Marker>
-
-  /** 查询到点位 */
+  const layers = map.value._layers as Record<string, L.Layer>
   for (const key in layers) {
     const marker = layers[key]
-    // layers 继承自 L.Layer
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { markerId, punctuateId: markerPunctuateId } = (marker as any).options?.img ?? {}
-    if ((markerId && markerId === id) || (markerPunctuateId && markerPunctuateId === punctuateId)) {
-      map.value.closePopup()
-      const { lat, lng } = marker.getLatLng()
-      map.value.flyTo([lat - 200, lng], 0, {
-        animate: false,
-      })
-      marker.fire('click')
-      break
-    }
+    if (!(marker instanceof GenshinMarker))
+      continue
+
+    const { id: markerId = -999999, punctuateId: markerPunctuateId = -999999 } = marker.marker
+    if ((markerId !== id) && (markerPunctuateId !== punctuateId))
+      continue
+
+    const { lat, lng } = marker.getLatLng()
+    map.value.flyTo([lat - 200, lng], 0, {
+      animate: false,
+    })
+    marker.focus()
+    break
   }
 }
 
@@ -83,43 +80,48 @@ const flyToMarker = (params: { id?: number; punctuateId?: number }) => {
 const tempMarker = ref<API.MarkerVo | null>(null)
 
 const clearTempMarker = () => {
-  if (!tempMarker.value)
-    return
-  const findIndex = markerList.value.findIndex(marker => marker.id === tempMarker.value?.id)
-  if (findIndex < 0) {
-    tempMarker.value = null
-    return
-  }
-  markerList.value.splice(findIndex, 1)
+  const index = markerList.value.findIndex(marker => marker.id === tempMarker.value?.id)
+  index > -1 && markerList.value.splice(index, 1)
 }
+
+const flyLoading = ref(false)
 
 // TODO 封装为组件
 const searchMarker = async () => {
-  clearTempMarker()
-  if (!map.value || !queryMarkerId.value)
-    return
-  // 优先搜索当前已加载点位
-  const res = markerList.value.find(marker => marker.id === queryMarkerId.value)
-  if (res) {
-    flyToMarker({ id: queryMarkerId.value })
-    return
+  try {
+    flyLoading.value = true
+    if (!map.value || !queryMarkerId.value)
+      return
+    // 优先搜索当前已加载点位
+    const res = markerList.value.find(marker => marker.id === queryMarkerId.value)
+    if (res) {
+      flyToMarker(res)
+      return
+    }
+    // 远程搜索
+    const marker = await db.marker.get(queryMarkerId.value)
+    if (!marker) {
+      ElMessage.error('找不到该点位')
+      return
+    }
+    clearTempMarker()
+    // 点位不存在时直接创建临时点位
+    tempMarker.value = marker
+    const markervo = parserMarker(marker)
+    markerList.value = [...markerList.value, markervo]
+    // 临时终止移动到点集中心
+    const tempState = localSettings.value.moveToCenter
+    localSettings.value.moveToCenter = false
+    await sleep(100)
+    flyToMarker(markervo)
+    localSettings.value.moveToCenter = tempState
   }
-  // 远程搜索
-  const { data = [] } = await Api.marker.listMarkerById({}, [queryMarkerId.value])
-  if (!data.length) {
-    ElMessage.error('找不到该点位')
-    return
+  catch (err) {
+    ElMessage.error(messageFrom(err))
   }
-  // 点位不存在时直接创建临时点位
-  tempMarker.value = data[0]
-  const markervo = parserMarker(data[0])
-  markerList.value.push(markervo)
-  // 临时终止移动到点集中心
-  const tempState = localSettings.value.moveToCenter
-  localSettings.value.moveToCenter = false
-  await sleep(100)
-  flyToMarker({ id: queryMarkerId.value })
-  localSettings.value.moveToCenter = tempState
+  finally {
+    flyLoading.value = false
+  }
 }
 
 const tooltipContent = ref('')
@@ -220,7 +222,7 @@ const collapsed = ref(false)
         @keydown.enter="searchMarker"
       >
         <template #append>
-          <el-button v-tooltip="'跳转到指定ID点位'" :icon="Search" @click="searchMarker" />
+          <el-button v-tooltip="'跳转到指定ID点位'" :loading="flyLoading" :icon="Search" @click="searchMarker" />
         </template>
       </el-input>
 

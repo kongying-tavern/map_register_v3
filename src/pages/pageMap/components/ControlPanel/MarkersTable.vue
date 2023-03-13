@@ -4,6 +4,7 @@ import { Position } from '@element-plus/icons-vue'
 import type { UnionMarkerVo } from '@/pages/pageMap/hooks'
 import { useMap, useMarkerList } from '@/pages/pageMap/hooks'
 import { useTheme } from '@/hooks'
+import { GenshinMarker } from '@/pages/pageMap/core'
 
 interface PaginationLike {
   total: number
@@ -64,23 +65,22 @@ const flyToMarker = ({ id, punctuateId }: UnionMarkerVo) => {
   if (!map.value)
     return
 
-  // TODO _layers 是私有属性
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const layers = (map.value as any)._layers as Record<string, L.Marker>
+  const layers = map.value._layers as Record<string, L.Layer>
   for (const key in layers) {
     const marker = layers[key]
-    // layers 继承自 L.Layer
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { markerId, punctuateId: markerPunctuateId } = (marker as any).options?.img ?? {}
-    if ((markerId && markerId === id) || (markerPunctuateId && markerPunctuateId === punctuateId)) {
-      map.value.closePopup()
-      const { lat, lng } = marker.getLatLng()
-      map.value.flyTo([lat - 200, lng], 0, {
-        animate: false,
-      })
-      marker.fire('click')
-      break
-    }
+    if (!(marker instanceof GenshinMarker))
+      continue
+
+    const { id: markerId = -999999, punctuateId: markerPunctuateId = -999999 } = marker.marker
+    if ((markerId !== id) && (markerPunctuateId !== punctuateId))
+      continue
+
+    const { lat, lng } = marker.getLatLng()
+    map.value.flyTo([lat - 200, lng], 0, {
+      animate: false,
+    })
+    marker.focus()
+    break
   }
 }
 </script>

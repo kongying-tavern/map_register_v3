@@ -2,7 +2,7 @@
 import type L from 'leaflet'
 import { ElButton, ElMessageBox } from 'element-plus'
 import { ceil } from 'lodash'
-import { useMarkerDelete } from '../hooks'
+import { useMarkerDelete } from '@/pages/pageMap/hooks'
 import { useUserStore } from '@/stores'
 
 const props = defineProps<{

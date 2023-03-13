@@ -83,21 +83,22 @@ export class GenshinMarker extends L.CircleMarker {
   }
 
   focus = () => {
-    this.bringToFront()
+    if (this.focused)
+      return
     this.focused = true
-    GenshinMarker.activeIconMarker.remove()
-    this._map && GenshinMarker.activeIconMarker
-      .setLatLng(this.getLatLng())
-      .addTo(this._map)
     this.redraw()
+    this.bringToFront()
     this.fire('focus', { latlng: this.getLatLng() })
+    this._map?.fire('focusmarker', { marker: this })
   }
 
   blur = () => {
+    if (!this.focused)
+      return
     this.focused = false
-    GenshinMarker.activeIconMarker.remove()
     this.redraw()
     this.fire('blur', { latlng: this.getLatLng() })
+    this._map?.fire('blurmarker')
   }
 
   getRadius = () => {

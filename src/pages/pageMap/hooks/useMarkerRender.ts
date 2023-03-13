@@ -53,7 +53,7 @@ export const useMarkerRender = (markerListRef: Ref<UnionMarkerVo[]>) => {
     map.value?.flyTo(centerLatlng, map.value.getZoom(), { duration: 0.2 })
   }
 
-  // 点位激活时添加类似游戏中选中的效果
+  // 通过事件代理来实现点位 focus 逻辑
   const pointedMarker = ref<GenshinMarker | null>(null)
   const activedMarker = ref<GenshinMarker | null>(null)
   const clearActivedMarker = () => {
