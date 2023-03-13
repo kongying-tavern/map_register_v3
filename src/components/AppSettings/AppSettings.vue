@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import SettingItem from './SettingItem.vue'
-import { localSettings, useItemStore, useMarkerStore } from '@/stores'
+import { localSettings, useIconStore, useItemStore, useMarkerStore } from '@/stores'
 
 /** 计算缓存大小 */
 const usageStorage = ref(0)
@@ -32,6 +32,7 @@ const cleatAllCaches = async () => {
 }
 
 const itemStore = useItemStore()
+const iconStore = useIconStore()
 const markerStore = useMarkerStore()
 </script>
 
@@ -61,8 +62,23 @@ const markerStore = useMarkerStore()
       label="物品数据"
       :content="`已存储物品数据 ${itemStore.total} 项，距离下次更新剩余 ${Math.floor(itemStore.updateAllRestTime / 1000)} 秒。`"
     >
+      <el-button :loading="itemStore.updateAllLoading" @click="itemStore.clearAll">
+        清除物品
+      </el-button>
       <el-button :loading="itemStore.updateAllLoading" @click="itemStore.backgroundUpdate">
         更新物品
+      </el-button>
+    </SettingItem>
+
+    <SettingItem
+      label="图标数据"
+      :content="`已存储图标数据 ${iconStore.total} 项，距离下次更新剩余 ${Math.floor(iconStore.updateAllRestTime / 1000)} 秒。`"
+    >
+      <el-button :loading="iconStore.updateAllLoading" @click="iconStore.clearAll">
+        清除图标
+      </el-button>
+      <el-button :loading="iconStore.updateAllLoading" @click="iconStore.backgroundUpdate">
+        更新图标
       </el-button>
     </SettingItem>
 
@@ -70,6 +86,9 @@ const markerStore = useMarkerStore()
       label="点位数据"
       :content="`已存储点位数据 ${markerStore.total} 项，距离下次更新剩余 ${Math.floor(markerStore.updateAllRestTime / 1000)} 秒。`"
     >
+      <el-button :loading="markerStore.updateAllLoading" @click="markerStore.clearAll">
+        清除点位
+      </el-button>
       <el-button :loading="markerStore.updateAllLoading" @click="markerStore.backgroundUpdate">
         更新点位
       </el-button>

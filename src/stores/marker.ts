@@ -100,6 +100,21 @@ export const useMarkerStore = defineStore('global-marker', {
       }
     },
 
+    /** 清除全部点位 */
+    async clearAll() {
+      try {
+        loading.value = true
+        await db.marker.clear()
+        await db.md5.where('id').startsWith('marker-').delete()
+      }
+      catch {
+        // no action
+      }
+      finally {
+        loading.value = false
+      }
+    },
+
     /** 清除后台定时任务 */
     clearBackgroundUpdate() {
       window.clearTimeout(updateTimer.value)

@@ -70,6 +70,20 @@ export const useIconStore = defineStore('global-icon', {
       }
     },
 
+    /** 清除全部图标 */
+    async clearAll() {
+      try {
+        loading.value = true
+        await db.icon.clear()
+      }
+      catch {
+        // no action
+      }
+      finally {
+        loading.value = false
+      }
+    },
+
     /** 清除后台定时任务 */
     clearBackgroundUpdate() {
       window.clearTimeout(updateTimer.value)

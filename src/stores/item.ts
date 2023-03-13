@@ -91,6 +91,21 @@ export const useItemStore = defineStore('global-item', {
       }
     },
 
+    /** 清除全部物品 */
+    async clearAll() {
+      try {
+        loading.value = true
+        await db.item.clear()
+        await db.md5.where('id').startsWith('item-').delete()
+      }
+      catch {
+        // no action
+      }
+      finally {
+        loading.value = false
+      }
+    },
+
     /** 清除后台定时任务 */
     clearBackgroundUpdate() {
       window.clearTimeout(updateTimer.value)
