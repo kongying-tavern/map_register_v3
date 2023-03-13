@@ -1,6 +1,6 @@
 import type { InjectionKey, Ref } from 'vue'
-import type { LinkedMapMarker } from '../hooks'
-import type { GenshinMap } from '../utils'
+import type { UnionMarkerVo } from '@/pages/pageMap/hooks'
+import type { GenshinMap } from '@/pages/pageMap/core'
 
 /** 地图实例 */
 export const mapInjection: InjectionKey<Ref<GenshinMap | null>> = Symbol('genshinMap')
@@ -13,6 +13,6 @@ export const itemTypeInjection: InjectionKey<Ref<API.ItemTypeVo[]>> = Symbol('it
 /** 图标表 */
 export const iconMapInjection: InjectionKey<Ref<Record<string, string>>> = Symbol('iconMap')
 /** 点位列表 */
-export const markerListInjection: InjectionKey<Ref<LinkedMapMarker[]>> = Symbol('markerList')
+export const markerListInjection: InjectionKey<Ref<UnionMarkerVo[]>> = Symbol('markerList')
 /** 地下模式 */
 export const underGroundModeInjection: InjectionKey<Ref<boolean>> = Symbol('underGroundMode')

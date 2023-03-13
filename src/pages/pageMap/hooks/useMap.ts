@@ -1,7 +1,7 @@
 import type { Ref } from 'vue'
 import type { LeafletEvent, LeafletEventHandlerFnMap } from 'leaflet'
-import { GenshinMap } from '../utils'
-import type { MapTileConfig } from '../configs'
+import { GenshinMap } from '@/pages/pageMap/core'
+import type { MapTileConfig } from '@/pages/pageMap/configs'
 import type { AnyArray, AnyFunction } from '@/shared'
 import { useMapStore } from '@/stores'
 

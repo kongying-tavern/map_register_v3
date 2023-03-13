@@ -1,6 +1,2 @@
-export * from './genshinMap'
-export * from './genshinMarker'
-export * from './genshinTextMarker'
-export * from './genshinTileLayer'
 export * from './mapUtil'
 export * from './tileUtil'

@@ -1,11 +1,12 @@
 import type { Ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { cloneDeep } from 'lodash'
-import type { MapNameEnum } from '../configs'
-import { mapTiles } from '../configs'
-import type { GenshinMap } from '../utils'
-import { GenshinTileLayer, TileUtil } from '../utils'
-import { useMap } from './useMap'
+import type { MapNameEnum } from '@/pages/pageMap/configs'
+import { useMap } from '@/pages/pageMap/hooks'
+import { mapTiles } from '@/pages/pageMap/configs'
+import { TileUtil } from '@/pages/pageMap/utils'
+import type { GenshinMap } from '@/pages/pageMap/core'
+import { GenshinTileLayer } from '@/pages/pageMap/core'
 import { useMapStore } from '@/stores'
 
 export const useLayer = (mapRef: Ref<GenshinMap | null>) => {

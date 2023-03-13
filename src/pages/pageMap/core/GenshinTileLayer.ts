@@ -1,8 +1,9 @@
 import type { LeafletEvent, TileLayerOptions } from 'leaflet'
 import L from 'leaflet'
-import type { MapNameEnum, MapTileConfig } from '../configs'
-import type { GenshinMap } from '.'
-import { GenshinTextMarker, TileUtil } from '.'
+import type { MapNameEnum, MapTileConfig } from '@/pages/pageMap/configs'
+import type { GenshinMap } from '@/pages/pageMap/core'
+import { GenshinTextMarker } from '@/pages/pageMap/core'
+import { TileUtil } from '@/pages/pageMap/utils'
 
 const TILES_URL_PREFIX = 'https://assets.yuanshen.site/tiles_'
 const DEFAULT_TILE_OPTIONS: TileLayerOptions = {
