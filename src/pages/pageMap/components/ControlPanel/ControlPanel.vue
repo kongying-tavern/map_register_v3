@@ -7,13 +7,13 @@ import type L from 'leaflet'
 import { FilterArea, FilterItem, FilterStep, FilterType, MarkersTable } from '@/pages/pageMap/components'
 import { localSettings, useMapStore } from '@/stores'
 import Api from '@/api/api'
-import { createLinkMarker, useMap, useMarker } from '@/pages/pageMap/hooks'
+import { parserMarker, useMap, useMarkerList } from '@/pages/pageMap/hooks'
 import { sleep } from '@/utils'
 import { usePagination } from '@/hooks'
 
 const mapStore = useMapStore()
 const { map } = useMap()
-const { markerList, loading, createMarkerWhenReady } = useMarker()
+const { markerList, loading } = useMarkerList()
 
 /** tab 的可用标签，仅控制视图，无业务逻辑 */
 const steps = ['地区', '分类', '物品']
@@ -96,10 +96,8 @@ const clearTempMarker = () => {
 // TODO 封装为组件
 const searchMarker = async () => {
   clearTempMarker()
-  if (!map.value || !queryMarkerId.value) {
-    createMarkerWhenReady()
+  if (!map.value || !queryMarkerId.value)
     return
-  }
   // 优先搜索当前已加载点位
   const res = markerList.value.find(marker => marker.id === queryMarkerId.value)
   if (res) {
@@ -114,12 +112,11 @@ const searchMarker = async () => {
   }
   // 点位不存在时直接创建临时点位
   tempMarker.value = data[0]
-  const markervo = createLinkMarker(data[0])
+  const markervo = parserMarker(data[0])
   markerList.value.push(markervo)
   // 临时终止移动到点集中心
   const tempState = localSettings.value.moveToCenter
   localSettings.value.moveToCenter = false
-  createMarkerWhenReady()
   await sleep(100)
   flyToMarker({ id: queryMarkerId.value })
   localSettings.value.moveToCenter = tempState

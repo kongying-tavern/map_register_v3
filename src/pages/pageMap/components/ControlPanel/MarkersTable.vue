@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import type { Column } from 'element-plus'
 import { Position } from '@element-plus/icons-vue'
-import type { LinkedMapMarker } from '@/pages/pageMap/hooks'
-import { useMap, useMarker } from '@/pages/pageMap/hooks'
+import type { UnionMarkerVo } from '@/pages/pageMap/hooks'
+import { useMap, useMarkerList } from '@/pages/pageMap/hooks'
 import { useTheme } from '@/hooks'
 
 interface PaginationLike {
@@ -21,7 +21,7 @@ const emits = defineEmits<{
 
 const { map } = useMap()
 const { isDark } = useTheme()
-const { markerList, loading } = useMarker()
+const { markerList, loading } = useMarkerList()
 
 const pagableList = computed(() => {
   const { current, pageSize } = props.pagination
@@ -60,7 +60,7 @@ const columns = ref<Partial<Column & { dataKey: string }>[]>([
   { title: '说明', dataKey: 'content' },
 ])
 
-const flyToMarker = ({ id, punctuateId }: LinkedMapMarker) => {
+const flyToMarker = ({ id, punctuateId }: UnionMarkerVo) => {
   if (!map.value)
     return
 

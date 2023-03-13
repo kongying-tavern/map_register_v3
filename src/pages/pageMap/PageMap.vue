@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import 'leaflet/dist/leaflet.css'
 import { ControlPanel, UndergroundSwitch } from './components'
 import { areaListInjection, iconMapInjection, itemListInjection, itemTypeInjection, mapInjection, markerListInjection } from './shared'
-import { useContextMenu, useLayer, useMap, useMarker } from './hooks'
+import { useContextMenu, useLayer, useMap, useMarkerList, useMarkerRender } from './hooks'
 import { AppUserAvatar } from '@/components'
 import { useAreaList, useIconList, useItemList, useTypeList } from '@/hooks'
 import { useMapStore } from '@/stores'
@@ -52,11 +52,7 @@ const { typeList } = useTypeList({ immediate: true })
 
 /** 已选择的物品 */
 const selectedItem = computed(() => itemList.value.find(item => item.name === mapStore.iconName))
-/** 特殊物品 ID 列表（如传送点、秘境等，详见 apifox 文档） */
-const specialItemList = computed(() => {
-  return itemList.value
-    .filter(item => item.specialFlag === 1 && selectedItem.value?.itemId !== item.itemId).map(item => item.itemId ?? -1)
-})
+
 // 在物品列表变更后，如果当前已选的同类物品不在列表内，则清除已选项
 // TODO 初次加载时可能无法保留状态
 watch(() => [mapStore.areaCode, mapStore.typeId], () => {
@@ -65,19 +61,16 @@ watch(() => [mapStore.areaCode, mapStore.typeId], () => {
 })
 
 // ==================== 点位相关 ====================
-const { markerList, updateMarkerList } = useMarker({
-  selectedItem,
+const { markerList, updateMarkerList } = useMarkerList({
   params: () => ({
-    rawParams: {
-      itemIdList: selectedItem.value?.itemId === undefined ? [] : [selectedItem.value.itemId],
-    },
+    itemIdList: selectedItem.value?.itemId === undefined ? [] : [selectedItem.value.itemId],
     showAuditedMarker: Boolean(mapStore.showAuditedMarker),
     showPunctuateMarker: Boolean(mapStore.showPunctuateMarker),
     onlyUnderground: Boolean(mapStore.onlyUnderground),
     showSpecial: true,
-    specialItems: specialItemList.value,
   }),
 })
+useMarkerRender(markerList)
 
 const { openContextMenu } = useContextMenu({
   selectedItem,
@@ -88,7 +81,6 @@ onMapEvent('contextmenu', openContextMenu)
 // ==================== 其他 ====================
 onAreaFetched(() => {
   mapStore.areaCode !== undefined && setMapNameByAreaCode(mapStore.areaCode)
-  updateMarkerList()
 })
 
 // ==================== 依赖注入 ====================
