@@ -3,11 +3,19 @@ import { Setting } from '@element-plus/icons-vue'
 import type { InputInstance } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { TeleportExtra } from '.'
+import db from '@/database'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   modelValue?: string
   extraId: string
-}>()
+  itemList?: {
+    itemId?: number | undefined
+    count?: number | undefined
+    iconTag?: string | undefined
+  }[]
+}>(), {
+  itemList: () => [],
+})
 
 const emits = defineEmits<{
   (e: 'update:modelValue', v?: string): void
@@ -20,12 +28,15 @@ const internalBind = computed({
 })
 
 const extraActive = computed(() => props.extraId === 'content')
-
 const toggleExtraPanel = () => {
   emits('update:extraId', extraActive.value ? '' : 'content')
 }
 
-const inputRef = ref<InputInstance | null>(null)
+/** 根据已选物品 id 从数据库获取对应的物品对象 */
+const selectedItems = asyncComputed(() => db.item
+  .where('itemId')
+  .anyOf(props.itemList.map(item => item.itemId as number))
+  .toArray())
 
 const selectionStart = ref<number>()
 const selectionEnd = ref<number>()
@@ -36,9 +47,16 @@ const updateSelectionState = (ev: Event) => {
   selectionEnd.value = target.selectionEnd
 }
 
+/** 快捷标点 */
 const characters = ['「', '」', '《', '》', '【', '】', ' · ', '…', '×']
 
-const insertChar = async (char: string) => {
+// ==================== 将填充字符插入到已有的文本中 ====================
+const inputRef = ref<InputInstance | null>(null)
+const insertChar = async (char: string, newline = false) => {
+  if (newline) {
+    internalBind.value = `${internalBind.value}\n${char}`.trim()
+    return
+  }
   let start = selectionStart.value
   let end = selectionEnd.value
   if (start === undefined || end === undefined) {
@@ -53,6 +71,11 @@ const insertChar = async (char: string) => {
   await inputRef.value?.focus()
   inputRef.value?.textarea?.setSelectionRange(start, end)
 }
+
+// ==================== 自适应 textarea 行高 ====================
+const textareaContainerRef = ref<HTMLElement | null>(null)
+const { height } = useElementSize(textareaContainerRef)
+const textareaRows = computed(() => Math.floor((height.value - 10) / 21))
 </script>
 
 <template>
@@ -77,16 +100,30 @@ const insertChar = async (char: string) => {
     </div>
 
     <TeleportExtra :active="extraActive">
-      <div class="flex flex-col gap-2">
+      <div class="h-full flex flex-col gap-2">
         <div class="flex">
-          快捷标点：
+          <div class="whitespace-nowrap">
+            快捷标点：
+          </div>
           <el-button-group size="small">
             <el-button v-for="c in characters" :key="c" @click="() => insertChar(c)">
               {{ c }}
             </el-button>
           </el-button-group>
         </div>
-        <el-input ref="inputRef" v-model="internalBind" type="textarea" resize="none" :rows="20" @blur="updateSelectionState" />
+        <div class="flex">
+          <div class="whitespace-nowrap">
+            描述模板：
+          </div>
+          <el-button-group size="small">
+            <el-button v-for="item in selectedItems" :key="item.itemId" :title="item.defaultContent" @click="() => insertChar(item.defaultContent ?? '', true)">
+              {{ item.name }}
+            </el-button>
+          </el-button-group>
+        </div>
+        <div ref="textareaContainerRef" class="flex-1">
+          <el-input ref="inputRef" v-model="internalBind" type="textarea" resize="none" :rows="textareaRows" @blur="updateSelectionState" />
+        </div>
       </div>
     </TeleportExtra>
   </div>

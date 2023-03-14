@@ -22,13 +22,13 @@ const userStore = useUserStore()
 /** 初始化新增点位信息 */
 const initFormData = (): API.MarkerPunctuateVo | API.MarkerVo => {
   const { lat, lng } = props.latlng
-  const { defaultContent, name: markerTitle = '', iconTag, itemId } = props.selectedItem ?? {}
+  const { name: markerTitle = '', iconTag, itemId } = props.selectedItem ?? {}
   const { id: userId } = userStore.info
   return {
     version: 1,
     author: userId,
     markerTitle,
-    content: defaultContent,
+    content: '',
     hiddenFlag: 0,
     position: `${lat},${lng}`,
     itemList: props.selectedItem ? [{ count: 1, iconTag, itemId }] : [],
