@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-import { useIconList, useItemList, useTypeList } from '@/hooks'
+import db from '@/database'
+import { useIconList, useTypeList } from '@/hooks'
 
 const props = defineProps<{
   modelValue: API.MarkerItemLinkVo[]
@@ -10,7 +11,6 @@ const emits = defineEmits<{
 }>()
 
 const { typeMap } = useTypeList()
-const { itemList } = useItemList()
 const { iconMap } = useIconList()
 
 interface ItemExtraObj extends API.ItemVo {
@@ -24,6 +24,19 @@ interface TypeItemObj extends API.ItemTypeVo {
 /** 搜索参数 */
 const queryText = ref('')
 const debounceQueryText = debouncedRef(queryText, 300)
+
+const itemList = asyncComputed(async () => {
+  const firstItemId = props.modelValue?.[0]?.itemId
+  if (firstItemId === undefined)
+    return [] as API.ItemVo[]
+  const item = await db.item.get(firstItemId)
+  if (!item)
+    return [] as API.ItemVo[]
+  return db.item
+    .where('areaId')
+    .anyOf(item.areaId !== undefined ? [item.areaId] : [])
+    .toArray()
+}, [])
 
 /** 分类的物品列表 */
 const itemTree = computed(() => itemList.value.reduce((seed, item) => {
