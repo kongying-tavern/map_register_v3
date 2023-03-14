@@ -1,4 +1,4 @@
-import type { Ref } from 'vue'
+import type { Ref, ShallowRef } from 'vue'
 import type { LeafletEvent, LeafletEventHandlerFnMap } from 'leaflet'
 import { GenshinMap } from '@/pages/pageMap/core'
 import type { MapTileConfig } from '@/pages/pageMap/configs'
@@ -9,7 +9,7 @@ export interface BaseLayerChangeEvent extends L.LayersControlEvent {
   layerConfig?: MapTileConfig
 }
 
-const map = ref<GenshinMap | null>(null) as Ref<GenshinMap | null>
+const map = shallowRef<GenshinMap | null>(null) as ShallowRef<GenshinMap | null>
 const stopPropagationSignal = ref(false)
 
 export const useMap = (ele?: Ref<HTMLElement | null>) => {
@@ -25,6 +25,7 @@ export const useMap = (ele?: Ref<HTMLElement | null>) => {
     fn(...args)
   }
 
+  /** 监听地图事件，当组件卸载时在该组件内注册的地图事件监听器也会被卸载 */
   const on = <T extends keyof LeafletEventHandlerFnMap>(type: T, fn: LeafletEventHandlerFnMap[T]) => {
     if (!fn)
       return

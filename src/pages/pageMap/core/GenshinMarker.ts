@@ -1,6 +1,6 @@
 import L from 'leaflet'
 import type { UnionMarkerVo } from '@/pages/pageMap/hooks'
-import type { GenshinMarkerRender } from '@/pages/pageMap/core'
+import type { GenshinMap, GenshinMarkerRender } from '@/pages/pageMap/core'
 import { getObjectFitSize, loadImage } from '@/utils'
 import db from '@/database'
 
@@ -14,6 +14,7 @@ const CIRCLE_ANGLE = Math.PI * 2
 /** 地图点位 */
 export class GenshinMarker extends L.CircleMarker {
   declare options: GenshinMarkerOptions
+  declare _map: GenshinMap
   declare _renderer: GenshinMarkerRender
   declare _point: { x: number; y: number }
   declare _radius: number
@@ -43,7 +44,9 @@ export class GenshinMarker extends L.CircleMarker {
   /** 点位的指针状态 */
   pointerState: PointerState = 'default'
   /** 点位处于激活状态 */
-  focused = false
+  get focused() {
+    return this._map?.focusedMarker === this
+  }
 
   constructor(public marker: UnionMarkerVo, options?: GenshinMarkerOptions) {
     const { itemList = [], position = '0,0' } = marker
@@ -82,23 +85,37 @@ export class GenshinMarker extends L.CircleMarker {
     this._renderer._ctx && this.drawSelf(this._renderer._ctx)
   }
 
-  focus = () => {
-    if (this.focused)
-      return
-    this.focused = true
+  focus = (): this => {
+    if (!this._map)
+      return this
+    this._map.focusedMarker?.blur()
+    this._map.focusedMarker = this
     this.redraw()
     this.bringToFront()
-    this.fire('focus', { latlng: this.getLatLng() })
-    this._map?.fire('focusmarker', { marker: this })
+    const latlng = this.getLatLng()
+    GenshinMarker.activeIconMarker
+      .remove()
+      .setLatLng(latlng)
+      .addTo(this._map)
+    this.fire('focus', { latlng })
+    return this
   }
 
-  blur = () => {
-    if (!this.focused)
-      return
-    this.focused = false
+  blur = (): this => {
+    if (!this._map)
+      return this
+    this._map.focusedMarker = null
     this.redraw()
+    GenshinMarker.activeIconMarker.remove()
     this.fire('blur', { latlng: this.getLatLng() })
-    this._map?.fire('blurmarker')
+    return this
+  }
+
+  remove(): this {
+    if (!this._map)
+      return this
+    this.blur()
+    return super.remove()
   }
 
   getRadius = () => {

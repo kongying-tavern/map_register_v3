@@ -16,7 +16,7 @@ export class GenshinMarkerGroup extends L.LayerGroup {
 }
 
 export const useMarkerRender = (markerListRef: Ref<UnionMarkerVo[]>) => {
-  const { map, on: onMapEvent } = useMap()
+  const { map } = useMap()
   const { updateMarkerList } = useMarkerList()
   const { DialogService } = useGlobalDialog()
   const componentCtx = getCurrentInstance()
@@ -53,43 +53,20 @@ export const useMarkerRender = (markerListRef: Ref<UnionMarkerVo[]>) => {
     map.value?.flyTo(centerLatlng, map.value.getZoom(), { duration: 0.2 })
   }
 
-  // 通过事件代理来实现点位 focus 逻辑
-  const pointedMarker = ref<GenshinMarker | null>(null)
-  const activedMarker = ref<GenshinMarker | null>(null)
-  const clearActivedMarker = () => {
-    activedMarker.value?.blur()
-    activedMarker.value = null
-  }
-  onMapEvent('click', () => {
-    if (!map.value)
-      return
-    if (!pointedMarker.value) {
-      clearActivedMarker()
-      return
-    }
-    if (pointedMarker.value !== activedMarker.value)
-      clearActivedMarker()
-    activedMarker.value = pointedMarker.value
-    activedMarker.value.focus()
-  })
-  onMapEvent('popupclose', clearActivedMarker)
-
   /** 点位创建方法 */
   const createGenshinMarker = (markerVo: UnionMarkerVo) => {
     const marker = new GenshinMarker(markerVo, {
       radius: 15,
-      pane: 'tooltipPane',
+      pane: 'markerPane',
     })
-
-    marker.on('mouseover', () => pointedMarker.value = marker)
-    marker.on('mouseout', () => pointedMarker.value = null)
 
     const onCommand = (command: string) => ({
       edit: () => DialogService
         .config({
           title: `编辑点位：${markerVo.id} - ${markerVo.markerTitle}`,
-          top: '5vh',
           width: 'fit-content',
+          alignCenter: true,
+          closeOnPressEscape: false,
           class: 'transition-all',
         })
         .props({
@@ -101,6 +78,7 @@ export const useMarkerRender = (markerListRef: Ref<UnionMarkerVo[]>) => {
         .open(MarkerEditPanel),
     } as Record<string, () => void>)[command]?.()
 
+    /** 这里绕一圈用 focus 而不是 click，是因为点位的 focus 事件并不一定由 click 触发 */
     marker.on('focus', () => {
       if (!map.value)
         return
@@ -113,6 +91,16 @@ export const useMarkerRender = (markerListRef: Ref<UnionMarkerVo[]>) => {
       vnode.appContext = componentCtx?.appContext ?? null
       render(vnode, popupDOM)
       popup.close().setContent(popupDOM).setLatLng(marker.getLatLng()).openOn(map.value)
+    })
+    marker.on('mouseover', () => {
+      if (!map.value)
+        return
+      map.value.pointToMarker(marker)
+    })
+    marker.on('mouseout', () => {
+      if (!map.value)
+        return
+      map.value.pointToMarker()
     })
 
     return marker
