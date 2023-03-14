@@ -69,28 +69,3 @@ const confirm = async () => {
     </template>
   </MarkerEditorForm>
 </template>
-
-<style lang="scss" scoped>
-.marker-edit-form {
-  grid-template-columns: 1fr auto;
-}
-
-.extra-panel {
-  width: 0;
-  height: 100%;
-  padding-left: 0;
-  transition: var(--el-transition-all);
-  overflow: hidden;
-  position: relative;
-  .extra-panel__content {
-    position: absolute;
-    top: 0;
-    height: 100%;
-    min-width: 384px;
-  }
-  &.visible {
-    width: 400px;
-    padding-left: 1rem;
-  }
-}
-</style>
