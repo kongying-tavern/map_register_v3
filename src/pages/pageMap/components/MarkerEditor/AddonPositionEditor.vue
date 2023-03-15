@@ -71,7 +71,8 @@ const openPositionEditPopup = () => {
   tempLatlng.value = cloneDeep(latlng.value)
   if (!props.modelValue || !map.value)
     return
-  map.value.popups.draggingPopup
+  const { draggingPopup, markerPopup } = map.value.popups
+  draggingPopup
     .close()
     .once('add', () => {
       if (!map.value)
@@ -86,7 +87,7 @@ const openPositionEditPopup = () => {
       line.remove()
       draggableMarker.remove()
       unload()
-      map.value.popups.markerPopup.openOn(map.value)
+      markerPopup.getLatLng() && markerPopup.openOn(map.value)
     })
     .setContent(popupDOM)
     .setLatLng(tempLatlng.value)
