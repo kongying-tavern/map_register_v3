@@ -2,7 +2,7 @@ import type { Ref, ShallowRef } from 'vue'
 import type { LeafletEvent, LeafletEventHandlerFnMap } from 'leaflet'
 import { GenshinMap } from '@/pages/pageMap/core'
 import type { MapTileConfig } from '@/pages/pageMap/configs'
-import type { AnyArray, AnyFunction } from '@/shared'
+import type { AnyFunction } from '@/shared'
 import { useMapStore } from '@/stores'
 
 export interface BaseLayerChangeEvent extends L.LayersControlEvent {
@@ -10,26 +10,18 @@ export interface BaseLayerChangeEvent extends L.LayersControlEvent {
 }
 
 const map = shallowRef<GenshinMap | null>(null) as ShallowRef<GenshinMap | null>
-const stopPropagationSignal = ref(false)
 
 export const useMap = (ele?: Ref<HTMLElement | null>) => {
   const mapStore = useMapStore()
 
   const scopedListeners = shallowRef<[string, AnyFunction][]>([])
 
-  const callWithSignal = (fn: AnyFunction<void>, ...args: AnyArray) => {
-    if (stopPropagationSignal.value) {
-      stopPropagationSignal.value = false
-      return
-    }
-    fn(...args)
-  }
-
   /** 监听地图事件，当组件卸载时在该组件内注册的地图事件监听器也会被卸载 */
-  const on = <T extends keyof LeafletEventHandlerFnMap>(type: T, fn: LeafletEventHandlerFnMap[T]) => {
-    if (!fn)
-      return
-    scopedListeners.value.push([type, (...args) => callWithSignal(fn, ...args)])
+  const on = <T extends (keyof LeafletEventHandlerFnMap) | string>(
+    type: T,
+    fn: T extends keyof LeafletEventHandlerFnMap ? LeafletEventHandlerFnMap[T] : AnyFunction,
+  ) => {
+    scopedListeners.value.push([type, fn])
   }
 
   // 以下监听器只会在 ele 存在时（即 map 实例存在的组件）被附加
@@ -86,7 +78,7 @@ export const useMap = (ele?: Ref<HTMLElement | null>) => {
   })
 
   watch(map, (mapInstance) => {
-    mapInstance && scopedListeners.value.forEach(([type, fn]) => mapInstance.on(type, (...args) => callWithSignal(fn, ...args)))
+    mapInstance && scopedListeners.value.forEach(([type, fn]) => mapInstance.on(type, (...args) => fn(...args)))
   })
 
   onBeforeUnmount(() => {
@@ -99,5 +91,5 @@ export const useMap = (ele?: Ref<HTMLElement | null>) => {
     })
   })
 
-  return { map, stopPropagationSignal, on }
+  return { map, on }
 }

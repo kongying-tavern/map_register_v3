@@ -71,6 +71,7 @@ const { markerList, updateMarkerList } = useMarkerList({
   }),
 })
 useMarkerRender(markerList)
+onMapEvent('updateMarkers', updateMarkerList)
 
 const { openContextMenu } = useContextMenu({
   selectedItem,

@@ -1,38 +1,23 @@
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
-import { useMarkerEdit } from '@/pages/pageMap/hooks'
+import { useMap, useMarkerEdit } from '@/pages/pageMap/hooks'
 import { MarkerEditorForm } from '@/pages/pageMap/components'
 import { GlobalDialogController } from '@/hooks'
 import { useUserStore } from '@/stores'
-import { DialogController } from '@/hooks/useGlobalDialog/dialogController'
 import { messageFrom } from '@/utils'
+import { DialogController } from '@/hooks/useGlobalDialog/dialogController'
 
 const props = defineProps<{
   markerInfo: API.MarkerVo
 }>()
 
-const emits = defineEmits<{
-  (e: 'refresh'): void
-}>()
-
-/** 用户信息 */
 const userStore = useUserStore()
-
-/**
- * 初始化新增点位信息
- * MarkerPunctuateVo 相比 MarkerVO 的字段范围更大（只少一个 id），因此使用前者的类型来初始化
- */
-const initFormData = (): API.MarkerVo => ({
-  ...props.markerInfo,
-  version: props.markerInfo.version ? props.markerInfo.version + 1 : 1,
-})
+const { map } = useMap()
 
 /** 表单数据 */
-const form = ref(initFormData())
+const form = ref(props.markerInfo)
 
-// 管理员直接走点位编辑方法
-const { updateMarker, onEditError } = useMarkerEdit(form)
-onEditError((err: Error) => ElMessage.error(err.message))
+const { editMarker, onSuccess } = useMarkerEdit(form)
 
 /** 编辑器实例 */
 const editorRef = ref<InstanceType<typeof MarkerEditorForm> | null>(null)
@@ -44,15 +29,17 @@ const confirm = async () => {
     if (!isValid)
       return
     await editorRef.value?.uploadPicture()
-    await updateMarker()
-    emits('refresh')
-    ElMessage.success('编辑成功')
-    DialogController.close()
+    await editMarker()
   }
   catch (err) {
     ElMessage.error(messageFrom(err))
   }
 }
+
+onSuccess(() => {
+  map.value?.updateMarkers()
+  DialogController.close()
+})
 </script>
 
 <template>

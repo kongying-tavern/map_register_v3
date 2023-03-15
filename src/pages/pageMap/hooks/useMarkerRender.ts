@@ -3,7 +3,7 @@ import { render } from 'vue'
 import L from 'leaflet'
 import type { UnionMarkerVo } from '.'
 import { GenshinMarker } from '@/pages/pageMap/core'
-import { useMap, useMarkerList } from '@/pages/pageMap/hooks'
+import { useMap } from '@/pages/pageMap/hooks'
 import { localSettings } from '@/stores'
 import { sleep } from '@/utils'
 import { MarkerEditPanel, MarkerPopup } from '@/pages/pageMap/components'
@@ -17,7 +17,6 @@ export class GenshinMarkerGroup extends L.LayerGroup {
 
 export const useMarkerRender = (markerListRef: Ref<UnionMarkerVo[]>) => {
   const { map } = useMap()
-  const { updateMarkerList } = useMarkerList()
   const { DialogService } = useGlobalDialog()
   const componentCtx = getCurrentInstance()
 
@@ -70,9 +69,6 @@ export const useMarkerRender = (markerListRef: Ref<UnionMarkerVo[]>) => {
         .props({
           markerInfo: markerVo,
         })
-        .listeners({
-          refresh: updateMarkerList,
-        })
         .open(MarkerEditPanel),
     } as Record<string, () => void>)[command]?.()
 
@@ -84,7 +80,6 @@ export const useMarkerRender = (markerListRef: Ref<UnionMarkerVo[]>) => {
         markerInfo: markerVo,
         latlng: marker.getLatLng(),
         onCommand,
-        onRefresh: updateMarkerList,
       })
       vnode.appContext = componentCtx?.appContext ?? null
       render(vnode, popupDOM)

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type L from 'leaflet'
-import { useMarkerCreate } from '../../hooks'
 import { MarkerEditorForm } from '.'
+import { useMap, useMarkerCreate } from '@/pages/pageMap/hooks'
 import { GlobalDialogController } from '@/hooks'
 import { useUserStore } from '@/stores'
 import { DialogController } from '@/hooks/useGlobalDialog/dialogController'
@@ -12,12 +12,8 @@ const props = defineProps<{
   selectedArea?: API.AreaVo
 }>()
 
-const emits = defineEmits<{
-  (e: 'refresh'): void
-}>()
-
-/** 用户数据 */
 const userStore = useUserStore()
+const { map } = useMap()
 
 /** 初始化新增点位信息 */
 const initFormData = (): API.MarkerPunctuateVo | API.MarkerVo => {
@@ -41,7 +37,7 @@ const form = ref(initFormData())
 
 const { loading, createMarker, onSuccess } = useMarkerCreate(form)
 onSuccess(() => {
-  emits('refresh')
+  map.value?.updateMarkers()
   DialogController.close()
 })
 

@@ -81,6 +81,11 @@ export class GenshinMap extends L.Map {
     return this
   }
 
+  updateMarkers = () => {
+    this.fire('updateMarkers')
+    return this
+  }
+
   configBaseLayer = (layer: GenshinTileLayer): this => {
     const tileInfo = TileUtil.getTileInfo(layer.name as MapNameEnum)
     this.setCRS(tileInfo.crs)

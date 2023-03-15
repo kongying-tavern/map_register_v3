@@ -1,5 +1,4 @@
 import type { Ref } from 'vue'
-import { liveQuery } from 'dexie'
 import Api from '@/api/api'
 import type { FetchHookOptions } from '@/hooks'
 import { useFetchHook } from '@/hooks'
@@ -21,6 +20,7 @@ export interface MarkerQueryParams extends API.MarkerSearchVo {
 export interface MarkerListHookOptions extends FetchHookOptions<API.RListMarkerVo> {
   /** 参数函数 */
   params?: () => MarkerQueryParams
+  watchParams?: boolean
 }
 
 export interface UnionMarkerVo extends API.MarkerPunctuateVo, API.MarkerVo {
@@ -103,8 +103,6 @@ export const useMarkerList = (options: MarkerListHookOptions = {}) => {
   onSuccess(markers => markerList.value = markers)
 
   watch(fetchParams, updateMarkerList)
-
-  liveQuery(fetchMarkers).subscribe(updateMarkerList)
 
   return { markerList, updateMarkerList, onSuccess, ...rest }
 }

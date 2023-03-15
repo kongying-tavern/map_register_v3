@@ -46,9 +46,6 @@ export const useContextMenu = (options: ContextMenuHookOptions) => {
         selectedItem: selectedItem.value,
         ...props,
       })
-      .listeners({
-        refresh: refreshMarkers,
-      })
       .open(MarkerCreatePanel)
   }
 
