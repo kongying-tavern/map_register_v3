@@ -3,6 +3,7 @@ import type { Ref } from 'vue'
 import { render } from 'vue'
 import { ceil } from 'lodash'
 import { ContextMenu, MarkerCreatePanel } from '@/pages/pageMap/components'
+import { useMap } from '@/pages/pageMap/hooks'
 import type { GenshinMap } from '@/pages/pageMap/core'
 import { useAreaList, useGlobalDialog } from '@/hooks'
 import { useMapStore } from '@/stores'
@@ -26,6 +27,7 @@ export const useContextMenu = (options: ContextMenuHookOptions) => {
 
   const ctx = getCurrentInstance()
   const mapStore = useMapStore()
+  const { map } = useMap()
   const { areaList } = useAreaList()
   const { DialogService } = useGlobalDialog()
 
@@ -86,6 +88,9 @@ export const useContextMenu = (options: ContextMenuHookOptions) => {
    * @注意 此处不应该传递过多业务信息，传递的信息应只与事件本身相关（如事件坐标、对象等）
    */
   const openContextMenu = (ev: L.LeafletMouseEvent) => {
+    if (map.value?.handleState.draggingMarker)
+      return
+
     const selectedArea = areaList.value.find(area => area.code === mapStore.areaCode)
 
     /** 右键菜单支持的命令 */

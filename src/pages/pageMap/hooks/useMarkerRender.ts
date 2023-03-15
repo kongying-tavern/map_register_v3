@@ -23,8 +23,6 @@ export const useMarkerRender = (markerListRef: Ref<UnionMarkerVo[]>) => {
 
   /** 缓存的 popup DOM */
   const popupDOM = L.DomUtil.create('div', 'w-full h-full')
-  /** 缓存的 popup 实例 */
-  const popup = L.popup({ closeButton: false, minWidth: 223, maxWidth: 223, offset: [0, 0] })
 
   /**
    * 根据点位坐标将地图移动到点集中心
@@ -90,7 +88,11 @@ export const useMarkerRender = (markerListRef: Ref<UnionMarkerVo[]>) => {
       })
       vnode.appContext = componentCtx?.appContext ?? null
       render(vnode, popupDOM)
-      popup.close().setContent(popupDOM).setLatLng(marker.getLatLng()).openOn(map.value)
+      map.value.popups.markerPopup
+        .close()
+        .setContent(popupDOM)
+        .setLatLng(marker.getLatLng())
+        .openOn(map.value)
     })
     marker.on('mouseover', () => {
       if (!map.value)
@@ -110,7 +112,7 @@ export const useMarkerRender = (markerListRef: Ref<UnionMarkerVo[]>) => {
   const markerLayer = shallowRef() as ShallowRef<GenshinMarkerGroup | undefined>
   /** 渲染点位 */
   const renderMarkers = (markers: UnionMarkerVo[]) => {
-    popup.close()
+    map.value?.popups.markerPopup.close()
     markerLayer.value && map.value?.removeLayer(markerLayer.value)
     const canvasMarkers = markers.map(createGenshinMarker)
     const markerGroup = new GenshinMarkerGroup(canvasMarkers)

@@ -1,4 +1,5 @@
 import type { Ref } from 'vue'
+import { liveQuery } from 'dexie'
 import Api from '@/api/api'
 import type { FetchHookOptions } from '@/hooks'
 import { useFetchHook } from '@/hooks'
@@ -102,6 +103,8 @@ export const useMarkerList = (options: MarkerListHookOptions = {}) => {
   onSuccess(markers => markerList.value = markers)
 
   watch(fetchParams, updateMarkerList)
+
+  liveQuery(fetchMarkers).subscribe(updateMarkerList)
 
   return { markerList, updateMarkerList, onSuccess, ...rest }
 }

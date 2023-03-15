@@ -109,6 +109,14 @@
     animation-duration: 100ms;
     @include calculateClipPath(25, 21, 70);
   }
+  &::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #FFF;
+    clip-path: circle(2px);
+  }
 }
 
 // 标签标记
@@ -135,5 +143,32 @@
   &.visible-fade {
     animation: fadeOut forwards;
     animation-duration: 400ms;
+  }
+}
+
+// 用于拖拽改变坐标的临时标记
+.genshin-draggable-marker {
+  cursor: grab;
+  filter: drop-shadow(0 0 2px rgb(0 0 0 / 0.5));
+  &:active {
+    cursor: grabbing;
+  }
+  &::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #FFF;
+    animation: scaleFadeIn forwards;
+    animation-duration: 100ms;
+    @include calculateClipPath(25, 21, 50);
+  }
+  &::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #FFF;
+    clip-path: circle(2px);
   }
 }

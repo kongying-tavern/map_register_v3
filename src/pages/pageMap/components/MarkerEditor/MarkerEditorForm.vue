@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { FormRules } from 'element-plus'
 import { cloneDeep } from 'lodash'
-import { AddonContenEditor, AddonExtraEditor, AddonImageEditor, AddonItemSelector } from '.'
+import { AddonContenEditor, AddonExtraEditor, AddonImageEditor, AddonItemSelector, AddonPositionEditor } from '.'
 import { useUserStore } from '@/stores'
 import type { ElFormType } from '@/shared'
 import { HiddenFlagEnum } from '@/shared'
@@ -81,6 +81,10 @@ defineExpose({
         <el-input v-model="form.markerTitle" />
       </el-form-item>
 
+      <el-form-item label="点位坐标" prop="position" required>
+        <AddonPositionEditor v-model="form.position" />
+      </el-form-item>
+
       <el-form-item label="点位标识" prop="hiddenFlag">
         <el-radio-group v-model="form.hiddenFlag">
           <el-radio-button :label="HiddenFlagEnum.SHOW">
@@ -100,7 +104,7 @@ defineExpose({
       </el-form-item>
 
       <el-form-item label="点位说明" prop="content">
-        <AddonContenEditor v-model="form.content" v-model:extra-id="extraId" />
+        <AddonContenEditor v-model="form.content" v-model:extra-id="extraId" :item-list="form.itemList" />
       </el-form-item>
 
       <el-form-item label="点位图像" prop="picture">

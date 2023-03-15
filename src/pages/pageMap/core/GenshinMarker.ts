@@ -24,13 +24,16 @@ export class GenshinMarker extends L.CircleMarker {
     .then(img => this.undergroundImg = img)
 
   /** 点位被聚焦时的光标 */
-  static activeIconMarker = L.marker([0, 0], { interactive: false, pane: 'markerPane', zIndexOffset: 100 }).setIcon(
-    L.divIcon({
+  static activeIconMarker = L.marker([0, 0], {
+    interactive: false,
+    pane: 'markerPane',
+    zIndexOffset: 500,
+    icon: L.divIcon({
       iconSize: [70, 70],
       // 样式见 src/style/leaflet/index.scss
       className: 'genshin-active-marker',
     }),
-  )
+  })
 
   /** 绘制前需要被执行的异步任务 */
   #beforeDrawMission: Promise<void>
@@ -86,7 +89,7 @@ export class GenshinMarker extends L.CircleMarker {
   }
 
   focus = (): this => {
-    if (!this._map)
+    if (!this._map || this._map.handleState.draggingMarker)
       return this
     this._map.focusedMarker?.blur()
     this._map.focusedMarker = this
@@ -102,7 +105,7 @@ export class GenshinMarker extends L.CircleMarker {
   }
 
   blur = (): this => {
-    if (!this._map)
+    if (!this._map || this._map.handleState.draggingMarker)
       return this
     this._map.focusedMarker = null
     this.redraw()

@@ -13,16 +13,13 @@ export class GenshinMarkerRender extends L.Canvas {
 }
 const renderer = new GenshinMarkerRender()
 
+export interface GenshinMapHandleState {
+  draggingMarker: boolean
+}
+
 export class GenshinMap extends L.Map {
   declare _layers: Record<string, L.Layer>
   declare _events: Record<string, { ctx?: L.Layer; fn: Function }[]>
-
-  ready = new Promise<GenshinMap>((resolve) => {
-    this.whenReady(() => resolve(this))
-  })
-
-  focusedMarker: GenshinMarker | null = null
-  pointedMarker: GenshinMarker | null = null
 
   constructor(ele: HTMLElement, options?: L.MapOptions) {
     super(ele, {
@@ -32,10 +29,51 @@ export class GenshinMap extends L.Map {
 
     // 通过事件代理来实现点位 focus 逻辑来让 map 存储 focus 的点位，
     // 以便其他功能的实现
-    this.on('click', () => this.pointedMarker
-      ? this.pointedMarker.focus()
-      : this.focusedMarker?.blur(),
-    )
+    this.on('click', () => {
+      if (this.handleState.draggingMarker)
+        return
+      this.pointedMarker
+        ? this.pointedMarker.focus()
+        : this.focusedMarker?.blur()
+    })
+  }
+
+  /** 地图共用的 popup */
+  popups = {
+    markerPopup: L.popup({
+      closeButton: false,
+      minWidth: 223,
+      maxWidth: 223,
+      offset: [0, 0],
+    }),
+    draggingPopup: L.popup({
+      pane: 'popupPane',
+      closeOnClick: false,
+      closeButton: false,
+      closeOnEscapeKey: false,
+    }).on('add', () => this.setHandleState('draggingMarker', true))
+      .on('remove', () => this.setHandleState('draggingMarker', false)),
+  }
+
+  /** 地图是否准备好 */
+  ready = new Promise<GenshinMap>((resolve) => {
+    this.whenReady(() => resolve(this))
+  })
+
+  /** 地图是否有聚焦点位 */
+  focusedMarker: GenshinMarker | null = null
+
+  /** 地图是否有指针指向的点位 */
+  pointedMarker: GenshinMarker | null = null
+
+  /** 地图是否处于某种处理状态 */
+  handleState = reactive<GenshinMapHandleState>({
+    // 当地图处于点位拖拽状态时，需要拦截大部分操作以避免 bug
+    draggingMarker: false,
+  })
+
+  setHandleState = <T extends keyof GenshinMapHandleState>(type: T, value: GenshinMapHandleState[T]) => {
+    this.handleState[type] = value
   }
 
   pointToMarker = (marker: GenshinMarker | null = null): this => {
@@ -55,7 +93,7 @@ export class GenshinMap extends L.Map {
   }
 
   // FIXME 临时修复移除 L.ImageOverlay 时事件监听器没有同时移除的 bug
-  removeLayer(layer: L.Layer): this {
+  removeLayer = (layer: L.Layer): this => {
     super.removeLayer(layer)
     const events = this._events
     for (const key in events) {
@@ -76,4 +114,8 @@ export class GenshinMap extends L.Map {
     this.options.crs = crs
     return this
   }
+
+  flyTo = (...args: Parameters<L.Map['flyTo']>): this => this.handleState.draggingMarker
+    ? this
+    : super.flyTo(...args)
 }

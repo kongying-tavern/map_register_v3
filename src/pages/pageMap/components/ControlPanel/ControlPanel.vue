@@ -146,10 +146,12 @@ const { pagination, pages, disabledNext, disabledPre, nextPage, prePage } = useP
 })
 
 const collapsed = ref(false)
+
+const handleDragging = computed(() => map.value?.handleState.draggingMarker)
 </script>
 
 <template>
-  <div class="left-control-panel grid p-2 gap-1" :class="{ minus, collapsed }" v-bind="$attrs">
+  <div class="left-control-panel grid p-2 gap-1" :class="{ minus, collapsed, handleDragging }" v-bind="$attrs">
     <!-- 顶部筛选器 -->
     <div class="step-selector grid gap-1">
       <FilterStep v-model="mapStore.step" :step-names="steps" class="rounded-md overflow-hidden" />
@@ -267,6 +269,11 @@ const collapsed = ref(false)
 
   &.collapsed {
     translate: calc(-100% - 8px) 0;
+  }
+
+  &.handleDragging {
+    translate: calc(-200%) 0;
+    pointer-events: none;
   }
 }
 
