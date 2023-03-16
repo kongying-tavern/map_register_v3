@@ -42,11 +42,6 @@ export const useIconStore = defineStore('global-icon', {
 
     /** 全量更新 */
     async updateAll() {
-      const warn = ElNotification.warning({
-        title: '正在更新图标数据...',
-        duration: 0,
-        position: 'bottom-right',
-      })
       try {
         loading.value = true
         const startTime = dayjs()
@@ -65,7 +60,6 @@ export const useIconStore = defineStore('global-icon', {
         })
       }
       finally {
-        warn.close()
         loading.value = false
       }
     },

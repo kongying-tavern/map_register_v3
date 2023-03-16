@@ -63,11 +63,6 @@ export const useItemStore = defineStore('global-item', {
 
     /** 全量更新 */
     async updateAll() {
-      const warn = ElNotification.warning({
-        title: '正在更新物品数据...',
-        duration: 0,
-        position: 'bottom-right',
-      })
       try {
         loading.value = true
         const startTime = dayjs()
@@ -86,7 +81,6 @@ export const useItemStore = defineStore('global-item', {
         })
       }
       finally {
-        warn.close()
         loading.value = false
       }
     },

@@ -65,11 +65,6 @@ export const useMarkerStore = defineStore('global-marker', {
     /** 全量更新 */
     async updateAll() {
       updateMissions.value = []
-      const warn = ElNotification.warning({
-        title: '正在更新点位数据...',
-        duration: 0,
-        position: 'bottom-right',
-      })
       try {
         loading.value = true
         const startTime = dayjs()
@@ -94,7 +89,6 @@ export const useMarkerStore = defineStore('global-marker', {
         })
       }
       finally {
-        warn.close()
         loading.value = false
         updateMissions.value = []
       }
