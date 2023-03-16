@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import SettingItem from './SettingItem.vue'
-import { localSettings, useIconStore, useItemStore, useMarkerStore } from '@/stores'
+import { localSettings, useAreaStore, useIconStore, useItemStore, useItemTypeStore, useMarkerStore } from '@/stores'
 
 /** 计算缓存大小 */
 const usageStorage = ref(0)
@@ -31,8 +31,10 @@ const cleatAllCaches = async () => {
   }
 }
 
-const itemStore = useItemStore()
+const areaStore = useAreaStore()
 const iconStore = useIconStore()
+const itemStore = useItemStore()
+const itemTypeStore = useItemTypeStore()
 const markerStore = useMarkerStore()
 </script>
 
@@ -59,6 +61,18 @@ const markerStore = useMarkerStore()
     </SettingItem>
 
     <SettingItem
+      label="地区数据"
+      :content="`已存储地区数据 ${areaStore.total} 项，距离下次更新剩余 ${Math.floor(areaStore.updateAllRestTime / 1000)} 秒。`"
+    >
+      <el-button :loading="areaStore.updateAllLoading" @click="areaStore.clearAll">
+        清除地区
+      </el-button>
+      <el-button :loading="areaStore.updateAllLoading" @click="areaStore.backgroundUpdate">
+        更新地区
+      </el-button>
+    </SettingItem>
+
+    <SettingItem
       label="物品数据"
       :content="`已存储物品数据 ${itemStore.total} 项，距离下次更新剩余 ${Math.floor(itemStore.updateAllRestTime / 1000)} 秒。`"
     >
@@ -67,6 +81,18 @@ const markerStore = useMarkerStore()
       </el-button>
       <el-button :loading="itemStore.updateAllLoading" @click="itemStore.backgroundUpdate">
         更新物品
+      </el-button>
+    </SettingItem>
+
+    <SettingItem
+      label="物品类型数据"
+      :content="`已存储类型数据 ${itemTypeStore.total} 项，距离下次更新剩余 ${Math.floor(itemTypeStore.updateAllRestTime / 1000)} 秒。`"
+    >
+      <el-button :loading="itemTypeStore.updateAllLoading" @click="itemTypeStore.clearAll">
+        清除类型
+      </el-button>
+      <el-button :loading="itemTypeStore.updateAllLoading" @click="itemTypeStore.backgroundUpdate">
+        更新类型
       </el-button>
     </SettingItem>
 
