@@ -5,7 +5,15 @@ import Oauth from '@/api/oauth'
 import { Logger, messageFrom } from '@/utils'
 import { router } from '@/router'
 import { RoleTypeEnum } from '@/shared'
-import { useArchiveStore, useIconStore, useItemStore, useMapStore, useMarkerStore } from '@/stores'
+import {
+  useArchiveStore,
+  useAreaStore,
+  useIconStore,
+  useItemStore,
+  useItemTypeStore,
+  useMapStore,
+  useMarkerStore,
+} from '@/stores'
 
 export interface UserAuth extends API.SysToken {
   expires_time: number
@@ -189,7 +197,9 @@ export const useUserStore = defineStore('user-info', {
     async preloadMission() {
       if (!this.validateUserToken() || isImplemented.value)
         return
+      useAreaStore().backgroundUpdate()
       useItemStore().backgroundUpdate()
+      useItemTypeStore().backgroundUpdate()
       useMarkerStore().backgroundUpdate()
       useIconStore().backgroundUpdate()
       const archiveStore = useArchiveStore()

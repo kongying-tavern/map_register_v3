@@ -1,8 +1,10 @@
 import type { ComputedRef, Ref } from 'vue'
-import Api from '@/api/api'
+import { liveQuery } from 'dexie'
+import { useSubscription } from '@vueuse/rxjs'
 import { array2Tree } from '@/utils'
 import { useFetchHook } from '@/hooks'
 import { useMapStore } from '@/stores'
+import db from '@/database'
 
 export interface AreaListHookOptions {
   immediate?: boolean
@@ -40,13 +42,13 @@ export const useAreaList = (options: AreaListHookOptions = {}) => {
     return areaList.value.find(area => area.code === mapStore.areaCode)?.areaId
   })
 
-  const { refresh, onSuccess, ...rest } = useFetchHook({
+  const { refresh: updateAreaList, onSuccess, ...rest } = useFetchHook({
     immediate,
     loading: scopedLoading ?? loading,
-    onRequest: () => Api.area.listArea({}, { isTraverse: true, parentId: -1 }),
+    onRequest: () => db.area.toArray(),
   })
 
-  onSuccess(({ data = [] }) => {
+  onSuccess((data) => {
     areaList.value = data.sort(({ sortIndex: ia }, { sortIndex: ib }) => {
       if (ia === undefined || ib === undefined)
         return 0
@@ -54,5 +56,7 @@ export const useAreaList = (options: AreaListHookOptions = {}) => {
     })
   })
 
-  return { areaList, areaTree, areaMap, selectedArea, updateAreaList: refresh, onSuccess, ...rest }
+  useSubscription(liveQuery(() => db.area.toCollection()).subscribe(updateAreaList))
+
+  return { areaList, areaTree, areaMap, selectedArea, updateAreaList, onSuccess, ...rest }
 }
