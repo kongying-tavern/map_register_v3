@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import db from '@/database'
 import { useIconList, useTypeList } from '@/hooks'
+import { useMapStore } from '@/stores'
 
 const props = defineProps<{
   modelValue: API.MarkerItemLinkVo[]
@@ -12,6 +13,7 @@ const emits = defineEmits<{
 
 const { typeMap } = useTypeList()
 const { iconMap } = useIconList()
+const mapStore = useMapStore()
 
 interface ItemExtraObj extends API.ItemVo {
   active: boolean
@@ -26,16 +28,10 @@ const queryText = ref('')
 const debounceQueryText = debouncedRef(queryText, 300)
 
 const itemList = asyncComputed(async () => {
-  const firstItemId = props.modelValue?.[0]?.itemId
-  if (firstItemId === undefined)
-    return [] as API.ItemVo[]
-  const item = await db.item.get(firstItemId)
-  if (!item)
-    return [] as API.ItemVo[]
-  return db.item
-    .where('areaId')
-    .anyOf(item.areaId !== undefined ? [item.areaId] : [])
-    .toArray()
+  const area = await db.area.where('code').equals(mapStore.areaCode ?? '').first()
+  return area
+    ? db.item.where('areaId').equals(area.areaId ?? -9999).toArray()
+    : [] as API.ItemVo[]
 }, [])
 
 /** 分类的物品列表 */
@@ -84,31 +80,33 @@ const selectItem = (item: ItemExtraObj) => {
       </template>
     </el-input>
 
-    <div class="flex-1 overflow-auto">
-      <template v-for="itemType in itemTree" :key="itemType.typeId">
-        <div v-if="itemType.items.length" class="grid grid-cols-2 gap-1 pb-4">
-          <div class="col-span-2">
-            {{ itemType.name }}
-          </div>
-          <div
-            v-for="item in itemType.items"
-            :key="item.itemId" class="item-button"
-            :class="{ active: item.active }"
-            @click="() => selectItem(item)"
-          >
-            <img
-              :src="iconMap[item.iconTag as string]"
-              referrerpolicy="no-referrer"
-              loading="lazy"
-              crossorigin=""
-              class="w-6 aspect-square object-contain"
+    <div class="flex-1 overflow-hidden">
+      <el-scrollbar height="100%">
+        <template v-for="itemType in itemTree" :key="itemType.typeId">
+          <div v-if="itemType.items.length" class="grid grid-cols-2 gap-1 pb-4">
+            <div class="col-span-2">
+              {{ itemType.name }}
+            </div>
+            <div
+              v-for="item in itemType.items"
+              :key="item.itemId" class="item-button"
+              :class="{ active: item.active }"
+              @click="() => selectItem(item)"
             >
-            <div class="flex-1 leading-6 overflow-hidden text-ellipsis whitespace-nowrap">
-              {{ item.name }}
+              <img
+                :src="iconMap[item.iconTag as string]"
+                referrerpolicy="no-referrer"
+                loading="lazy"
+                crossorigin=""
+                class="w-6 aspect-square object-contain"
+              >
+              <div class="flex-1 leading-6 overflow-hidden text-ellipsis whitespace-nowrap">
+                {{ item.name }}
+              </div>
             </div>
           </div>
-        </div>
-      </template>
+        </template>
+      </el-scrollbar>
     </div>
   </div>
 </template>
