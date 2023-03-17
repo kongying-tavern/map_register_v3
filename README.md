@@ -1,6 +1,23 @@
 # 空荧酒馆地图点位标记系统
 
-地图后台
+<div align="center">
+  <img src="./public/favicon.ico" >
+  <div>空荧后厨</div>
+  <div>
+    <a href="https://cn.vuejs.org" target="_blank">
+      <img src="https://img.shields.io/badge/Vue-3.2-green">
+    </a>
+    <a href="https://cn.vitejs.dev" target="_blank">
+      <img src="https://img.shields.io/badge/Vite-4.1-green">
+    </a>
+    <a href="https://www.typescriptlang.org" target="_blank">
+      <img src="https://img.shields.io/badge/TS-next-blue">
+    </a>
+    <a href="https://www.typescriptlang.org" target="_blank">
+      <img src="https://img.shields.io/badge/leaflet-1.9-blueviolet">
+    </a>
+  </div>
+</div>
 
 ## 安装依赖
 
