@@ -13,7 +13,7 @@
     <a href="https://www.typescriptlang.org" target="_blank">
       <img src="https://img.shields.io/badge/TS-next-blue">
     </a>
-    <a href="https://www.typescriptlang.org" target="_blank">
+    <a href="https://leafletjs.com" target="_blank">
       <img src="https://img.shields.io/badge/leaflet-1.9-blueviolet">
     </a>
   </div>
