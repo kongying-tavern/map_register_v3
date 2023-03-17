@@ -50,13 +50,14 @@ const differenceTokenTime = (expiresTime: number) => {
   return Math.min(getRestTime(expiresTime) - TOKEN_REFRESH_REST_TIME, 1200000)
 }
 
-/** 预加载任务是否已经执行 */
-const isImplemented = ref(false)
-
 export const useUserStore = defineStore('user-info', {
   state: () => ({
     auth: localUserAuth.value,
     info: localUserInfo.value,
+    /** 是否正在进行预加载任务 */
+    isHandling: false,
+    /** 路由是否跳转完毕 */
+    isRouteLoading: false,
   }),
   getters: {
     /** TODO: 等后端返回改为单角色后就不需要这个了 */
@@ -127,11 +128,11 @@ export const useUserStore = defineStore('user-info', {
       intervalRefreshTimer.value = undefined
     },
     /** 检查 token 是否有效 */
-    validateUserToken() {
+    validateUserToken(): boolean {
       const { access_token, expires_time } = this.auth
       if (!access_token || !expires_time)
         return false
-      return access_token && expires_time > new Date().getTime()
+      return access_token.length > 0 && expires_time > new Date().getTime()
     },
     /** 设置鉴权信息 */
     setAuth(auth: API.SysToken) {
@@ -164,13 +165,17 @@ export const useUserStore = defineStore('user-info', {
     logout() {
       this.auth = {}
       this.info = {}
+      this.isHandling = false
       localUserAuth.value = null
       localUserInfo.value = null
       this.clearRefreshTimer()
       // 清除地图参数
       useMapStore().reset()
       // 清除后台任务
+      useAreaStore().clearBackgroundUpdate()
+      useIconStore().clearBackgroundUpdate()
       useItemStore().clearBackgroundUpdate()
+      useItemTypeStore().clearBackgroundUpdate()
       useMarkerStore().clearBackgroundUpdate()
       router.push('/login')
     },
@@ -193,19 +198,22 @@ export const useUserStore = defineStore('user-info', {
         ElMessage.error(messageFrom(err))
       }
     },
-    /** 预加载任务，仅在 token 可用时或登陆后运行，只会运行一次 */
+    /** 预加载任务，仅在 token 可用时或登陆后运行 */
     async preloadMission() {
-      if (!this.validateUserToken() || isImplemented.value)
+      if (!this.validateUserToken() || this.isHandling)
         return
-      useAreaStore().backgroundUpdate()
-      useItemStore().backgroundUpdate()
-      useItemTypeStore().backgroundUpdate()
-      useMarkerStore().backgroundUpdate()
-      useIconStore().backgroundUpdate()
+      this.isHandling = true
       const archiveStore = useArchiveStore()
-      await archiveStore.fetchArchive()
+      await Promise.allSettled([
+        useAreaStore().backgroundUpdate(),
+        useItemStore().backgroundUpdate(),
+        useItemTypeStore().backgroundUpdate(),
+        useMarkerStore().backgroundUpdate(),
+        useIconStore().backgroundUpdate(),
+        archiveStore.fetchArchive(),
+      ])
       archiveStore.loadLatestArchive()
-      isImplemented.value = true
+      this.isHandling = false
     },
   },
 })

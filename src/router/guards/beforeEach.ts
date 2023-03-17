@@ -45,6 +45,14 @@ export const beforeEachGuard = (
     if (!userStore.info.id || userStore.info.id !== userStore.auth.userId)
       userStore.updateUserInfo()
 
-    return next(true)
+    // 只在进出地图页面时进行预加载任务
+    if (from.path === '/map' || to.path === '/map') {
+      userStore
+        .preloadMission()
+        .then(() => next(true))
+    }
+    else {
+      next(true)
+    }
   }
 }

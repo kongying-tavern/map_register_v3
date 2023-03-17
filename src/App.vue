@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { AppBannerProvider, AppDialogProvider, AppDrawerProvider } from '@/components'
+import { AppBannerProvider, AppDialogProvider, AppDrawerProvider, AppLoadingPanel } from '@/components'
 import { visible as bannerVisible } from '@/hooks/useBanner/bannerContext'
 import { useBanner } from '@/hooks'
 import { useUserStore } from '@/stores'
@@ -14,8 +14,7 @@ useTitle(routeName, { titleTemplate: '%s' })
 const { show } = useBanner()
 import.meta.env.DEV && show(import.meta.env.VITE_ENV_BANNER)
 
-// 预加载任务
-useUserStore().preloadMission()
+const userStore = useUserStore()
 </script>
 
 <template>
@@ -29,7 +28,7 @@ useUserStore().preloadMission()
     <router-view v-slot="{ Component }">
       <Transition name="fade" mode="out-in" appear>
         <keep-alive>
-          <component :is="Component" />
+          <component :is="(userStore.isHandling || userStore.isRouteLoading) ? AppLoadingPanel : Component" />
         </keep-alive>
       </Transition>
     </router-view>
