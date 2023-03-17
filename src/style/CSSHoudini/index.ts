@@ -1,3 +1,4 @@
+import type { Plugin } from 'vue'
 import userCardBorder from '@/style/CSSHoudini/userCardBorder?url'
 import userCardInfoBorder from '@/style/CSSHoudini/userCardInfoBorder?url'
 import darkCardBorder from '@/style/CSSHoudini/darkCardBorder?url'
@@ -6,6 +7,13 @@ import darkCardBorder from '@/style/CSSHoudini/darkCardBorder?url'
 declare const CSS: {
   paintWorklet: Worklet
 }
-CSS.paintWorklet.addModule(darkCardBorder)
-CSS.paintWorklet.addModule(userCardBorder)
-CSS.paintWorklet.addModule(userCardInfoBorder)
+
+export const registerPaint = (): Plugin => ({
+  install: () => {
+    if ('paintWorklet' in CSS) {
+      CSS.paintWorklet.addModule(darkCardBorder)
+      CSS.paintWorklet.addModule(userCardBorder)
+      CSS.paintWorklet.addModule(userCardInfoBorder)
+    }
+  },
+})

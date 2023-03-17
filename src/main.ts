@@ -7,7 +7,8 @@ import App from './App.vue'
 import './style/app.scss'
 import { router } from '@/router'
 import { createServiceWorker } from '@/worker'
-import '@/style/CSSHoudini'
+import { registerPaint } from '@/style/CSSHoudini'
+
 import 'element-plus/dist/index.css'
 import 'element-plus/theme-chalk/dark/css-vars.css'
 
@@ -25,4 +26,5 @@ app
   .use(ElementPlus, {
     locale: zhCn,
   })
+  .use(registerPaint())
   .mount('#app')
