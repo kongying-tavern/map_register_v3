@@ -50,7 +50,7 @@ const draggableMarker = L.marker([-9999, -9999], {
 /** 临时用于显示拖拽点与原始位置的连线 */
 const line = L.polyline([], {
   pane: 'markerPane',
-  interactive: true,
+  interactive: false,
 })
 
 /** 用于渲染拖拽显示内容的 DOM */

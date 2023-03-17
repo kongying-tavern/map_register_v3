@@ -9,7 +9,6 @@ import { DialogController } from '@/hooks/useGlobalDialog/dialogController'
 const props = defineProps<{
   latlng: L.LatLng
   selectedItem?: API.ItemVo
-  selectedArea?: API.AreaVo
 }>()
 
 const userStore = useUserStore()

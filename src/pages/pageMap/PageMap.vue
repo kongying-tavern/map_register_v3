@@ -33,11 +33,14 @@ const areaId = computed(() => {
   return areaList.value.find(area => area.code === mapStore.areaCode)?.areaId
 })
 
+onAreaFetched(() => {
+  mapStore.areaCode !== undefined && setMapNameByAreaCode(mapStore.areaCode)
+})
+
 // ==================== 图标相关 ====================
 const { iconMap } = useIconList({ immediate: true })
 
 // ==================== 物品相关 ====================
-
 const { itemList } = useItemList({
   immediate: true,
   params: () => ({
@@ -73,16 +76,9 @@ const { markerList, updateMarkerList } = useMarkerList({
 useMarkerRender(markerList)
 onMapEvent('updateMarkers', updateMarkerList)
 
-const { openContextMenu } = useContextMenu({
-  selectedItem,
-  refreshMarkers: updateMarkerList,
-})
+// ==================== 右键菜单 ====================
+const { openContextMenu } = useContextMenu({ selectedItem })
 onMapEvent('contextmenu', openContextMenu)
-
-// ==================== 其他 ====================
-onAreaFetched(() => {
-  mapStore.areaCode !== undefined && setMapNameByAreaCode(mapStore.areaCode)
-})
 
 // ==================== 依赖注入 ====================
 provide(mapInjection, map)

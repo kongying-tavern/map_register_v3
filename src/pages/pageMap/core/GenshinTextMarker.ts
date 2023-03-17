@@ -19,9 +19,8 @@ export class GenshinTextMarker extends L.Marker {
   constructor(latlng: L.LatLngExpression, options: TextMarkerOptions = {}) {
     const { html = '', zoomMax = 2, zoomMin = -1, fontSize = 16 } = options
     super(latlng, {
-      zIndexOffset: -100,
       interactive: false, // 取消交互
-      pane: 'tilePane',
+      pane: 'shadowPane',
     })
     this.visibleIcon = L.divIcon({
       html: `<div class="genshin-text-marker w-full h-full" style="font-size: ${fontSize}px;">${html}</div>`,

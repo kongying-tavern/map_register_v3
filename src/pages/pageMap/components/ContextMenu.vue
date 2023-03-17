@@ -8,11 +8,11 @@ import { ElIcon } from 'element-plus'
 import { Plus, Refresh, Setting } from '@element-plus/icons-vue'
 import type L from 'leaflet'
 import { ceil } from 'lodash'
-import { useUserStore } from '@/stores'
+import { useMapStore, useUserStore } from '@/stores'
+import db from '@/database'
 
-const props = defineProps<{
+defineProps<{
   latlng: L.LatLng
-  selectedArea?: API.AreaVo
 }>()
 
 const emits = defineEmits<{
@@ -20,9 +20,11 @@ const emits = defineEmits<{
 }>()
 
 const userStore = useUserStore()
+const mapStore = useMapStore()
+const selectedArea = asyncComputed(() => db.area.where('code').equals(mapStore.areaCode ?? '').first())
 
 const createMarker = () => {
-  if (!userStore.hasPunctauteRights || !props.selectedArea)
+  if (!userStore.hasPunctauteRights || !selectedArea.value)
     return
   emits('command', 'add')
 }
