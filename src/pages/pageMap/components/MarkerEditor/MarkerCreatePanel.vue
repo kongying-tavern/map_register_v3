@@ -28,6 +28,7 @@ const initFormData = (): API.MarkerPunctuateVo | API.MarkerVo => {
     position: `${lat},${lng}`,
     itemList: props.selectedItem ? [{ count: 1, iconTag, itemId }] : [],
     videoPath: '',
+    refreshTime: 0,
     markerCreatorId: userId,
   }
 }

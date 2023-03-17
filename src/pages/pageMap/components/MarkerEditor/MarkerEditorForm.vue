@@ -1,7 +1,14 @@
 <script lang="ts" setup>
 import type { FormRules } from 'element-plus'
 import { cloneDeep } from 'lodash'
-import { AddonContenEditor, AddonExtraEditor, AddonImageEditor, AddonItemSelector, AddonPositionEditor } from '.'
+import {
+  AddonContenEditor,
+  AddonExtraEditor,
+  AddonImageEditor,
+  AddonItemSelector,
+  AddonPositionEditor,
+  AddonRefreshtimeEditor,
+} from '.'
 import { useUserStore } from '@/stores'
 import type { ElFormType } from '@/shared'
 import { HiddenFlagEnum } from '@/shared'
@@ -114,6 +121,10 @@ defineExpose({
           v-model:extra-id="extraId"
           v-model:creator-id="form.pictureCreatorId"
         />
+      </el-form-item>
+
+      <el-form-item label="刷新时间" prop="refreshTime">
+        <AddonRefreshtimeEditor v-model="form.refreshTime" />
       </el-form-item>
 
       <el-form-item label="附加数据" prop="extra">

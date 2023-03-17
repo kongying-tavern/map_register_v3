@@ -6,6 +6,7 @@ export { default as AddonImageEditorEP } from './AddonImageEditorEP.vue'
 export { default as AddonItemSelector } from './AddonItemSelector.vue'
 export { default as AddonItemSelectorEP } from './AddonItemSelectorEP.vue'
 export { default as AddonPositionEditor } from './AddonPositionEditor.vue'
+export { default as AddonRefreshtimeEditor } from './AddonRefreshtimeEditor.vue'
 // 其他组件
 export { default as MarkerCreatePanel } from './MarkerCreatePanel.vue'
 export { default as MarkerEditPanel } from './MarkerEditPanel.vue'
