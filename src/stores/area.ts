@@ -48,7 +48,7 @@ export const useAreaStore = defineStore('global-area', {
         const startTime = dayjs()
         const total = await this.updateAreaInfo()
         const spentTime = (dayjs().diff(startTime) / 1000).toFixed(0)
-        ElNotification.success({
+        localSettings.value.noticeDataUpdated && ElNotification.success({
           title: '地区更新成功',
           message: `本次共更新地区 ${total} 个，耗时 ${spentTime} 秒`,
           position: 'bottom-right',
@@ -58,6 +58,7 @@ export const useAreaStore = defineStore('global-area', {
         ElNotification.error({
           title: '地区更新失败',
           message: messageFrom(err),
+          position: 'bottom-right',
         })
       }
       finally {

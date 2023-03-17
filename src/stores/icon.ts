@@ -47,7 +47,7 @@ export const useIconStore = defineStore('global-icon', {
         const startTime = dayjs()
         const total = await this.updateIconInfo()
         const spentTime = (dayjs().diff(startTime) / 1000).toFixed(0)
-        ElNotification.success({
+        localSettings.value.noticeDataUpdated && ElNotification.success({
           title: '图标更新成功',
           message: `本次共更新图标 ${total} 个，耗时 ${spentTime} 秒`,
           position: 'bottom-right',
@@ -57,6 +57,7 @@ export const useIconStore = defineStore('global-icon', {
         ElNotification.error({
           title: '图标更新失败',
           message: messageFrom(err),
+          position: 'bottom-right',
         })
       }
       finally {

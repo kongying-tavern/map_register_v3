@@ -48,6 +48,10 @@ const markerStore = useMarkerStore()
       <el-switch v-model="localSettings.autoTurnNext" />
     </SettingItem>
 
+    <SettingItem label="更新提醒" content="是否需要为成功更新的数据弹出消息提示">
+      <el-switch v-model="localSettings.noticeDataUpdated" />
+    </SettingItem>
+
     <SettingItem label="缓存">
       <template #content>
         <div class="flex flex-col gap-1">
@@ -128,7 +132,9 @@ const markerStore = useMarkerStore()
 
 <style lang="scss" scoped>
 .setting-panel {
-  min-width: 820px;
+  @media screen and (min-width: 900px) {
+    width: 100%;
+  }
 }
 
 .progress-base-radius {

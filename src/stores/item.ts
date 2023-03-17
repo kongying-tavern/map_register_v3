@@ -68,7 +68,7 @@ export const useItemStore = defineStore('global-item', {
         const startTime = dayjs()
         const total = await this.updateItemInfo()
         const spentTime = (dayjs().diff(startTime) / 1000).toFixed(0)
-        ElNotification.success({
+        localSettings.value.noticeDataUpdated && ElNotification.success({
           title: '物品更新成功',
           message: `本次共更新物品 ${total} 个，耗时 ${spentTime} 秒`,
           position: 'bottom-right',
@@ -78,6 +78,7 @@ export const useItemStore = defineStore('global-item', {
         ElNotification.error({
           title: '物品更新失败',
           message: messageFrom(err),
+          position: 'bottom-right',
         })
       }
       finally {

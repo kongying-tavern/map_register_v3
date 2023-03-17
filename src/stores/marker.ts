@@ -76,7 +76,7 @@ export const useMarkerStore = defineStore('global-marker', {
         })
         // 由于全量数据不包含已删除的点位，这里需要筛选出本地存在但在云点位中不存在的点位并删除
         const total = updateMissions.value.length
-        ElNotification.success({
+        localSettings.value.noticeDataUpdated && ElNotification.success({
           title: '点位更新成功',
           message: `本次共更新点位 ${total} 个，耗时 ${(dayjs().diff(startTime) / 1000).toFixed(0)} 秒`,
           position: 'bottom-right',
@@ -86,6 +86,7 @@ export const useMarkerStore = defineStore('global-marker', {
         ElNotification.error({
           title: '点位更新失败',
           message: messageFrom(err),
+          position: 'bottom-right',
         })
       }
       finally {

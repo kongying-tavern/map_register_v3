@@ -45,7 +45,7 @@ export const useItemTypeStore = defineStore('global-item-type', {
         const startTime = dayjs()
         const total = await this.updateItemTypeInfo()
         const spentTime = (dayjs().diff(startTime) / 1000).toFixed(0)
-        ElNotification.success({
+        localSettings.value.noticeDataUpdated && ElNotification.success({
           title: '物品类型更新成功',
           message: `共更新物品类型 ${total} 个，耗时 ${spentTime} 秒。`,
           position: 'bottom-right',
@@ -55,6 +55,7 @@ export const useItemTypeStore = defineStore('global-item-type', {
         ElNotification.error({
           title: '物品类型更新失败',
           message: messageFrom(err),
+          position: 'bottom-right',
         })
       }
       finally {
