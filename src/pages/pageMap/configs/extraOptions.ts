@@ -7,56 +7,113 @@ export interface ExtraOption extends CascaderOption {
   children?: Omit<ExtraOption, 'children'>[]
 }
 
-/** 须弥 - 大赤沙海地下配置 */
-export const getDesertOptions = (): ExtraOption[] => [
-  { label: '地下', value: 'ug' },
-  {
-    label: '圣显',
-    value: 'sx',
-    children: [
-      { label: '圣显 · 上', value: '1' },
-      { label: '圣显 · 中', value: '2' },
-      { label: '圣显 · 下', value: '3' },
+/** 地下选项 */
+export const getUndergroundConfigs = (): Record<string, { modelId: string; options: ExtraOption[] }> => ({
+  /** 须弥 - 大赤沙海 */
+  'A:XM:DESERT': {
+    modelId: 'sumeru2',
+    options: [
+      { label: '地下', value: 'ug' },
+      {
+        label: '圣显',
+        value: 'sx',
+        children: [
+          { label: '圣显 · 上', value: '1' },
+          { label: '圣显 · 中', value: '2' },
+          { label: '圣显 · 下', value: '3' },
+        ],
+      },
+      {
+        label: '舍身',
+        value: 'ss',
+        children: [
+          { label: '舍身 · 上', value: '1' },
+          { label: '舍身 · 中', value: '2' },
+          { label: '舍身 · 下', value: '3' },
+        ],
+      },
+      {
+        label: '秘仪',
+        value: 'my',
+        children: [
+          { label: '秘仪 · 上', value: '1' },
+          { label: '秘仪 · 中', value: '2' },
+          { label: '秘仪 · 下', value: '3' },
+        ],
+      },
+      {
+        label: '王陵',
+        value: 'wl',
+        children: [
+          { label: '王陵 · 初', value: '0' },
+          { label: '王陵 · 上', value: '1' },
+          { label: '王陵 · 中', value: '2' },
+          { label: '王陵 · 下', value: '3' },
+        ],
+      },
     ],
   },
-  {
-    label: '舍身',
-    value: 'ss',
-    children: [
-      { label: '舍身 · 上', value: '1' },
-      { label: '舍身 · 中', value: '2' },
-      { label: '舍身 · 下', value: '3' },
-    ],
-  },
-  {
-    label: '秘仪',
-    value: 'my',
-    children: [
-      { label: '秘仪 · 上', value: '1' },
-      { label: '秘仪 · 中', value: '2' },
-      { label: '秘仪 · 下', value: '3' },
-    ],
-  },
-  {
-    label: '王陵',
-    value: 'wl',
-    children: [
-      { label: '王陵 · 初', value: '0' },
-      { label: '王陵 · 上', value: '1' },
-      { label: '王陵 · 中', value: '2' },
-      { label: '王陵 · 下', value: '3' },
-    ],
-  },
-]
 
-/** 须弥 - 千壑沙地地下配置 */
-export const getDesert2Options = (): ExtraOption[] => [
-  { label: '地下1', value: 'ug1' },
-  { label: '地下2', value: 'ug2' },
-  { label: '地下3', value: 'ug3' },
-]
+  /** 须弥 - 千壑沙地 */
+  'A:XM:DESERT2': {
+    modelId: 'sumeru2',
+    options: [
+      {
+        label: '赤王',
+        value: 'cw',
+        children: [
+          { label: '赤王 · 上', value: '1' },
+          { label: '赤王 · 中', value: '2' },
+          { label: '赤王 · 下', value: '3' },
+        ],
+      },
+      {
+        label: '君王',
+        value: 'jw',
+        children: [
+          { label: '君王 · 上', value: '1' },
+          { label: '君王 · 中', value: '2' },
+          { label: '君王 · 下', value: '3' },
+        ],
+      },
+      {
+        label: '沙虫',
+        value: 'sc',
+        children: [
+          { label: '沙虫 · 上', value: '1' },
+          { label: '沙虫 · 中', value: '2' },
+          { label: '沙虫 · 下', value: '3' },
+        ],
+      },
+      {
+        label: '酣乐',
+        value: 'hl',
+        children: [
+          { label: '酣乐 · 上', value: '1' },
+          { label: '酣乐 · 中', value: '2' },
+          { label: '酣乐 · 下', value: '3' },
+          { label: '酣乐 · 底', value: '4' },
+        ],
+      },
+      {
+        label: '其他',
+        value: 'misc',
+        children: [
+          { label: '永恒绿洲', value: '1' },
+          { label: '赤王的水晶杯', value: '2' },
+        ],
+      },
+    ],
+  },
 
-/** 2.8 海岛配置 */
+  /** 须弥 - 佑灵砾漠 */
+  'A:XM:DESERT3': {
+    modelId: 'sumeru2',
+    options: [],
+  },
+})
+
+/** 2.8 海岛选项 */
 export const getIslandOptions = (): ExtraOption[] => [
   {
     label: '危危岛',

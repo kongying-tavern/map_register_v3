@@ -1,8 +1,7 @@
 <script lang="ts" setup>
 import { ExtraJSON } from '@/utils'
 import type { MarkerExtra } from '@/utils'
-import type { ExtraOption } from '@/pages/pageMap/configs'
-import { getDesert2Options, getDesertOptions, getIslandOptions } from '@/pages/pageMap/configs'
+import { getIslandOptions, getUndergroundConfigs } from '@/pages/pageMap/configs'
 import { useMapStore } from '@/stores'
 
 const props = withDefaults(defineProps<{
@@ -30,7 +29,14 @@ const withoutEmpty = <T = unknown>(v: T): T | undefined => {
 /** 预解析数据 */
 const parseredExtra = ref<Required<MarkerExtra>>((() => {
   const { underground = {}, caves = [], '2_8_island': island = {} } = ExtraJSON.parse(props.modelValue)
-  return { underground, caves, '2_8_island': island }
+  const { region_name = '', region_levels = [] } = underground
+  const { island_name = '', island_state = [] } = island
+  // 多处理一下防止字段不存在，以便进行双绑
+  return {
+    caves,
+    'underground': { region_name, region_levels },
+    '2_8_island': { island_name, island_state },
+  }
 })())
 
 /** 深度监听更新 */
@@ -54,25 +60,21 @@ const isLandName = computed({
     parseredExtra.value['2_8_island'].island_state = []
   },
 })
+
 /** 海岛选项 */
 const islandOptions = computed(() => getIslandOptions().map(({ label, value }) => ({ label, value })))
+
 /** 海岛子区域选项 */
 const islandChildrenOptions = computed(() => {
   return (getIslandOptions().find(opt => opt.value === isLandName.value)?.children ?? []) as { label: string; value: string }[]
 })
 
-// ==================== 须弥独有部分 ====================
-/** 须弥选项（含子级） */
-const sumeruOptions = computed(() => ({
-  'A:APPLE:2_8': getIslandOptions,
-  'A:XM:DESERT': getDesertOptions,
-  'A:XM:DESERT2': getDesert2Options,
-} as Record<string, () => ExtraOption[]>)[mapStore.areaCode ?? '']?.() ?? [])
-/** 区域 id */
-const modelId = computed(() => ({
-  'A:XM:DESERT': 'sumeru2',
-  'A:XM:DESERT2': 'sumeru3',
-} as Record<string, string>)[mapStore.areaCode ?? ''] ?? 'basic')
+// ==================== 地下部分 ====================
+/** 地下配置 */
+const undergroundConfig = computed(() => {
+  const { modelId = 'basic', options = [] } = getUndergroundConfigs()[mapStore.areaCode ?? ''] ?? {}
+  return { modelId, options }
+})
 
 /** 地下区域 */
 const undergroundRegion = computed({
@@ -87,7 +89,7 @@ const undergroundRegion = computed({
   },
 })
 
-// ==================== 地下公共部分 ====================
+/** 是否为地下 */
 const isUnderground = computed({
   get: () => parseredExtra.value.underground.is_underground,
   set: (v) => {
@@ -99,20 +101,33 @@ const isUnderground = computed({
       return
     }
     parseredExtra.value.underground.is_underground = true
-    parseredExtra.value.underground.model_id = modelId.value
+    parseredExtra.value.underground.model_id = undergroundConfig.value.modelId
   },
 })
 </script>
 
 <template>
-  <div class="w-full flex gap-1">
+  <div class="w-full flex gap-2">
     <template v-if="is28AppleIsland">
       <el-select-v2 v-model="isLandName" style="width:100px" :options="islandOptions" />
-      <el-select-v2 v-model="parseredExtra['2_8_island'].island_state" class="flex-1" :disabled="!islandChildrenOptions.length" :options="islandChildrenOptions" multiple collapse-tags collapse-tags-tooltip />
+      <el-select-v2
+        v-model="parseredExtra['2_8_island'].island_state"
+        :disabled="!islandChildrenOptions.length"
+        :options="islandChildrenOptions"
+        class="flex-1"
+        multiple
+        collapse-tags
+        collapse-tags-tooltip
+      />
     </template>
     <template v-else>
       <el-switch v-model="isUnderground" inline-prompt active-text="地下" inactive-text="地上" />
-      <el-cascader v-if="isUnderground && sumeruOptions.length" v-model="undergroundRegion" :options="sumeruOptions" />
+      <el-cascader
+        v-if="isUnderground && undergroundConfig.options.length"
+        v-model="undergroundRegion"
+        :options="undergroundConfig.options"
+        class="flex-1"
+      />
     </template>
   </div>
 </template>
