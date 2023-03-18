@@ -78,6 +78,7 @@ export const mapTiles: Record<MapNameEnum, MapTileConfig> = {
       'A:XM:FOREST',
       'A:XM:DESERT',
       'A:XM:DESERT2',
+      'A:XM:DESERT3',
     ],
     code: 'twt36',
     size: [17408, 16384],
