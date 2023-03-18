@@ -104,10 +104,7 @@ const emitPositionChange = () => {
 </script>
 
 <template>
-  <div class="w-full flex justify-between items-center">
-    <div>{{ latlng }}</div>
-    <el-button circle title="编辑坐标" :icon="Location" @click="openPositionEditPopup" />
-  </div>
+  <el-button circle title="编辑坐标" :icon="Location" @click="openPositionEditPopup" />
 
   <Teleport :to="popupDOM">
     <div class="w-full flex flex-col gap-1">

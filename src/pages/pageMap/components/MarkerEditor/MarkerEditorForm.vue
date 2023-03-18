@@ -85,11 +85,10 @@ defineExpose({
   <div class="marker-edit-form grid p-4 h-full">
     <el-form ref="formRef" :rules="rules" :model="form" class="w-96" label-width="80px">
       <el-form-item label="点位名称" prop="markerTitle">
-        <el-input v-model="form.markerTitle" />
-      </el-form-item>
-
-      <el-form-item label="点位坐标" prop="position" required>
-        <AddonPositionEditor v-model="form.position" />
+        <div class="w-full flex justify-between gap-1">
+          <el-input v-model="form.markerTitle" />
+          <AddonPositionEditor v-model="form.position" />
+        </div>
       </el-form-item>
 
       <el-form-item label="点位标识" prop="hiddenFlag">

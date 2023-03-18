@@ -80,14 +80,6 @@ const textareaRows = computed(() => Math.floor((height.value - 10) / 21))
 
 <template>
   <div class="w-full flex flex-col gap-1">
-    <div class="flex">
-      <el-button-group size="small">
-        <el-button v-for="c in characters" :key="c" @click="() => insertChar(c)">
-          {{ c }}
-        </el-button>
-      </el-button-group>
-    </div>
-
     <div class="flex gap-1">
       <el-input
         v-model="internalBind"

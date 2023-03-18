@@ -22,9 +22,10 @@ const internalBind = computed({
 
 const refreshtimeTypeOptions = [
   { label: '不刷新', value: 'none' },
-  { label: '固定时长', value: 'timestamp' },
-  { label: '次日 4 点', value: 'nextgameday' },
   { label: '手动刷新', value: 'refreshable' },
+  { label: '固定时长', value: 'timestamp' },
+  { label: '次日4点', value: 'nextgameday' },
+  { label: '次日0点', value: 'nextday' },
 ]
 
 const refreshtimeType = computed({
@@ -36,12 +37,14 @@ const refreshtimeType = computed({
           0: 'none',
           [-1]: 'nextgameday',
           [-2]: 'refreshable',
+          [-3]: 'nextday',
         })[props.modelValue],
   set: (v = '') => {
     internalBind.value = ({
       none: 0,
       nextgameday: -1,
       refreshable: -2,
+      nextday: -3,
       timestamp: 12 * 3600 * 1000,
     } as Record<string, number>)[v]
   },
