@@ -6,18 +6,17 @@ import { GenshinMarker } from '@/pages/pageMap/core'
 import { useMap } from '@/pages/pageMap/hooks'
 import { localSettings } from '@/stores'
 import { sleep } from '@/utils'
-import { MarkerEditPanel, MarkerPopup } from '@/pages/pageMap/components'
-import { useGlobalDialog } from '@/hooks'
+import { MarkerPopup } from '@/pages/pageMap/components'
 
 export class GenshinMarkerGroup extends L.LayerGroup {
+  declare _layers: Record<number, GenshinMarker>
   constructor(layers: GenshinMarker[]) {
     super(layers)
   }
 }
 
 export const useMarkerRender = (markerListRef: Ref<UnionMarkerVo[]>) => {
-  const { map } = useMap()
-  const { DialogService } = useGlobalDialog()
+  const { map, on } = useMap()
   const componentCtx = getCurrentInstance()
 
   /** 缓存的 popup DOM */
@@ -57,21 +56,6 @@ export const useMarkerRender = (markerListRef: Ref<UnionMarkerVo[]>) => {
       pane: 'markerPane',
     })
 
-    const onCommand = (command: string) => ({
-      edit: () => DialogService
-        .config({
-          title: `编辑点位：${markerVo.id} - ${markerVo.markerTitle}`,
-          width: 'fit-content',
-          alignCenter: true,
-          closeOnPressEscape: false,
-          class: 'transition-all',
-        })
-        .props({
-          markerInfo: markerVo,
-        })
-        .open(MarkerEditPanel),
-    } as Record<string, () => void>)[command]?.()
-
     /** 这里绕一圈用 focus 而不是 click，是因为点位的 focus 事件并不一定由 click 触发 */
     marker.on('focus', () => {
       if (!map.value)
@@ -79,7 +63,6 @@ export const useMarkerRender = (markerListRef: Ref<UnionMarkerVo[]>) => {
       const vnode = h(MarkerPopup, {
         markerInfo: markerVo,
         latlng: marker.getLatLng(),
-        onCommand,
       })
       vnode.appContext = componentCtx?.appContext ?? null
       render(vnode, popupDOM)
@@ -88,16 +71,6 @@ export const useMarkerRender = (markerListRef: Ref<UnionMarkerVo[]>) => {
         .setContent(popupDOM)
         .setLatLng(marker.getLatLng())
         .openOn(map.value)
-    })
-    marker.on('mouseover', () => {
-      if (!map.value)
-        return
-      map.value.pointToMarker(marker)
-    })
-    marker.on('mouseout', () => {
-      if (!map.value)
-        return
-      map.value.pointToMarker()
     })
 
     return marker
@@ -117,6 +90,20 @@ export const useMarkerRender = (markerListRef: Ref<UnionMarkerVo[]>) => {
   }
 
   watch(markerListRef, renderMarkers)
+
+  on('redrawmarker', (ev) => {
+    if (!markerLayer.value)
+      return
+    const { id } = ev as { id: number }
+    const markers = markerLayer.value._layers
+    for (const key in markers) {
+      const marker = markers[key]
+      if (marker.marker.id !== id)
+        continue
+      marker.redraw()
+      break
+    }
+  })
 
   return { markerLayer }
 }

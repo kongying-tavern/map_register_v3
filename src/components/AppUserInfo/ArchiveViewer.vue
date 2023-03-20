@@ -94,7 +94,7 @@ const onAnimationEnd = (ev: AnimationEvent) => {
     <GSCard v-else :title="`存档: ${archiveSlot.name}`" class="gap-4">
       <div class="flex flex-col">
         <div v-for="(history, historyIndex) in archiveSlot.archiveList" :key="history.timestamp">
-          <div>【历史记录 {{ historyIndex + 1 }}】{{ dayjs(history.timestamp).format('YYYY-MM-DD HH:mm:ss') }}（标记点位数：{{ history.body.Data_KYJG.length }}）</div>
+          <div>【历史记录 {{ historyIndex + 1 }}】{{ dayjs(history.timestamp).format('YYYY-MM-DD HH:mm:ss') }}（标记点位数：{{ history.body.Data_KYJG.size }}）</div>
         </div>
       </div>
 

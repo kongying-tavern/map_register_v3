@@ -40,7 +40,11 @@ const markerStore = useMarkerStore()
 
 <template>
   <div class="setting-panel p-4 flex flex-col">
-    <SettingItem label="自动定位加载点" content="点位加载完毕后移动到点集的几何中心">
+    <el-alert type="warning" center :closable="false">
+      设置云同步还在开发中，当前设置仅在该浏览器下生效。
+    </el-alert>
+
+    <SettingItem label="自动定位加载点" content="【实验功能】点位加载完毕后移动到点集的几何中心">
       <el-switch v-model="localSettings.moveToCenter" />
     </SettingItem>
 
@@ -50,6 +54,10 @@ const markerStore = useMarkerStore()
 
     <SettingItem label="更新提醒" content="是否需要为成功更新的数据弹出消息提示">
       <el-switch v-model="localSettings.noticeDataUpdated" />
+    </SettingItem>
+
+    <SettingItem label="点位鼠标指向反馈" content="【实验功能】开启点位指向反馈将会消耗更多 CPU 性能（需要刷新点位）">
+      <el-switch v-model="localSettings.markerHoverFeedback" />
     </SettingItem>
 
     <SettingItem label="缓存">

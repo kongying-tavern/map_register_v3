@@ -7,6 +7,8 @@ export interface GlobalSetting {
   autoUpdateInterval: number
   /** 是否需要为成功更新的数据弹出消息提示 */
   noticeDataUpdated: boolean
+  /** 是否开启点位 hover 反馈 */
+  markerHoverFeedback: boolean
 }
 
 // TODO 云同步设置
@@ -15,4 +17,5 @@ export const localSettings = useLocalStorage<GlobalSetting>('__ys_global_setting
   autoTurnNext: true,
   noticeDataUpdated: true,
   autoUpdateInterval: 20,
+  markerHoverFeedback: false,
 })

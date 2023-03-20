@@ -14,6 +14,6 @@ export const loadImage = (src: string, options: LoadImageOptions = {}) => new Pr
     resolve(img)
   }
   img.onerror = () => {
-    reject(new Error('图片加载错误'))
+    reject(new Error(`无法加载图片: ${src}`))
   }
 })

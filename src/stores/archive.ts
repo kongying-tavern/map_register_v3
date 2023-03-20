@@ -4,7 +4,7 @@ import { Logger } from '@/utils'
 
 export interface ArchiveBody {
   /** 点位存档 */
-  Data_KYJG: number[]
+  Data_KYJG: Set<number>
   /**
    * 刷新时间存档
    * @format `YYYY/MM/DD HH:mm:ss`
@@ -34,7 +34,7 @@ const parserArchive = ({ archive = '', time = '', ...rest }: API.ArchiveVo): Arc
     archive,
     time,
     body: {
-      Data_KYJG: datas.map(Number),
+      Data_KYJG: new Set(datas.map(Number)),
       Time_KYJG: times,
     },
     timestamp: new Date(time).getTime(),
@@ -50,8 +50,8 @@ export const useArchiveStore = defineStore('global-archive', {
     archiveSlots: {} as Record<number, ArchiveSlotData | undefined>,
     currentArchive: {
       body: {
-        Data_KYJG: [],
-        Time_KYJG: [],
+        Data_KYJG: new Set(),
+        Time_KYJG: {},
       },
       timestamp: new Date().getTime(),
     } as ArchiveData,
@@ -90,14 +90,18 @@ export const useArchiveStore = defineStore('global-archive', {
     async createArchiveSlot(name: string, slot_index: number) {
       if (slot_index > 5)
         throw new Error('存档数量最多为 5 个')
-      const { body = {} } = this.currentArchive ?? {}
-      await Api.archive.createSlotAndSaveArchive({ slot_index, name }, JSON.stringify(body))
+      await Api.archive.createSlotAndSaveArchive({ slot_index, name }, JSON.stringify({
+        Data_KYJG: [...this.currentArchive.body.Data_KYJG],
+        Time_KYJG: this.currentArchive.body.Time_KYJG,
+      }))
     },
 
     /** 将当前存档存入指定的存档槽位 */
     async saveArchiveToSlot(slot_index = -1) {
-      const { body } = this.currentArchive
-      await Api.archive.saveArchive({ slot_index }, JSON.stringify(body))
+      await Api.archive.saveArchive({ slot_index }, JSON.stringify({
+        Data_KYJG: [...this.currentArchive.body.Data_KYJG],
+        Time_KYJG: this.currentArchive.body.Time_KYJG,
+      }))
     },
 
     /** 删除指定槽位的存档 */

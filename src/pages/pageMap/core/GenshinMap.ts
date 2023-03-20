@@ -1,17 +1,7 @@
 import L from 'leaflet'
 import type { MapNameEnum } from '@/pages/pageMap/configs'
 import type { GenshinMarker, GenshinTileLayer } from '@/pages/pageMap/core'
-
 import { TileUtil } from '@/pages/pageMap/utils'
-
-/** 自定义点位渲染器 */
-export class GenshinMarkerRender extends L.Canvas {
-  declare _ctx?: CanvasRenderingContext2D
-  constructor(options: L.RendererOptions = {}) {
-    super(options)
-  }
-}
-const renderer = new GenshinMarkerRender()
 
 export interface GenshinMapHandleState {
   draggingMarker: boolean
@@ -24,7 +14,6 @@ export class GenshinMap extends L.Map {
   constructor(ele: HTMLElement, options?: L.MapOptions) {
     super(ele, {
       ...options,
-      renderer,
     })
 
     // 通过事件代理来实现点位 focus 逻辑来让 map 存储 focus 的点位，
@@ -42,8 +31,8 @@ export class GenshinMap extends L.Map {
   popups = {
     markerPopup: L.popup({
       closeButton: false,
-      minWidth: 223,
-      maxWidth: 223,
+      minWidth: 519,
+      maxWidth: 519,
       offset: [0, 0],
     }),
     draggingPopup: L.popup({
@@ -83,6 +72,13 @@ export class GenshinMap extends L.Map {
 
   updateMarkers = () => {
     this.fire('updateMarkers')
+    return this
+  }
+
+  redrawMarker = (id?: number) => {
+    if (id === undefined)
+      return
+    this.fire('redrawmarker', { id })
     return this
   }
 
