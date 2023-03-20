@@ -1,4 +1,3 @@
-import { onBeforeRouteLeave } from 'vue-router'
 import { DialogService } from './dialogService'
 import { DialogController } from './dialogController'
 
@@ -19,7 +18,7 @@ export interface PropsOptions {
  * 2. 如果你的弹窗很复杂，请直接使用 `el-dialog`
 */
 export const useGlobalDialog = () => {
-  onBeforeRouteLeave(() => {
+  onDeactivated(() => {
     DialogController.close(undefined, true)
   })
 
