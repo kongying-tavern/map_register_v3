@@ -6,7 +6,7 @@ import { getObjectFitSize, loadImage } from '@/utils'
 import { localSettings, useArchiveStore } from '@/stores'
 import db from '@/database'
 
-export interface GenshinMarkerOptions extends Omit<L.CircleMarkerOptions, 'renderer'> {
+export interface GenshinMarkerOptions extends L.CircleMarkerOptions {
 }
 
 export type PointerState = 'default' | 'hover' | 'active'

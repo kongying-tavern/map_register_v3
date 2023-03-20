@@ -3,6 +3,7 @@ import L from 'leaflet'
 import { Location } from '@element-plus/icons-vue'
 import { cloneDeep } from 'lodash'
 import { useMap } from '@/pages/pageMap/hooks'
+import { GenshinRenderer } from '@/pages/pageMap/core'
 
 const props = defineProps<{
   modelValue?: string
@@ -51,6 +52,7 @@ const draggableMarker = L.marker([-9999, -9999], {
 const line = L.polyline([], {
   pane: 'markerPane',
   interactive: false,
+  renderer: new GenshinRenderer(),
 })
 
 /** 用于渲染拖拽显示内容的 DOM */
