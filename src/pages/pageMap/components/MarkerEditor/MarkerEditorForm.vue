@@ -3,6 +3,7 @@ import type { FormRules } from 'element-plus'
 import { cloneDeep } from 'lodash'
 import {
   AddonContenEditor,
+  AddonEditHistory,
   AddonExtraEditor,
   AddonImageEditor,
   AddonItemSelector,
@@ -75,6 +76,16 @@ const imageEditorRef = ref<InstanceType<typeof AddonImageEditor> | null>(null)
 const extraPanelRef = ref<HTMLElement | null>(null)
 provide('extraPanel', extraPanelRef)
 
+const extraVisible = ref(false)
+const onExtraTransitionStart = (ev: TransitionEvent) => {
+  if (ev.propertyName === 'width')
+    extraVisible.value = false
+}
+const onExtraTransitionEnd = (ev: TransitionEvent) => {
+  if (ev.propertyName === 'width')
+    extraVisible.value = true
+}
+
 defineExpose({
   validate: async () => await formRef.value?.validate().catch(() => false),
   uploadPicture: async () => await imageEditorRef.value?.uploadPicture(),
@@ -88,6 +99,7 @@ defineExpose({
         <div class="w-full flex justify-between gap-1">
           <el-input v-model="form.markerTitle" />
           <AddonPositionEditor v-model="form.position" />
+          <AddonEditHistory v-if="form.id !== undefined" v-model:extra-id="extraId" :marker-vo="form" />
         </div>
       </el-form-item>
 
@@ -139,8 +151,13 @@ defineExpose({
       </el-form-item>
     </el-form>
 
-    <div class="addon-panel" :class="{ visible: extraId }">
-      <div ref="extraPanelRef" class="addon-panel-content" />
+    <div
+      class="addon-panel"
+      :class="{ visible: extraId }"
+      @transitionstart="onExtraTransitionStart"
+      @transitionend="onExtraTransitionEnd"
+    >
+      <div v-show="extraVisible" ref="extraPanelRef" class="addon-panel-content" />
     </div>
   </div>
 </template>
@@ -161,7 +178,7 @@ defineExpose({
     position: absolute;
     top: 0;
     height: 100%;
-    min-width: 384px;
+    width: calc(100% - 1rem);
   }
   &.visible {
     width: 400px;

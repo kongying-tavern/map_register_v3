@@ -1,5 +1,6 @@
 // 点位编辑器的附加组件
 export { default as AddonContenEditor } from './AddonContenEditor.vue'
+export { default as AddonEditHistory } from './AddonEditHistory.vue'
 export { default as AddonExtraEditor } from './AddonExtraEditor.vue'
 export { default as AddonImageEditor } from './AddonImageEditor.vue'
 export { default as AddonImageEditorEP } from './AddonImageEditorEP.vue'

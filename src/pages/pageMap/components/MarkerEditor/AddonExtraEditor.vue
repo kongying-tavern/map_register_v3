@@ -4,11 +4,9 @@ import type { MarkerExtra } from '@/utils'
 import { getIslandOptions, getUndergroundConfigs } from '@/pages/pageMap/configs'
 import { useMapStore } from '@/stores'
 
-const props = withDefaults(defineProps<{
+const props = defineProps<{
   modelValue?: string
-}>(), {
-  modelValue: '',
-})
+}>()
 
 const emits = defineEmits<{
   (e: 'update:modelValue', v: string): void
@@ -28,7 +26,7 @@ const withoutEmpty = <T = unknown>(v: T): T | undefined => {
 
 /** 预解析数据 */
 const parseredExtra = ref<Required<MarkerExtra>>((() => {
-  const { underground = {}, caves = [], '2_8_island': island = {} } = ExtraJSON.parse(props.modelValue)
+  const { underground = {}, caves = [], '2_8_island': island = {} } = ExtraJSON.parse(props.modelValue ?? '{}')
   const { region_name = '', region_levels = [] } = underground
   const { island_name = '', island_state = [] } = island
   // 多处理一下防止字段不存在，以便进行双绑
