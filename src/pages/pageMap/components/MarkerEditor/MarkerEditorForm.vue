@@ -99,7 +99,7 @@ defineExpose({
         <div class="w-full flex justify-between gap-1">
           <el-input v-model="form.markerTitle" />
           <AddonPositionEditor v-model="form.position" />
-          <AddonEditHistory v-if="form.id !== undefined" v-model:extra-id="extraId" :marker-vo="form" />
+          <AddonEditHistory v-if="form.id !== undefined" v-model:extra-id="extraId" v-model:marker-vo="form" />
         </div>
       </el-form-item>
 
