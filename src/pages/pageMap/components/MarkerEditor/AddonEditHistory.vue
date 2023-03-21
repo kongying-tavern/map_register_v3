@@ -24,6 +24,12 @@ const isAddonActived = computed({
 
 const current = ref(1)
 
+const historyies = ref<API.HistoryVo[]>([])
+/** 是否还有更多记录 */
+const moreDisabled = ref(false)
+/** 是否显示无修改记录 */
+const showUnchangedHistory = ref(false)
+
 const { loading, refresh, onSuccess } = useFetchHook({
   immediate: true,
   onRequest: async () => {
@@ -34,27 +40,20 @@ const { loading, refresh, onSuccess } = useFetchHook({
       /** 记录类型 3-物品 4-点位 */
       type: 4,
     })
+    moreDisabled.value = record.length < 20
     const sortBayTimeData = record.sort((a, b) => dayjs(a.createTime).valueOf() - dayjs(b.createTime).valueOf())
     return sortBayTimeData
   },
 })
 
 const loadMoreHistory = () => {
+  if (loading.value || moreDisabled.value)
+    return
   current.value += 1
   refresh()
 }
 
-const historyies = ref<API.HistoryVo[]>([])
-/** 是否还有更多记录 */
-const moreDisabled = ref(false)
-/** 是否显示无修改记录 */
-const showUnchangedHistory = ref(false)
-
 onSuccess((data) => {
-  if (data.length === 0) {
-    moreDisabled.value = true
-    return
-  }
   historyies.value = historyies.value.concat(data)
 })
 
@@ -90,6 +89,11 @@ const useHistory = (id?: number) => {
   emits('update:markerVo', findHistory.content as API.MarkerVo)
   ElMessage.success(`${formatTime(findHistory.createTime)} 的记录已加载到表单`)
 }
+
+const moreHistoryRef = ref<HTMLElement | null>(null)
+useIntersectionObserver(moreHistoryRef, ([{ isIntersecting }]) => {
+  isIntersecting && loadMoreHistory()
+})
 </script>
 
 <template>
@@ -114,8 +118,11 @@ const useHistory = (id?: number) => {
         <el-checkbox v-model="showUnchangedHistory" :border="true" label="显示无修改记录" />
       </div>
 
-      <div class="flex-1 w-full overflow-hidden">
-        <el-scrollbar height="100%">
+      <div class="flex-1 w-full overflow-hidden border rounded" style="border-color: var(--el-border-color)">
+        <div v-if="!diffHistories.length" class="h-full grid place-items-center">
+          暂无历史记录
+        </div>
+        <el-scrollbar v-else height="100%">
           <el-timeline class="w-full h-full p-2">
             <el-timeline-item
               v-for="history in diffHistories"
@@ -130,7 +137,7 @@ const useHistory = (id?: number) => {
               <template v-else>
                 <div v-for="(value, key) in history.content" :key="key">
                   <el-tag>{{ key }}</el-tag>
-                  <div class="border-l-2 m-1 pl-1">
+                  <div class="border-l-2 m-1 pl-1" style="border-color: var(--el-border-color)">
                     <el-alert v-if="value[0]" :closable="false" type="error">
                       {{ value[0] }}
                     </el-alert>
@@ -145,12 +152,12 @@ const useHistory = (id?: number) => {
               </template>
             </el-timeline-item>
           </el-timeline>
+
+          <div ref="moreHistoryRef" class="text-center p-2">
+            {{ moreDisabled ? '没有更多' : loading ? '加载中...' : '更多...' }}
+          </div>
         </el-scrollbar>
       </div>
-
-      <el-button v-if="!moreDisabled" :loading="loading" @click="loadMoreHistory">
-        更多
-      </el-button>
     </div>
   </AddonTeleporter>
 </template>
