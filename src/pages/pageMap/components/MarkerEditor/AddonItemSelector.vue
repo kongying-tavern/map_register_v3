@@ -1,16 +1,16 @@
 <script lang="ts" setup>
 import { Close, Setting } from '@element-plus/icons-vue'
-import { AddonItemSelectorEP, TeleportExtra } from '.'
+import { AddonItemSelectorEP, AddonTeleporter } from '.'
 import { useIconList, useItemList, useTypeList } from '@/hooks'
 
 const props = defineProps<{
   modelValue?: API.MarkerItemLinkVo[]
-  extraId: string
+  addonId: string
 }>()
 
 const emits = defineEmits<{
   (e: 'update:modelValue', v: API.MarkerItemLinkVo[]): void
-  (e: 'update:extraId', v: string): void
+  (e: 'update:addonId', v: string): void
 }>()
 
 const { typeMap } = useTypeList()
@@ -20,10 +20,10 @@ const { iconMap } = useIconList()
 const internalBind = ref(props.modelValue ?? [])
 watch(internalBind, v => emits('update:modelValue', v), { deep: true })
 
-const extraActive = computed(() => props.extraId === 'itemList')
-const toggleExtraPanel = () => {
-  emits('update:extraId', extraActive.value ? '' : 'itemList')
-}
+const isAddonActived = computed({
+  get: () => props.addonId === 'itemList',
+  set: v => emits('update:addonId', v ? 'itemList' : ''),
+})
 </script>
 
 <template>
@@ -31,9 +31,7 @@ const toggleExtraPanel = () => {
     <div
       v-bind="$attrs"
       class="marker-item-select w-full"
-      :class="{
-        extraActive,
-      }"
+      :class="{ actived: isAddonActived }"
     >
       <div
         v-for="item, index in internalBind"
@@ -65,11 +63,11 @@ const toggleExtraPanel = () => {
       </div>
     </div>
 
-    <el-button :icon="Setting" :type="extraActive ? 'primary' : ''" title="选择物品" circle @click="toggleExtraPanel" />
+    <el-button :icon="Setting" :type="isAddonActived ? 'primary' : ''" title="选择物品" circle @click="isAddonActived = !isAddonActived" />
 
-    <TeleportExtra :active="extraActive">
+    <AddonTeleporter :active="isAddonActived">
       <AddonItemSelectorEP v-model="internalBind" />
-    </TeleportExtra>
+    </AddonTeleporter>
   </div>
 </template>
 
@@ -81,7 +79,7 @@ const toggleExtraPanel = () => {
   &:hover {
     border-color: var(--el-border-color-hover);
   }
-  &.extraActive {
+  &.actived {
     border-color: var(--el-color-primary);
   }
 }

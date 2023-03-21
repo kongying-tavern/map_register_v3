@@ -2,12 +2,12 @@
 import { Setting } from '@element-plus/icons-vue'
 import type { InputInstance } from 'element-plus'
 import { ElMessage } from 'element-plus'
-import { TeleportExtra } from '.'
+import { AddonTeleporter } from '.'
 import db from '@/database'
 
 const props = withDefaults(defineProps<{
   modelValue?: string
-  extraId: string
+  addonId: string
   itemList?: {
     itemId?: number | undefined
     count?: number | undefined
@@ -19,18 +19,18 @@ const props = withDefaults(defineProps<{
 
 const emits = defineEmits<{
   (e: 'update:modelValue', v?: string): void
-  (e: 'update:extraId', v: string): void
+  (e: 'update:addonId', v: string): void
 }>()
+
+const isAddonActived = computed({
+  get: () => props.addonId === 'content',
+  set: v => emits('update:addonId', v ? 'content' : ''),
+})
 
 const internalBind = computed({
   get: () => props.modelValue ?? '',
   set: v => emits('update:modelValue', v),
 })
-
-const extraActive = computed(() => props.extraId === 'content')
-const toggleExtraPanel = () => {
-  emits('update:extraId', extraActive.value ? '' : 'content')
-}
 
 /** 根据已选物品 id 从数据库获取对应的物品对象 */
 const selectedItems = asyncComputed(() => db.item
@@ -88,10 +88,16 @@ const textareaRows = computed(() => Math.floor((height.value - 10) / 21))
         :rows="3"
         @blur="updateSelectionState"
       />
-      <el-button :icon="Setting" :type="extraActive ? 'primary' : ''" title="点位说明" circle @click="toggleExtraPanel" />
+      <el-button
+        :icon="Setting"
+        :type="isAddonActived ? 'primary' : ''"
+        title="点位说明"
+        circle
+        @click="isAddonActived = !isAddonActived"
+      />
     </div>
 
-    <TeleportExtra :active="extraActive">
+    <AddonTeleporter :active="isAddonActived">
       <div class="h-full flex flex-col gap-2">
         <div class="flex">
           <div class="whitespace-nowrap">
@@ -108,15 +114,27 @@ const textareaRows = computed(() => Math.floor((height.value - 10) / 21))
             描述模板：
           </div>
           <el-button-group size="small">
-            <el-button v-for="item in selectedItems" :key="item.itemId" :title="item.defaultContent" @click="() => insertChar(item.defaultContent ?? '', true)">
+            <el-button
+              v-for="item in selectedItems"
+              :key="item.itemId"
+              :title="item.defaultContent"
+              @click="() => insertChar(item.defaultContent ?? '', true)"
+            >
               {{ item.name }}
             </el-button>
           </el-button-group>
         </div>
         <div ref="textareaContainerRef" class="flex-1">
-          <el-input ref="inputRef" v-model="internalBind" type="textarea" resize="none" :rows="textareaRows" @blur="updateSelectionState" />
+          <el-input
+            ref="inputRef"
+            v-model="internalBind"
+            type="textarea"
+            resize="none"
+            :rows="textareaRows"
+            @blur="updateSelectionState"
+          />
         </div>
       </div>
-    </TeleportExtra>
+    </AddonTeleporter>
   </div>
 </template>

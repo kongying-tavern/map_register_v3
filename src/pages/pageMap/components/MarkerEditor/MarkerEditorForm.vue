@@ -66,7 +66,7 @@ const rules: FormRules = {
 }
 
 /** 右侧额外面板 */
-const extraId = ref('')
+const addonId = ref('')
 
 /** 表单实例 */
 const formRef = ref<ElFormType | null>(null)
@@ -99,7 +99,7 @@ defineExpose({
         <div class="w-full flex justify-between gap-1">
           <el-input v-model="form.markerTitle" />
           <AddonPositionEditor v-model="form.position" />
-          <AddonEditHistory v-if="form.id !== undefined" v-model:extra-id="extraId" v-model:marker-vo="form" />
+          <AddonEditHistory v-if="form.id !== undefined" v-model:addon-id="addonId" v-model:marker-vo="form" />
         </div>
       </el-form-item>
 
@@ -118,18 +118,18 @@ defineExpose({
       </el-form-item>
 
       <el-form-item label="所属物品" prop="itemList">
-        <AddonItemSelector v-model="form.itemList" v-model:extra-id="extraId" />
+        <AddonItemSelector v-model="form.itemList" v-model:addon-id="addonId" />
       </el-form-item>
 
       <el-form-item label="点位说明" prop="content">
-        <AddonContenEditor v-model="form.content" v-model:extra-id="extraId" :item-list="form.itemList" />
+        <AddonContenEditor v-model="form.content" v-model:addon-id="addonId" :item-list="form.itemList" />
       </el-form-item>
 
       <el-form-item label="点位图像" prop="picture">
         <AddonImageEditor
           ref="imageEditorRef"
           v-model="form.picture"
-          v-model:extra-id="extraId"
+          v-model:addon-id="addonId"
           v-model:creator-id="form.pictureCreatorId"
         />
       </el-form-item>
@@ -153,7 +153,7 @@ defineExpose({
 
     <div
       class="addon-panel"
-      :class="{ visible: extraId }"
+      :class="{ visible: addonId }"
       @transitionstart="onExtraTransitionStart"
       @transitionend="onExtraTransitionEnd"
     >

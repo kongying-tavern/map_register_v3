@@ -10,7 +10,7 @@ import { Plus, Setting } from '@element-plus/icons-vue'
 import type { UploadFile } from 'element-plus'
 import { ElIcon, ElMessage, ElUpload } from 'element-plus'
 import { usePictureUpload } from '../../hooks'
-import { AddonImageEditorEP, TeleportExtra } from '.'
+import { AddonImageEditorEP, AddonTeleporter } from '.'
 import { useUserStore } from '@/stores'
 
 const props = defineProps<{
@@ -18,16 +18,21 @@ const props = defineProps<{
   modelValue?: string
   /** 图片上传者 id */
   creatorId?: number
-  extraId: string
+  addonId: string
 }>()
 
 const emits = defineEmits<{
   (e: 'update:modelValue', v?: string): void
   (e: 'update:creatorId', v?: number): void
-  (e: 'update:extraId', v: string): void
+  (e: 'update:addonId', v: string): void
 }>()
 
 const userStore = useUserStore()
+
+const isAddonActived = computed({
+  get: () => props.addonId === 'picture',
+  set: v => emits('update:addonId', v ? 'picture' : ''),
+})
 
 /** 将图片地址解析为路径对象以便进行处理 */
 const parseredUrlInfo = computed(() => {
@@ -95,15 +100,10 @@ onMounted(async () => {
   }
 })
 
-const extraActive = computed(() => props.extraId === 'picture')
-const toggleExtraPanel = () => {
-  emits('update:extraId', extraActive.value ? '' : 'picture')
-}
-
 watch(rawImageUrl, (url) => {
   if (isDefaultImage.value)
     return
-  url && emits('update:extraId', 'picture')
+  url && (isAddonActived.value = true)
 })
 
 const { percentage, stepContent, uploadPicture } = usePictureUpload({
@@ -132,7 +132,7 @@ defineExpose({
       :show-file-list="false"
       @change="onFileChange"
     >
-      <div class="picture-uploader" :class="{ active: extraActive }">
+      <div class="picture-uploader" :class="{ active: isAddonActived }">
         <img v-if="thumbnailUrl" :src="thumbnailUrl" crossorigin="" class="w-full h-full object-cover">
         <div v-else class="w-full h-full flex flex-col items-center justify-center">
           <ElIcon :size="24">
@@ -152,11 +152,11 @@ defineExpose({
       </el-progress>
     </div>
 
-    <el-button :icon="Setting" :type="extraActive ? 'primary' : ''" title="编辑图像" circle @click="toggleExtraPanel" />
+    <el-button :icon="Setting" :type="isAddonActived ? 'primary' : ''" title="编辑图像" circle @click="isAddonActived = !isAddonActived" />
 
-    <TeleportExtra :active="extraActive">
+    <AddonTeleporter :active="isAddonActived">
       <AddonImageEditorEP v-model:thumbnail-image="thumbnailImage" :image-bit-map="rawImageBitmap" />
-    </TeleportExtra>
+    </AddonTeleporter>
   </div>
 </template>
 

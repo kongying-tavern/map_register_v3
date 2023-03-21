@@ -2,25 +2,25 @@
 import { Clock } from '@element-plus/icons-vue'
 import dayjs from 'dayjs'
 import { ElMessage } from 'element-plus'
-import { TeleportExtra } from '.'
+import { AddonTeleporter } from '.'
 import { useFetchHook } from '@/hooks'
 import Api from '@/api/api'
 import 'dayjs/locale/zh-cn'
 
 const props = defineProps<{
-  extraId: string
+  addonId: string
   markerVo: API.MarkerVo
 }>()
 
 const emits = defineEmits<{
-  (e: 'update:extraId', v?: string): void
+  (e: 'update:addonId', v?: string): void
   (e: 'update:markerVo', v: API.MarkerVo): void
 }>()
 
-const extraActive = computed(() => props.extraId === 'history')
-const toggleExtraPanel = () => {
-  emits('update:extraId', extraActive.value ? '' : 'history')
-}
+const isAddonActived = computed({
+  get: () => props.addonId === 'history',
+  set: v => emits('update:addonId', v ? 'history' : ''),
+})
 
 const current = ref(1)
 
@@ -95,14 +95,14 @@ const useHistory = (id?: number) => {
 <template>
   <el-button
     :icon="Clock"
-    :type="extraActive ? 'primary' : 'default'"
+    :type="isAddonActived ? 'primary' : 'default'"
     circle
     title="编辑历史"
     style="margin-left:0"
-    @click="toggleExtraPanel"
+    @click="isAddonActived = !isAddonActived"
   />
 
-  <TeleportExtra :active="extraActive">
+  <AddonTeleporter :active="isAddonActived">
     <div class="h-full w-full flex flex-col">
       <el-alert :closable="false" type="info">
         点位编辑历史（时间正序）
@@ -152,5 +152,5 @@ const useHistory = (id?: number) => {
         更多
       </el-button>
     </div>
-  </TeleportExtra>
+  </AddonTeleporter>
 </template>
