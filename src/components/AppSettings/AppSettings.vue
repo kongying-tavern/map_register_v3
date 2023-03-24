@@ -1,156 +1,42 @@
 <script lang="ts" setup>
-import SettingItem from './SettingItem.vue'
-import { localSettings, useAreaStore, useIconStore, useItemStore, useItemTypeStore, useMarkerStore } from '@/stores'
+import { SettingCommon, SettingDatabase } from '.'
 
-/** 计算缓存大小 */
-const usageStorage = ref(0)
-const quotaStorage = ref(0)
-const usagePercentage = computed(() => Math.floor(100 * (usageStorage.value / quotaStorage.value) || 0))
-const calculateCaches = async () => {
-  const { usage = 0, quota = 0 } = (await navigator.storage.estimate())
-  usageStorage.value = usage / (2 ** (10 * 3))
-  quotaStorage.value = quota / 10 ** 9
-}
-calculateCaches()
-
-/** 删除全部缓存 */
-const cacheLaoding = ref(false)
-const cleatAllCaches = async () => {
-  try {
-    cacheLaoding.value = true
-    const cacheNames = await caches.keys()
-    const missions = cacheNames.map(cacheName => caches.delete(cacheName))
-    await Promise.all(missions)
-    await calculateCaches()
-  }
-  catch {
-    // no action
-  }
-  finally {
-    cacheLaoding.value = false
-  }
-}
-
-const areaStore = useAreaStore()
-const iconStore = useIconStore()
-const itemStore = useItemStore()
-const itemTypeStore = useItemTypeStore()
-const markerStore = useMarkerStore()
+const activeName = ref('common')
 </script>
 
 <template>
-  <div class="setting-panel p-4 flex flex-col">
+  <div class="setting-panel p-4 flex flex-col gap-2">
     <el-alert type="warning" center :closable="false">
       设置云同步还在开发中，当前设置仅在该浏览器下生效。
     </el-alert>
 
-    <SettingItem label="自动定位加载点" content="【实验功能】点位加载完毕后移动到点集的几何中心">
-      <el-switch v-model="localSettings.moveToCenter" />
-    </SettingItem>
+    <el-tabs v-model="activeName" type="border-card" class="setting-tabs">
+      <el-tab-pane label="常规" name="common">
+        <SettingCommon />
+      </el-tab-pane>
 
-    <SettingItem label="自动跳转筛选器" content="筛选器满足选择条件时自动跳转到下一级">
-      <el-switch v-model="localSettings.autoTurnNext" />
-    </SettingItem>
-
-    <SettingItem label="更新提醒" content="是否需要为成功更新的数据弹出消息提示">
-      <el-switch v-model="localSettings.noticeDataUpdated" />
-    </SettingItem>
-
-    <SettingItem label="点位鼠标指向反馈" content="【实验功能】开启点位指向反馈将会消耗更多 CPU 性能（需要刷新点位）">
-      <el-switch v-model="localSettings.markerHoverFeedback" />
-    </SettingItem>
-
-    <SettingItem label="缓存">
-      <template #content>
-        <div class="flex flex-col gap-1">
-          <el-progress class="progress-base-radius" text-inside :stroke-width="20" :percentage="usagePercentage" />
-          <div>缓存使用情况： {{ usageStorage.toFixed(1) }} / {{ quotaStorage.toFixed(1) }} GB。存储配额由浏览器给出，并非实际可用空间。</div>
-        </div>
-      </template>
-      <el-button :loading="cacheLaoding" @click="cleatAllCaches">
-        删除缓存
-      </el-button>
-    </SettingItem>
-
-    <SettingItem
-      label="地区数据"
-      :content="`已存储地区数据 ${areaStore.total} 项，距离下次更新剩余 ${Math.floor(areaStore.updateAllRestTime / 1000)} 秒。`"
-    >
-      <el-button :loading="areaStore.updateAllLoading" @click="areaStore.clearAll">
-        清除地区
-      </el-button>
-      <el-button :loading="areaStore.updateAllLoading" @click="areaStore.backgroundUpdate">
-        更新地区
-      </el-button>
-    </SettingItem>
-
-    <SettingItem
-      label="物品数据"
-      :content="`已存储物品数据 ${itemStore.total} 项，距离下次更新剩余 ${Math.floor(itemStore.updateAllRestTime / 1000)} 秒。`"
-    >
-      <el-button :loading="itemStore.updateAllLoading" @click="itemStore.clearAll">
-        清除物品
-      </el-button>
-      <el-button :loading="itemStore.updateAllLoading" @click="itemStore.backgroundUpdate">
-        更新物品
-      </el-button>
-    </SettingItem>
-
-    <SettingItem
-      label="物品类型数据"
-      :content="`已存储类型数据 ${itemTypeStore.total} 项，距离下次更新剩余 ${Math.floor(itemTypeStore.updateAllRestTime / 1000)} 秒。`"
-    >
-      <el-button :loading="itemTypeStore.updateAllLoading" @click="itemTypeStore.clearAll">
-        清除类型
-      </el-button>
-      <el-button :loading="itemTypeStore.updateAllLoading" @click="itemTypeStore.backgroundUpdate">
-        更新类型
-      </el-button>
-    </SettingItem>
-
-    <SettingItem
-      label="图标数据"
-      :content="`已存储图标数据 ${iconStore.total} 项，距离下次更新剩余 ${Math.floor(iconStore.updateAllRestTime / 1000)} 秒。`"
-    >
-      <el-button :loading="iconStore.updateAllLoading" @click="iconStore.clearAll">
-        清除图标
-      </el-button>
-      <el-button :loading="iconStore.updateAllLoading" @click="iconStore.backgroundUpdate">
-        更新图标
-      </el-button>
-    </SettingItem>
-
-    <SettingItem
-      label="点位数据"
-      :content="`已存储点位数据 ${markerStore.total} 项，距离下次更新剩余 ${Math.floor(markerStore.updateAllRestTime / 1000)} 秒。`"
-    >
-      <el-button :loading="markerStore.updateAllLoading" @click="markerStore.clearAll">
-        清除点位
-      </el-button>
-      <el-button :loading="markerStore.updateAllLoading" @click="markerStore.backgroundUpdate">
-        更新点位
-      </el-button>
-    </SettingItem>
-
-    <SettingItem label="定时更新" content="定时更新物品和点位数据的时间间隔（分钟），定时修改只会在下次更新后生效。">
-      <el-input-number v-model="localSettings.autoUpdateInterval" :min="10" :max="120" :step="10" />
-    </SettingItem>
+      <el-tab-pane label="数据库" name="database">
+        <SettingDatabase />
+      </el-tab-pane>
+    </el-tabs>
   </div>
 </template>
 
 <style lang="scss" scoped>
 .setting-panel {
-  @media screen and (min-width: 900px) {
-    width: 100%;
+  width: 600px;
+  :deep(.el-tabs__header) {
+    .el-tabs__item {
+      transition: none;
+    }
   }
 }
 
-.progress-base-radius {
-  :deep(.el-progress-bar__outer) {
-    border-radius: 6px;
-  }
-  :deep(.el-progress-bar__inner) {
-    border-radius: 6px;
+.setting-tabs {
+  border-radius: 4px;
+  overflow: hidden;
+  :deep(.el-tabs__content) {
+    padding: 0;
   }
 }
 </style>

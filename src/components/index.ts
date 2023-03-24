@@ -1,4 +1,4 @@
-export * from './AppSettings'
+export { AppSettings } from './AppSettings'
 export { AppUserInfo } from './AppUserInfo'
 export * from './GenshinUI'
 export { default as AppBannerProvider } from './AppBannerProvider.vue'
