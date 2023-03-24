@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { SettingCommon, SettingDatabase } from '.'
+import { SettingCommon, SettingDatabase, SettingShortcutKey } from '.'
 
 const activeName = ref('common')
 </script>
@@ -18,6 +18,10 @@ const activeName = ref('common')
       <el-tab-pane label="数据库" name="database">
         <SettingDatabase />
       </el-tab-pane>
+
+      <el-tab-pane label="快捷键" name="shortcut-keys">
+        <SettingShortcutKey />
+      </el-tab-pane>
     </el-tabs>
   </div>
 </template>
@@ -25,9 +29,22 @@ const activeName = ref('common')
 <style lang="scss" scoped>
 .setting-panel {
   width: 600px;
+  height: 60vh;
+  &:deep(.el-tabs) {
+    display: flex;
+    flex-direction: column;
+  }
   :deep(.el-tabs__header) {
     .el-tabs__item {
       transition: none;
+    }
+  }
+  :deep(.el-tabs__content) {
+    flex: 1;
+    overflow: hidden;
+    .el-tab-pane {
+      height: 100%;
+      overflow: hidden;
     }
   }
 }
