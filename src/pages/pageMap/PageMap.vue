@@ -3,12 +3,13 @@ import { ref } from 'vue'
 import 'leaflet/dist/leaflet.css'
 import { ControlPanel, UndergroundSwitch } from './components'
 import { areaListInjection, iconMapInjection, itemListInjection, itemTypeInjection, mapInjection, markerListInjection } from './shared'
-import { useContextMenu, useLayer, useMap, useMarkerList, useMarkerRender } from './hooks'
+import { useContextMenu, useLayer, useMap, useMarkerList, useMarkerRender, useShortcutKeys } from './hooks'
 import { AppUserAvatar } from '@/components'
 import { useAreaList, useIconList, useItemList, useTypeList } from '@/hooks'
 import { useMapStore } from '@/stores'
 
 // ==================== 地图相关 ====================
+const pageRef = ref<HTMLElement | null>(null)
 const containerRef = ref<HTMLElement | null>(null)
 const mapStore = useMapStore()
 
@@ -80,6 +81,9 @@ onMapEvent('updateMarkers', updateMarkerList)
 const { openContextMenu } = useContextMenu({ selectedItem })
 onMapEvent('contextmenu', openContextMenu)
 
+// 快捷键
+useShortcutKeys()
+
 // ==================== 依赖注入 ====================
 provide(mapInjection, map)
 provide(areaListInjection, areaList)
@@ -90,7 +94,7 @@ provide(iconMapInjection, iconMap)
 </script>
 
 <template>
-  <div class="genshin-map-container w-full h-full relative overflow-hidden">
+  <div ref="pageRef" class="genshin-map-container w-full h-full relative overflow-hidden">
     <div ref="containerRef" class="genshin-map absolute w-full h-full" style="background: #000" />
 
     <ControlPanel class="control-unit control-bg left-2 top-2 bottom-2" />
