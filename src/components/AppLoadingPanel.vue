@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import { ElNotification } from 'element-plus'
-import { useUserStore } from '@/stores'
+import { localSettings, useUserStore } from '@/stores'
 
 const userStore = useUserStore()
 
-const icons = ['Pyro', 'Hydro', 'Anemo', 'Electro', 'Cryo', 'Dendro']
+const icons = ['Pyro', 'Hydro', 'Anemo', 'Electro', 'Cryo', 'Dendro', 'Geo']
 
 onActivated(() => {
   userStore.isRouteLoading = true
@@ -19,16 +19,12 @@ const onAnimationend = (ev: AnimationEvent) => {
 </script>
 
 <template>
-  <div class="w-full h-full grid place-items-center">
+  <div class="gs-loading-panel w-full h-full grid place-items-center" :class="{ 'waitting-geo': localSettings.waittingGeo }">
     <div class="gs-loading-row w-full h-full flex flex-row justify-center">
       <div
         v-for="iconname in icons" :key="iconname"
         class="gs-loading-icon"
         :class="[`icon-${iconname}`]"
-        @animationend="onAnimationend"
-      />
-      <div
-        class="gs-loading-icon-Geo icon-Geo"
         @animationend="onAnimationend"
       />
     </div>
@@ -47,21 +43,6 @@ const onAnimationend = (ev: AnimationEvent) => {
     --percentage: 0%;
   }
   to {
-    --percentage: 100%;
-  }
-}
-
-@keyframes bg-slide-Geo {
-  0% {
-    --percentage: 0%;
-  }
-  10% {
-    --percentage: 50%;
-  }
-  90% {
-    --percentage: 50%;
-  }
-  100% {
     --percentage: 100%;
   }
 }
@@ -85,12 +66,11 @@ const onAnimationend = (ev: AnimationEvent) => {
   }
 }
 
-.gs-loading-icon-Geo {
-  aspect-ratio: 1 / 1;
-  background: linear-gradient(to right, rgb(102 102 102) var(--percentage), rgb(245 245 245) var(--percentage));
-  animation: bg-slide-Geo 1000ms linear forwards;
-  width: 50px;
-  animation-delay: 1100ms;
+.gs-loading-panel.waitting-geo {
+  .gs-loading-icon:last-of-type {
+    animation-duration: 1000ms;
+    animation-timing-function: cubic-bezier(0, 1, 1, 0);
+  }
 }
 
 .icon {

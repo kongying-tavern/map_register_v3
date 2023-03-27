@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { SettingCommon, SettingDatabase, SettingShortcutKey } from '.'
+import { SettingCommon, SettingDatabase, SettingEasterEgg, SettingShortcutKey } from '.'
 
 const activeName = ref('common')
 </script>
@@ -21,6 +21,10 @@ const activeName = ref('common')
 
       <el-tab-pane label="快捷键" name="shortcut-keys">
         <SettingShortcutKey />
+      </el-tab-pane>
+
+      <el-tab-pane label="彩蛋" name="easter-egg">
+        <SettingEasterEgg />
       </el-tab-pane>
     </el-tabs>
   </div>

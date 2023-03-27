@@ -9,6 +9,8 @@ export interface GlobalSetting {
   noticeDataUpdated: boolean
   /** 是否开启点位 hover 反馈 */
   markerHoverFeedback: boolean
+  /** @彩蛋 是否卡半岩 */
+  waittingGeo: boolean
 }
 
 // TODO 云同步设置
@@ -18,4 +20,5 @@ export const localSettings = useLocalStorage<GlobalSetting>('__ys_global_setting
   noticeDataUpdated: true,
   autoUpdateInterval: 20,
   markerHoverFeedback: false,
+  waittingGeo: false,
 })
