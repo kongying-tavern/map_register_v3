@@ -7,8 +7,10 @@ defineProps<{
 <template>
   <div class="gs-card-dark flex flex-col" v-bind="$attrs">
     <slot name="header">
-      <div v-if="title" class="gs-card-title genshin-text text-center">
-        {{ title }}
+      <div v-if="title || $slots.title" class="gs-card-title genshin-text text-center">
+        <slot name="title">
+          {{ title }}
+        </slot>
       </div>
     </slot>
 
