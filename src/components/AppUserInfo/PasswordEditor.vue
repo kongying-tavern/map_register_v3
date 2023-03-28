@@ -71,6 +71,7 @@ onClickOutside(buttonRef, resetPopper)
       effect="customized"
       :popper-class="{
         'genshin-text': true,
+        'gs-tooltip': true,
         error,
       }"
     >
@@ -88,22 +89,5 @@ onClickOutside(buttonRef, resetPopper)
   gap: 1rem;
   color: #435066;
   font-size: 18px;
-}
-</style>
-
-<style lang="scss">
-.el-popper.is-customized {
-  --background: rgb(159, 229, 151);
-  padding: 10px 24px;
-  color: #FFF;
-  font-size: 18px;
-  border-radius: 999px;
-  &.error {
-    --background: #CF5945;
-  }
-  background: var(--background);
-  .el-popper__arrow::before {
-    background: var(--background);
-  }
 }
 </style>
