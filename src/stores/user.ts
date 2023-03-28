@@ -108,11 +108,13 @@ export const useUserStore = defineStore('user-info', {
       const { expires_time } = this.auth
       if (!expires_time) {
         logger.error('无法获取刷新 token 所必须的信息: expires_time is invalid')
+        this.logout()
         return
       }
       const refreshInterval = differenceTokenTime(expires_time)
       if (refreshInterval < 0) {
         logger.error('token 剩余有效期小于 0')
+        this.logout()
         return
       }
       logger.info(`已建立 token 刷新定时任务，剩余 ${(refreshInterval / 1000).toFixed(1)} s`)
