@@ -1,11 +1,13 @@
 <script lang="ts" setup>
-import { CaretBottom, CaretTop, DeleteFilled } from '@element-plus/icons-vue'
+// TODO 逻辑拆分
+import { CaretBottom, CaretTop, DeleteFilled, Edit } from '@element-plus/icons-vue'
 import { ElNotification } from 'element-plus'
 import dayjs from 'dayjs'
-import { GSButton, GSCard } from '@/components'
+import { GSButton, GSCard, GSInput } from '@/components'
 import type { ArchiveSlotData } from '@/stores'
 import { useArchiveStore } from '@/stores'
 import { useFetchHook } from '@/hooks'
+import Api from '@/api/api'
 
 const props = defineProps<{
   slotIndex?: number
@@ -28,6 +30,54 @@ const initDialog = () => {
   archiveSlot.value = archiveStore.archiveSlots[index.value]
 }
 
+// ==================== 存档槽位名称 ====================
+const isNameEditMode = ref(false)
+const cachedArchiveName = ref('')
+const renameErrMsg = autoResetRef('', 3000)
+
+const enterNameEditMode = () => {
+  cachedArchiveName.value = archiveSlot.value?.name ?? ''
+  isNameEditMode.value = true
+}
+
+const cancelNameEdit = () => {
+  cachedArchiveName.value = ''
+  renameErrMsg.value = ''
+  isNameEditMode.value = false
+}
+
+const validate = () => {
+  if (!archiveSlot.value)
+    throw new Error('槽位异常')
+  cachedArchiveName.value = cachedArchiveName.value.trim()
+  if (!cachedArchiveName.value.length)
+    throw new Error('名称不能为空')
+}
+
+const clearValidate = () => {
+  renameErrMsg.value = ''
+}
+
+const { refresh: submitNameChanged, loading: renameLoading, onSuccess: onSlotRenameSuccess, onError: onSlotRenameError } = useFetchHook({
+  onRequest: async () => {
+    validate()
+    await Api.archive.renameSlot({
+      slot_index: archiveSlot.value?.slotIndex as number,
+      new_name: cachedArchiveName.value,
+    })
+  },
+})
+
+onSlotRenameSuccess(async () => {
+  await archiveStore.fetchArchive()
+  initDialog()
+  cancelNameEdit()
+})
+
+onSlotRenameError((err) => {
+  renameErrMsg.value = err.message
+})
+
 // ==================== 底部信息栏 ====================
 const stopSignal = ref(false)
 const message = refAutoReset('', 3000)
@@ -41,12 +91,6 @@ const note = (ev: Event, msg: string) => {
   message.value = msg
 }
 
-const onDialogClosed = () => {
-  index.value = undefined
-  stopSignal.value = false
-  archiveSlot.value = undefined
-}
-
 // ==================== 存档逻辑 ====================
 const { loading, refresh: saveArchive, onSuccess, onError } = useFetchHook({
   onRequest: async () => {
@@ -57,11 +101,9 @@ const { loading, refresh: saveArchive, onSuccess, onError } = useFetchHook({
 onSuccess(async () => {
   index.value = undefined
 })
-onError((err) => {
-  ElNotification.error({
-    message: err.message,
-  })
-})
+onError(err => ElNotification.error({
+  message: err.message,
+}))
 
 const loadArchive = () => {
   archiveStore.loadArchiveSlot(index.value)
@@ -76,6 +118,23 @@ const onAnimationEnd = (ev: AnimationEvent) => {
   stopSignal.value = true
   index.value = undefined
 }
+
+// ==================== 弹窗状态处理 ====================
+const onDialogClosed = () => {
+  index.value = undefined
+  stopSignal.value = false
+  archiveSlot.value = undefined
+  clearValidate()
+  cancelNameEdit()
+}
+
+const beforeClose = (done: () => void) => {
+  if (renameLoading.value || loading.value)
+    return
+  message.value = ''
+  renameErrMsg.value = ''
+  done()
+}
 </script>
 
 <template>
@@ -83,6 +142,7 @@ const onAnimationEnd = (ev: AnimationEvent) => {
     :model-value="Number.isInteger(index)"
     :show-close="false"
     :close-on-click-modal="!loading"
+    :before-close="beforeClose"
     append-to-body
     align-center
     width="500px"
@@ -91,7 +151,42 @@ const onAnimationEnd = (ev: AnimationEvent) => {
     @closed="onDialogClosed"
   >
     <GSCard v-if="!archiveSlot" title="存档为空" />
-    <GSCard v-else :title="`存档: ${archiveSlot.name}`" class="gap-4">
+    <GSCard v-else class="gap-4">
+      <template #title>
+        <div v-if="isNameEditMode" class="w-full flex items-center gap-2">
+          <div class="flex items-center text-base">
+            重命名
+          </div>
+          <el-tooltip
+            placement="bottom"
+            :content="renameErrMsg"
+            :visible="renameErrMsg.length > 0"
+            effect="customized"
+            :popper-class="{
+              'genshin-text': true,
+              'gs-tooltip': true,
+              'error': renameErrMsg.length > 0,
+            }"
+          >
+            <GSInput v-model="cachedArchiveName" :disabled="renameLoading" class="flex-1" autofocus @input="clearValidate" />
+          </el-tooltip>
+          <GSButton :loading="renameLoading" icon="submit" @click="submitNameChanged" />
+          <GSButton :disabled="renameLoading" icon="cancel" @click="cancelNameEdit" />
+        </div>
+        <template v-else>
+          <div
+            class="w-full flex justify-center items-center gap-2 hover:underline decoration-dashed underline-offset-8 cursor-pointer"
+            title="修改插槽名称"
+            @click="enterNameEditMode"
+          >
+            {{ archiveSlot.name }}
+            <el-icon :size="20" color="inherit">
+              <Edit />
+            </el-icon>
+          </div>
+        </template>
+      </template>
+
       <div class="flex flex-col">
         <div v-for="(history, historyIndex) in archiveSlot.archiveList" :key="history.timestamp">
           <div>【历史记录 {{ historyIndex + 1 }}】{{ dayjs(history.timestamp).format('YYYY-MM-DD HH:mm:ss') }}（标记点位数：{{ history.body.Data_KYJG.size }}）</div>
@@ -108,18 +203,24 @@ const onAnimationEnd = (ev: AnimationEvent) => {
           保存到该存档
         </GSButton>
 
-        <GSButton
-          class="hold-and-delete"
-          :disabled="loading"
-          @click="(e) => note(e, '持续按住删除按钮以确认删除')"
-          @animationend="onAnimationEnd"
+        <el-tooltip
+          :visible="Boolean(message)"
+          :content="message"
+          placement="bottom"
         >
-          <template #icon>
-            <el-icon :size="16" color="#CF5945">
-              <DeleteFilled />
-            </el-icon>
-          </template>
-        </GSButton>
+          <GSButton
+            class="hold-and-delete"
+            :disabled="loading"
+            @click="(e) => note(e, '持续按住删除按钮以确认删除')"
+            @animationend="onAnimationEnd"
+          >
+            <template #icon>
+              <el-icon :size="16" color="#CF5945">
+                <DeleteFilled />
+              </el-icon>
+            </template>
+          </GSButton>
+        </el-tooltip>
 
         <GSButton class="flex-1" :disabled="loading" @click="loadArchive">
           <template #icon>
@@ -130,14 +231,6 @@ const onAnimationEnd = (ev: AnimationEvent) => {
           读取该存档
         </GSButton>
       </div>
-
-      <el-tooltip
-        :visible="Boolean(message)"
-        :content="message"
-        :virtual-ref="virtualRef"
-        placement="bottom"
-        virtual-triggering
-      />
     </GSCard>
   </el-dialog>
 </template>
