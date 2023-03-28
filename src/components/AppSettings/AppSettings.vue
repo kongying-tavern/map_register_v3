@@ -34,6 +34,9 @@ const activeName = ref('common')
 .setting-panel {
   width: 600px;
   height: 60vh;
+  @media screen and (width < 600px) {
+    width: 100vw;
+  }
   &:deep(.el-tabs) {
     display: flex;
     flex-direction: column;
