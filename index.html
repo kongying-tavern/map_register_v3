@@ -1,13 +1,61 @@
 <!DOCTYPE html>
-<html lang="zh-CN" class="overflow-hidden">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>空荧酒馆后厨</title>
-  <script type="module" src="./src/main.ts"></script>
+  <style>
+    @supports (width: 100dvw) {
+      html {
+        width: 100dvw;
+        height: 100dvh;
+      }
+    }
+    @supports not (width: 100dvw) {
+      html {
+        width: 100vw;
+        height: 100vh;
+      }
+    }
+    html {
+      overflow: hidden;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body, #app {
+      width: 100%;
+      height: 100%;
+    }
+
+    #app {
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+  </style>
 </head>
-<body class="fullscreen">
-  <div id="app" class="w-full h-full grid place-items-center overflow-hidden"></div>
+<body>
+  <div id="app"></div>
+
+  <script id="preload-script" type="module" async defer>
+    const text = (() => {
+      if (!window?.isSecureContext)
+        return '网站处于非安全上下文中，Web 应用无法正常运行。'
+      return ''
+    })()
+
+    if (text) {
+      const app = document.getElementById('app')
+      app.innerText = text
+    }
+    else {
+      import('./src/main.ts')
+    }
+  </script>
 </body>
 </html>
