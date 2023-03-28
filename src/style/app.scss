@@ -9,27 +9,3 @@
   // 禁用移动端点击反馈背景色
   -webkit-tap-highlight-color: transparent;
 }
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  overflow: auto;
-}
-
-@supports (width: 100dvw) and (width: 100dvh) {
-  .fullscreen {
-    width: 100dvw;
-    height: 100dvh;;
-  }
-}
-
-@supports not ((width: 100dvw) or (width: 100dvh)) {
-  .fullscreen {
-    width: 100vw;
-    height: 100vh;
-  }
-}
