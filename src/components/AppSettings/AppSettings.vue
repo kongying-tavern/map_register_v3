@@ -11,19 +11,19 @@ const activeName = ref('common')
     </el-alert>
 
     <el-tabs v-model="activeName" type="border-card" class="setting-tabs">
-      <el-tab-pane label="常规" name="common">
+      <el-tab-pane label="常规" name="common" lazy>
         <SettingCommon />
       </el-tab-pane>
 
-      <el-tab-pane label="数据库" name="database">
+      <el-tab-pane label="数据库" name="database" lazy>
         <SettingDatabase />
       </el-tab-pane>
 
-      <el-tab-pane label="快捷键" name="shortcut-keys">
+      <el-tab-pane label="快捷键" name="shortcut-keys" lazy>
         <SettingShortcutKey />
       </el-tab-pane>
 
-      <el-tab-pane label="彩蛋" name="easter-egg">
+      <el-tab-pane label="彩蛋" name="easter-egg" lazy>
         <SettingEasterEgg />
       </el-tab-pane>
     </el-tabs>

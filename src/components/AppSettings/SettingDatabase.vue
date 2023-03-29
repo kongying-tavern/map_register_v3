@@ -27,7 +27,7 @@ const storeList: { name: string; store: StoreLike }[] = [
         v-for="store in storeList"
         :key="store.name"
         :label="`${store.name}数据`"
-        :content="`已存储%${store.name}数据 ${store.store.total} 项，距离下次更新剩余 ${Math.floor(store.store.updateAllRestTime / 1000)} 秒。`"
+        :content="`已存储${store.name}数据 ${store.store.total} 项，距离下次更新剩余 ${Math.floor(store.store.updateAllRestTime / 1000)} 秒。`"
       >
         <div class="whitespace-nowrap">
           <el-button
