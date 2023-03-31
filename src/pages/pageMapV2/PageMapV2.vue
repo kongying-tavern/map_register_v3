@@ -6,9 +6,9 @@ import type { NonGeoBoundingBox } from '@deck.gl/geo-layers/typed'
 import { TileLayer } from '@deck.gl/geo-layers/typed'
 import type { Tile2DHeader } from '@deck.gl/geo-layers/typed/tileset-2d'
 import { BitmapLayer, LineLayer, ScatterplotLayer } from '@deck.gl/layers/typed'
-import { load } from '@loaders.gl/core'
 import db from '@/database'
 import { Logger } from '@/utils'
+import { AppUserAvatar } from '@/components'
 
 const logger = new Logger('[MapV2]')
 
@@ -19,7 +19,7 @@ const layerSize = {
   h: 16384,
 }
 const layerOffset = {
-  x: 5120,
+  x: 5632,
   y: 0,
 }
 const layerOrigin = {
@@ -79,7 +79,13 @@ const layer = new TileLayer({
     if (signal?.aborted)
       return null
     const { x, y, z } = index
-    return load(`https://assets.yuanshen.site/tiles_twt34/${z + 13}/${x}_${y}.png`)
+    const res = await fetch(`https://assets.yuanshen.site/tiles_twt36/${z + 13}/${x}_${y}.png`, {
+      mode: 'cors',
+      referrerPolicy: 'no-referrer',
+    })
+    const blob = await res.blob()
+    const img = await createImageBitmap(blob)
+    return img
   },
   renderSubLayers: (renderProps) => {
     const { left, bottom, right, top } = renderProps.tile.bbox as NonGeoBoundingBox
@@ -116,6 +122,8 @@ const map = shallowRef<Deck | null>(null)
 
 const total = ref(0)
 const count = ref(0)
+const showMarker = ref(true)
+
 const renderMarkers = async () => {
   if (!map.value)
     return
@@ -164,6 +172,16 @@ const renderMarkers = async () => {
   count.value = end - start
 }
 
+const clearMarkers = () => {
+  if (!map.value)
+    return
+  map.value.setProps({
+    layers: [layer, lines],
+  })
+}
+
+watch(showMarker, show => show ? renderMarkers() : clearMarkers())
+
 const initMap = async () => {
   if (!canvasRef.value)
     return
@@ -208,13 +226,19 @@ onMounted(initMap)
   <div class="w-full h-full relative">
     <canvas ref="canvasRef" class="w-full h-full bg-black" />
 
+    <div class="absolute right-2 top-2 flex gap-2">
+      <AppUserAvatar />
+    </div>
+
     <div class="absolute left-2 bottom-2 flex flex-col gap-2">
       <router-link to="/map">
         <el-button>V1地图</el-button>
       </router-link>
 
+      <el-switch v-model="showMarker" inline-prompt active-text="显示点位" inactive-text="隐藏点位" />
+
       <el-alert :closable="false">
-        渲染点位 {{ total }} 个，耗时 {{ count }} ms。
+        渲染点位 {{ total }} 个，耗时 {{ count }} ms。(不含点位检索时间)
       </el-alert>
     </div>
   </div>
