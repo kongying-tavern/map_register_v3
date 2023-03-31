@@ -1,8 +1,19 @@
 <script lang="ts" setup>
-import { ElButton } from 'element-plus'
-import type { AnyColumn } from 'element-plus/es/components/table-v2/src/common'
+import { useIconList } from '@/hooks'
+
+const { iconList } = useIconList({
+  immediate: true,
+})
+
+const test = () => {
+  console.log(iconList.value)
+}
 </script>
 
 <template>
-  <div>图标管理</div>
+  <div class="h-full">
+    <el-button @click="test">
+      打印
+    </el-button>
+  </div>
 </template>

@@ -206,6 +206,10 @@ const handleDragging = computed(() => map.value?.handleState.draggingMarker)
 
     <!-- 控制面板右下悬浮面板 -->
     <div class="absolute bottom-0 left-full px-2 flex flex-col gap-1">
+      <router-link to="/map-v2">
+        <el-button>V2地图</el-button>
+      </router-link>
+
       <el-tooltip
         v-model:visible="tooltipVisible"
         :content="tooltipContent"

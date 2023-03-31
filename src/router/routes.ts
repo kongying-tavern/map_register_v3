@@ -81,7 +81,13 @@ const routes: RouteRecordRaw[] = [
       title: '地图页',
     },
     component: () => import('@/pages/pageMap/PageMap.vue'),
-    children: [],
+  },
+  {
+    path: '/map-v2',
+    meta: {
+      title: '地图页V2',
+    },
+    component: () => import('@/pages/pageMapV2/PageMapV2.vue'),
   },
   {
     path: '/login',
