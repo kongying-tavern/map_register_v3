@@ -1,6 +1,31 @@
+const VERSION = 1
+
+/**
+ * 公共消息传递
+ * @param {string} message 
+ * @param {Transferable[]} transfer 
+ */
+const sendPublicMessage = async (message = '', transfer = []) => {
+  const clients = await self.clients.matchAll()
+  await Promise.all(clients.map(client => client.postMessage(message, transfer)))
+}
+
+/** 清空缓存 */
+const clearCaches = async () => {
+  const cacheNames = await caches.keys()
+  await Promise.all(cacheNames.map(cacheName => caches.delete(cacheName)))
+  await sendPublicMessage(JSON.stringify({
+    type: 'string',
+    action: 'log',
+    data: 'delete',
+  }))
+}
+
 /** 强制等待 SW 激活 */
 self.oninstall = () => {
   self.skipWaiting()
+  // 新版本安装后删除旧缓存
+  clearCaches()
 }
 
 /** 设置为主域下的 controller */
@@ -26,11 +51,11 @@ self.onfetch = (ev) => {
 
   // 1. 地图图片
   if (url.match(/http(s?):\/\/assets.yuanshen.site\/tiles_/)?.['index'] === 0)
-    cacheStorageName = 'map-tiles'
+    cacheStorageName = `map-tiles-${VERSION}`
 
   // 2. 物品图标
   else if (url.match(/http(s?):\/\/assets.yuanshen.site\/icons/)?.['index'] === 0)
-    cacheStorageName = 'item-icons'
+    cacheStorageName = `item-icons-${VERSION}`
 
   if (!cacheStorageName)
     return
@@ -38,13 +63,17 @@ self.onfetch = (ev) => {
   const cacheRequest = async () => {
     try {
       // 如果匹配到缓存则直接返回
-      const cachedResult = await caches.match(ev.request)
+      const cachedResult = await caches.match(ev.request.url)
       if (cachedResult)
         return cachedResult
   
       // 如果匹配不到则拦截请求
-      const res = await fetch(ev.request)
-      ;(await caches.open(cacheStorageName)).put(ev.request, res.clone())
+      // 因为绘图器可能需要将图片绘制到 webgl 上，图片必须是跨域的，这里需要覆盖使用跨域请求
+      const res = await fetch(ev.request.url, {
+        mode: 'cors',
+        referrerPolicy: 'no-referrer',
+      })
+      ;(await caches.open(cacheStorageName)).put(ev.request.url, res.clone())
       return res
     }
     catch {
