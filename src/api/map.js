@@ -198,6 +198,12 @@ const map_plugin_config = {
   "A:LY:LIYUE": {
     extra: ["underground_basic"],
   },
+  "A:LY:CENGYAN": {
+    extra: ["underground_basic"],
+  },
+  "A:LY:CENGYAN_UG": {
+    extra: ["underground_basic"],
+  },
 
   // 稻妻
   "A:DQ:1": {
