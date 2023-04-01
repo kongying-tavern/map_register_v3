@@ -1,6 +1,7 @@
 export * from './archive'
 export * from './area'
 export * from './icon'
+export * from './iconTag'
 export * from './item'
 export * from './itemType'
 export * from './map'

@@ -14,6 +14,8 @@ export class AppDatabase extends Dexie {
   declare area: Dexie.Table<API.AreaVo, number>
   /** 图标表 */
   declare icon: Dexie.Table<API.IconVo, number>
+  /** 图标标签表 */
+  declare iconTag: Dexie.Table<API.TagVo, number>
   /** 物品表 */
   declare item: Dexie.Table<API.ItemVo, number>
   /** 物品类型表 */
@@ -26,9 +28,10 @@ export class AppDatabase extends Dexie {
   constructor() {
     super('AppDatabase')
     // 只列出需要被索引的键
-    this.version(1.4).stores({
+    this.version(1.5).stores({
       area: '&areaId, name, code, isFinal, hiddenFlag',
       icon: '&iconId, name',
+      iconTag: '&iconId, tag',
       item: '&itemId, *typeIdList, areaId, name, specialFlag, hiddenFlag',
       itemType: '&typeId, name, isFinal, hiddenFlag',
       marker: '&id, *itemIdList, markerTitle, markerCreatorId, pictureCreatorId, videoPath, refreshTime, hiddenFlag',
