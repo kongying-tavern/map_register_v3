@@ -37,6 +37,8 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^0.33.1",
+    "@deck.gl/extensions": "^8.9.6",
+    "@deck.gl/mesh-layers": "^8.9.6",
     "@types/leaflet": "^1.9.0",
     "@types/lodash": "^4.14.186",
     "@types/node": "^18.13.0",
