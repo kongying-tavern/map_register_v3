@@ -11,5 +11,9 @@
   // .env 开头的文件均识别为环境变量文件以提供语法高亮
   "files.associations": {
     ".env*": "dotenv"
+  },
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   }
 }
