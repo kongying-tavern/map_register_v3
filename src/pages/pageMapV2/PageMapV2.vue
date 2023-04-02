@@ -12,29 +12,17 @@ const map = shallowRef<GenshinMap | null>(null)
 
 const baseLayerCode = computed({
   get: () => map.value?.baseLayerCode,
-  set: (code) => {
-    if (!map.value)
-      return
-    map.value.setBaseLayer(code)
-  },
+  set: v => map.value && (map.value.setBaseLayer(v)),
 })
 
 const showBorder = computed({
   get: () => map.value?.showBorder ?? false,
-  set: (v) => {
-    if (!map.value)
-      return
-    map.value.showBorder = v
-  },
+  set: v => map.value && (map.value.showBorder = v),
 })
 
 const showTag = computed({
   get: () => map.value?.showTag ?? false,
-  set: (v) => {
-    if (!map.value)
-      return
-    map.value.showTag = v
-  },
+  set: v => map.value && (map.value.showTag = v),
 })
 
 const initMap = async () => {
