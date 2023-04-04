@@ -1,6 +1,7 @@
 import type { DeckProps, LayersList, OrbitViewState, PickingInfo } from '@deck.gl/core/typed'
 import { Deck, OrthographicView, TRANSITION_EVENTS } from '@deck.gl/core/typed'
-import { GenshinBaseLayer } from '.'
+import type { ViewStateChangeParameters } from '@deck.gl/core/typed/controllers/controller'
+import { EventBus, GenshinBaseLayer } from '.'
 
 export interface GenshinMapOptions extends DeckProps {
   canvas: HTMLCanvasElement
@@ -11,9 +12,33 @@ export interface GensinMapViewState extends OrbitViewState {
   maxZoom: number
 }
 
+export interface GenshinViewStateChangeParameters extends ViewStateChangeParameters {
+  viewState: GensinMapViewState
+  oldViewState: Partial<GensinMapViewState>
+}
+
+type ExtractParamters<T extends keyof DeckProps> = Parameters<NonNullable<DeckProps[T]>>
+
+export interface GenshinMapEvents extends Record<string, unknown[]> {
+  afterRender: ExtractParamters<'onAfterRender'>
+  beforeRender: ExtractParamters<'onBeforeRender'>
+  click: ExtractParamters<'onClick'>
+  drag: ExtractParamters<'onDrag'>
+  dragEnd: ExtractParamters<'onDragEnd'>
+  dragStart: ExtractParamters<'onDragStart'>
+  error: ExtractParamters<'onError'>
+  hover: ExtractParamters<'onHover'>
+  interactionStateChange: ExtractParamters<'onInteractionStateChange'>
+  load: [GenshinMap]
+  resize: ExtractParamters<'onResize'>
+  viewStateChange: [GenshinViewStateChangeParameters]
+  WebGLInitialized: ExtractParamters<'onWebGLInitialized'>
+}
+
 export class GenshinMap extends Deck {
   constructor(options: GenshinMapOptions) {
     const { canvas, ...rest } = options
+
     super({
       ...rest,
       id: 'genshin-map',
@@ -27,7 +52,7 @@ export class GenshinMap extends Deck {
         },
       },
       getCursor: state => state.isDragging ? 'grabbing' : state.isHovering ? 'pointer' : 'crosshair',
-      onViewStateChange: ({ viewState, oldViewState = {} }) => {
+      onViewStateChange: ({ viewState, oldViewState = {}, ...rest }) => {
         const newState = viewState as GensinMapViewState
         const oldState = oldViewState as Partial<GensinMapViewState>
         const rewriteState: GensinMapViewState = {
@@ -40,11 +65,33 @@ export class GenshinMap extends Deck {
           zoom: rewriteState.zoom,
         })
         this.#mainViewState.value = rewriteState
+        this.event.emit('viewStateChange', { viewState: rewriteState, oldViewState: oldState, ...rest })
         return rewriteState
       },
-      onLoad: () => this.#readResolve?.(this),
+      onAfterRender: (...args) => this.event.emit('afterRender', ...args),
+      onBeforeRender: (...args) => this.event.emit('beforeRender', ...args),
+      onClick: (...args) => this.event.emit('click', ...args),
+      onDrag: (...args) => this.event.emit('drag', ...args),
+      onDragEnd: (...args) => this.event.emit('dragEnd', ...args),
+      onDragStart: (...args) => this.event.emit('dragStart', ...args),
+      onError: (...args) => this.event.emit('error', ...args),
+      onHover: (...args) => this.event.emit('hover', ...args),
+      onInteractionStateChange: (...args) => this.event.emit('interactionStateChange', ...args),
+      onLoad: () => {
+        this.#readResolve?.(this)
+        this.event.emit('load', this)
+      },
+      onResize: (...args) => this.event.emit('resize', ...args),
+      onWebGLInitialized: (...args) => this.event.emit('WebGLInitialized', ...args),
+    })
+
+    this.event.on('viewStateChange', ({ viewState }) => {
+      this.#mainViewState.value = viewState
     })
   }
+
+  #eventBus = new EventBus<GenshinMapEvents>()
+  get event() { return this.#eventBus }
 
   #mainViewState = ref<GensinMapViewState>({ zoom: -4, minZoom: -4, maxZoom: 0, target: [0, 0, 0] })
   get mainViewState() { return this.#mainViewState.value }
