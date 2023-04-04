@@ -8,10 +8,10 @@ defineProps<{
 <template>
   <div class="setting-item flex justify-between px-4 py-3 gap-4" v-bind="$attrs">
     <div class="flex-flex col">
-      <div class="text-black">
+      <div style="color: var(--el-text-color-primary)">
         {{ label }}
       </div>
-      <div class="text-gray-600 text-xs">
+      <div class="text-xs" style="color: var(--el-text-color-secondary)">
         <slot name="content">
           {{ content }}
         </slot>
