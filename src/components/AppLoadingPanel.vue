@@ -1,25 +1,30 @@
 <script lang="ts" setup>
 import { ElNotification } from 'element-plus'
-import { localSettings, useUserStore } from '@/stores'
+import { useUserStore } from '@/stores'
 
 const userStore = useUserStore()
 
 const icons = ['Pyro', 'Hydro', 'Anemo', 'Electro', 'Cryo', 'Dendro', 'Geo']
 
 onActivated(() => {
-  userStore.isRouteLoading = true
+  userStore.isRouteAnimationEnd = false
 })
 
 const onAnimationend = (ev: AnimationEvent) => {
   if (!(ev.target as HTMLElement).classList.contains('icon-Geo'))
     return
-  userStore.isRouteLoading = false
+  userStore.isRouteAnimationEnd = true
   ElNotification.closeAll()
 }
 </script>
 
 <template>
-  <div class="gs-loading-panel w-full h-full grid place-items-center" :class="{ 'waitting-geo': localSettings.waittingGeo }">
+  <div
+    class="gs-loading-panel w-full h-full grid place-items-center"
+    :class="{
+      'waitting-geo': userStore.isHandling,
+    }"
+  >
     <div class="gs-loading-row w-full h-full flex flex-row justify-center">
       <div
         v-for="iconname in icons" :key="iconname"
@@ -47,6 +52,27 @@ const onAnimationend = (ev: AnimationEvent) => {
   }
 }
 
+@keyframes wait-geo {
+  0% {
+    --percentage: 0%;
+  }
+  0.025% {
+    --percentage: 50%;
+  }
+  100% {
+    --percentage: 100%;
+  }
+}
+
+.gs-loading-panel {
+  --icon-duration: 50ms;
+  --geo-duration: var(--icon-duration);
+
+  &.waitting-geo {
+    --geo-duration: 60000ms;
+  }
+}
+
 .gs-loading-row {
   gap: 2%;
 }
@@ -64,12 +90,9 @@ const onAnimationend = (ev: AnimationEvent) => {
       animation-delay: #{400 + $i * 100}ms;
     }
   }
-}
-
-.gs-loading-panel.waitting-geo {
-  .gs-loading-icon:last-of-type {
-    animation-duration: 1000ms;
-    animation-timing-function: cubic-bezier(0, 1, 1, 0);
+  &:last-of-type {
+    animation-duration: var(--geo-duration);
+    animation-name: wait-geo;
   }
 }
 

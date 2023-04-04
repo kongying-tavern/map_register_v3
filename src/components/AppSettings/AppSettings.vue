@@ -59,6 +59,7 @@ const activeName = ref('common')
 .setting-tabs {
   border-radius: 4px;
   overflow: hidden;
+  flex: 1;
   :deep(.el-tabs__content) {
     padding: 0;
   }

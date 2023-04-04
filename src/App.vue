@@ -28,7 +28,7 @@ const userStore = useUserStore()
     <router-view v-slot="{ Component }">
       <Transition name="fade" mode="out-in" appear>
         <keep-alive>
-          <component :is="(userStore.isHandling || userStore.isRouteLoading) ? AppLoadingPanel : Component" />
+          <component :is="userStore.showLoadingPanel ? AppLoadingPanel : Component" />
         </keep-alive>
       </Transition>
     </router-view>

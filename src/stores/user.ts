@@ -57,9 +57,15 @@ export const useUserStore = defineStore('user-info', {
     /** 是否正在进行预加载任务 */
     isHandling: false,
     /** 路由是否跳转完毕 */
-    isRouteLoading: false,
+    isRouteLoading: true,
+    /** 路由动画是否已经结束 */
+    isRouteAnimationEnd: true,
   }),
   getters: {
+    /** 是否显示加载面板 */
+    showLoadingPanel: (state) => {
+      return state.isHandling || state.isRouteLoading || !state.isRouteAnimationEnd
+    },
     /** TODO: 等后端返回改为单角色后就不需要这个了 */
     role: (state) => {
       return state.info.roleList?.[0]

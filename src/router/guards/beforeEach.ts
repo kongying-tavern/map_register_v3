@@ -14,6 +14,8 @@ export const beforeEachGuard = (
     logger.info(`"${from.path}" => "${to.path}"`)
 
     const userStore = useUserStore()
+    userStore.isRouteLoading = true
+
     const isTokenValid = userStore.validateUserToken()
     isTokenValid && userStore.createRefreshTimer()
 
@@ -46,13 +48,8 @@ export const beforeEachGuard = (
       userStore.updateUserInfo()
 
     // 只在进出地图页面时进行预加载任务
-    if (from.path === '/map' || to.path === '/map') {
-      userStore
-        .preloadMission()
-        .then(() => next(true))
-    }
-    else {
-      next(true)
-    }
+    if (from.path === '/map' || to.path === '/map')
+      userStore.preloadMission()
+    return next(true)
   }
 }

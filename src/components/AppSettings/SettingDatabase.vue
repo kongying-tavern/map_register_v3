@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { Delete, Refresh } from '@element-plus/icons-vue'
-import SettingItem from './SettingItem.vue'
+import { SettingItem } from '.'
 import { localSettings, useAreaStore, useIconStore, useItemStore, useItemTypeStore, useMarkerStore } from '@/stores'
 
 interface StoreLike {
