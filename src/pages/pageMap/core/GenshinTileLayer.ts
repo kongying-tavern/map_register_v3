@@ -5,7 +5,6 @@ import type { GenshinMap } from '@/pages/pageMap/core'
 import { GenshinTextMarker } from '@/pages/pageMap/core'
 import { TileUtil } from '@/pages/pageMap/utils'
 
-const TILES_URL_PREFIX = 'https://assets.yuanshen.site/tiles_'
 const DEFAULT_TILE_OPTIONS: TileLayerOptions = {
   maxZoom: 10,
   minZoom: -6,
@@ -55,7 +54,7 @@ export class GenshinTileLayer extends L.TileLayer {
     const { code, extension = 'png' } = this.tileConfig
     const { x, y } = coords
     const z = coords.z + 13
-    return `${TILES_URL_PREFIX}${code}/${z}/${x}_${y}.${extension}`
+    return `${import.meta.env.VITE_ASSETS_BASE}/tiles_${code}/${z}/${x}_${y}.${extension}`
   }
 
   static getLayer = (name: MapNameEnum) => {

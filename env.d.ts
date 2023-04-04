@@ -5,26 +5,16 @@ interface ImportMetaEnv {
   /** 标题 */
   readonly VITE_TITLE: string
 
-  /**
-   * 接口地址
-   * @default /dev-api
-   */
+  /** 接口地址 */
   readonly VITE_API_BASE: string
 
-  /**
-   * 开发模式下跨域代理
-   * @default https://test.yuanshen.site
-   */
+  /** 接口反代理 */
   readonly VITE_API_PROXY_TARGET: string
 
-  /**
-   * 路由创建历史记录的模式
-   */
-  VITE_ROUTER_MODE: 'history' | 'hash' | 'memory'
+  /** 路由创建历史记录的模式 */
+  readonly VITE_ROUTER_MODE: 'history' | 'hash' | 'memory'
 
-  /**
-   * 顶部指示环境的置顶文本
-   */
+  /** 顶部指示环境的置顶文本 */
   readonly VITE_ENV_BANNER: string
 
   /**
@@ -33,16 +23,10 @@ interface ImportMetaEnv {
    */
   readonly VITE_TOKEN_REFRESH_REST_TIME: number
 
-  /**
-   * 开发模式下自动填充用户名
-   * @default ''
-   */
+  /** 开发模式下自动填充用户名 */
   readonly VITE_AUTO_COMPLETE_USERNAME: string
 
-  /**
-   * 开发模式下自动填充密码
-   * @default ''
-   */
+  /** 开发模式下自动填充密码 */
   readonly VITE_AUTO_COMPLETE_PASSWORD: string
 
   /** 阿里云盘地址 */
@@ -53,6 +37,12 @@ interface ImportMetaEnv {
 
   /** 点位图片上传目录 */
   readonly VITE_ALIYUN_MARKER_FOLDER: string
+
+  /** 资源服务器地址 */
+  readonly VITE_ASSETS_BASE: string
+
+  /** 资源服务器反代理 */
+  readonly VITE_ASSETS_PROXY_TARGET: string
 }
 
 interface ImportMeta {

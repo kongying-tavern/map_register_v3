@@ -1,4 +1,4 @@
-const VERSION = 1
+const VERSION = 2
 
 /**
  * 公共消息传递
@@ -42,20 +42,26 @@ self.onactivate = (ev) => {
 self.onfetch = (ev) => {
   const { url } = ev.request
 
+  const urlObj = new URL(url)
+
   // 只拦截图片类型请求
-  if (url.match(/^.+\.(png|jpeg|jpg|jxl|jp2|webp|bmp)$/)?.['index'] !== 0)
+  if (urlObj.pathname.match(/^.+\.(png|jpeg|jpg|jxl|jp2|webp|bmp)$/)?.['index'] !== 0)
     return
 
-  // 只缓存以下几种情况
-  let cacheStorageName = undefined
+  // 只缓存底图切片和物品图标
+  let cacheStorageName = ''
 
-  // 1. 地图图片
-  if (url.match(/http(s?):\/\/assets.yuanshen.site\/tiles_/)?.['index'] === 0)
-    cacheStorageName = `map-tiles-${VERSION}`
+  // 1. 底图切片
+  const tilesMatcheResult = urlObj.pathname.match(/tiles_([a-zA-Z0-9]+)\//)
+  if (tilesMatcheResult) {
+    const code = tilesMatcheResult[1]
+    code && (cacheStorageName = `map-tiles-${code}-V${VERSION}`)
+  }
 
   // 2. 物品图标
-  else if (url.match(/http(s?):\/\/assets.yuanshen.site\/icons/)?.['index'] === 0)
-    cacheStorageName = `item-icons-${VERSION}`
+  else if (urlObj.pathname.match(/icons/)) {
+    cacheStorageName = `item-icons-V${VERSION}`
+  }
 
   if (!cacheStorageName)
     return
@@ -63,23 +69,25 @@ self.onfetch = (ev) => {
   const cacheRequest = async () => {
     try {
       // 如果匹配到缓存则直接返回
-      const cachedResult = await caches.match(ev.request.url)
+      const cachedResult = await caches.match(url)
       if (cachedResult)
         return cachedResult
   
       // 如果匹配不到则拦截请求
       // 因为绘图器可能需要将图片绘制到 webgl 上，图片必须是跨域的，这里需要覆盖使用跨域请求
-      const res = await fetch(ev.request.url, {
+      const res = await fetch(url, {
         mode: 'cors',
         referrerPolicy: 'no-referrer',
       })
-      ;(await caches.open(cacheStorageName)).put(ev.request.url, res.clone())
+      const cachedRes = res.clone()
+      const cacheStorage = await caches.open(cacheStorageName)
+      await cacheStorage.put(url, cachedRes)
       return res
     }
     catch {
       return new Response(null, {
         status: 404,
-        statusText: 'Not Found',
+        statusText: 'Not Found or CORS Failed',
       })
     }
   }

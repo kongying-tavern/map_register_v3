@@ -15,7 +15,8 @@ export const getTilePropsFrom = (target: GenshinBaseLayer): TileLayerProps => ({
   getTileData: ({ index: { x, y, z }, signal }) => {
     if (signal?.aborted)
       return null
-    return fetch(`https://assets.yuanshen.site/tiles_${target.rawProps.code}/${z + 13}/${x}_${y}.${target.rawProps.extension}`, {
+    const url = `${import.meta.env.VITE_ASSETS_BASE}/tiles_${target.rawProps.code}/${z + 13}/${x}_${y}.${target.rawProps.extension}`
+    return fetch(url, {
       mode: 'cors',
       referrerPolicy: 'no-referrer',
     }).then(res => res.blob()).then(blob => createImageBitmap(blob))

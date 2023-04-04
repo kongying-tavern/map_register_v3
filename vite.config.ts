@@ -4,7 +4,6 @@ import { defineConfig, loadEnv } from 'vite'
 import Vue from '@vitejs/plugin-vue'
 import VueJsx from '@vitejs/plugin-vue-jsx'
 import AutoImport from 'unplugin-auto-import/vite'
-import { getMHYProxys } from './.vite'
 import { openapi2ts } from './plugins'
 
 export default defineConfig(({ mode }) => {
@@ -13,11 +12,15 @@ export default defineConfig(({ mode }) => {
   console.log('[ENV]', ENV)
 
   const proxy: Record<string, string | ProxyOptions> = {
-    ...getMHYProxys(),
     [ENV.VITE_API_BASE]: {
       target: ENV.VITE_API_PROXY_TARGET,
       changeOrigin: true,
       rewrite: path => path.replace(new RegExp(`${ENV.VITE_API_BASE}`), ''),
+    },
+    [ENV.VITE_ASSETS_BASE]: {
+      target: ENV.VITE_ASSETS_PROXY_TARGET,
+      changeOrigin: true,
+      rewrite: path => path.replace(new RegExp(`${ENV.VITE_ASSETS_BASE}`), ''),
     },
   }
 
