@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { AppSettings, AppUserInfo } from '.'
-import { router } from '@/router'
 import { useUserStore } from '@/stores'
 import { useGlobalDialog, useTheme } from '@/hooks'
 import { useMap } from '@/pages/pageMap/hooks'
@@ -34,12 +33,10 @@ const openSettingDialog = () => DialogService
   .open(AppSettings)
 
 const handleCommand = (command: string) => ({
-  logout: () => userStore.logout(),
-  toManager: () => router.push('/items'),
-  toMap: () => router.push('/map'),
-  toUserCenter: () => openUserInfoDialog(),
-  toggleThemeSchema: () => isDark.value = !isDark.value,
+  userinfo: () => openUserInfoDialog(),
+  themeschema: () => isDark.value = !isDark.value,
   setting: () => openSettingDialog(),
+  logout: () => userStore.logout(),
 } as Record<string, () => void>)[command]?.()
 
 const handleDragging = computed(() => map.value?.handleState.draggingMarker)
@@ -55,23 +52,34 @@ const handleDragging = computed(() => map.value?.handleState.draggingMarker)
     </el-button>
     <template #dropdown>
       <el-dropdown-menu>
-        <el-dropdown-item command="toUserCenter">
+        <el-dropdown-item command="userinfo">
           {{ userStore.info.nickname }}
         </el-dropdown-item>
-        <el-dropdown-item v-if="mapMode" command="toManager">
-          管理界面
+        <el-dropdown-item v-if="userStore.isAdmin">
+          <router-link to="/items">
+            管理界面
+          </router-link>
         </el-dropdown-item>
-        <el-dropdown-item v-else command="toMap">
-          地图界面
+        <el-dropdown-item>
+          <router-link to="/map">
+            地图V1
+          </router-link>
+        </el-dropdown-item>
+        <el-dropdown-item>
+          <router-link to="/map-v2">
+            地图V2
+          </router-link>
         </el-dropdown-item>
         <el-dropdown-item divided command="setting">
           系统设置
         </el-dropdown-item>
-        <el-dropdown-item command="toggleThemeSchema">
+        <el-dropdown-item command="themeschema">
           {{ isDark ? '明亮' : '黑暗' }}模式
         </el-dropdown-item>
         <el-dropdown-item divided command="logout">
-          退出账户
+          <el-text type="danger">
+            退出账户
+          </el-text>
         </el-dropdown-item>
       </el-dropdown-menu>
     </template>

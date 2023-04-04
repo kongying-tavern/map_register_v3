@@ -60,7 +60,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: '点位管理',
           icon: 'Marker',
-          roles: [RoleTypeEnum.ADMIN],
+          roles: [RoleTypeEnum.ADMIN, RoleTypeEnum.MAP_MANAGER],
         },
         component: () => import('@/pages/pageMarkerManager/MarkerManager.vue'),
       },
@@ -69,7 +69,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: '地区管理',
           icon: 'Marker',
-          roles: [RoleTypeEnum.ADMIN],
+          roles: [RoleTypeEnum.ADMIN, RoleTypeEnum.MAP_MANAGER],
         },
         component: () => import('@/pages/pageAreaManager/AreaManager.vue'),
       },
