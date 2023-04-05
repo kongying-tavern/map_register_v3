@@ -1,4 +1,13 @@
 const VERSION = 2
+let isDev = false
+
+const logger = new class {
+  constructor(prefix = '') {
+    this.prefix = prefix
+  }
+  log = (...args) => isDev && console.log(this.prefix, ...args)
+  error = (...args) => isDev && console.log(this.prefix, ...args)
+}('[ServiceWorker]')
 
 /**
  * 公共消息传递
@@ -10,22 +19,42 @@ const sendPublicMessage = async (message = '', transfer = []) => {
   await Promise.all(clients.map(client => client.postMessage(message, transfer)))
 }
 
+/**
+ * @param {MessageEvent<string>} ev 
+ */
+self.onmessage = (ev) => {
+  const payload = JSON.parse(ev.data)
+  const { action, type, value } = payload
+  if (action === 'setEnvValue') {
+    isDev = value
+  }
+
+  sendPublicMessage(JSON.stringify({
+    action: 'roger',
+    type: 'string',
+    value: action,
+  }))
+}
+
 /** 清空缓存 */
 const clearCaches = async () => {
   const cacheNames = await caches.keys()
-  await Promise.all(cacheNames.map(cacheName => caches.delete(cacheName)))
-  await sendPublicMessage(JSON.stringify({
-    type: 'string',
-    action: 'log',
-    data: 'delete',
+  await Promise.all(cacheNames.map((cacheName) => {
+    const version = Number(cacheName.match(/(?<=[\w\W]+-V)\d+$/)?.[0])
+    if (!isNaN(version) && version < VERSION)
+      return caches.delete(cacheName)
   }))
 }
 
 /** 强制等待 SW 激活 */
-self.oninstall = () => {
-  self.skipWaiting()
-  // 新版本安装后删除旧缓存
-  clearCaches()
+self.oninstall = (ev) => {
+  ev.waitUntil(async () => {
+    await self.skipWaiting()
+    await getEnvValue()
+
+    // 新版本安装后删除低于当前版本的旧缓存
+    await clearCaches()
+  })
 }
 
 /** 设置为主域下的 controller */
@@ -79,13 +108,18 @@ self.onfetch = (ev) => {
         mode: 'cors',
         referrerPolicy: 'no-referrer',
       })
+
+      if (res.status !== 200)
+        throw res
+
       const cachedRes = res.clone()
       const cacheStorage = await caches.open(cacheStorageName)
       await cacheStorage.put(url, cachedRes)
       return res
     }
-    catch {
-      return new Response(null, {
+    catch (err) {
+      logger.error(err)
+      return err instanceof Response ? err : new Response(null, {
         status: 404,
         statusText: 'Not Found or CORS Failed',
       })
