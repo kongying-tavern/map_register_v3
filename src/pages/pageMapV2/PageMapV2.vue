@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 import { GenshinMap } from './core'
 import { LAYER_CONFIGS } from './config'
+import { CollapseButton, ControlPanel } from './components'
 import { Logger } from '@/utils'
-import { AppUserAvatar } from '@/components'
+import { AppUserAvatar, GSButton } from '@/components'
 
 const logger = new Logger('[MapV2]')
 
@@ -39,33 +40,45 @@ const initMap = async () => {
   })
 }
 onMounted(initMap)
+
+const collapse = ref(true)
+useEventListener('keypress', (ev) => {
+  if (ev.code === 'Backquote')
+    collapse.value = !collapse.value
+})
 </script>
 
 <template>
   <div class="w-full h-full relative">
     <canvas ref="canvasRef" class="w-full h-full bg-black" />
 
-    <div class="absolute right-2 top-2 flex gap-2">
-      <AppUserAvatar />
+    <div class="absolute top-2 left-2">
+      <CollapseButton v-model:collapse="collapse" />
     </div>
 
-    <div class="absolute left-2 bottom-2 flex flex-col gap-2">
-      <router-link to="/map">
-        <el-button>V1地图</el-button>
-      </router-link>
+    <ControlPanel v-model:collapse="collapse">
+      <template #sidebar="{ collapse: isCollapse }">
+        <div class="w-full aspect-square grid place-items-center transition-all" :class="{ ' -translate-y-full': isCollapse }">
+          <GSButton icon="cancel" @click="collapse = true" />
+        </div>
+      </template>
 
-      <el-switch v-model="showBorder" inline-prompt active-text="显示边框" inactive-text="隐藏边框" />
+      <div class="h-full flex flex-col gap-2 p-4">
+        <el-switch v-model="showBorder" inline-prompt active-text="显示边框" inactive-text="隐藏边框" />
+        <el-switch v-model="showTag" inline-prompt active-text="显示标签" inactive-text="隐藏标签" />
+        <el-select v-model="baseLayerCode">
+          <el-option
+            v-for="config in LAYER_CONFIGS"
+            :key="config.code"
+            :label="config.name"
+            :value="config.code"
+          />
+        </el-select>
+      </div>
+    </ControlPanel>
 
-      <el-switch v-model="showTag" inline-prompt active-text="显示标签" inactive-text="隐藏标签" />
-
-      <el-select v-model="baseLayerCode">
-        <el-option
-          v-for="config in LAYER_CONFIGS"
-          :key="config.code"
-          :label="config.name"
-          :value="config.code"
-        />
-      </el-select>
+    <div class="absolute top-2 right-2 flex gap-2">
+      <AppUserAvatar />
     </div>
   </div>
 </template>
