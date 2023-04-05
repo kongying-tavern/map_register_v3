@@ -1,9 +1,10 @@
 <script lang="ts" setup>
+import { Filter, Setting } from '@element-plus/icons-vue'
 import { GenshinMap } from './core'
 import { LAYER_CONFIGS } from './config'
-import { CollapseButton, ControlPanel } from './components'
+import { CollapseButton, SiderMenu, SiderMenuItem } from './components'
 import { Logger } from '@/utils'
-import { AppUserAvatar, GSButton } from '@/components'
+import { AppUserAvatar } from '@/components'
 
 const logger = new Logger('[MapV2]')
 
@@ -46,6 +47,8 @@ useEventListener('keypress', (ev) => {
   if (ev.code === 'Backquote')
     collapse.value = !collapse.value
 })
+
+const tabName = ref('filter')
 </script>
 
 <template>
@@ -56,26 +59,26 @@ useEventListener('keypress', (ev) => {
       <CollapseButton v-model:collapse="collapse" />
     </div>
 
-    <ControlPanel v-model:collapse="collapse">
-      <template #sidebar="{ collapse: isCollapse }">
-        <div class="w-full aspect-square grid place-items-center transition-all" :class="{ ' -translate-y-full': isCollapse }">
-          <GSButton icon="cancel" @click="collapse = true" />
-        </div>
-      </template>
+    <SiderMenu v-model:collapse="collapse" v-model="tabName">
+      <SiderMenuItem name="filter" label="筛选" :icon="Filter">
+        点位筛选器
+      </SiderMenuItem>
 
-      <div class="h-full flex flex-col gap-2 p-4">
-        <el-switch v-model="showBorder" inline-prompt active-text="显示边框" inactive-text="隐藏边框" />
-        <el-switch v-model="showTag" inline-prompt active-text="显示标签" inactive-text="隐藏标签" />
-        <el-select v-model="baseLayerCode">
-          <el-option
-            v-for="config in LAYER_CONFIGS"
-            :key="config.code"
-            :label="config.name"
-            :value="config.code"
-          />
-        </el-select>
-      </div>
-    </ControlPanel>
+      <SiderMenuItem name="setting" label="设置" :icon="Setting">
+        <div class="h-full flex flex-col gap-2 p-4">
+          <el-select v-model="baseLayerCode">
+            <el-option
+              v-for="config in LAYER_CONFIGS"
+              :key="config.code"
+              :label="config.name"
+              :value="config.code"
+            />
+          </el-select>
+          <el-switch v-model="showBorder" inline-prompt active-text="显示边框" inactive-text="隐藏边框" />
+          <el-switch v-model="showTag" inline-prompt active-text="显示标签" inactive-text="隐藏标签" />
+        </div>
+      </SiderMenuItem>
+    </SiderMenu>
 
     <div class="absolute top-2 right-2 flex gap-2">
       <AppUserAvatar />
