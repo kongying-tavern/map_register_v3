@@ -15,8 +15,8 @@ const actived = computed(() => tabNameRef.value === props.name)
 </script>
 
 <template>
-  <div class="sider-menu-tab" :class="{ actived }" @click="tabNameRef = name">
-    <div class="sider-menu-tab-button" :data-tab-label="label">
+  <div class="sider-menu-tab" :class="{ actived }" :data-tab-label="label" @click="tabNameRef = name">
+    <div class="sider-menu-tab-button">
       <component :is="icon" style="color: var(--icon-color)" />
     </div>
   </div>

@@ -53,7 +53,7 @@ useEventListener('pointermove', (ev) => {
       :visible="!collapse && virtualRef !== undefined"
       :virtual-ref="virtualRef"
       :content="tooltipContent"
-      :offset="16"
+      :offset="4"
       popper-class="sider-menu-tooltip genshin-text"
       placement="right"
       effect="customized"
