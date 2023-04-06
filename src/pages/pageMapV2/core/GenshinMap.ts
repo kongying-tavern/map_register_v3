@@ -35,6 +35,9 @@ export interface GenshinMapEvents extends Record<string, unknown[]> {
   WebGLInitialized: ExtractParamters<'onWebGLInitialized'>
 }
 
+export type Coordinate2D = [number, number]
+export type Coordinate3D = [number, number, number]
+
 export class GenshinMap extends Deck {
   constructor(options: GenshinMapOptions) {
     const { canvas, ...rest } = options
@@ -61,10 +64,6 @@ export class GenshinMap extends Deck {
           transitionInterruption: TRANSITION_EVENTS.BREAK,
           transitionEasing: (t: number) => Math.sin(t * Math.PI / 2), // 即 ease-out 效果
         }
-        this.#baseLayer.value?.setState({
-          zoom: rewriteState.zoom,
-        })
-        this.#mainViewState.value = rewriteState
         this.event.emit('viewStateChange', { viewState: rewriteState, oldViewState: oldState, ...rest })
         return rewriteState
       },
@@ -86,6 +85,7 @@ export class GenshinMap extends Deck {
     })
 
     this.event.on('viewStateChange', ({ viewState }) => {
+      this.baseLayer?.setState({ zoom: viewState.zoom })
       this.#mainViewState.value = viewState
     })
   }
@@ -93,8 +93,13 @@ export class GenshinMap extends Deck {
   #eventBus = new EventBus<GenshinMapEvents>()
   get event() { return this.#eventBus }
 
-  #mainViewState = ref<GensinMapViewState>({ zoom: -4, minZoom: -4, maxZoom: 0, target: [0, 0, 0] })
   get mainViewState() { return this.#mainViewState.value }
+  #mainViewState = ref<GensinMapViewState>({
+    zoom: -4,
+    minZoom: -4,
+    maxZoom: 2,
+    target: [0, 0, 0],
+  })
 
   #baseLayerCode = ref<string>()
   get baseLayerCode() { return this.#baseLayerCode.value }
@@ -120,6 +125,10 @@ export class GenshinMap extends Deck {
     })
   }
 
+  #showTooltip = ref(true)
+  get showTooltip() { return this.#showTooltip.value }
+  set showTooltip(v) { this.#showTooltip.value = v }
+
   #readResolve?: (map: GenshinMap) => void = undefined
   readonly ready = new Promise<GenshinMap>((resolve) => {
     this.#readResolve = resolve
@@ -137,25 +146,28 @@ export class GenshinMap extends Deck {
     const { center = [0, 0], size = [0, 0], tilesOffset = [0, 0] } = layer?.rawProps ?? {}
     const layers: LayersList = layer ? [layer] : []
 
-    const getTooltip = layer
-      ? (info: PickingInfo) => {
-          if (!info.coordinate)
-            return null
-          const [x, y] = info.coordinate
-          return `${Math.floor(x - center[0])}, ${Math.floor(y - center[1])}`
-        }
-      : undefined
+    const getInitialTarget = (): Coordinate3D => {
+      const target = layer?.rawProps?.initViewState.target
+      return target
+        ? [target[0] + center[0], target[1] + center[1], 0]
+        : [(size[0] / 2 - tilesOffset[0]), (size[1] / 2 - tilesOffset[1]), 0]
+    }
 
     const initialViewState = {
-      ...this.mainViewState,
-      ...(layer ? layer.rawProps.initViewState : {}),
-      target: [
-        (size[0] / 2 - tilesOffset[0]),
-        (size[1] / 2 - tilesOffset[1]),
-        0,
-      ],
+      maxZoom: layer?.rawProps.initViewState.maxZoom ?? this.mainViewState.maxZoom,
+      minZoom: layer?.rawProps.initViewState.minZoom ?? this.mainViewState.minZoom,
+      zoom: layer?.rawProps.initViewState.zoom ?? this.mainViewState.zoom,
+      target: getInitialTarget(),
     } as GensinMapViewState
     this.#mainViewState.value = initialViewState
+
+    const getTooltip = (info: PickingInfo) => {
+      if (!this.showTooltip || !info.coordinate)
+        return null
+      const [x, y] = info.coordinate
+      return `x: ${Math.floor(x) - center[0]}, y: ${Math.floor(y) - center[1]}
+      zoom: ${info.viewport?.zoom?.toFixed(2)}`
+    }
 
     this.setProps({
       layers,

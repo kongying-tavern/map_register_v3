@@ -51,6 +51,7 @@ export interface LayerConfig {
    * { zoom:0, minZoom:-4, maxZoom:0 }
    */
   initViewState?: {
+    target?: [number, number, number]
     zoom?: number
     minZoom?: number
     maxZoom?: number
@@ -78,6 +79,11 @@ export const LAYER_CONFIGS: LayerConfig[] = [
       'A:XM:DESERT3',
     ],
     tags: LAYER_TAG_CONFIGS.twt36,
+    initViewState: {
+      target: [-3184, -169, 0],
+      zoom: 0,
+      maxZoom: 2,
+    },
   },
   {
     code: 'qd28',

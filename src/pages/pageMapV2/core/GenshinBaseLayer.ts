@@ -52,11 +52,6 @@ export class GenshinBaseLayer extends CompositeLayer<GenshinTileLayerProps> {
       areaCodes = [],
       initViewState = {},
     } = props
-    const {
-      zoom = -4,
-      minZoom = -4,
-      maxZoom = 0,
-    } = initViewState
 
     super({ id: `${GenshinBaseLayer.ID_PREFIX}${props.code}` })
 
@@ -81,7 +76,7 @@ export class GenshinBaseLayer extends CompositeLayer<GenshinTileLayerProps> {
         return seed
       }, [] as TagOptions[][]),
       areaCodes,
-      initViewState: { zoom, minZoom, maxZoom },
+      initViewState,
       coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
       coordinateOrigin: [center[0], center[1], 0] as [number, number, number],
     }
