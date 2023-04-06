@@ -1,0 +1,10 @@
+.pure-scale {
+  &-enter-active, &-leave-active {
+    scale: 1;
+    transition: transform 150ms ease;
+  }
+
+  &-enter-from, &-leave-to {
+    scale: 0;
+  }
+}
