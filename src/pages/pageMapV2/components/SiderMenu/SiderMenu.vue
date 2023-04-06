@@ -23,7 +23,11 @@ provide(tabNameRefKey, bindTabName)
 
 const virtualRef = ref<HTMLElement>()
 const tooltipContent = ref<string>()
-useEventListener('pointermove', (ev) => {
+const checkTooltip = (ev: Event) => {
+  if (props.collapse) {
+    virtualRef.value = undefined
+    return
+  }
   const findRes = ev.composedPath().find((target) => {
     return target instanceof HTMLElement && target.dataset.tabLabel
   })
@@ -33,7 +37,9 @@ useEventListener('pointermove', (ev) => {
   }
   virtualRef.value = findRes as HTMLElement
   tooltipContent.value = (findRes as HTMLElement).dataset.tabLabel
-})
+}
+useEventListener('pointermove', checkTooltip)
+useEventListener('pointerdown', checkTooltip)
 </script>
 
 <template>
