@@ -210,6 +210,7 @@ export const useUserStore = defineStore('user-info', {
     async preloadMission() {
       if (!this.validateUserToken() || this.isHandling)
         return
+      this.isRouteLoading = true
       this.isHandling = true
       const archiveStore = useArchiveStore()
       await Promise.allSettled([

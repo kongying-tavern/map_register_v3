@@ -14,7 +14,6 @@ export const beforeEachGuard = (
     logger.info(`"${from.path}" => "${to.path}"`)
 
     const userStore = useUserStore()
-    userStore.isRouteLoading = true
 
     const isTokenValid = userStore.validateUserToken()
     isTokenValid && userStore.createRefreshTimer()
