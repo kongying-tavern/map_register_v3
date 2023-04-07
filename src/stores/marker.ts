@@ -13,7 +13,6 @@ const loading = ref(false)
 const updateTimer = ref<number>()
 const updateEnd = ref<number>()
 const total = ref(0)
-const updateMissions = shallowRef<API.MarkerVo[]>([])
 
 liveQuery(() => db.marker.count()).subscribe((v) => {
   total.value = v
@@ -54,28 +53,26 @@ export const useMarkerStore = defineStore('global-marker', {
       const data = await Api.markerDoc.listPageMarkerBy7zip({ index }, ({
         responseType: 'arraybuffer',
       } as AxiosRequestConfig)) as unknown as ArrayBuffer
-      await db.md5.put({ id: `marker-${index}`, value: newMD5 })
       // 解压点位数据至任务列表
       const depressedData = await Compress.decompress(new Uint8Array(data), 60000)
       const stringData = new TextDecoder('utf-8').decode(depressedData.buffer)
       const parseredData = JSON.parse(stringData) as API.MarkerVo[]
-      updateMissions.value = updateMissions.value.concat(parseredData)
+      // 确保点位更新成功后才修改本地 MD5
+      await db.transaction('rw', db.md5, async () => {
+        await db.marker.bulkPut(parseredData)
+        await db.md5.put({ id: `marker-${index}`, value: newMD5 })
+      })
+      return parseredData.length
     },
 
     /** 全量更新 */
     async updateAll() {
-      updateMissions.value = []
       try {
         loading.value = true
         const startTime = dayjs()
         const md5List = await this._getMarkerMD5List()
-        await Promise.all(md5List.map((_, index) => this._updateMarkerInfo(index + 1, md5List[index])))
-        // TODO 已删除点位的点位不会被同步，需要在本地进行删除
-        await db.transaction('rw', db.marker, async () => {
-          await db.marker.bulkPut(updateMissions.value)
-        })
-        // 由于全量数据不包含已删除的点位，这里需要筛选出本地存在但在云点位中不存在的点位并删除
-        const total = updateMissions.value.length
+        const updateCounts = await Promise.all(md5List.map((_, index) => this._updateMarkerInfo(index + 1, md5List[index])))
+        const total = updateCounts.reduce((sum, cur) => sum + cur, 0)
         localSettings.value.noticeDataUpdated && ElNotification.success({
           title: '点位更新成功',
           message: `本次共更新点位 ${total} 个，耗时 ${(dayjs().diff(startTime) / 1000).toFixed(0)} 秒`,
@@ -91,7 +88,6 @@ export const useMarkerStore = defineStore('global-marker', {
       }
       finally {
         loading.value = false
-        updateMissions.value = []
       }
     },
 
