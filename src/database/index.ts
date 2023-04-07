@@ -28,13 +28,13 @@ export class AppDatabase extends Dexie {
   constructor() {
     super('AppDatabase')
     // 只列出需要被索引的键
-    this.version(1.5).stores({
-      area: '&areaId, name, code, isFinal, hiddenFlag',
+    this.version(1.6).stores({
+      area: '&areaId, parentId, name, code, hiddenFlag',
       icon: '&iconId, name',
       iconTag: '&iconId, tag',
       item: '&itemId, *typeIdList, areaId, name, specialFlag, hiddenFlag',
-      itemType: '&typeId, name, isFinal, hiddenFlag',
-      marker: '&id, *itemIdList, markerTitle, markerCreatorId, pictureCreatorId, videoPath, refreshTime, hiddenFlag',
+      itemType: '&typeId, name, hiddenFlag',
+      marker: '&id, *itemIdList, markerTitle, refreshTime, hiddenFlag',
       md5: '&id',
     })
     this.use(markerFormater)
