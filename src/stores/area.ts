@@ -70,7 +70,7 @@ export const useAreaStore = defineStore('global-area', {
     async clearAll() {
       try {
         loading.value = true
-        await db.itemType.clear()
+        await db.area.clear()
       }
       catch {
         // no action
