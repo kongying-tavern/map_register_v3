@@ -95,7 +95,7 @@ useEventListener('pointerdown', checkTooltip)
 }
 
 .sider-menu-sidebar {
-  width: 80px;
+  width: 72px;
   --border-width: 2.5;
   background: paint(map-sidebar);
   transition: all ease 150ms;
@@ -107,7 +107,7 @@ useEventListener('pointerdown', checkTooltip)
 }
 
 .sider-menu-extra-panel {
-  background: #ECE5D8;
+  background: #263240;
   width: fit-content;
   box-shadow: 4px 0 4px rgb(128 128 128 / 0.2) inset;
   transition: all ease 100ms;

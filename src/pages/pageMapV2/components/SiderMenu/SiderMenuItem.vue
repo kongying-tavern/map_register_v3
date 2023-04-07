@@ -34,7 +34,7 @@ const actived = computed(() => tabNameRef.value === props.name)
 
   width: 100%;
   aspect-ratio: 1 / 1;
-  padding: 15px;
+  padding: 12px;
 
   &:hover {
     --scale: 1.1;
