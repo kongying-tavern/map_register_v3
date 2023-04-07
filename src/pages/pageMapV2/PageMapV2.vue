@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { Filter, Setting } from '@element-plus/icons-vue'
+import { Filter, List, Setting } from '@element-plus/icons-vue'
 import { LAYER_CONFIGS } from './config'
 import { useMap } from './hooks'
-import { CollapseButton, MarkerFilter, SiderMenu, SiderMenuItem } from './components'
+import { CollapseButton, MarkerFilter, MarkerTable, SiderMenu, SiderMenuItem } from './components'
 import { AppUserAvatar } from '@/components'
 
 const canvasRef = ref<HTMLCanvasElement | null>(null)
@@ -29,6 +29,10 @@ const tabName = ref('filter')
     <SiderMenu v-model:collapse="collapse" v-model="tabName">
       <SiderMenuItem name="filter" label="筛选" :icon="Filter">
         <MarkerFilter />
+      </SiderMenuItem>
+
+      <SiderMenuItem name="marker-table" label="点位列表" :icon="List">
+        <MarkerTable />
       </SiderMenuItem>
 
       <SiderMenuItem name="setting" label="设置" :icon="Setting">

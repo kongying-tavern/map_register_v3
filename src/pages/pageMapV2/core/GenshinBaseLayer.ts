@@ -1,11 +1,11 @@
 import type { LayersList } from '@deck.gl/core/typed'
 import { COORDINATE_SYSTEM, CompositeLayer } from '@deck.gl/core/typed'
 import { TileLayer } from '@deck.gl/geo-layers/typed'
-import { LineLayer, TextLayer } from '@deck.gl/layers/typed'
+import { IconLayer, LineLayer, TextLayer } from '@deck.gl/layers/typed'
 import type { ValueOf } from 'element-plus/es/components/table/src/table-column/defaults'
 import { LAYER_CONFIGS } from '../config'
 import type { LayerConfig, TagOptions } from '../config'
-import { getBorderPropsFrom, getTagsPropsFrom, getTilePropsFrom } from '../utils'
+import { getBorderPropsFrom, getIconLayerPropsFrom, getTagsPropsFrom, getTilePropsFrom } from '../utils'
 import type { GenshinMap } from './GenshinMap'
 
 export interface GenshinTileLayerProps extends Required<LayerConfig> {
@@ -38,9 +38,7 @@ export class GenshinBaseLayer extends CompositeLayer<GenshinTileLayerProps> {
 
   state = {
     ...super.state,
-    showBorder: false,
-    showTag: false,
-    zoom: 0,
+    updateTimestamp: new Date().getTime(),
   }
 
   constructor(props: LayerConfig) {
@@ -85,15 +83,23 @@ export class GenshinBaseLayer extends CompositeLayer<GenshinTileLayerProps> {
   #getTileProps = () => getTilePropsFrom(this)
   #getTagsProps = () => getTagsPropsFrom(this)
   #getBorderProps = () => getBorderPropsFrom(this)
+  #getIconProps = () => getIconLayerPropsFrom(this)
 
   setState = (state: Partial<typeof this.state>) => {
     super.setState(state)
+  }
+
+  forceUpdate = () => {
+    this.setState({
+      updateTimestamp: new Date().getTime(),
+    })
   }
 
   renderLayers = (): LayersList => {
     return [
       new TileLayer(this.#getTileProps()),
       ...this.#getTagsProps().map(tagProps => new TextLayer(tagProps)),
+      new IconLayer(this.#getIconProps()),
       new LineLayer(this.#getBorderProps()),
     ]
   }

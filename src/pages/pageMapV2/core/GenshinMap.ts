@@ -2,6 +2,7 @@ import type { DeckProps, LayersList, OrbitViewState, PickingInfo } from '@deck.g
 import { Deck, OrthographicView, TRANSITION_EVENTS } from '@deck.gl/core/typed'
 import type { ViewStateChangeParameters } from '@deck.gl/core/typed/controllers/controller'
 import { EventBus, GenshinBaseLayer } from '.'
+import db from '@/database'
 
 export interface GenshinMapOptions extends DeckProps {
   canvas: HTMLCanvasElement
@@ -85,7 +86,7 @@ export class GenshinMap extends Deck {
     })
 
     this.event.on('viewStateChange', ({ viewState }) => {
-      this.baseLayer?.setState({ zoom: viewState.zoom })
+      this.baseLayer?.forceUpdate()
       this.#mainViewState.value = viewState
     })
   }
@@ -111,18 +112,14 @@ export class GenshinMap extends Deck {
   get showTag() { return this.#showTag.value }
   set showTag(v) {
     this.#showTag.value = v
-    this.baseLayer?.setState({
-      showTag: v,
-    })
+    this.baseLayer?.forceUpdate()
   }
 
   #showBorder = ref(true)
   get showBorder() { return this.#showBorder.value }
   set showBorder(v) {
     this.#showBorder.value = v
-    this.baseLayer?.setState({
-      showBorder: v,
-    })
+    this.baseLayer?.forceUpdate()
   }
 
   #showTooltip = ref(true)
@@ -180,5 +177,32 @@ export class GenshinMap extends Deck {
   setBaseLayer = (code?: string) => {
     this.#baseLayerCode.value = code
     this.#setBaseLayer(GenshinBaseLayer.getLayer(code))
+  }
+
+  #markers = shallowRef<API.MarkerVo[]>([])
+  get markers() { return this.#markers.value }
+
+  /** itemId 与 iconUrl 对应的表 */
+  #iconMap = ref<Map<number, string>>(new Map())
+  get iconMap() { return this.#iconMap.value }
+
+  initIconMap = async (markers: API.MarkerVo[]) => {
+    for (const marker of markers) {
+      for (const item of marker.itemList ?? []) {
+        if (this.iconMap.has(item.itemId as number))
+          continue
+        const iconTag = (await db.item.get(item.itemId as number))?.iconTag
+        if (!iconTag)
+          continue
+        const iconUrl = (await db.iconTag.where('tag').equals(iconTag).first())?.url
+        iconUrl && this.iconMap.set(item.itemId as number, iconUrl)
+      }
+    }
+  }
+
+  renderMarkers = async (markers: API.MarkerVo[]) => {
+    await this.initIconMap(markers)
+    this.#markers.value = markers
+    this.baseLayer?.forceUpdate()
   }
 }

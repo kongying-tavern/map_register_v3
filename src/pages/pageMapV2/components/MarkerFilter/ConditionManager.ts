@@ -1,5 +1,6 @@
 import { ElNotification } from 'element-plus'
 import db from '@/database'
+import { useMap } from '@/pages/pageMapV2/hooks'
 
 export interface Condition {
   area: API.AreaVo
@@ -12,6 +13,8 @@ export class ConditionManager {
   #areaCode = ref<string>()
   get areaCode() { return this.#areaCode.value }
   set areaCode(v) {
+    if (v === this.areaCode)
+      return
     this.#areaCode.value = v
     this.itemTypeId = undefined
   }
@@ -19,6 +22,8 @@ export class ConditionManager {
   #itemTypeId = ref<number>()
   get itemTypeId() { return this.#itemTypeId.value }
   set itemTypeId(v) {
+    if (v === this.itemTypeId)
+      return
     this.#itemTypeId.value = v
     this.itemIds = []
   }
@@ -56,6 +61,13 @@ export class ConditionManager {
 
   isConditionAddable = computed(() => this.area && this.itemType && this.itemIds.length)
 
+  updateMarkers = async () => {
+    const markers = this.existItemIds.size
+      ? await db.marker.where('itemIdList').anyOf([...this.existItemIds]).toArray()
+      : []
+    useMap().map.value?.renderMarkers(markers)
+  }
+
   addCondition = async () => {
     if (!this.area || !this.itemType || !this.itemIds.length)
       return
@@ -72,19 +84,22 @@ export class ConditionManager {
       type: this.itemType,
       items: (await db.item.bulkGet(validItemIds)).filter(Boolean) as API.ItemVo[],
     })
+    await this.updateMarkers()
   }
 
-  deleteCondition = (id: string) => {
+  deleteCondition = async (id: string) => {
     const condition = this.conditions.get(id)
     this.conditions.delete(id)
     if (!condition)
       return
     condition.items.forEach(item => this.existItemIds.delete(item.itemId as number))
+    await this.updateMarkers()
   }
 
-  clearCondition = () => {
+  clearCondition = async () => {
     this.conditions.clear()
     this.existItemIds.clear()
+    await this.updateMarkers()
   }
 
   #info = (message: string) => {

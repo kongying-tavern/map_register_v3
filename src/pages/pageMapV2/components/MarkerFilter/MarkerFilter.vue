@@ -4,12 +4,6 @@ import { useFetchHook } from '@/hooks'
 import { GSButton } from '@/components'
 import db from '@/database'
 
-// defineProps<{
-// }>()
-
-// defineEmits<{
-// }>()
-
 // ==================== 其他 ====================
 interface Sortable {
   sortIndex?: number

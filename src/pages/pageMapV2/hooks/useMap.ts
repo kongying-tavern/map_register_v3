@@ -44,7 +44,7 @@ export const useMap = (canvasRef?: Ref<HTMLCanvasElement | null>) => {
     map.value = newMap
   }
 
-  onMounted(initMap)
+  tryOnMounted(initMap)
 
   return { map, baseLayerCode, showBorder, showTag, showTooltip }
 }
