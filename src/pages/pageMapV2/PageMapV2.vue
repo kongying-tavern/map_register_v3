@@ -44,12 +44,9 @@ const tabName = ref('filter')
           <el-switch v-model="showBorder" inline-prompt active-text="显示边框" inactive-text="隐藏边框" />
           <el-switch v-model="showTag" inline-prompt active-text="显示标签" inactive-text="隐藏标签" />
           <el-switch v-model="showTooltip" inline-prompt active-text="显示坐标" inactive-text="隐藏坐标" />
+          <AppUserAvatar />
         </div>
       </SiderMenuItem>
     </SiderMenu>
-
-    <div class="absolute top-2 right-2 flex gap-2">
-      <AppUserAvatar />
-    </div>
   </div>
 </template>
