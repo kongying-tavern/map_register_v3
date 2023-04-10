@@ -43,6 +43,9 @@ interface ImportMetaEnv {
 
   /** 资源服务器反代理 */
   readonly VITE_ASSETS_PROXY_TARGET: string
+
+  /** 开发模式 */
+  readonly VITE_DEVELOPMENT_MODE: 'default' | 'offline'
 }
 
 interface ImportMeta {

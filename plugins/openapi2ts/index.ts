@@ -16,8 +16,7 @@ export interface Openapi2tsOptions extends GenerateServiceProps {
 /**
  * 自动更新接口类型的钩子
  */
-export const openapi2ts = (optionList: Openapi2tsOptions[]): Plugin => {
-  let initFlag = false
+export const openapi2ts = (optionList: Openapi2tsOptions[], initFlag = false): Plugin => {
   const plugin: Plugin = {
     name: 'openapi-to-ts',
     apply: 'serve',
