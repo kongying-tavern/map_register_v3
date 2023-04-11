@@ -88,13 +88,13 @@ const map_tiles_config = {
   },
   "提瓦特-base0": {
     extension: "png",
-    code: "twt34",
+    code: "twt36",
     settings: {
       center: [0, 1742],
     },
     center: [3568, 6286],
-    size: [16384, 15360],
-    tilesOffset: [-4864, 0],
+    size: [17408, 15360],
+    tilesOffset: [-5888, 0],
   },
   "提瓦特-base1": {
     extension: "png",
