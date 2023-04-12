@@ -1,14 +1,18 @@
 <!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script lang="ts" setup>
+import { Finished } from '@element-plus/icons-vue'
+
 const props = defineProps<{
   modelValue?: any
-  options: Record<string, unknown>[]
+  options: Record<string, any>[]
   labelKey: string
   valueKey: string
   /** 多选 */
   multiple?: boolean
   /** 两列 */
   twoCol?: boolean
+  /** 是否显示全选按钮，仅在 multiple 模式下生效 */
+  showSelectAllBtn?: boolean
 }>()
 
 const emits = defineEmits<{
@@ -30,13 +34,18 @@ const singleValue = computed({
   set: v => emits('update:modelValue', v),
 })
 
-const isActived = (targetOpt: Record<string, unknown>) => {
+const isActived = (targetOpt: Record<string, any>) => {
   return !props.multiple
     ? singleValue.value === targetOpt[props.valueKey]
     : multipleValue.value.findIndex(value => value === targetOpt[props.valueKey]) > -1
 }
 
-const patchValue = (patchOpt: Record<string, unknown>) => {
+const patchArrayValue = (values: any[]) => {
+  multipleValue.value = values
+  emits('change', values)
+}
+
+const patchValue = (patchOpt: Record<string, any>) => {
   // 单选
   if (!props.multiple) {
     singleValue.value = patchOpt[props.valueKey]
@@ -46,13 +55,26 @@ const patchValue = (patchOpt: Record<string, unknown>) => {
 
   // 多选
   const shallowCopyValue = [...multipleValue.value]
-  const findIndex = shallowCopyValue.findIndex((value: unknown) => value === patchOpt[props.valueKey])
+  const findIndex = shallowCopyValue.findIndex((value: any) => value === patchOpt[props.valueKey])
   if (findIndex > -1)
     shallowCopyValue.splice(findIndex, 1)
   else
     shallowCopyValue.push(patchOpt[props.valueKey])
-  multipleValue.value = shallowCopyValue
-  emits('change', shallowCopyValue)
+  patchArrayValue(shallowCopyValue)
+}
+
+const isAllSelected = computed(() => {
+  const set = new Set(multipleValue.value)
+  for (const item of props.options) {
+    if (!set.has(item[props.valueKey]))
+      return false
+  }
+  return true
+})
+const toggleAllSelect = () => {
+  if (!props.multiple)
+    return
+  patchArrayValue(isAllSelected.value ? [] : props.options.map(item => item[props.valueKey]))
 }
 </script>
 
@@ -60,20 +82,41 @@ const patchValue = (patchOpt: Record<string, unknown>) => {
   <el-scrollbar height="100%">
     <div
       v-bind="$attrs"
-      class="checkbox-group genshin-text gap-0.5"
+      class="checkbox-group genshin-text grid gap-0.5"
       :class="{
-        'flex flex-col': !twoCol,
-        'grid grid-cols-2': twoCol,
+        'grid-cols-1': !twoCol,
+        'grid-cols-2': twoCol,
       }"
     >
+      <div
+        v-if="multiple && showSelectAllBtn && options.length"
+        :class="{ actived: isAllSelected }"
+        class="checkbox-item"
+        @click="toggleAllSelect"
+      >
+        <div class="checkbox-item__icon">
+          <slot name="all-select-icon">
+            <Finished />
+          </slot>
+        </div>
+        <div class="checkbox-item__content">
+          选择全部
+        </div>
+      </div>
+
       <div
         v-for="opt in options"
         :key="`${opt[valueKey]}`"
         :class="{ actived: isActived(opt) }"
-        class="checkbox-item select-none"
+        class="checkbox-item"
         @click="() => patchValue(opt)"
       >
-        {{ opt[labelKey] }}
+        <div v-if="$slots.icon" class="checkbox-item__icon">
+          <slot name="icon" :row="opt" />
+        </div>
+        <div class="checkbox-item__content" :class="{ 'no-icon': !$slots.icon }">
+          {{ opt[labelKey] }}
+        </div>
       </div>
     </div>
   </el-scrollbar>
@@ -90,12 +133,15 @@ const patchValue = (patchOpt: Record<string, unknown>) => {
     --color: #E4DDD1;
     --bg: transparent;
 
-    padding: 12px 16px;
+    padding: 2% 3%;
+    display: flex;
+    align-items: center;
     position: relative;
     color: var(--color);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    user-select: none;
 
     &:hover {
       --scale: 1;
@@ -134,6 +180,20 @@ const patchValue = (patchOpt: Record<string, unknown>) => {
       scale: var(--scale);
       transition: all ease 150ms;
       z-index: -1;
+    }
+  }
+
+  .checkbox-item__icon {
+    height: 100%;
+    aspect-ratio: 1 / 1;
+    padding: 8px;
+  }
+
+  .checkbox-item__content {
+    flex: 1;
+    padding: 8px 4px 8px 0;
+    &.no-icon {
+      padding: 8px 8px;
     }
   }
 }
