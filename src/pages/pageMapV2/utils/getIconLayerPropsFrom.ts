@@ -1,8 +1,10 @@
 import type { IconLayerProps } from '@deck.gl/layers/typed'
 import type { GenshinBaseLayer } from '../core'
+import type { MarkerWithIcon } from '@/pages/pageMapV2/core/GenshinBaseLayer'
 import { useCondition } from '@/pages/pageMapV2/hooks'
 
-export const getIconLayerPropsFrom = (target: GenshinBaseLayer): IconLayerProps<API.MarkerVo> => {
+/** 点位渲染属性 */
+export const getIconLayerPropsFrom = (target: GenshinBaseLayer): IconLayerProps<MarkerWithIcon> => {
   const { center } = target.rawProps
   const conditionManager = useCondition()
 
@@ -17,12 +19,21 @@ export const getIconLayerPropsFrom = (target: GenshinBaseLayer): IconLayerProps<
   }
 
   const getMarkers = () => {
-    let markers: API.MarkerVo[] = []
+    if (conditionManager.conditionStateId === target.conditionId)
+      return target.markers
+
+    let markers: MarkerWithIcon[] = []
     conditionManager.conditions.forEach((condition) => {
       if (!target.rawProps.areaCodes.includes(condition.area.code as string))
         return
-      markers = markers.concat(condition.markers)
+      markers = markers.concat(condition.markers.map(marker => ({
+        ...marker,
+        iconUrl: getMarkerIcon(marker.itemList) ?? '',
+      })))
     })
+    target.markers = markers
+    target.conditionId = conditionManager.conditionStateId
+
     return markers
   }
 
@@ -34,8 +45,7 @@ export const getIconLayerPropsFrom = (target: GenshinBaseLayer): IconLayerProps<
     pickable: true,
     getIcon: (marker) => {
       return {
-        id: `${marker.itemList?.[0]?.itemId ?? -1}`,
-        url: getMarkerIcon(marker.itemList) ?? '',
+        url: marker.iconUrl,
         width: 40,
         height: 50,
         anchorX: 20,

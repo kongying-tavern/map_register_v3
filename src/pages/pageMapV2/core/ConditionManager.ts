@@ -65,11 +65,16 @@ export class ConditionManager extends IconManager {
   #isPreRendering = ref(false)
   get isPreRendering() { return this.#isPreRendering.value }
 
+  /** 仅在改变条件时改变，以便各图层进行脏检查 */
+  #conditionStateId = ref(crypto.randomUUID())
+  get conditionStateId() { return this.#conditionStateId.value }
+
   requestMarkersUpdate = () => {
     const layer = useMap().map.value?.baseLayer
     if (!layer)
       return
     layer.forceUpdate()
+    this.#conditionStateId.value = crypto.randomUUID()
   }
 
   addCondition = async () => {

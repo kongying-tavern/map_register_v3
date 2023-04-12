@@ -136,7 +136,7 @@ const itemList = asyncComputed<API.ItemVo[]>(async () => {
       </div>
     </div>
 
-    <div class="condition-add-btn flex gap-2 justify-center py-2 px-3">
+    <div class="condition-add-btn flex gap-2 justify-center p-2">
       <GSButton
         class="flex-1"
         :disabled="conditionManager.isPreRendering"
@@ -164,13 +164,17 @@ const itemList = asyncComputed<API.ItemVo[]>(async () => {
       </GSButton>
     </div>
 
-    <div class="flex-1 flex-col p-2">
-      <ConditionRow
-        v-for="[id, condition] in conditionManager.conditions"
-        :key="id"
-        :condition="condition"
-        @delete="() => conditionManager.deleteCondition(id)"
-      />
+    <div class="flex-1 p-2 overflow-hidden">
+      <el-scrollbar height="100%">
+        <div class="h-full flex flex-col gap-2">
+          <ConditionRow
+            v-for="[id, condition] in conditionManager.conditions"
+            :key="id"
+            :condition="condition"
+            @delete="() => conditionManager.deleteCondition(id)"
+          />
+        </div>
+      </el-scrollbar>
     </div>
   </div>
 </template>
