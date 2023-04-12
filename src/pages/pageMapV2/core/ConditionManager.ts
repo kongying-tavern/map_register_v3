@@ -62,6 +62,9 @@ export class ConditionManager extends IconManager {
 
   isConditionAddable = computed(() => this.area && this.itemType && this.itemIds.length)
 
+  #isPreRendering = ref(false)
+  get isPreRendering() { return this.#isPreRendering.value }
+
   requestMarkersUpdate = () => {
     const layer = useMap().map.value?.baseLayer
     if (!layer)
@@ -77,18 +80,27 @@ export class ConditionManager extends IconManager {
       this.#info('所选组合条件已经存在，不能重复选择')
       return
     }
-    this.#info(crashedItemIds.length ? `${crashedItemIds.length} 项物品已经存在，已为你自动去重` : '所选条件已加入到条件列表')
-    validItemIds.forEach(id => this.existItemIds.add(id))
-    const conditionId = crypto.randomUUID()
-    const items = (await db.item.bulkGet(validItemIds)).filter(Boolean) as API.ItemVo[]
-    await this.initIconMap(items)
-    this.conditions.set(conditionId, {
-      area: this.area,
-      type: this.itemType,
-      items,
-      markers: (await db.marker.where('itemIdList').anyOf(validItemIds).toArray()) as API.MarkerVo[],
-    })
-    this.requestMarkersUpdate()
+    try {
+      this.#isPreRendering.value = true
+      this.#info(crashedItemIds.length ? `${crashedItemIds.length} 项物品已经存在，已为你自动去重` : '所选条件已加入到条件列表')
+      validItemIds.forEach(id => this.existItemIds.add(id))
+      const conditionId = crypto.randomUUID()
+      const items = (await db.item.bulkGet(validItemIds)).filter(Boolean) as API.ItemVo[]
+      await this.initIconMap(items)
+      this.conditions.set(conditionId, {
+        area: this.area,
+        type: this.itemType,
+        items,
+        markers: (await db.marker.where('itemIdList').anyOf(validItemIds).toArray()) as API.MarkerVo[],
+      })
+      this.requestMarkersUpdate()
+    }
+    catch (err) {
+      (err instanceof Error) && this.#handleError(err)
+    }
+    finally {
+      this.#isPreRendering.value = false
+    }
   }
 
   deleteCondition = async (id: string) => {
@@ -108,5 +120,9 @@ export class ConditionManager extends IconManager {
 
   #info = (message: string) => {
     console.log(message)
+  }
+
+  #handleError = (err: Error) => {
+    console.log(err)
   }
 }

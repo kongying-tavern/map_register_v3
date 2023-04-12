@@ -137,7 +137,11 @@ const itemList = asyncComputed<API.ItemVo[]>(async () => {
     </div>
 
     <div class="condition-add-btn flex gap-2 justify-center py-2 px-3">
-      <GSButton class="flex-1" @click="conditionManager.clearCondition">
+      <GSButton
+        class="flex-1"
+        :disabled="conditionManager.isPreRendering"
+        @click="conditionManager.clearCondition"
+      >
         <template #icon>
           <el-icon color="var(--gs-color-danger)">
             <DeleteFilled />
@@ -145,7 +149,12 @@ const itemList = asyncComputed<API.ItemVo[]>(async () => {
         </template>
         清空条件
       </GSButton>
-      <GSButton class="flex-1" :disabled="!conditionManager.isConditionAddable.value" @click="conditionManager.addCondition">
+      <GSButton
+        class="flex-1"
+        :loading="conditionManager.isPreRendering"
+        :disabled="!conditionManager.isConditionAddable.value"
+        @click="conditionManager.addCondition"
+      >
         <template #icon>
           <el-icon color="#38A2E4">
             <Download />
