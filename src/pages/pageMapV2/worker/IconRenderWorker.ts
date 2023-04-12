@@ -10,7 +10,7 @@
 import { getObjectFitSize } from '@/utils/getObjectFitSize'
 
 const BOX_SIZE = 40
-const BORDER_SIZE = 2
+const BORDER_SIZE = 4
 const ICON_SIZE = 40 - 2 * BORDER_SIZE
 const OUTER_RADIUS = BOX_SIZE / 2
 const INNER_RADIUS = ICON_SIZE / 2
@@ -44,9 +44,9 @@ const renderIcon = async (ev: MessageEvent<string>) => {
 
     // 绘制底图承托层
     const clipPath = new Path2D(`
-      M ${OUTER_RADIUS} ${0.95 * BOX_SIZE}
-      A ${INNER_RADIUS} ${INNER_RADIUS} 0 0 1 ${OUTER_RADIUS} ${0.05 * BOX_SIZE}
-      A ${INNER_RADIUS} ${INNER_RADIUS} 0 0 1 ${OUTER_RADIUS} ${0.95 * BOX_SIZE}
+      M ${OUTER_RADIUS} ${BOX_SIZE - BORDER_SIZE}
+      A ${INNER_RADIUS} ${INNER_RADIUS} 0 0 1 ${OUTER_RADIUS} ${BORDER_SIZE}
+      A ${INNER_RADIUS} ${INNER_RADIUS} 0 0 1 ${OUTER_RADIUS} ${BOX_SIZE - BORDER_SIZE}
       Z
     `)
     ctx.fillStyle = '#00000080'
@@ -64,9 +64,9 @@ const renderIcon = async (ev: MessageEvent<string>) => {
       M ${OUTER_RADIUS} ${1.2 * BOX_SIZE}
       L ${0.12725 * BOX_SIZE} ${0.83325 * BOX_SIZE}
       A ${OUTER_RADIUS} ${OUTER_RADIUS} 0 1 1 ${0.87275 * BOX_SIZE} ${0.83325 * BOX_SIZE}
-      M ${OUTER_RADIUS} ${0.95 * BOX_SIZE}
-      A ${INNER_RADIUS} ${INNER_RADIUS} 0 0 0 ${OUTER_RADIUS} ${0.05 * BOX_SIZE}
-      A ${INNER_RADIUS} ${INNER_RADIUS} 0 0 0 ${OUTER_RADIUS} ${0.95 * BOX_SIZE}
+      M ${OUTER_RADIUS} ${BOX_SIZE - BORDER_SIZE}
+      A ${INNER_RADIUS} ${INNER_RADIUS} 0 0 0 ${OUTER_RADIUS} ${BORDER_SIZE}
+      A ${INNER_RADIUS} ${INNER_RADIUS} 0 0 0 ${OUTER_RADIUS} ${BOX_SIZE - BORDER_SIZE}
       Z
     `)
     ctx.fillStyle = '#FFF'
