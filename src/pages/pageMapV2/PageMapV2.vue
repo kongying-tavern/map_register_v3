@@ -45,9 +45,9 @@ const tabName = ref('filter')
               :value="config.code"
             />
           </el-select>
-          <el-switch v-model="showBorder" inline-prompt active-text="显示边框" inactive-text="隐藏边框" />
-          <el-switch v-model="showTag" inline-prompt active-text="显示标签" inactive-text="隐藏标签" />
-          <el-switch v-model="showTooltip" inline-prompt active-text="显示坐标" inactive-text="隐藏坐标" />
+          <el-switch v-model="showTag" inline-prompt active-text="显示地图标签" inactive-text="隐藏地图标签" />
+          <el-switch v-model="showBorder" inline-prompt active-text="显示图层边界" inactive-text="隐藏图层边界" />
+          <el-switch v-model="showTooltip" inline-prompt active-text="显示调试信息" inactive-text="隐藏调试信息" />
           <AppUserAvatar />
         </div>
       </SiderMenuItem>
