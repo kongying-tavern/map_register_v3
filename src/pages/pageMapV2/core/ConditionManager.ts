@@ -1,4 +1,4 @@
-import { ElNotification } from 'element-plus'
+import { IconManager } from './IconManager'
 import db from '@/database'
 import { useMap } from '@/pages/pageMapV2/hooks'
 
@@ -6,9 +6,10 @@ export interface Condition {
   area: API.AreaVo
   type: API.ItemTypeVo
   items: API.ItemVo[]
+  markers: API.MarkerVo[]
 }
 
-export class ConditionManager {
+export class ConditionManager extends IconManager {
   // ========== 对外绑定的数据 ==========
   #areaCode = ref<string>()
   get areaCode() { return this.#areaCode.value }
@@ -61,11 +62,11 @@ export class ConditionManager {
 
   isConditionAddable = computed(() => this.area && this.itemType && this.itemIds.length)
 
-  updateMarkers = async () => {
-    const markers = this.existItemIds.size
-      ? await db.marker.where('itemIdList').anyOf([...this.existItemIds]).toArray()
-      : []
-    useMap().map.value?.renderMarkers(markers)
+  requestMarkersUpdate = () => {
+    const layer = useMap().map.value?.baseLayer
+    if (!layer)
+      return
+    layer.forceUpdate()
   }
 
   addCondition = async () => {
@@ -79,12 +80,15 @@ export class ConditionManager {
     this.#info(crashedItemIds.length ? `${crashedItemIds.length} 项物品已经存在，已为你自动去重` : '所选条件已加入到条件列表')
     validItemIds.forEach(id => this.existItemIds.add(id))
     const conditionId = crypto.randomUUID()
+    const items = (await db.item.bulkGet(validItemIds)).filter(Boolean) as API.ItemVo[]
+    await this.initIconMap(items)
     this.conditions.set(conditionId, {
       area: this.area,
       type: this.itemType,
-      items: (await db.item.bulkGet(validItemIds)).filter(Boolean) as API.ItemVo[],
+      items,
+      markers: (await db.marker.where('itemIdList').anyOf(validItemIds).toArray()) as API.MarkerVo[],
     })
-    await this.updateMarkers()
+    this.requestMarkersUpdate()
   }
 
   deleteCondition = async (id: string) => {
@@ -93,19 +97,16 @@ export class ConditionManager {
     if (!condition)
       return
     condition.items.forEach(item => this.existItemIds.delete(item.itemId as number))
-    await this.updateMarkers()
+    this.requestMarkersUpdate()
   }
 
   clearCondition = async () => {
     this.conditions.clear()
     this.existItemIds.clear()
-    await this.updateMarkers()
+    this.requestMarkersUpdate()
   }
 
   #info = (message: string) => {
-    ElNotification.info({
-      message,
-      position: 'bottom-left',
-    })
+    console.log(message)
   }
 }

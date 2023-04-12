@@ -1,7 +1,9 @@
 <script lang="ts" setup>
-import { CheckboxGroup, ConditionManager, FilterTabs } from '.'
+import { DeleteFilled, Download } from '@element-plus/icons-vue'
+import { CheckboxGroup, ConditionRow, FilterTabs } from '.'
 import { useFetchHook } from '@/hooks'
 import { GSButton } from '@/components'
+import { useCondition } from '@/pages/pageMapV2/hooks'
 import db from '@/database'
 
 // ==================== 其他 ====================
@@ -25,7 +27,7 @@ const next = () => {
 }
 
 // ==================== 筛选条件 ====================
-const conditionManager = new ConditionManager()
+const conditionManager = useCondition()
 
 // ==================== 地区 ====================
 const parentAreaCode = ref<string>()
@@ -36,7 +38,7 @@ const { onSuccess: onAreaFetched } = useFetchHook({
 })
 onAreaFetched((areaList) => {
   parentAreaList.value = areaList
-  parentAreaCode.value = parentAreaList.value[0].code
+  parentAreaCode.value = parentAreaList.value[0]?.code
 })
 
 const childrenAreaList = asyncComputed<API.AreaVo[]>(async () => {
@@ -62,14 +64,15 @@ onTypeFetched((typeList) => {
 })
 
 // ==================== 物品 ====================
-const itemList = asyncComputed<API.ItemVo[]>(() => {
+const itemList = asyncComputed<API.ItemVo[]>(async () => {
   if (conditionManager.area === undefined || conditionManager.itemType === undefined)
     return []
-  return db.item
+  const res = await db.item
     .where('areaId')
     .equals(conditionManager.area.areaId as number)
     .and(({ typeIdList = [] }) => typeIdList.includes(conditionManager.itemType?.typeId as number))
     .toArray()
+  return res.sort(sort)
 }, [])
 </script>
 
@@ -127,39 +130,38 @@ const itemList = asyncComputed<API.ItemVo[]>(() => {
           label-key="name"
           value-key="itemId"
           multiple
+          show-select-all-btn
           two-col
         />
       </div>
     </div>
 
-    <div class="flex justify-center p-2">
-      <GSButton icon="submit" :disabled="!conditionManager.isConditionAddable.value" @click="conditionManager.addCondition">
-        将筛选条件加入列表
+    <div class="condition-add-btn flex gap-2 justify-center py-2 px-3">
+      <GSButton class="flex-1" @click="conditionManager.clearCondition">
+        <template #icon>
+          <el-icon color="var(--gs-color-danger)">
+            <DeleteFilled />
+          </el-icon>
+        </template>
+        清空条件
+      </GSButton>
+      <GSButton class="flex-1" :disabled="!conditionManager.isConditionAddable.value" @click="conditionManager.addCondition">
+        <template #icon>
+          <el-icon color="#38A2E4">
+            <Download />
+          </el-icon>
+        </template>
+        添加条件
       </GSButton>
     </div>
 
-    <div class="flex-1 p-2">
-      <div
+    <div class="flex-1 flex-col p-2">
+      <ConditionRow
         v-for="[id, condition] in conditionManager.conditions"
         :key="id"
-        class="flex items-center gap-2"
-      >
-        <el-tag>
-          {{ condition.area.name }}
-        </el-tag>
-        <el-tag>
-          {{ condition.type.name }}
-        </el-tag>
-        <el-tag>
-          物品 {{ condition.items.length }} 项
-        </el-tag>
-        <el-button @click="() => conditionManager.deleteCondition(id)">
-          删除
-        </el-button>
-      </div>
+        :condition="condition"
+        @delete="() => conditionManager.deleteCondition(id)"
+      />
     </div>
   </div>
 </template>
-
-<style lang="scss" scoped>
-</style>

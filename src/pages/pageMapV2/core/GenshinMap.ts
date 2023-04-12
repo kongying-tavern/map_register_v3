@@ -179,9 +179,6 @@ export class GenshinMap extends Deck {
     this.#setBaseLayer(GenshinBaseLayer.getLayer(code))
   }
 
-  #markers = shallowRef<API.MarkerVo[]>([])
-  get markers() { return this.#markers.value }
-
   /** itemId 与 iconUrl 对应的表 */
   #iconMap = ref<Map<number, string>>(new Map())
   get iconMap() { return this.#iconMap.value }
@@ -198,11 +195,5 @@ export class GenshinMap extends Deck {
         iconUrl && this.iconMap.set(item.itemId as number, iconUrl)
       }
     }
-  }
-
-  renderMarkers = async (markers: API.MarkerVo[]) => {
-    await this.initIconMap(markers)
-    this.#markers.value = markers
-    this.baseLayer?.forceUpdate()
   }
 }
