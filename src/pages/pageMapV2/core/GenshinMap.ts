@@ -173,8 +173,16 @@ export class GenshinMap extends Deck {
       if (!this.showTooltip || !info.coordinate)
         return null
       const [x, y] = info.coordinate
-      return `x: ${Math.floor(x) - center[0]}, y: ${Math.floor(y) - center[1]}
-      zoom: ${info.viewport?.zoom?.toFixed(2)}`
+      return info.object
+        ? `markerTitle: ${info.object?.markerTitle}
+          markerId: ${info.object?.id}
+          hiddenFlag: ${info.object?.hiddenFlag}
+          picture: ${info.object?.picture}
+          version: ${info.object?.version}
+          position: [${info.object?.position}]
+          itemIdList: [${info.object?.itemIdList?.join(',')}]`
+        : `x: ${Math.floor(x) - center[0]}, y: ${Math.floor(y) - center[1]}
+          zoom: ${info.viewport?.zoom?.toFixed(2)}`
     }
 
     this.setProps({
