@@ -1,6 +1,7 @@
 import type { DeckProps, LayersList, OrbitViewState, PickingInfo } from '@deck.gl/core/typed'
 import { Deck, OrthographicView, TRANSITION_EVENTS } from '@deck.gl/core/typed'
 import type { ViewStateChangeParameters } from '@deck.gl/core/typed/controllers/controller'
+import { clamp } from 'lodash'
 import { EventBus, GenshinBaseLayer } from '.'
 import db from '@/database'
 
@@ -8,9 +9,10 @@ export interface GenshinMapOptions extends DeckProps {
   canvas: HTMLCanvasElement
 }
 
-export interface GensinMapViewState extends OrbitViewState {
+export interface GensinMapViewState extends Omit<OrbitViewState, 'target'> {
   minZoom: number
   maxZoom: number
+  target: Coordinate2D
 }
 
 export interface GenshinViewStateChangeParameters extends ViewStateChangeParameters {
@@ -37,7 +39,6 @@ export interface GenshinMapEvents extends Record<string, unknown[]> {
 }
 
 export type Coordinate2D = [number, number]
-export type Coordinate3D = [number, number, number]
 
 export class GenshinMap extends Deck {
   constructor(options: GenshinMapOptions) {
@@ -59,8 +60,18 @@ export class GenshinMap extends Deck {
       onViewStateChange: ({ viewState, oldViewState = {}, ...rest }) => {
         const newState = viewState as GensinMapViewState
         const oldState = oldViewState as Partial<GensinMapViewState>
+
+        if (!this.baseLayer)
+          return oldViewState
+
+        const [xmin, ymax, xmax, ymin] = this.baseLayer.rawProps.bounds
+
         const rewriteState: GensinMapViewState = {
           ...newState,
+          target: [
+            clamp(newState.target[0], xmin, xmax),
+            clamp(newState.target[1], ymin, ymax),
+          ],
           transitionDuration: newState.zoom === oldState.zoom ? 0 : 200,
           transitionInterruption: TRANSITION_EVENTS.BREAK,
           transitionEasing: (t: number) => Math.sin(t * Math.PI / 2), // 即 ease-out 效果
@@ -99,7 +110,7 @@ export class GenshinMap extends Deck {
     zoom: -4,
     minZoom: -4,
     maxZoom: 2,
-    target: [0, 0, 0],
+    target: [0, 0],
   })
 
   #baseLayerCode = ref<string>()
@@ -143,11 +154,11 @@ export class GenshinMap extends Deck {
     const { center = [0, 0], size = [0, 0], tilesOffset = [0, 0] } = layer?.rawProps ?? {}
     const layers: LayersList = layer ? [layer] : []
 
-    const getInitialTarget = (): Coordinate3D => {
+    const getInitialTarget = (): Coordinate2D => {
       const target = layer?.rawProps?.initViewState.target
       return target
-        ? [target[0] + center[0], target[1] + center[1], 0]
-        : [(size[0] / 2 - tilesOffset[0]), (size[1] / 2 - tilesOffset[1]), 0]
+        ? [target[0] + center[0], target[1] + center[1]]
+        : [(size[0] / 2 - tilesOffset[0]), (size[1] / 2 - tilesOffset[1])]
     }
 
     const initialViewState = {
