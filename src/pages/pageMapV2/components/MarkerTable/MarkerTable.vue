@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import { useMarkerList } from '@/pages/pageMapV2/hooks'
+import { useCondition } from '@/pages/pageMapV2/hooks'
 
-const { markerList } = useMarkerList()
+const conditionManager = useCondition()
 
 const test = () => {
-  console.log(markerList.value)
+  console.log(Object.fromEntries(conditionManager.conditions.entries()))
 }
 </script>
 
