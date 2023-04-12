@@ -57,7 +57,7 @@ export const useUserStore = defineStore('user-info', {
     /** 是否正在进行预加载任务 */
     isHandling: false,
     /** 路由是否跳转完毕 */
-    isRouteLoading: true,
+    isRouteLoading: false,
     /** 路由动画是否已经结束 */
     isRouteAnimationEnd: true,
   }),
@@ -82,6 +82,7 @@ export const useUserStore = defineStore('user-info', {
     isNeigui: ({ auth: { userRoles = [] } }) => {
       return userRoles.includes(RoleTypeEnum.MAP_NEIGUI)
     },
+    isOfflineMode: () => import.meta.env.VITE_DEVELOPMENT_MODE === 'offline',
     /** 根据权限筛选出的全部可访问路由，只能在 router 以外的地方调用 */
     routes: (state) => {
       const router = useRouter()
@@ -208,7 +209,7 @@ export const useUserStore = defineStore('user-info', {
     },
     /** 预加载任务，仅在 token 可用时或登陆后运行 */
     async preloadMission() {
-      if (!this.validateUserToken() || this.isHandling)
+      if (!this.validateUserToken() || this.isHandling || !this.isOfflineMode)
         return
       this.isRouteLoading = true
       this.isHandling = true
