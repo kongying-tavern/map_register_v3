@@ -151,6 +151,7 @@ const itemList = asyncComputed<API.ItemVo[]>(async () => {
       </GSButton>
       <GSButton
         class="flex-1"
+        title="当存在重复物品时会自动去重"
         :loading="conditionManager.isPreRendering"
         :disabled="!conditionManager.isConditionAddable.value"
         @click="conditionManager.addCondition"
