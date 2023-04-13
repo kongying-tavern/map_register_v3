@@ -69,13 +69,11 @@ useEventListener('pointerdown', checkTooltip)
 </template>
 
 <style lang="scss">
-.el-popper.is-customized {
-  &.sider-menu-tooltip {
-    padding: 6px 12px;
-    background: #495168;
-    color: #ECE5D8;
-    font-size: 16px;
-  }
+.el-popper.is-customized.sider-menu-tooltip {
+  padding: 6px 12px;
+  background: #495168;
+  color: #ECE5D8;
+  font-size: 16px;
   .el-popper__arrow {
     display: none;
   }
