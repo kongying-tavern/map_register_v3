@@ -9,7 +9,7 @@ import { openapi2ts } from './plugins'
 export default defineConfig(({ mode }) => {
   const ENV = loadEnv(mode, '.') as ImportMetaEnv
   // eslint-disable-next-line no-console
-  console.log('[ENV]', typeof ENV)
+  console.log('[ENV]', ENV)
 
   const proxy: Record<string, string | ProxyOptions> = {
     [ENV.VITE_API_BASE]: {
