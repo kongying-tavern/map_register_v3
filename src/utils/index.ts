@@ -1,6 +1,7 @@
 export * from './compress'
 export * from './array2tree'
 export * from './getObjectFitSize'
+export * from './getPrototypeOf'
 export * from './loadImage'
 export * from './logger'
 export * from './messageFrom'
