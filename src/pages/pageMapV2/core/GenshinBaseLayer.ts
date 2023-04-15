@@ -15,10 +15,6 @@ export interface GenshinTileLayerProps extends Required<LayerConfig> {
   coordinateOrigin: [number, number, number]
 }
 
-export interface MarkerWithIcon extends API.MarkerVo {
-  iconUrl: string
-}
-
 export class GenshinBaseLayer extends CompositeLayer<GenshinTileLayerProps> {
   static get ID_PREFIX() { return 'genshin-layer-group-' }
   static get layerName() { return 'GenshinTileLayer' }
@@ -89,7 +85,7 @@ export class GenshinBaseLayer extends CompositeLayer<GenshinTileLayerProps> {
   get conditionId() { return this.#conditionId.value }
   set conditionId(v) { this.#conditionId.value = v }
 
-  #markers = shallowRef<MarkerWithIcon[]>([])
+  #markers = shallowRef<(API.MarkerVo)[]>([])
   get markers() { return this.#markers.value }
   set markers(v) { this.#markers.value = v }
 

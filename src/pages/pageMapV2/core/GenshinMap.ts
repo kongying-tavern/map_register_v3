@@ -1,9 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { DeckProps, LayersList, OrbitViewState, PickingInfo } from '@deck.gl/core/typed'
 import { Deck, OrthographicView, TRANSITION_EVENTS } from '@deck.gl/core/typed'
 import type { ViewStateChangeParameters } from '@deck.gl/core/typed/controllers/controller'
 import { clamp } from 'lodash'
 import { EventBus, GenshinBaseLayer } from '.'
-import db from '@/database'
 
 export interface GenshinMapOptions extends DeckProps {
   canvas: HTMLCanvasElement
@@ -60,12 +60,9 @@ export class GenshinMap extends Deck {
       onViewStateChange: ({ viewState, oldViewState = {}, ...rest }) => {
         const newState = viewState as GensinMapViewState
         const oldState = oldViewState as Partial<GensinMapViewState>
-
         if (!this.baseLayer)
           return oldViewState
-
         const [xmin, ymax, xmax, ymin] = this.baseLayer.rawProps.bounds
-
         const rewriteState: GensinMapViewState = {
           ...newState,
           target: [
@@ -102,9 +99,43 @@ export class GenshinMap extends Deck {
     })
   }
 
+  // ==================== 地图状态 ====================
   #eventBus = new EventBus<GenshinMapEvents>()
   get event() { return this.#eventBus }
 
+  #hover = shallowRef<any>(null)
+  get hover() { return this.#hover.value }
+  set hover(v) {
+    if (this.hover === v)
+      return
+    this.#hover.value = v
+    this.baseLayer?.forceUpdate()
+  }
+
+  #active = shallowRef<any>(null)
+  get active() { return this.#active.value }
+  set active(v) {
+    if (this.active === v)
+      return
+    this.#active.value = v
+    this.baseLayer?.forceUpdate()
+  }
+
+  #focus = shallowRef<any>(null)
+  get focus() { return this.#focus.value }
+  set focus(v) {
+    if (this.focus === v)
+      return
+    this.#focus.value = v
+    this.baseLayer?.forceUpdate()
+  }
+
+  #readResolve?: (map: GenshinMap) => void = undefined
+  readonly ready = new Promise<GenshinMap>((resolve) => {
+    this.#readResolve = resolve
+  })
+
+  // ==================== 视口状态 ====================
   get mainViewState() { return this.#mainViewState.value }
   #mainViewState = ref<GensinMapViewState>({
     zoom: -4,
@@ -113,6 +144,7 @@ export class GenshinMap extends Deck {
     target: [0, 0],
   })
 
+  // ==================== 图层状态 ====================
   #baseLayerCode = ref<string>()
   get baseLayerCode() { return this.#baseLayerCode.value }
 
@@ -136,11 +168,6 @@ export class GenshinMap extends Deck {
   #showTooltip = ref(true)
   get showTooltip() { return this.#showTooltip.value }
   set showTooltip(v) { this.#showTooltip.value = v }
-
-  #readResolve?: (map: GenshinMap) => void = undefined
-  readonly ready = new Promise<GenshinMap>((resolve) => {
-    this.#readResolve = resolve
-  })
 
   /**
    * 切换底图，传递 `undefined` 时清空底图。
@@ -170,6 +197,8 @@ export class GenshinMap extends Deck {
     this.#mainViewState.value = initialViewState
 
     const getTooltip = (info: PickingInfo) => {
+      if (this.hover !== info.object)
+        this.hover = info.object
       if (!this.showTooltip || !info.coordinate)
         return null
       const [x, y] = info.coordinate
@@ -196,23 +225,5 @@ export class GenshinMap extends Deck {
   setBaseLayer = (code?: string) => {
     this.#baseLayerCode.value = code
     this.#setBaseLayer(GenshinBaseLayer.getLayer(code))
-  }
-
-  /** itemId 与 iconUrl 对应的表 */
-  #iconMap = ref<Map<number, string>>(new Map())
-  get iconMap() { return this.#iconMap.value }
-
-  initIconMap = async (markers: API.MarkerVo[]) => {
-    for (const marker of markers) {
-      for (const item of marker.itemList ?? []) {
-        if (this.iconMap.has(item.itemId as number))
-          continue
-        const iconTag = (await db.item.get(item.itemId as number))?.iconTag
-        if (!iconTag)
-          continue
-        const iconUrl = (await db.iconTag.where('tag').equals(iconTag).first())?.url
-        iconUrl && this.iconMap.set(item.itemId as number, iconUrl)
-      }
-    }
   }
 }

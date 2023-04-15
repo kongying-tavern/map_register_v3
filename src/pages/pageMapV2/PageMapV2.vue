@@ -7,12 +7,30 @@ import { AppUserAvatar } from '@/components'
 
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 
-const { baseLayerCode, showBorder, showTag, showTooltip } = useMap(canvasRef)
+const { map, baseLayerCode, showBorder, showTag, showTooltip } = useMap(canvasRef)
 
 const collapse = ref(true)
 useEventListener('keypress', (ev) => {
   if (ev.code === 'Backquote')
     collapse.value = !collapse.value
+})
+
+useEventListener('pointerdown', () => {
+  if (!map.value?.hover)
+    return
+  map.value.active = map.value.hover
+})
+
+useEventListener('pointerup', () => {
+  if (!map.value)
+    return
+  map.value.active = map.value.hover
+})
+
+useEventListener('click', () => {
+  if (!map.value?.hover)
+    return
+  map.value.focus = map.value.active ?? null
 })
 
 const tabName = ref('filter')

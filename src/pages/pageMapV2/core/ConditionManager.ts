@@ -5,8 +5,7 @@ import { useMap } from '@/pages/pageMapV2/hooks'
 export interface Condition {
   area: API.AreaVo
   type: API.ItemTypeVo
-  items: API.ItemVo[]
-  markers: API.MarkerVo[]
+  items: number[]
 }
 
 export class ConditionManager extends IconManager {
@@ -69,10 +68,12 @@ export class ConditionManager extends IconManager {
   #conditionStateId = ref(crypto.randomUUID())
   get conditionStateId() { return this.#conditionStateId.value }
 
-  requestMarkersUpdate = () => {
+  requestMarkersUpdate = async () => {
     const layer = useMap().map.value?.baseLayer
     if (!layer)
       return
+    const items = (await db.item.bulkGet([...this.existItemIds])).filter(Boolean) as API.ItemVo[]
+    await this.initIconMap(items)
     layer.forceUpdate()
     this.#conditionStateId.value = crypto.randomUUID()
   }
@@ -90,15 +91,12 @@ export class ConditionManager extends IconManager {
       this.#info(crashedItemIds.length ? `${crashedItemIds.length} 项物品已经存在，已为你自动去重` : '所选条件已加入到条件列表')
       validItemIds.forEach(id => this.existItemIds.add(id))
       const conditionId = crypto.randomUUID()
-      const items = (await db.item.bulkGet(validItemIds)).filter(Boolean) as API.ItemVo[]
-      await this.initIconMap(items)
       this.conditions.set(conditionId, {
         area: this.area,
         type: this.itemType,
-        items,
-        markers: (await db.marker.where('itemIdList').anyOf(validItemIds).toArray()) as API.MarkerVo[],
+        items: validItemIds,
       })
-      this.requestMarkersUpdate()
+      await this.requestMarkersUpdate()
     }
     catch (err) {
       (err instanceof Error) && this.#handleError(err)
@@ -113,14 +111,16 @@ export class ConditionManager extends IconManager {
     this.conditions.delete(id)
     if (!condition)
       return
-    condition.items.forEach(item => this.existItemIds.delete(item.itemId as number))
-    this.requestMarkersUpdate()
+    condition.items.forEach(itemId => this.existItemIds.delete(itemId as number))
+    await this.requestMarkersUpdate()
   }
 
   clearCondition = async () => {
+    if (!this.conditions.size)
+      return
     this.conditions.clear()
     this.existItemIds.clear()
-    this.requestMarkersUpdate()
+    await this.requestMarkersUpdate()
   }
 
   #info = (message: string) => {
