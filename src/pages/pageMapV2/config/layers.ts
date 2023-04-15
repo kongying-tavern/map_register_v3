@@ -86,13 +86,37 @@ export const LAYER_CONFIGS: LayerConfig[] = [
     },
   },
   {
+    code: 'qd',
+    name: '金苹果群岛V1.6_阶段一',
+    extension: 'jpg',
+    size: [8192, 8192],
+    center: [3568, 6286],
+    areaCodes: ['A:APPLE:1_6_STG1'],
+    tags: LAYER_TAG_CONFIGS.qd,
+    initViewState: {
+      zoom: -3,
+      minZoom: -3,
+    },
+  },
+  {
+    code: 'qd1',
+    name: '金苹果群岛V1.6_阶段二',
+    extension: 'jpg',
+    size: [8192, 8192],
+    center: [3568, 6286],
+    areaCodes: ['A:APPLE:1_6_STG2'],
+    tags: LAYER_TAG_CONFIGS.qd1,
+    initViewState: {
+      zoom: -3,
+      minZoom: -3,
+    },
+  },
+  {
     code: 'qd28',
     name: '金苹果群岛V2.8',
     size: [8192, 8192],
-    center: [512, -2304],
-    areaCodes: [
-      'A:APPLE:2_8',
-    ],
+    center: [3568, 6286],
+    areaCodes: ['A:APPLE:2_8'],
     tags: LAYER_TAG_CONFIGS.qd28,
     initViewState: {
       zoom: -3,
@@ -103,10 +127,8 @@ export const LAYER_CONFIGS: LayerConfig[] = [
     code: 'cyjy',
     name: '层岩巨渊',
     size: [12288, 12288],
-    center: [1800, -500],
-    areaCodes: [
-      'A:LY:CENGYAN_UG',
-    ],
+    center: [3568, 6286],
+    areaCodes: ['A:LY:CENGYAN_UG'],
     tags: LAYER_TAG_CONFIGS.cyjy,
     initViewState: {
       zoom: -3,
@@ -117,18 +139,16 @@ export const LAYER_CONFIGS: LayerConfig[] = [
     code: 'yxg',
     name: '渊下宫',
     size: [12288, 12288],
-    areaCodes: [
-      'A:DQ:YUANXIAGONG',
-    ],
+    center: [3568, 6286],
+    areaCodes: ['A:DQ:YUANXIAGONG'],
     tags: LAYER_TAG_CONFIGS.yxg,
   },
   {
     code: 'yxg2',
     name: '三界路飨祭',
     size: [12288, 12288],
-    areaCodes: [
-      'A:DQ:SANJIE',
-    ],
+    center: [3568, 6286],
+    areaCodes: ['A:DQ:SANJIE'],
     tags: LAYER_TAG_CONFIGS.yxg2,
   },
 ]
