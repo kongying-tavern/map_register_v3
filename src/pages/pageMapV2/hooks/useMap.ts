@@ -7,7 +7,7 @@ const map = shallowRef<GenshinMap>()
 
 export const useMap = (canvasRef?: Ref<HTMLCanvasElement | null>) => {
   const baseLayerCode = computed({
-    get: () => map.value?.baseLayerCode,
+    get: () => map.value?.baseLayer?.rawProps.code,
     set: v => map.value && (map.value.setBaseLayer(v)),
   })
 

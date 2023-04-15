@@ -1,12 +1,16 @@
 import { IconManager } from './IconManager'
 import db from '@/database'
 import { useMap } from '@/pages/pageMapV2/hooks'
+import { LAYER_CONFIGS } from '@/pages/pageMapV2/config'
+import { Logger } from '@/utils'
 
 export interface Condition {
   area: API.AreaVo
   type: API.ItemTypeVo
   items: number[]
 }
+
+const logger = new Logger('[条件管理器]')
 
 export class ConditionManager extends IconManager {
   // ========== 对外绑定的数据 ==========
@@ -15,6 +19,11 @@ export class ConditionManager extends IconManager {
   set areaCode(v) {
     if (v === this.areaCode)
       return
+    // 切换子区域时，同时切换对应的底图
+    const findLayer = LAYER_CONFIGS.find(({ areaCodes = [] }) => areaCodes.find(code => code === v) !== undefined)
+    if (!findLayer)
+      throw new Error(`无法找到对应的底图设置 (areaCode: ${v})`)
+    useMap().baseLayerCode.value = findLayer.code
     this.#areaCode.value = v
     this.itemTypeId = undefined
   }
@@ -124,10 +133,10 @@ export class ConditionManager extends IconManager {
   }
 
   #info = (message: string) => {
-    console.log(message)
+    logger.info(message)
   }
 
   #handleError = (err: Error) => {
-    console.log(err)
+    logger.error(err)
   }
 }

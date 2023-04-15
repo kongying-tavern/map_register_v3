@@ -145,9 +145,6 @@ export class GenshinMap extends Deck {
   })
 
   // ==================== 图层状态 ====================
-  #baseLayerCode = ref<string>()
-  get baseLayerCode() { return this.#baseLayerCode.value }
-
   #baseLayer = shallowRef<GenshinBaseLayer>()
   get baseLayer() { return this.#baseLayer.value }
 
@@ -223,7 +220,8 @@ export class GenshinMap extends Deck {
   }
 
   setBaseLayer = (code?: string) => {
-    this.#baseLayerCode.value = code
+    if (this.baseLayer?.rawProps.code === code)
+      return
     this.#setBaseLayer(GenshinBaseLayer.getLayer(code))
   }
 }

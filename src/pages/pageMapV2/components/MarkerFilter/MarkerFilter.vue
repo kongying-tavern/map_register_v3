@@ -41,13 +41,11 @@ onAreaFetched((areaList) => {
   parentAreaCode.value = parentAreaList.value[0]?.code
 })
 
-const childrenAreaList = asyncComputed<API.AreaVo[]>(async () => {
+const childrenAreaList = asyncComputed<API.AreaVo[]>(() => {
   if (!parentAreaCode.value)
     return []
   const parentArea = parentAreaList.value.find(area => area.code === parentAreaCode.value) as API.AreaVo
-  const res = await db.area.where('parentId').equals(parentArea.areaId as number).toArray()
-  conditionManager.areaCode = res[0].code
-  return res
+  return db.area.where('parentId').equals(parentArea.areaId as number).toArray()
 }, [])
 
 // ==================== 分类 ====================
@@ -139,7 +137,7 @@ const itemList = asyncComputed<API.ItemVo[]>(async () => {
     <div class="condition-add-btn flex gap-2 justify-center p-2">
       <GSButton
         class="flex-1"
-        :disabled="conditionManager.isPreRendering"
+        :disabled="conditionManager.isPreRendering || !conditionManager.conditions.size"
         @click="conditionManager.clearCondition"
       >
         <template #icon>
