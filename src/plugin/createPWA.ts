@@ -68,5 +68,7 @@ export const createPWA = (): Plugin => ({
     await ensureServiceWorker()
     // 设置 ServiceWorker 的环境变量
     await sendMessage<ServiceWorkerEnv, string>({ DEV: import.meta.env.DEV })
+    // 确保字体都加载完毕
+    await document.fonts.ready
   },
 })
