@@ -8,7 +8,7 @@ import { RoleTypeEnum } from '@/shared'
 import {
   useArchiveStore,
   useAreaStore,
-  useIconStore,
+  useIconTagStore,
   useItemStore,
   useItemTypeStore,
   useMapStore,
@@ -182,7 +182,7 @@ export const useUserStore = defineStore('user-info', {
       useMapStore().reset()
       // 清除后台任务
       useAreaStore().clearBackgroundUpdate()
-      useIconStore().clearBackgroundUpdate()
+      useIconTagStore().clearBackgroundUpdate()
       useItemStore().clearBackgroundUpdate()
       useItemTypeStore().clearBackgroundUpdate()
       useMarkerStore().clearBackgroundUpdate()
@@ -219,7 +219,7 @@ export const useUserStore = defineStore('user-info', {
         useItemStore().backgroundUpdate(),
         useItemTypeStore().backgroundUpdate(),
         useMarkerStore().backgroundUpdate(),
-        useIconStore().backgroundUpdate(),
+        useIconTagStore().backgroundUpdate(),
         archiveStore.fetchArchive(),
       ])
       archiveStore.loadLatestArchive()

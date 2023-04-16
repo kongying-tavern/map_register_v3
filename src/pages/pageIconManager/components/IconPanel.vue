@@ -1,12 +1,10 @@
 <script lang="ts" setup>
-import db from '@/database'
-import { useIconStore } from '@/stores'
+import Api from '@/api/api'
 import { PgUnit, useFetchHook, usePagination } from '@/hooks'
 import { Logger } from '@/utils'
 
 const logger = new Logger('[icon]')
 
-const iconStore = useIconStore()
 const iconList = ref<API.IconVo[]>([])
 
 const { pagination, layout } = usePagination({
@@ -16,23 +14,20 @@ const { pagination, layout } = usePagination({
 const { refresh, onSuccess } = useFetchHook({
   onRequest: async () => {
     const { current, pageSize } = pagination.value
-    const data = await db.icon
-      .offset((current - 1) * pageSize)
-      .limit(pageSize)
-      .toArray()
-    return data
+    const { data: { record = [], total = 0 } = {} } = await Api.icon.listIcon({
+      size: pageSize,
+      current,
+    })
+    return { record, total }
   },
 })
 
-onSuccess((data) => {
-  iconList.value = data
-  pagination.value.total = iconStore.total
-  logger.info(data)
-})
+onMounted(refresh)
 
-onMounted(async () => {
-  await iconStore.backgroundUpdate()
-  await refresh()
+onSuccess(({ record, total }) => {
+  iconList.value = record
+  pagination.value.total = total
+  logger.info(record)
 })
 
 const tableContainerRef = ref<HTMLElement | null>(null)

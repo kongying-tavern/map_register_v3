@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { Delete, Refresh } from '@element-plus/icons-vue'
 import { SettingItem } from '.'
-import { localSettings, useAreaStore, useIconStore, useItemStore, useItemTypeStore, useMarkerStore } from '@/stores'
+import { localSettings, useAreaStore, useIconTagStore, useItemStore, useItemTypeStore, useMarkerStore } from '@/stores'
 
 interface StoreLike {
   total: number
@@ -13,7 +13,7 @@ interface StoreLike {
 
 const storeList: { name: string; store: StoreLike }[] = [
   { name: '地区', store: useAreaStore() },
-  { name: '图标', store: useIconStore() },
+  { name: '图标', store: useIconTagStore() },
   { name: '物品', store: useItemStore() },
   { name: '物品类型', store: useItemTypeStore() },
   { name: '点位', store: useMarkerStore() },

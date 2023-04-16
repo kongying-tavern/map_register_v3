@@ -1,4 +1,5 @@
 import type { IconMapping } from '@deck.gl/layers/typed/icon-layer/icon-manager'
+import { ElNotification } from 'element-plus'
 import db from '@/database'
 import IconRenderWorker from '@/pages/pageMapV2/worker/IconRenderWorker?worker'
 import { BORDER_WIDTH, ICON_RECT } from '@/pages/pageMapV2/config/markerIcon'
@@ -46,6 +47,9 @@ export class IconManager {
 
     const itemIconTags = items.map(item => item.iconTag as string)
     const iconTagMap = new Map<string, { url: string; index: number }>()
+
+    if ((await db.iconTag.count()) === 0)
+      ElNotification.warning('本地图标数据库为空，点位可能无法正常渲染，请更新本地图标数据库')
 
     let index = 0
     await db.iconTag.where('tag').anyOf(itemIconTags).each((iconTag) => {

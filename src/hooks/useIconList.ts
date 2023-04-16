@@ -13,21 +13,21 @@ export const useIconList = (options: IconsHookOptions = {}) => {
   const { immediate, loading } = options
 
   /** 共享的图标列表 */
-  const iconList = ref<API.IconVo[]>([])
+  const iconList = ref<API.TagVo[]>([])
   /** 共享的图标映射表 */
-  const iconMap = computed(() => iconList.value.reduce((seed, { name, url }) => {
-    if (name && url)
-      seed[name] = url
+  const iconMap = computed(() => iconList.value.reduce((seed, { tag, url }) => {
+    if (tag && url)
+      seed[tag] = url
     return seed
   }, {} as Record<string, string>))
 
   const { refresh: updateIconList, onSuccess, ...rest } = useFetchHook({
     immediate,
     loading,
-    onRequest: () => db.icon.toArray(),
+    onRequest: () => db.iconTag.toArray(),
   })
 
-  useSubscription(liveQuery(() => db.icon.toCollection()).subscribe(updateIconList))
+  useSubscription(liveQuery(() => db.iconTag.toCollection()).subscribe(updateIconList))
 
   onSuccess((record) => {
     iconList.value = record
