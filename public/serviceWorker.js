@@ -1,39 +1,29 @@
+/** ServiceWorker 使用的数据版本号，版本号更新则表示缓存结构有变化，需要清除缓存 */
 const VERSION = 2
-let isDev = false
-
-const logger = new class {
-  constructor(prefix = '') {
-    this.prefix = prefix
-  }
-  log = (...args) => isDev && console.log(this.prefix, ...args)
-  error = (...args) => isDev && console.log(this.prefix, ...args)
-}('[ServiceWorker]')
-
 /**
- * 公共消息传递
- * @param {string} message 
- * @param {Transferable[]} transfer 
+ * ServiceWorker 环境变量
+ * @type {import('../src/plugin/createPWA').ServiceWorkerEnv}
  */
-const sendPublicMessage = async (message = '', transfer = []) => {
-  const clients = await self.clients.matchAll()
-  await Promise.all(clients.map(client => client.postMessage(message, transfer)))
+const env = {
+  DEV: false,
+}
+
+class Logger {
+  static prefix = '[Service Worker]'
+  static log = (...args) => env.DEV && console.log(this.prefix, ...args)
+  static error = (...args) => env.DEV && console.log(this.prefix, ...args)
 }
 
 /**
- * @param {MessageEvent<string>} ev 
+ * 基于频道的通讯
+ * @param {MessageEvent<{ data: import('../src/plugin/createPWA').ServiceWorkerEnv; port: MessagePort }>} ev 
  */
 self.onmessage = (ev) => {
-  const payload = JSON.parse(ev.data)
-  const { action, type, value } = payload
-  if (action === 'setEnvValue') {
-    isDev = value
-  }
-
-  sendPublicMessage(JSON.stringify({
-    action: 'roger',
-    type: 'string',
-    value: action,
-  }))
+  const { data, port } = ev.data
+  for (const key in data)
+    env[key] = data[key]
+  Logger.log(ev.data)
+  port.postMessage('环境变量设置完毕')
 }
 
 /** 清空缓存 */
@@ -118,7 +108,7 @@ self.onfetch = (ev) => {
       return res
     }
     catch (err) {
-      logger.error(err)
+      Logger.error(err)
       return err instanceof Response ? err : new Response(null, {
         status: 404,
         statusText: 'Not Found or CORS Failed',

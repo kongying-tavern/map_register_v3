@@ -4,12 +4,6 @@ import { Logger } from '@/utils'
 
 const logger = new Logger('[PWA]')
 
-const reloadBtn = `
-<button class="el-button el-button--small el-button--primary" onclick="window.location.reload()">
-  刷新
-</button>
-`
-
 const ensureServiceWorker = async () => {
   if (!('serviceWorker' in navigator))
     throw new Error('浏览器不支持 Service Worker 或网站没有运行于安全上下文 (HTTPS、localhost) 中')
@@ -22,7 +16,7 @@ const ensureServiceWorker = async () => {
     ElNotification.success({
       title: 'Service Worker 已经可用',
       dangerouslyUseHTMLString: true,
-      message: `刷新页面以启用： ${reloadBtn}`,
+      message: '请刷新页面以启用',
       position: 'bottom-right',
       duration: 0,
     })
@@ -31,55 +25,48 @@ const ensureServiceWorker = async () => {
   await registration.update()
 }
 
-const ensuerMessageHandler = () => navigator.serviceWorker.addEventListener('message', (ev: MessageEvent<string>) => {
-  const payload = JSON.parse(ev.data)
-  logger.info('[onmessage]', payload)
-})
+/** 基于频道通信，使得每条发送信息能得到确认 */
+const sendMessage = <T = unknown, R = unknown>(data: T, timeout = 3000) => new Promise<MessageEvent<R>>((resolve, reject) => {
+  if (!navigator.serviceWorker.controller)
+    return reject(new Error('Service Worker 控制器尚未初始化'))
 
-export interface ServiceWorkerActionProps<T = unknown> {
-  action: string
-  type?: string
-  value?: T
-}
+  const channel = new MessageChannel()
 
-/** 一个通用方法，用于以固定模式向 ServiceWorker 发送一个行动并确保其回复 */
-const postAction = <T>(props: ServiceWorkerActionProps<T>, timeout = 3000) => new Promise<void>((resolve, reject) => {
-  let isFulfilled = false
-
-  const handler = (ev: MessageEvent<string>) => {
-    const payload = JSON.parse(ev.data)
-    const { action, value } = payload as ServiceWorkerActionProps
-    if (action !== 'roger' || value !== props.action)
-      return
-    if (isFulfilled)
-      return
-    isFulfilled = true
-    resolve()
-    navigator.serviceWorker.removeEventListener('message', handler)
+  const closeChannel = () => {
+    channel.port1.close()
+    channel.port2.close()
   }
 
-  navigator.serviceWorker.addEventListener('message', handler)
-  navigator.serviceWorker.controller?.postMessage(JSON.stringify(props))
+  let isFulfilled = false
 
-  setTimeout(() => {
+  const timer = setTimeout(() => {
     if (isFulfilled)
       return
     isFulfilled = true
+    closeChannel()
     reject(new Error('action timeout'))
-    navigator.serviceWorker.removeEventListener('message', handler)
   }, timeout)
+
+  channel.port2.onmessage = (ev: MessageEvent<R>) => {
+    resolve(ev)
+    if (isFulfilled)
+      return
+    window.clearTimeout(timer)
+    closeChannel()
+  }
+
+  navigator.serviceWorker.controller.postMessage({ data, port: channel.port1 }, [channel.port1])
 })
+
+export interface ServiceWorkerEnv {
+  DEV: boolean
+}
 
 /** 渐进式 Web 应用所需配置 */
 export const createPWA = (): Plugin => ({
   install: async () => {
     await ensureServiceWorker()
-    ensuerMessageHandler()
-
-    await postAction({
-      action: 'setEnvValue',
-      type: 'boolean',
-      value: import.meta.env.DEV,
-    })
+    // 设置 ServiceWorker 的环境变量
+    await sendMessage<ServiceWorkerEnv, string>({ DEV: import.meta.env.DEV })
   },
 })
