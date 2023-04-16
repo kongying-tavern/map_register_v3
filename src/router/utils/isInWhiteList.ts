@@ -4,7 +4,6 @@ import type { RouteLocationNormalized } from 'vue-router'
 export const ROUTE_WHITE_LIST = Object.freeze([
   '/login',
   '/register',
-  ...(import.meta.env.DEV ? ['/map-v2'] : []),
 ])
 
 /** 判断跳转目标是否处于白名单内 */

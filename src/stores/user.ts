@@ -209,7 +209,7 @@ export const useUserStore = defineStore('user-info', {
     },
     /** 预加载任务，仅在 token 可用时或登陆后运行 */
     async preloadMission() {
-      if (!this.validateUserToken() || this.isHandling || !this.isOfflineMode)
+      if (!this.validateUserToken() || this.isHandling || this.isOfflineMode)
         return
       this.isRouteLoading = true
       this.isHandling = true

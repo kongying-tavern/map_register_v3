@@ -6,6 +6,9 @@ import { Logger } from '@/utils'
 
 const logger = new Logger('[beforeEachGuard]')
 
+/** 需要进行预加载的路由地址 */
+const PRELOAD_PATH = ['/map', '/map-v2']
+
 /** 导航前置守卫，使用函数传递参数来生成一个回调，以便后期增加更多操作 */
 export const beforeEachGuard = (
   router: Router,
@@ -47,7 +50,7 @@ export const beforeEachGuard = (
       userStore.updateUserInfo()
 
     // 只在进出地图页面时进行预加载任务
-    if (from.path === '/map' || to.path === '/map')
+    if (PRELOAD_PATH.includes(from.path) || PRELOAD_PATH.includes(to.path))
       userStore.preloadMission()
     return next(true)
   }
