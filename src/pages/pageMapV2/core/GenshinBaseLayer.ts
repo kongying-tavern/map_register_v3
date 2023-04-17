@@ -7,12 +7,17 @@ import { LAYER_CONFIGS } from '../config'
 import type { LayerConfig, TagOptions } from '../config'
 import { getBorderPropsFrom, getIconLayerPropsFrom, getTagsPropsFrom, getTilePropsFrom } from '../utils'
 import type { GenshinMap } from './GenshinMap'
+import type { MarkerExtra } from '@/utils'
 
 export interface GenshinTileLayerProps extends Required<LayerConfig> {
   bounds: [number, number, number, number]
   groupedTags: TagOptions[][]
   coordinateSystem: ValueOf<typeof COORDINATE_SYSTEM>
   coordinateOrigin: [number, number, number]
+}
+
+export interface MarkerWithExtra extends API.MarkerVo {
+  extraObject: MarkerExtra
 }
 
 export class GenshinBaseLayer extends CompositeLayer<GenshinTileLayerProps> {
@@ -85,7 +90,7 @@ export class GenshinBaseLayer extends CompositeLayer<GenshinTileLayerProps> {
   get conditionId() { return this.#conditionId.value }
   set conditionId(v) { this.#conditionId.value = v }
 
-  #markers = shallowRef<(API.MarkerVo)[]>([])
+  #markers = shallowRef<MarkerWithExtra[]>([])
   get markers() { return this.#markers.value }
   set markers(v) { this.#markers.value = v }
 

@@ -1,14 +1,11 @@
 import type { IconLayerProps } from '@deck.gl/layers/typed'
-import type { GenshinBaseLayer } from '../core'
+import type { GenshinBaseLayer, MarkerWithExtra } from '../core'
 import { useCondition } from '@/pages/pageMapV2/hooks'
 import db from '@/database'
-
-export interface MarkerWithIcon extends API.MarkerVo {
-  iconUrl: string
-}
+import { ExtraJSON } from '@/utils'
 
 /** 点位渲染属性 */
-export const getIconLayerPropsFrom = (target: GenshinBaseLayer): IconLayerProps<API.MarkerVo> => {
+export const getIconLayerPropsFrom = (target: GenshinBaseLayer): IconLayerProps<MarkerWithExtra> => {
   const { center } = target.rawProps
   const conditionManager = useCondition()
 
@@ -35,7 +32,10 @@ export const getIconLayerPropsFrom = (target: GenshinBaseLayer): IconLayerProps<
       itemIdsInThisLayer = itemIdsInThisLayer.concat(condition.items)
     })
     const markers = await db.marker.where('itemIdList').anyOf(itemIdsInThisLayer).toArray()
-    target.markers = markers
+    target.markers = markers.map(marker => ({
+      ...marker,
+      extraObject: ExtraJSON.parse(marker.extra ?? '{}'),
+    }))
     target.conditionId = conditionManager.conditionStateId
     return markers
   }
@@ -58,7 +58,7 @@ export const getIconLayerPropsFrom = (target: GenshinBaseLayer): IconLayerProps<
             ? 'hover'
             : 'default'
       const validItemId = findValidItemId(marker.itemList)
-      return `${validItemId}_${state}`
+      return `${validItemId}${marker.extraObject.underground?.is_underground ? '_ug' : ''}_${state}`
     },
     getSize: 40,
     sizeScale: 1,

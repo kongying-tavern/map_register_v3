@@ -56,7 +56,9 @@ const renderIcon = async (ev: MessageEvent<Map<string, { url: string; index: num
       throw new Error('无法获取模式图层绘图上下文')
 
     // 创建精灵图层
-    const canvas = new OffscreenCanvas(4 * ICON_RECT[0], ev.data.size * ICON_RECT[1])
+    // 宽度倍数 8 来自 IconManager 所设置的状态数
+    // 详见 interface SpiritIconMap 的注释
+    const canvas = new OffscreenCanvas(8 * ICON_RECT[0], ev.data.size * ICON_RECT[1])
     const ctx = canvas.getContext('2d')
     if (!ctx)
       throw new Error('无法获取精灵图层绘图上下文')
@@ -119,7 +121,7 @@ const renderIcon = async (ev: MessageEvent<Map<string, { url: string; index: num
       patternCtx.restore()
     })
 
-    const pattern2 = patternCtx.createPattern(patternCanvas, 'repeat-y')
+    const pattern2 = patternCtx.createPattern(patternCanvas, 'repeat')
     if (!pattern2)
       throw new Error('无法创建背景绘制模式')
     ctx.fillStyle = pattern2
@@ -143,8 +145,38 @@ const renderIcon = async (ev: MessageEvent<Map<string, { url: string; index: num
     ctx.fillStyle = pattern3
     ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-    // TODO 绘制地下图标
-    // ......
+    // 绘制地下图标
+    patternCanvas.width = ICON_RECT[0]
+    patternCanvas.height = ICON_RECT[1]
+    patternCtx.translate(BORDER_WIDTH, BORDER_WIDTH)
+    patternCtx.fillStyle = '#313131'
+    patternCtx.fill(new Path2D(`
+      M ${ICON_WIDTH} ${0.95 * ICON_WIDTH}
+      A ${INNER_RADIUS / 2} ${INNER_RADIUS / 2} 0 0 1 ${0.55 * ICON_WIDTH} ${0.95 * ICON_WIDTH}
+      A ${INNER_RADIUS / 2} ${INNER_RADIUS / 2} 0 0 1 ${ICON_WIDTH} ${0.95 * ICON_WIDTH}
+      Z
+    `))
+    patternCtx.fillStyle = '#FFF'
+    patternCtx.fill(new Path2D(`
+    M ${0.775 * ICON_WIDTH} ${0.8 * ICON_WIDTH}
+    L ${0.94375 * ICON_WIDTH} ${0.9125 * ICON_WIDTH}
+    L ${0.775 * ICON_WIDTH} ${1.025 * ICON_WIDTH}
+    L ${0.60625 * ICON_WIDTH} ${0.9125 * ICON_WIDTH}
+    Z
+    M ${0.775 * ICON_WIDTH} ${1.055 * ICON_WIDTH}
+    L ${0.91 * ICON_WIDTH} ${0.965 * ICON_WIDTH}
+    L ${0.94375 * ICON_WIDTH} ${0.9875 * ICON_WIDTH}
+    L ${0.775 * ICON_WIDTH} ${1.1 * ICON_WIDTH}
+    L ${0.60625 * ICON_WIDTH} ${0.9875 * ICON_WIDTH}
+    L ${0.64 * ICON_WIDTH} ${0.965 * ICON_WIDTH}
+    Z
+  `))
+
+    const pattern4 = patternCtx.createPattern(patternCanvas, 'repeat')
+    if (!pattern4)
+      throw new Error('无法创建地下图标绘制模式')
+    ctx.fillStyle = pattern4
+    ctx.fillRect(canvas.width / 2, 0, canvas.width, canvas.height)
 
     const bmp = canvas.transferToImageBitmap()
     self.postMessage(bmp, { transfer: [bmp] })

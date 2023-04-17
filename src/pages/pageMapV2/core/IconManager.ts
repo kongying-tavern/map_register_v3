@@ -5,17 +5,29 @@ import IconRenderWorker from '@/pages/pageMapV2/worker/IconRenderWorker?worker'
 import { BORDER_WIDTH, ICON_RECT } from '@/pages/pageMapV2/config/markerIcon'
 
 /**
- * 默认状态
+ * 地上图标 默认状态
  * [`${itemId}`_default]: {}
  *
- * hover 状态
+ * 地上图标 hover 状态
  * [`${itemId}`_hover]: {}
  *
- * active 状态
+ * 地上图标 active 状态
  * [`${itemId}`_active]: {}
  *
- * focus 状态
+ * 地上图标 focus 状态
  * [`${itemId}`_focus]: {}
+ *
+ * 地下图标 默认状态
+ * [`${itemId}`_ug_default]: {}
+ *
+ * 地下图标 hover 状态
+ * [`${itemId}`_ug_hover]: {}
+ *
+ * 地下图标 active 状态
+ * [`${itemId}`_ug_active]: {}
+ *
+ * 地下图标 focus 状态
+ * [`${itemId}`_ug_focus]: {}
  */
 export interface SpiritIconMap extends IconMapping {
 }
@@ -67,10 +79,18 @@ export class IconManager {
         anchorY: ICON_RECT[1] - BORDER_WIDTH,
         y: iconIndex * ICON_RECT[1],
       }
-      seed[`${item.itemId}_default`] = { ...baseProps, x: baseProps.width * 0 }
-      seed[`${item.itemId}_hover`] = { ...baseProps, x: baseProps.width * 1 }
-      seed[`${item.itemId}_active`] = { ...baseProps, x: baseProps.width * 2 }
-      seed[`${item.itemId}_focus`] = { ...baseProps, x: baseProps.width * 3 }
+      ;[
+        '_default',
+        '_hover',
+        '_active',
+        '_focus',
+        '_ug_default',
+        '_ug_hover',
+        '_ug_active',
+        '_ug_focus',
+      ].forEach((append, index) => {
+        seed[`${item.itemId}${append}`] = { ...baseProps, x: baseProps.width * index }
+      })
       return seed
     }, {} as SpiritIconMap)
     this.#iconMapping.value = iconMapping
