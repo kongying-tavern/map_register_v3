@@ -94,8 +94,8 @@ export class GenshinMap extends Deck {
     })
 
     this.event.on('viewStateChange', ({ viewState }) => {
-      this.baseLayer?.forceUpdate()
       this.#mainViewState.value = viewState
+      this.baseLayer?.forceUpdate()
     })
   }
 
