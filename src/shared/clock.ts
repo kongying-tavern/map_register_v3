@@ -1,4 +1,4 @@
-import { WorkerInterval } from '@/utils'
+import { WorkerInterval } from '@/utils/WorkerInterval'
 
 export const secondClock = ref(new Date().getTime())
 
