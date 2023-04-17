@@ -27,6 +27,8 @@ const ensureServiceWorker = async () => {
 
 /** 基于频道通信，使得每条发送信息能得到确认 */
 const sendMessage = <T = unknown, R = unknown>(data: T, timeout = 3000) => new Promise<MessageEvent<R>>((resolve, reject) => {
+  navigator.serviceWorker.startMessages()
+
   if (!navigator.serviceWorker.controller)
     return reject(new Error('Service Worker 控制器尚未初始化'))
 

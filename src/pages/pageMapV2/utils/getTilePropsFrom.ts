@@ -16,10 +16,7 @@ export const getTilePropsFrom = (target: GenshinBaseLayer): TileLayerProps => ({
     if (signal?.aborted)
       return null
     const url = `${import.meta.env.VITE_ASSETS_BASE}/tiles_${target.rawProps.code}/${z + 13}/${x}_${y}.${target.rawProps.extension}`
-    return fetch(url, {
-      mode: 'cors',
-      referrerPolicy: 'no-referrer',
-    }).then(res => res.blob()).then(blob => createImageBitmap(blob))
+    return fetch(url, { mode: 'cors' }).then(res => res.blob()).then(blob => createImageBitmap(blob))
   },
   renderSubLayers: (subProps) => {
     const { left, bottom, right, top } = subProps.tile.bbox as NonGeoBoundingBox

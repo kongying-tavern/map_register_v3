@@ -94,10 +94,7 @@ self.onfetch = (ev) => {
   
       // 如果匹配不到则拦截请求
       // 因为绘图器可能需要将图片绘制到 webgl 上，图片必须是跨域的，这里需要覆盖使用跨域请求
-      const res = await fetch(url, {
-        mode: 'cors',
-        referrerPolicy: 'no-referrer',
-      })
+      const res = await fetch(url, { mode: 'cors' })
 
       if (res.status !== 200)
         throw res
