@@ -5,6 +5,8 @@ import { useMap } from '@/pages/pageMapV2/hooks'
 import { MarkerFilter, MarkerTable, SiderMenu, SiderMenuItem } from '@/pages/pageMapV2/components'
 import { AppUserAvatar, AppUserInfo } from '@/components'
 import { useGlobalDialog } from '@/hooks'
+import { useUserStore } from '@/stores'
+import { FALLBACK_AVATAR_URL } from '@/shared/constant'
 
 defineProps<{
   collapse: boolean
@@ -15,6 +17,9 @@ defineEmits<{
 }>()
 
 const { baseLayerCode, showBorder, showTag, showTooltip } = useMap()
+
+const userStore = useUserStore()
+
 const tabName = ref('filter')
 
 const { DialogService } = useGlobalDialog()
@@ -37,7 +42,7 @@ const openUserInfoDialog = () => {
         <el-avatar
           shape="circle"
           :size="38"
-          src="https://webstatic.mihoyo.com/upload/contentweb/2022/10/20/62cb7fb1815d9d05d3ece2e0d8e85c7d_8731082942818264376.png"
+          :src="userStore.info.logoUrl || FALLBACK_AVATAR_URL"
         />
       </template>
     </SiderMenuItem>

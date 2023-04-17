@@ -3,6 +3,7 @@ import { AppSettings, AppUserInfo } from '.'
 import { useUserStore } from '@/stores'
 import { useGlobalDialog, useTheme } from '@/hooks'
 import { useMap } from '@/pages/pageMap/hooks'
+import { FALLBACK_AVATAR_URL } from '@/shared/constant'
 
 defineProps<{
   mapMode?: boolean
@@ -45,7 +46,7 @@ const handleDragging = computed(() => map.value?.handleState.draggingMarker)
 <template>
   <el-dropdown class="genshin-avatar" :class="{ handleDragging }" trigger="click" style="--el-border-radius-base: 8px" @command="handleCommand">
     <el-button v-bind="$attrs" text size="large" :style="{ padding: '4px 8px' }">
-      <el-avatar :size="30" src="https://uploadstatic.mihoyo.com/contentweb/20210817/2021081714114216212.png" />
+      <el-avatar :size="30" :src="userStore.info.logoUrl || FALLBACK_AVATAR_URL" />
       <el-icon class="pl-1">
         <ArrowDown />
       </el-icon>
