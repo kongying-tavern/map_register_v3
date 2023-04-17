@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { FALLBACK_ITEM_ICON_URL } from '@/shared/constant'
+
 withDefaults(defineProps<{
   /** icon 图片地址 */
   src?: string
@@ -32,7 +34,7 @@ withDefaults(defineProps<{
       style="--el-fill-color-light: transparent"
     >
       <template #error>
-        <img class="w-full h-full object-contain" crossorigin="" src="https://assets.yuanshen.site/icons/-1.png">
+        <img class="w-full h-full object-contain" crossorigin="" :src="FALLBACK_ITEM_ICON_URL">
       </template>
     </el-image>
   </div>

@@ -21,6 +21,7 @@ import {
   ICON_WIDTH,
   INNER_GAP,
 } from '@/pages/pageMapV2/config/markerIcon'
+import { FALLBACK_ITEM_ICON_URL } from '@/shared/constant'
 
 const INNER_SIZE = ICON_WIDTH - 2 * INNER_GAP
 const OUTER_RADIUS = ICON_WIDTH / 2
@@ -35,7 +36,7 @@ const createBMP = async (res: Promise<Response>) => {
 
 /** 当底图无法被转换为 ImageBitmap 时使用替代图标 */
 const withFallback = async (bmpMission: Promise<ImageBitmap>) => bmpMission
-  .catch(() => createBMP(fetch(`${import.meta.env.VITE_ASSETS_BASE}/icons/-1.png`)))
+  .catch(() => createBMP(fetch(FALLBACK_ITEM_ICON_URL)))
 
 const renderIcon = async (ev: MessageEvent<Map<string, { url: string; index: number }>>) => {
   try {
