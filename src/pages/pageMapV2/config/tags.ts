@@ -4,13 +4,12 @@ export interface TagOptions {
   text: string
   /** 坐标表达式 */
   pos: [number, number]
-  /** 字体尺寸 */
-  fontSize?: number
   /**
    * 字体级别
-   * 2 - 国级
-   * 1 - 块级(即游戏中显示统计探索度的名称)
-   * 0 - 区级(即游戏内最小的名称)
+   * - `0` - 区级(即游戏内最小的名称)
+   * - `1` - 块级(即游戏中显示统计探索度的名称)
+   * - `2` - 国级(暂时没用上)
+   * @default 0
    */
   level?: 0 | 1 | 2
 }
@@ -18,11 +17,11 @@ export interface TagOptions {
 export const LAYER_TAG_CONFIGS: Record<string, TagOptions[]> = {
   twt36: [
     // 蒙德
-    { text: '明冠山地', pos: [917, -4337], level: 1, fontSize: 36 },
-    { text: '苍风高地', pos: [1260, -3553], level: 1, fontSize: 36 },
-    { text: '坠星山谷', pos: [2295, -4122], level: 1, fontSize: 36 },
-    { text: '坠星山谷', pos: [2295, -4122], level: 1, fontSize: 36 },
-    { text: '风啸山坡', pos: [2323, -2880], level: 1, fontSize: 36 },
+    { text: '明冠山地', pos: [917, -4337], level: 1 },
+    { text: '苍风高地', pos: [1260, -3553], level: 1 },
+    { text: '坠星山谷', pos: [2295, -4122], level: 1 },
+    { text: '坠星山谷', pos: [2295, -4122], level: 1 },
+    { text: '风啸山坡', pos: [2323, -2880], level: 1 },
     { text: '风龙废墟', pos: [344, -4530] },
     { text: '明冠峡', pos: [1096, -4498] },
     { text: '果酒湖', pos: [1624, -4378] },
@@ -42,7 +41,7 @@ export const LAYER_TAG_CONFIGS: Record<string, TagOptions[]> = {
     { text: '誓言岬', pos: [3268, -2818] },
     { text: '马斯克礁', pos: [4012, -2882] },
     // 雪山
-    { text: '龙脊雪山', pos: [1506, -2470], level: 1, fontSize: 36 },
+    { text: '龙脊雪山', pos: [1506, -2470], level: 1 },
     { text: '覆雪之路', pos: [1896, -2674] },
     { text: '眠龙谷', pos: [1456, -2562] },
     { text: '雪葬之都 · 近郊', pos: [1200, -2200] },
@@ -50,12 +49,12 @@ export const LAYER_TAG_CONFIGS: Record<string, TagOptions[]> = {
     { text: '寒天之钉', pos: [1748, -2120] },
     { text: '星荧洞窟', pos: [1588, -1950] },
     // 璃月
-    { text: '层岩巨渊', pos: [-1851, 128], level: 1, fontSize: 36 },
-    { text: '珉林', pos: [-1500, -1429], level: 1, fontSize: 36 },
-    { text: '璃沙郊', pos: [-864, 18], level: 1, fontSize: 36 },
-    { text: '云来海', pos: [736, -199], level: 1, fontSize: 36 },
-    { text: '琼玑野', pos: [482, -1531], level: 1, fontSize: 36 },
-    { text: '碧水原', pos: [-205, -2507], level: 1, fontSize: 36 },
+    { text: '层岩巨渊', pos: [-1851, 128], level: 1 },
+    { text: '珉林', pos: [-1500, -1429], level: 1 },
+    { text: '璃沙郊', pos: [-864, 18], level: 1 },
+    { text: '云来海', pos: [736, -199], level: 1 },
+    { text: '琼玑野', pos: [482, -1531], level: 1 },
+    { text: '碧水原', pos: [-205, -2507], level: 1 },
     { text: '轻策庄', pos: [-376, -3162] },
     { text: '无妄坡', pos: [0, -2920] },
     { text: '石门', pos: [240, -2778] },
@@ -125,12 +124,12 @@ export const LAYER_TAG_CONFIGS: Record<string, TagOptions[]> = {
     { text: '茂知祭场', pos: [4230, 7674] },
     { text: '惑饲滩', pos: [4192, 7854] },
     // 须弥（草原）
-    { text: '善见地', pos: [-3850, 901], level: 1, fontSize: 36 },
-    { text: '桓那兰那', pos: [-4125, -581], level: 1, fontSize: 36 },
-    { text: '二净甸', pos: [-3811, -221], level: 1, fontSize: 36 },
-    { text: '阿陀河谷', pos: [-2897, 1305], level: 1, fontSize: 36 },
-    { text: '道成林', pos: [-2965, 41], level: 1, fontSize: 36 },
-    { text: '护世森', pos: [-2657, -1112], level: 1, fontSize: 36 },
+    { text: '善见地', pos: [-3850, 901], level: 1 },
+    { text: '桓那兰那', pos: [-4125, -581], level: 1 },
+    { text: '二净甸', pos: [-3811, -221], level: 1 },
+    { text: '阿陀河谷', pos: [-2897, 1305], level: 1 },
+    { text: '道成林', pos: [-2965, 41], level: 1 },
+    { text: '护世森', pos: [-2657, -1112], level: 1 },
     { text: '无郁稠林', pos: [-2500, -1228] },
     { text: '卡萨扎莱宫', pos: [-2980, -930] },
     { text: '茸蕈窟', pos: [-3250, -800] },
@@ -150,11 +149,11 @@ export const LAYER_TAG_CONFIGS: Record<string, TagOptions[]> = {
     { text: '觉王之殿', pos: [-4280, 14] },
     { text: '往昔的桓那兰那', pos: [-4700, 80] },
     // 须弥（沙漠）
-    { text: '千壑沙地', pos: [-6489, 97], level: 1, fontSize: 36 },
-    { text: '列柱沙原', pos: [-6826, 2371], level: 1, fontSize: 36 },
-    { text: '上风蚀地', pos: [-5539, 3234], level: 1, fontSize: 36 },
-    { text: '下风蚀地', pos: [-5282, 1557], level: 1, fontSize: 36 },
-    { text: '失落的苗圃', pos: [-4656, 66], level: 1, fontSize: 36 },
+    { text: '千壑沙地', pos: [-6489, 97], level: 1 },
+    { text: '列柱沙原', pos: [-6826, 2371], level: 1 },
+    { text: '上风蚀地', pos: [-5539, 3234], level: 1 },
+    { text: '下风蚀地', pos: [-5282, 1557], level: 1 },
+    { text: '失落的苗圃', pos: [-4656, 66], level: 1 },
     { text: '「五绿洲」的孑遗', pos: [-5600, -546] },
     { text: '「三运河之地」', pos: [-6600, -200] },
     { text: '镔铁沙丘', pos: [-5200, 0] },

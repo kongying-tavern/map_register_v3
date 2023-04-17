@@ -8,7 +8,6 @@ export const getTagsPropsFrom = (
   id: `${target.props.id}-tag-level${level}`,
   coordinateSystem: target.rawProps.coordinateSystem,
   coordinateOrigin: target.rawProps.coordinateOrigin,
-  sizeScale: 2 ** (target.context.deck.mainViewState.zoom + 2),
   visible: target.context.deck.showTag && ({
     0: target.context.deck.mainViewState.zoom > -2,
     1: target.context.deck.mainViewState.zoom <= -2,
@@ -24,8 +23,13 @@ export const getTagsPropsFrom = (
   getColor: [255, 255, 255, 255],
   getBorderColor: [0, 0, 0, 128],
   getBorderWidth: 2,
-  sizeMaxPixels: 20,
-  getSize: ({ fontSize = 20 }) => fontSize,
+  sizeMaxPixels: 32,
+  sizeScale: 2 ** (target.context.deck.mainViewState.zoom + 2),
+  getSize: ({ level = 0 }) => ({
+    0: 16,
+    1: 24,
+    2: 32,
+  })[level],
   getText: d => d.text,
   getPosition: ({ pos: [x, y] }) => [x + target.rawProps.center[0], y + target.rawProps.center[1], 0],
 }))
