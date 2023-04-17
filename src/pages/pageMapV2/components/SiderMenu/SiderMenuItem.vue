@@ -1,24 +1,39 @@
 <script lang="ts" setup>
+import { Grid } from '@element-plus/icons-vue'
 import type { Component } from 'vue'
 import { contentRefKey, tabNameRefKey } from '.'
 
 const props = defineProps<{
-  label: string
-  name: string
-  icon: Component
+  label?: string
+  name?: string
+  icon?: Component
+}>()
+const emits = defineEmits<{
+  (e: 'click', v: MouseEvent): void
 }>()
 
 const contentRef = inject(contentRefKey, ref(null))
 const tabNameRef = inject(tabNameRefKey, ref())
 
 const actived = computed(() => tabNameRef.value === props.name)
+
+const activeTab = (ev: MouseEvent) => {
+  emits('click', ev)
+  if (!props.name)
+    return
+  tabNameRef.value = props.name
+}
 </script>
 
 <template>
-  <div class="sider-menu-tab" :class="{ actived }" :data-tab-label="label" @click="tabNameRef = name">
-    <div class="sider-menu-tab-button">
-      <component :is="icon" style="color: var(--icon-color)" />
-    </div>
+  <div class="sider-menu-tab" :class="{ actived }" :data-tab-label="label" @click="ev => activeTab(ev)">
+    <slot name="tab">
+      <div class="sider-menu-tab-button">
+        <slot name="icon">
+          <component :is="icon ?? Grid" style="color: var(--icon-color)" />
+        </slot>
+      </div>
+    </slot>
   </div>
 
   <Teleport v-if="contentRef && tabNameRef === name" :to="contentRef">
@@ -32,8 +47,8 @@ const actived = computed(() => tabNameRef.value === props.name)
   --scale: 1;
   --button-bg: transparent;
 
-  width: 100%;
-  aspect-ratio: 1 / 1;
+  width: 72px;
+  height: 72px;
   padding: 12px;
 
   &:hover {
@@ -48,6 +63,8 @@ const actived = computed(() => tabNameRef.value === props.name)
 }
 
 .sider-menu-tab-button {
+  width: 100%;
+  height: 100%;
   padding: 5px;
   scale: var(--scale);
   border-radius: 50%;
