@@ -1,4 +1,5 @@
 export { MapSiderMenu } from './MapSiderMenu'
+export { MarkerDrawer } from './MarkerDrawer'
 export { MarkerFilter } from './MarkerFilter'
 export { MarkerTable } from './MarkerTable'
 export { SiderMenu, SiderMenuItem } from './SiderMenu'
