@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ArchiveSelector, PasswordEditor } from '.'
+import { ArchiveAnalyser, ArchiveSelector, PasswordEditor } from '.'
 import { useArchiveStore, useUserStore } from '@/stores'
 import { GSTab } from '@/components'
 
@@ -48,10 +48,8 @@ const tab = ref('archive')
         </div>
       </div>
 
-      <div
-        class="archive-preview flex-1 w-full flex flex-col transition-all cursor-pointer active:brightness-95 select-none"
-      >
-        <div>{{ archiveStore.currentArchive.body }}</div>
+      <div class="archive-preview flex-1 w-full">
+        <ArchiveAnalyser :archive-body="archiveStore.currentArchive.body" />
       </div>
     </div>
 
@@ -153,9 +151,6 @@ const tab = ref('archive')
 
 .archive-preview {
   border: 2px solid #E0D7C9;
-  &:hover {
-    background-color: #E9DFCE;
-  }
 }
 
 .user-action {

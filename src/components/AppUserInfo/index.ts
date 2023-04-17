@@ -1,4 +1,5 @@
 export { default as AppUserInfo } from './AppUserInfo.vue'
+export { default as ArchiveAnalyser } from './ArchiveAnalyser.vue'
 export { default as ArchiveCreator } from './ArchiveCreator.vue'
 export { default as ArchiveSelector } from './ArchiveSelector.vue'
 export { default as ArchiveViewer } from './ArchiveViewer.vue'
