@@ -1,8 +1,9 @@
 import { IconManager } from './IconManager'
+import type { MarkerWithExtra } from '.'
 import db from '@/database'
 import { useMap } from '@/pages/pageMapV2/hooks'
 import { LAYER_CONFIGS } from '@/pages/pageMapV2/config'
-import { Logger } from '@/utils'
+import { ExtraJSON, Logger } from '@/utils'
 
 export interface Condition {
   area: API.AreaVo
@@ -53,6 +54,10 @@ export class ConditionManager extends IconManager {
       : db.itemType.where('typeId').equals(this.itemTypeId).first()
   })
 
+  /** 图层与点位映射表 */
+  #layerMarkerMap = shallowRef<Record<string, MarkerWithExtra[]>>({})
+  get layerMarkerMap() { return this.#layerMarkerMap.value }
+
   // ========== 内部状态 ==========
   #existItemIds = ref<Set<number>>(new Set())
   get existItemIds() { return this.#existItemIds.value }
@@ -77,14 +82,30 @@ export class ConditionManager extends IconManager {
   #conditionStateId = ref(crypto.randomUUID())
   get conditionStateId() { return this.#conditionStateId.value }
 
+  initLayerMarkerMap = () => Promise.all(LAYER_CONFIGS.map(async ({ code, areaCodes = [] }) => {
+    // 筛选出只存在于当前图层的点位
+    let itemIdsInThisLayer: number[] = []
+    this.conditions.forEach((condition) => {
+      if (!areaCodes.includes(condition.area.code as string))
+        return
+      itemIdsInThisLayer = itemIdsInThisLayer.concat(condition.items)
+    })
+    const markers = (await db.marker.where('itemIdList').anyOf(itemIdsInThisLayer).toArray()).map(marker => ({
+      ...marker,
+      extraObject: ExtraJSON.parse(marker.extra ?? '{}'),
+    }))
+    this.#layerMarkerMap.value[code] = markers
+  }))
+
   requestMarkersUpdate = async () => {
     const layer = useMap().map.value?.baseLayer
     if (!layer)
       return
+    this.#conditionStateId.value = crypto.randomUUID()
+    await this.initLayerMarkerMap()
     const items = (await db.item.bulkGet([...this.existItemIds])).filter(Boolean) as API.ItemVo[]
     await this.initIconMap(items)
     layer.forceUpdate()
-    this.#conditionStateId.value = crypto.randomUUID()
   }
 
   addCondition = async () => {

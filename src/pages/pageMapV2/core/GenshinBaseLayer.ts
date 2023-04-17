@@ -85,11 +85,6 @@ export class GenshinBaseLayer extends CompositeLayer<GenshinTileLayerProps> {
     }
   }
 
-  /** 缓存的条件管理器的状态 id，以简化脏检查 */
-  #conditionId = ref('')
-  get conditionId() { return this.#conditionId.value }
-  set conditionId(v) { this.#conditionId.value = v }
-
   #markers = shallowRef<MarkerWithExtra[]>([])
   get markers() { return this.#markers.value }
   set markers(v) { this.#markers.value = v }
