@@ -20,19 +20,17 @@ const onAnimationend = (ev: AnimationEvent) => {
 
 <template>
   <div
-    class="gs-loading-panel w-full h-full grid place-items-center"
+    class="gs-loading-panel"
     :class="{
       'waitting-geo': userStore.isHandling,
     }"
   >
-    <div class="gs-loading-row w-full h-full flex flex-row justify-center">
-      <div
-        v-for="iconname in icons" :key="iconname"
-        class="gs-loading-icon"
-        :class="[`icon-${iconname}`]"
-        @animationend="onAnimationend"
-      />
-    </div>
+    <div
+      v-for="iconname in icons" :key="iconname"
+      class="gs-loading-icon"
+      :class="[`icon-${iconname}`]"
+      @animationend="onAnimationend"
+    />
   </div>
 </template>
 
@@ -68,20 +66,25 @@ const onAnimationend = (ev: AnimationEvent) => {
   --icon-duration: 50ms;
   --geo-duration: var(--icon-duration);
 
+  width: 100dvw;
+  height: 100dvh;
+  padding: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2%;
+
   &.waitting-geo {
     --geo-duration: 60000ms;
   }
 }
 
-.gs-loading-row {
-  gap: 2%;
-}
-
 .gs-loading-icon {
-  aspect-ratio: 1 / 1;
   background: linear-gradient(to right, rgb(102 102 102) var(--percentage), rgb(245 245 245) var(--percentage));
   animation: bg-slide 50ms linear forwards;
   width: 60px;
+  aspect-ratio: 1 / 1;
+  max-width: 12.5%;
   &:first-of-type {
     grid-column-start: 2;
   }
