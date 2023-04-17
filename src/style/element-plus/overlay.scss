@@ -1,0 +1,6 @@
+.el-overlay.el-overlay {
+  top: var(--gs-banner-height, 0px);
+  height: calc(100% - var(--gs-banner-height, 0px));
+  transition: all ease 200ms;
+  overflow: hidden;
+}
