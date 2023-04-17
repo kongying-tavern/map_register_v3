@@ -112,9 +112,9 @@ const toggleAllSelect = () => {
         @click="() => patchValue(opt)"
       >
         <div v-if="$slots.icon" class="checkbox-item__icon">
-          <slot name="icon" :row="opt" />
+          <slot name="icon" :row="opt" :actived="isActived(opt)" />
         </div>
-        <div class="checkbox-item__content" :class="{ 'no-icon': !$slots.icon }">
+        <div class="checkbox-item__content overflow-hidden overflow-ellipsis" :class="{ 'no-icon': !$slots.icon }" :title="opt[labelKey]">
           {{ opt[labelKey] }}
         </div>
       </div>
@@ -124,6 +124,8 @@ const toggleAllSelect = () => {
 
 <style lang="scss" scoped>
 .checkbox-group {
+  --item-height: 48px;
+
   overflow: auto;
 
   .checkbox-item {
@@ -133,7 +135,7 @@ const toggleAllSelect = () => {
     --color: #E4DDD1;
     --bg: transparent;
 
-    padding: 2% 3%;
+    height: var(--item-height);
     display: flex;
     align-items: center;
     position: relative;
@@ -184,8 +186,8 @@ const toggleAllSelect = () => {
   }
 
   .checkbox-item__icon {
-    height: 100%;
-    aspect-ratio: 1 / 1;
+    height: var(--item-height);
+    width: var(--item-height);
     padding: 8px;
   }
 
@@ -193,7 +195,7 @@ const toggleAllSelect = () => {
     flex: 1;
     padding: 8px 4px 8px 0;
     &.no-icon {
-      padding: 8px 8px;
+      padding: 8px 16px;
     }
   }
 }

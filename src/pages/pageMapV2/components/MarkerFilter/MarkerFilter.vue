@@ -4,6 +4,7 @@ import { CheckboxGroup, ConditionRow, FilterTabs } from '.'
 import { useFetchHook } from '@/hooks'
 import { GSButton } from '@/components'
 import { useCondition } from '@/pages/pageMapV2/hooks'
+import { FALLBACK_ITEM_ICON_URL } from '@/shared/constant'
 import db from '@/database'
 
 // ==================== 其他 ====================
@@ -28,6 +29,12 @@ const next = () => {
 
 // ==================== 筛选条件 ====================
 const conditionManager = useCondition()
+
+// ==================== 图标 ====================
+const iconTagMap = shallowRef(new Map<string, string>())
+onMounted(() => db.iconTag.each((iconTag) => {
+  iconTagMap.value.set(iconTag.tag as string, iconTag.url as string)
+}))
 
 // ==================== 地区 ====================
 const parentAreaCode = ref<string>()
@@ -117,7 +124,17 @@ const itemList = asyncComputed<API.ItemVo[]>(async () => {
           value-key="typeId"
           two-col
           @change="next"
-        />
+        >
+          <template #icon="{ row }">
+            <img
+              class="w-full h-full rounded-full bg-slate-500 object-contain"
+              :src="iconTagMap.get(row.iconTag) ?? FALLBACK_ITEM_ICON_URL"
+              crossorigin=""
+              loading="lazy"
+              decoding="async"
+            >
+          </template>
+        </CheckboxGroup>
       </div>
 
       <div v-else-if=" tabKey === 2" class="h-full flex gap-1">
@@ -130,7 +147,17 @@ const itemList = asyncComputed<API.ItemVo[]>(async () => {
           multiple
           show-select-all-btn
           two-col
-        />
+        >
+          <template #icon="{ row }">
+            <img
+              class="w-full h-full rounded-full bg-slate-500 object-contain"
+              :src="iconTagMap.get(row.iconTag) ?? FALLBACK_ITEM_ICON_URL"
+              crossorigin=""
+              loading="lazy"
+              decoding="async"
+            >
+          </template>
+        </CheckboxGroup>
       </div>
     </div>
 
