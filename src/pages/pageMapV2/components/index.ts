@@ -1,3 +1,4 @@
+export { FeatureGrid } from './FeatureGrid'
 export { MapSiderMenu } from './MapSiderMenu'
 export { MarkerDrawer } from './MarkerDrawer'
 export { MarkerFilter } from './MarkerFilter'

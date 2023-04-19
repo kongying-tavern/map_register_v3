@@ -24,7 +24,7 @@ export class ConditionManager extends IconManager {
     const findLayer = LAYER_CONFIGS.find(({ areaCodes = [] }) => areaCodes.find(code => code === v) !== undefined)
     if (!findLayer)
       throw new Error(`无法找到对应的底图设置 (areaCode: ${v})`)
-    useMap().baseLayerCode.value = findLayer.code
+    useMap().map.value?.setBaseLayer(findLayer.code)
     this.#areaCode.value = v
     this.itemTypeId = undefined
   }

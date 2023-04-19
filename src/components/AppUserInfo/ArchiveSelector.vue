@@ -5,7 +5,9 @@ import { ArchiveCreator, ArchiveViewer } from '.'
 import { useArchiveStore } from '@/stores'
 
 const archiveStore = useArchiveStore()
-archiveStore.fetchArchive()
+onMounted(() => {
+  import.meta.env.VITE_DEVELOPMENT_MODE !== 'offline' && archiveStore.fetchArchive()
+})
 
 const { archiveSlots } = storeToRefs(archiveStore)
 
