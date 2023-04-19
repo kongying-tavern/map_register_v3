@@ -47,7 +47,13 @@ const parserArchive = ({ archive = '', time = '', ...rest }: API.ArchiveVo): Arc
 export const useArchiveStore = defineStore('global-archive', {
   state: () => ({
     fetchLoading: false,
-    archiveSlots: {} as Record<number, ArchiveSlotData | undefined>,
+    archiveSlots: {
+      1: undefined,
+      2: undefined,
+      3: undefined,
+      4: undefined,
+      5: undefined,
+    } as Record<number, ArchiveSlotData | undefined>,
     currentArchive: {
       body: {
         Data_KYJG: new Set(),
@@ -63,9 +69,6 @@ export const useArchiveStore = defineStore('global-archive', {
       try {
         this.fetchLoading = true
         const { data = [] } = await Api.archive.getAllHistoryArchive({})
-        const archiveSlots: Record<number, ArchiveSlotData | undefined> = Object.fromEntries(
-          new Array(5).fill([]).map((_, index) => [index + 1, undefined]),
-        )
         data.forEach(({ archive: historyArchives = [], slotIndex = -1, updateTime, ...rest } = {}) => {
           const archive = {
             ...rest,
@@ -74,9 +77,8 @@ export const useArchiveStore = defineStore('global-archive', {
             timestamp: (updateTime ? new Date(updateTime) : new Date()).getTime(),
             archiveList: historyArchives.map(parserArchive).sort(({ timestamp: a }, { timestamp: b }) => b - a),
           }
-          archiveSlots[slotIndex] = archive
+          this.archiveSlots[slotIndex] = archive
         })
-        this.archiveSlots = archiveSlots
       }
       catch (err) {
         logger.error(err)
