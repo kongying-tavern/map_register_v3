@@ -6,11 +6,6 @@ import { LAYER_CONFIGS } from '@/pages/pageMapV2/config'
 const map = shallowRef<GenshinMap>()
 
 export const useMap = (canvasRef?: Ref<HTMLCanvasElement | null>) => {
-  const baseLayerCode = computed({
-    get: () => map.value?.baseLayer?.rawProps.code,
-    set: v => map.value && (map.value.setBaseLayer(v)),
-  })
-
   const showBorder = computed({
     get: () => map.value?.showBorder ?? false,
     set: v => map.value && (map.value.showBorder = v),
@@ -38,7 +33,7 @@ export const useMap = (canvasRef?: Ref<HTMLCanvasElement | null>) => {
 
     newMap.ready.then((readyMap) => {
       logger.info('map is ready', readyMap)
-      baseLayerCode.value = LAYER_CONFIGS[0].code
+      readyMap.setBaseLayer(LAYER_CONFIGS[0].code)
     })
 
     map.value = newMap
@@ -46,5 +41,5 @@ export const useMap = (canvasRef?: Ref<HTMLCanvasElement | null>) => {
 
   tryOnMounted(initMap)
 
-  return { map, baseLayerCode, showBorder, showTag, showTooltip }
+  return { map, showBorder, showTag, showTooltip }
 }
