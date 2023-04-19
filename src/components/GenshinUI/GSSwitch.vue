@@ -4,6 +4,7 @@ import { CloseBold, Select } from '@element-plus/icons-vue'
 export interface GSSwitchProps {
   modelValue?: boolean
   size?: 'small' | 'large'
+  label?: string
 }
 
 export interface GSSwitchEmits {
@@ -16,11 +17,13 @@ defineEmits<GSSwitchEmits>()
 
 <template>
   <div
-    class="gs-switch"
+    class="gs-switch genshin-text"
     :class="{
       actived: modelValue,
+      label,
       [`size-${size ?? 'default'}`]: true,
     }"
+    :data-label="label"
     @click="$emit('update:modelValue', !modelValue)"
   >
     <div class="gs-switch__slider">
@@ -48,6 +51,7 @@ defineEmits<GSSwitchEmits>()
   --bg: #353D4F;
   --slider-tr-x: 0;
   --icon-color: #D3BC8E;
+  --label-color: #818D9D;
 
   &.size-small {
     --width: 40px;
@@ -64,7 +68,6 @@ defineEmits<GSSwitchEmits>()
   border-radius: var(--height);
   padding: calc(0.08 * var(--height));
   position: relative;
-  overflow: hidden;
   cursor: pointer;
   user-select: none;
   color: var(--icon-color);
@@ -83,6 +86,16 @@ defineEmits<GSSwitchEmits>()
     border-radius: var(--height);
   }
 
+  &.label::after {
+    content: attr(data-label);
+    position: absolute;
+    top: 0;
+    left: 100%;
+    padding: 0 0 0 8px;
+    white-space: nowrap;
+    color: var(--label-color);
+  }
+
   &.actived {
     --slider-tr-x: calc(var(--width) - var(--height));
     --active-bg-scale: 1;
@@ -90,6 +103,7 @@ defineEmits<GSSwitchEmits>()
     --bg: #D3BC8E;
     --bg-border-color: #BFA57A;
     --icon-color: #818D9D;
+    --label-color: #D3BC8E;
   }
 }
 
