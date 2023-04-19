@@ -14,7 +14,10 @@ const DEFAULT_TILE_OPTIONS: TileLayerOptions = {
 
 export class GenshinTileLayer extends L.TileLayer {
   constructor(name: MapNameEnum, options?: TileLayerOptions) {
-    super('', options)
+    super('', {
+      ...options,
+      crossOrigin: true,
+    })
     this.name = name
     this.tileConfig = TileUtil.getConfig(name)
     this.tileConfig.tags?.forEach(({ html, latlng, zoomMax, zoomMin, fontSize = 20 }) => {
