@@ -1,10 +1,10 @@
 @font-face {
-  font-family: MHYG;
-  src: url('@/style/fonts/HYWenHei-85W.woff2');
+  font-family: 'MHYG';
+  src: url('@/style/fonts/genshinFont.woff2') format('woff2');
 }
 
 .genshin-text {
-  font-family: MHYG, sans-serif;
+  font-family: 'MHYG', sans-serif;
 }
 
 .genshin-text-stroke {
