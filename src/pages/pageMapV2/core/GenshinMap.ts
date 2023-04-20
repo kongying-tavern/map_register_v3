@@ -57,24 +57,10 @@ export class GenshinMap extends Deck {
         },
       },
       getCursor: state => state.isDragging ? 'grabbing' : state.isHovering ? 'pointer' : 'crosshair',
-      onViewStateChange: ({ viewState, oldViewState = {}, ...rest }) => {
-        const newState = viewState as GensinMapViewState
-        const oldState = oldViewState as Partial<GensinMapViewState>
-        if (!this.baseLayer)
-          return oldViewState
-        const [xmin, ymax, xmax, ymin] = this.baseLayer.rawProps.bounds
-        const rewriteState: GensinMapViewState = {
-          ...newState,
-          target: [
-            clamp(newState.target[0], xmin, xmax),
-            clamp(newState.target[1], ymin, ymax),
-          ],
-          transitionDuration: newState.zoom === oldState.zoom ? 0 : 200,
-          transitionInterruption: TRANSITION_EVENTS.BREAK,
-          transitionEasing: (t: number) => Math.sin(t * Math.PI / 2), // 即 ease-out 效果
-        }
-        this.event.emit('viewStateChange', { viewState: rewriteState, oldViewState: oldState, ...rest })
-        return rewriteState
+      onViewStateChange: (viewStateChangeParams) => {
+        const newParams = this.#handleViewStateChange(viewStateChangeParams)
+        this.event.emit('viewStateChange', newParams)
+        return newParams.viewState
       },
       onAfterRender: (...args) => this.event.emit('afterRender', ...args),
       onBeforeRender: (...args) => this.event.emit('beforeRender', ...args),
@@ -91,11 +77,6 @@ export class GenshinMap extends Deck {
       },
       onResize: (...args) => this.event.emit('resize', ...args),
       onWebGLInitialized: (...args) => this.event.emit('WebGLInitialized', ...args),
-    })
-
-    this.event.on('viewStateChange', ({ viewState }) => {
-      this.#mainViewState.value = viewState
-      this.baseLayer?.forceUpdate()
     })
   }
 
@@ -128,6 +109,27 @@ export class GenshinMap extends Deck {
       return
     this.#focus.value = v
     this.baseLayer?.forceUpdate()
+  }
+
+  #handleViewStateChange = ({ viewState, oldViewState = {}, ...rest }: ViewStateChangeParameters & { viewId: string }) => {
+    const newState = viewState as GensinMapViewState
+    const oldState = oldViewState as Partial<GensinMapViewState>
+    if (!this.baseLayer)
+      return { viewState: newState, oldViewState: oldState, ...rest }
+    const [xmin, ymax, xmax, ymin] = this.baseLayer.rawProps.bounds
+    const rewriteState: GensinMapViewState = {
+      ...newState,
+      target: [
+        clamp(newState.target[0], xmin, xmax),
+        clamp(newState.target[1], ymin, ymax),
+      ],
+      transitionDuration: newState.zoom === oldState.zoom ? 0 : 200,
+      transitionInterruption: TRANSITION_EVENTS.BREAK,
+      transitionEasing: (t: number) => Math.sin(t * Math.PI / 2), // 即 ease-out 效果
+    }
+    this.#mainViewState.value = rewriteState
+    this.baseLayer?.forceUpdate()
+    return { viewState: rewriteState, oldViewState: oldState, ...rest }
   }
 
   #readResolve?: (map: GenshinMap) => void = undefined

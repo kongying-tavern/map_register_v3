@@ -159,19 +159,19 @@ const renderIcon = async (ev: MessageEvent<Map<string, { url: string; index: num
     `))
     patternCtx.fillStyle = '#FFF'
     patternCtx.fill(new Path2D(`
-    M ${0.775 * ICON_WIDTH} ${0.8 * ICON_WIDTH}
-    L ${0.94375 * ICON_WIDTH} ${0.9125 * ICON_WIDTH}
-    L ${0.775 * ICON_WIDTH} ${1.025 * ICON_WIDTH}
-    L ${0.60625 * ICON_WIDTH} ${0.9125 * ICON_WIDTH}
-    Z
-    M ${0.775 * ICON_WIDTH} ${1.055 * ICON_WIDTH}
-    L ${0.91 * ICON_WIDTH} ${0.965 * ICON_WIDTH}
-    L ${0.94375 * ICON_WIDTH} ${0.9875 * ICON_WIDTH}
-    L ${0.775 * ICON_WIDTH} ${1.1 * ICON_WIDTH}
-    L ${0.60625 * ICON_WIDTH} ${0.9875 * ICON_WIDTH}
-    L ${0.64 * ICON_WIDTH} ${0.965 * ICON_WIDTH}
-    Z
-  `))
+      M ${0.775 * ICON_WIDTH} ${0.8 * ICON_WIDTH}
+      L ${0.94375 * ICON_WIDTH} ${0.9125 * ICON_WIDTH}
+      L ${0.775 * ICON_WIDTH} ${1.025 * ICON_WIDTH}
+      L ${0.60625 * ICON_WIDTH} ${0.9125 * ICON_WIDTH}
+      Z
+      M ${0.775 * ICON_WIDTH} ${1.055 * ICON_WIDTH}
+      L ${0.91 * ICON_WIDTH} ${0.965 * ICON_WIDTH}
+      L ${0.94375 * ICON_WIDTH} ${0.9875 * ICON_WIDTH}
+      L ${0.775 * ICON_WIDTH} ${1.1 * ICON_WIDTH}
+      L ${0.60625 * ICON_WIDTH} ${0.9875 * ICON_WIDTH}
+      L ${0.64 * ICON_WIDTH} ${0.965 * ICON_WIDTH}
+      Z
+    `))
 
     const pattern4 = patternCtx.createPattern(patternCanvas, 'repeat')
     if (!pattern4)

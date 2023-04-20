@@ -4,6 +4,7 @@ import { Logger } from '@/utils'
 import { LAYER_CONFIGS } from '@/pages/pageMapV2/config'
 
 const map = shallowRef<GenshinMap>()
+const eventHook = createEventHook<GenshinMap>()
 
 export const useMap = (canvasRef?: Ref<HTMLCanvasElement | null>) => {
   const showBorder = computed({
@@ -23,6 +24,17 @@ export const useMap = (canvasRef?: Ref<HTMLCanvasElement | null>) => {
 
   const logger = new Logger('[MapV2]')
 
+  const callbackSet = shallowRef(new Set<(map: GenshinMap) => void>())
+
+  const onMapReady = (fn: (map: GenshinMap) => void) => {
+    eventHook.on(fn)
+    callbackSet.value.add(fn)
+  }
+
+  tryOnUnmounted(() => {
+    callbackSet.value.forEach(cb => eventHook.off(cb))
+  })
+
   const initMap = () => {
     if (!canvasRef?.value || map.value)
       return
@@ -41,5 +53,5 @@ export const useMap = (canvasRef?: Ref<HTMLCanvasElement | null>) => {
 
   tryOnMounted(initMap)
 
-  return { map, showBorder, showTag, showTooltip }
+  return { map, showBorder, showTag, showTooltip, onMapReady }
 }
