@@ -87,6 +87,12 @@ export const LAYER_TAG_CONFIGS: Record<string, TagOptions[]> = {
     { text: '天工峡', pos: [-1960, 414] },
     { text: '琉璃峰', pos: [-1500, 390] },
     // 稻妻
+    { text: '海祈岛', pos: [1580, 3900], level: 1 },
+    { text: '八酝岛', pos: [3200, 4300], level: 1 },
+    { text: '神无冢', pos: [4690, 3620], level: 1 },
+    { text: '鸣神岛', pos: [5920, 2760], level: 1 },
+    { text: '清籁岛', pos: [5730, 5310], level: 1 },
+    { text: '鹤观', pos: [4100, 7530], level: 1 },
     { text: '刃连岛', pos: [6116, 1646] },
     { text: '荒海', pos: [6220, 2210] },
     { text: '离岛', pos: [5588, 2506] },
