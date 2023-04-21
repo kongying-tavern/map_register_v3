@@ -47,5 +47,8 @@ module.exports = {
         trailingUnderscore: 'allow',
       },
     ],
+
+    // 顶层函数允许使用箭头函数
+    'antfu/top-level-function': 'off',
   },
 }
