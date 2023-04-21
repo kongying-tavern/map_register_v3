@@ -110,12 +110,12 @@ const onClick = (ev: MouseEvent) => {
   font-size: 18px;
   position: relative;
 
-  &:hover {
+  &:not(.disabled, .loading):hover {
     outline-color: var(--outline-hover-color);
     border-color: var(--border-hover-color);
     background: var(--bg-hover);
   }
-  &:active {
+  &:not(.disabled, .loading):active {
     --icon-opacity: 0.8;
     background: var(--bg-active);
     color: var(--text-active-color);
@@ -124,10 +124,10 @@ const onClick = (ev: MouseEvent) => {
     filter: var(--filter-active);
   }
 
-  &:not(.disabled).loading.loading {
+  &:not(.disabled).loading {
     @include plainStyle();
   }
-  &.disabled.disabled {
+  &.disabled {
     @include plainStyle($cursor: not-allowed);
   }
 }
@@ -204,7 +204,7 @@ const onClick = (ev: MouseEvent) => {
     to { rotate: 360deg; }
   }
   .gs-button-icon::before {
-    background: repeating-conic-gradient(transparent 0%, var(icon-color) 33%);
+    background: repeating-conic-gradient(transparent 0%, var(--icon-color) 33%);
     mask: radial-gradient(transparent 0, transparent 50%, #000 50%, #000);
     animation: anime-rotate 2000ms linear infinite;
     scale: 0.6;
