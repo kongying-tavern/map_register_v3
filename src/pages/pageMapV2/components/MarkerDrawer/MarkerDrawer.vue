@@ -72,7 +72,7 @@ const { width } = useWindowSize()
           </div>
 
           <div class="flex items-center gap-4">
-            <GSButton dark class="flex-1">
+            <GSButton theme="dark" class="flex-1">
               <template #icon>
                 <el-icon color="#DAAF32">
                   <Edit />
@@ -80,7 +80,7 @@ const { width } = useWindowSize()
               </template>
               编辑
             </GSButton>
-            <GSButton dark class="flex-1">
+            <GSButton theme="dark" class="flex-1">
               <template #icon>
                 <el-icon color="var(--gs-color-danger)">
                   <DeleteFilled />

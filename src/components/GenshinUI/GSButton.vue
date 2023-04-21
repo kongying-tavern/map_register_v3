@@ -3,9 +3,9 @@ export interface GSButtonProps {
   icon?: 'submit' | 'cancel'
   iconSize?: string | number
   iconColor?: string
-  dark?: boolean
   disabled?: boolean
   loading?: boolean
+  theme?: 'dark' | 'plain'
 }
 
 export interface GSButtonEmits {
@@ -23,9 +23,18 @@ const onClick = (ev: MouseEvent) => {
 </script>
 
 <template>
-  <button v-bind="$attrs" class="gs-button genshin-text" :class="{ dark, loading, disabled }" @click="onClick">
-    <div v-if="loading" class="gs-button-icon loading" />
-    <div v-else-if="icon || $slots.icon" class="gs-button-icon" :class="[$slots.icon ? '' : icon]">
+  <button
+    v-bind="$attrs"
+    class="gs-button gs-button-variable genshin-text"
+    :class="{
+      loading,
+      disabled,
+      [`gs-button--theme-${theme ?? 'light'}`]: true,
+      [loading ? 'gs-button--icon-loading' : $slots.icon ? '' : `gs-button--icon-${icon}`]: true,
+    }"
+    @click="onClick"
+  >
+    <div v-if="icon || $slots.icon" class="gs-button-icon">
       <slot name="icon" />
     </div>
     <div v-if="$slots.default" class="gs-button-content">
@@ -35,38 +44,67 @@ const onClick = (ev: MouseEvent) => {
 </template>
 
 <style lang="scss" scoped>
-.gs-button {
+@mixin plainStyle($cursor: default) {
+  cursor: $cursor;
   --icon-opacity: 1;
+  --bg: transparent;
+  --outline-color: #ece5d834;
+  --outline-hover-color: var(--outline-color);
+  --outline-active-color: var(--outline-color);
+  --border-color: transparent;
+  --border-hover-color: var(--border-color);
+  --border-active-color: var(--border-color);
+  --filter-active: none;
+  --text-color: #959597;
+  --text-active-color: var(--text-color);
+  --filter: none;
+  --filter-active: none;
+}
+
+.gs-button-variable {
+  --height: 40px;
+  --padding: 5px;
+  --transition: all ease 150ms;
+  // icon
+  --icon-bg: #313131;
+  --icon-color: #FAC732;
+  --icon-opacity: 1;
+  --icon-size: calc(var(--height) - 2 * (var(--padding) + var(--border-width)));
   // background
-  --bg-opacity: 1;
-  --bg-active-opacity: 0.6;
-  --bg: rgb(236 229 216 / var(--bg-opacity));
+  --bg: rgb(236 229 216 / 1);
+  --bg-hover: var(--bg);
+  --bg-active: rgb(236 229 216 / 0.6);
   // color
   --text-color: #4A5366;
   --text-active-color: #FFF;
   // outline
+  --outline-width: 2px;
   --outline-color: transparent;
   --outline-hover-color: #FFF;
   --outline-active-color: transparent;
   // border
+  --border-width: 2px;
   --border-color: transparent;
   --border-hover-color: #DAD4CB;
   --border-active-color: transparent;
   // filter
   --filter: drop-shadow(0 0 2px rgb(128 128 128 / 0.4));
   --filter-active: drop-shadow(0 0 6px rgb(128 128 128 / 0.4));
+}
 
+.gs-button {
   display: flex;
   width: fit-content;
-  height: 40px;
+  min-width: var(--height);
+  height: var(--height);
   padding: 5px;
-  border-radius: 20px;
-  outline: 2px solid var(--outline-color);
-  border: 2px solid var(--border-color);
-  transition:
-    all 150ms ease,
-    background 150ms cubic-bezier(0, 3, 0, 2);
+  border-radius: calc(var(--height) / 2);
+  outline: var(--outline-width) solid var(--outline-color);
+  outline-offset: -1px;
+  border: var(--border-width) solid var(--border-color);
+  transition: var(--transition);
   background: var(--bg);
+  background-repeat: no-repeat;
   color: var(--text-color);
   filter: var(--filter);
   font-size: 18px;
@@ -75,40 +113,17 @@ const onClick = (ev: MouseEvent) => {
   &:hover {
     outline-color: var(--outline-hover-color);
     border-color: var(--border-hover-color);
+    background: var(--bg-hover);
   }
   &:active {
-    --bg-opacity: var(--bg-active-opacity);
     --icon-opacity: 0.8;
+    background: var(--bg-active);
     color: var(--text-active-color);
     outline-color: var(--outline-active-color);
     border-color: var(--border-active-color);
     filter: var(--filter-active);
   }
-  &.dark {
-    --text-color: #ECE5D8;
-    --text-active-color: #5B6272;
-    --border-hover-color: rgb(91 98 114 / var(--bg-opacity));
-    --bg-active-opacity: 0.1;
-    --bg: rgb(74 83 102 / var(--bg-opacity));
-    --outline-active-color: #5B6272;
-    --filter-active: drop-shadow(0 0 2px #DAD4CB);
-  }
-  @mixin plainStyle($cursor: default) {
-    cursor: $cursor;
-    --icon-opacity: 1;
-    --bg: transparent;
-    --outline-color: #ece5d834;
-    --outline-hover-color: var(--outline-color);
-    --outline-active-color: var(--outline-color);
-    --border-color: transparent;
-    --border-hover-color: var(--border-color);
-    --border-active-color: var(--border-color);
-    --filter-active: none;
-    --text-color: #959597;
-    --text-active-color: var(--text-color);
-    --filter: none;
-    --filter-active: none;
-  }
+
   &:not(.disabled).loading.loading {
     @include plainStyle();
   }
@@ -117,11 +132,55 @@ const onClick = (ev: MouseEvent) => {
   }
 }
 
+.gs-button--theme-plain {
+  --icon-bg: transparent;
+  --icon-color: #3B4255;
+  --border-width: 0px;
+  --outline-width: 0px;
+  --bg: rgb(236 229 216 / 0.2);
+  --bg-hover: transparent;
+  --bg-active: transparent;
+  --bg-clip: circle(calc(var(--height) / 2 - 4px));
+  --before-bg: radial-gradient(#ECE5D8 calc(var(--height) / 2 - 4px), #FFF calc(var(--height) / 2 - 4px));
+  &:hover {
+    --bg-clip: circle(calc(var(--height) / 2 - 2px));
+  }
+  &:active {
+    --icon-color: #FFFFFF;
+    --before-bg: radial-gradient(rgb(180 167 146 / 0.6) calc(var(--height) / 2 - 0px), #FFF calc(var(--height) / 2 - 0px));
+    --filter-active: drop-shadow(0 0 4px #FFF);
+  }
+  &::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    opacity: var(--before-opacity);
+    background: var(--before-bg);
+    border-radius: 50%;
+    clip-path: var(--bg-clip);
+    transition: var(--transition);
+  }
+}
+
+.gs-button--theme-dark {
+  --text-color: #ECE5D8;
+  --text-active-color: #5B6272;
+  --border-hover-color: rgb(91 98 114 / 1);
+  --bg: rgb(74 83 102 / 1);
+  --bg-active: #FFF3D1;
+  --outline-hover-color: #FFE6B2;
+  --outline-active-color: #5B6272;
+  --filter-active: drop-shadow(0 0 2px #DAD4CB);
+}
+
 .gs-button-icon {
-  width: 26px;
-  aspect-ratio: 1 / 1;
+  width: var(--icon-size);
+  height: var(--icon-size);
   border-radius: 100%;
-  background: #313131;
+  background: var(--icon-bg);
   opacity: var(--icon-opacity);
   position: relative;
   overflow: hidden;
@@ -135,39 +194,45 @@ const onClick = (ev: MouseEvent) => {
     width: 100%;
     height: 100%;
     border-radius: 100%;
+    transition: var(--transition);
   }
-  &.submit::before {
-    border: 4px solid #FAC732;
-    scale: 0.5 0.5;
+}
+
+.gs-button--icon-loading {
+  @keyframes anime-rotate {
+    from { rotate: 0deg; }
+    to { rotate: 360deg; }
   }
-  &.cancel::before {
-    background: #38A2E4;
-    border-radius: 2px;
-    height: 4px;
-    rotate: 45deg;
-    translate: 0 11px;
-    scale: 0.6;
-  }
-  &.cancel::after {
-    background: #38A2E4;
-    border-radius: 2px;
-    height: 4px;
-    rotate: -45deg;
-    translate: 0 11px;
-    scale: 0.6;
-  }
-  &.loading::before {
-    @keyframes anime-rotate {
-      from { rotate: 0deg; }
-      to { rotate: 360deg; }
-    }
-    background: repeating-conic-gradient(
-      transparent 0%,
-      #FAC732 33%,
-    );
+  .gs-button-icon::before {
+    background: repeating-conic-gradient(transparent 0%, var(icon-color) 33%);
     mask: radial-gradient(transparent 0, transparent 50%, #000 50%, #000);
     animation: anime-rotate 2000ms linear infinite;
     scale: 0.6;
+  }
+}
+
+.gs-button--icon-submit {
+  .gs-button-icon::before {
+    border: 4px solid var(--icon-color);
+    scale: 0.5;
+  }
+}
+
+.gs-button--icon-cancel {
+  --icon-color: #38A2E4;
+  --icon-scale: calc(var(--icon-size) / var(--height));
+  --icon-tr-y: calc(var(--icon-size) / 2 - 2px);
+
+  .gs-button-icon::before, .gs-button-icon::after {
+    background: var(--icon-color);
+    border-radius: 2px;
+    height: 4px;
+    translate: 0 var(--icon-tr-y);
+    scale: 0.8;
+    rotate: 45deg;
+  }
+  .gs-button-icon::after {
+    rotate: -45deg;
   }
 }
 

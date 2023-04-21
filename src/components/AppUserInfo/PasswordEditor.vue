@@ -75,7 +75,7 @@ onClickOutside(buttonRef, resetPopper)
         error,
       }"
     >
-      <GSButton ref="buttonRef" icon="submit" dark style="width:370px" :loading="loading" @click="updatePassword">
+      <GSButton ref="buttonRef" icon="submit" theme="dark" style="width:370px" :loading="loading" @click="updatePassword">
         修改密码
       </GSButton>
     </el-tooltip>

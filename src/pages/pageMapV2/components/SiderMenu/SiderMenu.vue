@@ -46,11 +46,20 @@ useEventListener('pointerdown', checkTooltip)
   <div class="sider-menu absolute top-0 left-0 bottom-0 flex" :class="{ 'is-collapse': collapse }">
     <div class="sider-menu-sidebar flex flex-col" :class="{ 'is-collapse': collapse }">
       <div class="w-full aspect-square grid place-items-center transition-all" :class="{ ' -translate-y-full': collapse }">
-        <GSButton icon="cancel" @click="$emit('update:collapse', !collapse)" />
+        <GSButton theme="plain" @click="$emit('update:collapse', !collapse)">
+          <template #icon>
+            <el-icon color="var(--icon-color)" :size="24">
+              <CloseBold />
+            </el-icon>
+          </template>
+        </GSButton>
       </div>
-      <div class="flex-1 flex flex-col justify-center items-center">
-        <slot name="default" :collapse="collapse" />
-      </div>
+
+      <el-scrollbar>
+        <div class="flex-1 flex flex-col justify-center items-center">
+          <slot name="default" :collapse="collapse" />
+        </div>
+      </el-scrollbar>
     </div>
 
     <div ref="contentRef" class="sider-menu-extra-panel flex-1" :class="{ 'is-collapse': collapse }" />
