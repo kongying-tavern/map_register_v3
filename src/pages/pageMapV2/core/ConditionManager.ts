@@ -55,7 +55,7 @@ export class ConditionManager extends IconManager {
   })
 
   /** 图层与点位映射表 */
-  #layerMarkerMap = shallowRef<Record<string, MarkerWithExtra[]>>({})
+  #layerMarkerMap = ref<Record<string, MarkerWithExtra[]>>({})
   get layerMarkerMap() { return this.#layerMarkerMap.value }
 
   // ========== 内部状态 ==========

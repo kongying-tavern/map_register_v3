@@ -3,7 +3,7 @@ import type { DeckProps, LayersList, OrbitViewState, PickingInfo } from '@deck.g
 import { Deck, OrthographicView, TRANSITION_EVENTS } from '@deck.gl/core/typed'
 import type { ViewStateChangeParameters } from '@deck.gl/core/typed/controllers/controller'
 import { clamp } from 'lodash'
-import { EventBus, GenshinBaseLayer } from '.'
+import { EventBus, GenshinBaseLayer, StateManager } from '.'
 
 export interface GenshinMapOptions extends DeckProps {
   canvas: HTMLCanvasElement
@@ -39,6 +39,15 @@ export interface GenshinMapEvents extends Record<string, unknown[]> {
 }
 
 export type Coordinate2D = [number, number]
+
+export interface GenshinMapState {
+  hover: any
+  active: any
+  focus: any
+  showBorder: boolean
+  showTooltip: boolean
+  showTags: boolean
+}
 
 export class GenshinMap extends Deck {
   constructor(options: GenshinMapOptions) {
@@ -84,32 +93,15 @@ export class GenshinMap extends Deck {
   #eventBus = new EventBus<GenshinMapEvents>()
   get event() { return this.#eventBus }
 
-  #hover = shallowRef<any>(null)
-  get hover() { return this.#hover.value }
-  set hover(v) {
-    if (this.hover === v)
-      return
-    this.#hover.value = v
-    this.baseLayer?.forceUpdate()
-  }
-
-  #active = shallowRef<any>(null)
-  get active() { return this.#active.value }
-  set active(v) {
-    if (this.active === v)
-      return
-    this.#active.value = v
-    this.baseLayer?.forceUpdate()
-  }
-
-  #focus = shallowRef<any>(null)
-  get focus() { return this.#focus.value }
-  set focus(v) {
-    if (this.focus === v)
-      return
-    this.#focus.value = v
-    this.baseLayer?.forceUpdate()
-  }
+  get stateManager() { return this.#stateManager }
+  #stateManager = new StateManager<GenshinMap, GenshinMapState>(this, {
+    hover: null,
+    active: null,
+    focus: null,
+    showBorder: false,
+    showTags: true,
+    showTooltip: false,
+  })
 
   #handleViewStateChange = ({ viewState, oldViewState = {}, ...rest }: ViewStateChangeParameters & { viewId: string }) => {
     const newState = viewState as GensinMapViewState
@@ -150,24 +142,6 @@ export class GenshinMap extends Deck {
   #baseLayer = shallowRef<GenshinBaseLayer>()
   get baseLayer() { return this.#baseLayer.value }
 
-  #showTag = ref(true)
-  get showTag() { return this.#showTag.value }
-  set showTag(v) {
-    this.#showTag.value = v
-    this.baseLayer?.forceUpdate()
-  }
-
-  #showBorder = ref(true)
-  get showBorder() { return this.#showBorder.value }
-  set showBorder(v) {
-    this.#showBorder.value = v
-    this.baseLayer?.forceUpdate()
-  }
-
-  #showTooltip = ref(true)
-  get showTooltip() { return this.#showTooltip.value }
-  set showTooltip(v) { this.#showTooltip.value = v }
-
   /**
    * 切换底图，传递 `undefined` 时清空底图。
    * 切换底图时会同时删除 `GenshinMarkerLayer`
@@ -196,9 +170,10 @@ export class GenshinMap extends Deck {
     this.#mainViewState.value = initialViewState
 
     const getTooltip = (info: PickingInfo) => {
-      if (this.hover !== info.object)
-        this.hover = info.object
-      if (!this.showTooltip || !info.coordinate)
+      const { hover } = this.stateManager.state
+      if (hover !== info.object)
+        this.stateManager.state.hover = info.object
+      if (!this.stateManager.get('showTooltip') || !info.coordinate)
         return null
       const [x, y] = info.coordinate
       return info.object

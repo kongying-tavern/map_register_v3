@@ -98,6 +98,12 @@ export class GenshinBaseLayer extends CompositeLayer<GenshinTileLayerProps> {
     super.setState(state)
   }
 
+  /**
+   * 通过更新时间戳来实现强制刷新图层
+   * @注意
+   * 1. 这里的状态更新不是最佳方案，但在 vue 的响应系统下比较有效
+   * 2. 基于 WebGL 的重绘的开销是比较低的，但需要自己处理缓存，以避免数据的重复获取或处理
+   * */
   forceUpdate = () => {
     this.setState({
       updateTimestamp: new Date().getTime(),

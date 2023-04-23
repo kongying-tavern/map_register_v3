@@ -3,7 +3,7 @@ import type { GenshinBaseLayer } from '../core'
 import type { TagOptions } from '../config'
 
 export const getTagsPropsFrom = (target: GenshinBaseLayer): TextLayerProps<TagOptions>[] => {
-  const { showTag } = target.context.deck
+  const { showTags } = target.context.deck.stateManager.state
   const { zoom } = target.context.deck.mainViewState
   const { center, coordinateOrigin, coordinateSystem, groupedTags } = target.rawProps
 
@@ -11,7 +11,7 @@ export const getTagsPropsFrom = (target: GenshinBaseLayer): TextLayerProps<TagOp
     id: `${target.props.id}-tag-level${level}`,
     coordinateSystem,
     coordinateOrigin,
-    visible: showTag && ({
+    visible: showTags && ({
       0: zoom > -1.5,
       1: zoom <= -1.5,
       2: zoom <= -4,

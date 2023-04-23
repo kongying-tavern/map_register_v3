@@ -13,40 +13,44 @@ const isMarkerVo = (v: unknown): v is MarkerWithExtra => {
 }
 
 export const useMarkerDrawer = (canvasRef?: Ref<HTMLCanvasElement | null>) => {
-  const { map } = useMap()
+  const { ensureMap } = useMap()
 
-  const handleMapClick = (info: PickingInfo, ev: { srcEvent: Event }) => {
+  const handleMapClick = async (info: PickingInfo, ev: { srcEvent: Event }) => {
     if (!(ev.srcEvent instanceof PointerEvent) || ev.srcEvent.button !== 0)
       return
+    const map = await ensureMap
     triggerTimestamp.value = new Date().getTime()
     focus.value = isMarkerVo(info.object) ? info.object : null
-    map.value && (map.value.focus = focus.value)
+    map.stateManager.set('focus', focus.value)
   }
 
-  const blur = () => {
+  const blur = async () => {
+    const map = await ensureMap
     const current = new Date().getTime()
     if (current - triggerTimestamp.value < 20)
       return
     focus.value = null
-    map.value && (map.value.focus = focus.value)
+    map.stateManager.set('focus', focus.value)
   }
 
   canvasRef && onMounted(async () => {
-    await nextTick()
-    map.value && (map.value.event.on('click', handleMapClick))
+    const map = await ensureMap
+    map.event.on('click', handleMapClick)
   })
 
   canvasRef && onBeforeUnmount(async () => {
-    await nextTick()
-    map.value && (map.value.event.off('click', handleMapClick))
+    const map = await ensureMap
+    map.event.off('click', handleMapClick)
   })
 
-  canvasRef && useEventListener(canvasRef, 'pointerdown', () => {
-    map.value && (map.value.active = map.value.hover)
+  canvasRef && useEventListener(canvasRef, 'pointerdown', async () => {
+    const map = await ensureMap
+    map.stateManager.set('active', map.stateManager.get('hover'))
   })
 
-  canvasRef && useEventListener('pointerup', () => {
-    map.value && (map.value.active = null)
+  canvasRef && useEventListener('pointerup', async () => {
+    const map = await ensureMap
+    map.stateManager.set('active', null)
   })
 
   return { focus, blur }

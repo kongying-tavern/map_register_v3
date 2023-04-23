@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { CoffeeCup, Filter, Grid, List, Location, MapLocation, Operation, SetUp, Setting } from '@element-plus/icons-vue'
 import type { FeatureOption } from '../FeatureGrid'
-import { useMap } from '@/pages/pageMapV2/hooks'
+import { useCurrentLayerMarkers, useMap } from '@/pages/pageMapV2/hooks'
 import { FeatureGrid, MarkerFilter, MarkerTable, SiderMenu, SiderMenuItem } from '@/pages/pageMapV2/components'
 import { AppSettings, AppUserInfo, GSSwitch } from '@/components'
 import { useGlobalDialog } from '@/hooks'
@@ -26,8 +26,8 @@ const tabName = ref('filter')
 const openUserInfoDialog = () => DialogService
   .config({
     showClose: false,
-    width: 1200,
     alignCenter: true,
+    width: 'fit-content',
     class: 'bg-transparent',
   })
   .open(AppUserInfo)
@@ -55,6 +55,8 @@ const onFeatureCommand = (command: string) => ({
   setting: openSettingDialog,
   sponsor: () => window.open('https://opencollective.com/genshinmap'),
 } as Record<string, () => void>)[command]?.()
+
+const { markers } = useCurrentLayerMarkers()
 </script>
 
 <template>
@@ -69,7 +71,18 @@ const onFeatureCommand = (command: string) => ({
       </template>
     </SiderMenuItem>
 
-    <SiderMenuItem name="filter" label="点位筛选" :icon="Filter">
+    <SiderMenuItem name="filter" label="点位筛选">
+      <template #icon>
+        <el-icon :size="38" color="var(--icon-color)" class="relative">
+          <Filter />
+          <div
+            v-show="markers.length > 0"
+            class="absolute w-fit bottom-0 bg-red-400 text-sm text-white font-mono rounded-full pointer-events-none px-1"
+          >
+            {{ markers.length }}
+          </div>
+        </el-icon>
+      </template>
       <MarkerFilter />
     </SiderMenuItem>
 

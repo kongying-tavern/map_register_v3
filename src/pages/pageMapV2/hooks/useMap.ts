@@ -1,46 +1,39 @@
 import type { Ref } from 'vue'
+import type { GenshinMapState } from '@/pages/pageMapV2/core'
 import { GenshinMap } from '@/pages/pageMapV2/core'
 import { Logger } from '@/utils'
 import { LAYER_CONFIGS } from '@/pages/pageMapV2/config'
 
+const logger = new Logger('[MapV2]')
+
 const map = shallowRef<GenshinMap>()
-const eventHook = createEventHook<GenshinMap>()
+
+let resolver: (map: GenshinMap) => void
+const ensureMap = new Promise<GenshinMap>((resolve) => {
+  resolver = resolve
+})
+
+const useGenshinMapStateRef = <K extends keyof GenshinMapState>(key: K, defaluValue: GenshinMapState[K]) => computed({
+  get: () => map.value?.stateManager.get(key) ?? defaluValue,
+  set: (v) => {
+    map.value?.stateManager.set(key, v)
+    triggerRef(map)
+  },
+})
+
+const showBorder = useGenshinMapStateRef('showBorder', false)
+const showTag = useGenshinMapStateRef('showTags', true)
+const showTooltip = useGenshinMapStateRef('showTooltip', true)
 
 export const useMap = (canvasRef?: Ref<HTMLCanvasElement | null>) => {
-  const showBorder = computed({
-    get: () => map.value?.showBorder ?? false,
-    set: v => map.value && (map.value.showBorder = v),
-  })
-
-  const showTag = computed({
-    get: () => map.value?.showTag ?? false,
-    set: v => map.value && (map.value.showTag = v),
-  })
-
-  const showTooltip = computed({
-    get: () => map.value?.showTooltip ?? false,
-    set: v => map.value && (map.value.showTooltip = v),
-  })
-
-  const logger = new Logger('[MapV2]')
-
-  const callbackSet = shallowRef(new Set<(map: GenshinMap) => void>())
-
-  const onMapReady = (fn: (map: GenshinMap) => void) => {
-    eventHook.on(fn)
-    callbackSet.value.add(fn)
-  }
-
-  tryOnUnmounted(() => {
-    callbackSet.value.forEach(cb => eventHook.off(cb))
-  })
-
-  const initMap = () => {
+  const initMap = async () => {
     if (!canvasRef?.value || map.value)
       return
 
-    const newMap = new GenshinMap({
-      canvas: canvasRef.value,
+    const newMap = new GenshinMap({ canvas: canvasRef.value })
+
+    Object.keys(newMap.stateManager.state).forEach((property) => {
+      newMap.stateManager.registerEffect(property as keyof GenshinMapState, target => target.baseLayer?.forceUpdate())
     })
 
     newMap.ready.then((readyMap) => {
@@ -49,9 +42,10 @@ export const useMap = (canvasRef?: Ref<HTMLCanvasElement | null>) => {
     })
 
     map.value = newMap
+    resolver(newMap)
   }
 
   tryOnMounted(initMap)
 
-  return { map, showBorder, showTag, showTooltip, onMapReady }
+  return { map, showBorder, showTag, showTooltip, ensureMap }
 }

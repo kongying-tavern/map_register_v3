@@ -6,6 +6,7 @@ import { useCondition } from '@/pages/pageMapV2/hooks'
 export const getIconLayerPropsFrom = (target: GenshinBaseLayer): IconLayerProps<MarkerWithExtra> => {
   const { center } = target.rawProps
   const conditionManager = useCondition()
+  const { stateManager } = target.context.deck
 
   // TODO 优化可能
   // 由于每个 marker 有多个物品，但并不是每个物品在预渲染时都会被 iconMap 收集，这里只能去找存在于 iconMap 里的物品
@@ -18,7 +19,7 @@ export const getIconLayerPropsFrom = (target: GenshinBaseLayer): IconLayerProps<
   }
 
   const getMarkerState = (id?: number) => {
-    const { hover, active, focus } = target.context.deck
+    const { hover, active, focus } = stateManager.state
     return id === focus?.id
       ? 'focus'
       : id === active?.id
@@ -46,7 +47,7 @@ export const getIconLayerPropsFrom = (target: GenshinBaseLayer): IconLayerProps<
     sizeMinPixels: 4,
     sizeMaxPixels: 40 * 2 ** (target.context.deck.mainViewState.zoom + 2),
     updateTriggers: {
-      getIcon: [target.context.deck.hover, target.context.deck.active, target.context.deck.focus],
+      getIcon: [stateManager.state.hover, stateManager.state.active, stateManager.state.focus],
     },
     getPosition: (d) => {
       const [x, y] = d.position?.split(',').map(Number) as [number, number]

@@ -12,7 +12,7 @@ export const getBorderPropsFrom = (target: GenshinBaseLayer): LineLayerProps<Gen
     id: `${target.props.id}-border`,
     coordinateSystem: target.rawProps.coordinateSystem,
     coordinateOrigin: target.rawProps.coordinateOrigin,
-    visible: target.context.deck.showBorder,
+    visible: target.context.deck.stateManager.get('showBorder'),
     data: [
       { start: [xmin, ymax], end: [xmax, ymax] },
       { start: [xmax, ymax], end: [xmax, ymin] },
