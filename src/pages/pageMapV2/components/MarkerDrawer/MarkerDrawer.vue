@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { DeleteFilled, Edit, LocationFilled } from '@element-plus/icons-vue'
 import { GSButton } from '@/components'
 import { useMarkerDrawer } from '@/pages/pageMapV2/hooks'
 import db from '@/database'

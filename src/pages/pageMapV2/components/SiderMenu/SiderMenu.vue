@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { CloseBold } from '@element-plus/icons-vue'
 import { contentRefKey, tabNameRefKey } from '.'
 import { GSButton } from '@/components'
 
