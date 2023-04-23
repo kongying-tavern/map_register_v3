@@ -63,8 +63,9 @@ self.onfetch = (ev) => {
 
   const urlObj = new URL(url)
 
-  // 只拦截图片类型请求
-  if (urlObj.pathname.match(/^.+\.(png|jpeg|jpg|jxl|jp2|webp|bmp)$/)?.['index'] !== 0)
+  // 只拦截图片和字体类型请求
+  const ext = urlObj.pathname.match(/^.+\.(png|jpeg|jpg|jxl|jp2|webp|bmp|ttf|otf|woff|woff2|eot)$/)?.[1]
+  if (!ext)
     return
 
   // 只缓存底图切片和物品图标
@@ -80,6 +81,10 @@ self.onfetch = (ev) => {
   // 2. 物品图标
   else if (urlObj.pathname.match(/icons/)) {
     cacheStorageName = `item-icons-V${VERSION}`
+  }
+
+  else if (['ttf', 'woff', 'woff2', 'eot'].find(name => name === ext)) {
+    cacheStorageName = `fonts-V${VERSION}`
   }
 
   if (!cacheStorageName)

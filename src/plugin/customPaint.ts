@@ -5,14 +5,18 @@ declare const CSS: {
   paintWorklet: Worklet
 }
 
+const modules = import.meta.glob('@/style/CSSHoudini/*.js', { as: 'raw' })
+
 /** 注册自定义背景绘制类 */
 export const customPaint = (): Plugin => ({
-  install: async () => {
+  install: () => {
     if (!('paintWorklet' in CSS))
       return
-    const modules = import.meta.glob('@/style/CSSHoudini/*.js', { as: 'url' })
-    Object.keys(modules).forEach((moduleUrl) => {
-      CSS.paintWorklet.addModule(moduleUrl)
-    })
+    Object
+      .values(modules)
+      .forEach(async (module) => {
+        const code = await module()
+        CSS.paintWorklet.addModule(`data:text/javascript;charset=utf-8,${encodeURIComponent(code)}`)
+      })
   },
 })

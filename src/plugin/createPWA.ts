@@ -1,6 +1,7 @@
 import { ElNotification } from 'element-plus'
 import type { Plugin } from 'vue'
 import { Logger } from '@/utils'
+import genshinFont from '@/style/fonts/genshinFont.woff2?url'
 
 const logger = new Logger('[PWA]')
 
@@ -64,6 +65,10 @@ export interface ServiceWorkerEnv {
   DEV: boolean
 }
 
+interface ChromeFontFaceSet extends FontFaceSet {
+  add: (font: FontFace) => FontFaceSet
+}
+
 /** 渐进式 Web 应用所需配置 */
 export const createPWA = (): Plugin => ({
   install: async () => {
@@ -71,6 +76,8 @@ export const createPWA = (): Plugin => ({
     // 设置 ServiceWorker 的环境变量
     await sendMessage<ServiceWorkerEnv, string>({ DEV: import.meta.env.DEV })
     // 确保字体都加载完毕
-    await document.fonts.ready
+    const mhyGameFont = new FontFace('MHYG', `url(${genshinFont})`)
+    await mhyGameFont.load()
+    ;(document.fonts as unknown as ChromeFontFaceSet).add(mhyGameFont)
   },
 })
