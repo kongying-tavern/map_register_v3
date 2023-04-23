@@ -5,7 +5,7 @@ import dayjs from 'dayjs'
 import { liveQuery } from 'dexie'
 import { Compress, messageFrom } from '@/utils'
 import Api from '@/api/api'
-import db from '@/database'
+import db, { AppDatabaseApi } from '@/database'
 import { localSettings } from '@/stores'
 import { secondClock } from '@/shared'
 
@@ -58,7 +58,7 @@ export const useMarkerStore = defineStore('global-marker', {
       const stringData = new TextDecoder('utf-8').decode(depressedData.buffer)
       const parseredData = JSON.parse(stringData) as API.MarkerVo[]
       // 确保点位更新成功后才修改本地 MD5
-      await db.marker.bulkPut(parseredData)
+      await AppDatabaseApi.marker.bulkPut(parseredData)
       await db.md5.put({ id: `marker-${index}`, value: newMD5 })
       return parseredData.length
     },
