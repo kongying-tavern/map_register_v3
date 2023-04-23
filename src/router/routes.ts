@@ -7,7 +7,7 @@ const routes: RouteRecordRaw[] = [
     path: '/',
     meta: { title: '地图', icon: 'HomeFilled' },
     component: () => import('@/layout/LayoutIndex.vue'),
-    redirect: '/map',
+    redirect: '/map-v2',
     // 管理页直接从属于根目录
     children: [
       {
