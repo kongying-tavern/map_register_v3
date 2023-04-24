@@ -1,5 +1,7 @@
 import type { TagOptions } from './tags'
 import { LAYER_TAG_CONFIGS } from './tags'
+import type { OverlayOptions } from './overlays'
+import { LAYER_OVERLAY_CONFIG } from './overlays'
 
 /** 底图配置 */
 export interface LayerConfig {
@@ -46,6 +48,11 @@ export interface LayerConfig {
    */
   tags?: TagOptions[]
   /**
+   * 附加图层
+   * @default []
+   */
+  overlays?: OverlayOptions[]
+  /**
    * 初始化视图状态
    * @default
    * { zoom:0, minZoom:-4, maxZoom:0 }
@@ -79,6 +86,7 @@ export const LAYER_CONFIGS: LayerConfig[] = [
       'A:XM:DESERT3',
     ],
     tags: LAYER_TAG_CONFIGS.twt36,
+    overlays: LAYER_OVERLAY_CONFIG.twt36,
     initViewState: {
       target: [-3184, -169],
       zoom: 0,

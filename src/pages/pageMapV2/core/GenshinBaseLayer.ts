@@ -1,11 +1,9 @@
 import type { LayersList } from '@deck.gl/core/typed'
 import { COORDINATE_SYSTEM, CompositeLayer } from '@deck.gl/core/typed'
-import { TileLayer } from '@deck.gl/geo-layers/typed'
-import { IconLayer, LineLayer, TextLayer } from '@deck.gl/layers/typed'
 import type { ValueOf } from 'element-plus/es/components/table/src/table-column/defaults'
 import { LAYER_CONFIGS } from '../config'
 import type { LayerConfig, TagOptions } from '../config'
-import { getBorderPropsFrom, getIconLayerPropsFrom, getTagsPropsFrom, getTilePropsFrom } from '../utils'
+import { getBorderFrom, getMarkersFrom, getOverlaysFrom, getTagsFrom, getTilesFrom } from '../utils'
 import type { GenshinMap } from './GenshinMap'
 import type { MarkerExtra } from '@/utils'
 
@@ -52,6 +50,7 @@ export class GenshinBaseLayer extends CompositeLayer<GenshinTileLayerProps> {
       tilesOffset = [0, 0],
       center = [0, 0],
       tags = [],
+      overlays = [],
       areaCodes = [],
       initViewState = {},
     } = props
@@ -73,6 +72,7 @@ export class GenshinBaseLayer extends CompositeLayer<GenshinTileLayerProps> {
       center,
       bounds,
       tags,
+      overlays,
       groupedTags: tags.reduce((seed, { level = 0, ...rest }) => {
         !(level in seed) && (seed[level] = [])
         seed[level].push({ level, ...rest })
@@ -88,11 +88,6 @@ export class GenshinBaseLayer extends CompositeLayer<GenshinTileLayerProps> {
   #markers = shallowRef<MarkerWithExtra[]>([])
   get markers() { return this.#markers.value }
   set markers(v) { this.#markers.value = v }
-
-  #getTileProps = () => getTilePropsFrom(this)
-  #getTagsProps = () => getTagsPropsFrom(this)
-  #getBorderProps = () => getBorderPropsFrom(this)
-  #getIconProps = () => getIconLayerPropsFrom(this)
 
   setState = (state: Partial<typeof this.state>) => {
     super.setState(state)
@@ -110,12 +105,11 @@ export class GenshinBaseLayer extends CompositeLayer<GenshinTileLayerProps> {
     })
   }
 
-  renderLayers = (): LayersList => {
-    return [
-      new TileLayer(this.#getTileProps()),
-      ...this.#getTagsProps().map(tagProps => new TextLayer(tagProps)),
-      new IconLayer(this.#getIconProps()),
-      new LineLayer(this.#getBorderProps()),
-    ]
-  }
+  renderLayers = (): LayersList => [
+    getTilesFrom(this),
+    ...getOverlaysFrom(this),
+    ...getTagsFrom(this),
+    getBorderFrom(this),
+    getMarkersFrom(this),
+  ]
 }

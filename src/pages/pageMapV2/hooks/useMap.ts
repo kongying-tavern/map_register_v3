@@ -24,6 +24,7 @@ const useGenshinMapStateRef = <K extends keyof GenshinMapState>(key: K, defaluVa
 const showBorder = useGenshinMapStateRef('showBorder', false)
 const showTag = useGenshinMapStateRef('showTags', true)
 const showTooltip = useGenshinMapStateRef('showTooltip', true)
+const showUndergroundLayer = useGenshinMapStateRef('showUndergroundLayer', false)
 
 export const useMap = (canvasRef?: Ref<HTMLCanvasElement | null>) => {
   const initMap = async () => {
@@ -47,5 +48,5 @@ export const useMap = (canvasRef?: Ref<HTMLCanvasElement | null>) => {
 
   tryOnMounted(initMap)
 
-  return { map, showBorder, showTag, showTooltip, ensureMap }
+  return { map, showBorder, showTag, showTooltip, showUndergroundLayer, ensureMap }
 }

@@ -47,6 +47,7 @@ export interface GenshinMapState {
   showBorder: boolean
   showTooltip: boolean
   showTags: boolean
+  showUndergroundLayer: boolean
 }
 
 export class GenshinMap extends Deck {
@@ -101,6 +102,7 @@ export class GenshinMap extends Deck {
     showBorder: false,
     showTags: true,
     showTooltip: false,
+    showUndergroundLayer: false,
   })
 
   #handleViewStateChange = ({ viewState, oldViewState = {}, ...rest }: ViewStateChangeParameters & { viewId: string }) => {
@@ -176,7 +178,7 @@ export class GenshinMap extends Deck {
       if (!this.stateManager.get('showTooltip') || !info.coordinate)
         return null
       const [x, y] = info.coordinate
-      return info.object
+      const renderText = info.object
         ? `markerTitle: ${info.object?.markerTitle}
           markerId: ${info.object?.id}
           hiddenFlag: ${info.object?.hiddenFlag}
@@ -184,8 +186,12 @@ export class GenshinMap extends Deck {
           version: ${info.object?.version}
           position: [${info.object?.position}]
           itemIdList: [${info.object?.itemIdList?.join(',')}]`
-        : `x: ${Math.floor(x) - center[0]}, y: ${Math.floor(y) - center[1]}
-          zoom: ${info.viewport?.zoom?.toFixed(2)}`
+        : info.sourceLayer
+          ? `id: ${info.sourceLayer.id}
+            x: ${Math.floor(x) - center[0]}, y: ${Math.floor(y) - center[1]}
+            zoom: ${info.viewport?.zoom?.toFixed(2)}`
+          : '前面的区域，以后再来探索吧！'
+      return renderText
     }
 
     this.setProps({

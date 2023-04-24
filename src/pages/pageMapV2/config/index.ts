@@ -1,3 +1,4 @@
 export * from './layers'
-export * from './tags'
 export * from './markerIcon'
+export * from './overlays'
+export * from './tags'
