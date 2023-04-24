@@ -1,9 +1,11 @@
 import { BitmapLayer } from '@deck.gl/layers/typed'
-import type { NonGeoBoundingBox, TileLayerProps } from '@deck.gl/geo-layers/typed'
+import { TileLayer } from '@deck.gl/geo-layers/typed'
+import type { NonGeoBoundingBox } from '@deck.gl/geo-layers/typed'
 import type { GenshinBaseLayer } from '../core'
 
-export const getTilePropsFrom = (target: GenshinBaseLayer): TileLayerProps => ({
+export const getTilesFrom = (target: GenshinBaseLayer): TileLayer => new TileLayer({
   id: `${target.props.id}-tile`,
+  pickable: target.context.deck.stateManager.get('showTooltip'),
   coordinateSystem: target.rawProps.coordinateSystem,
   coordinateOrigin: target.rawProps.coordinateOrigin,
   data: null,
@@ -12,6 +14,7 @@ export const getTilePropsFrom = (target: GenshinBaseLayer): TileLayerProps => ({
   maxZoom: 0, // 固定值，对应服务端存储底图的 level 13
   maxRequests: 1,
   extent: target.rawProps.bounds,
+  opacity: target.context.deck.stateManager.get('showUndergroundLayer') ? 0.3 : 1,
   getTileData: ({ index: { x, y, z }, signal }) => {
     if (signal?.aborted)
       return null

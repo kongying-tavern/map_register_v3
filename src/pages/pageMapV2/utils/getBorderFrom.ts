@@ -1,4 +1,4 @@
-import type { LineLayerProps } from '@deck.gl/layers/typed'
+import { LineLayer } from '@deck.gl/layers/typed'
 import type { GenshinBaseLayer } from '../core'
 
 export interface GenshinLineData {
@@ -6,9 +6,9 @@ export interface GenshinLineData {
   end: [number, number]
 }
 
-export const getBorderPropsFrom = (target: GenshinBaseLayer): LineLayerProps<GenshinLineData> => {
+export const getBorderFrom = (target: GenshinBaseLayer): LineLayer<GenshinLineData> => {
   const [xmin, ymax, xmax, ymin] = target.rawProps.bounds
-  return {
+  return new LineLayer({
     id: `${target.props.id}-border`,
     coordinateSystem: target.rawProps.coordinateSystem,
     coordinateOrigin: target.rawProps.coordinateOrigin,
@@ -23,5 +23,5 @@ export const getBorderPropsFrom = (target: GenshinBaseLayer): LineLayerProps<Gen
     getColor: () => [255, 0, 0, 255],
     getSourcePosition: d => d.start,
     getTargetPosition: d => d.end,
-  }
+  })
 }

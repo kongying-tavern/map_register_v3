@@ -1,9 +1,9 @@
-import type { IconLayerProps } from '@deck.gl/layers/typed'
+import { IconLayer } from '@deck.gl/layers/typed'
 import type { GenshinBaseLayer, MarkerWithExtra } from '../core'
 import { useCondition } from '@/pages/pageMapV2/hooks'
 
 /** 点位渲染属性 */
-export const getIconLayerPropsFrom = (target: GenshinBaseLayer): IconLayerProps<MarkerWithExtra> => {
+export const getMarkersFrom = (target: GenshinBaseLayer): IconLayer<MarkerWithExtra> => {
   const { center } = target.rawProps
   const conditionManager = useCondition()
   const { stateManager } = target.context.deck
@@ -29,7 +29,7 @@ export const getIconLayerPropsFrom = (target: GenshinBaseLayer): IconLayerProps<
           : 'default'
   }
 
-  return {
+  return new IconLayer({
     id: `${target.props.id}-markers`,
     coordinateSystem: target.rawProps.coordinateSystem,
     coordinateOrigin: target.rawProps.coordinateOrigin,
@@ -53,5 +53,5 @@ export const getIconLayerPropsFrom = (target: GenshinBaseLayer): IconLayerProps<
       const [x, y] = d.position?.split(',').map(Number) as [number, number]
       return [x + center[0], y + center[1], 0]
     },
-  }
+  })
 }

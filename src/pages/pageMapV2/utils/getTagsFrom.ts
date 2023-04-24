@@ -1,13 +1,13 @@
-import type { TextLayerProps } from '@deck.gl/layers/typed'
+import { TextLayer } from '@deck.gl/layers/typed'
 import type { GenshinBaseLayer } from '../core'
 import type { TagOptions } from '../config'
 
-export const getTagsPropsFrom = (target: GenshinBaseLayer): TextLayerProps<TagOptions>[] => {
+export const getTagsFrom = (target: GenshinBaseLayer): TextLayer<TagOptions>[] => {
   const { showTags } = target.context.deck.stateManager.state
   const { zoom } = target.context.deck.mainViewState
   const { center, coordinateOrigin, coordinateSystem, groupedTags } = target.rawProps
 
-  return groupedTags.map((tags, level) => ({
+  return groupedTags.map((tags, level) => new TextLayer({
     id: `${target.props.id}-tag-level${level}`,
     coordinateSystem,
     coordinateOrigin,
