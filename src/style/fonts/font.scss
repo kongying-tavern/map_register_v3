@@ -1,4 +1,8 @@
-// 字体引入见 src/plugin/createPWA.ts
+@font-face {
+  font-family: 'MHYG';
+  src: url('@/style/fonts/genshinFont.woff2') format('woff2');
+}
+
 .genshin-text {
   font-family: 'MHYG', sans-serif;
 }

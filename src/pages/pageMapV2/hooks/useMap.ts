@@ -31,7 +31,7 @@ export const useMap = (canvasRef?: Ref<HTMLCanvasElement | null>) => {
     if (!canvasRef?.value || map.value)
       return
 
-    const newMap = new GenshinMap({ canvas: canvasRef.value })
+    const newMap = await GenshinMap.create({ canvas: canvasRef.value })
 
     Object.keys(newMap.stateManager.state).forEach((property) => {
       newMap.stateManager.registerEffect(property as keyof GenshinMapState, target => target.baseLayer?.forceUpdate())

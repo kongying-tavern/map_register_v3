@@ -3,7 +3,9 @@ import type { DeckProps, LayersList, OrbitViewState, PickingInfo } from '@deck.g
 import { Deck, OrthographicView, TRANSITION_EVENTS } from '@deck.gl/core/typed'
 import type { ViewStateChangeParameters } from '@deck.gl/core/typed/controllers/controller'
 import { clamp } from 'lodash'
+import { MAP_FONTFAMILY } from '../shared'
 import { EventBus, GenshinBaseLayer, StateManager } from '.'
+import genshinFont from '@/style/fonts/genshinFont.woff2?url'
 
 export interface GenshinMapOptions extends DeckProps {
   canvas: HTMLCanvasElement
@@ -50,7 +52,20 @@ export interface GenshinMapState {
   showUndergroundLayer: boolean
 }
 
+interface ChromeFontFaceSet extends FontFaceSet {
+  add: (font: FontFace) => FontFaceSet
+  has: Set<FontFace>['has']
+}
+
 export class GenshinMap extends Deck {
+  static create = async (options: GenshinMapOptions) => {
+    const fonts = document.fonts as unknown as ChromeFontFaceSet
+    const mhyGameFont = new FontFace(MAP_FONTFAMILY, `url(${genshinFont})`)
+    await mhyGameFont.load()
+    fonts.add(mhyGameFont)
+    return new this(options)
+  }
+
   constructor(options: GenshinMapOptions) {
     const { canvas, ...rest } = options
 

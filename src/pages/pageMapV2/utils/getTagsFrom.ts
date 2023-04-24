@@ -1,6 +1,7 @@
 import { TextLayer } from '@deck.gl/layers/typed'
 import type { GenshinBaseLayer } from '../core'
 import type { TagOptions } from '../config'
+import { MAP_FONTFAMILY } from '../shared'
 
 export const getTagsFrom = (target: GenshinBaseLayer): TextLayer<TagOptions>[] => {
   const { showTags } = target.context.deck.stateManager.state
@@ -18,7 +19,7 @@ export const getTagsFrom = (target: GenshinBaseLayer): TextLayer<TagOptions>[] =
     })[level],
     data: tags,
     characterSet: 'auto',
-    fontFamily: 'MHYG, Monaco, monospace',
+    fontFamily: `${MAP_FONTFAMILY}, Monaco, monospace`,
     fontSettings: {
       buffer: 8,
     },
