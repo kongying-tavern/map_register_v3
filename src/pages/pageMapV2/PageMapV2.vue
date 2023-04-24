@@ -17,21 +17,36 @@ useMarkerDrawer(canvasRef)
 
 <template>
   <div class="w-full h-full relative">
+    <div class="genshin-map-mask" />
+
     <canvas ref="canvasRef" class="w-full h-full bg-black" />
 
-    <div class="absolute top-2 left-2">
+    <div class="absolute top-2 left-2 z-10">
       <CollapseButton v-model:collapse="collapse" />
     </div>
 
-    <div class="absolute bottom-2 left-2 flex flex-col gap-2 invisible sm:visible">
+    <div class="absolute bottom-2 left-2 flex flex-col gap-2 invisible sm:visible z-10">
       <GSSwitch v-model="showTag" label="显示地图标签" size="large" />
       <GSSwitch v-model="showUndergroundLayer" label="显示地下图层" size="large" />
       <GSSwitch v-model="showBorder" label="显示图层边界" size="large" />
       <GSSwitch v-model="showTooltip" label="显示调试信息" size="large" />
     </div>
 
-    <MapSiderMenu v-model:collapse="collapse" />
+    <MapSiderMenu v-model:collapse="collapse" class="z-10" />
 
-    <MarkerDrawer />
+    <MarkerDrawer class="z-10" />
   </div>
 </template>
+
+<style lang="scss" scoped>
+.genshin-map-mask {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(transparent 50%, #00000060);
+  pointer-events: none;
+  z-index: 1;
+}
+</style>
