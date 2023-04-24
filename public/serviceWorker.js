@@ -83,8 +83,14 @@ self.onfetch = (ev) => {
     cacheStorageName = `item-icons-V${VERSION}`
   }
 
+  // 3. 字体
   else if (['ttf', 'woff', 'woff2', 'eot'].find(name => name === ext)) {
     cacheStorageName = `fonts-V${VERSION}`
+  }
+
+  // 4. 附加图片
+  else if (urlObj.pathname.match(/\/underground/)) {
+    cacheStorageName = `overlays-V${VERSION}`
   }
 
   if (!cacheStorageName)
