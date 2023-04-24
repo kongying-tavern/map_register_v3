@@ -51,7 +51,8 @@ defineEmits<GSSwitchEmits>()
   --bg: #353D4F;
   --slider-tr-x: 0;
   --icon-color: #D3BC8E;
-  --label-color: #818D9D;
+  --label-color: #CCC;
+  --label-size: 16px;
 
   &.size-small {
     --width: 40px;
@@ -60,17 +61,20 @@ defineEmits<GSSwitchEmits>()
   &.size-large {
     --width: 60px;
     --height: 30px;
+    --label-size: 20px;
   }
 
   width: var(--width);
   height: var(--height);
   border: var(--border-width) solid #EBE4D8;
+  background: var(--bg);
   border-radius: var(--height);
   padding: calc(0.08 * var(--height));
   position: relative;
   cursor: pointer;
   user-select: none;
   color: var(--icon-color);
+  filter: drop-shadow(0 0 2px #333);
 
   &::before {
     content: '';
@@ -88,7 +92,9 @@ defineEmits<GSSwitchEmits>()
 
   &.label::after {
     content: attr(data-label);
+    font-size: var(--label-size);
     position: absolute;
+    height: 100%;
     top: 0;
     left: 100%;
     padding: 0 0 0 8px;
