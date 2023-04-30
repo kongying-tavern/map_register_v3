@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { CoffeeCup, Filter, Grid, List, Location, MapLocation, Operation, SetUp, Setting } from '@element-plus/icons-vue'
+import { CoffeeCup, Filter, Grid, List, Location, MapLocation, Operation, RemoveFilled, SetUp, Setting } from '@element-plus/icons-vue'
 import type { FeatureOption } from '../FeatureGrid'
 import { useCurrentLayerMarkers, useMap } from '@/pages/pageMapV2/hooks'
 import { FeatureGrid, MarkerFilter, MarkerTable, SiderMenu, SiderMenuItem } from '@/pages/pageMapV2/components'
@@ -102,6 +102,14 @@ const { markers } = useCurrentLayerMarkers()
 
     <SiderMenuItem name="fetures" label="更多功能" :icon="Grid">
       <FeatureGrid :features="features" @command="onFeatureCommand" />
+    </SiderMenuItem>
+
+    <SiderMenuItem label="退出" @click="userStore.logout">
+      <template #icon>
+        <el-icon color="var(--gs-color-danger)" :size="38">
+          <RemoveFilled />
+        </el-icon>
+      </template>
     </SiderMenuItem>
   </SiderMenu>
 </template>
