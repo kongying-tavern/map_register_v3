@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import { useMap, useMarkerDrawer } from './hooks'
-import { CollapseButton, MapSiderMenu, MarkerDrawer } from './components'
+import { CollapseButton, MapAffix, MapOverlay, MapSiderMenu, MarkerDrawer } from './components'
 import { GSSwitch } from '@/components'
 
 const canvasRef = ref<HTMLCanvasElement | null>(null)
-const { showTag, showUndergroundLayer, showBorder, showTooltip } = useMap(canvasRef)
+const { map, showTag, showUndergroundLayer, showBorder, showTooltip } = useMap(canvasRef)
 
 const collapse = ref(true)
 useEventListener('keypress', (ev) => {
@@ -31,6 +31,18 @@ useMarkerDrawer(canvasRef)
       <GSSwitch v-model="showBorder" label="显示图层边界" size="large" />
       <GSSwitch v-model="showTooltip" label="显示调试信息" size="large" />
     </div>
+
+    <template v-if="showUndergroundLayer">
+      <MapAffix
+        v-for="(group, key) in map?.baseLayer?.overlayManager?.overlayGroups"
+        :key="key"
+        :view="canvasRef"
+        :pos="[group.bounds[2], group.bounds[3]]"
+        zoom-with-map
+      >
+        <MapOverlay :option-group="group" />
+      </MapAffix>
+    </template>
 
     <MapSiderMenu v-model:collapse="collapse" class="z-10" />
 

@@ -116,8 +116,8 @@ export class GenshinMap extends Deck {
     focus: null,
     showBorder: false,
     showTags: true,
-    showTooltip: false,
-    showUndergroundLayer: false,
+    showTooltip: true,
+    showUndergroundLayer: true,
   })
 
   #handleViewStateChange = ({ viewState, oldViewState = {}, ...rest }: ViewStateChangeParameters & { viewId: string }) => {

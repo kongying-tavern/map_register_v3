@@ -1,10 +1,12 @@
 import type { LayersList } from '@deck.gl/core/typed'
 import { COORDINATE_SYSTEM, CompositeLayer } from '@deck.gl/core/typed'
 import type { ValueOf } from 'element-plus/es/components/table/src/table-column/defaults'
-import { LAYER_CONFIGS } from '../config'
+import type { ShallowRef } from 'vue'
+import { LAYER_CONFIGS, LAYER_OVERLAY_CONFIG } from '../config'
 import type { LayerConfig, TagOptions } from '../config'
 import { getBorderFrom, getMarkersFrom, getOverlaysFrom, getTagsFrom, getTilesFrom } from '../utils'
 import type { GenshinMap } from './GenshinMap'
+import { OverlayManager } from './OverlayManager'
 import type { MarkerExtra } from '@/utils'
 
 export interface GenshinTileLayerProps extends Required<LayerConfig> {
@@ -83,11 +85,16 @@ export class GenshinBaseLayer extends CompositeLayer<GenshinTileLayerProps> {
       coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
       coordinateOrigin: [center[0], center[1], 0] as [number, number, number],
     }
+
+    this.#overlayManager = shallowRef<OverlayManager>(new OverlayManager(LAYER_OVERLAY_CONFIG[this.rawProps.code]))
   }
 
   #markers = shallowRef<MarkerWithExtra[]>([])
   get markers() { return this.#markers.value }
   set markers(v) { this.#markers.value = v }
+
+  #overlayManager: ShallowRef<OverlayManager>
+  get overlayManager() { return this.#overlayManager.value }
 
   setState = (state: Partial<typeof this.state>) => {
     super.setState(state)
