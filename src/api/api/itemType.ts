@@ -73,7 +73,7 @@ export async function listItemType1(
 // path
     self: number;
   },
-  body: API.PageAndTypeListVo,
+  body: API.PageAndTypeSearchVo,
   options?: { [key: string]: any },
 ) {
   const { self: param0, ...queryParams } = params;

@@ -17,7 +17,7 @@ export async function listCommonItem(
   body: API.PageSearchVo,
   options?: { [key: string]: any },
 ) {
-  return request<API.RPageListVoItemVo>('/api/item_common/get/list', {
+  return request<API.RPageListVoItemAreaPublicVo>('/api/item_common/get/list', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

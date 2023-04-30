@@ -1,12 +1,5 @@
 
 declare namespace API {
-  type SysRoleLinkVo = {
-    /** 用户ID */
-    userId?: number;
-    /** 角色ID */
-    roleId?: number;
-  };
-
   type RBoolean = {
     error?: boolean;
     errorStatus?: number;
@@ -17,11 +10,15 @@ declare namespace API {
   };
 
   type TagTypeVo = {
-    /** 乐观锁：修改次数 */
+    /** 乐观锁 */
     version?: number;
-    /** 分类ID */
+    /** ID */
     id?: number;
-    /** 分类名 */
+    /** 更新人 */
+    updaterId?: number;
+    /** 更新时间 */
+    updateTime?: string;
+    /** 分类名称 */
     name?: string;
     /** 父级分类ID（-1为根分类） */
     parent?: number;
@@ -39,10 +36,14 @@ declare namespace API {
   };
 
   type RouteVo = {
-    /** 乐观锁：修改次数 */
+    /** 乐观锁 */
     version?: number;
-    /** 路线ID */
+    /** ID */
     id?: number;
+    /** 更新人 */
+    updaterId?: number;
+    /** 更新时间 */
+    updateTime?: string;
     /** 路线名称 */
     name?: string;
     /** 路线描述 */
@@ -55,36 +56,33 @@ declare namespace API {
     video?: string;
     /** 额外信息 */
     extra?: string;
-    /** 创建人 */
-    creatorId?: number;
     /** 创建人昵称 */
     creatorNickname?: string;
   };
 
-  type MarkerItemLinkVo = {
-    /** 物品id */
-    itemId?: number;
-    /** 点位物品数量 */
-    count?: number;
-    /** 图标标签 */
-    iconTag?: string;
-  };
-
   type MarkerPunctuateVo = {
-    /** 乐观锁：修改次数 */
+    /** 乐观锁 */
     version?: number;
-    /** 打点ID */
+    /** ID */
+    id?: number;
+    /** 更新人 */
+    updaterId?: number;
+    /** 更新时间 */
+    updateTime?: string;
+    /** 点位提交ID */
     punctuateId?: number;
-    /** 原有点位id */
+    /** 原有点位ID */
     originalMarkerId?: number;
     /** 点位名称 */
     markerTitle?: string;
+    /** 点位物品列表 */
+    itemList?: string;
     /** 点位坐标 */
     position?: string;
-    /** 点位物品列表 */
-    itemList?: MarkerItemLinkVo[];
     /** 点位说明 */
     content?: string;
+    /** 额外特殊字段 */
+    extra?: string;
     /** 点位图片 */
     picture?: string;
     /** 点位初始标记者 */
@@ -93,9 +91,9 @@ declare namespace API {
     pictureCreatorId?: number;
     /** 点位视频 */
     videoPath?: string;
-    /** 额外特殊字段 */
-    extra?: string;
-    /** 点位提交者id */
+    /** 隐藏标志 */
+    hiddenFlag?: number;
+    /** 点位提交者ID */
     author?: number;
     /** 状态;0:暂存 1:审核中 2:不通过 */
     status?: number;
@@ -103,17 +101,30 @@ declare namespace API {
     auditRemark?: string;
     /** 操作类型;1: 新增 2: 修改 3: 删除 */
     methodType?: number;
-    /** 刷新时间 */
+    /** 点位刷新时间 */
     refreshTime?: number;
-    /** 隐藏标志 */
-    hiddenFlag?: number;
+  };
+
+  type MarkerItemLinkVo = {
+    /** 物品ID */
+    itemId?: number;
+    /** 物品于该点位数量 */
+    count?: number;
+    /** 图标标签 */
+    iconTag?: string;
   };
 
   type MarkerVo = {
-    /** 乐观锁：修改次数 */
+    /** 乐观锁 */
     version?: number;
-    /** 点位ID */
+    /** ID */
     id?: number;
+    /** 更新人 */
+    updaterId?: number;
+    /** 更新时间 */
+    updateTime?: string;
+    /** 点位签戳（用于兼容旧点位ID） */
+    markerStamp?: string;
     /** 点位名称 */
     markerTitle?: string;
     /** 点位坐标 */
@@ -130,19 +141,23 @@ declare namespace API {
     pictureCreatorId?: number;
     /** 点位视频 */
     videoPath?: string;
-    /** 额外特殊字段 */
-    extra?: string;
-    /** 刷新时间 */
+    /** 点位刷新时间;单位:毫秒 */
     refreshTime?: number;
     /** 隐藏标志 */
     hiddenFlag?: number;
+    /** 额外特殊字段 */
+    extra?: string;
   };
 
   type ItemTypeVo = {
-    /** 乐观锁：修改次数 */
+    /** 乐观锁 */
     version?: number;
-    /** 类型ID */
-    typeId?: number;
+    /** ID */
+    id?: number;
+    /** 更新人 */
+    updaterId?: number;
+    /** 更新时间 */
+    updateTime?: string;
     /** 图标标签 */
     iconTag?: string;
     /** 类型名 */
@@ -153,9 +168,9 @@ declare namespace API {
     parentId?: number;
     /** 是否为末端类型 */
     isFinal?: boolean;
-    /** 隐藏标志 */
+    /** 隐藏标记 */
     hiddenFlag?: number;
-    /** 物品类型排序 */
+    /** 排序 */
     sortIndex?: number;
   };
 
@@ -169,41 +184,47 @@ declare namespace API {
   };
 
   type ItemVo = {
-    /** 乐观锁：修改次数 */
+    /** 乐观锁 */
     version?: number;
-    /** 物品ID */
-    itemId?: number;
+    /** ID */
+    id?: number;
+    /** 更新人 */
+    updaterId?: number;
+    /** 更新时间 */
+    updateTime?: string;
     /** 物品名称 */
     name?: string;
-    /** 物品类型ID列表 */
-    typeIdList?: number[];
     /** 地区ID（须确保是末端地区） */
     areaId?: number;
+    /** 默认刷新时间;单位:毫秒 */
+    defaultRefreshTime?: number;
     /** 默认描述模板;用于提交新物品点位时的描述模板 */
     defaultContent?: string;
+    /** 默认数量 */
+    defaultCount?: number;
     /** 图标标签 */
     iconTag?: string;
     /** 图标样式类型 */
     iconStyleType?: number;
     /** 隐藏标志 */
     hiddenFlag?: number;
-    /** 刷新时间(单位:毫秒) */
-    defaultRefreshTime?: number;
     /** 物品排序 */
     sortIndex?: number;
-    /** 默认物品数量 */
-    defaultCount?: number;
-    /** 特殊物品标记，二进制表示<br>低位第一位：是否为显示物品 */
+    /** 特殊物品标记;二进制表示；低位第一位：前台是否显示 */
     specialFlag?: number;
-    /** 查询条件下物品总数 */
-    count?: number;
+    /** 物品类型ID列表 */
+    typeIdList?: number[];
   };
 
   type IconTypeVo = {
-    /** 乐观锁：修改次数 */
+    /** 乐观锁 */
     version?: number;
-    /** 分类ID */
+    /** ID */
     id?: number;
+    /** 更新人 */
+    updaterId?: number;
+    /** 更新时间 */
+    updateTime?: string;
     /** 分类名 */
     name?: string;
     /** 父级分类ID（-1为根分类） */
@@ -213,25 +234,31 @@ declare namespace API {
   };
 
   type IconVo = {
-    /** 乐观锁：修改次数 */
+    /** 乐观锁 */
     version?: number;
-    /** 图标ID */
-    iconId?: number;
+    /** ID */
+    id?: number;
+    /** 更新人 */
+    updaterId?: number;
+    /** 更新时间 */
+    updateTime?: string;
     /** 图标名称 */
     name?: string;
     /** 图标类型ID列表 */
     typeIdList?: number[];
     /** 图标url */
     url?: string;
-    /** 创建者ID */
-    creator?: number;
   };
 
   type AreaVo = {
-    /** 乐观锁：修改次数 */
+    /** 乐观锁 */
     version?: number;
-    /** 地区ID */
-    areaId?: number;
+    /** ID */
+    id?: number;
+    /** 更新人 */
+    updaterId?: number;
+    /** 更新时间 */
+    updateTime?: string;
     /** 地区名称 */
     name?: string;
     /** 地区代码 */
@@ -244,12 +271,12 @@ declare namespace API {
     parentId?: number;
     /** 是否为末端地区 */
     isFinal?: boolean;
-    /** 隐藏标志 */
+    /** 权限屏蔽标记 */
     hiddenFlag?: number;
-    /** 地区排序 */
-    sortIndex?: number;
-    /** 特殊物品标记 */
+    /** 额外标记;低位第一位：前台是否显示 */
     specialFlag?: number;
+    /** 排序 */
+    sortIndex?: number;
   };
 
   type SysUserUpdateDto = {
@@ -258,6 +285,7 @@ declare namespace API {
     qq?: string;
     phone?: string;
     logoUrl?: string;
+    roleId?: number;
   };
 
   type SysUserPasswordUpdateDto = {
@@ -298,20 +326,15 @@ declare namespace API {
     time?: string;
   };
 
-  type SysRoleVo = {
-    /** 角色ID */
-    id?: number;
-    /** 角色名 */
-    name?: string;
-    /** 角色代码（英文大写） */
-    code?: string;
-    /** 角色层级（越大级别越高） */
-    sort?: number;
-  };
-
   type SysUserVo = {
-    /** 用户ID */
+    /** 乐观锁 */
+    version?: number;
+    /** ID */
     id?: number;
+    /** 更新人 */
+    updaterId?: number;
+    /** 更新时间 */
+    updateTime?: string;
     /** 用户名 */
     username?: string;
     /** 昵称 */
@@ -321,12 +344,12 @@ declare namespace API {
     /** 手机号 */
     phone?: string;
     /** 头像链接 */
-    logoUrl?: string;
-    /** 角色列表 */
-    roleList?: SysRoleVo[];
+    logo?: string;
+    /** 角色ID */
+    roleId?: number;
   };
 
-  type PageAndTypeListVo = {
+  type PageAndTypeSearchVo = {
     /** 当前页，从0开始 */
     current?: number;
     /** 每页大小，默认为10 */
@@ -351,8 +374,14 @@ declare namespace API {
   };
 
   type TagVo = {
-    /** 乐观锁：修改次数 */
+    /** 乐观锁 */
     version?: number;
+    /** ID */
+    id?: number;
+    /** 更新人 */
+    updaterId?: number;
+    /** 更新时间 */
+    updateTime?: string;
     /** 标签名 */
     tag?: string;
     /** 标签类型ID列表 */
@@ -561,6 +590,67 @@ declare namespace API {
     time?: string;
   };
 
+  type ItemAreaPublicVo = {
+    /** 乐观锁 */
+    version?: number;
+    /** ID */
+    id?: number;
+    /** 更新人 */
+    updaterId?: number;
+    /** 更新时间 */
+    updateTime?: string;
+    /** 物品ID */
+    itemId?: number;
+    /** 物品名称 */
+    name?: string;
+    /** 地区ID（须确保是末端地区） */
+    areaId?: number;
+    /** 默认刷新时间;单位:毫秒 */
+    defaultRefreshTime?: number;
+    /** 默认描述模板;用于提交新物品点位时的描述模板 */
+    defaultContent?: string;
+    /** 默认数量 */
+    defaultCount?: number;
+    /** 图标标签 */
+    iconTag?: string;
+    /** 图标样式类型 */
+    iconStyleType?: number;
+    /** 隐藏标志 */
+    hiddenFlag?: number;
+    /** 物品排序 */
+    sortIndex?: number;
+    /** 特殊物品标记;二进制表示；低位第一位：前台是否显示 */
+    specialFlag?: number;
+    /** 物品类型ID列表 */
+    typeIdList?: number[];
+  };
+
+  type PageListVoItemAreaPublicVo = {
+    record?: ItemAreaPublicVo[];
+    total?: number;
+    size?: number;
+  };
+
+  type RPageListVoItemAreaPublicVo = {
+    error?: boolean;
+    errorStatus?: number;
+    errorData?: Record<string, any>;
+    message?: string;
+    data?: PageListVoItemAreaPublicVo;
+    time?: string;
+  };
+
+  type ItemSearchVo = {
+    /** 末端物品类型ID列表 */
+    typeIdList?: number[];
+    /** 末端地区ID列表 */
+    areaIdList?: number[];
+    /** 当前页，从0开始 */
+    current?: number;
+    /** 每页大小，默认为10 */
+    size?: number;
+  };
+
   type PageListVoItemVo = {
     record?: ItemVo[];
     total?: number;
@@ -574,17 +664,6 @@ declare namespace API {
     message?: string;
     data?: PageListVoItemVo;
     time?: string;
-  };
-
-  type ItemSearchVo = {
-    /** 末端物品类型ID列表 */
-    typeIdList?: number[];
-    /** 末端地区ID列表 */
-    areaIdList?: number[];
-    /** 当前页，从0开始 */
-    current?: number;
-    /** 每页大小，默认为10 */
-    size?: number;
   };
 
   type RListItemVo = {
@@ -662,19 +741,22 @@ declare namespace API {
   };
 
   type HistoryVo = {
+    /** 乐观锁 */
+    version?: number;
+    /** ID */
     id?: number;
+    /** 更新人 */
+    updaterId?: number;
+    /** 更新时间 */
+    updateTime?: string;
     /** 内容 */
-    content?: Record<string, any>;
-    /** md5 */
+    content?: string;
+    /** MD5 */
     md5?: string;
-    /** 记录类型 */
+    /** 操作数据类型;1地区; 2图标; 3物品; 4点位; 5标签 */
     type?: number;
-    /** ipv4 */
+    /** IPv4 */
     ipv4?: string;
-    /** 创建人 */
-    creatorId?: number;
-    /** 创建时间 */
-    createTime?: string;
     tid?: number;
   };
 
@@ -736,6 +818,17 @@ declare namespace API {
     message?: string;
     data?: SysRoleVo[];
     time?: string;
+  };
+
+  type SysRoleVo = {
+    /** 角色ID */
+    id?: number;
+    /** 角色名 */
+    name?: string;
+    /** 角色代码（英文大写） */
+    code?: string;
+    /** 角色层级（越大级别越高） */
+    sort?: number;
   };
 
   type ArchiveVo = {

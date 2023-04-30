@@ -29,7 +29,7 @@ export async function updateTagType(
 
 /** 列出分类 列出标签的分类，parentID为-1的时候为列出所有的根分类，isTraverse为1时遍历所有子分类，默认为1，可分页 POST /api/tag_type/get/list */
 export async function listTagType(
-  body: API.PageAndTypeListVo,
+  body: API.PageAndTypeSearchVo,
   options?: { [key: string]: any },
 ) {
   return request<API.RPageListVoTagTypeVo>('/api/tag_type/get/list', {

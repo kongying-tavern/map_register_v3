@@ -32,7 +32,7 @@ export async function updateIconType(
 
 /** 列出分类 列出图标的分类，parentID为-1的时候为列出所有的根分类，isTraverse为1时遍历所有子分类，默认为1，可分页 POST /api/icon_type/get/list */
 export async function listIconType(
-  body: API.PageAndTypeListVo,
+  body: API.PageAndTypeSearchVo,
   options?: { [key: string]: any },
 ) {
   return request<API.RPageListVoIconTypeVo>('/api/icon_type/get/list', {
