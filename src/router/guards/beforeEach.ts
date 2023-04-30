@@ -16,6 +16,9 @@ export const beforeEachGuard = (
   return (to, from, next) => {
     logger.info(`"${from.path}" => "${to.path}"`)
 
+    if (import.meta.env.VITE_DEVELOPMENT_MODE === 'offline')
+      return next(true)
+
     const userStore = useUserStore()
 
     const isTokenValid = userStore.validateUserToken()
@@ -23,7 +26,7 @@ export const beforeEachGuard = (
 
     if (isInWhiteList(to)) {
       // 如果用户已登录，但手动导航到部分页面，则重定向到地图页
-      return isTokenValid ? next('/map') : next(true)
+      return isTokenValid ? next('/') : next(true)
     }
 
     const routes = router.getRoutes()

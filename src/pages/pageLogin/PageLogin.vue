@@ -34,11 +34,14 @@ const activeName = ref('basic')
                 <el-input v-model="loginForm.password" placeholder="请输入密码" type="password" show-password />
               </el-form-item>
             </el-form>
-            <el-button-group class="w-full">
+            <div class="flex">
+              <el-button class="w-full" size="large" @click="$router.push('/')">
+                离线 (仅开发可用)
+              </el-button>
               <el-button type="primary" class="w-full" size="large" :loading="loading" @click="login">
                 登录
               </el-button>
-            </el-button-group>
+            </div>
           </el-tab-pane>
         </el-tabs>
 
