@@ -831,7 +831,16 @@ declare namespace API {
     sort?: number;
   };
 
-  type ArchiveVo = {
+  type RSysArchiveVo = {
+    error?: boolean;
+    errorStatus?: number;
+    errorData?: Record<string, any>;
+    message?: string;
+    data?: SysArchiveVo;
+    time?: string;
+  };
+
+  type SysArchiveVo = {
     /** 存档时间 */
     time?: string;
     /** 存档 */
@@ -840,16 +849,16 @@ declare namespace API {
     historyIndex?: number;
   };
 
-  type RArchiveVo = {
+  type RSysArchiveSlotVo = {
     error?: boolean;
     errorStatus?: number;
     errorData?: Record<string, any>;
     message?: string;
-    data?: ArchiveVo;
+    data?: SysArchiveSlotVo;
     time?: string;
   };
 
-  type ArchiveSlotVo = {
+  type SysArchiveSlotVo = {
     version?: number;
     /** 存档ID */
     id?: number;
@@ -862,24 +871,15 @@ declare namespace API {
     /** 更新时间 */
     updateTime?: string;
     /** 存档列表 */
-    archive?: ArchiveVo[];
+    archive?: SysArchiveVo[];
   };
 
-  type RArchiveSlotVo = {
+  type RListSysArchiveSlotVo = {
     error?: boolean;
     errorStatus?: number;
     errorData?: Record<string, any>;
     message?: string;
-    data?: ArchiveSlotVo;
-    time?: string;
-  };
-
-  type RListArchiveSlotVo = {
-    error?: boolean;
-    errorStatus?: number;
-    errorData?: Record<string, any>;
-    message?: string;
-    data?: ArchiveSlotVo[];
+    data?: SysArchiveSlotVo[];
     time?: string;
   };
 

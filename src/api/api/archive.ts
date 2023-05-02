@@ -74,7 +74,7 @@ export async function getLastArchive(
   options?: { [key: string]: any },
 ) {
   const { slot_index: param0, ...queryParams } = params;
-  return request<API.RArchiveVo>(`/system/archive/last/${param0}`, {
+  return request<API.RSysArchiveVo>(`/system/archive/last/${param0}`, {
     method: 'GET',
     headers: {},
     params: { ...queryParams },
@@ -92,7 +92,7 @@ export async function getHistoryArchive(
   options?: { [key: string]: any },
 ) {
   const { slot_index: param0, ...queryParams } = params;
-  return request<API.RArchiveSlotVo>(`/system/archive/history/${param0}`, {
+  return request<API.RSysArchiveSlotVo>(`/system/archive/history/${param0}`, {
     method: 'GET',
     headers: {},
     params: { ...queryParams },
@@ -107,7 +107,7 @@ export async function getAllHistoryArchive(
 },
   options?: { [key: string]: any },
 ) {
-  return request<API.RListArchiveSlotVo>('/system/archive/all_history', {
+  return request<API.RListSysArchiveSlotVo>('/system/archive/all_history', {
     method: 'GET',
     headers: {},
     params: { ...params },
@@ -143,7 +143,7 @@ export async function restoreArchive(
   options?: { [key: string]: any },
 ) {
   const { slot_index: param0, ...queryParams } = params;
-  return request<API.RArchiveVo>(`/system/archive/restore/${param0}`, {
+  return request<API.RSysArchiveVo>(`/system/archive/restore/${param0}`, {
     method: 'DELETE',
     headers: {},
     params: { ...queryParams },
