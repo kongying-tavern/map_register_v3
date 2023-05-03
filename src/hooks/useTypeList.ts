@@ -15,13 +15,13 @@ export const useTypeList = (options: FetchHookOptions<API.RPageListVoItemTypeVo>
   const loading = ref(false)
   /** 物品类型树 */
   const typeTree = computed(() => array2Tree(typeList.value, {
-    idKey: 'typeId',
+    idKey: 'id',
     pidKey: 'parentId',
     rootId: -1,
   }))
   /** 物品 id → 物品对象映射表 */
   const typeMap = computed(() => typeList.value.reduce((seed, typeObj) => {
-    typeObj.typeId !== undefined && (seed[typeObj.typeId] = typeObj)
+    typeObj.id !== undefined && (seed[typeObj.id] = typeObj)
     return seed
   }, {} as Record<number, API.ItemTypeVo>))
 

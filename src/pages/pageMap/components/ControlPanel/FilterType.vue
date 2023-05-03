@@ -24,18 +24,18 @@ const internalBind = computed({
 const iconMap = inject(iconMapInjection, ref<Record<string, string>>({}))
 const typeList = inject(itemTypeInjection, ref([]))
 
-const leafList = computed(() => typeList.value.reduce((seed, { typeId, isFinal, ...rest }) => {
+const leafList = computed(() => typeList.value.reduce((seed, { id, isFinal, ...rest }) => {
   isFinal && seed.push({
     ...rest,
     isFinal,
-    typeId: `${typeId}`,
+    typeId: `${id}`,
   })
   return seed
 }, [] as AnyObject[]))
 </script>
 
 <template>
-  <RadioCardGroup v-model="internalBind" :item-list="leafList" data-key="typeId" item-key="typeId">
+  <RadioCardGroup v-model="internalBind" :item-list="leafList" data-key="id" item-key="id">
     <template #default="{ item, actived }">
       <RadioCardItem :src="iconMap[item.iconTag ?? '']" :title="item.name" :actived="actived" />
     </template>

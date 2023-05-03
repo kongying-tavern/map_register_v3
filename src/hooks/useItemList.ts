@@ -21,7 +21,7 @@ const itemList = ref<API.ItemVo[]>([]) as Ref<API.ItemVo[]>
 const loading = ref(false)
 /** 共享的物品id → 物品对象映射表 */
 const itemMap = computed(() => itemList.value.reduce((seed, item) => {
-  item.itemId !== undefined && (seed[item.itemId] = item)
+  item.id !== undefined && (seed[item.id] = item)
   return seed
 }, {} as Record<number, API.ItemVo>))
 
@@ -62,7 +62,7 @@ export const useItemList = (options: ItemListHookOptions = {}) => {
       }
       else {
         collection = db.item
-          .where('areaId')
+          .where('id')
           .anyOf(areaIdList)
           .and(itemVO => typeId === undefined ? true : Boolean(itemVO.typeIdList?.includes(typeId)))
         if (filterParams.value?.name)

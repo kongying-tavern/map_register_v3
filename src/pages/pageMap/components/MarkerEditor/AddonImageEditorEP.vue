@@ -208,7 +208,7 @@ onMounted(() => {
       2. 由于跨域策略限制，部分已上传的图像无法再被编辑，如需更改图片请重新上传。
     </el-alert>
 
-    <div ref="containerRef" class="canvas-container aspect-square rounded overflow-hidden">
+    <div class="canvas-container aspect-square rounded overflow-hidden">
       <canvas ref="canvasRef" class="w-full h-full select-none" :width="w" :height="h" />
     </div>
 

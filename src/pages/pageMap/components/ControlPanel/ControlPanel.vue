@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { ArrowLeft, ArrowRight, Search } from '@element-plus/icons-vue'
 import type { Directive } from 'vue'
-import { KeepAlive } from 'vue'
 import { ElMessage } from 'element-plus'
 import type L from 'leaflet'
 import { FilterArea, FilterItem, FilterStep, FilterType, MarkersTable } from '@/pages/pageMap/components'

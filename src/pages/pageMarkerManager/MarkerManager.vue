@@ -73,9 +73,8 @@ watch(itemOptions, (options) => {
 const { markerList, loading, updateMarkerList, onSuccess: onMarkerFetched } = useSearchMarkerList({
   pagination,
   params: () => {
-    const { markerIds, ...rest } = queryForm
     return {
-      ...rest,
+      ...queryForm,
       markerIdList: queryMarkerIdList.value,
       current: pagination.value.current,
       size: pagination.value.pageSize,
@@ -125,7 +124,7 @@ const { width, height } = useElementSize(tableContainerRef)
           v-model="queryForm.areaIdList"
           multiple
           placeholder="请选择地区"
-          node-key="areaId"
+          node-key="id"
           collapse-tags
           collapse-tags-tooltip
           style="width: 100%"

@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { DeleteFilled, Download } from '@element-plus/icons-vue'
 import { CheckboxGroup, ConditionRow, FilterTabs } from '.'
-import { useFetchHook } from '@/hooks'
 import { GSButton } from '@/components'
 import { useCondition } from '@/pages/pageMapV2/hooks'
 import { FALLBACK_ITEM_ICON_URL } from '@/shared/constant'
@@ -37,36 +36,20 @@ onMounted(() => db.iconTag.each((iconTag) => {
 }))
 
 // ==================== 地区 ====================
-const parentAreaCode = ref<string>()
-const parentAreaList = ref<API.AreaVo[]>([])
-const { onSuccess: onAreaFetched } = useFetchHook({
-  immediate: true,
-  onRequest: () => db.area.filter(area => !area.isFinal).toArray(),
-})
-onAreaFetched((areaList) => {
-  parentAreaList.value = areaList
-  parentAreaCode.value = parentAreaList.value[0]?.code
-})
+const parentAreaList = asyncComputed<API.AreaVo[]>(() => db.area.filter(area => !area.isFinal).toArray(), [])
 
 const childrenAreaList = asyncComputed<API.AreaVo[]>(() => {
-  if (!parentAreaCode.value)
+  if (!conditionManager.parentAreaCode)
     return []
-  const parentArea = parentAreaList.value.find(area => area.code === parentAreaCode.value) as API.AreaVo
-  return db.area.where('parentId').equals(parentArea.areaId as number).toArray()
+  const parentArea = parentAreaList.value.find(area => area.code === conditionManager.parentAreaCode) as API.AreaVo
+  return db.area.where('parentId').equals(parentArea.id as number).toArray()
 }, [])
 
 // ==================== 分类 ====================
-const itemTypeList = ref<API.ItemTypeVo[]>([])
-const { onSuccess: onTypeFetched } = useFetchHook({
-  immediate: true,
-  onRequest: async () => {
-    const res = await db.itemType.filter(type => Boolean(type.isFinal)).toArray()
-    return res.sort(sort)
-  },
-})
-onTypeFetched((typeList) => {
-  itemTypeList.value = typeList
-})
+const itemTypeList = asyncComputed<API.ItemTypeVo[]>(async () => {
+  const res = await db.itemType.filter(type => Boolean(type.isFinal)).toArray()
+  return res.sort(sort)
+}, [])
 
 // ==================== 物品 ====================
 const itemList = asyncComputed<API.ItemVo[]>(async () => {
@@ -74,8 +57,8 @@ const itemList = asyncComputed<API.ItemVo[]>(async () => {
     return []
   const res = await db.item
     .where('areaId')
-    .equals(conditionManager.area.areaId as number)
-    .and(({ typeIdList = [] }) => typeIdList.includes(conditionManager.itemType?.typeId as number))
+    .equals(conditionManager.area.id as number)
+    .and(({ typeIdList = [] }) => typeIdList.includes(conditionManager.itemType?.id as number))
     .toArray()
   return res.sort(sort)
 }, [])
@@ -98,7 +81,7 @@ const itemList = asyncComputed<API.ItemVo[]>(async () => {
     <div class="flex-1 p-2 pb-0 overflow-hidden">
       <div v-if="tabKey === 0" class="h-full flex gap-1">
         <CheckboxGroup
-          v-model="parentAreaCode"
+          v-model="conditionManager.parentAreaCode"
           class="flex-1"
           :options="parentAreaList"
           label-key="name"
@@ -121,7 +104,7 @@ const itemList = asyncComputed<API.ItemVo[]>(async () => {
           class="flex-1"
           :options="itemTypeList"
           label-key="name"
-          value-key="typeId"
+          value-key="id"
           two-col
           @change="next"
         >
@@ -143,7 +126,7 @@ const itemList = asyncComputed<API.ItemVo[]>(async () => {
           :options="itemList"
           class="flex-1"
           label-key="name"
-          value-key="itemId"
+          value-key="id"
           multiple
           show-select-all-btn
           two-col

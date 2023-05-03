@@ -13,7 +13,7 @@ const emits = defineEmits<{
   (e: 'active'): void
 }>()
 
-const { roleOptions, selectOptions, roleValueMap } = useRoleOptions({
+const { roleOptions, selectOptions } = useRoleOptions({
   publicMode: true,
 })
 

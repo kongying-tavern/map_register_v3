@@ -89,7 +89,7 @@ export class IconManager {
         '_ug_active',
         '_ug_focus',
       ].forEach((append, index) => {
-        seed[`${item.itemId}${append}`] = { ...baseProps, x: baseProps.width * index }
+        seed[`${item.id}${append}`] = { ...baseProps, x: baseProps.width * index }
       })
       return seed
     }, {} as SpiritIconMap)

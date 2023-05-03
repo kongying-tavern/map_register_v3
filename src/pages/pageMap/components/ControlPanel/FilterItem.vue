@@ -20,7 +20,7 @@ const iconMap = inject(iconMapInjection, ref<Record<string, string>>({}))
 </script>
 
 <template>
-  <RadioCardGroup v-bind="$attrs" v-model="internalBind" :item-list="itemList" data-key="name" item-key="itemId">
+  <RadioCardGroup v-bind="$attrs" v-model="internalBind" :item-list="itemList" data-key="name" item-key="id">
     <template #default="{ item, actived }">
       <RadioCardItem :src="iconMap[item.iconTag ?? '']" :title="item.name" :actived="actived" />
     </template>

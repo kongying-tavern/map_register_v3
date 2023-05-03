@@ -18,8 +18,8 @@ export const useItemList = (options: ItemListHookOption = {}) => {
   const itemList = ref<API.ItemVo[]>([])
 
   const itemOptions = computed(() => itemList.value.map(itemvo => ({
-    label: `${itemvo.name} (id: ${itemvo.itemId})`,
-    value: itemvo.itemId,
+    label: `${itemvo.name} (id: ${itemvo.id})`,
+    value: itemvo.id,
   })))
 
   const { refresh: getItemList, onSuccess, ...rest } = useFetchHook<API.ItemVo[]>({
@@ -39,7 +39,7 @@ export const useItemList = (options: ItemListHookOption = {}) => {
 
       // 如果只有地区，则按地区筛选
       if (!isType)
-        return db.item.where('areaId').anyOf(areaIdList).toArray()
+        return db.item.where('id').anyOf(areaIdList).toArray()
 
       // 如果地区和类型同时存在，则先筛类型后筛地区
       return db.item.where('typeIdList').anyOf(typeIdList).and(({ areaId = -9999 }) => areaIdList.includes(areaId)).toArray()

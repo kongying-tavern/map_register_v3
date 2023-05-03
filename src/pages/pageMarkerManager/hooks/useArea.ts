@@ -20,16 +20,11 @@ export const useArea = () => {
     },
   })
 
-  onSuccess((rsp: API.RListAreaVo) => {
-    areaList.value = rsp.data?.map(({
-      areaId,
-      name,
-    }: any) => {
-      return {
-        label: name,
-        value: areaId,
-      }
-    }) || []
+  onSuccess(({ data = [] }) => {
+    areaList.value = data.map(({ id, name }) => ({
+      label: name ?? '',
+      value: id ?? -9999,
+    }))
   })
 
   return { getArea, areaList, ...rest }

@@ -4,7 +4,7 @@ import dayjs from 'dayjs'
 import { liveQuery } from 'dexie'
 import { messageFrom } from '@/utils'
 import Api from '@/api/api'
-import db from '@/database'
+import db, { AppDatabaseApi } from '@/database'
 import { localSettings } from '@/stores'
 import { secondClock } from '@/shared'
 
@@ -37,7 +37,7 @@ export const useAreaStore = defineStore('global-area', {
         isTraverse: true,
         parentId: -1,
       })
-      await db.area.bulkPut(data)
+      await AppDatabaseApi.area.bulkPut(data)
       return data.length
     },
 
@@ -49,8 +49,8 @@ export const useAreaStore = defineStore('global-area', {
         const total = await this.updateAreaInfo()
         const spentTime = (dayjs().diff(startTime) / 1000).toFixed(0)
         localSettings.value.noticeDataUpdated && ElNotification.success({
-          title: '地区更新成功',
-          message: `本次共更新地区 ${total} 个，耗时 ${spentTime} 秒`,
+          title: !total ? '地区已经是最新' : '地区更新成功',
+          message: !total ? undefined : `本次共更新地区 ${total} 个，耗时 ${spentTime} 秒`,
           position: 'bottom-right',
         })
       }

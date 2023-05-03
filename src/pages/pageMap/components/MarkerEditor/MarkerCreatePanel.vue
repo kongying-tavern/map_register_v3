@@ -17,7 +17,7 @@ const { map } = useMap()
 /** 初始化新增点位信息 */
 const initFormData = (): API.MarkerPunctuateVo | API.MarkerVo => {
   const { lat, lng } = props.latlng
-  const { name: markerTitle = '', iconTag, itemId } = props.selectedItem ?? {}
+  const { name: markerTitle = '', iconTag, id } = props.selectedItem ?? {}
   const { id: userId } = userStore.info
   return {
     version: 1,
@@ -26,7 +26,7 @@ const initFormData = (): API.MarkerPunctuateVo | API.MarkerVo => {
     content: '',
     hiddenFlag: 0,
     position: `${lat},${lng}`,
-    itemList: props.selectedItem ? [{ count: 1, iconTag, itemId }] : [],
+    itemList: props.selectedItem ? [{ count: 1, iconTag, itemId: id }] : [],
     videoPath: '',
     refreshTime: 0,
     markerCreatorId: userId,

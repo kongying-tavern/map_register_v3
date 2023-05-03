@@ -72,8 +72,8 @@ export const useMarkerStore = defineStore('global-marker', {
         const updateCounts = await Promise.all(md5List.map((_, index) => this._updateMarkerInfo(index + 1, md5List[index])))
         const total = updateCounts.reduce((sum, cur) => sum + cur, 0)
         localSettings.value.noticeDataUpdated && ElNotification.success({
-          title: '点位更新成功',
-          message: `本次共更新点位 ${total} 个，耗时 ${(dayjs().diff(startTime) / 1000).toFixed(0)} 秒`,
+          title: !total ? '点位已经是最新' : '点位更新成功',
+          message: !total ? undefined : `本次共更新点位 ${total} 个，耗时 ${(dayjs().diff(startTime) / 1000).toFixed(0)} 秒`,
           position: 'bottom-right',
         })
       }

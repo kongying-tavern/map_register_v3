@@ -9,13 +9,13 @@ const { pagination, layout } = usePagination({
 const checkedArea = ref<API.AreaVo>()
 const checkedType = ref<API.ItemTypeVo>()
 
-const { areaMap, areaTree, loading: areaLoading } = useAreaList({
+const { areaMap, areaTree } = useAreaList({
   immediate: true,
 })
 
 const { iconMap } = useIconList({ immediate: true })
 
-const { typeTree, loading: typeLoading } = useTypeList({ immediate: true })
+const { typeTree } = useTypeList({ immediate: true })
 
 const searchInput = ref('')
 
@@ -45,13 +45,13 @@ const onAreaCheckedChange = (area: API.AreaVo) => {
 
 const onTypeCheckedChange = (typeItem: API.ItemTypeVo) => {
   // TODO 目前只有宝箱(id = 9)分类存在子分类，先这样处理
-  if (typeItem.typeId === 9)
+  if (typeItem.id === 9)
     return
   resetPagination()
   checkedType.value = typeItem
 }
 
-onItemListFetched(({ data: { record = [], total = 0 } = {} }) => {
+onItemListFetched(({ data: { total = 0 } = {} }) => {
   pagination.value.total = total
 })
 
@@ -61,8 +61,8 @@ const onCreateItemSuccess = () => {
 
 const { openItemCreatorDialog } = useItemCreate({
   defaultItemData: () => ({
-    areaId: checkedArea.value?.areaId,
-    typeIdList: checkedType.value ? [checkedType.value.typeId as number] : [],
+    areaId: checkedArea.value?.id,
+    typeIdList: checkedType.value ? [checkedType.value.id as number] : [],
   }),
 })
 
@@ -73,7 +73,7 @@ const selection = ref<API.ItemVo[]>([])
 const removeOneItem = ref<API.ItemVo[]>([])
 
 const getDeleteParams = () => {
-  const transform = (items: Ref<API.ItemVo[]>) => items.value.map(item => item.itemId ?? -1).filter(id => id !== -1)
+  const transform = (items: Ref<API.ItemVo[]>) => items.value.map(item => item.id ?? -1).filter(id => id !== -1)
   if (removeOneItem.value.length)
     return transform(removeOneItem)
   return transform(selection)
@@ -115,7 +115,7 @@ const openAddCommonDialog = () => {
         :props="{ label: 'name' }"
         class="flex-1 overflow-auto"
         accordion
-        node-key="areaId"
+        node-key="id"
         highlight-current
         @current-change="onAreaCheckedChange"
       />
@@ -128,7 +128,7 @@ const openAddCommonDialog = () => {
         :props="{ label: 'name', isLeaf: 'isLeaf' }"
         class="flex-1 overflow-auto"
         accordion
-        node-key="typeId"
+        node-key="id"
         highlight-current
         @current-change="onTypeCheckedChange"
       />
@@ -139,7 +139,7 @@ const openAddCommonDialog = () => {
         :props="{ label: 'name' }"
         class="flex-1 overflow-auto"
         accordion
-        node-key="areaId"
+        node-key="id"
         highlight-current
         @current-change="onAreaCheckedChange"
       />
@@ -150,7 +150,7 @@ const openAddCommonDialog = () => {
         :props="{ label: 'name', isLeaf: 'isLeaf' }"
         class="flex-1 overflow-auto"
         accordion
-        node-key="typeId"
+        node-key="id"
         highlight-current
         @current-change="onTypeCheckedChange"
       /> -->
@@ -211,7 +211,7 @@ const openAddCommonDialog = () => {
           @selection-change="(val) => selection = val"
         >
           <el-table-column align="center" type="selection" width="50" />
-          <el-table-column label="物品ID" prop="itemId" width="70" />
+          <el-table-column label="物品ID" prop="id" width="70" />
           <el-table-column label="图标" width="57">
             <template #default="{ row }">
               <img
@@ -225,7 +225,7 @@ const openAddCommonDialog = () => {
           <el-table-column label="名称" prop="name" width="200" />
           <el-table-column label="地区" width="200">
             <template #default="{ row }">
-              <div>{{ areaMap[row.areaId]?.name ?? row.areaId }}</div>
+              <div>{{ areaMap[row.id]?.name ?? row.id }}</div>
             </template>
           </el-table-column>
           <el-table-column fixed="right" label="操作" width="73">

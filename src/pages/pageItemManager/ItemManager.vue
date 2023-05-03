@@ -21,8 +21,8 @@ const { typeTree, loading: typeLoading } = useTypeList({ immediate: true })
 const { itemList, loading: itemLoading, onSuccess: onItemListFetched, pause, resume, updateItemList } = useItemList({
   immediate: true,
   params: () => ({
-    areaIdList: checkedArea.value ? [checkedArea.value.areaId as number] : [],
-    typeIdList: checkedType.value ? [checkedType.value.typeId as number] : [],
+    areaIdList: checkedArea.value ? [checkedArea.value.id as number] : [],
+    typeIdList: checkedType.value ? [checkedType.value.id as number] : [],
     current: pagination.value.current,
     size: pagination.value.pageSize,
   }),
@@ -68,8 +68,8 @@ const { openItemDetailEditorDialog } = useItemEdit({
 
 const { openItemCreatorDialog } = useItemCreate({
   defaultItemData: () => ({
-    areaId: checkedArea.value?.areaId,
-    typeIdList: checkedType.value ? [checkedType.value.typeId as number] : [],
+    areaId: checkedArea.value?.id,
+    typeIdList: checkedType.value ? [checkedType.value.id as number] : [],
   }),
   onCreateItemSuccess: updateItemList,
 })
@@ -81,7 +81,7 @@ const selection = ref<API.ItemVo[]>([])
 const deleteOneItem = ref<API.ItemVo[]>([])
 
 const getDeleteParams = () => {
-  const transform = (items: Ref<API.ItemVo[]>) => items.value.map(item => item.itemId ?? -1).filter(id => id !== -1)
+  const transform = (items: Ref<API.ItemVo[]>) => items.value.map(item => item.id ?? -1).filter(id => id !== -1)
   if (deleteOneItem.value.length)
     return transform(deleteOneItem)
   return transform(selection)
@@ -122,7 +122,7 @@ const removeRow = (row: API.ItemVo) => {
         :props="{ label: 'name' }"
         class="flex-1 overflow-auto"
         accordion
-        node-key="areaId"
+        node-key="id"
         highlight-current
         @current-change="onAreaCheckedChange"
       />
@@ -133,7 +133,7 @@ const removeRow = (row: API.ItemVo) => {
         :props="{ label: 'name', isLeaf: 'isLeaf' }"
         class="flex-1 overflow-auto"
         accordion
-        node-key="typeId"
+        node-key="id"
         highlight-current
         @current-change="onTypeCheckedChange"
       />
@@ -185,7 +185,7 @@ const removeRow = (row: API.ItemVo) => {
           @selection-change="(val) => selection = val"
         >
           <el-table-column align="center" type="selection" width="50" />
-          <el-table-column label="物品ID" prop="itemId" width="70" />
+          <el-table-column label="物品ID" prop="id" width="70" />
           <el-table-column label="名称" prop="name" width="200" />
           <el-table-column label="图标" width="100">
             <template #default="{ row }">
@@ -200,7 +200,7 @@ const removeRow = (row: API.ItemVo) => {
           <el-table-column label="描述模板" prop="defaultContent" />
           <el-table-column label="地区" width="200">
             <template #default="{ row }">
-              <div>{{ areaMap[row.areaId]?.name ?? row.areaId }}</div>
+              <div>{{ areaMap[row.id]?.name ?? row.id }}</div>
             </template>
           </el-table-column>
           <el-table-column fixed="right" label="操作" width="200">

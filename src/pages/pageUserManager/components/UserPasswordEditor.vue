@@ -51,8 +51,7 @@ const onSubmit = async () => {
       return
     loading.value = true
     GlobalDialogController.updateBtnProps('submit', { props: { loading: loading.value } })
-    const { repeatPassword, ...body } = formData.value
-    const res = await Api.sysUserController.updateUserPassword({}, body)
+    const res = await Api.sysUserController.updateUserPassword({}, formData.value)
     GlobalDialogController.close()
     ElMessage.success(res.message ?? '成功')
     emits('success')

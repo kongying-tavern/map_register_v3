@@ -62,7 +62,7 @@ getItemListError(() => {
 })
 
 const removeFromItemList = (row: API.ItemVo[]) => {
-  itemIdList.value.splice(itemIdList.value.indexOf(row[0].itemId as number), 1)
+  itemIdList.value.splice(itemIdList.value.indexOf(row[0].id as number), 1)
   updateItemList()
 }
 
@@ -106,13 +106,13 @@ GlobalDialogController.registerBtn('submit', {
 
 <template>
   <div class="p-4 flex flex-col gap-5" label-width="60px">
-    <div ref="containerRef" v-loading="tempItemLoading" class="flex-1 overflow-hidden">
+    <div v-loading="tempItemLoading" class="flex-1 overflow-hidden">
       <el-table
         :data="itemList"
         stripe
         height="300"
       >
-        <el-table-column label="物品ID" prop="itemId" width="90" fixed />
+        <el-table-column label="物品ID" prop="id" width="90" fixed />
         <el-table-column label="图标" width="57">
           <template #default="{ row }">
             <img
@@ -126,7 +126,7 @@ GlobalDialogController.registerBtn('submit', {
         <el-table-column label="名称" prop="name" width="auto" />
         <el-table-column label="地区" width="200">
           <template #default="{ row }">
-            <div>{{ areaMap[row.areaId]?.name ?? row.areaId }}</div>
+            <div>{{ areaMap[row.id]?.name ?? row.id }}</div>
           </template>
         </el-table-column>
         <el-table-column fixed="right" label="操作" width="73">

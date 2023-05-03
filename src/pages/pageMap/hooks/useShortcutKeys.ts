@@ -5,6 +5,6 @@ export const useShortcutKeys = () => {
   useEventListener('keydown', (ev) => {
     if (route.path !== '/map')
       return
-    // console.log('[press]', ev)
+    console.log('[press]', ev)
   })
 }

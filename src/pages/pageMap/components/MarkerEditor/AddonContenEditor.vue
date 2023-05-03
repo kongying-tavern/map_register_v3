@@ -34,7 +34,7 @@ const internalBind = computed({
 
 /** 根据已选物品 id 从数据库获取对应的物品对象 */
 const selectedItems = asyncComputed(() => db.item
-  .where('itemId')
+  .where('id')
   .anyOf(props.itemList.map(item => item.itemId as number))
   .toArray())
 
@@ -116,7 +116,7 @@ const textareaRows = computed(() => Math.floor((height.value - 10) / 21))
           <el-button-group size="small">
             <el-button
               v-for="item in selectedItems"
-              :key="item.itemId"
+              :key="item.id"
               :title="item.defaultContent"
               @click="() => insertChar(item.defaultContent ?? '', true)"
             >

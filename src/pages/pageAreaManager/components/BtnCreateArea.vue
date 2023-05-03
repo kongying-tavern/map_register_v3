@@ -114,10 +114,10 @@ watch(() => formData.value.parentId, (val) => {
           <el-select v-model="formData.parentId" placeholder="请选择父级地区">
             <el-option label="无" value="-1" />
             <el-option
-              v-for="item in props.arealist"
-              :key="item.areaId"
-              :label="item.name"
-              :value="item.areaId ?? 0"
+              v-for="area in props.arealist"
+              :key="area.id"
+              :label="area.name"
+              :value="area.id ?? 0"
             />
           </el-select>
         </el-form-item>

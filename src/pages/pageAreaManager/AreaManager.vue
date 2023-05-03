@@ -15,7 +15,7 @@ export interface CustomTableColumn {
 
 /** 表格列 */
 const columns: CustomTableColumn[] = [
-  { title: 'ID', dataKey: 'areaId', width: 100, readonly: true, fixed: true },
+  { title: 'ID', dataKey: 'id', width: 100, readonly: true, fixed: true },
   { title: '地区排序', dataKey: 'sortIndex', width: 100, readonly: true, fixed: true },
   { title: '图标', dataKey: 'iconTag', width: 75 },
   { title: '地区名称', dataKey: 'name', minWidth: 100 },
@@ -60,10 +60,10 @@ const { height } = useElementSize(tableRef)
             :value="-1"
           />
           <el-option
-            v-for="item in parents"
-            :key="item.areaId"
-            :label="item.name"
-            :value="item.areaId ?? -1"
+            v-for="area in parents"
+            :key="area.id"
+            :label="area.name"
+            :value="area.id ?? -1"
           />
         </el-select>
       </div>

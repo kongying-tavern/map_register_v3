@@ -20,4 +20,32 @@ export class AppDatabaseApi {
       data: markers,
     }),
   }
+
+  static area = {
+    bulkPut: (areas: API.AreaVo[]) => this.sendMessage({
+      table: 'area',
+      data: areas,
+    }),
+  }
+
+  static item = {
+    bulkPut: (items: API.ItemVo[]) => this.sendMessage({
+      table: 'item',
+      data: items,
+    }),
+  }
+
+  static itemType = {
+    bulkPut: (itemTypes: API.ItemTypeVo[]) => this.sendMessage({
+      table: 'itemType',
+      data: itemTypes,
+    }),
+  }
+
+  static iconTag = {
+    bulkPut: (iconTags: API.TagVo[]) => this.sendMessage({
+      table: 'iconTag',
+      data: iconTags,
+    }),
+  }
 }

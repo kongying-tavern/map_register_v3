@@ -109,8 +109,8 @@ GlobalDialogController.registerBtn('submit', {
         <el-select v-model="formData.areaId" filterable placeholder="选择地区">
           <el-option
             v-for="obj in areaList"
-            :key="obj.areaId"
-            :value="obj.areaId ?? 0"
+            :key="obj.id"
+            :value="obj.id ?? 0"
             :label="obj.name"
           />
         </el-select>
@@ -119,8 +119,8 @@ GlobalDialogController.registerBtn('submit', {
         <el-select v-model="formData.typeIdList" multiple placeholder="选择类型">
           <el-option
             v-for="obj in typeList"
-            :key="obj.typeId"
-            :value="obj.typeId ?? 0"
+            :key="obj.id"
+            :value="obj.id ?? 0"
             :label="obj.name"
           />
         </el-select>
@@ -149,8 +149,8 @@ GlobalDialogController.registerBtn('submit', {
           <el-option
             v-for="obj in iconList"
             :key="obj.iconId"
-            :value="obj.name ?? ''"
-            :label="obj.name"
+            :value="obj.tag ?? ''"
+            :label="obj.tag"
           />
         </el-select>
       </el-form-item>

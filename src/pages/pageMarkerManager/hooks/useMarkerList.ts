@@ -54,11 +54,11 @@ export const useSearchMarkerList = (options: MarkerSearchHookOptions) => {
       // 2. 其他情况下，由于物品类型制约了物品的选择，对于点位只需要判断是否满足地区和物品的条件即可
       else {
         if (!isAreaEmpty) {
-          const queryItems = (await db.item.where('areaId').anyOf(areaIdList).toArray()).map(itemVo => itemVo.itemId as number)
+          const queryItems = (await db.item.where('id').anyOf(areaIdList).toArray()).map(itemVo => itemVo.id as number)
           collection = db.marker.where('itemIdList').anyOf(queryItems)
         }
         if (!isTypeEmpty && isItemEmpty) {
-          const queryItems = (await db.item.where('typeIdList').anyOf(typeIdList).toArray()).map(itemVo => itemVo.itemId as number)
+          const queryItems = (await db.item.where('typeIdList').anyOf(typeIdList).toArray()).map(itemVo => itemVo.id as number)
           collection = collection
             ? collection.and(markerVo => markerVo.itemList?.find(item => queryItems.includes(item.itemId as number)) !== undefined)
             : db.marker.where('itemIdList').anyOf(queryItems)

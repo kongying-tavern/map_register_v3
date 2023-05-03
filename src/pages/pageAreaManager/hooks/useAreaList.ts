@@ -62,12 +62,12 @@ export const useUserList = (options: UserListHookOptions = {}) => {
 
   const deleteRow = async (index: number) => {
     try {
-      const { areaId, name } = areaList.value[index] ?? {}
-      const confirm = await ElMessageBox.confirm(`确认删除地区: ${name} (id: ${areaId})`).catch(() => false)
-      if (!confirm || areaId === undefined)
+      const { id, name } = areaList.value[index] ?? {}
+      const confirm = await ElMessageBox.confirm(`确认删除地区: ${name} (id: ${id})`).catch(() => false)
+      if (!confirm || id === undefined)
         return
       deleteLoading.value = true
-      const res = await Api.area.deleteArea({ areaId })
+      const res = await Api.area.deleteArea({ areaId: id })
       ElMessage.success(res.message ?? '删除成功')
       refresh()
     }

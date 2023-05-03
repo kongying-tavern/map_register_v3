@@ -15,7 +15,7 @@ const areaList = inject(areaListInjection, ref([]))
 const iconMap = inject(iconMapInjection, ref<Record<string, string>>({}))
 
 /** 地区 id 与地区对象映射表 */
-const areaIdMap = computed<Record<number, API.AreaVo>>(() => Object.fromEntries(areaList.value.map(area => [area.areaId, area])))
+const areaIdMap = computed<Record<number, API.AreaVo>>(() => Object.fromEntries(areaList.value.map(area => [area.id, area])))
 
 /** 一级地区列表 */
 const parentAreaList = computed(() => areaList.value.filter(area => !area.isFinal))

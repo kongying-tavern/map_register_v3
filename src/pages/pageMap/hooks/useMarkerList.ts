@@ -62,7 +62,7 @@ export const useMarkerList = (options: MarkerListHookOptions = {}) => {
 
     // 特殊点位
     !showSpecial && (itemIdList = (await db.item.bulkGet(itemIdList)).reduce((seed, item) => {
-      (item && item.specialFlag !== 1) && seed.push(item.itemId as number)
+      (item && item.specialFlag !== 1) && seed.push(item.id as number)
       return seed
     }, [] as number[]))
 

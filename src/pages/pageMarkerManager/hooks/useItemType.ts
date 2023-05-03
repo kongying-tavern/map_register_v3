@@ -8,7 +8,7 @@ export const useItemType = () => {
     .filter(itemType => itemType.isFinal)
     .map(itemType => ({
       label: `${itemType.name}`,
-      value: itemType.typeId,
+      value: itemType.id,
     })),
   )
 

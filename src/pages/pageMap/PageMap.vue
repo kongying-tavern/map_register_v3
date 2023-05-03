@@ -31,7 +31,7 @@ mapStore.$subscribe((_, { areaCode }) => {
 const areaId = computed(() => {
   if (!mapStore.areaCode)
     return
-  return areaList.value.find(area => area.code === mapStore.areaCode)?.areaId
+  return areaList.value.find(area => area.code === mapStore.areaCode)?.id
 })
 
 onAreaFetched(() => {
@@ -67,7 +67,7 @@ watch(() => [mapStore.areaCode, mapStore.typeId], () => {
 // ==================== 点位相关 ====================
 const { markerList, updateMarkerList } = useMarkerList({
   params: () => ({
-    itemIdList: selectedItem.value?.itemId === undefined ? [] : [selectedItem.value.itemId],
+    itemIdList: selectedItem.value?.id === undefined ? [] : [selectedItem.value.id],
     showAuditedMarker: Boolean(mapStore.showAuditedMarker),
     showPunctuateMarker: Boolean(mapStore.showPunctuateMarker),
     onlyUnderground: Boolean(mapStore.onlyUnderground),

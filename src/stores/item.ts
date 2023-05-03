@@ -5,7 +5,7 @@ import dayjs from 'dayjs'
 import { liveQuery } from 'dexie'
 import { Compress, messageFrom } from '@/utils'
 import Api from '@/api/api'
-import db from '@/database'
+import db, { AppDatabaseApi } from '@/database'
 import { localSettings } from '@/stores'
 import { secondClock } from '@/shared'
 
@@ -55,7 +55,7 @@ export const useItemStore = defineStore('global-item', {
       const localTotal = await db.item.count()
       // 当本地物品数大于远程物品数时，需要同步已删除的物品，所以这里做一次清空
       localTotal > parseredData.length && await db.item.clear()
-      await db.item.bulkPut(parseredData)
+      await AppDatabaseApi.item.bulkPut(parseredData)
       // 物品信息成功之后才更新本地 MD5
       await db.md5.put({ id: 'item-0', value: newMD5 })
       return parseredData.length
@@ -69,8 +69,8 @@ export const useItemStore = defineStore('global-item', {
         const total = await this.updateItemInfo()
         const spentTime = (dayjs().diff(startTime) / 1000).toFixed(0)
         localSettings.value.noticeDataUpdated && ElNotification.success({
-          title: '物品更新成功',
-          message: `本次共更新物品 ${total} 个，耗时 ${spentTime} 秒`,
+          title: !total ? '物品已经是最新' : '物品更新成功',
+          message: !total ? undefined : `本次共更新物品 ${total} 个，耗时 ${spentTime} 秒`,
           position: 'bottom-right',
         })
       }

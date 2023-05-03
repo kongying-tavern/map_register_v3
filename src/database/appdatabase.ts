@@ -30,7 +30,7 @@ export class AppDatabase extends Dexie {
 
     this
       .use(markerFormater)
-      .version(1.6)
+      .version(1.7)
       .stores({
         area: '&id, parentId, name, code, hiddenFlag',
         icon: '&id, name',
@@ -42,5 +42,3 @@ export class AppDatabase extends Dexie {
       })
   }
 }
-
-// (window as any).Dexie = Dexie

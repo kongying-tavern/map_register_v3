@@ -15,6 +15,10 @@ const logger = new Logger('[条件管理器]')
 
 export class ConditionManager extends IconManager {
   // ========== 对外绑定的数据 ==========
+  #parentAreaCode = ref<string>()
+  get parentAreaCode() { return this.#parentAreaCode.value }
+  set parentAreaCode(v) { this.#parentAreaCode.value = v }
+
   #areaCode = ref<string>()
   get areaCode() { return this.#areaCode.value }
   set areaCode(v) {
@@ -43,15 +47,17 @@ export class ConditionManager extends IconManager {
   set itemIds(v) { this.#itemIds.value = v }
 
   get area() { return this.#area.value }
-  #area = asyncComputed(() => this.areaCode === undefined
-    ? undefined
-    : db.area.where('code').equals(this.areaCode).first())
+  #area = asyncComputed(() => {
+    return this.areaCode === undefined
+      ? undefined
+      : db.area.where('code').equals(this.areaCode).first()
+  })
 
   get itemType() { return this.#itemType.value }
   #itemType = asyncComputed(() => {
     return this.itemTypeId === undefined
       ? undefined
-      : db.itemType.where('typeId').equals(this.itemTypeId).first()
+      : db.itemType.where('id').equals(this.itemTypeId).first()
   })
 
   /** 图层与点位映射表 */

@@ -5,7 +5,7 @@ import dayjs from 'dayjs'
 import { liveQuery } from 'dexie'
 import { Compress, messageFrom } from '@/utils'
 import Api from '@/api/api'
-import db from '@/database'
+import db, { AppDatabaseApi } from '@/database'
 import { localSettings } from '@/stores'
 import { secondClock } from '@/shared'
 
@@ -60,7 +60,7 @@ export const useIconTagStore = defineStore('global-icon-tag', {
       const localTotal = await db.iconTag.count()
       // 当本地图标标签数大于远程图标标签数时，需要同步已删除的图标标签，所以这里做一次清空
       localTotal > parseredData.length && await db.iconTag.clear()
-      await db.iconTag.bulkPut(parseredData)
+      await AppDatabaseApi.iconTag.bulkPut(parseredData)
       // 图标标签信息成功之后才更新本地 MD5
       await db.md5.put({ id: 'iconTag-0', value: newMD5 })
       return parseredData.length
@@ -74,8 +74,8 @@ export const useIconTagStore = defineStore('global-icon-tag', {
         const total = await this.updateIconTag()
         const spentTime = (dayjs().diff(startTime) / 1000).toFixed(0)
         localSettings.value.noticeDataUpdated && ElNotification.success({
-          title: '图标标签更新成功',
-          message: `本次共更新图标标签 ${total} 个，耗时 ${spentTime} 秒`,
+          title: !total ? '图标标签已经是最新' : '图标标签更新成功',
+          message: !total ? undefined : `本次共更新图标标签 ${total} 个，耗时 ${spentTime} 秒`,
           position: 'bottom-right',
         })
       }

@@ -4,7 +4,7 @@ import dayjs from 'dayjs'
 import { liveQuery } from 'dexie'
 import { messageFrom } from '@/utils'
 import Api from '@/api/api'
-import db from '@/database'
+import db, { AppDatabaseApi } from '@/database'
 import { localSettings } from '@/stores'
 import { secondClock } from '@/shared'
 
@@ -34,7 +34,7 @@ export const useItemTypeStore = defineStore('global-item-type', {
     /** 更新物品类型数据 */
     async updateItemTypeInfo() {
       const { data = [] } = await Api.itemType.listItemType({})
-      await db.itemType.bulkPut(data)
+      await AppDatabaseApi.itemType.bulkPut(data)
       return data.length
     },
 
@@ -46,8 +46,8 @@ export const useItemTypeStore = defineStore('global-item-type', {
         const total = await this.updateItemTypeInfo()
         const spentTime = (dayjs().diff(startTime) / 1000).toFixed(0)
         localSettings.value.noticeDataUpdated && ElNotification.success({
-          title: '物品类型更新成功',
-          message: `共更新物品类型 ${total} 个，耗时 ${spentTime} 秒。`,
+          title: !total ? '物品类型已经是最新' : '物品类型更新成功',
+          message: !total ? undefined : `本次共更新物品类型 ${total} 个，耗时 ${spentTime} 秒`,
           position: 'bottom-right',
         })
       }

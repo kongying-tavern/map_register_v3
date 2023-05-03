@@ -30,7 +30,7 @@ const debounceQueryText = debouncedRef(queryText, 300)
 const itemList = asyncComputed(async () => {
   const area = await db.area.where('code').equals(mapStore.areaCode ?? '').first()
   return area
-    ? db.item.where('areaId').equals(area.areaId ?? -9999).toArray()
+    ? db.item.where('areaId').equals(area.id ?? -9999).toArray()
     : [] as API.ItemVo[]
 }, [])
 
@@ -47,7 +47,7 @@ const itemTree = computed(() => itemList.value.reduce((seed, item) => {
     }
     (!query || (item.name?.includes(query))) && seed[typeId].items.push({
       ...item,
-      active: Boolean(props.modelValue.find(modelItem => modelItem.itemId === item.itemId)),
+      active: Boolean(props.modelValue.find(modelItem => modelItem.itemId === item.id)),
     })
   })
   return seed
@@ -59,11 +59,11 @@ const selectItem = (item: ItemExtraObj) => {
     copy.push({
       count: 1,
       iconTag: item.iconTag,
-      itemId: item.itemId,
+      itemId: item.id,
     })
   }
   else {
-    const existIndex = copy.findIndex(modelItem => modelItem.itemId === item.itemId)
+    const existIndex = copy.findIndex(modelItem => modelItem.itemId === item.id)
     if (existIndex < 0)
       return
     copy.splice(existIndex, 1)
@@ -89,7 +89,7 @@ const selectItem = (item: ItemExtraObj) => {
             </div>
             <div
               v-for="item in itemType.items"
-              :key="item.itemId" class="item-button"
+              :key="item.id" class="item-button"
               :class="{ active: item.active }"
               @click="() => selectItem(item)"
             >

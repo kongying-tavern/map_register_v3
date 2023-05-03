@@ -21,12 +21,12 @@ const areaList = ref([]) as Ref<API.AreaVo[]>
 const loading = ref(false)
 /** 共享的地区映射表 */
 const areaMap = computed(() => Object.fromEntries(areaList.value.map(area => [
-  area.areaId as number,
+  area.id as number,
   area,
 ]))) as ComputedRef<Record<number, API.AreaVo>>
 /** 共享的地区树 */
 const areaTree = computed(() => array2Tree(areaList.value, {
-  idKey: 'areaId',
+  idKey: 'id',
   pidKey: 'parentId',
   rootId: -1,
 }))
@@ -39,7 +39,7 @@ export const useAreaList = (options: AreaListHookOptions = {}) => {
   const selectedArea = computed(() => {
     if (!mapStore.areaCode)
       return
-    return areaList.value.find(area => area.code === mapStore.areaCode)?.areaId
+    return areaList.value.find(area => area.code === mapStore.areaCode)?.id
   })
 
   const { refresh: updateAreaList, onSuccess, ...rest } = useFetchHook({
