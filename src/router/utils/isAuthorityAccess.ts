@@ -7,8 +7,8 @@ export const isInPermissionList = (to: RouteLocationNormalized) => {
     return true
 
   const userStore = useUserStore()
-  if (!userStore.info.roleList)
+  if (!userStore.auth.userRoles)
     return false
 
-  return to.meta.roles.includes(userStore.info.roleList[0]?.code ?? '')
+  return to.meta.roles.includes(userStore.auth.userRoles[0] ?? '')
 }
