@@ -30,7 +30,7 @@ export class OverlayManager {
     return arr
   })
 
-  constructor(overlays: OverlayOptions[]) {
+  constructor(overlays: OverlayOptions[] = []) {
     const overlayMap: Record<string, OverlayExtraObject> = {}
 
     this.overlayGroups = overlays.reduce((seed, overlay) => {
