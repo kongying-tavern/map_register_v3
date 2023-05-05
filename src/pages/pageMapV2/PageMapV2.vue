@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { useMap, useMarkerDrawer } from './hooks'
-import { CollapseButton, MapAffix, MapOverlay, MapSiderMenu, MarkerDrawer } from './components'
+import { useContextMenu, useMap, useMarkerDrawer } from './hooks'
+import { CollapseButton, MapAffix, MapContextMenu, MapOverlay, MapSiderMenu, MarkerDrawer } from './components'
 import { GSSwitch } from '@/components'
 
 const canvasRef = ref<HTMLCanvasElement | null>(null)
@@ -13,6 +13,8 @@ useEventListener('keypress', (ev) => {
 })
 
 useMarkerDrawer(canvasRef)
+
+const { visible: contextMenuVisible, position: contextMenuPos } = useContextMenu()
 </script>
 
 <template>
@@ -43,6 +45,10 @@ useMarkerDrawer(canvasRef)
         <MapOverlay :option-group="group" />
       </MapAffix>
     </template>
+
+    <MapAffix :pos="contextMenuPos" :visible="contextMenuVisible" :view="canvasRef">
+      <MapContextMenu />
+    </MapAffix>
 
     <MapSiderMenu v-model:collapse="collapse" class="z-10" />
 

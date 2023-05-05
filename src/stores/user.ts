@@ -11,7 +11,6 @@ import {
   useIconTagStore,
   useItemStore,
   useItemTypeStore,
-  useMapStore,
   useMarkerStore,
 } from '@/stores'
 
@@ -178,8 +177,6 @@ export const useUserStore = defineStore('user-info', {
       localUserAuth.value = null
       localUserInfo.value = null
       this.clearRefreshTimer()
-      // 清除地图参数
-      useMapStore().reset()
       // 清除后台任务
       useAreaStore().clearBackgroundUpdate()
       useIconTagStore().clearBackgroundUpdate()

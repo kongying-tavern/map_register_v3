@@ -3,7 +3,6 @@ import { liveQuery } from 'dexie'
 import { useSubscription } from '@vueuse/rxjs'
 import { array2Tree } from '@/utils'
 import { useFetchHook } from '@/hooks'
-import { useMapStore } from '@/stores'
 import db from '@/database'
 
 export interface AreaListHookOptions {
@@ -34,14 +33,6 @@ const areaTree = computed(() => array2Tree(areaList.value, {
 export const useAreaList = (options: AreaListHookOptions = {}) => {
   const { immediate, loading: scopedLoading } = options
 
-  const mapStore = useMapStore()
-
-  const selectedArea = computed(() => {
-    if (!mapStore.areaCode)
-      return
-    return areaList.value.find(area => area.code === mapStore.areaCode)?.id
-  })
-
   const { refresh: updateAreaList, onSuccess, ...rest } = useFetchHook({
     immediate,
     loading: scopedLoading ?? loading,
@@ -58,5 +49,5 @@ export const useAreaList = (options: AreaListHookOptions = {}) => {
 
   useSubscription(liveQuery(() => db.area.toCollection()).subscribe(updateAreaList))
 
-  return { areaList, areaTree, areaMap, selectedArea, updateAreaList, onSuccess, ...rest }
+  return { areaList, areaTree, areaMap, updateAreaList, onSuccess, ...rest }
 }

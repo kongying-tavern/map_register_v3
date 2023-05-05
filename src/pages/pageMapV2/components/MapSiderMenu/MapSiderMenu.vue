@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { CoffeeCup, Filter, Grid, List, Location, MapLocation, Operation, RemoveFilled, SetUp, Setting } from '@element-plus/icons-vue'
+import { CoffeeCup, Filter, Grid, List, Operation, RemoveFilled, SetUp, Setting } from '@element-plus/icons-vue'
 import type { FeatureOption } from '../FeatureGrid'
 import { useCurrentLayerMarkers, useMap } from '@/pages/pageMapV2/hooks'
 import { FeatureGrid, MarkerFilter, MarkerTable, SiderMenu, SiderMenuItem } from '@/pages/pageMapV2/components'
@@ -42,16 +42,12 @@ const openSettingDialog = () => DialogService
 
 const features: FeatureOption[] = [
   { label: '管理页', value: 'manager', icon: SetUp },
-  { label: '地图V1', value: 'mapV1', icon: Location },
-  { label: '地图V2', value: 'mapV2', icon: MapLocation },
   { label: '系统设置', value: 'setting', icon: Setting },
   { label: '赞助我们', value: 'sponsor', icon: CoffeeCup },
 ]
 
 const onFeatureCommand = (command: string) => ({
   manager: () => router.push('/items'),
-  mapV1: () => router.push('/map'),
-  mapV2: () => router.push('/map-v2'),
   setting: openSettingDialog,
   sponsor: () => window.open('https://opencollective.com/genshinmap'),
 } as Record<string, () => void>)[command]?.()
@@ -67,7 +63,7 @@ const { markers } = useCurrentLayerMarkers()
           shape="circle"
           class="select-none"
           :size="38"
-          :src="userStore.info.logoUrl || FALLBACK_AVATAR_URL"
+          :src="userStore.info.logo || FALLBACK_AVATAR_URL"
         />
       </template>
     </SiderMenuItem>

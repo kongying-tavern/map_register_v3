@@ -14,17 +14,18 @@ const updateTimer = ref<number>()
 const updateEnd = ref<number>()
 const total = ref(0)
 
-liveQuery(() => db.iconTag.count()).subscribe((v) => {
-  total.value = v
-})
-
 /** 本地图标标签数据 */
 export const useIconTagStore = defineStore('global-icon-tag', {
   state: () => ({
+    _iconList: [] as API.TagVo[],
   }),
 
   getters: {
     total: () => total.value,
+    iconTagMap: state => Object.fromEntries(state._iconList.map(iconTag => [
+      iconTag.tag as string,
+      iconTag as API.TagVo,
+    ])) as Record<string, API.TagVo>,
     /** 全量更新处理状态 */
     updateAllLoading: () => loading.value,
     /** 全量更新剩余时间 */
@@ -125,4 +126,10 @@ export const useIconTagStore = defineStore('global-icon-tag', {
       }, interval)
     },
   },
+})
+
+liveQuery(() => db.iconTag.toArray()).subscribe((iconTagList) => {
+  total.value = iconTagList.length
+  const iconTagStore = useIconTagStore()
+  iconTagStore._iconList = iconTagList
 })

@@ -1,13 +1,12 @@
 <script lang="ts" setup>
 import { DeleteFilled, Edit, LocationFilled } from '@element-plus/icons-vue'
 import { GSButton } from '@/components'
+import { useGlobalDialog } from '@/hooks'
 import { useMarkerDrawer } from '@/pages/pageMapV2/hooks'
+import { MarkerEditPanel } from '@/pages/pageMapV2/components'
 import db from '@/database'
 
 const { focus, blur } = useMarkerDrawer()
-
-const containerRef = ref<HTMLElement>()
-onClickOutside(containerRef, blur)
 
 const icon = asyncComputed(() => {
   const iconTag = focus.value?.itemList?.[0]?.iconTag ?? 'unknown'
@@ -28,6 +27,21 @@ const parentArea = asyncComputed(() => {
 }, {})
 
 const { width } = useWindowSize()
+
+const { DialogService } = useGlobalDialog()
+
+const openMarkerEditPanel = () => {
+  DialogService
+    .config({
+      title: '点位编辑',
+      width: 'fit-content',
+      alignCenter: true,
+    })
+    .props({
+      markerInfo: focus.value,
+    })
+    .open(MarkerEditPanel)
+}
 </script>
 
 <template>
@@ -36,13 +50,12 @@ const { width } = useWindowSize()
     :model-value="Boolean(focus)"
     :title="`点位：${focus?.markerTitle}`"
     :size="width < 420 ? width : 420"
-    :modal="false"
     :with-header="false"
     append-to-body
     class="genshin-marker-drawer genshin-text"
     @close="blur"
   >
-    <div ref="containerRef" class="genshin-marker-drawer__wrapper">
+    <div class="genshin-marker-drawer__wrapper">
       <div class="genshin-marker-drawer__header">
         <div class="marker-title">
           <img v-if="icon" class="w-8 h-8 object-contain" crossorigin="" :src="icon.url">
@@ -73,7 +86,7 @@ const { width } = useWindowSize()
           </div>
 
           <div class="flex items-center gap-4">
-            <GSButton theme="dark" class="flex-1">
+            <GSButton theme="dark" class="flex-1" @click="openMarkerEditPanel">
               <template #icon>
                 <el-icon color="#DAAF32">
                   <Edit />
@@ -97,14 +110,12 @@ const { width } = useWindowSize()
 </template>
 
 <style lang="scss">
+.el-overlay {
+  background-color: transparent;
+}
 .el-drawer.genshin-marker-drawer {
   transition: all ease 150ms;
   background: transparent;
-
-  &.rtl {
-    top: var(--gs-banner-height);
-    height: calc(100% - var(--gs-banner-height));
-  }
 
   .el-drawer__body {
     padding: 0;

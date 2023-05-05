@@ -2,7 +2,6 @@
 import { AppSettings, AppUserInfo } from '.'
 import { useUserStore } from '@/stores'
 import { useGlobalDialog, useTheme } from '@/hooks'
-import { useMap } from '@/pages/pageMap/hooks'
 import { FALLBACK_AVATAR_URL } from '@/shared/constant'
 
 defineProps<{
@@ -11,7 +10,6 @@ defineProps<{
 
 const userStore = useUserStore()
 const { isDark } = useTheme()
-const { map } = useMap()
 const { DialogService } = useGlobalDialog()
 
 const openUserInfoDialog = () => {
@@ -39,14 +37,12 @@ const handleCommand = (command: string) => ({
   setting: () => openSettingDialog(),
   logout: () => userStore.logout(),
 } as Record<string, () => void>)[command]?.()
-
-const handleDragging = computed(() => map.value?.handleState.draggingMarker)
 </script>
 
 <template>
-  <el-dropdown class="genshin-avatar" :class="{ handleDragging }" trigger="click" style="--el-border-radius-base: 8px" @command="handleCommand">
+  <el-dropdown class="genshin-avatar" trigger="click" style="--el-border-radius-base: 8px" @command="handleCommand">
     <el-button v-bind="$attrs" text size="large" :style="{ padding: '4px 8px' }">
-      <el-avatar :size="30" :src="userStore.info.logoUrl || FALLBACK_AVATAR_URL" />
+      <el-avatar :size="30" :src="userStore.info.logo || FALLBACK_AVATAR_URL" />
       <el-icon class="pl-1">
         <ArrowDown />
       </el-icon>
@@ -63,11 +59,6 @@ const handleDragging = computed(() => map.value?.handleState.draggingMarker)
         </el-dropdown-item>
         <el-dropdown-item>
           <router-link to="/map">
-            地图V1
-          </router-link>
-        </el-dropdown-item>
-        <el-dropdown-item>
-          <router-link to="/map-v2">
             地图V2
           </router-link>
         </el-dropdown-item>
@@ -90,9 +81,5 @@ const handleDragging = computed(() => map.value?.handleState.draggingMarker)
 <style lang="scss" scoped>
 .genshin-avatar {
   transition: var(--el-transition-all);
-  &.handleDragging {
-    translate: calc(200%) 0;
-    pointer-events: none;
-  }
 }
 </style>

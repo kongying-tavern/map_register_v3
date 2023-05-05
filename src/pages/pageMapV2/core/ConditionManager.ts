@@ -88,7 +88,7 @@ export class ConditionManager extends IconManager {
   #conditionStateId = ref(crypto.randomUUID())
   get conditionStateId() { return this.#conditionStateId.value }
 
-  initLayerMarkerMap = () => Promise.all(LAYER_CONFIGS.map(async ({ code, areaCodes = [] }) => {
+  #initLayerMarkerMap = () => Promise.all(LAYER_CONFIGS.map(async ({ code, areaCodes = [] }) => {
     // 筛选出只存在于当前图层的点位
     let itemIdsInThisLayer: number[] = []
     this.conditions.forEach((condition) => {
@@ -108,7 +108,7 @@ export class ConditionManager extends IconManager {
     if (!layer)
       return
     this.#conditionStateId.value = crypto.randomUUID()
-    await this.initLayerMarkerMap()
+    await this.#initLayerMarkerMap()
     const items = (await db.item.bulkGet([...this.existItemIds])).filter(Boolean) as API.ItemVo[]
     await this.initIconMap(items)
     layer.forceUpdate()

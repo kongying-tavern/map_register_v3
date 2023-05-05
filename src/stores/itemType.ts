@@ -13,17 +13,18 @@ const updateTimer = ref<number>()
 const updateEnd = ref<number>()
 const total = ref(0)
 
-liveQuery(() => db.itemType.count()).subscribe((v) => {
-  total.value = v
-})
-
 /** 本地物品类型数据 */
 export const useItemTypeStore = defineStore('global-item-type', {
   state: () => ({
+    _itemTypeList: [] as API.ItemTypeVo[],
   }),
 
   getters: {
     total: () => total.value,
+    itemTypeMap: state => (Object.fromEntries(state._itemTypeList.map(itemType => [
+      itemType.id as number,
+      itemType,
+    ])) as Record<string, API.ItemTypeVo>),
     /** 全量更新处理状态 */
     updateAllLoading: () => loading.value,
     /** 全量更新剩余时间 */
@@ -96,4 +97,10 @@ export const useItemTypeStore = defineStore('global-item-type', {
       }, interval)
     },
   },
+})
+
+liveQuery(() => db.itemType.toArray()).subscribe((itemTypeList) => {
+  total.value = itemTypeList.length
+  const itemTypeStore = useItemTypeStore()
+  itemTypeStore._itemTypeList = itemTypeList
 })

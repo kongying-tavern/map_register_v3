@@ -5,6 +5,7 @@ interface GenshinMapAffixProps {
   view: HTMLElement | null
   zoomWithMap?: boolean
   pos?: [number, number]
+  visible?: boolean
 }
 
 const props = withDefaults(defineProps<GenshinMapAffixProps>(), {
@@ -17,6 +18,8 @@ const { width, height } = useElementSize(viewRef)
 const { map } = useMap()
 
 const scaleRatio = computed(() => props.zoomWithMap ? (2 ** (map.value?.mainViewState.zoom ?? 1)) : 1)
+
+const affixVisible = computed(() => props.pos !== undefined && props.visible !== false)
 
 /** 视口中心坐标 */
 const center = computed(() => [width.value / 2, height.value / 2])
@@ -38,6 +41,7 @@ const position = computed(() => {
 
 <template>
   <div
+    v-if="affixVisible"
     v-bind="$attrs"
     class="gs-map-affix absolute left-0 top-0"
     :style="{
