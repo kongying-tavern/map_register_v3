@@ -1,5 +1,5 @@
-import { join } from 'path'
-import { readFile, readdir, writeFile } from 'fs/promises'
+import { join } from 'node:path'
+import { readFile, readdir, writeFile } from 'node:fs/promises'
 import type { Plugin } from 'vite'
 import { generateService } from 'openapi2ts'
 import type { GenerateServiceProps } from 'openapi2ts'
