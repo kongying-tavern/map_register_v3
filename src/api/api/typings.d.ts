@@ -279,7 +279,7 @@ declare namespace API {
     sortIndex?: number;
   };
 
-  type SysUserUpdateDto = {
+  type SysUserUpdateVo = {
     userId?: number;
     nickname?: string;
     qq?: string;
@@ -288,7 +288,7 @@ declare namespace API {
     roleId?: number;
   };
 
-  type SysUserPasswordUpdateDto = {
+  type SysUserPasswordUpdateVo = {
     userId?: number;
     password?: string;
     oldPassword?: string;
