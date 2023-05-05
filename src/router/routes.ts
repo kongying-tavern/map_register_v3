@@ -7,7 +7,7 @@ const routes: RouteRecordRaw[] = [
     path: '/',
     meta: { title: '地图', icon: 'HomeFilled' },
     component: () => import('@/layout/LayoutIndex.vue'),
-    redirect: '/map-v2',
+    redirect: '/map',
     // 管理页直接从属于根目录
     children: [
       {
@@ -79,13 +79,7 @@ const routes: RouteRecordRaw[] = [
     path: '/map',
     meta: {
       title: '地图页',
-    },
-    component: () => import('@/pages/pageMap/PageMap.vue'),
-  },
-  {
-    path: '/map-v2',
-    meta: {
-      title: '地图页V2',
+      preload: true,
     },
     component: () => import('@/pages/pageMapV2/PageMapV2.vue'),
   },
