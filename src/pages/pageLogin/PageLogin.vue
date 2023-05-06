@@ -5,6 +5,8 @@ const title = import.meta.env.VITE_TITLE
 const { formRef, rules, loginForm, loading, login } = useLoginForm()
 
 const activeName = ref('basic')
+
+const isOfflineMode = import.meta.env.VITE_DEVELOPMENT_MODE === 'offline'
 </script>
 
 <template>
@@ -35,7 +37,7 @@ const activeName = ref('basic')
               </el-form-item>
             </el-form>
             <div class="flex">
-              <el-button class="w-full" size="large" @click="$router.push('/')">
+              <el-button v-if="isOfflineMode" class="w-full" size="large" @click="$router.push('/')">
                 离线 (仅开发可用)
               </el-button>
               <el-button type="primary" class="w-full" size="large" :loading="loading" @click="login">

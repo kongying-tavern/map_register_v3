@@ -44,6 +44,8 @@ onSuccess(() => {
   conditionManager.requestMarkersUpdate()
   emits('update:visible', false)
 })
+
+const isOfflineMode = import.meta.env.VITE_DEVELOPMENT_MODE === 'offline'
 </script>
 
 <template>
@@ -64,7 +66,7 @@ onSuccess(() => {
           <el-button @click="() => $emit('update:visible', false)">
             取消
           </el-button>
-          <el-button type="primary" @click="confirm">
+          <el-button type="primary" :disabled="isOfflineMode" @click="confirm">
             确认
           </el-button>
         </div>

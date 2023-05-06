@@ -31,7 +31,7 @@ const moreDisabled = ref(false)
 const showUnchangedHistory = ref(false)
 
 const { loading, refresh, onSuccess } = useFetchHook({
-  immediate: true,
+  immediate: import.meta.env.VITE_DEVELOPMENT_MODE !== 'offline',
   onRequest: async () => {
     const { data: { record = [] } = {} } = await Api.history.getList({
       current: current.value,
@@ -95,14 +95,17 @@ const moreHistoryRef = ref<HTMLElement | null>(null)
 useIntersectionObserver(moreHistoryRef, ([{ isIntersecting }]) => {
   isIntersecting && loadMoreHistory()
 })
+
+const isOfflineMode = import.meta.env.VITE_DEVELOPMENT_MODE === 'offline'
 </script>
 
 <template>
   <el-button
     :icon="Clock"
     :type="isAddonActived ? 'primary' : 'default'"
+    :disabled="isOfflineMode"
+    :title="`编辑历史${isOfflineMode ? '(离线模式下不可用)' : ''}`"
     circle
-    title="编辑历史"
     style="margin-left:0"
     @click="isAddonActived = !isAddonActived"
   />
