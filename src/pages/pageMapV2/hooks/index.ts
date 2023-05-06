@@ -1,5 +1,4 @@
 export * from './useCondition'
-export * from './useContextMenu'
 export * from './useCurrentLayerMarkers'
 export * from './useMap'
 export * from './useMarkerCreate'
