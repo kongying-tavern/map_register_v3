@@ -6,7 +6,6 @@ import { Logger, messageFrom } from '@/utils'
 import { router } from '@/router'
 import { RoleTypeEnum } from '@/shared'
 import {
-  useArchiveStore,
   useAreaStore,
   useIconTagStore,
   useItemStore,
@@ -210,17 +209,18 @@ export const useUserStore = defineStore('user-info', {
         return
       this.isRouteLoading = true
       this.isHandling = true
-      const archiveStore = useArchiveStore()
-      await Promise.allSettled([
-        useAreaStore().backgroundUpdate(),
-        useItemStore().backgroundUpdate(),
-        useItemTypeStore().backgroundUpdate(),
-        useMarkerStore().backgroundUpdate(),
-        useIconTagStore().backgroundUpdate(),
-        archiveStore.fetchArchive(),
-      ])
-      archiveStore.loadLatestArchive()
-      this.isHandling = false
+      try {
+        await Promise.allSettled([
+          useAreaStore().backgroundUpdate(),
+          useItemStore().backgroundUpdate(),
+          useItemTypeStore().backgroundUpdate(),
+          useMarkerStore().backgroundUpdate(),
+          useIconTagStore().backgroundUpdate(),
+        ])
+      }
+      finally {
+        this.isHandling = false
+      }
     },
   },
 })
