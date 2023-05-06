@@ -34,21 +34,21 @@ const { visible: contextMenuVisible, position: contextMenuPos } = useContextMenu
       <GSSwitch v-model="showTooltip" label="显示调试信息" size="large" />
     </div>
 
-    <template v-if="showUndergroundLayer">
+    <div class="map-affix-provider pointer-events-none">
       <MapAffix
         v-for="(group, key) in map?.baseLayer?.overlayManager?.overlayGroups"
         :key="key"
         :view="canvasRef"
         :pos="[group.bounds[2], group.bounds[3]]"
+        :visible="showUndergroundLayer"
         zoom-with-map
       >
         <MapOverlay :option-group="group" />
       </MapAffix>
-    </template>
-
-    <MapAffix :pos="contextMenuPos" :visible="contextMenuVisible" :view="canvasRef">
-      <MapContextMenu />
-    </MapAffix>
+      <MapAffix :pos="contextMenuPos" :visible="contextMenuVisible" :view="canvasRef">
+        <MapContextMenu />
+      </MapAffix>
+    </div>
 
     <MapSiderMenu v-model:collapse="collapse" class="z-10" />
 

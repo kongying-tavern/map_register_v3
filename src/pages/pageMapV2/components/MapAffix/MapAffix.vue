@@ -10,6 +10,7 @@ interface GenshinMapAffixProps {
 
 const props = withDefaults(defineProps<GenshinMapAffixProps>(), {
   pos: () => [0, 0],
+  visible: true,
 })
 
 const viewRef = toRef(props, 'view')
@@ -32,8 +33,8 @@ const position = computed(() => {
   const scale = 2 ** zoom
   const [x, y] = props.pos
   const [tx, ty] = target
-  const lx = Math.floor((x + coordOffsetX - tx) * scale)
-  const ly = Math.floor((y + coordOffsetY - ty) * scale)
+  const lx = (x + coordOffsetX - tx) * scale
+  const ly = (y + coordOffsetY - ty) * scale
   const [cx, cy] = center.value
   return [cx + lx, cy + ly]
 })
@@ -41,13 +42,13 @@ const position = computed(() => {
 
 <template>
   <div
-    v-if="affixVisible"
+    v-show="affixVisible"
     v-bind="$attrs"
     class="gs-map-affix absolute left-0 top-0"
     :style="{
-      '--scale': scaleRatio,
-      '--tr-x': `${position[0]}px`,
-      '--tr-y': `${position[1]}px`,
+      '--sc': scaleRatio,
+      '--tx': `${position[0]}px`,
+      '--ty': `${position[1]}px`,
       'z-index': '1',
     }"
   >
@@ -58,7 +59,8 @@ const position = computed(() => {
 <style lang="scss" scoped>
 .gs-map-affix {
   transform-origin: 0 0;
-  translate: var(--tr-x) var(--tr-y);
-  scale: var(--scale);
+  translate: var(--tx) var(--ty);
+  scale: var(--sc);
+  pointer-events: all;
 }
 </style>
