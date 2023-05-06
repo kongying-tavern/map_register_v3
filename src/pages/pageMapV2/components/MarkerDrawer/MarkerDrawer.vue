@@ -71,7 +71,7 @@ const { width } = useWindowSize()
             </div>
 
             <div class="flex-1">
-              <p v-for="p in focus.content?.split('\n')" :key="p">
+              <p v-for="p in focus.content?.trim().split('\n')" :key="p" style="min-height: 1.5em;">
                 {{ p }}
               </p>
             </div>
