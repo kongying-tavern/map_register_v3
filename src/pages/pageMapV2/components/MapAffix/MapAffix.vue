@@ -26,7 +26,7 @@ const affixVisible = computed(() => props.pos !== undefined && props.visible !==
 const center = computed(() => [width.value / 2, height.value / 2])
 
 const position = computed(() => {
-  if (!map.value || !map.value.baseLayer)
+  if (!map.value?.baseLayer)
     return [-9999, -9999]
   const [coordOffsetX, coordOffsetY] = map.value.baseLayer.rawProps.center
   const { target, zoom } = map.value.mainViewState
@@ -52,7 +52,7 @@ const position = computed(() => {
       'z-index': '1',
     }"
   >
-    <slot name="default" />
+    <slot name="default" :scale="scaleRatio" />
   </div>
 </template>
 

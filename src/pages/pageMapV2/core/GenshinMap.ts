@@ -81,7 +81,13 @@ export class GenshinMap extends Deck {
           smooth: true,
         },
       },
-      getCursor: state => state.isDragging ? 'grabbing' : state.isHovering ? 'pointer' : 'crosshair',
+      getCursor: state => state.isDragging
+        ? 'grabbing'
+        : state.isHovering
+          ? this.stateManager.get('showTooltip')
+            ? 'crosshair'
+            : 'pointer'
+          : 'crosshair',
       onViewStateChange: (viewStateChangeParams) => {
         const newParams = this.#handleViewStateChange(viewStateChangeParams)
         this.event.emit('viewStateChange', newParams)
