@@ -66,7 +66,7 @@ const pointerdown = fromRefEvent(canvasRef, 'pointerdown') as Observable<Pointer
 const pointerover = fromRefEvent(canvasRef, 'pointerover') as Observable<PointerEvent>
 const pointerout = fromRefEvent(canvasRef, 'pointerout') as Observable<PointerEvent>
 const pointermove = fromEvent<PointerEvent>(window, 'pointermove') as Observable<PointerEvent>
-const click = fromEvent<PointerEvent>(window, 'click')
+const pointerUp = fromEvent<PointerEvent>(window, 'pointerup') as Observable<PointerEvent>
 
 watch(zoom, (newZoom, oldZoom) => {
   const deltaZoom = newZoom / oldZoom
@@ -86,7 +86,7 @@ pointerdown.pipe(
   filter(() => props.imageBitMap !== undefined),
   map(({ x, y }) => ([x, y, ...position.value])),
   switchMap(([startX, startY, cacheX, cacheY]) => pointermove.pipe(
-    takeUntil(click),
+    takeUntil(pointerUp),
     takeUntil(wheel),
     map(({ x: moveX, y: moveY }) => {
       const offsetX = cacheX + moveX - startX
