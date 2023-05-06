@@ -49,7 +49,7 @@ export interface GenshinMapState {
   showBorder: boolean
   showTooltip: boolean
   showTags: boolean
-  showUndergroundLayer: boolean
+  showOverlay: boolean
 }
 
 interface ChromeFontFaceSet extends FontFaceSet {
@@ -83,11 +83,9 @@ export class GenshinMap extends Deck {
       },
       getCursor: state => state.isDragging
         ? 'grabbing'
-        : state.isHovering
-          ? this.stateManager.get('showTooltip')
-            ? 'crosshair'
-            : 'pointer'
-          : 'crosshair',
+        : (state.isHovering && this.stateManager.get('hover'))
+            ? 'pointer'
+            : 'crosshair',
       onViewStateChange: (viewStateChangeParams) => {
         const newParams = this.#handleViewStateChange(viewStateChangeParams)
         this.event.emit('viewStateChange', newParams)
@@ -123,7 +121,7 @@ export class GenshinMap extends Deck {
     showBorder: false,
     showTags: true,
     showTooltip: true,
-    showUndergroundLayer: true,
+    showOverlay: true,
   })
 
   #handleViewStateChange = ({ viewState, oldViewState = {}, ...rest }: ViewStateChangeParameters & { viewId: string }) => {
@@ -206,7 +204,8 @@ export class GenshinMap extends Deck {
           picture: ${info.object?.picture}
           version: ${info.object?.version}
           position: [${info.object?.position}]
-          itemIdList: [${info.object?.itemIdList?.join(',')}]`
+          itemIdList: [${info.object?.itemIdList?.join(',')}]
+          extra: ${info.object?.extra}`
         : info.sourceLayer
           ? `id: ${info.sourceLayer.id}
             x: ${Math.floor(x) - center[0]}, y: ${Math.floor(y) - center[1]}

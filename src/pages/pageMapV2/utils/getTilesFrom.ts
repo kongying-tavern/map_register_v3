@@ -14,7 +14,7 @@ export const getTilesFrom = (target: GenshinBaseLayer): TileLayer => new TileLay
   maxZoom: 0, // 固定值，对应服务端存储底图的 level 13
   maxRequests: 1,
   extent: target.rawProps.bounds,
-  opacity: target.context.deck.stateManager.get('showUndergroundLayer') ? 0.3 : 1,
+  opacity: target.context.deck.stateManager.get('showOverlay') ? 0.3 : 1,
   getTileData: ({ index: { x, y, z }, signal }) => {
     if (signal?.aborted)
       return null

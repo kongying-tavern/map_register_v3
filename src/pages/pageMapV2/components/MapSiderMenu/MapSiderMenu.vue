@@ -16,7 +16,7 @@ defineEmits<{
   (e: 'update:collapse', v: boolean): void
 }>()
 
-const { showBorder, showTag, showTooltip, showUndergroundLayer } = useMap()
+const { showBorder, showTag, showTooltip, showOverlay } = useMap()
 const { DialogService } = useGlobalDialog()
 const userStore = useUserStore()
 const router = useRouter()
@@ -90,7 +90,7 @@ const { markers } = useCurrentLayerMarkers()
     <SiderMenuItem name="setting" label="图层设置" :icon="Operation">
       <div class="h-full flex flex-col gap-2 p-4">
         <GSSwitch v-model="showTag" label="显示地图标签" />
-        <GSSwitch v-model="showUndergroundLayer" label="显示地下图层" />
+        <GSSwitch v-model="showOverlay" label="显示附加图层" />
         <GSSwitch v-model="showBorder" label="显示图层边界" />
         <GSSwitch v-model="showTooltip" label="显示调试信息" />
       </div>
