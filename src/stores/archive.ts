@@ -12,19 +12,19 @@ export interface ArchiveBody {
   Time_KYJG: Record<number, string>
 }
 
-export interface ArchiveData extends API.ArchiveVo {
+export interface ArchiveData extends API.SysArchiveVo {
   body: ArchiveBody
   timestamp: number
 }
 
-export interface ArchiveSlotData extends API.ArchiveSlotVo {
+export interface ArchiveSlotData extends API.SysArchiveSlotVo {
   archiveList: ArchiveData[]
   timestamp: number
 }
 
 const logger = new Logger('[archive]')
 
-const parserArchive = ({ archive = '', time = '', ...rest }: API.ArchiveVo): ArchiveData => {
+const parserArchive = ({ archive = '', time = '', ...rest }: API.SysArchiveVo): ArchiveData => {
   const { Data_KYJG: datas = [], Time_KYJG: times = {} } = JSON.parse(archive) as {
     Data_KYJG?: (string | number)[]
     Time_KYJG?: Record<number, string>
