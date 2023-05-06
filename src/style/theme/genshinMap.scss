@@ -3,42 +3,6 @@
 .genshin-map-container {
   --bg-color: rgba(41 37 36 / 0.7);
   --border-color: #AA9172;
-
-  .genshin-map {
-    cursor: crosshair;
-
-    // 点位的 popup 样式
-    .leaflet-popup {
-      background: none;
-      border-radius: 8px;
-      filter: drop-shadow(0 0 0.5rem #00000080);
-      backdrop-filter: blur(10px);
-      &.no-arrow .leaflet-popup-tip-container {
-        display: none;
-      }
-    }
-
-    .leaflet-popup-content-wrapper {
-      background: var(--bg-color);
-      padding: 8px;
-      border: 1px solid var(--border-color);
-      box-shadow: none;
-      overflow: hidden;
-    }
-
-    .leaflet-popup-tip-container {
-      .leaflet-popup-tip {
-        border: 1px solid var(--border-color);
-        margin: -8px auto 0;
-        background: rgba(41 37 36);
-      }
-    }
-
-    .leaflet-popup-content {
-      margin: 0;
-      color: #FFF;
-    }
-  }
 }
 
 @mixin calculateClipPath($Ro: 24, $Ri: 20, $size: 56) {
