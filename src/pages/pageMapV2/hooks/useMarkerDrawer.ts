@@ -5,6 +5,8 @@ import { useMap } from '@/pages/pageMapV2/hooks'
 
 const focus = shallowRef<MarkerWithExtra | null>(null)
 const triggerTimestamp = ref(new Date().getTime())
+/** 在触屏模式下，防止重复点击蒙层导致的抽屉还未展开就关闭问题，所需的等待时间 */
+const BLUR_DEBOUNCE_TIME = 100
 
 const isMarkerVo = (v: unknown): v is MarkerWithExtra => {
   if (typeof v !== 'object' || v === null)
@@ -13,45 +15,40 @@ const isMarkerVo = (v: unknown): v is MarkerWithExtra => {
 }
 
 export const useMarkerDrawer = (canvasRef?: Ref<HTMLCanvasElement | null>) => {
-  const { ensureMap } = useMap()
+  const { map, onMapReady } = useMap()
 
   const handleMapClick = async (info: PickingInfo, ev: { srcEvent: Event }) => {
     if (!(ev.srcEvent instanceof PointerEvent) || ev.srcEvent.button !== 0)
       return
-    const map = await ensureMap
     triggerTimestamp.value = new Date().getTime()
     focus.value = isMarkerVo(info.object) ? info.object : null
-    map.stateManager.set('focus', focus.value)
+    map.value?.stateManager.set('focus', focus.value)
   }
 
   const blur = async () => {
-    const map = await ensureMap
-    const current = new Date().getTime()
-    if (current - triggerTimestamp.value < 20)
-      return
     focus.value = null
-    map.stateManager.set('focus', focus.value)
+    map.value?.stateManager.set('focus', null)
   }
 
-  canvasRef && onMounted(async () => {
-    const map = await ensureMap
-    map.event.on('click', handleMapClick)
+  const visible = computed({
+    get: () => Boolean(focus.value),
+    set: v => !v && blur(),
   })
 
-  canvasRef && onBeforeUnmount(async () => {
-    const map = await ensureMap
-    map.event.off('click', handleMapClick)
-  })
+  const beforeClose = (done: () => void) => {
+    const triggerTimeGap = new Date().getTime() - triggerTimestamp.value
+    if (triggerTimeGap < BLUR_DEBOUNCE_TIME)
+      return
+    done()
+  }
 
-  canvasRef && useEventListener(canvasRef, 'pointerdown', async () => {
-    const map = await ensureMap
-    map.stateManager.set('active', map.stateManager.get('hover'))
-  })
+  if (canvasRef) {
+    onMapReady(mapInstance => mapInstance.event.on('click', handleMapClick))
 
-  canvasRef && useEventListener('pointerup', async () => {
-    const map = await ensureMap
-    map.stateManager.set('active', null)
-  })
+    onBeforeUnmount(() => {
+      map.value?.event.off('click', handleMapClick)
+    })
+  }
 
-  return { focus, blur }
+  return { focus, visible, blur, beforeClose }
 }

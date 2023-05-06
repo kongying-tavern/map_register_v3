@@ -1,111 +1,109 @@
 <script lang="ts" setup>
 import { DeleteFilled, Edit, LocationFilled } from '@element-plus/icons-vue'
 import { GSButton } from '@/components'
-import { useGlobalDialog } from '@/hooks'
 import { useMarkerDrawer } from '@/pages/pageMapV2/hooks'
 import { MarkerEditPanel } from '@/pages/pageMapV2/components'
 import db from '@/database'
 
-const { focus, blur } = useMarkerDrawer()
+const { focus, visible, beforeClose } = useMarkerDrawer()
 
 const icon = asyncComputed(() => {
   const iconTag = focus.value?.itemList?.[0]?.iconTag ?? 'unknown'
   return db.iconTag.where('tag').equals(iconTag).first()
 }, {})
 
+const dialogVisible = ref(false)
+
 const area = asyncComputed(async () => {
-  const itemId = focus.value?.itemList?.[0]?.itemId ?? -9999
+  const itemId = focus.value?.itemList?.[0]?.itemId
+  if (itemId === undefined)
+    return
   const item = await db.item.get(itemId)
   if (!item)
-    return {}
-  return await db.area.get(item.areaId as number)
-}, {})
+    return
+  const res = await db.area.get(item.areaId as number)
+  return res
+})
 
 const parentArea = asyncComputed(() => {
-  const parentId = area.value?.parentId ?? -9999
+  const parentId = area.value?.parentId
+  if (parentId === undefined)
+    return
   return db.area.get(parentId)
-}, {})
+})
 
 const { width } = useWindowSize()
-
-const { DialogService } = useGlobalDialog()
-
-const openMarkerEditPanel = () => {
-  DialogService
-    .config({
-      title: '点位编辑',
-      width: 'fit-content',
-      alignCenter: true,
-    })
-    .props({
-      markerInfo: focus.value,
-    })
-    .open(MarkerEditPanel)
-}
 </script>
 
 <template>
   <el-drawer
-    v-if="focus"
-    :model-value="Boolean(focus)"
+    v-model="visible"
     :title="`点位：${focus?.markerTitle}`"
     :size="width < 420 ? width : 420"
     :with-header="false"
+    :before-close="beforeClose"
     append-to-body
-    class="genshin-marker-drawer genshin-text"
-    @close="blur"
+    class="genshin-marker-drawer genshin-text pointer-events-auto"
   >
-    <div class="genshin-marker-drawer__wrapper">
-      <div class="genshin-marker-drawer__header">
-        <div class="marker-title">
-          <img v-if="icon" class="w-8 h-8 object-contain" crossorigin="" :src="icon.url">
-          {{ focus.markerTitle }}
+    <template v-if="focus">
+      <div class="genshin-marker-drawer__wrapper">
+        <div class="genshin-marker-drawer__header">
+          <div class="marker-title">
+            <img v-if="icon" class="w-8 h-8 object-contain" crossorigin="" :src="icon.url">
+            {{ focus.markerTitle }}
+          </div>
+          <div class="close-button" @click="visible = false">
+            <svg viewBox="0 0 100 100">
+              <path fill="currentColor" d="m 0 0 l 34 5 l -7 7 l 23 23 l 23 -23 l -7 -7 l 34 -5 l -5 34 l -7 -7 l -23 23 l 23 23 l 7 -7 l 5 34 l -34 -5 l 7 -7 l -23 -23 l -23 23 l 7 7 l -34 5 l 5 -34 l 7 7 l 23 -23 l -23 -23 l -7 7 z" />
+            </svg>
+          </div>
         </div>
-        <div class="close-button" @click="blur">
-          <svg viewBox="0 0 100 100">
-            <path fill="currentColor" d="m 0 0 l 34 5 l -7 7 l 23 23 l 23 -23 l -7 -7 l 34 -5 l -5 34 l -7 -7 l -23 23 l 23 23 l 7 -7 l 5 34 l -34 -5 l 7 -7 l -23 -23 l -23 23 l 7 7 l -34 5 l 5 -34 l 7 7 l 23 -23 l -23 -23 l -7 7 z" />
-          </svg>
+
+        <div class="genshin-marker-drawer__body">
+          <img v-if="focus.picture" class="w-full h-44 object-cover" :src="focus.picture">
+
+          <div class="marker-info">
+            <div class="info-area flex items-center gap-2">
+              <el-icon color="#676A74" :size="24">
+                <LocationFilled />
+              </el-icon>
+              {{ parentArea?.name }} - {{ area?.name }}
+            </div>
+
+            <div class="flex-1">
+              <p v-for="p in focus.content?.split('\n')" :key="p">
+                {{ p }}
+              </p>
+            </div>
+
+            <div class="flex items-center gap-4">
+              <GSButton theme="dark" class="flex-1" @click="dialogVisible = true">
+                <template #icon>
+                  <el-icon color="#DAAF32">
+                    <Edit />
+                  </el-icon>
+                </template>
+                编辑
+              </GSButton>
+              <GSButton theme="dark" class="flex-1">
+                <template #icon>
+                  <el-icon color="var(--gs-color-danger)">
+                    <DeleteFilled />
+                  </el-icon>
+                </template>
+                删除
+              </GSButton>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="genshin-marker-drawer__body">
-        <img v-if="focus.picture" class="w-full h-44 object-cover" :src="focus.picture">
+      <MarkerEditPanel v-if="area" v-model:visible="dialogVisible" :marker-info="focus" :init-area="area" />
+    </template>
 
-        <div class="marker-info">
-          <div class="info-area flex items-center gap-2">
-            <el-icon color="#676A74" :size="24">
-              <LocationFilled />
-            </el-icon>
-            {{ parentArea?.name }} - {{ area?.name }}
-          </div>
-
-          <div class="flex-1">
-            <p v-for="p in focus.content?.split('\n')" :key="p">
-              {{ p }}
-            </p>
-          </div>
-
-          <div class="flex items-center gap-4">
-            <GSButton theme="dark" class="flex-1" @click="openMarkerEditPanel">
-              <template #icon>
-                <el-icon color="#DAAF32">
-                  <Edit />
-                </el-icon>
-              </template>
-              编辑
-            </GSButton>
-            <GSButton theme="dark" class="flex-1">
-              <template #icon>
-                <el-icon color="var(--gs-color-danger)">
-                  <DeleteFilled />
-                </el-icon>
-              </template>
-              删除
-            </GSButton>
-          </div>
-        </div>
-      </div>
-    </div>
+    <template v-else>
+      你来到了知识的荒原
+    </template>
   </el-drawer>
 </template>
 
