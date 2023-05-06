@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import { useContextMenu, useMap, useMarkerDrawer } from './hooks'
-import { CollapseButton, MapAffix, MapContextMenu, MapOverlay, MapSiderMenu, MarkerDrawer } from './components'
+import { useMap, useMarkerDrawer } from './hooks'
+import { CollapseButton, MapAffix, MapOverlay, MapSiderMenu, MarkerDrawer, MarkerFocusIcon } from './components'
 import { GSSwitch } from '@/components'
 
 const canvasRef = ref<HTMLCanvasElement | null>(null)
-const { map, showTag, showUndergroundLayer, showBorder, showTooltip } = useMap(canvasRef)
+const { map, showTag, showOverlay, showBorder, showTooltip } = useMap(canvasRef)
 
 const collapse = ref(true)
 useEventListener('keypress', (ev) => {
@@ -12,9 +12,19 @@ useEventListener('keypress', (ev) => {
     collapse.value = !collapse.value
 })
 
-useMarkerDrawer(canvasRef)
+const { focus } = useMarkerDrawer(canvasRef)
 
-const { visible: contextMenuVisible, position: contextMenuPos } = useContextMenu()
+const covertPosition = (positionExpression?: string) => {
+  if (!positionExpression)
+    return
+  try {
+    const pos = positionExpression.split(',').map(Number).slice(0, 2)
+    return pos as [number, number]
+  }
+  catch {
+    return undefined
+  }
+}
 </script>
 
 <template>
@@ -29,7 +39,7 @@ const { visible: contextMenuVisible, position: contextMenuPos } = useContextMenu
 
     <div class="absolute bottom-2 left-2 flex flex-col gap-2 invisible sm:visible z-10">
       <GSSwitch v-model="showTag" label="显示地图标签" size="large" />
-      <GSSwitch v-model="showUndergroundLayer" label="显示地下图层" size="large" />
+      <GSSwitch v-model="showOverlay" label="显示附加图层" size="large" />
       <GSSwitch v-model="showBorder" label="显示图层边界" size="large" />
       <GSSwitch v-model="showTooltip" label="显示调试信息" size="large" />
     </div>
@@ -39,14 +49,15 @@ const { visible: contextMenuVisible, position: contextMenuPos } = useContextMenu
         v-for="(group, key) in map?.baseLayer?.overlayManager?.overlayGroups"
         :key="key"
         :view="canvasRef"
-        :pos="[group.bounds[2], group.bounds[3]]"
-        :visible="showUndergroundLayer"
+        :pos="[group.bounds[0], group.bounds[1]]"
+        :visible="showOverlay"
         zoom-with-map
       >
         <MapOverlay :option-group="group" />
       </MapAffix>
-      <MapAffix :pos="contextMenuPos" :visible="contextMenuVisible" :view="canvasRef">
-        <MapContextMenu />
+
+      <MapAffix :view="canvasRef" :pos="covertPosition(focus?.position)" :visible="Boolean(focus)">
+        <MarkerFocusIcon :marker="focus" />
       </MapAffix>
     </div>
 
