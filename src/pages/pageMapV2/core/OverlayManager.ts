@@ -1,5 +1,6 @@
 import type { Ref } from 'vue'
 import type { OverlayOptions } from '../config'
+import { LAYER_CONFIGS } from '../config'
 
 export interface OverlayGroup {
   bounds: [xmin: number, ymin: number, xmax: number, ymax: number]
@@ -9,6 +10,7 @@ export interface OverlayGroup {
 export interface OverlayExtraObject extends OverlayOptions {
   id: string
   visible: boolean
+  overlayBounds: [xmin: number, ymax: number, xmax: number, ymin: number]
 }
 
 /** 附加图层管理器，用于在 */
@@ -34,8 +36,16 @@ export class OverlayManager {
     const overlayMap: Record<string, OverlayExtraObject> = {}
 
     this.overlayGroups = overlays.reduce((seed, overlay) => {
+      const layer = LAYER_CONFIGS.find(layerCfg => layerCfg.areaCodes?.find(code => code === overlay.areaCode))
+      if (!layer)
+        return seed
+
+      const [xmin, ymin, xmax, ymax] = overlay.bounds
+      const [cx, cy] = layer.center ?? [0, 0]
+
       const rewriteOverlay: OverlayExtraObject = {
         ...overlay,
+        overlayBounds: [xmin + cx, ymax + cy, xmax + cx, ymin + cy],
         id: crypto.randomUUID(),
         visible: true,
       }
