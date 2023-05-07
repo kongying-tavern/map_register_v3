@@ -156,6 +156,7 @@ export class ConditionManager extends IconManager {
       return
     this.conditions.clear()
     this.existItemIds.clear()
+    this.itemIds = []
     await this.requestMarkersUpdate()
   }
 

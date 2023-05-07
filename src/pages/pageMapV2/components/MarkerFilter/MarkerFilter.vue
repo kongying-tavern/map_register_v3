@@ -62,6 +62,14 @@ const itemList = asyncComputed<API.ItemVo[]>(async () => {
     .toArray()
   return res.sort(sort)
 }, [])
+const lastLength = ref<number>(0) // 上一次选中物品数目
+const itemChange = () => {
+  if (lastLength.value > conditionManager.itemIds.length)
+    console.log('del')
+
+  console.log(conditionManager.itemIds)
+  conditionManager.addCondition()
+}
 </script>
 
 <template>
@@ -130,6 +138,7 @@ const itemList = asyncComputed<API.ItemVo[]>(async () => {
           multiple
           show-select-all-btn
           two-col
+          @change="itemChange"
         >
           <template #icon="{ row }">
             <img
@@ -156,20 +165,6 @@ const itemList = asyncComputed<API.ItemVo[]>(async () => {
           </el-icon>
         </template>
         清空条件
-      </GSButton>
-      <GSButton
-        class="flex-1"
-        title="当存在重复物品时会自动去重"
-        :loading="conditionManager.isPreRendering"
-        :disabled="!conditionManager.isConditionAddable.value"
-        @click="conditionManager.addCondition"
-      >
-        <template #icon>
-          <el-icon color="#38A2E4">
-            <Download />
-          </el-icon>
-        </template>
-        添加条件
       </GSButton>
     </div>
 
