@@ -21,7 +21,7 @@ defineEmits<{
       <div class="w-full whitespace-nowrap text-ellipsis overflow-hidden">
         {{ key }}
       </div>
-      <div class="w-full whitespace-nowrap text-ellipsis overflow-hidden">
+      <div class="w-full whitespace-nowrap text-ellipsis overflow-hidden text-sm">
         <slot :name="`key-${index}`" />
       </div>
     </div>

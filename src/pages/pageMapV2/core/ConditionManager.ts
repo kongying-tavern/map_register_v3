@@ -15,10 +15,12 @@ const logger = new Logger('[条件管理器]')
 
 export class ConditionManager extends IconManager {
   // ========== 对外绑定的数据 ==========
+
   #parentAreaCode = ref<string>()
   get parentAreaCode() { return this.#parentAreaCode.value }
   set parentAreaCode(v) { this.#parentAreaCode.value = v }
 
+  /** 物品筛选绑定的地区数据 */
   #areaCode = ref<string>()
   get areaCode() { return this.#areaCode.value }
   set areaCode(v) {
@@ -33,18 +35,40 @@ export class ConditionManager extends IconManager {
     this.itemTypeId = undefined
   }
 
+  /** 物品筛选绑定的物品类型数据 */
   #itemTypeId = ref<number>()
   get itemTypeId() { return this.#itemTypeId.value }
   set itemTypeId(v) {
     if (v === this.itemTypeId)
       return
     this.#itemTypeId.value = v
-    this.itemIds = []
   }
 
-  #itemIds = ref<number[]>([])
-  get itemIds() { return this.#itemIds.value }
-  set itemIds(v) { this.#itemIds.value = v }
+  #getConditionId = () => `${this.areaCode}-${this.itemTypeId}`
+
+  /** 物品筛选器缓存的物品选择表，key 为 `${areaCode}-${itemTypeId}` */
+  #itemIdsMap = ref<Record<string, number[]>>({})
+  get itemIdsMap() { return this.#itemIdsMap.value }
+
+  /** 物品筛选绑定的物品数据 */
+  get itemIds() {
+    if (!this.areaCode || this.itemTypeId === undefined)
+      return []
+    const id = this.#getConditionId()
+    if (!this.itemIdsMap[id])
+      this.itemIdsMap[id] = []
+    return this.itemIdsMap[id]
+  }
+
+  set itemIds(v) {
+    if (!this.areaCode || this.itemTypeId === undefined)
+      return
+    const id = this.#getConditionId()
+    this.itemIdsMap[id] = v
+    this.#putCondition()
+  }
+
+  // ========== 内部状态 ==========
 
   get area() { return this.#area.value }
   #area = asyncComputed(() => {
@@ -64,23 +88,22 @@ export class ConditionManager extends IconManager {
   #layerMarkerMap = ref<Record<string, MarkerWithExtra[]>>({})
   get layerMarkerMap() { return this.#layerMarkerMap.value }
 
-  // ========== 内部状态 ==========
-  #existItemIds = ref<Set<number>>(new Set())
-  get existItemIds() { return this.#existItemIds.value }
-
+  /** 条件列表 */
   #conditions = ref<Map<string, Condition>>(new Map())
   get conditions() { return this.#conditions.value }
 
-  #crasheCheck = () => {
-    const crashedItemIds: number[] = []
-    const validItemIds: number[] = []
-    for (const id of this.itemIds)
-      (this.existItemIds.has(id) ? crashedItemIds : validItemIds).push(id)
-    return { crashedItemIds, validItemIds }
-  }
+  /** 已存在的物品 ids */
+  #existItemIds = computed(() => {
+    let ids: number[] = []
+    this.conditions.forEach(({ items }) => {
+      ids = ids.concat(items)
+    })
+    return ids
+  })
 
-  isConditionAddable = computed(() => this.area && this.itemType && this.itemIds.length)
+  get existItemIds() { return this.#existItemIds.value }
 
+  /** 条件管理器是否正在进行预渲染 */
   #isPreRendering = ref(false)
   get isPreRendering() { return this.#isPreRendering.value }
 
@@ -109,29 +132,31 @@ export class ConditionManager extends IconManager {
       return
     this.#conditionStateId.value = crypto.randomUUID()
     await this.#initLayerMarkerMap()
-    const items = (await db.item.bulkGet([...this.existItemIds])).filter(Boolean) as API.ItemVo[]
+    const items = (await db.item.bulkGet(this.existItemIds)).filter(Boolean) as API.ItemVo[]
     await this.initIconMap(items)
     layer.forceUpdate()
   }
 
-  addCondition = async () => {
-    if (!this.area || !this.itemType || !this.itemIds.length)
-      return
-    const { crashedItemIds, validItemIds } = this.#crasheCheck()
-    if (!validItemIds.length) {
-      this.#info('所选组合条件已经存在，不能重复选择')
-      return
-    }
+  #putCondition = async () => {
     try {
       this.#isPreRendering.value = true
-      this.#info(crashedItemIds.length ? `${crashedItemIds.length} 项物品已经存在，已为你自动去重` : '所选条件已加入到条件列表')
-      validItemIds.forEach(id => this.existItemIds.add(id))
-      const conditionId = crypto.randomUUID()
-      this.conditions.set(conditionId, {
-        area: this.area,
-        type: this.itemType,
-        items: validItemIds,
-      })
+      if (!this.areaCode || !this.area || !this.itemType || this.itemTypeId === undefined)
+        throw new Error('未选择子地区或物品类型')
+      const id = this.#getConditionId()
+      if (!this.itemIds.length)
+        return this.deleteCondition(id)
+      let condition = this.conditions.get(id)
+      if (!condition) {
+        condition = {
+          area: this.area,
+          type: this.itemType,
+          items: this.itemIds,
+        }
+      }
+      else {
+        condition.items = this.itemIds
+      }
+      this.conditions.set(id, condition)
       await this.requestMarkersUpdate()
     }
     catch (err) {
@@ -143,24 +168,44 @@ export class ConditionManager extends IconManager {
   }
 
   deleteCondition = async (id: string) => {
-    const condition = this.conditions.get(id)
-    this.conditions.delete(id)
-    if (!condition)
-      return
-    condition.items.forEach(itemId => this.existItemIds.delete(itemId as number))
-    await this.requestMarkersUpdate()
+    try {
+      this.#isPreRendering.value = true
+      this.conditions.delete(id)
+      this.itemIdsMap[id] = []
+      await this.requestMarkersUpdate()
+    }
+    catch (err) {
+      (err instanceof Error) && this.#handleError(err)
+    }
+    finally {
+      this.#isPreRendering.value = false
+    }
+  }
+
+  reviewCondition = (id: string) => {
+    const [areaCode, itemTypeId] = id.split('-')
+    this.areaCode = areaCode
+    this.itemTypeId = Number(itemTypeId)
   }
 
   clearCondition = async () => {
     if (!this.conditions.size)
       return
-    this.conditions.clear()
-    this.existItemIds.clear()
-    this.itemIds = []
-    await this.requestMarkersUpdate()
+    try {
+      this.#isPreRendering.value = false
+      ;[...this.conditions.keys()].forEach(id => this.itemIdsMap[id] = [])
+      this.conditions.clear()
+      await this.requestMarkersUpdate()
+    }
+    catch (err) {
+      (err instanceof Error) && this.#handleError(err)
+    }
+    finally {
+      this.#isPreRendering.value = false
+    }
   }
 
-  #info = (message: string) => {
+  info = (message: string) => {
     logger.info(message)
   }
 

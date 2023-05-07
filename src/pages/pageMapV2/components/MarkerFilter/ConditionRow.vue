@@ -7,6 +7,7 @@ defineProps<{
 }>()
 
 defineEmits<{
+  (e: 'review'): void
   (e: 'delete'): void
 }>()
 </script>
@@ -22,12 +23,12 @@ defineEmits<{
         {{ condition.type.name }}
       </div>
 
-      <div class="condition-unit">
+      <div class="condition-unit condition-unit-button condition-unit-button__default" @click="$emit('review')">
         {{ condition.items.length }}
       </div>
     </div>
 
-    <div class="condition-unit condition-delete" @click="$emit('delete')">
+    <div class="condition-unit condition-unit-button condition-unit-button__delete" @click="$emit('delete')">
       <div class="icon">
         <DeleteFilled />
       </div>
@@ -64,15 +65,41 @@ defineEmits<{
   padding: 0px 8px;
 }
 
-.condition-delete {
+.condition-unit-button {
+  outline: 2px solid transparent;
+  user-select: none;
+  transition: all ease 150ms;
+  cursor: pointer;
+  &:hover {
+    outline-color: #FFFFFF80;
+  }
+  &:active {
+    outline-color: #00000020;
+  }
+}
+
+.condition-unit-button__default {
+  &:hover {
+    outline-color: #FFFFFF80;
+  }
+  &:active {
+    background: var(--color-dark-hover);
+    color: var(--color-dark);
+  }
+}
+
+.condition-unit-button__delete {
   background: var(--color-dark);
   color: #FFF;
-  user-select: none;
-  cursor: pointer;
-  transition: all ease 150ms;
   gap: 4px;
   padding-left: 2px;
-  outline: 2px solid transparent;
+  &:hover {
+    background: var(--color-dark-light);
+  }
+  &:active {
+    background: var(--color-dark-hover);
+    color: var(--color-dark);
+  }
   .icon {
     color: var(--gs-color-danger);
     height: calc(var(--height) - 12px);
@@ -80,15 +107,6 @@ defineEmits<{
     padding: 4px;
     border-radius: 50%;
     background: var(--color-dark);
-  }
-  &:hover {
-    outline-color: #FFFFFF80;
-    background: var(--color-dark-light);
-  }
-  &:active {
-    outline-color: #00000020;
-    background: var(--color-dark-hover);
-    color: var(--color-dark);
   }
 }
 </style>

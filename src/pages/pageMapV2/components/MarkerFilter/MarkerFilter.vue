@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { DeleteFilled, Download } from '@element-plus/icons-vue'
+import { DeleteFilled } from '@element-plus/icons-vue'
 import { CheckboxGroup, ConditionRow, FilterTabs } from '.'
 import { GSButton } from '@/components'
 import { useCondition } from '@/pages/pageMapV2/hooks'
@@ -62,14 +62,6 @@ const itemList = asyncComputed<API.ItemVo[]>(async () => {
     .toArray()
   return res.sort(sort)
 }, [])
-const lastLength = ref<number>(0) // 上一次选中物品数目
-const itemChange = () => {
-  if (lastLength.value > conditionManager.itemIds.length)
-    console.log('del')
-
-  console.log(conditionManager.itemIds)
-  conditionManager.addCondition()
-}
 </script>
 
 <template>
@@ -86,7 +78,7 @@ const itemChange = () => {
       </template>
     </FilterTabs>
 
-    <div class="flex-1 p-2 pb-0 overflow-hidden">
+    <div class="flex-1 p-2 overflow-hidden">
       <div v-if="tabKey === 0" class="h-full flex gap-1">
         <CheckboxGroup
           v-model="conditionManager.parentAreaCode"
@@ -138,7 +130,6 @@ const itemChange = () => {
           multiple
           show-select-all-btn
           two-col
-          @change="itemChange"
         >
           <template #icon="{ row }">
             <img
@@ -175,6 +166,7 @@ const itemChange = () => {
             v-for="[id, condition] in conditionManager.conditions"
             :key="id"
             :condition="condition"
+            @review="() => conditionManager.reviewCondition(id)"
             @delete="() => conditionManager.deleteCondition(id)"
           />
         </div>
