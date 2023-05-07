@@ -47,10 +47,6 @@ const cleatAllCaches = async () => {
         <el-switch v-model="localSettings.noticeDataUpdated" />
       </SettingItem>
 
-      <SettingItem label="点位鼠标指向反馈" content="【实验功能】开启点位指向反馈将会消耗更多 CPU 性能（需要刷新点位）">
-        <el-switch v-model="localSettings.markerHoverFeedback" />
-      </SettingItem>
-
       <SettingItem label="缓存">
         <template #content>
           <div class="flex flex-col gap-1">

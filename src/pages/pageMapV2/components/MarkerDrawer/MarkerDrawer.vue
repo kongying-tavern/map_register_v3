@@ -108,9 +108,6 @@ const { width } = useWindowSize()
 </template>
 
 <style lang="scss">
-.el-overlay {
-  background-color: transparent;
-}
 .el-drawer.genshin-marker-drawer {
   transition: all ease 150ms;
   background: transparent;

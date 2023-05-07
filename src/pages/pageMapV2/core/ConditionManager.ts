@@ -4,6 +4,7 @@ import db from '@/database'
 import { useMap } from '@/pages/pageMapV2/hooks'
 import { LAYER_CONFIGS } from '@/pages/pageMapV2/config'
 import { ExtraJSON, Logger } from '@/utils'
+import { localSettings } from '@/stores'
 
 export interface Condition {
   area: API.AreaVo
@@ -23,7 +24,7 @@ export class ConditionManager extends IconManager {
   set tabKey(v) { this.#tabKey.value = v }
 
   next = () => {
-    if (this.#tabKey.value >= this.tabNames.length)
+    if (!localSettings.value.autoTurnNext || this.#tabKey.value >= this.tabNames.length)
       return
     this.#tabKey.value += 1
   }

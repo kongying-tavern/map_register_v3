@@ -1,7 +1,10 @@
 <script lang="ts" setup>
-import { Delete, Refresh } from '@element-plus/icons-vue'
+import { Delete, Refresh, WarnTriangleFilled } from '@element-plus/icons-vue'
+import { ElMessageBox } from 'element-plus'
 import { SettingItem } from '.'
 import { localSettings, useAreaStore, useIconTagStore, useItemStore, useItemTypeStore, useMarkerStore } from '@/stores'
+import { useFetchHook } from '@/hooks'
+import db from '@/database'
 
 interface StoreLike {
   total: number
@@ -18,6 +21,18 @@ const storeList: { name: string; store: StoreLike }[] = [
   { name: '物品类型', store: useItemTypeStore() },
   { name: '点位', store: useMarkerStore() },
 ]
+
+const { refresh: resetDatabase } = useFetchHook({
+  onRequest: async () => {
+    await ElMessageBox.confirm('本地数据库将被重建并刷新页面，确认操作？', '警告', {
+      type: 'warning',
+    })
+    await db.delete()
+    window.location.reload()
+  },
+})
+
+const isOfflineMode = import.meta.env.VITE_DEVELOPMENT_MODE === 'offline'
 </script>
 
 <template>
@@ -54,6 +69,15 @@ const storeList: { name: string; store: StoreLike }[] = [
         content="定时更新物品和点位数据的时间间隔（分钟），定时修改只会在下次更新后生效。"
       >
         <el-input-number v-model="localSettings.autoUpdateInterval" :min="10" :max="120" :step="10" />
+      </SettingItem>
+
+      <SettingItem
+        label="重建本地数据库"
+        content="当更新出现致命错误时尝试恢复"
+      >
+        <el-button type="danger" :disabled="isOfflineMode" :icon="WarnTriangleFilled" @click="resetDatabase">
+          重建本地数据库
+        </el-button>
       </SettingItem>
     </div>
   </el-scrollbar>

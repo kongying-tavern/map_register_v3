@@ -34,7 +34,7 @@ const openUserInfoDialog = () => DialogService
 
 const openSettingDialog = () => DialogService
   .config({
-    title: '设置界面',
+    title: '系统设置',
     alignCenter: true,
     width: 'fit-content',
   })
