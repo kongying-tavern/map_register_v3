@@ -87,7 +87,7 @@ const useHistory = (id?: number) => {
   const findHistory = historyies.value.find(history => history.id === id)
   if (!findHistory)
     return
-  emits('update:markerVo', findHistory.content as API.MarkerVo)
+  emits('update:markerVo', JSON.parse(findHistory.content ?? '{}') as API.MarkerVo)
   ElMessage.success(`${formatTime(findHistory.updateTime)} 的记录已加载到表单`)
 }
 
