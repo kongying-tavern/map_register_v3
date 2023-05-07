@@ -16,17 +16,7 @@ const sort = (a: Sortable, b: Sortable) => {
   return ib - ia
 }
 
-// ==================== 筛选器头 ====================
-const tabNames = ref(['地区', '分类', '物品'])
-const tabKey = ref(0)
-
-const next = () => {
-  if (tabKey.value >= tabNames.value.length)
-    return
-  tabKey.value += 1
-}
-
-// ==================== 筛选条件 ====================
+/** 条件管理器 */
 const conditionManager = useCondition()
 
 // ==================== 图标 ====================
@@ -66,7 +56,7 @@ const itemList = asyncComputed<API.ItemVo[]>(async () => {
 
 <template>
   <div class="marker-filter h-full flex flex-col">
-    <FilterTabs v-model="tabKey" :tab-names="tabNames">
+    <FilterTabs v-model="conditionManager.tabKey" :tab-names="conditionManager.tabNames">
       <template #key-0>
         {{ conditionManager.area?.name ?? '无' }}
       </template>
@@ -79,7 +69,7 @@ const itemList = asyncComputed<API.ItemVo[]>(async () => {
     </FilterTabs>
 
     <div class="flex-1 p-2 overflow-hidden">
-      <div v-if="tabKey === 0" class="h-full flex gap-1">
+      <div v-if="conditionManager.tabKey === 0" class="h-full flex gap-1">
         <CheckboxGroup
           v-model="conditionManager.parentAreaCode"
           class="flex-1"
@@ -94,11 +84,11 @@ const itemList = asyncComputed<API.ItemVo[]>(async () => {
           :options="childrenAreaList"
           label-key="name"
           value-key="code"
-          @change="next"
+          @change="conditionManager.next"
         />
       </div>
 
-      <div v-else-if=" tabKey === 1" class="h-full flex gap-1">
+      <div v-else-if="conditionManager.tabKey === 1" class="h-full flex gap-1">
         <CheckboxGroup
           v-model="conditionManager.itemTypeId"
           class="flex-1"
@@ -106,7 +96,7 @@ const itemList = asyncComputed<API.ItemVo[]>(async () => {
           label-key="name"
           value-key="id"
           two-col
-          @change="next"
+          @change="conditionManager.next"
         >
           <template #icon="{ row }">
             <img
@@ -120,7 +110,7 @@ const itemList = asyncComputed<API.ItemVo[]>(async () => {
         </CheckboxGroup>
       </div>
 
-      <div v-else-if=" tabKey === 2" class="h-full flex gap-1">
+      <div v-else-if="conditionManager.tabKey === 2" class="h-full flex gap-1">
         <CheckboxGroup
           v-model="conditionManager.itemIds"
           :options="itemList"

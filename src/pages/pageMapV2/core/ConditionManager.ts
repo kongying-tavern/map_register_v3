@@ -16,6 +16,18 @@ const logger = new Logger('[条件管理器]')
 export class ConditionManager extends IconManager {
   // ========== 对外绑定的数据 ==========
 
+  get tabNames() { return ['地区', '分类', '物品'] }
+
+  #tabKey = ref(0)
+  get tabKey() { return this.#tabKey.value }
+  set tabKey(v) { this.#tabKey.value = v }
+
+  next = () => {
+    if (this.#tabKey.value >= this.tabNames.length)
+      return
+    this.#tabKey.value += 1
+  }
+
   #parentAreaCode = ref<string>()
   get parentAreaCode() { return this.#parentAreaCode.value }
   set parentAreaCode(v) { this.#parentAreaCode.value = v }
@@ -186,6 +198,7 @@ export class ConditionManager extends IconManager {
     const [areaCode, itemTypeId] = id.split('-')
     this.areaCode = areaCode
     this.itemTypeId = Number(itemTypeId)
+    this.tabKey = this.tabNames.length - 1
   }
 
   clearCondition = async () => {
