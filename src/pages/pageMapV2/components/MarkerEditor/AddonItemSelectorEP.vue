@@ -1,13 +1,16 @@
 <script lang="ts" setup>
+import { useAreaList } from '@/hooks'
 import { useIconTagStore, useItemTypeStore } from '@/stores'
 
 const props = defineProps<{
   modelValue: API.MarkerItemLinkVo[]
   rawItemList: API.ItemVo[]
+  areaCode?: string
 }>()
 
 const emits = defineEmits<{
   (e: 'update:modelValue', v: API.MarkerItemLinkVo[]): void
+  (e: 'update:areaCode', v?: string): void
 }>()
 
 const iconTagStore = useIconTagStore()
@@ -63,6 +66,10 @@ const selectItem = (item: API.ItemVo, isActive: boolean) => {
   }
   emits('update:modelValue', copy)
 }
+
+const { areaTree } = useAreaList({
+  immediate: true,
+})
 </script>
 
 <template>
@@ -72,6 +79,21 @@ const selectItem = (item: API.ItemVo, isActive: boolean) => {
         <el-icon><Search /></el-icon>
       </template>
     </el-input>
+
+    <el-form>
+      <el-form-item label="切换地区">
+        <el-cascader
+          :model-value="areaTree.length ? areaCode : undefined"
+          :options="areaTree"
+          :props="{
+            label: 'name',
+            value: 'code',
+            emitPath: false,
+          }"
+          @update:model-value="v => $emit('update:areaCode', v)"
+        />
+      </el-form-item>
+    </el-form>
 
     <div class="flex-1 overflow-hidden">
       <el-scrollbar height="100%">

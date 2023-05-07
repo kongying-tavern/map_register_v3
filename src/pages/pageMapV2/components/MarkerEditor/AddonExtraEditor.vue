@@ -5,7 +5,7 @@ import { APPLE_2_8_OPTIONS, UNDERGROUND_OPTIONS_MAP } from '@/pages/pageMapV2/co
 
 const props = defineProps<{
   modelValue?: string
-  areaCode: string
+  areaCode?: string
 }>()
 
 const emits = defineEmits<{
@@ -68,7 +68,7 @@ const islandChildrenOptions = computed(() => {
 // ==================== 地下部分 ====================
 /** 地下配置 */
 const undergroundConfig = computed(() => {
-  const { modelId = 'basic', options = [] } = UNDERGROUND_OPTIONS_MAP[props.areaCode] ?? {}
+  const { modelId = 'basic', options = [] } = UNDERGROUND_OPTIONS_MAP[props.areaCode ?? ''] ?? {}
   return { modelId, options }
 })
 

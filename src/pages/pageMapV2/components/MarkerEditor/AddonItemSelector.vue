@@ -13,6 +13,7 @@ const props = defineProps<{
 const emits = defineEmits<{
   (e: 'update:modelValue', v: API.MarkerItemLinkVo[]): void
   (e: 'update:addonId', v: string): void
+  (e: 'update:areaCode', v?: string): void
 }>()
 
 const itemTypeStore = useItemTypeStore()
@@ -20,6 +21,14 @@ const iconTagStore = useIconTagStore()
 
 const markerItemList = ref(props.modelValue ?? [])
 watch(markerItemList, v => emits('update:modelValue', v), { deep: true })
+
+const bindAreaCode = computed({
+  get: () => props.areaCode,
+  set: (v) => {
+    markerItemList.value = []
+    emits('update:areaCode', v)
+  },
+})
 
 const rawItemList = asyncComputed(async () => {
   if (!props.areaCode)
@@ -94,7 +103,7 @@ const deleteItem = (id?: number) => {
     <el-button :icon="Setting" :type="isAddonActived ? 'primary' : ''" title="选择物品" circle @click="isAddonActived = !isAddonActived" />
 
     <AddonTeleporter :active="isAddonActived">
-      <AddonItemSelectorEP v-model="markerItemList" :raw-item-list="rawItemList" />
+      <AddonItemSelectorEP v-model="markerItemList" v-model:area-code="bindAreaCode" :raw-item-list="rawItemList" />
     </AddonTeleporter>
   </div>
 </template>

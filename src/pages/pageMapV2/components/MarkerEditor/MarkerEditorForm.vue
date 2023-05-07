@@ -15,7 +15,7 @@ import { HiddenFlagEnum } from '@/shared'
 
 const props = defineProps<{
   modelValue: API.MarkerVo
-  areaCode?: string
+  initAreaCode?: string
 }>()
 
 const emits = defineEmits<{
@@ -27,6 +27,8 @@ const userStore = useUserStore()
 
 /** 表单数据 */
 const form = ref<API.MarkerVo>(cloneDeep(props.modelValue))
+
+const areaCode = ref(props.initAreaCode ?? '')
 
 watch(form, () => {
   emits('update:modelValue', form.value)
@@ -117,7 +119,7 @@ defineExpose({
       </el-form-item>
 
       <el-form-item label="所属物品" prop="itemList">
-        <AddonItemSelector v-model="form.itemList" v-model:addon-id="addonId" :area-code="areaCode" />
+        <AddonItemSelector v-model="form.itemList" v-model:addon-id="addonId" v-model:area-code="areaCode" />
       </el-form-item>
 
       <el-form-item label="点位说明" prop="content">

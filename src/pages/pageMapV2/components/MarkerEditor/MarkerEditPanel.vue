@@ -16,8 +16,6 @@ const emits = defineEmits<{
 
 const conditionManager = useCondition()
 
-const areaCode = ref(props.initArea?.code ?? '')
-
 /** 表单数据 */
 const form = ref(props.markerInfo ?? {})
 
@@ -57,10 +55,10 @@ const isOfflineMode = import.meta.env.VITE_DEVELOPMENT_MODE === 'offline'
     @update:model-value="v => $emit('update:visible', v)"
   >
     <template #header>
-      <div>{{ initArea?.name }}</div>
+      <div>{{ markerInfo?.markerTitle }} (id: {{ markerInfo?.id }})</div>
     </template>
 
-    <MarkerEditorForm ref="editorRef" v-model="form" :area-code="areaCode">
+    <MarkerEditorForm ref="editorRef" v-model="form" :init-area-code="props.initArea?.code">
       <template #footer>
         <div class="w-full flex justify-end">
           <el-button @click="() => $emit('update:visible', false)">
