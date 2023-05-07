@@ -14,28 +14,25 @@ export interface AreaTreeItem extends API.AreaVo {
   children?: AreaTreeItem[]
 }
 
-/** 共享的地区列表 */
-const areaList = ref([]) as Ref<API.AreaVo[]>
-/** 共享的地区列表加载态，可覆盖 */
-const loading = ref(false)
-/** 共享的地区映射表 */
-const areaMap = computed(() => Object.fromEntries(areaList.value.map(area => [
-  area.id as number,
-  area,
-]))) as ComputedRef<Record<number, API.AreaVo>>
-/** 共享的地区树 */
-const areaTree = computed(() => array2Tree(areaList.value, {
-  idKey: 'id',
-  pidKey: 'parentId',
-  rootId: -1,
-}))
-
 export const useAreaList = (options: AreaListHookOptions = {}) => {
-  const { immediate, loading: scopedLoading } = options
+  const { immediate, loading } = options
+
+  const areaList = ref([]) as Ref<API.AreaVo[]>
+
+  const areaMap = computed(() => Object.fromEntries(areaList.value.map(area => [
+    area.id as number,
+    area,
+  ]))) as ComputedRef<Record<number, API.AreaVo>>
+
+  const areaTree = computed(() => array2Tree(areaList.value, {
+    idKey: 'id',
+    pidKey: 'parentId',
+    rootId: -1,
+  }))
 
   const { refresh: updateAreaList, onSuccess, ...rest } = useFetchHook({
     immediate,
-    loading: scopedLoading ?? loading,
+    loading,
     onRequest: () => db.area.toArray(),
   })
 
