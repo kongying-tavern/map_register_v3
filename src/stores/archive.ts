@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import Api from '@/api/api'
 import { Logger } from '@/utils'
+import { useCondition } from '@/pages/pageMapV2/hooks'
 
 export interface ArchiveBody {
   /** 点位存档 */
@@ -124,6 +125,8 @@ export const useArchiveStore = defineStore('global-archive', {
     /** 加载指定槽位的最新存档 */
     loadArchiveSlot(slot_index = -1) {
       this.currentArchive = this.getLatestArchiveFromSlot(slot_index)
+      const conditionManager = useCondition()
+      conditionManager.requestMarkersUpdate()
     },
 
     /** 加载指定槽位的历史存档 */

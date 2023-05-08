@@ -1,36 +1,9 @@
 import type { IconMapping } from '@deck.gl/layers/typed/icon-layer/icon-manager'
 import { ElNotification } from 'element-plus'
+import { ICON_MAPPING_STATES } from '../shared'
 import db from '@/database'
 import IconRenderWorker from '@/pages/pageMapV2/worker/IconRenderWorker?worker'
 import { BORDER_WIDTH, ICON_RECT } from '@/pages/pageMapV2/config/markerIcon'
-
-/**
- * 地上图标 默认状态
- * [`${itemId}`_default]: {}
- *
- * 地上图标 hover 状态
- * [`${itemId}`_hover]: {}
- *
- * 地上图标 active 状态
- * [`${itemId}`_active]: {}
- *
- * 地上图标 focus 状态
- * [`${itemId}`_focus]: {}
- *
- * 地下图标 默认状态
- * [`${itemId}`_ug_default]: {}
- *
- * 地下图标 hover 状态
- * [`${itemId}`_ug_hover]: {}
- *
- * 地下图标 active 状态
- * [`${itemId}`_ug_active]: {}
- *
- * 地下图标 focus 状态
- * [`${itemId}`_ug_focus]: {}
- */
-export interface SpiritIconMap extends IconMapping {
-}
 
 export class IconManager {
   /** 预渲染的精灵图 */
@@ -39,7 +12,7 @@ export class IconManager {
 
   /** 物品图标在精灵图上的匹配参数 */
   get iconMapping() { return this.#iconMapping.value }
-  #iconMapping = shallowRef<SpiritIconMap>({})
+  #iconMapping = shallowRef<IconMapping>({})
 
   renderWorker = new IconRenderWorker()
 
@@ -47,7 +20,7 @@ export class IconManager {
    * 渲染思路：
    * 1. 对物品列表检索到所有匹配的 iconTag 并对其 url 进行统一的 icon 请求
    * 2. 遍历所有的 icon，生成一张总体精灵图
-   * 3. 生成与精灵图对应的 iconMapping，格式见 `SpiritIconMap`
+   * 3. 生成与精灵图对应的 iconMapping
    */
   initIconMap = async (items: API.ItemVo[]) => {
     if (!items.length) {
@@ -79,20 +52,11 @@ export class IconManager {
         anchorY: ICON_RECT[1] - BORDER_WIDTH,
         y: iconIndex * ICON_RECT[1],
       }
-      ;[
-        '_default',
-        '_hover',
-        '_active',
-        '_focus',
-        '_ug_default',
-        '_ug_hover',
-        '_ug_active',
-        '_ug_focus',
-      ].forEach((append, index) => {
+      ICON_MAPPING_STATES.forEach((append, index) => {
         seed[`${item.id}${append}`] = { ...baseProps, x: baseProps.width * index }
       })
       return seed
-    }, {} as SpiritIconMap)
+    }, {} as IconMapping)
     this.#iconMapping.value = iconMapping
 
     // 离屏渲染

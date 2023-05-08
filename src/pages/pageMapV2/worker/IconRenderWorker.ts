@@ -7,6 +7,7 @@
  * 成功时为 ImageBitMap
  * 失败时为 string，表示错误的原因
  */
+import { ICON_MAPPING_STATES } from '../shared'
 import { getObjectFitSize } from '@/utils/getObjectFitSize'
 import { getPrototypeOf } from '@/utils/getPrototypeOf'
 import {
@@ -17,6 +18,7 @@ import {
   BORDER_COLOR,
   BORDER_WIDTH,
   ICON_HEIGHT,
+  ICON_MARKERDE_ALPHA,
   ICON_RECT,
   ICON_WIDTH,
   INNER_GAP,
@@ -38,6 +40,12 @@ const createBMP = async (res: Promise<Response>) => {
 const withFallback = async (bmpMission: Promise<ImageBitmap>) => bmpMission
   .catch(() => createBMP(fetch(FALLBACK_ITEM_ICON_URL)))
 
+/**
+ * 注意！
+ * 当前图标绘制方法是处于效率最大目的所特殊定制的，其中使用了基于canvas模式的多种批量绘制操作。
+ * 这不是一个通用的绘制方法，需要根据图标的具体需求来更改。
+ * @todo 后期可能需要引入 2d 渲染库来降低绘制代码编写复杂度
+ */
 const renderIcon = async (ev: MessageEvent<Map<string, { url: string; index: number }>>) => {
   try {
     if (!(ev.data instanceof Map))
@@ -57,14 +65,12 @@ const renderIcon = async (ev: MessageEvent<Map<string, { url: string; index: num
       throw new Error('无法获取模式图层绘图上下文')
 
     // 创建精灵图层
-    // 宽度倍数 8 来自 IconManager 所设置的状态数
-    // 详见 interface SpiritIconMap 的注释
-    const canvas = new OffscreenCanvas(8 * ICON_RECT[0], ev.data.size * ICON_RECT[1])
+    const canvas = new OffscreenCanvas(ICON_MAPPING_STATES.length * ICON_RECT[0], ev.data.size * ICON_RECT[1])
     const ctx = canvas.getContext('2d')
     if (!ctx)
       throw new Error('无法获取精灵图层绘图上下文')
 
-    // 图标背景路径
+    // 图标背景路径（一个大头固钉形状）
     const backgroundPath = new Path2D(`
       M ${OUTER_RADIUS} ${ICON_HEIGHT}
       L ${0.12725 * ICON_WIDTH} ${0.83325 * ICON_WIDTH}
@@ -75,7 +81,7 @@ const renderIcon = async (ev: MessageEvent<Map<string, { url: string; index: num
       Z
     `)
 
-    // 底图承托层路径
+    // 底图承托层路径（固钉中间那个圆）
     const clipPath = new Path2D(`
       M ${OUTER_RADIUS} ${ICON_WIDTH - INNER_GAP}
       A ${INNER_RADIUS} ${INNER_RADIUS} 0 0 1 ${OUTER_RADIUS} ${INNER_GAP}
@@ -108,12 +114,13 @@ const renderIcon = async (ev: MessageEvent<Map<string, { url: string; index: num
     ctx.fillRect(0, 0, canvas.width, canvas.height)
 
     // 绘制图标背景
-    patternCanvas.width = 4 * ICON_RECT[0]
+    patternCanvas.width = ICON_RECT[0] * ICON_MAPPING_STATES.length / 2
     ;[
       BACKGROUND_COLOR,
       BACKGROUND_HOVER_COLOR,
       BACKGROUND_ACTIVE_COLOR,
       BACKGROUND_FOCUS_COLOR,
+      '#FFFFFF20',
     ].forEach((bgColor, index) => {
       patternCtx.save()
       patternCtx.translate(index * ICON_RECT[0] + BORDER_WIDTH, BORDER_WIDTH)
@@ -144,7 +151,14 @@ const renderIcon = async (ev: MessageEvent<Map<string, { url: string; index: num
     if (!pattern3)
       throw new Error('无法创建图标绘制模式')
     ctx.fillStyle = pattern3
-    ctx.fillRect(0, 0, canvas.width, canvas.height)
+    // 第 5、10 列为已标记图标，需要单独设置其透明度
+    ctx.fillRect(0, 0, canvas.width / 2 - ICON_RECT[0], canvas.height)
+    ctx.fillRect(canvas.width / 2, 0, canvas.width / 2 - ICON_RECT[0], canvas.height)
+    ctx.save()
+    ctx.globalAlpha = ICON_MARKERDE_ALPHA
+    ctx.fillRect(canvas.width / 2 - ICON_RECT[0], 0, ICON_RECT[0], canvas.height)
+    ctx.fillRect(canvas.width - ICON_RECT[0], 0, ICON_RECT[0], canvas.height)
+    ctx.restore()
 
     // 绘制地下图标
     patternCanvas.width = ICON_RECT[0]

@@ -18,6 +18,9 @@ export const BACKGROUND_ACTIVE_COLOR = '#AAA'
 /** 图标 focus 时的背景色 */
 export const BACKGROUND_FOCUS_COLOR = 'skyblue'
 
+/** 图标被标记时的透明度 (0 ~ 1) */
+export const ICON_MARKERDE_ALPHA = 0.2
+
 /** 图标宽度 */
 export const ICON_WIDTH = 40
 /** 图标高度 */

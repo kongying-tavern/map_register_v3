@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { DeleteFilled, Edit, LocationFilled } from '@element-plus/icons-vue'
-import { GSButton } from '@/components'
+import { GSButton, GSSwitch } from '@/components'
+import { useArchiveStore } from '@/stores'
 import { useMarkerDrawer } from '@/pages/pageMapV2/hooks'
 import { MarkerEditPanel } from '@/pages/pageMapV2/components'
 import db from '@/database'
@@ -33,6 +34,21 @@ const parentArea = asyncComputed(() => {
 })
 
 const { width } = useWindowSize()
+
+const archiveStore = useArchiveStore()
+
+const isMarked = computed({
+  get: () => {
+    if (focus.value?.id === undefined)
+      return false
+    return archiveStore.currentArchive.body.Data_KYJG.has(focus.value?.id)
+  },
+  set: (v) => {
+    if (focus.value?.id === undefined)
+      return
+    archiveStore.currentArchive.body.Data_KYJG[v ? 'add' : 'delete'](focus.value.id)
+  },
+})
 </script>
 
 <template>
@@ -76,6 +92,11 @@ const { width } = useWindowSize()
               </p>
             </div>
 
+            <div class="flex items-center gap-2 py-2">
+              <GSSwitch v-model="isMarked" size="large" />
+              <span>完成点位</span>
+            </div>
+
             <div class="flex items-center gap-4">
               <GSButton theme="dark" class="flex-1" @click="dialogVisible = true">
                 <template #icon>
@@ -102,7 +123,7 @@ const { width } = useWindowSize()
     </template>
 
     <template v-else>
-      你来到了知识的荒原
+      你来到了没有知识的荒原
     </template>
   </el-drawer>
 </template>
