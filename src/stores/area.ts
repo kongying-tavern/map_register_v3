@@ -37,6 +37,7 @@ export const useAreaStore = defineStore('global-area', {
         isTraverse: true,
         parentId: -1,
       })
+      await db.area.clear()
       await AppDatabaseApi.area.bulkPut(data)
       return data.length
     },
