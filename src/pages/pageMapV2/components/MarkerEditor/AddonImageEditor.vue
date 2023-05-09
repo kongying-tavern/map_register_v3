@@ -12,6 +12,7 @@ import { ElIcon, ElMessage, ElUpload } from 'element-plus'
 import { usePictureUpload } from '../../hooks'
 import { AddonImageEditorEP, AddonTeleporter } from '.'
 import { useUserStore } from '@/stores'
+import { Logger } from '@/utils'
 
 const props = defineProps<{
   /** 图片地址 */
@@ -26,6 +27,8 @@ const emits = defineEmits<{
   (e: 'update:creatorId', v?: number): void
   (e: 'update:addonId', v: string): void
 }>()
+
+const logger = new Logger('[ImageEditor]')
 
 const userStore = useUserStore()
 
@@ -80,23 +83,27 @@ const onFileChange = async (uploadFile: UploadFile) => {
   rawImage.value = raw
 }
 
+const tryLoadImage = (url: string) => fetch(url, { mode: 'cors' })
+  .then(res => res.blob())
+  .catch(() => null)
+
 /** 当加载原始图片时 */
 onMounted(async () => {
   if (!props.modelValue)
     return
   try {
     const { basename, extname, folderPath, urlObj } = parseredUrlInfo.value
-    const timestamp = new Date().getTime()
     // 加载原始缩略图
-    const thumbImageBlob = await (await fetch(`${props.modelValue}?t=${timestamp}`, { mode: 'cors' })).blob()
-    thumbnailImage.value = thumbImageBlob
+    const thumbImageBlob = await tryLoadImage(props.modelValue)
+    thumbImageBlob && (thumbnailImage.value = thumbImageBlob)
     // 尝试请求原始大图（不一定成功，部分以前的点位并没有上传大图）
     const largeImagePath = `${urlObj?.origin}/${folderPath}/${basename}_large.${extname}`
-    const rawImageBlob = await (await fetch(largeImagePath, { mode: 'cors' }).catch(() => null))?.blob()
+    const rawImageBlob = await tryLoadImage(largeImagePath)
     rawImageBlob && (rawImage.value = rawImageBlob)
   }
-  catch {
+  catch (err) {
     // 大图加载错误就无法编辑原图，只能上传新的来替换，这里不需要做别的处理
+    logger.error(err)
   }
 })
 
