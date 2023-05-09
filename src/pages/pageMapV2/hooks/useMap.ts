@@ -21,7 +21,7 @@ const useGenshinMapStateRef = <K extends keyof GenshinMapState>(key: K, defaluVa
 
 const showBorder = useGenshinMapStateRef('showBorder', false)
 const showTag = useGenshinMapStateRef('showTags', true)
-const showTooltip = useGenshinMapStateRef('showTooltip', true)
+const showTooltip = useGenshinMapStateRef('showTooltip', false)
 const showOverlay = useGenshinMapStateRef('showOverlay', false)
 
 /** 在地图初始化前临时存储回调函数 */

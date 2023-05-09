@@ -53,7 +53,7 @@ export interface GenshinMapState {
 }
 
 interface ChromeFontFaceSet extends FontFaceSet {
-  add: (font: FontFace) => FontFaceSet
+  add: Set<FontFace>['add']
   has: Set<FontFace>['has']
 }
 
@@ -118,10 +118,10 @@ export class GenshinMap extends Deck {
     hover: null,
     active: null,
     focus: null,
-    showBorder: false,
     showTags: true,
-    showTooltip: true,
-    showOverlay: true,
+    showOverlay: false,
+    showBorder: false,
+    showTooltip: false,
   })
 
   #handleViewStateChange = ({ viewState, oldViewState = {}, ...rest }: ViewStateChangeParameters & { viewId: string }) => {
