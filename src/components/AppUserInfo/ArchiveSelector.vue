@@ -1,8 +1,10 @@
 <script lang="ts" setup>
+import { Flag } from '@element-plus/icons-vue'
 import dayjs from 'dayjs'
 import { storeToRefs } from 'pinia'
 import { ArchiveCreator, ArchiveViewer } from '.'
 import { useArchiveStore } from '@/stores'
+import db from '@/database'
 
 const archiveStore = useArchiveStore()
 onMounted(() => {
@@ -10,6 +12,50 @@ onMounted(() => {
 })
 
 const { archiveSlots } = storeToRefs(archiveStore)
+
+// 从米忽悠白嫖背景图
+const AREA_IMG_URLS: Record<string, string> = {
+  NA: 'https://ys.mihoyo.com/main/_nuxt/img/5c125a1.png',
+  MD: 'https://uploadstatic.mihoyo.com/contentweb/20200319/2020031921550320292.jpg',
+  LY: 'https://uploadstatic.mihoyo.com/contentweb/20200319/2020031921552395638.jpg',
+  DQ: 'https://uploadstatic.mihoyo.com/contentweb/20210719/2021071918001232800.jpg',
+  XM: 'https://webstatic.mihoyo.com/upload/contentweb/2022/08/15/8969f683b92839ac427c875d0d742be2_4825576482548821743.jpg',
+}
+
+const lastestMarkerArea = asyncComputed(async () => {
+  const areas: Record<number, string> = {}
+  const setUrl = (slotIndex?: number, url = AREA_IMG_URLS.NA) => {
+    if (slotIndex === undefined)
+      return
+    areas[slotIndex] = url
+  }
+  for (const key in archiveStore.archiveSlots) {
+    const archiveSlot = archiveStore.archiveSlots[key]
+    const latestArchive = archiveSlot?.archiveList[0]
+    const latestMarkerId = latestArchive ? [...latestArchive.body.Data_KYJG].at(-1) : undefined
+    if (!latestMarkerId) {
+      setUrl(archiveSlot?.slotIndex)
+      continue
+    }
+    const marker = await db.marker.get(latestMarkerId)
+    if (!marker) {
+      setUrl(archiveSlot?.slotIndex)
+      continue
+    }
+    const item = marker.itemList?.[0]?.itemId === undefined ? undefined : await db.item.get(marker.itemList[0].itemId)
+    if (!item) {
+      setUrl(archiveSlot?.slotIndex)
+      continue
+    }
+    const area = item.areaId === undefined ? undefined : await db.area.get(item.areaId)
+    if (!area) {
+      setUrl(archiveSlot?.slotIndex)
+      continue
+    }
+    setUrl(archiveSlot?.slotIndex, AREA_IMG_URLS[(area.code as string).split(':')[1]])
+  }
+  return areas
+}, {})
 
 const archiveCreateIndex = ref<number>()
 const archiveViewIndex = ref<number>()
@@ -30,11 +76,27 @@ const timeFormater = (time?: string) => time
         <div
           v-if="archiveSlot"
           :key="archiveSlot.id"
+          :class="{
+            actived: `${index}` === `${archiveStore.currentArchive.slotIndex}`,
+          }"
           class="archive-item outline-card item-enter-anime"
           @click="archiveViewIndex = archiveSlot.slotIndex"
         >
-          <div class="archive-banner items-center">
-            存档状态或统计图
+          <div class="archive-banner items-center text-lg grid place-items-start">
+            <img
+              :src="lastestMarkerArea[archiveSlot.slotIndex as number]"
+              class="absolute w-full h-full left-0 top-0 object-center object-cover"
+              style="z-index: -1"
+            >
+            <div
+              v-show="`${index}` === `${archiveStore.currentArchive.slotIndex}`"
+              class="absolute left-3 top-3 w-10 h-10 rounded-full border-2 grid place-items-center drop-shadow"
+              style="border-color: #5dffa3;"
+            >
+              <el-icon :size="32" color="#5dffa3">
+                <Flag />
+              </el-icon>
+            </div>
           </div>
           <div class="archive-name flex justify-between items-center gap-2">
             <div>{{ index }}. {{ archiveSlot.name }}</div>
@@ -45,10 +107,10 @@ const timeFormater = (time?: string) => time
         <div
           v-else
           :key="`empty-${Number(index)}`"
-          class="archive-item outline-card item-enter-anime"
+          class="archive-item outline-card item-enter-anime empty"
           @click="archiveCreateIndex = Number(index)"
         >
-          <div class="archive-banner empty" />
+          <div class="archive-banner" />
           <div class="archive-name">
             {{ index }}. &lt;新建存档&gt;
           </div>
@@ -68,13 +130,6 @@ const timeFormater = (time?: string) => time
   border-radius: 6px;
 }
 
-// TODO 等待修复存档槽位 slot_index 问题
-.disabled-slot {
-  border: 2px dashed rgb(128 128 128 / 0.5);
-  height: 96px;
-  color: rgb(128 128 128);
-}
-
 @keyframes gs-slide-in {
   from { translate: -30px 0; opacity: 0; }
   to { translate: 0 0; opacity: 1; }
@@ -91,18 +146,54 @@ const timeFormater = (time?: string) => time
   }
 }
 
+@property --bg-color-right {
+  syntax: '<color>';
+  inherits: false;
+  initial-value: #fff;
+}
+
+@property --bg-color-left {
+  syntax: '<color>';
+  inherits: false;
+  initial-value: #fff;
+}
+
+// TODO active 效果不是很好看，待优化
 .archive-item {
-  background: #E9E5DC;
+  --bg-color-left: #D99242;
+  --bg-color-right: #AD7E4D;
+  --banner-background: linear-gradient(to right, var(--bg-color-left), var(--bg-color-right));
+  --add-icon-visible: none;
+
+  background-color: #E9E5DC;
   user-select: none;
   overflow: hidden;
   cursor: pointer;
-  filter: drop-shadow(0 0 2px rgba(128 128 128 / 0.5));
+  filter: drop-shadow(0 0 2px rgba(128 128 128 / 0.7));
+  transition:
+    --bg-color-right ease 500ms,
+    --bg-color-left ease 500ms,
+    background-color ease 300ms,
+    color ease 300ms,
+    scale linear 100ms,
+  ;
+  position: relative;
+
   &:hover {
     scale: 1.02;
     outline-color: #FFF;
   }
   &:active {
     scale: 1;
+  }
+
+  &.empty {
+    --banner-background: #7A7B7E;
+    --add-icon-visible: block;
+  }
+  &.actived {
+    background-color: #7F6B5B;
+    color: white;
   }
 }
 
@@ -134,16 +225,12 @@ const timeFormater = (time?: string) => time
 }
 
 .archive-banner {
-  background: linear-gradient(to right, #D99242, #AD7E4D);
-  padding: 0 6px;
-  height: 60px;
+  background: var(--banner-background);
+  height: 63px;
   clip-path: inset(0 round 0 0 16px 0);
-  &.empty {
-    background: #7A7B7E;
-    position: relative;
-  }
-  &.empty::before {
+  &::before {
     scale: 0.8;
+    display: var(--add-icon-visible);
     content: '';
     width: 50px;
     height: 50px;
