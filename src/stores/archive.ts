@@ -14,6 +14,7 @@ export interface ArchiveBody {
 }
 
 export interface ArchiveData extends API.SysArchiveVo {
+  slotIndex?: number
   body: ArchiveBody
   timestamp: number
 }
@@ -42,19 +43,17 @@ const parserArchive = ({ archive = '', time = '', ...rest }: API.SysArchiveVo): 
   }
 }
 
+const initArchiveList = (): Record<number, ArchiveSlotData | undefined> => Object.fromEntries(
+  Array.from({ length: 5 }).map((_, index) => [index + 1, undefined]),
+)
+
 /**
  * 存档管理
  */
 export const useArchiveStore = defineStore('global-archive', {
   state: () => ({
     fetchLoading: false,
-    archiveSlots: {
-      1: undefined,
-      2: undefined,
-      3: undefined,
-      4: undefined,
-      5: undefined,
-    } as Record<number, ArchiveSlotData | undefined>,
+    archiveSlots: initArchiveList(),
     currentArchive: {
       body: {
         Data_KYJG: new Set(),
@@ -70,6 +69,7 @@ export const useArchiveStore = defineStore('global-archive', {
       try {
         this.fetchLoading = true
         const { data = [] } = await Api.archive.getAllHistoryArchive({})
+        this.archiveSlots = initArchiveList()
         data.forEach(({ archive: historyArchives = [], slotIndex = -1, updateTime, ...rest } = {}) => {
           const archive = {
             ...rest,
@@ -125,6 +125,7 @@ export const useArchiveStore = defineStore('global-archive', {
     /** 加载指定槽位的最新存档 */
     loadArchiveSlot(slot_index = -1) {
       this.currentArchive = this.getLatestArchiveFromSlot(slot_index)
+      this.currentArchive.slotIndex = slot_index
       const conditionManager = useCondition()
       conditionManager.requestMarkersUpdate()
     },

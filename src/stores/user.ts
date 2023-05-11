@@ -58,6 +58,7 @@ export const useUserStore = defineStore('user-info', {
     isRouteLoading: false,
     /** 路由动画是否已经结束 */
     isRouteAnimationEnd: true,
+    showUserInfo: false,
   }),
   getters: {
     /** 是否显示加载面板 */

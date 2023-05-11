@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { AppSettings, AppUserInfo } from '.'
+import { AppSettings } from '.'
 import { useUserStore } from '@/stores'
 import { useGlobalDialog, useTheme } from '@/hooks'
 import { FALLBACK_AVATAR_URL } from '@/shared/constant'
@@ -12,17 +12,6 @@ const userStore = useUserStore()
 const { isDark } = useTheme()
 const { DialogService } = useGlobalDialog()
 
-const openUserInfoDialog = () => {
-  DialogService
-    .config({
-      showClose: false,
-      width: 1200,
-      alignCenter: true,
-      class: 'bg-transparent',
-    })
-    .open(AppUserInfo)
-}
-
 const openSettingDialog = () => DialogService
   .config({
     title: '系统设置',
@@ -32,7 +21,7 @@ const openSettingDialog = () => DialogService
   .open(AppSettings)
 
 const handleCommand = (command: string) => ({
-  userinfo: () => openUserInfoDialog(),
+  userinfo: () => userStore.showUserInfo = true,
   themeschema: () => isDark.value = !isDark.value,
   setting: () => openSettingDialog(),
   logout: () => userStore.logout(),

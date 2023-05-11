@@ -3,7 +3,7 @@ import { CoffeeCup, Filter, Grid, List, Operation, RemoveFilled, SetUp, Setting 
 import type { FeatureOption } from '../FeatureGrid'
 import { useCurrentLayerMarkers, useMap } from '@/pages/pageMapV2/hooks'
 import { FeatureGrid, MarkerFilter, MarkerTable, SiderMenu, SiderMenuItem } from '@/pages/pageMapV2/components'
-import { AppSettings, AppUserInfo, GSSwitch } from '@/components'
+import { AppSettings, GSSwitch } from '@/components'
 import { useGlobalDialog } from '@/hooks'
 import { useUserStore } from '@/stores'
 import { FALLBACK_AVATAR_URL } from '@/shared/constant'
@@ -23,14 +23,9 @@ const router = useRouter()
 
 const tabName = ref('filter')
 
-const openUserInfoDialog = () => DialogService
-  .config({
-    showClose: false,
-    alignCenter: true,
-    width: 'fit-content',
-    class: 'bg-transparent',
-  })
-  .open(AppUserInfo)
+const openUserInfoDialog = () => {
+  userStore.showUserInfo = true
+}
 
 const openSettingDialog = () => DialogService
   .config({

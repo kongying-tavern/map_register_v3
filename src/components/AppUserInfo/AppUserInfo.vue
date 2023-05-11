@@ -15,55 +15,60 @@ const tab = ref('archive')
 </script>
 
 <template>
-  <div class="user-info-dialog relative overflow-visible grid grid-cols-2 place-items-center genshin-text">
-    <div class="bg-card rounded" />
+  <el-dialog
+    v-model="userStore.showUserInfo"
+    :show-close="false"
+    align-center
+    width="fit-content"
+    class="custom-dialog hidden-header bg-transparent"
+  >
+    <div class="user-info-dialog relative overflow-visible grid grid-cols-2 place-items-center genshin-text">
+      <div class="bg-card rounded" />
 
-    <div class="user-info rounded flex flex-col items-center gap-6 p-8 pt-28">
-      <div class="banner absolute top-0 left-0 text-center text-xl p-4" />
+      <div class="user-info overflow-hidden rounded flex flex-col items-center gap-6 p-8 pt-28">
+        <div class="banner absolute top-0 left-0 text-center text-xl p-4" />
 
-      <div class="user-avatar flex justify-center items-center">
-        <div class="user-avatar-img w-40 h-40" />
+        <div class="user-avatar flex justify-center items-center">
+          <div class="user-avatar-img w-40 h-40" />
+        </div>
+
+        <div class="w-full flex flex-col items-center">
+          <div class="flex items-center gap-2 text-3xl">
+            {{ userStore.info.nickname }}
+          </div>
+          <div class="text-sm">
+            UID: {{ userStore.info.id }}
+          </div>
+        </div>
+
+        <div class="w-full flex flex-col text-2xl gap-2">
+          <div class="flex justify-between bg-green">
+            <div>手机</div>
+            <div>{{ userStore.info.phone || '--' }}</div>
+          </div>
+          <div class="flex justify-between bg-brown">
+            <div>QQ</div>
+            <div>{{ userStore.info.qq }}</div>
+          </div>
+        </div>
+
+        <div class="archive-preview overflow-hidden flex-1 w-full">
+          <ArchiveAnalyser :archive-body="archiveStore.currentArchive.body" />
+        </div>
       </div>
 
-      <div class="w-full flex flex-col items-center">
-        <div class="flex items-center gap-2 text-3xl">
-          {{ userStore.info.nickname }}
-        </div>
-        <div class="text-sm">
-          UID: {{ userStore.info.id }}
-        </div>
-        <el-tag v-for="role in userStore.info.roleList" :key="role.id" type="success">
-          {{ role.name }}
-        </el-tag>
-      </div>
-
-      <div class="w-full flex flex-col text-2xl gap-2">
-        <div class="flex justify-between bg-green">
-          <div>手机</div>
-          <div>{{ userStore.info.phone || '--' }}</div>
-        </div>
-        <div class="flex justify-between bg-brown">
-          <div>QQ</div>
-          <div>{{ userStore.info.qq }}</div>
-        </div>
-      </div>
-
-      <div class="archive-preview flex-1 w-full">
-        <ArchiveAnalyser :archive-body="archiveStore.currentArchive.body" />
+      <div class="user-action w-full h-full p-8 pl-0">
+        <GSTab v-model="tab" :tabs="tabs" class="h-full">
+          <template #archive>
+            <ArchiveSelector />
+          </template>
+          <template #password>
+            <PasswordEditor />
+          </template>
+        </GSTab>
       </div>
     </div>
-
-    <div class="user-action w-full h-full p-8 pl-0">
-      <GSTab v-model="tab" :tabs="tabs" class="h-full">
-        <template #archive>
-          <ArchiveSelector />
-        </template>
-        <template #password>
-          <PasswordEditor />
-        </template>
-      </GSTab>
-    </div>
-  </div>
+  </el-dialog>
 </template>
 
 <style lang="scss" scoped>
