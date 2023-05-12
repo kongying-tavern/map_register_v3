@@ -2,6 +2,7 @@
 import { ArchiveAnalyser, ArchiveSelector, PasswordEditor } from '.'
 import { useArchiveStore, useUserStore } from '@/stores'
 import { GSTab } from '@/components'
+import { ROLES_MAP } from '@/shared'
 
 const archiveStore = useArchiveStore()
 const userStore = useUserStore()
@@ -36,19 +37,8 @@ const tab = ref('archive')
           <div class="flex items-center gap-2 text-3xl">
             {{ userStore.info.nickname }}
           </div>
-          <div class="text-sm">
-            UID: {{ userStore.info.id }}
-          </div>
-        </div>
-
-        <div class="w-full flex flex-col text-2xl gap-2">
-          <div class="flex justify-between bg-green">
-            <div>手机</div>
-            <div>{{ userStore.info.phone || '--' }}</div>
-          </div>
-          <div class="flex justify-between bg-brown">
-            <div>QQ</div>
-            <div>{{ userStore.info.qq }}</div>
+          <div class="text-lg" style="color: #7198E3">
+            {{ ROLES_MAP[userStore.auth.userRoles?.[0] ?? ''] }}
           </div>
         </div>
 
@@ -140,18 +130,6 @@ const tab = ref('archive')
     width: calc(90% - 1px);
     aspect-ratio: 1 / 1;
   }
-}
-
-.bg-green {
-  background-color: #A7B982;
-  color: #fff;
-  padding: 4px 8px;
-}
-
-.bg-brown {
-  background-color: #CDBBA5;
-  color: #fff;
-  padding: 4px 8px;
 }
 
 .archive-preview {
