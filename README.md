@@ -84,3 +84,7 @@ yarn run build
 # or
 npm run build
 ```
+
+### 项目贡献
+
+![Alt](https://repobeats.axiom.co/api/embed/7910e599e7842fa48c48295b7fcbf0d4e39a9c6b.svg "Repobeats analytics image")
