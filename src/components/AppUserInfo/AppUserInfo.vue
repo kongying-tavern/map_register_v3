@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ArchiveAnalyser, ArchiveSelector, PasswordEditor } from '.'
+import { ArchiveAnalyser, ArchiveSelector, InfoEditor, PasswordEditor } from '.'
 import { useArchiveStore, useUserStore } from '@/stores'
 import { GSTab } from '@/components'
 import { ROLES_MAP } from '@/shared'
@@ -51,6 +51,9 @@ const tab = ref('archive')
         <GSTab v-model="tab" :tabs="tabs" class="h-full">
           <template #archive>
             <ArchiveSelector />
+          </template>
+          <template #info>
+            <InfoEditor />
           </template>
           <template #password>
             <PasswordEditor />
