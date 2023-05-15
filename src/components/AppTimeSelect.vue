@@ -22,7 +22,7 @@ const parseredTime = computed({
   },
 })
 
-const natunalNumberComputed = <T extends keyof (typeof parseredTime.value)>(key: T) => computed({
+const naturalNumberComputed = <T extends keyof (typeof parseredTime.value)>(key: T) => computed({
   get: () => `${parseredTime.value[key]}`,
   set: (v) => {
     const num = Number(v.trim())
@@ -35,9 +35,9 @@ const natunalNumberComputed = <T extends keyof (typeof parseredTime.value)>(key:
   },
 })
 
-const days = natunalNumberComputed('days')
-const hours = natunalNumberComputed('hours')
-const minutes = natunalNumberComputed('minutes')
+const days = naturalNumberComputed('days')
+const hours = naturalNumberComputed('hours')
+const minutes = naturalNumberComputed('minutes')
 
 const selectInput = (ev: Event) => {
   const { target } = ev
