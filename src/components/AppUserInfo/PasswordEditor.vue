@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import type { FormInstance, FormRules } from 'element-plus'
 import { GSButton, GSInput } from '@/components'
 import { useFetchHook } from '@/hooks'
 import { useUserStore } from '@/stores'
@@ -6,88 +7,73 @@ import Api from '@/api/api'
 
 const userStore = useUserStore()
 
-const form = ref<Required<API.SysUserPasswordUpdateDto>>({
-  userId: userStore.info.id ?? -9999,
+const form = ref({
   oldPassword: '',
   password: '',
+  repeat: '',
 })
 
-const content = ref('')
-const error = ref(false)
-const visible = computed(() => content.value.length > 0)
+watch(form, (data) => {
+  for (const key in data) {
+    // 只允许 ASCII 非空白字符
+    const v = data[key as keyof typeof data].replace(/[^\x21-\x7F]/g, '')
+    if (form.value[key as keyof typeof data] !== v)
+      form.value[key as keyof typeof data] = v
+  }
+}, { deep: true })
 
-const resetPopper = () => {
-  content.value = ''
-  error.value = false
+const rules: FormRules = {
+  oldPassword: [{ required: true, message: '密码不能小于6个字符', validator: (_, v) => /\S{6}/.test(v) }],
+  password: [{ required: true, message: '密码不能小于6个字符', validator: (_, v) => /\S{6}/.test(v) }],
+  repeat: [
+    { required: true, message: '密码不能小于6个字符', validator: (_, v) => /\S{6}/.test(v) },
+    { message: '两次输入的密码不一致', validator: (_, v) => v === form.value.password },
+  ],
 }
 
-const { loading, refresh: updatePassword, onSuccess, onError } = useFetchHook({
-  onRequest: async () => {
-    resetPopper()
-    form.value.oldPassword = form.value.oldPassword.trim()
-    form.value.password = form.value.password.trim()
-    const { userId, oldPassword, password } = form.value
-    // 校验
-    if (userId < 0)
-      throw new Error('用户 id 异常')
-    if (!oldPassword || !password)
-      throw new Error('密码不能为空')
-    if (password.length < 6)
-      throw new Error('密码不能小于 6 位数')
+const formRef = ref<FormInstance>()
 
-    await Api.sysUserController.updateUserPassword({}, form.value)
+const { loading, refresh: updatePassword } = useFetchHook({
+  onRequest: async () => {
+    const isValid = await formRef.value?.validate().catch(() => false)
+    if (!isValid)
+      throw new Error('校验失败')
+
+    const { oldPassword, password } = form.value
+    await Api.sysUserController.updateUserPassword({}, {
+      userId: userStore.info.id as number,
+      oldPassword,
+      password,
+    })
+
     userStore.logout()
   },
 })
-
-onSuccess(() => {
-  error.value = false
-  content.value = '修改成功'
-})
-
-onError((err) => {
-  error.value = true
-  content.value = err.message
-})
-
-const buttonRef = ref<HTMLElement | null>(null)
-onClickOutside(buttonRef, resetPopper)
 </script>
 
 <template>
-  <div class="h-full flex flex-col items-center gap-4">
-    <div class="gs-form-item">
-      <div>旧密码</div>
-      <GSInput v-model="form.oldPassword" style="width: 300px" />
-    </div>
-    <div class="gs-form-item">
-      <div>新密码</div>
-      <GSInput v-model="form.password" style="width: 300px" />
-    </div>
-    <el-tooltip
-      placement="bottom"
-      :content="content"
-      :visible="visible"
-      effect="customized"
-      :popper-class="{
-        'genshin-text': true,
-        'gs-tooltip': true,
-        error,
-      }"
+  <div class="flex flex-col justify-center items-center">
+    <el-form
+      ref="formRef"
+      style="--el-form-label-font-size: 18px; width: 370px"
+      label-width="100px"
+      label-position="left"
+      :model="form"
+      :rules="rules"
     >
-      <GSButton ref="buttonRef" icon="submit" theme="dark" style="width:370px" :loading="loading" @click="updatePassword">
-        修改密码
-      </GSButton>
-    </el-tooltip>
+      <el-form-item label="旧密码" prop="oldPassword">
+        <GSInput v-model="form.oldPassword" style="width: 100%" />
+      </el-form-item>
+      <el-form-item label="新密码" prop="password">
+        <GSInput v-model="form.password" style="width: 100%" />
+      </el-form-item>
+      <el-form-item label="确认密码" prop="password">
+        <GSInput v-model="form.repeat" style="width: 100%" />
+      </el-form-item>
+    </el-form>
+
+    <GSButton icon="submit" theme="dark" style="width:370px" :loading="loading" @click="updatePassword">
+      修改密码
+    </GSButton>
   </div>
 </template>
-
-<style lang="scss" scoped>
-.gs-form-item {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  color: #435066;
-  font-size: 18px;
-}
-</style>
