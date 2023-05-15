@@ -169,11 +169,15 @@ const onClick = (ev: MouseEvent) => {
   --text-color: #ECE5D8;
   --text-active-color: #5B6272;
   --border-hover-color: rgb(91 98 114 / 1);
-  --bg: rgb(74 83 102 / 1);
+  --bg: #4a5366;
   --bg-active: #FFF3D1;
   --outline-hover-color: #FFE6B2;
   --outline-active-color: #5B6272;
   --filter-active: drop-shadow(0 0 2px #DAD4CB);
+  &.disabled {
+    --border-color: #959597;
+    --icon-opacity: 0.5;
+  }
 }
 
 .gs-button-icon {
