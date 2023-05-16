@@ -63,7 +63,9 @@ useEventListener('pointerdown', checkTooltip)
       </el-scrollbar>
     </div>
 
-    <div ref="contentRef" class="sider-menu-extra-panel flex-1" :class="{ 'is-collapse': collapse }" />
+    <div class="overflow-hidden h-full w-full">
+      <div ref="contentRef" class="sider-menu-extra-panel flex-1" :class="{ 'is-collapse': collapse }" />
+    </div>
 
     <el-tooltip
       :visible="!collapse && virtualRef !== undefined"
@@ -116,17 +118,16 @@ useEventListener('pointerdown', checkTooltip)
 
 .sider-menu-extra-panel {
   background: #263240;
-  width: fit-content;
+  width: 100%;
+  height: 100%;
   box-shadow: 4px 0 4px rgb(128 128 128 / 0.2) inset;
-  transition: all ease 100ms;
+  transition: all ease 150ms;
   opacity: 1;
   translate: 0 0;
-  clip-path: inset(0 0 0 0);
 
   &.is-collapse {
     opacity: 0;
-    translate: -100% 0;
-    clip-path: inset(0 0 0 100%);
+    translate: -50% 0;
   }
 }
 </style>
