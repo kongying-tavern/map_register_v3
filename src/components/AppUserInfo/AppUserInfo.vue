@@ -1,10 +1,9 @@
 <script lang="ts" setup>
 import { ArchiveAnalyser, ArchiveSelector, InfoEditor, PasswordEditor } from '.'
-import { useArchiveStore, useUserStore } from '@/stores'
+import { useUserStore } from '@/stores'
 import { GSTab } from '@/components'
 import { ROLES_MAP } from '@/shared'
 
-const archiveStore = useArchiveStore()
 const userStore = useUserStore()
 
 const tabs: { title: string; value: string }[] = [
@@ -26,14 +25,14 @@ const tab = ref('archive')
     <div class="user-info-dialog relative overflow-visible grid grid-cols-2 place-items-center genshin-text">
       <div class="bg-card rounded" />
 
-      <div class="user-info overflow-hidden rounded flex flex-col items-center gap-6 p-8 pt-28">
+      <div class="user-info overflow-hidden rounded flex flex-col items-center p-8 pt-28">
         <div class="banner absolute top-0 left-0 text-center text-xl p-4" />
 
         <div class="user-avatar flex justify-center items-center">
           <div class="user-avatar-img w-40 h-40" />
         </div>
 
-        <div class="w-full flex flex-col items-center">
+        <div class="w-full flex flex-col items-center p-4">
           <div class="flex items-center gap-2 text-3xl">
             {{ userStore.info.nickname }}
           </div>
@@ -42,9 +41,7 @@ const tab = ref('archive')
           </div>
         </div>
 
-        <div class="archive-preview overflow-hidden flex-1 w-full">
-          <ArchiveAnalyser :archive-body="archiveStore.currentArchive.body" />
-        </div>
+        <ArchiveAnalyser />
       </div>
 
       <div class="user-action w-full h-full p-8 pl-0">
@@ -133,10 +130,6 @@ const tab = ref('archive')
     width: calc(90% - 1px);
     aspect-ratio: 1 / 1;
   }
-}
-
-.archive-preview {
-  border: 2px solid #E0D7C9;
 }
 
 .user-action {

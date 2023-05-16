@@ -1,23 +1,51 @@
 <script lang="ts" setup>
-import type { Ref } from 'vue'
-import { liveQuery } from 'dexie'
 import db from '@/database'
-import { useFetchHook } from '@/hooks'
 import { useArchiveStore } from '@/stores'
+import { GSSwitch } from '@/components'
 
 const archiveStore = useArchiveStore()
 
 interface GroupedMarkers {
   [key: string]: {
     area: API.AreaVo
-    markers: API.MarkerVo[]
+    parentArea: API.AreaVo
+    normal: number
+    restricted: number
+    icon: string
   }
+}
+
+/** 临时图标 */
+const _TEMP_ICON_MAP: Record<string, string> = {
+  'C:MD': 'https://uploadstatic.mihoyo.com/contentweb/20200317/2020031714242066580.png',
+  'C:LY': 'https://uploadstatic.mihoyo.com/contentweb/20200317/2020031714245390532.png',
+  'C:DQ': 'https://uploadstatic.mihoyo.com/contentweb/20210719/2021071917401911066.png',
+  'C:XM': 'https://webstatic.mihoyo.com/upload/contentweb/2022/08/15/f77d0c308b54728b6a1f3bc525e42955_6051524677514174999.png',
+}
+const TEMP_ICON_MAP = new Proxy(_TEMP_ICON_MAP, {
+  get: (target, key, receiver) => {
+    return Reflect.get(target, key, receiver) ?? Reflect.get(target, 'C:MD', receiver)
+  },
+})
+
+/** 是否显示限定地区数据 */
+const showRestrictedArea = ref(false)
+const RESTRICTED_AREA_CODES = [
+  'A:APPLE:1_6_STG1',
+  'A:APPLE:1_6_STG2',
+  'A:APPLE:2_8',
+  'A:DQ:SANJIE',
+]
+const isRestrictedArea = (code?: string) => {
+  if (!code)
+    return false
+  return RESTRICTED_AREA_CODES.findIndex(rcode => rcode === code) > -1
 }
 
 const isMarkerInstances = (v: (number[]) | (API.MarkerVo[])): v is API.MarkerVo[] => typeof v[0] !== 'number'
 
 /** 为每个宝箱点位匹配其地区数据 */
-const matchMarkerArea = async (markerParams: (number[]) | (API.MarkerVo[]), handleRef: Ref<GroupedMarkers>) => {
+const matchMarkerArea = async (markerParams: (number[]) | (API.MarkerVo[])) => {
   /** 需要查询的物品 id */
   const queryItemIds = new Set<number>()
 
@@ -65,47 +93,153 @@ const matchMarkerArea = async (markerParams: (number[]) | (API.MarkerVo[]), hand
 
     if (!seed[areaParentCode]) {
       seed[areaParentCode] = {
-        area: parent,
-        markers: [],
+        area: markerArea,
+        parentArea: parent,
+        icon: TEMP_ICON_MAP[areaParentCode as string],
+        normal: 0,
+        restricted: 0,
       }
     }
-    seed[areaParentCode].markers.push(marker)
+    const isRestrictedMarker = isRestrictedArea(markerArea.code)
+    seed[areaParentCode][isRestrictedMarker ? 'restricted' : 'normal'] += 1
     return seed
   }, {} as GroupedMarkers)
 
-  handleRef.value = res
+  return res
 }
 
-const rawMarkerGroup = ref<GroupedMarkers>({})
-liveQuery(() => db.marker.toArray()).subscribe((markers) => {
-  matchMarkerArea(markers, rawMarkerGroup)
-})
+const loading = ref(false)
 
-const markersGroup = ref<GroupedMarkers>({})
-const { refresh: analyse, loading } = useFetchHook({
-  onRequest: () => matchMarkerArea([...archiveStore.currentArchive.body.Data_KYJG], markersGroup),
-})
+const rawMarkersGroup = asyncComputed<GroupedMarkers>(async () => {
+  const markers = await db.marker.toArray()
+  return matchMarkerArea(markers)
+}, {}, { evaluating: loading })
 
-watch(() => archiveStore.currentArchive.body.Data_KYJG.size, analyse, { immediate: true })
+const markersGroup = asyncComputed<GroupedMarkers>(() => {
+  return matchMarkerArea([...archiveStore.currentArchive.body.Data_KYJG])
+}, {}, { evaluating: loading })
+
+const getTotal = (groupItem?: GroupedMarkers[keyof GroupedMarkers]) => {
+  if (!groupItem)
+    return 0
+  return showRestrictedArea.value
+    ? groupItem.normal + groupItem.restricted
+    : groupItem.normal
+}
 </script>
 
 <template>
-  <div class="archive-analyser">
-    <div v-if="loading">
-      分析中...
+  <div class="w-full flex-1 flex flex-col overflow-hidden">
+    <div class="w-full flex justify-between items-center text-lg p-2" style="color:#84603D;">
+      宝箱收集进度
+      ({{ archiveStore.currentArchive.slotIndex ? archiveStore.archiveSlots[archiveStore.currentArchive.slotIndex]?.name : '<未选取存档>' }})
+      <GSSwitch
+        v-model="showRestrictedArea"
+        label="包含限定地区"
+        label-position="left"
+        label-inactive-color="#353D4F"
+      />
     </div>
 
-    <div v-else class="flex flex-col">
-      <div>一级地区已标记的宝箱数</div>
-      <div v-for="(area, code) in markersGroup" :key="code">
-        {{ area.area.name }}: {{ area.markers.length }} / {{ rawMarkerGroup[code].markers.length }}
+    <el-scrollbar class="flex-1">
+      <div class="p-1">
+        <template v-for="(item, code, index) in rawMarkersGroup" :key="code">
+          <div
+            v-if="showRestrictedArea || item.normal > 0"
+            class="gs-archive-analyser-item"
+            :style="{
+              '--markers-ratio': `${100 * (getTotal(markersGroup[code]) / getTotal(item))}%`,
+              '--anime-delay': `${index * 50}ms`,
+            }"
+          >
+            <div class="gs-archive-area w-12 h-12 row-span-2 mr-1 rounded-sm" :style="{ '--icon': `url(${item.icon})` }" />
+            <div class="flex justify-between items-center">
+              <span class="text-base w-32">
+                {{ item.parentArea.name }}
+              </span>
+              <span class="flex-1 text-right">
+                {{ (100 * (getTotal(markersGroup[code]) / getTotal(item))).toFixed(0) }}%
+              </span>
+              <span class="text-sm w-28 text-right">
+                ({{ getTotal(markersGroup[code]) }} / {{ getTotal(item) }})
+              </span>
+            </div>
+            <div class="flex items-center">
+              <div class="gs-archive-analyser-bar" />
+            </div>
+          </div>
+        </template>
       </div>
-    </div>
+    </el-scrollbar>
   </div>
 </template>
 
 <style lang="scss" scoped>
-.archive-analyser {
-  height: 100%;
+@property --percentage {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 0%;
+}
+
+@keyframes item-anime-in {
+  from { opacity: 0%; }
+  to { opacity: 100%; }
+}
+
+.gs-archive-analyser-item {
+  --percentage: 0%;
+  --radius: 8px;
+  --clip: inset(0 0% 0 0);
+  --shadow-color: #CCCCCC80;
+
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: repeat(2, 1fr);
+  padding: 4px 8px;
+  border: 2px solid #E0D6CB;
+  border-radius: 6px;
+  outline: 2px solid transparent;
+  outline-offset: -2px;
+  margin-bottom: 4px;
+  position: relative;
+  background: #F0E9DC;
+  justify-content: space-between;
+  opacity: 0;
+  overflow: hidden;
+  animation: item-anime-in 100ms linear forwards;
+  animation-delay: calc(50ms + var(--anime-delay));
+  transition: all ease 150ms;
+  user-select: none;
+  cursor: pointer;
+  box-shadow: 0 0 4px var(--shadow-color);
+  scale: 0.98 1;
+
+  &:hover {
+    --shadow-color: #AAAAAA80;
+    scale: 1 1;
+    background: #F4EEE1;
+    outline-color: #D7CBBC;
+  }
+}
+
+@keyframes percentage-bar-anime-in {
+  from { --percentage: 0%; }
+  to { --percentage: var(--markers-ratio); }
+}
+
+.gs-archive-area {
+  // background: linear-gradient(135deg, #807AA4, #CF9CDC);
+  background: #84603D;
+  mask: var(--icon);
+  mask-size: contain;
+}
+
+.gs-archive-analyser-bar {
+  width: 100%;
+  height: var(--radius);
+  background: linear-gradient(to right, #F7BA3F var(--percentage), #e0dcd4 var(--percentage));
+  border-radius: 8px;
+  animation: percentage-bar-anime-in 300ms ease-out forwards;
+  animation-delay: var(--anime-delay);
 }
 </style>
