@@ -1,10 +1,12 @@
 <script lang="ts" setup>
 import { DeleteFilled, Edit, LocationFilled } from '@element-plus/icons-vue'
-import { GSButton, GSSwitch } from '@/components'
+import { MarkerStateSwitch } from '.'
+import { GSButton } from '@/components'
 import { useArchiveStore } from '@/stores'
 import { useMarkerDrawer } from '@/pages/pageMapV2/hooks'
 import { MarkerEditPanel } from '@/pages/pageMapV2/components'
 import db from '@/database'
+import { vMarkeable } from '@/directives'
 
 const { focus, visible, beforeClose } = useMarkerDrawer()
 
@@ -79,6 +81,10 @@ const isMarked = computed({
           <img v-if="focus.picture" class="w-full h-44 object-cover" :src="focus.picture">
 
           <div class="marker-info">
+            <div class="text-sm">
+              id: {{ focus.id }}
+            </div>
+
             <div class="info-area flex items-center gap-2">
               <el-icon color="#676A74" :size="24">
                 <LocationFilled />
@@ -93,11 +99,10 @@ const isMarked = computed({
             </div>
 
             <div class="flex items-center gap-2 py-2">
-              <GSSwitch v-model="isMarked" size="large" />
-              <span>完成点位</span>
+              <MarkerStateSwitch v-model="isMarked" />
             </div>
 
-            <div class="flex items-center gap-4">
+            <div v-markeable class="flex items-center gap-4">
               <GSButton theme="dark" class="flex-1" @click="dialogVisible = true">
                 <template #icon>
                   <el-icon color="#DAAF32">
