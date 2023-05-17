@@ -84,6 +84,7 @@ defineEmits<GSSwitchEmits>()
   cursor: pointer;
   user-select: none;
   color: var(--icon-color);
+  transition: all ease 150ms;
 
   &::before {
     content: '';
