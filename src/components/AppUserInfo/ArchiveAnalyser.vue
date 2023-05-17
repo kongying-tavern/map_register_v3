@@ -222,24 +222,19 @@ const getTotal = (groupItem?: GroupedMarkers[keyof GroupedMarkers]) => {
   }
 }
 
-@keyframes percentage-bar-anime-in {
-  from { --percentage: 0%; }
-  to { --percentage: var(--markers-ratio); }
-}
-
 .gs-archive-area {
-  // background: linear-gradient(135deg, #807AA4, #CF9CDC);
   background: #84603D;
   mask: var(--icon);
   mask-size: contain;
 }
 
 .gs-archive-analyser-bar {
+  --percentage: var(--markers-ratio);
   width: 100%;
   height: var(--radius);
   background: linear-gradient(to right, #F7BA3F var(--percentage), #e0dcd4 var(--percentage));
   border-radius: 8px;
-  animation: percentage-bar-anime-in 300ms ease-out forwards;
-  animation-delay: var(--anime-delay);
+  transition: --percentage ease 500ms;
+  transition-delay: var(--anime-delay);
 }
 </style>

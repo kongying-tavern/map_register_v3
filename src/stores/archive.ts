@@ -101,10 +101,11 @@ export const useArchiveStore = defineStore('global-archive', {
 
     /** 将当前存档存入指定的存档槽位 */
     async saveArchiveToSlot(slot_index = -1) {
-      await Api.archive.saveArchive({ slot_index }, JSON.stringify({
+      const archive = JSON.stringify({
         Data_KYJG: [...this.currentArchive.body.Data_KYJG],
         Time_KYJG: this.currentArchive.body.Time_KYJG,
-      }))
+      })
+      await Api.archive.saveArchive({ slot_index }, archive)
     },
 
     /** 删除指定槽位的存档 */
