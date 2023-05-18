@@ -1,15 +1,14 @@
 <script lang="ts" setup>
-import { ExtraJSON } from '@/utils'
 import type { MarkerExtra } from '@/utils'
 import { APPLE_2_8_OPTIONS, UNDERGROUND_OPTIONS_MAP } from '@/pages/pageMapV2/config'
 
 const props = defineProps<{
-  modelValue?: string
+  modelValue?: MarkerExtra
   areaCode?: string
 }>()
 
 const emits = defineEmits<{
-  (e: 'update:modelValue', v: string): void
+  (e: 'update:modelValue', v: MarkerExtra): void
 }>()
 
 /** 判断是否为空字段，是则去除以缩减序列化后的体积 */
@@ -22,9 +21,9 @@ const withoutEmpty = <T = unknown>(v: T): T | undefined => {
   return isEmpty ? undefined : v
 }
 
-/** 预解析数据 */
-const parseredExtra = ref<Required<MarkerExtra>>((() => {
-  const { underground = {}, caves = [], '2_8_island': island = {} } = ExtraJSON.parse(props.modelValue ?? '{}')
+/** 保证 extra 包含默认字段 */
+const withDefaultExtra = ref<Required<MarkerExtra>>((() => {
+  const { underground = {}, caves = [], '2_8_island': island = {} } = props.modelValue ?? {}
   const { region_name = '', region_levels = [] } = underground
   const { island_name = '', island_state = [] } = island
   // 多处理一下防止字段不存在，以便进行双绑
@@ -36,13 +35,11 @@ const parseredExtra = ref<Required<MarkerExtra>>((() => {
 })())
 
 /** 深度监听更新 */
-watch(parseredExtra, (extra) => {
-  emits('update:modelValue', ExtraJSON.stringify({
-    '2_8_island': withoutEmpty(extra['2_8_island']),
-    'underground': withoutEmpty(extra.underground),
-    'caves': withoutEmpty(extra.caves),
-  }))
-}, { deep: true })
+watch(withDefaultExtra, extra => emits('update:modelValue', {
+  '2_8_island': withoutEmpty(extra['2_8_island']),
+  'underground': withoutEmpty(extra.underground),
+  'caves': withoutEmpty(extra.caves),
+}), { deep: true })
 
 // ==================== 海岛独有部分 ====================
 /** 是否为 2.8 海岛 */
@@ -50,10 +47,10 @@ const is28AppleIsland = computed(() => props.areaCode === 'A:APPLE:2_8')
 
 /** 岛屿名称 */
 const isLandName = computed({
-  get: () => parseredExtra.value['2_8_island'].island_name,
+  get: () => withDefaultExtra.value['2_8_island'].island_name,
   set: (v) => {
-    parseredExtra.value['2_8_island'].island_name = v
-    parseredExtra.value['2_8_island'].island_state = []
+    withDefaultExtra.value['2_8_island'].island_name = v
+    withDefaultExtra.value['2_8_island'].island_state = []
   },
 })
 
@@ -75,29 +72,29 @@ const undergroundConfig = computed(() => {
 /** 地下区域 */
 const undergroundRegion = computed({
   get: () => {
-    const { region_name = '', region_levels: [region_level] = [] as string[] } = parseredExtra.value.underground
+    const { region_name = '', region_levels: [region_level] = [] as string[] } = withDefaultExtra.value.underground
     return [region_name, region_level].filter(Boolean)
   },
   set: (v) => {
     const [region_name, region_level] = v
-    parseredExtra.value.underground.region_name = region_name
-    parseredExtra.value.underground.region_levels = region_level ? [region_level] : undefined
+    withDefaultExtra.value.underground.region_name = region_name
+    withDefaultExtra.value.underground.region_levels = region_level ? [region_level] : undefined
   },
 })
 
 /** 是否为地下 */
 const isUnderground = computed({
-  get: () => parseredExtra.value.underground.is_underground,
+  get: () => withDefaultExtra.value.underground.is_underground,
   set: (v) => {
     if (!v) {
-      delete parseredExtra.value.underground.is_underground
-      delete parseredExtra.value.underground.model_id
-      delete parseredExtra.value.underground.region_name
-      delete parseredExtra.value.underground.region_levels
+      delete withDefaultExtra.value.underground.is_underground
+      delete withDefaultExtra.value.underground.model_id
+      delete withDefaultExtra.value.underground.region_name
+      delete withDefaultExtra.value.underground.region_levels
       return
     }
-    parseredExtra.value.underground.is_underground = true
-    parseredExtra.value.underground.model_id = undergroundConfig.value.modelId
+    withDefaultExtra.value.underground.is_underground = true
+    withDefaultExtra.value.underground.model_id = undergroundConfig.value.modelId
   },
 })
 </script>
@@ -107,7 +104,7 @@ const isUnderground = computed({
     <template v-if="is28AppleIsland">
       <el-select-v2 v-model="isLandName" style="width:100px" :options="islandOptions" />
       <el-select-v2
-        v-model="parseredExtra['2_8_island'].island_state"
+        v-model="withDefaultExtra['2_8_island'].island_state"
         :disabled="!islandChildrenOptions.length"
         :options="islandChildrenOptions"
         class="flex-1"

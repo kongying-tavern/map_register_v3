@@ -49,13 +49,13 @@ declare namespace API {
     /** 路线描述 */
     content?: string;
     /** 点位顺序数组 */
-    markerList?: string;
+    markerList?: Record<string, any>[];
     /** 显隐等级 */
     hiddenFlag?: number;
     /** 视频地址 */
     video?: string;
     /** 额外信息 */
-    extra?: string;
+    extra?: Record<string, any>;
     /** 创建人昵称 */
     creatorNickname?: string;
   };
@@ -82,7 +82,7 @@ declare namespace API {
     /** 点位说明 */
     content?: string;
     /** 额外特殊字段 */
-    extra?: string;
+    extra?: Record<string, any>;
     /** 点位图片 */
     picture?: string;
     /** 点位初始标记者 */
@@ -146,7 +146,7 @@ declare namespace API {
     /** 隐藏标志 */
     hiddenFlag?: number;
     /** 额外特殊字段 */
-    extra?: string;
+    extra?: Record<string, any>;
   };
 
   type ItemTypeVo = {

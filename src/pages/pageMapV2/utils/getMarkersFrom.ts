@@ -1,10 +1,10 @@
 import { IconLayer } from '@deck.gl/layers/typed'
-import type { GenshinBaseLayer, MarkerWithExtra } from '../core'
+import type { GenshinBaseLayer } from '../core'
 import { useCondition } from '@/pages/pageMapV2/hooks'
 import { useArchiveStore } from '@/stores'
 
 /** 点位渲染属性 */
-export const getMarkersFrom = (target: GenshinBaseLayer): IconLayer<MarkerWithExtra> => {
+export const getMarkersFrom = (target: GenshinBaseLayer): IconLayer<API.MarkerVo> => {
   const { center } = target.rawProps
   const conditionManager = useCondition()
   const { stateManager } = target.context.deck
@@ -43,7 +43,7 @@ export const getMarkersFrom = (target: GenshinBaseLayer): IconLayer<MarkerWithEx
       const isMarked = archiveStore.currentArchive.body.Data_KYJG.has(marker.id as number)
       const state = isMarked ? 'marked' : getMarkerState(marker.id)
       const validItemId = findValidItemId(marker.itemList)
-      return `${validItemId}${marker.extraObject.underground?.is_underground ? '_ug' : ''}_${state}`
+      return `${validItemId}${marker.extra?.underground?.is_underground ? '_ug' : ''}_${state}`
     },
     getSize: 40,
     sizeScale: 1,

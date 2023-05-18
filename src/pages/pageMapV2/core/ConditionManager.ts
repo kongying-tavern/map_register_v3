@@ -1,9 +1,8 @@
 import { IconManager } from './IconManager'
-import type { MarkerWithExtra } from '.'
 import db from '@/database'
 import { useMap } from '@/pages/pageMapV2/hooks'
 import { LAYER_CONFIGS } from '@/pages/pageMapV2/config'
-import { ExtraJSON, Logger } from '@/utils'
+import { Logger } from '@/utils'
 import { localSettings } from '@/stores'
 
 export interface Condition {
@@ -98,7 +97,7 @@ export class ConditionManager extends IconManager {
   })
 
   /** 图层与点位映射表 */
-  #layerMarkerMap = ref<Record<string, MarkerWithExtra[]>>({})
+  #layerMarkerMap = ref<Record<string, API.MarkerVo[]>>({})
   get layerMarkerMap() { return this.#layerMarkerMap.value }
 
   /** 条件列表 */
@@ -134,7 +133,6 @@ export class ConditionManager extends IconManager {
     })
     const markers = (await db.marker.where('itemIdList').anyOf(itemIdsInThisLayer).toArray()).map(marker => ({
       ...marker,
-      extraObject: ExtraJSON.parse(marker.extra ?? '{}'),
     }))
     this.#layerMarkerMap.value[code] = markers
   }))

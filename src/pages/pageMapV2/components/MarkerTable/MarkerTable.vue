@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import type { Column } from 'element-plus'
 import { FixedDir } from 'element-plus/es/components/table-v2/src/constants'
-import type { MarkerWithExtra } from '../../core'
 import { useCurrentLayerMarkers } from '@/pages/pageMapV2/hooks'
 
 const tableContainerRef = ref<HTMLElement | null>()
@@ -9,7 +8,7 @@ const { width, height } = useElementSize(tableContainerRef)
 
 const { markers } = useCurrentLayerMarkers()
 
-const columns = ref<Column<MarkerWithExtra>[]>([
+const columns = ref<Column<API.MarkerVo>[]>([
   { title: '名称', dataKey: 'markerTitle', width: 100, fixed: FixedDir.LEFT },
   { title: 'id', dataKey: 'id', width: 80 },
   { title: '说明', dataKey: 'content', width: 200 },

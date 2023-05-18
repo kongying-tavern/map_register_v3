@@ -1,9 +1,8 @@
 <script lang="ts" setup>
-import type { MarkerWithExtra } from '../core'
 import { useMap } from '../hooks'
 
 defineProps<{
-  marker?: MarkerWithExtra | null
+  marker?: API.MarkerVo | null
 }>()
 
 const { map } = useMap()
