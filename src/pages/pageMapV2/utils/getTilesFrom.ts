@@ -1,6 +1,5 @@
 import { BitmapLayer } from '@deck.gl/layers/typed'
 import { TileLayer } from '@deck.gl/geo-layers/typed'
-import type { NonGeoBoundingBox } from '@deck.gl/geo-layers/typed'
 import type { GenshinBaseLayer } from '../core'
 
 export const getTilesFrom = (target: GenshinBaseLayer): TileLayer => new TileLayer({
@@ -15,19 +14,29 @@ export const getTilesFrom = (target: GenshinBaseLayer): TileLayer => new TileLay
   maxRequests: 1,
   extent: target.rawProps.bounds,
   opacity: target.context.deck.stateManager.get('showOverlay') ? 0.3 : 1,
-  getTileData: ({ index: { x, y, z }, signal }) => {
-    if (signal?.aborted)
+  getTileData: async ({ index: { x, y, z }, signal }) => {
+    try {
+      if (signal?.aborted)
+        return null
+      const url = `${import.meta.env.VITE_ASSETS_BASE}/tiles_${target.rawProps.code}/${z + 13}/${x}_${y}.${target.rawProps.extension}`
+      const blob = await fetch(url, { mode: 'cors' }).then(res => res.blob())
+      const image = await createImageBitmap(blob)
+      return {
+        byteLength: blob.size,
+        image,
+      }
+    }
+    catch {
       return null
-    const url = `${import.meta.env.VITE_ASSETS_BASE}/tiles_${target.rawProps.code}/${z + 13}/${x}_${y}.${target.rawProps.extension}`
-    return fetch(url, { mode: 'cors' }).then(res => res.blob()).then(blob => createImageBitmap(blob))
+    }
   },
   renderSubLayers: (subProps) => {
-    const { left, bottom, right, top } = subProps.tile.bbox as NonGeoBoundingBox
+    const [[xmin, ymin], [xmax, ymax]] = subProps.tile.boundingBox
     return new BitmapLayer(subProps, {
       // 通过自定义 getTileData 函数获取图片，不需要 data 字段，必须明确指定为空
       data: undefined,
-      image: subProps.data,
-      bounds: [left, bottom, right, top],
+      image: subProps.data.image,
+      bounds: [xmin, ymax, xmax, ymin],
     })
   },
 })
