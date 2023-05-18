@@ -183,7 +183,7 @@ const clipImage = () => {
       return
     }
     internalBind.value = blob
-  })
+  }, 'image/webp')
 }
 
 // 切换图片时重置缩放和中心点

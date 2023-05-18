@@ -87,11 +87,14 @@ const tryLoadImage = (url: string) => fetch(url, { mode: 'cors' })
   .then(res => res.blob())
   .catch(() => null)
 
+const preloadLoading = ref(false)
+
 /** 当加载原始图片时 */
 onMounted(async () => {
   if (!props.modelValue)
     return
   try {
+    preloadLoading.value = true
     const { basename, extname, folderPath, urlObj } = parseredUrlInfo.value
     // 加载原始缩略图
     const thumbImageBlob = await tryLoadImage(props.modelValue)
@@ -104,6 +107,9 @@ onMounted(async () => {
   catch (err) {
     // 大图加载错误就无法编辑原图，只能上传新的来替换，这里不需要做别的处理
     logger.error(err)
+  }
+  finally {
+    preloadLoading.value = false
   }
 })
 
@@ -159,7 +165,14 @@ defineExpose({
       </el-progress>
     </div>
 
-    <el-button :icon="Setting" :type="isAddonActived ? 'primary' : ''" title="编辑图像" circle @click="isAddonActived = !isAddonActived" />
+    <el-button
+      :icon="Setting"
+      :type="isAddonActived ? 'primary' : ''"
+      :loading="preloadLoading"
+      title="编辑图像"
+      circle
+      @click="isAddonActived = !isAddonActived"
+    />
 
     <AddonTeleporter :active="isAddonActived">
       <AddonImageEditorEP v-model:thumbnail-image="thumbnailImage" :image-bit-map="rawImageBitmap" />
