@@ -1,9 +1,10 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { DeckProps, LayersList, OrbitViewState, PickingInfo } from '@deck.gl/core/typed'
 import { Deck, OrthographicView, TRANSITION_EVENTS } from '@deck.gl/core/typed'
 import type { ViewStateChangeParameters } from '@deck.gl/core/typed/controllers/controller'
 import { clamp } from 'lodash'
 import { MAP_FONTFAMILY } from '../shared'
+import type { GenshinMapState } from '../hooks'
+import { getDefaultMapState } from '../hooks'
 import { EventBus, GenshinBaseLayer, StateManager } from '.'
 import genshinFont from '@/style/fonts/genshinFont.woff2?url'
 
@@ -41,16 +42,6 @@ export interface GenshinMapEvents extends Record<string, unknown[]> {
 }
 
 export type Coordinate2D = [number, number]
-
-export interface GenshinMapState {
-  hover: any
-  active: any
-  focus: any
-  showBorder: boolean
-  showTooltip: boolean
-  showTags: boolean
-  showOverlay: boolean
-}
 
 interface ChromeFontFaceSet extends FontFaceSet {
   add: Set<FontFace>['add']
@@ -114,15 +105,7 @@ export class GenshinMap extends Deck {
   get event() { return this.#eventBus }
 
   get stateManager() { return this.#stateManager }
-  #stateManager = new StateManager<GenshinMap, GenshinMapState>(this, {
-    hover: null,
-    active: null,
-    focus: null,
-    showTags: true,
-    showOverlay: false,
-    showBorder: false,
-    showTooltip: false,
-  })
+  #stateManager = new StateManager<GenshinMap, GenshinMapState>(this, getDefaultMapState())
 
   #handleViewStateChange = ({ viewState, oldViewState = {}, ...rest }: ViewStateChangeParameters & { viewId: string }) => {
     const newState = viewState as GensinMapViewState

@@ -1,5 +1,4 @@
 import type { Ref } from 'vue'
-import type { GenshinMapState } from '@/pages/pageMapV2/core'
 import { GenshinMap } from '@/pages/pageMapV2/core'
 import { Logger } from '@/utils'
 import { useArchiveStore } from '@/stores'
@@ -10,19 +9,6 @@ export type MapReadyCallbackFunction = (map: GenshinMap) => void
 const logger = new Logger('[MapV2]')
 
 const map = shallowRef<GenshinMap>()
-
-const useGenshinMapStateRef = <K extends keyof GenshinMapState>(key: K, defaluValue: GenshinMapState[K]) => computed({
-  get: () => map.value?.stateManager.get(key) ?? defaluValue,
-  set: (v) => {
-    map.value?.stateManager.set(key, v)
-    triggerRef(map)
-  },
-})
-
-const showBorder = useGenshinMapStateRef('showBorder', false)
-const showTag = useGenshinMapStateRef('showTags', true)
-const showTooltip = useGenshinMapStateRef('showTooltip', false)
-const showOverlay = useGenshinMapStateRef('showOverlay', false)
 
 /** 在地图初始化前临时存储回调函数 */
 const tempCallbackSet = shallowRef(new Set<MapReadyCallbackFunction>())
@@ -41,10 +27,6 @@ export const useMap = (canvasRef?: Ref<HTMLCanvasElement | null>) => {
       return
 
     const newMap = await GenshinMap.create({ canvas: canvasRef.value })
-    // 注册状态副作用
-    Object.keys(newMap.stateManager.state).forEach((property) => {
-      newMap.stateManager.registerEffect(property as keyof GenshinMapState, target => target.baseLayer?.forceUpdate())
-    })
 
     // 设置底图
     await newMap.ready
@@ -64,5 +46,5 @@ export const useMap = (canvasRef?: Ref<HTMLCanvasElement | null>) => {
 
   canvasRef && onMounted(initMap)
 
-  return { map, showBorder, showTag, showTooltip, showOverlay, onMapReady }
+  return { map, onMapReady }
 }

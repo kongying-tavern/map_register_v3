@@ -1,10 +1,11 @@
 <script lang="ts" setup>
-import { useMap, useMarkerDrawer } from './hooks'
+import { useMap, useMapState, useMarkerDrawer } from './hooks'
 import { CollapseButton, MapAffix, MapOverlay, MapSiderMenu, MarkerDrawer, MarkerFocusIcon } from './components'
 import { GSSwitch } from '@/components'
 
 const canvasRef = ref<HTMLCanvasElement | null>(null)
-const { map, showTag, showOverlay, showBorder, showTooltip } = useMap(canvasRef)
+const { map } = useMap(canvasRef)
+const { showTag, showOverlay, showBorder, showTooltip } = useMapState(true)
 
 const collapse = ref(true)
 useEventListener('keypress', (ev) => {
