@@ -1,8 +1,8 @@
 {
   "name": "map-register-v3",
-  "version": "0.0.1",
-  "description": "地图后台",
-  "productName": "空荧酒馆地图点位标记系统",
+  "version": "0.2.0",
+  "description": "空荧酒馆原神地图点位后台（点位标记系统）",
+  "productName": "空荧后厨",
   "author": "Alex Fang <deeno@qq.com>",
   "private": true,
   "scripts": {
@@ -54,8 +54,9 @@
     "vite": "^4.3.7"
   },
   "engines": {
-    "node": "^18 || ^16 || ^14.19",
-    "npm": ">= 6.13.4",
-    "yarn": ">= 1.21.1"
+    "node": "^18",
+    "npm": "^8",
+    "yarn": "^1",
+    "pnpm": "^8"
   }
 }
