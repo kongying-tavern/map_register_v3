@@ -17,6 +17,11 @@ const rolesSort = ({ sort: sortA = 0 }: API.SysRoleVo, { sort: sortB = 0 }: API.
 const lastUpdateTime = ref<number | undefined>()
 /** 公共角色列表 */
 const publicRoleList = ref<API.SysRoleVo[]>([])
+/** 公共角色逆映射表 */
+const publicRoleMap = computed(() => publicRoleList.value.reduce((seed, role) => {
+  seed[role.id as number] = role
+  return seed
+}, {} as Record<number, API.SysRoleVo>))
 /** 公共角色列表（已排序） */
 const publicSortedRoles = computed(() => publicRoleList.value.sort(rolesSort))
 /** 提供给 el-select 的格式化选项列表 */
@@ -66,5 +71,5 @@ export const useRoleOptions = (options: RoleHookOptions = {}) => {
 
   immediate && refresh()
 
-  return { roleOptions, selectOptions, roleValueMap, loading, refresh, rolesSort }
+  return { roleOptions, roleMap: publicRoleMap, selectOptions, roleValueMap, loading, refresh, rolesSort }
 }

@@ -2,36 +2,28 @@
 import { useRoleOptions } from '../hooks'
 
 const props = withDefaults(defineProps<{
-  modelValue: API.SysRoleVo[] | API.SysRoleVo
+  modelValue?: number
   editMode?: boolean
 }>(), {
-  modelValue: () => [],
   editMode: false,
 })
 const emits = defineEmits<{
-  (e: 'update:modelValue', v: API.SysRoleVo[]): void
+  (e: 'update:modelValue', v?: number): void
   (e: 'active'): void
 }>()
 
-const { roleOptions, selectOptions } = useRoleOptions({
+const { roleMap, selectOptions } = useRoleOptions({
   publicMode: true,
 })
 
+const role = computed(() => props.modelValue === undefined ? undefined : roleMap.value[props.modelValue])
+
 const internalValue = computed({
-  get: () => Array.isArray(props.modelValue) ? props.modelValue[0]?.id : props.modelValue?.id,
+  get: () => props.modelValue,
   set: (roleId) => {
-    const role = roleOptions.value.find(role => role.id === roleId)
-    if (!role) {
-      emits('update:modelValue', [])
-      return
-    }
-    emits('update:modelValue', [role])
+    emits('update:modelValue', roleId)
   },
 })
-
-const requestEdit = () => {
-  emits('active')
-}
 </script>
 
 <template>
@@ -46,9 +38,9 @@ const requestEdit = () => {
       clearable
       collapse-tags
     />
-    <div v-else class="flex" @click.stop="requestEdit">
-      <el-tag v-if="internalValue !== undefined" disable-transitions>
-        {{ Array.isArray(props.modelValue) ? props.modelValue[0]?.name : props.modelValue?.name }}
+    <div v-else class="flex" @click.stop="$emit('active')">
+      <el-tag disable-transitions :type="role ? 'default' : 'danger'">
+        {{ role?.name ?? '角色信息丢失' }}
       </el-tag>
     </div>
   </div>

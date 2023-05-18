@@ -99,9 +99,9 @@ const { height } = useElementSize(tableRef)
           </template>
         </el-table-column>
 
-        <el-table-column label="角色" prop="roleList" :width="230">
+        <el-table-column label="角色" prop="roleId" :width="230">
           <template #default="{ $index }">
-            <UserRoleTag v-model="userList[$index].roleList" :edit-mode="isEditable($index)" @active="() => activeEdit($index)" />
+            <UserRoleTag v-model="userList[$index].roleId" :edit-mode="isEditable($index)" @active="() => activeEdit($index)" />
           </template>
         </el-table-column>
 
