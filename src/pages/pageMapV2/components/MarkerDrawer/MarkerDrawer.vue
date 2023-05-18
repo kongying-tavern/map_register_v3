@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { DeleteFilled, Edit, LocationFilled } from '@element-plus/icons-vue'
+import { CloseBold, DeleteFilled, Edit, LocationFilled, Select } from '@element-plus/icons-vue'
 import { MarkerStateSwitch } from '.'
 import { GSButton } from '@/components'
 import { useArchiveStore } from '@/stores'
@@ -99,7 +99,16 @@ const isMarked = computed({
             </div>
 
             <div class="flex items-center gap-2 py-2">
-              <MarkerStateSwitch v-model="isMarked" />
+              <MarkerStateSwitch v-model="isMarked">
+                <div class="flex justify-center items-center p-1">
+                  <el-icon class="rounded-full border border-red-500">
+                    <component :is="isMarked ? Select : CloseBold" />
+                  </el-icon>
+                  <div class="flex-1">
+                    {{ isMarked ? '已完成' : '未完成' }}
+                  </div>
+                </div>
+              </MarkerStateSwitch>
             </div>
 
             <div v-markeable class="flex items-center gap-4">
