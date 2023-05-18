@@ -2,6 +2,7 @@ import { IconLayer } from '@deck.gl/layers/typed'
 import type { GenshinBaseLayer } from '../core'
 import { useCondition } from '@/pages/pageMapV2/hooks'
 import { useArchiveStore } from '@/stores'
+import { isMarkerVo } from '@/utils'
 
 /** 点位渲染属性 */
 export const getMarkersFrom = (target: GenshinBaseLayer): IconLayer<API.MarkerVo> => {
@@ -22,13 +23,13 @@ export const getMarkersFrom = (target: GenshinBaseLayer): IconLayer<API.MarkerVo
 
   const getMarkerState = (id?: number) => {
     const { hover, active, focus } = stateManager.state
-    return id === focus?.id
-      ? 'focus'
-      : id === active?.id
-        ? 'active'
-        : id === hover?.id
-          ? 'hover'
-          : 'default'
+    if (isMarkerVo(focus) && id === focus.id)
+      return 'focus'
+    if (isMarkerVo(active) && id === active.id)
+      return 'active'
+    if (isMarkerVo(hover) && id === hover.id)
+      return 'hover'
+    return 'default'
   }
 
   return new IconLayer({
