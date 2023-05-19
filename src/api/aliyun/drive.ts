@@ -11,8 +11,8 @@ export async function token(options: AxiosRequestConfig = {}) {
     },
     data: {
       otp_code: '',
-      username: 'upload',
-      password: 'kyjg666',
+      username: import.meta.env.VITE_IMG_SERVER_USERNAME,
+      password: import.meta.env.VITE_IMG_SERVER_PASSWORD,
     },
     ...options,
   })
