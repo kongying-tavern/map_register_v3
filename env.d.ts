@@ -46,6 +46,18 @@ interface ImportMetaEnv {
 
   /** 开发模式 */
   readonly VITE_DEVELOPMENT_MODE: 'default' | 'offline'
+
+  /** API前置账号 */
+  readonly VITE_API_AUTH_USERNAME: string
+
+  /** API前置口令 */
+  readonly VITE_API_AUTH_PASSWORD: string
+
+  /** 图床前置账号 */
+  readonly VITE_IMG_SERVER_USERNAME: string
+
+  /** 图床前置口令 */
+  readonly VITE_IMG_SERVER_PASSWORD: string
 }
 
 interface ImportMeta {

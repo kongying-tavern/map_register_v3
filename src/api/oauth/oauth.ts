@@ -17,8 +17,8 @@ export async function token(
     },
     data: form,
     auth: {
-      username: 'client',
-      password: 'secret',
+      username: import.meta.env.VITE_API_AUTH_USERNAME,
+      password: import.meta.env.VITE_API_AUTH_PASSWORD,
     },
     ...(options || {}),
   })
@@ -34,8 +34,8 @@ export async function refresh(header: API.SysRefreshVO) {
       'Content-Type': 'application/json;charset=UTF-8',
     },
     auth: {
-      username: 'client',
-      password: 'secret',
+      username: import.meta.env.VITE_API_AUTH_USERNAME,
+      password: import.meta.env.VITE_API_AUTH_PASSWORD,
     },
   })
 }

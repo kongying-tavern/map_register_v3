@@ -11,6 +11,14 @@ export default defineConfig(({ mode }) => {
   // eslint-disable-next-line no-console
   console.log('[ENV]', ENV)
 
+  if ([
+    ENV.VITE_API_AUTH_USERNAME,
+    ENV.VITE_API_AUTH_PASSWORD,
+    ENV.VITE_IMG_SERVER_USERNAME,
+    ENV.VITE_IMG_SERVER_PASSWORD,
+  ].some(token => !token))
+    throw new Error('所需的前置开发信息缺失，请查看Apifox或联系管理员获取')
+
   const proxy: Record<string, string | ProxyOptions> = {
     [ENV.VITE_API_BASE]: {
       target: ENV.VITE_API_PROXY_TARGET,
