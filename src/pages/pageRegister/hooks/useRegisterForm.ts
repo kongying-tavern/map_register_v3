@@ -1,9 +1,9 @@
 import { reactive, ref } from 'vue'
 import type { FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
-import { messageFrom } from '@/utils'
 import type { ElFormType } from '@/shared'
 import Api from '@/api/api'
+import { useFetchHook } from '@/hooks'
 
 /** 登录逻辑封装 */
 export const useRegisterForm = () => {
@@ -14,64 +14,39 @@ export const useRegisterForm = () => {
     password: '',
   })
 
+  watch(registerForm, () => {
+    for (const key in registerForm) {
+      const raw = registerForm[key as keyof API.SysUserRegisterVo] ?? ''
+      registerForm[key as keyof API.SysUserRegisterVo] = raw.replace(/\s+/g, '')
+    }
+  }, { deep: true })
+
   const rules: FormRules = {
     username: [
       { required: true, message: 'QQ号不能为空' },
-      { message: 'Q号格式有误', validator: (_, value = '') => /^\d+$/.test((registerForm.username = value.trim())) },
+      { message: 'Q号格式有误', validator: (_, v = '') => /^\d+$/.test(v) },
     ],
     password: [
       { required: true, message: '密码不能为空' },
-      { message: '密码最短需要6位数', validator: (_, value = '') => (registerForm.password = value.trim()).length >= 6 },
+      { message: '密码最短需要6位数', validator: (_, v = '') => v.length >= 6 },
     ],
   }
 
-  const loading = ref(false)
-
-  const register = async () => {
-    if (!formRef.value)
-      return
-    try {
-      loading.value = true
+  const { refresh: register, onSuccess, ...rest } = useFetchHook({
+    onRequest: async () => {
+      if (!formRef.value)
+        throw new Error('表单实例为空')
       const isValid = await formRef.value.validate().catch(() => false)
       if (!isValid)
-        return
+        throw new Error('数据校验失败')
       await Api.sysUserController.registerUserByQQ(registerForm)
-      ElMessage.success({
-        message: '注册成功',
-        duration: 1000,
-      })
-    }
-    catch (err) {
-      ElMessage.error(messageFrom(err))
-    }
-    finally {
-      loading.value = false
-    }
-  }
+    },
+  })
 
-  const registerByQQ = async () => {
-    if (!formRef.value)
-      return
-    try {
-      loading.value = true
-      const isValid = await formRef.value.validate().catch(() => false)
-      if (!isValid)
-        return
-      await Api.sysUserController.registerUserByQQ(registerForm, {
-        auth: { username: 'client', password: 'secret' },
-      })
-      ElMessage.success({
-        message: '注册成功',
-        duration: 1000,
-      })
-    }
-    catch (err) {
-      ElMessage.error(messageFrom(err))
-    }
-    finally {
-      loading.value = false
-    }
-  }
+  onSuccess(() => ElMessage.success({
+    message: '注册成功',
+    duration: 1000,
+  }))
 
-  return { formRef, rules, registerForm, loading, register, registerByQQ }
+  return { formRef, rules, registerForm, register, onSuccess, ...rest }
 }

@@ -2,9 +2,9 @@ import { reactive, ref } from 'vue'
 import type { FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
-import { messageFrom } from '@/utils'
 import { useUserStore } from '@/stores'
 import type { ElFormType } from '@/shared'
+import { useFetchHook } from '@/hooks'
 
 /** 登录逻辑封装 */
 export const useLoginForm = () => {
@@ -25,33 +25,27 @@ export const useLoginForm = () => {
     ],
   }
 
-  const loading = ref(false)
-
   const router = useRouter()
   const userStore = useUserStore()
 
-  const login = async () => {
-    if (!formRef.value)
-      return
-    try {
-      loading.value = true
+  const { refresh: login, onSuccess, ...rest } = useFetchHook({
+    onRequest: async () => {
+      if (!formRef.value)
+        throw new Error('表单实例为空')
       const isValid = await formRef.value.validate().catch(() => false)
       if (!isValid)
-        return
+        throw new Error('数据校验失败')
       await userStore.login(loginForm)
-      ElMessage.success({
-        message: '登录成功',
-        duration: 1000,
-      })
-      await router.push('/')
-    }
-    catch (err) {
-      ElMessage.error(messageFrom(err))
-    }
-    finally {
-      loading.value = false
-    }
-  }
+    },
+  })
 
-  return { formRef, rules, loginForm, loading, login }
+  onSuccess(() => {
+    ElMessage.success({
+      message: '登录成功',
+      duration: 1000,
+    })
+    router.push('/')
+  })
+
+  return { formRef, rules, loginForm, login, ...rest }
 }
