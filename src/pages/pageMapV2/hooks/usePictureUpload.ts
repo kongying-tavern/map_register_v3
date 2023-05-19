@@ -70,6 +70,8 @@ export const usePictureUpload = (options: PictureUploadHookOptions) => {
       const lastModified = today.valueOf()
       const thumbnailFilename = `${filename}.jpg`
       const rawFilename = `${filename}_large.jpg`
+      // 添加 url 附加参数，后处理方法判断 picture 是否已经变更
+      const urlParams = new URLSearchParams()
 
       if (!isThumbUploaded.value || !isRawUploaded.value) {
         resetState()
@@ -87,6 +89,7 @@ export const usePictureUpload = (options: PictureUploadHookOptions) => {
         if (c2 !== 200)
           throw new Error(m2)
         isThumbUploaded.value = true
+        urlParams.set('timestamp', `${lastModified}`)
       }
 
       // 上传大图
@@ -104,16 +107,11 @@ export const usePictureUpload = (options: PictureUploadHookOptions) => {
 
       onPictureChanged?.()
 
-      // 添加 url 附加参数，后处理方法判断 picture 是否已经变更
-      const urlParams = new URLSearchParams()
-      urlParams.set('timestamp', `${lastModified}`)
-      const stringUrlParams = urlParams.toString()
-
       stepContent.value = '完成'
 
       // 返回缩略图的地址
       const urlPrefix = `${import.meta.env.VITE_ALIYUN_IMAGE_BASE}/${import.meta.env.VITE_ALIYUN_MARKER_FOLDER}`
-      return `${urlPrefix}/${date}/${thumbnailFilename}?${stringUrlParams}`
+      return `${urlPrefix}/${date}/${thumbnailFilename}${isThumbUploaded.value ? `?${urlParams.toString()}` : ''}`
     }
     catch (err) {
       logger.error(err)
