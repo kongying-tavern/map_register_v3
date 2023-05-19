@@ -63,7 +63,8 @@ export const useUserStore = defineStore('user-info', {
   getters: {
     /** 是否显示加载面板 */
     showLoadingPanel: (state) => {
-      return state.isHandling || state.isRouteLoading || !state.isRouteAnimationEnd
+      const route = useRoute()
+      return route.meta.preload && (state.isHandling || state.isRouteLoading || !state.isRouteAnimationEnd)
     },
     /** TODO: 等后端返回改为单角色后就不需要这个了 */
     role: (state) => {
@@ -189,7 +190,6 @@ export const useUserStore = defineStore('user-info', {
     async login(loginForm: API.SysTokenVO) {
       const auth = await Oauth.oauth.token(loginForm)
       this.setAuth(auth)
-      this.preloadMission()
     },
     /** 更新用户信息 */
     async updateUserInfo() {
@@ -208,7 +208,6 @@ export const useUserStore = defineStore('user-info', {
     async preloadMission() {
       if (!this.validateUserToken() || this.isHandling || this.isOfflineMode)
         return
-      this.isRouteLoading = true
       this.isHandling = true
       try {
         await Promise.allSettled([

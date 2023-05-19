@@ -27,7 +27,7 @@ const userStore = useUserStore()
   >
     <router-view v-slot="{ Component }">
       <Transition name="fade" mode="out-in" appear>
-        <keep-alive>
+        <keep-alive :exclude="['PageLogin', 'PageRegister']">
           <component :is="userStore.showLoadingPanel ? AppLoadingPanel : Component" />
         </keep-alive>
       </Transition>

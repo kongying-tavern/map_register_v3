@@ -18,10 +18,10 @@ export const useLoginForm = () => {
 
   const rules: FormRules = {
     username: [
-      { required: true, message: '用户名不能为空', validator: (_, value = '') => (loginForm.username = value.trim()).length > 0 },
+      { required: true, trigger: 'change', message: '用户名不能为空', validator: (_, value = '') => (loginForm.username = value.trim()).length > 0 },
     ],
     password: [
-      { required: true, message: '密码不能为空', validator: (_, value = '') => (loginForm.password = value.trim()).length > 0 },
+      { required: true, trigger: 'change', message: '密码不能为空', validator: (_, value = '') => (loginForm.password = value.trim()).length > 0 },
     ],
   }
 
@@ -47,5 +47,5 @@ export const useLoginForm = () => {
     router.push('/')
   })
 
-  return { formRef, rules, loginForm, login, ...rest }
+  return { formRef, rules, loginForm, login, onSuccess, ...rest }
 }

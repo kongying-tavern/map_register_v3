@@ -1,4 +1,5 @@
 export * from './useAreaList'
+export * from './useCountDown'
 export * from './useBanner'
 export * from './useGlobalDrawer'
 export * from './useFetch'

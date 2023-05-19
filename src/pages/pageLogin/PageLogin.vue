@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useLoginForm } from './hooks'
+import { useCountDown } from '@/hooks'
 
 const title = import.meta.env.VITE_TITLE
 const { formRef, rules, loginForm, loading, login } = useLoginForm()
@@ -7,6 +8,17 @@ const { formRef, rules, loginForm, loading, login } = useLoginForm()
 const activeName = ref('basic')
 
 const isOfflineMode = import.meta.env.VITE_DEVELOPMENT_MODE === 'offline'
+
+const router = useRouter()
+
+const { count, set: setCount } = useCountDown()
+
+const trigger = async () => {
+  if (count.value > 0)
+    return
+  await login()
+  setCount(2)
+}
 </script>
 
 <template>
@@ -37,11 +49,11 @@ const isOfflineMode = import.meta.env.VITE_DEVELOPMENT_MODE === 'offline'
               </el-form-item>
             </el-form>
             <div class="flex">
-              <el-button v-if="isOfflineMode" class="w-full" size="large" @click="$router.push('/')">
+              <el-button v-if="isOfflineMode" class="w-full" size="large" @click="() => router.push('/')">
                 离线 (仅开发可用)
               </el-button>
-              <el-button type="primary" class="w-full" size="large" :loading="loading" @click="login">
-                登录
+              <el-button type="primary" class="w-full" size="large" :disabled="count > 0" :loading="loading" @click="trigger">
+                登录 {{ count > 0 ? `(${count}s)` : '' }}
               </el-button>
             </div>
           </el-tab-pane>

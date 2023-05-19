@@ -13,21 +13,25 @@ export const beforeEachGuard = (
   return (to, from, next) => {
     logger.info(`"${from.path}" => "${to.path}"`)
 
-    // 离线模式下不进行路由前置守卫
-    if (import.meta.env.VITE_DEVELOPMENT_MODE === 'offline')
-      return next(true)
+    const isOfflineMode = import.meta.env.VITE_DEVELOPMENT_MODE === 'offline'
 
     const userStore = useUserStore()
 
+    const go = () => {
+      userStore.isRouteLoading = true
+      next(true)
+    }
+
+    // 离线模式下不进行路由前置守卫
+    if (isOfflineMode)
+      return next(true)
+
     const isTokenValid = userStore.validateUserToken()
-    isTokenValid && userStore.createRefreshTimer()
 
     if (isInWhiteList(to)) {
       // 如果用户已登录，但手动导航到部分页面，则重定向到地图页
-      return isTokenValid ? next('/') : next(true)
+      return isTokenValid ? next('/') : go()
     }
-
-    const routes = router.getRoutes()
 
     if (!isTokenValid) {
       ElMessage.error('用户凭证无效')
@@ -35,7 +39,7 @@ export const beforeEachGuard = (
       return next(false)
     }
 
-    const isRouteExist = routes.find(route => route.path === to.path)
+    const isRouteExist = router.getRoutes().find(route => route.path === to.path)
     if (!isRouteExist) {
       ElMessage.error('目标路由不存在')
       return next(false)
@@ -46,13 +50,10 @@ export const beforeEachGuard = (
       return next(false)
     }
 
-    // 当本地存储的 id 不存在时（用于应对刷新）或与鉴权信息不一致时（用于应对直接输入登录地址的跳转）更新用户信息
-    if (!userStore.info.id || userStore.info.id !== userStore.auth.userId)
-      userStore.updateUserInfo()
+    go()
 
-    // 只在进出地图页面时进行预加载任务
-    if (from.meta.preload || to.meta.preload)
-      userStore.preloadMission()
-    return next(true)
+    to.meta.preload && userStore.preloadMission()
+    userStore.createRefreshTimer()
+    ;(!userStore.info.id || userStore.info.id !== userStore.auth.userId) && userStore.updateUserInfo()
   }
 }

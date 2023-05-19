@@ -1,13 +1,20 @@
 <script setup lang="ts">
 import { useRegisterForm } from './hooks'
+import { useCountDown } from '@/hooks'
 
 const title = import.meta.env.VITE_TITLE
 const { formRef, rules, registerForm, loading, register } = useRegisterForm()
 
 const activeName = ref('basic')
 
-const router = useRouter()
-router.replace('/register')
+const { count, set: setCount } = useCountDown()
+
+const trigger = async () => {
+  if (count.value > 0)
+    return
+  await register()
+  setCount(2)
+}
 </script>
 
 <template>
@@ -37,8 +44,8 @@ router.replace('/register')
                 <el-input v-model="registerForm.password" placeholder="请输入密码" type="password" show-password />
               </el-form-item>
             </el-form>
-            <el-button type="primary" class="w-full" size="large" :loading="loading" @click="register">
-              注册
+            <el-button type="primary" class="w-full" size="large" :disabled="count > 0" :loading="loading" @click="trigger">
+              注册 {{ count > 0 ? `(${count}s)` : '' }}
             </el-button>
           </el-tab-pane>
         </el-tabs>
