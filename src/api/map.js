@@ -110,6 +110,16 @@ const map_tiles_config = {
     center: [3568, 6286],
     size: [8192, 8192],
   },
+  "A:VELURIYAM:3_8": {
+    extend: "A:APPLE:2_8",
+    name: "流形蜃境",
+    code: "lxsj",
+    settings: {
+      center: [500, -150],
+      zoom: -3,
+    },
+    size: [12288, 12288],
+  },
   "A:APPLE:1_6": {
     extend: "金苹果-base0",
     name: "金苹果群岛(1.6)",
