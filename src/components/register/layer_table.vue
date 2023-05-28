@@ -32,7 +32,27 @@
               color="primary"
             >
               <template #prepend>
-                <q-icon name="search" />
+                <q-fab
+                  padding="none"
+                  flat
+                  unelevated
+                  color="primary"
+                  :icon="filter_icon"
+                  active-icon="camera"
+                  direction="down"
+                  vertical-actions-align="left"
+                >
+                  <q-fab-action
+                    v-for="(filter_option, filter_index) in filter_options"
+                    :key="filter_index"
+                    padding="xs"
+                    external-label
+                    color="primary"
+                    :icon="filter_option.icon"
+                    :label="filter_option.label"
+                    @click="changeFilter(filter_option)"
+                  />
+                </q-fab>
               </template>
               <template #append>
                 <q-icon
@@ -51,22 +71,28 @@
                     >
                       <thead>
                         <tr>
-                          <th class="text-center">搜索内容</th>
-                          <th class="text-center">功能</th>
+                          <td colspan="2">
+                            <q-icon size="xs" name="label"></q-icon>&nbsp;
+                            <span>点击搜索框前图标以切换筛选方式</span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th class="text-left">搜索标记</th>
+                          <th class="text-left">功能</th>
                         </tr>
                       </thead>
                       <tbody>
-                        <tr>
-                          <td class="text-center">#ID</td>
-                          <td class="text-center">定位ID</td>
-                        </tr>
-                        <tr>
-                          <td class="text-center">!内容</td>
-                          <td class="text-center">反向搜索标题/描述</td>
-                        </tr>
-                        <tr>
-                          <td class="text-center">内容</td>
-                          <td class="text-center">搜索标题/描述</td>
+                        <tr
+                          v-for="(
+                            filter_option, filter_index
+                          ) in filter_options"
+                          :key="filter_index"
+                        >
+                          <td>
+                            <q-icon size="xs" :name="filter_option.icon">
+                            </q-icon>
+                          </td>
+                          <td>{{ filter_option.desc }}</td>
                         </tr>
                       </tbody>
                     </q-markup-table>
@@ -229,6 +255,69 @@ export default {
   data() {
     return {
       filter_text: "",
+      filter_selected: {},
+      filter_options: [
+        {
+          tag: "#",
+          icon: "mdi-pound",
+          label: "ID",
+          desc: "ID 筛选",
+          filter(list, searchText = "") {
+            return _.filter(
+              list,
+              (v) => parseInt(v.id) === parseInt(searchText)
+            );
+          },
+        },
+        {
+          tag: "==",
+          icon: "mdi-equal",
+          label: "包含",
+          desc: "名称 / 描述包含文本",
+          filter(list, searchText = "") {
+            return _.filter(list, (v) => {
+              const titleMatch =
+                (v.markerTitle || "").indexOf(searchText) !== -1;
+              const contentMatch = (v.content || "").indexOf(searchText) !== -1;
+              return titleMatch || contentMatch;
+            });
+          },
+        },
+        {
+          tag: "!=",
+          icon: "mdi-not-equal-variant",
+          label: "不包含",
+          desc: "名称 / 描述不包含文本",
+          filter(list, searchText = "") {
+            return _.filter(list, (v) => {
+              const titleUnmatch =
+                (v.markerTitle || "").indexOf(searchText) === -1;
+              const contentUnmatch =
+                (v.content || "").indexOf(searchText) === -1;
+              return titleUnmatch && contentUnmatch;
+            });
+          },
+        },
+        {
+          tag: ".*",
+          icon: "mdi-regex",
+          label: "正则",
+          desc: "对标题 / 正文进行正则匹配",
+          filter(list, searchText = "") {
+            return _.filter(list, (v) => {
+              try {
+                const reExp = new RegExp(searchText, "gui");
+                const titleMatch = reExp.test(v.markerTitle || "");
+                const contentMatch = reExp.test(v.content || "");
+                return titleMatch || contentMatch;
+              } catch {
+                return false;
+              }
+            });
+          },
+        },
+      ],
+
       table_content_full: false,
 
       icon_data: {},
@@ -276,6 +365,9 @@ export default {
         data,
       });
     },
+    changeFilter(opt = {}) {
+      this.filter_selected = opt || {};
+    },
     clearFilter() {
       this.filter_text = "";
     },
@@ -284,47 +376,31 @@ export default {
         return [];
       }
 
+      const list = this.formdata || [];
       if (!terms) {
-        return this.formdata;
+        return list;
       }
 
-      let list = [];
-      const termsStr = terms || "";
-      // ID
-      if (_.startsWith(termsStr, "#")) {
-        const markerIdStr = termsStr.replace(/^#/giu, "");
-        list = _.filter(
-          this.formdata,
-          (v) => v.id && v.id.toString() === markerIdStr
-        );
-      } else if (_.startsWith(termsStr, "!")) {
-        const filterStr = termsStr.replace(/^!/giu, "");
-        list = _.filter(this.formdata, (v) => {
-          const markerTitle = v.markerTitle || "";
-          const markerContent = v.content || "";
-          return (
-            markerTitle.indexOf(filterStr) === -1 &&
-            markerContent.indexOf(filterStr) === -1
-          );
-        });
-      } else {
-        list = _.filter(this.formdata, (v) => {
-          const markerTitle = v.markerTitle || "";
-          const markerContent = v.content || "";
-          return (
-            markerTitle.indexOf(termsStr) !== -1 ||
-            markerContent.indexOf(termsStr) !== -1
-          );
-        });
+      const searchText = terms || "";
+      const filterAction = this.filter_selected?.filter;
+      if (!_.isFunction(filterAction)) {
+        return list;
       }
 
-      return list;
+      const listFiltered = filterAction(list, searchText);
+
+      return listFiltered;
     },
   },
   computed: {
     formdata() {
       this.layer_data = [...this.propdata];
       return this.layer_data;
+    },
+    filter_icon() {
+      const opt = this.filter_selected || {};
+      const opt_icon = opt.icon || "search";
+      return opt_icon;
     },
     table_content_full_class() {
       return this.table_content_full
