@@ -191,6 +191,11 @@ const map_tiles_neigui_config = {
  * 获取地图插件配置
  */
 const map_plugin_config = {
+  // 流形蜃境
+  "A:VELURIYAM:3_8": {
+    extra: ["underground_basic"],
+  },
+
   // 海岛
   "A:APPLE:1_6": {
     extra: ["1_6_island"],
