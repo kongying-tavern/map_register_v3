@@ -14,6 +14,9 @@
       :virtual-scroll-item-size="40"
       :filter="filter_text"
       :filter-method="applyFilter"
+      :pagination="pagination_options"
+      binary-state-sort
+      column-sort-order="da"
     >
       <!-- 表格头插槽 -->
       <template #top-left>
@@ -230,6 +233,11 @@ export default {
 
       icon_data: {},
 
+      pagination_options: {
+        sortBy: "id",
+        descending: true,
+      },
+
       layer_data: [],
       layer_columns: [
         {
@@ -237,6 +245,7 @@ export default {
           label: "点位ID",
           field: "id",
           align: "left",
+          sortable: true,
         },
         {
           name: "markerTitle",
