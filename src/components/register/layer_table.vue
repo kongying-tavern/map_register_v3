@@ -265,7 +265,7 @@ export default {
           filter(list, searchText = "") {
             return _.filter(
               list,
-              (v) => parseInt(v.id) === parseInt(searchText)
+              (v) => parseInt(v.id, 10) === parseInt(searchText, 10)
             );
           },
         },
