@@ -13,17 +13,18 @@ const updateTimer = ref<number>()
 const updateEnd = ref<number>()
 const total = ref(0)
 
-liveQuery(() => db.area.count()).subscribe((v) => {
-  total.value = v
-})
-
 /** 本地地区数据 */
 export const useAreaStore = defineStore('global-area', {
   state: () => ({
+    _areaList: [] as API.AreaVo[],
   }),
 
   getters: {
     total: () => total.value,
+    areaMap: state => (Object.fromEntries(state._areaList.map(area => [
+      area.id as number,
+      area,
+    ])) as Record<string, API.AreaVo>),
     /** 全量更新处理状态 */
     updateAllLoading: () => loading.value,
     /** 全量更新剩余时间 */
@@ -100,4 +101,9 @@ export const useAreaStore = defineStore('global-area', {
       }, interval)
     },
   },
+})
+
+liveQuery(() => db.area.toArray()).subscribe((areaList) => {
+  total.value = areaList.length
+  useAreaStore()._areaList = areaList
 })

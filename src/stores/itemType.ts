@@ -101,6 +101,5 @@ export const useItemTypeStore = defineStore('global-item-type', {
 
 liveQuery(() => db.itemType.toArray()).subscribe((itemTypeList) => {
   total.value = itemTypeList.length
-  const itemTypeStore = useItemTypeStore()
-  itemTypeStore._itemTypeList = itemTypeList
+  useItemTypeStore()._itemTypeList = itemTypeList
 })
