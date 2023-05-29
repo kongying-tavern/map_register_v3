@@ -5,6 +5,7 @@ import Oauth from '@/api/oauth'
 import { Logger, messageFrom } from '@/utils'
 import { router } from '@/router'
 import { RoleTypeEnum } from '@/shared'
+import { userLoginHook, userLogoutHook } from '@/hooks'
 import {
   useAreaStore,
   useIconTagStore,
@@ -12,6 +13,8 @@ import {
   useItemTypeStore,
   useMarkerStore,
 } from '@/stores'
+import type { UserPreference } from '@/database/appdatabase'
+import db from '@/database'
 
 export interface UserAuth extends API.SysToken {
   expires_time: number
@@ -50,14 +53,19 @@ const differenceTokenTime = (expiresTime: number) => {
 
 export const useUserStore = defineStore('user-info', {
   state: () => ({
+    /** 用户鉴权信息 */
     auth: localUserAuth.value,
+    /** 用户基本信息 */
     info: localUserInfo.value,
+    /** 用户本地设置 */
+    preference: {} as UserPreference,
     /** 是否正在进行预加载任务 */
     isHandling: false,
     /** 路由是否跳转完毕 */
     isRouteLoading: false,
     /** 路由动画是否已经结束 */
     isRouteAnimationEnd: true,
+    /** 是否显示用户中心卡片 */
     showUserInfo: false,
   }),
   getters: {
@@ -172,24 +180,25 @@ export const useUserStore = defineStore('user-info', {
     },
     /** 登出并清理鉴权信息 */
     logout() {
-      this.auth = {}
-      this.info = {}
-      this.isHandling = false
-      localUserAuth.value = null
-      localUserInfo.value = null
-      this.clearRefreshTimer()
       // 清除后台任务
+      this.clearRefreshTimer()
       useAreaStore().clearBackgroundUpdate()
       useIconTagStore().clearBackgroundUpdate()
       useItemStore().clearBackgroundUpdate()
       useItemTypeStore().clearBackgroundUpdate()
       useMarkerStore().clearBackgroundUpdate()
+      // 重置内存状态
+      localUserAuth.value = {}
+      localUserInfo.value = {}
+      this.$reset()
+      userLogoutHook.trigger()
       router.push('/login')
     },
     /** 登录（密码模式） */
     async login(loginForm: API.SysTokenVO) {
       const auth = await Oauth.oauth.token(loginForm)
       this.setAuth(auth)
+      userLoginHook.trigger()
     },
     /** 更新用户信息 */
     async updateUserInfo() {
@@ -203,6 +212,12 @@ export const useUserStore = defineStore('user-info', {
       catch (err) {
         ElMessage.error(messageFrom(err))
       }
+    },
+    async updateUserPreference() {
+      if (this.info.id === undefined)
+        return
+      const userPreference = await db.user.get(this.info.id)
+      this.preference = userPreference ?? {}
     },
     /** 预加载任务，仅在 token 可用时或登陆后运行 */
     async preloadMission() {
@@ -221,6 +236,16 @@ export const useUserStore = defineStore('user-info', {
       finally {
         this.isHandling = false
       }
+    },
+    /** 向本地数据库同步用户设置 */
+    async syncUserPreference() {
+      if (this.info.id === undefined)
+        return
+      const payload = {
+        id: this.info.id,
+        ...JSON.parse(JSON.stringify(this.preference)),
+      }
+      await db.user.put(payload)
     },
   },
 })
