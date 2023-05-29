@@ -92,7 +92,11 @@
                             <q-icon size="xs" :name="filter_option.icon">
                             </q-icon>
                           </td>
-                          <td>{{ filter_option.desc }}</td>
+                          <td
+                            v-if="filter_option.descRaw"
+                            v-html="filter_option.desc"
+                          ></td>
+                          <td v-else>{{ filter_option.desc }}</td>
                         </tr>
                       </tbody>
                     </q-markup-table>
@@ -344,6 +348,52 @@ export default {
               const itemMatch = itemMatchList && itemMatchList.length > 0;
               return itemMatch;
             }),
+        },
+        {
+          tag: "i#",
+          icon: "mdi-focus-field-horizontal",
+          label: "物品数量",
+          desc: [
+            "对物品数量进行限制",
+            ["<code>&lt;N</code> 小于N", "<code>&lt;=N</code> 小于等于N"].join(
+              "&nbsp;&nbsp;"
+            ),
+            [
+              "<code>&gt;N</code> 大于N",
+              "<code>&gt;=N</code> 大于等于N",
+              "<code>=N</code> 等于N",
+            ].join("&nbsp;&nbsp;"),
+          ].join("<br>"),
+          descRaw: true,
+          filter(list, searchText = "") {
+            return _.filter(list, (v) => {
+              const itemList = v.itemList || [];
+              const re = /^(?<op>=|<=|>=|<|>)(?<num>\d+)$/iu;
+              const reContent = (searchText || "").match(re);
+              if (!reContent) {
+                return false;
+              }
+
+              const reGroups = reContent.groups || {};
+              const reOp = reGroups.op || "";
+              const reNum = parseInt(reGroups.num, 10) || 0;
+
+              switch (reOp) {
+                case "=":
+                  return itemList.length === reNum;
+                case ">":
+                  return itemList.length > reNum;
+                case ">=":
+                  return itemList.length >= reNum;
+                case "<":
+                  return itemList.length < reNum;
+                case "<=":
+                  return itemList.length <= reNum;
+                default:
+                  return false;
+              }
+            });
+          },
         },
       ],
 
