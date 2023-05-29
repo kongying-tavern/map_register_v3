@@ -41,7 +41,7 @@ const onAnimationEnd = (ev: AnimationEvent) => {
     }"
     @animationend="onAnimationEnd"
   >
-    {{ props }}
+    {{ message }}
   </div>
 </template>
 
