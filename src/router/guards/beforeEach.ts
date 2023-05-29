@@ -10,7 +10,7 @@ const logger = new Logger('[beforeEachGuard]')
 export const beforeEachGuard = (
   router: Router,
 ): NavigationGuardWithThis<void> => {
-  return (to, from, next) => {
+  return async (to, from, next) => {
     logger.info(`"${from.path}" => "${to.path}"`)
 
     const isOfflineMode = import.meta.env.VITE_DEVELOPMENT_MODE === 'offline'
@@ -50,10 +50,11 @@ export const beforeEachGuard = (
       return next(false)
     }
 
-    go()
+    await userStore.createRefreshTimer()
+    to.meta.preload && await userStore.preloadMission()
+    ;(!userStore.info.id || userStore.info.id !== userStore.auth.userId) && await userStore.updateUserInfo()
+    ;(!userStore.preference.filterStates) && await userStore.updateUserPreference()
 
-    to.meta.preload && userStore.preloadMission()
-    userStore.createRefreshTimer()
-    ;(!userStore.info.id || userStore.info.id !== userStore.auth.userId) && userStore.updateUserInfo()
+    go()
   }
 }

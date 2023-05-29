@@ -3,7 +3,7 @@ import db from '@/database'
 import { useMap } from '@/pages/pageMapV2/hooks'
 import { LAYER_CONFIGS } from '@/pages/pageMapV2/config'
 import { Logger } from '@/utils'
-import { localSettings } from '@/stores'
+import { localSettings, useAreaStore, useItemTypeStore, useUserStore } from '@/stores'
 
 export interface Condition {
   area: API.AreaVo
@@ -56,7 +56,9 @@ export class ConditionManager extends IconManager {
     this.#itemTypeId.value = v
   }
 
-  #getConditionId = () => `${this.areaCode}-${this.itemTypeId}`
+  #getConditionId = (areaCode = this.areaCode, itemTypeId = this.itemTypeId) => {
+    return `${areaCode}-${itemTypeId}`
+  }
 
   /** 物品筛选器缓存的物品选择表，key 为 `${areaCode}-${itemTypeId}` */
   #itemIdsMap = ref<Record<string, number[]>>({})
@@ -77,7 +79,7 @@ export class ConditionManager extends IconManager {
       return
     const id = this.#getConditionId()
     this.itemIdsMap[id] = v
-    this.#putCondition()
+    this.#putCondition(undefined, undefined, v)
   }
 
   // ========== 内部状态 ==========
@@ -119,6 +121,20 @@ export class ConditionManager extends IconManager {
   #isPreRendering = ref(false)
   get isPreRendering() { return this.#isPreRendering.value }
 
+  #useRenderMission = async (fn: (requestRender: () => Promise<void>) => Promise<void> | void) => {
+    if (this.isPreRendering)
+      return
+    try {
+      await fn(this.requestMarkersUpdate)
+    }
+    catch (err) {
+      (err instanceof Error) && this.#handleError(err)
+    }
+    finally {
+      this.#isPreRendering.value = false
+    }
+  }
+
   /** 仅在改变条件时改变，以便各图层进行脏检查 */
   #conditionStateId = ref(crypto.randomUUID())
   get conditionStateId() { return this.#conditionStateId.value }
@@ -148,50 +164,46 @@ export class ConditionManager extends IconManager {
     layer.forceUpdate()
   }
 
-  #putCondition = async () => {
-    try {
-      this.#isPreRendering.value = true
-      if (!this.areaCode || !this.area || !this.itemType || this.itemTypeId === undefined)
-        throw new Error('未选择子地区或物品类型')
-      const id = this.#getConditionId()
-      if (!this.itemIds.length)
-        return this.deleteCondition(id)
-      let condition = this.conditions.get(id)
-      if (!condition) {
-        condition = {
-          area: this.area,
-          type: this.itemType,
-          items: this.itemIds,
-        }
-      }
-      else {
-        condition.items = this.itemIds
-      }
-      this.conditions.set(id, condition)
-      await this.requestMarkersUpdate()
-    }
-    catch (err) {
-      (err instanceof Error) && this.#handleError(err)
-    }
-    finally {
-      this.#isPreRendering.value = false
-    }
-  }
+  #putCondition = (
+    area = this.area,
+    type = this.itemType,
+    items = this.itemIds,
+    render = true,
+  ) => this.#useRenderMission(async (requestRender) => {
+    if (!area || !type)
+      throw new Error('未选择子地区或物品类型')
 
-  deleteCondition = async (id: string) => {
-    try {
-      this.#isPreRendering.value = true
-      this.conditions.delete(id)
-      this.itemIdsMap[id] = []
-      await this.requestMarkersUpdate()
+    const id = this.#getConditionId(area.code as string, type.id as number)
+
+    if (!items.length) {
+      await this.deleteCondition(id, true)
+      render && await requestRender()
+      return
     }
-    catch (err) {
-      (err instanceof Error) && this.#handleError(err)
+
+    const condition = this.conditions.get(id)
+    if (!condition) {
+      const newCondition = { area, type, items }
+      this.conditions.set(id, newCondition)
     }
-    finally {
-      this.#isPreRendering.value = false
+    else {
+      condition.items = items
     }
-  }
+
+    if (render) {
+      await this.saveState('temp')
+      await requestRender()
+    }
+  })
+
+  deleteCondition = (id: string, render = true) => this.#useRenderMission(async (requestRender) => {
+    this.conditions.delete(id)
+    this.itemIdsMap[id] = []
+    if (render) {
+      await this.saveState('temp')
+      await requestRender()
+    }
+  })
 
   reviewCondition = (id: string) => {
     const [areaCode, itemTypeId] = id.split('-')
@@ -200,26 +212,113 @@ export class ConditionManager extends IconManager {
     this.tabKey = this.tabNames.length - 1
   }
 
-  clearCondition = async () => {
+  clearCondition = (render = true) => this.#useRenderMission(async (requestRender) => {
     if (!this.conditions.size)
       return
-    try {
-      this.#isPreRendering.value = false
-      ;[...this.conditions.keys()].forEach(id => this.itemIdsMap[id] = [])
-      this.conditions.clear()
-      await this.requestMarkersUpdate()
+    ;[...this.conditions.keys()].forEach(id => this.itemIdsMap[id] = [])
+    this.conditions.clear()
+    if (render) {
+      await this.saveState('temp')
+      await requestRender()
     }
-    catch (err) {
-      (err instanceof Error) && this.#handleError(err)
-    }
-    finally {
-      this.#isPreRendering.value = false
-    }
+  })
+
+  /** 将物品 ids 转换为条件表 */
+  #classifyItems = async (itemIds: number[]): Promise<Map<string, Condition>> => {
+    const conditions = new Map<string, Condition>()
+
+    const { itemTypeMap } = useItemTypeStore()
+    const { areaMap } = useAreaStore()
+    const items = await db.item.bulkGet(itemIds)
+
+    items.forEach((item) => {
+      if (!item)
+        return
+      const itemArea = areaMap[item.areaId as number]
+      if (!itemArea)
+        return
+      item.typeIdList?.forEach((itemTypeId) => {
+        const itemType = itemTypeMap[itemTypeId]
+        if (!itemType)
+          return
+        const id = this.#getConditionId(itemArea.code as string, itemType.id as number)
+        const condition = conditions.get(id) ?? {
+          area: itemArea,
+          type: itemType,
+          items: [],
+        }
+        condition.items.push(item.id as number)
+        conditions.set(id, condition)
+      })
+    })
+
+    return conditions
   }
 
-  info = (message: string) => {
-    logger.info(message)
+  /** 将筛选器状态保存到本地数据库 */
+  saveState = async (name: string) => {
+    const userStore = useUserStore()
+    if (!userStore.info.id)
+      return
+
+    const filterState = {
+      name,
+      itemIds: this.existItemIds,
+    }
+    const filterStates = [...(userStore.preference.filterStates ?? [])]
+    const findIndex = filterStates.findIndex(state => state.name === name)
+
+    if (findIndex >= 0)
+      filterStates[findIndex] = filterState
+    else
+      filterStates.push(filterState)
+
+    userStore.preference = {
+      ...userStore.preference,
+      filterStates,
+    }
+    await userStore.syncUserPreference()
   }
+
+  deleteState = async (name: string) => {
+    const userStore = useUserStore()
+    if (!userStore.info.id)
+      return
+    if (name === 'temp')
+      return
+    const filterStates = [...(userStore.preference.filterStates ?? [])]
+    const findIndex = filterStates.findIndex(state => state.name === name)
+    if (findIndex < 0)
+      return
+    filterStates.splice(findIndex, 1)
+    userStore.preference = {
+      ...userStore.preference,
+      filterStates,
+    }
+    await userStore.syncUserPreference()
+  }
+
+  /**
+   * 从本地数据库读取筛选器状态。
+   * 'temp' 条件为内部条件，
+   * 每个条件改变的操作都会被及时同步到 temp 条件，
+   * 以便在重新进入应用时获取上次操作后的条件列表。
+   */
+  loadState = async (name: string) => this.#useRenderMission(async (requestRender) => {
+    const userStore = useUserStore()
+
+    const findState = userStore.preference.filterStates?.find(state => state.name === name)
+    if (!findState)
+      throw new Error('无法查找打到对应的筛选器状态')
+
+    await this.clearCondition(false)
+    const conditions = await this.#classifyItems(findState.itemIds)
+
+    this.#conditions.value = conditions
+
+    await this.saveState('temp')
+    await requestRender()
+  })
 
   #handleError = (err: Error) => {
     logger.error(err)

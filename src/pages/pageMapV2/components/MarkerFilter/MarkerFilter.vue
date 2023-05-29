@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { DeleteFilled } from '@element-plus/icons-vue'
-import { CheckboxGroup, ConditionRow, FilterTabs } from '.'
-import { GSButton } from '@/components'
+import { DeleteFilled, Setting } from '@element-plus/icons-vue'
+import { CheckboxGroup, ConditionManager, ConditionRow, FilterTabs } from '.'
+import { GSButton, GSDivider } from '@/components'
 import { useCondition } from '@/pages/pageMapV2/hooks'
 import { FALLBACK_ITEM_ICON_URL } from '@/shared/constant'
 import db from '@/database'
@@ -18,6 +18,11 @@ const sort = (a: Sortable, b: Sortable) => {
 
 /** 条件管理器 */
 const conditionManager = useCondition()
+const conditionManagerVisible = ref(false)
+
+onMounted(() => {
+  conditionManager.loadState('temp')
+})
 
 // ==================== 图标 ====================
 const iconTagMap = shallowRef(new Map<string, string>())
@@ -134,22 +139,9 @@ const itemList = asyncComputed<API.ItemVo[]>(async () => {
       </div>
     </div>
 
-    <div class="condition-add-btn flex gap-2 justify-center p-2">
-      <GSButton
-        class="flex-1"
-        :disabled="conditionManager.isPreRendering || !conditionManager.conditions.size"
-        @click="conditionManager.clearCondition"
-      >
-        <template #icon>
-          <el-icon color="var(--gs-color-danger)">
-            <DeleteFilled />
-          </el-icon>
-        </template>
-        清空条件
-      </GSButton>
-    </div>
+    <GSDivider :height="32" color="rgb(100 100 100 / 0.9)" />
 
-    <div class="flex-1 p-2 overflow-hidden">
+    <div class="flex-1 p-2 pb-0 overflow-hidden">
       <el-scrollbar height="100%">
         <div class="h-full flex flex-col gap-2">
           <ConditionRow
@@ -162,5 +154,32 @@ const itemList = asyncComputed<API.ItemVo[]>(async () => {
         </div>
       </el-scrollbar>
     </div>
+
+    <GSDivider :height="32" color="rgb(100 100 100 / 0.9)" />
+
+    <div class="condition-add-btn flex gap-4 justify-center p-2 pb-4 pt-0">
+      <GSButton
+        class="flex-1"
+        :disabled="conditionManager.isPreRendering || !conditionManager.conditions.size"
+        @click="conditionManager.clearCondition"
+      >
+        <template #icon>
+          <el-icon color="var(--gs-color-danger)">
+            <DeleteFilled />
+          </el-icon>
+        </template>
+        清空条件
+      </GSButton>
+      <GSButton class="flex-1" @click="conditionManagerVisible = true">
+        <template #icon>
+          <el-icon color="var(--gs-color-confirm)">
+            <Setting />
+          </el-icon>
+        </template>
+        管理条件
+      </GSButton>
+    </div>
+
+    <ConditionManager v-model="conditionManagerVisible" />
   </div>
 </template>
