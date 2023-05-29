@@ -43,7 +43,7 @@
 <body>
   <div id="app"></div>
 
-  <script id="preload-script" type="module" async defer>
+  <script type="module">
     const text = (() => {
       if (!window?.isSecureContext)
         return '网站处于非安全上下文中，Web 应用无法正常运行。'
