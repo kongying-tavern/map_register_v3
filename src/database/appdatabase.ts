@@ -9,6 +9,21 @@ export interface MD5Vo {
   value: string
 }
 
+/** 用于存储用户的非敏感信息，如本地设置、筛选器状态等 */
+export interface UserPreference {
+  /** 用户 id */
+  id?: number
+  /** 筛选器状态列表 */
+  filterStates?: FilterState[]
+}
+
+export interface FilterState {
+  /** 筛选器存储的唯一名称 */
+  name: string
+  /** 物品 ids */
+  itemIds: number[]
+}
+
 export class AppDatabase extends Dexie {
   /** 地区表 */
   declare area: Dexie.Table<API.AreaVo, number>
@@ -24,13 +39,15 @@ export class AppDatabase extends Dexie {
   declare marker: Dexie.Table<API.MarkerVo, number>
   /** MD5 记录表 */
   declare md5: Dexie.Table<MD5Vo, string>
+  /** 用户表 */
+  declare user: Dexie.Table<UserPreference, number>
 
   constructor() {
     super('AppDatabase')
 
     this
       .use(markerFormater)
-      .version(1.7)
+      .version(1.8)
       .stores({
         area: '&id, parentId, name, code, hiddenFlag',
         icon: '&id, name',
@@ -39,6 +56,7 @@ export class AppDatabase extends Dexie {
         itemType: '&id, name, hiddenFlag',
         marker: '&id, *itemIdList, markerTitle, refreshTime, hiddenFlag',
         md5: '&id',
+        user: '&id',
       })
   }
 }
