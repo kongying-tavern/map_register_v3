@@ -251,7 +251,7 @@ import _ from "lodash";
 
 export default {
   name: "LayerTable",
-  props: ["propdata", "propitem"],
+  props: ["propdata", "propitem", "itemlist"],
   data() {
     return {
       filter_text: "",
@@ -315,6 +315,35 @@ export default {
               }
             });
           },
+        },
+        {
+          tag: "i",
+          icon: "mdi-book-information-variant",
+          label: "物品名",
+          desc: "对物品名称进行匹配",
+          filter: (list, searchText = "") =>
+            _.filter(list, (v) => {
+              const itemIdList = _.chain(v.itemList)
+                .map((i) => i.itemId)
+                .filter((v) => v)
+                .value();
+              const itemList = _.chain(itemIdList)
+                .map((itemId) =>
+                  _.filter(
+                    this.itemlist,
+                    (item) => parseInt(item.itemId, 10) === parseInt(itemId, 10)
+                  )
+                )
+                .flattenDeep()
+                .filter((v) => v)
+                .value();
+              const itemMatchList = _.filter(
+                itemList,
+                (i) => (i.name || "").indexOf(searchText) !== -1
+              );
+              const itemMatch = itemMatchList && itemMatchList.length > 0;
+              return itemMatch;
+            }),
         },
       ],
 

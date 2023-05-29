@@ -331,6 +331,7 @@
       class="full-width flex-auto"
       :propdata="handle_layer_list_data"
       :propitem="selected_item"
+      :itemlist="item_full_list"
       @callback="table_callback"
     >
     </layer-table>
