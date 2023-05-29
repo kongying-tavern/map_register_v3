@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { CoffeeCup, Filter, Grid, List, Operation, RemoveFilled, SetUp, Setting } from '@element-plus/icons-vue'
 import type { FeatureOption } from '../FeatureGrid'
-import { useCurrentLayerMarkers, useMap } from '@/pages/pageMapV2/hooks'
+import { useCurrentLayerMarkers, useMapState } from '@/pages/pageMapV2/hooks'
 import { FeatureGrid, MarkerFilter, MarkerTable, SiderMenu, SiderMenuItem } from '@/pages/pageMapV2/components'
 import { AppSettings, GSSwitch } from '@/components'
 import { useGlobalDialog } from '@/hooks'
@@ -16,7 +16,7 @@ defineEmits<{
   (e: 'update:collapse', v: boolean): void
 }>()
 
-const { showBorder, showTag, showTooltip, showOverlay } = useMap()
+const { showBorder, showTag, showTooltip, showOverlay } = useMapState()
 const { DialogService } = useGlobalDialog()
 const userStore = useUserStore()
 const router = useRouter()
@@ -69,7 +69,7 @@ const { markers } = useCurrentLayerMarkers()
           <Filter />
           <div
             v-show="markers.length > 0"
-            class="absolute w-fit bottom-0 bg-red-400 text-sm text-white font-mono rounded-full pointer-events-none px-1"
+            class="absolute w-fit bottom-0 bg-red-400 text-sm text-white font-mono rounded-full pointer-events-none px-1 select-none"
           >
             {{ markers.length }}
           </div>
