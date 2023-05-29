@@ -8,6 +8,7 @@ export interface GenshinMapState {
   showTooltip: boolean
   showTags: boolean
   showOverlay: boolean
+  maxCacheTileSize?: number
 }
 
 export const getDefaultMapState = (): GenshinMapState => ({
@@ -33,6 +34,7 @@ export const useMapState = (isRoot = false) => {
     },
   })
 
+  const maxCacheTileSize = mapStateRef('maxCacheTileSize')
   const showBorder = mapStateRef('showBorder')
   const showOverlay = mapStateRef('showOverlay')
   const showTag = mapStateRef('showTags')
@@ -46,10 +48,12 @@ export const useMapState = (isRoot = false) => {
       mapInstance.stateManager.registerEffect('showBorder', () => mapInstance.baseLayer?.forceUpdate())
       mapInstance.stateManager.registerEffect('showOverlay', () => mapInstance.baseLayer?.forceUpdate())
       mapInstance.stateManager.registerEffect('showTags', () => mapInstance.baseLayer?.forceUpdate())
+      mapInstance.stateManager.registerEffect('maxCacheTileSize', () => mapInstance.baseLayer?.forceUpdate())
     })
   }
 
   return {
+    maxCacheTileSize,
     showBorder,
     showTag,
     showTooltip,

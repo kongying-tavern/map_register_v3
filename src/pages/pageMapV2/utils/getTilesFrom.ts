@@ -14,6 +14,7 @@ export const getTilesFrom = (target: GenshinBaseLayer): TileLayer => new TileLay
   maxRequests: 1,
   extent: target.rawProps.bounds,
   opacity: target.context.deck.stateManager.get('showOverlay') ? 0.3 : 1,
+  maxCacheSize: target.context.deck.stateManager.get('maxCacheTileSize'),
   getTileData: async ({ index: { x, y, z }, signal }) => {
     try {
       if (signal?.aborted)

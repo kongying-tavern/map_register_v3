@@ -16,7 +16,6 @@ defineEmits<{
   (e: 'update:collapse', v: boolean): void
 }>()
 
-const { showBorder, showTag, showTooltip, showOverlay } = useMapState()
 const { DialogService } = useGlobalDialog()
 const userStore = useUserStore()
 const router = useRouter()
@@ -48,6 +47,14 @@ const onFeatureCommand = (command: string) => ({
 } as Record<string, () => void>)[command]?.()
 
 const { markers } = useCurrentLayerMarkers()
+
+const { maxCacheTileSize, showBorder, showTag, showTooltip, showOverlay } = useMapState()
+const cacheTiles = computed({
+  get: () => maxCacheTileSize.value !== undefined,
+  set: (v) => {
+    maxCacheTileSize.value = v ? Number.MAX_SAFE_INTEGER : undefined
+  },
+})
 </script>
 
 <template>
@@ -88,6 +95,7 @@ const { markers } = useCurrentLayerMarkers()
         <GSSwitch v-model="showOverlay" label="显示附加图层" />
         <GSSwitch v-model="showBorder" label="显示图层边界" />
         <GSSwitch v-model="showTooltip" label="显示调试信息" />
+        <GSSwitch v-model="cacheTiles" :label="`地图缓存-${cacheTiles ? '最大' : '自动'}`" title="内存低于8G的用户不建议勾选此项" />
       </div>
     </SiderMenuItem>
 
