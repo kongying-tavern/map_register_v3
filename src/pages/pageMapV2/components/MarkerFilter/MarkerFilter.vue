@@ -2,6 +2,7 @@
 import { DeleteFilled, Setting } from '@element-plus/icons-vue'
 import { CheckboxGroup, ConditionManager, ConditionRow, FilterTabs } from '.'
 import { GSButton, GSDivider } from '@/components'
+import { useUserStore } from '@/stores'
 import { useCondition } from '@/pages/pageMapV2/hooks'
 import { FALLBACK_ITEM_ICON_URL } from '@/shared/constant'
 import db from '@/database'
@@ -16,13 +17,15 @@ const sort = (a: Sortable, b: Sortable) => {
   return ib - ia
 }
 
+const userStore = useUserStore()
+
 /** 条件管理器 */
 const conditionManager = useCondition()
 const conditionManagerVisible = ref(false)
 
-onMounted(() => {
+watch(() => userStore.preference.id, () => {
   conditionManager.loadState('temp')
-})
+}, { immediate: true })
 
 // ==================== 图标 ====================
 const iconTagMap = shallowRef(new Map<string, string>())

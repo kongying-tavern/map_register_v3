@@ -307,6 +307,9 @@ export class ConditionManager extends IconManager {
   loadState = async (name: string) => this.#useRenderMission(async (requestRender) => {
     const userStore = useUserStore()
 
+    if (userStore.info.id === undefined)
+      return
+
     const findState = userStore.preference.filterStates?.find(state => state.name === name)
     if (!findState)
       throw new Error('无法查找打到对应的筛选器状态')
