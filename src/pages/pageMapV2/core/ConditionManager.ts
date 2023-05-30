@@ -319,6 +319,12 @@ export class ConditionManager extends IconManager {
 
     this.#conditions.value = conditions
 
+    const itemIdsMap: Record<string, number[]> = {}
+    conditions.forEach(({ items }, key) => {
+      itemIdsMap[key] = items
+    })
+    this.#itemIdsMap.value = itemIdsMap
+
     await this.saveState('temp')
     await requestRender()
   })
