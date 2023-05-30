@@ -16,12 +16,16 @@ const isMarkerVo = (v: unknown): v is API.MarkerVo => {
 export const useMarkerDrawer = (canvasRef?: Ref<HTMLCanvasElement | null>) => {
   const { map, onMapReady } = useMap()
 
+  const focusMarker = (markerVo: API.MarkerVo | null = null) => {
+    focus.value = markerVo
+    triggerTimestamp.value = new Date().getTime()
+    map.value?.stateManager.set('focus', markerVo)
+  }
+
   const handleMapClick = async (info: PickingInfo, ev: { srcEvent: Event }) => {
     if (!(ev.srcEvent instanceof PointerEvent) || ev.srcEvent.button !== 0)
       return
-    triggerTimestamp.value = new Date().getTime()
-    focus.value = isMarkerVo(info.object) ? info.object : null
-    map.value?.stateManager.set('focus', focus.value)
+    focusMarker(isMarkerVo(info.object) ? info.object : null)
   }
 
   const blur = async () => {
@@ -49,5 +53,5 @@ export const useMarkerDrawer = (canvasRef?: Ref<HTMLCanvasElement | null>) => {
     })
   }
 
-  return { focus, visible, blur, beforeClose }
+  return { focus, visible, focusMarker, blur, beforeClose }
 }

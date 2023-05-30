@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { Column } from 'element-plus'
-import { FixedDir } from 'element-plus/es/components/table-v2/src/constants'
+import { MarkerButton } from '.'
 import { useCurrentLayerMarkers } from '@/pages/pageMapV2/hooks'
 
 const tableContainerRef = ref<HTMLElement | null>()
@@ -8,8 +8,8 @@ const { width, height } = useElementSize(tableContainerRef)
 
 const { markers } = useCurrentLayerMarkers()
 
-const columns = ref<Column<API.MarkerVo>[]>([
-  { title: '名称', dataKey: 'markerTitle', width: 100, fixed: FixedDir.LEFT },
+const columns = ref<Column[]>([
+  { title: '名称', width: 100, cellRenderer: ({ rowData: data }) => h(MarkerButton, { data }) },
   { title: 'id', dataKey: 'id', width: 80 },
   { title: '说明', dataKey: 'content', width: 200 },
 ])
@@ -60,5 +60,11 @@ watch(queryText, useDebounceFn(() => {
   --el-table-border-color: transparent;
   --el-table-row-hover-bg-color: #ffffff20;
   color: #E4DDD1;
+
+  :deep(.el-table-v2__row-cell) {
+    > div:first-of-type {
+      display: none;
+    }
+  }
 }
 </style>

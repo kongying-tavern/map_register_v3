@@ -64,7 +64,9 @@ export class GenshinMap extends Deck {
       ...rest,
       id: 'genshin-map',
       canvas,
-      views: new OrthographicView({ id: 'genshin-view' }),
+      views: new OrthographicView({
+        id: 'genshin-view',
+      }),
       controller: {
         doubleClickZoom: false,
         scrollZoom: {
@@ -98,6 +100,8 @@ export class GenshinMap extends Deck {
       onResize: (...args) => this.event.emit('resize', ...args),
       onWebGLInitialized: (...args) => this.event.emit('WebGLInitialized', ...args),
     })
+
+    ;(window as any).map = this
   }
 
   // ==================== 地图状态 ====================
@@ -166,12 +170,12 @@ export class GenshinMap extends Deck {
     }
 
     const initialViewState = {
+      ...this.viewManager?.viewState['genshin-view'] ?? {},
       maxZoom: layer?.rawProps.initViewState.maxZoom ?? this.mainViewState.maxZoom,
       minZoom: layer?.rawProps.initViewState.minZoom ?? this.mainViewState.minZoom,
       zoom: layer?.rawProps.initViewState.zoom ?? this.mainViewState.zoom,
       target: getInitialTarget(),
     } as GensinMapViewState
-    this.#mainViewState.value = initialViewState
 
     const getTooltip = (info: PickingInfo) => {
       const { hover } = this.stateManager.state
@@ -203,6 +207,20 @@ export class GenshinMap extends Deck {
       initialViewState,
     })
     this.#baseLayer.value = layer
+    this.#mainViewState.value = initialViewState
+    this.baseLayer?.forceUpdate()
+  }
+
+  updateViewState = (viewState: Partial<GensinMapViewState>) => {
+    const rewriteViewState = {
+      ...this.mainViewState,
+      ...viewState,
+      transitionDuration: 200,
+    }
+    this.setProps({
+      initialViewState: rewriteViewState,
+    })
+    this.#mainViewState.value = rewriteViewState
   }
 
   setBaseLayer = (code?: string) => {
