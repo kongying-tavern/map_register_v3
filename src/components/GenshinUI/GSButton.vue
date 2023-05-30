@@ -6,6 +6,8 @@ export interface GSButtonProps {
   disabled?: boolean
   loading?: boolean
   theme?: 'dark' | 'plain'
+  // TODO large 尺寸还未设置对应的数值
+  size?: 'small' | 'medium' | 'large'
 }
 
 export interface GSButtonEmits {
@@ -26,12 +28,12 @@ const onClick = (ev: MouseEvent) => {
   <button
     v-bind="$attrs"
     class="gs-button gs-button-variable genshin-text"
-    :class="{
-      loading,
-      disabled,
-      [`gs-button--theme-${theme ?? 'light'}`]: true,
-      [loading ? 'gs-button--icon-loading' : $slots.icon ? '' : `gs-button--icon-${icon}`]: true,
-    }"
+    :class="[
+      `gs-button--theme-${theme ?? 'light'}`,
+      `gs-button--size-${size ?? 'medium'}`,
+      loading ? 'gs-button--icon-loading' : $slots.icon ? '' : `gs-button--icon-${icon}`,
+      { loading, disabled },
+    ]"
     @click="onClick"
   >
     <div v-if="icon || $slots.icon" class="gs-button-icon">
@@ -74,7 +76,10 @@ const onClick = (ev: MouseEvent) => {
   --bg: rgb(236 229 216 / 1);
   --bg-hover: var(--bg);
   --bg-active: rgb(236 229 216 / 0.6);
-  // color
+  // text
+  --line-height: auto;
+  --text-padding: 8px;
+  --text-size: 18px;
   --text-color: #4A5366;
   --text-active-color: #FFF;
   // outline
@@ -92,12 +97,21 @@ const onClick = (ev: MouseEvent) => {
   --filter-active: drop-shadow(0 0 6px rgb(128 128 128 / 0.4));
 }
 
+.gs-button--size-small {
+  --height: 32px;
+  --padding: 2px;
+  --text-size: 14px;
+  --text-padding: 4px;
+  --border-width: 2px;
+}
+
 .gs-button {
   display: flex;
+  align-items: center;
   width: fit-content;
   min-width: var(--height);
   height: var(--height);
-  padding: 5px;
+  padding: var(--padding);
   border-radius: calc(var(--height) / 2);
   outline: var(--outline-width) solid var(--outline-color);
   outline-offset: -1px;
@@ -107,7 +121,8 @@ const onClick = (ev: MouseEvent) => {
   background-repeat: no-repeat;
   color: var(--text-color);
   filter: var(--filter);
-  font-size: 18px;
+  font-size: var(--text-size);
+  line-height: var(--line-height);
   position: relative;
 
   &:not(.disabled, .loading):hover {
@@ -242,7 +257,10 @@ const onClick = (ev: MouseEvent) => {
 
 .gs-button-content {
   white-space: nowrap;
-  padding: 0 8px;
+  padding: 0 var(--text-padding);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   flex: 1;
 }
 </style>
