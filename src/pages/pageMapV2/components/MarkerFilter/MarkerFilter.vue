@@ -2,7 +2,7 @@
 import { DeleteFilled, Setting } from '@element-plus/icons-vue'
 import { CheckboxGroup, ConditionManager, ConditionRow, FilterTabs } from '.'
 import { GSButton, GSDivider } from '@/components'
-import { useUserStore } from '@/stores'
+import { useIconTagStore, useUserStore } from '@/stores'
 import { useCondition } from '@/pages/pageMapV2/hooks'
 import { FALLBACK_ITEM_ICON_URL } from '@/shared/constant'
 import db from '@/database'
@@ -28,10 +28,7 @@ watch(() => userStore.preference.id, () => {
 }, { immediate: true })
 
 // ==================== 图标 ====================
-const iconTagMap = shallowRef(new Map<string, string>())
-onMounted(() => db.iconTag.each((iconTag) => {
-  iconTagMap.value.set(iconTag.tag as string, iconTag.url as string)
-}))
+const iconTagStore = useIconTagStore()
 
 // ==================== 地区 ====================
 const parentAreaList = asyncComputed<API.AreaVo[]>(() => db.area.filter(area => !area.isFinal).toArray(), [])
@@ -109,7 +106,7 @@ const itemList = asyncComputed<API.ItemVo[]>(async () => {
           <template #icon="{ row }">
             <img
               class="w-full h-full rounded-full bg-slate-500 object-contain"
-              :src="iconTagMap.get(row.iconTag) ?? FALLBACK_ITEM_ICON_URL"
+              :src="iconTagStore.iconTagMap[row.iconTag]?.url || FALLBACK_ITEM_ICON_URL"
               crossorigin=""
               loading="lazy"
               decoding="async"
@@ -132,7 +129,7 @@ const itemList = asyncComputed<API.ItemVo[]>(async () => {
           <template #icon="{ row }">
             <img
               class="w-full h-full rounded-full bg-slate-500 object-contain"
-              :src="iconTagMap.get(row.iconTag) ?? FALLBACK_ITEM_ICON_URL"
+              :src="iconTagStore.iconTagMap[row.iconTag]?.url ?? FALLBACK_ITEM_ICON_URL"
               crossorigin=""
               loading="lazy"
               decoding="async"
