@@ -25,13 +25,41 @@ const flyToMarker = () => {
   })
   focusMarker(props.data)
 }
+
+/**
+ * 鼠标指向引导按钮时同时为地图上的点位添加 active 效果以突出显示
+ * @todo 点位数量较多时可能会导致注册过多的事件监听器，需要修改为事件委托方式
+ */
+const hoverMarker = () => {
+  if (!map.value)
+    return
+  map.value.stateManager.set('active', props.data)
+}
+
+/**
+ * 鼠标离开引导按钮时同时为地图上的点位取消 active 效果
+ * @todo 点位数量较多时可能会导致注册过多的事件监听器，需要修改为事件委托方式
+ */
+const unhoverMarker = () => {
+  if (!map.value)
+    return
+  map.value.stateManager.set('active', null)
+}
 </script>
 
 <template>
-  <GSButton class="flex-1" size="small" :title="data.markerTitle" @click="flyToMarker">
+  <GSButton
+    class="flex-1"
+    size="small"
+    :title="data.markerTitle"
+    @click="flyToMarker"
+    @pointerover="hoverMarker"
+    @pointerout="unhoverMarker"
+  >
     <template #icon>
       <img
         :src="iconStore.iconTagMap[data.itemList?.[0].iconTag ?? '']?.url || FALLBACK_ITEM_ICON_URL"
+        crossorigin=""
       >
     </template>
     {{ data.markerTitle }}
