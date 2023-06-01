@@ -100,8 +100,6 @@ export class GenshinMap extends Deck {
       onResize: (...args) => this.event.emit('resize', ...args),
       onWebGLInitialized: (...args) => this.event.emit('WebGLInitialized', ...args),
     })
-
-    ;(window as any).map = this
   }
 
   // ==================== 地图状态 ====================
