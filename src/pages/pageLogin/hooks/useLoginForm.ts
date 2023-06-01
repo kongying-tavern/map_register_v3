@@ -28,7 +28,7 @@ export const useLoginForm = () => {
   const router = useRouter()
   const userStore = useUserStore()
 
-  const { refresh: login, onSuccess, ...rest } = useFetchHook({
+  const { refresh: login, onSuccess, onError, ...rest } = useFetchHook({
     onRequest: async () => {
       if (!formRef.value)
         throw new Error('表单实例为空')
@@ -47,5 +47,12 @@ export const useLoginForm = () => {
     router.push('/')
   })
 
-  return { formRef, rules, loginForm, login, onSuccess, ...rest }
+  onError((err) => {
+    ElMessage.error({
+      message: err.message,
+      duration: 1000,
+    })
+  })
+
+  return { formRef, rules, loginForm, login, onSuccess, onError, ...rest }
 }

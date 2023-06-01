@@ -115,7 +115,7 @@ export const useUserStore = defineStore('user-info', {
      * @注意 在重复调用时会优先复用定时器，保证在有效期内定时器的唯一性
      * @fixme 挂机时间过长时会出现奇怪的 bug
      */
-    async createRefreshTimer() {
+    createRefreshTimer() {
       if (intervalRefreshTimer.value !== undefined) {
         logger.info('已存在刷新任务，将会重用')
         return
@@ -197,6 +197,8 @@ export const useUserStore = defineStore('user-info', {
     /** 登录（密码模式） */
     async login(loginForm: API.SysTokenVO) {
       const auth = await Oauth.oauth.token(loginForm)
+      if (!auth.access_token)
+        throw new Error('登录失败')
       this.setAuth(auth)
       userLoginHook.trigger()
     },
