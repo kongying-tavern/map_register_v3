@@ -50,14 +50,21 @@ watch(queryText, useDebounceFn(() => {
 
 interface RowSlotProps {
   cells: VNode[]
-  rowData: API.MarkerVo | MarkerWithDetail['children']
+  rowData: API.MarkerVo | MarkerWithDetail['children'][number]
 }
 
-const Row = ({ cells, rowData }: RowSlotProps) => {
-  if ('detail' in rowData)
-    return <div class="expand-content p-1">{rowData.detail}</div>
-  return cells
-}
+/**
+ * 可展开的行组件
+ * @todo 移动端视图下宽度有点问题
+ */
+const Row = ({ cells, rowData }: RowSlotProps) => 'detail' in rowData
+  ? <div class="expand-content w-full p-1">{{
+    default: () => rowData.detail
+      ?.trim()
+      .split('\n')
+      .map(sentence => <p class="min-height-text">{sentence}</p>),
+  }}</div>
+  : cells
 Row.inheritAttrs = false
 
 const expandAll = ref(false)
@@ -124,6 +131,9 @@ const expandedRowKeys = computed(() => expandAll.value ? filteredMarkers.value.m
 
   :deep(.expand-content) {
     background: #141b22;
+    .min-height-text {
+      min-height: 1.5em;
+    }
   }
 }
 </style>
