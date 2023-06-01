@@ -7,6 +7,7 @@ import { router } from '@/router'
 import { RoleTypeEnum } from '@/shared'
 import { userLoginHook, userLogoutHook } from '@/hooks'
 import {
+  useArchiveStore,
   useAreaStore,
   useIconTagStore,
   useItemStore,
@@ -191,6 +192,7 @@ export const useUserStore = defineStore('user-info', {
       localUserAuth.value = {}
       localUserInfo.value = {}
       this.$reset()
+      useArchiveStore().$reset()
       userLogoutHook.trigger()
       router.push('/login')
     },

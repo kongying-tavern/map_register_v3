@@ -40,8 +40,11 @@ export const useMap = (canvasRef?: Ref<HTMLCanvasElement | null>) => {
 
     // 加载存档
     const archiveStore = useArchiveStore()
-    await archiveStore.fetchArchive()
-    archiveStore.loadLatestArchive()
+    const hasArchives = Object.values(archiveStore.archiveSlots).filter(Boolean).length > 0
+    if (!hasArchives && archiveStore.currentArchive.slotIndex === undefined) {
+      await archiveStore.fetchArchive()
+      archiveStore.loadLatestArchive()
+    }
   }
 
   canvasRef && onMounted(initMap)

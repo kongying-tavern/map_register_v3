@@ -2,7 +2,7 @@ import { reactive, ref } from 'vue'
 import type { FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
-import { useUserStore } from '@/stores'
+import { useArchiveStore, useUserStore } from '@/stores'
 import type { ElFormType } from '@/shared'
 import { useFetchHook } from '@/hooks'
 
@@ -39,12 +39,16 @@ export const useLoginForm = () => {
     },
   })
 
-  onSuccess(() => {
+  const archiveStore = useArchiveStore()
+
+  onSuccess(async () => {
     ElMessage.success({
       message: '登录成功',
       duration: 1000,
     })
-    router.push('/')
+    await router.push('/')
+    await archiveStore.fetchArchive()
+    archiveStore.loadLatestArchive()
   })
 
   onError((err) => {
