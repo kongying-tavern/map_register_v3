@@ -50,11 +50,13 @@ export const beforeEachGuard = (
       return next(false)
     }
 
+    // 确保在进入路由时用户信息已更新
+    (!userStore.info.id || userStore.info.id !== userStore.auth.userId) && await userStore.updateUserInfo()
+    // 确保在进入路由时用户设置已更新
+    !userStore.preference.filterStates && await userStore.updateUserPreference()
+    go()
+
     await userStore.createRefreshTimer()
     to.meta.preload && await userStore.preloadMission()
-    ;(!userStore.info.id || userStore.info.id !== userStore.auth.userId) && await userStore.updateUserInfo()
-    ;(!userStore.preference.filterStates) && await userStore.updateUserPreference()
-
-    go()
   }
 }
