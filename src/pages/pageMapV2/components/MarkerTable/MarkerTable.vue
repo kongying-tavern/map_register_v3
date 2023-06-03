@@ -58,7 +58,7 @@ interface RowSlotProps {
  * @todo 移动端视图下宽度有点问题
  */
 const Row = ({ cells, rowData }: RowSlotProps) => 'detail' in rowData
-  ? <div class="expand-content w-full p-1">{{
+  ? <div class="expand-content w-full p-2">{{
     default: () => rowData.detail
       ?.trim()
       .split('\n')
@@ -110,7 +110,7 @@ const expandedRowKeys = computed(() => expandAll.value ? filteredMarkers.value.m
 <style lang="scss" scoped>
 .marker-table {
   --el-bg-color: transparent;
-  // --el-table-bg-color: transparent;
+  --el-table-bg-color: transparent;
   --el-table-border-color: transparent;
   --el-table-row-hover-bg-color: #ffffff20;
   color: #E4DDD1;
