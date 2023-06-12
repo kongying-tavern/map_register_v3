@@ -19,6 +19,7 @@ const tab = ref('archive')
     v-model="userStore.showUserInfo"
     :show-close="false"
     align-center
+    append-to-body
     width="fit-content"
     class="custom-dialog hidden-header bg-transparent"
   >

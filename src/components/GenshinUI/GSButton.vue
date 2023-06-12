@@ -247,7 +247,7 @@ const onClick = (ev: MouseEvent) => {
     border-radius: 2px;
     height: 4px;
     translate: 0 var(--icon-tr-y);
-    scale: 0.8;
+    scale: 0.6;
     rotate: 45deg;
   }
   .gs-button-icon::after {
