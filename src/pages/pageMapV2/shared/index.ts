@@ -1,3 +1,5 @@
+import type { InjectionKey } from 'vue'
+
 export const MAP_FONTFAMILY = 'map-font-zhcn'
 
 /**
@@ -43,3 +45,7 @@ export const ICON_MAPPING_STATES = [
   '_ug_focus',
   '_ug_marked',
 ]
+
+export const mutuallyExclusiveLayerKey = Symbol('mutually-exclusive-layer') as InjectionKey<Ref<HTMLElement | null>>
+
+export * from './transition'
