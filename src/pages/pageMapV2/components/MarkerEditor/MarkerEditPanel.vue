@@ -14,6 +14,11 @@ const emits = defineEmits<{
   (e: 'update:visible', v: boolean): void
 }>()
 
+const formVisible = computed({
+  get: () => props.visible,
+  set: v => emits('update:visible', v),
+})
+
 const conditionManager = useCondition()
 
 /** 表单数据 */
@@ -48,11 +53,11 @@ const isOfflineMode = import.meta.env.VITE_DEVELOPMENT_MODE === 'offline'
 
 <template>
   <el-dialog
-    :model-value="visible"
+    v-model="formVisible"
     width="fit-content"
     class="genshin-marker-edit-dialog"
     align-center
-    @update:model-value="v => $emit('update:visible', v)"
+    append-to-body
   >
     <template #header>
       <div>{{ markerInfo?.markerTitle }} (id: {{ markerInfo?.id }})</div>

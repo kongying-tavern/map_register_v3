@@ -16,12 +16,12 @@ const iconStore = useIconTagStore()
  * @todo 需要添加视口转移的过渡效果
  */
 const flyToMarker = () => {
-  if (!map.value || !map.value.baseLayer)
+  if (!map.value)
     return
-  const [ox, oy] = map.value.baseLayer.rawProps.coordinateOrigin
   const [x, y] = props.data.position!.split(',').map(Number)
   map.value.updateViewState({
-    target: [x + ox, y + oy],
+    zoom: 0,
+    target: map.value.projectCoord([x, y]),
   })
   focusMarker(props.data)
 }
@@ -31,9 +31,7 @@ const flyToMarker = () => {
  * @todo 点位数量较多时可能会导致注册过多的事件监听器，需要修改为事件委托方式
  */
 const hoverMarker = () => {
-  if (!map.value)
-    return
-  map.value.stateManager.set('active', props.data)
+  map.value?.stateManager.set('active', props.data)
 }
 
 /**
@@ -41,9 +39,7 @@ const hoverMarker = () => {
  * @todo 点位数量较多时可能会导致注册过多的事件监听器，需要修改为事件委托方式
  */
 const unhoverMarker = () => {
-  if (!map.value)
-    return
-  map.value.stateManager.set('active', null)
+  map.value?.stateManager.set('active', null)
 }
 </script>
 
