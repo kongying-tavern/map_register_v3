@@ -2,7 +2,7 @@ import type { DeckProps, LayersList, OrbitViewState, PickingInfo } from '@deck.g
 import { Deck, OrthographicView, TRANSITION_EVENTS } from '@deck.gl/core/typed'
 import type { ViewStateChangeParameters } from '@deck.gl/core/typed/controllers/controller'
 import { clamp } from 'lodash'
-import { MAP_FONTFAMILY } from '../shared'
+import { MAP_FONTFAMILY, TRANSITION } from '../shared'
 import type { GenshinMapState } from '../hooks'
 import { getDefaultMapState } from '../hooks'
 import { EventBus, GenshinBaseLayer, StateManager } from '.'
@@ -122,8 +122,6 @@ export class GenshinMap extends Deck {
         clamp(newState.target[1], ymin, ymax),
       ],
       transitionDuration: newState.zoom === oldState.zoom ? 0 : 200,
-      transitionInterruption: TRANSITION_EVENTS.BREAK,
-      transitionEasing: (t: number) => Math.sin(t * Math.PI / 2), // 即 ease-out 效果
     }
     this.#mainViewState.value = rewriteState
     this.baseLayer?.forceUpdate()
@@ -138,15 +136,50 @@ export class GenshinMap extends Deck {
   // ==================== 视口状态 ====================
   get mainViewState() { return this.#mainViewState.value }
   #mainViewState = ref<GensinMapViewState>({
+    maxRotationX: 90,
+    minRotationX: -90,
+    rotationX: 0,
+    rotationOrbit: 0,
     zoom: -4,
     minZoom: -4,
     maxZoom: 2,
     target: [0, 0],
+    transitionDuration: 0,
+    transitionEasing: TRANSITION.EASE_OUT,
+    transitionInterruption: TRANSITION_EVENTS.BREAK,
   })
+
+  updateViewState = (viewState: Partial<GensinMapViewState>) => {
+    const rewriteViewState = {
+      ...this.mainViewState,
+      ...viewState,
+      transitionDuration: 200,
+    }
+    // FIXME 2023-06-13: 这里必须先置位空后再次设置才能生效，或许使用方法不对，但文档写的确实不全
+    this.setProps({
+      initialViewState: undefined,
+    })
+    this.setProps({
+      initialViewState: rewriteViewState,
+    })
+    this.baseLayer?.forceUpdate()
+  }
 
   // ==================== 图层状态 ====================
   #baseLayer = shallowRef<GenshinBaseLayer>()
   get baseLayer() { return this.#baseLayer.value }
+
+  /** 将点位坐标投影为地图坐标 */
+  projectCoord = ([x, y]: Coordinate2D): Coordinate2D => {
+    const [ox, oy] = this.baseLayer?.rawProps.center ?? [0, 0]
+    return [x + ox, y + oy]
+  }
+
+  /** 将地图坐标投影为点位坐标 */
+  unprojectCoord = ([x, y]: Coordinate2D): Coordinate2D => {
+    const [ox, oy] = this.baseLayer?.rawProps.center ?? [0, 0]
+    return [x - ox, y - oy]
+  }
 
   /**
    * 切换底图，传递 `undefined` 时清空底图。
@@ -168,7 +201,7 @@ export class GenshinMap extends Deck {
     }
 
     const initialViewState = {
-      ...this.viewManager?.viewState['genshin-view'] ?? {},
+      ...this.mainViewState,
       maxZoom: layer?.rawProps.initViewState.maxZoom ?? this.mainViewState.maxZoom,
       minZoom: layer?.rawProps.initViewState.minZoom ?? this.mainViewState.minZoom,
       zoom: layer?.rawProps.initViewState.zoom ?? this.mainViewState.zoom,
@@ -207,18 +240,6 @@ export class GenshinMap extends Deck {
     this.#baseLayer.value = layer
     this.#mainViewState.value = initialViewState
     this.baseLayer?.forceUpdate()
-  }
-
-  updateViewState = (viewState: Partial<GensinMapViewState>) => {
-    const rewriteViewState = {
-      ...this.mainViewState,
-      ...viewState,
-      transitionDuration: 200,
-    }
-    this.setProps({
-      initialViewState: rewriteViewState,
-    })
-    this.#mainViewState.value = rewriteViewState
   }
 
   setBaseLayer = (code?: string) => {
