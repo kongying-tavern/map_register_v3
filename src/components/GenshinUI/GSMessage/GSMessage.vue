@@ -17,9 +17,12 @@ const onClickOutside = () => {
   visible.value = false
 }
 
-const durationCloseTimer = window.setTimeout(() => {
-  visible.value = false
-}, props.duration > 1000 ? props.duration : 1000)
+/** duration 为 0 时不自动关闭 */
+const durationCloseTimer = !props.duration
+  ? undefined
+  : window.setTimeout(() => {
+    visible.value = false
+  }, props.duration > 1000 ? props.duration : 1000)
 
 onBeforeUnmount(() => {
   window.clearTimeout(durationCloseTimer)
