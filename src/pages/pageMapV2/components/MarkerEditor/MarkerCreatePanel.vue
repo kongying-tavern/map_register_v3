@@ -10,7 +10,6 @@ import { messageFrom } from '@/utils'
 
 const props = defineProps<{
   coordinate: Coordinate2D
-  selectedItem?: API.ItemVo
 }>()
 
 const userStore = useUserStore()
@@ -19,15 +18,14 @@ const conditionManager = useCondition()
 /** 初始化新增点位信息 */
 const initFormData = (): API.MarkerVo => {
   const [x, y] = props.coordinate
-  const { name: markerTitle = '', iconTag, id } = props.selectedItem ?? {}
   const { id: userId } = userStore.info
   return {
     version: 1,
-    markerTitle,
+    markerTitle: '',
     content: '',
     hiddenFlag: 0,
     position: `${x},${y}`,
-    itemList: props.selectedItem ? [{ count: 1, iconTag, itemId: id }] : [],
+    itemList: [],
     videoPath: '',
     refreshTime: 0,
     markerCreatorId: userId,

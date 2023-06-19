@@ -1,7 +1,10 @@
+import type { EventHook } from '@vueuse/core'
 import type { Coordinate2D } from './../core'
 import { useMap } from './../hooks'
 
 const collimatorVisible = ref(false)
+/** 是否为编辑模式 */
+const collimatorEditMode = ref(false)
 const confirmHook = createEventHook<Coordinate2D>()
 const cancelHook = createEventHook<void>()
 const openHook = createEventHook<Coordinate2D | undefined>()
@@ -12,27 +15,17 @@ export const useMarkerCollimator = () => {
 
   const scopedConfirmFn = new Set<(coord: Coordinate2D) => void>()
   const scopedCancelFn = new Set<() => void>()
-  const scopedOpenFn = new Set<(coord: Coordinate2D) => void>()
+  const scopedOpenFn = new Set<(coord?: Coordinate2D) => void>()
 
-  const onConfirm = (fn: (coord: Coordinate2D) => void) => {
-    scopedConfirmFn.add(fn)
-    confirmHook.on(fn)
-  }
-
-  const onCancel = (fn: () => void) => {
-    scopedCancelFn.add(fn)
-    cancelHook.on(fn)
-  }
-
-  const onOpen = (fn: (cood?: Coordinate2D) => void) => {
-    scopedOpenFn.add(fn)
-    openHook.on(fn)
+  const handleCallbackOn = <A, T extends ((arg: A) => void)>(set: Set<T>, hook: EventHook<A>) => (cb: T) => {
+    set.add(cb)
+    hook.on(cb)
   }
 
   const hook = readonly({
-    confirm: onConfirm,
-    cancel: onCancel,
-    open: onOpen,
+    confirm: handleCallbackOn(scopedConfirmFn, confirmHook),
+    cancel: handleCallbackOn(scopedCancelFn, cancelHook),
+    open: handleCallbackOn(scopedOpenFn, openHook),
   })
 
   const target = computed(() => map.value ? map.value.unprojectCoord(map.value.mainViewState.target) : [0, 0])
@@ -59,10 +52,12 @@ export const useMarkerCollimator = () => {
   onBeforeUnmount(() => {
     scopedConfirmFn.forEach(fn => confirmHook.off(fn))
     scopedCancelFn.forEach(fn => cancelHook.off(fn))
+    scopedOpenFn.forEach(fn => openHook.off(fn))
   })
 
   return {
     collimatorVisible,
+    collimatorEditMode,
     target,
     hook,
     confirm,

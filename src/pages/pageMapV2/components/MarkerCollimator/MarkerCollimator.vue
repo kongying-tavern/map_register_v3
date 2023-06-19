@@ -3,14 +3,12 @@ import { Plus } from '@element-plus/icons-vue'
 import { useInteractionLayer, useMapProjection, useMarkerCollimator } from '../../hooks'
 import { mutuallyExclusiveLayerKey } from '../../shared'
 import type { Coordinate2D } from '../../core'
+import { usePositionCreate, usePositionEdit } from './hooks'
 import { GSButton } from '@/components'
 
 const mutuallyExclusiveLayerRef = inject(mutuallyExclusiveLayerKey, ref(null))
 
-const { collimatorVisible, hook, target, cancel, confirm } = useMarkerCollimator()
-
-/** 是否为编辑模式 */
-const collimatorEditMode = ref(false)
+const { collimatorVisible, collimatorEditMode, hook, target, cancel, confirm } = useMarkerCollimator()
 
 /** 点位原始缓存坐标 */
 const cacheStartCoord = ref<Coordinate2D>()
@@ -32,6 +30,9 @@ hook.open((coord) => {
   cacheStartCoord.value = coord
   collimatorEditMode.value = Boolean(coord)
 })
+
+usePositionCreate()
+usePositionEdit()
 
 /** 点位坐标瞄准器与交互层互斥显示 */
 const { visible: interactionVisible } = useInteractionLayer()
@@ -133,6 +134,7 @@ const creatorPanelClassname = useSwitchClass(collimatorVisible, {
   height: 100%;
   z-index: 1;
   color: #FFF;
+  filter: drop-shadow(0 0 6px #00000080);
   pointer-events: none;
 }
 
