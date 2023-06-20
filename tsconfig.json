@@ -18,6 +18,12 @@
       "@/*": ["src/*"]
     }
   },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue",
+    "types/*.d.ts"
+  ],
   "exclude": ["dist", ".vscode", "node_modules", "public"],
   "references": [
     {

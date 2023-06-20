@@ -61,6 +61,7 @@ export default defineConfig(({ mode }) => {
       VueJsx(),
       AutoImport({
         imports: ['vue', '@vueuse/core', 'vue-router'],
+        dts: './types/auto-imports.d.ts',
       }),
       openapi2ts([
         {
