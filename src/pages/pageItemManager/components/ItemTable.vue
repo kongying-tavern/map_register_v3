@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { useIconTagStore } from '@/stores'
 import { useAreaList, useTypeList } from '@/hooks'
+import { HiddenFlagEnum } from '@/shared'
 
 defineProps<{
   loading: boolean
@@ -23,6 +24,27 @@ const { typeMap } = useTypeList({ immediate: true })
 
 // ==================== 图标信息 ====================
 const iconTagStore = useIconTagStore()
+
+// ==================== 刷新时间 ====================
+const formatRefreshTime = (time?: number) => {
+  if (!time || time < 0)
+    return '不刷新'
+  const labels: string[] = []
+  const days = Math.floor(time / 86_400_000)
+  days > 0 && labels.push(`${days} 天`)
+  const hours = Math.floor(time % 86_400_000 / 3_600_000)
+  hours > 0 && labels.push(`${hours} 小时`)
+  const mins = Math.floor(time % 3600 / 60_000)
+  mins > 0 && labels.push(`${mins} 分钟`)
+  return labels.join(' ')
+}
+
+// ==================== 显示类型 ====================
+const hiddenFlagMap: Record<number, string> = {
+  [HiddenFlagEnum.SHOW]: '显示',
+  [HiddenFlagEnum.HIDDEN]: '隐藏',
+  [HiddenFlagEnum.NEIGUI]: '测试服',
+}
 
 // ==================== 事件代理 ====================
 const proxySelectionChange = (selections: API.ItemVo[]) => {
@@ -57,7 +79,7 @@ const proxySelectionChange = (selections: API.ItemVo[]) => {
 
       <el-table-column label="物品名称" prop="name" width="200" />
 
-      <el-table-column label="所属地区" width="100">
+      <el-table-column label="所属地区" width="150">
         <template #default="{ row }">
           <div>{{ areaMap[row.areaId]?.name ?? row.areaId }}</div>
         </template>
@@ -71,7 +93,19 @@ const proxySelectionChange = (selections: API.ItemVo[]) => {
         </template>
       </el-table-column>
 
-      <el-table-column label="描述模板" prop="defaultContent" />
+      <el-table-column label="描述模板" prop="defaultContent" show-overflow-tooltip />
+
+      <el-table-column label="刷新时间" prop="defaultRefreshTime" width="100">
+        <template #default="{ row }">
+          {{ formatRefreshTime(row.defaultRefreshTime) }}
+        </template>
+      </el-table-column>
+
+      <el-table-column label="显示类型" prop="hiddenFlag" width="100">
+        <template #default="{ row }">
+          {{ hiddenFlagMap[row.hiddenFlag] ?? '未知' }}
+        </template>
+      </el-table-column>
 
       <el-table-column fixed="right" label="操作" width="130">
         <template #default="{ $index, row }">
