@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 const props = defineProps<{
   modelValue?: number
+  disabled?: boolean
 }>()
 
 const emits = defineEmits<{
@@ -49,17 +50,17 @@ const selectInput = (ev: Event) => {
 
 <template>
   <div v-bind="$attrs" class="app-time-select">
-    <el-input v-model="days" class="time-input" @mouseover="selectInput">
+    <el-input v-model="days" :disabled="disabled" class="time-input" @mouseover="selectInput">
       <template #append>
         天
       </template>
     </el-input>
-    <el-input v-model="hours" class="time-input" @mouseover="selectInput">
+    <el-input v-model="hours" :disabled="disabled" class="time-input" @mouseover="selectInput">
       <template #append>
         时
       </template>
     </el-input>
-    <el-input v-model="minutes" class="time-input" @mouseover="selectInput">
+    <el-input v-model="minutes" :disabled="disabled" class="time-input" @mouseover="selectInput">
       <template #append>
         分
       </template>
