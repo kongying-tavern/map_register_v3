@@ -1,38 +1,51 @@
-import { ItemDetailEditor } from '../components'
-import { useGlobalDialog, useItemList } from '@/hooks'
-import { useRowEdit } from '@/hooks/useTableManipulation'
+import type { ItemDetailForm } from '../components'
+import { ItemEditor } from '../components'
+import { useFetchHook, useGlobalDialog } from '@/hooks'
+import Api from '@/api/api'
 
 export interface ItemEditHookOptions {
-  onItemDetailEditSuccess?: () => void
+  initFormData?: () => API.ItemVo
 }
 
-export const useItemEdit = (options: ItemEditHookOptions) => {
-  const { onItemDetailEditSuccess } = options
+const sharedEditSame = ref<0 | 1>(0)
 
-  const { itemList } = useItemList()
+export const useItemEdit = (options: ItemEditHookOptions = {}) => {
+  const { initFormData } = options
 
-  const editOptions = useRowEdit({
-    rowList: itemList,
-    saveHandler: async () => {
-      /** @TODO 保留行内编辑能力 */
-    },
+  const detailFormRef = ref<InstanceType<typeof ItemDetailForm> | null>(null)
+  const formData = ref<API.ItemVo>(initFormData?.() ?? {})
+
+  const { refresh: submitForm, ...rest } = useFetchHook({
+    onRequest: () => Api.item.updateItem({
+      editSame: sharedEditSame.value,
+    }, [formData.value]),
   })
+
+  const handleSubmit = async () => {
+    const isValid = await detailFormRef.value?.validate()
+    if (!isValid)
+      return
+    await submitForm()
+  }
 
   const { DialogService } = useGlobalDialog()
 
-  const openItemDetailEditorDialog = async (index: number) => {
-    await DialogService
-      .config({ title: '编辑物品详情', width: '700px', alignCenter: true })
+  const openItemEditorDialog = (item: API.ItemVo, editSame: 0 | 1 = 0) => {
+    DialogService
+      .config({
+        title: '编辑物品详情',
+        width: 'fit-content',
+        alignCenter: true,
+        showClose: false,
+        closeOnClickModal: false,
+        closeOnPressEscape: false,
+      })
       .props({
-        item: itemList.value[index],
-        type: 'editor',
+        item,
       })
-      .listeners({
-        success: () => onItemDetailEditSuccess?.(),
-      })
-      .open(ItemDetailEditor)
-      .afterClosed<boolean>()
+      .open(ItemEditor)
+    sharedEditSame.value = editSame
   }
 
-  return { ...editOptions, openItemDetailEditorDialog }
+  return { detailFormRef, formData, handleSubmit, openItemEditorDialog, ...rest }
 }

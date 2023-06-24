@@ -21,6 +21,7 @@ export const useFetchHook = <T>(options: FetchHookOptions<T> = {}) => {
 
   const onSuccessHook = createEventHook<T>()
   const onErrorHook = createEventHook<Error>()
+  const onFinishHook = createEventHook<void>()
 
   const refresh = async () => {
     try {
@@ -37,10 +38,11 @@ export const useFetchHook = <T>(options: FetchHookOptions<T> = {}) => {
     }
     finally {
       loading.value = false
+      onFinishHook.trigger()
     }
   }
 
   immediate && onMounted(refresh)
 
-  return { loading, refresh, onSuccess: onSuccessHook.on, onError: onErrorHook.on }
+  return { loading, refresh, onSuccess: onSuccessHook.on, onError: onErrorHook.on, onFinish: onFinishHook.on }
 }

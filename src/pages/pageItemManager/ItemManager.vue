@@ -1,236 +1,95 @@
-<script lang="tsx" setup>
-import { Search } from '@element-plus/icons-vue'
-import type { Ref } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { useItemCreate, useItemEdit } from './hooks'
-import { PgUnit, useAreaList, useIconList, useItemDelete, useItemList, usePagination, useTypeList } from '@/hooks'
+<script lang="ts" setup>
+import { Delete, Edit } from '@element-plus/icons-vue'
+import type { ItemQueryForm } from './hooks'
+import { useItemCreate, useItemDelete, useItemEdit, useItemList, useItemTable } from './hooks'
+import { ItemFilter, ItemTable } from './components'
+import { PgUnit, usePagination } from '@/hooks'
 
+// ==================== 筛选信息 ====================
 const { pagination, layout } = usePagination({
-  units: [PgUnit.PREV, PgUnit.PAGER, PgUnit.NEXT],
-})
-const checkedArea = ref<API.AreaVo>()
-const checkedType = ref<API.ItemTypeVo>()
-const name = ref('')
-
-const { areaMap, areaTree, loading: areaLoading } = useAreaList({
-  immediate: true,
+  units: [PgUnit.TOTAL, PgUnit.SIZE, PgUnit.PREV, PgUnit.PAGER, PgUnit.NEXT],
 })
 
-const { iconMap } = useIconList({ immediate: true })
-const { typeTree, loading: typeLoading } = useTypeList({ immediate: true })
-const { itemList, loading: itemLoading, onSuccess: onItemListFetched, pause, resume, updateItemList } = useItemList({
-  immediate: true,
-  params: () => ({
-    areaIdList: checkedArea.value ? [checkedArea.value.id as number] : [],
-    typeIdList: checkedType.value ? [checkedType.value.id as number] : [],
-    current: pagination.value.current,
-    size: pagination.value.pageSize,
-  }),
-  filterOptions: () => ({
-    name: name.value ?? '',
+const queryForm = ref<ItemQueryForm>({
+  name: '',
+  areaId: undefined,
+  itemTypeId: undefined,
+})
+
+// ==================== 物品列表 ====================
+const { itemList, loading: itemLoading, updateItemList } = useItemList({
+  pagination,
+  getParams: () => ({
+    name: queryForm.value.name,
+    areaId: queryForm.value.areaId,
+    itemTypeId: queryForm.value.itemTypeId,
   }),
 })
 
-/** 在部分参数切换后重置页数 */
-const resetPagination = () => {
-  pause()
-  pagination.value.current = 1
-  pagination.value.pageSize = 10
-  resume()
-}
+// ==================== 物品表格 ====================
+const { selection, handleSelectionChange } = useItemTable()
 
-const onAreaCheckedChange = (area: API.AreaVo) => {
-  if (!area.isFinal)
-    return
-  resetPagination()
-  checkedArea.value = area
-}
+// ==================== 新增物品 ====================
+const { openItemCreatorDialog, onSuccess: onCreateSuccess } = useItemCreate()
+onCreateSuccess(updateItemList)
 
-const onTypeCheckedChange = (typeItem: API.ItemTypeVo) => {
-  if (!typeItem.isFinal)
-    return
-  resetPagination()
-  checkedType.value = typeItem
-}
+// ==================== 编辑物品 ====================
+const { openItemEditorDialog, onSuccess: onEditSuccess } = useItemEdit()
+onEditSuccess(updateItemList)
 
-const onSearchTypingChange = () => {
-  resetPagination()
-  updateItemList()
-}
-
-onItemListFetched(({ total = 0 }) => {
-  pagination.value.total = total
-})
-
-const { openItemDetailEditorDialog } = useItemEdit({
-  onItemDetailEditSuccess: updateItemList,
-})
-
-const { openItemCreatorDialog } = useItemCreate({
-  defaultItemData: () => ({
-    areaId: checkedArea.value?.id,
-    typeIdList: checkedType.value ? [checkedType.value.id as number] : [],
-  }),
-  onCreateItemSuccess: updateItemList,
-})
-
-const containerRef = ref<HTMLElement | null>(null)
-const { height, width } = useElementSize(containerRef)
-
-const selection = ref<API.ItemVo[]>([])
-const deleteOneItem = ref<API.ItemVo[]>([])
-
-const getDeleteParams = () => {
-  const transform = (items: Ref<API.ItemVo[]>) => items.value.map(item => item.id ?? -1).filter(id => id !== -1)
-  if (deleteOneItem.value.length)
-    return transform(deleteOneItem)
-  return transform(selection)
-}
-
-const { deleteItem, onSuccess: onDeleteItemSuccess, loading: deleteLoading } = useItemDelete({
-  params: getDeleteParams,
-  onFetchBefore: async () =>
-    ElMessageBox
-      .confirm(`共有${getDeleteParams().length}个物品被删除，是否继续？`)
-      .then(() => true)
-      .catch(() => false)
-  ,
-})
-
-onDeleteItemSuccess(() => {
-  deleteOneItem.value = []
-  updateItemList()
-  ElMessage({
-    message: '删除成功',
-    type: 'success',
-  })
-})
-
-const removeRow = (row: API.ItemVo) => {
-  deleteOneItem.value = [row]
-  deleteItem()
-}
+// ==================== 删除物品 ====================
+const { handleDelete, onSuccess: onDeleteSuccess } = useItemDelete()
+onDeleteSuccess(updateItemList)
 </script>
 
 <template>
-  <div class="h-full flex gap-2">
-    <div class="h-full w-40 flex flex-col gap-2 overflow-hidden">
-      <div>地区</div>
-      <el-tree
-        v-loading="areaLoading"
-        :data="areaTree"
-        :props="{ label: 'name' }"
-        class="flex-1 overflow-auto"
-        accordion
-        node-key="id"
-        highlight-current
-        @current-change="onAreaCheckedChange"
-      />
-      <div>类型</div>
-      <el-tree
-        v-loading="typeLoading"
-        :data="typeTree"
-        :props="{ label: 'name', isLeaf: 'isLeaf' }"
-        class="flex-1 overflow-auto"
-        accordion
-        node-key="id"
-        highlight-current
-        @current-change="onTypeCheckedChange"
-      />
-    </div>
+  <div class="h-full flex-1 flex flex-col gap-2 overflow-hidden text-orange-400">
+    <ItemFilter v-model="queryForm">
+      <template #footer>
+        <div class="w-full flex items-center justify-end">
+          <el-button
+            type="danger"
+            :disabled="!selection.length"
+          >
+            批量删除 {{ selection.length ? `: ${selection.length}` : '' }}
+          </el-button>
+          <el-button type="primary" @click="openItemCreatorDialog">
+            添加物品
+          </el-button>
+        </div>
+      </template>
+    </ItemFilter>
 
-    <div class="h-full flex-1 flex flex-col gap-2 overflow-hidden">
-      <div class="flex gap-2">
-        <div v-show="!checkedArea && !checkedType">
-          选择地区或类型
-        </div>
-        <div v-show="checkedArea">
-          {{ checkedArea?.name }}
-        </div>
-        <div v-show="checkedType">
-          {{ checkedType?.name }}
-        </div>
-      </div>
-      <div class="flex items-center gap-2 w-1/3">
-        <el-input
-          v-model="name"
-          placeholder="按名称检索物品"
-          :prefix-icon="Search"
-          @change="onSearchTypingChange"
+    <ItemTable
+      :item-list="itemList"
+      :loading="itemLoading"
+      @selection-change="handleSelectionChange"
+    >
+      <template #action="{ row }">
+        <el-button
+          plain
+          :icon="Edit"
+          @click="() => openItemEditorDialog(row)"
         />
-      </div>
-      <div class="flex items-center justify-end gap-2">
-        <div class="text-sm">
-          {{ selection.length ? `已选${selection.length}个物品` : '' }}
-        </div>
         <el-button
           type="danger"
           plain
-          :loading="deleteLoading"
-          :disabled="!selection.length"
-          @click="deleteItem"
-        >
-          批量删除
-        </el-button>
-        <el-button type="primary" @click="openItemCreatorDialog">
-          新建物品
-        </el-button>
-      </div>
-      <div ref="containerRef" v-loading="itemLoading" class="flex-1 overflow-hidden">
-        <el-table
-          :data="itemList"
-          :width="width"
-          :height="height"
-          :border="true"
-          @selection-change="(val) => selection = val"
-        >
-          <el-table-column align="center" type="selection" width="50" />
-          <el-table-column label="物品ID" prop="id" width="70" />
-          <el-table-column label="名称" prop="name" width="200" />
-          <el-table-column label="图标" width="100">
-            <template #default="{ row }">
-              <img
-                class="w-8 h-8 object-contain rounded-full bg-slate-700"
-                :src="iconMap[row.iconTag ?? '']"
-                referrerpolicy="no-referrer"
-                crossorigin=""
-              >
-            </template>
-          </el-table-column>
-          <el-table-column label="描述模板" prop="defaultContent" />
-          <el-table-column label="地区" width="200">
-            <template #default="{ row }">
-              <div>{{ areaMap[row.id]?.name ?? row.id }}</div>
-            </template>
-          </el-table-column>
-          <el-table-column fixed="right" label="操作" width="200">
-            <template #default="{ $index, row }">
-              <el-button size="small" @click="() => openItemDetailEditorDialog($index)">
-                编辑
-              </el-button>
-              <el-button
-                type="danger"
-                plain
-                size="small"
-                @click="() => removeRow(row)"
-              >
-                删除
-              </el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-      </div>
-      <el-pagination
-        v-model:current-page="pagination.current"
-        v-model:page-size="pagination.pageSize"
-        :total="pagination.total"
-        :layout="layout"
-        :page-sizes="[10, 20, 30, 40]"
-        :pager-count="5"
-        class="flex justify-end items-center"
-        background
-      />
-    </div>
+          :icon="Delete"
+          @click="() => handleDelete(row)"
+        />
+      </template>
+    </ItemTable>
+
+    <el-pagination
+      v-model:current-page="pagination.current"
+      v-model:page-size="pagination.pageSize"
+      :total="pagination.total"
+      :layout="layout"
+      :page-sizes="[10, 20, 30, 40]"
+      :pager-count="5"
+      class="flex justify-end items-center"
+      background
+    />
   </div>
 </template>
 ~

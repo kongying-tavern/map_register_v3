@@ -1,6 +1,5 @@
 import type { Ref } from 'vue'
 import type { Collection } from 'dexie'
-import Api from '@/api/api'
 import type { FetchHookOptions } from '@/hooks'
 import { useFetchHook } from '@/hooks'
 import db from '@/database'
@@ -8,11 +7,6 @@ import db from '@/database'
 interface ItemListHookOptions extends FetchHookOptions<API.RPageListVoItemVo> {
   params?: () => API.ItemSearchVo
   filterOptions?: () => API.ItemVo
-}
-
-interface ItemUpdateHookOptions extends FetchHookOptions<API.RBoolean> {
-  params?: () => API.ItemVo[]
-  editSame?: Ref<boolean>
 }
 
 /** 共享的物品列表 */
@@ -89,65 +83,4 @@ export const useItemList = (options: ItemListHookOptions = {}) => {
   const { pause, resume } = pausableWatch(fetchParams, updateItemList, { deep: true })
 
   return { itemList, itemMap, updateItemList, getItem, onSuccess, pause, resume, ...rest }
-}
-
-/** 修改某几个物品 */
-export const useItemUpdate = (options: ItemUpdateHookOptions = {}) => {
-  const { immediate = false, editSame = ref(false), loading = ref(false), params } = options
-
-  const fetchParams = computed(() => params?.())
-
-  const { refresh, ...rest } = useFetchHook({
-    immediate,
-    loading,
-    onRequest: async () => Api.item.updateItem({ editSame: editSame.value ? 1 : 0 }, fetchParams.value ?? []),
-  })
-
-  return { refresh, ...rest }
-}
-
-interface ItemDeleteHookOptions extends FetchHookOptions<API.RBoolean> {
-  params: () => number[]
-  onFetchBefore?: () => Promise<boolean>
-}
-
-/** 按itemId列表删除几个物品 */
-export const useItemDelete = (options: ItemDeleteHookOptions) => {
-  const { immediate = false, loading = ref(false), params, onFetchBefore } = options
-
-  const fetchParams = computed(() => params?.())
-
-  const { refresh: apiDeleteItem, ...rest } = useFetchHook({
-    immediate,
-    loading,
-    onRequest: async () => {
-      const missions = fetchParams.value.map(itemId => Api.item.deleteItem({ itemId }))
-      await Promise.allSettled(missions)
-      /** @TODO 批量请求，可能会遇到来自服务器或网络错误无法收集，暂时先一律忽略 */
-      return { error: false }
-    },
-  })
-
-  const deleteItem = async () => (await onFetchBefore?.()) && await apiDeleteItem()
-
-  return { deleteItem, ...rest }
-}
-
-interface ItemCreateHookOptions extends FetchHookOptions<API.RLong> {
-  params: () => API.ItemVo
-}
-
-/** 新增物品 */
-export const useItemCreate = (options: ItemCreateHookOptions) => {
-  const { immediate = false, loading = ref(false), params } = options
-
-  const fetchParams = computed(() => params?.())
-
-  const rest = useFetchHook({
-    immediate,
-    loading,
-    onRequest: async () => Api.item.createItem(fetchParams.value),
-  })
-
-  return { ...rest }
 }
