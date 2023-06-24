@@ -33,10 +33,6 @@ const toggleSelectedName = (name: string) => {
   selectedConditionName.value = selectedConditionName.value === name ? '' : name
 }
 
-const deleteCondition = async () => {
-  await conditionManager.deleteCondition(selectedConditionName.value)
-}
-
 const addCondition = async () => {
   if (validConditionName.value === 'temp') {
     GSMessageService.info('不能与内置存储条件同名')
@@ -94,7 +90,7 @@ const addCondition = async () => {
         <GSButton
           :disabled="!selectedConditionName || selectedConditionName === 'temp'"
           class="flex-1"
-          @click="deleteCondition"
+          @click="() => conditionManager.deleteState(selectedConditionName)"
         >
           <template #icon>
             <el-icon color="var(--gs-color-danger)">
