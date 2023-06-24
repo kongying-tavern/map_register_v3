@@ -12,9 +12,10 @@ interface IconsHookOptions extends FetchHookOptions<API.RPageListVoIconVo> {
 export const useIconList = (options: IconsHookOptions = {}) => {
   const { immediate, loading } = options
 
-  /** 共享的图标列表 */
+  /** 图标列表 */
   const iconList = ref<API.TagVo[]>([])
-  /** 共享的图标映射表 */
+
+  /** 图标映射表 */
   const iconMap = computed(() => iconList.value.reduce((seed, { tag, url }) => {
     if (tag && url)
       seed[tag] = url
