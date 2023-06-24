@@ -39,11 +39,13 @@ export const useRefreshTimeOptions = (form: Ref<WithRefreshTimeForm | undefined>
     },
   })
 
+  const getRefreshType = (time: number) => (({
+    0: 'NO_REFRESH',
+    86_400_000: 'NEXT_DAY',
+  })[time] ?? 'CUSTOM') as keyof typeof REFRESH_TYPE_MAP
+
   const refreshType = computed({
-    get: () => (({
-      0: 'NO_REFRESH',
-      86_400_000: 'NEXT_DAY',
-    })[defaultRefreshTime.value] ?? 'CUSTOM') as keyof typeof REFRESH_TYPE_MAP,
+    get: () => getRefreshType(defaultRefreshTime.value),
     set: (v) => {
       defaultRefreshTime.value = REFRESH_TYPE_MAP[v].time
     },
@@ -51,5 +53,5 @@ export const useRefreshTimeOptions = (form: Ref<WithRefreshTimeForm | undefined>
 
   const customEditorDisabled = computed(() => refreshType.value !== 'CUSTOM')
 
-  return { refreshTimeOptions, customEditorDisabled, refreshType }
+  return { refreshTimeOptions, customEditorDisabled, refreshType, REFRESH_TYPE_MAP, getRefreshType }
 }
