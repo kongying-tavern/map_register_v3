@@ -1,6 +1,3 @@
-import { render } from 'vue'
-import GSMessage from './GSMessage.vue'
-
 export interface GSMessageProps {
   message: string
   /**
@@ -8,39 +5,28 @@ export interface GSMessageProps {
    * @min 1000
    */
   duration?: number
+  /** 消息类型 */
+  type?: 'info' | 'success' | 'warn' | 'error'
 }
 
 /** 全局消息提示，单例模式 */
 export class GSMessageService {
-  static #container = (() => {
-    const ele = document.createElement('div')
-    ele.className = 'gs-message-container'
-    ele.addEventListener('animationend', (ev) => {
-      if (ev.animationName !== 'gs-message-model-anime-out')
-        return
-      this.#onClose()
-    })
-    return ele
-  })()
+  static #props = ref<GSMessageProps | null>(null)
+  static get props() { return this.#props.value }
 
-  static #onClose = () => {
-    render(null, this.#container)
+  static #visible = ref(false)
+  static get visible() { return this.#visible.value }
+
+  static close = () => {
+    this.#visible.value = false
   }
 
   static info = (message: string, options: Omit<GSMessageProps, 'message'> = {}) => {
     this.close()
-    const vnode = h(GSMessage, {
+    this.#props.value = {
       message,
       ...options,
-    })
-    render(vnode, this.#container)
-    document.body.appendChild(this.#container)
-    this.#container.classList.remove('closed')
-    this.#container.classList.add('actived')
-  }
-
-  static close = () => {
-    this.#container.classList.remove('actived')
-    this.#container.classList.add('closed')
+    }
+    this.#visible.value = true
   }
 }

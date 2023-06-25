@@ -1,93 +1,53 @@
 <script lang="ts" setup>
 import { ClickOutside as vClickOutside } from 'element-plus'
+import { promiseTimeout } from '@vueuse/core'
 import type { GSMessageProps } from '.'
-import { GSMessageService } from '.'
 
-const props = withDefaults(defineProps<GSMessageProps>(), {
+const props = withDefaults(defineProps<Partial<GSMessageProps>>(), {
+  message: '',
   duration: 3000,
 })
 
-defineEmits<{
+const emits = defineEmits<{
   close: []
 }>()
 
 const visible = ref(true)
 
-const onClickOutside = () => {
+const closeMessageInAnimation = () => {
   visible.value = false
 }
 
-/** duration 为 0 时不自动关闭 */
-const durationCloseTimer = !props.duration
-  ? undefined
-  : window.setTimeout(() => {
-    visible.value = false
-  }, props.duration > 1000 ? props.duration : 1000)
-
-onBeforeUnmount(() => {
-  window.clearTimeout(durationCloseTimer)
+onMounted(async () => {
+  if (!props.duration)
+    return
+  await promiseTimeout(props.duration)
+  closeMessageInAnimation()
 })
 
 const onAnimationEnd = (ev: AnimationEvent) => {
   if (!ev.animationName.startsWith('message-anime-out'))
     return
-  GSMessageService.close()
+  emits('close')
 }
 </script>
 
 <template>
   <div
-    v-click-outside="onClickOutside"
+    v-click-outside="closeMessageInAnimation"
     class="gs-message"
-    :class="{
-      close: !visible,
-    }"
+    :class="[
+      `gs-message--type-${type}`,
+      {
+        actived: visible,
+        close: !visible,
+      },
+    ]"
     @animationend="onAnimationEnd"
   >
     {{ message }}
   </div>
 </template>
-
-<style lang="scss">
-@keyframes gs-message-model-anime-in {
-  from {
-    background-color: transparent;
-  }
-  to {
-    background-color: #00000080;
-  }
-}
-
-@keyframes gs-message-model-anime-out {
-  from {
-    background-color: #00000080;
-  }
-  to {
-    background-color: transparent;
-  }
-}
-
-.gs-message-container {
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  left: 0;
-  top: 0;
-  display: grid;
-  place-items: center;
-  background-color: transparent;
-  transition: all ease-out 150ms;
-  z-index: 3000;
-  pointer-events: none;
-  &.actived {
-    pointer-events: all;
-    animation: gs-message-model-anime-in ease-out 150ms forwards;
-  }
-  &.closed {
-    animation: gs-message-model-anime-out ease-out 150ms forwards;
-  }
-}
-</style>
 
 <style lang="scss" scoped>
 @keyframes message-anime-in {
@@ -113,12 +73,14 @@ const onAnimationEnd = (ev: AnimationEvent) => {
 }
 
 .gs-message {
+  --message-bg: #283040;
+
   font-size: 16px;
   width: fit-content;
   padding: 1em;
   max-width: calc(100% - 2em);
   max-height: calc(100% - 2em);
-  background: #283040;
+  background: var(--message-bg);
   color: #ECE5D8;
   outline: 2px solid #FFFFFF40;
   border-radius: 6px;
@@ -129,5 +91,9 @@ const onAnimationEnd = (ev: AnimationEvent) => {
   &.close {
     animation: message-anime-out 100ms ease-out forwards;
   }
+}
+
+.gs-message--type-error {
+  --message-bg: var(--el-color-error-dark-2);
 }
 </style>
