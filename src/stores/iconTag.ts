@@ -39,6 +39,10 @@ export const useIconTagStore = defineStore('global-icon-tag', {
       return data
     },
 
+    async resetMD5() {
+      await db.md5.delete('iconTag-0')
+    },
+
     /** 获取解析后的图标标签数据 */
     async getIconTagData() {
       const data = await Api.tagDoc.listAllTagBz2({

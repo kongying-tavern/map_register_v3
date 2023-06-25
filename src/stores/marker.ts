@@ -41,6 +41,11 @@ export const useMarkerStore = defineStore('global-marker', {
       return data
     },
 
+    async resetMD5() {
+      const md5List = (await db.md5.where('id').startsWith('marker-').toArray()).map(md5 => md5.id)
+      await db.md5.bulkDelete(md5List)
+    },
+
     /**
      * @internal
      * 更新分页点位数据

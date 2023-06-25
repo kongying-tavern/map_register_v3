@@ -38,6 +38,10 @@ export const useItemStore = defineStore('global-item', {
       return data
     },
 
+    async resetMD5() {
+      await db.md5.delete('item-0')
+    },
+
     /** 更新物品数据 */
     async updateItemInfo() {
       // 检查 MD5 是否有变化，如无则跳过更新
