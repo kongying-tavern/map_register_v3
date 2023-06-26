@@ -8,8 +8,20 @@ const props = defineProps<{
 }>()
 
 const emits = defineEmits<{
-  (e: 'update:modelValue', v: MarkerExtra): void
+  'update:modelValue': [v: MarkerExtra]
 }>()
+
+/** 多处理一下防止字段不存在，以便进行双绑 */
+const initExtraObject = (extra: MarkerExtra): Required<MarkerExtra> => {
+  const { underground = {}, caves = [], '2_8_island': island = {} } = extra
+  const { region_name = '', region_levels = [], is_underground = false, model_id = '' } = underground
+  const { island_name = '', island_state = [] } = island
+  return {
+    caves,
+    'underground': { region_name, region_levels, is_underground, model_id },
+    '2_8_island': { island_name, island_state },
+  }
+}
 
 /** 判断是否为空字段，是则去除以缩减序列化后的体积 */
 const withoutEmpty = <T = unknown>(v: T): T | undefined => {
@@ -21,25 +33,18 @@ const withoutEmpty = <T = unknown>(v: T): T | undefined => {
   return isEmpty ? undefined : v
 }
 
-/** 保证 extra 包含默认字段 */
-const withDefaultExtra = ref<Required<MarkerExtra>>((() => {
-  const { underground = {}, caves = [], '2_8_island': island = {} } = props.modelValue ?? {}
-  const { region_name = '', region_levels = [] } = underground
-  const { island_name = '', island_state = [] } = island
-  // 多处理一下防止字段不存在，以便进行双绑
-  return {
-    caves,
-    'underground': { region_name, region_levels },
-    '2_8_island': { island_name, island_state },
-  }
-})())
-
-/** 深度监听更新 */
-watch(withDefaultExtra, extra => emits('update:modelValue', {
+/** 生成去除空白字段的 extra 对象 */
+const compressExtraObject = (extra: Required<MarkerExtra>): MarkerExtra => ({
   '2_8_island': withoutEmpty(extra['2_8_island']),
   'underground': withoutEmpty(extra.underground),
   'caves': withoutEmpty(extra.caves),
-}), { deep: true })
+})
+
+/** 保证 extra 包含默认字段 */
+const withDefaultExtra = ref<Required<MarkerExtra>>(initExtraObject(props.modelValue ?? {}))
+
+/** 深度监听更新 */
+watch(withDefaultExtra, extra => emits('update:modelValue', compressExtraObject(extra)), { deep: true })
 
 // ==================== 海岛独有部分 ====================
 /** 是否为 2.8 海岛 */
