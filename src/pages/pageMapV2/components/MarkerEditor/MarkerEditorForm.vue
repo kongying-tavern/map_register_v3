@@ -143,7 +143,7 @@ defineExpose({
         <AddonExtraEditor v-model="form.extra" :area-code="areaCode" />
       </el-form-item>
 
-      <el-form-item label="视频连接" prop="videoPath">
+      <el-form-item label="视频链接" prop="videoPath">
         <el-input v-model="form.videoPath" />
       </el-form-item>
 
