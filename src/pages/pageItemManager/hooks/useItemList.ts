@@ -1,8 +1,11 @@
 import type { Ref } from 'vue'
 import type { Collection } from 'dexie'
+import { liveQuery } from 'dexie'
+import { useSubscription } from '@vueuse/rxjs'
 import type { PaginationState } from '@/hooks'
 import { useFetchHook } from '@/hooks'
 import db from '@/database'
+import { useItemStore } from '@/stores'
 
 export interface ItemQueryForm {
   name?: string
@@ -29,7 +32,7 @@ export const useItemList = (options: ItemHookOptions) => {
 
   const params = computed(() => getParams())
 
-  const { refresh: updateItemList, ...rest } = useFetchHook({
+  const { refresh: updateItemList, loading, ...rest } = useFetchHook({
     immediate: true,
     onRequest: async () => {
       const { current, pageSize: size } = pagination.value
@@ -67,11 +70,30 @@ export const useItemList = (options: ItemHookOptions) => {
     },
   })
 
-  watch(() => pagination.value.current, updateItemList)
-  watch(() => [params.value, pagination.value.pageSize], () => {
+  const resetPaginationUpdate = () => {
     pagination.value.current = 1
     updateItemList()
+  }
+
+  watch(() => pagination.value.current, updateItemList)
+  watch(() => [params.value, pagination.value.pageSize], resetPaginationUpdate)
+
+  // 在物品进行更改操作后同步本地与云端的物品列表
+  // TODO 可能需要改为数据库中间件以实现无感操作
+  const itemStore = useItemStore()
+  const { refresh: syncItemListChanged } = useFetchHook({
+    loading,
+    onRequest: async () => {
+      await itemStore.resetMD5()
+      await itemStore.backgroundUpdate()
+    },
   })
 
-  return { itemList, itemMap, updateItemList, ...rest }
+  // 订阅物品更新，当物品更新时刷新列表
+  useSubscription(liveQuery(() => db.item.toArray()).subscribe(() => {
+    itemList.value = []
+    updateItemList()
+  }))
+
+  return { itemList, itemMap, loading, updateItemList, syncItemListChanged, ...rest }
 }

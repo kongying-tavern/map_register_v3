@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { Delete, Edit } from '@element-plus/icons-vue'
+import { Delete, Edit, RefreshRight } from '@element-plus/icons-vue'
 import type { ItemQueryForm } from './hooks'
 import { useItemCreate, useItemDelete, useItemEdit, useItemList, useItemTable } from './hooks'
 import { ItemFilter, ItemTable } from './components'
@@ -17,7 +17,7 @@ const queryForm = ref<ItemQueryForm>({
 })
 
 // ==================== 物品列表 ====================
-const { itemList, loading: itemLoading, updateItemList } = useItemList({
+const { itemList, loading: itemLoading, syncItemListChanged } = useItemList({
   pagination,
   getParams: () => ({
     name: queryForm.value.name,
@@ -30,16 +30,21 @@ const { itemList, loading: itemLoading, updateItemList } = useItemList({
 const { selection, handleSelectionChange } = useItemTable()
 
 // ==================== 新增物品 ====================
-const { openItemCreatorDialog, onSuccess: onCreateSuccess } = useItemCreate()
-onCreateSuccess(updateItemList)
+const { openItemCreatorDialog, onSuccess: onCreateSuccess } = useItemCreate({
+  isRoot: true,
+})
+onCreateSuccess(syncItemListChanged)
 
 // ==================== 编辑物品 ====================
-const { openItemEditorDialog, onSuccess: onEditSuccess } = useItemEdit()
-onEditSuccess(updateItemList)
+// TODO 批量编辑
+const { openItemEditorDialog, onSuccess: onEditSuccess } = useItemEdit({
+  isRoot: true,
+})
+onEditSuccess(syncItemListChanged)
 
 // ==================== 删除物品 ====================
-const { handleDelete, onSuccess: onDeleteSuccess } = useItemDelete()
-onDeleteSuccess(updateItemList)
+const { loading: deleteLoading, handleDelete, handleBatchDelete, onSuccess: onDeleteSuccess } = useItemDelete()
+onDeleteSuccess(syncItemListChanged)
 </script>
 
 <template>
@@ -50,12 +55,15 @@ onDeleteSuccess(updateItemList)
           <el-button
             type="danger"
             :disabled="!selection.length"
+            :loading="deleteLoading"
+            @click="() => handleBatchDelete(selection)"
           >
             批量删除 {{ selection.length ? `: ${selection.length}` : '' }}
           </el-button>
           <el-button type="primary" @click="openItemCreatorDialog">
             添加物品
           </el-button>
+          <el-button :icon="RefreshRight" circle :loading="itemLoading" title="强制刷新" @click="syncItemListChanged" />
         </div>
       </template>
     </ItemFilter>
