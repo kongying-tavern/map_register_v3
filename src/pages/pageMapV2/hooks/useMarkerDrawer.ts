@@ -10,7 +10,7 @@ const cachedMarkerVo = ref<API.MarkerVo | null>(null)
 const isMarkerVo = (v: unknown): v is API.MarkerVo => {
   if (typeof v !== 'object' || v === null)
     return false
-  return ['markerTitle', 'position', 'content', 'extra'].every(property => property in v)
+  return ['markerTitle', 'position', 'itemList'].every(property => property in v)
 }
 
 /** 抽屉状态控制 hook */
