@@ -103,7 +103,7 @@ const creatorPanelClassname = useSwitchClass(collimatorVisible, {
         </el-alert>
       </div>
 
-      <div v-if="cacheStartCoord" class="creator-collimator-info flex flex-col justify-end" :class="creatorPanelClassname">
+      <div v-if="collimatorEditMode && cacheStartCoord" class="creator-collimator-info flex flex-col justify-end" :class="creatorPanelClassname">
         <div>原坐标</div>
         <div>X: {{ cacheStartCoord[0].toFixed(4) }}</div>
         <div>Y: {{ cacheStartCoord[1].toFixed(4) }}</div>
