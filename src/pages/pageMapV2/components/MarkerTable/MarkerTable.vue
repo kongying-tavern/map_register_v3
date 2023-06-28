@@ -73,7 +73,7 @@ const expandedRowKeys = computed(() => expandAll.value ? filteredMarkers.value.m
 
 <template>
   <div class="marker-filter h-full flex flex-col">
-    <div class="p-2 flex flex-col gap-2">
+    <div class="flex flex-col gap-4 pt-4 px-2 pb-2">
       <GSSwitch v-model="expandAll" label="默认展开说明" />
       <el-input v-model="queryText" class="w-full" placeholder="name:草神瞳 id:42 content:地下">
         <template #prefix>
@@ -84,7 +84,7 @@ const expandedRowKeys = computed(() => expandAll.value ? filteredMarkers.value.m
       </el-input>
     </div>
 
-    <div ref="tableContainerRef" class="flex-1 overflow-hidden">
+    <div ref="tableContainerRef" class="flex-1 overflow-hidden p-2">
       <el-table-v2
         :columns="columns"
         :data="filteredMarkers"
