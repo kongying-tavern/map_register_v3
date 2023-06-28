@@ -1,7 +1,9 @@
 interface TempOverlayOptions {
   code: string
   children: Array<[
+    /** 图层请求id，或者id和显示名称 */
     overlayId: string | [id: string, name: string],
+    /** 图层边界 */
     bounds: [number, number, number, number],
     /** 分组 id */
     groupBy?: string,
