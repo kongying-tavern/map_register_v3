@@ -149,10 +149,12 @@ const markerCoord = computed(() => cachedMarkerVo.value?.position ? cachedMarker
                 </div>
               </div>
 
-              <div class="flex-1">
-                <p v-for="p in cachedMarkerVo.content?.trim().split('\n')" :key="p" style="min-height: 1.5em;">
-                  {{ p }}
-                </p>
+              <div class="flex-1 overflow-hidden">
+                <el-scrollbar height="100%">
+                  <p v-for="p in cachedMarkerVo.content?.trim().split('\n')" :key="p" style="min-height: 1.5em;">
+                    {{ p }}
+                  </p>
+                </el-scrollbar>
               </div>
 
               <div class="flex items-center gap-2 py-2">
@@ -285,6 +287,7 @@ const markerCoord = computed(() => cachedMarkerVo.value?.position ? cachedMarker
       position: relative;
       color: #686D7A;
       font-size: 20px;
+      overflow: hidden;
 
       &::before {
         position: absolute;

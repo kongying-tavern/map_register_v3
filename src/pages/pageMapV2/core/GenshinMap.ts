@@ -223,7 +223,7 @@ export class GenshinMap extends Deck {
           version: ${info.object?.version}
           position: [${info.object?.position}]
           itemIdList: [${info.object?.itemIdList?.join(',')}]
-          extra: ${info.object?.extra}`
+          extra: ${JSON.stringify(info.object?.extra)}`
         : info.sourceLayer
           ? `id: ${info.sourceLayer.id}
             x: ${Math.floor(x) - center[0]}, y: ${Math.floor(y) - center[1]}
