@@ -207,7 +207,7 @@ const markerCoord = computed(() => cachedMarkerVo.value?.position ? cachedMarker
   </div>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .drawer-modal {
   position: absolute;
   width: 100%;
