@@ -1,1 +1,1 @@
-export * from './useIconWithName'
+export * from './useIconList'

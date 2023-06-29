@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
-import { useIconWithName } from '../hooks'
+import { useIconList } from '../hooks'
 import Api from '@/api/api'
 import { PgUnit, useFetchHook, usePagination } from '@/hooks'
 import { Logger } from '@/utils'
@@ -55,7 +55,12 @@ onTypeSuccess((record) => {
 onTypeError(error)
 
 // 图标列表
-const { refresh, onSuccess, onError } = useIconWithName({ pagination, selectedType })
+const params = computed(() => ({
+  size: pagination.value.pageSize,
+  current: pagination.value.current,
+  typeIdList: selectedType.value === -1 ? undefined : [selectedType.value],
+}))
+const { refresh, onSuccess, onError } = useIconList(params)
 
 onMounted(refresh)
 
