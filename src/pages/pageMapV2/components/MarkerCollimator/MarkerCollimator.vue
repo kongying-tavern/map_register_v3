@@ -91,7 +91,7 @@ const creatorPanelClassname = useSwitchClass(collimatorVisible, {
     />
   </Teleport>
 
-  <Teleport v-if="mutuallyExclusiveLayerRef" :to="mutuallyExclusiveLayerRef">
+  <Teleport v-if="mutuallyExclusiveLayerRef && collimatorVisible" :to="mutuallyExclusiveLayerRef">
     <div class="gs-marker-creator-panel genshin-text">
       <div class="creator-collimator" :class="creatorPanelClassname" />
 

@@ -21,7 +21,6 @@ export const usePositionCreate = () => {
       })
       .open(MarkerCreatePanel)
       .afterClosed()
-    collimatorVisible.value = false
   })
 
   hook.cancel(() => {
