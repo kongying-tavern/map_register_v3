@@ -6,36 +6,30 @@ const props = defineProps<{
   itemTotalMap: Record<number, number>
 }>()
 
-const calculateFinishPercentage = (row: API.ItemVo) => {
-  return 100 * (props.itemCountMap[row.id as number] / props.itemTotalMap[row.id as number] || 0)
-}
+const finishedNum = computed(() => props.itemCountMap[props.row.id!] ?? 0)
+const totalNum = computed(() => props.itemTotalMap[props.row.id!] ?? 0)
+const percentage = computed(() => 100 * finishedNum.value / totalNum.value || 0)
 </script>
 
 <template>
-  <div class="w-full h-full flex flex-col overflow-hidden" :title="row.name">
+  <div
+    class="item-button w-full h-full flex flex-col overflow-hidden"
+    :class="{
+      'is-actived': actived,
+      'is-finished': percentage === 100,
+    }"
+    :style="{
+      '--percentage': `${percentage}%`,
+    }"
+    :title="row.name"
+  >
     <div class="w-full flex-1 flex flex-col px-2 justify-center">
       <span class="overflow-hidden text-ellipsis whitespace-nowrap">{{ row.name }}</span>
-      <span
-        class="text-xs leading-none"
-        :style="{
-          color: actived ? 'var(--el-color-primary-dark-2)' : '#a19c93',
-        }"
-      >
-        {{ itemCountMap[row.id as number] ?? 0 }} / {{ itemTotalMap[row.id as number] ?? 0 }}
+      <span class="collection-text text-xs leading-none">
+        {{ finishedNum }} / {{ totalNum }}
       </span>
     </div>
-    <div
-      class="collection-progress"
-      :class="{
-        'is-finished': calculateFinishPercentage(row) === 100,
-      }"
-      :style="{
-        '--finish-bg': actived ? '#85ce61' : '#529b2e',
-        '--progress-bg': actived ? '#66b1ff' : '#337ecc',
-        '--unprogress-bg': `color-mix(in srgb, #000 ${actived ? '40%' : '60%'}, #FFF)`,
-        '--percentage': `${calculateFinishPercentage(row)}%`,
-      }"
-    />
+    <div class="collection-progress" />
   </div>
 </template>
 
@@ -46,13 +40,34 @@ const calculateFinishPercentage = (row: API.ItemVo) => {
   initial-value: 0%;
 }
 
+.item-button {
+  --color-finished: #529b2e;
+  --color-progress: #337ecc;
+  --color-unprogress: color-mix(in srgb, #000 60%, #FFF);
+  --text-color: #A19C93;
+  --progress-bg: linear-gradient(to right, var(--color-progress) var(--percentage), var(--color-unprogress) var(--percentage));
+
+  transition: --percentage ease 150ms;
+
+  &.is-actived {
+    --color-finished: #85ce61;
+    --color-progress: #66b1ff;
+    --color-unprogress: color-mix(in srgb, #000 40%, #FFF);
+  }
+
+  &.is-finished {
+    --progress-bg: var(--color-finished);
+    --text-color: var(--color-finished);
+  }
+}
+
 .collection-progress {
   width: 100%;
   height: 6px;
-  background: linear-gradient(to right, var(--progress-bg) var(--percentage), var(--unprogress-bg) var(--percentage));
-  &.is-finished {
-    background: var(--finish-bg);
-  }
-  transition: all ease 150ms, --percentage ease 150ms;
+  background: var(--progress-bg);
+}
+
+.collection-text {
+  color: var(--text-color);
 }
 </style>
