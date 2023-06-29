@@ -1,8 +1,9 @@
 <script lang="ts" setup>
-import { DeleteFilled, Setting } from '@element-plus/icons-vue'
-import { CheckboxGroup, ConditionManager, ConditionRow, FilterTabs } from '.'
+import { DeleteFilled } from '@element-plus/icons-vue'
+import { CheckboxGroup, ConditionManager, ConditionRow, FilterTabs, ItemButton } from '.'
 import { GSButton, GSDivider } from '@/components'
-import { useIconTagStore, useUserStore } from '@/stores'
+import { IconSetting } from '@/components/AppIcons'
+import { useArchiveStore, useIconTagStore, useUserStore } from '@/stores'
 import { useCondition } from '@/pages/pageMapV2/hooks'
 import { FALLBACK_ITEM_ICON_URL } from '@/shared/constant'
 import db from '@/database'
@@ -18,6 +19,7 @@ const sort = (a: Sortable, b: Sortable) => {
 }
 
 const userStore = useUserStore()
+const archiveStore = useArchiveStore()
 
 /** 条件管理器 */
 const conditionManager = useCondition()
@@ -57,6 +59,28 @@ const itemList = asyncComputed<API.ItemVo[]>(async () => {
     .toArray()
   return res.sort(sort)
 }, [])
+
+// ==================== 物品计数 ====================
+const totalMarkers = asyncComputed(() => db.marker
+  .where('itemIdList')
+  .anyOf(itemList.value.map(item => item.id as number))
+  .toArray(),
+)
+
+const countMarkerItems = (markers: (API.MarkerVo | undefined)[]) => markers.reduce((seed: { [itemId: number]: number }, marker?: API.MarkerVo) => {
+  marker?.itemList?.forEach((item) => {
+    seed[item.itemId as number] = (seed[item.itemId as number] ?? 0) + 1
+  })
+  return seed
+}, {} as Record<number, number>)
+
+const itemTotalMap = computed(() => countMarkerItems(totalMarkers.value))
+
+const itemCountMap = asyncComputed(async () => {
+  const archivedMarkerIds = [...archiveStore.currentArchive.body.Data_KYJG]
+  const archivedMarkers = await db.marker.bulkGet(archivedMarkerIds)
+  return countMarkerItems(archivedMarkers)
+})
 </script>
 
 <template>
@@ -106,7 +130,7 @@ const itemList = asyncComputed<API.ItemVo[]>(async () => {
           <template #icon="{ row }">
             <img
               class="w-full h-full rounded-full bg-slate-500 object-contain"
-              :src="iconTagStore.iconTagMap[row.iconTag]?.url || FALLBACK_ITEM_ICON_URL"
+              :src="iconTagStore.iconTagMap[row.iconTag ?? '']?.url || FALLBACK_ITEM_ICON_URL"
               crossorigin=""
               loading="lazy"
               decoding="async"
@@ -128,12 +152,15 @@ const itemList = asyncComputed<API.ItemVo[]>(async () => {
         >
           <template #icon="{ row }">
             <img
-              class="w-full h-full rounded-full bg-slate-500 object-contain"
-              :src="iconTagStore.iconTagMap[row.iconTag]?.url ?? FALLBACK_ITEM_ICON_URL"
+              class="w-full h-full"
+              :src="iconTagStore.iconTagMap[row.iconTag ?? '']?.url ?? FALLBACK_ITEM_ICON_URL"
               crossorigin=""
               loading="lazy"
               decoding="async"
             >
+          </template>
+          <template #default="{ row, actived }">
+            <ItemButton :item-count-map="itemCountMap" :item-total-map="itemTotalMap" :row="row" :actived="actived" />
           </template>
         </CheckboxGroup>
       </div>
@@ -173,7 +200,7 @@ const itemList = asyncComputed<API.ItemVo[]>(async () => {
       <GSButton class="flex-1" @click="conditionManagerVisible = true">
         <template #icon>
           <el-icon color="var(--gs-color-confirm)">
-            <Setting />
+            <IconSetting />
           </el-icon>
         </template>
         管理条件
