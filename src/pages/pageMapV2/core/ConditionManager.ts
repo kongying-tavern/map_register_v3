@@ -112,7 +112,7 @@ export class ConditionManager extends IconManager {
     this.conditions.forEach(({ items }) => {
       ids = ids.concat(items)
     })
-    return ids
+    return [...new Set(ids)]
   })
 
   get existItemIds() { return this.#existItemIds.value }
@@ -205,9 +205,12 @@ export class ConditionManager extends IconManager {
     }
   })
 
-  reviewCondition = (id: string) => {
+  reviewCondition = async (id: string) => {
     const [areaCode, itemTypeId] = id.split('-')
     this.areaCode = areaCode
+    const { parentId } = (await db.area.where('code').equals(areaCode).first()) ?? {}
+    if (parentId !== undefined)
+      this.parentAreaCode = (await db.area.get(parentId))?.code ?? ''
     this.itemTypeId = Number(itemTypeId)
     this.tabKey = this.tabNames.length - 1
   }
