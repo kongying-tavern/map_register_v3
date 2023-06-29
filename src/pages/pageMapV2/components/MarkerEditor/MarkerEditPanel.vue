@@ -58,6 +58,9 @@ const isOfflineMode = import.meta.env.VITE_DEVELOPMENT_MODE === 'offline'
     class="genshin-marker-edit-dialog"
     align-center
     append-to-body
+    :close-on-click-modal="false"
+    :close-on-press-escape="false"
+    :show-close="false"
   >
     <template #header>
       <div>{{ markerInfo?.markerTitle }} (id: {{ markerInfo?.id }})</div>
