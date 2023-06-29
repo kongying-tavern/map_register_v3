@@ -6,6 +6,7 @@ import { FeatureGrid, MarkerFilter, MarkerTable, SiderMenu, SiderMenuItem } from
 import { AppSettings, GSSwitch } from '@/components'
 import { useGlobalDialog } from '@/hooks'
 import { useUserStore } from '@/stores'
+import { IconGithub } from '@/components/AppIcons'
 import { FALLBACK_AVATAR_URL } from '@/shared/constant'
 
 defineProps<{
@@ -38,12 +39,14 @@ const features: FeatureOption[] = [
   { label: '管理页', value: 'manager', icon: SetUp },
   { label: '系统设置', value: 'setting', icon: Setting },
   { label: '赞助我们', value: 'sponsor', icon: CoffeeCup },
+  { label: 'GitHub', value: 'GitHub', icon: IconGithub },
 ]
 
 const onFeatureCommand = (command: string) => ({
   manager: () => router.push('/items'),
   setting: openSettingDialog,
   sponsor: () => window.open('https://opencollective.com/genshinmap'),
+  GitHub: () => window.open('https://github.com/kongying-tavern/map_register_v3'),
 } as Record<string, () => void>)[command]?.()
 
 const { markers } = useCurrentLayerMarkers()
