@@ -57,9 +57,6 @@ export const useItemList = (options: ItemHookOptions) => {
       if (name)
         collection = collection.filter(item => item.name?.includes(name) ?? false)
 
-      if (!collection)
-        collection = db.item.toCollection()
-
       const total = await collection.clone().count()
       const items = await collection.offset((current - 1) * size).limit(size).toArray()
 
