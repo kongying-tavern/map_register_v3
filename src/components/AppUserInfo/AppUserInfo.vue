@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { Avatar } from '@element-plus/icons-vue'
 import { ArchiveAnalyser, ArchiveSelector, InfoEditor, PasswordEditor } from '.'
 import { useUserStore } from '@/stores'
 import { GSTab } from '@/components'
@@ -12,8 +13,6 @@ const tabs: { title: string; value: string }[] = [
   { title: '修改密码', value: 'password' },
 ]
 const tab = ref('archive')
-
-document.documentElement.style.setProperty('--user-icon', `url("${userStore.info.logo}")`)
 </script>
 
 <template>
@@ -31,8 +30,9 @@ document.documentElement.style.setProperty('--user-icon', `url("${userStore.info
       <div class="user-info overflow-hidden rounded flex flex-col items-center p-8 pt-28">
         <div class="banner absolute top-0 left-0 text-center text-xl p-4" />
 
-        <div class="user-avatar flex justify-center items-center">
-          <div class="user-avatar-img w-40 h-40" />
+        <div class="user-avatar w-40 h-40 p-2 flex justify-center items-center">
+          <img v-if="userStore.info.logo?.trim()" class="w-full h-full rounded-full">
+          <Avatar style="background: var(--el-color-info-light-3);" class="rounded-full text-white" />
         </div>
 
         <div class="w-full flex flex-col items-center p-4">
@@ -65,9 +65,6 @@ document.documentElement.style.setProperty('--user-icon', `url("${userStore.info
 </template>
 
 <style lang="scss" scoped>
-:root {
-    --user-icon: url('default.jpg');
-}
 .user-info-dialog {
   width: 1200px;
   height: 720px;
@@ -126,16 +123,6 @@ document.documentElement.style.setProperty('--user-icon', `url("${userStore.info
   overflow: hidden;
   position: relative;
   filter: drop-shadow(0 0 6px #00000010);
-  &::before {
-    border-radius: 50%;
-    content: '';
-    background-image: var(--user-icon);
-    background-position: 50% 50%;
-    position: absolute;
-    background-size: cover;
-    width: calc(90% - 1px);
-    aspect-ratio: 1 / 1;
-  }
 }
 
 .user-action {

@@ -1,8 +1,8 @@
 <script lang="ts" setup>
+import { Avatar } from '@element-plus/icons-vue'
 import { AppSettings } from '.'
 import { useUserStore } from '@/stores'
 import { useGlobalDialog, useTheme } from '@/hooks'
-import { FALLBACK_AVATAR_URL } from '@/shared/constant'
 
 defineProps<{
   mapMode?: boolean
@@ -31,7 +31,10 @@ const handleCommand = (command: string) => ({
 <template>
   <el-dropdown class="genshin-avatar" trigger="click" style="--el-border-radius-base: 8px" @command="handleCommand">
     <el-button v-bind="$attrs" text size="large" :style="{ padding: '4px 8px' }">
-      <el-avatar :size="30" :src="userStore.info.logo || FALLBACK_AVATAR_URL" />
+      <el-avatar v-if="userStore.info.logo?.trim()" class="rounded-full overflow-hidden" :size="30" :src="userStore.info.logo.trim()" />
+      <el-icon v-else :size="30" class="rounded-full overflow-hidden" style="background: var(--el-color-info-light-3);" color="#FFF">
+        <Avatar />
+      </el-icon>
       <el-icon class="pl-1">
         <ArrowDown />
       </el-icon>
