@@ -48,7 +48,7 @@ onDeleteSuccess(syncItemListChanged)
 </script>
 
 <template>
-  <div class="h-full flex-1 flex flex-col gap-2 overflow-hidden text-orange-400">
+  <div class="h-full flex-1 flex flex-col gap-2 overflow-hidden">
     <ItemFilter v-model="queryForm">
       <template #footer>
         <div class="w-full flex items-center justify-end">
@@ -93,7 +93,7 @@ onDeleteSuccess(syncItemListChanged)
       v-model:page-size="pagination.pageSize"
       :total="pagination.total"
       :layout="layout"
-      :page-sizes="[10, 20, 30, 40]"
+      :page-sizes="[10, 20, 30]"
       :pager-count="5"
       class="flex justify-end items-center"
       background
