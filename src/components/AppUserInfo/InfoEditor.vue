@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { FormRules } from 'element-plus'
+import { iconCofig } from '.'
 import { GSButton, GSDivider, GSInput } from '@/components'
 import { useFetchHook } from '@/hooks'
 import type { ElFormType } from '@/shared'
@@ -47,6 +48,8 @@ const { refresh: updateUserInfo, loading } = useFetchHook({
     if (!isValid)
       return
     await Api.sysUserController.updateUser({}, form.value)
+    await userStore.updateUserInfo()
+    document.documentElement.style.setProperty('--user-icon', `url("${userStore.info.logo}")`)
   },
 })
 </script>
@@ -87,6 +90,19 @@ const { refresh: updateUserInfo, loading } = useFetchHook({
 
     <GSDivider />
 
-    <div>头像编辑（组件开发中）</div>
+    <!-- 溢出滚动 -->
+    <div class="h-72 overflow-y-scroll">
+      <!-- 显示所有头像 -->
+      <div class="flex flex-wrap gap-3">
+        <div
+          v-for="item in iconCofig"
+          :key="item.id"
+          class="w-16 h-16 rounded-full cursor-pointer border-slate-300"
+          :class="{ 'border-2': form.logoUrl !== item.icon, 'border-4': form.logoUrl === item.icon, 'border-blue-500': form.logoUrl === item.icon, 'border-slate-300': form.logoUrl !== item.icon }"
+          :style="{ backgroundImage: `url(${item.icon})`, backgroundSize: 'cover' }"
+          @click="form.logoUrl = item.icon"
+        />
+      </div>
+    </div>
   </div>
 </template>

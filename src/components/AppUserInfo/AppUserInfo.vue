@@ -12,6 +12,8 @@ const tabs: { title: string; value: string }[] = [
   { title: '修改密码', value: 'password' },
 ]
 const tab = ref('archive')
+
+document.documentElement.style.setProperty('--user-icon', `url("${userStore.info.logo}")`)
 </script>
 
 <template>
@@ -63,6 +65,9 @@ const tab = ref('archive')
 </template>
 
 <style lang="scss" scoped>
+:root {
+    --user-icon: url('default.jpg');
+}
 .user-info-dialog {
   width: 1200px;
   height: 720px;
@@ -124,7 +129,7 @@ const tab = ref('archive')
   &::before {
     border-radius: 50%;
     content: '';
-    background-image: url('https://webstatic.mihoyo.com/upload/contentweb/2022/10/20/62cb7fb1815d9d05d3ece2e0d8e85c7d_8731082942818264376.png');
+    background-image: var(--user-icon);
     background-position: 50% 50%;
     position: absolute;
     background-size: cover;
