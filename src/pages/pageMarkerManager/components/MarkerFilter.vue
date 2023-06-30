@@ -54,51 +54,53 @@ watch(itemOptions, (options) => {
 </script>
 
 <template>
-  <el-form class="w-full grid grid-cols-4" :inline="true" :model="modelValue">
-    <el-form-item label="点位ID">
-      <el-input
-        v-model="markerIds"
-        placeholder="可使用逗号分隔查询多个"
-        style="width: 100%" clearable
-      />
-    </el-form-item>
+  <el-form class="w-full" label-width="70px">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6">
+      <el-form-item label="点位ID">
+        <el-input
+          v-model="markerIds"
+          placeholder="可使用逗号分隔查询多个"
+          style="width: 100%" clearable
+        />
+      </el-form-item>
 
-    <el-form-item label="所属地区">
-      <el-tree-select
-        v-model="areaIdList"
-        placeholder="请选择地区"
-        node-key="id"
-        accordion collapse-tags collapse-tags-tooltip clearable filterable multiple
-        style="width: 100%"
-        :data="areaTree"
-        :render-after-expand="false"
-        :props="{ label: 'name', value: 'id' }"
-      />
-    </el-form-item>
+      <el-form-item label="所属地区">
+        <el-tree-select
+          v-model="areaIdList"
+          placeholder="请选择地区"
+          node-key="id"
+          accordion collapse-tags collapse-tags-tooltip clearable filterable multiple
+          style="width: 100%"
+          :data="areaTree"
+          :render-after-expand="false"
+          :props="{ label: 'name', value: 'id' }"
+        />
+      </el-form-item>
 
-    <el-form-item label="类型">
-      <el-select-v2
-        v-model="typeIdList"
-        placeholder="请选择点位类型"
-        node-key="id"
-        collapse-tags collapse-tags-tooltip clearable filterable multiple
-        style="width: 100%"
-        :options="itemTypeOptions"
-      />
-    </el-form-item>
+      <el-form-item label="类型">
+        <el-select-v2
+          v-model="typeIdList"
+          placeholder="请选择点位类型"
+          node-key="id"
+          collapse-tags collapse-tags-tooltip clearable filterable multiple
+          style="width: 100%"
+          :options="itemTypeOptions"
+        />
+      </el-form-item>
 
-    <el-form-item label="物品">
-      <el-select-v2
-        v-model="itemIdList"
-        placeholder="请选择物品"
-        collapse-tags collapse-tags-tooltip filterable multiple
-        style="width: 100%"
-        :options="itemOptions"
-      />
-    </el-form-item>
+      <el-form-item label="物品">
+        <el-select-v2
+          v-model="itemIdList"
+          placeholder="请选择物品"
+          collapse-tags collapse-tags-tooltip filterable multiple
+          style="width: 100%"
+          :options="itemOptions"
+        />
+      </el-form-item>
 
-    <el-form-item style="grid-column: 4;">
-      <slot name="footer" />
-    </el-form-item>
+      <el-form-item class="lg:col-start-4 lg:col-end-5 sm:col-start-2 sm:col-end-3 col-start-1 col-end-2">
+        <slot name="footer" />
+      </el-form-item>
+    </div>
   </el-form>
 </template>
