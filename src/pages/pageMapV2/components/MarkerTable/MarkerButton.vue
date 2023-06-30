@@ -45,7 +45,7 @@ const unhoverMarker = () => {
 
 <template>
   <GSButton
-    class="flex-1"
+    class="flex-0"
     size="small"
     :title="data.markerTitle"
     @click="flyToMarker"

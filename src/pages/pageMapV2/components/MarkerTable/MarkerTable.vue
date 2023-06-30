@@ -16,12 +16,6 @@ const { width, height } = useElementSize(tableContainerRef)
 
 const { markers } = useCurrentLayerMarkers()
 
-const columns = ref<Column[]>([
-  { title: '点位名称', key: 'markerTitle', width: 100, cellRenderer: ({ rowData: data }) => <MarkerButton data={data} /> },
-  { title: 'id', key: 'id', dataKey: 'id', width: 80 },
-  { title: '点位说明', key: 'content', dataKey: 'content', width: 140, flexGrow: 1 },
-])
-
 const queryText = ref('')
 const queryUnits = computed(() => (queryText.value.trim().match(/\S+\S+/g) ?? []) as string[])
 const queryMap = computed(() => Object.fromEntries(queryUnits.value.map(g => g.split(':'))))
@@ -69,6 +63,22 @@ Row.inheritAttrs = false
 
 const expandAll = ref(false)
 const expandedRowKeys = computed(() => expandAll.value ? filteredMarkers.value.map(marker => marker.id) : [])
+
+const columns = computed<Column[]>(() => {
+  if (expandAll.value) {
+    return [
+      { title: '点位名称', key: 'markerTitle', width: 200, cellRenderer: ({ rowData: data }) => <MarkerButton data={data} /> },
+      { title: 'id', key: 'id', dataKey: 'id', width: 120 },
+    ]
+  }
+  else {
+    return [
+      { title: '点位名称', key: 'markerTitle', width: 150, cellRenderer: ({ rowData: data }) => <MarkerButton data={data} /> },
+      { title: 'id', key: 'id', dataKey: 'id', width: 60 },
+      { title: '点位说明', key: 'content', dataKey: 'content', width: 110, flexGrow: 1 },
+    ]
+  }
+})
 </script>
 
 <template>

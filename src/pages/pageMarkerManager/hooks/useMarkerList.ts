@@ -87,18 +87,18 @@ export const useSearchMarkerList = (options: MarkerSearchHookOptions) => {
 
   // 由于混合对象 watch，这里需要进行对象脏检查，只有参数不同时才进行新的搜索
   watch(fetchParams, (newParams, oldParams) => {
-    const { current: c1, size: s1, ...restNew } = newParams ?? {}
-    const { current: c2, size: s2, ...restOld } = oldParams ?? {}
-    const obj1 = JSON.stringify({ c: c1, s: s1 })
-    const obj2 = JSON.stringify({ c: c2, s: s2 })
-    const obj3 = JSON.stringify(restNew)
-    const obj4 = JSON.stringify(restOld)
-    const isPaginationSame = obj1 === obj2
-    const isOtherParamsSame = obj3 === obj4
+    const { current: newCurrent, size: newSize, ...restNew } = newParams ?? {}
+    const { current: oldCurrent, size: oldSize, ...restOld } = oldParams ?? {}
+
+    const isPaginationSame = newCurrent === oldCurrent && newSize === oldSize
+    const isOtherParamsSame = JSON.stringify(restNew) === JSON.stringify(restOld)
+
     if (isPaginationSame && isOtherParamsSame)
       return
+
     if (!isOtherParamsSame)
       pagination.value.current = 1
+
     updateMarkerList()
   }, { deep: true })
 
