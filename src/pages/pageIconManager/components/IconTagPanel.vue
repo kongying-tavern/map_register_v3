@@ -58,6 +58,15 @@ const urlFormatter = (_: unknown, __: unknown, url = '') => {
         cell-class-name="whitespace-nowrap"
         style="width: 100%"
       >
+        <el-table-column label="图标" min-width="50px">
+          <template #default="scope">
+            <img
+              v-if="scope.row.url"
+              :src="scope.row.url"
+              style="width: 30px; height: 30px; object-fit: contain"
+            >
+          </template>
+        </el-table-column>
         <el-table-column prop="iconId" label="id" width="150px" />
         <el-table-column prop="tag" label="tag" width="150px" />
         <el-table-column prop="typeIdList" label="类型" width="150px" />

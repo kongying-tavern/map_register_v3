@@ -14,6 +14,23 @@ const { pagination, layout } = usePagination({
   units: [PgUnit.TOTAL, PgUnit.PREV, PgUnit.PAGER, PgUnit.NEXT, PgUnit.SIZE],
 })
 
+// 图标编辑表单
+const editFormVisible = ref(false)
+const editingIcon = ref<API.IconVo>({
+  id: 0,
+  name: '',
+  typeIdList: [],
+  url: '',
+})
+const editFormTitle = computed(() => `编辑图标 ID:${editingIcon.value.id}`)
+
+// 图标编辑
+const editIcon = (icon: API.IconVo) => {
+  editingIcon.value = icon
+  editFormVisible.value = true
+}
+
+// 报错处理
 const error = (err: Error) => {
   logger.error(err)
   ElMessage.error(err.message)
@@ -71,10 +88,39 @@ onSuccess(({ record, total }) => {
 
 onError(error)
 
+// 筛选条件变化时刷新
 watch(selectedType, () => {
   refresh()
   pagination.value.current = 1
 })
+
+// 编辑图标请求
+const saveIcon = async () => {
+  let updateIcon: API.IconVo = {
+    id: 0,
+    name: '',
+    typeIdList: [],
+    url: '',
+  }
+  // 仅提交修改的字段
+  updateIcon = {
+    id: editingIcon.value.id,
+    name: editingIcon.value.name,
+    typeIdList: editingIcon.value.typeIdList,
+    url: editingIcon.value.url,
+  }
+  console.log(updateIcon)
+  const { data } = await Api.icon.updateIcon(updateIcon)
+  if (data) {
+    ElMessage.success('保存成功')
+    editFormVisible.value = false
+    refresh()
+  }
+  else {
+    ElMessage.error('修改失败')
+    refresh()
+  }
+}
 
 const tableContainerRef = ref<HTMLElement | null>(null)
 const { height } = useElementSize(tableContainerRef)
@@ -85,6 +131,41 @@ const urlFormatter = (_: unknown, __: unknown, url = '') => {
 </script>
 
 <template>
+  <el-dialog v-model="editFormVisible" :title="editFormTitle" width="500px">
+    <el-form :model="editingIcon" class="mx-4" label-width="90px">
+      <el-form-item label="名称">
+        <el-input v-model="editingIcon.name" autocomplete="off" />
+      </el-form-item>
+      <el-form-item label="图标类型">
+        <el-select v-model="editingIcon.typeIdList" placeholder="请选择图标类型" multiple>
+          <el-option
+            v-for="item in iconTypeList"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="图标url">
+        <el-input v-model="editingIcon.url" autocomplete="off" />
+      </el-form-item>
+      <el-form-item v-if="editingIcon.url" label="图标预览">
+        <img
+          :src="editingIcon.url"
+          style="width: 50px; height: 50px; object-fit: contain"
+        >
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="editFormVisible = false">取消</el-button>
+        <el-button type="primary" @click="saveIcon">
+          确认
+        </el-button>
+      </span>
+    </template>
+  </el-dialog>
+
   <div class="h-full flex flex-col gap-2 overflow-hidden">
     <div class="py-1">
       <!-- 根据图标类型筛选 -->
@@ -122,15 +203,19 @@ const urlFormatter = (_: unknown, __: unknown, url = '') => {
         <!-- <el-table-column prop="typeIdList" label="图标类型" width="150px" /> -->
         <el-table-column label="图标类型" min-width="100px">
           <template #default="scope">
-            <span>{{ iconTypeMap[scope.row.typeIdList[0]] }}</span>
+            <span v-for="typeId in scope.row.typeIdList" :key="typeId">
+              {{ iconTypeMap[typeId] }}
+            </span>
           </template>
         </el-table-column>
-        <el-table-column prop="updaterName" label="提交者" width="150px" />
+        <el-table-column prop="updater.nickname" label="最新更改者" width="150px" />
         <el-table-column prop="url" label="url" min-width="400px" :formatter="urlFormatter" />
         <el-table-column label="操作" width="100px">
-          <el-button size="small">
-            编辑
-          </el-button>
+          <template #default="scope">
+            <el-button size="small" @click.stop="editIcon(scope.row)">
+              编辑
+            </el-button>
+          </template>
         </el-table-column>
       </el-table>
     </div>
