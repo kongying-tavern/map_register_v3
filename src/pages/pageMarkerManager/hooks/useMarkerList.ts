@@ -1,18 +1,18 @@
 import type { Ref } from 'vue'
-import type { Collection } from 'dexie'
-import type { FetchHookOptions } from '@/hooks'
+import type { PaginationState } from '@/hooks'
 import { useFetchHook } from '@/hooks'
 import db from '@/database'
 
-interface MarkerSearchHookOptions extends Omit<FetchHookOptions<API.RPageListVoMarkerVo>, 'immediate'> {
-  pagination: Ref<{
-    total: number
-    current: number
-    pageSize: number
-  }>
-  params: () => { markerIdList?: number[] }
-  & API.PageSearchVo
-  & API.MarkerSearchVo
+export interface MarkerSearchParams {
+  areaIdList: number[]
+  typeIdList: number[]
+  itemIdList: number[]
+  markerIdList: number[]
+}
+
+export interface MarkerSearchHookOptions {
+  pagination: Ref<PaginationState>
+  getParams: () => MarkerSearchParams
 }
 
 const markerList = ref<API.MarkerVo[]>([]) as Ref<API.MarkerVo[]>
@@ -20,87 +20,74 @@ const markerList = ref<API.MarkerVo[]>([]) as Ref<API.MarkerVo[]>
 /** 根据各种条件筛选查询点位信息 支持根据末端地区、末端类型、物品来进行查询，不填默认分页查询 */
 // TODO 接口分页
 export const useSearchMarkerList = (options: MarkerSearchHookOptions) => {
-  const { pagination, loading: scopedLoading, params } = options
+  const { pagination, getParams } = options
 
-  const fetchParams = computed(() => params?.())
+  const params = computed(() => getParams())
 
-  const { refresh: updateMarkerList, onSuccess, ...rest } = useFetchHook<{ record: API.MarkerVo[]; total: number }>({
+  const hasIntersection = (a: number[], b: number[]) => {
+    const numSet = a.length < b.length ? new Set(a) : new Set(b)
+    const arr = a.length < b.length ? b : a
+    for (const num of arr) {
+      if (numSet.has(num))
+        return true
+    }
+    return false
+  }
+
+  const { refresh: updateMarkerList, onSuccess, ...rest } = useFetchHook({
     immediate: true,
-    loading: scopedLoading,
     onRequest: async () => {
-      const {
-        // getBeta = false, // TODO 逻辑可能删除
-        // hiddenFlagList = [], // // TODO 逻辑可能删除
-        areaIdList = [],
-        typeIdList = [],
-        itemIdList = [],
-        markerIdList = [],
-        current = 1,
-        size = 10,
-      } = fetchParams.value ?? {}
+      const { areaIdList, typeIdList, itemIdList, markerIdList } = params.value
+      const { current, pageSize: size } = pagination.value
 
-      const isMarkerIdEmpty = markerIdList.length < 1
-      const isAreaEmpty = areaIdList.length < 1
-      const isTypeEmpty = typeIdList.length < 1
-      const isItemEmpty = itemIdList.length < 1
+      const queryAreaItemIds = areaIdList.length > 0 ? (await db.item.where('areaId').anyOf(areaIdList).toArray()).map(itemVo => itemVo.id!) : undefined
+      const queryTypeItemIds = typeIdList.length > 0 ? (await db.item.where('typeIdList').anyOf(typeIdList).toArray()).map(itemVo => itemVo.id!) : undefined
+      const idSet = new Set(markerIdList)
 
-      // TODO 当查询逻辑很复杂时，响应时间可能会达到百毫秒量级，需要优化查询的方式
-      let collection: Collection<API.MarkerVo, number> | undefined
+      // 1. 优先查询包含地区
+      let collection = queryAreaItemIds ? db.marker.where('itemIdList').anyOf(queryAreaItemIds) : db.marker.toCollection()
 
-      // 1. id 查询最优先，覆盖其他条件
-      if (!isMarkerIdEmpty) {
-        collection = db.marker.where('id').anyOf(markerIdList)
-      }
-      // 2. 其他情况下，由于物品类型制约了物品的选择，对于点位只需要判断是否满足地区和物品的条件即可
-      else {
-        if (!isAreaEmpty) {
-          const queryItems = (await db.item.where('id').anyOf(areaIdList).toArray()).map(itemVo => itemVo.id as number)
-          collection = db.marker.where('itemIdList').anyOf(queryItems)
-        }
-        if (!isTypeEmpty && isItemEmpty) {
-          const queryItems = (await db.item.where('typeIdList').anyOf(typeIdList).toArray()).map(itemVo => itemVo.id as number)
-          collection = collection
-            ? collection.and(markerVo => markerVo.itemList?.find(item => queryItems.includes(item.itemId as number)) !== undefined)
-            : db.marker.where('itemIdList').anyOf(queryItems)
-        }
-        if (!isItemEmpty) {
-          collection = collection
-            ? collection.and(markerVo => markerVo.itemList?.find(item => itemIdList.includes(item.itemId as number)) !== undefined)
-            : db.marker.where('itemIdList').anyOf(itemIdList)
-        }
-      }
+      collection = collection.and(({ id, itemList = [] }) => {
+        const itemLinkIds = itemList.map(itemLink => itemLink.itemId!)
 
-      // 0. 当条件为空时，则查询全部点位
-      collection ??= db.marker.toCollection()
+        // 2. 查询包含类型
+        if (queryTypeItemIds && !hasIntersection(itemLinkIds, queryTypeItemIds))
+          return false
 
-      let record = await collection.toArray()
-      // collection.count() 存在 bug，这里使用手动分页和计数
-      const total = record.length
-      record = record.slice((current - 1) * size, current * size)
-      return { total, record }
+        // 3. 查询包含物品
+        if (itemIdList.length && !hasIntersection(itemLinkIds, itemIdList))
+          return false
+
+        // 4. 查询包含 id
+        if (markerIdList.length && !idSet.has(id!))
+          return false
+
+        return true
+      })
+
+      const totalMarkers = await collection.toArray()
+
+      const offset = (current - 1) * size
+      const markers = totalMarkers.slice(offset, offset + size)
+      const total = totalMarkers.length
+
+      return { markers, total }
     },
   })
 
-  onSuccess(({ record }) => {
-    markerList.value = record
+  onSuccess(({ markers, total }) => {
+    markerList.value = markers
+    pagination.value.total = total
   })
 
-  // 由于混合对象 watch，这里需要进行对象脏检查，只有参数不同时才进行新的搜索
-  watch(fetchParams, (newParams, oldParams) => {
-    const { current: newCurrent, size: newSize, ...restNew } = newParams ?? {}
-    const { current: oldCurrent, size: oldSize, ...restOld } = oldParams ?? {}
-
-    const isPaginationSame = newCurrent === oldCurrent && newSize === oldSize
-    const isOtherParamsSame = JSON.stringify(restNew) === JSON.stringify(restOld)
-
-    if (isPaginationSame && isOtherParamsSame)
-      return
-
-    if (!isOtherParamsSame)
-      pagination.value.current = 1
-
+  const resetPaginationUpdate = () => {
+    pagination.value.current = 1
     updateMarkerList()
-  }, { deep: true })
+  }
+
+  watch(() => pagination.value.current, updateMarkerList)
+  watch(() => [pagination.value.pageSize], resetPaginationUpdate)
+  watchDebounced(() => params.value, resetPaginationUpdate, { debounce: 500 })
 
   return { markerList, updateMarkerList, onSuccess, ...rest }
 }
