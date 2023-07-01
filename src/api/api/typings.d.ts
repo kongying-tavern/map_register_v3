@@ -9,15 +9,7 @@ declare namespace API {
     time?: string;
   };
 
-  type SysUserVo = {
-    /** 乐观锁 */
-    version?: number;
-    /** ID */
-    id?: number;
-    /** 更新人 */
-    updaterId?: number;
-    /** 更新时间 */
-    updateTime?: string;
+  type SysUserSmallVo = {
     /** 用户名 */
     username?: string;
     /** 昵称 */
@@ -28,8 +20,6 @@ declare namespace API {
     phone?: string;
     /** 头像链接 */
     logo?: string;
-    /** 角色ID */
-    roleId?: number;
   };
 
   type TagTypeVo = {
@@ -39,12 +29,12 @@ declare namespace API {
     id?: number;
     /** 创建人 */
     creatorId?: number;
-    creator?: SysUserVo;
+    creator?: SysUserSmallVo;
     /** 创建时间 */
     createTime?: string;
     /** 更新人 */
     updaterId?: number;
-    updater?: SysUserVo;
+    updater?: SysUserSmallVo;
     /** 更新时间 */
     updateTime?: string;
     /** 分类名称 */
@@ -71,12 +61,12 @@ declare namespace API {
     id?: number;
     /** 创建人 */
     creatorId?: number;
-    creator?: SysUserVo;
+    creator?: SysUserSmallVo;
     /** 创建时间 */
     createTime?: string;
     /** 更新人 */
     updaterId?: number;
-    updater?: SysUserVo;
+    updater?: SysUserSmallVo;
     /** 更新时间 */
     updateTime?: string;
     /** 路线名称 */
@@ -102,12 +92,12 @@ declare namespace API {
     id?: number;
     /** 创建人 */
     creatorId?: number;
-    creator?: SysUserVo;
+    creator?: SysUserSmallVo;
     /** 创建时间 */
     createTime?: string;
     /** 更新人 */
     updaterId?: number;
-    updater?: SysUserVo;
+    updater?: SysUserSmallVo;
     /** 更新时间 */
     updateTime?: string;
     /** 点位提交ID */
@@ -162,12 +152,12 @@ declare namespace API {
     id?: number;
     /** 创建人 */
     creatorId?: number;
-    creator?: SysUserVo;
+    creator?: SysUserSmallVo;
     /** 创建时间 */
     createTime?: string;
     /** 更新人 */
     updaterId?: number;
-    updater?: SysUserVo;
+    updater?: SysUserSmallVo;
     /** 更新时间 */
     updateTime?: string;
     /** 点位签戳（用于兼容旧点位ID） */
@@ -203,12 +193,12 @@ declare namespace API {
     id?: number;
     /** 创建人 */
     creatorId?: number;
-    creator?: SysUserVo;
+    creator?: SysUserSmallVo;
     /** 创建时间 */
     createTime?: string;
     /** 更新人 */
     updaterId?: number;
-    updater?: SysUserVo;
+    updater?: SysUserSmallVo;
     /** 更新时间 */
     updateTime?: string;
     /** 图标标签 */
@@ -243,12 +233,12 @@ declare namespace API {
     id?: number;
     /** 创建人 */
     creatorId?: number;
-    creator?: SysUserVo;
+    creator?: SysUserSmallVo;
     /** 创建时间 */
     createTime?: string;
     /** 更新人 */
     updaterId?: number;
-    updater?: SysUserVo;
+    updater?: SysUserSmallVo;
     /** 更新时间 */
     updateTime?: string;
     /** 物品名称 */
@@ -282,12 +272,12 @@ declare namespace API {
     id?: number;
     /** 创建人 */
     creatorId?: number;
-    creator?: SysUserVo;
+    creator?: SysUserSmallVo;
     /** 创建时间 */
     createTime?: string;
     /** 更新人 */
     updaterId?: number;
-    updater?: SysUserVo;
+    updater?: SysUserSmallVo;
     /** 更新时间 */
     updateTime?: string;
     /** 分类名 */
@@ -305,12 +295,12 @@ declare namespace API {
     id?: number;
     /** 创建人 */
     creatorId?: number;
-    creator?: SysUserVo;
+    creator?: SysUserSmallVo;
     /** 创建时间 */
     createTime?: string;
     /** 更新人 */
     updaterId?: number;
-    updater?: SysUserVo;
+    updater?: SysUserSmallVo;
     /** 更新时间 */
     updateTime?: string;
     /** 图标名称 */
@@ -328,12 +318,12 @@ declare namespace API {
     id?: number;
     /** 创建人 */
     creatorId?: number;
-    creator?: SysUserVo;
+    creator?: SysUserSmallVo;
     /** 创建时间 */
     createTime?: string;
     /** 更新人 */
     updaterId?: number;
-    updater?: SysUserVo;
+    updater?: SysUserSmallVo;
     /** 更新时间 */
     updateTime?: string;
     /** 地区名称 */
@@ -403,6 +393,29 @@ declare namespace API {
     time?: string;
   };
 
+  type SysUserVo = {
+    /** 乐观锁 */
+    version?: number;
+    /** ID */
+    id?: number;
+    /** 更新人 */
+    updaterId?: number;
+    /** 更新时间 */
+    updateTime?: string;
+    /** 用户名 */
+    username?: string;
+    /** 昵称 */
+    nickname?: string;
+    /** QQ */
+    qq?: string;
+    /** 手机号 */
+    phone?: string;
+    /** 头像链接 */
+    logo?: string;
+    /** 角色ID */
+    roleId?: number;
+  };
+
   type PageAndTypeSearchVo = {
     /** 当前页，从0开始 */
     current?: number;
@@ -434,12 +447,12 @@ declare namespace API {
     id?: number;
     /** 创建人 */
     creatorId?: number;
-    creator?: SysUserVo;
+    creator?: SysUserSmallVo;
     /** 创建时间 */
     createTime?: string;
     /** 更新人 */
     updaterId?: number;
-    updater?: SysUserVo;
+    updater?: SysUserSmallVo;
     /** 更新时间 */
     updateTime?: string;
     /** 标签名 */
@@ -657,12 +670,12 @@ declare namespace API {
     id?: number;
     /** 创建人 */
     creatorId?: number;
-    creator?: SysUserVo;
+    creator?: SysUserSmallVo;
     /** 创建时间 */
     createTime?: string;
     /** 更新人 */
     updaterId?: number;
-    updater?: SysUserVo;
+    updater?: SysUserSmallVo;
     /** 更新时间 */
     updateTime?: string;
     /** 物品ID */
@@ -813,12 +826,12 @@ declare namespace API {
     id?: number;
     /** 创建人 */
     creatorId?: number;
-    creator?: SysUserVo;
+    creator?: SysUserSmallVo;
     /** 创建时间 */
     createTime?: string;
     /** 更新人 */
     updaterId?: number;
-    updater?: SysUserVo;
+    updater?: SysUserSmallVo;
     /** 更新时间 */
     updateTime?: string;
     /** 内容 */
