@@ -31,8 +31,8 @@ const tab = ref('archive')
         <div class="banner absolute top-0 left-0 text-center text-xl p-4" />
 
         <div class="user-avatar w-40 h-40 p-2 flex justify-center items-center">
-          <img v-if="userStore.info.logo?.trim()" class="w-full h-full rounded-full">
-          <Avatar style="background: var(--el-color-info-light-3);" class="rounded-full text-white" />
+          <img v-if="userStore.info.logo?.trim()" :src="userStore.info.logo?.trim()" class="w-full h-full rounded-full">
+          <Avatar v-else style="background: var(--el-color-info-light-3);" class="rounded-full text-white" />
         </div>
 
         <div class="w-full flex flex-col items-center p-4">
