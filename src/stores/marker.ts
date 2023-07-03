@@ -3,7 +3,7 @@ import type { AxiosRequestConfig } from 'axios'
 import { ElNotification } from 'element-plus'
 import dayjs from 'dayjs'
 import { liveQuery } from 'dexie'
-import { Compress, messageFrom } from '@/utils'
+import { Zip, messageFrom } from '@/utils'
 import Api from '@/api/api'
 import db, { AppDatabaseApi } from '@/database'
 import { localSettings } from '@/stores'
@@ -55,11 +55,11 @@ export const useMarkerStore = defineStore('global-marker', {
       const oldMD5 = (await db.md5.get(`marker-${index}`))?.value
       if (newMD5 === oldMD5)
         return 0
-      const data = await Api.markerDoc.listPageMarkerBy7zip({ index }, ({
+      const data = await Api.markerDoc.listPageMarkerBy7zip({ index: index - 1 }, ({
         responseType: 'arraybuffer',
       } as AxiosRequestConfig)) as unknown as ArrayBuffer
       // 解压点位数据至任务列表
-      const depressedData = await Compress.decompress(new Uint8Array(data), 60000)
+      const depressedData = await Zip.decompress(new Uint8Array(data))
       const stringData = new TextDecoder('utf-8').decode(depressedData.buffer)
       const parseredData = JSON.parse(stringData) as API.MarkerVo[]
       // 确保点位更新成功后才修改本地 MD5

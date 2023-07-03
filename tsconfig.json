@@ -11,7 +11,7 @@
     "strictNullChecks": true,
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "Node",
-    "lib": ["DOM", "ESNext", "ScriptHost"],
+    "lib": ["DOM", "ESNext", "ScriptHost", "WebWorker"],
     "types": ["vite/client", "element-plus/global"],
     "baseUrl": ".",
     "paths": {

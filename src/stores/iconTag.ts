@@ -3,7 +3,7 @@ import type { AxiosRequestConfig } from 'axios'
 import { ElNotification } from 'element-plus'
 import dayjs from 'dayjs'
 import { liveQuery } from 'dexie'
-import { Compress, messageFrom } from '@/utils'
+import { Zip, messageFrom } from '@/utils'
 import Api from '@/api/api'
 import db, { AppDatabaseApi } from '@/database'
 import { localSettings } from '@/stores'
@@ -48,7 +48,7 @@ export const useIconTagStore = defineStore('global-icon-tag', {
       const data = await Api.tagDoc.listAllTagBz2({
         responseType: 'arraybuffer',
       } as AxiosRequestConfig) as unknown as ArrayBuffer
-      const depressedData = await Compress.decompress(new Uint8Array(data), 60000)
+      const depressedData = await Zip.decompress(new Uint8Array(data))
       const stringData = new TextDecoder('utf-8').decode(depressedData.buffer)
       const parseredData = JSON.parse(stringData) as API.TagVo[]
       return parseredData

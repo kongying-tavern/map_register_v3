@@ -15,6 +15,7 @@
     "lint": "eslint ./src/**/*.{js,jsx,ts,tsx,vue} --fix"
   },
   "dependencies": {
+    "7z-wasm": "^1.0.2",
     "@deck.gl/core": "^8.9.15",
     "@deck.gl/geo-layers": "^8.9.15",
     "@deck.gl/layers": "^8.9.15",
@@ -23,7 +24,6 @@
     "@vueuse/core": "^9.13.0",
     "@vueuse/rxjs": "^9.13.0",
     "axios": "^1.4.0",
-    "bz2": "^1.0.1",
     "dayjs": "^1.11.7",
     "dexie": "^3.2.3",
     "element-plus": "^2.3.4",
