@@ -2,9 +2,18 @@
 
 const debug = import.meta.env.DEV
 
+const globalStandardOutput = ref('')
+
 /** 开发模式下在命令行打印信息 */
 export class Logger {
   constructor(private prefix = '') {}
+
+  static stdout = readonly({
+    write: (char: string) => {
+      globalStandardOutput.value += char
+    },
+    get value() { return globalStandardOutput.value },
+  })
 
   info = (...args: any[]) => {
     if (import.meta.env.MODE !== 'development')
