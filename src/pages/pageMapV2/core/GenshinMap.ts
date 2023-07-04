@@ -78,7 +78,7 @@ export class GenshinMap extends Deck {
         ? 'grabbing'
         : (state.isHovering && this.stateManager.get('hover'))
             ? 'pointer'
-            : 'crosshair',
+            : 'inherit',
       onViewStateChange: (viewStateChangeParams) => {
         const newParams = this.#handleViewStateChange(viewStateChangeParams)
         this.event.emit('viewStateChange', newParams)

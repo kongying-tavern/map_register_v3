@@ -1,0 +1,16 @@
+<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" width="24" height="24">
+  <defs>
+    <filter id="shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset in="SourceGraphic" result="offOut" dx="5" dy="5" />
+      <feColorMatrix in="offOut" result="matrixOut" type="matrix" values="0.2 0 0 0 0 0 0.2 0 0 0 0 0 0.2 0 0 0 0 0 1 0" />
+      <feGaussianBlur in="matrixOut" result="blurOut" stdDeviation="3" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
+    </filter>
+  </defs>
+  <g filter="url(#shadow)" stroke-width="0">
+    <path fill="#F7C600" d="M 0 0 A 100 100 0 0 0 40 10 A 30 30 0 0 0 38.59 38.59 A 30 30 0 0 0 10 40 A 100 100 0 0 0 0 0 Z"></path>
+    <path fill="#FFF" d="M 0 0 A 100 100 0 0 0 40 10 L 32.51 17.49 L 15 15 L 17.49 32.51 L 10 40 A 100 100 0 0 0 0 0 Z"></path>
+    <path fill="#F0F1D7" d="M 0 0 L 15 15 L 17.49 32.51 L 10 40 A 100 100 0 0 0 0 0 Z"></path>
+    <path fill="#FFE31A" d="M 19.71 19.71 L 21.02 28.98 L 28.98 21.02 Z"></path>
+  </g>
+</svg>
