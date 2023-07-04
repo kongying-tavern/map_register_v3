@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { Grid } from '@element-plus/icons-vue'
-import type { Component } from 'vue'
 import { contentRefKey, tabNameRefKey } from '.'
 
 const props = defineProps<{
@@ -8,6 +7,7 @@ const props = defineProps<{
   name?: string
   icon?: Component
 }>()
+
 const emits = defineEmits<{
   (e: 'click', v: MouseEvent): void
 }>()

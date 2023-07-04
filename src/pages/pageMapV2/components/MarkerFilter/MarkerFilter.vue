@@ -1,11 +1,10 @@
 <script lang="ts" setup>
 import { DeleteFilled } from '@element-plus/icons-vue'
-import { CheckboxGroup, ConditionManager, ConditionRow, FilterTabs, ItemButton } from '.'
+import { CheckboxGroup, CheckboxImage, ConditionManager, ConditionRow, FilterTabs, ItemButton } from '.'
 import { GSButton, GSDivider } from '@/components'
 import { IconSetting } from '@/components/AppIcons'
 import { useArchiveStore, useIconTagStore, useUserStore } from '@/stores'
 import { useCondition } from '@/pages/pageMapV2/hooks'
-import { FALLBACK_ITEM_ICON_URL } from '@/shared/constant'
 import db from '@/database'
 
 // ==================== 其他 ====================
@@ -128,13 +127,7 @@ const itemCountMap = asyncComputed(async () => {
           @change="conditionManager.next"
         >
           <template #icon="{ row }">
-            <img
-              class="w-full h-full rounded-full bg-slate-500 object-contain"
-              :src="iconTagStore.iconTagMap[row.iconTag ?? '']?.url || FALLBACK_ITEM_ICON_URL"
-              crossorigin=""
-              loading="lazy"
-              decoding="async"
-            >
+            <CheckboxImage :src="iconTagStore.iconTagMap[row.iconTag ?? '']?.url" />
           </template>
         </CheckboxGroup>
       </div>
@@ -151,13 +144,7 @@ const itemCountMap = asyncComputed(async () => {
           two-col
         >
           <template #icon="{ row }">
-            <img
-              class="w-full h-full"
-              :src="iconTagStore.iconTagMap[row.iconTag ?? '']?.url ?? FALLBACK_ITEM_ICON_URL"
-              crossorigin=""
-              loading="lazy"
-              decoding="async"
-            >
+            <CheckboxImage :src="iconTagStore.iconTagMap[row.iconTag ?? '']?.url" />
           </template>
           <template #default="{ row, actived }">
             <ItemButton :item-count-map="itemCountMap" :item-total-map="itemTotalMap" :row="row" :actived="actived" />

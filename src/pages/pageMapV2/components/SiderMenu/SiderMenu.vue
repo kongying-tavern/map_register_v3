@@ -7,7 +7,6 @@ const props = defineProps<{
   collapse?: boolean
   modelValue?: string
 }>()
-
 const emits = defineEmits<{
   (e: 'update:collapse', v?: boolean): void
   (e: 'update:modelValue', v?: string): void
