@@ -4,7 +4,7 @@ import type { Coordinate2D } from '../../core'
 import { MarkerStateSwitch } from '.'
 import { GSButton } from '@/components'
 import { useArchiveStore } from '@/stores'
-import { useInteractionLayer, useMarkerCollimator, useMarkerDrawer } from '@/pages/pageMapV2/hooks'
+import { useInteractionLayer, useMarkerCollimator, useMarkerDelete, useMarkerDrawer } from '@/pages/pageMapV2/hooks'
 import { MarkerEditPanel } from '@/pages/pageMapV2/components'
 import db from '@/database'
 import { vMarkeable } from '@/directives'
@@ -90,7 +90,14 @@ const handleClickModal = (ev: MouseEvent) => {
   !collimatorVisible.value && blur()
 }
 
-const markerCoord = computed(() => cachedMarkerVo.value?.position ? cachedMarkerVo.value.position.split(',').map(Number) as Coordinate2D : [0, 0])
+const markerCoord = computed(() => cachedMarkerVo.value?.position
+  ? cachedMarkerVo.value.position.split(',').map(Number) as Coordinate2D
+  : [0, 0],
+)
+
+// ==================== 删除点位 ====================
+const { deleteMarker, onSuccess: onDeleteSuccess } = useMarkerDelete()
+onDeleteSuccess(blur)
 </script>
 
 <template>
@@ -141,12 +148,8 @@ const markerCoord = computed(() => cachedMarkerVo.value?.position ? cachedMarker
               </div>
 
               <div class="text-sm">
-                <div>
-                  X: {{ markerCoord[0] }}
-                </div>
-                <div>
-                  Y: {{ markerCoord[1] }}
-                </div>
+                <div>X: {{ markerCoord[0] }}</div>
+                <div>Y: {{ markerCoord[1] }}</div>
               </div>
 
               <div class="flex-1 overflow-hidden">
@@ -186,7 +189,7 @@ const markerCoord = computed(() => cachedMarkerVo.value?.position ? cachedMarker
                     </el-icon>
                   </template>
                 </GSButton>
-                <GSButton theme="dark" class="flex-1">
+                <GSButton theme="dark" class="flex-1" @click="() => deleteMarker(cachedMarkerVo)">
                   <template #icon>
                     <el-icon color="var(--gs-color-danger)">
                       <DeleteFilled />
