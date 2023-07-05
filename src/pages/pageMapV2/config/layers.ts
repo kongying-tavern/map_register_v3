@@ -159,4 +159,12 @@ export const LAYER_CONFIGS: LayerConfig[] = [
     areaCodes: ['A:DQ:SANJIE'],
     tags: LAYER_TAG_CONFIGS.yxg2,
   },
+  {
+    code: 'lxsj',
+    name: '琉形蜃境',
+    size: [12288, 12288],
+    center: [3568, 6286],
+    areaCodes: ['A:VELURIYAM:3_8'],
+    tags: LAYER_TAG_CONFIGS.lxsj,
+  },
 ]
