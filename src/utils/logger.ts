@@ -1,6 +1,5 @@
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
 const debug = import.meta.env.DEV
 
 /** 开发模式下在命令行打印信息 */
@@ -9,7 +8,7 @@ export class Logger {
 
   #stdoutCache = ''
 
-  stdout = readonly({
+  stdout = {
     write: (char: string) => {
       this.#stdoutCache += char
     },
@@ -19,7 +18,7 @@ export class Logger {
       console.log(this.#stdoutCache)
       console.groupEnd()
     },
-  })
+  }
 
   info = (...args: any[]) => {
     if (!debug)
