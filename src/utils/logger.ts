@@ -1,31 +1,35 @@
+/* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 const debug = import.meta.env.DEV
-
-const globalStandardOutput = ref('')
 
 /** 开发模式下在命令行打印信息 */
 export class Logger {
   constructor(private prefix = '') {}
 
-  static stdout = readonly({
+  #stdoutCache = ''
+
+  stdout = readonly({
     write: (char: string) => {
-      globalStandardOutput.value += char
+      this.#stdoutCache += char
     },
-    get value() { return globalStandardOutput.value },
+    getCache: () => this.#stdoutCache,
+    print: () => {
+      console.group(this.prefix)
+      console.log(this.#stdoutCache)
+      console.groupEnd()
+    },
   })
 
   info = (...args: any[]) => {
-    if (import.meta.env.MODE !== 'development')
+    if (!debug)
       return
-    // eslint-disable-next-line no-console
-    debug && console.log(this.prefix, ...args)
+    console.log(this.prefix, ...args)
   }
 
   error = (...args: any[]) => {
-    if (import.meta.env.MODE !== 'development')
+    if (!debug)
       return
-
-    debug && console.error(this.prefix, ...args)
+    console.error(this.prefix, ...args)
   }
 }
