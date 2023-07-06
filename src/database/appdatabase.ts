@@ -25,21 +25,19 @@ export interface FilterState {
 }
 
 export class AppDatabase extends Dexie {
-  /** 地区表 */
+  /** 地区表 @全量接口 */
   declare area: Dexie.Table<API.AreaVo, number>
-  /** 图标表 */
-  declare icon: Dexie.Table<API.IconVo, number>
-  /** 图标标签表 */
+  /** 图标标签表 @全量接口 */
   declare iconTag: Dexie.Table<API.TagVo, number>
-  /** 物品表 */
+  /** 物品表 @全量接口 */
   declare item: Dexie.Table<API.ItemVo, number>
-  /** 物品类型表 */
+  /** 物品类型表 @分页接口 */
   declare itemType: Dexie.Table<API.ItemTypeVo, number>
-  /** 点位表 */
+  /** 点位表 @全量接口 */
   declare marker: Dexie.Table<API.MarkerVo, number>
-  /** MD5 记录表 */
+  /** MD5 记录表 @本地 */
   declare md5: Dexie.Table<MD5Vo, string>
-  /** 用户表 */
+  /** 用户表 @本地 */
   declare user: Dexie.Table<UserPreference, number>
 
   constructor() {
