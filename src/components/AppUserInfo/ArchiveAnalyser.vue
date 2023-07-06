@@ -21,6 +21,7 @@ const _TEMP_ICON_MAP: Record<string, string> = {
   'C:LY': 'https://uploadstatic.mihoyo.com/contentweb/20200317/2020031714245390532.png',
   'C:DQ': 'https://uploadstatic.mihoyo.com/contentweb/20210719/2021071917401911066.png',
   'C:XM': 'https://webstatic.mihoyo.com/upload/contentweb/2022/08/15/f77d0c308b54728b6a1f3bc525e42955_6051524677514174999.png',
+  // 'C:VELURIYAM': 'https://act-upload.mihoyo.com/ys-map-op/2023/06/26/75379475/bbcaee1448ff209f91c86ab6c7b29a86_1689579911947374936.png',
 }
 const TEMP_ICON_MAP = new Proxy(_TEMP_ICON_MAP, {
   get: (target, key, receiver) => {
@@ -29,12 +30,13 @@ const TEMP_ICON_MAP = new Proxy(_TEMP_ICON_MAP, {
 })
 
 /** 是否显示限定地区数据 */
-const showRestrictedArea = ref(false)
+const showRestrictedArea = ref(true)
 const RESTRICTED_AREA_CODES = [
   'A:APPLE:1_6_STG1',
   'A:APPLE:1_6_STG2',
   'A:APPLE:2_8',
   'A:DQ:SANJIE',
+  'A:VELURIYAM:3_8',
 ]
 const isRestrictedArea = (code?: string) => {
   if (!code)
@@ -141,36 +143,32 @@ const getTotal = (groupItem?: GroupedMarkers[keyof GroupedMarkers]) => {
       />
     </div>
 
-    <el-scrollbar class="flex-1">
-      <div class="p-1">
-        <template v-for="(item, code, index) in rawMarkersGroup" :key="code">
-          <div
-            v-if="showRestrictedArea || item.normal > 0"
-            class="gs-archive-analyser-item"
-            :style="{
-              '--markers-ratio': `${100 * (getTotal(markersGroup[code]) / getTotal(item))}%`,
-              '--anime-delay': `${index * 50}ms`,
-            }"
-          >
-            <div class="gs-archive-area w-12 h-12 row-span-2 mr-1 rounded-sm" :style="{ '--icon': `url(${item.icon})` }" />
-            <div class="flex justify-between items-center">
-              <span class="text-base w-32">
-                {{ item.parentArea.name }}
-              </span>
-              <span class="flex-1 text-right">
-                {{ (100 * (getTotal(markersGroup[code]) / getTotal(item))).toFixed(0) }}%
-              </span>
-              <span class="text-sm w-28 text-right">
-                ({{ getTotal(markersGroup[code]) }} / {{ getTotal(item) }})
-              </span>
-            </div>
-            <div class="flex items-center">
-              <div class="gs-archive-analyser-bar" />
-            </div>
+    <div class="gs-archive-analyser-container grid gap-2 grid-cols-2 grid-rows-4 m-1">
+      <template v-for="(item, code, index) in rawMarkersGroup" :key="code">
+        <div
+          v-if="showRestrictedArea || item.normal > 0"
+          class="gs-archive-analyser-item grid gap-x-1"
+          :style="{
+            '--markers-ratio': `${(100 * (getTotal(markersGroup[code]) / getTotal(item))).toFixed(2)}%`,
+            '--anime-delay': `${index * 50}ms`,
+          }"
+        >
+          <div class="gs-archive-area w-12 h-12 row-span-2 rounded-sm" :style="{ '--icon': `url(${item.icon})` }" />
+
+          <div class="text-base overflow-hidden whitespace-nowrap text-ellipsis" :title="item.parentArea.name">
+            {{ item.parentArea.name }}
           </div>
-        </template>
-      </div>
-    </el-scrollbar>
+
+          <div class="text-sm text-right">
+            {{ getTotal(markersGroup[code]) }} / {{ getTotal(item) }}
+          </div>
+
+          <div class="gs-archive-analyser-bar col-span-2 flex items-center justify-end text-xs">
+            {{ (100 * (getTotal(markersGroup[code]) / getTotal(item))).toFixed(2) }} %
+          </div>
+        </div>
+      </template>
+    </div>
   </div>
 </template>
 
@@ -192,15 +190,11 @@ const getTotal = (groupItem?: GroupedMarkers[keyof GroupedMarkers]) => {
   --clip: inset(0 0% 0 0);
   --shadow-color: #CCCCCC80;
 
-  display: grid;
-  grid-template-columns: auto 1fr;
-  grid-template-rows: repeat(2, 1fr);
-  padding: 4px 8px;
-  border: 2px solid #E0D6CB;
+  grid-template-columns: auto 1fr 1fr;
+  padding: 4px 8px 4px 4px;
   border-radius: 6px;
+  border: 2px solid #E0D6CB;
   outline: 2px solid transparent;
-  outline-offset: -2px;
-  margin-bottom: 4px;
   position: relative;
   background: #F0E9DC;
   justify-content: space-between;
@@ -208,16 +202,15 @@ const getTotal = (groupItem?: GroupedMarkers[keyof GroupedMarkers]) => {
   overflow: hidden;
   animation: item-anime-in 100ms linear forwards;
   animation-delay: calc(50ms + var(--anime-delay));
-  transition: all ease 150ms;
   user-select: none;
-  cursor: pointer;
   box-shadow: 0 0 4px var(--shadow-color);
-  scale: 0.98 1;
+  cursor: pointer;
+  transition: all ease 150ms, border-color linear 100ms, outline-color linear 100ms;
 
   &:hover {
     --shadow-color: #AAAAAA80;
-    scale: 1 1;
     background: #F4EEE1;
+    border-color: transparent;
     outline-color: #D7CBBC;
   }
 }
@@ -230,11 +223,23 @@ const getTotal = (groupItem?: GroupedMarkers[keyof GroupedMarkers]) => {
 
 .gs-archive-analyser-bar {
   --percentage: var(--markers-ratio);
-  width: 100%;
-  height: var(--radius);
+
+  height: 16px;
   background: linear-gradient(to right, #F7BA3F var(--percentage), #e0dcd4 var(--percentage));
-  border-radius: 8px;
+  border-radius: 4px;
   transition: --percentage ease 500ms;
   transition-delay: var(--anime-delay);
+  position: relative;
+
+  &::before {
+    content: var(--percentage);
+    color: red;
+    border: 1px solid red;
+    width: 40px;
+    height: 100%;
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
 }
 </style>
