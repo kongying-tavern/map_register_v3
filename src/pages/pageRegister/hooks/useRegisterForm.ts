@@ -1,15 +1,18 @@
 import { reactive, ref } from 'vue'
-import type { FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import type { ElFormType } from '@/shared'
 import Api from '@/api/api'
+import Oauth from '@/api/oauth'
 import { useFetchHook } from '@/hooks'
+import { useArchiveStore, useUserStore } from '@/stores'
+import type { ItemFormRules } from '@/utils'
+import { passwordCheck, qqCheck } from '@/utils'
 
-/** 登录逻辑封装 */
+/** 注册逻辑封装 */
 export const useRegisterForm = () => {
   const formRef = ref<ElFormType | null>(null)
 
-  const registerForm = reactive<API.SysUserRegisterVo>({
+  const registerForm = reactive<Required<API.SysUserRegisterVo>>({
     username: '',
     password: '',
   })
@@ -21,32 +24,50 @@ export const useRegisterForm = () => {
     }
   }, { deep: true })
 
-  const rules: FormRules = {
-    username: [
-      { required: true, message: 'QQ号不能为空' },
-      { message: 'Q号格式有误', validator: (_, v = '') => /^\d+$/.test(v) },
-    ],
-    password: [
-      { required: true, message: '密码不能为空' },
-      { message: '密码最短需要6位数', validator: (_, v = '') => v.length >= 6 },
-    ],
+  const rules: ItemFormRules<API.SysUserRegisterVo> = {
+    username: [qqCheck()],
+    password: [passwordCheck()],
   }
 
-  const { refresh: register, onSuccess, ...rest } = useFetchHook({
+  const { refresh: submit, onSuccess, onError, ...rest } = useFetchHook({
     onRequest: async () => {
-      if (!formRef.value)
-        throw new Error('表单实例为空')
-      const isValid = await formRef.value.validate().catch(() => false)
-      if (!isValid)
-        throw new Error('数据校验失败')
       await Api.sysUserController.registerUserByQQ(registerForm)
+      return Oauth.oauth.token({
+        grant_type: 'password',
+        ...registerForm,
+      })
     },
   })
 
-  onSuccess(() => ElMessage.success({
-    message: '注册成功',
-    duration: 1000,
+  const register = async () => {
+    try {
+      await formRef.value?.validate()
+      await submit()
+    }
+    catch {
+      // cancel, no error
+    }
+  }
+
+  const userStore = useUserStore()
+  const router = useRouter()
+  const archiveStore = useArchiveStore()
+
+  onSuccess(async (auth) => {
+    ElMessage.success({
+      message: '注册成功',
+      offset: 48,
+    })
+    userStore.setAuth(auth)
+    await router.push('/map')
+    await archiveStore.fetchArchive()
+    archiveStore.loadLatestArchive()
+  })
+
+  onError(err => ElMessage.error({
+    message: err.message,
+    offset: 48,
   }))
 
-  return { formRef, rules, registerForm, register, onSuccess, ...rest }
+  return { formRef, rules, registerForm, register, onSuccess, onError, ...rest }
 }

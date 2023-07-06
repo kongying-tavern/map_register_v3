@@ -1,10 +1,12 @@
 import { reactive, ref } from 'vue'
-import type { FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { useArchiveStore, useUserStore } from '@/stores'
 import type { ElFormType } from '@/shared'
 import { useFetchHook } from '@/hooks'
+import Oauth from '@/api/oauth'
+import type { ItemFormRules } from '@/utils'
+import { passwordCheck } from '@/utils'
 
 /** 登录逻辑封装 */
 export const useLoginForm = () => {
@@ -16,47 +18,61 @@ export const useLoginForm = () => {
     password: import.meta.env.VITE_AUTO_COMPLETE_PASSWORD ?? '',
   })
 
-  const rules: FormRules = {
+  watch(loginForm, () => {
+    for (const key in loginForm) {
+      if (key === 'loginForm')
+        continue
+      const raw = loginForm[key as keyof Omit<API.SysTokenVO, 'grant_type'>] ?? ''
+      loginForm[key as keyof Omit<API.SysTokenVO, 'grant_type'>] = raw.replace(/\s+/g, '')
+    }
+  }, { deep: true })
+
+  const rules: ItemFormRules<API.SysTokenVO> = {
     username: [
-      { required: true, trigger: 'change', message: '用户名不能为空', validator: (_, value = '') => (loginForm.username = value.trim()).length > 0 },
+      // 这里和注册不同，username 不一定是Q号
+      {
+        required: true,
+        trigger: 'change',
+        message: '用户名不能为空',
+        validator: (_, v = '') => v.length > 0,
+      },
     ],
-    password: [
-      { required: true, trigger: 'change', message: '密码不能为空', validator: (_, value = '') => (loginForm.password = value.trim()).length > 0 },
-    ],
+    password: [passwordCheck()],
+  }
+
+  const { refresh: submit, onSuccess, onError, ...rest } = useFetchHook({
+    onRequest: () => Oauth.oauth.token(loginForm),
+  })
+
+  const login = async () => {
+    try {
+      await formRef.value?.validate()
+      await submit()
+    }
+    catch {
+      // cancel, no error
+    }
   }
 
   const router = useRouter()
   const userStore = useUserStore()
-
-  const { refresh: login, onSuccess, onError, ...rest } = useFetchHook({
-    onRequest: async () => {
-      if (!formRef.value)
-        throw new Error('表单实例为空')
-      const isValid = await formRef.value.validate().catch(() => false)
-      if (!isValid)
-        throw new Error('数据校验失败')
-      await userStore.login(loginForm)
-    },
-  })
-
   const archiveStore = useArchiveStore()
 
-  onSuccess(async () => {
+  onSuccess(async (auth) => {
     ElMessage.success({
       message: '登录成功',
-      duration: 1000,
+      offset: 48,
     })
-    await router.push('/')
+    userStore.setAuth(auth)
+    await router.push('/map')
     await archiveStore.fetchArchive()
     archiveStore.loadLatestArchive()
   })
 
-  onError((err) => {
-    ElMessage.error({
-      message: err.message,
-      duration: 1000,
-    })
-  })
+  onError(err => ElMessage.error({
+    message: err.message,
+    offset: 48,
+  }))
 
   return { formRef, rules, loginForm, login, onSuccess, onError, ...rest }
 }
