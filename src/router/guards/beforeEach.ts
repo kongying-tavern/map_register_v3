@@ -11,6 +11,7 @@ export const beforeEachGuard = (
   router: Router,
 ): NavigationGuardWithThis<void> => {
   return async (to, from, next) => {
+    Logger.group('[vue-router-process]')
     logger.info(`"${from.path}" => "${to.path}"`)
 
     const isOfflineMode = import.meta.env.VITE_DEVELOPMENT_MODE === 'offline'

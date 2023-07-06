@@ -6,6 +6,18 @@ const debug = import.meta.env.DEV
 export class Logger {
   constructor(private prefix = '') {}
 
+  static group = (...label: string[]) => {
+    if (!debug)
+      return
+    console.groupCollapsed(...label)
+  }
+
+  static groupEnd = () => {
+    if (!debug)
+      return
+    console.groupEnd()
+  }
+
   #stdoutCache = ''
 
   stdout = {
