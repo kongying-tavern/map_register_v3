@@ -20,10 +20,9 @@ const userStore = useUserStore()
 <template>
   <div
     class="w-full h-full flex flex-col items-stretch transition-all duration-200"
-    :class="{
-      'pt-8': bannerVisible,
-      'pt-0': !bannerVisible,
-    }"
+    :class="[
+      bannerVisible ? 'pt-8' : '',
+    ]"
   >
     <router-view v-slot="{ Component }">
       <Transition name="fade" mode="out-in" appear>

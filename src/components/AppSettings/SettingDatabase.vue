@@ -26,6 +26,7 @@ const { refresh: resetDatabase } = useFetchHook({
   onRequest: async () => {
     await ElMessageBox.confirm('本地数据库将被重建并刷新页面，确认操作？', '警告', {
       type: 'warning',
+      confirmButtonClass: 'el-button--danger',
     })
     await db.delete()
     window.location.reload()

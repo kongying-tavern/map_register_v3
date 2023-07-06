@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 defineProps<{
-  label: string
+  label?: string
   content?: string
 }>()
 </script>
@@ -8,7 +8,7 @@ defineProps<{
 <template>
   <div class="setting-item flex justify-between px-4 py-3 gap-4" v-bind="$attrs">
     <div class="flex-flex col">
-      <div style="color: var(--el-text-color-primary)">
+      <div v-if="label" style="color: var(--el-text-color-primary)">
         {{ label }}
       </div>
       <div class="text-xs" style="color: var(--el-text-color-secondary)">
