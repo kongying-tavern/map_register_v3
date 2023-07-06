@@ -153,6 +153,7 @@ export class ConditionManager extends IconManager {
     this.#layerMarkerMap.value[code] = markers
   }))
 
+  /** 对点位图层进行重绘 */
   requestMarkersUpdate = async () => {
     const layer = useMap().map.value?.baseLayer
     if (!layer)
@@ -307,26 +308,36 @@ export class ConditionManager extends IconManager {
    * 每个条件改变的操作都会被及时同步到 temp 条件，
    * 以便在重新进入应用时获取上次操作后的条件列表。
    */
-  loadState = async (name: string) => this.#useRenderMission(async (requestRender) => {
+  loadState = (name: string) => this.#useRenderMission(async (requestRender) => {
     const userStore = useUserStore()
-
     if (userStore.info.id === undefined)
       return
 
     const findState = userStore.preference.filterStates?.find(state => state.name === name)
     if (!findState)
-      throw new Error('无法查找打到对应的筛选器状态')
+      throw new Error('无法查找到对应的筛选器状态')
 
     await this.clearCondition(false)
     const conditions = await this.#classifyItems(findState.itemIds)
-
     this.#conditions.value = conditions
 
     const itemIdsMap: Record<string, number[]> = {}
-    conditions.forEach(({ items }, key) => {
-      itemIdsMap[key] = items
-    })
+    conditions.forEach(({ items }, key) => (itemIdsMap[key] = items))
     this.#itemIdsMap.value = itemIdsMap
+
+    // 从最后一个被添加的物品去定位地区
+    await (async () => {
+      const lastItem = findState.itemIds.at(-1)
+      if (!lastItem)
+        return
+      const item = await db.item.get(lastItem)
+      if (!item)
+        return
+      const area = await db.area.get(item.areaId!)
+      if (!area)
+        return
+      this.areaCode = area.code!
+    })()
 
     await this.saveState('temp')
     await requestRender()
