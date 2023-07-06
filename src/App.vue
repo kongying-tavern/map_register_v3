@@ -13,7 +13,7 @@ const userStore = useUserStore()
 
 <template>
   <div
-    class="w-full h-full flex flex-col items-stretch transition-all duration-200"
+    class="w-full h-full overflow-hidden flex flex-col items-stretch transition-all duration-200"
     :class="[
       bannerVisible ? 'pt-8' : '',
     ]"
