@@ -4,12 +4,6 @@ import { visible as bannerVisible } from '@/hooks/useBanner/bannerContext'
 import { useBanner } from '@/hooks'
 import { useUserStore } from '@/stores'
 
-const route = useRoute()
-
-// 根据路由名称切换网页标题
-const routeName = computed(() => `${route.meta.title ? route.meta.title : import.meta.env.VITE_TITLE}`)
-useTitle(routeName, { titleTemplate: '%s' })
-
 // 开发模式下显示 banner
 const { show } = useBanner()
 import.meta.env.DEV && show(import.meta.env.VITE_ENV_BANNER)
