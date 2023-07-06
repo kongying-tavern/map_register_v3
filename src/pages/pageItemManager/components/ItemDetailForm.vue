@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useRefreshTimeOptions } from '../hooks'
-import type { ItemFormRules } from '../utils'
-import { lengthCheck, requireCheck } from '../utils'
+import type { ItemFormRules } from '@/utils'
+import { lengthCheck, requireCheck } from '@/utils'
 import { useAreaList, useIconList, useTypeList } from '@/hooks'
 import type { ElFormType } from '@/shared'
 import { HiddenFlagEnum, IconStyleTyleEnum } from '@/shared'
