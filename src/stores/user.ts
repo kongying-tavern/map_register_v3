@@ -108,7 +108,7 @@ export const useUserStore = defineStore('user-info', {
     createRefreshTimer() {
       try {
         if (intervalRefreshTimer.value !== undefined)
-          logger.info('已存在刷新任务，将会重用')
+          return logger.info('已存在刷新任务，将会重用')
         const { expires_time } = this.auth
         if (!expires_time)
           throw new Error('expires_time is invalid')
