@@ -177,13 +177,13 @@ const map_tiles_config = {
 
 const map_tiles_neigui_config = {
   "提瓦特-base0": {
-    code: "twt36",
+    code: "twt40",
     settings: {
       center: [0, 1742],
     },
     center: [3568, 6286],
-    size: [17408, 15360],
-    tilesOffset: [-5888, 0],
+    size: [17408, 17408],
+    tilesOffset: [-5888, -2048],
   },
 };
 
