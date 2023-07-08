@@ -190,7 +190,7 @@ const itemCountMap = asyncComputed(async () => {
             <IconSetting />
           </el-icon>
         </template>
-        管理条件
+        管理预设
       </GSButton>
     </div>
 

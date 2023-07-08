@@ -56,22 +56,28 @@ const addCondition = async () => {
   >
     <div class="gs-dark-card flex flex-col overflow-hidden genshin-text">
       <div class="text-xl text-center">
-        条件列表
+        点位筛选条件预设
       </div>
 
       <GSDivider color="#76716A" />
 
-      <div class="flex gap-2 pb-4">
-        <GSInput v-model="validConditionName" />
+      <div class="text-white pb-2">
+        · 新增预设
+      </div>
+      <div class="flex gap-2">
+        <GSInput v-model="validConditionName" placeholder="请输入预设名称" />
         <GSButton class="flex-1" icon="submit" :disabled="!validConditionName" @click="addCondition">
-          新增
+          保存
         </GSButton>
       </div>
 
+      <div class="text-white pt-4 pb-2">
+        · 预设列表
+      </div>
       <el-scrollbar class="flex-1">
         <div class="h-full flex flex-col gap-1 overflow-auto">
           <div
-            v-for="state in userStore.preference.filterStates"
+            v-for="state in userStore.preference.filterStates?.filter(item => item.name !== 'temp')"
             :key="state.name"
             class="condition-row"
             :class="{
@@ -79,7 +85,7 @@ const addCondition = async () => {
             }"
             @click="() => toggleSelectedName(state.name)"
           >
-            {{ state.name === 'temp' ? '-- 临时存储条件 --' : state.name }}
+            {{ state.name }}
           </div>
         </div>
       </el-scrollbar>
@@ -129,6 +135,7 @@ const addCondition = async () => {
   outline: 2px solid #363F4A;
   outline-offset: -4px;
   display: flex;
+  border-radius: 8px;
   transition: all linear 50ms;
   user-select: none;
   font-size: 16px;
