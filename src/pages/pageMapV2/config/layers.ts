@@ -67,10 +67,10 @@ export interface LayerConfig {
 
 export const LAYER_CONFIGS: LayerConfig[] = [
   {
-    code: 'twt36',
+    code: 'twt40',
     name: '提瓦特',
-    size: [17408, 16384],
-    tilesOffset: [5632, 0],
+    size: [17408, 17408],
+    tilesOffset: [5888, 2048],
     center: [3568, 6286],
     areaCodes: [
       'A:MD:MENGDE',
