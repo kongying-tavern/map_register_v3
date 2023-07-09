@@ -85,7 +85,7 @@ export const LAYER_CONFIGS: LayerConfig[] = [
       'A:XM:DESERT2',
       'A:XM:DESERT3',
     ],
-    tags: LAYER_TAG_CONFIGS.twt36,
+    tags: LAYER_TAG_CONFIGS.twt40,
     overlays: LAYER_OVERLAY_CONFIG.twt36,
     initViewState: {
       target: [-3184, -169],
