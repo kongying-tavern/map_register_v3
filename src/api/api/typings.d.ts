@@ -351,7 +351,7 @@ declare namespace API {
     nickname?: string;
     qq?: string;
     phone?: string;
-    logoUrl?: string;
+    logo?: string;
     roleId?: number;
   };
 
@@ -624,10 +624,6 @@ declare namespace API {
     itemIdList?: number[];
     /** 类型ID列表 */
     typeIdList?: number[];
-    /** 获取测试点位，默认为false不获取，为true时只获取测试点位 */
-    getBeta?: boolean;
-    /** 数据等级(hidden_flag范围) */
-    hiddenFlagList?: number[];
   };
 
   type RListMarkerVo = {
