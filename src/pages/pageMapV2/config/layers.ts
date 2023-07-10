@@ -87,7 +87,7 @@ export const LAYER_CONFIGS: LayerConfig[] = [
       'A:FD:FENGDAN',
     ],
     tags: LAYER_TAG_CONFIGS.twt40,
-    overlays: LAYER_OVERLAY_CONFIG.twt36,
+    overlays: LAYER_OVERLAY_CONFIG.twt40,
     initViewState: {
       target: [-3184, -169],
       zoom: 0,

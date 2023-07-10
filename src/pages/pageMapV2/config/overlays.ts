@@ -118,7 +118,7 @@ export interface OverlayOptions {
  * @todo 添加分层功能
  */
 export const LAYER_OVERLAY_CONFIG: Record<string, OverlayOptions[]> = {
-  twt36: Object
+  twt40: Object
     .entries(LAYER_OVERLAY_TEMP_CONFIG_GROUP)
     .map(([areaCode, config]) => config.children.map(([overlayId, bounds, groupBy]) => {
       const isRenameId = Array.isArray(overlayId)
