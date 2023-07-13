@@ -1,2 +1,5 @@
-export { default as IconPanel } from './IconPanel.vue'
-export { default as IconTagPanel } from './IconTagPanel.vue'
+export { default as IconCreator } from './IconCreator.vue'
+export { default as IconDetailForm } from './IconDetailForm.vue'
+export { default as IconEditor } from './IconEditor.vue'
+export { default as IconImageEditor } from './IconImageEditor.vue'
+export { default as IconTable } from './IconTable.vue'
