@@ -28,7 +28,7 @@
 
 <div align="center">
   <img
-    src="https://github.com/kongying-tavern/map_register_v3/assets/27633284/0b392084-5f33-42c7-a789-9831602dd11a"
+    src="https://github.com/kongying-tavern/map_register_v3/assets/27633284/cae93d7c-20f7-4147-80c7-4bd89b95a160"
     alt="预览图"
   >
 </div>
