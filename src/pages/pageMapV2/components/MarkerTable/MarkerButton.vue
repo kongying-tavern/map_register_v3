@@ -55,6 +55,7 @@ const unhoverMarker = () => {
     <template #icon>
       <img
         :src="iconStore.iconTagMap[data.itemList?.[0].iconTag ?? '']?.url || FALLBACK_ITEM_ICON_URL"
+        class="w-full aspect-square object-contain"
         crossorigin=""
       >
     </template>
