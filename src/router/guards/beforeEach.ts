@@ -35,19 +35,28 @@ export const beforeEachGuard = (
     }
 
     if (!isTokenValid) {
-      ElMessage.error('用户凭证无效')
+      ElMessage.error({
+        message: '用户凭证无效',
+        offset: 48,
+      })
       userStore.logout()
       return next(false)
     }
 
     const isRouteExist = router.getRoutes().find(route => route.path === to.path)
     if (!isRouteExist) {
-      ElMessage.error('目标路由不存在')
+      ElMessage.error({
+        message: '目标路由不存在',
+        offset: 48,
+      })
       return next(false)
     }
 
     if (!isInPermissionList(to)) {
-      ElMessage.error('没有访问权限')
+      ElMessage.error({
+        message: '没有访问权限',
+        offset: 48,
+      })
       return next(false)
     }
 
