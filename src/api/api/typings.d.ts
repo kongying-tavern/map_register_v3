@@ -6,6 +6,7 @@ declare namespace API {
     errorData?: Record<string, any>;
     message?: string;
     data?: boolean;
+    users?: Record<string, any>;
     time?: string;
   };
 
@@ -29,12 +30,10 @@ declare namespace API {
     id?: number;
     /** 创建人 */
     creatorId?: number;
-    creator?: SysUserSmallVo;
     /** 创建时间 */
     createTime?: string;
     /** 更新人 */
     updaterId?: number;
-    updater?: SysUserSmallVo;
     /** 更新时间 */
     updateTime?: string;
     /** 分类名称 */
@@ -51,6 +50,7 @@ declare namespace API {
     errorData?: Record<string, any>;
     message?: string;
     data?: number;
+    users?: Record<string, any>;
     time?: string;
   };
 
@@ -61,12 +61,10 @@ declare namespace API {
     id?: number;
     /** 创建人 */
     creatorId?: number;
-    creator?: SysUserSmallVo;
     /** 创建时间 */
     createTime?: string;
     /** 更新人 */
     updaterId?: number;
-    updater?: SysUserSmallVo;
     /** 更新时间 */
     updateTime?: string;
     /** 路线名称 */
@@ -92,12 +90,10 @@ declare namespace API {
     id?: number;
     /** 创建人 */
     creatorId?: number;
-    creator?: SysUserSmallVo;
     /** 创建时间 */
     createTime?: string;
     /** 更新人 */
     updaterId?: number;
-    updater?: SysUserSmallVo;
     /** 更新时间 */
     updateTime?: string;
     /** 点位提交ID */
@@ -152,12 +148,10 @@ declare namespace API {
     id?: number;
     /** 创建人 */
     creatorId?: number;
-    creator?: SysUserSmallVo;
     /** 创建时间 */
     createTime?: string;
     /** 更新人 */
     updaterId?: number;
-    updater?: SysUserSmallVo;
     /** 更新时间 */
     updateTime?: string;
     /** 点位签戳（用于兼容旧点位ID） */
@@ -193,12 +187,10 @@ declare namespace API {
     id?: number;
     /** 创建人 */
     creatorId?: number;
-    creator?: SysUserSmallVo;
     /** 创建时间 */
     createTime?: string;
     /** 更新人 */
     updaterId?: number;
-    updater?: SysUserSmallVo;
     /** 更新时间 */
     updateTime?: string;
     /** 图标标签 */
@@ -223,6 +215,7 @@ declare namespace API {
     errorData?: Record<string, any>;
     message?: string;
     data?: number[];
+    users?: Record<string, any>;
     time?: string;
   };
 
@@ -233,12 +226,10 @@ declare namespace API {
     id?: number;
     /** 创建人 */
     creatorId?: number;
-    creator?: SysUserSmallVo;
     /** 创建时间 */
     createTime?: string;
     /** 更新人 */
     updaterId?: number;
-    updater?: SysUserSmallVo;
     /** 更新时间 */
     updateTime?: string;
     /** 物品名称 */
@@ -272,12 +263,10 @@ declare namespace API {
     id?: number;
     /** 创建人 */
     creatorId?: number;
-    creator?: SysUserSmallVo;
     /** 创建时间 */
     createTime?: string;
     /** 更新人 */
     updaterId?: number;
-    updater?: SysUserSmallVo;
     /** 更新时间 */
     updateTime?: string;
     /** 分类名 */
@@ -295,12 +284,10 @@ declare namespace API {
     id?: number;
     /** 创建人 */
     creatorId?: number;
-    creator?: SysUserSmallVo;
     /** 创建时间 */
     createTime?: string;
     /** 更新人 */
     updaterId?: number;
-    updater?: SysUserSmallVo;
     /** 更新时间 */
     updateTime?: string;
     /** 图标名称 */
@@ -318,12 +305,10 @@ declare namespace API {
     id?: number;
     /** 创建人 */
     creatorId?: number;
-    creator?: SysUserSmallVo;
     /** 创建时间 */
     createTime?: string;
     /** 更新人 */
     updaterId?: number;
-    updater?: SysUserSmallVo;
     /** 更新时间 */
     updateTime?: string;
     /** 地区名称 */
@@ -390,6 +375,7 @@ declare namespace API {
     errorData?: Record<string, any>;
     message?: string;
     data?: PageListVoSysUserVo;
+    users?: Record<string, any>;
     time?: string;
   };
 
@@ -437,6 +423,7 @@ declare namespace API {
     errorData?: Record<string, any>;
     message?: string;
     data?: PageListVoTagTypeVo;
+    users?: Record<string, any>;
     time?: string;
   };
 
@@ -447,12 +434,10 @@ declare namespace API {
     id?: number;
     /** 创建人 */
     creatorId?: number;
-    creator?: SysUserSmallVo;
     /** 创建时间 */
     createTime?: string;
     /** 更新人 */
     updaterId?: number;
-    updater?: SysUserSmallVo;
     /** 更新时间 */
     updateTime?: string;
     /** 标签名 */
@@ -471,6 +456,7 @@ declare namespace API {
     errorData?: Record<string, any>;
     message?: string;
     data?: TagVo;
+    users?: Record<string, any>;
     time?: string;
   };
 
@@ -497,6 +483,7 @@ declare namespace API {
     errorData?: Record<string, any>;
     message?: string;
     data?: PageListVoTagVo;
+    users?: Record<string, any>;
     time?: string;
   };
 
@@ -518,6 +505,7 @@ declare namespace API {
     errorData?: Record<string, any>;
     message?: string;
     data?: Record<string, any>;
+    users?: Record<string, any>;
     time?: string;
   };
 
@@ -546,6 +534,7 @@ declare namespace API {
     errorData?: Record<string, any>;
     message?: string;
     data?: PageListVoRouteVo;
+    users?: Record<string, any>;
     time?: string;
   };
 
@@ -562,6 +551,7 @@ declare namespace API {
     errorData?: Record<string, any>;
     message?: string;
     data?: RouteVo[];
+    users?: Record<string, any>;
     time?: string;
   };
 
@@ -577,6 +567,7 @@ declare namespace API {
     errorData?: Record<string, any>;
     message?: string;
     data?: PageListVoMarkerPunctuateVo;
+    users?: Record<string, any>;
     time?: string;
   };
 
@@ -599,6 +590,7 @@ declare namespace API {
     errorData?: Record<string, any>;
     message?: string;
     data?: MarkerPunctuateVo[];
+    users?: Record<string, any>;
     time?: string;
   };
 
@@ -614,6 +606,7 @@ declare namespace API {
     errorData?: Record<string, any>;
     message?: string;
     data?: PageListVoMarkerVo;
+    users?: Record<string, any>;
     time?: string;
   };
 
@@ -632,6 +625,7 @@ declare namespace API {
     errorData?: Record<string, any>;
     message?: string;
     data?: MarkerVo[];
+    users?: Record<string, any>;
     time?: string;
   };
 
@@ -641,6 +635,7 @@ declare namespace API {
     errorData?: Record<string, any>;
     message?: string;
     data?: ItemTypeVo[];
+    users?: Record<string, any>;
     time?: string;
   };
 
@@ -656,6 +651,7 @@ declare namespace API {
     errorData?: Record<string, any>;
     message?: string;
     data?: PageListVoItemTypeVo;
+    users?: Record<string, any>;
     time?: string;
   };
 
@@ -666,12 +662,10 @@ declare namespace API {
     id?: number;
     /** 创建人 */
     creatorId?: number;
-    creator?: SysUserSmallVo;
     /** 创建时间 */
     createTime?: string;
     /** 更新人 */
     updaterId?: number;
-    updater?: SysUserSmallVo;
     /** 更新时间 */
     updateTime?: string;
     /** 物品ID */
@@ -712,6 +706,7 @@ declare namespace API {
     errorData?: Record<string, any>;
     message?: string;
     data?: PageListVoItemAreaPublicVo;
+    users?: Record<string, any>;
     time?: string;
   };
 
@@ -738,6 +733,7 @@ declare namespace API {
     errorData?: Record<string, any>;
     message?: string;
     data?: PageListVoItemVo;
+    users?: Record<string, any>;
     time?: string;
   };
 
@@ -747,6 +743,7 @@ declare namespace API {
     errorData?: Record<string, any>;
     message?: string;
     data?: ItemVo[];
+    users?: Record<string, any>;
     time?: string;
   };
 
@@ -762,6 +759,7 @@ declare namespace API {
     errorData?: Record<string, any>;
     message?: string;
     data?: PageListVoIconTypeVo;
+    users?: Record<string, any>;
     time?: string;
   };
 
@@ -771,6 +769,7 @@ declare namespace API {
     errorData?: Record<string, any>;
     message?: string;
     data?: IconVo;
+    users?: Record<string, any>;
     time?: string;
   };
 
@@ -801,6 +800,7 @@ declare namespace API {
     errorData?: Record<string, any>;
     message?: string;
     data?: PageListVoIconVo;
+    users?: Record<string, any>;
     time?: string;
   };
 
@@ -822,12 +822,10 @@ declare namespace API {
     id?: number;
     /** 创建人 */
     creatorId?: number;
-    creator?: SysUserSmallVo;
     /** 创建时间 */
     createTime?: string;
     /** 更新人 */
     updaterId?: number;
-    updater?: SysUserSmallVo;
     /** 更新时间 */
     updateTime?: string;
     /** 内容 */
@@ -853,6 +851,7 @@ declare namespace API {
     errorData?: Record<string, any>;
     message?: string;
     data?: PageListVoHistoryVo;
+    users?: Record<string, any>;
     time?: string;
   };
 
@@ -862,6 +861,7 @@ declare namespace API {
     errorData?: Record<string, any>;
     message?: string;
     data?: AreaVo;
+    users?: Record<string, any>;
     time?: string;
   };
 
@@ -880,6 +880,7 @@ declare namespace API {
     errorData?: Record<string, any>;
     message?: string;
     data?: AreaVo[];
+    users?: Record<string, any>;
     time?: string;
   };
 
@@ -889,6 +890,7 @@ declare namespace API {
     errorData?: Record<string, any>;
     message?: string;
     data?: SysUserVo;
+    users?: Record<string, any>;
     time?: string;
   };
 
@@ -898,6 +900,7 @@ declare namespace API {
     errorData?: Record<string, any>;
     message?: string;
     data?: SysRoleVo[];
+    users?: Record<string, any>;
     time?: string;
   };
 
@@ -918,6 +921,7 @@ declare namespace API {
     errorData?: Record<string, any>;
     message?: string;
     data?: SysArchiveVo;
+    users?: Record<string, any>;
     time?: string;
   };
 
@@ -936,6 +940,7 @@ declare namespace API {
     errorData?: Record<string, any>;
     message?: string;
     data?: SysArchiveSlotVo;
+    users?: Record<string, any>;
     time?: string;
   };
 
@@ -961,6 +966,7 @@ declare namespace API {
     errorData?: Record<string, any>;
     message?: string;
     data?: SysArchiveSlotVo[];
+    users?: Record<string, any>;
     time?: string;
   };
 
@@ -970,6 +976,7 @@ declare namespace API {
     errorData?: Record<string, any>;
     message?: string;
     data?: string;
+    users?: Record<string, any>;
     time?: string;
   };
 
@@ -979,6 +986,7 @@ declare namespace API {
     errorData?: Record<string, any>;
     message?: string;
     data?: string[];
+    users?: Record<string, any>;
     time?: string;
   };
 }
