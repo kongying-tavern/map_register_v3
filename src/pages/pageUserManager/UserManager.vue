@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { Delete, Edit, Lock } from '@element-plus/icons-vue'
-import { useRoleList, useUserList } from './hooks'
+import { useRoleList, useUserDelete, useUserList } from './hooks'
 import { UserCreator, UserEditor, UserFilter, UserPasswordEditor, UserTable } from './components'
 import { useGlobalDialog, usePagination, useState } from '@/hooks'
 
@@ -47,15 +47,18 @@ const openPasswordEditor = (user: API.SysUserVo) => DialogService
   .props({ user })
   .open(UserPasswordEditor)
 
-// ==================== 批量删除 ====================
+// ==================== 删除用户 ====================
 const [selections, setSelections] = useState<API.SysUserVo[]>([])
+
+const { loading: deleteLoading, confirmDelete, onSuccess: onDeleteSuccess } = useUserDelete()
+onDeleteSuccess(updateUserList)
 </script>
 
 <template>
   <div class="h-full flex flex-col gap-2 overflow-hidden">
     <UserFilter v-model="filterValue" v-model:filter-key="filterKey">
       <template #footer>
-        <el-button type="danger" :disabled="!selections.length">
+        <el-button type="danger" :loading="deleteLoading" :disabled="!selections.length" @click="() => confirmDelete(selections)">
           批量删除 {{ selections.length ? ` ${selections.length} 项` : '' }}
         </el-button>
         <el-button type="primary" @click="openUserCreator">
@@ -68,7 +71,7 @@ const [selections, setSelections] = useState<API.SysUserVo[]>([])
       <template #action="{ row }">
         <el-button :icon="Edit" @click="() => openUserEditor(row)" />
         <el-button :icon="Lock" @click="() => openPasswordEditor(row)" />
-        <el-button :icon="Delete" plain type="danger" />
+        <el-button :icon="Delete" :disabled="deleteLoading" plain type="danger" @click="() => confirmDelete(row)" />
       </template>
     </UserTable>
 
