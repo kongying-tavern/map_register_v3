@@ -1,94 +1,50 @@
 import { ref } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { messageFrom } from '@/utils'
+import type { PaginationState } from '@/hooks/usePagination'
+import { useFetchHook } from '@/hooks'
 import Api from '@/api/api'
 
 interface UserListHookOptions {
-  /** 是否在组件挂载后立即发起请求 */
-  immediate?: boolean
-  /** 搜索触发的防抖时间 */
-  filterDebounceTime?: number
-  /** 自定义请求参数 */
-  params?: () => API.SysUserSearchVo
-  /** 请求成功后的回调 */
-  onSuccess?: (res: API.PageListVoSysUserVo) => void
-  /** 请求失败后的回调 */
-  onError?: (reqData: API.SysUserSearchVo) => void
+  getParams: () => Omit<API.SysUserSearchVo, 'current' | 'size'>
+  pagination: Ref<PaginationState>
 }
 
 /** 列表数据与核心操作封装 */
-export const useUserList = (options: UserListHookOptions = {}) => {
-  const { immediate = true, filterDebounceTime = 500, params, onError, onSuccess } = options
+export const useUserList = (options: UserListHookOptions) => {
+  const { pagination, getParams } = options
 
   const userList = ref<API.SysUserVo[]>([])
-  const loading = ref(false)
 
   // 搜索
   const filterKey = ref('nickname')
   const filterValue = ref('')
-  const filterDebounce = refDebounced(filterValue, filterDebounceTime)
+  const debouncedFilterValue = refDebounced(filterValue, 500)
 
-  // 排序
-  const sorts = ref<('createTime+' | 'createTime-' | 'nickname+' | 'nickname-')[]>(['createTime-'])
+  const params = computed(() => getParams())
 
-  const refresh = async () => {
-    loading.value = true
-    const requestData: API.SysUserSearchVo = {
-      sort: sorts.value,
-      ...(filterDebounce.value
-        ? { [filterKey.value]: filterDebounce.value }
-        : undefined),
-      ...params?.(),
-    }
-    try {
-      const { data = {} } = await Api.sysUserController.getUserList(requestData)
-      userList.value = data.record ?? []
-      onSuccess?.(data)
-    }
-    catch (err) {
-      onError?.(requestData)
-      ElMessage.error(messageFrom(err))
-    }
-    finally {
-      loading.value = false
-    }
-  }
-
-  watch(() => [sorts.value, filterDebounce.value], refresh)
-
-  onMounted(() => {
-    immediate && refresh()
+  const { refresh: updateUserList, onSuccess, ...rest } = useFetchHook({
+    immediate: true,
+    onRequest: () => {
+      const { current, pageSize: size } = pagination.value
+      return Api.sysUserController.getUserList({
+        ...params.value,
+        current,
+        size,
+      })
+    },
   })
 
-  const deleteLoading = ref(false)
+  onSuccess(({ data: { record = [], total = 0 } = {} }) => {
+    userList.value = record
+    pagination.value.total = total
+  })
 
-  const deleteRow = async (index: number) => {
-    try {
-      const { id, username } = userList.value[index] ?? {}
-      const confirm = await ElMessageBox.confirm(`确认删除用户: ${username} (id: ${id})`).catch(() => false)
-      if (!confirm || id === undefined)
-        return
-      deleteLoading.value = true
-      const res = await Api.sysUserController.deleteUser({ workId: id })
-      ElMessage.success(res.message ?? '删除成功')
-      refresh()
-    }
-    catch (err) {
-      ElMessage.error(messageFrom(err))
-    }
-    finally {
-      deleteLoading.value = false
-    }
-  }
+  watch(() => [params.value.sort, debouncedFilterValue.value], updateUserList, { deep: true })
 
   return {
     userList,
-    loading,
-    deleteLoading,
     filterKey,
     filterValue,
-    sorts,
-    refresh,
-    deleteRow,
+    updateUserList,
+    ...rest,
   }
 }
