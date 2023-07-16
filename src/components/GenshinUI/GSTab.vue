@@ -43,6 +43,7 @@ const emits = defineEmits<{
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  overflow: hidden;
 }
 
 @mixin clip-shape() {
@@ -137,5 +138,6 @@ const emits = defineEmits<{
 .gs-tab-content {
   width: 100%;
   flex: 1;
+  overflow: hidden;
 }
 </style>
