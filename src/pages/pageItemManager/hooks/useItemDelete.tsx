@@ -7,42 +7,41 @@ export interface ItemDeleteHookOptions {
   isRoot?: boolean
 }
 
-const { refresh: deleteItem, onSuccess, onError, ...rest } = useFetchHook({
-  onRequest: async (itemIds?: number | number[]) => {
-    if (itemIds === undefined)
-      throw new Error('物品 id 为空')
-    if (typeof itemIds === 'number')
-      return await Api.item.deleteItem({ itemId: itemIds })
-    return await Promise.allSettled(itemIds.map(itemId => Api.item.deleteItem({ itemId })))
+const { loading, refresh: deleteItem, onSuccess, onError, ...rest } = useFetchHook({
+  onRequest: async (items: API.ItemVo | API.ItemVo[]) => {
+    const mission = Array.isArray(items)
+      ? Promise.allSettled(items.map(item => Api.item.deleteItem({ itemId: item.id! })))
+      : Api.item.deleteItem({ itemId: items.id! })
+    await mission
   },
 })
 
 export const useItemDelete = (options: ItemDeleteHookOptions = {}) => {
   const { isRoot } = options
 
-  const handleDelete = async (item: API.ItemVo) => {
-    const isConfirm = await ElMessageBox
-      .confirm(
-        <span>删除物品<span style="color: #FB923C">{item.name} (id: {item.id})</span>，该操作不可逆，请确认？</span>,
-        '确认操作',
-      )
-      .catch(() => false)
-    if (!isConfirm)
-      return
-    await deleteItem(item.id)
-  }
-
-  const handleBatchDelete = async (items: API.ItemVo[]) => {
-    const isConfirm = await ElMessageBox
-      .confirm(
-        <span>删除所选的 <span style="color: #FB923C">{items.length}</span> 个物品，该操作不可逆，请确认？</span>,
-        '确认操作',
-      )
-      .catch(() => false)
-    if (!isConfirm)
-      return
-    await deleteItem(items.map(item => item.id as number))
-  }
+  const confirmDelete = (items: API.ItemVo | API.ItemVo[]) => ElMessageBox.confirm(
+    Array.isArray(items)
+      ? <div>
+          <div>将删除以下 {items.length} 个物品：</div>
+          {items.map((item, index) => <div>&emsp;{index + 1}. <span style="color: #FB923C">{item.name} (id: {item.id})</span></div>)}
+          <div>该操作不可逆，请确认？</div>
+        </div>
+      : <div>将删除物品<span style="color: #FB923C">{items.name} (id: {items.id})</span>，该操作不可逆，请确认？</div>,
+    '警告',
+    {
+      confirmButtonClass: 'el-button--danger',
+      beforeClose: async (action, instance, done) => {
+        if (loading.value)
+          return
+        if (action !== 'confirm')
+          return done()
+        instance.confirmButtonLoading = true
+        await deleteItem(items)
+        instance.confirmButtonLoading = false
+        done()
+      },
+    },
+  ).catch(() => false)
 
   if (isRoot) {
     onSuccess(() => GSMessageService.info('删除成功，数据同步可能需要几分钟时间', {
@@ -55,5 +54,5 @@ export const useItemDelete = (options: ItemDeleteHookOptions = {}) => {
     }))
   }
 
-  return { handleDelete, handleBatchDelete, onSuccess, onError, ...rest }
+  return { loading, confirmDelete, onSuccess, onError, ...rest }
 }

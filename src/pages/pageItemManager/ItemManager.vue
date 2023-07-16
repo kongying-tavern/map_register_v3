@@ -43,7 +43,7 @@ const { openItemEditorDialog, onSuccess: onEditSuccess } = useItemEdit({
 onEditSuccess(syncItemListChanged)
 
 // ==================== 删除物品 ====================
-const { loading: deleteLoading, handleDelete, handleBatchDelete, onSuccess: onDeleteSuccess } = useItemDelete()
+const { loading: deleteLoading, confirmDelete, onSuccess: onDeleteSuccess } = useItemDelete()
 onDeleteSuccess(syncItemListChanged)
 </script>
 
@@ -56,9 +56,9 @@ onDeleteSuccess(syncItemListChanged)
             type="danger"
             :disabled="!selection.length"
             :loading="deleteLoading"
-            @click="() => handleBatchDelete(selection)"
+            @click="() => confirmDelete(selection)"
           >
-            批量删除 {{ selection.length ? `: ${selection.length}` : '' }}
+            批量删除 {{ selection.length ? ` ${selection.length} 项` : '' }}
           </el-button>
           <el-button type="primary" @click="openItemCreatorDialog">
             添加物品
@@ -83,7 +83,7 @@ onDeleteSuccess(syncItemListChanged)
           type="danger"
           plain
           :icon="Delete"
-          @click="() => handleDelete(row)"
+          @click="() => confirmDelete(row)"
         />
       </template>
     </ItemTable>
