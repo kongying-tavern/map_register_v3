@@ -24,8 +24,6 @@ import pl28Island from "./2_8_island/edit.vue";
 import plUnderground from "./underground/edit.vue";
 import { get_map_plugin_config } from "src/api/map";
 
-import { undergroundOptionsSumeru4 } from "./underground/data";
-
 export default {
   name: "PluginAdapter",
   setup() {
