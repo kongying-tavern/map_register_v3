@@ -18,16 +18,19 @@ const emits = defineEmits<{
 // ==================== 表单数据 ====================
 const formData = ref(props.modelValue)
 
+const isIntarnalChange = ref(false)
+
 // 下行同步
-const { pause, resume } = pausableWatch(() => props.modelValue, () => {
+watch(() => props.modelValue, () => {
+  if (isIntarnalChange.value)
+    return (isIntarnalChange.value = false)
   formData.value = props.modelValue
 }, { deep: true })
 
 // 上行同步
 watch(formData, () => {
-  pause()
+  isIntarnalChange.value = true
   emits('update:modelValue', formData.value)
-  resume()
 }, { deep: true })
 
 // ==================== 表单校验 ====================
