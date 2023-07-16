@@ -104,7 +104,12 @@
 </template>
 
 <script>
-import { create_map } from "../api/map";
+import {
+  create_map,
+  map_tiles_config,
+  map_tiles_neigui_config,
+  map_plugin_config,
+} from "../api/map";
 import LayerRegister from "../components/register.vue";
 import IslandSelector from "../components/plugins/2_8_island/selector.vue";
 import Logout from "../components/Logout.vue";
@@ -115,7 +120,7 @@ export default {
   name: "PageIndex",
   data() {
     return {
-      config: {},
+      bannerText: "",
 
       map: null,
       area: {},
@@ -133,17 +138,20 @@ export default {
     },
     load_config() {
       return fetch_config().then((config) => {
-        this.config = config;
+        this.bannerText = config?.bannerText || "";
+        map_tiles_config.value = config?.tiles || {};
+        map_tiles_neigui_config.value = config?.tilesNeigui || {};
+        map_plugin_config.value = config?.plugins || {};
       });
     },
     show_notify() {
-      if (this.config.bannerText) {
+      if (this.bannerText) {
         this.$q.notify({
           type: "info",
           color: "primary",
           position: "top",
           timeout: 0,
-          message: this.config.bannerText,
+          message: this.bannerText,
           actions: [
             {
               label: "我知道了",
@@ -175,12 +183,11 @@ export default {
   mounted() {
     this.load_config().then(() => {
       this.show_notify();
+      this.init_map();
+      if (localStorage.getItem("marked_layers") === null) {
+        localStorage.setItem("marked_layers", JSON.stringify([]));
+      }
     });
-
-    this.init_map();
-    if (localStorage.getItem("marked_layers") === null) {
-      localStorage.setItem("marked_layers", JSON.stringify([]));
-    }
 
     setInterval(() => {
       if (is_expired()) {

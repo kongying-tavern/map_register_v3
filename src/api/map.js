@@ -1,5 +1,6 @@
 // 地图初始化
 import _ from "lodash";
+import { ref } from "vue";
 import * as L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { is_neigui } from "src/service/user_info";
@@ -8,249 +9,17 @@ import { is_neigui } from "src/service/user_info";
 /**
  * 获取地图瓦片配置
  */
-const map_tiles_config = {
-  "A:MD:MENGDE": {
-    extend: "提瓦特-base0",
-    settings: {
-      center: [1438, -3333],
-      zoom: -2.5,
-    },
-  },
-  "A:MD:XUESHAN": {
-    extend: "提瓦特-base0",
-    settings: {
-      center: [1568, -2269],
-      zoom: -0.5,
-    },
-  },
-  "A:LY:LIYUE": {
-    extend: "提瓦特-base0",
-    settings: {
-      center: [-672, -822],
-      zoom: -2,
-    },
-  },
-  "A:LY:CENGYAN": {
-    extend: "提瓦特-base0",
-    settings: {
-      center: [-1750, 126],
-      zoom: -1,
-    },
-  },
-  "A:DQ:1": {
-    extend: "提瓦特-base0",
-    settings: {
-      center: [4896, 3354],
-      zoom: -2,
-    },
-  },
-  "A:DQ:2": {
-    extend: "提瓦特-base0",
-    settings: {
-      center: [4200, 4898],
-      zoom: -2,
-    },
-  },
-  "A:DQ:HEGUAN": {
-    extend: "提瓦特-base0",
-    settings: {
-      center: [4380, 7022],
-      zoom: -2,
-    },
-  },
-  "A:XM:FOREST": {
-    extend: "提瓦特-base0",
-    settings: {
-      center: [-4184, 541],
-      zoom: -2.5,
-    },
-  },
-  "A:XM:DESERT": {
-    extend: "提瓦特-base0",
-    settings: {
-      center: [-6112, 2266],
-      zoom: -2,
-    },
-  },
-  "A:XM:DESERT2": {
-    extend: "提瓦特-base0",
-    settings: {
-      center: [-6112, 266],
-      zoom: -2,
-    },
-  },
-  "A:XM:DESERT3": {
-    extend: "提瓦特-base0",
-    settings: {
-      center: [-8112, -1566],
-      zoom: -2,
-    },
-  },
-  "提瓦特-base0": {
-    extension: "png",
-    code: "twt36",
-    settings: {
-      center: [0, 1742],
-    },
-    center: [3568, 6286],
-    size: [17408, 15360],
-    tilesOffset: [-5888, 0],
-  },
-  "提瓦特-base1": {
-    extension: "png",
-    center: [3568, 6286],
-    size: [12288, 15360],
-  },
-  "金苹果-base0": {
-    extension: "jpg",
-    settings: {
-      center: [600, -2190],
-      zoom: -2,
-    },
-    center: [3568, 6286],
-    size: [8192, 8192],
-  },
-  "A:VELURIYAM:3_8": {
-    extend: "A:APPLE:2_8",
-    name: "流形蜃境",
-    code: "lxsj",
-    settings: {
-      center: [500, -150],
-      zoom: -3,
-    },
-    size: [12288, 12288],
-  },
-  "A:APPLE:1_6": {
-    extend: "金苹果-base0",
-    name: "金苹果群岛(1.6)",
-    code: "qd",
-  },
-  "A:APPLE:1_6_STG1": {
-    extend: "金苹果-base0",
-    name: "金苹果群岛(1.6) - 第一阶段",
-    code: "qd1",
-  },
-  "A:APPLE:1_6_STG2": {
-    extend: "金苹果-base0",
-    name: "金苹果群岛(1.6) - 第二阶段",
-    code: "qd",
-  },
-  "A:APPLE:2_8": {
-    extension: "png",
-    name: "金苹果群岛",
-    code: "qd28",
-    settings: {
-      center: [600, -2190],
-      zoom: -2,
-    },
-    center: [3568, 6286],
-    size: [8192, 8192],
-  },
-  "A:LY:CENGYAN_UG": {
-    extend: "提瓦特-base1",
-    name: "地下矿区",
-    code: "cyjy",
-    settings: {
-      center: [1800, -500],
-      zoom: -3,
-    },
-  },
-  "A:DQ:YUANXIAGONG": {
-    extend: "提瓦特-base1",
-    name: "渊下宫",
-    code: "yxg",
-    settings: {
-      center: [2000, 300],
-      zoom: -4,
-    },
-  },
-  "A:DQ:SANJIE": {
-    extend: "提瓦特-base1",
-    name: "三界路飨祭",
-    code: "yxg",
-    settings: {
-      center: [2000, 300],
-      zoom: -4,
-    },
-  },
-};
+const map_tiles_config = ref({});
 
-const map_tiles_neigui_config = {
-  "提瓦特-base0": {
-    code: "twt40",
-    settings: {
-      center: [0, 1742],
-    },
-    center: [3568, 6286],
-    size: [17408, 17408],
-    tilesOffset: [-5888, -2048],
-  },
-};
+const map_tiles_neigui_config = ref({});
 
 /**
  * 获取地图插件配置
  */
-const map_plugin_config = {
-  // 流形蜃境
-  "A:VELURIYAM:3_8": {
-    extra: ["underground_basic"],
-  },
-
-  // 海岛
-  "A:APPLE:1_6": {
-    extra: ["1_6_island"],
-  },
-  "A:APPLE:2_8": {
-    extra: ["2_8_island"],
-  },
-
-  // 蒙德
-  "A:MD:XUESHAN": {
-    extra: ["dragonspine_cave"],
-  },
-
-  // 璃月
-  "A:LY:LIYUE": {
-    extra: ["underground_basic"],
-  },
-  "A:LY:CENGYAN": {
-    extra: ["underground_basic"],
-  },
-  "A:LY:CENGYAN_UG": {
-    extra: ["underground_basic"],
-  },
-
-  // 稻妻
-  "A:DQ:1": {
-    extra: ["inazuma_underground"],
-  },
-  "A:DQ:2": {
-    extra: ["inazuma_underground"],
-  },
-  "A:DQ:HEGUAN": {
-    extra: ["inazuma_underground"],
-  },
-  "A:DQ:YUANXIAGONG": {
-    extra: ["inazuma_underground"],
-  },
-
-  // 须弥
-  "A:XM:FOREST": {
-    extra: ["sumeru_underground"],
-  },
-  "A:XM:DESERT": {
-    extra: ["sumeru_palace"],
-  },
-  "A:XM:DESERT2": {
-    extra: ["sumeru_desert2"],
-  },
-  "A:XM:DESERT3": {
-    extra: ["underground_sumeru4"],
-  },
-};
+const map_plugin_config = ref({});
 
 function get_map_plugin_config(area_code = "") {
-  return map_plugin_config[area_code] || {};
+  return map_plugin_config.value[area_code] || {};
 }
 
 /**
@@ -309,8 +78,8 @@ function create_map_layer(
  */
 function create_map(area_config_code = "") {
   const map_load_config = is_neigui()
-    ? _.defaults({}, map_tiles_neigui_config, map_tiles_config)
-    : map_tiles_config;
+    ? _.defaults({}, map_tiles_neigui_config.value, map_tiles_config.value)
+    : map_tiles_config.value;
   let tiles_config =
     map_load_config[area_config_code] || map_load_config["提瓦特-base0"];
   const tiles_extend_name = tiles_config.extend || "";
@@ -415,6 +184,9 @@ function add_map_overlay_qd(type, index) {
 }
 
 export {
+  map_tiles_config,
+  map_tiles_neigui_config,
+  map_plugin_config,
   get_map_plugin_config,
   create_map_layer,
   create_map,

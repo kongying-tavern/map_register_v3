@@ -39,16 +39,24 @@ const normalize_data = (
 
 // 组件控制
 const props = defineProps({
+  textInactive: {
+    type: String,
+    default: "地上",
+  },
+  textActive: {
+    type: String,
+    default: "地下",
+  },
   modelId: {
     type: String,
     required: true,
-    default: "",
+    default: "basic",
   },
   undergroundDetail: {
     type: Boolean,
-    default: true,
+    default: false,
   },
-  undergroundOptions: {
+  undergroundLevels: {
     type: Array,
     default: () => [],
   },
@@ -61,13 +69,12 @@ const region_levels = ref([]);
 
 // 显示属性
 const underground_type = computed(() =>
-  is_underground.value ? "地下" : "地上"
+  is_underground.value ? props.textInactive : props.textActive
 );
 
 const underground_options_state = computed(() => {
   const found_selector =
-    _.find(props.undergroundOptions, (v) => v.value === region_name.value) ||
-    {};
+    _.find(props.undergroundLevels, (v) => v.value === region_name.value) || {};
   const states = found_selector.children || [];
   return states;
 });
