@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { FormRules } from 'element-plus'
-import { iconCofig } from '.'
+import { AvatarEditor } from './components'
 import { GSButton, GSDivider, GSInput } from '@/components'
 import { useFetchHook } from '@/hooks'
 import type { ElFormType } from '@/shared'
@@ -14,17 +14,16 @@ const form = ref<API.SysUserUpdateVo>({
   nickname: userStore.info.nickname,
   qq: userStore.info.qq,
   phone: userStore.info.phone,
-  logoUrl: userStore.info.logo,
+  logo: userStore.info.logo,
 })
 
 const isDifference = computed(() => {
-  const { nickname, qq, phone, logoUrl } = form.value
-  const { nickname: rawNickname, qq: rawQQ, phone: rawPhone, logo: rawLogoUrl } = userStore.info
+  const { nickname, qq, phone } = form.value
+  const { nickname: rawNickname, qq: rawQQ, phone: rawPhone } = userStore.info
   return [
     [nickname, rawNickname],
     [qq, rawQQ],
     [phone, rawPhone],
-    [logoUrl, rawLogoUrl],
   ].find(([a, b]) => {
     a ||= ''
     b ||= ''
@@ -55,7 +54,7 @@ const { refresh: updateUserInfo, loading } = useFetchHook({
 </script>
 
 <template>
-  <div class="flex flex-col justify-center items-center">
+  <div class="h-full flex flex-col justify-center items-center overflow-hidden">
     <el-form
       ref="formRef"
       style="--el-form-label-font-size: 18px; width: 370px"
@@ -90,19 +89,6 @@ const { refresh: updateUserInfo, loading } = useFetchHook({
 
     <GSDivider />
 
-    <!-- 溢出滚动 -->
-    <div class="h-72 overflow-y-scroll">
-      <!-- 显示所有头像 -->
-      <div class="flex flex-wrap gap-3">
-        <div
-          v-for="item in iconCofig"
-          :key="item.id"
-          class="w-16 h-16 rounded-full cursor-pointer border-slate-300"
-          :class="{ 'border-2': form.logoUrl !== item.icon, 'border-4': form.logoUrl === item.icon, 'border-blue-500': form.logoUrl === item.icon, 'border-slate-300': form.logoUrl !== item.icon }"
-          :style="{ backgroundImage: `url(${item.icon})`, backgroundSize: 'cover' }"
-          @click="form.logoUrl = item.icon"
-        />
-      </div>
-    </div>
+    <AvatarEditor v-model="form.logo" />
   </div>
 </template>

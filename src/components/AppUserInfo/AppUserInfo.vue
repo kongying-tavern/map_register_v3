@@ -135,5 +135,6 @@ const tab = ref('archive')
     }
   }
   animation: slideIn 400ms forwards;
+  overflow: hidden;
 }
 </style>
