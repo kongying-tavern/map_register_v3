@@ -11,7 +11,7 @@
       :textActive="plugin_options.underground?.textActive"
       :modelId="plugin_options.underground?.modelId"
       :undergroundDetail="plugin_options.underground?.useDetail"
-      :undergroundOptions="plugin_options.underground?.levels"
+      :undergroundLevels="plugin_options.underground?.levels"
     >
     </plUnderground>
   </template>
@@ -28,7 +28,6 @@ export default {
   name: "PluginAdapter",
   setup() {
     return {
-      undergroundOptionsSumeru4,
       ...extraData,
     };
   },

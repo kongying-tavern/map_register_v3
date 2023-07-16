@@ -69,7 +69,7 @@ const region_levels = ref([]);
 
 // 显示属性
 const underground_type = computed(() =>
-  is_underground.value ? props.textInactive : props.textActive
+  is_underground.value ? props.textActive : props.textInactive
 );
 
 const underground_options_state = computed(() => {
@@ -136,7 +136,7 @@ onMounted(() => {
         <q-select
           class="col-4"
           v-model="region_name"
-          :options="underground_options"
+          :options="undergroundLevels"
           emit-value
           map-options
           label="选择区域"
