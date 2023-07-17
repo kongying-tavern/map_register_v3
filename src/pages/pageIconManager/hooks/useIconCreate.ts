@@ -7,14 +7,16 @@ export const useIconCreate = (form: Ref<API.IconVo>) => {
   const formRef = ref<InstanceType<typeof IconDetailForm> | null>(null)
 
   const { refresh: submitCreateIcon, onSuccess, onError, ...rest } = useFetchHook({
-    onRequest: () => Api.icon.createIcon(form.value),
+    onRequest: async () => {
+      await formRef.value?.getIconUrl()
+      formRef.value?.syncData()
+      await Api.icon.createIcon(form.value)
+    },
   })
 
   const createIcon = async () => {
     try {
       await formRef.value?.validate()
-      await formRef.value?.getIconUrl()
-      formRef.value?.syncData()
       await submitCreateIcon()
     }
     catch {

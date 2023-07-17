@@ -1,8 +1,9 @@
 import type { UploadFile } from 'element-plus'
 import { ElMessage } from 'element-plus'
+import dayjs from 'dayjs'
 import { useFetchHook } from '@/hooks'
 import type { ElUploadType } from '@/shared'
-import Icon from '@/api/icon'
+import Aliyun from '@/api/aliyun'
 import { messageFrom } from '@/utils'
 
 export const useImageCut = () => {
@@ -33,8 +34,7 @@ export const useImageCut = () => {
 
   /** 上传进度百分比 */
   const uploadProgress = ref(0)
-  const changeUploadProgress = (progress: number) => {
-    console.log('[set progress]', progress * 100)
+  const setUploadProgress = (progress: number) => {
     uploadProgress.value = progress * 100
   }
 
@@ -43,30 +43,38 @@ export const useImageCut = () => {
 
   const { refresh: uploadIcon, onSuccess: onUploadSuccess, onError: onUploadError } = useFetchHook({
     onRequest: async (file: File) => {
-      changeUploadProgress(0)
-      const res = await Icon.upload({ file_name: file.name, file_data: file }, {
-        onUploadProgress: ({ progress = 0 }) => changeUploadProgress(progress),
+      setUploadProgress(0)
+
+      const today = dayjs()
+      const dateOfToday = today.format('YYYY-MM-DD')
+      const path = `${import.meta.env.DEV ? '/img_dev' : import.meta.env.VITE_ALIYUN_ICON_FOLDER}/${dateOfToday}/${file.name}`
+
+      const { data: { token: authorization = '' } = {} } = await Aliyun.token()
+      await Aliyun.upload({ authorization, path, file }, {
+        onUploadProgress: ({ progress = 0 }) => setUploadProgress(progress),
       })
-      if (res.err_info)
-        throw new Error(res.err_info)
-      return res
+
+      return `${import.meta.env.VITE_ALIYUN_IMAGE_BASE}${path}`
     },
   })
 
-  onUploadSuccess((res) => {
-    if (!res.path) {
+  onUploadSuccess((resPath) => {
+    if (!resPath) {
       return ElMessage.error({
         message: '服务器未返回上传结果，无法生成路径信息',
         offset: 48,
       })
     }
-    uploadImageUrl.value = `${import.meta.env.VITE_ASSETS_BASE}${import.meta.env.DEV ? '/Dev' : ''}${res.path.replace(/^\./, '')}`
+    uploadImageUrl.value = resPath
   })
 
-  onUploadError(err => ElMessage.error({
-    message: err.message,
-    offset: 48,
-  }))
+  onUploadError((err) => {
+    ElMessage.error({
+      message: err.message,
+      offset: 48,
+    })
+    setUploadProgress(NaN)
+  })
 
   return { uploaderRef, uploadImage, uploadImageUrl, uploadProgress, cutImageFile, cutImageUrl, setCutImage, handleImageChange, uploadIcon, onUploadSuccess }
 }

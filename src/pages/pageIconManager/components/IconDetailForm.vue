@@ -37,7 +37,7 @@ const handleInputBlur = () => {
 }
 
 /** 图标编辑类型，使用编辑器或者手动输入地址 */
-const isIconEditorType = ref(false)
+const isIconEditorType = ref(true)
 
 const { uploaderRef, uploadImage, uploadImageUrl, cutImageFile, cutImageUrl, setCutImage, handleImageChange, uploadIcon } = useImageCut()
 
@@ -46,9 +46,10 @@ const getIconUrl = async () => {
     formData.value.url = changedIconUrl.value
     return changedIconUrl.value
   }
-  const file = new File([cutImageFile.value], crypto.randomUUID(), { type: 'image/jpeg', lastModified: Date.now() })
+  const file = new File([cutImageFile.value], `${crypto.randomUUID()}.png`, { type: 'image/png', lastModified: Date.now() })
   await uploadIcon(file)
-  console.log('[upload image url]', uploadImageUrl.value)
+  if (!uploadImageUrl.value)
+    throw new Error('图片上传失败，图床服务可能失效，请联系开发人员。')
   formData.value.url = uploadImageUrl.value
 }
 

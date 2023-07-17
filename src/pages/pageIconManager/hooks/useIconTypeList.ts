@@ -25,7 +25,6 @@ export const useIconTypeList = () => {
     label: 'name',
     isLeaf: 'isFinal',
     value: 'id',
-    disabled: (data: API.IconTypeVo) => !data.isFinal,
   }
 
   return { iconTreeSelectProps, lazyLoadNode, ...rest }
