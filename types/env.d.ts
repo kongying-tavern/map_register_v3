@@ -38,6 +38,9 @@ interface ImportMetaEnv {
   /** 点位图片上传目录 */
   readonly VITE_ALIYUN_MARKER_FOLDER: string
 
+  /** 64 * 64 尺寸图标上传目录 */
+  readonly VITE_ALIYUN_ICON_FOLDER: string
+
   /** 资源服务器地址 */
   readonly VITE_ASSETS_BASE: string
 
