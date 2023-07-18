@@ -81,13 +81,11 @@ export const usePictureUpload = (options: PictureUploadHookOptions) => {
       // 上传缩略图
       if (!isThumbUploaded.value) {
         stepContent.value = '上传缩略图'
-        const { code: c2, message: m2 } = await Aliyun.upload({
+        await Aliyun.upload({
           authorization: uploadToken.value,
           file: blobToFile(thumbnailImage.value, thumbnailFilename, lastModified),
           path: `${import.meta.env.VITE_ALIYUN_MARKER_FOLDER}/${date}/${thumbnailFilename}`,
         }, { onUploadProgress })
-        if (c2 !== 200)
-          throw new Error(m2)
         isThumbUploaded.value = true
         urlParams.set('timestamp', `${lastModified}`)
       }
@@ -95,13 +93,11 @@ export const usePictureUpload = (options: PictureUploadHookOptions) => {
       // 上传大图
       if (!isRawUploaded.value) {
         stepContent.value = '上传大图'
-        const { code: c3, message: m3 } = await Aliyun.upload({
+        await Aliyun.upload({
           authorization: uploadToken.value,
           file: blobToFile(rawImage.value, rawFilename, lastModified),
           path: `${import.meta.env.VITE_ALIYUN_MARKER_FOLDER}/${date}/${rawFilename}`,
         }, { onUploadProgress })
-        if (c3 !== 200)
-          throw new Error(m3)
         isRawUploaded.value = true
       }
 
