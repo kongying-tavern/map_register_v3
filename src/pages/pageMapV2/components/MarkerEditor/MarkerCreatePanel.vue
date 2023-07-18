@@ -62,11 +62,11 @@ onSuccess(() => {
   <MarkerEditorForm ref="editorRef" v-model="form">
     <template #footer>
       <div class="w-full flex justify-end">
-        <el-button :disabled="loading" @click="GlobalDialogController.close">
-          取消
-        </el-button>
         <el-button :loading="loading" type="primary" @click="confirm">
           {{ userStore.isAdmin ? '确认' : '审核提交' }}
+        </el-button>
+        <el-button :disabled="loading" @click="GlobalDialogController.close">
+          取消
         </el-button>
       </div>
     </template>

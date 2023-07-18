@@ -69,11 +69,11 @@ const isOfflineMode = import.meta.env.VITE_DEVELOPMENT_MODE === 'offline'
     <MarkerEditorForm ref="editorRef" v-model="form" :init-area-code="props.initArea?.code">
       <template #footer>
         <div class="w-full flex justify-end">
-          <el-button @click="() => $emit('update:visible', false)">
-            取消
-          </el-button>
           <el-button type="primary" :disabled="isOfflineMode" @click="confirm">
             确认
+          </el-button>
+          <el-button @click="() => $emit('update:visible', false)">
+            取消
           </el-button>
         </div>
       </template>
