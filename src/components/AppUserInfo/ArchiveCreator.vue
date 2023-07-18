@@ -10,6 +10,11 @@ const emits = defineEmits<{
   (e: 'update:slotIndex', v?: number): void
 }>()
 
+const indexShowCache = ref(props.slotIndex)
+const onOpenDialog = () => {
+  indexShowCache.value = props.slotIndex
+}
+
 const index = computed({
   get: () => props.slotIndex,
   set: v => emits('update:slotIndex', v),
@@ -63,8 +68,9 @@ const onBeforeClose = (done: () => void) => {
     width="500px"
     class="custom-dialog hidden-header bg-transparent"
     @closed="onCloseDialog"
+    @open="onOpenDialog"
   >
-    <GSCard class="gap-4" :title="`新建存档 ${slotIndex}`">
+    <GSCard class="gap-4" :title="`新建存档 ${indexShowCache}`">
       <div class="flex-1 flex flex-col mt-10 mb-10 gap-2">
         <GSInput v-model="archiveName" placeholder="请输入存档名称" />
         <div class="err-msg genshin-text text-base h-6">
@@ -73,15 +79,15 @@ const onBeforeClose = (done: () => void) => {
       </div>
 
       <div class="flex justify-between gap-4">
-        <GSButton icon="cancel" class="flex-1" @click="index = undefined">
-          取消
-        </GSButton>
         <GSButton icon="submit" class="flex-1" :loading="loading" @click="refresh">
           确定
         </GSButton>
+        <GSButton icon="cancel" class="flex-1" @click="index = undefined">
+          取消
+        </GSButton>
       </div>
 
-      <div class="text-right text-gray-300 -mt-3 -mb-3">
+      <div class="text-gray-300 -mt-3 -mb-3">
         注意：当前存档会被存入新存档槽
       </div>
     </GSCard>

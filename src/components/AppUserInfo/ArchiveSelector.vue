@@ -66,7 +66,7 @@ const timeFormater = (time?: string) => time
 </script>
 
 <template>
-  <div class="flex flex-col gap-4">
+  <div class="flex h-full flex-col justify-between py-2 px-4">
     <div v-if="archiveStore.fetchLoading">
       正在加载存档...
     </div>
@@ -98,8 +98,10 @@ const timeFormater = (time?: string) => time
               </el-icon>
             </div>
           </div>
-          <div class="archive-name flex justify-between items-center gap-2">
-            <div>{{ index }}. {{ archiveSlot.name }}</div>
+          <div class="archive-name flex justify-between items-center gap-4 whitespace-nowrap overflow-hidden">
+            <div class="text-ellipsis overflow-hidden" :title="archiveSlot.name">
+              {{ index }}. {{ archiveSlot.name }}
+            </div>
             <div>更新时间 {{ timeFormater(archiveSlot.updateTime) }}</div>
           </div>
         </div>

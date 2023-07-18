@@ -133,8 +133,12 @@ const getTotal = (groupItem?: GroupedMarkers[keyof GroupedMarkers]) => {
 <template>
   <div class="w-full flex-1 flex flex-col overflow-hidden">
     <div class="w-full flex justify-between items-center text-lg p-2" style="color:#84603D;">
-      宝箱收集进度
-      ({{ archiveStore.currentArchive.slotIndex ? archiveStore.archiveSlots[archiveStore.currentArchive.slotIndex]?.name : '<未选取存档>' }})
+      <span
+        class="inline-block w-72 overflow-hidden text-ellipsis whitespace-nowrap"
+        :title="archiveStore.currentArchive.slotIndex ? archiveStore.archiveSlots[archiveStore.currentArchive.slotIndex]?.name : ''"
+      >
+        宝箱收集进度({{ archiveStore.currentArchive.slotIndex ? archiveStore.archiveSlots[archiveStore.currentArchive.slotIndex]?.name : '<未选取存档>' }})
+      </span>
       <GSSwitch
         v-model="showRestrictedArea"
         label="包含限定地区"
