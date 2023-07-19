@@ -275,6 +275,10 @@ export const applyFilterFunc = computed(() => (item = {}) => {
   let checkValue = true;
 
   for (const filterGroup of filterConfigList.value) {
+    if (!_.isArray(filterGroup.filters) || filterGroup.filters.length <= 0) {
+      continue;
+    }
+
     let groupValue = true;
 
     for (const filterItem of filterGroup.filters) {
