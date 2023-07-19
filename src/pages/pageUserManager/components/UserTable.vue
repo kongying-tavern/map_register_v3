@@ -45,13 +45,26 @@ const proxySelectionChange = (selections: API.ItemVo[]) => {
 
       <el-table-column label="ID" prop="id" :width="100" />
 
-      <el-table-column label="头像" prop="logo" show-overflow-tooltip :width="150" />
+      <!-- <el-table-column label="头像" prop="logo" show-overflow-tooltip :width="150" /> -->
+      <el-table-column label="头像" width="80">
+        <template #default="{ row }">
+          <img
+            class="w-12 h-12 object-contain rounded border"
+            :src="row.logo"
+            crossorigin=""
+            style="background-color: var(--el-color-primary-light-9); border-color: var(--el-color-primary-light-8);"
+            v-if="row.logo"
+          >
+        </template>
+      </el-table-column>
 
       <el-table-column label="用户名" prop="username" :width="150" />
 
       <el-table-column label="QQ" prop="qq" :width="150" />
 
       <el-table-column label="昵称" prop="nickname" show-overflow-tooltip sortable="custom" />
+
+      <el-table-column label="手机号" prop="phone" :width="150" />
 
       <el-table-column label="角色" prop="roleId" :width="120">
         <template #default="{ row }">
@@ -61,9 +74,7 @@ const proxySelectionChange = (selections: API.ItemVo[]) => {
         </template>
       </el-table-column>
 
-      <el-table-column label="创建时间" prop="createTime" sortable="custom" :width="150" />
-
-      <el-table-column label="手机号" prop="phone" :width="150" />
+      <el-table-column label="信息更新时间" prop="updateTime" sortable="custom" :width="250" />
 
       <el-table-column fixed="right" label="操作" :width="190">
         <template #default="{ row }">
