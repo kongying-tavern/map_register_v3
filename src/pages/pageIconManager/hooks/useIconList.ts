@@ -13,21 +13,15 @@ export const useIconList = (options: IconListHookOptions) => {
   const { pagination, getParams } = options
 
   const iconList = ref<API.IconVo[]>([])
-  const userList = ref<Record<number, API.SysUserSmallVo>>({})
+  const userMap = ref<Record<string, API.SysUserSmallVo>>({})
 
   const { refresh: updateIconList, onSuccess, onError, ...rest } = useFetchHook({
     immediate: true,
-    onRequest: async () => {
-      const params = getParams()
-
-      const { data: { record = [], total = 0 } = {}, users = {} } = await Api.icon.listIcon({
-        ...params,
-        current: pagination.value.current,
-        size: pagination.value.pageSize,
-      })
-
-      return { record, users, total }
-    },
+    onRequest: () => Api.icon.listIcon({
+      ...getParams(),
+      current: pagination.value.current,
+      size: pagination.value.pageSize,
+    }),
   })
 
   const updateIconListWithResetCurrent = async () => {
@@ -35,9 +29,9 @@ export const useIconList = (options: IconListHookOptions) => {
     await updateIconList()
   }
 
-  onSuccess(({ record, total, users }) => {
+  onSuccess(({ data: { record = [], total = 0 } = {}, users = {} }) => {
     iconList.value = record
-    userList.value = users
+    userMap.value = users
     pagination.value.total = total
   })
 
@@ -46,5 +40,5 @@ export const useIconList = (options: IconListHookOptions) => {
     offset: 48,
   }))
 
-  return { iconList, userList, updateIconList, updateIconListWithResetCurrent, onSuccess, ...rest }
+  return { iconList, userMap, updateIconList, updateIconListWithResetCurrent, onSuccess, ...rest }
 }

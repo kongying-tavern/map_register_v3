@@ -19,7 +19,7 @@ const { pagination, layout } = usePagination({
 })
 
 // ==================== 图标列表 ====================
-const { iconList, userList, loading, updateIconList, updateIconListWithResetCurrent } = useIconList({
+const { iconList, userMap, loading, updateIconList, updateIconListWithResetCurrent } = useIconList({
   pagination,
   getParams: () => ({
     creator: undefined,
@@ -65,7 +65,7 @@ onDeleteSuccess(updateIconList)
       </el-form>
     </div>
 
-    <IconTable :icon-list="iconList" :user-list="userList" :loading="loading">
+    <IconTable :icon-list="iconList" :user-map="userMap" :loading="loading">
       <template #action="{ row }">
         <el-button
           plain
