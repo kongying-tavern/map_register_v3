@@ -112,6 +112,11 @@ const columns = computed<Column[]>(() => {
         <template #row="props">
           <Row v-bind="props" />
         </template>
+        <template #empty>
+          <div class="flex items-center justify-center h-100%">
+            <el-empty image="/icons/qiliangliang.png" :image-size="300"/>
+          </div>
+        </template>
       </el-table-v2>
     </div>
   </div>
