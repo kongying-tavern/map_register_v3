@@ -32,7 +32,7 @@ const routes: RouteRecordRaw[] = [
         path: '/type',
         meta: {
           title: '类型管理',
-          icon: 'Connection',
+          icon: 'Box',
           roles: [RoleTypeEnum.ADMIN, RoleTypeEnum.MAP_MANAGER],
         },
         component: () => import('@/pages/pageTypeManager/TypeManager.vue'),
@@ -47,6 +47,15 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/pages/pageIconManager/IconManager.vue'),
       },
       {
+        path: '/icon-tag',
+        meta: {
+          title: '图标标签管理',
+          icon: 'Connection',
+          roles: [RoleTypeEnum.ADMIN, RoleTypeEnum.MAP_MANAGER],
+        },
+        component: () => import('@/pages/pageIconTagManager/IconTagManager.vue'),
+      },
+      {
         path: '/users',
         meta: {
           title: '用户管理',
@@ -59,7 +68,7 @@ const routes: RouteRecordRaw[] = [
         path: '/markers',
         meta: {
           title: '点位管理',
-          icon: 'Marker',
+          icon: 'Location',
           roles: [RoleTypeEnum.ADMIN, RoleTypeEnum.MAP_MANAGER],
         },
         component: () => import('@/pages/pageMarkerManager/MarkerManager.vue'),
@@ -68,7 +77,7 @@ const routes: RouteRecordRaw[] = [
         path: '/area',
         meta: {
           title: '地区管理',
-          icon: 'Marker',
+          icon: 'Place',
           roles: [RoleTypeEnum.ADMIN, RoleTypeEnum.MAP_MANAGER],
         },
         component: () => import('@/pages/pageAreaManager/AreaManager.vue'),
@@ -80,6 +89,7 @@ const routes: RouteRecordRaw[] = [
     meta: {
       title: '地图页',
       preload: true,
+      icon: 'MapLocation',
     },
     component: () => import('@/pages/pageMapV2/PageMapV2.vue'),
   },

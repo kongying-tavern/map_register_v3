@@ -13,6 +13,9 @@ const userStore = useUserStore()
       :key="item.path"
       :index="item.path"
     >
+      <el-icon v-if="item.meta?.icon">
+        <component :is="item.meta.icon" />
+      </el-icon>
       {{ item.meta?.title }}
     </el-menu-item>
   </el-menu>
