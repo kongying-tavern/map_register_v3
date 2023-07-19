@@ -122,7 +122,7 @@ module.exports = configure((/** ctx */) => ({
   },
   // Animations: 'all', // --- includes all animations
   // https://v2.quasar.dev/options/animations
-  animations: [],
+  animations: ["fadeInLeft", "fadeOutLeft"],
 
   // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#property-sourcefiles
   // sourceFiles: {
