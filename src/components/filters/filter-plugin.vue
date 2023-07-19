@@ -16,6 +16,8 @@ import { filterItemDel } from "./data";
 import FilterComment from "./filter-comment.vue";
 
 const expanded = ref(false);
+
+const muteTooltip = ref(false);
 </script>
 
 <template>
@@ -31,6 +33,21 @@ const expanded = ref(false);
       >
       </q-icon>
       <FilterComment style="flex: auto"></FilterComment>
+      <q-btn
+      style="flex: none;"
+      unelevated
+      rounded
+      dense
+        size="md"
+        :color="muteTooltip ? 'grey-1' : 'pink-4'"
+        :text-color="muteTooltip ? 'pink-4' : 'grey-1'"
+        :icon="muteTooltip ? 'mdi-tooltip-outline' : 'mdi-tooltip-text-outline'"
+        @click="muteTooltip = !muteTooltip">
+        <q-tooltip>
+          <template v-if="muteTooltip">开启筛选按钮提示</template>
+          <template v-else>关闭筛选按钮提示</template>
+        </q-tooltip>
+      </q-btn>
     </div>
 
     <!-- 筛选条件弹出框 -->
@@ -65,7 +82,7 @@ const expanded = ref(false);
                 &nbsp;且&nbsp;
               </template>
               <template v-else>&nbsp;或&nbsp;</template>
-              <q-tooltip v-if="groupIndex > 0">切换 且/或 组合逻辑</q-tooltip>
+              <q-tooltip v-if="!muteTooltip && groupIndex > 0">切换 且/或 组合逻辑</q-tooltip>
             </q-btn>
             <span class="title">条件组 {{ groupIndex + 1 }}</span>
             <q-btn
@@ -76,7 +93,7 @@ const expanded = ref(false);
               icon="mdi-filter-plus-outline"
               @click="filterItemAdd(groupIndex)"
             >
-              <q-tooltip>新增条件</q-tooltip>
+              <q-tooltip v-if="!muteTooltip">新增条件</q-tooltip>
             </q-btn>
             <span style="flex: auto">&nbsp;</span>
             <q-btn
@@ -89,7 +106,7 @@ const expanded = ref(false);
               "
               @click="filterGroupOpposite(groupIndex)"
             >
-              <q-tooltip>排除条件组</q-tooltip>
+              <q-tooltip v-if="!muteTooltip">排除条件组</q-tooltip>
             </q-btn>
             <q-btn
               style="flex: none"
@@ -99,7 +116,7 @@ const expanded = ref(false);
               icon="mdi-plus"
               @click="filterGroupAdd(groupIndex)"
             >
-              <q-tooltip>新增条件组</q-tooltip>
+              <q-tooltip v-if="!muteTooltip">新增条件组</q-tooltip>
             </q-btn>
             <q-btn
               style="flex: none"
@@ -110,7 +127,7 @@ const expanded = ref(false);
               icon="mdi-close"
               @click="filterGroupDel(groupIndex)"
             >
-              <q-tooltip>删除条件组</q-tooltip>
+              <q-tooltip v-if="!muteTooltip">删除条件组</q-tooltip>
             </q-btn>
           </div>
 
@@ -140,7 +157,7 @@ const expanded = ref(false);
                   &nbsp;且&nbsp;
                 </template>
                 <template v-else>&nbsp;或&nbsp;</template>
-                <q-tooltip v-if="itemIndex > 0">切换 且/或 组合逻辑</q-tooltip>
+                <q-tooltip v-if="!muteTooltip && itemIndex > 0">切换 且/或 组合逻辑</q-tooltip>
               </q-btn>
 
               <q-select
@@ -218,7 +235,7 @@ const expanded = ref(false);
                 "
                 @click="filterItemOpposite(groupIndex, itemIndex)"
               >
-                <q-tooltip>排除条件</q-tooltip>
+                <q-tooltip v-if="!muteTooltip">排除条件</q-tooltip>
               </q-btn>
               <q-btn
                 style="flex: none"
@@ -228,7 +245,7 @@ const expanded = ref(false);
                 icon="mdi-plus"
                 @click="filterItemAdd(groupIndex, itemIndex)"
               >
-                <q-tooltip>在下方新增条件</q-tooltip>
+                <q-tooltip v-if="!muteTooltip">在下方新增条件</q-tooltip>
               </q-btn>
               <q-btn
                 style="flex: none"
@@ -239,7 +256,7 @@ const expanded = ref(false);
                 icon="mdi-close"
                 @click="filterItemDel(groupIndex, itemIndex)"
               >
-                <q-tooltip>删除条件</q-tooltip>
+                <q-tooltip v-if="!muteTooltip">删除条件</q-tooltip>
               </q-btn>
             </div>
           </div>
