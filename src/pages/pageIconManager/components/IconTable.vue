@@ -1,7 +1,10 @@
 <script lang="ts" setup>
+import { UserInfo } from '.'
+
 defineProps<{
   iconList: API.IconVo[]
   loading: boolean
+  userList: Record<number, API.SysUserSmallVo>
 }>()
 
 const tableContainerRef = ref<HTMLElement | null>(null)
@@ -41,11 +44,19 @@ const timeFormatter = (_: unknown, __: unknown, time = '') => new Date(time).toL
 
       <el-table-column prop="name" label="名称" width="150px" />
 
-      <el-table-column prop="updater.nickname" label="最新更改者" width="150px" />
+      <el-table-column label="最新更改者" width="150px">
+        <template #default="scope">
+          <UserInfo :userId="scope.row.updaterId" :userList="userList" />
+        </template>
+      </el-table-column>
 
       <el-table-column prop="updateTime" label="修改时间" :width="160" :formatter="timeFormatter" />
 
-      <el-table-column prop="creator.nickname" label="作者" width="150px" />
+      <el-table-column label="作者" width="150px">
+        <template #default="scope">
+          <UserInfo :userId="scope.row.creatorId" :userList="userList" />
+        </template>
+      </el-table-column>
 
       <el-table-column prop="createTime" label="创建时间" :width="160" :formatter="timeFormatter" />
 

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { Delete, Edit } from '@element-plus/icons-vue'
+import { Delete, Edit, RefreshRight } from '@element-plus/icons-vue'
 import { useIconDelete, useIconList } from './hooks'
 import { IconCreator, IconEditor, IconTable } from './components'
 import { PgUnit, useGlobalDialog, usePagination } from '@/hooks'
@@ -19,7 +19,7 @@ const { pagination, layout } = usePagination({
 })
 
 // ==================== 图标列表 ====================
-const { iconList, loading, updateIconList, updateIconListWithResetCurrent } = useIconList({
+const { iconList, userList, loading, updateIconList, updateIconListWithResetCurrent } = useIconList({
   pagination,
   getParams: () => ({
     creator: undefined,
@@ -60,11 +60,12 @@ onDeleteSuccess(updateIconList)
           <el-button type="primary" @click="openCreator">
             添加图标
           </el-button>
+          <el-button :icon="RefreshRight" circle :loading="loading" title="强制刷新" @click="updateIconList" />
         </el-form-item>
       </el-form>
     </div>
 
-    <IconTable :icon-list="iconList" :loading="loading">
+    <IconTable :icon-list="iconList" :user-list="userList" :loading="loading">
       <template #action="{ row }">
         <el-button
           plain
