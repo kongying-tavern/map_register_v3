@@ -42,12 +42,12 @@ const height = computed(() => {
         @click="() => toggleVisible(option.id)"
       >
         <el-icon
-          :size="14"
+          :size="48"
           :class="[
             option.visible ? 'border-green-600 text-green-600' : 'border-yellow-600',
           ]"
           :color="option.visible ? 'rgb(22 163 74)' : 'rgb(202 138 4)'"
-          class="border rounded-full p-0.5"
+          class="border rounded-full p-0.5 mr-2"
         >
           <View v-if="option.visible" />
           <Hide v-else />
@@ -98,13 +98,15 @@ const height = computed(() => {
   border: 1px solid rgb(211 188 143);
   background: rgb(236 229 216);
   border-radius: 4px;
-  padding: 4px 8px;
-  font-size: 14px;
+  padding: 8px 16px;
+  font-size: 24px;
   display: flex;
   align-items: center;
   white-space: nowrap;
   gap: 2px;
   cursor: pointer;
   user-select: none;
+
+  font-family: 'MHYG';
 }
 </style>
