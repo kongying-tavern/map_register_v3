@@ -1,7 +1,8 @@
 import _ from "lodash";
-import { ref, computed } from "vue";
+import { ref, computed, h } from "vue";
 import { create_notify } from "src/api/common";
 import { selectorCollapse } from "src/components/selector-data";
+import { QIcon, QTooltip } from "quasar";
 
 export const filterCardVisible = ref(false);
 
@@ -55,6 +56,27 @@ export const filterTypes = [
         .value();
       const check = allowIds.indexOf(idStr) !== -1;
       return check;
+    },
+    filterSlots: {
+      append: () =>
+        h(
+          QIcon,
+          { name: "info", size: "sm", class: "cursor-pointer text-grey-7" },
+          [
+            h(QTooltip, {}, [
+              "可输入多个ID，使用以下符号分隔：",
+              h(
+                "ol",
+                { style: "padding: 0; margin: 0; padding-left: 1.2rem;" },
+                [
+                  h("li", {}, "半角空格 ( )"),
+                  h("li", {}, "半角逗号 (,)"),
+                  h("li", {}, "顿号 (、)"),
+                ]
+              ),
+            ]),
+          ]
+        ),
     },
   },
   {

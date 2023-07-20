@@ -183,6 +183,11 @@ import {
             >
             </q-toggle>
           </div>
+          <div v-if="item.filterOpts?.filterSlots?.append" style="flex: none">
+            <component :is="{ render: item.filterOpts?.filterSlots?.append }">
+            </component>
+          </div>
+
           <q-btn
             style="flex: none"
             flat
@@ -219,6 +224,14 @@ import {
     </div>
   </q-card>
 </template>
+
+<script>
+export default {
+  mounted() {
+    console.log(filterConfigList.value);
+  },
+};
+</script>
 
 <style lang="scss" scoped>
 .filter-card {
