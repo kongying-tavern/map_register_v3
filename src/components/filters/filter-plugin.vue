@@ -34,15 +34,16 @@ const muteTooltip = ref(false);
       </q-icon>
       <FilterComment style="flex: auto"></FilterComment>
       <q-btn
-      style="flex: none;"
-      unelevated
-      rounded
-      dense
+        style="flex: none"
+        unelevated
+        rounded
+        dense
         size="md"
         :color="muteTooltip ? 'grey-1' : 'pink-4'"
         :text-color="muteTooltip ? 'pink-4' : 'grey-1'"
         :icon="muteTooltip ? 'mdi-tooltip-outline' : 'mdi-tooltip-text-outline'"
-        @click="muteTooltip = !muteTooltip">
+        @click="muteTooltip = !muteTooltip"
+      >
         <q-tooltip>
           <template v-if="muteTooltip">开启筛选按钮提示</template>
           <template v-else>关闭筛选按钮提示</template>
@@ -82,7 +83,9 @@ const muteTooltip = ref(false);
                 &nbsp;且&nbsp;
               </template>
               <template v-else>&nbsp;或&nbsp;</template>
-              <q-tooltip v-if="!muteTooltip && groupIndex > 0">切换 且/或 组合逻辑</q-tooltip>
+              <q-tooltip v-if="!muteTooltip && groupIndex > 0">
+                切换 且/或 组合逻辑
+              </q-tooltip>
             </q-btn>
             <span class="title">条件组 {{ groupIndex + 1 }}</span>
             <q-btn
@@ -157,7 +160,9 @@ const muteTooltip = ref(false);
                   &nbsp;且&nbsp;
                 </template>
                 <template v-else>&nbsp;或&nbsp;</template>
-                <q-tooltip v-if="!muteTooltip && itemIndex > 0">切换 且/或 组合逻辑</q-tooltip>
+                <q-tooltip v-if="!muteTooltip && itemIndex > 0">
+                  切换 且/或 组合逻辑
+                </q-tooltip>
               </q-btn>
 
               <q-select

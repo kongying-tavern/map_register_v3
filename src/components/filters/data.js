@@ -20,6 +20,31 @@ export const filterItemDefault = {
 
 export const filterTypes = [
   {
+    name: "id-list",
+    icon: "mdi-pound",
+    title: "ID范围",
+    label: "ID为",
+    model: "input",
+    modelOpts: {
+      text: "",
+    },
+    filterAction(item = {}, options = {}) {
+      const inputText = options.text || "";
+      if (!inputText) {
+        return true;
+      }
+
+      const idStr = (item.id || "").toString();
+      const allowIdChunks = inputText.split(/[ ,、]/giu);
+      const allowIds = _.chain(allowIdChunks)
+        .map((v) => (v || "").trim())
+        .filter((v) => v)
+        .value();
+      const check = allowIds.indexOf(idStr) !== -1;
+      return check;
+    },
+  },
+  {
     name: "title-contain",
     icon: "mdi-format-title",
     title: "标题包含",
