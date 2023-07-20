@@ -1,6 +1,19 @@
 import _ from "lodash";
 import { ref, computed } from "vue";
 import { create_notify } from "src/api/common";
+import { selectorCollapse } from "src/components/selector-data";
+
+export const filterCardVisible = ref(false);
+
+export const filterMuteTooltip = ref(false);
+
+export const filterCardToggle = () => {
+  filterCardVisible.value = !filterCardVisible.value;
+
+  if (filterCardVisible.value && !selectorCollapse.value) {
+    selectorCollapse.value = true;
+  }
+};
 
 export const groupJoinOperatorOptions = [{ value: "" }, { value: "" }];
 
@@ -296,7 +309,7 @@ export const filterItemChangeType = (
   );
 };
 
-export const applyFilterFunc = computed(() => (item = {}) => {
+export const applyFilterFunc = (item = {}) => {
   let checkValue = true;
 
   for (const filterGroup of filterConfigList.value) {
@@ -330,6 +343,6 @@ export const applyFilterFunc = computed(() => (item = {}) => {
   }
 
   return checkValue;
-});
+};
 
 export const applyFilter = (list = []) => _.filter(list, applyFilterFunc.value);

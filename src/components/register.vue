@@ -1,8 +1,17 @@
+<script setup>
+import {
+  selectorStep,
+  selectorCollapse,
+  selectorToggle,
+} from "./selector-data";
+import FilterCard from "src/components/filters/filter-card.vue";
+</script>
+
 <template>
   <div class="absolute-full marker-action-container">
     <!-- 地区和分类选择 -->
     <q-stepper
-      v-model="selector_step"
+      v-model="selectorStep"
       class="full-width flex-none"
       header-class="stepper-header"
       header-nav
@@ -12,17 +21,17 @@
     >
       <q-step
         class="marker-action-step"
-        :class="{ hidden: stepper_collapsed }"
+        :class="{ hidden: selectorCollapse }"
         :name="1"
         title="选择地区"
         :caption="`当前选择：${selected_area_name}`"
         icon="place"
         active-icon="place"
-        :active-color="stepper_collapsed ? 'blue-10' : 'primary'"
+        :active-color="selectorCollapse ? 'blue-10' : 'primary'"
         done-icon="place"
-        :done-color="stepper_collapsed ? 'blue-10' : 'primary'"
-        :done="stepper_collapsed || selector_step === 1"
-        :header-nav="!stepper_collapsed"
+        :done-color="selectorCollapse ? 'blue-10' : 'primary'"
+        :done="selectorCollapse || selectorStep === 1"
+        :header-nav="!selectorCollapse"
       >
         <div style="display: flex" class="absolute-full q-pa-sm">
           <q-list style="flex: 4; overflow-y: auto" dense>
@@ -84,17 +93,17 @@
 
       <q-step
         class="marker-action-step"
-        :class="{ hidden: stepper_collapsed }"
+        :class="{ hidden: selectorCollapse }"
         :name="2"
         title="选择分类"
         :caption="`当前选择：${selected_type_name}`"
         icon="bookmarks"
         active-icon="bookmarks"
-        :active-color="stepper_collapsed ? 'blue-10' : 'primary'"
+        :active-color="selectorCollapse ? 'blue-10' : 'primary'"
         done-icon="bookmarks"
-        :done-color="stepper_collapsed ? 'blue-10' : 'primary'"
-        :done="stepper_collapsed || selector_step === 2"
-        :header-nav="!stepper_collapsed"
+        :done-color="selectorCollapse ? 'blue-10' : 'primary'"
+        :done="selectorCollapse || selectorStep === 2"
+        :header-nav="!selectorCollapse"
       >
         <div v-if="selected_area_id <= 0">
           尚未选择地区，请
@@ -107,7 +116,7 @@
             icon="place"
             @click="
               () => {
-                selector_step = 1;
+                selectorStep = 1;
               }
             "
           >
@@ -171,17 +180,17 @@
 
       <q-step
         class="marker-action-step"
-        :class="{ hidden: stepper_collapsed }"
+        :class="{ hidden: selectorCollapse }"
         :name="3"
         title="选择物品"
         :caption="`当前选择：${selected_item_name}`"
         icon="pets"
         active-icon="pets"
-        :active-color="stepper_collapsed ? 'blue-10' : 'primary'"
+        :active-color="selectorCollapse ? 'blue-10' : 'primary'"
         done-icon="pets"
-        :done-color="stepper_collapsed ? 'blue-10' : 'primary'"
-        :done="stepper_collapsed || selector_step === 3"
-        :header-nav="!stepper_collapsed"
+        :done-color="selectorCollapse ? 'blue-10' : 'primary'"
+        :done="selectorCollapse || selectorStep === 3"
+        :header-nav="!selectorCollapse"
       >
         <div v-if="selected_area_id <= 0">
           尚未选择地区，请
@@ -194,7 +203,7 @@
             icon="place"
             @click="
               () => {
-                selector_step = 1;
+                selectorStep = 1;
               }
             "
           >
@@ -212,7 +221,7 @@
             icon="bookmarks"
             @click="
               () => {
-                selector_step = 2;
+                selectorStep = 2;
               }
             "
           >
@@ -280,10 +289,10 @@
       <template #navigation>
         <q-stepper-navigation class="flex-none" style="padding: 10px 8px">
           <div class="marker-action-toggle">
-            <q-space v-if="stepper_collapsed"></q-space>
+            <q-space v-if="selectorCollapse"></q-space>
             <div v-else class="flex-auto q-gutter-md">
               <q-btn
-                v-if="selector_step > 1"
+                v-if="selectorStep > 1"
                 label="上一步"
                 icon="arrow_back"
                 color="primary"
@@ -292,14 +301,14 @@
                 glossy
                 @click="
                   () => {
-                    selector_step -= 1;
+                    selectorStep -= 1;
                   }
                 "
               >
               </q-btn>
 
               <q-btn
-                v-if="selector_step < 3"
+                v-if="selectorStep < 3"
                 label="下一步"
                 icon-right="arrow_forward"
                 color="primary"
@@ -308,7 +317,7 @@
                 glossy
                 @click="
                   () => {
-                    selector_step += 1;
+                    selectorStep += 1;
                   }
                 "
               >
@@ -316,7 +325,7 @@
             </div>
             <span
               class="flex-none cursor-pointer text text-bold text-right text-grey-8"
-              @click="toggle_stepper"
+              @click="selectorToggle"
             >
               <q-icon :name="stepper_collapse_icon" right></q-icon>
               {{ stepper_collapse_text }}
@@ -325,6 +334,9 @@
         </q-stepper-navigation>
       </template>
     </q-stepper>
+
+    <!-- 过滤-->
+    <FilterCard class="flex-none"></FilterCard>
 
     <!-- 点位信息表 -->
     <layer-table
@@ -451,7 +463,6 @@ export default {
       dragmode: false,
       drag_window: false,
 
-      selector_step: 1,
       selected_top_area_id: null,
       selected_area: null,
       selected_type: null,
@@ -464,7 +475,6 @@ export default {
 
       icon_map: {},
 
-      stepper_collapsed: false,
       handle_layer_list_data: [],
       handle_layer: null,
       popup_window_show: false,
@@ -555,12 +565,12 @@ export default {
         .value();
     },
     stepper_collapse_icon() {
-      return this.stepper_collapsed
+      return this.selectorCollapse
         ? "keyboard_double_arrow_down"
         : "keyboard_double_arrow_up";
     },
     stepper_collapse_text() {
-      return this.stepper_collapsed ? "展开" : "收起";
+      return this.selectorCollapse ? "展开" : "收起";
     },
   },
   methods: {
@@ -585,7 +595,7 @@ export default {
         this.selected_area = area;
         this.$emit("map_switch", this.selected_area);
         this.fetch_item_list();
-        this.selector_step = 2;
+        this.selectorStep = 2;
       } else {
         this.selected_top_area_id = area.areaId || 0;
       }
@@ -602,7 +612,7 @@ export default {
       this.clearlist();
       this.clearlayers();
       this.selected_type = value;
-      this.selector_step = 3;
+      this.selectorStep = 3;
       if (this.item_all_allowable) {
         this.fetch_item_layers(null);
       }
@@ -800,9 +810,6 @@ export default {
           this.refresh();
           break;
       }
-    },
-    toggle_stepper() {
-      this.stepper_collapsed = !this.stepper_collapsed;
     },
     get_icon_url_by_tag(icontag = "") {
       return _.get(
