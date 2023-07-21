@@ -44,6 +44,7 @@ export const filterTypes = [
     },
     filterAction(item = {}, options = {}) {
       const inputText = options.text || "";
+      console.error(inputText);
       if (!inputText) {
         return true;
       }
@@ -55,6 +56,7 @@ export const filterTypes = [
         .filter((v) => v)
         .value();
       const check = allowIds.indexOf(idStr) !== -1;
+      console.log(idStr, allowIdChunks, check);
       return check;
     },
     filterSlots: {
@@ -62,20 +64,32 @@ export const filterTypes = [
         h(
           QIcon,
           { name: "info", size: "sm", class: "cursor-pointer text-grey-7" },
-          [
-            h(QTooltip, {}, [
-              "可输入多个ID，使用以下符号分隔：",
+          {
+            default: () => [
               h(
-                "ol",
-                { style: "padding: 0; margin: 0; padding-left: 1.2rem;" },
-                [
-                  h("li", {}, "半角空格 ( )"),
-                  h("li", {}, "半角逗号 (,)"),
-                  h("li", {}, "顿号 (、)"),
-                ]
+                QTooltip,
+                {},
+                {
+                  default: () => [
+                    "可输入多个ID，使用以下符号分隔：",
+                    h(
+                      "ol",
+                      {
+                        style: "padding: 0; margin: 0; padding-left: 1.2rem;",
+                      },
+                      {
+                        default: () => [
+                          h("li", {}, { default: () => "半角空格 ( )" }),
+                          h("li", {}, { default: () => "半角逗号 (,)" }),
+                          h("li", {}, { default: () => "顿号 (、)" }),
+                        ],
+                      }
+                    ),
+                  ],
+                }
               ),
-            ]),
-          ]
+            ],
+          }
         ),
     },
   },
@@ -367,4 +381,4 @@ export const applyFilterFunc = (item = {}) => {
   return checkValue;
 };
 
-export const applyFilter = (list = []) => _.filter(list, applyFilterFunc.value);
+export const applyFilter = (list = []) => _.filter(list, applyFilterFunc);
