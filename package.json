@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "quasar dev",
     "build": "quasar build",
+    "serve": "ws -d dist/spa -s index.html",
     "lint": "eslint --ext=.js,.vue ."
   },
   "dependencies": {

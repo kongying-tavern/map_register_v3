@@ -12,3 +12,15 @@ export const selectorToggle = () => {
     filterCardVisible.value = false;
   }
 };
+
+export const selectorJumpPrev = () => {
+  selectorStep.value -= 1;
+};
+
+export const selectorJumpNext = () => {
+  selectorStep.value += 1;
+};
+
+export const selectorJumpTo = (step = 1) => {
+  selectorStep.value = step;
+};

@@ -1,6 +1,9 @@
 <script setup>
 import {
   selectorStep,
+  selectorJumpPrev,
+  selectorJumpNext,
+  selectorJumpTo,
   selectorCollapse,
   selectorToggle,
 } from "./selector-data";
@@ -114,11 +117,7 @@ import FilterCard from "src/components/filters/filter-card.vue";
             clickable
             text-color="white"
             icon="place"
-            @click="
-              () => {
-                selectorStep = 1;
-              }
-            "
+            @click="selectorJumpTo(1)"
           >
             前去选择
           </q-chip>
@@ -201,11 +200,7 @@ import FilterCard from "src/components/filters/filter-card.vue";
             clickable
             text-color="white"
             icon="place"
-            @click="
-              () => {
-                selectorStep = 1;
-              }
-            "
+            @click="selectorJumpTo(1)"
           >
             前去选择
           </q-chip>
@@ -219,11 +214,7 @@ import FilterCard from "src/components/filters/filter-card.vue";
             clickable
             text-color="white"
             icon="bookmarks"
-            @click="
-              () => {
-                selectorStep = 2;
-              }
-            "
+            @click="selectorJumpTo(2)"
           >
             前去选择
           </q-chip>
@@ -299,11 +290,7 @@ import FilterCard from "src/components/filters/filter-card.vue";
                 size="sm"
                 rounded
                 glossy
-                @click="
-                  () => {
-                    selectorStep -= 1;
-                  }
-                "
+                @click="selectorJumpPrev()"
               >
               </q-btn>
 
@@ -315,11 +302,7 @@ import FilterCard from "src/components/filters/filter-card.vue";
                 size="sm"
                 rounded
                 glossy
-                @click="
-                  () => {
-                    selectorStep += 1;
-                  }
-                "
+                @click="selectorJumpNext()"
               >
               </q-btn>
             </div>
@@ -595,7 +578,7 @@ export default {
         this.selected_area = area;
         this.$emit("map_switch", this.selected_area);
         this.fetch_item_list();
-        this.selectorStep = 2;
+        selectorJumpTo(2);
       } else {
         this.selected_top_area_id = area.areaId || 0;
       }
@@ -612,7 +595,7 @@ export default {
       this.clearlist();
       this.clearlayers();
       this.selected_type = value;
-      this.selectorStep = 3;
+      selectorJumpTo(3);
       if (this.item_all_allowable) {
         this.fetch_item_layers(null);
       }

@@ -225,14 +225,6 @@ import {
   </q-card>
 </template>
 
-<script>
-export default {
-  mounted() {
-    console.log(filterConfigList.value);
-  },
-};
-</script>
-
 <style lang="scss" scoped>
 .filter-card {
   display: flex;
