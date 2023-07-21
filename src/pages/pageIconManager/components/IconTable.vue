@@ -1,5 +1,8 @@
 <script lang="ts" setup>
-defineProps<{
+import { AppUserPopover } from '@/components'
+import { useUserPopover } from '@/hooks'
+
+const props = defineProps<{
   iconList: API.IconVo[]
   userMap: Record<string, API.SysUserSmallVo>
   loading: boolean
@@ -11,55 +14,21 @@ const { height } = useElementSize(tableContainerRef)
 const urlFormatter = (_: unknown, __: unknown, url = '') => decodeURIComponent(url)
 const timeFormatter = (_: unknown, __: unknown, time = '') => new Date(time).toLocaleString()
 
-const userData = ref<API.SysUserSmallVo | null>(null)
-const triggerRef = ref<HTMLElement | null>(null)
-const setPopoverTarget = (ev: MouseEvent, data: API.SysUserSmallVo) => {
-  if (!(ev.target instanceof HTMLElement))
-    return
-  userData.value = data
-  triggerRef.value = ev.target
-}
-const blurPopover = () => {
-  triggerRef.value = null
-}
+const { IDENTIFICATION_SYMBOL, userData, triggerRef, trigger, close } = useUserPopover({
+  getUser: userId => props.userMap[userId],
+})
 </script>
 
 <template>
-  <div ref="tableContainerRef" v-loading="loading" class="flex-1 overflow-hidden" element-loading-text="加载中...">
-    <el-popover
-      :virtual-ref="triggerRef"
-      :visible="Boolean(triggerRef)"
-      :width="userData?.logo ? '260px' : '130px'"
-      virtual-triggering
-      placement="top"
-    >
-      <div
-        v-if="userData"
-        class="grid gap-x-2"
-        :style="[
-          `grid-template-columns: ${userData.logo ? 'auto' : ''} 1fr`,
-        ]"
-      >
-        <img
-          v-if="userData.logo"
-          :src="userData.logo"
-          class="w-24 rounded aspect-square row-span-4"
-          style="border-color: var(--el-color-primary-light-8); background-color: var(--el-color-primary-light-9);"
-        >
-        <div class="whitespace-nowrap overflow-hidden text-ellipsis">
-          账号：{{ userData.username }}
-        </div>
-        <div class="whitespace-nowrap overflow-hidden text-ellipsis">
-          昵称：{{ userData.nickname }}
-        </div>
-        <div class="whitespace-nowrap overflow-hidden text-ellipsis">
-          Q号：{{ userData.qq || '--' }}
-        </div>
-        <div class="whitespace-nowrap overflow-hidden text-ellipsis">
-          手机：{{ userData.phone || '--' }}
-        </div>
-      </div>
-    </el-popover>
+  <div
+    ref="tableContainerRef"
+    v-loading="loading"
+    class="flex-1 overflow-hidden"
+    element-loading-text="加载中..."
+    @pointerover="trigger"
+    @pointerout="close"
+  >
+    <AppUserPopover :trigger-ref="triggerRef" :data="userData" />
 
     <el-table
       :data="iconList"
@@ -92,12 +61,11 @@ const blurPopover = () => {
       <el-table-column label="创建人" width="100px">
         <template #default="{ row }">
           <el-tag
-            v-if="userMap[row.creatorId]"
+            :data-symbol="IDENTIFICATION_SYMBOL"
+            :data-user-id="row.creatorId"
             disable-transitions
-            @pointerenter="(ev: PointerEvent) => setPopoverTarget(ev, userMap[row.creatorId])"
-            @pointerleave="blurPopover"
           >
-            {{ userMap[row.creatorId].nickname }}
+            {{ userMap[row.creatorId]?.nickname ?? `(id: ${row.creatorId})` }}
           </el-tag>
         </template>
       </el-table-column>
@@ -107,12 +75,11 @@ const blurPopover = () => {
       <el-table-column label="修改人" width="100px">
         <template #default="{ row }">
           <el-tag
-            v-if="userMap[row.updaterId]"
+            :data-symbol="IDENTIFICATION_SYMBOL"
+            :data-user-id="row.updaterId"
             disable-transitions
-            @pointerenter="(ev: PointerEvent) => setPopoverTarget(ev, userMap[row.updaterId])"
-            @pointerleave="blurPopover"
           >
-            {{ userMap[row.updaterId].nickname }}
+            {{ userMap[row.updaterId]?.nickname ?? `(id: ${row.updaterId})` }}
           </el-tag>
         </template>
       </el-table-column>

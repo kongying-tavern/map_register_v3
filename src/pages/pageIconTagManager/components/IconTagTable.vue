@@ -1,5 +1,7 @@
 <script lang="ts" setup>
 import { ElTable } from 'element-plus'
+import { AppUserPopover } from '@/components'
+import { useUserPopover } from '@/hooks'
 
 const props = defineProps<{
   selections: API.TagVo[]
@@ -22,10 +24,23 @@ watch(() => props.iconTagList, () => tableRef.value?.scrollTo({
 }))
 
 const typeAssert = (row: unknown) => row as API.TagVo
+
+const { IDENTIFICATION_SYMBOL, triggerRef, userData, trigger, close } = useUserPopover({
+  getUser: userId => props.userMap[userId],
+})
 </script>
 
 <template>
-  <div ref="tableContainerRef" v-loading="loading" class="flex-1 overflow-hidden" element-loading-text="加载中...">
+  <div
+    ref="tableContainerRef"
+    v-loading="loading"
+    class="flex-1 overflow-hidden"
+    element-loading-text="加载中..."
+    @pointerover="trigger"
+    @pointerout="close"
+  >
+    <AppUserPopover :trigger-ref="triggerRef" :data="userData" />
+
     <ElTable
       ref="tableRef"
       :data="iconTagList"
@@ -59,7 +74,14 @@ const typeAssert = (row: unknown) => row as API.TagVo
 
       <el-table-column label="创建人" prop="creatorId" :width="100">
         <template #default="{ row }">
-          {{ userMap[row.creatorId]?.nickname ?? `(id: ${row.creatorId})` }}
+          <el-tag
+            v-if="userMap[row.creatorId]"
+            :data-symbol="IDENTIFICATION_SYMBOL"
+            :data-user-id="row.creatorId"
+            disable-transitions
+          >
+            {{ userMap[row.creatorId]?.nickname ?? `(id: ${row.creatorId})` }}
+          </el-tag>
         </template>
       </el-table-column>
 
@@ -67,7 +89,14 @@ const typeAssert = (row: unknown) => row as API.TagVo
 
       <el-table-column label="修改人" prop="updaterId" :width="100">
         <template #default="{ row }">
-          {{ userMap[row.updaterId]?.nickname ?? `(id: ${row.updaterId})` }}
+          <el-tag
+            v-if="userMap[row.updaterId]"
+            :data-symbol="IDENTIFICATION_SYMBOL"
+            :data-user-id="row.updaterId"
+            disable-transitions
+          >
+            {{ userMap[row.updaterId]?.nickname ?? `(id: ${row.updaterId})` }}
+          </el-tag>
         </template>
       </el-table-column>
 
