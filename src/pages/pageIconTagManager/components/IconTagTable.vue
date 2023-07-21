@@ -25,6 +25,8 @@ watch(() => props.iconTagList, () => tableRef.value?.scrollTo({
 
 const typeAssert = (row: unknown) => row as API.TagVo
 
+const timeFormatter = (_: unknown, __: unknown, time = '') => new Date(time).toLocaleString()
+
 const { IDENTIFICATION_SYMBOL, triggerRef, userData, trigger, close } = useUserPopover({
   getUser: userId => props.userMap[userId],
 })
@@ -72,7 +74,7 @@ const { IDENTIFICATION_SYMBOL, triggerRef, userData, trigger, close } = useUserP
 
       <el-table-column label="类型" prop="typeIdList" :width="100" />
 
-      <el-table-column label="创建人" prop="creatorId" :width="100">
+      <el-table-column label="创建人" prop="creatorId" :width="160">
         <template #default="{ row }">
           <el-tag
             v-if="userMap[row.creatorId]"
@@ -85,9 +87,9 @@ const { IDENTIFICATION_SYMBOL, triggerRef, userData, trigger, close } = useUserP
         </template>
       </el-table-column>
 
-      <el-table-column label="创建时间" prop="createTime" :width="200" />
+      <el-table-column label="创建时间" prop="createTime" :formatter="timeFormatter" :width="160" />
 
-      <el-table-column label="修改人" prop="updaterId" :width="100">
+      <el-table-column label="修改人" prop="updaterId" :width="160">
         <template #default="{ row }">
           <el-tag
             v-if="userMap[row.updaterId]"
@@ -100,7 +102,7 @@ const { IDENTIFICATION_SYMBOL, triggerRef, userData, trigger, close } = useUserP
         </template>
       </el-table-column>
 
-      <el-table-column label="修改时间" prop="updateTime" :width="200" />
+      <el-table-column label="修改时间" prop="updateTime" :formatter="timeFormatter" :width="160" />
 
       <el-table-column label="操作" :width="130">
         <template #default="{ row }">

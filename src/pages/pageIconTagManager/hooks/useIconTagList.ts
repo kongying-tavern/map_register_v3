@@ -15,7 +15,7 @@ export const useIconTagList = (options: IconTagListHookOptions) => {
   const iconTagList = ref<API.TagVo[]>([])
   const userMap = ref<Record<string, API.SysUserSmallVo>>({})
 
-  const { refresh: updateTagLIst, onSuccess, ...rest } = useFetchHook({
+  const { refresh: updateTagList, onSuccess, ...rest } = useFetchHook({
     immediate: true,
     onRequest: () => Api.tag.listTag({
       current: pagination.value.current,
@@ -26,7 +26,7 @@ export const useIconTagList = (options: IconTagListHookOptions) => {
 
   const refreshWithResetCurrent = async () => {
     pagination.value.current = 1
-    await updateTagLIst()
+    await updateTagList()
   }
 
   watch(() => params.value.typeIdList, refreshWithResetCurrent)
@@ -38,5 +38,5 @@ export const useIconTagList = (options: IconTagListHookOptions) => {
     userMap.value = users
   })
 
-  return { iconTagList, userMap, updateTagLIst, onSuccess, ...rest }
+  return { iconTagList, userMap, updateTagList, onSuccess, ...rest }
 }
