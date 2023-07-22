@@ -9,16 +9,29 @@ import { useUserStore } from '@/stores'
 export const useMarkerCreate = (markerData: Ref<API.MarkerVo | null>) => {
   const userStore = useUserStore()
 
+  const commonKeys = [
+    'itemList',
+    'position',
+    'content',
+    'picture',
+    'markerCreatorId',
+    'videoPath',
+    'refreshTime',
+    'hiddenFlag',
+    'markerTitle',
+    'extra',
+  ]
+
   const buildAdminMarkerForm = (marker: API.MarkerVo): API.MarkerVo => {
     return {
-      ...pick(marker, 'itemList', 'position', 'content', 'picture', 'videoPath', 'refreshTime', 'hiddenFlag', 'markerTitle', 'extra'),
+      ...pick(marker, commonKeys),
       pictureCreatorId: marker.picture ? userStore.info.id : undefined,
     }
   }
 
   const buildModifyMarkerForm = (marker: API.MarkerVo): API.MarkerPunctuateVo => {
     return {
-      ...pick(marker, 'itemList', 'position', 'content', 'picture', 'videoPath', 'refreshTime', 'hiddenFlag', 'markerTitle', 'extra') as API.MarkerPunctuateVo,
+      ...pick(marker, commonKeys) as API.MarkerPunctuateVo,
       pictureCreatorId: marker.picture ? userStore.info.id : undefined,
       methodType: 1,
     }

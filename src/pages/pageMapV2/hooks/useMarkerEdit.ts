@@ -34,10 +34,23 @@ export const useMarkerEdit = (markerData: Ref<API.MarkerVo | null>) => {
     return isChanged
   }
 
+  const commonKeys = [
+    'id',
+    'itemList',
+    'position',
+    'content',
+    'picture',
+    'videoPath',
+    'refreshTime',
+    'hiddenFlag',
+    'markerTitle',
+    'extra',
+  ]
+
   const buildAdminMarkerForm = (marker: API.MarkerVo): API.MarkerVo => {
     const isPictureChanged = checkPictureChange(marker)
     return {
-      ...pick(marker, 'id', 'itemList', 'position', 'content', 'picture', 'videoPath', 'refreshTime', 'hiddenFlag', 'markerTitle', 'extra', 'version'),
+      ...pick(marker, commonKeys),
       pictureCreatorId: isPictureChanged ? userStore.info.id : marker.pictureCreatorId,
     }
   }
@@ -45,7 +58,7 @@ export const useMarkerEdit = (markerData: Ref<API.MarkerVo | null>) => {
   const buildModifyMarkerForm = (marker: API.MarkerVo): API.MarkerPunctuateVo => {
     const isPictureChanged = checkPictureChange(marker)
     return {
-      ...pick(marker, 'id', 'itemList', 'position', 'content', 'picture', 'videoPath', 'refreshTime', 'hiddenFlag', 'markerTitle', 'extra', 'version') as API.MarkerPunctuateVo,
+      ...pick(marker, commonKeys) as API.MarkerPunctuateVo,
       pictureCreatorId: isPictureChanged ? userStore.info.id : marker.pictureCreatorId,
       methodType: 2,
     }

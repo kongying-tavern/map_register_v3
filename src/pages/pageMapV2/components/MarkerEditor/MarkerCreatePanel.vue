@@ -20,7 +20,6 @@ const initFormData = (): API.MarkerVo => {
   const [x, y] = props.coordinate
   const { id: userId } = userStore.info
   return {
-    version: 1,
     markerTitle: '',
     content: '',
     hiddenFlag: 0,
@@ -31,6 +30,7 @@ const initFormData = (): API.MarkerVo => {
     markerCreatorId: userId,
   }
 }
+
 /** 表单数据 */
 const form = ref(initFormData())
 
