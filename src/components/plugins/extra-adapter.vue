@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from "vue";
-// Import pl16Island from "./1_6_island/edit.vue";
+import pl16Island from "./1_6_island/edit.vue";
 import pl28Island from "./2_8_island/edit.vue";
 import plUnderground from "./underground/edit.vue";
 import { get_map_plugin_config } from "src/api/map";
@@ -31,8 +31,8 @@ const plugin_options = computed(() => {
 <template>
   <template v-for="plugin_tag in plugin_tags" :key="plugin_tag">
     <!-- 海岛 -->
-    <!-- <pl16Island v-if="plugin_tag === '1_6_island'" /> -->
-    <pl28Island v-if="plugin_tag === '2_8_island'" />
+    <pl16Island v-if="plugin_tag === '1_6_island'" />
+    <pl28Island v-else-if="plugin_tag === '2_8_island'" />
 
     <!-- 地下层级 -->
     <plUnderground
