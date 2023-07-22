@@ -8,6 +8,8 @@ import {
   selectorToggle,
 } from "./selector-data";
 import FilterCard from "src/components/filters/filter-card.vue";
+
+import { layer_edit_window } from "src/components/dialogs/layer_edit_window";
 </script>
 
 <template>
@@ -391,7 +393,8 @@ import FilterCard from "src/components/filters/filter-card.vue";
         :propdata="edit_data"
         @cancel="add_mode_off"
         @refresh="refresh"
-      ></layer-edit>
+      >
+      </layer-edit>
     </q-dialog>
 
     <q-inner-loading :showing="loading">
@@ -462,7 +465,6 @@ export default {
       handle_layer: null,
       popup_window_show: false,
       edit_data: {},
-      layer_edit_window: false,
       new_layer_id: 0,
       handle_type: 0,
       handle_layergroup: null,
@@ -771,7 +773,7 @@ export default {
         },
         position,
       };
-      this.layer_edit_window = true;
+      layer_edit_window.value = true;
     },
     // 表格操作的回调函数
     table_callback(callback) {
@@ -828,7 +830,7 @@ export default {
     // 完成后，刷新当前点位
     refresh() {
       this.add_mode_off();
-      this.layer_edit_window = false;
+      layer_edit_window.value = false;
       this.fetch_item_layers(this.selected_item);
     },
     // 删除点位

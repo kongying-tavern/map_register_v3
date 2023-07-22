@@ -4,7 +4,6 @@ import pl16Island from "./1_6_island/edit.vue";
 import pl28Island from "./2_8_island/edit.vue";
 import plUnderground from "./underground/edit.vue";
 import { get_map_plugin_config } from "src/api/map";
-import { markerExtra } from "../extra-data";
 
 const props = defineProps({
   area: {
