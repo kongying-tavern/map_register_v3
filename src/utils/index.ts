@@ -1,5 +1,6 @@
 export * from './array2tree'
 export * from './extraJSON'
+export * from './formatter'
 export * from './formRules'
 export * from './getObjectFitSize'
 export * from './getPrototypeOf'
