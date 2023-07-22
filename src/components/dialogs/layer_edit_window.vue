@@ -267,10 +267,8 @@
 
     <!-- 裁剪弹窗 -->
     <q-dialog v-model="image_upload_cropper_open">
-      <img-cut
-        :crooper_img="image_upload_base64"
-        @screenshot="img_crop"
-      ></img-cut>
+      <img-cut :crooper_img="image_upload_base64" @screenshot="img_crop">
+      </img-cut>
     </q-dialog>
     <!-- 查看大图弹窗 -->
     <q-dialog v-model="image_preview_open">
@@ -298,7 +296,7 @@
 <script>
 import _ from "lodash";
 import { ref } from "vue";
-import funcExtraData from "../extra-data";
+import { markerExtraSetter, markerExtra } from "../extra-data";
 import { upload_img } from "../../service/base_data_request";
 import {
   edit_layer_extralabel,
@@ -329,7 +327,6 @@ export default {
     const layer_info = ref({});
 
     return {
-      ...funcExtraData,
       layer_info,
       refresh_init,
     };
@@ -556,12 +553,12 @@ export default {
           if (
             _.isFinite(markerId) &&
             markerId > 0 &&
-            _.isPlainObject(this.layer_extra_data) &&
-            !_.isEmpty(this.layer_extra_data)
+            _.isPlainObject(markerExtra.value) &&
+            !_.isEmpty(markerExtra.value)
           ) {
             return edit_layer_extralabel({
               markerId,
-              markerExtraContent: JSON.stringify(this.layer_extra_data),
+              markerExtraContent: JSON.stringify(markerExtra.value),
               isRelated: 0,
             });
           }
@@ -638,7 +635,7 @@ export default {
     this.layer_info = layer_info;
 
     // 获取附加数据
-    this.set_marker_extra_data(this.layer_info.markerExtraContent || "");
+    markerExtraSetter(this.layer_info.markerExtraContent || "");
 
     // 如果是新数据
     if (!this.layer_info.id) {

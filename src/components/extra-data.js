@@ -1,34 +1,27 @@
 import _ from "lodash";
 import { ref } from "vue";
 
-const layer_extra_data = ref({});
+export const markerExtra = ref({});
 
-const set_marker_extra_data = (data) => {
+export const markerExtraSetter = (data) => {
   if (_.isPlainObject(data)) {
-    layer_extra_data.value = data;
+    markerExtra.value = data;
   } else if (_.isString(data)) {
     try {
       const extraDataJson = JSON.parse(data);
       if (_.isPlainObject(extraDataJson)) {
-        layer_extra_data.value = extraDataJson;
+        markerExtra.value = extraDataJson;
       } else {
-        layer_extra_data.value = {};
+        markerExtra.value = {};
       }
     } catch (_) {
-      layer_extra_data.value = {};
+      markerExtra.value = {};
     }
   }
 };
 
-const get_marker_extra_data_entry = (key = "") => layer_extra_data.value[key];
+export const markerExtraEntryGetter = (key = "") => markerExtra.value[key];
 
-const put_marker_extra_data_entry = (key = "", data) => {
-  layer_extra_data.value[key] = data;
-};
-
-export default {
-  layer_extra_data,
-  set_marker_extra_data,
-  get_marker_extra_data_entry,
-  put_marker_extra_data_entry,
+export const markerExtraEntrySetter = (key = "", data) => {
+  markerExtra.value[key] = data;
 };
