@@ -1,9 +1,20 @@
 <script setup>
-import { ref, computed, defineProps, onMounted, nextTick } from "vue";
+import {
+  ref,
+  computed,
+  defineProps,
+  defineComponent,
+  onMounted,
+  nextTick,
+} from "vue";
 import {
   markerExtraEntryGetter,
   markerExtraEntrySetter,
 } from "src/components/extra-data";
+
+defineComponent({
+  name: "ExtraFieldUnderground",
+});
 
 const props = defineProps({
   textInactive: {
@@ -145,9 +156,3 @@ onMounted(() => {
     </q-item-section>
   </q-item>
 </template>
-
-<script>
-export default {
-  name: "ExtraEditUnderground",
-};
-</script>

@@ -1,9 +1,9 @@
 <script setup>
 import { computed } from "vue";
-import pl16Island from "./1_6_island/edit.vue";
-import pl28Island from "./2_8_island/edit.vue";
-import plUnderground from "./underground/edit.vue";
 import { get_map_plugin_config } from "src/api/map";
+import pl16Island from "./extra-field/1_6_island.vue";
+import pl28Island from "./extra-field/2_8_island.vue";
+import plUnderground from "./extra-field/underground.vue";
 
 const props = defineProps({
   area: {

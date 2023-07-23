@@ -307,7 +307,7 @@ import { get_user_id, is_neigui } from "../../service/user_info";
 import ImgCut from "./vue-cropper.vue";
 import RefreshTimeField from "./layer_edit_refresh_time.vue";
 import { refresh_init } from "./layer_edit_refresh_time";
-import ExtraAdapter from "../plugins/extra-adapter.vue";
+import ExtraField from "../plugins/extra-field.vue";
 import ItemSelector from "./item_selector.vue";
 import { create_notify } from "../../api/common";
 
@@ -408,7 +408,7 @@ export default {
     ImgCut,
     ItemSelector,
     RefreshTimeField,
-    ExtraAdapter,
+    ExtraAdapter: ExtraField,
   },
   methods: {
     // 查看大图

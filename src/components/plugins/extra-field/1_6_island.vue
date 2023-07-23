@@ -1,10 +1,14 @@
 <script setup>
 import _ from "lodash";
-import { ref, computed, onMounted, nextTick } from "vue";
+import { ref, computed, defineComponent, onMounted, nextTick } from "vue";
 import {
   markerExtraEntryGetter,
   markerExtraEntrySetter,
 } from "src/components/extra-data";
+
+defineComponent({
+  name: "ExtraField16Island",
+});
 
 const extraData = ref([]);
 
@@ -52,9 +56,3 @@ onMounted(() => {
     </q-item-section>
   </q-item>
 </template>
-
-<script>
-export default {
-  name: "ExtraEdit16Island",
-};
-</script>
