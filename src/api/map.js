@@ -4,6 +4,7 @@ import { ref } from "vue";
 import * as L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { is_neigui } from "src/service/user_info";
+import { mapDom } from "src/pages/map";
 
 // 初始化地图中心和地图尺寸
 /**
@@ -153,7 +154,7 @@ function create_map(area_config_code = "") {
     mapTilesOffset,
     extension
   );
-  const map = L.map("map", map_setting).addLayer(tiles);
+  const map = L.map(mapDom.value, map_setting).addLayer(tiles);
   return map;
 }
 

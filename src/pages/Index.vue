@@ -4,7 +4,7 @@
     <div class="map_containor">
       <div class="stars"></div>
       <div class="twinkling"></div>
-      <div id="map"></div>
+      <div id="map" ref="mapDom"></div>
     </div>
     <!-- 侧面筛选器 -->
     <q-card
@@ -73,7 +73,7 @@
 </template>
 
 <script setup>
-import { map, createMap, removeMap } from "./map";
+import { map, mapDom, createMap, removeMap } from "./map";
 </script>
 
 <script>
