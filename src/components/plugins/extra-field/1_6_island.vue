@@ -1,6 +1,13 @@
 <script setup>
 import _ from "lodash";
-import { ref, computed, defineComponent, onMounted, nextTick } from "vue";
+import {
+  ref,
+  computed,
+  defineProps,
+  defineComponent,
+  onMounted,
+  nextTick,
+} from "vue";
 import {
   markerExtraEntryGetter,
   markerExtraEntrySetter,
@@ -8,6 +15,13 @@ import {
 
 defineComponent({
   name: "ExtraField16Island",
+});
+
+defineProps({
+  stages: {
+    type: Array,
+    default: () => [],
+  },
 });
 
 const extraData = ref([]);
@@ -19,11 +33,6 @@ const extraValue = computed(() => {
 
   return extraData.value || [];
 });
-
-const islandOptions = [
-  { label: "第一阶段", value: "1" },
-  { label: "第二阶段", value: "2" },
-];
 
 const extraDataUpdate = () => {
   markerExtraEntrySetter("1_6_island", extraValue.value);
@@ -42,7 +51,7 @@ onMounted(() => {
     <q-item-section>
       <q-select
         v-model="extraData"
-        :options="islandOptions"
+        :options="stages"
         emit-value
         map-options
         label="选择阶段"

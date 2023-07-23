@@ -12,35 +12,43 @@ const props = defineProps({
   },
 });
 
-const plugin_tags = computed(() => {
+const extra_config = computed(() => {
   const area_code = props.area.code || "";
-  const area_config = get_map_plugin_config(area_code);
-  const plugin_tags = area_config.extra || {};
-  return plugin_tags;
+  const config = get_map_plugin_config(area_code);
+  return config;
 });
 
-const plugin_options = computed(() => {
-  const area_code = props.area.code || "";
-  const area_config = get_map_plugin_config(area_code);
-  const plugin_config = area_config.extraConfig || {};
-  return plugin_config;
+const extra_tags = computed(() => {
+  const tags = extra_config.value.extra || {};
+  return tags;
+});
+
+const extra_options = computed(() => {
+  const options = extra_config.value.extraConfig || {};
+  return options;
 });
 </script>
 
 <template>
-  <template v-for="plugin_tag in plugin_tags" :key="plugin_tag">
+  <template v-for="plugin_tag in extra_tags" :key="plugin_tag">
     <!-- 海岛 -->
-    <pl16Island v-if="plugin_tag === '1_6_island'" />
-    <pl28Island v-else-if="plugin_tag === '2_8_island'" />
+    <pl16Island
+      v-if="plugin_tag === '1_6_island'"
+      :stages="extra_options['1_6_island']?.stages"
+    />
+    <pl28Island
+      v-else-if="plugin_tag === '2_8_island'"
+      :stages="extra_options['2_8_island']?.stages"
+    />
 
     <!-- 地下层级 -->
     <plUnderground
       v-else-if="plugin_tag === 'underground'"
-      :textInactive="plugin_options.underground?.textInactive"
-      :textActive="plugin_options.underground?.textActive"
-      :modelId="plugin_options.underground?.modelId"
-      :undergroundDetail="plugin_options.underground?.useDetail"
-      :undergroundLevels="plugin_options.underground?.levels"
+      :textInactive="extra_options.underground?.textInactive"
+      :textActive="extra_options.underground?.textActive"
+      :modelId="extra_options.underground?.modelId"
+      :undergroundDetail="extra_options.underground?.useDetail"
+      :undergroundLevels="extra_options.underground?.levels"
     >
     </plUnderground>
   </template>

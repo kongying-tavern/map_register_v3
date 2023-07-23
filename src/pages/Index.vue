@@ -34,7 +34,6 @@
       >
         <q-tab-panel name="打点" class="relative-position">
           <layer-register
-            :map="map"
             @map_switch="map_switch"
             v-show="handle_type == '打点'"
           >
@@ -44,10 +43,8 @@
         <q-tab-panel name="审核"></q-tab-panel>
 
         <q-tab-panel name="编辑">
-          <layer-register
-            :map="map"
-            v-show="handle_type == '审核'"
-          ></layer-register>
+          <layer-register :map="map" v-show="handle_type == '审核'">
+          </layer-register>
         </q-tab-panel>
       </q-tab-panels>
 
@@ -69,72 +66,43 @@
       @click="selector_show = true"
       style="z-index: 1500"
     />
-    <!-- 额外操作器 -->
-    <q-card
-      v-if="area.code === 'A:APPLE:2_8'"
-      class="absolute-top-right q-pa-md"
-      style="z-index: 9000"
-    >
-      <div style="width: 300px" v-if="extra_show === true">
-        <q-btn
-          dense
-          flat
-          color="white"
-          text-color="black"
-          icon="mdi-close"
-          class="absolute-top-right"
-          @click="extra_show = false"
-        />
-        <island-selector :map="map"></island-selector>
-      </div>
-      <div v-else>
-        <q-btn
-          dense
-          flat
-          color="primary"
-          icon="mdi-island"
-          class="absolute-top-right"
-          @click="extra_show = true"
-        />
-      </div>
-    </q-card>
   </q-layout>
 
+  <map-overlay :area="area"></map-overlay>
   <logout></logout>
 </template>
 
+<script setup>
+import { map, createMap, removeMap } from "./map";
+</script>
+
 <script>
 import {
-  create_map,
   map_tiles_config,
   map_tiles_neigui_config,
   map_plugin_config,
 } from "../api/map";
 import LayerRegister from "../components/register.vue";
-import IslandSelector from "../components/plugins/2_8_island/selector.vue";
+import MapOverlay from "../components/plugins/map-overlay.vue";
 import Logout from "../components/Logout.vue";
 import { refresh_token } from "../service/user_log_request";
 import { fetch_config } from "../service/config_request";
 import { is_expired, set_user_data } from "../service/user_info";
+
 export default {
   name: "PageIndex",
   data() {
     return {
       bannerText: "",
-
-      map: null,
       area: {},
       selector_show: true,
       handle_type: "打点",
-      extra_show: false,
-
-      map_name: "金苹果群岛",
     };
   },
   methods: {
     init_map() {
       // 初始化地图
-      this.map = create_map("提瓦特-base0");
+      createMap();
     },
     load_config() {
       return fetch_config().then((config) => {
@@ -164,20 +132,13 @@ export default {
     // 切换地图
     map_switch(area) {
       this.area = area;
-      this.map_name = area.name;
-
-      this.extra_show = false;
-      if (area.code === "A:APPLE:2_8") {
-        this.extra_show = true;
-      }
-
-      this.map.remove();
-      this.map = create_map(area.code);
+      removeMap();
+      createMap(area.code);
     },
   },
   components: {
     LayerRegister,
-    IslandSelector,
+    MapOverlay,
     Logout,
   },
   mounted() {
@@ -200,7 +161,7 @@ export default {
   watch: {
     handle_type(val) {
       this.$store.commit("type_switch", val);
-      this.map.remove();
+      removeMap();
       this.init_map();
     },
   },

@@ -405,6 +405,7 @@ import { layer_edit_window } from "src/components/dialogs/layer_edit_window";
 
 <script>
 import _ from "lodash";
+import { map } from "src/pages/map";
 import {
   query_area,
   query_itemtype,
@@ -568,7 +569,7 @@ export default {
     },
     // 清理点位
     clearlayers() {
-      this.map.removeLayer(this.handle_layergroup);
+      map.value?.removeLayer(this.handle_layergroup);
       this.handle_layergroup.clearLayers();
     },
     // 切换地区
@@ -663,7 +664,7 @@ export default {
       }
 
       this.layer_eventbind();
-      this.map.addLayer(this.handle_layergroup);
+      map.value?.addLayer(this.handle_layergroup);
     },
     // 为点位绑定事件
     layer_eventbind() {
@@ -721,7 +722,7 @@ export default {
     // 聚焦点位
     focus_layer(data, zoom = 1) {
       const location = data.position.split(",");
-      this.map.flyTo(location, zoom);
+      map.value?.flyTo(location, zoom);
       const list = this.handle_layergroup.getLayers();
       for (const i of list) {
         if (i.options.data.id === data.id) {
@@ -740,7 +741,7 @@ export default {
     add_mode_on() {
       this.add_mode = true;
       this.loading = true;
-      this.map.on("click", (event) => {
+      map.value?.on("click", (event) => {
         const marker = L.marker([event.latlng.lat, event.latlng.lng], {
           icon: L.icon(create_icon_options("")),
         });
@@ -753,7 +754,7 @@ export default {
     add_mode_off() {
       this.add_mode = false;
       this.loading = false;
-      this.map.off("click");
+      map.value?.off("click");
       if (this.new_layer_id !== 0) {
         this.handle_layergroup.removeLayer(this.new_layer_id);
         this.new_layer_id = 0;
@@ -925,7 +926,6 @@ export default {
       }
     };
   },
-  props: ["map"],
   components: {
     LayerTable,
     PopupWindow,

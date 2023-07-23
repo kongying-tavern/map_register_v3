@@ -1,6 +1,13 @@
 <script setup>
 import _ from "lodash";
-import { ref, computed, defineComponent, onMounted, nextTick } from "vue";
+import {
+  ref,
+  computed,
+  defineProps,
+  defineComponent,
+  onMounted,
+  nextTick,
+} from "vue";
 import {
   markerExtraEntryGetter,
   markerExtraEntrySetter,
@@ -8,6 +15,13 @@ import {
 
 defineComponent({
   name: "ExtraField28Island",
+});
+
+const props = defineProps({
+  stages: {
+    type: Array,
+    default: () => [],
+  },
 });
 
 const extraData = ref({
@@ -26,59 +40,8 @@ const extraValue = computed(() => {
   return null;
 });
 
-const islandOptions = [
-  { label: "无", value: "" },
-  {
-    label: "危危岛",
-    value: "ww",
-    children: [
-      { label: "初始", value: "0" },
-      { label: "沉入水下", value: "1" },
-    ],
-  },
-  {
-    label: "破破岛",
-    value: "pp",
-    children: [
-      { label: "初始", value: "0" },
-      { label: "低", value: "2" },
-      { label: "高", value: "1" },
-    ],
-  },
-  {
-    label: "双双岛",
-    value: "ss",
-    children: [
-      { label: "初始", value: "0" },
-      { label: "最终形态", value: "3" },
-    ],
-  },
-  {
-    label: "布丁岛",
-    value: "bd",
-    children: [
-      { label: "初始", value: "0-0" },
-      { label: "任意-优悠", value: "0-1" },
-      { label: "任意-浮光", value: "0-2" },
-      { label: "任意-磐固", value: "0-3" },
-      { label: "优悠-任意", value: "1-0" },
-      { label: "浮光-任意", value: "2-0" },
-      { label: "磐固-任意", value: "3-0" },
-      { label: "优悠-优悠", value: "1-1" },
-      { label: "优悠-浮光", value: "1-2" },
-      { label: "优悠-磐固", value: "1-3" },
-      { label: "磐固-优悠", value: "3-1" },
-      { label: "磐固-浮光", value: "3-2" },
-      { label: "磐固-磐固", value: "3-3" },
-      { label: "浮光-优悠", value: "2-1" },
-      { label: "浮光-浮光", value: "2-2" },
-      { label: "浮光-磐固", value: "2-3" },
-    ],
-  },
-];
-
 const islandStates = computed(() => {
-  for (const islandOption of islandOptions) {
+  for (const islandOption of props.stages) {
     if (islandOption.value === extraData.value.island_name) {
       return islandOption.children || [];
     }
@@ -117,7 +80,7 @@ onMounted(() => {
         <q-select
           class="col-4"
           v-model="extraData.island_name"
-          :options="islandOptions"
+          :options="props.stages"
           emit-value
           map-options
           label="选择岛屿"

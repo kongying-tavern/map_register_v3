@@ -157,29 +157,7 @@ function create_map(area_config_code = "") {
   return map;
 }
 
-// 添加地图蒙层(群岛)
-const qd_postion = {
-  ww: [
-    [-494, -1164],
-    [1554, -140],
-  ],
-  pp: [
-    [-581, -3214],
-    [443, -2190],
-  ],
-  ss: [
-    [528, -4237],
-    [2576, -2189],
-  ],
-  bd: [
-    [1433, -1814],
-    [2201, -1046],
-  ],
-};
-
-function add_map_overlay_qd(type, index) {
-  const imageUrl = `https://assets.yuanshen.site/tiles_qd28/other/${type}/${index}.png`;
-  const imageBounds = [qd_postion[type]];
+function add_map_overlay(imageUrl, imageBounds) {
   return L.imageOverlay(imageUrl, imageBounds);
 }
 
@@ -190,5 +168,5 @@ export {
   get_map_plugin_config,
   create_map_layer,
   create_map,
-  add_map_overlay_qd,
+  add_map_overlay,
 };
