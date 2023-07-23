@@ -176,8 +176,6 @@ const overlayInitState = computed(() => {
   return overlayInitData;
 });
 
-const overlayLayers = ref({});
-
 const overlayLayerHandle = ref(layergroup_register());
 
 const overlayInit = () => {
@@ -185,32 +183,17 @@ const overlayInit = () => {
 };
 
 const overlayRefresh = () => {
-  // 删除不存在的层
-  for (const overlayLayerId in overlayLayers.value) {
-    const overlayLayerItem = overlayLayers.value[overlayLayerId];
-    if (
-      overlayLayerItem &&
-      overlaySelectionIds.value.indexOf(overlayLayerId) === -1
-    ) {
-      overlayLayerHandle.value?.removeLayer(overlayLayerItem);
-      delete overlayLayers.value[overlayLayerId];
-    }
-  }
+  overlayLayerHandle.value?.clearLayers();
 
   // 添加新层
   for (const overlaySelectionId of overlaySelectionIds.value) {
-    if (!overlayLayers.value[overlaySelectionId]) {
-      const overlayLayerConfig = overlayConfigMap.value[overlaySelectionId];
-      if (overlayLayerConfig) {
-        const overlayLayerUrl = overlayLayerConfig.url || "";
-        const overlayLayerBounds = overlayLayerConfig.bounds;
-        if (overlayLayerUrl && overlayLayerBounds) {
-          const imageData = add_map_overlay(
-            overlayLayerUrl,
-            overlayLayerBounds
-          );
-          overlayLayerHandle.value?.addLayer(imageData);
-        }
+    const overlayLayerConfig = overlayConfigMap.value[overlaySelectionId];
+    if (overlayLayerConfig) {
+      const overlayLayerUrl = overlayLayerConfig.url || "";
+      const overlayLayerBounds = overlayLayerConfig.bounds;
+      if (overlayLayerUrl && overlayLayerBounds) {
+        const imageData = add_map_overlay(overlayLayerUrl, overlayLayerBounds);
+        overlayLayerHandle.value?.addLayer(imageData);
       }
     }
   }
