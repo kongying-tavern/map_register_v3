@@ -6,13 +6,18 @@ import { QIcon, QTooltip } from "quasar";
 
 export const filterCardVisible = ref(false);
 
+export const filterCacheSelectorCollapse = ref(false);
+
 export const filterMuteTooltip = ref(false);
 
 export const filterCardToggle = () => {
   filterCardVisible.value = !filterCardVisible.value;
 
   if (filterCardVisible.value && !selectorCollapse.value) {
+    filterCacheSelectorCollapse.value = selectorCollapse.value;
     selectorCollapse.value = true;
+  } else if (!filterCardVisible.value) {
+    selectorCollapse.value = filterCardVisible.value;
   }
 };
 

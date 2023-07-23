@@ -1,15 +1,20 @@
 import { ref } from "vue";
 import { filterCardVisible } from "./filters/data";
 
-export const selectorStep = ref(1);
-
 export const selectorCollapse = ref(false);
+
+export const selectorCacheFilterVisible = ref(false);
+
+export const selectorStep = ref(1);
 
 export const selectorToggle = () => {
   selectorCollapse.value = !selectorCollapse.value;
 
   if (!selectorCollapse.value && filterCardVisible.value) {
+    selectorCacheFilterVisible.value = filterCardVisible.value;
     filterCardVisible.value = false;
+  } else if (selectorCollapse.value) {
+    filterCardVisible.value = selectorCacheFilterVisible.value;
   }
 };
 
