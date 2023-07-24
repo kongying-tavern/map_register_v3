@@ -27,7 +27,7 @@ const { typeTree } = useTypeList({ immediate: true })
   <el-form>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8">
       <el-form-item label="物品名称">
-        <el-input v-model="name" clearable placeholder="请输入物品名称" style="width: 100%;" />
+        <el-input v-model="name" clearable placeholder="当前筛选项正在改造中" style="width: 100%;" disabled />
       </el-form-item>
 
       <el-form-item label="所属地区">

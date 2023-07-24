@@ -17,7 +17,7 @@ const queryForm = ref<ItemQueryForm>({
 })
 
 // ==================== 物品列表 ====================
-const { itemList, loading: itemLoading, syncItemListChanged } = useItemList({
+const { itemList, loading: itemLoading, userMap, updateItemList } = useItemList({
   pagination,
   getParams: () => ({
     name: queryForm.value.name,
@@ -33,18 +33,18 @@ const { selection, handleSelectionChange } = useItemTable()
 const { openItemCreatorDialog, onSuccess: onCreateSuccess } = useItemCreate({
   isRoot: true,
 })
-onCreateSuccess(syncItemListChanged)
+onCreateSuccess(updateItemList)
 
 // ==================== 编辑物品 ====================
 // TODO 批量编辑
 const { openItemEditorDialog, onSuccess: onEditSuccess } = useItemEdit({
   isRoot: true,
 })
-onEditSuccess(syncItemListChanged)
+onEditSuccess(updateItemList)
 
 // ==================== 删除物品 ====================
 const { loading: deleteLoading, confirmDelete, onSuccess: onDeleteSuccess } = useItemDelete()
-onDeleteSuccess(syncItemListChanged)
+onDeleteSuccess(updateItemList)
 </script>
 
 <template>
@@ -63,7 +63,7 @@ onDeleteSuccess(syncItemListChanged)
           <el-button type="primary" @click="openItemCreatorDialog">
             添加物品
           </el-button>
-          <el-button :icon="RefreshRight" circle :loading="itemLoading" title="强制刷新" @click="syncItemListChanged" />
+          <el-button :icon="RefreshRight" circle :loading="itemLoading" title="强制刷新" @click="updateItemList" />
         </div>
       </template>
     </ItemFilter>
@@ -71,6 +71,7 @@ onDeleteSuccess(syncItemListChanged)
     <ItemTable
       :item-list="itemList"
       :loading="itemLoading"
+      :user-map="userMap"
       @selection-change="handleSelectionChange"
     >
       <template #action="{ row }">
@@ -95,9 +96,11 @@ onDeleteSuccess(syncItemListChanged)
       :layout="layout"
       :page-sizes="[10, 20, 30]"
       :pager-count="5"
+      :disabled="itemLoading"
       class="flex justify-end items-center"
       background
+      @current-change="updateItemList"
+      @size-change="updateItemList"
     />
   </div>
 </template>
-~

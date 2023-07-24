@@ -1,11 +1,14 @@
 <script lang="ts" setup>
+import { AppUserPopover } from '@/components'
 import { useIconTagStore } from '@/stores'
-import { useAreaList, useTypeList } from '@/hooks'
+import { useAreaList, useTypeList, useUserPopover } from '@/hooks'
 import { HiddenFlagEnum } from '@/shared'
+import { timeFormatter } from '@/utils'
 
-defineProps<{
+const props = defineProps<{
   loading: boolean
   itemList: API.ItemVo[]
+  userMap: Record<string, API.SysUserSmallVo>
 }>()
 
 const emits = defineEmits<{
@@ -46,6 +49,10 @@ const hiddenFlagMap: Record<number, string> = {
   [HiddenFlagEnum.NEIGUI]: '测试服',
 }
 
+const { IDENTIFICATION_SYMBOL, triggerRef, userData, trigger, close } = useUserPopover({
+  getUser: userId => props.userMap[userId],
+})
+
 // ==================== 事件代理 ====================
 const proxySelectionChange = (selections: API.ItemVo[]) => {
   emits('selectionChange', selections)
@@ -53,7 +60,16 @@ const proxySelectionChange = (selections: API.ItemVo[]) => {
 </script>
 
 <template>
-  <div ref="containerRef" v-loading="loading" class="flex-1 overflow-hidden">
+  <div
+    ref="containerRef"
+    v-loading="loading"
+    class="flex-1 overflow-hidden"
+    element-loading-text="加载中..."
+    @pointerover="trigger"
+    @pointerout="close"
+  >
+    <AppUserPopover :trigger-ref="triggerRef" :data="userData" />
+
     <el-table
       :data="itemList"
       :width="width"
@@ -87,13 +103,13 @@ const proxySelectionChange = (selections: API.ItemVo[]) => {
 
       <el-table-column label="物品类型" width="150">
         <template #default="{ row }">
-          <el-tag v-for="typeId in row.typeIdList" :key="typeId" disable-transitions class="mr-1">
+          <el-tag v-for="typeId in row.typeIdList" :key="typeId" disable-transitions type="success" class="mr-1">
             {{ typeMap[typeId].name }}
           </el-tag>
         </template>
       </el-table-column>
 
-      <el-table-column label="描述模板" prop="defaultContent" show-overflow-tooltip />
+      <el-table-column label="描述模板" prop="defaultContent" width="200" show-overflow-tooltip />
 
       <el-table-column label="刷新时间" prop="defaultRefreshTime" width="100">
         <template #default="{ row }">
@@ -106,6 +122,34 @@ const proxySelectionChange = (selections: API.ItemVo[]) => {
           {{ hiddenFlagMap[row.hiddenFlag] ?? '未知' }}
         </template>
       </el-table-column>
+
+      <el-table-column label="创建人" prop="creatorId" width="100">
+        <template #default="{ row }">
+          <el-tag
+            disable-transitions
+            :data-symbol="IDENTIFICATION_SYMBOL"
+            :data-user-id="row.creatorId"
+          >
+            {{ userMap[row.creatorId]?.nickname ?? `(id: ${row.creatorId})` }}
+          </el-tag>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="创建时间" prop="createTime" width="170" :formatter="timeFormatter" />
+
+      <el-table-column label="修改人" prop="updaterId" width="100">
+        <template #default="{ row }">
+          <el-tag
+            disable-transitions
+            :data-symbol="IDENTIFICATION_SYMBOL"
+            :data-user-id="row.updaterId"
+          >
+            {{ userMap[row.updaterId]?.nickname ?? `(id: ${row.updaterId})` }}
+          </el-tag>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="修改时间" prop="updateTime" width="170" :formatter="timeFormatter" />
 
       <el-table-column fixed="right" label="操作" width="130">
         <template #default="{ $index, row }">
