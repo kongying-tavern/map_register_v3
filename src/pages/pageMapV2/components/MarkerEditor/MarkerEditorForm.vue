@@ -104,7 +104,28 @@ defineExpose({
         </div>
       </el-form-item>
 
-      <el-form-item label="点位标识" prop="hiddenFlag">
+      <el-form-item label="所属物品" prop="itemList">
+        <AddonItemSelector v-model="form.itemList" v-model:addon-id="addonId" v-model:area-code="areaCode" />
+      </el-form-item>
+
+      <el-form-item v-if="areaCode" label="地下层级" prop="extra">
+        <AddonExtraEditor v-model="form.extra" :area-code="areaCode" />
+      </el-form-item>
+
+      <el-form-item label="点位描述" prop="content">
+        <AddonContenEditor v-model="form.content" v-model:addon-id="addonId" :item-list="form.itemList" />
+      </el-form-item>
+
+      <el-form-item label="点位图像" prop="picture">
+        <AddonImageEditor
+          ref="imageEditorRef"
+          v-model="form.picture"
+          v-model:addon-id="addonId"
+          v-model:creator-id="form.pictureCreatorId"
+        />
+      </el-form-item>
+
+      <el-form-item label="显示状态" prop="hiddenFlag">
         <el-radio-group v-model="form.hiddenFlag">
           <el-radio-button :label="HiddenFlagEnum.SHOW">
             显示
@@ -118,29 +139,8 @@ defineExpose({
         </el-radio-group>
       </el-form-item>
 
-      <el-form-item label="所属物品" prop="itemList">
-        <AddonItemSelector v-model="form.itemList" v-model:addon-id="addonId" v-model:area-code="areaCode" />
-      </el-form-item>
-
-      <el-form-item label="点位说明" prop="content">
-        <AddonContenEditor v-model="form.content" v-model:addon-id="addonId" :item-list="form.itemList" />
-      </el-form-item>
-
-      <el-form-item label="点位图像" prop="picture">
-        <AddonImageEditor
-          ref="imageEditorRef"
-          v-model="form.picture"
-          v-model:addon-id="addonId"
-          v-model:creator-id="form.pictureCreatorId"
-        />
-      </el-form-item>
-
       <el-form-item label="刷新时间" prop="refreshTime">
         <AddonRefreshtimeEditor v-model="form.refreshTime" />
-      </el-form-item>
-
-      <el-form-item v-if="areaCode" label="附加数据" prop="extra">
-        <AddonExtraEditor v-model="form.extra" :area-code="areaCode" />
       </el-form-item>
 
       <el-form-item label="视频链接" prop="videoPath">
