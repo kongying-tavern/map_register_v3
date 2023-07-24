@@ -47,9 +47,22 @@ export const filterTypes = [
     modelOpts: {
       text: "",
     },
+    modelSemantic(options = {}, oppositeValue = false) {
+      const ids = (options?.text || "")
+        .split(/[ ,、]/giu)
+        .map((v) => (v || "").trim())
+        .filter((v) => v);
+
+      if (ids.length > 1) {
+        return `ID${oppositeValue ? "不" : ""}属于列表:${ids.join(",")}`;
+      }
+
+      if (ids.length === 1) {
+        return `ID${oppositeValue ? "不" : ""}为:${ids[0]}`;
+      }
+    },
     filterAction(item = {}, options = {}) {
       const inputText = options.text || "";
-      console.error(inputText);
       if (!inputText) {
         return true;
       }
@@ -61,7 +74,6 @@ export const filterTypes = [
         .filter((v) => v)
         .value();
       const check = allowIds.indexOf(idStr) !== -1;
-      console.log(idStr, allowIdChunks, check);
       return check;
     },
     filterSlots: {
@@ -104,9 +116,12 @@ export const filterTypes = [
     title: "标题包含",
     label: "标题包含",
     model: "input",
+
     modelOpts: {
       text: "",
     },
+    modelSemantic: (options = {}, oppositeValue = false) =>
+      `标题${oppositeValue ? "不" : ""}包含:${options?.text}`,
     filterAction(item = {}, options = {}) {
       const inputText = options.text || "";
       if (!inputText) {
@@ -127,6 +142,8 @@ export const filterTypes = [
     modelOpts: {
       text: "",
     },
+    modelSemantic: (options = {}, oppositeValue = false) =>
+      `内容${oppositeValue ? "不" : ""}包含:${options?.text}`,
     filterAction(item = {}, options = {}) {
       const inputText = options.text || "";
       if (!inputText) {
@@ -147,6 +164,8 @@ export const filterTypes = [
     modelOpts: {
       text: "",
     },
+    modelSemantic: (options = {}, oppositeValue = false) =>
+      `内容${oppositeValue ? "不" : ""}满足正则:${options?.text}`,
     filterAction(item = {}, options = {}) {
       const inputText = options.text || "";
       if (!inputText) {
@@ -177,6 +196,10 @@ export const filterTypes = [
       textInactive: "地上",
       textActive: "地下",
     },
+    modelSemantic: (options = {}, oppositeValue = false) =>
+      `点位${oppositeValue ? "不" : ""}属于:${
+        options?.value ? options?.textActive || "" : options?.textInactive || ""
+      }`,
     filterAction(item = {}, options = {}) {
       const switchVal = Boolean(options.value);
       const extraText = item.markerExtraContent || "{}";

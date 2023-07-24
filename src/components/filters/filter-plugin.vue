@@ -4,7 +4,7 @@ import { filterCardToggle, filterMuteTooltip } from "./data";
 </script>
 
 <template>
-  <div class="relative-position">
+  <div class="relative-position" style="overflow: hidden">
     <!-- 内容区 -->
     <div class="wrapper">
       <q-icon
