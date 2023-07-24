@@ -22,8 +22,6 @@ const [sort, setSort] = useState<string[]>([])
 const { userList, loading, filterKey, filterValue, updateUserList } = useUserList({
   pagination,
   getParams: () => ({
-    nickname: '',
-    username: '',
     sort: sort.value,
   }),
 })

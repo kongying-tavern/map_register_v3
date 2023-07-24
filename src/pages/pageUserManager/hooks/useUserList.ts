@@ -1,4 +1,5 @@
 import { ref } from 'vue'
+import _ from 'lodash'
 import type { PaginationState } from '@/hooks/usePagination'
 import { useFetchHook } from '@/hooks'
 import Api from '@/api/api'
@@ -25,7 +26,10 @@ export const useUserList = (options: UserListHookOptions) => {
     immediate: true,
     onRequest: () => {
       const { current, pageSize: size } = pagination.value
+      const filter = {}
+      _.set(filter, filterKey.value, filterValue.value)
       return Api.sysUserController.getUserList({
+        ...filter,
         ...params.value,
         current,
         size,
