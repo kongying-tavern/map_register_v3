@@ -7,3 +7,9 @@ export enum HiddenFlagEnum {
   /** 内鬼（测试服） */
   NEIGUI = 2,
 }
+
+export const HIDDEN_FLAG_NAM_MAP: Record<string, string> = {
+  [HiddenFlagEnum.SHOW]: '显示',
+  [HiddenFlagEnum.HIDDEN]: '隐藏',
+  [HiddenFlagEnum.NEIGUI]: '测试服',
+}
