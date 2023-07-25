@@ -4,7 +4,7 @@ import { encode, decode } from "js-base64";
 import JSONPack from "jsonpack";
 import { create_notify } from "src/api/common";
 import { selectorCollapse } from "src/components/selector-data";
-import { QIcon, QTooltip } from "quasar";
+import { QCard, QIcon, QTooltip } from "quasar";
 
 export const filterCardVisible = ref(false);
 
@@ -184,6 +184,88 @@ export const filterTypes = [
       }
 
       return check;
+    },
+    filterSlots: {
+      after() {
+        return h(
+          QCard,
+          {
+            flat: true,
+            bordered: true,
+            style: "margin-top: .4rem; margin-bottom: .2rem; padding: .3rem;",
+            class: "bg-blue-grey-1",
+          },
+          {
+            default: () => [
+              "推荐链接：",
+              h(
+                "ol",
+                { style: "padding: 0; margin: 0; padding-left: 1.2rem;" },
+                {
+                  default: () => [
+                    h(
+                      "li",
+                      {},
+                      {
+                        default: () => [
+                          h(
+                            "a",
+                            {
+                              href: "https://regexlearn.com/zh-cn",
+                              target: "_blank",
+                            },
+                            {
+                              default: () =>
+                                "RegExp Learn - 逐步学习正则表达式，从零基础到高阶",
+                            }
+                          ),
+                        ],
+                      }
+                    ),
+                    h(
+                      "li",
+                      {},
+                      {
+                        default: () => [
+                          h(
+                            "a",
+                            {
+                              href: "https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions",
+                              target: "_blank",
+                            },
+                            {
+                              default: () => "正则表达式 - MDN (Javascript)",
+                            }
+                          ),
+                        ],
+                      }
+                    ),
+                    h(
+                      "li",
+                      {},
+                      {
+                        default: () => [
+                          h(
+                            "a",
+                            {
+                              href: "https://learn.microsoft.com/zh-cn/dotnet/standard/base-types/regular-expression-language-quick-reference",
+                              target: "_blank",
+                            },
+                            {
+                              default: () =>
+                                "正则表达式 - 快速参考 - Microsoft Learn",
+                            }
+                          ),
+                        ],
+                      }
+                    ),
+                  ],
+                }
+              ),
+            ],
+          }
+        );
+      },
     },
   },
   {

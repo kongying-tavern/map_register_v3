@@ -101,134 +101,160 @@ import {
 
       <!-- 条件组内容 -->
       <div class="filter-content">
-        <div
-          v-for="(item, itemIndex) in group.filters"
-          :key="itemIndex"
-          class="filter-rule"
-        >
-          <q-btn
-            style="flex: none; font-weight: bold"
-            flat
-            dense
-            color="purple-6"
-            @click="itemIndex > 0 && filterItemOpToggle(groupIndex, itemIndex)"
-          >
-            <q-icon
-              v-if="itemIndex === 0"
-              name="mdi-star-four-points-outline"
-              size="1.4rem"
-            >
-            </q-icon>
-            <template v-else-if="item.joinOperator === '&'">
-              &nbsp;且&nbsp;
-            </template>
-            <template v-else>&nbsp;或&nbsp;</template>
-            <q-tooltip v-if="!filterMuteTooltip && itemIndex > 0">
-              切换 且/或 组合逻辑
-            </q-tooltip>
-          </q-btn>
+        <template v-for="(item, itemIndex) in group.filters" :key="itemIndex">
+          <!-- 头部插槽 -->
+          <div v-if="item.filterOpts?.filterSlots?.before">
+            <component :is="item.filterOpts?.filterSlots?.before"></component>
+          </div>
 
-          <q-select
-            style="flex: none"
-            v-model="item.filterOpts"
-            borderless
-            dense
-            hide-dropdown-icon
-            hide-bottom-space
-            :options="filterTypes"
-          >
-            <template #selected>
-              <q-icon
-                v-if="!item.filterOpts.name"
-                name="mdi-help"
-                size="sm"
-                color="grey-8"
-              >
-              </q-icon>
-              <q-icon v-else :name="item.filterOpts.icon" size="sm"> </q-icon>
-              <span
-                v-if="!item.filterOpts.name"
-                style="padding-left: 5px"
-                class="grey-8"
-              >
-                请选择
-              </span>
-              <span v-else style="padding-left: 5px">
-                {{ item.filterOpts.label }}
-              </span>
-            </template>
-            <template #option="scope">
-              <div
-                style="padding: 5px 10px"
-                class="cursor-pointer"
-                v-close-popup
-                @click="filterItemChangeType(groupIndex, itemIndex, scope.opt)"
-              >
-                <q-icon :name="scope.opt.icon" size="sm"></q-icon>
-                <span style="padding-left: 5px">{{ scope.opt.title }}</span>
-              </div>
-            </template>
-          </q-select>
-
-          <div style="flex: auto; padding: 0 4px">
-            <!-- 模型参数配置部分渲染 -->
-            <q-input
-              v-if="item.model === 'input'"
-              v-model="item.modelOpts.text"
+          <!-- 过滤配置条目 -->
+          <div class="filter-rule">
+            <!-- 连接符标识 -->
+            <q-btn
+              style="flex: none; font-weight: bold"
               flat
               dense
-              @update:model-value="filterConfigSave"
-            >
-            </q-input>
-            <q-toggle
-              v-else-if="item.model === 'toggle'"
-              v-model="item.modelOpts.value"
-              :label="
-                item.modelOpts.value
-                  ? item.modelOpts.textActive
-                  : item.modelOpts.textInactive
+              color="purple-6"
+              @click="
+                itemIndex > 0 && filterItemOpToggle(groupIndex, itemIndex)
               "
-              dense
-              @update:model-value="filterConfigSave"
             >
-            </q-toggle>
-          </div>
-          <div v-if="item.filterOpts?.filterSlots?.append" style="flex: none">
-            <component :is="item.filterOpts?.filterSlots?.append"></component>
+              <q-icon
+                v-if="itemIndex === 0"
+                name="mdi-star-four-points-outline"
+                size="1.4rem"
+              >
+              </q-icon>
+              <template v-else-if="item.joinOperator === '&'">
+                &nbsp;且&nbsp;
+              </template>
+              <template v-else>&nbsp;或&nbsp;</template>
+              <q-tooltip v-if="!filterMuteTooltip && itemIndex > 0">
+                切换 且/或 组合逻辑
+              </q-tooltip>
+            </q-btn>
+
+            <!-- 类型选择 -->
+            <q-select
+              style="flex: none"
+              v-model="item.filterOpts"
+              borderless
+              dense
+              hide-dropdown-icon
+              hide-bottom-space
+              :options="filterTypes"
+            >
+              <template #selected>
+                <q-icon
+                  v-if="!item.filterOpts.name"
+                  name="mdi-help"
+                  size="sm"
+                  color="grey-8"
+                >
+                </q-icon>
+                <q-icon v-else :name="item.filterOpts.icon" size="sm"> </q-icon>
+                <span
+                  v-if="!item.filterOpts.name"
+                  style="padding-left: 5px"
+                  class="grey-8"
+                >
+                  请选择
+                </span>
+                <span v-else style="padding-left: 5px">
+                  {{ item.filterOpts.label }}
+                </span>
+              </template>
+              <template #option="scope">
+                <div
+                  style="padding: 5px 10px"
+                  class="cursor-pointer"
+                  v-close-popup
+                  @click="
+                    filterItemChangeType(groupIndex, itemIndex, scope.opt)
+                  "
+                >
+                  <q-icon :name="scope.opt.icon" size="sm"></q-icon>
+                  <span style="padding-left: 5px">{{ scope.opt.title }}</span>
+                </div>
+              </template>
+            </q-select>
+
+            <!-- 配置区域 -->
+            <div
+              v-if="item.filterOpts?.filterSlots?.prepend"
+              style="flex: none"
+            >
+              <component
+                :is="item.filterOpts?.filterSlots?.prepend"
+              ></component>
+            </div>
+            <div style="flex: auto; padding: 0 4px">
+              <!-- 模型参数配置部分渲染 -->
+              <q-input
+                v-if="item.model === 'input'"
+                v-model="item.modelOpts.text"
+                flat
+                dense
+                @update:model-value="filterConfigSave"
+              >
+              </q-input>
+              <q-toggle
+                v-else-if="item.model === 'toggle'"
+                v-model="item.modelOpts.value"
+                :label="
+                  item.modelOpts.value
+                    ? item.modelOpts.textActive
+                    : item.modelOpts.textInactive
+                "
+                dense
+                @update:model-value="filterConfigSave"
+              >
+              </q-toggle>
+            </div>
+            <div v-if="item.filterOpts?.filterSlots?.append" style="flex: none">
+              <component :is="item.filterOpts?.filterSlots?.append"></component>
+            </div>
+
+            <q-btn
+              style="flex: none"
+              flat
+              dense
+              :color="item.oppositeValue ? 'red-14' : 'grey-6'"
+              :icon="
+                item.oppositeValue ? 'mdi-code-not-equal' : 'mdi-not-equal'
+              "
+              @click="filterItemOpposite(groupIndex, itemIndex)"
+            >
+              <q-tooltip v-if="!filterMuteTooltip">排除条件</q-tooltip>
+            </q-btn>
+            <q-btn
+              style="flex: none"
+              flat
+              dense
+              color="blue-7"
+              icon="mdi-plus"
+              @click="filterItemAdd(groupIndex, itemIndex)"
+            >
+              <q-tooltip v-if="!filterMuteTooltip">在下方新增条件</q-tooltip>
+            </q-btn>
+            <q-btn
+              style="flex: none"
+              flat
+              dense
+              size="md"
+              color="red-7"
+              icon="mdi-close"
+              @click="filterItemDel(groupIndex, itemIndex)"
+            >
+              <q-tooltip v-if="!filterMuteTooltip">删除条件</q-tooltip>
+            </q-btn>
           </div>
 
-          <q-btn
-            style="flex: none"
-            flat
-            dense
-            :color="item.oppositeValue ? 'red-14' : 'grey-6'"
-            :icon="item.oppositeValue ? 'mdi-code-not-equal' : 'mdi-not-equal'"
-            @click="filterItemOpposite(groupIndex, itemIndex)"
-          >
-            <q-tooltip v-if="!filterMuteTooltip">排除条件</q-tooltip>
-          </q-btn>
-          <q-btn
-            style="flex: none"
-            flat
-            dense
-            color="blue-7"
-            icon="mdi-plus"
-            @click="filterItemAdd(groupIndex, itemIndex)"
-          >
-            <q-tooltip v-if="!filterMuteTooltip">在下方新增条件</q-tooltip>
-          </q-btn>
-          <q-btn
-            style="flex: none"
-            flat
-            dense
-            size="md"
-            color="red-7"
-            icon="mdi-close"
-            @click="filterItemDel(groupIndex, itemIndex)"
-          >
-            <q-tooltip v-if="!filterMuteTooltip">删除条件</q-tooltip>
-          </q-btn>
-        </div>
+          <!-- 尾部插槽 -->
+          <div v-if="item.filterOpts?.filterSlots?.after">
+            <component :is="item.filterOpts?.filterSlots?.after"></component>
+          </div>
+        </template>
       </div>
     </div>
   </q-card>
