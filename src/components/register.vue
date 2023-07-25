@@ -323,8 +323,8 @@ import { layer_edit_window } from "src/components/dialogs/layer_edit_window";
 
     <!-- 过滤-->
     <div class="flex-none">
-      <FilterCard></FilterCard>
       <FilterShare></FilterShare>
+      <FilterCard></FilterCard>
     </div>
 
     <!-- 点位信息表 -->

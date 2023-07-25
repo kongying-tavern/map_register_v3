@@ -73,7 +73,7 @@ const shareCodeCopy = async () => {
       outlined
       bg-color="blue-2"
       class="flex-auto"
-      @focus="(input) => input.target.select()"
+      @focus="(input) => input?.target?.select()"
     >
     </q-input>
 
