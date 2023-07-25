@@ -73,9 +73,9 @@ const columns = computed<Column[]>(() => {
   }
   else {
     return [
-      { title: '点位名称', key: 'markerTitle', width: 150, cellRenderer: ({ rowData: data }) => <MarkerButton data={data} /> },
+      { title: '点位名称', key: 'markerTitle', width: 110, cellRenderer: ({ rowData: data }) => <MarkerButton data={data} /> },
       { title: 'id', key: 'id', dataKey: 'id', width: 60 },
-      { title: '点位说明', key: 'content', dataKey: 'content', width: 110, flexGrow: 1 },
+      { title: '点位说明', key: 'content', dataKey: 'content', width: 150, flexGrow: 1 },
     ]
   }
 })
@@ -114,7 +114,7 @@ const columns = computed<Column[]>(() => {
         </template>
         <template #empty>
           <div class="flex items-center justify-center h-100%">
-            <el-empty image="/icons/qiliangliang.png" :image-size="300"/>
+            <el-empty image="/icons/qiliangliang.png" :image-size="300" />
           </div>
         </template>
       </el-table-v2>

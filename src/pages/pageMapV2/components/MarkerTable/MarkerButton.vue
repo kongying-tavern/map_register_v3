@@ -1,8 +1,6 @@
 <script lang="ts" setup>
 import { useMap, useMarkerDrawer } from '../../hooks'
-import { useIconTagStore } from '@/stores'
 import { GSButton } from '@/components'
-import { FALLBACK_ITEM_ICON_URL } from '@/shared'
 
 const props = defineProps<{
   data: API.MarkerVo
@@ -10,7 +8,6 @@ const props = defineProps<{
 
 const { map } = useMap()
 const { focusMarker } = useMarkerDrawer()
-const iconStore = useIconTagStore()
 
 /**
  * @todo 需要添加视口转移的过渡效果
@@ -52,13 +49,6 @@ const unhoverMarker = () => {
     @pointerover="hoverMarker"
     @pointerout="unhoverMarker"
   >
-    <template #icon>
-      <img
-        :src="iconStore.iconTagMap[data.itemList?.[0].iconTag ?? '']?.url || FALLBACK_ITEM_ICON_URL"
-        class="w-full aspect-square object-contain"
-        crossorigin=""
-      >
-    </template>
     {{ data.markerTitle }}
   </GSButton>
 </template>
