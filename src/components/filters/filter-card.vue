@@ -184,27 +184,26 @@ import {
               v-if="item.filterOpts?.filterSlots?.prepend"
               style="flex: none"
             >
-              <component
-                :is="item.filterOpts?.filterSlots?.prepend"
-              ></component>
+              <component :is="item.filterOpts?.filterSlots?.prepend">
+              </component>
             </div>
             <div style="flex: auto; padding: 0 4px">
               <!-- 模型参数配置部分渲染 -->
               <q-input
-                v-if="item.model === 'input'"
-                v-model="item.modelOpts.text"
+                v-if="item.filterOpts?.model === 'input'"
+                v-model="item.modelVals.text"
                 flat
                 dense
                 @update:model-value="filterConfigSave"
               >
               </q-input>
               <q-toggle
-                v-else-if="item.model === 'toggle'"
-                v-model="item.modelOpts.value"
+                v-else-if="item.filterOpts?.model === 'toggle'"
+                v-model="item.modelVals.value"
                 :label="
-                  item.modelOpts.value
-                    ? item.modelOpts.textActive
-                    : item.modelOpts.textInactive
+                  item.modelVals.value
+                    ? item.filterOpts?.modelOpts?.textActive
+                    : item.filterOpts?.modelOpts?.textInactive
                 "
                 dense
                 @update:model-value="filterConfigSave"

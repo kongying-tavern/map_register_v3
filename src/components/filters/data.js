@@ -34,9 +34,122 @@ export const filterGroupDefault = {
 export const filterItemDefault = {
   joinOperator: "&",
   oppositeValue: false,
-  model: "",
-  modelOpts: {},
+  modelVals: {},
   filterOpts: {},
+};
+
+export const filterTypeSlots = {
+  idListAppend: () =>
+    h(
+      QIcon,
+      { name: "info", size: "sm", class: "cursor-pointer text-grey-7" },
+      {
+        default: () => [
+          h(
+            QTooltip,
+            {},
+            {
+              default: () => [
+                "可输入多个ID，使用以下符号分隔：",
+                h(
+                  "ol",
+                  {
+                    style: "padding: 0; margin: 0; padding-left: 1.2rem;",
+                  },
+                  {
+                    default: () => [
+                      h("li", {}, { default: () => "半角空格 ( )" }),
+                      h("li", {}, { default: () => "半角逗号 (,)" }),
+                      h("li", {}, { default: () => "顿号 (、)" }),
+                    ],
+                  }
+                ),
+              ],
+            }
+          ),
+        ],
+      }
+    ),
+  contentRegexAfter() {
+    return h(
+      QCard,
+      {
+        flat: true,
+        bordered: true,
+        style: "margin-top: .4rem; margin-bottom: .2rem; padding: .3rem;",
+        class: "bg-blue-grey-1",
+      },
+      {
+        default: () => [
+          "推荐链接：",
+          h(
+            "ol",
+            { style: "padding: 0; margin: 0; padding-left: 1.2rem;" },
+            {
+              default: () => [
+                h(
+                  "li",
+                  {},
+                  {
+                    default: () => [
+                      h(
+                        "a",
+                        {
+                          href: "https://regexlearn.com/zh-cn",
+                          target: "_blank",
+                        },
+                        {
+                          default: () =>
+                            "RegExp Learn - 逐步学习正则表达式，从零基础到高阶",
+                        }
+                      ),
+                    ],
+                  }
+                ),
+                h(
+                  "li",
+                  {},
+                  {
+                    default: () => [
+                      h(
+                        "a",
+                        {
+                          href: "https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions",
+                          target: "_blank",
+                        },
+                        {
+                          default: () => "正则表达式 - MDN (Javascript)",
+                        }
+                      ),
+                    ],
+                  }
+                ),
+                h(
+                  "li",
+                  {},
+                  {
+                    default: () => [
+                      h(
+                        "a",
+                        {
+                          href: "https://learn.microsoft.com/zh-cn/dotnet/standard/base-types/regular-expression-language-quick-reference",
+                          target: "_blank",
+                        },
+                        {
+                          default: () =>
+                            "正则表达式 - 快速参考 - Microsoft Learn",
+                        }
+                      ),
+                    ],
+                  }
+                ),
+              ],
+            }
+          ),
+        ],
+      }
+    );
+  },
 };
 
 export const filterTypes = [
@@ -46,11 +159,12 @@ export const filterTypes = [
     title: "ID范围",
     label: "ID为",
     model: "input",
-    modelOpts: {
+    modelOpts: {},
+    modelVals: {
       text: "",
     },
-    modelSemantic(options = {}, oppositeValue = false) {
-      const ids = (options?.text || "")
+    modelSemantic(values = {}, oppositeValue = false) {
+      const ids = (values?.text || "")
         .split(/[ ,、]/giu)
         .map((v) => (v || "").trim())
         .filter((v) => v);
@@ -63,8 +177,8 @@ export const filterTypes = [
         return `ID${oppositeValue ? "不" : ""}为:${ids[0]}`;
       }
     },
-    filterAction(item = {}, options = {}) {
-      const inputText = options.text || "";
+    filterAction(item = {}, values = {}) {
+      const inputText = values.text || "";
       if (!inputText) {
         return true;
       }
@@ -79,37 +193,7 @@ export const filterTypes = [
       return check;
     },
     filterSlots: {
-      append: () =>
-        h(
-          QIcon,
-          { name: "info", size: "sm", class: "cursor-pointer text-grey-7" },
-          {
-            default: () => [
-              h(
-                QTooltip,
-                {},
-                {
-                  default: () => [
-                    "可输入多个ID，使用以下符号分隔：",
-                    h(
-                      "ol",
-                      {
-                        style: "padding: 0; margin: 0; padding-left: 1.2rem;",
-                      },
-                      {
-                        default: () => [
-                          h("li", {}, { default: () => "半角空格 ( )" }),
-                          h("li", {}, { default: () => "半角逗号 (,)" }),
-                          h("li", {}, { default: () => "顿号 (、)" }),
-                        ],
-                      }
-                    ),
-                  ],
-                }
-              ),
-            ],
-          }
-        ),
+      append: filterTypeSlots.idListAppend,
     },
   },
   {
@@ -118,13 +202,14 @@ export const filterTypes = [
     title: "标题包含",
     label: "标题包含",
     model: "input",
-    modelOpts: {
+    modelOpts: {},
+    modelVals: {
       text: "",
     },
-    modelSemantic: (options = {}, oppositeValue = false) =>
-      `标题${oppositeValue ? "不" : ""}包含:${options?.text}`,
-    filterAction(item = {}, options = {}) {
-      const inputText = options.text || "";
+    modelSemantic: (values = {}, oppositeValue = false) =>
+      `标题${oppositeValue ? "不" : ""}包含:${values?.text}`,
+    filterAction(item = {}, values = {}) {
+      const inputText = values.text || "";
       if (!inputText) {
         return true;
       }
@@ -140,13 +225,14 @@ export const filterTypes = [
     title: "内容包含",
     label: "内容包含",
     model: "input",
-    modelOpts: {
+    modelOpts: {},
+    modelVals: {
       text: "",
     },
-    modelSemantic: (options = {}, oppositeValue = false) =>
-      `内容${oppositeValue ? "不" : ""}包含:${options?.text}`,
-    filterAction(item = {}, options = {}) {
-      const inputText = options.text || "";
+    modelSemantic: (values = {}, oppositeValue = false) =>
+      `内容${oppositeValue ? "不" : ""}包含:${values?.text}`,
+    filterAction(item = {}, values = {}) {
+      const inputText = values.text || "";
       if (!inputText) {
         return true;
       }
@@ -162,13 +248,14 @@ export const filterTypes = [
     title: "内容正则匹配",
     label: "内容满足正则",
     model: "input",
-    modelOpts: {
+    modelOpts: {},
+    modelVals: {
       text: "",
     },
-    modelSemantic: (options = {}, oppositeValue = false) =>
-      `内容${oppositeValue ? "不" : ""}满足正则:${options?.text}`,
-    filterAction(item = {}, options = {}) {
-      const inputText = options.text || "";
+    modelSemantic: (values = {}, oppositeValue = false) =>
+      `内容${oppositeValue ? "不" : ""}满足正则:${values?.text}`,
+    filterAction(item = {}, values = {}) {
+      const inputText = values.text || "";
       if (!inputText) {
         return true;
       }
@@ -186,86 +273,7 @@ export const filterTypes = [
       return check;
     },
     filterSlots: {
-      after() {
-        return h(
-          QCard,
-          {
-            flat: true,
-            bordered: true,
-            style: "margin-top: .4rem; margin-bottom: .2rem; padding: .3rem;",
-            class: "bg-blue-grey-1",
-          },
-          {
-            default: () => [
-              "推荐链接：",
-              h(
-                "ol",
-                { style: "padding: 0; margin: 0; padding-left: 1.2rem;" },
-                {
-                  default: () => [
-                    h(
-                      "li",
-                      {},
-                      {
-                        default: () => [
-                          h(
-                            "a",
-                            {
-                              href: "https://regexlearn.com/zh-cn",
-                              target: "_blank",
-                            },
-                            {
-                              default: () =>
-                                "RegExp Learn - 逐步学习正则表达式，从零基础到高阶",
-                            }
-                          ),
-                        ],
-                      }
-                    ),
-                    h(
-                      "li",
-                      {},
-                      {
-                        default: () => [
-                          h(
-                            "a",
-                            {
-                              href: "https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions",
-                              target: "_blank",
-                            },
-                            {
-                              default: () => "正则表达式 - MDN (Javascript)",
-                            }
-                          ),
-                        ],
-                      }
-                    ),
-                    h(
-                      "li",
-                      {},
-                      {
-                        default: () => [
-                          h(
-                            "a",
-                            {
-                              href: "https://learn.microsoft.com/zh-cn/dotnet/standard/base-types/regular-expression-language-quick-reference",
-                              target: "_blank",
-                            },
-                            {
-                              default: () =>
-                                "正则表达式 - 快速参考 - Microsoft Learn",
-                            }
-                          ),
-                        ],
-                      }
-                    ),
-                  ],
-                }
-              ),
-            ],
-          }
-        );
-      },
+      after: filterTypeSlots.contentRegexAfter,
     },
   },
   {
@@ -275,16 +283,18 @@ export const filterTypes = [
     label: "点位属于",
     model: "toggle",
     modelOpts: {
-      value: true,
       textInactive: "地上",
       textActive: "地下",
     },
-    modelSemantic: (options = {}, oppositeValue = false) =>
+    modelVals: {
+      value: true,
+    },
+    modelSemantic: (values = {}, oppositeValue = false) =>
       `点位${oppositeValue ? "不" : ""}属于:${
-        options?.value ? options?.textActive || "" : options?.textInactive || ""
+        values?.value ? values?.textActive || "" : values?.textInactive || ""
       }`,
-    filterAction(item = {}, options = {}) {
-      const switchVal = Boolean(options.value);
+    filterAction(item = {}, values = {}) {
+      const switchVal = Boolean(values.value);
       const extraText = item.markerExtraContent || "{}";
       let extraJson = {};
       try {
@@ -305,8 +315,9 @@ export const filterTypes = [
   //   label: "地下层级位于",
   //   model: "",
   //   modelOpts: {},
-  //   modelSemantic: (options = {}, oppositeValue = false) => {},
-  //   filterAction: (item = {}, options = {}) => {},
+  //   modelVals: {},
+  //   modelSemantic: (values = {}, oppositeValue = false) => {},
+  //   filterAction: (item = {}, values = {}) => {},
   // },
   {
     name: "image",
@@ -315,18 +326,20 @@ export const filterTypes = [
     label: "点位图片",
     model: "toggle",
     modelOpts: {
-      value: true,
       textInactive: "不存在",
       textActive: "存在",
     },
-    modelSemantic: (options = {}, oppositeValue = false) =>
+    modelVals: {
+      value: true,
+    },
+    modelSemantic: (values = {}, oppositeValue = false) =>
       `图片${
-        (options.value && !oppositeValue) || (!options.value && oppositeValue)
+        (values.value && !oppositeValue) || (!values.value && oppositeValue)
           ? "存在"
           : "不存在"
       }`,
-    filterAction(item = {}, options = {}) {
-      const switchVal = Boolean(options.value);
+    filterAction(item = {}, values = {}) {
+      const switchVal = Boolean(values.value);
       const picture = (item.picture || "").trim();
       const pictureExists = Boolean(picture);
       return switchVal === pictureExists;
@@ -339,18 +352,20 @@ export const filterTypes = [
     label: "视频地址",
     model: "toggle",
     modelOpts: {
-      value: true,
       textInactive: "不存在",
       textActive: "存在",
     },
-    modelSemantic: (options = {}, oppositeValue = false) =>
+    modelVals: {
+      value: true,
+    },
+    modelSemantic: (values = {}, oppositeValue = false) =>
       `视频${
-        (options.value && !oppositeValue) || (!options.value && oppositeValue)
+        (values.value && !oppositeValue) || (!values.value && oppositeValue)
           ? "存在"
           : "不存在"
       }`,
-    filterAction(item = {}, options = {}) {
-      const switchVal = Boolean(options.value);
+    filterAction(item = {}, values = {}) {
+      const switchVal = Boolean(values.value);
       const videoPath = (item.videoPath || "").trim();
       const videoPathExists = Boolean(videoPath);
       return switchVal === videoPathExists;
@@ -365,8 +380,9 @@ export const filterTypes = [
    *   label: "",
    *   model: "",
    *   modelOpts: {},
-   *   modelSemantic: (options = {}, oppositeValue = false) => {},
-   *   filterAction: (item = {}, options = {}) => {},
+   *   modelVals: {},
+   *   modelSemantic: (values = {}, oppositeValue = false) => {},
+   *   filterAction: (item = {}, values = {}) => {},
    * }
    */
 ];
@@ -537,10 +553,8 @@ export const filterItemChangeType = (
 
   filterConfigList.value[groupIndex].filters[itemIndex].filterOpts =
     options || {};
-  filterConfigList.value[groupIndex].filters[itemIndex].model =
-    options.model || "";
-  filterConfigList.value[groupIndex].filters[itemIndex].modelOpts = _.cloneDeep(
-    options.modelOpts || {}
+  filterConfigList.value[groupIndex].filters[itemIndex].modelVals = _.cloneDeep(
+    options.modelVals || {}
   );
 
   filterConfigSave();
@@ -558,13 +572,13 @@ export const applyFilterFunc = (item = {}) => {
 
     for (const filterItem of filterGroup.filters) {
       const itemAction = filterItem.filterOpts?.filterAction;
-      const itemOpts = filterItem.modelOpts || {};
+      const itemVals = filterItem.modelVals || {};
 
       if (!_.isFunction(itemAction)) {
         continue;
       }
 
-      let itemValue = itemAction(item, itemOpts);
+      let itemValue = itemAction(item, itemVals);
       const itemOpposite = Boolean(filterItem.oppositeValue);
       const itemOp = filterItem.joinOperator;
       itemValue = itemOpposite ? !itemValue : Boolean(itemValue);
@@ -598,7 +612,7 @@ export const filterConfigSaveDoc = computed({
             ov: Boolean(filterItem.oppositeValue),
             op: filterItem.joinOperator || "&",
             n: filterName,
-            c: filterItem.modelOpts || {},
+            v: filterItem.modelVals || {},
           });
         }
       }
@@ -623,20 +637,19 @@ export const filterConfigSaveDoc = computed({
         const filterType = filterTypesMap[filterName];
 
         if (filterType) {
-          const filterTypeOpts = filterType.modelOpts || {};
-          const filterItemOpts = filterItem.c || {};
-          const filterCombinedOpts = _.defaultsDeep(
+          const filterTypeVals = filterType.modelVals || {};
+          const filterItemVals = filterItem.v || {};
+          const filterCombinedVals = _.defaultsDeep(
             {},
-            filterItemOpts,
-            filterTypeOpts
+            filterItemVals,
+            filterTypeVals
           );
 
           restoreDocFilters.push({
             oppositeValue: Boolean(filterItem.ov),
             joinOperator: filterItem.op || "&",
             filterOpts: filterType,
-            model: filterType.model || "",
-            modelOpts: filterCombinedOpts,
+            modelVals: filterCombinedVals,
           });
         }
       }

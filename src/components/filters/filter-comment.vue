@@ -24,7 +24,7 @@ import { filterConfigList, filterItemCount, filterCardToggle } from "./data";
                 item.filterOpts?.modelSemantic &&
                 _.isFunction(item.filterOpts?.modelSemantic) &&
                 item.filterOpts?.modelSemantic(
-                  item.modelOpts,
+                  item.modelVals,
                   item.oppositeValue
                 )
               "
@@ -35,7 +35,7 @@ import { filterConfigList, filterItemCount, filterCardToggle } from "./data";
               <span class="item-text" :key="itemIndex">
                 {{
                   item.filterOpts?.modelSemantic(
-                    item.modelOpts,
+                    item.modelVals,
                     item.oppositeValue
                   )
                 }}
