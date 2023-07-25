@@ -1,6 +1,6 @@
 <template>
   <q-card
-    class="row q-pa-md"
+    class="row q-pa-md edit-window"
     style="min-width: 550px; max-width: 60vw"
     :style="{
       width: item_selector_open ? '60vw' : '550px',
@@ -21,12 +21,26 @@
             <q-item-section side top> 点位名称 </q-item-section>
             <q-item-section>
               <q-input
+                ref="titleWrapper"
                 v-model="layer_info.markerTitle"
                 outlined
                 dense
                 placeholder="点位名称"
               >
               </q-input>
+              <QuickInput
+                :value="layer_info.markerTitle"
+                :snippets="quick_input_snippets"
+                :input="$refs.titleWrapper?.nativeEl"
+                @update="
+                  updateCharsInsert(
+                    $event,
+                    $refs.titleWrapper?.nativeEl,
+                    'markerTitle'
+                  )
+                "
+              >
+              </QuickInput>
             </q-item-section>
           </q-item>
 
@@ -102,13 +116,14 @@
           </q-item>
 
           <!-- 添加字段插件 -->
-          <ExtraAdapter :area="selArea"></ExtraAdapter>
+          <ExtraField :area="selArea"></ExtraField>
 
           <q-item>
             <q-item-section side top> 点位说明 </q-item-section>
             <q-item-section>
               <q-input
                 v-model="layer_info.content"
+                ref="contentWrapper"
                 type="textarea"
                 style="white-space: pre-line"
                 outlined
@@ -116,6 +131,19 @@
                 placeholder="点位说明"
               >
               </q-input>
+              <QuickInput
+                :value="layer_info.content"
+                :snippets="quick_input_snippets"
+                :input="$refs.contentWrapper?.nativeEl"
+                @update="
+                  updateCharsInsert(
+                    $event,
+                    $refs.contentWrapper?.nativeEl,
+                    'content'
+                  )
+                "
+              >
+              </QuickInput>
             </q-item-section>
           </q-item>
 
@@ -138,7 +166,7 @@
                       : layer_info.picture
                   "
                   spinner-color="white"
-                  style="height: 150px; max-width: 150px; cursor: pointer"
+                  style="height: 130px; max-width: 130px; cursor: pointer"
                   @click="img_preview"
                 >
                   <template v-slot:error>
@@ -309,6 +337,7 @@ import RefreshTimeField from "./layer_edit_refresh_time.vue";
 import { refresh_init } from "./layer_edit_refresh_time";
 import ExtraField from "../plugins/extra-field.vue";
 import ItemSelector from "./item_selector.vue";
+import QuickInput from "./quick-input.vue";
 import { create_notify } from "../../api/common";
 
 const icon_no_img = "https://assets.yuanshen.site/icons/-1.png";
@@ -346,6 +375,7 @@ export default {
         markerCreatorId: get_user_id(),
         itemList: [],
       },
+
       item_selector_open: false,
       item_selector_index: -1,
       image_upload_cropper_open: false,
@@ -354,6 +384,8 @@ export default {
       image_upload_base64: "",
       loading: false,
       loading_img: false,
+
+      quick_input_snippets: ["「", "」", "《", "》", " · ", "…", "×"],
     };
   },
   computed: {
@@ -408,7 +440,8 @@ export default {
     ImgCut,
     ItemSelector,
     RefreshTimeField,
-    ExtraAdapter: ExtraField,
+    ExtraField,
+    QuickInput,
   },
   methods: {
     // 查看大图
@@ -624,6 +657,18 @@ export default {
       this.layer_info = {};
       this.$emit("cancel");
     },
+
+    async updateCharsInsert(data = {}, el, field = "") {
+      if (!field) {
+        return;
+      }
+
+      const { start, end, value } = data || {};
+      this.layer_info[field] = value || "";
+
+      await el?.focus();
+      el?.setSelectionRange(start, end);
+    },
   },
   mounted() {
     let layer_info = _.defaultsDeep(
@@ -678,5 +723,12 @@ export default {
 .image-box {
   border-radius: 6px;
   border: 1px dashed #aaa;
+}
+
+.edit-window {
+  :deep(.q-item) {
+    padding-top: 0.2rem;
+    padding-bottom: 0.2rem;
+  }
 }
 </style>
