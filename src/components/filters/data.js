@@ -1,6 +1,7 @@
 import _ from "lodash";
 import { ref, computed, h } from "vue";
 import { encode, decode } from "js-base64";
+import JSONPack from "jsonpack";
 import { create_notify } from "src/api/common";
 import { selectorCollapse } from "src/components/selector-data";
 import { QIcon, QTooltip } from "quasar";
@@ -21,8 +22,6 @@ export const filterCardToggle = (state) => {
     selectorCollapse.value = filterCardVisible.value;
   }
 };
-
-export const groupJoinOperatorOptions = [{ value: "" }, { value: "" }];
 
 export const filterGroupDefault = {
   joinOperator: "&",
@@ -538,7 +537,7 @@ export const filterConfigLoad = (data) => {
 };
 
 export const filterConfigShareCode = computed({
-  get: () => encode(JSON.stringify(filterConfigSaveDoc.value), true) || "",
+  get: () => encode(JSONPack.pack(filterConfigSaveDoc.value), true) || "",
   set(value = "") {
     if (!value) {
       create_notify("分享码不能为空", "warning");
@@ -546,7 +545,8 @@ export const filterConfigShareCode = computed({
     }
 
     try {
-      const dataStr = decode(value);
+      const dataObj = JSONPack.unpack(decode(value));
+      const dataStr = JSON.stringify(dataObj);
       filterConfigLoad(dataStr);
     } catch(e) { // eslint-disable-line
       create_notify("无效的分享码", "negative");
