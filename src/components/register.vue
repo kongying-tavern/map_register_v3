@@ -8,6 +8,7 @@ import {
   selectorToggle,
 } from "./selector-data";
 import FilterCard from "src/components/filters/filter-card.vue";
+import FilterShare from "src/components/filters/filter-share.vue";
 
 import { layer_edit_window } from "src/components/dialogs/layer_edit_window";
 </script>
@@ -321,7 +322,10 @@ import { layer_edit_window } from "src/components/dialogs/layer_edit_window";
     </q-stepper>
 
     <!-- 过滤-->
-    <FilterCard class="flex-none"></FilterCard>
+    <div class="flex-none">
+      <FilterCard></FilterCard>
+      <FilterShare></FilterShare>
+    </div>
 
     <!-- 点位信息表 -->
     <layer-table

@@ -20,6 +20,7 @@
     "leaflet": "^1.7.1",
     "lodash": "^4.17.21",
     "quasar": "2.11.10",
+    "v-clipboard3": "^0.1.4",
     "vue": "^3.2.29",
     "vue-cropper": "^1.0.3",
     "vue-router": "^4.0.12",

@@ -1,5 +1,6 @@
 import _ from "lodash";
 import { ref, computed, h } from "vue";
+import { encode, decode } from "js-base64";
 import { create_notify } from "src/api/common";
 import { selectorCollapse } from "src/components/selector-data";
 import { QIcon, QTooltip } from "quasar";
@@ -516,9 +517,15 @@ export const filterConfigSave = () => {
   }
 };
 
-export const filterConfigLoad = () => {
+export const filterConfigLoad = (data) => {
+  let dataStr = null;
+  if (_.isNil(data)) {
+    dataStr = localStorage.getItem(filterConfigSaveKey);
+  } else {
+    dataStr = data;
+  }
+
   try {
-    const dataStr = localStorage.getItem(filterConfigSaveKey);
     const dataJson = JSON.parse(dataStr);
     if (_.isArray(dataJson) && dataJson.length >= 1) {
       filterConfigSaveDoc.value = dataJson;
@@ -529,3 +536,20 @@ export const filterConfigLoad = () => {
     // Nothing to do
   }
 };
+
+export const filterConfigShareCode = computed({
+  get: () => encode(JSON.stringify(filterConfigSaveDoc.value), true) || "",
+  set(value = "") {
+    if (!value) {
+      create_notify("分享码不能为空", "warning");
+      return;
+    }
+
+    try {
+      const dataStr = decode(value);
+      filterConfigLoad(dataStr);
+    } catch(e) { // eslint-disable-line
+      create_notify("无效的分享码", "negative");
+    }
+  },
+});
