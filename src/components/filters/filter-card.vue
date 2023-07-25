@@ -18,7 +18,13 @@ import {
 </script>
 
 <template>
-  <q-card v-if="filterCardVisible" flat bordered class="filter-card">
+  <q-card
+    v-if="filterCardVisible"
+    flat
+    bordered
+    class="filter-card"
+    style="margin-top: 0.2rem"
+  >
     <div
       v-for="(group, groupIndex) in filterConfigList"
       :key="groupIndex"
