@@ -555,12 +555,12 @@ export default {
         .value();
     },
     stepper_collapse_icon() {
-      return this.selectorCollapse
+      return selectorCollapse.value
         ? "keyboard_double_arrow_down"
         : "keyboard_double_arrow_up";
     },
     stepper_collapse_text() {
-      return this.selectorCollapse ? "展开" : "收起";
+      return selectorCollapse.value ? "展开" : "收起";
     },
   },
   methods: {
