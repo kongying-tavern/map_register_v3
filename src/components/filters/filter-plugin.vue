@@ -1,6 +1,11 @@
 <script setup>
+import { onMounted } from "vue";
 import FilterComment from "./filter-comment.vue";
-import { filterCardToggle, filterMuteTooltip } from "./data";
+import { filterCardToggle, filterMuteTooltip, filterConfigLoad } from "./data";
+
+onMounted(() => {
+  filterConfigLoad();
+});
 </script>
 
 <template>

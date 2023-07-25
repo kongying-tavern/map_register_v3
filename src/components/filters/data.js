@@ -223,7 +223,13 @@ export const filterTypes = [
   // },
 ];
 
+export const filterTypesMap = _.keyBy(filterTypes, "name");
+
 export const filterConfigList = ref([_.cloneDeep(filterGroupDefault)]);
+
+export const filterConfigInit = () => {
+  filterConfigList.value = [_.cloneDeep(filterGroupDefault)];
+};
 
 export const filterGroupCount = computed(() => filterConfigList.value.length);
 
@@ -252,6 +258,8 @@ export const filterGroupAdd = (groupIndex = -1) => {
   } else {
     filterConfigList.value.push(_.cloneDeep(filterGroupDefault));
   }
+
+  filterConfigSave();
 };
 
 export const filterGroupDel = (groupIndex = -1) => {
@@ -265,6 +273,8 @@ export const filterGroupDel = (groupIndex = -1) => {
   }
 
   filterConfigList.value.splice(groupIndex, 1);
+
+  filterConfigSave();
 };
 
 export const filterGroupOpposite = (groupIndex = -1) => {
@@ -274,6 +284,8 @@ export const filterGroupOpposite = (groupIndex = -1) => {
 
   filterConfigList.value[groupIndex].oppositeValue =
     !filterConfigList.value[groupIndex].oppositeValue;
+
+  filterConfigSave();
 };
 
 export const filterGroupOpToggle = (groupIndex = -1) => {
@@ -284,6 +296,8 @@ export const filterGroupOpToggle = (groupIndex = -1) => {
   const nextOperator =
     filterConfigList.value[groupIndex].joinOperator === "&" ? "|" : "&";
   filterConfigList.value[groupIndex].joinOperator = nextOperator;
+
+  filterConfigSave();
 };
 
 const filterItemCheck = (groupIndex = -1, itemIndex = -1, strict = true) => {
@@ -316,6 +330,8 @@ export const filterItemAdd = (groupIndex = -1, itemIndex = -1) => {
       _.cloneDeep(filterItemDefault)
     );
   }
+
+  filterConfigSave();
 };
 
 export const filterItemDel = (groupIndex = -1, itemIndex = -1) => {
@@ -324,6 +340,8 @@ export const filterItemDel = (groupIndex = -1, itemIndex = -1) => {
   }
 
   filterConfigList.value[groupIndex].filters.splice(itemIndex, 1);
+
+  filterConfigSave();
 };
 
 export const filterItemOpposite = (groupIndex = -1, itemIndex = -1) => {
@@ -333,6 +351,8 @@ export const filterItemOpposite = (groupIndex = -1, itemIndex = -1) => {
 
   filterConfigList.value[groupIndex].filters[itemIndex].oppositeValue =
     !filterConfigList.value[groupIndex].filters[itemIndex].oppositeValue;
+
+  filterConfigSave();
 };
 
 export const filterItemOpToggle = (groupIndex = -1, itemIndex = -1) => {
@@ -346,6 +366,8 @@ export const filterItemOpToggle = (groupIndex = -1, itemIndex = -1) => {
       : "&";
   filterConfigList.value[groupIndex].filters[itemIndex].joinOperator =
     nextOperator;
+
+  filterConfigSave();
 };
 
 export const filterItemChangeType = (
@@ -371,6 +393,8 @@ export const filterItemChangeType = (
   filterConfigList.value[groupIndex].filters[itemIndex].modelOpts = _.cloneDeep(
     options.modelOpts || {}
   );
+
+  filterConfigSave();
 };
 
 export const applyFilterFunc = (item = {}) => {
@@ -410,3 +434,98 @@ export const applyFilterFunc = (item = {}) => {
 };
 
 export const applyFilter = (list = []) => _.filter(list, applyFilterFunc);
+
+export const filterConfigSaveDoc = computed({
+  get() {
+    const saveDocList = [];
+    for (const filterGroup of filterConfigList.value) {
+      const saveDocFilters = [];
+
+      const filterGroupChildren = filterGroup.filters || [];
+      for (const filterItem of filterGroupChildren) {
+        const filterName = filterItem.filterOpts?.name;
+        if (filterName) {
+          saveDocFilters.push({
+            ov: Boolean(filterItem.oppositeValue),
+            op: filterItem.joinOperator || "&",
+            n: filterName,
+            c: filterItem.modelOpts || {},
+          });
+        }
+      }
+
+      saveDocList.push({
+        ov: Boolean(filterGroup.oppositeValue),
+        op: filterGroup.joinOperator || "&",
+        f: saveDocFilters,
+      });
+    }
+
+    return saveDocList;
+  },
+  set(list = []) {
+    const restoreDocList = [];
+    for (const filterGroup of list) {
+      const restoreDocFilters = [];
+
+      const filterGroupChildren = filterGroup.f || [];
+      for (const filterItem of filterGroupChildren) {
+        const filterName = filterItem.n || "";
+        const filterType = filterTypesMap[filterName];
+
+        if (filterType) {
+          const filterTypeOpts = filterType.modelOpts || {};
+          const filterItemOpts = filterItem.c || {};
+          const filterCombinedOpts = _.defaultsDeep(
+            {},
+            filterItemOpts,
+            filterTypeOpts
+          );
+
+          restoreDocFilters.push({
+            oppositeValue: Boolean(filterItem.ov),
+            joinOperator: filterItem.op || "&",
+            filterOpts: filterType,
+            model: filterType.model || "",
+            modelOpts: filterCombinedOpts,
+          });
+        }
+      }
+
+      restoreDocList.push({
+        oppositeValue: Boolean(filterGroup.ov),
+        joinOperator: filterGroup.op || "&",
+        filters: restoreDocFilters,
+      });
+    }
+
+    filterConfigList.value = restoreDocList;
+  },
+});
+
+const filterConfigSaveKey = "_yuanshen_dadian_filter";
+
+export const filterConfigSave = () => {
+  try {
+    localStorage.setItem(
+      filterConfigSaveKey,
+      JSON.stringify(filterConfigSaveDoc.value)
+    );
+  } catch (e) { // eslint-disable-line
+    // Nothing to do
+  }
+};
+
+export const filterConfigLoad = () => {
+  try {
+    const dataStr = localStorage.getItem(filterConfigSaveKey);
+    const dataJson = JSON.parse(dataStr);
+    if (_.isArray(dataJson) && dataJson.length >= 1) {
+      filterConfigSaveDoc.value = dataJson;
+    } else {
+      filterConfigInit();
+    }
+  } catch(e) { // eslint-disable-line
+    // Nothing to do
+  }
+};

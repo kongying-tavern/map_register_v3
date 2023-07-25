@@ -13,6 +13,7 @@ import {
   filterItemOpToggle,
   filterItemChangeType,
   filterTypes,
+  filterConfigSave,
 } from "./data";
 </script>
 
@@ -164,11 +165,13 @@ import {
           </q-select>
 
           <div style="flex: auto; padding: 0 4px">
+            <!-- 模型参数配置部分渲染 -->
             <q-input
               v-if="item.model === 'input'"
               v-model="item.modelOpts.text"
               flat
               dense
+              @update:model-value="filterConfigSave"
             >
             </q-input>
             <q-toggle
@@ -180,12 +183,12 @@ import {
                   : item.modelOpts.textInactive
               "
               dense
+              @update:model-value="filterConfigSave"
             >
             </q-toggle>
           </div>
           <div v-if="item.filterOpts?.filterSlots?.append" style="flex: none">
-            <component :is="{ render: item.filterOpts?.filterSlots?.append }">
-            </component>
+            <component :is="item.filterOpts?.filterSlots?.append"></component>
           </div>
 
           <q-btn
