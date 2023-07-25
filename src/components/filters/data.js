@@ -11,8 +11,8 @@ export const filterCacheSelectorCollapse = ref(false);
 
 export const filterMuteTooltip = ref(false);
 
-export const filterCardToggle = () => {
-  filterCardVisible.value = !filterCardVisible.value;
+export const filterCardToggle = (state) => {
+  filterCardVisible.value = _.isNil(state) ? !filterCardVisible.value : state;
 
   if (filterCardVisible.value && !selectorCollapse.value) {
     filterCacheSelectorCollapse.value = selectorCollapse.value;
@@ -117,7 +117,6 @@ export const filterTypes = [
     title: "标题包含",
     label: "标题包含",
     model: "input",
-
     modelOpts: {
       text: "",
     },
@@ -269,7 +268,8 @@ export const filterGroupDel = (groupIndex = -1) => {
   }
 
   if (filterGroupCount.value <= 1) {
-    create_notify("无法删除最后一个条件组", "warning");
+    filterConfigInit();
+    filterCardToggle(false);
     return;
   }
 
