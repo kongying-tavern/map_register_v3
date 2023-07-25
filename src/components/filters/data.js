@@ -303,7 +303,48 @@ export const filterTypes = [
   //   icon: "mdi-layers-search-outline",
   //   title: "地下层级",
   //   label: "地下层级位于",
+  //   model: "",
+  //   modelOpts: {},
+  //   modelSemantic: (options = {}, oppositeValue = false) => {},
+  //   filterAction: (item = {}, options = {}) => {},
   // },
+  {
+    name: "video",
+    icon: "mdi-play-box-multiple-outline",
+    title: "视频地址",
+    label: "视频地址",
+    model: "toggle",
+    modelOpts: {
+      value: true,
+      textInactive: "不存在",
+      textActive: "存在",
+    },
+    modelSemantic: (options = {}, oppositeValue = false) =>
+      `视频${
+        (options.value && !oppositeValue) || (!options.value && oppositeValue)
+          ? "存在"
+          : "不存在"
+      }`,
+    filterAction(item = {}, options = {}) {
+      const switchVal = Boolean(options.value);
+      const videoPath = (item.videoPath || "").trim();
+      const videoPathExists = Boolean(videoPath);
+      return switchVal === videoPathExists;
+    },
+  },
+  /**
+   * Schema Example:
+   * {
+   *   name: "",
+   *   icon: "",
+   *   title: "",
+   *   label: "",
+   *   model: "",
+   *   modelOpts: {},
+   *   modelSemantic: (options = {}, oppositeValue = false) => {},
+   *   filterAction: (item = {}, options = {}) => {},
+   * }
+   */
 ];
 
 export const filterTypesMap = _.keyBy(filterTypes, "name");
