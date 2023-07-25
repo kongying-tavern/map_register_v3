@@ -1,3 +1,4 @@
+import _ from "lodash";
 import { ref } from "vue";
 import { filterCardVisible } from "./filters/data";
 
@@ -7,8 +8,10 @@ export const selectorCacheFilterVisible = ref(false);
 
 export const selectorStep = ref(1);
 
-export const selectorToggle = () => {
-  selectorCollapse.value = !selectorCollapse.value;
+export const selectorToggle = (state) => {
+  selectorCollapse.value = _.isNil(state)
+    ? !selectorCollapse.value
+    : Boolean(state);
 
   if (!selectorCollapse.value && filterCardVisible.value) {
     selectorCacheFilterVisible.value = filterCardVisible.value;

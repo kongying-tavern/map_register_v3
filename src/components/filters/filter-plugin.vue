@@ -17,7 +17,7 @@ onMounted(() => {
         style="flex: none"
         size="md"
         name="mdi-filter-outline"
-        @click="filterCardToggle"
+        @click="filterCardToggle()"
       >
       </q-icon>
       <FilterComment style="flex: auto"></FilterComment>

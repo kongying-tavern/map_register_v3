@@ -311,7 +311,7 @@ import { layer_edit_window } from "src/components/dialogs/layer_edit_window";
             </div>
             <span
               class="flex-none cursor-pointer text text-bold text-right text-grey-8"
-              @click="selectorToggle"
+              @click="selectorToggle()"
             >
               <q-icon :name="stepper_collapse_icon" right></q-icon>
               {{ stepper_collapse_text }}

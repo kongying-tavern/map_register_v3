@@ -4,7 +4,7 @@ import { filterConfigList, filterItemCount, filterCardToggle } from "./data";
 </script>
 
 <template>
-  <div class="filter-comment" @click="filterCardToggle">
+  <div class="filter-comment" @click="filterCardToggle()">
     <template v-if="filterItemCount > 0">
       <template v-for="(group, groupIndex) in filterConfigList">
         <div

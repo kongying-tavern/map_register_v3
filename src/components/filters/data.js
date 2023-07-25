@@ -13,7 +13,9 @@ export const filterCacheSelectorCollapse = ref(false);
 export const filterMuteTooltip = ref(false);
 
 export const filterCardToggle = (state) => {
-  filterCardVisible.value = _.isNil(state) ? !filterCardVisible.value : state;
+  filterCardVisible.value = _.isNil(state)
+    ? !filterCardVisible.value
+    : Boolean(state);
 
   if (filterCardVisible.value && !selectorCollapse.value) {
     filterCacheSelectorCollapse.value = selectorCollapse.value;
