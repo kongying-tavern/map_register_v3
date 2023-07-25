@@ -40,7 +40,10 @@ export const useSelected = (options: SelectedHookOptions = {}) => {
       onBatchDeleteSuccess?.()
     }
     catch (err) {
-      ElMessage.error(messageFrom(err))
+      ElMessage.error({
+        message: `删除用户失败，原因为：${messageFrom(err)}`,
+        offset: 48,
+      })
     }
     finally {
       batchDeleteLoading.value = false

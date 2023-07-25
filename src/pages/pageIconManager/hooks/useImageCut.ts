@@ -26,7 +26,7 @@ export const useImageCut = () => {
     }
     catch (err) {
       ElMessage.error({
-        message: messageFrom(err),
+        message: `选择图片失败，原因为：${messageFrom(err)}`,
         offset: 48,
       })
     }
@@ -70,7 +70,7 @@ export const useImageCut = () => {
 
   onUploadError((err) => {
     ElMessage.error({
-      message: err.message,
+      message: `上传图片失败，原因为：${err.message}`,
       offset: 48,
     })
     setUploadProgress(NaN)

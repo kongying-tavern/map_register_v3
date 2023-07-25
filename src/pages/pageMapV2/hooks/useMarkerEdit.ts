@@ -81,8 +81,15 @@ export const useMarkerEdit = (markerData: Ref<API.MarkerVo | null>) => {
 
   const { refresh: editMarker, onSuccess, onError, ...rest } = useFetchHook({ onRequest: request })
 
-  onSuccess(() => ElMessage.success('编辑点位成功'))
-  onError(err => ElMessage.error(err.message))
+  onSuccess(() => ElMessage.success({
+    message: `${userStore.isAdmin ? '编辑点位' : '提交审核'}成功`,
+    offset: 48,
+  }))
+
+  onError(err => ElMessage.error({
+    message: `${userStore.isAdmin ? '编辑点位' : '提交审核'}失败，原因为：${err.message}`,
+    offset: 48,
+  }))
 
   return { editMarker, request, onSuccess, onError, ...rest }
 }

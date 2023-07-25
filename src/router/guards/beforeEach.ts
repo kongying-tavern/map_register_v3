@@ -1,4 +1,3 @@
-import { ElMessage } from 'element-plus'
 import type { NavigationGuardWithThis, Router } from 'vue-router'
 import { isInPermissionList, isInWhiteList } from '../utils'
 import { useUserStore } from '@/stores'
@@ -34,39 +33,25 @@ export const beforeEachGuard = (
       return isTokenValid ? next('/') : go()
     }
 
-    if (!isTokenValid) {
-      ElMessage.error({
-        message: '用户凭证无效',
-        offset: 48,
-      })
-      userStore.logout()
-      return next(false)
-    }
-
     const isRouteExist = router.getRoutes().find(route => route.path === to.path)
-    if (!isRouteExist) {
-      ElMessage.error({
-        message: '目标路由不存在',
-        offset: 48,
-      })
-      return next(false)
+    if (!isRouteExist)
+      return next(new Error('目标路由不存在'))
+
+    if (!isTokenValid) {
+      userStore.logout()
+      return next(new Error('用户凭证无效'))
     }
 
-    if (!isInPermissionList(to)) {
-      ElMessage.error({
-        message: '没有访问权限',
-        offset: 48,
-      })
-      return next(false)
-    }
+    if (!isInPermissionList(to))
+      return next(new Error('没有访问权限'))
 
     // 确保在进入路由时用户信息已更新
-    (!userStore.info.id || userStore.info.id !== userStore.auth.userId) && await userStore.updateUserInfo()
+    ;(!userStore.info.id || userStore.info.id !== userStore.auth.userId) && await userStore.updateUserInfo()
     // 确保在进入路由时用户设置已更新
     !userStore.preference.filterStates && await userStore.updateUserPreference()
     go()
 
-    await userStore.createRefreshTimer()
+    userStore.createRefreshTimer()
     to.meta.preload && await userStore.preloadMission()
   }
 }

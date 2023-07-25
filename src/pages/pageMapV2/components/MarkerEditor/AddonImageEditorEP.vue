@@ -6,6 +6,7 @@ import type { Observable } from 'rxjs'
 import { filter, fromEvent, map, switchMap, takeUntil } from 'rxjs'
 import type { Ref } from 'vue'
 import { clamp } from 'lodash'
+import { messageFrom } from '@/utils'
 
 const props = withDefaults(defineProps<{
   imageBitMap?: ImageBitmap
@@ -161,29 +162,34 @@ const clipSize = ref<[number, number]>([256, 256])
 
 /** 剪裁 */
 const clipImage = () => {
-  if (!canvasRef.value || !canvasCtx.value) {
-    ElMessage.error('无法获取 canvas 实例')
-    return
+  try {
+    if (!canvasRef.value || !canvasCtx.value)
+      throw new Error('无法获取 canvas 实例')
+
+    if (!props.imageBitMap)
+      throw new Error('没有可供剪裁的图片')
+
+    const resizeCanvas = document.createElement('canvas')
+    resizeCanvas.width = clipSize.value[0]
+    resizeCanvas.height = clipSize.value[1]
+    const resizeCtx = resizeCanvas.getContext('2d')
+    if (!resizeCtx)
+      throw new Error('创建 canvas 实例失败')
+
+    resizeCtx.drawImage(canvasRef.value, 0, 0, ...clipSize.value)
+    resizeCanvas.toBlob((blob) => {
+      if (!blob)
+        throw new Error('无法获取截图的二进制数据')
+
+      internalBind.value = blob
+    }, 'image/webp')
   }
-  // 数据为空
-  if (!props.imageBitMap)
-    return
-  const resizeCanvas = document.createElement('canvas')
-  resizeCanvas.width = clipSize.value[0]
-  resizeCanvas.height = clipSize.value[1]
-  const resizeCtx = resizeCanvas.getContext('2d')
-  if (!resizeCtx) {
-    ElMessage.error('创建 canvas 实例失败')
-    return
+  catch (err) {
+    ElMessage.error({
+      message: `${messageFrom(err)}`,
+      offset: 48,
+    })
   }
-  resizeCtx.drawImage(canvasRef.value, 0, 0, ...clipSize.value)
-  resizeCanvas.toBlob((blob) => {
-    if (!blob) {
-      ElMessage.error('无法获取截图的二进制数据')
-      return
-    }
-    internalBind.value = blob
-  }, 'image/webp')
 }
 
 // 切换图片时重置缩放和中心点

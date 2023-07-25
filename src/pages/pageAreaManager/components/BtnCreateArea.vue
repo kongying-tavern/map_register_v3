@@ -77,7 +77,10 @@ const onConfirm = async () => {
     emits('success')
   }
   catch (err) {
-    ElMessage.error(messageFrom(err))
+    ElMessage.error({
+      message: `新建地区失败，原因为：${messageFrom(err)}`,
+      offset: 48,
+    })
   }
   finally {
     loading.value = false

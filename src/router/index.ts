@@ -35,7 +35,10 @@ router.beforeEach(beforeEachGuard(router))
 router.afterEach(afterEachGuard())
 
 router.onError((err) => {
-  ElMessage.error(messageFrom(err))
+  ElMessage.error({
+    message: `无法导航到目标路由，原因为：${messageFrom(err)}`,
+    offset: 48,
+  })
 })
 
 export { router }

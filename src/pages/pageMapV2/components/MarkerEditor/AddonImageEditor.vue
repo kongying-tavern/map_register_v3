@@ -12,7 +12,7 @@ import { ElIcon, ElMessage, ElUpload } from 'element-plus'
 import { usePictureUpload } from '../../hooks'
 import { AddonImageEditorEP, AddonTeleporter } from '.'
 import { useUserStore } from '@/stores'
-import { Logger } from '@/utils'
+import { Logger, messageFrom } from '@/utils'
 
 const props = defineProps<{
   /** 图片地址 */
@@ -61,26 +61,28 @@ const uploaderRef = ref<InstanceType<typeof ElUpload> | null>(null)
 
 /** 当选择新文件时 */
 const onFileChange = async (uploadFile: UploadFile) => {
-  // 不需要文件列表，清理掉之前的缓存
-  uploaderRef.value?.handleRemove(uploadFile)
-  const { raw } = uploadFile
-  if (!raw) {
-    ElMessage.error('文件可能已被删除或移动到其他位置，请重试')
-    return
+  try {
+    // 不需要文件列表，清理掉之前的缓存
+    uploaderRef.value?.handleRemove(uploadFile)
+    const { raw } = uploadFile
+    if (!raw)
+      throw new Error('文件可能已被删除或移动到其他位置，请重试')
+    if (!/image\//.test(raw.type))
+      throw new Error('只能选择图像文件')
+    const blob = new Blob([await raw.arrayBuffer()])
+    const imageBitmap = await createImageBitmap(blob)
+    const { width, height } = imageBitmap
+    if (width < 256 || height < 256)
+      throw new Error('不符合尺寸的图片，图片的长宽至少需要为 256x256')
+    isDefaultImage.value = false
+    rawImage.value = raw
   }
-  if (!/image\//.test(raw.type)) {
-    ElMessage.error('只能选择图像文件')
-    return
+  catch (err) {
+    ElMessage.error({
+      message: `选择图片失败，原因为：${messageFrom(err)}`,
+      offset: 48,
+    })
   }
-  const blob = new Blob([await raw.arrayBuffer()])
-  const imageBitmap = await createImageBitmap(blob)
-  const { width, height } = imageBitmap
-  if (width < 256 || height < 256) {
-    ElMessage.error('不符合尺寸的图片，图片的长宽至少需要为 256x256')
-    return
-  }
-  isDefaultImage.value = false
-  rawImage.value = raw
 }
 
 const tryLoadImage = (url: string) => fetch(url, { mode: 'cors' })

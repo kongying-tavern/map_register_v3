@@ -37,8 +37,15 @@ export const useMarkerDelete = () => {
     isConfirm && await submit(marker)
   }
 
-  onSuccess(() => ElMessage.success('删除成功'))
-  onError(err => ElMessage.error(`删除失败。${err.message}`))
+  onSuccess(() => ElMessage.success({
+    message: `${userStore.isAdmin ? '删除点位' : '提交审核'}成功`,
+    offset: 48,
+  }))
+
+  onError(err => ElMessage.error({
+    message: `${userStore.isAdmin ? '删除点位' : '提交审核'}失败，原因为：${err.message}`,
+    offset: 48,
+  }))
 
   return { deleteMarker, onSuccess, onError, ...rest }
 }

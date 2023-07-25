@@ -48,7 +48,7 @@ onSuccess(() => {
 })
 
 onError(err => ElMessage.error({
-  message: err.message,
+  message: `更新用户信息失败，原因为：${err.message}`,
   offset: 48,
 }))
 

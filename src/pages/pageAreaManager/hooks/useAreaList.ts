@@ -39,7 +39,10 @@ export const useUserList = (options: UserListHookOptions = {}) => {
       onSuccess?.(data)
     }
     catch (err) {
-      ElMessage.error(messageFrom(err))
+      ElMessage.error({
+        message: `获取地区数据失败，原因为：${messageFrom(err)}`,
+        offset: 48,
+      })
     }
     finally {
       loading.value = false
@@ -72,7 +75,10 @@ export const useUserList = (options: UserListHookOptions = {}) => {
       refresh()
     }
     catch (err) {
-      ElMessage.error(messageFrom(err))
+      ElMessage.error({
+        message: `删除地区失败，原因为：${messageFrom(err)}`,
+        offset: 48,
+      })
     }
     finally {
       deleteLoading.value = false

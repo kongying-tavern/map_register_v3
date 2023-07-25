@@ -48,7 +48,10 @@ const confirm = async () => {
     await createMarker()
   }
   catch (err) {
-    ElMessage.error(messageFrom(err))
+    ElMessage.error({
+      message: `新增点位失败，原因为：${messageFrom(err)}`,
+      offset: 48,
+    })
   }
 }
 

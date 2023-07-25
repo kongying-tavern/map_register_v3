@@ -39,7 +39,10 @@ const confirm = async () => {
     await editMarker()
   }
   catch (err) {
-    ElMessage.error(messageFrom(err))
+    ElMessage.error({
+      message: `编辑点位失败，原因为：${messageFrom(err)}`,
+      offset: 48,
+    })
   }
 }
 

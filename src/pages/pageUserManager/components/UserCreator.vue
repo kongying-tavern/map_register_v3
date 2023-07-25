@@ -60,7 +60,7 @@ onSuccess(() => {
 })
 
 onError(err => ElMessage.error({
-  message: err.message,
+  message: `添加用户失败，原因为：${err.message}`,
   offset: 48,
 }))
 </script>

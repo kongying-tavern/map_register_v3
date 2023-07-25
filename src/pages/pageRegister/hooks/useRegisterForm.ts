@@ -65,7 +65,7 @@ export const useRegisterForm = () => {
   })
 
   onError(err => ElMessage.error({
-    message: err.message,
+    message: `注册失败，原因为：${err.message}`,
     offset: 48,
   }))
 

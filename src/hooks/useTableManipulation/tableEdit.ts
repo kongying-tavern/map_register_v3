@@ -60,7 +60,10 @@ export const useRowEdit = <T>(options: RowEditHookOptions<T>) => {
       ElMessage.success('修改成功')
     }
     catch (err) {
-      ElMessage.error(messageFrom(err))
+      ElMessage.error({
+        message: `行编辑失败，原因为：${messageFrom(err)}`,
+        offset: 48,
+      })
     }
     finally {
       editLoading.value = false
