@@ -45,11 +45,11 @@ export class AppDatabase extends Dexie {
 
     this
       .use(markerFormater)
-      .version(1.8)
+      .version(1.9)
       .stores({
         area: '&id, parentId, name, code, hiddenFlag',
         icon: '&id, name',
-        iconTag: '&id, tag',
+        iconTag: '&tag',
         item: '&id, *typeIdList, areaId, name, specialFlag, hiddenFlag',
         itemType: '&id, name, hiddenFlag',
         marker: '&id, *itemIdList, markerTitle, refreshTime, hiddenFlag',
