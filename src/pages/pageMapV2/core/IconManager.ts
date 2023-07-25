@@ -43,7 +43,7 @@ export class IconManager {
 
     // 生成 iconMapping
     const iconMapping = items.reduce((seed, item) => {
-      const iconIndex = iconTagMap.get(item.iconTag as string)?.index
+      const iconIndex = iconTagMap.get(item.iconTag!)?.index
       if (iconIndex === undefined)
         return seed
       const baseProps = {

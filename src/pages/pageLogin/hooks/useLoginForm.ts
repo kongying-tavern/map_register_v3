@@ -7,6 +7,7 @@ import { useFetchHook } from '@/hooks'
 import Oauth from '@/api/oauth'
 import type { ItemFormRules } from '@/utils'
 import { passwordCheck } from '@/utils'
+import db from '@/database'
 
 /** 登录逻辑封装 */
 export const useLoginForm = () => {
@@ -41,7 +42,11 @@ export const useLoginForm = () => {
   }
 
   const { refresh: submit, onSuccess, onError, ...rest } = useFetchHook({
-    onRequest: () => Oauth.oauth.token(loginForm),
+    onRequest: async () => {
+      const auth = await Oauth.oauth.token(loginForm)
+      await db.reset()
+      return auth
+    },
   })
 
   const login = async () => {

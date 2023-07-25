@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { Delete, Edit } from '@element-plus/icons-vue'
+import { Delete, Edit, RefreshRight } from '@element-plus/icons-vue'
 import { useIconTagDelete, useIconTagList } from './hooks'
 import { IconTagCreator, IconTagEditor, IconTagFilter, IconTagTable } from './components'
 import { PgUnit, useGlobalDialog, usePagination } from '@/hooks'
@@ -59,6 +59,7 @@ onDeleteSuccess(updateTagList)
           <el-button type="primary" @click="openTagCreator">
             添加标签
           </el-button>
+          <el-button :icon="RefreshRight" circle :loading="loading" @click="updateTagList" />
         </div>
       </template>
     </IconTagFilter>

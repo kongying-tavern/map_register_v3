@@ -56,7 +56,7 @@ const { IDENTIFICATION_SYMBOL, triggerRef, userData, trigger, close } = useUserP
     >
       <el-table-column type="selection" align="center" :width="50" />
 
-      <el-table-column label="ID" prop="id" :width="60" />
+      <el-table-column label="Tag" prop="tag" />
 
       <el-table-column label="图标" prop="url" :width="60">
         <template #default="{ row }">
@@ -70,9 +70,7 @@ const { IDENTIFICATION_SYMBOL, triggerRef, userData, trigger, close } = useUserP
         </template>
       </el-table-column>
 
-      <el-table-column label="Tag" prop="tag" />
-
-      <el-table-column label="类型" prop="typeIdList" :width="100" />
+      <el-table-column label="类型" prop="typeIdList" :width="150" />
 
       <el-table-column label="创建人" prop="creatorId" :width="160">
         <template #default="{ row }">

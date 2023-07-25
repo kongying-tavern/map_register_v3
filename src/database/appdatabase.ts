@@ -28,7 +28,7 @@ export class AppDatabase extends Dexie {
   /** 地区表 @全量接口 */
   declare area: Dexie.Table<API.AreaVo, number>
   /** 图标标签表 @全量接口 */
-  declare iconTag: Dexie.Table<API.TagVo, number>
+  declare iconTag: Dexie.Table<API.TagVo, string>
   /** 物品表 @全量接口 */
   declare item: Dexie.Table<API.ItemVo, number>
   /** 物品类型表 @分页接口 */
@@ -48,7 +48,6 @@ export class AppDatabase extends Dexie {
       .version(1.9)
       .stores({
         area: '&id, parentId, name, code, hiddenFlag',
-        icon: '&id, name',
         iconTag: '&tag',
         item: '&id, *typeIdList, areaId, name, specialFlag, hiddenFlag',
         itemType: '&id, name, hiddenFlag',
@@ -56,5 +55,15 @@ export class AppDatabase extends Dexie {
         md5: '&id',
         user: '&id',
       })
+  }
+
+  #requireInitTables = ['area', 'iconTag', 'item', 'itemType', 'marker', 'md5']
+
+  /**
+   * 初始化业务数据状态
+   * @todo 该方法是处理 “全量数据模式下无法同步已删除项” 这一问题的权宜之计
+   */
+  reset = async () => {
+    await Promise.all(this.#requireInitTables.map(tableName => this.table(tableName).clear()))
   }
 }
