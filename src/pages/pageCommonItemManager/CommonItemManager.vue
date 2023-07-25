@@ -1,257 +1,71 @@
 <script lang="tsx" setup>
-import type { Ref } from 'vue'
-import { useCommonItemDelete, useCommonItemList, useItemCreate } from './hooks'
-import { PgUnit, useAreaList, useIconList, usePagination, useTypeList } from '@/hooks'
+import { Delete, RefreshRight } from '@element-plus/icons-vue'
+import { useCommonItemDelete, useCommonItemList } from './hooks'
+import { CommonItemSelector, CommonItemTable } from './components'
+import { PgUnit, useGlobalDialog, usePagination, useState } from '@/hooks'
+
+const { DialogService } = useGlobalDialog()
+const [selections, setSelections] = useState<API.ItemAreaPublicVo[]>([])
 
 const { pagination, layout } = usePagination({
-  units: [PgUnit.PREV, PgUnit.PAGER, PgUnit.NEXT],
-})
-const checkedArea = ref<API.AreaVo>()
-const checkedType = ref<API.ItemTypeVo>()
-
-const { areaMap, areaTree } = useAreaList({
-  immediate: true,
+  units: [PgUnit.TOTAL, PgUnit.SIZE, PgUnit.PREV, PgUnit.PAGER, PgUnit.NEXT],
 })
 
-const { iconMap } = useIconList({ immediate: true })
+// ==================== 物品模板列表 ====================
+const { itemList, loading, userMap, updateCommonItemList } = useCommonItemList({ pagination })
 
-const { typeTree } = useTypeList({ immediate: true })
+// ==================== 删除物品模板 ====================
+const { confirmDelete, onSuccess: onDeleteSuccess } = useCommonItemDelete()
+onDeleteSuccess(updateCommonItemList)
 
-const searchInput = ref('')
-
-const { itemList, loading: itemLoading, onSuccess: onItemListFetched, pause, resume, updateItemList } = useCommonItemList({
-  immediate: true,
-  params: () => ({
-    current: pagination.value.current,
-    size: pagination.value.pageSize,
-  }),
-})
-
-/** 在部分参数切换后重置页数 */
-const resetPagination = () => {
-  pause()
-  pagination.value.current = 1
-  pagination.value.pageSize = 10
-  resume()
-}
-
-const onAreaCheckedChange = (area: API.AreaVo) => {
-  // TODO 过滤非端点选项
-  if (!area.isFinal)
-    return
-  resetPagination()
-  checkedArea.value = area
-}
-
-const onTypeCheckedChange = (typeItem: API.ItemTypeVo) => {
-  // TODO 目前只有宝箱(id = 9)分类存在子分类，先这样处理
-  if (typeItem.id === 9)
-    return
-  resetPagination()
-  checkedType.value = typeItem
-}
-
-onItemListFetched(({ data: { total = 0 } = {} }) => {
-  pagination.value.total = total
-})
-
-const onCreateItemSuccess = () => {
-  updateItemList()
-}
-
-const { openItemCreatorDialog } = useItemCreate({
-  defaultItemData: () => ({
-    areaId: checkedArea.value?.id,
-    typeIdList: checkedType.value ? [checkedType.value.id as number] : [],
-  }),
-})
-
-const containerRef = ref<HTMLElement | null>(null)
-const { height, width } = useElementSize(containerRef)
-
-const selection = ref<API.ItemVo[]>([])
-const removeOneItem = ref<API.ItemVo[]>([])
-
-const getDeleteParams = () => {
-  const transform = (items: Ref<API.ItemVo[]>) => items.value.map(item => item.id ?? -1).filter(id => id !== -1)
-  if (removeOneItem.value.length)
-    return transform(removeOneItem)
-  return transform(selection)
-}
-
-const { refresh: deleteCommonItem, onSuccess: onDeleteCommonItemSuccess, loading: removeLoading } = useCommonItemDelete({
-  params: getDeleteParams,
-})
-
-onDeleteCommonItemSuccess(() => {
-  removeOneItem.value = []
-  updateItemList()
-})
-
-const removeOne = (row: API.ItemVo[]) => {
-  removeOneItem.value = row
-  deleteCommonItem()
-}
-
-const openAddCommonDialog = () => {
-  openItemCreatorDialog({
-    props: {},
-    listeners: {
-      success: onCreateItemSuccess,
-    },
+// ==================== 添加物品模板 ====================
+const openCommonItemSelector = () => DialogService
+  .config({
+    width: 'fit-content',
+    alignCenter: true,
+    showClose: false,
+    closeOnClickModal: false,
+    closeOnPressEscape: false,
   })
-}
+  .listeners({ success: updateCommonItemList })
+  .open(CommonItemSelector)
 </script>
 
 <template>
-  <div class="h-full flex gap-2">
-    <div class="h-full w-40 flex flex-col gap-2 overflow-hidden">
-      <div>地区</div>
-      <el-tree
-        v-loading="true"
-        element-loading-text="未完工"
-        element-loading-spinner="none"
-        :data="areaTree"
-        :props="{ label: 'name' }"
-        class="flex-1 overflow-auto"
-        accordion
-        node-key="id"
-        highlight-current
-        @current-change="onAreaCheckedChange"
-      />
-      <div>类型</div>
-      <el-tree
-        v-loading="true"
-        element-loading-text="未完工"
-        element-loading-spinner="none"
-        :data="typeTree"
-        :props="{ label: 'name', isLeaf: 'isLeaf' }"
-        class="flex-1 overflow-auto"
-        accordion
-        node-key="id"
-        highlight-current
-        @current-change="onTypeCheckedChange"
-      />
-      <!-- <div>地区</div>
-      <el-tree
-        v-loading="areaLoading"
-        :data="areaTree"
-        :props="{ label: 'name' }"
-        class="flex-1 overflow-auto"
-        accordion
-        node-key="id"
-        highlight-current
-        @current-change="onAreaCheckedChange"
-      />
-      <div>类型</div>
-      <el-tree
-        v-loading="typeLoading"
-        :data="typeTree"
-        :props="{ label: 'name', isLeaf: 'isLeaf' }"
-        class="flex-1 overflow-auto"
-        accordion
-        node-key="id"
-        highlight-current
-        @current-change="onTypeCheckedChange"
-      /> -->
+  <div class="h-full flex-1 flex flex-col gap-2 overflow-hidden">
+    <div class="w-full flex items-center justify-end" style="padding-bottom: 18px;">
+      <el-button type="danger" :disabled="!selections.length" @click="() => confirmDelete(selections)">
+        从公共物品删除 {{ selections.length ? ` ${selections.length} 项` : '' }}
+      </el-button>
+      <el-button type="primary" @click="openCommonItemSelector">
+        添加到公共物品
+      </el-button>
+      <el-button :loading="loading" :icon="RefreshRight" circle @click="updateCommonItemList" />
     </div>
 
-    <div class="h-full flex-1 flex flex-col gap-2 overflow-hidden">
-      <div class="flex gap-2">
-        <!-- <div v-show="!checkedArea && !checkedType">
-          选择地区或类型
-        </div>
-        <div v-show="checkedArea">
-          {{ checkedArea?.name }}
-        </div>
-        <div v-show="checkedType">
-          {{ checkedType?.name }}
-        </div> -->
-      </div>
-      <div class="flex items-center justify-end gap-2">
-        <!-- TODO 搜索框 -->
-        <el-input
-          v-model="searchInput"
-          disabled
-          placeholder="搜索……（未完工）"
-          clearable
-          class="flex-grow max-w-xs ml-0 mr-auto"
-        >
-          <template #prefix>
-            <el-icon class="el-input__icon">
-              <search />
-            </el-icon>
-          </template>
-        </el-input>
-        <div class="text-sm">
-          {{ selection.length ? `已选${selection.length}个物品` : '' }}
-        </div>
-        <el-button
-          type="danger"
-          plain
-          :loading="removeLoading"
-          :disabled="!selection.length"
-          @click="deleteCommonItem"
-        >
-          批量移除
-        </el-button>
-        <el-button
-          type="primary"
-          @click="openAddCommonDialog"
-        >
-          批量添加
-        </el-button>
-      </div>
-      <div ref="containerRef" v-loading="itemLoading" class="flex-1 overflow-hidden">
-        <el-table
-          :data="itemList"
-          :width="width"
-          :height="height"
-          :border="true"
-          @selection-change="(val) => selection = val"
-        >
-          <el-table-column align="center" type="selection" width="50" />
-          <el-table-column label="物品ID" prop="id" width="70" />
-          <el-table-column label="图标" width="57">
-            <template #default="{ row }">
-              <img
-                class="w-8 h-8 object-contain rounded-full bg-slate-700"
-                :src="iconMap[row.iconTag ?? '']"
-                crossorigin=""
-                referrerpolicy="no-referrer"
-              >
-            </template>
-          </el-table-column>
-          <el-table-column label="名称" prop="name" width="200" />
-          <el-table-column label="地区" width="200">
-            <template #default="{ row }">
-              <div>{{ areaMap[row.id]?.name ?? row.id }}</div>
-            </template>
-          </el-table-column>
-          <el-table-column fixed="right" label="操作" width="73">
-            <template #default="{ row }">
-              <el-button
-                type="danger"
-                plain
-                size="small"
-                @click="() => removeOne([row])"
-              >
-                移除
-              </el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-      </div>
-      <el-pagination
-        v-model:current-page="pagination.current"
-        v-model:page-size="pagination.pageSize"
-        :total="pagination.total"
-        :layout="layout"
-        :page-sizes="[10, 20, 30, 40]"
-        :pager-count="5"
-        class="flex justify-end items-center"
-        background
-      />
-    </div>
+    <CommonItemTable
+      :item-list="itemList"
+      :loading="loading"
+      :user-map="userMap"
+      @selection-change="setSelections"
+    >
+      <template #action="{ row }">
+        <el-button plain type="danger" :icon="Delete" @click="() => confirmDelete(row)" />
+      </template>
+    </CommonItemTable>
+
+    <el-pagination
+      v-model:current-page="pagination.current"
+      v-model:page-size="pagination.pageSize"
+      :total="pagination.total"
+      :layout="layout"
+      :page-sizes="[10, 20, 30]"
+      :pager-count="5"
+      :disabled="loading"
+      class="flex justify-end items-center"
+      background
+      @current-change="updateCommonItemList"
+      @size-change="updateCommonItemList"
+    />
   </div>
 </template>
