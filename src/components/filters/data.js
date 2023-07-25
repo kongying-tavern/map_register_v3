@@ -309,6 +309,30 @@ export const filterTypes = [
   //   filterAction: (item = {}, options = {}) => {},
   // },
   {
+    name: "image",
+    icon: "mdi-image-multiple-outline",
+    title: "点位图片",
+    label: "点位图片",
+    model: "toggle",
+    modelOpts: {
+      value: true,
+      textInactive: "不存在",
+      textActive: "存在",
+    },
+    modelSemantic: (options = {}, oppositeValue = false) =>
+      `图片${
+        (options.value && !oppositeValue) || (!options.value && oppositeValue)
+          ? "存在"
+          : "不存在"
+      }`,
+    filterAction(item = {}, options = {}) {
+      const switchVal = Boolean(options.value);
+      const picture = (item.picture || "").trim();
+      const pictureExists = Boolean(picture);
+      return switchVal === pictureExists;
+    },
+  },
+  {
     name: "video",
     icon: "mdi-play-box-multiple-outline",
     title: "视频地址",
