@@ -45,10 +45,6 @@ const goto = (newParent?: TypeObject) => {
   parentPath.value.push(newParent)
 }
 
-watch(typeKey, () => {
-  parentPath.value = []
-})
-
 // ==================== 分类列表 ====================
 const { typeList, userMap, loading, updateTypeList } = useTypeList({
   typeKey,
@@ -57,6 +53,10 @@ const { typeList, userMap, loading, updateTypeList } = useTypeList({
     typeIdList: parent.value ? [parent.value.id!] : [-1],
   }),
 })
+
+const onTypeKeyChange = () => {
+  parentPath.value = []
+}
 
 // ==================== 添加分类 ====================
 const openTypeCreator = () => DialogService
@@ -88,7 +88,7 @@ const { confirmDelete } = useTypeDelete(manager)
     <el-form>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8">
         <el-form-item label="管理项目">
-          <el-select-v2 v-model="typeKey" :options="TYPE_MANAGER_OPTIONS" />
+          <el-select-v2 v-model="typeKey" :options="TYPE_MANAGER_OPTIONS" @change="onTypeKeyChange" />
         </el-form-item>
         <el-form-item v-for="i in 2" :key="i" />
         <el-form-item>

@@ -37,7 +37,7 @@ export const useTypeList = <K extends keyof typeof TYPE_MANAGER_KEY_MAP>(options
     },
   })
 
-  watch(() => [typeKey.value, params.value.typeIdList], updateTypeList)
+  watch(() => [params.value.typeIdList], updateTypeList)
 
   onSuccess(({ data: { record = [], total = 0 } = {}, users = {} }) => {
     typeList.value = record
