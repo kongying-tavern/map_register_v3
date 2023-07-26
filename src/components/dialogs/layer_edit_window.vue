@@ -30,7 +30,7 @@
               </q-input>
               <QuickInput
                 :value="layer_info.markerTitle"
-                :snippets="quick_input_snippets"
+                :snippets="map_editor_config?.quickInputSnippets || []"
                 :input="$refs.titleWrapper?.nativeEl"
                 @update="
                   updateCharsInsert(
@@ -133,7 +133,7 @@
               </q-input>
               <QuickInput
                 :value="layer_info.content"
-                :snippets="quick_input_snippets"
+                :snippets="map_editor_config?.quickInputSnippets || []"
                 :input="$refs.contentWrapper?.nativeEl"
                 @update="
                   updateCharsInsert(
@@ -339,6 +339,7 @@ import ExtraField from "../plugins/extra-field.vue";
 import ItemSelector from "./item_selector.vue";
 import QuickInput from "./quick-input.vue";
 import { create_notify } from "../../api/common";
+import { map_editor_config } from "src/api/config";
 
 const icon_no_img = "https://assets.yuanshen.site/icons/-1.png";
 export default {
@@ -356,6 +357,7 @@ export default {
     const layer_info = ref({});
 
     return {
+      map_editor_config,
       layer_info,
       refresh_init,
     };
@@ -383,9 +385,7 @@ export default {
       image_upload_file: null,
       image_upload_base64: "",
       loading: false,
-      loading_img: false,
-
-      quick_input_snippets: ["「", "」", "《", "》", " · ", "…", "×"],
+      loading_img: false
     };
   },
   computed: {
