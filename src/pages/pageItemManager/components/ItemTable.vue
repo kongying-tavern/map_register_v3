@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { AppUserPopover } from '@/components'
+import { AppRowImage, AppUserPopover } from '@/components'
 import { useIconTagStore } from '@/stores'
 import { useAreaList, useTypeList, useUserPopover } from '@/hooks'
 import { HiddenFlagEnum } from '@/shared'
@@ -84,12 +84,7 @@ const proxySelectionChange = (selections: API.ItemVo[]) => {
 
       <el-table-column label="图标" width="60">
         <template #default="{ row }">
-          <img
-            class="w-8 h-8 object-contain rounded border"
-            :src="iconTagStore.iconTagMap[row.iconTag ?? ''].url"
-            crossorigin=""
-            style="background-color: var(--el-color-primary-light-9); border-color: var(--el-color-primary-light-8);"
-          >
+          <AppRowImage :src="iconTagStore.iconTagMap[row.iconTag ?? '']?.url" />
         </template>
       </el-table-column>
 
