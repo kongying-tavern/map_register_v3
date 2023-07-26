@@ -180,7 +180,7 @@ import {
               </template>
             </q-select>
 
-            <!-- 配置区域 -->
+            <!-- 条件前插槽 -->
             <div
               v-if="item.filterOpts?.filterSlots?.prepend"
               style="flex: none"
@@ -188,6 +188,7 @@ import {
               <component :is="item.filterOpts?.filterSlots?.prepend">
               </component>
             </div>
+            <!-- 配置区域 -->
             <div style="flex: auto; padding: 0 4px">
               <!-- 模型参数配置部分渲染 -->
               <q-input
@@ -210,7 +211,35 @@ import {
                 @update:model-value="filterConfigSave"
               >
               </q-toggle>
+              <q-select
+                v-else-if="item.filterOpts?.model === 'select'"
+                v-model="item.modelVals.value"
+                :options="item.filterOpts?.modelOpts?.optionsFunc"
+                :option-value="
+                  item.filterOpts?.modelOpts?.optionValue || 'value'
+                "
+                :multiple="!!item.filterOpts?.modelOpts?.multiple"
+                :behavior="item.filterOpts?.modelOpts?.behavior"
+                :use-chips="!!item.filterOpts?.modelOpts?.useChips"
+                dense
+                options-dense
+                emit-value
+                map-options
+                @update:model-value="filterConfigSave"
+              >
+                <template #no-option>
+                  <q-item>
+                    <q-item-section class="text-center text-grey">
+                      {{
+                        item.filterOpts?.modelOpts?.noOptionText || "无可用选项"
+                      }}
+                    </q-item-section>
+                  </q-item>
+                </template>
+              </q-select>
             </div>
+
+            <!-- 条件后插槽 -->
             <div v-if="item.filterOpts?.filterSlots?.append" style="flex: none">
               <component :is="item.filterOpts?.filterSlots?.append"></component>
             </div>

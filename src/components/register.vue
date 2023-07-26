@@ -1,11 +1,37 @@
 <script setup>
 import {
+  selectorCollapse,
+  selectorStepperCollapseIcon,
+  selectorStepperCollapseText,
   selectorStep,
+  selectorToggle,
   selectorJumpPrev,
   selectorJumpNext,
   selectorJumpTo,
-  selectorCollapse,
-  selectorToggle,
+  selectorIconMap,
+  selectorAreaTopId,
+  selectorArea,
+  selectorAreaList,
+  selectorAreaId,
+  selectorAreaName,
+  selectorAreaListTop,
+  selectorAreaListChild,
+  selectorAreaTestSelect,
+  selectorType,
+  selectorTypeList,
+  selectorTypeChildList,
+  selectorTypeId,
+  selectorTypeName,
+  selectorTypeChildIds,
+  selectorTypeMap,
+  selectorItem,
+  selectorItemFullList,
+  selectorItemId,
+  selectorItemName,
+  selectorItemPatchedList,
+  selectorItemList,
+  selectorItemIds,
+  selectorItemAllAllowable,
 } from "./selector-data";
 import FilterCard from "src/components/filters/filter-card.vue";
 import FilterShare from "src/components/filters/filter-share.vue";
@@ -30,7 +56,7 @@ import { layer_edit_window } from "src/components/dialogs/layer_edit_window";
         :class="{ hidden: selectorCollapse }"
         :name="1"
         title="选择地区"
-        :caption="`当前选择：${selected_area_name}`"
+        :caption="`当前选择：${selectorAreaName}`"
         icon="place"
         active-icon="place"
         :active-color="selectorCollapse ? 'blue-10' : 'primary'"
@@ -41,11 +67,11 @@ import { layer_edit_window } from "src/components/dialogs/layer_edit_window";
       >
         <div style="display: flex" class="absolute-full q-pa-sm">
           <q-list style="flex: 4; overflow-y: auto" dense>
-            <template v-for="(i, idx) in area_list_top" :key="idx">
+            <template v-for="(i, idx) in selectorAreaListTop" :key="idx">
               <q-separator v-if="idx > 0"></q-separator>
               <q-item
                 clickable
-                :active="test_area_select(i)"
+                :active="selectorAreaTestSelect(i)"
                 active-class="bg-primary text-white"
                 @click="switch_area(i)"
               >
@@ -66,15 +92,15 @@ import { layer_edit_window } from "src/components/dialogs/layer_edit_window";
             </template>
           </q-list>
           <q-list
-            v-if="area_list_child.length > 0"
+            v-if="selectorAreaListChild.length > 0"
             style="flex: 5; overflow-y: auto"
             dense
           >
-            <template v-for="(i, idx) in area_list_child" :key="idx">
+            <template v-for="(i, idx) in selectorAreaListChild" :key="idx">
               <q-separator v-if="idx > 0"></q-separator>
               <q-item
                 clickable
-                :active="test_area_select(i)"
+                :active="selectorAreaTestSelect(i)"
                 active-class="bg-primary text-white"
                 @click="switch_area(i)"
               >
@@ -102,7 +128,7 @@ import { layer_edit_window } from "src/components/dialogs/layer_edit_window";
         :class="{ hidden: selectorCollapse }"
         :name="2"
         title="选择分类"
-        :caption="`当前选择：${selected_type_name}`"
+        :caption="`当前选择：${selectorTypeName}`"
         icon="bookmarks"
         active-icon="bookmarks"
         :active-color="selectorCollapse ? 'blue-10' : 'primary'"
@@ -111,7 +137,7 @@ import { layer_edit_window } from "src/components/dialogs/layer_edit_window";
         :done="selectorCollapse || selectorStep === 2"
         :header-nav="!selectorCollapse"
       >
-        <div v-if="selected_area_id <= 0">
+        <div v-if="selectorAreaId <= 0">
           尚未选择地区，请
           <q-chip
             outline
@@ -132,11 +158,11 @@ import { layer_edit_window } from "src/components/dialogs/layer_edit_window";
           :thumb-style="scroll_area_thumb_style"
         >
           <div class="q-gutter-md">
-            <template v-for="(i, idx) in type_list" :key="idx">
+            <template v-for="(i, idx) in selectorTypeList" :key="idx">
               <q-btn
                 v-if="i.isFinal"
-                :color="selected_type_id === i.typeId ? 'primary' : 'white'"
-                :text-color="selected_type_id === i.typeId ? 'white' : 'black'"
+                :color="selectorTypeId === i.typeId ? 'primary' : 'white'"
+                :text-color="selectorTypeId === i.typeId ? 'white' : 'black'"
                 @click="select_type_list(i)"
               >
                 <q-item-section>{{ i.name }}</q-item-section>
@@ -145,12 +171,12 @@ import { layer_edit_window } from "src/components/dialogs/layer_edit_window";
                 v-else
                 :label="i.name"
                 :color="
-                  type_child_ids.indexOf(selected_type_id) !== -1
+                  selectorTypeChildIds.indexOf(selectorTypeId) !== -1
                     ? 'primary'
                     : 'white'
                 "
                 :text-color="
-                  type_child_ids.indexOf(selected_type_id) !== -1
+                  selectorTypeChildIds.indexOf(selectorTypeId) !== -1
                     ? 'white'
                     : 'black'
                 "
@@ -158,12 +184,12 @@ import { layer_edit_window } from "src/components/dialogs/layer_edit_window";
               >
                 <q-list>
                   <q-item
-                    v-for="(j, idxChild) in type_child_list"
+                    v-for="(j, idxChild) in selectorTypeChildList"
                     :key="idxChild"
                     :class="
                       [
-                        j.typeId === selected_type_id ? 'bg-blue' : 'bg-white',
-                        j.typeId === selected_type_id
+                        j.typeId === selectorTypeId ? 'bg-blue' : 'bg-white',
+                        j.typeId === selectorTypeId
                           ? 'text-white'
                           : 'text-black',
                       ].join(' ')
@@ -185,7 +211,7 @@ import { layer_edit_window } from "src/components/dialogs/layer_edit_window";
         :class="{ hidden: selectorCollapse }"
         :name="3"
         title="选择物品"
-        :caption="`当前选择：${selected_item_name}`"
+        :caption="`当前选择：${selectorItemName}`"
         icon="pets"
         active-icon="pets"
         :active-color="selectorCollapse ? 'blue-10' : 'primary'"
@@ -194,7 +220,7 @@ import { layer_edit_window } from "src/components/dialogs/layer_edit_window";
         :done="selectorCollapse || selectorStep === 3"
         :header-nav="!selectorCollapse"
       >
-        <div v-if="selected_area_id <= 0">
+        <div v-if="selectorAreaId <= 0">
           尚未选择地区，请
           <q-chip
             outline
@@ -208,7 +234,7 @@ import { layer_edit_window } from "src/components/dialogs/layer_edit_window";
             前去选择
           </q-chip>
         </div>
-        <div v-else-if="selected_type_id <= 0">
+        <div v-else-if="selectorTypeId <= 0">
           尚未选择分类，请
           <q-chip
             outline
@@ -230,17 +256,17 @@ import { layer_edit_window } from "src/components/dialogs/layer_edit_window";
         >
           <div class="row">
             <div
-              v-if="item_all_allowable"
+              v-if="selectorItemAllAllowable"
               class="col-4 cursor-pointer item-entry"
               @click="
                 () => {
-                  selected_item = null;
+                  selectorItem = null;
                   fetch_item_layers(null);
                 }
               "
             >
               <q-radio
-                v-model="selected_item"
+                v-model="selectorItem"
                 :val="null"
                 label="全部"
                 dense
@@ -251,19 +277,19 @@ import { layer_edit_window } from "src/components/dialogs/layer_edit_window";
               </q-radio>
             </div>
             <div
-              v-for="(i, idx) in item_list"
+              v-for="(i, idx) in selectorItemList"
               :key="idx"
               class="col-4 cursor-pointer item-entry"
-              :class="{ active: selected_item_id === i.itemId }"
+              :class="{ active: selectorItemId === i.itemId }"
               @click="
                 () => {
-                  selected_item = i;
+                  selectorItem = i;
                   fetch_item_layers(i);
                 }
               "
             >
               <q-radio
-                v-model="selected_item"
+                v-model="selectorItem"
                 :val="i"
                 :label="i.name"
                 dense
@@ -313,8 +339,8 @@ import { layer_edit_window } from "src/components/dialogs/layer_edit_window";
               class="flex-none cursor-pointer text text-bold text-right text-grey-8"
               @click="selectorToggle()"
             >
-              <q-icon :name="stepper_collapse_icon" right></q-icon>
-              {{ stepper_collapse_text }}
+              <q-icon :name="selectorStepperCollapseIcon" right></q-icon>
+              {{ selectorStepperCollapseText }}
             </span>
           </div>
         </q-stepper-navigation>
@@ -331,8 +357,8 @@ import { layer_edit_window } from "src/components/dialogs/layer_edit_window";
     <layer-table
       class="full-width flex-auto"
       :propdata="handle_layer_list_data"
-      :propitem="selected_item"
-      :itemlist="item_full_list"
+      :propitem="selectorItem"
+      :itemlist="selectorItemFullList"
       @callback="table_callback"
     >
     </layer-table>
@@ -388,12 +414,12 @@ import { layer_edit_window } from "src/components/dialogs/layer_edit_window";
       :persistent="handle_type == 1 ? true : false"
     >
       <layer-edit
-        :basic-types="type_map"
-        :basic-icon="icon_map"
-        :basic-items="item_patched_list"
-        :sel-area="selected_area"
-        :sel-type="selected_type"
-        :sel-item="selected_item"
+        :basic-types="selectorTypeMap"
+        :basic-icon="selectorIconMap"
+        :basic-items="selectorItemPatchedList"
+        :sel-area="selectorArea"
+        :sel-type="selectorType"
+        :sel-item="selectorItem"
         :propdata="edit_data"
         @cancel="add_mode_off"
         @refresh="refresh"
@@ -454,18 +480,6 @@ export default {
       dragmode: false,
       drag_window: false,
 
-      selected_top_area_id: null,
-      selected_area: null,
-      selected_type: null,
-      selected_item: null,
-
-      area_list: [],
-      type_list: [],
-      type_child_list: [],
-      item_full_list: [],
-
-      icon_map: {},
-
       handle_layer_list_data: [],
       handle_layer: null,
       popup_window_show: false,
@@ -476,99 +490,12 @@ export default {
       mark_layer_set: [],
     };
   },
-  computed: {
-    selected_area_id() {
-      return (this.selected_area || {}).areaId || 0;
-    },
-    selected_area_name() {
-      return (this.selected_area || {}).name || "";
-    },
-    selected_type_id() {
-      return (this.selected_type || {}).typeId || 0;
-    },
-    selected_type_name() {
-      return (this.selected_type || {}).name || "";
-    },
-    selected_item_id() {
-      return (this.selected_item || {}).itemId || 0;
-    },
-    selected_item_name() {
-      if (this.item_all_allowable && _.isNil(this.selected_item)) {
-        return "全部";
-      }
-
-      return (this.selected_item || {}).name || "";
-    },
-    selected_item_icontag() {
-      return (this.selected_item || {}).iconTag || "";
-    },
-    area_map() {
-      return _.groupBy(this.area_list, "parentId");
-    },
-    area_list_top() {
-      return this.area_map[-1] || [];
-    },
-    area_list_child() {
-      return this.area_map[this.selected_top_area_id || 0] || [];
-    },
-    type_child_ids() {
-      return _.map(this.type_child_list || [], (v) => v.typeId);
-    },
-    type_map() {
-      return _.keyBy([...this.type_list, ...this.type_child_list], "typeId");
-    },
-    item_patched_list() {
-      const item_list = _.flatMap(this.item_full_list, (item) => {
-        const area_id = _.toNumber(item.areaId) || 0;
-        const type_id_list = item.typeIdList || [];
-
-        return _.map(type_id_list, (type_id) => {
-          const item_key = `${area_id}-${type_id}`;
-          const row = _.cloneDeep(item);
-
-          row.itemKey = item_key;
-          row.typeId = type_id;
-          return row;
-        });
-      });
-      return item_list;
-    },
-    item_map() {
-      return _.groupBy(this.item_patched_list, "itemKey");
-    },
-    item_list() {
-      const item_key = `${this.selected_area_id}-${this.selected_type_id}`;
-      const item_list = _.get(this.item_map, item_key, []);
-      return item_list;
-    },
-    item_ids() {
-      return _.map(this.item_list || [], (v) => v.itemId);
-    },
-    item_all_allowable() {
-      const pid = (this.selected_type || {}).parentId;
-      return pid && pid !== -1;
-    },
-    item_icontags() {
-      return _.chain(this.item_list || [])
-        .map((v) => v.iconTag)
-        .filter((v) => v)
-        .value();
-    },
-    stepper_collapse_icon() {
-      return selectorCollapse.value
-        ? "keyboard_double_arrow_down"
-        : "keyboard_double_arrow_up";
-    },
-    stepper_collapse_text() {
-      return selectorCollapse.value ? "展开" : "收起";
-    },
-  },
   methods: {
     // 清除子分类和物品选择
     clearlist() {
       this.callback_list = {};
       this.layer_list = null;
-      this.selected_item = null;
+      selectorItem.value = null;
       this.handle_layer_list_data = [];
     },
     // 清理点位
@@ -579,56 +506,49 @@ export default {
     // 切换地区
     switch_area(area) {
       if (area.isFinal) {
-        this.selected_type = null;
+        selectorType.value = null;
         this.clearlist();
         this.clearlayers();
-        this.selected_area = area;
-        this.$emit("map_switch", this.selected_area);
+        selectorArea.value = area;
+        this.$emit("map_switch", selectorArea.value);
         this.fetch_item_list();
         selectorJumpTo(2);
       } else {
-        this.selected_top_area_id = area.areaId || 0;
+        selectorAreaTopId.value = area.areaId || 0;
       }
-    },
-    test_area_select(area) {
-      if (area.isFinal) {
-        return area.areaId === this.selected_area_id;
-      }
-
-      return area.areaId === this.selected_top_area_id;
     },
     // 如果有子分类的话，进行查询，生成子分类tabs
     select_type_list(value) {
       this.clearlist();
       this.clearlayers();
-      this.selected_type = value;
+      selectorType.value = value;
       selectorJumpTo(3);
-      if (this.item_all_allowable) {
+      if (selectorItemAllAllowable.value) {
         this.fetch_item_layers(null);
       }
     },
     fetch_item_list() {
       this.loading = true;
       query_itemlist({
-        areaIdList: [this.selected_area_id],
+        areaIdList: [selectorAreaId.value],
         current: 0,
         size: 9999,
       }).then((res) => {
         this.loading = false;
         const data = res.data.data.record || [];
-        this.item_full_list = data;
+        selectorItemFullList.value = data;
       });
     },
     // 查询点位信息
     fetch_item_layers(value) {
       this.clearlayers();
       this.loading = true;
-      this.selected_item = value;
+      selectorItem.value = value;
 
       const item_ids =
-        this.item_all_allowable && this.selected_item_id <= 0
-          ? this.item_ids
-          : [this.selected_item_id];
+        selectorItemAllAllowable.value && selectorItemId.value <= 0
+          ? selectorItemIds.value
+          : [selectorItemId.value];
 
       const item_getter =
         item_ids.length > 0
@@ -771,10 +691,12 @@ export default {
         type,
         data,
         list: {
-          area: this.selected_area,
-          type: this.selected_type,
-          item: this.selected_item,
-          item_child: this.item_all_allowable ? this.type_child_list : [],
+          area: selectorArea.value,
+          type: selectorType.value,
+          item: selectorItem.value,
+          item_child: selectorItemAllAllowable.value
+            ? selectorTypeChildList.value
+            : [],
         },
         position,
       };
@@ -803,13 +725,13 @@ export default {
     },
     get_icon_url_by_tag(icontag = "") {
       return _.get(
-        this.icon_map,
+        selectorIconMap.value,
         [icontag, "url"],
         "https://assets.yuanshen.site/icons/-1.png"
       );
     },
     get_icon_url_by_id(id = 0) {
-      const item_found = _.find(this.item_list, (v) => v.itemId === id);
+      const item_found = _.find(selectorItemList.value, (v) => v.itemId === id);
       const icon_tag = _.get(item_found, "iconTag", "");
       return this.get_icon_url_by_tag(icon_tag);
     },
@@ -836,7 +758,7 @@ export default {
     refresh() {
       this.add_mode_off();
       layer_edit_window.value = false;
-      this.fetch_item_layers(this.selected_item);
+      this.fetch_item_layers(selectorItem.value);
     },
     // 删除点位
     delete_layer(data) {
@@ -886,13 +808,19 @@ export default {
       .then(
         this.$axios.spread((arealist, typelist, iconlist) => {
           this.loading = false;
-          this.area_list = arealist.data.data || [];
-          this.type_list = typelist.data.data.record;
-          this.icon_map = _.keyBy(iconlist.data.data.record || [], "tag");
+          selectorAreaList.value = arealist.data.data || [];
+          selectorTypeList.value = typelist.data.data.record;
+          selectorIconMap.value = _.keyBy(
+            iconlist.data.data.record || [],
+            "tag"
+          );
         })
       )
       .then(() => {
-        const type_not_final = _.find(this.type_list, (v) => !v.isFinal);
+        const type_not_final = _.find(
+          selectorTypeList.value,
+          (v) => !v.isFinal
+        );
         if (type_not_final) {
           return query_itemtype(1, {
             current: 1,
@@ -900,7 +828,7 @@ export default {
             size: 999,
           }).then((res) => {
             this.loading = false;
-            this.type_child_list = res.data.data.record;
+            selectorTypeChildList.value = res.data.data.record;
           });
         }
       });

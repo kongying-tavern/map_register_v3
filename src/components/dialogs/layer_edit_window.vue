@@ -385,7 +385,7 @@ export default {
       image_upload_file: null,
       image_upload_base64: "",
       loading: false,
-      loading_img: false
+      loading_img: false,
     };
   },
   computed: {

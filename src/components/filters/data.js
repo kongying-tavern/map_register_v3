@@ -1,10 +1,11 @@
 import _ from "lodash";
 import { ref, computed, h } from "vue";
+import { QCard, QIcon, QTooltip } from "quasar";
 import { Base64 } from "js-base64";
 import JSONPack from "jsonpack";
 import { create_notify } from "src/api/common";
-import { selectorCollapse } from "src/components/selector-data";
-import { QCard, QIcon, QTooltip } from "quasar";
+import { selectorArea, selectorCollapse } from "src/components/selector-data";
+import { map_plugin_config } from "src/api/config";
 
 export const filterCardVisible = ref(false);
 
@@ -150,6 +151,52 @@ export const filterTypeSlots = {
       }
     );
   },
+  undergroundLayerAfter: () =>
+    h(
+      QCard,
+      {
+        flat: true,
+        bordered: true,
+        style: "margin-top: .4rem; margin-bottom: .2rem; padding: .3rem;",
+        class: "bg-blue-grey-1",
+      },
+      {
+        default: () =>
+          h(
+            "div",
+            { class: "text-grey-9" },
+            {
+              default: () => [
+                h(
+                  "ol",
+                  { style: "padding: 0; margin: 0; margin-left: 1.4rem;" },
+                  {
+                    default: () => [
+                      h(
+                        "li",
+                        {},
+                        {
+                          default: () => [
+                            "无选中等价于",
+                            h("b", {}, "全选所有可选层级"),
+                            "，当前区域无地下层级则此条件默认为真",
+                          ],
+                        }
+                      ),
+                      h("li", {}, "选项仅包含当前区域的地下层级"),
+                      h(
+                        "li",
+                        {},
+                        "若区域和已选地下层级无法匹配，选项可能出现层级标识，不影响具体筛选功能"
+                      ),
+                    ],
+                  }
+                ),
+              ],
+            }
+          ),
+      }
+    ),
 };
 
 export const filterTypes = [
@@ -164,7 +211,8 @@ export const filterTypes = [
     modelVals: {
       text: "",
     },
-    modelSemantic(values = {}, oppositeValue = false) {
+    // eslint-disable-next-line no-unused-vars
+    modelSemantic(values = {}, options = {}, oppositeValue = false) {
       const ids = (values?.text || "")
         .split(/[ ,、]/giu)
         .map((v) => (v || "").trim())
@@ -178,7 +226,8 @@ export const filterTypes = [
         return `ID${oppositeValue ? "不" : ""}为:${ids[0]}`;
       }
     },
-    filterAction(item = {}, values = {}) {
+    // eslint-disable-next-line no-unused-vars
+    filterAction(item = {}, values = {}, options = {}) {
       const inputText = values.text || "";
       if (!inputText) {
         return true;
@@ -208,9 +257,11 @@ export const filterTypes = [
     modelVals: {
       text: "",
     },
-    modelSemantic: (values = {}, oppositeValue = false) =>
+    // eslint-disable-next-line no-unused-vars
+    modelSemantic: (values = {}, options = {}, oppositeValue = false) =>
       `标题${oppositeValue ? "不" : ""}包含:${values?.text}`,
-    filterAction(item = {}, values = {}) {
+    // eslint-disable-next-line no-unused-vars
+    filterAction(item = {}, values = {}, options = {}) {
       const inputText = values.text || "";
       if (!inputText) {
         return true;
@@ -232,9 +283,11 @@ export const filterTypes = [
     modelVals: {
       text: "",
     },
-    modelSemantic: (values = {}, oppositeValue = false) =>
+    // eslint-disable-next-line no-unused-vars
+    modelSemantic: (values = {}, options = {}, oppositeValue = false) =>
       `内容${oppositeValue ? "不" : ""}包含:${values?.text}`,
-    filterAction(item = {}, values = {}) {
+    // eslint-disable-next-line no-unused-vars
+    filterAction(item = {}, values = {}, options = {}) {
       const inputText = values.text || "";
       if (!inputText) {
         return true;
@@ -256,9 +309,11 @@ export const filterTypes = [
     modelVals: {
       text: "",
     },
-    modelSemantic: (values = {}, oppositeValue = false) =>
+    // eslint-disable-next-line no-unused-vars
+    modelSemantic: (values = {}, options = {}, oppositeValue = false) =>
       `内容${oppositeValue ? "不" : ""}满足正则:${values?.text}`,
-    filterAction(item = {}, values = {}) {
+    // eslint-disable-next-line no-unused-vars
+    filterAction(item = {}, values = {}, options = {}) {
       const inputText = values.text || "";
       if (!inputText) {
         return true;
@@ -294,9 +349,13 @@ export const filterTypes = [
     modelVals: {
       value: true,
     },
-    modelSemantic: (values = {}, oppositeValue = false) =>
-      `点位${oppositeValue ? "不" : ""}属于:${values?.value ? "地下" : "地上"}`,
-    filterAction(item = {}, values = {}) {
+
+    modelSemantic: (values = {}, options = {}, oppositeValue = false) =>
+      `点位${oppositeValue ? "不" : ""}属于:${
+        values?.value ? options.textActive || "" : options.textInactive || ""
+      }`,
+    // eslint-disable-next-line no-unused-vars
+    filterAction(item = {}, values = {}, options = {}) {
       const switchVal = Boolean(values.value);
       const extraText = item.markerExtraContent || "{}";
       let extraJson = {};
@@ -311,18 +370,104 @@ export const filterTypes = [
       return switchVal === isUnderground;
     },
   },
-  // {
-  //   id: 6,
-  //   name: "underground-layer",
-  //   icon: "mdi-layers-search-outline",
-  //   title: "地下层级",
-  //   label: "地下层级位于",
-  //   model: "",
-  //   modelOpts: {},
-  //   modelVals: {},
-  //   modelSemantic: (values = {}, oppositeValue = false) => {},
-  //   filterAction: (item = {}, values = {}) => {},
-  // },
+  {
+    id: 6,
+    name: "underground-layer",
+    icon: "mdi-layers-search-outline",
+    title: "地下层级",
+    label: "地下层级位于",
+    model: "select",
+    modelOpts: {
+      multiple: true,
+      behavior: "dialog",
+      useChips: true,
+      optionValue: "value",
+      noOptionText: "无可选地下层级，请切换至有地下层级的地区",
+      optionsFunc: computed(() => {
+        const pluginConfigMap = map_plugin_config.value || {};
+        const options = [];
+        const selectedAreaCode = selectorArea.value?.code || "";
+
+        if (!selectedAreaCode) {
+          return options;
+        }
+
+        const pluginConfig = pluginConfigMap[selectedAreaCode] || {};
+        const undergroundLevels =
+          pluginConfig.extraConfig?.underground?.levels || [];
+
+        for (const group of undergroundLevels) {
+          const regionName = group.label || "";
+          const children = group.children || [];
+
+          for (const item of children) {
+            const levelName = item.label || "";
+            const levelCode = item.value || "";
+
+            options.push({
+              areaCode: selectedAreaCode,
+              regionName,
+              levelName,
+              label: levelName,
+              value: levelCode,
+            });
+          }
+        }
+
+        return options;
+      }),
+    },
+    modelVals: {
+      value: [],
+    },
+    // eslint-disable-next-line no-unused-vars
+    modelSemantic(values = {}, options = {}, oppositeValue = false) {},
+
+    filterAction(item = {}, values = {}, options = {}) {
+      const selectedValue = values.value || [];
+      let selectedVals = [];
+
+      // 获取已经选择的值
+      if (!_.isArray(selectedValue)) {
+        selectedVals = null;
+      } else if (selectedValue.length <= 0) {
+        selectedVals = null;
+      } else {
+        selectedVals = selectedValue;
+      }
+
+      const optionsFull = options.optionsFunc.value || [];
+      if (_.isNil(selectedVals)) {
+        if (!_.isArray(optionsFull) || optionsFull.length <= 0) {
+          return true;
+        }
+
+        selectedVals = _.map(optionsFull, "value");
+      }
+
+      // 获取额外字段
+      const extraText = item.markerExtraContent || "{}";
+      let extraJson = {};
+      try {
+        extraJson = JSON.parse(extraText);
+        extraJson = _.isPlainObject(extraJson) ? extraJson : {};
+      } catch(e) { // eslint-disable-line
+        // nothing to do
+      }
+
+      const undergroundLevels = extraJson.underground?.region_levels || [];
+      const undergroundLevelsMatchList = _.intersection(
+        undergroundLevels,
+        selectedVals
+      );
+      const undergroundLevelsMatch = undergroundLevelsMatchList.length > 0;
+
+      return undergroundLevelsMatch;
+    },
+    filterSlots: {
+      after: filterTypeSlots.undergroundLayerAfter,
+    },
+  },
   {
     id: 7,
     name: "image",
@@ -337,13 +482,15 @@ export const filterTypes = [
     modelVals: {
       value: true,
     },
-    modelSemantic: (values = {}, oppositeValue = false) =>
+    // eslint-disable-next-line no-unused-vars
+    modelSemantic: (values = {}, options = {}, oppositeValue = false) =>
       `图片${
         (values.value && !oppositeValue) || (!values.value && oppositeValue)
           ? "存在"
           : "不存在"
       }`,
-    filterAction(item = {}, values = {}) {
+    // eslint-disable-next-line no-unused-vars
+    filterAction(item = {}, values = {}, options = {}) {
       const switchVal = Boolean(values.value);
       const picture = (item.picture || "").trim();
       const pictureExists = Boolean(picture);
@@ -364,13 +511,15 @@ export const filterTypes = [
     modelVals: {
       value: true,
     },
-    modelSemantic: (values = {}, oppositeValue = false) =>
+    // eslint-disable-next-line no-unused-vars
+    modelSemantic: (values = {}, options = {}, oppositeValue = false) =>
       `视频${
         (values.value && !oppositeValue) || (!values.value && oppositeValue)
           ? "存在"
           : "不存在"
       }`,
-    filterAction(item = {}, values = {}) {
+    // eslint-disable-next-line no-unused-vars
+    filterAction(item = {}, values = {}, options = {}) {
       const switchVal = Boolean(values.value);
       const videoPath = (item.videoPath || "").trim();
       const videoPathExists = Boolean(videoPath);
@@ -387,8 +536,10 @@ export const filterTypes = [
    *   model: "",
    *   modelOpts: {},
    *   modelVals: {},
-   *   modelSemantic: (values = {}, oppositeValue = false) => {},
-   *   filterAction: (item = {}, values = {}) => {},
+   * // eslint-disable-next-line no-unused-vars
+   *   modelSemantic: (values = {}, options = {}, oppositeValue = false) => {}, // eslint-disable-line no-unused-vars
+   * // eslint-disable-next-line no-unused-vars
+   *   filterAction: (item = {}, values = {}, options = {}) => {}, // eslint-disable-line no-unused-vars
    * }
    */
 ];
@@ -580,13 +731,14 @@ export const applyFilterFunc = (item = {}) => {
 
     for (const filterItem of filterGroup.filters) {
       const itemAction = filterItem.filterOpts?.filterAction;
+      const itemOpts = filterItem.filterOpts?.modelOpts || {};
       const itemVals = filterItem.modelVals || {};
 
       if (!_.isFunction(itemAction)) {
         continue;
       }
 
-      let itemValue = itemAction(item, itemVals);
+      let itemValue = itemAction(item, itemVals, itemOpts);
       const itemOpposite = Boolean(filterItem.oppositeValue);
       const itemOp = filterItem.joinOperator;
       itemValue = itemOpposite ? !itemValue : Boolean(itemValue);
@@ -709,7 +861,7 @@ export const filterConfigLoad = (data) => {
 export const filterConfigShareCode = computed({
   /* eslint-disable no-bitwise */
   get() {
-    const buf = new ArrayBuffer(1024);
+    const buf = new ArrayBuffer(65535);
     const bufView = new Uint8Array(buf);
 
     let offset = 0;
