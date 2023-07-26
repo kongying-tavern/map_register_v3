@@ -78,10 +78,11 @@ import { map, mapDom, createMap, removeMap } from "./map";
 
 <script>
 import {
-  map_tiles_config,
+  map_editor_config,
+  map_tiles_norm_config,
   map_tiles_neigui_config,
   map_plugin_config,
-} from "../api/map";
+} from "../api/config";
 import LayerRegister from "../components/register.vue";
 import MapOverlay from "../components/plugins/map-overlay.vue";
 import Logout from "../components/Logout.vue";
@@ -93,7 +94,6 @@ export default {
   name: "PageIndex",
   data() {
     return {
-      bannerText: "",
       area: {},
       selector_show: true,
       handle_type: "打点",
@@ -106,20 +106,20 @@ export default {
     },
     load_config() {
       return fetch_config().then((config) => {
-        this.bannerText = config?.bannerText || "";
-        map_tiles_config.value = config?.tiles || {};
+        map_editor_config.value = config?.editor || {};
+        map_tiles_norm_config.value = config?.tiles || {};
         map_tiles_neigui_config.value = config?.tilesNeigui || {};
         map_plugin_config.value = config?.plugins || {};
       });
     },
     show_notify() {
-      if (this.bannerText) {
+      if (map_editor_config.value?.bannerText) {
         this.$q.notify({
           type: "info",
           color: "primary",
           position: "top",
           timeout: 0,
-          message: this.bannerText,
+          message: map_editor_config.value?.bannerText,
           actions: [
             {
               label: "我知道了",

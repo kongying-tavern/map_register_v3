@@ -3,13 +3,13 @@ import { defineEmits, defineProps, onMounted, nextTick } from "vue";
 import {
   normalize_data,
   refresh_time_catagory_options,
-  refresh_time_special_options,
   refresh_category,
   refresh_hour,
   refresh_min,
   refresh_special,
   refresh_init,
 } from "./layer_edit_refresh_time";
+import { map_editor_config } from "src/api/config";
 
 const props = defineProps({
   modelValue: {
@@ -92,7 +92,7 @@ onMounted(() => {
           v-else-if="refresh_category === -1"
           class="col-4"
           v-model="refresh_special"
-          :options="refresh_time_special_options"
+          :options="map_editor_config?.refreshTimeSpecial || []"
           emit-value
           map-options
           label="选择时间"

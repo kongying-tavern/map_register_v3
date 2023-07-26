@@ -6,12 +6,6 @@ export const refresh_time_catagory_options = [
   { label: "特殊", value: -1 },
 ];
 
-export const refresh_time_special_options = [
-  { label: "手动刷新", value: -2 },
-  { label: "次日4点", value: -1 },
-  { label: "次日0点", value: -3 },
-];
-
 export const normalize_data = (
   category_val = 0,
   hour_val = 0,

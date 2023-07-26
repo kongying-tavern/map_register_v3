@@ -1,24 +1,14 @@
 // 地图初始化
 import _ from "lodash";
-import { ref } from "vue";
 import * as L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { is_neigui } from "src/service/user_info";
 import { mapDom } from "src/pages/map";
+import { map_tiles_config, map_plugin_config } from "./config";
 
 // 初始化地图中心和地图尺寸
 /**
- * 获取地图瓦片配置
- */
-const map_tiles_config = ref({});
-
-const map_tiles_neigui_config = ref({});
-
-/**
  * 获取地图插件配置
  */
-const map_plugin_config = ref({});
-
 function get_map_plugin_config(area_code = "") {
   return map_plugin_config.value[area_code] || {};
 }
@@ -78,17 +68,15 @@ function create_map_layer(
  * @returns 地图对象
  */
 function create_map(area_config_code = "") {
-  const map_load_config = is_neigui()
-    ? _.defaults({}, map_tiles_neigui_config.value, map_tiles_config.value)
-    : map_tiles_config.value;
   let tiles_config =
-    map_load_config[area_config_code] || map_load_config["提瓦特-base0"];
+    map_tiles_config.value[area_config_code] ||
+    map_tiles_config.value["提瓦特-base0"];
   const tiles_extend_name = tiles_config.extend || "";
   if (tiles_extend_name) {
     tiles_config = _.defaultsDeep(
       {},
       tiles_config,
-      map_load_config[tiles_extend_name] || {}
+      map_tiles_config.value[tiles_extend_name] || {}
     );
   }
 
@@ -164,8 +152,6 @@ function add_map_overlay(imageUrl, imageBounds) {
 
 export {
   map_tiles_config,
-  map_tiles_neigui_config,
-  map_plugin_config,
   get_map_plugin_config,
   create_map_layer,
   create_map,
