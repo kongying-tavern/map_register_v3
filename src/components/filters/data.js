@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { ref, computed, h } from "vue";
-import { encode, decode } from "js-base64";
+import { Base64 } from "js-base64";
 import JSONPack from "jsonpack";
 import { create_notify } from "src/api/common";
 import { selectorCollapse } from "src/components/selector-data";
@@ -154,6 +154,7 @@ export const filterTypeSlots = {
 
 export const filterTypes = [
   {
+    id: 1,
     name: "id-list",
     icon: "mdi-pound",
     title: "ID范围",
@@ -197,6 +198,7 @@ export const filterTypes = [
     },
   },
   {
+    id: 2,
     name: "title-contain",
     icon: "mdi-format-title",
     title: "标题包含",
@@ -220,6 +222,7 @@ export const filterTypes = [
     },
   },
   {
+    id: 3,
     name: "content-contain",
     icon: "mdi-note-outline",
     title: "内容包含",
@@ -243,6 +246,7 @@ export const filterTypes = [
     },
   },
   {
+    id: 4,
     name: "content-regex",
     icon: "mdi-regex",
     title: "内容正则匹配",
@@ -277,6 +281,7 @@ export const filterTypes = [
     },
   },
   {
+    id: 5,
     name: "underground",
     icon: "mdi-layers-outline",
     title: "地下匹配",
@@ -309,6 +314,7 @@ export const filterTypes = [
     },
   },
   // {
+  //   id: 6,
   //   name: "underground-layer",
   //   icon: "mdi-layers-search-outline",
   //   title: "地下层级",
@@ -320,6 +326,7 @@ export const filterTypes = [
   //   filterAction: (item = {}, values = {}) => {},
   // },
   {
+    id: 7,
     name: "image",
     icon: "mdi-image-multiple-outline",
     title: "点位图片",
@@ -346,6 +353,7 @@ export const filterTypes = [
     },
   },
   {
+    id: 8,
     name: "video",
     icon: "mdi-play-box-multiple-outline",
     title: "视频地址",
@@ -387,7 +395,9 @@ export const filterTypes = [
    */
 ];
 
-export const filterTypesMap = _.keyBy(filterTypes, "name");
+export const filterTypesNameMap = _.keyBy(filterTypes, "name");
+
+export const filterTypesIdMap = _.keyBy(filterTypes, "id");
 
 export const filterConfigList = ref([_.cloneDeep(filterGroupDefault)]);
 
@@ -634,7 +644,7 @@ export const filterConfigSaveDoc = computed({
       const filterGroupChildren = filterGroup.f || [];
       for (const filterItem of filterGroupChildren) {
         const filterName = filterItem.n || "";
-        const filterType = filterTypesMap[filterName];
+        const filterType = filterTypesNameMap[filterName];
 
         if (filterType) {
           const filterTypeVals = filterType.modelVals || {};
@@ -699,7 +709,57 @@ export const filterConfigLoad = (data) => {
 };
 
 export const filterConfigShareCode = computed({
-  get: () => encode(JSONPack.pack(filterConfigSaveDoc.value), true) || "",
+  /* eslint-disable no-bitwise */
+  get() {
+    const buf = new ArrayBuffer(1024);
+    const bufView = new Uint8Array(buf);
+
+    let offset = 0;
+    for (const filterGroup of filterConfigSaveDoc.value) {
+      // 添加过滤组标记位掩码
+      const groupMaskOv = filterGroup.ov ? 1 : 0;
+      const groupMaskOp = (filterGroup.op === "|" ? 0 : 1) << 1;
+      const groupMask = groupMaskOv | groupMaskOp;
+      bufView.set([groupMask], offset);
+      offset++;
+
+      // 添加过滤组长度
+      const groupChildren = filterGroup.f || [];
+      const groupChildrenLen = groupChildren.length;
+      bufView.set([groupChildrenLen], offset);
+      offset++;
+
+      //
+      for (const filterItem of groupChildren) {
+        // 添加过滤条件ID
+        const filterName = filterItem.n || "";
+        const filterType = filterTypesNameMap[filterName] || {};
+        const filterTypeId = Number(filterType.id) || 0;
+        bufView.set([filterTypeId], offset);
+        offset++;
+
+        // 添加过滤条件标记位掩码
+        const itemMaskOv = filterItem.ov ? 1 : 0;
+        const itemMaskOp = (filterItem.op === "|" ? 0 : 1) << 1;
+        const itemMask = itemMaskOv | itemMaskOp;
+        bufView.set([itemMask], offset);
+        offset++;
+
+        // 添加过滤条件数据
+        const itemVals = filterItem.v || {};
+        const itemValsPacked = JSONPack.pack(itemVals);
+        const itemValsBuf = new TextEncoder().encode(itemValsPacked);
+        const itemValsBufLen = itemValsBuf.byteLength;
+        bufView.set([itemValsBufLen], offset);
+        bufView.set(itemValsBuf, offset + 1);
+        offset += itemValsBufLen + 1;
+      }
+    }
+
+    const bufViewTrim = bufView.slice(0, offset);
+    const bufViewHash = Base64.fromUint8Array(bufViewTrim, true);
+    return bufViewHash;
+  },
   set(value = "") {
     if (!value) {
       create_notify("分享码不能为空", "warning");
@@ -707,11 +767,68 @@ export const filterConfigShareCode = computed({
     }
 
     try {
-      const dataObj = JSONPack.unpack(decode(value));
-      const dataStr = JSON.stringify(dataObj);
-      filterConfigLoad(dataStr);
+      const docJson = [];
+      const docBufView = Base64.toUint8Array(value);
+      const docBufLen = docBufView.byteLength;
+      let offset = 0;
+
+      while (offset < docBufLen) {
+        // 提取过滤组标记位掩码
+        const groupMask = docBufView[offset] ?? 2;
+        const groupMaskOv = Boolean(groupMask & 1);
+        const groupMaskOp = groupMask & (1 << 1) ? "&" : "|";
+        offset++;
+
+        // 提取过滤组长度
+        const groupChildrenLen = docBufView[offset] || 0;
+        offset++;
+
+        const groupChildren = [];
+        for (let count = 1; count <= groupChildrenLen; count++) {
+          // 提取过滤条件ID
+          const itemTypeId = docBufView[offset] || 0;
+          const itemType = filterTypesIdMap[itemTypeId] || {};
+          const itemTypeName = itemType.name || "";
+          offset++;
+
+          // 提取过滤条件标记位掩码
+          const itemMask = docBufView[offset] ?? 2;
+          const itemMaskOv = Boolean(itemMask & 1);
+          const itemMaskOp = itemMask & (1 << 1) ? "&" : "|";
+          offset++;
+
+          // 提取过滤条件数据
+          const itemValsBufLen = docBufView[offset] || 0;
+          const itemValsBuf = docBufView.slice(
+            offset + 1,
+            offset + itemValsBufLen + 1
+          );
+          const itemValsPacked = new TextDecoder().decode(itemValsBuf);
+          const itemVals = JSONPack.unpack(itemValsPacked);
+          offset += itemValsBufLen + 1;
+
+          groupChildren.push({
+            n: itemTypeName,
+            ov: itemMaskOv,
+            op: itemMaskOp,
+            v: itemVals,
+          });
+        }
+
+        docJson.push({
+          ov: groupMaskOv,
+          op: groupMaskOp,
+          f: groupChildren,
+        });
+      }
+
+      const docStr = JSON.stringify(docJson);
+
+      filterConfigLoad(docStr);
+      filterConfigSave();
     } catch(e) { // eslint-disable-line
       create_notify("无效的分享码", "negative");
     }
   },
+  /* eslint-enable */
 });
