@@ -420,10 +420,9 @@ export const filterTypes = [
     modelVals: {
       value: [],
     },
-
     modelSemantic(values = {}, options = {}, oppositeValue = false) {
       const selectedValue = values.value || [];
-      const optionsFull = options.optionsFunc.value || [];
+      const optionsFull = options.optionsFunc || [];
       const optionsMap = _.keyBy(optionsFull, "value");
 
       let selectedAll = false;
@@ -459,7 +458,6 @@ export const filterTypes = [
             ","
           )}或其他地区的${levelNameMissing}个地下层级`;
     },
-
     filterAction(item = {}, values = {}, options = {}) {
       const selectedValue = values.value || [];
       let selectedVals = [];
