@@ -554,7 +554,7 @@ export const filterItemChangeType = (
 
   if (
     options.name ===
-    filterConfigList.value[groupIndex].filters[itemIndex].filterOpts.name
+    filterConfigList.value[groupIndex].filters[itemIndex].filterOpts?.name
   ) {
     return;
   }

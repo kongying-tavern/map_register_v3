@@ -146,22 +146,23 @@ import {
             >
               <template #selected>
                 <q-icon
-                  v-if="!item.filterOpts.name"
+                  v-if="!item.filterOpts?.name"
                   name="mdi-help"
                   size="sm"
                   color="grey-8"
                 >
                 </q-icon>
-                <q-icon v-else :name="item.filterOpts.icon" size="sm"> </q-icon>
+                <q-icon v-else :name="item.filterOpts?.icon" size="sm">
+                </q-icon>
                 <span
-                  v-if="!item.filterOpts.name"
+                  v-if="!item.filterOpts?.name"
                   style="padding-left: 5px"
                   class="grey-8"
                 >
                   请选择
                 </span>
                 <span v-else style="padding-left: 5px">
-                  {{ item.filterOpts.label }}
+                  {{ item.filterOpts?.label }}
                 </span>
               </template>
               <template #option="scope">
