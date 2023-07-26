@@ -295,9 +295,7 @@ export const filterTypes = [
       value: true,
     },
     modelSemantic: (values = {}, oppositeValue = false) =>
-      `点位${oppositeValue ? "不" : ""}属于:${
-        values?.value ? values?.textActive || "" : values?.textInactive || ""
-      }`,
+      `点位${oppositeValue ? "不" : ""}属于:${values?.value ? "地下" : "地上"}`,
     filterAction(item = {}, values = {}) {
       const switchVal = Boolean(values.value);
       const extraText = item.markerExtraContent || "{}";
