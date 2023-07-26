@@ -420,8 +420,45 @@ export const filterTypes = [
     modelVals: {
       value: [],
     },
-    // eslint-disable-next-line no-unused-vars
-    modelSemantic(values = {}, options = {}, oppositeValue = false) {},
+
+    modelSemantic(values = {}, options = {}, oppositeValue = false) {
+      const selectedValue = values.value || [];
+      const optionsFull = options.optionsFunc.value || [];
+      const optionsMap = _.keyBy(optionsFull, "value");
+
+      let selectedAll = false;
+      if (!_.isArray(selectedValue)) {
+        selectedAll = true;
+      } else if (selectedValue.length <= 0) {
+        selectedAll = true;
+      }
+
+      if (selectedAll) {
+        return oppositeValue
+          ? "点位不属于当前区域任何地下层级"
+          : "点位属于当前区域所有地下层级";
+      }
+
+      const levelNameExists = [];
+      let levelNameMissing = 0;
+      for (const selectedVal of selectedValue) {
+        const optionObj = optionsMap[selectedVal] || {};
+        const optionLabel = optionObj.label || "";
+        if (optionLabel) {
+          levelNameExists.push(optionLabel);
+        } else {
+          levelNameMissing++;
+        }
+      }
+
+      return oppositeValue
+        ? `点位不属于${levelNameExists.join(
+            ","
+          )}及其他地区的${levelNameMissing}个地下层级`
+        : `点位属于${levelNameExists.join(
+            ","
+          )}或其他地区的${levelNameMissing}个地下层级`;
+    },
 
     filterAction(item = {}, values = {}, options = {}) {
       const selectedValue = values.value || [];
