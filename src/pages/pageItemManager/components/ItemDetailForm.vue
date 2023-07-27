@@ -1,8 +1,7 @@
 <script lang="ts" setup>
-import { useRefreshTimeOptions } from '../hooks'
 import type { ItemFormRules } from '@/utils'
 import { lengthCheck, requireCheck } from '@/utils'
-import { useAreaList, useIconList, useTypeList } from '@/hooks'
+import { useAreaList, useIconList, useRefreshTime, useTypeList } from '@/hooks'
 import type { ElFormType } from '@/shared'
 import { HiddenFlagEnum, IconStyleTyleEnum } from '@/shared'
 import { AppTimeSelect } from '@/components'
@@ -74,7 +73,11 @@ const iconStyleOptions = [
 ]
 
 // ==================== 刷新时间 ====================
-const { refreshTimeOptions, refreshType, customEditorDisabled } = useRefreshTimeOptions(formData)
+const refreshTime = computed({
+  get: () => formData.value.defaultRefreshTime,
+  set: v => (formData.value.defaultRefreshTime = v),
+})
+const { refreshTimeType, refreshTimeTypeOptions, isCustom } = useRefreshTime(refreshTime)
 
 // ==================== 其他定义 ====================
 defineExpose({
@@ -149,11 +152,11 @@ defineExpose({
       </el-form-item>
 
       <el-form-item label="刷新时间" prop="defaultRefreshTime">
-        <el-select-v2 v-model="refreshType" :options="refreshTimeOptions" style="flex: 1" />
+        <el-select-v2 v-model="refreshTimeType" :options="refreshTimeTypeOptions" style="flex: 1" />
       </el-form-item>
 
       <el-form-item label-width="0px">
-        <AppTimeSelect v-model="formData.defaultRefreshTime" :disabled="customEditorDisabled" style="flex: 1" />
+        <AppTimeSelect v-model="refreshTime" :disabled="!isCustom" style="flex: 1" />
       </el-form-item>
     </div>
   </el-form>
