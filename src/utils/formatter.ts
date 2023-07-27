@@ -14,6 +14,8 @@ export const refreshTimeFormatter = (_: unknown, __: unknown, time = 0) => {
       [-1]: '次日4点',
       [-2]: '手动刷新',
       [-3]: '次日0点',
+      [-4]: '+2日0点',
+      [-5]: '+3日0点',
     } as Record<number, string>)[time]
   }
   const labels: string[] = []
