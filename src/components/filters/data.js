@@ -637,6 +637,7 @@ export const filterGroupDel = (groupIndex = -1) => {
 
   if (filterGroupCount.value <= 1) {
     filterConfigInit();
+    filterConfigSave();
     filterCardToggle(false);
     return;
   }
