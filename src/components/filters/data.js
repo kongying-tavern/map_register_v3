@@ -450,13 +450,23 @@ export const filterTypes = [
         }
       }
 
-      return oppositeValue
-        ? `点位不属于${levelNameExists.join(
-            ","
-          )}及其他地区的${levelNameMissing}个地下层级`
-        : `点位属于${levelNameExists.join(
-            ","
-          )}或其他地区的${levelNameMissing}个地下层级`;
+      let levelNameExistsText = "";
+      let levelNameMissingText = "";
+      if (oppositeValue) {
+        levelNameExistsText = `点位不属于${levelNameExists.join(",")}`;
+        levelNameMissingText =
+          levelNameMissing > 0
+            ? `及其他地区的${levelNameMissing}个地下层级`
+            : "";
+      } else {
+        levelNameExistsText = `点位属于${levelNameExists.join(",")}`;
+        levelNameMissingText =
+          levelNameMissing > 0
+            ? `或其他地区的${levelNameMissing}个地下层级`
+            : "";
+      }
+
+      return `${levelNameExistsText}${levelNameMissingText}`;
     },
     filterAction(item = {}, values = {}, options = {}) {
       const selectedValue = values.value || [];
