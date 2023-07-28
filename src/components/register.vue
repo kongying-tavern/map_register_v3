@@ -870,7 +870,7 @@ export default {
         }
       });
     // 快捷键
-    document.onkeyup = (event) => {
+    mapDom.value.onkeyup = (event) => {
       switch (event.keyCode) {
         // D键，直接拖拽
         case 68:
