@@ -394,7 +394,7 @@
 
 <script>
 import _ from "lodash";
-import { map } from "src/pages/map";
+import { map, mapDom } from "src/pages/map";
 import {
   selectorCollapse,
   selectorStepperCollapseIcon,
@@ -874,7 +874,7 @@ export default {
       switch (event.keyCode) {
         // D键，直接拖拽
         case 68:
-          if (this.handle_layergroup.getLayers().length === 0) {
+          if (selectorItemId.value <= 0) {
             alert("未选择物品，请先选择物品");
           } else if (this.dragmode === false) {
             this.handle_layergroup.eachLayer((layer) => {
@@ -885,7 +885,7 @@ export default {
           break;
         // `键，新增模式
         case 192:
-          if (this.handle_layergroup.getLayers().length === 0) {
+          if (selectorItemId.value <= 0) {
             alert("未选择物品，请先选择物品");
           } else if (this.add_mode === false) {
             this.add_mode_on();
