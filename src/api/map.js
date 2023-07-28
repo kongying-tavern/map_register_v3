@@ -2,7 +2,7 @@
 import _ from "lodash";
 import * as L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { mapDom } from "src/pages/map";
+import { mapDom, mapTiles } from "src/pages/map";
 import { map_tiles_config, map_plugin_config } from "./config";
 
 // 初始化地图中心和地图尺寸
@@ -135,14 +135,14 @@ function create_map(area_config_code = "") {
     ...settings,
   };
 
-  const tiles = create_map_layer(
+  mapTiles.value = create_map_layer(
     area_code,
     mapCenter,
     mapSize,
     mapTilesOffset,
     extension
   );
-  const map = L.map(mapDom.value, map_setting).addLayer(tiles);
+  const map = L.map(mapDom.value, map_setting).addLayer(mapTiles.value);
   return map;
 }
 
