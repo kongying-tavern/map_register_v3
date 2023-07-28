@@ -766,14 +766,14 @@ export const filterItemChangeType = (
 };
 
 export const applyFilterFunc = (item = {}) => {
-  let checkValue = true;
+  let checkValue = null;
 
   for (const filterGroup of filterConfigList.value) {
     if (!_.isArray(filterGroup.filters) || filterGroup.filters.length <= 0) {
       continue;
     }
 
-    let groupValue = true;
+    let groupValue = null;
 
     for (const filterItem of filterGroup.filters) {
       const itemAction = filterItem.filterOpts?.filterAction;
@@ -788,18 +788,24 @@ export const applyFilterFunc = (item = {}) => {
       const itemOpposite = Boolean(filterItem.oppositeValue);
       const itemOp = filterItem.joinOperator;
       itemValue = itemOpposite ? !itemValue : Boolean(itemValue);
-      groupValue =
-        itemOp === "|" ? groupValue || itemValue : groupValue && itemValue;
+      groupValue = _.isNil(groupValue)
+        ? itemValue
+        : itemOp === "|"
+        ? groupValue || itemValue
+        : groupValue && itemValue;
     }
 
     const groupOpposite = Boolean(filterGroup.oppositeValue);
     const groupOp = filterGroup.joinOperator;
     groupValue = groupOpposite ? !groupValue : Boolean(groupValue);
-    checkValue =
-      groupOp === "|" ? checkValue || groupValue : checkValue && groupValue;
+    checkValue = _.isNil(checkValue)
+      ? groupValue
+      : groupOp === "|"
+      ? checkValue || groupValue
+      : checkValue && groupValue;
   }
 
-  return checkValue;
+  return checkValue ?? true;
 };
 
 export const applyFilter = (list = []) => _.filter(list, applyFilterFunc);
