@@ -72,11 +72,8 @@
   <logout></logout>
 </template>
 
-<script setup>
-import { map, mapDom, createMap, removeMap } from "./map";
-</script>
-
 <script>
+import { mapDom, createMap, removeMap } from "./map";
 import {
   map_editor_config,
   map_tiles_norm_config,
@@ -92,6 +89,9 @@ import { is_expired, set_user_data } from "../service/user_info";
 
 export default {
   name: "PageIndex",
+  setup() {
+    return { mapDom };
+  },
   data() {
     return {
       area: {},

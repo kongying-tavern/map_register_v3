@@ -1,44 +1,3 @@
-<script setup>
-import {
-  selectorCollapse,
-  selectorStepperCollapseIcon,
-  selectorStepperCollapseText,
-  selectorStep,
-  selectorToggle,
-  selectorJumpPrev,
-  selectorJumpNext,
-  selectorJumpTo,
-  selectorIconMap,
-  selectorAreaTopId,
-  selectorArea,
-  selectorAreaList,
-  selectorAreaId,
-  selectorAreaName,
-  selectorAreaListTop,
-  selectorAreaListChild,
-  selectorAreaTestSelect,
-  selectorType,
-  selectorTypeList,
-  selectorTypeChildList,
-  selectorTypeId,
-  selectorTypeName,
-  selectorTypeChildIds,
-  selectorTypeMap,
-  selectorItem,
-  selectorItemFullList,
-  selectorItemId,
-  selectorItemName,
-  selectorItemPatchedList,
-  selectorItemList,
-  selectorItemIds,
-  selectorItemAllAllowable,
-} from "./selector-data";
-import FilterCard from "src/components/filters/filter-card.vue";
-import FilterShare from "src/components/filters/filter-share.vue";
-
-import { layer_edit_window } from "src/components/dialogs/layer_edit_window";
-</script>
-
 <template>
   <div class="absolute-full marker-action-container">
     <!-- 地区和分类选择 -->
@@ -437,6 +396,43 @@ import { layer_edit_window } from "src/components/dialogs/layer_edit_window";
 import _ from "lodash";
 import { map } from "src/pages/map";
 import {
+  selectorCollapse,
+  selectorStepperCollapseIcon,
+  selectorStepperCollapseText,
+  selectorStep,
+  selectorToggle,
+  selectorJumpPrev,
+  selectorJumpNext,
+  selectorJumpTo,
+  selectorIconMap,
+  selectorAreaTopId,
+  selectorArea,
+  selectorAreaList,
+  selectorAreaId,
+  selectorAreaName,
+  selectorAreaListTop,
+  selectorAreaListChild,
+  selectorAreaTestSelect,
+  selectorType,
+  selectorTypeList,
+  selectorTypeChildList,
+  selectorTypeId,
+  selectorTypeName,
+  selectorTypeChildIds,
+  selectorTypeMap,
+  selectorItem,
+  selectorItemFullList,
+  selectorItemId,
+  selectorItemName,
+  selectorItemPatchedList,
+  selectorItemList,
+  selectorItemIds,
+  selectorItemAllAllowable,
+} from "./selector-data";
+import FilterCard from "src/components/filters/filter-card.vue";
+import FilterShare from "src/components/filters/filter-share.vue";
+import { layer_edit_window } from "src/components/dialogs/layer_edit_window";
+import {
   query_area,
   query_itemtype,
   query_itemlist,
@@ -459,6 +455,46 @@ import { create_notify } from "../api/common";
 
 export default {
   name: "DialogSelector",
+  setup() {
+    return {
+      map,
+
+      layer_edit_window,
+
+      selectorCollapse,
+      selectorStepperCollapseIcon,
+      selectorStepperCollapseText,
+      selectorStep,
+      selectorToggle,
+      selectorJumpPrev,
+      selectorJumpNext,
+      selectorJumpTo,
+      selectorIconMap,
+      selectorAreaTopId,
+      selectorArea,
+      selectorAreaList,
+      selectorAreaId,
+      selectorAreaName,
+      selectorAreaListTop,
+      selectorAreaListChild,
+      selectorAreaTestSelect,
+      selectorType,
+      selectorTypeList,
+      selectorTypeChildList,
+      selectorTypeId,
+      selectorTypeName,
+      selectorTypeChildIds,
+      selectorTypeMap,
+      selectorItem,
+      selectorItemFullList,
+      selectorItemId,
+      selectorItemName,
+      selectorItemPatchedList,
+      selectorItemList,
+      selectorItemIds,
+      selectorItemAllAllowable,
+    };
+  },
   data() {
     return {
       scroll_area_bar_style: {
@@ -658,6 +694,7 @@ export default {
     },
     // 刷新当前点位组
     refresh_layers() {
+      console.log("refresh_layers", this.handle_layer_list_data);
       this.clearlayers();
       this.paint_layers(this.handle_layer_list_data);
     },
@@ -862,6 +899,8 @@ export default {
     LayerTable,
     PopupWindow,
     LayerEdit,
+    FilterCard,
+    FilterShare,
   },
 };
 </script>
