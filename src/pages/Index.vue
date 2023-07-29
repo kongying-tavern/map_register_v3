@@ -78,6 +78,8 @@ import {
   map_editor_config,
   map_tiles_norm_config,
   map_tiles_neigui_config,
+  map_plugin_norm_config,
+  map_plugin_neigui_config,
   map_plugin_config,
 } from "../api/config";
 import LayerRegister from "../components/register.vue";
@@ -109,7 +111,9 @@ export default {
         map_editor_config.value = config?.editor || {};
         map_tiles_norm_config.value = config?.tiles || {};
         map_tiles_neigui_config.value = config?.tilesNeigui || {};
-        map_plugin_config.value = config?.plugins || {};
+        map_plugin_norm_config.value = config?.plugins || {};
+        map_plugin_neigui_config.value = config?.pluginsNeigui || {};
+        console.log(map_plugin_config.value);
       });
     },
     show_notify() {

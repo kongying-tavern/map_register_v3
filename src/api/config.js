@@ -16,4 +16,16 @@ export const map_tiles_config = computed(() =>
 );
 
 /** 地图插件配置 */
-export const map_plugin_config = ref({});
+export const map_plugin_norm_config = ref({});
+
+export const map_plugin_neigui_config = ref({});
+
+export const map_plugin_config = computed(() =>
+  is_neigui()
+    ? _.defaultsDeep(
+        {},
+        map_plugin_neigui_config.value,
+        map_plugin_norm_config.value
+      )
+    : map_plugin_norm_config.value
+);
