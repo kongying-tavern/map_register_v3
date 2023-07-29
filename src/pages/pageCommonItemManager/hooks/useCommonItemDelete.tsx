@@ -1,11 +1,11 @@
-import { ElMessageBox } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { useFetchHook } from '@/hooks'
 import Api from '@/api/api'
 
 export type MaybeArray<T> = T | T[]
 
 export const useCommonItemDelete = () => {
-  const { refresh: deleteCommonItem, loading, ...rest } = useFetchHook({
+  const { refresh: deleteCommonItem, loading, onSuccess, onError, ...rest } = useFetchHook({
     onRequest: async (maybeItems: MaybeArray<API.ItemAreaPublicVo>) => {
       const mission = Array.isArray(maybeItems)
         ? Promise.allSettled(maybeItems.map(item => Api.itemCommon.deleteCommonItem({ itemId: item.id! })))
@@ -38,5 +38,15 @@ export const useCommonItemDelete = () => {
     },
   ).catch(() => false)
 
-  return { confirmDelete, loading, ...rest }
+  onSuccess(() => ElMessage.success({
+    message: '删除公共物品成功',
+    offset: 48,
+  }))
+
+  onError(err => ElMessage.error({
+    message: `删除公共物品失败，原因为：${err.message}`,
+    offset: 48,
+  }))
+
+  return { confirmDelete, onSuccess, onError, loading, ...rest }
 }
