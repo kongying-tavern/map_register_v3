@@ -83,9 +83,7 @@ defineExpose({
 
     <el-form-item v-if="(manager instanceof ItemTypeManager)" label="图标" prop="iconTag">
       <div class="grid gap-2" style="grid-template-columns: 32px 1fr;">
-        <div>
-          <AppRowImage :src="iconTagStore.iconTagMap[form.iconTag ?? '']?.url" />
-        </div>
+        <AppRowImage :src="iconTagStore.iconTagMap[form.iconTag ?? '']?.url" />
         <el-select-v2
           v-model="form.iconTag"
           filterable

@@ -1,97 +1,37 @@
-import type { Ref } from 'vue'
-import { ref } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { messageFrom } from '@/utils'
+import { ElMessage } from 'element-plus'
 import Api from '@/api/api'
+import { useFetchHook } from '@/hooks'
 
 interface UserListHookOptions {
-  /** 是否在组件挂载后立即发起请求 */
-  immediate?: boolean
-  /** 请求成功后的回调 */
-  onSuccess?: (res: API.AreaVo[]) => void
-  /** 分页数据 */
-  pagination?: Ref<{
-    total: number
-    current: number
-    pageSize: number
-  }>
+  getParams: () => API.AreaSearchVo
 }
 
-/** 列表数据与核心操作封装 */
-export const useUserList = (options: UserListHookOptions = {}) => {
-  const { immediate = true, pagination = ref(), onSuccess } = options
+export const useAreaList = (options: UserListHookOptions) => {
+  const { getParams } = options
 
-  const areaList = ref<API.AreaVo[]>([])
-  const parents = ref<API.AreaVo[]>([])
-  const loading = ref(false)
-  const params = ref<API.AreaSearchVo>({ parentId: -1 })
+  const areaList = shallowRef<API.AreaVo[]>([])
+  const userMap = shallowRef<Record<string, API.SysUserSmallVo>>({})
+  const params = computed(() => getParams())
 
-  const refresh = async () => {
-    loading.value = true
-    try {
-      const { data = [] } = await Api.area.listArea({}, { ...params.value, isTraverse: true } as API.AreaSearchVo)
-      if (pagination.value) {
-        pagination.value.total = data.length
-        areaList.value = data.slice((pagination.value.current - 1) * pagination.value.pageSize, pagination.value.current * pagination.value.pageSize)
-      }
-      const { data: parentData = [] } = await Api.area.listArea({}, { parentId: -1, isTraverse: false })
-      parents.value = parentData ?? []
-      onSuccess?.(data)
-    }
-    catch (err) {
-      ElMessage.error({
-        message: `获取地区数据失败，原因为：${messageFrom(err)}`,
-        offset: 48,
-      })
-    }
-    finally {
-      loading.value = false
-    }
-  }
-
-  onMounted(() => {
-    immediate && refresh()
+  const { refresh: updateAreaList, onSuccess, onError, ...rest } = useFetchHook({
+    immediate: true,
+    onRequest: () => Api.area.listArea({}, {
+      isTraverse: false,
+      parentId: params.value.parentId ?? -1,
+    }),
   })
 
-  watch(params, () => {
-    refresh()
-  }, { deep: true })
+  watch(() => params.value.parentId, updateAreaList)
 
-  watch(pagination, () => {
-    refresh()
-  }, { deep: true })
+  onSuccess(({ data = [], users = {} }) => {
+    areaList.value = data
+    userMap.value = users
+  })
 
-  const deleteLoading = ref(false)
+  onError(err => ElMessage.error({
+    message: `获取地区列表失败，原因为：${err.message}`,
+    offset: 48,
+  }))
 
-  const deleteRow = async (index: number) => {
-    try {
-      const { id, name } = areaList.value[index] ?? {}
-      const confirm = await ElMessageBox.confirm(`确认删除地区: ${name} (id: ${id})`).catch(() => false)
-      if (!confirm || id === undefined)
-        return
-      deleteLoading.value = true
-      const res = await Api.area.deleteArea({ areaId: id })
-      ElMessage.success(res.message ?? '删除成功')
-      refresh()
-    }
-    catch (err) {
-      ElMessage.error({
-        message: `删除地区失败，原因为：${messageFrom(err)}`,
-        offset: 48,
-      })
-    }
-    finally {
-      deleteLoading.value = false
-    }
-  }
-
-  return {
-    areaList,
-    loading,
-    params,
-    parents,
-    deleteLoading,
-    refresh,
-    deleteRow,
-  }
+  return { areaList, userMap, updateAreaList, onSuccess, ...rest }
 }
