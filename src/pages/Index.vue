@@ -80,7 +80,6 @@ import {
   map_tiles_neigui_config,
   map_plugin_norm_config,
   map_plugin_neigui_config,
-  map_plugin_config,
 } from "../api/config";
 import LayerRegister from "../components/register.vue";
 import MapOverlay from "../components/plugins/map-overlay.vue";
@@ -113,7 +112,6 @@ export default {
         map_tiles_neigui_config.value = config?.tilesNeigui || {};
         map_plugin_norm_config.value = config?.plugins || {};
         map_plugin_neigui_config.value = config?.pluginsNeigui || {};
-        console.log(map_plugin_config.value);
       });
     },
     show_notify() {

@@ -315,10 +315,10 @@
     <!-- 点位信息表 -->
     <layer-table
       class="full-width flex-auto"
-      :propdata="handle_layer_list_data"
       :propitem="selectorItem"
       :itemlist="selectorItemFullList"
       @callback="table_callback"
+      @display-mode-change="refresh_layers"
     >
     </layer-table>
 
@@ -429,6 +429,7 @@ import {
   selectorItemIds,
   selectorItemAllAllowable,
 } from "./selector-data";
+import { tableList, mapDisplayList } from "./register/layer_table";
 import FilterCard from "src/components/filters/filter-card.vue";
 import FilterShare from "src/components/filters/filter-share.vue";
 import { layer_edit_window } from "src/components/dialogs/layer_edit_window";
@@ -516,7 +517,6 @@ export default {
       dragmode: false,
       drag_window: false,
 
-      handle_layer_list_data: [],
       handle_layer: null,
       popup_window_show: false,
       edit_data: {},
@@ -532,7 +532,7 @@ export default {
       this.callback_list = {};
       this.layer_list = null;
       selectorItem.value = null;
-      this.handle_layer_list_data = [];
+      tableList.value = [];
     },
     // 清理点位
     clearlayers() {
@@ -609,8 +609,8 @@ export default {
             return v;
           });
 
-          this.handle_layer_list_data = layer_record_list;
-          this.paint_layers(this.handle_layer_list_data);
+          tableList.value = layer_record_list;
+          this.paint_layers(mapDisplayList.value);
           this.loading = false;
         })
       );
@@ -694,9 +694,8 @@ export default {
     },
     // 刷新当前点位组
     refresh_layers() {
-      console.log("refresh_layers", this.handle_layer_list_data);
       this.clearlayers();
-      this.paint_layers(this.handle_layer_list_data);
+      this.paint_layers(mapDisplayList.value);
     },
     // 添加模式
     add_mode_on() {

@@ -4,7 +4,7 @@
       class="sticky-header absolute-full"
       title="点位表"
       row-key="id"
-      :rows="tabledata"
+      :rows="tableData"
       :columns="layer_columns"
       :rows-per-page-options="[0, 10, 20, 50]"
       selection="multiple"
@@ -87,6 +87,7 @@
           />
         </div>
       </template>
+
       <!-- 描述插槽 -->
       <template #header-cell-content>
         <q-th class="text-left">
@@ -102,7 +103,7 @@
               }
             "
           >
-            <q-tooltip anchor="bottom right" self="bottom left">
+            <q-tooltip anchor="top middle" self="bottom middle">
               显示/隐藏完整描述
             </q-tooltip>
           </q-icon>
@@ -122,7 +123,25 @@
       </template>
       <!-- 编辑插槽 -->
       <template #header-cell-handle>
-        <q-th class="text-left sticky-column sticky-right">操作</q-th>
+        <q-th class="text-left sticky-column sticky-right">
+          操作
+          <q-icon
+            style="padding-left: 10px"
+            class="cursor-pointer text-blue-7"
+            :name="map_show_table_list_icon"
+            size="sm"
+            @click="
+              () => {
+                mapDisplayWithFilter = !mapDisplayWithFilter;
+                $emit('displayModeChange');
+              }
+            "
+          >
+            <q-tooltip anchor="top middle" self="bottom middle">
+              仅显示列表点位/显示全部点位
+            </q-tooltip>
+          </q-icon>
+        </q-th>
       </template>
       <template #body-cell-handle="props">
         <q-td class="text-center sticky-column sticky-right q-gutter-sm">
@@ -164,12 +183,25 @@
 
 <script>
 import plFilter from "src/components/filters/filter-plugin.vue";
-import { applyFilter } from "src/components/filters/data";
+import { tableData, mapDisplayWithFilter } from "./layer_table";
+import { computed } from "vue";
 
 export default {
   name: "LayerTable",
-  props: ["propdata", "propitem", "itemlist"],
+  props: ["propitem", "itemlist"],
   components: { plFilter },
+  setup() {
+    const map_show_table_list_icon = computed(() =>
+      mapDisplayWithFilter.value ? "filter_list" : "filter_list_off"
+    );
+
+    return {
+      tableData,
+      mapDisplayWithFilter,
+
+      map_show_table_list_icon,
+    };
+  },
   data() {
     return {
       table_content_full: false,
@@ -221,13 +253,6 @@ export default {
     },
   },
   computed: {
-    formdata() {
-      this.layer_data = [...this.propdata];
-      return this.layer_data;
-    },
-    tabledata() {
-      return applyFilter(this.formdata);
-    },
     table_content_full_class() {
       return this.table_content_full
         ? "text_nl long_text text-wrap"
