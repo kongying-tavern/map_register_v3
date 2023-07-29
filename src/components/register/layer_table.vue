@@ -133,7 +133,6 @@
             @click="
               () => {
                 mapDisplayWithFilter = !mapDisplayWithFilter;
-                $emit('displayModeChange');
               }
             "
           >

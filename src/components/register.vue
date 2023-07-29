@@ -318,20 +318,19 @@
       :propitem="selectorItem"
       :itemlist="selectorItemFullList"
       @callback="table_callback"
-      @display-mode-change="refresh_layers"
     >
     </layer-table>
 
     <!-- 地图上点位的弹窗 -->
-    <div id="popup_window" ref="window" v-show="popup_window_show">
+    <div id="popup_window" ref="layerPopupWindow" v-show="layerPopupShow">
       <popup-window
         :map="map"
-        :layer="handle_layer"
+        :layer="layerCurrent"
         @callback="pop_callback"
       ></popup-window>
     </div>
     <!-- 点位移动确认弹窗 -->
-    <q-dialog v-model="drag_window" position="top" :persistent="true">
+    <q-dialog v-model="layerDragWindow" position="top" :persistent="true">
       <q-card style="width: 350px">
         <q-card-section> 确认将点位移动至这个位置吗？ </q-card-section>
         <q-card-section class="row">
@@ -347,7 +346,7 @@
             color="primary"
             label="回溯至初始位置"
             v-close-popup
-            @click="refresh_layers(), (dragmode = false)"
+            @click="layerRefresh(), (layerDragMode = false)"
           ></q-btn>
         </q-card-section>
       </q-card>
@@ -394,6 +393,7 @@
 
 <script>
 import _ from "lodash";
+import { watch } from "vue";
 import { map, mapDom } from "src/pages/map";
 import {
   selectorCollapse,
@@ -429,6 +429,17 @@ import {
   selectorItemIds,
   selectorItemAllAllowable,
 } from "./selector-data";
+import {
+  layerGroup,
+  layerCurrent,
+  layerPopupWindow,
+  layerPopupShow,
+  layerDragMode,
+  layerDragWindow,
+  layerPaint,
+  layerClear,
+  layerRefresh,
+} from "./map-layers";
 import { tableList, mapDisplayList } from "./register/layer_table";
 import FilterCard from "src/components/filters/filter-card.vue";
 import FilterShare from "src/components/filters/filter-share.vue";
@@ -442,7 +453,6 @@ import {
 } from "../service/base_data_request";
 import { get_user_id } from "../service/user_info";
 import {
-  layer_register,
   layergroup_register,
   layer_mark,
   create_icon_options,
@@ -457,6 +467,8 @@ import { create_notify } from "../api/common";
 export default {
   name: "DialogSelector",
   setup() {
+    watch(() => mapDisplayList.value, layerRefresh);
+
     return {
       map,
 
@@ -494,6 +506,16 @@ export default {
       selectorItemList,
       selectorItemIds,
       selectorItemAllAllowable,
+
+      layerGroup,
+      layerCurrent,
+      layerPopupWindow,
+      layerPopupShow,
+      layerDragMode,
+      layerDragWindow,
+      layerPaint,
+      layerClear,
+      layerRefresh,
     };
   },
   data() {
@@ -514,15 +536,10 @@ export default {
 
       add_mode: false,
       loading: true,
-      dragmode: false,
-      drag_window: false,
 
-      handle_layer: null,
-      popup_window_show: false,
       edit_data: {},
       new_layer_id: 0,
       handle_type: 0,
-      handle_layergroup: null,
       mark_layer_set: [],
     };
   },
@@ -534,17 +551,12 @@ export default {
       selectorItem.value = null;
       tableList.value = [];
     },
-    // 清理点位
-    clearlayers() {
-      map.value?.removeLayer(this.handle_layergroup);
-      this.handle_layergroup.clearLayers();
-    },
     // 切换地区
     switch_area(area) {
       if (area.isFinal) {
         selectorType.value = null;
         this.clearlist();
-        this.clearlayers();
+        layerClear();
         selectorArea.value = area;
         this.$emit("map_switch", selectorArea.value);
         this.fetch_item_list();
@@ -556,7 +568,7 @@ export default {
     // 如果有子分类的话，进行查询，生成子分类tabs
     select_type_list(value) {
       this.clearlist();
-      this.clearlayers();
+      layerClear();
       selectorType.value = value;
       selectorJumpTo(3);
       if (selectorItemAllAllowable.value) {
@@ -577,7 +589,7 @@ export default {
     },
     // 查询点位信息
     fetch_item_layers(value) {
-      this.clearlayers();
+      layerClear();
       this.loading = true;
       selectorItem.value = value;
 
@@ -610,63 +622,14 @@ export default {
           });
 
           tableList.value = layer_record_list;
-          this.paint_layers(mapDisplayList.value);
+          layerPaint(mapDisplayList.value);
           this.loading = false;
         })
       );
     },
-    // 查询点位并渲染至地图上
-    paint_layers(value) {
-      for (const i of value) {
-        this.handle_layergroup.addLayer(
-          layer_register(i, _.isNil(i.icon.url) ? "" : i.icon.url)
-        );
-      }
-
-      this.layer_eventbind();
-      map.value?.addLayer(this.handle_layergroup);
-    },
-    // 为点位绑定事件
-    layer_eventbind() {
-      // 为点位绑定弹窗事件和拖动事件
-      this.handle_layergroup.eachLayer((layer) => {
-        const layerid = layer.options.data.id;
-        const marklist = JSON.parse(localStorage.getItem("marked_layers"));
-        if (marklist.findIndex((item) => item === layerid) !== -1) {
-          layer_mark(layer);
-        }
-
-        layer.bindPopup(this.$refs.window);
-        layer.on({
-          popupopen: (layer) => {
-            this.handle_layer = layer;
-            this.popup_window_show = true;
-          },
-          dragstart: (layer) => {
-            this.dragmode = true;
-            this.handle_layer = layer;
-            this.unbinddrag(layer);
-          },
-          dragend: (layer) => {
-            this.drag_window = true;
-            this.handle_layer = layer;
-          },
-        });
-      });
-    },
-    // 解绑未选中点位的拖动
-    unbinddrag(draglayer) {
-      this.handle_layergroup.eachLayer((layer) => {
-        if (layer.options.data.id !== draglayer.target.options.data.id) {
-          layer.dragging.disable();
-        }
-      });
-    },
     // 标记点位
     mark_layer(layer) {
-      const marklayer = this.handle_layergroup.getLayer(
-        layer.target._leaflet_id
-      );
+      const marklayer = layerGroup.value.getLayer(layer.target._leaflet_id);
       layer_mark(marklayer);
       const layerid = layer.target.options.data.id;
       const arr = JSON.parse(localStorage.getItem("marked_layers"));
@@ -683,7 +646,7 @@ export default {
     focus_layer(data, zoom = 1) {
       const location = data.position.split(",");
       map.value?.flyTo(location, zoom);
-      const list = this.handle_layergroup.getLayers();
+      const list = layerGroup.value.getLayers();
       for (const i of list) {
         if (i.options.data.id === data.id) {
           if (i.isPopupOpen() !== true) {
@@ -691,11 +654,6 @@ export default {
           }
         }
       }
-    },
-    // 刷新当前点位组
-    refresh_layers() {
-      this.clearlayers();
-      this.paint_layers(mapDisplayList.value);
     },
     // 添加模式
     add_mode_on() {
@@ -705,7 +663,7 @@ export default {
         const marker = L.marker([event.latlng.lat, event.latlng.lng], {
           icon: L.icon(create_icon_options("")),
         });
-        this.handle_layergroup.addLayer(marker);
+        layerGroup.value.addLayer(marker);
         this.new_layer_id = marker._leaflet_id;
         this.edit_mode(1, undefined, `${event.latlng.lat},${event.latlng.lng}`);
       });
@@ -716,7 +674,7 @@ export default {
       this.loading = false;
       map.value?.off("click");
       if (this.new_layer_id !== 0) {
-        this.handle_layergroup.removeLayer(this.new_layer_id);
+        layerGroup.value.removeLayer(this.new_layer_id);
         this.new_layer_id = 0;
       }
     },
@@ -781,7 +739,7 @@ export default {
           this.mark_layer(data.layer);
           break;
         case 2:
-          this.handle_layergroup.eachLayer((layer) => {
+          layerGroup.value.eachLayer((layer) => {
             layer.dragging.enable();
           });
           break;
@@ -807,15 +765,15 @@ export default {
     },
     // 提交点位位置改动
     upload_position() {
-      let position = this.handle_layer.target._latlng;
+      let position = layerCurrent.value.target._latlng;
       position = `${position.lat},${position.lng}`;
       edit_layer({
         position,
-        id: this.handle_layer.target.options.data.id,
+        id: layerCurrent.value.target.options.data.id,
         markerCreatorId: get_user_id(),
       }).then((res) => {
-        this.dragmode = false;
-        this.drag_window = false;
+        layerDragMode.value = false;
+        layerDragWindow.value = false;
         this.refresh();
         create_notify(res.data.message);
       });
@@ -823,7 +781,7 @@ export default {
   },
   mounted() {
     // 注册点位组
-    this.handle_layergroup = layergroup_register();
+    layerGroup.value = layergroup_register();
     // 查询地区和分类
     this.$axios
       .all([
@@ -875,8 +833,8 @@ export default {
         case 68:
           if (!selectorItemAllAllowable.value && selectorItemId.value <= 0) {
             alert("未选择物品，请先选择物品");
-          } else if (this.dragmode === false) {
-            this.handle_layergroup?.eachLayer((layer) => {
+          } else if (layerDragMode.value === false) {
+            layerGroup.value?.eachLayer((layer) => {
               layer.dragging?.enable();
             });
           }
