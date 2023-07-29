@@ -267,6 +267,27 @@
                 dense
                 placeholder="点位视频"
               >
+                <template #append>
+                  <template v-if="layer_info.videoPath">
+                    <q-icon v-if="!video_valid_url" name="warning" color="red">
+                      <q-tooltip anchor="top middle" self="bottom middle">
+                        视频地址格式无效
+                      </q-tooltip>
+                    </q-icon>
+                    <q-icon
+                      v-else
+                      name="mdi-open-in-new"
+                      flat
+                      dense
+                      class="cursor-pointer"
+                      @click="openInNewWindow(layer_info.videoPath)"
+                    >
+                      <q-tooltip anchor="top middle" self="bottom middle">
+                        在新标签页打开
+                      </q-tooltip>
+                    </q-icon>
+                  </template>
+                </template>
               </q-input>
             </q-item-section>
           </q-item>
@@ -434,6 +455,11 @@ export default {
         })
         .value();
       return item_groups;
+    },
+    video_valid_url() {
+      const url = this.layer_info.videoPath || "";
+      const isValid = /^https?:\/\/[^.]+\.[^/]+(\/.*)?$/giu.test(url);
+      return isValid;
     },
   },
   components: {
@@ -658,6 +684,13 @@ export default {
       this.$emit("cancel");
     },
 
+    openInNewWindow(url = "") {
+      if (!url) {
+        return;
+      }
+
+      window.open(url, "_blank");
+    },
     async updateCharsInsert(data = {}, el, field = "") {
       if (!field) {
         return;
