@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { CircleCloseFilled, Close } from '@element-plus/icons-vue'
+
 defineProps<{
   item: API.ItemVo
   iconMap: Record<string, API.TagVo>
@@ -9,11 +11,9 @@ defineProps<{
   <div
     v-bind="$attrs"
     :title="item.name"
-    class="item-single"
+    class="item-selecter-button relative"
   >
-    <slot name="prepend" />
-
-    <el-image :src="iconMap[item.iconTag ?? '']?.url" lazy crossorigin="" class="w-8 h-8 object-contain">
+    <el-image :src="iconMap[item.iconTag ?? '']?.url" crossorigin="" fit="contain" class="w-8 h-8">
       <template #error>
         <el-icon :size="32" color="var(--el-color-danger)">
           <Close />
@@ -21,19 +21,17 @@ defineProps<{
       </template>
     </el-image>
 
-    <span class="flex-1 overflow-hidden whitespace-nowrap text-ellipsis">{{ item.name }}</span>
-
-    <slot name="append" />
+    <div class="absolute w-3 h-3 top-0 right-0">
+      <CircleCloseFilled />
+    </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
-.item-single {
+.item-selecter-button {
+  width: 40px;
   height: 40px;
-  padding: 4px 12px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  padding: 4px;
   border-radius: 4px;
   user-select: none;
   content-visibility: auto;

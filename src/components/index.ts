@@ -1,3 +1,4 @@
+export { AppItemSelecter } from './AppItemSelecter'
 export { AppSettings } from './AppSettings'
 export { AppUserInfo } from './AppUserInfo'
 export * from './GenshinUI'
