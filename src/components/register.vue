@@ -874,11 +874,11 @@ export default {
       switch (event.keyCode) {
         // D键，直接拖拽
         case 68:
-          if (selectorItemId.value <= 0) {
+          if (!selectorItemAllAllowable.value && selectorItemId.value <= 0) {
             alert("未选择物品，请先选择物品");
           } else if (this.dragmode === false) {
-            this.handle_layergroup.eachLayer((layer) => {
-              layer.dragging.enable();
+            this.handle_layergroup?.eachLayer((layer) => {
+              layer.dragging?.enable();
             });
           }
 
