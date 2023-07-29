@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { AppUserPopover } from '@/components'
 import { useUserPopover } from '@/hooks'
+import { timeFormatter, urlFormatter } from '@/utils'
 
 const props = defineProps<{
   iconList: API.IconVo[]
@@ -10,9 +11,6 @@ const props = defineProps<{
 
 const tableContainerRef = ref<HTMLElement | null>(null)
 const { height } = useElementSize(tableContainerRef)
-
-const urlFormatter = (_: unknown, __: unknown, url = '') => decodeURIComponent(url)
-const timeFormatter = (_: unknown, __: unknown, time = '') => new Date(time).toLocaleString()
 
 const { IDENTIFICATION_SYMBOL, userData, triggerRef, trigger, close } = useUserPopover({
   getUser: userId => props.userMap[userId],
