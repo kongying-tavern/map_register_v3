@@ -542,7 +542,10 @@ export default {
         this.layer_info.itemList[this.item_selector_index].itemId = item.itemId;
         this.layer_info.itemList[this.item_selector_index].count =
           item.defaultCount;
-        this.layer_info.refreshTime = item.defaultRefreshTime || 0;
+        if (this.layer_info.itemList.length < 1) {
+          this.layer_info.refreshTime = item.defaultRefreshTime || 0;
+        }
+
         this.refresh_init(this.layer_info.refreshTime);
       }
 
