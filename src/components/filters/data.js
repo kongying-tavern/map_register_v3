@@ -488,7 +488,7 @@ export const filterTypes = [
         selectedVals = selectedValue;
       }
 
-      const optionsFull = options.optionsFunc.value || [];
+      const optionsFull = options.optionsFunc || [];
       if (_.isNil(selectedVals)) {
         if (!_.isArray(optionsFull) || optionsFull.length <= 0) {
           return true;
@@ -604,7 +604,6 @@ export const filterTypes = [
     modelVals: {
       value: [],
     },
-
     modelSemantic(values = {}, options = {}, oppositeValue = false) {
       const selectedValue = values.value || [];
       if (!_.isArray(selectedValue) || selectedValue.length <= 0) {
