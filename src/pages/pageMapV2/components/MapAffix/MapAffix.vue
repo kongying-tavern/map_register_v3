@@ -14,7 +14,9 @@ const props = withDefaults(defineProps<GenshinMapAffixProps>(), {
 })
 
 const coord = toRef(props, 'pos')
-const { scaleRatio, position } = useMapProjection(coord)
+const { scaleRatio, position } = useMapProjection(coord, {
+  floor: !props.zoomWithMap,
+})
 
 /** 如果选择随地图缩放，则使用缩放比例，否则不变 */
 const switchScaleRatio = computed(() => props.zoomWithMap ? scaleRatio.value : 1)

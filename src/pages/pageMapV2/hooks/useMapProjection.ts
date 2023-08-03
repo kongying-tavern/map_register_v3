@@ -2,7 +2,13 @@ import type { Coordinate2D } from './../core'
 import { useMap } from './../hooks'
 import { genshinMapCanvasKey } from './../shared'
 
-export const useMapProjection = (coord: Coordinate2D | Ref<Coordinate2D | undefined>) => {
+export interface MapProjectionHookOptions {
+  floor?: boolean
+}
+
+export const useMapProjection = (coord: Coordinate2D | Ref<Coordinate2D | undefined>, options: MapProjectionHookOptions = {}) => {
+  const { floor = false } = options
+
   const viewRef = inject(genshinMapCanvasKey, ref(null))
 
   const { width, height } = useElementSize(viewRef)
@@ -27,7 +33,9 @@ export const useMapProjection = (coord: Coordinate2D | Ref<Coordinate2D | undefi
     const lx = (x + coordOffsetX - tx) * scale
     const ly = (y + coordOffsetY - ty) * scale
     const [cx, cy] = center.value
-    return [cx + lx, cy + ly]
+    return floor
+      ? [Math.floor(cx + lx), Math.floor(cy + ly)]
+      : [cx + lx, cy + ly]
   })
 
   return { scaleRatio, position }
