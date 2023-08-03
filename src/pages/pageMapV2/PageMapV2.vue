@@ -1,14 +1,14 @@
 <script lang="ts" setup>
 import { useInteractionLayer, useMap, useMapState, useMarkerDrawer } from './hooks'
+import { covertPosition } from './utils'
 import { genshinMapCanvasKey, mapAffixLayerKey, mutuallyExclusiveLayerKey } from './shared'
 import {
   CollapseButton,
   MapAffix,
   MapOverlay,
   MapSiderMenu,
-  MarkerCollimator,
-  MarkerDrawer,
   MarkerFocusIcon,
+  MarkerPopover,
 } from './components'
 import { GSSwitch } from '@/components'
 
@@ -26,18 +26,6 @@ useEventListener('keypress', (ev) => {
   if (ev.code === 'Backquote')
     collapse.value = !collapse.value
 })
-
-const covertPosition = (positionExpression?: string) => {
-  if (!positionExpression)
-    return
-  try {
-    const pos = positionExpression.split(',').map(Number).slice(0, 2)
-    return pos as [number, number]
-  }
-  catch {
-    return undefined
-  }
-}
 
 provide(genshinMapCanvasKey, canvasRef)
 provide(mutuallyExclusiveLayerKey, mutuallyExclusiveLayerRef)
@@ -81,28 +69,27 @@ provide(mapAffixLayerKey, mapAffixLayerRef)
         <MapAffix v-if="focus" :pos="covertPosition(focus.position)">
           <MarkerFocusIcon :marker="focus" />
         </MapAffix>
+
+        <MarkerPopover />
       </div>
 
       <CollapseButton
         v-model:collapse="collapse"
-        :class="[
-          interactionLayerVisible ? 'pointer-events-auto' : '-translate-x-full',
-        ]"
-        :style="{
-          '--tw-translate-x': '-300%',
-        }"
+        :class="[interactionLayerVisible ? 'pointer-events-auto' : '-translate-x-full']"
+        :style="{ '--tw-translate-x': '-300%' }"
       />
-      <MapSiderMenu v-model:collapse="collapse" class="z-10 transition-all" :class="[interactionLayerVisible ? 'pointer-events-auto' : '-translate-x-full']" />
-      <MarkerDrawer class="z-10" />
-      <MarkerCollimator :class="[interactionLayerVisible ? 'pointer-events-auto' : 'translate-x-full']" />
+
+      <MapSiderMenu
+        v-model:collapse="collapse"
+        class="z-10 transition-all"
+        :class="[interactionLayerVisible ? 'pointer-events-auto' : '-translate-x-full']"
+      />
     </div>
 
     <div
       ref="mutuallyExclusiveLayerRef"
       class="mutually-exclusive-layer absolute left-0 top-0 w-full h-full pointer-events-none"
-      :class="{
-        inactive: interactionLayerVisible,
-      }"
+      :class="{ inactive: interactionLayerVisible }"
     />
   </div>
 </template>
