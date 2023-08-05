@@ -22,13 +22,14 @@ export const useUserDelete = () => {
     offset: 48,
   }))
 
-  const confirmDelete = (users: API.SysUserVo | API.SysUserVo[]) => ElMessageBox.confirm(
-    Array.isArray(users)
+  const confirmDelete = (maybeUsers: API.SysUserVo | API.SysUserVo[]) => ElMessageBox.confirm(
+    Array.isArray(maybeUsers)
       ? <div>
-          <div>该操作不可恢复，确认删除以下用户：</div>
-          {users.map(user => <div>{user.username}</div>)}
+          <div>将删除以下 {maybeUsers.length} 个用户：</div>
+          {maybeUsers.map((item, index) => <div>&emsp;{index + 1}. <span style="color: #FB923C">{item.nickname} (id: {item.id})</span></div>)}
+          <div>该操作不可逆，请确认？</div>
         </div>
-      : `该操作不可恢复，确认删除用户: ${users.username}？`,
+      : <div>将删除用户<span style="color: #FB923C">{maybeUsers.nickname} (id: {maybeUsers.id})</span>，该操作不可逆，请确认？</div>,
     '警告',
     {
       confirmButtonClass: 'el-button--danger',
@@ -38,11 +39,12 @@ export const useUserDelete = () => {
         if (action !== 'confirm')
           return done()
         instance.confirmButtonLoading = true
-        await submitDeleteUser(users)
+        await submitDeleteUser(maybeUsers)
         instance.confirmButtonLoading = false
         done()
       },
-    }).catch(() => false)
+    },
+  ).catch(() => false)
 
   return { loading, confirmDelete, onSuccess, onError }
 }

@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { timeFormatter } from '@/utils'
+
 const props = defineProps<{
   loading: boolean
   roleList: API.SysRoleVo[]
@@ -30,30 +32,25 @@ const proxySelectionChange = (selections: API.ItemVo[]) => {
 </script>
 
 <template>
-  <div ref="tableRef" class="flex-1 overflow-hidden">
+  <div ref="tableRef" v-loading="loading" element-loading-text="载入中..." class="flex-1 overflow-hidden">
     <el-table
-      v-loading="loading"
-      element-loading-text="载入中..."
       :data="data"
       :height="height"
       :border="true"
-      class="user-table"
       @selection-change="proxySelectionChange"
       @sort-change="handleSortChange"
     >
-      <el-table-column type="selection" />
+      <el-table-column type="selection" align="center" :width="50" />
 
       <el-table-column label="ID" prop="id" :width="100" />
 
-      <!-- <el-table-column label="头像" prop="logo" show-overflow-tooltip :width="150" /> -->
       <el-table-column label="头像" width="80">
         <template #default="{ row }">
           <img
+            v-if="row.logo"
             class="w-12 h-12 object-contain rounded border"
             :src="row.logo"
-            crossorigin=""
             style="background-color: var(--el-color-primary-light-9); border-color: var(--el-color-primary-light-8);"
-            v-if="row.logo"
           >
         </template>
       </el-table-column>
@@ -74,7 +71,7 @@ const proxySelectionChange = (selections: API.ItemVo[]) => {
         </template>
       </el-table-column>
 
-      <el-table-column label="信息更新时间" prop="updateTime" sortable="custom" :width="250" />
+      <el-table-column label="信息更新时间" prop="updateTime" sortable="custom" :width="250" :formatter="timeFormatter" />
 
       <el-table-column fixed="right" label="操作" :width="190">
         <template #default="{ row }">

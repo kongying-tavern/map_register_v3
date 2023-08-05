@@ -80,6 +80,7 @@ onDeleteSuccess(updateUserList)
       :layout="layout"
       :page-sizes="[10, 20, 30]"
       :pager-count="5"
+      :disabled="loading"
       class="flex justify-end items-center"
       background
       @current-change="updateUserList"
