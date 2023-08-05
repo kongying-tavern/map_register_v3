@@ -5,7 +5,7 @@ import { useMap, useMarkerCollimator } from '@/pages/pageMapV2/hooks'
 /** 当前被选中的点位 */
 const focus = shallowRef<API.MarkerVo | null>(null)
 /** 缓存的点位信息, 用于在关闭弹窗时保持信息，使动画显示状态平滑 */
-const cachedMarkerVo = ref<API.MarkerVo | null>(null)
+const cachedMarkerVo = shallowRef<API.MarkerVo | null>(null)
 
 const isMarkerVo = (v: unknown): v is API.MarkerVo => {
   if (typeof v !== 'object' || v === null)
@@ -13,6 +13,7 @@ const isMarkerVo = (v: unknown): v is API.MarkerVo => {
   return ['markerTitle', 'position', 'itemList'].every(property => property in v)
 }
 
+// TODO 该 hook 需要修改为更加普适性的名称
 /** 抽屉状态控制 hook */
 export const useMarkerDrawer = (canvasRef?: Ref<HTMLCanvasElement | null>) => {
   const { map, onMapReady } = useMap()

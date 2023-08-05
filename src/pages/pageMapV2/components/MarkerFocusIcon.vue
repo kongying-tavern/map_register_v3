@@ -1,5 +1,7 @@
 <script lang="ts" setup>
 import { useMap } from '../hooks'
+import { covertPosition } from '../utils'
+import { MapAffix } from '.'
 
 defineProps<{
   marker?: API.MarkerVo | null
@@ -15,14 +17,15 @@ const offset = computed(() => `${0.4 * ICON_SIZE * scale.value}px`)
 </script>
 
 <template>
-  <div
-    v-if="Boolean(marker)"
-    class="genshin-active-marker"
-    :style="{
-      '--offset': offset,
-      '--scale': `${scale * 100}%`,
-    }"
-  />
+  <MapAffix v-if="marker" :pos="covertPosition(marker.position)">
+    <div
+      class="genshin-active-marker"
+      :style="{
+        '--offset': offset,
+        '--scale': `${scale * 100}%`,
+      }"
+    />
+  </MapAffix>
 </template>
 
 <style lang="scss" scoped>
@@ -84,7 +87,6 @@ const offset = computed(() => `${0.4 * ICON_SIZE * scale.value}px`)
   width: #{$size}px;
   height: #{$size}px;
   translate: -50% calc(-50% - var(--offset));
-  scale: var(--scale);
   pointer-events: none;
   filter: drop-shadow(0 0 2px rgb(0 0 0 / 1));
 

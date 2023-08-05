@@ -1,13 +1,11 @@
 <script lang="ts" setup>
 import { useInteractionLayer, useMap, useMapState, useMarkerDrawer } from './hooks'
-import { covertPosition } from './utils'
 import { genshinMapCanvasKey, mapAffixLayerKey, mutuallyExclusiveLayerKey } from './shared'
 import {
   CollapseButton,
   MapAffix,
   MapOverlay,
   MapSiderMenu,
-  MarkerFocusIcon,
   MarkerPopover,
 } from './components'
 import { GSSwitch } from '@/components'
@@ -17,8 +15,11 @@ const mutuallyExclusiveLayerRef = ref<HTMLElement | null>(null)
 const mapAffixLayerRef = ref<HTMLElement | null>(null)
 
 const { map } = useMap(canvasRef)
-const { focus } = useMarkerDrawer(canvasRef)
+
+useMarkerDrawer(canvasRef)
+
 const { visible: interactionLayerVisible } = useInteractionLayer()
+
 const { showTag, showOverlay, showBorder, showTooltip } = useMapState(true)
 
 const collapse = ref(true)
@@ -64,10 +65,6 @@ provide(mapAffixLayerKey, mapAffixLayerRef)
           pickable
         >
           <MapOverlay :option-group="group" />
-        </MapAffix>
-
-        <MapAffix v-if="focus" :pos="covertPosition(focus.position)">
-          <MarkerFocusIcon :marker="focus" />
         </MapAffix>
 
         <MarkerPopover />
