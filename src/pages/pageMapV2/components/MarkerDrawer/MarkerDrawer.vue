@@ -22,6 +22,15 @@ const markerFormVisible = ref(false)
 const drawerVisible = computed(() => Boolean(focus.value))
 /** 修改后的点位坐标 */
 const afterEditCoord = ref<Coordinate2D>()
+/** 抽屉是否可交互 */
+const triggerable = ref(false)
+
+const handleTrannsitionEnd = (ev: TransitionEvent) => {
+  if (drawerVisible.value && ev.propertyName === 'background-color')
+    triggerable.value = true
+}
+
+const blurDrawer = () => triggerable.value && blur()
 
 /** 抽屉不可见以后才清空点位信息缓存 */
 const handleTransitionEnd = (ev: TransitionEvent) => {
@@ -34,6 +43,7 @@ const handleTransitionEnd = (ev: TransitionEvent) => {
 const resetDrawerState = () => {
   afterEditCoord.value = undefined
   markerFormVisible.value = false
+  triggerable.value = false
   cancel()
 }
 
@@ -87,7 +97,7 @@ const isMarked = computed({
 const handleClickModal = (ev: MouseEvent) => {
   if (ev.composedPath().find(target => target === drawerRef.value))
     return
-  !collimatorVisible.value && blur()
+  !collimatorVisible.value && blurDrawer()
 }
 
 const markerCoord = computed(() => cachedMarkerVo.value?.position
@@ -97,7 +107,7 @@ const markerCoord = computed(() => cachedMarkerVo.value?.position
 
 // ==================== 删除点位 ====================
 const { deleteMarker, onSuccess: onDeleteSuccess } = useMarkerDelete()
-onDeleteSuccess(blur)
+onDeleteSuccess(blurDrawer)
 </script>
 
 <template>
@@ -108,6 +118,7 @@ onDeleteSuccess(blur)
       (collimatorVisible || !drawerVisible) ? 'bg-opacity-0' : ' bg-opacity-40',
     ]"
     @click="handleClickModal"
+    @transitionend="handleTrannsitionEnd"
   >
     <div
       ref="drawerRef"
@@ -129,7 +140,7 @@ onDeleteSuccess(blur)
                 {{ cachedMarkerVo.markerTitle }}
               </span>
             </div>
-            <div class="close-button w-9 h-9 p-0.5" @click="blur">
+            <div class="close-button w-9 h-9 p-0.5" @click="blurDrawer">
               <svg viewBox="0 0 100 100">
                 <path fill="currentColor" d="m 0 0 l 34 5 l -7 7 l 23 23 l 23 -23 l -7 -7 l 34 -5 l -5 34 l -7 -7 l -23 23 l 23 23 l 7 -7 l 5 34 l -34 -5 l 7 -7 l -23 -23 l -23 23 l 7 7 l -34 5 l 5 -34 l 7 7 l 23 -23 l -23 -23 l -7 7 z" />
               </svg>
@@ -245,7 +256,7 @@ onDeleteSuccess(blur)
 
   .genshin-marker-drawer__header {
     display: flex;
-    gap: 0.5rem;
+    gap: 8px;
     justify-content: flex-end;
     padding: 16px;
     background: #3D4555;
@@ -283,7 +294,7 @@ onDeleteSuccess(blur)
       --border-width: 2px;
 
       flex: 1;
-      padding: 1rem;
+      padding: 16px;
       display: flex;
       gap: 8px;
       flex-direction: column;

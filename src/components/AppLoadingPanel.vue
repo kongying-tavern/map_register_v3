@@ -68,7 +68,7 @@ const onAnimationend = (ev: AnimationEvent) => {
 
   width: 100dvw;
   height: 100dvh;
-  padding: 1rem;
+  padding: 16px;
   display: flex;
   justify-content: center;
   align-items: center;

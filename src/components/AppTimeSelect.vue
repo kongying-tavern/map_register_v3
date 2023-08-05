@@ -72,8 +72,8 @@ const selectInput = (ev: Event) => {
 .app-time-select {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 0.5rem;
-  border-radius: 0.25rem;
+  gap: 8px;
+  border-radius: 4px;
   text-align: center;
 }
 

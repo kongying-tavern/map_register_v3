@@ -179,11 +179,11 @@ defineExpose({
     position: absolute;
     top: 0;
     height: 100%;
-    width: calc(100% - 1rem);
+    width: calc(100% - 16px);
   }
   &.visible {
     width: 400px;
-    padding-left: 1rem;
+    padding-left: 16px;
   }
 }
 </style>

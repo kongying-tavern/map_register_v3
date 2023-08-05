@@ -104,7 +104,7 @@ onMounted(() => {
   white-space: nowrap;
   display: flex;
   align-items: center;
-  padding: 0 1rem;
+  padding: 0 16px;
 }
 
 @mixin separator($gap: 2px) {
