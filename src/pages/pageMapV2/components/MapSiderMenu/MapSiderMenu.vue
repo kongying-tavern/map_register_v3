@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { CoffeeCup, Filter, Grid, List, Operation, RemoveFilled, SetUp, Setting } from '@element-plus/icons-vue'
+import { CoffeeCup, Filter, Grid, List, Operation, SetUp, Setting } from '@element-plus/icons-vue'
 import type { FeatureOption } from '../FeatureGrid'
 import { useCurrentLayerMarkers, useMapState } from '@/pages/pageMapV2/hooks'
 import { FeatureGrid, MarkerFilter, MarkerTable, SiderMenu, SiderMenuItem } from '@/pages/pageMapV2/components'
@@ -8,6 +8,7 @@ import { useGlobalDialog } from '@/hooks'
 import { useUserStore } from '@/stores'
 import { IconGithub } from '@/components/AppIcons'
 import { FALLBACK_AVATAR_URL } from '@/shared/constant'
+import { ExitLeft } from '@/components/GenshinUI/GSIcon'
 
 defineProps<{
   collapse: boolean
@@ -106,12 +107,8 @@ const cacheTiles = computed({
       <FeatureGrid :features="features" @command="onFeatureCommand" />
     </SiderMenuItem>
 
-    <SiderMenuItem label="退出" @click="userStore.logout">
-      <template #icon>
-        <el-icon color="var(--gs-color-danger)" :size="38">
-          <RemoveFilled />
-        </el-icon>
-      </template>
-    </SiderMenuItem>
+    <template #footer>
+      <SiderMenuItem label="退出" :icon="ExitLeft" @click="userStore.logout" />
+    </template>
   </SiderMenu>
 </template>
