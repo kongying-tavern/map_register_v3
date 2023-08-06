@@ -1,15 +1,13 @@
 <script lang="ts" setup>
 import { Check, CirclePlus, DeleteFilled, Edit, Rank } from '@element-plus/icons-vue'
 import { covertPosition } from '../../utils'
-import { useMarkerDrawer } from '../../hooks'
+import { useCondition, useMarkerDrawer } from '../../hooks'
 import { MapAffix } from '..'
 import { MarkerPanel } from './components'
 import { useMarkerExtra, useMarkerFinished, useSkeletonPicture } from './hooks'
 import { useIconTagStore } from '@/stores'
 import { CloseFilled } from '@/components/GenshinUI/GSIcon'
-import { MarkerEditPanel } from '@/pages/pageMapV2/components'
 import { GSButton } from '@/components'
-import db from '@/database'
 
 /** 点位信息表单弹窗可见性 */
 const markerFormVisible = ref(false)
@@ -24,16 +22,8 @@ const { isFinished } = useMarkerFinished(cachedMarkerVo)
 
 const { isUnderground, hiddenFlagType, refreshTimeType } = useMarkerExtra(cachedMarkerVo)
 
-const area = asyncComputed(async () => {
-  const itemId = cachedMarkerVo.value?.itemList?.[0]?.itemId
-  if (itemId === undefined)
-    return
-  const item = await db.item.get(itemId)
-  if (!item)
-    return
-  const res = await db.area.get(item.areaId as number)
-  return res
-})
+const conditionManager = useCondition()
+watch(() => conditionManager.existItemIds, blur)
 </script>
 
 <template>
@@ -112,5 +102,4 @@ const area = asyncComputed(async () => {
       </template>
     </MarkerPanel>
   </MapAffix>
-  <MarkerEditPanel v-if="area" v-model:visible="markerFormVisible" :marker-info="cachedMarkerVo" :init-area="area" />
 </template>
