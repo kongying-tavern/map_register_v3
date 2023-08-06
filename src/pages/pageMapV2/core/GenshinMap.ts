@@ -70,7 +70,7 @@ export class GenshinMap extends Deck {
       controller: {
         doubleClickZoom: false,
         scrollZoom: {
-          speed: 0.01,
+          speed: 0.002,
           smooth: true,
         },
       },
@@ -121,8 +121,8 @@ export class GenshinMap extends Deck {
         clamp(newState.target[0], xmin, xmax),
         clamp(newState.target[1], ymin, ymax),
       ],
-      transitionDuration: newState.zoom === oldState.zoom ? 0 : 200,
-      transitionEasing: TRANSITION.EASE_OUT,
+      transitionDuration: newState.zoom === oldState.zoom ? 0 : 32,
+      transitionEasing: TRANSITION.LINEAR,
     }
     this.#mainViewState.value = rewriteState
     this.baseLayer?.forceUpdate()
@@ -146,12 +146,12 @@ export class GenshinMap extends Deck {
     maxZoom: 2,
     target: [0, 0],
     transitionDuration: 0,
-    transitionEasing: TRANSITION.EASE_OUT,
+    transitionEasing: TRANSITION.LINEAR,
     transitionInterruption: TRANSITION_EVENTS.BREAK,
   })
 
   updateViewState = (viewState: Partial<GensinMapViewState>) => {
-    // FIXME 2023-06-13: 这里必须先置位空后再次设置才能生效，或许使用方法不对，但文档写的确实不全
+    // FIXME 2023-08-06: 这里必须先设置为空后再次设置才能生效，或许使用方法不对
     this.setProps({
       initialViewState: undefined,
     })
