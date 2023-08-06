@@ -2,7 +2,6 @@ import { useMap } from '.'
 
 export interface GenshinMapState {
   hover?: unknown
-  active?: unknown
   focus?: unknown
   showBorder: boolean
   showTooltip: boolean
@@ -13,7 +12,6 @@ export interface GenshinMapState {
 
 export const getDefaultMapState = (): GenshinMapState => ({
   hover: null,
-  active: null,
   focus: null,
   showTags: true,
   showOverlay: false,
@@ -42,7 +40,6 @@ export const useMapState = (isRoot = false) => {
 
   if (isRoot) {
     onMapReady((mapInstance) => {
-      mapInstance.stateManager.registerEffect('active', () => mapInstance.baseLayer?.forceUpdate())
       mapInstance.stateManager.registerEffect('focus', () => mapInstance.baseLayer?.forceUpdate())
       mapInstance.stateManager.registerEffect('hover', () => mapInstance.baseLayer?.forceUpdate())
       mapInstance.stateManager.registerEffect('showBorder', () => mapInstance.baseLayer?.forceUpdate())

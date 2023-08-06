@@ -8,26 +8,14 @@
  * 失败时为 string，表示错误的原因
  */
 import { ICON_MAPPING_STATES } from '../shared'
-import { getObjectFitSize } from '@/utils/getObjectFitSize'
 import { getPrototypeOf } from '@/utils/getPrototypeOf'
-import {
-  BACKGROUND_ACTIVE_COLOR,
-  BACKGROUND_COLOR,
-  BACKGROUND_FOCUS_COLOR,
-  BACKGROUND_HOVER_COLOR,
-  BORDER_COLOR,
-  BORDER_WIDTH,
-  ICON_HEIGHT,
-  ICON_MARKERDE_ALPHA,
-  ICON_RECT,
-  ICON_WIDTH,
-  INNER_GAP,
-} from '@/pages/pageMapV2/config/markerIcon'
+import { ICON } from '@/pages/pageMapV2/config/markerIcon'
 import { FALLBACK_ITEM_ICON_URL } from '@/shared/constant'
+import { getObjectFitSize } from '@/utils/getObjectFitSize'
 
-const INNER_SIZE = ICON_WIDTH - 2 * INNER_GAP
-const OUTER_RADIUS = ICON_WIDTH / 2
-const INNER_RADIUS = INNER_SIZE / 2
+const INNER_GAP = ICON.size.w / 2 - ICON.content.radius
+const CONTENT_SIZE = ICON.content.radius * 2
+const ANG2RAD = Math.PI / 180
 
 /** 将数据转换为 ImageBitmap */
 const createBMP = async (res: Promise<Response>) => {
@@ -36,13 +24,14 @@ const createBMP = async (res: Promise<Response>) => {
   return bmp
 }
 
+const FALLBACK_IMG = createBMP(fetch(FALLBACK_ITEM_ICON_URL))
+
 /** 当底图无法被转换为 ImageBitmap 时使用替代图标 */
-const withFallback = async (bmpMission: Promise<ImageBitmap>) => bmpMission
-  .catch(() => createBMP(fetch(FALLBACK_ITEM_ICON_URL)))
+const withFallback = (bmpMission: Promise<ImageBitmap>) => bmpMission.catch(() => FALLBACK_IMG)
 
 /**
  * 注意！
- * 当前图标绘制方法是处于效率最大目的所特殊定制的，其中使用了基于canvas模式的多种批量绘制操作。
+ * 当前图标绘制方法是出于效率最大目的所特殊定制的，其中使用了基于 canvas 模式的多种批量绘制操作。
  * 这不是一个通用的绘制方法，需要根据图标的具体需求来更改。
  * @todo 后期可能需要引入 2d 渲染库来降低绘制代码编写复杂度
  */
@@ -53,145 +42,135 @@ const renderIcon = async (ev: MessageEvent<Map<string, { url: string; index: num
 
     // 请求底图
     const icons: Promise<ImageBitmap>[] = []
-    ev.data.forEach(({ index, url }) => {
-      icons[index] = withFallback(createBMP(fetch(url)))
-    })
+    ev.data.forEach(({ index, url }) => (icons[index] = withFallback(createBMP(fetch(url)))))
     const bmps = await Promise.all(icons)
 
-    // 创建模式图层
-    const patternCanvas = new OffscreenCanvas(ICON_RECT[0], ICON_RECT[1])
-    const patternCtx = patternCanvas.getContext('2d')
-    if (!patternCtx)
-      throw new Error('无法获取模式图层绘图上下文')
-
-    // 创建精灵图层
-    const canvas = new OffscreenCanvas(ICON_MAPPING_STATES.length * ICON_RECT[0], ev.data.size * ICON_RECT[1])
-    const ctx = canvas.getContext('2d')
-    if (!ctx)
-      throw new Error('无法获取精灵图层绘图上下文')
+    // 请求地下图标
+    const undergroundImg = await createBMP(fetch('/icons/LayerUndergroundMark.png'))
 
     // 图标背景路径（一个大头固钉形状）
-    const backgroundPath = new Path2D(`
-      M ${OUTER_RADIUS} ${ICON_HEIGHT}
-      L ${0.12725 * ICON_WIDTH} ${0.83325 * ICON_WIDTH}
-      A ${OUTER_RADIUS} ${OUTER_RADIUS} 0 1 1 ${0.87275 * ICON_WIDTH} ${0.83325 * ICON_WIDTH}
-      M ${OUTER_RADIUS} ${ICON_WIDTH - INNER_GAP}
-      A ${INNER_RADIUS} ${INNER_RADIUS} 0 0 0 ${OUTER_RADIUS} ${INNER_GAP}
-      A ${INNER_RADIUS} ${INNER_RADIUS} 0 0 0 ${OUTER_RADIUS} ${ICON_WIDTH - INNER_GAP}
-      Z
-    `)
+    const pathBackground = new Path2D()
+    const radiusInner = (ICON.size.w - 2 * ICON.border.width) / 2
+    pathBackground.arc(ICON.size.w / 2, ICON.size.w / 2, radiusInner, -259.6 * ANG2RAD, 79.6 * ANG2RAD)
+    pathBackground.lineTo(ICON.affix.x, ICON.affix.y)
+    pathBackground.closePath()
 
-    // 底图承托层路径（固钉中间那个圆）
-    const clipPath = new Path2D(`
-      M ${OUTER_RADIUS} ${ICON_WIDTH - INNER_GAP}
-      A ${INNER_RADIUS} ${INNER_RADIUS} 0 0 1 ${OUTER_RADIUS} ${INNER_GAP}
-      A ${INNER_RADIUS} ${INNER_RADIUS} 0 0 1 ${OUTER_RADIUS} ${ICON_WIDTH - INNER_GAP}
-      Z
-    `)
+    // 图标内容路径（中间含有图片的部分）
+    const pathIcon = new Path2D()
+    const radiusOuter = ICON.size.w / 2
+    pathIcon.arc(radiusOuter, radiusOuter, ICON.content.radius, 0, 360 * ANG2RAD)
 
-    // 通过偏移阴影来绘制外边框
+    // 创建模式图层
+    const patternCanvas = new OffscreenCanvas(ICON.size.w, ICON.size.h)
+    const patternCtx = patternCanvas.getContext('2d')!
+    const createPattern = (repetition: 'repeat' | 'repeat-x' | 'repeat-y' | 'no-repeat') => patternCtx.createPattern(patternCanvas, repetition)!
+
+    // 创建精灵图层
+    const canvas = new OffscreenCanvas(ICON_MAPPING_STATES.length * ICON.size.w, ev.data.size * ICON.size.h)
+    const ctx = canvas.getContext('2d')!
+
+    /** 画板半宽度 */
+    const HALF_WIDTH = canvas.width / 2
+    /** 减去一列的画板半宽度 */
+    const HALF_WITDTH_WITHOUT_COL = HALF_WIDTH - ICON.size.w
+
+    // 验证边框
+    // patternCtx.rect(0, 0, ICON.size.w, ICON.size.h)
+    // patternCtx.closePath()
+    // patternCtx.strokeStyle = 'red'
+    // patternCtx.stroke()
+
+    // 1. 绘制底部阴影
+    patternCtx.beginPath()
+    patternCtx.ellipse(ICON.affix.x, ICON.affix.y, ICON.shadow.radiusX, ICON.shadow.radiusY, 0, 0, Math.PI * 2)
+    patternCtx.fillStyle = ICON.shadow.color
+    patternCtx.fill()
+    ctx.fillStyle = createPattern('repeat')
+    ctx.fillRect(0, 0, HALF_WITDTH_WITHOUT_COL, canvas.height)
+    ctx.fillRect(HALF_WIDTH, 0, HALF_WITDTH_WITHOUT_COL, canvas.height)
+    ctx.save()
+    ctx.globalAlpha = ICON.state.inconspicuousOpacity
+    ctx.fillRect(HALF_WITDTH_WITHOUT_COL, 0, ICON.size.w, canvas.height)
+    ctx.fillRect(canvas.width - ICON.size.w, 0, ICON.size.w, canvas.height)
+    ctx.restore()
+
+    // 2. 绘制背景
+    patternCtx.clearRect(0, 0, patternCanvas.width, patternCanvas.height)
     patternCtx.save()
-    patternCtx.translate(-ICON_RECT[0], -ICON_RECT[1])
-    const scaleRatio = (ICON_WIDTH + 2 * BORDER_WIDTH) / ICON_WIDTH
+    patternCtx.translate(-1.5 * ICON.border.width, -1.5 * ICON.border.width)
+    const scaleRatio = 1 + 2 * (ICON.border.width * 2 / ICON.size.h)
     patternCtx.scale(scaleRatio, scaleRatio)
-    patternCtx.shadowColor = BORDER_COLOR
-    patternCtx.shadowOffsetX = ICON_RECT[0]
-    patternCtx.shadowOffsetY = ICON_RECT[1]
-    patternCtx.fill(backgroundPath)
+    patternCtx.fillStyle = ICON.border.color
+    patternCtx.fill(pathBackground)
     patternCtx.restore()
+    ctx.fillStyle = createPattern('repeat')
+    ctx.fillRect(0, 0, HALF_WITDTH_WITHOUT_COL, canvas.height)
+    ctx.fillRect(HALF_WIDTH, 0, HALF_WITDTH_WITHOUT_COL, canvas.height)
+    ctx.save()
+    ctx.globalAlpha = ICON.state.inconspicuousOpacity
+    ctx.fillRect(HALF_WITDTH_WITHOUT_COL, 0, ICON.size.w, canvas.height)
+    ctx.fillRect(canvas.width - ICON.size.w, 0, ICON.size.w, canvas.height)
+    ctx.restore()
 
-    // 绘制底图承托层
+    // 3. 绘制边框
+    patternCtx.clearRect(0, 0, patternCanvas.width, patternCanvas.height)
+    const pathInnerBorder = new Path2D()
+    pathInnerBorder.addPath(pathBackground)
+    pathInnerBorder.addPath(pathIcon)
     patternCtx.save()
-    patternCtx.translate(BORDER_WIDTH, BORDER_WIDTH)
-    patternCtx.fillStyle = BORDER_COLOR
-    patternCtx.fill(clipPath)
+    patternCtx.clip(pathInnerBorder, 'evenodd')
+    // 3.1. state = default
+    patternCtx.fillStyle = ICON.state.defaultColor
+    patternCtx.fill(pathBackground)
+    ctx.fillStyle = createPattern('repeat')
+    ctx.fillRect(0, 0, ICON.size.w, canvas.height)
+    ctx.fillRect(HALF_WIDTH, 0, ICON.size.w, canvas.height)
+    // 3.2. state = marked
+    patternCtx.clearRect(0, 0, patternCanvas.width, patternCanvas.height)
+    patternCtx.fillStyle = ICON.state.markedColor
+    patternCtx.fill(pathBackground)
+    ctx.fillStyle = createPattern('repeat')
+    ctx.fillRect(ICON.size.w, 0, ICON.size.w, canvas.height)
+    ctx.fillRect(HALF_WIDTH + ICON.size.w, 0, ICON.size.w, canvas.height)
+    // 3.3. state = inconspicuous
+    patternCtx.clearRect(0, 0, patternCanvas.width, patternCanvas.height)
+    patternCtx.fillStyle = ICON.state.markedColor
+    patternCtx.globalAlpha = ICON.state.inconspicuousOpacity
+    patternCtx.fill(pathBackground)
+    ctx.fillStyle = createPattern('repeat')
+    ctx.fillRect(ICON.size.w * 2, 0, ICON.size.w, canvas.height)
+    ctx.fillRect(HALF_WIDTH + ICON.size.w * 2, 0, ICON.size.w, canvas.height)
     patternCtx.restore()
 
-    const pattern1 = patternCtx.createPattern(patternCanvas, 'repeat')
-    if (!pattern1)
-      throw new Error('无法创建边框绘制模式')
-    ctx.fillStyle = pattern1
-    ctx.fillRect(0, 0, canvas.width, canvas.height)
-
-    // 绘制图标背景
-    patternCanvas.width = ICON_RECT[0] * ICON_MAPPING_STATES.length / 2
-    ;[
-      BACKGROUND_COLOR,
-      BACKGROUND_HOVER_COLOR,
-      BACKGROUND_ACTIVE_COLOR,
-      BACKGROUND_FOCUS_COLOR,
-      '#FFFFFF20',
-    ].forEach((bgColor, index) => {
-      patternCtx.save()
-      patternCtx.translate(index * ICON_RECT[0] + BORDER_WIDTH, BORDER_WIDTH)
-      patternCtx.fillStyle = bgColor
-      patternCtx.fill(backgroundPath)
-      patternCtx.restore()
-    })
-
-    const pattern2 = patternCtx.createPattern(patternCanvas, 'repeat')
-    if (!pattern2)
-      throw new Error('无法创建背景绘制模式')
-    ctx.fillStyle = pattern2
-    ctx.fillRect(0, 0, canvas.width, canvas.height)
-
-    // 绘制 icon 底图（限制 icon 底图范围为 clipPath）
-    patternCanvas.width = ICON_RECT[0]
-    patternCanvas.height = ev.data.size * ICON_RECT[1]
+    // 4. 绘制底图
+    patternCanvas.height = ev.data.size * ICON.size.h
     bmps.forEach((img, index) => {
       patternCtx.save()
-      patternCtx.translate(BORDER_WIDTH, index * ICON_RECT[1] + BORDER_WIDTH)
-      patternCtx.clip(clipPath)
-      const { sx, sy, sw, sh, dx, dy, dw, dh } = getObjectFitSize('contain', INNER_SIZE, INNER_SIZE, img.width, img.height)
+      patternCtx.translate(0, index * ICON.size.h)
+      patternCtx.clip(pathIcon)
+      const { sx, sy, sw, sh, dx, dy, dw, dh } = getObjectFitSize('contain', CONTENT_SIZE, CONTENT_SIZE, img.width, img.height)
       patternCtx.drawImage(img, sx, sy, sw, sh, dx + INNER_GAP, dy + INNER_GAP, dw, dh)
       patternCtx.restore()
     })
-
-    const pattern3 = patternCtx.createPattern(patternCanvas, 'repeat-x')
-    if (!pattern3)
-      throw new Error('无法创建图标绘制模式')
-    ctx.fillStyle = pattern3
-    // 第 5、10 列为已标记图标，需要单独设置其透明度
-    ctx.fillRect(0, 0, canvas.width / 2 - ICON_RECT[0], canvas.height)
-    ctx.fillRect(canvas.width / 2, 0, canvas.width / 2 - ICON_RECT[0], canvas.height)
+    ctx.fillStyle = createPattern('repeat-x')
+    ctx.fillRect(0, 0, HALF_WITDTH_WITHOUT_COL, canvas.height)
+    ctx.fillRect(HALF_WIDTH, 0, HALF_WITDTH_WITHOUT_COL, canvas.height)
     ctx.save()
-    ctx.globalAlpha = ICON_MARKERDE_ALPHA
-    ctx.fillRect(canvas.width / 2 - ICON_RECT[0], 0, ICON_RECT[0], canvas.height)
-    ctx.fillRect(canvas.width - ICON_RECT[0], 0, ICON_RECT[0], canvas.height)
+    ctx.globalAlpha = ICON.state.inconspicuousOpacity
+    ctx.fillRect(HALF_WITDTH_WITHOUT_COL, 0, ICON.size.w, canvas.height)
+    ctx.fillRect(canvas.width - ICON.size.w, 0, ICON.size.w, canvas.height)
     ctx.restore()
 
-    // 绘制地下图标
-    patternCanvas.width = ICON_RECT[0]
-    patternCanvas.height = ICON_RECT[1]
-    patternCtx.translate(BORDER_WIDTH, BORDER_WIDTH)
-    patternCtx.fillStyle = '#313131'
-    patternCtx.fill(new Path2D(`
-      M ${ICON_WIDTH} ${0.95 * ICON_WIDTH}
-      A ${INNER_RADIUS / 2} ${INNER_RADIUS / 2} 0 0 1 ${0.55 * ICON_WIDTH} ${0.95 * ICON_WIDTH}
-      A ${INNER_RADIUS / 2} ${INNER_RADIUS / 2} 0 0 1 ${ICON_WIDTH} ${0.95 * ICON_WIDTH}
-      Z
-    `))
-    patternCtx.fillStyle = '#FFF'
-    patternCtx.fill(new Path2D(`
-      M ${0.775 * ICON_WIDTH} ${0.8 * ICON_WIDTH}
-      L ${0.94375 * ICON_WIDTH} ${0.9125 * ICON_WIDTH}
-      L ${0.775 * ICON_WIDTH} ${1.025 * ICON_WIDTH}
-      L ${0.60625 * ICON_WIDTH} ${0.9125 * ICON_WIDTH}
-      Z
-      M ${0.775 * ICON_WIDTH} ${1.055 * ICON_WIDTH}
-      L ${0.91 * ICON_WIDTH} ${0.965 * ICON_WIDTH}
-      L ${0.94375 * ICON_WIDTH} ${0.9875 * ICON_WIDTH}
-      L ${0.775 * ICON_WIDTH} ${1.1 * ICON_WIDTH}
-      L ${0.60625 * ICON_WIDTH} ${0.9875 * ICON_WIDTH}
-      L ${0.64 * ICON_WIDTH} ${0.965 * ICON_WIDTH}
-      Z
-    `))
-
-    const pattern4 = patternCtx.createPattern(patternCanvas, 'repeat')
-    if (!pattern4)
-      throw new Error('无法创建地下图标绘制模式')
-    ctx.fillStyle = pattern4
-    ctx.fillRect(canvas.width / 2, 0, canvas.width, canvas.height)
+    // 5. 绘制地下图标
+    patternCanvas.height = ICON.size.h
+    patternCtx.clearRect(0, 0, patternCanvas.width, patternCanvas.height)
+    patternCtx.drawImage(undergroundImg, 0, 0, 36, 36, ICON.size.w - 20, 0, 20, 20)
+    ctx.fillStyle = createPattern('repeat')
+    ctx.fillRect(HALF_WIDTH, 0, HALF_WITDTH_WITHOUT_COL, canvas.height)
+    ctx.save()
+    ctx.globalAlpha = ICON.state.inconspicuousOpacity
+    ctx.fillRect(HALF_WIDTH + HALF_WITDTH_WITHOUT_COL, 0, ICON.size.w, canvas.height)
+    ctx.restore()
 
     const bmp = canvas.transferToImageBitmap()
     self.postMessage(bmp, { transfer: [bmp] })

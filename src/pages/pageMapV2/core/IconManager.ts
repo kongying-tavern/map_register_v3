@@ -3,7 +3,7 @@ import { ElNotification } from 'element-plus'
 import { ICON_MAPPING_STATES } from '../shared'
 import db from '@/database'
 import IconRenderWorker from '@/pages/pageMapV2/worker/IconRenderWorker?worker'
-import { BORDER_WIDTH, ICON_RECT } from '@/pages/pageMapV2/config/markerIcon'
+import { ICON } from '@/pages/pageMapV2/config/markerIcon'
 
 export class IconManager {
   /** 预渲染的精灵图 */
@@ -13,8 +13,6 @@ export class IconManager {
   /** 物品图标在精灵图上的匹配参数 */
   get iconMapping() { return this.#iconMapping.value }
   #iconMapping = shallowRef<IconMapping>({})
-
-  renderWorker = new IconRenderWorker()
 
   /**
    * 渲染思路：
@@ -30,7 +28,7 @@ export class IconManager {
       return
     }
 
-    const itemIconTags = items.map(item => item.iconTag as string)
+    const itemIconTags = items.map(item => item.iconTag!)
     const iconTagMap = new Map<string, { url: string; index: number }>()
 
     if ((await db.iconTag.count()) === 0)
@@ -38,26 +36,25 @@ export class IconManager {
 
     let index = 0
     await db.iconTag.where('tag').anyOf(itemIconTags).each((iconTag) => {
-      iconTagMap.set(iconTag.tag as string, { url: iconTag.url as string, index: index++ })
+      iconTagMap.set(iconTag.tag!, { url: iconTag.url!, index: index++ })
     })
 
     // 生成 iconMapping
-    const iconMapping = items.reduce((seed, item) => {
+    this.#iconMapping.value = items.reduce((seed, item) => {
       const iconIndex = iconTagMap.get(item.iconTag!)?.index
       if (iconIndex === undefined)
         return seed
       const baseProps = {
-        width: ICON_RECT[0],
-        height: ICON_RECT[1],
-        anchorY: ICON_RECT[1] - BORDER_WIDTH,
-        y: iconIndex * ICON_RECT[1],
+        width: ICON.size.w,
+        height: ICON.size.h,
+        anchorY: ICON.affix.y,
+        y: iconIndex * ICON.size.h,
       }
       ICON_MAPPING_STATES.forEach((append, index) => {
         seed[`${item.id}${append}`] = { ...baseProps, x: baseProps.width * index }
       })
       return seed
     }, {} as IconMapping)
-    this.#iconMapping.value = iconMapping
 
     // 离屏渲染
     const blob = await this.#renderSpiritImage(iconTagMap)
@@ -69,20 +66,22 @@ export class IconManager {
 
   /** 在离屏 canvas 中完成具体精灵图的绘制 */
   #renderSpiritImage = (iconTagMap: Map<string, { url: string; index: number }>) => new Promise<Blob>((resolve, reject) => {
-    this.renderWorker.onmessage = async (ev: MessageEvent<ImageBitmap | string>) => {
+    const renderWorker = new IconRenderWorker()
+    renderWorker.onmessage = (ev: MessageEvent<ImageBitmap | string>) => {
+      renderWorker.terminate()
       if (!(ev.data instanceof ImageBitmap))
         return reject(new Error(ev.data))
       const canvas = document.createElement('canvas')
       canvas.width = ev.data.width
       canvas.height = ev.data.height
-      const ctx = canvas.getContext('bitmaprenderer')
-      ctx?.transferFromImageBitmap(ev.data)
+      const ctx = canvas.getContext('bitmaprenderer')!
+      ctx.transferFromImageBitmap(ev.data)
       canvas.toBlob((blob) => {
         if (!blob)
           return reject(new Error('无法生成精灵图'))
         resolve(blob)
       })
     }
-    this.renderWorker.postMessage(iconTagMap)
+    renderWorker.postMessage(iconTagMap)
   })
 }

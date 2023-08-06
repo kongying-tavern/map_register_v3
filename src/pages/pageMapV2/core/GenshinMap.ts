@@ -122,6 +122,7 @@ export class GenshinMap extends Deck {
         clamp(newState.target[1], ymin, ymax),
       ],
       transitionDuration: newState.zoom === oldState.zoom ? 0 : 200,
+      transitionEasing: TRANSITION.EASE_OUT,
     }
     this.#mainViewState.value = rewriteState
     this.baseLayer?.forceUpdate()
@@ -150,19 +151,16 @@ export class GenshinMap extends Deck {
   })
 
   updateViewState = (viewState: Partial<GensinMapViewState>) => {
-    const rewriteViewState = {
-      ...this.mainViewState,
-      ...viewState,
-      transitionDuration: 200,
-    }
     // FIXME 2023-06-13: 这里必须先置位空后再次设置才能生效，或许使用方法不对，但文档写的确实不全
     this.setProps({
       initialViewState: undefined,
     })
     this.setProps({
-      initialViewState: rewriteViewState,
+      initialViewState: {
+        ...this.mainViewState,
+        ...viewState,
+      },
     })
-    this.baseLayer?.forceUpdate()
   }
 
   // ==================== 图层状态 ====================

@@ -52,7 +52,9 @@ export class GenshinBaseLayer extends CompositeLayer<GenshinTileLayerProps> {
       initViewState = {},
     } = props
 
-    super({ id: `${GenshinBaseLayer.ID_PREFIX}${props.code}` })
+    super({
+      id: `${GenshinBaseLayer.ID_PREFIX}${props.code}`,
+    })
 
     const xmin = -tilesOffset[0]
     const ymin = -tilesOffset[1]
@@ -107,11 +109,13 @@ export class GenshinBaseLayer extends CompositeLayer<GenshinTileLayerProps> {
     })
   }
 
-  renderLayers = (): LayersList => [
-    getTilesFrom(this),
-    ...getOverlaysFrom(this),
-    ...getTagsFrom(this),
-    getBorderFrom(this),
-    getMarkersFrom(this),
-  ]
+  renderLayers = (): LayersList => {
+    return [
+      getTilesFrom(this),
+      ...getOverlaysFrom(this),
+      ...getTagsFrom(this),
+      getBorderFrom(this),
+      getMarkersFrom(this),
+    ]
+  }
 }

@@ -2,49 +2,20 @@ import type { InjectionKey } from 'vue'
 
 export const MAP_FONTFAMILY = 'map-font-zhcn'
 
+/** 点位的空间状态 */
+export const MARKER_POSITION = ['aboveground', 'underground']
+
+/** 点位的交互状态 */
+export const MARKER_STATE = ['default', 'marked', 'inconspicuous']
+
 /**
- * 地上图标 默认状态
- * [`${itemId}`_default]: {}
- *
- * 地上图标 hover 状态
- * [`${itemId}`_hover]: {}
- *
- * 地上图标 active 状态
- * [`${itemId}`_active]: {}
- *
- * 地上图标 focus 状态
- * [`${itemId}`_focus]: {}
- *
- * 地上图标 marked 状态
- * [`${itemId}`_marked]: {}
- *
- * 地下图标 默认状态
- * [`${itemId}`_ug_default]: {}
- *
- * 地下图标 hover 状态
- * [`${itemId}`_ug_hover]: {}
- *
- * 地下图标 active 状态
- * [`${itemId}`_ug_active]: {}
- *
- * 地下图标 focus 状态
- * [`${itemId}`_ug_focus]: {}
- *
- * 地下图标 marked 状态
- * [`${itemId}`_ug_marked]: {}
+ * 总计需要渲染 `MARKER_POSITION` * `MARKER_STATE` 种状态，
+ * 并按照以 `MARKER_POSITION` 为分组的顺序渲染
  */
-export const ICON_MAPPING_STATES = [
-  '_default',
-  '_hover',
-  '_active',
-  '_focus',
-  '_marked',
-  '_ug_default',
-  '_ug_hover',
-  '_ug_active',
-  '_ug_focus',
-  '_ug_marked',
-]
+export const ICON_MAPPING_STATES = MARKER_POSITION.reduce((seed, pos) => {
+  MARKER_STATE.forEach(state => seed.push(`_${pos}_${state}`))
+  return seed
+}, [] as string[])
 
 export const mutuallyExclusiveLayerKey = Symbol('mutually-exclusive-layer') as InjectionKey<Ref<HTMLElement | null>>
 export const genshinMapCanvasKey = Symbol('canvas-ref') as InjectionKey<Ref<HTMLCanvasElement | null>>
