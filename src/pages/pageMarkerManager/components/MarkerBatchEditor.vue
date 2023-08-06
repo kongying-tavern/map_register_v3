@@ -2,6 +2,7 @@
 import type { MarkerBatchEditForm } from '../hooks'
 import { HiddenFlagEnum } from '@/shared'
 import { AppTimeSelect } from '@/components'
+import { useRefreshTime } from '@/hooks'
 
 const props = defineProps<{
   modelValue: MarkerBatchEditForm
@@ -29,17 +30,19 @@ const markerIds = computed(() => props.selections.map(marker => marker.id!))
 const content = model('content')
 const refreshTime = model('refreshTime')
 const hiddenFlag = model('hiddenFlag')
+
+const { refreshTimeTypeOptions, refreshTimeType, isCustom } = useRefreshTime(refreshTime)
 </script>
 
 <template>
   <el-dialog
     v-model="modelVisible"
     title="批量编辑"
-    width="fit-content"
+    width="400px"
     align-center
     style="--el-dialog-border-radius: 8px;"
   >
-    <div class="marker-batch-editor p-5">
+    <div class="p-5">
       <el-form :model="modelValue">
         <el-form-item label="点位 id">
           <span>{{ markerIds.join(', ') }}</span>
@@ -49,11 +52,15 @@ const hiddenFlag = model('hiddenFlag')
           <el-input
             v-model="content"
             type="textarea"
+            :rows="5"
           />
         </el-form-item>
 
         <el-form-item label="刷新时间">
-          <AppTimeSelect v-model="refreshTime" class="w-full" />
+          <div class="flex gap-2">
+            <el-select-v2 v-model="refreshTimeType" :options="refreshTimeTypeOptions" class="" />
+            <AppTimeSelect v-model="refreshTime" :disabled="!isCustom" class="w-full" />
+          </div>
         </el-form-item>
 
         <el-form-item label="显示类型">
@@ -70,21 +77,15 @@ const hiddenFlag = model('hiddenFlag')
           </el-radio-group>
         </el-form-item>
       </el-form>
-    </div>
 
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="modelVisible = false">取消</el-button>
+      <div class="flex justify-end">
         <el-button type="primary" @click="() => emits('submit')">
           提交
         </el-button>
-      </span>
-    </template>
+        <el-button @click="modelVisible = false">
+          取消
+        </el-button>
+      </div>
+    </div>
   </el-dialog>
 </template>
-
-<style lang="scss" scoped>
-.marker-batch-editor {
-  width: 540px;
-}
-</style>

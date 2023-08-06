@@ -60,6 +60,8 @@ useEventListener('pointerdown', checkTooltip)
           <slot name="default" :collapse="collapse" />
         </div>
       </el-scrollbar>
+
+      <slot name="footer" />
     </div>
 
     <div class="overflow-hidden h-full w-full">

@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { IceTea } from '@element-plus/icons-vue'
+import { useCondition } from '../../hooks'
 import type { FeatureOption } from '.'
 
 defineProps<{
@@ -8,6 +10,12 @@ defineProps<{
 defineEmits<{
   (e: 'command', v: string): void
 }>()
+
+const conditionManager = useCondition()
+
+const test = () => {
+  window.open(conditionManager.spiritImage)
+}
 </script>
 
 <template>
@@ -20,6 +28,17 @@ defineEmits<{
         <div class="grid-unit-label">
           <span class="w-full inline-block whitespace-nowrap text-ellipsis overflow-hidden text-center">
             {{ f.label }}
+          </span>
+        </div>
+      </div>
+
+      <div class="grid-unit" @click="test">
+        <div class="grid-unit-icon">
+          <IceTea class="h-full" />
+        </div>
+        <div class="grid-unit-label">
+          <span class="w-full inline-block whitespace-nowrap text-ellipsis overflow-hidden text-center">
+            精灵图
           </span>
         </div>
       </div>
