@@ -2,15 +2,13 @@
 import { Check, CirclePlus, DeleteFilled, Edit, Rank } from '@element-plus/icons-vue'
 import { covertPosition } from '../../utils'
 import { useCondition, useMarkerDrawer } from '../../hooks'
-import { MapAffix } from '..'
+import { MapAffix, MarkerEditPanel } from '..'
 import { MarkerPanel } from './components'
 import { useMarkerExtra, useMarkerFinished, useSkeletonPicture } from './hooks'
 import { useIconTagStore } from '@/stores'
 import { CloseFilled } from '@/components/GenshinUI/GSIcon'
 import { GSButton } from '@/components'
-
-/** 点位信息表单弹窗可见性 */
-const markerFormVisible = ref(false)
+import { useGlobalDialog } from '@/hooks'
 
 const iconTagStore = useIconTagStore()
 
@@ -24,6 +22,24 @@ const { isUnderground, hiddenFlagType, refreshTimeType } = useMarkerExtra(cached
 
 const conditionManager = useCondition()
 watch(() => conditionManager.existItemIds, blur)
+
+// ==================== 编辑点位 ====================
+const { DialogService } = useGlobalDialog()
+const openMarkerEditor = () => {
+  focus.value && DialogService
+    .config({
+      title: `编辑点位：${focus.value.markerTitle}`,
+      width: 'fit-content',
+      alignCenter: true,
+      showClose: false,
+      closeOnClickModal: false,
+      closeOnPressEscape: false,
+    })
+    .props({
+      markerInfo: focus.value,
+    })
+    .open(MarkerEditPanel)
+}
 </script>
 
 <template>
@@ -66,7 +82,7 @@ watch(() => conditionManager.existItemIds, blur)
       </template>
 
       <template #footer>
-        <GSButton size="small" theme="dark" @click="markerFormVisible = true">
+        <GSButton size="small" theme="dark" @click="openMarkerEditor">
           <template #icon>
             <el-icon color="#F7BA3F">
               <Edit />

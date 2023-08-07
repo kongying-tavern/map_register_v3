@@ -1,91 +1,49 @@
 <script lang="ts" setup>
-import { ElMessage } from 'element-plus'
 import { useCondition, useMarkerEdit } from '../../hooks'
 import { MarkerEditorForm } from '../../components/MarkerEditor'
-import { messageFrom } from '@/utils'
+import { GlobalDialogController } from '@/hooks'
+import db from '@/database'
 
 const props = defineProps<{
-  markerInfo: API.MarkerVo | null
-  initArea?: API.AreaVo
-  visible: boolean
+  markerInfo: API.MarkerVo
 }>()
-
-const emits = defineEmits<{
-  (e: 'update:visible', v: boolean): void
-}>()
-
-const formVisible = computed({
-  get: () => props.visible,
-  set: v => emits('update:visible', v),
-})
 
 const conditionManager = useCondition()
 
 /** 表单数据 */
 const form = ref(props.markerInfo ?? {})
 
-const { editMarker, onSuccess } = useMarkerEdit(form)
+const initAreaCode = asyncComputed(async () => {
+  if (!form.value.itemList)
+    return
+  const item = await db.item.get(form.value.itemList[0].itemId!)
+  if (!item)
+    return
+  const area = await db.area.get(item.areaId!)
+  return area?.code
+}, undefined)
 
-/** 编辑器实例 */
-const editorRef = ref<InstanceType<typeof MarkerEditorForm> | null>(null)
-
-/** 表单提交事件 */
-const confirm = async () => {
-  try {
-    const isValid = await editorRef.value?.validate()
-    if (!isValid)
-      return
-    await editorRef.value?.uploadPicture()
-    await editMarker()
-  }
-  catch (err) {
-    ElMessage.error({
-      message: `编辑点位失败，原因为：${messageFrom(err)}`,
-      offset: 48,
-    })
-  }
-}
+const { editorRef, loading, editMarker, onSuccess } = useMarkerEdit(form)
 
 onSuccess(() => {
+  GlobalDialogController.close()
   conditionManager.requestMarkersUpdate()
-  emits('update:visible', false)
 })
 
 const isOfflineMode = import.meta.env.VITE_DEVELOPMENT_MODE === 'offline'
 </script>
 
 <template>
-  <el-dialog
-    v-model="formVisible"
-    width="fit-content"
-    class="genshin-marker-edit-dialog"
-    align-center
-    append-to-body
-    :close-on-click-modal="false"
-    :close-on-press-escape="false"
-    :show-close="false"
-  >
-    <template #header>
-      <div>{{ markerInfo?.markerTitle }} (id: {{ markerInfo?.id }})</div>
+  <MarkerEditorForm v-if="initAreaCode" ref="editorRef" v-model="form" :init-area-code="initAreaCode">
+    <template #footer>
+      <div class="w-full flex justify-end">
+        <el-button type="primary" :disabled="isOfflineMode" :loading="loading" @click="editMarker">
+          确认
+        </el-button>
+        <el-button @click="GlobalDialogController.close">
+          取消
+        </el-button>
+      </div>
     </template>
-
-    <MarkerEditorForm ref="editorRef" v-model="form" :init-area-code="props.initArea?.code">
-      <template #footer>
-        <div class="w-full flex justify-end">
-          <el-button type="primary" :disabled="isOfflineMode" @click="confirm">
-            确认
-          </el-button>
-          <el-button @click="() => $emit('update:visible', false)">
-            取消
-          </el-button>
-        </div>
-      </template>
-    </MarkerEditorForm>
-  </el-dialog>
+  </MarkerEditorForm>
 </template>
-
-<style lang="scss">
-.el-dialog.genshin-marker-edit-dialog {
-  border-radius: 8px;
-}
-</style>

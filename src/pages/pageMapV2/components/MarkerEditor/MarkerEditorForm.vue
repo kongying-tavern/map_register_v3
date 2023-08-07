@@ -108,7 +108,7 @@ defineExpose({
         <AddonItemSelector v-model="form.itemList" v-model:addon-id="addonId" v-model:area-code="areaCode" />
       </el-form-item>
 
-      <el-form-item v-if="areaCode" label="地下层级" prop="extra">
+      <el-form-item v-if="areaCode" label="点位层级" prop="extra">
         <AddonExtraEditor v-model="form.extra" :area-code="areaCode" />
       </el-form-item>
 
