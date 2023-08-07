@@ -44,6 +44,7 @@ export const useMarkerEdit = (markerData: Ref<API.MarkerVo | null>) => {
     'refreshTime',
     'hiddenFlag',
     'markerTitle',
+    'version',
     'extra',
   ]
 

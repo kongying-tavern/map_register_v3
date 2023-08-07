@@ -7,7 +7,12 @@ import { MarkerPanel } from './components'
 import { useMarkerExtra, useMarkerFinished, useSkeletonPicture } from './hooks'
 import { useIconTagStore } from '@/stores'
 import { CloseFilled } from '@/components/GenshinUI/GSIcon'
+import { MarkerEditPanel } from '@/pages/pageMapV2/components'
 import { GSButton } from '@/components'
+import db from '@/database'
+
+/** 点位信息表单弹窗可见性 */
+const markerFormVisible = ref(false)
 
 const iconTagStore = useIconTagStore()
 
@@ -18,6 +23,17 @@ const { pictureUrl, loading: imageLoading } = useSkeletonPicture(cachedMarkerVo)
 const { isFinished } = useMarkerFinished(cachedMarkerVo)
 
 const { isUnderground, hiddenFlagType, refreshTimeType } = useMarkerExtra(cachedMarkerVo)
+
+const area = asyncComputed(async () => {
+  const itemId = cachedMarkerVo.value?.itemList?.[0]?.itemId
+  if (itemId === undefined)
+    return
+  const item = await db.item.get(itemId)
+  if (!item)
+    return
+  const res = await db.area.get(item.areaId as number)
+  return res
+})
 </script>
 
 <template>
@@ -60,7 +76,7 @@ const { isUnderground, hiddenFlagType, refreshTimeType } = useMarkerExtra(cached
       </template>
 
       <template #footer>
-        <GSButton size="small" theme="dark">
+        <GSButton size="small" theme="dark" @click="markerFormVisible = true">
           <template #icon>
             <el-icon color="#F7BA3F">
               <Edit />
@@ -96,4 +112,5 @@ const { isUnderground, hiddenFlagType, refreshTimeType } = useMarkerExtra(cached
       </template>
     </MarkerPanel>
   </MapAffix>
+  <MarkerEditPanel v-if="area" v-model:visible="markerFormVisible" :marker-info="cachedMarkerVo" :init-area="area" />
 </template>
