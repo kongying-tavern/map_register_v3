@@ -124,8 +124,7 @@ export class GenshinMap extends Deck {
       transitionDuration: newState.zoom === oldState.zoom ? 0 : 32,
       transitionEasing: TRANSITION.LINEAR,
     }
-    this.#mainViewState.value = rewriteState
-    this.baseLayer?.forceUpdate()
+    this.mainViewState = rewriteState
     return { viewState: rewriteState, oldViewState: oldState, ...rest }
   }
 
@@ -136,6 +135,11 @@ export class GenshinMap extends Deck {
 
   // ==================== 视口状态 ====================
   get mainViewState() { return this.#mainViewState.value }
+  set mainViewState(v) {
+    this.#mainViewState.value = v
+    this.baseLayer?.forceUpdate()
+  }
+
   #mainViewState = ref<GensinMapViewState>({
     maxRotationX: 90,
     minRotationX: -90,
@@ -152,15 +156,17 @@ export class GenshinMap extends Deck {
 
   updateViewState = (viewState: Partial<GensinMapViewState>) => {
     // FIXME 2023-08-06: 这里必须先设置为空后再次设置才能生效，或许使用方法不对
+    const rewriteState = {
+      ...this.mainViewState,
+      ...viewState,
+    }
     this.setProps({
       initialViewState: undefined,
     })
     this.setProps({
-      initialViewState: {
-        ...this.mainViewState,
-        ...viewState,
-      },
+      initialViewState: rewriteState,
     })
+    this.mainViewState = rewriteState
   }
 
   // ==================== 图层状态 ====================
