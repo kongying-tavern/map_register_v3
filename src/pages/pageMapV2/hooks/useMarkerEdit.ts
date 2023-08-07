@@ -1,6 +1,7 @@
 import type { Ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { pick } from 'lodash'
+import type { MarkerEditorForm } from '../components/MarkerEditor'
 import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 import { useUserStore } from '@/stores'
@@ -8,6 +9,9 @@ import { useUserStore } from '@/stores'
 /** 编辑点位，已自动处理 methodType 字段 */
 export const useMarkerEdit = (markerData: Ref<API.MarkerVo | null>) => {
   const userStore = useUserStore()
+
+  /** 编辑器实例 */
+  const editorRef = ref<InstanceType<typeof MarkerEditorForm> | null>(null)
 
   /**
    * 基于 url 参数传递来判断 picture 是否已经更改
@@ -70,6 +74,7 @@ export const useMarkerEdit = (markerData: Ref<API.MarkerVo | null>) => {
     if (!markerData.value)
       throw new Error('所需的点位数据为空')
     const shallowCopy = { ...markerData.value }
+    await editorRef.value?.uploadPicture()
     if (userStore.isAdmin) {
       const form: API.MarkerVo = buildAdminMarkerForm(shallowCopy)
       await Api.marker.updateMarker(form)
@@ -80,7 +85,17 @@ export const useMarkerEdit = (markerData: Ref<API.MarkerVo | null>) => {
     }
   }
 
-  const { refresh: editMarker, onSuccess, onError, ...rest } = useFetchHook({ onRequest: request })
+  const { refresh: submit, onSuccess, onError, ...rest } = useFetchHook({ onRequest: request })
+
+  const editMarker = async () => {
+    try {
+      await editorRef.value?.validate()
+      await submit()
+    }
+    catch {
+      // validate, no error
+    }
+  }
 
   onSuccess(() => ElMessage.success({
     message: `${userStore.isAdmin ? '编辑点位' : '提交审核'}成功`,
@@ -92,5 +107,5 @@ export const useMarkerEdit = (markerData: Ref<API.MarkerVo | null>) => {
     offset: 48,
   }))
 
-  return { editMarker, request, onSuccess, onError, ...rest }
+  return { editorRef, editMarker, request, onSuccess, onError, ...rest }
 }
