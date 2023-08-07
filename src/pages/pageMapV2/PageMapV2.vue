@@ -7,6 +7,7 @@ import {
   MapOverlay,
   MapSiderMenu,
   MarkerPopover,
+  ZoomController,
 } from './components'
 import { GSSwitch } from '@/components'
 
@@ -83,19 +84,17 @@ provide(mapAffixLayerKey, mapAffixLayerRef)
       />
     </div>
 
+    <ZoomController class="absolute right-0 top-1/2" />
+
     <div
       ref="mutuallyExclusiveLayerRef"
-      class="mutually-exclusive-layer absolute left-0 top-0 w-full h-full pointer-events-none"
-      :class="{ inactive: interactionLayerVisible }"
+      class="mutually-exclusive-layer absolute left-0 top-0 w-full h-full"
+      :class="{ 'pointer-events-none': interactionLayerVisible }"
     />
   </div>
 </template>
 
 <style lang="scss" scoped>
-.inactive {
-  pointer-events: none;
-}
-
 .map-mask {
   background: radial-gradient(transparent 50%, #00000060);
   z-index: 1;
