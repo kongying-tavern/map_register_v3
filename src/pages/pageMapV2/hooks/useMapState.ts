@@ -4,19 +4,21 @@ export interface GenshinMapState {
   hover?: unknown
   focus?: unknown
   showBorder: boolean
-  showTooltip: boolean
-  showTags: boolean
   showOverlay: boolean
+  showTags: boolean
+  showTooltip: boolean
+  hideMarkedMarker: boolean
   maxCacheTileSize?: number
 }
 
 export const getDefaultMapState = (): GenshinMapState => ({
   hover: null,
   focus: null,
-  showTags: true,
-  showOverlay: false,
   showBorder: false,
+  showOverlay: false,
+  showTags: true,
   showTooltip: false,
+  hideMarkedMarker: false,
 })
 
 export const useMapState = (isRoot = false) => {
@@ -37,6 +39,7 @@ export const useMapState = (isRoot = false) => {
   const showOverlay = mapStateRef('showOverlay')
   const showTag = mapStateRef('showTags')
   const showTooltip = mapStateRef('showTooltip')
+  const hideMarkedMarker = mapStateRef('hideMarkedMarker')
 
   if (isRoot) {
     onMapReady((mapInstance) => {
@@ -46,6 +49,7 @@ export const useMapState = (isRoot = false) => {
       mapInstance.stateManager.registerEffect('showOverlay', () => mapInstance.baseLayer?.forceUpdate())
       mapInstance.stateManager.registerEffect('showTags', () => mapInstance.baseLayer?.forceUpdate())
       mapInstance.stateManager.registerEffect('maxCacheTileSize', () => mapInstance.baseLayer?.forceUpdate())
+      mapInstance.stateManager.registerEffect('hideMarkedMarker', () => mapInstance.baseLayer?.forceUpdate())
     })
   }
 
@@ -55,5 +59,6 @@ export const useMapState = (isRoot = false) => {
     showTag,
     showTooltip,
     showOverlay,
+    hideMarkedMarker,
   }
 }

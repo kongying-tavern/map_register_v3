@@ -52,7 +52,7 @@ const onFeatureCommand = (command: string) => ({
 
 const { markers } = useCurrentLayerMarkers()
 
-const { maxCacheTileSize, showBorder, showTag, showTooltip, showOverlay } = useMapState()
+const { maxCacheTileSize, showBorder, showTag, showTooltip, showOverlay, hideMarkedMarker } = useMapState()
 const cacheTiles = computed({
   get: () => maxCacheTileSize.value !== undefined,
   set: (v) => {
@@ -97,9 +97,10 @@ const cacheTiles = computed({
       <div class="h-full flex flex-col gap-2 p-4">
         <GSSwitch v-model="showTag" label="显示地图标签" />
         <GSSwitch v-model="showOverlay" label="显示附加图层" />
+        <GSSwitch v-model="hideMarkedMarker" label="隐藏标记点位" title="内存低于8G的用户不建议勾选此项" />
         <GSSwitch v-model="showBorder" label="显示图层边界" />
         <GSSwitch v-model="showTooltip" label="显示调试信息" />
-        <GSSwitch v-model="cacheTiles" :label="`地图缓存-${cacheTiles ? '最大' : '自动'}`" title="内存低于8G的用户不建议勾选此项" />
+        <GSSwitch v-model="cacheTiles" label="无限制地图缓存" title="内存低于8G的用户不建议勾选此项" />
       </div>
     </SiderMenuItem>
 

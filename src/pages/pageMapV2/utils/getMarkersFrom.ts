@@ -35,7 +35,7 @@ export const getMarkersFrom = (target: GenshinBaseLayer): IconLayer<API.MarkerVo
 
   const getMarkerState = (marker: API.MarkerVo) => {
     if (archiveStore.currentArchive.body.Data_KYJG.has(marker.id!))
-      return 'marked'
+      return stateManager.get('hideMarkedMarker') ? 'inconspicuous' : 'marked'
     return 'default'
   }
 
@@ -64,6 +64,7 @@ export const getMarkersFrom = (target: GenshinBaseLayer): IconLayer<API.MarkerVo
     updateTriggers: {
       getIcon: [
         archiveStore.currentArchive.body.Data_KYJG.size,
+        stateManager.state.hideMarkedMarker,
       ],
       getColor: [
         stateManager.state.hover,

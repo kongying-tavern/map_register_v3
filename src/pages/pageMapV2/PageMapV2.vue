@@ -21,7 +21,7 @@ useMarkerDrawer(canvasRef)
 
 const { visible: interactionLayerVisible } = useInteractionLayer()
 
-const { showTag, showOverlay, showBorder, showTooltip } = useMapState(true)
+const { showTag, showOverlay, hideMarkedMarker } = useMapState(true)
 
 const collapse = ref(true)
 useEventListener('keypress', (ev) => {
@@ -52,8 +52,7 @@ provide(mapAffixLayerKey, mapAffixLayerRef)
       >
         <GSSwitch v-model="showTag" label="显示地图标签" size="large" />
         <GSSwitch v-model="showOverlay" label="显示附加图层" size="large" />
-        <GSSwitch v-model="showBorder" label="显示图层边界" size="large" />
-        <GSSwitch v-model="showTooltip" label="显示调试信息" size="large" />
+        <GSSwitch v-model="hideMarkedMarker" label="隐藏标记点位" size="large" />
       </div>
 
       <div ref="mapAffixLayerRef" class="map-affix-provider">
