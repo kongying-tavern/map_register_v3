@@ -96,7 +96,7 @@ const itemCountMap = asyncComputed(async () => {
       </template>
     </FilterTabs>
 
-    <div class="flex-1 p-2 overflow-hidden">
+    <div class="flex-1 p-2 overflow-hidden" style="max-height: 400px;">
       <div v-if="conditionManager.tabKey === 0" class="h-full flex gap-1">
         <CheckboxGroup
           v-model="conditionManager.parentAreaCode"
