@@ -10,24 +10,26 @@
 import { ICON_MAPPING_STATES } from '../shared'
 import { getPrototypeOf } from '@/utils/getPrototypeOf'
 import { ICON } from '@/pages/pageMapV2/config/markerIcon'
-import { FALLBACK_ITEM_ICON_URL } from '@/shared/constant'
 import { getObjectFitSize } from '@/utils/getObjectFitSize'
+import { FALLBACK_ITEM_ICON_URL } from '@/shared/constant'
+
+const FALLBACK_ICON = fetch(FALLBACK_ITEM_ICON_URL).then(res => res.blob()).then(blob => createImageBitmap(blob))
+const fetchAsBMP = async (url: string) => {
+  try {
+    const blob = await fetch(url).then(res => res.blob())
+    const bmp = await createImageBitmap(blob)
+    if (!bmp?.width || !bmp?.height)
+      throw new Error(`请求图像 "${decodeURIComponent(url)}" 失败`)
+    return bmp
+  }
+  catch {
+    return FALLBACK_ICON
+  }
+}
 
 const INNER_GAP = ICON.size.w / 2 - ICON.content.radius
 const CONTENT_SIZE = ICON.content.radius * 2
 const ANG2RAD = Math.PI / 180
-
-/** 将数据转换为 ImageBitmap */
-const createBMP = async (res: Promise<Response>) => {
-  const blob = await (await res).blob()
-  const bmp = await createImageBitmap(blob)
-  return bmp
-}
-
-const FALLBACK_IMG = createBMP(fetch(FALLBACK_ITEM_ICON_URL))
-
-/** 当底图无法被转换为 ImageBitmap 时使用替代图标 */
-const withFallback = (bmpMission: Promise<ImageBitmap>) => bmpMission.catch(() => FALLBACK_IMG)
 
 /**
  * 注意！
@@ -42,11 +44,11 @@ const renderIcon = async (ev: MessageEvent<Map<string, { url: string; index: num
 
     // 请求底图
     const icons: Promise<ImageBitmap>[] = []
-    ev.data.forEach(({ index, url }) => (icons[index] = withFallback(createBMP(fetch(url)))))
+    ev.data.forEach(({ index, url }) => (icons[index] = fetchAsBMP(url)))
     const bmps = await Promise.all(icons)
 
     // 请求地下图标
-    const undergroundImg = await createBMP(fetch('/icons/LayerUndergroundMark.png'))
+    const undergroundImg = await fetchAsBMP('/icons/LayerUndergroundMark.png')
 
     // 图标背景路径（一个大头固钉形状）
     const pathBackground = new Path2D()
