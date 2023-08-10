@@ -65,6 +65,15 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/pages/pageUserManager/UserManager.vue'),
       },
       {
+        path: '/score',
+        meta: {
+          title: '用户评分',
+          icon: 'Ticket',
+          roles: [RoleTypeEnum.ADMIN],
+        },
+        component: () => import('@/pages/pageScoreManager/ScoreManager.vue'),
+      },
+      {
         path: '/markers',
         meta: {
           title: '点位管理',
