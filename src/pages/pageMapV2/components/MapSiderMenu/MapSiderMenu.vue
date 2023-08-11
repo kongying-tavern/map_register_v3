@@ -38,14 +38,12 @@ const openSettingDialog = () => DialogService
 
 const features: FeatureOption[] = [
   { label: '管理页', value: 'manager', icon: SetUp },
-  { label: '系统设置', value: 'setting', icon: Setting },
   { label: '赞助我们', value: 'sponsor', icon: CoffeeCup },
   { label: 'GitHub', value: 'GitHub', icon: IconGithub },
 ]
 
 const onFeatureCommand = (command: string) => ({
   manager: () => router.push('/items'),
-  setting: openSettingDialog,
   sponsor: () => window.open('https://opencollective.com/genshinmap'),
   GitHub: () => window.open('https://github.com/kongying-tavern/map_register_v3'),
 } as Record<string, () => void>)[command]?.()
@@ -93,7 +91,7 @@ const cacheTiles = computed({
       <MarkerTable />
     </SiderMenuItem>
 
-    <SiderMenuItem name="setting" label="图层设置" :icon="Operation">
+    <SiderMenuItem name="layer" label="图层设置" :icon="Operation">
       <div class="h-full flex flex-col gap-2 p-4">
         <GSSwitch v-model="showTag" label="显示地图标签" />
         <GSSwitch v-model="showOverlay" label="显示附加图层" />
@@ -103,6 +101,8 @@ const cacheTiles = computed({
         <GSSwitch v-model="cacheTiles" label="无限制地图缓存" title="内存低于8G的用户不建议勾选此项" />
       </div>
     </SiderMenuItem>
+
+    <SiderMenuItem label="系统设置" :icon="Setting" @click="openSettingDialog" />
 
     <SiderMenuItem name="fetures" label="更多功能" :icon="Grid">
       <FeatureGrid :features="features" @command="onFeatureCommand" />
