@@ -57,15 +57,11 @@ export class IconManager {
     }, {} as IconMapping)
 
     // 离屏渲染
-    const blob = await this.#renderSpiritImage(iconTagMap)
-    const url = URL.createObjectURL(blob)
-    const oldUrl = this.spiritImage
-    this.#spiritImage.value = url
-    URL.revokeObjectURL(oldUrl)
+    this.#spiritImage.value = await this.#renderSpiritImage(iconTagMap)
   }
 
   /** 在离屏 canvas 中完成具体精灵图的绘制 */
-  #renderSpiritImage = (iconTagMap: Map<string, { url: string; index: number }>) => new Promise<Blob>((resolve, reject) => {
+  #renderSpiritImage = (iconTagMap: Map<string, { url: string; index: number }>) => new Promise<string>((resolve, reject) => {
     const renderWorker = new IconRenderWorker()
     renderWorker.onmessage = (ev: MessageEvent<ImageBitmap | string>) => {
       renderWorker.terminate()
@@ -76,11 +72,7 @@ export class IconManager {
       canvas.height = ev.data.height
       const ctx = canvas.getContext('bitmaprenderer')!
       ctx.transferFromImageBitmap(ev.data)
-      canvas.toBlob((blob) => {
-        if (!blob)
-          return reject(new Error('无法生成精灵图'))
-        resolve(blob)
-      })
+      resolve(canvas.toDataURL('image/png', 1))
     }
     renderWorker.postMessage(iconTagMap)
   })
