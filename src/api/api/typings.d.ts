@@ -430,8 +430,6 @@ declare namespace API {
   type TagVo = {
     /** 乐观锁 */
     version?: number;
-    /** ID */
-    id?: number;
     /** 创建人 */
     creatorId?: number;
     /** 创建时间 */
