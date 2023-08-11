@@ -33,9 +33,9 @@ const activeName = ref('common')
 <style lang="scss" scoped>
 .setting-panel {
   width: 600px;
-  height: 60vh;
+  height: 60dvh;
   @media screen and (width < 600px) {
-    width: 100vw;
+    width: 100dvw;
   }
   &:deep(.el-tabs) {
     display: flex;
