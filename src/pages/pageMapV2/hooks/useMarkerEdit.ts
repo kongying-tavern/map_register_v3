@@ -60,29 +60,14 @@ export const useMarkerEdit = (markerData: Ref<API.MarkerVo | null>) => {
     }
   }
 
-  const buildModifyMarkerForm = (marker: API.MarkerVo): API.MarkerPunctuateVo => {
-    const isPictureChanged = checkPictureChange(marker)
-    return {
-      ...pick(marker, commonKeys) as API.MarkerPunctuateVo,
-      pictureCreatorId: isPictureChanged ? userStore.info.id : marker.pictureCreatorId,
-      methodType: 2,
-    }
-  }
-
   /** 原始操作 */
   const request = async () => {
     if (!markerData.value)
       throw new Error('所需的点位数据为空')
     const shallowCopy = { ...markerData.value }
     await editorRef.value?.uploadPicture()
-    if (userStore.isAdmin) {
-      const form: API.MarkerVo = buildAdminMarkerForm(shallowCopy)
-      await Api.marker.updateMarker(form)
-    }
-    else {
-      const form: API.MarkerPunctuateVo = buildModifyMarkerForm(shallowCopy)
-      await Api.punctuate.addPunctuate({}, form)
-    }
+    const form: API.MarkerVo = buildAdminMarkerForm(shallowCopy)
+    await Api.marker.updateMarker(form)
   }
 
   const { refresh: submit, onSuccess, onError, ...rest } = useFetchHook({ onRequest: request })

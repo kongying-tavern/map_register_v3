@@ -29,25 +29,11 @@ export const useMarkerCreate = (markerData: Ref<API.MarkerVo | null>) => {
     }
   }
 
-  const buildModifyMarkerForm = (marker: API.MarkerVo): API.MarkerPunctuateVo => {
-    return {
-      ...pick(marker, commonKeys) as API.MarkerPunctuateVo,
-      pictureCreatorId: marker.picture ? userStore.info.id : undefined,
-      methodType: 1,
-    }
-  }
-
   const request = async () => {
     if (!markerData.value)
       throw new Error('所需的点位数据为空')
-    if (userStore.isAdmin) {
-      const form = buildAdminMarkerForm(markerData.value)
-      await Api.marker.createMarker(form)
-    }
-    else {
-      const form = buildModifyMarkerForm(markerData.value)
-      await Api.punctuate.addPunctuate({}, form)
-    }
+    const form = buildAdminMarkerForm(markerData.value)
+    await Api.marker.createMarker(form)
   }
 
   const { refresh: createMarker, onSuccess, onError, ...rest } = useFetchHook({ onRequest: request })
