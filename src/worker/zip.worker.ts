@@ -1,7 +1,8 @@
 import SevenZip from '7z-wasm'
-import SevenZipWASM from '@/wasm/7zz.wasm?url'
+import SevenZipWASM from '7z-wasm/7zz.wasm?url'
 import { Logger } from '@/utils/logger'
 
+// import SevenZipWASM from '@/wasm/7zz.wasm?url'
 export interface ZipWorkerPayload {
   data: Uint8Array
   log?: boolean
