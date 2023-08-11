@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { Check, CirclePlus, DeleteFilled, Edit, Rank } from '@element-plus/icons-vue'
 import { covertPosition } from '../../utils'
-import { useCondition, useMarkerDrawer } from '../../hooks'
+import { useCondition, useMap, useMarkerDrawer } from '../../hooks'
 import { MapAffix, MarkerEditPanel } from '..'
 import { MarkerPanel } from './components'
 import { useMarkerExtra, useMarkerFinished, useSkeletonPicture } from './hooks'
@@ -20,8 +20,9 @@ const { isFinished } = useMarkerFinished(cachedMarkerVo)
 
 const { isUnderground, hiddenFlagType, refreshTimeType } = useMarkerExtra(cachedMarkerVo)
 
+const { map } = useMap()
 const conditionManager = useCondition()
-watch(() => conditionManager.existItemIds, blur)
+watch(() => conditionManager.layerMarkerMap[map.value?.baseLayer?.rawProps.code ?? ''], blur)
 
 // ==================== 编辑点位 ====================
 const { DialogService } = useGlobalDialog()
