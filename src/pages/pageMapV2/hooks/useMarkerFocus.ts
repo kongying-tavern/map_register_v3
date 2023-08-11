@@ -13,9 +13,8 @@ const isMarkerVo = (v: unknown): v is API.MarkerVo => {
   return ['markerTitle', 'position', 'itemList'].every(property => property in v)
 }
 
-// TODO 该 hook 需要修改为更加普适性的名称
-/** 抽屉状态控制 hook */
-export const useMarkerDrawer = (canvasRef?: Ref<HTMLCanvasElement | null>) => {
+/** 点位 focus 状态管理 hook */
+export const useMarkerFocus = (canvasRef?: Ref<HTMLCanvasElement | null>) => {
   const { map, onMapReady } = useMap()
 
   const { collimatorVisible } = useMarkerCollimator()

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useInteractionLayer, useMap, useMapState, useMarkerDrawer } from './hooks'
+import { useInteractionLayer, useMap, useMapState, useMarkerFocus } from './hooks'
 import { genshinMapCanvasKey, mapAffixLayerKey, mutuallyExclusiveLayerKey } from './shared'
 import {
   CollapseButton,
@@ -17,7 +17,7 @@ const mapAffixLayerRef = ref<HTMLElement | null>(null)
 
 const { map } = useMap(canvasRef)
 
-useMarkerDrawer(canvasRef)
+useMarkerFocus(canvasRef)
 
 const { visible: interactionLayerVisible } = useInteractionLayer()
 
@@ -84,6 +84,7 @@ provide(mapAffixLayerKey, mapAffixLayerRef)
     </div>
 
     <ZoomController class="absolute right-0 top-1/2" />
+    <MapContextMenu />
 
     <div
       ref="mutuallyExclusiveLayerRef"

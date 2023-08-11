@@ -4,7 +4,7 @@ import type { Coordinate2D } from '../../core'
 import { MarkerStateSwitch } from '.'
 import { GSButton } from '@/components'
 import { useArchiveStore } from '@/stores'
-import { useInteractionLayer, useMarkerCollimator, useMarkerDelete, useMarkerDrawer } from '@/pages/pageMapV2/hooks'
+import { useInteractionLayer, useMarkerCollimator, useMarkerDelete, useMarkerFocus } from '@/pages/pageMapV2/hooks'
 import { MarkerEditPanel } from '@/pages/pageMapV2/components'
 import db from '@/database'
 import { vMarkeable } from '@/directives'
@@ -12,7 +12,7 @@ import { vMarkeable } from '@/directives'
 const drawerRef = ref<HTMLElement | null>(null) as Ref<HTMLElement>
 
 const { visible: interactionLayerVisible } = useInteractionLayer()
-const { cachedMarkerVo, focus, blur } = useMarkerDrawer()
+const { cachedMarkerVo, focus, blur } = useMarkerFocus()
 const { collimatorVisible, cancel, showCollimator } = useMarkerCollimator()
 const archiveStore = useArchiveStore()
 

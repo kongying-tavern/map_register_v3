@@ -1,12 +1,12 @@
 import { ElMessageBox } from 'element-plus'
 import type { Coordinate2D } from './../../../core/GenshinMap'
 import { GSMessageService } from '@/components'
-import { useMap, useMarkerCollimator, useMarkerDrawer, useMarkerEdit } from '@/pages/pageMapV2/hooks'
+import { useMap, useMarkerCollimator, useMarkerEdit, useMarkerFocus } from '@/pages/pageMapV2/hooks'
 
 export const usePositionEdit = () => {
   const { collimatorVisible, hook } = useMarkerCollimator()
   const { map } = useMap()
-  const { focus } = useMarkerDrawer()
+  const { focus } = useMarkerFocus()
 
   const cachedMarkerVo = ref<API.MarkerVo | null>(null)
   const { editMarker, onSuccess: onEditSuccess } = useMarkerEdit(cachedMarkerVo)

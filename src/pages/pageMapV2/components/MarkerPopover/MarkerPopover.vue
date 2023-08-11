@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { Check, CirclePlus, DeleteFilled, Edit, Rank } from '@element-plus/icons-vue'
 import { covertPosition } from '../../utils'
-import { useCondition, useMap, useMarkerDrawer } from '../../hooks'
+import { useCondition, useMap, useMarkerFocus } from '../../hooks'
 import { MapAffix, MarkerEditPanel } from '..'
 import { MarkerPanel } from './components'
 import { useMarkerExtra, useMarkerFinished, useSkeletonPicture } from './hooks'
@@ -12,7 +12,7 @@ import { useGlobalDialog } from '@/hooks'
 
 const iconTagStore = useIconTagStore()
 
-const { cachedMarkerVo, focus, blur } = useMarkerDrawer()
+const { cachedMarkerVo, focus, blur } = useMarkerFocus()
 
 const { pictureUrl, loading: imageLoading } = useSkeletonPicture(cachedMarkerVo)
 
