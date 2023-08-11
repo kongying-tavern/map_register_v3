@@ -12,7 +12,7 @@ const init = () => {
 
 const data = ref<string[]>(init())
 
-const { scoreData, loading, generateScore, updateScore } = useScore({
+const { scoreData, loading, generateLoading, generateScore, updateScore } = useScore({
   getParams: () => ({
     scope: 'PUNCTUATE',
     startTime: data.value[0],
@@ -26,7 +26,7 @@ const { scoreData, loading, generateScore, updateScore } = useScore({
   <div class="h-full flex flex-col gap-2 overflow-hidden">
     <ScoreFilter v-model="data">
       <template #footer>
-        <el-button :loading="loading" @click="() => generateScore()">
+        <el-button :loading="generateLoading" @click="() => generateScore()">
           生成数据
         </el-button>
         <el-button :loading="loading" @click="() => updateScore()">

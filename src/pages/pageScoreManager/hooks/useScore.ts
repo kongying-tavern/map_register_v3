@@ -28,7 +28,7 @@ export const useScore = (options: ScoreHookOptions) => {
   })
 
   // 生成评分数据
-  const { refresh: generateScore, onSuccess: onGenerateSuccess } = useFetchHook({
+  const { refresh: generateScore, onSuccess: onGenerateSuccess, loading: generateLoading } = useFetchHook({
     immediate: false,
     onRequest: () => {
       return Api.score.generate({}, params.value)
@@ -39,10 +39,11 @@ export const useScore = (options: ScoreHookOptions) => {
     ElMessage.success('生成数据成功')
   })
 
-  watch(() => getParams(), generateScore, { deep: true })
+  watch(() => getParams(), updateScore, { deep: true })
 
   return {
     scoreData,
+    generateLoading,
     updateScore,
     generateScore,
     ...rest,
