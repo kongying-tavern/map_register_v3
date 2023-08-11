@@ -1,7 +1,8 @@
 <script lang="ts" setup>
-import { CoffeeCup, Filter, Grid, List, Operation, SetUp, Setting } from '@element-plus/icons-vue'
+import { CoffeeCup, Filter, Grid, IceTea, List, Operation, PieChart, Setting } from '@element-plus/icons-vue'
+import { ElImage } from 'element-plus'
 import type { FeatureOption } from '../FeatureGrid'
-import { useCurrentLayerMarkers, useMapState } from '@/pages/pageMapV2/hooks'
+import { useCondition, useCurrentLayerMarkers, useMapState } from '@/pages/pageMapV2/hooks'
 import { FeatureGrid, MarkerFilter, MarkerTable, SiderMenu, SiderMenuItem } from '@/pages/pageMapV2/components'
 import { AppSettings, GSSwitch } from '@/components'
 import { useGlobalDialog } from '@/hooks'
@@ -9,6 +10,7 @@ import { useUserStore } from '@/stores'
 import { IconGithub } from '@/components/AppIcons'
 import { FALLBACK_AVATAR_URL } from '@/shared/constant'
 import { ExitLeft } from '@/components/GenshinUI/GSIcon'
+import { vAdmin } from '@/directives'
 
 defineProps<{
   collapse: boolean
@@ -36,17 +38,27 @@ const openSettingDialog = () => DialogService
   })
   .open(AppSettings)
 
-const features: FeatureOption[] = [
-  { label: '管理页', value: 'manager', icon: SetUp },
-  { label: '赞助我们', value: 'sponsor', icon: CoffeeCup },
-  { label: 'GitHub', value: 'GitHub', icon: IconGithub },
-]
+const conditionManager = useCondition()
+const openSpiritImage = () => DialogService
+  .config({
+    width: 'fit-content',
+  })
+  .props({
+    src: conditionManager.spiritImage,
+    fit: 'contain',
+    previewTeleported: true,
+    previewSrcList: [conditionManager.spiritImage],
+    style: {
+      'vertical-align': 'middle',
+    },
+  })
+  .open(ElImage)
 
-const onFeatureCommand = (command: string) => ({
-  manager: () => router.push('/items'),
-  sponsor: () => window.open('https://opencollective.com/genshinmap'),
-  GitHub: () => window.open('https://github.com/kongying-tavern/map_register_v3'),
-} as Record<string, () => void>)[command]?.()
+const features: FeatureOption[] = [
+  { label: '赞助我们', icon: CoffeeCup, cb: () => window.open('https://opencollective.com/genshinmap') },
+  { label: 'GitHub', icon: IconGithub, cb: () => window.open('https://github.com/kongying-tavern/map_register_v3') },
+  { label: '精灵图', icon: IceTea, cb: openSpiritImage },
+]
 
 const { markers } = useCurrentLayerMarkers()
 
@@ -104,8 +116,10 @@ const cacheTiles = computed({
 
     <SiderMenuItem label="系统设置" :icon="Setting" @click="openSettingDialog" />
 
+    <SiderMenuItem v-admin label="管理面板" :icon="PieChart" @click="() => router.push('/items')" />
+
     <SiderMenuItem name="fetures" label="更多功能" :icon="Grid">
-      <FeatureGrid :features="features" @command="onFeatureCommand" />
+      <FeatureGrid :features="features" />
     </SiderMenuItem>
 
     <template #footer>

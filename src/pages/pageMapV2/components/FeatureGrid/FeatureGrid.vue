@@ -1,44 +1,21 @@
 <script lang="ts" setup>
-import { IceTea } from '@element-plus/icons-vue'
-import { useCondition } from '../../hooks'
 import type { FeatureOption } from '.'
 
 defineProps<{
   features: FeatureOption[]
 }>()
-
-defineEmits<{
-  (e: 'command', v: string): void
-}>()
-
-const conditionManager = useCondition()
-
-const test = () => {
-  window.open(conditionManager.spiritImage)
-}
 </script>
 
 <template>
   <el-scrollbar height="100%">
     <div class="feature-grid genshin-text">
-      <div v-for="f in features" :key="f.value" class="grid-unit" @click="$emit('command', f.value)">
-        <div v-if="f.icon" class="grid-unit-icon">
-          <component :is="f.icon" class="h-full" />
-        </div>
-        <div class="grid-unit-label">
-          <span class="w-full inline-block whitespace-nowrap text-ellipsis overflow-hidden text-center">
-            {{ f.label }}
-          </span>
-        </div>
-      </div>
-
-      <div class="grid-unit" @click="test">
+      <div v-for="feature in features" :key="feature.label" class="grid-unit" @click="() => feature.cb()">
         <div class="grid-unit-icon">
-          <IceTea class="h-full" />
+          <component :is="feature.icon" class="h-full" />
         </div>
         <div class="grid-unit-label">
           <span class="w-full inline-block whitespace-nowrap text-ellipsis overflow-hidden text-center">
-            精灵图
+            {{ feature.label }}
           </span>
         </div>
       </div>
