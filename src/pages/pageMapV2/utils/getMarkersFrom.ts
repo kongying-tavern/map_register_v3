@@ -7,7 +7,6 @@ import { isMarkerVo } from '@/utils'
 
 /** 点位渲染属性 */
 export const getMarkersFrom = (target: GenshinBaseLayer): IconLayer<API.MarkerVo> => {
-  const { center } = target.rawProps
   const conditionManager = useCondition()
   const { stateManager } = target.context.deck
   const archiveStore = useArchiveStore()
@@ -29,8 +28,7 @@ export const getMarkersFrom = (target: GenshinBaseLayer): IconLayer<API.MarkerVo
 
   const isFocus = (marker: API.MarkerVo) => {
     const { focus } = stateManager.state
-    if (isMarkerVo(focus) && marker.id === focus.id)
-      return 'focus'
+    return isMarkerVo(focus) && marker.id === focus.id
   }
 
   const getMarkerState = (marker: API.MarkerVo) => {
@@ -56,8 +54,16 @@ export const getMarkersFrom = (target: GenshinBaseLayer): IconLayer<API.MarkerVo
     getIcon: (marker) => {
       return `${findValidItemId(marker.itemList)}_${getMarkerPosition(marker)}_${getMarkerState(marker)}`
     },
-    getSize: marker => isFocus(marker) ? 55 : 50,
-    getColor: marker => isHover(marker) ? [0, 0, 0, 204] : [0, 0, 0, 255],
+    getSize: (marker) => {
+      return isFocus(marker) ? 55 : 50
+    },
+    getColor: (marker) => {
+      return isHover(marker) ? [0, 0, 0, 204] : [0, 0, 0, 255]
+    },
+    getPosition: (marker) => {
+      const [x, y] = marker.position?.split(',').map(Number) as [number, number]
+      return target.context.deck.projectCoord([x, y])
+    },
     sizeScale: 1,
     sizeMinPixels: 4,
     sizeMaxPixels: 50 * 2 ** (target.context.deck.mainViewState.zoom + 2),
@@ -72,10 +78,6 @@ export const getMarkersFrom = (target: GenshinBaseLayer): IconLayer<API.MarkerVo
       getSize: [
         stateManager.state.focus,
       ],
-    },
-    getPosition: (d) => {
-      const [x, y] = d.position?.split(',').map(Number) as [number, number]
-      return [x + center[0], y + center[1], 0]
     },
   })
 }
