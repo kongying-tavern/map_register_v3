@@ -1,4 +1,3 @@
-import type { PickingInfo } from '@deck.gl/core/typed'
 import type { Ref } from 'vue'
 import { useMap, useMarkerCollimator } from '@/pages/pageMapV2/hooks'
 
@@ -38,19 +37,11 @@ export const useMarkerFocus = (canvasRef?: Ref<HTMLCanvasElement | null>) => {
     map.value?.stateManager.set('focus', null)
   }
 
-  const handleMapClick = async (info: PickingInfo, ev: { srcEvent: Event }) => {
-    if (!(ev.srcEvent instanceof PointerEvent) || ev.srcEvent.button !== 0)
-      return
-    isMarkerVo(info.object) ? focusMarker(info.object) : blur()
-  }
-
-  if (canvasRef) {
-    onMapReady(mapInstance => mapInstance.event.on('click', handleMapClick))
-
-    onBeforeUnmount(() => {
-      map.value?.event.off('click', handleMapClick)
-    })
-  }
+  canvasRef && onMapReady(mapInstance => mapInstance.event.on('click', (info, ev) => {
+    if (!ev.leftButton || !isMarkerVo(info.object))
+      return blur()
+    focusMarker(info.object)
+  }))
 
   return { cachedMarkerVo, focus, focusMarker, blur, setFocus }
 }

@@ -4,6 +4,7 @@ import { genshinMapCanvasKey, mapAffixLayerKey, mutuallyExclusiveLayerKey } from
 import {
   CollapseButton,
   MapAffix,
+  MapContextMenu,
   MapOverlay,
   MapSiderMenu,
   MarkerPopover,
@@ -18,6 +19,11 @@ const mapAffixLayerRef = ref<HTMLElement | null>(null)
 const { map } = useMap(canvasRef)
 
 useMarkerFocus(canvasRef)
+
+// 拦截默认右键事件，由 GenshinMap 自行处理
+useEventListener(canvasRef, 'contextmenu', (ev) => {
+  ev.preventDefault()
+})
 
 const { visible: interactionLayerVisible } = useInteractionLayer()
 
@@ -68,18 +74,18 @@ provide(mapAffixLayerKey, mapAffixLayerRef)
         </MapAffix>
 
         <MarkerPopover />
+
+        <MapSiderMenu
+          v-model:collapse="collapse"
+          class="z-10 transition-all"
+          :class="[interactionLayerVisible ? 'pointer-events-auto' : '-translate-x-full']"
+        />
       </div>
 
       <CollapseButton
         v-model:collapse="collapse"
         :class="[interactionLayerVisible ? 'pointer-events-auto' : '-translate-x-full']"
-        :style="{ '--tw-translate-x': '-300%' }"
-      />
-
-      <MapSiderMenu
-        v-model:collapse="collapse"
-        class="z-10 transition-all"
-        :class="[interactionLayerVisible ? 'pointer-events-auto' : '-translate-x-full']"
+        :style="{ '--tw-translate-x': interactionLayerVisible ? '0%' : '-300%' }"
       />
     </div>
 
