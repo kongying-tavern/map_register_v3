@@ -104,7 +104,11 @@ const itemCountMap = asyncComputed(async () => {
           :options="parentAreaList"
           label-key="name"
           value-key="code"
-        />
+        >
+          <template #icon="{ row }">
+            <CheckboxImage :src="iconTagStore.iconTagMap[row.iconTag ?? '']?.url" />
+          </template>
+        </CheckboxGroup>
         <div style="width: 1px; height: 98%; background: #E3DDD140;" />
         <CheckboxGroup
           v-model="conditionManager.areaCode"
