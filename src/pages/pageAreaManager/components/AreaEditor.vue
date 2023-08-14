@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
 import { AreaDetailForm } from '.'
-import { GlobalDialogController, GlobalDrawerController, useFetchHook } from '@/hooks'
+import { GlobalDialogController, useFetchHook } from '@/hooks'
 import Api from '@/api/api'
 
 const props = defineProps<{
@@ -24,7 +24,7 @@ onSuccess(() => {
     message: '编辑地区信息成功',
     offset: 48,
   })
-  GlobalDrawerController.close()
+  GlobalDialogController.close()
   emits('success')
 })
 
