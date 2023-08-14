@@ -73,8 +73,6 @@ const renderIcon = async (ev: MessageEvent<Map<string, { url: string; index: num
 
     /** 画板半宽度 */
     const HALF_WIDTH = canvas.width / 2
-    /** 减去一列的画板半宽度 */
-    const HALF_WITDTH_WITHOUT_COL = HALF_WIDTH - ICON.size.w
 
     // 验证边框
     // patternCtx.rect(0, 0, ICON.size.w, ICON.size.h)
@@ -88,13 +86,7 @@ const renderIcon = async (ev: MessageEvent<Map<string, { url: string; index: num
     patternCtx.fillStyle = ICON.shadow.color
     patternCtx.fill()
     ctx.fillStyle = createPattern('repeat')
-    ctx.fillRect(0, 0, HALF_WITDTH_WITHOUT_COL, canvas.height)
-    ctx.fillRect(HALF_WIDTH, 0, HALF_WITDTH_WITHOUT_COL, canvas.height)
-    ctx.save()
-    ctx.globalAlpha = ICON.state.inconspicuousOpacity
-    ctx.fillRect(HALF_WITDTH_WITHOUT_COL, 0, ICON.size.w, canvas.height)
-    ctx.fillRect(canvas.width - ICON.size.w, 0, ICON.size.w, canvas.height)
-    ctx.restore()
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
 
     // 2. 绘制背景
     patternCtx.clearRect(0, 0, patternCanvas.width, patternCanvas.height)
@@ -106,13 +98,7 @@ const renderIcon = async (ev: MessageEvent<Map<string, { url: string; index: num
     patternCtx.fill(pathBackground)
     patternCtx.restore()
     ctx.fillStyle = createPattern('repeat')
-    ctx.fillRect(0, 0, HALF_WITDTH_WITHOUT_COL, canvas.height)
-    ctx.fillRect(HALF_WIDTH, 0, HALF_WITDTH_WITHOUT_COL, canvas.height)
-    ctx.save()
-    ctx.globalAlpha = ICON.state.inconspicuousOpacity
-    ctx.fillRect(HALF_WITDTH_WITHOUT_COL, 0, ICON.size.w, canvas.height)
-    ctx.fillRect(canvas.width - ICON.size.w, 0, ICON.size.w, canvas.height)
-    ctx.restore()
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
 
     // 3. 绘制边框
     patternCtx.clearRect(0, 0, patternCanvas.width, patternCanvas.height)
@@ -131,18 +117,10 @@ const renderIcon = async (ev: MessageEvent<Map<string, { url: string; index: num
     patternCtx.clearRect(0, 0, patternCanvas.width, patternCanvas.height)
     patternCtx.fillStyle = ICON.state.markedColor
     patternCtx.fill(pathBackground)
+    patternCtx.restore()
     ctx.fillStyle = createPattern('repeat')
     ctx.fillRect(ICON.size.w, 0, ICON.size.w, canvas.height)
     ctx.fillRect(HALF_WIDTH + ICON.size.w, 0, ICON.size.w, canvas.height)
-    // 3.3. state = inconspicuous
-    patternCtx.clearRect(0, 0, patternCanvas.width, patternCanvas.height)
-    patternCtx.fillStyle = ICON.state.markedColor
-    patternCtx.globalAlpha = ICON.state.inconspicuousOpacity
-    patternCtx.fill(pathBackground)
-    ctx.fillStyle = createPattern('repeat')
-    ctx.fillRect(ICON.size.w * 2, 0, ICON.size.w, canvas.height)
-    ctx.fillRect(HALF_WIDTH + ICON.size.w * 2, 0, ICON.size.w, canvas.height)
-    patternCtx.restore()
 
     // 4. 绘制底图
     patternCanvas.height = ev.data.size * ICON.size.h
@@ -155,24 +133,14 @@ const renderIcon = async (ev: MessageEvent<Map<string, { url: string; index: num
       patternCtx.restore()
     })
     ctx.fillStyle = createPattern('repeat-x')
-    ctx.fillRect(0, 0, HALF_WITDTH_WITHOUT_COL, canvas.height)
-    ctx.fillRect(HALF_WIDTH, 0, HALF_WITDTH_WITHOUT_COL, canvas.height)
-    ctx.save()
-    ctx.globalAlpha = ICON.state.inconspicuousOpacity
-    ctx.fillRect(HALF_WITDTH_WITHOUT_COL, 0, ICON.size.w, canvas.height)
-    ctx.fillRect(canvas.width - ICON.size.w, 0, ICON.size.w, canvas.height)
-    ctx.restore()
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
 
     // 5. 绘制地下图标
     patternCanvas.height = ICON.size.h
     patternCtx.clearRect(0, 0, patternCanvas.width, patternCanvas.height)
     patternCtx.drawImage(undergroundImg, 0, 0, 36, 36, ICON.size.w - 20, 0, 20, 20)
     ctx.fillStyle = createPattern('repeat')
-    ctx.fillRect(HALF_WIDTH, 0, HALF_WITDTH_WITHOUT_COL, canvas.height)
-    ctx.save()
-    ctx.globalAlpha = ICON.state.inconspicuousOpacity
-    ctx.fillRect(HALF_WIDTH + HALF_WITDTH_WITHOUT_COL, 0, ICON.size.w, canvas.height)
-    ctx.restore()
+    ctx.fillRect(HALF_WIDTH, 0, canvas.width, canvas.height)
 
     const bmp = canvas.transferToImageBitmap()
     self.postMessage(bmp, { transfer: [bmp] })

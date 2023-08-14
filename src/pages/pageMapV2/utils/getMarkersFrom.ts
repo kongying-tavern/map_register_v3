@@ -15,15 +15,10 @@ export const getMarkersFrom = (target: GenshinBaseLayer): IconLayer<API.MarkerVo
   // 由于每个 marker 有多个物品，但并不是每个物品在预渲染时都会被 iconMap 收集，这里只能去找存在于 iconMap 里的物品
   const findValidItemId = (items: API.MarkerItemLinkVo[] = []) => {
     for (const { itemId = -1 } of items) {
-      if (MARKER_POSITION.some(pos => `${itemId}_${pos}_default` in conditionManager.iconMapping))
+      if (MARKER_POSITION.findIndex(pos => conditionManager.iconMapping[`${itemId}_${pos}_default`] !== undefined) > -1)
         return itemId
     }
     return -1
-  }
-
-  const isHover = (marker: API.MarkerVo) => {
-    const { hover } = stateManager.state
-    return isMarkerVo(hover) && marker.id === hover.id
   }
 
   const isFocus = (marker: API.MarkerVo) => {
@@ -31,16 +26,25 @@ export const getMarkersFrom = (target: GenshinBaseLayer): IconLayer<API.MarkerVo
     return isMarkerVo(focus) && marker.id === focus.id
   }
 
+  const isMarked = (marker: API.MarkerVo) => {
+    return archiveStore.currentArchive.body.Data_KYJG.has(marker.id!)
+  }
+
   const getMarkerState = (marker: API.MarkerVo) => {
-    if (archiveStore.currentArchive.body.Data_KYJG.has(marker.id!))
-      return stateManager.get('hideMarkedMarker') ? 'inconspicuous' : 'marked'
-    return 'default'
+    return isMarked(marker) ? 'marked' : 'default'
   }
 
   const getMarkerPosition = (marker: API.MarkerVo) => {
     if (marker.extra?.underground?.is_underground)
       return 'underground'
     return 'aboveground'
+  }
+
+  const getMarkerOpacity = (marker: API.MarkerVo) => {
+    if (isMarked(marker) && stateManager.get('hideMarkedMarker'))
+      return 0.2
+    const { hover } = stateManager.state
+    return (isMarkerVo(hover) && marker.id === hover.id) ? 0.8 : 1
   }
 
   return new IconLayer({
@@ -58,7 +62,7 @@ export const getMarkersFrom = (target: GenshinBaseLayer): IconLayer<API.MarkerVo
       return isFocus(marker) ? 55 : 50
     },
     getColor: (marker) => {
-      return isHover(marker) ? [0, 0, 0, 204] : [0, 0, 0, 255]
+      return [0, 0, 0, 255 * getMarkerOpacity(marker)]
     },
     getPosition: (marker) => {
       const [x, y] = marker.position?.split(',').map(Number) as [number, number]
@@ -70,10 +74,10 @@ export const getMarkersFrom = (target: GenshinBaseLayer): IconLayer<API.MarkerVo
     updateTriggers: {
       getIcon: [
         archiveStore.currentArchive.body.Data_KYJG.size,
-        stateManager.state.hideMarkedMarker,
       ],
       getColor: [
         stateManager.state.hover,
+        stateManager.state.hideMarkedMarker,
       ],
       getSize: [
         stateManager.state.focus,

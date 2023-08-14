@@ -6,7 +6,7 @@ export const MAP_FONTFAMILY = 'map-font-zhcn'
 export const MARKER_POSITION = ['aboveground', 'underground']
 
 /** 点位的交互状态 */
-export const MARKER_STATE = ['default', 'marked', 'inconspicuous']
+export const MARKER_STATE = ['default', 'marked']
 
 /**
  * 总计需要渲染 `MARKER_POSITION` * `MARKER_STATE` 种状态，
