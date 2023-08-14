@@ -106,16 +106,14 @@ const cutImage = async () => {
   try {
     if (!rawImage.value)
       return
-    const canvas = document.createElement('canvas')
-    canvas.width = 64
-    canvas.height = 64
+    const canvas = new OffscreenCanvas(64, 64)
     const ctx = canvas.getContext('2d')!
-    const sx = (Math.abs(modelOffsetX.value) - minOffsetX.value) / modelZoom.value
-    const sy = (Math.abs(modelOffsetY.value) - minOffsetY.value) / modelZoom.value
+    const sx = (-modelOffsetX.value - minOffsetX.value) / modelZoom.value
+    const sy = (-modelOffsetY.value - minOffsetY.value) / modelZoom.value
     const ss = 400 / modelZoom.value
     ctx.drawImage(rawImage.value, sx, sy, ss, ss, 0, 0, 64, 64)
-    const img = await new Promise<Blob>((resolve, reject) => {
-      canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('无法渲染裁切图片')), 'image/jpeg')
+    const img = await canvas.convertToBlob({
+      type: 'image/png',
     })
     emits('cutImage', img)
     emits('update:modelValue')
