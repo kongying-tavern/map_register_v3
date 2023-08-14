@@ -12,9 +12,9 @@ export async function createArea(body: API.AreaVo, options?: { [key: string]: an
   });
 }
 
-/** 修改地区 修改地区 POST /api/area */
+/** 修改地区 修改地区 POST /api/area/update */
 export async function updateArea(body: API.AreaVo, options?: { [key: string]: any }) {
-  return request<API.RBoolean>('/api/area', {
+  return request<API.RBoolean>('/api/area/update', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
