@@ -6,9 +6,7 @@ import { Logger } from '@/utils'
 const logger = new Logger('[beforeEachGuard]')
 
 /** 导航前置守卫，使用函数传递参数来生成一个回调，以便后期增加更多操作 */
-export const beforeEachGuard = (
-  router: Router,
-): NavigationGuardWithThis<void> => {
+export const beforeEachGuard = (router: Router): NavigationGuardWithThis<void> => {
   return async (to, from, next) => {
     Logger.group('[vue-router-process]')
     logger.info(`"${from.path}" => "${to.path}"`)
@@ -48,7 +46,7 @@ export const beforeEachGuard = (
     // 确保在进入路由时用户信息已更新
     ;(!userStore.info.id || userStore.info.id !== userStore.auth.userId) && await userStore.updateUserInfo()
     // 确保在进入路由时用户设置已更新
-    !userStore.preference.filterStates && await userStore.updateUserPreference()
+    !userStore.preference.id && await userStore.updateUserPreference()
     go()
 
     userStore.createRefreshTimer()
