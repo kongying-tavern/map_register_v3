@@ -7,6 +7,7 @@ import type { GenshinMapState } from '../hooks'
 import { getDefaultMapState } from '../hooks'
 import { EventBus, GenshinBaseLayer, StateManager } from '.'
 import genshinFont from '@/style/fonts/genshinFont.woff2?url'
+import { useMapStore } from '@/stores'
 
 export interface GenshinMapOptions extends DeckProps {
   canvas: HTMLCanvasElement
@@ -73,6 +74,7 @@ export class GenshinMap extends Deck {
           speed: 0.002,
           smooth: true,
         },
+        inertia: 300,
       },
       getCursor: state => state.isDragging
         ? 'grabbing'
@@ -109,23 +111,35 @@ export class GenshinMap extends Deck {
   get stateManager() { return this.#stateManager }
   #stateManager = new StateManager<GenshinMap, GenshinMapState>(this, getDefaultMapState())
 
-  #handleViewStateChange = ({ viewState, oldViewState = {}, ...rest }: ViewStateChangeParameters & { viewId: string }) => {
+  #handleViewStateChange = ({ viewState, oldViewState = {}, interactionState, ...rest }: ViewStateChangeParameters) => {
     const newState = viewState as GensinMapViewState
     const oldState = oldViewState as Partial<GensinMapViewState>
-    if (!this.baseLayer)
-      return { viewState: newState, oldViewState: oldState, ...rest }
-    const [xmin, ymax, xmax, ymin] = this.baseLayer.rawProps.bounds
+
+    const isMovingMarkers = useMapStore().mission?.type === 'moveMarkers'
+
+    const rewriteTarget = ((): Coordinate2D => {
+      if (isMovingMarkers)
+        return oldState.target ?? [0, 0]
+      if (!this.baseLayer)
+        return newState.target
+      const [xmin, ymax, xmax, ymin] = this.baseLayer.rawProps.bounds
+      return [clamp(newState.target[0], xmin, xmax), clamp(newState.target[1], ymin, ymax)]
+    })()
+
     const rewriteState: GensinMapViewState = {
       ...newState,
-      target: [
-        clamp(newState.target[0], xmin, xmax),
-        clamp(newState.target[1], ymin, ymax),
-      ],
-      transitionDuration: newState.zoom === oldState.zoom ? 0 : 32,
-      transitionEasing: TRANSITION.LINEAR,
+      target: rewriteTarget,
+      zoom: isMovingMarkers ? oldState.zoom ?? 0 : newState.zoom,
+      ...(interactionState.isZooming
+        ? {
+            transitionDuration: 32,
+            transitionEasing: TRANSITION.LINEAR,
+          }
+        : {}),
     }
+
     this.mainViewState = rewriteState
-    return { viewState: rewriteState, oldViewState: oldState, ...rest }
+    return { viewState: rewriteState, oldViewState: oldState, interactionState, ...rest }
   }
 
   #readResolve?: (map: GenshinMap) => void = undefined
