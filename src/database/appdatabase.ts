@@ -1,5 +1,6 @@
 import { Dexie } from 'dexie'
 import { markerFormater } from './middleware'
+import type { Condition } from '@/pages/pageMapV2/core'
 
 /** MD5 表项 */
 export interface MD5Vo {
@@ -20,8 +21,7 @@ export interface UserPreference {
 export interface FilterState {
   /** 筛选器存储的唯一名称 */
   name: string
-  /** 物品 ids */
-  itemIds: number[]
+  conditions: Record<string, Condition>
 }
 
 export class AppDatabase extends Dexie {
@@ -45,7 +45,7 @@ export class AppDatabase extends Dexie {
 
     this
       .use(markerFormater)
-      .version(1.9)
+      .version(2.0)
       .stores({
         area: '&id, parentId, name, code, hiddenFlag',
         iconTag: '&tag',

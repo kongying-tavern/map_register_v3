@@ -1,25 +1,14 @@
 import { IconLayer } from '@deck.gl/layers/typed'
-import type { GenshinBaseLayer } from '../core'
-import { MARKER_POSITION } from '../shared'
+import type { GenshinBaseLayer, MarkerWithRenderConfig } from '../core'
 import { useCondition } from '@/pages/pageMapV2/hooks'
 import { useArchiveStore } from '@/stores'
 import { isMarkerVo } from '@/utils'
 
 /** 点位渲染属性 */
-export const getMarkersFrom = (target: GenshinBaseLayer): IconLayer<API.MarkerVo> => {
+export const getMarkersFrom = (target: GenshinBaseLayer): IconLayer<MarkerWithRenderConfig> => {
   const conditionManager = useCondition()
   const { stateManager } = target.context.deck
   const archiveStore = useArchiveStore()
-
-  // TODO 优化可能
-  // 由于每个 marker 有多个物品，但并不是每个物品在预渲染时都会被 iconMap 收集，这里只能去找存在于 iconMap 里的物品
-  const findValidItemId = (items: API.MarkerItemLinkVo[] = []) => {
-    for (const { itemId = -1 } of items) {
-      if (MARKER_POSITION.findIndex(pos => conditionManager.iconMapping[`${itemId}_${pos}_default`] !== undefined) > -1)
-        return itemId
-    }
-    return -1
-  }
 
   const isFocus = (marker: API.MarkerVo) => {
     const { focus } = stateManager.state
@@ -56,7 +45,7 @@ export const getMarkersFrom = (target: GenshinBaseLayer): IconLayer<API.MarkerVo
     iconAtlas: conditionManager.spiritImage,
     iconMapping: conditionManager.iconMapping,
     getIcon: (marker) => {
-      return `${findValidItemId(marker.itemList)}_${getMarkerPosition(marker)}_${getMarkerState(marker)}`
+      return `${marker.render.itemId}_${getMarkerPosition(marker)}_${getMarkerState(marker)}`
     },
     getSize: (marker) => {
       return isFocus(marker) ? 55 : 50

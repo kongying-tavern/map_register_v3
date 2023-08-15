@@ -1,9 +1,10 @@
+import { MARKER_POSITION } from '../shared'
 import { IconManager } from './IconManager'
 import db from '@/database'
 import { useMap } from '@/pages/pageMapV2/hooks'
 import { LAYER_CONFIGS } from '@/pages/pageMapV2/config'
 import { Logger } from '@/utils'
-import { localSettings, useAreaStore, useItemTypeStore, useUserStore } from '@/stores'
+import { localSettings, useUserStore } from '@/stores'
 
 export interface Condition {
   area: API.AreaVo
@@ -12,6 +13,12 @@ export interface Condition {
 }
 
 const logger = new Logger('[条件管理器]')
+
+export interface MarkerWithRenderConfig extends API.MarkerVo {
+  render: {
+    itemId: number
+  }
+}
 
 export class ConditionManager extends IconManager {
   // ========== 对外绑定的数据 ==========
@@ -99,7 +106,7 @@ export class ConditionManager extends IconManager {
   })
 
   /** 图层与点位映射表 */
-  #layerMarkerMap = ref<Record<string, API.MarkerVo[]>>({})
+  #layerMarkerMap = ref<Record<string, MarkerWithRenderConfig[]>>({})
   get layerMarkerMap() { return this.#layerMarkerMap.value }
 
   /** 条件列表 */
@@ -117,27 +124,26 @@ export class ConditionManager extends IconManager {
 
   get existItemIds() { return this.#existItemIds.value }
 
-  /** 条件管理器是否正在进行预渲染 */
-  #isPreRendering = ref(false)
-  get isPreRendering() { return this.#isPreRendering.value }
-
   #useRenderMission = async (fn: (requestRender: () => Promise<void>) => Promise<void> | void) => {
-    if (this.isPreRendering)
-      return
     try {
       await fn(this.requestMarkersUpdate)
     }
     catch (err) {
       (err instanceof Error) && this.#handleError(err)
     }
-    finally {
-      this.#isPreRendering.value = false
-    }
   }
 
   /** 仅在改变条件时改变，以便各图层进行脏检查 */
   #conditionStateId = ref(crypto.randomUUID())
   get conditionStateId() { return this.#conditionStateId.value }
+
+  #findValidItemId = (items: API.MarkerItemLinkVo[] = []) => {
+    for (const { itemId = -1 } of items) {
+      if (MARKER_POSITION.findIndex(pos => this.iconMapping[`${itemId}_${pos}_default`] !== undefined) > -1)
+        return itemId
+    }
+    return -1
+  }
 
   #initLayerMarkerMap = () => Promise.all(LAYER_CONFIGS.map(async ({ code, areaCodes = [] }) => {
     // 筛选出只存在于当前图层的点位
@@ -147,9 +153,13 @@ export class ConditionManager extends IconManager {
         return
       itemIdsInThisLayer = itemIdsInThisLayer.concat(condition.items)
     })
-    const markers = (await db.marker.where('itemIdList').anyOf(itemIdsInThisLayer).toArray()).map(marker => ({
+    const markers: MarkerWithRenderConfig[] = (await db.marker.where('itemIdList').anyOf(itemIdsInThisLayer).toArray()).map(marker => ({
       ...marker,
+      render: {
+        itemId: this.#findValidItemId(marker.itemList),
+      },
     }))
+
     this.#layerMarkerMap.value[code] = markers
   }))
 
@@ -159,24 +169,24 @@ export class ConditionManager extends IconManager {
     if (!layer)
       return
     this.#conditionStateId.value = crypto.randomUUID()
-    await this.#initLayerMarkerMap()
     const items = (await db.item.bulkGet(this.existItemIds)).filter(Boolean) as API.ItemVo[]
     await this.initIconMap(items)
+    await this.#initLayerMarkerMap()
     layer.forceUpdate()
   }
 
   #putCondition = (
     area = this.area,
-    type = this.itemType,
-    items = this.itemIds,
+    itemType = this.itemType,
+    itemIds = this.itemIds,
     render = true,
   ) => this.#useRenderMission(async (requestRender) => {
-    if (!area || !type)
+    if (!area || !itemType)
       throw new Error('未选择子地区或物品类型')
 
-    const id = this.#getConditionId(area.code as string, type.id as number)
+    const id = this.#getConditionId(area.code as string, itemType.id as number)
 
-    if (!items.length) {
+    if (!itemIds.length) {
       await this.deleteCondition(id, true)
       render && await requestRender()
       return
@@ -184,11 +194,11 @@ export class ConditionManager extends IconManager {
 
     const condition = this.conditions.get(id)
     if (!condition) {
-      const newCondition = { area, type, items }
+      const newCondition = { area, type: itemType, items: itemIds }
       this.conditions.set(id, newCondition)
     }
     else {
-      condition.items = items
+      condition.items = itemIds
     }
 
     if (render) {
@@ -227,47 +237,16 @@ export class ConditionManager extends IconManager {
     }
   })
 
-  /** 将物品 ids 转换为条件表 */
-  #classifyItems = async (itemIds: number[]): Promise<Map<string, Condition>> => {
-    const conditions = new Map<string, Condition>()
-
-    const { itemTypeMap } = useItemTypeStore()
-    const { areaMap } = useAreaStore()
-    const items = await db.item.bulkGet(itemIds)
-
-    items.forEach((item) => {
-      if (!item)
-        return
-      const itemArea = areaMap[item.areaId as number]
-      if (!itemArea)
-        return
-      item.typeIdList?.forEach((itemTypeId) => {
-        const itemType = itemTypeMap[itemTypeId]
-        if (!itemType)
-          return
-        const id = this.#getConditionId(itemArea.code as string, itemType.id as number)
-        const condition = conditions.get(id) ?? {
-          area: itemArea,
-          type: itemType,
-          items: [],
-        }
-        condition.items.push(item.id as number)
-        conditions.set(id, condition)
-      })
-    })
-
-    return conditions
-  }
-
   /** 将筛选器状态保存到本地数据库 */
   saveState = async (name: string) => {
     const userStore = useUserStore()
     if (!userStore.info.id)
       return
 
+    const conditions = Object.fromEntries(this.conditions.entries())
     const filterState = {
       name,
-      itemIds: this.existItemIds,
+      conditions,
     }
     const filterStates = [...(userStore.preference.filterStates ?? [])]
     const findIndex = filterStates.findIndex(state => state.name === name)
@@ -314,30 +293,15 @@ export class ConditionManager extends IconManager {
       return
 
     const findState = userStore.preference.filterStates?.find(state => state.name === name)
-    if (!findState)
-      throw new Error('无法查找到对应的筛选器状态')
+    if (!findState?.conditions)
+      return
 
     await this.clearCondition(false)
-    const conditions = await this.#classifyItems(findState.itemIds)
-    this.#conditions.value = conditions
+    this.#conditions.value = new Map(Object.entries(findState.conditions))
 
     const itemIdsMap: Record<string, number[]> = {}
-    conditions.forEach(({ items }, key) => (itemIdsMap[key] = items))
+    this.conditions.forEach(({ items }, key) => itemIdsMap[key] = items)
     this.#itemIdsMap.value = itemIdsMap
-
-    // 从最后一个被添加的物品去定位地区
-    await (async () => {
-      const lastItem = findState.itemIds.at(-1)
-      if (!lastItem)
-        return
-      const item = await db.item.get(lastItem)
-      if (!item)
-        return
-      const area = await db.area.get(item.areaId!)
-      if (!area)
-        return
-      this.areaCode = area.code!
-    })()
 
     await this.saveState('temp')
     await requestRender()
