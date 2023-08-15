@@ -67,6 +67,7 @@ export const getMarkersFrom = (target: GenshinBaseLayer): IconLayer<MarkerWithRe
       getColor: [
         stateManager.state.hover,
         stateManager.state.hideMarkedMarker,
+        archiveStore.currentArchive.body.Data_KYJG.size,
       ],
       getSize: [
         stateManager.state.focus,
