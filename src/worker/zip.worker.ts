@@ -20,15 +20,15 @@ const decompressFile = async (data: Uint8Array, log = false): Promise<Uint8Array
     stdout: code => log ? logger.stdout.write(String.fromCharCode(code)) : 0,
   })
 
-  const tempFilenam = 'temp.bin'
+  const tempFilename = 'temp.bin'
   const extractedFilename = 'temp'
 
-  const stream = zip.FS.open(tempFilenam, 'w+')
+  const stream = zip.FS.open(tempFilename, 'w+')
   zip.FS.write(stream, data, 0, data.length)
   zip.FS.close(stream)
 
   // 解压，详细用法见 7-zip 命令行帮助
-  zip.callMain(['x', tempFilenam, '-y'])
+  zip.callMain(['x', tempFilename, '-y'])
   const res = zip.FS.readFile(extractedFilename)
 
   return res
