@@ -1,8 +1,7 @@
-import { MARKER_POSITION } from '../shared'
 import { IconManager } from './IconManager'
 import db from '@/database'
 import { useMap } from '@/pages/pageMapV2/hooks'
-import { LAYER_CONFIGS } from '@/pages/pageMapV2/config'
+import { ICON, LAYER_CONFIGS } from '@/pages/pageMapV2/config'
 import { Logger } from '@/utils'
 import { localSettings, useUserStore } from '@/stores'
 
@@ -135,17 +134,29 @@ export class ConditionManager extends IconManager {
 
   /** 仅在改变条件时改变，以便各图层进行脏检查 */
   #conditionStateId = ref(crypto.randomUUID())
+
   get conditionStateId() { return this.#conditionStateId.value }
+  set conditionStateId(v) {
+    this.#conditionStateId.value = v
+  }
 
   #findValidItemId = (items: API.MarkerItemLinkVo[] = []) => {
     for (const { itemId = -1 } of items) {
-      if (MARKER_POSITION.findIndex(pos => this.iconMapping[`${itemId}_${pos}_default`] !== undefined) > -1)
+      if (ICON.positions.findIndex(({ position }) => this.iconMapping[`${itemId}_${position}_default`] !== undefined) > -1)
         return itemId
     }
     return -1
   }
 
+  #attachRenderConfig = (marker: API.MarkerVo): MarkerWithRenderConfig => ({
+    ...marker,
+    render: {
+      itemId: this.#findValidItemId(marker.itemList),
+    },
+  })
+
   #initLayerMarkerMap = () => Promise.all(LAYER_CONFIGS.map(async ({ code, areaCodes = [] }) => {
+    this.#conditionStateId.value = crypto.randomUUID()
     // 筛选出只存在于当前图层的点位
     let itemIdsInThisLayer: number[] = []
     this.conditions.forEach((condition) => {
@@ -153,26 +164,41 @@ export class ConditionManager extends IconManager {
         return
       itemIdsInThisLayer = itemIdsInThisLayer.concat(condition.items)
     })
-    const markers: MarkerWithRenderConfig[] = (await db.marker.where('itemIdList').anyOf(itemIdsInThisLayer).toArray()).map(marker => ({
-      ...marker,
-      render: {
-        itemId: this.#findValidItemId(marker.itemList),
-      },
-    }))
-
+    const markers: MarkerWithRenderConfig[] = (await db.marker.where('itemIdList').anyOf(itemIdsInThisLayer).toArray())
+      .map(this.#attachRenderConfig)
     this.#layerMarkerMap.value[code] = markers
   }))
 
+  /** 特定重绘当前图层点位，传入点位需与当前图层点位对应 */
+  redrawMarkers = (updateMarkers: API.MarkerVo[]) => {
+    const currentLayer = useMap().map.value?.baseLayer
+    if (!currentLayer)
+      return
+    const currentMarkers = [...this.layerMarkerMap[currentLayer.rawProps.code]]
+    currentMarkers.forEach((oldMarker, index) => {
+      const findMarkerIndex = updateMarkers.findIndex(newMarker => newMarker.id === oldMarker.id)
+      if (findMarkerIndex < 0)
+        return
+      currentMarkers[index] = this.#attachRenderConfig(updateMarkers[findMarkerIndex])
+      updateMarkers.splice(findMarkerIndex, 1)
+    })
+    this.#conditionStateId.value = crypto.randomUUID()
+    this.#layerMarkerMap.value = {
+      ...this.#layerMarkerMap.value,
+      [currentLayer.rawProps.code]: currentMarkers,
+    }
+    currentLayer.forceUpdate()
+  }
+
   /** 对点位图层进行重绘 */
   requestMarkersUpdate = async () => {
-    const layer = useMap().map.value?.baseLayer
-    if (!layer)
+    const currentLayer = useMap().map.value?.baseLayer
+    if (!currentLayer)
       return
-    this.#conditionStateId.value = crypto.randomUUID()
     const items = (await db.item.bulkGet(this.existItemIds)).filter(Boolean) as API.ItemVo[]
     await this.initIconMap(items)
     await this.#initLayerMarkerMap()
-    layer.forceUpdate()
+    currentLayer.forceUpdate()
   }
 
   #putCondition = (

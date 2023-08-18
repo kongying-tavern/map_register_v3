@@ -1,9 +1,7 @@
 import type { IconMapping } from '@deck.gl/layers/typed/icon-layer/icon-manager'
-import { ElNotification } from 'element-plus'
-import { ICON_MAPPING_STATES } from '../shared'
 import db from '@/database'
-import IconRenderWorker from '@/pages/pageMapV2/worker/IconRenderWorker?worker'
-import { ICON } from '@/pages/pageMapV2/config/markerIcon'
+import MarkerRenderWorker from '@/pages/pageMapV2/worker/markerRenderer.worker?worker'
+import { ICON, ICON_MAPPING_STATES } from '@/pages/pageMapV2/config/markerIcon'
 
 export class IconManager {
   /** 预渲染的精灵图 */
@@ -29,18 +27,18 @@ export class IconManager {
     }
 
     const itemIconTags = items.map(item => item.iconTag!)
+    // index 属性表示点位图案在精灵图上的垂直顺序
     const iconTagMap = new Map<string, { url: string; index: number }>()
 
     if ((await db.iconTag.count()) === 0)
-      ElNotification.warning('本地图标数据库为空，点位可能无法正常渲染，请更新本地图标数据库')
+      throw new Error('本地图标数据库为空，点位可能无法正常渲染，请更新本地图标数据库')
 
     let index = 0
     await db.iconTag.where('tag').anyOf(itemIconTags).each((iconTag) => {
       iconTagMap.set(iconTag.tag!, { url: iconTag.url!, index: index++ })
     })
 
-    // 生成 iconMapping
-    this.#iconMapping.value = items.reduce((seed, item) => {
+    const iconMapping = items.reduce((seed, item) => {
       const iconIndex = iconTagMap.get(item.iconTag!)?.index
       if (iconIndex === undefined)
         return seed
@@ -55,6 +53,7 @@ export class IconManager {
       })
       return seed
     }, {} as IconMapping)
+    this.#iconMapping.value = iconMapping
 
     // 离屏渲染
     this.#spiritImage.value = await this.#renderSpiritImage(iconTagMap)
@@ -62,9 +61,9 @@ export class IconManager {
 
   /** 在离屏 canvas 中完成具体精灵图的绘制 */
   #renderSpiritImage = (iconTagMap: Map<string, { url: string; index: number }>) => new Promise<string>((resolve, reject) => {
-    const renderWorker = new IconRenderWorker()
-    renderWorker.onmessage = (ev: MessageEvent<ImageBitmap | string>) => {
-      renderWorker.terminate()
+    const markerRendererWorker = new MarkerRenderWorker()
+    markerRendererWorker.onmessage = (ev: MessageEvent<ImageBitmap | string>) => {
+      markerRendererWorker.terminate()
       if (!(ev.data instanceof ImageBitmap))
         return reject(new Error(ev.data))
       const canvas = document.createElement('canvas')
@@ -74,6 +73,6 @@ export class IconManager {
       ctx.transferFromImageBitmap(ev.data)
       resolve(canvas.toDataURL('image/png', 1))
     }
-    renderWorker.postMessage(iconTagMap)
+    markerRendererWorker.postMessage(iconTagMap)
   })
 }

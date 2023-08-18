@@ -3,6 +3,7 @@ import type { GenshinBaseLayer, MarkerWithRenderConfig } from '../core'
 import { useCondition } from '@/pages/pageMapV2/hooks'
 import { useArchiveStore } from '@/stores'
 import { isMarkerVo } from '@/utils'
+import { ICON } from '@/pages/pageMapV2/config'
 
 /** 点位渲染属性 */
 export const getMarkersFrom = (target: GenshinBaseLayer): IconLayer<MarkerWithRenderConfig> => {
@@ -31,7 +32,7 @@ export const getMarkersFrom = (target: GenshinBaseLayer): IconLayer<MarkerWithRe
 
   const getMarkerOpacity = (marker: API.MarkerVo) => {
     if (isMarked(marker) && stateManager.get('hideMarkedMarker'))
-      return 0.2
+      return ICON.inconspicuousOpacity
     const { hover } = stateManager.state
     return (isMarkerVo(hover) && marker.id === hover.id) ? 0.8 : 1
   }
@@ -61,6 +62,9 @@ export const getMarkersFrom = (target: GenshinBaseLayer): IconLayer<MarkerWithRe
     sizeMinPixels: 4,
     sizeMaxPixels: 50 * 2 ** (target.context.deck.mainViewState.zoom + 2),
     updateTriggers: {
+      data: [
+        conditionManager.conditionStateId,
+      ],
       getIcon: [
         archiveStore.currentArchive.body.Data_KYJG.size,
       ],
