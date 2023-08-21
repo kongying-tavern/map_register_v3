@@ -12,17 +12,27 @@ type MissionType = {
 
 export const useMapStore = defineStore('map-state', {
   state: () => ({
+    lockViewState: false,
     mission: null as MissionType | null,
+    active: null as unknown,
+    hover: null as unknown,
+    focus: null as unknown,
   }),
 
   actions: {
-    createMission<T extends keyof MissionMap>(type: T, value: MissionMap[T]) {
+    setMission<T extends keyof MissionMap>(type: T, value: MissionMap[T]) {
       if (this.mission)
         return
       this.mission = { type, value } as MissionType
     },
 
-    consumeMission() {
+    getMission<T extends keyof MissionMap>(type: T): MissionMap[T] | undefined {
+      if (this.mission?.type !== type)
+        return undefined
+      return this.mission.value as MissionMap[T]
+    },
+
+    clearMission() {
       this.mission = null
     },
   },

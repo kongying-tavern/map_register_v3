@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { useMap, useMarkerFocus } from '../../hooks'
 import { GSButton } from '@/components'
+import { useMapStore } from '@/stores'
 
 const props = defineProps<{
   data: API.MarkerVo
@@ -8,6 +9,7 @@ const props = defineProps<{
 
 const { map } = useMap()
 const { focusMarker } = useMarkerFocus()
+const mapStore = useMapStore()
 
 /**
  * @todo 需要添加视口转移的过渡效果
@@ -28,7 +30,7 @@ const flyToMarker = () => {
  * @todo 点位数量较多时可能会导致注册过多的事件监听器，需要修改为事件委托方式
  */
 const hoverMarker = () => {
-  map.value?.stateManager.set('hover', props.data)
+  mapStore.hover = props.data
 }
 
 /**
@@ -36,7 +38,7 @@ const hoverMarker = () => {
  * @todo 点位数量较多时可能会导致注册过多的事件监听器，需要修改为事件委托方式
  */
 const unhoverMarker = () => {
-  map.value?.stateManager.set('hover', null)
+  mapStore.hover = null
 }
 </script>
 

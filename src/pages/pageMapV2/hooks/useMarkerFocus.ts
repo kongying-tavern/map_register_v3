@@ -1,6 +1,7 @@
 import type { Ref } from 'vue'
-import { useMap, useMarkerCollimator } from '@/pages/pageMapV2/hooks'
+import { useMap } from '@/pages/pageMapV2/hooks'
 import { isMarkerVo } from '@/utils'
+import { useMapStore } from '@/stores'
 
 /** 当前被选中的点位 */
 const focus = shallowRef<API.MarkerVo | null>(null)
@@ -10,27 +11,22 @@ const cachedMarkerVo = shallowRef<API.MarkerVo | null>(null)
 /** 点位 focus 状态管理 hook */
 export const useMarkerFocus = (canvasRef?: Ref<HTMLCanvasElement | null>) => {
   const { map, onMapReady } = useMap()
+  const mapStore = useMapStore()
 
-  const { collimatorVisible } = useMarkerCollimator()
-
-  const setFocus = (markerVo: API.MarkerVo | null = null) => {
+  const focusMarker = (markerVo: API.MarkerVo) => {
     cachedMarkerVo.value = markerVo
     focus.value = markerVo
-    map.value?.stateManager.set('focus', markerVo)
-  }
-
-  const focusMarker = (markerVo: API.MarkerVo | null = null) => {
-    if (collimatorVisible.value)
-      return
-    setFocus(markerVo)
+    mapStore.focus = markerVo
   }
 
   const blur = async () => {
-    if (collimatorVisible.value)
-      return
     focus.value = null
-    map.value?.stateManager.set('focus', null)
+    mapStore.focus = null
   }
+
+  canvasRef && mapStore.$subscribe((_, { focus }) => map.value?.baseLayer?.setState({
+    focus: isMarkerVo(focus) ? focus : null,
+  }))
 
   canvasRef && onMapReady(mapInstance => mapInstance.event.on('click', (info, ev) => {
     if (!ev.leftButton || !isMarkerVo(info.object))
@@ -38,5 +34,5 @@ export const useMarkerFocus = (canvasRef?: Ref<HTMLCanvasElement | null>) => {
     focusMarker(info.object)
   }))
 
-  return { cachedMarkerVo, focus, focusMarker, blur, setFocus }
+  return { cachedMarkerVo, focus, focusMarker, blur }
 }

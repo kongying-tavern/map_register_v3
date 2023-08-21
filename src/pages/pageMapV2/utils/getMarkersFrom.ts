@@ -1,20 +1,14 @@
 import { IconLayer } from '@deck.gl/layers/typed'
 import type { GenshinBaseLayer, MarkerWithRenderConfig } from '../core'
 import { useCondition } from '@/pages/pageMapV2/hooks'
-import { useArchiveStore } from '@/stores'
-import { isMarkerVo } from '@/utils'
+import { useArchiveStore, useMapSettingStore } from '@/stores'
 import { ICON } from '@/pages/pageMapV2/config'
 
 /** 点位渲染属性 */
 export const getMarkersFrom = (target: GenshinBaseLayer): IconLayer<MarkerWithRenderConfig> => {
   const conditionManager = useCondition()
-  const { stateManager } = target.context.deck
   const archiveStore = useArchiveStore()
-
-  const isFocus = (marker: API.MarkerVo) => {
-    const { focus } = stateManager.state
-    return isMarkerVo(focus) && marker.id === focus.id
-  }
+  const mapSettingStore = useMapSettingStore()
 
   const isMarked = (marker: API.MarkerVo) => {
     return archiveStore.currentArchive.body.Data_KYJG.has(marker.id!)
@@ -31,10 +25,9 @@ export const getMarkersFrom = (target: GenshinBaseLayer): IconLayer<MarkerWithRe
   }
 
   const getMarkerOpacity = (marker: API.MarkerVo) => {
-    if (isMarked(marker) && stateManager.get('hideMarkedMarker'))
+    if (isMarked(marker) && mapSettingStore.hideMarkedMarker)
       return ICON.inconspicuousOpacity
-    const { hover } = stateManager.state
-    return (isMarkerVo(hover) && marker.id === hover.id) ? 0.8 : 1
+    return (marker.id === target.state.hover?.id) ? 0.8 : 1
   }
 
   return new IconLayer({
@@ -49,7 +42,7 @@ export const getMarkersFrom = (target: GenshinBaseLayer): IconLayer<MarkerWithRe
       return `${marker.render.itemId}_${getMarkerPosition(marker)}_${getMarkerState(marker)}`
     },
     getSize: (marker) => {
-      return isFocus(marker) ? 55 : 50
+      return marker.id === target.state.focus?.id ? 55 : 50
     },
     getColor: (marker) => {
       return [0, 0, 0, 255 * getMarkerOpacity(marker)]
@@ -62,20 +55,14 @@ export const getMarkersFrom = (target: GenshinBaseLayer): IconLayer<MarkerWithRe
     sizeMinPixels: 4,
     sizeMaxPixels: 50 * 2 ** (target.context.deck.mainViewState.zoom + 2),
     updateTriggers: {
-      data: [
-        conditionManager.conditionStateId,
-      ],
-      getIcon: [
-        archiveStore.currentArchive.body.Data_KYJG.size,
-      ],
+      data: conditionManager.conditionStateId,
+      getIcon: archiveStore.currentArchive.body.Data_KYJG.size,
       getColor: [
-        stateManager.state.hover,
-        stateManager.state.hideMarkedMarker,
+        target.state.hover,
+        mapSettingStore.hideMarkedMarker,
         archiveStore.currentArchive.body.Data_KYJG.size,
       ],
-      getSize: [
-        stateManager.state.focus,
-      ],
+      getSize: target.state.focus,
     },
   })
 }

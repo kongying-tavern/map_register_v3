@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useInteractionLayer, useMap, useMapState, useMarkerFocus } from './hooks'
+import { useInteractionLayer, useMap, useMapInteraction, useMapState, useMarkerFocus } from './hooks'
 import { genshinMapCanvasKey, mapAffixLayerKey, mutuallyExclusiveLayerKey } from './shared'
 import {
   CollapseButton,
@@ -7,18 +7,23 @@ import {
   MapContextMenu,
   MapOverlay,
   MapSiderMenu,
+  MarkerMoveController,
   MarkerPopover,
   ZoomController,
 } from './components'
 import { GSSwitch } from '@/components'
+import { useMapSettingStore } from '@/stores'
 
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 const mutuallyExclusiveLayerRef = ref<HTMLElement | null>(null)
 const mapAffixLayerRef = ref<HTMLElement | null>(null)
 
 const { map } = useMap(canvasRef)
+const mapStore = useMapSettingStore()
 
 useMarkerFocus(canvasRef)
+
+useMapInteraction()
 
 // 拦截默认右键事件，由 GenshinMap 自行处理
 useEventListener(canvasRef, 'contextmenu', (ev) => {
@@ -27,7 +32,7 @@ useEventListener(canvasRef, 'contextmenu', (ev) => {
 
 const { visible: interactionLayerVisible } = useInteractionLayer()
 
-const { showTag, showOverlay, hideMarkedMarker } = useMapState(true)
+const { showTag, showOverlay } = useMapState(true)
 
 const collapse = ref(true)
 useEventListener('keypress', (ev) => {
@@ -58,7 +63,7 @@ provide(mapAffixLayerKey, mapAffixLayerRef)
       >
         <GSSwitch v-model="showTag" label="显示地图标签" size="large" />
         <GSSwitch v-model="showOverlay" label="显示附加图层" size="large" />
-        <GSSwitch v-model="hideMarkedMarker" label="隐藏标记点位" size="large" />
+        <GSSwitch v-model="mapStore.hideMarkedMarker" label="隐藏标记点位" size="large" />
       </div>
 
       <div ref="mapAffixLayerRef" class="map-affix-provider">
@@ -94,9 +99,10 @@ provide(mapAffixLayerKey, mapAffixLayerRef)
 
     <div
       ref="mutuallyExclusiveLayerRef"
-      class="mutually-exclusive-layer absolute left-0 top-0 w-full h-full"
-      :class="{ 'pointer-events-none': interactionLayerVisible }"
-    />
+      class="mutually-exclusive-layer absolute left-0 top-0 w-full h-full pointer-events-none"
+    >
+      <MarkerMoveController />
+    </div>
   </div>
 </template>
 
