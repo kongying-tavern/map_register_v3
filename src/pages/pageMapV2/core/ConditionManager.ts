@@ -169,27 +169,6 @@ export class ConditionManager extends IconManager {
     this.#layerMarkerMap.value[code] = markers
   }))
 
-  /** 特定重绘当前图层点位，传入点位需与当前图层点位对应 */
-  redrawMarkers = (updateMarkers: API.MarkerVo[]) => {
-    const currentLayer = useMap().map.value?.baseLayer
-    if (!currentLayer)
-      return
-    const currentMarkers = [...this.layerMarkerMap[currentLayer.rawProps.code]]
-    currentMarkers.forEach((oldMarker, index) => {
-      const findMarkerIndex = updateMarkers.findIndex(newMarker => newMarker.id === oldMarker.id)
-      if (findMarkerIndex < 0)
-        return
-      currentMarkers[index] = this.#attachRenderConfig(updateMarkers[findMarkerIndex])
-      updateMarkers.splice(findMarkerIndex, 1)
-    })
-    this.#conditionStateId.value = crypto.randomUUID()
-    this.#layerMarkerMap.value = {
-      ...this.#layerMarkerMap.value,
-      [currentLayer.rawProps.code]: currentMarkers,
-    }
-    currentLayer.forceUpdate()
-  }
-
   /** 对点位图层进行重绘 */
   requestMarkersUpdate = async () => {
     const currentLayer = useMap().map.value?.baseLayer

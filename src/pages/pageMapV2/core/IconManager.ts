@@ -12,6 +12,8 @@ export class IconManager {
   get iconMapping() { return this.#iconMapping.value }
   #iconMapping = shallowRef<IconMapping>({})
 
+  #cachedItemIds = new Set<number>()
+
   /**
    * 渲染思路：
    * 1. 对物品列表检索到所有匹配的 iconTag 并对其 url 进行统一的 icon 请求
@@ -19,9 +21,20 @@ export class IconManager {
    * 3. 生成与精灵图对应的 iconMapping
    */
   initIconMap = async (items: API.ItemVo[]) => {
+    let isContain = true
+
+    for (const item of items) {
+      if (this.#cachedItemIds.has(item.id!))
+        continue
+      this.#cachedItemIds = new Set(items.map(item => item.id!))
+      isContain = false
+      break
+    }
+
+    if (isContain)
+      return
+
     if (!items.length) {
-      const oldUrl = this.spiritImage
-      URL.revokeObjectURL(oldUrl)
       this.#spiritImage.value = ''
       return
     }
