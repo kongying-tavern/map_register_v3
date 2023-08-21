@@ -50,6 +50,6 @@ export const beforeEachGuard = (router: Router): NavigationGuardWithThis<void> =
     go()
 
     userStore.createRefreshTimer()
-    to.meta.preload && await userStore.preloadMission()
+    to.meta.preload && userStore.preloadMission()
   }
 }
