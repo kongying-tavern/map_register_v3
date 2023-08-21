@@ -7,8 +7,10 @@ import { MarkerCreatePanel } from '@/pages/pageMapV2/components'
 import { AppSettings, GSButton } from '@/components'
 import { useGlobalDialog } from '@/hooks'
 import { vMarkeable } from '@/directives'
+import { useMapStore } from '@/stores'
 
 const { onMapReady } = useMap()
+const mapStore = useMapStore()
 
 const coordinate = shallowRef<Coordinate2D | null>(null)
 
@@ -16,8 +18,12 @@ const closeContextmenu = () => {
   coordinate.value = null
 }
 
+mapStore.$onAction((ctx) => {
+  ctx.name === 'setMission' && closeContextmenu()
+})
+
 onMapReady(mapInstance => mapInstance.event.on('click', async (info, ev) => {
-  if (!ev.rightButton)
+  if (!ev.rightButton || mapStore.mission)
     return closeContextmenu()
   coordinate.value = mapInstance.unprojectCoord(info.coordinate as Coordinate2D)
 }))
