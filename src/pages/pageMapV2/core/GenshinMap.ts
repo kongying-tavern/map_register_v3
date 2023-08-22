@@ -159,9 +159,10 @@ export class GenshinMap extends Deck {
           }
         : {}),
     }
-    interactionState.isZooming && this.baseLayer?.forceUpdate()
 
     this.mainViewState = rewriteState
+    interactionState.isZooming && this.baseLayer?.forceUpdate()
+
     return { viewState: rewriteState, oldViewState: oldState, interactionState, ...rest }
   }
 
@@ -202,6 +203,7 @@ export class GenshinMap extends Deck {
     this.setProps({
       initialViewState: rewriteState,
     })
+    rewriteState.zoom !== this.mainViewState.zoom && this.baseLayer?.forceUpdate()
     this.mainViewState = rewriteState
   }
 
@@ -241,9 +243,9 @@ export class GenshinMap extends Deck {
 
     const initialViewState = {
       ...this.mainViewState,
-      maxZoom: layer.rawProps.initViewState.maxZoom,
-      minZoom: layer.rawProps.initViewState.minZoom,
-      zoom: layer.rawProps.initViewState.zoom,
+      maxZoom: layer.rawProps.initViewState.maxZoom ?? this.mainViewState.maxZoom,
+      minZoom: layer.rawProps.initViewState.minZoom ?? this.mainViewState.minZoom,
+      zoom: layer.rawProps.initViewState.zoom ?? this.mainViewState.zoom,
       target: getInitialTarget(),
     } as GensinMapViewState
 
