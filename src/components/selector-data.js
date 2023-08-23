@@ -57,6 +57,9 @@ export const selectorAreaName = computed(
 export const selectorAreaMap = computed(() =>
   _.groupBy(selectorAreaList.value, "parentId")
 );
+export const selectorAreaCodeMap = computed(() =>
+  _.keyBy(selectorAreaList.value, "code")
+);
 export const selectorAreaListTop = computed(
   () => selectorAreaMap.value[-1] || []
 );
