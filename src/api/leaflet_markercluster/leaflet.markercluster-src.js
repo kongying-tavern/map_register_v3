@@ -71,7 +71,6 @@
 					let i;
 				res.length = childMarkers.length;
 				for (i = childMarkers.length - 1; i >= 0; i--) {
-					// Console.log(childMarkers[i]._latlng);
 					const childCenter = map.latLngToLayerPoint(childMarkers[i]._latlng);
 					res[i] = new L.Point(childCenter.x, childCenter.y);
 				}
@@ -1074,7 +1073,7 @@
 			this._topClusterLevel._recursivelyAddChildrenToMap(null, Math.round(this._map._zoom), newBounds);
 
 			this._currentShownBounds = newBounds;
-			
+
 		},
 
 		_generateInitialClusters () {
@@ -1172,7 +1171,7 @@
 			// Didn't get in anything, add us to the top
 			this._topClusterLevel._addChild(layer);
 			layer.__parent = this._topClusterLevel;
-			
+
 		},
 
 		/**
@@ -1957,10 +1956,10 @@
 
 	/*
 	 * Extends L.Marker to include two extra methods: clusterHide and clusterShow.
-	 * 
+	 *
 	 * They work as setOpacity(0) and setOpacity(1) respectively, but
 	 * don't overwrite the options.opacity
-	 * 
+	 *
 	 */
 
 	L.Marker.include({
@@ -2196,7 +2195,7 @@
 				}  // If there is no more point "outside" the base line, the current base line is part of the convex hull
 
 					return [baseLine[0]];
-				
+
 			},
 
 			/*
