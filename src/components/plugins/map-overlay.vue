@@ -300,8 +300,19 @@ const overlayInitState = computed(() => {
 const overlayLayerHandle = ref(layergroup_register());
 
 const overlayInit = () => {
-  overlayAreaTab.value = props.area.code || "";
-  overlaySelections.value = overlayInitState.value;
+  overlayAreaTab.value = props.area?.code || "";
+  overlaySelections.value = _.cloneDeep(overlayInitState.value);
+};
+
+const overlayInitGroup = (areaCode = "", groupIndex = -1) => {
+  if (
+    overlaySelections.value[areaCode] &&
+    overlaySelections.value[areaCode][groupIndex]
+  ) {
+    overlaySelections.value[areaCode][groupIndex] = _.cloneDeep(
+      (overlayInitState.value[areaCode] || {})[groupIndex]
+    );
+  }
 };
 
 const overlayRefresh = () => {
@@ -350,7 +361,11 @@ watch(() => overlaySelectionIds.value, overlayRefresh);
 
 <template>
   <template v-if="overlay_visible">
-    <q-card class="absolute-top-right q-pa-md q-pr-lg" style="z-index: 9000">
+    <q-card
+      class="absolute-top-right q-pa-md"
+      :class="{ 'q-pt-lg': overlayCardVisible }"
+      style="z-index: 9000"
+    >
       <div
         v-if="overlayCardVisible"
         style="width: 350px; display: flex; flex-direction: column"
@@ -389,6 +404,17 @@ watch(() => overlaySelectionIds.value, overlayRefresh);
               class="q-pb-sm"
             >
               <span style="font-weight: bold">{{ group.label }}</span>
+              <q-btn
+                v-if="group.multiple"
+                class="q-ml-sm"
+                flat
+                dense
+                bg-color="grey-6"
+                size="sm"
+                icon="mdi-close"
+                @click="overlayInitGroup(area?.area?.code, groupIndex)"
+              >
+              </q-btn>
               <q-option-group
                 v-model="overlaySelections[area?.area?.code][groupIndex]"
                 :options="group.children"
