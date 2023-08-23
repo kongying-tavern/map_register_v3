@@ -247,6 +247,19 @@ const overlaySelectionIds = computed(() =>
     .value()
 );
 
+const overlaySelectionCounts = computed(() =>
+  _.chain(overlaySelections.value)
+    .mapValues(
+      (v) =>
+        _.chain(v)
+          .flattenDeep()
+          .filter((v) => v)
+          .uniq()
+          .value().length
+    )
+    .value()
+);
+
 const overlayConfigMap = computed(() => {
   const configMap = {};
   for (const configSection of overlayBaseConfig.value) {
@@ -384,9 +397,19 @@ watch(() => overlaySelectionIds.value, overlayRefresh);
           <q-tab
             v-for="(area, areaIndex) in overlaySelectionConfig"
             :key="areaIndex"
-            :label="area?.area?.name"
             :name="area?.area?.code"
           >
+            <template #default>
+              <div>
+                <span>{{ area?.area?.name }}</span>
+                <span
+                  v-if="overlaySelectionCounts[area?.area?.code]"
+                  class="count-badge bg-blue-8 text-white text-bold"
+                >
+                  {{ overlaySelectionCounts[area?.area?.code] || 0 }}
+                </span>
+              </div>
+            </template>
           </q-tab>
         </q-tabs>
 
@@ -439,3 +462,19 @@ watch(() => overlaySelectionIds.value, overlayRefresh);
     </q-card>
   </template>
 </template>
+
+<style lang="scss" scoped>
+.count-badge {
+  $badge-line-height: 0.8rem;
+  $badge-padding: 0.2rem;
+  $badge-size: $badge-line-height + 2 * $badge-padding;
+
+  display: inline-block;
+  font-size: $badge-line-height;
+  line-height: $badge-line-height;
+  border-radius: $badge-size / 2;
+  padding: $badge-padding;
+  min-width: $badge-size;
+  margin-left: 0.3rem;
+}
+</style>
