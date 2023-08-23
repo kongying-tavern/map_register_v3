@@ -73,7 +73,7 @@
 </template>
 
 <script>
-import { mapDom, createMap, removeMap } from "./map";
+import { mapDom, createMap } from "src/api/map_obj";
 import {
   map_editor_config,
   map_tiles_norm_config,
@@ -134,7 +134,6 @@ export default {
     // 切换地图
     map_switch(area) {
       this.area = area;
-      removeMap();
       createMap(area.code);
     },
   },
@@ -163,7 +162,6 @@ export default {
   watch: {
     handle_type(val) {
       this.$store.commit("type_switch", val);
-      removeMap();
       this.init_map();
     },
   },

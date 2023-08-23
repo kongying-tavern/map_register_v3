@@ -394,7 +394,7 @@
 <script>
 import _ from "lodash";
 import { watch } from "vue";
-import { map, mapDom } from "src/pages/map";
+import { map, mapDom } from "src/api/map_obj";
 import {
   selectorCollapse,
   selectorStepperCollapseIcon,

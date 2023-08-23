@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { ref } from "vue";
-import { map } from "src/pages/map";
+import { map } from "src/api/map_obj";
 import { layer_register, layer_mark } from "src/api/layer";
 import { mapDisplayList } from "src/components/register/layer_table";
 

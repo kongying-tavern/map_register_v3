@@ -2,7 +2,7 @@
 import _ from "lodash";
 import * as L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { mapDom, mapTiles } from "src/pages/map";
+import { mapDom } from "./map_obj";
 import { map_tiles_config, map_plugin_config } from "./config";
 
 // 初始化地图中心和地图尺寸
@@ -59,26 +59,44 @@ function create_map_layer(
   return tiles;
 }
 
-/**
- * 生成地图
- * @param {string} area_idx 地图别名 twt25：大世界 qd28：梦想群岛 yxg2：渊下宫/三界路飨祭 qd:群岛1 qd2:群岛2
- * @param {object} settings leaflet 地图设置
- * @param {Array} mapCenter 地图中心坐标
- * @param {Array} mapSize 地图尺寸
- * @returns 地图对象
- */
-function create_map(area_config_code = "") {
-  let tiles_config =
-    map_tiles_config.value[area_config_code] ||
-    map_tiles_config.value["提瓦特-base0"];
+function create_map_config(area_config_code = "") {
+  const tiles_config_default = {
+    center: [3568, 6286],
+    size: [12288, 15360],
+    tilesOffset: [0, 0],
+    extension: "png",
+  };
+
+  // 获取基础配置
+  let tiles_key = "";
+  if (map_tiles_config.value[area_config_code]) {
+    tiles_key = area_config_code;
+  } else if (map_tiles_config.value["提瓦特-base0"]) {
+    tiles_key = "提瓦特-base0";
+  }
+
+  let tiles_config = map_tiles_config.value[tiles_key] || {};
+
+  // 继承配置
   const tiles_extend_name = tiles_config.extend || "";
   if (tiles_extend_name) {
     tiles_config = _.defaultsDeep(
       {},
       tiles_config,
-      map_tiles_config.value[tiles_extend_name] || {}
+      map_tiles_config.value[tiles_extend_name] || {},
+      tiles_config_default
     );
   }
+
+  return {
+    tiles_key,
+    tiles_config,
+    area_code: area_config_code,
+  };
+}
+
+function create_map_tiles(area_config_code = "") {
+  const { tiles_config } = create_map_config(area_config_code);
 
   const area_code = tiles_config.code;
   if (!area_code) {
@@ -86,10 +104,10 @@ function create_map(area_config_code = "") {
   }
 
   const { settings } = tiles_config;
-  const mapCenter = tiles_config.center || [3568, 6286];
-  const mapSize = tiles_config.size || [12288, 15360];
-  const mapTilesOffset = tiles_config.tilesOffset || [0, 0];
-  const extension = tiles_config.extension || "png";
+  const mapCenter = tiles_config.center;
+  const mapSize = tiles_config.size;
+  const mapTilesOffset = tiles_config.tilesOffset;
+  const { extension } = tiles_config;
 
   // 设置地图要使用的坐标参考系（CRS），本地图使用simple类型CRS，将经度和纬度直接映射到x和y。
   const mapCRS = L.Util.extend({}, L.CRS.Simple, {
@@ -111,7 +129,7 @@ function create_map(area_config_code = "") {
     // 以像素坐标表示矩形区域
     bounds: L.bounds(L.point(0, 0), L.point(mapSize[0], mapSize[1])),
   });
-  const map_setting = {
+  const map_settings = {
     crs: mapCRS,
     center: [2576, 1742],
     zoomDelta: 0,
@@ -135,15 +153,21 @@ function create_map(area_config_code = "") {
     ...settings,
   };
 
-  mapTiles.value = create_map_layer(
+  const tiles = create_map_layer(
     area_code,
     mapCenter,
     mapSize,
     mapTilesOffset,
     extension
   );
-  const map = L.map(mapDom.value, map_setting).addLayer(mapTiles.value);
-  return map;
+
+  return { tiles_config, tiles, map_settings };
+}
+
+function create_map(settings = {}, tiles) {
+  const map = L.map(mapDom.value, settings).addLayer(tiles);
+
+  return { tiles, map };
 }
 
 function add_map_overlay(imageUrl, imageBounds) {
@@ -151,9 +175,10 @@ function add_map_overlay(imageUrl, imageBounds) {
 }
 
 export {
-  map_tiles_config,
   get_map_plugin_config,
   create_map_layer,
+  create_map_config,
+  create_map_tiles,
   create_map,
   add_map_overlay,
 };

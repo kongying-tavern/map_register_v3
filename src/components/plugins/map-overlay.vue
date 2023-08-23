@@ -3,7 +3,7 @@ import _ from "lodash";
 import { ref, computed, defineProps, watch } from "vue";
 import { add_map_overlay, get_map_plugin_config } from "src/api/map";
 import { layergroup_register } from "src/api/layer";
-import { map, mapTiles } from "src/pages/map";
+import { map, mapTiles } from "src/api/map_obj";
 
 const lodashTemplateOptions = {
   interpolate: /{{([\s\S]+?)}}/g,
