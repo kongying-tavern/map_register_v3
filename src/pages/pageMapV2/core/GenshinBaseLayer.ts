@@ -4,20 +4,38 @@ import type { ValueOf } from 'element-plus/es/components/table/src/table-column/
 import type { ShallowRef } from 'vue'
 import { LAYER_CONFIGS, LAYER_OVERLAY_CONFIG } from '../config'
 import type { LayerConfig, TagOptions } from '../config'
-import { getBorderFrom, getMarkersFrom, getOverlaysFrom, getTagsFrom, getTilesFrom } from '../utils'
-import type { GenshinMap } from './GenshinMap'
+import {
+  getBorderFrom,
+  getMarkersFrom,
+  getMovingMarkersIconFrom,
+  getMovingMarkersLineFrom,
+  getOverlaysFrom,
+  getTagsFrom,
+  getTilesFrom,
+} from '../utils'
 import { OverlayManager } from './OverlayManager'
+import type { Coordinate2D, GenshinMap } from '.'
+import { useMapSettingStore } from '@/stores'
 
-export interface GenshinTileLayerProps extends Required<LayerConfig> {
+export interface GenshinTileLayerConfig extends Required<LayerConfig> {
   bounds: [number, number, number, number]
   groupedTags: TagOptions[][]
   coordinateSystem: ValueOf<typeof COORDINATE_SYSTEM>
   coordinateOrigin: [number, number, number]
 }
 
-export class GenshinBaseLayer extends CompositeLayer<GenshinTileLayerProps> {
+export interface GenshinBaseLayerState {
+  updateCount: number
+  movingMarkers: { origin: API.MarkerVo; offset: Coordinate2D }[]
+  hover: API.MarkerVo | null
+  focus: API.MarkerVo | null
+}
+
+export class GenshinBaseLayer extends CompositeLayer {
   static get ID_PREFIX() { return 'genshin-layer-group-' }
   static get layerName() { return 'GenshinTileLayer' }
+
+  static unsubscribers: (() => void)[] = []
 
   /** 根据 code 获取对应图层实例，必须返回新实例。 */
   static getLayer = (code?: string) => {
@@ -27,19 +45,38 @@ export class GenshinBaseLayer extends CompositeLayer<GenshinTileLayerProps> {
     if (!findConfig)
       return
     const { size, tilesOffset = [0, 0], center = [0, 0], ...rest } = findConfig
-    return new this({ ...rest, code, size, tilesOffset, center })
+
+    const layer = new this({ ...rest, code, size, tilesOffset, center })
+
+    this.unsubscribers.forEach(unsubscriber => unsubscriber())
+    this.unsubscribers = [
+      // TODO 性能优化
+      useMapSettingStore().$subscribe(() => layer.forceUpdate()),
+    ]
+
+    return layer
   }
 
   declare context: CompositeLayer['context'] & {
     deck: GenshinMap
   }
 
-  readonly rawProps: GenshinTileLayerProps
+  readonly rawProps: GenshinTileLayerConfig
 
-  state = {
-    ...super.state,
-    updateTimestamp: new Date().getTime(),
+  state: GenshinBaseLayerState = {
+    updateCount: 0,
+    movingMarkers: [],
+    hover: null,
+    focus: null,
   }
+
+  setState = (state: Partial<typeof this.state>) => {
+    super.setState(state)
+  }
+
+  forceUpdate = () => this.setState({
+    updateCount: (this.state.updateCount ?? 0) + 1,
+  })
 
   constructor(props: LayerConfig) {
     const {
@@ -93,22 +130,6 @@ export class GenshinBaseLayer extends CompositeLayer<GenshinTileLayerProps> {
   #overlayManager: ShallowRef<OverlayManager>
   get overlayManager() { return this.#overlayManager.value }
 
-  setState = (state: Partial<typeof this.state>) => {
-    super.setState(state)
-  }
-
-  /**
-   * 通过更新时间戳来实现强制刷新图层
-   * @注意
-   * 1. 这里的状态更新不是最佳方案，但在 vue 的响应系统下比较有效
-   * 2. 基于 WebGL 的重绘的开销是比较低的，但需要自己处理缓存，以避免数据的重复获取或处理
-   * */
-  forceUpdate = () => {
-    this.setState({
-      updateTimestamp: new Date().getTime(),
-    })
-  }
-
   renderLayers = (): LayersList => {
     return [
       getTilesFrom(this),
@@ -116,6 +137,8 @@ export class GenshinBaseLayer extends CompositeLayer<GenshinTileLayerProps> {
       ...getTagsFrom(this),
       getBorderFrom(this),
       getMarkersFrom(this),
+      getMovingMarkersLineFrom(this),
+      getMovingMarkersIconFrom(this),
     ]
   }
 }

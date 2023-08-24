@@ -4,7 +4,7 @@ import { covertPosition } from '../../utils'
 import { useCondition, useMap, useMarkerFocus } from '../../hooks'
 import { MapAffix, MarkerEditPanel } from '..'
 import { MarkerPanel } from './components'
-import { useMarkerExtra, useMarkerFinished, useSkeletonPicture } from './hooks'
+import { useMarkerExtra, useMarkerFinished, useMarkerMove, useSkeletonPicture } from './hooks'
 import { useIconTagStore } from '@/stores'
 import { CloseFilled } from '@/components/GenshinUI/GSIcon'
 import { GSButton } from '@/components'
@@ -17,6 +17,8 @@ const { cachedMarkerVo, focus, blur } = useMarkerFocus()
 const { pictureUrl, loading: imageLoading } = useSkeletonPicture(cachedMarkerVo)
 
 const { isFinished } = useMarkerFinished(cachedMarkerVo)
+
+const { isMoving } = useMarkerMove(cachedMarkerVo)
 
 const { isUnderground, hiddenFlagType, refreshTimeType } = useMarkerExtra(cachedMarkerVo)
 
@@ -101,7 +103,7 @@ const openMarkerEditor = () => {
           {{ isFinished ? '已完成' : '完成' }}
         </GSButton>
 
-        <GSButton size="small" theme="dark" title="移动点位">
+        <GSButton :theme="isMoving ? undefined : 'dark'" size="small" title="移动点位" @click="isMoving = !isMoving">
           <template #icon>
             <el-icon color="#F7BA3F">
               <Rank />
