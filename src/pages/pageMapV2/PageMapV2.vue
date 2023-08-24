@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useInteractionLayer, useMap, useMapInteraction, useMapState, useMarkerFocus } from './hooks'
+import { useInteractionLayer, useMap, useMapInteraction, useMarkerFocus } from './hooks'
 import { genshinMapCanvasKey, mapAffixLayerKey, mutuallyExclusiveLayerKey } from './shared'
 import {
   CollapseButton,
@@ -19,7 +19,7 @@ const mutuallyExclusiveLayerRef = ref<HTMLElement | null>(null)
 const mapAffixLayerRef = ref<HTMLElement | null>(null)
 
 const { map } = useMap(canvasRef)
-const mapStore = useMapSettingStore()
+const mapSettingStore = useMapSettingStore()
 
 useMarkerFocus(canvasRef)
 
@@ -32,9 +32,7 @@ useEventListener(canvasRef, 'contextmenu', (ev) => {
 
 const { visible: interactionLayerVisible } = useInteractionLayer()
 
-const { showTag, showOverlay } = useMapState(true)
-
-const collapse = ref(true)
+const collapse = ref(false)
 useEventListener('keypress', (ev) => {
   if (ev.code === 'Backquote')
     collapse.value = !collapse.value
@@ -61,9 +59,9 @@ provide(mapAffixLayerKey, mapAffixLayerRef)
           '--tw-translate-x': '-300%',
         }"
       >
-        <GSSwitch v-model="showTag" label="显示地图标签" size="large" />
-        <GSSwitch v-model="showOverlay" label="显示附加图层" size="large" />
-        <GSSwitch v-model="mapStore.hideMarkedMarker" label="隐藏标记点位" size="large" />
+        <GSSwitch v-model="mapSettingStore.showTag" label="显示地图标签" size="large" />
+        <GSSwitch v-model="mapSettingStore.showOverlay" label="显示附加图层" size="large" />
+        <GSSwitch v-model="mapSettingStore.hideMarkedMarker" label="隐藏标记点位" size="large" />
       </div>
 
       <div ref="mapAffixLayerRef" class="map-affix-provider">
@@ -71,7 +69,7 @@ provide(mapAffixLayerKey, mapAffixLayerRef)
           v-for="(group, key) in map?.baseLayer?.overlayManager?.overlayGroups"
           :key="key"
           :pos="[group.bounds[0], group.bounds[1]]"
-          :visible="showOverlay"
+          :visible="mapSettingStore.showOverlay"
           zoom-with-map
           pickable
         >

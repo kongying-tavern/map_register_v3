@@ -1,14 +1,13 @@
 import { IconLayer } from '@deck.gl/layers/typed'
 import type { GenshinBaseLayer, MarkerWithRenderConfig } from '../core'
 import { useCondition } from '@/pages/pageMapV2/hooks'
-import { useArchiveStore, useMapSettingStore } from '@/stores'
+import { useArchiveStore } from '@/stores'
 import { ICON } from '@/pages/pageMapV2/config'
 
 /** 点位渲染属性 */
 export const getMarkersFrom = (target: GenshinBaseLayer): IconLayer<MarkerWithRenderConfig> => {
   const conditionManager = useCondition()
   const archiveStore = useArchiveStore()
-  const mapSettingStore = useMapSettingStore()
 
   const isMarked = (marker: API.MarkerVo) => {
     return archiveStore.currentArchive.body.Data_KYJG.has(marker.id!)
@@ -25,7 +24,7 @@ export const getMarkersFrom = (target: GenshinBaseLayer): IconLayer<MarkerWithRe
   }
 
   const getMarkerOpacity = (marker: API.MarkerVo) => {
-    if (isMarked(marker) && mapSettingStore.hideMarkedMarker)
+    if (isMarked(marker) && target.state.hideMarkedMarker)
       return ICON.inconspicuousOpacity
     return (marker.id === target.state.hover?.id) ? 0.8 : 1
   }
@@ -59,7 +58,7 @@ export const getMarkersFrom = (target: GenshinBaseLayer): IconLayer<MarkerWithRe
       getIcon: archiveStore.currentArchive.body.Data_KYJG.size,
       getColor: [
         target.state.hover,
-        mapSettingStore.hideMarkedMarker,
+        target.state.hideMarkedMarker,
         archiveStore.currentArchive.body.Data_KYJG.size,
       ],
       getSize: target.state.focus,

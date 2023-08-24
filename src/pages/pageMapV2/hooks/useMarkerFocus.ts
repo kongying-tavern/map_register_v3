@@ -10,7 +10,7 @@ const cachedMarkerVo = shallowRef<API.MarkerVo | null>(null)
 
 /** 点位 focus 状态管理 hook */
 export const useMarkerFocus = (canvasRef?: Ref<HTMLCanvasElement | null>) => {
-  const { map, onMapReady } = useMap()
+  const { onMapReady } = useMap()
   const mapStore = useMapStore()
 
   const focusMarker = (markerVo: API.MarkerVo) => {
@@ -23,10 +23,6 @@ export const useMarkerFocus = (canvasRef?: Ref<HTMLCanvasElement | null>) => {
     focus.value = null
     mapStore.focus = null
   }
-
-  canvasRef && mapStore.$subscribe((_, { focus }) => map.value?.baseLayer?.setState({
-    focus: isMarkerVo(focus) ? focus : null,
-  }))
 
   canvasRef && onMapReady(mapInstance => mapInstance.event.on('click', (info, ev) => {
     if (!ev.leftButton || !isMarkerVo(info.object))

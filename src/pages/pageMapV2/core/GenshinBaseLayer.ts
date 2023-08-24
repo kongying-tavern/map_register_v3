@@ -15,20 +15,13 @@ import {
 } from '../utils'
 import { OverlayManager } from './OverlayManager'
 import type { Coordinate2D, GenshinMap } from '.'
-import { useMapSettingStore } from '@/stores'
+import { useMapSettingStore, useMapStore } from '@/stores'
 
 export interface GenshinTileLayerConfig extends Required<LayerConfig> {
   bounds: [number, number, number, number]
   groupedTags: TagOptions[][]
   coordinateSystem: ValueOf<typeof COORDINATE_SYSTEM>
   coordinateOrigin: [number, number, number]
-}
-
-export interface GenshinBaseLayerState {
-  updateCount: number
-  movingMarkers: { origin: API.MarkerVo; offset: Coordinate2D }[]
-  hover: API.MarkerVo | null
-  focus: API.MarkerVo | null
 }
 
 export class GenshinBaseLayer extends CompositeLayer {
@@ -50,8 +43,8 @@ export class GenshinBaseLayer extends CompositeLayer {
 
     this.unsubscribers.forEach(unsubscriber => unsubscriber())
     this.unsubscribers = [
-      // TODO 性能优化
-      useMapSettingStore().$subscribe(() => layer.forceUpdate()),
+      useMapSettingStore().$subscribe((_, state) => layer.setState(state)),
+      useMapStore().$subscribe((_, state) => layer.setState(state)),
     ]
 
     return layer
@@ -63,11 +56,19 @@ export class GenshinBaseLayer extends CompositeLayer {
 
   readonly rawProps: GenshinTileLayerConfig
 
-  state: GenshinBaseLayerState = {
-    updateCount: 0,
-    movingMarkers: [],
-    hover: null,
-    focus: null,
+  #getDefaultState = () => ({
+    updateCount: 0 as number,
+    movingMarkers: [] as { origin: API.MarkerVo; offset: Coordinate2D }[],
+    ...useMapSettingStore().$state,
+    ...useMapStore().$state,
+  })
+
+  state = this.#getDefaultState()
+
+  /** Layer 类在初始化时会清空 state 导致子图层无法访问到必要的 state，这里覆盖一下 */
+  _initialize = () => {
+    super._initialize()
+    this.state = this.#getDefaultState()
   }
 
   setState = (state: Partial<typeof this.state>) => {

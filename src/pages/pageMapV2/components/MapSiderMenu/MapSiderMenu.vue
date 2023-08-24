@@ -2,11 +2,11 @@
 import { CoffeeCup, Filter, Grid, IceTea, List, Operation, PieChart, Setting } from '@element-plus/icons-vue'
 import { ElImage } from 'element-plus'
 import type { FeatureOption } from '../FeatureGrid'
-import { useCondition, useCurrentLayerMarkers, useMapState } from '@/pages/pageMapV2/hooks'
+import { useCondition, useCurrentLayerMarkers } from '@/pages/pageMapV2/hooks'
 import { FeatureGrid, MarkerFilter, MarkerTable, SiderMenu, SiderMenuItem } from '@/pages/pageMapV2/components'
 import { AppSettings, GSSwitch } from '@/components'
 import { useGlobalDialog } from '@/hooks'
-import { useUserStore } from '@/stores'
+import { useMapSettingStore, useUserStore } from '@/stores'
 import { IconGithub } from '@/components/AppIcons'
 import { FALLBACK_AVATAR_URL } from '@/shared/constant'
 import { ExitLeft } from '@/components/GenshinUI/GSIcon'
@@ -62,13 +62,7 @@ const features: FeatureOption[] = [
 
 const { markers } = useCurrentLayerMarkers()
 
-const { maxCacheTileSize, showBorder, showTag, showTooltip, showOverlay, hideMarkedMarker } = useMapState()
-const cacheTiles = computed({
-  get: () => maxCacheTileSize.value !== undefined,
-  set: (v) => {
-    maxCacheTileSize.value = v ? Number.MAX_SAFE_INTEGER : undefined
-  },
-})
+const mapSettingStore = useMapSettingStore()
 </script>
 
 <template>
@@ -105,12 +99,11 @@ const cacheTiles = computed({
 
     <SiderMenuItem name="layer" label="图层设置" :icon="Operation">
       <div class="h-full flex flex-col gap-2 p-4">
-        <GSSwitch v-model="showTag" label="显示地图标签" />
-        <GSSwitch v-model="showOverlay" label="显示附加图层" />
-        <GSSwitch v-model="hideMarkedMarker" label="隐藏标记点位" />
-        <GSSwitch v-model="showBorder" label="显示图层边界" />
-        <GSSwitch v-model="showTooltip" label="显示调试信息" />
-        <GSSwitch v-model="cacheTiles" label="无限制地图缓存" title="内存低于8G的用户不建议勾选此项" />
+        <GSSwitch v-model="mapSettingStore.showTag" label="显示地图标签" />
+        <GSSwitch v-model="mapSettingStore.showOverlay" label="显示附加图层" />
+        <GSSwitch v-model="mapSettingStore.hideMarkedMarker" label="隐藏标记点位" />
+        <GSSwitch v-model="mapSettingStore.showBorder" label="显示图层边界" />
+        <GSSwitch v-model="mapSettingStore.showTooltip" label="显示调试信息" />
       </div>
     </SiderMenuItem>
 

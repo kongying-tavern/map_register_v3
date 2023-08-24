@@ -12,7 +12,7 @@ export const getBorderFrom = (target: GenshinBaseLayer): LineLayer<GenshinLineDa
     id: `${target.props.id}-border`,
     coordinateSystem: target.rawProps.coordinateSystem,
     coordinateOrigin: target.rawProps.coordinateOrigin,
-    visible: target.context.deck.stateManager.get('showBorder'),
+    visible: target.state.showBorder,
     data: [
       { start: [xmin, ymax], end: [xmax, ymax] },
       { start: [xmax, ymax], end: [xmax, ymin] },
@@ -23,5 +23,8 @@ export const getBorderFrom = (target: GenshinBaseLayer): LineLayer<GenshinLineDa
     getColor: () => [255, 0, 0, 255],
     getSourcePosition: d => d.start,
     getTargetPosition: d => d.end,
+    updateTriggers: {
+      visible: target.state.showBorder,
+    },
   })
 }

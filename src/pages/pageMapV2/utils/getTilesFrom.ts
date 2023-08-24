@@ -4,7 +4,7 @@ import type { GenshinBaseLayer } from '../core'
 
 export const getTilesFrom = (target: GenshinBaseLayer): TileLayer => new TileLayer({
   id: `${target.props.id}-tile`,
-  pickable: target.context.deck.stateManager.get('showTooltip'),
+  pickable: target.state.showTooltip,
   coordinateSystem: target.rawProps.coordinateSystem,
   coordinateOrigin: target.rawProps.coordinateOrigin,
   data: null,
@@ -13,8 +13,7 @@ export const getTilesFrom = (target: GenshinBaseLayer): TileLayer => new TileLay
   maxZoom: 0, // 固定值，对应服务端存储底图的 level 13
   maxRequests: 1,
   extent: target.rawProps.bounds,
-  opacity: target.context.deck.stateManager.get('showOverlay') ? 0.3 : 1,
-  maxCacheSize: target.context.deck.stateManager.get('maxCacheTileSize'),
+  opacity: target.state.showOverlay ? 0.3 : 1,
   getTileData: async ({ index: { x, y, z }, signal }) => {
     try {
       if (signal?.aborted)
@@ -39,5 +38,9 @@ export const getTilesFrom = (target: GenshinBaseLayer): TileLayer => new TileLay
       image: subProps.data.image,
       bounds: [xmin, ymax, xmax, ymin],
     })
+  },
+  updateTriggers: {
+    pickable: target.state.showTooltip,
+    opacity: target.state.showOverlay,
   },
 })

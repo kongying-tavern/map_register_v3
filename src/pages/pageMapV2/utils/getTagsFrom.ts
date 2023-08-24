@@ -4,7 +4,6 @@ import type { TagOptions } from '../config'
 import { MAP_FONTFAMILY } from '../shared'
 
 export const getTagsFrom = (target: GenshinBaseLayer): TextLayer<TagOptions>[] => {
-  const { showTags } = target.context.deck.stateManager.state
   const { zoom } = target.context.deck.mainViewState
   const { center, coordinateOrigin, coordinateSystem, groupedTags } = target.rawProps
 
@@ -12,7 +11,7 @@ export const getTagsFrom = (target: GenshinBaseLayer): TextLayer<TagOptions>[] =
     id: `${target.props.id}-tag-level${level}`,
     coordinateSystem,
     coordinateOrigin,
-    visible: showTags && ({
+    visible: target.state.showTag && ({
       0: zoom > -1.5,
       1: zoom <= -1.5,
       2: zoom <= -4,
@@ -35,5 +34,11 @@ export const getTagsFrom = (target: GenshinBaseLayer): TextLayer<TagOptions>[] =
     })[level],
     getText: d => d.text,
     getPosition: ({ pos: [x, y] }) => [x + center[0], y + center[1], 0],
+    updateTriggers: {
+      visible: [
+        target.state.showTag,
+        target.context.deck.mainViewState.zoom,
+      ],
+    },
   }))
 }

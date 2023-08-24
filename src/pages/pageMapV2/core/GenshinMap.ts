@@ -3,9 +3,7 @@ import { Deck, OrthographicView, TRANSITION_EVENTS } from '@deck.gl/core/typed'
 import type { ViewStateChangeParameters } from '@deck.gl/core/typed/controllers/controller'
 import { clamp } from 'lodash'
 import { MAP_FONTFAMILY, TRANSITION } from '../shared'
-import type { GenshinMapState } from '../hooks'
-import { getDefaultMapState } from '../hooks'
-import { EventBus, GenshinBaseLayer, StateManager } from '.'
+import { EventBus, GenshinBaseLayer } from '.'
 import genshinFont from '@/style/fonts/genshinFont.woff2?url'
 import { useMapSettingStore, useMapStore } from '@/stores'
 
@@ -131,9 +129,6 @@ export class GenshinMap extends Deck {
   // ==================== 地图状态 ====================
   #eventBus = new EventBus<GenshinMapEvents>()
   get event() { return this.#eventBus }
-
-  get stateManager() { return this.#stateManager }
-  #stateManager = new StateManager<GenshinMap, GenshinMapState>(this, getDefaultMapState())
 
   #handleViewStateChange = ({ viewState, oldViewState = {}, interactionState, ...rest }: ViewStateChangeParameters) => {
     const newState = viewState as GensinMapViewState

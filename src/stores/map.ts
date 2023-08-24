@@ -14,9 +14,8 @@ export const useMapStore = defineStore('map-state', {
   state: () => ({
     lockViewState: false,
     mission: null as MissionType | null,
-    active: null as unknown,
-    hover: null as unknown,
-    focus: null as unknown,
+    hover: null as API.MarkerVo | null,
+    focus: null as API.MarkerVo | null,
   }),
 
   actions: {
