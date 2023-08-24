@@ -1,3 +1,4 @@
+export * from './useMarkerDelete'
 export * from './useMarkerExtra'
 export * from './useMarkerFinished'
 export * from './useMarkerMove'

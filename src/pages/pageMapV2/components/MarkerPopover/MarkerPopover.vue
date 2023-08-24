@@ -4,7 +4,7 @@ import { covertPosition } from '../../utils'
 import { useCondition, useMap, useMarkerFocus } from '../../hooks'
 import { MapAffix, MarkerEditPanel } from '..'
 import { MarkerPanel } from './components'
-import { useMarkerExtra, useMarkerFinished, useMarkerMove, useSkeletonPicture } from './hooks'
+import { useMarkerDelete, useMarkerExtra, useMarkerFinished, useMarkerMove, useSkeletonPicture } from './hooks'
 import { useIconTagStore } from '@/stores'
 import { CloseFilled } from '@/components/GenshinUI/GSIcon'
 import { GSButton } from '@/components'
@@ -43,6 +43,9 @@ const openMarkerEditor = () => {
     })
     .open(MarkerEditPanel)
 }
+
+// ==================== 删除点位 ====================
+const { confirmDeleteMarker } = useMarkerDelete()
 </script>
 
 <template>
@@ -111,7 +114,7 @@ const openMarkerEditor = () => {
           </template>
         </GSButton>
 
-        <GSButton size="small" theme="dark" title="删除点位">
+        <GSButton size="small" theme="dark" title="删除点位" @click="() => confirmDeleteMarker(cachedMarkerVo)">
           <template #icon>
             <el-icon color="#CF5945">
               <DeleteFilled />
