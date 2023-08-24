@@ -1,6 +1,6 @@
 <script setup>
 import _ from "lodash";
-import { ref, computed, defineProps, watch } from "vue";
+import { ref, computed, defineProps, watch, nextTick } from "vue";
 import { map_plugin_config } from "src/api/config";
 import {
   add_map_overlay,
@@ -313,8 +313,10 @@ const overlayInitState = computed(() => {
 const overlayLayerHandle = ref(layergroup_register());
 
 const overlayInit = () => {
-  overlayAreaTab.value = props.area?.code || "";
-  overlaySelections.value = _.cloneDeep(overlayInitState.value);
+  nextTick(() => {
+    overlayAreaTab.value = props.area?.code || "";
+    overlaySelections.value = _.cloneDeep(overlayInitState.value);
+  });
 };
 
 const overlayInitGroup = (areaCode = "", groupIndex = -1) => {
