@@ -5,7 +5,7 @@ defineProps<{
   src?: string
 }>()
 
-const isLoading = ref(false)
+const isLoading = ref(true)
 const isError = ref(false)
 
 const end = (isErr = false) => {
@@ -20,7 +20,7 @@ const end = (isErr = false) => {
     :data-raw-src="decodeURIComponent(src ?? '')"
   >
     <QuestionFilled v-if="!src || isError" class="absolute w-full h-full left-0 top-0" />
-    <PictureFilled v-if="isLoading" class="absolute w-full h-full left-0 top-0" />
+    <PictureFilled v-else-if="isLoading" class="absolute w-full h-full left-0 top-0" />
 
     <img
       v-if="src"
@@ -32,7 +32,6 @@ const end = (isErr = false) => {
       :style="{
         opacity: isError ? '0' : '100%',
       }"
-      @loadstart="isLoading = true"
       @load="() => end()"
       @error="() => end(true)"
     >
