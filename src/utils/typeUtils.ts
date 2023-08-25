@@ -19,3 +19,13 @@ export const isMovingMarker = (v: unknown): v is { origin: API.MarkerVo; offset:
     return false
   return true
 }
+
+export const isItemVo = (v: unknown): v is API.ItemVo => {
+  if (typeof v !== 'object' || v === null)
+    return false
+  for (const key of ['id', 'areaId', 'name', 'defaultCount', 'typeIdList']) {
+    if (v[key as keyof typeof v] === undefined)
+      return false
+  }
+  return true
+}
