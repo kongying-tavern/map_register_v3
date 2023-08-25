@@ -8,6 +8,7 @@ import { AppSettings, GSButton } from '@/components'
 import { useGlobalDialog } from '@/hooks'
 import { vMarkeable } from '@/directives'
 import { useMapStore } from '@/stores'
+import db from '@/database'
 
 const { onMapReady } = useMap()
 const mapStore = useMapStore()
@@ -30,7 +31,8 @@ onMapReady(mapInstance => mapInstance.event.on('click', async (info, ev) => {
 
 const { DialogService } = useGlobalDialog()
 
-const openMarkerCreator = () => {
+const openMarkerCreator = async () => {
+  const areaCode = mapStore.markingItem ? (await db.area.where('id').equals(mapStore.markingItem.areaId!).first())?.code : ''
   DialogService
     .config({
       title: '添加点位',
@@ -42,6 +44,8 @@ const openMarkerCreator = () => {
     })
     .props({
       coordinate: coordinate.value,
+      initAreaCode: areaCode,
+      defaultItem: mapStore.markingItem,
     })
     .open(MarkerCreatePanel)
   closeContextmenu()

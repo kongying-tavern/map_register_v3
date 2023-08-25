@@ -16,6 +16,7 @@ export const useMapStore = defineStore('map-state', {
     mission: null as MissionType | null,
     hover: null as API.MarkerVo | null,
     focus: null as API.MarkerVo | null,
+    markingItem: null as API.ItemVo | null,
   }),
 
   actions: {

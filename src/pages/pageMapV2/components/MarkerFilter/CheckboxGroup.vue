@@ -1,6 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script lang="ts" setup generic="T extends Record<string, any>, R extends unknown = unknown">
 import { Finished } from '@element-plus/icons-vue'
+import { CheckboxItem } from '.'
 
 const props = defineProps<{
   modelValue?: any
@@ -15,6 +16,8 @@ const props = defineProps<{
   showSelectAllBtn?: boolean
   /** 需要通过列表项值来计算的属性 */
   getComputed?: (row: T) => R
+  /** 拖拽控制 key */
+  draggable?: boolean
 }>()
 
 const emits = defineEmits<{
@@ -78,6 +81,13 @@ const toggleAllSelect = () => {
     return
   patchArrayValue(isAllSelected.value ? [] : props.options.map(item => item[props.valueKey]))
 }
+
+// ==================== 拖拽控制 ====================
+const handleDragStart = (ev: DragEvent, row: T) => {
+  if (!props.draggable || !ev.dataTransfer)
+    return
+  ev.dataTransfer.setData('text', JSON.stringify(row))
+}
 </script>
 
 <template>
@@ -90,104 +100,45 @@ const toggleAllSelect = () => {
         'grid-cols-2': twoCol,
       }"
     >
-      <div
+      <CheckboxItem
         v-if="multiple && showSelectAllBtn && options.length"
-        :class="{ actived: isAllSelected }"
-        class="checkbox-item"
+        label="选择全部"
+        :is-actived="isAllSelected"
         @click="toggleAllSelect"
       >
-        <div class="checkbox-item__icon">
+        <template #icon>
           <slot name="all-select-icon">
             <Finished />
           </slot>
-        </div>
-        <div class="checkbox-item__content">
-          选择全部
-        </div>
-      </div>
+        </template>
+      </CheckboxItem>
 
-      <div
+      <CheckboxItem
         v-for="opt in options"
         :key="`${opt[valueKey]}`"
-        :class="{ actived: isActived(opt) }"
-        class="checkbox-item"
+        :label="opt[labelKey]"
+        :props="getComputed?.(opt)"
+        :is-actived="isActived(opt)"
+        :draggable="draggable"
+        @dragstart="(ev: DragEvent) => handleDragStart(ev, opt)"
         @click="() => patchValue(opt)"
       >
-        <div v-if="$slots.icon" class="checkbox-item__icon">
+        <template v-if="$slots.icon" #icon>
           <slot name="icon" :row="opt" :actived="isActived(opt)" :props="getComputed?.(opt)" />
-        </div>
-        <slot name="default" :row="opt" :actived="isActived(opt)" :props="getComputed?.(opt)">
-          <div class="checkbox-item__content overflow-hidden overflow-ellipsis" :class="{ 'no-icon': !$slots.icon }" :title="opt[labelKey]">
-            {{ opt[labelKey] }}
-          </div>
-        </slot>
-      </div>
+        </template>
+
+        <template v-if="$slots.default" #default>
+          <slot name="default" :row="opt" :actived="isActived(opt)" :props="getComputed?.(opt)" />
+        </template>
+      </CheckboxItem>
     </div>
   </el-scrollbar>
 </template>
 
 <style lang="scss" scoped>
 .checkbox-group {
-  --item-height: 48px;
-
   overflow: auto;
   display: grid;
   gap: 4px;
-
-  .checkbox-item {
-    --outline-color: #E3DDD180;
-    --outline-width: 2px;
-    --outline-offset: calc(0px - var(--outline-width));
-    --color: #E4DDD1;
-    --item-bg: transparent;
-    --icon-bg: color-mix(in srgb, #FFF 20%, #263240);
-
-    height: var(--item-height);
-    margin: 2px;
-    display: flex;
-    align-items: center;
-    position: relative;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    color: var(--color);
-    background-color: var(--item-bg);
-    outline-offset: var(--outline-offset);
-    outline: var(--outline-width) solid var(--outline-color);
-    transition: all ease 150ms, outline-offset linear 50ms;
-    border-radius: 6px;
-    user-select: none;
-
-    &:hover {
-      --outline-color: #F3EEE6;
-      outline-offset: 0px;
-    }
-    &:active {
-      outline-offset: var(--outline-offset);
-    }
-    &.actived {
-      --color: #263240;
-      --item-bg: #E4DDD1;
-      --icon-bg: color-mix(in srgb, #FFF 60%, #263240);
-    }
-  }
-
-  .checkbox-item__icon {
-    height: 100%;
-    aspect-ratio: 1 / 1;
-    padding: 8px;
-    display: grid;
-    background-color: var(--icon-bg);
-    place-items: center;
-    transition: all ease 150ms;
-  }
-
-  .checkbox-item__content {
-    flex: 1;
-    padding: 8px;
-    &.no-icon {
-      padding: 8px 16px;
-    }
-  }
 }
 </style>

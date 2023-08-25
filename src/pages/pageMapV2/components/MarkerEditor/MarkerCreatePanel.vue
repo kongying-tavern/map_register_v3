@@ -10,6 +10,8 @@ import { messageFrom } from '@/utils'
 
 const props = defineProps<{
   coordinate: Coordinate2D
+  initAreaCode?: string
+  defaultItem?: API.ItemVo
 }>()
 
 const userStore = useUserStore()
@@ -24,7 +26,13 @@ const initFormData = (): API.MarkerVo => {
     content: '',
     hiddenFlag: 0,
     position: `${x},${y}`,
-    itemList: [],
+    itemList: props.defaultItem
+      ? [{
+          count: props.defaultItem.defaultCount ?? 1,
+          iconTag: props.defaultItem.iconTag,
+          itemId: props.defaultItem.id,
+        }]
+      : [],
     videoPath: '',
     refreshTime: 0,
     markerCreatorId: userId,
@@ -62,7 +70,7 @@ onSuccess(() => {
 </script>
 
 <template>
-  <MarkerEditorForm ref="editorRef" v-model="form">
+  <MarkerEditorForm ref="editorRef" v-model="form" :init-area-code="initAreaCode">
     <template #footer>
       <div class="w-full flex justify-end">
         <el-button :loading="loading" type="primary" @click="confirm">

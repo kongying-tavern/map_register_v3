@@ -1,11 +1,12 @@
 <script lang="ts" setup>
 import { DeleteFilled } from '@element-plus/icons-vue'
-import { CheckboxGroup, CheckboxImage, ConditionManager, ConditionRow, FilterTabs, ItemButton } from '.'
+import { CheckboxGroup, CheckboxImage, CheckboxItem, ConditionManager, ConditionRow, FilterTabs, ItemButton } from '.'
 import { GSButton, GSDivider } from '@/components'
 import { IconSetting } from '@/components/AppIcons'
-import { useArchiveStore, useIconTagStore, useUserStore } from '@/stores'
+import { useArchiveStore, useIconTagStore, useMapStore, useUserStore } from '@/stores'
 import { useCondition } from '@/pages/pageMapV2/hooks'
 import db from '@/database'
+import { isItemVo } from '@/utils'
 
 // ==================== 其他 ====================
 interface Sortable {
@@ -80,10 +81,29 @@ const itemCountMap = asyncComputed(async () => {
   const archivedMarkers = await db.marker.bulkGet(archivedMarkerIds)
   return countMarkerItems(archivedMarkers)
 })
+
+// ==================== 打点物品 ====================
+const dropzoneRef = ref<HTMLElement | null>(null)
+const { isOverDropZone } = useDropZone(dropzoneRef)
+
+const mapStore = useMapStore()
+const handleDragItem = (ev: DragEvent) => {
+  if (!ev.dataTransfer)
+    return
+  // 数据来源搜索 dataTransfer.setData
+  const str = ev.dataTransfer.getData('text')
+  if (!str)
+    return
+  const data = JSON.parse(str)
+  if (!isItemVo(data))
+    return
+  ev.preventDefault()
+  mapStore.markingItem = data
+}
 </script>
 
 <template>
-  <div class="marker-filter h-full flex flex-col">
+  <div class="marker-filter genshin-text h-full flex flex-col">
     <FilterTabs v-model="conditionManager.tabKey" :tab-names="conditionManager.tabNames">
       <template #key-0>
         {{ conditionManager.area?.name ?? '无' }}
@@ -146,6 +166,7 @@ const itemCountMap = asyncComputed(async () => {
           multiple
           show-select-all-btn
           two-col
+          draggable
         >
           <template #icon="{ row }">
             <CheckboxImage :src="iconTagStore.iconTagMap[row.iconTag ?? '']?.url" />
@@ -158,6 +179,44 @@ const itemCountMap = asyncComputed(async () => {
     </div>
 
     <GSDivider :height="32" color="rgb(100 100 100 / 0.9)" />
+
+    <div class="text-white px-2">
+      · 默认打点物品
+    </div>
+
+    <div
+      ref="dropzoneRef"
+      class="marking-item"
+      :class="{
+        'over-drop': isOverDropZone,
+        'checked': Boolean(mapStore.markingItem),
+      }"
+      @drop="handleDragItem"
+    >
+      <template v-if="!mapStore.markingItem">
+        {{ isOverDropZone ? '放开以应用该物品' : '拖拽物品到此处' }}
+      </template>
+
+      <CheckboxItem v-else is-actived :label="mapStore.markingItem.name" style="margin: 0; width: 100%" @click="mapStore.markingItem = null">
+        <template #icon>
+          <CheckboxImage :src="iconTagStore.iconTagMap[mapStore.markingItem.iconTag ?? '']?.url" />
+        </template>
+        <template #default>
+          <div class="marking-item--content">
+            <ItemButton :item-count-map="itemCountMap" :item-total-map="itemTotalMap" :row="mapStore.markingItem" actived />
+            <div class="grid px-2 place-items-center" style="background-color: var(--gs-color-danger);">
+              <el-icon :size="20" color="#FFF">
+                <DeleteFilled />
+              </el-icon>
+            </div>
+          </div>
+        </template>
+      </CheckboxItem>
+    </div>
+
+    <div class="text-white px-2 pb-1">
+      · 条件列表
+    </div>
 
     <div class="flex-1 p-2 pb-0 overflow-hidden">
       <el-scrollbar height="100%">
@@ -178,7 +237,7 @@ const itemCountMap = asyncComputed(async () => {
     <div class="condition-add-btn flex gap-4 justify-center p-2 pb-4 pt-0">
       <GSButton
         class="flex-1"
-        :disabled="conditionManager.isPreRendering || !conditionManager.conditions.size"
+        :disabled="!conditionManager.conditions.size"
         @click="conditionManager.clearCondition"
       >
         <template #icon>
@@ -201,3 +260,32 @@ const itemCountMap = asyncComputed(async () => {
     <ConditionManager v-model="conditionManagerVisible" />
   </div>
 </template>
+
+<style lang="scss" scoped>
+.marking-item {
+  border: 2px dashed #C6C2BA;
+  border-radius: 8px;
+  margin: 8px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  color: #C6C2BA;
+
+  &.over-drop {
+    border-style: solid;
+    border-color: #FFF;
+  }
+
+  &.checked {
+    border-width: 0;
+    place-items: flex-start;
+  }
+}
+
+.marking-item--content {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 1fr auto;
+}
+</style>
