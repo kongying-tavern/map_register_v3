@@ -43,6 +43,7 @@ export interface IconRenderConfig {
 /** IconLayer 渲染图标的配置 */
 export const ICON: IconRenderConfig = {
   // debug: true,
+  // 注意！如果要修改图标在地图上的大小，需要修改 getMarkersFrom 中 getSize 而不是这里
   size: {
     w: 42,
     h: 50,
@@ -62,7 +63,7 @@ export const ICON: IconRenderConfig = {
     { state: 'moving', color: '#FFFF00' },
   ],
   content: {
-    radius: 16,
+    radius: 17,
     fit: 'contain',
   },
   shadow: {
