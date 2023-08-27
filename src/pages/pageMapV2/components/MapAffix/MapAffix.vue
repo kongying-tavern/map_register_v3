@@ -22,11 +22,15 @@ const { scaleRatio, position } = useMapProjection(coord, {
 const switchScaleRatio = computed(() => props.zoomWithMap ? scaleRatio.value : 1)
 
 const affixVisible = computed(() => props.pos !== undefined && props.visible !== false)
+
+const mapaffixRef = ref<HTMLElement | null>(null)
+useEventListener(mapaffixRef, 'contextmenu', ev => ev.preventDefault())
 </script>
 
 <template>
   <div
     v-if="affixVisible"
+    ref="mapaffixRef"
     v-bind="$attrs"
     class="gs-map-affix absolute left-0 top-0"
     :class="{

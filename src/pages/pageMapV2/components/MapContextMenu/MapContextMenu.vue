@@ -66,7 +66,7 @@ const openSettingDialog = () => {
 <template>
   <Transition name="fade">
     <MapAffix v-if="coordinate" :pos="coordinate">
-      <div class="context-menu ml-2 mt-2 flex flex-col gap-1 relative" :class="coordinate ? 'pointer-events-auto' : 'pointer-events-none'">
+      <div class="context-menu ml-2 mt-2 flex flex-col gap-1 relative" @contextmenu.stop="ev => ev.preventDefault()">
         <GSButton v-markeable @click="openMarkerCreator">
           <template #icon>
             <el-icon color="var(--gs-color-confirm)">
