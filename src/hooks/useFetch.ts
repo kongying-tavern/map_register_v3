@@ -1,4 +1,4 @@
-import type { Ref } from 'vue'
+import type { ShallowRef } from 'vue'
 import { messageFrom } from '@/utils'
 
 interface BasicResponseBody extends Omit<API.RBoolean, 'data'> {
@@ -11,25 +11,38 @@ const isBasicResponse = (v: unknown): v is BasicResponseBody => {
 }
 
 export interface FetchHookOptions<T, A extends unknown[] = []> {
-  loading?: Ref<boolean>
+  loading?: ShallowRef<boolean>
   immediate?: boolean
+  initialValue?: T
+  shallow?: boolean
   onRequest?: (...args: A) => Promise<T>
 }
 
-export const useFetchHook = <T, A extends unknown[] = []>(options: FetchHookOptions<T, A> = {}) => {
-  const { immediate, loading = ref(false), onRequest } = options
+export const useFetchHook = <T, A extends unknown[] = []>(options: FetchHookOptions<T, A>) => {
+  const { immediate, loading = shallowRef(false), initialValue, shallow, onRequest } = options
 
   const onSuccessHook = createEventHook<T>()
   const onErrorHook = createEventHook<Error>()
   const onFinishHook = createEventHook<void>()
 
+  const data = shallow
+    ? shallowRef(initialValue) as ShallowRef<T>
+    : ref(initialValue) as Ref<T>
+
+  const timestamp = shallowRef(Date.now())
+
   const refresh = async (...args: A) => {
+    const current = Date.now()
+    timestamp.value = current
     try {
       loading.value = true
       if (onRequest) {
         const res = await onRequest(...args)
         if (isBasicResponse(res) && res.error)
           throw new Error(`error in server: ${res.message}`)
+        if (current < timestamp.value)
+          return
+        data.value = res as T
         onSuccessHook.trigger(res)
       }
     }
@@ -44,5 +57,5 @@ export const useFetchHook = <T, A extends unknown[] = []>(options: FetchHookOpti
 
   immediate && onMounted(refresh)
 
-  return { loading, refresh, onSuccess: onSuccessHook.on, onError: onErrorHook.on, onFinish: onFinishHook.on }
+  return { data, loading, refresh, onSuccess: onSuccessHook.on, onError: onErrorHook.on, onFinish: onFinishHook.on }
 }
