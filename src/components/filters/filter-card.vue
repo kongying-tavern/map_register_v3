@@ -237,6 +237,34 @@ import {
                   </q-item>
                 </template>
               </q-select>
+              <div
+                v-else-if="item.filterOpts?.model === 'number-range'"
+                style="display: flex; gap: 1rem; align-items: center"
+              >
+                <q-input
+                  v-model.number="item.modelVals.minValue"
+                  inline
+                  flat
+                  dense
+                  clearable
+                  placeholder="不限制"
+                  style="flex: auto"
+                  @update:model-value="filterConfigSave"
+                >
+                </q-input>
+                <span style="flex: none" class="text-bold"> ~ </span>
+                <q-input
+                  v-model.number="item.modelVals.maxValue"
+                  inline
+                  flat
+                  dense
+                  clearable
+                  placeholder="不限制"
+                  style="flex: auto"
+                  @update:model-value="filterConfigSave"
+                >
+                </q-input>
+              </div>
             </div>
 
             <!-- 条件后插槽 -->
