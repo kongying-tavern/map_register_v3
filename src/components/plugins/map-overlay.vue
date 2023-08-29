@@ -143,7 +143,7 @@ const overlayBaseConfig = computed(() => {
 
           // 判断地址是否存在
           let overlayUrl = chunkUrl || itemUrl || groupUrl;
-          if (!chunkUrl) {
+          if (!overlayUrl) {
             // 构造地图地址
             const overlayUrlTemplate =
               itemUrlTemplate || groupUrlTemplate || globalUrlTemplate || "";
