@@ -31,7 +31,6 @@ const { DialogService } = useGlobalDialog()
 const openMarkerEditor = () => {
   focus.value && DialogService
     .config({
-      title: `编辑点位：${focus.value.markerTitle}`,
       width: 'fit-content',
       alignCenter: true,
       showClose: false,

@@ -35,7 +35,6 @@ const openMarkerCreator = async () => {
   const areaCode = mapStore.markingItem ? (await db.area.where('id').equals(mapStore.markingItem.areaId!).first())?.code : ''
   DialogService
     .config({
-      title: '添加点位',
       width: 'fit-content',
       alignCenter: true,
       showClose: false,

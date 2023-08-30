@@ -38,7 +38,7 @@ const isOfflineMode = import.meta.env.VITE_DEVELOPMENT_MODE === 'offline'
     <template #footer>
       <div class="w-full flex justify-end">
         <el-button type="primary" :disabled="isOfflineMode" :loading="loading" @click="editMarker">
-          确认
+          保存
         </el-button>
         <el-button @click="GlobalDialogController.close">
           取消
