@@ -1,3 +1,4 @@
+export { AppAreaCodeSelecter } from './AppAreaCodeSelecter'
 export { AppItemSelecter } from './AppItemSelecter'
 export { AppSettings } from './AppSettings'
 export { AppUserInfo } from './AppUserInfo'
