@@ -1,14 +1,17 @@
 <script lang="ts" setup>
+import { useFormItem } from 'element-plus'
 import { Delete, Setting } from '@element-plus/icons-vue'
 import { AddonItemSelectorEP, AddonTeleporter } from '.'
 import { useIconTagStore, useItemTypeStore } from '@/stores'
 import db from '@/database'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   modelValue?: API.MarkerItemLinkVo[]
   addonId: string
   areaCode?: string
-}>()
+}>(), {
+  modelValue: () => [],
+})
 
 const emits = defineEmits<{
   (e: 'update:modelValue', v: API.MarkerItemLinkVo[]): void
@@ -19,15 +22,18 @@ const emits = defineEmits<{
 const itemTypeStore = useItemTypeStore()
 const iconTagStore = useIconTagStore()
 
-const markerItemList = ref(props.modelValue ?? [])
-watch(markerItemList, v => emits('update:modelValue', v), { deep: true })
+const { formItem } = useFormItem()
 
-const bindAreaCode = computed({
-  get: () => props.areaCode,
-  set: (v) => {
-    markerItemList.value = []
-    emits('update:areaCode', v)
-  },
+const isError = computed(() => formItem?.validateState === 'error')
+
+const markerItemList = ref(props.modelValue)
+watch(markerItemList, (v) => {
+  emits('update:modelValue', v)
+  nextTick(() => formItem?.validate('change').catch(() => false))
+}, { deep: true })
+
+watch(() => props.areaCode, () => {
+  markerItemList.value = []
 })
 
 const rawItemList = asyncComputed(async () => {
@@ -42,17 +48,17 @@ const activeItemMap = computed(() => Object.fromEntries(markerItemList.value.map
   rawItemList.value.find(item => item.id === linkItem.itemId) as API.ItemVo,
 ])))
 
-const isAddonActived = computed({
-  get: () => props.addonId === 'itemList',
-  set: v => emits('update:addonId', v ? 'itemList' : ''),
-})
-
 const deleteItem = (id?: number) => {
   const findIndex = markerItemList.value.findIndex(item => item.itemId === id)
   if (findIndex < 0)
     return
   markerItemList.value.splice(findIndex, 1)
 }
+
+const isAddonActived = computed({
+  get: () => props.addonId === 'itemList',
+  set: v => emits('update:addonId', v ? 'itemList' : ''),
+})
 </script>
 
 <template>
@@ -60,7 +66,7 @@ const deleteItem = (id?: number) => {
     <div
       v-bind="$attrs"
       class="marker-item-select w-full"
-      :class="{ actived: isAddonActived }"
+      :class="{ 'actived': isAddonActived, 'is-error': isError }"
     >
       <div
         v-for="item, index in markerItemList"
@@ -103,7 +109,7 @@ const deleteItem = (id?: number) => {
     <el-button :icon="Setting" :type="isAddonActived ? 'primary' : ''" title="选择物品" circle @click="isAddonActived = !isAddonActived" />
 
     <AddonTeleporter :active="isAddonActived">
-      <AddonItemSelectorEP v-model="markerItemList" v-model:area-code="bindAreaCode" :raw-item-list="rawItemList" />
+      <AddonItemSelectorEP v-model="markerItemList" :area-code="areaCode" :raw-item-list="rawItemList" />
     </AddonTeleporter>
   </div>
 </template>
@@ -120,6 +126,9 @@ const deleteItem = (id?: number) => {
   }
   &.actived {
     border-color: var(--el-color-primary);
+  }
+  &.is-error {
+    border-color: var(--el-color-danger);
   }
 }
 
