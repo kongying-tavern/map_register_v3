@@ -1,15 +1,17 @@
 <script lang="ts" setup>
 import { filter, fromEvent, map, switchMap, takeUntil } from 'rxjs'
-import { useSubscription } from '@vueuse/rxjs'
+import { fromEvent as fromRefEvent, useSubscription } from '@vueuse/rxjs'
 import { useMarkerPositionEdit } from './hooks'
 import type { Coordinate2D } from '@/pages/pageMapV2/core'
 import { useInteractionLayer, useMap } from '@/pages/pageMapV2/hooks'
 import { isMarkerVo, isMovingMarker } from '@/utils'
 import { useMapStore } from '@/stores'
 import { GSButton } from '@/components'
+import { genshinMapCanvasKey } from '@/pages/pageMapV2/shared'
 
 const { map: mapInstance } = useMap()
 const mapStore = useMapStore()
+const canvasRef = inject(genshinMapCanvasKey) as Ref<HTMLCanvasElement>
 
 // ==================== 界面控制 ====================
 const controllerPanelVisible = computed(() => mapStore.mission?.type === 'moveMarkers')
@@ -55,8 +57,8 @@ const pointerdown = fromEvent<PointerEvent>(window, 'pointerdown').pipe(filter((
 }))
 const pointermove = fromEvent<PointerEvent>(window, 'pointermove')
 const pointerup = fromEvent<PointerEvent>(window, 'pointerup')
-const dKeydown = fromEvent<KeyboardEvent>(window, 'keydown').pipe(filter((ev) => {
-  return ev.code === 'KeyD' && !controllerPanelVisible.value
+const dKeydown = fromRefEvent(canvasRef, 'keydown').pipe(filter((ev) => {
+  return (ev as KeyboardEvent).code === 'KeyD' && !controllerPanelVisible.value
 }))
 const dKeyup = fromEvent<KeyboardEvent>(window, 'keyup').pipe(filter((ev) => {
   return ev.code === 'KeyD'

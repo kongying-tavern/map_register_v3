@@ -26,14 +26,14 @@ useMarkerFocus(canvasRef)
 useMapInteraction()
 
 // 拦截默认右键事件，由 GenshinMap 自行处理
-useEventListener(canvasRef, 'contextmenu', (ev) => {
-  ev.preventDefault()
-})
+useEventListener(canvasRef, 'contextmenu', ev => ev.preventDefault())
 
 const { visible: interactionLayerVisible } = useInteractionLayer()
 
 const collapse = ref(false)
-useEventListener('keypress', (ev) => {
+useEventListener('keydown', (ev) => {
+  if (ev.target instanceof HTMLInputElement || ev.target instanceof HTMLTextAreaElement)
+    return
   if (ev.code === 'Backquote')
     collapse.value = !collapse.value
 })
