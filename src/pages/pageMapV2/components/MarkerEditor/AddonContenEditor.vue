@@ -34,21 +34,30 @@ const selectedItems = asyncComputed(() => db.item
   .anyOf(props.itemList.map(item => item.itemId as number))
   .toArray())
 
+// ==================== 将填充字符插入到已有的文本中 ====================
+/** 快捷标点 */
+const characters = ['「', '」', '《', '》', '【', '】', ' · ', '…', '×']
+
+/** 选区 */
+const selection = reactive({ start: 0, end: 0 })
 const selectionStart = ref<number>()
 const selectionEnd = ref<number>()
-// TODO 这里的选区信息只在需要点击填充标签的时候需要，在离开输入区点击其他组件时必然会触发 blur 事件，理论上只需要注册 onblur 事件就行了
+
+// TODO 这里的选区信息只在点击填充标签的时候需要，在离开输入区点击其他组件时必然会触发 blur 事件，理论上只需要注册 onblur 事件就行了
 const updateSelectionState = (ev: Event) => {
   const target = ev.target as HTMLTextAreaElement
+  selection.start = target.selectionStart
+  selection.end = target.selectionEnd
   selectionStart.value = target.selectionStart
   selectionEnd.value = target.selectionEnd
 }
 
-/** 快捷标点 */
-const characters = ['「', '」', '《', '》', '【', '】', ' · ', '…', '×']
+const addonInputRef = ref<InputInstance | null>(null)
 
-// ==================== 将填充字符插入到已有的文本中 ====================
-const inputRef = ref<InputInstance | null>(null)
 const insertChar = async (char: string, newline = false) => {
+  const textarea = addonInputRef.value?.textarea
+  if (!textarea)
+    return
   if (newline) {
     internalBind.value = `${internalBind.value}\n${char}`.trim()
     return
@@ -64,8 +73,8 @@ const insertChar = async (char: string, newline = false) => {
   internalBind.value = charArray.join('')
   start += char.length
   end = start
-  await inputRef.value?.focus()
-  inputRef.value?.textarea?.setSelectionRange(start, end)
+  await addonInputRef.value?.focus()
+  textarea.setSelectionRange(start, end)
 }
 
 // ==================== 自适应 textarea 行高 ====================
@@ -114,7 +123,7 @@ const textareaRows = computed(() => Math.floor((height.value - 10) / 21))
               v-for="item in selectedItems"
               :key="item.id"
               :title="item.defaultContent"
-              @click="() => insertChar(item.defaultContent ?? '', true)"
+              @click="() => insertChar(item.defaultContent ?? '')"
             >
               {{ item.name }}
             </el-button>
@@ -122,7 +131,7 @@ const textareaRows = computed(() => Math.floor((height.value - 10) / 21))
         </div>
         <div ref="textareaContainerRef" class="flex-1">
           <el-input
-            ref="inputRef"
+            ref="addonInputRef"
             v-model="internalBind"
             type="textarea"
             resize="none"
