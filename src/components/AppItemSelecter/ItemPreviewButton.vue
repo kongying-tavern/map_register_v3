@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { CircleCloseFilled, Close } from '@element-plus/icons-vue'
+import { CircleCloseFilled } from '@element-plus/icons-vue'
 
 defineProps<{
   item: API.ItemVo
@@ -13,13 +13,7 @@ defineProps<{
     :title="item.name"
     class="item-selecter-button relative"
   >
-    <el-image :src="iconMap[item.iconTag ?? '']?.url" crossorigin="" fit="contain" class="w-8 h-8">
-      <template #error>
-        <el-icon :size="32" color="var(--el-color-danger)">
-          <Close />
-        </el-icon>
-      </template>
-    </el-image>
+    <img :src="iconMap[item.iconTag ?? '']?.url" crossorigin="" loading="lazy" class="object-contain w-8 h-8">
 
     <div class="absolute w-3 h-3 top-0 right-0">
       <CircleCloseFilled />

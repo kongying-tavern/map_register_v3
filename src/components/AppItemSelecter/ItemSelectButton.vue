@@ -13,13 +13,7 @@ defineProps<{
   >
     <slot name="prepend" />
 
-    <el-image :src="iconMap[item.iconTag ?? '']?.url" lazy crossorigin="" fit="contain" class="w-8 h-8 object-contain">
-      <template #error>
-        <el-icon :size="32" color="var(--el-color-danger)">
-          <Close />
-        </el-icon>
-      </template>
-    </el-image>
+    <img :src="iconMap[item.iconTag ?? '']?.url" crossorigin="" loading="lazy" class="w-8 h-8 object-contain">
 
     <span class="flex-1 overflow-hidden whitespace-nowrap text-ellipsis">{{ item.name }}</span>
 
