@@ -1,51 +1,55 @@
 <script lang="ts" setup>
-import { CircleCloseFilled, Close, Search, Select } from '@element-plus/icons-vue'
-import type { CascaderProps } from 'element-plus'
+import { CircleCloseFilled, Search, Select } from '@element-plus/icons-vue'
+import { ElScrollbar } from 'element-plus'
 import ItemSelectButton from './ItemSelectButton.vue'
 import ItemPreviewButton from './ItemPreviewButton.vue'
 import db from '@/database'
 import { useFetchHook, useState } from '@/hooks'
 import { useIconTagStore } from '@/stores'
+import { AppAreaCodeSelecter } from '@/components'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   modelValue: API.ItemVo[]
+  areaCode?: string
   title?: string
-}>()
+  totalDirection?: 'row' | 'column'
+  height?: string
+  width?: string
+  showTotal?: boolean
+  showAreaSelector?: boolean
+}>(), {
+  showTotal: true,
+  showAreaSelector: true,
+  totalDirection: 'row',
+})
 
 const emits = defineEmits<{
   'update:modelValue': [API.ItemVo[]]
+  'update:areaCode': [string]
 }>()
 
-// ==================== 筛选信息 ====================
-const queryText = ref('')
-
-const [selectedType, setSelectedType] = useState<API.ItemTypeVo | null>(null)
-
-const areaIds = ref<number[]>([])
-const areaId = computed(() => areaIds.value.at(-1))
-
-const areaCascaderProps: CascaderProps = {
-  lazy: true,
-  label: 'name',
-  value: 'id',
-  leaf: 'isFinal',
-  lazyLoad: (node, resolve) => {
-    const { level } = node
-    if (level === 0)
-      return db.area.where('parentId').equals(-1).toArray().then(resolve)
-    db.area.where('parentId').equals(node.value).toArray().then(resolve)
-  },
-}
+// ==================== 地区信息 ====================
+const areaId = asyncComputed(async () => {
+  if (!props.areaCode)
+    return
+  const area = await db.area.where('code').equals(props.areaCode).first()
+  return area?.id
+})
 
 // ==================== 图标信息 ====================
 const iconTagStore = useIconTagStore()
 const iconMap = computed(() => iconTagStore.iconTagMap)
 
-// ==================== 物品类型 ====================
-const typeList = shallowRef<API.ItemTypeVo[]>([])
+// ==================== 关键词 ====================
+const queryText = ref('')
 
-const { onSuccess: onItemTypeFetched } = useFetchHook({
+// ==================== 物品类型 ====================
+const [selectedType, setSelectedType] = useState<API.ItemTypeVo | null>(null)
+
+const { data: itemTypeList, onSuccess: onItemTypeFetched } = useFetchHook({
   immediate: true,
+  initialValue: [],
+  shallow: true,
   onRequest: async () => {
     const itemTypes = await db.itemType.filter(itemType => itemType.isFinal ?? false).toArray()
     return itemTypes.sort(({ sortIndex: sa = 0 }, { sortIndex: sb = 0 }) => sb - sa)
@@ -53,42 +57,32 @@ const { onSuccess: onItemTypeFetched } = useFetchHook({
 })
 
 onItemTypeFetched((itemTypes) => {
-  typeList.value = itemTypes
   selectedType.value = itemTypes[0] ?? null
 })
 
 // ==================== 物品信息 ====================
-const itemList = shallowRef<API.ItemVo[]>([])
-
-const { loading, onSuccess: onItemFetched, refresh: updateItemList } = useFetchHook({
-  onRequest: async () => {
-    const typeId = selectedType.value?.id
-    const query = queryText.value
-    if (typeId === undefined)
-      return []
-    const items = await db.item
-      .where('typeIdList')
-      .anyOf([typeId])
-      .and((item) => {
-        const isQueryMatch = !query || (item.name?.includes(query) ?? false)
-        if (!isQueryMatch)
-          return false
-        const isAreaMatch = areaId.value === undefined || (item.areaId === areaId.value)
-        return isAreaMatch
-      })
-      .sortBy('name')
-    return items
-  },
-})
-
-onItemFetched((items) => {
-  itemList.value = items
-})
-
-watch(() => [queryText.value, selectedType.value, areaId.value], updateItemList)
+const loading = ref(false)
+const itemList = asyncComputed(async () => {
+  const queryTypeId = selectedType.value?.id
+  const queryKeyword = queryText.value.trim()
+  const queryAreaId = areaId.value
+  if (queryTypeId === undefined)
+    return []
+  const items = await db.item
+    .where('typeIdList')
+    .anyOf([queryTypeId])
+    .and((item) => {
+      const isQueryMatch = !queryKeyword || (item.name?.includes(queryKeyword) ?? false)
+      if (!isQueryMatch)
+        return false
+      return item.areaId === queryAreaId
+    })
+    .sortBy('name')
+  return items
+}, [], { evaluating: loading })
 
 // ==================== 已选物品 ====================
-const selections = ref(new Set<number>(props.modelValue.map(item => item.id!)))
+const selections = computed(() => new Set<number>(props.modelValue.map(item => item.id!)))
 
 const selectionItems = computed({
   get: () => props.modelValue,
@@ -97,73 +91,80 @@ const selectionItems = computed({
 
 const groupedItems = computed(() => selectionItems.value.reduce((seed, item) => {
   item.typeIdList?.forEach((typeId) => {
-    if (!(typeId in seed))
+    if (!seed[typeId])
       seed[typeId] = []
     seed[typeId].push(item)
   })
   return seed
-}, {} as Record<number, API.ItemVo[]>))
+}, {} as { [typeId: string]: API.ItemVo[] }))
 
-const typeIds = computed(() => Object.keys(groupedItems.value).map(Number))
-
-const typeMap = asyncComputed(async () => {
-  const types = await db.itemType.bulkGet(typeIds.value)
-  return types.reduce((seed, typeItem) => {
-    if (typeItem)
-      seed[typeItem.id!] = typeItem
-    return seed
-  }, {} as Record<number, API.ItemTypeVo>)
-}, {})
+const { data: itemTypeMap } = useFetchHook({
+  immediate: true,
+  initialValue: {},
+  shallow: true,
+  onRequest: async () => {
+    const itemTypes = await db.itemType.toArray()
+    return itemTypes.reduce((seed, itemType) => {
+      seed[itemType.id!] = itemType
+      return seed
+    }, {} as { [typeId: string]: API.ItemTypeVo })
+  },
+})
 
 const toggleItem = (item: API.ItemVo) => {
   const shallowCopy = [...selectionItems.value]
   if (!selections.value.has(item.id!)) {
-    selections.value.add(item.id!)
     shallowCopy.push(item)
     selectionItems.value = shallowCopy
     return
   }
-  selections.value.delete(item.id!)
   const index = shallowCopy.findIndex(findItem => findItem.id === item.id)
   if (index > -1)
     shallowCopy.splice(index, 1)
   selectionItems.value = shallowCopy
 }
+
+const scrollbarRef = ref<InstanceType<typeof ElScrollbar> | null>(null)
+watch(() => itemList.value, () => scrollbarRef.value?.setScrollTop(0))
 </script>
 
 <template>
-  <div class="item-selector flex" v-bind="$attrs">
-    <div class="sample-item-selecter pr-2 w-80 grid gap-y-2">
-      <el-cascader v-model="areaIds" :props="areaCascaderProps" placeholder="选择地区" class="col-span-2" />
+  <div
+    class="item-selector flex overflow-hidden"
+    v-bind="$attrs"
+    :style="{
+      '--selecter-height': props.height,
+    }"
+  >
+    <div class="sample-item-selecter grid gap-y-2" :class="[showTotal ? 'w-80 pr-2' : 'w-full']">
+      <div class="flex flex-col gap-2 col-span-2">
+        <AppAreaCodeSelecter v-if="showAreaSelector" :model-value="areaCode" @update:model-value="code => emits('update:areaCode', code)" />
 
-      <el-input v-model="queryText" placeholder="搜索物品名称" clearable class="col-span-2">
-        <template #prefix>
-          <el-icon :size="16">
-            <Search />
-          </el-icon>
-        </template>
-      </el-input>
+        <el-input v-model="queryText" placeholder="搜索物品名称" clearable>
+          <template #prefix>
+            <el-icon :size="16">
+              <Search />
+            </el-icon>
+          </template>
+        </el-input>
+      </div>
 
-      <div class="w-full h-full overflow-hidden pr-2">
-        <el-scrollbar>
+      <div class="w-full h-full overflow-hidden">
+        <ElScrollbar class="pr-2">
           <div
-            v-for="itemType in typeList"
+            v-for="itemType in itemTypeList"
             :key="itemType.id"
             :title="itemType.name"
             :class="{ actived: itemType.id === selectedType?.id }"
             class="item-type"
             @click="() => setSelectedType(itemType)"
           >
-            <el-image :src="iconMap[itemType.iconTag ?? '']?.url" lazy crossorigin="" fit="contain" class="w-8 h-8 object-contain">
-              <template #error>
-                <el-icon :size="32" color="var(--el-color-danger)">
-                  <Close />
-                </el-icon>
-              </template>
-            </el-image>
-            <span class="overflow-hidden text-ellipsis whitespace-nowrap">{{ itemType.name }}</span>
+            <img :src="iconMap[itemType.iconTag ?? '']?.url" loading="lazy" class="w-8 h-8 object-contain">
+            <el-badge type="primary" :value="groupedItems[itemType.id!]?.length ?? 0" :hidden="!groupedItems[itemType.id!]?.length" style="width: 100%">
+              <span class="overflow-hidden text-ellipsis whitespace-nowrap">{{ itemType.name }}</span>
+            </el-badge>
           </div>
-        </el-scrollbar>
+        </ElScrollbar>
       </div>
 
       <div
@@ -171,7 +172,7 @@ const toggleItem = (item: API.ItemVo) => {
         class="w-full h-full flex flex-col overflow-hidden pl-2 border-left"
         element-loading-text="查询中..."
       >
-        <el-scrollbar>
+        <ElScrollbar ref="scrollbarRef">
           <ItemSelectButton
             v-for="item in itemList"
             :key="item.id"
@@ -195,11 +196,11 @@ const toggleItem = (item: API.ItemVo) => {
               </div>
             </template>
           </ItemSelectButton>
-        </el-scrollbar>
+        </ElScrollbar>
       </div>
     </div>
 
-    <div class="w-52 flex flex-col pl-2 justify-between gap-2 border-left">
+    <div v-if="showTotal" class="w-52 flex flex-col pl-2 justify-between gap-2 border-left">
       <div class="flex justify-between px-1">
         <el-text v-if="title" size="small">
           {{ title }}
@@ -210,12 +211,12 @@ const toggleItem = (item: API.ItemVo) => {
       </div>
 
       <div class="flex-1 overflow-hidden">
-        <el-scrollbar>
+        <ElScrollbar>
           <details v-for="(items, key) in groupedItems" :key="key" open class="el-border mb-1 overflow-hidden">
             <summary class="p-1 px-2 text-xs select-none el-bg-primary">
-              {{ typeMap[key]?.name ?? '？？？' }}
+              {{ itemTypeMap[key]?.name ?? '？？？' }}
             </summary>
-            <div class="grid grid-cols-4 gap-1 p-1">
+            <div class="flex gap-1 p-1">
               <ItemPreviewButton
                 v-for="item in items"
                 :key="item.id"
@@ -231,7 +232,7 @@ const toggleItem = (item: API.ItemVo) => {
               </ItemPreviewButton>
             </div>
           </details>
-        </el-scrollbar>
+        </ElScrollbar>
       </div>
 
       <slot name="append" />
@@ -241,16 +242,16 @@ const toggleItem = (item: API.ItemVo) => {
 
 <style lang="scss" scoped>
 .item-selector {
-  height: 500px;
-  overflow: hidden;
+  height: var(--selecter-height, 500px);
 }
 
 .sample-item-selecter {
   grid-template-columns: 120px auto;
+  grid-template-rows: auto 1fr;
 }
 
 .item-type {
-  padding: 4px;
+  padding: 4px 12px 4px 4px;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -278,6 +279,6 @@ const toggleItem = (item: API.ItemVo) => {
 }
 
 .border-left {
-  border-left: 1px solid var(--el-border-color);
+  border-left: 1px dashed var(--el-border-color);
 }
 </style>
