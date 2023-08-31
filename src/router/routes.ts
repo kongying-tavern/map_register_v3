@@ -68,7 +68,7 @@ const routes: RouteRecordRaw[] = [
         path: '/score',
         meta: {
           title: '用户评分',
-          icon: 'Ticket',
+          icon: 'Star',
           roles: [RoleTypeEnum.ADMIN],
         },
         component: () => import('@/pages/pageScoreManager/ScoreManager.vue'),
@@ -90,6 +90,15 @@ const routes: RouteRecordRaw[] = [
           roles: [RoleTypeEnum.ADMIN, RoleTypeEnum.MAP_MANAGER],
         },
         component: () => import('@/pages/pageAreaManager/AreaManager.vue'),
+      },
+      {
+        path: '/history',
+        meta: {
+          title: '历史记录',
+          icon: 'Memo',
+          roles: [RoleTypeEnum.ADMIN, RoleTypeEnum.MAP_MANAGER],
+        },
+        component: () => import('@/pages/pageHistory/PageHistory.vue'),
       },
     ],
   },
