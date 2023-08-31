@@ -341,14 +341,14 @@ const overlayRefresh = () => {
   for (const overlaySelectionId of overlaySelectionIds.value) {
     const overlayLayerConfig = overlayConfigMap.value[overlaySelectionId];
     if (overlayLayerConfig) {
-      const overlayLayerValue = overlayLayerConfig.value || "";
+      const overlayLayerId = overlayLayerConfig.id || "";
       const overlayLayerChunks = overlayLayerConfig.chunks || [];
       if (
         _.isArray(overlayLayerChunks) &&
-        overlayLayerValue &&
-        !matchedValues.has(overlayLayerValue)
+        overlayLayerId &&
+        !matchedValues.has(overlayLayerId)
       ) {
-        matchedValues.add(overlayLayerValue);
+        matchedValues.add(overlayLayerId);
 
         for (const overlayLayerChunk of overlayLayerChunks) {
           const overlayLayerUrl = overlayLayerChunk.url || "";
