@@ -105,9 +105,12 @@ const hideMenu = () => {
   top: v-bind(height);
   translate: -50% -50%;
   background: #272E39E0;
+  scale: min(1, calc(1 / var(--sc)));
 }
 
 .gs-overlay-switch-wrapper {
+  transform-origin: 0 0;
+  scale: min(1, calc(1 / var(--sc)));
   pointer-events: all;
   display: flex;
   flex-direction: column;
