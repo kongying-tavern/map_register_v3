@@ -68,10 +68,6 @@ export const useUserStore = defineStore('user-info', {
       const route = useRoute()
       return route.meta.preload && (state.isHandling || state.isRouteLoading || !state.isRouteAnimationEnd)
     },
-    /** TODO: 等后端返回改为单角色后就不需要这个了 */
-    role: (state) => {
-      return state.auth.userRoles?.[0]
-    },
     /** 用户是否具有打点权 */
     hasPunctauteRights: ({ auth: { userRoles = [] } }) => {
       return userRoles.some(role => ACCESSABLE_ROLES.includes(role as RoleTypeEnum))
