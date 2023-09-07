@@ -1,6 +1,7 @@
 import type { NavigationGuardWithThis, Router } from 'vue-router'
 import { isInPermissionList, isInWhiteList } from '../utils'
 import { useUserStore } from '@/stores'
+import * as stores from '@/stores'
 import { Logger } from '@/utils'
 
 const logger = new Logger('[beforeEachGuard]')
@@ -14,21 +15,27 @@ export const beforeEachGuard = (router: Router): NavigationGuardWithThis<void> =
     const isOfflineMode = import.meta.env.VITE_DEVELOPMENT_MODE === 'offline'
 
     const userStore = useUserStore()
-
-    const go = () => {
-      userStore.isRouteLoading = true
-      next(true)
-    }
+    userStore.isRouteLoading = true
 
     // 离线模式下不进行路由前置守卫
     if (isOfflineMode)
       return next(true)
 
-    const isTokenValid = userStore.validateUserToken()
+    if (['/', '/login'].includes(from.path)) {
+      await Promise.allSettled(Object.values(stores).reduce((seed, useStore) => {
+        if (typeof useStore !== 'function')
+          return seed
+        const store = useStore()
+        if ('init' in store && typeof store.init === 'function')
+          seed.push(store.init())
+        return seed
+      }, [] as unknown[]))
+    }
 
+    const isTokenValid = userStore.validateUserToken()
     if (isInWhiteList(to)) {
       // 如果用户已登录，但手动导航到部分页面，则重定向到地图页
-      return isTokenValid ? next('/') : go()
+      return isTokenValid ? next('/') : next(true)
     }
 
     const isRouteExist = router.getRoutes().find(route => route.path === to.path)
@@ -47,7 +54,7 @@ export const beforeEachGuard = (router: Router): NavigationGuardWithThis<void> =
     ;(!userStore.info.id || userStore.info.id !== userStore.auth.userId) && await userStore.updateUserInfo()
     // 确保在进入路由时用户设置已更新
     !userStore.preference.id && await userStore.updateUserPreference()
-    go()
+    next(true)
 
     userStore.createRefreshTimer()
     to.meta.preload && userStore.preloadMission()
