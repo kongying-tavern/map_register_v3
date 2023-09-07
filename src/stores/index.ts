@@ -1,5 +1,6 @@
 export * from './archive'
 export * from './area'
+export * from './dadian'
 export * from './iconTag'
 export * from './item'
 export * from './itemType'
