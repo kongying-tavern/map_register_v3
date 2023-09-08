@@ -9,13 +9,14 @@ import {
   getMarkersFrom,
   getMovingMarkersIconFrom,
   getMovingMarkersLineFrom,
+  getOverlayMaskFrom,
   getOverlaysFrom,
   getTagsFrom,
   getTilesFrom,
 } from '../utils'
 import { OverlayManager } from './OverlayManager'
 import type { Coordinate2D, GenshinMap } from '.'
-import { useMapSettingStore, useMapStore } from '@/stores'
+import { useMapSettingStore, useMapStore, useOverlayStore } from '@/stores'
 
 export interface GenshinTileLayerConfig extends Required<LayerConfig> {
   bounds: [number, number, number, number]
@@ -45,6 +46,7 @@ export class GenshinBaseLayer extends CompositeLayer {
     this.unsubscribers = [
       useMapSettingStore().$subscribe((_, state) => layer.setState(state)),
       useMapStore().$subscribe((_, state) => layer.setState(state)),
+      useOverlayStore().$subscribe((_, state) => layer.setState(state)),
     ]
 
     return layer
@@ -61,6 +63,7 @@ export class GenshinBaseLayer extends CompositeLayer {
     movingMarkers: [] as { origin: API.MarkerVo; offset: Coordinate2D }[],
     ...useMapSettingStore().$state,
     ...useMapStore().$state,
+    ...useOverlayStore().$state,
   })
 
   state = this.#getDefaultState()
@@ -124,16 +127,13 @@ export class GenshinBaseLayer extends CompositeLayer {
     this.#overlayManager = shallowRef<OverlayManager>(new OverlayManager(LAYER_OVERLAY_CONFIG[this.rawProps.code]))
   }
 
-  #markers = shallowRef<API.MarkerVo[]>([])
-  get markers() { return this.#markers.value }
-  set markers(v) { this.#markers.value = v }
-
   #overlayManager: ShallowRef<OverlayManager>
   get overlayManager() { return this.#overlayManager.value }
 
   renderLayers = (): LayersList => {
     return [
       getTilesFrom(this),
+      getOverlayMaskFrom(this),
       ...getOverlaysFrom(this),
       ...getTagsFrom(this),
       getBorderFrom(this),

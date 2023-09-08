@@ -253,9 +253,10 @@ export class GenshinMap extends Deck {
     this.baseLayer?.forceUpdate()
   }
 
-  setBaseLayer = (code?: string) => {
+  setBaseLayer = (code = '') => {
     if (this.baseLayer?.rawProps.code === code)
       return
+    useMapStore().currentLayerCode = code
     this.#setBaseLayer(GenshinBaseLayer.getLayer(code))
   }
 }

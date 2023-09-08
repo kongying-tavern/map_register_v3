@@ -1,7 +1,7 @@
 export { FeatureGrid } from './FeatureGrid'
 export { MapAffix } from './MapAffix'
 export { MapContextMenu } from './MapContextMenu'
-export { MapOverlay } from './MapOverlay'
+export { MapOverlayController } from './MapOverlayController'
 export { MapSiderMenu } from './MapSiderMenu'
 export { MarkerCreatePanel, MarkerEditPanel } from './MarkerEditor'
 export { MarkerFilter } from './MarkerFilter'

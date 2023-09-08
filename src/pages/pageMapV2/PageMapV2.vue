@@ -3,9 +3,8 @@ import { useInteractionLayer, useMap, useMapInteraction, useMarkerFocus } from '
 import { genshinMapCanvasKey, mapAffixLayerKey, mutuallyExclusiveLayerKey } from './shared'
 import {
   CollapseButton,
-  MapAffix,
   MapContextMenu,
-  MapOverlay,
+  MapOverlayController,
   MapSiderMenu,
   MarkerMoveController,
   MarkerPopover,
@@ -18,7 +17,7 @@ const canvasRef = ref<HTMLCanvasElement | null>(null)
 const mutuallyExclusiveLayerRef = ref<HTMLElement | null>(null)
 const mapAffixLayerRef = ref<HTMLElement | null>(null)
 
-const { map } = useMap(canvasRef)
+useMap(canvasRef)
 const mapSettingStore = useMapSettingStore()
 
 useMarkerFocus(canvasRef)
@@ -31,6 +30,7 @@ useEventListener(canvasRef, 'contextmenu', ev => ev.preventDefault())
 const { visible: interactionLayerVisible } = useInteractionLayer()
 
 const collapse = ref(false)
+whenever(() => collapse.value, () => canvasRef.value?.focus())
 useEventListener('keydown', (ev) => {
   if (ev.target instanceof HTMLInputElement || ev.target instanceof HTMLTextAreaElement)
     return
@@ -65,26 +65,15 @@ provide(mapAffixLayerKey, mapAffixLayerRef)
       </div>
 
       <div ref="mapAffixLayerRef" class="map-affix-provider">
-        <MapAffix
-          v-for="(group, key) in map?.baseLayer?.overlayManager?.overlayGroups"
-          :key="key"
-          :pos="[group.bounds[0], group.bounds[1]]"
-          :visible="mapSettingStore.showOverlay"
-          zoom-with-map
-          pickable
-        >
-          <MapOverlay :option-group="group" />
-        </MapAffix>
-
+        <MapOverlayController />
         <MarkerPopover />
-
-        <MapSiderMenu
-          v-model:collapse="collapse"
-          class="z-10 transition-all"
-          :class="[interactionLayerVisible ? 'pointer-events-auto' : '-translate-x-full']"
-        />
       </div>
 
+      <MapSiderMenu
+        v-model:collapse="collapse"
+        class="z-10 transition-all"
+        :class="[interactionLayerVisible ? 'pointer-events-auto' : '-translate-x-full']"
+      />
       <CollapseButton
         v-model:collapse="collapse"
         :class="[interactionLayerVisible ? 'pointer-events-auto' : '-translate-x-full']"

@@ -1,6 +1,7 @@
 export * from './covertPosition'
 export * from './getBorderFrom'
 export * from './getMarkersFrom'
+export * from './getOverlayMaskFrom'
 export * from './getMovingMarkersIconFrom'
 export * from './getMovingMarkersLineFrom'
 export * from './getOverlaysFrom'
