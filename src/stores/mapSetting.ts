@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
 
+// TODO 用户状态同步
+/** 地图设置 */
 export const useMapSettingStore = defineStore('map-setting', {
   state: () => ({
     /** 隐藏标记点位 */
