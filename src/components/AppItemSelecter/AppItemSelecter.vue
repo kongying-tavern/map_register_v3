@@ -29,10 +29,22 @@ const emits = defineEmits<{
 }>()
 
 // ==================== 地区信息 ====================
+/** 当没有传入外部地区代码时使用内置缓存 */
+const internalAreaCode = ref('')
+
+const modelAreaCode = computed({
+  get: () => props.areaCode ?? internalAreaCode.value,
+  set: (code) => {
+    if (props.areaCode === undefined) {
+      internalAreaCode.value = code
+      return
+    }
+    emits('update:areaCode', code)
+  },
+})
+
 const areaId = asyncComputed(async () => {
-  if (!props.areaCode)
-    return
-  const area = await db.area.where('code').equals(props.areaCode).first()
+  const area = await db.area.where('code').equals(modelAreaCode.value).first()
   return area?.id
 })
 
@@ -138,7 +150,7 @@ watch(() => itemList.value, () => scrollbarRef.value?.setScrollTop(0))
   >
     <div class="sample-item-selecter grid gap-y-2" :class="[showTotal ? 'w-80 pr-2' : 'w-full']">
       <div class="flex flex-col gap-2 col-span-2">
-        <AppAreaCodeSelecter v-if="showAreaSelector" :model-value="areaCode" @update:model-value="code => emits('update:areaCode', code)" />
+        <AppAreaCodeSelecter v-if="showAreaSelector" v-model="modelAreaCode" />
 
         <el-input v-model="queryText" placeholder="搜索物品名称" clearable>
           <template #prefix>
