@@ -26,6 +26,8 @@ const logger = new Logger('[user store]')
 const ACCESSABLE_ROLES = [RoleTypeEnum.ADMIN, RoleTypeEnum.MAP_MANAGER, RoleTypeEnum.MAP_NEIGUI, RoleTypeEnum.MAP_PUNCTUATE]
 /** 属于管理员的角色 */
 const ADMIN_ROLES = [RoleTypeEnum.ADMIN, RoleTypeEnum.MAP_MANAGER]
+/** 属于内鬼的角色 */
+const NEIGUI_ROLES = [RoleTypeEnum.ADMIN, RoleTypeEnum.MAP_MANAGER, RoleTypeEnum.MAP_NEIGUI]
 /** token 刷新的阈值时间 */
 const TOKEN_REFRESH_REST_TIME = import.meta.env.VITE_TOKEN_REFRESH_REST_TIME * 1000
 
@@ -78,7 +80,7 @@ export const useUserStore = defineStore('user-info', {
     },
     /** 用户是否为测试打点员 */
     isNeigui: ({ auth: { userRoles = [] } }) => {
-      return userRoles.includes(RoleTypeEnum.MAP_NEIGUI)
+      return userRoles.some(role => NEIGUI_ROLES.includes(role as RoleTypeEnum))
     },
     isOfflineMode: () => import.meta.env.VITE_DEVELOPMENT_MODE === 'offline',
     /** 根据权限筛选出的全部可访问路由，只能在 router 以外的地方调用 */
