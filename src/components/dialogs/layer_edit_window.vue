@@ -420,7 +420,7 @@ export default {
       return type_list;
     },
     type_map() {
-      const type_map = _.keyBy(this.type_list, "typeId");
+      const type_map = _.keyBy(this.type_list, "id");
       return type_map;
     },
     item_packed_list() {
@@ -433,7 +433,7 @@ export default {
       return packed_list;
     },
     item_map() {
-      const item_map = _.keyBy(this.item_packed_list, "itemId");
+      const item_map = _.keyBy(this.item_packed_list, "id");
       return item_map;
     },
     item_groups() {
@@ -446,7 +446,7 @@ export default {
       const item_groups = _.chain(this.type_list)
         .map((v) => {
           const type = v;
-          const type_id = v.typeId;
+          const type_id = v.id;
           const itemList = this.item_groups[type_id] || {};
           return {
             type,
@@ -539,7 +539,7 @@ export default {
     },
     item_update(item = {}) {
       if (this.layer_info.itemList[this.item_selector_index]) {
-        this.layer_info.itemList[this.item_selector_index].itemId = item.itemId;
+        this.layer_info.itemList[this.item_selector_index].itemId = item.id;
         this.layer_info.itemList[this.item_selector_index].count =
           item.defaultCount;
         if (this.layer_info.itemList.length < 1) {
@@ -744,7 +744,7 @@ export default {
       if (this.layer_info.itemList.length <= 0) {
         const item_sel = this.selItem || {};
         const item_link = {
-          itemId: item_sel.itemId,
+          itemId: item_sel.id,
           count: item_sel.defaultCount,
         };
         this.layer_info.itemList.push(item_link);

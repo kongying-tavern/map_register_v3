@@ -49,7 +49,7 @@ export const selectorArea = ref(null);
 export const selectorAreaList = ref([]);
 
 export const selectorAreaId = computed(
-  () => (selectorArea.value || {}).areaId || 0
+  () => (selectorArea.value || {}).id || 0
 );
 export const selectorAreaName = computed(
   () => (selectorArea.value || {}).name || ""
@@ -69,10 +69,10 @@ export const selectorAreaListChild = computed(
 
 export const selectorAreaTestSelect = (area) => {
   if (area.isFinal) {
-    return area.areaId === selectorAreaId.value;
+    return area.id === selectorAreaId.value;
   }
 
-  return area.areaId === selectorAreaTopId.value;
+  return area.id === selectorAreaTopId.value;
 };
 
 export const selectorType = ref(null);
@@ -80,23 +80,23 @@ export const selectorTypeList = ref([]);
 export const selectorTypeChildList = ref([]);
 
 export const selectorTypeId = computed(
-  () => (selectorType.value || {}).typeId || 0
+  () => (selectorType.value || {}).id || 0
 );
 export const selectorTypeName = computed(
   () => (selectorType.value || {}).name || ""
 );
 export const selectorTypeChildIds = computed(() =>
-  _.map(selectorTypeChildList.value || [], (v) => v.typeId)
+  _.map(selectorTypeChildList.value || [], (v) => v.id)
 );
 export const selectorTypeMap = computed(() =>
-  _.keyBy([...selectorTypeList.value, ...selectorTypeChildList.value], "typeId")
+  _.keyBy([...selectorTypeList.value, ...selectorTypeChildList.value], "id")
 );
 
 export const selectorItem = ref(null);
 export const selectorItemFullList = ref([]);
 
 export const selectorItemId = computed(
-  () => (selectorItem.value || {}).itemId || 0
+  () => (selectorItem.value || {}).id || 0
 );
 export const selectorItemName = computed(() => {
   if (selectorItemAllAllowable.value && _.isNil(selectorItem.value)) {
@@ -133,7 +133,7 @@ export const selectorItemList = computed(() => {
   return item_list;
 });
 export const selectorItemIds = computed(() =>
-  _.map(selectorItemList.value || [], (v) => v.itemId)
+  _.map(selectorItemList.value || [], (v) => v.id)
 );
 export const selectorItemAllAllowable = computed(() => {
   const pid = (selectorType.value || {}).parentId;

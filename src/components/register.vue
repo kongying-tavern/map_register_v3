@@ -120,8 +120,8 @@
             <template v-for="(i, idx) in selectorTypeList" :key="idx">
               <q-btn
                 v-if="i.isFinal"
-                :color="selectorTypeId === i.typeId ? 'primary' : 'white'"
-                :text-color="selectorTypeId === i.typeId ? 'white' : 'black'"
+                :color="selectorTypeId === i.id ? 'primary' : 'white'"
+                :text-color="selectorTypeId === i.id ? 'white' : 'black'"
                 @click="select_type_list(i)"
               >
                 <q-item-section>{{ i.name }}</q-item-section>
@@ -147,10 +147,8 @@
                     :key="idxChild"
                     :class="
                       [
-                        j.typeId === selectorTypeId ? 'bg-blue' : 'bg-white',
-                        j.typeId === selectorTypeId
-                          ? 'text-white'
-                          : 'text-black',
+                        j.id === selectorTypeId ? 'bg-blue' : 'bg-white',
+                        j.id === selectorTypeId ? 'text-white' : 'text-black',
                       ].join(' ')
                     "
                     clickable
@@ -239,7 +237,7 @@
               v-for="(i, idx) in selectorItemList"
               :key="idx"
               class="col-4 cursor-pointer item-entry"
-              :class="{ active: selectorItemId === i.itemId }"
+              :class="{ active: selectorItemId === i.id }"
               @click="
                 () => {
                   selectorItem = i;
@@ -562,7 +560,7 @@ export default {
         this.fetch_item_list();
         selectorJumpTo(2);
       } else {
-        selectorAreaTopId.value = area.areaId || 0;
+        selectorAreaTopId.value = area.id || 0;
       }
     },
     // 如果有子分类的话，进行查询，生成子分类tabs
@@ -725,7 +723,7 @@ export default {
       );
     },
     get_icon_url_by_id(id = 0) {
-      const item_found = _.find(selectorItemList.value, (v) => v.itemId === id);
+      const item_found = _.find(selectorItemList.value, (v) => v.id === id);
       const icon_tag = _.get(item_found, "iconTag", "");
       return this.get_icon_url_by_tag(icon_tag);
     },
@@ -818,7 +816,7 @@ export default {
         if (type_not_final) {
           return query_itemtype(1, {
             current: 1,
-            typeIdList: [type_not_final.typeId],
+            typeIdList: [type_not_final.id],
             size: 999,
           }).then((res) => {
             this.loading = false;
