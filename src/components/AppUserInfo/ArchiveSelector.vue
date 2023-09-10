@@ -20,6 +20,7 @@ const AREA_IMG_URLS: Record<string, string> = {
   LY: 'https://uploadstatic.mihoyo.com/contentweb/20200319/2020031921552395638.jpg',
   DQ: 'https://uploadstatic.mihoyo.com/contentweb/20210719/2021071918001232800.jpg',
   XM: 'https://webstatic.mihoyo.com/upload/contentweb/2022/08/15/8969f683b92839ac427c875d0d742be2_4825576482548821743.jpg',
+  FD: 'https://act-webstatic.mihoyo.com/upload/contentweb/hk4e/721a74c43614d7aeb25b046cabfb57be_2012964858524199390.jpg',
 }
 
 const lastestMarkerArea = asyncComputed(async () => {

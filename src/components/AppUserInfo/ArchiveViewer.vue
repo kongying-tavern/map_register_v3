@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 // TODO 逻辑拆分
 import { CaretBottom, CaretTop, DeleteFilled, Edit } from '@element-plus/icons-vue'
-import { ElNotification } from 'element-plus'
-import dayjs from 'dayjs'
-import { GSButton, GSCard, GSInput } from '@/components'
-import type { ArchiveSlotData } from '@/stores'
+import { ElMessage } from 'element-plus'
+import { ArchiveHistory } from '.'
+import { GSButton, GSCard, GSDivider, GSInput } from '@/components'
+import type { ArchiveData, ArchiveSlotData } from '@/stores'
 import { useArchiveStore } from '@/stores'
 import { useFetchHook } from '@/hooks'
 import Api from '@/api/api'
@@ -16,7 +16,7 @@ const emits = defineEmits<{
   (e: 'update:slotIndex', v?: number): void
 }>()
 
-const index = computed({
+const previewIndex = computed({
   get: () => props.slotIndex,
   set: v => emits('update:slotIndex', v),
 })
@@ -25,15 +25,15 @@ const archiveStore = useArchiveStore()
 
 const archiveSlot = ref<ArchiveSlotData>()
 const initDialog = () => {
-  if (index.value === undefined)
+  if (previewIndex.value === undefined)
     return
-  archiveSlot.value = archiveStore.archiveSlots[index.value]
+  archiveSlot.value = archiveStore.archiveSlots[previewIndex.value]
 }
 
 // ==================== 存档槽位名称 ====================
 const isNameEditMode = ref(false)
 const cachedArchiveName = ref('')
-const renameErrMsg = autoResetRef('', 3000)
+const erroeMessage = autoResetRef('', 3000)
 
 const enterNameEditMode = () => {
   cachedArchiveName.value = archiveSlot.value?.name ?? ''
@@ -42,27 +42,23 @@ const enterNameEditMode = () => {
 
 const cancelNameEdit = () => {
   cachedArchiveName.value = ''
-  renameErrMsg.value = ''
+  erroeMessage.value = ''
   isNameEditMode.value = false
 }
 
-const validate = () => {
-  if (!archiveSlot.value)
-    throw new Error('槽位异常')
-  cachedArchiveName.value = cachedArchiveName.value.trim()
-  if (!cachedArchiveName.value.length)
-    throw new Error('名称不能为空')
-}
-
 const clearValidate = () => {
-  renameErrMsg.value = ''
+  erroeMessage.value = ''
 }
 
 const { refresh: submitNameChanged, loading: renameLoading, onSuccess: onSlotRenameSuccess, onError: onSlotRenameError } = useFetchHook({
   onRequest: async () => {
-    validate()
+    if (!archiveSlot.value)
+      throw new Error('槽位异常')
+    cachedArchiveName.value = cachedArchiveName.value.trim()
+    if (!cachedArchiveName.value.length)
+      throw new Error('名称不能为空')
     await Api.archive.renameSlot({
-      slot_index: archiveSlot.value?.slotIndex as number,
+      slot_index: archiveSlot.value.slotIndex!,
       new_name: cachedArchiveName.value,
     })
   },
@@ -75,7 +71,7 @@ onSlotRenameSuccess(async () => {
 })
 
 onSlotRenameError((err) => {
-  renameErrMsg.value = err.message
+  erroeMessage.value = err.message
 })
 
 // ==================== 底部信息栏 ====================
@@ -94,36 +90,46 @@ const note = (ev: Event, msg: string) => {
 // ==================== 存档逻辑 ====================
 const { loading, refresh: saveArchive, onSuccess, onError } = useFetchHook({
   onRequest: async () => {
-    await archiveStore.saveArchiveToSlot(index.value)
+    await archiveStore.saveArchiveToSlot(previewIndex.value)
     await archiveStore.fetchArchive()
   },
 })
 onSuccess(async () => {
-  index.value = undefined
+  previewIndex.value = undefined
 })
-onError(err => ElNotification.error({
-  message: err.message,
+onError(err => ElMessage.error({
+  message: `存档失败，原因为：${err.message}`,
+  offset: 48,
 }))
-
-const loadArchive = () => {
-  archiveStore.loadArchiveSlot(index.value)
-  index.value = undefined
-}
 
 /** 按住 3 秒以确认删除存档 */
 const onAnimationEnd = (ev: AnimationEvent) => {
   if (ev.animationName !== 'anime-delete-archive')
     return
-  archiveStore.deleteArchiveSlot(index.value)
+  archiveStore.deleteArchiveSlot(previewIndex.value)
   stopSignal.value = true
-  index.value = undefined
+  previewIndex.value = undefined
+}
+
+/** 已选择的存档历史记录 */
+const selectedHistory = shallowRef<ArchiveData>()
+
+const loadArchive = () => {
+  if (!selectedHistory.value) {
+    archiveStore.loadArchiveSlot(previewIndex.value)
+    previewIndex.value = undefined
+    return
+  }
+  archiveStore.loadHistoryArchive(previewIndex.value!, selectedHistory.value.historyIndex!)
+  previewIndex.value = undefined
 }
 
 // ==================== 弹窗状态处理 ====================
 const onDialogClosed = () => {
-  index.value = undefined
+  previewIndex.value = undefined
   stopSignal.value = false
   archiveSlot.value = undefined
+  selectedHistory.value = undefined
   clearValidate()
   cancelNameEdit()
 }
@@ -132,14 +138,14 @@ const beforeClose = (done: () => void) => {
   if (renameLoading.value || loading.value)
     return
   message.value = ''
-  renameErrMsg.value = ''
+  erroeMessage.value = ''
   done()
 }
 </script>
 
 <template>
   <el-dialog
-    :model-value="Number.isInteger(index)"
+    :model-value="Number.isInteger(previewIndex)"
     :show-close="false"
     :close-on-click-modal="!loading"
     :before-close="beforeClose"
@@ -159,13 +165,13 @@ const beforeClose = (done: () => void) => {
           </div>
           <el-tooltip
             placement="bottom"
-            :content="renameErrMsg"
-            :visible="renameErrMsg.length > 0"
+            :content="erroeMessage"
+            :visible="erroeMessage.length > 0"
             effect="customized"
             :popper-class="{
               'genshin-text': true,
               'gs-tooltip': true,
-              'error': renameErrMsg.length > 0,
+              'error': erroeMessage.length > 0,
             }"
           >
             <GSInput v-model="cachedArchiveName" :disabled="renameLoading" class="flex-1" autofocus @input="clearValidate" />
@@ -187,11 +193,16 @@ const beforeClose = (done: () => void) => {
         </template>
       </template>
 
-      <div class="flex flex-col">
-        <div v-for="(history, historyIndex) in archiveSlot.archiveList" :key="history.timestamp">
-          <div>【历史记录 {{ historyIndex + 1 }}】{{ dayjs(history.timestamp).format('YYYY-MM-DD HH:mm:ss') }}（标记点位数：{{ history.body.Data_KYJG.size }}）</div>
-        </div>
-      </div>
+      <span class="flex items-center gap-1 text-white">
+        · 存档历史
+        <el-icon :size="16" title="未选择历史记录时，将会自动读取最新记录。">
+          <QuestionFilled />
+        </el-icon>
+      </span>
+
+      <ArchiveHistory v-model="selectedHistory" :data="archiveSlot.archiveList" />
+
+      <GSDivider color="gray" :height="16" />
 
       <div class="flex justify-between gap-4">
         <GSButton class="flex-1" :loading="loading" @click="saveArchive">
@@ -200,7 +211,7 @@ const beforeClose = (done: () => void) => {
               <CaretTop />
             </el-icon>
           </template>
-          保存到该存档
+          保存到存档
         </GSButton>
 
         <el-tooltip
@@ -228,7 +239,7 @@ const beforeClose = (done: () => void) => {
               <CaretBottom />
             </el-icon>
           </template>
-          读取该存档
+          {{ selectedHistory ? '读取该历史' : '读取存档' }}
         </GSButton>
       </div>
     </GSCard>

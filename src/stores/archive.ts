@@ -127,19 +127,20 @@ export const useArchiveStore = defineStore('global-archive', {
     loadArchiveSlot(slot_index = -1) {
       this.currentArchive = this.getLatestArchiveFromSlot(slot_index)
       this.currentArchive.slotIndex = slot_index
-      const conditionManager = useCondition()
-      conditionManager.requestMarkersUpdate()
+      useCondition().requestMarkersUpdate()
     },
 
     /** 加载指定槽位的历史存档 */
-    loadHistoryArchive(slot_index: number, history_index: number) {
-      const archiveSlot = this.archiveSlots[slot_index]
+    loadHistoryArchive(slotIndex: number, historyIndex: number) {
+      const archiveSlot = this.archiveSlots[slotIndex]
       if (!archiveSlot)
-        throw new Error(`槽位 ${slot_index} 没有存档`)
-      const { archiveList } = archiveSlot
-      if (!(history_index in archiveList))
-        throw new Error(`历史存档 ${history_index} 为空`)
-      this.currentArchive = archiveList[history_index]
+        throw new Error(`槽位 ${slotIndex} 没有存档`)
+      const findHistory = archiveSlot.archiveList.find(history => history.historyIndex === historyIndex)
+      if (!findHistory)
+        throw new Error(`历史存档 ${historyIndex} 为空`)
+      this.currentArchive = findHistory
+      this.currentArchive.slotIndex = slotIndex
+      useCondition().requestMarkersUpdate()
     },
 
     /** 加载最新槽位的最新存档 */
