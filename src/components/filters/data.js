@@ -365,15 +365,7 @@ export const filterTypes = [
     // eslint-disable-next-line no-unused-vars
     filterAction(item = {}, values = {}, options = {}) {
       const switchVal = Boolean(values.value);
-      const extraText = item.markerExtraContent || "{}";
-      let extraJson = {};
-      try {
-        extraJson = JSON.parse(extraText);
-        extraJson = _.isPlainObject(extraJson) ? extraJson : {};
-      } catch(e) { // eslint-disable-line
-        // nothing to do
-      }
-
+      const extraJson = item.extra || {};
       const isUnderground = Boolean(extraJson.underground?.is_underground);
       return switchVal === isUnderground;
     },
@@ -499,15 +491,7 @@ export const filterTypes = [
       }
 
       // 获取额外字段
-      const extraText = item.markerExtraContent || "{}";
-      let extraJson = {};
-      try {
-        extraJson = JSON.parse(extraText);
-        extraJson = _.isPlainObject(extraJson) ? extraJson : {};
-      } catch(e) { // eslint-disable-line
-        // nothing to do
-      }
-
+      const extraJson = item.extra || {};
       const undergroundLevels = extraJson.underground?.region_levels || [];
       const undergroundLevelsMatchList = _.intersection(
         undergroundLevels,

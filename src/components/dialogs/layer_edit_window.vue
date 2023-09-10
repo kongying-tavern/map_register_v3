@@ -347,11 +347,7 @@ import _ from "lodash";
 import { ref } from "vue";
 import { markerExtraSetter, markerExtra } from "../extra-data";
 import { upload_img } from "../../service/base_data_request";
-import {
-  edit_layer_extralabel,
-  upload_layer,
-  edit_layer,
-} from "../../service/edit_request";
+import { upload_layer, edit_layer } from "../../service/edit_request";
 import { get_user_id, is_neigui } from "../../service/user_info";
 import ImgCut from "./vue-cropper.vue";
 import RefreshTimeField from "./layer_edit_refresh_time.vue";
@@ -605,27 +601,14 @@ export default {
 
       this.loading = true;
 
-      save_promise(this.layer_info)
+      const form = _.cloneDeep(this.layer_info);
+      form.extra = markerExtra.value || {};
+
+      save_promise(form)
         .then((res) => {
           const { data } = res.data;
           const markerId = this.layer_info.id ? this.layer_info.id : data;
           return markerId;
-        })
-        .then((markerId) => {
-          if (
-            _.isFinite(markerId) &&
-            markerId > 0 &&
-            _.isPlainObject(markerExtra.value) &&
-            !_.isEmpty(markerExtra.value)
-          ) {
-            return edit_layer_extralabel({
-              markerId,
-              markerExtraContent: JSON.stringify(markerExtra.value),
-              isRelated: 0,
-            });
-          }
-
-          return Promise.resolve();
         })
         .then(() => {
           create_notify("保存成功", "positive");
@@ -716,7 +699,7 @@ export default {
     this.layer_info = layer_info;
 
     // 获取附加数据
-    markerExtraSetter(this.layer_info.markerExtraContent || "");
+    markerExtraSetter(this.layer_info.extra || {});
 
     // 如果是新数据
     if (!this.layer_info.id) {
