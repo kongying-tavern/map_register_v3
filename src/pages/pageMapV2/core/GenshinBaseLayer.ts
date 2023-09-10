@@ -1,8 +1,7 @@
 import type { LayersList } from '@deck.gl/core/typed'
 import { COORDINATE_SYSTEM, CompositeLayer } from '@deck.gl/core/typed'
 import type { ValueOf } from 'element-plus/es/components/table/src/table-column/defaults'
-import type { ShallowRef } from 'vue'
-import { LAYER_CONFIGS, LAYER_OVERLAY_CONFIG } from '../config'
+import { LAYER_CONFIGS } from '../config'
 import type { LayerConfig, TagOptions } from '../config'
 import {
   getBorderFrom,
@@ -14,7 +13,6 @@ import {
   getTagsFrom,
   getTilesFrom,
 } from '../utils'
-import { OverlayManager } from './OverlayManager'
 import type { Coordinate2D, GenshinMap } from '.'
 import { useMapSettingStore, useMapStore, useOverlayStore } from '@/stores'
 
@@ -88,7 +86,6 @@ export class GenshinBaseLayer extends CompositeLayer {
       tilesOffset = [0, 0],
       center = [0, 0],
       tags = [],
-      overlays = [],
       areaCodes = [],
       initViewState = {},
     } = props
@@ -112,7 +109,6 @@ export class GenshinBaseLayer extends CompositeLayer {
       center,
       bounds,
       tags,
-      overlays,
       groupedTags: tags.reduce((seed, { level = 0, ...rest }) => {
         !(level in seed) && (seed[level] = [])
         seed[level].push({ level, ...rest })
@@ -123,12 +119,7 @@ export class GenshinBaseLayer extends CompositeLayer {
       coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
       coordinateOrigin: [center[0], center[1], 0] as [number, number, number],
     }
-
-    this.#overlayManager = shallowRef<OverlayManager>(new OverlayManager(LAYER_OVERLAY_CONFIG[this.rawProps.code]))
   }
-
-  #overlayManager: ShallowRef<OverlayManager>
-  get overlayManager() { return this.#overlayManager.value }
 
   renderLayers = (): LayersList => {
     return [
