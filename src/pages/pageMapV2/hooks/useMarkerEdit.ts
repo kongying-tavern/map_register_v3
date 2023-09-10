@@ -5,10 +5,13 @@ import type { MarkerEditorForm } from '../components/MarkerEditor'
 import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 import { useUserStore } from '@/stores'
+import { useCondition } from '@/pages/pageMapV2/hooks'
+import db from '@/database'
 
 /** 编辑点位，已自动处理 methodType 字段 */
 export const useMarkerEdit = (markerData: Ref<API.MarkerVo | null>) => {
   const userStore = useUserStore()
+  const conditionManager = useCondition()
 
   /** 编辑器实例 */
   const editorRef = ref<InstanceType<typeof MarkerEditorForm> | null>(null)
@@ -61,21 +64,29 @@ export const useMarkerEdit = (markerData: Ref<API.MarkerVo | null>) => {
   }
 
   /** 原始操作 */
-  const request = async () => {
-    if (!markerData.value)
-      throw new Error('所需的点位数据为空')
-    const shallowCopy = { ...markerData.value }
+  const request = async (marker: API.MarkerVo) => {
     await editorRef.value?.uploadPicture()
-    const form: API.MarkerVo = buildAdminMarkerForm(shallowCopy)
+    const form = buildAdminMarkerForm(marker)
     await Api.marker.updateMarker(form)
+
+    const { data: { 0: submitedMarkerInfo } = [] } = await Api.marker.listMarkerById({}, [form.id!])
+
+    if (!submitedMarkerInfo)
+      throw new Error('无法确认点位信息，点位对象为空')
+
+    await db.marker.put(submitedMarkerInfo)
+
+    await conditionManager.requestMarkersUpdate()
   }
 
   const { refresh: submit, onSuccess, onError, ...rest } = useFetchHook({ onRequest: request })
 
   const editMarker = async () => {
     try {
+      if (!markerData.value)
+        throw new Error('所需的点位数据为空')
       await editorRef.value?.validate()
-      await submit()
+      await submit(markerData.value)
     }
     catch {
       // validate, no error

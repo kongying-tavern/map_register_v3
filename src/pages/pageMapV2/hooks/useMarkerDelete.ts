@@ -3,9 +3,12 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { useFetchHook } from '@/hooks'
 import { useUserStore } from '@/stores'
 import Api from '@/api/api'
+import { useCondition } from '@/pages/pageMapV2/hooks'
+import db from '@/database'
 
 export const useMarkerDelete = () => {
   const userStore = useUserStore()
+  const conditionManager = useCondition()
 
   const buildModifyMarkerForm = (marker: API.MarkerVo): API.MarkerPunctuateVo => {
     return {
@@ -20,6 +23,15 @@ export const useMarkerDelete = () => {
 
     const form = buildModifyMarkerForm(marker)
     await Api.punctuate.addPunctuate({}, form)
+
+    const { data: { 0: submitedMarkerInfo } = [] } = await Api.marker.listMarkerById({}, [form.id!])
+
+    if (!submitedMarkerInfo)
+      throw new Error('无法确认点位信息，点位对象为空')
+
+    await db.marker.put(submitedMarkerInfo)
+
+    await conditionManager.requestMarkersUpdate()
   }
 
   const { refresh: submit, onSuccess, onError, ...rest } = useFetchHook({ onRequest: request })
