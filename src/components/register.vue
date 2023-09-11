@@ -767,6 +767,7 @@ export default {
       position = `${position.lat},${position.lng}`;
       edit_layer({
         position,
+        version: layerCurrent.value.target.options.data.version,
         id: layerCurrent.value.target.options.data.id,
         markerCreatorId: get_user_id(),
       }).then((res) => {

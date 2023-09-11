@@ -690,12 +690,11 @@ export default {
     },
   },
   mounted() {
-    let layer_info = _.defaultsDeep(
+    const layer_info = _.defaultsDeep(
       {},
       this.propdata.data,
       this.layer_info_default
     );
-    layer_info = _.omit(layer_info, "version");
     this.layer_info = layer_info;
 
     // 获取附加数据
