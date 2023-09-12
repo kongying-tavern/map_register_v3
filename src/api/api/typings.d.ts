@@ -254,6 +254,8 @@ declare namespace API {
     specialFlag?: number;
     /** 物品类型ID列表 */
     typeIdList?: number[];
+    /** 查询条件下物品总数 */
+    count?: number;
   };
 
   type IconTypeVo = {
