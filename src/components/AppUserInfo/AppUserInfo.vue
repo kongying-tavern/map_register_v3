@@ -7,6 +7,8 @@ import { ROLES_MAP } from '@/shared'
 
 const userStore = useUserStore()
 
+const BANNER_IMAGE_URL = 'https://upload-bbs.miyoushe.com/upload/2023/09/08/75276539/e048366f518c6c6edfbbcfec3162b10f_1620230996664613985.jpg?x-oss-process=image//resize,s_600/quality,q_80/auto-orient,0/interlace,1/format,jpg'
+
 const tabs: { title: string; value: string }[] = [
   { title: '云存档', value: 'archive' },
   { title: '编辑信息', value: 'info' },
@@ -28,7 +30,9 @@ const tab = ref('archive')
       <div class="bg-card rounded" />
 
       <div class="user-info overflow-hidden rounded flex flex-col items-center p-8 pt-28">
-        <div class="banner absolute top-0 left-0 text-center text-xl p-4" />
+        <div class="banner absolute top-0 left-0 text-center text-lg p-4" :style="{ '--bg': `url('${BANNER_IMAGE_URL}')` }">
+          ID {{ userStore.info.id }}
+        </div>
 
         <div class="user-avatar w-40 h-40 p-2 flex justify-center items-center">
           <img v-if="userStore.info.logo?.trim()" :src="userStore.info.logo?.trim()" class="w-full h-full rounded-full">
@@ -105,7 +109,8 @@ const tab = ref('archive')
   width: calc(100% - 8px);
   transform: translate(4px, 4px);
   height: 200px;
-  background-image: url('https://webstatic.mihoyo.com/upload/op-public/2023/07/03/f11c514e4517aa922209661d29bbd1cc_6447122669976408736.jpg');
+  background-image: var(--bg);
+  background-position: 50% 50%;
   background-size: cover;
   color: #F0EBE3;
   text-shadow: 0 0 2px #000;
