@@ -101,6 +101,9 @@ const mapSettingStore = useMapSettingStore()
       <div class="h-full flex flex-col gap-2 p-4">
         <GSSwitch v-model="mapSettingStore.showTag" label="显示地图标签" />
         <GSSwitch v-model="mapSettingStore.showOverlay" label="显示附加图层" />
+        <GSSwitch v-model="mapSettingStore.showOverlayMask" label="显示附加图层蒙层" />
+        <GSSwitch v-model="mapSettingStore.showOverlayController" label="显示附加图层控制器" />
+        <GSSwitch v-model="mapSettingStore.showOverlayControllerBounds" label="显示附加图层控制器区域" />
         <GSSwitch v-model="mapSettingStore.hideMarkedMarker" label="隐藏标记点位" />
         <GSSwitch v-model="mapSettingStore.showBorder" label="显示图层边界" />
         <GSSwitch v-model="mapSettingStore.showTooltip" label="显示调试信息" />

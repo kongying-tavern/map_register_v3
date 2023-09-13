@@ -26,6 +26,10 @@ export const useMapStore = defineStore('map-state', {
     currentLayer: (state) => {
       return LAYER_CONFIGS.find(({ code }) => code === state.currentLayerCode)
     },
+
+    currentAreaCodes(): Set<string> {
+      return new Set(this.currentLayer?.areaCodes)
+    },
   },
 
   actions: {

@@ -10,7 +10,7 @@ export const getOverlayMaskFrom = (target: GenshinBaseLayer) => {
 
   return new SolidPolygonLayer({
     id: `${target.props.id}-mask`,
-    visible: overlayStore.mergedOverlayConfig.overlayMask,
+    visible: mapSettingStore.showOverlayMask && overlayStore.showMask,
     data: [{
       polygon: [
         [xmin - overflow, ymin - overflow],
@@ -19,7 +19,7 @@ export const getOverlayMaskFrom = (target: GenshinBaseLayer) => {
         [xmin - overflow, ymax + overflow],
       ],
     }],
-    getFillColor: () => [0, 0, 0, mapSettingStore.showOverlay ? overlayStore.mergedOverlayConfig.overlayMaskOpacity * 255 : 0],
+    getFillColor: () => [0, 0, 0, mapSettingStore.showOverlay ? 0.5 * 255 : 0],
     transitions: {
       getFillColor: 150,
     },

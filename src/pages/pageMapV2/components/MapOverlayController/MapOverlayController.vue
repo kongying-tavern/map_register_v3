@@ -13,11 +13,11 @@ watch(() => mapStore.currentLayerCode, () => overlayStore.initTopOverlays(true))
 </script>
 
 <template>
-  <template v-if="mapSettingStore.showOverlay">
+  <template v-if="mapSettingStore.showOverlayController && mapSettingStore.showOverlay">
     <MapAffix
-      v-for="(overlayGroup, key) in overlayStore.overlayUnitGroups"
+      v-for="(overlayGroup, key) in overlayStore.overlayControlGroups"
       :key="key"
-      :pos="[overlayGroup.bounds[0], overlayGroup.bounds[3]]"
+      :pos="overlayGroup.bounds[0]"
       zoom-with-map
     >
       <OverlayGroup :data="overlayGroup" />

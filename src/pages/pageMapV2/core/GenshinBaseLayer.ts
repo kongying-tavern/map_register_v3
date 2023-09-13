@@ -11,6 +11,7 @@ import {
   getOverlayMaskFrom,
   getOverlaysFrom,
   getTagsFrom,
+  getTilelikeOverlaysFrom,
   getTilesFrom,
 } from '../utils'
 import type { Coordinate2D, GenshinMap } from '.'
@@ -124,9 +125,10 @@ export class GenshinBaseLayer extends CompositeLayer {
   renderLayers = (): LayersList => {
     return [
       getTilesFrom(this),
+      getTilelikeOverlaysFrom(this),
       getOverlayMaskFrom(this),
-      ...getOverlaysFrom(this),
-      ...getTagsFrom(this),
+      getOverlaysFrom(this),
+      getTagsFrom(this),
       getBorderFrom(this),
       getMarkersFrom(this),
       getMovingMarkersLineFrom(this),

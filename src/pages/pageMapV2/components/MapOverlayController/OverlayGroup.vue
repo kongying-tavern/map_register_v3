@@ -1,34 +1,37 @@
 <script lang="ts" setup>
-import { useOverlayStore } from '@/stores'
+import { useMapSettingStore, useOverlayStore } from '@/stores'
 
 const props = defineProps<{
-  data: ReturnType<typeof useOverlayStore>['overlayUnitGroups'][string]
+  data: ReturnType<typeof useOverlayStore>['overlayControlGroups'][string]
 }>()
 
 const overlayStore = useOverlayStore()
 
+const mapSettingStore = useMapSettingStore()
+
 const isHidden = computed({
-  get: () => overlayStore.hiddenOverlayGroups.has(props.data.groupId),
-  set: v => overlayStore[v ? 'hideOverlayGroup' : 'showOverlayGroup'](props.data.groupId),
+  get: () => overlayStore.hiddenOverlayGroups.has(props.data.id),
+  set: v => overlayStore[v ? 'hideOverlayGroup' : 'showOverlayGroup'](props.data.id),
 })
 
-const units = computed(() => Object.entries(props.data.units).map(([unitId, label]) => ({ label, unitId })).sort((a, b) => a.label.localeCompare(b.label)))
-
-const width = computed(() => {
-  const { 0: xmin, 2: xmax } = props.data.bounds
-  return `${xmax - xmin}px`
-})
-
-const height = computed(() => {
-  const { 1: ymax, 3: ymin } = props.data.bounds
-  return `${ymax - ymin}px`
+const size = computed(() => {
+  const [[xmin, ymin], [xmax, ymax]] = props.data.bounds
+  return {
+    w: xmax - xmin,
+    h: ymax - ymin,
+  }
 })
 </script>
 
 <template>
   <div
     class="gs-overlay-controller genshin-text text-2xl select-none relative pointer-events-none rounded-[32px] transition-all"
+    :style="{
+      '--w': `${size.w}px`,
+      '--h': `${size.h}px`,
+    }"
     :class="{
+      'hidden-bounds': !mapSettingStore.showOverlayControllerBounds,
       'is-hidden': isHidden,
     }"
   >
@@ -46,21 +49,21 @@ const height = computed(() => {
           <Hide v-if="isHidden" />
           <View v-else />
         </el-icon>
-        <span>{{ data.label ?? 'unknown' }}</span>
+        <span>{{ data.name }}</span>
       </div>
 
       <div
         class="index-controller flex-col w-fit rounded-[32px] bg-[#272E39E0]"
       >
         <div
-          v-for="unit in units"
-          :key="unit.unitId"
+          v-for="item in data.items"
+          :key="item.id"
           class="overlay-button pb-2 pl-2 pr-4 flex items-center gap-2 cursor-pointer first-of-type:pt-2 whitespace-nowrap transition-all"
-          :class="{ 'is-active': overlayStore.topOverlayInGroup[data.groupId] === unit.unitId }"
-          @click="() => overlayStore.moveToTop(unit.unitId, data.groupId)"
+          :class="{ 'is-active': overlayStore.topOverlayInGroup[data.id] === item.id }"
+          @click="() => overlayStore.moveToTop(item.id, data.id)"
         >
           <div class="overlay-icon w-[2em] h-[2em] rounded-[50%] relative transition-all" />
-          {{ unit.label }}
+          {{ item.name }}
         </div>
       </div>
     </div>
@@ -74,12 +77,16 @@ const height = computed(() => {
   --reverse-scale: calc(1 / var(--sc));
   --index-display: none;
 
-  width: v-bind(width);
-  height: v-bind(height);
+  width: var(--w);
+  height: var(--h);
   border: 2px dashed var(--switch-color);
 
   &:hover {
     border-style: solid;
+  }
+
+  &.hidden-bounds {
+    border-color: transparent;
   }
 
   &.is-hidden {
