@@ -11,6 +11,7 @@ declare namespace API {
   type Coordinate2D = [number, number]
   type Coordinate3D = [number, number, number]
   type OverlayBounds = [[xmin: number, ymin: number], [xmax: number, ymax: number]]
+  type OverlayRole = 'default' | 'tile'
 
   interface EditorConfig {
     /** 用于控制显示的通告内容 */
@@ -87,6 +88,8 @@ declare namespace API {
     multiple?: boolean
     /** 叠层项 */
     children?: API.OverlayOption[]
+    /** overlay 组角色 */
+    role?: API.OverlayRole
   }
 
   interface OverlayConfig {
