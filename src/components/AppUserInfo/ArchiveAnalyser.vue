@@ -15,13 +15,17 @@ interface GroupedMarkers {
   }
 }
 
-/** 临时图标 */
+/**
+ * 临时图标
+ * @todo 对应的 svg 补齐工作进行中
+ */
 const _TEMP_ICON_MAP: Record<string, string> = {
   'C:MD': 'https://uploadstatic.mihoyo.com/contentweb/20200317/2020031714242066580.png',
   'C:LY': 'https://uploadstatic.mihoyo.com/contentweb/20200317/2020031714245390532.png',
   'C:DQ': 'https://uploadstatic.mihoyo.com/contentweb/20210719/2021071917401911066.png',
   'C:XM': 'https://webstatic.mihoyo.com/upload/contentweb/2022/08/15/f77d0c308b54728b6a1f3bc525e42955_6051524677514174999.png',
-  // 'C:VELURIYAM': 'https://act-upload.mihoyo.com/ys-map-op/2023/06/26/75379475/bbcaee1448ff209f91c86ab6c7b29a86_1689579911947374936.png',
+  'C:FD': 'https://act-upload.mihoyo.com/ys-map-op/2023/08/16/75379475/5a9a34731490bbc323e044be627435a9_1925274140299816539.png',
+  'C:VELURIYAM': '/icons/area/流形蜃境.svg',
 }
 const TEMP_ICON_MAP = new Proxy(_TEMP_ICON_MAP, {
   get: (target, key, receiver) => {
