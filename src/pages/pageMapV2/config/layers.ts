@@ -60,11 +60,11 @@ export interface LayerConfig {
 
 export const LAYER_CONFIGS: LayerConfig[] = [
   {
-    code: 'twt41',
+    code: 'twt40',
     name: '提瓦特',
-    size: [18432, 18432],
-    tilesOffset: [6144, 2048],
-    center: [3568, 7652],
+    size: [17408, 17408],
+    tilesOffset: [5888, 2048],
+    center: [3568, 6286],
     areaCodes: [
       'A:MD:MENGDE',
       'A:MD:XUESHAN',
@@ -87,6 +87,34 @@ export const LAYER_CONFIGS: LayerConfig[] = [
       maxZoom: 2,
     },
   },
+  // {
+  //   code: 'twt41',
+  //   name: '提瓦特',
+  //   size: [18432, 18432],
+  //   tilesOffset: [6144, 2048],
+  //   center: [3568, 7652],
+  //   areaCodes: [
+  //     'A:MD:MENGDE',
+  //     'A:MD:XUESHAN',
+  //     'A:LY:LIYUE',
+  //     'A:LY:CENGYAN',
+  //     'A:DQ:1',
+  //     'A:DQ:2',
+  //     'A:DQ:HEGUAN',
+  //     'A:XM:FOREST',
+  //     'A:XM:DESERT',
+  //     'A:XM:DESERT2',
+  //     'A:XM:DESERT3',
+  //     'A:FD:FENGDAN',
+  //     'A:FD:FENGDAN2',
+  //   ],
+  //   tags: LAYER_TAG_CONFIGS.twt40,
+  //   initViewState: {
+  //     target: [-3184, -169],
+  //     zoom: 0,
+  //     maxZoom: 2,
+  //   },
+  // },
   {
     code: 'qd',
     name: '金苹果群岛V1.6_阶段一',
