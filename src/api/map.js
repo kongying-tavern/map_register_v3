@@ -172,8 +172,8 @@ function create_map(settings = {}, tiles) {
   return { tiles, map };
 }
 
-function add_map_overlay(imageUrl, imageBounds) {
-  return L.imageOverlay(imageUrl, imageBounds);
+function add_map_overlay(imageUrl, imageBounds, opts = {}) {
+  return L.imageOverlay(imageUrl, imageBounds, opts);
 }
 
 function add_map_polygon(polygon = [], opts = {}) {

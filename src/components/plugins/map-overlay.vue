@@ -384,13 +384,19 @@ const overlayRefresh = () => {
           const overlayLayerRole = overlayLayerChunk.role || "";
 
           if (overlayLayerUrl && overlayLayerBounds) {
-            const imageData = add_map_overlay(
-              overlayLayerUrl,
-              overlayLayerBounds
-            );
             if (overlayLayerRole === "tile") {
+              const imageData = add_map_overlay(
+                overlayLayerUrl,
+                overlayLayerBounds,
+                { zIndex: 100 }
+              );
               imageChunks.tile.push(imageData);
             } else {
+              const imageData = add_map_overlay(
+                overlayLayerUrl,
+                overlayLayerBounds,
+                { zIndex: 300 }
+              );
               imageChunks.overlay.push(imageData);
             }
           }
@@ -419,6 +425,7 @@ const overlayRefresh = () => {
       fillOpacity: 1 - overlayMaskOpacity.value,
       color: "#000",
       weight: 1,
+      zIndex: 200,
     }
   );
   maskLayerHandle.value?.addLayer(maskLayer);
@@ -427,11 +434,8 @@ const overlayRefresh = () => {
     overlayLayerHandle.value?.addLayer(overlay);
   }
 
-  tileLayerHandle.value?.setZIndex(100);
   map.value?.addLayer(tileLayerHandle.value);
-  maskLayerHandle.value?.setZIndex(200);
   map.value?.addLayer(maskLayerHandle.value);
-  overlayLayerHandle.value?.setZIndex(300);
   map.value?.addLayer(overlayLayerHandle.value);
 };
 
