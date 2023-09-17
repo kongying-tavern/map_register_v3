@@ -53,9 +53,9 @@ const itemList = asyncComputed<API.ItemVo[]>(async () => {
   if (conditionManager.area === undefined || conditionManager.itemType === undefined)
     return []
   const res = await db.item
-    .where('areaId')
-    .equals(conditionManager.area.id as number)
-    .and(({ typeIdList = [] }) => typeIdList.includes(conditionManager.itemType?.id as number))
+    .where('typeIdList')
+    .equals(conditionManager.itemType.id!)
+    .and(({ areaId }) => areaId === conditionManager.area?.id)
     .toArray()
   return res.sort(sort)
 }, [])
