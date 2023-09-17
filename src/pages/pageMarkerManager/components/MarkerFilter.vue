@@ -92,7 +92,8 @@ watch(itemOptions, (options) => {
         <el-select-v2
           v-model="itemIdList"
           placeholder="请选择物品"
-          collapse-tags collapse-tags-tooltip filterable multiple
+          node-key="id"
+          collapse-tags collapse-tags-tooltip clearable filterable multiple
           style="width: 100%"
           :options="itemOptions"
         />
