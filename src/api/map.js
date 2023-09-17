@@ -127,6 +127,16 @@ function create_map_tiles(area_config_code = "") {
     // 以像素坐标表示矩形区域
     bounds: L.bounds(L.point(0, 0), L.point(mapSize[0], mapSize[1])),
   });
+  const map_bounds = [
+    [
+      -mapCenter[0] + mapTilesOffset[0] - 10000,
+      -mapCenter[1] + mapTilesOffset[1] - 10000,
+    ],
+    [
+      mapSize[0] - mapCenter[0] + mapTilesOffset[0] + 10000,
+      mapSize[1] - mapCenter[1] + mapTilesOffset[1] + 10000,
+    ],
+  ];
   const map_settings = {
     crs: mapCRS,
     center: [2576, 1742],
@@ -137,14 +147,8 @@ function create_map_tiles(area_config_code = "") {
     zoom: -4,
     tap: false,
     maxBounds: L.latLngBounds(
-      L.latLng(
-        -mapCenter[0] + mapTilesOffset[0] - 10000,
-        -mapCenter[1] + mapTilesOffset[1] - 10000
-      ),
-      L.latLng(
-        mapSize[0] - mapCenter[0] + mapTilesOffset[0] + 10000,
-        mapSize[1] - mapCenter[1] + mapTilesOffset[1] + 10000
-      )
+      L.latLng(map_bounds[0][0], map_bounds[0][1]),
+      L.latLng(map_bounds[1][0], map_bounds[1][1])
     ),
     attributionControl: false,
     zoomControl: false,
@@ -159,7 +163,7 @@ function create_map_tiles(area_config_code = "") {
     extension
   );
 
-  return { tiles_config, tiles, map_settings };
+  return { tiles_config, tiles, map_settings, map_bounds };
 }
 
 function create_map(settings = {}, tiles) {
@@ -172,6 +176,10 @@ function add_map_overlay(imageUrl, imageBounds) {
   return L.imageOverlay(imageUrl, imageBounds);
 }
 
+function add_map_polygon(polygon = [], opts = {}) {
+  return L.polygon(polygon, opts);
+}
+
 export {
   get_map_plugin_config,
   create_map_layer,
@@ -179,4 +187,5 @@ export {
   create_map_tiles,
   create_map,
   add_map_overlay,
+  add_map_polygon,
 };

@@ -4,12 +4,13 @@ import { ref, computed, defineProps, watch, nextTick } from "vue";
 import { map_plugin_config } from "src/api/config";
 import {
   add_map_overlay,
+  add_map_polygon,
   create_map_config,
   get_map_plugin_config,
 } from "src/api/map";
+import { map, mapOptions, mapBounds } from "src/api/map_obj";
 import { layergroup_register } from "src/api/layer";
 import { selectorAreaCodeMap } from "src/components/selector-data";
-import { map, mapOptions, mapTiles } from "src/api/map_obj";
 
 const lodashTemplateOptions = {
   interpolate: /{{([\s\S]+?)}}/g,
@@ -54,7 +55,7 @@ const overlayMaskOpacity = computed(() => {
   }
 
   const maskOnSelected = overlay_options.value?.overlayMaskOnSelected ?? true;
-  if (maskOnSelected && overlaySelectionIds.value?.length <= 0) {
+  if (maskOnSelected && overlaySelectedItemCount.value <= 0) {
     return 1;
   }
 
@@ -85,6 +86,7 @@ const overlayBaseConfig = computed(() => {
     const globalIdTemplate =
       configOptions.idTemplate || "{{groupValue}}#{{itemValue}}";
     const globalMultiple = configOptions.multiple;
+    const globalRole = configOptions.role || "";
 
     const configOverlayList = configOptions.overlays || [];
     for (const configGroup of configOverlayList) {
@@ -95,6 +97,8 @@ const overlayBaseConfig = computed(() => {
       const groupBounds = configGroup.bounds;
       const groupMultiple = configGroup.multiple;
       const overlayMultiple = Boolean(groupMultiple ?? globalMultiple);
+      const groupRole = configGroup.role || "";
+      const overlayRole = groupRole || globalRole || "";
 
       const groupChildren = configGroup.children || [];
       const overlayChildren = [];
@@ -161,6 +165,7 @@ const overlayBaseConfig = computed(() => {
           overlayChunks.push({
             label: chunkLabel,
             value: chunkValue,
+            role: overlayRole,
             url: overlayUrl,
             bounds: overlayBounds,
           });
@@ -182,6 +187,7 @@ const overlayBaseConfig = computed(() => {
           id: overlayId,
           label: itemLabel,
           value: itemValue,
+          role: overlayRole,
           chunks: overlayChunks,
         });
       }
@@ -189,6 +195,7 @@ const overlayBaseConfig = computed(() => {
       overlayList.push({
         label: groupLabel,
         value: groupValue,
+        role: overlayRole,
         multiple: overlayMultiple,
         children: overlayChildren,
       });
@@ -260,6 +267,21 @@ const overlaySelectionCounts = computed(() =>
     .value()
 );
 
+const overlaySelectedItemCount = computed(() => {
+  let itemCount = 0;
+  for (const overlayItemId of overlaySelectionIds.value) {
+    const overlayItem = overlayConfigMap.value[overlayItemId];
+    if (overlayItem) {
+      const overlayRole = overlayItem.role || "";
+      if (["tile"].indexOf(overlayRole) === -1) {
+        itemCount += 1;
+      }
+    }
+  }
+
+  return itemCount;
+});
+
 const overlayConfigMap = computed(() => {
   const configMap = {};
   for (const configSection of overlayBaseConfig.value) {
@@ -311,6 +333,8 @@ const overlayInitState = computed(() => {
 });
 
 const overlayLayerHandle = ref(layergroup_register());
+const tileLayerHandle = ref(layergroup_register());
+const maskLayerHandle = ref(layergroup_register());
 
 const overlayInit = () => {
   nextTick(() => {
@@ -331,12 +355,16 @@ const overlayInitGroup = (areaCode = "", groupIndex = -1) => {
 };
 
 const overlayRefresh = () => {
-  // 设置图层透明度
-  mapTiles.value?.setOpacity(overlayMaskOpacity.value);
-
+  tileLayerHandle.value?.clearLayers();
   overlayLayerHandle.value?.clearLayers();
+  maskLayerHandle.value?.clearLayers();
 
-  const matchedValues = new Set();
+  const matchedChunks = new Set();
+  const imageChunks = {
+    overlay: [],
+    tile: [],
+  };
+
   // 添加新层
   for (const overlaySelectionId of overlaySelectionIds.value) {
     const overlayLayerConfig = overlayConfigMap.value[overlaySelectionId];
@@ -346,26 +374,64 @@ const overlayRefresh = () => {
       if (
         _.isArray(overlayLayerChunks) &&
         overlayLayerId &&
-        !matchedValues.has(overlayLayerId)
+        !matchedChunks.has(overlayLayerId)
       ) {
-        matchedValues.add(overlayLayerId);
+        matchedChunks.add(overlayLayerId);
 
         for (const overlayLayerChunk of overlayLayerChunks) {
           const overlayLayerUrl = overlayLayerChunk.url || "";
           const overlayLayerBounds = overlayLayerChunk.bounds;
+          const overlayLayerRole = overlayLayerChunk.role || "";
 
           if (overlayLayerUrl && overlayLayerBounds) {
             const imageData = add_map_overlay(
               overlayLayerUrl,
               overlayLayerBounds
             );
-            overlayLayerHandle.value?.addLayer(imageData);
+            if (overlayLayerRole === "tile") {
+              imageChunks.tile.push(imageData);
+            } else {
+              imageChunks.overlay.push(imageData);
+            }
           }
         }
       }
     }
   }
 
+  // 添加叠层
+  for (const tile of imageChunks.tile) {
+    tileLayerHandle.value?.addLayer(tile);
+  }
+
+  const maskLayer = add_map_polygon(
+    [
+      [
+        [mapBounds.value[0][0], mapBounds.value[0][1]],
+        [mapBounds.value[1][0], mapBounds.value[0][1]],
+        [mapBounds.value[1][0], mapBounds.value[1][1]],
+        [mapBounds.value[0][1], mapBounds.value[1][1]],
+      ],
+    ],
+    {
+      fillColor: "#000",
+      stoke: false,
+      fillOpacity: 1 - overlayMaskOpacity.value,
+      color: "#000",
+      weight: 1,
+    }
+  );
+  maskLayerHandle.value?.addLayer(maskLayer);
+
+  for (const overlay of imageChunks.overlay) {
+    overlayLayerHandle.value?.addLayer(overlay);
+  }
+
+  tileLayerHandle.value?.setZIndex(100);
+  map.value?.addLayer(tileLayerHandle.value);
+  maskLayerHandle.value?.setZIndex(200);
+  map.value?.addLayer(maskLayerHandle.value);
+  overlayLayerHandle.value?.setZIndex(300);
   map.value?.addLayer(overlayLayerHandle.value);
 };
 
