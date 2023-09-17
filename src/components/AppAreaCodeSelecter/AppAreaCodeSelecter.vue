@@ -35,15 +35,14 @@ const initAreaIds = () => {
   initFlag.value = true
   areaIds.value = [parentArea.id!, childArea.id!]
 }
-
-onAreaFetched(initAreaIds)
-
 watch(() => props.modelValue, initAreaIds)
-watch(areaIds, ([_, childId]) => {
+
+const handleAreaIdsChange = () => {
   if (initFlag.value) {
     initFlag.value = false
     return
   }
+  const [_, childId] = areaIds.value
   const childArea = areaList.value.find(area => area.id === childId)
   if (!childArea)
     return false
@@ -51,7 +50,9 @@ watch(areaIds, ([_, childId]) => {
     internalAreaCode.value = childArea.code!
   else
     emits('update:modelValue', childArea.code!)
-}, { deep: true })
+}
+
+onAreaFetched(initAreaIds)
 
 const areaCascaderProps: CascaderProps = {
   lazy: true,
@@ -73,6 +74,6 @@ const areaCascaderProps: CascaderProps = {
     v-model="areaIds"
     :props="areaCascaderProps"
     placeholder="选择地区"
-    class="area-code-selecter"
+    @change="handleAreaIdsChange"
   />
 </template>
