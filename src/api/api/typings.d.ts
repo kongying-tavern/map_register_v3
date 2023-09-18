@@ -362,6 +362,9 @@ declare namespace API {
     username?: string;
     /** 昵称 */
     nickname?: string;
+    /** 角色ID */
+    roleIds?: string[];
+    /** 排序条件 */
     sort?: string[];
   };
 
