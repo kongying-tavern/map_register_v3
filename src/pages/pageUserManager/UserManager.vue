@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { Delete, Edit, Lock } from '@element-plus/icons-vue'
+import { Delete, Edit, Key } from '@element-plus/icons-vue'
 import { useRoleList, useUserDelete, useUserList } from './hooks'
 import { UserCreator, UserEditor, UserFilter, UserPasswordEditor, UserTable } from './components'
 import { useGlobalDialog, usePagination, useState } from '@/hooks'
@@ -68,7 +68,7 @@ onDeleteSuccess(updateUserList)
     <UserTable :data="userList" :role-list="roleList" :loading="loading" @selection-change="setSelections" @sort-change="setSort">
       <template #action="{ row }">
         <el-button :icon="Edit" @click="() => openUserEditor(row)" />
-        <el-button :icon="Lock" @click="() => openPasswordEditor(row)" />
+        <el-button :icon="Key" @click="() => openPasswordEditor(row)" />
         <el-button :icon="Delete" :disabled="deleteLoading" plain type="danger" @click="() => confirmDelete(row)" />
       </template>
     </UserTable>
