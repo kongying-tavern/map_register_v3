@@ -4,6 +4,8 @@ export interface IconRenderConfig {
   size: {
     w: number
     h: number
+    displaySize: number
+    scaleSize: number
   }
   /** 点位坐标指示点在图标中的位置 */
   affix: {
@@ -46,7 +48,9 @@ export const ICON: IconRenderConfig = {
   // 注意！如果要修改图标在地图上的大小，需要修改 getMarkersFrom 中 getSize 而不是这里
   size: {
     w: 42,
-    h: 50,
+    h: 45,
+    displaySize: 36,
+    scaleSize: 45,
   },
   affix: {
     x: 21,
@@ -63,13 +67,13 @@ export const ICON: IconRenderConfig = {
     { state: 'moving', color: '#FFFF00' },
   ],
   content: {
-    radius: 17,
+    radius: 16,
     fit: 'contain',
   },
   shadow: {
     color: '#33333380',
-    radiusX: 10,
-    radiusY: 5,
+    radiusX: 0,
+    radiusY: 0,
   },
   border: {
     width: 1,
