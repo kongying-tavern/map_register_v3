@@ -155,19 +155,22 @@ export class ConditionManager extends IconManager {
     },
   })
 
-  #initLayerMarkerMap = () => Promise.all(LAYER_CONFIGS.map(async ({ code, areaCodes = [] }) => {
+  #initLayerMarkerMap = async () => {
+    await Promise.all(LAYER_CONFIGS.map(async ({ code, areaCodes = [] }) => {
+      const areaCodeSet = new Set(areaCodes)
+      // 筛选出只存在于当前图层的点位
+      const itemIdsInThisLayer: number[] = []
+      this.conditions.forEach((condition) => {
+        if (!areaCodeSet.has(condition.area.code!))
+          return
+        itemIdsInThisLayer.push(...condition.items)
+      })
+      const markers: MarkerWithRenderConfig[] = (await db.marker.where('itemIdList').anyOf(itemIdsInThisLayer).toArray())
+        .map(this.#attachRenderConfig)
+      this.#layerMarkerMap.value[code] = markers
+    }))
     this.#conditionStateId.value = crypto.randomUUID()
-    // 筛选出只存在于当前图层的点位
-    let itemIdsInThisLayer: number[] = []
-    this.conditions.forEach((condition) => {
-      if (!areaCodes.includes(condition.area.code as string))
-        return
-      itemIdsInThisLayer = itemIdsInThisLayer.concat(condition.items)
-    })
-    const markers: MarkerWithRenderConfig[] = (await db.marker.where('itemIdList').anyOf(itemIdsInThisLayer).toArray())
-      .map(this.#attachRenderConfig)
-    this.#layerMarkerMap.value[code] = markers
-  }))
+  }
 
   /** 对点位图层进行重绘 */
   requestMarkersUpdate = async () => {
