@@ -1,11 +1,12 @@
-import type { DeckProps, OrbitViewState, PickingInfo } from '@deck.gl/core/typed'
+import type { DeckProps, OrbitViewState } from '@deck.gl/core/typed'
 import { Deck, OrthographicView, TRANSITION_EVENTS } from '@deck.gl/core/typed'
 import type { ViewStateChangeParameters } from '@deck.gl/core/typed/controllers/controller'
 import { clamp } from 'lodash'
-import { MAP_FONTFAMILY, TRANSITION } from '../shared'
-import { EventBus, GenshinBaseLayer } from '.'
+import { MAP_FONTFAMILY, TRANSITION } from '../../shared'
+import { EventBus, GenshinBaseLayer } from '..'
+import { getCursor, getTooltip } from '.'
 import genshinFont from '@/style/fonts/genshinFont.woff2?url'
-import { useMapSettingStore, useMapStore } from '@/stores'
+import { useArchiveStore, useMapSettingStore, useMapStore, useOverlayStore, useUserStore } from '@/stores'
 
 export interface GenshinMapOptions extends DeckProps {
   canvas: HTMLCanvasElement
@@ -14,7 +15,7 @@ export interface GenshinMapOptions extends DeckProps {
 export interface GensinMapViewState extends Omit<OrbitViewState, 'target'> {
   minZoom: number
   maxZoom: number
-  target: Coordinate2D
+  target: API.Coordinate2D
 }
 
 export interface GenshinViewStateChangeParameters extends ViewStateChangeParameters {
@@ -39,8 +40,6 @@ export interface GenshinMapEvents {
   viewStateChange: [ViewStateChangeParameters]
   WebGLInitialized: ExtractParamters<'onWebGLInitialized'>
 }
-
-export type Coordinate2D = [number, number]
 
 interface ChromeFontFaceSet extends FontFaceSet {
   add: Set<FontFace>['add']
@@ -74,35 +73,8 @@ export class GenshinMap extends Deck {
         },
         inertia: 300,
       },
-      getCursor: ({ isDragging, isHovering }) => {
-        return isDragging
-          ? 'grabbing'
-          : isHovering
-            ? useMapStore().mission?.type === 'moveMarkers'
-              ? 'move'
-              : 'pointer'
-            : 'inherit'
-      },
-      getTooltip: (info: PickingInfo) => {
-        const mapStore = useMapStore()
-        const mapSettingStore = useMapSettingStore()
-        mapStore.hover = info.object
-        if (!mapSettingStore.showTooltip || !info.coordinate)
-          return null
-        const renderText = info.object
-          ? `markerTitle: ${info.object?.markerTitle}
-            markerId: ${info.object?.id}
-            hiddenFlag: ${info.object?.hiddenFlag}
-            picture: ${info.object?.picture}
-            version: ${info.object?.version}
-            position: [${info.object?.position}]
-            itemIdList: [${info.object?.itemIdList?.join(',')}]
-            extra: ${JSON.stringify(info.object?.extra)}`
-          : info.sourceLayer
-            ? `id: ${info.sourceLayer.id}`
-            : '前面的区域，以后再来探索吧！'
-        return renderText
-      },
+      getCursor: state => getCursor(this, state),
+      getTooltip: info => getTooltip(this, info),
       onViewStateChange: (viewStateChangeParams) => {
         const newParams = this.#handleViewStateChange(viewStateChangeParams)
         this.event.emit('viewStateChange', newParams)
@@ -126,6 +98,15 @@ export class GenshinMap extends Deck {
     })
   }
 
+  // ==================== 复用存储 ====================
+  store = {
+    archive: useArchiveStore(),
+    map: useMapStore(),
+    overlay: useOverlayStore(),
+    setting: useMapSettingStore(),
+    user: useUserStore(),
+  }
+
   // ==================== 地图状态 ====================
   #eventBus = new EventBus<GenshinMapEvents>()
   get event() { return this.#eventBus }
@@ -134,10 +115,10 @@ export class GenshinMap extends Deck {
     const newState = viewState as GensinMapViewState
     const oldState = oldViewState as Partial<GensinMapViewState>
 
-    if (useMapStore().lockViewState)
+    if (this.store.map.lockViewState)
       return { viewState: oldState, oldViewState: oldState, interactionState, ...rest }
 
-    const rewriteTarget = ((): Coordinate2D => {
+    const rewriteTarget = ((): API.Coordinate2D => {
       if (!this.baseLayer)
         return newState.target
       const [xmin, ymax, xmax, ymin] = this.baseLayer.rawProps.bounds
@@ -207,13 +188,13 @@ export class GenshinMap extends Deck {
   get baseLayer() { return this.#baseLayer.value }
 
   /** 将点位坐标投影为地图坐标 */
-  projectCoord = ([x, y]: Coordinate2D): Coordinate2D => {
+  projectCoord = ([x, y]: API.Coordinate2D): API.Coordinate2D => {
     const [ox, oy] = this.baseLayer?.rawProps.center ?? [0, 0]
     return [x + ox, y + oy]
   }
 
   /** 将地图坐标投影为点位坐标 */
-  unprojectCoord = ([x, y]: Coordinate2D): Coordinate2D => {
+  unprojectCoord = ([x, y]: API.Coordinate2D): API.Coordinate2D => {
     const [ox, oy] = this.baseLayer?.rawProps.center ?? [0, 0]
     return [x - ox, y - oy]
   }
@@ -229,7 +210,7 @@ export class GenshinMap extends Deck {
 
     const { center = [0, 0], size = [0, 0], tilesOffset = [0, 0] } = layer.rawProps ?? {}
 
-    const getInitialTarget = (): Coordinate2D => {
+    const getInitialTarget = (): API.Coordinate2D => {
       const target = layer.rawProps.initViewState.target
       return target
         ? [target[0] + center[0], target[1] + center[1]]
@@ -256,7 +237,7 @@ export class GenshinMap extends Deck {
   setBaseLayer = (code = '') => {
     if (this.baseLayer?.rawProps.code === code)
       return
-    useMapStore().currentLayerCode = code
+    this.store.map.currentLayerCode = code
     this.#setBaseLayer(GenshinBaseLayer.getLayer(code))
   }
 }
