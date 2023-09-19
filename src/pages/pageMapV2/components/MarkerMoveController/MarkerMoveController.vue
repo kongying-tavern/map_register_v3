@@ -2,7 +2,6 @@
 import { filter, fromEvent, map, switchMap, takeUntil } from 'rxjs'
 import { fromEvent as fromRefEvent, useSubscription } from '@vueuse/rxjs'
 import { useMarkerPositionEdit } from './hooks'
-import type { Coordinate2D } from '@/pages/pageMapV2/core'
 import { useInteractionLayer, useMap } from '@/pages/pageMapV2/hooks'
 import { isMarkerVo, isMovingMarker } from '@/utils'
 import { useMapStore } from '@/stores'
@@ -47,7 +46,7 @@ mapStore.$onAction((ctx) => {
   if (ctx.name !== 'setMission' || ctx.args[0] !== 'moveMarkers')
     return
   mapInstance.value?.baseLayer?.setState({
-    movingMarkers: ctx.args[1] as { origin: API.MarkerVo; offset: Coordinate2D }[],
+    movingMarkers: ctx.args[1] as { origin: API.MarkerVo; offset: API.Coordinate2D }[],
   })
 })
 
@@ -71,14 +70,14 @@ const markerDragController = pointerdown.pipe(switchMap((ev) => {
   const { x: startX, y: startY } = ev
   const { zoom } = mapInstance.value!.mainViewState
 
-  const hover = mapStore.hover as API.MarkerVo | { origin: API.MarkerVo; offset: Coordinate2D }
+  const hover = mapStore.hover as API.MarkerVo | { origin: API.MarkerVo; offset: API.Coordinate2D }
   const markerinfo = isMarkerVo(hover) ? hover : hover.origin
 
   const markerMoveMission = mapStore.getMission('moveMarkers')!
   let currentMovingIndex = markerMoveMission.findIndex(mission => mission.origin.id === markerinfo.id)
   const currentMoving = markerMoveMission[currentMovingIndex] ?? {
     origin: markerinfo,
-    offset: [0, 0] as Coordinate2D,
+    offset: [0, 0] as API.Coordinate2D,
   }
   const [rawOffsetX, rawOffsetY] = currentMoving.offset
 

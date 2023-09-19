@@ -1,9 +1,8 @@
 import { IconLayer } from '@deck.gl/layers/typed'
 import type { GenshinBaseLayer, MarkerWithRenderConfig } from '../core'
-import type { Coordinate2D } from '@/pages/pageMapV2/core/GenshinMap'
 import { useCondition } from '@/pages/pageMapV2/hooks'
 
-export const getMovingMarkersIconFrom = (target: GenshinBaseLayer): IconLayer<{ origin: MarkerWithRenderConfig; offset: Coordinate2D }> | null => {
+export const getMovingMarkersIconFrom = (target: GenshinBaseLayer): IconLayer<{ origin: MarkerWithRenderConfig; offset: API.Coordinate2D }> | null => {
   const conditionManager = useCondition()
 
   const getMarkerPosition = (marker: API.MarkerVo) => {

@@ -14,7 +14,7 @@ import {
   getTilelikeOverlaysFrom,
   getTilesFrom,
 } from '../utils'
-import type { Coordinate2D, GenshinMap } from '.'
+import type { GenshinMap } from '.'
 import { useMapSettingStore, useMapStore, useOverlayStore } from '@/stores'
 
 export interface GenshinTileLayerConfig extends Required<LayerConfig> {
@@ -59,7 +59,7 @@ export class GenshinBaseLayer extends CompositeLayer {
 
   #getDefaultState = () => ({
     updateCount: 0 as number,
-    movingMarkers: [] as { origin: API.MarkerVo; offset: Coordinate2D }[],
+    movingMarkers: [] as { origin: API.MarkerVo; offset: API.Coordinate2D }[],
     ...useMapSettingStore().$state,
     ...useMapStore().$state,
     ...useOverlayStore().$state,

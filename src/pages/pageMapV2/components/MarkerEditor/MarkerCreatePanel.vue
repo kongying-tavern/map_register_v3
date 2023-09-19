@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
-import type { Coordinate2D } from '../../core'
 import { useCondition, useMarkerCreate } from '../../hooks'
 import { MarkerEditorForm } from '.'
 import { GlobalDialogController } from '@/hooks'
@@ -9,7 +8,7 @@ import { DialogController } from '@/hooks/useGlobalDialog/dialogController'
 import { messageFrom } from '@/utils'
 
 const props = defineProps<{
-  coordinate: Coordinate2D
+  coordinate: API.Coordinate2D
   initAreaCode?: string
   defaultItem?: API.ItemVo
 }>()

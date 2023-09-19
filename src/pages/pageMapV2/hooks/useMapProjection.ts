@@ -1,4 +1,3 @@
-import type { Coordinate2D } from './../core'
 import { useMap } from './../hooks'
 import { genshinMapCanvasKey } from './../shared'
 
@@ -6,7 +5,7 @@ export interface MapProjectionHookOptions {
   floor?: boolean
 }
 
-export const useMapProjection = (coord: Coordinate2D | Ref<Coordinate2D | undefined>, options: MapProjectionHookOptions = {}) => {
+export const useMapProjection = (coord: API.Coordinate2D | Ref<API.Coordinate2D | undefined>, options: MapProjectionHookOptions = {}) => {
   const { floor = false } = options
 
   const viewRef = inject(genshinMapCanvasKey, ref(null))
@@ -18,10 +17,10 @@ export const useMapProjection = (coord: Coordinate2D | Ref<Coordinate2D | undefi
   const scaleRatio = computed(() => 2 ** (map.value?.mainViewState.zoom ?? 1))
 
   /** 视口中心坐标 */
-  const center = computed<Coordinate2D>(() => [width.value / 2, height.value / 2])
+  const center = computed<API.Coordinate2D>(() => [width.value / 2, height.value / 2])
 
   /** 投影后元素显示在视口上的坐标 */
-  const position = computed<Coordinate2D>(() => {
+  const position = computed<API.Coordinate2D>(() => {
     const rawCoord = unref(coord)
     if (!map.value?.baseLayer || !rawCoord)
       return [-9999, -9999]

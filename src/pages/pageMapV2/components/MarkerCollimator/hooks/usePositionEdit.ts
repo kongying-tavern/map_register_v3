@@ -1,5 +1,4 @@
 import { ElMessageBox } from 'element-plus'
-import type { Coordinate2D } from './../../../core/GenshinMap'
 import { GSMessageService } from '@/components'
 import { useMap, useMarkerCollimator, useMarkerEdit, useMarkerFocus } from '@/pages/pageMapV2/hooks'
 
@@ -34,7 +33,7 @@ export const usePositionEdit = () => {
     if (!focus.value || !map.value)
       return
     collimatorVisible.value = false
-    const coord = cachedMarkerVo.value?.position?.split(',').map(Number) as Coordinate2D | undefined
+    const coord = cachedMarkerVo.value?.position?.split(',').map(Number) as API.Coordinate2D | undefined
     coord && map.value.updateViewState({
       target: map.value.projectCoord(coord),
     })

@@ -1,15 +1,14 @@
 import { LineLayer } from '@deck.gl/layers/typed'
 import type { GenshinBaseLayer, MarkerWithRenderConfig } from '../core'
-import type { Coordinate2D } from '@/pages/pageMapV2/core/GenshinMap'
 
-export const getMovingMarkersLineFrom = (target: GenshinBaseLayer): LineLayer<{ origin: MarkerWithRenderConfig; offset: Coordinate2D }> | null => {
+export const getMovingMarkersLineFrom = (target: GenshinBaseLayer): LineLayer<{ origin: MarkerWithRenderConfig; offset: API.Coordinate2D }> | null => {
   return new LineLayer({
     id: `${target.props.id}-moving-markers-line`,
     coordinateSystem: target.rawProps.coordinateSystem,
     coordinateOrigin: target.rawProps.coordinateOrigin,
     data: target.state.movingMarkers,
     getSourcePosition: ({ origin }) => {
-      const pos = origin.position!.split(',').map(Number) as Coordinate2D
+      const pos = origin.position!.split(',').map(Number) as API.Coordinate2D
       return target.context.deck.projectCoord(pos)
     },
     getTargetPosition: ({ origin, offset }) => {

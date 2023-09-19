@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { Plus, Setting } from '@element-plus/icons-vue'
 import { MapAffix } from '../../components'
-import type { Coordinate2D } from '../../core'
 import { useMap } from '@/pages/pageMapV2/hooks'
 import { MarkerCreatePanel } from '@/pages/pageMapV2/components'
 import { AppSettings, GSButton } from '@/components'
@@ -13,7 +12,7 @@ import db from '@/database'
 const { onMapReady } = useMap()
 const mapStore = useMapStore()
 
-const coordinate = shallowRef<Coordinate2D | null>(null)
+const coordinate = shallowRef<API.Coordinate2D | null>(null)
 
 const closeContextmenu = () => {
   coordinate.value = null
@@ -26,7 +25,7 @@ mapStore.$onAction((ctx) => {
 onMapReady(mapInstance => mapInstance.event.on('click', async (info, ev) => {
   if (!ev.rightButton || mapStore.mission)
     return closeContextmenu()
-  coordinate.value = mapInstance.unprojectCoord(info.coordinate as Coordinate2D)
+  coordinate.value = mapInstance.unprojectCoord(info.coordinate as API.Coordinate2D)
 }))
 
 const { DialogService } = useGlobalDialog()

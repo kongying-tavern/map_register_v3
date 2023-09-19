@@ -1,6 +1,4 @@
-import type { Coordinate2D } from '../core'
-
-export const covertPosition = (positionExpression?: string): Coordinate2D | undefined => {
+export const covertPosition = (positionExpression?: string): API.Coordinate2D | undefined => {
   if (!positionExpression)
     return
   try {

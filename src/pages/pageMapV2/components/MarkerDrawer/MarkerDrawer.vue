@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { CloseBold, DeleteFilled, Edit, LocationFilled, Select } from '@element-plus/icons-vue'
-import type { Coordinate2D } from '../../core'
 import { MarkerStateSwitch } from '.'
 import { GSButton } from '@/components'
 import { useArchiveStore } from '@/stores'
@@ -21,7 +20,7 @@ const markerFormVisible = ref(false)
 /** 抽屉可见性 */
 const drawerVisible = computed(() => Boolean(focus.value))
 /** 修改后的点位坐标 */
-const afterEditCoord = ref<Coordinate2D>()
+const afterEditCoord = ref<API.Coordinate2D>()
 /** 抽屉是否可交互 */
 const triggerable = ref(false)
 
@@ -50,7 +49,7 @@ const resetDrawerState = () => {
 const activeLocationEditor = () => {
   if (!cachedMarkerVo.value)
     return
-  const coord = (cachedMarkerVo.value.position?.split(',').map(Number) ?? [0, 0]) as Coordinate2D
+  const coord = (cachedMarkerVo.value.position?.split(',').map(Number) ?? [0, 0]) as API.Coordinate2D
   showCollimator(coord)
 }
 
@@ -101,7 +100,7 @@ const handleClickModal = (ev: MouseEvent) => {
 }
 
 const markerCoord = computed(() => cachedMarkerVo.value?.position
-  ? cachedMarkerVo.value.position.split(',').map(Number) as Coordinate2D
+  ? cachedMarkerVo.value.position.split(',').map(Number) as API.Coordinate2D
   : [0, 0],
 )
 

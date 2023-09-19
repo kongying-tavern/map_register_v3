@@ -2,7 +2,6 @@
 import { Plus } from '@element-plus/icons-vue'
 import { useInteractionLayer, useMapProjection, useMarkerCollimator } from '../../hooks'
 import { mutuallyExclusiveLayerKey } from '../../shared'
-import type { Coordinate2D } from '../../core'
 import { usePositionCreate, usePositionEdit } from './hooks'
 import { GSButton } from '@/components'
 
@@ -11,13 +10,13 @@ const mutuallyExclusiveLayerRef = inject(mutuallyExclusiveLayerKey, ref(null))
 const { collimatorVisible, collimatorEditMode, hook, target, cancel, confirm } = useMarkerCollimator()
 
 /** 点位原始缓存坐标 */
-const cacheStartCoord = ref<Coordinate2D>()
+const cacheStartCoord = ref<API.Coordinate2D>()
 
 const { position } = useMapProjection(cacheStartCoord)
 const { top: viewTop, x: viewX, y: viewY, width: viewWidth, height: viewHeight } = useElementBounding(mutuallyExclusiveLayerRef)
 
 /** 视口元素的中心点位置 */
-const viewCenter = computed<Coordinate2D>(() => [viewX.value + viewWidth.value / 2, viewY.value - viewTop.value + viewHeight.value / 2])
+const viewCenter = computed<API.Coordinate2D>(() => [viewX.value + viewWidth.value / 2, viewY.value - viewTop.value + viewHeight.value / 2])
 
 /** 点位和中心点连线所需的宽 */
 const width = computed(() => position.value[0] - viewCenter.value[0])
