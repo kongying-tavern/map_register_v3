@@ -36,7 +36,6 @@ export const getOverlaysFrom = (target: GenshinBaseLayer): BitmapLayer[] => {
 
     seed.push(new BitmapLayer({
       id: `${target.props.id}-overlay-${overlay.id}`,
-      pickable: isVisible,
       coordinateSystem: target.rawProps.coordinateSystem,
       coordinateOrigin: target.rawProps.coordinateOrigin,
       bounds: [xmin, ymax, xmax, ymin],

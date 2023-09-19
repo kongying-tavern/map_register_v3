@@ -8,7 +8,6 @@ export const getTilesFrom = (target: GenshinBaseLayer): TileLayer => {
 
   return new TileLayer({
     id: `${target.props.id}-tile`,
-    pickable: mapSettingStore.showTooltip,
     coordinateSystem: target.rawProps.coordinateSystem,
     coordinateOrigin: target.rawProps.coordinateOrigin,
     data: null,
