@@ -15,8 +15,7 @@ const emits = defineEmits<{
 const roleMap = computed(() => Object.fromEntries(props.roleList.map(role => [role.id!, role])))
 
 const handleSortChange = ({ order, prop }: { order: 'ascending' | 'descending' | null; prop: string }) => {
-  const sort = order ? [`${prop}${order === 'ascending' ? '+' : '-'}`] : []
-  emits('sortChange', sort)
+  emits('sortChange', order ? [`${prop}${order === 'ascending' ? '+' : '-'}`] : [])
 }
 
 const tableRef = ref<HTMLElement | null>(null)
@@ -59,7 +58,7 @@ const proxySelectionChange = (selections: API.ItemVo[]) => {
 
       <el-table-column label="QQ" prop="qq" :width="150" />
 
-      <el-table-column label="昵称" prop="nickname" show-overflow-tooltip sortable="custom" />
+      <el-table-column label="昵称" prop="nickname" show-overflow-tooltip sortable="custom" :width="150" />
 
       <el-table-column label="手机号" prop="phone" :width="150" />
 
@@ -71,7 +70,9 @@ const proxySelectionChange = (selections: API.ItemVo[]) => {
         </template>
       </el-table-column>
 
-      <el-table-column label="信息更新时间" prop="updateTime" sortable="custom" :width="250" :formatter="timeFormatter" />
+      <el-table-column label="创建时间" prop="createTime" sortable="custom" :width="200" :formatter="timeFormatter" />
+
+      <el-table-column label="修改时间" prop="updateTime" sortable="custom" :width="200" :formatter="timeFormatter" />
 
       <el-table-column fixed="right" label="操作" :width="190">
         <template #default="{ row }">
