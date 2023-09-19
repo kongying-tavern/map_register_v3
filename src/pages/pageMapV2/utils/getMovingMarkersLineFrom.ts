@@ -6,7 +6,7 @@ export const getMovingMarkersLineFrom = (target: GenshinBaseLayer): LineLayer<{ 
     id: `${target.props.id}-moving-markers-line`,
     coordinateSystem: target.rawProps.coordinateSystem,
     coordinateOrigin: target.rawProps.coordinateOrigin,
-    data: target.state.movingMarkers,
+    data: target.context.deck.store.map.getMission('moveMarkers') ?? [],
     getSourcePosition: ({ origin }) => {
       const pos = origin.position!.split(',').map(Number) as API.Coordinate2D
       return target.context.deck.projectCoord(pos)

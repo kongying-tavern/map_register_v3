@@ -16,12 +16,12 @@ export const useMarkerFocus = (canvasRef?: Ref<HTMLCanvasElement | null>) => {
   const focusMarker = (markerVo: API.MarkerVo) => {
     cachedMarkerVo.value = markerVo
     focus.value = markerVo
-    mapStore.focus = markerVo
+    mapStore.setFocus('marker', markerVo)
   }
 
   const blur = async () => {
     focus.value = null
-    mapStore.focus = null
+    mapStore.clear('focus')
   }
 
   canvasRef && onMapReady(mapInstance => mapInstance.event.on('click', (info, ev) => {

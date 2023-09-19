@@ -30,7 +30,7 @@ const flyToMarker = () => {
  * @todo 点位数量较多时可能会导致注册过多的事件监听器，需要修改为事件委托方式
  */
 const hoverMarker = () => {
-  mapStore.hover = props.data
+  mapStore.setHover('marker', props.data)
 }
 
 /**

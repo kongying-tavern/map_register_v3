@@ -8,7 +8,12 @@ export const useMarkerMove = (markerInfo: ShallowRef<API.MarkerVo | null>) => {
     get: () => {
       if (!markerInfo.value)
         return false
-      return mapStore.mission?.type === 'moveMarkers' && mapStore.mission.value.find(moving => moving.origin.id === markerInfo.value!.id) !== undefined
+      const mission = mapStore.getMission('moveMarkers')
+      if (!mission)
+        return false
+      return Boolean(mission.find((moving) => {
+        return moving.origin.id === markerInfo.value!.id
+      }))
     },
     set: (v) => {
       if (!markerInfo.value)

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useInteractionLayer, useMap, useMapInteraction, useMarkerFocus } from './hooks'
+import { useInteractionLayer, useMap, useMarkerFocus } from './hooks'
 import { genshinMapCanvasKey, mapAffixLayerKey, mutuallyExclusiveLayerKey } from './shared'
 import {
   CollapseButton,
@@ -21,8 +21,6 @@ useMap(canvasRef)
 const mapSettingStore = useMapSettingStore()
 
 useMarkerFocus(canvasRef)
-
-useMapInteraction()
 
 // 拦截默认右键事件，由 GenshinMap 自行处理
 useEventListener(canvasRef, 'contextmenu', ev => ev.preventDefault())

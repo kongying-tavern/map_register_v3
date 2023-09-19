@@ -15,7 +15,7 @@ import {
   getTilesFrom,
 } from '../utils'
 import type { GenshinMap } from '.'
-import { useMapSettingStore, useMapStore, useOverlayStore } from '@/stores'
+import { useArchiveStore, useMapSettingStore, useMapStore, useOverlayStore } from '@/stores'
 
 export interface GenshinTileLayerConfig extends Required<LayerConfig> {
   bounds: [number, number, number, number]
@@ -42,10 +42,12 @@ export class GenshinBaseLayer extends CompositeLayer {
     const layer = new this({ ...rest, code, size, tilesOffset, center })
 
     this.unsubscribers.forEach(unsubscriber => unsubscriber())
+    // TODO 性能优化
     this.unsubscribers = [
-      useMapSettingStore().$subscribe((_, state) => layer.setState(state)),
-      useMapStore().$subscribe((_, state) => layer.setState(state)),
-      useOverlayStore().$subscribe((_, state) => layer.setState(state)),
+      useMapSettingStore().$subscribe(layer.forceUpdate),
+      useMapStore().$subscribe(layer.forceUpdate),
+      useOverlayStore().$subscribe(layer.forceUpdate),
+      useArchiveStore().$subscribe(layer.forceUpdate),
     ]
 
     return layer
@@ -58,11 +60,7 @@ export class GenshinBaseLayer extends CompositeLayer {
   readonly rawProps: GenshinTileLayerConfig
 
   #getDefaultState = () => ({
-    updateCount: 0 as number,
-    movingMarkers: [] as { origin: API.MarkerVo; offset: API.Coordinate2D }[],
-    ...useMapSettingStore().$state,
-    ...useMapStore().$state,
-    ...useOverlayStore().$state,
+    timestamp: Date.now(),
   })
 
   state = this.#getDefaultState()
@@ -78,7 +76,7 @@ export class GenshinBaseLayer extends CompositeLayer {
   }
 
   forceUpdate = () => this.setState({
-    updateCount: (this.state.updateCount ?? 0) + 1,
+    timestamp: (this.state.timestamp ?? 0) + 1,
   })
 
   constructor(props: LayerConfig) {

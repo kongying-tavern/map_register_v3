@@ -3,7 +3,6 @@ import { filter, fromEvent, map, switchMap, takeUntil } from 'rxjs'
 import { fromEvent as fromRefEvent, useSubscription } from '@vueuse/rxjs'
 import { useMarkerPositionEdit } from './hooks'
 import { useInteractionLayer, useMap } from '@/pages/pageMapV2/hooks'
-import { isMarkerVo, isMovingMarker } from '@/utils'
 import { useMapStore } from '@/stores'
 import { GSButton } from '@/components'
 import { genshinMapCanvasKey } from '@/pages/pageMapV2/shared'
@@ -22,13 +21,7 @@ watch(controllerPanelVisible, (visible) => {
 // ==================== 移动点位 ====================
 const { moveMarker, loading, onSuccess } = useMarkerPositionEdit()
 
-const clearState = () => {
-  mapStore.clearMission()
-  mapInstance.value?.baseLayer?.setState({
-    movingMarkers: [],
-  })
-}
-
+const clearState = () => mapStore.clear('mission')
 onSuccess(clearState)
 
 const commitPositionChange = async () => {
@@ -42,17 +35,9 @@ const commitPositionChange = async () => {
   }))
 }
 
-mapStore.$onAction((ctx) => {
-  if (ctx.name !== 'setMission' || ctx.args[0] !== 'moveMarkers')
-    return
-  mapInstance.value?.baseLayer?.setState({
-    movingMarkers: ctx.args[1] as { origin: API.MarkerVo; offset: API.Coordinate2D }[],
-  })
-})
-
 // ==================== 交互事件组 ====================
 const pointerdown = fromEvent<PointerEvent>(window, 'pointerdown').pipe(filter(() => {
-  return controllerPanelVisible.value && (isMarkerVo(mapStore.hover) || isMovingMarker(mapStore.hover))
+  return controllerPanelVisible.value && Boolean(mapStore.getHover('marker') || mapStore.getHover('movingMarker'))
 }))
 const pointermove = fromEvent<PointerEvent>(window, 'pointermove')
 const pointerup = fromEvent<PointerEvent>(window, 'pointerup')
@@ -70,10 +55,9 @@ const markerDragController = pointerdown.pipe(switchMap((ev) => {
   const { x: startX, y: startY } = ev
   const { zoom } = mapInstance.value!.mainViewState
 
-  const hover = mapStore.hover as API.MarkerVo | { origin: API.MarkerVo; offset: API.Coordinate2D }
-  const markerinfo = isMarkerVo(hover) ? hover : hover.origin
-
+  const markerinfo = (mapStore.getHover('marker') ?? mapStore.getHover('movingMarker')?.origin)!
   const markerMoveMission = mapStore.getMission('moveMarkers')!
+
   let currentMovingIndex = markerMoveMission.findIndex(mission => mission.origin.id === markerinfo.id)
   const currentMoving = markerMoveMission[currentMovingIndex] ?? {
     origin: markerinfo,
