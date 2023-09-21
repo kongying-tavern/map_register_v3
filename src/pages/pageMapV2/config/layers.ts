@@ -117,11 +117,11 @@ export const LAYER_CONFIGS: LayerConfig[] = [
   // },
   {
     code: 'qd',
-    name: '金苹果群岛V1.6_阶段一',
+    name: '金苹果群岛(1.6)',
     extension: 'jpg',
     size: [8192, 8192],
     center: [3568, 6286],
-    areaCodes: ['A:APPLE:1_6_STG1'],
+    areaCodes: ['A:APPLE:1_6'],
     tags: LAYER_TAG_CONFIGS.qd,
     initViewState: {
       zoom: -3,
@@ -129,21 +129,8 @@ export const LAYER_CONFIGS: LayerConfig[] = [
     },
   },
   {
-    code: 'qd1',
-    name: '金苹果群岛V1.6_阶段二',
-    extension: 'jpg',
-    size: [8192, 8192],
-    center: [3568, 6286],
-    areaCodes: ['A:APPLE:1_6_STG2'],
-    tags: LAYER_TAG_CONFIGS.qd1,
-    initViewState: {
-      zoom: -3,
-      minZoom: -3,
-    },
-  },
-  {
     code: 'qd28',
-    name: '金苹果群岛V2.8',
+    name: '金苹果群岛(2.8)',
     size: [8192, 8192],
     center: [3568, 6286],
     areaCodes: ['A:APPLE:2_8'],
