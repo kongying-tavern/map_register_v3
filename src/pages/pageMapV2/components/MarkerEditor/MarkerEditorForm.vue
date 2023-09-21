@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { FormRules } from 'element-plus'
 import { cloneDeep } from 'lodash'
+import { addonPanelRefKey } from './shared'
 import {
   AddonContenEditor,
   AddonEditHistory,
@@ -8,9 +9,9 @@ import {
   AddonImageEditor,
   AddonItemSelector,
   AddonRefreshtimeEditor,
-} from '.'
+} from './components'
 import { AppAreaCodeSelecter } from '@/components'
-import { useUserStore } from '@/stores'
+import { useMarkerExtraStore, useUserStore } from '@/stores'
 import type { ElFormType } from '@/shared'
 import { HiddenFlagEnum } from '@/shared'
 import { isTreasureChestMatched, requireCheck } from '@/utils'
@@ -71,17 +72,29 @@ const formRef = ref<ElFormType | null>(null)
 /** 图片编辑器实例 */
 const imageEditorRef = ref<InstanceType<typeof AddonImageEditor> | null>(null)
 
-const extraPanelRef = ref<HTMLElement | null>(null)
-provide('extraPanel', extraPanelRef)
+// ==================== 点位 extra 信息 ====================
+const markerExtraStore = useMarkerExtraStore()
 
-const extraVisible = ref(false)
-const onExtraTransitionStart = (ev: TransitionEvent) => {
+const enableExtraConfig = computed(() => {
+  if (!form.value.areaCode)
+    return {}
+  return markerExtraStore.mergedAreaExtraConfigs[form.value.areaCode] ?? {}
+})
+
+const isExtraEditable = computed(() => Object.keys(enableExtraConfig.value).length > 0)
+
+// ==================== 拓展面板 ====================
+const addonPanelRef = ref<HTMLDivElement | null>(null)
+provide(addonPanelRefKey, addonPanelRef)
+
+const addonPanelVisible = ref(false)
+const onAddonPanelTransitionStart = (ev: TransitionEvent) => {
   if (ev.propertyName === 'width')
-    extraVisible.value = false
+    addonPanelVisible.value = false
 }
-const onExtraTransitionEnd = (ev: TransitionEvent) => {
+const onAddonPanelTransitionEnd = (ev: TransitionEvent) => {
   if (ev.propertyName === 'width')
-    extraVisible.value = true
+    addonPanelVisible.value = true
 }
 
 defineExpose({
@@ -113,8 +126,8 @@ defineExpose({
         <AddonItemSelector v-model="form.itemList" v-model:addon-id="addonId" v-model:area-code="form.areaCode" />
       </el-form-item>
 
-      <el-form-item v-if="form.areaCode" label="点位层级" prop="extra">
-        <AddonExtraEditor v-model="form.extra" :area-code="form.areaCode" />
+      <el-form-item v-if="isExtraEditable" label="点位层级" prop="extra">
+        <AddonExtraEditor v-model="form.extra" :area-code="form.areaCode" :extra-config="enableExtraConfig" />
       </el-form-item>
 
       <el-form-item label="点位描述" prop="content">
@@ -160,10 +173,10 @@ defineExpose({
     <div
       class="addon-panel"
       :class="{ visible: addonId }"
-      @transitionstart="onExtraTransitionStart"
-      @transitionend="onExtraTransitionEnd"
+      @transitionstart="onAddonPanelTransitionStart"
+      @transitionend="onAddonPanelTransitionEnd"
     >
-      <div v-show="extraVisible" ref="extraPanelRef" class="addon-panel-content" />
+      <div v-show="addonPanelVisible" ref="addonPanelRef" class="addon-panel-content" />
     </div>
   </div>
 </template>

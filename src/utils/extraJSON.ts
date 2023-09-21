@@ -1,4 +1,7 @@
 export interface MarkerExtra {
+  /** 1.6 海岛单独字段 */
+  '1_6_island'?: string[]
+
   /** 2.8 海岛单独字段 */
   '2_8_island'?: {
     island_name?: string
@@ -9,15 +12,6 @@ export interface MarkerExtra {
   underground?: {
     /** 是否是地下点位 */
     is_underground?: boolean
-    /**
-     * 数据模型 ID
-     * 1. 通用地下: `basic`
-     * 2. 须弥·大赤沙海: `sumeru2`
-     * 3. 须弥·千壑沙地: `sumeru3`
-     */
-    model_id?: string
-    /** 区域名字（代号） */
-    region_name?: string
     /** 区域层级 */
     region_levels?: string[]
   }

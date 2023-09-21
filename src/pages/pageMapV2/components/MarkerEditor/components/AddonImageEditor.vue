@@ -9,7 +9,7 @@
 import { Plus, Setting } from '@element-plus/icons-vue'
 import type { UploadFile } from 'element-plus'
 import { ElIcon, ElMessage, ElUpload } from 'element-plus'
-import { usePictureUpload } from '../../hooks'
+import { usePictureUpload } from '../hooks'
 import { AddonImageEditorEP, AddonTeleporter } from '.'
 import { useUserStore } from '@/stores'
 import { Logger, messageFrom } from '@/utils'

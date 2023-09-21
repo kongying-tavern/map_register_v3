@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-import type { Ref } from 'vue'
+import { addonPanelRefKey } from '../shared'
 
 defineProps<{
   active: boolean
 }>()
 
-const extraPanelRef = inject('extraPanel') as Ref<HTMLElement | null>
+const extraPanelRef = inject(addonPanelRefKey, ref(null))
 </script>
 
 <template>
