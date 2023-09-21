@@ -75,9 +75,9 @@ export class GenshinBaseLayer extends CompositeLayer {
     super.setState(state)
   }
 
-  forceUpdate = () => this.setState({
-    timestamp: (this.state.timestamp ?? 0) + 1,
-  })
+  forceUpdate = () => {
+    this.setState({ timestamp: Date.now() })
+  }
 
   constructor(props: LayerConfig) {
     const {
