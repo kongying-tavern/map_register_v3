@@ -1,15 +1,12 @@
 <script lang="ts" setup>
 import { MapAffix } from '..'
 import { OverlayGroup } from '.'
-import { useMapSettingStore, useMapStore, useOverlayStore } from '@/stores'
+import { useMapSettingStore, useOverlayStore } from '@/stores'
 
 const overlayStore = useOverlayStore()
-const mapStore = useMapStore()
 const mapSettingStore = useMapSettingStore()
 
 whenever(() => mapSettingStore.showOverlay, overlayStore.initTopOverlays)
-
-watch(() => mapStore.currentLayerCode, () => overlayStore.initTopOverlays(true))
 </script>
 
 <template>

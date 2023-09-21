@@ -61,6 +61,12 @@ export interface MergedOverlayGroups {
   [areaCode: string]: OverlayGroup[]
 }
 
+const toCopy = <T>(set: Set<T>) => {
+  const copySet = new Set<T>()
+  set.forEach(item => copySet.add(item))
+  return copySet
+}
+
 export const useOverlayStore = defineStore('map-overlays', {
   state: () => ({
     /** 每组内位于顶部的 overlay 单元 */
@@ -72,6 +78,7 @@ export const useOverlayStore = defineStore('map-overlays', {
   }),
 
   getters: {
+    /** 合并了 neigui 权限下的配置 */
     mergedOverlayGroups: (): MergedOverlayGroups => {
       const overlayGroups: MergedOverlayGroups = {}
       const { plugins = {}, pluginsNeigui = {} } = useDadianStore()._raw
@@ -147,7 +154,7 @@ export const useOverlayStore = defineStore('map-overlays', {
             chunks = [],
           } of items) {
             const item = {
-              id: `unit-${crypto.randomUUID()}`,
+              id: `item-${crypto.randomUUID()}`,
               name: itemLabel,
             }
             const complied = template(itemUrlTemplate, { interpolate: /{{([\s\S]+?)}}/g })
@@ -208,10 +215,7 @@ export const useOverlayStore = defineStore('map-overlays', {
       return this.normalizedOverlayChunks.filter(chunk => mapStore.currentAreaCodes.has(chunk.areaCode))
     },
 
-    /**
-     * 此处排序用于控制组内 overlay 谁在顶部
-     * @note 拆分依赖以避免重复计算
-     */
+    /** 此处排序用于控制组内 overlay 谁在顶部 */
     sortedOverlays(): OverlayChunk[] {
       return this.existOverlays.sort((overlayA, overlayB) => {
         const itemAId = this.topOverlayInGroup[overlayA.group.id]
@@ -220,10 +224,12 @@ export const useOverlayStore = defineStore('map-overlays', {
       })
     },
 
+    /** 此类 overlay 应当位于 overlay 遮罩层上方 */
     normalOverlays(): OverlayChunk[] {
       return this.sortedOverlays.filter(chunk => chunk.group.role === 'default')
     },
 
+    /** 此类 overlay 应当位于 overlay 遮罩层下方 */
     tileLikeOverlays(): OverlayChunk[] {
       return this.sortedOverlays.filter(chunk => chunk.group.role === 'tile')
     },
@@ -269,30 +275,45 @@ export const useOverlayStore = defineStore('map-overlays', {
     moveToTop(itemId: string, groupId: string) {
       if (itemId === this.topOverlayInGroup[groupId])
         return
-      this.topOverlayInGroup[groupId] = itemId
-      this.stateId = Date.now()
+      this.$patch({
+        topOverlayInGroup: {
+          ...this.topOverlayInGroup,
+          [groupId]: itemId,
+        },
+        stateId: Date.now(),
+      })
     },
 
-    initTopOverlays(reset = false) {
-      if (reset)
-        this.topOverlayInGroup = {}
+    initTopOverlays() {
       if (Object.keys(this.topOverlayInGroup).length > 0)
         return
-      for (const groupId in this.overlayControlGroups) {
-        const { items } = this.overlayControlGroups[groupId]
-        this.topOverlayInGroup[groupId] = items[0].id
-      }
-      this.stateId = Date.now()
+      const topOverlayInGroup = this.normalizedOverlayChunks.reduce((seed, chunk) => {
+        if (!seed[chunk.group.id])
+          seed[chunk.group.id] = chunk.item.id
+        return seed
+      }, {} as Record<string, string>)
+      this.$patch({
+        topOverlayInGroup,
+        stateId: Date.now(),
+      })
     },
 
     showOverlayGroup(groupId: string) {
-      this.hiddenOverlayGroups.delete(groupId)
-      this.stateId = Date.now()
+      const copySet = toCopy(this.hiddenOverlayGroups)
+      copySet.delete(groupId)
+      this.$patch({
+        hiddenOverlayGroups: copySet,
+        stateId: Date.now(),
+      })
     },
 
     hideOverlayGroup(groupId: string) {
-      this.hiddenOverlayGroups.add(groupId)
-      this.stateId = Date.now()
+      const copySet = toCopy(this.hiddenOverlayGroups)
+      copySet.add(groupId)
+      this.$patch({
+        hiddenOverlayGroups: copySet,
+        stateId: Date.now(),
+      })
     },
   },
 })
