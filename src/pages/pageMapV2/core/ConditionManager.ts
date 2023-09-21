@@ -1,8 +1,8 @@
+import { ElMessage } from 'element-plus'
 import { IconManager } from './IconManager'
 import db from '@/database'
 import { useMap } from '@/pages/pageMapV2/hooks'
 import { ICON, LAYER_CONFIGS } from '@/pages/pageMapV2/config'
-import { Logger } from '@/utils'
 import { localSettings, useUserStore } from '@/stores'
 
 export interface Condition {
@@ -10,8 +10,6 @@ export interface Condition {
   type: API.ItemTypeVo
   items: number[]
 }
-
-const logger = new Logger('[条件管理器]')
 
 export interface MarkerWithRenderConfig extends API.MarkerVo {
   render: {
@@ -46,8 +44,10 @@ export class ConditionManager extends IconManager {
       return
     // 切换子区域时，同时切换对应的底图
     const findLayer = LAYER_CONFIGS.find(({ areaCodes = [] }) => areaCodes.find(code => code === v) !== undefined)
-    if (!findLayer)
-      throw new Error(`无法找到对应的底图设置 (areaCode: ${v})`)
+    if (!findLayer) {
+      this.#handleError(new Error(`无法找到对应的底图设置 (areaCode: ${v})`))
+      return
+    }
     useMap().map.value?.setBaseLayer(findLayer.code)
     this.#areaCode.value = v
     this.itemTypeId = undefined
@@ -316,6 +316,9 @@ export class ConditionManager extends IconManager {
   })
 
   #handleError = (err: Error) => {
-    logger.error(err)
+    ElMessage.error({
+      message: err.message,
+      offset: 48,
+    })
   }
 }
