@@ -3,8 +3,6 @@ import { useMap } from '@/pages/pageMapV2/hooks'
 import { isMarkerVo } from '@/utils'
 import { useMapStore } from '@/stores'
 
-/** 当前被选中的点位 */
-const focus = shallowRef<API.MarkerVo | null>(null)
 /** 缓存的点位信息, 用于在关闭弹窗时保持信息，使动画显示状态平滑 */
 const cachedMarkerVo = shallowRef<API.MarkerVo | null>(null)
 
@@ -15,12 +13,13 @@ export const useMarkerFocus = (canvasRef?: Ref<HTMLCanvasElement | null>) => {
 
   const focusMarker = (markerVo: API.MarkerVo) => {
     cachedMarkerVo.value = markerVo
-    focus.value = markerVo
     mapStore.setFocus('marker', markerVo)
   }
 
+  /** 当前被选中的点位 */
+  const focus = computed(() => mapStore.getFocus('marker'))
+
   const blur = async () => {
-    focus.value = null
     mapStore.clear('focus')
   }
 
