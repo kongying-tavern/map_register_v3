@@ -1,15 +1,16 @@
 <script lang="ts" setup>
-import { Check, CirclePlus, DeleteFilled, Edit, Rank } from '@element-plus/icons-vue'
+import { Check, CirclePlus, DeleteFilled, Edit, Rank, VideoCamera } from '@element-plus/icons-vue'
 import { covertPosition } from '../../utils'
-import { useCondition, useMap, useMarkerFocus } from '../../hooks'
+import { useCondition, useMarkerFocus } from '../../hooks'
 import { MapAffix, MarkerEditPanel } from '..'
 import { MarkerPanel } from './components'
 import { useMarkerDelete, useMarkerExtra, useMarkerFinished, useMarkerMove, useSkeletonPicture } from './hooks'
-import { useIconTagStore } from '@/stores'
+import { useIconTagStore, useMapStore } from '@/stores'
 import { CloseFilled } from '@/components/GenshinUI/GSIcon'
-import { GSButton } from '@/components'
+import { AppBilibiliVideoPlayer, GSButton } from '@/components'
 import { useGlobalDialog } from '@/hooks'
 
+const mapStore = useMapStore()
 const iconTagStore = useIconTagStore()
 
 const { cachedMarkerVo, focus, blur } = useMarkerFocus()
@@ -22,9 +23,9 @@ const { isMoving } = useMarkerMove(cachedMarkerVo)
 
 const { isUnderground, hiddenFlagType, refreshTimeType } = useMarkerExtra(cachedMarkerVo)
 
-const { map } = useMap()
+// ==================== 点位更新时关闭弹窗 ====================
 const conditionManager = useCondition()
-watch(() => conditionManager.layerMarkerMap[map.value?.baseLayer?.rawProps.code ?? ''], blur)
+watch(() => conditionManager.markers, blur)
 
 // ==================== 编辑点位 ====================
 const { DialogService } = useGlobalDialog()
@@ -45,6 +46,24 @@ const openMarkerEditor = () => {
 
 // ==================== 删除点位 ====================
 const { confirmDeleteMarker } = useMarkerDelete()
+
+// 预览点位视频
+const playBilibiliVideo = () => {
+  if (!cachedMarkerVo.value)
+    return
+  DialogService
+    .config({
+      alignCenter: true,
+      width: 'fit-content',
+    })
+    .props({
+      url: cachedMarkerVo.value.videoPath,
+    })
+    .open(AppBilibiliVideoPlayer)
+}
+
+/** 当前是否存在地图任务 */
+const hasMapMission = computed(() => Boolean(mapStore.mission))
 </script>
 
 <template>
@@ -83,11 +102,12 @@ const { confirmDeleteMarker } = useMarkerDelete()
           <el-tag>{{ isUnderground ? '地下' : '地上' }}</el-tag>
           <el-tag>{{ hiddenFlagType }}</el-tag>
           <el-tag>刷新：{{ refreshTimeType }}</el-tag>
+          <el-button v-if="cachedMarkerVo.videoPath" size="small" :icon="VideoCamera" @click="playBilibiliVideo" />
         </div>
       </template>
 
       <template #footer>
-        <GSButton size="small" theme="dark" @click="openMarkerEditor">
+        <GSButton size="small" theme="dark" :disabled="hasMapMission" @click="openMarkerEditor">
           <template #icon>
             <el-icon color="#F7BA3F">
               <Edit />
@@ -113,7 +133,7 @@ const { confirmDeleteMarker } = useMarkerDelete()
           </template>
         </GSButton>
 
-        <GSButton size="small" theme="dark" title="删除点位" @click="() => confirmDeleteMarker(cachedMarkerVo)">
+        <GSButton size="small" theme="dark" title="删除点位" :disabled="hasMapMission" @click="() => confirmDeleteMarker(cachedMarkerVo)">
           <template #icon>
             <el-icon color="#CF5945">
               <DeleteFilled />

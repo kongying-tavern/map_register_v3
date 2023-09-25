@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { QuestionFilled, VideoCamera } from '@element-plus/icons-vue'
-import { BilibiliVideoPlayer } from '.'
 import { useGlobalDialog } from '@/hooks'
 import { refreshTimeFormatter } from '@/utils'
+import { AppBilibiliVideoPlayer } from '@/components'
 
 defineProps<{
   loading: boolean
@@ -48,7 +48,7 @@ const playBilibiliVideo = (row: API.MarkerVo) => {
     .props({
       url: row.videoPath,
     })
-    .open(BilibiliVideoPlayer)
+    .open(AppBilibiliVideoPlayer)
 }
 </script>
 
