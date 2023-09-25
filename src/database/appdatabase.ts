@@ -16,6 +16,8 @@ export interface UserPreference {
   id?: number
   /** 筛选器状态列表 */
   filterStates?: FilterState[]
+  /** 筛选器选择的地区 */
+  areaCode?: string
 }
 
 export interface FilterState {

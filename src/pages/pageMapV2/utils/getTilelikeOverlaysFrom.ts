@@ -1,20 +1,20 @@
 import { BitmapLayer } from '@deck.gl/layers/typed'
 import type { GenshinBaseLayer } from '../core'
 import type { OverlayChunk } from '@/stores'
-import { useMapSettingStore, useOverlayStore } from '@/stores'
+import { useMapSettingStore } from '@/stores'
 
 export const getTilelikeOverlaysFrom = (target: GenshinBaseLayer): BitmapLayer[] => {
-  const overlayStore = useOverlayStore()
+  const overlayStore = target.context.deck.store.overlay
   const mapSettingStore = useMapSettingStore()
 
-  const isOverlayVisible = (overlay: OverlayChunk) => {
+  const getOverlayOpacity = (overlay: OverlayChunk) => {
     if (!mapSettingStore.showOverlay)
-      return false
+      return 0
     if (overlayStore.hiddenOverlayGroups.has(overlay.group.id))
-      return false
+      return 0
     if (!overlay.group.multiple && overlayStore.topOverlayInGroup[overlay.group.id] !== overlay.item.id)
-      return false
-    return true
+      return 0
+    return 1
   }
 
   return overlayStore.tileLikeOverlays.reduce((seed, overlay) => {
@@ -28,7 +28,7 @@ export const getTilelikeOverlaysFrom = (target: GenshinBaseLayer): BitmapLayer[]
       coordinateOrigin: target.rawProps.coordinateOrigin,
       bounds: [xmin, ymax, xmax, ymin],
       image: overlay.url,
-      opacity: isOverlayVisible(overlay) ? 1 : 0,
+      opacity: getOverlayOpacity(overlay),
       updateTriggers: {
         opacity: mapSettingStore.showOverlay,
         tintColor: overlayStore.stateId,

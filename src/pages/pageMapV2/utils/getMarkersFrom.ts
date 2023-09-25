@@ -9,7 +9,10 @@ const getMarkerPosition = (marker: API.MarkerVo) => {
   return 'aboveground'
 }
 
-/** 点位渲染属性 */
+/**
+ * 点位图层
+ * @todo 后续将点位要素拆分为 IconLayer 组合图层，以避免重复预渲染带来的性能问题
+ */
 export const getMarkersFrom = (target: GenshinBaseLayer): IconLayer<MarkerWithRenderConfig> => {
   const conditionManager = useCondition()
   const { archive, map: mapState, setting } = target.context.deck.store
@@ -36,7 +39,7 @@ export const getMarkersFrom = (target: GenshinBaseLayer): IconLayer<MarkerWithRe
     id: `${target.props.id}-markers`,
     coordinateSystem: target.rawProps.coordinateSystem,
     coordinateOrigin: target.rawProps.coordinateOrigin,
-    data: conditionManager.layerMarkerMap[target.rawProps.code],
+    data: conditionManager.markers,
     pickable: true,
     iconAtlas: conditionManager.spiritImage,
     iconMapping: conditionManager.iconMapping,

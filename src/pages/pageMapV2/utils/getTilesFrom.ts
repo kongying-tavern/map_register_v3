@@ -14,7 +14,6 @@ export const getTilesFrom = (target: GenshinBaseLayer): TileLayer => {
     tileSize: 256,
     minZoom: -3, // 固定值，对应服务端存储底图的 level 10
     maxZoom: 0, // 固定值，对应服务端存储底图的 level 13
-    maxRequests: 1,
     extent: target.rawProps.bounds,
     getTileData: async ({ index: { x, y, z }, signal }) => {
       try {

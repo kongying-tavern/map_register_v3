@@ -2,7 +2,7 @@
 import { CoffeeCup, Filter, Grid, IceTea, List, Operation, PieChart, Setting } from '@element-plus/icons-vue'
 import { ElImage } from 'element-plus'
 import type { FeatureOption } from '../FeatureGrid'
-import { useCondition, useCurrentLayerMarkers } from '@/pages/pageMapV2/hooks'
+import { useCondition } from '@/pages/pageMapV2/hooks'
 import { FeatureGrid, MarkerFilter, MarkerTable, SiderMenu, SiderMenuItem } from '@/pages/pageMapV2/components'
 import { AppSettings, GSSwitch } from '@/components'
 import { useGlobalDialog } from '@/hooks'
@@ -60,8 +60,6 @@ const features: FeatureOption[] = [
   { label: '精灵图', icon: IceTea, cb: openSpiritImage },
 ]
 
-const { markers } = useCurrentLayerMarkers()
-
 const mapSettingStore = useMapSettingStore()
 </script>
 
@@ -83,10 +81,10 @@ const mapSettingStore = useMapSettingStore()
         <el-icon :size="38" color="var(--icon-color)" class="relative">
           <Filter />
           <div
-            v-show="markers.length > 0"
+            v-show="conditionManager.markers.length > 0"
             class="absolute w-fit bottom-0 bg-red-400 text-sm text-white font-mono rounded-full pointer-events-none px-1 select-none"
           >
-            {{ markers.length }}
+            {{ conditionManager.markers.length }}
           </div>
         </el-icon>
       </template>

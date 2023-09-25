@@ -3,7 +3,7 @@ import { DeleteFilled } from '@element-plus/icons-vue'
 import { CheckboxGroup, CheckboxImage, CheckboxItem, ConditionManager, ConditionRow, FilterTabs, ItemButton } from '.'
 import { GSButton, GSDivider } from '@/components'
 import { IconSetting } from '@/components/AppIcons'
-import { useArchiveStore, useIconTagStore, useMapStore, useUserStore } from '@/stores'
+import { useArchiveStore, useIconTagStore, useMapStore } from '@/stores'
 import { useCondition } from '@/pages/pageMapV2/hooks'
 import db from '@/database'
 import { isItemVo } from '@/utils'
@@ -18,16 +18,11 @@ const sort = (a: Sortable, b: Sortable) => {
   return ib - ia
 }
 
-const userStore = useUserStore()
 const archiveStore = useArchiveStore()
 
 /** 条件管理器 */
 const conditionManager = useCondition()
 const conditionManagerVisible = ref(false)
-
-watch(() => userStore.preference.id, () => {
-  conditionManager.loadState('temp')
-}, { immediate: true })
 
 // ==================== 图标 ====================
 const iconTagStore = useIconTagStore()

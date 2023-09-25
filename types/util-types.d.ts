@@ -6,4 +6,7 @@ declare global {
   type DeepRequired<T> = {
     [P in keyof T]-?: DeepRequired<T[P]>
   }
+
+  /** 提取数组项 */
+  type Item<T extends unknown[]> = T[number]
 }

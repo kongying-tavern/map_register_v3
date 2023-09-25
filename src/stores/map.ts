@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia'
-import { LAYER_CONFIGS } from '@/pages/pageMapV2/config'
 
 type MapToSchema<T> = {
   [K in keyof T]: {
@@ -39,16 +38,6 @@ export const useMapStore = defineStore('map-state', {
     focus: null as InteractiveType | null,
     markingItem: null as API.ItemVo | null,
   }),
-
-  getters: {
-    currentLayer: (state) => {
-      return LAYER_CONFIGS.find(({ code }) => code === state.currentLayerCode)
-    },
-
-    currentAreaCodes(): Set<string> {
-      return new Set(this.currentLayer?.areaCodes)
-    },
-  },
 
   actions: {
     setMission<T extends keyof MissionMap>(type: T, value: MissionMap[T]) {

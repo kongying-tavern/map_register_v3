@@ -1,8 +1,8 @@
 import type { Ref } from 'vue'
 import { GenshinMap } from '@/pages/pageMapV2/core'
+import { useCondition } from '@/pages/pageMapV2/hooks'
 import { Logger } from '@/utils'
 import { useArchiveStore } from '@/stores'
-import { LAYER_CONFIGS } from '@/pages/pageMapV2/config'
 
 export type MapReadyCallbackFunction = (map: GenshinMap) => void
 
@@ -26,13 +26,14 @@ const initMap = async (canvas: HTMLCanvasElement) => {
 
   // 设置底图
   await newMap.ready
-  newMap.setBaseLayer(LAYER_CONFIGS[0].code)
   map.value = newMap
   logger.info('map is ready', newMap)
 
   // 注册在地图创建以前生成的事件监听器
   tempCallbackSet.value.forEach(cb => cb(newMap))
   tempCallbackSet.value.clear()
+
+  await useCondition().loadState('temp')
 
   // 加载存档
   const archiveStore = useArchiveStore()

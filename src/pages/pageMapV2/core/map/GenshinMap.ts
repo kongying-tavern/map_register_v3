@@ -6,7 +6,7 @@ import { MAP_FONTFAMILY, TRANSITION } from '../../shared'
 import { EventBus, GenshinBaseLayer } from '..'
 import { getCursor, getTooltip } from '.'
 import genshinFont from '@/style/fonts/genshinFont.woff2?url'
-import { useArchiveStore, useMapSettingStore, useMapStore, useOverlayStore, useUserStore } from '@/stores'
+import { useArchiveStore, useMapSettingStore, useMapStore, useOverlayStore, useTileStore, useUserStore } from '@/stores'
 
 export interface GenshinMapOptions extends DeckProps {
   canvas: HTMLCanvasElement
@@ -52,8 +52,12 @@ export class GenshinMap extends Deck {
     const mhyGameFont = new FontFace(MAP_FONTFAMILY, `url(${genshinFont})`)
     await mhyGameFont.load()
     fonts.add(mhyGameFont)
-    return new this(options)
+    const instance = new this(options)
+    this.instance.value = instance
+    return instance
   }
+
+  static instance = shallowRef<GenshinMap | null>(null)
 
   constructor(options: GenshinMapOptions) {
     const { canvas, ...rest } = options
@@ -100,6 +104,7 @@ export class GenshinMap extends Deck {
 
   // ==================== 复用存储 ====================
   store = {
+    tile: useTileStore(),
     archive: useArchiveStore(),
     map: useMapStore(),
     overlay: useOverlayStore(),
@@ -199,45 +204,50 @@ export class GenshinMap extends Deck {
     return [x - ox, y - oy]
   }
 
+  static #unsubscribers: (() => void)[] = []
+
+  getLayerConfigByAreaCode = (areaCode: string) => {
+    const { mergedTileConfigs } = useTileStore()
+    const currentTileConfig = mergedTileConfigs[areaCode]
+    if (!currentTileConfig)
+      throw new Error(`无法找到 "${areaCode}" 对应的图层配置`)
+    return currentTileConfig
+  }
+
   /**
    * 切换底图，传递 `undefined` 时清空底图。
    * 切换底图时会同时删除 `GenshinMarkerLayer`
    */
-  #setBaseLayer = async (layer?: GenshinBaseLayer) => {
-    await this.ready
-    if (!layer || !this.layerManager || layer === this.#baseLayer.value)
+  setBaseLayerByAreaCode = (areaCode?: string) => {
+    if (!areaCode) {
+      this.setProps({ layers: [] })
       return
-
-    const { center = [0, 0], size = [0, 0], tilesOffset = [0, 0] } = layer.rawProps ?? {}
-
-    const getInitialTarget = (): API.Coordinate2D => {
-      const target = layer.rawProps.initViewState.target
-      return target
-        ? [target[0] + center[0], target[1] + center[1]]
-        : [(size[0] / 2 - tilesOffset[0]), (size[1] / 2 - tilesOffset[1])]
     }
 
-    const initialViewState = {
-      ...this.mainViewState,
-      maxZoom: layer.rawProps.initViewState.maxZoom ?? this.mainViewState.maxZoom,
-      minZoom: layer.rawProps.initViewState.minZoom ?? this.mainViewState.minZoom,
-      zoom: layer.rawProps.initViewState.zoom ?? this.mainViewState.zoom,
-      target: getInitialTarget(),
-    } as GensinMapViewState
+    const currentTileConfig = this.getLayerConfigByAreaCode(areaCode)
+    const layer = new GenshinBaseLayer(currentTileConfig)
 
-    this.setProps({
-      layers: [layer],
-      initialViewState,
-    })
+    useMapStore().currentLayerCode = currentTileConfig.tile.code
+
+    GenshinMap.#unsubscribers.forEach(unsubscriber => unsubscriber())
+    GenshinMap.#unsubscribers = [
+      useMapSettingStore().$subscribe(layer.forceUpdate),
+      useMapStore().$subscribe(layer.forceUpdate),
+      useOverlayStore().$subscribe(layer.forceUpdate),
+      useArchiveStore().$subscribe(layer.forceUpdate),
+    ]
+
+    const { tile, initViewState } = currentTileConfig
+
+    const { center: [cx, cy] } = tile
+    const { target: [tx, ty] } = initViewState
+
+    this.setProps({ layers: [layer] })
     this.#baseLayer.value = layer
-    this.#mainViewState.value = initialViewState
-    this.baseLayer?.forceUpdate()
-  }
 
-  setBaseLayer = (code = '') => {
-    if (this.baseLayer?.rawProps.code === code)
-      return
-    this.store.map.currentLayerCode = code
-    this.#setBaseLayer(GenshinBaseLayer.getLayer(code))
+    this.updateViewState({
+      target: [tx + cx, ty + cy] as API.Coordinate2D,
+      zoom: initViewState.zoom,
+    })
   }
 }

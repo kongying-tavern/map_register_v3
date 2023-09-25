@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { defaultsDeep, template } from 'lodash'
-import { useDadianStore, useMapStore, useUserStore } from '.'
+import { useDadianStore, useMapStore, useTileStore, useUserStore } from '.'
 
 export interface OverlayGroup {
   id: string
@@ -67,253 +67,268 @@ const toCopy = <T>(set: Set<T>) => {
   return copySet
 }
 
-export const useOverlayStore = defineStore('map-overlays', {
-  state: () => ({
-    /** 每组内位于顶部的 overlay 单元 */
-    topOverlayInGroup: {} as { [groupId: string]: string },
-    /** 当前隐藏的 overlay 组 id */
-    hiddenOverlayGroups: new Set<string>(),
-    /** 当前状态 id，用于优化 deck 状态检查 */
-    stateId: Date.now(),
-  }),
+export const useOverlayStore = defineStore('map-overlays', () => {
+  const mapStore = useMapStore()
+  const dadianStore = useDadianStore()
+  const tileStore = useTileStore()
 
-  getters: {
-    /** 合并了 neigui 权限下的配置 */
-    mergedOverlayGroups: (): MergedOverlayGroups => {
-      const overlayGroups: MergedOverlayGroups = {}
-      const { plugins = {}, pluginsNeigui = {} } = useDadianStore()._raw
+  /** 每组内位于顶部的 overlay 单元 */
+  const topOverlayInGroup = ref<{ [groupId: string]: string }>({})
 
-      for (const areaCode in plugins) {
-        overlayGroups[areaCode] = []
+  /** 当前隐藏的 overlay 组 id */
+  const hiddenOverlayGroups = ref(new Set<string>())
 
-        const { overlay = false, overlayConfig = {} } = plugins[areaCode]
-        overlay && overlayConfig.overlays?.forEach(({ urlTemplate = overlayConfig.urlTemplate, children: items = [], role = 'default', ...rest }) => {
-          overlayGroups[areaCode].push({
-            multiple: overlayConfig.multiple ?? false,
-            mask: overlayConfig.overlayMask ?? false,
-            urlTemplate,
-            id: `group-${crypto.randomUUID()}`,
-            items,
-            role,
-            ...rest,
-          })
-        })
+  /** 当前状态 id，用于优化 deck 状态检查 */
+  const stateId = ref(Date.now())
 
-        if (!useUserStore().isNeigui)
-          continue
+  /** 合并了 neigui 权限下的配置 */
+  const mergedOverlayGroups = computed((): MergedOverlayGroups => {
+    const overlayGroups: MergedOverlayGroups = {}
+    const { plugins = {}, pluginsNeigui = {} } = dadianStore._raw
 
-        defaultsDeep(pluginsNeigui, plugins)
-        const { overlay: overlayNeigui, overlayConfig: neiguiConfig = {} } = pluginsNeigui[areaCode] ?? {}
-        overlayNeigui && neiguiConfig.overlays?.forEach(({ urlTemplate = overlayConfig.urlTemplate, children: items = [], role = 'default', ...rest }) => {
-          overlayGroups[areaCode].push({
-            multiple: overlayConfig.multiple ?? false,
-            mask: overlayConfig.overlayMask ?? false,
-            urlTemplate,
-            id: `group-${crypto.randomUUID()}`,
-            items,
-            role,
-            ...rest,
-          })
-        })
-      }
+    for (const areaCode in plugins) {
+      overlayGroups[areaCode] = []
 
-      return overlayGroups
-    },
-
-    /** 规范化的单项 overlay 配置 */
-    normalizedOverlayChunks(): OverlayChunk[] {
-      const result: OverlayChunk[] = []
-      const urlSet = new Set<string>()
-      for (const areaCode in this.mergedOverlayGroups) {
-        for (const {
-          id: groupId,
-          label: groupLabel = 'unknown',
-          value: groupValue,
+      const { overlay = false, overlayConfig = {} } = plugins[areaCode]
+      overlay && overlayConfig.overlays?.forEach(({ urlTemplate = overlayConfig.urlTemplate, children: items = [], role = 'default', ...rest }) => {
+        overlayGroups[areaCode].push({
+          multiple: overlayConfig.multiple ?? false,
+          mask: overlayConfig.overlayMask ?? false,
+          urlTemplate,
+          id: `group-${crypto.randomUUID()}`,
           items,
-          url: groupUrl,
-          urlTemplate: groupUrlTemplate,
-          bounds: groupBounds,
-          mask = false,
           role,
-          multiple = false,
-        } of this.mergedOverlayGroups[areaCode]) {
-          const group = {
-            id: groupId,
-            name: groupLabel,
-            mask,
-            role,
-            multiple,
+          ...rest,
+        })
+      })
+
+      if (!useUserStore().isNeigui)
+        continue
+
+      defaultsDeep(pluginsNeigui, plugins)
+      const { overlay: overlayNeigui, overlayConfig: neiguiConfig = {} } = pluginsNeigui[areaCode] ?? {}
+      overlayNeigui && neiguiConfig.overlays?.forEach(({ urlTemplate = overlayConfig.urlTemplate, children: items = [], role = 'default', ...rest }) => {
+        overlayGroups[areaCode].push({
+          multiple: overlayConfig.multiple ?? false,
+          mask: overlayConfig.overlayMask ?? false,
+          urlTemplate,
+          id: `group-${crypto.randomUUID()}`,
+          items,
+          role,
+          ...rest,
+        })
+      })
+    }
+
+    return overlayGroups
+  })
+
+  /** 规范化的单项 overlay 配置 */
+  const normalizedOverlayChunks = computed((): OverlayChunk[] => {
+    const result: OverlayChunk[] = []
+    const urlSet = new Set<string>()
+    for (const areaCode in mergedOverlayGroups.value) {
+      for (const {
+        id: groupId,
+        label: groupLabel = 'unknown',
+        value: groupValue,
+        items,
+        url: groupUrl,
+        urlTemplate: groupUrlTemplate,
+        bounds: groupBounds,
+        mask = false,
+        role,
+        multiple = false,
+      } of mergedOverlayGroups.value[areaCode]) {
+        const group = {
+          id: groupId,
+          name: groupLabel,
+          mask,
+          role,
+          multiple,
+        }
+
+        for (const {
+          label: itemLabel = groupLabel,
+          value: itemValue = groupValue,
+          url: itemUrl = groupUrl,
+          urlTemplate: itemUrlTemplate = groupUrlTemplate,
+          bounds: itemBounds = groupBounds,
+          chunks = [],
+        } of items) {
+          const item = {
+            id: `item-${crypto.randomUUID()}`,
+            name: itemLabel,
+          }
+          const complied = template(itemUrlTemplate, { interpolate: /{{([\s\S]+?)}}/g })
+
+          if (!chunks.length) {
+            if (!itemBounds)
+              continue
+            const url = itemUrl ?? complied({ groupLabel, groupValue, itemLabel, itemValue })
+            if (urlSet.has(url))
+              continue
+            urlSet.add(url)
+
+            result.push({
+              id: `chunk-${crypto.randomUUID()}`,
+              areaCode,
+              label: itemLabel,
+              url,
+              bounds: itemBounds,
+              group,
+              item,
+            })
+            continue
           }
 
           for (const {
-            label: itemLabel = groupLabel,
-            value: itemValue = groupValue,
-            url: itemUrl = groupUrl,
-            urlTemplate: itemUrlTemplate = groupUrlTemplate,
-            bounds: itemBounds = groupBounds,
-            chunks = [],
-          } of items) {
-            const item = {
-              id: `item-${crypto.randomUUID()}`,
-              name: itemLabel,
-            }
-            const complied = template(itemUrlTemplate, { interpolate: /{{([\s\S]+?)}}/g })
-
-            if (!chunks.length) {
-              if (!itemBounds)
-                continue
-              const url = itemUrl ?? complied({ groupLabel, groupValue, itemLabel, itemValue })
-              if (urlSet.has(url))
-                continue
-              urlSet.add(url)
-
-              result.push({
-                id: `chunk-${crypto.randomUUID()}`,
-                areaCode,
-                label: itemLabel,
-                url,
-                bounds: itemBounds,
-                group,
-                item,
-              })
+            label: chunkLabel = itemLabel,
+            value: chunkValue = itemValue,
+            url: chunkUrl = itemUrl ?? complied({ groupLabel, groupValue, itemLabel, itemValue, chunkLabel, chunkValue }),
+            bounds: chunkBounds = itemBounds,
+          } of chunks) {
+            if (!chunkBounds)
               continue
-            }
 
-            for (const {
-              label: chunkLabel = itemLabel,
-              value: chunkValue = itemValue,
-              url: chunkUrl = itemUrl ?? complied({ groupLabel, groupValue, itemLabel, itemValue, chunkLabel, chunkValue }),
-              bounds: chunkBounds = itemBounds,
-            } of chunks) {
-              if (!chunkBounds)
-                continue
+            const url = chunkUrl || complied({ groupLabel, groupValue, itemLabel, itemValue, chunkLabel, chunkValue })
+            if (urlSet.has(url))
+              continue
+            urlSet.add(url)
 
-              const url = chunkUrl || complied({ groupLabel, groupValue, itemLabel, itemValue, chunkLabel, chunkValue })
-              if (urlSet.has(url))
-                continue
-              urlSet.add(url)
-
-              result.push({
-                id: `chunk-${crypto.randomUUID()}`,
-                areaCode,
-                label: chunkLabel,
-                url,
-                bounds: chunkBounds,
-                group,
-                item,
-              })
-            }
+            result.push({
+              id: `chunk-${crypto.randomUUID()}`,
+              areaCode,
+              label: chunkLabel,
+              url,
+              bounds: chunkBounds,
+              group,
+              item,
+            })
           }
         }
       }
-      return result
-    },
+    }
+    return result
+  })
 
-    /** 只存在于当前图层内的 overlay */
-    existOverlays(): OverlayChunk[] {
-      const mapStore = useMapStore()
-      return this.normalizedOverlayChunks.filter(chunk => mapStore.currentAreaCodes.has(chunk.areaCode))
-    },
+  /** 只存在于当前图层内的 overlay */
+  const existOverlays = computed((): OverlayChunk[] => {
+    if (!mapStore.currentLayerCode)
+      return []
+    const { currentLayerCode } = mapStore
+    const { mergedTileConfigs } = tileStore
+    return normalizedOverlayChunks.value.filter(({ areaCode }) => {
+      return mergedTileConfigs[areaCode].tile.code === currentLayerCode
+    })
+  })
 
-    /** 此处排序用于控制组内 overlay 谁在顶部 */
-    sortedOverlays(): OverlayChunk[] {
-      return this.existOverlays.sort((overlayA, overlayB) => {
-        const itemAId = this.topOverlayInGroup[overlayA.group.id]
-        const itemBId = this.topOverlayInGroup[overlayB.group.id]
-        return Number(itemAId === overlayA.item.id) - Number(itemBId === overlayB.item.id)
-      })
-    },
+  /** 此处排序用于控制组内 overlay 谁在顶部 */
+  const sortedOverlays = computed((): OverlayChunk[] => {
+    return existOverlays.value.sort((overlayA, overlayB) => {
+      const itemAId = topOverlayInGroup.value[overlayA.group.id]
+      const itemBId = topOverlayInGroup.value[overlayB.group.id]
+      return Number(itemAId === overlayA.item.id) - Number(itemBId === overlayB.item.id)
+    })
+  })
 
-    /** 此类 overlay 应当位于 overlay 遮罩层上方 */
-    normalOverlays(): OverlayChunk[] {
-      return this.sortedOverlays.filter(chunk => chunk.group.role === 'default')
-    },
+  /** 此类 overlay 应当位于 overlay 遮罩层上方 */
+  const normalOverlays = computed((): OverlayChunk[] => {
+    return sortedOverlays.value.filter(chunk => chunk.group.role === 'default')
+  })
 
-    /** 此类 overlay 应当位于 overlay 遮罩层下方 */
-    tileLikeOverlays(): OverlayChunk[] {
-      return this.sortedOverlays.filter(chunk => chunk.group.role === 'tile')
-    },
+  /** 此类 overlay 应当位于 overlay 遮罩层下方 */
+  const tileLikeOverlays = computed((): OverlayChunk[] => {
+    return sortedOverlays.value.filter(chunk => chunk.group.role === 'tile')
+  })
 
-    /** 只存在于当前图层内的 overlay 控制组 */
-    overlayControlGroups(): Record<string, OverlayControlGroup> {
-      const groups: Record<string, OverlayControlGroup> = {}
-      const itemIdsSet = new Set<string>()
-      this.existOverlays.forEach((chunk) => {
-        if (!groups[chunk.group.id]) {
-          groups[chunk.group.id] = {
-            id: chunk.group.id,
-            name: chunk.group.name,
-            bounds: chunk.bounds,
-            items: [],
-          }
+  /** 只存在于当前图层内的 overlay 控制组 */
+  const overlayControlGroups = computed((): Record<string, OverlayControlGroup> => {
+    const groups: Record<string, OverlayControlGroup> = {}
+    const itemIdsSet = new Set<string>()
+    existOverlays.value.forEach((chunk) => {
+      if (!groups[chunk.group.id]) {
+        groups[chunk.group.id] = {
+          id: chunk.group.id,
+          name: chunk.group.name,
+          bounds: chunk.bounds,
+          items: [],
         }
-        const group = groups[chunk.group.id]
-        const [[xmin, ymin], [xmax, ymax]] = group.bounds
-        const [[cxmin, cymin], [cxmax, cymax]] = chunk.bounds
-        group.bounds = [
-          [Math.min(xmin, cxmin), Math.min(ymin, cymin)],
-          [Math.max(xmax, cxmax), Math.max(ymax, cymax)],
-        ]
-        if (itemIdsSet.has(chunk.item.id))
-          return
-        itemIdsSet.add(chunk.item.id)
-        group.items.push(chunk.item)
-      })
-      return groups
-    },
-
-    showMask(): boolean {
-      for (const chunk of this.existOverlays) {
-        if (!chunk.group.mask)
-          return false
       }
-      return true
-    },
-  },
-
-  actions: {
-    moveToTop(itemId: string, groupId: string) {
-      if (itemId === this.topOverlayInGroup[groupId])
+      const group = groups[chunk.group.id]
+      const [[xmin, ymin], [xmax, ymax]] = group.bounds
+      const [[cxmin, cymin], [cxmax, cymax]] = chunk.bounds
+      group.bounds = [
+        [Math.min(xmin, cxmin), Math.min(ymin, cymin)],
+        [Math.max(xmax, cxmax), Math.max(ymax, cymax)],
+      ]
+      if (itemIdsSet.has(chunk.item.id))
         return
-      this.$patch({
-        topOverlayInGroup: {
-          ...this.topOverlayInGroup,
-          [groupId]: itemId,
-        },
-        stateId: Date.now(),
-      })
-    },
+      itemIdsSet.add(chunk.item.id)
+      group.items.push(chunk.item)
+    })
+    return groups
+  })
 
-    initTopOverlays() {
-      if (Object.keys(this.topOverlayInGroup).length > 0)
-        return
-      const topOverlayInGroup = this.normalizedOverlayChunks.reduce((seed, chunk) => {
-        if (!seed[chunk.group.id])
-          seed[chunk.group.id] = chunk.item.id
-        return seed
-      }, {} as Record<string, string>)
-      this.$patch({
-        topOverlayInGroup,
-        stateId: Date.now(),
-      })
-    },
+  const showMask = computed((): boolean => {
+    for (const chunk of existOverlays.value) {
+      if (!chunk.group.mask)
+        return false
+    }
+    return true
+  })
 
-    showOverlayGroup(groupId: string) {
-      const copySet = toCopy(this.hiddenOverlayGroups)
-      copySet.delete(groupId)
-      this.$patch({
-        hiddenOverlayGroups: copySet,
-        stateId: Date.now(),
-      })
-    },
+  const moveToTop = (itemId: string, groupId: string) => {
+    if (itemId === topOverlayInGroup.value[groupId])
+      return
+    topOverlayInGroup.value[groupId] = itemId
+    stateId.value = Date.now()
+  }
 
-    hideOverlayGroup(groupId: string) {
-      const copySet = toCopy(this.hiddenOverlayGroups)
-      copySet.add(groupId)
-      this.$patch({
-        hiddenOverlayGroups: copySet,
-        stateId: Date.now(),
-      })
-    },
-  },
+  const initTopOverlays = () => {
+    if (Object.keys(topOverlayInGroup.value).length > 0)
+      return
+    const defaultTopOverlayInGroup = normalizedOverlayChunks.value.reduce((seed, chunk) => {
+      if (!seed[chunk.group.id])
+        seed[chunk.group.id] = chunk.item.id
+      return seed
+    }, {} as Record<string, string>)
+    topOverlayInGroup.value = defaultTopOverlayInGroup
+    stateId.value = Date.now()
+  }
+
+  const showOverlayGroup = (groupId: string) => {
+    const copySet = toCopy(hiddenOverlayGroups.value)
+    copySet.delete(groupId)
+    hiddenOverlayGroups.value = copySet
+    stateId.value = Date.now()
+  }
+
+  const hideOverlayGroup = (groupId: string) => {
+    const copySet = toCopy(hiddenOverlayGroups.value)
+    copySet.add(groupId)
+    hiddenOverlayGroups.value = copySet
+    stateId.value = Date.now()
+  }
+
+  return {
+    // state
+    topOverlayInGroup,
+    stateId,
+    hiddenOverlayGroups,
+
+    // getters
+    mergedOverlayGroups,
+    normalizedOverlayChunks,
+    normalOverlays,
+    tileLikeOverlays,
+    overlayControlGroups,
+    showMask,
+
+    // action
+    moveToTop,
+    initTopOverlays,
+    showOverlayGroup,
+    hideOverlayGroup,
+  }
 })

@@ -1,8 +1,6 @@
 import type { LayersList } from '@deck.gl/core/typed'
 import { COORDINATE_SYSTEM, CompositeLayer } from '@deck.gl/core/typed'
 import type { ValueOf } from 'element-plus/es/components/table/src/table-column/defaults'
-import { LAYER_CONFIGS } from '../config'
-import type { LayerConfig, TagOptions } from '../config'
 import {
   getBorderFrom,
   getMarkersFrom,
@@ -15,60 +13,26 @@ import {
   getTilesFrom,
 } from '../utils'
 import type { GenshinMap } from '.'
-import { useArchiveStore, useMapSettingStore, useMapStore, useOverlayStore } from '@/stores'
+import type { AreaTileConfig } from '@/stores'
 
-export interface GenshinTileLayerConfig extends Required<LayerConfig> {
+export type BaseLayerProps = AreaTileConfig['tile'] & {
   bounds: [number, number, number, number]
-  groupedTags: TagOptions[][]
   coordinateSystem: ValueOf<typeof COORDINATE_SYSTEM>
   coordinateOrigin: [number, number, number]
 }
 
 export class GenshinBaseLayer extends CompositeLayer {
-  static get ID_PREFIX() { return 'genshin-layer-group-' }
+  static get ID_PREFIX() { return 'tile-' }
   static get layerName() { return 'GenshinTileLayer' }
-
-  static unsubscribers: (() => void)[] = []
-
-  /** 根据 code 获取对应图层实例，必须返回新实例。 */
-  static getLayer = (code?: string) => {
-    if (!code)
-      return
-    const findConfig = LAYER_CONFIGS.find(config => config.code === code)
-    if (!findConfig)
-      return
-    const { size, tilesOffset = [0, 0], center = [0, 0], ...rest } = findConfig
-
-    const layer = new this({ ...rest, code, size, tilesOffset, center })
-
-    this.unsubscribers.forEach(unsubscriber => unsubscriber())
-    // TODO 性能优化
-    this.unsubscribers = [
-      useMapSettingStore().$subscribe(layer.forceUpdate),
-      useMapStore().$subscribe(layer.forceUpdate),
-      useOverlayStore().$subscribe(layer.forceUpdate),
-      useArchiveStore().$subscribe(layer.forceUpdate),
-    ]
-
-    return layer
-  }
 
   declare context: CompositeLayer['context'] & {
     deck: GenshinMap
   }
 
-  readonly rawProps: GenshinTileLayerConfig
+  readonly rawProps: BaseLayerProps
 
-  #getDefaultState = () => ({
+  state = {
     timestamp: Date.now(),
-  })
-
-  state = this.#getDefaultState()
-
-  /** Layer 类在初始化时会清空 state 导致子图层无法访问到必要的 state，这里覆盖一下 */
-  _initialize = () => {
-    super._initialize()
-    this.state = this.#getDefaultState()
   }
 
   setState = (state: Partial<typeof this.state>) => {
@@ -79,44 +43,28 @@ export class GenshinBaseLayer extends CompositeLayer {
     this.setState({ timestamp: Date.now() })
   }
 
-  constructor(props: LayerConfig) {
-    const {
-      extension = 'png',
-      tilesOffset = [0, 0],
-      center = [0, 0],
-      tags = [],
-      areaCodes = [],
-      initViewState = {},
-    } = props
-
+  constructor(props: AreaTileConfig) {
     super({
-      id: `${GenshinBaseLayer.ID_PREFIX}${props.code}`,
+      id: `${GenshinBaseLayer.ID_PREFIX}${props.tile.code}`,
     })
 
-    const xmin = -tilesOffset[0]
-    const ymin = -tilesOffset[1]
-    const xmax = props.size[0] - tilesOffset[0]
-    const ymax = props.size[1] - tilesOffset[1]
+    const {
+      center,
+      size: [w, h],
+      tilesOffset: [ox, oy],
+    } = props.tile
+
+    const xmin = ox
+    const ymin = oy
+    const xmax = w + ox
+    const ymax = h + oy
     const bounds: [number, number, number, number] = [xmin, ymax, xmax, ymin]
 
     this.rawProps = {
-      code: props.code,
-      name: props.name,
-      size: props.size,
-      extension,
-      tilesOffset,
-      center,
+      ...props.tile,
       bounds,
-      tags,
-      groupedTags: tags.reduce((seed, { level = 0, ...rest }) => {
-        !(level in seed) && (seed[level] = [])
-        seed[level].push({ level, ...rest })
-        return seed
-      }, [] as TagOptions[][]),
-      areaCodes,
-      initViewState,
+      coordinateOrigin: [...center, 0],
       coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-      coordinateOrigin: [center[0], center[1], 0] as [number, number, number],
     }
   }
 

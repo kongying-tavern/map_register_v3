@@ -2,8 +2,8 @@ import { ElMessage } from 'element-plus'
 import { IconManager } from './IconManager'
 import db from '@/database'
 import { useMap } from '@/pages/pageMapV2/hooks'
-import { ICON, LAYER_CONFIGS } from '@/pages/pageMapV2/config'
-import { localSettings, useUserStore } from '@/stores'
+import { ICON } from '@/pages/pageMapV2/config'
+import { localSettings, useMapStore, useTileStore, useUserStore } from '@/stores'
 
 export interface Condition {
   area: API.AreaVo
@@ -39,18 +39,25 @@ export class ConditionManager extends IconManager {
   /** 物品筛选绑定的地区数据 */
   #areaCode = ref<string>()
   get areaCode() { return this.#areaCode.value }
-  set areaCode(v) {
-    if (v === this.areaCode)
+  set areaCode(code) {
+    if (code === this.areaCode)
       return
-    // 切换子区域时，同时切换对应的底图
-    const findLayer = LAYER_CONFIGS.find(({ areaCodes = [] }) => areaCodes.find(code => code === v) !== undefined)
-    if (!findLayer) {
-      this.#handleError(new Error(`无法找到对应的底图设置 (areaCode: ${v})`))
-      return
+    try {
+      useMap().map.value?.setBaseLayerByAreaCode(code)
+      this.#areaCode.value = code
+      this.itemTypeId = undefined
+      this.saveState('temp')
     }
-    useMap().map.value?.setBaseLayer(findLayer.code)
-    this.#areaCode.value = v
-    this.itemTypeId = undefined
+    catch (err) {
+      this.#handleError(err as Error)
+    }
+  }
+
+  #selectArea = async (areaCode: string) => {
+    this.areaCode = areaCode
+    const { parentId } = (await db.area.where('code').equals(areaCode).first()) ?? {}
+    if (parentId !== undefined)
+      this.parentAreaCode = (await db.area.get(parentId))?.code ?? ''
   }
 
   /** 物品筛选绑定的物品类型数据 */
@@ -155,20 +162,26 @@ export class ConditionManager extends IconManager {
     },
   })
 
+  #markers = shallowRef<API.MarkerVo[]>([])
+  get markers() { return this.#markers.value }
+
   #initLayerMarkerMap = async () => {
-    await Promise.all(LAYER_CONFIGS.map(async ({ code, areaCodes = [] }) => {
-      const areaCodeSet = new Set(areaCodes)
-      // 筛选出只存在于当前图层的点位
-      const itemIdsInThisLayer: number[] = []
-      this.conditions.forEach((condition) => {
-        if (!areaCodeSet.has(condition.area.code!))
-          return
-        itemIdsInThisLayer.push(...condition.items)
-      })
-      const markers: MarkerWithRenderConfig[] = (await db.marker.where('itemIdList').anyOf(itemIdsInThisLayer).toArray())
-        .map(this.#attachRenderConfig)
-      this.#layerMarkerMap.value[code] = markers
-    }))
+    const { mergedTileConfigs } = useTileStore()
+    const { currentLayerCode } = useMapStore()
+
+    const itemIdsGroup: number[][] = []
+    this.conditions.forEach((condition) => {
+      const { tile } = mergedTileConfigs[condition.area.code!] ?? {}
+      if (tile.code !== currentLayerCode)
+        return
+      itemIdsGroup.push(condition.items)
+    })
+
+    const markers = (await db.marker.where('itemIdList').anyOf(itemIdsGroup.flat(1)).toArray())
+      .map(this.#attachRenderConfig)
+
+    this.#markers.value = markers
+
     this.#conditionStateId.value = crypto.randomUUID()
   }
 
@@ -227,9 +240,7 @@ export class ConditionManager extends IconManager {
   reviewCondition = async (id: string) => {
     const [areaCode, itemTypeId] = id.split('-')
     this.areaCode = areaCode
-    const { parentId } = (await db.area.where('code').equals(areaCode).first()) ?? {}
-    if (parentId !== undefined)
-      this.parentAreaCode = (await db.area.get(parentId))?.code ?? ''
+    await this.#selectArea(areaCode)
     this.itemTypeId = Number(itemTypeId)
     this.tabKey = this.tabNames.length - 1
   }
@@ -267,6 +278,7 @@ export class ConditionManager extends IconManager {
     userStore.preference = {
       ...userStore.preference,
       filterStates,
+      areaCode: this.areaCode,
     }
     await userStore.syncUserPreference()
   }
@@ -310,6 +322,9 @@ export class ConditionManager extends IconManager {
     const itemIdsMap: Record<string, number[]> = {}
     this.conditions.forEach(({ items }, key) => itemIdsMap[key] = items)
     this.#itemIdsMap.value = itemIdsMap
+
+    const { areaCode } = userStore.preference
+    areaCode && await this.#selectArea(areaCode)
 
     await this.saveState('temp')
     await requestRender()

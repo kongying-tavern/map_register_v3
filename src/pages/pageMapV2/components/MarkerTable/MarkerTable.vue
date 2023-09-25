@@ -2,7 +2,7 @@
 import type { Column } from 'element-plus'
 import { MarkerButton } from '.'
 import { GSSwitch } from '@/components'
-import { useCurrentLayerMarkers } from '@/pages/pageMapV2/hooks'
+import { useCondition } from '@/pages/pageMapV2/hooks'
 
 interface MarkerWithDetail extends API.MarkerVo {
   children: {
@@ -14,7 +14,8 @@ interface MarkerWithDetail extends API.MarkerVo {
 const tableContainerRef = ref<HTMLElement | null>()
 const { width, height } = useElementSize(tableContainerRef)
 
-const { markers } = useCurrentLayerMarkers()
+const conditionManager = useCondition()
+const markers = computed(() => conditionManager.markers)
 
 const queryText = ref('')
 const queryUnits = computed(() => (queryText.value.trim().match(/\S+\S+/g) ?? []) as string[])
