@@ -18,9 +18,10 @@ const flyToMarker = () => {
   if (!map.value)
     return
   const [x, y] = props.data.position!.split(',').map(Number)
-  map.value.updateViewState({
+  const { updateViewState, projectCoord } = map.value
+  updateViewState({
     zoom: 0,
-    target: map.value.projectCoord([x, y]),
+    target: projectCoord([x, y]),
   })
   focusMarker(props.data)
 }

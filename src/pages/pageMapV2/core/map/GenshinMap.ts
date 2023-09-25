@@ -1,7 +1,7 @@
 import type { DeckProps, OrbitViewState } from '@deck.gl/core/typed'
 import { Deck, OrthographicView, TRANSITION_EVENTS } from '@deck.gl/core/typed'
 import type { ViewStateChangeParameters } from '@deck.gl/core/typed/controllers/controller'
-import { clamp } from 'lodash'
+import { clamp, pick } from 'lodash'
 import { MAP_FONTFAMILY, TRANSITION } from '../../shared'
 import { EventBus, GenshinBaseLayer } from '..'
 import { getCursor, getTooltip } from '.'
@@ -59,6 +59,20 @@ export class GenshinMap extends Deck {
 
   static instance = shallowRef<GenshinMap | null>(null)
 
+  static getDefaultViewState = (): GensinMapViewState => ({
+    maxRotationX: 90,
+    minRotationX: -90,
+    rotationX: 0,
+    rotationOrbit: 0,
+    zoom: -4,
+    minZoom: -4,
+    maxZoom: 2,
+    target: [0, 0],
+    transitionDuration: 0,
+    transitionEasing: TRANSITION.LINEAR,
+    transitionInterruption: TRANSITION_EVENTS.BREAK,
+  })
+
   constructor(options: GenshinMapOptions) {
     const { canvas, ...rest } = options
 
@@ -77,6 +91,7 @@ export class GenshinMap extends Deck {
         },
         inertia: 300,
       },
+      initialViewState: GenshinMap.getDefaultViewState(),
       getCursor: state => getCursor(this, state),
       getTooltip: info => getTooltip(this, info),
       onViewStateChange: (viewStateChangeParams) => {
@@ -116,6 +131,7 @@ export class GenshinMap extends Deck {
   #eventBus = new EventBus<GenshinMapEvents>()
   get event() { return this.#eventBus }
 
+  // TODO 过程抽离
   #handleViewStateChange = ({ viewState, oldViewState = {}, interactionState, ...rest }: ViewStateChangeParameters) => {
     const newState = viewState as GensinMapViewState
     const oldState = oldViewState as Partial<GensinMapViewState>
@@ -130,15 +146,15 @@ export class GenshinMap extends Deck {
       return [clamp(newState.target[0], xmin, xmax), clamp(newState.target[1], ymin, ymax)]
     })()
 
+    const { isZooming } = interactionState
+    const { transitionDuration, transitionEasing } = newState
+
     const rewriteState: GensinMapViewState = {
       ...newState,
       target: rewriteTarget,
-      ...(interactionState.isZooming
-        ? {
-            transitionDuration: 32,
-            transitionEasing: TRANSITION.LINEAR,
-          }
-        : {}),
+      // 这里给 32 而不是 0 会看起来更加流畅，32ms 过渡时间大约能在 60 帧刷新率下提供 2 帧间隔
+      transitionDuration: isZooming ? 32 : transitionDuration,
+      transitionEasing: isZooming ? TRANSITION.LINEAR : transitionEasing,
     }
 
     this.mainViewState = rewriteState
@@ -158,22 +174,20 @@ export class GenshinMap extends Deck {
     this.#mainViewState.value = v
   }
 
-  #mainViewState = ref<GensinMapViewState>({
-    maxRotationX: 90,
-    minRotationX: -90,
-    rotationX: 0,
-    rotationOrbit: 0,
-    zoom: -4,
-    minZoom: -4,
-    maxZoom: 2,
-    target: [0, 0],
-    transitionDuration: 0,
-    transitionEasing: TRANSITION.LINEAR,
-    transitionInterruption: TRANSITION_EVENTS.BREAK,
-  })
+  #mainViewState = ref<GensinMapViewState>(GenshinMap.getDefaultViewState())
 
+  startViewStateTransition = (cb: () => void) => {
+    const cachedViewState = pick(this.mainViewState, 'transitionDuration', 'transitionEasing')
+    cb()
+    this.updateViewState(cachedViewState)
+  }
+
+  /**
+   * 更新视图状态的方法
+   * @note 不完善，不建议通过该方法传递 transition 相关参数
+   * @fixme 必须先设置为空后再次设置才能生效
+   */
   updateViewState = (viewState: Partial<GensinMapViewState>) => {
-    // FIXME 2023-08-06: 这里必须先设置为空后再次设置才能生效，或许使用方法不对
     const rewriteState = {
       ...this.mainViewState,
       ...viewState,
