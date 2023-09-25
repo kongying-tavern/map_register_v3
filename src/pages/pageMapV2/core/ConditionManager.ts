@@ -111,10 +111,6 @@ export class ConditionManager extends IconManager {
       : db.itemType.where('id').equals(this.itemTypeId).first()
   })
 
-  /** 图层与点位映射表 */
-  #layerMarkerMap = ref<Record<string, MarkerWithRenderConfig[]>>({})
-  get layerMarkerMap() { return this.#layerMarkerMap.value }
-
   /** 条件列表 */
   #conditions = ref<Map<string, Condition>>(new Map())
   get conditions() { return this.#conditions.value }
@@ -165,7 +161,9 @@ export class ConditionManager extends IconManager {
   #markers = shallowRef<API.MarkerVo[]>([])
   get markers() { return this.#markers.value }
 
-  #initLayerMarkerMap = async () => {
+  queryMarkers = async () => {
+    this.#markers.value = []
+
     const { mergedTileConfigs } = useTileStore()
     const { currentLayerCode } = useMapStore()
 
@@ -192,7 +190,7 @@ export class ConditionManager extends IconManager {
       return
     const items = (await db.item.bulkGet(this.existItemIds)).filter(Boolean) as API.ItemVo[]
     await this.initIconMap(items)
-    await this.#initLayerMarkerMap()
+    await this.queryMarkers()
     currentLayer.forceUpdate()
   }
 

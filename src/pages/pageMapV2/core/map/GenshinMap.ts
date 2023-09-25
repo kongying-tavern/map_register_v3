@@ -3,6 +3,7 @@ import { Deck, OrthographicView, TRANSITION_EVENTS } from '@deck.gl/core/typed'
 import type { ViewStateChangeParameters } from '@deck.gl/core/typed/controllers/controller'
 import { clamp, pick } from 'lodash'
 import { MAP_FONTFAMILY, TRANSITION } from '../../shared'
+import { useCondition } from '../../hooks'
 import { EventBus, GenshinBaseLayer } from '..'
 import { getCursor, getTooltip } from '.'
 import genshinFont from '@/style/fonts/genshinFont.woff2?url'
@@ -119,6 +120,7 @@ export class GenshinMap extends Deck {
 
   // ==================== 复用存储 ====================
   store = {
+    condition: useCondition(),
     tile: useTileStore(),
     archive: useArchiveStore(),
     map: useMapStore(),
@@ -139,19 +141,20 @@ export class GenshinMap extends Deck {
     if (this.store.map.lockViewState)
       return { viewState: oldState, oldViewState: oldState, interactionState, ...rest }
 
-    const rewriteTarget = ((): API.Coordinate2D => {
+    const getTargetInsideBounds = (): API.Coordinate2D => {
       if (!this.baseLayer)
         return newState.target
       const [xmin, ymax, xmax, ymin] = this.baseLayer.rawProps.bounds
       return [clamp(newState.target[0], xmin, xmax), clamp(newState.target[1], ymin, ymax)]
-    })()
+    }
 
-    const { isZooming } = interactionState
-    const { transitionDuration, transitionEasing } = newState
+    const { isZooming, isDragging } = interactionState
+    const { target, transitionDuration, transitionEasing } = newState
 
     const rewriteState: GensinMapViewState = {
       ...newState,
-      target: rewriteTarget,
+      // 非拖拽情况下（编程式导航）取消边界限制避免视口转换时卡住的问题
+      target: isDragging ? getTargetInsideBounds() : target,
       // 这里给 32 而不是 0 会看起来更加流畅，32ms 过渡时间大约能在 60 帧刷新率下提供 2 帧间隔
       transitionDuration: isZooming ? 32 : transitionDuration,
       transitionEasing: isZooming ? TRANSITION.LINEAR : transitionEasing,
@@ -198,8 +201,8 @@ export class GenshinMap extends Deck {
     this.setProps({
       initialViewState: rewriteState,
     })
-    rewriteState.zoom !== this.mainViewState.zoom && this.baseLayer?.forceUpdate()
     this.mainViewState = rewriteState
+    this.baseLayer?.forceUpdate()
   }
 
   // ==================== 图层状态 ====================
@@ -239,29 +242,28 @@ export class GenshinMap extends Deck {
     }
 
     const currentTileConfig = this.getLayerConfigByAreaCode(areaCode)
-    const layer = new GenshinBaseLayer(currentTileConfig)
 
-    useMapStore().currentLayerCode = currentTileConfig.tile.code
+    if (this.store.map.currentLayerCode !== currentTileConfig.tile.code) {
+      const layer = new GenshinBaseLayer(currentTileConfig)
+      GenshinMap.#unsubscribers.forEach(unsubscriber => unsubscriber())
+      GenshinMap.#unsubscribers = [
+        useMapSettingStore().$subscribe(layer.forceUpdate),
+        useMapStore().$subscribe(layer.forceUpdate),
+        useOverlayStore().$subscribe(layer.forceUpdate),
+        useArchiveStore().$subscribe(layer.forceUpdate),
+      ]
+      this.setProps({ layers: [layer] })
+      this.store.map.currentLayerCode = currentTileConfig.tile.code
+      this.#baseLayer.value = layer
+      this.store.condition.queryMarkers().then(layer.forceUpdate)
+    }
 
-    GenshinMap.#unsubscribers.forEach(unsubscriber => unsubscriber())
-    GenshinMap.#unsubscribers = [
-      useMapSettingStore().$subscribe(layer.forceUpdate),
-      useMapStore().$subscribe(layer.forceUpdate),
-      useOverlayStore().$subscribe(layer.forceUpdate),
-      useArchiveStore().$subscribe(layer.forceUpdate),
-    ]
-
-    const { tile, initViewState } = currentTileConfig
-
-    const { center: [cx, cy] } = tile
-    const { target: [tx, ty] } = initViewState
-
-    this.setProps({ layers: [layer] })
-    this.#baseLayer.value = layer
-
+    const { target, zoom } = currentTileConfig.initViewState
     this.updateViewState({
-      target: [tx + cx, ty + cy] as API.Coordinate2D,
-      zoom: initViewState.zoom,
+      target: this.projectCoord(target),
+      zoom,
+      transitionDuration: 200,
+      transitionEasing: TRANSITION.EASE_OUT,
     })
   }
 }
