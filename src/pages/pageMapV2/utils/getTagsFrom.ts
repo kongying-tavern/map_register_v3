@@ -47,6 +47,7 @@ export const getTagsFrom = (target: GenshinBaseLayer): TextLayer<Item<Item<typeo
     getPosition: ({ 1: [x, y] }) => [x + center[0], y + center[1]],
     updateTriggers: {
       visible: setting.showTag,
+      getSize: target.context.deck.mainViewState.zoom,
       getColor: target.context.deck.mainViewState.zoom,
       outlineColor: target.context.deck.mainViewState.zoom,
     },
