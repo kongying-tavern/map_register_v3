@@ -3,7 +3,7 @@ import { DeleteFilled } from '@element-plus/icons-vue'
 import { CheckboxGroup, CheckboxImage, CheckboxItem, ConditionManager, ConditionRow, FilterTabs, ItemButton } from '.'
 import { GSButton, GSDivider } from '@/components'
 import { IconSetting } from '@/components/AppIcons'
-import { useArchiveStore, useIconTagStore, useMapStore } from '@/stores'
+import { useArchiveStore, useIconTagStore, useMapStore, useUserStore } from '@/stores'
 import { useCondition } from '@/pages/pageMapV2/hooks'
 import db from '@/database'
 import { isItemVo } from '@/utils'
@@ -19,6 +19,7 @@ const sort = (a: Sortable, b: Sortable) => {
 }
 
 const archiveStore = useArchiveStore()
+const userStore = useUserStore()
 
 /** 条件管理器 */
 const conditionManager = useCondition()
@@ -28,13 +29,19 @@ const conditionManagerVisible = ref(false)
 const iconTagStore = useIconTagStore()
 
 // ==================== 地区 ====================
-const parentAreaList = asyncComputed<API.AreaVo[]>(() => db.area.filter(area => !area.isFinal).toArray(), [])
+const parentAreaList = asyncComputed<API.AreaVo[]>(() => db.area
+  .filter(area => !area.isFinal && (userStore.isNeigui ? area.hiddenFlag !== 1 : area.hiddenFlag === 0))
+  .toArray(), [])
 
 const childrenAreaList = asyncComputed<API.AreaVo[]>(() => {
   if (!conditionManager.parentAreaCode)
     return []
   const parentArea = parentAreaList.value.find(area => area.code === conditionManager.parentAreaCode) as API.AreaVo
-  return db.area.where('parentId').equals(parentArea.id as number).toArray()
+  return db.area
+    .where('parentId')
+    .equals(parentArea.id as number)
+    .filter(area => userStore.isNeigui ? area.hiddenFlag !== 1 : area.hiddenFlag === 0)
+    .toArray()
 }, [])
 
 // ==================== 分类 ====================
