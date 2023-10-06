@@ -1,12 +1,13 @@
 <script lang="ts" setup>
-import { CoffeeCup, Filter, Grid, IceTea, List, Operation, PieChart, Setting } from '@element-plus/icons-vue'
+import { CoffeeCup, Filter, Grid, IceTea, List, Operation, PieChart, Promotion, Setting } from '@element-plus/icons-vue'
 import { ElImage } from 'element-plus'
 import type { FeatureOption } from '../FeatureGrid'
 import { useCondition } from '@/pages/pageMapV2/hooks'
 import { FeatureGrid, MarkerFilter, MarkerTable, SiderMenu, SiderMenuItem } from '@/pages/pageMapV2/components'
 import { AppSettings, GSSwitch } from '@/components'
 import { useGlobalDialog } from '@/hooks'
-import { useMapSettingStore, useUserStore } from '@/stores'
+import { Logger } from '@/utils'
+import { useDadianStore, useMapSettingStore, useUserStore } from '@/stores'
 import { IconGithub } from '@/components/AppIcons'
 import { FALLBACK_AVATAR_URL } from '@/shared/constant'
 import { ExitLeft } from '@/components/GenshinUI/GSIcon'
@@ -19,6 +20,8 @@ defineProps<{
 defineEmits<{
   (e: 'update:collapse', v: boolean): void
 }>()
+
+const logger = new Logger('[debug]')
 
 const { DialogService } = useGlobalDialog()
 const userStore = useUserStore()
@@ -57,7 +60,8 @@ const openSpiritImage = () => DialogService
 const features: FeatureOption[] = [
   { label: '赞助我们', icon: CoffeeCup, cb: () => window.open('https://opencollective.com/genshinmap') },
   { label: 'GitHub', icon: IconGithub, cb: () => window.open('https://github.com/kongying-tavern/map_register_v3') },
-  { label: '精灵图', icon: IceTea, cb: openSpiritImage },
+  { label: '检查精灵图', icon: IceTea, cb: openSpiritImage },
+  { label: '检查订阅配置', icon: Promotion, cb: () => logger.info(JSON.parse(JSON.stringify(useDadianStore()._raw))) },
 ]
 
 const mapSettingStore = useMapSettingStore()
