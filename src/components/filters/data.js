@@ -661,7 +661,7 @@ export const filterTypes = [
         const itemId = Number(v.itemId) || 0;
         const itemMapId = `${areaId}-${typeId}`;
         const itemMatch = _.chain(selectorItemMap.value[itemMapId])
-          .filter((v) => v.itemId.toString() === itemId.toString())
+          .filter((v) => v.id.toString() === itemId.toString())
           .first()
           .value();
         const itemName = itemMatch?.name || "";
