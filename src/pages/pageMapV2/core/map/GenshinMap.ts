@@ -1,27 +1,17 @@
-import type { DeckProps, OrbitViewState } from '@deck.gl/core/typed'
+import type { DeckProps } from '@deck.gl/core/typed'
 import { Deck, OrthographicView, TRANSITION_EVENTS } from '@deck.gl/core/typed'
 import type { ViewStateChangeParameters } from '@deck.gl/core/typed/controllers/controller'
-import { clamp, pick } from 'lodash'
+import { pick } from 'lodash'
 import { MAP_FONTFAMILY, TRANSITION } from '../../shared'
 import { useCondition } from '../../hooks'
 import { EventBus, GenshinBaseLayer } from '..'
-import { getCursor, getTooltip } from '.'
+import type { GensinMapViewState } from '.'
+import { getCursor, getTooltip, handleViewStateChange } from '.'
 import genshinFont from '@/style/fonts/genshinFont.woff2?url'
 import { useArchiveStore, useMapSettingStore, useMapStore, useOverlayStore, useTileStore, useUserStore } from '@/stores'
 
 export interface GenshinMapOptions extends DeckProps {
   canvas: HTMLCanvasElement
-}
-
-export interface GensinMapViewState extends Omit<OrbitViewState, 'target'> {
-  minZoom: number
-  maxZoom: number
-  target: API.Coordinate2D
-}
-
-export interface GenshinViewStateChangeParameters extends ViewStateChangeParameters {
-  viewState: GensinMapViewState
-  oldViewState: Partial<GensinMapViewState>
 }
 
 type ExtractParamters<T extends keyof DeckProps> = Parameters<NonNullable<DeckProps[T]>>
@@ -53,12 +43,10 @@ export class GenshinMap extends Deck {
     const mhyGameFont = new FontFace(MAP_FONTFAMILY, `url(${genshinFont})`)
     await mhyGameFont.load()
     fonts.add(mhyGameFont)
-    const instance = new this(options)
-    this.instance.value = instance
-    return instance
+    return new this(options)
   }
 
-  static instance = shallowRef<GenshinMap | null>(null)
+  static instance: GenshinMap
 
   static getDefaultViewState = (): GensinMapViewState => ({
     maxRotationX: 90,
@@ -75,6 +63,9 @@ export class GenshinMap extends Deck {
   })
 
   constructor(options: GenshinMapOptions) {
+    if (GenshinMap.instance)
+      throw new Error('该类只允许单例运行')
+
     const { canvas, ...rest } = options
 
     super({
@@ -96,7 +87,7 @@ export class GenshinMap extends Deck {
       getCursor: state => getCursor(this, state),
       getTooltip: info => getTooltip(this, info),
       onViewStateChange: (viewStateChangeParams) => {
-        const newParams = this.#handleViewStateChange(viewStateChangeParams)
+        const newParams = handleViewStateChange(this, viewStateChangeParams)
         this.event.emit('viewStateChange', newParams)
         return newParams.viewState
       },
@@ -116,6 +107,8 @@ export class GenshinMap extends Deck {
       onResize: (...args) => this.event.emit('resize', ...args),
       onWebGLInitialized: (...args) => this.event.emit('WebGLInitialized', ...args),
     })
+
+    GenshinMap.instance = this
   }
 
   // ==================== 复用存储 ====================
@@ -132,39 +125,6 @@ export class GenshinMap extends Deck {
   // ==================== 地图状态 ====================
   #eventBus = new EventBus<GenshinMapEvents>()
   get event() { return this.#eventBus }
-
-  // TODO 过程抽离
-  #handleViewStateChange = ({ viewState, oldViewState = {}, interactionState, ...rest }: ViewStateChangeParameters) => {
-    const newState = viewState as GensinMapViewState
-    const oldState = oldViewState as Partial<GensinMapViewState>
-
-    if (this.store.map.lockViewState)
-      return { viewState: oldState, oldViewState: oldState, interactionState, ...rest }
-
-    const getTargetInsideBounds = (): API.Coordinate2D => {
-      if (!this.baseLayer)
-        return newState.target
-      const [xmin, ymax, xmax, ymin] = this.baseLayer.rawProps.bounds
-      return [clamp(newState.target[0], xmin, xmax), clamp(newState.target[1], ymin, ymax)]
-    }
-
-    const { isZooming, isDragging } = interactionState
-    const { target, transitionDuration, transitionEasing } = newState
-
-    const rewriteState: GensinMapViewState = {
-      ...newState,
-      // 非拖拽情况下（编程式导航）取消边界限制避免视口转换时卡住的问题
-      target: isDragging ? getTargetInsideBounds() : target,
-      // 这里给 32 而不是 0 会看起来更加流畅，32ms 过渡时间大约能在 60 帧刷新率下提供 2 帧间隔
-      transitionDuration: isZooming ? 32 : transitionDuration,
-      transitionEasing: isZooming ? TRANSITION.LINEAR : transitionEasing,
-    }
-
-    this.mainViewState = rewriteState
-    interactionState.isZooming && this.baseLayer?.forceUpdate()
-
-    return { viewState: rewriteState, oldViewState: oldState, interactionState, ...rest }
-  }
 
   #readResolve?: (map: GenshinMap) => void = undefined
   readonly ready = new Promise<GenshinMap>((resolve) => {
