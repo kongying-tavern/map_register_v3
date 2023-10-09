@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { defineModel } from 'vue'
 import { CoffeeCup, Filter, Grid, IceTea, List, Operation, PieChart, Promotion, Setting } from '@element-plus/icons-vue'
 import { ElImage } from 'element-plus'
 import type { FeatureOption } from '../FeatureGrid'
@@ -13,13 +14,7 @@ import { FALLBACK_AVATAR_URL } from '@/shared/constant'
 import { ExitLeft } from '@/components/GenshinUI/GSIcon'
 import { vAdmin } from '@/directives'
 
-defineProps<{
-  collapse: boolean
-}>()
-
-defineEmits<{
-  (e: 'update:collapse', v: boolean): void
-}>()
+const collapse = defineModel<boolean>('collapse', { required: true })
 
 const logger = new Logger('[debug]')
 
@@ -35,7 +30,6 @@ const openUserInfoDialog = () => {
 
 const openSettingDialog = () => DialogService
   .config({
-    title: '系统设置',
     alignCenter: true,
     width: 'fit-content',
   })
@@ -68,7 +62,7 @@ const mapSettingStore = useMapSettingStore()
 </script>
 
 <template>
-  <SiderMenu v-model="tabName" :collapse="collapse" @update:collapse="v => $emit('update:collapse', v)">
+  <SiderMenu v-model="tabName" v-model:collapse="collapse">
     <SiderMenuItem label="个人中心" @click="openUserInfoDialog">
       <template #icon>
         <el-avatar
@@ -104,8 +98,6 @@ const mapSettingStore = useMapSettingStore()
         <GSSwitch v-model="mapSettingStore.showTag" label="显示地图标签" />
         <GSSwitch v-model="mapSettingStore.showOverlay" label="显示附加图层" />
         <GSSwitch v-model="mapSettingStore.showOverlayMask" label="显示附加图层蒙层" />
-        <GSSwitch v-model="mapSettingStore.showOverlayController" label="显示附加图层控制器" />
-        <GSSwitch v-model="mapSettingStore.showOverlayControllerBounds" label="显示附加图层控制器区域" />
         <GSSwitch v-model="mapSettingStore.hideMarkedMarker" label="隐藏标记点位" />
         <GSSwitch v-model="mapSettingStore.showBorder" label="显示图层边界" />
         <GSSwitch v-model="mapSettingStore.showTooltip" label="显示调试信息" />

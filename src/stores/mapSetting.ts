@@ -12,10 +12,6 @@ export const useMapSettingStore = defineStore('map-setting', {
     showOverlay: false,
     /** 显示附加图层蒙层 */
     showOverlayMask: true,
-    /** 显示附加图层控制器 */
-    showOverlayController: true,
-    /** 显示附加图层控制器影响区域 */
-    showOverlayControllerBounds: true,
     /** 显示地图标签 */
     showTag: true,
     /** 显示调试信息 */
