@@ -34,11 +34,10 @@ const activeTab = (ev: MouseEvent) => {
         </slot>
       </div>
     </slot>
+    <Teleport v-if="contentRef && tabNameRef === name" :to="contentRef">
+      <slot name="default" />
+    </Teleport>
   </div>
-
-  <Teleport v-if="contentRef && tabNameRef === name" :to="contentRef">
-    <slot name="default" />
-  </Teleport>
 </template>
 
 <style lang="scss" scoped>
