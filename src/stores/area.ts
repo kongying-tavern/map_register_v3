@@ -24,7 +24,11 @@ export const useAreaStore = defineStore('global-area', {
     areaMap: state => (Object.fromEntries(state._areaList.map(area => [
       area.id as number,
       area,
-    ])) as Record<string, API.AreaVo>),
+    ]))) as Record<string, API.AreaVo>,
+    areaCodeMap: state => Object.fromEntries(state._areaList.map(area => [
+      area.code!,
+      area,
+    ])) as Record<string, API.AreaVo>,
     /** 全量更新处理状态 */
     updateAllLoading: () => loading.value,
     /** 全量更新剩余时间 */

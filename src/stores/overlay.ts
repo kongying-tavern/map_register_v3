@@ -15,13 +15,6 @@ export interface OverlayGroup {
   role: API.OverlayRole
 }
 
-export interface OverlayControlGroup {
-  id: string
-  name: string
-  bounds: API.OverlayBounds
-  items: { id: string; name: string }[]
-}
-
 export interface OverlayUnit {
   id: string
   label?: string
@@ -43,6 +36,7 @@ export interface OverlayChunk {
     mask: boolean
     role: API.OverlayRole
     multiple: boolean
+    areaCode: string
   }
   /** chunk 所属的单元 */
   item: {
@@ -55,6 +49,12 @@ export interface OverlayChunk {
   url: string
   /** overlay 区域 */
   bounds: API.OverlayBounds
+}
+
+type OverlayChunkGroup = OverlayChunk['group']
+export interface OverlayControlGroup extends OverlayChunkGroup {
+  bounds: API.OverlayBounds
+  items: { id: string; name: string }[]
 }
 
 export interface MergedOverlayGroups {
@@ -146,6 +146,7 @@ export const useOverlayStore = defineStore('map-overlays', () => {
           mask,
           role,
           multiple,
+          areaCode,
         }
 
         for (const {
@@ -249,8 +250,7 @@ export const useOverlayStore = defineStore('map-overlays', () => {
     existOverlays.value.forEach((chunk) => {
       if (!groups[chunk.group.id]) {
         groups[chunk.group.id] = {
-          id: chunk.group.id,
-          name: chunk.group.name,
+          ...chunk.group,
           bounds: chunk.bounds,
           items: [],
         }
@@ -272,10 +272,10 @@ export const useOverlayStore = defineStore('map-overlays', () => {
 
   const showMask = computed((): boolean => {
     for (const chunk of existOverlays.value) {
-      if (!chunk.group.mask)
-        return false
+      if (chunk.group.mask)
+        return true
     }
-    return true
+    return false
   })
 
   const moveToTop = (itemId: string, groupId: string) => {
@@ -285,7 +285,9 @@ export const useOverlayStore = defineStore('map-overlays', () => {
     stateId.value = Date.now()
   }
 
-  const initTopOverlays = () => {
+  const initTopOverlays = (isReset = false) => {
+    if (isReset)
+      topOverlayInGroup.value = {}
     if (Object.keys(topOverlayInGroup.value).length > 0)
       return
     const defaultTopOverlayInGroup = normalizedOverlayChunks.value.reduce((seed, chunk) => {

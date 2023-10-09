@@ -11,14 +11,16 @@ import {
   ZoomController,
 } from './components'
 import { GSSwitch } from '@/components'
-import { useMapSettingStore } from '@/stores'
+import { useMapSettingStore, useUserStore } from '@/stores'
 
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 const mutuallyExclusiveLayerRef = ref<HTMLElement | null>(null)
 const mapAffixLayerRef = ref<HTMLElement | null>(null)
 
-useMap(canvasRef)
+const userStore = useUserStore()
 const mapSettingStore = useMapSettingStore()
+
+useMap(canvasRef)
 
 useMarkerFocus(canvasRef)
 
@@ -42,8 +44,8 @@ provide(mapAffixLayerKey, mapAffixLayerRef)
 </script>
 
 <template>
-  <div class="w-full h-full relative">
-    <div class="map-mask absolute left-0 top-0 w-full h-full pointer-events-none" />
+  <div class="genshin-map-container w-full h-full relative">
+    <div class="background-mask absolute left-0 top-0 w-full h-full pointer-events-none z-[1]" />
 
     <canvas ref="canvasRef" class="map-renderer w-full h-full bg-black" />
 
@@ -63,7 +65,6 @@ provide(mapAffixLayerKey, mapAffixLayerRef)
       </div>
 
       <div ref="mapAffixLayerRef" class="map-affix-provider">
-        <MapOverlayController />
         <MarkerPopover />
       </div>
 
@@ -80,6 +81,14 @@ provide(mapAffixLayerKey, mapAffixLayerRef)
     </div>
 
     <ZoomController class="absolute right-0 top-1/2" />
+
+    <div class="right-bottom-panel genshin-text absolute right-0 bottom-0 -translate-x-6 -translate-y-2 pointer-events-none flex flex-col items-end gap-2 z-[1]">
+      <MapOverlayController />
+      <div class="text-white leading-none">
+        UID: {{ userStore.info.id }}
+      </div>
+    </div>
+
     <MapContextMenu />
 
     <div
@@ -92,8 +101,7 @@ provide(mapAffixLayerKey, mapAffixLayerRef)
 </template>
 
 <style lang="scss" scoped>
-.map-mask {
+.background-mask {
   background: radial-gradient(transparent 50%, #00000060);
-  z-index: 1;
 }
 </style>
