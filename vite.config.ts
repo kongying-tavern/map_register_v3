@@ -57,7 +57,11 @@ export default defineConfig(({ mode }) => {
     },
 
     plugins: [
-      Vue(),
+      Vue({
+        script: {
+          defineModel: true,
+        },
+      }),
       VueJsx(),
       AutoImport({
         imports: ['vue', '@vueuse/core', 'vue-router'],
