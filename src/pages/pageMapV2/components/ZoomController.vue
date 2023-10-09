@@ -47,7 +47,7 @@ useSubscription(pointerdown.pipe(
 </script>
 
 <template>
-  <div v-if="mapInstance" class="genshin-zoom-controller -translate-y-1/2 px-6 select-none" v-bind="$attrs">
+  <div v-if="mapInstance" class="genshin-zoom-controller -translate-y-1/2 -translate-x-6 select-none" v-bind="$attrs">
     <div class="zoom-button cursor-pointer" @click="percentage = Math.min(1, percentage + 0.25)">
       <el-icon :size="12" color="#FFF7EB" class="rotate-45">
         <CloseBold />
