@@ -1,19 +1,22 @@
 {
   "editor.bracketPairColorization.enabled": true,
   "editor.guides.bracketPairs": true,
-  // formater 由 eslint 代理
-  "editor.formatOnSave": false,
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "dbaeumer.vscode-eslint",
   "editor.codeActionsOnSave": ["source.fixAll.eslint"],
+  "eslint.format.enable": true,
   "eslint.validate": ["javascript", "javascriptreact", "typescript", "vue"],
-  // 默认使用 CRLF 作为换行符
   "files.eol": "\r\n",
-  // .env 开头的文件均识别为环境变量文件以提供语法高亮
   "files.associations": {
     ".env*": "dotenv"
   },
-  "typescript.tsdk": "node_modules/typescript/lib",
+  "[javascript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
   "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[vue]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
   }
 }

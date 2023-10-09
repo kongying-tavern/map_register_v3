@@ -1,29 +1,15 @@
 {
   "recommendations": [
-    // 自动关闭标签
-    "formulahendry.auto-close-tag",
-    // 自动重命名标签
-    "formulahendry.auto-rename-tag",
-    // Vue3 拓展
-    "Vue.volar",
-    // 查看别人留下的坑
-    "Gruntfuggly.todo-tree",
-    // tailwindcss 框架的智能提示
+    "vue.volar",
+    "gruntfuggly.todo-tree",
     "bradlc.vscode-tailwindcss",
-    // 一目了然的 icon
-    "PKief.material-icon-theme",
-    // 查看多余的空格
+    "pkief.material-icon-theme",
     "shardulm94.trailing-spaces",
-    // 现代 css 语法高亮
     "csstools.postcss",
-    // npm 包智能提示
     "christian-kohler.npm-intellisense",
-    // npm 包跳转，当你不知道依赖有什么用时，去 npm 库看看
     "herrmannplatz.npm-dependency-links",
-    // git 历史图示
     "mhutchie.git-graph",
-    // 在文件中查看 git 修改历史
-    "eamodio.gitlens",
+    "eamodio.gitlens"
   ],
   "unwantedRecommendations": [
     // 与 volar 冲突
@@ -31,6 +17,6 @@
     // 与 volar 冲突
     "Wscats.vue",
     // 这是 vue2 的
-    "octref.vetur",
+    "octref.vetur"
   ]
 }
