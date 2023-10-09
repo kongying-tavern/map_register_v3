@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { defaultsDeep, pick } from 'lodash'
+import type { CascaderOption } from 'element-plus'
 import type { MarkerExtra } from '@/utils'
 
 const props = defineProps<{
@@ -62,7 +63,7 @@ const island28Options = computed(() => {
   return props.extraConfig['2_8_island']?.stages.filter(option => Boolean(option.value)).map((option) => {
     const disabled = option.children && (island_name && option.value !== island_name)
     return { ...option, disabled }
-  })
+  }) as CascaderOption[]
 })
 
 // ==================== 数据下行 ====================
@@ -98,7 +99,7 @@ watch(() => props.extraConfig, () => {
         inline-prompt
       />
       <el-cascader
-        v-if="extraConfig.underground.useDetail"
+        v-if="extraConfig.underground.useDetail && extraForm.underground.is_underground"
         v-model="extraForm.underground.region_levels"
         :options="extraConfig.underground.levels"
         :show-all-levels="false"
