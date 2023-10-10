@@ -35,23 +35,23 @@
     "vue-router": "^4.2.0"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^0.38.5",
-    "@deck.gl/extensions": "^8.9.15",
-    "@deck.gl/mesh-layers": "^8.9.15",
+    "@antfu/eslint-config": "^0.38.6",
+    "@deck.gl/extensions": "^8.9.30",
+    "@deck.gl/mesh-layers": "^8.9.30",
     "@types/lodash": "^4.14.192",
     "@types/node": "^18.15.11",
     "@types/serviceworker": "^0.0.67",
-    "@vitejs/plugin-vue": "^4.2.3",
-    "@vitejs/plugin-vue-jsx": "^3.0.1",
+    "@vitejs/plugin-vue": "^4.4.0",
+    "@vitejs/plugin-vue-jsx": "^3.0.2",
     "autoprefixer": "^10.4.14",
-    "eslint": "^8.37.0",
+    "eslint": "^8.51.0",
     "openapi2ts": "^1.1.7",
     "postcss": "^8.4.21",
-    "prettier": "^2.8.7",
+    "prettier": "^3.0.3",
     "sass": "^1.60.0",
-    "typescript": "^5.0.3",
+    "typescript": "^5.2.2",
     "unplugin-auto-import": "^0.16.2",
-    "vite": "^4.3.7"
+    "vite": "^4.4.11"
   },
   "engines": {
     "node": "^18",
