@@ -43,6 +43,7 @@ const routes: RouteRecordRaw[] = [
           title: '图标管理',
           icon: 'Picture',
           roles: [RoleTypeEnum.ADMIN, RoleTypeEnum.MAP_MANAGER],
+          noPadding: true,
         },
         component: () => import('@/pages/pageIconManager/IconManager.vue'),
       },

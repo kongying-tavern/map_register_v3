@@ -12,5 +12,7 @@ declare module 'vue-router' {
     roles?: string[]
     /** 是否需要预加载 */
     preload?: boolean
+    /** 是否不需要 padding */
+    noPadding?: boolean
   }
 }
