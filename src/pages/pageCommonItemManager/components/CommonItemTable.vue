@@ -3,6 +3,7 @@ import { useAreaList, useTypeList, useUserPopover } from '@/hooks'
 import { useIconTagStore } from '@/stores'
 import { refreshTimeFormatter, timeFormatter } from '@/utils'
 import { HIDDEN_FLAG_NAM_MAP } from '@/shared'
+import { AppUserPopover } from '@/components'
 
 const props = defineProps<{
   loading: boolean
