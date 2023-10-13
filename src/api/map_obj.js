@@ -14,6 +14,15 @@ export const mapBounds = ref([
   [0, 0],
 ]);
 
+export const resetMap = () => {
+  mapOptions.value = {};
+  mapBounds.value = [
+    [0, 0],
+    [0, 0],
+  ];
+  mapOptions.value = {};
+};
+
 export const createMap = (areaCode = "提瓦特-base0") => {
   const mapConfig = create_map_tiles(areaCode);
   const { tiles } = mapConfig;
