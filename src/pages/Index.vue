@@ -69,7 +69,13 @@
   </q-layout>
 
   <map-overlay :area="area"></map-overlay>
-  <logout></logout>
+  <div
+    class="absolute-bottom-right q-gutter-sm"
+    style="z-index: 9000; display: flex; flex-direction: column"
+  >
+    <refresh-config></refresh-config>
+    <logout></logout>
+  </div>
 </template>
 
 <script>
@@ -83,7 +89,8 @@ import {
 } from "../api/config";
 import LayerRegister from "../components/register.vue";
 import MapOverlay from "../components/plugins/map-overlay.vue";
-import Logout from "../components/Logout.vue";
+import RefreshConfig from "../components/widgets/RefreshConfig.vue";
+import Logout from "../components/widgets/Logout.vue";
 import { refresh_token } from "../service/user_log_request";
 import { fetch_config } from "../service/config_request";
 import { is_expired, set_user_data } from "../service/user_info";
@@ -140,6 +147,7 @@ export default {
   components: {
     LayerRegister,
     MapOverlay,
+    RefreshConfig,
     Logout,
   },
   mounted() {
