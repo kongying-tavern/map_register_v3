@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import { Close } from '@element-plus/icons-vue'
 import { RecycleScroller } from 'vue-virtual-scroller'
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
+import { useIconTagStore } from '@/stores'
 
 defineProps<{
   tagTypeId: number
   tagList: API.TagVo[]
   loading: boolean
 }>()
+
+const iconTagStore = useIconTagStore()
 
 const activedTag = defineModel<API.TagVo | null>('activedTag', {
   required: true,
@@ -24,6 +26,9 @@ const gridItems = computed(() => Math.floor((width.value - 32) / 100))
     v-loading="loading"
     class="border-r-[1px] border-[var(--el-border-color-light)] h-full overflow-hidden"
     element-loading-text="正在处理..."
+    :style="{
+      '--sprite-image': `url(${iconTagStore.tagSpriteImage})`,
+    }"
   >
     <RecycleScroller
       :items="tagList"
@@ -33,7 +38,7 @@ const gridItems = computed(() => Math.floor((width.value - 32) / 100))
       key-field="tag"
       class="h-full"
     >
-      <template #default="{ item, index }">
+      <template #default="{ item }">
         <div
           class="grid-item"
           :class="{
@@ -41,22 +46,13 @@ const gridItems = computed(() => Math.floor((width.value - 32) / 100))
           }"
           @click="activedTag = item"
         >
-          <div class="flex-1 grid place-items-center">
-            <el-image
-              :src="item.url"
-              crossorigin=""
-              lazy
-              class="w-8 h-8"
-              fit="contain"
-              :initial-index="index"
-            >
-              <template #error>
-                <el-icon :size="32" color="var(--el-color-danger)">
-                  <Close />
-                </el-icon>
-              </template>
-            </el-image>
-          </div>
+          <div
+            class="gri-item-image w-16 h-16"
+            :style="{
+              '--x': `${-iconTagStore.iconMapping[item.tag]?.[0]}px`,
+              '--y': `${-iconTagStore.iconMapping[item.tag]?.[1]}px`,
+            }"
+          />
           <div class="w-full overflow-hidden whitespace-nowrap text-ellipsis text-center">
             {{ item.tag }}
           </div>
@@ -91,5 +87,10 @@ const gridItems = computed(() => Math.floor((width.value - 32) / 100))
   &:not(.is-actived):hover {
     --bg-color: var(--el-color-primary-light-5);
   }
+}
+
+.gri-item-image {
+  background: var(--sprite-image);
+  background-position: var(--x) var(--y);
 }
 </style>

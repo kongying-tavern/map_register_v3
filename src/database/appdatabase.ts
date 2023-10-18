@@ -28,7 +28,8 @@ export interface FilterState {
 
 export interface ImageCache {
   id: string
-  image: number[]
+  mapping: Record<string, [number, number]>
+  image: ArrayBuffer
 }
 
 export class AppDatabase extends Dexie {

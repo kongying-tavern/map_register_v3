@@ -5,6 +5,9 @@ import { IconExplorer } from './components'
 import db from '@/database'
 import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
+import { useIconTagStore } from '@/stores'
+
+const iconTagStore = useIconTagStore()
 
 const activedTag = shallowRef<API.TagVo | null>(null)
 const currentTypeId = ref(-1)
@@ -41,8 +44,16 @@ const loadTagType = async (node: Node, resolve: (data: API.TagTypeVo[]) => void)
 
 <template>
   <div class="icon-manager h-full overflow-hidden text-xs">
-    <div class="col-span-3">
-      header
+    <div class="col-span-3 flex justify-end items-center p-2">
+      <el-image
+        :src="iconTagStore.tagSpriteImage"
+        :preview-src-list="[iconTagStore.tagSpriteImage]"
+        fit="contain"
+        style="width: 32px; height: 32px;"
+      />
+      <el-button text>
+        新建
+      </el-button>
     </div>
 
     <div class="h-full border-r-[1px] el-border-color overflow-auto">

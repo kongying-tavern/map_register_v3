@@ -8,27 +8,28 @@ import Api from '@/api/api'
 import db, { AppDatabaseApi } from '@/database'
 import { localSettings } from '@/stores'
 import { secondClock } from '@/shared'
+import TagSpriteRendererWorker from '@/worker/tagSpriteRenderer.worker?worker'
+import type { WorkerInput, WorkerOutput, WorkerSuccessOutput } from '@/worker/tagSpriteRenderer.worker'
 
 /** 本地图标标签数据 */
 export const useIconTagStore = defineStore('global-icon-tag', () => {
-  const _iconList = shallowRef<API.TagVo[]>([])
+  const _tagList = shallowRef<API.TagVo[]>([])
   const _total = ref(0)
   const _loading = ref(false)
   const _updateTimer = ref<number>()
   const _updateEnd = ref<number>()
+  const _tagSpriteImage = ref('')
+  const _iconMapping = shallowRef<Record<string, [number, number]>>({})
 
   const total = computed(() => _total.value)
-
-  const iconTagMap = computed(() => Object.fromEntries(_iconList.value.map(iconTag => [
+  const iconTagMap = computed(() => Object.fromEntries(_tagList.value.map(iconTag => [
     iconTag.tag as string,
     iconTag as API.TagVo,
   ])) as Record<string, API.TagVo>)
-
-  /** 全量更新处理状态 */
   const updateAllLoading = computed(() => _loading.value)
-
-  /** 全量更新剩余时间 */
   const updateAllRestTime = computed(() => _updateEnd.value === undefined ? 0 : _updateEnd.value - secondClock.value)
+  const tagSpriteImage = computed(() => _tagSpriteImage.value)
+  const iconMapping = computed(() => _iconMapping.value)
 
   /** 获取图标标签数据最新的 MD5 */
   const getIconTagMD5 = async () => {
@@ -127,9 +128,42 @@ export const useIconTagStore = defineStore('global-icon-tag', () => {
     }, interval)
   }
 
+  const renderSpriteImage = (payload: WorkerInput) => new Promise<WorkerSuccessOutput>((resolve, reject) => {
+    const worker = new TagSpriteRendererWorker()
+    worker.onmessage = (ev: MessageEvent<WorkerOutput>) => {
+      worker.terminate()
+      if (typeof ev.data === 'string')
+        return reject(new Error(ev.data))
+      resolve(ev.data)
+    }
+    worker.postMessage(payload)
+  })
+
+  const createSpriteImage = async (list: API.TagVo[]) => {
+    URL.revokeObjectURL(_tagSpriteImage.value)
+    const md5 = await db.md5.get('iconTag-0')
+    const cachedImage = md5 ? await db.imageCache.get(md5.value) : undefined
+    if (cachedImage) {
+      const { image, mapping } = cachedImage
+      _tagSpriteImage.value = URL.createObjectURL(new Blob([image], { type: 'image/png' }))
+      _iconMapping.value = mapping
+      return
+    }
+    const res = await renderSpriteImage({
+      tagList: list.map(tag => ({ tag: tag.tag!, url: tag.url! })),
+    })
+    _tagSpriteImage.value = URL.createObjectURL(new Blob([res.image], { type: 'image/png' }))
+    _iconMapping.value = res.mapping
+    await db.imageCache.put({
+      ...res,
+      id: md5?.value ?? 'temp',
+    })
+  }
+
   liveQuery(() => db.iconTag.toArray()).subscribe((iconTagList) => {
     _total.value = iconTagList.length
-    _iconList.value = iconTagList
+    _tagList.value = iconTagList
+    createSpriteImage(iconTagList)
   })
 
   return {
@@ -138,6 +172,8 @@ export const useIconTagStore = defineStore('global-icon-tag', () => {
     iconTagMap,
     updateAllLoading,
     updateAllRestTime,
+    tagSpriteImage,
+    iconMapping,
 
     // actions
     getIconTagMD5,
