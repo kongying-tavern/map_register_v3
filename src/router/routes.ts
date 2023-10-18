@@ -48,15 +48,6 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/pages/pageIconManager/IconManager.vue'),
       },
       {
-        path: '/icon-tag',
-        meta: {
-          title: '图标标签管理',
-          icon: 'Connection',
-          roles: [RoleTypeEnum.ADMIN, RoleTypeEnum.MAP_MANAGER],
-        },
-        component: () => import('@/pages/pageIconTagManager/IconTagManager.vue'),
-      },
-      {
         path: '/users',
         meta: {
           title: '用户管理',
