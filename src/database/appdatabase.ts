@@ -26,6 +26,11 @@ export interface FilterState {
   conditions: Record<string, Condition>
 }
 
+export interface ImageCache {
+  id: string
+  image: number[]
+}
+
 export class AppDatabase extends Dexie {
   /** 地区表 @全量接口 */
   declare area: Dexie.Table<API.AreaVo, number>
@@ -41,13 +46,15 @@ export class AppDatabase extends Dexie {
   declare md5: Dexie.Table<MD5Vo, string>
   /** 用户表 @本地 */
   declare user: Dexie.Table<UserPreference, number>
+  /** 图片缓存 @本地 */
+  declare imageCache: Dexie.Table<ImageCache, string>
 
   constructor() {
     super('AppDatabase')
 
     this
       .use(markerFormater)
-      .version(2.1)
+      .version(2.2)
       .stores({
         area: '&id, parentId, name, code, hiddenFlag',
         iconTag: '&tag, *typeIdList',
@@ -56,10 +63,11 @@ export class AppDatabase extends Dexie {
         marker: '&id, *itemIdList, markerTitle, refreshTime, hiddenFlag',
         md5: '&id',
         user: '&id',
+        imageCache: '&id',
       })
   }
 
-  #requireInitTables = ['area', 'iconTag', 'item', 'itemType', 'marker', 'md5']
+  #requireInitTables = []
 
   /**
    * 初始化业务数据状态
