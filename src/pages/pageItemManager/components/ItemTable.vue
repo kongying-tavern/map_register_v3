@@ -85,7 +85,7 @@ const proxySelectionChange = (selections: API.ItemVo[]) => {
       <el-table-column label="物品类型" width="150">
         <template #default="{ row }">
           <el-tag v-for="typeId in row.typeIdList" :key="typeId" disable-transitions type="success" class="mr-1">
-            {{ typeMap[typeId].name }}
+            {{ typeMap[typeId]?.name }}
           </el-tag>
         </template>
       </el-table-column>
