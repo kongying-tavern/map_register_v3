@@ -132,6 +132,31 @@ declare namespace API {
     refreshTime?: number;
   };
 
+  type NoticeVo = {
+    /** 乐观锁 */
+    version?: number;
+    /** ID */
+    id?: number;
+    /** 创建人 */
+    creatorId?: number;
+    /** 创建时间 */
+    createTime?: string;
+    /** 更新人 */
+    updaterId?: number;
+    /** 更新时间 */
+    updateTime?: string;
+    /** 频道 */
+    channel?: string;
+    /** 标题 */
+    title?: string;
+    /** 内容 */
+    content?: string;
+    /** 有效期开始时间 */
+    validTimeStart?: string;
+    /** 有效期结束时间 */
+    validTimeEnd?: string;
+  };
+
   type MarkerItemLinkVo = {
     /** 物品ID */
     itemId?: number;
@@ -593,6 +618,35 @@ declare namespace API {
     errorData?: Record<string, any>;
     message?: string;
     data?: MarkerPunctuateVo[];
+    users?: Record<string, any>;
+    time?: string;
+  };
+
+  type NoticeSearchVo = {
+    /** 频道 */
+    channels?: string[];
+    /** 标题 */
+    title?: string;
+    /** 获取有效数据 */
+    getValid?: boolean;
+    /** 当前页，从0开始 */
+    current?: number;
+    /** 每页大小，默认为10 */
+    size?: number;
+  };
+
+  type PageListVoNoticeVo = {
+    record?: NoticeVo[];
+    total?: number;
+    size?: number;
+  };
+
+  type RPageListVoNoticeVo = {
+    error?: boolean;
+    errorStatus?: number;
+    errorData?: Record<string, any>;
+    message?: string;
+    data?: PageListVoNoticeVo;
     users?: Record<string, any>;
     time?: string;
   };

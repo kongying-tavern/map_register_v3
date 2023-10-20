@@ -5,6 +5,7 @@ import * as tagType from './tagType';
 import * as tag from './tag';
 import * as route from './route';
 import * as punctuate from './punctuate';
+import * as notice from './notice';
 import * as marker from './marker';
 import * as itemType from './itemType';
 import * as itemCommon from './itemCommon';
@@ -28,6 +29,7 @@ export default {
   tag,
   route,
   punctuate,
+  notice,
   marker,
   itemType,
   itemCommon,
