@@ -3,6 +3,7 @@ import { isInPermissionList, isInWhiteList } from '../utils'
 import { useUserStore } from '@/stores'
 import * as stores from '@/stores'
 import { Logger } from '@/utils'
+import { RouterHook } from '@/stores/utils'
 
 const logger = new Logger('[beforeEachGuard]')
 
@@ -54,6 +55,7 @@ export const beforeEachGuard = (router: Router): NavigationGuardWithThis<void> =
     ;(!userStore.info.id || userStore.info.id !== userStore.auth.userId) && await userStore.updateUserInfo()
     // 确保在进入路由时用户设置已更新
     !userStore.preference.id && await userStore.updateUserPreference()
+    await RouterHook.applyCallbacks('onBeforeRouterEnter')
     next(true)
 
     userStore.createRefreshTimer()
