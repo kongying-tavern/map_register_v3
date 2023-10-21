@@ -4,18 +4,33 @@ const debug = import.meta.env.DEV
 
 /** 开发模式下在命令行打印信息 */
 export class Logger {
-  constructor(private prefix = '') {}
+  #prefix
 
-  static group = (...label: string[]) => {
+  constructor(prefix = '') {
+    this.#prefix = prefix
+  }
+
+  static #groups: string[] = []
+
+  static group = (label: string) => {
     if (!debug)
       return
-    console.groupCollapsed(...label)
+    this.#groups.push(label)
+    console.groupCollapsed(label)
   }
 
   static groupEnd = () => {
     if (!debug)
       return
     console.groupEnd()
+    this.#groups.pop()
+  }
+
+  static allGroupsEnd = () => {
+    this.#groups.forEach(() => {
+      console.groupEnd()
+    })
+    this.#groups = []
   }
 
   #stdoutCache = ''
@@ -26,21 +41,33 @@ export class Logger {
     },
     getCache: () => this.#stdoutCache,
     print: () => {
-      console.group(this.prefix)
+      console.group(this.#prefix)
       console.log(this.#stdoutCache)
       console.groupEnd()
     },
   }
 
+  #now = () => new Date().toLocaleString('zh-CN', { hour12: false })
+
   info = (...args: any[]) => {
     if (!debug)
       return
-    console.log(this.prefix, ...args)
+    console.log(
+      `%c[${this.#now()}] %c${this.#prefix} >`,
+      'color: green',
+      'color: aqua',
+      ...args,
+    )
   }
 
   error = (...args: any[]) => {
     if (!debug)
       return
-    console.error(this.prefix, ...args)
+    console.error(
+      `%c[${this.#now()}] %c${this.#prefix} >`,
+      'color: green',
+      'color: aqua',
+      ...args,
+    )
   }
 }
