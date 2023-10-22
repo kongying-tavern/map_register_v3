@@ -1,7 +1,14 @@
-import { content, visible } from './bannerContext'
+import { visible as bannerVisible, content } from './bannerContext'
 
 /** 顶部 banner，后续可以充当通知栏 */
 export const useBanner = () => {
+  const visible = computed({
+    get: () => bannerVisible.value,
+    set: (v) => {
+      bannerVisible.value = v
+    },
+  })
+
   const show = (msg?: string) => {
     if (!msg)
       return
@@ -16,5 +23,5 @@ export const useBanner = () => {
 
   tryOnUnmounted(hide)
 
-  return { show, hide }
+  return { visible, show, hide }
 }

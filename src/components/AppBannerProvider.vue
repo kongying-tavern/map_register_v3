@@ -1,10 +1,15 @@
 <script lang="ts" setup>
 import { content, visible } from '@/hooks/useBanner/bannerContext'
+import { useBanner } from '@/hooks'
+
+const { show } = useBanner()
 
 const height = useCssVar('--gs-banner-height')
 watch(visible, (isVisibile) => {
   height.value = isVisibile ? '32px' : '0px'
 }, { immediate: true })
+
+import.meta.env.DEV && show(import.meta.env.VITE_ENV_BANNER)
 </script>
 
 <template>
