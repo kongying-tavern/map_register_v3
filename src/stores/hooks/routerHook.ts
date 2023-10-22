@@ -9,4 +9,4 @@ export class CustomRouterHook extends CustomHook<RouterHookType> {
   onAfterRouterEnter = this.registerHook('onAfterRouterEnter')
 }
 
-export const RouterHook = new CustomRouterHook()
+export const routerHook = new CustomRouterHook()

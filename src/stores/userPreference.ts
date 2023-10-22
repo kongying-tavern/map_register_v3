@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { UserHook } from './utils'
+import { userHook } from './hooks'
 import { useUserAuthStore } from '@/stores'
 import { useFetchHook } from '@/hooks'
 import db from '@/database'
@@ -83,7 +83,7 @@ export const usePreferenceStore = defineStore('user-preference', () => {
 
 const logger = new Logger('[user preference]')
 
-UserHook.onInfoChange(usePreferenceStore, async (store) => {
+userHook.onInfoChange(usePreferenceStore, async (store) => {
   logger.info('update preference')
   await store.updateUserPreference()
 })

@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { catchError, from, of, retry } from 'rxjs'
 import { camelCase } from 'lodash'
-import { RouterHook, UserHook } from './utils'
+import { routerHook, userHook } from './hooks'
 import { Logger } from '@/utils'
 import Oauth from '@/api/oauth'
 import { USERAUTH_KEY } from '@/shared'
@@ -74,7 +74,7 @@ export const useUserAuthStore = defineStore('user-auth', () => {
       setAuth(result)
       resolve(result)
       subscription.unsubscribe()
-      UserHook.applyCallbacks('onAuthChange')
+      userHook.applyCallbacks('onAuthChange')
     })
   })
 
@@ -140,6 +140,6 @@ export const useUserAuthStore = defineStore('user-auth', () => {
   }
 })
 
-RouterHook.onBeforeRouterEnter(useUserAuthStore, async (store) => {
+routerHook.onBeforeRouterEnter(useUserAuthStore, async (store) => {
   await store.ensureTokenRefreshMission()
 })

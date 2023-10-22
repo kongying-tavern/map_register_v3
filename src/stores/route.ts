@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { RouterHook } from './utils'
+import { routerHook } from './hooks'
 import { useState } from '@/hooks'
 import { useUserInfoStore } from '@/stores'
 import { RoleLevel } from '@/shared'
@@ -20,7 +20,7 @@ export const useRouteStore = defineStore('route', () => {
     })
   })
 
-  RouterHook.onAfterRouterEnter(useRouteStore, (store) => {
+  routerHook.onAfterRouterEnter(useRouteStore, (store) => {
     store.setLoading(false)
   })
 

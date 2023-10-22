@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ElMessage } from 'element-plus'
-import { RouterHook, UserHook } from './utils'
+import { routerHook, userHook } from './hooks'
 import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 import { useUserAuthStore } from '@/stores'
@@ -60,7 +60,7 @@ export const useUserInfoStore = defineStore('user-info', () => {
   }
 
   onUserInfoUpdateSuccess(async () => {
-    await UserHook.applyCallbacks('onInfoChange')
+    await userHook.applyCallbacks('onInfoChange')
   })
 
   onUserInfoUpdateError((err) => {
@@ -115,6 +115,6 @@ export const useUserInfoStore = defineStore('user-info', () => {
   }
 })
 
-RouterHook.onBeforeRouterEnter(useUserInfoStore, async (store) => {
+routerHook.onBeforeRouterEnter(useUserInfoStore, async (store) => {
   await store.updateUserInfo()
 })

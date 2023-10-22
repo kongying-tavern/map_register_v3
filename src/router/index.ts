@@ -10,7 +10,7 @@ import routes from './routes'
 import { beforeEachGuard } from './guards'
 import { Logger, messageFrom } from '@/utils'
 import { useRouteStore } from '@/stores'
-import { RouterHook } from '@/stores/utils'
+import { routerHook } from '@/stores/hooks'
 
 const history: RouterHistory = (
   {
@@ -34,7 +34,7 @@ const router = createRouter({
 
 // ==================== 导航栈开始 ====================
 router.beforeEach(async (to, from, next) => {
-  await RouterHook.applyCallbacks('onBeforeRouterEnter')
+  await routerHook.applyCallbacks('onBeforeRouterEnter')
   next(true)
 })
 
@@ -46,7 +46,7 @@ router.beforeEach((to) => {
 })
 
 router.afterEach((to) => {
-  RouterHook.applyCallbacks('onAfterRouterEnter')
+  routerHook.applyCallbacks('onAfterRouterEnter')
   Logger.allGroupsEnd()
   nextTick(() => {
     useRouteStore().setLoading(false)

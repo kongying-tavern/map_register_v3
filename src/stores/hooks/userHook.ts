@@ -9,4 +9,4 @@ class CustomUserHook extends CustomHook<UserHookType> {
   onInfoChange = this.registerHook('onInfoChange')
 }
 
-export const UserHook = new CustomUserHook()
+export const userHook = new CustomUserHook()
