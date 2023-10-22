@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useInteractionLayer, useMap, useMarkerFocus } from './hooks'
+import { useInteractionLayer, useMap, useMapSiderMenu, useMarkerFocus } from './hooks'
 import { genshinMapCanvasKey, mapAffixLayerKey, mutuallyExclusiveLayerKey } from './shared'
 import {
   CollapseButton,
@@ -13,7 +13,7 @@ import {
 import { GSSwitch } from '@/components'
 import { useMapSettingStore, useUserInfoStore } from '@/stores'
 
-const canvasRef = ref<HTMLCanvasElement | null>(null)
+const canvasRef = ref() as Ref<HTMLCanvasElement>
 const mutuallyExclusiveLayerRef = ref<HTMLElement | null>(null)
 const mapAffixLayerRef = ref<HTMLElement | null>(null)
 
@@ -29,14 +29,7 @@ useEventListener(canvasRef, 'contextmenu', ev => ev.preventDefault())
 
 const { visible: interactionLayerVisible } = useInteractionLayer()
 
-const collapse = ref(false)
-whenever(() => collapse.value, () => canvasRef.value?.focus())
-useEventListener('keydown', (ev) => {
-  if (ev.target instanceof HTMLInputElement || ev.target instanceof HTMLTextAreaElement)
-    return
-  if (ev.code === 'Backquote')
-    collapse.value = !collapse.value
-})
+const { collapse } = useMapSiderMenu(canvasRef)
 
 provide(genshinMapCanvasKey, canvasRef)
 provide(mutuallyExclusiveLayerKey, mutuallyExclusiveLayerRef)
