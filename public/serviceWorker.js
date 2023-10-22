@@ -9,9 +9,15 @@ const env = {
 }
 
 class Logger {
-  static prefix = '[Service Worker]'
-  static log = (...args) => env.DEV && console.log(this.prefix, ...args)
-  static error = (...args) => env.DEV && console.log(this.prefix, ...args)
+  static #prefix = [
+    `%c[${new Date().toLocaleString('zh-CN', { hour12: false })}] %c[Service Worker] >`,
+    'color: green',
+    'color: aqua',
+  ]
+
+  static log = (...args) => env.DEV && console.log(...this.#prefix, ...args)
+
+  static error = (...args) => env.DEV && console.log(...this.#prefix, ...args)
 }
 
 /**
