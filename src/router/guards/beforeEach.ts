@@ -1,64 +1,76 @@
 import type { NavigationGuardWithThis, Router } from 'vue-router'
-import { isInPermissionList, isInWhiteList } from '../utils'
-import { useUserStore } from '@/stores'
-import * as stores from '@/stores'
+import { useUserAuthStore, useUserInfoStore } from '@/stores'
 import { Logger } from '@/utils'
-import { RouterHook } from '@/stores/utils'
+import { RoleLevel } from '@/shared'
 
 const logger = new Logger('[beforeEachGuard]')
 
-/** 导航前置守卫，使用函数传递参数来生成一个回调，以便后期增加更多操作 */
+const isOfflineMode = import.meta.env.DEV && (import.meta.env.VITE_DEVELOPMENT_MODE === 'offline')
+
+/**
+ * 导航前置守卫，使用函数传递参数来生成一个回调，以便后期增加更多操作
+ * @note 当前守卫代码的规模尚且不大，出于开发便捷性的考虑，判断逻辑尽量不要做抽离
+ */
 export const beforeEachGuard = (router: Router): NavigationGuardWithThis<void> => {
-  return async (to, from, next) => {
-    Logger.group('[vue-router-process]')
-    logger.info(`"${from.path}" => "${to.path}"`)
+  // TODO 当使用动态生成路由时此项优化可能失效
+  const routesSet = new Set(router.getRoutes().map(route => route.path))
 
-    const isOfflineMode = import.meta.env.VITE_DEVELOPMENT_MODE === 'offline'
+  return (to, from, next) => {
+    const userAuthStore = useUserAuthStore()
+    const userInfoStore = useUserInfoStore()
 
-    const userStore = useUserStore()
-    userStore.isRouteLoading = true
-
-    // 离线模式下不进行路由前置守卫
-    if (isOfflineMode)
-      return next(true)
-
-    if (['/', '/login'].includes(from.path)) {
-      await Promise.allSettled(Object.values(stores).reduce((seed, useStore) => {
-        if (typeof useStore !== 'function')
-          return seed
-        const store = useStore()
-        if ('init' in store && typeof store.init === 'function')
-          seed.push(store.init())
-        return seed
-      }, [] as unknown[]))
-    }
-
-    const isTokenValid = userStore.validateUserToken()
-    if (isInWhiteList(to)) {
-      // 如果用户已登录，但手动导航到部分页面，则重定向到地图页
-      return isTokenValid ? next('/') : next(true)
-    }
-
-    const isRouteExist = router.getRoutes().find(route => route.path === to.path)
-    if (!isRouteExist)
+    if (!routesSet.has(to.path)) {
+      logger.error('目标路由不存在')
       return next(new Error('目标路由不存在'))
-
-    if (!isTokenValid) {
-      userStore.logout()
-      return next(new Error('用户凭证无效'))
     }
 
-    if (!isInPermissionList(to))
-      return next(new Error('没有访问权限'))
+    // 离线开发模式下不进行路由前置守卫
+    if (isOfflineMode) {
+      logger.info('离线模式')
+      return next(true)
+    }
 
-    // 确保在进入路由时用户信息已更新
-    ;(!userStore.info.id || userStore.info.id !== userStore.auth.userId) && await userStore.updateUserInfo()
-    // 确保在进入路由时用户设置已更新
-    !userStore.preference.id && await userStore.updateUserPreference()
-    await RouterHook.applyCallbacks('onBeforeRouterEnter')
-    next(true)
+    const { role, redirectOnLogin } = to.meta ?? {}
 
-    userStore.createRefreshTimer()
-    to.meta.preload && userStore.preloadMission()
+    /** 是否登录 */
+    const isLogin = Number(userAuthStore.validateToken())
+    /** 路由是否有权限限制 */
+    const isLimited = Number(role !== undefined)
+    /** 角色权限等级是否满足 */
+    const isAccess = Number(role !== undefined && userInfoStore.userRoleLevel >= RoleLevel[role])
+
+    const permission = parseInt(`${isLogin}${isLimited}${isAccess}`, 2)
+
+    Logger.group(`[Router] [${from.meta.title}]('${from.path}') → [${to.meta.title}]('${to.path}') (p:${isLogin}${isLimited}${isAccess}) (r:${role})`)
+    logger.info({ from, to })
+
+    return ({
+      0b000: () => {
+        next(true)
+      },
+      0b001: () => {
+        next(true)
+      },
+      0b010: () => {
+        userAuthStore.logout()
+        next(Error('用户凭证无效'))
+      },
+      0b011: () => {
+        userAuthStore.logout()
+        next(Error('用户凭证无效'))
+      },
+      0b100: () => {
+        redirectOnLogin ? next(redirectOnLogin) : next(true)
+      },
+      0b101: () => {
+        redirectOnLogin ? next(redirectOnLogin) : next(true)
+      },
+      0b110: () => {
+        next(new Error('没有访问权限'))
+      },
+      0b111: () => {
+        next(true)
+      },
+    } as Record<number, () => void>)[permission]()
   }
 }

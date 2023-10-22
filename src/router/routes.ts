@@ -15,7 +15,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: '物品管理',
           icon: 'Files',
-          roles: [RoleTypeEnum.ADMIN, RoleTypeEnum.MAP_MANAGER],
+          role: RoleTypeEnum.MAP_MANAGER,
         },
         component: () => import('@/pages/pageItemManager/ItemManager.vue'),
       },
@@ -24,7 +24,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: '公共物品管理',
           icon: 'Files',
-          roles: [RoleTypeEnum.ADMIN, RoleTypeEnum.MAP_MANAGER],
+          role: RoleTypeEnum.MAP_MANAGER,
         },
         component: () => import('@/pages/pageCommonItemManager/CommonItemManager.vue'),
       },
@@ -33,7 +33,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: '类型管理',
           icon: 'Box',
-          roles: [RoleTypeEnum.ADMIN, RoleTypeEnum.MAP_MANAGER],
+          role: RoleTypeEnum.MAP_MANAGER,
         },
         component: () => import('@/pages/pageTypeManager/TypeManager.vue'),
       },
@@ -42,7 +42,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: '图标管理',
           icon: 'Picture',
-          roles: [RoleTypeEnum.ADMIN, RoleTypeEnum.MAP_MANAGER],
+          role: RoleTypeEnum.MAP_MANAGER,
           noPadding: true,
         },
         component: () => import('@/pages/pageIconManager/IconManager.vue'),
@@ -52,7 +52,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: '用户管理',
           icon: 'User',
-          roles: [RoleTypeEnum.ADMIN],
+          role: RoleTypeEnum.ADMIN,
         },
         component: () => import('@/pages/pageUserManager/UserManager.vue'),
       },
@@ -61,7 +61,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: '用户评分',
           icon: 'Star',
-          roles: [RoleTypeEnum.ADMIN],
+          role: RoleTypeEnum.ADMIN,
         },
         component: () => import('@/pages/pageScoreManager/ScoreManager.vue'),
       },
@@ -70,7 +70,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: '点位管理',
           icon: 'Location',
-          roles: [RoleTypeEnum.ADMIN, RoleTypeEnum.MAP_MANAGER],
+          role: RoleTypeEnum.MAP_MANAGER,
         },
         component: () => import('@/pages/pageMarkerManager/MarkerManager.vue'),
       },
@@ -79,7 +79,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: '地区管理',
           icon: 'Place',
-          roles: [RoleTypeEnum.ADMIN, RoleTypeEnum.MAP_MANAGER],
+          role: RoleTypeEnum.MAP_MANAGER,
         },
         component: () => import('@/pages/pageAreaManager/AreaManager.vue'),
       },
@@ -88,7 +88,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: '历史记录',
           icon: 'Memo',
-          roles: [RoleTypeEnum.ADMIN, RoleTypeEnum.MAP_MANAGER],
+          role: RoleTypeEnum.MAP_MANAGER,
         },
         component: () => import('@/pages/pageHistory/PageHistory.vue'),
       },
@@ -98,7 +98,8 @@ const routes: RouteRecordRaw[] = [
     path: '/map',
     meta: {
       title: '地图页',
-      preload: true,
+      loading: true,
+      role: RoleTypeEnum.MAP_USER,
       icon: 'MapLocation',
     },
     component: () => import('@/pages/pageMapV2/PageMapV2.vue'),
@@ -107,6 +108,7 @@ const routes: RouteRecordRaw[] = [
     path: '/login',
     meta: {
       title: '登录页',
+      redirectOnLogin: '/map',
     },
     component: () => import('@/pages/pageLogin/PageLogin.vue'),
   },
@@ -114,6 +116,7 @@ const routes: RouteRecordRaw[] = [
     path: '/register',
     meta: {
       title: '注册页',
+      redirectOnLogin: '/map',
     },
     component: () => import('@/pages/pageRegister/PageRegister.vue'),
   },
