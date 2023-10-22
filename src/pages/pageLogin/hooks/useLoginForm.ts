@@ -1,7 +1,7 @@
 import { reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
-import { useArchiveStore, useUserStore } from '@/stores'
+import { useArchiveStore, useUserAuthStore } from '@/stores'
 import type { ElFormType } from '@/shared'
 import { useFetchHook } from '@/hooks'
 import Oauth from '@/api/oauth'
@@ -60,17 +60,19 @@ export const useLoginForm = () => {
   }
 
   const router = useRouter()
-  const userStore = useUserStore()
+  const userAuthStore = useUserAuthStore()
   const archiveStore = useArchiveStore()
 
-  onSuccess(async (auth) => {
+  onSuccess((auth) => {
     ElMessage.success({
       message: '登录成功',
       offset: 48,
     })
-    userStore.setAuth(auth)
-    await router.push('/map')
-    await archiveStore.fetchArchive()
+    userAuthStore.setAuth(auth)
+    // TODO 登录后应当跳转到上次退出前保持的页面
+    router.push('/map')
+    // TODO 存档读取应当与登录组件解耦
+    archiveStore.fetchArchive()
     archiveStore.loadLatestArchive()
   })
 

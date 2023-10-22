@@ -3,13 +3,13 @@ import type { Ref } from 'vue'
 import { pick } from 'lodash'
 import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
-import { useUserStore } from '@/stores'
+import { useUserInfoStore } from '@/stores'
 import { useCondition } from '@/pages/pageMapV2/hooks'
 import db from '@/database'
 
 /** 新增点位，已自动处理 version 和 methodType 字段 */
 export const useMarkerCreate = (markerData: Ref<API.MarkerVo | null>) => {
-  const userStore = useUserStore()
+  const userInfoStore = useUserInfoStore()
   const conditionManager = useCondition()
 
   const commonKeys = [
@@ -28,7 +28,7 @@ export const useMarkerCreate = (markerData: Ref<API.MarkerVo | null>) => {
   const buildAdminMarkerForm = (marker: API.MarkerVo): API.MarkerVo => {
     return {
       ...pick(marker, commonKeys),
-      pictureCreatorId: marker.picture ? userStore.info.id : undefined,
+      pictureCreatorId: marker.picture ? userInfoStore.info.id : undefined,
     }
   }
 
@@ -55,12 +55,12 @@ export const useMarkerCreate = (markerData: Ref<API.MarkerVo | null>) => {
   const { refresh: createMarker, onSuccess, onError, ...rest } = useFetchHook({ onRequest: request })
 
   onSuccess(() => ElMessage.success({
-    message: `${userStore.isAdmin ? '新增点位' : '提交审核'}成功`,
+    message: `${userInfoStore.isAdmin ? '新增点位' : '提交审核'}成功`,
     offset: 48,
   }))
 
   onError(err => ElMessage.error({
-    message: `${userStore.isAdmin ? '新增点位' : '提交审核'}失败，原因为：${err.message}`,
+    message: `${userInfoStore.isAdmin ? '新增点位' : '提交审核'}失败，原因为：${err.message}`,
     offset: 48,
   }))
 

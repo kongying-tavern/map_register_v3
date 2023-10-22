@@ -3,7 +3,7 @@ import { IconManager } from './IconManager'
 import db from '@/database'
 import { useMap } from '@/pages/pageMapV2/hooks'
 import { ICON } from '@/pages/pageMapV2/config'
-import { localSettings, useMapStore, useTileStore, useUserStore } from '@/stores'
+import { localSettings, useMapStore, usePreferenceStore, useTileStore } from '@/stores'
 
 export interface Condition {
   area: API.AreaVo
@@ -256,16 +256,14 @@ export class ConditionManager extends IconManager {
 
   /** 将筛选器状态保存到本地数据库 */
   saveState = async (name: string) => {
-    const userStore = useUserStore()
-    if (!userStore.info.id)
-      return
+    const preferenceStore = usePreferenceStore()
 
     const conditions = Object.fromEntries(this.conditions.entries())
     const filterState = {
       name,
       conditions,
     }
-    const filterStates = [...(userStore.preference.filterStates ?? [])]
+    const filterStates = [...(preferenceStore.preference['markerFilter.setting.presets'] ?? [])]
     const findIndex = filterStates.findIndex(state => state.name === name)
 
     if (findIndex >= 0)
@@ -273,30 +271,20 @@ export class ConditionManager extends IconManager {
     else
       filterStates.push(filterState)
 
-    userStore.preference = {
-      ...userStore.preference,
-      filterStates,
-      areaCode: this.areaCode,
-    }
-    await userStore.syncUserPreference()
+    preferenceStore.preference['markerFilter.setting.presets'] = filterStates
+    preferenceStore.preference['markerFilter.state.areaCode'] = this.areaCode
   }
 
   deleteState = async (name: string) => {
-    const userStore = useUserStore()
-    if (!userStore.info.id)
-      return
+    const preferenceStore = usePreferenceStore()
     if (name === 'temp')
       return
-    const filterStates = [...(userStore.preference.filterStates ?? [])]
+    const filterStates = [...(preferenceStore.preference['markerFilter.setting.presets'] ?? [])]
     const findIndex = filterStates.findIndex(state => state.name === name)
     if (findIndex < 0)
       return
     filterStates.splice(findIndex, 1)
-    userStore.preference = {
-      ...userStore.preference,
-      filterStates,
-    }
-    await userStore.syncUserPreference()
+    preferenceStore.preference['markerFilter.setting.presets'] = filterStates
   }
 
   /**
@@ -306,11 +294,9 @@ export class ConditionManager extends IconManager {
    * 以便在重新进入应用时获取上次操作后的条件列表。
    */
   loadState = (name: string) => this.#useRenderMission(async (requestRender) => {
-    const userStore = useUserStore()
-    if (userStore.info.id === undefined)
-      return
+    const preferenceStore = usePreferenceStore()
 
-    const findState = userStore.preference.filterStates?.find(state => state.name === name)
+    const findState = preferenceStore.preference['markerFilter.setting.presets']?.find(state => state.name === name)
     if (!findState?.conditions)
       return
 
@@ -321,7 +307,7 @@ export class ConditionManager extends IconManager {
     this.conditions.forEach(({ items }, key) => itemIdsMap[key] = items)
     this.#itemIdsMap.value = itemIdsMap
 
-    const { areaCode } = userStore.preference
+    const areaCode = preferenceStore.preference['markerFilter.state.areaCode']
     areaCode && await this.#selectArea(areaCode)
 
     await this.saveState('temp')

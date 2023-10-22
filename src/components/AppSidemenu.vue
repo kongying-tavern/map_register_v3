@@ -1,15 +1,15 @@
 <script lang="ts" setup>
 import { useRoute } from 'vue-router'
-import { useUserStore } from '@/stores'
+import { useRouteStore } from '@/stores'
 
 const route = useRoute()
-const userStore = useUserStore()
+const routeStore = useRouteStore()
 </script>
 
 <template>
   <el-menu :default-active="route.path" router class="app-sidemenu h-full">
     <el-menu-item
-      v-for="item in userStore.menuRoutes"
+      v-for="item in routeStore.menuRoutes"
       :key="item.path"
       :index="item.path"
     >

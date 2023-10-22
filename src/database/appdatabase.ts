@@ -1,6 +1,6 @@
 import { Dexie } from 'dexie'
 import { markerFormater } from './middleware'
-import type { Condition } from '@/pages/pageMapV2/core'
+import type { UserPreference } from '@/stores'
 
 /** MD5 表项 */
 export interface MD5Vo {
@@ -8,22 +8,6 @@ export interface MD5Vo {
   id: string
   /** md5 的值 */
   value: string
-}
-
-/** 用于存储用户的非敏感信息，如本地设置、筛选器状态等 */
-export interface UserPreference {
-  /** 用户 id */
-  id?: number
-  /** 筛选器状态列表 */
-  filterStates?: FilterState[]
-  /** 筛选器选择的地区 */
-  areaCode?: string
-}
-
-export interface FilterState {
-  /** 筛选器存储的唯一名称 */
-  name: string
-  conditions: Record<string, Condition>
 }
 
 export interface ImageCache {

@@ -3,10 +3,13 @@ import { DeleteFilled } from '@element-plus/icons-vue'
 import { CheckboxGroup, CheckboxImage, CheckboxItem, ConditionManager, ConditionRow, FilterTabs, ItemButton } from '.'
 import { GSButton, GSDivider } from '@/components'
 import { IconSetting } from '@/components/AppIcons'
-import { useArchiveStore, useIconTagStore, useMapStore, useUserStore } from '@/stores'
+import { useArchiveStore, useIconTagStore, useMapStore, useUserInfoStore } from '@/stores'
 import { useCondition } from '@/pages/pageMapV2/hooks'
 import db from '@/database'
 import { isItemVo } from '@/utils'
+
+const archiveStore = useArchiveStore()
+const userInfoStore = useUserInfoStore()
 
 // ==================== 其他 ====================
 interface Sortable {
@@ -18,9 +21,6 @@ const sort = (a: Sortable, b: Sortable) => {
   return ib - ia
 }
 
-const archiveStore = useArchiveStore()
-const userStore = useUserStore()
-
 /** 条件管理器 */
 const conditionManager = useCondition()
 const conditionManagerVisible = ref(false)
@@ -30,7 +30,7 @@ const iconTagStore = useIconTagStore()
 
 // ==================== 地区 ====================
 const parentAreaList = asyncComputed<API.AreaVo[]>(() => db.area
-  .filter(area => !area.isFinal && (userStore.isNeigui ? area.hiddenFlag !== 1 : area.hiddenFlag === 0))
+  .filter(area => !area.isFinal && (userInfoStore.isNeigui ? area.hiddenFlag !== 1 : area.hiddenFlag === 0))
   .toArray(), [])
 
 const childrenAreaList = asyncComputed<API.AreaVo[]>(() => {
@@ -40,7 +40,7 @@ const childrenAreaList = asyncComputed<API.AreaVo[]>(() => {
   return db.area
     .where('parentId')
     .equals(parentArea.id as number)
-    .filter(area => userStore.isNeigui ? area.hiddenFlag !== 1 : area.hiddenFlag === 0)
+    .filter(area => userInfoStore.isNeigui ? area.hiddenFlag !== 1 : area.hiddenFlag === 0)
     .toArray()
 }, [])
 

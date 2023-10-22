@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { defaultsDeep, template } from 'lodash'
-import { useDadianStore, useMapStore, useTileStore, useUserStore } from '.'
+import { useDadianStore, useMapStore, useTileStore, useUserInfoStore } from '.'
 
 export interface OverlayGroup {
   id: string
@@ -102,7 +102,7 @@ export const useOverlayStore = defineStore('map-overlays', () => {
         })
       })
 
-      if (!useUserStore().isNeigui)
+      if (!useUserInfoStore().isNeigui)
         continue
 
       defaultsDeep(pluginsNeigui, plugins)

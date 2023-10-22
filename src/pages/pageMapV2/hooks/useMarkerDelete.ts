@@ -1,13 +1,13 @@
 import { pick } from 'lodash'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useFetchHook } from '@/hooks'
-import { useUserStore } from '@/stores'
+import { useUserInfoStore } from '@/stores'
 import Api from '@/api/api'
 import { useCondition } from '@/pages/pageMapV2/hooks'
 import db from '@/database'
 
 export const useMarkerDelete = () => {
-  const userStore = useUserStore()
+  const userInfoStore = useUserInfoStore()
   const conditionManager = useCondition()
 
   const buildModifyMarkerForm = (marker: API.MarkerVo): API.MarkerPunctuateVo => {
@@ -18,7 +18,7 @@ export const useMarkerDelete = () => {
   }
 
   const request = async (marker: API.MarkerVo) => {
-    if (userStore.isAdmin)
+    if (userInfoStore.isAdmin)
       return await Api.marker.deleteMarker({ markerId: marker.id! })
 
     const form = buildModifyMarkerForm(marker)
@@ -50,12 +50,12 @@ export const useMarkerDelete = () => {
   }
 
   onSuccess(() => ElMessage.success({
-    message: `${userStore.isAdmin ? '删除点位' : '提交审核'}成功`,
+    message: `${userInfoStore.isAdmin ? '删除点位' : '提交审核'}成功`,
     offset: 48,
   }))
 
   onError(err => ElMessage.error({
-    message: `${userStore.isAdmin ? '删除点位' : '提交审核'}失败，原因为：${err.message}`,
+    message: `${userInfoStore.isAdmin ? '删除点位' : '提交审核'}失败，原因为：${err.message}`,
     offset: 48,
   }))
 

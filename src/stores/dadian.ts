@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { UserHook } from './utils'
 import { Zip } from '@/utils'
 import Api from '@/api/config'
 
@@ -37,4 +38,8 @@ export const useDadianStore = defineStore('dadian-json', {
       await this.update()
     },
   },
+})
+
+UserHook.onInfoChange(useDadianStore, async (store) => {
+  await store.update()
 })

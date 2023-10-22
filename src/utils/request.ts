@@ -2,7 +2,7 @@
 import axios from 'axios'
 import type { AxiosRequestConfig } from 'axios'
 import { upperFirst } from 'lodash'
-import { useUserStore } from '@/stores'
+import { useUserAuthStore } from '@/stores'
 import { Logger } from '@/utils'
 
 const logger = new Logger('[axios]')
@@ -18,11 +18,15 @@ axiosInstance.interceptors.request.use(
       return status === 400 || (status >= 200 && status < 300)
     }
 
-    const userStore = useUserStore()
+    const userAuthStore = useUserAuthStore()
+
     const hasToken = config.headers.Authorization ?? config.headers.authorization
+
+    const { tokenType, accessToken } = userAuthStore.auth
+
     // 如果存在自定义的凭证信息，则不对其进行覆盖
-    if (!hasToken && userStore.auth.token_type && userStore.auth.access_token)
-      config.headers.Authorization = `${upperFirst(userStore.auth.token_type)} ${userStore.auth.access_token}`
+    if (!hasToken && tokenType && accessToken)
+      config.headers.Authorization = `${upperFirst(tokenType)} ${userAuthStore.auth.accessToken}`
 
     return config
   },
@@ -35,6 +39,10 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => {
     const { data } = response
+    if (response.status === 401) {
+      useUserAuthStore().logout()
+      useRouter().push('/login')
+    }
     if (data.error)
       return Promise.reject(new Error(data.error_description ?? data.message))
     return data

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { defaultsDeep } from 'lodash'
-import { useDadianStore, useMapStore, useUserStore } from '@/stores'
+import { useDadianStore, useMapStore, useUserInfoStore } from '@/stores'
 import type { AreaTagTuple } from '@/configs'
 import { AREA_ADDITIONAL_CONFIG_MAP } from '@/configs'
 
@@ -34,14 +34,14 @@ export interface AreaTileConfig {
 
 export const useTileStore = defineStore('map-tile', () => {
   const dadianStore = useDadianStore()
-  const userStore = useUserStore()
+  const userInfoStore = useUserInfoStore()
   const mapStore = useMapStore()
 
   /** key 是用于构建 tiles url 的参数 */
   const mergedTileConfigs = computed((): Record<string, AreaTileConfig> => {
     const { tiles = {}, tilesNeigui = {} } = dadianStore._raw
 
-    const mergedTiles = userStore.isNeigui
+    const mergedTiles = userInfoStore.isNeigui
       ? {
           ...tiles,
           ...tilesNeigui,

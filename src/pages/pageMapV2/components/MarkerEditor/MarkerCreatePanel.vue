@@ -3,7 +3,7 @@ import { ElMessage } from 'element-plus'
 import { useCondition, useMarkerCreate } from '../../hooks'
 import { MarkerEditorForm } from '.'
 import { GlobalDialogController } from '@/hooks'
-import { useUserStore } from '@/stores'
+import { useUserInfoStore } from '@/stores'
 import { DialogController } from '@/hooks/useGlobalDialog/dialogController'
 import { messageFrom } from '@/utils'
 
@@ -13,13 +13,13 @@ const props = defineProps<{
   defaultItem?: API.ItemVo
 }>()
 
-const userStore = useUserStore()
+const userInfoStore = useUserInfoStore()
 const conditionManager = useCondition()
 
 /** 初始化新增点位信息 */
 const initFormData = (): API.MarkerVo => {
   const [x, y] = props.coordinate
-  const { id: userId } = userStore.info
+  const { id: userId } = userInfoStore.info
   return {
     markerTitle: '',
     content: '',

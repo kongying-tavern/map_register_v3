@@ -11,13 +11,13 @@ import {
   ZoomController,
 } from './components'
 import { GSSwitch } from '@/components'
-import { useMapSettingStore, useUserStore } from '@/stores'
+import { useMapSettingStore, useUserInfoStore } from '@/stores'
 
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 const mutuallyExclusiveLayerRef = ref<HTMLElement | null>(null)
 const mapAffixLayerRef = ref<HTMLElement | null>(null)
 
-const userStore = useUserStore()
+const userInfoStore = useUserInfoStore()
 const mapSettingStore = useMapSettingStore()
 
 useMap(canvasRef)
@@ -85,7 +85,7 @@ provide(mapAffixLayerKey, mapAffixLayerRef)
     <div class="right-bottom-panel genshin-text absolute right-0 bottom-0 -translate-x-6 -translate-y-2 pointer-events-none flex flex-col items-end gap-2 z-[1]">
       <MapOverlayController />
       <div class="text-white leading-none">
-        UID: {{ userStore.info.id }}
+        UID: {{ userInfoStore.info.id }}
       </div>
     </div>
 

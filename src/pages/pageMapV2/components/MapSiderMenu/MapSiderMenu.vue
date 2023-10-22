@@ -8,24 +8,25 @@ import { FeatureGrid, MarkerFilter, MarkerTable, SiderMenu, SiderMenuItem } from
 import { AppSettings, GSSwitch } from '@/components'
 import { useGlobalDialog } from '@/hooks'
 import { Logger } from '@/utils'
-import { useDadianStore, useMapSettingStore, useUserStore } from '@/stores'
+import { useDadianStore, useMapSettingStore, useUserAuthStore, useUserInfoStore } from '@/stores'
 import { IconGithub } from '@/components/AppIcons'
 import { FALLBACK_AVATAR_URL } from '@/shared/constant'
 import { ExitLeft } from '@/components/GenshinUI/GSIcon'
-import { vAdmin } from '@/directives'
 
 const collapse = defineModel<boolean>('collapse', { required: true })
 
 const logger = new Logger('[debug]')
 
+const userInfoStore = useUserInfoStore()
+const userAuthStore = useUserAuthStore()
+
 const { DialogService } = useGlobalDialog()
-const userStore = useUserStore()
 const router = useRouter()
 
 const tabName = ref('filter')
 
 const openUserInfoDialog = () => {
-  userStore.showUserInfo = true
+  userInfoStore.showUserInfo = true
 }
 
 const openSettingDialog = () => DialogService
@@ -69,7 +70,7 @@ const mapSettingStore = useMapSettingStore()
           shape="circle"
           class="select-none"
           :size="38"
-          :src="userStore.info.logo || FALLBACK_AVATAR_URL"
+          :src="userInfoStore.info.logo || FALLBACK_AVATAR_URL"
         />
       </template>
     </SiderMenuItem>
@@ -106,14 +107,19 @@ const mapSettingStore = useMapSettingStore()
 
     <SiderMenuItem label="系统设置" :icon="Setting" @click="openSettingDialog" />
 
-    <SiderMenuItem v-admin label="管理面板" :icon="PieChart" @click="() => router.push('/items')" />
+    <SiderMenuItem
+      v-if="userInfoStore.isManager"
+      label="管理面板"
+      :icon="PieChart"
+      @click="() => router.push('/items')"
+    />
 
     <SiderMenuItem name="fetures" label="更多功能" :icon="Grid">
       <FeatureGrid :features="features" />
     </SiderMenuItem>
 
     <template #footer>
-      <SiderMenuItem label="退出" :icon="ExitLeft" @click="userStore.logout" />
+      <SiderMenuItem label="退出" :icon="ExitLeft" @click="userAuthStore.logout" />
     </template>
   </SiderMenu>
 </template>

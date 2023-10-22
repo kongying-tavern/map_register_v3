@@ -4,7 +4,7 @@ import type { ElFormType } from '@/shared'
 import Api from '@/api/api'
 import Oauth from '@/api/oauth'
 import { useFetchHook } from '@/hooks'
-import { useArchiveStore, useUserStore } from '@/stores'
+import { useArchiveStore, useUserAuthStore } from '@/stores'
 import type { ItemFormRules } from '@/utils'
 import { passwordCheck, qqCheck } from '@/utils'
 
@@ -49,7 +49,7 @@ export const useRegisterForm = () => {
     }
   }
 
-  const userStore = useUserStore()
+  const userAuthStore = useUserAuthStore()
   const router = useRouter()
   const archiveStore = useArchiveStore()
 
@@ -58,7 +58,7 @@ export const useRegisterForm = () => {
       message: '注册成功',
       offset: 48,
     })
-    userStore.setAuth(auth)
+    userAuthStore.setAuth(auth)
     await router.push('/map')
     await archiveStore.fetchArchive()
     archiveStore.loadLatestArchive()

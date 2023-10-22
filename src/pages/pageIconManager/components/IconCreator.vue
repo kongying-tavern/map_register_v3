@@ -2,15 +2,15 @@
 import { useIconCreate } from '../hooks'
 import { IconDetailForm } from '.'
 import { GlobalDialogController } from '@/hooks'
-import { useUserStore } from '@/stores'
+import { useUserInfoStore } from '@/stores'
 
 const emits = defineEmits<{
   success: []
 }>()
 
-const userStore = useUserStore()
+const userInfoStore = useUserInfoStore()
 const form = ref<API.IconVo>({
-  creatorId: userStore.info.id,
+  creatorId: userInfoStore.info.id,
 })
 const { formRef, loading, createIcon, onSuccess } = useIconCreate(form)
 

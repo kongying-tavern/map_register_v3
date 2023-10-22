@@ -8,7 +8,7 @@ import { EventBus, GenshinBaseLayer } from '..'
 import type { GensinMapViewState } from '.'
 import { getCursor, getTooltip, handleViewStateChange } from '.'
 import genshinFont from '@/style/fonts/genshinFont.woff2?url'
-import { useArchiveStore, useMapSettingStore, useMapStore, useOverlayStore, useTileStore, useUserStore } from '@/stores'
+import { useArchiveStore, useMapSettingStore, useMapStore, useOverlayStore, useTileStore } from '@/stores'
 
 export interface GenshinMapOptions extends DeckProps {
   canvas: HTMLCanvasElement
@@ -119,7 +119,6 @@ export class GenshinMap extends Deck {
     map: useMapStore(),
     overlay: useOverlayStore(),
     setting: useMapSettingStore(),
-    user: useUserStore(),
   }
 
   // ==================== 地图状态 ====================

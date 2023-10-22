@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useCondition } from '../../hooks'
 import { GSButton, GSDivider, GSInput, GSMessageService } from '@/components'
-import { useUserStore } from '@/stores'
+import { usePreferenceStore } from '@/stores'
 
 defineProps<{
   modelValue: boolean
@@ -12,7 +12,7 @@ defineEmits<{
 }>()
 
 const conditionManager = useCondition()
-const userStore = useUserStore()
+const preferenceStore = usePreferenceStore()
 
 const selectedConditionName = ref('')
 const conditionName = ref('')
@@ -77,7 +77,7 @@ const addCondition = async () => {
       <el-scrollbar class="flex-1">
         <div class="h-full flex flex-col gap-1 overflow-auto">
           <div
-            v-for="state in userStore.preference.filterStates?.filter(item => item.name !== 'temp')"
+            v-for="state in preferenceStore.preference['markerFilter.setting.presets']?.filter(item => item.name !== 'temp')"
             :key="state.name"
             class="condition-row"
             :class="{

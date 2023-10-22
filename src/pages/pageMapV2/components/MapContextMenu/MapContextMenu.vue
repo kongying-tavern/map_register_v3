@@ -5,12 +5,13 @@ import { useMap } from '@/pages/pageMapV2/hooks'
 import { MarkerCreatePanel } from '@/pages/pageMapV2/components'
 import { AppSettings, GSButton } from '@/components'
 import { useGlobalDialog } from '@/hooks'
-import { vMarkeable } from '@/directives'
-import { useMapStore } from '@/stores'
+import { useMapStore, useUserInfoStore } from '@/stores'
 import db from '@/database'
 
-const { onMapReady } = useMap()
 const mapStore = useMapStore()
+const userInfoStore = useUserInfoStore()
+
+const { onMapReady } = useMap()
 
 const coordinate = shallowRef<API.Coordinate2D | null>(null)
 
@@ -65,7 +66,10 @@ const openSettingDialog = () => {
   <Transition name="fade">
     <MapAffix v-if="coordinate" :pos="coordinate">
       <div class="context-menu ml-2 mt-2 flex flex-col gap-1 relative" @contextmenu.stop="ev => ev.preventDefault()">
-        <GSButton v-markeable @click="openMarkerCreator">
+        <GSButton
+          v-if="userInfoStore.isDadian"
+          @click="openMarkerCreator"
+        >
           <template #icon>
             <el-icon color="var(--gs-color-confirm)">
               <Plus />

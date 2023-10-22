@@ -11,7 +11,7 @@ import {
   AddonRefreshtimeEditor,
 } from './components'
 import { AppAreaCodeSelecter } from '@/components'
-import { useMarkerExtraStore, useUserStore } from '@/stores'
+import { useMarkerExtraStore, useUserInfoStore } from '@/stores'
 import type { ElFormType } from '@/shared'
 import { HiddenFlagEnum } from '@/shared'
 import { isTreasureChestMatched, requireCheck } from '@/utils'
@@ -26,7 +26,7 @@ const emits = defineEmits<{
 }>()
 
 /** 用户信息 */
-const userStore = useUserStore()
+const userInfoStore = useUserInfoStore()
 
 /** 表单数据 */
 const form = ref<API.MarkerVo & { areaCode: string }>({
@@ -151,7 +151,7 @@ defineExpose({
           <el-radio-button :label="HiddenFlagEnum.HIDDEN">
             隐藏
           </el-radio-button>
-          <el-radio-button v-if="userStore.isAdmin || userStore.isNeigui" :label="HiddenFlagEnum.NEIGUI">
+          <el-radio-button v-if="userInfoStore.isNeigui" :label="HiddenFlagEnum.NEIGUI">
             测试服点位
           </el-radio-button>
         </el-radio-group>

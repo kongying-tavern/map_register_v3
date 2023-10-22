@@ -4,16 +4,16 @@ import type { MiyousheAvatar } from '../hooks'
 import { useAvatarList } from '../hooks'
 import { AvatarPreview } from '.'
 import { GSButton } from '@/components'
-import { useUserStore } from '@/stores'
+import { useUserInfoStore } from '@/stores'
 import { useFetchHook } from '@/hooks'
 import Api from '@/api/api'
 
-const userStore = useUserStore()
+const userInfoStore = useUserInfoStore()
 
 const { avatarList, loading: avatarsLoading, onSuccess: onAvatarListFetched } = useAvatarList()
 const selectedAvatar = ref<MiyousheAvatar | null>(null)
 onAvatarListFetched(() => {
-  selectedAvatar.value = avatarList.value.find(avatar => avatar.icon === userStore.info.logo) ?? null
+  selectedAvatar.value = avatarList.value.find(avatar => avatar.icon === userInfoStore.info.logo) ?? null
 })
 
 const { loading, refresh: updateUserInfo, onSuccess } = useFetchHook({
@@ -21,14 +21,14 @@ const { loading, refresh: updateUserInfo, onSuccess } = useFetchHook({
     if (!selectedAvatar.value?.icon)
       throw new Error('头像地址为空')
     await Api.sysUserController.updateUser({}, {
-      ...pick(userStore.info, 'nickname', 'qq', 'phone', 'roleId'),
-      userId: userStore.info.id,
+      ...pick(userInfoStore.info, 'nickname', 'qq', 'phone', 'roleId'),
+      userId: userInfoStore.info.id,
       logo: selectedAvatar.value.icon,
     })
   },
 })
 onSuccess(() => {
-  userStore.info.logo = selectedAvatar.value?.icon
+  userInfoStore.info.logo = selectedAvatar.value?.icon
 })
 
 const setSelectedIcon = (avatar: MiyousheAvatar) => {
@@ -52,7 +52,7 @@ const setSelectedIcon = (avatar: MiyousheAvatar) => {
         class="avatar-btn rounded overflow-hidden"
         :class="{
           'is-selected': avatar.id === selectedAvatar?.id,
-          'is-actived': avatar.icon === userStore.info.logo,
+          'is-actived': avatar.icon === userInfoStore.info.logo,
         }"
         @click="setSelectedIcon(avatar)"
       >
@@ -77,7 +77,7 @@ const setSelectedIcon = (avatar: MiyousheAvatar) => {
         icon="submit"
         theme="dark"
         style="width: 100%;"
-        :disabled="!selectedAvatar || userStore.info.logo === selectedAvatar.icon"
+        :disabled="!selectedAvatar || userInfoStore.info.logo === selectedAvatar.icon"
         :loading="loading"
         @click="updateUserInfo"
       >

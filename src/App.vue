@@ -1,27 +1,24 @@
 <script setup lang="ts">
 import { AppBannerProvider, AppDialogProvider, AppDrawerProvider, AppLoadingPanel, AppUserInfo, GSMessageProvider } from '@/components'
-import { visible as bannerVisible } from '@/hooks/useBanner/bannerContext'
 import { useBanner } from '@/hooks'
-import { useUserStore } from '@/stores'
 
 // 开发模式下显示 banner
-const { show } = useBanner()
-import.meta.env.DEV && show(import.meta.env.VITE_ENV_BANNER)
-
-const userStore = useUserStore()
+const { visible } = useBanner()
 </script>
 
 <template>
   <div
     class="w-full h-full overflow-hidden flex flex-col items-stretch transition-all duration-200"
-    :class="[
-      bannerVisible ? 'pt-8' : '',
-    ]"
+    :class="{
+      'pt-8': visible,
+    }"
   >
+    <AppLoadingPanel />
+
     <router-view v-slot="{ Component }">
-      <Transition name="fade" mode="out-in" appear>
+      <Transition name="fade" mode="out-in" :duration="150">
         <keep-alive :exclude="['PageLogin', 'PageRegister']">
-          <component :is="userStore.showLoadingPanel ? AppLoadingPanel : Component" />
+          <component :is="Component" />
         </keep-alive>
       </Transition>
     </router-view>

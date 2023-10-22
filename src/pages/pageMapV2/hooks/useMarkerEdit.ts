@@ -4,13 +4,13 @@ import { pick } from 'lodash'
 import type { MarkerEditorForm } from '../components/MarkerEditor'
 import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
-import { useUserStore } from '@/stores'
+import { useUserInfoStore } from '@/stores'
 import { useCondition } from '@/pages/pageMapV2/hooks'
 import db from '@/database'
 
 /** 编辑点位，已自动处理 methodType 字段 */
 export const useMarkerEdit = (markerData: Ref<API.MarkerVo | null>) => {
-  const userStore = useUserStore()
+  const userInfoStore = useUserInfoStore()
   const conditionManager = useCondition()
 
   /** 编辑器实例 */
@@ -59,7 +59,7 @@ export const useMarkerEdit = (markerData: Ref<API.MarkerVo | null>) => {
     const isPictureChanged = checkPictureChange(marker)
     return {
       ...pick(marker, commonKeys),
-      pictureCreatorId: isPictureChanged ? userStore.info.id : marker.pictureCreatorId,
+      pictureCreatorId: isPictureChanged ? userInfoStore.info.id : marker.pictureCreatorId,
     }
   }
 
@@ -94,12 +94,12 @@ export const useMarkerEdit = (markerData: Ref<API.MarkerVo | null>) => {
   }
 
   onSuccess(() => ElMessage.success({
-    message: `${userStore.isAdmin ? '编辑点位' : '提交审核'}成功`,
+    message: `${userInfoStore.isAdmin ? '编辑点位' : '提交审核'}成功`,
     offset: 48,
   }))
 
   onError(err => ElMessage.error({
-    message: `${userStore.isAdmin ? '编辑点位' : '提交审核'}失败，原因为：${err.message}`,
+    message: `${userInfoStore.isAdmin ? '编辑点位' : '提交审核'}失败，原因为：${err.message}`,
     offset: 48,
   }))
 

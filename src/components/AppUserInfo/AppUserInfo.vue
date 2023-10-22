@@ -1,11 +1,10 @@
 <script lang="ts" setup>
 import { Avatar } from '@element-plus/icons-vue'
 import { ArchiveAnalyser, ArchiveSelector, InfoEditor, PasswordEditor } from '.'
-import { useUserStore } from '@/stores'
+import { useUserInfoStore } from '@/stores'
 import { GSTab } from '@/components'
-import { ROLES_MAP } from '@/shared'
 
-const userStore = useUserStore()
+const userInfoStore = useUserInfoStore()
 
 const BANNER_IMAGE_URL = 'https://upload-bbs.miyoushe.com/upload/2023/09/08/75276539/e048366f518c6c6edfbbcfec3162b10f_1620230996664613985.jpg?x-oss-process=image//resize,s_600/quality,q_80/auto-orient,0/interlace,1/format,jpg'
 
@@ -19,7 +18,7 @@ const tab = ref('archive')
 
 <template>
   <el-dialog
-    v-model="userStore.showUserInfo"
+    v-model="userInfoStore.showUserInfo"
     :show-close="false"
     align-center
     append-to-body
@@ -31,20 +30,20 @@ const tab = ref('archive')
 
       <div class="user-info overflow-hidden rounded flex flex-col items-center p-8 pt-28">
         <div class="banner absolute top-0 left-0 text-center text-lg p-4" :style="{ '--bg': `url('${BANNER_IMAGE_URL}')` }">
-          ID {{ userStore.info.id }}
+          ID {{ userInfoStore.info.id }}
         </div>
 
         <div class="user-avatar w-40 h-40 p-2 flex justify-center items-center">
-          <img v-if="userStore.info.logo?.trim()" :src="userStore.info.logo?.trim()" class="w-full h-full rounded-full">
+          <img v-if="userInfoStore.info.logo?.trim()" :src="userInfoStore.info.logo?.trim()" class="w-full h-full rounded-full">
           <Avatar v-else style="background: var(--el-color-info-light-3);" class="rounded-full text-white" />
         </div>
 
         <div class="w-full flex flex-col items-center p-4">
           <div class="flex items-center gap-2 text-3xl">
-            {{ userStore.info.nickname }}
+            {{ userInfoStore.info.nickname }}
           </div>
           <div class="text-lg" style="color: #7198E3">
-            {{ ROLES_MAP[userStore.auth.userRoles?.[0] ?? ''] }}
+            {{ userInfoStore.userRole?.name ?? '游客' }}
           </div>
         </div>
 

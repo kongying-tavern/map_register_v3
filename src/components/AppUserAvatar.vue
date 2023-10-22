@@ -1,14 +1,15 @@
 <script lang="ts" setup>
 import { Avatar } from '@element-plus/icons-vue'
 import { AppSettings } from '.'
-import { useUserStore } from '@/stores'
+import { useUserAuthStore, useUserInfoStore } from '@/stores'
 import { useGlobalDialog, useTheme } from '@/hooks'
 
 defineProps<{
   mapMode?: boolean
 }>()
 
-const userStore = useUserStore()
+const userInfoStore = useUserInfoStore()
+const userAuthStore = useUserAuthStore()
 const { isDark } = useTheme()
 const { DialogService } = useGlobalDialog()
 
@@ -21,17 +22,17 @@ const openSettingDialog = () => DialogService
   .open(AppSettings)
 
 const handleCommand = (command: string) => ({
-  userinfo: () => userStore.showUserInfo = true,
+  userinfo: () => userInfoStore.showUserInfo = true,
   themeschema: () => isDark.value = !isDark.value,
   setting: () => openSettingDialog(),
-  logout: () => userStore.logout(),
+  logout: () => userAuthStore.logout(),
 } as Record<string, () => void>)[command]?.()
 </script>
 
 <template>
   <el-dropdown class="genshin-avatar" trigger="click" style="--el-border-radius-base: 8px" @command="handleCommand">
     <el-button v-bind="$attrs" text size="large" :style="{ padding: '4px 8px' }">
-      <el-avatar v-if="userStore.info.logo?.trim()" class="rounded-full overflow-hidden" :size="30" :src="userStore.info.logo.trim()" />
+      <el-avatar v-if="userInfoStore.info.logo?.trim()" class="rounded-full overflow-hidden" :size="30" :src="userInfoStore.info.logo.trim()" />
       <el-icon v-else :size="30" class="rounded-full overflow-hidden" style="background: var(--el-color-info-light-3);" color="#FFF">
         <Avatar />
       </el-icon>
@@ -42,9 +43,9 @@ const handleCommand = (command: string) => ({
     <template #dropdown>
       <el-dropdown-menu>
         <el-dropdown-item command="userinfo">
-          {{ userStore.info.nickname }}
+          {{ userInfoStore.info.nickname }}
         </el-dropdown-item>
-        <el-dropdown-item v-if="userStore.isAdmin">
+        <el-dropdown-item v-if="userInfoStore.isManager">
           <router-link to="/items">
             管理界面
           </router-link>

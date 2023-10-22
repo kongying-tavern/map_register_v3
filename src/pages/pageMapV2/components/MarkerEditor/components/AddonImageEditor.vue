@@ -11,7 +11,7 @@ import type { UploadFile } from 'element-plus'
 import { ElIcon, ElMessage, ElUpload } from 'element-plus'
 import { usePictureUpload } from '../hooks'
 import { AddonImageEditorEP, AddonTeleporter } from '.'
-import { useUserStore } from '@/stores'
+import { useUserInfoStore } from '@/stores'
 import { Logger, messageFrom } from '@/utils'
 
 const props = defineProps<{
@@ -30,7 +30,7 @@ const emits = defineEmits<{
 
 const logger = new Logger('[ImageEditor]')
 
-const userStore = useUserStore()
+const userInfoStore = useUserInfoStore()
 
 const isAddonActived = computed({
   get: () => props.addonId === 'picture',
@@ -133,7 +133,7 @@ defineExpose({
       return
     const pictureUrl = await uploadPicture(parseredUrlInfo.value.basename)
     emits('update:modelValue', pictureUrl)
-    emits('update:creatorId', userStore.info.id)
+    emits('update:creatorId', userInfoStore.info.id)
   },
 })
 </script>
