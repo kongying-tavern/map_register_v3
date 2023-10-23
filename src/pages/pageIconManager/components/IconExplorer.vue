@@ -41,6 +41,7 @@ const gridItems = computed(() => Math.floor((width.value - 32) / 100))
       <template #default="{ item }">
         <div
           class="grid-item"
+          :title="item.tag"
           :class="{
             'is-actived': item.tag === activedTag?.tag,
           }"
@@ -90,6 +91,7 @@ const gridItems = computed(() => Math.floor((width.value - 32) / 100))
 
   &:not(.is-actived):active {
     --bg-color: var(--el-color-primary-light-7);
+    border-radius: 4px;
   }
 }
 
@@ -107,7 +109,7 @@ const gridItems = computed(() => Math.floor((width.value - 32) / 100))
   white-space: nowrap;
   text-overflow: ellipsis;
   text-align: center;
-  padding: 8px 0;
+  padding: 8px;
   color: var(--el-text-color-primary);
 }
 </style>

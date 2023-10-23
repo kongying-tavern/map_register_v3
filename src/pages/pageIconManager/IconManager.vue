@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ElTree } from 'element-plus'
 import type Node from 'element-plus/es/components/tree/src/model/node'
-import { IconExplorer } from './components'
+import { IconExplorer, IconPreviewer } from './components'
 import db from '@/database'
 import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
@@ -81,24 +81,24 @@ const loadTagType = async (node: Node, resolve: (data: API.TagTypeVo[]) => void)
       :tag-list="tagList"
     />
 
-    <div class="h-full overflow-hidden">
-      <pre>{{ activedTag }}</pre>
-    </div>
+    <IconPreviewer v-model="activedTag" />
 
-    <div class="border-t-[1px] el-border-color col-span-3 p-1">
-      {{ tagList.length }} 个项目
+    <div class="border-t-[1px] el-border-color col-span-3 p-1 px-2">
+      <el-text size="small">
+        当前分类下有 {{ tagList.length }} 个项目
+      </el-text>
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
 .el-border-color {
-  border-color: var(--el-border-color-light);
+  border-color: var(--el-border-color-lighter);
 }
 
 .icon-manager {
   display: grid;
-  grid-template-columns: 200px 1fr 300px;
+  grid-template-columns: 200px 1fr auto;
   grid-template-rows: auto 1fr auto;
 }
 </style>
