@@ -47,13 +47,13 @@ const gridItems = computed(() => Math.floor((width.value - 32) / 100))
           @click="activedTag = item"
         >
           <div
-            class="gri-item-image w-16 h-16"
+            class="item-image"
             :style="{
               '--x': `${-iconTagStore.iconMapping[item.tag]?.[0]}px`,
               '--y': `${-iconTagStore.iconMapping[item.tag]?.[1]}px`,
             }"
           />
-          <div class="w-full overflow-hidden whitespace-nowrap text-ellipsis text-center">
+          <div class="item-label">
             {{ item.tag }}
           </div>
         </div>
@@ -68,29 +68,46 @@ const gridItems = computed(() => Math.floor((width.value - 32) / 100))
 
   width: 100%;
   height: 100%;
-  position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   overflow: hidden;
-  border-radius: 8px;
-  padding: 8px;
+  border-radius: 6px;
   background-color: var(--bg-color);
-  clip-path: inset(2px 2px round 8px);
-  transition: all ease 150ms;
+  transition: all ease 100ms;
+  border: 1px solid transparent;
+  background-clip: padding-box;
 
   &.is-actived {
     --bg-color: var(--el-color-primary-light-7);
+    border-radius: 4px;
   }
 
   &:not(.is-actived):hover {
-    --bg-color: var(--el-color-primary-light-5);
+    --bg-color: var(--el-color-primary-light-9);
+  }
+
+  &:not(.is-actived):active {
+    --bg-color: var(--el-color-primary-light-7);
   }
 }
 
-.gri-item-image {
+.item-image {
+  width: 64px;
+  height: 64px;
+  scale: 0.75;
   background: var(--sprite-image);
   background-position: var(--x) var(--y);
+}
+
+.item-label {
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-align: center;
+  padding: 8px 0;
+  color: var(--el-text-color-primary);
 }
 </style>
