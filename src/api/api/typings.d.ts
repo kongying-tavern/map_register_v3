@@ -203,6 +203,8 @@ declare namespace API {
     hiddenFlag?: number;
     /** 额外特殊字段 */
     extra?: Record<string, any>;
+    /** 点位关联组ID */
+    linkageId?: string;
   };
 
   type ItemTypeVo = {
@@ -651,6 +653,55 @@ declare namespace API {
     time?: string;
   };
 
+  type MarkerLinkageVo = {
+    /** 乐观锁 */
+    version?: number;
+    /** ID */
+    id?: number;
+    /** 更新人 */
+    updaterId?: number;
+    /** 更新时间 */
+    updateTime?: string;
+    /** 组ID */
+    groupId?: string;
+    /** 起始点点位ID;会根据是否反向与 to_id 交换 */
+    fromId?: number;
+    /** 终止点点位ID;会根据是否反向与 from_id 交换 */
+    toId?: number;
+    /** 关联操作类型 */
+    linkAction?: string;
+    /** 是否反向 */
+    linkReverse?: boolean;
+    /** 路线 */
+    path?: Record<string, any>[];
+    /** 额外数据 */
+    extra?: Record<string, any>;
+  };
+
+  type RString = {
+    error?: boolean;
+    errorStatus?: number;
+    errorData?: Record<string, any>;
+    message?: string;
+    data?: string;
+    users?: Record<string, any>;
+    time?: string;
+  };
+
+  type MarkerLinkageSearchVo = {
+    groupIds?: string[];
+  };
+
+  type RMapStringListMarkerLinkageVo = {
+    error?: boolean;
+    errorStatus?: number;
+    errorData?: Record<string, any>;
+    message?: string;
+    data?: Record<string, any>;
+    users?: Record<string, any>;
+    time?: string;
+  };
+
   type PageListVoMarkerVo = {
     record?: MarkerVo[];
     total?: number;
@@ -1023,16 +1074,6 @@ declare namespace API {
     errorData?: Record<string, any>;
     message?: string;
     data?: SysArchiveSlotVo[];
-    users?: Record<string, any>;
-    time?: string;
-  };
-
-  type RString = {
-    error?: boolean;
-    errorStatus?: number;
-    errorData?: Record<string, any>;
-    message?: string;
-    data?: string;
     users?: Record<string, any>;
     time?: string;
   };

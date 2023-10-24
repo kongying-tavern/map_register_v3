@@ -16,6 +16,14 @@ export async function cleanMarkerCache(options?: { [key: string]: any }) {
   });
 }
 
+/** 删除全部点位关联缓存 删除点位关联缓存 DELETE /api/cache/marker_linkage */
+export async function cleanMarkerLinkageCache(options?: { [key: string]: any }) {
+  return request<API.RBoolean>('/api/cache/marker_linkage', {
+    method: 'DELETE',
+    ...(options || {}),
+  });
+}
+
 /** 删除全部物品缓存 删除物品缓存 DELETE /api/cache/item */
 export async function cleanItemCache(options?: { [key: string]: any }) {
   return request<API.RBoolean>('/api/cache/item', {
