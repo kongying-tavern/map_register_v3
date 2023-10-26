@@ -1,4 +1,5 @@
 export { AppAreaCodeSelecter } from './AppAreaCodeSelecter'
+export { AppImageCropper } from './AppImageCropper'
 export { AppItemSelecter } from './AppItemSelecter'
 export { AppSettings } from './AppSettings'
 export { AppUserInfo } from './AppUserInfo'
