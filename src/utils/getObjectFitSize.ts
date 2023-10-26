@@ -55,5 +55,5 @@ export const getObjectFitSize = (
       dw = imgWidth * radio
     }
   }
-  return { sx, sy, sw, sh, dx, dy, dw, dh }
+  return { sx, sy, sw, sh, dx, dy, dw, dh, radio }
 }
