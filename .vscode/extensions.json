@@ -9,7 +9,8 @@
     "christian-kohler.npm-intellisense",
     "herrmannplatz.npm-dependency-links",
     "mhutchie.git-graph",
-    "eamodio.gitlens"
+    "eamodio.gitlens",
+    "usernamehw.errorlens"
   ],
   "unwantedRecommendations": [
     // 与 volar 冲突
