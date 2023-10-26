@@ -41,7 +41,7 @@ axiosInstance.interceptors.response.use(
     const { data } = response
     if (response.status === 401) {
       useUserAuthStore().logout()
-      useRouter().push('/login')
+      return Promise.reject(new Error('用户凭证无效'))
     }
     if (data.error)
       return Promise.reject(new Error(data.error_description ?? data.message))

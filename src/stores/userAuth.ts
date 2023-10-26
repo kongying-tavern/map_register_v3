@@ -54,7 +54,7 @@ export const useUserAuthStore = defineStore('user-auth', () => {
     return expiresTime > Date.now()
   }
 
-  const refreshAuth = () => new Promise<API.SysToken>((resolve, reject) => {
+  const refreshAuth = () => new Promise<void>((resolve, reject) => {
     const { refreshToken } = auth.value
     if (!refreshToken)
       return reject(new Error('鉴权信息为空'))
@@ -72,7 +72,7 @@ export const useUserAuthStore = defineStore('user-auth', () => {
       if (result instanceof Error)
         return reject(result)
       setAuth(result)
-      resolve(result)
+      resolve()
       subscription.unsubscribe()
       userHook.applyCallbacks('onAuthChange')
     })
@@ -101,6 +101,8 @@ export const useUserAuthStore = defineStore('user-auth', () => {
 
       const commitRefresh = async () => {
         stopAutoRefresh()
+        if (!auth.value.refreshToken)
+          return
         await refreshAuth()
         await userInfoStore.updateUserInfo()
         ensureTokenRefreshMission()
@@ -122,9 +124,12 @@ export const useUserAuthStore = defineStore('user-auth', () => {
     }
   }
 
+  const router = useRouter()
+
   const logout = () => {
-    auth.value = {}
     stopAutoRefresh()
+    auth.value = {}
+    router.push('/login')
   }
 
   return {
