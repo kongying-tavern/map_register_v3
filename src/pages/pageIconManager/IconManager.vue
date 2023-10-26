@@ -4,7 +4,7 @@ import type Node from 'element-plus/es/components/tree/src/model/node'
 import { IconExplorer, IconPreviewer } from './components'
 import db from '@/database'
 import Api from '@/api/api'
-import { useFetchHook } from '@/hooks'
+import { useDatabaseHook, useFetchHook } from '@/hooks'
 import { useIconTagStore } from '@/stores'
 
 const iconTagStore = useIconTagStore()
@@ -22,6 +22,8 @@ const { data: tagList, refresh: updateTagList, loading } = useFetchHook<API.TagV
     return result
   },
 })
+
+useDatabaseHook(db.iconTag, updateTagList, ['creating', 'deleting', 'updating'])
 
 const handleCurrentChange = (current: API.TagTypeVo) => {
   currentTypeId.value = current.id!
@@ -83,9 +85,16 @@ const loadTagType = async (node: Node, resolve: (data: API.TagTypeVo[]) => void)
 
     <IconPreviewer v-model="activedTag" />
 
-    <div class="border-t-[1px] el-border-color col-span-3 p-1 px-2">
+    <div class="border-t-[1px] el-border-color col-span-3 p-2 px-3">
       <el-text size="small">
-        当前分类下有 {{ tagList.length }} 个项目
+        {{ tagList.length }} 个项目
+        <template v-if="activedTag">
+          <el-divider direction="vertical" />
+          图标原始地址：
+          <a :href="activedTag.url" class="hover:underline underline-offset-4">
+            {{ decodeURIComponent(activedTag.url ?? '') }}
+          </a>
+        </template>
       </el-text>
     </div>
   </div>
