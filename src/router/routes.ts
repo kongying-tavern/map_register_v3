@@ -92,6 +92,15 @@ const routes: RouteRecordRaw[] = [
         },
         component: () => import('@/pages/pageHistory/PageHistory.vue'),
       },
+      {
+        path: '/announcement',
+        meta: {
+          title: '公告管理',
+          icon: 'ChatLineRound',
+          role: RoleTypeEnum.MAP_MANAGER,
+        },
+        component: () => import('@/pages/pageAnnouncementManager/PageAnnouncementManager.vue'),
+      },
     ],
   },
   {
