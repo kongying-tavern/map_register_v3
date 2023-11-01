@@ -20,4 +20,9 @@ declare global {
   type SnakeCaseKeysToCamelCase<T> = {
     [K in keyof T as SnakeCaseToCamelCase<K>]: T[K];
   }
+
+  /** 将普通对象内的值全部转换为响应式 */
+  type ToRefDestructure<T> = {
+    [K in keyof T]: Ref<T[K]>
+  }
 }
