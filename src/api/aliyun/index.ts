@@ -1,6 +1,3 @@
-import { token, upload } from './drive'
+import * as apis from './drive'
 
-export default {
-  token,
-  upload,
-}
+export default { ...apis }
