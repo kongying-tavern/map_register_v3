@@ -1,34 +1,66 @@
 import Konva from 'konva'
 import type { ShallowRef } from 'vue'
-import { ElMessage } from 'element-plus'
 import { clamp } from 'lodash'
 import { loadKonvaImage } from '../utils'
+import type { AppImageCropperProps } from '../types'
 import { getObjectFitSize } from '@/utils'
 
-export interface ImageInfoHookOptions {
+export interface ImageInfoHookOptions extends ToRefDestructure<Required<AppImageCropperProps>> {
   layer: ShallowRef<Konva.Layer | null>
   width: Ref<number>
   height: Ref<number>
-  maxZoom: ComputedRef<number | undefined>
-  minZoom: ComputedRef<number | undefined>
+  onCrop: (blob: Blob) => void
+  onError: (err: Error) => void
 }
 
-export const useImage = (url: Ref<string | undefined>, options: ImageInfoHookOptions) => {
-  const { layer, width: cw, height: ch, maxZoom, minZoom } = options
+export const useImage = (options: ImageInfoHookOptions) => {
+  const {
+    image,
+    layer,
+    width: cw,
+    height: ch,
+    maxZoom,
+    minZoom,
+    cropRatio,
+    autoCrop,
+    autoCropDebounce,
+    autoCropOnImageLoaded,
+    onCrop,
+    onError,
+  } = options
 
-  const image = shallowRef<Konva.Image | null>(null)
+  const konvaImage = shallowRef<Konva.Image | null>(null)
+
+  const immediateCrop = async () => {
+    const stage = konvaImage.value?.getStage()
+    if (!stage)
+      return
+    const blob = await stage.toBlob({
+      mimeType: 'image/png',
+      pixelRatio: cropRatio.value,
+    }) as Blob
+    onCrop(blob)
+    return blob
+  }
+
+  const debounceCrop = useDebounceFn(immediateCrop, autoCropDebounce)
+
+  const crop = () => {
+    // TODO 适配器
+    debounceCrop()
+  }
 
   const minScale = computed(() => {
-    if (!image.value)
+    if (!konvaImage.value)
       return 1
-    const iw = image.value.width()
-    const ih = image.value.height()
+    const iw = konvaImage.value.width()
+    const ih = konvaImage.value.height()
     const { radio } = getObjectFitSize('cover', cw.value, ch.value, iw, ih)
     return minZoom.value === undefined ? radio : Math.max(radio, minZoom.value)
   })
 
   const maxScale = computed(() => {
-    if (!image.value || maxZoom.value === undefined)
+    if (!konvaImage.value || maxZoom.value === undefined)
       return 1
     return Math.max(minScale.value, 2 ** maxZoom.value)
   })
@@ -47,6 +79,7 @@ export const useImage = (url: Ref<string | undefined>, options: ImageInfoHookOpt
 
   const attachDragController = (_image: Konva.Image) => {
     _image.dragBoundFunc(pos => getBouondingPosition(_image, pos))
+    _image.on('dragend', () => autoCrop.value && crop())
   }
 
   const attachZoomController = (_image: Konva.Image) => {
@@ -87,6 +120,7 @@ export const useImage = (url: Ref<string | undefined>, options: ImageInfoHookOpt
         x: newScale,
         y: newScale,
       }).position(getBouondingPosition(_image, position))
+      autoCrop.value && crop()
     })
   }
 
@@ -113,19 +147,22 @@ export const useImage = (url: Ref<string | undefined>, options: ImageInfoHookOpt
       tween.onFinish = () => {
         tween?.destroy()
         tween = null
+        autoCrop.value && crop()
       }
     })
   }
 
   const initImage = async () => {
-    if (image.value)
-      image.value.remove()
-    if (!url.value)
+    konvaImage.value?.remove()
+    if (!image.value)
       return
 
     try {
-      const _image = await loadKonvaImage(url.value)
-      image.value = _image
+      const _image = await loadKonvaImage(image.value).catch(() => null)
+      if (!_image)
+        throw new Error('无法加载文件')
+
+      konvaImage.value = _image
 
       if (!layer.value)
         throw new Error('无法获取图层实例')
@@ -140,24 +177,26 @@ export const useImage = (url: Ref<string | undefined>, options: ImageInfoHookOpt
         .scale({ x: scale, y: scale })
         .position({ x: cw / 2, y: ch / 2 })
         .setDraggable(true)
+      autoCropOnImageLoaded.value && autoCrop.value && crop()
       attachDragController(_image)
       attachZoomController(_image)
       attachRotateController(_image)
     }
     catch (err) {
-      ElMessage.error({
-        message: `初始化图片失败，原因为：${err instanceof Error ? err.message : err}`,
-        offset: 48,
-      })
+      onError(err instanceof Error
+        ? err
+        : new Error(err instanceof Event ? 'internal error' : `${err}`),
+      )
     }
   }
 
-  const startWatchUrl = () => watch(url, initImage, { immediate: true })
+  const startWatchUrl = () => watch(image, initImage, { immediate: true })
 
   return {
     minScale,
     maxScale,
 
+    crop,
     startWatchUrl,
   }
 }

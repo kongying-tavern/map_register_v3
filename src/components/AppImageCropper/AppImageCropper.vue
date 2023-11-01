@@ -1,16 +1,25 @@
 <script setup lang="ts">
 import Konva from 'konva'
 import { useImage, useStage } from './hooks'
+import type { AppImageCropperProps } from './types'
 
 // TODO 视情况添加更多裁切功能
-const props = withDefaults(defineProps<{
-  url?: string
-  maxZoom?: number
-  minZoom?: number
-  cropRatio?: number
-}>(), {
+const props = withDefaults(defineProps<AppImageCropperProps>(), {
+  image: '',
+  maxZoom: 1,
+  minZoom: 0,
   cropRatio: 1,
+  autoCrop: false,
+  autoCropDebounce: 200,
+  autoCropOnImageLoaded: true,
 })
+
+const emits = defineEmits<{
+  crop: [Blob]
+  error: [Error]
+}>()
+
+const destructureProps = toRefs(props)
 
 const containerRef = ref() as Ref<HTMLDivElement>
 
@@ -18,12 +27,13 @@ const { stage, width, height } = useStage(containerRef)
 
 const layer = shallowRef<Konva.Layer | null>(null)
 
-const { startWatchUrl } = useImage(computed(() => props.url), {
+const { startWatchUrl, crop } = useImage({
+  ...destructureProps,
   layer,
   width,
   height,
-  maxZoom: computed(() => props.maxZoom),
-  minZoom: computed(() => props.minZoom),
+  onCrop: blob => emits('crop', blob),
+  onError: err => emits('error', err),
 })
 
 onMounted(async () => {
@@ -42,11 +52,6 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   stage.value?.destroy()
 })
-
-const crop = async () => stage.value!.toBlob({
-  mimeType: 'image/png',
-  pixelRatio: props.cropRatio,
-}) as Promise<Blob>
 
 defineExpose({
   crop,
