@@ -890,6 +890,8 @@ declare namespace API {
     creator?: number;
     /** 图标分类列表 */
     typeIdList?: number[];
+    /** 图标名 */
+    name?: string;
     /** 当前页，从0开始 */
     current?: number;
     /** 每页大小，默认为10 */
