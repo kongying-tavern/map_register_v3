@@ -1,57 +1,81 @@
 <script lang="ts" setup>
 import { Check, Close } from '@element-plus/icons-vue'
-import { ElLoading } from 'element-plus'
-import { GlobalDialogController, useFetchHook } from '@/hooks'
-import { sleep } from '@/utils'
+import { useImageLoad, useImageSelect, useImageUpload } from '../hooks'
+import { IconImageSelect } from '.'
+import { GlobalDialogController } from '@/hooks'
+import { formatByteSize } from '@/utils'
 import { AppImageCropper } from '@/components'
 
 const props = defineProps<{
   icon: API.TagVo
 }>()
 
-const url = ref(props.icon.url)
-const cropImageUrl = ref(props.icon.url)
+const tagName = computed(() => props.icon.tag)
 
-const selectImage = () => {
-  const loading = ElLoading.service({
-    text: '等待图片...',
-    background: 'var(--el-overlay-color-lighter)',
-  })
-  const input = document.createElement('input')
-  input.type = 'file'
-  input.accept = 'image/*'
-  input.multiple = false
-  input.onchange = () => {
-    loading.close()
-    const file = input.files?.[0]
-    if (!file)
-      return
-    input.remove()
-    if (url.value?.startsWith('blob:'))
-      URL.revokeObjectURL(url.value)
-    url.value = URL.createObjectURL(file)
-  }
-  input.click()
+// ==================== Tab 操作 ====================
+enum TabKey {
+  /** 添加新图片 */
+  UPLOAD = 'upload',
+  /** 使用已有图片 */
+  SELECT = 'select',
 }
 
-const imageCropperRef = ref<InstanceType<typeof AppImageCropper> | null>(null)
-const cropImage = async () => {
-  if (!imageCropperRef.value)
-    return
-  const image = await imageCropperRef.value.crop()
-  if (cropImageUrl.value?.startsWith('blob:'))
-    URL.revokeObjectURL(cropImageUrl.value)
-  cropImageUrl.value = URL.createObjectURL(image)
+const tabs = {
+  [TabKey.UPLOAD]: '添加新图片',
+  [TabKey.SELECT]: '使用已有图片',
 }
 
-const { refresh: updateIconImage, loading } = useFetchHook({
-  onRequest: async () => {
-    await sleep(3000)
-  },
+const activedTabKey = ref<TabKey>(TabKey.UPLOAD)
+
+// ==================== 裁切图片 ====================
+const { localImageUrl, loading: localImageLoading, loadLocalImage } = useImageLoad()
+
+const croppedImage = shallowRef<Blob>()
+const croppedImageUrl = useObjectUrl(croppedImage)
+
+const onImageCrop = (image: Blob) => {
+  croppedImage.value = image
+}
+
+// ==================== 上传图片 ====================
+const { croppedImageName, loading: uploadLoading, percentage, status, text, uploadImage } = useImageUpload({
+  image: croppedImage,
+  tagName,
 })
 
-const closeDialog = () => {
-  if (loading.value)
+// ==================== 复用图片 ====================
+const { selectedImage, useImage, loading: selectLoading } = useImageSelect({
+  tagName,
+})
+
+// ==================== 弹窗操作 ====================
+const confirmDisabled = computed(() => ({
+  [TabKey.UPLOAD]: () => !croppedImageUrl.value || !croppedImageName.value,
+  [TabKey.SELECT]: () => !selectedImage.value,
+})[activedTabKey.value]())
+
+const confirmLoading = computed(() => ({
+  [TabKey.UPLOAD]: uploadLoading,
+  [TabKey.SELECT]: selectLoading,
+})[activedTabKey.value].value)
+
+const setTab = (name: TabKey) => {
+  if (confirmLoading.value)
+    return
+  activedTabKey.value = name
+}
+
+const confirm = async () => {
+  if (confirmDisabled.value)
+    return
+  await ({
+    [TabKey.UPLOAD]: uploadImage,
+    [TabKey.SELECT]: useImage,
+  })[activedTabKey.value]()
+}
+
+const cancel = () => {
+  if (confirmLoading.value)
     return
   GlobalDialogController.close()
 }
@@ -59,6 +83,9 @@ const closeDialog = () => {
 
 <template>
   <div
+    v-loading.fullscreen="localImageLoading"
+    element-loading-text="等待文件系统响应..."
+    element-loading-background="var(--el-mask-color-extra-light)"
     class="rounded-lg
       flex flex-col overflow-hidden
       bg-[var(--el-fill-color)]
@@ -74,13 +101,18 @@ const closeDialog = () => {
           h-full
           flex
           items-center
-          hover:bg-[var(--el-color-danger)]
-          hover:text-[var(--el-bg-color)]
-          active:bg-[var(--el-color-danger-light-3)]
-          active:text-[var(--el-bg-color)]
           transition-all
           select-none"
-        @click="closeDialog"
+        :class="[
+          confirmLoading
+            ? 'cursor-not-allowed'
+            : '\
+            hover:bg-[var(--el-color-danger)]\
+            hover:text-[var(--el-bg-color)]\
+            active:bg-[var(--el-color-danger-light-3)]\
+            active:text-[var(--el-bg-color)]',
+        ]"
+        @click="cancel"
       >
         <el-icon :size="16">
           <Close />
@@ -88,74 +120,130 @@ const closeDialog = () => {
       </div>
     </div>
 
+    <el-alert type="warning" style="margin-bottom: 8px">
+      注意：上传的图片不会立即可用，需要等待服务端刷新缓存。
+    </el-alert>
+
+    <div class="tabs flex tab mx-2 text-xs">
+      <div
+        v-for="(name, key) in tabs"
+        :key="key"
+        :class="{ actived: key === activedTabKey }"
+        class="tab-item"
+        @click="() => setTab(key)"
+      >
+        {{ name }}
+      </div>
+    </div>
+
     <div
-      class="flex-1 mx-2
-        p-2 overflow-auto
+      class="w-[370px] h-[340px] mx-2
+        p-2 overflow-hidden
         border border-[var(--el-border-color)]
         bg-[var(--el-bg-color)]"
     >
-      <div class="mb-1">
-        使用新图片：
-      </div>
-      <div class="flex gap-2">
-        <AppImageCropper ref="imageCropperRef" class="flex-shrink-0 w-64 h-64" :url="url" />
+      <div v-show="activedTabKey === TabKey.UPLOAD" class="grid gap-2 grid-cols-[auto_1fr]">
+        <el-input v-model="croppedImageName" class="col-span-2" placeholder="请输入图标名称">
+          <template #prefix>
+            <span class="text-xs text-[var(--el-color-danger)] select-none">
+              *
+            </span>
+          </template>
+          <template #suffix>
+            <span class="text-xs select-none" :class="!croppedImageName.length ? 'text-[var(--el-color-danger)]' : ''">
+              {{ croppedImageName.length }} / {{ 16 }}
+            </span>
+          </template>
+        </el-input>
+
+        <AppImageCropper
+          class="flex-shrink-0 w-64 h-64"
+          :image="localImageUrl"
+          :crop-ratio="0.25"
+          auto-crop
+          @crop="onImageCrop"
+        />
 
         <div class="w-full flex flex-col justify-between">
-          <el-button @click="selectImage">
-            选择图片
+          <el-button @click="loadLocalImage">
+            {{ localImageUrl ? '切换' : '选择' }}图片
           </el-button>
-          <div class="divider" />
-          <div class="flex-1 grid place-items-center place-content-center gap-2">
-            <div>预览</div>
-            <div v-if="!cropImageUrl" class="w-16 h-16 border border-[var(--el-border-color)]" />
-            <img v-else class="w-16 h-16" :src="cropImageUrl">
+          <el-divider style="margin: 8px 0 0" />
+          <div class="flex-1 grid place-items-center place-content-center gap-1">
+            <div class="w-16 h-16 border border-[var(--el-border-color)] box-content">
+              <img v-if="croppedImageUrl" class="w-full h-full" :src="croppedImageUrl" crossorigin="">
+            </div>
             <div class=" text-xs">
               64x64 px
             </div>
+            <div v-if="croppedImage" class=" text-xs">
+              {{ formatByteSize(croppedImage.size) }}
+            </div>
           </div>
-          <div class="divider" />
-          <el-button @click="cropImage">
-            裁切图片
-          </el-button>
         </div>
+
+        <el-progress
+          v-if="text"
+          :percentage="percentage"
+          :status="status"
+          :duration="4"
+          :stroke-width="18"
+          :striped-flow="uploadLoading"
+          striped
+          text-inside
+          class="col-span-2"
+          style="--progress-radius: 4px"
+        >
+          {{ text }}
+        </el-progress>
       </div>
 
-      <div class="divider" />
-
-      <div class="mb-1 flex items-center gap-2">
-        <div class=" whitespace-nowrap">
-          使用已有图片：
-        </div>
-        <el-input size="small" placeholder="搜索名称..." />
-      </div>
-      <div class="h-32 grid grid-cols-10 grid-rows-4 overflow-auto">
-        <div v-for="i in 100" :key="i" class="w-8 h-8 border" />
-      </div>
+      <IconImageSelect v-show="activedTabKey === TabKey.SELECT" v-model="selectedImage" />
     </div>
 
     <div class="flex justify-end p-2">
-      <el-button type="primary" :icon="Check" :loading="loading" disabled @click="updateIconImage">
+      <el-button
+        type="primary"
+        :icon="Check"
+        :loading="uploadLoading"
+        :disabled="confirmDisabled"
+        @click="confirm"
+      >
         确认
       </el-button>
-      <el-button :icon="Close" :disabled="loading" @click="closeDialog">
+      <el-button :icon="Close" :disabled="uploadLoading" @click="cancel">
         取消
       </el-button>
     </div>
-
-    <el-alert type="warning" :closable="false">
-      <div>TODOs</div>
-      <ol>
-        <li>1. 支持拖入图片</li>
-        <li>2. 缩放时以视口中心为旋转中心，保持尺寸不变</li>
-      </ol>
-    </el-alert>
   </div>
 </template>
 
 <style scoped>
-.divider {
-  height: 1px;
-  background: var(--el-border-color);
-  margin: 8px 0;
+.tabs {
+  translate: 0 1px;
+}
+
+.tab-item {
+  border-width: 1px 1px 1px 0;
+  border-style: solid;
+  border-color: var(--el-border-color);
+  padding: 4px 8px;
+  background: var(--el-fill-color);
+  margin-top: 2px;
+  user-select: none;
+
+  &:first-of-type {
+    border-left-width: 1px;
+  }
+
+  &.actived {
+    background: var(--el-bg-color);
+    border-bottom-color: transparent;
+    margin-top: 0px;
+  }
+
+  &:not(.actived):hover {
+    background: var(--el-bg-color);
+  }
 }
 </style>
