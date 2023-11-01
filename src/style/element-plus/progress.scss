@@ -1,0 +1,9 @@
+.el-progress {
+  .el-progress-bar__outer {
+    border-radius: var(--progress-radius, 100px);
+  }
+
+  .el-progress-bar__inner {
+    border-radius: var(--progress-radius, 100px);
+  }
+}
