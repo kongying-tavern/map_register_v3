@@ -38,13 +38,21 @@
                 <q-item-section avatar>
                   <q-avatar
                     v-if="i.hiddenFlag === 1"
+                    text-color="grey-6"
                     size="md"
-                    icon="visibility_off"
+                    icon="mdi-eye-off"
                   />
                   <q-avatar
                     v-else-if="i.hiddenFlag === 2"
+                    text-color="grey-6"
                     size="md"
-                    icon="lens_blur"
+                    icon="mdi-incognito"
+                  />
+                  <q-avatar
+                    v-else-if="i.hiddenFlag === 3"
+                    text-color="grey-6"
+                    size="md"
+                    icon="mdi-egg-easter"
                   />
                 </q-item-section>
               </q-item>
@@ -67,13 +75,21 @@
                 <q-item-section avatar>
                   <q-avatar
                     v-if="i.hiddenFlag === 1"
+                    text-color="grey-6"
                     size="md"
-                    icon="visibility_off"
+                    icon="mdi-eye-off"
                   />
                   <q-avatar
                     v-else-if="i.hiddenFlag === 2"
+                    text-color="grey-6"
                     size="md"
-                    icon="lens_blur"
+                    icon="mdi-incognito"
+                  />
+                  <q-avatar
+                    v-else-if="i.hiddenFlag === 3"
+                    text-color="grey-6"
+                    size="md"
+                    icon="mdi-egg-easter"
                   />
                 </q-item-section>
               </q-item>
