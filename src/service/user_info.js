@@ -1,3 +1,4 @@
+import { computed } from "vue";
 import { Cookies } from "quasar";
 
 function set_user_data(data = {}) {
@@ -58,23 +59,27 @@ function set_user_expires(expire_in = 0) {
   );
 }
 
+const user_roles = computed(() => get_user_roles());
+
 function has_user_role(role = "") {
-  const roles = get_user_roles();
-  return roles.indexOf(role) !== -1;
+  return user_roles.value.indexOf(role) !== -1;
 }
 
-function is_neigui() {
-  return (
+const is_admin = computed(
+  () => has_user_role("ADMIN") || has_user_role("MAP_MANAGER")
+);
+
+const is_neigui = computed(
+  () =>
     has_user_role("MAP_NEIGUI") ||
     has_user_role("MAP_MANAGER") ||
     has_user_role("ADMIN")
-  );
-}
+);
 
-function is_expired() {
+const is_expired = computed(() => {
   const expire = get_user_expires();
   return Date.now() > expire;
-}
+});
 
 export {
   set_user_data,
@@ -89,6 +94,7 @@ export {
   get_user_expires,
   set_user_expires,
   has_user_role,
+  is_admin,
   is_neigui,
   is_expired,
 };

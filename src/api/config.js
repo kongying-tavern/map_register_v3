@@ -10,7 +10,7 @@ export const map_tiles_norm_config = ref({});
 export const map_tiles_neigui_config = ref({});
 
 export const map_tiles_config = computed(() =>
-  is_neigui()
+  is_neigui.value
     ? _.defaults({}, map_tiles_neigui_config.value, map_tiles_norm_config.value)
     : map_tiles_norm_config.value
 );
@@ -21,7 +21,7 @@ export const map_plugin_norm_config = ref({});
 export const map_plugin_neigui_config = ref({});
 
 export const map_plugin_config = computed(() =>
-  is_neigui()
+  is_neigui.value
     ? _.defaultsDeep(
         {},
         map_plugin_neigui_config.value,

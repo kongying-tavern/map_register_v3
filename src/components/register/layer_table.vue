@@ -165,6 +165,7 @@
             <q-tooltip anchor="top middle" self="top middle"> 编辑 </q-tooltip>
           </q-btn>
           <q-btn
+            v-if="is_admin"
             icon="delete"
             color="red-6"
             dense
@@ -181,9 +182,10 @@
 </template>
 
 <script>
-import plFilter from "src/components/filters/filter-plugin.vue";
-import { tableData, mapDisplayWithFilter } from "./layer_table";
 import { computed } from "vue";
+import plFilter from "src/components/filters/filter-plugin.vue";
+import { is_admin } from "src/service/user_info";
+import { tableData, mapDisplayWithFilter } from "./layer_table";
 
 export default {
   name: "LayerTable",
@@ -195,6 +197,8 @@ export default {
     );
 
     return {
+      is_admin,
+
       tableData,
       mapDisplayWithFilter,
 

@@ -31,25 +31,35 @@
       <p>点位显示状态：{{ layer_hidden }}</p>
     </div>
     <div class="btns row justify-between">
-      <q-btn
-        flat
-        :label="item"
-        v-for="(item, index) in btn_labels"
-        :key="index"
-        @click="callback_handle(index)"
-        color="primary"
-      ></q-btn>
+      <template v-for="(item, index) in btn_labels">
+        <q-btn
+          v-if="typeof item.validate === 'function' && !!item.validate()"
+          flat
+          :label="item.label"
+          :key="index"
+          @click="callback_handle(index)"
+          color="primary"
+        >
+        </q-btn>
+      </template>
     </div>
   </div>
 </template>
 
 <script>
+import { is_admin } from "src/service/user_info";
+
 export default {
   name: "PopupWindow",
   data() {
     return {
       layer_data: {},
-      btn_labels: ["修改", "标记", "更改坐标", "删除"],
+      btn_labels: [
+        { label: "修改", validate: () => true },
+        { label: "标记", validate: () => true },
+        { label: "更改坐标", validate: () => true },
+        { label: "删除", validate: () => is_admin.value },
+      ],
     };
   },
   props: ["layer", "map"],

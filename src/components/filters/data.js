@@ -579,7 +579,7 @@ export const filterTypes = [
           { label: "显示", value: 0 },
           { label: "隐藏", value: 1 },
         ];
-        if (is_neigui()) {
+        if (is_neigui.value) {
           options.push({ label: "内鬼", value: 2 });
         }
 

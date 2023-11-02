@@ -160,7 +160,7 @@ export default {
     });
 
     setInterval(() => {
-      if (is_expired()) {
+      if (is_expired.value) {
         refresh_token().then((res) => {
           set_user_data(res.data || {});
         });
