@@ -1,15 +1,42 @@
-import type { Dexie } from 'dexie'
+import type { Dexie, Transaction } from 'dexie'
 
 type DexieTableHookType =
   | 'creating'
   | 'deleting'
-  | 'reading'
   | 'updating'
 
+const isTransaction = (v: unknown): v is Transaction => {
+  if (v === null)
+    return false
+  if (typeof v !== 'object')
+    return false
+  const objKeys = new Set(Reflect.ownKeys(v))
+  return [
+    'db',
+    'active',
+    'mode',
+    'storeNames',
+    'parent',
+    'on',
+    'abort',
+    'table',
+  ].every(key => objKeys.has(key))
+}
+
 export const useDatabaseHook = (table: Dexie.Table, cb: () => void, types: DexieTableHookType[]) => {
-  types.forEach(hookType => table.hook(hookType).subscribe(cb))
+  // 确保 callback 在事务完成后才被调用
+  const rewriteCallback = (...args: unknown[]) => {
+    const maybeTransaction = args.at(-1)
+
+    if (!isTransaction(maybeTransaction))
+      return cb()
+
+    maybeTransaction.on('complete', cb)
+  }
+
+  types.forEach(hookType => table.hook(hookType).subscribe(rewriteCallback))
 
   onDeactivated(() => {
-    types.forEach(hookType => table.hook(hookType).unsubscribe(cb))
+    types.forEach(hookType => table.hook(hookType).unsubscribe(rewriteCallback))
   })
 }
