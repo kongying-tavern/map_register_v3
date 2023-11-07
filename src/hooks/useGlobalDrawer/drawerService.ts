@@ -45,8 +45,7 @@ export class DrawerService {
   }
 
   /** 传递给抽屉默认插槽上的组件的事件监听器 */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static listeners = <T extends Record<string, (...args: any[]) => void>>(listenersObj: T) => {
+  static listeners = <T extends Record<string, (...args: unknown[]) => void>>(listenersObj: T) => {
     eventListener.value = {
       ...listenersObj,
     }

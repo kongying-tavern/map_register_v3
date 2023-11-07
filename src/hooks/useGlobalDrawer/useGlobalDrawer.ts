@@ -17,7 +17,7 @@ export interface PropsOptions {
  * 注意事项：
  * 1. 该服务为单例模式
  * 2. 如果你的抽屉很复杂，请直接使用 `el-drawer`
-*/
+ */
 export const useGlobalDrawer = () => {
   onBeforeRouteLeave(() => {
     DrawerController.close(undefined, true)

@@ -26,6 +26,6 @@ export class DrawerController {
 
   /** 等待抽屉关闭后获取数据 */
   static afterClosed = <T>() => new Promise<T | undefined>((resolve) => {
-    closeResolver.value = resolve
+    closeResolver.value = resolve as (value: unknown) => void
   })
 }

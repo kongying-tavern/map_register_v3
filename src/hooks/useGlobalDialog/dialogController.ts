@@ -26,8 +26,8 @@ export class DialogController {
   }
 
   /** 等待弹窗关闭后获取数据 */
-  static afterClosed = <T>() => new Promise<T | undefined>((resolve) => {
-    closeResolver.value = resolve
+  static afterClosed = <T = undefined>() => new Promise<T>((resolve) => {
+    closeResolver.value = resolve as (value: unknown) => void
   })
 
   /** 在弹窗底部注册一个按钮 */

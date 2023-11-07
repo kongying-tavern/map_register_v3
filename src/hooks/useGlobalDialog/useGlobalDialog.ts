@@ -16,7 +16,7 @@ export interface PropsOptions {
  * 注意事项：
  * 1. 该服务为单例模式
  * 2. 如果你的弹窗很复杂，请直接使用 `el-dialog`
-*/
+ */
 export const useGlobalDialog = () => {
   onDeactivated(() => {
     DialogController.close(undefined, true)
