@@ -34,6 +34,12 @@ const { loading, refresh: updateIconList, onSuccess } = useFetchHook({
 
 watchDebounced(iconQuery, updateIconList, { debounce: 500 })
 
+function activeImage(icon: API.IconVo) {
+  if (modelValue.value?.id === icon.id)
+    return
+  modelValue.value = icon
+}
+
 onSuccess(({ record, total }) => {
   iconList.value = record
   pagination.value.total = total
@@ -55,31 +61,52 @@ onSuccess(({ record, total }) => {
       v-loading="loading"
       element-loading-text="加载中..."
       element-loading-background="var(--el-mask-color)"
-      class="w-[256px] flex place-content-center justify-evenly content-evenly flex-wrap overflow-hidden border border-[var(--el-border-color)]"
+      class="w-[256px] overflow-hidden
+        flex justify-evenly content-evenly flex-wrap
+        border border-[var(--el-border-color)]"
     >
       <div
         v-for="icon in iconList"
         :key="icon.id"
-        class="icon-radio w-[48px] h-[48px] flex-shrink-0 p-1"
-        :class="{
-          actived: modelValue?.id === icon.id,
-        }"
-        @click="modelValue = icon"
+        class="icon-radio w-[48px] h-[48px] flex-shrink-0 p-1 grid place-items-center"
+        :class="[
+          modelValue?.id === icon.id
+            ? 'actived'
+            : 'cursor-pointer',
+        ]"
+        @click="() => activeImage(icon)"
       >
-        <img :src="icon.url" class="w-full h-full object-contain" draggable="false" crossorigin="">
+        <img
+          :src="icon.url"
+          class="w-full h-full aspect-square object-contain"
+          draggable="false"
+          crossorigin=""
+        >
       </div>
+      <div v-for="i in (25 - iconList.length)" :key="i" class="w-[48px] h-[48px] pointer-events-none" />
     </div>
 
-    <div class="h-full flex flex-col justify-between">
+    <div class="w-full h-full flex flex-col justify-between overflow-hidden">
       <el-divider style="margin: 0 0 8px" />
-      <div class="text-xs text-center h-[23px] grid place-items-center">
+      <div
+        class="w-full h-[23px] overflow-hidden
+          text-xs text-center
+          leading-[23px] whitespace-nowrap text-ellipsis"
+        :title="modelValue?.name"
+      >
         {{ modelValue ? modelValue.name : '<选择图标>' }}
       </div>
       <el-divider style="margin: 8px 0 0" />
 
       <div class="flex-1 grid place-items-center place-content-center gap-1">
         <div class="w-16 h-16 border border-[var(--el-border-color)] box-content">
-          <img v-if="modelValue" :src="modelValue.url" class="w-full h-full object-contain" draggable="false" crossorigin="">
+          <img
+            v-if="modelValue"
+            :src="modelValue.url"
+            class="w-full h-full object-contain"
+            draggable="false"
+            crossorigin=""
+          >
         </div>
         <div class="text-xs">
           64x64 px
@@ -105,12 +132,20 @@ onSuccess(({ record, total }) => {
 
 <style scoped>
 .icon-radio {
-  &:not(.actived):hover {
-    background: var(--el-color-primary-light-7);
+  &:not(.actived):not(.error):not(.loading):hover {
+    &:hover {
+      background: var(--el-color-primary-light-7);
+    }
+    &:active {
+      background: var(--el-color-primary-light-5);
+    }
   }
-  &:not(.actived):active {
-    background: var(--el-color-primary-light-5);
+
+  &.error {
+    background: var(--el-color-danger-light-7);
+    cursor: not-allowed;
   }
+
   &.actived {
     background: var(--el-color-primary);
   }

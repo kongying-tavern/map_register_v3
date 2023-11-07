@@ -121,7 +121,7 @@ const cancel = () => {
     </div>
 
     <el-alert type="warning" style="margin-bottom: 8px">
-      注意：上传的图片不会立即可用，需要等待服务端刷新缓存。
+      注意：修改图片不会立即生效，需要等待服务器刷新缓存。
     </el-alert>
 
     <div class="tabs flex tab mx-2 text-xs">

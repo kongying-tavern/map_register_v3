@@ -1,6 +1,7 @@
 import { ElMessage } from 'element-plus'
 import Api from '@/api/api'
-import { useFetchHook } from '@/hooks'
+import { GlobalDialogController, useFetchHook } from '@/hooks'
+import db from '@/database'
 
 interface ImageSelectHookOptions {
   tagName: Ref<string | undefined>
@@ -15,13 +16,18 @@ export const useImageSelect = (options: ImageSelectHookOptions) => {
     onRequest: async () => {
       if (!selectedImage.value)
         throw new Error('还未选择任何图片')
-      if (!tagName.value)
+
+      const shallowTagName = tagName.value
+      if (!shallowTagName)
         throw new Error('icon tag 为空')
 
       await Api.tag.updateTag({
-        tagName: tagName.value,
+        tagName: shallowTagName,
         iconId: selectedImage.value.id!,
       })
+
+      const { data = {} } = await Api.tag.getTag({ name: shallowTagName })
+      await db.iconTag.put(data)
     },
   })
 
@@ -30,6 +36,7 @@ export const useImageSelect = (options: ImageSelectHookOptions) => {
       message: '图片修改成功',
       offset: 48,
     })
+    GlobalDialogController.close()
   })
 
   onError((err) => {

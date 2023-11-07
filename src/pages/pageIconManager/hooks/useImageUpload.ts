@@ -1,7 +1,8 @@
 import { ElMessage } from 'element-plus'
-import { useFetchHook } from '@/hooks'
-import { useImageHostingStore, useUserInfoStore } from '@/stores'
 import Api from '@/api/api'
+import db from '@/database'
+import { GlobalDialogController, useFetchHook } from '@/hooks'
+import { useImageHostingStore, useUserInfoStore } from '@/stores'
 
 interface ImageUploadHookOptions {
   image: Ref<Blob | undefined>
@@ -50,14 +51,17 @@ export const useImageUpload = (options: ImageUploadHookOptions) => {
 
   const { refresh: uploadImage, onSuccess, onError, ...rest } = useFetchHook({
     onRequest: async () => {
-      if (!file.value)
+      const shallowFile = file.value
+      if (!shallowFile)
         throw new Error('没有文件可以上传')
-      if (!tagName.value)
+
+      const shallowTagName = tagName.value
+      if (!shallowTagName)
         throw new Error('icon tag 为空')
 
       if (!imageHostingUrl.value) {
         text.value = '正在上传'
-        const url = await imageHostingStore.upload(file.value, (rate) => {
+        const url = await imageHostingStore.upload(shallowFile, (rate) => {
           percentage.value = 100 * rate
         })
         imageHostingUrl.value = url
@@ -65,7 +69,7 @@ export const useImageUpload = (options: ImageUploadHookOptions) => {
 
       text.value = '正在创建图片资产'
       const { data: iconId } = await Api.icon.createIcon({
-        name: file.value.name,
+        name: shallowFile.name,
         url: imageHostingUrl.value,
         typeIdList: [],
         creatorId: userInfoStore.info.id,
@@ -75,9 +79,13 @@ export const useImageUpload = (options: ImageUploadHookOptions) => {
 
       text.value = '正在关联图片资产'
       await Api.tag.updateTag({
-        tagName: tagName.value,
+        tagName: shallowTagName,
         iconId,
       })
+
+      text.value = '正在更新数据库'
+      const { data = {} } = await Api.tag.getTag({ name: shallowTagName })
+      await db.iconTag.put(data)
     },
   })
 
@@ -87,6 +95,7 @@ export const useImageUpload = (options: ImageUploadHookOptions) => {
       message: '图片修改成功',
       offset: 48,
     })
+    GlobalDialogController.close()
   })
 
   onError((err) => {
