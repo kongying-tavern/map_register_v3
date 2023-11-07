@@ -375,6 +375,7 @@ export default {
 
     return {
       map_editor_config,
+      is_neigui,
       layer_info,
       refresh_init,
     };
@@ -406,7 +407,6 @@ export default {
     };
   },
   computed: {
-    is_neigui,
     type_list() {
       const type_list = _.chain(this.basicTypes)
         .values()

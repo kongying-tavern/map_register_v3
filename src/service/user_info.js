@@ -1,4 +1,4 @@
-import { computed } from "vue";
+import { ref, computed } from "vue";
 import { Cookies } from "quasar";
 
 function set_user_data(data = {}) {
@@ -37,6 +37,7 @@ function set_user_roles(roles = [], expires = "") {
   Cookies.set("_yuanshen_dadian_roles", roles.join(","), {
     expires: `${expires}s`,
   });
+  user_roles.value = get_user_roles();
 }
 
 function get_user_refresh_token() {
@@ -59,7 +60,7 @@ function set_user_expires(expire_in = 0) {
   );
 }
 
-const user_roles = computed(() => get_user_roles());
+const user_roles = ref(get_user_roles());
 
 function has_user_role(role = "") {
   return user_roles.value.indexOf(role) !== -1;
