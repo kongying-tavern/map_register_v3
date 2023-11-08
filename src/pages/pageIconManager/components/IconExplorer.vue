@@ -4,7 +4,6 @@ import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 import { useIconTagStore } from '@/stores'
 
 defineProps<{
-  tagTypeId: number
   tagList: API.TagVo[]
   loading: boolean
 }>()
