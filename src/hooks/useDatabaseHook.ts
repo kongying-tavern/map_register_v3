@@ -10,17 +10,7 @@ const isTransaction = (v: unknown): v is Transaction => {
     return false
   if (typeof v !== 'object')
     return false
-  const objKeys = new Set(Reflect.ownKeys(v))
-  return [
-    'db',
-    'active',
-    'mode',
-    'storeNames',
-    'parent',
-    'on',
-    'abort',
-    'table',
-  ].every(key => objKeys.has(key))
+  return 'on' in v && typeof v.on === 'function'
 }
 
 export const useDatabaseHook = (table: Dexie.Table, cb: () => void, types: DexieTableHookType[]) => {
