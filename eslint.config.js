@@ -6,9 +6,6 @@ export default antfu({
   jsonc: false,
   yaml: false,
 
-  // 格式化工作由 prettier 专职进行
-  stylistic: false,
-
   ignores: [
     '**/dist',
     '**/node_modules',
@@ -23,9 +20,18 @@ export default antfu({
     '**/*.tsx',
   ],
 
+  stylistic: {
+    indent: 2,
+    quotes: 'single',
+    jsx: false,
+  },
+
   rules: {
     // 顶层函数允许使用箭头函数
     'antfu/top-level-function': 'off',
+
+    // 断行符号使用 CRLF
+    'style/linebreak-style': ['error', 'windows'],
   },
 
   overrides: {
