@@ -45,7 +45,7 @@ export class DialogService {
   }
 
   /** 传递给弹窗默认插槽上的组件的事件监听器 */
-  static listeners = <T extends Record<string, (...args: unknown[]) => void>>(listenersObj: T) => {
+  static listeners = <T extends Record<string, Function>>(listenersObj: T) => {
     eventListener.value = {
       ...listenersObj,
     }

@@ -11,7 +11,7 @@ export const closeResolver = ref<((payload: unknown) => void) | null>(null)
 export const payloadCache = ref<unknown>()
 export const buttons = ref<Map<string, FooterButton>>(new Map())
 /** 弹窗内部事件处理 */
-export const eventListener = ref<Record<string, (event: string) => void>>({})
+export const eventListener = ref<Record<string, Function>>({})
 
 export interface FooterButton {
   text: string
