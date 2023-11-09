@@ -1,0 +1,5 @@
+export { default as WinDialog } from './WinDialog.vue'
+export { default as WinDialogFooter } from './WinDialogFooter.vue'
+export { default as WinDialogTabPanel } from './WinDialogTabPanel.vue'
+export { default as WinDialogTabs } from './WinDialogTabs.vue'
+export { default as WinDialogTitleBar } from './WinDialogTitleBar.vue'

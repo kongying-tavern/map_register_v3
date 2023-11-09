@@ -4,7 +4,7 @@ import { useImageLoad, useImageSelect, useImageUpload } from '../hooks'
 import { IconImageSelect } from '.'
 import { GlobalDialogController } from '@/hooks'
 import { formatByteSize } from '@/utils'
-import { AppImageCropper } from '@/components'
+import { AppImageCropper, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTabs, WinDialogTitleBar } from '@/components'
 
 const props = defineProps<{
   icon: API.TagVo
@@ -20,10 +20,10 @@ enum TabKey {
   SELECT = 'select',
 }
 
-const tabs = {
-  [TabKey.UPLOAD]: '添加新图片',
-  [TabKey.SELECT]: '使用已有图片',
-}
+const tabs: { key: string; name: string }[] = [
+  { key: TabKey.UPLOAD, name: '添加新图片' },
+  { key: TabKey.SELECT, name: '使用已有图片' },
+]
 
 const activedTabKey = ref<TabKey>(TabKey.UPLOAD)
 
@@ -59,12 +59,6 @@ const confirmLoading = computed(() => ({
   [TabKey.SELECT]: selectLoading,
 })[activedTabKey.value].value)
 
-const setTab = (name: TabKey) => {
-  if (confirmLoading.value)
-    return
-  activedTabKey.value = name
-}
-
 const confirm = async () => {
   if (confirmDisabled.value)
     return
@@ -82,66 +76,29 @@ const cancel = () => {
 </script>
 
 <template>
-  <div
+  <WinDialog
     v-loading.fullscreen="localImageLoading"
     element-loading-text="等待文件系统响应..."
     element-loading-background="var(--el-mask-color-extra-light)"
-    class="rounded-lg
-      flex flex-col overflow-hidden
-      bg-[var(--el-fill-color)]
-      border border-[var(--el-color-primary-light-9)]"
   >
-    <div class="flex justify-between items-center mb-2 bg-[var(--el-color-primary-light-9)]">
-      <div class="flex-1 p-1.5 px-2 text-xs overflow-hidden text-ellipsis whitespace-nowrap">
-        {{ icon.tag }} 修改图片
-      </div>
-
-      <div
-        class="p-1.5 px-2
-          h-full
-          flex
-          items-center
-          transition-all
-          select-none"
-        :class="[
-          confirmLoading
-            ? 'cursor-not-allowed'
-            : '\
-            hover:bg-[var(--el-color-danger)]\
-            hover:text-[var(--el-bg-color)]\
-            active:bg-[var(--el-color-danger-light-3)]\
-            active:text-[var(--el-bg-color)]',
-        ]"
-        @click="cancel"
-      >
-        <el-icon :size="16">
-          <Close />
-        </el-icon>
-      </div>
-    </div>
+    <WinDialogTitleBar
+      :disabled="confirmLoading"
+      @close="cancel"
+    >
+      {{ icon.tag }} 修改图片
+    </WinDialogTitleBar>
 
     <el-alert type="warning" style="margin-bottom: 8px">
       注意：修改图片不会立即生效，需要等待服务器刷新缓存。
     </el-alert>
 
-    <div class="tabs flex tab mx-2 text-xs">
-      <div
-        v-for="(name, key) in tabs"
-        :key="key"
-        :class="{ actived: key === activedTabKey }"
-        class="tab-item"
-        @click="() => setTab(key)"
-      >
-        {{ name }}
-      </div>
-    </div>
+    <WinDialogTabs
+      v-model="activedTabKey"
+      :options="tabs"
+      :disabled="confirmLoading"
+    />
 
-    <div
-      class="w-[370px] h-[340px] mx-2
-        p-2 overflow-hidden
-        border border-[var(--el-border-color)]
-        bg-[var(--el-bg-color)]"
-    >
+    <WinDialogTabPanel class="w-[370px] h-[340px]">
       <div v-show="activedTabKey === TabKey.UPLOAD" class="grid gap-2 grid-cols-[auto_1fr]">
         <el-input v-model="croppedImageName" class="col-span-2" placeholder="请输入图标名称">
           <template #prefix>
@@ -199,9 +156,9 @@ const cancel = () => {
       </div>
 
       <IconImageSelect v-show="activedTabKey === TabKey.SELECT" v-model="selectedImage" />
-    </div>
+    </WinDialogTabPanel>
 
-    <div class="flex justify-end p-2">
+    <WinDialogFooter>
       <el-button
         type="primary"
         :icon="Check"
@@ -214,36 +171,6 @@ const cancel = () => {
       <el-button :icon="Close" :disabled="uploadLoading" @click="cancel">
         取消
       </el-button>
-    </div>
-  </div>
+    </WinDialogFooter>
+  </WinDialog>
 </template>
-
-<style scoped>
-.tabs {
-  translate: 0 1px;
-}
-
-.tab-item {
-  border-width: 1px 1px 1px 0;
-  border-style: solid;
-  border-color: var(--el-border-color);
-  padding: 4px 8px;
-  background: var(--el-fill-color);
-  margin-top: 2px;
-  user-select: none;
-
-  &:first-of-type {
-    border-left-width: 1px;
-  }
-
-  &.actived {
-    background: var(--el-bg-color);
-    border-bottom-color: transparent;
-    margin-top: 0px;
-  }
-
-  &:not(.actived):hover {
-    background: var(--el-bg-color);
-  }
-}
-</style>
