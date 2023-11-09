@@ -1,5 +1,0 @@
-export { default as IconTagCreator } from './IconTagCreator.vue'
-export { default as IconTagEditor } from './IconTagEditor.vue'
-export { default as IconTagDetailForm } from './IconTagDetailForm.vue'
-export { default as IconTagFilter } from './IconTagFilter.vue'
-export { default as IconTagTable } from './IconTagTable.vue'
