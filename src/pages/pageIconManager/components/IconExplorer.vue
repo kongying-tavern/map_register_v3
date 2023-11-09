@@ -3,10 +3,17 @@ import { RecycleScroller } from 'vue-virtual-scroller'
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 import { useIconTagStore } from '@/stores'
 
-defineProps<{
+const props = defineProps<{
   tagList: API.TagVo[]
   loading: boolean
 }>()
+
+const scrollTarget = defineModel<API.TagVo | null>('scrollTarget', {
+  required: false,
+  default: null,
+})
+
+const ICON_SIZE = 100
 
 const iconTagStore = useIconTagStore()
 
@@ -16,7 +23,30 @@ const activedTag = defineModel<API.TagVo | null>('activedTag', {
 
 const tableContainerRef = ref<HTMLElement | null>(null)
 const { width } = useElementSize(tableContainerRef)
-const gridItems = computed(() => Math.floor((width.value - 32) / 100))
+const gridItems = computed(() => Math.floor((width.value - 32) / ICON_SIZE))
+
+const scrollTo = (target: API.TagVo | null) => {
+  if (!target)
+    return
+
+  const scroller = tableContainerRef.value?.firstElementChild
+  if (!scroller)
+    return
+
+  const tagIndex = props.tagList.findIndex(tag => tag.tag === target.tag)
+  if (tagIndex < 0)
+    return
+
+  const top = Math.floor(tagIndex / gridItems.value) * ICON_SIZE
+
+  scroller.scrollTo({
+    top,
+    behavior: 'smooth',
+  })
+  scrollTarget.value = null
+}
+
+watch(scrollTarget, scrollTo)
 </script>
 
 <template>
@@ -32,8 +62,8 @@ const gridItems = computed(() => Math.floor((width.value - 32) / 100))
     <RecycleScroller
       :items="tagList"
       :grid-items="gridItems"
-      :item-size="100"
-      :item-secondary-size="100"
+      :item-size="ICON_SIZE"
+      :item-secondary-size="ICON_SIZE"
       key-field="tag"
       class="h-full"
     >
@@ -47,10 +77,17 @@ const gridItems = computed(() => Math.floor((width.value - 32) / 100))
           @click="activedTag = item"
         >
           <div
+            v-if="!iconTagStore.iconMapping[item.tag]"
+            class="w-16 h-16 grid place-items-center text-center"
+          >
+            图片缺省
+          </div>
+          <div
+            v-else
             class="item-image"
             :style="{
-              '--x': `${-iconTagStore.iconMapping[item.tag]?.[0]}px`,
-              '--y': `${-iconTagStore.iconMapping[item.tag]?.[1]}px`,
+              '--x': `${-iconTagStore.iconMapping[item.tag][0]}px`,
+              '--y': `${-iconTagStore.iconMapping[item.tag][1]}px`,
             }"
           />
           <div class="item-label">

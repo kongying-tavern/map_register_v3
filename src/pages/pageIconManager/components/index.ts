@@ -1,6 +1,6 @@
-export { default as IconCreator } from './IconCreator.vue'
-export { default as IconDetailForm } from './IconDetailForm.vue'
 export { default as IconEditor } from './IconEditor.vue'
 export { default as IconExplorer } from './IconExplorer.vue'
+export { default as IconExplorerHeader } from './IconExplorerHeader.vue'
 export { default as IconImageSelect } from './IconImageSelect.vue'
 export { default as IconPreviewer } from './IconPreviewer.vue'
+export { default as TagCreator } from './TagCreator.vue'

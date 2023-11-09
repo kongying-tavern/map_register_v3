@@ -1,37 +1,110 @@
 <script lang="ts" setup>
+/**
+ * @注意
+ * 这个组件虽然名为 IconManager，但它主要管理的是 icon tag（图标标签）。
+ *
+ * 关于图标与标签的关系，可以理解为，Tag 是 Icon 的“快捷方式”。
+ */
 import { ElTree } from 'element-plus'
 import type Node from 'element-plus/es/components/tree/src/model/node'
-import { IconExplorer, IconPreviewer } from './components'
+import { IconExplorer, IconExplorerHeader, IconPreviewer } from './components'
 import db from '@/database'
 import Api from '@/api/api'
-import { useDatabaseHook, useFetchHook } from '@/hooks'
-import { useIconTagStore } from '@/stores'
-
-const iconTagStore = useIconTagStore()
+import { useDatabaseHook, useFetchHook, useState } from '@/hooks'
 
 const activedTag = shallowRef<API.TagVo | null>(null)
-const currentTypeId = ref(-1)
+const [scrollTarget, setScrollTarget] = useState<API.TagVo | null>(null)
 
-const { data: tagList, refresh: updateTagList, loading } = useFetchHook<API.TagVo[]>({
+const queryTagName = ref('')
+const queryTagType = ref<API.TagTypeVo>({
+  id: -1,
+  name: '全部类型',
+})
+const sortInfo = ref<Record<string, string>>({
+  key: 'createTime',
+  type: '-',
+})
+
+const tagSorter = (pre: API.TagVo, next: API.TagVo) => {
+  const valueA = pre[sortInfo.value.key as keyof API.TagVo]
+  const valueB = next[sortInfo.value.key as keyof API.TagVo]
+  const isAscending = sortInfo.value.type === '+'
+
+  if (valueA === undefined)
+    return 0
+
+  if (Array.isArray(valueA))
+    return 0
+
+  if (typeof valueA === 'number')
+    return isAscending ? (valueA - (valueB as number)) : ((valueB as number) - valueA)
+
+  if (typeof valueA === 'string') {
+    // 时间戳
+    if (sortInfo.value.key.endsWith('Time')) {
+      const timeA = new Date(valueA).getTime()
+      const timeB = new Date(valueB as string).getTime()
+      return isAscending ? (timeA - timeB) : (timeB - timeA)
+    }
+    return isAscending
+      ? valueA.localeCompare(valueB as string, undefined, { numeric: true, sensitivity: 'base' })
+      : (valueB as string).localeCompare(valueA, undefined, { numeric: true, sensitivity: 'base' })
+  }
+
+  return 0
+}
+
+const { data: tagList, loading, refresh: updateTagList, onSuccess: onTagRefreshSuccess } = useFetchHook<API.TagVo[]>({
   initialValue: [],
   immediate: true,
   onRequest: async () => {
-    const result = currentTypeId.value === -1
-      ? await db.iconTag.toArray()
-      : await db.iconTag.where('typeIdList').anyOf([currentTypeId.value]).toArray()
-    return result
+    let collection = queryTagType.value.id === -1
+      ? db.iconTag.toCollection()
+      : db.iconTag.where('typeIdList').anyOf([queryTagType.value.id!])
+
+    const queryName = queryTagName.value.trim()
+    if (queryName)
+      collection = collection.and(tag => Boolean(tag.tag?.includes(queryName)))
+
+    const result = await collection.toArray()
+    return result.sort(tagSorter)
   },
 })
 
+watch([queryTagType, queryTagName, sortInfo], updateTagList, { deep: true })
 useDatabaseHook(db.iconTag, updateTagList, ['creating', 'deleting', 'updating'])
 
-const handleCurrentChange = (current: API.TagTypeVo) => {
-  currentTypeId.value = current.id!
+const scrollMission = ref<API.TagVo | null>(null)
+const setScrollTargetWhenUpdate = (tag: API.TagVo) => {
+  if (loading.value) {
+    scrollMission.value = tag
+    return
+  }
+  setScrollTarget(tag)
+}
+
+onTagRefreshSuccess(async () => {
+  // 用于在新建 tag 时滑动到对应的 tag 以提醒用户继续编辑图片
+  if (scrollMission.value) {
+    setScrollTarget(scrollMission.value)
+    activedTag.value = scrollMission.value
+    scrollMission.value = null
+    return
+  }
+  // 用于在更新列表时更新对应的已选 tag 信息
+  if (activedTag.value) {
+    const res = await db.iconTag.get(activedTag.value.tag!) ?? null
+    activedTag.value = res
+  }
+})
+
+const handleCurrentChange = (tagType: API.TagTypeVo) => {
+  queryTagType.value = tagType
   activedTag.value = null
   updateTagList()
 }
 
-const loadTagType = async (node: Node, resolve: (data: API.TagTypeVo[]) => void) => {
+async function loadTagType(node: Node, resolve: (data: API.TagTypeVo[]) => void) {
   if (node.level === 0) {
     resolve([{ id: -1, name: '全部类型', isFinal: false }])
     return
@@ -45,20 +118,15 @@ const loadTagType = async (node: Node, resolve: (data: API.TagTypeVo[]) => void)
 </script>
 
 <template>
-  <div class="icon-manager h-full overflow-hidden text-xs">
-    <div class="col-span-3 flex justify-end items-center p-2">
-      <el-image
-        :src="iconTagStore.tagSpriteImage"
-        :preview-src-list="[iconTagStore.tagSpriteImage]"
-        fit="contain"
-        style="width: 32px; height: 32px;"
-      />
-      <el-button text>
-        新建
-      </el-button>
-    </div>
+  <div class="icon-manager grid grid-cols-[200px_1fr_auto] grid-rows-[auto_1fr_auto] h-full overflow-hidden text-xs">
+    <IconExplorerHeader
+      v-model:query-tag-name="queryTagName"
+      v-model:query-tag-type="queryTagType"
+      v-model:sort-info="sortInfo"
+      @create-tag-success="setScrollTargetWhenUpdate"
+    />
 
-    <div class="h-full border-r-[1px] el-border-color overflow-auto">
+    <div class="h-full border-r-[1px] border-[var(--el-border-color-lighter)] overflow-auto">
       <ElTree
         lazy
         accordion
@@ -78,14 +146,14 @@ const loadTagType = async (node: Node, resolve: (data: API.TagTypeVo[]) => void)
 
     <IconExplorer
       v-model:actived-tag="activedTag"
+      v-model:scroll-target="scrollTarget"
       :loading="loading"
-      :tag-type-id="currentTypeId"
       :tag-list="tagList"
     />
 
-    <IconPreviewer v-model="activedTag" />
+    <IconPreviewer v-model="activedTag" :tag="activedTag" />
 
-    <div class="border-t-[1px] el-border-color col-span-3 p-2 px-3">
+    <div class="border-t-[1px] border-[var(--el-border-color-lighter)] col-span-3 p-2 px-3">
       <el-text size="small">
         {{ tagList.length }} 个项目
         <template v-if="activedTag">
@@ -99,15 +167,3 @@ const loadTagType = async (node: Node, resolve: (data: API.TagTypeVo[]) => void)
     </div>
   </div>
 </template>
-
-<style lang="scss" scoped>
-.el-border-color {
-  border-color: var(--el-border-color-lighter);
-}
-
-.icon-manager {
-  display: grid;
-  grid-template-columns: 200px 1fr auto;
-  grid-template-rows: auto 1fr auto;
-}
-</style>

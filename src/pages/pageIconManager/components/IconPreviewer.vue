@@ -49,7 +49,7 @@ const form = ref(cloneDeep(props.tag ?? {}))
 const isTypeChange = computed(() => !isEqual(iconTag.value?.typeIdList ?? [], form.value.typeIdList ?? []))
 
 // ==================== 修改图片 ====================
-function openImageEditor() {
+const openImageEditor = () => {
   DialogService
     .config({
       width: 'fit-content',
@@ -101,7 +101,7 @@ watch(() => props.tag, () => {
 // ==================== 图标类型 ====================
 const tagTypeCache = ref<Record<number, API.TagTypeVo[]>>({})
 
-async function loadTagType(node: Node, resolve: (data: API.TagTypeVo[]) => void) {
+const loadTagType = async (node: Node, resolve: (data: API.TagTypeVo[]) => void) => {
   if (tagTypeCache.value[node.data.id] !== undefined)
     return resolve(tagTypeCache.value[node.data.id])
   const { data: { record = [] } = {} } = await Api.tagType.listTagType({
@@ -113,7 +113,7 @@ async function loadTagType(node: Node, resolve: (data: API.TagTypeVo[]) => void)
 }
 
 // ==================== 其他 ====================
-function timeFormatter(time?: string) {
+const timeFormatter = (time?: string) => {
   if (!time)
     return ''
   return dayjs(time).format('YYYY-MM-DD HH:mm:ss')
@@ -132,7 +132,10 @@ function timeFormatter(time?: string) {
     </div>
 
     <div v-else class="w-64 h-full overflow-auto flex flex-col">
+      <div v-if="!iconTagStore.iconMapping[iconTag.tag!]" class="icon-image h-64" />
+
       <div
+        v-else
         class="icon-image h-64 grid place-items-center overflow-hidden flex-shrink-0"
         :style="{
           '--bg': `url(${iconTagStore.tagSpriteImage})`,
