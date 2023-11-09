@@ -1,41 +1,41 @@
-import { request } from '@/utils';
+import { request } from '@/utils'
 
 /** 删除公告缓存 删除公告缓存 DELETE /api/cache/notice */
-export async function cleanNoticeCache(options?: { [key: string]: any }) {
+export async function cleanNoticeCache(options?: { [key: string]: unknown }) {
   return request<API.RBoolean>('/api/cache/notice', {
     method: 'DELETE',
     ...(options || {}),
-  });
+  })
 }
 
 /** 删除全部点位缓存 删除点位缓存 DELETE /api/cache/marker */
-export async function cleanMarkerCache(options?: { [key: string]: any }) {
+export async function cleanMarkerCache(options?: { [key: string]: unknown }) {
   return request<API.RBoolean>('/api/cache/marker', {
     method: 'DELETE',
     ...(options || {}),
-  });
+  })
 }
 
 /** 删除全部点位关联缓存 删除点位关联缓存 DELETE /api/cache/marker_linkage */
-export async function cleanMarkerLinkageCache(options?: { [key: string]: any }) {
+export async function cleanMarkerLinkageCache(options?: { [key: string]: unknown }) {
   return request<API.RBoolean>('/api/cache/marker_linkage', {
     method: 'DELETE',
     ...(options || {}),
-  });
+  })
 }
 
 /** 删除全部物品缓存 删除物品缓存 DELETE /api/cache/item */
-export async function cleanItemCache(options?: { [key: string]: any }) {
+export async function cleanItemCache(options?: { [key: string]: unknown }) {
   return request<API.RBoolean>('/api/cache/item', {
     method: 'DELETE',
     ...(options || {}),
-  });
+  })
 }
 
 /** 删除标签缓存 list为空则删除所有标签缓存 DELETE /api/cache/iconTag */
 export async function cleanIconTagCache(
   body: string[],
-  options?: { [key: string]: any },
+  options?: { [key: string]: unknown },
 ) {
   return request<API.RBoolean>('/api/cache/iconTag', {
     method: 'DELETE',
@@ -44,21 +44,21 @@ export async function cleanIconTagCache(
     },
     data: body,
     ...(options || {}),
-  });
+  })
 }
 
 /** 删除全部公用物品缓存 删除公用物品缓存 DELETE /api/cache/commonItem */
-export async function cleanCommonItemCache(options?: { [key: string]: any }) {
+export async function cleanCommonItemCache(options?: { [key: string]: unknown }) {
   return request<API.RBoolean>('/api/cache/commonItem', {
     method: 'DELETE',
     ...(options || {}),
-  });
+  })
 }
 
 /** 删除地区缓存 删除地区缓存 DELETE /api/cache/area */
-export async function cleanAreaCache(options?: { [key: string]: any }) {
+export async function cleanAreaCache(options?: { [key: string]: unknown }) {
   return request<API.RBoolean>('/api/cache/area', {
     method: 'DELETE',
     ...(options || {}),
-  });
+  })
 }

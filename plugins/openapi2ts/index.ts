@@ -1,4 +1,5 @@
-import { join } from 'node:path'
+import { join, resolve as resolvePath } from 'node:path'
+import { exec } from 'node:child_process'
 import { readFile, readdir, writeFile } from 'node:fs/promises'
 import type { Plugin } from 'vite'
 import { generateService } from 'openapi2ts'
@@ -23,6 +24,7 @@ export const openapi2ts = (optionList: Openapi2tsOptions[], initFlag = false): P
     configResolved: async ({ root }) => {
       if (initFlag)
         return
+
       for (const options of optionList) {
         const {
           serversPath = join(root, 'src'),
@@ -46,11 +48,31 @@ export const openapi2ts = (optionList: Openapi2tsOptions[], initFlag = false): P
             // 删除头部 eslint 禁用注释
             .replace('// @ts-ignore\n/* eslint-disable */\n', '')
             // 删除类型为 header 的 params 参数声明
-            .replace(/(?<=(\/\/\s*header))([\s\S]+?)(?=(}|(\/\/)))/g, '\n')
-            .replace(/\n/g, '\r\n')
+            .replace(/\s+\/\/ header([\s\S]+?)(?=(}|(\/\/)))/g, '')
+            // 格式化
+            // .replace(/{\/\//g, '{\n    \/\/')
+            // params 上的空对象类型替换
+            // .replace(/params: {}/g, 'params: NonNullable<unknown>')
+            // 尾部分号去除
+            // .replace(/;(?=(\r?\n))/g, '')
+            // 尾换行符使用 windows 风格
+            // .replace(/\n/g, '\r\n')
+            // 所有的 any 类型改为 unknown
+            .replace(/(?<=[,:]\s+)any/g, 'unknown')
           writeFile(filePath, writeContent)
         }
       }
+
+      // run eslint
+      await new Promise<string>((resolve, reject) => {
+        const childProcess = exec(`eslint ${resolvePath(__dirname, '../../src/api/api')} --fix`, (err, stdout) => {
+          childProcess.kill()
+          if (err)
+            return reject(err)
+          resolve(stdout)
+        })
+      }).catch(() => false)
+
       initFlag = true
     },
   }

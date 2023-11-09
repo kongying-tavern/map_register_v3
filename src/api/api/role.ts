@@ -1,9 +1,9 @@
-import { request } from '@/utils';
+import { request } from '@/utils'
 
 /** 返回可用角色列表 返回可用角色列表 GET /system/role/list */
-export async function listRole(options?: { [key: string]: any }) {
+export async function listRole(options?: { [key: string]: unknown }) {
   return request<API.RListSysRoleVo>('/system/role/list', {
     method: 'GET',
     ...(options || {}),
-  });
+  })
 }

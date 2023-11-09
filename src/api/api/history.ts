@@ -1,9 +1,9 @@
-import { request } from '@/utils';
+import { request } from '@/utils'
 
 /** 历史记录分页 历史记录分页 POST /api/history/get/list */
 export async function getList1(
   body: API.HistorySearchVo,
-  options?: { [key: string]: any },
+  options?: { [key: string]: unknown },
 ) {
   return request<API.RPageListVoHistoryVo>('/api/history/get/list', {
     method: 'POST',
@@ -12,5 +12,5 @@ export async function getList1(
     },
     data: body,
     ...(options || {}),
-  });
+  })
 }
