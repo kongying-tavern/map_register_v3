@@ -41,7 +41,7 @@ export const openapi2ts = (optionList: Openapi2tsOptions[], initFlag = false): P
         const dtsFolderPath = join(serversPath, projectName)
         const dts = await readdir(dtsFolderPath)
 
-        for (const filename of dts) {
+        await Promise.all(dts.map(async (filename) => {
           const filePath = join(serversPath, projectName, filename)
           const fileContent = (await readFile(filePath)).toString()
           const writeContent = fileContent
@@ -59,12 +59,12 @@ export const openapi2ts = (optionList: Openapi2tsOptions[], initFlag = false): P
             // .replace(/\n/g, '\r\n')
             // 所有的 any 类型改为 unknown
             .replace(/(?<=[,:]\s+)any/g, 'unknown')
-          writeFile(filePath, writeContent)
-        }
+          await writeFile(filePath, writeContent)
+        }))
       }
 
-      // run eslint
-      await new Promise<string>((resolve, reject) => {
+      // run eslint, no need to await
+      new Promise<string>((resolve, reject) => {
         const childProcess = exec(`eslint ${resolvePath(__dirname, '../../src/api/api')} --fix`, (err, stdout) => {
           childProcess.kill()
           if (err)
