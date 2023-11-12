@@ -465,7 +465,7 @@ import {
   query_itemlayer_icon,
   query_itemlayer_infolist,
 } from "../service/base_data_request";
-import { get_user_id } from "../service/user_info";
+import { user_id } from "../service/user_info";
 import {
   layergroup_register,
   layer_mark,
@@ -785,7 +785,7 @@ export default {
         position,
         version: layerCurrent.value.target.options.data.version,
         id: layerCurrent.value.target.options.data.id,
-        markerCreatorId: get_user_id(),
+        markerCreatorId: user_id.value,
       }).then((res) => {
         layerDragMode.value = false;
         layerDragWindow.value = false;

@@ -79,6 +79,7 @@
 </template>
 
 <script>
+import { nextTick } from "vue";
 import { mapDom, createMap } from "src/api/map_obj";
 import {
   map_editor_config,
@@ -93,7 +94,11 @@ import RefreshConfig from "../components/widgets/RefreshConfig.vue";
 import Logout from "../components/widgets/Logout.vue";
 import { refresh_token } from "../service/user_log_request";
 import { fetch_config } from "../service/config_request";
-import { is_expired, set_user_data } from "../service/user_info";
+import {
+  set_user_data,
+  is_expired,
+  user_refresh_interval,
+} from "../service/user_info";
 
 export default {
   name: "PageIndex",
@@ -160,12 +165,14 @@ export default {
     });
 
     setInterval(() => {
-      if (is_expired.value) {
-        refresh_token().then((res) => {
-          set_user_data(res.data || {});
-        });
-      }
-    }, 300e3);
+      nextTick(() => {
+        if (is_expired()) {
+          refresh_token().then((res) => {
+            set_user_data(res.data || {});
+          });
+        }
+      });
+    }, user_refresh_interval);
   },
   watch: {
     handle_type(val) {

@@ -6,7 +6,7 @@ import {
   createWebHashHistory,
 } from "vue-router";
 import routes from "./routes";
-import { get_user_token } from "../service/user_info";
+import { user_token } from "../service/user_info";
 /*
  * If not building with SSR mode, you can
  * directly export the Router instantiation;
@@ -34,9 +34,9 @@ export default route((/* { store, ssrContext } */) => {
   });
   Router.beforeEach((to, from, next) => {
     // 鉴定token是否过期
-    if (get_user_token() === null && to.path !== "/login") {
+    if (user_token.value === null && to.path !== "/login") {
       next({ path: "/login" });
-    } else if (get_user_token() !== null && to.path === "/login") {
+    } else if (user_token.value !== null && to.path === "/login") {
       next({ path: "/" });
     } else {
       next();

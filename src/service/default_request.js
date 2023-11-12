@@ -1,5 +1,5 @@
 import axios from "axios";
-import { get_user_token } from "./user_info";
+import { user_token } from "./user_info";
 import { create_notify } from "../api/common";
 
 export default function default_request(method, url, data = undefined) {
@@ -8,7 +8,7 @@ export default function default_request(method, url, data = undefined) {
     url,
     data: JSON.stringify(data),
     transformRequest(data) {
-      if (get_user_token() === null) {
+      if (user_token.value === null) {
         window.alert("登录认证已失效，请重新登录！");
         window.location.reload();
       }
@@ -17,7 +17,7 @@ export default function default_request(method, url, data = undefined) {
     },
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${get_user_token()}`,
+      Authorization: `Bearer ${user_token.value}`,
     },
   })
     .then((res) => {

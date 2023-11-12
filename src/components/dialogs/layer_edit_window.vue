@@ -348,7 +348,7 @@ import { ref } from "vue";
 import { markerExtraSetter, markerExtra } from "../extra-data";
 import { upload_img } from "../../service/base_data_request";
 import { upload_layer, edit_layer } from "../../service/edit_request";
-import { get_user_id, is_neigui } from "../../service/user_info";
+import { user_id, is_neigui } from "../../service/user_info";
 import ImgCut from "./vue-cropper.vue";
 import RefreshTimeField from "./layer_edit_refresh_time.vue";
 import { refresh_init } from "./layer_edit_refresh_time";
@@ -392,7 +392,7 @@ export default {
         pictureCreatorId: 0,
         videoPath: "",
         refreshTime: 0,
-        markerCreatorId: get_user_id(),
+        markerCreatorId: user_id.value,
         itemList: [],
       },
 
@@ -474,7 +474,7 @@ export default {
     },
     img_delete() {
       this.layer_info.picture = "";
-      this.layer_info.pictureCreatorId = get_user_id();
+      this.layer_info.pictureCreatorId = user_id.value;
     },
     // 开启文件选择器
     img_picker_popup() {
@@ -508,7 +508,7 @@ export default {
             const img_path = _.get(res, "data.path", "");
             if (img_path) {
               this.layer_info.picture = `https://yuanshen.site${img_path}`;
-              this.layer_info.pictureCreatorId = get_user_id();
+              this.layer_info.pictureCreatorId = user_id.value;
             }
           })
           .finally(() => {
