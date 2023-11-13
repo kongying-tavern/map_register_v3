@@ -17,14 +17,16 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
-    }
+    },
+    "outDir": "build"
   },
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
     "src/**/*.vue",
     "src/**/*.d.ts",
-    "types/*.d.ts"
+    "types/*.d.ts",
+    "service.worker.js",
   ],
   "exclude": ["dist", ".vscode", "node_modules", "public"],
   "references": [
