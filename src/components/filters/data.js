@@ -205,7 +205,7 @@ export const filterTypeSlots = {
           ),
       }
     ),
-  refreshTimeAppend: () => h("span", {}, "分钟"),
+  refreshTimeAppend: () => h("span", {}, "小时"),
 };
 
 export const filterTypes = [
@@ -812,14 +812,14 @@ export const filterTypes = [
       }
 
       if (minVal === null && maxVal !== null) {
-        return `点位刷新时间小于等于${maxVal}分钟`;
+        return `点位刷新时间小于等于${maxVal}小时`;
       }
 
       if (minVal !== null && maxVal === null) {
-        return `点位刷新时间大于等于${minVal}分钟`;
+        return `点位刷新时间大于等于${minVal}小时`;
       }
 
-      return `点位刷新时间为${minVal}~${maxVal}分钟`;
+      return `点位刷新时间为${minVal}~${maxVal}小时`;
     },
     // eslint-disable-next-line no-unused-vars
     filterAction(item = {}, values = {}, options = {}) {
@@ -831,13 +831,14 @@ export const filterTypes = [
       const refreshTime = item?.refreshTime || 0;
       let minMatch = true;
       let maxMatch = true;
+      const hourRatio = 3600e3;
 
       if (minVal !== null) {
-        minMatch = refreshTime >= minVal;
+        minMatch = refreshTime * hourRatio >= minVal;
       }
 
       if (maxVal !== null) {
-        maxMatch = refreshTime <= maxVal;
+        maxMatch = refreshTime * hourRatio <= maxVal;
       }
 
       return minMatch && maxMatch;
