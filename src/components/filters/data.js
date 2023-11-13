@@ -205,6 +205,7 @@ export const filterTypeSlots = {
           ),
       }
     ),
+  refreshTimeAppend: () => h("span", {}, "分钟"),
 };
 
 export const filterTypes = [
@@ -785,6 +786,64 @@ export const filterTypes = [
       }
 
       return minMatch && maxMatch;
+    },
+  },
+  {
+    id: 13,
+    name: "refresh-time",
+    icon: "mdi-timer-sand",
+    title: "刷新时间",
+    label: "刷新时间为",
+    model: "number-range",
+    modelOpts: {},
+    modelVals: {
+      minValue: null,
+      maxValue: null,
+    },
+    // eslint-disable-next-line no-unused-vars
+    modelSemantic(values = {}, options = {}, oppositeValue = false) {
+      const { minValue } = values;
+      const minVal = _.isNil(minValue) || minValue === "" ? null : minValue;
+      const { maxValue } = values;
+      const maxVal = _.isNil(maxValue) || maxValue === "" ? null : maxValue;
+
+      if (minVal === null && maxVal === null) {
+        return "";
+      }
+
+      if (minVal === null && maxVal !== null) {
+        return `点位刷新时间小于等于${maxVal}分钟`;
+      }
+
+      if (minVal !== null && maxVal === null) {
+        return `点位刷新时间大于等于${minVal}分钟`;
+      }
+
+      return `点位刷新时间为${minVal}~${maxVal}分钟`;
+    },
+    // eslint-disable-next-line no-unused-vars
+    filterAction(item = {}, values = {}, options = {}) {
+      const { minValue } = values;
+      const minVal = _.isNil(minValue) || minValue === "" ? null : minValue;
+      const { maxValue } = values;
+      const maxVal = _.isNil(maxValue) || maxValue === "" ? null : maxValue;
+
+      const refreshTime = item?.refreshTime || 0;
+      let minMatch = true;
+      let maxMatch = true;
+
+      if (minVal !== null) {
+        minMatch = refreshTime >= minVal;
+      }
+
+      if (maxVal !== null) {
+        maxMatch = refreshTime <= maxVal;
+      }
+
+      return minMatch && maxMatch;
+    },
+    filterSlots: {
+      append: filterTypeSlots.refreshTimeAppend,
     },
   },
   // Schema Example:
