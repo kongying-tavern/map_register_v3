@@ -1,6 +1,5 @@
 import type { Plugin } from 'vue'
 import { Logger } from '@/utils'
-import ServiceWorkerURL from '@/../service.worker?url'
 
 const logger = new Logger('[service worker register]')
 
@@ -8,7 +7,7 @@ const ensureServiceWorker = async () => {
   if (!('serviceWorker' in navigator))
     throw new Error('浏览器不支持 Service Worker 或网站没有运行于安全上下文 (HTTPS、localhost) 中')
 
-  const registration = await navigator.serviceWorker.register(ServiceWorkerURL, { scope: '/' })
+  const registration = await navigator.serviceWorker.register('/service.worker.js', { scope: '/' })
   await registration.update()
   const sr = await navigator.serviceWorker.ready
 
