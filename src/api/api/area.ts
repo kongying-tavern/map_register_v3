@@ -12,51 +12,6 @@ export async function createArea(body: API.AreaVo, options?: { [key: string]: un
   })
 }
 
-/** 关联点位 关联点位数据 POST /api/marker_linkage/link */
-export async function linkMarker(
-  body: API.MarkerLinkageVo[],
-  options?: { [key: string]: unknown },
-) {
-  return request<API.RString>('/api/marker_linkage/link', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    data: body,
-    ...(options || {}),
-  })
-}
-
-/** 关联点位列表 关联点位列表 POST /api/marker_linkage/get/list */
-export async function getList(
-  body: API.MarkerLinkageSearchVo,
-  options?: { [key: string]: unknown },
-) {
-  return request<API.RMapStringListMarkerLinkageVo>('/api/marker_linkage/get/list', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    data: body,
-    ...(options || {}),
-  })
-}
-
-/** 关联点位图数据 关联点位图数据 POST /api/marker_linkage/get/graph */
-export async function getGraph(
-  body: API.MarkerLinkageSearchVo,
-  options?: { [key: string]: unknown },
-) {
-  return request<API.RMapStringGraphVo>('/api/marker_linkage/get/graph', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    data: body,
-    ...(options || {}),
-  })
-}
-
 /** 修改地区 修改地区 POST /api/area/update */
 export async function updateArea(body: API.AreaVo, options?: { [key: string]: unknown }) {
   return request<API.RBoolean>('/api/area/update', {
@@ -87,7 +42,7 @@ export async function getArea(
 
 /** 列出地区 可根据父级地区id列出子地区列表 POST /api/area/get/list */
 export async function listArea(
-  params: {},
+  params: NonNullable<unknown>,
   body: API.AreaSearchVo,
   options?: { [key: string]: unknown },
 ) {

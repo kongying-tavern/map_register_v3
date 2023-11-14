@@ -2,7 +2,7 @@ import { request } from '@/utils'
 
 /** 用户信息更新 普通用户可以更新自己的信息，系统管理员可以更新所有用户的 POST /system/user/update */
 export async function updateUser(
-  params: {},
+  params: NonNullable<unknown>,
   body: API.SysUserUpdateVo,
   options?: { [key: string]: unknown },
 ) {
@@ -19,7 +19,7 @@ export async function updateUser(
 
 /** 用户密码更新 普通用户接口，可以更新自己的密码，需提供旧密码 POST /system/user/update_password */
 export async function updateUserPassword(
-  params: {},
+  params: NonNullable<unknown>,
   body: API.SysUserPasswordUpdateVo,
   options?: { [key: string]: unknown },
 ) {

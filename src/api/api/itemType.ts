@@ -53,7 +53,7 @@ export async function moveItemType(
 
 /** 列出所有物品类型 返回所有可访问的物品类型 POST /api/item_type/get/list_all */
 export async function listItemType(
-  params: {},
+  params: NonNullable<unknown>,
   options?: { [key: string]: unknown },
 ) {
   return request<API.RListItemTypeVo>('/api/item_type/get/list_all', {

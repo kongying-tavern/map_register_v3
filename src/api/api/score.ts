@@ -2,7 +2,7 @@ import { request } from '@/utils'
 
 /** 生成评分 生成评分数据 POST /api/score/generate */
 export async function generate(
-  params: {},
+  params: NonNullable<unknown>,
   body: API.ScoreParamsVo,
   options?: { [key: string]: unknown },
 ) {

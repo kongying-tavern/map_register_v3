@@ -92,7 +92,7 @@ export async function getHistoryArchive(
 
 /** 获取所有槽位的历史存档 获取所有槽位的历史存档 GET /system/archive/all_history */
 export async function getAllHistoryArchive(
-  params: {},
+  params: NonNullable<unknown>,
   options?: { [key: string]: unknown },
 ) {
   return request<API.RListSysArchiveSlotVo>('/system/archive/all_history', {

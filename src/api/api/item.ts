@@ -77,7 +77,7 @@ export async function joinItemsInType(
 
 /** 根据筛选条件列出物品信息 传入的物品类型ID和地区ID列表，必须为末端的类型或地区 POST /api/item/get/list */
 export async function listItemIdByType(
-  params: {},
+  params: NonNullable<unknown>,
   body: API.ItemSearchVo,
   options?: { [key: string]: unknown },
 ) {
@@ -94,7 +94,7 @@ export async function listItemIdByType(
 
 /** 根据物品ID查询物品 输入ID列表查询，单个查询也用此API POST /api/item/get/list_byid */
 export async function listItemById(
-  params: {},
+  params: NonNullable<unknown>,
   body: number[],
   options?: { [key: string]: unknown },
 ) {

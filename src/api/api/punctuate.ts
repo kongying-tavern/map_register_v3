@@ -2,7 +2,7 @@ import { request } from '@/utils'
 
 /** 提交暂存点位 成功则返回打点提交ID PUT /api/punctuate/ */
 export async function addPunctuate(
-  params: {},
+  params: NonNullable<unknown>,
   body: API.MarkerPunctuateVo,
   options?: { [key: string]: unknown },
 ) {
@@ -19,7 +19,7 @@ export async function addPunctuate(
 
 /** 修改自身未提交的暂存点位 根据点位ID修改点位 POST /api/punctuate/ */
 export async function updateSelfPunctuate(
-  params: {},
+  params: NonNullable<unknown>,
   body: API.MarkerPunctuateVo,
   options?: { [key: string]: unknown },
 ) {

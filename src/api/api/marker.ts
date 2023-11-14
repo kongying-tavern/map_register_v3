@@ -26,7 +26,7 @@ export async function updateMarker(body: API.MarkerVo, options?: { [key: string]
 
 /** 分页查询所有点位信息 分页查询所有点位信息 POST /api/marker/get/page */
 export async function listMarkerPage(
-  params: {},
+  params: NonNullable<unknown>,
   body: API.PageSearchVo,
   options?: { [key: string]: unknown },
 ) {
@@ -43,7 +43,7 @@ export async function listMarkerPage(
 
 /** 根据各种条件筛选查询点位信息 支持根据末端地区、末端类型、物品来进行查询，三种查询不能同时生效，同时存在时报错，同时支持测试点位获取 POST /api/marker/get/list_byinfo */
 export async function searchMarker(
-  params: {},
+  params: NonNullable<unknown>,
   body: API.MarkerSearchVo,
   options?: { [key: string]: unknown },
 ) {
@@ -60,7 +60,7 @@ export async function searchMarker(
 
 /** 通过ID列表查询点位信息 通过ID列表来进行查询点位信息 POST /api/marker/get/list_byid */
 export async function listMarkerById(
-  params: {},
+  params: NonNullable<unknown>,
   body: number[],
   options?: { [key: string]: unknown },
 ) {
@@ -77,7 +77,7 @@ export async function listMarkerById(
 
 /** 根据各种条件筛选查询点位ID 支持根据末端地区、末端类型、物品来进行查询，三种查询不能同时生效，同时存在时报错，同时支持测试点位获取 POST /api/marker/get/id */
 export async function searchMarkerId(
-  params: {},
+  params: NonNullable<unknown>,
   body: API.MarkerSearchVo,
   options?: { [key: string]: unknown },
 ) {

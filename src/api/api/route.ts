@@ -2,7 +2,7 @@ import { request } from '@/utils'
 
 /** 新增路线 返回新增路线ID PUT /api/route/add */
 export async function createRoute(
-  params: {},
+  params: NonNullable<unknown>,
   body: API.RouteVo,
   options?: { [key: string]: unknown },
 ) {
@@ -19,7 +19,7 @@ export async function createRoute(
 
 /** 修改路线 修改路线 POST /api/route */
 export async function updateRoute(
-  params: {},
+  params: NonNullable<unknown>,
   body: API.RouteVo,
   options?: { [key: string]: unknown },
 ) {
@@ -36,7 +36,7 @@ export async function updateRoute(
 
 /** 根据条件筛选分页查询路线信息 根据条件筛选分页查询路线信息，会根据当前角色决定不同的显隐等级 POST /api/route/get/search */
 export async function listRoutePageSearch(
-  params: {},
+  params: NonNullable<unknown>,
   body: API.RouteSearchVo,
   options?: { [key: string]: unknown },
 ) {
@@ -53,7 +53,7 @@ export async function listRoutePageSearch(
 
 /** 分页查询所有路线信息 分页查询所有路线信息，会根据当前角色决定不同的显隐等级 POST /api/route/get/page */
 export async function listRoutePage(
-  params: {},
+  params: NonNullable<unknown>,
   body: API.PageSearchVo,
   options?: { [key: string]: unknown },
 ) {
@@ -70,7 +70,7 @@ export async function listRoutePage(
 
 /** 根据id列表查询路线信息 根据id列表查询路线信息，会根据当前角色决定不同的显隐等级 POST /api/route/get/list_byid */
 export async function listRouteById(
-  params: {},
+  params: NonNullable<unknown>,
   body: number[],
   options?: { [key: string]: unknown },
 ) {
