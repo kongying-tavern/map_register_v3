@@ -26,7 +26,7 @@
     "src/**/*.vue",
     "src/**/*.d.ts",
     "types/*.d.ts",
-    "service.worker.js",
+    "public/service.worker.js",
   ],
   "exclude": ["dist", ".vscode", "node_modules", "public"],
   "references": [
