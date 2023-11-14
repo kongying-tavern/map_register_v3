@@ -1,44 +1,10 @@
 import { defineStore } from 'pinia'
 import { userHook } from './hooks'
+import type { UserPreference } from './types'
 import { useUserAuthStore } from '@/stores'
 import { useFetchHook } from '@/hooks'
 import db from '@/database'
-import type { Condition } from '@/pages/pageMapV2/core'
 import { Logger } from '@/utils'
-
-/**
- * ### 用户首选项
- * #### 索引必须遵守如下命名格式
- * `${namespace}.${scope}`
- */
-export interface UserPreference {
-  /** 用户 id */
-  'id'?: number
-
-  /** 侧边栏折叠状态 */
-  'mapSiderMenu.state.collapse'?: boolean
-
-  /** 筛选器存储的预设 */
-  'markerFilter.setting.presets'?: FilterPreset[]
-
-  /** 筛选器选择的Tab */
-  'markerFilter.state.step'?: number
-
-  /** 筛选器选择的地区 */
-  'markerFilter.state.areaCode'?: string
-
-  /** 筛选器选择的分类 */
-  'markerFilter.state.itemTypeId'?: number
-
-  /** 筛选器选择的物品 */
-  'markerFilter.state.itemIds'?: number
-}
-
-/** 筛选器预设 */
-export interface FilterPreset {
-  name: string
-  conditions: Record<string, Condition>
-}
 
 export const usePreferenceStore = defineStore('user-preference', () => {
   const internalUpdateFlag = ref(false)
