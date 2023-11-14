@@ -52,7 +52,7 @@ export const openapi2ts = (optionList: Openapi2tsOptions[], initFlag = false): P
             // 格式化
             // .replace(/{\/\//g, '{\n    \/\/')
             // params 上的空对象类型替换
-            // .replace(/params: {}/g, 'params: NonNullable<unknown>')
+            .replace(/params: {}/g, 'params: NonNullable<unknown>')
             // 尾部分号去除
             // .replace(/;(?=(\r?\n))/g, '')
             // 尾换行符使用 windows 风格
