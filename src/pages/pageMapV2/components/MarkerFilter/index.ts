@@ -1,5 +1,4 @@
 export { default as CheckboxGroup } from './CheckboxGroup.vue'
-export { default as CheckboxImage } from './CheckboxImage.vue'
 export { default as CheckboxItem } from './CheckboxItem.vue'
 export { default as ConditionManager } from './ConditionManager.vue'
 export { default as ConditionRow } from './ConditionRow.vue'

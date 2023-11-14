@@ -1,7 +1,13 @@
 <script lang="ts" setup>
+import { Select } from '@element-plus/icons-vue'
+import { AppIconTagRenderer } from '@/components'
+
 defineProps<{
   item: API.ItemVo
   iconMap: Record<string, API.TagVo>
+  actived: boolean
+  src?: string
+  mapping?: [number, number]
 }>()
 </script>
 
@@ -9,13 +15,31 @@ defineProps<{
   <div
     v-bind="$attrs"
     :title="item.name"
-    class="item-selecter-button"
+    class="item-selecter-button flex"
   >
-    <slot name="prepend" />
+    <div
+      class="w-4 h-4 border rounded-full grid place-items-center"
+      style="border-color: var(--el-border-color);"
+      :style="[
+        actived
+          ? 'background-color: var(--el-color-primary); border-color: var(--el-color-primary); color: #FFF;'
+          : 'color: transparent;',
+      ]"
+    >
+      <el-icon :size="14" color="currentColor">
+        <Select />
+      </el-icon>
+    </div>
 
-    <img :src="iconMap[item.iconTag ?? '']?.url" crossorigin="" loading="lazy" class="w-8 h-8 object-contain">
+    <AppIconTagRenderer
+      :src="src"
+      :mapping="mapping"
+      class="w-8 h-8 flex-shrink-0"
+    />
 
-    <span class="flex-1 overflow-hidden whitespace-nowrap text-ellipsis">{{ item.name }}</span>
+    <el-text truncated>
+      {{ item.name }}
+    </el-text>
 
     <slot name="append" />
   </div>

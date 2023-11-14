@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { DeleteFilled } from '@element-plus/icons-vue'
-import { CheckboxGroup, CheckboxImage, CheckboxItem, ConditionManager, ConditionRow, FilterTabs, ItemButton } from '.'
-import { GSButton, GSDivider } from '@/components'
+import { CheckboxGroup, CheckboxItem, ConditionManager, ConditionRow, FilterTabs, ItemButton } from '.'
+import { AppIconTagRenderer, GSButton, GSDivider } from '@/components'
 import { IconSetting } from '@/components/AppIcons'
 import { useArchiveStore, useIconTagStore, useMapStore, useUserInfoStore } from '@/stores'
 import { useCondition } from '@/pages/pageMapV2/hooks'
@@ -128,7 +128,11 @@ const handleDragItem = (ev: DragEvent) => {
           value-key="code"
         >
           <template #icon="{ row }">
-            <CheckboxImage :src="iconTagStore.iconTagMap[row.iconTag ?? '']?.url" />
+            <AppIconTagRenderer
+              :src="iconTagStore.tagSpriteImage"
+              :mapping="iconTagStore.iconMapping[row.iconTag ?? '']"
+              class="w-full aspect-square"
+            />
           </template>
         </CheckboxGroup>
         <div style="width: 1px; height: 98%; background: #E3DDD140;" />
@@ -153,7 +157,11 @@ const handleDragItem = (ev: DragEvent) => {
           @change="conditionManager.next"
         >
           <template #icon="{ row }">
-            <CheckboxImage :src="iconTagStore.iconTagMap[row.iconTag ?? '']?.url" />
+            <AppIconTagRenderer
+              :src="iconTagStore.tagSpriteImage"
+              :mapping="iconTagStore.iconMapping[row.iconTag ?? '']"
+              class="w-full aspect-square"
+            />
           </template>
         </CheckboxGroup>
       </div>
@@ -171,7 +179,11 @@ const handleDragItem = (ev: DragEvent) => {
           draggable
         >
           <template #icon="{ row }">
-            <CheckboxImage :src="iconTagStore.iconTagMap[row.iconTag ?? '']?.url" />
+            <AppIconTagRenderer
+              :src="iconTagStore.tagSpriteImage"
+              :mapping="iconTagStore.iconMapping[row.iconTag ?? '']"
+              class="w-full aspect-square"
+            />
           </template>
           <template #default="{ row, actived }">
             <ItemButton :item-count-map="itemCountMap" :item-total-map="itemTotalMap" :row="row" :actived="actived" />
@@ -201,7 +213,11 @@ const handleDragItem = (ev: DragEvent) => {
 
       <CheckboxItem v-else is-actived :label="mapStore.markingItem.name" style="margin: 0; width: 100%" @click="mapStore.markingItem = null">
         <template #icon>
-          <CheckboxImage :src="iconTagStore.iconTagMap[mapStore.markingItem.iconTag ?? '']?.url" />
+          <AppIconTagRenderer
+            :src="iconTagStore.tagSpriteImage"
+            :mapping="iconTagStore.iconMapping[mapStore.markingItem.iconTag ?? '']"
+            class="w-full aspect-square"
+          />
         </template>
         <template #default>
           <div class="marking-item--content">

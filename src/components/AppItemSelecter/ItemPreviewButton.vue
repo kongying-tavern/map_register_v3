@@ -1,9 +1,12 @@
 <script lang="ts" setup>
 import { CircleCloseFilled } from '@element-plus/icons-vue'
+import { AppIconTagRenderer } from '@/components'
 
 defineProps<{
   item: API.ItemVo
   iconMap: Record<string, API.TagVo>
+  src?: string
+  mapping?: [number, number]
 }>()
 </script>
 
@@ -13,9 +16,13 @@ defineProps<{
     :title="item.name"
     class="item-selecter-button relative"
   >
-    <img :src="iconMap[item.iconTag ?? '']?.url" crossorigin="" loading="lazy" class="object-contain w-8 h-8">
+    <AppIconTagRenderer
+      :src="src"
+      :mapping="mapping"
+      class="w-8 h-8"
+    />
 
-    <div class="absolute w-3 h-3 top-0 right-0">
+    <div class="absolute w-4 h-4 top-0 right-0 text-[var(--el-color-info-light-3)]">
       <CircleCloseFilled />
     </div>
   </div>

@@ -1,8 +1,9 @@
 <script lang="ts" setup>
-import { CircleCloseFilled, Search, Select } from '@element-plus/icons-vue'
+import { Search } from '@element-plus/icons-vue'
 import { ElScrollbar } from 'element-plus'
 import ItemSelectButton from './ItemSelectButton.vue'
 import ItemPreviewButton from './ItemPreviewButton.vue'
+import TypeSelectButton from './TypeSelectButton.vue'
 import db from '@/database'
 import { useFetchHook, useState } from '@/hooks'
 import { useIconTagStore } from '@/stores'
@@ -148,7 +149,10 @@ watch(() => itemList.value, () => scrollbarRef.value?.setScrollTop(0))
       '--selecter-height': props.height,
     }"
   >
-    <div class="sample-item-selecter grid gap-y-2" :class="[showTotal ? 'w-80 pr-2' : 'w-full']">
+    <div
+      class="grid grid-cols-[120px_auto] grid-rows-[auto_1fr] gap-y-2"
+      :class="[showTotal ? 'w-80 pr-2' : 'w-full']"
+    >
       <div class="flex flex-col gap-2 col-span-2">
         <AppAreaCodeSelecter v-if="showAreaSelector" v-model="modelAreaCode" />
 
@@ -163,25 +167,22 @@ watch(() => itemList.value, () => scrollbarRef.value?.setScrollTop(0))
 
       <div class="w-full h-full overflow-hidden">
         <ElScrollbar class="pr-2">
-          <div
+          <TypeSelectButton
             v-for="itemType in itemTypeList"
             :key="itemType.id"
-            :title="itemType.name"
-            :class="{ actived: itemType.id === selectedType?.id }"
-            class="item-type"
+            :item-type="itemType"
+            :actived="itemType.id === selectedType?.id"
+            :src="iconTagStore.tagSpriteImage"
+            :mapping="iconTagStore.iconMapping[itemType.iconTag ?? '']"
+            :nums="groupedItems[itemType.id!]?.length"
             @click="() => setSelectedType(itemType)"
-          >
-            <img :src="iconMap[itemType.iconTag ?? '']?.url" loading="lazy" class="w-8 h-8 object-contain">
-            <el-badge type="primary" :value="groupedItems[itemType.id!]?.length ?? 0" :hidden="!groupedItems[itemType.id!]?.length" style="width: 100%">
-              <span class="overflow-hidden text-ellipsis whitespace-nowrap">{{ itemType.name }}</span>
-            </el-badge>
-          </div>
+          />
         </ElScrollbar>
       </div>
 
       <div
         v-loading="loading"
-        class="w-full h-full flex flex-col overflow-hidden pl-2 border-left"
+        class="w-full h-full flex flex-col overflow-hidden pl-2 border-l-[1px] border-dashed border-[var(--el-border-color)]"
         element-loading-text="查询中..."
       >
         <ElScrollbar ref="scrollbarRef">
@@ -190,29 +191,19 @@ watch(() => itemList.value, () => scrollbarRef.value?.setScrollTop(0))
             :key="item.id"
             :item="item"
             :icon-map="iconMap"
+            :actived="selections.has(item.id!)"
+            :src="iconTagStore.tagSpriteImage"
+            :mapping="iconTagStore.iconMapping[item.iconTag ?? '']"
             @click="() => toggleItem(item)"
-          >
-            <template #prepend>
-              <div
-                class="w-4 h-4 border rounded-full grid place-items-center"
-                style="border-color: var(--el-border-color);"
-                :style="[
-                  selections.has(item.id!)
-                    ? 'background-color: var(--el-color-primary); border-color: var(--el-color-primary); color: #FFF;'
-                    : 'color: transparent;',
-                ]"
-              >
-                <el-icon :size="14" color="currentColor">
-                  <Select />
-                </el-icon>
-              </div>
-            </template>
-          </ItemSelectButton>
+          />
         </ElScrollbar>
       </div>
     </div>
 
-    <div v-if="showTotal" class="w-52 flex flex-col pl-2 justify-between gap-2 border-left">
+    <div
+      v-if="showTotal"
+      class="w-52 flex flex-col pl-2 justify-between gap-2 border-l-[1px] border-dashed border-[var(--el-border-color)]"
+    >
       <div class="flex justify-between px-1">
         <el-text v-if="title" size="small">
           {{ title }}
@@ -224,24 +215,25 @@ watch(() => itemList.value, () => scrollbarRef.value?.setScrollTop(0))
 
       <div class="flex-1 overflow-hidden">
         <ElScrollbar>
-          <details v-for="(items, key) in groupedItems" :key="key" open class="el-border mb-1 overflow-hidden">
-            <summary class="p-1 px-2 text-xs select-none el-bg-primary">
-              {{ itemTypeMap[key]?.name ?? '？？？' }}
+          <details
+            v-for="(items, key) in groupedItems"
+            :key="key"
+            open
+            class="mb-1 overflow-hidden border border-[var(--el-border-color)] rounded"
+          >
+            <summary class="p-1 px-2 text-xs select-none bg-[var(--el-color-primary-light-8)]">
+              {{ `${itemTypeMap[key]?.name ?? '？？？'} (${items.length})` }}
             </summary>
-            <div class="flex gap-1 p-1">
+            <div class="flex flex-wrap gap-1 p-1">
               <ItemPreviewButton
                 v-for="item in items"
                 :key="item.id"
                 :item="item"
                 :icon-map="iconMap"
+                :src="iconTagStore.tagSpriteImage"
+                :mapping="iconTagStore.iconMapping[item.iconTag ?? '']"
                 @click="() => toggleItem(item)"
-              >
-                <template #append>
-                  <el-icon :size="14">
-                    <CircleCloseFilled />
-                  </el-icon>
-                </template>
-              </ItemPreviewButton>
+              />
             </div>
           </details>
         </ElScrollbar>
@@ -252,45 +244,8 @@ watch(() => itemList.value, () => scrollbarRef.value?.setScrollTop(0))
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style scoped>
 .item-selector {
   height: var(--selecter-height, 500px);
-}
-
-.sample-item-selecter {
-  grid-template-columns: 120px auto;
-  grid-template-rows: auto 1fr;
-}
-
-.item-type {
-  padding: 4px 12px 4px 4px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  border-radius: 4px;
-
-  &:not(.actived):hover {
-    background-color: var(--el-color-primary-light-9);
-  }
-  &:not(.actived):active {
-    background-color: var(--el-color-primary-light-7);
-  }
-  &.actived {
-    background-color: var(--el-color-primary);
-    color: #FFF;
-  }
-}
-
-.el-border {
-  border: 1px solid var(--el-border-color);
-  border-radius: 4px;
-}
-
-.el-bg-primary {
-  background-color: var(--el-color-primary-light-8);
-}
-
-.border-left {
-  border-left: 1px dashed var(--el-border-color);
 }
 </style>
