@@ -1,11 +1,17 @@
 {
   "compilerOptions": {
     "composite": true,
-    "module": "esnext",
-    "moduleResolution": "node",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
     "types": ["vite/client", "node"],
     "baseUrl": ".",
     "rootDir": "."
   },
-  "include": ["package.json", "./plugins/**/*", "./.vite/**/*", "vite.config.ts", "env.d.ts"]
+  "include": [
+    "package.json",
+    "./plugins/**/*",
+    "./.vite/**/*",
+    "vite.config.ts",
+    "types/env.d.ts"
+  ]
 }

@@ -10,7 +10,7 @@
     "noUnusedLocals": true,
     "strictNullChecks": true,
     "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "Node",
+    "moduleResolution": "Bundler",
     "checkJs": true,
     "lib": ["DOM", "ESNext", "ScriptHost", "WebWorker"],
     "types": ["vite/client", "element-plus/global"],

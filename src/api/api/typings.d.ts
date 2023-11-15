@@ -757,6 +757,8 @@ declare namespace API {
   }
 
   interface RelationVo {
+    /** 关联组类型 */
+    type?: string
     /** 触发关联数据 */
     triggers?: LinkRefVo[]
     /** 目标关联数据 */
