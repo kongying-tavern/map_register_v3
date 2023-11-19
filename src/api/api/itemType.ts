@@ -1,9 +1,10 @@
+import type { AxiosRequestConfig } from 'axios'
 import { request } from '@/utils'
 
 /** 添加物品类型 成功后返回新的类型ID PUT /api/item_type/add */
 export async function addItemType(
   body: API.ItemTypeVo,
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   return request<API.RLong>('/api/item_type/add', {
     method: 'PUT',
@@ -18,7 +19,7 @@ export async function addItemType(
 /** 修改物品类型 修改物品类型 POST /api/item_type/update */
 export async function updateItemType(
   body: API.ItemTypeVo,
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   return request<API.RBoolean>('/api/item_type/update', {
     method: 'POST',
@@ -37,7 +38,7 @@ export async function moveItemType(
     targetTypeId: number
   },
   body: number[],
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   const { targetTypeId: param0, ...queryParams } = params
   return request<API.RBoolean>(`/api/item_type/move/${param0}`, {
@@ -54,7 +55,7 @@ export async function moveItemType(
 /** 列出所有物品类型 返回所有可访问的物品类型 POST /api/item_type/get/list_all */
 export async function listItemType(
   params: NonNullable<unknown>,
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   return request<API.RListItemTypeVo>('/api/item_type/get/list_all', {
     method: 'POST',
@@ -70,7 +71,7 @@ export async function listItemType1(
     self: number
   },
   body: API.PageAndTypeSearchVo,
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   const { self: param0, ...queryParams } = params
   return request<API.RPageListVoItemTypeVo>(`/api/item_type/get/list/${param0}`, {
@@ -90,7 +91,7 @@ export async function deleteItemType(
     // path
     itemTypeId: number
   },
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   const { itemTypeId: param0, ...queryParams } = params
   return request<API.RBoolean>(`/api/item_type/delete/${param0}`, {

@@ -1,7 +1,8 @@
+import type { AxiosRequestConfig } from 'axios'
 import { request } from '@/utils'
 
 /** 新增点位（不包括额外字段） 新增完成后返回点位ID PUT /api/marker/single */
-export async function createMarker(body: API.MarkerVo, options?: { [key: string]: unknown }) {
+export async function createMarker(body: API.MarkerVo, options?: AxiosRequestConfig) {
   return request<API.RLong>('/api/marker/single', {
     method: 'PUT',
     headers: {
@@ -13,7 +14,7 @@ export async function createMarker(body: API.MarkerVo, options?: { [key: string]
 }
 
 /** 修改点位（不包括额外字段） 根据点位ID修改点位 POST /api/marker/single */
-export async function updateMarker(body: API.MarkerVo, options?: { [key: string]: unknown }) {
+export async function updateMarker(body: API.MarkerVo, options?: AxiosRequestConfig) {
   return request<API.RBoolean>('/api/marker/single', {
     method: 'POST',
     headers: {
@@ -28,7 +29,7 @@ export async function updateMarker(body: API.MarkerVo, options?: { [key: string]
 export async function listMarkerPage(
   params: NonNullable<unknown>,
   body: API.PageSearchVo,
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   return request<API.RPageListVoMarkerVo>('/api/marker/get/page', {
     method: 'POST',
@@ -45,7 +46,7 @@ export async function listMarkerPage(
 export async function searchMarker(
   params: NonNullable<unknown>,
   body: API.MarkerSearchVo,
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   return request<API.RListMarkerVo>('/api/marker/get/list_byinfo', {
     method: 'POST',
@@ -62,7 +63,7 @@ export async function searchMarker(
 export async function listMarkerById(
   params: NonNullable<unknown>,
   body: number[],
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   return request<API.RListMarkerVo>('/api/marker/get/list_byid', {
     method: 'POST',
@@ -79,7 +80,7 @@ export async function listMarkerById(
 export async function searchMarkerId(
   params: NonNullable<unknown>,
   body: API.MarkerSearchVo,
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   return request<API.RListLong>('/api/marker/get/id', {
     method: 'POST',
@@ -98,7 +99,7 @@ export async function deleteMarker(
     // path
     markerId: number
   },
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   const { markerId: param0, ...queryParams } = params
   return request<API.RBoolean>(`/api/marker/${param0}`, {

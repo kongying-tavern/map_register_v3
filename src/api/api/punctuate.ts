@@ -1,10 +1,11 @@
+import type { AxiosRequestConfig } from 'axios'
 import { request } from '@/utils'
 
 /** 提交暂存点位 成功则返回打点提交ID PUT /api/punctuate/ */
 export async function addPunctuate(
   params: NonNullable<unknown>,
   body: API.MarkerPunctuateVo,
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   return request<API.RLong>('/api/punctuate/', {
     method: 'PUT',
@@ -21,7 +22,7 @@ export async function addPunctuate(
 export async function updateSelfPunctuate(
   params: NonNullable<unknown>,
   body: API.MarkerPunctuateVo,
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   return request<API.RBoolean>('/api/punctuate/', {
     method: 'POST',
@@ -39,7 +40,7 @@ export async function pushPunctuate(
   params: { // path
     authorId: number
   },
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   const { authorId: param0, ...queryParams } = params
   return request<API.RBoolean>(`/api/punctuate/push/${param0}`, {
@@ -53,7 +54,7 @@ export async function pushPunctuate(
 /** 分页查询所有打点信息 分页查询所有打点信息 POST /api/punctuate/get/page */
 export async function listPunctuatePage(
   body: API.PageSearchVo,
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   return request<API.RPageListVoMarkerPunctuateVo>('/api/punctuate/get/page', {
     method: 'POST',
@@ -71,7 +72,7 @@ export async function listSelfPunctuatePage(
     authorId: number
   },
   body: API.PageSearchVo,
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   const { authorId: param0, ...queryParams } = params
   return request<API.RPageListVoMarkerPunctuateVo>(`/api/punctuate/get/page/${param0}`, {
@@ -91,7 +92,7 @@ export async function deleteSelfPunctuate(
     punctuateId: number
     authorId: number
   },
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   const { punctuateId: param0, authorId: param1, ...queryParams } = params
   return request<API.RBoolean>(`/api/punctuate/delete/${param1}/${param0}`, {

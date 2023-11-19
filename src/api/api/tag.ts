@@ -1,3 +1,4 @@
+import type { AxiosRequestConfig } from 'axios'
 import { request } from '@/utils'
 
 /** 创建标签 只创建一个空标签 PUT /api/tag/${param0} */
@@ -6,7 +7,7 @@ export async function createTag(
     // path
     tagName: string
   },
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   const { tagName: param0, ...queryParams } = params
   return request<API.RBoolean>(`/api/tag/${param0}`, {
@@ -22,7 +23,7 @@ export async function deleteTag(
     // path
     tagName: string
   },
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   const { tagName: param0, ...queryParams } = params
   return request<API.RBoolean>(`/api/tag/${param0}`, {
@@ -39,7 +40,7 @@ export async function updateTag(
     tagName: string
     iconId: number
   },
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   const { tagName: param0, iconId: param1, ...queryParams } = params
   return request<API.RBoolean>(`/api/tag/${param0}/${param1}`, {
@@ -50,7 +51,7 @@ export async function updateTag(
 }
 
 /** 修改标签的分类信息 本接口仅在后台使用，故分离出来 POST /api/tag/updateType */
-export async function updateTypeInTag(body: API.TagVo, options?: { [key: string]: unknown }) {
+export async function updateTypeInTag(body: API.TagVo, options?: AxiosRequestConfig) {
   return request<API.RBoolean>('/api/tag/updateType', {
     method: 'POST',
     headers: {
@@ -67,7 +68,7 @@ export async function getTag(
     // path
     name: string
   },
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   const { name: param0, ...queryParams } = params
   return request<API.RTagVo>(`/api/tag/get/single/${param0}`, {
@@ -78,7 +79,7 @@ export async function getTag(
 }
 
 /** 列出标签 可按照分类进行查询，也可给出需要查询url的tag名称列表，可分页 POST /api/tag/get/list */
-export async function listTag(body: API.TagSearchVo, options?: { [key: string]: unknown }) {
+export async function listTag(body: API.TagSearchVo, options?: AxiosRequestConfig) {
   return request<API.RPageListVoTagVo>('/api/tag/get/list', {
     method: 'POST',
     headers: {

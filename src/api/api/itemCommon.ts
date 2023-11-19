@@ -1,7 +1,8 @@
+import type { AxiosRequestConfig } from 'axios'
 import { request } from '@/utils'
 
 /** 新增地区公用物品 通过ID列表批量添加地区公用物品 PUT /api/item_common/add */
-export async function addCommonItem(body: number[], options?: { [key: string]: unknown }) {
+export async function addCommonItem(body: number[], options?: AxiosRequestConfig) {
   return request<API.RBoolean>('/api/item_common/add', {
     method: 'PUT',
     headers: {
@@ -15,7 +16,7 @@ export async function addCommonItem(body: number[], options?: { [key: string]: u
 /** 列出地区公用物品 列出地区公用物品 POST /api/item_common/get/list */
 export async function listCommonItem(
   body: API.PageSearchVo,
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   return request<API.RPageListVoItemAreaPublicVo>('/api/item_common/get/list', {
     method: 'POST',
@@ -33,7 +34,7 @@ export async function deleteCommonItem(
     // path
     itemId: number
   },
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   const { itemId: param0, ...queryParams } = params
   return request<API.RBoolean>(`/api/item_common/delete/${param0}`, {

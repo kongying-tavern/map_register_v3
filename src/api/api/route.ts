@@ -1,10 +1,11 @@
+import type { AxiosRequestConfig } from 'axios'
 import { request } from '@/utils'
 
 /** 新增路线 返回新增路线ID PUT /api/route/add */
 export async function createRoute(
   params: NonNullable<unknown>,
   body: API.RouteVo,
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   return request<API.RLong>('/api/route/add', {
     method: 'PUT',
@@ -21,7 +22,7 @@ export async function createRoute(
 export async function updateRoute(
   params: NonNullable<unknown>,
   body: API.RouteVo,
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   return request<API.RBoolean>('/api/route', {
     method: 'POST',
@@ -38,7 +39,7 @@ export async function updateRoute(
 export async function listRoutePageSearch(
   params: NonNullable<unknown>,
   body: API.RouteSearchVo,
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   return request<API.RPageListVoRouteVo>('/api/route/get/search', {
     method: 'POST',
@@ -55,7 +56,7 @@ export async function listRoutePageSearch(
 export async function listRoutePage(
   params: NonNullable<unknown>,
   body: API.PageSearchVo,
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   return request<API.RPageListVoRouteVo>('/api/route/get/page', {
     method: 'POST',
@@ -72,7 +73,7 @@ export async function listRoutePage(
 export async function listRouteById(
   params: NonNullable<unknown>,
   body: number[],
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   return request<API.RListRouteVo>('/api/route/get/list_byid', {
     method: 'POST',
@@ -90,7 +91,7 @@ export async function deleteRoute(
   params: { // path
     routeId: number
   },
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   const { routeId: param0, ...queryParams } = params
   return request<API.RBoolean>(`/api/route/${param0}`, {

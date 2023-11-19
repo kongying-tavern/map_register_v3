@@ -1,9 +1,10 @@
+import type { AxiosRequestConfig } from 'axios'
 import { request } from '@/utils'
 
 /** 新增分类 类型id在创建后返回 PUT /api/icon_type/add */
 export async function addIconType(
   body: API.IconTypeVo,
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   return request<API.RLong>('/api/icon_type/add', {
     method: 'PUT',
@@ -18,7 +19,7 @@ export async function addIconType(
 /** 修改分类 由类型ID来定位修改一个分类 POST /api/icon_type/update */
 export async function updateIconType(
   body: API.IconTypeVo,
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   return request<API.RBoolean>('/api/icon_type/update', {
     method: 'POST',
@@ -33,7 +34,7 @@ export async function updateIconType(
 /** 列出分类 列出图标的分类，parentID为-1的时候为列出所有的根分类，isTraverse为1时遍历所有子分类，默认为1，可分页 POST /api/icon_type/get/list */
 export async function listIconType(
   body: API.PageAndTypeSearchVo,
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   return request<API.RPageListVoIconTypeVo>('/api/icon_type/get/list', {
     method: 'POST',
@@ -51,7 +52,7 @@ export async function deleteIconType(
     // path
     typeId: number
   },
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   const { typeId: param0, ...queryParams } = params
   return request<API.RBoolean>(`/api/icon_type/delete/${param0}`, {

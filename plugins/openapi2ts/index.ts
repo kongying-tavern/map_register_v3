@@ -59,6 +59,9 @@ export const openapi2ts = (optionList: Openapi2tsOptions[], initFlag = false): P
             // .replace(/\n/g, '\r\n')
             // 所有的 any 类型改为 unknown
             .replace(/(?<=[,:]\s+)any/g, 'unknown')
+            // 将 options 类型指定为 AxiosRequestConfig
+            .replace('import { request } from \'@/utils\'', 'import type { AxiosRequestConfig } from \'axios\'\r\nimport { request } from \'@/utils\'')
+            .replace(/options\?: { \[key: string\]: unknown }/g, 'options?: AxiosRequestConfig')
           await writeFile(filePath, writeContent)
         }))
       }

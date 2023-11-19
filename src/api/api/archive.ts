@@ -1,3 +1,4 @@
+import type { AxiosRequestConfig } from 'axios'
 import { request } from '@/utils'
 
 /** 新建存档槽位并将存档存入 新建存档并存入，注意槽位下标不能冲突 PUT /system/archive/${param0}/${param1} */
@@ -7,7 +8,7 @@ export async function createSlotAndSaveArchive(
     name: string
   },
   body: string,
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   const { slot_index: param0, name: param1, ...queryParams } = params
   return request<API.RBoolean>(`/system/archive/${param0}/${param1}`, {
@@ -27,7 +28,7 @@ export async function saveArchive(
     slot_index: number
   },
   body: string,
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   const { slot_index: param0, ...queryParams } = params
   return request<API.RBoolean>(`/system/archive/save/${param0}`, {
@@ -47,7 +48,7 @@ export async function renameSlot(
     slot_index: number
     new_name: string
   },
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   const { slot_index: param0, new_name: param1, ...queryParams } = params
   return request<API.RBoolean>(`/system/archive/rename/${param0}/${param1}`, {
@@ -63,7 +64,7 @@ export async function getLastArchive(
   params: { // path
     slot_index: number
   },
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   const { slot_index: param0, ...queryParams } = params
   return request<API.RSysArchiveVo>(`/system/archive/last/${param0}`, {
@@ -79,7 +80,7 @@ export async function getHistoryArchive(
   params: { // path
     slot_index: number
   },
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   const { slot_index: param0, ...queryParams } = params
   return request<API.RSysArchiveSlotVo>(`/system/archive/history/${param0}`, {
@@ -93,7 +94,7 @@ export async function getHistoryArchive(
 /** 获取所有槽位的历史存档 获取所有槽位的历史存档 GET /system/archive/all_history */
 export async function getAllHistoryArchive(
   params: NonNullable<unknown>,
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   return request<API.RListSysArchiveSlotVo>('/system/archive/all_history', {
     method: 'GET',
@@ -108,7 +109,7 @@ export async function removeArchive(
   params: { // path
     slot_index: number
   },
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   const { slot_index: param0, ...queryParams } = params
   return request<API.RBoolean>(`/system/archive/slot/${param0}`, {
@@ -124,7 +125,7 @@ export async function restoreArchive(
   params: { // path
     slot_index: number
   },
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   const { slot_index: param0, ...queryParams } = params
   return request<API.RSysArchiveVo>(`/system/archive/restore/${param0}`, {

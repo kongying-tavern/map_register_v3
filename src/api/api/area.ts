@@ -1,7 +1,8 @@
+import type { AxiosRequestConfig } from 'axios'
 import { request } from '@/utils'
 
 /** 新增地区 返回新增地区ID PUT /api/area/add */
-export async function createArea(body: API.AreaVo, options?: { [key: string]: unknown }) {
+export async function createArea(body: API.AreaVo, options?: AxiosRequestConfig) {
   return request<API.RLong>('/api/area/add', {
     method: 'PUT',
     headers: {
@@ -13,7 +14,7 @@ export async function createArea(body: API.AreaVo, options?: { [key: string]: un
 }
 
 /** 修改地区 修改地区 POST /api/area/update */
-export async function updateArea(body: API.AreaVo, options?: { [key: string]: unknown }) {
+export async function updateArea(body: API.AreaVo, options?: AxiosRequestConfig) {
   return request<API.RBoolean>('/api/area/update', {
     method: 'POST',
     headers: {
@@ -29,7 +30,7 @@ export async function getArea(
   params: { // path
     areaId: number
   },
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   const { areaId: param0, ...queryParams } = params
   return request<API.RAreaVo>(`/api/area/get/${param0}`, {
@@ -44,7 +45,7 @@ export async function getArea(
 export async function listArea(
   params: NonNullable<unknown>,
   body: API.AreaSearchVo,
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   return request<API.RListAreaVo>('/api/area/get/list', {
     method: 'POST',
@@ -63,7 +64,7 @@ export async function deleteArea(
     // path
     areaId: number
   },
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   const { areaId: param0, ...queryParams } = params
   return request<API.RBoolean>(`/api/area/${param0}`, {

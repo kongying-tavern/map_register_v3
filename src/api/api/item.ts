@@ -1,3 +1,4 @@
+import type { AxiosRequestConfig } from 'axios'
 import { request } from '@/utils'
 
 /** 复制物品到地区 此操作估计会占用较长时间，根据物品ID列表复制物品到新地区，此操作会递归复制类型及父级类型。会返回新的物品列表与新的类型列表，用于反映新的ID PUT /api/item/copy/${param0} */
@@ -7,7 +8,7 @@ export async function copyItemToArea(
     areaId: number
   },
   body: number[],
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   const { areaId: param0, ...queryParams } = params
   return request<API.RListLong>(`/api/item/copy/${param0}`, {
@@ -22,7 +23,7 @@ export async function copyItemToArea(
 }
 
 /** 新增物品 新建成功后会返回新物品ID PUT /api/item/add */
-export async function createItem(body: API.ItemVo, options?: { [key: string]: unknown }) {
+export async function createItem(body: API.ItemVo, options?: AxiosRequestConfig) {
   return request<API.RLong>('/api/item/add', {
     method: 'PUT',
     headers: {
@@ -40,7 +41,7 @@ export async function updateItem(
     editSame: number
   },
   body: API.ItemVo[],
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   const { editSame: param0, ...queryParams } = params
   return request<API.RBoolean>(`/api/item/update/${param0}`, {
@@ -61,7 +62,7 @@ export async function joinItemsInType(
     typeId: number
   },
   body: number[],
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   const { typeId: param0, ...queryParams } = params
   return request<API.RBoolean>(`/api/item/join/${param0}`, {
@@ -79,7 +80,7 @@ export async function joinItemsInType(
 export async function listItemIdByType(
   params: NonNullable<unknown>,
   body: API.ItemSearchVo,
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   return request<API.RPageListVoItemVo>('/api/item/get/list', {
     method: 'POST',
@@ -96,7 +97,7 @@ export async function listItemIdByType(
 export async function listItemById(
   params: NonNullable<unknown>,
   body: number[],
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   return request<API.RListItemVo>('/api/item/get/list_byid', {
     method: 'POST',
@@ -115,7 +116,7 @@ export async function deleteItem(
     // path
     itemId: number
   },
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   const { itemId: param0, ...queryParams } = params
   return request<API.RBoolean>(`/api/item/delete/${param0}`, {

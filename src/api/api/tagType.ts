@@ -1,7 +1,8 @@
+import type { AxiosRequestConfig } from 'axios'
 import { request } from '@/utils'
 
 /** 新增分类 类型id在创建后返回 PUT /api/tag_type/add */
-export async function addTagType(body: API.TagTypeVo, options?: { [key: string]: unknown }) {
+export async function addTagType(body: API.TagTypeVo, options?: AxiosRequestConfig) {
   return request<API.RLong>('/api/tag_type/add', {
     method: 'PUT',
     headers: {
@@ -15,7 +16,7 @@ export async function addTagType(body: API.TagTypeVo, options?: { [key: string]:
 /** 修改分类 由类型ID来定位修改一个分类 POST /api/tag_type/update */
 export async function updateTagType(
   body: API.TagTypeVo,
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   return request<API.RBoolean>('/api/tag_type/update', {
     method: 'POST',
@@ -30,7 +31,7 @@ export async function updateTagType(
 /** 列出分类 列出标签的分类，parentID为-1的时候为列出所有的根分类，isTraverse为1时遍历所有子分类，默认为1，可分页 POST /api/tag_type/get/list */
 export async function listTagType(
   body: API.PageAndTypeSearchVo,
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   return request<API.RPageListVoTagTypeVo>('/api/tag_type/get/list', {
     method: 'POST',
@@ -48,7 +49,7 @@ export async function deleteTagType(
     // path
     typeId: number
   },
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   const { typeId: param0, ...queryParams } = params
   return request<API.RBoolean>(`/api/tag_type/delete/${param0}`, {

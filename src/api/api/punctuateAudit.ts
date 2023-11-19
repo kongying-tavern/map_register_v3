@@ -1,3 +1,4 @@
+import type { AxiosRequestConfig } from 'axios'
 import { request } from '@/utils'
 
 /** 驳回点位审核 驳回的点位和通过额外字段关联的点位会回到暂存区 POST /api/punctuate_audit/reject/${param0} */
@@ -7,7 +8,7 @@ export async function rejectPunctuate(
     punctuateId: number
   },
   body: string,
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   const { punctuateId: param0, ...queryParams } = params
   return request<API.RBoolean>(`/api/punctuate_audit/reject/${param0}`, {
@@ -27,7 +28,7 @@ export async function passPunctuate(
     // path
     punctuateId: number
   },
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   const { punctuateId: param0, ...queryParams } = params
   return request<API.RLong>(`/api/punctuate_audit/pass/${param0}`, {
@@ -40,7 +41,7 @@ export async function passPunctuate(
 /** 分页查询所有打点信息（包括暂存） 分页查询所有打点信息（包括暂存） POST /api/punctuate_audit/get/page/all */
 export async function listAllPunctuatePage(
   body: API.PageSearchVo,
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   return request<API.RPageListVoMarkerPunctuateVo>('/api/punctuate_audit/get/page/all', {
     method: 'POST',
@@ -55,7 +56,7 @@ export async function listAllPunctuatePage(
 /** 根据各种条件筛选打点信息 支持根据末端地区、末端类型、物品、提交者来进行查询，地区、类型、物品查询不能同时生效，同时存在时报错 POST /api/punctuate_audit/get/list_byinfo */
 export async function searchPunctuate(
   body: API.PunctuateSearchVo,
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   return request<API.RListMarkerPunctuateVo>('/api/punctuate_audit/get/list_byinfo', {
     method: 'POST',
@@ -70,7 +71,7 @@ export async function searchPunctuate(
 /** 通过打点ID列表查询打点信息 通过打点ID列表查询打点信息 POST /api/punctuate_audit/get/list_byid */
 export async function listPunctuateById(
   body: number[],
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   return request<API.RListMarkerPunctuateVo>('/api/punctuate_audit/get/list_byid', {
     method: 'POST',
@@ -85,7 +86,7 @@ export async function listPunctuateById(
 /** 根据各种条件筛选打点ID 支持根据末端地区、末端类型、物品、提交者来进行查询，地区、类型、物品查询不能同时生效，同时存在时报错 POST /api/punctuate_audit/get/id */
 export async function searchPunctuateId(
   body: API.PunctuateSearchVo,
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   return request<API.RListLong>('/api/punctuate_audit/get/id', {
     method: 'POST',
@@ -103,7 +104,7 @@ export async function deletePunctuate(
     // path
     punctuateId: number
   },
-  options?: { [key: string]: unknown },
+  options?: AxiosRequestConfig,
 ) {
   const { punctuateId: param0, ...queryParams } = params
   return request<API.RBoolean>(`/api/punctuate_audit/delete/${param0}`, {
