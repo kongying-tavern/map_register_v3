@@ -1,5 +1,9 @@
 import { getObjectFitSize } from '@/utils/getObjectFitSize'
 
+export {}
+
+declare const globalThis: DedicatedWorkerGlobalScope
+
 const FALLBACK_IMAGE_URL = '/icons/unknown.webp'
 
 /** 主线程输入数据 */
@@ -95,12 +99,12 @@ const render = async (params: WorkerInput): Promise<WorkerSuccessOutput> => {
   return { image, mapping }
 }
 
-self.onmessage = async (ev: MessageEvent<WorkerInput>) => {
+globalThis.addEventListener('message', async (ev: MessageEvent<WorkerInput>) => {
   try {
     const result = await render(ev.data)
-    self.postMessage(result, [result.image])
+    globalThis.postMessage(result, [result.image])
   }
   catch (err) {
-    self.postMessage(err instanceof Error ? err.message : `${err}`)
+    globalThis.postMessage(err instanceof Error ? err.message : `${err}`)
   }
-}
+})

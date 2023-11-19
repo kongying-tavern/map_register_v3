@@ -1,4 +1,5 @@
-import IntervalWorker from '@/worker/intervalWorker?worker'
+import IntervalWorker from '@/worker/interval.worker?worker'
+import type { IntervalPayload } from '@/worker/interval.worker'
 
 /** 基于 worker 线程的定时任务，以避免主线程重负载阻塞所造成的定时误差 */
 export class WorkerInterval {
@@ -14,11 +15,11 @@ export class WorkerInterval {
 
   static set = (name: string, fn: Function, interval: number) => {
     this.intervalMap[name] = fn
-    this.worker.postMessage(JSON.stringify({ name, interval, action: 'set' }))
+    this.worker.postMessage({ name, interval, action: 'set' } as IntervalPayload)
   }
 
   static clear = (name: string) => {
     delete this.intervalMap[name]
-    this.worker.postMessage(JSON.stringify({ name, action: 'clear' }))
+    this.worker.postMessage({ name, action: 'clear' } as IntervalPayload)
   }
 }

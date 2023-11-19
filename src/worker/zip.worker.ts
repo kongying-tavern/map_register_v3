@@ -1,7 +1,10 @@
 import SevenZip from '7z-wasm'
 import { Logger } from '@/utils/logger'
 
-// import SevenZipWASM from '@/wasm/7zz.wasm?url'
+export {}
+
+declare const globalThis: DedicatedWorkerGlobalScope
+
 export interface ZipWorkerPayload {
   data: Uint8Array
   wasm: ArrayBuffer
@@ -36,12 +39,12 @@ const decompressFile = async (options: ZipWorkerPayload): Promise<Uint8Array> =>
 }
 
 /** 消息处理 */
-self.onmessage = async (ev: MessageEvent<ZipWorkerPayload>) => {
+globalThis.addEventListener('message', async (ev: MessageEvent<ZipWorkerPayload>) => {
   try {
     const extractFile = await decompressFile(ev.data)
-    self.postMessage(extractFile as ZipWorkerMessage, [extractFile.buffer])
+    globalThis.postMessage(extractFile as ZipWorkerMessage, [extractFile.buffer])
   }
   catch (err) {
-    self.postMessage((err as Error).message as ZipWorkerMessage)
+    globalThis.postMessage((err as Error).message as ZipWorkerMessage)
   }
-}
+})
