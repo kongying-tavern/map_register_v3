@@ -16,11 +16,13 @@ export class Zip {
     return new Promise<Uint8Array>((resolve, reject) => {
       const worker = new ZipWorker()
 
+      const copyZipWasm = wasm.slice(0)
+
       worker.postMessage({
         data: file,
         log: true,
-        wasm,
-      } as ZipWorkerPayload, [file.buffer, wasm.slice(0)])
+        wasm: copyZipWasm,
+      } as ZipWorkerPayload, [file.buffer, copyZipWasm])
 
       worker.onmessage = (ev: MessageEvent<ZipWorkerMessage>) => {
         const { data } = ev
@@ -34,4 +36,18 @@ export class Zip {
       }
     })
   }
+
+  /**
+   * 解压后作为 JSON 进行解析
+   */
+  static decompressAs = async <T>(file: Uint8Array, { utfLabel = 'utf-8' }: DecompressAsObjectOptions = {}) => {
+    const depressedData = await this.decompress(file)
+    const stringData = new TextDecoder(utfLabel).decode(depressedData.buffer)
+    return JSON.parse(stringData) as T
+  }
+}
+
+export interface DecompressAsObjectOptions {
+  /** @default 'utf-8' */
+  utfLabel?: string
 }
