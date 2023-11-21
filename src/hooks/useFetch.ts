@@ -55,7 +55,7 @@ export const useFetchHook = <T, A extends unknown[] = []>(options: FetchHookOpti
     }
   }
 
-  immediate && onMounted(refresh)
+  immediate && tryOnMounted(refresh)
 
   return { data, loading, refresh, onSuccess: onSuccessHook.on, onError: onErrorHook.on, onFinish: onFinishHook.on }
 }
