@@ -19,7 +19,7 @@ export interface AreaAdditionalConfig {
    * - 可用于打点时自动选择地区
    * @注意 应当使用点位坐标而非地图坐标
    * @todo 暂未实现
-   **/
+   */
   bounds?: API.Coordinate2D[]
 
   /**
