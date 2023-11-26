@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { userHook } from './hooks'
 import type { UserPreference } from './types'
+import { getDefaultPreference } from './types'
 import { useUserAuthStore } from '@/stores'
 import { useFetchHook } from '@/hooks'
 import db from '@/database'
@@ -10,11 +11,14 @@ export const usePreferenceStore = defineStore('user-preference', () => {
   const internalUpdateFlag = ref(false)
 
   const { data: preference, refresh: _updateUserPreference } = useFetchHook<UserPreference, [userId: number]>({
-    initialValue: {},
+    initialValue: getDefaultPreference(),
     onRequest: async (userId) => {
       const queryPreference = await db.user.get(userId)
       internalUpdateFlag.value = true
-      return queryPreference ?? {}
+      return {
+        ...getDefaultPreference(),
+        ...queryPreference,
+      }
     },
   })
 
