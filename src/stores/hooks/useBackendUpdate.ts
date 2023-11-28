@@ -11,14 +11,13 @@ import { Logger } from '@/utils'
 /** 默认更新间隔 30 分钟 */
 const DEFAULT_UPDATE_GAP = 30 * 60 * 1000
 
-export interface BackendUpdatePayload<T> {
-  digestList: string[]
-  dataList: T[][]
-}
-
 const logger = new Logger('[后台更新]')
 
-export const useBackendUpdate = <T, Key>(table: Dexie.Table<T, Key>, request: () => Awaitable<BackendUpdatePayload<T>>) => {
+export const useBackendUpdate = <T, Key>(
+  table: Dexie.Table<T, Key>,
+  getDigestList: () => Awaitable<string[]>,
+  getData: (index: number) => Awaitable<T[]>,
+) => {
   const timerId = ref<number>()
 
   const isWatting = computed(() => timerId.value !== undefined)
@@ -48,6 +47,8 @@ export const useBackendUpdate = <T, Key>(table: Dexie.Table<T, Key>, request: ()
   const getRangeOfList = (data: T[]): DigestRange<number> | DigestRange<string> => {
     if (!isObjectArray(data))
       throw new Error('输入的格式有误，data 不为对象数组')
+    if (!data.length)
+      throw new Error('没有可更新的数据')
     const primaryValueList = data.map(item => get(item, table.schema.primKey.src))
     const primaryValue = primaryValueList[0]
     let range: DigestRange<number> | DigestRange<string> | undefined
@@ -61,7 +62,7 @@ export const useBackendUpdate = <T, Key>(table: Dexie.Table<T, Key>, request: ()
       range = [primaryValueList[0], primaryValueList[primaryValueList.length - 1]]
     }
     if (!range)
-      throw new Error('无法对 string 或 number 类型以外的主键进行排序')
+      throw new Error(`${table.name} 主键 ${table.schema.primKey.src} 的值类型为 ${typeof primaryValue}，无法对 string 或 number 类型以外的主键进行排序`)
     return range
   }
 
@@ -78,27 +79,28 @@ export const useBackendUpdate = <T, Key>(table: Dexie.Table<T, Key>, request: ()
       : { min: a, max: b }
   }
 
-  const { refresh, onFinish, ...rest } = useFetchHook({
+  const { refresh, onFinish, onSuccess, onError, ...rest } = useFetchHook({
     onRequest: async () => {
       startTime.value = Date.now()
-      const { digestList, dataList } = await request()
 
-      // 检查数量是否一致
-      if (digestList.length !== dataList.length)
-        throw new Error('摘要数组与数据数组的数量不一致')
+      const digestList = await getDigestList()
 
-      logger.info(`表 ${table.name} 信息`, { table, digestList, dataList })
+      if (!digestList.length)
+        return 0
 
       // 检查合并摘要不同的数据
       const updateCounts = await Promise.all(digestList.map(async (newDigestCode, index) => {
-        const data = dataList[index]
-        const newRange = getRangeOfList(data)
-
         const oldDigest = await db.digest
           .where('tableName')
           .equals(table.name)
           .and(d => d.index === index)
           .first()
+
+        if (oldDigest?.code === newDigestCode)
+          return 0
+
+        const data = await getData(index)
+        const newRange = getRangeOfList(data)
 
         if (!oldDigest || oldDigest.code !== newDigestCode) {
           let rewriteRange: DigestRange<number> | DigestRange<string> | undefined
@@ -129,9 +131,7 @@ export const useBackendUpdate = <T, Key>(table: Dexie.Table<T, Key>, request: ()
         return 0
       }))
 
-      const sum = updateCounts.reduce((sum, cur) => sum + cur, 0)
-      logger.info(`表 ${table.name} 累计更新${sum} 项`)
-      return sum
+      return updateCounts.reduce((sum, cur) => sum + cur, 0)
     },
   })
 
@@ -155,6 +155,14 @@ export const useBackendUpdate = <T, Key>(table: Dexie.Table<T, Key>, request: ()
     timerId.value = window.setTimeout(refresh, gap)
   })
 
+  onSuccess((sum) => {
+    logger.info(`表 ${table.name} 更新了 ${sum} 项`, { table })
+  })
+
+  onError((err) => {
+    logger.error(err.message)
+  })
+
   return {
     isWatting,
     costTime,
@@ -163,6 +171,8 @@ export const useBackendUpdate = <T, Key>(table: Dexie.Table<T, Key>, request: ()
     stop,
     start,
     onFinish,
+    onSuccess,
+    onError,
     ...rest,
   }
 }
