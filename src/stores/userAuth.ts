@@ -16,7 +16,7 @@ export interface LocalAuth {
   tokenType: string
 }
 
-const logger = new Logger('[auth]')
+const logger = new Logger('[鉴权信息]')
 
 /** 刷新的阈值时间 */
 const TOKEN_REFRESH_REST_TIME = import.meta.env.VITE_TOKEN_REFRESH_REST_TIME * 1000

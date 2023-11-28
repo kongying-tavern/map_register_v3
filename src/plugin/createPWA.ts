@@ -1,7 +1,7 @@
 import type { Plugin } from 'vue'
 import { Logger } from '@/utils'
 
-const logger = new Logger('[service worker register]')
+const logger = new Logger('[ServiceWorker 注册]')
 
 const ensureServiceWorker = async () => {
   if (!('serviceWorker' in navigator))
@@ -9,9 +9,9 @@ const ensureServiceWorker = async () => {
 
   const registration = await navigator.serviceWorker.register('/service.worker.js', { scope: '/' })
   await registration.update()
-  const sr = await navigator.serviceWorker.ready
+  const result = await navigator.serviceWorker.ready
 
-  logger.info(sr)
+  logger.info({ registration: result })
 }
 
 /** 渐进式 Web 应用所需配置 */

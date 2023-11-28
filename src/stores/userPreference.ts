@@ -51,9 +51,9 @@ export const usePreferenceStore = defineStore('user-preference', () => {
   }
 })
 
-const logger = new Logger('[user preference]')
+const logger = new Logger('[用户首选项]')
 
 userHook.onInfoChange(usePreferenceStore, async (store) => {
-  logger.info('update preference')
   await store.updateUserPreference()
+  logger.info({ preference: JSON.parse(JSON.stringify(store.preference)) })
 })

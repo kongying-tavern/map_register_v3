@@ -4,13 +4,11 @@ import { useDadianStore, useMapStore, useUserInfoStore } from '@/stores'
 import type { AreaTagTuple } from '@/configs'
 import { AREA_ADDITIONAL_CONFIG_MAP } from '@/configs'
 
-export interface TileInfo extends Required<Pick<API.TileConfig,
-  | 'code'
-  | 'extension'
-  | 'tilesOffset'
-  | 'size'
-  | 'center'
->> {}
+export interface TileInfo extends Required<Pick<API.TileConfig, | 'code'
+| 'extension'
+| 'tilesOffset'
+| 'size'
+| 'center'>> {}
 
 type AreaTagConfigs = Required<(typeof AREA_ADDITIONAL_CONFIG_MAP)[string]>['tags']
 
@@ -21,7 +19,7 @@ type AreaTagConfigs = Required<(typeof AREA_ADDITIONAL_CONFIG_MAP)[string]>['tag
  * 3. 对于打点工具来说，关注地区信息比关注 tile 信息本身的时候会更多
  */
 export interface AreaTileConfig {
-  /** 地区关联的 tile 的信息，使用对象是方便复用 */
+  /** 地区关联的 tile 的信息，使用对象是为了方便复用 */
   tile: TileInfo
   /** 导航到该地区时的默认视口状态 */
   initViewState: {

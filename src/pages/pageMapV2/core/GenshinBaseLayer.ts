@@ -12,8 +12,10 @@ import {
   getTilelikeOverlaysFrom,
   getTilesFrom,
 } from '../utils'
+import type { GSCompositeLayerTypes } from './layer/GSCompositeLayerTypes'
 import type { GenshinMap } from '.'
 import type { AreaTileConfig } from '@/stores'
+import { Logger } from '@/utils'
 
 export type BaseLayerProps = AreaTileConfig['tile'] & {
   bounds: [number, number, number, number]
@@ -21,7 +23,9 @@ export type BaseLayerProps = AreaTileConfig['tile'] & {
   coordinateOrigin: [number, number, number]
 }
 
-export class GenshinBaseLayer extends CompositeLayer {
+const logger = new Logger('[genshin base layer]')
+
+export class GenshinBaseLayer extends CompositeLayer<GSCompositeLayerTypes> {
   static get ID_PREFIX() { return 'tile-' }
   static get layerName() { return 'GenshinTileLayer' }
 
@@ -66,6 +70,8 @@ export class GenshinBaseLayer extends CompositeLayer {
       coordinateOrigin: [...center, 0],
       coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
     }
+
+    logger.info(this.props)
   }
 
   renderLayers = (): LayersList => {
