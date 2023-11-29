@@ -3,7 +3,7 @@ import { useUserAuthStore, useUserInfoStore } from '@/stores'
 import { Logger } from '@/utils'
 import { RoleLevel } from '@/shared'
 
-const logger = new Logger('[beforeEachGuard]')
+const logger = new Logger('[路由前置守卫]')
 
 const isOfflineMode = import.meta.env.DEV && (import.meta.env.VITE_DEVELOPMENT_MODE === 'offline')
 
@@ -39,10 +39,9 @@ export const beforeEachGuard = (router: Router): NavigationGuardWithThis<void> =
     /** 角色权限等级是否满足 */
     const isAccess = Number(role !== undefined && userInfoStore.userRoleLevel >= RoleLevel[role])
 
-    const permission = parseInt(`${isLogin}${isLimited}${isAccess}`, 2)
+    const permission = Number.parseInt(`${isLogin}${isLimited}${isAccess}`, 2)
 
-    Logger.group(`[Router] [${from.meta.title}]('${from.path}') → [${to.meta.title}]('${to.path}') (p:${isLogin}${isLimited}${isAccess}) (r:${role})`)
-    logger.info({ from, to })
+    logger.info(`[${from.meta.title}]('${from.path}') → [${to.meta.title}]('${to.path}') (p:${isLogin}${isLimited}${isAccess}) (r:${role})`, { from, to })
 
     return ({
       0b000: () => {

@@ -12,13 +12,11 @@ import { Logger, messageFrom } from '@/utils'
 import { useRouteStore } from '@/stores'
 import { routerHook } from '@/stores/hooks'
 
-const history: RouterHistory = (
-  {
-    history: createWebHistory,
-    hash: createWebHashHistory,
-    memory: createMemoryHistory,
-  }[import.meta.env.VITE_ROUTER_MODE] ?? createWebHashHistory
-)(import.meta.env.BASE_URL)
+const history: RouterHistory = ({
+  history: createWebHistory,
+  hash: createWebHashHistory,
+  memory: createMemoryHistory,
+}[import.meta.env.VITE_ROUTER_MODE] ?? createWebHashHistory)(import.meta.env.BASE_URL)
 
 const scrollBehavior: RouterScrollBehavior = () => ({
   top: 0,
@@ -45,9 +43,11 @@ router.beforeEach((to) => {
     useRouteStore().setLoading(true)
 })
 
+const logger = new Logger('[路由后置守卫]')
+
 router.afterEach((to) => {
+  logger.info('导航结束')
   routerHook.applyCallbacks('onAfterRouterEnter')
-  Logger.allGroupsEnd()
   nextTick(() => {
     useRouteStore().setLoading(false)
     const title = useTitle()
