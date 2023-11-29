@@ -68,12 +68,17 @@ export const useBackendUpdate = <T, Key>(
 
   const compare = (a: string | number, b: string | number) => {
     let result: number | undefined
+
     if (typeof a === 'string' && typeof b === 'string')
       result = new Intl.Collator('en').compare(a, b)
-    if (typeof a === 'number' && typeof b === 'number')
+    else if (typeof a === 'number' && typeof b === 'number')
       result = a - b
-    if (!result)
+
+    if (result === undefined) {
+      logger.error({ a, b })
       throw new Error('无法对比两值，类型不一致')
+    }
+
     return result > 0
       ? { min: b, max: a }
       : { min: a, max: b }
