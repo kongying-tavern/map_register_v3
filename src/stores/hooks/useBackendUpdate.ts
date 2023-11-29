@@ -13,6 +13,7 @@ const DEFAULT_UPDATE_GAP = 30 * 60 * 1000
 
 const logger = new Logger('[后台更新]')
 
+/** 通用后台更新 hook */
 export const useBackendUpdate = <T, Key>(
   table: Dexie.Table<T, Key>,
   getDigestList: () => Awaitable<string[]>,
@@ -44,25 +45,36 @@ export const useBackendUpdate = <T, Key>(
     return true
   }
 
+  const { src } = table.schema.primKey
+
   const getRangeOfList = (data: T[]): DigestRange<number> | DigestRange<string> => {
     if (!isObjectArray(data))
       throw new Error('输入的格式有误，data 不为对象数组')
     if (!data.length)
       throw new Error('没有可更新的数据')
-    const primaryValueList = data.map(item => get(item, table.schema.primKey.src))
+
+    const primaryValueList = data.map(item => get(item, src))
     const primaryValue = primaryValueList[0]
     let range: DigestRange<number> | DigestRange<string> | undefined
-    if (typeof primaryValue === 'string') {
+
+    const type = typeof primaryValue
+
+    // 对于字符串主键使用 utf 编码进行排序，同 IndexedDB 对于字符串主键的默认排序方式
+    if (type === 'string') {
       const collator = new Intl.Collator('en')
       primaryValueList.sort(collator.compare)
       range = [primaryValueList[0], primaryValueList[primaryValueList.length - 1]]
     }
-    if (typeof primaryValue === 'number') {
+
+    // 对于数值主键使用常规排序
+    if (type === 'number') {
       primaryValueList.sort((a, b) => a - b)
       range = [primaryValueList[0], primaryValueList[primaryValueList.length - 1]]
     }
+
     if (!range)
-      throw new Error(`${table.name} 主键 ${table.schema.primKey.src} 的值类型为 ${typeof primaryValue}，无法对 string 或 number 类型以外的主键进行排序`)
+      throw new Error(`表 ${table.name} 主键 ${src} 的值类型为 ${type}，暂不支持对其进行排序`)
+
     return range
   }
 
@@ -93,13 +105,10 @@ export const useBackendUpdate = <T, Key>(
       if (!digestList.length)
         return 0
 
-      // 检查合并摘要不同的数据
       const updateCounts = await Promise.all(digestList.map(async (newDigestCode, index) => {
-        const oldDigest = await db.digest
-          .where('tableName')
-          .equals(table.name)
-          .and(d => d.index === index)
-          .first()
+        const oldDigestCollection = db.digest.where('tableName').equals(table.name).and(d => d.index === index)
+
+        const oldDigest = await oldDigestCollection.first()
 
         if (oldDigest?.code === newDigestCode)
           return 0
@@ -107,33 +116,29 @@ export const useBackendUpdate = <T, Key>(
         const data = await getData(index)
         const newRange = getRangeOfList(data)
 
-        if (!oldDigest || oldDigest.code !== newDigestCode) {
-          let rewriteRange: DigestRange<number> | DigestRange<string> | undefined
-          if (oldDigest) {
-            const { range: oldRange } = oldDigest
-            rewriteRange = [
-              compare(oldRange[0], newRange[0]).min,
-              compare(oldRange[1], newRange[1]).max,
-            ] as DigestRange<number> | DigestRange<string>
-          }
-          const range = rewriteRange ?? newRange
-          await db.transaction('rw', table as Dexie.Table, async () => {
-            await table
-              .where(table.schema.primKey.src)
-              .inAnyRange([range])
-              .delete()
-            await table.bulkPut(data)
-          })
+        let rewriteRange: DigestRange<number> | DigestRange<string> | undefined
+
+        if (oldDigest) {
+          const { range: oldRange } = oldDigest
+          rewriteRange = [
+            compare(oldRange[0], newRange[0]).min,
+            compare(oldRange[1], newRange[1]).max,
+          ] as DigestRange<number> | DigestRange<string>
+        }
+        const range = rewriteRange ?? newRange
+
+        await db.transaction('rw', table as Dexie.Table, db.digest, async () => {
+          await table.where(src).inAnyRange([range]).delete()
+          await table.bulkPut(data)
+          await oldDigestCollection.delete()
           await db.digest.put({
             code: newDigestCode,
             index,
             range,
             tableName: table.name,
           })
-          return data.length
-        }
-
-        return 0
+        })
+        return data.length
       }))
 
       return updateCounts.reduce((sum, cur) => sum + cur, 0)
