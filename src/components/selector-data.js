@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { ref, computed } from "vue";
-import { filterCardVisible } from "./filters/data";
+import { filterCardVisible } from "./filters/filter-data";
 
 export const selectorCollapse = ref(false);
 

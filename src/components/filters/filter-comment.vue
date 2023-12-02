@@ -1,6 +1,10 @@
 <script setup>
 import _ from "lodash";
-import { filterConfigList, filterItemCount, filterCardToggle } from "./data";
+import {
+  filterConfigList,
+  filterItemCount,
+  filterCardToggle,
+} from "./filter-data";
 </script>
 
 <template>

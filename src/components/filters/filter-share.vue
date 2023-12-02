@@ -6,7 +6,7 @@ import {
   filterCardVisible,
   filterMuteTooltip,
   filterConfigShareCode,
-} from "./data";
+} from "./filter-data";
 
 const shareCode = ref("");
 

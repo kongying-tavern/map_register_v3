@@ -14,7 +14,7 @@ import {
   filterItemChangeType,
   filterTypes,
   filterConfigSave,
-} from "./data";
+} from "./filter-data";
 </script>
 
 <template>

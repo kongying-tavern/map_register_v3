@@ -1,5 +1,5 @@
 import { ref, computed } from "vue";
-import { applyFilter } from "src/components/filters/data";
+import { applyFilter } from "src/components/filters/filter-data";
 
 export const tableList = ref([]);
 
