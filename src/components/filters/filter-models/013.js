@@ -34,6 +34,10 @@ export default {
       return `点位刷新时间大于等于${minVal}小时`;
     }
 
+    if (minVal === maxVal) {
+      return `点位刷新时间等于${minVal}小时`;
+    }
+
     return `点位刷新时间为${minVal}~${maxVal}小时`;
   },
   // eslint-disable-next-line no-unused-vars
@@ -43,20 +47,20 @@ export default {
     const { maxValue } = values;
     const maxVal = _.isNil(maxValue) || maxValue === "" ? null : maxValue;
 
-    const refreshTime = item?.refreshTime || 0;
+    const refreshTime = parseInt(item?.refreshTime, 10) || 0;
     let minMatch = true;
     let maxMatch = true;
     const hourRatio = 3600e3;
 
     if (minVal !== null) {
-      minMatch = refreshTime * hourRatio >= minVal;
+      minMatch = refreshTime >= minVal * hourRatio;
     }
 
     if (maxVal !== null) {
-      maxMatch = refreshTime * hourRatio <= maxVal;
+      maxMatch = refreshTime <= maxVal * hourRatio;
     }
 
-    return minMatch && maxMatch;
+    return refreshTime >= 0 && minMatch && maxMatch;
   },
   filterSlots: {
     append: slotAppend,
