@@ -1,5 +1,4 @@
 // @ts-check
-/* eslint-disable no-console */
 
 /**
  * @typedef {{ version: number; mode: string }} CacheInfoObject
@@ -16,17 +15,26 @@
   // ==================== global utils ====================
 
   class Logger {
-    static #prefix = [
-      `%c[${new Date().toLocaleString('zh-CN', { hour12: false })}] %c[service worker] >`,
-      'color: green',
-      'color: aqua',
-    ]
+    /**
+     * @param {string} type
+     * @param {string[]} args
+     */
+    static output = async (type, args) => {
+      globalThis.clients
+        .matchAll({ includeUncontrolled: true })
+        .then((clients) => {
+          clients.forEach(client => client.postMessage({
+            action: 'log',
+            value: { type, args },
+          }))
+        })
+    }
 
-    /** @param {unknown[]} args */
-    static info = (...args) => console.log(...this.#prefix, ...args)
+    /** @param {string[]} args */
+    static info = (...args) => this.output('info', args)
 
-    /** @param {unknown[]} args */
-    static error = (...args) => console.log(...this.#prefix, ...args)
+    /** @param {string[]} args */
+    static error = (...args) => this.output('error', args)
   }
 
   class CacheInfo {
@@ -59,14 +67,14 @@
     }
   }
 
-  // ==================== on install ====================
+  // ====================   on install   ====================
 
   scope.addEventListener('install', (ev) => {
     Logger.info('install')
     ev.waitUntil(scope.skipWaiting())
   })
 
-  // ==================== on active ====================
+  // ====================    on active    ====================
 
   /**
    * 检查过期缓存
@@ -91,7 +99,7 @@
     })())
   })
 
-  // ==================== on fetch ====================
+  // ====================    on fetch    ====================
 
   /** @param {string} pathname */
   const matchExtension = (pathname) => {
@@ -155,14 +163,14 @@
           clonedRes.status === 200,
           clonedRes.headers.get('content-type')?.match(CACHEABLE_MIME),
         ].every(Boolean)) {
-          Logger.info(`storage ${storageName} cache`, res.clone())
+          Logger.info(`storage "${storageName}" cache`, clonedRes.url)
           await storage.put(url, clonedRes)
         }
 
         return res
       }
       catch (err) {
-        Logger.error(err)
+        Logger.error(err instanceof Error ? err.message : `${err}`)
         return new Response(null, {
           status: 404,
           statusText: err instanceof Error ? err.message : 'Request Error',
