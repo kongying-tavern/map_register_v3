@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 const debug = import.meta.env.DEV
 
 /** 开发模式下在命令行打印信息 */
@@ -49,7 +48,7 @@ export class Logger {
 
   #now = () => new Date().toLocaleString('zh-CN', { hour12: false })
 
-  info = (...args: any[]) => {
+  info = (...args: unknown[]) => {
     if (!debug)
       return
     console.log(
@@ -60,7 +59,18 @@ export class Logger {
     )
   }
 
-  error = (...args: any[]) => {
+  warn = (...args: unknown[]) => {
+    if (!debug)
+      return
+    console.warn(
+      `%c[${this.#now()}] %c${this.#prefix} >`,
+      'color: green',
+      'color: aqua',
+      ...args,
+    )
+  }
+
+  error = (...args: unknown[]) => {
     if (!debug)
       return
     console.error(
