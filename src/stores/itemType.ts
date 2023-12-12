@@ -1,105 +1,57 @@
 import { defineStore } from 'pinia'
-import { ElNotification } from 'element-plus'
-import dayjs from 'dayjs'
 import { liveQuery } from 'dexie'
-import { messageFrom } from '@/utils'
+import { useBackendUpdate, userHook } from './hooks'
 import Api from '@/api/api'
-import db, { AppDatabaseApi } from '@/database'
-import { localSettings } from '@/stores'
-import { secondClock } from '@/shared'
-
-const loading = ref(false)
-const updateTimer = ref<number>()
-const updateEnd = ref<number>()
-const total = ref(0)
+import db from '@/database'
 
 /** 本地物品类型数据 */
-export const useItemTypeStore = defineStore('global-item-type', {
-  state: () => ({
-    _itemTypeList: [] as API.ItemTypeVo[],
-  }),
+export const useItemTypeStore = defineStore('global-item-type', () => {
+  const itemTypeList = shallowRef<API.ItemTypeVo[]>([])
+  const total = ref(0)
 
-  getters: {
-    total: () => total.value,
-    itemTypeMap: state => (Object.fromEntries(state._itemTypeList.map(itemType => [
-      itemType.id as number,
-      itemType,
-    ])) as Record<string, API.ItemTypeVo>),
-    /** 全量更新处理状态 */
-    updateAllLoading: () => loading.value,
-    /** 全量更新剩余时间 */
-    updateAllRestTime: () => updateEnd.value === undefined ? 0 : updateEnd.value - secondClock.value,
-  },
+  const itemTypeMap = computed(() => (Object.fromEntries(itemTypeList.value.map(itemType => [
+    itemType.id as number,
+    itemType,
+  ])) as Record<string, API.ItemTypeVo>))
 
-  actions: {
-    /** 更新物品类型数据 */
-    async updateItemTypeInfo() {
+  const itemTypeIdMap = computed(() => itemTypeList.value.reduce((seed, itemType) => {
+    seed.set(itemType.id!, itemType)
+    return seed
+  }, new Map<number, API.ItemTypeVo>()))
+
+  const _cachedData = shallowRef<API.AreaVo[]>([])
+
+  const backendUpdater = useBackendUpdate(
+    db.itemType,
+    async () => {
+      // 由于 area 接口暂无档案版，这里直接获取数据本体进行差异判断
       const { data = [] } = await Api.itemType.listItemType({})
-      await AppDatabaseApi.itemType.bulkPut(data)
-      return data.length
+      _cachedData.value = data
+      const source = new TextEncoder().encode(JSON.stringify(data))
+      const hash = await crypto.subtle.digest('SHA-1', source)
+      const digest = [...new Uint8Array(hash)].map(num => num.toString(16).padStart(2, '0')).join('')
+      return [digest]
     },
+    async (index) => {
+      if (index !== 0)
+        return []
+      return _cachedData.value
+    },
+  )
 
-    /** 全量更新 */
-    async updateAll() {
-      try {
-        loading.value = true
-        const startTime = dayjs()
-        const total = await this.updateItemTypeInfo()
-        const spentTime = (dayjs().diff(startTime) / 1000).toFixed(0)
-        localSettings.value.noticeDataUpdated && ElNotification.success({
-          title: !total ? '物品类型已经是最新' : '物品类型更新成功',
-          message: !total ? undefined : `本次共更新物品类型 ${total} 个，耗时 ${spentTime} 秒`,
-          position: 'bottom-right',
-        })
-      }
-      catch (err) {
-        ElNotification.error({
-          title: '物品类型更新失败',
-          message: messageFrom(err),
-          position: 'bottom-right',
-        })
-      }
-      finally {
-        loading.value = false
-      }
-    },
+  liveQuery(() => db.itemType.toArray()).subscribe((list) => {
+    total.value = list.length
+    itemTypeList.value = list
+  })
 
-    /** 清除全部物品类型 */
-    async clearAll() {
-      try {
-        loading.value = true
-        await db.itemType.clear()
-      }
-      catch {
-        // no action
-      }
-      finally {
-        loading.value = false
-      }
-    },
-
-    /** 清除后台定时任务 */
-    clearBackgroundUpdate() {
-      window.clearTimeout(updateTimer.value)
-      updateTimer.value = undefined
-    },
-
-    /** 后台定时自动更新 */
-    async backgroundUpdate() {
-      if (updateTimer.value !== undefined)
-        this.clearBackgroundUpdate()
-      await this.updateAll()
-      const interval = (localSettings.value.autoUpdateInterval ?? 20) * 60000
-      updateEnd.value = new Date().getTime() + interval
-      updateTimer.value = window.setTimeout(() => {
-        updateTimer.value = undefined
-        this.backgroundUpdate()
-      }, interval)
-    },
-  },
+  return {
+    total,
+    itemTypeMap,
+    itemTypeIdMap,
+    backendUpdater,
+  }
 })
 
-liveQuery(() => db.itemType.toArray()).subscribe((itemTypeList) => {
-  total.value = itemTypeList.length
-  useItemTypeStore()._itemTypeList = itemTypeList
+userHook.onInfoChange(useItemTypeStore, async (store) => {
+  await store.backendUpdater.start()
 })

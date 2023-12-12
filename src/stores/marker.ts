@@ -1,137 +1,41 @@
+import type { ShallowRef } from 'vue'
 import { defineStore } from 'pinia'
-import type { AxiosRequestConfig } from 'axios'
-import { ElNotification } from 'element-plus'
-import dayjs from 'dayjs'
 import { liveQuery } from 'dexie'
-import { Zip, messageFrom } from '@/utils'
+import { useBackendUpdate, userHook } from './hooks'
+import { Zip } from '@/utils'
 import Api from '@/api/api'
-import db, { AppDatabaseApi } from '@/database'
-import { localSettings } from '@/stores'
-import { secondClock } from '@/shared'
-
-const loading = ref(false)
-const updateTimer = ref<number>()
-const updateEnd = ref<number>()
-const total = ref(0)
-
-liveQuery(() => db.marker.count()).subscribe((v) => {
-  total.value = v
-})
+import db from '@/database'
 
 /** 全量点位的全局数据 */
-export const useMarkerStore = defineStore('global-marker', {
-  state: () => ({
-  }),
+export const useMarkerStore = defineStore('global-marker', () => {
+  const _total = ref(0)
+  const _markerList = shallowRef<API.MarkerVo[]>([])
 
-  getters: {
-    total: () => total.value,
-    /** 全量更新处理状态 */
-    updateAllLoading: () => loading.value,
-    /** 全量更新剩余时间 */
-    updateAllRestTime: () => updateEnd.value === undefined ? 0 : updateEnd.value - secondClock.value,
-  },
-
-  actions: {
-    /**
-     * @internal
-     * 获取点位分页数据的 MD5 数组
-     */
-    async _getMarkerMD5List() {
+  const backendUpdater = useBackendUpdate(
+    db.marker,
+    async () => {
       const { data = [] } = await Api.markerDoc.listMarkerBz2MD5()
       return data
     },
-
-    async resetMD5() {
-      const md5List = (await db.md5.where('id').startsWith('marker-').toArray()).map(md5 => md5.id)
-      await db.md5.bulkDelete(md5List)
+    async (index) => {
+      const buffer = await Api.markerDoc.listPageMarkerBy7zip({ index }, { responseType: 'arraybuffer' }) as unknown as ArrayBuffer
+      const data = await Zip.decompressAs<API.MarkerVo[]>(new Uint8Array(buffer))
+      return data
     },
+  )
 
-    /**
-     * @internal
-     * 更新分页点位数据
-     */
-    async _updateMarkerInfo(index: number, newMD5: string) {
-      // 检查 MD5 是否有变化，如无则跳过更新
-      const oldMD5 = (await db.md5.get(`marker-${index}`))?.value
-      if (newMD5 === oldMD5)
-        return 0
-      const data = await Api.markerDoc.listPageMarkerBy7zip({ index: index - 1 }, ({
-        responseType: 'arraybuffer',
-      } as AxiosRequestConfig)) as unknown as ArrayBuffer
-      // 解压点位数据至任务列表
-      const depressedData = await Zip.decompress(new Uint8Array(data))
-      const stringData = new TextDecoder('utf-8').decode(depressedData.buffer)
-      const parseredData = JSON.parse(stringData) as API.MarkerVo[]
-      // 确保点位更新成功后才修改本地 MD5
-      await AppDatabaseApi.marker.bulkPut(parseredData)
-      await db.md5.put({ id: `marker-${index}`, value: newMD5 })
-      return parseredData.length
-    },
+  liveQuery(() => db.marker.toArray()).subscribe((list) => {
+    _total.value = list.length
+    _markerList.value = list
+  })
 
-    /** 全量更新 */
-    async updateAll() {
-      try {
-        loading.value = true
-        const startTime = dayjs()
-        const md5List = await this._getMarkerMD5List()
-        const updateCounts = await Promise.all(md5List.map((_, index) => this._updateMarkerInfo(index + 1, md5List[index])))
-        const total = updateCounts.reduce((sum, cur) => sum + cur, 0)
-        localSettings.value.noticeDataUpdated && ElNotification.success({
-          title: !total ? '点位已经是最新' : '点位更新成功',
-          message: !total ? undefined : `本次共更新点位 ${total} 个，耗时 ${(dayjs().diff(startTime) / 1000).toFixed(0)} 秒`,
-          position: 'bottom-right',
-        })
-      }
-      catch (err) {
-        ElNotification.error({
-          title: '点位更新失败',
-          message: messageFrom(err),
-          position: 'bottom-right',
-        })
-      }
-      finally {
-        loading.value = false
-      }
-    },
+  return {
+    total: _total as Readonly<Ref<number>>,
+    markerList: _markerList as Readonly<ShallowRef<API.MarkerVo[]>>,
+    backendUpdater,
+  }
+})
 
-    /** 清除全部点位 */
-    async clearAll() {
-      try {
-        loading.value = true
-        await db.marker.clear()
-        await db.md5.where('id').startsWith('marker-').delete()
-      }
-      catch {
-        // no action
-      }
-      finally {
-        loading.value = false
-      }
-    },
-
-    /** 清除后台定时任务 */
-    clearBackgroundUpdate() {
-      window.clearTimeout(updateTimer.value)
-      updateTimer.value = undefined
-    },
-
-    /** 后台定时自动更新 */
-    async backgroundUpdate(immediate = true) {
-      if (updateTimer.value !== undefined)
-        this.clearBackgroundUpdate()
-      immediate && await this.updateAll()
-      const interval = (localSettings.value.autoUpdateInterval ?? 20) * 60000
-      updateEnd.value = new Date().getTime() + interval
-      updateTimer.value = window.setTimeout(() => {
-        updateTimer.value = undefined
-        this.backgroundUpdate()
-      }, interval)
-    },
-
-    /** 重新创建后台更新任务，适用于手动刷新后推迟更新时间 */
-    async reCreateBackgroundUpdate() {
-      this.clearBackgroundUpdate()
-      this.backgroundUpdate(false)
-    },
-  },
+userHook.onInfoChange(useMarkerStore, async (store) => {
+  await store.backendUpdater.start()
 })
