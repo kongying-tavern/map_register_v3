@@ -1,0 +1,5 @@
+export { default as ModuleAbout } from './ModuleAbout.vue'
+export { default as ModuleDashboard } from './ModuleDashboard.vue'
+export { default as ModuleDatabase } from './ModuleDatabase.vue'
+export { default as ModuleDevelopment } from './ModuleDevelopment.vue'
+export { default as ModuleMapSetting } from './ModuleMapSetting.vue'

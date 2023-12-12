@@ -1,67 +1,124 @@
 <script lang="ts" setup>
-import { SettingCommon, SettingDatabase, SettingEasterEgg, SettingShortcutKey } from '.'
+import { Close, Coin, Expand, MapLocation, Monitor, Moon, Star, Sunny, TurnOff } from '@element-plus/icons-vue'
+import {
+  ModuleAbout,
+  ModuleDashboard,
+  ModuleDatabase,
+  ModuleDevelopment,
+  ModuleMapSetting,
+} from './modules'
+import { usePreferenceStore } from '@/stores'
+import { GlobalDialogController, useTheme } from '@/hooks'
 
-const activeName = ref('common')
+const { isDark } = useTheme()
+const preferenceStore = usePreferenceStore()
+
+const settingOptions: { key: string; name: string; is: Component; icon?: Component }[] = [
+  { key: 'dashboard', name: '基本信息', is: ModuleDashboard, icon: Monitor },
+  { key: 'mapsetting', name: '地图', is: ModuleMapSetting, icon: MapLocation },
+  { key: 'database', name: '数据库', is: ModuleDatabase, icon: Coin },
+  { key: 'development', name: '开发者', is: ModuleDevelopment, icon: TurnOff },
+  { key: 'about', name: '关于空荧后厨', is: ModuleAbout, icon: Star },
+]
+
+const activedKey = computed({
+  get: () => preferenceStore.preference['settingPanel.state.activedKey'] ?? settingOptions[0].key,
+  set: (v) => {
+    preferenceStore.preference['settingPanel.state.activedKey'] = v
+  },
+})
+
+const show = ref(false)
+
+const contentRef = ref<HTMLElement>()
 </script>
 
 <template>
-  <div class="setting-panel p-4 flex flex-col gap-2">
-    <el-alert type="warning" center :closable="false">
-      设置云同步还在开发中，当前设置仅在该浏览器下生效。
-    </el-alert>
+  <div
+    class="
+      w-[800px] h-[600px] overflow-hidden
+      max-w-[100dvw] max-h-[100dvh]
+      flex flex-col
+      bg-[var(--el-bg-color)]
+      transition-[background-color,width]
+      rounded
+      text-[var(--el-text-color-primary)]
+    "
+  >
+    <div class="h-9 flex justify-between items-center p-0.5 mb-2">
+      <div class="flex items-center gap-1">
+        <span class="hidden max-[800px]:flex">
+          <el-button text :icon="Expand" @click="show = !show" />
+        </span>
+        <span class="leading-9 px-2">设置</span>
+        <el-switch
+          v-model="isDark"
+          :active-action-icon="Moon"
+          :inactive-action-icon="Sunny"
+          style="
+            --el-switch-on-color: var(--el-fill-color-darker);
+          "
+        />
+      </div>
+      <div>
+        <el-button
+          text
+          type="danger"
+          style="--el-fill-color-light: var(--el-color-danger-light-7); --el-fill-color: var(--el-color-danger-light-9);"
+          :icon="Close"
+          @click="GlobalDialogController.close"
+        />
+      </div>
+    </div>
 
-    <el-tabs v-model="activeName" type="border-card" class="setting-tabs">
-      <el-tab-pane label="常规" name="common" lazy>
-        <SettingCommon />
-      </el-tab-pane>
+    <div class="relative flex-1 flex overflow-hidden" @click="show && (show = false)">
+      <div class="overflow-visible transition-[width] max-[800px]:w-0 w-[150px]" @click.stop="">
+        <div
+          class="
+            w-[150px] h-full flex flex-col gap-1 px-2
+            absolute left-0
+            bg-[var(--el-bg-color)]
+            translate-x-0
+            transition-[background-color,transform]
+            z-10
+          "
+          :class="[show ? '' : 'max-[800px]:-translate-x-full']"
+        >
+          <div
+            v-for="setting in settingOptions"
+            :key="setting.key"
+            class="
+              h-8 px-2 rounded
+              flex items-center gap-2
+              text-sm
+              transition-[background-color]
+            "
+            :class="activedKey === setting.key
+              ? 'bg-[var(--el-fill-color-darker)]'
+              : 'cursor-pointer hover:bg-[var(--el-fill-color-dark)] active:bg-[var(--el-fill-color-darker)]'"
+            @click="activedKey = setting.key"
+          >
+            <el-icon v-if="setting.icon">
+              <component :is="setting.icon" />
+            </el-icon>
+            <span>{{ setting.name }}</span>
+            <Teleport v-if="contentRef && activedKey === setting.key" :to="contentRef">
+              <component :is="setting.is" />
+            </Teleport>
+          </div>
+        </div>
+      </div>
 
-      <el-tab-pane label="数据库" name="database" lazy>
-        <SettingDatabase />
-      </el-tab-pane>
-
-      <el-tab-pane label="快捷键" name="shortcut-keys" lazy>
-        <SettingShortcutKey />
-      </el-tab-pane>
-
-      <el-tab-pane label="彩蛋" name="easter-egg" lazy>
-        <SettingEasterEgg />
-      </el-tab-pane>
-    </el-tabs>
+      <div
+        ref="contentRef"
+        class="
+          flex-1 px-2
+          rounded-tl-md
+          bg-[var(--el-bg-color)]
+          transition-[background-color]
+        "
+        :class="[show ? 'max-[800px]:pointer-events-none max-[800px]:brightness-[0.4]' : '']"
+      />
+    </div>
   </div>
 </template>
-
-<style lang="scss" scoped>
-.setting-panel {
-  width: 600px;
-  height: 60dvh;
-  @media screen and (width < 600px) {
-    width: 100dvw;
-  }
-  &:deep(.el-tabs) {
-    display: flex;
-    flex-direction: column;
-  }
-  :deep(.el-tabs__header) {
-    .el-tabs__item {
-      transition: none;
-    }
-  }
-  :deep(.el-tabs__content) {
-    flex: 1;
-    overflow: hidden;
-    .el-tab-pane {
-      height: 100%;
-      overflow: hidden;
-    }
-  }
-}
-
-.setting-tabs {
-  border-radius: 4px;
-  overflow: hidden;
-  flex: 1;
-  :deep(.el-tabs__content) {
-    padding: 0;
-  }
-}
-</style>
