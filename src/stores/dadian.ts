@@ -1,43 +1,57 @@
 import { defineStore } from 'pinia'
+import type { ShallowRef } from 'vue'
 import { userHook } from './hooks'
 import { Zip } from '@/utils'
 import Api from '@/api/config'
+import db from '@/database'
 
 /** 订阅的打点配置 */
-export const useDadianStore = defineStore('dadian-json', {
-  state: () => ({
-    _raw: {} as API.DadianJSON,
-    _hash: '',
-  }),
+export const useDadianStore = defineStore('dadian-json', () => {
+  const raw = shallowRef<API.DadianJSON>({})
 
-  getters: {
-  },
+  const getDigest = async (data: ArrayBuffer) => {
+    const hash = new Uint8Array(await crypto.subtle.digest('SHA-256', data))
+    return [...new Uint8Array(hash)].map(num => num.toString(16).padStart(2, '0')).join('')
+  }
 
-  actions: {
-    async digest(data: ArrayBuffer) {
-      const hashArray = new Uint8Array(await crypto.subtle.digest('SHA-256', data))
-      let hashString = ''
-      for (let i = 0; i < hashArray.length; i++)
-        hashString += hashArray[i].toString(16).padStart(2, '0')
-      return hashString
-    },
+  const update = async () => {
+    try {
+      const dadianConfigFile = await Api.getDadianConfig()
+      const newDigest = await getDigest(dadianConfigFile)
 
-    async update() {
-      const file = await Api.getDadianConfig()
-      const newHash = await this.digest(file)
-      if (newHash === this._hash)
+      const cachedConfig = await db.imageCache.get('dadian')
+      if (cachedConfig && cachedConfig.id === 'dadian' && newDigest === cachedConfig.digest) {
+        raw.value = cachedConfig.value
         return
-      this._hash = newHash
-      const data = await Zip.decompress(new Uint8Array(file))
-      const text = new TextDecoder('utf-8').decode(data.buffer)
-      const dadianJson = JSON.parse(text) as API.DadianJSON
-      this._raw = dadianJson
-    },
+      }
 
-    async init() {
-      await this.update()
-    },
-  },
+      const newConfig = await Zip.decompressAs<API.DadianJSON>(new Uint8Array(dadianConfigFile))
+      raw.value = newConfig
+
+      await db.imageCache.put({
+        id: 'dadian',
+        digest: newDigest,
+        value: newConfig,
+      })
+    }
+    catch {
+      const cachedConfig = await db.imageCache.get('dadian')
+      if (cachedConfig && cachedConfig.id === 'dadian')
+        raw.value = cachedConfig.value
+    }
+  }
+
+  const init = async () => {
+    await update()
+  }
+
+  return {
+    _raw: raw as Readonly<ShallowRef<API.DadianJSON>>,
+
+    digest: getDigest,
+    update,
+    init,
+  }
 })
 
 userHook.onInfoChange(useDadianStore, async (store) => {
