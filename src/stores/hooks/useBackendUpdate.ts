@@ -5,7 +5,6 @@ import { useFetchHook } from '@/hooks'
 import { usePreferenceStore } from '@/stores'
 import { secondClock } from '@/shared'
 import db from '@/database'
-import type { DigestRange } from '@/database/appdatabase'
 import { Logger } from '@/utils'
 
 /** 默认更新间隔 30 分钟 */
@@ -47,7 +46,7 @@ export const useBackendUpdate = <T, Key>(
 
   const { src } = table.schema.primKey
 
-  const getRangeOfList = (data: T[]): DigestRange<number> | DigestRange<string> => {
+  const getRangeOfList = (data: T[]): DBType.DigestRange<number> | DBType.DigestRange<string> => {
     if (!isObjectArray(data))
       throw new Error('输入的格式有误，data 不为对象数组')
     if (!data.length)
@@ -55,7 +54,7 @@ export const useBackendUpdate = <T, Key>(
 
     const primaryValueList = data.map(item => get(item, src))
     const primaryValue = primaryValueList[0]
-    let range: DigestRange<number> | DigestRange<string> | undefined
+    let range: DBType.DigestRange<number> | DBType.DigestRange<string> | undefined
 
     const type = typeof primaryValue
 
@@ -96,7 +95,7 @@ export const useBackendUpdate = <T, Key>(
       : { min: a, max: b }
   }
 
-  const { refresh, onFinish, onSuccess, onError, ...rest } = useFetchHook({
+  const { data: lastUpdateCount, loading, refresh, onFinish, onSuccess, onError } = useFetchHook({
     onRequest: async () => {
       startTime.value = Date.now()
 
@@ -116,14 +115,14 @@ export const useBackendUpdate = <T, Key>(
         const data = await getData(index)
         const newRange = getRangeOfList(data)
 
-        let rewriteRange: DigestRange<number> | DigestRange<string> | undefined
+        let rewriteRange: DBType.DigestRange<number> | DBType.DigestRange<string> | undefined
 
         if (oldDigest) {
           const { range: oldRange } = oldDigest
           rewriteRange = [
             compare(oldRange[0], newRange[0]).min,
             compare(oldRange[1], newRange[1]).max,
-          ] as DigestRange<number> | DigestRange<string>
+          ] as DBType.DigestRange<number> | DBType.DigestRange<string>
         }
         const range = rewriteRange ?? newRange
 
@@ -174,6 +173,8 @@ export const useBackendUpdate = <T, Key>(
   })
 
   return {
+    loading,
+    lastUpdateCount,
     isWatting,
     costTime,
     restTime,
@@ -183,6 +184,5 @@ export const useBackendUpdate = <T, Key>(
     onFinish,
     onSuccess,
     onError,
-    ...rest,
   }
 }
