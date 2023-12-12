@@ -25,4 +25,12 @@ declare global {
   type ToRefDestructure<T> = {
     [K in keyof T]: Ref<T[K]>
   }
+
+  /** 将 Map 转换为固定格式的配置对象 */
+  type MapToSchema<T> = {
+    [K in keyof T]: {
+      type: K
+      value: T[K]
+    }
+  }[keyof T]
 }
