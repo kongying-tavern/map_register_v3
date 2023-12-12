@@ -1,5 +1,5 @@
 declare namespace API {
-  /** 总配置项 */
+  /** 订阅的总配置项 */
   interface DadianJSON {
     editor?: API.EditorConfig
     plugins?: Record<string, API.PluginConfig>
