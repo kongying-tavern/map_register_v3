@@ -1,10 +1,8 @@
 import { getObjectFitSize } from '@/utils/getObjectFitSize'
+import { limitPromiseAll } from '@/utils/limitPromiseAll'
 
 declare const globalThis: DedicatedWorkerGlobalScope
 
-const FALLBACK_IMAGE_URL = '/icons/unknown.webp'
-
-/** 主线程输入数据 */
 export interface WorkerInput {
   /** 需要被渲染的标签列表 */
   tagList: { tag: string; url: string }[]
@@ -16,16 +14,14 @@ export interface WorkerInput {
   maxRequests?: number
 }
 
-/** 主线程接收数据 */
-export interface WorkerSuccessOutput {
-  image: ArrayBuffer
-  mapping: Record<string, [x: number, y: number]>
-}
+export type WorkerSuccessOutput = DBType.TagSprite
 
 /** 主线程接收数据 */
 export type WorkerOutput =
   | string // 错误原因
   | WorkerSuccessOutput
+
+const FALLBACK_IMAGE_URL = '/icons/unknown.webp'
 
 const calculateGrid = (length: number) => {
   const cols = Math.sqrt(length)
@@ -40,36 +36,6 @@ const loadImage = async (url: string) => {
   return fetch(url, { mode: 'cors' })
     .then(res => res.blob())
     .then(blob => createImageBitmap(blob))
-}
-
-interface LimitPromiseAllOptions<T> {
-  maxRequests?: number
-  initResult?: T[]
-}
-
-const limitPromiseAll = async <D, T>(
-  data: D[],
-  toPromise: (item: D, index: number) => Promise<T | null>,
-  {
-    maxRequests = 10,
-    initResult = [],
-  }: LimitPromiseAllOptions<T> = {},
-) => {
-  let requestQueue: Promise<T | null>[] = []
-
-  for (let i = 0; i < data.length; i++) {
-    const item = data[i]
-    requestQueue.push(toPromise(item, i))
-    if (requestQueue.length >= maxRequests) {
-      initResult = initResult.concat((await Promise.all(requestQueue)).filter(Boolean) as T[])
-      requestQueue = []
-      continue
-    }
-  }
-  if (requestQueue.length > 0)
-    initResult = initResult.concat((await Promise.all(requestQueue)).filter(Boolean) as T[])
-
-  return initResult
 }
 
 const render = async (params: WorkerInput): Promise<WorkerSuccessOutput> => {
@@ -139,8 +105,8 @@ const render = async (params: WorkerInput): Promise<WorkerSuccessOutput> => {
   const canvas = new OffscreenCanvas(canvasSize, canvasSize)
   const ctx = canvas.getContext('2d')!
 
-  // 生成 mapping 并绘制
-  const mapping: Record<string, [number, number]> = {}
+  const tagsPositionList: WorkerSuccessOutput['tagsPositionList'] = []
+
   renderList.forEach(({ tags, image }, index) => {
     const row = Math.floor(index / rows)
     const col = index - row * cols
@@ -148,13 +114,14 @@ const render = async (params: WorkerInput): Promise<WorkerSuccessOutput> => {
     const y = row * (size + gap)
     const { sx, sy, sw, sh, dx, dy, dw, dh } = getObjectFitSize('contain', size, size, image.width, image.height)
     ctx.drawImage(image, sx, sy, sw, sh, x + dx, y + dy, dw, dh)
-    tags.forEach((tag) => {
-      mapping[tag] = [x, y]
+    tagsPositionList.push({
+      tags,
+      pos: [x, y],
     })
   })
 
   const image = await (await canvas.convertToBlob({ type: 'image/png' })).arrayBuffer()
-  return { image, mapping }
+  return { image, tagsPositionList }
 }
 
 globalThis.addEventListener('message', async (ev: MessageEvent<WorkerInput>) => {
