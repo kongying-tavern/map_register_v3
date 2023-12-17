@@ -1,11 +1,13 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { messageFrom } from './../utils/messageFrom'
 import { AppDatabase } from './appdatabase'
+import { messageFrom } from '@/utils/messageFrom'
+
+export {}
+declare const globalThis: DedicatedWorkerGlobalScope
 
 const db = new AppDatabase()
 
-/** 数据库批量设置线程 */
-self.onmessage = async (ev: MessageEvent<{ table: string; data: any[] }>) => {
+/** 数据库批量更新线程 */
+globalThis.addEventListener('message', async (ev: MessageEvent<{ table: string; data: unknown[] }>) => {
   try {
     const { table, data } = ev.data
     await db.table(table).bulkPut(data)
@@ -14,4 +16,4 @@ self.onmessage = async (ev: MessageEvent<{ table: string; data: any[] }>) => {
   catch (err) {
     ev.ports[0].postMessage(messageFrom(err))
   }
-}
+})
