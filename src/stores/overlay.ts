@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { defaultsDeep, template } from 'lodash'
-import { useDadianStore, useMapStore, useTileStore, useUserInfoStore } from '.'
+import { useDadianStore, usePreferenceStore, useTileStore, useUserInfoStore } from '.'
 
 export interface OverlayGroup {
   id: string
@@ -67,10 +67,11 @@ const toCopy = <T>(set: Set<T>) => {
   return copySet
 }
 
-export const useOverlayStore = defineStore('map-overlays', () => {
-  const mapStore = useMapStore()
+/** 地图附加图层 */
+export const useOverlayStore = defineStore('global-map-overlays', () => {
   const dadianStore = useDadianStore()
   const tileStore = useTileStore()
+  const preferenceStore = usePreferenceStore()
 
   /** 每组内位于顶部的 overlay 单元 */
   const topOverlayInGroup = ref<{ [groupId: string]: string }>({})
@@ -125,6 +126,9 @@ export const useOverlayStore = defineStore('map-overlays', () => {
 
   /** 规范化的单项 overlay 配置 */
   const normalizedOverlayChunks = computed((): OverlayChunk[] => {
+    const { mergedTileConfigs } = tileStore
+    if (!mergedTileConfigs)
+      return []
     const result: OverlayChunk[] = []
     const urlSet = new Set<string>()
     for (const areaCode in mergedOverlayGroups.value) {
@@ -171,12 +175,15 @@ export const useOverlayStore = defineStore('map-overlays', () => {
               continue
             urlSet.add(url)
 
+            const { center: [cx, cy] } = mergedTileConfigs[areaCode].tile
+            const [[xmin, ymin], [xmax, ymax]] = itemBounds
+
             result.push({
               id: `chunk-${crypto.randomUUID()}`,
               areaCode,
               label: itemLabel,
               url,
-              bounds: itemBounds,
+              bounds: [[xmin + cx, ymin + cy], [xmax + cx, ymax + cy]],
               group,
               item,
             })
@@ -197,12 +204,15 @@ export const useOverlayStore = defineStore('map-overlays', () => {
               continue
             urlSet.add(url)
 
+            const { center: [cx, cy] } = mergedTileConfigs[areaCode].tile
+            const [[xmin, ymin], [xmax, ymax]] = chunkBounds
+
             result.push({
               id: `chunk-${crypto.randomUUID()}`,
               areaCode,
               label: chunkLabel,
               url,
-              bounds: chunkBounds,
+              bounds: [[xmin + cx, ymin + cy], [xmax + cx, ymax + cy]],
               group,
               item,
             })
@@ -215,10 +225,11 @@ export const useOverlayStore = defineStore('map-overlays', () => {
 
   /** 只存在于当前图层内的 overlay */
   const existOverlays = computed((): OverlayChunk[] => {
-    if (!mapStore.currentLayerCode)
+    const { currentTileConfig } = tileStore
+    if (!currentTileConfig)
       return []
-    const { currentLayerCode } = mapStore
     const { mergedTileConfigs } = tileStore
+    const { code: currentLayerCode } = currentTileConfig.tile
     return normalizedOverlayChunks.value.filter(({ areaCode }) => {
       return mergedTileConfigs[areaCode].tile.code === currentLayerCode
     })
@@ -270,12 +281,18 @@ export const useOverlayStore = defineStore('map-overlays', () => {
     return groups
   })
 
-  const showMask = computed((): boolean => {
+  const isOverlaysHasMask = computed(() => {
     for (const chunk of existOverlays.value) {
       if (chunk.group.mask)
         return true
     }
     return false
+  })
+
+  const showMask = computed((): boolean => {
+    if (!preferenceStore.preference['map.state.showOverlay'])
+      return false
+    return isOverlaysHasMask.value
   })
 
   const moveToTop = (itemId: string, groupId: string) => {
@@ -298,6 +315,8 @@ export const useOverlayStore = defineStore('map-overlays', () => {
     topOverlayInGroup.value = defaultTopOverlayInGroup
     stateId.value = Date.now()
   }
+
+  watch(normalizedOverlayChunks, () => initTopOverlays(false), { immediate: true })
 
   const showOverlayGroup = (groupId: string) => {
     const copySet = toCopy(hiddenOverlayGroups.value)

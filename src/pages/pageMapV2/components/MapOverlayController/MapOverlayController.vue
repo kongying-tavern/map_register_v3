@@ -1,15 +1,15 @@
 <script lang="ts" setup>
 import { RefreshLeft } from '@element-plus/icons-vue'
+import { storeToRefs } from 'pinia'
 import { OverlayGroup } from '.'
-import { useAreaStore, useMapSettingStore, useOverlayStore } from '@/stores'
+import { useAreaStore, useOverlayStore, usePreferenceStore } from '@/stores'
 import { useTransitionState } from '@/hooks'
 import { CloseFilled } from '@/components/GenshinUI/GSIcon'
 
-const areaStore = useAreaStore()
 const overlayStore = useOverlayStore()
-const mapSettingStore = useMapSettingStore()
+const preferenceStore = usePreferenceStore()
 
-whenever(() => mapSettingStore.showOverlay, overlayStore.initTopOverlays)
+const { areaCodeMap } = storeToRefs(useAreaStore())
 
 /** 按地区分组的 overlay 控制组 */
 const overlayControlGroupsListedInArea = computed(() => {
@@ -31,7 +31,7 @@ const { isTransitioning } = useTransitionState(elementRef, 'clip-path')
 const activedAreaCode = ref<string>('')
 watch(overlayControlGroupsListedInArea, (groups) => {
   activedAreaCode.value = Object.keys(groups)[0]
-})
+}, { immediate: true })
 </script>
 
 <template>
@@ -46,7 +46,7 @@ watch(overlayControlGroupsListedInArea, (groups) => {
     <div
       class="collapse-btn absolute bottom-0 right-0 rounded-[50%] grid place-items-center"
       :class="{
-        'is-actived': mapSettingStore.showOverlay,
+        'is-actived': preferenceStore.preference['map.state.showOverlay'],
       }"
       @click="collapse = false"
     />
@@ -84,7 +84,7 @@ watch(overlayControlGroupsListedInArea, (groups) => {
             }"
             @click="activedAreaCode = areaCode"
           >
-            {{ areaStore.areaCodeMap[areaCode]?.name }}
+            {{ areaCodeMap.get(areaCode)?.name }}
           </div>
         </div>
 
