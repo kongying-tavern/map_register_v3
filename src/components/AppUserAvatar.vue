@@ -15,7 +15,6 @@ const { DialogService } = useGlobalDialog()
 
 const openSettingDialog = () => DialogService
   .config({
-    title: '系统设置',
     alignCenter: true,
     width: 'fit-content',
   })

@@ -95,7 +95,7 @@ const contentRef = ref<HTMLElement>()
             "
             :class="activedKey === setting.key
               ? 'bg-[var(--el-fill-color-darker)]'
-              : 'cursor-pointer hover:bg-[var(--el-fill-color-dark)] active:bg-[var(--el-fill-color-darker)]'"
+              : 'cursor-pointer hover:bg-[var(--el-fill-color)] active:bg-[var(--el-fill-color-darker)]'"
             @click="activedKey = setting.key"
           >
             <el-icon v-if="setting.icon">
