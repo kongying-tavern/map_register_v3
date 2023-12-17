@@ -10,7 +10,6 @@ export interface AreaAdditionalConfig {
    * - 可用于在点位筛选器中选定地区后会使得视口自动定位到对应的坐标
    * - 该配置可以覆盖来自 dadian.json 订阅源中 `tiles[AREA_CODE].settings.center` 的配置
    * @注意 应当使用点位坐标而非地图坐标
-   * @todo 暂未实现
    */
   target?: API.Coordinate2D
 
