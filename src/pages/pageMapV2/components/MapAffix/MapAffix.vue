@@ -6,6 +6,7 @@ interface GenshinMapAffixProps {
   pos?: [number, number]
   visible?: boolean
   pickable?: boolean
+  noCovertCoord?: boolean
 }
 
 const props = withDefaults(defineProps<GenshinMapAffixProps>(), {
@@ -16,6 +17,7 @@ const props = withDefaults(defineProps<GenshinMapAffixProps>(), {
 const coord = toRef(props, 'pos')
 const { scaleRatio, position } = useMapProjection(coord, {
   floor: !props.zoomWithMap,
+  noCovertCoord: props.noCovertCoord,
 })
 
 /** 如果选择随地图缩放，则使用缩放比例，否则不变 */
