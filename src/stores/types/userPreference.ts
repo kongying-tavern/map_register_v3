@@ -61,6 +61,9 @@ export interface UserPreference {
   /** 筛选器选择的物品 */
   'markerFilter.state.itemIds'?: number[]
 
+  /** 正在标记的物品 id */
+  'markerFilter.state.defaultMarkingItemId'?: number
+
   // ==================== setting panel ====================
 
   /** 设置面板当前激活的设置项 */
