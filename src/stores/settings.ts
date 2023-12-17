@@ -1,3 +1,4 @@
+/** @deprecated */
 export interface GlobalSetting {
   /** 根据点位坐标将地图移动到点集中心 */
   moveToCenter: boolean
@@ -13,7 +14,10 @@ export interface GlobalSetting {
   waittingGeo: boolean
 }
 
-// TODO 云同步设置
+/**
+ * 系统设置
+ * @deprecated
+ */
 export const localSettings = useLocalStorage<GlobalSetting>('__ys_global_settings', {
   moveToCenter: true,
   autoTurnNext: true,

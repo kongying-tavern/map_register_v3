@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import dayjs from 'dayjs'
 import Aliyun from '@/api/aliyun'
 
+/** @deprecated 后续迁移至图床接口 */
 export const useImageHostingStore = defineStore('image-hosting-service', () => {
   /** 用户凭证，8 小时失效 */
   const token = autoResetRef('', 8 * 60 * 60 * 1000)
