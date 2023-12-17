@@ -3,5 +3,9 @@ const isDark = useDark({
 })
 
 export const useTheme = () => {
-  return { isDark }
+  const toggle = () => {
+    isDark.value = !isDark.value
+  }
+
+  return { isDark, toggle }
 }
