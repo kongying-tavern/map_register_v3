@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { defaultsDeep } from 'lodash'
-import { useDadianStore, useMapStore, useUserInfoStore } from '@/stores'
+import { useAreaStore, useDadianStore, usePreferenceStore, useUserInfoStore } from '@/stores'
 import type { AreaTagTuple } from '@/configs'
 import { AREA_ADDITIONAL_CONFIG_MAP } from '@/configs'
 
@@ -30,10 +30,12 @@ export interface AreaTileConfig {
   tags: AreaTagConfigs
 }
 
-export const useTileStore = defineStore('map-tile', () => {
+/** 底图 */
+export const useTileStore = defineStore('global-map-tile', () => {
+  const areaStore = useAreaStore()
   const dadianStore = useDadianStore()
   const userInfoStore = useUserInfoStore()
-  const mapStore = useMapStore()
+  const preferenceStore = usePreferenceStore()
 
   /** key 是用于构建 tiles url 的参数 */
   const mergedTileConfigs = computed((): Record<string, AreaTileConfig> => {
@@ -93,12 +95,54 @@ export const useTileStore = defineStore('map-tile', () => {
     return areaTileConfigs
   })
 
+  /** 当前激活的底图配置 */
+  const currentTileConfig = computed(() => {
+    const areaCode = preferenceStore.preference['markerFilter.state.areaCode']
+    if (!areaCode)
+      return
+    return mergedTileConfigs.value[areaCode]
+  })
+
+  /** 当前激活的底图code */
+  const currentTileCode = computed(() => {
+    if (!currentTileConfig.value)
+      return
+    return currentTileConfig.value.tile.code
+  })
+
+  /** 当前底图中可见的地区 */
+  const visibleArea = computed(() => {
+    const areaCodeSet = new Set<string>()
+    const tileConfigs = mergedTileConfigs.value
+    for (const areaCode in tileConfigs) {
+      const { tile } = tileConfigs[areaCode]
+      if (tile.code !== currentTileCode.value)
+        continue
+      areaCodeSet.add(areaCode)
+    }
+
+    const areaIdSet = new Set<number>()
+    const { areaCodeMap } = areaStore
+    areaCodeSet.forEach((areaCode) => {
+      const area = areaCodeMap.get(areaCode)
+      if (!area)
+        return
+      areaIdSet.add(area.id!)
+    })
+
+    return {
+      codes: areaCodeSet,
+      ids: areaIdSet,
+    }
+  })
+
+  /** 当前底图中可见的标签 */
   const visibleTagGroups = computed((): AreaTagTuple[][] => {
     const levelTagsMap: AreaTagTuple[][] = []
-    const { value: tileConfigs } = mergedTileConfigs
+    const tileConfigs = mergedTileConfigs.value
     for (const areaCode in tileConfigs) {
       const { tags, tile } = tileConfigs[areaCode]
-      if (tile.code !== mapStore.currentLayerCode)
+      if (tile.code !== currentTileCode.value)
         continue
       for (const tag of tags) {
         const { 2: level = 0 } = tag
@@ -112,6 +156,9 @@ export const useTileStore = defineStore('map-tile', () => {
 
   return {
     mergedTileConfigs,
+    currentTileConfig,
+    currentTileCode,
     visibleTagGroups,
+    visibleArea,
   }
 })
