@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
-import { useCondition, useMarkerCreate } from '../../hooks'
+import { useMarkerCreate } from '../../hooks'
 import { MarkerEditorForm } from '.'
 import { GlobalDialogController } from '@/hooks'
 import { useUserInfoStore } from '@/stores'
@@ -14,7 +14,6 @@ const props = defineProps<{
 }>()
 
 const userInfoStore = useUserInfoStore()
-const conditionManager = useCondition()
 
 /** 初始化新增点位信息 */
 const initFormData = (): API.MarkerVo => {
@@ -63,7 +62,6 @@ const confirm = async () => {
 }
 
 onSuccess(() => {
-  conditionManager.requestMarkersUpdate()
   DialogController.close()
 })
 </script>

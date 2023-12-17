@@ -4,13 +4,11 @@ import { pick } from 'lodash'
 import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 import { useUserInfoStore } from '@/stores'
-import { useCondition } from '@/pages/pageMapV2/hooks'
 import db from '@/database'
 
 /** 新增点位，已自动处理 version 和 methodType 字段 */
 export const useMarkerCreate = (markerData: Ref<API.MarkerVo | null>) => {
   const userInfoStore = useUserInfoStore()
-  const conditionManager = useCondition()
 
   const commonKeys = [
     'itemList',
@@ -48,8 +46,6 @@ export const useMarkerCreate = (markerData: Ref<API.MarkerVo | null>) => {
       throw new Error('无法确认点位信息，点位对象为空')
 
     await db.marker.put(submitedMarkerInfo)
-
-    await conditionManager.requestMarkersUpdate()
   }
 
   const { refresh: createMarker, onSuccess, onError, ...rest } = useFetchHook({ onRequest: request })

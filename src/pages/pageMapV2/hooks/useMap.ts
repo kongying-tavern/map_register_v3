@@ -1,8 +1,6 @@
 import type { Ref } from 'vue'
 import { GenshinMap } from '@/pages/pageMapV2/core'
-import { useCondition } from '@/pages/pageMapV2/hooks'
 import { Logger } from '@/utils'
-import { useArchiveStore } from '@/stores'
 
 export type MapReadyCallbackFunction = (map: GenshinMap) => void
 
@@ -19,6 +17,10 @@ const onMapReady = (cb: MapReadyCallbackFunction) => {
     return
   }
   cb(map.value)
+
+  onScopeDispose(() => {
+    tempCallbackSet.value.delete(cb)
+  })
 }
 
 const initMap = async (canvas: HTMLCanvasElement) => {
@@ -32,16 +34,6 @@ const initMap = async (canvas: HTMLCanvasElement) => {
   // 注册在地图创建以前生成的事件监听器
   tempCallbackSet.value.forEach(cb => cb(newMap))
   tempCallbackSet.value.clear()
-
-  await useCondition().loadState('temp')
-
-  // 加载存档
-  const archiveStore = useArchiveStore()
-  const hasArchives = Object.values(archiveStore.archiveSlots).filter(Boolean).length > 0
-  if (!hasArchives && archiveStore.currentArchive.slotIndex === undefined) {
-    await archiveStore.fetchArchive()
-    archiveStore.loadLatestArchive()
-  }
 }
 
 export const useMap = (canvasRef?: Ref<HTMLCanvasElement | null>) => {

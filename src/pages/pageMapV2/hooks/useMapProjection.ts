@@ -1,31 +1,35 @@
-import { useMap } from './../hooks'
 import { genshinMapCanvasKey } from './../shared'
+import { useMapStateStore, useTileStore } from '@/stores'
 
 export interface MapProjectionHookOptions {
   floor?: boolean
+  noCovertCoord?: boolean
 }
 
 export const useMapProjection = (coord: API.Coordinate2D | Ref<API.Coordinate2D | undefined>, options: MapProjectionHookOptions = {}) => {
-  const { floor = false } = options
+  const { floor = false, noCovertCoord = false } = options
 
   const viewRef = inject(genshinMapCanvasKey, ref(null))
 
   const { width, height } = useElementSize(viewRef)
-  const { map } = useMap()
+  const mapStateStore = useMapStateStore()
+  const tileStore = useTileStore()
 
   /** 投影后元素应随地图缩放等级所缩放的比例 */
-  const scaleRatio = computed(() => 2 ** (map.value?.mainViewState.zoom ?? 1))
+  const scaleRatio = computed(() => 2 ** (mapStateStore.viewState.zoom ?? 1))
 
   /** 视口中心坐标 */
   const center = computed<API.Coordinate2D>(() => [width.value / 2, height.value / 2])
 
   /** 投影后元素显示在视口上的坐标 */
   const position = computed<API.Coordinate2D>(() => {
+    if (!tileStore.currentTileConfig)
+      return [0, 0]
     const rawCoord = unref(coord)
-    if (!map.value?.baseLayer || !rawCoord)
-      return [-9999, -9999]
-    const [coordOffsetX, coordOffsetY] = map.value.baseLayer.rawProps.center
-    const { target, zoom } = map.value.mainViewState
+    if (!rawCoord)
+      return [0, 0]
+    const [coordOffsetX, coordOffsetY] = noCovertCoord ? [0, 0] : tileStore.currentTileConfig.tile.center
+    const { target, zoom } = mapStateStore.viewState
     const scale = 2 ** zoom
     const [x, y] = rawCoord
     const [tx, ty] = target

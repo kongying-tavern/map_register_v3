@@ -1,8 +1,7 @@
 <script lang="tsx" setup>
 import type { Column } from 'element-plus'
 import { MarkerButton } from '.'
-import { GSSwitch } from '@/components'
-import { useCondition } from '@/pages/pageMapV2/hooks'
+import { useMapStateStore } from '@/stores'
 
 interface MarkerWithDetail extends API.MarkerVo {
   children: {
@@ -14,34 +13,7 @@ interface MarkerWithDetail extends API.MarkerVo {
 const tableContainerRef = ref<HTMLElement | null>()
 const { width, height } = useElementSize(tableContainerRef)
 
-const conditionManager = useCondition()
-const markers = computed(() => conditionManager.markers)
-
-const queryText = ref('')
-const queryUnits = computed(() => (queryText.value.trim().match(/\S+\S+/g) ?? []) as string[])
-const queryMap = computed(() => Object.fromEntries(queryUnits.value.map(g => g.split(':'))))
-
-/** 为数据对象添加 children 字段以便 el-table-v2 对可展开内容的渲染 */
-const markersHandler = (seed: MarkerWithDetail[], marker: API.MarkerVo) => {
-  const { name = '', id = '', content = '' } = queryMap.value
-  const isNameMatched = !name || Boolean(marker.markerTitle?.includes(name))
-  const isIdMatched = !id || Boolean(`${marker.id}`.includes(id))
-  const isContentMatched = !content || Boolean(marker.content?.includes(content))
-  const isTrueMarker = isNameMatched && isIdMatched && isContentMatched
-  isTrueMarker && seed.push({
-    ...marker,
-    children: [{
-      id: `${marker.id}-detail-content`,
-      detail: marker.content,
-    }],
-  })
-  return seed
-}
-
-const filteredMarkers = shallowRef(markers.value.reduce(markersHandler, [] as MarkerWithDetail[]))
-watch(queryText, useDebounceFn(() => {
-  filteredMarkers.value = markers.value.reduce(markersHandler, [] as MarkerWithDetail[])
-}, 500))
+const mapStateStore = useMapStateStore()
 
 interface RowSlotProps {
   cells: VNode[]
@@ -63,7 +35,6 @@ const Row = ({ cells, rowData }: RowSlotProps) => 'detail' in rowData
 Row.inheritAttrs = false
 
 const expandAll = ref(false)
-const expandedRowKeys = computed(() => expandAll.value ? filteredMarkers.value.map(marker => marker.id) : [])
 
 const columns = computed<Column[]>(() => {
   if (expandAll.value) {
@@ -84,26 +55,14 @@ const columns = computed<Column[]>(() => {
 
 <template>
   <div class="marker-filter h-full flex flex-col">
-    <div class="flex flex-col gap-4 pt-4 px-2 pb-2">
-      <GSSwitch v-model="expandAll" label="默认展开说明" />
-      <el-input v-model="queryText" class="w-full" placeholder="name:草神瞳 id:42 content:地下">
-        <template #prefix>
-          <el-icon>
-            <Search />
-          </el-icon>
-        </template>
-      </el-input>
-    </div>
-
     <div ref="tableContainerRef" class="flex-1 overflow-hidden p-2">
       <el-table-v2
         :columns="columns"
-        :data="filteredMarkers"
+        :data="mapStateStore.currentLayerMarkers"
         :cache="15"
         :width="width"
         :height="height"
         :estimated-row-height="50"
-        :expanded-row-keys="expandedRowKeys"
         expand-column-key="content"
         class="marker-table"
         header-class="marker-table-header"

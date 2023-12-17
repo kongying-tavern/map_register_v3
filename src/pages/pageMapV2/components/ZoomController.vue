@@ -4,28 +4,61 @@ import { filter, fromEvent as fromRawEvent, map, switchMap, takeUntil } from 'rx
 import { CloseBold, SemiSelect } from '@element-plus/icons-vue'
 import { fromEvent, useSubscription } from '@vueuse/rxjs'
 import { useMap } from '../hooks'
+import { useMapStateStore } from '@/stores'
 
-const { map: mapInstance } = useMap()
-
-const zoom = computed({
-  get: () => mapInstance.value ? mapInstance.value.mainViewState.zoom : 0,
-  set: (v) => {
-    if (!mapInstance.value)
-      return
-    mapInstance.value.updateViewState({
-      zoom: v,
-    })
-  },
+withDefaults(defineProps<{
+  /** 点击按钮的缩放差，必须为大于 0 小于 1 的值 @default 0.25 */
+  deltaZoom?: number
+}>(), {
+  deltaZoom: 0.25,
 })
 
-const minZoom = computed(() => mapInstance.value?.mainViewState.minZoom ?? 0)
-const maxZoom = computed(() => mapInstance.value?.mainViewState.maxZoom ?? 0)
+const { onMapReady } = useMap()
+const mapStateStore = useMapStateStore()
+
+const zoomSetValue = ref(0)
+const zoomGetValue = ref(0)
+
+const prepareToTransition = ref(false)
+const minZoom = ref(0)
+const maxZoom = ref(0)
+
+onMapReady((map) => {
+  const { maxZoom: currentMaxZoom, minZoom: currentMinZoom } = mapStateStore.viewState
+
+  zoomGetValue.value = mapStateStore.viewState.zoom
+  maxZoom.value = currentMaxZoom
+  minZoom.value = currentMinZoom
+
+  watch(() => mapStateStore.viewState.zoom, (zoomNumber) => {
+    zoomGetValue.value = zoomNumber
+  })
+
+  watch(zoomSetValue, (zoomNumber) => {
+    map.updateViewState(prepareToTransition.value
+      ? { zoom: zoomNumber, transitionDuration: 150 }
+      : { zoom: zoomNumber, transitionDuration: 0 })
+    prepareToTransition.value = false
+  })
+})
+
 const range = computed(() => maxZoom.value - minZoom.value)
 
 const percentage = computed({
-  get: () => (zoom.value - minZoom.value) / range.value,
-  set: (v) => { zoom.value = range.value * v + minZoom.value },
+  get: () => (zoomGetValue.value - minZoom.value) / range.value,
+  set: (v) => {
+    const zoom = range.value * v + minZoom.value
+    zoomSetValue.value = zoom
+    if (!prepareToTransition.value)
+      zoomGetValue.value = zoom
+  },
 })
+
+const zoomTo = (newPercentage: number, transition = false) => {
+  if (transition)
+    prepareToTransition.value = true
+  percentage.value = newPercentage
+}
 
 const sliderRef = ref<HTMLElement>() as Ref<HTMLElement>
 
@@ -41,14 +74,12 @@ useSubscription(pointerdown.pipe(
     )
   }),
   filter(deltaY => deltaY <= 180 && deltaY >= 0),
-).subscribe((deltaY) => {
-  percentage.value = 1 - deltaY / 180
-}))
+).subscribe(deltaY => zoomTo(1 - deltaY / 180)))
 </script>
 
 <template>
-  <div v-if="mapInstance" class="genshin-zoom-controller -translate-y-1/2 -translate-x-6 select-none" v-bind="$attrs">
-    <div class="zoom-button cursor-pointer" @click="percentage = Math.min(1, percentage + 0.25)">
+  <div class="genshin-zoom-controller -translate-y-1/2 -translate-x-6 select-none" v-bind="$attrs">
+    <div class="zoom-button cursor-pointer" @click="() => zoomTo(Math.min(1, percentage + deltaZoom), true)">
       <el-icon :size="12" color="#FFF7EB" class="rotate-45">
         <CloseBold />
       </el-icon>
@@ -66,7 +97,7 @@ useSubscription(pointerdown.pipe(
       </div>
     </div>
 
-    <div class="zoom-button cursor-pointer" @click="percentage = Math.max(0, percentage - 0.25)">
+    <div class="zoom-button cursor-pointer" @click="() => zoomTo(Math.max(0, percentage - deltaZoom), true)">
       <el-icon :size="12" color="#FFF7EB">
         <SemiSelect />
       </el-icon>

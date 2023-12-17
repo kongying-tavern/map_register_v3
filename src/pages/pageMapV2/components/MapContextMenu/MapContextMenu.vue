@@ -1,15 +1,24 @@
 <script lang="ts" setup>
 import { Plus, Setting } from '@element-plus/icons-vue'
+import { storeToRefs } from 'pinia'
 import { MapAffix } from '../../components'
 import { useMap } from '@/pages/pageMapV2/hooks'
 import { MarkerCreatePanel } from '@/pages/pageMapV2/components'
 import { AppSettings, GSButton } from '@/components'
 import { useGlobalDialog } from '@/hooks'
-import { useMapStore, useUserInfoStore } from '@/stores'
-import db from '@/database'
+import { useItemStore, useMapStateStore, usePreferenceStore, useUserInfoStore } from '@/stores'
 
-const mapStore = useMapStore()
+const mapStateStore = useMapStateStore()
 const userInfoStore = useUserInfoStore()
+const { itemIdMap } = storeToRefs(useItemStore())
+const { preference } = storeToRefs(usePreferenceStore())
+
+const markingItem = computed(() => {
+  const itemId = preference.value['markerFilter.state.defaultMarkingItemId']
+  if (itemId === undefined)
+    return
+  return itemIdMap.value.get(itemId)
+})
 
 const { onMapReady } = useMap()
 
@@ -19,20 +28,19 @@ const closeContextmenu = () => {
   coordinate.value = null
 }
 
-mapStore.$onAction((ctx) => {
+mapStateStore.$onAction((ctx) => {
   ctx.name === 'setMission' && closeContextmenu()
 })
 
-onMapReady(mapInstance => mapInstance.event.on('click', async (info, ev) => {
-  if (!ev.rightButton || mapStore.mission)
+onMapReady(mapInstance => mapInstance.addEventListener('click', (info, ev) => {
+  if (!ev.rightButton || mapStateStore.mission)
     return closeContextmenu()
-  coordinate.value = mapInstance.unprojectCoord(info.coordinate as API.Coordinate2D)
+  coordinate.value = info.coordinate as API.Coordinate2D
 }))
 
 const { DialogService } = useGlobalDialog()
 
 const openMarkerCreator = async () => {
-  const areaCode = mapStore.markingItem ? (await db.area.where('id').equals(mapStore.markingItem.areaId!).first())?.code : ''
   DialogService
     .config({
       width: 'fit-content',
@@ -43,8 +51,8 @@ const openMarkerCreator = async () => {
     })
     .props({
       coordinate: coordinate.value,
-      initAreaCode: areaCode,
-      defaultItem: mapStore.markingItem,
+      initAreaCode: preference.value['markerFilter.state.areaCode'],
+      defaultItem: markingItem.value,
     })
     .open(MarkerCreatePanel)
   closeContextmenu()
@@ -53,7 +61,6 @@ const openMarkerCreator = async () => {
 const openSettingDialog = () => {
   DialogService
     .config({
-      title: '系统设置',
       alignCenter: true,
       width: 'fit-content',
     })
@@ -64,7 +71,7 @@ const openSettingDialog = () => {
 
 <template>
   <Transition name="fade">
-    <MapAffix v-if="coordinate" :pos="coordinate">
+    <MapAffix v-if="coordinate" :pos="coordinate" no-covert-coord>
       <div class="context-menu ml-2 mt-2 flex flex-col gap-1 relative" @contextmenu.stop="ev => ev.preventDefault()">
         <GSButton
           v-if="userInfoStore.isDadian"

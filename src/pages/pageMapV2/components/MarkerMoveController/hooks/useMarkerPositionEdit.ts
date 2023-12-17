@@ -1,47 +1,68 @@
 import { ElMessage, ElNotification } from 'element-plus'
-import { omit } from 'lodash'
 import { useFetchHook } from '@/hooks'
-import { useCondition } from '@/pages/pageMapV2/hooks'
 import db from '@/database'
 import Api from '@/api/api'
+import { useMapStateStore, useTileStore } from '@/stores'
 
 export const useMarkerPositionEdit = () => {
-  const conditionManager = useCondition()
+  const tileStore = useTileStore()
+  const mapStateStore = useMapStateStore()
 
   const { refresh: moveMarker, onSuccess, onError, ...rest } = useFetchHook({
-    onRequest: async (markers: API.MarkerVo[]) => {
-      const results = {
-        success: [] as number[],
-        failed: [] as number[],
+    onRequest: async () => {
+      if (mapStateStore.mission?.type !== 'markerDragging')
+        throw new Error('任务类型冲突')
+
+      const tileConfig = tileStore.currentTileConfig
+      if (!tileConfig)
+        throw new Error('无法获取当前图层配置')
+
+      const [cx, cy] = tileConfig.tile.center
+
+      const currentLayerMarkersMap = mapStateStore.currentLayerMarkersMap
+      const missions = mapStateStore.mission.value
+
+      const form: API.MarkerVo[] = []
+
+      for (const id in missions) {
+        const marker = currentLayerMarkersMap[id]
+        if (!marker)
+          continue
+        const {
+          render: _1,
+          createTime: _2,
+          updateTime: _3,
+          ...rest
+        } = marker
+        const [x, y] = missions[id]
+        form.push({
+          ...rest,
+          position: `${x - cx},${y - cy}`,
+        })
       }
-      await Promise.all(markers.map(marker => Api.marker
-        .updateMarker(omit(marker, 'createTime, updateTime'))
-        .then(() => results.success.push(marker.id!))
-        .catch(() => results.failed.push(marker.id!)),
-      ))
-      const { data: updateMarkers = [] } = await Api.marker.listMarkerById({}, results.success)
-      await db.marker.bulkPut(updateMarkers)
-      return results
+
+      if (!form.length)
+        throw new Error('已验证的提交信息为空')
+
+      const updateIds = await Promise.all(form.map(marker => Api.marker.updateMarker(marker).then(() => marker.id!)))
+
+      const { data: updatedMarkers = [] } = await Api.marker.listMarkerById({}, updateIds)
+      await db.marker.bulkPut(updatedMarkers)
     },
   })
 
-  onSuccess(async ({ success, failed }) => {
-    if (success.length > 0) {
-      ElNotification.success({
-        title: '移动点位',
-        message: `点位 ${success.join(' , ')} 移动成功`,
-        offset: 48,
-      })
-      await conditionManager.requestMarkersUpdate()
-    }
-    // TODO 不完全成功，提示方式可能需要改进
-    if (failed.length > 0) {
-      ElNotification.error({
-        title: '移动点位',
-        message: `点位 ${failed.join(' , ')} 移动失败`,
-        offset: 48,
-      })
-    }
+  const clearState = () => {
+    mapStateStore.setMission(null)
+    mapStateStore.setViewPortLocked(false)
+  }
+
+  onSuccess(() => {
+    ElNotification.success({
+      title: '移动点位',
+      message: '操作成功',
+      offset: 48,
+    })
+    clearState()
   })
 
   onError(err => ElMessage.error({
@@ -49,5 +70,7 @@ export const useMarkerPositionEdit = () => {
     offset: 48,
   }))
 
-  return { moveMarker, onSuccess, onError, ...rest }
+  onSuccess(clearState)
+
+  return { moveMarker, clearState, onSuccess, onError, ...rest }
 }

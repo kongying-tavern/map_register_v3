@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useCondition, useMarkerEdit } from '../../hooks'
+import { useMarkerEdit } from '../../hooks'
 import { MarkerEditorForm } from '../../components/MarkerEditor'
 import { GlobalDialogController } from '@/hooks'
 import db from '@/database'
@@ -7,8 +7,6 @@ import db from '@/database'
 const props = defineProps<{
   markerInfo: API.MarkerVo
 }>()
-
-const conditionManager = useCondition()
 
 /** 表单数据 */
 const form = ref(props.markerInfo ?? {})
@@ -27,7 +25,6 @@ const { editorRef, loading, editMarker, onSuccess } = useMarkerEdit(form)
 
 onSuccess(() => {
   GlobalDialogController.close()
-  conditionManager.requestMarkersUpdate()
 })
 
 const isOfflineMode = import.meta.env.VITE_DEVELOPMENT_MODE === 'offline'

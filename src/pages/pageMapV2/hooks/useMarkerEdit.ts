@@ -5,13 +5,11 @@ import type { MarkerEditorForm } from '../components/MarkerEditor'
 import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 import { useUserInfoStore } from '@/stores'
-import { useCondition } from '@/pages/pageMapV2/hooks'
 import db from '@/database'
 
 /** 编辑点位，已自动处理 methodType 字段 */
 export const useMarkerEdit = (markerData: Ref<API.MarkerVo | null>) => {
   const userInfoStore = useUserInfoStore()
-  const conditionManager = useCondition()
 
   /** 编辑器实例 */
   const editorRef = ref<InstanceType<typeof MarkerEditorForm> | null>(null)
@@ -30,7 +28,7 @@ export const useMarkerEdit = (markerData: Ref<API.MarkerVo | null>) => {
     const timestamp = Number(params.get('timestamp'))
     const lastModified = Number(params.get('last-modified'))
 
-    const isChanged = (!isNaN(timestamp) && !isNaN(lastModified)) && timestamp > lastModified
+    const isChanged = (!Number.isNaN(timestamp) && !Number.isNaN(lastModified)) && timestamp > lastModified
 
     if (isChanged) {
       !lastModified && params.set('last-modified', `${new Date().getTime()}`)
@@ -75,8 +73,6 @@ export const useMarkerEdit = (markerData: Ref<API.MarkerVo | null>) => {
       throw new Error('无法确认点位信息，点位对象为空')
 
     await db.marker.put(submitedMarkerInfo)
-
-    await conditionManager.requestMarkersUpdate()
   }
 
   const { refresh: submit, onSuccess, onError, ...rest } = useFetchHook({ onRequest: request })

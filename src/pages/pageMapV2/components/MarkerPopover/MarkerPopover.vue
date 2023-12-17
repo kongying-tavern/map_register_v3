@@ -1,17 +1,16 @@
 <script lang="ts" setup>
 import { Check, CirclePlus, DeleteFilled, Edit, Rank, VideoCamera } from '@element-plus/icons-vue'
-import { covertPosition } from '../../utils'
-import { useCondition, useMarkerFocus } from '../../hooks'
+import { useMarkerFocus } from '../../hooks'
 import { MapAffix, MarkerEditPanel } from '..'
 import { MarkerPanel } from './components'
 import { useMarkerDelete, useMarkerExtra, useMarkerFinished, useMarkerMove, useSkeletonPicture } from './hooks'
-import { useIconTagStore, useMapStore } from '@/stores'
+import { useIconTagStore, useMapStateStore } from '@/stores'
 import { CloseFilled } from '@/components/GenshinUI/GSIcon'
 import { AppBilibiliVideoPlayer, GSButton } from '@/components'
 import { useGlobalDialog } from '@/hooks'
 
-const mapStore = useMapStore()
 const iconTagStore = useIconTagStore()
+const mapStateStore = useMapStateStore()
 
 const { cachedMarkerVo, focus, blur } = useMarkerFocus()
 
@@ -19,13 +18,14 @@ const { pictureUrl, loading: imageLoading } = useSkeletonPicture(cachedMarkerVo)
 
 const { isFinished } = useMarkerFinished(cachedMarkerVo)
 
-const { isMoving } = useMarkerMove(cachedMarkerVo)
+const { isMoving, position } = useMarkerMove(cachedMarkerVo)
 
 const { isUnderground, hiddenFlagType, refreshTimeType } = useMarkerExtra(cachedMarkerVo)
 
+const isVisibleForZoom = computed(() => mapStateStore.viewState.zoom >= -2)
+
 // ==================== 点位更新时关闭弹窗 ====================
-const conditionManager = useCondition()
-watch(() => conditionManager.markers, blur)
+watch(() => mapStateStore.currentLayerMarkers, blur)
 
 // ==================== 编辑点位 ====================
 const { DialogService } = useGlobalDialog()
@@ -63,12 +63,12 @@ const playBilibiliVideo = () => {
 }
 
 /** 当前是否存在地图任务 */
-const hasMapMission = computed(() => Boolean(mapStore.mission))
+const hasMapMission = computed(() => Boolean(mapStateStore.mission))
 </script>
 
 <template>
-  <MapAffix v-if="cachedMarkerVo" :pos="covertPosition(cachedMarkerVo.position)" :pickable="Boolean(focus)">
-    <MarkerPanel :actived="Boolean(focus)">
+  <MapAffix v-if="cachedMarkerVo" :pos="position" :pickable="Boolean(focus)" no-covert-coord>
+    <MarkerPanel :actived="isVisibleForZoom && Boolean(focus)">
       <template #header>
         <img :src="iconTagStore.iconTagMap[cachedMarkerVo.itemList?.[0].iconTag ?? '']?.url" crossorigin="" class="w-7 h-7 object-contain">
         <span class="flex-1 text-lg">

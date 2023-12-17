@@ -2,16 +2,12 @@ import { ElMessage, ElMessageBox, ElText } from 'element-plus'
 import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 import db from '@/database'
-import { useCondition } from '@/pages/pageMapV2/hooks'
 
 export const useMarkerDelete = () => {
-  const conditionManager = useCondition()
-
   const { refresh: deleteMarker, loading, onSuccess, onError, ...rest } = useFetchHook({
     onRequest: async (markerId: number) => {
       await Api.marker.deleteMarker({ markerId })
       await db.marker.delete(markerId)
-      await conditionManager.requestMarkersUpdate()
     },
   })
 
