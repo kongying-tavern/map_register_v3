@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { Refresh, WarnTriangleFilled } from '@element-plus/icons-vue'
 import type { UnwrapRef } from 'vue'
+import { ElMessageBox } from 'element-plus'
 import { SettingBar } from '../components'
 import { useAreaStore, useIconTagStore, useItemStore, useItemTypeStore, useMarkerStore } from '@/stores'
 import type { useBackendUpdate } from '@/stores/hooks'
+import db from '@/database'
 
 const options: { name: string; store: { total: number; backendUpdater: UnwrapRef<ReturnType<typeof useBackendUpdate>> } }[] = [
   { name: '地区', store: useAreaStore() },
@@ -12,6 +14,30 @@ const options: { name: string; store: { total: number; backendUpdater: UnwrapRef
   { name: '物品类型', store: useItemTypeStore() },
   { name: '点位', store: useMarkerStore() },
 ]
+
+const deleteDatabase = async () => {
+  try {
+    await ElMessageBox.confirm('将会完全删除数据库内所有数据并刷新页面，确认操作？', '警告', {
+      type: 'warning',
+      confirmButtonClass: 'el-button--danger',
+      showClose: false,
+      closeOnPressEscape: false,
+      closeOnClickModal: false,
+      beforeClose: (action, instance, done) => {
+        if (action !== 'confirm')
+          return done()
+        instance.confirmButtonLoading = true
+        instance.cancelButtonLoading = true
+        instance.cancelButtonClass = 'is-disabled'
+        db.delete().then(done)
+      },
+    })
+    location.reload()
+  }
+  catch {
+    // cancel, no error
+  }
+}
 </script>
 
 <template>
@@ -49,7 +75,7 @@ const options: { name: string; store: { total: number; backendUpdater: UnwrapRef
       <div class="flex flex-col gap-1">
         <SettingBar label="删除数据库" note="删除数据库并刷新应用来尝试解决数据库错误">
           <template #setting>
-            <el-button type="danger" :icon="WarnTriangleFilled" @click.stop="">
+            <el-button type="danger" :icon="WarnTriangleFilled" @click="deleteDatabase">
               立即删除
             </el-button>
           </template>

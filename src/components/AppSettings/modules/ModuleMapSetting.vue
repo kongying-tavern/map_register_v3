@@ -43,5 +43,18 @@ const { preference } = storeToRefs(usePreferenceStore())
         </SettingBar>
       </div>
     </div>
+
+    <div class="mb-4">
+      <div class="pb-1">
+        性能优化
+      </div>
+      <div class="flex flex-col gap-1">
+        <SettingBar label="低频拾取" note="在视图更新时暂停点位拾取计算">
+          <template #setting>
+            <el-switch v-model="preference['map.setting.pauseViewChangingPicking']" />
+          </template>
+        </SettingBar>
+      </div>
+    </div>
   </div>
 </template>
