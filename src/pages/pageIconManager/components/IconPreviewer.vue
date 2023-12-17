@@ -132,15 +132,15 @@ const timeFormatter = (time?: string) => {
     </div>
 
     <div v-else class="w-64 h-full overflow-auto flex flex-col">
-      <div v-if="!iconTagStore.iconMapping[iconTag.tag!]" class="icon-image h-64" />
+      <div v-if="!iconTagStore.tagPositionMap[iconTag.tag!]" class="icon-image h-64" />
 
       <div
         v-else
         class="icon-image h-64 grid place-items-center overflow-hidden flex-shrink-0"
         :style="{
-          '--bg': `url(${iconTagStore.tagSpriteImage})`,
-          '--x': `${-iconTagStore.iconMapping[iconTag.tag!]?.[0]}px`,
-          '--y': `${-iconTagStore.iconMapping[iconTag.tag!]?.[1]}px`,
+          '--bg': `url(${iconTagStore.tagSpriteUrl})`,
+          '--x': `${-iconTagStore.tagPositionMap[iconTag.tag!]?.[0]}px`,
+          '--y': `${-iconTagStore.tagPositionMap[iconTag.tag!]?.[1]}px`,
         }"
       >
         <div class="image-box w-16 h-16" />

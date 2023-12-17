@@ -28,8 +28,11 @@ export interface InteractiveMap {
 }
 export type InteractiveType = MapToSchema<InteractiveMap>
 
-/** 地图临时状态 */
-export const useMapStore = defineStore('map-state', {
+/**
+ * 地图临时状态
+ * @deprecated
+ */
+export const useMapStore = defineStore('map-info', {
   state: () => ({
     lockViewState: false,
     currentLayerCode: '',

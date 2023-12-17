@@ -4,7 +4,10 @@ import { useState } from '@/hooks'
 import { useUserInfoStore } from '@/stores'
 import { RoleLevel } from '@/shared'
 
-export const useRouteStore = defineStore('route', () => {
+/**
+ * 用于共享路由状态、路由插件注入
+ */
+export const useRouteStore = defineStore('global-route', () => {
   const userInfoStore = useUserInfoStore()
   const router = useRouter()
 

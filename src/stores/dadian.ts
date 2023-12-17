@@ -6,7 +6,7 @@ import Api from '@/api/config'
 import db from '@/database'
 
 /** 订阅的打点配置 */
-export const useDadianStore = defineStore('dadian-json', () => {
+export const useDadianStore = defineStore('global-dadian-json', () => {
   const raw = shallowRef<API.DadianJSON>({})
 
   const getDigest = async (data: ArrayBuffer) => {
@@ -19,7 +19,7 @@ export const useDadianStore = defineStore('dadian-json', () => {
       const dadianConfigFile = await Api.getDadianConfig()
       const newDigest = await getDigest(dadianConfigFile)
 
-      const cachedConfig = await db.imageCache.get('dadian')
+      const cachedConfig = await db.cache.get('dadian')
       if (cachedConfig && cachedConfig.id === 'dadian' && newDigest === cachedConfig.digest) {
         raw.value = cachedConfig.value
         return
@@ -28,14 +28,14 @@ export const useDadianStore = defineStore('dadian-json', () => {
       const newConfig = await Zip.decompressAs<API.DadianJSON>(new Uint8Array(dadianConfigFile))
       raw.value = newConfig
 
-      await db.imageCache.put({
+      await db.cache.put({
         id: 'dadian',
         digest: newDigest,
         value: newConfig,
       })
     }
     catch {
-      const cachedConfig = await db.imageCache.get('dadian')
+      const cachedConfig = await db.cache.get('dadian')
       if (cachedConfig && cachedConfig.id === 'dadian')
         raw.value = cachedConfig.value
     }

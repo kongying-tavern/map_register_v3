@@ -34,7 +34,7 @@ const toCamelCaseObject = <T extends Record<string, unknown>>(obj: T): SnakeCase
   return Object.fromEntries(Object.entries(obj).map(([key, value]) => [camelCase(key), value])) as SnakeCaseKeysToCamelCase<T>
 }
 
-export const useUserAuthStore = defineStore('user-auth', () => {
+export const useUserAuthStore = defineStore('global-user-auth', () => {
   const auth = useLocalStorage<Partial<LocalAuth>>(USERAUTH_KEY, {})
 
   const setAuth = (newAuth: API.SysToken) => {

@@ -6,7 +6,7 @@ import { useFetchHook } from '@/hooks'
 import { useUserAuthStore } from '@/stores'
 import { RoleLevel, RoleTypeEnum } from '@/shared'
 
-export const useUserInfoStore = defineStore('user-info', () => {
+export const useUserInfoStore = defineStore('global-user-info', () => {
   // ==================== 用户角色信息 ====================
   const { data: roleList, refresh: _updateRoleList, onError: onRoleUpdateError } = useFetchHook({
     initialValue: [],

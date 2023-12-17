@@ -56,7 +56,7 @@ watch(scrollTarget, scrollTo)
     class="border-r-[1px] border-[var(--el-border-color-light)] h-full overflow-hidden"
     element-loading-text="正在处理..."
     :style="{
-      '--sprite-image': `url(${iconTagStore.tagSpriteImage})`,
+      '--sprite-image': `url(${iconTagStore.tagSpriteUrl})`,
     }"
   >
     <RecycleScroller
@@ -77,7 +77,7 @@ watch(scrollTarget, scrollTo)
           @click="activedTag = item"
         >
           <div
-            v-if="!iconTagStore.iconMapping[item.tag]"
+            v-if="!iconTagStore.tagPositionMap[item.tag]"
             class="w-16 h-16 grid place-items-center text-center"
           >
             图片缺省
@@ -86,8 +86,8 @@ watch(scrollTarget, scrollTo)
             v-else
             class="item-image"
             :style="{
-              '--x': `${-iconTagStore.iconMapping[item.tag][0]}px`,
-              '--y': `${-iconTagStore.iconMapping[item.tag][1]}px`,
+              '--x': `${-iconTagStore.tagPositionMap[item.tag][0]}px`,
+              '--y': `${-iconTagStore.tagPositionMap[item.tag][1]}px`,
             }"
           />
           <div class="item-label">

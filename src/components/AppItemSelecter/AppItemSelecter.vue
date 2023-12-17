@@ -172,8 +172,8 @@ watch(() => itemList.value, () => scrollbarRef.value?.setScrollTop(0))
             :key="itemType.id"
             :item-type="itemType"
             :actived="itemType.id === selectedType?.id"
-            :src="iconTagStore.tagSpriteImage"
-            :mapping="iconTagStore.iconMapping[itemType.iconTag ?? '']"
+            :src="iconTagStore.tagSpriteUrl"
+            :mapping="iconTagStore.tagPositionMap[itemType.iconTag ?? '']"
             :nums="groupedItems[itemType.id!]?.length"
             @click="() => setSelectedType(itemType)"
           />
@@ -192,8 +192,8 @@ watch(() => itemList.value, () => scrollbarRef.value?.setScrollTop(0))
             :item="item"
             :icon-map="iconMap"
             :actived="selections.has(item.id!)"
-            :src="iconTagStore.tagSpriteImage"
-            :mapping="iconTagStore.iconMapping[item.iconTag ?? '']"
+            :src="iconTagStore.tagSpriteUrl"
+            :mapping="iconTagStore.tagPositionMap[item.iconTag ?? '']"
             @click="() => toggleItem(item)"
           />
         </ElScrollbar>
@@ -230,8 +230,8 @@ watch(() => itemList.value, () => scrollbarRef.value?.setScrollTop(0))
                 :key="item.id"
                 :item="item"
                 :icon-map="iconMap"
-                :src="iconTagStore.tagSpriteImage"
-                :mapping="iconTagStore.iconMapping[item.iconTag ?? '']"
+                :src="iconTagStore.tagSpriteUrl"
+                :mapping="iconTagStore.tagPositionMap[item.iconTag ?? '']"
                 @click="() => toggleItem(item)"
               />
             </div>

@@ -7,7 +7,7 @@ import { useFetchHook } from '@/hooks'
 import db from '@/database'
 import { Logger } from '@/utils'
 
-export const usePreferenceStore = defineStore('user-preference', () => {
+export const usePreferenceStore = defineStore('global-user-preference', () => {
   const internalUpdateFlag = ref(false)
 
   const { data: preference, refresh: _updateUserPreference } = useFetchHook<UserPreference, [userId: number]>({

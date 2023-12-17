@@ -7,17 +7,17 @@ import db from '@/database'
 
 /** 本地图标标签数据 */
 export const useIconTagStore = defineStore('global-icon-tag', () => {
-  const _tagList = shallowRef<API.TagVo[]>([])
-  const _total = ref(0)
+  const tagList = shallowRef<API.TagVo[]>([])
+  const total = ref(0)
 
   /** tag 名称到实体的索引表 */
-  const tagNameMap = computed(() => _tagList.value.reduce((seed, tag) => {
+  const tagNameMap = computed(() => tagList.value.reduce((seed, tag) => {
     seed.set(tag.tag!, tag)
     return seed
   }, new Map<string, API.TagVo>()))
 
   /** @deprecated */
-  const iconTagMap = computed(() => Object.fromEntries(_tagList.value.map(iconTag => [
+  const iconTagMap = computed(() => Object.fromEntries(tagList.value.map(iconTag => [
     iconTag.tag as string,
     iconTag as API.TagVo,
   ])) as Record<string, API.TagVo>)
@@ -37,22 +37,22 @@ export const useIconTagStore = defineStore('global-icon-tag', () => {
     },
   )
 
-  const { tagSpriteImage, tagSpriteUrl, tagPositionMap, tagsPositionList, refreshSpriteImage } = useTagSprite()
+  const { tagSpriteImage, tagSpriteUrl, tagPositionMap, tagsPositionList, refresh: refreshTagSprite } = useTagSprite()
 
   const { markerSpriteUrl, markerSpriteMapping } = useMarkerSprite({
     tagsPositionList,
     tagSprite: tagSpriteImage,
   })
 
-  liveQuery(() => db.iconTag.toArray()).subscribe((tagList) => {
-    _total.value = tagList.length
-    _tagList.value = tagList
-    refreshSpriteImage(tagList)
+  liveQuery(() => db.iconTag.toArray()).subscribe((data) => {
+    total.value = data.length
+    tagList.value = data
+    refreshTagSprite(data)
   })
 
   return {
     // getters
-    total: _total as Readonly<Ref<number>>,
+    total: total as Readonly<Ref<number>>,
     tagNameMap,
     iconTagMap,
     tagSpriteImage,
