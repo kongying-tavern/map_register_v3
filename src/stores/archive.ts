@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
+import { userHook } from './hooks'
 import Api from '@/api/api'
-import { Logger } from '@/utils'
-import { useCondition } from '@/pages/pageMapV2/hooks'
+import { useFetchHook } from '@/hooks'
 
 export interface ArchiveBody {
   /** 点位存档 */
@@ -23,8 +23,6 @@ export interface ArchiveSlotData extends API.SysArchiveSlotVo {
   archiveList: ArchiveData[]
   timestamp: number
 }
-
-const logger = new Logger('[archive]')
 
 const parserArchive = ({ archive = '', time = '', ...rest }: API.SysArchiveVo): ArchiveData => {
   const { Data_KYJG: datas = [], Time_KYJG: times = {} } = JSON.parse(archive) as {
@@ -49,113 +47,125 @@ const initArchiveList = (): Record<number, ArchiveSlotData | undefined> => Objec
 
 /**
  * 存档管理
+ * @todo 冗余操作太多，待优化
  */
-export const useArchiveStore = defineStore('global-archive', {
-  state: () => ({
-    fetchLoading: false,
-    archiveSlots: initArchiveList(),
-    currentArchive: {
-      body: {
-        Data_KYJG: new Set(),
-        Time_KYJG: {},
-      },
-      timestamp: new Date().getTime(),
-    } as ArchiveData,
-  }),
-
-  actions: {
-    /** 获取最新的存档列表 */
-    async fetchArchive() {
-      try {
-        this.fetchLoading = true
-        const { data = [] } = await Api.archive.getAllHistoryArchive({})
-        this.archiveSlots = initArchiveList()
-        data.forEach(({ archive: historyArchives = [], slotIndex = -1, updateTime, ...rest } = {}) => {
-          const archive = {
-            ...rest,
-            updateTime,
-            slotIndex,
-            timestamp: (updateTime ? new Date(updateTime) : new Date()).getTime(),
-            archiveList: historyArchives.map(parserArchive).sort(({ timestamp: a }, { timestamp: b }) => b - a),
-          }
-          this.archiveSlots[slotIndex] = archive
-        })
-      }
-      catch (err) {
-        logger.error(err)
-      }
-      finally {
-        this.fetchLoading = false
-      }
+export const useArchiveStore = defineStore('global-archive', () => {
+  const currentArchive = ref<ArchiveData>({
+    body: {
+      Data_KYJG: new Set(),
+      Time_KYJG: {},
     },
+    timestamp: new Date().getTime(),
+  })
 
-    /** 创建新的存档槽位并将当前存档存入 */
-    async createArchiveSlot(name: string, slot_index: number) {
-      if (slot_index > 5)
-        throw new Error('存档数量最多为 5 个')
-      await Api.archive.createSlotAndSaveArchive({ slot_index, name }, JSON.stringify({
-        Data_KYJG: [...this.currentArchive.body.Data_KYJG],
-        Time_KYJG: this.currentArchive.body.Time_KYJG,
-      }))
-    },
+  const hash = asyncComputed(async () => {
+    const res = [...currentArchive.value.body.Data_KYJG.values()].join('')
+    const digest = await crypto.subtle.digest('SHA-1', new TextEncoder().encode(res))
+    return [...new Uint8Array(digest)].map(num => num.toString(16).padStart(2, '0').toUpperCase()).join('')
+  }, '')
 
-    /** 将当前存档存入指定的存档槽位 */
-    async saveArchiveToSlot(slot_index = -1) {
-      const archive = JSON.stringify({
-        Data_KYJG: [...this.currentArchive.body.Data_KYJG],
-        Time_KYJG: this.currentArchive.body.Time_KYJG,
+  const { data: archiveSlots, loading: fetchLoading, refresh: fetchArchive } = useFetchHook({
+    onRequest: async () => {
+      const { data = [] } = await Api.archive.getAllHistoryArchive({})
+      const slots = initArchiveList()
+      data.forEach(({ archive: historyArchives = [], slotIndex = -1, updateTime, ...rest } = {}) => {
+        const archive: ArchiveSlotData = {
+          ...rest,
+          updateTime,
+          slotIndex,
+          timestamp: (updateTime ? new Date(updateTime) : new Date()).getTime(),
+          archiveList: historyArchives.map(parserArchive).sort(({ timestamp: a }, { timestamp: b }) => b - a),
+        }
+        slots[slotIndex] = archive
       })
-      await Api.archive.saveArchive({ slot_index }, archive)
+      return slots
     },
+  })
 
-    /** 删除指定槽位的存档 */
-    async deleteArchiveSlot(slot_index = -1) {
-      await Api.archive.removeArchive({ slot_index })
-      await this.fetchArchive()
-    },
+  /** 创建新的存档槽位并将当前存档存入 */
+  const createArchiveSlot = async (name: string, slot_index: number) => {
+    if (slot_index > 5)
+      throw new Error('存档数量最多为 5 个')
+    await Api.archive.createSlotAndSaveArchive({ slot_index, name }, JSON.stringify({
+      Data_KYJG: [...currentArchive.value.body.Data_KYJG],
+      Time_KYJG: currentArchive.value.body.Time_KYJG,
+    }))
+  }
 
-    /** 获取指定槽位的最新存档 */
-    getLatestArchiveFromSlot(slot_index = -1) {
-      const archiveSlot = this.archiveSlots[slot_index]
+  /** 将当前存档存入指定的存档槽位 */
+  const saveArchiveToSlot = async (slot_index = -1) => {
+    const archive = JSON.stringify({
+      Data_KYJG: [...currentArchive.value.body.Data_KYJG],
+      Time_KYJG: currentArchive.value.body.Time_KYJG,
+    })
+    await Api.archive.saveArchive({ slot_index }, archive)
+  }
+
+  /** 删除指定槽位的存档 */
+  const deleteArchiveSlot = async (slot_index = -1) => {
+    await Api.archive.removeArchive({ slot_index })
+    await fetchArchive()
+  }
+
+  /** 获取指定槽位的最新存档 */
+  const getLatestArchiveFromSlot = (slot_index = -1) => {
+    const archiveSlot = archiveSlots.value[slot_index]
+    if (!archiveSlot)
+      throw new Error(`槽位 ${slot_index} 没有存档`)
+    const { archiveList } = archiveSlot
+    return archiveList[0]
+  }
+
+  /** 加载指定槽位的最新存档 */
+  const loadArchiveSlot = (slot_index = -1) => {
+    currentArchive.value = getLatestArchiveFromSlot(slot_index)
+    currentArchive.value.slotIndex = slot_index
+  }
+
+  /** 加载指定槽位的历史存档 */
+  const loadHistoryArchive = (slotIndex: number, historyIndex: number) => {
+    const archiveSlot = archiveSlots.value[slotIndex]
+    if (!archiveSlot)
+      throw new Error(`槽位 ${slotIndex} 没有存档`)
+    const findHistory = archiveSlot.archiveList.find(history => history.historyIndex === historyIndex)
+    if (!findHistory)
+      throw new Error(`历史存档 ${historyIndex} 为空`)
+    currentArchive.value = findHistory
+    currentArchive.value.slotIndex = slotIndex
+  }
+
+  /** 加载最新槽位的最新存档 */
+  const loadLatestArchive = () => {
+    let latestSlotIndex: ArchiveSlotData | undefined
+    for (const slotIndex in archiveSlots.value) {
+      const archiveSlot = archiveSlots.value[slotIndex]
       if (!archiveSlot)
-        throw new Error(`槽位 ${slot_index} 没有存档`)
-      const { archiveList } = archiveSlot
-      return archiveList[0]
-    },
+        continue
+      if (!latestSlotIndex || archiveSlot.timestamp > latestSlotIndex.timestamp)
+        latestSlotIndex = archiveSlot
+    }
+    if (!latestSlotIndex)
+      return
+    loadArchiveSlot(latestSlotIndex.slotIndex)
+  }
 
-    /** 加载指定槽位的最新存档 */
-    loadArchiveSlot(slot_index = -1) {
-      this.currentArchive = this.getLatestArchiveFromSlot(slot_index)
-      this.currentArchive.slotIndex = slot_index
-      useCondition().requestMarkersUpdate()
-    },
+  return {
+    currentArchive,
+    hash,
+    fetchLoading,
+    archiveSlots,
 
-    /** 加载指定槽位的历史存档 */
-    loadHistoryArchive(slotIndex: number, historyIndex: number) {
-      const archiveSlot = this.archiveSlots[slotIndex]
-      if (!archiveSlot)
-        throw new Error(`槽位 ${slotIndex} 没有存档`)
-      const findHistory = archiveSlot.archiveList.find(history => history.historyIndex === historyIndex)
-      if (!findHistory)
-        throw new Error(`历史存档 ${historyIndex} 为空`)
-      this.currentArchive = findHistory
-      this.currentArchive.slotIndex = slotIndex
-      useCondition().requestMarkersUpdate()
-    },
+    fetchArchive,
+    createArchiveSlot,
+    saveArchiveToSlot,
+    deleteArchiveSlot,
+    loadArchiveSlot,
+    loadHistoryArchive,
+    loadLatestArchive,
+  }
+})
 
-    /** 加载最新槽位的最新存档 */
-    loadLatestArchive() {
-      let latestSlotIndex: ArchiveSlotData | undefined
-      for (const slotIndex in this.archiveSlots) {
-        const archiveSlot = this.archiveSlots[slotIndex]
-        if (!archiveSlot)
-          continue
-        if (!latestSlotIndex || archiveSlot.timestamp > latestSlotIndex.timestamp)
-          latestSlotIndex = archiveSlot
-      }
-      if (!latestSlotIndex)
-        return
-      this.loadArchiveSlot(latestSlotIndex.slotIndex)
-    },
-  },
+userHook.onInfoChange(useArchiveStore, async (store) => {
+  await store.fetchArchive()
+  store.loadLatestArchive()
 })

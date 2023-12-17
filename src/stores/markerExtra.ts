@@ -2,23 +2,29 @@ import { defineStore } from 'pinia'
 import { defaultsDeep, pick } from 'lodash'
 import { useDadianStore, useUserInfoStore } from '@/stores'
 
-export const useMarkerExtraStore = defineStore('marker-extra', {
-  getters: {
-    mergedAreaExtraConfigs: () => {
-      const { plugins = {}, pluginsNeigui = {} } = useDadianStore()._raw
-      const isNegui = useUserInfoStore().isNeigui
-      const areaExtraConfigs: Record<string, API.ExtraConfig> = {}
+/** 点位额外信息解析 store */
+export const useMarkerExtraStore = defineStore('global-marker-extra', () => {
+  const dadianStore = useDadianStore()
+  const userInfoStore = useUserInfoStore()
 
-      for (const areaCode in plugins) {
-        const { extra = [], extraConfig = {} } = plugins[areaCode]
-        const { extra: extraNeigui = [], extraConfig: extraConfigNeigui = {} } = pluginsNeigui[areaCode] ?? {}
-        const extraKeys = isNegui ? [...extra, ...extraNeigui] : extra
-        if (isNegui)
-          defaultsDeep(extraConfig, extraConfigNeigui)
-        areaExtraConfigs[areaCode] = pick(extraConfig, extraKeys)
-      }
+  const mergedAreaExtraConfigs = computed(() => {
+    const { plugins = {}, pluginsNeigui = {} } = dadianStore._raw
+    const isNegui = userInfoStore.isNeigui
 
-      return areaExtraConfigs
-    },
-  },
+    const areaExtraConfigs: Record<string, API.ExtraConfig> = {}
+    for (const areaCode in plugins) {
+      const { extra = [], extraConfig = {} } = plugins[areaCode]
+      const { extra: extraNeigui = [], extraConfig: extraConfigNeigui = {} } = pluginsNeigui[areaCode] ?? {}
+      const extraKeys = isNegui ? [...extra, ...extraNeigui] : extra
+      if (isNegui)
+        defaultsDeep(extraConfig, extraConfigNeigui)
+      areaExtraConfigs[areaCode] = pick(extraConfig, extraKeys)
+    }
+
+    return areaExtraConfigs
+  })
+
+  return {
+    mergedAreaExtraConfigs,
+  }
 })
