@@ -51,7 +51,6 @@ const openMarkerCreator = async () => {
     })
     .props({
       coordinate: coordinate.value,
-      initAreaCode: preference.value['markerFilter.state.areaCode'],
       defaultItem: markingItem.value,
     })
     .open(MarkerCreatePanel)

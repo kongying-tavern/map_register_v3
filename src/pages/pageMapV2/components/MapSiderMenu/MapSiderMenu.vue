@@ -1,12 +1,13 @@
 <script lang="ts" setup>
 import { defineModel } from 'vue'
-import { CoffeeCup, Filter, Grid, List, Operation, PieChart, Promotion, Setting } from '@element-plus/icons-vue'
+import { CoffeeCup, Filter, Grid, List, PieChart, Promotion, Setting } from '@element-plus/icons-vue'
+import { storeToRefs } from 'pinia'
 import type { FeatureOption } from '../FeatureGrid'
 import { FeatureGrid, MarkerFilter, MarkerTable, SiderMenu, SiderMenuItem } from '@/pages/pageMapV2/components'
-import { AppSettings, GSSwitch } from '@/components'
+import { AppSettings } from '@/components'
 import { useGlobalDialog } from '@/hooks'
 import { Logger } from '@/utils'
-import { useDadianStore, useIconTagStore, useMapSettingStore, useMapStateStore, usePreferenceStore, useUserAuthStore, useUserInfoStore } from '@/stores'
+import { useDadianStore, useIconTagStore, useMapStateStore, usePreferenceStore, useUserAuthStore, useUserInfoStore } from '@/stores'
 import { IconGithub } from '@/components/AppIcons'
 import { FALLBACK_AVATAR_URL } from '@/shared/constant'
 import { ExitLeft } from '@/components/GenshinUI/GSIcon'
@@ -19,15 +20,15 @@ const iconTagStore = useIconTagStore()
 const userInfoStore = useUserInfoStore()
 const userAuthStore = useUserAuthStore()
 const mapStateStore = useMapStateStore()
-const preferernceStore = usePreferenceStore()
+const { preference } = storeToRefs(usePreferenceStore())
 
 const { DialogService } = useGlobalDialog()
 const router = useRouter()
 
 const tabName = computed({
-  get: () => preferernceStore.preference['mapSiderMenu.state.tabName'],
+  get: () => preference.value['mapSiderMenu.state.tabName'],
   set: (v) => {
-    preferernceStore.preference['mapSiderMenu.state.tabName'] = v
+    preference.value['mapSiderMenu.state.tabName'] = v
   },
 })
 
@@ -61,8 +62,6 @@ const features: FeatureOption[] = [
   { label: '检查预渲染图', icon: Promotion, cb: openTagSpriteImage },
   { label: '预渲染点位图', icon: Promotion, cb: openMarkerSpriteImage },
 ]
-
-const mapSettingStore = useMapSettingStore()
 </script>
 
 <template>
@@ -114,17 +113,6 @@ const mapSettingStore = useMapSettingStore()
 
     <SiderMenuItem name="marker-table" label="点位列表" :icon="List">
       <MarkerTable />
-    </SiderMenuItem>
-
-    <SiderMenuItem name="layer" label="图层设置" :icon="Operation">
-      <div class="h-full flex flex-col gap-2 p-4">
-        <GSSwitch v-model="mapSettingStore.showTag" label="显示地图标签" />
-        <GSSwitch v-model="mapSettingStore.showOverlay" label="显示附加图层" />
-        <GSSwitch v-model="mapSettingStore.showOverlayMask" label="显示附加图层蒙层" />
-        <GSSwitch v-model="mapSettingStore.hideMarkedMarker" label="隐藏标记点位" />
-        <GSSwitch v-model="mapSettingStore.showBorder" label="显示图层边界" />
-        <GSSwitch v-model="mapSettingStore.showTooltip" label="显示调试信息" />
-      </div>
     </SiderMenuItem>
 
     <SiderMenuItem label="系统设置" :icon="Setting" @click="openSettingDialog" />
