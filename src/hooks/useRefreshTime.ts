@@ -1,26 +1,16 @@
-import { useFetchHook } from '@/hooks'
-import Config from '@/api/config'
+import { useDadianStore } from '@/stores'
 
 export const useRefreshTime = (refreshTime: Ref<number | undefined>) => {
-  const refreshTimeSpecialOptions = shallowRef<{ label: string; value: number }[]>([])
+  const dadianStore = useDadianStore()
 
-  const { onSuccess } = useFetchHook({
-    immediate: true,
-    onRequest: async () => {
-      const { editor: { refreshTimeSpecial = [] } = {} } = await Config.getDadianConfig()
-      return refreshTimeSpecial
-    },
+  const refreshTimeOptions = computed(() => {
+    const { refreshTimeSpecial = [] } = dadianStore._raw.editor ?? {}
+    return [
+      { label: '不刷新', value: 0 },
+      { label: '自定义', value: 12 * 3600 * 1000 },
+      ...refreshTimeSpecial,
+    ]
   })
-
-  onSuccess((refreshTimeOptions) => {
-    refreshTimeSpecialOptions.value = refreshTimeOptions
-  })
-
-  const refreshTimeOptions = computed(() => [
-    { label: '不刷新', value: 0 },
-    { label: '自定义', value: 12 * 3600 * 1000 },
-    ...refreshTimeSpecialOptions.value,
-  ])
 
   const refreshTimeTypeOptions = computed(() => refreshTimeOptions.value.map(({ label }) => ({ label, value: label })))
 
@@ -43,5 +33,5 @@ export const useRefreshTime = (refreshTime: Ref<number | undefined>) => {
 
   const isCustom = computed(() => refreshTimeType.value === '自定义')
 
-  return { refreshTimeSpecialOptions, refreshTimeOptions, refreshTimeTypeOptions, refreshTimeTypeNameMap, refreshTimeTypeMap, refreshTimeType, isCustom }
+  return { refreshTimeOptions, refreshTimeTypeOptions, refreshTimeTypeNameMap, refreshTimeTypeMap, refreshTimeType, isCustom }
 }
