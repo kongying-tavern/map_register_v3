@@ -18,6 +18,7 @@ import {
 import db from '@/database'
 import { isItemVo } from '@/utils'
 import { HiddenFlagEnum } from '@/shared'
+import { fallbackToStaticIcon } from '@/configs'
 
 const archiveStore = useArchiveStore()
 const userInfoStore = useUserInfoStore()
@@ -195,7 +196,9 @@ const handleDragItem = (ev: DragEvent) => {
               :src="iconTagStore.tagSpriteUrl"
               :mapping="iconTagStore.tagPositionMap[row.iconTag ?? '']"
               class="w-full aspect-square"
-            />
+            >
+              <img :src="fallbackToStaticIcon(row)">
+            </AppIconTagRenderer>
           </template>
         </CheckboxGroup>
         <div style="width: 1px; height: 98%; background: #E3DDD140;" />
@@ -206,7 +209,17 @@ const handleDragItem = (ev: DragEvent) => {
           label-key="name"
           value-key="code"
           @change="autoNextTab"
-        />
+        >
+          <template #icon="{ row }">
+            <AppIconTagRenderer
+              :src="iconTagStore.tagSpriteUrl"
+              :mapping="iconTagStore.tagPositionMap[row.iconTag ?? '']"
+              class="w-full aspect-square"
+            >
+              <img :src="fallbackToStaticIcon(row)">
+            </AppIconTagRenderer>
+          </template>
+        </CheckboxGroup>
       </div>
 
       <div v-else-if="preference['markerFilter.state.step'] === 1" class="h-full flex gap-1">
