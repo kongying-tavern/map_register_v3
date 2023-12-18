@@ -1,5 +1,5 @@
 import { ElMessage } from 'element-plus'
-import { getFileType } from '../utils'
+import { getFileType } from '@/utils'
 import { useFetchHook } from '@/hooks'
 
 export const useImageLoad = () => {
