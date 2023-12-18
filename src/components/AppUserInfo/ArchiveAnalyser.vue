@@ -1,9 +1,11 @@
 <script lang="ts" setup>
 import db from '@/database'
-import { useArchiveStore } from '@/stores'
+import { useArchiveStore, usePreferenceStore } from '@/stores'
 import { GSSwitch } from '@/components'
+import { fallbackToStaticIcon } from '@/configs'
 
 const archiveStore = useArchiveStore()
+const preferenceStore = usePreferenceStore()
 
 interface GroupedMarkers {
   [key: string]: {
@@ -15,33 +17,25 @@ interface GroupedMarkers {
   }
 }
 
-/**
- * 临时图标
- * @todo 对应的 svg 补齐工作进行中
- */
-const _TEMP_ICON_MAP: Record<string, string> = {
-  'C:MD': 'https://uploadstatic.mihoyo.com/contentweb/20200317/2020031714242066580.png',
-  'C:LY': 'https://uploadstatic.mihoyo.com/contentweb/20200317/2020031714245390532.png',
-  'C:DQ': 'https://uploadstatic.mihoyo.com/contentweb/20210719/2021071917401911066.png',
-  'C:XM': 'https://webstatic.mihoyo.com/upload/contentweb/2022/08/15/f77d0c308b54728b6a1f3bc525e42955_6051524677514174999.png',
-  'C:FD': 'https://act-upload.mihoyo.com/ys-map-op/2023/08/16/75379475/5a9a34731490bbc323e044be627435a9_1925274140299816539.png',
-  'C:VELURIYAM': '/icons/area/流形蜃境.svg',
-}
-const TEMP_ICON_MAP = new Proxy(_TEMP_ICON_MAP, {
-  get: (target, key, receiver) => {
-    return Reflect.get(target, key, receiver) ?? Reflect.get(target, 'C:MD', receiver)
+/** 是否显示限定地区数据 */
+const showRestrictedArea = computed({
+  get: () => preferenceStore.preference['userCenter.setting.showRestrictedArea'] ?? false,
+  set: (v) => {
+    preferenceStore.preference['userCenter.setting.showRestrictedArea'] = v
   },
 })
 
-/** 是否显示限定地区数据 */
-const showRestrictedArea = ref(true)
+/**
+ * 属于限定的地区
+ * @todo 从硬编码改为从订阅数据拉取
+ */
 const RESTRICTED_AREA_CODES = [
-  'A:APPLE:1_6_STG1',
-  'A:APPLE:1_6_STG2',
+  'A:APPLE:1_6',
   'A:APPLE:2_8',
   'A:DQ:SANJIE',
   'A:VELURIYAM:3_8',
 ]
+
 const isRestrictedArea = (code?: string) => {
   if (!code)
     return false
@@ -101,7 +95,7 @@ const matchMarkerArea = async (markerParams: (number[]) | (API.MarkerVo[])) => {
       seed[areaParentCode] = {
         area: markerArea,
         parentArea: parent,
-        icon: TEMP_ICON_MAP[areaParentCode as string],
+        icon: fallbackToStaticIcon(markerArea),
         normal: 0,
         restricted: 0,
       }

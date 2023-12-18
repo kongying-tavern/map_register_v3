@@ -25,7 +25,7 @@ export interface AreaAdditionalConfig {
    * ### 地区图标
    * - 可用于存档管理页显示地区图标
    * - 可以覆盖来自地区对象上 iconTag 字段的配置
-   * @todo 暂未实现
+   * - 当子级地区未指定时，会使用其父级地区的值
    */
   icon?: string
 
@@ -41,10 +41,7 @@ export interface AreaAdditionalConfig {
  * @note 使用元组而非对象是为了避免重复写 key
  */
 export type AreaTagTuple = [
-  /**
-   * 渲染内容
-   * @todo HTML 片段暂未支持
-   */
+  /** 渲染内容 */
   text: string,
 
   /** 坐标表达式 */
@@ -61,6 +58,10 @@ export type AreaTagTuple = [
 ]
 
 export const AREA_ADDITIONAL_CONFIG_MAP: Record<string, AreaAdditionalConfig> = {
+  /** 蒙德 - 父级地区 */
+  'C:MD': {
+    icon: '/icons/area/蒙德.png',
+  },
   /** 蒙德 */
   'A:MD:MENGDE': {
     tags: [
@@ -89,8 +90,9 @@ export const AREA_ADDITIONAL_CONFIG_MAP: Record<string, AreaAdditionalConfig> = 
       ['马斯克礁', [4012, -2882]],
     ],
   },
-  /** 蒙德-龙脊雪山 */
+  /** 蒙德 - 龙脊雪山 */
   'A:MD:XUESHAN': {
+    icon: '/icons/area/龙脊雪山.png',
     tags: [
       ['龙脊雪山', [1506, -2470], 1],
       ['覆雪之路', [1896, -2674]],
@@ -100,6 +102,16 @@ export const AREA_ADDITIONAL_CONFIG_MAP: Record<string, AreaAdditionalConfig> = 
       ['寒天之钉', [1748, -2120]],
       ['星荧洞窟', [1588, -1950]],
     ],
+  },
+
+  /** 金苹果群岛 - 父级 */
+  'C:APPLE': {
+    icon: '/icons/area/金苹果群岛.png',
+  },
+
+  /** 璃月 - 父级 */
+  'C:LY': {
+    icon: '/icons/area/璃月.png',
   },
   /** 璃月 */
   'A:LY:LIYUE': {
@@ -135,8 +147,9 @@ export const AREA_ADDITIONAL_CONFIG_MAP: Record<string, AreaAdditionalConfig> = 
       ['天遒谷', [-1130, -1026]],
     ],
   },
-  /** 璃月-层岩 */
+  /** 璃月 - 层岩 */
   'A:LY:CENGYAN': {
+    icon: '/icons/area/层岩巨渊.png',
     tags: [
       ['层岩巨渊', [-1851, 128], 1],
       ['采樵谷', [-1608, -470]],
@@ -148,7 +161,12 @@ export const AREA_ADDITIONAL_CONFIG_MAP: Record<string, AreaAdditionalConfig> = 
       ['琉璃峰', [-1500, 390]],
     ],
   },
-  /** 稻妻-1 */
+
+  /** 稻妻 - 父级 */
+  'C:DQ': {
+    icon: '/icons/area/稻妻.png',
+  },
+  /** 稻妻 - 1 */
   'A:DQ:1': {
     tags: [
       ['鸣神岛', [5920, 2760], 1],
@@ -176,7 +194,7 @@ export const AREA_ADDITIONAL_CONFIG_MAP: Record<string, AreaAdditionalConfig> = 
       ['蛇骨矿洞', [3600, 4622]],
     ],
   },
-  /** 稻妻-2 */
+  /** 稻妻 - 2 */
   'A:DQ:2': {
     tags: [
       ['海祈岛', [1580, 3900], 1],
@@ -192,7 +210,7 @@ export const AREA_ADDITIONAL_CONFIG_MAP: Record<string, AreaAdditionalConfig> = 
       ['天云峠', [6200, 5450]],
     ],
   },
-  /** 稻妻-鹤观 */
+  /** 稻妻 - 鹤观 */
   'A:DQ:HEGUAN': {
     tags: [
       ['鹤观', [4100, 7530], 1],
@@ -205,7 +223,12 @@ export const AREA_ADDITIONAL_CONFIG_MAP: Record<string, AreaAdditionalConfig> = 
       ['惑饲滩', [4192, 7854]],
     ],
   },
-  /** 须弥-诸法丛林 */
+
+  /** 须弥 - 父级 */
+  'C:XM': {
+    icon: '/icons/area/须弥.png',
+  },
+  /** 须弥 - 诸法丛林 */
   'A:XM:FOREST': {
     tags: [
       ['善见地', [-3850, 901], 1],
@@ -234,8 +257,9 @@ export const AREA_ADDITIONAL_CONFIG_MAP: Record<string, AreaAdditionalConfig> = 
       ['往昔的桓那兰那', [-4700, 80]],
     ],
   },
-  /** 须弥-大赤沙海 */
+  /** 须弥 - 大赤沙海 */
   'A:XM:DESERT': {
+    icon: '/icons/area/须弥沙漠.png',
     tags: [
       ['列柱沙原', [-6826, 2371], 1],
       ['上风蚀地', [-5539, 3234], 1],
@@ -255,8 +279,9 @@ export const AREA_ADDITIONAL_CONFIG_MAP: Record<string, AreaAdditionalConfig> = 
       ['秘仪圣殿', [-6100, 2314]],
     ],
   },
-  /** 须弥-千壑沙地 */
+  /** 须弥 - 千壑沙地 */
   'A:XM:DESERT2': {
+    icon: '/icons/area/须弥沙漠.png',
     tags: [
       ['千壑沙地', [-6489, 97], 1],
       ['「五绿洲」的孑遗', [-5600, -546]],
@@ -272,8 +297,9 @@ export const AREA_ADDITIONAL_CONFIG_MAP: Record<string, AreaAdditionalConfig> = 
       ['塔尼特露营地', [-6200, 1150]],
     ],
   },
-  /** 须弥-苍漠囿土 */
+  /** 须弥 - 苍漠囿土 */
   'A:XM:DESERT3': {
+    icon: '/icons/area/须弥沙漠.png',
     tags: [
       ['荒石苍漠', [-8162, -1428], 1],
       ['浮罗囿', [-7075, -1799], 1],
@@ -286,7 +312,17 @@ export const AREA_ADDITIONAL_CONFIG_MAP: Record<string, AreaAdditionalConfig> = 
       ['聚香海岸', [-8268, -2228]],
     ],
   },
-  /** 枫丹-1 */
+
+  /** 流形蜃境 */
+  'C:VELURIYAM': {
+    icon: '/icons/area/流形蜃境.png',
+  },
+
+  /** 枫丹 - 父级 */
+  'C:FD': {
+    icon: '/icons/area/枫丹.png',
+  },
+  /** 枫丹 - 1 */
   'A:FD:FENGDAN': {
     tags: [
       ['海露港', [-6093, -3138]],
@@ -303,8 +339,17 @@ export const AREA_ADDITIONAL_CONFIG_MAP: Record<string, AreaAdditionalConfig> = 
       ['苍晶区', [-6009, -4210], 1],
     ],
   },
-  /** 枫丹-2 */
+  /** 枫丹 - 2 */
   'A:FD:FENGDAN2': {
     tags: [],
   },
+}
+
+/** 当 iconTag 为空时使用静态配置中的图标 */
+export const fallbackToStaticIcon = ({ code, iconTag = '' }: API.AreaVo) => {
+  if (iconTag)
+    return iconTag
+  const { 1: areaTag } = code!.split(':')
+  const fallbackIcon = AREA_ADDITIONAL_CONFIG_MAP[code!]?.icon ?? AREA_ADDITIONAL_CONFIG_MAP[`C:${areaTag}`]?.icon
+  return fallbackIcon ?? iconTag
 }

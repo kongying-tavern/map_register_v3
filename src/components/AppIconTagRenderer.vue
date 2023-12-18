@@ -9,7 +9,9 @@ defineProps<{
 
 <template>
   <div class="image-container relative">
-    <QuestionFilled v-if="!src || !mapping" class="absolute w-full h-full left-0 top-0" />
+    <slot v-if="!src || !mapping" name="default">
+      <QuestionFilled class="absolute w-full h-full left-0 top-0" />
+    </slot>
 
     <div
       v-else
