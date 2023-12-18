@@ -152,6 +152,28 @@ export const useImage = (options: ImageInfoHookOptions) => {
     })
   }
 
+  const resetImagePosition = (_image: Konva.Image) => {
+    const layer = _image.getLayer()
+    if (!layer)
+      return
+    const { width: cw, height: ch } = layer.size()
+    const { width, height } = _image.size()
+    const scale = minScale.value
+    _image
+      .offset({ x: width / 2, y: height / 2 })
+      .scale({ x: scale, y: scale })
+      .position({ x: cw / 2, y: ch / 2 })
+      .setDraggable(true)
+  }
+
+  watch(() => [cw.value, ch.value], () => {
+    const _image = konvaImage.value
+    if (!_image)
+      return
+    resetImagePosition(_image)
+    autoCrop.value && crop()
+  })
+
   const initImage = async () => {
     konvaImage.value?.remove()
     if (!image.value)
@@ -169,15 +191,9 @@ export const useImage = (options: ImageInfoHookOptions) => {
 
       layer.value.add(_image)
 
-      const { width: cw, height: ch } = layer.value.size()
-      const { width, height } = _image.size()
-      const scale = minScale.value
-      _image
-        .offset({ x: width / 2, y: height / 2 })
-        .scale({ x: scale, y: scale })
-        .position({ x: cw / 2, y: ch / 2 })
-        .setDraggable(true)
-      autoCropOnImageLoaded.value && autoCrop.value && crop()
+      resetImagePosition(_image)
+
+      autoCropOnImageLoaded.value && crop()
       attachDragController(_image)
       attachZoomController(_image)
       attachRotateController(_image)
