@@ -32,7 +32,7 @@ const storageDetails = computed<{ name: string; percentage: number; text: string
   const { caches, indexedDB, serviceWorkerRegistrations } = storageEstimate.value.usageDetails
   const totalUsage = storageEstimate.value.usage ?? 0
   const formatTotalUsage = formatByteSize(totalUsage)
-  return [
+  const res = [
     {
       name: '缓存',
       percentage: 100 * caches / totalUsage,
@@ -49,6 +49,7 @@ const storageDetails = computed<{ name: string; percentage: number; text: string
       text: `${formatByteSize(serviceWorkerRegistrations)} / ${formatTotalUsage}`,
     },
   ]
+  return res
 })
 
 const userAgent = navigator.userAgent
@@ -87,7 +88,7 @@ const userAgent = navigator.userAgent
               </div>
             </div>
             <el-progress
-              :percentage="storageDetail.percentage"
+              :percentage="storageDetail.percentage || 0"
               :stroke-width="12"
               :show-text="false"
             />

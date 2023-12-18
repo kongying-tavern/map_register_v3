@@ -67,7 +67,7 @@ const columns = computed<Column[]>(() => {
         class="marker-table"
         header-class="marker-table-header"
         fixed
-        h-scrollbar-size="0"
+        :h-scrollbar-size="0"
       >
         <template #row="props">
           <Row v-bind="props" />
