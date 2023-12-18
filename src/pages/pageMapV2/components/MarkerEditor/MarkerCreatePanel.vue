@@ -1,19 +1,29 @@
 <script lang="ts" setup>
+import { Check, Close } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { useMarkerCreate } from '../../hooks'
 import { MarkerEditorForm } from '.'
 import { GlobalDialogController } from '@/hooks'
-import { useUserInfoStore } from '@/stores'
+import { useAreaStore, useUserInfoStore } from '@/stores'
 import { DialogController } from '@/hooks/useGlobalDialog/dialogController'
 import { messageFrom } from '@/utils'
 
 const props = defineProps<{
   coordinate: API.Coordinate2D
-  initAreaCode?: string
   defaultItem?: API.ItemVo
 }>()
 
 const userInfoStore = useUserInfoStore()
+const areaStore = useAreaStore()
+
+const initAreaCode = computed(() => {
+  if (!props.defaultItem)
+    return
+  const area = areaStore.areaIdMap.get(props.defaultItem.areaId!)
+  if (!area)
+    return
+  return area.code!
+})
 
 /** 初始化新增点位信息 */
 const initFormData = (): API.MarkerVo => {
@@ -70,10 +80,10 @@ onSuccess(() => {
   <MarkerEditorForm ref="editorRef" v-model="form" :init-area-code="initAreaCode">
     <template #footer>
       <div class="w-full flex justify-end">
-        <el-button :loading="loading" type="primary" @click="confirm">
+        <el-button :icon="Check" :loading="loading" type="primary" @click="confirm">
           添加
         </el-button>
-        <el-button :disabled="loading" @click="GlobalDialogController.close">
+        <el-button :icon="Close" :disabled="loading" @click="GlobalDialogController.close">
           取消
         </el-button>
       </div>

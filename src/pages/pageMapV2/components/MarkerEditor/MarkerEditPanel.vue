@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { Check, Close } from '@element-plus/icons-vue'
 import { useMarkerEdit } from '../../hooks'
 import { MarkerEditorForm } from '../../components/MarkerEditor'
 import { GlobalDialogController } from '@/hooks'
@@ -34,10 +35,10 @@ const isOfflineMode = import.meta.env.VITE_DEVELOPMENT_MODE === 'offline'
   <MarkerEditorForm v-if="initAreaCode" ref="editorRef" v-model="form" :init-area-code="initAreaCode">
     <template #footer>
       <div class="w-full flex justify-end">
-        <el-button type="primary" :disabled="isOfflineMode" :loading="loading" @click="editMarker">
+        <el-button :icon="Check" type="primary" :disabled="isOfflineMode" :loading="loading" @click="editMarker">
           保存
         </el-button>
-        <el-button @click="GlobalDialogController.close">
+        <el-button :icon="Close" @click="GlobalDialogController.close">
           取消
         </el-button>
       </div>
