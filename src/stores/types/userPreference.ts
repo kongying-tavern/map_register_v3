@@ -8,7 +8,12 @@ export interface UserPreference {
   /** 用户 id */
   'id'?: number
 
-  // ====================     map      ====================
+  // ====================    用户中心    ====================
+
+  /** 是否显示限定地区 */
+  'userCenter.setting.showRestrictedArea'?: boolean
+
+  // ====================      地图      ====================
 
   /** 显示区域名称标签 */
   'map.setting.showZoneTag'?: boolean
@@ -25,12 +30,12 @@ export interface UserPreference {
   /** 显示附加图层 */
   'map.state.showOverlay'?: boolean
 
-  // ====================   database   ====================
+  // ====================     数据库     ====================
 
   /** 数据库全量更新间隔（毫秒） */
   'database.setting.updateTimeGap'?: number
 
-  // ==================== mapSiderMenu ====================
+  // ====================   地图侧边栏   ====================
 
   /** 侧边栏折叠状态 */
   'mapSiderMenu.state.collapse': boolean
@@ -38,7 +43,7 @@ export interface UserPreference {
   /** 侧边栏当前激活的 tab */
   'mapSiderMenu.state.tabName'?: string
 
-  // ==================== markerFilter ====================
+  // ====================      点位      ====================
 
   /** 筛选器存储的预设 */
   'markerFilter.setting.presets'?: FilterPreset[]
@@ -64,7 +69,7 @@ export interface UserPreference {
   /** 正在标记的物品 id */
   'markerFilter.state.defaultMarkingItemId'?: number
 
-  // ==================== setting panel ====================
+  // ====================     设置面板     ====================
 
   /** 设置面板当前激活的设置项 */
   'settingPanel.state.activedKey'?: string
