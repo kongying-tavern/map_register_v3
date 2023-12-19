@@ -15,9 +15,13 @@ const emits = defineEmits<{
 }>()
 
 const formData = ref<API.AreaVo>(props.area)
+const copyItems = shallowRef<API.ItemVo[]>([])
 
 const { loading, refresh: submit, onSuccess, onError } = useFetchHook({
-  onRequest: () => Api.area.updateArea(formData.value),
+  onRequest: async () => {
+    await Api.area.updateArea(formData.value)
+    copyItems.value.length > 0 && await Api.item.copyItemToArea({ areaId: formData.value.id! }, copyItems.value.map(item => item.id!))
+  },
 })
 
 onSuccess(() => {
@@ -48,7 +52,7 @@ const updateArea = async () => {
 
 <template>
   <div class="p-3">
-    <AreaDetailForm ref="formRef" v-model="formData" :parent="parent" />
+    <AreaDetailForm ref="formRef" v-model="formData" v-model:items="copyItems" :parent="parent" />
 
     <div class="text-end pt-4">
       <el-button :icon="Check" type="primary" :loading="loading" @click="updateArea">
