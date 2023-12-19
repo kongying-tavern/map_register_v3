@@ -1,12 +1,10 @@
 <script lang="ts" setup>
 import { Check, Close } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
 import { useMarkerCreate } from '../../hooks'
 import { MarkerEditorForm } from '.'
 import { GlobalDialogController } from '@/hooks'
 import { useAreaStore, useUserInfoStore } from '@/stores'
 import { DialogController } from '@/hooks/useGlobalDialog/dialogController'
-import { messageFrom } from '@/utils'
 
 const props = defineProps<{
   coordinate: API.Coordinate2D
@@ -50,26 +48,7 @@ const initFormData = (): API.MarkerVo => {
 /** 表单数据 */
 const form = ref(initFormData())
 
-const { loading, createMarker, onSuccess } = useMarkerCreate(form)
-
-/** 表单实例 */
-const editorRef = ref<InstanceType<typeof MarkerEditorForm> | null>(null)
-
-const confirm = async () => {
-  try {
-    const isValid = await editorRef.value?.validate()
-    if (!isValid)
-      return
-    await editorRef.value?.uploadPicture()
-    await createMarker()
-  }
-  catch (err) {
-    ElMessage.error({
-      message: `新增点位失败，原因为：${messageFrom(err)}`,
-      offset: 48,
-    })
-  }
-}
+const { editorRef, loading, createMarker, onSuccess } = useMarkerCreate(form)
 
 onSuccess(() => {
   DialogController.close()
@@ -77,10 +56,10 @@ onSuccess(() => {
 </script>
 
 <template>
-  <MarkerEditorForm ref="editorRef" v-model="form" :init-area-code="initAreaCode">
+  <MarkerEditorForm ref="editorRef" v-model="form" :loading="loading" :init-area-code="initAreaCode">
     <template #footer>
       <div class="w-full flex justify-end">
-        <el-button :icon="Check" :loading="loading" type="primary" @click="confirm">
+        <el-button :icon="Check" :loading="loading" type="primary" @click="createMarker">
           添加
         </el-button>
         <el-button :icon="Close" :disabled="loading" @click="GlobalDialogController.close">

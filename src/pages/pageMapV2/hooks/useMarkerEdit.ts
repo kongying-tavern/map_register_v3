@@ -62,8 +62,13 @@ export const useMarkerEdit = (markerData: Ref<API.MarkerVo | null>) => {
   }
 
   /** 原始操作 */
-  const request = async (marker: API.MarkerVo) => {
+  const request = async () => {
     await editorRef.value?.uploadPicture()
+
+    const marker = markerData.value
+    if (!marker)
+      throw new Error('表单数据为空')
+
     const form = buildAdminMarkerForm(marker)
     await Api.marker.updateMarker(form)
 
@@ -82,7 +87,7 @@ export const useMarkerEdit = (markerData: Ref<API.MarkerVo | null>) => {
       if (!markerData.value)
         throw new Error('所需的点位数据为空')
       await editorRef.value?.validate()
-      await submit(markerData.value)
+      await submit()
     }
     catch {
       // validate, no error

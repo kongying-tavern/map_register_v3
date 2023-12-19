@@ -10,6 +10,7 @@ import {
   AddonItemSelector,
   AddonRefreshtimeEditor,
 } from './components'
+import { useMarkerPicture } from './hooks'
 import { AppAreaCodeSelecter } from '@/components'
 import { useMarkerExtraStore, useUserInfoStore } from '@/stores'
 import type { ElFormType } from '@/shared'
@@ -19,6 +20,7 @@ import { isTreasureChestMatched, requireCheck } from '@/utils'
 const props = defineProps<{
   modelValue: API.MarkerVo
   initAreaCode?: string
+  loading?: boolean
 }>()
 
 const emits = defineEmits<{
@@ -33,7 +35,11 @@ const form = ref<API.MarkerVo & { areaCode: string }>({
   ...cloneDeep(props.modelValue),
   areaCode: props.initAreaCode ?? '',
 })
-watch(form, () => emits('update:modelValue', form.value), { deep: true })
+watch(form, () => {
+  if (props.loading)
+    return
+  emits('update:modelValue', form.value)
+}, { deep: true })
 
 /** 表单校验规则 */
 const rules: FormRules = {
@@ -69,19 +75,25 @@ const addonId = ref('')
 
 /** 表单实例 */
 const formRef = ref<ElFormType | null>(null)
-/** 图片编辑器实例 */
-const imageEditorRef = ref<InstanceType<typeof AddonImageEditor> | null>(null)
 
-// ==================== 点位 extra 信息 ====================
+// ==================== 点位 extra ====================
 const markerExtraStore = useMarkerExtraStore()
 
-const enableExtraConfig = computed(() => {
+const availableExtraConfig = computed(() => {
   if (!form.value.areaCode)
     return {}
   return markerExtraStore.mergedAreaExtraConfigs[form.value.areaCode] ?? {}
 })
 
-const isExtraEditable = computed(() => Object.keys(enableExtraConfig.value).length > 0)
+const isExtraEditable = computed(() => Object.keys(availableExtraConfig.value).length > 0)
+
+// ==================== 点位图像 ====================
+const { uploadImage, initLoading, largeImage, thumbImage, rawThumbImageUrl, content } = useMarkerPicture(form, {
+  afterUpload: ({ thumb }) => {
+    form.value.pictureCreatorId = userInfoStore.info.id
+    form.value.picture = thumb
+  },
+})
 
 // ==================== 拓展面板 ====================
 const addonPanelRef = ref<HTMLDivElement | null>(null)
@@ -99,13 +111,13 @@ const onAddonPanelTransitionEnd = (ev: TransitionEvent) => {
 
 defineExpose({
   validate: async () => await formRef.value?.validate().catch(() => false),
-  uploadPicture: async () => await imageEditorRef.value?.uploadPicture(),
+  uploadPicture: async () => await uploadImage(),
 })
 </script>
 
 <template>
   <div
-    class="marker-editor-form grid p-4 h-full rounded-lg"
+    class="marker-editor-form grid p-2 h-full rounded-lg"
     :style="{
       '--theme-color': `var(--gs-color-${form.areaCode.split(':')[1]?.toLowerCase() ?? 'unknown'})`,
     }"
@@ -127,7 +139,7 @@ defineExpose({
       </el-form-item>
 
       <el-form-item v-if="isExtraEditable" label="点位层级" prop="extra">
-        <AddonExtraEditor v-model="form.extra" :area-code="form.areaCode" :extra-config="enableExtraConfig" />
+        <AddonExtraEditor v-model="form.extra" :area-code="form.areaCode" :extra-config="availableExtraConfig" />
       </el-form-item>
 
       <el-form-item label="点位描述" prop="content">
@@ -136,10 +148,12 @@ defineExpose({
 
       <el-form-item label="点位图像" prop="picture">
         <AddonImageEditor
-          ref="imageEditorRef"
-          v-model="form.picture"
+          v-model:large-image="largeImage"
+          v-model:thumb-image="thumbImage"
           v-model:addon-id="addonId"
-          v-model:creator-id="form.pictureCreatorId"
+          v-loading="initLoading"
+          :raw-thumb-image-url="rawThumbImageUrl"
+          :content="content"
         />
       </el-form-item>
 
@@ -183,8 +197,6 @@ defineExpose({
 
 <style lang="scss" scoped>
 .marker-editor-form {
-  --gap: 5px;
-
   grid-template-columns: 1fr auto;
   box-shadow: 0px 0px 8px var(--theme-color);
   border: 1px solid var(--theme-color);

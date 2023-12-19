@@ -1,6 +1,7 @@
 import { ElMessage } from 'element-plus'
 import type { Ref } from 'vue'
 import { pick } from 'lodash'
+import type { MarkerEditorForm } from '../components/MarkerEditor'
 import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 import { useUserInfoStore } from '@/stores'
@@ -9,6 +10,9 @@ import db from '@/database'
 /** 新增点位，已自动处理 version 和 methodType 字段 */
 export const useMarkerCreate = (markerData: Ref<API.MarkerVo | null>) => {
   const userInfoStore = useUserInfoStore()
+
+  /** 编辑器实例 */
+  const editorRef = ref<InstanceType<typeof MarkerEditorForm> | null>(null)
 
   const commonKeys = [
     'itemList',
@@ -31,8 +35,10 @@ export const useMarkerCreate = (markerData: Ref<API.MarkerVo | null>) => {
   }
 
   const request = async () => {
+    await editorRef.value?.uploadPicture()
+
     if (!markerData.value)
-      throw new Error('所需的点位数据为空')
+      throw new Error('表单数据为空')
 
     const form = buildAdminMarkerForm(markerData.value)
     const { data: markerId } = await Api.marker.createMarker(form)
@@ -48,7 +54,19 @@ export const useMarkerCreate = (markerData: Ref<API.MarkerVo | null>) => {
     await db.marker.put(submitedMarkerInfo)
   }
 
-  const { refresh: createMarker, onSuccess, onError, ...rest } = useFetchHook({ onRequest: request })
+  const { refresh: submit, onSuccess, onError, ...rest } = useFetchHook({ onRequest: request })
+
+  const createMarker = async () => {
+    try {
+      const isValid = await editorRef.value?.validate()
+      if (!isValid)
+        return
+      await submit()
+    }
+    catch (err) {
+      // validate, no error
+    }
+  }
 
   onSuccess(() => ElMessage.success({
     message: `${userInfoStore.isAdmin ? '新增点位' : '提交审核'}成功`,
@@ -60,5 +78,5 @@ export const useMarkerCreate = (markerData: Ref<API.MarkerVo | null>) => {
     offset: 48,
   }))
 
-  return { createMarker, onSuccess, onError, ...rest }
+  return { editorRef, createMarker, onSuccess, onError, ...rest }
 }
