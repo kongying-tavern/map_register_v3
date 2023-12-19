@@ -106,6 +106,7 @@ defineExpose({
             :remote-method="getTagList"
             :loading="loading"
             :options="tagOptions"
+            @clear="formData.iconTag = ''"
           >
             <template #default="{ item }">
               <div class="flex items-center gap-2">

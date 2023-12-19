@@ -71,7 +71,7 @@ const typeAssert = (row: unknown) => row as API.AreaVo
         </template>
       </el-table-column>
 
-      <el-table-column prop="code" label="地区代码" :width="150" />
+      <el-table-column prop="code" label="地区代码" :width="160" />
 
       <el-table-column prop="content" label="地区描述" :width="150" />
 
@@ -89,7 +89,7 @@ const typeAssert = (row: unknown) => row as API.AreaVo
         </template>
       </el-table-column>
 
-      <el-table-column prop="createTime" label="创建时间" :width="160" :formatter="timeFormatter" />
+      <el-table-column prop="createTime" label="创建时间" :width="170" :formatter="timeFormatter" />
 
       <el-table-column label="修改人" :width="120">
         <template #default="{ row }">
@@ -103,7 +103,7 @@ const typeAssert = (row: unknown) => row as API.AreaVo
         </template>
       </el-table-column>
 
-      <el-table-column prop="updateTime" label="修改时间" :width="160" :formatter="timeFormatter" />
+      <el-table-column prop="updateTime" label="修改时间" :width="170" :formatter="timeFormatter" />
 
       <el-table-column fixed="right" label="操作" :width="130">
         <template #default="{ $index, row }">

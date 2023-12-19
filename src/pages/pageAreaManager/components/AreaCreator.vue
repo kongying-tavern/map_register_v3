@@ -1,10 +1,11 @@
 <script lang="ts" setup>
+import { Check, Close } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { AreaDetailForm } from '.'
-import { GlobalDialogController, GlobalDrawerController, useFetchHook } from '@/hooks'
+import { GlobalDialogController, useFetchHook } from '@/hooks'
 import Api from '@/api/api'
 
-defineProps<{
+const props = defineProps<{
   parent?: API.AreaVo
 }>()
 
@@ -12,7 +13,11 @@ const emits = defineEmits<{
   success: []
 }>()
 
-const formData = ref<API.AreaVo>({})
+const formData = ref<API.AreaVo>({
+  parentId: props.parent?.id,
+  iconTag: '',
+  isFinal: Boolean(props.parent),
+})
 
 const copyItems = shallowRef<API.ItemVo[]>([])
 
@@ -21,21 +26,21 @@ const { loading, refresh: submit, onSuccess, onError } = useFetchHook({
     const { data: areaId } = await Api.area.createArea(formData.value)
     if (!areaId)
       throw new Error('无法确认新增地区的id')
-    await Api.item.copyItemToArea({ areaId }, copyItems.value.map(item => item.id!))
+    copyItems.value.length > 0 && await Api.item.copyItemToArea({ areaId }, copyItems.value.map(item => item.id!))
   },
 })
 
 onSuccess(() => {
   ElMessage.success({
-    message: '编辑地区信息成功',
+    message: '新增地区成功',
     offset: 48,
   })
-  GlobalDrawerController.close()
+  GlobalDialogController.close()
   emits('success')
 })
 
 onError(err => ElMessage.error({
-  message: `编辑地区失败，原因为：${err.message}`,
+  message: `新增地区失败，原因为：${err.message}`,
   offset: 48,
 }))
 
@@ -52,14 +57,14 @@ const createArea = async () => {
 </script>
 
 <template>
-  <div class="p-5">
+  <div class="p-3">
     <AreaDetailForm ref="formRef" v-model="formData" v-model:items="copyItems" :parent="parent" />
 
     <div class="text-end pt-4">
-      <el-button type="primary" :loading="loading" @click="createArea">
+      <el-button :icon="Check" type="primary" :loading="loading" @click="createArea">
         确定
       </el-button>
-      <el-button :disabled="loading" @click="GlobalDialogController.close">
+      <el-button :icon="Close" :disabled="loading" @click="GlobalDialogController.close">
         取消
       </el-button>
     </div>

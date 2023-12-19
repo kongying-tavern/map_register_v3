@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { Check, Close } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { AreaDetailForm } from '.'
 import { GlobalDialogController, useFetchHook } from '@/hooks'
@@ -21,7 +22,7 @@ const { loading, refresh: submit, onSuccess, onError } = useFetchHook({
 
 onSuccess(() => {
   ElMessage.success({
-    message: '编辑地区信息成功',
+    message: '编辑地区成功',
     offset: 48,
   })
   GlobalDialogController.close()
@@ -46,14 +47,14 @@ const updateArea = async () => {
 </script>
 
 <template>
-  <div class="p-5">
+  <div class="p-3">
     <AreaDetailForm ref="formRef" v-model="formData" :parent="parent" />
 
     <div class="text-end pt-4">
-      <el-button type="primary" :loading="loading" @click="updateArea">
+      <el-button :icon="Check" type="primary" :loading="loading" @click="updateArea">
         确定
       </el-button>
-      <el-button :disabled="loading" @click="GlobalDialogController.close">
+      <el-button :icon="Close" :disabled="loading" @click="GlobalDialogController.close">
         取消
       </el-button>
     </div>

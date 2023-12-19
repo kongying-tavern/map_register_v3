@@ -65,7 +65,7 @@ onDeleteSuccss(updateAreaList)
             根分类
           </el-link>
         </el-breadcrumb-item>
-        <el-breadcrumb-item v-for="parentItem in parentPath" :key="parentItem">
+        <el-breadcrumb-item v-for="parentItem in parentPath" :key="parentItem.id!">
           <template v-if="parentItem.id === parent?.id">
             {{ parentItem.name }}
           </template>
