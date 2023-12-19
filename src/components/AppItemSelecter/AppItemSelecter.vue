@@ -185,7 +185,10 @@ watch(() => itemList.value, () => scrollbarRef.value?.setScrollTop(0))
         class="w-full h-full flex flex-col overflow-hidden pl-2 border-l-[1px] border-dashed border-[var(--el-border-color)]"
         element-loading-text="查询中..."
       >
-        <ElScrollbar ref="scrollbarRef">
+        <div v-if="!modelAreaCode" class="w-full h-full grid place-items-center">
+          请选择地区
+        </div>
+        <ElScrollbar v-else ref="scrollbarRef">
           <ItemSelectButton
             v-for="item in itemList"
             :key="item.id"
