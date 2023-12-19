@@ -33,7 +33,7 @@ const openAreaCreator = () => DialogService
 
 // ==================== 编辑地区 ====================
 const openAreaEditor = (area: API.AreaVo) => DialogService
-  .config(getDialogConfig('添加地区'))
+  .config(getDialogConfig('编辑地区'))
   .props({ area, parent })
   .listeners({ success: updateAreaList })
   .open(AreaEditor)
