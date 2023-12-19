@@ -38,7 +38,7 @@ function handleCreate() {
 </script>
 
 <template>
-  <div class="h-full flex-1 flex flex-col gap-2 overflow-hidden flex">
+  <div class="h-full flex-1 flex flex-col gap-2 overflow-hidden">
     <AnnouncementFilter v-model:model-value="queryForm">
       <template #footer>
         <div class="w-full flex  justify-end">
