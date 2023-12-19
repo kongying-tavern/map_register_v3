@@ -17,9 +17,9 @@ export async function cleanMarkerCache(options?: AxiosRequestConfig) {
   })
 }
 
-/** 删除全部点位关联缓存 删除点位关联缓存 DELETE /api/cache/marker_link */
+/** 删除全部点位关联缓存 删除点位关联缓存 DELETE /api/cache/marker_linkage */
 export async function cleanMarkerLinkageCache(options?: AxiosRequestConfig) {
-  return request<API.RBoolean>('/api/cache/marker_link', {
+  return request<API.RBoolean>('/api/cache/marker_linkage', {
     method: 'DELETE',
     ...(options || {}),
   })

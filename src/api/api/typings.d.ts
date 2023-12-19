@@ -988,8 +988,6 @@ declare namespace API {
     type?: number
     /** 类型ID(配合记录类型使用) */
     id?: number[]
-    /** 排序条件 */
-    sort?: string[]
   }
 
   interface HistoryVo {
@@ -1013,8 +1011,6 @@ declare namespace API {
     type?: number
     /** IPv4 */
     ipv4?: string
-    /** 修改类型 */
-    editType?: 'NONE' | 'CREATE' | 'UPDATE' | 'DELETE'
     tid?: number
   }
 
