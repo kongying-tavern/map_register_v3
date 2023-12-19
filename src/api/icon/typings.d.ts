@@ -1,12 +1,12 @@
 declare namespace API {
-  type RIconUpload = {
+  interface RIconUpload {
     status?: boolean
     msg?: string
     err_info?: string
     path?: string
   }
 
-  type IconUploadVo = {
+  interface IconUploadVo {
     file_name: string
     file_data: File
   }

@@ -1,9 +1,10 @@
+import type { AxiosRequestConfig } from 'axios'
 import { request } from '@/utils'
 
 /** 登录 - 密码模式 */
 export async function token(
   body: API.SysTokenVO,
-  options?: { [key: string]: any },
+  options?: AxiosRequestConfig,
 ) {
   const form = new FormData()
   for (const key in body) {

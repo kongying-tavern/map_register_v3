@@ -3,7 +3,6 @@ class DarkCardBorder {
   /**
    * @param {number} w
    * @param {number} h
-   * @param {number} p
    */
   #getInternalBorderPath(w, h) {
     const path = new Path2D(`

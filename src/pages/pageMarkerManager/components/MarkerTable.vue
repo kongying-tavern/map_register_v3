@@ -32,8 +32,8 @@ const getLargePictureUrl = (url: string) => {
 
 const positionFormatter = (row: API.MarkerVo) => {
   const [x, y] = row.position!.split(',')
-  const numX = Math.floor(parseFloat(x))
-  const numY = Math.floor(parseFloat(y))
+  const numX = Math.floor(Number.parseFloat(x))
+  const numY = Math.floor(Number.parseFloat(y))
   return `(${numX}, ${numY})`
 }
 

@@ -15,8 +15,8 @@ export interface Data {
 }
 
 /**
-* 字数
-*/
+ * 字数
+ */
 export interface Chars {
   /**
    * 内容

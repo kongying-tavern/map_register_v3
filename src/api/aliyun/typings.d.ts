@@ -1,5 +1,3 @@
-/* eslint-disable */
-
 declare namespace API {
   interface RDriveUploadResult {
     code: number

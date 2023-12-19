@@ -73,7 +73,7 @@ export const useImageCut = () => {
       message: `上传图片失败，原因为：${err.message}`,
       offset: 48,
     })
-    setUploadProgress(NaN)
+    setUploadProgress(Number.NaN)
   })
 
   return { uploaderRef, uploadImage, uploadImageUrl, uploadProgress, cutImageFile, cutImageUrl, setCutImage, handleImageChange, uploadIcon, onUploadSuccess }

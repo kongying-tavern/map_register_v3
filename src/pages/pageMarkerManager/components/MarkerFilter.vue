@@ -16,7 +16,7 @@ const model = <K extends keyof MarkerSearchParams>(key: K) => computed({
   set: v => emits('update:modelValue', { ...props.modelValue, [key]: v }),
 })
 
-const parseMarkerIds = (ids: string) => ids.split(',').map(c => parseInt(c.trim())).filter(n => !isNaN(n))
+const parseMarkerIds = (ids: string) => ids.split(',').map(c => Number.parseInt(c.trim())).filter(n => !Number.isNaN(n))
 
 const markerIds = ref('')
 const markerIdList = model('markerIdList')

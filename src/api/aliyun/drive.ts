@@ -8,7 +8,7 @@ export const token = async () => {
     const res = await fetch(`${import.meta.env.VITE_ALIYUN_BASE}/api/auth/login`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         otp_code: '',

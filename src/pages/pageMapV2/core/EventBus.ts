@@ -1,7 +1,7 @@
 export type EventHandler<P> = (...payloads: P extends unknown[] ? P : []) => void
 
 export class EventBus<EventMap> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line ts/no-explicit-any
   #handlers: Record<any, any[]> = {}
 
   on = <T extends keyof EventMap>(event: T, handler: EventHandler<EventMap[T]>): void => {

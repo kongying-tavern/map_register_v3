@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { ScoreVo } from '../shared'
 
-const props = defineProps<{
+defineProps<{
   loading: boolean
   data: ScoreVo[]
 }>()

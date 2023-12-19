@@ -1,6 +1,6 @@
 import 'vue-router'
-import type { RoleTypeEnum } from '@/shared'
 import type * as ElIcons from '@element-plus/icons-vue'
+import type { RoleTypeEnum } from '@/shared'
 
 declare module 'vue-router' {
   /** 拓展元信息类型 */
@@ -15,7 +15,7 @@ declare module 'vue-router' {
      * 路由权限等级
      * 1. 未指定时，没有访问限制
      * 2. 已指定时，用户权限需大于等于指定角色的等级才可以访问
-     **/
+     */
     role?: RoleTypeEnum
 
     /** 是否显示 loading 页面 */

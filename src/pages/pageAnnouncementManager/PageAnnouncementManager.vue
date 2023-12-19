@@ -32,7 +32,9 @@ const getDialogConfig = (title: string) => ({
 })
 
 function handleCreate() {
-  DialogService.config(getDialogConfig('新增公告')).listeners({ success: getList })
+  DialogService
+    .config(getDialogConfig('新增公告'))
+    .listeners({ success: getList })
     .open(AnnouncementDialog)
 }
 </script>
