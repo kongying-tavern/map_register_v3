@@ -16,11 +16,11 @@ import * as area from './area'
 import * as sysUserController from './sysUserController'
 import * as score from './score'
 import * as punctuateAudit from './punctuateAudit'
-import * as markerLinkage from './markerLinkage'
+import * as markerLink from './markerLink'
 import * as history from './history'
 import * as role from './role'
 import * as tagDoc from './tagDoc'
-import * as markerLinkageDoc from './markerLinkageDoc'
+import * as markerLinkDoc from './markerLinkDoc'
 import * as markerDoc from './markerDoc'
 import * as itemDoc from './itemDoc'
 import * as jwkController from './jwkController'
@@ -43,11 +43,11 @@ export default {
   sysUserController,
   score,
   punctuateAudit,
-  markerLinkage,
+  markerLink,
   history,
   role,
   tagDoc,
-  markerLinkageDoc,
+  markerLinkDoc,
   markerDoc,
   itemDoc,
   jwkController,
