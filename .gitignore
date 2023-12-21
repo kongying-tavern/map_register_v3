@@ -26,3 +26,7 @@ yarn.lock
 
 # 自动更新
 auto-imports.d.ts
+
+# 文件补丁
+/patch-edit
+*.timestamp-*.*

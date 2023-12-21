@@ -1,0 +1,46 @@
+diff --git a/dist/serviceGenerator.js b/dist/serviceGenerator.js
+index 001071c0a33034c7ca51603cfbc7801488172dfa..6a06b349e6fae58d9775e3e4d179a7d8e960b24c 100644
+--- a/dist/serviceGenerator.js
++++ b/dist/serviceGenerator.js
+@@ -108,7 +108,13 @@ const getType = (schemaObject, namespace = '') => {
+     if (schemaObject.allOf && schemaObject.allOf.length) {
+         return `(${schemaObject.allOf.map((item) => getType(item, namespace)).join(' & ')})`;
+     }
+-    if (schemaObject.type === 'object' || schemaObject.properties) {
++    if (schemaObject.type === 'object' || schemaObject.properties || schemaObject.additionalProperties ) {
++        if (!schemaObject.properties && !schemaObject.additionalProperties) {
++            return 'any';
++        }
++        if (schemaObject.additionalProperties) {
++            return `Record<string, ${getType(schemaObject.additionalProperties, namespace)}>`;
++        }
+         if (!Object.keys(schemaObject.properties || {}).length) {
+             return 'Record<string, any>';
+         }
+@@ -259,7 +265,7 @@ class ServiceGenerator {
+             // functionName tag 级别防重
+             const tmpFunctionRD = {};
+             const genParams = this.apiData[tag]
+-                .filter((api) => 
++                .filter((api) =>
+             // 暂不支持变量
+             !api.path.includes('${'))
+                 .map((api) => {
+@@ -340,7 +346,7 @@ class ServiceGenerator {
+                         // prefix 变量
+                         return `$\{${prefix}}${formattedPath}`;
+                     };
+-                    return Object.assign(Object.assign({}, newApi), { functionName, path: getPrefixPath(), pathInComment: formattedPath.replace(/\*/g, '&#42;'), hasPathVariables: formattedPath.includes('{'), hasApiPrefix: !!this.config.apiPrefix, method: newApi.method, 
++                    return Object.assign(Object.assign({}, newApi), { functionName, path: getPrefixPath(), pathInComment: formattedPath.replace(/\*/g, '&#42;'), hasPathVariables: formattedPath.includes('{'), hasApiPrefix: !!this.config.apiPrefix, method: newApi.method,
+                         // 如果 functionName 和 summary 相同，则不显示 summary
+                         desc: functionName === newApi.summary
+                             ? newApi.description
+@@ -529,7 +535,7 @@ class ServiceGenerator {
+         return schemaObject.properties
+             ? Object.keys(schemaObject.properties).map((propName) => {
+                 const schema = (schemaObject.properties && schemaObject.properties[propName]) || DEFAULT_SCHEMA;
+-                return Object.assign(Object.assign({}, schema), { name: propName, type: getType(schema), desc: [schema.title, schema.description].filter((s) => s).join(' '), 
++                return Object.assign(Object.assign({}, schema), { name: propName, type: getType(schema), desc: [schema.title, schema.description].filter((s) => s).join(' '),
+                     // 如果没有 required 信息，默认全部是非必填
+                     required: requiredPropKeys ? requiredPropKeys.some((key) => key === propName) : false });
+             })

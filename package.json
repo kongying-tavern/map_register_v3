@@ -61,5 +61,10 @@
     "npm": "^8",
     "yarn": "^1",
     "pnpm": "^8"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "openapi2ts@1.1.7": "patches/openapi2ts@1.1.7.patch"
+    }
   }
 }
