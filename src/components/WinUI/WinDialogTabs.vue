@@ -51,14 +51,14 @@ const setTabKey = (tabKey: string) => {
   }
 
   &.actived {
-    @apply bg-white mt-0;
+    @apply bg-[var(--el-bg-color)] mt-0;
   }
   &.actived::before {
     content: '';
     @apply
       w-full h-[1px]
       absolute left-0 bottom-0
-      bg-white
+      bg-[var(--el-bg-color)]
       translate-y-[1px]
     ;
   }
