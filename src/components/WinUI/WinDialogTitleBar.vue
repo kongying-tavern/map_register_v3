@@ -2,6 +2,7 @@
 import { Close } from '@element-plus/icons-vue'
 
 const props = defineProps<{
+  loading?: boolean
   disabled?: boolean
 }>()
 
@@ -10,7 +11,7 @@ const emits = defineEmits<{
 }>()
 
 const emitClose = () => {
-  if (props.disabled)
+  if (props.disabled || props.loading)
     return
   emits('close')
 }
