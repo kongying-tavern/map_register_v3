@@ -92,7 +92,7 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
       </template>
 
       <template #content>
-        <p v-for="line in cachedMarkerVo.content?.trim().split('\n')" :key="line" class="leading-6">
+        <p v-for="(line, i) in cachedMarkerVo.content?.trim().split('\n')" :key="i" class="leading-6">
           {{ line }}
         </p>
       </template>
@@ -102,6 +102,9 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
           <el-tag>{{ isUnderground ? '地下' : '地上' }}</el-tag>
           <el-tag>{{ hiddenFlagType }}</el-tag>
           <el-tag>刷新：{{ refreshTimeType }}</el-tag>
+          <el-tag v-if="cachedMarkerVo.linkageId">
+            关联
+          </el-tag>
           <el-button v-if="cachedMarkerVo.videoPath" size="small" :icon="VideoCamera" @click="playBilibiliVideo" />
         </div>
       </template>
