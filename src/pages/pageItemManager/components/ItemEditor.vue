@@ -1,8 +1,10 @@
 <script lang="ts" setup>
+import { Check, Close } from '@element-plus/icons-vue'
 import { cloneDeep } from 'lodash'
 import { useItemEdit } from '../hooks'
 import { ItemDetailForm } from '.'
 import { GlobalDialogController } from '@/hooks/useGlobalDialog'
+import { WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 
 interface ItemEditorProps {
   item: API.ItemVo
@@ -19,15 +21,22 @@ const { detailFormRef, formData, loading, handleSubmit } = useItemEdit({
 </script>
 
 <template>
-  <div class="p-5">
-    <ItemDetailForm ref="detailFormRef" v-model="formData" style="width: 540px" />
-    <div class="w-full flex justify-end pt-2">
-      <el-button :loading="loading" type="primary" @click="handleSubmit">
+  <WinDialog>
+    <WinDialogTitleBar :loading="loading" @close="GlobalDialogController.close">
+      {{ item.name! }} 编辑物品
+    </WinDialogTitleBar>
+
+    <WinDialogTabPanel>
+      <ItemDetailForm ref="detailFormRef" v-model="formData" style="width: 540px" />
+    </WinDialogTabPanel>
+
+    <WinDialogFooter>
+      <el-button :icon="Check" :loading="loading" type="primary" @click="handleSubmit">
         确认
       </el-button>
-      <el-button :disabled="loading" @click="GlobalDialogController.close">
+      <el-button :icon="Close" :disabled="loading" @click="GlobalDialogController.close">
         取消
       </el-button>
-    </div>
-  </div>
+    </WinDialogFooter>
+  </WinDialog>
 </template>

@@ -52,7 +52,6 @@ export const useItemCreate = (options: ItemCreateHookOptions = {}) => {
   const openItemCreatorDialog = () => {
     DialogService
       .config({
-        title: '新建物品',
         width: 'fit-content',
         alignCenter: true,
         closeOnClickModal: false,

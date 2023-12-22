@@ -59,8 +59,8 @@ const hiddenFlagOptions = [
 // ==================== 物品图标 ====================
 const { iconMap, iconList: rawIconList } = useIconList()
 const iconList = computed(() => rawIconList.value.map(iconTag => ({
-  label: iconTag.tag,
-  value: iconTag.tag,
+  label: iconTag.tag!,
+  value: iconTag.tag!,
   url: iconTag.url,
 })))
 
@@ -133,7 +133,7 @@ defineExpose({
       </el-form-item>
 
       <el-form-item label="排序权重" prop="sortIndex">
-        <el-input-number v-model="formData.sortIndex" :min="0" :max="99" placeholder="请输入权重" controls-position="right" style="width: 100%" />
+        <el-input-number v-model="formData.sortIndex" :min="0" :max="99" placeholder="请输入权重" style="width: 100%" />
       </el-form-item>
 
       <el-form-item label="物品图标" prop="iconTag">

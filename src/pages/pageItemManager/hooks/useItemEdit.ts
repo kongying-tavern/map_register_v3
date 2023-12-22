@@ -37,17 +37,22 @@ export const useItemEdit = (options: ItemEditHookOptions = {}) => {
     'defaultCount',
     'sortIndex',
     'specialFlag',
+    'version',
   ])
 
   const handleSubmit = () => detailFormRef.value
     ?.validate()
-    ?.then(() => submit(sharedEditSame.value, pickRequiredKeys(formData.value)))
+    ?.then(() => {
+      const form = pickRequiredKeys(formData.value)
+      form.version = (form.version ?? 0) + 1
+      submit(sharedEditSame.value, form)
+    })
 
   if (isRoot) {
     onSuccess(() => {
-      GSMessageService.info('编辑成功，数据同步可能需要几分钟时间', {
+      GSMessageService.info('编辑成功', {
         type: 'success',
-        duration: 5000,
+        duration: 3000,
       })
       GlobalDialogController.close()
     })
@@ -63,7 +68,6 @@ export const useItemEdit = (options: ItemEditHookOptions = {}) => {
   const openItemEditorDialog = (item: API.ItemVo, editSame: 0 | 1 = 0) => {
     DialogService
       .config({
-        title: '编辑物品详情',
         width: 'fit-content',
         alignCenter: true,
         showClose: false,
