@@ -24,6 +24,9 @@ export interface UserPreference {
   /** 性能优化：是否在视图更新时禁用点位拾取 */
   'map.setting.pauseViewChangingPicking'?: boolean
 
+  /** 隐藏点位弹窗 */
+  'map.setting.hideMarkerPopover'?: boolean
+
   /** 地图最后停留的中心点位置 */
   'map.viewState.target'?: API.Coordinate2D
 
@@ -73,6 +76,16 @@ export interface UserPreference {
 
   /** 设置面板当前激活的设置项 */
   'settingPanel.state.activedKey'?: string
+
+  // ====================      快捷键      ====================
+  // key 必须按照 `hotkeys.${type}.${name}` 的格式命名
+  // value 可以为单键 key 或以 `+` 拼接的 key 组合：`W`、`Ctrl+A`
+  // type 取值:
+  // 1. `press` 点按生效，按住会反复触发
+  // 2. `hold` 按住生效
+
+  /** 快捷键 - 按下指定键隐藏点位弹窗 */
+  'hotkeys.press.toggleMarkerPopoverVisible'?: string
 }
 
 export const getDefaultPreference = (): UserPreference => ({

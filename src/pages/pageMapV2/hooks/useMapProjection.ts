@@ -16,7 +16,7 @@ export const useMapProjection = (coord: API.Coordinate2D | Ref<API.Coordinate2D 
   const tileStore = useTileStore()
 
   /** 投影后元素应随地图缩放等级所缩放的比例 */
-  const scaleRatio = computed(() => 2 ** (mapStateStore.viewState.zoom ?? 1))
+  const scaleRatio = computed(() => 2 ** (mapStateStore.viewState.zoom))
 
   /** 视口中心坐标 */
   const center = computed<API.Coordinate2D>(() => [width.value / 2, height.value / 2])
@@ -41,5 +41,9 @@ export const useMapProjection = (coord: API.Coordinate2D | Ref<API.Coordinate2D 
       : [cx + lx, cy + ly]
   })
 
-  return { scaleRatio, position }
+  return {
+    scaleRatio,
+    position,
+    zoom: computed(() => mapStateStore.viewState.zoom),
+  }
 }

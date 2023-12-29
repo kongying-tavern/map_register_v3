@@ -15,7 +15,7 @@ const props = withDefaults(defineProps<GenshinMapAffixProps>(), {
 })
 
 const coord = toRef(props, 'pos')
-const { scaleRatio, position } = useMapProjection(coord, {
+const { scaleRatio, position, zoom } = useMapProjection(coord, {
   floor: !props.zoomWithMap,
   noCovertCoord: props.noCovertCoord,
 })
@@ -45,7 +45,7 @@ useEventListener(mapaffixRef, 'contextmenu', ev => ev.preventDefault())
       'z-index': '1',
     }"
   >
-    <slot name="default" :scale="switchScaleRatio" />
+    <slot name="default" :scale="switchScaleRatio" :zoom="zoom" />
   </div>
 </template>
 
