@@ -33,6 +33,17 @@ export default defineConfig(({ mode }) => {
   }
 
   return {
+    define: {
+      // 关闭选项式 API 支持
+      __VUE_OPTIONS_API__: false,
+
+      // 在生产环境中关闭 devtools 支持
+      __VUE_PROD_DEVTOOLS__: false,
+
+      // 禁用生产版本中水合不匹配的详细警告以优化
+      __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false,
+    },
+
     server: {
       host: '0.0.0.0',
       port: 9000,
