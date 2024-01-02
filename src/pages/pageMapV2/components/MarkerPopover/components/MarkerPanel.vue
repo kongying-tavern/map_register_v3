@@ -51,9 +51,11 @@ withDefaults(defineProps<{
   position: absolute;
   transition: opacity 150ms ease;
   translate: -50% calc(-100% - var(--arrow-offset-y) - var(--arrow-size));
+  pointer-events: none;
 
   &.actived {
     opacity: 1;
+    pointer-events: all;
   }
 }
 
