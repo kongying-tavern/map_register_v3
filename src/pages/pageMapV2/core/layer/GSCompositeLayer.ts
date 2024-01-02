@@ -2,7 +2,14 @@ import type { LayersList, UpdateParameters } from '@deck.gl/core/typed'
 import { CompositeLayer } from '@deck.gl/core/typed'
 import type { GenshinMap } from '../map'
 import type { GSCompositeLayerState } from './GSCompositeLayerTypes'
-import { GSDraggingLineLayer, GSMarkerLayer, GSOverlayer, GSTagLayer, GSTileLayer } from '.'
+import {
+  GSDraggingLineLayer,
+  GSMarkerLayer,
+  GSMarkerLinkLayer,
+  GSOverlayer,
+  GSTagLayer,
+  GSTileLayer,
+} from '.'
 import { Logger } from '@/utils'
 import { useArchiveStore, useIconTagStore, useMapStateStore, useOverlayStore, usePreferenceStore, useTileStore } from '@/stores'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
@@ -102,6 +109,7 @@ export class GSCompositeLayer extends CompositeLayer {
         markerSpriteMapping: iconTagStore.markerSpriteMapping,
         markerSpriteImage: iconTagStore.markerSpriteUrl,
         markedMarkers: archiveStore.currentArchive.body.Data_KYJG,
+        markerLinkRenderList: mapStateStore.markerLinkRenderList,
         archiveHash: archiveStore.hash,
         transparentMarked: preferenceStore.preference['map.setting.transparentMarked'],
         // overlay
@@ -135,7 +143,10 @@ export class GSCompositeLayer extends CompositeLayer {
         moveToTarget?.()
       }, { immediate: true })
     })
-    this.#effectCleaner = scope.stop
+    this.#effectCleaner = () => {
+      scope.stop()
+      this.#effectCleaner = undefined
+    }
   }
 
   // ==================== public method  ====================
@@ -160,7 +171,6 @@ export class GSCompositeLayer extends CompositeLayer {
   /** @生命周期 销毁状态 */
   finalizeState = (context: typeof this.context) => {
     this.#effectCleaner?.()
-    this.#effectCleaner = undefined
     super.finalizeState(context)
   }
 
@@ -181,6 +191,9 @@ export class GSCompositeLayer extends CompositeLayer {
 
       // 地区标签图层
       new GSTagLayer(this.state, options),
+
+      // 点位关联指示线
+      new GSMarkerLinkLayer(this.state),
 
       // 拖拽点位时的指示线
       new GSDraggingLineLayer(this.state),

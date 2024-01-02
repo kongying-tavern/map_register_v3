@@ -1,13 +1,23 @@
 import type { GSMapState } from '@/stores/types/genshin-map-state'
 import { createRenderMarkers } from '@/stores/utils'
-import { useAreaStore, useItemStore, useMarkerStore, usePreferenceStore, useTileStore } from '@/stores'
+import type { useAreaStore, useItemStore, useMarkerStore, usePreferenceStore, useTileStore } from '@/stores'
 
-export const useMarkes = () => {
-  const preferenceStore = usePreferenceStore()
-  const markerStore = useMarkerStore()
-  const tileStore = useTileStore()
-  const areaStore = useAreaStore()
-  const itemStore = useItemStore()
+interface MarkerHookOptions {
+  preferenceStore: ReturnType<typeof usePreferenceStore>
+  markerStore: ReturnType<typeof useMarkerStore>
+  tileStore: ReturnType<typeof useTileStore>
+  areaStore: ReturnType<typeof useAreaStore>
+  itemStore: ReturnType<typeof useItemStore>
+}
+
+export const useMarkes = (options: MarkerHookOptions) => {
+  const {
+    preferenceStore,
+    markerStore,
+    tileStore,
+    areaStore,
+    itemStore,
+  } = options
 
   /** 筛选处理状态 */
   const markersFilterLoading = ref(false)
@@ -15,9 +25,11 @@ export const useMarkes = () => {
   /** 当前基础筛选器（地区-类型-物品）条件表示下的所有点位 */
   const markersForBaseFilter = asyncComputed(async () => {
     const tileConfigs = tileStore.mergedTileConfigs
-    const itemIds = new Set(preferenceStore.preference['markerFilter.state.itemIds'] ?? [])
+    if (!tileConfigs)
+      return []
     const areaIdMap = areaStore.areaIdMap
     const itemIdMap = itemStore.itemIdMap
+    const itemIds = new Set(preferenceStore.preference['markerFilter.state.itemIds'] ?? [])
     const res = markerStore.markerList.filter(({ itemList = [] }) => {
       for (const { itemId } of itemList) {
         if (itemIds.has(itemId!))
@@ -43,13 +55,66 @@ export const useMarkes = () => {
     return map
   })
 
-  /** 所属于当前底图的点位 */
-  const currentLayerMarkers = computed(() => {
+  // ==================== 临时点位 - start ====================
+
+  const staticMarkers = computed(() => {
     const { currentTileCode } = tileStore
     if (!currentTileCode)
       return []
     return markersGroupByTile.value[currentTileCode] ?? []
   })
+
+  const staticMarkerIds = computed(() => new Set(staticMarkers.value.map(marker => marker.id!)))
+
+  /** 临时点位集合 */
+  const tempMarkerMap = shallowRef(new Map<GSMapState.TempMarkerType, API.MarkerVo[]>())
+
+  /** 未去重的临时点位 */
+  const undifferentiated = computed(() => {
+    const markers: API.MarkerVo[] = []
+    tempMarkerMap.value.forEach((typeMarkers) => {
+      markers.push(...typeMarkers)
+    })
+    return markers
+  })
+
+  /** 已去重并经过预渲染处理的临时点位 */
+  const tempMarkers = computed(() => {
+    const tileConfigs = tileStore.mergedTileConfigs
+    if (!tileConfigs)
+      return []
+    const ids = new Set(staticMarkerIds.value)
+    const differentiated = undifferentiated.value.filter((marker) => {
+      if (ids.has(marker.id!))
+        return false
+      ids.add(marker.id!)
+      return true
+    })
+    // 去重
+    const { areaIdMap } = areaStore
+    const { itemIdMap } = itemStore
+    return createRenderMarkers(differentiated, {
+      tileConfigs,
+      areaIdMap,
+      itemIdMap,
+      isTemporary: true,
+    })
+  })
+
+  const setTempMarkers = (type: GSMapState.TempMarkerType, markers: API.MarkerVo[]) => {
+    const map = new Map(tempMarkerMap.value)
+    map.set(type, markers)
+    tempMarkerMap.value = map
+  }
+
+  const clearTempMarkes = () => {
+    tempMarkerMap.value = new Map()
+  }
+
+  // ====================  临时点位 - end  ====================
+
+  /** 所属于当前底图的点位 */
+  const currentLayerMarkers = computed(() => staticMarkers.value.concat(tempMarkers.value))
 
   const currentLayerMarkersIds = computed(() => {
     return currentLayerMarkers.value.map(marker => marker.id!)
@@ -65,10 +130,15 @@ export const useMarkes = () => {
   })
 
   return {
+    setTempMarkers,
+    clearTempMarkes,
     markersFilterLoading,
     markersGroupByTile,
     currentLayerMarkers,
     currentLayerMarkersIds,
     currentLayerMarkersMap,
+    staticMarkers,
+    staticMarkerIds,
+    tempMarkers,
   }
 }

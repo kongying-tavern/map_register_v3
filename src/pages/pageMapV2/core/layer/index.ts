@@ -1,6 +1,7 @@
 export * from './GSCompositeLayer'
 export * from './GSCompositeLayerTypes'
 export * from './GSMarkerLayer'
+export * from './GSMarkerLinkLayer'
 export * from './GSOverlayer'
 export * from './GSDraggingLineLayer'
 export * from './GSTagLayer'

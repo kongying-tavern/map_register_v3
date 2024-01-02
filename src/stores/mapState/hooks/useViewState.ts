@@ -2,10 +2,14 @@ import { TRANSITION_EVENTS } from '@deck.gl/core/typed'
 import type { ShallowRef } from 'vue'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
 import { TRANSITION } from '@/pages/pageMapV2/shared'
-import { usePreferenceStore } from '@/stores'
+import type { usePreferenceStore } from '@/stores'
 
-export const useViewState = () => {
-  const preferenceStore = usePreferenceStore()
+interface ViewStateHookOptions {
+  preferenceStore: ReturnType<typeof usePreferenceStore>
+}
+
+export const useViewState = (options: ViewStateHookOptions) => {
+  const { preferenceStore } = options
 
   const viewState = shallowRef<GSMapState.ViewState>({
     maxRotationX: 90,

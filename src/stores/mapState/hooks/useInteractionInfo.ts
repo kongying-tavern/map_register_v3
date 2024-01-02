@@ -25,9 +25,19 @@ export const useInteractionInfo = () => {
     state.value = info
   }
 
+  const subscribeInteractionInfo = (interactionType: 'hover' | 'focus', infoType: GSMapState.InteractionInfo['type']) => {
+    const state = { hover, focus }[interactionType]
+    return computed(() => {
+      if (state.value?.type !== infoType)
+        return
+      return state.value.value
+    })
+  }
+
   return {
     hover: hover as Readonly<ShallowRef<GSMapState.InteractionInfo | null>>,
     focus: focus as Readonly<ShallowRef<GSMapState.InteractionInfo | null>>,
     setInteractionInfo,
+    subscribeInteractionInfo,
   }
 }

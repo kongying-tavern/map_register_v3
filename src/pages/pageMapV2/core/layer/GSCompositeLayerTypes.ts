@@ -21,6 +21,7 @@ export interface GSCompositeLayerState {
   markerSpriteImage: string | Texture
   markerSpriteMapping: IconMapping
   markedMarkers: Set<number>
+  markerLinkRenderList: GSMapState.MLRenderUnit[]
   archiveHash: string
   transparentMarked: boolean
   // overlay

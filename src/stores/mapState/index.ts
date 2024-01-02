@@ -1,18 +1,46 @@
 import { defineStore } from 'pinia'
-import { useInteractionInfo, useMapMission, useMarkes, useViewState } from './hooks'
+import {
+  useInteractionInfo,
+  useMapMission,
+  useMarkerLink,
+  useMarkes,
+  useViewState,
+} from './hooks'
+import { useAreaStore, useItemStore, useMarkerStore, usePreferenceStore, useTileStore } from '@/stores'
 
 /** 地图非持久化状态，此类状态会在页面刷新后消失 */
 export const useMapStateStore = defineStore('global-map-state', () => {
-  // ============================== 地图视口状态 ==============================
-  const viewStateHook = useViewState()
+  const preferenceStore = usePreferenceStore()
+  const markerStore = useMarkerStore()
+  const tileStore = useTileStore()
+  const areaStore = useAreaStore()
+  const itemStore = useItemStore()
 
-  // ============================== 地图交互状态 ==============================
+  // ============================== 地图视口 ==============================
+  const viewStateHook = useViewState({
+    preferenceStore,
+  })
+
+  // ============================== 地图交互 ==============================
   const interactionInfoHook = useInteractionInfo()
 
-  // ============================== 地图点位状态 ==============================
-  const markersHook = useMarkes()
+  // ============================== 地图点位 ==============================
+  const markersHook = useMarkes({
+    preferenceStore,
+    markerStore,
+    tileStore,
+    areaStore,
+    itemStore,
+  })
 
-  // ==============================   地图任务   ==============================
+  // ============================== 点位关联 ==============================
+  const markerLinkInfoHook = useMarkerLink({
+    focus: interactionInfoHook.focus,
+    staticMarkerIds: markersHook.staticMarkerIds,
+    setTempMarkers: markersHook.setTempMarkers,
+  })
+
+  // ============================== 地图任务 ==============================
   const missionHook = useMapMission()
 
   return {
@@ -21,6 +49,8 @@ export const useMapStateStore = defineStore('global-map-state', () => {
     ...interactionInfoHook,
 
     ...markersHook,
+
+    ...markerLinkInfoHook,
 
     ...missionHook,
   }

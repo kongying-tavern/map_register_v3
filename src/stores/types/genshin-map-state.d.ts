@@ -35,6 +35,9 @@ declare namespace GSMapState {
 
       /** 是否为地下图标 */
       isUnderground: boolean
+
+      /** 是否为临时点位 */
+      isTemporary: boolean
     }
   }
 
@@ -53,4 +56,25 @@ declare namespace GSMapState {
 
   /** 混合任务类型 */
   type Mission = MapToSchema<MissionTypeMap>
+
+  /** 点位关联 - 渲染单位 */
+  interface MLRenderUnit {
+    /** 源点位 id */
+    source: number
+    /** 目标点位 id */
+    target: number
+    /**
+     * | 关联类型标识 | 名称 | 说明 | 关系图图解 |
+     * | :--- | :--- | :--- | :--- |
+     * | `TRIGGER` | 单触发 | 点对点的单向触发。 | `F->I` 或 `G->H` |
+     * | `TRIGGER_ALL` | 全组触发 | 所有触发点位全部满足时，触发目标点位。 | `(A,B,C)->(D,E)` |
+     * | `TRIGGER_ANY` | 任意触发 | 任意触发点位满足时，触发目标点位。 | `(D,E)->(F,G)` |
+     * | `RELATED` | 关联 | 仅进行点位关联，但不触发联动标记操作。 | `(I,K,J)` |
+     * | `EQUIVALENT` | 等价 | 同一组内等价的点位。 | `(H,M,L)` |
+     */
+    type: 'TRIGGER' | 'TRIGGER_ALL' | 'TRIGGER_ANY' | 'RELATED' | 'EQUIVALENT'
+  }
+
+  /** 临时点位类型 */
+  type TempMarkerType = 'markerLink' | 'unknown'
 }

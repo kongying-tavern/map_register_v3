@@ -6,6 +6,7 @@ export interface NormalizeMarkerOptions {
   tileConfigs: Record<string, AreaTileConfig>
   itemIdMap: Map<number, API.ItemVo>
   areaIdMap: Map<number, API.AreaVo>
+  isTemporary?: boolean
 }
 
 // TODO 抽离为设置，根据设置的图标选择策略来选择主渲染图标 id
@@ -34,9 +35,10 @@ const pickMainItem = ({ itemList = [] }: API.MarkerVo) => {
 /** 为点位列表附加渲染配置 */
 export const createRenderMarkers = (markers: API.MarkerVo[], options: NormalizeMarkerOptions) => {
   const {
-    tileConfigs,
+    tileConfigs = {},
     areaIdMap,
     itemIdMap,
+    isTemporary = false,
   } = options
 
   /** 缓存从物品 id 查询到的地区信息和底图配置，减少索引时间复杂度 */
@@ -80,6 +82,7 @@ export const createRenderMarkers = (markers: API.MarkerVo[], options: NormalizeM
         tileCode: tileConfig.tile.code,
         position: [Number(strX) + ox, Number(strY) + oy],
         isUnderground: (marker.extra as MarkerExtra)?.underground?.is_underground ?? false,
+        isTemporary,
       },
     })
   }
