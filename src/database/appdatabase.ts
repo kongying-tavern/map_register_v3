@@ -19,6 +19,9 @@ export class AppDatabase extends Dexie {
   /** 点位 @全量接口 */
   declare marker: Dexie.Table<API.MarkerVo, number>
 
+  /** 点位关联 @全量接口 */
+  declare markerLink: Dexie.Table<API.MarkerLinkageVo, number>
+
   /** 用户首选项 @仅限本地 */
   declare user: Dexie.Table<UserPreference, number>
 
@@ -32,13 +35,14 @@ export class AppDatabase extends Dexie {
     super('AppDatabase')
     this
       .use(markerFormater)
-      .version(3.0)
+      .version(4.0)
       .stores({
         area: '&id, parentId, name, code, hiddenFlag',
         iconTag: '&tag, *typeIdList',
         item: '&id, *typeIdList, areaId, name, specialFlag, hiddenFlag',
         itemType: '&id, name, hiddenFlag',
         marker: '&id, *itemIdList, markerTitle, refreshTime, hiddenFlag',
+        markerLink: '&id, fromId, toId, linkAction, groupId',
         user: '&id',
         cache: '&id',
         digest: '&code, tableName',

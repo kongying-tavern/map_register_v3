@@ -6,11 +6,12 @@ import {
   useMarkes,
   useViewState,
 } from './hooks'
-import { useAreaStore, useItemStore, useMarkerStore, usePreferenceStore, useTileStore } from '@/stores'
+import { useAreaStore, useItemStore, useMarkerLinkStore, useMarkerStore, usePreferenceStore, useTileStore } from '@/stores'
 
 /** 地图非持久化状态，此类状态会在页面刷新后消失 */
 export const useMapStateStore = defineStore('global-map-state', () => {
   const preferenceStore = usePreferenceStore()
+  const markerLinkStore = useMarkerLinkStore()
   const markerStore = useMarkerStore()
   const tileStore = useTileStore()
   const areaStore = useAreaStore()
@@ -35,6 +36,7 @@ export const useMapStateStore = defineStore('global-map-state', () => {
 
   // ============================== 点位关联 ==============================
   const markerLinkInfoHook = useMarkerLink({
+    markerLinkStore,
     focus: interactionInfoHook.focus,
     staticMarkerIds: markersHook.staticMarkerIds,
     setTempMarkers: markersHook.setTempMarkers,
