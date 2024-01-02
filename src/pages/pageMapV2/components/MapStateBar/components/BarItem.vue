@@ -75,20 +75,33 @@ onClickOutside(contextmenuRef, () => {
 }
 
 .fontend {
+  --mask-color: transparent;
+
   cursor: pointer;
   user-select: none;
-  transition: all ease 150ms;
   height: 32px;
   min-width: 32px;
   font-size: 12px;
-  border-radius: 2px;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 2px;
+    pointer-events: none;
+    background-color: var(--mask-color);
+    transition: all ease 150ms;
+  }
 
   &:hover {
-    background: #33333320;
+    --mask-color: #33333320;
   }
 
   &:active {
-    background: #33333340;
+    --mask-color: #33333340;
   }
 }
 

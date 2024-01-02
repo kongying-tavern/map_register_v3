@@ -5,20 +5,23 @@ import { usePreferenceStore } from '@/stores'
 
 const preferenceStore = usePreferenceStore()
 
-const toggleShowOverlay = () => {
-  preferenceStore.preference['map.state.showOverlay'] = !preferenceStore.preference['map.state.showOverlay']
-}
+const overlayVisible = computed({
+  get: () => preferenceStore.preference['map.state.showOverlay'] ?? false,
+  set: (v) => {
+    preferenceStore.preference['map.state.showOverlay'] = v
+  },
+})
 </script>
 
 <template>
-  <BarItem divider label="附加图层">
+  <BarItem divider :label="`附加图层：${overlayVisible ? '显示' : '隐藏'}`">
     <template #default>
       <div
         class="overlay-status-button grid place-items-center"
         :class="{
-          'is-actived': preferenceStore.preference['map.state.showOverlay'],
+          'is-actived': overlayVisible,
         }"
-        @click="toggleShowOverlay"
+        @click="overlayVisible = !overlayVisible"
       />
     </template>
 

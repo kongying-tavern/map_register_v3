@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { SwitchOverlay, ViewState } from './components'
+import { SwitchMarkerPopover, SwitchOverlay, ViewState } from './components'
 import { setContentKey, setElementKey } from './shared'
 
 const virtualRef = ref<HTMLElement>()
@@ -30,12 +30,13 @@ const checkTooltip = (ev: Event) => {
   tooltipContent.value = (findRes as HTMLElement).dataset.label ?? ''
 }
 useEventListener(contentZoneRef, 'pointermove', checkTooltip)
-useEventListener(contentZoneRef, 'pointerdown', checkTooltip)
+useEventListener(contentZoneRef, 'click', checkTooltip)
 </script>
 
 <template>
   <div class="map-state-bar">
     <div ref="contentZoneRef" class="bar-content">
+      <SwitchMarkerPopover />
       <SwitchOverlay />
       <ViewState />
     </div>
