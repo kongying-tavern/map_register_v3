@@ -74,7 +74,7 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
   const preferenceStore = usePreferenceStore()
 
   /** 每组内位于顶部的 overlay 单元 */
-  const topOverlayInGroup = ref<{ [groupId: string]: string }>({})
+  const topOverlayInGroup = shallowRef<{ [groupId: string]: string }>({})
 
   /** 当前隐藏的 overlay 组 id */
   const hiddenOverlayGroups = ref(new Set<string>())
@@ -237,9 +237,11 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
 
   /** 此处排序用于控制组内 overlay 谁在顶部 */
   const sortedOverlays = computed((): OverlayChunk[] => {
-    return existOverlays.value.sort((overlayA, overlayB) => {
-      const itemAId = topOverlayInGroup.value[overlayA.group.id]
-      const itemBId = topOverlayInGroup.value[overlayB.group.id]
+    const topMap = topOverlayInGroup.value
+    const exists = existOverlays.value
+    return exists.toSorted((overlayA, overlayB) => {
+      const itemAId = topMap[overlayA.group.id]
+      const itemBId = topMap[overlayB.group.id]
       return Number(itemAId === overlayA.item.id) - Number(itemBId === overlayB.item.id)
     })
   })
@@ -296,9 +298,11 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
   })
 
   const moveToTop = (itemId: string, groupId: string) => {
-    if (itemId === topOverlayInGroup.value[groupId])
+    const topMap = { ...topOverlayInGroup.value }
+    if (itemId === topMap[groupId])
       return
-    topOverlayInGroup.value[groupId] = itemId
+    topMap[groupId] = itemId
+    topOverlayInGroup.value = topMap
     stateId.value = Date.now()
   }
 
