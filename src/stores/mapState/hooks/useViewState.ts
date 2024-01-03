@@ -45,6 +45,7 @@ export const useViewState = (options: ViewStateHookOptions) => {
 
   const isViewPortLocked = ref(false)
 
+  /** 设置是否锁定视口变化 */
   const setViewPortLocked = (v: boolean) => {
     isViewPortLocked.value = v
   }

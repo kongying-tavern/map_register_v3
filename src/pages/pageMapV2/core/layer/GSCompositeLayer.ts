@@ -32,29 +32,25 @@ export class GSCompositeLayer extends CompositeLayer {
   // ====================   constructor  ====================
 
   constructor() {
+    const mapStateStore = useMapStateStore()
+    const { update: updateHover } = mapStateStore.subscribeInteractionInfo('hover', 'defaultMarker')
+    const { update: updateFocus } = mapStateStore.subscribeInteractionInfo('focus', 'defaultMarker')
+
     super({
       id: 'genshin-composite-layer',
       onClick: ({ object = null, sourceLayer = null }, ev) => {
-        const mapStateStore = useMapStateStore()
         if (('leftButton' in ev && !ev.leftButton) || !object) {
-          mapStateStore.setInteractionInfo('focus', null)
+          updateFocus(null)
           return
         }
-        if (sourceLayer instanceof GSMarkerLayer) {
-          const { markersMap } = this.state
-          mapStateStore.setInteractionInfo('focus', { type: 'defaultMarker', value: markersMap[object] })
-        }
+        if (sourceLayer instanceof GSMarkerLayer)
+          updateFocus(this.state.markersMap[object])
       },
       onHover: ({ object = null, sourceLayer = null }) => {
-        const mapStateStore = useMapStateStore()
-        if (!object) {
-          mapStateStore.setInteractionInfo('hover', null)
-          return
-        }
-        if (sourceLayer instanceof GSMarkerLayer) {
-          const { markersMap } = this.state
-          mapStateStore.setInteractionInfo('hover', { type: 'defaultMarker', value: markersMap[object] })
-        }
+        if (!object)
+          return updateHover(null)
+        if (sourceLayer instanceof GSMarkerLayer)
+          updateHover(this.state.markersMap[object])
       },
     })
   }
@@ -78,11 +74,7 @@ export class GSCompositeLayer extends CompositeLayer {
       const mapStateStore = useMapStateStore()
       const overlayStore = useOverlayStore()
 
-      const markerDraggingMap = computed(() => {
-        if (mapStateStore.mission?.type !== 'markerDragging')
-          return {}
-        return mapStateStore.mission.value
-      })
+      const { data: markerDraggingMap } = mapStateStore.subscribeMission('markerDragging', () => ({}))
 
       const markerDraggingList = computed(() => {
         const list: { id: string; position: API.Coordinate2D }[] = []
@@ -92,7 +84,7 @@ export class GSCompositeLayer extends CompositeLayer {
         return list
       })
 
-      const state = computed<Partial<GSCompositeLayerState>>(() => ({
+      watch((): Partial<GSCompositeLayerState> => ({
         areaCode: preferenceStore.preference['markerFilter.state.areaCode'],
         tileConfig: tileStore.currentTileConfig,
         isViewPortChanging: mapStateStore.isViewPortChanging,
@@ -120,9 +112,7 @@ export class GSCompositeLayer extends CompositeLayer {
         topOverlayInGroup: overlayStore.topOverlayInGroup,
         hiddenOverlayGroups: overlayStore.hiddenOverlayGroups,
         overlayStateId: overlayStore.stateId,
-      }))
-
-      watch(state, (newState, oldState) => {
+      }), (newState, oldState) => {
         const { tileConfig } = newState
         if (!tileConfig)
           return

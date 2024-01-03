@@ -16,8 +16,8 @@ export interface GSCompositeLayerState {
   focus: GSMapState.InteractionInfo | null
   markersMap: Record<number, GSMapState.MarkerWithRenderConfig>
   markersIds: number[]
-  markerDraggingList: { id: string; position: API.Coordinate2D }[]
   markerDraggingMap: Record<number, API.Coordinate2D>
+  markerDraggingList: { id: string; position: API.Coordinate2D }[]
   markerSpriteImage: string | Texture
   markerSpriteMapping: IconMapping
   markedMarkers: Set<number>

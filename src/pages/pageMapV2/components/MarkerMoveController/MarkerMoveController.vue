@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import type { Observable } from 'rxjs'
 import { filter, fromEvent, map, switchMap, takeUntil } from 'rxjs'
 import { fromEvent as fromRefEvent, useSubscription } from '@vueuse/rxjs'
 import { useMarkerPositionEdit } from './hooks'
@@ -6,81 +7,85 @@ import { useInteractionLayer } from '@/pages/pageMapV2/hooks'
 import { useMapStateStore } from '@/stores'
 import { GSButton } from '@/components'
 import { genshinMapCanvasKey } from '@/pages/pageMapV2/shared'
-import type { GSMapState } from '@/stores/types/genshin-map-state'
 
 const mapStateStore = useMapStateStore()
 
 const canvasRef = inject(genshinMapCanvasKey) as Ref<HTMLCanvasElement>
 
+// ==================== 移动点位 ====================
+const { data: hoverMarker } = mapStateStore.subscribeInteractionInfo('hover', 'defaultMarker')
+
+const {
+  isMissionEmpty,
+  isDraggingProcessing,
+  draggingMission,
+  loading,
+  updateDragging,
+  updateDraggingBy,
+  moveMarker,
+  clearState,
+} = useMarkerPositionEdit()
+
 // ==================== 界面控制 ====================
-const controllerPanelVisible = computed(() => mapStateStore.mission?.type === 'markerDragging')
 const { visible: interactionVisible } = useInteractionLayer()
-watch(controllerPanelVisible, (visible) => {
+watch(isDraggingProcessing, (visible) => {
   interactionVisible.value = !visible
 })
 
-// ==================== 移动点位 ====================
-const { loading, moveMarker, clearState } = useMarkerPositionEdit()
-
-// ==================== 交互事件组 ====================
-const pointerdown = fromEvent<PointerEvent>(window, 'pointerdown').pipe(filter(() => {
-  return controllerPanelVisible.value && Boolean(mapStateStore.hover?.type === 'defaultMarker')
-}))
+// ==================== 交互事件 ====================
+const pointerdown = fromEvent<PointerEvent>(window, 'pointerdown')
 const pointermove = fromEvent<PointerEvent>(window, 'pointermove')
 const pointerup = fromEvent<PointerEvent>(window, 'pointerup')
-const dKeydown = fromRefEvent(canvasRef, 'keydown').pipe(filter((ev) => {
-  return (ev as KeyboardEvent).code === 'KeyD' && !controllerPanelVisible.value
-}))
-const dKeyup = fromEvent<KeyboardEvent>(window, 'keyup').pipe(filter((ev) => {
-  return ev.code === 'KeyD'
-}))
+const dKeyPress = fromRefEvent(canvasRef, 'keypress') as Observable<KeyboardEvent>
 
-/** 点位拖拽控制 */
-const markerDragController = pointerdown.pipe(switchMap((ev) => {
-  mapStateStore.setViewPortLocked(true)
+/** 点位拖拽 */
+useSubscription(pointerdown.pipe(
+  filter(() => isDraggingProcessing.value && Boolean(hoverMarker.value)),
+  switchMap((ev) => {
+    mapStateStore.setViewPortLocked(true)
 
-  const { x: startX, y: startY } = ev
-  const { zoom } = mapStateStore.viewState
+    const marker = hoverMarker.value!
+    const { x: startX, y: startY } = ev
+    const { zoom } = mapStateStore.viewState
+    const [markerX, markerY] = draggingMission.value[marker.id!] ?? marker.render.position
 
-  const marker = mapStateStore.hover!.value as GSMapState.MarkerWithRenderConfig
-  const markerDragMission = { ...(mapStateStore.mission!.value as Record<number, API.Coordinate2D>) }
+    return pointermove.pipe(
+      map(({ x, y }) => {
+        const scale = 2 ** -zoom
+        const offsetX = (x - startX) * scale
+        const offsetY = (y - startY) * scale
+        updateDragging({
+          ...draggingMission.value,
+          [marker.id!]: [markerX + offsetX, markerY + offsetY],
+        })
+      }),
+      takeUntil(pointerup.pipe(map(() => {
+        updateDraggingBy((current, setter) => {
+          setter(current)
+          if (marker.render.isTemporary) {
+            mapStateStore.setTempMarkersBy('markerDragging', (oldTemp, setTemp) => {
+              if (!marker.render.isTemporary || oldTemp.find(({ id }) => marker.id === id))
+                return
+              setTemp([...oldTemp, marker])
+            })
+          }
+          mapStateStore.setViewPortLocked(false)
+        })
+      }))),
+    )
+  }),
+).subscribe())
 
-  if (!markerDragMission[marker.id!])
-    markerDragMission[marker.id!] = marker.render.position
-
-  const [markerX, markerY] = markerDragMission[marker.id!]
-
-  return pointermove.pipe(
-    map(({ x, y }) => {
-      const scale = 2 ** -zoom
-      const offsetX = (x - startX) * scale
-      const offsetY = (y - startY) * scale
-      markerDragMission[marker.id!] = [markerX + offsetX, markerY + offsetY]
-      mapStateStore.setMission({ type: 'markerDragging', value: markerDragMission })
-    }),
-
-    takeUntil(pointerup.pipe(map(() => {
-      mapStateStore.setViewPortLocked(false)
-    }))),
-  )
-}))
-useSubscription(markerDragController.subscribe())
-
-/** 热键控制 */
-const panelVisibleController = dKeydown.pipe(switchMap(() => {
-  mapStateStore.setMission({ type: 'markerDragging', value: [] })
-  return dKeyup.pipe(map(() => {
-    if (mapStateStore.mission?.type !== 'markerDragging')
-      return
-    !Object.keys(mapStateStore.mission.value).length && clearState()
-  }))
-}))
-useSubscription(panelVisibleController.subscribe())
+/** 热键激活 */
+useSubscription(dKeyPress.pipe(
+  filter(ev => isMissionEmpty.value && ev.code === 'KeyD'),
+  map(() => updateDragging({})),
+).subscribe())
 </script>
 
 <template>
   <div
-    v-if="controllerPanelVisible"
+    v-if="isDraggingProcessing"
     class="marker-move-controller absolute left-0 top-0 w-full h-full"
   >
     <div class="controller-header absolute top-6 w-full flex items-center justify-center">
@@ -93,7 +98,7 @@ useSubscription(panelVisibleController.subscribe())
     </div>
 
     <div class="controller-footer absolute bottom-6 w-full flex gap-4 items-center justify-center">
-      <GSButton icon="submit" class="pointer-events-auto" :loading="loading" @click="moveMarker">
+      <GSButton icon="submit" class="pointer-events-auto" :disabled="!Object.keys(draggingMission).length" :loading="loading" @click="moveMarker">
         确认
       </GSButton>
       <GSButton icon="cancel" class="pointer-events-auto" :disabled="loading" @click="clearState">

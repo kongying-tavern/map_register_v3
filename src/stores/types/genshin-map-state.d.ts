@@ -77,6 +77,15 @@ declare namespace GSMapState {
     type: 'TRIGGER' | 'TRIGGER_ALL' | 'TRIGGER_ANY' | 'RELATED' | 'EQUIVALENT'
   }
 
+  /**
+   * 临时点位类型表
+   * @note value 只能为 `API.MarkerVo` 或 `MarkerWithRenderConfig`
+   */
+  interface TempMarkerTypeMap {
+    markerLink: API.MarkerVo[]
+    markerDragging: MarkerWithRenderConfig[]
+  }
+
   /** 临时点位类型 */
-  type TempMarkerType = 'markerLink' | 'unknown'
+  type TempMarkerType = keyof TempMarkerTypeMap
 }

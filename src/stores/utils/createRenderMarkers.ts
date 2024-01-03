@@ -33,7 +33,7 @@ const pickMainItem = ({ itemList = [] }: API.MarkerVo) => {
 }
 
 /** 为点位列表附加渲染配置 */
-export const createRenderMarkers = (markers: API.MarkerVo[], options: NormalizeMarkerOptions) => {
+export const createRenderMarkers = (markers: (API.MarkerVo | GSMapState.MarkerWithRenderConfig)[], options: NormalizeMarkerOptions) => {
   const {
     tileConfigs = {},
     areaIdMap,
@@ -48,6 +48,12 @@ export const createRenderMarkers = (markers: API.MarkerVo[], options: NormalizeM
 
   for (let i = 0; i < markers.length; i++) {
     const marker = markers[i]
+
+    if ('render' in marker) {
+      normalizedMarkers.push(marker)
+      continue
+    }
+
     // TODO 从第一个物品查询地区，后续点位可能存在属于多个地区的情况，需要加以改进
     const [firstItemLink] = marker.itemList ?? []
     if (!firstItemLink)

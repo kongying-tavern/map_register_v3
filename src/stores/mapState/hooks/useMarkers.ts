@@ -67,11 +67,11 @@ export const useMarkes = (options: MarkerHookOptions) => {
   const staticMarkerIds = computed(() => new Set(staticMarkers.value.map(marker => marker.id!)))
 
   /** 临时点位集合 */
-  const tempMarkerMap = shallowRef(new Map<GSMapState.TempMarkerType, API.MarkerVo[]>())
+  const tempMarkerMap = shallowRef(new Map<string, (API.MarkerVo | GSMapState.MarkerWithRenderConfig)[]>())
 
   /** 未去重的临时点位 */
   const undifferentiated = computed(() => {
-    const markers: API.MarkerVo[] = []
+    const markers: (API.MarkerVo | GSMapState.MarkerWithRenderConfig)[] = []
     tempMarkerMap.value.forEach((typeMarkers) => {
       markers.push(...typeMarkers)
     })
@@ -101,10 +101,16 @@ export const useMarkes = (options: MarkerHookOptions) => {
     })
   })
 
-  const setTempMarkers = (type: GSMapState.TempMarkerType, markers: API.MarkerVo[]) => {
+  const setTempMarkers = <K extends keyof GSMapState.TempMarkerTypeMap>(type: GSMapState.TempMarkerType, markers: GSMapState.TempMarkerTypeMap[K]) => {
     const map = new Map(tempMarkerMap.value)
     map.set(type, markers)
     tempMarkerMap.value = map
+  }
+
+  const setTempMarkersBy = <K extends keyof GSMapState.TempMarkerTypeMap>(type: K, cb: (oldMarkers: GSMapState.TempMarkerTypeMap[K], setter: (value: GSMapState.TempMarkerTypeMap[K]) => void) => void) => {
+    cb((tempMarkerMap.value.get(type) ?? []) as GSMapState.TempMarkerTypeMap[K], (value) => {
+      setTempMarkers(type, value)
+    })
   }
 
   const clearTempMarkes = () => {
@@ -131,6 +137,7 @@ export const useMarkes = (options: MarkerHookOptions) => {
 
   return {
     setTempMarkers,
+    setTempMarkersBy,
     clearTempMarkes,
     markersFilterLoading,
     markersGroupByTile,

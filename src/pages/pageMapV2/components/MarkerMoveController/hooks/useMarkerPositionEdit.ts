@@ -8,11 +8,16 @@ export const useMarkerPositionEdit = () => {
   const tileStore = useTileStore()
   const mapStateStore = useMapStateStore()
 
+  const {
+    isEmpty: isMissionEmpty,
+    isProcessing: isDraggingProcessing,
+    data: draggingMission,
+    update: updateDragging,
+    updateBy: updateDraggingBy,
+  } = mapStateStore.subscribeMission('markerDragging', () => ({}))
+
   const { refresh: moveMarker, onSuccess, onError, ...rest } = useFetchHook({
     onRequest: async () => {
-      if (mapStateStore.mission?.type !== 'markerDragging')
-        throw new Error('任务类型冲突')
-
       const tileConfig = tileStore.currentTileConfig
       if (!tileConfig)
         throw new Error('无法获取当前图层配置')
@@ -20,7 +25,7 @@ export const useMarkerPositionEdit = () => {
       const [cx, cy] = tileConfig.tile.center
 
       const currentLayerMarkersMap = mapStateStore.currentLayerMarkersMap
-      const missions = mapStateStore.mission.value
+      const missions = draggingMission.value
 
       const form: API.MarkerVo[] = []
 
@@ -52,8 +57,13 @@ export const useMarkerPositionEdit = () => {
   })
 
   const clearState = () => {
-    mapStateStore.setMission(null)
-    mapStateStore.setViewPortLocked(false)
+    updateDraggingBy((_, setDragging) => {
+      setDragging(null)
+      mapStateStore.setTempMarkersBy('markerDragging', (_, setTemp) => {
+        return setTemp([])
+      })
+      mapStateStore.setViewPortLocked(false)
+    })
   }
 
   onSuccess(() => {
@@ -70,7 +80,16 @@ export const useMarkerPositionEdit = () => {
     offset: 48,
   }))
 
-  onSuccess(clearState)
-
-  return { moveMarker, clearState, onSuccess, onError, ...rest }
+  return {
+    isMissionEmpty,
+    isDraggingProcessing,
+    draggingMission,
+    moveMarker,
+    clearState,
+    onSuccess,
+    onError,
+    updateDragging,
+    updateDraggingBy,
+    ...rest,
+  }
 }
