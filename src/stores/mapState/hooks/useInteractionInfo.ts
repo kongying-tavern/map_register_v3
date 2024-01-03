@@ -1,37 +1,38 @@
 import type { ShallowRef } from 'vue'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
 
-const strategy: {
-  [K in keyof GSMapState.InteractionTypeMap]: {
-    isEqual: (a: GSMapState.InteractionTypeMap[K], b: GSMapState.InteractionTypeMap[K]) => boolean
-  }
-} = {
-  defaultMarker: {
-    isEqual: (a, b) => a.id === b.id,
-  },
-}
-
 export const useInteractionInfo = () => {
   const hover = shallowRef<GSMapState.InteractionInfo | null>(null)
   const focus = shallowRef<GSMapState.InteractionInfo | null>(null)
 
   const setInteractionInfo = (interactionType: 'hover' | 'focus', info: GSMapState.InteractionInfo | null) => {
     const state = { hover, focus }[interactionType]
-    const oldInfo = state.value
-    if (!oldInfo && !info)
-      return
-    if (oldInfo && info && oldInfo.type === info.type && strategy[info.type].isEqual(oldInfo.value, info.value))
-      return
     state.value = info
   }
 
-  const subscribeInteractionInfo = (interactionType: 'hover' | 'focus', infoType: GSMapState.InteractionInfo['type']) => {
+  const subscribeInteractionInfo = <K extends keyof GSMapState.InteractionTypeMap>(interactionType: 'hover' | 'focus', infoType: K) => {
     const state = { hover, focus }[interactionType]
-    return computed(() => {
+
+    const data = computed(() => {
       if (state.value?.type !== infoType)
-        return
-      return state.value.value
+        return null
+      return state.value.value as GSMapState.InteractionTypeMap[K]
     })
+
+    const update = (value: GSMapState.InteractionTypeMap[K] | null) => {
+      if (!state.value) {
+        setInteractionInfo(interactionType, value === null ? null : { type: infoType, value } as GSMapState.InteractionInfo)
+        return
+      }
+      if (state.value.type !== infoType)
+        return
+      setInteractionInfo(interactionType, value === null ? null : { type: infoType, value } as GSMapState.InteractionInfo)
+    }
+
+    return {
+      data,
+      update,
+    }
   }
 
   return {

@@ -44,6 +44,7 @@ declare namespace GSMapState {
   /** 交互类型表 */
   interface InteractionTypeMap {
     defaultMarker: MarkerWithRenderConfig
+    unknown: unknown
   }
 
   /** 混合交互类型 */
@@ -52,6 +53,7 @@ declare namespace GSMapState {
   /** 任务类型表 */
   interface MissionTypeMap {
     markerDragging: Record<number, API.Coordinate2D>
+    unknown: unknown
   }
 
   /** 混合任务类型 */
