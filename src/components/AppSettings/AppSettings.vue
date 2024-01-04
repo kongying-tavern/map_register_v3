@@ -112,7 +112,7 @@ const contentRef = ref<HTMLElement>()
       <div
         ref="contentRef"
         class="
-          flex-1 px-2
+          flex-1
           rounded-tl-md
           bg-[var(--el-bg-color)]
           transition-[background-color]

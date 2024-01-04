@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Odometer } from '@element-plus/icons-vue'
 import { storeToRefs } from 'pinia'
-import { SettingBar } from '../components'
+import { SettingBar, SettingPanel } from '../components'
 import { useUserInfoStore } from '@/stores'
 import { formatByteSize } from '@/utils'
 
@@ -56,7 +56,7 @@ const userAgent = navigator.userAgent
 </script>
 
 <template>
-  <div class="h-full flex flex-col overflow-auto">
+  <SettingPanel>
     <div class="pb-4">
       <div class="flex items-center">
         <el-avatar class="flex-shrink-0" :src="info.logo" :size="100" />
@@ -96,5 +96,5 @@ const userAgent = navigator.userAgent
         </div>
       </template>
     </SettingBar>
-  </div>
+  </SettingPanel>
 </template>
