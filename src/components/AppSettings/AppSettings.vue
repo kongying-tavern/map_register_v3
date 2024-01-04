@@ -4,7 +4,7 @@ import {
   ModuleAbout,
   ModuleDashboard,
   ModuleDatabase,
-  ModuleDevelopment,
+  ModuleDeveloper,
   ModuleMapSetting,
 } from './modules'
 import { usePreferenceStore } from '@/stores'
@@ -17,7 +17,7 @@ const settingOptions: { key: string; name: string; is: Component; icon?: Compone
   { key: 'dashboard', name: '基本信息', is: ModuleDashboard, icon: Monitor },
   { key: 'mapsetting', name: '地图', is: ModuleMapSetting, icon: MapLocation },
   { key: 'database', name: '数据库', is: ModuleDatabase, icon: Coin },
-  { key: 'development', name: '开发者', is: ModuleDevelopment, icon: TurnOff },
+  { key: 'developer', name: '开发者', is: ModuleDeveloper, icon: TurnOff },
   { key: 'about', name: '关于空荧后厨', is: ModuleAbout, icon: Star },
 ]
 

@@ -86,6 +86,11 @@ export interface UserPreference {
 
   /** 快捷键 - 按下指定键隐藏点位弹窗 */
   'hotkeys.press.toggleMarkerPopoverVisible'?: string
+
+  // ====================      开发者      ====================
+
+  /** 是否隐藏 service worker 缓存 logger  */
+  'developer.setting.hideServiceWorkerLogger'?: boolean
 }
 
 export const getDefaultPreference = (): UserPreference => ({
