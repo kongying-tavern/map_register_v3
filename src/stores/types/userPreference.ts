@@ -91,6 +91,9 @@ export interface UserPreference {
 
   /** 是否隐藏 service worker 缓存 logger  */
   'developer.setting.hideServiceWorkerLogger'?: boolean
+
+  /** 是否隐藏数据库自动更新 logger */
+  'developer.setting.hideDatabaseUpdaterLogger'?: boolean
 }
 
 export const getDefaultPreference = (): UserPreference => ({

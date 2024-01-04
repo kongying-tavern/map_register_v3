@@ -10,7 +10,7 @@ import { Logger } from '@/utils'
 /** 默认更新间隔 30 分钟 */
 const DEFAULT_UPDATE_GAP = 30 * 60 * 1000
 
-const logger = new Logger('[后台更新]')
+const logger = new Logger('[后台更新]', () => !usePreferenceStore().preference['developer.setting.hideDatabaseUpdaterLogger'])
 
 /** 通用后台更新 hook */
 export const useBackendUpdate = <T, Key>(

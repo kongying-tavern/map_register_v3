@@ -5,8 +5,12 @@ const debug = import.meta.env.DEV
 export class Logger {
   #prefix
 
-  constructor(prefix = '') {
+  #enable = () => true
+
+  constructor(prefix = '', enable: (() => boolean) | undefined = undefined) {
     this.#prefix = prefix
+    if (enable)
+      this.#enable = enable
   }
 
   static #groups: string[] = []
@@ -49,7 +53,7 @@ export class Logger {
   #now = () => new Date().toLocaleString('zh-CN', { hour12: false })
 
   info = (...args: unknown[]) => {
-    if (!debug)
+    if (!debug || !this.#enable())
       return
     console.log(
       `%c[${this.#now()}] %c${this.#prefix} >`,
@@ -60,7 +64,7 @@ export class Logger {
   }
 
   warn = (...args: unknown[]) => {
-    if (!debug)
+    if (!debug || !this.#enable())
       return
     console.warn(
       `%c[${this.#now()}] %c${this.#prefix} >`,
@@ -71,7 +75,7 @@ export class Logger {
   }
 
   error = (...args: unknown[]) => {
-    if (!debug)
+    if (!debug || !this.#enable())
       return
     console.error(
       `%c[${this.#now()}] %c${this.#prefix} >`,

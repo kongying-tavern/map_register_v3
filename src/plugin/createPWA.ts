@@ -4,7 +4,7 @@ import { usePreferenceStore } from '@/stores'
 
 const logger = new Logger('[service-worker-register]')
 
-const swLogger = new Logger('[service-worker]')
+const swLogger = new Logger('[service-worker]', () => !usePreferenceStore().preference['developer.setting.hideServiceWorkerLogger'])
 
 export type ServiceWorkerOutput = {
   action: 'log'
@@ -19,8 +19,7 @@ const ensureServiceWorker = async () => {
     throw new Error('浏览器不支持 Service Worker 或网站没有运行于安全上下文 (HTTPS、localhost) 中')
 
   navigator.serviceWorker.addEventListener('message', (ev: MessageEvent<ServiceWorkerOutput>) => {
-    const showLogger = !usePreferenceStore().preference['developer.setting.hideServiceWorkerLogger']
-    if (ev.data.action !== 'log' || !showLogger)
+    if (ev.data.action !== 'log')
       return
     swLogger[ev.data.value.type](...ev.data.value.args)
   })
