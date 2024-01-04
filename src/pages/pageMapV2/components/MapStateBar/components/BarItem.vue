@@ -1,10 +1,21 @@
 <script setup lang="ts">
-defineProps<{
-  label?: string
+const props = defineProps<{
+  label: string
   divider?: boolean
   interactive?: boolean
   actived?: boolean
+  disabled?: boolean
 }>()
+
+const emits = defineEmits<{
+  click: [MouseEvent]
+}>()
+
+const handleClick = (ev: MouseEvent) => {
+  if (props.disabled)
+    return
+  emits('click', ev)
+}
 
 const contextmenuVisible = ref(false)
 
@@ -20,15 +31,17 @@ onClickOutside(contextmenuRef, () => {
 
 <template>
   <div
-    v-bind="$attrs"
     class="bar-item"
     :class="{
       divider,
+      disabled,
     }"
   >
     <div
+      v-bind="$attrs"
       class="fontend"
       :data-label="label"
+      @click="handleClick"
       @contextmenu.prevent="toggleContextmenuVisible"
     >
       <slot name="default" />
@@ -50,8 +63,21 @@ onClickOutside(contextmenuRef, () => {
 <style scoped>
 .bar-item {
   --divider-gap: 6px;
+  --fontend-opacity: 1;
+  --fontend-cursor: pointer;
+  --fontend-mask: unset;
 
   position: relative;
+
+  &:not(.divider):not(:last-of-type) {
+    margin-right: 2px;
+  }
+
+  &.disabled {
+    --fontend-opacity: 0.5;
+    --fontend-cursor: not-allowed;
+    --fontend-mask: transparent;
+  }
 
   &.divider:not(:last-of-type) {
     margin-right: var(--divider-gap);
@@ -77,11 +103,12 @@ onClickOutside(contextmenuRef, () => {
 .fontend {
   --mask-color: transparent;
 
-  cursor: pointer;
+  cursor: var(--fontend-cursor);
   user-select: none;
   height: 32px;
   min-width: 32px;
   font-size: 12px;
+  opacity: var(--fontend-opacity);
 
   &::before {
     content: '';
@@ -92,7 +119,7 @@ onClickOutside(contextmenuRef, () => {
     height: 100%;
     border-radius: 2px;
     pointer-events: none;
-    background-color: var(--mask-color);
+    background-color: var(--fontend-mask, var(--mask-color));
     transition: all ease 150ms;
   }
 
