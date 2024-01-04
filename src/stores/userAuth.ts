@@ -37,6 +37,8 @@ const toCamelCaseObject = <T extends Record<string, unknown>>(obj: T): SnakeCase
 export const useUserAuthStore = defineStore('global-user-auth', () => {
   const auth = useLocalStorage<Partial<LocalAuth>>(USERAUTH_KEY, {})
 
+  const router = useRouter()
+
   const setAuth = (newAuth: API.SysToken) => {
     const { refreshToken, userId, expiresIn, tokenType, accessToken } = toCamelCaseObject(newAuth)
     auth.value = {
@@ -120,11 +122,11 @@ export const useUserAuthStore = defineStore('global-user-auth', () => {
     }
     catch (err) {
       stopAutoRefresh()
+      auth.value = {}
+      router.push('/login')
       logger.error(err)
     }
   }
-
-  const router = useRouter()
 
   const logout = () => {
     stopAutoRefresh()

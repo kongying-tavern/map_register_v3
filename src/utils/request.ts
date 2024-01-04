@@ -1,5 +1,5 @@
 // TODO: 迁移
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import type { AxiosRequestConfig } from 'axios'
 import { upperFirst } from 'lodash'
 import { useUserAuthStore } from '@/stores'
@@ -31,7 +31,7 @@ axiosInstance.interceptors.request.use(
     return config
   },
   (error) => {
-    logger.error(error)
+    logger.error('request', error.request)
     Promise.reject(error)
   },
 )
@@ -39,16 +39,16 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => {
     const { data } = response
-    if (response.status === 401) {
-      useUserAuthStore().logout()
-      return Promise.reject(new Error('用户凭证无效'))
-    }
     if (data.error)
       return Promise.reject(new Error(data.error_description ?? data.message))
     return data
   },
   (error) => {
-    logger.error(error)
+    if (error instanceof AxiosError) {
+      logger.error('response', error.response)
+      if (error.response?.status === 401)
+        useUserAuthStore().logout()
+    }
     return Promise.reject(error)
   },
 )
