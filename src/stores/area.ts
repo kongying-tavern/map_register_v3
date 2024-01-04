@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { liveQuery } from 'dexie'
 import type { ShallowRef } from 'vue'
 import { useBackendUpdate, userHook } from './hooks'
+import { useUserAuthStore } from '.'
 import Api from '@/api/api'
 import db from '@/database'
 
@@ -61,5 +62,6 @@ export const useAreaStore = defineStore('global-area', () => {
 })
 
 userHook.onInfoChange(useAreaStore, async (store) => {
-  await store.backendUpdater.start()
+  const { validateToken } = useUserAuthStore()
+  validateToken() ? await store.backendUpdater.start() : store.backendUpdater.stop()
 })

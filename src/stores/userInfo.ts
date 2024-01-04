@@ -51,8 +51,8 @@ export const useUserInfoStore = defineStore('global-user-info', () => {
    * @note 当检测到角色列表为空时，该方法会自动调用更新角色列表的方法
    */
   const updateUserInfo = async () => {
-    const { auth, validateToken } = useUserAuthStore()
-    if (!validateToken() || auth.userId === undefined || auth.userId === info.value.id)
+    const { auth } = useUserAuthStore()
+    if (auth.userId === undefined || auth.userId === info.value.id)
       return
     await _updateUserInfo(auth.userId)
     if (!roleList.value.length)
@@ -116,5 +116,6 @@ export const useUserInfoStore = defineStore('global-user-info', () => {
 })
 
 routerHook.onBeforeRouterEnter(useUserInfoStore, async (store) => {
-  await store.updateUserInfo()
+  const { validateToken } = useUserAuthStore()
+  validateToken() && await store.updateUserInfo()
 })

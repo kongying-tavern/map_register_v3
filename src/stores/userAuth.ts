@@ -52,6 +52,8 @@ export const useUserAuthStore = defineStore('global-user-auth', () => {
   }
 
   const validateToken = () => {
+    if (!auth.value.accessToken)
+      return false
     const { expiresTime = 0 } = auth.value
     return expiresTime > Date.now()
   }

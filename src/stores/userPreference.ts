@@ -5,7 +5,6 @@ import { getDefaultPreference } from './types'
 import { useUserAuthStore } from '@/stores'
 import { useFetchHook } from '@/hooks'
 import db from '@/database'
-import { Logger } from '@/utils'
 
 export const usePreferenceStore = defineStore('global-user-preference', () => {
   const internalUpdateFlag = ref(false)
@@ -23,8 +22,8 @@ export const usePreferenceStore = defineStore('global-user-preference', () => {
   })
 
   const updateUserPreference = async () => {
-    const { auth, validateToken } = useUserAuthStore()
-    if (!validateToken() || auth.userId === undefined || preference.value.id === auth.userId)
+    const { auth } = useUserAuthStore()
+    if (auth.userId === undefined || preference.value.id === auth.userId)
       return
     await _updateUserPreference(auth.userId)
   }
@@ -51,9 +50,7 @@ export const usePreferenceStore = defineStore('global-user-preference', () => {
   }
 })
 
-const logger = new Logger('[用户首选项]')
-
 userHook.onInfoChange(usePreferenceStore, async (store) => {
-  await store.updateUserPreference()
-  logger.info({ preference: JSON.parse(JSON.stringify(store.preference)) })
+  const { validateToken } = useUserAuthStore()
+  validateToken() && await store.updateUserPreference()
 })

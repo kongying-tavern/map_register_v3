@@ -2,6 +2,7 @@ import type { ShallowRef } from 'vue'
 import { defineStore } from 'pinia'
 import { liveQuery } from 'dexie'
 import { useBackendUpdate, userHook } from './hooks'
+import { useUserAuthStore } from '.'
 import { Zip } from '@/utils'
 import Api from '@/api/api'
 import db from '@/database'
@@ -37,5 +38,6 @@ export const useMarkerStore = defineStore('global-marker', () => {
 })
 
 userHook.onInfoChange(useMarkerStore, async (store) => {
-  await store.backendUpdater.start()
+  const { validateToken } = useUserAuthStore()
+  validateToken() ? await store.backendUpdater.start() : store.backendUpdater.stop()
 })
