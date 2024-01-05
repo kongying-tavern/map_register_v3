@@ -5,7 +5,6 @@ import { routerHook, userHook } from './hooks'
 import { Logger } from '@/utils'
 import Oauth from '@/api/oauth'
 import { USERAUTH_KEY } from '@/shared'
-import { useUserInfoStore } from '@/stores'
 
 export interface LocalAuth {
   refreshToken: string
@@ -92,7 +91,6 @@ export const useUserAuthStore = defineStore('global-user-auth', () => {
 
   /** 确认自动刷新 token 任务存在 */
   const ensureTokenRefreshMission = async () => {
-    const userInfoStore = useUserInfoStore()
     try {
       const { expiresTime = 0 } = auth.value
       const refreshInterval = differenceTokenTime(expiresTime)
@@ -108,7 +106,6 @@ export const useUserAuthStore = defineStore('global-user-auth', () => {
         if (!auth.value.refreshToken)
           return
         await refreshAuth()
-        await userInfoStore.updateUserInfo()
         ensureTokenRefreshMission()
       }
 
@@ -133,6 +130,7 @@ export const useUserAuthStore = defineStore('global-user-auth', () => {
   const logout = () => {
     stopAutoRefresh()
     auth.value = {}
+    userHook.applyCallbacks('onAuthChange')
     router.push('/login')
   }
 

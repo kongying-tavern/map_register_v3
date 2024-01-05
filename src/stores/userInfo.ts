@@ -7,21 +7,18 @@ import { useUserAuthStore } from '@/stores'
 import { RoleLevel, RoleTypeEnum } from '@/shared'
 
 export const useUserInfoStore = defineStore('global-user-info', () => {
+  const userAuthStore = useUserAuthStore()
+
   // ==================== 用户角色信息 ====================
-  const { data: roleList, refresh: _updateRoleList, onError: onRoleUpdateError } = useFetchHook({
+  const { data: roleList, refresh: updateRoleList, onError: onRoleUpdateError } = useFetchHook({
     initialValue: [],
     onRequest: async () => {
+      if (!userAuthStore.validateToken())
+        return []
       const { data = [] } = await Api.role.listRole()
       return data
     },
   })
-
-  const updateRoleList = async () => {
-    const { validateToken } = useUserAuthStore()
-    if (!validateToken())
-      return
-    await _updateRoleList()
-  }
 
   onRoleUpdateError((err) => {
     ElMessage.error({
@@ -38,26 +35,23 @@ export const useUserInfoStore = defineStore('global-user-info', () => {
   // ==================== 用户基本信息 ====================
   const showUserInfo = ref(false)
 
-  const { data: info, refresh: _updateUserInfo, onError: onUserInfoUpdateError, onSuccess: onUserInfoUpdateSuccess } = useFetchHook<API.SysUserVo, [userId: number]>({
+  const {
+    data: info,
+    refresh: updateUserInfo,
+    onError: onUserInfoUpdateError,
+    onSuccess: onUserInfoUpdateSuccess,
+  } = useFetchHook({
     initialValue: {},
-    onRequest: async (userId: number) => {
+    onRequest: async () => {
+      if (!userAuthStore.validateToken())
+        return {}
+      const { userId } = userAuthStore.auth
+      if (userId === undefined)
+        throw new Error('用户凭证中的用户 id 为空')
       const { data = {} } = await Api.sysUserController.getUserInfo({ userId })
       return data
     },
   })
-
-  /**
-   * 更新用户信息
-   * @note 当检测到角色列表为空时，该方法会自动调用更新角色列表的方法
-   */
-  const updateUserInfo = async () => {
-    const { auth } = useUserAuthStore()
-    if (auth.userId === undefined || auth.userId === info.value.id)
-      return
-    await _updateUserInfo(auth.userId)
-    if (!roleList.value.length)
-      await updateRoleList()
-  }
 
   onUserInfoUpdateSuccess(async () => {
     await userHook.applyCallbacks('onInfoChange')
@@ -116,6 +110,6 @@ export const useUserInfoStore = defineStore('global-user-info', () => {
 })
 
 routerHook.onBeforeRouterEnter(useUserInfoStore, async (store) => {
-  const { validateToken } = useUserAuthStore()
-  validateToken() && await store.updateUserInfo()
+  await store.updateUserInfo()
+  await store.updateRoleList()
 })
