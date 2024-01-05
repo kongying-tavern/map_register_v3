@@ -15,6 +15,7 @@ export const useTypeList = (options: FetchHookOptions<API.RPageListVoItemTypeVo>
   const loading = ref(false)
   /** 物品类型树 */
   const typeTree = computed(() => array2Tree(typeList.value, {
+    childrenKey: 'children',
     idKey: 'id',
     pidKey: 'parentId',
     rootId: -1,

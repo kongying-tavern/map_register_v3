@@ -25,6 +25,7 @@ export const useAreaList = (options: AreaListHookOptions = {}) => {
   ]))) as ComputedRef<Record<number, API.AreaVo>>
 
   const areaTree = computed(() => array2Tree(areaList.value, {
+    childrenKey: 'children',
     idKey: 'id',
     pidKey: 'parentId',
     rootId: -1,
