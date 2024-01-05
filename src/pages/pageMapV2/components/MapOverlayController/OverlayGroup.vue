@@ -21,7 +21,7 @@ const isShow = computed({
       <div class="flex-1">
         {{ data.name }}
       </div>
-      <GSSwitch v-model="isShow" size="small" label="启用" label-position="left" @click.stop="" />
+      <GSSwitch v-model="isShow" size="small" @click.stop="" />
     </div>
 
     <div

@@ -331,11 +331,10 @@ const handleDragItem = (ev: DragEvent) => {
       </el-scrollbar>
     </div>
 
-    <GSDivider :height="32" color="rgb(100 100 100 / 0.9)" />
-
-    <div class="condition-add-btn flex gap-4 justify-center p-2 pb-4 pt-0">
+    <div class="condition-add-btn flex gap-2 justify-center p-2 pt-0">
       <GSButton
         class="flex-1"
+        size="small"
         :disabled="!conditions.size"
         @click="clearCondition"
       >
@@ -346,7 +345,11 @@ const handleDragItem = (ev: DragEvent) => {
         </template>
         清空条件
       </GSButton>
-      <GSButton class="flex-1" @click="conditionManagerVisible = true">
+      <GSButton
+        class="flex-1"
+        size="small"
+        @click="conditionManagerVisible = true"
+      >
         <template #icon>
           <el-icon color="var(--gs-color-confirm)">
             <IconSetting />
@@ -360,7 +363,12 @@ const handleDragItem = (ev: DragEvent) => {
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style scoped>
+.marker-filter {
+  width: 350px;
+  max-width: calc(100dvw - 72px);
+}
+
 .marking-item {
   border: 2px dashed #C6C2BA;
   border-radius: 8px;

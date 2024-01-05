@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { DeleteFilled } from '@element-plus/icons-vue'
-import type { Condition } from '@/pages/pageMapV2/core'
+import type { Condition } from '@/stores/types'
 
 defineProps<{
   condition: Condition

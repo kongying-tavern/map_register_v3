@@ -95,7 +95,6 @@ useEventListener('pointerdown', checkTooltip)
 
 <style lang="scss" scoped>
 .sider-menu {
-  width: 400px;
   max-width: 100%;
   @media screen and (width < 500px) {
     width: 100%;
