@@ -20,7 +20,7 @@ const { pictureUrl, loading: imageLoading } = useSkeletonPicture(cachedMarkerVo)
 
 const { isFinished } = useMarkerFinished(cachedMarkerVo)
 
-const { isMoving, position } = useMarkerMove(cachedMarkerVo)
+const { isMoving, isEnable, position } = useMarkerMove(cachedMarkerVo)
 
 const { isUnderground, hiddenFlagType, refreshTimeType } = useMarkerExtra(cachedMarkerVo)
 
@@ -153,7 +153,7 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
             {{ isFinished ? '已完成' : '完成' }}
           </GSButton>
 
-          <GSButton :theme="isMoving ? undefined : 'dark'" size="small" title="移动点位" @click="isMoving = !isMoving">
+          <GSButton :theme="isMoving ? undefined : 'dark'" size="small" :disabled="!isEnable" title="移动点位" @click="isMoving = !isMoving">
             <template #icon>
               <el-icon color="#F7BA3F">
                 <Rank />

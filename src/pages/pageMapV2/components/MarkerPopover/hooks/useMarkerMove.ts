@@ -5,7 +5,7 @@ import type { GSMapState } from '@/stores/types/genshin-map-state'
 export const useMarkerMove = (markerInfo: ShallowRef<GSMapState.MarkerWithRenderConfig | null>) => {
   const mapStateStore = useMapStateStore()
 
-  const { data, update } = mapStateStore.subscribeMission('markerDragging', () => ({}))
+  const { data, isEnable, update } = mapStateStore.subscribeMission('markerDragging', () => ({}))
 
   const draggingPosition = computed(() => {
     if (!markerInfo.value)
@@ -37,5 +37,5 @@ export const useMarkerMove = (markerInfo: ShallowRef<GSMapState.MarkerWithRender
     },
   })
 
-  return { isMoving, position }
+  return { isMoving, isEnable, position }
 }
