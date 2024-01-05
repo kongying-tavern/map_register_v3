@@ -77,7 +77,11 @@ const features: FeatureOption[] = [
       </template>
     </SiderMenuItem>
 
-    <SiderMenuItem name="filter" label="点位筛选">
+    <SiderMenuItem name="filter" label="点位筛选" :icon="Filter">
+      <MarkerFilter />
+    </SiderMenuItem>
+
+    <SiderMenuItem name="marker-table" label="点位列表">
       <template #icon>
         <div class="w-full h-full overflow-hidden select-none">
           <el-icon
@@ -85,7 +89,7 @@ const features: FeatureOption[] = [
             color="var(--icon-color)"
             :size="38"
           >
-            <Filter />
+            <List />
           </el-icon>
 
           <div
@@ -108,10 +112,6 @@ const features: FeatureOption[] = [
           </div>
         </div>
       </template>
-      <MarkerFilter />
-    </SiderMenuItem>
-
-    <SiderMenuItem name="marker-table" label="点位列表" :icon="List">
       <MarkerTable />
     </SiderMenuItem>
 
