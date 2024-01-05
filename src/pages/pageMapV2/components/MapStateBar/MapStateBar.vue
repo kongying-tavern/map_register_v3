@@ -1,18 +1,16 @@
 <script setup lang="ts">
-import { SwitchMarkerPopover, SwitchOverlay, ViewState } from './components'
-import { setContentKey, setElementKey } from './shared'
+import {
+  PaintMarkerLink,
+  PaintMarkerLinkPath,
+  SwitchMarkerPopover,
+  SwitchOverlay,
+  ViewState,
+} from './components'
 
 const virtualRef = ref<HTMLElement>()
-provide(setElementKey, (element) => {
-  virtualRef.value = element
-})
+const contentZoneRef = ref<HTMLElement>()
 
 const tooltipContent = ref('')
-provide(setContentKey, (content) => {
-  tooltipContent.value = content
-})
-
-const contentZoneRef = ref<HTMLElement>()
 
 onClickOutside(contentZoneRef, () => {
   virtualRef.value = undefined
@@ -36,6 +34,8 @@ useEventListener(contentZoneRef, 'click', checkTooltip)
 <template>
   <div class="map-state-bar">
     <div ref="contentZoneRef" class="bar-content">
+      <PaintMarkerLink />
+      <PaintMarkerLinkPath />
       <SwitchMarkerPopover />
       <SwitchOverlay />
       <ViewState />
@@ -85,7 +85,7 @@ useEventListener(contentZoneRef, 'click', checkTooltip)
   padding: 2px;
   pointer-events: all;
   display: flex;
-  justify-content: start;
+  justify-content: flex-start;
   align-items: center;
 }
 </style>
