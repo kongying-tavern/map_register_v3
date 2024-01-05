@@ -14,14 +14,17 @@ const overlayVisible = computed({
 </script>
 
 <template>
-  <BarItem divider :label="`附加图层：${overlayVisible ? '显示' : '隐藏'}`">
+  <BarItem
+    divider
+    :label="`附加图层：${overlayVisible ? '显示' : '隐藏'}`"
+    @click="overlayVisible = !overlayVisible"
+  >
     <template #default>
       <div
         class="overlay-status-button grid place-items-center"
         :class="{
           'is-actived': overlayVisible,
         }"
-        @click="overlayVisible = !overlayVisible"
       />
     </template>
 

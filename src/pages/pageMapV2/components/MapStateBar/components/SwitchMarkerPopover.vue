@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ChatSquare } from '@element-plus/icons-vue'
 import BarItem from './BarItem.vue'
 import { usePreferenceStore } from '@/stores'
 
@@ -11,6 +10,8 @@ const isPopoverHide = computed({
     preferenceStore.preference['map.setting.hideMarkerPopover'] = v
   },
 })
+
+const prefix = crypto.randomUUID()
 </script>
 
 <template>
@@ -22,44 +23,26 @@ const isPopoverHide = computed({
       }"
       @click="isPopoverHide = !isPopoverHide"
     >
-      <div
-        class="w-5 h-5 absolute"
-        :class="{
-          'hide-shape': isPopoverHide,
-        }"
-      />
-      <el-icon
-        :size="20"
-        :class="{
-          'hide-mask': isPopoverHide,
-        }"
-      >
-        <ChatSquare />
+      <el-icon :size="20">
+        <svg class="icon" viewBox="0 0 1024 1024" fill="currentColor">
+          <defs>
+            <g :id="`${prefix}-a`">
+              <path d="M170.666667 85.333333h682.666666a85.333333 85.333333 0 0 1 85.333334 85.333334v512a85.333333 85.333333 0 0 1-85.333334 85.333333h-170.666666l-170.666667 170.666667-170.666667-170.666667H170.666667a85.333333 85.333333 0 0 1-85.333334-85.333333V170.666667a85.333333 85.333333 0 0 1 85.333334-85.333334m0 85.333334v512h206.08L512 817.92 647.253333 682.666667H853.333333V170.666667H170.666667z" />
+            </g>
+            <g :id="`${prefix}-b`" transform="scale(0.8 1)">
+              <path d="M10.211016 18.410836C26.610656-2.388708 56.809993-6.188624 77.609536 10.211016l1183.974009 927.979628c20.799543 16.39964 24.59946 46.598977 8.19982 67.39852s-46.598977 24.59946-67.398521 8.19982l-1183.974008-927.979628C-2.388707 69.409716-6.188624 39.210379 10.211016 18.410836z" />
+            </g>
+            <mask :id="`${prefix}-c`">
+              <g>
+                <rect x="0" y="0" width="1024" height="1024" fill="#fff" />
+                <use :href="`#${prefix}-b`" fill="#000" stroke="#000" stroke-width="20%" />
+              </g>
+            </mask>
+          </defs>
+          <use :href="`#${prefix}-a`" :mask="isPopoverHide ? `url(#${prefix}-c)` : ''" />
+          <use v-if="isPopoverHide" :href="`#${prefix}-b`" />
+        </svg>
       </el-icon>
     </div>
   </BarItem>
 </template>
-
-<style scoped>
-.hide-shape {
-  --size: 0.5px;
-
-  background: linear-gradient(
-    45deg,
-    transparent 0 calc(50% - var(--size)),
-    currentColor calc(50% - var(--size)) calc(50% + var(--size)),
-    transparent calc(50% + var(--size)) 100%
-  );
-}
-
-.hide-mask {
-  --gap: 2px;
-
-  mask: linear-gradient(
-    45deg,
-    #000 0 calc(50% - var(--gap)),
-    transparent calc(50% - var(--gap)) calc(50% + var(--gap)),
-    #000 calc(50% + var(--gap)) 100%
-  );
-}
-</style>
