@@ -1,31 +1,49 @@
 <script lang="ts" setup>
 import { useMap, useMarkerFocus } from '@/pages/pageMapV2/hooks'
-import { genshinMapCanvasKey } from '@/pages/pageMapV2/shared'
+import { TRANSITION, mapSidermenuKey } from '@/pages/pageMapV2/shared'
+import { useMapStateStore } from '@/stores'
 
 const props = defineProps<{
   data: API.MarkerVo
 }>()
 
+const mapStateStore = useMapStateStore()
 const { map } = useMap()
 const { focusMarker, hoverMarker, out } = useMarkerFocus()
 
-const mapCanvas = inject(genshinMapCanvasKey, ref(null))
+const mapSidermenuRef = inject(mapSidermenuKey, ref(null))
 
 /**
  * @todo 需要添加视口转移的过渡效果
  */
-const flyToMarker = () => {
-  if (!map.value || !mapCanvas.value)
+const flyToMarker = async () => {
+  if (!map.value || !mapSidermenuRef.value)
     return
-  const { width: cw, height: ch } = mapCanvas.value
-  const { width: vw, height: vh } = map.value
-  console.log('[跳转到点位]', { cw, ch, vw, vh })
-  // const { updateViewState } = map.value
-  // const { render } = focusMarker(props.data)
-  // updateViewState({
-  //   zoom: 0,
-  //   target: render.position,
-  // })
+
+  const { clientWidth: sw } = mapSidermenuRef.value
+
+  const { width: cw, height: ch } = map.value
+
+  const { updateViewState } = map.value
+  const { render: { position: [x, y] } } = focusMarker(props.data)
+
+  // 偏移视口中心使得点位位于可见区域水平中心、垂直 75% 的位置
+  const viewOffsetX = cw / 2 - (sw + (cw - sw) / 2)
+  const viewOffsetY = ch * -0.25
+
+  const { zoom } = mapStateStore.viewState
+
+  const scale = 2 ** zoom
+
+  const positionOffsetX = cw <= sw ? 0 : scale * viewOffsetX
+  const positionOffsetY = scale * viewOffsetY
+
+  updateViewState({
+    zoom: 0,
+    target: [x + positionOffsetX, y + positionOffsetY],
+    transitionDuration: 150,
+    transitionEasing: TRANSITION.EASE_OUT,
+  })
 }
 </script>
 
