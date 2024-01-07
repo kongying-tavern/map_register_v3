@@ -82,6 +82,23 @@ declare namespace API {
     creatorNickname?: string
   }
 
+  interface ResourceUploadVo {
+    /** 文件路径 */
+    filePath?: string
+    /** 文件地址 */
+    fileUrl?: string
+  }
+
+  interface RResourceUploadVo {
+    error?: boolean
+    errorStatus?: number
+    errorData?: unknown
+    message?: string
+    data?: ResourceUploadVo
+    users?: Record<string, SysUserSmallVo>
+    time?: string
+  }
+
   interface MarkerPunctuateVo {
     /** 乐观锁 */
     version?: number
@@ -767,6 +784,44 @@ declare namespace API {
     group?: LinkRefVo[]
   }
 
+  interface TweakConfigMetaVo {
+    /** 数据值 */
+    value?: unknown
+    /** 检查文本 */
+    test?: string
+    /** 替换为 */
+    replace?: string
+    /** 键值对映射 */
+    map?: Record<string, unknown>
+    /** 物品关联 */
+    itemList?: MarkerItemLinkVo[]
+  }
+
+  interface TweakConfigVo {
+    /** 需调整的点位属性 */
+    prop?: string
+    /** 调整方法类型 */
+    type?: string
+    meta?: TweakConfigMetaVo
+  }
+
+  interface TweakVo {
+    /** 点位ID */
+    markerIds?: number[]
+    /** 点位数据调整配置 */
+    tweaks?: TweakConfigVo[]
+  }
+
+  interface RListMarkerVo {
+    error?: boolean
+    errorStatus?: number
+    errorData?: unknown
+    message?: string
+    data?: MarkerVo[]
+    users?: Record<string, SysUserSmallVo>
+    time?: string
+  }
+
   interface PageListVoMarkerVo {
     record?: MarkerVo[]
     total?: number
@@ -790,16 +845,6 @@ declare namespace API {
     itemIdList?: number[]
     /** 类型ID列表 */
     typeIdList?: number[]
-  }
-
-  interface RListMarkerVo {
-    error?: boolean
-    errorStatus?: number
-    errorData?: unknown
-    message?: string
-    data?: MarkerVo[]
-    users?: Record<string, SysUserSmallVo>
-    time?: string
   }
 
   interface RListItemTypeVo {

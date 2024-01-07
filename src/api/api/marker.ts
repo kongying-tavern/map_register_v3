@@ -25,6 +25,18 @@ export async function updateMarker(body: API.MarkerVo, options?: AxiosRequestCon
   })
 }
 
+/** 调整点位 对点位数据进行微调 POST /api/marker/tweak */
+export async function tweakMarkers(body: API.TweakVo, options?: AxiosRequestConfig) {
+  return request<API.RListMarkerVo>('/api/marker/tweak', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  })
+}
+
 /** 分页查询所有点位信息 分页查询所有点位信息 POST /api/marker/get/page */
 export async function listMarkerPage(
   params: NonNullable<unknown>,

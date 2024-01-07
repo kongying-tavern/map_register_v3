@@ -4,6 +4,7 @@ import * as archive from './archive'
 import * as tagType from './tagType'
 import * as tag from './tag'
 import * as route from './route'
+import * as resource from './resource'
 import * as punctuate from './punctuate'
 import * as notice from './notice'
 import * as marker from './marker'
@@ -31,6 +32,7 @@ export default {
   tagType,
   tag,
   route,
+  resource,
   punctuate,
   notice,
   marker,
