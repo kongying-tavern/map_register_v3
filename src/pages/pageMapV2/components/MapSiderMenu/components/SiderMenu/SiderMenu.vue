@@ -2,6 +2,7 @@
 import { CloseBold } from '@element-plus/icons-vue'
 import { contentRefKey, tabNameRefKey } from '.'
 import { GSButton } from '@/components'
+import { mapSidermenuKey } from '@/pages/pageMapV2/shared'
 
 const props = defineProps<{
   collapse?: boolean
@@ -40,10 +41,13 @@ const checkTooltip = (ev: Event) => {
 }
 useEventListener('pointermove', checkTooltip)
 useEventListener('pointerdown', checkTooltip)
+
+const mapSidermenuRef = ref<HTMLElement | null>(null)
+provide(mapSidermenuKey, mapSidermenuRef)
 </script>
 
 <template>
-  <div class="sider-menu absolute top-0 left-0 bottom-0 flex" :class="{ 'is-collapse': collapse }">
+  <div ref="mapSidermenuRef" class="sider-menu absolute top-0 left-0 bottom-0 flex" :class="{ 'is-collapse': collapse }">
     <div class="sider-menu-sidebar flex flex-col" :class="{ 'is-collapse': collapse }">
       <div class="w-full aspect-square grid place-items-center transition-all" :class="{ ' -translate-y-full': collapse }">
         <GSButton theme="plain" @click="$emit('update:collapse', !collapse)">
