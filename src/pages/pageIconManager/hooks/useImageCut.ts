@@ -47,7 +47,7 @@ export const useImageCut = () => {
 
       const today = dayjs()
       const dateOfToday = today.format('YYYY-MM-DD')
-      const path = `${import.meta.env.DEV ? '/img_dev' : import.meta.env.VITE_ALIYUN_ICON_FOLDER}/${dateOfToday}/${file.name}`
+      const path = `${import.meta.env.VITE_ALIYUN_ICON_FOLDER}/${dateOfToday}/${file.name}`
 
       const { data: { token: authorization = '' } = {} } = await Aliyun.token()
       await Aliyun.upload({ authorization, path, file }, {

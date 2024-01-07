@@ -24,7 +24,7 @@ export const useImageHostingStore = defineStore('image-hosting-service', () => {
     const body = {
       authorization,
       file,
-      path: `/${import.meta.env.DEV ? 'img_dev' : 'marker_img'}/${current}/${file.name}`,
+      path: `${import.meta.env.VITE_ALIYUN_ICON_FOLDER}/${current}/${file.name}`,
     }
 
     await Aliyun.upload(body, {
@@ -34,7 +34,7 @@ export const useImageHostingStore = defineStore('image-hosting-service', () => {
       },
     })
 
-    return `https://tiles.yuanshen.site/d${body.path}`
+    return `${import.meta.env.VITE_ALIYUN_IMAGE_BASE}${body.path}`
   }
 
   return {
