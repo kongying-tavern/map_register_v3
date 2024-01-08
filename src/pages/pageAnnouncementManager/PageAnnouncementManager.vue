@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import { usePagination } from '@/hooks'
+import { DialogService } from '@/hooks/useGlobalDialog/dialogService'
 import AnnouncementDialog from './components/AnnouncementDialog.vue'
 import AnnouncementFilter from './components/AnnouncementFilter.vue'
 import AnnouncementTable from './components/AnnouncementTable.vue'
 import type { AnnouncementSearchParams } from './hooks'
 import { useList } from './hooks'
-import { usePagination } from '@/hooks'
-import { DialogService } from '@/hooks/useGlobalDialog/dialogService'
 
 const { pagination, layout } = usePagination()
 
@@ -34,6 +34,21 @@ const getDialogConfig = (title: string) => ({
 function handleCreate() {
   DialogService
     .config(getDialogConfig('新增公告'))
+    .props({
+      form: {},
+      status: "create"
+    })
+    .listeners({ success: getList })
+    .open(AnnouncementDialog)
+}
+
+function handleUpdate (form?: API.NoticeVo) {
+  DialogService
+    .config(getDialogConfig('修改公告'))
+    .props({
+      form,
+      status: "update"
+    })
     .listeners({ success: getList })
     .open(AnnouncementDialog)
 }
@@ -50,7 +65,7 @@ function handleCreate() {
         </div>
       </template>
     </AnnouncementFilter>
-    <AnnouncementTable :data="mainTableData" :loading="loading" />
+    <AnnouncementTable :data="mainTableData" :loading="loading" @update="handleUpdate" />
     <el-pagination
       v-model:current-page="pagination.current"
       v-model:page-size="pagination.pageSize"
