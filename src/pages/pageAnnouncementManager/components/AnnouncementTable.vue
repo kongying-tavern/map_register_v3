@@ -9,6 +9,7 @@ defineProps<{
 
 const emits = defineEmits<{
   (e: 'update', v?: API.NoticeVo): void
+  (e: 'remove', v?: API.NoticeVo): void
 }>()
 
 function datetimeFormatter(row: API.NoticeVo, config: TableColumnCtx<API.NoticeVo>, value: string) {
@@ -34,7 +35,7 @@ const { height } = useElementSize(tableRef)
       <el-table-column prop="menu" label="操作" :width="180" header-align="center" align="center">
         <template #default="scope">
           <el-button type="text" @click="emits('update', scope.row)">修改</el-button>
-          <el-button type="text">删除</el-button>
+          <el-button type="text" @click="emits('remove', scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>

@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import api from '@/api/api'
 import { usePagination } from '@/hooks'
 import { DialogService } from '@/hooks/useGlobalDialog/dialogService'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import AnnouncementDialog from './components/AnnouncementDialog.vue'
 import AnnouncementFilter from './components/AnnouncementFilter.vue'
 import AnnouncementTable from './components/AnnouncementTable.vue'
@@ -31,6 +33,7 @@ const getDialogConfig = (title: string) => ({
   width: '650px',
 })
 
+// 新增公告 打开弹窗
 function handleCreate() {
   DialogService
     .config(getDialogConfig('新增公告'))
@@ -42,6 +45,7 @@ function handleCreate() {
     .open(AnnouncementDialog)
 }
 
+// 更新公告 打开弹窗
 function handleUpdate (form?: API.NoticeVo) {
   DialogService
     .config(getDialogConfig('修改公告'))
@@ -52,6 +56,23 @@ function handleUpdate (form?: API.NoticeVo) {
     .listeners({ success: getList })
     .open(AnnouncementDialog)
 }
+
+// 删除公告
+function handleRemove (form?: API.NoticeVo) {
+  ElMessageBox.confirm(
+    '是否确认删除公告?',
+    '确认?',
+    {
+      type: 'warning',
+    }
+  ).then(() => {
+    return api.notice.deleteNotice({ noticeId: form?.id as number })
+  }).then(() => {
+    ElMessage.success({ message: "删除公告成功" })
+    getList()
+  })
+}
+
 </script>
 
 <template>
@@ -65,7 +86,7 @@ function handleUpdate (form?: API.NoticeVo) {
         </div>
       </template>
     </AnnouncementFilter>
-    <AnnouncementTable :data="mainTableData" :loading="loading" @update="handleUpdate" />
+    <AnnouncementTable :data="mainTableData" :loading="loading" @update="handleUpdate" @remove="handleRemove" />
     <el-pagination
       v-model:current-page="pagination.current"
       v-model:page-size="pagination.pageSize"
