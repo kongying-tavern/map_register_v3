@@ -53,6 +53,7 @@ declare namespace GSMapState {
   /** 任务类型表 */
   interface MissionTypeMap {
     markerDragging: Record<number, API.Coordinate2D>
+    markerLink: API.MarkerLinkageVo[]
     unknown: unknown
   }
 
@@ -88,4 +89,8 @@ declare namespace GSMapState {
 
   /** 临时点位类型 */
   type TempMarkerType = keyof TempMarkerTypeMap
+
+  interface CustomEventTypeMap {
+    unknown: unknown[]
+  }
 }
