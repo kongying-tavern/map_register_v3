@@ -3,4 +3,3 @@ export type {
   GenshinMapOptions,
   GenshinMapEvents,
 } from './map'
-export * from './EventBus'
