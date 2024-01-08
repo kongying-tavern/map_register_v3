@@ -173,9 +173,19 @@ const colors = [
                 <div class="color-item unset" @click="editor.chain().focus().unsetColor().run()"></div>
               </div>
             </el-popover>
-            <div class="tool-item tool-item-size">
-              <svg viewBox="0 0 1024 1024" p-id="7512" width="64" height="64"><path d="M711.328 735.968l-33.792 92.8a32 32 0 0 1-60.16-21.888l130.368-358.08a31.968 31.968 0 0 1 42.016-21.888c10.208 3.712 17.376 12.096 19.968 21.856l130.336 358.08a32 32 0 0 1-60.16 21.92l-33.76-92.8H711.36z m23.264-64h88.256l-44.128-121.28L734.592 672zM234.752 576h202.496L336 297.856 234.752 576z m-23.296 64L144.64 823.648a32 32 0 0 1-60.128-21.888L303.36 200.32a32 32 0 0 1 32.64-20.96 32 32 0 0 1 32.64 20.96l218.88 601.408a32 32 0 0 1-60.16 21.888L460.576 640H211.456z" p-id="7513" fill="currentColor"></path></svg>
-            </div>
+            <el-popover
+              placement="bottom"
+              width="fit-content"
+              trigger="hover">
+              <template #reference>
+                <div class="tool-item tool-item-size">
+                  <svg viewBox="0 0 1024 1024" p-id="7512" width="64" height="64"><path d="M711.328 735.968l-33.792 92.8a32 32 0 0 1-60.16-21.888l130.368-358.08a31.968 31.968 0 0 1 42.016-21.888c10.208 3.712 17.376 12.096 19.968 21.856l130.336 358.08a32 32 0 0 1-60.16 21.92l-33.76-92.8H711.36z m23.264-64h88.256l-44.128-121.28L734.592 672zM234.752 576h202.496L336 297.856 234.752 576z m-23.296 64L144.64 823.648a32 32 0 0 1-60.128-21.888L303.36 200.32a32 32 0 0 1 32.64-20.96 32 32 0 0 1 32.64 20.96l218.88 601.408a32 32 0 0 1-60.16 21.888L460.576 640H211.456z" p-id="7513" fill="currentColor"></path></svg>
+                </div>
+              </template>
+              <div class="editor-size-layout">
+                <el-input-number :model-value="1" :step="0.1" @change="(cur) => editor.chain().focus().setSize(cur as number).run()" />
+              </div>
+            </el-popover>
           </div>
           <EditorContent class="editor" :editor="editor" />
         </div>
@@ -234,7 +244,7 @@ const colors = [
     overflow: hidden;
 
     size {
-      font-size: calc(var(--size, 1) * 16px);
+      font-size: calc(var(--size, 1) * 14px);
     }
 
     color {
