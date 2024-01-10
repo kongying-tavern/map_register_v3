@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "7z-wasm": "1.1.0",
-    "@766aya/unity-kit": "^2.2.0-rc.14",
+    "@766aya/unity-kit": "2.2.0-rc.14",
     "@deck.gl/core": "8.9.32",
     "@deck.gl/geo-layers": "8.9.32",
     "@deck.gl/layers": "8.9.32",
@@ -46,7 +46,7 @@
     "@deck.gl/mesh-layers": "8.9.32",
     "@loaders.gl/core": "3.4.14",
     "@types/lodash": "4.14.200",
-    "@types/node": "^18.15.11",
+    "@types/node": "18.15.11",
     "@types/serviceworker": "0.0.76",
     "@vitejs/plugin-vue": "5.0.2",
     "@vitejs/plugin-vue-jsx": "3.1.0",
