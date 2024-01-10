@@ -2,10 +2,10 @@ declare namespace API {
   interface RBoolean {
     error?: boolean
     errorStatus?: number
-    errorData?: Record<string, unknown>
+    errorData?: unknown
     message?: string
     data?: boolean
-    users?: Record<string, unknown>
+    users?: Record<string, SysUserSmallVo>
     time?: string
   }
 
@@ -46,10 +46,10 @@ declare namespace API {
   interface RLong {
     error?: boolean
     errorStatus?: number
-    errorData?: Record<string, unknown>
+    errorData?: unknown
     message?: string
     data?: number
-    users?: Record<string, unknown>
+    users?: Record<string, SysUserSmallVo>
     time?: string
   }
 
@@ -71,7 +71,7 @@ declare namespace API {
     /** 路线描述 */
     content?: string
     /** 点位顺序数组 */
-    markerList?: Record<string, unknown>[]
+    markerList?: unknown[]
     /** 显隐等级 */
     hiddenFlag?: number
     /** 视频地址 */
@@ -92,10 +92,10 @@ declare namespace API {
   interface RResourceUploadVo {
     error?: boolean
     errorStatus?: number
-    errorData?: Record<string, unknown>
+    errorData?: unknown
     message?: string
     data?: ResourceUploadVo
-    users?: Record<string, unknown>
+    users?: Record<string, SysUserSmallVo>
     time?: string
   }
 
@@ -255,10 +255,10 @@ declare namespace API {
   interface RListLong {
     error?: boolean
     errorStatus?: number
-    errorData?: Record<string, unknown>
+    errorData?: unknown
     message?: string
     data?: number[]
-    users?: Record<string, unknown>
+    users?: Record<string, SysUserSmallVo>
     time?: string
   }
 
@@ -420,10 +420,10 @@ declare namespace API {
   interface RPageListVoSysUserVo {
     error?: boolean
     errorStatus?: number
-    errorData?: Record<string, unknown>
+    errorData?: unknown
     message?: string
     data?: PageListVoSysUserVo
-    users?: Record<string, unknown>
+    users?: Record<string, SysUserSmallVo>
     time?: string
   }
 
@@ -468,10 +468,10 @@ declare namespace API {
   interface RPageListVoTagTypeVo {
     error?: boolean
     errorStatus?: number
-    errorData?: Record<string, unknown>
+    errorData?: unknown
     message?: string
     data?: PageListVoTagTypeVo
-    users?: Record<string, unknown>
+    users?: Record<string, SysUserSmallVo>
     time?: string
   }
 
@@ -499,10 +499,10 @@ declare namespace API {
   interface RTagVo {
     error?: boolean
     errorStatus?: number
-    errorData?: Record<string, unknown>
+    errorData?: unknown
     message?: string
     data?: TagVo
-    users?: Record<string, unknown>
+    users?: Record<string, SysUserSmallVo>
     time?: string
   }
 
@@ -526,10 +526,10 @@ declare namespace API {
   interface RPageListVoTagVo {
     error?: boolean
     errorStatus?: number
-    errorData?: Record<string, unknown>
+    errorData?: unknown
     message?: string
     data?: PageListVoTagVo
-    users?: Record<string, unknown>
+    users?: Record<string, SysUserSmallVo>
     time?: string
   }
 
@@ -548,10 +548,10 @@ declare namespace API {
   interface RObject {
     error?: boolean
     errorStatus?: number
-    errorData?: Record<string, unknown>
+    errorData?: unknown
     message?: string
-    data?: Record<string, unknown>
-    users?: Record<string, unknown>
+    data?: unknown
+    users?: Record<string, SysUserSmallVo>
     time?: string
   }
 
@@ -577,10 +577,10 @@ declare namespace API {
   interface RPageListVoRouteVo {
     error?: boolean
     errorStatus?: number
-    errorData?: Record<string, unknown>
+    errorData?: unknown
     message?: string
     data?: PageListVoRouteVo
-    users?: Record<string, unknown>
+    users?: Record<string, SysUserSmallVo>
     time?: string
   }
 
@@ -594,10 +594,10 @@ declare namespace API {
   interface RListRouteVo {
     error?: boolean
     errorStatus?: number
-    errorData?: Record<string, unknown>
+    errorData?: unknown
     message?: string
     data?: RouteVo[]
-    users?: Record<string, unknown>
+    users?: Record<string, SysUserSmallVo>
     time?: string
   }
 
@@ -610,10 +610,10 @@ declare namespace API {
   interface RPageListVoMarkerPunctuateVo {
     error?: boolean
     errorStatus?: number
-    errorData?: Record<string, unknown>
+    errorData?: unknown
     message?: string
     data?: PageListVoMarkerPunctuateVo
-    users?: Record<string, unknown>
+    users?: Record<string, SysUserSmallVo>
     time?: string
   }
 
@@ -633,10 +633,10 @@ declare namespace API {
   interface RListMarkerPunctuateVo {
     error?: boolean
     errorStatus?: number
-    errorData?: Record<string, unknown>
+    errorData?: unknown
     message?: string
     data?: MarkerPunctuateVo[]
-    users?: Record<string, unknown>
+    users?: Record<string, SysUserSmallVo>
     time?: string
   }
 
@@ -662,10 +662,10 @@ declare namespace API {
   interface RPageListVoNoticeVo {
     error?: boolean
     errorStatus?: number
-    errorData?: Record<string, unknown>
+    errorData?: unknown
     message?: string
     data?: PageListVoNoticeVo
-    users?: Record<string, unknown>
+    users?: Record<string, SysUserSmallVo>
     time?: string
   }
 
@@ -726,10 +726,10 @@ declare namespace API {
   interface RString {
     error?: boolean
     errorStatus?: number
-    errorData?: Record<string, unknown>
+    errorData?: unknown
     message?: string
     data?: string
-    users?: Record<string, unknown>
+    users?: Record<string, SysUserSmallVo>
     time?: string
   }
 
@@ -740,20 +740,20 @@ declare namespace API {
   interface RMapStringListMarkerLinkageVo {
     error?: boolean
     errorStatus?: number
-    errorData?: Record<string, unknown>
+    errorData?: unknown
     message?: string
-    data?: Record<string, unknown>
-    users?: Record<string, unknown>
+    data?: Record<string, MarkerLinkageVo[]>
+    users?: Record<string, SysUserSmallVo>
     time?: string
   }
 
   interface GraphVo {
     /** 点位关联关系 */
-    relations?: Record<string, unknown>
+    relations?: Record<string, string[]>
     /** 点位关联关系引用映射 */
-    relRefs?: Record<string, unknown>
+    relRefs?: Record<string, RelationVo>
     /** 路线组引用映射 */
-    pathRefs?: Record<string, unknown>
+    pathRefs?: Record<string, PathEdgeVo[]>
   }
 
   interface LinkRefVo {
@@ -766,10 +766,10 @@ declare namespace API {
   interface RMapStringGraphVo {
     error?: boolean
     errorStatus?: number
-    errorData?: Record<string, unknown>
+    errorData?: unknown
     message?: string
-    data?: Record<string, unknown>
-    users?: Record<string, unknown>
+    data?: Record<string, GraphVo>
+    users?: Record<string, SysUserSmallVo>
     time?: string
   }
 
@@ -786,7 +786,7 @@ declare namespace API {
 
   interface TweakConfigMetaVo {
     /** 数据值 */
-    value?: Record<string, unknown>
+    value?: unknown
     /** 检查文本 */
     test?: string
     /** 替换为 */
@@ -815,10 +815,10 @@ declare namespace API {
   interface RListMarkerVo {
     error?: boolean
     errorStatus?: number
-    errorData?: Record<string, unknown>
+    errorData?: unknown
     message?: string
     data?: MarkerVo[]
-    users?: Record<string, unknown>
+    users?: Record<string, SysUserSmallVo>
     time?: string
   }
 
@@ -831,10 +831,10 @@ declare namespace API {
   interface RPageListVoMarkerVo {
     error?: boolean
     errorStatus?: number
-    errorData?: Record<string, unknown>
+    errorData?: unknown
     message?: string
     data?: PageListVoMarkerVo
-    users?: Record<string, unknown>
+    users?: Record<string, SysUserSmallVo>
     time?: string
   }
 
@@ -850,10 +850,10 @@ declare namespace API {
   interface RListItemTypeVo {
     error?: boolean
     errorStatus?: number
-    errorData?: Record<string, unknown>
+    errorData?: unknown
     message?: string
     data?: ItemTypeVo[]
-    users?: Record<string, unknown>
+    users?: Record<string, SysUserSmallVo>
     time?: string
   }
 
@@ -866,10 +866,10 @@ declare namespace API {
   interface RPageListVoItemTypeVo {
     error?: boolean
     errorStatus?: number
-    errorData?: Record<string, unknown>
+    errorData?: unknown
     message?: string
     data?: PageListVoItemTypeVo
-    users?: Record<string, unknown>
+    users?: Record<string, SysUserSmallVo>
     time?: string
   }
 
@@ -921,10 +921,10 @@ declare namespace API {
   interface RPageListVoItemAreaPublicVo {
     error?: boolean
     errorStatus?: number
-    errorData?: Record<string, unknown>
+    errorData?: unknown
     message?: string
     data?: PageListVoItemAreaPublicVo
-    users?: Record<string, unknown>
+    users?: Record<string, SysUserSmallVo>
     time?: string
   }
 
@@ -948,20 +948,20 @@ declare namespace API {
   interface RPageListVoItemVo {
     error?: boolean
     errorStatus?: number
-    errorData?: Record<string, unknown>
+    errorData?: unknown
     message?: string
     data?: PageListVoItemVo
-    users?: Record<string, unknown>
+    users?: Record<string, SysUserSmallVo>
     time?: string
   }
 
   interface RListItemVo {
     error?: boolean
     errorStatus?: number
-    errorData?: Record<string, unknown>
+    errorData?: unknown
     message?: string
     data?: ItemVo[]
-    users?: Record<string, unknown>
+    users?: Record<string, SysUserSmallVo>
     time?: string
   }
 
@@ -974,20 +974,20 @@ declare namespace API {
   interface RPageListVoIconTypeVo {
     error?: boolean
     errorStatus?: number
-    errorData?: Record<string, unknown>
+    errorData?: unknown
     message?: string
     data?: PageListVoIconTypeVo
-    users?: Record<string, unknown>
+    users?: Record<string, SysUserSmallVo>
     time?: string
   }
 
   interface RIconVo {
     error?: boolean
     errorStatus?: number
-    errorData?: Record<string, unknown>
+    errorData?: unknown
     message?: string
     data?: IconVo
-    users?: Record<string, unknown>
+    users?: Record<string, SysUserSmallVo>
     time?: string
   }
 
@@ -1017,10 +1017,10 @@ declare namespace API {
   interface RPageListVoIconVo {
     error?: boolean
     errorStatus?: number
-    errorData?: Record<string, unknown>
+    errorData?: unknown
     message?: string
     data?: PageListVoIconVo
-    users?: Record<string, unknown>
+    users?: Record<string, SysUserSmallVo>
     time?: string
   }
 
@@ -1072,20 +1072,20 @@ declare namespace API {
   interface RPageListVoHistoryVo {
     error?: boolean
     errorStatus?: number
-    errorData?: Record<string, unknown>
+    errorData?: unknown
     message?: string
     data?: PageListVoHistoryVo
-    users?: Record<string, unknown>
+    users?: Record<string, SysUserSmallVo>
     time?: string
   }
 
   interface RAreaVo {
     error?: boolean
     errorStatus?: number
-    errorData?: Record<string, unknown>
+    errorData?: unknown
     message?: string
     data?: AreaVo
-    users?: Record<string, unknown>
+    users?: Record<string, SysUserSmallVo>
     time?: string
   }
 
@@ -1101,30 +1101,30 @@ declare namespace API {
   interface RListAreaVo {
     error?: boolean
     errorStatus?: number
-    errorData?: Record<string, unknown>
+    errorData?: unknown
     message?: string
     data?: AreaVo[]
-    users?: Record<string, unknown>
+    users?: Record<string, SysUserSmallVo>
     time?: string
   }
 
   interface RSysUserVo {
     error?: boolean
     errorStatus?: number
-    errorData?: Record<string, unknown>
+    errorData?: unknown
     message?: string
     data?: SysUserVo
-    users?: Record<string, unknown>
+    users?: Record<string, SysUserSmallVo>
     time?: string
   }
 
   interface RListSysRoleVo {
     error?: boolean
     errorStatus?: number
-    errorData?: Record<string, unknown>
+    errorData?: unknown
     message?: string
     data?: SysRoleVo[]
-    users?: Record<string, unknown>
+    users?: Record<string, SysUserSmallVo>
     time?: string
   }
 
@@ -1142,10 +1142,10 @@ declare namespace API {
   interface RSysArchiveVo {
     error?: boolean
     errorStatus?: number
-    errorData?: Record<string, unknown>
+    errorData?: unknown
     message?: string
     data?: SysArchiveVo
-    users?: Record<string, unknown>
+    users?: Record<string, SysUserSmallVo>
     time?: string
   }
 
@@ -1161,10 +1161,10 @@ declare namespace API {
   interface RSysArchiveSlotVo {
     error?: boolean
     errorStatus?: number
-    errorData?: Record<string, unknown>
+    errorData?: unknown
     message?: string
     data?: SysArchiveSlotVo
-    users?: Record<string, unknown>
+    users?: Record<string, SysUserSmallVo>
     time?: string
   }
 
@@ -1187,20 +1187,20 @@ declare namespace API {
   interface RListSysArchiveSlotVo {
     error?: boolean
     errorStatus?: number
-    errorData?: Record<string, unknown>
+    errorData?: unknown
     message?: string
     data?: SysArchiveSlotVo[]
-    users?: Record<string, unknown>
+    users?: Record<string, SysUserSmallVo>
     time?: string
   }
 
   interface RListString {
     error?: boolean
     errorStatus?: number
-    errorData?: Record<string, unknown>
+    errorData?: unknown
     message?: string
     data?: string[]
-    users?: Record<string, unknown>
+    users?: Record<string, SysUserSmallVo>
     time?: string
   }
 }
