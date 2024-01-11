@@ -3,7 +3,6 @@ import { GSMapController } from '../controllers'
 import { GSCompositeLayer } from '../layer'
 import { loadFonts } from '../utils'
 import { EventBus } from '@/utils'
-import type { GSMapState } from '@/stores/types/genshin-map-state'
 import { useMapStateStore } from '@/stores'
 import type { GSMap } from '@/pages/pageMapV2/types/map'
 
@@ -41,15 +40,15 @@ export class GenshinMap extends Deck {
         },
       }),
       layers: [new GSCompositeLayer()],
-      viewState: mapStateStore.viewState,
+      initialViewState: mapStateStore.viewState,
       getCursor: ({ isDragging, isHovering }) => {
         return isDragging ? 'grabbing' : isHovering ? 'pointer' : 'inherit'
       },
-      onViewStateChange: ({ viewState }) => {
+      onViewStateChange: ({ viewState, oldViewState }) => {
         if (mapStateStore.isViewPortLocked)
-          return
+          return oldViewState
         mapStateStore.setViewState(viewState)
-        this.setProps({ viewState })
+        return viewState
       },
       onClick: (info, event) => {
         if (!info.object) {
@@ -58,7 +57,9 @@ export class GenshinMap extends Deck {
         }
         this.#event.emit('click', info, event)
       },
-      onLoad: () => this.#event.emit('load', this),
+      onLoad: () => {
+        this.#event.emit('load', this)
+      },
     })
 
     this.ready = new Promise<GenshinMap>(resolve => this.addEventListener('load', resolve))
@@ -72,24 +73,11 @@ export class GenshinMap extends Deck {
 
   readonly removeEventListener = this.#event.off
 
-  /** 更新视图状态的方法 */
-  updateViewState = async (partialViewState: Partial<GSMapState.ViewState>) => {
-    const oldViewState = this.viewManager?.controllers[GenshinMap.ID.main]?.controllerState._viewportProps
-    const viewState = {
-      ...oldViewState,
-      ...partialViewState,
-    }
-    this.props.onViewStateChange({
-      viewId: 'genshin-view',
-      viewState,
-      oldViewState,
-      interactionState: {
-        isDragging: false,
-        inTransition: false,
-        isZooming: viewState.zoom !== oldViewState.zoom,
-        isPanning: true,
-        isRotating: false,
-      },
-    })
+  readonly getViewController = () => {
+    return this.viewManager?.controllers[GenshinMap.ID.main] as GSMapController | undefined
+  }
+
+  readonly getViewManage = () => {
+    return this.viewManager
   }
 }

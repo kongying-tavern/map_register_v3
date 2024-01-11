@@ -4,7 +4,9 @@ import { filter, fromEvent as fromRawEvent, map, switchMap, takeUntil } from 'rx
 import { CloseBold, SemiSelect } from '@element-plus/icons-vue'
 import { fromEvent, useSubscription } from '@vueuse/rxjs'
 import { useMap } from '../hooks'
+import { GenshinMap } from '../core'
 import { useMapStateStore } from '@/stores'
+import { EaseoutInterpolator } from '@/pages/pageMapV2/core/interpolator'
 
 withDefaults(defineProps<{
   /** 点击按钮的缩放差，必须为大于 0 小于 1 的值 @default 0.25 */
@@ -35,9 +37,14 @@ onMapReady((map) => {
   })
 
   watch(zoomSetValue, (zoomNumber) => {
-    map.updateViewState(prepareToTransition.value
-      ? { zoom: zoomNumber, transitionDuration: 150 }
-      : { zoom: zoomNumber, transitionDuration: 0 })
+    map.setProps({
+      initialViewState: {
+        target: map.getViewManage()?.getViewState(GenshinMap.ID.main).target,
+        zoom: zoomNumber,
+        transitionDuration: prepareToTransition.value ? 200 : 0,
+        transitionInterpolator: new EaseoutInterpolator(['target', 'zoom']),
+      },
+    })
     prepareToTransition.value = false
   })
 })

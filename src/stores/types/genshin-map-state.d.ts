@@ -90,6 +90,7 @@ declare namespace GSMapState {
   /** 临时点位类型 */
   type TempMarkerType = keyof TempMarkerTypeMap
 
+  /** 地图可用事件与其参数数组 */
   interface CustomEventTypeMap {
     unknown: unknown[]
   }

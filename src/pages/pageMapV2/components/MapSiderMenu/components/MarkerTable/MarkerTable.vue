@@ -41,7 +41,7 @@ const columns = ref<Column[]>([
 
 <style lang="scss" scoped>
 .marker-filter {
-  width: 600px;
+  width: 350px;
 }
 
 .marker-table {

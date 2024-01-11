@@ -12,10 +12,6 @@ export class GSMapController extends OrthographicController {
     transitionInterpolator: new LinearInterpolator(['target', 'zoom']),
   }
 
-  handleEvent = (...args: Parameters<OrthographicController['handleEvent']>): boolean => {
-    return super.handleEvent(...args)
-  }
-
   // 此处实现 copy 自 OrthographicController['_onWheel']
   // 只是修改了 transitionDuration，使其能够获取用户配置值
   protected _onWheel(...args: Parameters<OrthographicController['_onWheel']>): boolean {
@@ -48,37 +44,5 @@ export class GSMapController extends OrthographicController {
       },
     )
     return true
-  }
-
-  protected _getViewCenter = () => {
-    const { x, y, width, height } = this.props
-    const pos = [x + width / 2, y + height / 2] as [number, number]
-    return pos
-  }
-
-  setZoom = (zoom: number) => {
-    const { zoom: oldZoom } = this.props
-
-    const pos = this._getViewCenter()
-
-    const oldScale = 2 ** oldZoom
-
-    const scale = 2 ** zoom / oldScale
-
-    const newControllerState = this.controllerState.zoom({
-      pos,
-      scale,
-    })
-
-    const { smooth = false } = typeof this.scrollZoom === 'boolean' ? {} : this.scrollZoom
-
-    this.updateViewport(
-      newControllerState,
-      { ...this._getTransitionProps({ around: pos }), transitionDuration: smooth ? 66 : 1 },
-      {
-        isZooming: true,
-        isPanning: true,
-      },
-    )
   }
 }

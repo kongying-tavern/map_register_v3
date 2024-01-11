@@ -1,6 +1,7 @@
 import type { LayersList, UpdateParameters } from '@deck.gl/core/typed'
 import { CompositeLayer } from '@deck.gl/core/typed'
 import type { GenshinMap } from '../map'
+import { EaseoutInterpolator } from '../interpolator'
 import type { GSCompositeLayerState } from './GSCompositeLayerTypes'
 import {
   GSDraggingLineLayer,
@@ -122,10 +123,13 @@ export class GSCompositeLayer extends CompositeLayer {
         if (!oldState || newState.areaCode !== this.state.areaCode) {
           const { target: [x, y], zoom } = tileConfig.initViewState
           const [ox, oy] = tileConfig.tile.center
-          moveToTarget = () => this.context.deck.updateViewState({
-            target: [x + ox, y + oy],
-            zoom,
-            transitionDuration: 150,
+          moveToTarget = () => this.context.deck.setProps({
+            initialViewState: {
+              target: [x + ox, y + oy],
+              zoom,
+              transitionDuration: 1000,
+              transitionInterpolator: new EaseoutInterpolator(['target', 'zoom']),
+            },
           })
         }
 
@@ -180,7 +184,7 @@ export class GSCompositeLayer extends CompositeLayer {
       tileConfig ? new GSOverlayer(this.state) : undefined,
 
       // 地区标签图层
-      new GSTagLayer(this.state, options),
+      tileConfig ? new GSTagLayer(this.state, options) : undefined,
 
       // 点位关联指示线
       new GSMarkerLinkLayer(this.state),
