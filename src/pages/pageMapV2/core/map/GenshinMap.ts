@@ -47,6 +47,16 @@ export class GenshinMap extends Deck {
       onViewStateChange: ({ viewState, oldViewState }) => {
         if (mapStateStore.isViewPortLocked)
           return oldViewState
+        // TODO 由于使用 initialViewState 作为视口状态，
+        // 导致 map 的视口状态由 view 自行管理，
+        // 因此需要 hack 部分不受控的属性，比如 minZoom、maxZoom。
+        for (const key in viewState) {
+          if (typeof viewState[key] !== 'number')
+            continue
+          if (Number.isFinite(viewState[key]))
+            continue
+          viewState[key] = mapStateStore.viewState[key as keyof typeof mapStateStore.viewState]
+        }
         mapStateStore.setViewState(viewState)
         return viewState
       },
@@ -63,6 +73,16 @@ export class GenshinMap extends Deck {
     })
 
     this.ready = new Promise<GenshinMap>(resolve => this.addEventListener('load', resolve))
+
+    this.setProps = (...[props]: Parameters<Deck['setProps']>) => {
+      if (props.viewState) {
+        props.viewState = {
+          ...mapStateStore.viewState,
+          ...props.viewState,
+        }
+      }
+      super.setProps(props)
+    }
   }
 
   #event = new EventBus<GSMap.EventMap>()
