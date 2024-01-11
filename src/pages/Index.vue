@@ -103,7 +103,11 @@ import {
 export default {
   name: "PageIndex",
   setup() {
-    return { mapDom };
+    return {
+      mapDom,
+
+      VITE_ENV_BANNER: import.meta.env.VITE_ENV_BANNER,
+    };
   },
   data() {
     return {
@@ -138,6 +142,22 @@ export default {
             {
               label: "我知道了",
               color: "yellow-6",
+            },
+          ],
+        });
+      }
+
+      if (import.meta.env.VITE_ENV_MSG) {
+        this.$q.notify({
+          type: "warning",
+          color: "orange-2",
+          position: "top",
+          timeout: 0,
+          message: import.meta.env.VITE_ENV_MSG,
+          actions: [
+            {
+              label: "我知道了",
+              color: "primary",
             },
           ],
         });
