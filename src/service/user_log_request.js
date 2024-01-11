@@ -8,7 +8,7 @@ function get_token(username, password, grant_type = "password") {
   data.append("password", password);
   return axios({
     method: "post",
-    url: `${process.env.VITE_API_BASE}/oauth/token`,
+    url: `${import.meta.env.VITE_API_BASE}/oauth/token`,
     headers: {
       "Content-Type": "multipart/form-data",
       Authorization: "Basic Y2xpZW50OnNlY3JldA==",
@@ -20,7 +20,7 @@ function get_token(username, password, grant_type = "password") {
 function refresh_token() {
   return axios({
     method: "post",
-    url: `${process.env.VITE_API_BASE}/oauth/token`,
+    url: `${import.meta.env.VITE_API_BASE}/oauth/token`,
     headers: {
       "Content-Type": "multipart/form-data",
       Authorization: "Basic Y2xpZW50OnNlY3JldA==",

@@ -1,5 +1,5 @@
 import default_request from "./default_request";
-const baseurl = `${process.env.VITE_API_BASE}/api`;
+const baseurl = `${import.meta.env.VITE_API_BASE}/api`;
 // Const baseurl = 'http://localhost:9000/api/api'
 
 // 上传点位

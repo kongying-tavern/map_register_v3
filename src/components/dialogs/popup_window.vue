@@ -13,7 +13,7 @@
         class="layer_img"
         :src="
           layer_data.picture == ''
-            ? 'https://assets.yuanshen.site/images/noImage.png'
+            ? `${VITE_ASSET_BASE}/images/noImage.png`
             : layer_data.picture
         "
         spinner-color="primary"
@@ -51,6 +51,11 @@ import { is_admin } from "src/service/user_info";
 
 export default {
   name: "PopupWindow",
+  setup() {
+    return {
+      VITE_ASSET_BASE: import.meta.env.VITE_ASSET_BASE,
+    };
+  },
   data() {
     return {
       layer_data: {},

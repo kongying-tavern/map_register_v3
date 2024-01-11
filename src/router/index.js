@@ -17,9 +17,9 @@ import { user_token } from "../service/user_info";
  */
 
 export default route((/* { store, ssrContext } */) => {
-  const createHistory = process.env.SERVER
+  const createHistory = import.meta.env.SERVER
     ? createMemoryHistory
-    : process.env.VUE_ROUTER_MODE === "history"
+    : import.meta.env.VUE_ROUTER_MODE === "history"
     ? createWebHistory
     : createWebHashHistory;
 
@@ -30,7 +30,7 @@ export default route((/* { store, ssrContext } */) => {
     // Leave this as is and make changes in quasar.conf.js instead!
     // quasar.conf.js -> build -> vueRouterMode
     // quasar.conf.js -> build -> publicPath
-    history: createHistory(process.env.VUE_ROUTER_BASE),
+    history: createHistory(import.meta.env.VUE_ROUTER_BASE),
   });
   Router.beforeEach((to, from, next) => {
     // 鉴定token是否过期

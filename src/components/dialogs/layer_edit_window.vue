@@ -162,7 +162,7 @@
                   class="col image-box"
                   :src="
                     layer_info.picture === ''
-                      ? 'https://assets.yuanshen.site/images/noImage.png'
+                      ? `${VITE_ASSET_BASE}/images/noImage.png`
                       : layer_info.picture
                   "
                   spinner-color="white"
@@ -358,7 +358,7 @@ import QuickInput from "./quick-input.vue";
 import { create_notify } from "../../api/common";
 import { map_editor_config } from "src/api/config";
 
-const icon_no_img = "https://assets.yuanshen.site/icons/-1.png";
+const icon_no_img = `${import.meta.env.VITE_ASSET_BASE}/icons/-1.png`;
 export default {
   name: "LayerEdit",
   props: [
@@ -378,6 +378,8 @@ export default {
       is_neigui,
       layer_info,
       refresh_init,
+
+      VITE_ASSET_BASE: import.meta.env.VITE_ASSET_BASE,
     };
   },
   data() {
@@ -507,7 +509,9 @@ export default {
           .then((res) => {
             const img_path = _.get(res, "data.path", "");
             if (img_path) {
-              this.layer_info.picture = `https://yuanshen.site${img_path}`;
+              this.layer_info.picture = `${
+                import.meta.env.VITE_IMG_BASE
+              }${img_path}`;
               this.layer_info.pictureCreatorId = user_id.value;
             }
           })

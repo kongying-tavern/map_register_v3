@@ -13,8 +13,8 @@ import "leaflet/dist/leaflet.css";
 function create_icon_options(url, type = "off") {
   let options = {
     type,
-    iconUrl: url || "https://assets.yuanshen.site/icons/-1.png",
-    shadowUrl: `https://assets.yuanshen.site/icons/loc_02_${type}.png`,
+    iconUrl: url || `${import.meta.env.VITE_ASSET_BASE}/icons/-1.png`,
+    shadowUrl: `${import.meta.env.VITE_ASSET_BASE}/icons/loc_02_${type}.png`,
     iconSize: [22, 22], // Size of the icon
     shadowSize: [32, 36], // Size of the shadow
     iconAnchor: [11, 30], // Point of the icon which will correspond to marker's location

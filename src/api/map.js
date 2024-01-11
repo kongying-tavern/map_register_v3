@@ -28,7 +28,7 @@ function create_map_layer(
   mapTilesOffset = [0, 0],
   extension = "png"
 ) {
-  const tiles_preUrl = "https://assets.yuanshen.site/tiles_";
+  const tiles_preUrl = `${import.meta.env.VITE_ASSET_BASE}/tiles_`;
 
   L.TileLayer.T = L.TileLayer.extend({
     getTileUrl(coords) {

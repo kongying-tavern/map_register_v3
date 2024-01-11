@@ -1,7 +1,7 @@
 import axios from "axios";
 import default_request from "./default_request";
 
-const baseurl = `${process.env.VITE_API_BASE}/api`;
+const baseurl = `${import.meta.env.VITE_API_BASE}/api`;
 // Const baseurl = 'http://localhost:9000/api/api'
 
 /**
@@ -86,7 +86,7 @@ function upload_img(file_name, file_data) {
   return axios({
     method: "post",
     data,
-    url: "https://dadian.yuanshen.site/upload.php",
+    url: import.meta.env.VITE_IMG_UPLOAD_URL,
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
     },

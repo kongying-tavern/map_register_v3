@@ -41,7 +41,7 @@
                 <q-img
                   :src="
                     layer_detail.picture == null
-                      ? 'https://assets.yuanshen.site/images/noImage.png'
+                      ? `${VITE_ASSET_BASE}/images/noImage.png`
                       : layer_detail.picture
                   "
                   spinner-color="white"
@@ -115,6 +115,11 @@ import ImgCut from "./vue-cropper.vue";
 export default {
   name: "LayerDetailWindow",
   props: ["detail"],
+  setup() {
+    return {
+      VITE_ASSET_BASE: import.meta.env.VITE_ASSET_BASE,
+    };
+  },
   data() {
     return {
       layer_detail: {},
