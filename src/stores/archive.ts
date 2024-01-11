@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { userHook } from './hooks'
 import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
+import { useUserAuthStore } from '@/stores'
 
 export interface ArchiveBody {
   /** 点位存档 */
@@ -166,6 +167,6 @@ export const useArchiveStore = defineStore('global-archive', () => {
 })
 
 userHook.onInfoChange(useArchiveStore, async (store) => {
-  await store.fetchArchive()
+  useUserAuthStore().validateToken() && await store.fetchArchive()
   store.loadLatestArchive()
 })

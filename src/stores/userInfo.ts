@@ -13,8 +13,6 @@ export const useUserInfoStore = defineStore('global-user-info', () => {
   const { data: roleList, refresh: updateRoleList, onError: onRoleUpdateError } = useFetchHook({
     initialValue: [],
     onRequest: async () => {
-      if (!userAuthStore.validateToken())
-        return []
       const { data = [] } = await Api.role.listRole()
       return data
     },
@@ -43,8 +41,6 @@ export const useUserInfoStore = defineStore('global-user-info', () => {
   } = useFetchHook({
     initialValue: {},
     onRequest: async () => {
-      if (!userAuthStore.validateToken())
-        return {}
       const { userId } = userAuthStore.auth
       if (userId === undefined)
         throw new Error('用户凭证中的用户 id 为空')
@@ -110,6 +106,7 @@ export const useUserInfoStore = defineStore('global-user-info', () => {
 })
 
 routerHook.onBeforeRouterEnter(useUserInfoStore, async (store) => {
-  await store.updateUserInfo()
-  await store.updateRoleList()
+  const isLogin = useUserAuthStore().validateToken()
+  isLogin && await store.updateUserInfo()
+  isLogin && await store.updateRoleList()
 })
