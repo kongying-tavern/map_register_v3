@@ -647,6 +647,8 @@ declare namespace API {
     title?: string
     /** 获取有效数据 */
     getValid?: boolean
+    /** 数据转换器 */
+    transformer?: string
     /** 当前页，从0开始 */
     current?: number
     /** 每页大小，默认为10 */
