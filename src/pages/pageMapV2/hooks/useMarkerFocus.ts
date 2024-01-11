@@ -26,9 +26,15 @@ export const useMarkerFocus = () => {
       })[0]
   }
 
-  const focusMarker = (markerVo: API.MarkerVo | GSMapState.MarkerWithRenderConfig) => {
+  const isInDelay = ref(false)
+
+  const focusMarker = (markerVo: API.MarkerVo | GSMapState.MarkerWithRenderConfig, delay = 0) => {
     const markerWithRender = normalizeMarker(markerVo)
-    updateFocus(markerWithRender)
+    if (isInDelay.value)
+      return markerWithRender
+    delay > 0
+      ? setTimeout(() => updateFocus(markerWithRender), delay)
+      : updateFocus(markerWithRender)
     return markerWithRender
   }
 
