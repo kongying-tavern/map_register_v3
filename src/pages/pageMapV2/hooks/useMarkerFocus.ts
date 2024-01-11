@@ -28,18 +28,24 @@ export const useMarkerFocus = () => {
 
   const isInDelay = ref(false)
 
+  /** 与 focus 相反的行为 */
+  const blur = () => updateFocus(null)
+
   const focusMarker = (markerVo: API.MarkerVo | GSMapState.MarkerWithRenderConfig, delay = 0) => {
+    blur()
     const markerWithRender = normalizeMarker(markerVo)
     if (isInDelay.value)
       return markerWithRender
+    if (delay > 0)
+      isInDelay.value = true
     delay > 0
-      ? setTimeout(() => updateFocus(markerWithRender), delay)
+      ? setTimeout(() => {
+        updateFocus(markerWithRender)
+        isInDelay.value = false
+      }, delay)
       : updateFocus(markerWithRender)
     return markerWithRender
   }
-
-  /** 与 focus 相反的行为 */
-  const blur = () => updateFocus(null)
 
   const hoverMarker = (markerVo: API.MarkerVo | GSMapState.MarkerWithRenderConfig) => {
     const markerWithRender = normalizeMarker(markerVo)
