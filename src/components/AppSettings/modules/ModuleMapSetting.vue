@@ -32,6 +32,19 @@ const { preference } = storeToRefs(usePreferenceStore())
           <el-switch v-model="preference['map.setting.transparentMarked']" />
         </template>
       </SettingBar>
+      <SettingBar label="滚轮缩放过渡时间（毫秒）" note="使用滚轮进行缩放时，过渡所消耗的时间，设置为 0 时则取消过渡">
+        <template #setting>
+          <div class="flex flex-col">
+            <el-input-number
+              v-model="preference['map.setting.zoomTransitionDuration']"
+              style="width: 140px"
+              :min="0"
+              :step="10"
+              :max="200"
+            />
+          </div>
+        </template>
+      </SettingBar>
     </SettingGroup>
 
     <SettingGroup name="性能优化">

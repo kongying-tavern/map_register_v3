@@ -27,6 +27,8 @@ export interface UserPreference {
   /** 隐藏点位弹窗 */
   'map.setting.hideMarkerPopover'?: boolean
 
+  'map.setting.zoomTransitionDuration': number
+
   /** 地图最后停留的中心点位置 */
   'map.viewState.target'?: API.Coordinate2D
 
@@ -99,6 +101,7 @@ export interface UserPreference {
 export const getDefaultPreference = (): UserPreference => ({
   'mapSiderMenu.state.collapse': false,
   'markerFilter.state.step': 0,
+  'map.setting.zoomTransitionDuration': 66,
 })
 
 /** 筛选器预设 */
