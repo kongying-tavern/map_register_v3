@@ -1,3 +1,4 @@
+export { MapActionPanelManager } from './MapActionPanel'
 export { MapAffix } from './MapAffix'
 export { MapContextMenu } from './MapContextMenu'
 export { MapOverlayController } from './MapOverlayController'
