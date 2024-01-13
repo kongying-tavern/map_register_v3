@@ -1,17 +1,21 @@
 <script setup lang="ts">
-import type { ActionPanelTypes } from '../types'
+import type { MapWindow } from '../types'
+import { context } from '../core'
 
 defineProps<{
-  context: ActionPanelTypes.Context
   id: string
-  info: ActionPanelTypes.Info
+  info: MapWindow.Info
   dragHookId: string
 }>()
+
+const mainRef = defineModel<HTMLElement | null>('mainRef', {
+  default: null,
+})
 </script>
 
 <template>
   <div
-    class="action-panel"
+    class="window-panel"
     :class="{
       'is-top': context.isTop(id),
     }"
@@ -22,22 +26,18 @@ defineProps<{
     :[`data-${dragHookId}`]="id"
   >
     <div
-      class="action-panel-header"
+      class="window-panel-header"
       data-draggable="true"
     >
       {{ info.name }}
     </div>
 
-    <div class="action-panel-main">
-      <div v-for="i in 10" :key="i">
-        Lorem, ipsum dolor sit amet consectetur adipisicing elit. Voluptatum distinctio ducimus amet laboriosam? Eius, aperiam, praesentium doloribus, animi molestias reprehenderit sunt labore deserunt sit ipsum voluptatem? Atque nemo temporibus blanditiis?
-      </div>
-    </div>
+    <div ref="mainRef" class="window-panel-main" />
   </div>
 </template>
 
 <style scoped>
-.action-panel {
+.window-panel {
   width: 400px;
   height: 600px;
   border-radius: 6px;
@@ -56,16 +56,15 @@ defineProps<{
   }
 }
 
-.action-panel-header {
+.window-panel-header {
   flex-shrink: 0;
   background: #CCC;
   user-select: none;
 }
 
-.action-panel-main {
+.window-panel-main {
   flex: 1;
   background: #FFF;
   overflow: auto;
 }
 </style>
-../types

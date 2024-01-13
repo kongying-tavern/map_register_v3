@@ -1,8 +1,8 @@
 import { filter, map, switchMap, takeUntil } from 'rxjs'
 import { useSubscription } from '@vueuse/rxjs'
-import type { ActionPanelTypes } from '../types'
+import type { MapWindow } from '../types'
 
-export const usePanelDrag = (options: ActionPanelTypes.PanelDragHookOptions) => {
+export const useWindowDrag = (options: MapWindow.WindowDragHookOptions) => {
   const { context } = options
 
   const { pointerdown, pointermove, pointerup } = context

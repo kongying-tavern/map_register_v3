@@ -6,6 +6,7 @@ import {
   MapContextMenu,
   MapSiderMenu,
   MapStateBar,
+  MapWindowManager,
   MarkerMoveController,
   MarkerPopover,
   ZoomController,
@@ -52,10 +53,9 @@ provide(mapAffixLayerKey, mapAffixLayerRef)
       />
     </div>
 
+    <MapWindowManager />
     <ZoomController class="absolute right-0 top-1/2" :delta-zoom="0.2" />
-
     <MapContextMenu />
-
     <MapStateBar />
 
     <div

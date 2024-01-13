@@ -1,13 +1,15 @@
 import { fromEvent, map } from 'rxjs'
-import type { ActionPanelTypes } from '../types'
+import type { MapWindow } from '../types'
 
-export class PanelContext implements ActionPanelTypes.Context {
+export class WindowContext implements MapWindow.Context {
   readonly dragHookId = [...crypto.getRandomValues(new Uint8Array(4))].map(num => num.toString(16).padStart(2, '0')).join('')
 
-  protected actionPanels: Ref<Record<string, ActionPanelTypes.Info>> = ref({})
+  protected panels: Ref<Record<string, MapWindow.Info>> = ref({})
+
+  protected cachedInfos: Record<string, MapWindow.Info> = {}
 
   protected topOrder = computed(() => {
-    const panels = this.actionPanels.value
+    const panels = this.panels.value
     let order = 0
     for (const key in panels)
       order = Math.max(order, panels[key].order)
@@ -36,20 +38,51 @@ export class PanelContext implements ActionPanelTypes.Context {
   pointerup = fromEvent<PointerEvent>(window, 'pointerup')
 
   isTop = (id: string) => {
-    const panel = this.actionPanels.value[id]
+    const panel = this.panels.value[id]
     if (!panel)
       return false
     return panel.order === this.topOrder.value
   }
 
-  getActionPanels = () => this.actionPanels.value
+  getWindows = () => {
+    return this.panels.value
+  }
 
-  setActionPanels = (panels: Record<string, ActionPanelTypes.Info>) => {
-    this.actionPanels.value = panels
+  setWindows = (panels: Record<string, MapWindow.Info>) => {
+    this.panels.value = panels
+  }
+
+  openWindow = (params: MapWindow.WindowOpenParams) => {
+    if (this.panels.value[params.id])
+      return
+    const cacheInfo = this.cachedInfos[params.id]
+    const info = {
+      name: params.name,
+      translate: cacheInfo?.translate ?? { x: 0, y: 0 },
+      size: cacheInfo?.size ?? { width: 400, height: 600 },
+      order: this.topOrder.value + 1,
+      ref: null,
+    }
+    this.panels.value[params.id] = info
+    this.cachedInfos[params.id] = info
+  }
+
+  closeWindow = (id: string) => {
+    const panels = this.panels.value
+    const panel = panels[id]
+    if (!panel)
+      return
+    const { order } = panel
+    for (const key in panels) {
+      if (panels[key].order <= order)
+        continue
+      panels[key].order -= 1
+    }
+    delete this.panels.value[id]
   }
 
   topping = (id: string) => {
-    const panels = this.actionPanels.value
+    const panels = this.panels.value
 
     const target = panels[id]
     if (!target || target.order === this.topOrder.value)
@@ -68,12 +101,16 @@ export class PanelContext implements ActionPanelTypes.Context {
   }
 
   move = (id: string, pos: { x: number; y: number }) => {
-    const panels = this.actionPanels.value
+    const panels = this.panels.value
 
     const target = panels[id]
     if (!target)
       return
 
     target.translate = pos
+
+    this.cachedInfos[id].translate = pos
   }
 }
+
+export const context = new WindowContext()
