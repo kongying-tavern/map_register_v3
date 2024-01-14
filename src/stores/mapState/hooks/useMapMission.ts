@@ -34,7 +34,7 @@ export const useMapMission = () => {
     }, { deep: true })
 
     const update = (value: GSMapState.MissionTypeMap[K] | null) => {
-      if (!mission.value || mission.value.type === 'markerDragging') {
+      if (!mission.value || mission.value.type === type) {
         mission.value = value === null
           ? null
           : {
