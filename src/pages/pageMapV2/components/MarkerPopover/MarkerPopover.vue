@@ -5,16 +5,15 @@ import { useMarkerFocus } from '../../hooks'
 import { MapAffix, MarkerEditPanel } from '..'
 import { MarkerPanel } from './components'
 import { useMarkerDelete, useMarkerExtra, useMarkerFinished, useMarkerMove, useSkeletonPicture } from './hooks'
-import { useIconTagStore, useMapStateStore, usePreferenceStore } from '@/stores'
+import { useIconTagStore, useMapStateStore } from '@/stores'
 import { CloseFilled } from '@/components/GenshinUI/GSIcon'
 import { AppBilibiliVideoPlayer, AppIconTagRenderer, GSButton } from '@/components'
 import { useGlobalDialog } from '@/hooks'
 
 const mapStateStore = useMapStateStore()
 const { tagSpriteUrl, tagPositionMap } = storeToRefs(useIconTagStore())
-const { preference } = storeToRefs(usePreferenceStore())
 
-const { cachedMarkerVo, focus, blur } = useMarkerFocus()
+const { cachedMarkerVo, isPopoverActived, focus, blur } = useMarkerFocus()
 
 const { pictureUrl, loading: imageLoading } = useSkeletonPicture(cachedMarkerVo)
 
@@ -69,10 +68,7 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
 <template>
   <MapAffix v-if="cachedMarkerVo" :pos="position" :pickable="Boolean(focus)" no-covert-coord>
     <template #default="{ zoom }">
-      <MarkerPanel
-        :actived="Boolean(!preference['map.setting.hideMarkerPopover'] && focus)"
-        :zoom="zoom"
-      >
+      <MarkerPanel :actived="isPopoverActived" :zoom="zoom">
         <template #header>
           <div
             class="
