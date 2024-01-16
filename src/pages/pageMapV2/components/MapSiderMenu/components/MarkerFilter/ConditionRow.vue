@@ -2,14 +2,27 @@
 import { DeleteFilled } from '@element-plus/icons-vue'
 import type { Condition } from '@/stores/types'
 
-defineProps<{
+const props = defineProps<{
+  disabled?: boolean
   condition: Condition
 }>()
 
-defineEmits<{
+const emits = defineEmits<{
   (e: 'review'): void
   (e: 'delete'): void
 }>()
+
+const handleReview = () => {
+  if (props.disabled)
+    return
+  emits('review')
+}
+
+const handleDelete = () => {
+  if (props.disabled)
+    return
+  emits('delete')
+}
 </script>
 
 <template>
@@ -23,12 +36,18 @@ defineEmits<{
         {{ condition.type.name }}
       </div>
 
-      <div class="condition-unit condition-unit-button condition-unit-button__default" @click="$emit('review')">
+      <div class="condition-unit condition-unit-button condition-unit-button__default" @click="handleReview">
         {{ condition.items.length }}
       </div>
     </div>
 
-    <div class="condition-unit condition-unit-button condition-unit-button__delete" @click="$emit('delete')">
+    <div
+      class="condition-unit condition-unit-button condition-unit-button__delete"
+      :class="{
+        'is-disabled': disabled,
+      }"
+      @click="handleDelete"
+    >
       <div class="icon">
         <DeleteFilled />
       </div>
@@ -44,6 +63,7 @@ defineEmits<{
   --color-dark: #313131;
   --color-dark-light: #404040;
   --color-dark-hover: #ffe796;
+  --color-dark-disabled: #6b6964;
 
   height: var(--height);
   border-radius: calc(var(--height) / 2);
@@ -69,12 +89,19 @@ defineEmits<{
   outline: 2px solid transparent;
   user-select: none;
   transition: all ease 150ms;
-  cursor: pointer;
-  &:hover {
-    outline-color: #FFFFFF80;
+
+  &:not(.is-disabled) {
+    &:hover {
+      outline-color: #FFFFFF80;
+    }
+    &:active {
+      outline-color: #00000020;
+    }
+    cursor: pointer;
   }
-  &:active {
-    outline-color: #00000020;
+
+  &.is-disabled {
+    cursor: not-allowed;
   }
 }
 
@@ -93,13 +120,20 @@ defineEmits<{
   color: #FFF;
   gap: 4px;
   padding-left: 2px;
-  &:hover {
+
+  &:not(.is-disabled):hover {
     background: var(--color-dark-light);
   }
-  &:active {
+  &:not(.is-disabled):active {
     background: var(--color-dark-hover);
     color: var(--color-dark);
   }
+
+  &.is-disabled {
+    color: #b3b3b3;
+    background: var(--color-dark-disabled);
+  }
+
   .icon {
     color: var(--gs-color-danger);
     height: calc(var(--height) - 12px);
