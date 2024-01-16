@@ -95,14 +95,14 @@ const handleDragStart = (ev: DragEvent, row: T) => {
 </script>
 
 <template>
-  <el-scrollbar height="100%">
-    <div
-      v-bind="$attrs"
-      class="checkbox-group genshin-text"
-      :class="{
-        'grid-cols-1': !twoCol,
-        'grid-cols-2': twoCol,
-      }"
+  <div
+    v-bind="$attrs"
+    class="checkbox-group genshin-text"
+  >
+    <el-scrollbar
+      class="checkbox-group-scrollbar"
+      always
+      :view-class="`grid gap-1 p-2 ${twoCol ? 'grid-cols-2' : 'grid-cols-1'}`"
     >
       <CheckboxItem
         v-if="multiple && showSelectAllBtn && options.length"
@@ -134,14 +134,20 @@ const handleDragStart = (ev: DragEvent, row: T) => {
           <slot name="default" :row="opt" :actived="isActived(opt)" />
         </template>
       </CheckboxItem>
-    </div>
-  </el-scrollbar>
+    </el-scrollbar>
+  </div>
 </template>
 
 <style lang="scss" scoped>
 .checkbox-group {
   overflow: auto;
-  display: grid;
-  gap: 4px;
+  height: 100%;
+}
+
+.checkbox-group-scrollbar {
+  --el-scrollbar-opacity: 1;
+  :deep(.el-scrollbar__thumb) {
+    background-color: #D3BC8E;
+  }
 }
 </style>

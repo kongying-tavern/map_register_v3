@@ -3,7 +3,7 @@ import { DeleteFilled } from '@element-plus/icons-vue'
 import { storeToRefs } from 'pinia'
 import { useMarkerFilter } from './hooks'
 import { CheckboxGroup, CheckboxItem, ConditionRow, FilterTabs, ItemButton, PresetManager } from '.'
-import { AppIconTagRenderer, GSButton, GSDivider } from '@/components'
+import { AppIconTagRenderer, GSButton } from '@/components'
 import { IconSetting } from '@/components/AppIcons'
 import {
   useArchiveStore,
@@ -182,8 +182,8 @@ const handleDragItem = (ev: DragEvent) => {
       </template>
     </FilterTabs>
 
-    <div class="flex-1 p-2 overflow-hidden" style="max-height: 400px;">
-      <div v-if="preference['markerFilter.state.step'] === 0" class="h-full flex gap-1">
+    <div class="flex-1 overflow-hidden" style="max-height: 400px;">
+      <div v-if="preference['markerFilter.state.step'] === 0" class="h-full flex">
         <CheckboxGroup
           v-model="preference['markerFilter.state.parentAreaCode']"
           class="flex-1"
@@ -222,56 +222,50 @@ const handleDragItem = (ev: DragEvent) => {
         </CheckboxGroup>
       </div>
 
-      <div v-else-if="preference['markerFilter.state.step'] === 1" class="h-full flex gap-1">
-        <CheckboxGroup
-          v-model="preference['markerFilter.state.itemTypeId']"
-          class="flex-1"
-          :options="itemTypeList"
-          label-key="name"
-          value-key="id"
-          two-col
-          @change="autoNextTab"
-        >
-          <template #icon="{ row }">
-            <AppIconTagRenderer
-              :src="iconTagStore.tagSpriteUrl"
-              :mapping="iconTagStore.tagPositionMap[row.iconTag ?? '']"
-              class="w-full aspect-square"
-            />
-          </template>
-        </CheckboxGroup>
-      </div>
+      <CheckboxGroup
+        v-else-if="preference['markerFilter.state.step'] === 1"
+        v-model="preference['markerFilter.state.itemTypeId']"
+        :options="itemTypeList"
+        label-key="name"
+        value-key="id"
+        two-col
+        @change="autoNextTab"
+      >
+        <template #icon="{ row }">
+          <AppIconTagRenderer
+            :src="iconTagStore.tagSpriteUrl"
+            :mapping="iconTagStore.tagPositionMap[row.iconTag ?? '']"
+            class="w-full aspect-square"
+          />
+        </template>
+      </CheckboxGroup>
 
-      <div v-else-if="preference['markerFilter.state.step'] === 2" class="h-full flex gap-1">
-        <CheckboxGroup
-          v-model:multiple-value="preference['markerFilter.state.itemIds']"
-          :options="visibleItemList"
-          class="flex-1"
-          label-key="name"
-          value-key="id"
-          multiple
-          show-select-all-btn
-          two-col
-          draggable
-        >
-          <template #icon="{ row }">
-            <AppIconTagRenderer
-              :src="iconTagStore.tagSpriteUrl"
-              :mapping="iconTagStore.tagPositionMap[row.iconTag ?? '']"
-              class="w-full aspect-square"
-            />
-          </template>
-          <template #default="{ row, actived }">
-            <ItemButton :item-count-map="itemCountMap" :item-total-map="itemTotalMap" :row="row" :actived="actived" />
-          </template>
-        </CheckboxGroup>
-      </div>
+      <CheckboxGroup
+        v-else-if="preference['markerFilter.state.step'] === 2"
+        v-model:multiple-value="preference['markerFilter.state.itemIds']"
+        :options="visibleItemList"
+        label-key="name"
+        value-key="id"
+        multiple
+        show-select-all-btn
+        two-col
+        draggable
+      >
+        <template #icon="{ row }">
+          <AppIconTagRenderer
+            :src="iconTagStore.tagSpriteUrl"
+            :mapping="iconTagStore.tagPositionMap[row.iconTag ?? '']"
+            class="w-full aspect-square"
+          />
+        </template>
+        <template #default="{ row, actived }">
+          <ItemButton :item-count-map="itemCountMap" :item-total-map="itemTotalMap" :row="row" :actived="actived" />
+        </template>
+      </CheckboxGroup>
     </div>
 
-    <GSDivider :height="32" color="rgb(100 100 100 / 0.9)" />
-
-    <div class="text-white px-2">
-      · 默认打点物品
+    <div class="text-white px-2 pt-1">
+      默认打点物品
     </div>
 
     <div
@@ -308,8 +302,8 @@ const handleDragItem = (ev: DragEvent) => {
       </CheckboxItem>
     </div>
 
-    <div class="flex items-center gap-2 text-white px-2 pb-1">
-      · 条件列表
+    <div class="flex items-center gap-2 text-white px-2 pt-1">
+      条件列表
       <el-tooltip placement="top-start" effect="light" content="部分物品可能从属于多个分类，从而对应多个条件。">
         <el-icon :size="16">
           <QuestionFilled />
@@ -324,6 +318,7 @@ const handleDragItem = (ev: DragEvent) => {
             v-for="[id, condition] in conditions"
             :key="id"
             :condition="condition"
+            disabled
             @review="() => reviewCondition(id)"
             @delete="() => deleteCondition(id)"
           />
