@@ -4,6 +4,7 @@ import { genshinMapCanvasKey, mapAffixLayerKey, mutuallyExclusiveLayerKey } from
 import {
   CollapseButton,
   MapContextMenu,
+  MapCursor,
   MapSiderMenu,
   MapStateBar,
   MapWindowManager,
@@ -57,6 +58,7 @@ provide(mapAffixLayerKey, mapAffixLayerRef)
     <ZoomController class="absolute right-0 top-1/2" :delta-zoom="0.2" />
     <MapContextMenu />
     <MapStateBar />
+    <MapCursor />
 
     <div
       ref="mutuallyExclusiveLayerRef"
