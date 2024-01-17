@@ -187,7 +187,7 @@ export class GSCompositeLayer extends CompositeLayer {
       tileConfig ? new GSTagLayer(this.state, options) : undefined,
 
       // 点位关联指示线
-      new GSMarkerLinkLayer(this.state),
+      new GSMarkerLinkLayer(this.state, options),
 
       // 拖拽点位时的指示线
       new GSDraggingLineLayer(this.state),

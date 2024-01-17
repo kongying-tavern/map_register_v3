@@ -1,13 +1,104 @@
 <script setup lang="ts">
+import type { PickingInfo } from '@deck.gl/core/typed'
 import BarItem from './BarItem.vue'
 import { useMapStateStore } from '@/stores'
+import { MapWindowTeleporter, mapWindowContext as context } from '@/pages/pageMapV2/components'
+import { GSMarkerLayer } from '@/pages/pageMapV2/core/layer'
+import type { GSMapState } from '@/stores/types/genshin-map-state'
 
 const mapStateStore = useMapStateStore()
 
-const { isEnable, isProcessing, data: markerLinkList, update, clear } = mapStateStore.subscribeMission('markerLink', () => [])
+const {
+  isEnable,
+  isProcessing,
+  data: linkList,
+  update: setMarkerLink,
+  clear,
+  onClear,
+} = mapStateStore.subscribeMission('markerLink', () => [])
 
-const toggleMarkerLink = () => {
-  isProcessing.value ? clear() : update([])
+const { data: markerOnHover } = mapStateStore.subscribeInteractionInfo('hover', 'defaultMarker')
+
+const { pause: pauseFocus, resume: resumeFocus, update: setMarkerFocus } = mapStateStore.subscribeInteractionInfo('focus', 'defaultMarker')
+
+const buildLinkKey = ({ fromId = 0, toId = 0, linkAction }: { fromId?: number; toId?: number; linkAction?: string }) => {
+  return `${Math.min(fromId, toId)}-${Math.max(fromId, toId)}-${linkAction}`
+}
+
+const triggerMarkerId = ref<number>()
+const addMarkerLink = (markerLink: {
+  fromId: number
+  toId: number
+  linkAction: GSMapState.MLRenderUnit['type']
+}) => {
+  const key = buildLinkKey(markerLink)
+
+  const list = [...linkList.value]
+
+  const tripleTupleIndex = list.findIndex(link => buildLinkKey(link) === key)
+
+  if (tripleTupleIndex > -1)
+    list.splice(tripleTupleIndex, 1, markerLink)
+  else
+    list.push(markerLink)
+
+  mapStateStore.setMLRenderList(list.map(({ fromId, linkAction, toId }) => ({
+    source: fromId!,
+    target: toId!,
+    type: linkAction as GSMapState.MLRenderUnit['type'],
+  })))
+
+  setMarkerLink(list)
+  triggerMarkerId.value = undefined
+}
+
+const handleMapClick = (info: PickingInfo, event: { leftButton?: boolean }) => {
+  // 确认是否处于点位关联任务中
+  if (!isProcessing.value)
+    return
+
+  // 确认点击对象是否为点位
+  if (!event.leftButton || !(info.sourceLayer instanceof GSMarkerLayer))
+    return
+
+  // 去重
+  if (triggerMarkerId.value === info.object)
+    return
+
+  // 当没有源点时，设置源点
+  if (triggerMarkerId.value === undefined) {
+    triggerMarkerId.value = info.object as number
+    return
+  }
+
+  // 当已有源点时，将源点和目标点加入到关联列表
+  // TODO 在这之前需要先选择 linkAction
+  addMarkerLink({
+    fromId: triggerMarkerId.value,
+    toId: info.object as number,
+    linkAction: 'TRIGGER',
+  })
+}
+
+onClear(() => {
+  resumeFocus()
+  mapStateStore.setIsPopoverOnHover(false)
+  mapStateStore.setMLRenderList([])
+  mapStateStore.event.off('click', handleMapClick)
+})
+
+const id = 'marker-link'
+const toggleMarkerLink = async () => {
+  if (isProcessing.value) {
+    context.closeWindow(id)
+    return
+  }
+  mapStateStore.event.on('click', handleMapClick)
+  setMarkerFocus(null)
+  pauseFocus()
+  mapStateStore.setIsPopoverOnHover(true)
+  setMarkerLink([])
+  context.openWindow({ id, name: '点位关联' })
 }
 
 const prefix = crypto.randomUUID()
@@ -42,5 +133,45 @@ const prefix = crypto.randomUUID()
         <use :href="`#${prefix}-b`" transform="translate(200 166)" />
       </svg>
     </el-icon>
+
+    <MapWindowTeleporter :id="id" @close="clear">
+      <div class="w-[400px] flex-col">
+        <div class="border border-red-600 p-1">
+          <div class="flex justify-between items-center">
+            <div class="flex-1 text-center">
+              {{ triggerMarkerId === undefined
+                ? '<选择源点>'
+                : !mapStateStore.currentLayerMarkersMap[triggerMarkerId]
+                  ? 'Error'
+                  : `${mapStateStore.currentLayerMarkersMap[triggerMarkerId].markerTitle} (id: ${triggerMarkerId})`
+              }}
+            </div>
+            <div class="text-center">
+              →
+            </div>
+            <div class="flex-1 text-center">
+              {{ triggerMarkerId === undefined
+                ? '<选择目标点>'
+                : markerOnHover
+                  ? markerOnHover.id === triggerMarkerId
+                    ? '<选择目标点>'
+                    : !mapStateStore.currentLayerMarkersMap[triggerMarkerId]
+                      ? 'Error'
+                      : `${mapStateStore.currentLayerMarkersMap[triggerMarkerId].markerTitle} (id: ${markerOnHover.id})`
+                  : '<选择目标点>'
+              }}
+            </div>
+          </div>
+        </div>
+
+        <div class="flex-1">
+          <div v-for="singleLink in linkList" :key="buildLinkKey(singleLink)">
+            {{ `${mapStateStore.currentLayerMarkersMap[singleLink.fromId ?? -1]?.markerTitle} (id: ${singleLink.fromId})` }}
+            →
+            {{ `${mapStateStore.currentLayerMarkersMap[singleLink.toId ?? -1]?.markerTitle} (id: ${singleLink.toId})` }}
+          </div>
+        </div>
+      </div>
+    </MapWindowTeleporter>
   </BarItem>
 </template>
