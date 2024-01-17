@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { ItemQueryForm } from '../hooks'
-import { useAreaList, useTypeList } from '@/hooks'
+import { useAreaStore, useItemTypeStore } from '@/stores'
 
 const props = defineProps<{
   modelValue: ItemQueryForm
@@ -9,6 +9,9 @@ const props = defineProps<{
 const emits = defineEmits<{
   'update:modelValue': [form: ItemQueryForm]
 }>()
+
+const areaStore = useAreaStore()
+const itemTypeStore = useItemTypeStore()
 
 const model = <K extends keyof ItemQueryForm>(key: K) => computed({
   get: () => props.modelValue[key],
@@ -19,8 +22,17 @@ const name = model('name')
 const areaId = model('areaId')
 const itemTypeId = model('itemTypeId')
 
-const { areaTree } = useAreaList({ immediate: true })
-const { typeTree } = useTypeList({ immediate: true })
+const areaList = computed(() => {
+  return areaStore.areaList
+    .filter(({ isFinal }) => isFinal)
+    .toSorted(({ sortIndex: ia = 0 }, { sortIndex: ib = 0 }) => ib - ia)
+})
+
+const typeList = computed(() => {
+  return itemTypeStore.itemTypeList
+    .filter(({ isFinal }) => isFinal)
+    .toSorted(({ sortIndex: ia = 0 }, { sortIndex: ib = 0 }) => ib - ia)
+})
 </script>
 
 <template>
@@ -31,34 +43,22 @@ const { typeTree } = useTypeList({ immediate: true })
       </el-form-item>
 
       <el-form-item label="所属地区">
-        <el-tree-select
+        <el-select-v2
           v-model="areaId"
-          :data="areaTree"
-          :props="{
-            label: 'name',
-            value: 'id',
-          }"
-          node-key="id"
-          highlight-current
-          accordion
+          :options="areaList"
+          :props="{ label: 'name', value: 'id' }"
           clearable
-          style="width: 100%;"
+          filterable
         />
       </el-form-item>
 
       <el-form-item label="物品类型">
-        <el-tree-select
+        <el-select-v2
           v-model="itemTypeId"
-          :data="typeTree"
-          :props="{
-            label: 'name',
-            value: 'id',
-          }"
-          node-key="id"
-          highlight-current
-          accordion
+          :options="typeList"
+          :props="{ label: 'name', value: 'id' }"
           clearable
-          style="width: 100%;"
+          filterable
         />
       </el-form-item>
 
