@@ -1,9 +1,10 @@
-import { useAreaStore, useItemStore, useMapStateStore, useTileStore } from '@/stores'
+import { useAreaStore, useItemStore, useMapStateStore, usePreferenceStore, useTileStore } from '@/stores'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
 import { createRenderMarkers } from '@/stores/utils'
 
 /** 点位 focus 状态管理 hook */
 export const useMarkerFocus = () => {
+  const preferenceStore = usePreferenceStore()
   const mapStateStore = useMapStateStore()
   const areaStore = useAreaStore()
   const itemStore = useItemStore()
@@ -14,7 +15,16 @@ export const useMarkerFocus = () => {
 
   const { data: focus, update: updateFocus } = mapStateStore.subscribeInteractionInfo('focus', 'defaultMarker')
 
-  const { update: updateHover } = mapStateStore.subscribeInteractionInfo('hover', 'defaultMarker')
+  const { data: hover, update: updateHover } = mapStateStore.subscribeInteractionInfo('hover', 'defaultMarker')
+
+  const isPopoverActived = computed(() => {
+    if (preferenceStore.preference['map.setting.hideMarkerPopover'])
+      return false
+    return Boolean(mapStateStore.isPopoverOnHover
+      ? hover.value
+      : focus.value,
+    )
+  })
 
   const normalizeMarker = (markerVo: API.MarkerVo | GSMapState.MarkerWithRenderConfig): GSMapState.MarkerWithRenderConfig => {
     return 'render' in markerVo
@@ -56,11 +66,20 @@ export const useMarkerFocus = () => {
   /** 与 hover 相反的行为 */
   const out = () => updateHover(null)
 
-  watch(focus, (currentFocusMarker) => {
-    if (!currentFocusMarker)
+  watch(() => [focus.value, hover.value, mapStateStore.isPopoverOnHover] as const, ([currentFocus, currentHover, isPopoverOnHover]) => {
+    const target = isPopoverOnHover ? currentHover : currentFocus
+    if (!target)
       return
-    cachedMarkerVo.value = currentFocusMarker
+    cachedMarkerVo.value = target
   })
 
-  return { cachedMarkerVo, focus, focusMarker, blur, hoverMarker, out }
+  return {
+    isPopoverActived,
+    cachedMarkerVo,
+    focus,
+    focusMarker,
+    blur,
+    hoverMarker,
+    out,
+  }
 }
