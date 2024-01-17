@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import {
   PaintMarkerLink,
-  PaintMarkerLinkPath,
   SwitchMarkerPopover,
   SwitchOverlay,
   ViewState,
@@ -35,7 +34,6 @@ useEventListener(contentZoneRef, 'click', checkTooltip)
   <div class="map-state-bar">
     <div ref="contentZoneRef" class="bar-content">
       <PaintMarkerLink />
-      <PaintMarkerLinkPath />
       <SwitchMarkerPopover />
       <SwitchOverlay />
       <ViewState />
