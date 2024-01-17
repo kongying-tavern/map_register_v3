@@ -26,8 +26,10 @@ withDefaults(defineProps<{
 
         <slot name="prepend" />
 
-        <el-scrollbar :height="128" class="p-1 px-2 text-sm">
-          <slot name="content" />
+        <el-scrollbar :height="128" class="text-sm">
+          <div class="p-1 px-2">
+            <slot name="content" />
+          </div>
         </el-scrollbar>
 
         <slot name="append" />
