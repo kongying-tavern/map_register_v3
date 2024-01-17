@@ -1,12 +1,11 @@
 <script lang="ts" setup>
-import { content, visible } from '@/hooks/useBanner/bannerContext'
 import { useBanner } from '@/hooks'
 
-const { show } = useBanner()
+const { content, height, visible, show } = useBanner()
 
-const height = useCssVar('--gs-banner-height')
+const cssHeight = useCssVar('--gs-banner-height')
 watch(visible, (isVisibile) => {
-  height.value = isVisibile ? '32px' : '0px'
+  cssHeight.value = isVisibile ? '32px' : '0px'
 }, { immediate: true })
 
 import.meta.env.DEV && show(import.meta.env.VITE_ENV_BANNER)
@@ -16,8 +15,9 @@ import.meta.env.DEV && show(import.meta.env.VITE_ENV_BANNER)
   <Transition name="draw-y" mode="out-in" appear>
     <div
       v-show="visible"
-      class="genshin-text absolute w-full top-0 text-md p-1 h-8 px-2 text-center"
+      class="genshin-text absolute w-full top-0 text-md p-1 px-2 text-center"
       :style="{
+        height: `${height}px`,
         background: '#E2DED5',
         color: '#4A4F50',
         zIndex: 3000,

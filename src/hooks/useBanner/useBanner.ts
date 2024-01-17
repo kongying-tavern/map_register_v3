@@ -1,27 +1,26 @@
-import { visible as bannerVisible, content } from './bannerContext'
+const sharedContext = {
+  content: ref(''),
+  visible: ref(false),
+  height: 32,
+}
+
+const show = (msg?: string) => {
+  if (!msg)
+    return
+  sharedContext.content.value = msg
+  sharedContext.visible.value = true
+}
+
+const hide = () => {
+  sharedContext.visible.value = false
+  sharedContext.content.value = ''
+}
 
 /** 顶部 banner，后续可以充当通知栏 */
 export const useBanner = () => {
-  const visible = computed({
-    get: () => bannerVisible.value,
-    set: (v) => {
-      bannerVisible.value = v
-    },
-  })
-
-  const show = (msg?: string) => {
-    if (!msg)
-      return
-    content.value = msg
-    visible.value = true
+  return {
+    ...sharedContext,
+    show,
+    hide,
   }
-
-  const hide = () => {
-    visible.value = false
-    content.value = ''
-  }
-
-  tryOnUnmounted(hide)
-
-  return { visible, show, hide }
 }
