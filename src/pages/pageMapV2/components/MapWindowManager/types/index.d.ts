@@ -11,17 +11,17 @@ export declare namespace MapWindow {
     height: number
   }
 
-  interface Info {
+  interface WindowOpenParams {
+    id: string
     name: string
+    beforeClose?: () => boolean
+  }
+
+  interface Info extends WindowOpenParams {
     translate: MapWindow.Coordinate
     size: MapWindow.Size
     order: number
     ref: HTMLElement | null
-  }
-
-  interface WindowOpenParams {
-    id: string
-    name: string
   }
 
   interface Context {

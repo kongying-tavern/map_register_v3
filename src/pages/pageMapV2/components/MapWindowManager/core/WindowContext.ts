@@ -8,6 +8,8 @@ export class WindowContext implements MapWindow.Context {
 
   protected cachedInfos: Record<string, MapWindow.Info> = {}
 
+  closeHook = createEventHook<string>()
+
   protected topOrder = computed(() => {
     const panels = this.panels.value
     let order = 0
@@ -57,7 +59,7 @@ export class WindowContext implements MapWindow.Context {
       return
     const cacheInfo = this.cachedInfos[params.id]
     const info = {
-      name: params.name,
+      ...params,
       translate: cacheInfo?.translate ?? { x: 0, y: 0 },
       size: cacheInfo?.size ?? { width: 400, height: 600 },
       order: this.topOrder.value + 1,
@@ -72,6 +74,11 @@ export class WindowContext implements MapWindow.Context {
     const panel = panels[id]
     if (!panel)
       return
+
+    const closable = panel.beforeClose ? panel.beforeClose() : true
+    if (!closable)
+      return
+
     const { order } = panel
     for (const key in panels) {
       if (panels[key].order <= order)
@@ -79,6 +86,8 @@ export class WindowContext implements MapWindow.Context {
       panels[key].order -= 1
     }
     delete this.panels.value[id]
+    // TODO 后续可能需要为窗口添加过渡效果，需要确保过渡结束以后才触发 close hook
+    this.closeHook.trigger(id)
   }
 
   topping = (id: string) => {
