@@ -1,8 +1,10 @@
 import type { ComputedRef, Ref } from 'vue'
 import { liveQuery } from 'dexie'
 import { useSubscription } from '@vueuse/rxjs'
+import { storeToRefs } from 'pinia'
 import { array2Tree } from '@/utils'
 import { useFetchHook } from '@/hooks'
+import { useAreaStore } from '@/stores'
 import db from '@/database'
 
 export interface AreaListHookOptions {
@@ -17,7 +19,7 @@ export interface AreaTreeItem extends API.AreaVo {
 export const useAreaList = (options: AreaListHookOptions = {}) => {
   const { immediate, loading } = options
 
-  const areaList = ref([]) as Ref<API.AreaVo[]>
+  const { areaList } = storeToRefs(useAreaStore())
 
   const areaMap = computed(() => Object.fromEntries(areaList.value.map(area => [
     area.id as number,
