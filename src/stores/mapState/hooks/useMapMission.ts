@@ -25,22 +25,25 @@ export const useMapMission = () => {
       return mission.value?.type === type
     })
 
+    const clearEventHook = createEventHook<void>()
+
     const unsubscribe = watch(mission, (newMission) => {
       if (newMission?.type !== type) {
         data.value = getDefaultValue()
         return
       }
       data.value = newMission.value as GSMapState.MissionTypeMap[K]
-    }, { deep: true })
+    }, { deep: true, immediate: true })
 
     const update = (value: GSMapState.MissionTypeMap[K] | null) => {
       if (!mission.value || mission.value.type === type) {
-        mission.value = value === null
-          ? null
-          : {
-              type,
-              value,
-            } as GSMapState.Mission
+        if (value === null) {
+          mission.value = null
+          clearEventHook.trigger()
+          return
+        }
+
+        mission.value = { type, value } as GSMapState.Mission
       }
     }
 
@@ -57,9 +60,20 @@ export const useMapMission = () => {
       if (mission.value?.type !== type)
         return
       mission.value = null
+      clearEventHook.trigger()
     }
 
-    return { isEmpty, isEnable, isProcessing, data, unsubscribe, update, updateBy, clear }
+    return {
+      isEmpty,
+      isEnable,
+      isProcessing,
+      data,
+      unsubscribe,
+      update,
+      updateBy,
+      clear,
+      onClear: clearEventHook.on,
+    }
   }
 
   return {
