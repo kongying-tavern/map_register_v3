@@ -318,7 +318,6 @@ const handleDragItem = (ev: DragEvent) => {
             v-for="[id, condition] in conditions"
             :key="id"
             :condition="condition"
-            disabled
             @review="() => reviewCondition(id)"
             @delete="() => deleteCondition(id)"
           />
