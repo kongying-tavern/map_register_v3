@@ -2,7 +2,6 @@ import { Deck, OrthographicView } from '@deck.gl/core/typed'
 import { GSMapController } from '../controllers'
 import { GSCompositeLayer } from '../layer'
 import { loadFonts } from '../utils'
-import { EventBus } from '@/utils'
 import { useMapStateStore } from '@/stores'
 import type { GSMap } from '@/pages/pageMapV2/types/map'
 
@@ -65,14 +64,20 @@ export class GenshinMap extends Deck {
           mapStateStore.setInteractionInfo('focus', null)
           mapStateStore.setInteractionInfo('hover', null)
         }
-        this.#event.emit('click', info, event)
+        mapStateStore.event.emit('click', info, event)
       },
       onLoad: () => {
-        this.#event.emit('load', this)
+        mapStateStore.event.emit('load', this)
       },
     })
 
-    this.ready = new Promise<GenshinMap>(resolve => this.addEventListener('load', resolve))
+    this.addEventListener = mapStateStore.event.on
+    this.removeEventListener = mapStateStore.event.off
+
+    this.ready = new Promise<GenshinMap>((resolve) => {
+      mapStateStore.event.on('load', resolve)
+      this.addEventListener('load', resolve)
+    })
 
     this.setProps = (...[props]: Parameters<Deck['setProps']>) => {
       if (props.viewState) {
@@ -85,13 +90,11 @@ export class GenshinMap extends Deck {
     }
   }
 
-  #event = new EventBus<GSMap.EventMap>()
-
   readonly ready: Promise<GenshinMap>
 
-  readonly addEventListener = this.#event.on
+  readonly addEventListener: ReturnType<typeof useMapStateStore>['event']['on']
 
-  readonly removeEventListener = this.#event.off
+  readonly removeEventListener: ReturnType<typeof useMapStateStore>['event']['off']
 
   readonly getViewController = () => {
     return this.viewManager?.controllers[GenshinMap.ID.main] as GSMapController | undefined

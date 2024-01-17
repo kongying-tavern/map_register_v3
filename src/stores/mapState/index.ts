@@ -7,6 +7,8 @@ import {
   useViewState,
 } from './hooks'
 import { useAreaStore, useItemStore, useMarkerLinkStore, useMarkerStore, usePreferenceStore, useTileStore } from '@/stores'
+import type { GSMap } from '@/pages/pageMapV2/types/map'
+import { EventBus } from '@/utils'
 
 /** 地图非持久化状态，此类状态会在页面刷新后消失 */
 export const useMapStateStore = defineStore('global-map-state', () => {
@@ -17,10 +19,16 @@ export const useMapStateStore = defineStore('global-map-state', () => {
   const areaStore = useAreaStore()
   const itemStore = useItemStore()
 
+  // ============================== 地图事件 ==============================
+  const event = new EventBus<GSMap.EventMap>()
+
   // ============================== 地图视口 ==============================
   const viewStateHook = useViewState({
     preferenceStore,
   })
+
+  // ============================== 地图任务 ==============================
+  const missionHook = useMapMission()
 
   // ============================== 地图交互 ==============================
   const interactionInfoHook = useInteractionInfo()
@@ -42,10 +50,9 @@ export const useMapStateStore = defineStore('global-map-state', () => {
     setTempMarkers: markersHook.setTempMarkers,
   })
 
-  // ============================== 地图任务 ==============================
-  const missionHook = useMapMission()
-
   return {
+    event,
+
     ...viewStateHook,
 
     ...interactionInfoHook,
