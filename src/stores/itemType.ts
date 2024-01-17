@@ -47,6 +47,7 @@ export const useItemTypeStore = defineStore('global-item-type', () => {
 
   return {
     total,
+    itemTypeList: itemTypeList as Readonly<Ref<API.ItemTypeVo[]>>,
     itemTypeMap,
     itemTypeIdMap,
     backendUpdater,
