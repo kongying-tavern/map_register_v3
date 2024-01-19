@@ -27,23 +27,20 @@ export const useItemList = (options: ItemHookOptions) => {
     return seed
   }, {} as Record<number, API.ItemVo>))
 
-  const params = computed(() => getParams())
-
   const { refresh: updateItemList, onSuccess, loading, ...rest } = useFetchHook({
     immediate: true,
     onRequest: () => {
       const { current, pageSize: size } = pagination.value
-      const { areaId, itemTypeId } = params.value
+      const { areaId, itemTypeId, name = '' } = getParams()
       return Api.item.listItemIdByType({}, {
         current,
         size,
         areaIdList: !areaId ? [] : [areaId],
         typeIdList: !itemTypeId ? [] : [itemTypeId],
+        name,
       })
     },
   })
-
-  watch(() => [params.value.areaId, params.value.itemTypeId], updateItemList)
 
   onSuccess(({ data: { record = [], total = 0 } = {}, users = {} }) => {
     itemList.value = record

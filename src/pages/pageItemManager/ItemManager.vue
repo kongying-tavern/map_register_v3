@@ -49,7 +49,7 @@ onDeleteSuccess(updateItemList)
 
 <template>
   <div class="h-full flex-1 flex flex-col gap-2 overflow-hidden">
-    <ItemFilter v-model="queryForm">
+    <ItemFilter v-model="queryForm" @change="updateItemList">
       <template #footer>
         <div class="w-full flex items-center justify-end">
           <el-button
