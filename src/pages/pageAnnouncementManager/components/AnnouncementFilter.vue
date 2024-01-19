@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { computed } from 'vue'
 import type { AnnouncementSearchParams } from '../hooks'
 import { channelsDict, getValidDict } from '../const/dictionary'
 

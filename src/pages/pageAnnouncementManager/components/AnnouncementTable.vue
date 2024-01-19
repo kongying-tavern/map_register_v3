@@ -1,6 +1,8 @@
 <script lang="ts" setup>
-import dayjs from 'dayjs';
-import type { TableColumnCtx } from 'element-plus';
+import { useElementSize } from '@vueuse/core'
+import dayjs from 'dayjs'
+import type { TableColumnCtx } from 'element-plus'
+import { ref } from 'vue'
 
 defineProps<{
   loading: boolean
@@ -34,8 +36,12 @@ const { height } = useElementSize(tableRef)
       <el-table-column prop="validTimeEnd" label="失效时间" :width="180" :formatter="datetimeFormatter" />
       <el-table-column prop="menu" label="操作" :width="180" header-align="center" align="center">
         <template #default="scope">
-          <el-button type="text" @click="emits('update', scope.row)">修改</el-button>
-          <el-button type="text" @click="emits('remove', scope.row)">删除</el-button>
+          <el-button type="text" @click="emits('update', scope.row)">
+            修改
+          </el-button>
+          <el-button type="text" @click="emits('remove', scope.row)">
+            删除
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
