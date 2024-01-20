@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import type { ComputedRef } from 'vue'
-import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue'
 import UnityKit from '@766aya/unity-kit'
 import type { AnyExtension } from '@tiptap/vue-3'
 import { Editor, EditorContent } from '@tiptap/vue-3'
 import { ElMessage } from 'element-plus'
+import type { ComputedRef } from 'vue'
+import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue'
 import { channelsDict } from '../const/dictionary'
 import type { ItemFormRules } from '@/utils'
 import type { ElFormType } from '@/shared'
@@ -67,8 +67,7 @@ const rules: ComputedRef<ItemFormRules<API.NoticeVo>> = computed(() => ({
 }))
 
 watch(props.form, (val: API.NoticeVo) => {
-  for (const key in val)
-    formData[key] = val[key]
+  Object.assign(val, formData)
 }, {
   immediate: true,
 })
@@ -304,6 +303,7 @@ const colors = [
       padding: 0 10px;
       border-radius: 0 0 3px 3px;
       cursor: text;
+      overflow-y: auto;
 
       &:focus {
         border-color: #409EFF;
