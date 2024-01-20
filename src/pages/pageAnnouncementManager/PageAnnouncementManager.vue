@@ -31,7 +31,7 @@ const getDialogConfig = (title: string) => ({
   showClose: false,
   closeOnClickModal: false,
   closeOnPressEscape: false,
-  width: '650px',
+  width: '1200px',
 })
 
 // 新增公告 打开弹窗
