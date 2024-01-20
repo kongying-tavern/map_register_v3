@@ -180,7 +180,7 @@ const colors = [
   <div class="p-5">
     <el-form ref="formRef" v-bind="$attrs" label-width="100px" :model="formData" :rules="rules">
       <el-form-item label="频道" prop="channel">
-        <el-select-v2 v-model="formData.channel" style="width: 100%" placeholder="请选择频道" :options="channelsDict" clearable />
+        <el-select-v2 v-model="formData.channel" style="width: 100%" placeholder="请选择频道" :options="channelsDict" clearable multiple />
       </el-form-item>
       <el-form-item label="标题" prop="title">
         <el-input v-model="formData.title" placeholder="请输入标题" clearable />
