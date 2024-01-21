@@ -27,6 +27,7 @@
     "@element-plus/icons-vue": "2.3.1",
     "@tiptap/core": "2.2.0-rc.7",
     "@tiptap/extension-color": "^2.1.16",
+    "@tiptap/extension-text-align": "^2.1.16",
     "@tiptap/extension-text-style": "^2.1.16",
     "@tiptap/pm": "2.2.0-rc.7",
     "@tiptap/starter-kit": "^2.1.16",
