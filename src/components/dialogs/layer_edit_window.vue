@@ -606,6 +606,8 @@ export default {
       this.loading = true;
 
       const form = _.cloneDeep(this.layer_info);
+      delete form.createTime;
+      delete form.updateTime;
       form.extra = markerExtra.value || {};
 
       save_promise(form)
