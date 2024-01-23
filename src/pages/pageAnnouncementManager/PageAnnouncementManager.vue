@@ -25,19 +25,18 @@ const { getList, loading, mainTableData } = useList({
   },
 })
 
-const getDialogConfig = (title: string) => ({
-  title,
+const getDialogConfig = () => ({
   alignCenter: true,
   showClose: false,
   closeOnClickModal: false,
   closeOnPressEscape: false,
-  width: '1200px',
+  width: 'auto',
 })
 
 // 新增公告 打开弹窗
 function handleCreate() {
   DialogService
-    .config(getDialogConfig('新增公告'))
+    .config(getDialogConfig())
     .props({
       form: {},
       status: 'create',
@@ -49,7 +48,7 @@ function handleCreate() {
 // 更新公告 打开弹窗
 function handleUpdate(form?: API.NoticeVo) {
   DialogService
-    .config(getDialogConfig('修改公告'))
+    .config(getDialogConfig())
     .props({
       form,
       status: 'update',
