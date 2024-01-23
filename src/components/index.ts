@@ -1,6 +1,7 @@
 export { AppAreaCodeSelecter } from './AppAreaCodeSelecter'
 export { AppImageCropper } from './AppImageCropper'
 export { AppItemSelecter } from './AppItemSelecter'
+export { AppRichtextEditor } from './AppRichtextEditor'
 export { AppSettings } from './AppSettings'
 export { AppUserInfo } from './AppUserInfo'
 export * from './GenshinUI'

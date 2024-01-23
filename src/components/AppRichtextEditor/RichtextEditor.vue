@@ -1,27 +1,31 @@
 <script lang="ts" setup>
 import { EditorContent, useEditor } from '@tiptap/vue-3'
 import type { Extension } from '@tiptap/core'
-import TextStyle from '@tiptap/extension-text-style'
 import TextAlign from '@tiptap/extension-text-align'
-import Color from '@tiptap/extension-color'
 import StarterKit from '@tiptap/starter-kit'
-import { Size } from './marks'
-import { TextSize } from './extensions'
+import { Color, Size } from './marks'
+import { TextSize, TextColor } from './extensions'
 import { HeaderToolbar } from './components'
+
+withDefaults(defineProps<{
+  contentHeight?: number
+  sizeRatio?: number
+}>(), {
+  sizeRatio: 1,
+})
 
 const modelValue = defineModel<string>('modelValue', {
   required: false,
-  default: 'One apple a day, keeps the doctor away.',
+  default: '',
   type: String,
 })
 
 const editor = useEditor({
-  // eslint-disable-next-line vue/no-ref-object-reactivity-loss
   content: modelValue.value,
   extensions: [
     StarterKit as Extension,
     TextAlign,
-    TextStyle,
+    TextColor,
     TextSize,
     Color,
     Size,
@@ -50,24 +54,32 @@ onMounted(() => nextTick(() => {
 </script>
 
 <template>
-  <div class="flex h-full">
-    <div v-if="editor" class="richtext-editor flex-1">
-      <HeaderToolbar :editor="editor" />
-      <EditorContent class="editor-instance" :editor="editor" />
-    </div>
-
-    <div class="h-full flex-1 border-l-[1px] p-2">
-      {{ modelValue }}
-    </div>
+  <div v-if="editor" class="richtext-editor flex-1">
+    <HeaderToolbar :editor="editor" :basesize="16 / sizeRatio" />
+    <EditorContent class="editor-instance" :editor="editor" />
   </div>
 </template>
 
 <style scoped>
 .richtext-editor {
+  --sizeUnit: calc(v-bind('sizeRatio') * 1px);
+
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
+  border: 1px solid var(--el-border-color);
+  border-radius: var(--el-border-radius-base);
+  overflow: hidden;
+  transition: border-color var(--el-transition-duration-fast) var(--el-transition-function-ease-in-out-bezier);
+
+  &:hover {
+    border-color: var(--el-border-color-hover);
+  }
+
+  &:focus-within {
+    border-color: var(--el-color-primary);
+  }
 }
 
 .editor-instance {
@@ -81,10 +93,15 @@ onMounted(() => nextTick(() => {
     padding: 8px;
     min-height: 100%;
     font-size: 16px;
-    color: #000;
+    color: var(--el-text-color-primary);
+    height: calc(v-bind('contentHeight') * 1px);
+
+    color {
+      color: var(--color);
+    }
 
     size {
-      font-size: calc(var(--size, 32) * 0.5px);
+      font-size: calc(var(--size, 16 / v-bind('sizeRatio')) * var(--sizeUnit));
     }
   }
 }

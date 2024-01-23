@@ -20,9 +20,16 @@ const closeDropdown = () => {
 const dropdownArrowRef = ref<HTMLElement>()
 
 const dropdownRef = ref<HTMLElement>()
-onClickOutside(dropdownRef, (ev) => {
-  if (ev.composedPath().find(el => el === dropdownArrowRef.value))
+
+useEventListener('click', (ev) => {
+  if (!dropdownVisible.value)
     return
+  const path = ev.composedPath()
+  for (const key in path) {
+    const ele = path[key]
+    if (ele === dropdownArrowRef.value || ele === dropdownRef.value)
+      return
+  }
   closeDropdown()
 })
 </script>
@@ -56,7 +63,13 @@ onClickOutside(dropdownRef, (ev) => {
       </el-icon>
     </div>
 
-    <div v-if="dropdownVisible" ref="dropdownRef" class="item-dropdown-content">
+    <div
+      ref="dropdownRef"
+      class="item-dropdown-content"
+      :class="{
+        'is-hidden': !dropdownVisible,
+      }"
+    >
       <slot name="dropdown" :close="closeDropdown" />
     </div>
   </div>
@@ -140,6 +153,9 @@ onClickOutside(dropdownRef, (ev) => {
   left: 0;
   top: 100%;
   z-index: 1;
-  translate: 0;
+
+  &.is-hidden {
+    content-visibility: hidden;
+  }
 }
 </style>

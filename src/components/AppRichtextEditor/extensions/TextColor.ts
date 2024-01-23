@@ -2,24 +2,24 @@ import '@766aya/extension-text-size'
 
 import { Extension } from '@tiptap/core'
 
-export interface SizeOptions {
+export interface ColorOptions {
   types: string[]
 }
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
-    size: {
-      setSize: (size: number) => ReturnType
-      unsetSize: () => ReturnType
+    color: {
+      setColor: (color: string) => ReturnType
+      unsetColor: () => ReturnType
     }
   }
 }
 
-export const TextSize = Extension.create<SizeOptions>({
-  name: 'textSize',
+export const TextColor = Extension.create<ColorOptions>({
+  name: 'textColor',
   addOptions() {
     return {
-      types: ['size'],
+      types: ['color'],
     }
   },
   addGlobalAttributes() {
@@ -27,16 +27,16 @@ export const TextSize = Extension.create<SizeOptions>({
       {
         types: this.options.types,
         attributes: {
-          size: {
+          color: {
             default: null,
             parseHTML: (element) => {
-              return element.style.getPropertyValue('--size')
+              return element.style.getPropertyValue('--color')
             },
             renderHTML: (attributes) => {
-              return !attributes.size
+              return !attributes.color
                 ? {}
                 : {
-                    style: `--size: ${attributes.size}`,
+                    style: `--color: ${attributes.color}`,
                   }
             },
           },
@@ -46,14 +46,14 @@ export const TextSize = Extension.create<SizeOptions>({
   },
   addCommands() {
     return {
-      setSize: size => ({ chain }) => {
+      setColor: color => ({ chain }) => {
         return chain()
-          .setMark('size', { size })
+          .setMark('color', { color })
           .run()
       },
-      unsetSize: () => ({ chain }) => {
+      unsetColor: () => ({ chain }) => {
         return chain()
-          .setMark('size', { size: null })
+          .setMark('color', { color: null })
           .removeEmptyTextStyle()
           .run()
       },
