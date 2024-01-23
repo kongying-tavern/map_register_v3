@@ -83,6 +83,9 @@ export default antfu({
 
       // 禁止在非函数作用域对 ref 解构以避免响应性丢失
       'vue/no-ref-object-reactivity-loss': 'error',
+
+      // 允许在相同范围从对象获取响应值
+      'vue/no-ref-object-reactivity-loss': false,
     },
   },
 })
