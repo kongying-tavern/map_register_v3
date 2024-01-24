@@ -13,9 +13,10 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview --mode development",
     "preview:stage": "vite preview --mode stage",
-    "patch:apply": "pnpm patch-commit patch-edit && pnpm i --force --prefer-offline",
+    "patch:apply": "pnpm patch-commit patch-edit && pnpm patch:install",
     "patch:clean": "rimraf patch-edit",
     "patch:init": "pnpm patch:clean && pnpm patch --edit-dir patch-edit openapi2ts",
+    "patch:install": "pnpm i --force --prefer-offline",
     "lint": "eslint ./plugins ./public ./src ./types --fix"
   },
   "dependencies": {
