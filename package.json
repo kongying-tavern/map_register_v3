@@ -13,6 +13,9 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview --mode development",
     "preview:stage": "vite preview --mode stage",
+    "patch:apply": "pnpm patch-commit patch-edit && pnpm i --force --prefer-offline",
+    "patch:clean": "rimraf patch-edit",
+    "patch:init": "pnpm patch:clean && pnpm patch --edit-dir patch-edit openapi2ts",
     "lint": "eslint ./plugins ./public ./src ./types --fix"
   },
   "dependencies": {
@@ -60,6 +63,7 @@
     "openapi2ts": "1.1.7",
     "postcss": "8.4.31",
     "postcss-load-config": "5.0.2",
+    "rimraf": "^5.0.5",
     "sass": "1.70.0",
     "typescript": "5.3.3",
     "unplugin-auto-import": "0.17.3",
