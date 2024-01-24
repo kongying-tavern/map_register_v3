@@ -162,7 +162,7 @@ declare namespace API {
     /** 更新时间 */
     updateTime?: string
     /** 频道 */
-    channel?: string
+    channel?: string[]
     /** 标题 */
     title?: string
     /** 内容 */
