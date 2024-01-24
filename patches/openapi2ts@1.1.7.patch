@@ -68,7 +68,7 @@ index 001071c0a33034c7ca51603cfbc7801488172dfa..19f91fb980303274a6a6df5845ed2844
                      required: requiredPropKeys ? requiredPropKeys.some((key) => key === propName) : false });
              })
 diff --git a/templates/serviceController.njk b/templates/serviceController.njk
-index 3a5b78e040d1a535fba3fd07e4f37955bc6e91bc..fb8b66e3842f09d71916a2cf0dc6e49eef1f328b 100644
+index 3a5b78e040d1a535fba3fd07e4f37955bc6e91bc..5889bb838dff777fc61f92c437aea5d857cbb2d6 100644
 --- a/templates/serviceController.njk
 +++ b/templates/serviceController.njk
 @@ -61,7 +61,13 @@ export async function {{ api.functionName }}(
@@ -86,7 +86,13 @@ index 3a5b78e040d1a535fba3fd07e4f37955bc6e91bc..fb8b66e3842f09d71916a2cf0dc6e49e
      {%- endfor %}
    }
    {%- else -%}
-@@ -105,7 +111,18 @@ files
+@@ -100,12 +106,23 @@ files
+   {% if api.body %}
+   Object.keys(body).forEach(ele => {
+     {% if genType === "ts" %}
+-    const item = (body as any)[ele];
++    const item = (body as any)[ele]; // eslint-disable: ts/no-explicit-any
+     {% else %}
      const item = body[ele];
      {% endif %}
      if (item !== undefined && item !== null) {

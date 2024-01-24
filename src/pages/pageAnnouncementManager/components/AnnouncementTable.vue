@@ -23,7 +23,7 @@ const { height } = useElementSize(tableRef)
 const contentFormatter = (...{ 2: value = '' }) => {
   const parser = new DOMParser()
   const { firstChild } = parser.parseFromString(value, 'text/html')
-  return firstChild instanceof HTMLElement ? firstChild.innerText : ''
+  return firstChild instanceof HTMLElement ? firstChild.textContent : ''
 }
 </script>
 
@@ -47,7 +47,6 @@ const contentFormatter = (...{ 2: value = '' }) => {
       <el-table-column prop="validTimeEnd" label="失效时间" :width="180" :formatter="datetimeFormatter" />
 
       <el-table-column prop="menu" label="操作" :width="180" header-align="center" align="center">
-
         <template #default="scope">
           <el-button text @click="emits('update', scope.row)">
             修改

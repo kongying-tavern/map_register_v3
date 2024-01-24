@@ -107,7 +107,7 @@ const sizeAliasList = [
           >
             <div
               class="w-4 h-full outline outline-[1px] outline-gray-500 outline-offset-[-1px]"
-              :style="`background-color: var(--el-text-color-primary)`"
+              style="background-color: var(--el-text-color-primary)"
             />
             自动
           </div>
@@ -145,7 +145,11 @@ const sizeAliasList = [
       </template>
     </ToolbarItem>
 
-    <ToolbarItem v-for="sizeAlias in sizeAliasList" @click="() => setSize(sizeAlias.size)">
+    <ToolbarItem
+      v-for="sizeAlias in sizeAliasList"
+      :key="sizeAlias.level"
+      @click="() => setSize(sizeAlias.size)"
+    >
       <span class="font-bold text-base">H<sub class="inline-block scale-[0.9]">{{ sizeAlias.level }}</sub></span>
     </ToolbarItem>
   </div>

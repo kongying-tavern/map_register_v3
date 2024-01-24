@@ -4,7 +4,7 @@ import type { Extension } from '@tiptap/core'
 import TextAlign from '@tiptap/extension-text-align'
 import StarterKit from '@tiptap/starter-kit'
 import { Color, Size } from './marks'
-import { TextSize, TextColor } from './extensions'
+import { TextColor, TextSize } from './extensions'
 import { HeaderToolbar } from './components'
 
 withDefaults(defineProps<{

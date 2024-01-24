@@ -12,7 +12,7 @@ export async function uploadImage(
   const formData = new FormData()
 
   Object.keys(body).forEach((ele) => {
-    const item = (body as any)[ele]
+    const item = (body as any)[ele] // eslint-disable-line ts/no-explicit-any
 
     if (item !== undefined && item !== null) {
       if (typeof item === 'object') {

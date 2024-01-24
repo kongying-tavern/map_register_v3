@@ -1,15 +1,15 @@
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
 import { Check, Close } from '@element-plus/icons-vue'
-import { WinDialog, WinDialogTitleBar, WinDialogFooter, WinDialogTabPanel } from '@/components'
 import type { ComputedRef } from 'vue'
 import { computed, ref, watch } from 'vue'
 import { channelsDict } from '../const/dictionary'
+import { AppRichtextEditor, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
+import { Logger } from '@/utils'
 import type { ItemFormRules } from '@/utils'
 import type { ElFormType } from '@/shared'
 import { GlobalDialogController, useFetchHook } from '@/hooks'
 import Api from '@/api/api'
-import { AppRichtextEditor } from '@/components'
 
 const props = defineProps<{
   form: API.NoticeVo
@@ -19,6 +19,8 @@ const props = defineProps<{
 const emits = defineEmits<{
   success: []
 }>()
+
+const logger = Logger('[公告]')
 
 const formData = ref<API.NoticeVo>(JSON.parse(JSON.stringify(props.form)))
 
@@ -51,7 +53,7 @@ const rules: ComputedRef<ItemFormRules<API.NoticeVo>> = computed(() => ({
     {
       required: Boolean(formData.value.validTimeStart),
       validator: (rule, value: number | null, cb) => {
-        console.log('校验 validTimeEnd', value)
+        logger.info('校验 validTimeEnd', value)
         cb()
       },
     },
@@ -113,28 +115,28 @@ onError((err: Error) => ElMessage.error({
 
     <WinDialogTabPanel>
       <el-form ref="formRef" v-bind="$attrs" label-width="80px" :model="formData" :rules="rules">
-      <div class="grid grid-cols-2 gap-y-1 gap-x-4">
-        <el-form-item label="标题" prop="title">
-          <el-input v-model="formData.title" placeholder="请输入标题" clearable />
-        </el-form-item>
+        <div class="grid grid-cols-2 gap-y-1 gap-x-4">
+          <el-form-item label="标题" prop="title">
+            <el-input v-model="formData.title" placeholder="请输入标题" clearable />
+          </el-form-item>
 
-        <el-form-item class="col-span-2" label="内容" prop="content">
-          <AppRichtextEditor v-model="formData.content" :content-height="400" />
-        </el-form-item>
+          <el-form-item class="col-span-2" label="内容" prop="content">
+            <AppRichtextEditor v-model="formData.content" :content-height="400" />
+          </el-form-item>
 
-        <el-form-item label="发布时间" prop="validTimeStart">
-          <el-date-picker v-model="formData.validTimeStart" style="--el-date-editor-width: 100%" type="datetime" placeholder="请选择发布时间" />
-        </el-form-item>
+          <el-form-item label="发布时间" prop="validTimeStart">
+            <el-date-picker v-model="formData.validTimeStart" style="--el-date-editor-width: 100%" type="datetime" placeholder="请选择发布时间" />
+          </el-form-item>
 
-        <el-form-item label="截止时间" prop="validTimeEnd">
-          <el-date-picker v-model="formData.validTimeEnd" style="--el-date-editor-width: 100%" type="datetime" placeholder="请选截止时间" />
-        </el-form-item>
+          <el-form-item label="截止时间" prop="validTimeEnd">
+            <el-date-picker v-model="formData.validTimeEnd" style="--el-date-editor-width: 100%" type="datetime" placeholder="请选截止时间" />
+          </el-form-item>
 
-        <el-form-item label="频道" prop="channel">
-          <el-select-v2 v-model="formData.channel" style="width: 100%" placeholder="请选择频道" :options="channelsDict" clearable multiple />
-        </el-form-item>
-      </div>
-    </el-form>
+          <el-form-item label="频道" prop="channel">
+            <el-select-v2 v-model="formData.channel" style="width: 100%" placeholder="请选择频道" :options="channelsDict" clearable multiple />
+          </el-form-item>
+        </div>
+      </el-form>
     </WinDialogTabPanel>
 
     <WinDialogFooter>
