@@ -1,7 +1,9 @@
 <script lang="ts" setup>
 import { useElementSize } from '@vueuse/core'
 import dayjs from 'dayjs'
+import type { TableColumnCtx } from 'element-plus'
 import { ref } from 'vue'
+import { channelsMap } from '../const/dictionary'
 
 defineProps<{
   loading: boolean
@@ -14,7 +16,7 @@ const emits = defineEmits<{
 }>()
 
 function datetimeFormatter(...{ 2: value = '' }) {
-  return dayjs(value).format('YYYY-MM-DD HH:mm:ss')
+  return value && dayjs(value).format('YYYY-MM-DD HH:mm:ss')
 }
 
 const tableRef = ref<HTMLElement | null>(null)
@@ -25,6 +27,15 @@ const contentFormatter = (...{ 2: value = '' }) => {
   const { firstChild } = parser.parseFromString(value, 'text/html')
   return firstChild instanceof HTMLElement ? firstChild.textContent : ''
 }
+
+const getCellClass = (data: {
+  column: TableColumnCtx<unknown>
+}): string => {
+  if (data.column.property === 'content')
+    return 'content-cell'
+
+  return ''
+}
 </script>
 
 <template>
@@ -33,14 +44,28 @@ const contentFormatter = (...{ 2: value = '' }) => {
       :data="data"
       :border="true"
       :height="height"
+      :cell-class-name="getCellClass"
+      class="table-content"
     >
       <el-table-column align="center" type="selection" width="50" />
 
       <el-table-column prop="id" label="ID" :width="100" />
 
-      <el-table-column prop="title" label="标题" />
+      <el-table-column prop="channel" label="频道" :width="250">
+        <template #default="scope">
+          <template v-if="scope.row.channel">
+            <template v-for="channel in scope.row.channel" :key="channel">
+              <el-tag class="mr-1 mb-1">
+                {{ channelsMap[channel] }}
+              </el-tag>
+            </template>
+          </template>
+        </template>
+      </el-table-column>
 
-      <el-table-column prop="content" label="内容" :formatter="contentFormatter" />
+      <el-table-column prop="title" label="标题" :min-width="100" />
+
+      <el-table-column prop="content" label="内容" :min-width="200" :formatter="contentFormatter" />
 
       <el-table-column prop="validTimeStart" label="发布时间" :width="180" :formatter="datetimeFormatter" />
 
@@ -59,3 +84,11 @@ const contentFormatter = (...{ 2: value = '' }) => {
     </el-table>
   </div>
 </template>
+
+<style lang="scss" scoped>
+.table-content :deep(.content-cell .cell) {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+</style>

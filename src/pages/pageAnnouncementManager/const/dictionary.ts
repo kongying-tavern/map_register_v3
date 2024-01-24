@@ -1,13 +1,16 @@
+import _ from 'lodash'
+
 export const channelsDict = [
   { label: '通用', value: 'COMMON' },
-  { label: '客户端', value: 'CLIENT' },
-  { label: 'App客户端', value: 'APP_CLIENT' },
-  { label: 'PC客户端', value: 'PC_CLIENT' },
+  { label: '前台', value: 'APPLICATION' },
+  { label: 'App客户端', value: 'CLIENT_APP' },
+  { label: 'PC客户端', value: 'CLIENT_PC' },
   { label: '网页版', value: 'WEB' },
-  { label: '打点页', value: 'DADIAN' },
+  { label: '后台', value: 'DASHBOARD' },
+  { label: '维系天理', value: 'TIANLI' },
 ]
 
-export const getValidDict = [
-  { label: '有效', value: true },
-  { label: '无效', value: false },
-]
+export const channelsMap = _.chain(channelsDict)
+  .map(v => [v.value, v.label])
+  .fromPairs()
+  .value()
