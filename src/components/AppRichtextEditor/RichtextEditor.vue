@@ -85,7 +85,8 @@ onMounted(() => nextTick(() => {
 .editor-instance {
   flex: 1;
   width: 100%;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
 
   :deep(.tiptap) {
     outline: none;
