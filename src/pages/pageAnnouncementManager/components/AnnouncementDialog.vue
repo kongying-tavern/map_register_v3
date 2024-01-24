@@ -126,6 +126,8 @@ onError((err: Error) => ElMessage.error({
               style="max-height: 50vh;"
               :content-height="400"
               :base-text-size="20"
+              view-font="MHYG, sans-serif"
+              :view-line-height="1.1"
               :view-zoom="0.75"
             />
           </el-form-item>

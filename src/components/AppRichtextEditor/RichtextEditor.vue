@@ -11,10 +11,14 @@ withDefaults(defineProps<{
   contentHeight?: number
   sizeRatio?: number
   baseTextSize: number
+  viewFont?: string
   viewZoom?: number
+  viewLineHeight?: number
 }>(), {
   sizeRatio: 1,
+  viewFont: '',
   viewZoom: 1,
+  viewLineHeight: 1.2,
 })
 
 const modelValue = defineModel<string>('modelValue', {
@@ -96,10 +100,11 @@ onMounted(() => nextTick(() => {
     cursor: text;
     padding: 8px;
     min-height: 100%;
+    font-family: v-bind('viewFont');
     font-size: calc(v-bind('baseTextSize') * v-bind('viewZoom') * 1px);
     color: var(--el-text-color-primary);
     height: calc(v-bind('contentHeight') * v-bind('viewZoom') * 1px);
-    line-height: 1.8;
+    line-height: v-bind('viewLineHeight');
 
     color {
       color: var(--color);
