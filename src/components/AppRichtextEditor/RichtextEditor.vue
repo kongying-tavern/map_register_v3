@@ -11,11 +11,15 @@ withDefaults(defineProps<{
   contentHeight?: number
   sizeRatio?: number
   baseTextSize: number
+  defaultForeground?: string
+  defaultBackground?: string
   viewFont?: string
   viewZoom?: number
   viewLineHeight?: number
 }>(), {
   sizeRatio: 1,
+  defaultForeground: '#000',
+  defaultBackground: '#fff',
   viewFont: '',
   viewZoom: 1,
   viewLineHeight: 1.2,
@@ -94,6 +98,7 @@ onMounted(() => nextTick(() => {
   width: 100%;
   overflow-x: hidden;
   overflow-y: auto;
+  background-color: v-bind('defaultBackground');
 
   :deep(.tiptap) {
     outline: none;
@@ -105,6 +110,7 @@ onMounted(() => nextTick(() => {
     color: var(--el-text-color-primary);
     height: calc(v-bind('contentHeight') * v-bind('viewZoom') * 1px);
     line-height: v-bind('viewLineHeight');
+    color: v-bind('defaultForeground');
 
     color {
       color: var(--color);
