@@ -10,8 +10,11 @@ import { HeaderToolbar } from './components'
 withDefaults(defineProps<{
   contentHeight?: number
   sizeRatio?: number
+  baseTextSize: number
+  viewZoom?: number
 }>(), {
   sizeRatio: 1,
+  viewZoom: 1,
 })
 
 const modelValue = defineModel<string>('modelValue', {
@@ -55,7 +58,7 @@ onMounted(() => nextTick(() => {
 
 <template>
   <div v-if="editor" class="richtext-editor flex-1">
-    <HeaderToolbar :editor="editor" :basesize="16 / sizeRatio" />
+    <HeaderToolbar :editor="editor" :base-size="baseTextSize / sizeRatio" />
     <EditorContent class="editor-instance" :editor="editor" />
   </div>
 </template>
@@ -93,16 +96,22 @@ onMounted(() => nextTick(() => {
     cursor: text;
     padding: 8px;
     min-height: 100%;
-    font-size: 16px;
+    font-size: calc(v-bind('baseTextSize') * v-bind('viewZoom') * 1px);
     color: var(--el-text-color-primary);
-    height: calc(v-bind('contentHeight') * 1px);
+    height: calc(v-bind('contentHeight') * v-bind('viewZoom') * 1px);
+    line-height: 1.8;
 
     color {
       color: var(--color);
     }
 
     size {
-      font-size: calc(var(--size, 16 / v-bind('sizeRatio')) * var(--sizeUnit));
+      font-size: calc(var(--size, v-bind('baseTextSize') / v-bind('sizeRatio')) * v-bind('viewZoom') * var(--sizeUnit));
+    }
+
+    p {
+      margin: 0;
+      padding: 0;
     }
   }
 }

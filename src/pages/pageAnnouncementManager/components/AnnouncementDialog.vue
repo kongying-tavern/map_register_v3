@@ -121,7 +121,13 @@ onError((err: Error) => ElMessage.error({
           </el-form-item>
 
           <el-form-item class="col-span-2" label="内容" prop="content">
-            <AppRichtextEditor v-model="formData.content" :content-height="400" />
+            <AppRichtextEditor
+              v-model="formData.content"
+              style="max-height: 50vh;"
+              :content-height="400"
+              :base-text-size="20"
+              :view-zoom="0.75"
+            />
           </el-form-item>
 
           <el-form-item label="发布时间" prop="validTimeStart">

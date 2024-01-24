@@ -3,10 +3,14 @@ import type { Editor } from '@tiptap/core'
 import ToolbarItem from './ToolbarItem.vue'
 
 const props = withDefaults(defineProps<{
-  basesize?: number
   editor: Editor
+  baseSize?: number
+  headerMin?: number
+  headerMax?: number
 }>(), {
-  basesize: 32,
+  baseSize: 32,
+  headerMin: 1,
+  headerMax: 6,
 })
 
 const setColor = (value: string, done: () => void) => {
@@ -14,7 +18,7 @@ const setColor = (value: string, done: () => void) => {
   done()
 }
 
-const size = controlledRef<number>(props.basesize, {
+const size = controlledRef<number>(props.baseSize, {
   onBeforeChange: (value) => {
     if (Number.isNaN(Number(value)))
       return false
@@ -29,7 +33,7 @@ const isInternalChange = ref(false)
 
 watch(() => props.editor.getAttributes('size').size, (newSize) => {
   if (!newSize) {
-    size.value = props.basesize
+    size.value = props.baseSize
     return
   }
   size.value = Number(newSize)
@@ -53,10 +57,23 @@ const colorList: string[] = [
   '#70AD47',
 ]
 
-const sizeAliasList = [
-  { level: 1, size: 21 },
-  { level: 2, size: 17 },
-]
+const sizeAliasList = computed(() => {
+  if (
+    !props.headerMin || !props.headerMax
+    || !Number.isFinite(props.headerMin) || !Number.isFinite(props.headerMax)
+    || props.headerMin > props.headerMax
+  )
+    return []
+  const sizeAliasFullList = [
+    { level: 1, sizeFactor: 2 },
+    { level: 2, sizeFactor: 1.5 },
+    { level: 3, sizeFactor: 1.2 },
+    { level: 4, sizeFactor: 1 },
+    { level: 5, sizeFactor: 0.8 },
+    { level: 6, sizeFactor: 0.6 },
+  ]
+  return sizeAliasFullList.slice(props.headerMin - 1, props.headerMax)
+})
 </script>
 
 <template>
@@ -148,7 +165,7 @@ const sizeAliasList = [
     <ToolbarItem
       v-for="sizeAlias in sizeAliasList"
       :key="sizeAlias.level"
-      @click="() => setSize(sizeAlias.size)"
+      @click="() => setSize(baseSize * sizeAlias.sizeFactor)"
     >
       <span class="font-bold text-base">H<sub class="inline-block scale-[0.9]">{{ sizeAlias.level }}</sub></span>
     </ToolbarItem>
