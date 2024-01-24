@@ -85,7 +85,7 @@ export default antfu({
       'vue/no-ref-object-reactivity-loss': 'error',
 
       // 允许在相同范围从对象获取响应值
-      'vue/no-ref-object-reactivity-loss': false,
+      'vue/no-ref-object-reactivity-loss': 'off',
     },
   },
 })
