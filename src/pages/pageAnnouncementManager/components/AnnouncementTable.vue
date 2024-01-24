@@ -25,7 +25,7 @@ const { height } = useElementSize(tableRef)
 const contentFormatter = (...{ 2: value = '' }) => {
   const parser = new DOMParser()
   const { firstChild } = parser.parseFromString(value, 'text/html')
-  return firstChild instanceof HTMLElement ? firstChild.textContent : ''
+  return firstChild instanceof HTMLElement ? (firstChild.textContent ?? '') : ''
 }
 
 const getCellClass = (data: {
