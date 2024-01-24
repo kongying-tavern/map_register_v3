@@ -1,5 +1,13 @@
 import { Mark, getMarkAttributes } from '@tiptap/core'
 
+declare module '@tiptap/core' {
+  interface Commands<ReturnType> {
+    textColor: {
+      removeEmptyTextStyle: () => ReturnType
+    }
+  }
+}
+
 export const Color = Mark.create<{
   HTMLAttributes: Record<string, string>
 }>({

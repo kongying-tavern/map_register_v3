@@ -1,5 +1,3 @@
-import '@766aya/extension-text-size'
-
 import { Extension } from '@tiptap/core'
 
 export interface ColorOptions {

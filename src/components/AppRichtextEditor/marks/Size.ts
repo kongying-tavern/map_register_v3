@@ -1,5 +1,13 @@
 import { Mark, getMarkAttributes } from '@tiptap/core'
 
+declare module '@tiptap/core' {
+  interface Commands<ReturnType> {
+    textSize: {
+      removeEmptyTextStyle: () => ReturnType
+    }
+  }
+}
+
 export const Size = Mark.create<{
   HTMLAttributes: Record<string, string>
 }>({
