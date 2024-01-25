@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import type { Editor } from '@tiptap/core'
+import type { ToolbarConfig } from '../types'
 import ToolbarItem from './ToolbarItem.vue'
 
 const props = withDefaults(defineProps<{
   editor: Editor
   baseSize?: number
-  headerMin?: number
-  headerMax?: number
-}>(), {
+} & ToolbarConfig>(), {
   baseSize: 32,
   headerMin: 1,
   headerMax: 6,

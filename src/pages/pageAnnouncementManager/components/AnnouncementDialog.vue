@@ -129,6 +129,7 @@ onError((err: Error) => ElMessage.error({
               default-foreground="#4f473f"
               default-background="#fff"
               view-font="MHYG, sans-serif"
+
               :view-line-height="1.1"
               :view-zoom="0.75"
             />

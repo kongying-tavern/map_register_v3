@@ -3,6 +3,7 @@ import { EditorContent, useEditor } from '@tiptap/vue-3'
 import type { Extension } from '@tiptap/core'
 import TextAlign from '@tiptap/extension-text-align'
 import StarterKit from '@tiptap/starter-kit'
+import type { EditorConfig, ToolbarConfig } from './types'
 import { Color, Size } from './marks'
 import { TextColor, TextSize } from './extensions'
 import { HeaderToolbar } from './components'
@@ -11,12 +12,7 @@ withDefaults(defineProps<{
   contentHeight?: number
   sizeRatio?: number
   baseTextSize: number
-  defaultForeground?: string
-  defaultBackground?: string
-  viewFont?: string
-  viewZoom?: number
-  viewLineHeight?: number
-}>(), {
+} & ToolbarConfig & EditorConfig>(), {
   sizeRatio: 1,
   defaultForeground: '#000',
   defaultBackground: '#fff',
@@ -66,7 +62,12 @@ onMounted(() => nextTick(() => {
 
 <template>
   <div v-if="editor" class="richtext-editor flex-1">
-    <HeaderToolbar :editor="editor" :base-size="baseTextSize / sizeRatio" />
+    <HeaderToolbar
+      :editor="editor"
+      :edit-type="baseTextSize / sizeRatio"
+      :header-min="headerMin"
+      :header-max="headerMax"
+    />
     <EditorContent class="editor-instance" :editor="editor" />
   </div>
 </template>
