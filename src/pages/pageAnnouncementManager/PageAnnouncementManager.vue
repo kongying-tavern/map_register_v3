@@ -16,6 +16,7 @@ const { pagination, layout } = usePagination()
 const queryForm = ref<AnnouncementSearchParams>({
   channels: [],
   title: '',
+  sort: ['validTimeStart-'],
 })
 
 const { getList, loading, mainTableData } = useList({
@@ -85,7 +86,13 @@ function handleRemove(form?: API.NoticeVo) {
         </div>
       </template>
     </AnnouncementFilter>
-    <AnnouncementTable :data="mainTableData" :loading="loading" @update="handleUpdate" @remove="handleRemove" />
+    <AnnouncementTable
+      v-model:model-value="queryForm"
+      :data="mainTableData"
+      :loading="loading"
+      @update="handleUpdate"
+      @remove="handleRemove"
+    />
     <el-pagination
       v-model:current-page="pagination.current"
       v-model:page-size="pagination.pageSize"

@@ -35,7 +35,6 @@ const rules: ComputedRef<ItemFormRules<API.NoticeVo>> = computed(() => ({
   ],
   validTimeStart: [
     {
-      required: Boolean(formData.value.validTimeEnd),
       validator: (rule, value: number | null, cb) => {
         if (!rule.required)
           return cb()
@@ -51,7 +50,6 @@ const rules: ComputedRef<ItemFormRules<API.NoticeVo>> = computed(() => ({
   ],
   validTimeEnd: [
     {
-      required: Boolean(formData.value.validTimeStart),
       validator: (rule, value: number | null, cb) => {
         logger.info('校验 validTimeEnd', value)
         cb()
@@ -129,7 +127,6 @@ onError((err: Error) => ElMessage.error({
               default-foreground="#4f473f"
               default-background="#fff"
               view-font="MHYG, sans-serif"
-
               :view-line-height="1.1"
               :view-zoom="0.75"
             />
