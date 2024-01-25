@@ -1,3 +1,4 @@
+export { default as BarItem } from './BarItem.vue'
 export { default as PaintMarkerLink } from './PaintMarkerLink.vue'
 export { default as PaintMarkerLinkPath } from './PaintMarkerLinkPath.vue'
 export { default as SwitchMarkerPopover } from './SwitchMarkerPopover.vue'
