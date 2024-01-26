@@ -19,7 +19,7 @@ defineProps<{
     </div>
 
     <slot name="default" :props="props" :actived="isActived">
-      <div class="checkbox-item__content overflow-hidden overflow-ellipsis" :class="{ 'no-icon': !$slots.icon }" :title="label">
+      <div class="checkbox-item__content overflow-hidden" :class="{ 'no-icon': !$slots.icon }" :title="label">
         {{ label }}
       </div>
     </slot>
@@ -78,8 +78,15 @@ defineProps<{
 }
 
 .checkbox-item__content {
+  height: 100%;
   flex: 1;
   padding: 8px;
+  text-overflow: ellipsis;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  white-space: normal;
+  line-height: 1;
+  overflow: hidden;
   &.no-icon {
     padding: 8px 16px;
   }
