@@ -2,7 +2,7 @@ import type { Dexie } from 'dexie'
 import type { Awaitable } from '@vueuse/core'
 import { get } from 'lodash'
 import { useFetchHook } from '@/hooks'
-import { usePreferenceStore } from '@/stores'
+import { usePreferenceStore, useUserAuthStore } from '@/stores'
 import { secondClock } from '@/shared'
 import db from '@/database'
 import { Logger } from '@/utils'
@@ -158,6 +158,10 @@ export const useBackendUpdate = <T, Key>(
 
   onFinish(() => {
     stop()
+    if (!useUserAuthStore().validateToken()) {
+      timerId.value = undefined
+      return
+    }
     endTime.value = Date.now()
     const gap = getUpdateGap()
     nextTime.value = Date.now() + gap
