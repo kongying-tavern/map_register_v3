@@ -1,4 +1,5 @@
 import type { OrbitViewState } from '@deck.gl/core/typed'
+import type { LinkActionEnum } from '@/shared'
 
 declare namespace GSMapState {
   /** 地图视口状态 */
@@ -66,16 +67,8 @@ declare namespace GSMapState {
     source: number
     /** 目标点位 id */
     target: number
-    /**
-     * | 关联类型标识 | 名称 | 说明 | 关系图图解 |
-     * | :--- | :--- | :--- | :--- |
-     * | `TRIGGER` | 单触发 | 点对点的单向触发。 | `F->I` 或 `G->H` |
-     * | `TRIGGER_ALL` | 全组触发 | 所有触发点位全部满足时，触发目标点位。 | `(A,B,C)->(D,E)` |
-     * | `TRIGGER_ANY` | 任意触发 | 任意触发点位满足时，触发目标点位。 | `(D,E)->(F,G)` |
-     * | `RELATED` | 关联 | 仅进行点位关联，但不触发联动标记操作。 | `(I,K,J)` |
-     * | `EQUIVALENT` | 等价 | 同一组内等价的点位。 | `(H,M,L)` |
-     */
-    type: 'TRIGGER' | 'TRIGGER_ALL' | 'TRIGGER_ANY' | 'RELATED' | 'EQUIVALENT'
+    /** 关联类型标识 */
+    type: LinkActionEnum
   }
 
   /**
