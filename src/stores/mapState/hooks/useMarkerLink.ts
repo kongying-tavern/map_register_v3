@@ -13,7 +13,7 @@ interface MarkerLinkHookOptions {
 
 /** 点位关联处理 hook */
 export const useMarkerLink = (options: MarkerLinkHookOptions) => {
-  const { markerLinkStore, focus, staticMarkerIds, setTempMarkers } = options
+  const { markerLinkStore, focus, setTempMarkers } = options
 
   const {
     loading: markerLinkLoading,
@@ -22,13 +22,12 @@ export const useMarkerLink = (options: MarkerLinkHookOptions) => {
   } = useFetchHook({
     initialValue: [],
     onRequest: async (list: GSMapState.MLRenderUnit[]) => {
-      const ids = staticMarkerIds.value
-      const tempMarkerIds = list.reduce((seed, { source, target }) => {
-        !ids.has(source!) && tempMarkerIds.push(source!)
-        !ids.has(target!) && tempMarkerIds.push(target!)
-        return seed
-      }, [] as number[])
-      const tempMarkers = (await db.marker.bulkGet([...new Set(tempMarkerIds)])).filter(Boolean) as API.MarkerVo[]
+      const tempMarkerIds = new Set<number>()
+      list.forEach(({ source, target }) => {
+        tempMarkerIds.add(source!)
+        tempMarkerIds.add(target!)
+      })
+      const tempMarkers = (await db.marker.bulkGet([...tempMarkerIds])).filter(Boolean) as API.MarkerVo[]
       setTempMarkers('markerLink', tempMarkers)
       return list
     },
