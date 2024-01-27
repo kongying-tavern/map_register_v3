@@ -1,125 +1,10 @@
 <script setup lang="ts">
-import type { PickingInfo } from '@deck.gl/core/typed'
 import { MarkerLink } from '../modules'
+import { MLContext } from '../modules/MarkerLink/core'
 import BarItem from './BarItem.vue'
-import { useMapStateStore } from '@/stores'
-import { MapWindowTeleporter, mapWindowContext as context } from '@/pages/pageMapV2/components'
-import { GSMarkerLayer } from '@/pages/pageMapV2/core/layer'
-import type { GSMapState } from '@/stores/types/genshin-map-state'
-import db from '@/database'
+import { MapWindowTeleporter } from '@/pages/pageMapV2/components'
 
-const mapStateStore = useMapStateStore()
-
-const {
-  isEnable,
-  isProcessing,
-  data: linkList,
-  update: setMarkerLink,
-  clear,
-  onClear,
-} = mapStateStore.subscribeMission('markerLink', () => [])
-
-const { pause: pauseFocus, resume: resumeFocus, update: setMarkerFocus } = mapStateStore.subscribeInteractionInfo('focus', 'defaultMarker')
-
-const buildLinkKey = ({ fromId = 0, toId = 0, linkAction }: { fromId?: number; toId?: number; linkAction?: string }) => {
-  return `${Math.min(fromId, toId)}-${Math.max(fromId, toId)}-${linkAction}`
-}
-
-// 关联任务更新时，同步更新地图上绘制的关联连线
-const {
-  resume: resumeUpdateMLRenderList,
-  pause: pauseUpdateMLRenderList,
-} = pausableWatch(linkList, (list) => {
-  mapStateStore.setMLRenderList(list.map(({ fromId, linkAction, toId }) => ({
-    source: fromId!,
-    target: toId!,
-    type: linkAction as GSMapState.MLRenderUnit['type'],
-  })))
-}, { immediate: false })
-
-/** 源点位 */
-const sourceMarker = ref<GSMapState.MarkerWithRenderConfig>()
-
-const addMarkerLink = (markerLink: {
-  fromId: number
-  toId: number
-  linkAction: GSMapState.MLRenderUnit['type']
-}) => {
-  const key = buildLinkKey(markerLink)
-
-  const list = [...linkList.value]
-
-  const tripleTupleIndex = list.findIndex(link => buildLinkKey(link) === key)
-
-  if (tripleTupleIndex > -1)
-    list.splice(tripleTupleIndex, 1, markerLink)
-  else
-    list.push(markerLink)
-
-  setMarkerLink(list)
-  sourceMarker.value = undefined
-}
-
-const handleMapClick = async (info: PickingInfo, event: { leftButton?: boolean }) => {
-  // 确认是否处于点位关联任务中
-  if (!isProcessing.value)
-    return
-
-  // 确认点击对象是否为点位
-  if (!event.leftButton || !(info.sourceLayer instanceof GSMarkerLayer))
-    return
-
-  // 当没有源点时，设置源点，并将该点已有关联加入
-  if (sourceMarker.value === undefined) {
-    const marker = mapStateStore.currentLayerMarkersMap[info.object as number]
-    if (!marker)
-      throw new Error('当前选择点位不在地图上')
-
-    sourceMarker.value = marker
-    const existLinks = (await db.markerLink.where('groupId').equals(marker.linkageId ?? '').toArray()) ?? []
-    setMarkerLink(existLinks)
-    return
-  }
-
-  // 复点时取消
-  if (sourceMarker.value.id === info.object) {
-    sourceMarker.value = undefined
-    setMarkerLink([])
-    return
-  }
-
-  // 当已有源点时，将源点和目标点加入到关联列表
-  // TODO 在这之前需要先选择 linkAction
-  addMarkerLink({
-    fromId: sourceMarker.value.id!,
-    toId: info.object as number,
-    linkAction: 'TRIGGER',
-  })
-}
-
-onClear(() => {
-  resumeFocus()
-  mapStateStore.setIsPopoverOnHover(false)
-  mapStateStore.setMLRenderList([])
-  mapStateStore.event.off('click', handleMapClick)
-  sourceMarker.value = undefined
-  pauseUpdateMLRenderList()
-})
-
-const id = 'marker-link'
-const toggleMarkerLink = async () => {
-  if (isProcessing.value) {
-    context.closeWindow(id)
-    return
-  }
-  mapStateStore.event.on('click', handleMapClick)
-  setMarkerFocus(null)
-  pauseFocus()
-  resumeUpdateMLRenderList()
-  mapStateStore.setIsPopoverOnHover(true)
-  setMarkerLink([])
-  context.openWindow({ id, name: '点位关联' })
-}
+const context = new MLContext()
 
 const prefix = crypto.randomUUID()
 </script>
@@ -128,11 +13,11 @@ const prefix = crypto.randomUUID()
   <BarItem
     label="点位关联"
     class="grid place-content-center place-items-center"
-    :disabled="!isEnable"
-    @click="toggleMarkerLink"
+    :disabled="!context.isMissionEnable.value"
+    @click="context.toggleMarkerLink"
   >
     <el-icon :size="20">
-      <svg class="icon" viewBox="0 0 1024 1024" :fill="isProcessing ? '#00FF00' : 'currentColor'">
+      <svg class="icon" viewBox="0 0 1024 1024" :fill="context.isMissionProcessing.value ? '#00FF00' : 'currentColor'">
         <defs>
           <g :id="`${prefix}-a`" transform="translate(-72 -72)">
             <path d="M861.866667 164.266667c-87.466667-87.466667-230.4-89.6-320-2.133334l-68.266667 68.266667c-12.8 12.8-12.8 32 0 44.8s32 12.8 44.8 0l68.266667-68.266667c64-61.866667 166.4-61.866667 230.4 2.133334 64 64 64 168.533333 2.133333 232.533333l-117.333333 119.466667c-34.133333 34.133333-81.066667 51.2-128 49.066666-46.933333-4.266667-91.733333-27.733333-119.466667-66.133333-10.666667-14.933333-29.866667-17.066667-44.8-6.4-14.933333 10.666667-17.066667 29.866667-6.4 44.8 40.533333 53.333333 100.266667 87.466667 166.4 91.733333h17.066667c59.733333 0 119.466667-23.466667 162.133333-68.266666l117.333333-119.466667c83.2-89.6 83.2-234.666667-4.266666-322.133333z" />
@@ -154,11 +39,8 @@ const prefix = crypto.randomUUID()
       </svg>
     </el-icon>
 
-    <MapWindowTeleporter :id="id" @close="clear">
-      <MarkerLink
-        :link-list="linkList"
-        :source-marker="sourceMarker"
-      />
+    <MapWindowTeleporter :id="context.id" @close="context.finalize">
+      <MarkerLink :context="context" />
     </MapWindowTeleporter>
   </BarItem>
 </template>

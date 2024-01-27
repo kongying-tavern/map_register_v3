@@ -1,67 +1,53 @@
 <script setup lang="ts">
-import { useIconTagStore, useMapStateStore } from '@/stores'
-import type { GSMapState } from '@/stores/types/genshin-map-state'
-import { AppIconTagRenderer } from '@/components'
+import { MarkerInfo } from './components'
+import type { MLContext } from './core'
+import { useMapStateStore } from '@/stores'
+import type { LinkActionEnum } from '@/shared'
+import { LINK_ACTION_OPTIONS } from '@/shared'
 
-defineProps<{
-  linkList: API.MarkerLinkageVo[]
-  sourceMarker?: GSMapState.MarkerWithRenderConfig
-  targetMarker?: GSMapState.MarkerWithRenderConfig
+const props = defineProps<{
+  context: MLContext
 }>()
 
-const iconTagStore = useIconTagStore()
-const mapStateStore = useMapStateStore()
+const modelValue = computed({
+  get: () => props.context.linkAction.value,
+  set: v => props.context.setLinkAction(v),
+})
 
-const buildLinkKey = ({ fromId = 0, toId = 0, linkAction }: { fromId?: number; toId?: number; linkAction?: string }) => {
-  return `${Math.min(fromId, toId)}-${Math.max(fromId, toId)}-${linkAction}`
-}
+const mapStateStore = useMapStateStore()
 </script>
 
 <template>
   <div class="w-[400px] min-h-[500px] h-full flex flex-col">
-    <div class="border border-red-600 p-1">
+    <div class="p-1">
       <div class="flex justify-between items-center">
-        <div class="flex-1 text-center">
-          <span v-if="!sourceMarker">选择源点</span>
-          <div v-else>
-            <AppIconTagRenderer
-              :mapping="iconTagStore.tagPositionMap[sourceMarker.render.mainIconTag]"
-              :src="iconTagStore.tagSpriteUrl"
-              class="w-8 h-8"
-            />
-            <div>{{ sourceMarker.markerTitle }}</div>
-          </div>
-        </div>
+        <MarkerInfo :marker="context.sourceMarker.value" />
 
-        <div class="text-center">
-          →
-        </div>
+        <el-select-v2
+          v-model="modelValue"
+          :options="LINK_ACTION_OPTIONS"
+          style="width: 110px"
+        />
 
-        <div class="flex-1 text-center">
-          <span v-if="!targetMarker">选择目标点</span>
-          <div v-else>
-            <AppIconTagRenderer
-              :mapping="iconTagStore.tagPositionMap[targetMarker.render.mainIconTag]"
-              :src="iconTagStore.tagSpriteUrl"
-              class="w-8 h-8"
-            />
-            <div>{{ targetMarker.markerTitle }}</div>
-          </div>
-        </div>
+        <MarkerInfo :marker="context.targetMarker.value" />
       </div>
     </div>
 
-    <div class="flex-1 overflow-auto">
-      <div v-for="singleLink in linkList" :key="buildLinkKey(singleLink)">
-        {{ `${mapStateStore.currentLayerMarkersMap[singleLink.fromId ?? -1]?.markerTitle} (id: ${singleLink.fromId})` }}
+    <div class="flex-1 overflow-auto text-xs">
+      <div v-for="({ fromId = 0, toId = 0, linkAction }) in context.linkList.value" :key="context.getLinkKey({ fromId, toId, linkAction: linkAction as LinkActionEnum })">
+        {{ `${mapStateStore.currentLayerMarkersMap[fromId ?? -1]?.markerTitle} (id: ${fromId})` }}
         →
-        {{ `${mapStateStore.currentLayerMarkersMap[singleLink.toId ?? -1]?.markerTitle} (id: ${singleLink.toId})` }}
+        {{ linkAction }}
+        →
+        {{ `${mapStateStore.currentLayerMarkersMap[toId ?? -1]?.markerTitle} (id: ${toId})` }}
       </div>
     </div>
 
     <div class="flex justify-end p-1">
       <el-button>确认</el-button>
-      <el-button>取消</el-button>
+      <el-button @click="context.cancel">
+        取消
+      </el-button>
     </div>
   </div>
 </template>
