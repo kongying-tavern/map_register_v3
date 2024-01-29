@@ -13,7 +13,6 @@ useWindowDrag({ context })
       :id="id"
       :key="id"
       v-model:main-ref="action.ref"
-      :context="context"
       :info="action"
       :drag-hook-id="context.dragHookId"
     />

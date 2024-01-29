@@ -29,7 +29,9 @@ const mainRef = defineModel<HTMLElement | null>('mainRef', {
       class="window-panel-header"
       data-draggable="true"
     >
-      {{ info.name }}
+      <div class="p-1 text-sm pointer-events-none">
+        {{ info.name }}
+      </div>
     </div>
 
     <div ref="mainRef" class="window-panel-main" />
@@ -50,21 +52,28 @@ const mainRef = defineModel<HTMLElement | null>('mainRef', {
   display: flex;
   flex-direction: column;
   z-index: v-bind('info.order');
+  box-sizing: content-box;
+  border: 1px solid var(--el-border-color-darker);
 
   &.is-top {
-    outline: 4px solid #33333340;
+    box-shadow: var(--el-box-shadow);
   }
 }
 
 .window-panel-header {
   flex-shrink: 0;
-  background: #CCC;
+  background: linear-gradient(
+    to right,
+    var(--el-color-primary),
+    var(--el-color-primary-dark-2)
+  );
   user-select: none;
+  cursor: move;
 }
 
 .window-panel-main {
   flex: 1;
-  background: #FFF;
+  background: var(--el-bg-color);
   overflow: auto;
 }
 </style>
