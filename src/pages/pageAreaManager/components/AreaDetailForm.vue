@@ -95,7 +95,7 @@ defineExpose({
       </el-form-item>
 
       <el-form-item label="地区图标" prop="iconTag">
-        <div class="flex gap-2">
+        <div class="w-full flex gap-2">
           <AppRowImage :src="iconTagStore.iconTagMap[formData.iconTag ?? '']?.url" />
           <el-select-v2
             v-model="formData.iconTag"
@@ -103,15 +103,16 @@ defineExpose({
             remote
             clearable
             placeholder="搜索标签名称"
+            popper-class="item-no-padding"
             :remote-method="getTagList"
             :loading="loading"
             :options="tagOptions"
             @clear="formData.iconTag = ''"
           >
             <template #default="{ item }">
-              <div class="flex items-center gap-2">
-                <img :src="item.url" class="w-6 h-6 object-contain" crossorigin="" loading="lazy">
-                <span>{{ item.label }}</span>
+              <div class="h-full flex justify-center items-center gap-1 overflow-hidden px-2" :title="item.label">
+                <img :src="item.url" class="w-6 h-6 flex-shrink-0 object-contain" crossorigin="" loading="lazy">
+                <span class="w-full overflow-hidden whitespace-nowrap text-ellipsis text-xs">{{ item.label }}</span>
               </div>
             </template>
           </el-select-v2>
@@ -137,7 +138,7 @@ defineExpose({
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style scoped>
 .el-border {
   border: 1px solid var(--el-border-color);
   border-radius: 4px;

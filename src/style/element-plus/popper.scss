@@ -1,0 +1,7 @@
+.el-popper {
+  &.item-no-padding {
+    .el-select-dropdown__item {
+      padding: 0;
+    }
+  }
+}
