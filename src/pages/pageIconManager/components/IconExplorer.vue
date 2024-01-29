@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { RecycleScroller } from 'vue-virtual-scroller'
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 import { useIconTagStore } from '@/stores'
+import { AppVirtualTable } from '@/components'
 
 const props = defineProps<{
   tagList: API.TagVo[]
@@ -59,13 +59,11 @@ watch(scrollTarget, scrollTo)
       '--sprite-image': `url(${iconTagStore.tagSpriteUrl})`,
     }"
   >
-    <RecycleScroller
-      :items="tagList"
-      :grid-items="gridItems"
-      :item-size="ICON_SIZE"
-      :item-secondary-size="ICON_SIZE"
-      key-field="tag"
-      class="h-full"
+    <AppVirtualTable
+      :data="tagList"
+      :cached-rows="0"
+      :item-height="ICON_SIZE"
+      :item-width="ICON_SIZE"
     >
       <template #default="{ item }">
         <div
@@ -77,7 +75,7 @@ watch(scrollTarget, scrollTo)
           @click="activedTag = item"
         >
           <div
-            v-if="!iconTagStore.tagPositionMap[item.tag]"
+            v-if="!iconTagStore.tagPositionMap[item.tag!]"
             class="w-16 h-16 grid place-items-center text-center"
           >
             图片缺省
@@ -86,8 +84,8 @@ watch(scrollTarget, scrollTo)
             v-else
             class="item-image"
             :style="{
-              '--x': `${-iconTagStore.tagPositionMap[item.tag][0]}px`,
-              '--y': `${-iconTagStore.tagPositionMap[item.tag][1]}px`,
+              '--x': `${-iconTagStore.tagPositionMap[item.tag!][0]}px`,
+              '--y': `${-iconTagStore.tagPositionMap[item.tag!][1]}px`,
             }"
           />
           <div class="item-label">
@@ -95,7 +93,7 @@ watch(scrollTarget, scrollTo)
           </div>
         </div>
       </template>
-    </RecycleScroller>
+    </AppVirtualTable>
   </div>
 </template>
 
