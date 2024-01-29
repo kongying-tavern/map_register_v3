@@ -3,9 +3,12 @@ import { useIconTagStore } from '@/stores'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
 import { AppIconTagRenderer } from '@/components'
 
-defineProps<{
+withDefaults(defineProps<{
   marker?: GSMapState.MarkerWithRenderConfig
-}>()
+  placeholder?: string
+}>(), {
+  placeholder: '--N/A--',
+})
 
 const iconTagStore = useIconTagStore()
 </script>
@@ -13,22 +16,30 @@ const iconTagStore = useIconTagStore()
 <template>
   <div class="marker-info">
     <div v-if="!marker">
-      Empty
+      {{ placeholder }}
     </div>
 
-    <div v-else>
+    <div v-else class="h-full grid place-items-center place-content-center">
       <AppIconTagRenderer
         :mapping="iconTagStore.tagPositionMap[marker.render.mainIconTag]"
         :src="iconTagStore.tagSpriteUrl"
         class="w-8 h-8"
       />
-      <div>{{ marker.markerTitle }}</div>
+      <el-text>{{ marker.markerTitle }}</el-text>
     </div>
   </div>
 </template>
 
 <style scoped>
 .marker-info {
-  display: flex;
+  height: 64px;
+  flex: 1;
+  font-size: 14px;
+  background: var(--el-color-primary-light-9);
+  border-radius: 4px;
+
+  &:hover {
+    background-color: var(--el-color-primary-light-7);
+  }
 }
 </style>

@@ -78,6 +78,48 @@ export class MLContext {
     windowCtx.openWindow({ id: this.id, name: '点位关联' })
   }
 
+  putLink = (markerLink: MarkerLinkProps) => {
+    const key = this.getLinkKey(markerLink)
+
+    const list = [...this.linkList.value]
+
+    const tripleTupleIndex = list.findIndex(({ fromId = 0, toId = 0 }) => this.getLinkKey({
+      fromId,
+      toId,
+      linkAction: this.linkAction.value,
+    }) === key)
+
+    if (tripleTupleIndex > -1)
+      list.splice(tripleTupleIndex, 1, markerLink)
+    else
+      list.push(markerLink)
+
+    this.linkList.value = list
+    this.updateMission(this.mergeMarkerLinkList(this.sourceLinkList.value, this.targetLinkList.value))
+    this.resetSelectedState()
+  }
+
+  deleteLink = (key: string) => {
+    const list = [...this.linkList.value]
+
+    const tripleTupleIndex = list.findIndex(({ fromId = 0, toId = 0 }) => this.getLinkKey({
+      fromId,
+      toId,
+      linkAction: this.linkAction.value,
+    }) === key)
+    if (tripleTupleIndex > -1)
+      return false
+
+    list.splice(tripleTupleIndex, 1)
+
+    this.linkList.value = list
+
+    this.updateMission(this.mergeMarkerLinkList(this.sourceLinkList.value, this.targetLinkList.value))
+    this.resetSelectedState()
+
+    return true
+  }
+
   /** 清除任务 */
   finalize = () => {
     this.clearMission()
@@ -160,27 +202,6 @@ export class MLContext {
     this.targetLinkList.value = []
   }
 
-  protected addMarkerLink = (markerLink: MarkerLinkProps) => {
-    const key = this.getLinkKey(markerLink)
-
-    const list = [...this.linkList.value]
-
-    const tripleTupleIndex = list.findIndex(({ fromId = 0, toId = 0 }) => this.getLinkKey({
-      fromId,
-      toId,
-      linkAction: this.linkAction.value,
-    }) === key)
-
-    if (tripleTupleIndex > -1)
-      list.splice(tripleTupleIndex, 1, markerLink)
-    else
-      list.push(markerLink)
-
-    this.linkList.value = list
-    this.updateMission(this.mergeMarkerLinkList(this.sourceLinkList.value, this.targetLinkList.value))
-    this.resetSelectedState()
-  }
-
   protected mergeMarkerLinkList = (...args: API.MarkerLinkageVo[][]): API.MarkerLinkageVo[] => {
     const mergedList: API.MarkerLinkageVo[] = []
     const keys = new Set<string>()
@@ -251,6 +272,12 @@ export class MLContext {
       return
     }
 
+    if (this.sourceMarker.value.id === info.object) {
+      this.resetSelectedState()
+      this.updateMission(this.linkList.value)
+      return
+    }
+
     // 当没有目标点时，设置目标点
     if (this.targetMarker.value === undefined) {
       const marker = this.mapStateStore.currentLayerMarkersMap[info.object as number]
@@ -262,7 +289,7 @@ export class MLContext {
 
     // 再次点击目标点时，将当前关联加入到关联列表
     if (this.targetMarker.value.id === info.object) {
-      this.addMarkerLink({
+      this.putLink({
         fromId: this.sourceMarker.value.id!,
         toId: this.targetMarker.value.id!,
         linkAction: this.linkAction.value,
