@@ -14,6 +14,7 @@ withDefaults(defineProps<{
   baseTextSize: number
 } & ToolbarConfig & EditorConfig>(), {
   sizeRatio: 1,
+  baseTextSize: 32,
   defaultForeground: '#000',
   defaultBackground: '#fff',
   viewFont: '',
@@ -64,7 +65,7 @@ onMounted(() => nextTick(() => {
   <div v-if="editor" class="richtext-editor flex-1">
     <HeaderToolbar
       :editor="editor"
-      :edit-type="baseTextSize / sizeRatio"
+      :base-size="baseTextSize / sizeRatio"
       :header-min="headerMin"
       :header-max="headerMax"
       :headers="headers"
