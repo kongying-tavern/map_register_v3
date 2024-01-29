@@ -78,7 +78,12 @@ const sizeAliasList = computed(() => {
 <template>
   <div class="header-toolbar">
     <ToolbarItem plain title="字号">
-      <el-input v-model="size" style="width: 60px" @blur="() => setSize(size)" />
+      <el-input
+        v-model="size"
+        style="width: 60px"
+        @blur="() => setSize(size)"
+        @keydown.enter="() => setSize(size)"
+      />
     </ToolbarItem>
 
     <ToolbarItem title="加粗" class="text-xl" :is-active="editor.isActive('bold')" @click="editor.commands.toggleBold">
