@@ -246,7 +246,7 @@ const beforeClose = (done: () => void) => {
   </el-dialog>
 </template>
 
-<style lang="scss" setup>
+<style lang="scss" scoped>
 @property --angle {
   syntax: '<angle>';
   inherits: false;
