@@ -56,6 +56,7 @@ const { typeList, userMap, loading, updateTypeList } = useTypeList({
 
 const onTypeKeyChange = () => {
   parentPath.value = []
+  updateTypeList()
 }
 
 // ==================== 添加分类 ====================
