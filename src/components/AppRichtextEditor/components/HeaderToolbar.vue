@@ -57,12 +57,6 @@ const colorList: string[] = [
 ]
 
 const sizeAliasList = computed(() => {
-  if (
-    !props.headerMin || !props.headerMax
-    || !Number.isFinite(props.headerMin) || !Number.isFinite(props.headerMax)
-    || props.headerMin > props.headerMax
-  )
-    return []
   const sizeAliasFullList = [
     { level: 1, sizeFactor: 2 },
     { level: 2, sizeFactor: 1.5 },
@@ -71,7 +65,18 @@ const sizeAliasList = computed(() => {
     { level: 5, sizeFactor: 0.8 },
     { level: 6, sizeFactor: 0.6 },
   ]
-  return sizeAliasFullList.slice(props.headerMin - 1, props.headerMax)
+
+  if (props.headers && Array.isArray(props.headers) && props.headers.length > 0)
+    return sizeAliasFullList.filter(alias => props.headers?.includes(alias.level))
+
+  if (
+    props.headerMin && props.headerMax
+    && Number.isFinite(props.headerMin) && Number.isFinite(props.headerMax)
+    && props.headerMin <= props.headerMax
+  )
+    return sizeAliasFullList.slice(props.headerMin - 1, props.headerMax)
+
+  return []
 })
 </script>
 

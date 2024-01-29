@@ -1,6 +1,7 @@
 export interface ToolbarConfig {
   headerMin?: number
   headerMax?: number
+  headers?: number[]
 }
 
 export interface EditorConfig {

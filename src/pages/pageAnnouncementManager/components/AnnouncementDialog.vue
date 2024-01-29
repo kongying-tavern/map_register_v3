@@ -124,6 +124,7 @@ onError((err: Error) => ElMessage.error({
               style="max-height: 50vh;"
               :content-height="400"
               :base-text-size="20"
+              :headers="[2, 4]"
               default-foreground="#4f473f"
               default-background="#fff"
               view-font="MHYG, sans-serif"

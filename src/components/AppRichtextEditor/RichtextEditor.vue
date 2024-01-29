@@ -67,6 +67,7 @@ onMounted(() => nextTick(() => {
       :edit-type="baseTextSize / sizeRatio"
       :header-min="headerMin"
       :header-max="headerMax"
+      :headers="headers"
     />
     <EditorContent class="editor-instance" :editor="editor" />
   </div>
