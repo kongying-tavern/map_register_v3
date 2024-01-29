@@ -1,10 +1,11 @@
 <script lang="ts" setup>
 import type { ItemFormRules } from '@/utils'
 import { lengthCheck, requireCheck } from '@/utils'
-import { useAreaList, useIconList, useRefreshTime, useTypeList } from '@/hooks'
+import { useIconList, useRefreshTime } from '@/hooks'
 import type { ElFormType } from '@/shared'
 import { HiddenFlagEnum, IconStyleTyleEnum } from '@/shared'
 import { AppTimeSelect } from '@/components'
+import { useAreaStore, useItemTypeStore } from '@/stores'
 
 const props = defineProps<{
   modelValue: API.ItemVo
@@ -44,10 +45,18 @@ const rules: ItemFormRules<API.ItemVo> = {
 }
 
 // ==================== 物品地区 ====================
-const { areaTree } = useAreaList()
+const areaStore = useAreaStore()
+const areaList = computed(() => areaStore.areaList
+  .filter(area => area.isFinal)
+  .sort(({ sortIndex: ia = 0 }, { sortIndex: ib = 0 }) => ib - ia),
+)
 
 // ==================== 物品类型 ====================
-const { typeTree } = useTypeList()
+const itemTypeStore = useItemTypeStore()
+const itemTypeList = computed(() => itemTypeStore.itemTypeList
+  .filter(itemType => itemType.isFinal)
+  .sort(({ sortIndex: ia = 0 }, { sortIndex: ib = 0 }) => ib - ia),
+)
 
 // ==================== 显示类型 ====================
 const hiddenFlagOptions = [
@@ -97,9 +106,9 @@ defineExpose({
 
     <div class="grid grid-cols-2 gap-x-4">
       <el-form-item label="地区" prop="areaId">
-        <el-tree-select
+        <el-select-v2
           v-model="formData.areaId"
-          :data="areaTree"
+          :options="areaList"
           :props="{ label: 'name', value: 'id' }"
           filterable
           placeholder="选择地区"
@@ -108,10 +117,11 @@ defineExpose({
       </el-form-item>
 
       <el-form-item label="类型" prop="typeIdList">
-        <el-tree-select
+        <el-select-v2
           v-model="formData.typeIdList"
-          :data="typeTree"
+          :options="itemTypeList"
           :props="{ label: 'name', value: 'id' }"
+          filterable
           collapse-tags
           collapse-tags-tooltip
           multiple

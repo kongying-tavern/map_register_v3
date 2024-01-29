@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { MarkerSearchParams } from '../hooks'
 import { useItemList, useItemType } from '../hooks'
-import { useAreaList } from '@/hooks'
+import { useAreaStore } from '@/stores'
 
 const props = defineProps<{
   modelValue: MarkerSearchParams
@@ -29,7 +29,11 @@ watch(markerIds, (ids) => {
 })
 
 // ==================== 地区 ====================
-const { areaTree } = useAreaList({ immediate: true })
+const areaStore = useAreaStore()
+const areaList = computed(() => areaStore.areaList
+  .filter(area => area.isFinal)
+  .toSorted(({ sortIndex: ia = 0 }, { sortIndex: ib = 0 }) => ib - ia),
+)
 
 // ==================== 类型 ====================
 const { typeOptions: itemTypeOptions } = useItemType()
@@ -65,14 +69,14 @@ watch(itemOptions, (options) => {
       </el-form-item>
 
       <el-form-item label="所属地区">
-        <el-tree-select
+        <el-select-v2
           v-model="areaIdList"
           placeholder="请选择地区"
-          node-key="id"
-          accordion collapse-tags collapse-tags-tooltip clearable filterable multiple
+          clearable
+          multiple collapse-tags collapse-tags-tooltip
+          filterable
           style="width: 100%"
-          :data="areaTree"
-          :render-after-expand="false"
+          :options="areaList"
           :props="{ label: 'name', value: 'id' }"
         />
       </el-form-item>
