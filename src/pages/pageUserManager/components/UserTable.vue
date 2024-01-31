@@ -41,7 +41,7 @@ const proxySelectionChange = (selections: API.ItemVo[]) => {
     >
       <el-table-column type="selection" align="center" :width="50" />
 
-      <el-table-column label="ID" prop="id" :width="100" />
+      <el-table-column label="ID" prop="id" :width="100" sortable="custom" />
 
       <el-table-column label="头像" width="80">
         <template #default="{ row }">
