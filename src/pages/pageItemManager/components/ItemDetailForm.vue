@@ -96,12 +96,27 @@ defineExpose({
 
 <template>
   <el-form ref="formRef" v-bind="$attrs" label-width="80px" :model="formData" :rules="rules">
-    <el-form-item label="物品名称" prop="name">
-      <el-input v-model="formData.name" placeholder="请输入物品名称" />
-    </el-form-item>
+    <div class="grid grid-cols-2 gap-x-4">
+      <el-form-item label="物品名称" prop="name">
+        <el-input v-model="formData.name" placeholder="请输入物品名称" />
+      </el-form-item>
+
+      <el-form-item label="可传送" title="是否为传送点位" prop="specialFlag">
+        <el-switch
+          v-model="formData.specialFlag"
+          :active-value="1"
+          :inactive-value="0"
+        />
+      </el-form-item>
+    </div>
 
     <el-form-item label="描述模板" prop="defaultContent">
-      <el-input v-model="formData.defaultContent" placeholder="例：在此处找到【】接取委托，完成后可获得【冒险阅历+、原石×、大英雄的经验×、摩拉×?0000】" type="textarea" :rows="3" />
+      <el-input
+        v-model="formData.defaultContent"
+        placeholder="例：在此处找到【】接取委托，完成后可获得【冒险阅历+、原石×、大英雄的经验×、摩拉×?0000】"
+        type="textarea"
+        :rows="3"
+      />
     </el-form-item>
 
     <div class="grid grid-cols-2 gap-x-4">
