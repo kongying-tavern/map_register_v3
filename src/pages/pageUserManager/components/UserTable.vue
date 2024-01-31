@@ -54,11 +54,11 @@ const proxySelectionChange = (selections: API.ItemVo[]) => {
         </template>
       </el-table-column>
 
+      <el-table-column label="昵称" prop="nickname" show-overflow-tooltip sortable="custom" :width="150" />
+
       <el-table-column label="用户名" prop="username" :width="150" />
 
       <el-table-column label="QQ" prop="qq" :width="150" />
-
-      <el-table-column label="昵称" prop="nickname" show-overflow-tooltip sortable="custom" :width="150" />
 
       <el-table-column label="手机号" prop="phone" :width="150" />
 
@@ -70,9 +70,7 @@ const proxySelectionChange = (selections: API.ItemVo[]) => {
         </template>
       </el-table-column>
 
-      <el-table-column label="创建时间" prop="createTime" sortable="custom" :width="200" :formatter="timeFormatter" />
-
-      <el-table-column label="修改时间" prop="updateTime" sortable="custom" :width="200" :formatter="timeFormatter" />
+      <el-table-column label="修改时间" prop="updateTime" sortable="custom" :width="180" :formatter="timeFormatter" />
 
       <el-table-column fixed="right" label="操作" :width="190">
         <template #default="{ row }">
