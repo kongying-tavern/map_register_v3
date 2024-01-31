@@ -18,7 +18,6 @@ export const useUserList = (options: UserListHookOptions) => {
   // 搜索
   const filterKey = ref('nickname')
   const filterValue = ref('')
-  const debouncedFilterValue = refDebounced(filterValue, 500)
 
   const params = computed(() => getParams())
 
@@ -42,7 +41,7 @@ export const useUserList = (options: UserListHookOptions) => {
     pagination.value.total = total
   })
 
-  watch(() => [params.value.sort, debouncedFilterValue.value], updateUserList, { deep: true })
+  watch(() => params.value.sort, updateUserList, { deep: true })
 
   return {
     userList,
