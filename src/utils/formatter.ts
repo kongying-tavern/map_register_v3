@@ -1,9 +1,11 @@
+import dayjs from 'dayjs'
+
 export const urlFormatter = (_: unknown, __: unknown, url = '') => decodeURIComponent(url)
 
-export const timeFormatter = (_: unknown, __: unknown, time?: string) => {
+export const timeFormatter = (...{ 2: time = '' }) => {
   if (!time)
     return ''
-  return new Date(time).toLocaleString()
+  return dayjs(time).format('YYYY-MM-DD HH:mm:ss')
 }
 
 export const refreshTimeFormatter = (_: unknown, __: unknown, time = 0) => {
