@@ -1,15 +1,12 @@
 <script setup lang="ts">
-import { ElMessage } from 'element-plus'
-import { cloneDeep, isEqual } from 'lodash'
-import type Node from 'element-plus/es/components/tree/src/model/node'
-import { Check, Delete } from '@element-plus/icons-vue'
+import { cloneDeep } from 'lodash'
+import { Delete } from '@element-plus/icons-vue'
 import dayjs from 'dayjs'
 import { useIconDelete } from '../hooks'
 import { IconEditor } from '.'
 import { useIconTagStore } from '@/stores'
 import Api from '@/api/api'
 import { useFetchHook, useGlobalDialog } from '@/hooks'
-import db from '@/database'
 
 const props = defineProps<{
   tag?: API.TagVo | null
@@ -46,8 +43,6 @@ const iconTag = defineModel<API.TagVo | null>('modelValue', {
 
 const form = ref(cloneDeep(props.tag ?? {}))
 
-const isTypeChange = computed(() => !isEqual(iconTag.value?.typeIdList ?? [], form.value.typeIdList ?? []))
-
 // ==================== 修改图片 ====================
 const openImageEditor = () => {
   DialogService
@@ -63,54 +58,15 @@ const openImageEditor = () => {
     .open(IconEditor)
 }
 
-// ==================== 修改类型 ====================
-const { refresh: updateType, loading: isTypeUpdateLoading, onSuccess: onTypeUpdateSuccess, onError: onTypeUpdateError } = useFetchHook({
-  onRequest: async () => {
-    const { tag = '', typeIdList } = form.value
-    await Api.tag.updateTypeInTag({ tag, typeIdList })
-    const { data = {} } = await Api.tag.getTag({ name: tag })
-    await db.iconTag.put(data)
-    return data
-  },
-})
-
 // 删除图标
 const { confirmDeleteIcon } = useIconDelete()
 
-onTypeUpdateSuccess(() => {
-  ElMessage.success({
-    message: '编辑成功',
-    offset: 48,
-  })
-})
-
-onTypeUpdateError(err => ElMessage.error({
-  message: `编辑失败，原因为：${err.message}`,
-  offset: 48,
-}))
-
 watch(() => props.tag, () => {
-  if (isTypeUpdateLoading.value)
-    return
   if (!props.tag)
     return
   form.value = cloneDeep(iconTag.value ?? {})
   form.value.creatorId !== undefined && getUserInfo([props.tag.creatorId!, props.tag.updaterId!])
 })
-
-// ==================== 图标类型 ====================
-const tagTypeCache = ref<Record<number, API.TagTypeVo[]>>({})
-
-const loadTagType = async (node: Node, resolve: (data: API.TagTypeVo[]) => void) => {
-  if (tagTypeCache.value[node.data.id] !== undefined)
-    return resolve(tagTypeCache.value[node.data.id])
-  const { data: { record = [] } = {} } = await Api.tagType.listTagType({
-    typeIdList: [node.level === 0 ? -1 : node.data.id],
-    size: 256,
-  })
-  tagTypeCache.value[node.data.id] = record
-  resolve(record)
-}
 
 // ==================== 其他 ====================
 const timeFormatter = (time?: string) => {
@@ -122,7 +78,6 @@ const timeFormatter = (time?: string) => {
 
 <template>
   <div
-    v-loading.fullscreen="isTypeUpdateLoading"
     element-loading-text="操作中..."
     element-loading-background="var(--el-overlay-color-lighter)"
     class="icon-previewer h-full"
@@ -147,11 +102,17 @@ const timeFormatter = (time?: string) => {
       </div>
 
       <div class="icon-detail flex-1 px-2">
-        <el-form label-width="70px" label-position="left" :model="form" :disabled="isTypeUpdateLoading">
+        <el-form label-width="70px" label-position="left" :model="form">
           <el-form-item label-width="0px" class="margin-bottom-0">
-            <el-button class="w-full" @click="openImageEditor">
+            <el-button class="flex-1" @click="openImageEditor">
               修改图片
             </el-button>
+            <el-button
+              type="danger"
+              plain
+              :icon="Delete"
+              @click="() => confirmDeleteIcon(form)"
+            />
           </el-form-item>
 
           <el-form-item label="名称" class="margin-bottom-0">
@@ -185,46 +146,7 @@ const timeFormatter = (time?: string) => {
           <el-form-item label="修改时间" class="margin-bottom-0">
             <el-text>{{ timeFormatter(form.updateTime) }}</el-text>
           </el-form-item>
-
-          <el-form-item label="分类" prop="typeIdList" class="margin-bottom-0">
-            <el-tree-select
-              v-model="form.typeIdList"
-              style="width: 100%"
-              node-key="id"
-              clearable multiple collapse-tags collapse-tags-tooltip
-              lazy accordion highlight-current show-checkbox check-strictly check-on-click-node
-              :current-node-key="-1"
-              :default-expanded-keys="[-1]"
-              :expand-on-click-node="false"
-              :props="{
-                label: 'name',
-                value: 'id',
-                isLeaf: 'isFinal',
-              }"
-              :load="loadTagType"
-            />
-          </el-form-item>
         </el-form>
-
-        <div class="flex mt-3">
-          <el-button
-            class="flex-1"
-            :disabled="!isTypeChange"
-            :type="isTypeChange ? 'primary' : 'default'"
-            :icon="Check"
-            :loading="isTypeUpdateLoading"
-            @click="updateType"
-          >
-            保存分类
-          </el-button>
-          <el-button
-            :icon="Delete"
-            type="danger"
-            plain
-            :disabled="isTypeUpdateLoading"
-            @click="() => confirmDeleteIcon(form)"
-          />
-        </div>
       </div>
     </div>
   </div>
