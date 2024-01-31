@@ -40,13 +40,14 @@ export const useItemEdit = (options: ItemEditHookOptions = {}) => {
     'version',
   ])
 
-  const handleSubmit = () => detailFormRef.value
-    ?.validate()
-    ?.then(() => {
-      const form = pickRequiredKeys(formData.value)
-      form.version = (form.version ?? 0) + 1
-      submit(sharedEditSame.value, form)
-    })
+  const handleSubmit = async () => {
+    const isValid = await detailFormRef.value?.validate()
+    if (!isValid)
+      return
+    const form = pickRequiredKeys(formData.value)
+    form.version = (form.version ?? 0) + 1
+    await submit(sharedEditSame.value, form)
+  }
 
   if (isRoot) {
     onSuccess(() => {

@@ -30,9 +30,12 @@ export const useItemCreate = (options: ItemCreateHookOptions = {}) => {
   const detailFormRef = ref<InstanceType<typeof ItemDetailForm> | null>(null)
   const formData = ref<API.ItemVo>(initFormData())
 
-  const handleSubmit = () => detailFormRef.value
-    ?.validate()
-    ?.then(() => submit(formData.value))
+  const handleSubmit = async () => {
+    const isValid = await detailFormRef.value?.validate()
+    if (!isValid)
+      return
+    await submit(formData.value)
+  }
 
   if (isRoot) {
     onSuccess(() => {
