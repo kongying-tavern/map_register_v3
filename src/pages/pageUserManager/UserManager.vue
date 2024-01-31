@@ -54,22 +54,24 @@ onDeleteSuccess(updateUserList)
 
 <template>
   <div class="h-full flex flex-col gap-2 overflow-hidden">
-    <UserFilter v-model="filterValue" v-model:filter-key="filterKey">
+    <UserFilter v-model="filterValue" v-model:filter-key="filterKey" @change="updateUserList">
       <template #footer>
-        <el-button type="danger" :loading="deleteLoading" :disabled="!selections.length" @click="() => confirmDelete(selections)">
-          批量删除 {{ selections.length ? ` ${selections.length} 项` : '' }}
-        </el-button>
-        <el-button type="primary" @click="openUserCreator">
-          添加用户
-        </el-button>
+        <div class="w-full flex justify-end">
+          <el-button type="danger" :loading="deleteLoading" :disabled="!selections.length" @click="() => confirmDelete(selections)">
+            批量删除 {{ selections.length ? ` ${selections.length} 项` : '' }}
+          </el-button>
+          <el-button type="primary" @click="openUserCreator">
+            添加用户
+          </el-button>
+        </div>
       </template>
     </UserFilter>
 
     <UserTable :data="userList" :role-list="roleList" :loading="loading" @selection-change="setSelections" @sort-change="setSort">
       <template #action="{ row }">
-        <el-button :icon="Edit" @click="() => openUserEditor(row)" />
-        <el-button :icon="Key" @click="() => openPasswordEditor(row)" />
-        <el-button :icon="Delete" :disabled="deleteLoading" plain type="danger" @click="() => confirmDelete(row)" />
+        <el-button :icon="Edit" title="编辑" @click="() => openUserEditor(row)" />
+        <el-button :icon="Key" title="修改密码" @click="() => openPasswordEditor(row)" />
+        <el-button :icon="Delete" title="删除" :disabled="deleteLoading" plain type="danger" @click="() => confirmDelete(row)" />
       </template>
     </UserTable>
 
