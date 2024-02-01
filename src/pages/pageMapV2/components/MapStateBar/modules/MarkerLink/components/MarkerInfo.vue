@@ -15,8 +15,8 @@ const iconTagStore = useIconTagStore()
 
 <template>
   <div class="marker-info">
-    <div v-if="!marker">
-      {{ placeholder }}
+    <div v-if="!marker" class="h-full grid place-items-center">
+      <el-text>{{ placeholder }}</el-text>
     </div>
 
     <div v-else class="h-full grid place-items-center place-content-center">

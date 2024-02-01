@@ -7,9 +7,11 @@ import db from '@/database'
 import { LinkActionEnum } from '@/shared'
 
 interface MarkerLinkProps {
+  key: string
   fromId: number
   toId: number
   linkAction: LinkActionEnum
+  isDelete?: boolean
 }
 
 export class MLContext {
@@ -28,31 +30,67 @@ export class MLContext {
     this.linkAction.value = newLinkAction
   }
 
-  /** 新增关联列表 */
-  missionLinkList = shallowRef<API.MarkerLinkageVo[]>([])
-
-  /** 源点关联列表 */
-  sourceLinkList = shallowRef<API.MarkerLinkageVo[]>([])
-
-  /** 目标点关联列表 */
-  targetLinkList = shallowRef<API.MarkerLinkageVo[]>([])
-
   /** 关联任务是否可用 */
   isMissionEnable: Ref<boolean>
 
   /** 是否正在进行关联任务 */
   isMissionProcessing: Ref<boolean>
 
-  updateMission: (value: API.MarkerLinkageVo[] | null) => void
+  /** 新添加的关联 */
+  linkList = shallowRef<MarkerLinkProps[]>([])
 
-  /** 已添加的关联 */
-  linkList = shallowRef<API.MarkerLinkageVo[]>([])
-  setMarkerLinkList = (value: API.MarkerLinkageVo[]) => {
-    this.linkList.value = value
+  /** 已有的关联组，key 表示关联组 id */
+  existLinkGroups = ref<Record<string, {
+    /** 关联组包含的点位 id，当包含为空时，该关联组会被移除 */
+    include: Set<number>
+    /** 点位所属关联组对应的关联关系 */
+    links: API.MarkerLinkageVo[]
+  }>>({})
+
+  /** 是否合并已有关联组 */
+  isMergeMode = ref(true)
+  setMergeMode = (v: boolean) => {
+    this.isMergeMode.value = v
   }
 
+  /** 最终将被提交的关联关系 */
+  modifiedLinkList = computed<MarkerLinkProps[]>(() => {
+    if (!this.isMergeMode.value)
+      return this.linkList.value
+
+    const mergedList: MarkerLinkProps[] = []
+    const keys = new Set<string>()
+
+    this.linkList.value.forEach((link) => {
+      keys.add(link.key)
+      !link.isDelete && mergedList.push(link)
+    })
+
+    const existLinks = this.existLinkGroups.value
+    for (const linkageId in existLinks) {
+      const { links } = existLinks[linkageId]
+      links.forEach((link) => {
+        const info = {
+          fromId: link.fromId!,
+          toId: link.toId!,
+          linkAction: link.linkAction as LinkActionEnum,
+        }
+        const key = this.getLinkKey(info)
+        if (keys.has(key))
+          return
+        keys.add(key)
+        mergedList.push({
+          ...info,
+          key,
+        })
+      })
+    }
+
+    return mergedList
+  })
+
   /** 获取关联条目的唯一标识 */
-  getLinkKey = ({ fromId, toId, linkAction }: MarkerLinkProps) => {
+  getLinkKey = ({ fromId, toId, linkAction }: Omit<MarkerLinkProps, 'key'>) => {
     return `${Math.min(fromId, toId)}-${Math.max(fromId, toId)}-${linkAction}`
   }
 
@@ -69,7 +107,8 @@ export class MLContext {
     // 注册点击事件处理器
     this.mapStateStore.event.on('click', this.handleMapClick)
     // 开启关联数据变化到地图渲染的映射
-    this.resumeUpdateMLRenderList()
+    this.resumeSync()
+    this.resumeRender()
     // 切换 focus 与 hover 导致的点位弹窗行为
     this.mapStateStore.setIsPopoverOnHover(true)
     // 初始化关联任务
@@ -78,45 +117,31 @@ export class MLContext {
     windowCtx.openWindow({ id: this.id, name: '点位关联' })
   }
 
-  putLink = (markerLink: MarkerLinkProps) => {
-    const key = this.getLinkKey(markerLink)
-
+  /** 新增/修改关联关系 */
+  putLink = (markerLink: MarkerLinkProps, isDelete = false) => {
     const list = [...this.linkList.value]
 
-    const tripleTupleIndex = list.findIndex(({ fromId = 0, toId = 0 }) => this.getLinkKey({
-      fromId,
-      toId,
-      linkAction: this.linkAction.value,
-    }) === key)
+    const findIndex = list.findIndex(link => link.key === markerLink.key)
 
-    if (tripleTupleIndex > -1)
-      list.splice(tripleTupleIndex, 1, markerLink)
+    const modifiedLink: MarkerLinkProps = { ...markerLink, isDelete }
+    if (findIndex < 0)
+      list.push(modifiedLink)
     else
-      list.push(markerLink)
+      list.splice(findIndex, 1, modifiedLink)
 
     this.linkList.value = list
-    this.updateMission(this.mergeMarkerLinkList(this.sourceLinkList.value, this.targetLinkList.value))
     this.resetSelectedState()
   }
 
+  /** 删除关联关系 */
   deleteLink = (key: string) => {
     const list = [...this.linkList.value]
 
-    const tripleTupleIndex = list.findIndex(({ fromId = 0, toId = 0 }) => this.getLinkKey({
-      fromId,
-      toId,
-      linkAction: this.linkAction.value,
-    }) === key)
-    if (tripleTupleIndex > -1)
+    const findIndex = list.findIndex(link => link.key === key)
+    if (findIndex < 0)
       return false
 
-    list.splice(tripleTupleIndex, 1)
-
-    this.linkList.value = list
-
-    this.updateMission(this.mergeMarkerLinkList(this.sourceLinkList.value, this.targetLinkList.value))
-    this.resetSelectedState()
-
+    this.putLink(this.linkList.value[findIndex], true)
     return true
   }
 
@@ -135,7 +160,7 @@ export class MLContext {
     const {
       isEnable,
       isProcessing,
-      data: linkList,
+      data: missionList,
       update,
       clear,
       onClear,
@@ -145,6 +170,14 @@ export class MLContext {
     this.isMissionProcessing = isProcessing
     this.clearMission = clear
     this.updateMission = update
+
+    // 同步内部更改与地图任务状态
+    const { pause: pauseSync, resume: resumeSync } = pausableWatch(this.modifiedLinkList, (newLinkList) => {
+      update(newLinkList)
+    }, { immediate: false })
+
+    this.pauseSync = pauseSync
+    this.resumeSync = resumeSync
 
     // 订阅 focus 交互
     const {
@@ -158,9 +191,9 @@ export class MLContext {
 
     // 将点位关联任务渲染到地图上
     const {
-      resume: resumeUpdateMLRenderList,
-      pause: pauseUpdateMLRenderList,
-    } = pausableWatch(linkList, async (list) => {
+      pause: pauseRender,
+      resume: resumeRender,
+    } = pausableWatch(missionList, async (list) => {
       await this.mapStateStore.setMLRenderList(list.map(({ fromId, linkAction, toId }) => ({
         source: fromId!,
         target: toId!,
@@ -168,8 +201,8 @@ export class MLContext {
       })))
     }, { immediate: false })
 
-    this.resumeUpdateMLRenderList = resumeUpdateMLRenderList
-    this.pauseUpdateMLRenderList = pauseUpdateMLRenderList
+    this.pauseRender = pauseRender
+    this.resumeRender = resumeRender
 
     // 任务结束时清理状态
     onClear(() => {
@@ -179,79 +212,71 @@ export class MLContext {
       this.mapStateStore.event.off('click', this.handleMapClick)
       this.resetSelectedState()
       this.linkList.value = []
-      pauseUpdateMLRenderList()
+      pauseSync()
+      pauseRender()
     })
   }
 
   protected mapStateStore = useMapStateStore()
 
   protected clearMission: () => void
+  protected updateMission: (value: API.MarkerLinkageVo[] | null) => void
 
   protected pauseFocus: () => void
-
   protected setMarkerFocus: (value: GSMapState.MarkerWithRenderConfig | null) => void
 
-  protected resumeUpdateMLRenderList: () => void
+  protected pauseRender: () => void
+  protected resumeRender: () => void
 
-  protected pauseUpdateMLRenderList: () => void
+  protected pauseSync: () => void
+  protected resumeSync: () => void
 
   protected resetSelectedState = () => {
     this.sourceMarker.value = undefined
     this.targetMarker.value = undefined
-    this.sourceLinkList.value = []
-    this.targetLinkList.value = []
   }
 
-  protected mergeMarkerLinkList = (...args: API.MarkerLinkageVo[][]): API.MarkerLinkageVo[] => {
-    const mergedList: API.MarkerLinkageVo[] = []
-    const keys = new Set<string>()
+  /** 移除对应点位的已有关联组 */
+  protected removeTempLink = (marker?: GSMapState.MarkerWithRenderConfig) => {
+    if (!marker)
+      return
+    const group = this.existLinkGroups.value[marker.linkageId!]
+    if (!group)
+      return
+    group.include.delete(marker.id!)
+    if (group.include.size > 0)
+      return
+    delete this.existLinkGroups.value[marker.linkageId!]
+  }
 
-    this.linkList.value.forEach((link) => {
-      keys.add(this.getLinkKey({ fromId: link.fromId!, toId: link.toId!, linkAction: link.linkAction as LinkActionEnum }))
-      mergedList.push(link)
-    })
-
-    args.forEach((list) => {
-      list.forEach((link) => {
-        const key = this.getLinkKey({ fromId: link.fromId!, toId: link.toId!, linkAction: link.linkAction as LinkActionEnum })
-        if (keys.has(key))
-          return
-        keys.add(key)
-        mergedList.push(link)
-      })
-    })
-
-    return mergedList
+  protected cancelSelect = () => {
+    this.removeTempLink(this.sourceMarker.value)
+    this.sourceMarker.value = undefined
+    this.removeTempLink(this.targetMarker.value)
+    this.targetMarker.value = undefined
   }
 
   protected selectSourceMarker = async (marker: GSMapState.MarkerWithRenderConfig) => {
     this.sourceMarker.value = marker
     this.targetMarker.value = undefined
-
-    const markerLinkList: API.MarkerLinkageVo[] = []
-    await db.markerLink
-      .where('groupId')
-      .equals(marker.linkageId!)
-      .each(link => markerLinkList.push(link))
-
-    this.sourceLinkList.value = markerLinkList
-    this.targetLinkList.value = []
-
-    this.updateMission(this.mergeMarkerLinkList(markerLinkList))
+    if (!this.existLinkGroups.value[marker.linkageId!]) {
+      const existLinks = await db.markerLink.where('groupId').equals(marker.linkageId!).toArray()
+      this.existLinkGroups.value[marker.linkageId!] = { include: new Set([marker.id!]), links: existLinks }
+    }
+    else {
+      this.existLinkGroups.value[marker.linkageId!].include.add(marker.id!)
+    }
   }
 
   protected selectTargetMarker = async (marker: GSMapState.MarkerWithRenderConfig) => {
     this.targetMarker.value = marker
-
-    const markerLinkList: API.MarkerLinkageVo[] = []
-    await db.markerLink
-      .where('groupId')
-      .equals(marker.linkageId!)
-      .each(link => markerLinkList.push(link))
-
-    this.targetLinkList.value = markerLinkList
-
-    this.updateMission(this.mergeMarkerLinkList(this.sourceLinkList.value, markerLinkList))
+    if (!this.existLinkGroups.value[marker.linkageId!]) {
+      const existLinks = await db.markerLink.where('groupId').equals(marker.linkageId!).toArray()
+      this.existLinkGroups.value[marker.linkageId!] = { include: new Set([marker.id!]), links: existLinks }
+    }
+    else {
+      this.existLinkGroups.value[marker.linkageId!].include.add(marker.id!)
+    }
   }
 
   protected handleMapClick = async (info: PickingInfo, event: { leftButton?: boolean }) => {
@@ -289,10 +314,14 @@ export class MLContext {
 
     // 再次点击目标点时，将当前关联加入到关联列表
     if (this.targetMarker.value.id === info.object) {
-      this.putLink({
+      const link = {
         fromId: this.sourceMarker.value.id!,
         toId: this.targetMarker.value.id!,
         linkAction: this.linkAction.value,
+      }
+      this.putLink({
+        ...link,
+        key: this.getLinkKey(link),
       })
       return
     }
