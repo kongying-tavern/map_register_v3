@@ -26,6 +26,10 @@
 
 空荧酒馆原神地图前后台一体应用。
 
+## 相关项目
+
+1. [地图标记系统后端](https://github.com/kongying-tavern/genshin-map-cloud)
+
 ### 地图页预览
 
 <div align="center">
