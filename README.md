@@ -26,10 +26,43 @@
 
 空荧酒馆原神地图前后台一体应用。
 
+### 地图页预览
+
 <div align="center">
   <img
-    src="https://github.com/kongying-tavern/map_register_v3/assets/27633284/cae93d7c-20f7-4147-80c7-4bd89b95a160"
+    src="https://github.com/kongying-tavern/map_register_v3/assets/27633284/9f4afe24-22bc-4681-9c86-76da515b66af"
     alt="预览图"
+  >
+</div>
+
+#### 基于 CSS Houdini 实现的原神风格化 UI 组件
+
+##### 1. 个人中心
+
+<div align="center">
+  <img
+    src="https://github.com/kongying-tavern/map_register_v3/assets/27633284/e11320d6-55fe-436c-8584-05bb73047b87"
+    alt="个人中心"
+  >
+</div>
+
+##### 2. 筛选预设管理器
+
+<div align="center">
+  <img
+    src="https://github.com/kongying-tavern/map_register_v3/assets/27633284/28f20340-3585-4690-96f6-23b419392973"
+    alt="筛选预设管理器"
+  >
+</div>
+
+### 管理页预览
+
+#### 为公告模块开发的富文本编辑器
+
+<div align="center">
+  <img
+    src="https://github.com/kongying-tavern/map_register_v3/assets/27633284/d37d5310-8c66-44b4-8855-49393a03fb7e"
+    alt="富文本编辑器"
   >
 </div>
 
