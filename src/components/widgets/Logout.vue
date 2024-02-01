@@ -1,11 +1,6 @@
 <template>
-  <q-btn
-    dense
-    text-color="primary"
-    color="white"
-    icon="logout"
-    @click="logout"
-  />
+  <q-btn dense text-color="primary" color="white" icon="logout" @click="logout">
+  </q-btn>
 </template>
 
 <script>

@@ -73,8 +73,9 @@
     class="absolute-bottom-right q-gutter-sm"
     style="z-index: 9000; display: flex; flex-direction: column"
   >
-    <refresh-config></refresh-config>
-    <logout></logout>
+    <guide size="md"></guide>
+    <refresh-config size="md"></refresh-config>
+    <logout size="md"></logout>
   </div>
 </template>
 
@@ -90,6 +91,7 @@ import {
 } from "../api/config";
 import LayerRegister from "../components/register.vue";
 import MapOverlay from "../components/plugins/map-overlay.vue";
+import Guide from "../components/widgets/Guide.vue";
 import RefreshConfig from "../components/widgets/RefreshConfig.vue";
 import Logout from "../components/widgets/Logout.vue";
 import { refresh_token } from "../service/user_log_request";
@@ -172,6 +174,7 @@ export default {
   components: {
     LayerRegister,
     MapOverlay,
+    Guide,
     RefreshConfig,
     Logout,
   },
