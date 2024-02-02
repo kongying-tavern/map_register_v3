@@ -2,12 +2,11 @@ import { genshinMapCanvasKey } from './../shared'
 import { useMapStateStore, useTileStore } from '@/stores'
 
 export interface MapProjectionHookOptions {
-  floor?: boolean
   noCovertCoord?: boolean
 }
 
 export const useMapProjection = (coord: API.Coordinate2D | Ref<API.Coordinate2D | undefined>, options: MapProjectionHookOptions = {}) => {
-  const { floor = false, noCovertCoord = false } = options
+  const { noCovertCoord = false } = options
 
   const viewRef = inject(genshinMapCanvasKey, ref(null))
 
@@ -36,9 +35,7 @@ export const useMapProjection = (coord: API.Coordinate2D | Ref<API.Coordinate2D 
     const lx = (x + coordOffsetX - tx) * scale
     const ly = (y + coordOffsetY - ty) * scale
     const [cx, cy] = center.value
-    return floor
-      ? [Math.floor(cx + lx), Math.floor(cy + ly)]
-      : [cx + lx, cy + ly]
+    return [cx + lx, cy + ly]
   })
 
   return {

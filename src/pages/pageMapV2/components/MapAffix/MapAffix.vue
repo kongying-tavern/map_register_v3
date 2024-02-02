@@ -7,16 +7,17 @@ interface GenshinMapAffixProps {
   visible?: boolean
   pickable?: boolean
   noCovertCoord?: boolean
+  zIndex?: number
 }
 
 const props = withDefaults(defineProps<GenshinMapAffixProps>(), {
   pos: () => [0, 0],
   visible: true,
+  zIndex: 1,
 })
 
 const coord = toRef(props, 'pos')
 const { scaleRatio, position, zoom } = useMapProjection(coord, {
-  floor: !props.zoomWithMap,
   noCovertCoord: props.noCovertCoord,
 })
 
@@ -42,7 +43,7 @@ useEventListener(mapaffixRef, 'contextmenu', ev => ev.preventDefault())
       '--sc': switchScaleRatio,
       '--tx': `${position[0]}px`,
       '--ty': `${position[1]}px`,
-      'z-index': '1',
+      'z-index': zIndex,
     }"
   >
     <slot name="default" :scale="switchScaleRatio" :zoom="zoom" />
