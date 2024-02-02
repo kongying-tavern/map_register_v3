@@ -70,7 +70,7 @@ const openSettingDialog = () => {
 
 <template>
   <Transition name="fade">
-    <MapAffix v-if="coordinate" :pos="coordinate" no-covert-coord>
+    <MapAffix v-if="coordinate" :pos="coordinate" pickable no-covert-coord>
       <div class="context-menu ml-2 mt-2 flex flex-col gap-1 relative" @contextmenu.stop="ev => ev.preventDefault()">
         <GSButton
           v-if="userInfoStore.isDadian"

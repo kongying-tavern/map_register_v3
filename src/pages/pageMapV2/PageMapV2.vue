@@ -40,6 +40,7 @@ provide(mapAffixLayerKey, mapAffixLayerRef)
     <div class="map-interaction-layer absolute left-0 top-0 w-full h-full pointer-events-none transition-all">
       <div ref="mapAffixLayerRef" class="map-affix-provider">
         <MarkerPopover />
+        <MapContextMenu />
       </div>
 
       <MapSiderMenu
@@ -56,7 +57,6 @@ provide(mapAffixLayerKey, mapAffixLayerRef)
 
     <MapWindowManager />
     <ZoomController class="absolute right-0 top-1/2" :delta-zoom="0.2" />
-    <MapContextMenu />
     <MapStateBar />
     <MapCursor />
 
