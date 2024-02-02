@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { Delete, Right } from '@element-plus/icons-vue'
-import { MarkerInfo } from './components'
+import { Check, Close, Delete, Right } from '@element-plus/icons-vue'
+import { MarkerIndicator, MarkerInfo } from './components'
 import type { MLContext } from './core'
 import { useMapStateStore } from '@/stores'
 import { LINK_ACTION_OPTIONS } from '@/shared'
+import { mapAffixLayerKey } from '@/pages/pageMapV2/shared'
 
 const props = defineProps<{
   context: MLContext
@@ -20,10 +21,18 @@ const isMergeMode = computed({
 })
 
 const mapStateStore = useMapStateStore()
+
+const mapAffixLayerRef = inject(mapAffixLayerKey, ref(null))
 </script>
 
 <template>
   <div class="w-[400px] min-h-[500px] h-full flex flex-col">
+    <div class="px-1">
+      <el-alert>
+        选择目标点后，再次点击目标点才能将当前关系加入到关联组
+      </el-alert>
+    </div>
+
     <div class="flex justify-between items-center p-1">
       <MarkerInfo :marker="context.sourceMarker.value" placeholder="选择源点" />
 
@@ -75,16 +84,35 @@ const mapStateStore = useMapStateStore()
 
     <div class="flex justify-between p-1">
       <div class="flex items-center gap-1 pl-1">
-        <el-text>合并原有关联</el-text>
+        <el-text>
+          合并原有关联
+          <el-popover placement="top-start" content="非合并情况下，源点和目标点所在的关联组将被解散，当前关联将形成新的关联组。">
+            <template #reference>
+              <el-icon>
+                <QuestionFilled />
+              </el-icon>
+            </template>
+          </el-popover>
+        </el-text>
         <el-switch v-model="isMergeMode" />
       </div>
       <div>
-        <el-button>确认</el-button>
-        <el-button @click="context.cancel">
+        <el-button :icon="Check" type="primary" disabled>
+          确认(开发中)
+        </el-button>
+        <el-button :icon="Close" @click="context.cancel">
           取消
         </el-button>
       </div>
     </div>
+
+    <Teleport v-if="context.sourceMarker.value" :to="mapAffixLayerRef">
+      <MarkerIndicator :marker="context.sourceMarker.value" />
+    </Teleport>
+
+    <Teleport v-if="context.targetMarker.value" :to="mapAffixLayerRef">
+      <MarkerIndicator :marker="context.targetMarker.value" />
+    </Teleport>
   </div>
 </template>
 
@@ -92,7 +120,6 @@ const mapStateStore = useMapStateStore()
 .link-table {
   height: 100%;
   overflow: hidden;
-  /* background: var(--el-color-primary-light-7); */
 }
 
 .link-item {

@@ -37,7 +37,7 @@ export class MLContext {
   isMissionProcessing: Ref<boolean>
 
   /** 新添加的关联 */
-  linkList = shallowRef<MarkerLinkProps[]>([])
+  linkList = ref<MarkerLinkProps[]>([])
 
   /** 已有的关联组，key 表示关联组 id */
   existLinkGroups = ref<Record<string, {
@@ -118,16 +118,15 @@ export class MLContext {
   }
 
   /** 新增/修改关联关系 */
-  putLink = (markerLink: MarkerLinkProps, isDelete = false) => {
+  putLink = (markerLink: MarkerLinkProps) => {
     const list = [...this.linkList.value]
 
     const findIndex = list.findIndex(link => link.key === markerLink.key)
 
-    const modifiedLink: MarkerLinkProps = { ...markerLink, isDelete }
     if (findIndex < 0)
-      list.push(modifiedLink)
+      list.push(markerLink)
     else
-      list.splice(findIndex, 1, modifiedLink)
+      list.splice(findIndex, 1, markerLink)
 
     this.linkList.value = list
     this.resetSelectedState()
@@ -141,7 +140,9 @@ export class MLContext {
     if (findIndex < 0)
       return false
 
-    this.putLink(this.linkList.value[findIndex], true)
+    list.splice(findIndex, 1)
+
+    this.linkList.value = list
     return true
   }
 
@@ -280,13 +281,15 @@ export class MLContext {
   }
 
   protected handleMapClick = async (info: PickingInfo, event: { leftButton?: boolean }) => {
-    // 确认是否处于点位关联任务中
-    if (!this.isMissionProcessing.value)
+    // 确认是否符合触发条件
+    if (!this.isMissionProcessing.value || !event.leftButton)
       return
 
-    // 确认点击对象是否为点位
-    if (!event.leftButton || !(info.sourceLayer instanceof GSMarkerLayer))
+    // 点击对象不为点位时，取消当前选择项
+    if (!(info.sourceLayer instanceof GSMarkerLayer)) {
+      this.cancelSelect()
       return
+    }
 
     // 当没有源点时，设置源点
     if (this.sourceMarker.value === undefined) {
@@ -297,11 +300,9 @@ export class MLContext {
       return
     }
 
-    if (this.sourceMarker.value.id === info.object) {
-      this.resetSelectedState()
-      this.updateMission(this.linkList.value)
+    // 点击源点时，不做任何操作
+    if (this.sourceMarker.value.id === info.object)
       return
-    }
 
     // 当没有目标点时，设置目标点
     if (this.targetMarker.value === undefined) {
@@ -327,7 +328,6 @@ export class MLContext {
     }
 
     // 否则点击任何其他点时，取消当前的选择状态，但保留已添加的关联
-    this.resetSelectedState()
-    this.updateMission(this.linkList.value)
+    this.cancelSelect()
   }
 }
