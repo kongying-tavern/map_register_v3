@@ -52,7 +52,7 @@ onDeleteSuccess(updateUserList)
 </script>
 
 <template>
-  <div class="h-full flex flex-col gap-2 overflow-hidden">
+  <div class="h-full flex flex-col gap-2 overflow-hidden p-4">
     <UserFilter v-model="filterValue" v-model:filter-key="filterKey" @change="updateUserList">
       <template #footer>
         <div class="w-full flex justify-end">

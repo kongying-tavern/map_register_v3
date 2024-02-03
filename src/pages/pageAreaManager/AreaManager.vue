@@ -44,7 +44,7 @@ onDeleteSuccss(updateAreaList)
 </script>
 
 <template>
-  <div class="h-full flex flex-col gap-2 overflow-hidden">
+  <div class="h-full flex flex-col gap-2 overflow-hidden p-4">
     <div class="text-end">
       <el-button type="danger" :disabled="!selections.length" @click="() => confirmDelete(selections)">
         批量删除 {{ selections.length ? ` ${selections.length} 项` : '' }}

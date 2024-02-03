@@ -18,7 +18,7 @@ const { historyList, userMap, loading, updateHistoryList } = useHistoryList({
 </script>
 
 <template>
-  <div class="h-full flex flex-col gap-2 overflow-hidden">
+  <div class="h-full flex flex-col gap-2 overflow-hidden p-4">
     <el-form>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8">
         <el-form-item label="记录项">

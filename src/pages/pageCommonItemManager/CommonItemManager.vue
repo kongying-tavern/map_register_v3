@@ -32,7 +32,7 @@ const openCommonItemSelector = () => DialogService
 </script>
 
 <template>
-  <div class="h-full flex-1 flex flex-col gap-2 overflow-hidden">
+  <div class="h-full flex-1 flex flex-col gap-2 overflow-hidden p-4">
     <div class="w-full flex items-center justify-end" style="padding-bottom: 18px;">
       <el-button type="danger" :disabled="!selections.length" @click="() => confirmDelete(selections)">
         从公共物品删除 {{ selections.length ? ` ${selections.length} 项` : '' }}

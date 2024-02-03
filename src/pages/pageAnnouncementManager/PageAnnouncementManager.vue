@@ -76,7 +76,7 @@ function handleRemove(form?: API.NoticeVo) {
 </script>
 
 <template>
-  <div class="h-full flex-1 flex flex-col gap-2 overflow-hidden">
+  <div class="h-full flex-1 flex flex-col gap-2 overflow-hidden p-4">
     <AnnouncementFilter v-model:model-value="queryForm">
       <template #footer>
         <div class="w-full flex  justify-end">

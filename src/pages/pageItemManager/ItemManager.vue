@@ -48,7 +48,7 @@ onDeleteSuccess(updateItemList)
 </script>
 
 <template>
-  <div class="h-full flex-1 flex flex-col gap-2 overflow-hidden">
+  <div class="h-full flex-1 flex flex-col gap-2 overflow-hidden p-4">
     <ItemFilter v-model="queryForm" @change="updateItemList">
       <template #footer>
         <div class="w-full flex items-center justify-end">

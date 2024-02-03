@@ -62,7 +62,7 @@ watch(itemOptions, (options) => {
 </script>
 
 <template>
-  <div class="h-full flex-1 flex flex-col gap-2 overflow-hidden">
+  <div class="h-full flex-1 flex flex-col gap-2 overflow-hidden p-4">
     <MarkerFilter v-model="queryForm">
       <template #footer>
         <div class="w-full flex  justify-end">

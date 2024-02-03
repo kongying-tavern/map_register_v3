@@ -23,7 +23,7 @@ const { scoreData, loading, generateLoading, generateScore, updateScore } = useS
 </script>
 
 <template>
-  <div class="h-full flex flex-col gap-2 overflow-hidden">
+  <div class="h-full flex flex-col gap-2 overflow-hidden p-4">
     <ScoreFilter v-model="data">
       <template #footer>
         <el-button :loading="generateLoading" @click="() => generateScore()">
