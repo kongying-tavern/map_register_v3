@@ -65,6 +65,8 @@
     "postcss-load-config": "5.0.2",
     "rimraf": "^5.0.5",
     "sass": "1.70.0",
+    "stylelint": "16.2.1",
+    "stylelint-config-standard-scss": "^13.0.0",
     "typescript": "5.3.3",
     "unplugin-auto-import": "0.17.3",
     "vite": "5.0.12"

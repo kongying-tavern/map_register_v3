@@ -28,4 +28,8 @@
   "files.associations": {
     ".env*": "dotenv"
   },
+
+  "css.validate": false,
+  "scss.validate": false,
+  "css.customData": [".vscode/tailwindcss.json"],
 }
