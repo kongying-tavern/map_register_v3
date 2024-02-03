@@ -17,9 +17,7 @@ const { visible } = useBanner()
 
     <router-view v-slot="{ Component }">
       <Transition name="fade" mode="out-in" :duration="150">
-        <keep-alive :exclude="['PageLogin', 'PageRegister']">
-          <component :is="Component" />
-        </keep-alive>
+        <component :is="Component" />
       </Transition>
     </router-view>
   </div>
