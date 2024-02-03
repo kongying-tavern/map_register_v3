@@ -52,28 +52,27 @@ export class GSOverlayer extends CompositeLayer<GSCompositeLayerState> {
     }
 
     return [
-      ...tileLikeOverlays.map((overlay) => {
-        const { bounds: [[xmin, ymin], [xmax, ymax]] } = overlay
-        return new BitmapLayer({
-          id: `overlay-${overlay.id}`,
-          visible: showOverlay,
-          bounds: [xmin, ymax, xmax, ymin],
-          image: overlay.url,
-          opacity: isOverlayVisible(overlay) ? 1 : 0,
-          tintColor: isOverlayOnTop(overlay)
-            ? CONSPICUOUS_COLOR
-            : showOverlayMask
-              ? INCONSPICUOUS_COLOR
-              : NO_MASK_COLOR,
-          updateTriggers: {
-            opacity: showOverlay,
-            tintColor: overlayStateId,
-          },
+      ...showOverlay
+        ? tileLikeOverlays.map((overlay) => {
+          const { bounds: [[xmin, ymin], [xmax, ymax]] } = overlay
+          return new BitmapLayer({
+            id: `overlay-${overlay.id}`,
+            bounds: [xmin, ymax, xmax, ymin],
+            image: overlay.url,
+            opacity: isOverlayVisible(overlay) ? 1 : 0,
+            tintColor: isOverlayOnTop(overlay)
+              ? CONSPICUOUS_COLOR
+              : showOverlayMask
+                ? INCONSPICUOUS_COLOR
+                : NO_MASK_COLOR,
+            updateTriggers: {
+              tintColor: overlayStateId,
+            },
+          })
         })
-      }),
+        : [],
       new SolidPolygonLayer({
         id: 'genshin-mask-layer',
-        visible: showOverlay,
         data: [{
           polygon: [
             [xmin, ymin],
@@ -90,29 +89,29 @@ export class GSOverlayer extends CompositeLayer<GSCompositeLayerState> {
           getFillColor: 100,
         },
       }),
-      ...normalOverlays.map((overlay) => {
-        const { bounds: [[xmin, ymin], [xmax, ymax]] } = overlay
-        return new BitmapLayer({
-          id: `overlay-${overlay.id}`,
-          visible: showOverlay,
-          bounds: [xmin, ymax, xmax, ymin],
-          image: overlay.url,
-          opacity: isOverlayVisible(overlay) ? 1 : 0,
-          tintColor: isOverlayOnTop(overlay)
-            ? CONSPICUOUS_COLOR
-            : showOverlayMask
-              ? INCONSPICUOUS_COLOR
-              : NO_MASK_COLOR,
-          transitions: {
-            opacity: 100,
-            tintColor: 100,
-          },
-          updateTriggers: {
-            opacity: showOverlay,
-            tintColor: overlayStateId,
-          },
+      ...showOverlay
+        ? normalOverlays.map((overlay) => {
+          const { bounds: [[xmin, ymin], [xmax, ymax]] } = overlay
+          return new BitmapLayer({
+            id: `overlay-${overlay.id}`,
+            bounds: [xmin, ymax, xmax, ymin],
+            image: overlay.url,
+            opacity: isOverlayVisible(overlay) ? 1 : 0,
+            tintColor: isOverlayOnTop(overlay)
+              ? CONSPICUOUS_COLOR
+              : showOverlayMask
+                ? INCONSPICUOUS_COLOR
+                : NO_MASK_COLOR,
+            transitions: {
+              opacity: 100,
+              tintColor: 100,
+            },
+            updateTriggers: {
+              tintColor: overlayStateId,
+            },
+          })
         })
-      }),
+        : [],
     ]
   }
 }
