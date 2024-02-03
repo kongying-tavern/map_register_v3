@@ -5,8 +5,7 @@ import { UserCreator, UserEditor, UserFilter, UserPasswordEditor, UserTable } fr
 import { useGlobalDialog, usePagination, useState } from '@/hooks'
 
 const { DialogService } = useGlobalDialog()
-const getDialogConfig = (title: string) => ({
-  title,
+const getDialogConfig = () => ({
   alignCenter: true,
   showClose: false,
   closeOnClickModal: false,
@@ -28,20 +27,20 @@ const { userList, loading, filterKey, filterValue, updateUserList } = useUserLis
 
 // ==================== 新增用户 ====================
 const openUserCreator = () => DialogService
-  .config(getDialogConfig('添加用户'))
+  .config(getDialogConfig())
   .listeners({ success: updateUserList })
   .open(UserCreator)
 
 // ==================== 编辑用户 ====================
 const openUserEditor = (data: API.SysUserVo) => DialogService
-  .config(getDialogConfig(`编辑用户：${data.username}`))
+  .config(getDialogConfig())
   .props({ data, roleList })
   .listeners({ success: updateUserList })
   .open(UserEditor)
 
 // ==================== 修改密码 ====================
 const openPasswordEditor = (user: API.SysUserVo) => DialogService
-  .config(getDialogConfig('修改密码'))
+  .config(getDialogConfig())
   .props({ user })
   .open(UserPasswordEditor)
 

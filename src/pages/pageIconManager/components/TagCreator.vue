@@ -3,7 +3,7 @@ import { Check, Close } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import dayjs from 'dayjs'
 import { GlobalDialogController, useFetchHook } from '@/hooks'
-import { WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTabs, WinDialogTitleBar } from '@/components'
+import { WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 import Api from '@/api/api'
 import db from '@/database'
 import { useUserInfoStore } from '@/stores'
@@ -89,13 +89,12 @@ const activedTabKey = ref('base')
       新建图标
     </WinDialogTitleBar>
 
-    <WinDialogTabs
-      v-model="activedTabKey"
-      :options="tabs"
-      :disabled="loading"
-    />
-
-    <WinDialogTabPanel class="w-[370px]">
+    <WinDialogTabPanel
+      v-model:tab-key="activedTabKey"
+      :tabs="tabs"
+      :tabs-disabled="loading"
+      class="w-[370px]"
+    >
       <el-input v-model="tagName" class="col-span-2" placeholder="请输入图标名称">
         <template #prefix>
           <span class="text-xs text-[var(--el-color-danger)] select-none">

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Check, Close } from '@element-plus/icons-vue'
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { emptyCheck, lengthCheck } from '../utils/formRules'
@@ -7,6 +8,7 @@ import type { ElFormType } from '@/shared'
 import { useFetchHook } from '@/hooks'
 import Api from '@/api/api'
 import type { ItemFormRules } from '@/utils'
+import { WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 
 const props = defineProps<{
   user: API.SysUserVo
@@ -47,24 +49,30 @@ const changePassword = async () => {
 </script>
 
 <template>
-  <div class="p-5">
-    <el-form ref="formRef" label-width="100px" :model="formData" :rules="rules">
-      <el-form-item label="用户名">
-        {{ props.user.username }}
-      </el-form-item>
+  <WinDialog>
+    <WinDialogTitleBar :loading="loading" @close="GlobalDialogController.close">
+      修改密码
+    </WinDialogTitleBar>
 
-      <el-form-item prop="password" label="新密码">
-        <el-input v-model="formData.password" type="password" />
-      </el-form-item>
-    </el-form>
+    <WinDialogTabPanel>
+      <el-form ref="formRef" label-width="100px" :model="formData" :rules="rules">
+        <el-form-item label="用户名">
+          {{ props.user.username }}
+        </el-form-item>
 
-    <div class="pt-4 text-end">
-      <el-button type="primary" :loading="loading" @click="changePassword">
+        <el-form-item prop="password" label="新密码">
+          <el-input v-model="formData.password" type="password" />
+        </el-form-item>
+      </el-form>
+    </WinDialogTabPanel>
+
+    <WinDialogFooter>
+      <el-button :icon="Check" type="primary" :loading="loading" @click="changePassword">
         确认
       </el-button>
-      <el-button :disabled="loading" @click="GlobalDialogController.close">
+      <el-button :icon="Close" :disabled="loading" @click="GlobalDialogController.close">
         取消
       </el-button>
-    </div>
-  </div>
+    </WinDialogFooter>
+  </WinDialog>
 </template>

@@ -1,9 +1,11 @@
 <script lang="ts" setup>
+import { Check, Close } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import Api from '@/api/api'
 import { GlobalDialogController, useFetchHook } from '@/hooks'
 import type { ItemFormRules } from '@/utils'
 import type { ElFormType } from '@/shared'
+import { WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 
 const emits = defineEmits<{
   success: []
@@ -66,28 +68,34 @@ onError(err => ElMessage.error({
 </script>
 
 <template>
-  <div class="p-5">
-    <el-form ref="formRef" v-bind="$attrs" label-width="100px" :model="formData" :rules="rules">
-      <el-form-item label="用户名/QQ" prop="username">
-        <el-input v-model="formData.username" placeholder="请输入用户名或Q号" />
-      </el-form-item>
+  <WinDialog>
+    <WinDialogTitleBar :loading="loading" @close="GlobalDialogController.close">
+      添加用户
+    </WinDialogTitleBar>
 
-      <el-form-item label="密码" prop="password">
-        <el-input v-model="formData.password" placeholder="请输入密码" />
-      </el-form-item>
+    <WinDialogTabPanel>
+      <el-form ref="formRef" v-bind="$attrs" label-width="100px" :model="formData" :rules="rules">
+        <el-form-item label="用户名/QQ" prop="username">
+          <el-input v-model="formData.username" placeholder="请输入用户名或Q号" />
+        </el-form-item>
 
-      <el-form-item label="确认密码" prop="confirmPassword">
-        <el-input v-model="formData.confirmPassword" placeholder="请再次输入密码" />
-      </el-form-item>
-    </el-form>
+        <el-form-item label="密码" prop="password">
+          <el-input v-model="formData.password" placeholder="请输入密码" />
+        </el-form-item>
 
-    <div class="pt-4 text-end">
-      <el-button type="primary" :loading="loading" @click="createUser">
+        <el-form-item label="确认密码" prop="confirmPassword">
+          <el-input v-model="formData.confirmPassword" placeholder="请再次输入密码" />
+        </el-form-item>
+      </el-form>
+    </WinDialogTabPanel>
+
+    <WinDialogFooter>
+      <el-button :icon="Check" type="primary" :loading="loading" @click="createUser">
         确认
       </el-button>
-      <el-button :disabled="loading" @click="GlobalDialogController.close">
+      <el-button :icon="Close" :disabled="loading" @click="GlobalDialogController.close">
         取消
       </el-button>
-    </div>
-  </div>
+    </WinDialogFooter>
+  </WinDialog>
 </template>

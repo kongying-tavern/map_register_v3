@@ -4,7 +4,7 @@ import { useImageLoad, useImageSelect, useImageUpload } from '../hooks'
 import { IconImageSelect } from '.'
 import { GlobalDialogController } from '@/hooks'
 import { formatByteSize } from '@/utils'
-import { AppImageCropper, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTabs, WinDialogTitleBar } from '@/components'
+import { AppImageCropper, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 
 const props = defineProps<{
   icon: API.TagVo
@@ -88,17 +88,16 @@ const cancel = () => {
       {{ icon.tag }} 修改图片
     </WinDialogTitleBar>
 
-    <el-alert type="warning" style="margin-bottom: 8px">
+    <el-alert type="warning" style="margin-bottom: 0">
       注意：修改图片不会立即生效，需要等待服务器刷新缓存。
     </el-alert>
 
-    <WinDialogTabs
-      v-model="activedTabKey"
-      :options="tabs"
-      :disabled="confirmLoading"
-    />
-
-    <WinDialogTabPanel class="w-[370px] h-[340px]">
+    <WinDialogTabPanel
+      v-model:tab-key="activedTabKey"
+      class="w-[370px] h-[340px]"
+      :tabs="tabs"
+      :tabs-disabled="confirmLoading"
+    >
       <div v-show="activedTabKey === TabKey.UPLOAD" class="grid gap-2 grid-cols-[auto_1fr]">
         <el-input v-model="croppedImageName" class="col-span-2" placeholder="请输入图标名称">
           <template #prefix>
