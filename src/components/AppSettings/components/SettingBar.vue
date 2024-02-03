@@ -27,7 +27,7 @@ const toggleCollapse = () => {
   <div
     class="
       flex flex-col
-      bg-[var(--el-color-info-light-9)]
+      bg-[var(--el-fill-color-light)]
       select-none
       rounded
       overflow-hidden
@@ -37,7 +37,7 @@ const toggleCollapse = () => {
     <slot name="default">
       <div
         class="min-h-[66px] flex flex-shrink-0 items-center px-4 py-3 transition-[background-color]"
-        :class="$slots.detail ? 'hover:bg-[var(--el-color-info-light-7)] active:bg-[var(--el-color-info-light-8)]' : ''"
+        :class="$slots.detail ? 'hover:bg-[var(--el-fill-color)] active:bg-[var(--el-fill-color-darker)]' : ''"
       >
         <div class="flex-1 flex items-center">
           <div v-if="icon" class="row-span-2 grid place-items-center pr-4">

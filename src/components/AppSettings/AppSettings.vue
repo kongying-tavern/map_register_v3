@@ -75,7 +75,7 @@ const contentRef = ref<HTMLElement>()
       <div class="overflow-visible transition-[width] max-[800px]:w-0 w-[150px]" @click.stop="">
         <div
           class="
-            w-[150px] h-full flex flex-col gap-1 px-2
+            w-[150px] h-full flex flex-col px-2
             absolute left-0
             bg-[var(--el-bg-color)]
             translate-x-0
@@ -87,21 +87,20 @@ const contentRef = ref<HTMLElement>()
           <div
             v-for="setting in settingOptions"
             :key="setting.key"
-            class="
-              h-8 px-2 rounded
-              flex items-center gap-2
-              text-sm
-              transition-[background-color]
-            "
-            :class="activedKey === setting.key
-              ? 'bg-[var(--el-fill-color-darker)]'
-              : 'cursor-pointer hover:bg-[var(--el-fill-color)] active:bg-[var(--el-fill-color-darker)]'"
+            class="py-0.5 text-sm overflow-hidden group cursor-pointer"
             @click="activedKey = setting.key"
           >
-            <el-icon v-if="setting.icon">
-              <component :is="setting.icon" />
-            </el-icon>
-            <span>{{ setting.name }}</span>
+            <div
+              class="px-2 py-1 w-full h-8 overflow-hidden flex items-center gap-2 transition-[color,background-color] rounded"
+              :class="activedKey === setting.key
+                ? 'bg-[var(--el-color-primary-light-9)] text-[var(--el-color-primary)]'
+                : 'group-hover:bg-[var(--el-fill-color-light)] group-active:bg-[var(--el-fill-color-darker)]'"
+            >
+              <el-icon v-if="setting.icon">
+                <component :is="setting.icon" />
+              </el-icon>
+              <span>{{ setting.name }}</span>
+            </div>
             <Teleport v-if="contentRef && activedKey === setting.key" :to="contentRef">
               <component :is="setting.is" />
             </Teleport>
