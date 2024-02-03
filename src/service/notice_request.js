@@ -11,8 +11,8 @@ function list_notice(data) {
 
 function get_notice_hash(list = []) {
   const idList = _.chain(list)
-    .map((v) => Number(v.id))
-    .filter()
+    .filter((v) => Number(v.id))
+    .map((v) => `${Number(v.id)}__${v.updateTime}`)
     .uniq()
     .sort()
     .value();
