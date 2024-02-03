@@ -31,9 +31,9 @@ const setTabKey = (tabKey: string) => {
   </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .win-tabs {
-  @apply flex mx-2 text-xs translate-y-[1px];
+  @apply flex mx-2 mt-2 text-xs translate-y-[1px];
 }
 
 .tab-item {

@@ -18,16 +18,13 @@ const emitClose = () => {
 </script>
 
 <template>
-  <div class="flex justify-between items-center mb-2 bg-[var(--el-color-primary-light-9)]">
-    <div class="flex-1 p-1.5 px-2 text-xs overflow-hidden text-ellipsis whitespace-nowrap">
+  <div class="win-dialog-title-bar">
+    <div class="title-name">
       <slot name="default" />
     </div>
 
     <div
-      class="h-full p-1.5 px-2
-          flex items-center
-          transition-all
-          select-none"
+      class="title-action"
       :class="[
         disabled
           ? 'cursor-not-allowed'
@@ -45,3 +42,29 @@ const emitClose = () => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.win-dialog-title-bar {
+  @apply
+    flex justify-between items-center
+    bg-[var(--el-color-primary-light-9)]
+  ;
+}
+
+.title-name {
+  @apply
+    overflow-hidden
+    flex-1 p-1.5 px-2
+    text-xs text-ellipsis whitespace-nowrap
+  ;
+}
+
+.title-action {
+  @apply
+    h-full p-1.5 px-2
+    flex items-center
+    transition-all
+    select-none
+  ;
+}
+</style>
