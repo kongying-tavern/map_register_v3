@@ -32,7 +32,7 @@ const router = createRouter({
 
 // ==================== 导航栈开始 ====================
 router.beforeEach(async (to, from, next) => {
-  await routerHook.applyCallbacks('onBeforeRouterEnter')
+  from.path === '/' && await routerHook.applyCallbacks('onBeforeRouterEnter')
   next(true)
 })
 
