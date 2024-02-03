@@ -27,6 +27,7 @@ export interface UserPreference {
   /** 隐藏点位弹窗 */
   'map.setting.hideMarkerPopover'?: boolean
 
+  /** 地图缩放时的过渡时间 */
   'map.setting.zoomTransitionDuration': number
 
   /** 地图最后停留的中心点位置 */
@@ -86,7 +87,7 @@ export interface UserPreference {
   // 1. `press` 点按生效，按住会反复触发
   // 2. `hold` 按住生效
 
-  /** 快捷键 - 按下指定键隐藏点位弹窗 */
+  /** @todo 快捷键 - 按下指定键隐藏点位弹窗 */
   'hotkeys.press.toggleMarkerPopoverVisible'?: string
 
   // ====================      开发者      ====================
