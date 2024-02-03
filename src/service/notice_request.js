@@ -10,11 +10,14 @@ function list_notice(data) {
 }
 
 function get_notice_hash(list = []) {
-  const idList = _.sortedUniqBy(list, (v) => v.id);
-  const idListTrim = _.chain(idList)
-    .filter((v) => Number(v))
-    .join("|");
-  const idHash = md5Hex(idListTrim);
+  const idList = _.chain(list)
+    .map((v) => Number(v.id))
+    .filter()
+    .uniq()
+    .sort()
+    .value();
+  const idListStr = _.join(idList, "|");
+  const idHash = md5Hex(idListStr);
   return idHash;
 }
 
