@@ -1,71 +1,79 @@
 <template>
   <q-layout class="main">
-    <!-- 地图容器 -->
-    <div class="map_containor">
-      <div class="stars"></div>
-      <div class="twinkling"></div>
-      <div id="map" ref="mapDom"></div>
-    </div>
-    <!-- 侧面筛选器 -->
-    <q-card
-      v-show="selector_show"
-      class="absolute-top-left full-height q-pa-sm"
-      square
-      style="width: 600px; z-index: 2000"
-    >
-      <div class="full-width row">
-        <div class="col-12" v-show="false">
-          <q-tabs dense inline-label v-model="handle_type" class="text-primary">
-            <q-tab name="打点" icon="mdi-map-marker-radius" label="打点" />
-            <q-tab
-              name="审核"
-              icon="mdi-checkbox-multiple-marked"
-              label="审核"
-            />
-            <q-tab name="编辑" icon="mdi-circle-edit-outline" label="编辑" />
-          </q-tabs>
-        </div>
+    <div class="top_banner"></div>
+    <div class="map_wrapper">
+      <!-- 地图容器 -->
+      <div class="map_container">
+        <div class="stars"></div>
+        <div class="twinkling"></div>
+        <div id="map" ref="mapDom"></div>
       </div>
-
-      <q-tab-panels
-        v-model="handle_type"
-        animated
-        class="absolute-full q-pa-md"
+      <!-- 侧面筛选器 -->
+      <q-card
+        v-show="selector_show"
+        class="absolute-top-left full-height q-pa-sm"
+        square
+        style="width: 600px; z-index: 2000"
       >
-        <q-tab-panel name="打点" class="relative-position">
-          <layer-register
-            @map_switch="map_switch"
-            v-show="handle_type == '打点'"
-          >
-          </layer-register>
-        </q-tab-panel>
+        <div class="full-width row">
+          <div class="col-12" v-show="false">
+            <q-tabs
+              dense
+              inline-label
+              v-model="handle_type"
+              class="text-primary"
+            >
+              <q-tab name="打点" icon="mdi-map-marker-radius" label="打点" />
+              <q-tab
+                name="审核"
+                icon="mdi-checkbox-multiple-marked"
+                label="审核"
+              />
+              <q-tab name="编辑" icon="mdi-circle-edit-outline" label="编辑" />
+            </q-tabs>
+          </div>
+        </div>
 
-        <q-tab-panel name="审核"></q-tab-panel>
+        <q-tab-panels
+          v-model="handle_type"
+          animated
+          class="absolute-full q-pa-md"
+        >
+          <q-tab-panel name="打点" class="relative-position">
+            <layer-register
+              @map_switch="map_switch"
+              v-show="handle_type == '打点'"
+            >
+            </layer-register>
+          </q-tab-panel>
 
-        <q-tab-panel name="编辑">
-          <layer-register :map="map" v-show="handle_type == '审核'">
-          </layer-register>
-        </q-tab-panel>
-      </q-tab-panels>
+          <q-tab-panel name="审核"></q-tab-panel>
 
-      <div class="close">
-        <q-btn
-          dense
-          color="white"
-          text-color="black"
-          icon="mdi-close"
-          @click="selector_show = false"
-        />
-      </div>
-    </q-card>
-    <q-btn
-      dense
-      color="primary"
-      icon="mdi-menu"
-      class="absolute-top-left"
-      @click="selector_show = true"
-      style="z-index: 1500"
-    />
+          <q-tab-panel name="编辑">
+            <layer-register :map="map" v-show="handle_type == '审核'">
+            </layer-register>
+          </q-tab-panel>
+        </q-tab-panels>
+
+        <div class="close">
+          <q-btn
+            dense
+            color="white"
+            text-color="black"
+            icon="mdi-close"
+            @click="selector_show = false"
+          />
+        </div>
+      </q-card>
+      <q-btn
+        dense
+        color="primary"
+        icon="mdi-menu"
+        class="absolute-top-left"
+        @click="selector_show = true"
+        style="z-index: 1500"
+      />
+    </div>
   </q-layout>
 
   <map-overlay :area="area"></map-overlay>
@@ -73,9 +81,10 @@
     class="absolute-bottom-right q-gutter-sm"
     style="z-index: 9000; display: flex; flex-direction: column"
   >
-    <guide size="md"></guide>
-    <refresh-config size="md"></refresh-config>
-    <logout size="md"></logout>
+    <guide></guide>
+    <Notice></Notice>
+    <refresh-config></refresh-config>
+    <logout></logout>
   </div>
 </template>
 
@@ -92,6 +101,7 @@ import {
 import LayerRegister from "../components/register.vue";
 import MapOverlay from "../components/plugins/map-overlay.vue";
 import Guide from "../components/widgets/Guide.vue";
+import Notice from "../components/widgets/Notice.vue";
 import RefreshConfig from "../components/widgets/RefreshConfig.vue";
 import Logout from "../components/widgets/Logout.vue";
 import { refresh_token } from "../service/user_log_request";
@@ -133,22 +143,6 @@ export default {
       });
     },
     show_notify() {
-      if (map_editor_config.value?.bannerText) {
-        this.$q.notify({
-          type: "info",
-          color: "primary",
-          position: "top",
-          timeout: 0,
-          message: map_editor_config.value?.bannerText,
-          actions: [
-            {
-              label: "我知道了",
-              color: "yellow-6",
-            },
-          ],
-        });
-      }
-
       if (import.meta.env.VITE_ENV_MSG) {
         this.$q.notify({
           type: "warning",
@@ -175,6 +169,7 @@ export default {
     LayerRegister,
     MapOverlay,
     Guide,
+    Notice,
     RefreshConfig,
     Logout,
   },
@@ -209,8 +204,8 @@ export default {
 <style scoped>
 @import url("https://yuanshen.site/css/background.css");
 #map {
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   background: transparent;
 }
 .item_list {
@@ -224,5 +219,24 @@ export default {
 }
 .q-tab-panel {
   padding: 0;
+}
+</style>
+
+<style lang="scss" scoped>
+.main {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+}
+
+.map_wrapper {
+  flex: auto;
+  position: relative;
+}
+
+.map_container {
+  position: absolute;
+  inset: 0;
 }
 </style>

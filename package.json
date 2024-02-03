@@ -24,6 +24,7 @@
     "v-clipboard3": "^0.1.4",
     "vue": "^3.2.29",
     "vue-cropper": "^1.0.3",
+    "vue-dompurify-html": "^5.0.1",
     "vue-router": "^4.0.12",
     "vuex": "^4.0.1"
   },
