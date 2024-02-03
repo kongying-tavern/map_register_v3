@@ -2,7 +2,7 @@
 import { defineModel } from 'vue'
 import { CoffeeCup, Filter, Grid, List, PieChart, Promotion, Setting } from '@element-plus/icons-vue'
 import { storeToRefs } from 'pinia'
-import type { FeatureOption } from '../FeatureGrid'
+import type { FeatureOption } from './components'
 import { FeatureGrid, MarkerFilter, MarkerTable, SiderMenu, SiderMenuItem } from './components'
 import { AppSettings } from '@/components'
 import { useGlobalDialog } from '@/hooks'
