@@ -39,7 +39,7 @@ const updateNoticeStatus = () => {
 const dialogVisible = ref(false);
 
 const openDialog = () => {
-  dialogSelIndex.value = 0;
+  changeSelection(0);
   dialogVisible.value = true;
 
   const listHash = get_notice_hash(list.value || []);
@@ -48,11 +48,16 @@ const openDialog = () => {
 };
 
 const closeDialog = () => {
-  dialogSelIndex.value = -1;
   dialogVisible.value = false;
 };
 
 const dialogSelIndex = ref(-1);
+
+const changeSelection = (index = -1) => {
+  if (index >= 0) {
+    dialogSelIndex.value = index;
+  }
+};
 
 const dialogItem = computed(() => list.value[dialogSelIndex.value] || {});
 
@@ -107,6 +112,7 @@ onMounted(() => {
               v-for="(item, index) in list"
               :key="index"
               clickable
+              @click="changeSelection(index)"
               :active="dialogSelIndex === index"
             >
               <q-item-section>
