@@ -3,7 +3,7 @@ import { pick } from 'lodash'
 import type { MiyousheAvatar } from '../hooks'
 import { useAvatarList } from '../hooks'
 import { AvatarPreview } from '.'
-import { GSButton } from '@/components'
+import { AppVirtualTable, GSButton } from '@/components'
 import { useUserInfoStore } from '@/stores'
 import { useFetchHook } from '@/hooks'
 import Api from '@/api/api'
@@ -40,31 +40,36 @@ const setSelectedIcon = (avatar: MiyousheAvatar) => {
 
 <template>
   <div class="w-full flex-1 flex overflow-hidden select-none">
-    <div
+    <AppVirtualTable
       v-loading="avatarsLoading"
       element-loading-background="transparent"
       element-loading-text="正在加载头像列表..."
-      class="avatar-list w-[374px] grid grid-cols-4 gap-2 pr-2"
+      class="avatar-list w-[374px]"
+      :data="avatarList"
+      :cached-rows="1"
+      :item-width="84"
+      :item-height="84"
+      :item-gap="[8, 8]"
     >
-      <div
-        v-for="avatar in avatarList"
-        :key="avatar.id"
-        class="avatar-btn rounded overflow-hidden"
-        :class="{
-          'is-selected': avatar.id === selectedAvatar?.id,
-          'is-actived': avatar.icon === userInfoStore.info.logo,
-        }"
-        @click="setSelectedIcon(avatar)"
-      >
-        <img
-          class="avatar-icon w-full h-full rounded-full object-contain"
-          :src="avatar.icon"
-          crossorigin=""
-          referrerpolicy="no-referrer"
-          loading="lazy"
+      <template #default="{ item }">
+        <div
+          class="avatar-btn rounded overflow-hidden"
+          :class="{
+            'is-selected': item.id === selectedAvatar?.id,
+            'is-actived': item.icon === userInfoStore.info.logo,
+          }"
+          @click="setSelectedIcon(item)"
         >
-      </div>
-    </div>
+          <img
+            class="avatar-icon w-full h-full rounded-full object-contain"
+            :src="item.icon"
+            crossorigin=""
+            referrerpolicy="no-referrer"
+            loading="lazy"
+          >
+        </div>
+      </template>
+    </AppVirtualTable>
 
     <div class="flex-1 px-4 flex flex-col gap-8 justify-center items-center pb-1">
       <AvatarPreview :src="selectedAvatar?.icon" />
