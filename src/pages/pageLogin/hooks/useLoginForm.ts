@@ -71,10 +71,24 @@ export const useLoginForm = () => {
     archiveStore.loadLatestArchive()
   })
 
-  onError(err => ElMessage.error({
-    message: `登录失败，原因为：${err.message}`,
-    offset: 48,
-  }))
+  onError((err) => {
+    // 报错信息优化
+    switch (err.message) {
+      // 账号或密码错误
+      case 'Bad credentials':
+        ElMessage.error({
+          message: `账号或密码错误`,
+          offset: 48,
+        })
+        break
+      // 其他错误
+      default:
+        ElMessage.error({
+          message: `登录失败，原因为：${err.message}`,
+          offset: 48,
+        })
+    }
+  })
 
   return { formRef, rules, loginForm, login, onSuccess, onError, ...rest }
 }
