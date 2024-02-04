@@ -24,8 +24,6 @@ export const usePreferenceStore = defineStore('global-user-preference', () => {
   // 获取当前用户的 userId
   const _getUserId = () => {
     const { auth } = useUserAuthStore()
-    if (auth.userId === undefined || preference.value.id === auth.userId)
-      return
     return auth.userId
   }
 
@@ -45,6 +43,7 @@ export const usePreferenceStore = defineStore('global-user-preference', () => {
       internalUpdateFlag.value = false
       return
     }
+
     await db.user.put(JSON.parse(JSON.stringify({ id: userId, ...preference.value })))
   }
 
