@@ -16,10 +16,10 @@ export interface UserPreference {
   // ====================      地图      ====================
 
   /** 显示区域名称标签 */
-  'map.setting.showZoneTag'?: boolean
+  'map.setting.showZoneTag': boolean
 
   /** 透明化状态为已完成的点位 */
-  'map.setting.transparentMarked'?: boolean
+  'map.setting.transparentMarked': boolean
 
   /** 性能优化：是否在视图更新时禁用点位拾取 */
   'map.setting.pauseViewChangingPicking'?: boolean
@@ -30,7 +30,7 @@ export interface UserPreference {
   /** 地图缩放时的过渡时间 */
   'map.setting.zoomTransitionDuration': number
 
-  /** 地图最后停留的中心点位置 */
+  /** 地图最后停留的中心点位置 @todo 保留，可能有性能问题 */
   'map.viewState.target'?: API.Coordinate2D
 
   /** 显示附加图层 */
@@ -47,7 +47,7 @@ export interface UserPreference {
   'mapSiderMenu.state.collapse': boolean
 
   /** 侧边栏当前激活的 tab */
-  'mapSiderMenu.state.tabName'?: string
+  'mapSiderMenu.state.tabName': string
 
   // ====================      点位      ====================
 
@@ -55,16 +55,16 @@ export interface UserPreference {
   'markerFilter.setting.presets'?: FilterPreset[]
 
   /** 筛选器自动跳转下一步 */
-  'markerFilter.setting.autoNext'?: boolean
+  'markerFilter.setting.autoNext': boolean
 
   /** 筛选器选择的Tab */
   'markerFilter.state.step': number
 
   /** 筛选器选择的父级地区 */
-  'markerFilter.state.parentAreaCode'?: string
+  'markerFilter.state.parentAreaCode': string
 
   /** 筛选器选择的子级地区 */
-  'markerFilter.state.areaCode'?: string
+  'markerFilter.state.areaCode': string
 
   /** 筛选器选择的分类 */
   'markerFilter.state.itemTypeId'?: number
@@ -78,7 +78,7 @@ export interface UserPreference {
   // ====================     设置面板     ====================
 
   /** 设置面板当前激活的设置项 */
-  'settingPanel.state.activedKey'?: string
+  'settingPanel.state.activedKey': string
 
   // ====================      快捷键      ====================
   // key 必须按照 `hotkeys.${type}.${name}` 的格式命名
@@ -100,9 +100,16 @@ export interface UserPreference {
 }
 
 export const getDefaultPreference = (): UserPreference => ({
+  'map.setting.showZoneTag': true,
+  'map.setting.transparentMarked': true,
+  'mapSiderMenu.state.tabName': 'filter',
   'mapSiderMenu.state.collapse': false,
   'markerFilter.state.step': 0,
+  'markerFilter.setting.autoNext': true,
+  'markerFilter.state.parentAreaCode': 'C:FD',
+  'markerFilter.state.areaCode': 'A:FD:FENGDAN',
   'map.setting.zoomTransitionDuration': 66,
+  'settingPanel.state.activedKey': 'dashboard',
 })
 
 /** 筛选器预设 */
