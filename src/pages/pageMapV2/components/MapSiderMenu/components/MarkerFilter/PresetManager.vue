@@ -6,7 +6,7 @@ import type { Condition } from '@/stores/types'
 
 const props = defineProps<{
   modelValue: boolean
-  conditions: Map<string, Condition>
+  conditions: Map<string, Condition> | never[]
 }>()
 
 defineEmits<{

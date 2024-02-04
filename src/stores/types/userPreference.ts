@@ -57,6 +57,9 @@ export interface UserPreference {
   /** 筛选器自动跳转下一步 */
   'markerFilter.setting.autoNext': boolean
 
+  /** 筛选器筛选类型 */
+  'markerFilter.setting.filterType': 'basic' | 'advanced'
+
   /** 筛选器选择的Tab */
   'markerFilter.state.step': number
 
@@ -104,8 +107,9 @@ export const getDefaultPreference = (): UserPreference => ({
   'map.setting.transparentMarked': true,
   'mapSiderMenu.state.tabName': 'filter',
   'mapSiderMenu.state.collapse': false,
-  'markerFilter.state.step': 0,
   'markerFilter.setting.autoNext': true,
+  'markerFilter.setting.filterType': 'basic',
+  'markerFilter.state.step': 0,
   'markerFilter.state.parentAreaCode': 'C:FD',
   'markerFilter.state.areaCode': 'A:FD:FENGDAN',
   'map.setting.zoomTransitionDuration': 66,
