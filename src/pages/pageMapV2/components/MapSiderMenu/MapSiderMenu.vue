@@ -115,16 +115,17 @@ const features: FeatureOption[] = [
       <MarkerTable />
     </SiderMenuItem>
 
-    <SiderMenuItem label="系统设置" :icon="Setting" @click="openSettingDialog" />
+    <SiderMenuItem name="setting" label="系统设置" :icon="Setting" @click="openSettingDialog" />
 
     <SiderMenuItem
       v-if="userInfoStore.isManager"
+      name="manager"
       label="管理面板"
       :icon="PieChart"
       @click="() => router.push('/items')"
     />
 
-    <SiderMenuItem name="fetures" label="更多功能" :icon="Grid">
+    <SiderMenuItem name="features" label="更多功能" :icon="Grid">
       <FeatureGrid :features="features" />
     </SiderMenuItem>
 
