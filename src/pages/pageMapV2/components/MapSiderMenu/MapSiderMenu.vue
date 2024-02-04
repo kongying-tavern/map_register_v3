@@ -66,17 +66,6 @@ const features: FeatureOption[] = [
 
 <template>
   <SiderMenu v-model="tabName" v-model:collapse="collapse">
-    <SiderMenuItem label="个人中心" @click="openUserInfoDialog">
-      <template #icon>
-        <el-avatar
-          shape="circle"
-          class="select-none"
-          :size="38"
-          :src="userInfoStore.info.logo || FALLBACK_AVATAR_URL"
-        />
-      </template>
-    </SiderMenuItem>
-
     <SiderMenuItem name="filter" label="点位筛选" :icon="Filter">
       <MarkerFilter />
     </SiderMenuItem>
@@ -115,16 +104,6 @@ const features: FeatureOption[] = [
       <MarkerTable />
     </SiderMenuItem>
 
-    <SiderMenuItem name="setting" label="系统设置" :icon="Setting" @click="openSettingDialog" />
-
-    <SiderMenuItem
-      v-if="userInfoStore.isManager"
-      name="manager"
-      label="管理面板"
-      :icon="PieChart"
-      @click="() => router.push('/items')"
-    />
-
     <SiderMenuItem name="features" label="更多功能" :icon="Grid">
       <FeatureGrid :features="features" />
     </SiderMenuItem>
@@ -132,6 +111,26 @@ const features: FeatureOption[] = [
     <el-image-viewer v-if="url" :url-list="[url]" @close="url = ''" />
 
     <template #footer>
+      <SiderMenuItem label="个人中心" @click="openUserInfoDialog">
+        <template #icon>
+          <el-avatar
+            shape="circle"
+            class="select-none"
+            :size="38"
+            :src="userInfoStore.info.logo || FALLBACK_AVATAR_URL"
+          />
+        </template>
+      </SiderMenuItem>
+
+      <SiderMenuItem
+        v-if="userInfoStore.isManager"
+        label="管理面板"
+        :icon="PieChart"
+        @click="() => router.push('/items')"
+      />
+
+      <SiderMenuItem label="系统设置" :icon="Setting" @click="openSettingDialog" />
+
       <SiderMenuItem label="退出" :icon="ExitLeft" @click="userAuthStore.logout" />
     </template>
   </SiderMenu>
