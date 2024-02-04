@@ -7,11 +7,13 @@ const props = withDefaults(defineProps<{
   data: T[]
   itemHeight?: number
   itemWidth?: number
+  itemGap?: [number, number]
   cachedRows?: number
 }>(), {
   data: () => [],
   itemHeight: 32,
   itemWidth: 0,
+  itemGap: () => [0, 0],
   cachedRows: 1,
 })
 
@@ -29,21 +31,23 @@ const { y: scrollHeight } = useScroll(tableRef, {
 const gridColumns = computed(() => {
   if (props.itemWidth <= 0)
     return 0
-  return Math.floor(width.value / props.itemWidth)
+  const [gapWidth] = props.itemGap
+  return Math.floor((width.value + gapWidth) / (props.itemWidth + gapWidth))
 })
 
 const virtualRows = computed(() => {
-  return Math.ceil(height.value / props.itemHeight) + props.cachedRows
+  const [_, gapHeight] = props.itemGap
+  return Math.ceil((height.value + gapHeight) / (props.itemHeight + gapHeight)) + props.cachedRows
 })
 
 const virtualHeight = computed(() => {
-  return props.itemHeight * virtualRows.value
+  return (props.itemHeight + props.itemGap[1]) * virtualRows.value
 })
 
 const realHeight = computed(() => {
   if (gridColumns.value <= 0)
     return props.data.length * props.itemHeight
-  return Math.ceil(props.data.length / gridColumns.value) * props.itemHeight
+  return Math.ceil(props.data.length / gridColumns.value) * (props.itemHeight + props.itemGap[1]) - props.itemGap[1]
 })
 
 const rowIndexList = computed(() => {
@@ -67,6 +71,8 @@ const rowIndexList = computed(() => {
       '--item-height': itemHeight,
       '--item-width': itemWidth,
       '--item-count': data.length,
+      '--gap-x': itemGap[0],
+      '--gap-y': itemGap[1],
     }"
   >
     <div v-if="gridColumns > 0" class="virtual-scroll-wrapper is-grid">
@@ -116,6 +122,7 @@ const rowIndexList = computed(() => {
 
   &.is-grid {
     display: grid;
+    gap: calc(var(--gap-x) * 1px) calc(var(--gap-y) * 1px);
     grid-template-columns: repeat(var(--grid-columns), calc(var(--item-width) * 1px));
     grid-template-rows: repeat(var(--grid-rows), calc(var(--item-height) * 1px));
   }
