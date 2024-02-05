@@ -2,7 +2,6 @@
 import { Plus, Setting } from '@element-plus/icons-vue'
 import { storeToRefs } from 'pinia'
 import { MapAffix } from '../../components'
-import { useMap } from '@/pages/pageMapV2/hooks'
 import { MarkerCreatePanel } from '@/pages/pageMapV2/components'
 import { AppSettings, GSButton } from '@/components'
 import { useGlobalDialog } from '@/hooks'
@@ -20,8 +19,6 @@ const markingItem = computed(() => {
   return itemIdMap.value.get(itemId)
 })
 
-const { onMapReady } = useMap()
-
 const coordinate = shallowRef<API.Coordinate2D | null>(null)
 
 const closeContextmenu = () => {
@@ -32,11 +29,11 @@ mapStateStore.$onAction((ctx) => {
   ctx.name === 'setMission' && closeContextmenu()
 })
 
-onMapReady(mapInstance => mapInstance.addEventListener('click', (info, ev) => {
+mapStateStore.event.on('click', (info, ev) => {
   if (!ev.rightButton || mapStateStore.mission)
     return closeContextmenu()
   coordinate.value = info.coordinate as API.Coordinate2D
-}))
+})
 
 const { DialogService } = useGlobalDialog()
 

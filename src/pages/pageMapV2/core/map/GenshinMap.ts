@@ -43,7 +43,7 @@ export class GenshinMap extends Deck {
       getCursor: ({ isDragging, isHovering }) => {
         return isDragging ? 'grabbing' : isHovering ? 'pointer' : 'inherit'
       },
-      onViewStateChange: ({ viewState, oldViewState }) => {
+      onViewStateChange: ({ viewState, oldViewState, ...rest }) => {
         if (mapStateStore.isViewPortLocked)
           return oldViewState
         // TODO 由于使用 initialViewState 作为视口状态，
@@ -57,6 +57,7 @@ export class GenshinMap extends Deck {
           viewState[key] = mapStateStore.viewState[key as keyof typeof mapStateStore.viewState]
         }
         mapStateStore.setViewState(viewState)
+        mapStateStore.event.emit('onViewStateChange', { viewState, oldViewState, ...rest })
         return viewState
       },
       onClick: (info, event) => {
@@ -71,12 +72,8 @@ export class GenshinMap extends Deck {
       },
     })
 
-    this.addEventListener = mapStateStore.event.on
-    this.removeEventListener = mapStateStore.event.off
-
     this.ready = new Promise<GenshinMap>((resolve) => {
-      mapStateStore.event.on('load', resolve)
-      this.addEventListener('load', resolve)
+      mapStateStore.event.once('load', resolve)
     })
 
     this.setProps = (...[props]: Parameters<Deck['setProps']>) => {
@@ -88,13 +85,18 @@ export class GenshinMap extends Deck {
       }
       super.setProps(props)
     }
+
+    mapStateStore.event.on('setViewState', this.setViewState)
   }
 
+  finalize = () => {
+    this.mapStateStore.event.off('setViewState', this.setViewState)
+    super.finalize()
+  }
+
+  protected mapStateStore = useMapStateStore()
+
   readonly ready: Promise<GenshinMap>
-
-  readonly addEventListener: ReturnType<typeof useMapStateStore>['event']['on']
-
-  readonly removeEventListener: ReturnType<typeof useMapStateStore>['event']['off']
 
   readonly getViewController = () => {
     return this.viewManager?.controllers[GenshinMap.ID.main] as GSMapController | undefined
@@ -102,5 +104,14 @@ export class GenshinMap extends Deck {
 
   readonly getViewManage = () => {
     return this.viewManager
+  }
+
+  readonly setViewState = (...[state]: GSMap.EventMap['setViewState']) => {
+    const { target, zoom } = this.getViewManage()?.getViewState(GenshinMap.ID.main) ?? {}
+    const fullState = { target, zoom, ...state }
+    this.setProps({
+      initialViewState: fullState,
+    })
+    this.mapStateStore.setViewState(fullState)
   }
 }
