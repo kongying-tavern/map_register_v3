@@ -1,10 +1,8 @@
 <script lang="ts" setup>
 import type { Observable } from 'rxjs'
-import { filter, fromEvent as fromRawEvent, map, switchMap, takeUntil } from 'rxjs'
+import { fromEvent as fromRawEvent, map, switchMap, takeUntil } from 'rxjs'
 import { CloseBold, SemiSelect } from '@element-plus/icons-vue'
 import { fromEvent, useSubscription } from '@vueuse/rxjs'
-import { useMap } from '../hooks'
-import { GenshinMap } from '../core'
 import { useMapStateStore } from '@/stores'
 import { EaseoutInterpolator } from '@/pages/pageMapV2/core/interpolator'
 
@@ -15,56 +13,20 @@ withDefaults(defineProps<{
   deltaZoom: 0.25,
 })
 
-const { onMapReady } = useMap()
 const mapStateStore = useMapStateStore()
 
-const zoomSetValue = ref(0)
-const zoomGetValue = ref(0)
-
-const prepareToTransition = ref(false)
-const minZoom = ref(0)
-const maxZoom = ref(0)
-
-onMapReady((map) => {
-  const { maxZoom: currentMaxZoom, minZoom: currentMinZoom } = mapStateStore.viewState
-
-  zoomGetValue.value = mapStateStore.viewState.zoom
-  maxZoom.value = currentMaxZoom
-  minZoom.value = currentMinZoom
-
-  watch(() => mapStateStore.viewState.zoom, (zoomNumber) => {
-    zoomGetValue.value = zoomNumber
-  })
-
-  watch(zoomSetValue, (zoomNumber) => {
-    map.setProps({
-      initialViewState: {
-        target: map.getViewManage()?.getViewState(GenshinMap.ID.main).target,
-        zoom: zoomNumber,
-        transitionDuration: prepareToTransition.value ? 200 : 0,
-        transitionInterpolator: new EaseoutInterpolator(['target', 'zoom']),
-      },
-    })
-    prepareToTransition.value = false
-  })
-})
-
+const minZoom = computed(() => mapStateStore.viewState.minZoom)
+const maxZoom = computed(() => mapStateStore.viewState.maxZoom)
 const range = computed(() => maxZoom.value - minZoom.value)
-
-const percentage = computed({
-  get: () => (zoomGetValue.value - minZoom.value) / range.value,
-  set: (v) => {
-    const zoom = range.value * v + minZoom.value
-    zoomSetValue.value = zoom
-    if (!prepareToTransition.value)
-      zoomGetValue.value = zoom
-  },
-})
+const percentage = computed(() => (mapStateStore.viewState.zoom - minZoom.value) / range.value)
 
 const zoomTo = (newPercentage: number, transition = false) => {
-  if (transition)
-    prepareToTransition.value = true
-  percentage.value = newPercentage
+  const newZoom = range.value * newPercentage + minZoom.value
+  mapStateStore.event.emit('setViewState', {
+    zoom: newZoom,
+    transitionDuration: transition ? 200 : 0,
+    transitionInterpolator: new EaseoutInterpolator(['target', 'zoom']),
+  })
 }
 
 const sliderRef = ref<HTMLElement>() as Ref<HTMLElement>
@@ -76,12 +38,16 @@ useSubscription(pointerdown.pipe(
   switchMap(({ y: startY }) => {
     const startH = (1 - percentage.value) * 180
     return pointermove.pipe(
+      map(({ y: moveY }) => {
+        const deltaY = startH + moveY - startY
+        if (deltaY > 180 || deltaY < 0)
+          return
+        zoomTo(1 - deltaY / 180)
+      }),
       takeUntil(pointerup),
-      map(({ y: moveY }) => startH + moveY - startY),
     )
   }),
-  filter(deltaY => deltaY <= 180 && deltaY >= 0),
-).subscribe(deltaY => zoomTo(1 - deltaY / 180)))
+).subscribe())
 </script>
 
 <template>
