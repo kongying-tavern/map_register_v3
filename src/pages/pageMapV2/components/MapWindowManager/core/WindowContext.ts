@@ -1,7 +1,10 @@
 import { fromEvent, map } from 'rxjs'
+import { clamp } from 'lodash'
 import type { MapWindow } from '../types'
 
 export class WindowContext implements MapWindow.Context {
+  readonly HEADER_HEIGHT = 30
+
   readonly dragHookId = [...crypto.getRandomValues(new Uint8Array(4))].map(num => num.toString(16).padStart(2, '0')).join('')
 
   protected panels: Ref<Record<string, MapWindow.Info>> = ref({})
@@ -44,6 +47,10 @@ export class WindowContext implements MapWindow.Context {
     if (!panel)
       return false
     return panel.order === this.topOrder.value
+  }
+
+  getWindow = (id: string) => {
+    return this.panels.value[id]
   }
 
   getWindows = () => {
@@ -119,6 +126,32 @@ export class WindowContext implements MapWindow.Context {
     target.translate = pos
 
     this.cachedInfos[id].translate = pos
+  }
+
+  /** 优化窗口位置，使其返回可见区域 */
+  optimizeWindowPosition = (box?: ResizeObserverSize) => {
+    const panels = this.panels.value
+
+    // 如果未传递 box，则初始化全部面板的位置
+    if (!box) {
+      for (const key in panels) {
+        const info = panels[key]
+        info.translate = { x: 0, y: 0 }
+      }
+      return
+    }
+
+    // 传递 box，则将面板限制在 box 范围内
+    const { inlineSize, blockSize } = box
+    for (const key in panels) {
+      const info = panels[key]
+      const { width, height } = info.size
+      const { x, y } = info.translate
+      info.translate = {
+        x: clamp(x, 0, Math.max(0, inlineSize - width)),
+        y: clamp(y, 0, Math.max(0, blockSize - height - this.HEADER_HEIGHT)),
+      }
+    }
   }
 }
 

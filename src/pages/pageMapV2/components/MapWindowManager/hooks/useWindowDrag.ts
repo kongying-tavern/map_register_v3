@@ -1,11 +1,12 @@
-import { filter, map, switchMap, takeUntil } from 'rxjs'
+import { filter, finalize, map, switchMap, takeUntil } from 'rxjs'
 import { useSubscription } from '@vueuse/rxjs'
-import type { MapWindow } from '../types'
+import type { WindowContext } from '../core'
+import { genshinMapCanvasKey } from '@/pages/pageMapV2/shared'
 
-export const useWindowDrag = (options: MapWindow.WindowDragHookOptions) => {
-  const { context } = options
-
+export const useWindowDrag = (context: WindowContext) => {
   const { pointerdown, pointermove, pointerup } = context
+
+  const mapCanvas = inject(genshinMapCanvasKey, ref(null))
 
   useSubscription(pointerdown.pipe(
     filter((result) => {
@@ -24,6 +25,7 @@ export const useWindowDrag = (options: MapWindow.WindowDragHookOptions) => {
         return false
       return result.srcEvent.target.dataset.draggable === 'true'
     }),
+
     map((result) => {
       const { target, srcEvent } = result!
       const panelId = target!.dataset[context.dragHookId]!
@@ -56,7 +58,19 @@ export const useWindowDrag = (options: MapWindow.WindowDragHookOptions) => {
         }),
 
         takeUntil(pointerup),
+
+        finalize(() => {
+          if (!mapCanvas.value)
+            return
+          const { width, height } = mapCanvas.value
+          context.optimizeWindowPosition({ inlineSize: width, blockSize: height })
+        }),
       )
     }),
   ).subscribe())
+
+  useResizeObserver(mapCanvas, ([entry]) => {
+    const { contentBoxSize: [boxSize] = [] } = entry
+    context.optimizeWindowPosition(boxSize)
+  })
 }

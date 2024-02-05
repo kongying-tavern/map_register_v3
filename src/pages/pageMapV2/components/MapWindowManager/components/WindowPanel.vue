@@ -20,6 +20,8 @@ const mainRef = defineModel<HTMLElement | null>('mainRef', {
       'is-top': context.isTop(id),
     }"
     :style="{
+      '--w': context.getWindow(id)?.size.width,
+      '--h': context.getWindow(id)?.size.height,
       '--tx': info.translate.x,
       '--ty': info.translate.y,
     }"
@@ -40,8 +42,7 @@ const mainRef = defineModel<HTMLElement | null>('mainRef', {
 
 <style scoped>
 .window-panel {
-  width: 400px;
-  height: 600px;
+  width: calc(var(--w, 400) * 1px);
   border-radius: 6px;
   pointer-events: auto;
   position: absolute;
@@ -52,8 +53,7 @@ const mainRef = defineModel<HTMLElement | null>('mainRef', {
   display: flex;
   flex-direction: column;
   z-index: v-bind('info.order');
-  box-sizing: content-box;
-  border: 1px solid var(--el-border-color-darker);
+  outline: 1px solid var(--el-border-color-darker);
 
   &.is-top {
     box-shadow: var(--el-box-shadow);
@@ -61,6 +61,7 @@ const mainRef = defineModel<HTMLElement | null>('mainRef', {
 }
 
 .window-panel-header {
+  height: calc(v-bind('context.HEADER_HEIGHT') * 1px);
   flex-shrink: 0;
   background: linear-gradient(
     to right,
@@ -72,7 +73,7 @@ const mainRef = defineModel<HTMLElement | null>('mainRef', {
 }
 
 .window-panel-main {
-  flex: 1;
+  height: calc(var(--h, 600) * 1px);
   background: var(--el-bg-color);
   overflow: auto;
 }

@@ -3,7 +3,7 @@ import { WindowPanel } from './components'
 import { useWindowDrag } from './hooks'
 import { context } from './core'
 
-useWindowDrag({ context })
+useWindowDrag(context)
 </script>
 
 <template>
