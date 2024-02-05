@@ -1,32 +1,26 @@
 <script lang="ts" setup>
-import { useMap, useMarkerFocus } from '@/pages/pageMapV2/hooks'
-import { mapSidermenuKey } from '@/pages/pageMapV2/shared'
+import { useMarkerFocus } from '@/pages/pageMapV2/hooks'
 import { EaseoutInterpolator } from '@/pages/pageMapV2/core/interpolator'
+import { useMapStateStore } from '@/stores'
 
 const props = defineProps<{
   data: API.MarkerVo
 }>()
 
-const { map } = useMap()
-const { focusMarker, hoverMarker, out } = useMarkerFocus()
+const mapStateStore = useMapStateStore()
 
-const mapSidermenuRef = inject(mapSidermenuKey, ref(null))
+const { focusMarker, hoverMarker, out } = useMarkerFocus()
 
 /**
  * @todo 使点位和弹窗显示在视口内合适的位置
  */
 const flyToMarker = async () => {
-  if (!map.value || !mapSidermenuRef.value)
-    return
-
   const { render: { position: [x, y] } } = focusMarker(props.data, 400)
-  map.value.setProps({
-    initialViewState: {
-      target: [x, y],
-      zoom: 0,
-      transitionDuration: 500,
-      transitionInterpolator: new EaseoutInterpolator(['target', 'zoom']),
-    },
+  mapStateStore.event.emit('setViewState', {
+    target: [x, y],
+    zoom: 0,
+    transitionDuration: 500,
+    transitionInterpolator: new EaseoutInterpolator(['target', 'zoom']),
   })
 }
 </script>
