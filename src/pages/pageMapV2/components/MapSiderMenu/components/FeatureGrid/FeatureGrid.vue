@@ -26,9 +26,10 @@ defineProps<{
 <style lang="scss" scoped>
 .feature-grid {
   --gap: 8px;
-  --transition: all ease 150ms;
+  --transition: all ease-out 150ms;
 
   display: grid;
+  width: 350px;
   height: 100%;
   place-content: start;
   gap: 8px;
