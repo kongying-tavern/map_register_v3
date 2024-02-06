@@ -1,6 +1,6 @@
 import { storeToRefs } from 'pinia'
 import { useAreaStore, useItemStore, useItemTypeStore, usePreferenceStore } from '@/stores'
-import type { Condition } from '@/stores/types'
+import type { ConditionBasic } from '@/stores/types'
 
 export const useMarkerFilterBasic = () => {
   const { preference } = storeToRefs(usePreferenceStore())
@@ -13,7 +13,7 @@ export const useMarkerFilterBasic = () => {
     const areaMap = areaIdMap.value
     const typeMap = itemTypeIdMap.value
 
-    const map = new Map<string, Condition>()
+    const map = new Map<string, ConditionBasic>()
     preference.value['markerFilter.state.itemIds']?.forEach((itemId) => {
       const item = itemMap.get(itemId)
       if (!item)

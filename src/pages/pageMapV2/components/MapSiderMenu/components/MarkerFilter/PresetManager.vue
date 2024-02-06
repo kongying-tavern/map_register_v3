@@ -1,12 +1,13 @@
 <script lang="ts" setup>
 import { storeToRefs } from 'pinia'
+import { useMarkerFilter } from './hooks'
 import { GSButton, GSDivider, GSInput } from '@/components'
 import { usePreferenceStore, useUserInfoStore } from '@/stores'
-import type { Condition } from '@/stores/types'
+import type { ConditionAdvanced, ConditionBasic } from '@/stores/types'
 
 const props = defineProps<{
   modelValue: boolean
-  conditions: Map<string, Condition> | never[]
+  conditions: Map<string, ConditionBasic> | ConditionAdvanced[]
 }>()
 
 defineEmits<{
@@ -41,13 +42,14 @@ const savePreset = () => {
 
   const presets = [...preference.value['markerFilter.setting.presets'] ?? []]
   const name = validConditionName.value
-  const conditions = Object.fromEntries(props.conditions.entries())
+  const { filterType } = useMarkerFilter()
+  const conditions = JSON.parse(JSON.stringify(props.conditions))
 
   const findIndex = presets.findIndex(preset => preset.name === name)
   if (findIndex < 0)
-    presets.push({ name, conditions })
+    presets.push({ name, type: filterType.value, conditions })
   else
-    presets[findIndex] = { name, conditions }
+    presets[findIndex] = { name, type: filterType.value, conditions }
 
   preference.value['markerFilter.setting.presets'] = presets
   validConditionName.value = ''

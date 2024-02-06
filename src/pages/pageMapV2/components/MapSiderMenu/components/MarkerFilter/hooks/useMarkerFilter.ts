@@ -1,6 +1,6 @@
 import { useMarkerFilterBasic } from '.'
 import { usePreferenceStore } from '@/stores'
-import type { Condition } from '@/stores/types/userPreference'
+import type { ConditionAdvanced, ConditionBasic } from '@/stores/types/userPreference'
 
 export const useMarkerFilter = () => {
   const preferenceStore = usePreferenceStore()
@@ -13,7 +13,7 @@ export const useMarkerFilter = () => {
     return 'basic'
   })
 
-  const conditions: ComputedRef<Map<string, Condition> | never[]> = computed(() => {
+  const conditions: ComputedRef<Map<string, ConditionBasic> | ConditionAdvanced[]> = computed(() => {
     if (filterType.value === 'advanced') {
       // TODO 添加高级过滤器筛选条件
       return []
@@ -28,12 +28,12 @@ export const useMarkerFilter = () => {
     switch (filterType.value) {
       case 'advanced':
         // TODO 添加高级过滤器筛选条件计数
-        return (conditions.value as never[]).length
+        return (conditions.value as ConditionAdvanced[]).length
       case 'basic':
       default:
-        return (conditions.value as Map<string, Condition>).size
+        return (conditions.value as Map<string, ConditionBasic>).size
     }
   })
 
-  return { conditions, conditionSize }
+  return { filterType, conditions, conditionSize }
 }

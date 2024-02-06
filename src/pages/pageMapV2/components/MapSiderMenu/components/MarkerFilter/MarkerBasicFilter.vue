@@ -307,8 +307,8 @@ const handleDragItem = (ev: DragEvent) => {
     </el-tooltip>
   </div>
 
-  <div class="flex-1 p-2 pb-0 overflow-hidden">
-    <el-scrollbar height="100%">
+  <div class="flex-1 pt-2 pb-0 overflow-hidden">
+    <el-scrollbar class="px-2" height="100%">
       <div class="h-full flex flex-col gap-2">
         <ConditionRow
           v-for="[id, condition] in conditions"
@@ -321,7 +321,8 @@ const handleDragItem = (ev: DragEvent) => {
     </el-scrollbar>
   </div>
 
-  <div class="condition-add-btn flex gap-2 justify-center p-2 pt-0">
+  <div class="condition-add-btn flex gap-2 justify-center p-2">
+    <slot name="prepend" />
     <GSButton
       class="flex-1"
       size="small"

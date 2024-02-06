@@ -58,7 +58,7 @@ export interface UserPreference {
   'markerFilter.setting.autoNext': boolean
 
   /** 筛选器筛选类型 */
-  'markerFilter.setting.filterType': 'basic' | 'advanced'
+  'markerFilter.setting.filterType': FilterType
 
   /** 筛选器选择的Tab */
   'markerFilter.state.step': number
@@ -77,6 +77,9 @@ export interface UserPreference {
 
   /** 正在标记的物品 id */
   'markerFilter.state.defaultMarkingItemId'?: number
+
+  /**  */
+  'markerFilter.filter.advancedFilter': ConditionAdvanced[]
 
   // ====================     设置面板     ====================
 
@@ -112,18 +115,37 @@ export const getDefaultPreference = (): UserPreference => ({
   'markerFilter.state.step': 0,
   'markerFilter.state.parentAreaCode': 'C:FD',
   'markerFilter.state.areaCode': 'A:FD:FENGDAN',
+  'markerFilter.filter.advancedFilter': [],
   'map.setting.zoomTransitionDuration': 66,
   'settingPanel.state.activedKey': 'dashboard',
 })
 
 /** 筛选器预设 */
+export type FilterType = 'basic' | 'advanced'
+
 export interface FilterPreset {
   name: string
-  conditions: Record<string, Condition>
+  type: FilterType
+  conditions: Record<string, ConditionBasic> | ConditionAdvanced[]
 }
 
-export interface Condition {
+export interface ConditionBasic {
   area: API.AreaVo
   type: API.ItemTypeVo
   items: number[]
+}
+
+export interface ConditionAdvanced {
+  // true 为 AND，false 为 OR
+  operator: boolean
+  opposite: boolean
+  children: ConditionAdvancedItem[]
+}
+
+export interface ConditionAdvancedItem {
+  id: number
+  // true 为 AND，false 为 OR
+  operator: boolean
+  opposite: boolean
+  value: Record<string, unknown>
 }

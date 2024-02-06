@@ -106,7 +106,7 @@ const onClick = (ev: MouseEvent) => {
 }
 
 .gs-button {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   width: fit-content;
   min-width: var(--height);
