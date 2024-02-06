@@ -3,22 +3,22 @@ const props = withDefaults(defineProps<{
   clickable?: boolean
   disabled?: boolean
   iconColor?: string
-  theme: 'light' | 'dark'
+  theme?: 'light' | 'dark'
 }>(), {
   clickable: true,
   theme: 'light',
 })
 
 const emits = defineEmits<{
-  (e: 'click'): void
+  click: [MouseEvent]
 }>()
 
-const handleClick = () => {
+const handleClick = (ev: MouseEvent) => {
   if (!props.clickable)
     return
   else if (props.disabled)
     return
-  emits('click')
+  emits('click', ev)
 }
 </script>
 
