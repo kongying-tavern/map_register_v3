@@ -15,8 +15,8 @@ const props = defineProps<{
 }>()
 
 const emits = defineEmits<{
-  'selectionChange': [TypeObject[]]
-  'gotoTypeNode': [TypeObject]
+  selectionChange: [TypeObject[]]
+  gotoTypeNode: [TypeObject]
 }>()
 
 const isItemManager = computed(() => props.manager instanceof ItemTypeManager)

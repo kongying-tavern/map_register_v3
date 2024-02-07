@@ -46,7 +46,7 @@ declare namespace API {
         }[]
       }[]
     }
-    underground?: {
+    'underground'?: {
       /** 开启地下选项时的提示文本 */
       textActive?: string
       /** 关闭地下选项时的提示文本 */

@@ -9,7 +9,7 @@ export interface MarkerExtra {
   }
 
   /** 地下区域 */
-  underground?: {
+  'underground'?: {
     /** 是否是地下点位 */
     is_underground?: boolean
     /** 区域层级 */
@@ -17,7 +17,7 @@ export interface MarkerExtra {
   }
 
   /** 洞口关联 - 关联洞口 ID 数组 */
-  caves?: number[]
+  'caves'?: number[]
 
   /** @todo 点位关联(宝箱，编写中) */
 }

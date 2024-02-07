@@ -8,8 +8,8 @@ const props = defineProps<{
 }>()
 
 const emits = defineEmits<{
-  'selectionChange': [selections: API.SysUserVo[]]
-  'sortChange': [sort: string[]]
+  selectionChange: [selections: API.SysUserVo[]]
+  sortChange: [sort: string[]]
 }>()
 
 const roleMap = computed(() => Object.fromEntries(props.roleList.map(role => [role.id!, role])))
