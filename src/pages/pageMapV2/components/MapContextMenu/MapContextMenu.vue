@@ -25,9 +25,7 @@ const closeContextmenu = () => {
   coordinate.value = null
 }
 
-mapStateStore.$onAction((ctx) => {
-  ctx.name === 'setMission' && closeContextmenu()
-})
+watch(() => mapStateStore.mission, closeContextmenu)
 
 mapStateStore.event.on('click', (info, ev) => {
   if (!ev.rightButton || mapStateStore.mission)
