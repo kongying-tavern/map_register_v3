@@ -28,6 +28,7 @@ const handleClick = (ev: MouseEvent) => {
     :class="[
       clickable ? 'condition-unit-button' : '',
       disabled ? 'is-disabled' : '',
+      $slots.default ? '' : 'condition-unit-button__icon-only',
       `condition-unit-button__${theme}`,
     ]"
     @click="handleClick"
@@ -53,7 +54,7 @@ const handleClick = (ev: MouseEvent) => {
   --color-dark-disabled: #6b6964;
 
   height: 100%;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   font-size: 14px;
   background: #FFF;
@@ -65,6 +66,23 @@ const handleClick = (ev: MouseEvent) => {
   outline: 2px solid transparent;
   user-select: none;
   transition: all ease 150ms;
+
+  .icon {
+    --icon-size: calc(var(--height) - 12px);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--icon-color);
+    padding: 3px;
+    width: var(--icon-size) !important;
+    height: var(--icon-size) !important;
+    border-radius: 50%;
+  }
+  &:has(.icon) {
+    gap: 4px;
+    padding-left: 2px;
+  }
 
   &:not(.is-disabled) {
     &:hover {
@@ -79,22 +97,19 @@ const handleClick = (ev: MouseEvent) => {
   &.is-disabled {
     cursor: not-allowed;
   }
+}
 
-  .icon {
-    color: var(--icon-color);
-    height: calc(var(--height) - 12px);
-    width: calc(var(--height) - 12px);
-    padding: 4px;
-    border-radius: 50%;
-    background: var(--color-dark);
-  }
-  &:has(.icon) {
-    gap: 4px;
-    padding-left: 2px;
-  }
+.condition-unit-button__icon-only {
+  padding: 2px;
 }
 
 .condition-unit-button__light {
+  color: var(--color-dark);
+
+  .icon {
+    background: #FFFFFF80;
+  }
+
   &.condition-unit-button:hover {
     outline-color: #FFFFFF80;
   }
@@ -107,6 +122,10 @@ const handleClick = (ev: MouseEvent) => {
 .condition-unit-button__dark {
   background: var(--color-dark);
   color: #FFF;
+
+  .icon {
+    background: var(--color-dark);
+  }
 
   &.condition-unit-button:not(.is-disabled):hover {
     background: var(--color-dark-light);
