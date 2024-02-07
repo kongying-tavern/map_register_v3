@@ -13,6 +13,7 @@ const prefix = crypto.randomUUID()
   <BarItem
     label="点位关联"
     class="grid place-content-center place-items-center"
+    divider
     :disabled="!context.isMissionEnable.value"
     @click="context.toggleMarkerLink"
   >
