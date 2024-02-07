@@ -27,7 +27,7 @@ const { historyList, userMap, loading, updateHistoryList } = useHistoryList({
       </div>
     </el-form>
 
-    <HistoryTable :data="historyList" :user-map="userMap" :loading="loading" />
+    <HistoryTable :data="historyList" :history-type="historyType" :user-map="userMap" :loading="loading" />
 
     <el-pagination
       v-model:current-page="pagination.current"

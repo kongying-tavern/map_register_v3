@@ -7,6 +7,7 @@ const props = defineProps<{
   loading: boolean
   data: API.HistoryVo[]
   userMap: Record<string, API.SysUserSmallVo>
+  historyType: number
 }>()
 
 const tableRef = ref<HTMLElement | null>(null)
@@ -15,6 +16,21 @@ const { height } = useElementSize(tableRef)
 const { IDENTIFICATION_SYMBOL, triggerRef, userData, trigger, close } = useUserPopover({
   getUser: userId => props.userMap[userId],
 })
+
+const HISTORY_OPTIONS = [
+  { label: '点位', value: 4 },
+  { label: '物品', value: 3 },
+]
+const contentColLabel = computed(() => {
+  return `被修改${HISTORY_OPTIONS.find(item => item.value === props.historyType)?.label}ID` || ''
+})
+
+const EDIT_TYPE_MAP: Map<number, string> = new Map([
+  [0, '未知'],
+  [1, '新增'],
+  [2, '修改'],
+  [3, '删除'],
+])
 </script>
 
 <template>
@@ -39,11 +55,15 @@ const { IDENTIFICATION_SYMBOL, triggerRef, userData, trigger, close } = useUserP
         </template>
       </el-table-column>
 
-      <el-table-column label="ID" prop="id" :width="100" />
+      <el-table-column label="ID" prop="id" :width="300" />
 
-      <el-table-column label="操作类型" prop="" :width="100" />
+      <el-table-column label="操作类型" prop="editType" :width="100">
+        <template #default="{ row }">
+          <pre>{{ EDIT_TYPE_MAP.get(row.editType) }}</pre>
+        </template>
+      </el-table-column>
 
-      <el-table-column label="内容" prop="content" :width="300">
+      <el-table-column :label="contentColLabel" prop="tid" :width="300">
         <template #default="{ row }">
           <pre>{{ row.content.length }}</pre>
         </template>
@@ -73,7 +93,7 @@ const { IDENTIFICATION_SYMBOL, triggerRef, userData, trigger, close } = useUserP
         </template>
       </el-table-column>
 
-      <el-table-column label="操作时间" prop="createTime" :width="160" :formatter="timeFormatter" />
+      <el-table-column label="操作时间" prop="createTime" :formatter="timeFormatter" />
     </el-table>
   </div>
 </template>
