@@ -34,24 +34,28 @@ export class GSCompositeLayer extends CompositeLayer {
 
   constructor() {
     const mapStateStore = useMapStateStore()
-    const { update: updateHover } = mapStateStore.subscribeInteractionInfo('hover', 'defaultMarker')
-    const { update: updateFocus } = mapStateStore.subscribeInteractionInfo('focus', 'defaultMarker')
+
+    const { update: hoverMarker } = mapStateStore.subscribeInteractionInfo('hover', 'defaultMarker')
+    const { update: focusMarker } = mapStateStore.subscribeInteractionInfo('focus', 'defaultMarker')
+    const { update: hoverLink } = mapStateStore.subscribeInteractionInfo('hover', 'defaultMarkerLink')
 
     super({
       id: 'genshin-composite-layer',
       onClick: ({ object = null, sourceLayer = null }, ev) => {
         if (('leftButton' in ev && !ev.leftButton) || !object) {
-          updateFocus(null)
+          focusMarker(null)
           return
         }
         if (sourceLayer instanceof GSMarkerLayer)
-          updateFocus(this.state.markersMap[object])
+          focusMarker(this.state.markersMap[object])
       },
       onHover: ({ object = null, sourceLayer = null }) => {
         if (!object)
-          return updateHover(null)
+          return mapStateStore.setInteractionInfo('hover', null)
         if (sourceLayer instanceof GSMarkerLayer)
-          updateHover(this.state.markersMap[object])
+          return hoverMarker(this.state.markersMap[object])
+        if (sourceLayer instanceof GSMarkerLinkLayer)
+          return hoverLink(object)
       },
     })
   }

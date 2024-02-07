@@ -24,19 +24,27 @@ export class GSMarkerLinkLayer extends PolygonLayer<GSMapState.MLRenderUnit, Lay
     const {
       markersMap,
       markerLinkRenderList,
+      hover,
     } = state
 
     const zoomedArrowLength = Math.min(ARROW_LENGTH, ARROW_LENGTH * 2 ** -zoom)
 
+    const isHover = (key: string) => {
+      if (hover?.type !== 'defaultMarkerLink')
+        return false
+      return hover.value.key === key
+    }
+
     super({
       id: 'genshin-marker-link-layer',
       data: markerLinkRenderList,
+      pickable: true,
       filled: true,
       lineJointRounded: true,
       lineWidthMaxPixels: 2,
       getLineWidth: 2,
       getFillColor: ({ type }) => ACTION_COLOR_MAP[type],
-      getLineColor: ({ type }) => ACTION_COLOR_MAP[type],
+      getLineColor: ({ key, type }) => isHover(key) ? [255, 255, 0] : ACTION_COLOR_MAP[type],
       getPolygon: ({ source, target }) => {
         const [x1, y1] = markersMap[source].render.position
         const [x2, y2] = markersMap[target].render.position
@@ -58,6 +66,7 @@ export class GSMarkerLinkLayer extends PolygonLayer<GSMapState.MLRenderUnit, Lay
         ]
       },
       updateTriggers: {
+        getLineColor: hover,
         getPolygon: zoom,
       },
     })

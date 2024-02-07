@@ -42,9 +42,22 @@ declare namespace GSMapState {
     }
   }
 
+  /** 点位关联 - 渲染单位 */
+  interface MLRenderUnit {
+    /** 关联唯一标识 */
+    key: string
+    /** 源点位 id */
+    source: number
+    /** 目标点位 id */
+    target: number
+    /** 关联类型标识 */
+    type: LinkActionEnum
+  }
+
   /** 交互类型表 */
   interface InteractionTypeMap {
     defaultMarker: MarkerWithRenderConfig
+    defaultMarkerLink: MLRenderUnit
     unknown: unknown
   }
 
@@ -60,16 +73,6 @@ declare namespace GSMapState {
 
   /** 混合任务类型 */
   type Mission = MapToSchema<MissionTypeMap>
-
-  /** 点位关联 - 渲染单位 */
-  interface MLRenderUnit {
-    /** 源点位 id */
-    source: number
-    /** 目标点位 id */
-    target: number
-    /** 关联类型标识 */
-    type: LinkActionEnum
-  }
 
   /**
    * 临时点位类型表

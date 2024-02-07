@@ -195,7 +195,8 @@ export class MLContext {
       pause: pauseRender,
       resume: resumeRender,
     } = pausableWatch(missionList, async (list) => {
-      await this.mapStateStore.setMLRenderList(list.map(({ fromId, linkAction, toId }) => ({
+      await this.mapStateStore.setMLRenderList(list.map(({ fromId = 0, linkAction, toId = 0 }) => ({
+        key: this.getLinkKey({ fromId, toId, linkAction: linkAction as LinkActionEnum }),
         source: fromId!,
         target: toId!,
         type: linkAction as GSMapState.MLRenderUnit['type'],
