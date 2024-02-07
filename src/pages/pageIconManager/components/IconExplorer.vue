@@ -60,7 +60,7 @@ watch(scrollTarget, scrollTo)
   >
     <AppVirtualTable
       :data="tagList"
-      :cached-rows="0"
+      :cached-rows="1"
       :item-height="ICON_SIZE"
       :item-width="ICON_SIZE"
     >
