@@ -16,14 +16,15 @@ const getDialogConfig = () => ({
 const { roleList } = useRoleList()
 
 const { pagination, layout } = usePagination()
-const [sort, setSort] = useState<string[]>([])
 
-const { userList, loading, filterKey, filterValue, updateUserList } = useUserList({
-  pagination,
-  getParams: () => ({
-    sort: sort.value,
-  }),
-})
+const {
+  userList,
+  loading,
+  filterKey,
+  filterValue,
+  onSortChange,
+  updateUserList,
+} = useUserList({ pagination })
 
 // ==================== 新增用户 ====================
 const openUserCreator = () => DialogService
@@ -66,7 +67,13 @@ onDeleteSuccess(updateUserList)
       </template>
     </UserFilter>
 
-    <UserTable :data="userList" :role-list="roleList" :loading="loading" @selection-change="setSelections" @sort-change="setSort">
+    <UserTable
+      :data="userList"
+      :role-list="roleList"
+      :loading="loading"
+      @selection-change="setSelections"
+      @sort-change="onSortChange"
+    >
       <template #action="{ row }">
         <el-button :icon="Edit" title="编辑" @click="() => openUserEditor(row)" />
         <el-button :icon="Key" title="修改密码" @click="() => openPasswordEditor(row)" />

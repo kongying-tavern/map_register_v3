@@ -5,21 +5,19 @@ import { useFetchHook } from '@/hooks'
 import Api from '@/api/api'
 
 interface UserListHookOptions {
-  getParams: () => Omit<API.SysUserSearchVo, 'current' | 'size'>
   pagination: Ref<PaginationState>
 }
 
 /** 列表数据与核心操作封装 */
 export const useUserList = (options: UserListHookOptions) => {
-  const { pagination, getParams } = options
+  const { pagination } = options
 
   const userList = ref<API.SysUserVo[]>([])
 
   // 搜索
   const filterKey = ref('nickname')
   const filterValue = ref('')
-
-  const params = computed(() => getParams())
+  const sort = ref<string[]>([])
 
   const { refresh: updateUserList, onSuccess, ...rest } = useFetchHook({
     immediate: true,
@@ -29,24 +27,28 @@ export const useUserList = (options: UserListHookOptions) => {
       _.set(filter, filterKey.value, filterValue.value)
       return Api.sysUserController.getUserList({
         ...filter,
-        ...params.value,
+        sort: sort.value,
         current,
         size,
       })
     },
   })
 
+  const onSortChange = async (sortKeys: string[]) => {
+    sort.value = sortKeys
+    await updateUserList()
+  }
+
   onSuccess(({ data: { record = [], total = 0 } = {} }) => {
     userList.value = record
     pagination.value.total = total
   })
 
-  watch(() => params.value.sort, updateUserList, { deep: true })
-
   return {
     userList,
     filterKey,
     filterValue,
+    onSortChange,
     updateUserList,
     ...rest,
   }

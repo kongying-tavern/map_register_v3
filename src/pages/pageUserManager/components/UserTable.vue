@@ -1,14 +1,14 @@
-<script lang="ts" setup>
+<script lang="ts" setup generic="T">
 import { timeFormatter } from '@/utils'
 
 const props = defineProps<{
   loading: boolean
   roleList: API.SysRoleVo[]
-  data: API.SysUserVo[]
+  data: T[]
 }>()
 
 const emits = defineEmits<{
-  selectionChange: [selections: API.SysUserVo[]]
+  selectionChange: [selections: T[]]
   sortChange: [sort: string[]]
 }>()
 
@@ -22,10 +22,10 @@ const tableRef = ref<HTMLElement | null>(null)
 const { height } = useElementSize(tableRef)
 
 /** 类型断言 */
-const typeAssert = (row: unknown) => row as API.SysUserVo
+const typeAssert = (row: unknown) => row as T
 
 // ==================== 事件代理 ====================
-const proxySelectionChange = (selections: API.ItemVo[]) => {
+const proxySelectionChange = (selections: T[]) => {
   emits('selectionChange', selections)
 }
 </script>
