@@ -3,7 +3,7 @@ import type { GSMapState } from '@/stores/types/genshin-map-state'
 import { createRenderMarkers } from '@/stores/utils'
 
 /** 点位 focus 状态管理 hook */
-export const useMarkerFocus = () => {
+export const _useMarkerFocus = () => {
   const preferenceStore = usePreferenceStore()
   const mapStateStore = useMapStateStore()
   const areaStore = useAreaStore()
@@ -82,4 +82,12 @@ export const useMarkerFocus = () => {
     hoverMarker,
     out,
   }
+}
+
+let cache: ReturnType<typeof _useMarkerFocus>
+
+export const useMarkerFocus = () => {
+  if (!cache)
+    cache = _useMarkerFocus()
+  return cache
 }
