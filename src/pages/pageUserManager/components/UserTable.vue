@@ -54,9 +54,9 @@ const proxySelectionChange = (selections: T[]) => {
         </template>
       </el-table-column>
 
-      <el-table-column label="昵称" prop="nickname" show-overflow-tooltip sortable="custom" />
+      <el-table-column label="昵称" :width="200" prop="nickname" show-overflow-tooltip sortable="custom" />
 
-      <el-table-column label="用户名" prop="username" />
+      <el-table-column label="用户名" :width="200" prop="username" />
 
       <el-table-column label="QQ" prop="qq" :width="150" />
 

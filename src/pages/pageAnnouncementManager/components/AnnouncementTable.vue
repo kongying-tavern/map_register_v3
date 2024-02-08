@@ -97,7 +97,8 @@ const sortHandler = (data: {
       <el-table-column
         prop="title"
         label="标题"
-        :min-width="100"
+        :width="100"
+        show-overflow-tooltip
         sortable="custom"
         :sort-orders="sortOrders"
       />
