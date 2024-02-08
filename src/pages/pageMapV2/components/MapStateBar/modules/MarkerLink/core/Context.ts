@@ -36,8 +36,22 @@ export class MLContext {
   /** 是否正在进行关联任务 */
   isMissionProcessing: Ref<boolean>
 
+  /** 点位关联提交状态 */
+  loading = ref(false)
+  setLoading = (v: boolean) => {
+    this.loading.value = v
+  }
+
   /** 新添加的关联 */
   linkList = ref<MarkerLinkProps[]>([])
+
+  /** 已有的关联组，key 表示关联组 id */
+  existLinkGroups = ref<Record<string, {
+    /** 关联组包含的点位 id，当包含为空时，该关联组会被移除 */
+    include: Set<number>
+    /** 点位所属关联组对应的关联关系 */
+    links: API.MarkerLinkageVo[]
+  }>>({})
 
   /** 是否合并已有关联组 */
   isMergeMode = ref(true)
@@ -66,6 +80,7 @@ export class MLContext {
           fromId: link.fromId!,
           toId: link.toId!,
           linkAction: link.linkAction as LinkActionEnum,
+          key: this.getLinkKey(link as Omit<MarkerLinkProps, 'key'>),
         }
         const key = this.getLinkKey(info)
         if (keys.has(key))
@@ -125,17 +140,22 @@ export class MLContext {
   }
 
   /** 删除关联关系 */
-  deleteLink = (key: string) => {
+  deleteLink = (link: MarkerLinkProps) => {
     const list = [...this.linkList.value]
 
-    const findIndex = list.findIndex(link => link.key === key)
-    if (findIndex < 0)
-      return false
+    const rewriteLink = {
+      ...link,
+      isDelete: true,
+    }
 
-    list.splice(findIndex, 1)
+    const findIndex = list.findIndex(({ key }) => link.key === key)
+    if (findIndex < 0)
+      list.push(rewriteLink)
+    else
+      list.splice(findIndex, 1, rewriteLink)
 
     this.linkList.value = list
-    return true
+    this.resetSelectedState()
   }
 
   /** 清除任务 */
@@ -230,14 +250,6 @@ export class MLContext {
     this.sourceMarker.value = undefined
     this.targetMarker.value = undefined
   }
-
-  /** 已有的关联组，key 表示关联组 id */
-  protected existLinkGroups = ref<Record<string, {
-    /** 关联组包含的点位 id，当包含为空时，该关联组会被移除 */
-    include: Set<number>
-    /** 点位所属关联组对应的关联关系 */
-    links: API.MarkerLinkageVo[]
-  }>>({})
 
   /** 移除对应点位的已有关联组 */
   protected removeTempLink = (marker?: GSMapState.MarkerWithRenderConfig) => {

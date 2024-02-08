@@ -14,7 +14,7 @@ const prefix = crypto.randomUUID()
     label="点位关联"
     class="grid place-content-center place-items-center"
     divider
-    :disabled="!context.isMissionEnable.value"
+    :disabled="!context.isMissionEnable.value || context.loading.value"
     @click="context.toggleMarkerLink"
   >
     <el-icon :size="20">

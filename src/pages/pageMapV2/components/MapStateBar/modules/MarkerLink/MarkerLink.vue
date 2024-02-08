@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { Check, Close, Delete, Right } from '@element-plus/icons-vue'
+import { Check, Close, Right } from '@element-plus/icons-vue'
 import { MarkerIndicator, MarkerInfo } from './components'
 import type { MLContext } from './core'
+import { useLinkCreate } from './hooks'
 import { useMapStateStore } from '@/stores'
 import { LINK_ACTION_OPTIONS } from '@/shared'
 import { mapAffixLayerKey } from '@/pages/pageMapV2/shared'
@@ -21,6 +22,8 @@ const isMergeMode = computed({
 })
 
 const mapStateStore = useMapStateStore()
+
+const { refresh: submit } = useLinkCreate(props.context)
 
 const mapAffixLayerRef = inject(mapAffixLayerKey, ref(null))
 </script>
@@ -72,14 +75,20 @@ const mapAffixLayerRef = inject(mapAffixLayerKey, ref(null))
             <span class="flex-1 text-center">
               {{ `${mapStateStore.currentLayerMarkersMap[toId ?? -1]?.markerTitle} (id: ${toId})` }}
             </span>
-            <el-button text type="danger" size="small" :icon="Delete" @click="() => context.deleteLink(key)" />
+            <el-button
+              text
+              type="danger"
+              size="small"
+              :icon="Close"
+              @click="() => context.deleteLink({ key, fromId, toId, linkAction })"
+            />
           </div>
         </el-scrollbar>
       </div>
     </div>
 
     <div class="text-xs text-center pt-1">
-      当前关联组共有 {{ context.linkList.value.length }} 项关系
+      当前关联组共有 {{ context.modifiedLinkList.value.length }} 项关系
     </div>
 
     <div class="flex justify-between p-1">
@@ -97,10 +106,10 @@ const mapAffixLayerRef = inject(mapAffixLayerKey, ref(null))
         <el-switch v-model="isMergeMode" />
       </div>
       <div>
-        <el-button :icon="Check" type="primary" disabled>
-          确认(开发中)
+        <el-button :icon="Check" :loading="context.loading.value" type="primary" @click="submit">
+          确认
         </el-button>
-        <el-button :icon="Close" @click="context.cancel">
+        <el-button :icon="Close" :disabled="context.loading.value" @click="context.cancel">
           取消
         </el-button>
       </div>
