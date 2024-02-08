@@ -1,5 +1,6 @@
 export * from './clock'
 export * from './constant'
+export * from './editTypeEnum'
 export * from './hiddenFlagEnum'
 export * from './iconStyleTypeEnum'
 export * from './linkActionEnum'
