@@ -35,13 +35,13 @@ export class AppDatabase extends Dexie {
     super('AppDatabase')
     this
       .use(markerFormater)
-      .version(4.0)
+      .version(4.1)
       .stores({
         area: '&id, parentId, name, code, hiddenFlag',
         iconTag: '&tag, *typeIdList',
         item: '&id, *typeIdList, areaId, name, specialFlag, hiddenFlag',
         itemType: '&id, name, hiddenFlag',
-        marker: '&id, *itemIdList, markerTitle, refreshTime, hiddenFlag',
+        marker: '&id, *itemIdList, markerTitle, refreshTime, linkageId',
         markerLink: '&id, fromId, toId, linkAction, groupId',
         user: '&id',
         cache: '&id',
