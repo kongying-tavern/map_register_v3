@@ -39,14 +39,6 @@ export class MLContext {
   /** 新添加的关联 */
   linkList = ref<MarkerLinkProps[]>([])
 
-  /** 已有的关联组，key 表示关联组 id */
-  existLinkGroups = ref<Record<string, {
-    /** 关联组包含的点位 id，当包含为空时，该关联组会被移除 */
-    include: Set<number>
-    /** 点位所属关联组对应的关联关系 */
-    links: API.MarkerLinkageVo[]
-  }>>({})
-
   /** 是否合并已有关联组 */
   isMergeMode = ref(true)
   setMergeMode = (v: boolean) => {
@@ -214,6 +206,7 @@ export class MLContext {
       this.mapStateStore.event.off('click', this.handleMapClick)
       this.resetSelectedState()
       this.linkList.value = []
+      this.clearTempLink()
       pauseSync()
       pauseRender()
     })
@@ -238,6 +231,14 @@ export class MLContext {
     this.targetMarker.value = undefined
   }
 
+  /** 已有的关联组，key 表示关联组 id */
+  protected existLinkGroups = ref<Record<string, {
+    /** 关联组包含的点位 id，当包含为空时，该关联组会被移除 */
+    include: Set<number>
+    /** 点位所属关联组对应的关联关系 */
+    links: API.MarkerLinkageVo[]
+  }>>({})
+
   /** 移除对应点位的已有关联组 */
   protected removeTempLink = (marker?: GSMapState.MarkerWithRenderConfig) => {
     if (!marker)
@@ -249,6 +250,10 @@ export class MLContext {
     if (group.include.size > 0)
       return
     delete this.existLinkGroups.value[marker.linkageId!]
+  }
+
+  protected clearTempLink = () => {
+    this.existLinkGroups.value = {}
   }
 
   protected cancelSelect = () => {
