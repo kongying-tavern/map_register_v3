@@ -1,7 +1,12 @@
 <script lang="ts" setup>
 import { DeleteFilled, Plus } from '@element-plus/icons-vue'
 import { useMarkerFilterAdvanced } from './hooks'
-import { ConditionAdvancedItem, ConditionAdvancedModel, ConditionAdvancedRow } from '.'
+import {
+  ConditionAdvancedItem,
+  ConditionAdvancedModel,
+  ConditionAdvancedModelPicker,
+  ConditionAdvancedRow,
+} from '.'
 import { GSButton } from '@/components'
 
 /** 筛选预设管理器 */
@@ -16,6 +21,24 @@ const {
   deleteCondition,
   clearCondition,
 } = useMarkerFilterAdvanced()
+
+// ==================== 物品计数 ====================
+const pickerVisible = ref(false)
+
+const pickerGroupIndex = ref(-1)
+
+const openPicker = (groupIndex: number) => {
+  pickerGroupIndex.value = groupIndex
+  pickerVisible.value = true
+}
+
+const handlePickerSelected = (id: number) => {
+  if (!pickerGroupIndex.value || pickerGroupIndex.value <= -1)
+    return
+
+  appendCondition(pickerGroupIndex.value, id)
+  pickerGroupIndex.value = -1
+}
 </script>
 
 <template>
@@ -50,7 +73,7 @@ const {
           @move-up-group="() => swapConditionGroup(groupIndex, groupIndex - 1)"
           @move-down-group="() => swapConditionGroup(groupIndex, groupIndex + 1)"
           @delete-group="() => deleteConditionGroup(groupIndex)"
-          @append-item="() => appendCondition(groupIndex)"
+          @append-item="() => openPicker(groupIndex)"
         >
           <template #default="{ condition: item, index: itemIndex, size: itemSize }">
             <ConditionAdvancedItem
@@ -85,4 +108,9 @@ const {
     </GSButton>
     <slot name="append" />
   </div>
+
+  <ConditionAdvancedModelPicker
+    v-model="pickerVisible"
+    @select="handlePickerSelected"
+  />
 </template>

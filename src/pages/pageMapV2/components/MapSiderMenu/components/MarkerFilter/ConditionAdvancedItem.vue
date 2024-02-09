@@ -39,7 +39,6 @@ const handleDeleteItem = () => {
   <div class="flex-none flex gap-1">
     <ConditionButton
       v-if="withMoveUp"
-      theme="dark"
       icon-color="var(--gs-color-success)"
       @click="handleMoveUpItem"
     >
@@ -49,7 +48,6 @@ const handleDeleteItem = () => {
     </ConditionButton>
     <ConditionButton
       v-if="withMoveDown"
-      theme="dark"
       icon-color="var(--gs-color-success)"
       @click="handleMoveDownItem"
     >
@@ -58,7 +56,6 @@ const handleDeleteItem = () => {
       </template>
     </ConditionButton>
     <ConditionButton
-      theme="dark"
       icon-color="var(--gs-color-danger)"
       @click="handleDeleteItem"
     >

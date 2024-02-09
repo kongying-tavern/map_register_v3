@@ -49,23 +49,28 @@ export const useMarkerFilterAdvanced = () => {
       preference.value['markerFilter.filter.advancedFilter'].splice(groupIndex, 1)
   }
 
-  const appendCondition = (groupIndex: number) => {
-    if (preference.value['markerFilter.filter.advancedFilter'][groupIndex].children)
-      preference.value['markerFilter.filter.advancedFilter'][groupIndex].children.push(cloneDeep(emptyItem))
+  const appendCondition = (groupIndex: number, id: number = 0) => {
+    if (preference.value['markerFilter.filter.advancedFilter'][groupIndex].children) {
+      const newItem: ConditionAdvancedItem = cloneDeep(emptyItem)
+      newItem.id = id
+      preference.value['markerFilter.filter.advancedFilter'][groupIndex].children.push(newItem)
+    }
   }
 
-  const insertCondition = (groupIndex: number, itemIndex: number) => {
+  const insertCondition = (groupIndex: number, itemIndex: number, id: number = 0) => {
     if (!preference.value['markerFilter.filter.advancedFilter'][groupIndex])
       return
 
     if (itemIndex > preference.value['markerFilter.filter.advancedFilter'][groupIndex].children.length
     ) {
-      appendCondition(groupIndex)
+      appendCondition(groupIndex, id)
       return
     }
     if (itemIndex < 0)
       itemIndex = 0
-    preference.value['markerFilter.filter.advancedFilter'][groupIndex].children.splice(itemIndex, 0, cloneDeep(emptyItem))
+    const newItem: ConditionAdvancedItem = cloneDeep(emptyItem)
+    newItem.id = id
+    preference.value['markerFilter.filter.advancedFilter'][groupIndex].children.splice(itemIndex, 0, newItem)
   }
 
   const swapCondition = (groupIndex: number, itemIndexLeft: number, itemIndexRight: number) => {

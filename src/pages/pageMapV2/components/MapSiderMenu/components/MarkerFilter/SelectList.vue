@@ -65,6 +65,7 @@ const patchValue = (patchOpt: T) => {
 
 <style lang="scss" scoped>
 .condition-row {
+  display: flex;
   padding: 16px;
   background: #202D3F;
   outline: 2px solid #363F4A;
