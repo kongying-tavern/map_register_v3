@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { storeToRefs } from 'pinia'
 import { useMarkerFilter } from './hooks'
+import { SelectList } from '.'
 import { GSButton, GSDivider, GSInput } from '@/components'
 import { usePreferenceStore, useUserInfoStore } from '@/stores'
 import type { ConditionAdvanced, ConditionBasic } from '@/stores/types'
@@ -30,10 +31,6 @@ const validConditionName = computed({
 const handleClosed = () => {
   selectedConditionName.value = ''
   conditionName.value = ''
-}
-
-const toggleSelectedName = (name: string) => {
-  selectedConditionName.value = selectedConditionName.value === name ? '' : name
 }
 
 const savePreset = () => {
@@ -127,19 +124,16 @@ const loadPreset = () => {
         · 预设列表
       </div>
       <el-scrollbar class="flex-1">
-        <div class="h-full flex flex-col gap-1 overflow-auto">
-          <div
-            v-for="state in preference['markerFilter.setting.presets']"
-            :key="state.name"
-            class="condition-row"
-            :class="{
-              actived: selectedConditionName === state.name,
-            }"
-            @click="() => toggleSelectedName(state.name)"
-          >
-            {{ state.name }}
-          </div>
-        </div>
+        <SelectList
+          v-model="selectedConditionName"
+          class="h-full overflow-auto"
+          :list="preference['markerFilter.setting.presets']!"
+          value-key="name"
+        >
+          <template #default="{ item }">
+            {{ item.name }}
+          </template>
+        </SelectList>
       </el-scrollbar>
 
       <GSDivider color="#76716A" />
@@ -179,32 +173,5 @@ const loadPreset = () => {
   height: 600px;
   max-width: 100dvw;
   max-height: 100dvh;
-}
-
-.condition-row {
-  padding: 16px;
-  background: #202D3F;
-  outline: 2px solid #363F4A;
-  outline-offset: -4px;
-  display: flex;
-  border-radius: 8px;
-  transition: all linear 50ms;
-  user-select: none;
-  font-size: 16px;
-  cursor: pointer;
-
-  &:not(.actived):hover {
-    outline-color: #FFF;
-    outline-offset: -2px;
-  }
-
-  &:not(.actived):active {
-    outline-offset: -4px;
-  }
-
-  &.actived {
-    background: #F3E2BF;
-    color: #202D3F;
-  }
 }
 </style>
