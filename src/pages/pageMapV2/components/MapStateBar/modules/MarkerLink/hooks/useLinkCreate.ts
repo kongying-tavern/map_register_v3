@@ -57,6 +57,10 @@ export const useLinkCreate = (context: MLContext) => {
 
   onSuccess(() => {
     context.cancel()
+    ElMessage.success({
+      offset: 48,
+      message: '关联成功',
+    })
   })
 
   onError((err) => {
