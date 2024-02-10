@@ -1,9 +1,9 @@
 /** 操作记录枚举 */
 export enum EditTypeEnum {
-  NONE,
-  CREATE,
-  UPDATE,
-  DELETE,
+  NONE = 0,
+  CREATE = 1,
+  UPDATE = 2,
+  DELETE = 3,
 }
 
 /** 操作记录类型表 */
