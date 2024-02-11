@@ -29,6 +29,8 @@
 ## 相关项目
 
 1. [地图标记系统后端](https://github.com/kongying-tavern/genshin-map-cloud)
+2. [地图标记系统后端 (Rust)](https://github.com/kongying-tavern/genshin-cloud-rust)
+3. [地图文档](https://github.com/kongying-tavern/docs)
 
 ### 地图页预览
 
