@@ -37,7 +37,6 @@ const backendRoutes: RouteRecordRaw[] = [
       title: '图标管理',
       icon: 'Picture',
       role: RoleTypeEnum.MAP_MANAGER,
-      noPadding: true,
     },
     component: () => import('@/pages/pageIconManager/IconManager.vue'),
   },
@@ -103,7 +102,6 @@ isDev && backendRoutes.push({
     title: '开发者',
     icon: 'Cpu',
     role: RoleTypeEnum.ADMIN,
-    noPadding: true,
   },
   component: () => import('@/pages/pageDeveloper/PageDeveloper.vue'),
 })

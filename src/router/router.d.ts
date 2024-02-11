@@ -21,9 +21,6 @@ declare module 'vue-router' {
     /** 是否显示 loading 页面 */
     loading?: boolean
 
-    /** 是否不需要布局页的 padding */
-    noPadding?: boolean
-
     /** 在已登录的情况下进入该路由会被导航至指定位置 */
     redirectOnLogin?: string
   }
