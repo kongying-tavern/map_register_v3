@@ -1,3 +1,4 @@
+export * from './GSSelect'
 export { default as GSButton } from './GSButton.vue'
 export { default as GSCard } from './GSCard.vue'
 export { default as GSInput } from './GSInput.vue'
