@@ -33,7 +33,7 @@ const openPicker = (groupIndex: number) => {
 }
 
 const handlePickerSelected = (id: number) => {
-  if (!pickerGroupIndex.value || pickerGroupIndex.value <= -1)
+  if (!Number.isFinite(pickerGroupIndex.value) || pickerGroupIndex.value <= -1)
     return
 
   appendCondition(pickerGroupIndex.value, id)
@@ -83,7 +83,10 @@ const handlePickerSelected = (id: number) => {
               @move-down-item="() => swapCondition(groupIndex, itemIndex, itemIndex + 1)"
               @delete-item="() => deleteCondition(groupIndex, itemIndex)"
             >
-              <ConditionAdvancedModel :condition="item" />
+              <ConditionAdvancedModel
+                v-model="item.value"
+                :condition="item"
+              />
             </ConditionAdvancedItem>
           </template>
         </ConditionAdvancedRow>

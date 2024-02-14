@@ -8,7 +8,7 @@ export const idRange: ConditionAdvancedModel = {
   icon: IconPound,
   template,
   option: {
-    placeholder: '',
+    placeholder: '格式为数字，A,B或A-B',
   },
   defaultVal: {
     v: '',

@@ -1,6 +1,8 @@
 import type { Component } from 'vue'
 import type {
+  ConditionAdvancedOptDummy,
   ConditionAdvancedOptInput,
+  ConditionAdvancedValDummy,
   ConditionAdvancedValInput,
 } from '.'
 
@@ -17,7 +19,7 @@ export interface ConditionAdvancedModel {
 }
 
 // ==================== 高级筛选配置类型 ====================
-export type ConditionAdvancedOpt = ConditionAdvancedOptInput
+export type ConditionAdvancedOpt = ConditionAdvancedOptDummy | ConditionAdvancedOptInput
 
 // ==================== 高级筛选数据类型 ====================
-export type ConditionAdvancedVal = ConditionAdvancedValInput
+export type ConditionAdvancedVal = ConditionAdvancedValDummy | ConditionAdvancedValInput

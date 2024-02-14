@@ -1,3 +1,5 @@
+import type { ConditionAdvancedVal } from '@/pages/pageMapV2/components/MapSiderMenu/components/MarkerFilter/MarkerAdvancedFilterModel/types'
+
 /**
  * ### 用户首选项
  * 除基本信息外，索引必须遵守命名格式：`${namespace}.${type}.${key}`
@@ -147,5 +149,5 @@ export interface ConditionAdvancedItem {
   // true 为 AND，false 为 OR
   operator: boolean
   opposite: boolean
-  value: Record<string, unknown>
+  value: ConditionAdvancedVal
 }
