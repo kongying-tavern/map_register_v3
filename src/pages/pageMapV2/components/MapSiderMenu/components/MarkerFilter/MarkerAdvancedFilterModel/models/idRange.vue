@@ -16,10 +16,11 @@ const modelValue = defineModel<ConditionAdvancedValInput>('modelValue', {
 </script>
 
 <template>
-  <div class="flex gap-1 items-center">
+  <div class="flex-auto flex gap-1 items-center">
     <span class="flex-none">ID范围</span>
     <InputBase
       v-model="modelValue.v"
+      class="flex-auto"
       :options="options"
     />
   </div>

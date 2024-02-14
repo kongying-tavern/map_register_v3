@@ -121,6 +121,7 @@ const modelValue = defineModel<string>('modelValue', {
 .condition-unit-input__internal {
   outline: none;
   flex: auto;
+  width: 100%;
 
   &::placeholder {
     color: var(--color-placeholder);

@@ -33,10 +33,8 @@ const handleDeleteItem = () => {
 </script>
 
 <template>
-  <div class="flex-auto">
-    <slot />
-  </div>
-  <div class="flex-none flex gap-1">
+  <slot />
+  <div class="flex-none flex gap-1 items-center">
     <ConditionButton
       v-if="withMoveUp"
       icon-color="var(--gs-color-success)"

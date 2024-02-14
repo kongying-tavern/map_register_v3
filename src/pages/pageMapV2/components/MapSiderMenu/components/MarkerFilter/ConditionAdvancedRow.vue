@@ -99,7 +99,11 @@ const handleAppendItem = () => {
       :key="itemIndex"
       class="condition-item flex"
     >
-      <slot :condition="item" :index="itemIndex" :size="condition.children.length" />
+      <slot
+        :condition="item"
+        :index="itemIndex"
+        :size="condition.children.length"
+      />
     </div>
   </div>
 </template>

@@ -15,7 +15,6 @@ const modelValue = defineModel<string>('modelValue', {
 <template>
   <ConditionInput
     v-model="modelValue"
-    class="w-full"
     :placeholder="options?.placeholder"
   >
     <template v-if="$slots.prepend" #prepend>
