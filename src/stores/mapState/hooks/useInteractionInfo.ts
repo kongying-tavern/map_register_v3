@@ -75,7 +75,7 @@ export const useInteractionInfo = () => {
     })
 
     /** 重新开始该类型交互的触发 */
-    const resume = ensureFrom(cache.pause[interactionType], infoType, () => () => {
+    const resume = ensureFrom(cache.resume[interactionType], infoType, () => () => {
       isPaused[interactionType][infoType] = false
     })
 
