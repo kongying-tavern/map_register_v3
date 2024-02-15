@@ -2,8 +2,9 @@ import { defineStore } from 'pinia'
 import {
   useInteractionInfo,
   useMapMission,
+  useMarkerAdvancedFilter,
   useMarkerLink,
-  useMarkes,
+  useMarkers,
   useViewState,
 } from './hooks'
 import { useAreaStore, useItemStore, useMarkerLinkStore, useMarkerStore, usePreferenceStore, useTileStore } from '@/stores'
@@ -34,7 +35,7 @@ export const useMapStateStore = defineStore('global-map-state', () => {
   const interactionInfoHook = useInteractionInfo()
 
   // ============================== 地图点位 ==============================
-  const markersHook = useMarkes({
+  const markersHook = useMarkers({
     preferenceStore,
     markerStore,
     tileStore,
@@ -50,6 +51,9 @@ export const useMapStateStore = defineStore('global-map-state', () => {
     setTempMarkers: markersHook.setTempMarkers,
   })
 
+  // ============================== 点位过滤器 ==============================
+  const markerAdvancedFilterHook = useMarkerAdvancedFilter()
+
   return {
     event,
 
@@ -61,6 +65,9 @@ export const useMapStateStore = defineStore('global-map-state', () => {
 
     ...markerLinkInfoHook,
 
+    ...markerAdvancedFilterHook,
+
     ...missionHook,
+
   }
 })

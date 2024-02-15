@@ -2,7 +2,7 @@ import { storeToRefs } from 'pinia'
 import { useAreaStore, useItemStore, useItemTypeStore, usePreferenceStore } from '@/stores'
 import type { MBFItem } from '@/stores/types'
 
-export const useMarkerFilterBasic = () => {
+export const useMarkerFilter = () => {
   const { preference } = storeToRefs(usePreferenceStore())
   const { itemIdMap } = storeToRefs(useItemStore())
   const { areaIdMap } = storeToRefs(useAreaStore())

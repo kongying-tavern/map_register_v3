@@ -1,8 +1,9 @@
 import { cloneDeep } from 'lodash'
 import { storeToRefs } from 'pinia'
-import { useMarkerAdvancedFilterModel } from '../FilterModel'
-import { usePreferenceStore } from '@/stores'
+import { useMapStateStore, usePreferenceStore } from '@/stores'
 import type { MAFGroup, MAFItem } from '@/stores/types'
+
+const { getMAFConfig } = useMapStateStore()
 
 const emptyGroup: MAFGroup = {
   operator: true,
@@ -17,7 +18,7 @@ const emptyItem: MAFItem = {
   value: {},
 }
 
-export const useMarkerFilterAdvanced = () => {
+export const useMarkerFilter = () => {
   const { preference } = storeToRefs(usePreferenceStore())
 
   const conditions = computed(() => preference.value['markerFilter.filter.advancedFilter'])
@@ -52,7 +53,7 @@ export const useMarkerFilterAdvanced = () => {
 
   const appendCondition = (groupIndex: number, id: number = 0) => {
     if (preference.value['markerFilter.filter.advancedFilter'][groupIndex].children) {
-      const conditionModel = useMarkerAdvancedFilterModel(id)
+      const conditionModel = getMAFConfig(id)
       const newItem: MAFItem = cloneDeep(emptyItem)
       newItem.id = id
       newItem.value = cloneDeep(conditionModel.defaultVal)
@@ -70,7 +71,7 @@ export const useMarkerFilterAdvanced = () => {
     }
     if (itemIndex < 0)
       itemIndex = 0
-    const conditionModel = useMarkerAdvancedFilterModel(id)
+    const conditionModel = getMAFConfig(id)
     const newItem: MAFItem = cloneDeep(emptyItem)
     newItem.id = id
     newItem.value = cloneDeep(conditionModel.defaultVal)

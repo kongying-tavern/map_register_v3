@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { SelectList } from '../SelectList'
-import { useMarkerAdvancedFilterCondition } from './FilterModel'
+import { FilterIcon } from './FilterIcon'
+import { useMapStateStore } from '@/stores'
 import { GSButton, GSDivider } from '@/components'
 
 const emits = defineEmits<{
@@ -12,7 +13,7 @@ const modelValue = defineModel<boolean>({
   default: false,
 })
 
-const { conditionList } = useMarkerAdvancedFilterCondition()
+const { markerAdvancedFilterConfigs } = useMapStateStore()
 
 const selectedId = ref(0)
 
@@ -51,11 +52,11 @@ const handleClose = () => {
         <SelectList
           v-model="selectedId"
           class="h-full overflow-auto"
-          :list="conditionList"
+          :list="markerAdvancedFilterConfigs"
           value-key="id"
         >
           <template #icon="{ item }">
-            <component :is="item.icon" class="w-[1rem] h-[1rem] self-center mr-2" />
+            <FilterIcon :id="item.id" class="w-[1rem] h-[1rem] self-center mr-2" />
           </template>
           <template #default="{ item }">
             {{ item.name }}

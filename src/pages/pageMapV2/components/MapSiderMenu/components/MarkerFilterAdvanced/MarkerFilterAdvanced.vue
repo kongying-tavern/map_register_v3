@@ -1,11 +1,11 @@
 <script lang="ts" setup>
 import { DeleteFilled, Plus } from '@element-plus/icons-vue'
-import { useMarkerFilterAdvanced } from './hooks'
+import { useMarkerFilter } from './hooks'
+import { FilterModel } from './FilterModel'
 import {
   ModelItem,
   ModelPicker,
   ModelRow,
-  ModelSlot,
 } from '.'
 import { GSButton } from '@/components'
 
@@ -20,7 +20,7 @@ const {
   swapCondition,
   deleteCondition,
   clearCondition,
-} = useMarkerFilterAdvanced()
+} = useMarkerFilter()
 
 // ==================== 物品计数 ====================
 const pickerVisible = ref(false)
@@ -83,7 +83,7 @@ const handlePickerSelected = (id: number) => {
               @move-down-item="() => swapCondition(groupIndex, itemIndex, itemIndex + 1)"
               @delete-item="() => deleteCondition(groupIndex, itemIndex)"
             >
-              <ModelSlot
+              <FilterModel
                 v-model="item.value"
                 :condition="item"
               />

@@ -1,15 +1,22 @@
 <script lang="ts" setup>
 import type { Component } from 'vue'
-import { useMarkerAdvancedFilterModel } from './FilterModel'
+import { IdRange } from '.'
+import { useMapStateStore } from '@/stores'
 import type { MAFItem, MAFOption, MAFValue } from '@/stores/types'
 
 const props = defineProps<{
   condition: MAFItem
 }>()
 
-const model = computed(() => useMarkerAdvancedFilterModel(props.condition.id))
+const { getMAFConfig } = useMapStateStore()
 
-const modelTemplate = computed<Component>(() => model.value.template)
+const model = computed(() => getMAFConfig(props.condition.id))
+
+const modelTemplate = computed(() => {
+  return {
+    1: IdRange,
+  }[props.condition.id]
+}) as ComputedRef<Component>
 
 const modelOptions = computed<MAFOption>(() => model.value.option)
 

@@ -1,5 +1,6 @@
 export * from './useInteractionInfo'
 export * from './useMapMission'
 export * from './useMarkerLink'
+export * from './useMarkerAdvancedFilter'
 export * from './useMarkers'
 export * from './useViewState'

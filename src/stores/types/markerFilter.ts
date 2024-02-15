@@ -1,5 +1,3 @@
-import type { Component } from 'vue'
-
 // ==================== 基础筛选模型 ====================
 export type FilterType = 'basic' | 'advanced'
 
@@ -34,8 +32,6 @@ export interface MAFItem {
 export interface MAFConfig {
   id: number
   name: string
-  icon?: Component
-  template: Component
   option: MAFOption
   defaultVal: MAFValue
   semantic: (val: MAFValue, opt: MAFOption, opposite: boolean) => string

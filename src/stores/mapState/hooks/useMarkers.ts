@@ -10,7 +10,7 @@ interface MarkerHookOptions {
   itemStore: ReturnType<typeof useItemStore>
 }
 
-export const useMarkes = (options: MarkerHookOptions) => {
+export const useMarkers = (options: MarkerHookOptions) => {
   const {
     preferenceStore,
     markerStore,

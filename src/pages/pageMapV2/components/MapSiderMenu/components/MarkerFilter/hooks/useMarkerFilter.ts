@@ -1,5 +1,5 @@
-import { useMarkerFilterBasic } from '../../MarkerFilterBasic/hooks'
-import { useMarkerFilterAdvanced } from '../../MarkerFilterAdvanced/hooks'
+import { useMarkerFilter as useMarkerFilterBasic } from '../../MarkerFilterBasic/hooks'
+import { useMarkerFilter as useMarkerFilterAdvanced } from '../../MarkerFilterAdvanced/hooks'
 import { usePreferenceStore } from '@/stores'
 import type { MAFGroup, MBFItem } from '@/stores/types'
 

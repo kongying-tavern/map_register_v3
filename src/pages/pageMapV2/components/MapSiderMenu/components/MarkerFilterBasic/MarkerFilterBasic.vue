@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { DeleteFilled } from '@element-plus/icons-vue'
 import { storeToRefs } from 'pinia'
-import { useMarkerFilterBasic } from '../MarkerFilterBasic/hooks'
+import { useMarkerFilter } from './hooks'
 import { CheckboxGroup, CheckboxItem, ConditionRow, FilterTabs, ItemButton } from '.'
 import { AppIconTagRenderer, GSButton } from '@/components'
 import {
@@ -39,7 +39,7 @@ const sort = (a: Sortable, b: Sortable) => {
 }
 
 /** 筛选预设管理器 */
-const { conditions, reviewCondition, deleteCondition, clearCondition } = useMarkerFilterBasic()
+const { conditions, reviewCondition, deleteCondition, clearCondition } = useMarkerFilter()
 
 const autoNextTab = () => {
   if (!preference.value['markerFilter.setting.autoNext'])
