@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import { ConditionInput } from '../..'
-import type { ConditionAdvancedOptInput } from '../types'
+import { MarkerFilterInput } from '../../../MarkerFilterComponent'
+import type { MAFOptionInput } from '@/stores/types'
 
 defineProps<{
-  options: ConditionAdvancedOptInput
+  options: MAFOptionInput
 }>()
 
 const modelValue = defineModel<string>('modelValue', {
@@ -13,7 +13,7 @@ const modelValue = defineModel<string>('modelValue', {
 </script>
 
 <template>
-  <ConditionInput
+  <MarkerFilterInput
     v-model="modelValue"
     :placeholder="options?.placeholder"
   >
@@ -23,5 +23,5 @@ const modelValue = defineModel<string>('modelValue', {
     <template v-if="$slots.append" #append>
       <slot name="append" />
     </template>
-  </ConditionInput>
+  </MarkerFilterInput>
 </template>

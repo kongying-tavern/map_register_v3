@@ -1,8 +1,10 @@
 <script lang="ts" setup>
 import { storeToRefs } from 'pinia'
 import { Filter as IconFilter, StarFilled as IconStarFilled } from '@element-plus/icons-vue'
+import { MarkerFilterAdvanced } from '../MarkerFilterAdvanced'
+import { MarkerFilterBasic } from '../MarkerFilterBasic'
 import { useMarkerFilter } from './hooks'
-import { MarkerAdvancedFilter, MarkerBasicFilter, PresetManager } from '.'
+import { PresetManager } from '.'
 import { GSButton } from '@/components'
 import { IconSetting } from '@/components/AppIcons'
 import { usePreferenceStore } from '@/stores'
@@ -17,7 +19,7 @@ const { conditions } = useMarkerFilter()
 
 <template>
   <div class="marker-filter genshin-text h-full flex flex-col">
-    <MarkerAdvancedFilter v-if="preference['markerFilter.setting.filterType'] === 'advanced'">
+    <MarkerFilterAdvanced v-if="preference['markerFilter.setting.filterType'] === 'advanced'">
       <template #prepend>
         <GSButton
           class="flex-1"
@@ -46,8 +48,8 @@ const { conditions } = useMarkerFilter()
           管理预设
         </GSButton>
       </template>
-    </MarkerAdvancedFilter>
-    <MarkerBasicFilter v-else>
+    </MarkerFilterAdvanced>
+    <MarkerFilterBasic v-else>
       <template #prepend>
         <GSButton
           class="flex-1"
@@ -76,7 +78,7 @@ const { conditions } = useMarkerFilter()
           管理预设
         </GSButton>
       </template>
-    </MarkerBasicFilter>
+    </MarkerFilterBasic>
 
     <PresetManager v-model="conditionManagerVisible" :conditions="conditions" />
   </div>

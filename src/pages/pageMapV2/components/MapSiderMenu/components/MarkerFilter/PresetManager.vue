@@ -1,14 +1,14 @@
 <script lang="ts" setup>
 import { storeToRefs } from 'pinia'
+import { SelectList } from '../SelectList'
 import { useMarkerFilter } from './hooks'
-import { SelectList } from '.'
 import { GSButton, GSDivider, GSInput } from '@/components'
 import { usePreferenceStore, useUserInfoStore } from '@/stores'
-import type { ConditionAdvanced, ConditionBasic } from '@/stores/types'
+import type { MAFGroup, MBFItem } from '@/stores/types'
 
 const props = defineProps<{
   modelValue: boolean
-  conditions: Map<string, ConditionBasic> | ConditionAdvanced[]
+  conditions: Map<string, MBFItem> | MAFGroup[]
 }>()
 
 defineEmits<{

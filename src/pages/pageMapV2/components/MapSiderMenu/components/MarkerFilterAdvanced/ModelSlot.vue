@@ -1,20 +1,19 @@
 <script lang="ts" setup>
 import type { Component } from 'vue'
-import { useMarkerAdvancedFilterModel } from './MarkerAdvancedFilterModel'
-import type { ConditionAdvancedOpt, ConditionAdvancedVal } from './MarkerAdvancedFilterModel/types'
-import type { ConditionAdvancedItem } from '@/stores/types'
+import { useMarkerAdvancedFilterModel } from './FilterModel'
+import type { MAFItem, MAFOption, MAFValue } from '@/stores/types'
 
 const props = defineProps<{
-  condition: ConditionAdvancedItem
+  condition: MAFItem
 }>()
 
 const model = computed(() => useMarkerAdvancedFilterModel(props.condition.id))
 
 const modelTemplate = computed<Component>(() => model.value.template)
 
-const modelOptions = computed<ConditionAdvancedOpt>(() => model.value.option)
+const modelOptions = computed<MAFOption>(() => model.value.option)
 
-const modelValue = defineModel<ConditionAdvancedVal>('modelValue', {
+const modelValue = defineModel<MAFValue>('modelValue', {
   required: false,
   default: {},
   type: Object,

@@ -1,16 +1,16 @@
 import { cloneDeep } from 'lodash'
 import { storeToRefs } from 'pinia'
-import { useMarkerAdvancedFilterModel } from '../MarkerAdvancedFilterModel'
+import { useMarkerAdvancedFilterModel } from '../FilterModel'
 import { usePreferenceStore } from '@/stores'
-import type { ConditionAdvanced, ConditionAdvancedItem } from '@/stores/types'
+import type { MAFGroup, MAFItem } from '@/stores/types'
 
-const emptyGroup: ConditionAdvanced = {
+const emptyGroup: MAFGroup = {
   operator: true,
   opposite: false,
   children: [],
 }
 
-const emptyItem: ConditionAdvancedItem = {
+const emptyItem: MAFItem = {
   id: 0,
   operator: true,
   opposite: false,
@@ -53,7 +53,7 @@ export const useMarkerFilterAdvanced = () => {
   const appendCondition = (groupIndex: number, id: number = 0) => {
     if (preference.value['markerFilter.filter.advancedFilter'][groupIndex].children) {
       const conditionModel = useMarkerAdvancedFilterModel(id)
-      const newItem: ConditionAdvancedItem = cloneDeep(emptyItem)
+      const newItem: MAFItem = cloneDeep(emptyItem)
       newItem.id = id
       newItem.value = cloneDeep(conditionModel.defaultVal)
       preference.value['markerFilter.filter.advancedFilter'][groupIndex].children.push(newItem)
@@ -71,7 +71,7 @@ export const useMarkerFilterAdvanced = () => {
     if (itemIndex < 0)
       itemIndex = 0
     const conditionModel = useMarkerAdvancedFilterModel(id)
-    const newItem: ConditionAdvancedItem = cloneDeep(emptyItem)
+    const newItem: MAFItem = cloneDeep(emptyItem)
     newItem.id = id
     newItem.value = cloneDeep(conditionModel.defaultVal)
     preference.value['markerFilter.filter.advancedFilter'][groupIndex].children.splice(itemIndex, 0, newItem)

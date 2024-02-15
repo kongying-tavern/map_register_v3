@@ -1,12 +1,12 @@
 import { keyBy } from 'lodash'
 import { idRange } from './models'
-import type { ConditionAdvancedModel } from './types'
+import type { MAFConfig } from '@/stores/types'
 
-const conditionModels: ConditionAdvancedModel[] = [
+const conditionModels: MAFConfig[] = [
   idRange,
 ]
 
-const conditionModelMap: Record<number, ConditionAdvancedModel> = keyBy(conditionModels, 'id')
+const conditionModelMap: Record<number, MAFConfig> = keyBy(conditionModels, 'id')
 
 export const useMarkerAdvancedFilterCondition = () => {
   return {
@@ -15,7 +15,7 @@ export const useMarkerAdvancedFilterCondition = () => {
   }
 }
 
-export const useMarkerAdvancedFilterModel = (id: number): ConditionAdvancedModel => conditionModelMap[id] ?? {
+export const useMarkerAdvancedFilterModel = (id: number): MAFConfig => conditionModelMap[id] ?? {
   id: 0,
   name: '',
   icon: null,

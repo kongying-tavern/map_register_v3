@@ -1,4 +1,4 @@
-import type { ConditionAdvancedVal } from '@/pages/pageMapV2/components/MapSiderMenu/components/MarkerFilter/MarkerAdvancedFilterModel/types'
+import type { FilterPreset, FilterType, MAFGroup } from '.'
 
 /**
  * ### 用户首选项
@@ -81,7 +81,7 @@ export interface UserPreference {
   'markerFilter.state.defaultMarkingItemId'?: number
 
   /**  */
-  'markerFilter.filter.advancedFilter': ConditionAdvanced[]
+  'markerFilter.filter.advancedFilter': MAFGroup[]
 
   // ====================     设置面板     ====================
 
@@ -121,33 +121,3 @@ export const getDefaultPreference = (): UserPreference => ({
   'map.setting.zoomTransitionDuration': 66,
   'settingPanel.state.activedKey': 'dashboard',
 })
-
-/** 筛选器预设 */
-export type FilterType = 'basic' | 'advanced'
-
-export interface FilterPreset {
-  name: string
-  type: FilterType
-  conditions: Record<string, ConditionBasic> | ConditionAdvanced[]
-}
-
-export interface ConditionBasic {
-  area: API.AreaVo
-  type: API.ItemTypeVo
-  items: number[]
-}
-
-export interface ConditionAdvanced {
-  // true 为 AND，false 为 OR
-  operator: boolean
-  opposite: boolean
-  children: ConditionAdvancedItem[]
-}
-
-export interface ConditionAdvancedItem {
-  id: number
-  // true 为 AND，false 为 OR
-  operator: boolean
-  opposite: boolean
-  value: ConditionAdvancedVal
-}

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ConditionButton } from '.'
+import { MarkerFilterButton } from '../MarkerFilterComponent'
 
 const props = defineProps<{
   disabled?: boolean
@@ -35,7 +35,7 @@ const handleDeleteItem = () => {
 <template>
   <slot />
   <div class="flex-none flex gap-1 items-center">
-    <ConditionButton
+    <MarkerFilterButton
       v-if="withMoveUp"
       icon-color="var(--gs-color-success)"
       @click="handleMoveUpItem"
@@ -43,8 +43,8 @@ const handleDeleteItem = () => {
       <template #icon>
         <ArrowUpBold />
       </template>
-    </ConditionButton>
-    <ConditionButton
+    </MarkerFilterButton>
+    <MarkerFilterButton
       v-if="withMoveDown"
       icon-color="var(--gs-color-success)"
       @click="handleMoveDownItem"
@@ -52,14 +52,14 @@ const handleDeleteItem = () => {
       <template #icon>
         <ArrowDownBold />
       </template>
-    </ConditionButton>
-    <ConditionButton
+    </MarkerFilterButton>
+    <MarkerFilterButton
       icon-color="var(--gs-color-danger)"
       @click="handleDeleteItem"
     >
       <template #icon>
         <CloseBold />
       </template>
-    </ConditionButton>
+    </MarkerFilterButton>
   </div>
 </template>

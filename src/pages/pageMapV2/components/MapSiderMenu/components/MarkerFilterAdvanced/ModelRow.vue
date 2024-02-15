@@ -1,13 +1,13 @@
 <script lang="ts" setup>
 import { ArrowDownBold, ArrowUpBold, DeleteFilled } from '@element-plus/icons-vue'
-import { ConditionButton } from '.'
-import type { ConditionAdvanced } from '@/stores/types'
+import { MarkerFilterButton } from '../MarkerFilterComponent'
+import type { MAFGroup } from '@/stores/types'
 
 const props = defineProps<{
   disabled?: boolean
   withMoveUp?: boolean
   withMoveDown?: boolean
-  condition: ConditionAdvanced
+  condition: MAFGroup
 }>()
 
 const emits = defineEmits<{
@@ -46,7 +46,7 @@ const handleAppendItem = () => {
   <div class="condition-group flex flex-col px-1 py-2 gap-2">
     <div class="condition-group-title flex">
       <div class="flex-none flex gap-1">
-        <ConditionButton
+        <MarkerFilterButton
           theme="dark"
           icon-color="var(--gs-color-danger)"
           @click="handleDeleteGroup"
@@ -55,13 +55,13 @@ const handleAppendItem = () => {
             <DeleteFilled />
           </template>
           删除
-        </ConditionButton>
+        </MarkerFilterButton>
       </div>
 
       <div class="flex-auto" />
 
       <div class="flex-none flex gap-1">
-        <ConditionButton
+        <MarkerFilterButton
           v-if="withMoveUp"
           theme="dark"
           icon-color="var(--gs-color-confirm)"
@@ -70,8 +70,8 @@ const handleAppendItem = () => {
           <template #icon>
             <ArrowUpBold />
           </template>
-        </ConditionButton>
-        <ConditionButton
+        </MarkerFilterButton>
+        <MarkerFilterButton
           v-if="withMoveDown"
           theme="dark"
           icon-color="var(--gs-color-confirm)"
@@ -80,8 +80,8 @@ const handleAppendItem = () => {
           <template #icon>
             <ArrowDownBold />
           </template>
-        </ConditionButton>
-        <ConditionButton
+        </MarkerFilterButton>
+        <MarkerFilterButton
           theme="dark"
           icon-color="var(--gs-color-success)"
           @click="handleAppendItem"
@@ -90,7 +90,7 @@ const handleAppendItem = () => {
             <Plus />
           </template>
           新增条目
-        </ConditionButton>
+        </MarkerFilterButton>
       </div>
     </div>
 

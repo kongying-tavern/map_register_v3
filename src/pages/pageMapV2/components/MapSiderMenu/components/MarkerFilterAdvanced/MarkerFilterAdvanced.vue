@@ -2,10 +2,10 @@
 import { DeleteFilled, Plus } from '@element-plus/icons-vue'
 import { useMarkerFilterAdvanced } from './hooks'
 import {
-  ConditionAdvancedItem,
-  ConditionAdvancedModel,
-  ConditionAdvancedModelPicker,
-  ConditionAdvancedRow,
+  ModelItem,
+  ModelPicker,
+  ModelRow,
+  ModelSlot,
 } from '.'
 import { GSButton } from '@/components'
 
@@ -64,7 +64,7 @@ const handlePickerSelected = (id: number) => {
   <div class="flex-auto pt-2 pb-0 overflow-hidden">
     <el-scrollbar class="px-2" height="100%">
       <div class="h-full flex flex-col gap-2">
-        <ConditionAdvancedRow
+        <ModelRow
           v-for="(group, groupIndex) in conditions"
           :key="groupIndex"
           :condition="group"
@@ -76,20 +76,20 @@ const handlePickerSelected = (id: number) => {
           @append-item="() => openPicker(groupIndex)"
         >
           <template #default="{ condition: item, index: itemIndex, size: itemSize }">
-            <ConditionAdvancedItem
+            <ModelItem
               :with-move-up="itemIndex > 0"
               :with-move-down="itemIndex < itemSize - 1"
               @move-up-item="() => swapCondition(groupIndex, itemIndex, itemIndex - 1)"
               @move-down-item="() => swapCondition(groupIndex, itemIndex, itemIndex + 1)"
               @delete-item="() => deleteCondition(groupIndex, itemIndex)"
             >
-              <ConditionAdvancedModel
+              <ModelSlot
                 v-model="item.value"
                 :condition="item"
               />
-            </ConditionAdvancedItem>
+            </ModelItem>
           </template>
-        </ConditionAdvancedRow>
+        </ModelRow>
       </div>
     </el-scrollbar>
   </div>
@@ -112,7 +112,7 @@ const handlePickerSelected = (id: number) => {
     <slot name="append" />
   </div>
 
-  <ConditionAdvancedModelPicker
+  <ModelPicker
     v-model="pickerVisible"
     @select="handlePickerSelected"
   />

@@ -1,11 +1,11 @@
 <script lang="ts" setup>
 import { DeleteFilled } from '@element-plus/icons-vue'
-import ConditionButton from './ConditionButton.vue'
-import type { ConditionBasic } from '@/stores/types'
+import { MarkerFilterButton } from '../MarkerFilterComponent'
+import type { MBFItem } from '@/stores/types'
 
 const props = defineProps<{
   disabled?: boolean
-  condition: ConditionBasic
+  condition: MBFItem
 }>()
 
 const emits = defineEmits<{
@@ -29,20 +29,20 @@ const handleDelete = () => {
 <template>
   <div class="condition-row genshin-text">
     <div class="h-full flex-1 flex items-center gap-1">
-      <ConditionButton :clickable="false">
+      <MarkerFilterButton :clickable="false">
         {{ condition.area.name }}
-      </ConditionButton>
+      </MarkerFilterButton>
 
-      <ConditionButton :clickable="false">
+      <MarkerFilterButton :clickable="false">
         {{ condition.type.name }}
-      </ConditionButton>
+      </MarkerFilterButton>
 
-      <ConditionButton :disabled="disabled" @click="handleReview">
+      <MarkerFilterButton :disabled="disabled" @click="handleReview">
         {{ condition.items.length }}
-      </ConditionButton>
+      </MarkerFilterButton>
     </div>
 
-    <ConditionButton
+    <MarkerFilterButton
       :disabled="disabled"
       theme="dark"
       icon-color="var(--gs-color-danger)"
@@ -52,7 +52,7 @@ const handleDelete = () => {
         <DeleteFilled />
       </template>
       删除
-    </ConditionButton>
+    </MarkerFilterButton>
   </div>
 </template>
 

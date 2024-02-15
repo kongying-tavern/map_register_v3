@@ -40,9 +40,31 @@ export const useMarkes = (options: MarkerHookOptions) => {
     return createRenderMarkers(res, { tileConfigs, areaIdMap, itemIdMap })
   }, [], { evaluating: markersFilterLoading })
 
+  /** 当前高级筛选器条件表示下的所有点位 */
+  const markersForAdvancedFilter = asyncComputed(async () => {
+    const tileConfigs = tileStore.mergedTileConfigs
+    if (!tileConfigs)
+      return []
+    const areaIdMap = areaStore.areaIdMap
+    const itemIdMap = itemStore.itemIdMap
+    const res = markerStore.markerList.filter(() => {
+      return true
+    })
+    return createRenderMarkers(res, { tileConfigs, areaIdMap, itemIdMap })
+  }, [], { evaluating: markersFilterLoading })
+
+  /** 当前混合选择器 */
+  const markersForFilter = computed(() => {
+    const filterType = preferenceStore.preference['markerFilter.setting.filterType'] ?? 'basic'
+    if (filterType === 'advanced')
+      return markersForAdvancedFilter.value
+    else
+      return markersForBaseFilter.value
+  })
+
   /** 将点位分配到对应的底图中 */
   const markersGroupByTile = computed(() => {
-    const markers = markersForBaseFilter.value
+    const markers = markersForFilter.value
     const map: Record<string, GSMapState.MarkerWithRenderConfig[]> = {}
     for (let i = 0; i < markers.length; i++) {
       const marker = markers[i]

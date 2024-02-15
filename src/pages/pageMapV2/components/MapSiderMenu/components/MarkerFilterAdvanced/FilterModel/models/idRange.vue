@@ -1,12 +1,12 @@
 <script lang="ts" setup>
-import type { ConditionAdvancedOptInput, ConditionAdvancedValInput } from '../types'
 import { InputBase } from '.'
+import type { MAFOptionInput, MAFValueInput } from '@/stores/types'
 
 defineProps<{
-  options: ConditionAdvancedOptInput
+  options: MAFOptionInput
 }>()
 
-const modelValue = defineModel<ConditionAdvancedValInput>('modelValue', {
+const modelValue = defineModel<MAFValueInput>('modelValue', {
   required: false,
   default: {
     v: '',

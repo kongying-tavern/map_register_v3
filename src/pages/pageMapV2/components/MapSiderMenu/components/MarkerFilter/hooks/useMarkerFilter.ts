@@ -1,19 +1,17 @@
-import { useMarkerFilterAdvanced, useMarkerFilterBasic } from '.'
+import { useMarkerFilterBasic } from '../../MarkerFilterBasic/hooks'
+import { useMarkerFilterAdvanced } from '../../MarkerFilterAdvanced/hooks'
 import { usePreferenceStore } from '@/stores'
-import type { ConditionAdvanced, ConditionBasic } from '@/stores/types/userPreference'
+import type { MAFGroup, MBFItem } from '@/stores/types'
 
 export const useMarkerFilter = () => {
   const preferenceStore = usePreferenceStore()
 
   const filterType = computed(() => {
     const type = preferenceStore.preference['markerFilter.setting.filterType']
-    if (['basic', 'advanced'].includes(type))
-      return type
-
-    return 'basic'
+    return ['basic', 'advanced'].includes(type) ? type : 'basic'
   })
 
-  const conditions: ComputedRef<Map<string, ConditionBasic> | ConditionAdvanced[]> = computed(() => {
+  const conditions: ComputedRef<Map<string, MBFItem> | MAFGroup[]> = computed(() => {
     if (filterType.value === 'advanced') {
       const { conditions: conditionAdvanced } = useMarkerFilterAdvanced()
       return conditionAdvanced.value
@@ -27,10 +25,10 @@ export const useMarkerFilter = () => {
   const conditionSize = computed(() => {
     switch (filterType.value) {
       case 'advanced':
-        return (conditions.value as ConditionAdvanced[]).length
+        return (conditions.value as MAFGroup[]).length
       case 'basic':
       default:
-        return (conditions.value as Map<string, ConditionBasic>).size
+        return (conditions.value as Map<string, MBFItem>).size
     }
   })
 
