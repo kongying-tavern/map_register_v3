@@ -17,7 +17,8 @@
     "patch:clean": "rimraf patch-edit",
     "patch:init": "pnpm patch:clean && pnpm patch --edit-dir patch-edit openapi2ts",
     "patch:install": "pnpm i --force --prefer-offline",
-    "lint": "eslint ./plugins ./public ./src ./types --fix"
+    "lint": "eslint ./plugins ./public ./src ./types",
+    "lint:fix": "eslint ./plugins ./public ./src ./types --fix"
   },
   "dependencies": {
     "7z-wasm": "1.1.0",

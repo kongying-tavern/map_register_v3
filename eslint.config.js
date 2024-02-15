@@ -47,6 +47,8 @@ export default antfu({
       // 一般情况下不允许使用 any
       'ts/no-explicit-any': 'warn',
 
+      'import/named': 'error',
+
       'ts/naming-convention': [
         'error',
         // TS interface 只允许大驼峰
