@@ -1,12 +1,26 @@
 import { storeToRefs } from 'pinia'
-import { useAreaStore, useItemStore, useItemTypeStore, usePreferenceStore } from '@/stores'
+import type { useAreaStore, useItemStore, useItemTypeStore, usePreferenceStore } from '@/stores'
 import type { MBFItem } from '@/stores/types'
 
-export const useMarkerBasicFilter = () => {
-  const { preference } = storeToRefs(usePreferenceStore())
-  const { itemIdMap } = storeToRefs(useItemStore())
-  const { areaIdMap } = storeToRefs(useAreaStore())
-  const { itemTypeIdMap } = storeToRefs(useItemTypeStore())
+interface MarkerBasicFilterHookOptions {
+  preferenceStore: ReturnType<typeof usePreferenceStore>
+  areaStore: ReturnType<typeof useAreaStore>
+  itemTypeStore: ReturnType<typeof useItemTypeStore>
+  itemStore: ReturnType<typeof useItemStore>
+}
+
+export const useMarkerBasicFilter = (options: MarkerBasicFilterHookOptions) => {
+  const {
+    preferenceStore,
+    areaStore,
+    itemTypeStore,
+    itemStore,
+  } = options
+
+  const { preference } = storeToRefs(preferenceStore)
+  const { areaIdMap } = storeToRefs(areaStore)
+  const { itemTypeIdMap } = storeToRefs(itemTypeStore)
+  const { itemIdMap } = storeToRefs(itemStore)
 
   const conditions = computed(() => {
     const itemMap = itemIdMap.value

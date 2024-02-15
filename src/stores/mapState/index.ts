@@ -9,7 +9,15 @@ import {
   useMarkers,
   useViewState,
 } from './hooks'
-import { useAreaStore, useItemStore, useMarkerLinkStore, useMarkerStore, usePreferenceStore, useTileStore } from '@/stores'
+import {
+  useAreaStore,
+  useItemStore,
+  useItemTypeStore,
+  useMarkerLinkStore,
+  useMarkerStore,
+  usePreferenceStore,
+  useTileStore,
+} from '@/stores'
 import type { GSMap } from '@/pages/pageMapV2/types/map'
 import { EventBus } from '@/utils'
 
@@ -20,6 +28,7 @@ export const useMapStateStore = defineStore('global-map-state', () => {
   const markerStore = useMarkerStore()
   const tileStore = useTileStore()
   const areaStore = useAreaStore()
+  const itemTypeStore = useItemTypeStore()
   const itemStore = useItemStore()
 
   // ============================== 地图事件 ==============================
@@ -54,9 +63,15 @@ export const useMapStateStore = defineStore('global-map-state', () => {
   })
 
   // ============================== 点位过滤器 ==============================
-  const markerBasicFilterHook = useMarkerBasicFilter()
-  const markerAdvancedFilterHook = useMarkerAdvancedFilter()
-  const markerFilterHook = useMarkerFilter()
+  const markerFilterHookOptions = {
+    preferenceStore,
+    areaStore,
+    itemTypeStore,
+    itemStore,
+  }
+  const markerBasicFilterHook = useMarkerBasicFilter(markerFilterHookOptions)
+  const markerAdvancedFilterHook = useMarkerAdvancedFilter(markerFilterHookOptions)
+  const markerFilterHook = useMarkerFilter(markerFilterHookOptions)
 
   return {
     event,

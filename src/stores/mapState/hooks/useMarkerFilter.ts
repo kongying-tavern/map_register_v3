@@ -1,9 +1,16 @@
 import { useMarkerAdvancedFilter, useMarkerBasicFilter } from '.'
-import { usePreferenceStore } from '@/stores'
+import type { useAreaStore, useItemStore, useItemTypeStore, usePreferenceStore } from '@/stores'
 import type { MAFGroup, MBFItem } from '@/stores/types'
 
-export const useMarkerFilter = () => {
-  const preferenceStore = usePreferenceStore()
+interface MarkerFilterHookOptions {
+  preferenceStore: ReturnType<typeof usePreferenceStore>
+  areaStore: ReturnType<typeof useAreaStore>
+  itemTypeStore: ReturnType<typeof useItemTypeStore>
+  itemStore: ReturnType<typeof useItemStore>
+}
+
+export const useMarkerFilter = (options: MarkerFilterHookOptions) => {
+  const { preferenceStore } = options
 
   const markerFilterType = computed(() => {
     const type = preferenceStore.preference['markerFilter.setting.filterType']
@@ -12,11 +19,11 @@ export const useMarkerFilter = () => {
 
   const markerFilters: ComputedRef<Map<string, MBFItem> | MAFGroup[]> = computed(() => {
     if (markerFilterType.value === 'advanced') {
-      const { markerAdvancedFilters } = useMarkerAdvancedFilter()
+      const { markerAdvancedFilters } = useMarkerAdvancedFilter(options)
       return markerAdvancedFilters.value
     }
     else {
-      const { markerBasicFilters } = useMarkerBasicFilter()
+      const { markerBasicFilters } = useMarkerBasicFilter(options)
       return markerBasicFilters.value
     }
   })
