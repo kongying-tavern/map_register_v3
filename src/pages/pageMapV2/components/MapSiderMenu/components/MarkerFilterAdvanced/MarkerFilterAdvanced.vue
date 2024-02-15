@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { storeToRefs } from 'pinia'
 import { DeleteFilled, Plus } from '@element-plus/icons-vue'
 import { useMarkerFilter } from './hooks'
 import { FilterModel } from './FilterModel'
@@ -8,11 +9,12 @@ import {
   ModelRow,
 } from '.'
 import { GSButton } from '@/components'
+import { useMapStateStore } from '@/stores'
+
+const { markerAdvancedFilters } = storeToRefs(useMapStateStore())
 
 /** 筛选预设管理器 */
 const {
-  conditions,
-
   appendConditionGroup,
   swapConditionGroup,
   deleteConditionGroup,
@@ -65,11 +67,11 @@ const handlePickerSelected = (id: number) => {
     <el-scrollbar class="px-2" height="100%">
       <div class="h-full flex flex-col gap-2">
         <ModelRow
-          v-for="(group, groupIndex) in conditions"
+          v-for="(group, groupIndex) in markerAdvancedFilters"
           :key="groupIndex"
           :condition="group"
           :with-move-up="groupIndex > 0"
-          :with-move-down="groupIndex < conditions.length - 1"
+          :with-move-down="groupIndex < markerAdvancedFilters.length - 1"
           @move-up-group="() => swapConditionGroup(groupIndex, groupIndex - 1)"
           @move-down-group="() => swapConditionGroup(groupIndex, groupIndex + 1)"
           @delete-group="() => deleteConditionGroup(groupIndex)"
@@ -99,7 +101,7 @@ const handlePickerSelected = (id: number) => {
     <GSButton
       class="flex-1"
       size="small"
-      :disabled="!conditions.length"
+      :disabled="!markerAdvancedFilters.length"
       @click="clearCondition"
     >
       <template #icon>

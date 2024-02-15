@@ -10,6 +10,7 @@ import {
   useIconTagStore,
   useItemStore,
   useItemTypeStore,
+  useMapStateStore,
   useMarkerStore,
   usePreferenceStore,
   useUserInfoStore,
@@ -26,6 +27,7 @@ const iconTagStore = useIconTagStore()
 const { areaList, areaCodeMap } = storeToRefs(useAreaStore())
 const { itemList, itemIdMap } = storeToRefs(useItemStore())
 const { itemTypeIdMap } = storeToRefs(useItemTypeStore())
+const { markerBasicFilters } = storeToRefs(useMapStateStore())
 const { preference } = storeToRefs(usePreferenceStore())
 
 // ==================== 其他 ====================
@@ -39,7 +41,7 @@ const sort = (a: Sortable, b: Sortable) => {
 }
 
 /** 筛选预设管理器 */
-const { conditions, reviewCondition, deleteCondition, clearCondition } = useMarkerFilter()
+const { reviewCondition, deleteCondition, clearCondition } = useMarkerFilter()
 
 const autoNextTab = () => {
   if (!preference.value['markerFilter.setting.autoNext'])
@@ -311,7 +313,7 @@ const handleDragItem = (ev: DragEvent) => {
     <el-scrollbar class="px-2" height="100%">
       <div class="h-full flex flex-col gap-2">
         <ConditionRow
-          v-for="[id, condition] in conditions"
+          v-for="[id, condition] in markerBasicFilters"
           :key="id"
           :condition="condition"
           @review="() => reviewCondition(id)"
@@ -326,7 +328,7 @@ const handleDragItem = (ev: DragEvent) => {
     <GSButton
       class="flex-1"
       size="small"
-      :disabled="!conditions.size"
+      :disabled="!markerBasicFilters.size"
       @click="clearCondition"
     >
       <template #icon>

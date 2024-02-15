@@ -3,18 +3,16 @@ import { storeToRefs } from 'pinia'
 import { Filter as IconFilter, StarFilled as IconStarFilled } from '@element-plus/icons-vue'
 import { MarkerFilterAdvanced } from '../MarkerFilterAdvanced'
 import { MarkerFilterBasic } from '../MarkerFilterBasic'
-import { useMarkerFilter } from './hooks'
 import { PresetManager } from '.'
 import { GSButton } from '@/components'
 import { IconSetting } from '@/components/AppIcons'
-import { usePreferenceStore } from '@/stores'
+import { useMapStateStore, usePreferenceStore } from '@/stores'
 
 const { preference } = storeToRefs(usePreferenceStore())
+const { markerFilters } = storeToRefs(useMapStateStore())
 
 /** 筛选预设管理器 */
 const conditionManagerVisible = ref(false)
-
-const { conditions } = useMarkerFilter()
 </script>
 
 <template>
@@ -80,7 +78,7 @@ const { conditions } = useMarkerFilter()
       </template>
     </MarkerFilterBasic>
 
-    <PresetManager v-model="conditionManagerVisible" :conditions="conditions" />
+    <PresetManager v-model="conditionManagerVisible" :conditions="markerFilters" />
   </div>
 </template>
 

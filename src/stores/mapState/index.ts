@@ -3,6 +3,8 @@ import {
   useInteractionInfo,
   useMapMission,
   useMarkerAdvancedFilter,
+  useMarkerBasicFilter,
+  useMarkerFilter,
   useMarkerLink,
   useMarkers,
   useViewState,
@@ -52,7 +54,9 @@ export const useMapStateStore = defineStore('global-map-state', () => {
   })
 
   // ============================== 点位过滤器 ==============================
+  const markerBasicFilterHook = useMarkerBasicFilter()
   const markerAdvancedFilterHook = useMarkerAdvancedFilter()
+  const markerFilterHook = useMarkerFilter()
 
   return {
     event,
@@ -65,7 +69,9 @@ export const useMapStateStore = defineStore('global-map-state', () => {
 
     ...markerLinkInfoHook,
 
+    ...markerBasicFilterHook,
     ...markerAdvancedFilterHook,
+    ...markerFilterHook,
 
     ...missionHook,
 

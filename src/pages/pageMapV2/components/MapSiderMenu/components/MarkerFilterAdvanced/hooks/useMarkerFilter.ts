@@ -21,8 +21,6 @@ const emptyItem: MAFItem = {
 export const useMarkerFilter = () => {
   const { preference } = storeToRefs(usePreferenceStore())
 
-  const conditions = computed(() => preference.value['markerFilter.filter.advancedFilter'])
-
   const appendConditionGroup = () => {
     preference.value['markerFilter.filter.advancedFilter'].push(cloneDeep(emptyGroup))
   }
@@ -103,8 +101,6 @@ export const useMarkerFilter = () => {
   }
 
   return {
-    conditions,
-
     appendConditionGroup,
     insertConditionGroup,
     swapConditionGroup,
