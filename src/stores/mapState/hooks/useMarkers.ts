@@ -19,16 +19,18 @@ export const useMarkers = (options: MarkerHookOptions) => {
     itemStore,
   } = options
 
+  const areaIdMap = areaStore.areaIdMap
+  const itemIdMap = itemStore.itemIdMap
+
   /** 筛选处理状态 */
   const markersFilterLoading = ref(false)
 
   /** 当前基础筛选器（地区-类型-物品）条件表示下的所有点位 */
-  const markersForBaseFilter = asyncComputed(async () => {
+  const markersForBasicFilter = asyncComputed(async () => {
     const tileConfigs = tileStore.mergedTileConfigs
     if (!tileConfigs)
       return []
-    const areaIdMap = areaStore.areaIdMap
-    const itemIdMap = itemStore.itemIdMap
+
     const itemIds = new Set(preferenceStore.preference['markerFilter.state.itemIds'] ?? [])
     const res = markerStore.markerList.filter(({ itemList = [] }) => {
       for (const { itemId } of itemList) {
@@ -45,10 +47,9 @@ export const useMarkers = (options: MarkerHookOptions) => {
     const tileConfigs = tileStore.mergedTileConfigs
     if (!tileConfigs)
       return []
-    const areaIdMap = areaStore.areaIdMap
-    const itemIdMap = itemStore.itemIdMap
+
     const res = markerStore.markerList.filter(() => {
-      return true
+      return false
     })
     return createRenderMarkers(res, { tileConfigs, areaIdMap, itemIdMap })
   }, [], { evaluating: markersFilterLoading })
@@ -59,7 +60,7 @@ export const useMarkers = (options: MarkerHookOptions) => {
     if (filterType === 'advanced')
       return markersForAdvancedFilter.value
     else
-      return markersForBaseFilter.value
+      return markersForBasicFilter.value
   })
 
   /** 将点位分配到对应的底图中 */
