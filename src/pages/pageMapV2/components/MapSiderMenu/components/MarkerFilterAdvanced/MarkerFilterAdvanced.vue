@@ -7,6 +7,7 @@ import {
   ModelItem,
   ModelPicker,
   ModelRow,
+  SemanticText,
 } from '.'
 import { GSButton } from '@/components'
 import { useMapStateStore } from '@/stores'
@@ -44,7 +45,8 @@ const handlePickerSelected = (id: number) => {
 </script>
 
 <template>
-  <div class="flex-none flex items-center gap-2 text-white p-2 pb-0">
+  <div class="flex-none flex items-center gap-2 text-white px-2 pb-1 pt-2">
+    <!-- 条件列表 -->
     <div class="flex-auto">
       条件列表
     </div>
@@ -62,8 +64,7 @@ const handlePickerSelected = (id: number) => {
       </GSButton>
     </div>
   </div>
-
-  <div class="flex-auto pt-2 pb-0 overflow-hidden">
+  <div class="flex-3 py-1 overflow-hidden">
     <el-scrollbar class="px-2" height="100%">
       <div class="h-full flex flex-col gap-2">
         <ModelRow
@@ -96,6 +97,17 @@ const handlePickerSelected = (id: number) => {
     </el-scrollbar>
   </div>
 
+  <!-- 条件语义化 -->
+  <div class="flex-none px-2 py-1 text-white">
+    条件语义化
+  </div>
+  <div class="py-1 max-h-60">
+    <el-scrollbar class="px-2" height="100%">
+      <SemanticText />
+    </el-scrollbar>
+  </div>
+
+  <!-- 底部功能区 -->
   <div class="condition-add-btn flex gap-2 justify-center p-2">
     <slot name="prepend" />
     <GSButton

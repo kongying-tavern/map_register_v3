@@ -1,7 +1,7 @@
 import { cloneDeep } from 'lodash'
 import { storeToRefs } from 'pinia'
 import { useMapStateStore, usePreferenceStore } from '@/stores'
-import type { MAFGroup, MAFItem } from '@/stores/types'
+import type { MAFConfig, MAFGroup, MAFItem, MAFMeta } from '@/stores/types'
 
 const { getMAFConfig } = useMapStateStore()
 
@@ -20,6 +20,32 @@ const emptyItem: MAFItem = {
 
 export const useMarkerFilter = () => {
   const { preference } = storeToRefs(usePreferenceStore())
+
+  const conditionSemanticText = computed<string>(() => {
+    const filters = preference.value['markerFilter.filter.advancedFilter'] ?? []
+    const globalSem: string[] = []
+    for (let groupIndex = 0; groupIndex < filters.length; groupIndex++) {
+      const group = filters[groupIndex]
+      const groupSem: string[] = []
+      for (let itemIndex = 0; itemIndex < group.children.length; itemIndex++) {
+        const item = group.children[itemIndex]
+        const filterConfig: MAFConfig = getMAFConfig(item.id)
+        const {
+          option: filterOption,
+          semantic: filterSemantic,
+          prepare: filterPrepare,
+        } = filterConfig
+        const filterMeta: MAFMeta = filterPrepare(item.value)
+        const itemOp: string = item.operator ? '且' : '或'
+        const itemText: string = filterSemantic(item.value, filterOption, filterMeta, item.opposite)
+        groupSem.push(itemIndex > 0 ? `${itemOp}${itemText}` : itemText)
+      }
+      const groupOp: string = (group.operator ? '且' : '或')
+      const groupText: string = `${group.opposite ? '非' : ''}(${groupSem.join('')})`
+      globalSem.push(groupIndex > 0 ? `${groupOp}${groupText}` : groupText)
+    }
+    return globalSem.join('')
+  })
 
   const appendConditionGroup = () => {
     preference.value['markerFilter.filter.advancedFilter'].push(cloneDeep(emptyGroup))
@@ -101,6 +127,8 @@ export const useMarkerFilter = () => {
   }
 
   return {
+    conditionSemanticText,
+
     appendConditionGroup,
     insertConditionGroup,
     swapConditionGroup,
