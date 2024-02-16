@@ -1,11 +1,12 @@
 <script lang="ts" setup>
 import type { Component } from 'vue'
 import {
-  ContentContain,
-  ContentRegex,
-  IdRange,
-  TitleContain,
-  Underground,
+  ModelContentContain,
+  ModelContentRegex,
+  ModelIdRange,
+  ModelImage,
+  ModelTitleContain,
+  ModelUnderground,
 } from '.'
 import { useMapStateStore } from '@/stores'
 import type { MAFItem, MAFOption, MAFValue } from '@/stores/types'
@@ -20,11 +21,12 @@ const model = computed(() => getMAFConfig(props.condition.id))
 
 const modelTemplate = computed(() => {
   return {
-    1: IdRange,
-    2: TitleContain,
-    3: ContentContain,
-    4: ContentRegex,
-    5: Underground,
+    1: ModelIdRange,
+    2: ModelTitleContain,
+    3: ModelContentContain,
+    4: ModelContentRegex,
+    5: ModelUnderground,
+    7: ModelImage,
   }[props.condition.id]
 }) as ComputedRef<Component>
 

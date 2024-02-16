@@ -3,6 +3,7 @@ import {
   contentContain,
   contentRegex,
   idRange,
+  image,
   titleContain,
   underground,
 } from './models'
@@ -20,6 +21,7 @@ const markerAdvancedFilterConfigs: MAFConfig[] = [
   contentContain,
   contentRegex,
   underground,
+  image,
 ]
 
 const markerAdvancedFilterConfigMap: Record<number, MAFConfig> = keyBy(markerAdvancedFilterConfigs, 'id')
