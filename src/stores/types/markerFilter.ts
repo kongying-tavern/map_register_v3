@@ -46,9 +46,14 @@ export interface MAFValueInput {
   v: string
 }
 
+export interface MAFValueSwitch {
+  v: boolean
+}
+
 export type MAFValue =
 MAFValueDummy |
-MAFValueInput
+MAFValueInput |
+MAFValueSwitch
 
 // ==================== 配置模型 ====================
 export interface MAFOptionDummy {}
@@ -57,9 +62,15 @@ export interface MAFOptionInput {
   placeholder?: string
 }
 
+export interface MAFOptionSwitch {
+  textInactive?: string
+  textActive?: string
+}
+
 export type MAFOption =
 MAFOptionDummy |
-MAFOptionInput
+MAFOptionInput |
+MAFOptionSwitch
 
 // ==================== 预处理数据模型 ====================
 export interface MAFMetaDummy {}

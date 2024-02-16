@@ -5,6 +5,7 @@ import {
   ContentRegex,
   IdRange,
   TitleContain,
+  Underground,
 } from '.'
 import { useMapStateStore } from '@/stores'
 import type { MAFItem, MAFOption, MAFValue } from '@/stores/types'
@@ -23,6 +24,7 @@ const modelTemplate = computed(() => {
     2: TitleContain,
     3: ContentContain,
     4: ContentRegex,
+    5: Underground,
   }[props.condition.id]
 }) as ComputedRef<Component>
 
