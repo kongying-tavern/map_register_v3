@@ -34,16 +34,14 @@ export interface MAFConfig {
   name: string
   option: MAFOption
   defaultVal: MAFValue
-  semantic: (val: MAFValue, opt: MAFOption, opposite: boolean) => string
-  filter: (val: MAFValue, opt: MAFOption, item: API.MarkerVo) => boolean
+  prepare: (val: MAFValue) => MAFMeta
+  semantic: (val: MAFValue, opt: MAFOption, meta: MAFMeta, opposite: boolean) => string
+  filter: (val: MAFValue, opt: MAFOption, meta: MAFMeta, marker: API.MarkerVo) => boolean
 }
 
 // ==================== 数据模型 ====================
-/** 缺省 */
-export interface MAFValueDummy {
-}
+export interface MAFValueDummy {}
 
-/** 输入框 */
 export interface MAFValueInput {
   v: string
 }
@@ -51,12 +49,19 @@ export interface MAFValueInput {
 export type MAFValue = MAFValueDummy | MAFValueInput
 
 // ==================== 配置模型 ====================
-/** 缺省 */
 export interface MAFOptionDummy {}
 
-/** 输入框 */
 export interface MAFOptionInput {
   placeholder?: string
 }
 
 export type MAFOption = MAFOptionDummy | MAFOptionInput
+
+// ==================== 预处理数据模型 ====================
+export interface MAFMetaDummy {}
+
+export interface MAFMetaIdRange {
+  idSet: Set<number>
+}
+
+export type MAFMeta = MAFMetaDummy | MAFMetaIdRange

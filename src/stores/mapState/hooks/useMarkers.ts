@@ -1,4 +1,4 @@
-import { useMarkerFilter } from '.'
+import { useMarkerAdvancedFilter, useMarkerFilter } from '.'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
 import { createRenderMarkers } from '@/stores/utils'
 import type {
@@ -9,6 +9,7 @@ import type {
   usePreferenceStore,
   useTileStore,
 } from '@/stores'
+import type { MAFMeta } from '@/stores/types'
 
 interface MarkerHookOptions {
   preferenceStore: ReturnType<typeof usePreferenceStore>
@@ -31,6 +32,7 @@ export const useMarkers = (options: MarkerHookOptions) => {
   const areaIdMap = areaStore.areaIdMap
   const itemIdMap = itemStore.itemIdMap
   const { markerFilterType } = useMarkerFilter(options)
+  const { getMAFConfig } = useMarkerAdvancedFilter(options)
 
   /** 筛选处理状态 */
   const markersFilterLoading = ref(false)
@@ -58,8 +60,58 @@ export const useMarkers = (options: MarkerHookOptions) => {
     if (!tileConfigs)
       return []
 
-    const res = markerStore.markerList.filter(() => {
-      return false
+    const advancedFilters = preferenceStore.preference['markerFilter.filter.advancedFilter'] ?? []
+
+    /** 合并计算布尔值，支持 null 值 */
+    const operateBool = (v1: boolean | null, v2: boolean | null, op: boolean): boolean | null => {
+      if (v1 === null)
+        return v2
+      else if (v2 === null)
+        return v1
+      else
+        return op ? (v1 && v2) : (v1 || v2)
+    }
+    /** 判断是否可以进行逻辑截断，可逻辑截断时返回 true */
+    const breakBool = (v: boolean | null, op: boolean): boolean => (v === true && !op) || (v === false && op)
+
+    const metaCache = new Map<string, MAFMeta>()
+    const res = markerStore.markerList.filter((marker: API.MarkerVo) => {
+      let globalVal: boolean | null = null
+      for (let groupIndex = 0; groupIndex < advancedFilters.length; groupIndex++) {
+        const group = advancedFilters[groupIndex]
+        if (breakBool(globalVal, group.operator))
+          break
+
+        let groupVal: boolean | null = null
+        for (let itemIndex = 0; itemIndex < group.children.length; itemIndex++) {
+          const item = group.children[itemIndex]
+          if (breakBool(groupVal, item.operator))
+            break
+
+          const filterConfig = getMAFConfig(item.id)
+          const {
+            prepare: filterPrepare,
+            option: filterOption,
+            filter: filterAction,
+          } = filterConfig
+          const itemMetaKey: string = `${groupIndex}-${itemIndex}`
+          let itemMeta: MAFMeta | undefined = metaCache.get(itemMetaKey)
+          if (!itemMeta) {
+            itemMeta = filterPrepare(item.value)
+            metaCache.set(itemMetaKey, itemMeta)
+          }
+          let itemVal: boolean = filterAction(item.value, filterOption, itemMeta, marker)
+          if (item.opposite)
+            itemVal = !itemVal
+          groupVal = operateBool(groupVal, itemVal, item.operator)
+        }
+
+        if (group.opposite)
+          groupVal = !groupVal
+        globalVal = operateBool(globalVal, groupVal, group.operator)
+      }
+
+      return globalVal
     })
     return createRenderMarkers(res, { tileConfigs, areaIdMap, itemIdMap })
   }, [], { evaluating: markersFilterLoading })
