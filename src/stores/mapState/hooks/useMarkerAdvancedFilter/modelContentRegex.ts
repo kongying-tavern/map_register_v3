@@ -29,7 +29,11 @@ export const contentRegex: MAFConfig = {
     }
     return meta
   },
-  semantic: () => '',
+  semantic: (val: MAFValueInput, _opt: MAFOptionInput, _meta: MAFMetaContentRegex, opposite: boolean): string => {
+    if (!val.v)
+      return ''
+    return `内容${opposite ? '不' : ''}满足正则【${val.v ?? ''}】`
+  },
   filter: (_val: MAFValueInput, _opt: MAFOptionInput, meta: MAFMetaContentRegex, marker: API.MarkerVo): boolean => {
     if (!meta.re)
       return false

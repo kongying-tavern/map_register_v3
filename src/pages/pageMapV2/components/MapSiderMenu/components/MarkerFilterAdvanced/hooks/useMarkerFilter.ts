@@ -38,11 +38,14 @@ export const useMarkerFilter = () => {
         const filterMeta: MAFMeta = filterPrepare(item.value)
         const itemOp: string = item.operator ? '且' : '或'
         const itemText: string = filterSemantic(item.value, filterOption, filterMeta, item.opposite)
-        groupSem.push(itemIndex > 0 ? `${itemOp}${itemText}` : itemText)
+        if (itemText)
+          groupSem.push(itemIndex > 0 ? ` ${itemOp} ${itemText}` : itemText)
       }
-      const groupOp: string = (group.operator ? '且' : '或')
-      const groupText: string = `${group.opposite ? '非' : ''}(${groupSem.join('')})`
-      globalSem.push(groupIndex > 0 ? `${groupOp}${groupText}` : groupText)
+      if (groupSem.length > 0) {
+        const groupOp: string = (group.operator ? '且' : '或')
+        const groupText: string = `${group.opposite ? '非' : ''}(${groupSem.join('')})`
+        globalSem.push(groupIndex > 0 ? ` ${groupOp} ${groupText}` : groupText)
+      }
     }
     return globalSem.join('')
   })

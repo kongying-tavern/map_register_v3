@@ -22,7 +22,9 @@ export const underground: MAFConfig = {
   prepare: (_val: MAFValueSwitch): MAFMetaDummy => {
     return {}
   },
-  semantic: () => '',
+  semantic: (val: MAFValueSwitch, opt: MAFOptionSwitch, _meta: MAFMetaDummy, opposite: boolean): string => {
+    return `${opposite ? '不' : ''}为${val.v ? opt.textActive : opt.textInactive}点位`
+  },
   filter: (val: MAFValueSwitch, _opt: MAFOptionSwitch, _meta: MAFMetaDummy, marker: API.MarkerVo): boolean => {
     const underground = (marker.extra?.underground ?? {}) as ExtraUnderground
     return Boolean(underground.is_underground) === Boolean(val.v)

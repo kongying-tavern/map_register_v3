@@ -17,7 +17,11 @@ export const titleContain: MAFConfig = {
   prepare: (_val: MAFValueInput): MAFMetaDummy => {
     return {}
   },
-  semantic: () => '',
+  semantic: (val: MAFValueInput, _opt: MAFOptionInput, _meta: MAFMetaDummy, opposite: boolean): string => {
+    if (!val.v)
+      return ''
+    return `标题${opposite ? '不' : ''}包含【${val.v ?? ''}】`
+  },
   filter: (val: MAFValueInput, _opt: MAFOptionInput, _meta: MAFMetaDummy, marker: API.MarkerVo): boolean => {
     if (!val.v)
       return false

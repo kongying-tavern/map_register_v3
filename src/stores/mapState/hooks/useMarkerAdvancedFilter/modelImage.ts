@@ -18,7 +18,9 @@ export const image: MAFConfig = {
   prepare: (_val: MAFValueSwitch): MAFMetaDummy => {
     return {}
   },
-  semantic: () => '',
+  semantic: (val: MAFValueSwitch, _opt: MAFOptionSwitch, _meta: MAFMetaDummy, opposite: boolean): string => {
+    return `${opposite === !!val.v ? '不' : ''}包含图片`
+  },
   filter: (val: MAFValueSwitch, _opt: MAFOptionSwitch, _meta: MAFMetaDummy, marker: API.MarkerVo): boolean => {
     return val.v ? !!marker.picture : !marker.picture
   },

@@ -47,7 +47,11 @@ export const idRange: MAFConfig = {
     }
     return meta
   },
-  semantic: () => '',
+  semantic: (val: MAFValueInput, _opt: MAFOptionInput, meta: MAFMetaIdRange, opposite: boolean): string => {
+    if (meta.idSet.size <= 0)
+      return ''
+    return `ID${opposite ? '不' : ''}属于范围【${val.v ?? ''}】`
+  },
   filter: (_val: MAFValueInput, _opt: MAFOptionInput, meta: MAFMetaIdRange, marker: API.MarkerVo): boolean => {
     return meta.idSet.has(marker.id!)
   },
