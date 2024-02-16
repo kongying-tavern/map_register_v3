@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import {
   IconDocument,
+  IconDocumentRegex,
   IconPound,
   IconTitleSerif,
 } from '@/components/AppIcons'
@@ -14,6 +15,7 @@ const iconComponent = computed(() => {
     1: IconPound,
     2: IconTitleSerif,
     3: IconDocument,
+    4: IconDocumentRegex,
   }[props.id]
 }) as ComputedRef<Component>
 </script>

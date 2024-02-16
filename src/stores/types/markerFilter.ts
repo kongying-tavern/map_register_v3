@@ -46,7 +46,9 @@ export interface MAFValueInput {
   v: string
 }
 
-export type MAFValue = MAFValueDummy | MAFValueInput
+export type MAFValue =
+MAFValueDummy |
+MAFValueInput
 
 // ==================== 配置模型 ====================
 export interface MAFOptionDummy {}
@@ -55,7 +57,9 @@ export interface MAFOptionInput {
   placeholder?: string
 }
 
-export type MAFOption = MAFOptionDummy | MAFOptionInput
+export type MAFOption =
+MAFOptionDummy |
+MAFOptionInput
 
 // ==================== 预处理数据模型 ====================
 export interface MAFMetaDummy {}
@@ -64,4 +68,11 @@ export interface MAFMetaIdRange {
   idSet: Set<number>
 }
 
-export type MAFMeta = MAFMetaDummy | MAFMetaIdRange
+export interface MAFMetaContentRegex {
+  re?: RegExp
+}
+
+export type MAFMeta =
+MAFMetaDummy |
+MAFMetaIdRange |
+MAFMetaContentRegex

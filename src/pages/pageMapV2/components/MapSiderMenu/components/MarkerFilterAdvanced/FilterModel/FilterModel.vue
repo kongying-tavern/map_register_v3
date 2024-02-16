@@ -2,6 +2,7 @@
 import type { Component } from 'vue'
 import {
   ContentContain,
+  ContentRegex,
   IdRange,
   TitleContain,
 } from '.'
@@ -21,6 +22,7 @@ const modelTemplate = computed(() => {
     1: IdRange,
     2: TitleContain,
     3: ContentContain,
+    4: ContentRegex,
   }[props.condition.id]
 }) as ComputedRef<Component>
 
