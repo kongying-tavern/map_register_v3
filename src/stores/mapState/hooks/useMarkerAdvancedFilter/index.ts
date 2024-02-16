@@ -1,5 +1,8 @@
 import { keyBy } from 'lodash'
-import { idRange } from './models'
+import {
+  idRange,
+  titleContain,
+} from './models'
 import type { usePreferenceStore } from '@/stores'
 import type { MAFConfig } from '@/stores/types'
 
@@ -10,6 +13,7 @@ interface MarkerAdvancedFilterHookOptions {
 // ==================== 模型配置 ====================
 const markerAdvancedFilterConfigs: MAFConfig[] = [
   idRange,
+  titleContain,
 ]
 
 const markerAdvancedFilterConfigMap: Record<number, MAFConfig> = keyBy(markerAdvancedFilterConfigs, 'id')

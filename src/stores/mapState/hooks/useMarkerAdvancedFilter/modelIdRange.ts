@@ -48,7 +48,7 @@ export const idRange: MAFConfig = {
     return meta
   },
   semantic: () => '',
-  filter: (val: MAFValueInput, opt: MAFOptionInput, meta: MAFMetaIdRange, marker: API.MarkerVo): boolean => {
+  filter: (_val: MAFValueInput, _opt: MAFOptionInput, meta: MAFMetaIdRange, marker: API.MarkerVo): boolean => {
     return meta.idSet.has(marker.id!)
   },
 }
