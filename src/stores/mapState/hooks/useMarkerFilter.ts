@@ -12,19 +12,21 @@ interface MarkerFilterHookOptions {
 export const useMarkerFilter = (options: MarkerFilterHookOptions) => {
   const { preferenceStore } = options
 
+  const { markerBasicFilters } = useMarkerBasicFilter(options)
+  const { markerAdvancedFilters } = useMarkerAdvancedFilter(options)
+
   const markerFilterType = computed(() => {
     const type = preferenceStore.preference['markerFilter.setting.filterType']
     return ['basic', 'advanced'].includes(type) ? type : 'basic'
   })
 
   const markerFilters: ComputedRef<Map<string, MBFItem> | MAFGroup[]> = computed(() => {
-    if (markerFilterType.value === 'advanced') {
-      const { markerAdvancedFilters } = useMarkerAdvancedFilter(options)
-      return markerAdvancedFilters.value
-    }
-    else {
-      const { markerBasicFilters } = useMarkerBasicFilter(options)
-      return markerBasicFilters.value
+    switch (markerFilterType.value) {
+      case 'advanced':
+        return markerAdvancedFilters.value
+      case 'basic':
+      default:
+        return markerBasicFilters.value
     }
   })
 

@@ -1,12 +1,21 @@
+import { useMarkerFilter } from '.'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
 import { createRenderMarkers } from '@/stores/utils'
-import type { useAreaStore, useItemStore, useMarkerStore, usePreferenceStore, useTileStore } from '@/stores'
+import type {
+  useAreaStore,
+  useItemStore,
+  useItemTypeStore,
+  useMarkerStore,
+  usePreferenceStore,
+  useTileStore,
+} from '@/stores'
 
 interface MarkerHookOptions {
   preferenceStore: ReturnType<typeof usePreferenceStore>
   markerStore: ReturnType<typeof useMarkerStore>
   tileStore: ReturnType<typeof useTileStore>
   areaStore: ReturnType<typeof useAreaStore>
+  itemTypeStore: ReturnType<typeof useItemTypeStore>
   itemStore: ReturnType<typeof useItemStore>
 }
 
@@ -21,6 +30,7 @@ export const useMarkers = (options: MarkerHookOptions) => {
 
   const areaIdMap = areaStore.areaIdMap
   const itemIdMap = itemStore.itemIdMap
+  const { markerFilterType } = useMarkerFilter(options)
 
   /** 筛选处理状态 */
   const markersFilterLoading = ref(false)
@@ -56,11 +66,13 @@ export const useMarkers = (options: MarkerHookOptions) => {
 
   /** 当前混合选择器 */
   const markersForFilter = computed(() => {
-    const filterType = preferenceStore.preference['markerFilter.setting.filterType'] ?? 'basic'
-    if (filterType === 'advanced')
-      return markersForAdvancedFilter.value
-    else
-      return markersForBasicFilter.value
+    switch (markerFilterType.value) {
+      case 'advanced':
+        return markersForAdvancedFilter.value
+      case 'basic':
+      default:
+        return markersForBasicFilter.value
+    }
   })
 
   /** 将点位分配到对应的底图中 */

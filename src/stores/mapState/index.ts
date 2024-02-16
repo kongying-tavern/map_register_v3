@@ -51,6 +51,7 @@ export const useMapStateStore = defineStore('global-map-state', () => {
     markerStore,
     tileStore,
     areaStore,
+    itemTypeStore,
     itemStore,
   })
 
