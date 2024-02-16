@@ -6,6 +6,7 @@ import {
   image,
   titleContain,
   underground,
+  video,
 } from './models'
 import type { usePreferenceStore } from '@/stores'
 import type { MAFConfig } from '@/stores/types'
@@ -22,6 +23,7 @@ const markerAdvancedFilterConfigs: MAFConfig[] = [
   contentRegex,
   underground,
   image,
+  video,
 ]
 
 const markerAdvancedFilterConfigMap: Record<number, MAFConfig> = keyBy(markerAdvancedFilterConfigs, 'id')

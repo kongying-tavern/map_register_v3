@@ -7,6 +7,7 @@ import {
   ModelImage,
   ModelTitleContain,
   ModelUnderground,
+  ModelVideo,
 } from '.'
 import { useMapStateStore } from '@/stores'
 import type { MAFItem, MAFOption, MAFValue } from '@/stores/types'
@@ -27,6 +28,7 @@ const modelTemplate = computed(() => {
     4: ModelContentRegex,
     5: ModelUnderground,
     7: ModelImage,
+    8: ModelVideo,
   }[props.condition.id]
 }) as ComputedRef<Component>
 

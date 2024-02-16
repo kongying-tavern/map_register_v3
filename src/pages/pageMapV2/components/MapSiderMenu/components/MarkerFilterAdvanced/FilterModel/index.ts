@@ -6,5 +6,6 @@ export { default as ModelContentContain } from './ModelContentContain.vue'
 export { default as ModelContentRegex } from './ModelContentRegex.vue'
 export { default as ModelUnderground } from './ModelUnderground.vue'
 export { default as ModelImage } from './ModelImage.vue'
+export { default as ModelVideo } from './ModelVideo.vue'
 
 export { default as FilterModel } from './FilterModel.vue'
