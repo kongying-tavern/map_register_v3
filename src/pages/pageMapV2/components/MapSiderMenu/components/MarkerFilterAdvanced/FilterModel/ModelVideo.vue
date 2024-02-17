@@ -9,7 +9,7 @@ defineProps<{
 const modelValue = defineModel<MAFValueSwitch>('modelValue', {
   required: false,
   default: {
-    v: false,
+    b: false,
   },
   type: Object,
 })
@@ -19,8 +19,8 @@ const modelValue = defineModel<MAFValueSwitch>('modelValue', {
   <div class="flex-auto flex gap-1 items-center">
     <span class="flex-none">点位视频</span>
     <GSSwitch
-      v-model="modelValue.v"
-      :label="modelValue.v ? options.textActive : options.textInactive"
+      v-model="modelValue.b"
+      :label="modelValue.b ? options.textActive : options.textInactive"
       label-inactive-color="#313131"
       label-active-color="#313131"
     />

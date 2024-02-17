@@ -17,16 +17,16 @@ export const underground: MAFConfig = {
     textActive: '地下',
   },
   defaultVal: {
-    v: false,
+    b: false,
   },
   prepare: (_val: MAFValueSwitch): MAFMetaDummy => {
     return {}
   },
   semantic: (val: MAFValueSwitch, opt: MAFOptionSwitch, _meta: MAFMetaDummy, opposite: boolean): string => {
-    return `${opposite ? '不' : ''}为${val.v ? opt.textActive : opt.textInactive}点位`
+    return `${opposite ? '不' : ''}为${val.b ? opt.textActive : opt.textInactive}点位`
   },
   filter: (val: MAFValueSwitch, _opt: MAFOptionSwitch, _meta: MAFMetaDummy, marker: API.MarkerVo): boolean => {
     const underground = (marker.extra?.underground ?? {}) as ExtraUnderground
-    return Boolean(underground.is_underground) === Boolean(val.v)
+    return Boolean(underground.is_underground) === Boolean(val.b)
   },
 }

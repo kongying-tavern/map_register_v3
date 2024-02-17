@@ -13,15 +13,15 @@ export const video: MAFConfig = {
     textActive: '存在',
   },
   defaultVal: {
-    v: false,
+    b: false,
   },
   prepare: (_val: MAFValueSwitch): MAFMetaDummy => {
     return {}
   },
   semantic: (val: MAFValueSwitch, _opt: MAFOptionSwitch, _meta: MAFMetaDummy, opposite: boolean): string => {
-    return `${opposite === !!val.v ? '不' : ''}包含视频`
+    return `${opposite === !!val.b ? '不' : ''}包含视频`
   },
   filter: (val: MAFValueSwitch, _opt: MAFOptionSwitch, _meta: MAFMetaDummy, marker: API.MarkerVo): boolean => {
-    return val.v ? !!marker.videoPath : !marker.videoPath
+    return val.b ? !!marker.videoPath : !marker.videoPath
   },
 }
