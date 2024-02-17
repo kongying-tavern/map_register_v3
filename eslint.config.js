@@ -89,7 +89,7 @@ export default antfu({
     },
 
     vue: {
-      // 组件名称至少由2个单词组成
+      // 组件名称至少由 2 个单词组成
       'vue/multi-word-component-names': 'error',
 
       // 组件定义名称只允许大驼峰
@@ -98,10 +98,7 @@ export default antfu({
       // 组件属性名称只允许小驼峰
       'vue/prop-name-casing': ['error', 'camelCase'],
 
-      // 禁止在非函数作用域对 ref 解构以避免响应性丢失
-      'vue/no-ref-object-reactivity-loss': 'error',
-
-      // 允许在相同范围从对象获取响应值
+      // 允许在相同作用域范围从对象获取响应值
       'vue/no-ref-object-reactivity-loss': 'off',
 
       // 禁止未使用的值
