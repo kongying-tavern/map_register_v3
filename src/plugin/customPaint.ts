@@ -5,7 +5,7 @@ declare const CSS: {
   paintWorklet: Worklet
 }
 
-const modules = import.meta.glob('@/style/CSSHoudini/*.js', { as: 'raw' })
+const modules = import.meta.glob<boolean, string, string>('@/style/CSSHoudini/*.js', { query: '?raw', import: 'default' })
 
 /** 注册自定义背景绘制类 */
 export const customPaint = (): Plugin => ({
