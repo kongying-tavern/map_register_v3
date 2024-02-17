@@ -32,23 +32,25 @@ export default antfu({
 
     // 断行符号使用 CRLF
     'style/linebreak-style': ['error', 'windows'],
+
+    // 确保命名导入与命名导出相对应
+    'import/named': 'error',
   },
 
   overrides: {
     javascript: {
       // 一般情况下不允许使用 console
       'no-console': 'warn',
+
+      // 默认参数必须放在最后
+      'default-param-last': 'error',
     },
 
     typescript: {
-      // 默认参数必须放在最后
-      'default-param-last': 'error',
-
       // 一般情况下不允许使用 any
       'ts/no-explicit-any': 'warn',
 
-      'import/named': 'error',
-
+      // 命名规范
       'ts/naming-convention': [
         'error',
         // TS interface 只允许大驼峰
