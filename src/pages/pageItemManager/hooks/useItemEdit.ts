@@ -1,9 +1,9 @@
 import { pick } from 'lodash'
 import type { ItemDetailForm } from '../components'
 import { ItemEditor } from '../components'
-import { GlobalDialogController, useFetchHook, useGlobalDialog } from '@/hooks'
+import { useFetchHook, useGlobalDialog } from '@/hooks'
+import { GSMessageService, GlobalDialogController } from '@/components'
 import Api from '@/api/api'
-import { GSMessageService } from '@/components'
 
 export interface ItemEditHookOptions {
   /** 用于控制事件监听器只会被附加一次的 flag */

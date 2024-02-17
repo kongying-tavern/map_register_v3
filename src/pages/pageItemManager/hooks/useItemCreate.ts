@@ -1,8 +1,8 @@
 import type { ItemDetailForm } from '../components'
 import { ItemCreator } from '../components'
 import { useFetchHook, useGlobalDialog } from '@/hooks'
-import { GSMessageService } from '@/components'
-import { GlobalDialogController } from '@/hooks/useGlobalDialog'
+import { GSMessageService, GlobalDialogController } from '@/components'
+
 import { HiddenFlagEnum, IconStyleTyleEnum } from '@/shared'
 import Api from '@/api/api'
 

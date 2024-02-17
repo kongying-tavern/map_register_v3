@@ -2,7 +2,8 @@
 import { ElMessage } from 'element-plus'
 import type { TypeManager, TypeObject } from '../config'
 import { TypeDetailForm } from '.'
-import { GlobalDialogController, useFetchHook } from '@/hooks'
+import { useFetchHook } from '@/hooks'
+import { GlobalDialogController } from '@/components'
 
 const props = defineProps<{
   parent?: TypeObject

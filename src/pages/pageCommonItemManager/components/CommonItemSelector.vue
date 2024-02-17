@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
-import { GlobalDialogController, useFetchHook } from '@/hooks'
+import { useFetchHook } from '@/hooks'
+import { AppItemSelecter, GlobalDialogController } from '@/components'
 import Api from '@/api/api'
-import { AppItemSelecter } from '@/components'
 
 const emits = defineEmits<{
   success: []

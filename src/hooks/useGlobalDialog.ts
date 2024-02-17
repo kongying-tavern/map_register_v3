@@ -1,5 +1,4 @@
-import { DialogService } from './dialogService'
-import { DialogController } from './dialogController'
+import { GlobalDialogController, GlobalDialogService } from '@/components'
 
 export interface PropsOptions {
   /** 合并模式 */
@@ -19,12 +18,12 @@ export interface PropsOptions {
  */
 export const useGlobalDialog = () => {
   onDeactivated(() => {
-    DialogController.close(undefined, true)
+    GlobalDialogController.close(undefined, true)
   })
 
   onBeforeUnmount(() => {
-    DialogController.close(undefined, true)
+    GlobalDialogController.close(undefined, true)
   })
 
-  return { DialogService }
+  return { DialogService: GlobalDialogService }
 }

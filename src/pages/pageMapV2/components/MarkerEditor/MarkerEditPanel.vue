@@ -2,7 +2,7 @@
 import { Check, Close } from '@element-plus/icons-vue'
 import { useMarkerEdit } from '../../hooks'
 import { MarkerEditorForm } from '../../components/MarkerEditor'
-import { GlobalDialogController } from '@/hooks'
+import { GlobalDialogController } from '@/components'
 import db from '@/database'
 
 const props = defineProps<{

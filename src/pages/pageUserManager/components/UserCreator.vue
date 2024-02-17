@@ -2,10 +2,10 @@
 import { Check, Close } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import Api from '@/api/api'
-import { GlobalDialogController, useFetchHook } from '@/hooks'
+import { useFetchHook } from '@/hooks'
 import type { ItemFormRules } from '@/utils'
 import type { ElFormType } from '@/shared'
-import { WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
+import { GlobalDialogController, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 
 const emits = defineEmits<{
   success: []

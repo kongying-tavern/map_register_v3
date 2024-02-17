@@ -8,7 +8,8 @@ import {
   ModuleMapSetting,
 } from './modules'
 import { usePreferenceStore } from '@/stores'
-import { GlobalDialogController, useTheme } from '@/hooks'
+import { useTheme } from '@/hooks'
+import { GlobalDialogController } from '@/components'
 
 const { isDark } = useTheme()
 const preferenceStore = usePreferenceStore()

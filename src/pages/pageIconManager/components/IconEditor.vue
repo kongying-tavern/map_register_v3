@@ -2,9 +2,8 @@
 import { Check, Close } from '@element-plus/icons-vue'
 import { useImageLoad, useImageSelect, useImageUpload } from '../hooks'
 import { IconImageSelect } from '.'
-import { GlobalDialogController } from '@/hooks'
+import { AppImageCropper, GlobalDialogController, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 import { formatByteSize } from '@/utils'
-import { AppImageCropper, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 
 const props = defineProps<{
   icon: API.TagVo

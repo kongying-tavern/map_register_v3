@@ -3,12 +3,11 @@ import { Check, Close } from '@element-plus/icons-vue'
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { emptyCheck, lengthCheck } from '../utils/formRules'
-import { GlobalDialogController } from '@/hooks/useGlobalDialog'
 import type { ElFormType } from '@/shared'
 import { useFetchHook } from '@/hooks'
 import Api from '@/api/api'
 import type { ItemFormRules } from '@/utils'
-import { WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
+import { GlobalDialogController, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 
 const props = defineProps<{
   user: API.SysUserVo

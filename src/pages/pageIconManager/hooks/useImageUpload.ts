@@ -1,7 +1,8 @@
 import { ElMessage } from 'element-plus'
 import Api from '@/api/api'
 import db from '@/database'
-import { GlobalDialogController, useFetchHook } from '@/hooks'
+import { useFetchHook } from '@/hooks'
+import { GlobalDialogController } from '@/components'
 import { useImageHostingStore, useUserInfoStore } from '@/stores'
 
 interface ImageUploadHookOptions {

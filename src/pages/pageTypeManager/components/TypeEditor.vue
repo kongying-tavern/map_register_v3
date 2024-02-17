@@ -3,7 +3,8 @@ import { ElMessage } from 'element-plus'
 import { cloneDeep } from 'lodash'
 import type { TypeManager, TypeObject } from '../config'
 import { TypeDetailForm } from '.'
-import { GlobalDialogController, useFetchHook } from '@/hooks'
+import { useFetchHook } from '@/hooks'
+import { GlobalDialogController } from '@/components'
 
 const props = defineProps<{
   data: TypeObject

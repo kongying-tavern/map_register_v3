@@ -4,11 +4,11 @@ import { Check, Close } from '@element-plus/icons-vue'
 import type { ComputedRef } from 'vue'
 import { computed, ref, watch } from 'vue'
 import { channelsDict } from '../const/dictionary'
-import { AppRichtextEditor, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
+import { AppRichtextEditor, GlobalDialogController, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 import { Logger } from '@/utils'
 import type { ItemFormRules } from '@/utils'
 import type { ElFormType } from '@/shared'
-import { GlobalDialogController, useFetchHook } from '@/hooks'
+import { useFetchHook } from '@/hooks'
 import Api from '@/api/api'
 
 const props = defineProps<{

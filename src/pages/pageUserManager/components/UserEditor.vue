@@ -4,9 +4,9 @@ import { ElMessage } from 'element-plus'
 import type { UnwrapRef } from 'vue'
 import type { ElFormType } from '@/shared'
 import type { ItemFormRules } from '@/utils'
-import { GlobalDialogController, useFetchHook } from '@/hooks'
+import { useFetchHook } from '@/hooks'
 import Api from '@/api/api'
-import { WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
+import { GlobalDialogController, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 
 const props = defineProps<{
   data: API.SysUserVo

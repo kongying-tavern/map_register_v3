@@ -2,8 +2,7 @@
 import { Check, Close } from '@element-plus/icons-vue'
 import { useItemCreate } from '../hooks'
 import { ItemDetailForm } from '.'
-import { GlobalDialogController } from '@/hooks/useGlobalDialog'
-import { WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
+import { GlobalDialogController, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 
 const { detailFormRef, formData, loading, handleSubmit } = useItemCreate()
 </script>

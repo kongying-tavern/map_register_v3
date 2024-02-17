@@ -2,7 +2,8 @@
 import { Check, Close } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { AreaDetailForm } from '.'
-import { GlobalDialogController, useFetchHook } from '@/hooks'
+import { useFetchHook } from '@/hooks'
+import { GlobalDialogController } from '@/components'
 import Api from '@/api/api'
 
 const props = defineProps<{

@@ -1,7 +1,8 @@
 import { ElMessage } from 'element-plus'
 import type { IconDetailForm } from '../components'
+import { GlobalDialogController } from '@/components'
 import Api from '@/api/api'
-import { GlobalDialogController, useFetchHook } from '@/hooks'
+import { useFetchHook } from '@/hooks'
 
 export const useIconCreate = (form: Ref<API.IconVo>) => {
   const formRef = ref<InstanceType<typeof IconDetailForm> | null>(null)

@@ -1,7 +1,7 @@
 import type { Component } from 'vue'
 import type { DialogProps } from 'element-plus'
-import { component, dialogProps, eventListener, props, visible } from './dialogContext'
-import { DialogController } from './dialogController'
+import { context } from './context'
+import { GlobalDialogController } from './GlobalDialogController'
 import type { AnyObject } from '@/shared'
 
 export interface PropsOptions {
@@ -10,43 +10,33 @@ export interface PropsOptions {
 }
 
 /** 全局弹窗服务，内部调用 */
-export class DialogService {
+export class GlobalDialogService {
   /** 传递给 el-dialog 的属性 */
   static config = (
     propsObj: Omit<Partial<DialogProps & { class: string }>, 'modelValue'>, // 这里先 hack 一下类型，等 element 更新 2.3.0
     options: PropsOptions = {},
   ) => {
     const { merge } = options
-    if (merge) {
-      dialogProps.value = {
-        ...dialogProps.value,
-        ...propsObj,
-      }
-    }
-    else {
-      dialogProps.value = propsObj
-    }
+    if (merge)
+      Object.assign(context.dialogProps.value, propsObj)
+    else
+      context.dialogProps.value = propsObj
     return this
   }
 
   /** 传递给弹窗默认插槽上的组件的属性 */
   static props = <T extends AnyObject>(propsObj: T, options: PropsOptions = {}) => {
     const { merge } = options
-    if (merge) {
-      props.value = {
-        ...dialogProps.value,
-        ...propsObj,
-      }
-    }
-    else {
-      props.value = propsObj
-    }
+    if (merge)
+      Object.assign(context.props.value, propsObj)
+    else
+      context.props.value = propsObj
     return this
   }
 
   /** 传递给弹窗默认插槽上的组件的事件监听器 */
   static listeners = <T extends Record<string, Function>>(listenersObj: T) => {
-    eventListener.value = {
+    context.listener.value = {
       ...listenersObj,
     }
 
@@ -55,9 +45,9 @@ export class DialogService {
 
   /** 打开弹窗，返回弹窗控制器 */
   static open = (comp: Component) => {
-    visible.value && DialogController.close(undefined, true)
-    component.value = comp
-    visible.value = true
-    return DialogController
+    context.visible.value && GlobalDialogController.close(undefined, true)
+    context.component.value = comp
+    context.visible.value = true
+    return GlobalDialogController
   }
 }

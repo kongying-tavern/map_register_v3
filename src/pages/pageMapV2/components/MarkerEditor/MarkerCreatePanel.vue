@@ -2,7 +2,7 @@
 import { Check, Close } from '@element-plus/icons-vue'
 import { useMarkerCreate } from '../../hooks'
 import { MarkerEditorForm } from '.'
-import { GlobalDialogController } from '@/hooks'
+import { GlobalDialogController } from '@/components'
 import { useAreaStore, useUserInfoStore } from '@/stores'
 import { DialogController } from '@/hooks/useGlobalDialog/dialogController'
 

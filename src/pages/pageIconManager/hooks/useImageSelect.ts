@@ -1,6 +1,7 @@
 import { ElMessage } from 'element-plus'
 import Api from '@/api/api'
-import { GlobalDialogController, useFetchHook } from '@/hooks'
+import { useFetchHook } from '@/hooks'
+import { GlobalDialogController } from '@/components'
 import db from '@/database'
 
 interface ImageSelectHookOptions {

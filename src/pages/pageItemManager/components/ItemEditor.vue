@@ -3,8 +3,7 @@ import { Check, Close } from '@element-plus/icons-vue'
 import { cloneDeep } from 'lodash'
 import { useItemEdit } from '../hooks'
 import { ItemDetailForm } from '.'
-import { GlobalDialogController } from '@/hooks/useGlobalDialog'
-import { WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
+import { GlobalDialogController, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 
 interface ItemEditorProps {
   item: API.ItemVo
