@@ -4,7 +4,6 @@ import { useMarkerCreate } from '../../hooks'
 import { MarkerEditorForm } from '.'
 import { GlobalDialogController } from '@/components'
 import { useAreaStore, useUserInfoStore } from '@/stores'
-import { DialogController } from '@/hooks/useGlobalDialog/dialogController'
 
 const props = defineProps<{
   coordinate: API.Coordinate2D
@@ -50,9 +49,7 @@ const form = ref(initFormData())
 
 const { editorRef, loading, createMarker, onSuccess } = useMarkerCreate(form)
 
-onSuccess(() => {
-  DialogController.close()
-})
+onSuccess(GlobalDialogController.close)
 </script>
 
 <template>
