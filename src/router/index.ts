@@ -31,7 +31,7 @@ const router = createRouter({
 })
 
 // ==================== 导航栈开始 ====================
-router.beforeEach(async (to, from, next) => {
+router.beforeEach(async (_to, from, next) => {
   ['/', '/login', '/register'].includes(from.path) && await routerHook.applyCallbacks('onBeforeRouterEnter')
   next(true)
 })

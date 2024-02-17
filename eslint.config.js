@@ -73,6 +73,17 @@ export default antfu({
           trailingUnderscore: 'allow',
         },
       ],
+
+      // 禁止未使用的值
+      'ts/no-unused-vars': [
+        'error',
+        {
+          args: 'all',
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          destructuredArrayIgnorePattern: '^_',
+        },
+      ],
     },
 
     vue: {
@@ -90,6 +101,14 @@ export default antfu({
 
       // 允许在相同范围从对象获取响应值
       'vue/no-ref-object-reactivity-loss': 'off',
+
+      // 禁止未使用的值
+      'vue/no-unused-vars': [
+        'error',
+        {
+          ignorePattern: '^_',
+        },
+      ],
     },
   },
 })

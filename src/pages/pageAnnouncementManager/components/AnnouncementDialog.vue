@@ -50,7 +50,7 @@ const rules: ComputedRef<ItemFormRules<API.NoticeVo>> = computed(() => ({
   ],
   validTimeEnd: [
     {
-      validator: (rule, value: number | null, cb) => {
+      validator: (_rule, value: number | null, cb) => {
         logger.info('校验 validTimeEnd', value)
         cb()
       },
