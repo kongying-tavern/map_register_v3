@@ -43,7 +43,7 @@ const handleAppendItem = () => {
 </script>
 
 <template>
-  <div class="condition-group flex flex-col px-1 py-2 gap-2">
+  <div class="condition-group flex flex-col p-1 gap-1">
     <div class="condition-group-title flex">
       <div class="flex-none flex gap-1">
         <MarkerFilterButton
@@ -111,8 +111,8 @@ const handleAppendItem = () => {
 <style lang="scss" scoped>
 .condition-group {
   --height: 32px;
-  --radius: 6px;
-  --color-light: #c6c2ba;
+  --radius: 16px;
+  --color-light: #C6C2BA;
   --color-dark: #313131;
 
   border-radius: var(--radius);
@@ -122,7 +122,7 @@ const handleAppendItem = () => {
 
 .condition-item {
   border-radius: calc(var(--height) / 2);
-  background-color: #FFF;
+  background-color: #E6E3DE;
   font-size: 14px;
   padding: 2px 4px;
   padding-left: 8px;
