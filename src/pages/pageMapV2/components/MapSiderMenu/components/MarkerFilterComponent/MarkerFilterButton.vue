@@ -53,7 +53,7 @@ const handleClick = (ev: MouseEvent) => {
   --color-dark-hover: #ffe796;
   --color-dark-disabled: #6b6964;
 
-  height: 100%;
+  height: 24px;
   display: inline-flex;
   align-items: center;
   font-size: 14px;
@@ -75,8 +75,8 @@ const handleClick = (ev: MouseEvent) => {
     justify-content: center;
     color: var(--icon-color);
     padding: 3px;
-    width: var(--icon-size) !important;
-    height: var(--icon-size) !important;
+    width: var(--icon-size);
+    height: var(--icon-size);
     border-radius: 50%;
   }
   &:has(.icon) {
