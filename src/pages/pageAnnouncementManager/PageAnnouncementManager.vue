@@ -6,11 +6,12 @@ import AnnouncementFilter from './components/AnnouncementFilter.vue'
 import AnnouncementTable from './components/AnnouncementTable.vue'
 import type { AnnouncementSearchParams } from './hooks'
 import { useList } from './hooks'
-import { DialogService } from '@/hooks/useGlobalDialog/dialogService'
-import { usePagination } from '@/hooks'
+import { useGlobalDialog, usePagination } from '@/hooks'
 import api from '@/api/api'
 
 const { pagination, layout } = usePagination()
+
+const { DialogService } = useGlobalDialog()
 
 // ==================== 搜索 ====================
 const queryForm = ref<AnnouncementSearchParams>({
