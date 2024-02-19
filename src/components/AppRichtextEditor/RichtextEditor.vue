@@ -31,7 +31,17 @@ const modelValue = defineModel<string>('modelValue', {
 const editor = useEditor({
   content: modelValue.value,
   extensions: [
-    StarterKit as Extension,
+    StarterKit.configure({
+      blockquote: false,
+      bulletList: false,
+      hardBreak: false,
+      heading: false,
+      horizontalRule: false,
+      listItem: false,
+      code: false,
+      codeBlock: false,
+      orderedList: false,
+    }) as Extension,
     TextAlign,
     TextColor,
     TextSize,
@@ -39,6 +49,22 @@ const editor = useEditor({
     Size,
   ],
 })
+
+// StarterKit 引入了这两个组件，但是类型 merge 没生效。此处 hack 一下
+declare module '@tiptap/core' {
+  interface Commands<ReturnType> {
+    bold: {
+      setBold: () => ReturnType
+      toggleBold: () => ReturnType
+      unsetBold: () => ReturnType
+    }
+    italic: {
+      setItalic: () => ReturnType
+      toggleItalic: () => ReturnType
+      unsetItalic: () => ReturnType
+    }
+  }
+}
 
 watch(modelValue, (newContent) => {
   if (!editor.value)
