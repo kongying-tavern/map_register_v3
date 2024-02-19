@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Check, Close, Right } from '@element-plus/icons-vue'
-import { MarkerIndicator, MarkerInfo } from './components'
+import { LinkIndicator, MarkerIndicator, MarkerInfo } from './components'
 import type { MLContext } from './core'
 import { useLinkCreate } from './hooks'
 import { useMapStateStore } from '@/stores'
@@ -37,7 +37,7 @@ const mapAffixLayerRef = inject(mapAffixLayerKey, ref(null))
     </div>
 
     <div class="flex justify-between items-center p-1">
-      <MarkerInfo :marker="context.sourceMarker.value" placeholder="选择源点" />
+      <MarkerInfo :marker="context.sourceMarker.value" placeholder="选择源点" color="#FF0" />
 
       <div class="h-full flex flex-col items-center">
         <div class="flex-1 text-xs flex items-center justify-center">
@@ -55,7 +55,7 @@ const mapAffixLayerRef = inject(mapAffixLayerKey, ref(null))
         />
       </div>
 
-      <MarkerInfo :marker="context.targetMarker.value" placeholder="选择目标点" />
+      <MarkerInfo :marker="context.targetMarker.value" placeholder="选择目标点" color="#0F0" />
     </div>
 
     <div class="flex-1 overflow-hidden text-xs">
@@ -115,13 +115,17 @@ const mapAffixLayerRef = inject(mapAffixLayerKey, ref(null))
       </div>
     </div>
 
-    <Teleport v-if="context.sourceMarker.value" :to="mapAffixLayerRef">
-      <MarkerIndicator :marker="context.sourceMarker.value" />
-    </Teleport>
+    <teleport v-if="context.sourceMarker.value" :to="mapAffixLayerRef">
+      <MarkerIndicator :marker="context.sourceMarker.value" color="#FF0" />
+    </teleport>
 
-    <Teleport v-if="context.targetMarker.value" :to="mapAffixLayerRef">
-      <MarkerIndicator :marker="context.targetMarker.value" />
-    </Teleport>
+    <teleport v-if="context.targetMarker.value" :to="mapAffixLayerRef">
+      <MarkerIndicator :marker="context.targetMarker.value" color="#0F0" />
+    </teleport>
+
+    <teleport v-if="context.sourceMarker.value && context.targetMarker.value" :to="mapAffixLayerRef">
+      <LinkIndicator :source="context.sourceMarker.value" :target="context.targetMarker.value" />
+    </teleport>
   </div>
 </template>
 

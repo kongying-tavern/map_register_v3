@@ -6,15 +6,22 @@ import { AppIconTagRenderer } from '@/components'
 withDefaults(defineProps<{
   marker?: GSMapState.MarkerWithRenderConfig
   placeholder?: string
+  color?: string
 }>(), {
   placeholder: '--N/A--',
+  color: '#FFFF00',
 })
 
 const iconTagStore = useIconTagStore()
 </script>
 
 <template>
-  <div class="marker-info">
+  <div
+    class="marker-info"
+    :style="{
+      '--color': color,
+    }"
+  >
     <div v-if="!marker" class="h-full grid place-items-center">
       <el-text>{{ placeholder }}</el-text>
     </div>
@@ -35,11 +42,8 @@ const iconTagStore = useIconTagStore()
   height: 64px;
   flex: 1;
   font-size: 14px;
-  background: var(--el-color-primary-light-9);
+  outline: 1px solid #CCCCCC20;
+  border: 2px solid color-mix(in srgb, var(--color), #00000020);
   border-radius: 4px;
-
-  &:hover {
-    background-color: var(--el-color-primary-light-7);
-  }
 }
 </style>

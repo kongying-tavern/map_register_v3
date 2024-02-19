@@ -2,9 +2,12 @@
 import { MapAffix } from '@/pages/pageMapV2/components'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
 
-defineProps<{
+withDefaults(defineProps<{
   marker: GSMapState.MarkerWithRenderConfig
-}>()
+  color?: string
+}>(), {
+  color: '#FFFF00',
+})
 
 const id = crypto.randomUUID()
 </script>
@@ -16,7 +19,13 @@ const id = crypto.randomUUID()
     no-covert-coord
   >
     <template #default="{ zoom }">
-      <div class="marker-indicator" :style="{ '--scale': 2 ** Math.min(zoom + 2, 0) }">
+      <div
+        class="marker-indicator"
+        :style="{
+          '--scale': 2 ** Math.min(zoom + 2, 0),
+          '--color': color,
+        }"
+      >
         <svg class="indicator-icon" viewBox="0 0 60 60" fill="currentColor">
           <defs>
             <path :id="id" d="m 2 0 l 18 0 a 1 1 0 0 1 0 2 q -18 0 -18 18 a 1 1 0 0 1 -2 0 l 0 -18 q 0 -2 2 -2" />
@@ -40,7 +49,7 @@ const id = crypto.randomUUID()
     transform: scale(1.2);
   }
   to {
-    transform: scale(1);
+    transform: scale(0.9);
   }
 }
 
@@ -50,7 +59,7 @@ const id = crypto.randomUUID()
   transform-origin: 50% 95%;
   translate: -50% -95%;
   scale: var(--scale);
-  color: #FFFFFF;
+  color: var(--color);
 }
 
 .indicator-icon {
