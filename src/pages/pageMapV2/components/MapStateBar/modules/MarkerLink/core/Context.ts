@@ -61,9 +61,6 @@ export class MLContext {
 
   /** 最终将被提交的关联关系 */
   modifiedLinkList = computed<MarkerLinkProps[]>(() => {
-    if (!this.isMergeMode.value)
-      return this.linkList.value
-
     const mergedList: MarkerLinkProps[] = []
     const keys = new Set<string>()
 
@@ -71,6 +68,9 @@ export class MLContext {
       keys.add(link.key)
       !link.isDelete && mergedList.push(link)
     })
+
+    if (!this.isMergeMode.value)
+      return mergedList
 
     const existLinks = this.existLinkGroups.value
     for (const linkageId in existLinks) {
