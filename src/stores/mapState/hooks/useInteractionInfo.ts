@@ -5,7 +5,6 @@ import { ensureFrom } from '@/utils'
 
 // ============================== ↓ 共享地址而不是使用闭包，以避免订阅过多时导致的卡顿问题 ↓ ==============================
 type InteractionKey = keyof GSMapState.InteractionTypeMap
-type InteractionValue = GSMapState.InteractionTypeMap[InteractionKey]
 
 const cache = {
   data: {
@@ -13,8 +12,8 @@ const cache = {
     focus: {} as Record<InteractionKey, ComputedRef<unknown>>,
   },
   update: {
-    hover: {} as Record<InteractionKey, (value: InteractionValue | null) => void>,
-    focus: {} as Record<InteractionKey, (value: InteractionValue | null) => void>,
+    hover: {} as Record<InteractionKey, unknown>,
+    focus: {} as Record<InteractionKey, unknown>,
   },
   pause: {
     hover: {} as Record<InteractionKey, () => void>,
@@ -57,7 +56,7 @@ export const useInteractionInfo = () => {
       return state.value.value
     })) as ComputedRef<GSMapState.InteractionTypeMap[K]>
 
-    const update = ensureFrom(cache.update[interactionType], infoType, () => ((value: GSMapState.InteractionTypeMap[K] | null) => {
+    const update = ensureFrom(cache.update[interactionType], infoType, () => (value: GSMapState.InteractionTypeMap[K] | null) => {
       if (isPaused[interactionType][infoType])
         return
       if (!state.value) {
@@ -67,7 +66,7 @@ export const useInteractionInfo = () => {
       if (state.value.type !== infoType)
         return
       setInteractionInfo(interactionType, value === null ? null : { type: infoType, value } as GSMapState.InteractionInfo)
-    }) as (value: InteractionValue | null) => void)
+    }) as (value: GSMapState.InteractionTypeMap[K] | null) => void
 
     /** 暂停该类型交互的触发 */
     const pause = ensureFrom(cache.pause[interactionType], infoType, () => () => {
