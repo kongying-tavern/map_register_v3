@@ -24,3 +24,30 @@ export const LINK_ACTION_OPTIONS = [
   { label: '关联', value: LinkActionEnum.RELATED },
   { label: '等价', value: LinkActionEnum.EQUIVALENT },
 ]
+
+export interface LinkActionConfig {
+  /** 指示线颜色 */
+  lineColor: string
+}
+
+export const LINK_ACTION_CONFIG: Record<LinkActionEnum, LinkActionConfig> = {
+  [LinkActionEnum.TRIGGER]: {
+    lineColor: '#FF0000',
+  },
+  [LinkActionEnum.TRIGGER_ALL]: {
+    lineColor: '#000080',
+
+  },
+  [LinkActionEnum.TRIGGER_ANY]: {
+    lineColor: '#ADD8E6',
+
+  },
+  [LinkActionEnum.RELATED]: {
+    lineColor: '#FFA500',
+
+  },
+  [LinkActionEnum.EQUIVALENT]: {
+    lineColor: '#008000',
+
+  },
+}
