@@ -54,7 +54,7 @@ export const useInteractionInfo = () => {
       if (state.value?.type !== infoType)
         return null
       return state.value.value
-    })) as ComputedRef<GSMapState.InteractionTypeMap[K]>
+    })) as ComputedRef<GSMapState.InteractionTypeMap[K] | null>
 
     const update = ensureFrom(cache.update[interactionType], infoType, () => (value: GSMapState.InteractionTypeMap[K] | null) => {
       if (isPaused[interactionType][infoType])
