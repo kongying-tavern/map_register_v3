@@ -36,6 +36,11 @@ export const useLinkCreate = (context: MLContext) => {
       }))
       const { data: linkageId = '' } = await Api.markerLink.linkMarker(linkList)
 
+      // 查询更新
+      const { data = {} } = await Api.markerLink.getList({
+        groupIds: [linkageId],
+      })
+
       // 1. 删除所有受影响的点位的 linkageId
       // 2. 对存在于新关联组内的点位设置新的 linkageId
       await db.transaction('rw', db.marker, db.markerLink, async () => {
@@ -45,11 +50,6 @@ export const useLinkCreate = (context: MLContext) => {
           linkageId: linkingMarkerIds.has(marker.id!) ? linkageId : '',
         }))
         await db.marker.bulkPut(modifiedMarkers)
-
-        // 更新本地点位关联数据库
-        const { data = {} } = await Api.markerLink.getList({
-          groupIds: [linkageId],
-        })
         await db.markerLink.bulkPut(Object.values(data).flat(1))
       })
     },
