@@ -1,3 +1,5 @@
+import type { Color } from '@deck.gl/core/typed'
+
 /** 点位关联行为枚举 */
 export enum LinkActionEnum {
   /** 单触发 - 点对点的单向触发。 */
@@ -27,27 +29,26 @@ export const LINK_ACTION_OPTIONS = [
 
 export interface LinkActionConfig {
   /** 指示线颜色 */
-  lineColor: string
+  lineColor: Color
 }
 
 export const LINK_ACTION_CONFIG: Record<LinkActionEnum, LinkActionConfig> = {
   [LinkActionEnum.TRIGGER]: {
-    lineColor: '#FF0000',
+    lineColor: [255, 0, 0, 200], // rgb(255 0 0)
   },
   [LinkActionEnum.TRIGGER_ALL]: {
-    lineColor: '#000080',
+    lineColor: [0, 0, 128, 200], // rgb(0 0 128)
 
   },
   [LinkActionEnum.TRIGGER_ANY]: {
-    lineColor: '#ADD8E6',
-
+    lineColor: [173, 216, 230, 200], // rgb(173 216 230)
   },
   [LinkActionEnum.RELATED]: {
-    lineColor: '#FFA500',
+    lineColor: [255, 165, 0, 200], // rgb(255 165 0)
 
   },
   [LinkActionEnum.EQUIVALENT]: {
-    lineColor: '#008000',
+    lineColor: [0, 128, 0, 200], // rgb(0 128 0)
 
   },
 }

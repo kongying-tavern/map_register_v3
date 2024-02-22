@@ -23,6 +23,8 @@ const isMergeMode = computed({
 
 const mapStateStore = useMapStateStore()
 
+const { data, update: updateLinkHover } = mapStateStore.subscribeInteractionInfo('hover', 'defaultMarkerLink')
+
 const { refresh: submit } = useLinkCreate(props.context)
 
 const mapAffixLayerRef = inject(mapAffixLayerKey, ref(null))
@@ -60,30 +62,33 @@ const mapAffixLayerRef = inject(mapAffixLayerKey, ref(null))
 
     <div class="flex-1 overflow-hidden text-xs">
       <div class="link-table">
-        <el-scrollbar>
-          <div
-            v-for="({ fromId = 0, toId = 0, linkAction, key }) in context.modifiedLinkList.value"
-            :key="key"
-            class="link-item"
-          >
-            <span class="flex-1 text-center">
-              {{ `${mapStateStore.currentLayerMarkersMap[fromId ?? -1]?.markerTitle} (id: ${fromId})` }}
-            </span>
-            <span class="flex-1 text-center">
-              {{ linkAction }}
-            </span>
-            <span class="flex-1 text-center">
-              {{ `${mapStateStore.currentLayerMarkersMap[toId ?? -1]?.markerTitle} (id: ${toId})` }}
-            </span>
-            <el-button
-              text
-              type="danger"
-              size="small"
-              :icon="Close"
-              @click="() => context.deleteLink({ key, fromId, toId, linkAction })"
-            />
-          </div>
-        </el-scrollbar>
+        <div
+          v-for="({ fromId = 0, toId = 0, linkAction, key }) in context.modifiedLinkList.value"
+          :key="key"
+          class="link-item"
+          :class="{
+            'is-hover': data?.key === key,
+          }"
+          @pointerenter="() => updateLinkHover({ key, source: fromId, target: toId, type: linkAction })"
+          @pointerleave="() => updateLinkHover(null)"
+        >
+          <span class="flex-1 text-center">
+            {{ `${mapStateStore.currentLayerMarkersMap[fromId ?? -1]?.markerTitle}` }}
+          </span>
+          <span class="flex-1 text-center">
+            {{ linkAction }}
+          </span>
+          <span class="flex-1 text-center">
+            {{ `${mapStateStore.currentLayerMarkersMap[toId ?? -1]?.markerTitle}` }}
+          </span>
+          <el-button
+            text
+            type="danger"
+            size="small"
+            :icon="Close"
+            @click="() => context.deleteLink({ key, fromId, toId, linkAction })"
+          />
+        </div>
       </div>
     </div>
 
@@ -132,14 +137,31 @@ const mapAffixLayerRef = inject(mapAffixLayerKey, ref(null))
 <style scoped>
 .link-table {
   height: 100%;
-  overflow: hidden;
+  overflow: auto;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+    background-color: transparent;
+    border-radius: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--el-color-primary-light-5);
+    border-radius: 6px;
+  }
 }
 
 .link-item {
-  height: 32px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 4px;
+  padding: 0 2px 4px 2px;
+  background-color: #DDD;
+  background-clip: content-box;
+  border-radius: 8px;
+
+  &.is-hover {
+    background-color: #FFFF0040;
+  }
 }
 </style>
