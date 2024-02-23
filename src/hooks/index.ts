@@ -1,5 +1,6 @@
 export * from './onUserLogout'
 export * from './useAreaList'
+export * from './useBinaryFlag'
 export * from './useCountDown'
 export * from './useDatabaseHook'
 export * from './useBanner'

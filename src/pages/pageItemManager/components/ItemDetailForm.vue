@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { ItemFormRules } from '@/utils'
 import { lengthCheck, requireCheck } from '@/utils'
-import { useIconList, useRefreshTime } from '@/hooks'
+import { useBinaryFlag, useIconList, useRefreshTime } from '@/hooks'
 import type { ElFormType } from '@/shared'
 import { HiddenFlagEnum, IconStyleTyleEnum } from '@/shared'
 import { AppTimeSelect } from '@/components'
@@ -88,6 +88,12 @@ const refreshTime = computed({
 })
 const { refreshTimeType, refreshTimeTypeOptions, isCustom } = useRefreshTime(refreshTime)
 
+// ==================== 特殊标识 ====================
+const { teleportable } = useBinaryFlag(toRef(formData.value, 'specialFlag'), {
+  teleportable: 0,
+  iconCustomized: 1,
+})
+
 // ==================== 其他定义 ====================
 defineExpose({
   validate: () => formRef.value?.validate().catch(() => false),
@@ -102,11 +108,7 @@ defineExpose({
       </el-form-item>
 
       <el-form-item label="可传送" title="是否为传送点位" prop="specialFlag">
-        <el-switch
-          v-model="formData.specialFlag"
-          :active-value="1"
-          :inactive-value="0"
-        />
+        <el-switch v-model="teleportable" />
       </el-form-item>
     </div>
 
