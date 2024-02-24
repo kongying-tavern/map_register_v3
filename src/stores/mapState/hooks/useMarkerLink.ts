@@ -50,6 +50,7 @@ export const useMarkerLink = (options: MarkerLinkHookOptions) => {
         source: fromId!,
         target: toId!,
         type: linkAction! as GSMapState.MLRenderUnit['type'],
+        key: `${Math.min(fromId!, toId!)}-${Math.max(fromId!, toId!)}-${linkAction! as GSMapState.MLRenderUnit['type']}`,
       })
     })
 

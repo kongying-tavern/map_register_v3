@@ -45,6 +45,14 @@ export class MLContext {
   /** 新添加的关联 */
   linkList = ref<MarkerLinkProps[]>([])
 
+  existMarkerIds = computed(() => {
+    return this.linkList.value.reduce((seed, { fromId, toId }) => {
+      seed.add(fromId)
+      seed.add(toId)
+      return seed
+    }, new Set<number>())
+  })
+
   /** 已有的关联组，key 表示关联组 id */
   existLinkGroups = ref<Record<string, {
     /** 关联组包含的点位 id，当包含为空时，该关联组会被移除 */
@@ -59,19 +67,13 @@ export class MLContext {
     this.isMergeMode.value = v
   }
 
-  /** 最终将被提交的关联关系 */
-  modifiedLinkList = computed<MarkerLinkProps[]>(() => {
-    const mergedList: MarkerLinkProps[] = []
-    const keys = new Set<string>()
+  /** 是否显示删除项 */
+  showDeleted = ref(false)
+  setShowDeleted = (v: boolean) => {
+    this.showDeleted.value = v
+  }
 
-    this.linkList.value.forEach((link) => {
-      keys.add(link.key)
-      !link.isDelete && mergedList.push(link)
-    })
-
-    if (!this.isMergeMode.value)
-      return mergedList
-
+  protected mergeExistLinkList = (mergedList: MarkerLinkProps[], keys: Set<string>) => {
     const existLinks = this.existLinkGroups.value
     for (const linkageId in existLinks) {
       const { links } = existLinks[linkageId]
@@ -92,12 +94,49 @@ export class MLContext {
         })
       })
     }
+    return mergedList
+  }
 
+  /** 最终将被提交的关联关系 */
+  modifiedLinkList = computed<MarkerLinkProps[]>(() => {
+    const mergedList: MarkerLinkProps[] = []
+    const keys = new Set<string>()
+
+    this.linkList.value.forEach((link) => {
+      keys.add(link.key)
+      !link.isDelete && mergedList.push(link)
+    })
+
+    if (!this.isMergeMode.value)
+      return mergedList
+
+    this.mergeExistLinkList(mergedList, keys)
+    return mergedList
+  })
+
+  /** 用于显示删除项的展示列表 */
+  entireLinkList = computed<MarkerLinkProps[]>(() => {
+    const mergedList: MarkerLinkProps[] = []
+    const keys = new Set<string>()
+
+    this.linkList.value.forEach((link) => {
+      keys.add(link.key)
+      ;(this.showDeleted.value || !link.isDelete) && mergedList.push(link)
+    })
+
+    if (!this.isMergeMode.value)
+      return mergedList
+
+    this.mergeExistLinkList(mergedList, keys)
     return mergedList
   })
 
   /** 获取关联条目的唯一标识 */
-  getLinkKey = ({ fromId, toId, linkAction }: Omit<MarkerLinkProps, 'key'>) => {
+  getLinkKey = ({
+    fromId = 0,
+    toId = 0,
+    linkAction = 'unknown',
+  }: Partial<Omit<MarkerLinkProps, 'key' | 'linkAction'> & { linkAction?: string }>) => {
     return `${Math.min(fromId, toId)}-${Math.max(fromId, toId)}-${linkAction}`
   }
 
@@ -149,12 +188,29 @@ export class MLContext {
     }
 
     const findIndex = list.findIndex(({ key }) => link.key === key)
-    if (findIndex < 0)
-      list.push(rewriteLink)
-    else
+    if (findIndex > -1)
       list.splice(findIndex, 1, rewriteLink)
+    else
+      list.push(rewriteLink)
 
     this.linkList.value = list
+
+    this.resetSelectedState()
+  }
+
+  /** 撤销对已存在关联的删除操作 */
+  revokeDeletion = (link: MarkerLinkProps) => {
+    const list = [...this.linkList.value]
+
+    const findIndex = list.findIndex(({ key }) => link.key === key)
+    const rewriteLink = {
+      ...list[findIndex],
+      isDelete: false,
+    }
+    list.splice(findIndex, 1, rewriteLink)
+
+    this.linkList.value = list
+
     this.resetSelectedState()
   }
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Check, Close, Right } from '@element-plus/icons-vue'
+import { Check, Close, RefreshLeft } from '@element-plus/icons-vue'
 import { LinkIndicator, MarkerIndicator, MarkerInfo } from './components'
 import type { MLContext } from './core'
 import { useLinkCreate } from './hooks'
@@ -21,6 +21,11 @@ const isMergeMode = computed({
   set: v => props.context.setMergeMode(v),
 })
 
+const showDeleted = computed({
+  get: () => props.context.showDeleted.value,
+  set: v => props.context.setShowDeleted(v),
+})
+
 const mapStateStore = useMapStateStore()
 
 const { data, update: updateLinkHover } = mapStateStore.subscribeInteractionInfo('hover', 'defaultMarkerLink')
@@ -32,42 +37,44 @@ const mapAffixLayerRef = inject(mapAffixLayerKey, ref(null))
 
 <template>
   <div class="w-[400px] min-h-[500px] h-full flex flex-col">
-    <div class="px-1">
-      <el-alert>
-        选择目标点后，再次点击目标点才能将当前关系加入到关联组
-      </el-alert>
-    </div>
+    <div class="w-full flex flex-col gap-2 px-2 pt-2">
+      <div class="flex justify-between items-center">
+        <MarkerInfo :marker="context.sourceMarker.value" placeholder="选择源点" color="#FF0" />
 
-    <div class="flex justify-between items-center p-1">
-      <MarkerInfo :marker="context.sourceMarker.value" placeholder="选择源点" color="#FF0" />
-
-      <div class="h-full flex flex-col items-center">
-        <div class="flex-1 text-xs flex items-center justify-center">
-          源点
-          <el-icon class="mx-2">
-            <Right />
-          </el-icon>
-          目标
-        </div>
         <el-select-v2
           v-model="modelValue"
           :options="LINK_ACTION_OPTIONS"
           style="width: 110px"
           class="px-1"
         />
-      </div>
 
-      <MarkerInfo :marker="context.targetMarker.value" placeholder="选择目标点" color="#0F0" />
+        <MarkerInfo :marker="context.targetMarker.value" placeholder="选择目标点" color="#0F0" />
+      </div>
+    </div>
+
+    <div class="text-xs text-center p-2 flex">
+      <el-popover placement="top-start" content="非合并情况下，源点和目标点所在的关联组将被解散，当前关联将形成新的关联组。">
+        <template #reference>
+          <el-checkbox v-model="isMergeMode" label="合并原有关联" />
+        </template>
+      </el-popover>
+
+      <el-popover placement="top-start" content="在列表中显示已经删除的点位关联">
+        <template #reference>
+          <el-checkbox v-model="showDeleted" label="显示删除项" />
+        </template>
+      </el-popover>
     </div>
 
     <div class="flex-1 overflow-hidden text-xs">
       <div class="link-table">
         <div
-          v-for="({ fromId = 0, toId = 0, linkAction, key }) in context.modifiedLinkList.value"
+          v-for="({ fromId = 0, toId = 0, linkAction, key, isDelete }) in context.entireLinkList.value"
           :key="key"
           class="link-item"
           :class="{
             'is-hover': data?.key === key,
+            'is-delete': isDelete,
           }"
           @pointerenter="() => updateLinkHover({ key, source: fromId, target: toId, type: linkAction })"
           @pointerleave="() => updateLinkHover(null)"
@@ -83,38 +90,33 @@ const mapAffixLayerRef = inject(mapAffixLayerKey, ref(null))
           </span>
           <el-button
             text
-            type="danger"
-            size="small"
-            :icon="Close"
-            @click="() => context.deleteLink({ key, fromId, toId, linkAction })"
+            circle
+            :type="isDelete ? 'success' : 'danger'"
+            :title="isDelete ? '撤销删除' : '删除此项关联'"
+            :icon="isDelete ? RefreshLeft : Close"
+            @click="() => context[isDelete ? 'revokeDeletion' : 'deleteLink']({ key, fromId, toId, linkAction })"
           />
         </div>
       </div>
     </div>
 
-    <div class="text-xs text-center pt-1">
-      当前关联组共有 {{ context.modifiedLinkList.value.length }} 项关系
-    </div>
-
-    <div class="flex justify-between p-1">
-      <div class="flex items-center gap-1 pl-1">
-        <el-text>
-          合并原有关联
-          <el-popover placement="top-start" content="非合并情况下，源点和目标点所在的关联组将被解散，当前关联将形成新的关联组。">
-            <template #reference>
-              <el-icon>
-                <QuestionFilled />
-              </el-icon>
-            </template>
-          </el-popover>
-        </el-text>
-        <el-switch v-model="isMergeMode" />
-      </div>
+    <div class="flex justify-between p-2">
+      <el-text>合计 {{ context.modifiedLinkList.value.length }} 项</el-text>
       <div>
-        <el-button :icon="Check" :loading="context.loading.value" type="primary" @click="submit">
+        <el-button
+          :icon="Check"
+          :disabled="!context.linkList.value.length"
+          :loading="context.loading.value"
+          type="primary"
+          @click="submit"
+        >
           确认
         </el-button>
-        <el-button :icon="Close" :disabled="context.loading.value" @click="context.cancel">
+        <el-button
+          :icon="Close"
+          :disabled="context.loading.value"
+          @click="context.cancel"
+        >
           取消
         </el-button>
       </div>
@@ -137,7 +139,10 @@ const mapAffixLayerRef = inject(mapAffixLayerKey, ref(null))
 <style scoped>
 .link-table {
   height: 100%;
-  overflow: auto;
+  overflow: scroll;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 
   &::-webkit-scrollbar {
     width: 6px;
@@ -152,16 +157,23 @@ const mapAffixLayerRef = inject(mapAffixLayerKey, ref(null))
 
 .link-item {
   height: 40px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 2px 4px 2px;
-  background-color: #DDD;
-  background-clip: content-box;
-  border-radius: 8px;
+  margin: 0 4px 0 8px;
+  padding: 2px 4px;
+  background-color: var(--el-color-info-light-7);
+  border-radius: 20px;
+  position: relative;
+  outline-offset: -2px;
 
   &.is-hover {
-    background-color: #FFFF0040;
+    outline: 2px solid #FF0;
+  }
+
+  &.is-delete {
+    background-color: #FAA;
   }
 }
 </style>
