@@ -125,7 +125,7 @@ onMounted(() => {
 
       <q-page-container>
         <q-page class="q-px-lg q-py-md dialog-content">
-          <div v-dompurify-html="dialogItem.content" />
+          <div v-dompurify-html:unity="dialogItem.content" />
         </q-page>
       </q-page-container>
     </q-layout>
@@ -164,7 +164,7 @@ onMounted(() => {
     min-height: 1.1rem;
   }
   ::v-deep(size) {
-    font-size: calc(--size * 1px);
+    font-size: calc(var(--size) * 1px);
   }
   ::v-deep(color) {
     color: var(--color);
