@@ -169,5 +169,22 @@ onMounted(() => {
   ::v-deep(color) {
     color: var(--color);
   }
+  ::v-deep(a) {
+    --link-color: #8cb4ff;
+    --bg-color: #d5e0f7;
+
+    cursor: pointer;
+    text-decoration: underline dashed var(--link-color);
+    &:hover {
+      text-decoration-style: solid;
+      background-color: var(--bg-color);
+    }
+    &:focus,
+    &:active {
+      text-decoration: none;
+      background-color: var(--link-color);
+      color: #fff;
+    }
+  }
 }
 </style>
