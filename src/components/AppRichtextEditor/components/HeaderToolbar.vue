@@ -123,7 +123,7 @@ const setLink = () => {
 
     <ToolbarItem
       title="加粗"
-      class="text-xl"
+      class="font-mono text-xl"
       :is-active="editor.isActive('bold')"
       @click="editor.commands.toggleBold"
     >
@@ -137,6 +137,15 @@ const setLink = () => {
       @click="editor.commands.toggleItalic"
     >
       I
+    </ToolbarItem>
+
+    <ToolbarItem
+      title="下划线"
+      class="underline font-mono text-xl"
+      :is-active="editor.isActive('underline')"
+      @click="editor.commands.toggleUnderline"
+    >
+      U
     </ToolbarItem>
 
     <ToolbarItem
