@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Editor } from '@tiptap/core'
+import { Link } from '@element-plus/icons-vue'
 import type { ToolbarConfig } from '../types'
 import ToolbarItem from './ToolbarItem.vue'
 
@@ -12,11 +13,26 @@ const props = withDefaults(defineProps<{
   headerMax: 6,
 })
 
+// ==================== 字体颜色 ====================
 const setColor = (value: string, done: () => void) => {
   props.editor.chain().focus().setColor(value).run()
   done()
 }
 
+const colorList: string[] = [
+  '#FFFFFF',
+  '#000000',
+  '#E7E6E6',
+  '#44546A',
+  '#4472C4',
+  '#ED7D31',
+  '#A5A5A5',
+  '#FFC000',
+  '#5B9BD5',
+  '#70AD47',
+]
+
+// ==================== 字体尺寸 ====================
 const size = controlledRef<number>(props.baseSize, {
   onBeforeChange: (value) => {
     if (Number.isNaN(Number(value)))
@@ -43,19 +59,6 @@ const setSize = (value: number) => {
   props.editor.chain().focus().setSize(value).run()
 }
 
-const colorList: string[] = [
-  '#FFFFFF',
-  '#000000',
-  '#E7E6E6',
-  '#44546A',
-  '#4472C4',
-  '#ED7D31',
-  '#A5A5A5',
-  '#FFC000',
-  '#5B9BD5',
-  '#70AD47',
-]
-
 const sizeAliasList = computed(() => {
   const sizeAliasFullList = [
     { level: 1, sizeFactor: 2 },
@@ -78,6 +81,33 @@ const sizeAliasList = computed(() => {
 
   return []
 })
+
+// ==================== 文字链接 ====================
+const setLink = () => {
+  const previousUrl = props.editor.getAttributes('link').href
+  const url = window.prompt('请输入链接，清空链接为删除链接', previousUrl) // eslint-disable-line no-alert
+
+  // 取消弹窗
+  if (url === null)
+    return
+  // empty
+  if (url === '') {
+    props.editor
+      .chain()
+      .focus()
+      .extendMarkRange('link')
+      .unsetLink()
+      .run()
+    return
+  }
+
+  props.editor
+    .chain()
+    .focus()
+    .extendMarkRange('link')
+    .setLink({ href: url })
+    .run()
+}
 </script>
 
 <template>
@@ -91,14 +121,33 @@ const sizeAliasList = computed(() => {
       />
     </ToolbarItem>
 
-    <ToolbarItem title="加粗" class="text-xl" :is-active="editor.isActive('bold')" @click="editor.commands.toggleBold">
+    <ToolbarItem
+      title="加粗"
+      class="text-xl"
+      :is-active="editor.isActive('bold')"
+      @click="editor.commands.toggleBold"
+    >
       B
     </ToolbarItem>
 
-    <ToolbarItem title="斜体" :is-active="editor.isActive('italic')" @click="editor.commands.toggleItalic">
-      <span class="italic font-mono text-xl">
-        I
-      </span>
+    <ToolbarItem
+      title="斜体"
+      class="italic font-mono text-xl"
+      :is-active="editor.isActive('italic')"
+      @click="editor.commands.toggleItalic"
+    >
+      I
+    </ToolbarItem>
+
+    <ToolbarItem
+      title="超链接"
+      class="text-xl"
+      :is-active="editor.isActive('link')"
+      @click="setLink"
+    >
+      <el-icon>
+        <Link />
+      </el-icon>
     </ToolbarItem>
 
     <ToolbarItem

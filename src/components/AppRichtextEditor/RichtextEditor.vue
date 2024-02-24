@@ -3,6 +3,7 @@ import { EditorContent, useEditor } from '@tiptap/vue-3'
 import type { Extension } from '@tiptap/core'
 import TextAlign from '@tiptap/extension-text-align'
 import StarterKit from '@tiptap/starter-kit'
+import TextLink from '@tiptap/extension-link'
 import type { EditorConfig, ToolbarConfig } from './types'
 import { Color, Size } from './marks'
 import { TextColor, TextSize } from './extensions'
@@ -45,6 +46,12 @@ const editor = useEditor({
     TextAlign,
     TextColor,
     TextSize,
+    TextLink.configure({
+      protocols: ['http', 'https', 'ftp', 'sftp', 'ftps', 'mailto'],
+      autolink: false,
+      openOnClick: false,
+      linkOnPaste: false,
+    }) as Extension,
     Color,
     Size,
   ],
@@ -141,17 +148,32 @@ onMounted(() => nextTick(() => {
     line-height: v-bind('viewLineHeight');
     color: v-bind('defaultForeground');
 
-    color {
-      color: var(--color);
-    }
-
-    size {
-      font-size: calc(var(--size, v-bind('baseTextSize') / v-bind('sizeRatio')) * v-bind('viewZoom') * var(--sizeUnit));
-    }
-
     p {
       margin: 0;
       padding: 0;
+    }
+    color {
+      color: var(--color);
+    }
+    size {
+      font-size: calc(var(--size, v-bind('baseTextSize') / v-bind('sizeRatio')) * v-bind('viewZoom') * var(--sizeUnit));
+    }
+    a {
+      --link-color: #8cb4ff;
+      --bg-color: #d5e0f7;
+
+      cursor: pointer;
+      text-decoration: underline dashed var(--link-color);
+      &:hover {
+        text-decoration-style: solid;
+        background-color: var(--bg-color);
+      }
+      &:focus,
+      &:active {
+        text-decoration: none;
+        background-color: var(--link-color);
+        color: #fff;
+      }
     }
   }
 }
