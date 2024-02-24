@@ -5,6 +5,10 @@ import {
   SwitchOverlay,
   ViewState,
 } from './components'
+import { RoleTypeEnum } from '@/shared'
+import { useUserInfoStore } from '@/stores'
+
+const userInfoStore = useUserInfoStore()
 
 const virtualRef = ref<HTMLElement>()
 const contentZoneRef = ref<HTMLElement>()
@@ -33,7 +37,7 @@ useEventListener(contentZoneRef, 'click', checkTooltip)
 <template>
   <div class="map-state-bar">
     <div ref="contentZoneRef" class="bar-content">
-      <PaintMarkerLink />
+      <PaintMarkerLink v-if="userInfoStore.hasRole(RoleTypeEnum.MAP_MANAGER)" />
       <SwitchMarkerPopover />
       <SwitchOverlay />
       <ViewState />
