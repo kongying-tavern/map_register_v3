@@ -29,8 +29,6 @@ export const useMarkers = (options: MarkerHookOptions) => {
     itemStore,
   } = options
 
-  const areaIdMap = areaStore.areaIdMap
-  const itemIdMap = itemStore.itemIdMap
   const { markerFilterType } = useMarkerFilter(options)
   const { getMAFConfig } = useMarkerAdvancedFilter(options)
 
@@ -43,6 +41,8 @@ export const useMarkers = (options: MarkerHookOptions) => {
     if (!tileConfigs)
       return []
 
+    const areaIdMap = areaStore.areaIdMap
+    const itemIdMap = itemStore.itemIdMap
     const itemIds = new Set(preferenceStore.preference['markerFilter.state.itemIds'] ?? [])
     const res = markerStore.markerList.filter(({ itemList = [] }) => {
       for (const { itemId } of itemList) {
@@ -59,6 +59,8 @@ export const useMarkers = (options: MarkerHookOptions) => {
     const tileConfigs = tileStore.mergedTileConfigs
     if (!tileConfigs)
       return []
+    const areaIdMap = areaStore.areaIdMap
+    const itemIdMap = itemStore.itemIdMap
 
     const advancedFilters = preferenceStore.preference['markerFilter.filter.advancedFilter'] ?? []
 
