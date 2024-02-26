@@ -57,7 +57,11 @@ const { refresh: updateUserInfo, loading } = useFetchHook({
   <div class="h-full flex flex-col justify-center items-center overflow-hidden">
     <el-form
       ref="formRef"
-      style="--el-form-label-font-size: 18px; width: 370px"
+      style="
+        --el-form-label-font-size: 18px;
+        width: 370px;
+        --el-text-color-regular: #424F65;
+      "
       label-width="100px"
       label-position="left"
       :model="form"

@@ -62,7 +62,11 @@ onSuccess(() => {
   <div class="flex flex-col justify-center items-center">
     <el-form
       ref="formRef"
-      style="--el-form-label-font-size: 18px; width: 370px"
+      style="
+        --el-form-label-font-size: 18px;
+        width: 370px;
+        --el-text-color-regular: #424F65;
+      "
       label-width="100px"
       label-position="left"
       :model="form"
