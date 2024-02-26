@@ -108,16 +108,24 @@ export interface UserPreference {
 }
 
 export const getDefaultPreference = (): UserPreference => ({
+  // map
   'map.setting.showZoneTag': true,
   'map.setting.transparentMarked': true,
+  'map.setting.zoomTransitionDuration': 66,
+
+  // mapSiderMenu
   'mapSiderMenu.state.tabName': 'filter',
   'mapSiderMenu.state.collapse': false,
-  'markerFilter.setting.autoNext': true,
-  'markerFilter.setting.filterType': 'basic',
+
+  // markerFilter
+  'markerFilter.filter.advancedFilter': [],
   'markerFilter.state.step': 0,
   'markerFilter.state.parentAreaCode': 'C:FD',
   'markerFilter.state.areaCode': 'A:FD:FENGDAN',
-  'markerFilter.filter.advancedFilter': [],
-  'map.setting.zoomTransitionDuration': 66,
+  'markerFilter.setting.autoNext': true,
+  'markerFilter.setting.filterType': 'basic',
+  'markerFilter.setting.presets': [],
+
+  // settingPanel
   'settingPanel.state.activedKey': 'dashboard',
 })
