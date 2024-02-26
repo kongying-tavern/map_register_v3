@@ -1,5 +1,4 @@
 import { BitmapLayer } from '@deck.gl/layers/typed'
-import type { _TileLoadProps } from '@deck.gl/geo-layers/typed'
 import { TileLayer } from '@deck.gl/geo-layers/typed'
 import type { GSCompositeLayerState } from '.'
 
@@ -28,7 +27,7 @@ export class GSTileLayer extends TileLayer {
       minZoom: -3, // 固定值，对应服务端存储底图的 level 10
       maxZoom: 0, // 固定值，对应服务端存储底图的 level 13
       extent: [ox, h + oy, w + ox, oy],
-      getTileData: async ({ index: { x, y, z }, signal }: _TileLoadProps) => {
+      getTileData: async ({ index: { x, y, z }, signal }) => {
         const { baseURL, zoomMapping } = GSTileLayer.config
         try {
           if (signal?.aborted)
