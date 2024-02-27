@@ -18,6 +18,7 @@ const queryForm = ref<AnnouncementSearchParams>({
   channels: [],
   title: '',
   sort: ['validTimeStart-'],
+  getValid: true,
 })
 
 const { getList, loading, mainTableData } = useList({

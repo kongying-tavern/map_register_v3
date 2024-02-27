@@ -14,3 +14,8 @@ export const channelsMap = _.chain(channelsDict)
   .map(v => [v.value, v.label])
   .fromPairs()
   .value()
+
+export const getValidDict = [
+  { label: '有效', value: true },
+  { label: '失效', value: false },
+]

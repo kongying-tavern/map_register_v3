@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { AnnouncementSearchParams } from '../hooks'
-import { channelsDict } from '../const/dictionary'
+import { channelsDict, getValidDict } from '../const/dictionary'
 
 const props = defineProps<{
   modelValue: AnnouncementSearchParams
@@ -17,6 +17,7 @@ const model = <K extends keyof AnnouncementSearchParams>(key: K) => computed({
 
 const channels = model('channels')
 const title = model('title')
+const getValid = model('getValid')
 </script>
 
 <template>
@@ -36,6 +37,13 @@ const title = model('title')
           v-model="title"
           placeholder="请输入标题"
           style="width: 100%"
+          clearable
+        />
+      </el-form-item>
+      <el-form-item label="是否失效">
+        <el-select-v2
+          v-model="getValid"
+          :options="getValidDict"
           clearable
         />
       </el-form-item>
