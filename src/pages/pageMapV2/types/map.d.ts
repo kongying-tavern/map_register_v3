@@ -1,4 +1,5 @@
 import type { DeckProps } from '@deck.gl/core/typed'
+import type { GenshinMap } from '../core'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
 
 declare namespace GSMap {

@@ -8,16 +8,16 @@ declare global {
   }
 
   /** 提取数组项 */
-  type Item<T extends unknown[]> = T[number]
+  type Item<T> = T extends unknown[] ? T[number] : T
 
   /** 下划线风格转换为小驼峰风格 */
-  type SnakeCaseToCamelCase<S extends string> =
+  type SnakeCaseToCamelCase<S> =
   S extends `${infer Prefix}_${infer Rest}`
     ? `${SnakeCaseToCamelCase<Prefix>}${Capitalize<SnakeCaseToCamelCase<Rest>>}`
     : S
 
   /** 转换对象的所有下划线风格 key 为小驼峰风格的 key */
-  type SnakeCaseKeysToCamelCase<T> = {
+  type SnakeCaseKeysToCamelCase<T extends Record<string, unknown>> = {
     [K in keyof T as SnakeCaseToCamelCase<K>]: T[K];
   }
 
