@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useIconTagStore } from '@/stores'
-import { AppVirtualTable } from '@/components'
+import { AppIconTagRenderer, AppVirtualTable } from '@/components'
 
 const props = defineProps<{
   tagList: API.TagVo[]
@@ -73,19 +73,10 @@ watch(scrollTarget, scrollTo)
           }"
           @click="activedTag = item"
         >
-          <div
-            v-if="!iconTagStore.tagPositionMap[item.tag!]"
-            class="w-16 h-16 grid place-items-center text-center"
-          >
-            图片缺省
-          </div>
-          <div
-            v-else
-            class="item-image"
-            :style="{
-              '--x': `${-iconTagStore.tagPositionMap[item.tag!][0]}px`,
-              '--y': `${-iconTagStore.tagPositionMap[item.tag!][1]}px`,
-            }"
+          <AppIconTagRenderer
+            class="w-12 h-12 text-[#AB9073]"
+            :src="iconTagStore.tagSpriteUrl"
+            :mapping="iconTagStore.tagPositionMap[item.tag!]"
           />
           <div class="item-label">
             {{ item.tag }}
