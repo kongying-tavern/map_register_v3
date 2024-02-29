@@ -28,8 +28,8 @@ const handleDelete = () => {
 
 <template>
   <div class="condition-row genshin-text">
-    <div class="h-full flex-1 flex items-center gap-1">
-      <MarkerFilterButton :clickable="false">
+    <div class="h-full flex-1 flex items-center p-1 gap-1 overflow-hidden">
+      <MarkerFilterButton :clickable="false" :title="condition.area.name">
         {{ condition.area.name }}
       </MarkerFilterButton>
 
@@ -42,17 +42,19 @@ const handleDelete = () => {
       </MarkerFilterButton>
     </div>
 
-    <MarkerFilterButton
-      :disabled="disabled"
-      theme="dark"
-      icon-color="var(--gs-color-danger)"
-      @click="handleDelete"
-    >
-      <template #icon>
-        <DeleteFilled />
-      </template>
-      删除
-    </MarkerFilterButton>
+    <div class="p-1 flex-shrink-0">
+      <MarkerFilterButton
+        :disabled="disabled"
+        theme="dark"
+        icon-color="var(--gs-color-danger)"
+        @click="handleDelete"
+      >
+        <template #icon>
+          <DeleteFilled />
+        </template>
+        删除
+      </MarkerFilterButton>
+    </div>
   </div>
 </template>
 
@@ -64,11 +66,11 @@ const handleDelete = () => {
 
   height: var(--height);
   border-radius: calc(var(--height) / 2);
-  padding: 4px;
   display: flex;
   gap: 4px;
   align-items: center;
   background: var(--color-light);
   color: var(--color-dark);
+  overflow: hidden;
 }
 </style>

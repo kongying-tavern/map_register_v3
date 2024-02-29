@@ -4,6 +4,7 @@ const props = withDefaults(defineProps<{
   disabled?: boolean
   iconColor?: string
   theme?: 'light' | 'dark'
+  title?: string
 }>(), {
   clickable: true,
   theme: 'light',
@@ -25,6 +26,7 @@ const handleClick = (ev: MouseEvent) => {
 <template>
   <div
     class="condition-unit"
+    :title="title"
     :class="[
       clickable ? 'condition-unit-button' : '',
       disabled ? 'is-disabled' : '',
@@ -33,14 +35,16 @@ const handleClick = (ev: MouseEvent) => {
     ]"
     @click="handleClick"
   >
-    <div
+    <span
       v-if="$slots.icon"
       class="icon"
       :style="{ '--icon-color': iconColor }"
     >
       <slot name="icon" />
-    </div>
-    <slot />
+    </span>
+    <span class="whitespace-nowrap overflow-hidden text-ellipsis">
+      <slot />
+    </span>
   </div>
 </template>
 
@@ -54,11 +58,15 @@ const handleClick = (ev: MouseEvent) => {
   --color-dark-disabled: #6b6964;
 
   height: 24px;
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  line-height: 24px;
+  max-width: 150px;
   font-size: 14px;
+  flex-shrink: 0;
   background: #FFF;
   border-radius: var(--height);
+  overflow: hidden;
   padding: 0px 8px;
 }
 
