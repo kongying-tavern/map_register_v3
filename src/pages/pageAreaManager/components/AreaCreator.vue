@@ -3,7 +3,7 @@ import { Check, Close } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { AreaDetailForm } from '.'
 import { useFetchHook } from '@/hooks'
-import { GlobalDialogController } from '@/components'
+import { GlobalDialogController, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 import Api from '@/api/api'
 
 const props = defineProps<{
@@ -58,16 +58,22 @@ const createArea = async () => {
 </script>
 
 <template>
-  <div class="p-3">
-    <AreaDetailForm ref="formRef" v-model="formData" v-model:items="copyItems" :parent="parent" />
+  <WinDialog>
+    <WinDialogTitleBar :loading="loading" @close="GlobalDialogController.close">
+      添加地区
+    </WinDialogTitleBar>
 
-    <div class="text-end pt-4">
+    <WinDialogTabPanel>
+      <AreaDetailForm ref="formRef" v-model="formData" v-model:items="copyItems" :parent="parent" />
+    </WinDialogTabPanel>
+
+    <WinDialogFooter>
       <el-button :icon="Check" type="primary" :loading="loading" @click="createArea">
         确定
       </el-button>
       <el-button :icon="Close" :disabled="loading" @click="GlobalDialogController.close">
         取消
       </el-button>
-    </div>
-  </div>
+    </WinDialogFooter>
+  </WinDialog>
 </template>

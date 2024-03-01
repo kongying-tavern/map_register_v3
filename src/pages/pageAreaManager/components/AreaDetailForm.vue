@@ -1,9 +1,10 @@
 <script lang="ts" setup>
+import { cloneDeep } from 'lodash'
 import { useTagOptions } from '../hooks'
 import type { ElFormType } from '@/shared'
 import { HiddenFlagEnum } from '@/shared'
 import type { ItemFormRules } from '@/utils'
-import { AppItemSelecter, AppRowImage } from '@/components'
+import { AppIconTagRenderer, AppItemSelecter } from '@/components'
 import { useIconTagStore } from '@/stores'
 
 const props = defineProps<{
@@ -17,7 +18,24 @@ const emits = defineEmits<{
   'update:items': [items?: API.ItemVo[]]
 }>()
 
-const formData = toRef(props, 'modelValue')
+const formData = ref(cloneDeep(props.modelValue))
+
+const isInternalUpdate = ref(false)
+
+watch(() => props.modelValue, (data) => {
+  if (isInternalUpdate.value) {
+    isInternalUpdate.value = false
+    return
+  }
+  formData.value = cloneDeep(data)
+}, { deep: true })
+
+watch(formData, (form) => {
+  isInternalUpdate.value = true
+  emits('update:modelValue', form)
+}, {
+  deep: true,
+})
 
 const areaCode = computed({
   get: () => {
@@ -96,7 +114,11 @@ defineExpose({
 
       <el-form-item label="地区图标" prop="iconTag">
         <div class="w-full flex gap-2">
-          <AppRowImage :src="iconTagStore.iconTagMap[formData.iconTag ?? '']?.url" />
+          <AppIconTagRenderer
+            :src="iconTagStore.tagSpriteUrl"
+            :mapping="iconTagStore.tagPositionMap[formData.iconTag ?? '']"
+            class="w-8 h-8 flex-shrink-0"
+          />
           <el-select-v2
             v-model="formData.iconTag"
             filterable

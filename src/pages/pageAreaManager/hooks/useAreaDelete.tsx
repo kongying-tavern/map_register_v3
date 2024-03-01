@@ -16,10 +16,10 @@ export const useAreaDelete = () => {
     Array.isArray(maybeAreas)
       ? <div>
           <div>将删除以下 {maybeAreas.length} 个地区：</div>
-          {maybeAreas.map((item, index) => <div>&emsp;{index + 1}. <span style="color: #FB923C">{item.name} (id: {item.id})</span></div>)}
+          {maybeAreas.map((item, index) => <div>&emsp;{index + 1}. <span style="color: #FB923C">{item.name} ({item.code})</span></div>)}
           <div>该操作不可逆，请确认？</div>
         </div>
-      : <div>将删除地区<span style="color: #FB923C">{maybeAreas.name} (id: {maybeAreas.id})</span>，该操作不可逆，请确认？</div>,
+      : <div>将删除地区<span style="color: #FB923C">{maybeAreas.name} ({maybeAreas.code})</span>，该操作不可逆，请确认？</div>,
     '警告',
     {
       confirmButtonClass: 'el-button--danger',
