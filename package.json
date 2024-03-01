@@ -24,6 +24,7 @@
     "7z-wasm": "1.1.0",
     "@766aya/extension-text-size": "2.2.0-rc.7",
     "@766aya/unity-kit": "2.2.0-rc.17",
+    "@antv/g6": "^4.8.24",
     "@deck.gl/core": "8.9.34",
     "@deck.gl/extensions": "8.9.34",
     "@deck.gl/geo-layers": "8.9.34",
