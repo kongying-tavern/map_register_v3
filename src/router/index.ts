@@ -56,9 +56,7 @@ router.afterEach((to) => {
 })
 
 // ==================== 导航栈结束 ====================
-router.onError((err, to, from) => {
-  if (from.path === '/')
-    return router.replace('/login')
+router.onError((err, to) => {
   useRouteStore().setLoading(false)
   ElMessage.error({
     message: `导航至${to.meta.title}失败，原因为：${messageFrom(err)}`,
