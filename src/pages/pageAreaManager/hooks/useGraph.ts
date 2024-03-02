@@ -371,24 +371,30 @@ export const useGraph = (options: {
     })
 
     graph.on('node:click', (ev) => {
-      const { item, originalEvent } = ev
+      const { item, shape, originalEvent } = ev
       if (!item || !(originalEvent instanceof MouseEvent) || originalEvent.button !== 0)
         return
 
       const model = item.getModel()
 
-      // 按住 ctrl 点击节点，切换折叠
-      if (originalEvent.ctrlKey) {
-        model.collapsed = !model.collapsed
-        graph.layout()
-        graph.setItemState(item, 'collapse', model.collapsed as boolean)
-        return
-      }
+      const shapeName = shape.get('name')
 
-      const area = model.raw as API.AreaVo | undefined
-      if (!area)
-        return
-      editHook.trigger([area, areaMap.value.get(area.parentId!)])
+      switch (shapeName) {
+        case 'border-box': {
+          // 按住 ctrl 点击节点，切换折叠
+          if (originalEvent.ctrlKey) {
+            model.collapsed = !model.collapsed
+            graph.layout()
+            graph.setItemState(item, 'collapse', model.collapsed as boolean)
+            break
+          }
+          const area = model.raw as API.AreaVo | undefined
+          if (!area)
+            break
+          editHook.trigger([area, areaMap.value.get(area.parentId!)])
+          break
+        }
+      }
     })
 
     graph.data(graphData.value)
