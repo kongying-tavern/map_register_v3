@@ -307,27 +307,12 @@ export class MLContext {
     this.targetMarker.value = undefined
   }
 
-  /** 移除对应点位的已有关联组 */
-  protected removeTempLink = (marker?: GSMapState.MarkerWithRenderConfig) => {
-    if (!marker)
-      return
-    const group = this.existLinkGroups.value[marker.linkageId!]
-    if (!group)
-      return
-    group.include.delete(marker.id!)
-    if (group.include.size > 0)
-      return
-    delete this.existLinkGroups.value[marker.linkageId!]
-  }
-
   protected clearTempLink = () => {
     this.existLinkGroups.value = {}
   }
 
   protected cancelSelect = () => {
-    this.removeTempLink(this.sourceMarker.value)
     this.sourceMarker.value = undefined
-    this.removeTempLink(this.targetMarker.value)
     this.targetMarker.value = undefined
   }
 
