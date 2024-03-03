@@ -43,8 +43,9 @@ export class GSMarkerLayer extends IconLayer<number> {
       iconMapping: markerSpriteMapping,
       getIcon: (id) => {
         const { render: { isUnderground, mainIconTag } } = markersMap[id]
+        const state = isMarked(id!) ? 'marked' : 'default'
         const type = isUnderground ? 'underground' : 'default'
-        return `${mainIconTag}.default.${type}`
+        return `${mainIconTag}.${state}.${type}`
       },
       getPosition: (id) => {
         const { render: { position } } = markersMap[id]
