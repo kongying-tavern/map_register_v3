@@ -1,7 +1,7 @@
 import type { PickingInfo } from '@deck.gl/core/typed'
 import { useMapStateStore } from '@/stores'
 import { mapWindowContext as windowCtx } from '@/pages/pageMapV2/components'
-import { GSMarkerLayer } from '@/pages/pageMapV2/core/layer'
+import { GSMarkerHoverLayer } from '@/pages/pageMapV2/core/layer'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
 import db from '@/database'
 import { LinkActionEnum } from '@/shared'
@@ -360,7 +360,7 @@ export class MLContext {
       return
 
     // 点击对象不为点位时，取消当前选择项
-    if (!(info.sourceLayer instanceof GSMarkerLayer)) {
+    if (!(info.sourceLayer instanceof GSMarkerHoverLayer)) {
       this.cancelSelect()
       return
     }

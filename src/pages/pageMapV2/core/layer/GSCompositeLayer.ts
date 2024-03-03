@@ -5,7 +5,9 @@ import { EaseoutInterpolator } from '../interpolator'
 import type { GSCompositeLayerState } from './GSCompositeLayerTypes'
 import {
   GSDraggingLineLayer,
+  GSMarkerHoverLayer,
   GSMarkerLayer,
+  GSMarkerLinkHoverLayer,
   GSMarkerLinkLayer,
   GSOverlayer,
   GSTagLayer,
@@ -46,7 +48,7 @@ export class GSCompositeLayer extends CompositeLayer {
           focusMarker(null)
           return
         }
-        if (sourceLayer instanceof GSMarkerLayer)
+        if (sourceLayer instanceof GSMarkerLayer || sourceLayer instanceof GSMarkerHoverLayer)
           focusMarker(this.state.markersMap[object])
       },
       onHover: ({ object = null, sourceLayer = null }) => {
@@ -54,7 +56,7 @@ export class GSCompositeLayer extends CompositeLayer {
           return mapStateStore.setInteractionInfo('hover', null)
         if (sourceLayer instanceof GSMarkerLayer)
           return hoverMarker(this.state.markersMap[object])
-        if (sourceLayer instanceof GSMarkerLinkLayer)
+        if (sourceLayer instanceof GSMarkerLinkHoverLayer)
           return hoverLink(object)
       },
     })
@@ -190,6 +192,9 @@ export class GSCompositeLayer extends CompositeLayer {
       // 地区标签图层
       tileConfig ? new GSTagLayer(this.state, options) : undefined,
 
+      // 点位关联指示线 hover 状态图层
+      new GSMarkerLinkHoverLayer(this.state),
+
       // 点位关联指示线
       new GSMarkerLinkLayer(this.state, options),
 
@@ -198,6 +203,9 @@ export class GSCompositeLayer extends CompositeLayer {
 
       // 点位图层，必须确保点位精灵图存在才能加载此图层
       markerSpriteImage ? new GSMarkerLayer(this.state, options) : undefined,
+
+      // 点位图层 hover 状态图层
+      markerSpriteImage ? new GSMarkerHoverLayer(this.state, options) : undefined,
     ]
   }
 }

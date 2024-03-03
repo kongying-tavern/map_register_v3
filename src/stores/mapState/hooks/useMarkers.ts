@@ -209,7 +209,11 @@ export const useMarkers = (options: MarkerHookOptions) => {
   // ====================  临时点位 - end  ====================
 
   /** 所属于当前底图的点位 */
-  const currentLayerMarkers = computed(() => staticMarkers.value.concat(tempMarkers.value))
+  const currentLayerMarkers = computed(() => staticMarkers.value
+    .concat(tempMarkers.value)
+    // 根据 y 轴排序使得下方点位可以遮挡上方点位，降低视觉复杂度
+    .sort(({ render: { position: { 1: y1 } } }, { render: { position: { 1: y2 } } }) => y1 - y2),
+  )
 
   const currentLayerMarkersIds = computed(() => {
     return currentLayerMarkers.value.map(marker => marker.id!)
