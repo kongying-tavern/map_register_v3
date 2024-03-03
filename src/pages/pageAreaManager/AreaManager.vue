@@ -1,13 +1,12 @@
 <script lang="ts" setup>
-import { useAreaDelete, useAreaList, useGraph } from './hooks'
-import { AreaCreator, AreaEditor } from './components'
+import { useAreaList, useGraph } from './hooks'
+import { AreaCreator, AreaDeleteConfirm, AreaEditor } from './components'
 import { useGlobalDialog } from '@/hooks'
 
 const { DialogService } = useGlobalDialog()
 const getDialogConfig = () => ({
   width: 'fit-content',
   alignCenter: true,
-  showClose: false,
   closeOnClickModal: false,
   closeOnPressEscape: false,
 })
@@ -29,8 +28,16 @@ const openAreaEditor = (area: API.AreaVo, parent?: API.AreaVo) => DialogService
   .open(AreaEditor)
 
 // ==================== 删除地区 ====================
-const { confirmDelete, onSuccess: onDeleteSuccss } = useAreaDelete()
-onDeleteSuccss(updateAreaList)
+const deleteArea = (area: API.AreaVo) => DialogService
+  .config(getDialogConfig())
+  .props({
+    title: '删除地区',
+    area,
+  })
+  .listeners({
+    success: updateAreaList,
+  })
+  .open(AreaDeleteConfirm)
 
 // ==================== 地图图表 ====================
 const containerRef = ref<HTMLElement | null>(null)
@@ -44,7 +51,7 @@ const { onEditClick, onAddClick, onDeleteClick } = useGraph({
 
 onEditClick(([area, parent]) => openAreaEditor(area, parent))
 onAddClick(([parent]) => openAreaCreator(parent))
-onDeleteClick(([area]) => confirmDelete(area))
+onDeleteClick(([area]) => deleteArea(area))
 </script>
 
 <template>
