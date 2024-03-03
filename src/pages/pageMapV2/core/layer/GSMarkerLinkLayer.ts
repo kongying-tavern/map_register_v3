@@ -22,26 +22,21 @@ export class GSMarkerLinkLayer extends PolygonLayer<GSMapState.MLRenderUnit, Lay
 
     const zoomedArrowLength = Math.min(ARROW_LENGTH, ARROW_LENGTH * 2 ** -zoom)
 
-    const isHover = (key: string) => {
-      if (hover?.type !== 'defaultMarkerLink')
-        return false
-      return hover.value.key === key
-    }
-
     super({
       id: 'genshin-marker-link-layer',
       data: markerLinkRenderList,
-      pickable: true,
       filled: true,
       lineJointRounded: true,
       lineWidthMaxPixels: 2,
       getLineWidth: 2,
       getFillColor: ({ type }) => LINK_ACTION_CONFIG[type].lineColor,
-      getLineColor: ({ key, type }) => isHover(key) ? [255, 255, 0] : LINK_ACTION_CONFIG[type].lineColor,
+      getLineColor: ({ type }) => LINK_ACTION_CONFIG[type].lineColor,
       getPolygon: ({ source, target }) => {
         const [x1, y1] = markersMap[source].render.position
         const [x2, y2] = markersMap[target].render.position
+        /** 旋转角 */
         const θ = Math.atan((y2 - y1) / (x2 - x1))
+        /** 象限标识 */
         const c = x2 > x1 ? 1 : -1
         // 箭头左侧
         const x3 = x2 - Math.cos(θ - ARROW_ANGLE) * zoomedArrowLength * c
@@ -52,7 +47,9 @@ export class GSMarkerLinkLayer extends PolygonLayer<GSMapState.MLRenderUnit, Lay
         // 箭头底部
         const x5 = x3 + (x4 - x3) / 2
         const y5 = y3 + (y4 - y3) / 2
-        return [
+
+        // 线段形状
+        const arrowPolygon = [
           [x1, y1],
           [x5, y5],
           [x3, y3],
@@ -60,6 +57,7 @@ export class GSMarkerLinkLayer extends PolygonLayer<GSMapState.MLRenderUnit, Lay
           [x4, y4],
           [x5, y5],
         ]
+        return arrowPolygon
       },
       updateTriggers: {
         getLineColor: hover,
