@@ -53,13 +53,13 @@ const mapAffixLayerRef = inject(mapAffixLayerKey, ref(null))
     </div>
 
     <div class="text-xs text-center p-2 flex">
-      <el-popover placement="top-start" content="非合并情况下，源点和目标点所在的关联组将被解散，当前关联将形成新的关联组。">
+      <el-popover placement="bottom-start" content="非合并情况下，源点和目标点所在的关联组将被解散，当前关联将形成新的关联组。">
         <template #reference>
           <el-checkbox v-model="isMergeMode" label="合并原有关联" />
         </template>
       </el-popover>
 
-      <el-popover placement="top-start" content="在列表中显示已经删除的点位关联">
+      <el-popover placement="bottom-start" content="在列表中显示已经删除的点位关联">
         <template #reference>
           <el-checkbox v-model="showDeleted" label="显示删除项" />
         </template>
