@@ -1,12 +1,12 @@
 import { keyBy } from 'lodash'
 import {
-  contentContain,
-  contentRegex,
-  idRange,
-  image,
-  titleContain,
-  underground,
-  video,
+  ContentContain,
+  ContentRegex,
+  IdRange,
+  Image,
+  TitleContain,
+  Underground,
+  Video,
 } from './models'
 import type { usePreferenceStore } from '@/stores'
 import type { MAFConfig } from '@/stores/types'
@@ -17,13 +17,13 @@ interface MarkerAdvancedFilterHookOptions {
 
 // ==================== 模型配置 ====================
 const markerAdvancedFilterConfigs: MAFConfig[] = [
-  idRange,
-  titleContain,
-  contentContain,
-  contentRegex,
-  underground,
-  image,
-  video,
+  new IdRange(),
+  new TitleContain(),
+  new ContentContain(),
+  new ContentRegex(),
+  new Underground(),
+  new Image(),
+  new Video(),
 ]
 
 const markerAdvancedFilterConfigMap: Record<number, MAFConfig> = keyBy(markerAdvancedFilterConfigs, 'id')

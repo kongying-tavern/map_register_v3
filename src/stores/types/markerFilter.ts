@@ -30,13 +30,13 @@ export interface MAFItem {
 }
 
 export interface MAFConfig {
-  id: number
-  name: string
-  option: MAFOption
-  defaultVal: MAFValue
-  prepare: (val: MAFValue) => MAFMeta
-  semantic: (val: MAFValue, opt: MAFOption, meta: MAFMeta, opposite: boolean) => string
-  filter: (val: MAFValue, opt: MAFOption, meta: MAFMeta, marker: API.MarkerVo) => boolean
+  readonly id: number
+  readonly name: string
+  readonly option: MAFOption
+  readonly defaultVal: MAFValue
+  prepare(val: MAFValue): MAFMeta
+  semantic(val: MAFValue, opt: MAFOption, meta: MAFMeta, opposite: boolean): string
+  filter(val: MAFValue, opt: MAFOption, meta: MAFMeta, marker: API.MarkerVo): boolean
 }
 
 // ==================== 数据模型 ====================

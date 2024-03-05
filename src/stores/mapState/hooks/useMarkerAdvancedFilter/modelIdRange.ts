@@ -5,16 +5,20 @@ import type {
   MAFValueInput,
 } from '@/stores/types'
 
-export const idRange: MAFConfig = {
-  id: 1,
-  name: 'ID范围',
-  option: {
+export class IdRange implements MAFConfig {
+  id = 1
+  name = 'ID范围'
+  option: MAFOptionInput = {
     placeholder: '格式为数字，A,B或A-B',
-  },
-  defaultVal: {
-    v: '',
-  },
-  prepare: (val: MAFValueInput): MAFMetaIdRange => {
+  }
+
+  get defaultVal(): MAFValueInput {
+    return {
+      v: '',
+    }
+  }
+
+  prepare(val: MAFValueInput): MAFMetaIdRange {
     const meta: MAFMetaIdRange = {
       idSet: new Set<number>(),
     }
@@ -46,13 +50,15 @@ export const idRange: MAFConfig = {
       }
     }
     return meta
-  },
-  semantic: (val: MAFValueInput, _opt: MAFOptionInput, meta: MAFMetaIdRange, opposite: boolean): string => {
+  }
+
+  semantic(val: MAFValueInput, _opt: MAFOptionInput, meta: MAFMetaIdRange, opposite: boolean): string {
     if (meta.idSet.size <= 0)
       return ''
     return `ID${opposite ? '不' : ''}属于范围【${val.v ?? ''}】`
-  },
-  filter: (_val: MAFValueInput, _opt: MAFOptionInput, meta: MAFMetaIdRange, marker: API.MarkerVo): boolean => {
+  }
+
+  filter(_val: MAFValueInput, _opt: MAFOptionInput, meta: MAFMetaIdRange, marker: API.MarkerVo): boolean {
     return meta.idSet.has(marker.id!)
-  },
+  }
 }
