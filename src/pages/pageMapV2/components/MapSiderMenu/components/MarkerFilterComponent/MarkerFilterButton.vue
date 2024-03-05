@@ -28,21 +28,16 @@ const handleClick = (ev: MouseEvent) => {
     class="condition-unit"
     :title="title"
     :class="[
-      clickable ? 'condition-unit-button' : '',
+      clickable ? 'is-button' : '',
       disabled ? 'is-disabled' : '',
-      $slots.default ? '' : 'condition-unit-button__icon-only',
-      `condition-unit-button__${theme}`,
+      `theme-${theme}`,
     ]"
     @click="handleClick"
   >
-    <span
-      v-if="$slots.icon"
-      class="icon"
-      :style="{ '--icon-color': iconColor }"
-    >
+    <span v-if="$slots.icon" class="icon">
       <slot name="icon" />
     </span>
-    <span class="whitespace-nowrap overflow-hidden text-ellipsis">
+    <span v-if="$slots.default" class="text">
       <slot />
     </span>
   </div>
@@ -51,55 +46,51 @@ const handleClick = (ev: MouseEvent) => {
 <style lang="scss" scoped>
 .condition-unit {
   --height: 32px;
-  --color-light: #c6c2ba;
-  --color-dark: #313131;
-  --color-dark-light: #404040;
-  --color-dark-hover: #ffe796;
-  --color-dark-disabled: #6b6964;
+  --text-color: #313131;
+  --text-color--active: var(--text-color);
+  --bg-normal: #FFF;
+  --bg-btn: var(--bg-normal);
+  --bg-btn--hover: var(--bg-btn);
+  --bg-btn--active: #ffe796;
+  --bg-btn--disabled: #6b6964;
+  --outline-color: transparent;
+  --outline-color--hover: #FFFFFF80;
+  --outline-color--active: #00000020;
+  --icon-size: 20px;
+  --icon-color: v-bind('props.iconColor');
+  --icon-bg-color: #FFFFFF80;
 
+  flex-shrink: 0;
+  padding: 0px 2px;
   height: 24px;
+  min-width: 24px;
+  max-width: 150px;
+  border-radius: 16px;
   display: flex;
   align-items: center;
-  line-height: 24px;
-  max-width: 150px;
-  font-size: 14px;
-  flex-shrink: 0;
-  background: #FFF;
-  border-radius: var(--height);
   overflow: hidden;
-  padding: 0px 8px;
+  line-height: 24px;
+  font-size: 14px;
+  color: var(--text-color);
+  background: var(--bg-normal);
+  transition: all ease 150ms;
+  outline: 2px solid var(--outline-color);
 }
 
-.condition-unit-button {
-  outline: 2px solid transparent;
+.is-button {
   user-select: none;
-  transition: all ease 150ms;
+  cursor: pointer;
+  background: var(--bg-btn, var(--bg-normal));
 
-  .icon {
-    --icon-size: calc(var(--height) - 12px);
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--icon-color);
-    padding: 3px;
-    width: var(--icon-size);
-    height: var(--icon-size);
-    border-radius: 50%;
-  }
-  &:has(.icon) {
-    gap: 4px;
-    padding-left: 2px;
+  &:not(.is-disabled):hover {
+    outline-color: var(--outline-color--hover);
+    background: var(--bg-btn--hover);
   }
 
-  &:not(.is-disabled) {
-    &:hover {
-      outline-color: #FFFFFF80;
-    }
-    &:active {
-      outline-color: #00000020;
-    }
-    cursor: pointer;
+  &:not(.is-disabled):active {
+    color: var(--text-color--active);
+    background: var(--bg-btn--active);
+    outline-color: var(--outline-color--active);
   }
 
   &.is-disabled {
@@ -107,45 +98,33 @@ const handleClick = (ev: MouseEvent) => {
   }
 }
 
-.condition-unit-button__icon-only {
-  padding: 2px;
+.theme-dark {
+  --text-color: #FFF;
+  --text-color--active: #313131;
+  --bg-btn: #313131;
+  --bg-btn--hover: #404040;
+  --icon-bg-color: #313131;
 }
 
-.condition-unit-button__light {
-  color: var(--color-dark);
-
-  .icon {
-    background: #FFFFFF80;
-  }
-
-  &.condition-unit-button:hover {
-    outline-color: #FFFFFF80;
-  }
-  &.condition-unit-button:active {
-    background: var(--color-dark-hover);
-    color: var(--color-dark);
-  }
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--icon-color, var(--text-color));
+  padding: 3px;
+  width: var(--icon-size);
+  height: var(--icon-size);
+  border-radius: 50%;
+  background-color: var(--icon-bg-color);
 }
 
-.condition-unit-button__dark {
-  background: var(--color-dark);
-  color: #FFF;
-
-  .icon {
-    background: var(--color-dark);
-  }
-
-  &.condition-unit-button:not(.is-disabled):hover {
-    background: var(--color-dark-light);
-  }
-  &.condition-unit-button:not(.is-disabled):active {
-    background: var(--color-dark-hover);
-    color: var(--color-dark);
-  }
-
-  &.is-disabled {
-    color: #b3b3b3;
-    background: var(--color-dark-disabled);
-  }
+.text {
+  flex: 1;
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+  padding: 0 4px;
 }
 </style>
