@@ -1,6 +1,5 @@
 import G6 from '@antv/g6'
 import type { TreeGraphData } from '@antv/g6'
-import _ from 'lodash'
 import dayjs from 'dayjs'
 import { symbolDelete, symbolPlus } from '../utils'
 import { array2Tree } from '@/utils'
