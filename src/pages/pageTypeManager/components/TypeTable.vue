@@ -90,7 +90,7 @@ const { IDENTIFICATION_SYMBOL, triggerRef, userData, trigger, close } = useUserP
         </template>
       </el-table-column>
 
-      <el-table-column label="创建时间" prop="createTime" :formatter="timeFormatter" :width="160" />
+      <el-table-column label="创建时间" prop="createTime" :formatter="timeFormatter" :width="180" />
 
       <el-table-column label="修改人" prop="updaterId" :width="160">
         <template #default="{ row }">
@@ -105,7 +105,7 @@ const { IDENTIFICATION_SYMBOL, triggerRef, userData, trigger, close } = useUserP
         </template>
       </el-table-column>
 
-      <el-table-column label="修改时间" prop="updateTime" :formatter="timeFormatter" :width="160" />
+      <el-table-column label="修改时间" prop="updateTime" :formatter="timeFormatter" :width="180" />
 
       <el-table-column label="操作" :width="130">
         <template #default="{ row }">
