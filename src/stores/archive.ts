@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { userHook } from './hooks'
 import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
+import type { UserPreference } from '@/stores/types/userPreference'
 import { useUserAuthStore } from '@/stores'
 
 export interface ArchiveBody {
@@ -12,6 +13,8 @@ export interface ArchiveBody {
    * @format `YYYY/MM/DD HH:mm:ss`
    */
   Time_KYJG: Record<number, string>
+  /** 用户首选项 */
+  Preference: Partial<UserPreference>
 }
 
 export interface ArchiveData extends API.SysArchiveVo {
@@ -26,9 +29,10 @@ export interface ArchiveSlotData extends API.SysArchiveSlotVo {
 }
 
 const parserArchive = ({ archive = '', time = '', ...rest }: API.SysArchiveVo): ArchiveData => {
-  const { Data_KYJG: datas = [], Time_KYJG: times = {} } = JSON.parse(archive) as {
+  const { Data_KYJG: datas = [], Time_KYJG: times = {}, Preference: preference = {} } = JSON.parse(archive) as {
     Data_KYJG?: (string | number)[]
     Time_KYJG?: Record<number, string>
+    Preference?: Partial<UserPreference>
   }
   return {
     ...rest,
@@ -37,6 +41,7 @@ const parserArchive = ({ archive = '', time = '', ...rest }: API.SysArchiveVo): 
     body: {
       Data_KYJG: new Set(datas.map(Number)),
       Time_KYJG: times,
+      Preference: preference,
     },
     timestamp: new Date(time).getTime(),
   }
@@ -55,6 +60,7 @@ export const useArchiveStore = defineStore('global-archive', () => {
     body: {
       Data_KYJG: new Set(),
       Time_KYJG: {},
+      Preference: {},
     },
     timestamp: new Date().getTime(),
   })
@@ -90,6 +96,7 @@ export const useArchiveStore = defineStore('global-archive', () => {
     await Api.archive.createSlotAndSaveArchive({ slot_index, name }, JSON.stringify({
       Data_KYJG: [...currentArchive.value.body.Data_KYJG],
       Time_KYJG: currentArchive.value.body.Time_KYJG,
+      Preference: currentArchive.value.body.Preference,
     }))
   }
 
@@ -98,6 +105,7 @@ export const useArchiveStore = defineStore('global-archive', () => {
     const archive = JSON.stringify({
       Data_KYJG: [...currentArchive.value.body.Data_KYJG],
       Time_KYJG: currentArchive.value.body.Time_KYJG,
+      Preference: currentArchive.value.body.Preference,
     })
     await Api.archive.saveArchive({ slot_index }, archive)
   }

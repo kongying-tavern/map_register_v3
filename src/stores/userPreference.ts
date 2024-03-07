@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { userHook } from './hooks'
 import type { UserPreference } from './types'
 import { getDefaultPreference } from './types'
-import { useUserAuthStore } from '@/stores'
+import { useArchiveStore, useUserAuthStore } from '@/stores'
 import { useFetchHook } from '@/hooks'
 import db from '@/database'
 
@@ -17,6 +17,7 @@ export const usePreferenceStore = defineStore('global-user-preference', () => {
       return {
         ...getDefaultPreference(),
         ...queryPreference,
+        ...useArchiveStore().currentArchive.body.Preference,
       }
     },
   })
@@ -45,6 +46,11 @@ export const usePreferenceStore = defineStore('global-user-preference', () => {
     }
 
     await db.user.put(JSON.parse(JSON.stringify({ id: userId, ...preference.value })))
+
+    const archiveStore = useArchiveStore()
+    archiveStore.currentArchive.body.Preference = preference.value
+
+    await useArchiveStore().saveArchiveToSlot(archiveStore.currentArchive.slotIndex)
   }
 
   watchDebounced(preference, syncUserPreference, {
