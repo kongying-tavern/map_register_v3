@@ -1,5 +1,12 @@
 <script setup lang="ts">
-import { AppBannerProvider, AppDialogProvider, AppLoadingPanel, AppUserInfo, GSMessageProvider } from '@/components'
+import {
+  AppBannerProvider,
+  AppDialogProvider,
+  AppLoadingPanel,
+  AppNoticeProvider,
+  AppUserInfo,
+  GSMessageProvider,
+} from '@/components'
 import { useBanner } from '@/hooks'
 
 // 开发模式下显示 banner
@@ -26,6 +33,7 @@ const { visible } = useBanner()
 
   <AppBannerProvider />
   <AppDialogProvider />
+  <AppNoticeProvider />
   <GSMessageProvider />
   <AppUserInfo />
 </template>
