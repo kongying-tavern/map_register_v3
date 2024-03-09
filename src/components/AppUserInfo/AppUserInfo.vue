@@ -34,7 +34,12 @@ const tab = ref('archive')
         </div>
 
         <div class="user-avatar w-40 h-40 p-2 flex justify-center items-center">
-          <img v-if="userInfoStore.info.logo?.trim()" :src="userInfoStore.info.logo?.trim()" class="w-full h-full rounded-full">
+          <img
+            v-if="userInfoStore.info.logo?.trim()"
+            :src="userInfoStore.info.logo?.trim()"
+            class="w-full h-full rounded-full"
+            crossorigin=""
+          >
           <Avatar v-else style="background: var(--el-color-info-light-3);" class="rounded-full text-white" />
         </div>
 

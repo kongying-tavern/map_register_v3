@@ -88,6 +88,7 @@ const timeFormater = (time?: string) => time
               :src="lastestMarkerArea[archiveSlot.slotIndex as number]"
               class="absolute w-full h-full left-0 top-0 object-center object-cover"
               style="z-index: -1"
+              crossorigin=""
             >
             <div
               v-show="`${index}` === `${archiveStore.currentArchive.slotIndex}`"
