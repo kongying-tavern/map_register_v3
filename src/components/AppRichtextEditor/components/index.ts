@@ -1,1 +1,1 @@
-export { default as HeaderToolbar } from './HeaderToolbar.vue'
+export * from './HeaderToolbar'

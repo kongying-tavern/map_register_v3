@@ -1,10 +1,16 @@
 <script setup lang="ts">
 import { ArrowDown } from '@element-plus/icons-vue'
 
-defineProps<{
+const props = defineProps<{
   isActive?: boolean
   plain?: boolean
   name?: string
+  disabled?: boolean
+  click?: MouseEvent
+}>()
+
+const emits = defineEmits<{
+  click: [ev: MouseEvent]
 }>()
 
 const dropdownVisible = ref(false)
@@ -18,7 +24,6 @@ const closeDropdown = () => {
 }
 
 const dropdownArrowRef = ref<HTMLElement>()
-
 const dropdownRef = ref<HTMLElement>()
 
 useEventListener('click', (ev) => {
@@ -32,6 +37,12 @@ useEventListener('click', (ev) => {
   }
   closeDropdown()
 })
+
+const handleClick = (ev: MouseEvent) => {
+  if (props.disabled)
+    return
+  emits('click', ev)
+}
 </script>
 
 <template>
@@ -40,10 +51,11 @@ useEventListener('click', (ev) => {
     :class="{
       'has-dropdown': Boolean($slots.dropdown),
       'is-active': isActive,
+      'dropdown-open': dropdownVisible,
       plain,
     }"
   >
-    <div class="item-content">
+    <div class="item-content" @click="handleClick">
       <div class="flex-1 w-full grid place-items-center">
         <slot name="default" />
       </div>
@@ -78,8 +90,9 @@ useEventListener('click', (ev) => {
 <style scoped>
 .tool-item {
   --cursor: auto;
-  --hover-bg: transparent;
-  --active-bg: transparent;
+  --item-bg: transparent;
+  --item-bg--hover: transparent;
+  --item-bg--active: transparent;
   --radius: 4px;
   --content-radius: var(--radius) var(--radius) var(--radius) var(--radius);
 
@@ -96,14 +109,18 @@ useEventListener('click', (ev) => {
     color: var(--el-color-primary);
   }
 
+  &.dropdown-open {
+    --item-bg: var(--el-fill-color-darker);
+  }
+
   &.has-dropdown {
     --content-radius: 4px 0 0 4px;
   }
 
   &:not(.plain) {
     --cursor: pointer;
-    --hover-bg: var(--el-fill-color-dark);
-    --active-bg: var(--el-fill-color-darker);
+    --item-bg--hover: var(--el-fill-color-dark);
+    --item-bg--active: var(--el-fill-color-darker);
   }
 }
 
@@ -115,10 +132,10 @@ useEventListener('click', (ev) => {
   border-radius: var(--content-radius);
 
   &:hover {
-    background-color: var(--hover-bg);
+    background: var(--item-bg--hover);
   }
   &:active {
-    background-color: var(--active-bg);
+    background: var(--item-bg--active);
   }
 }
 
@@ -139,12 +156,13 @@ useEventListener('click', (ev) => {
   display: grid;
   place-items: center;
   border-radius: 0 var(--radius) var(--radius) 0;
+  background: var(--item-bg);
 
   &:hover {
-    background-color: var(--hover-bg);
+    background: var(--item-bg--hover);
   }
   &:active {
-    background-color: var(--active-bg);
+    background: var(--item-bg--active);
   }
 }
 
