@@ -5,16 +5,12 @@ import StarterKit from '@tiptap/starter-kit'
 import TextAlign from '@tiptap/extension-text-align'
 import TextLink from '@tiptap/extension-link'
 import TextUnderline from '@tiptap/extension-underline'
-import type { EditorConfig, ToolbarConfig } from './types'
+import type { EditorProps } from './types'
 import { Color, Size } from './marks'
 import { TextColor, TextSize } from './extensions'
 import { HeaderToolbar } from './components'
 
-withDefaults(defineProps<{
-  contentHeight?: number
-  sizeRatio?: number
-  baseTextSize: number
-} & ToolbarConfig & EditorConfig>(), {
+withDefaults(defineProps<EditorProps>(), {
   sizeRatio: 1,
   baseTextSize: 32,
   defaultForeground: '#000',
@@ -145,7 +141,6 @@ onMounted(() => nextTick(() => {
 
     outline: none;
     cursor: text;
-    padding: 8px;
     min-height: 100%;
     font-family: v-bind('viewFont');
     font-size: calc(v-bind('baseTextSize') * v-bind('viewZoom') * 1px);
