@@ -9,6 +9,8 @@ import db from '@/database'
 export const usePreferenceStore = defineStore('global-user-preference', () => {
   const internalUpdateFlag = ref(false)
 
+  const archiveStore = useArchiveStore()
+
   const { data: preference, refresh: _updateUserPreference } = useFetchHook<UserPreference, [userId: number]>({
     initialValue: getDefaultPreference(),
     onRequest: async (userId) => {
@@ -17,7 +19,7 @@ export const usePreferenceStore = defineStore('global-user-preference', () => {
       return {
         ...getDefaultPreference(),
         ...queryPreference,
-        ...useArchiveStore().currentArchive.body.Preference,
+        ...archiveStore.currentArchive.body.Preference,
       }
     },
   })
@@ -35,6 +37,9 @@ export const usePreferenceStore = defineStore('global-user-preference', () => {
     await _updateUserPreference(userId)
   }
 
+  // 存档更新时，更新用户首选项
+  watch(() => archiveStore.currentArchive.body.Preference, updateUserPreference)
+
   const syncUserPreference = async () => {
     const userId = _getUserId()
     if (userId === undefined)
@@ -47,10 +52,9 @@ export const usePreferenceStore = defineStore('global-user-preference', () => {
 
     await db.user.put(JSON.parse(JSON.stringify({ id: userId, ...preference.value })))
 
-    const archiveStore = useArchiveStore()
     archiveStore.currentArchive.body.Preference = preference.value
 
-    await useArchiveStore().saveArchiveToSlot(archiveStore.currentArchive.slotIndex)
+    await archiveStore.saveArchiveToSlot(archiveStore.currentArchive.slotIndex)
   }
 
   watchDebounced(preference, syncUserPreference, {
