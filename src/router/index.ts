@@ -45,9 +45,6 @@ router.beforeEach((to) => {
 
 const logger = new Logger('[路由后置守卫]')
 
-/** 重置刷新 flag */
-const resetFlag = ref(false)
-
 router.afterEach((to) => {
   logger.info('导航结束')
   routerHook.applyCallbacks('onAfterRouterEnter')
@@ -55,7 +52,6 @@ router.afterEach((to) => {
     useRouteStore().setLoading(false)
     const title = useTitle()
     title.value = to.meta.title ?? import.meta.env.VITE_TITLE
-    resetFlag.value = false
   })
 })
 
@@ -64,10 +60,6 @@ router.onError((err, to) => {
   // 长时间离线并再次返回应用时，获取鉴权信息后可能由于调度问题，权限等级无法及时更新，此时需要刷新一次
   // 为避免无限循环，增加一个 flag 进行控制，并在成功导航后重置
   useRouteStore().setLoading(false)
-  if (!resetFlag.value) {
-    resetFlag.value = true
-    window.location.reload()
-  }
   ElMessage.error({
     message: `导航至${to.meta.title}失败，原因为：${messageFrom(err)}`,
     offset: 48,
