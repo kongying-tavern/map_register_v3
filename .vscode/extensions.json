@@ -18,6 +18,8 @@
     // 与 volar 冲突
     "Wscats.vue",
     // 这是 vue2 的
-    "octref.vetur"
+    "octref.vetur",
+    // 已被 volar 代替
+    "Vue.vscode-typescript-vue-plugin",
   ]
 }
