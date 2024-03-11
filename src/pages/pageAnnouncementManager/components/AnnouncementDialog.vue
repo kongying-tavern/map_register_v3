@@ -114,7 +114,7 @@ onError((err: Error) => ElMessage.error({
     <WinDialogTabPanel>
       <el-form ref="formRef" v-bind="$attrs" label-width="80px" :model="formData" :rules="rules">
         <div class="grid grid-cols-2 gap-y-1 gap-x-4">
-          <el-form-item label="标题" prop="title">
+          <el-form-item class="col-span-2" label="标题" prop="title">
             <el-input v-model="formData.title" placeholder="请输入标题" clearable />
           </el-form-item>
 
@@ -128,7 +128,7 @@ onError((err: Error) => ElMessage.error({
               default-foreground="#4f473f"
               default-background="#fff"
               view-font="MHYG, sans-serif"
-              :view-line-height="1.1"
+              :view-line-height="1.5"
               :view-zoom="0.75"
             />
           </el-form-item>
