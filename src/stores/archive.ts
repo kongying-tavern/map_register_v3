@@ -101,38 +101,46 @@ export const useArchiveStore = defineStore('global-archive', () => {
   }
 
   /** 将当前存档存入指定的存档槽位 */
-  const saveArchiveToSlot = async (slot_index = -1) => {
+  const saveArchiveToSlot = async (slotIndex = -1) => {
+    if (slotIndex < 0)
+      return
     const archive = JSON.stringify({
       Data_KYJG: [...currentArchive.value.body.Data_KYJG],
       Time_KYJG: currentArchive.value.body.Time_KYJG,
       Preference: currentArchive.value.body.Preference,
     })
-    await Api.archive.saveArchive({ slot_index }, archive)
+    await Api.archive.saveArchive({ slot_index: slotIndex }, archive)
   }
 
   /** 删除指定槽位的存档 */
-  const deleteArchiveSlot = async (slot_index = -1) => {
-    await Api.archive.removeArchive({ slot_index })
+  const deleteArchiveSlot = async (slotIndex = -1) => {
+    if (slotIndex < 0)
+      return
+    await Api.archive.removeArchive({ slot_index: slotIndex })
     await fetchArchive()
   }
 
   /** 获取指定槽位的最新存档 */
-  const getLatestArchiveFromSlot = (slot_index = -1) => {
-    const archiveSlot = archiveSlots.value[slot_index]
+  const getLatestArchiveFromSlot = (slotIndex = -1) => {
+    const archiveSlot = archiveSlots.value[slotIndex]
     if (!archiveSlot)
-      throw new Error(`槽位 ${slot_index} 没有存档`)
+      throw new Error(`槽位 ${slotIndex} 没有存档`)
     const { archiveList } = archiveSlot
     return archiveList[0]
   }
 
   /** 加载指定槽位的最新存档 */
-  const loadArchiveSlot = (slot_index = -1) => {
-    currentArchive.value = getLatestArchiveFromSlot(slot_index)
-    currentArchive.value.slotIndex = slot_index
+  const loadArchiveSlot = (slotIndex = -1) => {
+    if (slotIndex < 0)
+      return
+    currentArchive.value = getLatestArchiveFromSlot(slotIndex)
+    currentArchive.value.slotIndex = slotIndex
   }
 
   /** 加载指定槽位的历史存档 */
   const loadHistoryArchive = (slotIndex: number, historyIndex: number) => {
+    if (slotIndex < 0)
+      return
     const archiveSlot = archiveSlots.value[slotIndex]
     if (!archiveSlot)
       throw new Error(`槽位 ${slotIndex} 没有存档`)
