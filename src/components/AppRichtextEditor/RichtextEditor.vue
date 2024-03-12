@@ -10,20 +10,23 @@ import { Color, Size } from './marks'
 import { TextColor, TextSize } from './extensions'
 import { HeaderToolbar } from './components'
 
-withDefaults(defineProps<EditorProps>(), {
+const props = withDefaults(defineProps<EditorProps>(), {
   sizeRatio: 1,
   baseTextSize: 32,
   defaultForeground: '#000',
-  defaultBackground: '#fff',
+  defaultBackground: 'transparent',
   viewFont: '',
   viewZoom: 1,
   viewLineHeight: 1.2,
+  readonly: false,
+  scrollbarColor: '#FCFCFC',
+  scrollbarWidth: '10px',
+  scrollbarThumbColor: '#909399',
 })
 
 const modelValue = defineModel<string>('modelValue', {
   required: false,
   default: '',
-  type: String,
 })
 
 const editor = useEditor({
@@ -71,7 +74,17 @@ declare module '@tiptap/core' {
   }
 }
 
+watch(() => props.readonly, (readonly) => {
+  editor.value?.setEditable(!readonly)
+})
+
+const isInternalUpdate = ref(false)
+
 watch(modelValue, (newContent) => {
+  if (isInternalUpdate.value) {
+    isInternalUpdate.value = false
+    return
+  }
   if (!editor.value)
     return
   if (editor.value.getHTML() === newContent)
@@ -79,29 +92,39 @@ watch(modelValue, (newContent) => {
   editor.value.commands.setContent(newContent, false)
 })
 
-onMounted(() => nextTick(() => {
+onMounted(() => {
   const instance = editor.value
   if (!instance)
     return
 
   instance.on('update', ({ editor }) => {
+    isInternalUpdate.value = true
     modelValue.value = editor.getHTML()
   })
-
-  Reflect.set(window, 'editor', instance)
-}))
+  instance.setEditable(!props.readonly)
+})
 </script>
 
 <template>
-  <div v-if="editor" class="richtext-editor flex-1">
+  <div
+    v-if="editor"
+    class="richtext-editor flex-1"
+    :class="{
+      'is-readonly': readonly,
+    }"
+  >
     <HeaderToolbar
+      v-if="!readonly"
       :editor="editor"
       :base-size="baseTextSize / sizeRatio"
       :header-min="headerMin"
       :header-max="headerMax"
       :headers="headers"
     />
-    <EditorContent class="editor-instance" :editor="editor" />
+    <EditorContent
+      class="editor-instance"
+      :editor="editor"
+    />
   </div>
 </template>
 
@@ -113,10 +136,13 @@ onMounted(() => nextTick(() => {
   height: 100%;
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--el-border-color);
-  border-radius: var(--el-border-radius-base);
   overflow: hidden;
   transition: border-color var(--el-transition-duration-fast) var(--el-transition-function-ease-in-out-bezier);
+
+  &:not(.is-readonly) {
+    border: 1px solid var(--el-border-color);
+    border-radius: var(--el-border-radius-base);
+  }
 
   &:hover {
     border-color: var(--el-border-color-hover);
@@ -134,6 +160,20 @@ onMounted(() => nextTick(() => {
   overflow-y: auto;
   background-color: v-bind('defaultBackground');
 
+  &::-webkit-scrollbar {
+    width: v-bind('scrollbarWidth');
+    background-color: v-bind('scrollbarColor');
+    border-radius: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: v-bind('scrollbarThumbColor');
+    border-radius: 6px;
+    border: 1px solid v-bind('scrollbarColor');
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: color-mix(in srgb, v-bind('scrollbarThumbColor') 90%, transparent 10%);
+  }
+
   :deep(.tiptap) {
     --link-underline-color: #8cb4ff;
     --link-bg-color: #f5edd5;
@@ -148,6 +188,10 @@ onMounted(() => nextTick(() => {
     height: calc(v-bind('contentHeight') * v-bind('viewZoom') * 1px);
     line-height: v-bind('viewLineHeight');
     color: v-bind('defaultForeground');
+
+    &[contenteditable="false"] {
+      cursor: inherit;
+    }
 
     p {
       margin: 0;

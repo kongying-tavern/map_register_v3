@@ -12,12 +12,16 @@ export interface EditorConfig {
   viewFont?: string
   viewZoom?: number
   viewLineHeight?: number
+  scrollbarColor?: string
+  scrollbarWidth?: string
+  scrollbarThumbColor?: string
 }
 
 export type EditorProps = EditorConfig & HeaderConfig & {
   contentHeight?: number
   sizeRatio?: number
   baseTextSize: number
+  readonly?: boolean
 }
 
 export interface HeaderToolbarProps extends HeaderConfig {
