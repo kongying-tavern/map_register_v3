@@ -78,13 +78,7 @@ watch(() => props.readonly, (readonly) => {
   editor.value?.setEditable(!readonly)
 })
 
-const isInternalUpdate = ref(false)
-
 watch(modelValue, (newContent) => {
-  if (isInternalUpdate.value) {
-    isInternalUpdate.value = false
-    return
-  }
   if (!editor.value)
     return
   if (editor.value.getHTML() === newContent)
@@ -98,7 +92,6 @@ onMounted(() => {
     return
 
   instance.on('update', ({ editor }) => {
-    isInternalUpdate.value = true
     modelValue.value = editor.getHTML()
   })
   instance.setEditable(!props.readonly)
