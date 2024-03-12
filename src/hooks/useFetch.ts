@@ -15,11 +15,19 @@ export interface FetchHookOptions<T, A extends unknown[] = []> {
   immediate?: boolean
   initialValue?: T
   shallow?: boolean
+  diff?: (oldData: T, newData: T) => boolean
   onRequest?: (...args: A) => Promise<T>
 }
 
 export const useFetchHook = <T, A extends unknown[] = []>(options: FetchHookOptions<T, A>) => {
-  const { immediate, loading = shallowRef(false), initialValue, shallow, onRequest } = options
+  const {
+    immediate,
+    loading = shallowRef(false),
+    initialValue,
+    shallow,
+    diff,
+    onRequest,
+  } = options
 
   const onSuccessHook = createEventHook<T>()
   const onErrorHook = createEventHook<Error>()
@@ -41,6 +49,8 @@ export const useFetchHook = <T, A extends unknown[] = []>(options: FetchHookOpti
         if (isBasicResponse(res) && res.error)
           throw new Error(`error in server: ${res.message}`)
         if (current < timestamp.value)
+          return
+        if (diff && diff(data.value, res))
           return
         data.value = res as T
         onSuccessHook.trigger(res)
