@@ -1,3 +1,4 @@
+export * from './channelEnum'
 export * from './clock'
 export * from './constant'
 export * from './editTypeEnum'
