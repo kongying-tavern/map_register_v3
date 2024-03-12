@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { AppBreadCrumb, AppLogo, AppSidemenu, AppUserAvatar } from '@/components'
+import { AppBreadCrumb, AppLogo, AppNotice, AppSidemenu, AppUserAvatar } from '@/components'
 import { useTheme } from '@/hooks'
 import { LayoutAside, LayoutHeader, LayoutPage } from '@/layout'
 
@@ -20,9 +20,12 @@ onBeforeMount(() => {
     </LayoutAside>
 
     <LayoutHeader>
-      <div class="h-full flex-1 flex items-center justify-between text-sm px-4 gap-4">
+      <div class="h-full flex-1 flex items-center justify-between text-sm px-4">
         <AppBreadCrumb class="flex-1" />
-        <AppUserAvatar />
+        <div class="flex-1 flex justify-end gap-1">
+          <AppNotice />
+          <AppUserAvatar />
+        </div>
       </div>
     </LayoutHeader>
 
