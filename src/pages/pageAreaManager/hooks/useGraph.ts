@@ -58,7 +58,7 @@ export const useGraph = (options: {
     const graph = graphRef.value
     if (!graph)
       return
-    graph.updateChildren(newGraphData.children!, '-1')
+    graph.changeData(newGraphData)
     graph.fitView()
   })
 
