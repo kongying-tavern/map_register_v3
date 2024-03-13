@@ -46,7 +46,7 @@ const areaCode = computed({
     if (!code)
       formData.value.code = code
     const formatCode = code.toUpperCase()
-    if (!/^[A-Z]+$/.test(formatCode))
+    if (!/^[A-Z0-9_\-.]+$/.test(formatCode))
       return
     formData.value.code = props.parent ? `A:${props.parent.code!.split(':')[1]}:${formatCode}` : `C:${formatCode}`
   },
