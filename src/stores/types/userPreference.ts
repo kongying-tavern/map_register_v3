@@ -15,6 +15,11 @@ export interface UserPreference {
   /** 是否显示限定地区 */
   'userCenter.setting.showRestrictedArea'?: boolean
 
+  // ====================      公告      ====================
+
+  /** 公告阅读记录 */
+  'notice.state.readingRecords'?: number[]
+
   // ====================      地图      ====================
 
   /** 显示区域名称标签 */

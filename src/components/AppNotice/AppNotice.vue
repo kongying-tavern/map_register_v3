@@ -4,20 +4,29 @@ import { context } from './context'
 </script>
 
 <template>
-  <el-button
-    class="app-notice-button"
-    text
-    size="large"
-    style="--el-border-radius-base: 8px; padding: 8px 12px;"
-    @click="context.show"
+  <el-badge
+    :value="context.newCount.value"
+    :hidden="context.newCount.value < 1"
+    class="notice-count"
   >
-    <el-icon :size="20">
-      <ChatLineRound />
-    </el-icon>
-  </el-button>
+    <el-button
+      class="app-notice-button"
+      text
+      size="large"
+      style="--el-border-radius-base: 8px; padding: 8px 12px;"
+      @click="context.show"
+    >
+      <el-icon :size="20">
+        <ChatLineRound />
+      </el-icon>
+    </el-button>
+  </el-badge>
 </template>
 
 <style scoped>
-.app-notice-button {
+.notice-count {
+  :deep(.el-badge__content.is-fixed) {
+    transform: translate(40%, 10%);
+  }
 }
 </style>
