@@ -41,7 +41,13 @@ export class GenshinMap extends Deck {
       layers: [new GSCompositeLayer()],
       initialViewState: mapStateStore.viewState,
       getCursor: ({ isDragging, isHovering }) => {
-        return isDragging ? 'grabbing' : isHovering ? 'pointer' : 'inherit'
+        return mapStateStore.cursor !== undefined
+          ? mapStateStore.cursor
+          : isDragging
+            ? 'grabbing'
+            : isHovering
+              ? 'pointer'
+              : 'inherit'
       },
       onViewStateChange: ({ viewState, oldViewState, ...rest }) => {
         if (mapStateStore.isViewPortLocked)

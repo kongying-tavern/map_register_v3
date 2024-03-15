@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import {
   useInteractionInfo,
+  useMapCursor,
   useMapMission,
   useMarkerAdvancedFilter,
   useMarkerBasicFilter,
@@ -33,6 +34,9 @@ export const useMapStateStore = defineStore('global-map-state', () => {
 
   // ============================== 地图事件 ==============================
   const event = new EventBus<GSMap.EventMap>()
+
+  // ============================== 地图指针 ==============================
+  const cursorHook = useMapCursor()
 
   // ============================== 地图视口 ==============================
   const viewStateHook = useViewState({
@@ -78,6 +82,8 @@ export const useMapStateStore = defineStore('global-map-state', () => {
     event,
 
     ...viewStateHook,
+
+    ...cursorHook,
 
     ...interactionInfoHook,
 
