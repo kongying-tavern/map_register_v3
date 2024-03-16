@@ -11,6 +11,9 @@ export type ElUploadType = InstanceType<typeof ElUpload>
  * @link https://developer.mozilla.org/zh-CN/docs/Web/CSS/cursor
  */
 export type CursorType =
+ | 'unset'
+ | 'initial'
+ | 'inherit'
  | 'auto'
  | 'default'
  | 'none'
