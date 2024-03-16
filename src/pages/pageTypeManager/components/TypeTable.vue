@@ -44,8 +44,8 @@ const { IDENTIFICATION_SYMBOL, triggerRef, userData, trigger, close } = useUserP
     v-loading="loading"
     class="flex-1 overflow-hidden"
     element-loading-text="加载中..."
-    @pointerover="trigger"
-    @pointerout="close"
+    @pointerenter="trigger"
+    @pointerleave="close"
   >
     <AppUserPopover :trigger-ref="triggerRef" :data="userData" />
 

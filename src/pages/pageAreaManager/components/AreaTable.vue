@@ -36,8 +36,8 @@ const typeAssert = (row: unknown) => row as API.AreaVo
     v-loading="loading"
     class="flex-1 overflow-hidden"
     element-loading-text="加载中..."
-    @pointerover="trigger"
-    @pointerout="close"
+    @pointerenter="trigger"
+    @pointerleave="close"
   >
     <AppUserPopover :trigger-ref="triggerRef" :data="userData" />
 
