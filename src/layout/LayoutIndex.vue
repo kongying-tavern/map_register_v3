@@ -1,13 +1,16 @@
 <script lang="ts" setup>
-import { AppBreadCrumb, AppLogo, AppNotice, AppSidemenu, AppUserAvatar } from '@/components'
-import { useTheme } from '@/hooks'
+import {
+  DarkModeSwitch,
+  SettingButton,
+} from './components'
+import {
+  AppBreadCrumb,
+  AppLogo,
+  AppNotice,
+  AppSidemenu,
+  AppUserAvatar,
+} from '@/components'
 import { LayoutAside, LayoutHeader, LayoutPage } from '@/layout'
-
-// TODO: 管理这边还没适配黑暗模式，先这么用着
-const { isDark } = useTheme()
-onBeforeMount(() => {
-  isDark.value = false
-})
 </script>
 
 <template>
@@ -20,10 +23,13 @@ onBeforeMount(() => {
     </LayoutAside>
 
     <LayoutHeader>
-      <div class="h-full flex-1 flex items-center justify-between text-sm px-4">
+      <div class="h-full flex-1 flex items-center justify-between text-sm px-4 flex-wrap">
         <AppBreadCrumb class="flex-1" />
-        <div class="flex-1 flex justify-end gap-1">
-          <AppNotice />
+
+        <div class="flex-1 flex justify-end items-center gap-1">
+          <AppNotice title="公告" />
+          <SettingButton title="设置" />
+          <DarkModeSwitch title="黑暗模式" />
           <AppUserAvatar />
         </div>
       </div>

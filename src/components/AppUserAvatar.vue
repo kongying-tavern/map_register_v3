@@ -1,8 +1,7 @@
 <script lang="ts" setup>
-import { Avatar } from '@element-plus/icons-vue'
-import { AppSettings } from '.'
+import { Avatar, LocationFilled, SwitchButton, UserFilled } from '@element-plus/icons-vue'
 import { useUserAuthStore, useUserInfoStore } from '@/stores'
-import { useGlobalDialog, useTheme } from '@/hooks'
+import { useTheme } from '@/hooks'
 
 defineProps<{
   mapMode?: boolean
@@ -11,19 +10,10 @@ defineProps<{
 const userInfoStore = useUserInfoStore()
 const userAuthStore = useUserAuthStore()
 const { isDark } = useTheme()
-const { DialogService } = useGlobalDialog()
-
-const openSettingDialog = () => DialogService
-  .config({
-    alignCenter: true,
-    width: 'fit-content',
-  })
-  .open(AppSettings)
 
 const handleCommand = (command: string) => ({
   userinfo: () => userInfoStore.showUserInfo = true,
   themeschema: () => isDark.value = !isDark.value,
-  setting: () => openSettingDialog(),
   logout: () => userAuthStore.logout(),
 } as Record<string, () => void>)[command]?.()
 </script>
@@ -39,28 +29,25 @@ const handleCommand = (command: string) => ({
         <ArrowDown />
       </el-icon>
     </el-button>
+
     <template #dropdown>
       <el-dropdown-menu>
-        <el-dropdown-item command="userinfo">
-          {{ userInfoStore.info.nickname }}
+        <el-dropdown-item :icon="UserFilled" command="userinfo">
+          个人中心
         </el-dropdown-item>
-        <el-dropdown-item v-if="userInfoStore.isManager">
-          <router-link to="/items">
-            管理界面
-          </router-link>
-        </el-dropdown-item>
-        <el-dropdown-item>
+
+        <el-dropdown-item v-if="$route.path !== '/map'" :icon="LocationFilled">
           <router-link to="/map">
-            地图V2
+            返回地图
           </router-link>
         </el-dropdown-item>
-        <el-dropdown-item divided command="setting">
-          系统设置
-        </el-dropdown-item>
-        <el-dropdown-item command="themeschema">
-          {{ isDark ? '明亮' : '黑暗' }}模式
-        </el-dropdown-item>
-        <el-dropdown-item divided command="logout">
+
+        <el-dropdown-item
+          :icon="SwitchButton"
+          divided
+          style="--el-text-color-regular: var(--el-color-danger); --el-dropdown-menuItem-hover-color: var(--el-color-danger)"
+          command="logout"
+        >
           <el-text type="danger">
             退出账户
           </el-text>
