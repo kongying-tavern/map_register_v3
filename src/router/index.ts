@@ -47,19 +47,40 @@ const logger = new Logger('[路由后置守卫]')
 
 router.afterEach((to) => {
   logger.info('导航结束')
+  const routeStore = useRouteStore()
   routerHook.applyCallbacks('onAfterRouterEnter')
   nextTick(() => {
     useRouteStore().setLoading(false)
     const title = useTitle()
     title.value = to.meta.title ?? import.meta.env.VITE_TITLE
+    routeStore.lastError = {
+      path: '',
+      count: 0,
+    }
   })
 })
 
 // ==================== 导航栈结束 ====================
-router.onError((err, to) => {
-  // 长时间离线并再次返回应用时，获取鉴权信息后可能由于调度问题，权限等级无法及时更新，此时需要刷新一次
-  // 为避免无限循环，增加一个 flag 进行控制，并在成功导航后重置
-  useRouteStore().setLoading(false)
+router.onError(async (err, to) => {
+  const routeStore = useRouteStore()
+
+  routeStore.setLoading(false)
+
+  // 对上次错误地址重试访问一次
+  if (routeStore.lastError.path !== to.path || routeStore.lastError.count < 1) {
+    await nextTick()
+    logger.info('尝试重访', to.path)
+    routeStore.lastError = {
+      path: to.path,
+      count: 1,
+    }
+    router.replace(to)
+    return
+  }
+
+  // 依然还是上次错误，重定向回登录页
+  router.replace('/login')
+
   ElMessage.error({
     message: `导航至${to.meta.title}失败，原因为：${messageFrom(err)}`,
     offset: 48,
