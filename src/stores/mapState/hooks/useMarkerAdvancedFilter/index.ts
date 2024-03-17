@@ -4,6 +4,7 @@ import {
   ContentRegex,
   IdRange,
   Image,
+  Linkage,
   TitleContain,
   Underground,
   Video,
@@ -24,6 +25,7 @@ const markerAdvancedFilterConfigs: MAFConfig[] = [
   new Underground(),
   new Image(),
   new Video(),
+  new Linkage(),
 ]
 
 const markerAdvancedFilterConfigMap: Record<number, MAFConfig> = keyBy(markerAdvancedFilterConfigs, 'id')

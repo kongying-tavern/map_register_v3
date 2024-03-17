@@ -4,6 +4,7 @@ import {
   IconDocumentRegex,
   IconImage,
   IconLayers,
+  IconLink,
   IconPound,
   IconTitleSerif,
   IconVideoPlay,
@@ -22,6 +23,7 @@ const iconComponent = computed(() => {
     5: IconLayers,
     7: IconImage,
     8: IconVideoPlay,
+    9: IconLink,
   }[props.id]
 }) as ComputedRef<Component>
 </script>
