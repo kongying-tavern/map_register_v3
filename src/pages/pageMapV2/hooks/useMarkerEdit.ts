@@ -70,7 +70,7 @@ export const useMarkerEdit = (markerData: Ref<API.MarkerVo | null>) => {
       throw new Error('表单数据为空')
 
     const form = buildAdminMarkerForm(marker)
-    await Api.marker.updateMarker(form)
+    await Api.marker.updateMarker({}, form)
 
     const { data: { 0: submitedMarkerInfo } = [] } = await Api.marker.listMarkerById({}, [form.id!])
 

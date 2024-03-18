@@ -49,7 +49,7 @@ export const useMarkerPositionEdit = () => {
       if (!form.length)
         throw new Error('已验证的提交信息为空')
 
-      const updateIds = await Promise.all(form.map(marker => Api.marker.updateMarker(marker).then(() => marker.id!)))
+      const updateIds = await Promise.all(form.map(marker => Api.marker.updateMarker({}, marker).then(() => marker.id!)))
 
       const { data: updatedMarkers = [] } = await Api.marker.listMarkerById({}, updateIds)
       await db.marker.bulkPut(updatedMarkers)

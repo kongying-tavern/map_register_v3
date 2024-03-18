@@ -28,7 +28,7 @@ export const useMarkerBatchEdit = (options: MarkerBatchEditHookOptions) => {
     onRequest: async () => {
       const markers = getParams()
 
-      const missions = markers.map(marker => Api.marker.updateMarker({ ...marker, ...batchEditForm.value }))
+      const missions = markers.map(marker => Api.marker.updateMarker({}, { ...marker, ...batchEditForm.value }))
       await Promise.allSettled(missions)
 
       // 提交更新后确认每个更新点位的数据变化，并将数据更新至本地
