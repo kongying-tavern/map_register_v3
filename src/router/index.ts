@@ -12,6 +12,8 @@ import { Logger, messageFrom } from '@/utils'
 import { useRouteStore } from '@/stores'
 import { routerHook } from '@/stores/hooks'
 
+const logger = new Logger('[Router]')
+
 const history: RouterHistory = ({
   history: createWebHistory,
   hash: createWebHashHistory,
@@ -31,22 +33,20 @@ const router = createRouter({
 })
 
 // ==================== 导航栈开始 ====================
-router.beforeEach(async (_to, from, next) => {
-  ['/', '/login', '/register'].includes(from.path) && await routerHook.applyCallbacks('onBeforeRouterEnter')
+router.beforeEach(async (...{ 1: from, 2: next }) => {
+  if (['/', '/login', '/register'].includes(from.path))
+    await routerHook.applyCallbacks('onBeforeRouterEnter')
   next(true)
 })
 
-router.beforeEach(beforeEachGuard(router))
+router.beforeEach(beforeEachGuard(router, logger))
 
 router.beforeEach((to) => {
   if (to.meta.loading)
     useRouteStore().setLoading(true)
 })
 
-const logger = new Logger('[路由后置守卫]')
-
 router.afterEach((to) => {
-  logger.info('导航结束')
   const routeStore = useRouteStore()
   routerHook.applyCallbacks('onAfterRouterEnter')
   nextTick(() => {
@@ -63,24 +63,7 @@ router.afterEach((to) => {
 // ==================== 导航栈结束 ====================
 router.onError(async (err, to) => {
   const routeStore = useRouteStore()
-
   routeStore.setLoading(false)
-
-  // 对上次错误地址重试访问一次
-  if (routeStore.lastError.path !== to.path || routeStore.lastError.count < 1) {
-    await nextTick()
-    logger.info('尝试重访', to.path)
-    routeStore.lastError = {
-      path: to.path,
-      count: 1,
-    }
-    router.replace(to)
-    return
-  }
-
-  // 依然还是上次错误，重定向回登录页
-  router.replace('/login')
-
   ElMessage.error({
     message: `导航至${to.meta.title}失败，原因为：${messageFrom(err)}`,
     offset: 48,
