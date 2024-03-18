@@ -57,6 +57,16 @@ export const useUserAuthStore = defineStore('global-user-auth', () => {
     return expiresTime > Date.now()
   }
 
+  const isTokenValid = computed(() => {
+    if (!auth.value.accessToken)
+      return false
+    const { expiresTime = 0 } = auth.value
+    return expiresTime > Date.now()
+  })
+  watch(isTokenValid, (valid) => {
+    logger.info('token changed', valid)
+  })
+
   const refreshAuth = () => new Promise<void>((resolve, reject) => {
     const { refreshToken } = auth.value
     if (!refreshToken)
@@ -127,10 +137,14 @@ export const useUserAuthStore = defineStore('global-user-auth', () => {
     }
   }
 
-  const logout = () => {
+  const clearAuth = () => {
     stopAutoRefresh()
     auth.value = {}
     userHook.applyCallbacks('onAuthChange')
+  }
+
+  const logout = () => {
+    clearAuth()
     router.push('/login')
   }
 
@@ -138,8 +152,12 @@ export const useUserAuthStore = defineStore('global-user-auth', () => {
     // states
     auth,
 
+    // getters
+    isTokenValid,
+
     // actions
     setAuth,
+    clearAuth,
     validateToken,
     refreshAuth,
     ensureTokenRefreshMission,
