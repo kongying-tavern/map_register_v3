@@ -58,6 +58,7 @@ declare namespace GSMapState {
   interface InteractionTypeMap {
     defaultMarker: MarkerWithRenderConfig
     defaultMarkerLink: MLRenderUnit
+    multipleMarkers: Set<number>
     unknown: unknown
   }
 
@@ -68,6 +69,7 @@ declare namespace GSMapState {
   interface MissionTypeMap {
     markerDragging: Record<number, API.Coordinate2D>
     markerLink: API.MarkerLinkageVo[]
+    markerMultiSelect: boolean
     unknown: unknown
   }
 
