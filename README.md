@@ -4,20 +4,26 @@
   <img src="./public/favicon.ico" >
   <h2>空荧后厨</h2>
   <div>
-    <a href="https://cn.vuejs.org" target="_blank">
-      <img src="https://img.shields.io/badge/node-18-green">
+    <a href="https://www.typescriptlang.org" target="_blank">
+      <img src="https://img.shields.io/badge/typescript-5.3-blue">
     </a>
     <a href="https://cn.vuejs.org" target="_blank">
-      <img src="https://img.shields.io/badge/Vue-3.3-green">
+      <img src="https://img.shields.io/badge/node.js-18-green">
     </a>
     <a href="https://cn.vitejs.dev" target="_blank">
-      <img src="https://img.shields.io/badge/Vite-4.3-green">
+      <img src="https://img.shields.io/badge/vite.js-5.1-green">
     </a>
-    <a href="https://www.typescriptlang.org" target="_blank">
-      <img src="https://img.shields.io/badge/TS-next-blue">
+    <a href="https://cn.vuejs.org" target="_blank">
+      <img src="https://img.shields.io/badge/vue.js-3.4-green">
     </a>
     <a href="https://deck.gl" target="_blank">
       <img src="https://img.shields.io/badge/deck.gl-8.9-B77546">
+    </a>
+    <a href="https://deck.gl" target="_blank">
+      <img src="https://img.shields.io/badge/tiptap-2.2-B77546">
+    </a>
+    <a href="https://deck.gl" target="_blank">
+      <img src="https://img.shields.io/badge/dexie.js-3.2-B77546">
     </a>
   </div>
 </div>
@@ -28,9 +34,9 @@
 
 ## 相关项目
 
-1. [地图标记系统后端](https://github.com/kongying-tavern/genshin-map-cloud)
-2. [地图标记系统后端 (Rust)](https://github.com/kongying-tavern/genshin-cloud-rust)
-3. [地图文档](https://github.com/kongying-tavern/docs)
+1. [地图标记系统后端 (java)](https://github.com/kongying-tavern/genshin-map-cloud)
+2. [地图标记系统后端 (rust)](https://github.com/kongying-tavern/genshin-cloud-rust)
+3. [地图文档 (vitepress)](https://github.com/kongying-tavern/docs)
 
 ### 地图页预览
 
