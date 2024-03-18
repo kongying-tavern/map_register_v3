@@ -40,7 +40,16 @@ const dKeyPress = fromRefEvent(canvasRef, 'keypress') as Observable<KeyboardEven
 
 /** 点位拖拽 */
 useSubscription(pointerdown.pipe(
-  filter(() => isDraggingProcessing.value && Boolean(hoverMarker.value)),
+  filter((ev) => {
+    return [
+      // TODO 暂时屏蔽带功能键的操作
+      !ev.ctrlKey,
+      !ev.altKey,
+      isDraggingProcessing.value,
+      Boolean(hoverMarker.value),
+    ].every(condition => condition)
+  }),
+
   switchMap((ev) => {
     mapStateStore.setViewPortLocked(true)
 
