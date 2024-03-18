@@ -62,16 +62,20 @@ export class GenshinMap extends Deck {
             continue
           viewState[key] = mapStateStore.viewState[key as keyof typeof mapStateStore.viewState]
         }
-        mapStateStore.setViewState(viewState)
-        mapStateStore.event.emit('onViewStateChange', { viewState, oldViewState, ...rest })
+        mapStateStore.event.emit('viewStateChange', { viewState, oldViewState, ...rest })
         return viewState
       },
-      onClick: (info, event) => {
-        if (!info.object) {
-          mapStateStore.setInteractionInfo('focus', null)
-          mapStateStore.setInteractionInfo('hover', null)
-        }
-        mapStateStore.event.emit('click', info, event)
+      onHover: (...args) => {
+        mapStateStore.event.emit('hover', ...args)
+      },
+      onClick: (...args) => {
+        mapStateStore.event.emit('click', ...args)
+      },
+      onDrag: (...args) => {
+        mapStateStore.event.emit('drag', ...args)
+      },
+      onDragStart: (...args) => {
+        mapStateStore.event.emit('dragStart', ...args)
       },
       onLoad: () => {
         mapStateStore.event.emit('load', this)
@@ -93,6 +97,8 @@ export class GenshinMap extends Deck {
     }
 
     mapStateStore.event.on('setViewState', this.setViewState)
+
+    this.mapStateStore = mapStateStore
   }
 
   finalize = () => {
@@ -100,7 +106,7 @@ export class GenshinMap extends Deck {
     super.finalize()
   }
 
-  protected mapStateStore = useMapStateStore()
+  protected mapStateStore: ReturnType<typeof useMapStateStore>
 
   readonly ready: Promise<GenshinMap>
 

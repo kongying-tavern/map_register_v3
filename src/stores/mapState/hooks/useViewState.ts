@@ -3,13 +3,16 @@ import type { ShallowRef } from 'vue'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
 import { TRANSITION } from '@/pages/pageMapV2/shared'
 import type { usePreferenceStore } from '@/stores'
+import type { EventBus } from '@/utils'
+import type { GSMap } from '@/pages/pageMapV2/types/map'
 
 interface ViewStateHookOptions {
+  event: EventBus<GSMap.EventMap>
   preferenceStore: ReturnType<typeof usePreferenceStore>
 }
 
 export const useViewState = (options: ViewStateHookOptions) => {
-  const { preferenceStore } = options
+  const { event, preferenceStore } = options
 
   const viewState = shallowRef<GSMapState.ViewState>({
     maxRotationX: 90,
@@ -23,6 +26,10 @@ export const useViewState = (options: ViewStateHookOptions) => {
     transitionDuration: 150,
     transitionEasing: TRANSITION.LINEAR,
     transitionInterruption: TRANSITION_EVENTS.BREAK,
+  })
+
+  event.on('viewStateChange', ({ viewState: newViewState }) => {
+    viewState.value = newViewState as GSMapState.ViewState
   })
 
   const setViewState = (state: Partial<GSMapState.ViewState>) => {

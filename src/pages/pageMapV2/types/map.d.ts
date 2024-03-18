@@ -10,8 +10,11 @@ declare namespace GSMap {
   }
 
   interface EventMap {
+    hover: ExtractParamters<'onHover'>
     click: ExtractParamters<'onClick'>
-    onViewStateChange: ExtractParamters<'onViewStateChange'>
+    dragStart: ExtractParamters<'onDragStart'>
+    drag: ExtractParamters<'onDrag'>
+    viewStateChange: ExtractParamters<'onViewStateChange'>
     load: [map: GenshinMap]
     setViewState: [state: Partial<GSMapState.ViewState>]
   }

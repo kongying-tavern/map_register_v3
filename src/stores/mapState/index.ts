@@ -40,6 +40,7 @@ export const useMapStateStore = defineStore('global-map-state', () => {
 
   // ============================== 地图视口 ==============================
   const viewStateHook = useViewState({
+    event,
     preferenceStore,
   })
 
