@@ -2,6 +2,7 @@
 import { storeToRefs } from 'pinia'
 import { SettingBar, SettingGroup, SettingPanel } from '../components'
 import { usePreferenceStore } from '@/stores'
+import { useBanner } from '@/hooks'
 
 const { preference } = storeToRefs(usePreferenceStore())
 
@@ -18,10 +19,20 @@ const showDatabaseUpdaterLogger = computed({
     preference.value['developer.setting.hideDatabaseUpdaterLogger'] = !v
   },
 })
+
+const { visible } = useBanner()
 </script>
 
 <template>
   <SettingPanel>
+    <SettingGroup name="调试">
+      <SettingBar label="banner" note="banner 控制器">
+        <template #setting>
+          <el-switch v-model="visible" />
+        </template>
+      </SettingBar>
+    </SettingGroup>
+
     <SettingGroup name="日志">
       <SettingBar label="Service Worker" note="是否显示 Service Worker 触发缓存时的日志">
         <template #setting>
