@@ -9,6 +9,7 @@ import {
   MapStateBar,
   MapWindowManager,
   MarkerMoveController,
+  MarkerMultiSelectController,
   MarkerPopover,
   ZoomController,
 } from './components'
@@ -65,6 +66,7 @@ provide(mapAffixLayerKey, mapAffixLayerRef)
       class="mutually-exclusive-layer absolute left-0 top-0 w-full h-full pointer-events-none"
     >
       <MarkerMoveController />
+      <MarkerMultiSelectController />
     </div>
   </div>
 </template>

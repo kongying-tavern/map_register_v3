@@ -2,6 +2,7 @@ import { IconLayer } from '@deck.gl/layers/typed'
 import type { GSCompositeLayerState, LayerAttachOptions } from '.'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
 
+// TODO 应将该图层将与 GSMarkerLayer 合并为组合图层
 export class GSMarkerHoverLayer extends IconLayer<number> {
   declare state: IconLayer['state'] & {
     data: GSMapState.MarkerWithRenderConfig[]
@@ -23,11 +24,11 @@ export class GSMarkerHoverLayer extends IconLayer<number> {
       transparentMarked,
     } = state
 
-    const isFocus = (id?: number) => {
-      if (focus?.type !== 'defaultMarker')
-        return false
-      return focus.value.id === id
-    }
+    const getSize = focus?.type === 'defaultMarker'
+      ? (id?: number) => focus.value.id === id ? 44 : 36
+      : focus?.type === 'multipleMarkers'
+        ? (id?: number) => focus.value.has(id!) ? 44 : 36
+        : 36
 
     const isMarked = (id: number) => {
       return markedMarkers.has(id)
@@ -39,6 +40,8 @@ export class GSMarkerHoverLayer extends IconLayer<number> {
         idSet.add(hover.value.id!)
       if (focus?.type === 'defaultMarker')
         idSet.add(focus.value.id!)
+      if (focus?.type === 'multipleMarkers')
+        return [...focus.value]
       return [...idSet]
     }
 
@@ -61,7 +64,7 @@ export class GSMarkerHoverLayer extends IconLayer<number> {
         const rewritePosition = markerDraggingMap[id]
         return rewritePosition ?? position
       },
-      getSize: id => isFocus(id) ? 44 : 36,
+      getSize,
       getColor: id => [0, 0, 0, (transparentMarked && isMarked(id!)) ? 51 : 255],
       sizeScale: 1,
       sizeMaxPixels: 40 * 2 ** (zoom + 2),
@@ -69,7 +72,7 @@ export class GSMarkerHoverLayer extends IconLayer<number> {
       updateTriggers: {
         getIcon: [hover, archiveHash],
         getPosition: [markerDraggingList],
-        getSize: [focus],
+        getSize: [hover, focus],
         getColor: [transparentMarked, archiveHash],
       },
     })
