@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { defaultsDeep } from 'lodash'
+import { defaultsDeep, merge } from 'lodash'
 import { useAreaStore, useDadianStore, usePreferenceStore, useUserInfoStore } from '@/stores'
 import type { AreaTagTuple } from '@/configs'
 import { AREA_ADDITIONAL_CONFIG_MAP } from '@/configs'
@@ -37,27 +37,25 @@ export const useTileStore = defineStore('global-map-tile', () => {
   const userInfoStore = useUserInfoStore()
   const preferenceStore = usePreferenceStore()
 
+  const mergedTiles = computed(() => {
+    const { tiles = {}, tilesNeigui = {} } = dadianStore._raw
+    return userInfoStore.isNeigui
+      ? merge(tiles, tilesNeigui)
+      : tiles
+  })
+
   /** key 是用于构建 tiles url 的参数 */
   const mergedTileConfigs = computed((): Record<string, AreaTileConfig> => {
-    const { tiles = {}, tilesNeigui = {} } = dadianStore._raw
-
-    const mergedTiles = userInfoStore.isNeigui
-      ? {
-          ...tiles,
-          ...tilesNeigui,
-        }
-      : tiles
-
     const areaTileConfigs: Record<string, AreaTileConfig> = {}
 
-    for (const maybeAreaCode in mergedTiles) {
+    for (const maybeAreaCode in mergedTiles.value) {
       // 只保留实际配置，继承用的配置忽略
       if (!/[A-Z]:[A-Z]+(:\s+)?/.test(maybeAreaCode))
         continue
 
-      const tileConfig = mergedTiles[maybeAreaCode]
+      const tileConfig = mergedTiles.value[maybeAreaCode]
       if (tileConfig.extend)
-        defaultsDeep(tileConfig, mergedTiles[tileConfig.extend])
+        defaultsDeep(tileConfig, mergedTiles.value[tileConfig.extend])
 
       const {
         code = '',

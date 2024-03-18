@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { defaultsDeep, template } from 'lodash'
+import { merge, template } from 'lodash'
 import { useDadianStore, usePreferenceStore, useTileStore, useUserInfoStore } from '.'
 
 export interface OverlayGroup {
@@ -72,6 +72,7 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
   const dadianStore = useDadianStore()
   const tileStore = useTileStore()
   const preferenceStore = usePreferenceStore()
+  const userInfoStore = useUserInfoStore()
 
   /** 每组内位于顶部的 overlay 单元 */
   const topOverlayInGroup = shallowRef<{ [groupId: string]: string }>({})
@@ -82,15 +83,19 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
   /** 当前状态 id，用于优化 deck 状态检查 */
   const stateId = ref(Date.now())
 
+  const mergedPlugins = computed(() => {
+    const { plugins = {}, pluginsNeigui = {} } = dadianStore._raw
+    return userInfoStore.isNeigui
+      ? merge(plugins, pluginsNeigui)
+      : plugins
+  })
+
   /** 合并了 neigui 权限下的配置 */
   const mergedOverlayGroups = computed((): MergedOverlayGroups => {
     const overlayGroups: MergedOverlayGroups = {}
-    const { plugins = {}, pluginsNeigui = {} } = dadianStore._raw
-
-    for (const areaCode in plugins) {
+    for (const areaCode in mergedPlugins.value) {
       overlayGroups[areaCode] = []
-
-      const { overlay = false, overlayConfig = {} } = plugins[areaCode]
+      const { overlay = false, overlayConfig = {} } = mergedPlugins.value[areaCode]
       overlay && overlayConfig.overlays?.forEach(({ urlTemplate = overlayConfig.urlTemplate, children: items = [], role = 'default', ...rest }) => {
         overlayGroups[areaCode].push({
           multiple: overlayConfig.multiple ?? false,
@@ -102,25 +107,7 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
           ...rest,
         })
       })
-
-      if (!useUserInfoStore().isNeigui)
-        continue
-
-      defaultsDeep(pluginsNeigui, plugins)
-      const { overlay: overlayNeigui, overlayConfig: neiguiConfig = {} } = pluginsNeigui[areaCode] ?? {}
-      overlayNeigui && neiguiConfig.overlays?.forEach(({ urlTemplate = overlayConfig.urlTemplate, children: items = [], role = 'default', ...rest }) => {
-        overlayGroups[areaCode].push({
-          multiple: overlayConfig.multiple ?? false,
-          mask: overlayConfig.overlayMask ?? false,
-          urlTemplate,
-          id: `group-${crypto.randomUUID()}`,
-          items,
-          role,
-          ...rest,
-        })
-      })
     }
-
     return overlayGroups
   })
 
