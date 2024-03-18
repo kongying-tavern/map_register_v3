@@ -103,7 +103,7 @@ const setLink = () => {
       title="加粗"
       class="font-mono text-xl"
       :is-active="editor.isActive('bold')"
-      @click="editor.commands.toggleBold"
+      @click="() => editor.chain().focus().toggleBold().run()"
     >
       B
     </ToolbarItem>
@@ -112,7 +112,7 @@ const setLink = () => {
       title="斜体"
       class="italic font-mono text-xl"
       :is-active="editor.isActive('italic')"
-      @click="editor.commands.toggleItalic"
+      @click="() => editor.chain().focus().toggleItalic().run()"
     >
       I
     </ToolbarItem>
@@ -121,7 +121,7 @@ const setLink = () => {
       title="下划线"
       class="underline font-mono text-xl"
       :is-active="editor.isActive('underline')"
-      @click="editor.commands.toggleUnderline"
+      @click="() => editor.chain().focus().toggleUnderline().run()"
     >
       U
     </ToolbarItem>
@@ -155,5 +155,6 @@ const setLink = () => {
   background-color: var(--el-fill-color-light);
   gap: 4px;
   padding: 8px;
+  border-bottom: 1px solid var(--el-border-color);
 }
 </style>

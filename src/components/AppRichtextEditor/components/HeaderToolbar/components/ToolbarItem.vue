@@ -94,12 +94,13 @@ const handleClick = (ev: MouseEvent) => {
   --item-bg--hover: transparent;
   --item-bg--active: transparent;
   --radius: 4px;
+  --state-color: unset;
   --content-radius: var(--radius) var(--radius) var(--radius) var(--radius);
 
   height: 32px;
   display: flex;
   transition: all ease 150ms;
-  color: var(--el-color-info-light-3);
+  color: var(--el-color-info);
   user-select: none;
   line-height: 1;
   position: relative;
@@ -107,6 +108,7 @@ const handleClick = (ev: MouseEvent) => {
 
   &.is-active {
     color: var(--el-color-primary);
+    --state-color: var(--el-color-primary);
   }
 
   &.dropdown-open {
@@ -133,6 +135,7 @@ const handleClick = (ev: MouseEvent) => {
 
   &:hover {
     background: var(--item-bg--hover);
+    color: var(--state-color, var(--el-text-color-regular));
   }
   &:active {
     background: var(--item-bg--active);
@@ -171,6 +174,7 @@ const handleClick = (ev: MouseEvent) => {
   left: 0;
   top: 100%;
   z-index: 1;
+  background: #FFF;
 
   &.is-hidden {
     content-visibility: hidden;
