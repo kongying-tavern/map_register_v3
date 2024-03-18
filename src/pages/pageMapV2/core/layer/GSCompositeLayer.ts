@@ -56,6 +56,11 @@ export class GSCompositeLayer extends CompositeLayer {
         getData: (object: number) => this.state.markersMap[object],
       },
       {
+        type: 'defaultMarker',
+        layer: GSMarkerHoverLayer,
+        getData: (object: number) => this.state.markersMap[object],
+      },
+      {
         type: 'defaultMarkerLink',
         layer: GSMarkerLinkHoverLayer,
         getData: (object: GSMapState.MLRenderUnit) => object,

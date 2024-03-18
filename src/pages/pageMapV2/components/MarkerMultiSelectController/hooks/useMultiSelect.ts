@@ -32,11 +32,6 @@ export const useMultiSelect = (options: MultiSelectHookOptions) => {
   } = mapStateStore.subscribeInteractionInfo('focus', 'multipleMarkers')
 
   const {
-    pause: pauseHoverMarker,
-    resume: resumeHover,
-  } = mapStateStore.subscribeInteractionInfo('hover', 'defaultMarker')
-
-  const {
     pause: pauseFocusMarker,
     resume: resumeFocusMarker,
   } = mapStateStore.subscribeInteractionInfo('focus', 'defaultMarker')
@@ -107,11 +102,12 @@ export const useMultiSelect = (options: MultiSelectHookOptions) => {
   }
 
   const finalizeMission = () => {
-    // resumeHover()
     resumeFocusMarker()
     setMultiSelecte(null)
     clearMission()
+    mapStateStore.setCursor()
     mapStateStore.setViewPortLocked(false)
+    mapStateStore.setIsPopoverOnHover(false)
     mapStateStore.setCursor()
     rect.value = undefined
   }
@@ -130,11 +126,11 @@ export const useMultiSelect = (options: MultiSelectHookOptions) => {
     }),
 
     switchMap(([startInfo, startEvent]) => {
-      // pauseHoverMarker()
-      // pauseFocusMarker()
+      pauseFocusMarker()
       setMission(true)
+      mapStateStore.setCursor('crosshair')
+      mapStateStore.setIsPopoverOnHover(true)
       mapStateStore.setViewPortLocked(true)
-      // mapStateStore.setCursor('crosshair')
       rect.value = {
         start: [startEvent.clientX, startEvent.clientY - bannerHeight.value],
       }
@@ -176,8 +172,8 @@ export const useMultiSelect = (options: MultiSelectHookOptions) => {
         // 注意！这里不是直接恢复初始状态，而是恢复到更新选择矩形之前的状态。
         // 只有当多选点位弹出的操作窗口关闭后才恢复到初始状态。
         finalize(() => {
+          mapStateStore.setCursor()
           mapStateStore.setViewPortLocked(false)
-          // mapStateStore.setCursor('inherit')
           rect.value = undefined
           initMultiSelect()
         }),

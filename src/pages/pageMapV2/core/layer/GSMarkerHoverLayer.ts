@@ -34,15 +34,25 @@ export class GSMarkerHoverLayer extends IconLayer<number> {
       return markedMarkers.has(id)
     }
 
+    /** 由于 id 进行了重排，需要确保 y 坐标更低的排在后面 */
+    const sorter = (idA: number, idB: number) => {
+      return markersMap[idA].render.position[1] - markersMap[idB].render.position[1]
+    }
+
     const getData = () => {
       const idSet = new Set<number>()
-      if (hover?.type === 'defaultMarker')
-        idSet.add(hover.value.id!)
+      let ids: number[] | undefined
       if (focus?.type === 'defaultMarker')
         idSet.add(focus.value.id!)
       if (focus?.type === 'multipleMarkers')
-        return [...focus.value]
-      return [...idSet]
+        focus.value.forEach(id => idSet.add(id))
+      if (hover?.type === 'defaultMarker') {
+        idSet.delete(hover.value.id!)
+        ids = [...idSet].sort(sorter)
+        ids.push(hover.value.id!) // 确保 hover 在最顶层
+      }
+      ids ??= [...idSet].sort(sorter)
+      return ids
     }
 
     super({
