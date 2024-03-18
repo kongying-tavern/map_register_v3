@@ -34,23 +34,21 @@ export const useLinkCreate = (context: MLContext) => {
         linkAction,
         linkReverse: false,
       }))
-      const { data: linkageId = '' } = await Api.markerLink.linkMarker(linkList)
+      const { data: linkageId = '' } = await Api.markerLink.linkMarker({}, linkList)
 
-      // 查询更新
-      const { data = {} } = await Api.markerLink.getList({
+      // 查询关联更新
+      const { data: updatedLinks = {} } = await Api.markerLink.getList({
         groupIds: [linkageId],
       })
+
+      // 查询点位更新
+      const { data: updatedMarkers = [] } = await Api.marker.listMarkerById({}, [...affectedMarkerIds])
 
       // 1. 删除所有受影响的点位的 linkageId
       // 2. 对存在于新关联组内的点位设置新的 linkageId
       await db.transaction('rw', db.marker, db.markerLink, async () => {
-        const affectedMarkers = await db.marker.where('id').anyOf([...affectedMarkerIds]).toArray()
-        const modifiedMarkers = affectedMarkers.map(marker => ({
-          ...marker,
-          linkageId: linkingMarkerIds.has(marker.id!) ? linkageId : '',
-        }))
-        await db.marker.bulkPut(modifiedMarkers)
-        await db.markerLink.bulkPut(Object.values(data).flat(1))
+        await db.marker.bulkPut(updatedMarkers)
+        await db.markerLink.bulkPut(Object.values(updatedLinks).flat(1))
       })
     },
   })
