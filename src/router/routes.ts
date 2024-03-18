@@ -142,6 +142,13 @@ const routes: RouteRecordRaw[] = [
     },
     component: () => import('@/pages/pageRegister/PageRegister.vue'),
   },
+  {
+    path: '/404',
+    meta: {
+      title: '404',
+    },
+    component: () => import('@/pages/pageNotFound/PageNotFound.vue'),
+  },
 ]
 
 export default routes
