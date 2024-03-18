@@ -19,6 +19,18 @@ import type { GSMapState } from '@/stores/types/genshin-map-state'
 
 const logger = new Logger('[图层组]')
 
+// eslint-disable-next-line ts/no-explicit-any
+interface StrategyOptions<D = any> {
+  type: keyof GSMapState.InteractionTypeMap
+  layer: Function
+  getData: (object: D) => unknown
+}
+
+interface InteractionStrategy {
+  subscriber: ReturnType<ReturnType<typeof useMapStateStore>['subscribeInteractionInfo']>
+  getData: (object: unknown) => void
+}
+
 export class GSCompositeLayer extends CompositeLayer {
   // ==================== type declare  ====================
 
@@ -37,27 +49,60 @@ export class GSCompositeLayer extends CompositeLayer {
   constructor() {
     const mapStateStore = useMapStateStore()
 
-    const { update: hoverMarker } = mapStateStore.subscribeInteractionInfo('hover', 'defaultMarker')
-    const { update: focusMarker } = mapStateStore.subscribeInteractionInfo('focus', 'defaultMarker')
-    const { update: hoverLink } = mapStateStore.subscribeInteractionInfo('hover', 'defaultMarkerLink')
+    const hoverStrategyOptionList: StrategyOptions[] = [
+      {
+        type: 'defaultMarker',
+        layer: GSMarkerLayer,
+        getData: (object: number) => this.state.markersMap[object],
+      },
+      {
+        type: 'defaultMarkerLink',
+        layer: GSMarkerLinkHoverLayer,
+        getData: (object: GSMapState.MLRenderUnit) => object,
+      },
+    ]
+
+    const focusStrategyOptionList: StrategyOptions[] = [
+      {
+        type: 'defaultMarker',
+        layer: GSMarkerHoverLayer,
+        getData: (object: number) => this.state.markersMap[object],
+      },
+    ]
+
+    const hoverStrategies = hoverStrategyOptionList.reduce((strategies, { type, layer, getData }) => strategies.set(layer, {
+      subscriber: mapStateStore.subscribeInteractionInfo('hover', type),
+      getData,
+    }), new Map<Function, InteractionStrategy>())
+
+    const focusStrategies = focusStrategyOptionList.reduce((strategies, { type, layer, getData }) => strategies.set(layer, {
+      subscriber: mapStateStore.subscribeInteractionInfo('focus', type),
+      getData,
+    }), new Map<Function, InteractionStrategy>())
 
     super({
       id: 'genshin-composite-layer',
-      onClick: ({ object = null, sourceLayer = null }, ev) => {
-        if (('leftButton' in ev && !ev.leftButton) || !object) {
-          focusMarker(null)
+      onHover: ({ object = null, sourceLayer = null }) => {
+        if (!object || !sourceLayer) {
+          hoverStrategies.forEach(({ subscriber }) => subscriber.update(null))
           return
         }
-        if (sourceLayer instanceof GSMarkerLayer || sourceLayer instanceof GSMarkerHoverLayer)
-          focusMarker(this.state.markersMap[object])
+        const strategy = hoverStrategies.get(sourceLayer.constructor)
+        if (!strategy)
+          return
+        const { subscriber, getData } = strategy
+        subscriber.update(getData(object))
       },
-      onHover: ({ object = null, sourceLayer = null }) => {
-        if (!object)
-          return mapStateStore.setInteractionInfo('hover', null)
-        if (sourceLayer instanceof GSMarkerLayer)
-          return hoverMarker(this.state.markersMap[object])
-        if (sourceLayer instanceof GSMarkerLinkHoverLayer)
-          return hoverLink(object)
+      onClick: ({ object = null, sourceLayer = null }, ev) => {
+        if (('leftButton' in ev && !ev.leftButton) || !object || !sourceLayer) {
+          focusStrategies.forEach(({ subscriber }) => subscriber.update(null))
+          return
+        }
+        const strategy = focusStrategies.get(sourceLayer.constructor)
+        if (!strategy)
+          return
+        const { subscriber, getData } = strategy
+        subscriber.update(getData(object))
       },
     })
   }

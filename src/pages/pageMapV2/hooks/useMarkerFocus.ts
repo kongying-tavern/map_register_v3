@@ -17,6 +17,13 @@ export const _useMarkerFocus = () => {
 
   const { data: hover, update: updateHover } = mapStateStore.subscribeInteractionInfo('hover', 'defaultMarker')
 
+  mapStateStore.event.on('click', (info) => {
+    if (info.object)
+      return
+    updateHover(null)
+    updateFocus(null)
+  })
+
   const isPopoverActived = computed(() => {
     if (preferenceStore.preference['map.setting.hideMarkerPopover'])
       return false
