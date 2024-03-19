@@ -2,15 +2,20 @@ import { BitmapLayer } from '@deck.gl/layers/typed'
 import { TileLayer } from '@deck.gl/geo-layers/typed'
 import type { GSCompositeLayerState } from '.'
 
-export class GSTileLayer extends TileLayer {
-  static layerName = 'GenshinTileLayer'
+interface TileData {
+  byteLength: number
+  image: ImageBitmap
+  url: string
+}
 
-  static config = {
-    /** tiles 前缀地址 */
-    baseURL: import.meta.env.VITE_ASSETS_BASE,
-    /** 地图 zoom 为 0 时对应服务器资源的实际 zoom 值 */
-    zoomMapping: 13,
-  }
+/** tiles 前缀地址 */
+const BASE_URL = import.meta.env.VITE_ASSETS_BASE
+
+/** 地图 zoom 为 0 时对应服务器资源的实际 zoom 值 */
+const ZOOM_MAPPING = 13
+
+export class GSTileLayer extends TileLayer<TileData | null> {
+  static layerName = 'GenshinTileLayer'
 
   constructor(state: GSCompositeLayerState) {
     const {
@@ -28,16 +33,16 @@ export class GSTileLayer extends TileLayer {
       maxZoom: 0, // 固定值，对应服务端存储底图的 level 13
       extent: [ox, h + oy, w + ox, oy],
       getTileData: async ({ index: { x, y, z }, signal }) => {
-        const { baseURL, zoomMapping } = GSTileLayer.config
         try {
           if (signal?.aborted)
             return null
-          const url = `${baseURL}/tiles_${code}/${z + zoomMapping}/${x}_${y}.${extension}`
+          const url = `${BASE_URL}/tiles_${code}/${z + ZOOM_MAPPING}/${x}_${y}.${extension}`
           const blob = await fetch(url, { mode: 'cors' }).then(res => res.blob())
           const image = await createImageBitmap(blob)
           return {
             byteLength: blob.size,
             image,
+            url,
           }
         }
         catch {
@@ -45,10 +50,13 @@ export class GSTileLayer extends TileLayer {
         }
       },
       renderSubLayers: (props) => {
+        if (!props.data)
+          return null
+        const { url, image } = props.data
         const [[xmin, ymin], [xmax, ymax]] = props.tile.boundingBox
-        return new BitmapLayer(props, {
-          data: undefined, // 通过 getTileData 函数获取图片，不需要 data 字段，必须明确指定为空
-          image: props.data.image,
+        return new BitmapLayer({
+          id: url,
+          image,
           bounds: [xmin, ymax, xmax, ymin],
         })
       },
