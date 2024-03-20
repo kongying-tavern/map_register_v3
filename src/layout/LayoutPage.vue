@@ -30,7 +30,7 @@ onBeforeRouteUpdate((updateGuard, from, next) => {
         v-bind="$attrs"
         class="h-full overflow-hidden transition-all duration-200"
       >
-        <transition :name="transitionName" mode="out-in" appear :style="{ '--range': distance }">
+        <transition :name="transitionName" mode="out-in" appear>
           <keep-alive>
             <component :is="Component" :key="currentRoute.fullPath" />
           </keep-alive>
@@ -48,12 +48,12 @@ onBeforeRouteUpdate((updateGuard, from, next) => {
 
   &-enter-from {
     opacity: 0;
-    transform: translateY(calc((var(--range)) * -1px));
+    transform: translateY(calc(v-bind(distance) * (-1px)));
   }
 
   &-leave-to {
     opacity: 0;
-    transform: translateY(calc(var(--range) * 1px));
+    transform: translateY(calc(v-bind(distance) * 1px));
   }
 }
 
@@ -64,12 +64,12 @@ onBeforeRouteUpdate((updateGuard, from, next) => {
 
   &-enter-from {
     opacity: 0;
-    transform: translateY(calc(var(--range) * 1px));
+    transform: translateY(calc(v-bind(distance) * 1px));
   }
 
   &-leave-to {
     opacity: 0;
-    transform: translateY(calc(var(--range) * -1px));
+    transform: translateY(calc(v-bind(distance) * (-1px)));
   }
 }
 </style>
