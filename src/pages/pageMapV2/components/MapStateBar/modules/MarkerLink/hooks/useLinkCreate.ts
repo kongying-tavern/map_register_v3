@@ -12,11 +12,11 @@ export const useLinkCreate = (context: MLContext) => {
       // 受影响的点位集合
       const affectedMarkerIds = new Set<number>()
 
-      // 受影响的关联组集合（不属于新增关联）
-      const affectedLinkGroupIds = Object.keys(context.existLinkGroups.value)
+      // 受影响的关联组集合（不属于新增关联），并排除掉为空的组ID
+      const affectedLinkGroupIds = Object.keys(context.existLinkGroups.value).filter(groupId => groupId!.trim())
 
-      // 将受影响的点位加入到受影响点位集合
-      await db.marker.where('linkageId').anyOf(affectedLinkGroupIds).each(({ id }) => {
+      // 将受影响的点位加入到受影响点位集合 (仅对组ID不为空的组进行处理)
+      affectedLinkGroupIds.length > 0 && await db.marker.where('linkageId').anyOf(affectedLinkGroupIds).each(({ id }) => {
         affectedMarkerIds.add(id!)
       })
 
