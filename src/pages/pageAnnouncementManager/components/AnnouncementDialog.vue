@@ -144,6 +144,10 @@ onError((err: Error) => ElMessage.error({
           <el-form-item label="频道" prop="channel">
             <el-select-v2 v-model="formData.channel" style="width: 100%" placeholder="请选择频道" :options="channelsDict" clearable multiple />
           </el-form-item>
+
+          <el-form-item label="排序" prop="sortIndex">
+            <el-input-number v-model="formData.sortIndex" :min="0" style="width: 100%" />
+          </el-form-item>
         </div>
       </el-form>
     </WinDialogTabPanel>
