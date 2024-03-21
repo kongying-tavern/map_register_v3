@@ -89,8 +89,6 @@ const sortHandler = ({ prop, order }: { prop: string; order: string }): void => 
     >
       <el-table-column align="center" type="selection" :width="50" />
 
-      <el-table-column prop="id" label="ID" :width="70" />
-
       <el-table-column label="状态" :width="70">
         <template #default="{ $index }">
           <el-tag v-if="validList[$index]" type="success">
@@ -125,6 +123,14 @@ const sortHandler = ({ prop, order }: { prop: string; order: string }): void => 
           </div>
         </template>
       </el-table-column>
+
+      <el-table-column
+        prop="sortIndex"
+        label="排序"
+        :width="80"
+        sortable="custom"
+        :sort-orders="sortOrders"
+      />
 
       <el-table-column
         prop="validTimeStart"
