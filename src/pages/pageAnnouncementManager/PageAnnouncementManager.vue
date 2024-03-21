@@ -18,10 +18,9 @@ const queryForm = ref<AnnouncementSearchParams>({
   channels: [],
   title: '',
   sort: ['validTimeStart-'],
-  getValid: true,
 })
 
-const { getList, loading, mainTableData } = useList({
+const { updateNoticeList, loading, mainTableData } = useList({
   pagination,
   getParams() {
     return queryForm.value
@@ -44,7 +43,7 @@ function handleCreate() {
       form: {},
       status: 'create',
     })
-    .listeners({ success: getList })
+    .listeners({ success: updateNoticeList })
     .open(AnnouncementDialog)
 }
 
@@ -56,7 +55,7 @@ function handleUpdate(form?: API.NoticeVo) {
       form,
       status: 'update',
     })
-    .listeners({ success: getList })
+    .listeners({ success: updateNoticeList })
     .open(AnnouncementDialog)
 }
 
@@ -72,29 +71,32 @@ function handleRemove(form?: API.NoticeVo) {
     return api.notice.deleteNotice({ noticeId: form?.id as number })
   }).then(() => {
     ElMessage.success({ message: '删除公告成功' })
-    getList()
+    updateNoticeList()
   })
 }
 </script>
 
 <template>
   <div class="h-full flex-1 flex flex-col gap-2 overflow-hidden p-4">
-    <AnnouncementFilter v-model:model-value="queryForm">
+    <AnnouncementFilter v-model:model-value="queryForm" @change="updateNoticeList">
       <template #footer>
         <div class="w-full flex  justify-end">
-          <el-button @click="handleCreate">
-            新增
+          <el-button type="primary" @click="handleCreate">
+            添加公告
           </el-button>
         </div>
       </template>
     </AnnouncementFilter>
+
     <AnnouncementTable
       v-model:model-value="queryForm"
       :data="mainTableData"
       :loading="loading"
       @update="handleUpdate"
       @remove="handleRemove"
+      @sort-change="updateNoticeList"
     />
+
     <el-pagination
       v-model:current-page="pagination.current"
       v-model:page-size="pagination.pageSize"
@@ -105,8 +107,8 @@ function handleRemove(form?: API.NoticeVo) {
       :disabled="loading"
       class="flex justify-end items-center"
       background
-      @current-change="getList"
-      @size-change="getList"
+      @current-change="updateNoticeList"
+      @size-change="updateNoticeList"
     />
   </div>
 </template>

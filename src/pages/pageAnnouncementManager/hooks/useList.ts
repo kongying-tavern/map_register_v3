@@ -1,6 +1,5 @@
 import type { Ref } from 'vue'
-import { computed, ref, watch } from 'vue'
-import { refDebounced } from '@vueuse/core'
+import { computed, ref } from 'vue'
 import type { PaginationState } from '@/hooks/usePagination'
 import { useFetchHook } from '@/hooks'
 import Api from '@/api/api'
@@ -18,11 +17,7 @@ export const useList = (options: ListHookOptions) => {
 
   const params = computed(() => getParams())
 
-  // 搜索
-  const title = ref(params.value.title)
-  const debouncedTitle = refDebounced(title, 500)
-
-  const { refresh: getList, onSuccess, ...rest } = useFetchHook({
+  const { refresh: updateNoticeList, onSuccess, ...rest } = useFetchHook({
     immediate: true,
     onRequest: () => {
       const { current, pageSize: size } = pagination.value
@@ -39,11 +34,9 @@ export const useList = (options: ListHookOptions) => {
     pagination.value.total = total
   })
 
-  watch(() => [params.value.channels, debouncedTitle, params.value.getValid], getList, { deep: true })
-
   return {
     mainTableData,
-    getList,
+    updateNoticeList,
     ...rest,
   }
 }

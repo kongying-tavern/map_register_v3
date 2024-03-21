@@ -7,7 +7,8 @@ const props = defineProps<{
 }>()
 
 const emits = defineEmits<{
-  'update:modelValue': [form: AnnouncementSearchParams]
+  'update:modelValue': [data: AnnouncementSearchParams]
+  'change': [data: AnnouncementSearchParams]
 }>()
 
 const model = <K extends keyof AnnouncementSearchParams>(key: K) => computed({
@@ -18,6 +19,10 @@ const model = <K extends keyof AnnouncementSearchParams>(key: K) => computed({
 const channels = model('channels')
 const title = model('title')
 const getValid = model('getValid')
+
+const change = () => {
+  emits('change', props.modelValue)
+}
 </script>
 
 <template>
@@ -30,23 +35,29 @@ const getValid = model('getValid')
           collapse-tags collapse-tags-tooltip clearable multiple
           style="width: 100%"
           :options="channelsDict"
+          @change="change"
         />
       </el-form-item>
+
       <el-form-item label="标题">
         <el-input
           v-model="title"
           placeholder="请输入标题"
           style="width: 100%"
           clearable
+          @change="change"
         />
       </el-form-item>
-      <el-form-item label="是否失效">
+
+      <el-form-item label="状态">
         <el-select-v2
           v-model="getValid"
           :options="getValidDict"
           clearable
+          @change="change"
         />
       </el-form-item>
+
       <el-form-item class="lg:col-start-4 lg:col-end-5 sm:col-start-2 sm:col-end-3 col-start-1 col-end-2">
         <slot name="footer" />
       </el-form-item>

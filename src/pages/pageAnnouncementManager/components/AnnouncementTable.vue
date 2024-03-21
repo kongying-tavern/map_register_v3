@@ -1,114 +1,135 @@
 <script lang="ts" setup>
-import { useElementSize } from '@vueuse/core'
 import dayjs from 'dayjs'
-import type { TableColumnCtx } from 'element-plus'
-import { ref } from 'vue'
+import { Delete, Edit } from '@element-plus/icons-vue'
 import type { AnnouncementSearchParams } from '../hooks'
 import { channelsMap } from '../const/dictionary'
 
+// import { secondClock } from '@/shared'
+
 const props = defineProps<{
-  modelValue: AnnouncementSearchParams
   loading: boolean
   data: API.NoticeVo[]
 }>()
 
 const emits = defineEmits<{
-  (e: 'update:modelValue', v?: AnnouncementSearchParams): void
-  (e: 'update', v?: API.NoticeVo): void
-  (e: 'remove', v?: API.NoticeVo): void
+  update: [v?: API.NoticeVo]
+  remove: [v?: API.NoticeVo]
+  sortChange: []
 }>()
 
-const model = <K extends keyof AnnouncementSearchParams>(key: K) => computed({
-  get: () => props.modelValue[key],
-  set: v => emits('update:modelValue', { ...props.modelValue, [key]: v }),
+const modelValue = defineModel<AnnouncementSearchParams>({
+  required: true,
 })
+
+const covertNoticeList = computed(() => props.data.map(notice => ({
+  ...notice,
+  time: {
+    start: notice.validTimeStart ? new Date(notice.validTimeStart).getTime() : undefined,
+    end: notice.validTimeEnd ? new Date(notice.validTimeEnd).getTime() : undefined,
+  },
+})))
 
 function datetimeFormatter(...{ 2: value = '' }) {
   return value && dayjs(value).format('YYYY-MM-DD HH:mm:ss')
 }
 
-const tableRef = ref<HTMLElement | null>(null)
-const { height } = useElementSize(tableRef)
+const isValid = (notice: (typeof covertNoticeList)['value'][number]) => {
+  const now = Date.now()
+  const { start, end } = notice.time
+  if (start && now < start)
+    return false
+  if (end && now > end)
+    return false
+  return true
+}
+
+const validList = computed(() => covertNoticeList.value.map(notice => isValid(notice)))
+
+const getCellClassName = (cell: { column: { property?: string }; row: (typeof covertNoticeList)['value'][number] }) => {
+  if (cell.column.property !== 'title')
+    return ''
+  if (isValid(cell.row))
+    return 'is-title'
+  return 'is-invalid'
+}
 
 const contentFormatter = (...{ 2: value = '' }) => {
   const parser = new DOMParser()
   const { firstChild } = parser.parseFromString(value, 'text/html')
-  return firstChild instanceof HTMLElement ? (firstChild.textContent ?? '') : ''
+  const content = firstChild instanceof HTMLElement ? (firstChild.textContent ?? '') : ''
+  return content.length > 50 ? `${content.slice(0, 50)}...` : content
 }
 
-const getCellClass = (data: {
-  column: TableColumnCtx<unknown>
-}): string => {
-  if (data.column.property === 'content')
-    return 'content-cell'
-
-  return ''
+const orderTagMap: Record<string, string> = {
+  ascending: '+',
+  descending: '-',
 }
 
-const sortOrders: ('ascending' | 'descending')[] = ['ascending', 'descending']
+const sortOrders = ['ascending' as const, 'descending' as const]
 
-const sortOrder = model('sort')
-
-const sortHandler = (data: {
-  prop: string
-  order: string
-}): void => {
-  const allowProps: string[] = ['title', 'validTimeStart', 'validTimeEnd']
-  const orderTagMap: Record<string, string> = {
-    ascending: '+',
-    descending: '-',
+const sortHandler = ({ prop, order }: { prop: string; order: string }): void => {
+  modelValue.value = {
+    ...modelValue.value,
+    sort: [`${prop}${orderTagMap[order] ?? '-'}`],
   }
-
-  if (allowProps.includes(data.prop)) {
-    const orderTag = orderTagMap[data.order] || '-'
-    const orderStr = `${data.prop}${orderTag}`
-    sortOrder.value = [orderStr]
-  }
+  emits('sortChange')
 }
 </script>
 
 <template>
-  <div ref="tableRef" v-loading="loading" element-loading-text="公告列表加载中..." class="flex-1 overflow-hidden">
+  <div v-loading="loading" element-loading-text="公告列表加载中..." class="flex-1 overflow-hidden">
     <el-table
-      :data="data"
+      :data="covertNoticeList"
       :border="true"
-      :height="height"
-      :cell-class-name="getCellClass"
-      class="table-content"
+      height="100%"
       :default-sort="{ prop: 'validTimeStart', order: 'descending' }"
+      :cell-class-name="getCellClassName"
+      class="notice-table"
       @sort-change="sortHandler"
     >
       <el-table-column align="center" type="selection" :width="50" />
 
-      <el-table-column prop="id" label="ID" :width="80" />
+      <el-table-column prop="id" label="ID" :width="70" />
 
-      <el-table-column prop="channel" label="频道" :width="250">
-        <template #default="scope">
-          <template v-if="scope.row.channel">
-            <template v-for="channel in scope.row.channel" :key="channel">
-              <el-tag class="mr-1 mb-1">
-                {{ channelsMap[channel] }}
-              </el-tag>
-            </template>
-          </template>
+      <el-table-column label="状态" :width="70">
+        <template #default="{ $index }">
+          <el-tag v-if="validList[$index]" type="success">
+            有效
+          </el-tag>
         </template>
       </el-table-column>
 
       <el-table-column
         prop="title"
         label="标题"
-        :width="100"
+        :min-width="200"
         show-overflow-tooltip
         sortable="custom"
         :sort-orders="sortOrders"
       />
 
-      <el-table-column prop="content" label="内容" :min-width="200" :formatter="contentFormatter" />
+      <el-table-column
+        prop="content"
+        label="内容"
+        show-overflow-tooltip
+        :width="200"
+        :formatter="contentFormatter"
+      />
+
+      <el-table-column prop="channel" label="频道" :width="180">
+        <template #default="{ row }">
+          <div v-if="row.channel?.length" class="flex flex-wrap gap-1">
+            <el-tag v-for="channel in row.channel" :key="channel">
+              {{ channelsMap[channel] }}
+            </el-tag>
+          </div>
+        </template>
+      </el-table-column>
 
       <el-table-column
         prop="validTimeStart"
         label="发布时间"
-        :width="180"
+        :width="170"
         :formatter="datetimeFormatter"
         sortable="custom"
         :sort-orders="sortOrders"
@@ -117,30 +138,32 @@ const sortHandler = (data: {
       <el-table-column
         prop="validTimeEnd"
         label="失效时间"
-        :width="180"
+        :width="170"
         :formatter="datetimeFormatter"
         sortable="custom"
         :sort-orders="sortOrders"
       />
 
-      <el-table-column prop="menu" label="操作" :width="180" header-align="center" align="center">
+      <el-table-column prop="menu" label="操作" :width="130" header-align="center" align="center">
         <template #default="scope">
-          <el-button text @click="emits('update', scope.row)">
-            修改
-          </el-button>
-          <el-button text @click="emits('remove', scope.row)">
-            删除
-          </el-button>
+          <el-button plain :icon="Edit" @click="emits('update', scope.row)" />
+          <el-button plain :icon="Delete" type="danger" @click="emits('remove', scope.row)" />
         </template>
       </el-table-column>
     </el-table>
   </div>
 </template>
 
-<style lang="scss" scoped>
-.table-content :deep(.content-cell .cell) {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+<style scoped>
+.notice-table {
+  :deep(.el-table__cell) {
+    padding: 8px 0;
+    &.is-title {
+      color: var(--el-color-primary);
+    }
+    &.is-invalid {
+      color: var(--el-color-info-light-3);
+    }
+  }
 }
 </style>
