@@ -94,6 +94,9 @@ const sortHandler = ({ prop, order }: { prop: string; order: string }): void => 
           <el-tag v-if="validList[$index]" type="success">
             有效
           </el-tag>
+          <el-tag v-else type="info">
+            失效
+          </el-tag>
         </template>
       </el-table-column>
 
