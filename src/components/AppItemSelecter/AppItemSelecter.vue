@@ -95,7 +95,9 @@ const itemList = asyncComputed(async () => {
 }, [], { evaluating: loading })
 
 // ==================== 已选物品 ====================
-const selections = computed(() => new Set<number>(props.modelValue.map(item => item.id!)))
+const selectionsMap = computed(() => props.modelValue.reduce((seed, item) => {
+  return seed.set(item.id!, item)
+}, new Map<number, API.ItemVo>()))
 
 const selectionItems = computed({
   get: () => props.modelValue,
@@ -125,16 +127,12 @@ const { data: itemTypeMap } = useFetchHook({
 })
 
 const toggleItem = (item: API.ItemVo) => {
-  const shallowCopy = [...selectionItems.value]
-  if (!selections.value.has(item.id!)) {
-    shallowCopy.push(item)
-    selectionItems.value = shallowCopy
-    return
-  }
-  const index = shallowCopy.findIndex(findItem => findItem.id === item.id)
-  if (index > -1)
-    shallowCopy.splice(index, 1)
-  selectionItems.value = shallowCopy
+  const map = new Map(selectionsMap.value)
+  if (map.has(item.id!))
+    map.delete(item.id!)
+  else
+    map.set(item.id!, item)
+  selectionItems.value = [...map].map(([_, item]) => item)
 }
 
 const scrollbarRef = ref<InstanceType<typeof ElScrollbar> | null>(null)
@@ -194,7 +192,7 @@ watch(() => itemList.value, () => scrollbarRef.value?.setScrollTop(0))
             :key="item.id"
             :item="item"
             :icon-map="iconMap"
-            :actived="selections.has(item.id!)"
+            :actived="selectionsMap.has(item.id!)"
             :src="iconTagStore.tagSpriteUrl"
             :mapping="iconTagStore.tagPositionMap[item.iconTag ?? '']"
             @click="() => toggleItem(item)"
