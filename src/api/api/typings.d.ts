@@ -167,6 +167,8 @@ declare namespace API {
     title?: string
     /** 内容 */
     content?: string
+    /** 排序 */
+    sortIndex?: number
     /** 有效期开始时间 */
     validTimeStart?: string
     /** 有效期结束时间 */
