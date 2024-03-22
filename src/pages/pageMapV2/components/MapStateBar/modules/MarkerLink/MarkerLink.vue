@@ -169,7 +169,7 @@ const mapAffixLayerRef = inject(mapAffixLayerKey, ref(null))
   outline-offset: -2px;
 
   &.is-hover {
-    outline: 2px solid #FF0;
+    outline: 2px solid #6CE;
   }
 
   &.is-delete {
