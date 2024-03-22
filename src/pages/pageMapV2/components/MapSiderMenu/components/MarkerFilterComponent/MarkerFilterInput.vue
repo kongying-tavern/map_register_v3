@@ -122,6 +122,7 @@ const modelValue = defineModel<string>('modelValue', {
   outline: none;
   flex: auto;
   width: 100%;
+  background: transparent;
 
   &::placeholder {
     color: var(--color-placeholder);
