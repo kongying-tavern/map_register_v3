@@ -5,17 +5,33 @@ import type { MAFGroup } from '@/stores/types'
 
 const props = defineProps<{
   disabled?: boolean
+  isFirst?: boolean
+  isLast?: boolean
   withMoveUp?: boolean
   withMoveDown?: boolean
   condition: MAFGroup
 }>()
 
 const emits = defineEmits<{
-  (e: 'moveUpGroup'): void
-  (e: 'moveDownGroup'): void
-  (e: 'deleteGroup'): void
-  (e: 'appendItem'): void
+  switchOperator: []
+  toggleOpposite: []
+  moveUpGroup: []
+  moveDownGroup: []
+  deleteGroup: []
+  appendItem: []
 }>()
+
+const handleSwitchOperator = () => {
+  if (props.disabled)
+    return
+  emits('switchOperator')
+}
+
+const handleToggleOpposite = () => {
+  if (props.disabled)
+    return
+  emits('toggleOpposite')
+}
 
 const handleMoveUpGroup = () => {
   if (props.disabled)
@@ -62,7 +78,26 @@ const handleAppendItem = () => {
 
       <div class="flex-none flex gap-1">
         <MarkerFilterButton
-          v-if="withMoveUp"
+          v-if="!isFirst"
+          theme="dark"
+          icon-color="var(--gs-color-text)"
+          @click="handleSwitchOperator"
+        >
+          <template #icon>
+            {{ condition.operator ? '且' : '或' }}
+          </template>
+        </MarkerFilterButton>
+        <MarkerFilterButton
+          theme="dark"
+          :icon-color="condition.opposite ? 'var(--gs-color-confirm)' : 'var(--gs-color-text)'"
+          @click="handleToggleOpposite"
+        >
+          <template #icon>
+            非
+          </template>
+        </MarkerFilterButton>
+        <MarkerFilterButton
+          v-if="withMoveUp && !isLast"
           theme="dark"
           icon-color="var(--gs-color-confirm)"
           @click="handleMoveUpGroup"
@@ -72,7 +107,7 @@ const handleAppendItem = () => {
           </template>
         </MarkerFilterButton>
         <MarkerFilterButton
-          v-if="withMoveDown"
+          v-if="withMoveDown && !isFirst"
           theme="dark"
           icon-color="var(--gs-color-confirm)"
           @click="handleMoveDownGroup"

@@ -3,6 +3,8 @@ import { MarkerFilterButton } from '../MarkerFilterComponent'
 
 const props = defineProps<{
   disabled?: boolean
+  isFirst?: boolean
+  isLast?: boolean
   withMoveUp?: boolean
   withMoveDown?: boolean
 }>()
@@ -36,7 +38,7 @@ const handleDeleteItem = () => {
   <slot />
   <div class="flex-none flex gap-1 items-center">
     <MarkerFilterButton
-      v-if="withMoveUp"
+      v-if="withMoveUp && !isFirst"
       icon-color="var(--gs-color-success)"
       @click="handleMoveUpItem"
     >
@@ -45,7 +47,7 @@ const handleDeleteItem = () => {
       </template>
     </MarkerFilterButton>
     <MarkerFilterButton
-      v-if="withMoveDown"
+      v-if="withMoveDown && !isLast"
       icon-color="var(--gs-color-success)"
       @click="handleMoveDownItem"
     >

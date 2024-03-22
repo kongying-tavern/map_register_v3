@@ -71,8 +71,12 @@ const handlePickerSelected = (id: number) => {
           v-for="(group, groupIndex) in markerAdvancedFilters"
           :key="groupIndex"
           :condition="group"
-          :with-move-up="groupIndex > 0"
-          :with-move-down="groupIndex < markerAdvancedFilters.length - 1"
+          :is-first="groupIndex <= 0"
+          :is-last="groupIndex >= markerAdvancedFilters.length - 1"
+          :with-move-up="true"
+          :with-move-down="true"
+          @switch-operator="() => { group.operator = !group.operator }"
+          @toggle-opposite="() => { group.opposite = !group.opposite }"
           @move-up-group="() => swapConditionGroup(groupIndex, groupIndex - 1)"
           @move-down-group="() => swapConditionGroup(groupIndex, groupIndex + 1)"
           @delete-group="() => deleteConditionGroup(groupIndex)"
@@ -80,8 +84,10 @@ const handlePickerSelected = (id: number) => {
         >
           <template #default="{ condition: item, index: itemIndex, size: itemSize }">
             <ModelItem
-              :with-move-up="itemIndex > 0"
-              :with-move-down="itemIndex < itemSize - 1"
+              :is-first="itemIndex <= 0"
+              :is-last="itemIndex >= itemSize - 1"
+              :with-move-up="true"
+              :with-move-down="true"
               @move-up-item="() => swapCondition(groupIndex, itemIndex, itemIndex - 1)"
               @move-down-item="() => swapCondition(groupIndex, itemIndex, itemIndex + 1)"
               @delete-item="() => deleteCondition(groupIndex, itemIndex)"
