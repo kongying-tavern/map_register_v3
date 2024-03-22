@@ -5,7 +5,7 @@ const { conditionSemanticText } = useMarkerFilter()
 </script>
 
 <template>
-  <div class="semantic-text">
+  <div v-if="conditionSemanticText" class="semantic-text">
     {{ conditionSemanticText }}
   </div>
 </template>
