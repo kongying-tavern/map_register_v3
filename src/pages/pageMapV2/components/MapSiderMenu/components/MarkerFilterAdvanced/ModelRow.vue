@@ -97,7 +97,7 @@ const handleAppendItem = () => {
           </template>
         </MarkerFilterButton>
         <MarkerFilterButton
-          v-if="withMoveUp && !isLast"
+          v-if="withMoveUp && !isFirst"
           theme="dark"
           icon-color="var(--gs-color-confirm)"
           @click="handleMoveUpGroup"
@@ -107,7 +107,7 @@ const handleAppendItem = () => {
           </template>
         </MarkerFilterButton>
         <MarkerFilterButton
-          v-if="withMoveDown && !isFirst"
+          v-if="withMoveDown && !isLast"
           theme="dark"
           icon-color="var(--gs-color-confirm)"
           @click="handleMoveDownGroup"
