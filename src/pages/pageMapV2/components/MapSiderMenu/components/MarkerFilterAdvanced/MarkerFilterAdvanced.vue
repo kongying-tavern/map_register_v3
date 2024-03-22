@@ -16,7 +16,7 @@ const { markerAdvancedFilters } = storeToRefs(useMapStateStore())
 
 /** 筛选预设管理器 */
 const {
-  conditionHashSame,
+  conditionSame,
   copyConditions,
   appendConditionGroup,
   swapConditionGroup,
@@ -60,7 +60,7 @@ const handlePickerSelected = (id: number) => {
       <GSButton
         icon="submit"
         size="small"
-        :disabled="conditionHashSame"
+        :disabled="conditionSame"
         @click="copyConditions()"
       >
         应用

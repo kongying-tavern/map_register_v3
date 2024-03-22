@@ -50,7 +50,25 @@ export const useMarkerFilter = () => {
     return globalSem.join('')
   })
 
-  const conditionHashSame = computed(() => JSON.stringify(preference.value['markerFilter.filter.advancedFilterCache']) === JSON.stringify(preference.value['markerFilter.filter.advancedFilter']))
+  const getCount = (filter: MAFGroup[] = []) => {
+    return filter.reduce((sum, group) => {
+      return sum + group.children.length
+    }, 0)
+  }
+
+  const conditionCacheCount = computed(() => getCount(preference.value['markerFilter.filter.advancedFilterCache']))
+
+  const conditionCount = computed(() => getCount(preference.value['markerFilter.filter.advancedFilter']))
+
+  const conditionSame = computed(() => {
+    const cache = preference.value['markerFilter.filter.advancedFilterCache']
+    const filter = preference.value['markerFilter.filter.advancedFilter']
+    if (cache.length !== filter.length)
+      return false
+    else if (conditionCacheCount.value !== conditionCount.value)
+      return false
+    return JSON.stringify(cache) === JSON.stringify(filter)
+  })
 
   const copyConditions = () => {
     preference.value['markerFilter.filter.advancedFilter'] = cloneDeep(preference.value['markerFilter.filter.advancedFilterCache'])
@@ -137,7 +155,9 @@ export const useMarkerFilter = () => {
 
   return {
     conditionSemanticText,
-    conditionHashSame,
+    conditionCacheCount,
+    conditionCount,
+    conditionSame,
 
     copyConditions,
 
