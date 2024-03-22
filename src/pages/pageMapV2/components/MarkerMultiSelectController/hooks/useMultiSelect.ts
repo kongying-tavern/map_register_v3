@@ -1,7 +1,7 @@
 import { Observable, filter, finalize, fromEvent, map, switchMap, takeUntil } from 'rxjs'
 import { useSubscription } from '@vueuse/rxjs'
 import type { PickingInfo } from '@deck.gl/core/typed'
-import { useMapStateStore } from '@/stores'
+import { useAccessStore, useMapStateStore } from '@/stores'
 import { genshinMapCanvasKey } from '@/pages/pageMapV2/shared'
 import { useBanner } from '@/hooks'
 import { mapWindowContext } from '@/pages/pageMapV2/components'
@@ -18,6 +18,7 @@ export const useMultiSelect = (options: MultiSelectHookOptions) => {
 
   const id = crypto.randomUUID()
 
+  const accessStore = useAccessStore()
   const mapStateStore = useMapStateStore()
 
   const canvasRef = inject(genshinMapCanvasKey) as Ref<HTMLCanvasElement>
@@ -94,13 +95,6 @@ export const useMultiSelect = (options: MultiSelectHookOptions) => {
   })
 
   // ==================== 框选实现 ====================
-  const initMultiSelect = () => {
-    mapWindowContext.openWindow({
-      id,
-      name: windowName,
-    })
-  }
-
   const finalizeMission = () => {
     resumeFocusMarker()
     setMultiSelecte(null)
@@ -116,9 +110,21 @@ export const useMultiSelect = (options: MultiSelectHookOptions) => {
     mapWindowContext.closeWindow(id)
   }
 
+  const initMultiSelect = (ids: Set<number>) => {
+    if (!ids.size) {
+      closeWindow()
+      return
+    }
+    mapWindowContext.openWindow({
+      id,
+      name: windowName,
+    })
+  }
+
   useSubscription(dragStart.pipe(
     filter(([info, ev]) => {
       return [
+        accessStore.get('MARKER_BATCH_EDIT'),
         ev.ctrlKey, // 只在按住 ctrl 时可以开启多选
         isEnable.value,
         info.coordinate !== undefined,
@@ -139,6 +145,24 @@ export const useMultiSelect = (options: MultiSelectHookOptions) => {
       const { currentLayerMarkers } = mapStateStore
 
       const ids = new Set(currentSelectedIds.value)
+      const oldIds = new Set(currentSelectedIds.value)
+
+      /** alt 按下时为取消选择模式 */
+      const operate = startEvent.altKey
+        ? (id: number, overSelect: boolean) => {
+            if (overSelect)
+              return
+            ids.delete(id)
+          }
+        : (id: number, overSelect: boolean) => {
+            if (oldIds.has(id))
+              return
+            if (overSelect) {
+              ids.delete(id)
+              return
+            }
+            ids.add(id)
+          }
 
       return drag.pipe(
         filter(([info]) => info.coordinate !== undefined),
@@ -147,21 +171,17 @@ export const useMultiSelect = (options: MultiSelectHookOptions) => {
           rect.value!.end = [moveEvent.clientX, moveEvent.clientY - bannerHeight.value]
 
           const [moveX, moveY] = moveInfo.coordinate!
-          const xmin = Math.min(startX, moveX)
-          const xmax = Math.max(startX, moveX)
-          const ymin = Math.min(startY, moveY)
-          const ymax = Math.max(startY, moveY)
-
-          const operate = startEvent.altKey
-            ? (id: number) => ids.delete(id)
-            : (id: number) => ids.add(id)
 
           // TODO 性能优化 O(4n)
-          currentLayerMarkers.forEach((marker) => {
-            const [x, y] = marker.render.position
-            if (x < xmin || x > xmax || y < ymin || y > ymax)
-              return
-            operate(marker.id!)
+          currentLayerMarkers.forEach(({ id, render }) => {
+            const [x, y] = render.position
+            operate(
+              id!,
+              x < Math.min(startX, moveX)
+              || x > Math.max(startX, moveX)
+              || y < Math.min(startY, moveY)
+              || y > Math.max(startY, moveY),
+            )
           })
 
           setMultiSelecte(ids)
@@ -175,7 +195,7 @@ export const useMultiSelect = (options: MultiSelectHookOptions) => {
           mapStateStore.setCursor()
           mapStateStore.setViewPortLocked(false)
           rect.value = undefined
-          initMultiSelect()
+          initMultiSelect(ids)
         }),
       )
     }),
