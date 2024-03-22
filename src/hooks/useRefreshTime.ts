@@ -1,5 +1,4 @@
 import { useDadianStore } from '@/stores'
-import { plainTimeFormatter } from '@/utils'
 
 export const useRefreshTime = (refreshTime: Ref<number | undefined>) => {
   const dadianStore = useDadianStore()
@@ -25,14 +24,21 @@ export const useRefreshTime = (refreshTime: Ref<number | undefined>) => {
         return '不刷新'
       if (refreshTime.value < 0)
         return refreshTimeTypeNameMap.value[refreshTime.value]
-      return plainTimeFormatter(refreshTime.value)
+      return '自定义'
     },
     set: (v) => {
       refreshTime.value = refreshTimeTypeMap.value[v]
     },
   })
 
-  const isCustom = computed(() => refreshTimeType.value === '自定义')
+  const isCustom = computed(() => refreshTime.value !== undefined && refreshTime.value > 0)
 
-  return { refreshTimeOptions, refreshTimeTypeOptions, refreshTimeTypeNameMap, refreshTimeTypeMap, refreshTimeType, isCustom }
+  return {
+    refreshTimeOptions,
+    refreshTimeTypeOptions,
+    refreshTimeTypeNameMap,
+    refreshTimeTypeMap,
+    refreshTimeType,
+    isCustom,
+  }
 }
