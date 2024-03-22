@@ -16,6 +16,8 @@ const { markerAdvancedFilters } = storeToRefs(useMapStateStore())
 
 /** 筛选预设管理器 */
 const {
+  conditionHashSame,
+  copyConditions,
   appendConditionGroup,
   swapConditionGroup,
   deleteConditionGroup,
@@ -50,13 +52,21 @@ const handlePickerSelected = (id: number) => {
     <div class="flex-auto">
       条件列表
     </div>
-    <div class="flex-none">
+    <div class="flex-none flex gap-1">
+      <GSButton
+        icon="submit"
+        size="small"
+        :disabled="conditionHashSame"
+        @click="copyConditions()"
+      >
+        应用
+      </GSButton>
       <GSButton
         size="small"
         @click="appendConditionGroup()"
       >
         <template #icon>
-          <el-icon color="var(--gs-color-confirm)">
+          <el-icon color="var(--gs-color-cancel)">
             <Plus />
           </el-icon>
         </template>

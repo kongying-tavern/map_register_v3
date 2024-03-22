@@ -33,7 +33,7 @@ const markerAdvancedFilterConfigMap: Record<number, MAFConfig> = keyBy(markerAdv
 export const useMarkerAdvancedFilter = (options: MarkerAdvancedFilterHookOptions) => {
   const { preferenceStore } = options
 
-  const conditions = computed(() => preferenceStore.preference['markerFilter.filter.advancedFilter'])
+  const conditions = computed(() => preferenceStore.preference['markerFilter.filter.advancedFilterCache'])
 
   const getMAFConfig = (id: number): MAFConfig => markerAdvancedFilterConfigMap[id] ?? {
     id: 0,

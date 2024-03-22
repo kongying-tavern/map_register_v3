@@ -85,7 +85,10 @@ export interface UserPreference {
   /** 正在标记的物品 id */
   'markerFilter.state.defaultMarkingItemId'?: number
 
-  /**  */
+  /** 高级筛选器缓存 */
+  'markerFilter.filter.advancedFilterCache': MAFGroup[]
+
+  /** 高级筛选器配置 */
   'markerFilter.filter.advancedFilter': MAFGroup[]
 
   // ====================     设置面板     ====================
@@ -123,6 +126,7 @@ export const getDefaultPreference = (): UserPreference => ({
   'mapSiderMenu.state.collapse': false,
 
   // markerFilter
+  'markerFilter.filter.advancedFilterCache': [],
   'markerFilter.filter.advancedFilter': [],
   'markerFilter.state.step': 0,
   'markerFilter.state.parentAreaCode': 'C:FD',
