@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { storeToRefs } from 'pinia'
-import { DeleteFilled, Plus } from '@element-plus/icons-vue'
+import { DeleteFilled, Plus, QuestionFilled } from '@element-plus/icons-vue'
 import { useMarkerFilter } from './hooks'
 import { FilterModel } from './FilterModel'
 import {
@@ -27,7 +27,6 @@ const {
   clearCondition,
 } = useMarkerFilter()
 
-// ==================== 物品计数 ====================
 const pickerVisible = ref(false)
 
 const pickerGroupIndex = ref(-1)
@@ -49,8 +48,13 @@ const handlePickerSelected = (id: number) => {
 <template>
   <div class="flex-none flex items-center gap-2 text-white px-2 pb-1 pt-2">
     <!-- 条件列表 -->
-    <div class="flex-auto">
+    <div class="flex-auto flex gap-1 items-center">
       条件列表
+      <el-tooltip placement="top-start" effect="light" content="筛选条件不会即时生效，点击【应用】按钮应用当前筛选条件。">
+        <el-icon :size="16">
+          <QuestionFilled />
+        </el-icon>
+      </el-tooltip>
     </div>
     <div class="flex-none flex gap-1">
       <GSButton

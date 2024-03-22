@@ -2,7 +2,6 @@ import { cloneDeep } from 'lodash'
 import { storeToRefs } from 'pinia'
 import { useMapStateStore, usePreferenceStore } from '@/stores'
 import type { MAFConfig, MAFGroup, MAFItem, MAFMeta } from '@/stores/types'
-import { getDigest } from '@/utils'
 
 const { getMAFConfig } = useMapStateStore()
 
@@ -51,18 +50,7 @@ export const useMarkerFilter = () => {
     return globalSem.join('')
   })
 
-  const getHash = (filters: MAFGroup[] = []): Promise<string> => {
-    if (filters.length <= 0)
-      return Promise.resolve('')
-    const filtersBlob = new Blob([JSON.stringify(filters)], { type: 'text/plain' })
-    return getDigest(filtersBlob, 'SHA-1')
-  }
-
-  const conditionCacheHash = asyncComputed(async () => await getHash(preference.value['markerFilter.filter.advancedFilterCache'] ?? []))
-
-  const conditionHash = asyncComputed(async () => await getHash(preference.value['markerFilter.filter.advancedFilter'] ?? []))
-
-  const conditionHashSame = computed(() => conditionCacheHash.value === conditionHash.value)
+  const conditionHashSame = computed(() => JSON.stringify(preference.value['markerFilter.filter.advancedFilterCache']) === JSON.stringify(preference.value['markerFilter.filter.advancedFilter']))
 
   const copyConditions = () => {
     preference.value['markerFilter.filter.advancedFilter'] = cloneDeep(preference.value['markerFilter.filter.advancedFilterCache'])
@@ -149,8 +137,6 @@ export const useMarkerFilter = () => {
 
   return {
     conditionSemanticText,
-    conditionCacheHash,
-    conditionHash,
     conditionHashSame,
 
     copyConditions,
