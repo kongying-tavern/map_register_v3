@@ -102,7 +102,7 @@ function handleRemove(form?: API.NoticeVo) {
       v-model:page-size="pagination.pageSize"
       :total="pagination.total"
       :layout="layout"
-      :page-sizes="[10, 20, 30]"
+      :page-sizes="[10, 20, 50, 100]"
       :pager-count="5"
       :disabled="loading"
       class="flex justify-end items-center"
