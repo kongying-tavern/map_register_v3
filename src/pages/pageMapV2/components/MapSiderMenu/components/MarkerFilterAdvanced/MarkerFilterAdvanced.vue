@@ -84,10 +84,13 @@ const handlePickerSelected = (id: number) => {
         >
           <template #default="{ condition: item, index: itemIndex, size: itemSize }">
             <ModelItem
+              :condition="item"
               :is-first="itemIndex <= 0"
               :is-last="itemIndex >= itemSize - 1"
               :with-move-up="true"
               :with-move-down="true"
+              @switch-operator="() => { item.operator = !item.operator }"
+              @toggle-opposite="() => { item.opposite = !item.opposite }"
               @move-up-item="() => swapCondition(groupIndex, itemIndex, itemIndex - 1)"
               @move-down-item="() => swapCondition(groupIndex, itemIndex, itemIndex + 1)"
               @delete-item="() => deleteCondition(groupIndex, itemIndex)"

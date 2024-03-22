@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { MarkerFilterButton } from '../MarkerFilterComponent'
+import type { MAFItem } from '@/stores/types'
 
 const props = defineProps<{
   disabled?: boolean
@@ -7,13 +8,28 @@ const props = defineProps<{
   isLast?: boolean
   withMoveUp?: boolean
   withMoveDown?: boolean
+  condition: MAFItem
 }>()
 
 const emits = defineEmits<{
-  (e: 'moveUpItem'): void
-  (e: 'moveDownItem'): void
-  (e: 'deleteItem'): void
+  switchOperator: []
+  toggleOpposite: []
+  moveUpItem: []
+  moveDownItem: []
+  deleteItem: []
 }>()
+
+const handleSwitchOperator = () => {
+  if (props.disabled)
+    return
+  emits('switchOperator')
+}
+
+const handleToggleOpposite = () => {
+  if (props.disabled)
+    return
+  emits('toggleOpposite')
+}
 
 const handleMoveUpItem = () => {
   if (props.disabled)
@@ -35,6 +51,27 @@ const handleDeleteItem = () => {
 </script>
 
 <template>
+  <div class="flex-none flex gap-1 items-center mr-0.5">
+    <MarkerFilterButton
+      v-if="!isFirst"
+      theme="dark"
+      icon-color="var(--gs-color-text)"
+      @click="handleSwitchOperator"
+    >
+      <template #icon>
+        {{ condition.operator ? '且' : '或' }}
+      </template>
+    </MarkerFilterButton>
+    <MarkerFilterButton
+      theme="dark"
+      :icon-color="condition.opposite ? 'var(--gs-color-confirm)' : 'var(--gs-color-text)'"
+      @click="handleToggleOpposite"
+    >
+      <template #icon>
+        非
+      </template>
+    </MarkerFilterButton>
+  </div>
   <slot />
   <div class="flex-none flex gap-1 items-center">
     <MarkerFilterButton
