@@ -19,6 +19,7 @@ declare namespace DBType {
   /** 点位的精灵图信息缓存 */
   interface MarkerSprite {
     image: ArrayBuffer
+    tagSpriteDigest: string
     mapping: Record<string, {
       x: number
       y: number

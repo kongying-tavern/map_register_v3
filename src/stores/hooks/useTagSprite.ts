@@ -30,10 +30,6 @@ export const useTagSprite = () => {
 
   /** 预渲染标签精灵图 */
   const refresh = async (list: API.TagVo[]) => {
-    const digest = await db.digest.where('tableName').equals('iconTag').first()
-    if (!digest)
-      return
-
     const collection = db.cache.where('id').equals('tagSprite')
 
     const cache = await collection.first()
