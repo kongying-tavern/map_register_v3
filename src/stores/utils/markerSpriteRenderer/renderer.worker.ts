@@ -1,5 +1,9 @@
 import type { IconMapping } from '@deck.gl/layers/typed/icon-layer/icon-manager'
 import { Logger } from '@/utils/logger'
+import { AppDatabase } from '@/database'
+import { getDigest } from '@/utils/getDigest'
+
+const db = new AppDatabase()
 
 declare const globalThis: DedicatedWorkerGlobalScope
 
@@ -9,6 +13,9 @@ const logger = new Logger('[点位渲染线程]')
 export interface WorkerInput {
   /** 图标标签的精灵图 */
   tagSprite: ArrayBuffer
+
+  /** 图标精灵图的哈希值 */
+  tagSpriteDigest: string
 
   /** 图标标签的坐标 mapping */
   tagsPositionList: DBType.CacheTypes['tagSprite']['tagsPositionList']
@@ -24,6 +31,15 @@ export interface WorkerInput {
 
   /** 绘制间隙空间，用于避免舍入精度导致的层叠问题（除非使用奇数尺寸，否则不需要给这个值） */
   gap?: number
+}
+
+interface MppingOptions extends WorkerInput {
+  types: { type: string; icon?: ImageBitmap }[]
+  rows: number
+  singleSize: number
+  stateCount: number
+  unitW: number
+  unitH: number
 }
 
 /** 主线程接收数据 */
@@ -158,6 +174,56 @@ const arrangeCanvas = ({ tagsPositionList, stateCount, typeCount, iconSize, gap 
   return { cols, rows, canvasW: width, canvasH: height, unitW, unitH }
 }
 
+/** 生成 mapping */
+const createMapping = ({
+  tagsPositionList,
+  states,
+  iconSize = 64,
+  gap = 0,
+  types,
+  rows,
+  unitH,
+  unitW,
+  singleSize,
+  stateCount,
+}: MppingOptions) => {
+  // 关于 key 的格式
+  // `${tag}.${state}.${type}`
+  const mapping: IconMapping = {}
+
+  let total = 0
+  let tagCount = 0
+
+  // 这里只有 3 个层级，但是有 4 层循环是因为有些 tag 复用了同一个图标
+  // 在生成 tagSprite 的时候出于 worker 传输数据的考虑对数据进行了分组压缩
+  tagsPositionList.forEach(({ tags }, posIndex) => {
+    tagCount++
+    states.forEach(({ state }, stateIndex) => {
+      types.forEach(({ type }, typeIndex) => {
+        const col = Math.floor(posIndex / rows)
+        const row = posIndex - col * rows
+        tags.forEach((tag) => {
+          total++
+          const startX = gap + col * unitW + singleSize * (stateCount * typeIndex + stateIndex)
+          const startY = gap + row * unitH
+          mapping[`${tag}.${state}.${type}`] = {
+            x: startX,
+            y: startY,
+            width: iconSize,
+            height: iconSize,
+            anchorX: ANCHOR.X,
+            anchorY: ANCHOR.Y,
+          }
+        })
+      })
+    })
+  })
+
+  logger.info('生成 mapping', { total, tagCount })
+
+  return mapping
+}
+
 /**
  * #### 注意
  * 1. 每个图标状态以 64x64 分辨率进行绘制，其中的所有元素不得超过此范围
@@ -166,6 +232,7 @@ const arrangeCanvas = ({ tagsPositionList, stateCount, typeCount, iconSize, gap 
 const render = async (options: WorkerInput): Promise<WorkerSuccessOutput> => {
   const {
     tagSprite,
+    tagSpriteDigest,
     tagsPositionList,
     outlineColor = '#33333360',
     states,
@@ -184,10 +251,29 @@ const render = async (options: WorkerInput): Promise<WorkerSuccessOutput> => {
   // 计算画板尺寸
   const { cols, rows, canvasW, canvasH, unitW, unitH } = arrangeCanvas({ tagsPositionList, stateCount, iconSize, gap, typeCount })
 
-  logger.info('编排画板', { cols, rows, canvasW, canvasH })
-
   /** 单个图标的实际占用尺寸 */
   const singleSize = 64 + gap
+
+  const mappingOptions: MppingOptions = {
+    ...options,
+    types,
+    rows,
+    singleSize,
+    stateCount,
+    unitW,
+    unitH,
+  }
+
+  // 如果存在缓存，则跳过绘制步骤，只生成 mapping
+  const cache = await db.cache.get('markerSprite')
+  if (cache && cache.id === 'markerSprite' && cache.value.tagSpriteDigest === tagSpriteDigest) {
+    logger.info('检测到缓存，跳过预渲染')
+    return {
+      image: cache.value.image,
+      mapping: createMapping(mappingOptions),
+      tagSpriteDigest,
+    }
+  }
 
   const canvas = new OffscreenCanvas(canvasW, canvasH)
   const ctx = canvas.getContext('2d')!
@@ -245,39 +331,25 @@ const render = async (options: WorkerInput): Promise<WorkerSuccessOutput> => {
     }
   })
 
-  // 生成 mapping
-
-  // 关于 key 的格式
-  // `${tag}.${state}.${type}`
-  const mapping: IconMapping = {}
-
-  // 这里只有 3 个层级，但是有 4 层循环是因为有些 tag 复用了同一个图标
-  // 在生成 tagSprite 的时候出于 worker 传输数据的考虑对数据进行了分组压缩
-  tagsPositionList.forEach(({ tags }, posIndex) => {
-    states.forEach(({ state }, stateIndex) => {
-      types.forEach(({ type }, typeIndex) => {
-        const col = Math.floor(posIndex / rows)
-        const row = posIndex - col * rows
-        tags.forEach((tag) => {
-          const startX = gap + col * unitW + singleSize * (stateCount * typeIndex + stateIndex)
-          const startY = gap + row * unitH
-          mapping[`${tag}.${state}.${type}`] = {
-            x: startX,
-            y: startY,
-            width: iconSize,
-            height: iconSize,
-            anchorX: ANCHOR.X,
-            anchorY: ANCHOR.Y,
-          }
-        })
-      })
-    })
-  })
-
   // 转换为图片
   const image = await (await canvas.convertToBlob()).arrayBuffer()
+  logger.info('绘制结果', { cols, rows, canvasW, canvasH, byteLength: image.byteLength })
 
-  return { image, mapping }
+  const mapping = createMapping(mappingOptions)
+
+  // 更新缓存
+  const digest = await getDigest(image, 'SHA-256')
+  await db.cache.put({
+    id: 'markerSprite',
+    value: {
+      image,
+      mapping,
+      tagSpriteDigest,
+    },
+    digest,
+  })
+
+  return { image, mapping, tagSpriteDigest: '' }
 }
 
 globalThis.addEventListener('message', async (ev: MessageEvent<WorkerInput>) => {

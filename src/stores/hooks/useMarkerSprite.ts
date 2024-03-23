@@ -1,15 +1,11 @@
 import type { ShallowRef } from 'vue'
 import type { IconMapping } from '@deck.gl/layers/typed/icon-layer/icon-manager'
 import { renderMarkerSprite } from '../utils'
-import { Logger, formatByteSize } from '@/utils'
-import db from '@/database'
 
 export interface MarkerSpriteHookOptions {
   tagSprite: Readonly<ShallowRef<Blob | undefined>>
   tagsPositionList: Readonly<ShallowRef<DBType.TagSprite['tagsPositionList']>>
 }
-
-const logger = new Logger('[点位渲染Hook]')
 
 export const useMarkerSprite = (options: MarkerSpriteHookOptions) => {
   const { tagSprite, tagsPositionList } = options
@@ -38,35 +34,15 @@ export const useMarkerSprite = (options: MarkerSpriteHookOptions) => {
 
     const tagSpriteDigest = await getDigest(await tagSprite.value.arrayBuffer())
 
-    const cache = await db.cache.get('markerSprite')
-    if (cache && cache.id === 'markerSprite' && cache.value.tagSpriteDigest === tagSpriteDigest) {
-      markerSpriteImage.value = new Blob([cache.value.image], { type: 'image/png' })
-      markerSpriteMapping.value = cache.value.mapping
-      return
-    }
-
-    const startTime = Date.now()
     const res = await renderMarkerSprite({
       states,
+      tagSpriteDigest,
       tagsPositionList: tagsPositionList.value,
       tagSprite: await tagSprite.value.arrayBuffer(),
     })
 
-    const digest = await getDigest(res.image)
-    await db.cache.put({
-      id: 'markerSprite',
-      value: {
-        image: res.image,
-        mapping: res.mapping,
-        tagSpriteDigest,
-      },
-      digest,
-    })
-
     markerSpriteImage.value = new Blob([res.image], { type: 'image/png' })
     markerSpriteMapping.value = res.mapping
-
-    logger.info(`渲染大小 ${formatByteSize(res.image.byteLength)}，总耗时 ${Date.now() - startTime} ms`)
   }
 
   watch(tagSprite, refreshSpriteImage)
