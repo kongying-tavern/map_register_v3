@@ -24,20 +24,20 @@ const cache = {
     focus: {} as Record<InteractionKey, () => void>,
   },
 }
+
+/** 某种类型的交互是否处于暂停状态 */
+const isPaused = reactive<{
+  hover: Partial<Record<keyof GSMapState.InteractionTypeMap, boolean>>
+  focus: Partial<Record<keyof GSMapState.InteractionTypeMap, boolean>>
+}>({
+  hover: {},
+  focus: {},
+})
 // ============================== ↑ 共享地址而不是使用闭包，以避免订阅过多时导致的卡顿问题 ↑ ==============================
 
 export const useInteractionInfo = () => {
   const hover = shallowRef<GSMapState.InteractionInfo | null>(null)
   const focus = shallowRef<GSMapState.InteractionInfo | null>(null)
-
-  /** 某种类型的交互是否处于暂停状态 */
-  const isPaused = reactive<{
-    hover: Partial<Record<keyof GSMapState.InteractionTypeMap, boolean>>
-    focus: Partial<Record<keyof GSMapState.InteractionTypeMap, boolean>>
-  }>({
-    hover: {},
-    focus: {},
-  })
 
   /** 是否在 hover 时触发点位弹窗，启用时 focus 状态将不会触发弹窗 */
   const [isPopoverOnHover, setIsPopoverOnHover] = useState(false)
