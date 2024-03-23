@@ -133,7 +133,10 @@ export const useArchiveStore = defineStore('global-archive', () => {
   const loadArchiveSlot = (slotIndex = -1) => {
     if (slotIndex < 0)
       return
-    currentArchive.value = getLatestArchiveFromSlot(slotIndex)
+    const latestArchive = getLatestArchiveFromSlot(slotIndex)
+    if (!latestArchive)
+      return
+    currentArchive.value = latestArchive
     currentArchive.value.slotIndex = slotIndex
   }
 
