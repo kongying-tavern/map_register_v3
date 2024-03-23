@@ -152,11 +152,30 @@ export const useTileStore = defineStore('global-map-tile', () => {
     return levelTagsMap
   })
 
+  /** 将地图坐标转换为点位坐标 */
+  const toMarkerCoordinate = ([x, y]: [number, number]) => {
+    if (!currentTileConfig.value)
+      return [x, y]
+    const { center: [ox, oy] } = currentTileConfig.value.tile
+    return [x - ox, y - oy]
+  }
+
+  /** 将点位坐标转换为地图坐标 */
+  const toMapCoordinate = ([x, y]: [number, number]) => {
+    if (!currentTileConfig.value)
+      return [x, y]
+    const { center: [ox, oy] } = currentTileConfig.value.tile
+    return [x + ox, y + oy]
+  }
+
   return {
     mergedTileConfigs,
     currentTileConfig,
     currentTileCode,
     visibleTagGroups,
     visibleArea,
+
+    toMarkerCoordinate,
+    toMapCoordinate,
   }
 })
