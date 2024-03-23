@@ -104,7 +104,7 @@ onError(err => ElMessage.error({
 
 /** 按住 3 秒以确认删除存档 */
 const onAnimationEnd = (ev: AnimationEvent) => {
-  if (ev.animationName !== 'anime-delete-archive')
+  if (!ev.animationName.startsWith('anime-delete-archive'))
     return
   archiveStore.deleteArchiveSlot(previewIndex.value)
   stopSignal.value = true
