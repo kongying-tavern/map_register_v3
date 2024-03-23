@@ -2,12 +2,12 @@ import { defineStore } from 'pinia'
 import { useUserInfoStore } from '.'
 import { RoleTypeEnum } from '@/shared'
 
-const { MAP_PUNCTUATE } = RoleTypeEnum
+const { MAP_MANAGER, MAP_PUNCTUATE } = RoleTypeEnum
 
 /** 权限表 */
 const ACCESS_CONTROL_CONFIG = {
   /** 点位关联 */
-  MARKER_LINK: MAP_PUNCTUATE,
+  MARKER_LINK: MAP_MANAGER,
 
   /** 点位新增 */
   MARKER_CREATE: MAP_PUNCTUATE,
@@ -16,7 +16,7 @@ const ACCESS_CONTROL_CONFIG = {
   MARKER_EDIT: MAP_PUNCTUATE,
 
   /** 点位批量编辑 */
-  MARKER_BATCH_EDIT: MAP_PUNCTUATE,
+  MARKER_BATCH_EDIT: MAP_MANAGER,
 }
 
 /** 全局权限控制 */

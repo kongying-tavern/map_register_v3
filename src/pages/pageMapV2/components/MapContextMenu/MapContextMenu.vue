@@ -5,10 +5,10 @@ import { MapAffix } from '../../components'
 import { MarkerCreatePanel } from '@/pages/pageMapV2/components'
 import { AppSettings, GSButton } from '@/components'
 import { useGlobalDialog } from '@/hooks'
-import { useItemStore, useMapStateStore, usePreferenceStore, useUserInfoStore } from '@/stores'
+import { useAccessStore, useItemStore, useMapStateStore, usePreferenceStore } from '@/stores'
 
+const accessStore = useAccessStore()
 const mapStateStore = useMapStateStore()
-const userInfoStore = useUserInfoStore()
 const { itemIdMap } = storeToRefs(useItemStore())
 const { preference } = storeToRefs(usePreferenceStore())
 
@@ -68,7 +68,7 @@ const openSettingDialog = () => {
     <MapAffix v-if="coordinate" :pos="coordinate" pickable no-covert-coord>
       <div class="context-menu ml-2 mt-2 flex flex-col gap-1 relative" @contextmenu.stop="ev => ev.preventDefault()">
         <GSButton
-          v-if="userInfoStore.isDadian"
+          v-if="accessStore.get('MARKER_CREATE')"
           @click="openMarkerCreator"
         >
           <template #icon>
