@@ -175,7 +175,6 @@ defineExpose({
         <AddonRefreshtimeEditor v-model="form.refreshTime" />
       </el-form-item>
 
-      {{ form.position }}
       <el-form-item label="视频链接" prop="videoPath">
         <el-input v-model="form.videoPath" />
       </el-form-item>
