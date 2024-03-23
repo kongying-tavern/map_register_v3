@@ -27,8 +27,8 @@ const initFormData = (): API.MarkerVo => {
   const [x, y] = props.coordinate
   const { id: userId } = userInfoStore.info
   return {
-    markerTitle: '',
-    content: '',
+    markerTitle: props.defaultItem?.name ?? '',
+    content: props.defaultItem?.defaultContent ?? '',
     hiddenFlag: 0,
     position: `${x},${y}`,
     itemList: props.defaultItem
@@ -39,7 +39,7 @@ const initFormData = (): API.MarkerVo => {
         }]
       : [],
     videoPath: '',
-    refreshTime: 0,
+    refreshTime: props.defaultItem?.defaultRefreshTime ?? 0,
     markerCreatorId: userId,
   }
 }
