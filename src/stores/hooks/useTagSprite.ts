@@ -1,6 +1,5 @@
 import type { ShallowRef } from 'vue'
 import { renderTagSprite } from '../utils'
-import db from '@/database'
 
 export const useTagSprite = () => {
   /** tag 精灵图 */
@@ -30,20 +29,10 @@ export const useTagSprite = () => {
 
   /** 预渲染标签精灵图 */
   const refresh = async (list: API.TagVo[]) => {
-    const collection = db.cache.where('id').equals('tagSprite')
-
-    const cache = await collection.first()
-    if (cache && cache.id === 'tagSprite') {
-      setTagSprite(cache.value)
-      return
-    }
-
     const renderResult = await renderTagSprite({
       tagList: list.map(tag => ({ tag: tag.tag!, url: tag.url! })),
     })
     setTagSprite(renderResult)
-    await collection.delete()
-    await db.cache.put({ id: 'tagSprite', value: renderResult })
   }
 
   return {

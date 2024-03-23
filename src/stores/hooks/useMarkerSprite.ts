@@ -1,6 +1,7 @@
 import type { ShallowRef } from 'vue'
 import type { IconMapping } from '@deck.gl/layers/typed/icon-layer/icon-manager'
 import { renderMarkerSprite } from '../utils'
+import { getDigest } from '@/utils'
 
 export interface MarkerSpriteHookOptions {
   tagSprite: Readonly<ShallowRef<Blob | undefined>>
@@ -23,16 +24,11 @@ export const useMarkerSprite = (options: MarkerSpriteHookOptions) => {
     { state: 'marked', color: '#00FFFD' },
   ]
 
-  const getDigest = async (data: ArrayBuffer) => {
-    const hash = new Uint8Array(await crypto.subtle.digest('SHA-256', data))
-    return [...new Uint8Array(hash)].map(num => num.toString(16).padStart(2, '0')).join('')
-  }
-
   const refreshSpriteImage = async () => {
     if (!tagSprite.value)
       return
 
-    const tagSpriteDigest = await getDigest(await tagSprite.value.arrayBuffer())
+    const tagSpriteDigest = await getDigest(await tagSprite.value.arrayBuffer(), 'SHA-256')
 
     const res = await renderMarkerSprite({
       states,

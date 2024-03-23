@@ -1,5 +1,12 @@
 import { getObjectFitSize } from '@/utils/getObjectFitSize'
 import { limitPromiseAll } from '@/utils/limitPromiseAll'
+import { Logger } from '@/utils/logger'
+import { getDigest } from '@/utils/getDigest'
+import { AppDatabase } from '@/database'
+
+const logger = new Logger('[图标渲染线程]')
+
+const db = new AppDatabase()
 
 declare const globalThis: DedicatedWorkerGlobalScope
 
@@ -12,6 +19,11 @@ export interface WorkerInput {
   gap?: number
   /** 并发请求限制 @default 1000 */
   maxRequests?: number
+}
+
+interface RenderObject {
+  tags: string[]
+  image: ImageBitmap
 }
 
 export type WorkerSuccessOutput = DBType.TagSprite
@@ -49,6 +61,15 @@ const render = async (params: WorkerInput): Promise<WorkerSuccessOutput> => {
   if (!Number.isInteger(size) || size < 0)
     throw new Error('图标尺寸必须为大于 0 的整数。此外，出于渲染效果的考虑，不建议尺寸小于 32。')
 
+  const digest = await getDigest(new TextEncoder().encode(JSON.stringify(tagList)).buffer, 'SHA-256')
+  const cache = await db.cache.get('tagSprite')
+
+  // 如果存在缓存，则直接返回
+  if (cache && cache.id === 'tagSprite' && digest && cache.digest === digest) {
+    logger.info('检测到缓存，跳过预渲染')
+    return cache.value
+  }
+
   // 备用图片
   const fallbackImage = await loadImage(FALLBACK_IMAGE_URL)
 
@@ -69,11 +90,6 @@ const render = async (params: WorkerInput): Promise<WorkerSuccessOutput> => {
   })
 
   // ==================== 图片请求 ====================
-
-  interface RenderObject {
-    tags: string[]
-    image: ImageBitmap
-  }
 
   const fallbackRenderObject: RenderObject = {
     tags: [],
@@ -121,6 +137,17 @@ const render = async (params: WorkerInput): Promise<WorkerSuccessOutput> => {
   })
 
   const image = await (await canvas.convertToBlob({ type: 'image/png' })).arrayBuffer()
+  logger.info('绘制结果', { byteLength: image.byteLength })
+
+  await db.cache.put({
+    id: 'tagSprite',
+    digest,
+    value: {
+      image,
+      tagsPositionList,
+    },
+  })
+
   return { image, tagsPositionList }
 }
 
