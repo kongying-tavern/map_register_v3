@@ -40,6 +40,7 @@ export const usePreferenceStore = defineStore('global-user-preference', () => {
   // 存档更新时，更新用户首选项
   watch(() => archiveStore.currentArchive.body.Preference, updateUserPreference)
 
+  /** 同步首选项更新至存档 */
   const syncUserPreference = async () => {
     const userId = _getUserId()
     if (userId === undefined)
