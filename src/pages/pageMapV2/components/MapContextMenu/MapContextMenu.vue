@@ -5,10 +5,11 @@ import { MapAffix } from '../../components'
 import { MarkerCreatePanel } from '@/pages/pageMapV2/components'
 import { AppSettings, GSButton } from '@/components'
 import { useGlobalDialog } from '@/hooks'
-import { useAccessStore, useItemStore, useMapStateStore, usePreferenceStore } from '@/stores'
+import { useAccessStore, useItemStore, useMapStateStore, usePreferenceStore, useTileStore } from '@/stores'
 
 const accessStore = useAccessStore()
 const mapStateStore = useMapStateStore()
+const { currentTileConfig } = storeToRefs(useTileStore())
 const { itemIdMap } = storeToRefs(useItemStore())
 const { preference } = storeToRefs(usePreferenceStore())
 
@@ -33,6 +34,14 @@ mapStateStore.event.on('click', (info, ev) => {
   coordinate.value = info.coordinate as API.Coordinate2D
 })
 
+const calibrateCoordinate = (coordinate: API.Coordinate2D): API.Coordinate2D => {
+  const tileCenter = currentTileConfig.value?.tile?.center ?? [0, 0]
+  return [
+    (coordinate![0] ?? 0) - (tileCenter[0] ?? 0),
+    (coordinate![1] ?? 0) - (tileCenter[1] ?? 0),
+  ]
+}
+
 const { DialogService } = useGlobalDialog()
 
 const openMarkerCreator = async () => {
@@ -45,7 +54,7 @@ const openMarkerCreator = async () => {
       closeOnPressEscape: false,
     })
     .props({
-      coordinate: coordinate.value,
+      coordinate: calibrateCoordinate(coordinate.value as API.Coordinate2D),
       defaultItem: markingItem.value,
     })
     .open(MarkerCreatePanel)
