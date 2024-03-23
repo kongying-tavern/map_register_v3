@@ -1,11 +1,18 @@
 // ==================== 基础筛选模型 ====================
-export type FilterType = 'basic' | 'advanced'
-
-export interface FilterPreset {
-  name: string
-  type: FilterType
-  conditions: Record<string, MBFItem> | MAFGroup[]
+interface PresetType {
+  basic: Record<string, MBFItem>
+  advanced: MAFGroup[]
 }
+
+export type FilterType = keyof PresetType
+
+interface ExtractFilter<K extends FilterType> {
+  name: string
+  type: K
+  conditions: PresetType[K]
+}
+
+export type FilterPreset = ExtractFilter<'basic'> | ExtractFilter<'advanced'>
 
 export interface MBFItem {
   area: API.AreaVo

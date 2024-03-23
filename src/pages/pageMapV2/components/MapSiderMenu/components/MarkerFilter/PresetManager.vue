@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 import { storeToRefs } from 'pinia'
 import { SelectList } from '../SelectList'
+import { usePresets } from './hooks'
 import { GSButton, GSDivider, GSInput } from '@/components'
-import { useMapStateStore, usePreferenceStore, useUserInfoStore } from '@/stores'
+import { usePreferenceStore } from '@/stores'
 import type { MAFGroup, MBFItem } from '@/stores/types'
 
 const props = defineProps<{
@@ -15,80 +16,22 @@ defineEmits<{
 }>()
 
 const { preference } = storeToRefs(usePreferenceStore())
-const { info } = storeToRefs(useUserInfoStore())
-const { markerFilterType } = storeToRefs(useMapStateStore())
 
-const selectedConditionName = ref('')
-const conditionName = ref('')
-
-const validConditionName = computed({
-  get: () => conditionName.value,
-  set: (v) => {
-    conditionName.value = v.replace(/\s+/g, '')
+const presetName = controlledRef('', {
+  onBeforeChange: (value) => {
+    return !value || value.trim().length === value.length
   },
 })
 
 const handleClosed = () => {
-  selectedConditionName.value = ''
-  conditionName.value = ''
+  presetName.value = ''
 }
 
-const savePreset = () => {
-  if (info.value.id === undefined)
-    return
-
-  const presets = [...preference.value['markerFilter.setting.presets'] ?? []]
-  const name = validConditionName.value
-  const conditions = JSON.parse(JSON.stringify(props.conditions))
-
-  const findIndex = presets.findIndex(preset => preset.name === name)
-  if (findIndex < 0)
-    presets.push({ name, type: markerFilterType.value, conditions })
-  else
-    presets[findIndex] = { name, type: markerFilterType.value, conditions }
-
-  preference.value['markerFilter.setting.presets'] = presets
-  validConditionName.value = ''
-}
-
-const deletePreset = () => {
-  if (info.value.id === undefined)
-    return
-
-  const presets = [...preference.value['markerFilter.setting.presets'] ?? []]
-  const name = selectedConditionName.value
-
-  const findIndex = presets.findIndex(preset => preset.name === name)
-  if (findIndex < 0)
-    return
-
-  presets.splice(findIndex, 1)
-
-  preference.value['markerFilter.setting.presets'] = presets
-}
-
-const loadPreset = () => {
-  if (info.value.id === undefined)
-    return
-
-  const presets = [...preference.value['markerFilter.setting.presets'] ?? []]
-  const name = selectedConditionName.value
-
-  const findIndex = presets.findIndex(preset => preset.name === name)
-  if (findIndex < 0)
-    return
-
-  const { conditions } = presets[findIndex]
-
-  const itemIds: number[] = []
-
-  for (const key in conditions) {
-    const condition = conditions[key]
-    itemIds.push(...condition.items)
-  }
-
-  preference.value['markerFilter.state.itemIds'] = itemIds
-}
+const { savePreset, deletePreset, loadPreset } = usePresets({
+  nameToSave: presetName,
+  nameToLoad: presetName,
+  conditionGetter: computed(() => props.conditions),
+})
 </script>
 
 <template>
@@ -110,11 +53,11 @@ const loadPreset = () => {
       <GSDivider color="#76716A" />
 
       <div class="text-white pb-2">
-        · 新增预设
+        · 预设名称
       </div>
       <div class="flex gap-2">
-        <GSInput v-model="validConditionName" placeholder="请输入预设名称" />
-        <GSButton class="flex-1" icon="submit" :disabled="!validConditionName" @click="savePreset">
+        <GSInput v-model="presetName" placeholder="请输入预设名称" />
+        <GSButton class="flex-1" icon="submit" :disabled="!presetName" @click="savePreset">
           保存
         </GSButton>
       </div>
@@ -124,13 +67,25 @@ const loadPreset = () => {
       </div>
       <el-scrollbar class="flex-1">
         <SelectList
-          v-model="selectedConditionName"
+          v-model="presetName"
           class="h-full overflow-auto"
           :list="preference['markerFilter.setting.presets']!"
           value-key="name"
         >
-          <template #default="{ item }">
-            {{ item.name }}
+          <template #default="{ item, isActived }">
+            <div :title="item.name" class="w-full flex justify-between items-center overflow-hidden">
+              <div class="flex-1 whitespace-nowrap overflow-hidden text-ellipsis">
+                {{ item.name }}
+              </div>
+              <div
+                v-if="item.type === 'advanced'"
+                class="flex-shrink-0 rounded text-xs px-1 py-0.5 text-white"
+                :class="isActived ? 'bg-[#3E4556]' : 'bg-[#111821]'"
+                title="该预设为高级筛选的预设"
+              >
+                Pro
+              </div>
+            </div>
           </template>
         </SelectList>
       </el-scrollbar>
@@ -139,7 +94,7 @@ const loadPreset = () => {
 
       <div class="flex gap-4">
         <GSButton
-          :disabled="!selectedConditionName"
+          :disabled="!presetName"
           class="flex-1"
           @click="deletePreset"
         >
@@ -151,7 +106,7 @@ const loadPreset = () => {
           删除
         </GSButton>
         <GSButton
-          :disabled="!selectedConditionName"
+          :disabled="!presetName"
           class="flex-1"
           icon="submit"
           @click="loadPreset"

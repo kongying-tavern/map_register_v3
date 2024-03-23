@@ -58,7 +58,7 @@ const patchValue = (patchOpt: T) => {
       @click="() => patchValue(item)"
     >
       <slot name="icon" :item="item" />
-      <slot :item="item" />
+      <slot :item="item" :is-actived="isActived(item)" />
     </div>
   </div>
 </template>
