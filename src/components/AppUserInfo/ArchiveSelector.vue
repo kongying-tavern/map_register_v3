@@ -15,7 +15,7 @@ const { archiveSlots } = storeToRefs(archiveStore)
 
 // 从米忽悠白嫖背景图
 const AREA_IMG_URLS: Record<string, string> = {
-  NA: 'https://ys.mihoyo.com/main/_nuxt/img/5c125a1.png',
+  NA: 'https://uploadstatic.mihoyo.com/contentweb/20200928/2020092810263982019.jpg',
   MD: 'https://uploadstatic.mihoyo.com/contentweb/20200319/2020031921550320292.jpg',
   LY: 'https://uploadstatic.mihoyo.com/contentweb/20200319/2020031921552395638.jpg',
   DQ: 'https://uploadstatic.mihoyo.com/contentweb/20210719/2021071918001232800.jpg',
@@ -78,7 +78,8 @@ const timeFormater = (time?: string) => time
           v-if="archiveSlot"
           :key="archiveSlot.id"
           :class="{
-            actived: `${index}` === `${archiveStore.currentArchive.slotIndex}`,
+            'has-slot': archiveSlot !== undefined,
+            'actived': `${index}` === `${archiveStore.currentArchive.slotIndex}`,
           }"
           class="archive-item outline-card item-enter-anime"
           @click="archiveViewIndex = archiveSlot.slotIndex"
@@ -92,7 +93,7 @@ const timeFormater = (time?: string) => time
             >
             <div
               v-show="`${index}` === `${archiveStore.currentArchive.slotIndex}`"
-              class="absolute left-3 top-3 w-10 h-10 rounded-full border-2 grid place-items-center drop-shadow"
+              class="absolute left-3 top-3 w-10 h-10 rounded-full border-2 grid place-items-center"
               style="border-color: #5dffa3;"
             >
               <el-icon :size="32" color="#5dffa3">
@@ -100,6 +101,7 @@ const timeFormater = (time?: string) => time
               </el-icon>
             </div>
           </div>
+
           <div class="archive-name flex justify-between items-center gap-4 whitespace-nowrap overflow-hidden">
             <div class="text-ellipsis overflow-hidden" :title="archiveSlot.name">
               {{ index }}. {{ archiveSlot.name }}
@@ -131,7 +133,7 @@ const timeFormater = (time?: string) => time
 .outline-card {
   outline: 2px solid transparent;
   transition: all 100ms ease;
-  border-radius: 6px;
+  border-radius: 8px;
 }
 
 @keyframes gs-slide-in {
@@ -168,8 +170,8 @@ const timeFormater = (time?: string) => time
   --bg-color-right: #AD7E4D;
   --banner-background: linear-gradient(to right, var(--bg-color-left), var(--bg-color-right));
   --add-icon-visible: none;
+  --title-bg-color: #E9E5DC;
 
-  background-color: #E9E5DC;
   user-select: none;
   overflow: hidden;
   cursor: pointer;
@@ -198,6 +200,9 @@ const timeFormater = (time?: string) => time
   &.actived {
     background-color: #7F6B5B;
     color: white;
+  }
+  &.has-slot {
+    --title-bg-color: #E9E5DC80;
   }
 }
 
@@ -230,8 +235,8 @@ const timeFormater = (time?: string) => time
 
 .archive-banner {
   background: var(--banner-background);
-  height: 63px;
-  clip-path: inset(0 round 0 0 16px 0);
+  height: 99px;
+  clip-path: inset(0 round 0 0 8px 0);
   &::before {
     scale: 0.8;
     display: var(--add-icon-visible);
@@ -247,7 +252,11 @@ const timeFormater = (time?: string) => time
 }
 
 .archive-name {
+  width: 100%;
   padding: 6px 16px;
   font-size: 16px;
+  position: absolute;
+  bottom: 0;
+  background: var(--title-bg-color);
 }
 </style>

@@ -40,13 +40,14 @@ const { loading, refresh, onSuccess, onError } = useFetchHook({
       throw new Error('无效的存档槽位')
     if (archiveName.value.length < 1)
       throw new Error('存档名称长度不能小于 1 个字符')
-    return await archiveStore.createArchiveSlot(archiveName.value, index.value)
+    await archiveStore.createArchiveSlot(archiveName.value, index.value)
+    await archiveStore.fetchArchive()
+    archiveStore.loadArchiveSlot(index.value)
   },
 })
 
 onSuccess(() => {
   index.value = undefined
-  archiveStore.fetchArchive()
 })
 
 onError((err) => {
