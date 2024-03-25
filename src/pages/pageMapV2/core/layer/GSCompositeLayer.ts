@@ -169,7 +169,6 @@ export class GSCompositeLayer extends CompositeLayer {
         hiddenOverlayGroups: overlayStore.hiddenOverlayGroups,
         overlayStateId: overlayStore.stateId,
       }), (newState, oldState) => {
-        logger.info('依赖更新')
         const { tileConfig } = newState
         if (!tileConfig)
           return
@@ -193,6 +192,7 @@ export class GSCompositeLayer extends CompositeLayer {
         moveToTarget?.()
       }, { immediate: true })
     })
+    logger.info('初始化作用域', scope)
     this.#effectCleaner = () => {
       scope.stop()
       this.#effectCleaner = undefined
