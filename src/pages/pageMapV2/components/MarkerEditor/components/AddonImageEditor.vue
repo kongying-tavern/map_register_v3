@@ -1,78 +1,76 @@
 <script lang="ts" setup>
-import { Plus, Scissor, Setting } from '@element-plus/icons-vue'
-import { ElIcon } from 'element-plus'
+import { CircleCheck, Plus, Scissor, Setting } from '@element-plus/icons-vue'
+import { useLocalPicture, useMarkerPicture } from '../hooks'
 import { AddonTeleporter } from '.'
-import { getFileType } from '@/utils'
+import { formatByteSize } from '@/utils'
 import { AppImageCropper } from '@/components'
-import { useFetchHook } from '@/hooks'
 
-const props = defineProps<{
-  /** 上传大图 */
-  largeImage?: Blob
-  /** 裁切缩略图 */
-  thumbImage?: Blob
-  /** 原始缩略图 */
-  rawThumbImageUrl?: string
-  /** 上传描述 */
-  content?: string
-  /** 插件 id */
-  addonId?: string
-}>()
-
-const emits = defineEmits<{
-  'update:thumbImage': [Blob]
-  'update:largeImage': [Blob]
-  'update:addonId': [string | undefined]
-}>()
-
-const largeImageUrl = useObjectUrl(computed(() => props.largeImage))
-
-const thumbImageUrl = useObjectUrl(computed(() => props.thumbImage))
-
-const { loading, refresh: selectFile, onSuccess } = useFetchHook({
-  onRequest: () => new Promise<Blob | undefined>((resolve, reject) => {
-    const input = document.createElement('input')
-    input.type = 'file'
-    input.accept = 'image/*'
-    input.multiple = false
-
-    input.oncancel = () => {
-      input.remove()
-      resolve(undefined)
-    }
-
-    input.oninput = async () => {
-      const file = input.files?.[0]
-      input.remove()
-
-      if (!file)
-        return resolve(undefined)
-
-      const realType = await getFileType(file)
-      if (realType === 'unknown')
-        return reject(new Error('不支持的图片类型'))
-
-      resolve(file)
-    }
-
-    input.click()
-  }),
+// ==================== 表单图片 ====================
+const modelValue = defineModel<string>('modelValue', {
+  required: false,
+  default: '',
 })
 
+const {
+  initLoading,
+  thumbImageUrl,
+  largeImageUrl,
+} = useMarkerPicture(modelValue)
+
+// ==================== 待上传图片 ====================
+const {
+  loading,
+  localPictureUrl: newPictureUrl,
+  refresh: selectFile,
+  onSuccess: onSelectSuccess,
+} = useLocalPicture()
+
+// ==================== 生成缩略图 ====================
 const cropperRef = ref<InstanceType<typeof AppImageCropper> | null>(null)
-const onCrop = (image: Blob) => {
-  emits('update:thumbImage', image)
+
+const isCropped = computed(() => modelValue.value.toLowerCase().startsWith('blob:'))
+
+const croppedImage = shallowRef<Blob>()
+const croppedImageUrl = ref('')
+
+onUnmounted(() => {
+  URL.revokeObjectURL(croppedImageUrl.value)
+})
+
+const withoutSearchParams = (url?: string) => {
+  if (!url)
+    return ''
+  const urlObj = new URL(url)
+  return `${urlObj.protocol}${urlObj.pathname}`
 }
 
-const isAddonActived = computed({
-  get: () => props.addonId === 'picture',
-  set: v => emits('update:addonId', v ? 'picture' : ''),
+const onCrop = (image: Blob) => {
+  URL.revokeObjectURL(croppedImageUrl.value)
+
+  croppedImage.value = image
+  croppedImageUrl.value = URL.createObjectURL(image)
+
+  const url = new URL(croppedImageUrl.value)
+  url.searchParams.append('raw', newPictureUrl.value!)
+  modelValue.value = url.toString()
+}
+
+// ====================  附加组件  ====================
+const addonId = defineModel<string>('addonId', {
+  required: false,
+  default: '',
 })
 
-onSuccess((file) => {
+const isAddonActived = computed({
+  get: () => addonId.value === 'picture',
+  set: (v) => {
+    addonId.value = v ? 'picture' : ''
+  },
+})
+
+onSelectSuccess((file) => {
   if (!file)
     return
-  emits('update:largeImage', file)
   isAddonActived.value = true
 })
 </script>
@@ -92,7 +90,14 @@ onSuccess((file) => {
       "
       @click="selectFile"
     >
-      <img v-if="thumbImageUrl ?? rawThumbImageUrl" :src="thumbImageUrl ?? rawThumbImageUrl" crossorigin="" class="w-full h-full object-cover">
+      <img
+        v-if="thumbImageUrl ?? modelValue"
+        v-loading="initLoading"
+        :src="isCropped ? withoutSearchParams(modelValue) : thumbImageUrl"
+        crossorigin=""
+        class="w-full h-full object-cover"
+      >
+
       <div v-else class="w-full h-full flex flex-col items-center justify-center">
         <ElIcon :size="24">
           <Plus />
@@ -101,10 +106,13 @@ onSuccess((file) => {
       </div>
     </div>
 
-    <div class="h-40 flex-1 px-1 flex flex-col justify-end overflow-auto text-xs">
-      <p v-for="(p, index) in content?.split('\n')" :key="index">
-        {{ p }}
-      </p>
+    <div v-if="croppedImage" class="h-40 flex-1 pl-2 flex flex-col justify-end">
+      <div class="flex items-center text-sm gap-1 text-[var(--el-color-success)] leading-none">
+        <el-icon :size="16">
+          <CircleCheck />
+        </el-icon>
+        <span>{{ formatByteSize(croppedImage.size) }}</span>
+      </div>
     </div>
 
     <el-button
@@ -129,12 +137,12 @@ onSuccess((file) => {
         <div class="flex-1 grid place-items-center place-content-center gap-2">
           <AppImageCropper
             ref="cropperRef"
-            :image="largeImageUrl"
+            :image="newPictureUrl ?? largeImageUrl"
             :auto-crop-on-image-loaded="false"
             class="w-64 h-64"
             @crop="onCrop"
           />
-          <el-button :icon="Scissor" :disabled="!largeImage" @click="() => cropperRef?.crop()">
+          <el-button :icon="Scissor" :disabled="!newPictureUrl" @click="() => cropperRef?.crop()">
             裁切
           </el-button>
         </div>

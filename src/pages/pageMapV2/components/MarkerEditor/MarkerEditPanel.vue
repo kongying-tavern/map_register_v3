@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { Check, Close } from '@element-plus/icons-vue'
-import { useMarkerEdit } from '../../hooks'
-import { MarkerEditorForm } from '../../components/MarkerEditor'
+import { useMarkerEdit } from './hooks'
+import { MarkerEditorForm } from '.'
 import { GlobalDialogController } from '@/components'
 import db from '@/database'
 
@@ -24,9 +24,7 @@ const initAreaCode = asyncComputed(async () => {
 
 const { editorRef, loading, editMarker, onSuccess } = useMarkerEdit(form)
 
-onSuccess(() => {
-  GlobalDialogController.close()
-})
+onSuccess(GlobalDialogController.close)
 
 const isOfflineMode = import.meta.env.VITE_DEVELOPMENT_MODE === 'offline'
 </script>

@@ -1,7 +1,8 @@
 import type { Ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { pick } from 'lodash'
-import type { MarkerEditorForm } from '../components/MarkerEditor'
+import type { MarkerEditorForm } from '..'
+import { usePictureUpload } from './usePictureUpload'
 import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 import { useUserInfoStore } from '@/stores'
@@ -61,6 +62,8 @@ export const useMarkerEdit = (markerData: Ref<API.MarkerVo | null>) => {
     }
   }
 
+  const { tryUploadPicture } = usePictureUpload()
+
   /** 原始操作 */
   const request = async () => {
     await editorRef.value?.uploadPicture()
@@ -70,6 +73,9 @@ export const useMarkerEdit = (markerData: Ref<API.MarkerVo | null>) => {
       throw new Error('表单数据为空')
 
     const form = buildAdminMarkerForm(marker)
+
+    await tryUploadPicture(form)
+
     await Api.marker.updateMarker({}, form)
 
     const { data: { 0: submitedMarkerInfo } = [] } = await Api.marker.listMarkerById({}, [form.id!])

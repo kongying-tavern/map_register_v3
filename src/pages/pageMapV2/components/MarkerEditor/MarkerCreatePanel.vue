@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { Check, Close } from '@element-plus/icons-vue'
-import { useMarkerCreate } from '../../hooks'
+import { useMarkerCreate } from './hooks'
 import { MarkerEditorForm } from '.'
 import { GlobalDialogController } from '@/components'
 import { useAreaStore, useUserInfoStore } from '@/stores'
