@@ -46,7 +46,10 @@ export const _useMarkerFocus = () => {
   const isInDelay = ref(false)
 
   /** 与 focus 相反的行为 */
-  const blur = () => updateFocus(null)
+  const blur = () => {
+    mapStateStore.setTempMarkers('focus', [])
+    updateFocus(null)
+  }
 
   const focusMarker = (markerVo: API.MarkerVo | GSMapState.MarkerWithRenderConfig, delay = 0) => {
     blur()
@@ -75,9 +78,12 @@ export const _useMarkerFocus = () => {
 
   watch(() => [focus.value, hover.value, mapStateStore.isPopoverOnHover] as const, ([currentFocus, currentHover, isPopoverOnHover]) => {
     const target = isPopoverOnHover ? currentHover : currentFocus
-    if (!target)
+    if (!target) {
+      mapStateStore.setTempMarkers('focus', [])
       return
+    }
     cachedMarkerVo.value = target
+    mapStateStore.setTempMarkers('focus', [target])
   })
 
   return {

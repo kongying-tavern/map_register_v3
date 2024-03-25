@@ -23,9 +23,6 @@ const { isMoving, isEnable, position } = useMarkerMove(cachedMarkerVo)
 
 const { isUnderground, hiddenFlagType, refreshTimeType } = useMarkerExtra(cachedMarkerVo)
 
-// ==================== 点位更新时关闭弹窗 ====================
-watch(() => mapStateStore.staticMarkers, blur)
-
 // ==================== 编辑点位 ====================
 const { DialogService } = useGlobalDialog()
 const openMarkerEditor = () => {
