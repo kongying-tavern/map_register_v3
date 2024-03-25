@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Logger } from '@/utils'
 
-const logger = new Logger('[开发者]')
+const logger = new Logger('开发者')
 </script>
 
 <template>
