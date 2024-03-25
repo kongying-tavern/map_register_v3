@@ -3,7 +3,7 @@ import { userHook } from './hooks'
 import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 import type { UserPreference } from '@/stores/types/userPreference'
-import { useUserAuthStore } from '@/stores'
+import { usePreferenceStore, useUserAuthStore } from '@/stores'
 
 export interface ArchiveBody {
   /** 点位存档 */
@@ -71,6 +71,14 @@ export const useArchiveStore = defineStore('global-archive', () => {
     return [...new Uint8Array(digest)].map(num => num.toString(16).padStart(2, '0').toUpperCase()).join('')
   }, '')
 
+  const createArchiveBody = () => {
+    return JSON.stringify({
+      Data_KYJG: [...currentArchive.value.body.Data_KYJG],
+      Time_KYJG: currentArchive.value.body.Time_KYJG,
+      Preference: usePreferenceStore().preference,
+    })
+  }
+
   const { data: archiveSlots, loading: fetchLoading, refresh: fetchArchive } = useFetchHook({
     onRequest: async () => {
       const { data = [] } = await Api.archive.getAllHistoryArchive({})
@@ -88,37 +96,6 @@ export const useArchiveStore = defineStore('global-archive', () => {
       return slots
     },
   })
-
-  /** 创建新的存档槽位并将当前存档存入 */
-  const createArchiveSlot = async (name: string, slot_index: number) => {
-    if (slot_index > 5)
-      throw new Error('存档数量最多为 5 个')
-    await Api.archive.createSlotAndSaveArchive({ slot_index, name }, JSON.stringify({
-      Data_KYJG: [...currentArchive.value.body.Data_KYJG],
-      Time_KYJG: currentArchive.value.body.Time_KYJG,
-      Preference: currentArchive.value.body.Preference,
-    }))
-  }
-
-  /** 将当前存档存入指定的存档槽位 */
-  const saveArchiveToSlot = async (slotIndex = -1) => {
-    if (slotIndex < 0)
-      return
-    const archive = JSON.stringify({
-      Data_KYJG: [...currentArchive.value.body.Data_KYJG],
-      Time_KYJG: currentArchive.value.body.Time_KYJG,
-      Preference: currentArchive.value.body.Preference,
-    })
-    await Api.archive.saveArchive({ slot_index: slotIndex }, archive)
-  }
-
-  /** 删除指定槽位的存档 */
-  const deleteArchiveSlot = async (slotIndex = -1) => {
-    if (slotIndex < 0)
-      return
-    await Api.archive.removeArchive({ slot_index: slotIndex })
-    await fetchArchive()
-  }
 
   /** 获取指定槽位的最新存档 */
   const getLatestArchiveFromSlot = (slotIndex = -1) => {
@@ -138,6 +115,28 @@ export const useArchiveStore = defineStore('global-archive', () => {
       return
     currentArchive.value = latestArchive
     currentArchive.value.slotIndex = slotIndex
+  }
+
+  /** 创建新的存档槽位并将当前存档存入 */
+  const createArchiveSlot = async (name: string, slotIndex: number) => {
+    if (slotIndex > 5)
+      throw new Error('存档数量最多为 5 个')
+    await Api.archive.createSlotAndSaveArchive({ slot_index: slotIndex, name }, createArchiveBody())
+  }
+
+  /** 将当前存档存入指定的存档槽位 */
+  const saveArchiveToSlot = async (slotIndex = -1) => {
+    if (slotIndex < 0)
+      return
+    await Api.archive.saveArchive({ slot_index: slotIndex }, createArchiveBody())
+  }
+
+  /** 删除指定槽位的存档 */
+  const deleteArchiveSlot = async (slotIndex = -1) => {
+    if (slotIndex < 0)
+      return
+    await Api.archive.removeArchive({ slot_index: slotIndex })
+    await fetchArchive()
   }
 
   /** 加载指定槽位的历史存档 */
