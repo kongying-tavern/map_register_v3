@@ -17,7 +17,7 @@ import { Logger } from '@/utils'
 import { useArchiveStore, useIconTagStore, useMapStateStore, useOverlayStore, usePreferenceStore, useTileStore } from '@/stores'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
 
-const logger = new Logger('[图层组]')
+const logger = new Logger('图层组')
 
 // eslint-disable-next-line ts/no-explicit-any
 interface StrategyOptions<D = any> {
@@ -122,7 +122,6 @@ export class GSCompositeLayer extends CompositeLayer {
   /** 使用 vue 的响应式系统处理依赖 */
   #linkToVueReactiveSystem = () => {
     const scope = effectScope()
-    logger.info('创建响应式作用域', scope)
     scope.run(() => {
       const archiveStore = useArchiveStore()
       const tileStore = useTileStore()
@@ -170,6 +169,7 @@ export class GSCompositeLayer extends CompositeLayer {
         hiddenOverlayGroups: overlayStore.hiddenOverlayGroups,
         overlayStateId: overlayStore.stateId,
       }), (newState, oldState) => {
+        logger.info('依赖更新')
         const { tileConfig } = newState
         if (!tileConfig)
           return
