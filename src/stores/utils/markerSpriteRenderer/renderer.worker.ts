@@ -7,7 +7,7 @@ const db = new AppDatabase()
 
 declare const globalThis: DedicatedWorkerGlobalScope
 
-const logger = new Logger('[点位渲染线程]')
+const logger = new Logger('点位渲染')
 
 /** 主线程输入数据 */
 export interface WorkerInput {
@@ -267,7 +267,7 @@ const render = async (options: WorkerInput): Promise<WorkerSuccessOutput> => {
   // 如果存在缓存，则跳过绘制步骤，只生成 mapping
   const cache = await db.cache.get('markerSprite')
   if (cache && cache.id === 'markerSprite' && cache.value.tagSpriteDigest === tagSpriteDigest) {
-    logger.info('检测到缓存，跳过预渲染')
+    logger.info('缓存有效，跳过预渲染')
     return {
       image: cache.value.image,
       mapping: createMapping(mappingOptions),

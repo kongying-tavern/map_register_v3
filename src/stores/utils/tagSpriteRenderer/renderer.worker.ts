@@ -4,7 +4,7 @@ import { Logger } from '@/utils/logger'
 import { getDigest } from '@/utils/getDigest'
 import { AppDatabase } from '@/database'
 
-const logger = new Logger('[图标渲染线程]')
+const logger = new Logger('图标渲染')
 
 const db = new AppDatabase()
 
@@ -66,7 +66,7 @@ const render = async (params: WorkerInput): Promise<WorkerSuccessOutput> => {
 
   // 如果存在缓存，则直接返回
   if (cache && cache.id === 'tagSprite' && digest && cache.digest === digest) {
-    logger.info('检测到缓存，跳过预渲染')
+    logger.info('缓存有效，跳过预渲染')
     return cache.value
   }
 
