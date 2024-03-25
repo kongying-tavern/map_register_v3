@@ -2,7 +2,7 @@
 import { useFormItem } from 'element-plus'
 import { Delete, Setting } from '@element-plus/icons-vue'
 import { AddonItemSelectorEP, AddonTeleporter } from '.'
-import { useIconTagStore, useItemTypeStore } from '@/stores'
+import { useIconTagStore, useItemStore, useItemTypeStore } from '@/stores'
 import db from '@/database'
 
 const props = withDefaults(defineProps<{
@@ -19,6 +19,7 @@ const emits = defineEmits<{
   (e: 'update:areaCode', v?: string): void
 }>()
 
+const itemStore = useItemStore()
 const itemTypeStore = useItemTypeStore()
 const iconTagStore = useIconTagStore()
 
@@ -74,7 +75,7 @@ const isAddonActived = computed({
         class="w-full rounded flex gap-1.5 items-center justify-between p-1"
       >
         <img
-          :src="iconTagStore.iconTagMap[item.iconTag as string]?.url"
+          :src="iconTagStore.iconTagMap[itemStore.itemIdMap.get(item.itemId!)?.iconTag ?? '无']?.url"
           class="w-7 aspect-square object-contain rounded-full bg-slate-500"
           referrerpolicy="no-referrer"
           crossorigin=""
