@@ -17,18 +17,22 @@ import { Logger } from '@/utils'
 import { useArchiveStore, useIconTagStore, useMapStateStore, useOverlayStore, usePreferenceStore, useTileStore } from '@/stores'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
 
-const logger = new Logger('图层组')
+const logger = new Logger('图层组', () => !usePreferenceStore().preference['developer.setting.hideCompositeLayerLogger'])
 
 // eslint-disable-next-line ts/no-explicit-any
-interface StrategyOptions<D = any> {
+interface StrategyOptions<D = any, T = any> {
   type: keyof GSMapState.InteractionTypeMap
   layer: Function
-  getData: (object: D) => unknown
+  getData: (object: D) => T
+  isSameOne?: (value: T, oldValue: T) => boolean
 }
+
+const buildStrategy = <D, T>(options: StrategyOptions<D, T>) => options
 
 interface InteractionStrategy {
   subscriber: ReturnType<ReturnType<typeof useMapStateStore>['subscribeInteractionInfo']>
   getData: (object: unknown) => void
+  isSameOne?: (value: unknown, oldValue: unknown) => boolean
 }
 
 export class GSCompositeLayer extends CompositeLayer {
@@ -50,21 +54,24 @@ export class GSCompositeLayer extends CompositeLayer {
     const mapStateStore = useMapStateStore()
 
     const hoverStrategyOptionList: StrategyOptions[] = [
-      {
+      buildStrategy<number, GSMapState.MarkerWithRenderConfig>({
         type: 'defaultMarker',
         layer: GSMarkerLayer,
-        getData: (object: number) => this.state.markersMap[object],
-      },
-      {
+        getData: object => this.state.markersMap[object],
+        isSameOne: (a, b) => a.id === b.id,
+      }),
+      buildStrategy<number, GSMapState.MarkerWithRenderConfig>({
         type: 'defaultMarker',
         layer: GSMarkerHoverLayer,
-        getData: (object: number) => this.state.markersMap[object],
-      },
-      {
+        getData: object => this.state.markersMap[object],
+        isSameOne: (a, b) => a.id === b.id,
+      }),
+      buildStrategy<GSMapState.MLRenderUnit, GSMapState.MLRenderUnit>({
         type: 'defaultMarkerLink',
         layer: GSMarkerLinkHoverLayer,
-        getData: (object: GSMapState.MLRenderUnit) => object,
-      },
+        getData: object => object,
+        isSameOne: (a, b) => a.key === b.key,
+      }),
     ]
 
     const focusStrategyOptionList: StrategyOptions[] = [
@@ -75,14 +82,16 @@ export class GSCompositeLayer extends CompositeLayer {
       },
     ]
 
-    const hoverStrategies = hoverStrategyOptionList.reduce((strategies, { type, layer, getData }) => strategies.set(layer, {
+    const hoverStrategies = hoverStrategyOptionList.reduce((strategies, { type, layer, getData, isSameOne }) => strategies.set(layer, {
       subscriber: mapStateStore.subscribeInteractionInfo('hover', type),
       getData,
+      isSameOne,
     }), new Map<Function, InteractionStrategy>())
 
-    const focusStrategies = focusStrategyOptionList.reduce((strategies, { type, layer, getData }) => strategies.set(layer, {
+    const focusStrategies = focusStrategyOptionList.reduce((strategies, { type, layer, getData, isSameOne }) => strategies.set(layer, {
       subscriber: mapStateStore.subscribeInteractionInfo('focus', type),
       getData,
+      isSameOne,
     }), new Map<Function, InteractionStrategy>())
 
     super({
@@ -95,8 +104,11 @@ export class GSCompositeLayer extends CompositeLayer {
         const strategy = hoverStrategies.get(sourceLayer.constructor)
         if (!strategy)
           return
-        const { subscriber, getData } = strategy
-        subscriber.update(getData(object))
+        const { subscriber, getData, isSameOne } = strategy
+        const newValue = getData(object)
+        if (isSameOne && subscriber.data.value && isSameOne(subscriber.data.value, newValue))
+          return
+        subscriber.update(newValue)
       },
       onClick: ({ object = null, sourceLayer = null }, ev) => {
         if (('leftButton' in ev && !ev.leftButton) || !object || !sourceLayer) {
@@ -106,8 +118,11 @@ export class GSCompositeLayer extends CompositeLayer {
         const strategy = focusStrategies.get(sourceLayer.constructor)
         if (!strategy)
           return
-        const { subscriber, getData } = strategy
-        subscriber.update(getData(object))
+        const { subscriber, getData, isSameOne } = strategy
+        const newValue = getData(object)
+        if (isSameOne && subscriber.data.value && isSameOne(subscriber.data.value, newValue))
+          return
+        subscriber.update(newValue)
       },
     })
   }
@@ -173,12 +188,10 @@ export class GSCompositeLayer extends CompositeLayer {
         if (!tileConfig)
           return
 
-        let moveToTarget: (() => void) | undefined
-
         if (!oldState || newState.areaCode !== this.state.areaCode) {
           const { target: [x, y], zoom } = tileConfig.initViewState
           const [ox, oy] = tileConfig.tile.center
-          moveToTarget = () => this.context.deck.setProps({
+          const moveToTarget = () => this.context.deck.setProps({
             initialViewState: {
               target: [x + ox, y + oy],
               zoom,
@@ -186,10 +199,39 @@ export class GSCompositeLayer extends CompositeLayer {
               transitionInterpolator: new EaseoutInterpolator(['target', 'zoom']),
             },
           })
+          this.setState(newState)
+          moveToTarget()
+          logger.info('初始化依赖')
         }
-
-        this.setState(newState)
-        moveToTarget?.()
+        else {
+          const changeList: string[] = []
+          for (const key in newState) {
+            const newValue = newState[key]
+            const oldValue = oldState[key]
+            let isChange = false
+            if (newValue === undefined)
+              isChange = oldValue !== undefined
+            else if (oldValue === undefined)
+              isChange = true
+            else if (typeof newValue !== 'object')
+              isChange = newValue !== oldValue
+            // TODO 出于性能考虑只比对 length
+            // 目前的交互下新旧长短应该不会出现相同的情况, Map 和 Set 同理
+            else if (Array.isArray(newValue))
+              isChange = newValue.length !== oldValue.length
+            else if (newValue instanceof Map)
+              isChange = newValue.size !== oldValue.size
+            else if (newValue instanceof Set)
+              isChange = newValue.size !== oldValue.size
+            else
+              isChange = JSON.stringify(newValue) !== JSON.stringify(oldValue)
+            isChange && changeList.push(key)
+          }
+          if (!changeList.length)
+            return
+          logger.info('变化的key', changeList)
+          this.setState(newState)
+        }
       }, { immediate: true })
     })
     logger.info('初始化作用域', scope)
