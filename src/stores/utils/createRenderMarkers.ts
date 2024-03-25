@@ -10,25 +10,38 @@ export interface NormalizeMarkerOptions {
 }
 
 // TODO 抽离为设置，根据设置的图标选择策略来选择主渲染图标 id
-const pickMainItem = ({ itemList = [] }: API.MarkerVo) => {
-  itemList.sort((a, b) => a.iconTag! === '无'
-    ? 1
-    : b.iconTag! === '无'
-      ? -1
-      : a.iconTag!.endsWith('宝箱')
-        ? b.iconTag!.endsWith('宝箱')
-          ? 0
-          : -1
-        : b.iconTag!.endsWith('宝箱')
-          ? 1
-          : a.count! - b.count!,
-  )
-  const [mainItem, ...restItems] = itemList
+const pickMainItem = ({ itemList = [] }: API.MarkerVo, itemIdMap: Map<number, API.ItemVo>) => {
+  const restItemIds: number[] = []
+  const restIconTags: string[] = []
+
+  let index = -1
+  let mainItem: API.ItemVo | undefined
+
+  itemList.forEach(({ itemId = -1 }) => {
+    const item = itemIdMap.get(itemId)
+    if (!item)
+      return
+
+    if (!mainItem) {
+      mainItem = item
+      index = item.sortIndex ?? -1
+      return
+    }
+
+    // 将 sortIndex 更大的作为主渲染图标
+    const { sortIndex = -1 } = item
+    if (sortIndex <= index)
+      return
+
+    mainItem = item
+    index = sortIndex
+  })
+
   return {
-    mainItemId: mainItem.itemId!,
-    restItemIds: restItems.map(item => item.itemId!),
-    mainIconTag: mainItem.iconTag!,
-    restIconTags: restItems.map(item => item.iconTag!),
+    mainItemId: mainItem!.id!,
+    restItemIds,
+    mainIconTag: mainItem!.iconTag!,
+    restIconTags,
   }
 }
 
@@ -83,7 +96,7 @@ export const createRenderMarkers = (markers: (API.MarkerVo | GSMapState.MarkerWi
     normalizedMarkers.push({
       ...marker,
       render: {
-        ...pickMainItem(marker),
+        ...pickMainItem(marker, itemIdMap),
         area,
         tileCode: tileConfig.tile.code,
         position: [Number(strX) + ox, Number(strY) + oy],

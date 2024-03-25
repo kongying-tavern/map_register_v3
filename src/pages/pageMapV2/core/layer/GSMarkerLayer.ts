@@ -43,7 +43,7 @@ export class GSMarkerLayer extends IconLayer<number> {
       iconAtlas: markerSpriteImage,
       iconMapping: markerSpriteMapping,
       getIcon: (id) => {
-        const { render: { isUnderground, mainIconTag } } = markersMap[id]
+        const { render: { isUnderground, mainIconTag = '无' } } = markersMap[id]
         const state = isMarked(id!) ? 'marked' : 'default'
         const type = isUnderground ? 'underground' : 'default'
         return `${mainIconTag}.${state}.${type}`
