@@ -113,6 +113,9 @@ export interface UserPreference {
 
   /** 是否隐藏数据库自动更新 logger */
   'developer.setting.hideDatabaseUpdaterLogger'?: boolean
+
+  /** 是否隐藏图层组的 logger */
+  'developer.setting.hideCompositeLayerLogger'?: boolean
 }
 
 export const getDefaultPreference = (): UserPreference => ({

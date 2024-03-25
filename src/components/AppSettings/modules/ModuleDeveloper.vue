@@ -6,20 +6,6 @@ import { useBanner } from '@/hooks'
 
 const { preference } = storeToRefs(usePreferenceStore())
 
-const showServiceWorkerLogger = computed({
-  get: () => !preference.value['developer.setting.hideServiceWorkerLogger'],
-  set: (v) => {
-    preference.value['developer.setting.hideServiceWorkerLogger'] = !v
-  },
-})
-
-const showDatabaseUpdaterLogger = computed({
-  get: () => !preference.value['developer.setting.hideDatabaseUpdaterLogger'],
-  set: (v) => {
-    preference.value['developer.setting.hideDatabaseUpdaterLogger'] = !v
-  },
-})
-
 const { visible } = useBanner()
 </script>
 
@@ -34,14 +20,21 @@ const { visible } = useBanner()
     </SettingGroup>
 
     <SettingGroup name="日志">
-      <SettingBar label="Service Worker" note="是否显示 Service Worker 触发缓存时的日志">
+      <SettingBar label="Service Worker" note="是否隐藏 Service Worker 触发缓存时的日志">
         <template #setting>
-          <el-switch v-model="showServiceWorkerLogger" />
+          <el-switch v-model="preference['developer.setting.hideServiceWorkerLogger']" />
         </template>
       </SettingBar>
-      <SettingBar label="数据库后台更新" note="是否显示数据库后台更新的日志">
+
+      <SettingBar label="数据库后台更新" note="是否隐藏数据库后台更新的日志">
         <template #setting>
-          <el-switch v-model="showDatabaseUpdaterLogger" />
+          <el-switch v-model="preference['developer.setting.hideDatabaseUpdaterLogger']" />
+        </template>
+      </SettingBar>
+
+      <SettingBar label="图层组" note="是否隐藏图层组的日志">
+        <template #setting>
+          <el-switch v-model="preference['developer.setting.hideCompositeLayerLogger']" />
         </template>
       </SettingBar>
     </SettingGroup>
