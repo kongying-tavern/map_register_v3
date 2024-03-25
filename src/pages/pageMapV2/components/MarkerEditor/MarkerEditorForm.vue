@@ -10,7 +10,6 @@ import {
   AddonItemSelector,
   AddonRefreshtimeEditor,
 } from './components'
-import { useMarkerPicture } from './hooks'
 import { AppAreaCodeSelecter } from '@/components'
 import { useMarkerExtraStore, useUserInfoStore } from '@/stores'
 import type { ElFormType } from '@/shared'
@@ -33,6 +32,8 @@ const userInfoStore = useUserInfoStore()
 /** 表单数据 */
 const form = ref<API.MarkerVo & { areaCode: string }>({
   ...cloneDeep(props.modelValue),
+  picture: props.modelValue.picture ?? '',
+  extra: props.modelValue.extra ?? {},
   areaCode: props.initAreaCode ?? '',
 })
 watch(form, () => {
@@ -87,14 +88,6 @@ const availableExtraConfig = computed(() => {
 
 const isExtraEditable = computed(() => Object.keys(availableExtraConfig.value).length > 0)
 
-// ==================== 点位图像 ====================
-const { uploadImage, initLoading, largeImage, thumbImage, rawThumbImageUrl, content } = useMarkerPicture(form, {
-  afterUpload: ({ thumb }) => {
-    form.value.pictureCreatorId = userInfoStore.info.id
-    form.value.picture = thumb
-  },
-})
-
 // ==================== 拓展面板 ====================
 const addonPanelRef = ref<HTMLDivElement | null>(null)
 provide(addonPanelRefKey, addonPanelRef)
@@ -111,7 +104,7 @@ const onAddonPanelTransitionEnd = (ev: TransitionEvent) => {
 
 defineExpose({
   validate: async () => await formRef.value?.validate().catch(() => false),
-  uploadPicture: async () => await uploadImage(),
+  uploadPicture: async () => {},
 })
 </script>
 
@@ -147,14 +140,7 @@ defineExpose({
       </el-form-item>
 
       <el-form-item label="点位图像" prop="picture">
-        <AddonImageEditor
-          v-model:large-image="largeImage"
-          v-model:thumb-image="thumbImage"
-          v-model:addon-id="addonId"
-          v-loading="initLoading"
-          :raw-thumb-image-url="rawThumbImageUrl"
-          :content="content"
-        />
+        <AddonImageEditor v-model="form.picture" v-model:addon-id="addonId" />
       </el-form-item>
 
       <el-form-item label="显示状态" prop="hiddenFlag">
