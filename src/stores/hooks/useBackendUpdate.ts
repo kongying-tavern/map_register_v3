@@ -10,13 +10,13 @@ import { Logger } from '@/utils'
 /** 默认更新间隔 30 分钟 */
 const DEFAULT_UPDATE_GAP = 30 * 60 * 1000
 
-const logger = new Logger('[后台更新]', () => !usePreferenceStore().preference['developer.setting.hideDatabaseUpdaterLogger'])
+const logger = new Logger('后台更新', () => !usePreferenceStore().preference['developer.setting.hideDatabaseUpdaterLogger'])
 
 /** 通用后台更新 hook */
 export const useBackendUpdate = <T, Key>(
   table: Dexie.Table<T, Key>,
   getDigestList: () => Awaitable<string[]>,
-  getData: (index: number) => Awaitable<T[]>,
+  getData: (index: number, digest: string) => Awaitable<T[]>,
 ) => {
   const timerId = ref<number>()
 
@@ -112,7 +112,7 @@ export const useBackendUpdate = <T, Key>(
         if (oldDigest?.code === newDigestCode)
           return 0
 
-        const data = await getData(index)
+        const data = await getData(index, newDigestCode)
         const newRange = getRangeOfList(data)
 
         let rewriteRange: DBType.DigestRange<number> | DBType.DigestRange<string> | undefined
