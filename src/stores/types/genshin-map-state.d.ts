@@ -81,6 +81,7 @@ declare namespace GSMapState {
    * @note value 只能为 `API.MarkerVo` 或 `MarkerWithRenderConfig`
    */
   interface TempMarkerTypeMap {
+    focus: MarkerWithRenderConfig[]
     markerLink: API.MarkerVo[]
     markerDragging: MarkerWithRenderConfig[]
   }
