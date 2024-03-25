@@ -12,7 +12,7 @@ import { Logger, messageFrom } from '@/utils'
 import { useRouteStore } from '@/stores'
 import { routerHook } from '@/stores/hooks'
 
-const logger = new Logger('[Router]')
+const logger = new Logger('Router')
 
 const history: RouterHistory = ({
   history: createWebHistory,

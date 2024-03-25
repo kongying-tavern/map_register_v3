@@ -13,7 +13,7 @@ export interface ZipWorkerPayload {
 
 export type ZipWorkerMessage = Uint8Array | string
 
-const logger = new Logger('[Zip Worker]')
+const logger = new Logger('Zip')
 
 /** 解压文件 */
 const decompressFile = async (options: ZipWorkerPayload): Promise<Uint8Array> => {

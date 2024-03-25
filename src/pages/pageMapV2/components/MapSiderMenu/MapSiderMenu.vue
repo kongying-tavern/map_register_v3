@@ -14,7 +14,7 @@ import { ExitLeft } from '@/components/GenshinUI/GSIcon'
 
 const collapse = defineModel<boolean>('collapse', { required: true })
 
-const logger = new Logger('[debug]')
+const logger = new Logger('debug')
 
 const iconTagStore = useIconTagStore()
 const userInfoStore = useUserInfoStore()

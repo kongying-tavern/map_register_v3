@@ -4,7 +4,7 @@ import { Logger } from '@/utils'
 
 export type MapReadyCallbackFunction = (map: GenshinMap) => void
 
-const logger = new Logger('[地图 Hook]')
+const logger = new Logger('地图')
 
 const mapRef = shallowRef<GenshinMap>()
 

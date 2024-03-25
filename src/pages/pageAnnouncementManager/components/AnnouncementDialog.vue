@@ -20,7 +20,7 @@ const emits = defineEmits<{
   success: []
 }>()
 
-const logger = new Logger('[公告]')
+const logger = new Logger('公告')
 
 const formData = ref<API.NoticeVo>(JSON.parse(JSON.stringify(props.form)))
 

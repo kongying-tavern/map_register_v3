@@ -2,9 +2,9 @@ import type { Plugin } from 'vue'
 import { Logger } from '@/utils'
 import { usePreferenceStore } from '@/stores'
 
-const logger = new Logger('[service-worker-register]')
+const logger = new Logger('SW-main')
 
-const swLogger = new Logger('[service-worker]', () => !usePreferenceStore().preference['developer.setting.hideServiceWorkerLogger'])
+const swLogger = new Logger('SW-worker', () => !usePreferenceStore().preference['developer.setting.hideServiceWorkerLogger'])
 
 export type ServiceWorkerOutput = {
   action: 'log'

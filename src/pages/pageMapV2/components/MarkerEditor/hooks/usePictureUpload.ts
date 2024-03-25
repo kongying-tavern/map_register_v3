@@ -10,7 +10,7 @@ export interface PictureUploadHookOptions {
   onPictureChanged?: () => void
 }
 
-const logger = new Logger('[usePictureUpload]')
+const logger = new Logger('图片上传')
 
 const blobToFile = (blob: Blob, filename: string, lastModified = new Date().getTime()) => {
   return new File([blob], filename, { type: blob.type, lastModified })
