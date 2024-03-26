@@ -116,6 +116,7 @@ const contentRef = ref<HTMLElement>()
           rounded-tl-md
           bg-[var(--el-bg-color)]
           transition-[background-color]
+          overflow-hidden
         "
         :class="[show ? 'max-[800px]:pointer-events-none max-[800px]:brightness-[0.4]' : '']"
       />

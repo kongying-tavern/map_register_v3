@@ -69,9 +69,14 @@ const toggleCollapse = () => {
       </div>
     </slot>
 
-    <div v-if="$slots.detail" class="flex flex-col transition-all ease-linear" :class="collapse ? 'max-h-0' : 'max-h-[1000px]'">
+    <div
+      v-if="$slots.detail"
+      class="flex flex-col transition-all ease-linear"
+      :class="collapse ? 'max-h-0' : 'max-h-[1000px]'"
+      @click.stop=""
+    >
       <div class="w-full h-[1px] bg-[var(--el-bg-color)]" />
-      <div class="p-4 pb-6">
+      <div class="p-4">
         <slot name="detail" />
       </div>
     </div>
