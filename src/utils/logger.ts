@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-const debug = import.meta.env.DEV
+const isDebug = import.meta.env.DEV
 
 export interface LoggerOptions {
   dateTimeColor?: string
@@ -81,7 +81,7 @@ export class Logger {
   }
 
   #log = (type: LogType) => (...args: unknown[]) => {
-    if (!debug || !this.#enable())
+    if (!this.#enable())
       return
 
     const timestamp = Date.now()
@@ -91,8 +91,11 @@ export class Logger {
       Logger.event.trigger({ type, timestamp, args })
       return
     }
+
     const logs = [this.#getPrefix(), ...this.#getStyle(), ...args]
-    console[type](...logs)
+
+    isDebug && console[type](...logs)
+
     Logger.event.trigger({ type, timestamp, args: logs })
   }
 
