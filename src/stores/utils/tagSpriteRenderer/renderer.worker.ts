@@ -4,8 +4,6 @@ import { Logger } from '@/utils/logger'
 import { getDigest } from '@/utils/getDigest'
 import { AppDatabase } from '@/database'
 
-const logger = new Logger('图标渲染')
-
 const db = new AppDatabase()
 
 declare const globalThis: DedicatedWorkerGlobalScope
@@ -50,7 +48,7 @@ const loadImage = async (url: string) => {
     .then(blob => createImageBitmap(blob))
 }
 
-const render = async (params: WorkerInput): Promise<WorkerSuccessOutput> => {
+const render = async (params: WorkerInput, logger: Logger): Promise<WorkerSuccessOutput> => {
   const {
     tagList,
     size = 64,
@@ -152,11 +150,16 @@ const render = async (params: WorkerInput): Promise<WorkerSuccessOutput> => {
 }
 
 globalThis.addEventListener('message', async (ev: MessageEvent<WorkerInput>) => {
+  const [mainPort, loggerPort] = ev.ports
+  const logger = new Logger('图标渲染', () => true, {
+    port: loggerPort,
+  })
+
   try {
-    const result = await render(ev.data)
-    globalThis.postMessage(result, [result.image])
+    const result = await render(ev.data, logger)
+    mainPort.postMessage(result, [result.image])
   }
   catch (err) {
-    globalThis.postMessage(err instanceof Error ? err.message : `${err}`)
+    mainPort.postMessage(err instanceof Error ? err.message : `${err}`)
   }
 })

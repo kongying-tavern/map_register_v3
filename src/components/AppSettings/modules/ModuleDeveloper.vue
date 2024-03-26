@@ -1,16 +1,120 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
+import { Delete, Setting } from '@element-plus/icons-vue'
 import { SettingBar, SettingGroup, SettingPanel } from '../components'
-import { usePreferenceStore } from '@/stores'
+import { AppVirtualTable } from '@/components'
+import { useDevStore, usePreferenceStore } from '@/stores'
 import { useBanner } from '@/hooks'
 
+const devStore = useDevStore()
 const { preference } = storeToRefs(usePreferenceStore())
 
 const { visible } = useBanner()
+
+const initLogInfo = (args: unknown[]) => {
+  const str: {
+    style: string
+    text: string
+    object?: boolean
+  }[] = []
+
+  const [prefix, prefixStyle, tagStyle, ...payloads] = args
+
+  const styles: string[] = ['', `${prefixStyle}`, `${tagStyle}`]
+
+  ;`${prefix}`.split('%c').forEach((code, index) => {
+    if (!code)
+      return
+    str.push({
+      style: styles[index] ?? '',
+      text: code,
+    })
+  })
+
+  payloads.forEach((payload) => {
+    const text = `${payload}`
+    if (text === '[object Object]') {
+      str.push({
+        style: 'margin-left: 4px',
+        text: Object.prototype.toString.call(payload).replace(/(\[object )|(\])/g, ''),
+        object: true,
+      })
+      return
+    }
+    str.push({
+      style: 'margin-left: 4px',
+      text,
+    })
+  })
+
+  return str
+}
 </script>
 
 <template>
   <SettingPanel>
+    <SettingGroup name="日志">
+      <div class="logger-list">
+        <AppVirtualTable
+          :data="devStore.logList"
+          :item-height="24"
+          :cached-rows="2"
+          class="logger-list-content"
+        >
+          <template #default="{ item }">
+            <div
+              class="logger-item overflow-hidden whitespace-nowrap text-ellipsis"
+              :class="`is-${item.type}`"
+            >
+              <span
+                v-for="({ style, text, object }, index) in initLogInfo(item.args)"
+                :key="index"
+                :style="style"
+              >
+                <el-button v-if="object" size="small" link type="primary">
+                  {{ text }}
+                </el-button>
+                <template v-else>
+                  {{ text }}
+                </template>
+              </span>
+            </div>
+          </template>
+        </AppVirtualTable>
+      </div>
+
+      <div class="flex justify-end">
+        <el-button :icon="Delete" type="danger" @click="devStore.clearLogs">
+          清空
+        </el-button>
+      </div>
+
+      <SettingBar label="日志可见性" note="控制日志是否在面板上输出" :icon="Setting">
+        <template #detail>
+          <div class="grid grid-cols-3">
+            <el-switch
+              v-model="preference['developer.setting.hideServiceWorkerLogger']"
+              :active-value="false"
+              :inactive-value="true"
+              active-text="Service Worker"
+            />
+            <el-switch
+              v-model="preference['developer.setting.hideDatabaseUpdaterLogger']"
+              :active-value="false"
+              :inactive-value="true"
+              active-text="后台更新"
+            />
+            <el-switch
+              v-model="preference['developer.setting.hideCompositeLayerLogger']"
+              :active-value="false"
+              :inactive-value="true"
+              active-text="图层组"
+            />
+          </div>
+        </template>
+      </SettingBar>
+    </SettingGroup>
+
     <SettingGroup name="调试">
       <SettingBar label="banner" note="banner 控制器">
         <template #setting>
@@ -18,25 +122,48 @@ const { visible } = useBanner()
         </template>
       </SettingBar>
     </SettingGroup>
-
-    <SettingGroup name="日志">
-      <SettingBar label="Service Worker" note="是否隐藏 Service Worker 触发缓存时的日志">
-        <template #setting>
-          <el-switch v-model="preference['developer.setting.hideServiceWorkerLogger']" />
-        </template>
-      </SettingBar>
-
-      <SettingBar label="数据库后台更新" note="是否隐藏数据库后台更新的日志">
-        <template #setting>
-          <el-switch v-model="preference['developer.setting.hideDatabaseUpdaterLogger']" />
-        </template>
-      </SettingBar>
-
-      <SettingBar label="图层组" note="是否隐藏图层组的日志">
-        <template #setting>
-          <el-switch v-model="preference['developer.setting.hideCompositeLayerLogger']" />
-        </template>
-      </SettingBar>
-    </SettingGroup>
   </SettingPanel>
 </template>
+
+<style scoped>
+.logger-list {
+  width: 100%;
+  height: 168px;
+  overflow: hidden;
+  background: #23262A;
+  color: white;
+  font-size: 12px;
+  font-family: monospace;
+  border-radius: 4px;
+}
+
+.logger-list-content {
+  &::-webkit-scrollbar {
+    width: 8px;
+    background-color: #FFFFFF20;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: #FFFFFF60;
+    border-radius: 6px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: #FFFFFF90;
+  }
+}
+
+.logger-item {
+  --item-bg: transparent;
+
+  padding: 2px 4px;
+  background: var(--item-bg);
+  clip-path: inset(1px 4px round 6px);
+
+  &.is-warn {
+    --item-bg: #4E3534;
+  }
+
+  &.is-error {
+    --item-bg: #413C26;
+  }
+}
+</style>

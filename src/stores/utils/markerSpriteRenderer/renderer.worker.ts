@@ -7,8 +7,6 @@ const db = new AppDatabase()
 
 declare const globalThis: DedicatedWorkerGlobalScope
 
-const logger = new Logger('点位渲染')
-
 /** 主线程输入数据 */
 export interface WorkerInput {
   /** 图标标签的精灵图 */
@@ -186,7 +184,7 @@ const createMapping = ({
   unitW,
   singleSize,
   stateCount,
-}: MppingOptions) => {
+}: MppingOptions, logger: Logger) => {
   // 关于 key 的格式
   // `${tag}.${state}.${type}`
   const mapping: IconMapping = {}
@@ -229,7 +227,7 @@ const createMapping = ({
  * 1. 每个图标状态以 64x64 分辨率进行绘制，其中的所有元素不得超过此范围
  * 2. 该函数必须以性能为优先考虑
  */
-const render = async (options: WorkerInput): Promise<WorkerSuccessOutput> => {
+const render = async (options: WorkerInput, logger: Logger): Promise<WorkerSuccessOutput> => {
   const {
     tagSprite,
     tagSpriteDigest,
@@ -270,7 +268,7 @@ const render = async (options: WorkerInput): Promise<WorkerSuccessOutput> => {
     logger.info('缓存有效，跳过预渲染')
     return {
       image: cache.value.image,
-      mapping: createMapping(mappingOptions),
+      mapping: createMapping(mappingOptions, logger),
       tagSpriteDigest,
     }
   }
@@ -335,7 +333,7 @@ const render = async (options: WorkerInput): Promise<WorkerSuccessOutput> => {
   const image = await (await canvas.convertToBlob()).arrayBuffer()
   logger.info('绘制结果', { cols, rows, canvasW, canvasH, byteLength: image.byteLength })
 
-  const mapping = createMapping(mappingOptions)
+  const mapping = createMapping(mappingOptions, logger)
 
   // 更新缓存
   const digest = await getDigest(image, 'SHA-256')
@@ -353,12 +351,17 @@ const render = async (options: WorkerInput): Promise<WorkerSuccessOutput> => {
 }
 
 globalThis.addEventListener('message', async (ev: MessageEvent<WorkerInput>) => {
+  const [mainPort, loggerPort] = ev.ports
+  const logger = new Logger('点位渲染', () => true, {
+    port: loggerPort,
+  })
+
   try {
-    const res = await render(ev.data)
-    globalThis.postMessage(res, [res.image])
+    const res = await render(ev.data, logger)
+    mainPort.postMessage(res, [res.image])
   }
   catch (err) {
     logger.error(err)
-    globalThis.postMessage(err instanceof Error ? err.message : `${err}`)
+    mainPort.postMessage(err instanceof Error ? err.message : `${err}`)
   }
 })

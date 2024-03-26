@@ -5,6 +5,15 @@ export interface LoggerOptions {
   dateTimeColor?: string
   labelBackground?: string
   labelColor?: string
+  port?: MessagePort
+}
+
+export type LogType = 'info' | 'warn' | 'error'
+
+export interface LogInfo {
+  type: LogType
+  timestamp: number
+  args: unknown[]
 }
 
 /** 开发模式下在命令行打印信息 */
@@ -12,6 +21,8 @@ export class Logger {
   #prefix: string
   #options: LoggerOptions
   #enable = () => true
+
+  static event = createEventHook<LogInfo>()
 
   constructor(
     prefix = '',
@@ -69,21 +80,25 @@ export class Logger {
     ]
   }
 
-  info = (...args: unknown[]) => {
+  #log = (type: LogType) => (...args: unknown[]) => {
     if (!debug || !this.#enable())
       return
-    console.log(this.#getPrefix(), ...this.#getStyle(), ...args)
+
+    const timestamp = Date.now()
+
+    if (this.#options.port) {
+      this.#options.port.postMessage({ type, message: args })
+      Logger.event.trigger({ type, timestamp, args })
+      return
+    }
+    const logs = [this.#getPrefix(), ...this.#getStyle(), ...args]
+    console[type](...logs)
+    Logger.event.trigger({ type, timestamp, args: logs })
   }
 
-  warn = (...args: unknown[]) => {
-    if (!debug || !this.#enable())
-      return
-    console.warn(this.#getPrefix(), ...this.#getStyle(), ...args)
-  }
+  info = this.#log('info')
 
-  error = (...args: unknown[]) => {
-    if (!debug || !this.#enable())
-      return
-    console.error(this.#getPrefix(), ...this.#getStyle(), ...args)
-  }
+  warn = this.#log('warn')
+
+  error = this.#log('error')
 }
