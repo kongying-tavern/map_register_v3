@@ -188,10 +188,12 @@ export class GSCompositeLayer extends CompositeLayer {
         if (!tileConfig)
           return
 
-        if (!oldState || newState.areaCode !== this.state.areaCode) {
+        const moveToTarget = () => {
+          if (newState.areaCode === this.state.areaCode)
+            return
           const { target: [x, y], zoom } = tileConfig.initViewState
           const [ox, oy] = tileConfig.tile.center
-          const moveToTarget = () => this.context.deck.setProps({
+          this.context.deck.setProps({
             initialViewState: {
               target: [x + ox, y + oy],
               zoom,
@@ -199,39 +201,15 @@ export class GSCompositeLayer extends CompositeLayer {
               transitionInterpolator: new EaseoutInterpolator(['target', 'zoom']),
             },
           })
-          this.setState(newState)
-          moveToTarget()
-          logger.info('初始化依赖')
         }
-        else {
-          const changeList: string[] = []
-          for (const key in newState) {
-            const newValue = newState[key]
-            const oldValue = oldState[key]
-            let isChange = false
-            if (newValue === undefined)
-              isChange = oldValue !== undefined
-            else if (oldValue === undefined)
-              isChange = true
-            else if (typeof newValue !== 'object')
-              isChange = newValue !== oldValue
-            // TODO 出于性能考虑只比对 length
-            // 目前的交互下新旧长短应该不会出现相同的情况, Map 和 Set 同理
-            else if (Array.isArray(newValue))
-              isChange = newValue.length !== oldValue.length
-            else if (newValue instanceof Map)
-              isChange = newValue.size !== oldValue.size
-            else if (newValue instanceof Set)
-              isChange = newValue.size !== oldValue.size
-            else
-              isChange = JSON.stringify(newValue) !== JSON.stringify(oldValue)
-            isChange && changeList.push(key)
-          }
-          if (!changeList.length)
-            return
-          logger.info('变化的key', changeList)
+        moveToTarget()
+
+        if (!oldState) {
           this.setState(newState)
+          return
         }
+
+        this.setState(newState)
       }, { immediate: true })
     })
     logger.info('初始化作用域', scope)
