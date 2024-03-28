@@ -23,7 +23,7 @@ const percentage = computed(() => 100 * finishedNum.value / totalNum.value || 0)
     }"
     :title="row.name"
   >
-    <div class="w-full flex-1 flex flex-col px-2 justify-center">
+    <div class="w-full flex-1 flex flex-col px-1.5 justify-center">
       <span class="overflow-hidden text-ellipsis whitespace-nowrap">{{ row.name }}</span>
       <span class="collection-text text-xs leading-none">
         {{ finishedNum }} / {{ totalNum }}
