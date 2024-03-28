@@ -29,7 +29,7 @@ export declare namespace MapWindow {
     dragHookId: string
 
     /** 指针按下的事件源 */
-    pointerdown: Observable<{ srcEvent: PointerEvent; target: HTMLElementl; panelId: string } | undefined>
+    pointerdown: Observable<{ srcEvent: PointerEvent; target: HTMLElement; panelId: string } | undefined>
 
     /** 指针移动的事件源 */
     pointermove: Observable<PointerEvent>
