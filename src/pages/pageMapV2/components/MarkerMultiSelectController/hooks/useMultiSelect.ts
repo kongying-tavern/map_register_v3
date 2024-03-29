@@ -1,10 +1,12 @@
 import { Observable, filter, finalize, fromEvent, map, switchMap, takeUntil } from 'rxjs'
 import { useSubscription } from '@vueuse/rxjs'
 import type { PickingInfo } from '@deck.gl/core/typed'
+import KDBush from 'kdbush'
 import { useAccessStore, useMapStateStore } from '@/stores'
 import { genshinMapCanvasKey } from '@/pages/pageMapV2/shared'
 import { useBanner } from '@/hooks'
 import { mapWindowContext } from '@/pages/pageMapV2/components'
+import type { GSMapState } from '@/stores/types/genshin-map-state'
 
 interface MultiSelectHookOptions {
   /** 多选窗口标题 */
@@ -31,6 +33,15 @@ export const useMultiSelect = (options: MultiSelectHookOptions) => {
     data: currentSelectedIds,
     update: setMultiSelecte,
   } = mapStateStore.subscribeInteractionInfo('focus', 'multipleMarkers')
+
+  const markerList = computed(() => {
+    const list: GSMapState.MarkerWithRenderConfig[] = []
+    currentSelectedIds.value?.forEach((id) => {
+      const marker = mapStateStore.currentLayerMarkersMap[id]
+      marker && list.push(marker)
+    })
+    return list
+  })
 
   const {
     pause: pauseFocusMarker,
@@ -110,8 +121,8 @@ export const useMultiSelect = (options: MultiSelectHookOptions) => {
     mapWindowContext.closeWindow(id)
   }
 
-  const initMultiSelect = (ids: Set<number>) => {
-    if (!ids.size) {
+  const toggleMultiSelectWindow = () => {
+    if (!currentSelectedIds.value?.size) {
       closeWindow()
       return
     }
@@ -144,25 +155,19 @@ export const useMultiSelect = (options: MultiSelectHookOptions) => {
       const [startX, startY] = startInfo.coordinate!
       const { currentLayerMarkers } = mapStateStore
 
-      const ids = new Set(currentSelectedIds.value)
-      const oldIds = new Set(currentSelectedIds.value)
+      /** 构造查询树 */
+      const tree = new KDBush(currentLayerMarkers.length)
+      currentLayerMarkers.forEach(({ render: { position: [x, y] } }) => {
+        tree.add(x, y)
+      })
+      tree.finish()
+
+      /** 缓存的旧数据，用于选择逻辑处理 */
+      const oldIds = [...currentSelectedIds.value ?? []]
+      const oldIdsSet = new Set(oldIds)
 
       /** alt 按下时为取消选择模式 */
-      const operate = startEvent.altKey
-        ? (id: number, overSelect: boolean) => {
-            if (overSelect)
-              return
-            ids.delete(id)
-          }
-        : (id: number, overSelect: boolean) => {
-            if (oldIds.has(id))
-              return
-            if (overSelect) {
-              ids.delete(id)
-              return
-            }
-            ids.add(id)
-          }
+      const isRemoveMode = startEvent.altKey
 
       return drag.pipe(
         filter(([info]) => info.coordinate !== undefined),
@@ -172,16 +177,23 @@ export const useMultiSelect = (options: MultiSelectHookOptions) => {
 
           const [moveX, moveY] = moveInfo.coordinate!
 
-          // TODO 性能优化 O(4n)
-          currentLayerMarkers.forEach(({ id, render }) => {
-            const [x, y] = render.position
-            operate(
-              id!,
-              x < Math.min(startX, moveX)
-              || x > Math.max(startX, moveX)
-              || y < Math.min(startY, moveY)
-              || y > Math.max(startY, moveY),
-            )
+          const [xmin, xmax] = startX <= moveX ? [startX, moveX] : [moveX, startX]
+          const [ymin, ymax] = startY <= moveY ? [startY, moveY] : [moveY, startY]
+
+          /** 实际操作的数据 */
+          const ids = new Set(oldIds)
+
+          const operate = isRemoveMode
+            ? ({ id }: GSMapState.MarkerWithRenderConfig) => {
+                ids.delete(id!)
+              }
+            : ({ id }: GSMapState.MarkerWithRenderConfig) => {
+                !oldIdsSet.has(id!) && ids.add(id!)
+              }
+
+          tree.range(xmin, ymin, xmax, ymax).forEach((index) => {
+            const marker = currentLayerMarkers[index]
+            operate(marker)
           })
 
           setMultiSelecte(ids)
@@ -195,7 +207,7 @@ export const useMultiSelect = (options: MultiSelectHookOptions) => {
           mapStateStore.setCursor()
           mapStateStore.setViewPortLocked(false)
           rect.value = undefined
-          initMultiSelect(ids)
+          toggleMultiSelectWindow()
         }),
       )
     }),
@@ -206,6 +218,8 @@ export const useMultiSelect = (options: MultiSelectHookOptions) => {
     width,
     height,
     shape,
+    currentSelectedIds,
+    markerList,
 
     finalizeMission,
     closeWindow,
