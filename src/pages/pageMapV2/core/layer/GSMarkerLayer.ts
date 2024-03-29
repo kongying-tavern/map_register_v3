@@ -54,7 +54,7 @@ export class GSMarkerLayer extends IconLayer<number> {
         return rewritePosition ?? position
       },
       getSize,
-      getColor: id => [0, 0, 0, (transparentMarked && isMarked(id!)) ? 51 : 255],
+      getColor: id => [0, 0, 0, (transparentMarked && isMarked(id!)) ? 128 : 255],
       sizeScale: 1,
       sizeMaxPixels: 40 * 2 ** (zoom + 2),
       sizeMinPixels: 4,

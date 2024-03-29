@@ -19,9 +19,6 @@ export class GSMarkerHoverLayer extends IconLayer<number> {
       hover,
       markerSpriteImage,
       markerSpriteMapping,
-      markedMarkers,
-      archiveHash,
-      transparentMarked,
     } = state
 
     const getSize = focus?.type === 'defaultMarker'
@@ -29,10 +26,6 @@ export class GSMarkerHoverLayer extends IconLayer<number> {
       : focus?.type === 'multipleMarkers'
         ? (id?: number) => focus.value.has(id!) ? 44 : 36
         : 36
-
-    const isMarked = (id: number) => {
-      return markedMarkers.has(id)
-    }
 
     /** 由于 id 进行了重排，需要确保 y 坐标更低的排在后面 */
     const sorter = (idA: number, idB: number) => {
@@ -65,9 +58,8 @@ export class GSMarkerHoverLayer extends IconLayer<number> {
       iconMapping: markerSpriteMapping,
       getIcon: (id) => {
         const { render: { isUnderground, mainIconTag } } = markersMap[id]
-        const state = isMarked(id!) ? 'marked' : 'hover'
         const type = isUnderground ? 'underground' : 'default'
-        return `${mainIconTag}.${state}.${type}`
+        return `${mainIconTag}.hover.${type}`
       },
       getPosition: (id) => {
         const { render: { position } } = markersMap[id]
@@ -75,15 +67,13 @@ export class GSMarkerHoverLayer extends IconLayer<number> {
         return rewritePosition ?? position
       },
       getSize,
-      getColor: id => [0, 0, 0, (transparentMarked && isMarked(id!)) ? 51 : 255],
+      getColor: [0, 0, 0, 255],
       sizeScale: 1,
       sizeMaxPixels: 40 * 2 ** (zoom + 2),
       sizeMinPixels: 4,
       updateTriggers: {
-        getIcon: [hover, archiveHash],
         getPosition: [markerDraggingList],
         getSize: [hover, focus],
-        getColor: [transparentMarked, archiveHash],
       },
     })
   }
