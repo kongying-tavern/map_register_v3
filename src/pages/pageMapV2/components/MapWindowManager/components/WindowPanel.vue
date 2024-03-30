@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { MapWindow } from '../types'
 import { context } from '../core'
+import WindowResizer from './WindowResizer.vue'
 
 defineProps<{
   id: string
@@ -15,7 +16,7 @@ const mainRef = defineModel<HTMLElement | null>('mainRef', {
 
 <template>
   <div
-    class="window-panel"
+    class="window-instance"
     :class="{
       'is-top': context.isTop(id),
     }"
@@ -27,21 +28,20 @@ const mainRef = defineModel<HTMLElement | null>('mainRef', {
     }"
     :[`data-${dragHookId}`]="id"
   >
-    <div
-      class="window-panel-header"
-      data-draggable="true"
-    >
+    <div class="window-header" data-draggable="true">
       <div class="p-1 text-sm pointer-events-none">
         {{ info.name }}
       </div>
     </div>
 
-    <div ref="mainRef" class="window-panel-main" />
+    <div ref="mainRef" class="window-content" />
+
+    <WindowResizer />
   </div>
 </template>
 
 <style scoped>
-.window-panel {
+.window-instance {
   width: calc(var(--w, 400) * 1px);
   border-radius: 6px;
   pointer-events: auto;
@@ -49,7 +49,6 @@ const mainRef = defineModel<HTMLElement | null>('mainRef', {
   left: 0;
   top: 0;
   translate: calc(var(--tx) * 1px) calc(var(--ty) * 1px);
-  overflow: hidden;
   display: flex;
   flex-direction: column;
   z-index: v-bind('info.order');
@@ -60,7 +59,7 @@ const mainRef = defineModel<HTMLElement | null>('mainRef', {
   }
 }
 
-.window-panel-header {
+.window-header {
   height: calc(v-bind('context.HEADER_HEIGHT') * 1px);
   flex-shrink: 0;
   background: linear-gradient(
@@ -70,11 +69,13 @@ const mainRef = defineModel<HTMLElement | null>('mainRef', {
   );
   user-select: none;
   cursor: move;
+  border-radius: 6px 6px 0 0;
 }
 
-.window-panel-main {
+.window-content {
   height: calc(var(--h, 600) * 1px);
   background: var(--el-bg-color);
   overflow: auto;
+  border-radius: 0 0 6px 6px;
 }
 </style>
