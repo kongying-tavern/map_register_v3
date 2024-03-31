@@ -4,6 +4,8 @@ import type { MapWindow } from '../types'
 
 export class WindowContext implements MapWindow.Context {
   readonly HEADER_HEIGHT = 30
+  readonly MIN_WIDTH = 300
+  readonly MIN_HEIGHT = 300
 
   readonly dragHookId = [...crypto.getRandomValues(new Uint8Array(4))].map(num => num.toString(16).padStart(2, '0')).join('')
 
@@ -68,7 +70,7 @@ export class WindowContext implements MapWindow.Context {
     const info = {
       ...params,
       translate: cacheInfo?.translate ?? { x: 0, y: 0 },
-      size: cacheInfo?.size ?? { width: 400, height: 600 },
+      size: cacheInfo?.size ?? { width: 400, height: 500 },
       order: this.topOrder.value + 1,
       ref: null,
     }
@@ -126,6 +128,49 @@ export class WindowContext implements MapWindow.Context {
     target.translate = pos
 
     this.cachedInfos[id].translate = pos
+  }
+
+  resize = (
+    id: string,
+    rect: MapWindow.ResizeProps,
+  ) => {
+    if (!this.cachedInfos[id])
+      return
+
+    const panels = this.panels.value
+    const target = panels[id]
+    if (!target)
+      return
+
+    const {
+      translate,
+      size,
+      minWidth = this.MIN_WIDTH,
+      minHeight = this.MIN_HEIGHT,
+    } = target
+
+    const {
+      x = translate.x,
+      y = translate.y,
+      width = size.width,
+      height = size.height,
+    } = rect
+
+    const resizeWidth = Math.max(width, minWidth)
+    const resizeheight = Math.max(height, minHeight)
+
+    target.translate = {
+      x: resizeWidth === size.width ? translate.x : x,
+      y: resizeheight === size.height ? translate.y : y,
+    }
+
+    target.size = {
+      width: resizeWidth,
+      height: resizeheight,
+    }
+
+    this.cachedInfos[id].translate = target.translate
+    this.cachedInfos[id].size = target.size
   }
 
   /** 优化窗口位置，使其返回可见区域 */

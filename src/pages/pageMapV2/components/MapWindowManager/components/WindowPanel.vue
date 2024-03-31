@@ -3,15 +3,23 @@ import type { MapWindow } from '../types'
 import { context } from '../core'
 import WindowResizer from './WindowResizer.vue'
 
-defineProps<{
+const props = defineProps<{
   id: string
   info: MapWindow.Info
   dragHookId: string
 }>()
 
+const emits = defineEmits<{
+  optimizeWindowPosition: []
+}>()
+
 const mainRef = defineModel<HTMLElement | null>('mainRef', {
   default: null,
 })
+
+const handleResize = (resizeProps: MapWindow.ResizeProps) => {
+  context.resize(props.id, resizeProps)
+}
 </script>
 
 <template>
@@ -36,7 +44,12 @@ const mainRef = defineModel<HTMLElement | null>('mainRef', {
 
     <div ref="mainRef" class="window-content" />
 
-    <WindowResizer />
+    <WindowResizer
+      :size="context.getWindow(id)?.size"
+      :translate="context.getWindow(id)?.translate"
+      @resize="handleResize"
+      @resize-end="() => emits('optimizeWindowPosition')"
+    />
   </div>
 </template>
 

@@ -3,7 +3,7 @@ import { WindowPanel } from './components'
 import { useWindowDrag } from './hooks'
 import { context } from './core'
 
-useWindowDrag(context)
+const { optimizeWindowPosition } = useWindowDrag(context)
 </script>
 
 <template>
@@ -15,6 +15,7 @@ useWindowDrag(context)
       v-model:main-ref="action.ref"
       :info="action"
       :drag-hook-id="context.dragHookId"
+      @optimize-window-position="optimizeWindowPosition"
     />
   </div>
 </template>

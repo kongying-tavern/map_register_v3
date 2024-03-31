@@ -11,9 +11,15 @@ export declare namespace MapWindow {
     height: number
   }
 
+  type ResizeProps = Partial<Coordinate & Size>
+
   interface WindowOpenParams {
     id: string
     name: string
+    /** @default 300 */
+    minWidth?: number
+    /** @default 300 */
+    minHeight?: number
     beforeClose?: () => boolean
   }
 

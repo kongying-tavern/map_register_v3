@@ -8,6 +8,13 @@ export const useWindowDrag = (context: WindowContext) => {
 
   const mapCanvas = inject(genshinMapCanvasKey, ref(null))
 
+  const optimizeWindowPosition = () => {
+    if (!mapCanvas.value)
+      return
+    const { width, height } = mapCanvas.value.getBoundingClientRect()
+    context.optimizeWindowPosition({ inlineSize: width, blockSize: height })
+  }
+
   useSubscription(pointerdown.pipe(
     filter((result) => {
       return result !== undefined
@@ -73,4 +80,8 @@ export const useWindowDrag = (context: WindowContext) => {
     const { contentBoxSize: [boxSize] = [] } = entry
     context.optimizeWindowPosition(boxSize)
   })
+
+  return {
+    optimizeWindowPosition,
+  }
 }

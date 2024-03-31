@@ -1,7 +1,18 @@
 <script setup lang="ts">
 import { fromEvent as fromRefEvent, useSubscription } from '@vueuse/rxjs'
 import type { Observable } from 'rxjs'
-import { filter, fromEvent, map, switchMap, takeUntil } from 'rxjs'
+import { filter, finalize, fromEvent, map, switchMap, takeUntil } from 'rxjs'
+import type { MapWindow } from '../types'
+
+const props = defineProps<{
+  translate: MapWindow.Coordinate
+  size: MapWindow.Size
+}>()
+
+const emits = defineEmits<{
+  resize: [MapWindow.ResizeProps]
+  resizeEnd: []
+}>()
 
 const resizerRef = ref<HTMLElement>() as Ref<HTMLElement>
 
@@ -13,15 +24,51 @@ useSubscription(pointerdown.pipe(
   filter((ev) => {
     return [
       ev.button === 0,
+      ev.target instanceof HTMLElement,
+      props.size !== undefined,
+      props.translate !== undefined,
     ].every(condition => condition)
   }),
 
-  switchMap(() => {
+  switchMap((startEvent) => {
+    const { x: startX, y: startY } = startEvent
+
+    const { x: windowStartX, y: windowStartY } = props.translate
+    const { width: windowStartW, height: windowStartH } = props.size
+
+    const classList = (startEvent.target as HTMLElement).classList
+    const px = classList.contains('px')
+    const py = classList.contains('py')
+    const sx = classList.contains('sx')
+    const sy = classList.contains('sy')
+
+    const getX = px ? (moveX: number) => windowStartX + moveX - startX : () => undefined
+    const getY = py ? (moveY: number) => windowStartY + moveY - startY : () => undefined
+
+    const pxFlagNum = px ? -1 : 1
+    const pyFlagNum = py ? -1 : 1
+
+    const getW = sx ? (moveX: number) => windowStartW + pxFlagNum * (moveX - startX) : () => undefined
+    const getH = sy ? (moveY: number) => windowStartH + pyFlagNum * (moveY - startY) : () => undefined
+
+    const getResizeProps = (moveX: number, moveY: number): MapWindow.ResizeProps => ({
+      x: getX(moveX),
+      y: getY(moveY),
+      width: getW(moveX),
+      height: getH(moveY),
+    })
+
     return pointermove.pipe(
-      map(() => {
+      map((moveEvent) => {
+        const { x, y } = moveEvent
+        emits('resize', getResizeProps(x, y))
       }),
 
       takeUntil(pointerup),
+
+      finalize(() => {
+        emits('resizeEnd')
+      }),
     )
   }),
 ).subscribe())
@@ -117,6 +164,7 @@ const resizeFlags = [
     calc(var(--rb) * var(--border-width))
     calc(var(--rl) * var(--border-width))
   ;
+  transition: border-color ease 150ms;
 
   &:hover {
     --border-color: #7FF5FE;
