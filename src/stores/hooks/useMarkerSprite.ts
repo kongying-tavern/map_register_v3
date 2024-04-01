@@ -1,7 +1,6 @@
 import type { ShallowRef } from 'vue'
 import type { IconMapping } from '@deck.gl/layers/typed/icon-layer/icon-manager'
 import { renderMarkerSprite } from '../utils'
-import { getDigest } from '@/utils'
 
 export interface MarkerSpriteHookOptions {
   tagSprite: Readonly<ShallowRef<Blob | undefined>>
@@ -28,11 +27,8 @@ export const useMarkerSprite = (options: MarkerSpriteHookOptions) => {
     if (!tagSprite.value)
       return
 
-    const tagSpriteDigest = await getDigest(await tagSprite.value.arrayBuffer(), 'SHA-256')
-
     const res = await renderMarkerSprite({
       states,
-      tagSpriteDigest,
       tagsPositionList: tagsPositionList.value,
       tagSprite: await tagSprite.value.arrayBuffer(),
     })

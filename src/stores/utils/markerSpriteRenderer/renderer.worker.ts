@@ -12,9 +12,6 @@ export interface WorkerInput {
   /** 图标标签的精灵图 */
   tagSprite: ArrayBuffer
 
-  /** 图标精灵图的哈希值 */
-  tagSpriteDigest: string
-
   /** 图标标签的坐标 mapping */
   tagsPositionList: DBType.CacheTypes['tagSprite']['tagsPositionList']
 
@@ -29,6 +26,9 @@ export interface WorkerInput {
 
   /** 绘制间隙空间，用于避免舍入精度导致的层叠问题（除非使用奇数尺寸，否则不需要给这个值） */
   gap?: number
+
+  /** 纹理尺寸限制 @default 8192 */
+  textureSizeLimit?: number
 }
 
 interface MppingOptions extends WorkerInput {
@@ -57,10 +57,10 @@ const createSnapshot = ([width, height]: [number, number], draw: (ctx: Offscreen
 }
 
 /**
- * 图片最大尺寸限制
+ * 纹理尺寸限制
  * @note 这个值在 chrome 以外的环境下可能是不同的！
  */
-const IMAGE_MAX_SIZE = 16384
+const DEFAULT_TEXTURE_LIMIT = 8192
 
 /** 内容区相比于图标大小的缩放比，根据 `BORDER_PATH` 的实际情况进行修改 */
 const CONTENT_SCALE = 0.64375
@@ -143,12 +143,13 @@ const UG_ICON = createSnapshot([64, 64], (ctx) => {
 })
 
 /** 编排元素使画板 */
-const arrangeCanvas = ({ tagsPositionList, stateCount, typeCount, iconSize, gap }: {
+const arrangeCanvas = ({ tagsPositionList, stateCount, typeCount, iconSize, gap, textureSizeLimit }: {
   tagsPositionList: DBType.CacheTypes['tagSprite']['tagsPositionList']
   stateCount: number
   typeCount: number
   iconSize: number
   gap: number
+  textureSizeLimit: number
 }) => {
   const unitW = (iconSize + gap) * stateCount * typeCount
   const unitH = iconSize + gap
@@ -159,15 +160,15 @@ const arrangeCanvas = ({ tagsPositionList, stateCount, typeCount, iconSize, gap 
   let width = unitW * cols
   let height = unitH * rows
 
-  while (height > IMAGE_MAX_SIZE && width <= IMAGE_MAX_SIZE) {
+  while (height > textureSizeLimit && width <= textureSizeLimit) {
     cols += 1
     rows = Math.ceil(tagsPositionList.length / cols)
     width = unitW * cols
     height = unitH * rows
   }
 
-  if (width > IMAGE_MAX_SIZE)
-    throw new Error(`预渲染纹理尺寸超出 WebGL 绘图限制`)
+  if (width > textureSizeLimit)
+    throw new Error(`纹理尺寸超出 WebGL 绘图限制`)
 
   return { cols, rows, canvasW: width, canvasH: height, unitW, unitH }
 }
@@ -230,13 +231,15 @@ const createMapping = ({
 const render = async (options: WorkerInput, logger: Logger): Promise<WorkerSuccessOutput> => {
   const {
     tagSprite,
-    tagSpriteDigest,
     tagsPositionList,
     outlineColor = '#33333360',
     states,
     iconSize = 64,
     gap = 0,
+    textureSizeLimit = DEFAULT_TEXTURE_LIMIT,
   } = options
+
+  const tagSpriteDigest = await getDigest(tagSprite, 'SHA-256')
 
   const types: { type: string; icon?: ImageBitmap }[] = [
     { type: 'default' },
@@ -247,7 +250,14 @@ const render = async (options: WorkerInput, logger: Logger): Promise<WorkerSucce
   const typeCount = types.length
 
   // 计算画板尺寸
-  const { cols, rows, canvasW, canvasH, unitW, unitH } = arrangeCanvas({ tagsPositionList, stateCount, iconSize, gap, typeCount })
+  const { cols, rows, canvasW, canvasH, unitW, unitH } = arrangeCanvas({
+    tagsPositionList,
+    stateCount,
+    iconSize,
+    gap,
+    typeCount,
+    textureSizeLimit,
+  })
 
   /** 单个图标的实际占用尺寸 */
   const singleSize = 64 + gap
@@ -263,15 +273,28 @@ const render = async (options: WorkerInput, logger: Logger): Promise<WorkerSucce
   }
 
   // 如果存在缓存，则跳过绘制步骤，只生成 mapping
-  const cache = await db.cache.get('markerSprite')
-  if (cache && cache.id === 'markerSprite' && cache.value.tagSpriteDigest === tagSpriteDigest) {
+  const cache = await (async () => {
+    const cacheInfo = await db.cache.get('markerSprite')
+    if (!cacheInfo || cacheInfo.id !== 'markerSprite' || cacheInfo.value.tagSpriteDigest !== tagSpriteDigest)
+      return
+    // 检查缓存的纹理尺寸是否符合限制要求
+    const { width, height } = await createImageBitmap(new Blob([cacheInfo.value.image], { type: 'image/png' }))
+    if (width > textureSizeLimit || height > textureSizeLimit) {
+      await db.cache.delete(cacheInfo.id)
+      logger.warn('缓存的纹理不符合限制要求，重新生成')
+      return
+    }
     logger.info('缓存有效，跳过预渲染')
     return {
-      image: cache.value.image,
+      image: cacheInfo.value.image,
       mapping: createMapping(mappingOptions, logger),
       tagSpriteDigest,
     }
-  }
+  })()
+  if (cache)
+    return cache
+
+  logger.info('编排画板', { w: canvasW, h: canvasH, unitW, unitH, cols, rows })
 
   const canvas = new OffscreenCanvas(canvasW, canvasH)
   const ctx = canvas.getContext('2d')!
@@ -361,7 +384,7 @@ globalThis.addEventListener('message', async (ev: MessageEvent<WorkerInput>) => 
     mainPort.postMessage(res, [res.image])
   }
   catch (err) {
-    logger.error(err)
+    logger.error(err instanceof Error ? err.message : `${err}`)
     mainPort.postMessage(err instanceof Error ? err.message : `${err}`)
   }
 })
