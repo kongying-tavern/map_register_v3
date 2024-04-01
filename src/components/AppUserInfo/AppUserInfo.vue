@@ -79,6 +79,12 @@ const tab = ref('archive')
   color: #424F65;
   --paint-padding: 2;
   background: paint(user-card-border);
+  @supports not (background: paint(user-card-border)) {
+    background: #F0EBE3;
+    border-radius: 6px;
+    outline: 2px solid #DFD2C0;
+    outline-offset: -8px;
+  }
 }
 
 .bg-card {
@@ -107,6 +113,12 @@ const tab = ref('archive')
   filter: drop-shadow(0 0 12px rgba(150, 150, 150, 0.2));
   animation: rotateIn 400ms forwards;
   position: relative;
+  @supports not (background: paint(user-card-border)) {
+    background: #F0EBE3;
+    border-radius: 6px;
+    outline: 4px solid #E4D8C1;
+    outline-offset: -8px;
+  }
 }
 
 .banner {

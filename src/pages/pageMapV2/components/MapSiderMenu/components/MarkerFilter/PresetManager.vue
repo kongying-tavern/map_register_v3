@@ -127,5 +127,11 @@ const { savePreset, deletePreset, loadPreset } = usePresets({
   height: 600px;
   max-width: 100dvw;
   max-height: 100dvh;
+  @supports not (background: paint(user-card-border)) {
+    background: #3E4556;
+    border-radius: 24px;
+    outline: 6px solid #393E52;
+    outline-offset: -6px;
+  }
 }
 </style>

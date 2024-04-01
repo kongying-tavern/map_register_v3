@@ -114,6 +114,12 @@ provide(mapSidermenuKey, mapSidermenuRef)
   background: paint(map-sidebar);
   transition: all ease 150ms;
   opacity: 1;
+  @supports not (background: paint(user-card-border)) {
+    width: 74px;
+    background: #485163;
+    border: 2px solid #8F8779;
+    border-width: 0 2px 0 2px;
+  }
 
   &.is-collapse {
     opacity: 0;

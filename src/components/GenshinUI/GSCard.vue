@@ -22,6 +22,12 @@ defineProps<{
 .gs-card-dark {
   background: paint(dark-card-border);
   padding: 36px;
+  @supports not (background: paint(user-card-border)) {
+    background: #3E4556;
+    border-radius: 24px;
+    outline: 6px solid #393E52;
+    outline-offset: -6px;
+  }
 }
 
 .gs-card-title {

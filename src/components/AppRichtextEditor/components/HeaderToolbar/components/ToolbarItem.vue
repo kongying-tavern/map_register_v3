@@ -178,6 +178,9 @@ const handleClick = (ev: MouseEvent) => {
 
   &.is-hidden {
     content-visibility: hidden;
+    @supports not (content-visibility: hidden) {
+      display: none;
+    }
   }
 }
 </style>
