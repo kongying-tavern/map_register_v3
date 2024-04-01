@@ -114,6 +114,7 @@ export const useMultiSelect = (options: MultiSelectHookOptions) => {
     mapStateStore.setViewPortLocked(false)
     mapStateStore.setIsPopoverOnHover(false)
     mapStateStore.setCursor()
+    mapStateStore.setTempMarkers('markerMultiSelect', [])
     rect.value = undefined
   }
 
@@ -206,6 +207,7 @@ export const useMultiSelect = (options: MultiSelectHookOptions) => {
         finalize(() => {
           mapStateStore.setCursor()
           mapStateStore.setViewPortLocked(false)
+          mapStateStore.setTempMarkers('markerMultiSelect', markerList.value)
           rect.value = undefined
           toggleMultiSelectWindow()
         }),

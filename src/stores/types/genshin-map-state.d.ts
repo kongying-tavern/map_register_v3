@@ -83,6 +83,7 @@ declare namespace GSMapState {
   interface TempMarkerTypeMap {
     focus: MarkerWithRenderConfig[]
     markerLink: API.MarkerVo[]
+    markerMultiSelect: MarkerWithRenderConfig[]
     markerDragging: MarkerWithRenderConfig[]
   }
 
