@@ -41,7 +41,7 @@ interface MppingOptions extends WorkerInput {
 }
 
 /** 主线程接收数据 */
-export type WorkerSuccessOutput = DBType.MarkerSprite
+export type WorkerSuccessOutput = Omit<DBType.MarkerSprite, 'tagSpriteDigest'>
 
 /** 主线程接收数据 */
 export type WorkerOutput =
@@ -370,7 +370,7 @@ const render = async (options: WorkerInput, logger: Logger): Promise<WorkerSucce
     digest,
   })
 
-  return { image, mapping, tagSpriteDigest: '' }
+  return { image, mapping }
 }
 
 globalThis.addEventListener('message', async (ev: MessageEvent<WorkerInput>) => {
