@@ -159,11 +159,11 @@ const initLogInfo = (args: unknown[]) => {
   clip-path: inset(1px 4px round 6px);
 
   &.is-warn {
-    --item-bg: #4E3534;
+    --item-bg: #413C26;
   }
 
   &.is-error {
-    --item-bg: #413C26;
+    --item-bg: #4E3534;
   }
 }
 </style>
