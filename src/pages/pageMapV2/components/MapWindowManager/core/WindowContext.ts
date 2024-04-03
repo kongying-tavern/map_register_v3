@@ -4,8 +4,8 @@ import type { MapWindow } from '../types'
 
 export class WindowContext implements MapWindow.Context {
   readonly HEADER_HEIGHT = 30
-  readonly MIN_WIDTH = 300
-  readonly MIN_HEIGHT = 300
+  readonly MIN_WIDTH = 400
+  readonly MIN_HEIGHT = 400
 
   readonly dragHookId = [...crypto.getRandomValues(new Uint8Array(4))].map(num => num.toString(16).padStart(2, '0')).join('')
 
@@ -66,11 +66,12 @@ export class WindowContext implements MapWindow.Context {
   openWindow = (params: MapWindow.WindowOpenParams) => {
     if (this.panels.value[params.id])
       return
+    const { minWidth = this.MIN_WIDTH, minHeight = this.MIN_HEIGHT } = params
     const cacheInfo = this.cachedInfos[params.id]
     const info = {
       ...params,
       translate: cacheInfo?.translate ?? { x: 0, y: 0 },
-      size: cacheInfo?.size ?? { width: 400, height: 500 },
+      size: cacheInfo?.size ?? { width: minWidth, height: minHeight },
       order: this.topOrder.value + 1,
       ref: null,
     }
