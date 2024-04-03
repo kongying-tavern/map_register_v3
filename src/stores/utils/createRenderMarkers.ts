@@ -1,48 +1,13 @@
 import type { GSMapState } from '../types/genshin-map-state'
 import type { AreaTileConfig } from '@/stores'
 import type { MarkerExtra } from '@/utils'
+import { pickMainItem } from '@/utils'
 
 export interface NormalizeMarkerOptions {
   tileConfigs: Record<string, AreaTileConfig>
   itemIdMap: Map<number, API.ItemVo>
   areaIdMap: Map<number, API.AreaVo>
   isTemporary?: boolean
-}
-
-// TODO 抽离为设置，根据设置的图标选择策略来选择主渲染图标 id
-const pickMainItem = ({ itemList = [] }: API.MarkerVo, itemIdMap: Map<number, API.ItemVo>) => {
-  const restItemIds: number[] = []
-  const restIconTags: string[] = []
-
-  let index = -1
-  let mainItem: API.ItemVo | undefined
-
-  itemList.forEach(({ itemId = -1 }) => {
-    const item = itemIdMap.get(itemId)
-    if (!item)
-      return
-
-    if (!mainItem) {
-      mainItem = item
-      index = item.sortIndex ?? -1
-      return
-    }
-
-    // 将 sortIndex 更大的作为主渲染图标
-    const { sortIndex = -1 } = item
-    if (sortIndex <= index)
-      return
-
-    mainItem = item
-    index = sortIndex
-  })
-
-  return {
-    mainItemId: mainItem!.id!,
-    restItemIds,
-    mainIconTag: mainItem!.iconTag!,
-    restIconTags,
-  }
 }
 
 /** 为点位列表附加渲染配置 */
