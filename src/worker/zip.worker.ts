@@ -13,15 +13,15 @@ export interface ZipWorkerPayload {
 
 export type ZipWorkerMessage = Uint8Array | string
 
-const logger = new Logger('Zip')
-
 /** 解压文件 */
 const decompressFile = async (options: ZipWorkerPayload): Promise<Uint8Array> => {
   const { data, wasm, log = false } = options
 
+  const logger = new Logger('Zip', () => log)
+
   const zip = await SevenZip({
     wasmBinary: wasm,
-    stdout: code => log ? logger.stdout.write(String.fromCharCode(code)) : 0,
+    stdout: code => logger.stdout.write(String.fromCharCode(code)),
   })
 
   const tempFilename = 'temp.bin'
