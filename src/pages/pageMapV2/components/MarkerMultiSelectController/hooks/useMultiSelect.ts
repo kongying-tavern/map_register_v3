@@ -130,6 +130,7 @@ export const useMultiSelect = (options: MultiSelectHookOptions) => {
     mapWindowContext.openWindow({
       id,
       name: windowName,
+      minWidth: 700,
     })
   }
 
