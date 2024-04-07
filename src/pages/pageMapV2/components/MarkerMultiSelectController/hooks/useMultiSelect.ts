@@ -20,6 +20,8 @@ export const useMultiSelect = (options: MultiSelectHookOptions) => {
 
   const id = crypto.randomUUID()
 
+  const finalizeHook = createEventHook<void>()
+
   const accessStore = useAccessStore()
   const mapStateStore = useMapStateStore()
 
@@ -116,6 +118,7 @@ export const useMultiSelect = (options: MultiSelectHookOptions) => {
     mapStateStore.setCursor()
     mapStateStore.setTempMarkers('markerMultiSelect', [])
     rect.value = undefined
+    finalizeHook.trigger()
   }
 
   const closeWindow = () => {
@@ -226,5 +229,6 @@ export const useMultiSelect = (options: MultiSelectHookOptions) => {
 
     finalizeMission,
     closeWindow,
+    onFinalize: finalizeHook.on,
   }
 }
