@@ -90,10 +90,12 @@ const selectedType = computed(() => {
 // ==================== 物品 ====================
 const accessItemList = computed(() => {
   const { isNeigui } = userInfoStore
-  return itemList.value.filter(({ hiddenFlag }) => isNeigui
-    ? hiddenFlag !== HiddenFlagEnum.HIDDEN
-    : hiddenFlag === HiddenFlagEnum.SHOW,
-  )
+  return itemList.value
+    .sort(({ sortIndex: ia = -1 }, { sortIndex: ib = -1 }) => ib - ia)
+    .filter(({ hiddenFlag }) => isNeigui
+      ? hiddenFlag !== HiddenFlagEnum.HIDDEN
+      : hiddenFlag === HiddenFlagEnum.SHOW,
+    )
 })
 
 const visibleItemList = computed<API.ItemVo[]>(() => {
