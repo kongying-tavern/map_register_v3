@@ -13,6 +13,9 @@ import {
   MarkerPopover,
   ZoomController,
 } from './components'
+import { useAccessStore } from '@/stores'
+
+const accessStore = useAccessStore()
 
 const canvasRef = ref() as Ref<HTMLCanvasElement>
 const mutuallyExclusiveLayerRef = ref<HTMLElement | null>(null)
@@ -66,7 +69,7 @@ provide(mapAffixLayerKey, mapAffixLayerRef)
       class="mutually-exclusive-layer absolute left-0 top-0 w-full h-full pointer-events-none"
     >
       <MarkerMoveController />
-      <MarkerMultiSelectController />
+      <MarkerMultiSelectController v-if="accessStore.get('MARKER_BATCH_EDIT')" />
     </div>
   </div>
 </template>
