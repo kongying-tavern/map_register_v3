@@ -36,7 +36,7 @@ const mapAffixLayerRef = inject(mapAffixLayerKey, ref(null))
 </script>
 
 <template>
-  <div class="w-[400px] min-h-[500px] h-full flex flex-col">
+  <div class="w-full h-full flex flex-col">
     <div class="w-full flex flex-col gap-2 px-2 pt-2">
       <div class="flex justify-between items-center">
         <MarkerInfo :marker="context.sourceMarker.value" placeholder="选择源点" color="#FF0" />
