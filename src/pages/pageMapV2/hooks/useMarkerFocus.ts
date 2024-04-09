@@ -79,11 +79,11 @@ export const _useMarkerFocus = () => {
   watch(() => [focus.value, hover.value, mapStateStore.isPopoverOnHover] as const, ([currentFocus, currentHover, isPopoverOnHover]) => {
     const target = isPopoverOnHover ? currentHover : currentFocus
     if (!target) {
-      mapStateStore.setTempMarkers('focus', [])
+      !isPopoverOnHover && mapStateStore.setTempMarkers('focus', [])
       return
     }
     cachedMarkerVo.value = target
-    mapStateStore.setTempMarkers('focus', [target])
+    !isPopoverOnHover && mapStateStore.setTempMarkers('focus', [target])
   })
 
   return {
