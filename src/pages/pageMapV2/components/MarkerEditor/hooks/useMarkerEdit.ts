@@ -66,8 +66,6 @@ export const useMarkerEdit = (markerData: Ref<API.MarkerVo | null>) => {
 
   /** 原始操作 */
   const request = async () => {
-    await editorRef.value?.uploadPicture()
-
     const marker = markerData.value
     if (!marker)
       throw new Error('表单数据为空')
@@ -100,10 +98,12 @@ export const useMarkerEdit = (markerData: Ref<API.MarkerVo | null>) => {
     }
   }
 
-  onSuccess(() => ElMessage.success({
-    message: `${userInfoStore.isAdmin ? '编辑点位' : '提交审核'}成功`,
-    offset: 48,
-  }))
+  onSuccess(() => {
+    ElMessage.success({
+      message: `${userInfoStore.isAdmin ? '编辑点位' : '提交审核'}成功`,
+      offset: 48,
+    })
+  })
 
   onError(err => ElMessage.error({
     message: `${userInfoStore.isAdmin ? '编辑点位' : '提交审核'}失败，原因为：${err.message}`,

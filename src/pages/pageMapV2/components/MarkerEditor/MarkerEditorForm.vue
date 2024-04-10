@@ -104,7 +104,6 @@ const onAddonPanelTransitionEnd = (ev: TransitionEvent) => {
 
 defineExpose({
   validate: async () => await formRef.value?.validate().catch(() => false),
-  uploadPicture: async () => {},
 })
 </script>
 
