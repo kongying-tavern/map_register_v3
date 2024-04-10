@@ -29,12 +29,13 @@ const { itemList, itemIdMap } = storeToRefs(useItemStore())
 const { itemTypeIdMap } = storeToRefs(useItemTypeStore())
 const { markerBasicFilters } = storeToRefs(useMapStateStore())
 const { preference } = storeToRefs(usePreferenceStore())
+const { markerList } = storeToRefs(useMarkerStore())
 
 // ==================== 其他 ====================
 interface Sortable {
   sortIndex?: number
 }
-const sort = (a: Sortable, b: Sortable) => {
+const indexSorter = (a: Sortable, b: Sortable) => {
   const { sortIndex: ia = 0 } = a
   const { sortIndex: ib = 0 } = b
   return ib - ia
@@ -49,13 +50,22 @@ const autoNextTab = () => {
   preference.value['markerFilter.state.step'] += 1
 }
 
+const archivedMarkers = asyncComputed(async () => {
+  const archivedMarkerIds = [...archiveStore.currentArchive.body.Data_KYJG]
+  const archivedMarkers: API.MarkerVo[] = []
+  await db.marker.where('id').anyOf(archivedMarkerIds).each((marker) => {
+    archivedMarkers.push(marker)
+  })
+  return archivedMarkers
+}, [])
+
 // ==================== 地区 ====================
 const accessAreaList = computed<API.AreaVo[]>(() => {
   const { isNeigui } = userInfoStore
   return areaList.value.filter(({ hiddenFlag }) => isNeigui
     ? hiddenFlag !== HiddenFlagEnum.HIDDEN
     : hiddenFlag === HiddenFlagEnum.SHOW,
-  )
+  ).sort(indexSorter)
 })
 
 const parentAreaList = computed<API.AreaVo[]>(() => accessAreaList.value.filter(area => !area.isFinal))
@@ -77,7 +87,7 @@ const selectedArea = computed(() => areaCodeMap.value.get(preference.value['mark
 // ==================== 分类 ====================
 const itemTypeList = asyncComputed<API.ItemTypeVo[]>(async () => {
   const res = await db.itemType.filter(type => Boolean(type.isFinal)).toArray()
-  return res.sort(sort)
+  return res.sort(indexSorter)
 }, [])
 
 const selectedType = computed(() => {
@@ -88,24 +98,38 @@ const selectedType = computed(() => {
 })
 
 // ==================== 物品 ====================
+
+/** 当前地区可用的全部物品 */
 const accessItemList = computed(() => {
   const { isNeigui } = userInfoStore
-  return itemList.value
-    .sort(({ sortIndex: ia = -1 }, { sortIndex: ib = -1 }) => ib - ia)
+  const area = selectedArea.value
+  if (!area)
+    return []
+  return [...itemList.value]
     .filter(({ hiddenFlag }) => isNeigui
       ? hiddenFlag !== HiddenFlagEnum.HIDDEN
       : hiddenFlag === HiddenFlagEnum.SHOW,
     )
+    .filter(item => item.areaId === area.id)
+    .sort(indexSorter)
 })
 
+/** 当前分类可用的全部物品 */
 const visibleItemList = computed<API.ItemVo[]>(() => {
-  const area = selectedArea.value
   const type = selectedType.value
-  if (!area || !type)
+  if (!type)
     return []
   return accessItemList.value
-    .filter(item => item.areaId === area.id)
     .filter(({ typeIdList = [] }) => new Set(typeIdList).has(type.id!))
+})
+
+/** 当前分类可用的全部物品 id */
+const visibleItemIds = computed(() => {
+  const set = new Set<number>()
+  accessItemList.value.forEach(({ id }) => {
+    set.add(id!)
+  })
+  return set
 })
 
 /** 该项用于精细显示在当前分类下已选的物品数 */
@@ -121,23 +145,43 @@ const selectedItemCount = computed(() => {
   }, 0)
 })
 
+// ==================== 分类计数 ====================
+
+const calculateTypeCount = (markers: API.MarkerVo[]) => {
+  return markers.reduce((seed, marker) => {
+    marker.itemList?.forEach(({ itemId }) => {
+      if (!visibleItemIds.value.has(itemId!))
+        return
+      const item = itemIdMap.value.get(itemId!)
+      if (!item)
+        return seed
+      item.typeIdList?.forEach((typeId) => {
+        seed[typeId] = (seed[typeId] ?? 0) + 1
+      })
+      return seed
+    })
+    return seed
+  }, {} as Record<number, number>)
+}
+
+const typeTotalMap = computed(() => calculateTypeCount(markerList.value))
+
+const typeCountMap = computed(() => calculateTypeCount(archivedMarkers.value))
+
 // ==================== 物品计数 ====================
-const { markerList } = storeToRefs(useMarkerStore())
 
-const countMarkerItems = (markers: (API.MarkerVo | undefined)[]) => markers.reduce((seed: { [itemId: number]: number }, marker?: API.MarkerVo) => {
-  marker?.itemList?.forEach((item) => {
-    seed[item.itemId!] = (seed[item.itemId!] ?? 0) + 1
-  })
-  return seed
-}, {} as Record<number, number>)
+const calculateItemCount = (markers: API.MarkerVo[]) => {
+  return markers.reduce((seed, marker: API.MarkerVo) => {
+    marker.itemList?.forEach((item) => {
+      seed[item.itemId!] = (seed[item.itemId!] ?? 0) + 1
+    })
+    return seed
+  }, {} as Record<number, number>)
+}
 
-const itemTotalMap = computed(() => countMarkerItems(markerList.value))
+const itemTotalMap = computed(() => calculateItemCount(markerList.value))
 
-const itemCountMap = asyncComputed(async () => {
-  const archivedMarkerIds = [...archiveStore.currentArchive.body.Data_KYJG]
-  const archivedMarkers = await db.marker.bulkGet(archivedMarkerIds)
-  return countMarkerItems(archivedMarkers)
-}, {})
+const itemCountMap = computed(() => calculateItemCount(archivedMarkers.value))
 
 // ==================== 打点物品 ====================
 const dropzoneRef = ref<HTMLElement | null>(null)
@@ -238,6 +282,14 @@ const handleDragItem = (ev: DragEvent) => {
           class="w-full aspect-square"
         />
       </template>
+      <template #default="{ row, actived }">
+        <ItemButton
+          :finished-num="typeCountMap[row.id!]"
+          :total-num="typeTotalMap[row.id!]"
+          :name="row.name"
+          :actived="actived"
+        />
+      </template>
     </CheckboxGroup>
 
     <CheckboxGroup
@@ -259,7 +311,12 @@ const handleDragItem = (ev: DragEvent) => {
         />
       </template>
       <template #default="{ row, actived }">
-        <ItemButton :item-count-map="itemCountMap" :item-total-map="itemTotalMap" :row="row" :actived="actived" />
+        <ItemButton
+          :finished-num="itemCountMap[row.id!]"
+          :total-num="itemTotalMap[row.id!]"
+          :name="row.name"
+          :actived="actived"
+        />
       </template>
     </CheckboxGroup>
   </div>
@@ -291,7 +348,11 @@ const handleDragItem = (ev: DragEvent) => {
       </template>
       <template #default>
         <div class="marking-item--content">
-          <ItemButton :item-count-map="itemCountMap" :item-total-map="itemTotalMap" :row="defaultMarkingItem" actived />
+          <ItemButton
+            :name="defaultMarkingItem.name"
+            :finished-num="itemCountMap[defaultMarkingItem.id!]"
+            actived
+          />
           <div class="grid px-2 place-items-center" style="background-color: var(--gs-color-danger);">
             <el-icon :size="20" color="#FFF">
               <DeleteFilled />
