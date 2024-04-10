@@ -13,7 +13,7 @@ import { useGlobalDialog } from '@/hooks'
 const mapStateStore = useMapStateStore()
 const { tagSpriteUrl, tagPositionMap } = storeToRefs(useIconTagStore())
 
-const { cachedMarkerVo, isPopoverActived, focus, blur } = useMarkerFocus()
+const { cachedMarkerVo, isPopoverActived, focus, updateLoading, blur } = useMarkerFocus()
 
 const { pictureUrl, loading: imageLoading } = useSkeletonPicture(cachedMarkerVo)
 
@@ -128,7 +128,12 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
         </template>
 
         <template #footer>
-          <GSButton size="small" theme="dark" :disabled="hasMapMission" @click="openMarkerEditor">
+          <GSButton
+            size="small"
+            theme="dark"
+            :disabled="updateLoading || hasMapMission"
+            @click="openMarkerEditor"
+          >
             <template #icon>
               <el-icon color="#F7BA3F">
                 <Edit />
@@ -137,16 +142,27 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
             编辑
           </GSButton>
 
-          <GSButton :theme="isFinished ? undefined : 'dark'" class="flex-1" size="small" @click="isFinished = !isFinished">
+          <GSButton
+            :theme="isFinished ? undefined : 'dark'"
+            :disabled="updateLoading"
+            class="flex-1" size="small"
+            @click="isFinished = !isFinished"
+          >
             <template #icon>
               <el-icon :color="isFinished ? 'var(--el-color-success)' : 'var(--el-color-info)'">
                 <component :is="isFinished ? Check : CirclePlus" />
               </el-icon>
             </template>
-            {{ isFinished ? '已完成' : '完成' }}
+            {{ updateLoading ? '更新中' : isFinished ? '已完成' : '完成' }}
           </GSButton>
 
-          <GSButton :theme="isMoving ? undefined : 'dark'" size="small" :disabled="!isEnable" title="移动点位" @click="isMoving = !isMoving">
+          <GSButton
+            :theme="isMoving ? undefined : 'dark'"
+            size="small"
+            :disabled="!isEnable || updateLoading"
+            title="移动点位"
+            @click="isMoving = !isMoving"
+          >
             <template #icon>
               <el-icon color="#F7BA3F">
                 <Rank />
@@ -154,7 +170,13 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
             </template>
           </GSButton>
 
-          <GSButton size="small" theme="dark" title="删除点位" :disabled="hasMapMission" @click="() => confirmDeleteMarker(cachedMarkerVo)">
+          <GSButton
+            size="small"
+            theme="dark"
+            title="删除点位"
+            :disabled="updateLoading || hasMapMission"
+            @click="() => confirmDeleteMarker(cachedMarkerVo)"
+          >
             <template #icon>
               <el-icon color="#CF5945">
                 <DeleteFilled />

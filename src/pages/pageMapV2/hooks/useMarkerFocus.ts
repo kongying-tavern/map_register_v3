@@ -3,9 +3,12 @@ import { useAreaStore, useItemStore, useMapStateStore, usePreferenceStore, useTi
 import type { GSMapState } from '@/stores/types/genshin-map-state'
 import { createRenderMarkers } from '@/stores/utils'
 import { useDatabaseHook } from '@/hooks'
+import { Logger, messageFrom } from '@/utils'
 
 /** 点位 focus 状态管理 hook */
 export const _useMarkerFocus = () => {
+  const logger = new Logger('markerFocusHook')
+
   const preferenceStore = usePreferenceStore()
   const mapStateStore = useMapStateStore()
   const areaStore = useAreaStore()
@@ -14,21 +17,6 @@ export const _useMarkerFocus = () => {
 
   /** 缓存的点位信息, 用于在关闭弹窗时保持信息，使动画显示状态平滑 */
   const cachedMarkerVo = shallowRef<GSMapState.MarkerWithRenderConfig | null>(null)
-
-  useDatabaseHook(db.marker, async () => {
-    if (!cachedMarkerVo.value)
-      return
-    const query = await db.marker.get(cachedMarkerVo.value.id!)
-    if (!query) {
-      cachedMarkerVo.value = null
-      return
-    }
-    cachedMarkerVo.value = createRenderMarkers([query], {
-      areaIdMap: areaStore.areaIdMap,
-      itemIdMap: itemStore.itemIdMap,
-      tileConfigs: tileStore.mergedTileConfigs,
-    })[0]
-  }, ['creating', 'updating', 'deleting'])
 
   const { data: focus, update: updateFocus } = mapStateStore.subscribeInteractionInfo('focus', 'defaultMarker')
 
@@ -59,6 +47,29 @@ export const _useMarkerFocus = () => {
         tileConfigs: tileStore.mergedTileConfigs,
       })[0]
   }
+
+  const updateLoading = ref(false)
+
+  // 数据库更新时刷新 focus 缓存
+  useDatabaseHook(db.marker, async () => {
+    try {
+      if (!isPopoverActived.value || !focus.value)
+        return
+      updateLoading.value = true
+      const query = await db.marker.get(focus.value.id!)
+      if (!query) {
+        updateFocus(null)
+        return
+      }
+      updateFocus(normalizeMarker(query))
+    }
+    catch (err) {
+      logger.error(messageFrom(err))
+    }
+    finally {
+      updateLoading.value = false
+    }
+  }, ['creating', 'updating', 'deleting'])
 
   const isInDelay = ref(false)
 
@@ -107,6 +118,8 @@ export const _useMarkerFocus = () => {
     isPopoverActived,
     cachedMarkerVo,
     focus,
+    updateLoading,
+    normalizeMarker,
     focusMarker,
     blur,
     hoverMarker,
