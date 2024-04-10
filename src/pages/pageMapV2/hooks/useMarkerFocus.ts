@@ -1,6 +1,8 @@
+import db from '@/database'
 import { useAreaStore, useItemStore, useMapStateStore, usePreferenceStore, useTileStore } from '@/stores'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
 import { createRenderMarkers } from '@/stores/utils'
+import { useDatabaseHook } from '@/hooks'
 
 /** 点位 focus 状态管理 hook */
 export const _useMarkerFocus = () => {
@@ -12,6 +14,21 @@ export const _useMarkerFocus = () => {
 
   /** 缓存的点位信息, 用于在关闭弹窗时保持信息，使动画显示状态平滑 */
   const cachedMarkerVo = shallowRef<GSMapState.MarkerWithRenderConfig | null>(null)
+
+  useDatabaseHook(db.marker, async () => {
+    if (!cachedMarkerVo.value)
+      return
+    const query = await db.marker.get(cachedMarkerVo.value.id!)
+    if (!query) {
+      cachedMarkerVo.value = null
+      return
+    }
+    cachedMarkerVo.value = createRenderMarkers([query], {
+      areaIdMap: areaStore.areaIdMap,
+      itemIdMap: itemStore.itemIdMap,
+      tileConfigs: tileStore.mergedTileConfigs,
+    })[0]
+  }, ['creating', 'updating', 'deleting'])
 
   const { data: focus, update: updateFocus } = mapStateStore.subscribeInteractionInfo('focus', 'defaultMarker')
 
