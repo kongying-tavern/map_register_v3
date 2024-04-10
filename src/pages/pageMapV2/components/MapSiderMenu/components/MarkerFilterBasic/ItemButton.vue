@@ -1,14 +1,15 @@
 <script lang="ts" setup>
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   actived: boolean
-  row: API.ItemVo
-  itemCountMap: Record<number, number>
-  itemTotalMap: Record<number, number>
-}>()
+  name?: string
+  finishedNum?: number
+  totalNum?: number
+}>(), {
+  finishedNum: 0,
+  totalNum: 0,
+})
 
-const finishedNum = computed(() => props.itemCountMap[props.row.id!] ?? 0)
-const totalNum = computed(() => props.itemTotalMap[props.row.id!] ?? 0)
-const percentage = computed(() => 100 * finishedNum.value / totalNum.value || 0)
+const percentage = computed(() => (100 * props.finishedNum / props.totalNum) || 0)
 </script>
 
 <template>
@@ -21,10 +22,10 @@ const percentage = computed(() => 100 * finishedNum.value / totalNum.value || 0)
     :style="{
       '--percentage': `${percentage}%`,
     }"
-    :title="row.name"
+    :title="name"
   >
     <div class="w-full flex-1 flex flex-col px-1.5 justify-center">
-      <span class="overflow-hidden text-ellipsis whitespace-nowrap">{{ row.name }}</span>
+      <span class="overflow-hidden text-ellipsis whitespace-nowrap">{{ name }}</span>
       <span class="collection-text text-xs leading-none">
         {{ finishedNum }} / {{ totalNum }}
       </span>
