@@ -24,7 +24,9 @@ export const useDatabaseHook = (table: Dexie.Table, cb: () => void, types: Dexie
     maybeTransaction.on('complete', cb)
   }
 
-  types.forEach(hookType => table.hook(hookType).subscribe(rewriteCallback))
+  onActivated(() => {
+    types.forEach(hookType => table.hook(hookType).subscribe(rewriteCallback))
+  })
 
   onDeactivated(() => {
     types.forEach(hookType => table.hook(hookType).unsubscribe(rewriteCallback))
