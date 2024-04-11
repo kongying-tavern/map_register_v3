@@ -119,7 +119,6 @@ export const useTweaks = (markerList: ComputedRef<GSMapState.MarkerWithRenderCon
 
   const tweakList = shallowRef<TweakControlInfo[]>([])
   const tweakData = ref(new Map<string, API.TweakConfigMetaVo>())
-
   const selectedIndex = ref(-1)
 
   const modifiedMarkerList = computed(() => {
@@ -183,6 +182,7 @@ export const useTweaks = (markerList: ComputedRef<GSMapState.MarkerWithRenderCon
   }
 
   const clearTweaks = () => {
+    selectedIndex.value = -1
     tweakList.value = []
     tweakData.value.clear()
   }
