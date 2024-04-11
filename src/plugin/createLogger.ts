@@ -6,7 +6,7 @@ import { Logger } from '@/utils'
 export const createLogger = (): Plugin => ({
   install: () => {
     const devStore = useDevStore()
-    Logger.event.on((log) => {
+    Logger.event.on('log', (log) => {
       devStore.logList.push(log)
     })
   },

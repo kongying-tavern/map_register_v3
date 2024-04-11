@@ -1,3 +1,5 @@
+import { EventBus } from '@/utils/EventBus'
+
 /* eslint-disable no-console */
 const isDebug = import.meta.env.DEV
 
@@ -16,13 +18,17 @@ export interface LogInfo {
   args: unknown[]
 }
 
+export interface LoggerEvents {
+  log: [LogInfo]
+}
+
 /** 开发模式下在命令行打印信息 */
 export class Logger {
   #prefix: string
   #options: LoggerOptions
   #enable = () => true
 
-  static event = createEventHook<LogInfo>()
+  static event = new EventBus<LoggerEvents>()
 
   constructor(
     prefix = '',
@@ -88,7 +94,7 @@ export class Logger {
 
     if (this.#options.port) {
       this.#options.port.postMessage({ type, message: args })
-      Logger.event.trigger({ type, timestamp, args })
+      Logger.event.emit('log', { type, timestamp, args })
       return
     }
 
@@ -96,7 +102,7 @@ export class Logger {
 
     isDebug && console[type](...logs)
 
-    Logger.event.trigger({ type, timestamp, args: logs })
+    Logger.event.emit('log', { type, timestamp, args: logs })
   }
 
   info = this.#log('info')
