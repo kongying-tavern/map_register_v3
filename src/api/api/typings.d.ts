@@ -765,6 +765,10 @@ declare namespace API {
   interface LinkRefVo {
     /** 点位ID */
     markerId?: number
+    /** 起始点位ID */
+    srcId?: number
+    /** 结束点位ID */
+    tarId?: number
     /** 路线组引用ID */
     pathRefId?: number
   }
