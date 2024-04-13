@@ -61,6 +61,9 @@ interface ImportMetaEnv {
 
   /** 图床前置口令 */
   readonly VITE_IMG_SERVER_PASSWORD: string
+
+  /** WebSocket 地址 */
+  readonly VITE_WS_BASE: string
 }
 
 interface ImportMeta {
