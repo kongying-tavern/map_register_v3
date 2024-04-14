@@ -1,13 +1,24 @@
 declare namespace API {
-  /** WebSocket 返回类型 */
-  interface WSPayload<T = unknown> {
-    event: string
+  /** WebSocket 接收的数据 */
+  interface WSReceviedData<K extends WSEventType> {
+    event: K
     message?: string
-    data?: T
+    data?: WSEventMap[K]
     time?: string
   }
 
+  /** WebSocket 发送的数据 */
+  interface WSSentData<T = unknown> {
+    action: string
+    data?: T
+  }
+
   interface WSEventMap {
+    // ====================   其他   ====================
+
+    /** 心跳包 */
+    Pong: void
+
     // ==================== 图标相关 ====================
 
     /**
@@ -89,7 +100,7 @@ declare namespace API {
 
   type WSEventType = keyof WSEventMap
 
-  type WSData<K extends WSEventType = WSEventType> = WSPayload<WSEventMap[K]>
+  type WSData<K extends WSEventType = WSEventType> = WSReceviedData<K>
 
   /** 点位关联的负载数据 */
   interface WSMarkerLinkData {
