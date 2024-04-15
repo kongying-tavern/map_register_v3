@@ -18,7 +18,7 @@ export class EventBus<EventMap> {
     this.on(event, onceHandler)
   }
 
-  emit = <T extends keyof EventMap>(event: T, ...payloads: EventMap[T] extends unknown[] ? EventMap[T] : []): void => {
+  emit = <T extends keyof EventMap>(event: T, ...payloads: EventMap[T] extends unknown[] ? EventMap[T] : unknown[]): void => {
     const eventHandlers = this.#handlers[event]
     if (eventHandlers)
       eventHandlers.forEach(handler => handler(...payloads))
