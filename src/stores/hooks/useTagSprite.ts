@@ -1,5 +1,5 @@
 import type { ShallowRef } from 'vue'
-import { renderTagSprite } from '../utils'
+import { renderTagSprite } from '@/worker/tagSpriteRenderer'
 
 export const useTagSprite = () => {
   /** tag 精灵图 */

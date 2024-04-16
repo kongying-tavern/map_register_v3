@@ -1,4 +1,5 @@
 export * from './array2tree'
+export * from './createWorkerHelper'
 export * from './ensureFrom'
 export * from './EventBus'
 export * from './formatByteSize'

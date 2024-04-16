@@ -1,4 +1,4 @@
-import { Logger } from '@/utils'
+import { Logger } from '.'
 
 export interface WorkerHelperOptions {
   label?: string

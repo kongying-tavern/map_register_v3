@@ -1,6 +1,6 @@
 import type { ShallowRef } from 'vue'
 import type { IconMapping } from '@deck.gl/layers/typed/icon-layer/icon-manager'
-import { renderMarkerSprite } from '../utils'
+import { renderMarkerSprite } from '@/worker/markerSpriteRenderer'
 
 export interface MarkerSpriteHookOptions {
   tagSprite: Readonly<ShallowRef<Blob | undefined>>
