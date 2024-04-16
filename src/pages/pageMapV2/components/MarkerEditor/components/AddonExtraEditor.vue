@@ -1,19 +1,18 @@
 <script lang="ts" setup>
 import { defaultsDeep, pick } from 'lodash'
 import type { CascaderOption } from 'element-plus'
-import type { MarkerExtra } from '@/utils'
 
 const props = defineProps<{
-  modelValue?: MarkerExtra
+  modelValue?: API.MarkerExtra
   areaCode?: string
   extraConfig: API.ExtraConfig
 }>()
 
 const emits = defineEmits<{
-  'update:modelValue': [v: MarkerExtra]
+  'update:modelValue': [v: API.MarkerExtra]
 }>()
 
-type RequiredExtraForm = DeepRequired<MarkerExtra>
+type RequiredExtraForm = DeepRequired<API.MarkerExtra>
 
 const requiredKeys = computed(() => Object.keys(props.extraConfig))
 
@@ -33,7 +32,7 @@ const DEFAULT_EXTRA_FORM: RequiredExtraForm = {
   },
 }
 
-const getInitializedExtraForm = (data: MarkerExtra = {}) => defaultsDeep({}, data, DEFAULT_EXTRA_FORM)
+const getInitializedExtraForm = (data: API.MarkerExtra = {}) => defaultsDeep({}, data, DEFAULT_EXTRA_FORM)
 
 const extraForm = ref<RequiredExtraForm>(getInitializedExtraForm(props.modelValue))
 

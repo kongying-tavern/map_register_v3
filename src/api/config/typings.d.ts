@@ -159,4 +159,27 @@ declare namespace API {
     /** 瓦片偏移量（像素） */
     tilesOffset?: API.Coordinate2D
   }
+
+  interface MarkerExtra {
+    /** 地下区域 */
+    'underground'?: {
+      is_underground?: boolean
+      region_levels?: string[]
+    }
+
+    /** 1.6 海岛数据 */
+    '1_6_island'?: string[]
+
+    /** 2.8 海岛数据 */
+    '2_8_island'?: {
+      island_name?: string
+      island_state?: string[]
+    }
+
+    /**
+     * 洞口关联
+     * @deprecated
+     */
+    'caves'?: number[]
+  }
 }

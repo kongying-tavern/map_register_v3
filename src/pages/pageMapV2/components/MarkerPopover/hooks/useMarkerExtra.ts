@@ -1,10 +1,9 @@
 import type { ShallowRef } from 'vue'
-import type { MarkerExtra } from '@/utils'
 import { HIDDEN_FLAG_NAM_MAP } from '@/shared'
 import { useRefreshTime } from '@/hooks'
 
 export const useMarkerExtra = (markerInfo: ShallowRef<API.MarkerVo | null>) => {
-  const extraObject = computed(() => (markerInfo.value?.extra ?? {}) as MarkerExtra)
+  const extraObject = computed(() => (markerInfo.value?.extra ?? {}) as API.MarkerExtra)
 
   const isUnderground = computed(() => extraObject.value.underground?.is_underground ?? false)
 

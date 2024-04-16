@@ -1,6 +1,5 @@
 import type { GSMapState } from '../types/genshin-map-state'
 import type { AreaTileConfig } from '@/stores'
-import type { MarkerExtra } from '@/utils'
 import { pickMainItem } from '@/utils'
 
 export interface NormalizeMarkerOptions {
@@ -65,7 +64,7 @@ export const createRenderMarkers = (markers: (API.MarkerVo | GSMapState.MarkerWi
         area,
         tileCode: tileConfig.tile.code,
         position: [Number(strX) + ox, Number(strY) + oy],
-        isUnderground: (marker.extra as MarkerExtra)?.underground?.is_underground ?? false,
+        isUnderground: (marker.extra as API.MarkerExtra)?.underground?.is_underground ?? false,
         isTemporary,
       },
     })
