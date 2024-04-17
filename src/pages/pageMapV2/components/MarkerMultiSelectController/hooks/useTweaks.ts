@@ -21,8 +21,9 @@ const modifierMap = new Map<string, (type: string) => Modifier>()
     label: '描述内容',
   }))
 
-interface TweakControlInfo {
+export interface TweakControlInfo {
   id: string
+  prop: string
   modifier: Modifier
 }
 
@@ -157,6 +158,7 @@ export const useTweaks = (markerList: ComputedRef<GSMapState.MarkerWithRenderCon
 
       tweakList.value = [...tweakList.value, {
         id,
+        prop,
         modifier,
       }]
       tweakData.value.set(id, {})

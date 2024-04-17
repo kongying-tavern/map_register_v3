@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ArrowDown, Check, CirclePlus, Close } from '@element-plus/icons-vue'
 import { ElCascaderPanel, ElDropdown } from 'element-plus'
-import { useMultiSelect, useTweaks } from './hooks'
+import { useMarkerTweaks, useMultiSelect, useTweaks } from './hooks'
 import { ModifierCard, ModifierPreview } from './components'
 import { MapWindowTeleporter } from '@/pages/pageMapV2/components'
 import { AppIconTagRenderer, AppVirtualTable } from '@/components'
@@ -27,6 +27,12 @@ const {
   deleteTweak,
   clearTweaks,
 } = useTweaks(markerList)
+
+const { submit, isDisabled, loading } = useMarkerTweaks({
+  markerList,
+  tweakList,
+  tweakData,
+})
 
 /** @todo 基于 el 组件行为实现，不是很优雅，后期使用独立组件 */
 const drownRef = ref<InstanceType<typeof ElDropdown>>()
@@ -94,7 +100,7 @@ onFinalize(() => {
           </div>
 
           <div class="flex justify-end pt-2">
-            <el-button :icon="Check" type="primary">
+            <el-button :loading="loading" :disabled="isDisabled" :icon="Check" type="primary" @click="submit">
               应用
             </el-button>
             <el-button :icon="Close" @click="closeWindow">
@@ -108,12 +114,13 @@ onFinalize(() => {
             <div class="w-16 mx-2 ml-4 text-center">
               点位
             </div>
-            <el-divider direction="vertical" />
+            <el-divider direction="vertical" style="height: 100%" />
             <div v-if="!selectedModifier" class="flex-1" />
             <template v-else>
               <div class="flex-1">
                 {{ selectedModifier.options.label }} ({{ selectedIndex }})
               </div>
+              <el-divider direction="vertical" style="height: 100%" />
               <div class="flex-1">
                 {{ selectedModifier.options.replaceLabel }} ({{ selectedIndex + 1 }})
               </div>
@@ -122,7 +129,7 @@ onFinalize(() => {
 
           <AppVirtualTable
             :data="modifiedMarkerList"
-            :item-height="32"
+            :item-height="64"
             :cached-rows="1"
             class="flex-1 overflow-hidden"
           >
@@ -141,14 +148,14 @@ onFinalize(() => {
                     class="w-6 h-6"
                   />
                 </div>
-                <el-divider direction="vertical" />
+                <el-divider direction="vertical" style="height: 100%" />
                 <div v-if="!selectedModifier" class="flex-1" />
                 <template v-else>
-                  <div class="flex-1 overflow-hidden">
+                  <div class="h-full flex-1 overflow-hidden">
                     <ModifierPreview :modifier="selectedModifier" :data="oldData" :meta="selectedMeta!" />
                   </div>
-                  <el-divider direction="vertical" />
-                  <div class="flex-1 overflow-hidden">
+                  <el-divider direction="vertical" style="height: 100%" />
+                  <div class="h-full flex-1 overflow-hidden">
                     <ModifierPreview :modifier="selectedModifier" :data="newData" :meta="selectedMeta!" />
                   </div>
                 </template>
