@@ -43,7 +43,7 @@ defineProps<{
   }
   &.actived {
     background-color: var(--el-color-primary);
-    color: var(--el-color-primary-light-9);
+    color: var(--el-color-white);
   }
 }
 </style>
