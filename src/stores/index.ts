@@ -1,4 +1,5 @@
 export * from './mapState'
+export * from './socket'
 export * from './access'
 export * from './archive'
 export * from './area'

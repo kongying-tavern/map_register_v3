@@ -1,11 +1,23 @@
 <script lang="ts" setup>
-import { Close, Coin, Expand, MapLocation, Monitor, Moon, Star, Sunny, TurnOff } from '@element-plus/icons-vue'
+import {
+  Close,
+  Coin,
+  Expand,
+  MapLocation,
+  Monitor,
+  Moon,
+  MostlyCloudy,
+  Star,
+  Sunny,
+  TurnOff,
+} from '@element-plus/icons-vue'
 import {
   ModuleAbout,
   ModuleDashboard,
   ModuleDatabase,
   ModuleDeveloper,
   ModuleMapSetting,
+  ModuleNetwork,
 } from './modules'
 import { usePreferenceStore } from '@/stores'
 import { useTheme } from '@/hooks'
@@ -18,6 +30,7 @@ const settingOptions: { key: string; name: string; is: Component; icon?: Compone
   { key: 'dashboard', name: '基本信息', is: ModuleDashboard, icon: Monitor },
   { key: 'mapsetting', name: '地图', is: ModuleMapSetting, icon: MapLocation },
   { key: 'database', name: '数据库', is: ModuleDatabase, icon: Coin },
+  { key: 'network', name: '网络', is: ModuleNetwork, icon: MostlyCloudy },
   { key: 'developer', name: '开发者', is: ModuleDeveloper, icon: TurnOff },
   { key: 'about', name: '关于空荧后厨', is: ModuleAbout, icon: Star },
 ]
