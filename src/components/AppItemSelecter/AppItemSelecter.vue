@@ -6,7 +6,7 @@ import ItemPreviewButton from './ItemPreviewButton.vue'
 import TypeSelectButton from './TypeSelectButton.vue'
 import db from '@/database'
 import { useFetchHook, useState } from '@/hooks'
-import { useIconTagStore } from '@/stores'
+import { useIconTagStore, useItemTypeStore } from '@/stores'
 import { AppAreaCodeSelecter } from '@/components'
 
 const props = withDefaults(defineProps<{
@@ -28,6 +28,8 @@ const emits = defineEmits<{
   'update:modelValue': [API.ItemVo[]]
   'update:areaCode': [string]
 }>()
+
+const itemTypeStore = useItemTypeStore()
 
 // ==================== 地区信息 ====================
 /** 当没有传入外部地区代码时使用内置缓存 */
@@ -59,13 +61,17 @@ const queryText = ref('')
 // ==================== 物品类型 ====================
 const [selectedType, setSelectedType] = useState<API.ItemTypeVo | null>(null)
 
+const sorter = ({ sortIndex: sa = 0 }: { sortIndex?: number }, { sortIndex: sb = 0 }: { sortIndex?: number }) => {
+  return sb - sa
+}
+
 const { data: itemTypeList, onSuccess: onItemTypeFetched } = useFetchHook({
   immediate: true,
   initialValue: [],
   shallow: true,
   onRequest: async () => {
     const itemTypes = await db.itemType.filter(itemType => itemType.isFinal ?? false).toArray()
-    return itemTypes.sort(({ sortIndex: sa = 0 }, { sortIndex: sb = 0 }) => sb - sa)
+    return itemTypes.sort(sorter)
   },
 })
 
@@ -90,8 +96,8 @@ const itemList = asyncComputed(async () => {
         return false
       return item.areaId === queryAreaId
     })
-    .sortBy('name')
-  return items
+    .toArray()
+  return items.sort(sorter)
 }, [], { evaluating: loading })
 
 // ==================== 已选物品 ====================
@@ -112,19 +118,6 @@ const groupedItems = computed(() => selectionItems.value.reduce((seed, item) => 
   })
   return seed
 }, {} as { [typeId: string]: API.ItemVo[] }))
-
-const { data: itemTypeMap } = useFetchHook({
-  immediate: true,
-  initialValue: {},
-  shallow: true,
-  onRequest: async () => {
-    const itemTypes = await db.itemType.toArray()
-    return itemTypes.reduce((seed, itemType) => {
-      seed[itemType.id!] = itemType
-      return seed
-    }, {} as { [typeId: string]: API.ItemTypeVo })
-  },
-})
 
 const toggleItem = (item: API.ItemVo) => {
   const map = new Map(selectionsMap.value)
@@ -223,7 +216,7 @@ watch(() => itemList.value, () => scrollbarRef.value?.setScrollTop(0))
             class="mb-1 overflow-hidden border border-[var(--el-border-color)] rounded"
           >
             <summary class="p-1 px-2 text-xs select-none bg-[var(--el-color-primary-light-8)]">
-              {{ `${itemTypeMap[key]?.name ?? '？？？'} (${items.length})` }}
+              {{ `${itemTypeStore.itemTypeIdMap.get(Number(key))?.name ?? 'unknown'} (${items.length})` }}
             </summary>
             <div class="flex flex-wrap gap-1 p-1">
               <ItemPreviewButton
