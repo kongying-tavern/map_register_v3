@@ -71,8 +71,11 @@ const rules: FormRules = {
   }],
 }
 
-/** 右侧额外面板识别 id */
-const addonId = ref('')
+/**
+ * 右侧额外面板识别 id
+ * @default 默认展开点位描述
+ */
+const addonId = ref('content')
 
 /** 表单实例 */
 const formRef = ref<ElFormType | null>(null)
