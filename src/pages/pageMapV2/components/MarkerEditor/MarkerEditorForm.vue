@@ -95,7 +95,7 @@ const isExtraEditable = computed(() => Object.keys(availableExtraConfig.value).l
 const addonPanelRef = ref<HTMLDivElement | null>(null)
 provide(addonPanelRefKey, addonPanelRef)
 
-const addonPanelVisible = ref(false)
+const addonPanelVisible = ref(true)
 const onAddonPanelTransitionStart = (ev: TransitionEvent) => {
   if (ev.propertyName === 'width')
     addonPanelVisible.value = false
