@@ -33,7 +33,7 @@ const tabKey = defineModel<string>('tabKey', {
 .win-dialog-tab-panel {
   @apply
     mx-2
-    p-2 overflow-hidden
+    p-2 overflow-hidden rounded
     border border-[var(--el-border-color)]
     bg-[var(--el-fill-color-blank)]
   ;
