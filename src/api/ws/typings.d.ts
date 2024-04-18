@@ -39,25 +39,25 @@ declare namespace API {
      * 点位新增
      * @data 点位 id
      */
-    MarkerAdded: number
+    MarkerAdded: [number]
 
     /**
      * 点位修改
      * @data 点位 id
      */
-    MarkerUpdated: number
+    MarkerUpdated: [number]
 
     /**
      * 点位删除
      * @data 点位 id
      */
-    MarkerDeleted: number
+    MarkerDeleted: [number]
 
     /**
      * 点位调整
      * @data 点位 id 列表
      */
-    MarkerTweaked: number[]
+    MarkerTweaked: [number[]]
 
     /**
      * 点位 Bz2 刷新
@@ -70,7 +70,7 @@ declare namespace API {
      * 点位关联
      * @see `API.WSMarkerLinkData`
      */
-    MarkerLinked: WSMarkerLinkData
+    MarkerLinked: [WSMarkerLinkData]
 
     /**
      * 点位关联Bz2刷新
@@ -83,19 +83,19 @@ declare namespace API {
      * 公告新增
      * @data 公告 id
      */
-    NoticeAdded: number
+    NoticeAdded: [number]
 
     /**
      * 公告新增
      * @data 公告 id
      */
-    NoticeUpdated: number
+    NoticeUpdated: [number]
 
     /**
      * 公告新增
      * @data 公告 id
      */
-    NoticeDeleted: number
+    NoticeDeleted: [number]
   }
 
   type WSEventType = keyof WSEventMap
