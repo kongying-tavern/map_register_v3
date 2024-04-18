@@ -30,7 +30,14 @@ const isOfflineMode = import.meta.env.VITE_DEVELOPMENT_MODE === 'offline'
 </script>
 
 <template>
-  <MarkerEditorForm v-if="initAreaCode" ref="editorRef" v-model="form" :loading="loading" :init-area-code="initAreaCode">
+  <MarkerEditorForm
+    v-if="initAreaCode"
+    ref="editorRef"
+    v-model="form"
+    :loading="loading"
+    :init-area-code="initAreaCode"
+    @close="GlobalDialogController.close"
+  >
     <template #footer>
       <div class="w-full flex justify-end">
         <el-button :icon="Check" type="primary" :disabled="isOfflineMode" :loading="loading" @click="editMarker">

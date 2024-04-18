@@ -53,7 +53,13 @@ onSuccess(GlobalDialogController.close)
 </script>
 
 <template>
-  <MarkerEditorForm ref="editorRef" v-model="form" :loading="loading" :init-area-code="initAreaCode">
+  <MarkerEditorForm
+    ref="editorRef"
+    v-model="form"
+    :loading="loading"
+    :init-area-code="initAreaCode"
+    @close="GlobalDialogController.close"
+  >
     <template #footer>
       <div class="w-full flex justify-end">
         <el-button :icon="Check" :loading="loading" type="primary" @click="createMarker">

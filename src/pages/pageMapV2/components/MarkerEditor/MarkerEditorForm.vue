@@ -10,7 +10,7 @@ import {
   AddonItemSelector,
   AddonRefreshtimeEditor,
 } from './components'
-import { AppAreaCodeSelecter } from '@/components'
+import { AppAreaCodeSelecter, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 import { useMarkerExtraStore, useUserInfoStore } from '@/stores'
 import type { ElFormType } from '@/shared'
 import { HiddenFlagEnum } from '@/shared'
@@ -23,7 +23,8 @@ const props = defineProps<{
 }>()
 
 const emits = defineEmits<{
-  (e: 'update:modelValue', v: API.MarkerVo): void
+  'update:modelValue': [API.MarkerVo]
+  'close': []
 }>()
 
 /** 用户信息 */
@@ -105,89 +106,131 @@ const onAddonPanelTransitionEnd = (ev: TransitionEvent) => {
     addonPanelVisible.value = true
 }
 
+// ==================== 面板样式 ====================
+const themeColor = computed(() => {
+  const { areaCode = '' } = form.value
+  const zone = areaCode.split(':')[1]
+  if (!zone)
+    return '#409eff'
+  return `var(--gs-color-${zone.toLowerCase()})`
+})
+
+const { load, unload } = useStyleTag(computed(() => `
+  :root {
+    --el-color-primary: color-mix(in srgb, ${themeColor.value} 100%, gray 20%);
+    --el-color-primary-light-3: color-mix(in srgb, ${themeColor.value} 70%, transparent 50%);
+    --el-color-primary-light-5: color-mix(in srgb, ${themeColor.value} 50%, transparent 50%);
+    --el-color-primary-light-7: color-mix(in srgb, ${themeColor.value} 30%, transparent 50%);
+    --el-color-primary-light-9: color-mix(in srgb, ${themeColor.value} 10%, transparent 50%);
+    --el-color-primary-dark-2: color-mix(in srgb, ${themeColor.value} 50%, var(--el-bg-color) 70%);
+  }
+  html.dark {
+    --el-color-primary: color-mix(in srgb, ${themeColor.value} 60%, var(--el-bg-color) 40%);
+    --el-color-primary-light-3: color-mix(in srgb, var(--el-color-primary) 70%, transparent 50%);
+    --el-color-primary-light-5: color-mix(in srgb, var(--el-color-primary) 50%, transparent 50%);
+    --el-color-primary-light-7: color-mix(in srgb, var(--el-color-primary) 30%, transparent 50%);
+    --el-color-primary-light-9: color-mix(in srgb, var(--el-color-primary) 10%, transparent 50%);
+    --el-color-primary-dark-2: color-mix(in srgb, var(--el-color-primary) 50%, var(--el-bg-color) 70%);
+  }
+`))
+
+onBeforeMount(load)
+onBeforeUnmount(unload)
+
 defineExpose({
   validate: async () => await formRef.value?.validate().catch(() => false),
 })
 </script>
 
 <template>
-  <div
-    class="marker-editor-form grid p-2 h-full rounded-lg"
+  <WinDialog
     :style="{
-      '--theme-color': `var(--gs-color-${form.areaCode.split(':')[1]?.toLowerCase() ?? 'unknown'})`,
+      'border-color': `color-mix(in srgb, var(--el-color-primary-light-9) 50%, ${themeColor} 50%)`,
     }"
   >
-    <el-form ref="formRef" :rules="rules" :model="form" class="form-content w-96" label-width="80px">
-      <el-form-item label="点位名称" prop="markerTitle">
-        <div class="w-full flex justify-between gap-1">
-          <el-input v-model="form.markerTitle" />
-          <AddonEditHistory v-if="form.id !== undefined" v-model:addon-id="addonId" v-model:marker-vo="form" />
-        </div>
-      </el-form-item>
-
-      <el-form-item label="所属地区" prop="areaCode">
-        <AppAreaCodeSelecter v-model="form.areaCode" style="width: 100%" />
-      </el-form-item>
-
-      <el-form-item label="所属物品" prop="itemList">
-        <AddonItemSelector v-model="form.itemList" v-model:addon-id="addonId" v-model:area-code="form.areaCode" />
-      </el-form-item>
-
-      <el-form-item v-if="isExtraEditable" label="点位层级" prop="extra">
-        <AddonExtraEditor v-model="form.extra" :area-code="form.areaCode" :extra-config="availableExtraConfig" />
-      </el-form-item>
-
-      <el-form-item label="点位描述" prop="content">
-        <AddonContenEditor v-model="form.content" v-model:addon-id="addonId" :item-list="form.itemList" />
-      </el-form-item>
-
-      <el-form-item label="点位图像" prop="picture">
-        <AddonImageEditor v-model="form.picture" v-model:addon-id="addonId" />
-      </el-form-item>
-
-      <el-form-item label="显示状态" prop="hiddenFlag">
-        <el-radio-group v-model="form.hiddenFlag">
-          <el-radio-button :label="HiddenFlagEnum.SHOW">
-            显示
-          </el-radio-button>
-          <el-radio-button :label="HiddenFlagEnum.HIDDEN">
-            隐藏
-          </el-radio-button>
-          <el-radio-button v-if="userInfoStore.isNeigui" :label="HiddenFlagEnum.NEIGUI">
-            测试服点位
-          </el-radio-button>
-        </el-radio-group>
-      </el-form-item>
-
-      <el-form-item label="刷新时间" prop="refreshTime">
-        <AddonRefreshtimeEditor v-model="form.refreshTime" />
-      </el-form-item>
-
-      <el-form-item label="视频链接" prop="videoPath">
-        <el-input v-model="form.videoPath" />
-      </el-form-item>
-
-      <el-form-item v-if="$slots.footer" label-width="0" style="margin-bottom: 0;">
-        <slot name="footer" />
-      </el-form-item>
-    </el-form>
-
-    <div
-      class="addon-panel"
-      :class="{ visible: addonId }"
-      @transitionstart="onAddonPanelTransitionStart"
-      @transitionend="onAddonPanelTransitionEnd"
+    <WinDialogTitleBar
+      :style="{
+        background: `color-mix(in srgb, var(--el-bg-color) 50%, ${themeColor} 50%)`,
+      }"
+      :loading="loading"
+      @close="() => emits('close')"
     >
-      <div v-show="addonPanelVisible" ref="addonPanelRef" class="addon-panel-content" />
-    </div>
-  </div>
+      {{ form.id === undefined ? '添加点位' : `(id: ${form.id}) ${form.markerTitle}` }}
+    </WinDialogTitleBar>
+
+    <WinDialogTabPanel>
+      <div class="marker-editor-form grid h-full rounded-lg">
+        <el-form ref="formRef" :rules="rules" :model="form" class="form-content w-96" label-width="80px">
+          <el-form-item label="点位名称" prop="markerTitle">
+            <div class="w-full flex justify-between gap-1">
+              <el-input v-model="form.markerTitle" />
+              <AddonEditHistory v-if="form.id !== undefined" v-model:addon-id="addonId" v-model:marker-vo="form" />
+            </div>
+          </el-form-item>
+
+          <el-form-item label="所属地区" prop="areaCode">
+            <AppAreaCodeSelecter v-model="form.areaCode" style="width: 100%" />
+          </el-form-item>
+
+          <el-form-item label="所属物品" prop="itemList">
+            <AddonItemSelector v-model="form.itemList" v-model:addon-id="addonId" v-model:area-code="form.areaCode" />
+          </el-form-item>
+
+          <el-form-item v-if="isExtraEditable" label="点位层级" prop="extra">
+            <AddonExtraEditor v-model="form.extra" :area-code="form.areaCode" :extra-config="availableExtraConfig" />
+          </el-form-item>
+
+          <el-form-item label="点位描述" prop="content">
+            <AddonContenEditor v-model="form.content" v-model:addon-id="addonId" :item-list="form.itemList" />
+          </el-form-item>
+
+          <el-form-item label="点位图像" prop="picture">
+            <AddonImageEditor v-model="form.picture" v-model:addon-id="addonId" />
+          </el-form-item>
+
+          <el-form-item label="显示状态" prop="hiddenFlag">
+            <el-radio-group v-model="form.hiddenFlag">
+              <el-radio-button :label="HiddenFlagEnum.SHOW">
+                显示
+              </el-radio-button>
+              <el-radio-button :label="HiddenFlagEnum.HIDDEN">
+                隐藏
+              </el-radio-button>
+              <el-radio-button v-if="userInfoStore.isNeigui" :label="HiddenFlagEnum.NEIGUI">
+                测试服点位
+              </el-radio-button>
+            </el-radio-group>
+          </el-form-item>
+
+          <el-form-item label="刷新时间" prop="refreshTime">
+            <AddonRefreshtimeEditor v-model="form.refreshTime" />
+          </el-form-item>
+
+          <el-form-item label="视频链接" prop="videoPath">
+            <el-input v-model="form.videoPath" />
+          </el-form-item>
+        </el-form>
+
+        <div
+          class="addon-panel"
+          :class="{ visible: addonId }"
+          @transitionstart="onAddonPanelTransitionStart"
+          @transitionend="onAddonPanelTransitionEnd"
+        >
+          <div v-show="addonPanelVisible" ref="addonPanelRef" class="addon-panel-content" />
+        </div>
+      </div>
+    </WinDialogTabPanel>
+
+    <WinDialogFooter>
+      <slot name="footer" />
+    </WinDialogFooter>
+  </WinDialog>
 </template>
 
-<style lang="scss" scoped>
+<style scoped>
 .marker-editor-form {
   grid-template-columns: 1fr auto;
-  box-shadow: 0px 0px 8px var(--theme-color);
-  border: 1px solid var(--theme-color);
 }
 
 .addon-panel {
