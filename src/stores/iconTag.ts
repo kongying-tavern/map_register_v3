@@ -26,13 +26,13 @@ export const useIconTagStore = defineStore('global-icon-tag', () => {
   const backendUpdater = useBackendUpdate(
     db.iconTag,
     async () => {
-      const { data: digest = '' } = await Api.tagDoc.listAllTagBz2Md5()
+      const { data: digest = '' } = await Api.tagDoc.listAllTagBinaryMd5()
       return [digest]
     },
     async (index) => {
       if (index !== 0)
         return []
-      const buffer = (await Api.tagDoc.listAllTagBz2({ responseType: 'arraybuffer' })) as unknown as ArrayBuffer
+      const buffer = (await Api.tagDoc.listAllTagBinary({ responseType: 'arraybuffer' })) as unknown as ArrayBuffer
       const data = await Zip.decompressAs<API.TagVo[]>(new Uint8Array(buffer))
       return data
     },

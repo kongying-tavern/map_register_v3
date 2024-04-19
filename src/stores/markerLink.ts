@@ -14,11 +14,11 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
   const backendUpdater = useBackendUpdate(
     db.markerLink,
     async () => {
-      const { data = '' } = await Api.markerLinkDoc.listAllMarkerLinkageBz2MD5()
+      const { data = '' } = await Api.markerLinkDoc.listAllMarkerLinkageBinaryMD5()
       return [data]
     },
     async () => {
-      const buffer = await Api.markerLinkDoc.listAllMarkerLinkageBz2({ responseType: 'arraybuffer' }) as unknown as ArrayBuffer
+      const buffer = await Api.markerLinkDoc.listAllMarkerLinkageBinary({ responseType: 'arraybuffer' }) as unknown as ArrayBuffer
       const data = await Zip.decompressAs<Record<string, API.MarkerLinkageVo[]>>(new Uint8Array(buffer))
       const arrayData = Object.values(data).flat(1)
       return arrayData

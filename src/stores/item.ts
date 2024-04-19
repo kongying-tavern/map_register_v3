@@ -20,13 +20,13 @@ export const useItemStore = defineStore('global-item', () => {
   const backendUpdater = useBackendUpdate(
     db.item,
     async () => {
-      const { data = '' } = await Api.itemDoc.listAllItemBz2Md5()
+      const { data = '' } = await Api.itemDoc.listAllItemBinaryMd5()
       return [data]
     },
     async (index) => {
       if (index !== 0)
         return []
-      const buffer = await Api.itemDoc.listAllItemBz2({ responseType: 'arraybuffer' }) as unknown as ArrayBuffer
+      const buffer = await Api.itemDoc.listAllItemBinary({ responseType: 'arraybuffer' }) as unknown as ArrayBuffer
       const data = Zip.decompressAs<API.ItemVo[]>(new Uint8Array(buffer))
       return data
     },

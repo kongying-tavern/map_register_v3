@@ -15,11 +15,11 @@ export const useMarkerStore = defineStore('global-marker', () => {
   const backendUpdater = useBackendUpdate(
     db.marker,
     async () => {
-      const { data = [] } = await Api.markerDoc.listMarkerBz2MD5({})
+      const { data = [] } = await Api.markerDoc.listMarkerBinaryMD5({})
       return data
     },
     async (...{ 1: md5 }) => {
-      const buffer = await Api.markerDoc.listPageMarkerBy7zip({
+      const buffer = await Api.markerDoc.listPageMarkerByBinary({
         md5,
       }, { responseType: 'arraybuffer' }) as unknown as ArrayBuffer
       const data = await Zip.decompressAs<API.MarkerVo[]>(new Uint8Array(buffer))
