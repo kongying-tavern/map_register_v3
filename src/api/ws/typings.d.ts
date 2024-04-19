@@ -24,14 +24,14 @@ declare namespace API {
     /**
      * 图标标签 Bz2 刷新
      */
-    IconTagBz2Purged: void
+    IconTagBinaryPurged: void
 
     // ==================== 物品相关 ====================
 
     /**
      * 物品 Bz2 刷新
      */
-    ItemBz2Purged: void
+    ItemBinaryPurged: void
 
     // ==================== 点位相关 ====================
 
@@ -62,7 +62,7 @@ declare namespace API {
     /**
      * 点位 Bz2 刷新
      */
-    MarkerBz2Purged: void
+    MarkerBinaryPurged: void
 
     // ==================== 点位关联相关 ====================
 
@@ -75,7 +75,7 @@ declare namespace API {
     /**
      * 点位关联Bz2刷新
      */
-    MarkerLinkageBz2Purged: void
+    MarkerLinkageBinaryPurged: void
 
     // ==================== 公告相关 ====================
 
