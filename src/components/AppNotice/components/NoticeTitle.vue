@@ -5,8 +5,8 @@ defineProps<{
   isSelected: boolean
 }>()
 
-defineEmits<{
-  titleClick: []
+const emits = defineEmits<{
+  click: [MouseEvent]
 }>()
 </script>
 
@@ -22,7 +22,7 @@ defineEmits<{
         'is-selected': isSelected,
       }"
       class="title-name"
-      @click="() => $emit('titleClick')"
+      @click="(ev) => emits('click', ev)"
     >
       {{ notice.title }}
     </div>

@@ -12,7 +12,7 @@ defineProps<{
   selectedIndex: number
 }>()
 
-defineEmits<{
+const emits = defineEmits<{
   titleClick: [index: number, id: number]
 }>()
 </script>
@@ -42,7 +42,7 @@ defineEmits<{
           :notice="notice"
           :hidden="records.has(notice.id!)"
           :is-selected="selectedIndex === index"
-          @title-click="() => $emit('titleClick', index, notice.id!)"
+          @click="() => emits('titleClick', index, notice.id!)"
         />
       </div>
 

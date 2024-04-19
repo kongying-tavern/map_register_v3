@@ -35,11 +35,8 @@ export const useReadingRecord = (context: NoticeContext, noticeList: ShallowRef<
 
   const read = async (id: number) => {
     context.currentRecords.value.add(id)
-  }
-
-  context.closeHook.on(() => {
     preferenceStore.preference['notice.state.readingRecords'] = [...records.value].sort()
-  })
+  }
 
   return {
     records,
