@@ -156,15 +156,17 @@ export class GSCompositeLayer extends CompositeLayer {
       })
 
       watch((): Partial<GSCompositeLayerState> => ({
+        // 其他
         areaCode: preferenceStore.preference['markerFilter.state.areaCode'],
         tileConfig: tileStore.currentTileConfig,
         isViewPortChanging: mapStateStore.isViewPortChanging,
-        // tag
-        showZoneTag: preferenceStore.preference['map.setting.showZoneTag'],
-        visibleTagGroups: tileStore.visibleTagGroups,
-        // marker
+        // 交互
         hover: mapStateStore.hover as GSMapState.InteractionInfo | null,
         focus: mapStateStore.focus as GSMapState.InteractionInfo | null,
+        // 标签
+        showZoneTag: preferenceStore.preference['map.setting.showZoneTag'],
+        visibleTagGroups: tileStore.visibleTagGroups,
+        // 点位
         markersMap: mapStateStore.currentLayerMarkersMap,
         markersIds: mapStateStore.currentLayerMarkersIds,
         markerDraggingMap: markerDraggingMap.value,
@@ -175,14 +177,8 @@ export class GSCompositeLayer extends CompositeLayer {
         markerLinkRenderList: mapStateStore.markerLinkRenderList,
         archiveHash: archiveStore.hash,
         transparentMarked: preferenceStore.preference['map.setting.transparentMarked'],
-        // overlay
-        showOverlay: preferenceStore.preference['map.state.showOverlay'],
+        // 附加图层
         showOverlayMask: overlayStore.showMask,
-        normalOverlays: overlayStore.normalOverlays,
-        tileLikeOverlays: overlayStore.tileLikeOverlays,
-        topOverlayInGroup: overlayStore.topOverlayInGroup,
-        hiddenOverlayGroups: overlayStore.hiddenOverlayGroups,
-        overlayStateId: overlayStore.stateId,
         chunkMap: overlayStore.chunkMap,
         normalChunks: overlayStore.visibleChunks.normal,
         tileLikeChunks: overlayStore.visibleChunks.tiles,

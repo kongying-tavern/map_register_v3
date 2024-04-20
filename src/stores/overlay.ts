@@ -68,17 +68,8 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
   const dadianStore = useDadianStore()
   const tileStore = useTileStore()
 
-  /** 每组内位于顶部的 overlay 单元 */
-  const topOverlayInGroup = shallowRef<{ [groupId: string]: string }>({})
-
-  /** 当前隐藏的 overlay 组 id */
-  const hiddenOverlayGroups = ref(new Set<string>())
-
   /** 当前显示的 overlay 单元 */
   const visibleItemIds = ref(new Set<string>())
-
-  /** 当前状态 id，用于优化 deck 状态检查 */
-  const stateId = ref(Date.now())
 
   const mergedPlugins = computed(() => {
     const { plugins = {}, pluginsNeigui = {} } = dadianStore._raw
@@ -259,27 +250,6 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
     })
   })
 
-  /** 此处排序用于控制组内 overlay 谁在顶部 */
-  const sortedOverlays = computed((): OverlayChunk[] => {
-    const topMap = topOverlayInGroup.value
-    const exists = existOverlays.value
-    return exists.toSorted((overlayA, overlayB) => {
-      const itemAId = topMap[overlayA.group.id]
-      const itemBId = topMap[overlayB.group.id]
-      return Number(itemAId === overlayA.item.id) - Number(itemBId === overlayB.item.id)
-    })
-  })
-
-  /** 此类 overlay 应当位于 overlay 遮罩层上方 */
-  const normalOverlays = computed((): OverlayChunk[] => {
-    return sortedOverlays.value.filter(chunk => chunk.group.role === 'default')
-  })
-
-  /** 此类 overlay 应当位于 overlay 遮罩层下方 */
-  const tileLikeOverlays = computed((): OverlayChunk[] => {
-    return sortedOverlays.value.filter(chunk => chunk.group.role === 'tile')
-  })
-
   const isOverlaysHasMask = computed(() => {
     for (const chunk of existOverlays.value) {
       if (chunk.group.mask)
@@ -294,16 +264,11 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
 
   return {
     // state
-    topOverlayInGroup,
-    stateId,
-    hiddenOverlayGroups,
     visibleItemIds,
 
     // getters
     chunkMap,
-    normalOverlays,
     existOverlays,
-    tileLikeOverlays,
     showMask,
     visibleChunks,
   }

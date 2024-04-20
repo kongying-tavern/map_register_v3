@@ -25,13 +25,7 @@ export interface GSCompositeLayerState {
   archiveHash: string
   transparentMarked: boolean
   // overlay
-  showOverlay: boolean
   showOverlayMask: boolean
-  normalOverlays: OverlayChunk[]
-  tileLikeOverlays: OverlayChunk[]
-  topOverlayInGroup: Record<string, string>
-  hiddenOverlayGroups: Set<string>
-  overlayStateId: number
   chunkMap: Map<string, OverlayChunk>
   normalChunks: string[]
   tileLikeChunks: string[]
