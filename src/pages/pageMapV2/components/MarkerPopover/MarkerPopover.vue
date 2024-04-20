@@ -5,10 +5,12 @@ import { useMarkerFocus } from '../../hooks'
 import { MapAffix, MarkerEditPanel } from '..'
 import { MarkerPanel } from './components'
 import { useMarkerDelete, useMarkerExtra, useMarkerFinished, useMarkerMove, useSkeletonPicture } from './hooks'
-import { useIconTagStore, useMapStateStore } from '@/stores'
+import { useAccessStore, useIconTagStore, useMapStateStore } from '@/stores'
 import { CloseFilled } from '@/components/GenshinUI/GSIcon'
 import { AppBilibiliVideoPlayer, AppIconTagRenderer, GSButton } from '@/components'
 import { useGlobalDialog } from '@/hooks'
+
+const accessStore = useAccessStore()
 
 const mapStateStore = useMapStateStore()
 const { tagSpriteUrl, tagPositionMap } = storeToRefs(useIconTagStore())
@@ -129,6 +131,7 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
 
         <template #footer>
           <GSButton
+            v-if="accessStore.get('MARKER_EDIT')"
             size="small"
             theme="dark"
             :disabled="updateLoading || hasMapMission"
@@ -157,6 +160,7 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
           </GSButton>
 
           <GSButton
+            v-if="accessStore.get('MARKER_EDIT')"
             :theme="isMoving ? undefined : 'dark'"
             size="small"
             :disabled="!isEnable || updateLoading"
@@ -171,6 +175,7 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
           </GSButton>
 
           <GSButton
+            v-if="accessStore.get('MARKER_DELETE')"
             size="small"
             theme="dark"
             title="删除点位"
