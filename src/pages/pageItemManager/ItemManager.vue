@@ -17,7 +17,7 @@ const queryForm = ref<ItemQueryForm>({
 })
 
 // ==================== 物品列表 ====================
-const { itemList, loading: itemLoading, userMap, updateItemList } = useItemList({
+const { itemList, loading: itemLoading, userMap, updateItemList, resetCurrent } = useItemList({
   pagination,
   getParams: () => ({
     name: queryForm.value.name,
@@ -49,7 +49,7 @@ onDeleteSuccess(updateItemList)
 
 <template>
   <div class="h-full flex-1 flex flex-col gap-2 overflow-hidden p-4">
-    <ItemFilter v-model="queryForm" @change="updateItemList">
+    <ItemFilter v-model="queryForm" @change="resetCurrent">
       <template #footer>
         <div class="w-full flex items-center justify-end">
           <el-button

@@ -24,6 +24,7 @@ const {
   filterValue,
   onSortChange,
   updateUserList,
+  resetCurrent,
 } = useUserList({ pagination })
 
 // ==================== 新增用户 ====================
@@ -54,7 +55,7 @@ onDeleteSuccess(updateUserList)
 
 <template>
   <div class="h-full flex flex-col gap-2 overflow-hidden p-4">
-    <UserFilter v-model="filterValue" v-model:filter-key="filterKey" @change="updateUserList">
+    <UserFilter v-model="filterValue" v-model:filter-key="filterKey" @change="resetCurrent">
       <template #footer>
         <div class="w-full flex justify-end">
           <el-button type="danger" :loading="deleteLoading" :disabled="!selections.length" @click="() => confirmDelete(selections)">

@@ -1,5 +1,6 @@
 import { ref } from 'vue'
 import _ from 'lodash'
+import { ElMessage } from 'element-plus'
 import type { PaginationState } from '@/hooks/usePagination'
 import { useFetchHook } from '@/hooks'
 import Api from '@/api/api'
@@ -19,7 +20,7 @@ export const useUserList = (options: UserListHookOptions) => {
   const filterValue = ref('')
   const sort = ref<string[]>([])
 
-  const { refresh: updateUserList, onSuccess, ...rest } = useFetchHook({
+  const { refresh: updateUserList, onSuccess, onError, ...rest } = useFetchHook({
     immediate: true,
     onRequest: () => {
       const { current, pageSize: size } = pagination.value
@@ -34,6 +35,11 @@ export const useUserList = (options: UserListHookOptions) => {
     },
   })
 
+  const resetCurrent = async () => {
+    pagination.value.current = 1
+    await updateUserList()
+  }
+
   const onSortChange = async (sortKeys: string[]) => {
     sort.value = sortKeys
     await updateUserList()
@@ -44,12 +50,22 @@ export const useUserList = (options: UserListHookOptions) => {
     pagination.value.total = total
   })
 
+  onError((err) => {
+    userList.value = []
+    ElMessage.error({
+      message: `获取结果失败，原因为: ${err.message}`,
+      offset: 48,
+    })
+  })
+
   return {
     userList,
     filterKey,
     filterValue,
     onSortChange,
     updateUserList,
+    resetCurrent,
+    onError,
     ...rest,
   }
 }

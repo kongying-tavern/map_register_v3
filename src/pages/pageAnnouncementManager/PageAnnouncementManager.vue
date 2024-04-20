@@ -20,7 +20,7 @@ const queryForm = ref<AnnouncementSearchParams>({
   sort: ['validTimeStart-'],
 })
 
-const { updateNoticeList, loading, mainTableData } = useList({
+const { updateNoticeList, resetCurrent, loading, mainTableData } = useList({
   pagination,
   getParams() {
     return queryForm.value
@@ -78,7 +78,7 @@ function handleRemove(form?: API.NoticeVo) {
 
 <template>
   <div class="h-full flex-1 flex flex-col gap-2 overflow-hidden p-4">
-    <AnnouncementFilter v-model:model-value="queryForm" @change="updateNoticeList">
+    <AnnouncementFilter v-model:model-value="queryForm" @change="resetCurrent">
       <template #footer>
         <div class="w-full flex  justify-end">
           <el-button type="primary" @click="handleCreate">
