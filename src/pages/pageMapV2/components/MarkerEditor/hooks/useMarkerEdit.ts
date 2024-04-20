@@ -100,13 +100,13 @@ export const useMarkerEdit = (markerData: Ref<API.MarkerVo | null>) => {
 
   onSuccess(() => {
     ElMessage.success({
-      message: `${userInfoStore.isAdmin ? '编辑点位' : '提交审核'}成功`,
+      message: '编辑点位成功',
       offset: 48,
     })
   })
 
   onError(err => ElMessage.error({
-    message: `${userInfoStore.isAdmin ? '编辑点位' : '提交审核'}失败，原因为：${err.message}`,
+    message: `编辑点位失败，原因为：${err.message}`,
     offset: 48,
   }))
 

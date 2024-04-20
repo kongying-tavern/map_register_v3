@@ -1,28 +1,13 @@
-import { pick } from 'lodash'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useFetchHook } from '@/hooks'
-import { useUserInfoStore } from '@/stores'
 import Api from '@/api/api'
 import db from '@/database'
 
 export const useMarkerDelete = () => {
-  const userInfoStore = useUserInfoStore()
-
-  const buildModifyMarkerForm = (marker: API.MarkerVo): API.MarkerPunctuateVo => {
-    return {
-      ...pick(marker, Object.keys(marker)) as API.MarkerPunctuateVo,
-      methodType: 3,
-    }
-  }
-
   const request = async (marker: API.MarkerVo) => {
-    if (userInfoStore.isAdmin)
-      return await Api.marker.deleteMarker({ markerId: marker.id! })
+    await Api.marker.deleteMarker({ markerId: marker.id! })
 
-    const form = buildModifyMarkerForm(marker)
-    await Api.punctuate.addPunctuate({}, form)
-
-    const { data: { 0: submitedMarkerInfo } = [] } = await Api.marker.listMarkerById({}, [form.id!])
+    const { data: { 0: submitedMarkerInfo } = [] } = await Api.marker.listMarkerById({}, [marker.id!])
 
     if (!submitedMarkerInfo)
       throw new Error('无法确认点位信息，点位对象为空')
@@ -46,12 +31,12 @@ export const useMarkerDelete = () => {
   }
 
   onSuccess(() => ElMessage.success({
-    message: `${userInfoStore.isAdmin ? '删除点位' : '提交审核'}成功`,
+    message: '删除点位成功',
     offset: 48,
   }))
 
   onError(err => ElMessage.error({
-    message: `${userInfoStore.isAdmin ? '删除点位' : '提交审核'}失败，原因为：${err.message}`,
+    message: `删除点位失败，原因为：${err.message}`,
     offset: 48,
   }))
 
