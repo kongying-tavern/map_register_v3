@@ -183,6 +183,9 @@ export class GSCompositeLayer extends CompositeLayer {
         topOverlayInGroup: overlayStore.topOverlayInGroup,
         hiddenOverlayGroups: overlayStore.hiddenOverlayGroups,
         overlayStateId: overlayStore.stateId,
+        chunkMap: overlayStore.chunkMap,
+        normalChunks: overlayStore.visibleChunks.normal,
+        tileLikeChunks: overlayStore.visibleChunks.tiles,
       }), (newState, oldState) => {
         const { tileConfig } = newState
         if (!tileConfig)

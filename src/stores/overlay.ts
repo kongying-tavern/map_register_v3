@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { merge, template } from 'lodash'
-import { useAccessStore, useDadianStore, usePreferenceStore, useTileStore } from '.'
+import { useAccessStore, useDadianStore, useTileStore } from '.'
 
 export interface OverlayGroup {
   id: string
@@ -67,7 +67,6 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
   const accessStore = useAccessStore()
   const dadianStore = useDadianStore()
   const tileStore = useTileStore()
-  const preferenceStore = usePreferenceStore()
 
   /** 每组内位于顶部的 overlay 单元 */
   const topOverlayInGroup = shallowRef<{ [groupId: string]: string }>({})
@@ -76,7 +75,7 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
   const hiddenOverlayGroups = ref(new Set<string>())
 
   /** 当前显示的 overlay 单元 */
-  const showItemIds = ref(new Set<string>())
+  const visibleItemIds = ref(new Set<string>())
 
   /** 当前状态 id，用于优化 deck 状态检查 */
   const stateId = ref(Date.now())
@@ -214,6 +213,40 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
     return map
   }, new Map<string, OverlayChunk>()))
 
+  /** item 索引表 */
+  const itemMap = computed(() => normalizedOverlayChunks.value.reduce((map, chunk) => {
+    if (!map.has(chunk.item.id)) {
+      map.set(chunk.item.id, [chunk])
+    }
+    else {
+      const item = map.get(chunk.item.id)!
+      item.push(chunk)
+    }
+    return map
+  }, new Map<string, OverlayChunk[]>()))
+
+  const visibleChunks = computed(() => {
+    const normal: string[] = []
+    const tiles: string[] = []
+
+    visibleItemIds.value.forEach((itemId) => {
+      const chunks = itemMap.value.get(itemId)
+      if (!chunks)
+        return
+      chunks.forEach((chunk) => {
+        if (chunk.group.role === 'tile')
+          tiles.push(chunk.id)
+        else
+          normal.push(chunk.id)
+      })
+    })
+
+    return {
+      normal,
+      tiles,
+    }
+  })
+
   /** 只存在于当前图层内的 overlay */
   const existOverlays = computed((): OverlayChunk[] => {
     const { currentTileConfig } = tileStore
@@ -256,9 +289,7 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
   })
 
   const showMask = computed((): boolean => {
-    if (!preferenceStore.preference['map.state.showOverlay'])
-      return false
-    return isOverlaysHasMask.value
+    return visibleItemIds.value.size > 0 && isOverlaysHasMask.value
   })
 
   return {
@@ -266,7 +297,7 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
     topOverlayInGroup,
     stateId,
     hiddenOverlayGroups,
-    showItemIds,
+    visibleItemIds,
 
     // getters
     chunkMap,
@@ -274,5 +305,6 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
     existOverlays,
     tileLikeOverlays,
     showMask,
+    visibleChunks,
   }
 })

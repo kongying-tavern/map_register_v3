@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import BarItem from './BarItem.vue'
-import { MapOverlayController } from '@/pages/pageMapV2/components'
+import { MapOverlayController, MapWindowTeleporter, mapWindowContext as windowCtx } from '@/pages/pageMapV2/components'
 import { usePreferenceStore } from '@/stores'
 
 const preferenceStore = usePreferenceStore()
+
+const id = crypto.randomUUID()
 
 const overlayVisible = computed({
   get: () => preferenceStore.preference['map.state.showOverlay'] ?? false,
@@ -11,13 +13,20 @@ const overlayVisible = computed({
     preferenceStore.preference['map.state.showOverlay'] = v
   },
 })
+
+const openOverlayWindow = () => {
+  windowCtx.openWindow({
+    id,
+    name: '附加图层控制器',
+  })
+}
 </script>
 
 <template>
   <BarItem
     divider
     :label="`附加图层：${overlayVisible ? '显示' : '隐藏'}`"
-    @click="overlayVisible = !overlayVisible"
+    @click="openOverlayWindow"
   >
     <template #default>
       <div
@@ -26,10 +35,10 @@ const overlayVisible = computed({
           'is-actived': overlayVisible,
         }"
       />
-    </template>
 
-    <template #contextmenu>
-      <MapOverlayController />
+      <MapWindowTeleporter :id="id">
+        <MapOverlayController />
+      </MapWindowTeleporter>
     </template>
   </BarItem>
 </template>

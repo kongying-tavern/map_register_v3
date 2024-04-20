@@ -32,6 +32,9 @@ export interface GSCompositeLayerState {
   topOverlayInGroup: Record<string, string>
   hiddenOverlayGroups: Set<string>
   overlayStateId: number
+  chunkMap: Map<string, OverlayChunk>
+  normalChunks: string[]
+  tileLikeChunks: string[]
 }
 
 export interface LayerAttachOptions {

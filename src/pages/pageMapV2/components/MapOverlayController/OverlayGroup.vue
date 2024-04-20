@@ -1,76 +1,87 @@
 <script lang="ts" setup>
-import type { OverlayControlGroup } from '@/stores'
+import type { OverlayChunk, OverlayChunkGroup } from '@/stores'
 import { useOverlayStore } from '@/stores'
-import { GSSwitch } from '@/components'
 
 const props = defineProps<{
-  data: OverlayControlGroup
+  data: OverlayControllerChunkGroup
 }>()
+
+interface OverlayControllerChunkGroup extends OverlayChunkGroup {
+  chunks: OverlayChunk[]
+}
 
 const overlayStore = useOverlayStore()
 
-const isShow = computed({
-  get: () => !overlayStore.hiddenOverlayGroups.has(props.data.id),
-  set: v => overlayStore[v ? 'showOverlayGroup' : 'hideOverlayGroup'](props.data.id),
-})
+const items = computed(() => Map.groupBy(props.data.chunks, ({ item }) => {
+  return item
+}))
+
+const resetItemVisible = () => {
+  overlayStore.visibleItemIds.delete(props.data.id)
+}
 </script>
 
 <template>
-  <div class="overlay-group flex flex-col gap-2 rounded-[10px] p-2 m-[6px] bg-[#00000040]">
-    <div class="flex justify-between text-[#D3BC8E]">
-      <div class="flex-1">
+  <div class="overlay-group">
+    <div class="flex justify-between rounded-[4px_4px_0_0] overflow-hidden">
+      <div class="py-1 px-2">
         {{ data.name }}
       </div>
-      <GSSwitch v-model="isShow" size="small" @click.stop="" />
+
+      <el-icon
+        class="
+          p-2
+          cursor-pointer
+          hover:bg-[#FF5F4040]
+          active:bg-[#FF5F4020]
+        "
+        color="#FF5F40"
+        title="重置图层可见性"
+        :size="32"
+        @click="resetItemVisible"
+      >
+        <RefreshLeft />
+      </el-icon>
     </div>
 
-    <div
-      class="grid grid-cols-2 gap-2 transition-all"
-      :class="{
-        'opacity-[20%]': !isShow,
-      }"
-    >
-      <div
-        v-for="item in data.items"
+    <div class="flex flex-col">
+      <el-checkbox
+        v-for="([item]) in items"
         :key="item.id"
-        class="overlay-item border p-1 border-gray-500 rounded-md text-sm grid place-items-center"
-        :class="{
-          'is-top': item.id === overlayStore.topOverlayInGroup[data.id],
-        }"
-        @click="() => overlayStore.moveToTop(item.id, data.id)"
+        class="overlay-item"
+        style="margin-right: 0"
+        :model-value="overlayStore.visibleItemIds.has(item.id)"
+        @update:model-value="v => overlayStore.visibleItemIds[Boolean(v) ? 'add' : 'delete'](item.id)"
       >
         {{ item.name }}
-      </div>
+      </el-checkbox>
     </div>
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style scoped>
 .overlay-group {
-  transition: all ease 150ms;
+  background: #F7F2E8;
+  border: 2px solid #D6AD8560;
+  color: #495366;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  transition: all ease 100ms;
+  &:hover {
+    border-color: #D6AD85;
+    color: #D6AD85;
+  }
 }
 
 .overlay-item {
-  color: gray;
-  min-height: 4em;
-  transition: all ease 150ms;
-  position: relative;
-
-  &.is-top {
-    border-color: #1CFFFF;
-    color: #1CFFFF;
+  padding: 0 8px;
+  transition: all ease 100ms;
+  &:hover {
+    background: #D6AD8560;
   }
-
-  &:not(.is-top) {
-    cursor: pointer;
-  }
-
-  &:not(.is-top):hover {
-    background-color: #1CFFFF40;
-  }
-
-  &:not(.is-top):active {
-    background-color: #1CFFFF20;
+  &:active {
+    background: #D6AD8530;
   }
 }
 </style>

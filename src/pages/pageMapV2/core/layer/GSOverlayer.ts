@@ -1,12 +1,7 @@
 import { BitmapLayer, SolidPolygonLayer } from '@deck.gl/layers/typed'
-import type { Color, LayersList } from '@deck.gl/core/typed'
+import type { LayersList } from '@deck.gl/core/typed'
 import { CompositeLayer } from '@deck.gl/core/typed'
 import type { GSCompositeLayerState } from '.'
-import type { OverlayChunk } from '@/stores'
-
-const CONSPICUOUS_COLOR: Color = [255, 255, 255]
-const INCONSPICUOUS_COLOR: Color = [128, 128, 128]
-const NO_MASK_COLOR: Color = [200, 200, 200]
 
 /** 拖拽指示线图层 */
 export class GSOverlayer extends CompositeLayer<GSCompositeLayerState> {
@@ -22,13 +17,10 @@ export class GSOverlayer extends CompositeLayer<GSCompositeLayerState> {
   renderLayers = (): LayersList => {
     const {
       tileConfig,
-      overlayStateId,
-      normalOverlays,
-      tileLikeOverlays,
-      showOverlay,
       showOverlayMask,
-      topOverlayInGroup,
-      hiddenOverlayGroups,
+      chunkMap,
+      normalChunks,
+      tileLikeChunks,
     } = this.props
 
     const [w, h] = tileConfig!.tile.size
@@ -39,40 +31,17 @@ export class GSOverlayer extends CompositeLayer<GSCompositeLayerState> {
     const xmax = w + ox
     const ymax = h + oy
 
-    const isOverlayVisible = (overlay: OverlayChunk) => {
-      if (hiddenOverlayGroups.has(overlay.group.id))
-        return false
-      if (!overlay.group.multiple && topOverlayInGroup[overlay.group.id] !== overlay.item.id)
-        return false
-      return true
-    }
-
-    const isOverlayOnTop = (overlay: OverlayChunk) => {
-      return topOverlayInGroup[overlay.group.id] === overlay.item.id
-    }
-
     return [
-      ...showOverlay
-        ? tileLikeOverlays.map((overlay) => {
-          const { bounds: [[xmin, ymin], [xmax, ymax]] } = overlay
-          return new BitmapLayer({
-            id: `overlay-${overlay.id}`,
-            bounds: [xmin, ymax, xmax, ymin],
-            image: overlay.url,
-            opacity: isOverlayVisible(overlay) ? 1 : 0,
-            tintColor: isOverlayOnTop(overlay)
-              ? CONSPICUOUS_COLOR
-              : showOverlayMask
-                ? INCONSPICUOUS_COLOR
-                : NO_MASK_COLOR,
-            updateTriggers: {
-              tintColor: overlayStateId,
-            },
-          })
+      tileLikeChunks.map((chunkId) => {
+        const { id, url, bounds: [[xmin, ymin], [xmax, ymax]] } = chunkMap.get(chunkId)!
+        return new BitmapLayer({
+          id,
+          bounds: [xmin, ymax, xmax, ymin],
+          image: url,
         })
-        : [],
+      }),
       new SolidPolygonLayer({
-        id: 'genshin-mask-layer',
+        id: 'genshin-overlay-mask',
         data: [{
           polygon: [
             [xmin, ymin],
@@ -89,29 +58,14 @@ export class GSOverlayer extends CompositeLayer<GSCompositeLayerState> {
           getFillColor: 100,
         },
       }),
-      ...showOverlay
-        ? normalOverlays.map((overlay) => {
-          const { bounds: [[xmin, ymin], [xmax, ymax]] } = overlay
-          return new BitmapLayer({
-            id: `overlay-${overlay.id}`,
-            bounds: [xmin, ymax, xmax, ymin],
-            image: overlay.url,
-            opacity: isOverlayVisible(overlay) ? 1 : 0,
-            tintColor: isOverlayOnTop(overlay)
-              ? CONSPICUOUS_COLOR
-              : showOverlayMask
-                ? INCONSPICUOUS_COLOR
-                : NO_MASK_COLOR,
-            transitions: {
-              opacity: 100,
-              tintColor: 100,
-            },
-            updateTriggers: {
-              tintColor: overlayStateId,
-            },
-          })
+      normalChunks.map((chunkId) => {
+        const { id, url, bounds: [[xmin, ymin], [xmax, ymax]] } = chunkMap.get(chunkId)!
+        return new BitmapLayer({
+          id,
+          bounds: [xmin, ymax, xmax, ymin],
+          image: url,
         })
-        : [],
+      }),
     ]
   }
 }

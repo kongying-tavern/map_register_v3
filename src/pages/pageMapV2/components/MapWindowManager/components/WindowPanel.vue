@@ -36,9 +36,24 @@ const handleResize = (resizeProps: MapWindow.ResizeProps) => {
     }"
     :[`data-${dragHookId}`]="id"
   >
-    <div class="window-header" data-draggable="true">
-      <div class="p-1 text-sm pointer-events-none">
+    <div class="window-header">
+      <div class="header-title p-1 flex-1 text-sm overflow-hidden whitespace-nowrap text-ellipsis" data-draggable="true">
         {{ info.name }}
+      </div>
+
+      <div class="header-action flex-shrink-0">
+        <el-icon
+          :size="30"
+          class="
+            p-1 transition-all
+            hover:bg-[var(--el-color-danger)] hover:text-[var(--el-color-white)]
+            active:bg-[var(--el-color-danger-light-3)]
+          "
+          color="var(--el-color-white)"
+          @click="() => context.closeWindow(id)"
+        >
+          <Close />
+        </el-icon>
       </div>
     </div>
 
@@ -80,10 +95,18 @@ const handleResize = (resizeProps: MapWindow.ResizeProps) => {
     var(--el-color-primary),
     var(--el-color-primary-dark-2)
   );
+  overflow: hidden;
   user-select: none;
-  cursor: move;
   border-radius: 6px 6px 0 0;
+  display: flex;
+  justify-content: space-between;
 }
+
+.header-title {
+  cursor: move;
+}
+
+.header-action {}
 
 .window-content {
   height: calc(var(--h, 600) * 1px);
