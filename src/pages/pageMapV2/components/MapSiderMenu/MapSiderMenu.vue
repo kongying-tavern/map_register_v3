@@ -7,7 +7,15 @@ import { FeatureGrid, MarkerFilter, MarkerTable, SiderMenu, SiderMenuItem } from
 import { AppSettings } from '@/components'
 import { useGlobalDialog } from '@/hooks'
 import { Logger } from '@/utils'
-import { useDadianStore, useIconTagStore, useMapStateStore, usePreferenceStore, useUserAuthStore, useUserInfoStore } from '@/stores'
+import {
+  useAccessStore,
+  useDadianStore,
+  useIconTagStore,
+  useMapStateStore,
+  usePreferenceStore,
+  useUserAuthStore,
+  useUserInfoStore,
+} from '@/stores'
 import { IconGithub } from '@/components/AppIcons'
 import { FALLBACK_AVATAR_URL } from '@/shared/constant'
 import { ExitLeft } from '@/components/GenshinUI/GSIcon'
@@ -16,6 +24,7 @@ const collapse = defineModel<boolean>('collapse', { required: true })
 
 const logger = new Logger('debug')
 
+const accessStore = useAccessStore()
 const iconTagStore = useIconTagStore()
 const userInfoStore = useUserInfoStore()
 const userAuthStore = useUserAuthStore()
@@ -123,7 +132,7 @@ const features: FeatureOption[] = [
       </SiderMenuItem>
 
       <SiderMenuItem
-        v-if="userInfoStore.isManager"
+        v-if="accessStore.get('MANAGER_COMPONENT')"
         label="管理面板"
         :icon="PieChart"
         @click="() => router.push('/items')"

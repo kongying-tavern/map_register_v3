@@ -23,6 +23,9 @@ export const ACCESS_HIDDEN_FLAG = {
 
 /** 权限表 */
 const ACCESS_CONTROL = {
+  /** 管理员组件 */
+  MANAGER_COMPONENT: 0b110000,
+
   /** 点位关联 */
   MARKER_LINK: 0b110000,
 
