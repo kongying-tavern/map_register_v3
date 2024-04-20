@@ -21,6 +21,7 @@ export class GSOverlayer extends CompositeLayer<GSCompositeLayerState> {
       chunkMap,
       normalChunks,
       tileLikeChunks,
+      hover,
     } = this.props
 
     const [w, h] = tileConfig!.tile.size
@@ -31,6 +32,10 @@ export class GSOverlayer extends CompositeLayer<GSCompositeLayerState> {
     const xmax = w + ox
     const ymax = h + oy
 
+    const isHover: (id: string) => boolean = hover?.type === 'overlayChunks'
+      ? (id: string) => hover.value.has(id)
+      : () => false
+
     return [
       tileLikeChunks.map((chunkId) => {
         const { id, url, bounds: [[xmin, ymin], [xmax, ymax]] } = chunkMap.get(chunkId)!
@@ -38,6 +43,10 @@ export class GSOverlayer extends CompositeLayer<GSCompositeLayerState> {
           id,
           bounds: [xmin, ymax, xmax, ymin],
           image: url,
+          tintColor: isHover(chunkId) ? [255, 255, 0, 200] : [255, 255, 255, 0],
+          updateTriggers: {
+            tintColor: hover,
+          },
         })
       }),
       new SolidPolygonLayer({
@@ -64,6 +73,10 @@ export class GSOverlayer extends CompositeLayer<GSCompositeLayerState> {
           id,
           bounds: [xmin, ymax, xmax, ymin],
           image: url,
+          tintColor: isHover(chunkId) ? [255, 255, 0, 255] : [255, 255, 255, 0],
+          updateTriggers: {
+            tintColor: hover,
+          },
         })
       }),
     ]

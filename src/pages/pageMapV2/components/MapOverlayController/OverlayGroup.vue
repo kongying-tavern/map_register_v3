@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { OverlayChunk, OverlayChunkGroup } from '@/stores'
-import { useOverlayStore } from '@/stores'
+import { useMapStateStore, useOverlayStore } from '@/stores'
 
 const props = defineProps<{
   data: OverlayControllerChunkGroup
@@ -11,13 +11,24 @@ interface OverlayControllerChunkGroup extends OverlayChunkGroup {
 }
 
 const overlayStore = useOverlayStore()
+const mapStateStore = useMapStateStore()
 
 const items = computed(() => Map.groupBy(props.data.chunks, ({ item }) => {
   return item
 }))
 
 const resetItemVisible = () => {
-  overlayStore.visibleItemIds.delete(props.data.id)
+  items.value.forEach((_, { id }) => {
+    overlayStore.visibleItemIds.delete(id)
+  })
+}
+
+const { update } = mapStateStore.subscribeInteractionInfo('hover', 'overlayChunks')
+
+const updateHover = (chunks: OverlayChunk[] | null) => {
+  if (!chunks)
+    return update(null)
+  update(new Set(chunks.map(({ id }) => id)))
 }
 </script>
 
@@ -46,12 +57,14 @@ const resetItemVisible = () => {
 
     <div class="flex flex-col">
       <el-checkbox
-        v-for="([item]) in items"
+        v-for="([item, chunks]) in items"
         :key="item.id"
         class="overlay-item"
         style="margin-right: 0"
         :model-value="overlayStore.visibleItemIds.has(item.id)"
         @update:model-value="v => overlayStore.visibleItemIds[Boolean(v) ? 'add' : 'delete'](item.id)"
+        @pointerenter="() => updateHover(chunks)"
+        @pointerleave="() => updateHover(null)"
       >
         {{ item.name }}
       </el-checkbox>

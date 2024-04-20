@@ -59,6 +59,7 @@ declare namespace GSMapState {
     defaultMarker: MarkerWithRenderConfig
     defaultMarkerLink: MLRenderUnit
     multipleMarkers: Set<number>
+    overlayChunks: Set<string>
     unknown: unknown
   }
 
