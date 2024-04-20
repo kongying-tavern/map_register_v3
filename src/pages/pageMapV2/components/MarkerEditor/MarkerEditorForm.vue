@@ -11,7 +11,7 @@ import {
   AddonRefreshtimeEditor,
 } from './components'
 import { AppAreaCodeSelecter, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
-import { useMarkerExtraStore, useUserInfoStore } from '@/stores'
+import { useAccessStore, useMarkerExtraStore } from '@/stores'
 import type { ElFormType } from '@/shared'
 import { HiddenFlagEnum } from '@/shared'
 import { isTreasureChestMatched, requireCheck } from '@/utils'
@@ -27,8 +27,8 @@ const emits = defineEmits<{
   'close': []
 }>()
 
-/** 用户信息 */
-const userInfoStore = useUserInfoStore()
+/** 用户权限 */
+const accessStore = useAccessStore()
 
 /** 表单数据 */
 const form = ref<API.MarkerVo & { areaCode: string }>({
@@ -196,7 +196,7 @@ defineExpose({
               <el-radio-button :label="HiddenFlagEnum.HIDDEN">
                 隐藏
               </el-radio-button>
-              <el-radio-button v-if="userInfoStore.isNeigui" :label="HiddenFlagEnum.NEIGUI">
+              <el-radio-button v-if="accessStore.get('HIDDEN_FLAG_HIDDEN')" :label="HiddenFlagEnum.NEIGUI">
                 测试服点位
               </el-radio-button>
             </el-radio-group>

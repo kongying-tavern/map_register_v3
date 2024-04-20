@@ -5,6 +5,7 @@ import { useMarkerFilter } from './hooks'
 import { CheckboxGroup, CheckboxItem, ConditionRow, FilterTabs, ItemButton } from '.'
 import { AppIconTagRenderer, GSButton } from '@/components'
 import {
+  useAccessStore,
   useArchiveStore,
   useAreaStore,
   useIconTagStore,
@@ -13,15 +14,13 @@ import {
   useMapStateStore,
   useMarkerStore,
   usePreferenceStore,
-  useUserInfoStore,
 } from '@/stores'
 import db from '@/database'
 import { isItemVo } from '@/utils'
-import { HiddenFlagEnum } from '@/shared'
 import { fallbackToStaticIcon } from '@/configs'
 
+const accessStore = useAccessStore()
 const archiveStore = useArchiveStore()
-const userInfoStore = useUserInfoStore()
 const iconTagStore = useIconTagStore()
 
 const { areaList, areaCodeMap } = storeToRefs(useAreaStore())
@@ -61,11 +60,7 @@ const archivedMarkers = asyncComputed(async () => {
 
 // ==================== 地区 ====================
 const accessAreaList = computed<API.AreaVo[]>(() => {
-  const { isNeigui } = userInfoStore
-  return areaList.value.filter(({ hiddenFlag }) => isNeigui
-    ? hiddenFlag !== HiddenFlagEnum.HIDDEN
-    : hiddenFlag === HiddenFlagEnum.SHOW,
-  ).sort(indexSorter)
+  return areaList.value.filter(({ hiddenFlag }) => accessStore.checkHiddenFlag(hiddenFlag)).sort(indexSorter)
 })
 
 const parentAreaList = computed<API.AreaVo[]>(() => accessAreaList.value.filter(area => !area.isFinal))
@@ -101,15 +96,11 @@ const selectedType = computed(() => {
 
 /** 当前地区可用的全部物品 */
 const accessItemList = computed(() => {
-  const { isNeigui } = userInfoStore
   const area = selectedArea.value
   if (!area)
     return []
   return [...itemList.value]
-    .filter(({ hiddenFlag }) => isNeigui
-      ? hiddenFlag !== HiddenFlagEnum.HIDDEN
-      : hiddenFlag === HiddenFlagEnum.SHOW,
-    )
+    .filter(({ hiddenFlag }) => accessStore.checkHiddenFlag(hiddenFlag))
     .filter(item => item.areaId === area.id)
     .sort(indexSorter)
 })
