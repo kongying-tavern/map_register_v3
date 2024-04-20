@@ -1,15 +1,16 @@
 import { defineStore } from 'pinia'
 import { defaultsDeep, pick } from 'lodash'
-import { useDadianStore, useUserInfoStore } from '@/stores'
+import { useAccessStore, useDadianStore } from '@/stores'
 
 /** 点位额外信息解析 store */
 export const useMarkerExtraStore = defineStore('global-marker-extra', () => {
+  const accessStore = useAccessStore()
   const dadianStore = useDadianStore()
-  const userInfoStore = useUserInfoStore()
 
   const mergedAreaExtraConfigs = computed(() => {
     const { plugins = {}, pluginsNeigui = {} } = dadianStore._raw
-    const isNegui = userInfoStore.isNeigui
+
+    const isNegui = accessStore.hasNeigui
 
     const areaExtraConfigs: Record<string, API.ExtraConfig> = {}
     for (const areaCode in plugins) {

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { defaultsDeep, merge } from 'lodash'
-import { useAreaStore, useDadianStore, usePreferenceStore, useUserInfoStore } from '@/stores'
+import { useAccessStore, useAreaStore, useDadianStore, usePreferenceStore } from '@/stores'
 import type { AreaTagTuple } from '@/configs'
 import { AREA_ADDITIONAL_CONFIG_MAP } from '@/configs'
 
@@ -33,13 +33,13 @@ export interface AreaTileConfig {
 /** 底图 */
 export const useTileStore = defineStore('global-map-tile', () => {
   const areaStore = useAreaStore()
+  const accessStore = useAccessStore()
   const dadianStore = useDadianStore()
-  const userInfoStore = useUserInfoStore()
   const preferenceStore = usePreferenceStore()
 
   const mergedTiles = computed(() => {
     const { tiles = {}, tilesNeigui = {} } = dadianStore._raw
-    return userInfoStore.isNeigui
+    return accessStore.hasNeigui
       ? merge(tiles, tilesNeigui)
       : tiles
   })

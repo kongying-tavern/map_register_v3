@@ -4,7 +4,8 @@ import { routerHook, userHook } from './hooks'
 import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 import { useUserAuthStore } from '@/stores'
-import { RoleLevel, RoleTypeEnum } from '@/shared'
+import type { RoleTypeEnum } from '@/shared'
+import { RoleLevel } from '@/shared'
 
 export const useUserInfoStore = defineStore('global-user-info', () => {
   const userAuthStore = useUserAuthStore()
@@ -77,12 +78,6 @@ export const useUserInfoStore = defineStore('global-user-info', () => {
     return userRoleLevel.value >= RoleLevel[role]
   }
 
-  // ==================== 一些快捷权限判断 ====================
-  const isAdmin = computed(() => hasRole(RoleTypeEnum.ADMIN))
-  const isManager = computed(() => hasRole(RoleTypeEnum.MAP_MANAGER))
-  const isNeigui = computed(() => hasRole(RoleTypeEnum.MAP_NEIGUI))
-  const isDadian = computed(() => hasRole(RoleTypeEnum.MAP_PUNCTUATE))
-
   return {
     // states
     showUserInfo,
@@ -93,10 +88,6 @@ export const useUserInfoStore = defineStore('global-user-info', () => {
     roleMap,
     userRole,
     userRoleLevel,
-    isAdmin,
-    isManager,
-    isNeigui,
-    isDadian,
 
     // actions
     updateUserInfo,

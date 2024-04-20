@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { merge, template } from 'lodash'
-import { useDadianStore, usePreferenceStore, useTileStore, useUserInfoStore } from '.'
+import { useAccessStore, useDadianStore, usePreferenceStore, useTileStore } from '.'
 
 export interface OverlayGroup {
   id: string
@@ -30,14 +30,7 @@ export interface OverlayChunk {
   /** overlay 名称 */
   label: string
   /** overlay 所属的分组 */
-  group: {
-    id: string
-    name: string
-    mask: boolean
-    role: API.OverlayRole
-    multiple: boolean
-    areaCode: string
-  }
+  group: OverlayChunkGroup
   /** chunk 所属的单元 */
   item: {
     id: string
@@ -51,7 +44,15 @@ export interface OverlayChunk {
   bounds: API.OverlayBounds
 }
 
-type OverlayChunkGroup = OverlayChunk['group']
+export interface OverlayChunkGroup {
+  id: string
+  name: string
+  mask: boolean
+  role: API.OverlayRole
+  multiple: boolean
+  areaCode: string
+}
+
 export interface OverlayControlGroup extends OverlayChunkGroup {
   bounds: API.OverlayBounds
   items: { id: string; name: string }[]
@@ -61,18 +62,12 @@ export interface MergedOverlayGroups {
   [areaCode: string]: OverlayGroup[]
 }
 
-const toCopy = <T>(set: Set<T>) => {
-  const copySet = new Set<T>()
-  set.forEach(item => copySet.add(item))
-  return copySet
-}
-
 /** 地图附加图层 */
 export const useOverlayStore = defineStore('global-map-overlays', () => {
+  const accessStore = useAccessStore()
   const dadianStore = useDadianStore()
   const tileStore = useTileStore()
   const preferenceStore = usePreferenceStore()
-  const userInfoStore = useUserInfoStore()
 
   /** 每组内位于顶部的 overlay 单元 */
   const topOverlayInGroup = shallowRef<{ [groupId: string]: string }>({})
@@ -80,12 +75,15 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
   /** 当前隐藏的 overlay 组 id */
   const hiddenOverlayGroups = ref(new Set<string>())
 
+  /** 当前显示的 overlay 单元 */
+  const showItemIds = ref(new Set<string>())
+
   /** 当前状态 id，用于优化 deck 状态检查 */
   const stateId = ref(Date.now())
 
   const mergedPlugins = computed(() => {
     const { plugins = {}, pluginsNeigui = {} } = dadianStore._raw
-    return userInfoStore.isNeigui
+    return accessStore.hasNeigui
       ? merge(plugins, pluginsNeigui)
       : plugins
   })
@@ -210,6 +208,12 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
     return result
   })
 
+  /** chunk 索引表 */
+  const chunkMap = computed(() => normalizedOverlayChunks.value.reduce((map, chunk) => {
+    map.set(chunk.id, chunk)
+    return map
+  }, new Map<string, OverlayChunk>()))
+
   /** 只存在于当前图层内的 overlay */
   const existOverlays = computed((): OverlayChunk[] => {
     const { currentTileConfig } = tileStore
@@ -243,33 +247,6 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
     return sortedOverlays.value.filter(chunk => chunk.group.role === 'tile')
   })
 
-  /** 只存在于当前图层内的 overlay 控制组 */
-  const overlayControlGroups = computed((): Record<string, OverlayControlGroup> => {
-    const groups: Record<string, OverlayControlGroup> = {}
-    const itemIdsSet = new Set<string>()
-    existOverlays.value.forEach((chunk) => {
-      if (!groups[chunk.group.id]) {
-        groups[chunk.group.id] = {
-          ...chunk.group,
-          bounds: chunk.bounds,
-          items: [],
-        }
-      }
-      const group = groups[chunk.group.id]
-      const [[xmin, ymin], [xmax, ymax]] = group.bounds
-      const [[cxmin, cymin], [cxmax, cymax]] = chunk.bounds
-      group.bounds = [
-        [Math.min(xmin, cxmin), Math.min(ymin, cymin)],
-        [Math.max(xmax, cxmax), Math.max(ymax, cymax)],
-      ]
-      if (itemIdsSet.has(chunk.item.id))
-        return
-      itemIdsSet.add(chunk.item.id)
-      group.items.push(chunk.item)
-    })
-    return groups
-  })
-
   const isOverlaysHasMask = computed(() => {
     for (const chunk of existOverlays.value) {
       if (chunk.group.mask)
@@ -284,63 +261,18 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
     return isOverlaysHasMask.value
   })
 
-  const moveToTop = (itemId: string, groupId: string) => {
-    const topMap = { ...topOverlayInGroup.value }
-    if (itemId === topMap[groupId])
-      return
-    topMap[groupId] = itemId
-    topOverlayInGroup.value = topMap
-    stateId.value = Date.now()
-  }
-
-  const initTopOverlays = (isReset = false) => {
-    if (isReset)
-      topOverlayInGroup.value = {}
-    if (Object.keys(topOverlayInGroup.value).length > 0)
-      return
-    const defaultTopOverlayInGroup = normalizedOverlayChunks.value.reduce((seed, chunk) => {
-      if (!seed[chunk.group.id])
-        seed[chunk.group.id] = chunk.item.id
-      return seed
-    }, {} as Record<string, string>)
-    topOverlayInGroup.value = defaultTopOverlayInGroup
-    stateId.value = Date.now()
-  }
-
-  watch(normalizedOverlayChunks, () => initTopOverlays(false), { immediate: true })
-
-  const showOverlayGroup = (groupId: string) => {
-    const copySet = toCopy(hiddenOverlayGroups.value)
-    copySet.delete(groupId)
-    hiddenOverlayGroups.value = copySet
-    stateId.value = Date.now()
-  }
-
-  const hideOverlayGroup = (groupId: string) => {
-    const copySet = toCopy(hiddenOverlayGroups.value)
-    copySet.add(groupId)
-    hiddenOverlayGroups.value = copySet
-    stateId.value = Date.now()
-  }
-
   return {
     // state
     topOverlayInGroup,
     stateId,
     hiddenOverlayGroups,
+    showItemIds,
 
     // getters
-    mergedOverlayGroups,
-    normalizedOverlayChunks,
+    chunkMap,
     normalOverlays,
+    existOverlays,
     tileLikeOverlays,
-    overlayControlGroups,
     showMask,
-
-    // action
-    moveToTop,
-    initTopOverlays,
-    showOverlayGroup,
-    hideOverlayGroup,
   }
 })
