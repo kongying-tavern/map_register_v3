@@ -16,7 +16,7 @@ onMounted(() => {
   const fontSize = 10
 
   ctx.font = `${fontSize + 2}px monospace`
-  ctx.fillStyle = '#263240'
+  ctx.fillStyle = '#C6C2BA'
 
   const draw = () => {
     const { width, height } = canvas

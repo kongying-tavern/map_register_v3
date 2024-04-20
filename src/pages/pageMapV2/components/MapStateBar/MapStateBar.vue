@@ -57,11 +57,13 @@ useEventListener(contentZoneRef, 'click', checkTooltip)
   </div>
 </template>
 
-<style lang="scss">
+<style>
 .el-popper.is-customized.state-bar-tooltip {
   padding: 2px 4px;
-  background: #ECE5D8;
-  color: #495168;
+  background: #495168;
+  color: #ECE5D8;
+  /* background: #ECE5D8; */
+  /* color: #495168; */
   font-size: 12px;
   .el-popper__arrow {
     display: none;
@@ -83,12 +85,15 @@ useEventListener(contentZoneRef, 'click', checkTooltip)
 
 .bar-content {
   border-radius: 4px;
-  background: #C6C2BA;
-  color: #263240;
+  background: #263240;
+  color: #C6C2BA;
+  /* background: #C6C2BA; */
+  /* color: #263240; */
   padding: 2px;
   pointer-events: all;
   display: flex;
   justify-content: flex-start;
   align-items: center;
+  border: 1px solid #ECE5D820;
 }
 </style>

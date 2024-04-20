@@ -89,7 +89,7 @@ onClickOutside(contextmenuRef, () => {
       background: linear-gradient(
         90deg,
         transparent 0 calc(50% - 0.5px),
-        #26324020 calc(50% - 0.5px) calc(50% + 0.5px),
+        #FFFFFF40 calc(50% - 0.5px) calc(50% + 0.5px),
         transparent calc(50% + 0.5px) 100%
       );
       right: calc(0px - var(--divider-gap));
@@ -124,11 +124,11 @@ onClickOutside(contextmenuRef, () => {
   }
 
   &:hover {
-    --mask-color: #33333320;
+    --mask-color: #FFFFFF20;
   }
 
   &:active {
-    --mask-color: #33333340;
+    --mask-color: #FFFFFF40;
   }
 }
 
