@@ -41,7 +41,8 @@ const insertChars = (chars = "") => {
     <q-btn
       v-for="(snippet, index) in snippets"
       :key="index"
-      size="xs"
+      size="sm"
+      style="width: 1.3rem"
       bordered
       :label="snippet"
       @click="insertChars(snippet)"
