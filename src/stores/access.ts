@@ -36,7 +36,7 @@ const ACCESS_CONTROL = {
   MARKER_EDIT: 0b111100,
 
   /** 点位删除 */
-  MARKER_DELETE: 0b100000,
+  MARKER_DELETE: 0b110000,
 
   /** 点位批量编辑 */
   MARKER_BATCH_EDIT: 0b110000,
