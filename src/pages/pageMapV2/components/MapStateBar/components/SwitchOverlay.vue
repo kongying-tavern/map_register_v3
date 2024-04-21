@@ -1,18 +1,13 @@
 <script setup lang="ts">
 import BarItem from './BarItem.vue'
 import { MapOverlayController, MapWindowTeleporter, mapWindowContext as windowCtx } from '@/pages/pageMapV2/components'
-import { usePreferenceStore } from '@/stores'
+import { useOverlayStore } from '@/stores'
 
-const preferenceStore = usePreferenceStore()
+const overlayStore = useOverlayStore()
 
 const id = crypto.randomUUID()
 
-const overlayVisible = computed({
-  get: () => preferenceStore.preference['map.state.showOverlay'] ?? false,
-  set: (v) => {
-    preferenceStore.preference['map.state.showOverlay'] = v
-  },
-})
+const overlayVisible = computed(() => overlayStore.visibleItemIds.size > 0)
 
 const openOverlayWindow = () => {
   windowCtx.openWindow({
