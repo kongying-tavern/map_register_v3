@@ -112,7 +112,7 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
         </template>
 
         <template #content>
-          <p v-for="(line, i) in cachedMarkerVo.content?.trim().split('\n')" :key="i" class="leading-6">
+          <p v-for="(line, i) in cachedMarkerVo.content?.trim().split('\n')" :key="i" class="leading-6 min-h-[1.5rem]">
             {{ line }}
           </p>
         </template>
