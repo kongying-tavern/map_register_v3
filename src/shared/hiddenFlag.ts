@@ -24,6 +24,6 @@ export const HIDDEN_FLAG_OPTIONS: {
 }[] = Object
   .entries(HIDDEN_FLAG_NAM_MAP)
   .map(([key, value]) => ({
-    label: key,
-    value: Number(value),
+    label: value,
+    value: Number(key),
   }))
