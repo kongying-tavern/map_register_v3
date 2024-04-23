@@ -2,10 +2,10 @@
 import { cloneDeep } from 'lodash'
 import { useTagOptions } from '../hooks'
 import type { ElFormType } from '@/shared'
-import { HiddenFlagEnum } from '@/shared'
+import { HIDDEN_FLAG_OPTIONS } from '@/shared'
 import type { ItemFormRules } from '@/utils'
 import { AppIconTagRenderer, AppItemSelecter } from '@/components'
-import { useIconTagStore } from '@/stores'
+import { useAccessStore, useIconTagStore } from '@/stores'
 
 const props = defineProps<{
   parent?: API.AreaVo
@@ -17,6 +17,8 @@ const emits = defineEmits<{
   'update:modelValue': [area: API.AreaVo]
   'update:items': [items?: API.ItemVo[]]
 }>()
+
+const accessStore = useAccessStore()
 
 const formData = ref(cloneDeep(props.modelValue))
 
@@ -56,11 +58,7 @@ const iconTagStore = useIconTagStore()
 
 const { loading, tagOptions, getTagList } = useTagOptions()
 
-const hiddenFlagOptions = [
-  { label: '显示', value: HiddenFlagEnum.SHOW },
-  { label: '隐藏', value: HiddenFlagEnum.HIDDEN },
-  { label: '内鬼', value: HiddenFlagEnum.NEIGUI },
-]
+const hiddenFlagOptions = useArrayFilter(HIDDEN_FLAG_OPTIONS, ({ value }) => accessStore.checkHiddenFlag(value))
 
 const selectedItems = computed({
   get: () => props.items,

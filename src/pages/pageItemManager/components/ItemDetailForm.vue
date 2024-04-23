@@ -3,9 +3,9 @@ import type { ItemFormRules } from '@/utils'
 import { lengthCheck, requireCheck } from '@/utils'
 import { useBinaryFlag, useIconList, useRefreshTime } from '@/hooks'
 import type { ElFormType } from '@/shared'
-import { HiddenFlagEnum, IconStyleTyleEnum } from '@/shared'
+import { HIDDEN_FLAG_OPTIONS, IconStyleTyleEnum } from '@/shared'
 import { AppTimeSelect } from '@/components'
-import { useAreaStore, useItemTypeStore } from '@/stores'
+import { useAccessStore, useAreaStore, useItemTypeStore } from '@/stores'
 
 const props = defineProps<{
   modelValue: API.ItemVo
@@ -14,6 +14,8 @@ const props = defineProps<{
 const emits = defineEmits<{
   'update:modelValue': [item: API.ItemVo]
 }>()
+
+const accessStore = useAccessStore()
 
 // ==================== 表单数据 ====================
 const formData = ref(props.modelValue)
@@ -59,11 +61,7 @@ const itemTypeList = computed(() => itemTypeStore.itemTypeList
 )
 
 // ==================== 显示类型 ====================
-const hiddenFlagOptions = [
-  { label: '显示', value: HiddenFlagEnum.SHOW },
-  { label: '隐藏', value: HiddenFlagEnum.HIDDEN },
-  { label: '内鬼', value: HiddenFlagEnum.NEIGUI },
-]
+const hiddenFlagOptions = useArrayFilter(HIDDEN_FLAG_OPTIONS, ({ value }) => accessStore.checkHiddenFlag(value))
 
 // ==================== 物品图标 ====================
 const { iconMap, iconList: rawIconList } = useIconList()

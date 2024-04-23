@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { AppRowImage, AppUserPopover } from '@/components'
-import { useIconTagStore } from '@/stores'
-import { useAreaList, useTypeList, useUserPopover } from '@/hooks'
+import { useAreaStore, useIconTagStore, useItemTypeStore } from '@/stores'
+import { useUserPopover } from '@/hooks'
 import { HiddenFlagEnum } from '@/shared'
 import { refreshTimeFormatter, timeFormatter } from '@/utils'
 
@@ -15,18 +15,13 @@ const emits = defineEmits<{
   selectionChange: [selections: API.ItemVo[]]
 }>()
 
+const areaStore = useAreaStore()
+const iconTagStore = useIconTagStore()
+const itemTypeStore = useItemTypeStore()
+
 // ==================== 表格尺寸 ====================
 const containerRef = ref<HTMLElement | null>(null)
 const { height, width } = useElementSize(containerRef)
-
-// ==================== 地区信息 ====================
-const { areaMap } = useAreaList({ immediate: true })
-
-// ==================== 物品类型 ====================
-const { typeMap } = useTypeList({ immediate: true })
-
-// ==================== 图标信息 ====================
-const iconTagStore = useIconTagStore()
 
 // ==================== 显示类型 ====================
 const hiddenFlagMap: Record<number, string> = {
@@ -78,14 +73,14 @@ const proxySelectionChange = (selections: API.ItemVo[]) => {
 
       <el-table-column label="所属地区" width="150">
         <template #default="{ row }">
-          <div>{{ areaMap[row.areaId]?.name ?? row.areaId }}</div>
+          <div>{{ areaStore.areaIdMap.get(row.areaId)?.name ?? row.areaId }}</div>
         </template>
       </el-table-column>
 
       <el-table-column label="物品类型" width="150">
         <template #default="{ row }">
           <el-tag v-for="typeId in row.typeIdList" :key="typeId" disable-transitions type="success" class="mr-1">
-            {{ typeMap[typeId]?.name }}
+            {{ itemTypeStore.itemTypeIdMap.get(typeId)?.name ?? 'unknown' }}
           </el-tag>
         </template>
       </el-table-column>
