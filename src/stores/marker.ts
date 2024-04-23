@@ -13,7 +13,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
   const _markerList = shallowRef<API.MarkerVo[]>([])
 
   const markerList = computed(() => _markerList.value.filter(({ hiddenFlag }) => accessStore.checkHiddenFlag(hiddenFlag)))
-  const total = computed(() => markerList.value)
+  const total = computed(() => markerList.value.length)
 
   const backendUpdater = useBackendUpdate(
     db.marker,
