@@ -9,8 +9,10 @@ const id = crypto.randomUUID()
 
 const delay = computed(() => Math.min(999, Math.max(0, socketStore.delay)))
 
+const isOpen = computed(() => socketStore.status === WebSocket.OPEN)
+
 const color = computed(() => {
-  if (socketStore.status !== WebSocket.OPEN)
+  if (!isOpen.value)
     return 'var(--color-null)'
   if (delay.value > 500)
     return 'var(--color-slow)'
@@ -37,22 +39,22 @@ const color = computed(() => {
           <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="200" height="200">
             <path
               d="M944.35555555 2.27555555H780.51555555c-20.13866667 0-36.40888889 16.27022222-36.40888888 36.4088889v946.6311111c0 20.13866667 16.27022222 36.40888889 36.40888888 36.4088889h163.84c20.13866667 0 36.40888889-16.27022222 36.4088889-36.4088889V38.68444445c0-20.13866667-16.27022222-36.40888889-36.4088889-36.4088889z"
-              :fill="delay > 200 ? 'var(--color-null)' : 'var(--color-fast)'"
+              :fill="!isOpen ? 'var(--color-null)' : delay > 200 ? 'var(--color-null)' : 'var(--color-fast)'"
             />
             <path
               d="M593.92 329.95555555H430.08c-20.13866667 0-36.40888889 16.27022222-36.40888889 36.4088889v618.9511111c0 20.13866667 16.27022222 36.40888889 36.40888889 36.4088889h163.84c20.13866667 0 36.40888889-16.27022222 36.40888889-36.4088889V366.36444445c0-20.13866667-16.27022222-36.40888889-36.40888889-36.4088889z"
-              :fill="delay > 500 ? 'var(--color-null)' : delay > 200 ? 'var(--color-norm)' : 'var(--color-fast)'"
+              :fill="!isOpen ? 'var(--color-null)' : delay > 500 ? 'var(--color-null)' : delay > 200 ? 'var(--color-norm)' : 'var(--color-fast)'"
             />
             <path
               d="M243.48444445 657.63555555H79.64444445c-20.13866667 0-36.40888889 16.27022222-36.4088889 36.4088889v291.2711111c0 20.13866667 16.27022222 36.40888889 36.4088889 36.4088889h163.84c20.13866667 0 36.40888889-16.27022222 36.40888888-36.4088889V694.04444445c0-20.13866667-16.27022222-36.40888889-36.40888888-36.4088889z"
-              :fill="delay > 500 ? 'var(--color-slow)' : delay > 200 ? 'var(--color-norm)' : 'var(--color-fast)'"
+              :fill="!isOpen ? 'var(--color-null)' : delay > 500 ? 'var(--color-slow)' : delay > 200 ? 'var(--color-norm)' : 'var(--color-fast)'"
             />
           </svg>
         </el-icon>
       </div>
 
-      <div class="w-[52px] h-full flex justify-end items-center">
-        {{ delay }} ms
+      <div class="w-[50px] h-full flex justify-end items-center">
+        {{ isOpen ? `${delay}ms` : '未连接' }}
       </div>
     </div>
 
