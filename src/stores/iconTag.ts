@@ -9,7 +9,7 @@ import db from '@/database'
 /** 本地图标标签数据 */
 export const useIconTagStore = defineStore('global-icon-tag', () => {
   const tagList = shallowRef<API.TagVo[]>([])
-  const total = ref(0)
+  const total = computed(() => tagList.value.length)
 
   /** tag 名称到实体的索引表 */
   const tagNameMap = computed(() => tagList.value.reduce((seed, tag) => {
@@ -46,14 +46,13 @@ export const useIconTagStore = defineStore('global-icon-tag', () => {
   })
 
   liveQuery(() => db.iconTag.toArray()).subscribe((data) => {
-    total.value = data.length
     tagList.value = data
     refreshTagSprite(data)
   })
 
   return {
     // getters
-    total: total as Readonly<Ref<number>>,
+    total,
     tagNameMap,
     iconTagMap,
     tagSpriteImage,

@@ -1,14 +1,15 @@
 import { defineStore } from 'pinia'
 import { liveQuery } from 'dexie'
-import type { ShallowRef } from 'vue'
 import { useBackendUpdate, userHook } from './hooks'
-import { useUserAuthStore } from '.'
+import { useAccessStore, useUserAuthStore } from '.'
 import { Zip } from '@/utils'
 import Api from '@/api/api'
 import db from '@/database'
 
 /** 本地物品数据 */
 export const useItemStore = defineStore('global-item', () => {
+  const accessStore = useAccessStore()
+
   const _itemList = shallowRef<API.ItemVo[]>([])
   const _total = ref(0)
 
@@ -40,7 +41,7 @@ export const useItemStore = defineStore('global-item', () => {
   return {
     // getters
     total: _total as Readonly<Ref<number>>,
-    itemList: _itemList as Readonly<ShallowRef<API.ItemVo[]>>,
+    itemList: computed(() => _itemList.value.filter(({ hiddenFlag }) => accessStore.checkHiddenFlag(hiddenFlag))),
 
     itemIdMap,
     backendUpdater,

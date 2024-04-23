@@ -8,8 +8,8 @@ import db from '@/database'
 import { Zip } from '@/utils'
 
 export const useMarkerLinkStore = defineStore('global-marker-link', () => {
-  const total = ref(0)
   const markerLinkList = shallowRef<API.MarkerLinkageVo[]>([])
+  const total = computed(() => markerLinkList.value.length)
 
   const backendUpdater = useBackendUpdate(
     db.markerLink,
@@ -26,12 +26,11 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
   )
 
   liveQuery(() => db.markerLink.toArray()).subscribe((list) => {
-    total.value = list.length
     markerLinkList.value = list
   })
 
   return {
-    total: total as Readonly<Ref<number>>,
+    total,
     markerLinkList: markerLinkList as Readonly<ShallowRef<API.MarkerLinkageVo[]>>,
     backendUpdater,
   }

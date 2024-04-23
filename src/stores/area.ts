@@ -1,27 +1,30 @@
 import { defineStore } from 'pinia'
 import { liveQuery } from 'dexie'
-import type { ShallowRef } from 'vue'
 import { useBackendUpdate, userHook } from './hooks'
-import { useUserAuthStore } from '.'
+import { useAccessStore, useUserAuthStore } from '.'
 import Api from '@/api/api'
 import db from '@/database'
 
 /** 本地地区数据 */
 export const useAreaStore = defineStore('global-area', () => {
-  const _areaList = shallowRef<API.AreaVo[]>([])
-  const _total = ref(0)
+  const accessStore = useAccessStore()
 
-  const areaMap = computed<Record<string, API.AreaVo>>(() => (Object.fromEntries(_areaList.value.map(area => [
+  const _areaList = shallowRef<API.AreaVo[]>([])
+
+  const areaList = computed(() => _areaList.value.filter(({ hiddenFlag }) => accessStore.checkHiddenFlag(hiddenFlag)))
+  const total = computed(() => _areaList.value.length)
+
+  const areaMap = computed<Record<string, API.AreaVo>>(() => (Object.fromEntries(areaList.value.map(area => [
     area.id as number,
     area,
   ]))))
 
-  const areaIdMap = computed(() => _areaList.value.reduce((seed, area) => {
+  const areaIdMap = computed(() => areaList.value.reduce((seed, area) => {
     seed.set(area.id!, area)
     return seed
   }, new Map<number, API.AreaVo>()))
 
-  const areaCodeMap = computed(() => _areaList.value.reduce((seed, area) => {
+  const areaCodeMap = computed(() => areaList.value.reduce((seed, area) => {
     seed.set(area.code!, area)
     return seed
   }, new Map<string, API.AreaVo>()))
@@ -48,12 +51,11 @@ export const useAreaStore = defineStore('global-area', () => {
 
   liveQuery(() => db.area.toArray()).subscribe((areaList) => {
     _areaList.value = areaList
-    _total.value = areaList.length
   })
 
   return {
-    total: _total as Readonly<Ref<number>>,
-    areaList: _areaList as Readonly<ShallowRef<API.AreaVo[]>>,
+    total,
+    areaList,
     areaMap,
     areaIdMap,
     areaCodeMap,

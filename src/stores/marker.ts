@@ -1,16 +1,19 @@
-import type { ShallowRef } from 'vue'
 import { defineStore } from 'pinia'
 import { liveQuery } from 'dexie'
 import { useBackendUpdate, userHook } from './hooks'
-import { useUserAuthStore } from '.'
+import { useAccessStore, useUserAuthStore } from '.'
 import { Zip } from '@/utils'
 import Api from '@/api/api'
 import db from '@/database'
 
 /** 全量点位的全局数据 */
 export const useMarkerStore = defineStore('global-marker', () => {
-  const _total = ref(0)
+  const accessStore = useAccessStore()
+
   const _markerList = shallowRef<API.MarkerVo[]>([])
+
+  const markerList = computed(() => _markerList.value.filter(({ hiddenFlag }) => accessStore.checkHiddenFlag(hiddenFlag)))
+  const total = computed(() => markerList.value)
 
   const backendUpdater = useBackendUpdate(
     db.marker,
@@ -28,13 +31,12 @@ export const useMarkerStore = defineStore('global-marker', () => {
   )
 
   liveQuery(() => db.marker.toArray()).subscribe((list) => {
-    _total.value = list.length
     _markerList.value = list
   })
 
   return {
-    total: _total as Readonly<Ref<number>>,
-    markerList: _markerList as Readonly<ShallowRef<API.MarkerVo[]>>,
+    total,
+    markerList,
     backendUpdater,
   }
 })

@@ -1,14 +1,18 @@
 import { defineStore } from 'pinia'
 import { liveQuery } from 'dexie'
 import { useBackendUpdate, userHook } from './hooks'
-import { useUserAuthStore } from '.'
+import { useAccessStore, useUserAuthStore } from '.'
 import Api from '@/api/api'
 import db from '@/database'
 
 /** 本地物品类型数据 */
 export const useItemTypeStore = defineStore('global-item-type', () => {
-  const itemTypeList = shallowRef<API.ItemTypeVo[]>([])
-  const total = ref(0)
+  const accessStore = useAccessStore()
+
+  const _itemTypeList = shallowRef<API.ItemTypeVo[]>([])
+
+  const itemTypeList = computed(() => _itemTypeList.value.filter(({ hiddenFlag }) => accessStore.checkHiddenFlag(hiddenFlag)))
+  const total = computed(() => itemTypeList.value.length)
 
   const itemTypeMap = computed(() => (Object.fromEntries(itemTypeList.value.map(itemType => [
     itemType.id as number,
@@ -41,13 +45,12 @@ export const useItemTypeStore = defineStore('global-item-type', () => {
   )
 
   liveQuery(() => db.itemType.toArray()).subscribe((list) => {
-    total.value = list.length
-    itemTypeList.value = list
+    _itemTypeList.value = list
   })
 
   return {
     total,
-    itemTypeList: itemTypeList as Readonly<Ref<API.ItemTypeVo[]>>,
+    itemTypeList,
     itemTypeMap,
     itemTypeIdMap,
     backendUpdater,

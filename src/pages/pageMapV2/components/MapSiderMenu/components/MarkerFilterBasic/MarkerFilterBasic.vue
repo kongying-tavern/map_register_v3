@@ -5,7 +5,6 @@ import { useMarkerFilter } from './hooks'
 import { CheckboxGroup, CheckboxItem, ConditionRow, FilterTabs, ItemButton } from '.'
 import { AppIconTagRenderer, GSButton } from '@/components'
 import {
-  useAccessStore,
   useArchiveStore,
   useAreaStore,
   useIconTagStore,
@@ -19,7 +18,6 @@ import db from '@/database'
 import { isItemVo } from '@/utils'
 import { fallbackToStaticIcon } from '@/configs'
 
-const accessStore = useAccessStore()
 const archiveStore = useArchiveStore()
 const iconTagStore = useIconTagStore()
 
@@ -60,7 +58,7 @@ const archivedMarkers = asyncComputed(async () => {
 
 // ==================== 地区 ====================
 const accessAreaList = computed<API.AreaVo[]>(() => {
-  return areaList.value.filter(({ hiddenFlag }) => accessStore.checkHiddenFlag(hiddenFlag)).sort(indexSorter)
+  return areaList.value.sort(indexSorter)
 })
 
 const parentAreaList = computed<API.AreaVo[]>(() => accessAreaList.value.filter(area => !area.isFinal))
@@ -100,7 +98,6 @@ const accessItemList = computed(() => {
   if (!area)
     return []
   return [...itemList.value]
-    .filter(({ hiddenFlag }) => accessStore.checkHiddenFlag(hiddenFlag))
     .filter(item => item.areaId === area.id)
     .sort(indexSorter)
 })
