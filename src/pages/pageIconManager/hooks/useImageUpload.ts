@@ -1,9 +1,11 @@
 import { ElMessage } from 'element-plus'
+import dayjs from 'dayjs'
 import Api from '@/api/api'
 import db from '@/database'
 import { useFetchHook } from '@/hooks'
 import { GlobalDialogController } from '@/components'
-import { useImageHostingStore, useUserInfoStore } from '@/stores'
+import { useUserInfoStore } from '@/stores'
+import Resource from '@/api/resource'
 
 interface ImageUploadHookOptions {
   image: Ref<Blob | undefined>
@@ -14,7 +16,6 @@ export const useImageUpload = (options: ImageUploadHookOptions) => {
   const { image, tagName } = options
 
   const userInfoStore = useUserInfoStore()
-  const imageHostingStore = useImageHostingStore()
 
   const croppedImageName = refWithControl(tagName.value ?? '', {
     onBeforeChange: (v) => {
@@ -30,13 +31,10 @@ export const useImageUpload = (options: ImageUploadHookOptions) => {
 
   const text = ref('')
 
-  const imageHostingUrl = ref('')
-
   const reset = () => {
     percentage.value = 0
     status.value = ''
     text.value = ''
-    imageHostingUrl.value = ''
   }
 
   watch(image, reset)
@@ -44,34 +42,41 @@ export const useImageUpload = (options: ImageUploadHookOptions) => {
   const file = computed(() => {
     if (!image.value)
       return
-    return new File([image.value], croppedImageName.value, {
-      type: image.value.type,
+    return new File([image.value], `${croppedImageName.value}.png`, {
+      type: 'image/png',
       lastModified: Date.now(),
     })
   })
 
   const { refresh: uploadImage, onSuccess, onError, ...rest } = useFetchHook({
     onRequest: async () => {
-      const shallowFile = file.value
-      if (!shallowFile)
+      const image = file.value
+      if (!image)
         throw new Error('没有文件可以上传')
 
       const shallowTagName = tagName.value
       if (!shallowTagName)
         throw new Error('icon tag 为空')
 
-      if (!imageHostingUrl.value) {
-        text.value = '正在上传'
-        const url = await imageHostingStore.upload(shallowFile, (rate) => {
-          percentage.value = 100 * rate
-        })
-        imageHostingUrl.value = url
-      }
+      const folder = `${dayjs().format('YYYY-MM-DD')}`
+
+      text.value = '正在上传'
+      const { data: { fileUrl = '' } = {} } = await Resource.image.upload({
+        file: image,
+        filePath: `${folder}/${image.name}`,
+      }, {
+        onUploadProgress: (ev) => {
+          const { loaded = 0, total = 0 } = ev
+          percentage.value = (loaded / total) || 0
+        },
+      })
+      if (!fileUrl)
+        throw new Error('上传失败，响应的 url 为空')
 
       text.value = '正在创建图片资产'
       const { data: iconId } = await Api.icon.createIcon({
-        name: shallowFile.name,
-        url: imageHostingUrl.value,
+        name: image.name,
+        url: fileUrl,
         typeIdList: [],
         creatorId: userInfoStore.info.id,
       })
