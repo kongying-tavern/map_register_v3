@@ -4,8 +4,7 @@ import { routerHook, userHook } from './hooks'
 import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 import { useUserAuthStore } from '@/stores'
-import type { RoleTypeEnum } from '@/shared'
-import { RoleLevel } from '@/shared'
+import { RoleLevel, RoleTypeEnum } from '@/shared'
 
 export const useUserInfoStore = defineStore('global-user-info', () => {
   const userAuthStore = useUserAuthStore()
@@ -62,15 +61,17 @@ export const useUserInfoStore = defineStore('global-user-info', () => {
   })
 
   const userRole = computed(() => {
-    if (info.value.roleId === undefined)
-      return
+    if (info.value.roleId === undefined) {
+      return {
+        code: RoleTypeEnum.VISITOR,
+        name: '游客',
+      }
+    }
     return roleMap.value[info.value.roleId]
   })
 
   const userRoleLevel = computed(() => {
-    if (!userRole.value)
-      return 0
-    return RoleLevel[userRole.value.code as RoleTypeEnum]
+    return RoleLevel[userRole.value.code as RoleTypeEnum] ?? RoleLevel.VISITOR
   })
 
   /** 判断用户是否具有大于指定权限等级的权限 */
