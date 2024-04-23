@@ -60,14 +60,11 @@ export const useUserInfoStore = defineStore('global-user-info', () => {
     })
   })
 
-  const userRole = computed(() => {
-    if (info.value.roleId === undefined) {
-      return {
-        code: RoleTypeEnum.VISITOR,
-        name: '游客',
-      }
+  const userRole = computed<API.SysRoleVo>(() => {
+    return roleMap.value[info.value.roleId ?? ''] ?? {
+      code: RoleTypeEnum.VISITOR,
+      name: '游客',
     }
-    return roleMap.value[info.value.roleId]
   })
 
   const userRoleLevel = computed(() => {
