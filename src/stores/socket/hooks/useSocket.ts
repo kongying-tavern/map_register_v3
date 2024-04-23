@@ -10,6 +10,12 @@ export interface SocketHookOptions<T, V> {
   pingMessage: V
   pongFilter: (message: T) => boolean
   messageFilter: (message: T) => boolean
+  retry?: {
+    /** @default 3000 */
+    delay?: number
+    /** @default 3 */
+    count?: number
+  } | true
 }
 
 export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived, Send>) => {
@@ -19,6 +25,7 @@ export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived,
     pingMessage,
     pongFilter,
     messageFilter,
+    retry,
   } = options
 
   /** 连接状态 */
@@ -62,11 +69,13 @@ export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived,
     isSending.value = true
   }
 
+  const _retryCount = ref(0)
+
   const _init = (url: string) => {
     close()
 
     status.value = WebSocket.CONNECTING
-    logger.info('is connecting ...')
+    logger.info('连接中 ......')
 
     // 连接初始化
     const newSubject = new WebSocketSubject<unknown>({
@@ -74,20 +83,21 @@ export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived,
       openObserver: {
         next: () => {
           status.value = WebSocket.OPEN
-          logger.info('is opened')
+          logger.info('连接已建立')
           newSubject.next(pingMessage)
+          _retryCount.value = 0
         },
       },
       closingObserver: {
         next: () => {
           status.value = WebSocket.CLOSING
-          logger.info('closing ...')
+          logger.info('正在关闭连接 ......')
         },
       },
       closeObserver: {
         next: () => {
           status.value = WebSocket.CLOSED
-          logger.info('is closed')
+          logger.info('连接已关闭')
         },
       },
     })
@@ -110,6 +120,23 @@ export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived,
       },
     })
 
+    const reconnect = () => {
+      const {
+        count = 3,
+        delay = 3000,
+      } = typeof retry === 'object' ? retry : {}
+      if (_retryCount.value >= count) {
+        logger.error('已达到最大重连尝试上限')
+        return
+      }
+      logger.info('等待重连')
+      globalThis.setTimeout(() => {
+        _retryCount.value += 1
+        logger.info('尝试重连')
+        _init(url)
+      }, delay)
+    }
+
     // 消息处理
     ws.pipe(filter(messageFilter as (message: unknown) => boolean))
       .subscribe({
@@ -118,8 +145,9 @@ export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived,
           messageHook.trigger(value as Recedived)
         },
         error: () => {
-          logger.error('message error')
-          // TODO 断线重连
+          logger.error(`连接错误, 尝试重连 ...`)
+          clearSocket()
+          retry && reconnect()
         },
         complete: () => {
           clearSocket()
@@ -140,7 +168,6 @@ export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived,
           }, pingInterval)
         },
         error: () => {
-          logger.error('heartBeat error')
           globalThis.clearTimeout(heartBeatTimer)
         },
         complete: () => {
