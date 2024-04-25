@@ -45,7 +45,7 @@
     "axios": "1.6.0",
     "dayjs": "1.11.7",
     "dexie": "3.2.3",
-    "element-plus": "2.5.3",
+    "element-plus": "2.7.1",
     "kdbush": "^4.0.2",
     "konva": "9.2.2",
     "lodash": "4.17.21",
