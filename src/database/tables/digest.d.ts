@@ -10,7 +10,7 @@ declare namespace DBType {
     tableName: string
 
     /** 当前摘要在对应表下的序号 */
-    index: number
+    index?: number
 
     /** 当前摘要控制的表的 key 的范围 */
     range: DigestRange<string> | DigestRange<number>
