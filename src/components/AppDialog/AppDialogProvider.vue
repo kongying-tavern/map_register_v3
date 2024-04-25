@@ -23,6 +23,8 @@ const hiddenHeader = computed(() => !context.dialogProps.value.showClose && !con
     }"
     :style="{
       '--el-dialog-border-radius': '8px',
+      '--el-dialog-padding-primary': '0',
+      '--el-dialog-width': 'auto',
     }"
     @closed="context.resetState"
   >
