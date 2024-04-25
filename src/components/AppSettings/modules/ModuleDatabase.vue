@@ -49,10 +49,13 @@ const deleteDatabase = async () => {
           <div class="flex flex-col text-xs text-[var(--el-text-color-regular)]">
             <div>已存储 {{ store.total }} 项数据</div>
             <div v-if="store.backendUpdater.isWatting">
-              距离更新还有 {{ Math.floor(store.backendUpdater.restTime / 1000) }} 秒
-            </div>
-            <div v-else>
-              后台更新已停止
+              {{
+                store.backendUpdater.isWatting
+                  ? `距离更新还有 ${Math.floor(store.backendUpdater.restTime / 1000)} 秒`
+                  : store.backendUpdater.loading
+                    ? '正在更新...'
+                    : '后台更新已停止'
+              }}
             </div>
           </div>
         </template>
