@@ -12,15 +12,25 @@ const DEFAULT_UPDATE_GAP = 30 * 60 * 1000
 
 const logger = new Logger('后台更新', () => !usePreferenceStore().preference['developer.setting.hideDatabaseUpdaterLogger'])
 
+/** 判断是否为对象数组 */
+const isObjectArray = (v: unknown[]): v is Record<string, unknown>[] => {
+  const first = v[0]
+  if (typeof first !== 'object' || first === null)
+    return false
+  return true
+}
+
 /** 通用后台更新 hook */
 export const useBackendUpdate = <T, Key>(
   table: Dexie.Table<T, Key>,
   getDigestList: () => Awaitable<string[]>,
-  getData: (index: number, digest: string) => Awaitable<T[]>,
+  getData: (digest: string) => Awaitable<T[]>,
 ) => {
-  const timerId = ref<number>()
+  /** 轮询定时器 */
+  const loopTimer = ref<number>()
 
-  const isWatting = computed(() => timerId.value !== undefined)
+  /** 是否正在等待下一次请求 */
+  const isWatting = computed(() => loopTimer.value !== undefined)
 
   /** 上一次更新开始的时间戳 */
   const startTime = ref(Date.now())
@@ -37,15 +47,9 @@ export const useBackendUpdate = <T, Key>(
   /** 距离下次更新需要的时间 */
   const restTime = computed(() => !nextTime.value ? 0 : nextTime.value - secondClock.value)
 
-  const isObjectArray = (v: unknown[]): v is Record<string, unknown>[] => {
-    const first = v[0]
-    if (typeof first !== 'object' || first === null)
-      return false
-    return true
-  }
-
   const { src } = table.schema.primKey
 
+  /** 获取数组的主键范围 */
   const getRangeOfList = (data: T[]): DBType.DigestRange<number> | DBType.DigestRange<string> => {
     if (!isObjectArray(data))
       throw new Error('输入的格式有误，data 不为对象数组')
@@ -77,76 +81,55 @@ export const useBackendUpdate = <T, Key>(
     return range
   }
 
-  const compare = (a: string | number, b: string | number) => {
-    let result: number | undefined
-
-    if (typeof a === 'string' && typeof b === 'string')
-      result = new Intl.Collator('en').compare(a, b)
-    else if (typeof a === 'number' && typeof b === 'number')
-      result = a - b
-
-    if (result === undefined) {
-      logger.error({ a, b })
-      throw new Error('无法对比两值，类型不一致')
-    }
-
-    return result > 0
-      ? { min: b, max: a }
-      : { min: a, max: b }
-  }
-
   const { data: lastUpdateCount, loading, refresh, onFinish, onSuccess, onError } = useFetchHook({
     onRequest: async () => {
       startTime.value = Date.now()
 
-      const digestList = await getDigestList()
+      // 1. 获取新的摘要数组
+      const digestCodeList = await getDigestList()
+      const newDigestCodeSet = new Set(digestCodeList)
 
-      if (!digestList.length)
-        return 0
+      // 2. 获取旧的摘要数组
+      const oldDigestList = await db.digest.where('tableName').equals(table.name).toArray()
 
-      const updateCounts = await Promise.all(digestList.map(async (newDigestCode, index) => {
-        const oldDigestCollection = db.digest.where('tableName').equals(table.name).and(d => d.index === index)
+      const oldDigestCodeList = oldDigestList.map(({ code }) => code)
+      const oldDigestCodeSet = new Set(oldDigestCodeList)
 
-        const oldDigest = await oldDigestCollection.first()
+      let deleteCount = 0
+      let updateCount = 0
 
-        if (oldDigest?.code === newDigestCode)
-          return 0
-
-        const data = await getData(index, newDigestCode)
-        const newRange = getRangeOfList(data)
-
-        let rewriteRange: DBType.DigestRange<number> | DBType.DigestRange<string> | undefined
-
-        if (oldDigest) {
-          const { range: oldRange } = oldDigest
-          rewriteRange = [
-            compare(oldRange[0], newRange[0]).min,
-            compare(oldRange[1], newRange[1]).max,
-          ] as DBType.DigestRange<number> | DBType.DigestRange<string>
-        }
-        const range = rewriteRange ?? newRange
-
+      // 3. 要删除的摘要组
+      for (const { code, range } of oldDigestList.filter(({ code }) => !newDigestCodeSet.has(code))) {
         await db.transaction('rw', table as Dexie.Table, db.digest, async () => {
-          await table.where(src).inAnyRange([range]).delete()
+          deleteCount += await table.where(src).inAnyRange([range], { includeUppers: true }).delete()
+          await db.digest.where('tableName').equals(table.name).and(({ code: oldCode }) => oldCode === code).delete()
+        })
+      }
+
+      // 4. 要更新的摘要组
+      for (const code of digestCodeList.filter(oldDigest => !oldDigestCodeSet.has(oldDigest))) {
+        const data = await getData(code)
+        updateCount += data.length
+        await db.transaction('rw', table as Dexie.Table, db.digest, async () => {
           await table.bulkPut(data)
-          await oldDigestCollection.delete()
           await db.digest.put({
-            code: newDigestCode,
-            index,
-            range,
+            code,
+            range: getRangeOfList(data),
             tableName: table.name,
           })
         })
-        return data.length
-      }))
+      }
 
-      return updateCounts.reduce((sum, cur) => sum + cur, 0)
+      return {
+        deleteCount,
+        updateCount,
+      }
     },
   })
 
   const stop = () => {
-    window.clearTimeout(timerId.value)
-    timerId.value = undefined
+    window.clearTimeout(loopTimer.value)
+    loopTimer.value = undefined
   }
 
   /** alias */
@@ -159,17 +142,17 @@ export const useBackendUpdate = <T, Key>(
   onFinish(() => {
     stop()
     if (!useUserAuthStore().validateToken()) {
-      timerId.value = undefined
+      loopTimer.value = undefined
       return
     }
     endTime.value = Date.now()
     const gap = getUpdateGap()
     nextTime.value = Date.now() + gap
-    timerId.value = window.setTimeout(refresh, gap)
+    loopTimer.value = window.setTimeout(refresh, gap)
   })
 
-  onSuccess((sum) => {
-    logger.info(`表 ${table.name} 更新了 ${sum} 项`, { table })
+  onSuccess(({ deleteCount, updateCount }) => {
+    logger.info(`表 ${table.name} 删除了 ${deleteCount} 项，更新了 ${updateCount} 项。`)
   })
 
   onError((err) => {

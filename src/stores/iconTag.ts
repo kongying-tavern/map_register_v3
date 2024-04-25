@@ -29,9 +29,7 @@ export const useIconTagStore = defineStore('global-icon-tag', () => {
       const { data: digest = '' } = await Api.tagDoc.listAllTagBinaryMd5()
       return [digest]
     },
-    async (index) => {
-      if (index !== 0)
-        return []
+    async () => {
       const buffer = (await Api.tagDoc.listAllTagBinary({ responseType: 'arraybuffer' })) as unknown as ArrayBuffer
       const data = await Zip.decompressAs<API.TagVo[]>(new Uint8Array(buffer))
       return data

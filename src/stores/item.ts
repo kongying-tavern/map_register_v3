@@ -24,9 +24,7 @@ export const useItemStore = defineStore('global-item', () => {
       const { data = '' } = await Api.itemDoc.listAllItemBinaryMd5()
       return [data]
     },
-    async (index) => {
-      if (index !== 0)
-        return []
+    async () => {
       const buffer = await Api.itemDoc.listAllItemBinary({ responseType: 'arraybuffer' }) as unknown as ArrayBuffer
       const data = Zip.decompressAs<API.ItemVo[]>(new Uint8Array(buffer))
       return data

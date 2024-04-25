@@ -43,11 +43,7 @@ export const useAreaStore = defineStore('global-area', () => {
       const digest = [...new Uint8Array(hash)].map(num => num.toString(16).padStart(2, '0')).join('')
       return [digest]
     },
-    async (index) => {
-      if (index !== 0)
-        return []
-      return _cachedData.value
-    },
+    () => _cachedData.value,
   )
 
   liveQuery(() => db.area.toArray()).subscribe((areaList) => {
