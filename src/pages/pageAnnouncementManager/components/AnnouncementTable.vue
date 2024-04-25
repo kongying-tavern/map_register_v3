@@ -3,8 +3,7 @@ import dayjs from 'dayjs'
 import { Delete, Edit } from '@element-plus/icons-vue'
 import type { AnnouncementSearchParams } from '../hooks'
 import { channelsMap } from '../const/dictionary'
-
-// import { secondClock } from '@/shared'
+import { secondClock } from '@/shared'
 
 const props = defineProps<{
   loading: boolean
@@ -33,24 +32,25 @@ function datetimeFormatter(...{ 2: value = '' }) {
   return value && dayjs(value).format('YYYY-MM-DD HH:mm:ss')
 }
 
-const isValid = (notice: (typeof covertNoticeList)['value'][number]) => {
-  const now = Date.now()
-  const { start, end } = notice.time
-  if (start && now < start)
-    return false
-  if (end && now > end)
-    return false
-  return true
-}
+const stateList = computed(() => {
+  const now = secondClock.value
+  return covertNoticeList.value.map(({ time: { start, end } }) => {
+    let state: { label: string; type: 'success' | 'warning' | 'info' } = {
+      label: '生效中',
+      type: 'success',
+    }
+    if (start && start > now)
+      state = state = { label: '待生效', type: 'warning' }
+    if (end && end < now)
+      state = state = { label: '已失效', type: 'info' }
+    return state
+  })
+})
 
-const validList = computed(() => covertNoticeList.value.map(notice => isValid(notice)))
-
-const getCellClassName = (cell: { column: { property?: string }; row: (typeof covertNoticeList)['value'][number] }) => {
+const getCellClassName = (cell: { column: { property?: string }; rowIndex: number }) => {
   if (cell.column.property !== 'title')
     return ''
-  if (isValid(cell.row))
-    return 'is-title'
-  return 'is-invalid'
+  return `is-${stateList.value[cell.rowIndex].type}`
 }
 
 const contentFormatter = (...{ 2: value = '' }) => {
@@ -100,13 +100,10 @@ const sortHandler = ({ prop, order }: { prop: string; order: string }): void => 
     >
       <el-table-column align="center" type="selection" :width="50" />
 
-      <el-table-column label="状态" :width="70">
+      <el-table-column label="状态" :width="81">
         <template #default="{ $index }">
-          <el-tag v-if="validList[$index]" type="success">
-            有效
-          </el-tag>
-          <el-tag v-else type="info">
-            失效
+          <el-tag :type="stateList[$index].type">
+            {{ stateList[$index].label }}
           </el-tag>
         </template>
       </el-table-column>
@@ -181,8 +178,14 @@ const sortHandler = ({ prop, order }: { prop: string; order: string }): void => 
     &.is-title {
       color: var(--el-color-primary);
     }
-    &.is-invalid {
+    &.is-success {
+      color: var(--el-color-primary);
+    }
+    &.is-info {
       color: var(--el-color-info-light-3);
+    }
+    &.is-warning {
+      color: var(--el-color-warning-light-3);
     }
   }
 }

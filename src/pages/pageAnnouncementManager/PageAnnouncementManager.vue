@@ -17,7 +17,7 @@ const { DialogService } = useGlobalDialog()
 const queryForm = ref<AnnouncementSearchParams>({
   channels: [],
   title: '',
-  sort: ['validTimeStart-'],
+  sort: ['sortIndex-'],
 })
 
 const { updateNoticeList, resetCurrent, loading, mainTableData } = useList({
@@ -92,6 +92,7 @@ function handleRemove(form?: API.NoticeVo) {
       v-model:model-value="queryForm"
       :data="mainTableData"
       :loading="loading"
+      :default-sort="{ prop: 'sortIndex', order: 'descending' }"
       @update="handleUpdate"
       @remove="handleRemove"
       @sort-change="updateNoticeList"
