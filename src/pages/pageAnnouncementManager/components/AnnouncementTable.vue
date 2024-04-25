@@ -65,6 +65,17 @@ const orderTagMap: Record<string, string> = {
   descending: '-',
 }
 
+const defaultSort = computed(() => {
+  const [sortValue] = modelValue.value.sort ?? []
+  if (!sortValue)
+    return
+  const order = sortValue.endsWith('-') ? 'descending' : 'ascending'
+  return {
+    prop: sortValue.slice(0, -1),
+    order: order as 'ascending' | 'descending',
+  }
+})
+
 const sortOrders = ['ascending' as const, 'descending' as const]
 
 const sortHandler = ({ prop, order }: { prop: string; order: string }): void => {
@@ -82,7 +93,7 @@ const sortHandler = ({ prop, order }: { prop: string; order: string }): void => 
       :data="covertNoticeList"
       :border="true"
       height="100%"
-      :default-sort="{ prop: 'validTimeStart', order: 'descending' }"
+      :default-sort="defaultSort"
       :cell-class-name="getCellClassName"
       class="notice-table"
       @sort-change="sortHandler"
