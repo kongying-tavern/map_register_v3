@@ -63,7 +63,7 @@ interface ImportMetaEnv {
   readonly VITE_IMG_SERVER_PASSWORD: string
 
   /** WebSocket 地址 */
-  readonly VITE_WS_BASE: string
+  readonly VITE_WS_HOST: string
 }
 
 interface ImportMeta {
