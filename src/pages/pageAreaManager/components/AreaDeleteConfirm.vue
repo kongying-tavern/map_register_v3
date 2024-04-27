@@ -14,12 +14,12 @@ const props = defineProps<{
 }>()
 
 const emits = defineEmits<{
-  success: []
+  success: [API.AreaVo]
 }>()
 
 const { loading, deleteArea, onSuccess } = useAreaDelete()
 
-onSuccess(() => emits('success'))
+onSuccess(form => emits('success', form))
 
 const cancel = () => {
   GlobalDialogController.close(false)
