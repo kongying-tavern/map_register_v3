@@ -65,13 +65,13 @@ const { refreshTimeTypeOptions, refreshTimeType, isCustom } = useRefreshTime(ref
 
         <el-form-item label="显示类型">
           <el-radio-group v-model="hiddenFlag">
-            <el-radio-button :label="HiddenFlagEnum.SHOW">
+            <el-radio-button :value="HiddenFlagEnum.SHOW">
               显示
             </el-radio-button>
-            <el-radio-button :label="HiddenFlagEnum.HIDDEN">
+            <el-radio-button :value="HiddenFlagEnum.HIDDEN">
               隐藏
             </el-radio-button>
-            <el-radio-button :label="HiddenFlagEnum.NEIGUI">
+            <el-radio-button :value="HiddenFlagEnum.NEIGUI">
               内鬼
             </el-radio-button>
           </el-radio-group>

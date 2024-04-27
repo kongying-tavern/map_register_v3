@@ -190,13 +190,13 @@ defineExpose({
 
           <el-form-item label="显示状态" prop="hiddenFlag">
             <el-radio-group v-model="form.hiddenFlag">
-              <el-radio-button :label="HiddenFlagEnum.SHOW">
+              <el-radio-button :value="HiddenFlagEnum.SHOW">
                 显示
               </el-radio-button>
-              <el-radio-button :label="HiddenFlagEnum.HIDDEN">
+              <el-radio-button :value="HiddenFlagEnum.HIDDEN">
                 隐藏
               </el-radio-button>
-              <el-radio-button v-if="accessStore.get('HIDDEN_FLAG_HIDDEN')" :label="HiddenFlagEnum.NEIGUI">
+              <el-radio-button v-if="accessStore.get('HIDDEN_FLAG_HIDDEN')" :value="HiddenFlagEnum.NEIGUI">
                 测试服点位
               </el-radio-button>
             </el-radio-group>
