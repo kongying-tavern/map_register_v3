@@ -145,7 +145,7 @@ const sortHandler = ({ prop, order }: { prop: string; order: string }): void => 
 
       <el-table-column
         prop="validTimeStart"
-        label="发布时间"
+        label="生效时间"
         :width="170"
         :formatter="datetimeFormatter"
         sortable="custom"
