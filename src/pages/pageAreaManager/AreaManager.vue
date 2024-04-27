@@ -13,18 +13,48 @@ const getDialogConfig = () => ({
 
 const { data, updateAreaList } = useAreaList()
 
+// ==================== 地图图表 ====================
+const containerRef = ref<HTMLElement | null>(null)
+const minimapRef = ref<HTMLDivElement | null>(null)
+
+const { graph, onEditClick, onAddClick, onDeleteClick } = useGraph({
+  containerRef,
+  minimapRef,
+  data,
+})
+
 // ==================== 新增地区 ====================
 const openAreaCreator = (parent?: API.AreaVo) => DialogService
   .config(getDialogConfig())
   .props({ parent })
-  .listeners({ success: updateAreaList })
+  .listeners({
+    success: (form: API.AreaVo) => {
+      graph.value?.addChild({
+        id: `${form.id}`,
+        pid: `${form.parentId}`,
+        label: form.name,
+        raw: form,
+      }, `${form.parentId}`)
+      updateAreaList()
+    },
+  })
   .open(AreaCreator)
 
 // ==================== 编辑地区 ====================
 const openAreaEditor = (area: API.AreaVo, parent?: API.AreaVo) => DialogService
   .config(getDialogConfig())
   .props({ area, parent })
-  .listeners({ success: updateAreaList })
+  .listeners({
+    success: (form: API.AreaVo) => {
+      graph.value?.update(`${form.id}`, {
+        id: `${form.id}`,
+        pid: `${form.parentId}`,
+        label: form.name,
+        raw: form,
+      })
+      updateAreaList()
+    },
+  })
   .open(AreaEditor)
 
 // ==================== 删除地区 ====================
@@ -35,19 +65,12 @@ const deleteArea = (area: API.AreaVo) => DialogService
     area,
   })
   .listeners({
-    success: updateAreaList,
+    success: (form: API.AreaVo) => {
+      graph.value?.removeChild(`${form.id}`)
+      updateAreaList()
+    },
   })
   .open(AreaDeleteConfirm)
-
-// ==================== 地图图表 ====================
-const containerRef = ref<HTMLElement | null>(null)
-const minimapRef = ref<HTMLDivElement | null>(null)
-
-const { onEditClick, onAddClick, onDeleteClick } = useGraph({
-  containerRef,
-  minimapRef,
-  data,
-})
 
 onEditClick(([area, parent]) => openAreaEditor(area, parent))
 onAddClick(([parent]) => openAreaCreator(parent))

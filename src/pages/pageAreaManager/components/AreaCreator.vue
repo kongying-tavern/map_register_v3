@@ -11,7 +11,7 @@ const props = defineProps<{
 }>()
 
 const emits = defineEmits<{
-  success: []
+  success: [API.AreaVo]
 }>()
 
 const formData = ref<API.AreaVo>({
@@ -28,22 +28,26 @@ const { loading, refresh: submit, onSuccess, onError } = useFetchHook({
     if (!areaId)
       throw new Error('无法确认新增地区的id')
     copyItems.value.length > 0 && await Api.item.copyItemToArea({ areaId }, copyItems.value.map(item => item.id!))
+    const { data = {} } = await Api.area.getArea({ areaId })
+    return data
   },
 })
 
-onSuccess(() => {
+onSuccess((form) => {
   ElMessage.success({
     message: '新增地区成功',
     offset: 48,
   })
   GlobalDialogController.close()
-  emits('success')
+  emits('success', form)
 })
 
-onError(err => ElMessage.error({
-  message: `新增地区失败，原因为：${err.message}`,
-  offset: 48,
-}))
+onError((err) => {
+  ElMessage.error({
+    message: `新增地区失败，原因为：${err.message}`,
+    offset: 48,
+  })
+})
 
 const formRef = ref<InstanceType<typeof AreaDetailForm> | null>(null)
 const createArea = async () => {

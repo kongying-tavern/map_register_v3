@@ -23,6 +23,12 @@ export const useGraph = (options: {
 
   const { width, height } = useElementSize(containerRef)
 
+  const viewState = ref({
+    x: 0,
+    y: 0,
+    zoom: 0,
+  })
+
   const graphData = computed<TreeGraphData>(() => {
     const list = data.value.map(area => ({
       id: `${area.id}`,
@@ -54,12 +60,15 @@ export const useGraph = (options: {
 
   const graphRef = shallowRef<InstanceType<typeof G6.TreeGraph> | null>(null)
 
-  watch(graphData, (newGraphData) => {
+  watch(graphData, (newGraphData, oldGraphData) => {
     const graph = graphRef.value
     if (!graph)
       return
-    graph.changeData(newGraphData)
-    graph.fitView()
+    if (!oldGraphData.children?.length) {
+      graph.data(newGraphData)
+      graph.render()
+      graph.fitView(20)
+    }
   })
 
   useResizeObserver(containerRef, ([entry]) => {
@@ -369,6 +378,17 @@ export const useGraph = (options: {
       plugins: [minimap],
     })
 
+    graph.on('viewportchange', () => {
+      // const { x: vx, y: vy } = graph.getViewPortCenterPoint()
+      const { x: gx, y: gy } = graph.getGraphCenterPoint()
+      // console.log([vx, vy, gx, gy].map(num => Math.floor(num)))
+      viewState.value = {
+        x: gx,
+        y: gy,
+        zoom: graph.getZoom(),
+      }
+    })
+
     graph.on('node:click', (ev) => {
       const { item, shape, originalEvent } = ev
       if (!item || !(originalEvent instanceof MouseEvent) || originalEvent.button !== 0)
@@ -395,10 +415,6 @@ export const useGraph = (options: {
         }
       }
     })
-
-    graph.data(graphData.value)
-    graph.render()
-    graph.fitView()
 
     graphRef.value = graph
   })

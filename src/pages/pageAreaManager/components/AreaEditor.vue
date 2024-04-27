@@ -12,7 +12,7 @@ const props = defineProps<{
 }>()
 
 const emits = defineEmits<{
-  success: []
+  success: [API.AreaVo]
 }>()
 
 const formData = ref<API.AreaVo>(props.area)
@@ -22,16 +22,17 @@ const { loading, refresh: submit, onSuccess, onError } = useFetchHook({
   onRequest: async () => {
     await Api.area.updateArea(formData.value)
     copyItems.value.length > 0 && await Api.item.copyItemToArea({ areaId: formData.value.id! }, copyItems.value.map(item => item.id!))
+    return formData.value
   },
 })
 
-onSuccess(() => {
+onSuccess((form) => {
   ElMessage.success({
     message: '编辑地区成功',
     offset: 48,
   })
   GlobalDialogController.close()
-  emits('success')
+  emits('success', form)
 })
 
 onError(err => ElMessage.error({
