@@ -15,7 +15,7 @@ export const useMarkerTweaks = (options: TweakHookOptions) => {
 
   const isDisabled = computed(() => !tweakList.value.length)
 
-  const { refresh: submit, onSuccess, ...rest } = useFetchHook({
+  const { refresh: submit, onSuccess, onError, ...rest } = useFetchHook({
     onRequest: async () => {
       const markerIds = markerList.value.map(marker => marker.id!)
 
@@ -41,7 +41,17 @@ export const useMarkerTweaks = (options: TweakHookOptions) => {
   })
 
   onSuccess(() => {
-    ElMessage.success('编辑成功')
+    ElMessage.success({
+      message: '批量编辑成功',
+      offset: 48,
+    })
+  })
+
+  onError((err) => {
+    ElMessage.error({
+      message: `批量编辑失败，原因为：${err.message}`,
+      offset: 48,
+    })
   })
 
   return {
