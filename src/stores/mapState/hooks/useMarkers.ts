@@ -208,12 +208,16 @@ export const useMarkers = (options: MarkerHookOptions) => {
 
   // ====================  临时点位 - end  ====================
 
-  /** 所属于当前底图的点位 */
-  const currentLayerMarkers = computed(() => staticMarkers.value
-    .concat(tempMarkers.value)
-    // 根据 y 轴排序使得下方点位可以遮挡上方点位，降低视觉复杂度
-    .sort(({ render: { position: { 1: y1 } } }, { render: { position: { 1: y2 } } }) => y1 - y2),
-  )
+  /**
+   * 所属于当前底图的点位
+   * @note 根据 y 轴排序使得下方点位可以遮挡上方点位，降低视觉复杂度
+   * @todo 暂时去掉临时点位，后续加入到首选项中由用户控制
+   */
+  const currentLayerMarkers = computed(() => {
+    return staticMarkers.value.sort(({ render: { position: { 1: y1 } } }, { render: { position: { 1: y2 } } }) => {
+      return y1 - y2
+    })
+  })
 
   const currentLayerMarkersIds = computed(() => {
     return currentLayerMarkers.value.map(marker => marker.id!)
