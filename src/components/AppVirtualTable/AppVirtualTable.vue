@@ -1,4 +1,6 @@
 <script setup lang="ts" generic="T">
+import type { StyleValue } from 'vue'
+
 /**
  * @todo 当前实现只支持固定尺寸项
  * @todo grid 模式下效果不是很好，需要优化
@@ -9,6 +11,8 @@ const props = withDefaults(defineProps<{
   itemWidth?: number
   itemGap?: [number, number]
   cachedRows?: number
+  alwaysScrollbar?: boolean
+  scrollbarStyle?: StyleValue
 }>(), {
   data: () => [],
   itemHeight: 32,
@@ -21,12 +25,10 @@ const tableRef = ref<HTMLElement>()
 
 const { width, height } = useElementSize(tableRef)
 
-const { y: scrollHeight } = useScroll(tableRef, {
-  behavior: 'smooth',
-  eventListenerOptions: {
-    passive: true,
-  },
-})
+const scrollHeight = ref(0)
+const handleScroll = ({ scrollTop }: { scrollTop: number; scrollLeft: number }) => {
+  scrollHeight.value = scrollTop
+}
 
 const gridColumns = computed(() => {
   if (props.itemWidth <= 0)
@@ -91,45 +93,51 @@ const style = computed<Record<string, number>>(() => ({
     class="app-virtual-table"
     :style="style"
   >
-    <div v-if="gridColumns > 0" class="virtual-scroll-wrapper is-grid">
-      <template v-for="rowIndex in virtualRows">
+    <el-scrollbar
+      :always="alwaysScrollbar"
+      :style="scrollbarStyle"
+      @scroll="handleScroll"
+    >
+      <div v-if="gridColumns > 0" class="virtual-scroll-wrapper is-grid">
+        <template v-for="rowIndex in virtualRows">
+          <div
+            v-for="colIndex in gridColumns"
+            :key="rowIndex * gridColumns + colIndex"
+            :style="{
+              '--offset': `var(--t${rowIndex})`,
+            }"
+            class="virtual-item"
+          >
+            <template v-if="(rowIndexList[rowIndex] * gridColumns + colIndex) <= data.length">
+              <slot
+                name="default"
+                :index="rowIndexList[rowIndex] * gridColumns + colIndex"
+                :item="data[rowIndexList[rowIndex] * gridColumns + colIndex - 1]"
+              />
+            </template>
+          </div>
+        </template>
+      </div>
+
+      <div v-else class="virtual-scroll-wrapper">
         <div
-          v-for="colIndex in gridColumns"
-          :key="rowIndex * gridColumns + colIndex"
+          v-for="i in virtualRows"
+          :key="i"
           :style="{
-            '--offset': `var(--t${rowIndex})`,
+            '--offset': `var(--t${i})`,
           }"
           class="virtual-item"
         >
-          <template v-if="(rowIndexList[rowIndex] * gridColumns + colIndex) <= data.length">
+          <template v-if="rowIndexList[i] < data.length">
             <slot
               name="default"
-              :index="rowIndexList[rowIndex] * gridColumns + colIndex"
-              :item="data[rowIndexList[rowIndex] * gridColumns + colIndex - 1]"
+              :index="rowIndexList[i]"
+              :item="data[rowIndexList[i]]"
             />
           </template>
         </div>
-      </template>
-    </div>
-
-    <div v-else class="virtual-scroll-wrapper">
-      <div
-        v-for="i in virtualRows"
-        :key="i"
-        :style="{
-          '--offset': `var(--t${i})`,
-        }"
-        class="virtual-item"
-      >
-        <template v-if="rowIndexList[i] < data.length">
-          <slot
-            name="default"
-            :index="rowIndexList[i]"
-            :item="data[rowIndexList[i]]"
-          />
-        </template>
       </div>
-    </div>
+    </el-scrollbar>
   </div>
 </template>
 
