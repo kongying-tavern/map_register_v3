@@ -7,7 +7,7 @@
     <a href="https://www.typescriptlang.org" target="_blank">
       <img src="https://img.shields.io/badge/typescript-5.3-blue">
     </a>
-    <a href="https://cn.vuejs.org" target="_blank">
+    <a href="https://nodejs.org" target="_blank">
       <img src="https://img.shields.io/badge/node.js-18-green">
     </a>
     <a href="https://cn.vitejs.dev" target="_blank">
