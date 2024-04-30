@@ -24,6 +24,10 @@ export const useSocketStore = defineStore('global-web-socket', () => {
     pingMessage: {
       action: 'Ping',
     },
+    retry: {
+      count: 3,
+      delay: 3000,
+    },
     pongFilter: message => isReceivedData(message) && message.event === 'Pong',
     messageFilter: message => isReceivedData(message) && message.event !== 'Pong',
   })

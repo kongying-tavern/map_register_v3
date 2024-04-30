@@ -145,7 +145,7 @@ export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived,
           messageHook.trigger(value as Recedived)
         },
         error: () => {
-          logger.error(`连接错误, 尝试重连 ...`)
+          logger.error(`连接已断开`)
           clearSocket()
           retry && reconnect()
         },
