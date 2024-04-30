@@ -137,20 +137,6 @@ const initLogInfo = (args: unknown[]) => {
   border-radius: 4px;
 }
 
-.logger-list-content {
-  &::-webkit-scrollbar {
-    width: 8px;
-    background-color: #FFFFFF20;
-  }
-  &::-webkit-scrollbar-thumb {
-    background-color: #FFFFFF60;
-    border-radius: 6px;
-  }
-  &::-webkit-scrollbar-thumb:hover {
-    background-color: #FFFFFF90;
-  }
-}
-
 .logger-item {
   --item-bg: transparent;
 
