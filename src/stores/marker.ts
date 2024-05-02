@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { liveQuery } from 'dexie'
 import { useBackendUpdate, userHook } from './hooks'
-import { useAccessStore, useUserAuthStore } from '.'
+import { useAccessStore, useSocketStore, useUserAuthStore } from '.'
 import { Zip } from '@/utils'
 import Api from '@/api/api'
 import db from '@/database'
@@ -31,6 +31,10 @@ export const useMarkerStore = defineStore('global-marker', () => {
   liveQuery(() => db.marker.toArray()).subscribe((list) => {
     _markerList.value = list
   })
+
+  const socketStore = useSocketStore()
+
+  socketStore.event.on('MarkerBinaryPurged', () => backendUpdater.refresh())
 
   return {
     total,
