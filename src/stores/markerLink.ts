@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { liveQuery } from 'dexie'
 import type { ShallowRef } from 'vue'
-import { useUserAuthStore } from '.'
+import { useSocketStore, useUserAuthStore } from '.'
 import { useBackendUpdate, userHook } from '@/stores/hooks'
 import Api from '@/api/api'
 import db from '@/database'
@@ -28,6 +28,10 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
   liveQuery(() => db.markerLink.toArray()).subscribe((list) => {
     markerLinkList.value = list
   })
+
+  const socketStore = useSocketStore()
+
+  socketStore.event.on('MarkerLinkageBinaryPurged', () => backendUpdater.refresh())
 
   return {
     total,
