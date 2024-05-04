@@ -71,8 +71,11 @@ export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived,
 
   const _retryCount = ref(0)
 
-  const _init = (url: string) => {
+  const _init = (url: string, isReconnect = false) => {
     close()
+
+    if (!isReconnect)
+      _retryCount.value = 0
 
     status.value = WebSocket.CONNECTING
     logger.info('连接中 ......')
@@ -133,7 +136,7 @@ export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived,
       globalThis.setTimeout(() => {
         _retryCount.value += 1
         logger.info('尝试重连')
-        _init(url)
+        _init(url, true)
       }, delay)
     }
 
