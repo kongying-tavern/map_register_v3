@@ -3,11 +3,12 @@ import { useUserAuthStore } from '.'
 import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 import { ChannelEnum } from '@/shared'
+import { useSocketStore } from '@/stores'
 
 export const useNoticeStore = defineStore('global-notice', () => {
   const userAuthStore = useUserAuthStore()
 
-  const { data: noticeList, ...rest } = useFetchHook({
+  const { data: noticeList, refresh, ...rest } = useFetchHook({
     shallow: true,
     initialValue: [],
     onRequest: async () => {
@@ -26,8 +27,15 @@ export const useNoticeStore = defineStore('global-notice', () => {
     },
   })
 
+  const socketStore = useSocketStore()
+
+  socketStore.event.on('NoticeAdded', refresh)
+  socketStore.event.on('NoticeDeleted', refresh)
+  socketStore.event.on('NoticeUpdated', refresh)
+
   return {
     noticeList,
+    refresh,
     ...rest,
   }
 })
