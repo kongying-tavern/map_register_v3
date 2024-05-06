@@ -32,6 +32,8 @@ export class GSOverlayer extends CompositeLayer<GSCompositeLayerState> {
     const xmax = w + ox
     const ymax = h + oy
 
+    const hasHover = hover?.type === 'overlayChunks'
+
     const isHover: (id: string) => boolean = hover?.type === 'overlayChunks'
       ? (id: string) => hover.value.has(id)
       : () => false
@@ -43,9 +45,12 @@ export class GSOverlayer extends CompositeLayer<GSCompositeLayerState> {
           id,
           bounds: [xmin, ymax, xmax, ymin],
           image: url,
-          tintColor: isHover(chunkId) ? [255, 255, 0, 200] : [255, 255, 255, 0],
+          tintColor: !hasHover ? [255, 255, 255, 0] : isHover(chunkId) ? [255, 255, 255, 0] : [66, 66, 66, 40],
           updateTriggers: {
             tintColor: hover,
+          },
+          transitions: {
+            tintColor: 100,
           },
         })
       }),
@@ -73,9 +78,12 @@ export class GSOverlayer extends CompositeLayer<GSCompositeLayerState> {
           id,
           bounds: [xmin, ymax, xmax, ymin],
           image: url,
-          tintColor: isHover(chunkId) ? [255, 255, 0, 255] : [255, 255, 255, 0],
+          tintColor: !hasHover ? [255, 255, 255, 0] : isHover(chunkId) ? [255, 255, 255, 0] : [66, 66, 66, 40],
           updateTriggers: {
             tintColor: hover,
+          },
+          transitions: {
+            tintColor: 100,
           },
         })
       }),
