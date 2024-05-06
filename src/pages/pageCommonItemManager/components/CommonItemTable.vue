@@ -2,7 +2,7 @@
 import { useUserPopover } from '@/hooks'
 import { useAreaStore, useIconTagStore, useItemTypeStore } from '@/stores'
 import { refreshTimeFormatter, timeFormatter } from '@/utils'
-import { HIDDEN_FLAG_NAM_MAP } from '@/shared'
+import { HIDDEN_FLAG_NAME_MAP } from '@/shared'
 import { AppUserPopover } from '@/components'
 
 const props = defineProps<{
@@ -94,7 +94,7 @@ const typeAssert = (row: unknown) => row as API.ItemAreaPublicVo
 
       <el-table-column label="显示类型" prop="hiddenFlag" width="100">
         <template #default="{ row }">
-          {{ HIDDEN_FLAG_NAM_MAP[row.hiddenFlag] ?? '未知' }}
+          {{ HIDDEN_FLAG_NAME_MAP[row.hiddenFlag] ?? '未知' }}
         </template>
       </el-table-column>
 

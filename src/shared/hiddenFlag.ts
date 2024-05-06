@@ -10,10 +10,11 @@ export enum HiddenFlagEnum {
   EASTER = 3,
 }
 
-export const HIDDEN_FLAG_NAM_MAP: Record<string, string> = {
+export const HIDDEN_FLAG_NAME_MAP: Record<string, string> = {
   [HiddenFlagEnum.SHOW]: '显示',
   [HiddenFlagEnum.HIDDEN]: '隐藏',
   [HiddenFlagEnum.NEIGUI]: '测试服',
+  [HiddenFlagEnum.EASTER]: '彩蛋',
 }
 
 /** hidden flag 选项 */
@@ -22,7 +23,7 @@ export const HIDDEN_FLAG_OPTIONS: {
   /** 枚举值，可用于权限判断 */
   value: number
 }[] = Object
-  .entries(HIDDEN_FLAG_NAM_MAP)
+  .entries(HIDDEN_FLAG_NAME_MAP)
   .map(([key, value]) => ({
     label: value,
     value: Number(key),
