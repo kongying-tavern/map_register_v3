@@ -2,12 +2,11 @@
 import MarkerRow from './MarkerRow.vue'
 import { useMapStateStore } from '@/stores'
 import { AppVirtualTable } from '@/components'
+import { useMarkerFocus } from '@/pages/pageMapV2/hooks'
 
 const mapStateStore = useMapStateStore()
 
-const { data: hoveredMarker, update: hover } = mapStateStore.subscribeInteractionInfo('hover', 'defaultMarker')
-
-const { data: focusedMarker, update: focus } = mapStateStore.subscribeInteractionInfo('focus', 'defaultMarker')
+const { hover: hoveredMarker, focus: focusedMarker, focusMarker, hoverMarker } = useMarkerFocus()
 </script>
 
 <template>
@@ -29,8 +28,8 @@ const { data: focusedMarker, update: focus } = mapStateStore.subscribeInteractio
           :data="item"
           :is-hover="hoveredMarker?.id === item.id"
           :is-focus="focusedMarker?.id === item.id"
-          @focus="focus"
-          @hover="hover"
+          @focus="marker => focusMarker(marker, { flyToMarker: true, delay: 400 })"
+          @hover="hoverMarker"
         />
       </template>
     </AppVirtualTable>

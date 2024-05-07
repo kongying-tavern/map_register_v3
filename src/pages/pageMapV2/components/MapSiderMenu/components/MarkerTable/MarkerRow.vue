@@ -43,7 +43,7 @@ const emits = defineEmits<{
 
   height: 100%;
   overflow: hidden;
-  padding: 4px 6px 4px 6px;
+  padding: 4px 14px 4px 6px;
 
   &:hover, &.is-hover {
     --bg: #F4EFE2B0;

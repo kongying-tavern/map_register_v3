@@ -4,6 +4,7 @@ import type { GSMapState } from '@/stores/types/genshin-map-state'
 import { createRenderMarkers } from '@/stores/utils'
 import { useDatabaseHook } from '@/hooks'
 import { Logger, messageFrom } from '@/utils'
+import { EaseoutInterpolator } from '@/pages/pageMapV2/core/interpolator'
 
 /** 点位 focus 状态管理 hook */
 export const _useMarkerFocus = () => {
@@ -71,7 +72,7 @@ export const _useMarkerFocus = () => {
     }
   }, ['creating', 'updating', 'deleting'])
 
-  const isInDelay = ref(false)
+  const delayTimer = ref<number>()
 
   /** 与 focus 相反的行为 */
   const blur = () => {
@@ -79,23 +80,45 @@ export const _useMarkerFocus = () => {
     updateFocus(null)
   }
 
-  const focusMarker = (markerVo: API.MarkerVo | GSMapState.MarkerWithRenderConfig, delay = 0) => {
+  const focusMarker = (markerVo: API.MarkerVo | GSMapState.MarkerWithRenderConfig, {
+    delay = 0,
+    flyToMarker = false,
+  }: {
+    delay?: number
+    flyToMarker?: boolean
+  }) => {
     blur()
+    window.clearTimeout(delayTimer.value)
     const markerWithRender = normalizeMarker(markerVo)
-    if (isInDelay.value)
-      return markerWithRender
-    if (delay > 0)
-      isInDelay.value = true
-    delay > 0
-      ? setTimeout(() => {
+
+    if (delay > 0) {
+      delayTimer.value = window.setTimeout(() => {
         updateFocus(markerWithRender)
-        isInDelay.value = false
+        delayTimer.value = undefined
       }, delay)
-      : updateFocus(markerWithRender)
+    }
+    else {
+      updateFocus(markerWithRender)
+    }
+
+    if (flyToMarker) {
+      const { render: { position: [x, y] } } = markerWithRender
+      mapStateStore.event.emit('setViewState', {
+        target: [x, y],
+        zoom: 0,
+        transitionDuration: delay,
+        transitionInterpolator: new EaseoutInterpolator(['target', 'zoom']),
+      })
+    }
+
     return markerWithRender
   }
 
-  const hoverMarker = (markerVo: API.MarkerVo | GSMapState.MarkerWithRenderConfig) => {
+  function hoverMarker(markerVo: API.MarkerVo | GSMapState.MarkerWithRenderConfig | null) {
+    if (!markerVo) {
+      updateHover(markerVo)
+      return
+    }
     const markerWithRender = normalizeMarker(markerVo)
     updateHover(markerWithRender)
     return markerWithRender
@@ -117,6 +140,7 @@ export const _useMarkerFocus = () => {
   return {
     isPopoverActived,
     cachedMarkerVo,
+    hover,
     focus,
     updateLoading,
     normalizeMarker,
