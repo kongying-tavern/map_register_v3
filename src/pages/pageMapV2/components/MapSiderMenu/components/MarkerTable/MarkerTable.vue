@@ -4,15 +4,18 @@ import { useMapStateStore } from '@/stores'
 import { AppVirtualTable } from '@/components'
 
 const mapStateStore = useMapStateStore()
+
+const { data: hoveredMarker, update: hover } = mapStateStore.subscribeInteractionInfo('hover', 'defaultMarker')
+
+const { data: focusedMarker, update: focus } = mapStateStore.subscribeInteractionInfo('focus', 'defaultMarker')
 </script>
 
 <template>
   <div class="marker-filter h-full">
     <AppVirtualTable
-      class="pt-1"
       always-scrollbar
       :data="mapStateStore.currentLayerMarkers"
-      :item-height="40"
+      :item-height="60"
       :cached-rows="2"
       :scrollbar-style="{
         '--el-scrollbar-bg-color': '#D3BC8E',
@@ -22,7 +25,13 @@ const mapStateStore = useMapStateStore()
       }"
     >
       <template #default="{ item }">
-        <MarkerRow :data="item" />
+        <MarkerRow
+          :data="item"
+          :is-hover="hoveredMarker?.id === item.id"
+          :is-focus="focusedMarker?.id === item.id"
+          @focus="focus"
+          @hover="hover"
+        />
       </template>
     </AppVirtualTable>
   </div>
