@@ -34,7 +34,35 @@ export const useMarkerStore = defineStore('global-marker', () => {
 
   const socketStore = useSocketStore()
 
+  // 点位压缩数据更新
   socketStore.event.on('MarkerBinaryPurged', () => backendUpdater.refresh())
+
+  // 单个点位更新
+  socketStore.event.on('MarkerUpdated', async (id) => {
+    const { data: [markerInfo] = [] } = await Api.marker.listMarkerById({}, [id])
+    if (!markerInfo)
+      return
+    await db.marker.put(markerInfo)
+  })
+
+  // 单个点位新增
+  socketStore.event.on('MarkerAdded', async (id) => {
+    const { data: [markerInfo] = [] } = await Api.marker.listMarkerById({}, [id])
+    if (!markerInfo)
+      return
+    await db.marker.put(markerInfo)
+  })
+
+  // 单个点位删除
+  socketStore.event.on('MarkerDeleted', async (id) => {
+    await db.marker.delete(id)
+  })
+
+  // 点位批量更新
+  socketStore.event.on('MarkerTweaked', async (ids) => {
+    const { data = [] } = await Api.marker.listMarkerById({}, ids)
+    await db.marker.bulkPut(data)
+  })
 
   return {
     total,
