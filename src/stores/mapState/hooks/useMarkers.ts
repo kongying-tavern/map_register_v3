@@ -224,7 +224,7 @@ export const useMarkers = (options: MarkerHookOptions) => {
   })
 
   const currentLayerMarkersMap = computed(() => {
-    const markers = currentLayerMarkers.value
+    const markers = currentLayerMarkers.value.concat(tempMarkers.value)
     const map: Record<number, GSMapState.MarkerWithRenderConfig> = {}
     markers.forEach((marker) => {
       map[marker.id!] = marker
