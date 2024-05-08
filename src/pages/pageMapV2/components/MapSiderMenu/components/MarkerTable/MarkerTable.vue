@@ -1,9 +1,10 @@
 <script lang="tsx" setup>
 import MarkerRow from './MarkerRow.vue'
-import { useMapStateStore } from '@/stores'
+import { useIconTagStore, useMapStateStore } from '@/stores'
 import { AppVirtualTable } from '@/components'
 import { useMarkerFocus } from '@/pages/pageMapV2/hooks'
 
+const iconTagStore = useIconTagStore()
 const mapStateStore = useMapStateStore()
 
 const { hover: hoveredMarker, focus: focusedMarker, focusMarker, hoverMarker } = useMarkerFocus()
@@ -28,6 +29,8 @@ const { hover: hoveredMarker, focus: focusedMarker, focusMarker, hoverMarker } =
           :data="item"
           :is-hover="hoveredMarker?.id === item.id"
           :is-focus="focusedMarker?.id === item.id"
+          :icon-src="iconTagStore.tagSpriteUrl"
+          :icon-mapping="iconTagStore.tagPositionMap[item.render.mainIconTag]"
           @focus="marker => focusMarker(marker, { flyToMarker: true, delay: 400 })"
           @hover="hoverMarker"
         />
