@@ -1,6 +1,7 @@
 import { reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
+import type { AxiosError } from 'axios'
 import { useUserAuthStore } from '@/stores'
 import type { ElFormType } from '@/shared'
 import { useFetchHook } from '@/hooks'
@@ -80,7 +81,7 @@ export const useLoginForm = () => {
       // 其他错误
       default:
         ElMessage.error({
-          message: `登录失败，原因为：${err.message}`,
+          message: `登录失败，原因为：${(err as AxiosError<{ error_description?: string }>).response?.data?.error_description}`,
           offset: 48,
         })
     }
