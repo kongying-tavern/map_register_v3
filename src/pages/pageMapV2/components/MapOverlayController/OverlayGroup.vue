@@ -13,8 +13,11 @@ interface OverlayControllerChunkGroup extends OverlayChunkGroup {
 const overlayStore = useOverlayStore()
 const mapStateStore = useMapStateStore()
 
-const items = computed(() => Map.groupBy(props.data.chunks, ({ item }) => {
-  return item
+const items = computed(() => Map.groupBy(props.data.chunks, ({ item, group }) => {
+  return {
+    ...item,
+    role: group.role,
+  }
 }))
 
 const resetItemVisible = () => {
@@ -35,8 +38,13 @@ const updateHover = (chunks: OverlayChunk[] | null) => {
 <template>
   <div class="overlay-group">
     <div class="flex justify-between rounded-[4px_4px_0_0] overflow-hidden">
-      <div class="py-1 px-2">
-        {{ data.name }}
+      <div class="py-1 px-2 flex gap-1">
+        <span>
+          {{ data.name }}
+        </span>
+        <el-tag v-if="data.role === 'tile'">
+          {{ data.role }}
+        </el-tag>
       </div>
 
       <el-icon
