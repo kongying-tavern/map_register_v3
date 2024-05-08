@@ -45,7 +45,6 @@ export class GSOverlayer extends CompositeLayer<GSCompositeLayerState> {
           id,
           bounds: [xmin, ymax, xmax, ymin],
           image: url,
-          tintColor: !hasHover ? [255, 255, 255, 0] : isHover(chunkId) ? [255, 255, 255, 0] : [66, 66, 66, 40],
           updateTriggers: {
             tintColor: hover,
           },
