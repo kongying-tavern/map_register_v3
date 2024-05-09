@@ -18,6 +18,10 @@ export interface SocketHookOptions<T, V> {
   } | true
 }
 
+export interface ConnectInitOptions {
+  isReconnect?: boolean
+}
+
 export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived, Send>) => {
   const {
     logger,
@@ -70,15 +74,20 @@ export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived,
   }
 
   const _retryCount = ref(0)
+  const _retryTimer = ref<ReturnType<typeof globalThis.setTimeout>>()
 
-  const _init = (url: string, isReconnect = false) => {
+  const _init = (url: string, options: ConnectInitOptions = {}) => {
+    const { isReconnect = false } = options
+
     close()
 
-    if (!isReconnect)
+    if (!isReconnect) {
+      globalThis.clearTimeout(_retryTimer.value)
       _retryCount.value = 0
+    }
 
     status.value = WebSocket.CONNECTING
-    logger.info('连接中 ......')
+    logger.info(isReconnect ? `重新连接(${_retryCount.value}) ......` : '连接中 ......')
 
     // 连接初始化
     const newSubject = new WebSocketSubject<unknown>({
@@ -133,10 +142,9 @@ export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived,
         return
       }
       logger.info('等待重连')
-      globalThis.setTimeout(() => {
+      _retryTimer.value = globalThis.setTimeout(() => {
         _retryCount.value += 1
-        logger.info('尝试重连')
-        _init(url, true)
+        _init(url, { isReconnect: true })
       }, delay)
     }
 
