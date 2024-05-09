@@ -1,8 +1,14 @@
 import axios from "axios";
 import { user_token } from "./user_info";
 import { create_notify } from "../api/common";
+import { resetMap } from "src/api/map_obj";
 
-export default function default_request(method, url, data = undefined) {
+export default function default_request(
+  method,
+  url,
+  data = undefined,
+  instance
+) {
   return axios({
     method,
     url,
@@ -34,10 +40,19 @@ export default function default_request(method, url, data = undefined) {
       if (error === "DATA_ERROR") {
         // Nothing to do
       } else if (error.response) {
-        create_notify(
-          `${error.response.status} ${error.response.statusText}`,
-          "negative"
-        );
+        if (error.response?.status === 401) {
+          resetMap();
+          create_notify(
+            error.response?.data?.message ?? "登录失效，请重新登录",
+            "negative"
+          );
+          instance?.$router?.push("/Login");
+        } else {
+          create_notify(
+            `${error.response.status} ${error.response.statusText}`,
+            "negative"
+          );
+        }
       } else if (error.request) {
         create_notify("链接失败，请稍后重试", "negative");
       } else {

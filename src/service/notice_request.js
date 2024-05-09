@@ -5,8 +5,8 @@ import default_request from "./default_request";
 const baseurl = `${import.meta.env.VITE_API_BASE}/api`;
 const noticeHashKey = "_yuanshen_dadian_notice_hash";
 
-function list_notice(data) {
-  return default_request("post", `${baseurl}/notice/get/list`, data);
+function list_notice(data, instance) {
+  return default_request("post", `${baseurl}/notice/get/list`, data, instance);
 }
 
 function get_notice_hash(list = []) {
