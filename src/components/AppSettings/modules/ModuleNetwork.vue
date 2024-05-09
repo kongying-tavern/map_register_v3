@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { SettingBar, SettingGroup, SettingPanel } from '../components'
-import { useSocketStore } from '@/stores'
+import { useSocketStore, useUserInfoStore } from '@/stores'
 
 const socketStore = useSocketStore()
+const userInfoStore = useUserInfoStore()
+
+const url = computed(() => `${import.meta.env.VITE_WS_BASE}/${userInfoStore.info.id}`)
 
 const text = computed(() => {
   return socketStore.status === WebSocket.OPEN
@@ -22,7 +25,7 @@ const text = computed(() => {
 
       <SettingBar label="操作">
         <template #setting>
-          <el-button @click="socketStore.connect">
+          <el-button @click="() => socketStore.connect(url)">
             连接
           </el-button>
         </template>

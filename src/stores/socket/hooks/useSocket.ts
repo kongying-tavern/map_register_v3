@@ -45,42 +45,56 @@ export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived,
   const delay = ref(0)
 
   /** 连接实例 */
-  const subject = shallowRef<WebSocketSubject<unknown>>()
+  const _subject = shallowRef<WebSocketSubject<unknown>>()
 
   /** 订阅列表 */
-  const subscriptions = ref<Subscription[]>([])
+  const _subscriptions = ref<Subscription[]>([])
 
   /** 消息 hook */
-  const messageHook = createEventHook<Recedived>()
+  const _messageHook = createEventHook<Recedived>()
+
+  /** 连接主动关闭确认 promise */
+  const _closedPromise = shallowRef<() => void>()
+
+  /** 重连尝试次数 */
+  const _retryCount = ref(0)
+
+  /** 等待重连计时器 */
+  const _retryTimer = ref<ReturnType<typeof globalThis.setTimeout>>()
 
   /** 连接状态清理 */
-  const clearSocket = () => {
-    subscriptions.value.forEach(subscription => subscription.unsubscribe())
-    subject.value = undefined
-    subscriptions.value = []
+  const _clearSocket = () => {
+    _subscriptions.value.forEach(subscription => subscription.unsubscribe())
+    _subject.value = undefined
+    _subscriptions.value = []
     delay.value = 0
   }
 
-  const close = () => {
-    subject.value?.complete()
-    clearSocket()
+  /** 主动关闭连接 */
+  const close = async () => {
+    if (status.value === WebSocket.CLOSED)
+      return
+    await new Promise<void>((resolve) => {
+      _closedPromise.value = resolve
+      _subject.value?.complete()
+    })
   }
 
+  /** 主动发送消息 */
   const send = (message: Send) => {
     if (status.value !== WebSocket.OPEN)
       return
-    subject.value?.next(message)
+    _subject.value?.next(message)
     isSending.value = true
   }
 
-  const _retryCount = ref(0)
-  const _retryTimer = ref<ReturnType<typeof globalThis.setTimeout>>()
-
-  const _init = (url: string, options: ConnectInitOptions = {}) => {
+  /** 连接初始化 */
+  const _init = async (url: string, options: ConnectInitOptions = {}) => {
     const { isReconnect = false } = options
 
-    close()
+    await close()
 
+    // 如果不是重连操作，重置重连尝试次数和等待计时器
     if (!isReconnect) {
       globalThis.clearTimeout(_retryTimer.value)
       _retryCount.value = 0
@@ -110,6 +124,8 @@ export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived,
         next: () => {
           status.value = WebSocket.CLOSED
           logger.info('连接已关闭')
+          _clearSocket()
+          _closedPromise.value?.()
         },
       },
     })
@@ -124,7 +140,7 @@ export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived,
           return value
         const subscribe = function (...args: unknown[]) {
           const subscription = value(...args)
-          subscriptions.value.push(subscription)
+          _subscriptions.value.push(subscription)
           return subscription
         }
         subscribe.bind(target)
@@ -153,15 +169,12 @@ export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived,
       .subscribe({
         next: (value) => {
           isReceving.value = true
-          messageHook.trigger(value as Recedived)
+          _messageHook.trigger(value as Recedived)
         },
-        error: () => {
-          logger.error(`连接已断开`)
-          clearSocket()
+        error: (err) => {
+          logger.error(err instanceof Error ? err : `${err}`)
+          _clearSocket()
           retry && reconnect()
-        },
-        complete: () => {
-          clearSocket()
         },
       })
 
@@ -186,19 +199,20 @@ export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived,
         },
       })
 
-    subject.value = ws
+    _subject.value = ws
   }
 
-  const connect = (url: string) => {
-    _init(url)
+  /** 主动连接 */
+  const connect = async (url: string) => {
+    await _init(url)
   }
 
   return {
-    isSending,
-    isReceving,
-    delay,
-    status,
-    onMessage: messageHook.on,
+    isSending: isSending as Readonly<Ref<boolean>>,
+    isReceving: isReceving as Readonly<Ref<boolean>>,
+    delay: delay as Readonly<Ref<number>>,
+    status: status as Readonly<Ref<number>>,
+    onMessage: _messageHook.on,
     send,
     close,
     connect,
