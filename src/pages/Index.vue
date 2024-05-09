@@ -85,6 +85,7 @@
     <Notice></Notice>
     <refresh-config></refresh-config>
     <logout></logout>
+    <WebSocket></WebSocket>
   </div>
 </template>
 
@@ -104,6 +105,7 @@ import Guide from "../components/widgets/Guide.vue";
 import Notice from "../components/widgets/Notice.vue";
 import RefreshConfig from "../components/widgets/RefreshConfig.vue";
 import Logout from "../components/widgets/Logout.vue";
+import WebSocket from "../components/widgets/WebSocket.vue";
 import { refresh_token } from "../service/user_log_request";
 import { fetch_config } from "../service/config_request";
 import {
@@ -172,6 +174,7 @@ export default {
     Notice,
     RefreshConfig,
     Logout,
+    WebSocket,
   },
   mounted() {
     this.load_config().then(() => {
