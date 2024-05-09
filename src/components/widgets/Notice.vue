@@ -17,13 +17,16 @@ const list = ref([]);
 const listHasNew = ref(false);
 
 const refreshNotice = () => {
-  list_notice({
-    current: 0,
-    size: 100,
-    sort: ["validTimeStart-"],
-    channels: ["COMMON", "DASHBOARD"],
-    getValid: true,
-  }).then((res) => {
+  list_notice(
+    {
+      current: 0,
+      size: 100,
+      sort: ["validTimeStart-"],
+      channels: ["COMMON", "DASHBOARD"],
+      getValid: true,
+    },
+    this
+  ).then((res) => {
     list.value = res.data?.data?.record || [];
     updateNoticeStatus();
   });

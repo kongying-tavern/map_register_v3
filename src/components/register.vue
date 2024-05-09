@@ -591,11 +591,14 @@ export default {
     },
     fetch_item_list() {
       this.loading = true;
-      query_itemlist({
-        areaIdList: [selectorAreaId.value],
-        current: 0,
-        size: 9999,
-      }).then((res) => {
+      query_itemlist(
+        {
+          areaIdList: [selectorAreaId.value],
+          current: 0,
+          size: 9999,
+        },
+        this
+      ).then((res) => {
         this.loading = false;
         const data = res.data.data.record || [];
         selectorItemFullList.value = data;
@@ -614,12 +617,15 @@ export default {
 
       const item_getter =
         item_ids.length > 0
-          ? query_itemlayer_infolist({
-              typeIdList: [],
-              areaIdList: [],
-              itemIdList: item_ids,
-              getBeta: 0,
-            })
+          ? query_itemlayer_infolist(
+              {
+                typeIdList: [],
+                areaIdList: [],
+                itemIdList: item_ids,
+                getBeta: 0,
+              },
+              this
+            )
           : Promise.resolve({ data: { data: [] } });
 
       // 查询点位图标和点位数据
@@ -800,19 +806,29 @@ export default {
     // 查询地区和分类
     this.$axios
       .all([
-        query_area({
-          parentId: -1,
-          isTraverse: true,
-        }),
-        query_itemtype(1, {
-          current: 1,
-          typeIdList: [],
-          size: 999,
-        }),
-        query_itemlayer_icon({
-          size: 9999,
-          current: 0,
-        }),
+        query_area(
+          {
+            parentId: -1,
+            isTraverse: true,
+          },
+          this
+        ),
+        query_itemtype(
+          1,
+          {
+            current: 1,
+            typeIdList: [],
+            size: 999,
+          },
+          this
+        ),
+        query_itemlayer_icon(
+          {
+            size: 9999,
+            current: 0,
+          },
+          this
+        ),
       ])
       .then(
         this.$axios.spread((arealist, typelist, iconlist) => {
@@ -831,11 +847,15 @@ export default {
           (v) => !v.isFinal
         );
         if (type_not_final) {
-          return query_itemtype(1, {
-            current: 1,
-            typeIdList: [type_not_final.id],
-            size: 999,
-          }).then((res) => {
+          return query_itemtype(
+            1,
+            {
+              current: 1,
+              typeIdList: [type_not_final.id],
+              size: 999,
+            },
+            this
+          ).then((res) => {
             this.loading = false;
             selectorTypeChildList.value = res.data.data.record;
           });

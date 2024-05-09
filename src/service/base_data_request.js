@@ -10,8 +10,8 @@ const baseurl = `${import.meta.env.VITE_API_BASE}/api`;
  * @param {Boolean} isTraverse 是否遍历子地区
  * @returns 地区信息
  */
-function query_area(data) {
-  return default_request("post", `${baseurl}/area/get/list`, data);
+function query_area(data, instance) {
+  return default_request("post", `${baseurl}/area/get/list`, data, instance);
 }
 
 /**
@@ -22,8 +22,13 @@ function query_area(data) {
  * @param {Number} size 每页大小，默认为10
  * @returns 物品类型信息
  */
-function query_itemtype(self = 0, data) {
-  return default_request("post", `${baseurl}/item_type/get/list/${self}`, data);
+function query_itemtype(self = 0, data, instance) {
+  return default_request(
+    "post",
+    `${baseurl}/item_type/get/list/${self}`,
+    data,
+    instance
+  );
 }
 
 /**
@@ -34,8 +39,8 @@ function query_itemtype(self = 0, data) {
  * @param {Number} size 每页大小，默认为10
  * @returns 物品列表信息
  */
-function query_itemlist(data) {
-  return default_request("post", `${baseurl}/item/get/list`, data);
+function query_itemlist(data, instance) {
+  return default_request("post", `${baseurl}/item/get/list`, data, instance);
 }
 
 // /**
@@ -57,8 +62,13 @@ function query_itemlist(data) {
  * @param {Number} getBeta 获取测试点位,默认为0，不获取，为1时只获取测试点
  * @returns 物品点位id信息
  */
-function query_itemlayer_infolist(data) {
-  return default_request("post", `${baseurl}/marker/get/list_byinfo`, data);
+function query_itemlayer_infolist(data, instance) {
+  return default_request(
+    "post",
+    `${baseurl}/marker/get/list_byinfo`,
+    data,
+    instance
+  );
 }
 
 /**
@@ -69,8 +79,8 @@ function query_itemlayer_infolist(data) {
  * @param {Number} size 每页大小，默认为10
  * @returns 物品点位id信息
  */
-function query_itemlayer_icon(data) {
-  return default_request("post", `${baseurl}/tag/get/list`, data);
+function query_itemlayer_icon(data, instance) {
+  return default_request("post", `${baseurl}/tag/get/list`, data, instance);
 }
 
 /**
