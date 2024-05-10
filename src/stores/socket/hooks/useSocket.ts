@@ -20,6 +20,7 @@ export interface SocketHookOptions<T, V> {
 
 export interface ConnectInitOptions {
   isReconnect?: boolean
+  reConnectWhenComplete?: boolean
 }
 
 export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived, Send>) => {
@@ -90,7 +91,12 @@ export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived,
 
   /** 连接初始化 */
   const _init = async (url: string, options: ConnectInitOptions = {}) => {
-    const { isReconnect = false } = options
+    const { isReconnect = false, reConnectWhenComplete = false } = options
+
+    const {
+      count = 3,
+      delay: retryDelay = 3000,
+    } = typeof retry === 'object' ? retry : {}
 
     await close()
 
@@ -102,6 +108,18 @@ export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived,
 
     status.value = WebSocket.CONNECTING
     logger.info(isReconnect ? `重新连接(${_retryCount.value}) ......` : '连接中 ......')
+
+    const reconnect = () => {
+      if (_retryCount.value >= count) {
+        logger.error('已达到最大重连尝试上限')
+        return
+      }
+      logger.info('等待重连')
+      _retryTimer.value = globalThis.setTimeout(() => {
+        _retryCount.value += 1
+        _init(url, { isReconnect: true, reConnectWhenComplete })
+      }, retryDelay)
+    }
 
     // 连接初始化
     const newSubject = new WebSocketSubject<unknown>({
@@ -126,6 +144,9 @@ export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived,
           logger.info('连接已关闭')
           _clearSocket()
           _closedPromise.value?.()
+          if (!reConnectWhenComplete)
+            return
+          reconnect()
         },
       },
     })
@@ -147,22 +168,6 @@ export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived,
         return subscribe
       },
     })
-
-    const reconnect = () => {
-      const {
-        count = 3,
-        delay = 3000,
-      } = typeof retry === 'object' ? retry : {}
-      if (_retryCount.value >= count) {
-        logger.error('已达到最大重连尝试上限')
-        return
-      }
-      logger.info('等待重连')
-      _retryTimer.value = globalThis.setTimeout(() => {
-        _retryCount.value += 1
-        _init(url, { isReconnect: true })
-      }, delay)
-    }
 
     // 消息处理
     ws.pipe(filter(messageFilter as (message: unknown) => boolean))
@@ -204,7 +209,7 @@ export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived,
 
   /** 主动连接 */
   const connect = async (url: string) => {
-    await _init(url)
+    await _init(url, { reConnectWhenComplete: true })
   }
 
   return {

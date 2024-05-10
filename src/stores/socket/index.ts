@@ -26,7 +26,7 @@ export const useSocketStore = defineStore('global-web-socket', () => {
     },
     retry: {
       count: 3,
-      delay: 3000,
+      delay: 5000,
     },
     pongFilter: message => isReceivedData(message) && message.event === 'Pong',
     messageFilter: message => isReceivedData(message) && message.event !== 'Pong',
