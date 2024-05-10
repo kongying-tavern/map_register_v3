@@ -20,7 +20,6 @@ export interface SocketHookOptions<T, V> {
 
 export interface ConnectInitOptions {
   isReconnect?: boolean
-  reConnectWhenComplete?: boolean
 }
 
 export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived, Send>) => {
@@ -91,7 +90,7 @@ export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived,
 
   /** 连接初始化 */
   const _init = async (url: string, options: ConnectInitOptions = {}) => {
-    const { isReconnect = false, reConnectWhenComplete = false } = options
+    const { isReconnect = false } = options
 
     const {
       count = 3,
@@ -107,7 +106,7 @@ export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived,
     }
 
     status.value = WebSocket.CONNECTING
-    logger.info(isReconnect ? `重新连接(${_retryCount.value}) ......` : '连接中 ......')
+    logger.info(isReconnect ? `重新连接(${_retryCount.value}) ......` : '建立新连接 ......')
 
     const reconnect = () => {
       if (_retryCount.value >= count) {
@@ -117,7 +116,7 @@ export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived,
       logger.info('等待重连')
       _retryTimer.value = globalThis.setTimeout(() => {
         _retryCount.value += 1
-        _init(url, { isReconnect: true, reConnectWhenComplete })
+        _init(url, { isReconnect: true })
       }, retryDelay)
     }
 
@@ -140,12 +139,10 @@ export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived,
       },
       closeObserver: {
         next: () => {
-          status.value = WebSocket.CLOSED
-          logger.info('连接已关闭')
           _clearSocket()
           _closedPromise.value?.()
-          if (!reConnectWhenComplete)
-            return
+          status.value = WebSocket.CLOSED
+          logger.info('连接已关闭')
           reconnect()
         },
       },
@@ -209,7 +206,7 @@ export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived,
 
   /** 主动连接 */
   const connect = async (url: string) => {
-    await _init(url, { reConnectWhenComplete: true })
+    await _init(url)
   }
 
   return {
