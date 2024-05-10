@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { ElNotification } from 'element-plus'
 import { liveQuery } from 'dexie'
 import { useBackendUpdate, userHook } from './hooks'
 import { useAccessStore, useSocketStore, useUserAuthStore } from '.'
@@ -35,7 +36,12 @@ export const useMarkerStore = defineStore('global-marker', () => {
   const socketStore = useSocketStore()
 
   // 点位压缩数据更新
-  socketStore.event.on('MarkerBinaryPurged', () => backendUpdater.refresh())
+  socketStore.event.on('MarkerBinaryPurged', async () => {
+    await backendUpdater.refresh()
+    ElNotification.info({
+      message: `点位数据库更新`,
+    })
+  })
 
   // 单个点位更新
   socketStore.event.on('MarkerUpdated', async (id) => {
@@ -43,6 +49,9 @@ export const useMarkerStore = defineStore('global-marker', () => {
     if (!markerInfo)
       return
     await db.marker.put(markerInfo)
+    ElNotification.info({
+      message: `点位 ${id} 更新`,
+    })
   })
 
   // 单个点位新增
@@ -51,17 +60,27 @@ export const useMarkerStore = defineStore('global-marker', () => {
     if (!markerInfo)
       return
     await db.marker.put(markerInfo)
+    ElNotification.info({
+      message: `新增点位 ${id}`,
+    })
   })
 
   // 单个点位删除
   socketStore.event.on('MarkerDeleted', async (id) => {
     await db.marker.delete(id)
+    ElNotification.info({
+      message: `删除点位 ${id}`,
+    })
   })
 
   // 点位批量更新
   socketStore.event.on('MarkerTweaked', async (ids) => {
     const { data = [] } = await Api.marker.listMarkerById({}, ids)
     await db.marker.bulkPut(data)
+    ElNotification.info({
+      title: '点位批量更新',
+      message: `点位 ${ids.join(', ')} 更新`,
+    })
   })
 
   return {
