@@ -96,6 +96,13 @@ declare namespace API {
      * @data 公告 id
      */
     NoticeDeleted: [number]
+
+    // ==================== 用户相关 ====================
+
+    /**
+     * 用户踢出
+     */
+    UserKickedOff: []
   }
 
   type WSEventType = keyof WSEventMap
