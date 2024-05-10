@@ -18,10 +18,7 @@ const selectedNotice = computed(() => noticeList.value[selectedIndex.value])
 </script>
 
 <template>
-  <dialog
-    :ref="context.dialogRef"
-    class="app-notice-provider genshin-text"
-  >
+  <dialog :ref="context.dialogRef" class="app-notice-provider genshin-text">
     <NoticeCard
       :context="context"
       :notice-list="noticeList"
@@ -34,41 +31,46 @@ const selectedNotice = computed(() => noticeList.value[selectedIndex.value])
 </template>
 
 <style scoped>
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+@property --dialog-backdrop-scale {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 1;
 }
+
 .app-notice-provider {
   --opacity: 0;
   --duration: .2s;
+  --dialog-body-scale: 0.8;
+  --dialog-body-tr-timing: ease;
+  --dialog-body-tr-duration: .2s;
 
-  display: block;
-  margin: auto auto;
-  border-radius: 4px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  place-content: center;
+  width: 100dvw;
+  max-width: 100dvw;
+  height: 100dvh;
+  max-height: 100dvh;
   overflow: hidden;
-  z-index: 10;
+  z-index: 10000;
   filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.4));
-  background: transparent;
+  background-color: transparent;
   outline: none;
   opacity: var(--opacity);
-  transition: all var(--duration) cubic-bezier(0.18, 0.89, 0.32, 1.28);
-  transform: scale(0.8);
   pointer-events: none;
+  transition: opacity ease .2s, background-color ease .2s;
 
   &[open] {
     --opacity: 1;
-    transform: scale(1);
+    --dialog-body-scale: 1;
+    --dialog-body-tr-timing: cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    background-color: #00000040;
     pointer-events: auto;
   }
 
   &::backdrop {
-    background-color: #00000040;
-    animation: fade-in var(--duration) ease;
-    transition: all ease .2s;
+    display: none;
   }
 }
 </style>

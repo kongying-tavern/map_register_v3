@@ -18,8 +18,8 @@ const emits = defineEmits<{
 </script>
 
 <template>
-  <div class="body">
-    <div class="header relative">
+  <div class="card-body">
+    <div class="card-header">
       <div class="title">
         公告
       </div>
@@ -34,7 +34,7 @@ const emits = defineEmits<{
       </div>
     </div>
 
-    <div class="content">
+    <div class="card-content">
       <div class="sider">
         <NoticeTitle
           v-for="notice, index in noticeList"
@@ -75,16 +75,17 @@ const emits = defineEmits<{
 </template>
 
 <style scoped>
-.body {
+.card-body {
   width: 800px;
-  max-width: 100%;
+  max-width: 100dvw;
   height: 600px;
   display: flex;
   flex-direction: column;
-  padding-top: 60px;
+  transform: scale(var(--dialog-body-scale));
+  transition: transform var(--dialog-body-tr-timing) var(--dialog-body-tr-duration);
 }
 
-.header {
+.card-header {
   height: 60px;
   display: flex;
   justify-content: center;
@@ -95,9 +96,6 @@ const emits = defineEmits<{
   outline-offset: -6px;
   padding: 8px 16px;
   filter: drop-shadow(0 0 6px #00000060);
-  position: absolute;
-  top: 0;
-  width: 100%;
   z-index: 1;
   user-select: none;
 }
@@ -118,7 +116,7 @@ const emits = defineEmits<{
   }
 }
 
-.content {
+.card-content {
   background: #EBE7DF;
   flex: 1;
   flex-shrink: 0;
