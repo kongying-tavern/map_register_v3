@@ -62,6 +62,12 @@ export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived,
   /** 等待重连计时器 */
   const _retryTimer = ref<ReturnType<typeof globalThis.setTimeout>>()
 
+  /**
+   * 有时候因为电源管理策略，浏览器会主动关闭 ws 连接（连接的关闭来自于 complete 而不是 error）
+   * 需要保活，增加一个 flag 用于区分手动关闭还是自动关闭
+   */
+  const _reconnectWhenComplete = ref(false)
+
   /** 连接状态清理 */
   const _clearSocket = () => {
     _subscriptions.value.forEach(subscription => subscription.unsubscribe())
@@ -74,6 +80,7 @@ export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived,
   const close = async () => {
     if (status.value === WebSocket.CLOSED)
       return
+    _reconnectWhenComplete.value = false
     await new Promise<void>((resolve) => {
       _closedPromise.value = resolve
       _subject.value?.complete()
@@ -129,6 +136,7 @@ export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived,
           logger.info('连接已建立')
           newSubject.next(pingMessage)
           _retryCount.value = 0
+          _reconnectWhenComplete.value = true
         },
       },
       closingObserver: {
@@ -143,7 +151,7 @@ export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived,
           _closedPromise.value?.()
           status.value = WebSocket.CLOSED
           logger.info('连接已关闭')
-          reconnect()
+          _reconnectWhenComplete.value && reconnect()
         },
       },
     })
