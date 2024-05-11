@@ -87,9 +87,10 @@ export const useUserAuthStore = defineStore('global-user-auth', () => {
       setAuth(result)
       resolve()
       subscription.unsubscribe()
-      userHook.applyCallbacks('onAuthChange')
     })
   })
+
+  watch(auth, () => userHook.applyCallbacks('onAuthChange'), { deep: true })
 
   /** 刷新计时器 */
   const intervalRefreshTimer = ref<number>()

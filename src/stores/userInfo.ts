@@ -37,7 +37,6 @@ export const useUserInfoStore = defineStore('global-user-info', () => {
     data: info,
     refresh: updateUserInfo,
     onError: onUserInfoUpdateError,
-    onSuccess: onUserInfoUpdateSuccess,
   } = useFetchHook({
     initialValue: {},
     onRequest: async () => {
@@ -49,9 +48,7 @@ export const useUserInfoStore = defineStore('global-user-info', () => {
     },
   })
 
-  onUserInfoUpdateSuccess(async () => {
-    await userHook.applyCallbacks('onInfoChange')
-  })
+  watch(info, () => userHook.applyCallbacks('onInfoChange'), { deep: true })
 
   onUserInfoUpdateError((err) => {
     ElMessage.error({
@@ -92,6 +89,11 @@ export const useUserInfoStore = defineStore('global-user-info', () => {
     updateRoleList,
     hasRole,
   }
+})
+
+userHook.onAuthChange(useUserInfoStore, async (store) => {
+  const isLogin = useUserAuthStore().validateToken()
+  !isLogin && (store.info = {})
 })
 
 routerHook.onBeforeRouterEnter(useUserInfoStore, async (store) => {
