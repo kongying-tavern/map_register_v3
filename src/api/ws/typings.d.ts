@@ -102,7 +102,7 @@ declare namespace API {
     /**
      * 用户踢出
      */
-    UserKickedOff: []
+    UserKickedOut: []
   }
 
   type WSEventType = keyof WSEventMap

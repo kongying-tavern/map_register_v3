@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ElNotification } from 'element-plus'
 import {
   AppBannerProvider,
   AppDialogProvider,
@@ -8,9 +9,24 @@ import {
   GSMessageProvider,
 } from '@/components'
 import { useBanner } from '@/hooks'
+import { useSocketStore, useUserAuthStore } from '@/stores'
+
+const socketStore = useSocketStore()
+const userSuthStore = useUserAuthStore()
 
 // 开发模式下显示 banner
 const { visible } = useBanner()
+
+// 远程注销
+socketStore.event.on('UserKickedOut', () => {
+  userSuthStore.logout()
+  ElNotification({
+    message: '您被管理员踢出',
+    type: 'error',
+    position: 'bottom-right',
+    duration: 0,
+  })
+})
 </script>
 
 <template>
