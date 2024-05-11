@@ -126,3 +126,19 @@ export async function deleteUser(
     ...(options || {}),
   })
 }
+
+/** 用户踢出 用户踢出 DELETE /system/user/kick_out/${param0} */
+export async function kicOutkUser(
+  params: {
+    // path
+    workId: number
+  },
+  options?: AxiosRequestConfig,
+) {
+  const { workId: param0, ...queryParams } = params
+  return request<API.RBoolean>(`/system/user/kick_out/${param0}`, {
+    method: 'DELETE',
+    params: { ...queryParams },
+    ...(options || {}),
+  })
+}

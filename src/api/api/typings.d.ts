@@ -450,6 +450,8 @@ declare namespace API {
     logo?: string
     /** 角色ID */
     roleId?: number
+    /** access_policy */
+    accessPolicy?: string[]
   }
 
   interface PageAndTypeSearchVo {
