@@ -29,7 +29,7 @@ export const useMarkerTweaks = (options: TweakHookOptions) => {
         return config
       })
 
-      const { data = [] } = await Api.marker.tweakMarkers({}, {
+      const { data = [] } = await Api.marker.tweakMarkers({
         markerIds,
         tweaks,
       })

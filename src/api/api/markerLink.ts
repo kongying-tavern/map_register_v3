@@ -3,7 +3,6 @@ import { request } from '@/utils'
 
 /** 关联点位 关联点位数据 POST /api/marker_link/link */
 export async function linkMarker(
-  params: NonNullable<unknown>,
   body: API.MarkerLinkageVo[],
   options?: AxiosRequestConfig,
 ) {
@@ -12,7 +11,6 @@ export async function linkMarker(
     headers: {
       'Content-Type': 'application/json',
     },
-    params: { ...params },
     data: body,
     ...(options || {}),
   })

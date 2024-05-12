@@ -45,7 +45,7 @@ export const useMarkerCreate = (markerData: Ref<API.MarkerVo | null>) => {
 
     await tryUploadPicture(form)
 
-    const { data: markerId } = await Api.marker.createMarker({}, form)
+    const { data: markerId } = await Api.marker.createMarker(form)
 
     if (markerId === undefined)
       throw new Error('无法确认点位信息，未返回对应的点位 id')

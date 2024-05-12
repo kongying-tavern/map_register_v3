@@ -2,34 +2,24 @@ import type { AxiosRequestConfig } from 'axios'
 import { request } from '@/utils'
 
 /** 新增公告 返回新增公告ID PUT /api/notice/add */
-export async function createNotice(
-  params: NonNullable<unknown>,
-  body: API.NoticeVo,
-  options?: AxiosRequestConfig,
-) {
+export async function createNotice(body: API.NoticeVo, options?: AxiosRequestConfig) {
   return request<API.RLong>('/api/notice/add', {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
     },
-    params: { ...params },
     data: body,
     ...(options || {}),
   })
 }
 
 /** 修改公告 修改公告 POST /api/notice/update */
-export async function updateNotice(
-  params: NonNullable<unknown>,
-  body: API.NoticeVo,
-  options?: AxiosRequestConfig,
-) {
+export async function updateNotice(body: API.NoticeVo, options?: AxiosRequestConfig) {
   return request<API.RBoolean>('/api/notice/update', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    params: { ...params },
     data: body,
     ...(options || {}),
   })
@@ -52,7 +42,8 @@ export async function listNotice(
 
 /** 删除公告 删除公告，请在前端做二次确认 DELETE /api/notice/${param0} */
 export async function deleteNotice(
-  params: { // path
+  params: {
+    // path
     noticeId: number
   },
   options?: AxiosRequestConfig,
@@ -60,7 +51,6 @@ export async function deleteNotice(
   const { noticeId: param0, ...queryParams } = params
   return request<API.RBoolean>(`/api/notice/${param0}`, {
     method: 'DELETE',
-    headers: {},
     params: { ...queryParams },
     ...(options || {}),
   })

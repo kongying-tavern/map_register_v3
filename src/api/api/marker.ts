@@ -2,51 +2,36 @@ import type { AxiosRequestConfig } from 'axios'
 import { request } from '@/utils'
 
 /** 新增点位（不包括额外字段） 新增完成后返回点位ID PUT /api/marker/single */
-export async function createMarker(
-  params: NonNullable<unknown>,
-  body: API.MarkerVo,
-  options?: AxiosRequestConfig,
-) {
+export async function createMarker(body: API.MarkerVo, options?: AxiosRequestConfig) {
   return request<API.RLong>('/api/marker/single', {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
     },
-    params: { ...params },
     data: body,
     ...(options || {}),
   })
 }
 
 /** 修改点位（不包括额外字段） 根据点位ID修改点位 POST /api/marker/single */
-export async function updateMarker(
-  params: NonNullable<unknown>,
-  body: API.MarkerVo,
-  options?: AxiosRequestConfig,
-) {
+export async function updateMarker(body: API.MarkerVo, options?: AxiosRequestConfig) {
   return request<API.RBoolean>('/api/marker/single', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    params: { ...params },
     data: body,
     ...(options || {}),
   })
 }
 
 /** 调整点位 对点位数据进行微调 POST /api/marker/tweak */
-export async function tweakMarkers(
-  params: NonNullable<unknown>,
-  body: API.TweakVo,
-  options?: AxiosRequestConfig,
-) {
+export async function tweakMarkers(body: API.TweakVo, options?: AxiosRequestConfig) {
   return request<API.RListMarkerVo>('/api/marker/tweak', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    params: { ...params },
     data: body,
     ...(options || {}),
   })
@@ -122,7 +107,8 @@ export async function searchMarkerId(
 
 /** 删除点位 根据点位ID列表批量删除点位 DELETE /api/marker/${param0} */
 export async function deleteMarker(
-  params: { // path
+  params: {
+    // path
     markerId: number
   },
   options?: AxiosRequestConfig,
@@ -130,7 +116,6 @@ export async function deleteMarker(
   const { markerId: param0, ...queryParams } = params
   return request<API.RBoolean>(`/api/marker/${param0}`, {
     method: 'DELETE',
-    headers: {},
     params: { ...queryParams },
     ...(options || {}),
   })
