@@ -385,6 +385,7 @@ declare namespace API {
     phone?: string
     logo?: string
     roleId?: number
+    accessPolicy?: string[]
   }
 
   interface SysUserPasswordUpdateVo {
