@@ -19,15 +19,22 @@ const { pagination, layout } = usePagination({
   units: [PgUnit.TOTAL, PgUnit.SIZE, PgUnit.JUMPER, PgUnit.PREV, PgUnit.PAGER, PgUnit.NEXT],
 })
 
+const sortInfo = ref({
+  key: 'id',
+  type: '+',
+})
+
 const {
   userList,
   loading,
   filterKey,
   filterValue,
-  onSortChange,
   updateUserList,
   resetCurrent,
-} = useUserList({ pagination })
+} = useUserList({
+  pagination,
+  sortInfo,
+})
 
 // ==================== 新增用户 ====================
 const openUserCreator = () => DialogService
@@ -51,7 +58,12 @@ const openUserEditor = (data: API.SysUserVo) => DialogService
 
 <template>
   <div class="h-full flex flex-col overflow-hidden">
-    <UserFilter v-model="filterValue" v-model:filter-key="filterKey" @change="resetCurrent">
+    <UserFilter
+      v-model="filterValue"
+      v-model:sort-info="sortInfo"
+      v-model:filter-key="filterKey"
+      @change="resetCurrent"
+    >
       <template #footer>
         <el-button text :icon="CirclePlus" @click="openUserCreator">
           添加用户
@@ -64,7 +76,6 @@ const openUserEditor = (data: API.SysUserVo) => DialogService
       :role-list="roleList"
       :loading="loading"
       @view-row="openUserEditor"
-      @sort-change="onSortChange"
     />
 
     <el-pagination
@@ -75,7 +86,7 @@ const openUserEditor = (data: API.SysUserVo) => DialogService
       :page-sizes="[10, 20, 30]"
       :pager-count="5"
       :disabled="loading"
-      class="flex justify-end items-center p-2 pt-0"
+      class="flex justify-end items-center p-2"
       background
       @current-change="updateUserList"
       @size-change="updateUserList"

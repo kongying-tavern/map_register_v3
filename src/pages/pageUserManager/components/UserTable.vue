@@ -8,29 +8,23 @@ const props = defineProps<{
 }>()
 
 const emits = defineEmits<{
-  sortChange: [sort: string[]]
   viewRow: [T]
 }>()
 
 const roleMap = computed(() => Object.fromEntries(props.roleList.map(role => [role.id!, role])))
-
-const handleSortChange = ({ order, prop }: { order: 'ascending' | 'descending' | null; prop: string }) => {
-  emits('sortChange', order ? [`${prop}${order === 'ascending' ? '+' : '-'}`] : [])
-}
 
 const tableRef = ref<HTMLElement | null>(null)
 const { height } = useElementSize(tableRef)
 </script>
 
 <template>
-  <div ref="tableRef" v-loading="loading" element-loading-text="载入中..." class="flex-1 overflow-hidden p-2">
+  <div ref="tableRef" v-loading="loading" element-loading-text="载入中..." class="flex-1 overflow-hidden px-2">
     <el-table
       :data="data"
       :height="height"
       table-layout="auto"
-      @sort-change="handleSortChange"
     >
-      <el-table-column label="ID" prop="id" :width="100" sortable="custom" />
+      <el-table-column label="ID" prop="id" :width="100" />
 
       <el-table-column label="头像" width="80" class="custom">
         <template #default="{ row }">
@@ -44,7 +38,7 @@ const { height } = useElementSize(tableRef)
         </template>
       </el-table-column>
 
-      <el-table-column label="昵称" :width="200" prop="nickname" show-overflow-tooltip sortable="custom" />
+      <el-table-column label="昵称" :width="200" prop="nickname" show-overflow-tooltip />
 
       <el-table-column label="用户名" :width="200" prop="username">
         <template #default="{ row }">
@@ -74,7 +68,7 @@ const { height } = useElementSize(tableRef)
         </template>
       </el-table-column>
 
-      <el-table-column label="修改时间" prop="updateTime" sortable="custom" :width="180" :formatter="timeFormatter" />
+      <el-table-column label="修改时间" prop="updateTime" :width="180" :formatter="timeFormatter" />
     </el-table>
   </div>
 </template>

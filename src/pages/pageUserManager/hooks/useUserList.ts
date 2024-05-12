@@ -7,28 +7,29 @@ import Api from '@/api/api'
 
 interface UserListHookOptions {
   pagination: Ref<PaginationState>
+  sortInfo: Ref<{ key: string; type: string }>
 }
 
 /** 列表数据与核心操作封装 */
 export const useUserList = (options: UserListHookOptions) => {
-  const { pagination } = options
+  const { pagination, sortInfo } = options
 
   const userList = ref<API.SysUserVo[]>([])
 
   // 搜索
   const filterKey = ref('nickname')
   const filterValue = ref('')
-  const sort = ref<string[]>([])
 
   const { refresh: updateUserList, onSuccess, onError, ...rest } = useFetchHook({
     immediate: true,
     onRequest: () => {
-      const { current, pageSize: size } = pagination.value
+      const { current, pageSize: size } = toValue(pagination)
+      const { key: sortKey, type: sortType } = toValue(sortInfo)
       const filter = {}
       _.set(filter, filterKey.value, filterValue.value)
       return Api.sysUserController.getUserList({
         ...filter,
-        sort: sort.value,
+        sort: [`${sortKey}${sortType}`],
         current,
         size,
       })
@@ -37,11 +38,6 @@ export const useUserList = (options: UserListHookOptions) => {
 
   const resetCurrent = async () => {
     pagination.value.current = 1
-    await updateUserList()
-  }
-
-  const onSortChange = async (sortKeys: string[]) => {
-    sort.value = sortKeys
     await updateUserList()
   }
 
@@ -62,7 +58,6 @@ export const useUserList = (options: UserListHookOptions) => {
     userList,
     filterKey,
     filterValue,
-    onSortChange,
     updateUserList,
     resetCurrent,
     onError,
