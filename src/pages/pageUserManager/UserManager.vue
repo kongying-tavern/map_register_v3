@@ -66,7 +66,7 @@ const openUserEditor = (data: API.SysUserVo) => DialogService
     >
       <template #footer>
         <el-button text :icon="CirclePlus" @click="openUserCreator">
-          添加用户
+          新增
         </el-button>
       </template>
     </UserFilter>

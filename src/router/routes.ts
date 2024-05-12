@@ -119,7 +119,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/map',
     meta: {
-      title: '地图页',
+      title: '地图',
       loading: true,
       role: RoleTypeEnum.MAP_USER,
       icon: 'MapLocation',
@@ -129,7 +129,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/login',
     meta: {
-      title: '登录页',
+      title: '登录',
       redirectOnLogin: '/map',
     },
     component: () => import('@/pages/pageLogin/PageLogin.vue'),
@@ -137,7 +137,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/register',
     meta: {
-      title: '注册页',
+      title: '注册',
       redirectOnLogin: '/map',
     },
     component: () => import('@/pages/pageRegister/PageRegister.vue'),
