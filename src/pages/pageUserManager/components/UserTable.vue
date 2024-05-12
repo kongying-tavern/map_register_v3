@@ -8,8 +8,8 @@ const props = defineProps<{
 }>()
 
 const emits = defineEmits<{
-  selectionChange: [selections: T[]]
   sortChange: [sort: string[]]
+  viewRow: [T]
 }>()
 
 const roleMap = computed(() => Object.fromEntries(props.roleList.map(role => [role.id!, role])))
@@ -20,49 +20,53 @@ const handleSortChange = ({ order, prop }: { order: 'ascending' | 'descending' |
 
 const tableRef = ref<HTMLElement | null>(null)
 const { height } = useElementSize(tableRef)
-
-/** 类型断言 */
-const typeAssert = (row: unknown) => row as T
-
-// ==================== 事件代理 ====================
-const proxySelectionChange = (selections: T[]) => {
-  emits('selectionChange', selections)
-}
 </script>
 
 <template>
-  <div ref="tableRef" v-loading="loading" element-loading-text="载入中..." class="flex-1 overflow-hidden">
+  <div ref="tableRef" v-loading="loading" element-loading-text="载入中..." class="flex-1 overflow-hidden p-2">
     <el-table
       :data="data"
       :height="height"
-      :border="true"
-      @selection-change="proxySelectionChange"
+      table-layout="auto"
       @sort-change="handleSortChange"
     >
-      <el-table-column type="selection" align="center" :width="50" />
-
       <el-table-column label="ID" prop="id" :width="100" sortable="custom" />
 
-      <el-table-column label="头像" width="80">
+      <el-table-column label="头像" width="80" class="custom">
         <template #default="{ row }">
-          <img
-            v-if="row.logo"
-            class="w-12 h-12 object-contain rounded border"
-            :src="row.logo"
-            style="background-color: var(--el-color-primary-light-9); border-color: var(--el-color-primary-light-8);"
-          >
+          <div class="w-10 h-10 rounded border border-[var(--el-color-primary-light-8)] bg-[var(--el-color-primary-light-9)]">
+            <img
+              v-if="row.logo"
+              class="w-full h-full object-contain"
+              :src="row.logo"
+            >
+          </div>
         </template>
       </el-table-column>
 
       <el-table-column label="昵称" :width="200" prop="nickname" show-overflow-tooltip sortable="custom" />
 
-      <el-table-column label="用户名" :width="200" prop="username" />
+      <el-table-column label="用户名" :width="200" prop="username">
+        <template #default="{ row }">
+          <div
+            class="
+              text-[var(--el-color-primary)]
+              underline underline-offset-4 decoration-[var(--el-color-primary)] decoration-dashed
+              hover:decoration-solid
+              cursor-pointer
+            "
+            @click="() => emits('viewRow', row)"
+          >
+            {{ row.username }}
+          </div>
+        </template>
+      </el-table-column>
 
       <el-table-column label="QQ" prop="qq" :width="150" />
 
       <el-table-column label="手机号" prop="phone" :width="150" />
 
-      <el-table-column label="角色" prop="roleId" :width="120">
+      <el-table-column label="角色" prop="roleId">
         <template #default="{ row }">
           <el-tag disable-transitions>
             {{ roleMap[row.roleId]?.name ?? '...' }}
@@ -71,12 +75,6 @@ const proxySelectionChange = (selections: T[]) => {
       </el-table-column>
 
       <el-table-column label="修改时间" prop="updateTime" sortable="custom" :width="180" :formatter="timeFormatter" />
-
-      <el-table-column fixed="right" label="操作" :width="190">
-        <template #default="{ row }">
-          <slot name="action" :row="typeAssert(row)" />
-        </template>
-      </el-table-column>
     </el-table>
   </div>
 </template>

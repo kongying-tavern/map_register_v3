@@ -1,5 +1,6 @@
 export { default as UserCreator } from './UserCreator.vue'
 export { default as UserEditor } from './UserEditor.vue'
 export { default as UserFilter } from './UserFilter.vue'
+export { default as UserIntegratedPanel } from './UserIntegratedPanel.vue'
 export { default as UserPasswordEditor } from './UserPasswordEditor.vue'
 export { default as UserTable } from './UserTable.vue'

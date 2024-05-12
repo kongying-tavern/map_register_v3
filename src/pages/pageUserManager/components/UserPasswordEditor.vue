@@ -1,21 +1,20 @@
 <script setup lang="ts">
-import { Check, Close } from '@element-plus/icons-vue'
+import { Check } from '@element-plus/icons-vue'
 import { ref } from 'vue'
-import { ElMessage } from 'element-plus'
 import { emptyCheck, lengthCheck } from '../utils/formRules'
 import type { ElFormType } from '@/shared'
-import { useFetchHook } from '@/hooks'
-import Api from '@/api/api'
 import type { ItemFormRules } from '@/utils'
-import { GlobalDialogController, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 
-const props = defineProps<{
-  user: API.SysUserVo
+defineProps<{
+  loading: boolean
 }>()
 
-const formData = ref({
-  userId: props.user.id,
-  password: '',
+const emits = defineEmits<{
+  submit: []
+}>()
+
+const modelValue = defineModel<API.SysUserPasswordUpdateVo>('modelValue', {
+  required: true,
 })
 
 const rules: ItemFormRules<{ password: string }> = {
@@ -24,54 +23,29 @@ const rules: ItemFormRules<{ password: string }> = {
 
 const formRef = ref<ElFormType | null>(null)
 
-const { loading, refresh: submit, onSuccess } = useFetchHook({
-  onRequest: () => Api.sysUserController.updateUserPasswordByAdmin(formData.value),
-})
-
-onSuccess(() => {
-  ElMessage.success({
-    message: '密码修改成功',
-    offset: 48,
-  })
-  GlobalDialogController.close()
-})
-
-const changePassword = async () => {
+const submit = async () => {
   try {
     await formRef.value?.validate()
-    await submit()
+    emits('submit')
   }
-  catch (err) {
+  catch {
     // validate, no error
   }
 }
 </script>
 
 <template>
-  <WinDialog>
-    <WinDialogTitleBar :loading="loading" @close="GlobalDialogController.close">
-      修改密码
-    </WinDialogTitleBar>
+  <div>
+    <el-form ref="formRef" label-width="100px" :model="modelValue" :rules="rules">
+      <el-form-item prop="password" label="新密码">
+        <el-input v-model="modelValue.password" type="password" clearable />
+      </el-form-item>
+    </el-form>
 
-    <WinDialogTabPanel>
-      <el-form ref="formRef" label-width="100px" :model="formData" :rules="rules">
-        <el-form-item label="用户名">
-          {{ props.user.username }}
-        </el-form-item>
-
-        <el-form-item prop="password" label="新密码">
-          <el-input v-model="formData.password" type="password" />
-        </el-form-item>
-      </el-form>
-    </WinDialogTabPanel>
-
-    <WinDialogFooter>
-      <el-button :icon="Check" type="primary" :loading="loading" @click="changePassword">
+    <div class="flex justify-end">
+      <el-button :icon="Check" type="primary" :loading="loading" @click="submit">
         确认
       </el-button>
-      <el-button :icon="Close" :disabled="loading" @click="GlobalDialogController.close">
-        取消
-      </el-button>
-    </WinDialogFooter>
-  </WinDialog>
+    </div>
+  </div>
 </template>
