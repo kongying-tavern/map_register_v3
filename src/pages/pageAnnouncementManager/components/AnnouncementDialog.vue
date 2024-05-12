@@ -68,9 +68,9 @@ watch(props.form, (newData) => {
 const { loading, refresh: submit, onSuccess, onError } = useFetchHook({
   onRequest: async () => {
     if (props.status === 'create')
-      await Api.notice.createNotice({}, formData.value)
+      await Api.notice.createNotice(formData.value)
     else if (props.status === 'update')
-      await Api.notice.updateNotice({}, formData.value)
+      await Api.notice.updateNotice(formData.value)
   },
 })
 
