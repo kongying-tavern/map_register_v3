@@ -15,6 +15,7 @@ import * as iconType from './iconType'
 import * as icon from './icon'
 import * as area from './area'
 import * as sysUserController from './sysUserController'
+import * as sysUserDeviceController from './sysUserDeviceController'
 import * as score from './score'
 import * as punctuateAudit from './punctuateAudit'
 import * as markerLink from './markerLink'
@@ -43,6 +44,7 @@ export default {
   icon,
   area,
   sysUserController,
+  sysUserDeviceController,
   score,
   punctuateAudit,
   markerLink,

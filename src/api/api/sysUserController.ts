@@ -128,7 +128,7 @@ export async function deleteUser(
 }
 
 /** 用户踢出 用户踢出 DELETE /system/user/kick_out/${param0} */
-export async function kickOutkUser(
+export async function kickOutUser(
   params: {
     // path
     workId: number

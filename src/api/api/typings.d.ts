@@ -455,6 +455,77 @@ declare namespace API {
     accessPolicy?: string[]
   }
 
+  interface Region {
+    /** 国家 */
+    country?: string
+    /** 地区 */
+    region?: string
+    /** 省/州 */
+    province?: string
+    /** 城市 */
+    city?: string
+    /** 网络运营商 */
+    isp?: string
+    fullRegion?: string
+    /** 是否是未知地区 */
+    isUnknown?: boolean
+  }
+
+  interface SysUserDeviceVo {
+    /** 乐观锁 */
+    version?: number
+    /** ID */
+    id?: number
+    /** 更新人 */
+    updaterId?: number
+    /** 更新时间 */
+    updateTime?: string
+    /** 用户ID */
+    userId?: number
+    /** 设备编码 */
+    deviceId?: string
+    /** IPv4 */
+    ipv4?: string
+    ipRegion?: Region
+    /** 设备状态 */
+    status?: 'UNKNOWN' | 'VALID' | 'BLOCKED'
+    /** 上次登录时间 */
+    lastLoginTime?: string
+  }
+
+  interface SysUserDeviceSearchVo {
+    /** 当前页，从0开始 */
+    current?: number
+    /** 每页大小，默认为10 */
+    size?: number
+    /** 用户ID */
+    userId?: number
+    /** IPv4 */
+    ipv4?: string
+    /** 设备ID */
+    deviceId?: string
+    /** 设备状态 */
+    status?: number
+    /** 排序条件 */
+    sort?: string[]
+  }
+
+  interface PageListVoSysUserDeviceVo {
+    record?: SysUserDeviceVo[]
+    total?: number
+    size?: number
+  }
+
+  interface RPageListVoSysUserDeviceVo {
+    error?: boolean
+    errorStatus?: number
+    errorData?: unknown
+    message?: string
+    data?: PageListVoSysUserDeviceVo
+    users?: Record<string, SysUserSmallVo>
+    time?: string
+  }
+
   interface PageAndTypeSearchVo {
     /** 当前页，从0开始 */
     current?: number
