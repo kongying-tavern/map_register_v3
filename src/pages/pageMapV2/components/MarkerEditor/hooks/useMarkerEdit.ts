@@ -74,7 +74,7 @@ export const useMarkerEdit = (markerData: Ref<API.MarkerVo | null>) => {
 
     await tryUploadPicture(form)
 
-    await Api.marker.updateMarker({}, form)
+    await Api.marker.updateMarker(form)
 
     const { data: { 0: submitedMarkerInfo } = [] } = await Api.marker.listMarkerById({}, [form.id!])
 
