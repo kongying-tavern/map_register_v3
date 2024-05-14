@@ -40,6 +40,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
     await backendUpdater.refresh()
     ElNotification.info({
       message: `点位数据库更新`,
+      position: 'bottom-right',
     })
   })
 
@@ -51,6 +52,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
     await db.marker.put(markerInfo)
     ElNotification.info({
       message: `点位 ${id} 更新`,
+      position: 'bottom-right',
     })
   })
 
@@ -62,6 +64,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
     await db.marker.put(markerInfo)
     ElNotification.info({
       message: `新增点位 ${id}`,
+      position: 'bottom-right',
     })
   })
 
@@ -70,6 +73,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
     await db.marker.delete(id)
     ElNotification.info({
       message: `删除点位 ${id}`,
+      position: 'bottom-right',
     })
   })
 
@@ -80,6 +84,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
     ElNotification.info({
       title: '点位批量更新',
       message: `点位 ${ids.join(', ')} 更新`,
+      position: 'bottom-right',
     })
   })
 
