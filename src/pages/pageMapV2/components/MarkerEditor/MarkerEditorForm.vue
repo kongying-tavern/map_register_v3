@@ -4,8 +4,8 @@ import { cloneDeep } from 'lodash'
 import { addonPanelRefKey } from './shared'
 import {
   AddonContenEditor,
-  AddonEditHistory,
   AddonExtraEditor,
+  AddonHistory,
   AddonImageEditor,
   AddonItemSelector,
   AddonRefreshtimeEditor,
@@ -76,7 +76,7 @@ const rules: FormRules = {
  * 右侧额外面板识别 id
  * @default 默认展开点位描述
  */
-const addonId = ref('content')
+const addonId = ref('history')
 
 /** 表单实例 */
 const formRef = ref<ElFormType | null>(null)
@@ -164,7 +164,7 @@ defineExpose({
           <el-form-item label="点位名称" prop="markerTitle">
             <div class="w-full flex justify-between gap-1">
               <el-input v-model="form.markerTitle" />
-              <AddonEditHistory v-if="form.id !== undefined" v-model:addon-id="addonId" v-model:marker-vo="form" />
+              <AddonHistory v-if="form.id !== undefined" v-model:addon-id="addonId" v-model:marker-vo="form" />
             </div>
           </el-form-item>
 
