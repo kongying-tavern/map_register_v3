@@ -1,3 +1,4 @@
+import { ElMessage } from 'element-plus'
 import { useFetchHook } from '@/hooks'
 import Api from '@/api/api'
 
@@ -24,6 +25,13 @@ export const useUserDeviceEdit = (data: Ref<API.SysUserDeviceVo | undefined>, op
     if (!data.value)
       return
     data.value.status = status
+  })
+
+  onError((err) => {
+    ElMessage.error({
+      message: `编辑用户设备状态失败，原因为：${err.message}`,
+      offset: 48,
+    })
   })
 
   return {
