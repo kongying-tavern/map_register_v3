@@ -2,8 +2,11 @@ import { ElMessage } from 'element-plus'
 import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 
-export const useUserEdit = (form: Ref<API.SysUserVo>) => {
+export const useUserEdit = (form: Ref<API.SysUserVo>, options: { loading: Ref<boolean> }) => {
+  const { loading } = options
+
   const { refresh: submit, onError, onSuccess, ...rest } = useFetchHook({
+    loading,
     onRequest: async () => {
       const {
         id,

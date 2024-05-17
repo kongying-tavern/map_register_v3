@@ -2,8 +2,11 @@ import { ElMessage } from 'element-plus'
 import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 
-export const usePasswordUpdate = (form: Ref<API.SysUserPasswordUpdateVo>) => {
+export const usePasswordUpdate = (form: Ref<API.SysUserPasswordUpdateVo>, options: { loading: Ref<boolean> }) => {
+  const { loading } = options
+
   const { refresh: submit, onError, onSuccess, ...rest } = useFetchHook({
+    loading,
     onRequest: async () => {
       const {
         userId,
