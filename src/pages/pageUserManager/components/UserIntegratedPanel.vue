@@ -80,7 +80,7 @@ const { submit: submitPwsUpdate, loading: pwdUpdateLoading } = usePasswordUpdate
 
 <template>
   <WinDialog>
-    <WinDialogTitleBar @close="GlobalDialogController.close">
+    <WinDialogTitleBar :loading="panelLoading" @close="GlobalDialogController.close">
       用户详情
     </WinDialogTitleBar>
 
