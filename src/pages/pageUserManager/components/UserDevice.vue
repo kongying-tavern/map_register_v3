@@ -23,11 +23,17 @@ const { pagination, layout } = usePagination({
   },
 })
 
-const { deviceList, loading, refresh } = useUserDevice(computed(() => props.data), {
+const { deviceList, loading, refresh, onSuccess: onListFetchSuccess } = useUserDevice(computed(() => props.data), {
   pagination,
 })
 
 const selectedDeviceData = ref<API.SysUserDeviceVo>()
+
+onListFetchSuccess(({ record: [first] = [] }) => {
+  if (selectedDeviceData.value || !first)
+    return
+  selectedDeviceData.value = first
+})
 
 const { submit, loading: editLoading, onSuccess: onEditSuccess } = useUserDeviceEdit(selectedDeviceData, {
   loading: panelLoading,
@@ -61,7 +67,7 @@ const ua = computed(() => {
 
 <template>
   <div class="h-full flex flex-col overflow-hidden">
-    <div v-if="!selectedDeviceData" class="h-44 grid place-items-center">
+    <div v-if="!selectedDeviceData" class="h-44 grid place-items-center text-[var(--el-text-color-secondary)]">
       请选择设备
     </div>
 
@@ -126,7 +132,10 @@ const ua = computed(() => {
     <el-divider style="margin: 0; padding: 0 0 16px" />
 
     <div v-loading="loading" element-loading-text="加载中..." class="flex-1 overflow-hidden">
-      <el-scrollbar>
+      <div v-if="!deviceList.length" class="h-full grid place-items-center text-[var(--el-text-color-secondary)]">
+        暂无登录记录
+      </div>
+      <el-scrollbar v-else>
         <DeviceCard
           v-for="device in deviceList"
           :key="device.id"

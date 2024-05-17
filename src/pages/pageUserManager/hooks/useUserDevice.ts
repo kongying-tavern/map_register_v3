@@ -37,6 +37,7 @@ export const useUserDevice = (form: Ref<API.SysUserVo>, options: UserDeviceHookO
   })
 
   return {
+    onSuccess,
     deviceList,
     ...rest,
   }
