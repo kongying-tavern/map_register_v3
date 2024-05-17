@@ -33,26 +33,39 @@ const setTabKey = (tabKey: string) => {
 
 <style lang="scss" scoped>
 .win-tabs {
-  @apply flex mx-2 mt-2 text-xs translate-y-[1px];
+  display: flex;
+  margin: 8px 8px 0 8px;
+  font-size: 12px;
+  line-height: 16px;
+  transform: translate(0, 1px);
 }
 
 .tab-item {
+  border-width: 1px 0 1px 1px;
+
   @apply
     py-1 px-2 mt-0.5
-    border border-[var(--el-border-color)]
+    border-[var(--el-border-color)]
     bg-[var(--el-fill-color)]
-    -translate-x-[1px]
     select-none
     relative
   ;
 
-  &:first-of-type {
-    @apply translate-x-0;
-  }
-
   &.actived {
+    border-width: 1px;
+    +.tab-item {
+      border-width: 1px 0px 1px 0px;
+      &:last-of-type {
+        border-width: 1px 1px 1px 0px;
+      }
+    }
     @apply bg-[var(--el-bg-color)] mt-0;
   }
+
+  &:last-of-type {
+    border-width: 1px;
+  }
+
   &.actived::before {
     content: '';
     @apply
