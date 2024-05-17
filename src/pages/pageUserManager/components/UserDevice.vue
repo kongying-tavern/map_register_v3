@@ -100,7 +100,7 @@ const ua = computed(() => {
         </div>
 
         <div class="info-label">
-          登录时间
+          更新时间
         </div>
         <div class="info-content col-span-3">
           {{ dayjs(selectedDeviceData.updateTime).format('YYYY-MM-DD HH:mm:ss') }}
