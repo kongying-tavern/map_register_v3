@@ -1,8 +1,51 @@
 diff --git a/dist/serviceGenerator.js b/dist/serviceGenerator.js
-index 001071c0a33034c7ca51603cfbc7801488172dfa..19f91fb980303274a6a6df5845ed2844eb0ebf6a 100644
+index 001071c0a33034c7ca51603cfbc7801488172dfa..17f6779c844452a6de04b5ca9b9b9bf1cec359de 100644
 --- a/dist/serviceGenerator.js
 +++ b/dist/serviceGenerator.js
-@@ -108,7 +108,13 @@ const getType = (schemaObject, namespace = '') => {
+@@ -66,21 +66,16 @@ const getType = (schemaObject, namespace = '') => {
+     ];
+     const dateEnum = ['Date', 'date', 'dateTime', 'date-time', 'datetime'];
+     const stringEnum = ['string', 'email', 'password', 'url', 'byte', 'binary'];
+-    if (numberEnum.includes(schemaObject.format)) {
+-        type = 'number';
+-    }
+     if (schemaObject.enum) {
+         type = 'enum';
+-    }
+-    if (numberEnum.includes(type)) {
++    } else if (numberEnum.includes(type)) {
+         return 'number';
+-    }
+-    if (dateEnum.includes(type)) {
++    } else if (dateEnum.includes(type)) {
+         return 'Date';
+-    }
+-    if (stringEnum.includes(type)) {
++    } else if (stringEnum.includes(type)) {
+         return 'string';
+     }
++
+     if (type === 'boolean') {
+         return 'boolean';
+     }
+@@ -99,7 +94,15 @@ const getType = (schemaObject, namespace = '') => {
+     }
+     if (type === 'enum') {
+         return Array.isArray(schemaObject.enum)
+-            ? Array.from(new Set(schemaObject.enum.map((v) => typeof v === 'string' ? `"${v.replace(/"/g, '"')}"` : getType(v)))).join(' | ')
++            ? Array.from(new Set(schemaObject.enum.map((v) => {
++                if(numberEnum.includes(schemaObject.format)) {
++                    return v.replace(/"/g, '"');
++                } else if(typeof v === 'string') {
++                    return `"${v.replace(/"/g, '"')}"`;
++                } else {
++                    return getType(v);
++                }
++            }))).join(' | ')
+             : 'string';
+     }
+     if (schemaObject.oneOf && schemaObject.oneOf.length) {
+@@ -108,7 +111,13 @@ const getType = (schemaObject, namespace = '') => {
      if (schemaObject.allOf && schemaObject.allOf.length) {
          return `(${schemaObject.allOf.map((item) => getType(item, namespace)).join(' & ')})`;
      }
@@ -17,7 +60,7 @@ index 001071c0a33034c7ca51603cfbc7801488172dfa..19f91fb980303274a6a6df5845ed2844
          if (!Object.keys(schemaObject.properties || {}).length) {
              return 'Record<string, any>';
          }
-@@ -259,7 +265,7 @@ class ServiceGenerator {
+@@ -259,7 +268,7 @@ class ServiceGenerator {
              // functionName tag 级别防重
              const tmpFunctionRD = {};
              const genParams = this.apiData[tag]
@@ -26,7 +69,7 @@ index 001071c0a33034c7ca51603cfbc7801488172dfa..19f91fb980303274a6a6df5845ed2844
              // 暂不支持变量
              !api.path.includes('${'))
                  .map((api) => {
-@@ -272,9 +278,15 @@ class ServiceGenerator {
+@@ -272,9 +281,15 @@ class ServiceGenerator {
                      const newfile = this.getFileTP(newApi.requestBody);
                      file = this.concatOrNull(file, newfile);
                      //const file = this.getFileTP(newApi.requestBody);
@@ -43,7 +86,7 @@ index 001071c0a33034c7ca51603cfbc7801488172dfa..19f91fb980303274a6a6df5845ed2844
                      }
                      let functionName = this.config.hook && this.config.hook.customFunctionName
                          ? this.config.hook.customFunctionName(newApi)
-@@ -340,12 +352,12 @@ class ServiceGenerator {
+@@ -340,12 +355,12 @@ class ServiceGenerator {
                          // prefix 变量
                          return `$\{${prefix}}${formattedPath}`;
                      };
@@ -58,7 +101,7 @@ index 001071c0a33034c7ca51603cfbc7801488172dfa..19f91fb980303274a6a6df5845ed2844
                  }
                  catch (error) {
                      // eslint-disable-next-line no-console
-@@ -529,7 +541,7 @@ class ServiceGenerator {
+@@ -529,7 +544,7 @@ class ServiceGenerator {
          return schemaObject.properties
              ? Object.keys(schemaObject.properties).map((propName) => {
                  const schema = (schemaObject.properties && schemaObject.properties[propName]) || DEFAULT_SCHEMA;
@@ -68,7 +111,7 @@ index 001071c0a33034c7ca51603cfbc7801488172dfa..19f91fb980303274a6a6df5845ed2844
                      required: requiredPropKeys ? requiredPropKeys.some((key) => key === propName) : false });
              })
 diff --git a/templates/serviceController.njk b/templates/serviceController.njk
-index 3a5b78e040d1a535fba3fd07e4f37955bc6e91bc..34d8c7ee52b928035398948826e6694818cd001a 100644
+index 3a5b78e040d1a535fba3fd07e4f37955bc6e91bc..a763ba243e963d7fc0a1582c77a89fa89faa9974 100644
 --- a/templates/serviceController.njk
 +++ b/templates/serviceController.njk
 @@ -61,7 +61,13 @@ export async function {{ api.functionName }}(
