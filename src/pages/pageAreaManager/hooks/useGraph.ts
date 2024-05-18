@@ -1,5 +1,5 @@
 import G6 from '@antv/g6'
-import type { TreeGraphData } from '@antv/g6'
+import type { IG6GraphEvent, TreeGraphData } from '@antv/g6'
 import dayjs from 'dayjs'
 import { symbolDelete, symbolPlus } from '../utils'
 import { array2Tree } from '@/utils'
@@ -379,9 +379,7 @@ export const useGraph = (options: {
     })
 
     graph.on('viewportchange', () => {
-      // const { x: vx, y: vy } = graph.getViewPortCenterPoint()
       const { x: gx, y: gy } = graph.getGraphCenterPoint()
-      // console.log([vx, vy, gx, gy].map(num => Math.floor(num)))
       viewState.value = {
         x: gx,
         y: gy,
@@ -389,9 +387,9 @@ export const useGraph = (options: {
       }
     })
 
-    graph.on('node:click', (ev) => {
+    const handler = (ev: IG6GraphEvent) => {
       const { item, shape, originalEvent } = ev
-      if (!item || !(originalEvent instanceof MouseEvent) || originalEvent.button !== 0)
+      if (!item)
         return
 
       const model = item.getModel()
@@ -401,7 +399,7 @@ export const useGraph = (options: {
       switch (shapeName) {
         case 'border-box': {
           // 按住 ctrl 点击节点，切换折叠
-          if (originalEvent.ctrlKey) {
+          if (originalEvent instanceof MouseEvent && originalEvent.ctrlKey) {
             model.collapsed = !model.collapsed
             graph.layout()
             graph.setItemState(item, 'collapse', model.collapsed as boolean)
@@ -414,7 +412,10 @@ export const useGraph = (options: {
           break
         }
       }
-    })
+    }
+
+    graph.on('node:click', handler)
+    graph.on('node:touchend', handler)
 
     graphRef.value = graph
   })
