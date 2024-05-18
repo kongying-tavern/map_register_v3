@@ -140,7 +140,7 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
             id: `item-${crypto.randomUUID()}`,
             name: itemLabel,
           }
-          const complied = template(itemUrlTemplate, { interpolate: /{{([\s\S]+?)}}/g })
+          const complied = template(itemUrlTemplate, { interpolate: /\{\{([\s\S]+?)\}\}/g })
 
           if (!chunks.length) {
             if (!itemBounds)

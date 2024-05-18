@@ -43,7 +43,7 @@
      * @returns {CacheInfoObject} 解析后的缓存库附加信息
      */
     static parse = (cacheName) => {
-      const cacheInfoTuple = cacheName.match(/(?<=(-\>\[))[\s\S]+(?=(\]))/)?.[0]?.split(',')
+      const cacheInfoTuple = cacheName.match(/(?<=(->\[))[\s\S]+(?=(\]))/)?.[0]?.split(',')
       if (!cacheInfoTuple) {
         return {
           version: 0,
