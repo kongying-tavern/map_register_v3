@@ -6,6 +6,7 @@ import { useFetchHook } from '@/hooks'
 import { GlobalDialogController } from '@/components'
 import { useUserInfoStore } from '@/stores'
 import Resource from '@/api/resource'
+import { getDigest } from '@/utils'
 
 interface ImageUploadHookOptions {
   image: Ref<Blob | undefined>
@@ -16,14 +17,6 @@ export const useImageUpload = (options: ImageUploadHookOptions) => {
   const { image, tagName } = options
 
   const userInfoStore = useUserInfoStore()
-
-  const croppedImageName = refWithControl(tagName.value ?? '', {
-    onBeforeChange: (v) => {
-      if (v !== v.trim())
-        return false
-      return v.length <= 16
-    },
-  })
 
   const percentage = ref(0)
 
@@ -39,31 +32,37 @@ export const useImageUpload = (options: ImageUploadHookOptions) => {
 
   watch(image, reset)
 
-  const file = computed(() => {
-    if (!image.value)
-      return
-    return new File([image.value], `${croppedImageName.value}.png`, {
-      type: 'image/png',
-      lastModified: Date.now(),
-    })
-  })
-
   const { refresh: uploadImage, onSuccess, onError, ...rest } = useFetchHook({
     onRequest: async () => {
-      const image = file.value
-      if (!image)
-        throw new Error('没有文件可以上传')
+      const imageBlob = toValue(image)
+      if (!imageBlob)
+        throw new Error('图片为空')
 
-      const shallowTagName = tagName.value
-      if (!shallowTagName)
+      const iconTag = toValue(tagName)
+      if (!iconTag)
         throw new Error('icon tag 为空')
 
-      const folder = `${dayjs().format('YYYY-MM-DD')}`
+      const hash = await getDigest(imageBlob, 'SHA-256')
+
+      const fileName = `${hash}.png`
+
+      const now = Date.now()
+
+      const folderName = `${dayjs(now).format('YYYY-MM-DD')}`
+
+      const filePath = `${folderName}/${fileName}`
+
+      // TODO: 上传前检测 filePath 是否已经存在图片
+
+      const file = new File([imageBlob], fileName, {
+        type: 'image/png',
+        lastModified: now,
+      })
 
       text.value = '正在上传'
       const { data: { fileUrl = '' } = {} } = await Resource.image.upload({
-        file: image,
-        filePath: `${folder}/${image.name}`,
+        file,
+        filePath,
       }, {
         onUploadProgress: (ev) => {
           const { loaded = 0, total = 0 } = ev
@@ -75,7 +74,7 @@ export const useImageUpload = (options: ImageUploadHookOptions) => {
 
       text.value = '正在创建图片资产'
       const { data: iconId } = await Api.icon.createIcon({
-        name: image.name,
+        name: fileName,
         url: fileUrl,
         typeIdList: [],
         creatorId: userInfoStore.info.id,
@@ -85,12 +84,12 @@ export const useImageUpload = (options: ImageUploadHookOptions) => {
 
       text.value = '正在关联图片资产'
       await Api.tag.updateTag({
-        tagName: shallowTagName,
+        tagName: iconTag,
         iconId,
       })
 
       text.value = '正在更新数据库'
-      const { data = {} } = await Api.tag.getTag({ name: shallowTagName })
+      const { data = {} } = await Api.tag.getTag({ name: iconTag })
       await db.iconTag.put(data)
     },
   })
@@ -113,5 +112,5 @@ export const useImageUpload = (options: ImageUploadHookOptions) => {
     })
   })
 
-  return { croppedImageName, percentage, status, text, uploadImage, onSuccess, onError, ...rest }
+  return { percentage, status, text, uploadImage, onSuccess, onError, ...rest }
 }

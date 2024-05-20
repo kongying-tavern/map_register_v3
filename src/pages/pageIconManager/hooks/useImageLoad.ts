@@ -3,7 +3,9 @@ import { getFileType } from '@/utils'
 import { useFetchHook } from '@/hooks'
 
 export const useImageLoad = () => {
-  const { data: localImage, refresh: loadLocalImage, onSuccess, onError, ...rest } = useFetchHook({
+  const localImage = shallowRef<Blob>()
+
+  const { refresh: loadLocalImage, onSuccess, onError, ...rest } = useFetchHook({
     initialValue: undefined,
     shallow: true,
     onRequest: () => new Promise<Blob | undefined>((resolve, reject) => {
@@ -36,6 +38,12 @@ export const useImageLoad = () => {
   })
 
   const localImageUrl = useObjectUrl(localImage)
+
+  onSuccess((image) => {
+    if (!image)
+      return
+    localImage.value = image
+  })
 
   onError(err => ElMessage.error({
     message: `加载图片失败，原因为：${err.message}`,

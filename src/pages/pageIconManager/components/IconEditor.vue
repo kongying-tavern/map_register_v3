@@ -37,7 +37,7 @@ const onImageCrop = (image: Blob) => {
 }
 
 // ==================== 上传图片 ====================
-const { croppedImageName, loading: uploadLoading, percentage, status, text, uploadImage } = useImageUpload({
+const { loading: uploadLoading, percentage, status, text, uploadImage } = useImageUpload({
   image: croppedImage,
   tagName,
 })
@@ -49,7 +49,7 @@ const { selectedImage, useImage, loading: selectLoading } = useImageSelect({
 
 // ==================== 弹窗操作 ====================
 const confirmDisabled = computed(() => ({
-  [TabKey.UPLOAD]: () => !croppedImageUrl.value || !croppedImageName.value,
+  [TabKey.UPLOAD]: () => !croppedImageUrl.value,
   [TabKey.SELECT]: () => !selectedImage.value,
 })[activedTabKey.value]())
 
@@ -87,10 +87,6 @@ const cancel = () => {
       {{ icon.tag }} 修改图片
     </WinDialogTitleBar>
 
-    <el-alert type="warning" style="margin-bottom: 0">
-      注意：修改图片不会立即生效，需要等待服务器刷新缓存。
-    </el-alert>
-
     <WinDialogTabPanel
       v-model:tab-key="activedTabKey"
       class="w-[370px] h-[340px]"
@@ -98,18 +94,9 @@ const cancel = () => {
       :tabs-disabled="confirmLoading"
     >
       <div v-show="activedTabKey === TabKey.UPLOAD" class="grid gap-2 grid-cols-[auto_1fr]">
-        <el-input v-model="croppedImageName" class="col-span-2" placeholder="请输入图标名称">
-          <template #prefix>
-            <span class="text-xs text-[var(--el-color-danger)] select-none">
-              *
-            </span>
-          </template>
-          <template #suffix>
-            <span class="text-xs select-none" :class="!croppedImageName.length ? 'text-[var(--el-color-danger)]' : ''">
-              {{ croppedImageName.length }} / {{ 16 }}
-            </span>
-          </template>
-        </el-input>
+        <div class="p-2 bg-[var(--el-color-warning-light-9)] text-[var(--el-color-warning)] rounded col-span-2 text-xs">
+          提醒：新上传的图片不会立即生效，需要等待服务器刷新缓存。
+        </div>
 
         <AppImageCropper
           class="flex-shrink-0 w-64 h-64"

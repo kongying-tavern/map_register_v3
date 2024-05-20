@@ -74,6 +74,7 @@ onSuccess(({ record, total }) => {
             ? 'actived'
             : 'cursor-pointer',
         ]"
+        :title="icon.url || '<url>'"
         @click="() => activeImage(icon)"
       >
         <img
@@ -83,7 +84,11 @@ onSuccess(({ record, total }) => {
           crossorigin=""
         >
       </div>
-      <div v-for="i in (25 - iconList.length)" :key="i" class="w-[48px] h-[48px] pointer-events-none" />
+      <div
+        v-for="i in (25 - iconList.length)"
+        :key="i"
+        class="w-[48px] h-[48px] pointer-events-none"
+      />
     </div>
 
     <div class="w-full h-full flex flex-col justify-between overflow-hidden">
@@ -94,7 +99,7 @@ onSuccess(({ record, total }) => {
           leading-[23px] whitespace-nowrap text-ellipsis"
         :title="modelValue?.name"
       >
-        {{ modelValue ? modelValue.name : '<选择图标>' }}
+        {{ modelValue ? `id: ${modelValue.id}` : '<选择图标>' }}
       </div>
       <el-divider style="margin: 8px 0 0" />
 
