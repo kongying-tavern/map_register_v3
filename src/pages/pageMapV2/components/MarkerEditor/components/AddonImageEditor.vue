@@ -14,7 +14,6 @@ const modelValue = defineModel<string>('modelValue', {
 const {
   initLoading,
   thumbImageUrl,
-  largeImageUrl,
 } = useMarkerPicture(modelValue)
 
 // ==================== 待上传图片 ====================
@@ -127,17 +126,14 @@ onSelectSuccess((file) => {
       <div class="w-full h-full flex flex-col gap-2">
         <el-alert type="warning" :closable="false">
           注意事项：
-          <ol class="list-decimal">
-            <li>仅当通过裁切生成了新的缩略图时，编辑器才会在提交表单的同时对图像进行上传。</li>
-            <li>大图会与缩略图一并上传，并在后续查看或编辑点位时可用。</li>
-            <li>裁切尺寸固定为 256x256。</li>
-            <li>上传的图片并不会立即可用，需要等待CDN缓存刷新。</li>
-          </ol>
+          <li>仅当通过裁切生成了新的缩略图时，编辑器才会在提交表单的同时对图像进行上传。</li>
+          <li>裁切尺寸固定为 256x256。</li>
+          <li>上传的图片并不会立即可用，需要等待CDN缓存刷新。</li>
         </el-alert>
         <div class="flex-1 grid place-items-center place-content-center gap-2">
           <AppImageCropper
             ref="cropperRef"
-            :image="newPictureUrl ?? largeImageUrl"
+            :image="newPictureUrl ?? thumbImageUrl"
             :auto-crop-on-image-loaded="false"
             class="w-64 h-64"
             @crop="onCrop"
