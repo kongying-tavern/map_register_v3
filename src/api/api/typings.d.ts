@@ -488,7 +488,7 @@ declare namespace API {
     ipv4?: string
     ipRegion?: Region
     /** 设备状态 */
-    status?: 'UNKNOWN' | 'VALID' | 'BLOCKED'
+    status?: 0 | 1 | 2
     /** 上次登录时间 */
     lastLoginTime?: string
   }
@@ -1145,7 +1145,7 @@ declare namespace API {
     /** IPv4 */
     ipv4?: string
     /** 修改类型 */
-    editType?: 'NONE' | 'CREATE' | 'UPDATE' | 'DELETE'
+    editType?: 0 | 1 | 2 | 3
     tid?: number
   }
 
