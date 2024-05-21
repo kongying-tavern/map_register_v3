@@ -33,7 +33,7 @@ export const useItemList = (options: ItemHookOptions) => {
     onRequest: () => {
       const { current, pageSize: size } = pagination.value
       const { areaId, itemTypeId, name = '' } = getParams()
-      return Api.item.listItemIdByType({}, {
+      return Api.item.listItemIdByType({
         current,
         size,
         areaIdList: !areaId ? [] : [areaId],

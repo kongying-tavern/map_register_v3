@@ -9,7 +9,7 @@ export const useAreaList = () => {
     immediate: true,
     initialValue: [],
     onRequest: async () => {
-      const { data = [] } = await Api.area.listArea({}, {
+      const { data = [] } = await Api.area.listArea({
         isTraverse: true,
         parentId: -1,
       })

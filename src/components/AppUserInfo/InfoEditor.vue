@@ -46,7 +46,7 @@ const { refresh: updateUserInfo, loading } = useFetchHook({
     const isValid = await formRef.value?.validate().catch(() => false)
     if (!isValid)
       return
-    await Api.sysUserController.updateUser({}, form.value)
+    await Api.sysUserController.updateUser(form.value)
     await userInfoStore.updateUserInfo()
     document.documentElement.style.setProperty('--user-icon', `url("${userInfoStore.info.logo}")`)
   },

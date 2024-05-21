@@ -46,7 +46,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
 
   // 单个点位更新
   socketStore.event.on('MarkerUpdated', async (id) => {
-    const { data: [markerInfo] = [] } = await Api.marker.listMarkerById({}, [id])
+    const { data: [markerInfo] = [] } = await Api.marker.listMarkerById([id])
     if (!markerInfo)
       return
     await db.marker.put(markerInfo)
@@ -58,7 +58,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
 
   // 单个点位新增
   socketStore.event.on('MarkerAdded', async (id) => {
-    const { data: [markerInfo] = [] } = await Api.marker.listMarkerById({}, [id])
+    const { data: [markerInfo] = [] } = await Api.marker.listMarkerById([id])
     if (!markerInfo)
       return
     await db.marker.put(markerInfo)
@@ -79,7 +79,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
 
   // 点位批量更新
   socketStore.event.on('MarkerTweaked', async (ids) => {
-    const { data = [] } = await Api.marker.listMarkerById({}, ids)
+    const { data = [] } = await Api.marker.listMarkerById(ids)
     await db.marker.bulkPut(data)
     ElNotification.info({
       title: '点位批量更新',

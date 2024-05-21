@@ -31,7 +31,7 @@ export const useScore = (options: ScoreHookOptions) => {
   const { refresh: generateScore, onSuccess: onGenerateSuccess, loading: generateLoading } = useFetchHook({
     immediate: false,
     onRequest: () => {
-      return Api.score.generate({}, params.value)
+      return Api.score.generate(params.value)
     },
   })
   onGenerateSuccess(() => {

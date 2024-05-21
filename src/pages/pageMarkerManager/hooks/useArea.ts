@@ -12,8 +12,6 @@ export const useArea = () => {
     immediate: true,
     onRequest: async () => {
       return Api.area.listArea({
-
-      }, {
         parentId: -1,
         isTraverse: true,
       })

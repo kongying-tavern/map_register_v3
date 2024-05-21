@@ -78,7 +78,6 @@ export async function joinItemsInType(
 
 /** 根据筛选条件列出物品信息 传入的物品类型ID和地区ID列表，必须为末端的类型或地区 POST /api/item/get/list */
 export async function listItemIdByType(
-  params: NonNullable<unknown>,
   body: API.ItemSearchVo,
   options?: AxiosRequestConfig,
 ) {
@@ -87,24 +86,18 @@ export async function listItemIdByType(
     headers: {
       'Content-Type': 'application/json',
     },
-    params: { ...params },
     data: body,
     ...(options || {}),
   })
 }
 
 /** 根据物品ID查询物品 输入ID列表查询，单个查询也用此API POST /api/item/get/list_byid */
-export async function listItemById(
-  params: NonNullable<unknown>,
-  body: number[],
-  options?: AxiosRequestConfig,
-) {
+export async function listItemById(body: number[], options?: AxiosRequestConfig) {
   return request<API.RListItemVo>('/api/item/get/list_byid', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    params: { ...params },
     data: body,
     ...(options || {}),
   })

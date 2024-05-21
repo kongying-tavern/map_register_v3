@@ -44,7 +44,7 @@ export const useLinkCreate = (context: MLContext) => {
       })
 
       // 查询点位更新
-      const { data: updatedMarkers = [] } = await Api.marker.listMarkerById({}, [...affectedMarkerIds])
+      const { data: updatedMarkers = [] } = await Api.marker.listMarkerById([...affectedMarkerIds])
 
       await db.transaction('rw', db.marker, db.markerLink, async () => {
         // 1. 更新所有受影响的点位
