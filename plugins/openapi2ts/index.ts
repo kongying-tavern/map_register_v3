@@ -48,7 +48,7 @@ export const openapi2ts = (optionList: Openapi2tsOptions[], initFlag = false): P
             // 删除头部 eslint 禁用注释
             .replace('// @ts-ignore\n/* eslint-disable */\n', '')
             // 删除类型为 header 的 params 参数声明
-            .replace(/\s+\/\/ header([\s\S]+?)(?=(}|(\/\/)))/g, '')
+            // .replace(/\s+\/\/ header([\s\S]+?)(?=(}|(\/\/)))/g, '')
             // 格式化
             // .replace(/{\/\//g, '{\n    \/\/')
             // params 上的空对象类型替换
