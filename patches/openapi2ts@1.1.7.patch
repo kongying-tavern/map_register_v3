@@ -1,5 +1,5 @@
 diff --git a/dist/serviceGenerator.js b/dist/serviceGenerator.js
-index 001071c0a33034c7ca51603cfbc7801488172dfa..17f6779c844452a6de04b5ca9b9b9bf1cec359de 100644
+index 001071c0a33034c7ca51603cfbc7801488172dfa..51cdac581dbf212b689d3b77476890988ff9e393 100644
 --- a/dist/serviceGenerator.js
 +++ b/dist/serviceGenerator.js
 @@ -66,21 +66,16 @@ const getType = (schemaObject, namespace = '') => {
@@ -69,20 +69,19 @@ index 001071c0a33034c7ca51603cfbc7801488172dfa..17f6779c844452a6de04b5ca9b9b9bf1
              // 暂不支持变量
              !api.path.includes('${'))
                  .map((api) => {
-@@ -272,9 +281,15 @@ class ServiceGenerator {
-                     const newfile = this.getFileTP(newApi.requestBody);
+@@ -273,8 +282,14 @@ class ServiceGenerator {
                      file = this.concatOrNull(file, newfile);
                      //const file = this.getFileTP(newApi.requestBody);
-+                    let hasBinary = false;
                      let formData = false;
 -                    if ((body && (body.mediaType || '').includes('form')) || file) {
++                    let binaryFile = false;
 +                    if (file) {
 +                        formData = true;
 +                    } else if (body && (body.mediaType || '').includes('form')) {
 +                        formData = true;
-+                    } else if (body && (body.propertiesList || []).filter((v) => v.schema.format === 'binary').length > 0) {
++                    } else if (body && (body?.propertiesList || []).filter((v) => v.schema.format === 'binary').length > 0) {
                          formData = true;
-+                        hasBinary = true;
++                        binaryFile = true;
                      }
                      let functionName = this.config.hook && this.config.hook.customFunctionName
                          ? this.config.hook.customFunctionName(newApi)
@@ -97,7 +96,7 @@ index 001071c0a33034c7ca51603cfbc7801488172dfa..17f6779c844452a6de04b5ca9b9b9bf1
                              ? newApi.description
                              : [newApi.summary, newApi.description].filter((s) => s).join(' '), hasHeader: !!(params && params.header) || !!(body && body.mediaType), params: finalParams, hasParams: Boolean(Object.keys(finalParams || {}).length), body,
 -                        file, hasFormData: formData, response });
-+                        file, hasFormData: formData, hasBinary, response });
++                        file, hasFormData: formData, hasBinaryFile: binaryFile, response });
                  }
                  catch (error) {
                      // eslint-disable-next-line no-console
@@ -111,7 +110,7 @@ index 001071c0a33034c7ca51603cfbc7801488172dfa..17f6779c844452a6de04b5ca9b9b9bf1
                      required: requiredPropKeys ? requiredPropKeys.some((key) => key === propName) : false });
              })
 diff --git a/templates/serviceController.njk b/templates/serviceController.njk
-index 3a5b78e040d1a535fba3fd07e4f37955bc6e91bc..a763ba243e963d7fc0a1582c77a89fa89faa9974 100644
+index 3a5b78e040d1a535fba3fd07e4f37955bc6e91bc..34d8c7ee52b928035398948826e6694818cd001a 100644
 --- a/templates/serviceController.njk
 +++ b/templates/serviceController.njk
 @@ -61,7 +61,13 @@ export async function {{ api.functionName }}(
