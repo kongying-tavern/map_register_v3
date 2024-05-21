@@ -76,7 +76,7 @@ export const useMarkerEdit = (markerData: Ref<API.MarkerVo | null>) => {
 
     await Api.marker.updateMarker(form)
 
-    const { data: { 0: submitedMarkerInfo } = [] } = await Api.marker.listMarkerById({}, [form.id!])
+    const { data: { 0: submitedMarkerInfo } = [] } = await Api.marker.listMarkerById([form.id!])
 
     if (!submitedMarkerInfo)
       throw new Error('无法确认点位信息，点位对象为空')

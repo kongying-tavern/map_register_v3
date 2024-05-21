@@ -3,7 +3,6 @@ import { request } from '@/utils'
 
 /** 生成评分 生成评分数据 POST /api/score/generate */
 export async function generate(
-  params: NonNullable<unknown>,
   body: API.ScoreParamsVo,
   options?: AxiosRequestConfig,
 ) {
@@ -12,7 +11,6 @@ export async function generate(
     headers: {
       'Content-Type': 'application/json',
     },
-    params: { ...params },
     data: body,
     ...(options || {}),
   })

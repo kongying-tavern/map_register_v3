@@ -51,7 +51,7 @@ export const useMarkerPositionEdit = () => {
 
       const updateIds = await Promise.all(form.map(marker => Api.marker.updateMarker(marker).then(() => marker.id!)))
 
-      const { data: updatedMarkers = [] } = await Api.marker.listMarkerById({}, updateIds)
+      const { data: updatedMarkers = [] } = await Api.marker.listMarkerById(updateIds)
       await db.marker.bulkPut(updatedMarkers)
     },
   })

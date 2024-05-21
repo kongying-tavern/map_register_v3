@@ -7,7 +7,7 @@ export const useMarkerDelete = () => {
   const request = async (marker: API.MarkerVo) => {
     await Api.marker.deleteMarker({ markerId: marker.id! })
 
-    const { data: { 0: submitedMarkerInfo } = [] } = await Api.marker.listMarkerById({}, [marker.id!])
+    const { data: { 0: submitedMarkerInfo } = [] } = await Api.marker.listMarkerById([marker.id!])
 
     if (!submitedMarkerInfo)
       throw new Error('无法确认点位信息，点位对象为空')

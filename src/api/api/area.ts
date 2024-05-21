@@ -27,7 +27,8 @@ export async function updateArea(body: API.AreaVo, options?: AxiosRequestConfig)
 
 /** 获取单个地区信息 获取单个地区信息 POST /api/area/get/${param0} */
 export async function getArea(
-  params: { // path
+  params: {
+    // path
     areaId: number
   },
   options?: AxiosRequestConfig,
@@ -35,24 +36,18 @@ export async function getArea(
   const { areaId: param0, ...queryParams } = params
   return request<API.RAreaVo>(`/api/area/get/${param0}`, {
     method: 'POST',
-    headers: {},
     params: { ...queryParams },
     ...(options || {}),
   })
 }
 
 /** 列出地区 可根据父级地区id列出子地区列表 POST /api/area/get/list */
-export async function listArea(
-  params: NonNullable<unknown>,
-  body: API.AreaSearchVo,
-  options?: AxiosRequestConfig,
-) {
+export async function listArea(body: API.AreaSearchVo, options?: AxiosRequestConfig) {
   return request<API.RListAreaVo>('/api/area/get/list', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    params: { ...params },
     data: body,
     ...(options || {}),
   })

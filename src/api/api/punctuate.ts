@@ -3,7 +3,6 @@ import { request } from '@/utils'
 
 /** 提交暂存点位 成功则返回打点提交ID PUT /api/punctuate/ */
 export async function addPunctuate(
-  params: NonNullable<unknown>,
   body: API.MarkerPunctuateVo,
   options?: AxiosRequestConfig,
 ) {
@@ -12,7 +11,6 @@ export async function addPunctuate(
     headers: {
       'Content-Type': 'application/json',
     },
-    params: { ...params },
     data: body,
     ...(options || {}),
   })
@@ -20,7 +18,6 @@ export async function addPunctuate(
 
 /** 修改自身未提交的暂存点位 根据点位ID修改点位 POST /api/punctuate/ */
 export async function updateSelfPunctuate(
-  params: NonNullable<unknown>,
   body: API.MarkerPunctuateVo,
   options?: AxiosRequestConfig,
 ) {
@@ -29,7 +26,6 @@ export async function updateSelfPunctuate(
     headers: {
       'Content-Type': 'application/json',
     },
-    params: { ...params },
     data: body,
     ...(options || {}),
   })
@@ -37,7 +33,8 @@ export async function updateSelfPunctuate(
 
 /** 将暂存点位提交审核 将暂存点位提交审核 PUT /api/punctuate/push/${param0} */
 export async function pushPunctuate(
-  params: { // path
+  params: {
+    // path
     authorId: number
   },
   options?: AxiosRequestConfig,
@@ -45,7 +42,6 @@ export async function pushPunctuate(
   const { authorId: param0, ...queryParams } = params
   return request<API.RBoolean>(`/api/punctuate/push/${param0}`, {
     method: 'PUT',
-    headers: {},
     params: { ...queryParams },
     ...(options || {}),
   })
@@ -68,7 +64,8 @@ export async function listPunctuatePage(
 
 /** 分页查询自己提交的未通过的打点信息 分页查询自己提交的未通过的打点信息（打点员的API） POST /api/punctuate/get/page/${param0} */
 export async function listSelfPunctuatePage(
-  params: { // path
+  params: {
+    // path
     authorId: number
   },
   body: API.PageSearchVo,
@@ -88,7 +85,8 @@ export async function listSelfPunctuatePage(
 
 /** 删除自己未通过的提交点位 根据提交ID列表来删除提交点位，会对打点员ID进行校验 DELETE /api/punctuate/delete/${param1}/${param0} */
 export async function deleteSelfPunctuate(
-  params: { // path
+  params: {
+    // path
     punctuateId: number
     authorId: number
   },
@@ -97,7 +95,6 @@ export async function deleteSelfPunctuate(
   const { punctuateId: param0, authorId: param1, ...queryParams } = params
   return request<API.RBoolean>(`/api/punctuate/delete/${param1}/${param0}`, {
     method: 'DELETE',
-    headers: {},
     params: { ...queryParams },
     ...(options || {}),
   })

@@ -36,7 +36,7 @@ export const useAreaStore = defineStore('global-area', () => {
     db.area,
     async () => {
       // 由于 area 接口暂无档案版，这里直接获取数据本体进行差异判断
-      const { data = [] } = await Api.area.listArea({}, { parentId: -1, isTraverse: true })
+      const { data = [] } = await Api.area.listArea({ parentId: -1, isTraverse: true })
       _cachedData.value = data
       const source = new TextEncoder().encode(JSON.stringify(data))
       const hash = await crypto.subtle.digest('SHA-1', source)

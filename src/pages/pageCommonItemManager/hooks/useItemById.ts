@@ -23,9 +23,9 @@ export const useItemById = (options: ItemIdHookOptions) => {
     loading: scopedLoading ?? loading,
     onRequest: async () => {
       if (fetchParams.value.length !== 0)
-        return Api.item.listItemById ({}, fetchParams.value)
+        return Api.item.listItemById (fetchParams.value)
       else
-        return Api.item.listItemById ({}, [0])
+        return Api.item.listItemById ([0])
     },
   })
 

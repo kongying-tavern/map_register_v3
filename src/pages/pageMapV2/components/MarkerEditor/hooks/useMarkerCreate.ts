@@ -50,7 +50,7 @@ export const useMarkerCreate = (markerData: Ref<API.MarkerVo | null>) => {
     if (markerId === undefined)
       throw new Error('无法确认点位信息，未返回对应的点位 id')
 
-    const { data: { 0: submitedMarkerInfo } = [] } = await Api.marker.listMarkerById({}, [markerId!])
+    const { data: { 0: submitedMarkerInfo } = [] } = await Api.marker.listMarkerById([markerId!])
 
     if (!submitedMarkerInfo)
       throw new Error('无法确认点位信息，点位对象为空')

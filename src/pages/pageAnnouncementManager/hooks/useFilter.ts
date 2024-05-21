@@ -1,6 +1,6 @@
 export interface AnnouncementSearchParams {
-  channels: Array<string>
+  channels: string[]
   title: string
-  sort: Array<string>
+  sort: string[]
   getValid?: boolean
 }
