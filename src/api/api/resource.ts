@@ -15,14 +15,12 @@ export async function uploadImage(
     const item = (body as any)[ele] // eslint-disable-line ts/no-explicit-any
 
     if (item !== undefined && item !== null) {
-      if (typeof item === 'object') {
-        for (const k of item) {
-          const v = item[k]
-          formData.append(k, v)
-        }
+      if (item instanceof File) {
+        formData.append(ele, item)
       }
       else {
-        formData.append(ele, item)
+        for (const k in item)
+          formData.append(k, item[k])
       }
     }
   })
