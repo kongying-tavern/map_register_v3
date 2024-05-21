@@ -44,6 +44,9 @@ export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived,
   /** 网络时延（通过心跳检测，ms） */
   const delay = ref(0)
 
+  /** 连接 id */
+  const connectId = ref('')
+
   /** 连接实例 */
   const _subject = shallowRef<WebSocketSubject<unknown>>()
 
@@ -59,9 +62,6 @@ export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived,
   /** 重连尝试次数 */
   const _retryCount = ref(0)
 
-  /** 等待重连计时器 */
-  const _retryTimer = ref<ReturnType<typeof globalThis.setTimeout>>()
-
   /**
    * 有时候因为电源管理策略，浏览器会主动关闭 ws 连接（连接的关闭来自于 complete 而不是 error）
    * 需要保活，增加一个 flag 用于区分手动关闭还是自动关闭
@@ -70,6 +70,7 @@ export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived,
 
   /** 连接状态清理 */
   const _clearSocket = () => {
+    connectId.value = ''
     _subscriptions.value.forEach(subscription => subscription.unsubscribe())
     _subject.value = undefined
     _subscriptions.value = []
@@ -97,6 +98,8 @@ export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived,
 
   /** 连接初始化 */
   const _init = async (url: string, options: ConnectInitOptions = {}) => {
+    const uuid = crypto.randomUUID()
+
     const { isReconnect = false } = options
 
     const {
@@ -106,26 +109,28 @@ export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived,
 
     await close()
 
-    // 如果不是重连操作，重置重连尝试次数和等待计时器
-    if (!isReconnect) {
-      globalThis.clearTimeout(_retryTimer.value)
+    // 如果不是重连操作，重置重连尝试次数
+    if (!isReconnect)
       _retryCount.value = 0
-    }
 
     status.value = WebSocket.CONNECTING
     logger.info(isReconnect ? `重新连接(${_retryCount.value}) ......` : '建立新连接 ......')
 
-    const reconnect = () => {
+    const reconnect = useThrottleFn(async () => {
       if (_retryCount.value >= count) {
         logger.error('已达到最大重连尝试上限')
         return
       }
       logger.info('等待重连')
-      _retryTimer.value = globalThis.setTimeout(() => {
-        _retryCount.value += 1
-        _init(url, { isReconnect: true })
-      }, retryDelay)
-    }
+      await new Promise(resolve => setTimeout(resolve, retryDelay))
+      if (uuid !== connectId.value)
+        return
+      _retryCount.value += 1
+      _init(url, { isReconnect: true })
+    }, 1000)
+
+    /** 上一个心跳包发送时间 */
+    let heartStartTime = Date.now()
 
     // 连接初始化
     const newSubject = new WebSocketSubject<unknown>({
@@ -137,6 +142,8 @@ export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived,
           newSubject.next(pingMessage)
           _retryCount.value = 0
           _reconnectWhenComplete.value = true
+          connectId.value = uuid
+          heartStartTime = Date.now()
         },
       },
       closingObserver: {
@@ -146,12 +153,12 @@ export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived,
         },
       },
       closeObserver: {
-        next: () => {
+        next: async () => {
           _clearSocket()
           _closedPromise.value?.()
           status.value = WebSocket.CLOSED
           logger.info('连接已关闭')
-          _reconnectWhenComplete.value && reconnect()
+          _reconnectWhenComplete.value && await reconnect()
         },
       },
     })
@@ -181,31 +188,23 @@ export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived,
           isReceving.value = true
           _messageHook.trigger(value as Recedived)
         },
-        error: (err) => {
-          logger.error(err instanceof Error ? err : `${err}`)
+        error: async (err) => {
+          logger.error(err)
           _clearSocket()
-          retry && reconnect()
+          retry && await reconnect()
         },
       })
-
-    let heartBeatTimer: ReturnType<typeof globalThis.setTimeout>
-    let heartStartTime = Date.now()
 
     // 心跳处理
     ws.pipe(filter(pongFilter as (message: unknown) => boolean))
       .subscribe({
-        next: () => {
+        next: async () => {
           delay.value = Date.now() - heartStartTime
-          heartBeatTimer = globalThis.setTimeout(() => {
-            heartStartTime = Date.now()
-            ws.next(pingMessage)
-          }, pingInterval)
-        },
-        error: () => {
-          globalThis.clearTimeout(heartBeatTimer)
-        },
-        complete: () => {
-          globalThis.clearTimeout(heartBeatTimer)
+          await new Promise(resolve => setTimeout(resolve, pingInterval))
+          if (uuid !== connectId.value)
+            return
+          heartStartTime = Date.now()
+          ws.next(pingMessage)
         },
       })
 
@@ -222,6 +221,7 @@ export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived,
     isReceving: isReceving as Readonly<Ref<boolean>>,
     delay: delay as Readonly<Ref<number>>,
     status: status as Readonly<Ref<number>>,
+    connectId: connectId as Readonly<Ref<string>>,
     onMessage: _messageHook.on,
     send,
     close,
