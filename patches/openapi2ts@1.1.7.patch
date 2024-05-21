@@ -1,5 +1,5 @@
 diff --git a/dist/serviceGenerator.js b/dist/serviceGenerator.js
-index 001071c0a33034c7ca51603cfbc7801488172dfa..51cdac581dbf212b689d3b77476890988ff9e393 100644
+index 001071c0a33034c7ca51603cfbc7801488172dfa..90a50d71139be1fb8644ed125d3bed22e5ab0721 100644
 --- a/dist/serviceGenerator.js
 +++ b/dist/serviceGenerator.js
 @@ -66,21 +66,16 @@ const getType = (schemaObject, namespace = '') => {
@@ -90,13 +90,17 @@ index 001071c0a33034c7ca51603cfbc7801488172dfa..51cdac581dbf212b689d3b7747689098
                          return `$\{${prefix}}${formattedPath}`;
                      };
 -                    return Object.assign(Object.assign({}, newApi), { functionName, path: getPrefixPath(), pathInComment: formattedPath.replace(/\*/g, '&#42;'), hasPathVariables: formattedPath.includes('{'), hasApiPrefix: !!this.config.apiPrefix, method: newApi.method, 
-+                    return Object.assign(Object.assign({}, newApi), { functionName, path: getPrefixPath(), pathInComment: formattedPath.replace(/\*/g, '&#42;'), hasPathVariables: formattedPath.includes('{'), hasApiPrefix: !!this.config.apiPrefix, method: newApi.method,
-                         // 如果 functionName 和 summary 相同，则不显示 summary
-                         desc: functionName === newApi.summary
-                             ? newApi.description
-                             : [newApi.summary, newApi.description].filter((s) => s).join(' '), hasHeader: !!(params && params.header) || !!(body && body.mediaType), params: finalParams, hasParams: Boolean(Object.keys(finalParams || {}).length), body,
+-                        // 如果 functionName 和 summary 相同，则不显示 summary
+-                        desc: functionName === newApi.summary
+-                            ? newApi.description
+-                            : [newApi.summary, newApi.description].filter((s) => s).join(' '), hasHeader: !!(params && params.header) || !!(body && body.mediaType), params: finalParams, hasParams: Boolean(Object.keys(finalParams || {}).length), body,
 -                        file, hasFormData: formData, response });
-+                        file, hasFormData: formData, hasBinaryFile: binaryFile, response });
++                    return Object.assign(Object.assign({}, newApi), { functionName, path: getPrefixPath(), pathInComment: formattedPath.replace(/\*/g, '&#42;'), hasPathVariables: formattedPath.includes('{'), hasApiPrefix: !!this.config.apiPrefix, method: newApi.method,
++                    // 如果 functionName 和 summary 相同，则不显示 summary
++                    desc: functionName === newApi.summary
++                        ? newApi.description
++                        : [newApi.summary, newApi.description].filter((s) => s).join(' '), hasHeader: !!(params && params.header) || !!(body && body.mediaType), params: finalParams, hasParams: Boolean(Object.keys(finalParams || {}).length), body,
++                    file, hasFormData: formData, hasBinaryFile: binaryFile, response })
                  }
                  catch (error) {
                      // eslint-disable-next-line no-console
@@ -110,7 +114,7 @@ index 001071c0a33034c7ca51603cfbc7801488172dfa..51cdac581dbf212b689d3b7747689098
                      required: requiredPropKeys ? requiredPropKeys.some((key) => key === propName) : false });
              })
 diff --git a/templates/serviceController.njk b/templates/serviceController.njk
-index 3a5b78e040d1a535fba3fd07e4f37955bc6e91bc..34d8c7ee52b928035398948826e6694818cd001a 100644
+index 3a5b78e040d1a535fba3fd07e4f37955bc6e91bc..3609cb8ba93a373383b375f83630200bcdfeb2be 100644
 --- a/templates/serviceController.njk
 +++ b/templates/serviceController.njk
 @@ -61,7 +61,13 @@ export async function {{ api.functionName }}(
@@ -128,7 +132,7 @@ index 3a5b78e040d1a535fba3fd07e4f37955bc6e91bc..34d8c7ee52b928035398948826e66948
      {%- endfor %}
    }
    {%- else -%}
-@@ -100,12 +106,23 @@ files
+@@ -100,12 +106,18 @@ files
    {% if api.body %}
    Object.keys(body).forEach(ele => {
      {% if genType === "ts" %}
@@ -138,22 +142,18 @@ index 3a5b78e040d1a535fba3fd07e4f37955bc6e91bc..34d8c7ee52b928035398948826e66948
      const item = body[ele];
      {% endif %}
      if (item !== undefined && item !== null) {
-+      {%- if api.hasBinary -%}
-+      if (typeof item === 'object') {
-+        for (let k of item) {
-+          const v = item[k];
-+          formData.append(k, v);
-+        }
-+      } else {
+-      formData.append(ele, typeof item === 'object' ? JSON.stringify(item) : item);
++      if (item instanceof File) {
 +        formData.append(ele, item);
++      } else {
++        for (let k in item) {
++          formData.append(k, item[k]);
++        }
 +      }
-+      {%- else -%}
-       formData.append(ele, typeof item === 'object' ? JSON.stringify(item) : item);
-+      {%- endif -%}
      }
    });
    {% endif %}
-@@ -119,7 +136,9 @@ files
+@@ -119,7 +131,9 @@ files
      method: '{{ api.method | upper }}',
      {%- if api.hasHeader %}
      headers: {
