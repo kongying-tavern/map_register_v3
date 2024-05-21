@@ -67,25 +67,51 @@ const island28Options = computed(() => {
 
 // ==================== 地下字段特殊处理 ====================
 
+const isUnderground = computed({
+  get: () => Boolean(props.modelValue?.underground?.is_underground),
+  set: (bool) => {
+    if (!bool) {
+      extraForm.value.underground = null
+      return true
+    }
+    extraForm.value.underground = {
+      is_underground: true,
+      region_levels: [],
+    }
+  },
+})
+
 /** 由于原始数据只存储末级层级的值，这里需要查找父级层级以便显示 */
 const regionLevels = computed({
   get: () => {
-    const childValue = props.modelValue?.underground?.region_levels?.[0]
+    if (!props.modelValue?.underground?.region_levels?.length)
+      return [] as string[][]
+
     const { levels = [] } = props.extraConfig.underground ?? {}
-    if (!childValue || !levels.length)
-      return []
-    const parentValue = levels.find(parent => parent.children.find(child => child.value === childValue) !== undefined)
-    if (!parentValue)
-      return []
-    return [parentValue.value, childValue]
+    if (!levels.length)
+      return [] as string[][]
+
+    const regionCodeMap = levels.reduce((map, parent) => {
+      parent.children.forEach(({ value }) => {
+        map.set(value, parent)
+      })
+      return map
+    }, new Map<string, (typeof levels)[number]>())
+
+    return props.modelValue.underground.region_levels.reduce((seed, regionCode) => {
+      const parent = regionCodeMap.get(regionCode)
+      if (parent)
+        seed.push([parent.value, regionCode])
+      return seed
+    }, [] as string[][])
   },
-  set: (values) => {
-    if (values.length < 2) {
-      extraForm.value.underground.region_levels = []
-      return true
-    }
-    const [_, childValue] = values
-    extraForm.value.underground.region_levels = [childValue]
+  set: (levelList) => {
+    if (!extraForm.value.underground)
+      return false
+    extraForm.value.underground.region_levels = levelList.reduce((seed, [_, regionCode]) => {
+      regionCode !== undefined && seed.push(regionCode)
+      return seed
+    }, [] as string[])
   },
 })
 
@@ -113,7 +139,7 @@ watch(() => props.extraConfig, () => {
 </script>
 
 <template>
-  <div class="w-full flex flex-col gap-2">
+  <div class="w-full h-9 flex flex-col gap-2 overflow-hidden">
     <div v-if="extraConfig['1_6_island']" class="flex gap-2">
       <el-cascader
         v-model="extraForm['1_6_island']"
@@ -138,17 +164,24 @@ watch(() => props.extraConfig, () => {
       />
     </div>
 
-    <div v-else-if="extraConfig.underground" class="flex gap-2">
+    <div v-else-if="extraConfig.underground" class="flex gap-2 overflow-hidden">
       <el-switch
-        v-model="extraForm.underground.is_underground"
+        v-model="isUnderground"
         :active-text="extraConfig.underground.textActive ?? '地下'"
         :inactive-text="extraConfig.underground.textInactive ?? '地上'"
         inline-prompt
+        class="flex-shrink-0"
       />
       <el-cascader
-        v-if="extraConfig.underground.useDetail && extraForm.underground.is_underground"
+        v-if="extraConfig.underground.useDetail && extraForm.underground?.is_underground"
         v-model="regionLevels"
         :options="extraConfig.underground.levels"
+        :props="{
+          multiple: true,
+        }"
+        :show-all-levels="false"
+        collapse-tags
+        collapse-tags-tooltip
         class="flex-1"
       />
     </div>

@@ -165,7 +165,7 @@ declare namespace API {
     'underground'?: {
       is_underground?: boolean
       region_levels?: string[]
-    }
+    } | null
 
     /** 1.6 海岛数据 */
     '1_6_island'?: string[]
