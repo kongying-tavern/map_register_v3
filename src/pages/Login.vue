@@ -72,7 +72,7 @@ export default {
         .catch((err) => {
           console.log(err);
           this.loading = false;
-          create_notify(err.response.data.error, "negative");
+          create_notify(err.response.data.error_description, "negative");
         });
     },
   },
