@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { UAParser } from 'ua-parser-js'
 import dayjs from 'dayjs'
+import { DeviceStatus } from '@/shared'
 
 const props = defineProps<{
   data: API.SysUserDeviceVo
@@ -13,6 +14,13 @@ const emits = defineEmits<{
 
 const ua = computed(() => {
   return new UAParser(props.data.deviceId)
+})
+
+const statusLabel = computed(() => {
+  return {
+    [DeviceStatus.VALID]: { type: 'success', label: '允许' },
+    [DeviceStatus.BLOCKED]: { type: 'danger', label: '禁用' },
+  }[props.data.status!]
 })
 </script>
 
@@ -27,6 +35,15 @@ const ua = computed(() => {
     <div class="flex-shrink-0">
       <div class="card-title font-bold">
         {{ `${ua.getOS().name} ${ua.getOS().version}` }}
+        <el-tag
+          v-if="statusLabel"
+          :type="statusLabel.type"
+          size="small"
+          class="ml-[.5]"
+          round
+        >
+          {{ statusLabel.label }}
+        </el-tag>
       </div>
       <div>
         {{ `${ua.getBrowser().name} ${ua.getBrowser().version}` }}

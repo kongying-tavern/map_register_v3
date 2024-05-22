@@ -74,7 +74,7 @@ const ua = computed(() => {
     <div v-else v-loading="editLoading" element-loading-text="操作中..." class="h-44 p-4 flex gap-2">
       <div class="flex-1 grid grid-cols-[48px_1fr_30px_1fr] grid-rows-[repeat(5,28px)] text-xs gap-x-[6px]">
         <div class="info-label">
-          UID
+          ID
         </div>
         <div class="info-content">
           {{ selectedDeviceData.id }}
