@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
-import { useUserInfoStore } from '..'
+import { ElNotification } from 'element-plus'
+import { usePreferenceStore, useUserInfoStore } from '..'
 import { userHook } from '../hooks'
 import { useSocket } from './hooks'
 import { EventBus, Logger } from '@/utils'
@@ -18,6 +19,16 @@ const isReceivedData = (v: unknown): v is API.WSData => {
 
 /** WebSocket 状态管理 */
 export const useSocketStore = defineStore('global-web-socket', () => {
+  const preferenceStore = usePreferenceStore()
+
+  const _noticeEvents = computed(() => new Set(preferenceStore.preference['socket.setting.noticeEvents']))
+
+  const notice = (key: API.WSEventType, ...options: Parameters<typeof ElNotification>) => {
+    if (!_noticeEvents.value.has(key))
+      return
+    return ElNotification(...options)
+  }
+
   const { onMessage, ...rest } = useSocket<API.WSData, API.WSSentData>({
     logger,
     pingInterval: 5000,
@@ -40,6 +51,7 @@ export const useSocketStore = defineStore('global-web-socket', () => {
   })
 
   return {
+    notice,
     event: eventBus,
     ...rest,
   }

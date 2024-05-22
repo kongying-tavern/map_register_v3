@@ -106,6 +106,14 @@ export interface UserPreference {
   /** @todo 快捷键 - 按下指定键隐藏点位弹窗 */
   'hotkeys.press.toggleMarkerPopoverVisible'?: string
 
+  // ====================      socket      ====================
+
+  /** 允许在接收 web socket 事件时通知用户 */
+  'socket.setting.enableNotice'?: boolean
+
+  /** 允许弹出通知的 web socket 事件 */
+  'socket.setting.noticeEvents'?: API.WSEventType[]
+
   // ====================      开发者      ====================
 
   /** 是否隐藏 service worker 缓存 logger  */
