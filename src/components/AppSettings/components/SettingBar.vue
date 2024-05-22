@@ -6,6 +6,7 @@ const props = defineProps<{
   note?: string
   icon?: Component
   open?: boolean
+  detailDisabled?: boolean
 }>()
 
 const slots = defineSlots<{
@@ -15,9 +16,16 @@ const slots = defineSlots<{
   note: unknown
 }>()
 
-const collapse = ref(!props.open)
+const collapse = ref(props.detailDisabled ? false : !props.open)
+
+watch(() => props.detailDisabled, (disabled) => {
+  if (!disabled)
+    return
+  collapse.value = true
+})
+
 const toggleCollapse = () => {
-  if (!slots.detail)
+  if (props.detailDisabled || !slots.detail)
     return
   collapse.value = !collapse.value
 }
@@ -37,7 +45,7 @@ const toggleCollapse = () => {
     <slot name="default">
       <div
         class="min-h-[66px] flex flex-shrink-0 items-center px-4 py-3 transition-[background-color]"
-        :class="$slots.detail ? 'hover:bg-[var(--el-fill-color)] active:bg-[var(--el-fill-color-darker)]' : ''"
+        :class="(!detailDisabled && $slots.detail) ? 'hover:bg-[var(--el-fill-color)] active:bg-[var(--el-fill-color-darker)]' : ''"
       >
         <div class="flex-1 flex items-center">
           <div v-if="icon" class="row-span-2 grid place-items-center pr-4">
@@ -58,10 +66,12 @@ const toggleCollapse = () => {
           </div>
         </div>
 
-        <slot name="setting" />
+        <div @click.stop="">
+          <slot name="setting" />
+        </div>
 
         <div v-if="$slots.detail" class="pl-4 flex items-center">
-          <el-icon :size="14">
+          <el-icon :size="14" :color="detailDisabled ? 'var(--el-text-color-disabled)' : ''">
             <ArrowDown v-if="collapse" />
             <ArrowUp v-else />
           </el-icon>
@@ -71,7 +81,7 @@ const toggleCollapse = () => {
 
     <div
       v-if="$slots.detail"
-      class="flex flex-col transition-all ease-linear"
+      class="flex flex-col transition-all ease-in-out"
       :class="collapse ? 'max-h-0' : 'max-h-[1000px]'"
       @click.stop=""
     >
