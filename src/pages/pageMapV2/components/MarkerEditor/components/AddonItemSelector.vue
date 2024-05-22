@@ -97,6 +97,7 @@ const isAddonActived = computed({
         />
         <el-button :icon="Delete" type="danger" plain style="padding: 8px;" @click="() => deleteItem(item.itemId)" />
       </div>
+
       <div
         v-if="!modelValue?.length"
         class="h-full grid place-items-center bg-gray-400 bg-opacity-0 hover:bg-opacity-10 active:bg-opacity-20 cursor-pointer transition-all"
@@ -115,7 +116,7 @@ const isAddonActived = computed({
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style scoped>
 .marker-item-select {
   border: 1px solid var(--el-border-color);
   height: 82px;
