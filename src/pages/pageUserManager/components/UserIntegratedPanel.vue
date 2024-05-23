@@ -104,8 +104,20 @@ const { submit: submitPwsUpdate, loading: pwdUpdateLoading } = usePasswordUpdate
           </div>
 
           <div class="flex-1 w-full flex flex-col">
-            <div>ID: {{ data.id }}</div>
-            <div>账号: {{ data.username }}</div>
+            <div class="w-full grid gap-y-2 grid-cols-[48px_1fr] text-xs">
+              <div class="font-bold">
+                UID
+              </div>
+              <div>{{ data.id }}</div>
+
+              <div class="font-bold">
+                账号
+              </div>
+              <div class="whitespace-nowrap overflow-hidden text-ellipsis" :title="data.username">
+                {{ data.username }}
+              </div>
+            </div>
+
             <div v-if="!isYourSelf" class="flex-1 flex justify-start items-end">
               <el-button
                 :icon="Delete"
