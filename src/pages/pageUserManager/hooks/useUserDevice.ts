@@ -22,7 +22,7 @@ export const useUserDevice = (form: Ref<API.SysUserVo>, options: UserDeviceHookO
 
       const { data: { record = [], total = 0 } = {} } = await Api.sysUserDeviceController.searchPage({
         current,
-        sort: ['updateTime-'],
+        sort: ['lastLoginTime-'],
         size: pageSize,
         userId,
       })
