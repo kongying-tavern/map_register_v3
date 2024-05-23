@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { UAParser } from 'ua-parser-js'
 import dayjs from 'dayjs'
+import { isUnknown } from '../utils'
 import { DeviceStatus } from '@/shared'
 
 const props = defineProps<{
@@ -13,7 +14,7 @@ const emits = defineEmits<{
 }>()
 
 const ua = computed(() => {
-  return new UAParser(props.data.deviceId)
+  return new UAParser(props.data.deviceId).getResult()
 })
 
 const statusLabel = computed(() => {
@@ -34,7 +35,6 @@ const statusLabel = computed(() => {
   >
     <div class="flex-shrink-0">
       <div class="card-title font-bold">
-        {{ `${ua.getOS().name} ${ua.getOS().version}` }}
         <el-tag
           v-if="statusLabel"
           :type="statusLabel.type"
@@ -44,15 +44,16 @@ const statusLabel = computed(() => {
         >
           {{ statusLabel.label }}
         </el-tag>
+        {{ isUnknown(ua.os) ? 'unknown' : `${ua.os.name} ${ua.os.version}` }}
       </div>
       <div>
-        {{ `${ua.getBrowser().name} ${ua.getBrowser().version}` }}
+        {{ isUnknown(ua.browser) ? 'unknown' : `${ua.browser.name} ${ua.browser.version}` }}
       </div>
     </div>
 
     <div class="flex-1 text-right">
       <div>
-        {{ data.updateTime ? dayjs(data.updateTime).format('YYYY-MM-DD HH:mm:ss') : '' }}
+        {{ data.lastLoginTime ? dayjs(data.lastLoginTime).format('YYYY-MM-DD HH:mm:ss') : '' }}
       </div>
       <div>
         {{ data.ipRegion?.isUnknown ? '' : `${data.ipRegion?.country} ${data.ipRegion?.province} ${data.ipRegion?.city} ${data.ipRegion?.region} ${data.ipRegion?.isp}` }}

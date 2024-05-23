@@ -2,6 +2,7 @@
 import { UAParser } from 'ua-parser-js'
 import dayjs from 'dayjs'
 import { useUserDevice, useUserDeviceEdit } from '../hooks'
+import { isUnknown } from '../utils'
 import DeviceCard from './DeviceCard.vue'
 import { PgUnit, usePagination } from '@/hooks'
 import { DeviceStatus } from '@/shared'
@@ -80,16 +81,19 @@ const ua = computed(() => {
           {{ selectedDeviceData.id }}
         </div>
 
-        <div class="row-span-2 col-span-2 mb-2 border border-[var(--el-border-color)] rounded grid place-items-center content-center">
-          <div>{{ `${ua.os.name} ${ua.os.version}` }}</div>
-          <div>{{ ua.cpu.architecture ?? 'unknown' }}</div>
+        <div
+          class="row-span-2 col-span-2 mb-2 border border-[var(--el-border-color)] rounded grid place-items-center content-center"
+          :title="ua.ua"
+        >
+          <div>{{ isUnknown(ua.os) ? '未知' : `${ua.os.name} ${ua.os.version}` }}</div>
+          <div>{{ ua.cpu.architecture ?? '未知' }}</div>
         </div>
 
         <div class="info-label">
           平台
         </div>
         <div class="info-content" :title="`${ua.browser.name} ${ua.browser.version}`">
-          {{ `${ua.browser.name} ${ua.browser.version}` }}
+          {{ isUnknown(ua.browser) ? '未知' : `${ua.browser.name} ${ua.browser.version}` }}
         </div>
 
         <div class="info-label">
@@ -100,10 +104,10 @@ const ua = computed(() => {
         </div>
 
         <div class="info-label">
-          更新时间
+          登录时间
         </div>
         <div class="info-content col-span-3">
-          {{ dayjs(selectedDeviceData.updateTime).format('YYYY-MM-DD HH:mm:ss') }}
+          {{ dayjs(selectedDeviceData.lastLoginTime).format('YYYY-MM-DD HH:mm:ss') }}
         </div>
 
         <div class="info-label">
