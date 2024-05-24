@@ -148,4 +148,8 @@ export const getDefaultPreference = (): UserPreference => ({
 
   // settingPanel
   'settingPanel.state.activedKey': 'dashboard',
+
+  // socket
+  'socket.setting.enableNotice': true,
+  'socket.setting.noticeEvents': ['UserKickedOut'],
 })
