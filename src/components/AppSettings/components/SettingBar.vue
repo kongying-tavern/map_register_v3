@@ -16,11 +16,13 @@ const slots = defineSlots<{
   note: unknown
 }>()
 
-const collapse = ref(props.detailDisabled ? false : !props.open)
+const collapse = ref(props.detailDisabled ? true : !props.open)
 
 watch(() => props.detailDisabled, (disabled) => {
-  if (!disabled)
+  if (!disabled) {
+    slots.detail && (collapse.value = false)
     return
+  }
   collapse.value = true
 })
 
