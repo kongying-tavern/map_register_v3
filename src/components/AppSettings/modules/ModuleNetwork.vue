@@ -63,7 +63,7 @@ const wsEvents: { label: string; value: API.WSEventType; divider?: boolean }[] =
 
       <SettingBar
         label="允许 socket 事件通知"
-        :note="`已允许 ${currentEvents.length ?? 0} 个事件的通知`"
+        :note="preferenceStore.preference['socket.setting.enableNotice'] ? `已允许 ${currentEvents.length ?? 0} 个事件的通知` : '已关闭通知功能'"
         :detail-disabled="!preferenceStore.preference['socket.setting.enableNotice']"
       >
         <template #setting>
