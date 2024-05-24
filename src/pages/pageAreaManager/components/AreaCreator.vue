@@ -15,7 +15,7 @@ const emits = defineEmits<{
 }>()
 
 const formData = ref<API.AreaVo>({
-  parentId: props.parent?.id,
+  parentId: props.parent?.id ?? -1,
   iconTag: '',
   isFinal: Boolean(props.parent),
 })
