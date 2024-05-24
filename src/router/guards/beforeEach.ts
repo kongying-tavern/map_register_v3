@@ -36,7 +36,7 @@ export const beforeEachGuard = (router: Router, logger: Logger): NavigationGuard
 
     const permission = Number.parseInt(`${isLogin}${isLimited}${isAccess}`, 2)
 
-    logger.info(`权限检查 P:${isLogin}${isLimited}${isAccess} R:${role}`)
+    logger.info(`权限检查 P:${isLogin}${isLimited}${isAccess} R:${userInfoStore.userRole.code}→${role}`)
 
     return ({
       0b000: () => {
