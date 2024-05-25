@@ -4,6 +4,20 @@ import dayjs from 'dayjs'
 import { symbolDelete, symbolPlus } from '../utils'
 import { array2Tree } from '@/utils'
 
+const opacityMap = {
+  container: 0.6,
+  containerHover: 0.5,
+  containerClick: 0.4,
+  containerBorderHover: 0.9,
+  containerBorderClick: 0.2,
+  addChildButton: 0.5,
+  addChildButtonHover: 0.7,
+  addChildButtonClick: 0.6,
+  deleteButton: 0.6,
+  deleteButtonHover: 0.8,
+  deleteButtonClick: 0.7,
+}
+
 const colorMap = {
   MD: '#8FF3F3',
   LY: '#F7D442',
@@ -108,7 +122,7 @@ export const useGraph = (options: {
           height: sharedProps.height,
           radius: sharedProps.radius,
           fill: colorMap[zone] ?? '#CCC',
-          fillOpacity: 0.3,
+          fillOpacity: opacityMap.container,
           cursor: code ? 'pointer' : 'inherit',
         },
         name: 'border-box',
@@ -123,7 +137,7 @@ export const useGraph = (options: {
           height: sharedProps.height + sharedProps.lineWidth,
           radius: sharedProps.radius + sharedProps.lineWidth / 2,
           stroke: colorMap[zone] ?? '#CCC',
-          strokeOpacity: 0.9,
+          strokeOpacity: opacityMap.containerBorderHover,
           lineWidth: sharedProps.lineWidth,
         },
         name: 'border',
@@ -189,7 +203,7 @@ export const useGraph = (options: {
             width: 116,
             height: 32,
             fill: '#CCC',
-            fillOpacity: 0.2,
+            fillOpacity: opacityMap.addChildButton,
             radius: 8,
             cursor: 'pointer',
           },
@@ -231,8 +245,8 @@ export const useGraph = (options: {
             y: sharedProps.height + 8,
             width: 32,
             height: 32,
-            fill: '#f56C6C',
-            fillOpacity: 0.2,
+            fill: '#fccfcf',
+            fillOpacity: opacityMap.deleteButton,
             radius: 8,
             cursor: 'pointer',
           },
@@ -244,7 +258,7 @@ export const useGraph = (options: {
             x: sharedProps.width - 16,
             y: sharedProps.height + 24,
             r: 12,
-            stroke: '#f56C6C',
+            stroke: '#f53d3d',
             lineWidth: 1,
             symbol: symbolDelete,
           },
@@ -266,19 +280,19 @@ export const useGraph = (options: {
       borderBox.on('mouseenter', () => {
         border.show()
         borderBox.attr({
-          fillOpacity: 0.4,
+          fillOpacity: opacityMap.containerHover,
           cursor: 'pointer',
         })
       })
       borderBox.on('mouseleave', () => {
-        borderBox.attr('fillOpacity', 0.3)
+        borderBox.attr('fillOpacity', opacityMap.container)
         border.attr('border', sharedProps.lineWidth)
         border.hide()
       })
       // active
       borderBox.on('mousedown', () => {
         border.attr('lineWidth', 2)
-        borderBox.attr('fillOpacity', 0.2)
+        borderBox.attr('fillOpacity', opacityMap.containerClick)
       })
       borderBox.on('mouseup', () => {
         border.attr('lineWidth', sharedProps.lineWidth)
@@ -292,18 +306,18 @@ export const useGraph = (options: {
       if (addButton) {
         // hover
         addButton.on('mouseenter', () => addButton.attr({
-          fillOpacity: 0.5,
+          fillOpacity: opacityMap.addChildButtonHover,
           cursor: 'pointer',
         }))
         addButton.on('mouseleave', () => addButton.attr({
-          fillOpacity: 0.2,
+          fillOpacity: opacityMap.addChildButton,
         }))
         // active
         addButton.on('mousedown', () => addButton.attr({
-          fillOpacity: 0.4,
+          fillOpacity: opacityMap.addChildButtonClick,
         }))
         addButton.on('mouseup', () => addButton.attr({
-          fillOpacity: 0.5,
+          fillOpacity: opacityMap.addChildButton,
         }))
         // click
         addButton.on('click', () => {
@@ -316,18 +330,18 @@ export const useGraph = (options: {
       if (deleteButton && area) {
         // hover
         deleteButton.on('mouseenter', () => deleteButton.attr({
-          fillOpacity: 0.5,
+          fillOpacity: opacityMap.deleteButtonHover,
           cursor: 'pointer',
         }))
         deleteButton.on('mouseleave', () => deleteButton.attr({
-          fillOpacity: 0.2,
+          fillOpacity: opacityMap.deleteButton,
         }))
         // active
         deleteButton.on('mousedown', () => deleteButton.attr({
-          fillOpacity: 0.4,
+          fillOpacity: opacityMap.deleteButtonClick,
         }))
         deleteButton.on('mouseup', () => deleteButton.attr({
-          fillOpacity: 0.5,
+          fillOpacity: opacityMap.deleteButton,
         }))
         // click
         deleteButton.on('click', () => {
