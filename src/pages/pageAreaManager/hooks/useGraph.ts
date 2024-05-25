@@ -96,8 +96,8 @@ export const useGraph = (options: {
   G6.registerNode('area-card', {
     draw: (cfg, group) => {
       const { label = '' } = cfg
-      const { code = '', updateTime = '', isFinal } = (cfg.raw ?? {}) as API.AreaVo
-      const { 1: zone = '' } = code.split(':')
+      const { code = '', updateTime = '' } = (cfg.raw ?? {}) as API.AreaVo
+      const { 1: zone = '', length: codeUnitLength } = code.split(':')
 
       /** 包围盒 */
       const container = group.addShape('rect', {
@@ -181,7 +181,7 @@ export const useGraph = (options: {
       }
 
       /** 添加按钮 */
-      if (!isFinal) {
+      if (codeUnitLength < 3) {
         group.addShape('rect', {
           attrs: {
             x: 0,
