@@ -19,10 +19,10 @@
     <a href="https://deck.gl" target="_blank">
       <img src="https://img.shields.io/badge/deck.gl-8.9-B77546">
     </a>
-    <a href="https://deck.gl" target="_blank">
+    <a href="https://tiptap.dev" target="_blank">
       <img src="https://img.shields.io/badge/tiptap-2.2-B77546">
     </a>
-    <a href="https://deck.gl" target="_blank">
+    <a href="https://dexie.org" target="_blank">
       <img src="https://img.shields.io/badge/dexie.js-3.2-B77546">
     </a>
   </div>
