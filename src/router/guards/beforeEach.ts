@@ -46,11 +46,9 @@ export const beforeEachGuard = (router: Router, logger: Logger): NavigationGuard
         next(true)
       },
       0b010: () => {
-        userAuthStore.clearAuth()
         next('/login')
       },
       0b011: () => {
-        userAuthStore.clearAuth()
         next('/login')
       },
       0b100: () => {
