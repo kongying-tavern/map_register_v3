@@ -93,11 +93,20 @@ export const useUserInfoStore = defineStore('global-user-info', () => {
 
 userHook.onAuthChange(useUserInfoStore, async (store) => {
   const isLogin = useUserAuthStore().validateToken()
-  !isLogin && (store.info = {})
+  if (!isLogin) {
+    store.info = {}
+    return
+  }
+
+  !store.roleList.length && await store.updateRoleList()
+  await store.updateUserInfo()
 })
 
 routerHook.onBeforeRouterEnter(useUserInfoStore, async (store) => {
   const isLogin = useUserAuthStore().validateToken()
-  isLogin && await store.updateUserInfo()
-  isLogin && await store.updateRoleList()
+  if (!isLogin)
+    return
+
+  !store.roleList.length && await store.updateRoleList()
+  store.info.id === undefined && await store.updateUserInfo()
 })
