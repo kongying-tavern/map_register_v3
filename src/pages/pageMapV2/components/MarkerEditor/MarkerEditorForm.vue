@@ -7,10 +7,10 @@ import {
   AddonExtraEditor,
   AddonHistory,
   AddonImageEditor,
-  AddonItemSelector,
+  AddonItem,
   AddonRefreshtimeEditor,
 } from './components'
-import { AppAreaCodeSelecter, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
+import { WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 import { useAccessStore, useMarkerExtraStore } from '@/stores'
 import type { ElFormType } from '@/shared'
 import { HiddenFlagEnum } from '@/shared'
@@ -115,28 +115,6 @@ const themeColor = computed(() => {
   return `var(--gs-color-${zone.toLowerCase()})`
 })
 
-const { load, unload } = useStyleTag(computed(() => `
-  :root {
-    --el-color-primary: color-mix(in srgb, ${themeColor.value} 100%, gray 20%);
-    --el-color-primary-light-3: color-mix(in srgb, ${themeColor.value} 70%, transparent 50%);
-    --el-color-primary-light-5: color-mix(in srgb, ${themeColor.value} 50%, transparent 50%);
-    --el-color-primary-light-7: color-mix(in srgb, ${themeColor.value} 30%, transparent 50%);
-    --el-color-primary-light-9: color-mix(in srgb, ${themeColor.value} 10%, transparent 50%);
-    --el-color-primary-dark-2: color-mix(in srgb, ${themeColor.value} 50%, var(--el-bg-color) 70%);
-  }
-  html.dark {
-    --el-color-primary: color-mix(in srgb, ${themeColor.value} 60%, var(--el-bg-color) 40%);
-    --el-color-primary-light-3: color-mix(in srgb, var(--el-color-primary) 70%, transparent 50%);
-    --el-color-primary-light-5: color-mix(in srgb, var(--el-color-primary) 50%, transparent 50%);
-    --el-color-primary-light-7: color-mix(in srgb, var(--el-color-primary) 30%, transparent 50%);
-    --el-color-primary-light-9: color-mix(in srgb, var(--el-color-primary) 10%, transparent 50%);
-    --el-color-primary-dark-2: color-mix(in srgb, var(--el-color-primary) 50%, var(--el-bg-color) 70%);
-  }
-`))
-
-onBeforeMount(load)
-onBeforeUnmount(unload)
-
 defineExpose({
   validate: async () => await formRef.value?.validate().catch(() => false),
 })
@@ -168,12 +146,11 @@ defineExpose({
             </div>
           </el-form-item>
 
-          <el-form-item label="所属地区" prop="areaCode">
-            <AppAreaCodeSelecter v-model="form.areaCode" style="width: 100%" />
-          </el-form-item>
-
           <el-form-item label="所属物品" prop="itemList">
-            <AddonItemSelector v-model="form.itemList" v-model:addon-id="addonId" v-model:area-code="form.areaCode" />
+            <AddonItem
+              v-model="form"
+              v-model:addon-id="addonId"
+            />
           </el-form-item>
 
           <el-form-item v-if="isExtraEditable" label="点位层级" prop="extra">
