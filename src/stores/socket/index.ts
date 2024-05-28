@@ -29,7 +29,7 @@ export const useSocketStore = defineStore('global-web-socket', () => {
     return ElNotification(...options)
   }
 
-  const { onMessage, ...rest } = useSocket<API.WSData, API.WSSentData>({
+  const { onMessage, connect: _connect, ...rest } = useSocket<API.WSData, API.WSSentData>({
     logger,
     pingInterval: 5000,
     pingMessage: {
@@ -43,6 +43,14 @@ export const useSocketStore = defineStore('global-web-socket', () => {
     messageFilter: message => isReceivedData(message) && message.event !== 'Pong',
   })
 
+  const _userId = ref<number>()
+
+  const connect = async (userId: number) => {
+    const url = `${import.meta.env.VITE_WS_BASE}/${userId}`
+    await _connect(url)
+    _userId.value = userId
+  }
+
   const eventBus = new EventBus<API.WSEventMap>()
 
   onMessage((message) => {
@@ -51,8 +59,10 @@ export const useSocketStore = defineStore('global-web-socket', () => {
   })
 
   return {
-    notice,
     event: eventBus,
+    userId: _userId as Readonly<Ref<number | undefined>>,
+    notice,
+    connect,
     ...rest,
   }
 })
@@ -65,6 +75,6 @@ userHook.onInfoChange(useSocketStore, (store) => {
     return
   }
 
-  const url = `${import.meta.env.VITE_WS_BASE}/${info.id}`
-  store.connect(url)
+  if (info.id !== store.userId)
+    store.connect(info.id)
 })
