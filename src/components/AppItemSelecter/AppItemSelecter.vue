@@ -18,6 +18,7 @@ const props = withDefaults(defineProps<{
   width?: string
   showTotal?: boolean
   showAreaSelector?: boolean
+  isAreaDisabled?: (area: API.AreaVo) => boolean
 }>(), {
   showTotal: true,
   showAreaSelector: true,
@@ -145,7 +146,11 @@ watch(() => itemList.value, () => scrollbarRef.value?.setScrollTop(0))
       :class="[showTotal ? 'w-80 pr-2' : 'w-full']"
     >
       <div class="flex flex-col gap-2 col-span-2">
-        <AppAreaCodeSelecter v-if="showAreaSelector" v-model="modelAreaCode" />
+        <AppAreaCodeSelecter
+          v-if="showAreaSelector"
+          v-model="modelAreaCode"
+          :is-area-disabled="isAreaDisabled"
+        />
 
         <el-input v-model="queryText" placeholder="搜索物品名称" clearable>
           <template #prefix>
