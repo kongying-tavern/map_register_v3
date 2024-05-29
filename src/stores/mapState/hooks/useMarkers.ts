@@ -190,13 +190,19 @@ export const useMarkers = (options: MarkerHookOptions) => {
     })
   })
 
-  const setTempMarkers = <K extends keyof GSMapState.TempMarkerTypeMap>(type: GSMapState.TempMarkerType, markers: GSMapState.TempMarkerTypeMap[K]) => {
+  const setTempMarkers = <K extends keyof GSMapState.TempMarkerTypeMap>(
+    type: GSMapState.TempMarkerType,
+    markers: GSMapState.TempMarkerTypeMap[K],
+  ) => {
     const map = new Map(tempMarkerMap.value)
     map.set(type, markers)
     tempMarkerMap.value = map
   }
 
-  const setTempMarkersBy = <K extends keyof GSMapState.TempMarkerTypeMap>(type: K, cb: (oldMarkers: GSMapState.TempMarkerTypeMap[K], setter: (value: GSMapState.TempMarkerTypeMap[K]) => void) => void) => {
+  const setTempMarkersBy = <K extends keyof GSMapState.TempMarkerTypeMap>(
+    type: K,
+    cb: (oldMarkers: GSMapState.TempMarkerTypeMap[K], setter: (value: GSMapState.TempMarkerTypeMap[K]) => void) => void,
+  ) => {
     cb((tempMarkerMap.value.get(type) ?? []) as GSMapState.TempMarkerTypeMap[K], (value) => {
       setTempMarkers(type, value)
     })
@@ -220,7 +226,7 @@ export const useMarkers = (options: MarkerHookOptions) => {
   })
 
   const currentLayerMarkersIds = computed(() => {
-    return currentLayerMarkers.value.map(marker => marker.id!)
+    return currentLayerMarkers.value.concat(tempMarkers.value).map(marker => marker.id!)
   })
 
   const currentLayerMarkersMap = computed(() => {
