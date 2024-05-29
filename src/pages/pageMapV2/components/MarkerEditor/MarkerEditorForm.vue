@@ -56,7 +56,7 @@ const rules: FormRules = {
       trigger: 'change',
     },
     {
-      validator: (_, items: API.MarkerItemLinkVo[] = []) => items.every(({ count = 0 }) => count > 0),
+      validator: (_, items: API.MarkerItemLinkVo[] = []) => items.every(({ count = 0 }) => !Number.isNaN(count) && (count > 0)),
       message: '物品数量不能为 0',
       trigger: 'change',
     },
