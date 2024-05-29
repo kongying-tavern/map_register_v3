@@ -1,15 +1,21 @@
 <script lang="ts" setup>
 import type { CascaderProps } from 'element-plus'
-import db from '@/database'
+import { useAreaStore } from '@/stores'
+import { array2Tree } from '@/utils'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   /** 子地区 code，必须为 `A:${string}:${string}` 格式 */
   modelValue?: string
-}>()
+  isAreaDisabled?: (area: API.AreaVo) => boolean
+}>(), {
+  modelValue: undefined,
+})
 
 const emits = defineEmits<{
   'update:modelValue': [code: string]
 }>()
+
+const areaStore = useAreaStore()
 
 const internalAreaCode = ref<string>('')
 
@@ -35,19 +41,27 @@ const areaCodeList = computed({
   },
 })
 
+const areaOptions = computed(() => {
+  const { isAreaDisabled } = props
+  return array2Tree(areaStore.areaList.map(area => ({
+    _raw: area,
+    label: area.name,
+    value: area.code,
+    disabled: isAreaDisabled ? isAreaDisabled(area) : false,
+    id: area.id,
+    pid: area.parentId,
+    isFinal: area.isFinal,
+  })), {
+    childrenKey: 'children',
+    idKey: 'id',
+    pidKey: 'pid',
+    rootId: -1,
+  })
+})
+
 const areaCascaderProps: CascaderProps = {
-  lazy: true,
-  label: 'name',
-  value: 'code',
   leaf: 'isFinal',
-  lazyLoad: (node, resolve) => {
-    const { level } = node
-    if (level === 0)
-      return db.area.where('parentId').equals(-1).toArray().then(resolve)
-    const code = node.value as string
-    const parentAreaCodeTag = code.split(':')[1]
-    db.area.where('code').startsWith(`A:${parentAreaCodeTag}`).toArray().then(resolve)
-  },
+  multiple: false,
 }
 </script>
 
@@ -55,6 +69,7 @@ const areaCascaderProps: CascaderProps = {
   <el-cascader
     v-bind="$attrs"
     v-model="areaCodeList"
+    :options="areaOptions"
     :props="areaCascaderProps"
     placeholder="选择地区"
   />
