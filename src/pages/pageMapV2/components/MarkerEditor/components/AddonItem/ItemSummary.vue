@@ -62,6 +62,11 @@ const areaCode = ref((() => {
   return areaStore.areaIdMap.get(first._raw.areaId!)?.code ?? ''
 })())
 
+// 只要与地区 tab 交互就激活其附加面板
+watch(areaCode, () => {
+  isAddonActived.value = true
+})
+
 const calculateItemsGroup = () => itemDataList.value.reduce((map, item) => {
   const area = areaStore.areaIdMap.get(item._raw.areaId!)
   if (!area)
