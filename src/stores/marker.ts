@@ -46,8 +46,8 @@ export const useMarkerStore = defineStore('global-marker', () => {
 
     await db.marker.put(markerInfo)
 
-    const { markerTitle, creatorId } = markerInfo
-    const { username = `(uid: ${creatorId})`, nickname = username } = users[creatorId!] ?? {}
+    const { markerTitle, updaterId } = markerInfo
+    const { username = `(uid: ${updaterId})`, nickname = username } = users[updaterId!] ?? {}
 
     socketStore.notice('MarkerUpdated', {
       message: `${nickname} 更新了点位 ${markerTitle} (id:${id})`,
