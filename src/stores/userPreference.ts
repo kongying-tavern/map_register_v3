@@ -60,7 +60,7 @@ export const usePreferenceStore = defineStore('global-user-preference', () => {
 
   watchDebounced(preference, syncUserPreference, {
     deep: true,
-    debounce: 1000,
+    debounce: 3000,
   })
 
   return {
