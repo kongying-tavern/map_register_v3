@@ -7,7 +7,7 @@ const backendRoutes: RouteRecordRaw[] = [
   {
     path: '/items',
     meta: {
-      title: '物品管理',
+      title: '物品',
       icon: 'Files',
       role: RoleTypeEnum.MAP_MANAGER,
     },
@@ -16,7 +16,7 @@ const backendRoutes: RouteRecordRaw[] = [
   {
     path: '/common-items',
     meta: {
-      title: '公共物品管理',
+      title: '公共物品',
       icon: 'Files',
       role: RoleTypeEnum.MAP_MANAGER,
     },
@@ -25,7 +25,7 @@ const backendRoutes: RouteRecordRaw[] = [
   {
     path: '/type',
     meta: {
-      title: '类型管理',
+      title: '类型',
       icon: 'Box',
       role: RoleTypeEnum.MAP_MANAGER,
     },
@@ -34,7 +34,7 @@ const backendRoutes: RouteRecordRaw[] = [
   {
     path: '/icon',
     meta: {
-      title: '图标管理',
+      title: '图标',
       icon: 'Picture',
       role: RoleTypeEnum.MAP_MANAGER,
     },
@@ -43,7 +43,7 @@ const backendRoutes: RouteRecordRaw[] = [
   {
     path: '/users',
     meta: {
-      title: '用户管理',
+      title: '用户',
       icon: 'User',
       role: RoleTypeEnum.ADMIN,
     },
@@ -61,7 +61,7 @@ const backendRoutes: RouteRecordRaw[] = [
   {
     path: '/markers',
     meta: {
-      title: '点位管理',
+      title: '点位',
       icon: 'Location',
       role: RoleTypeEnum.MAP_MANAGER,
     },
@@ -70,7 +70,7 @@ const backendRoutes: RouteRecordRaw[] = [
   {
     path: '/area',
     meta: {
-      title: '地区管理',
+      title: '地区',
       icon: 'Place',
       role: RoleTypeEnum.MAP_MANAGER,
     },
@@ -88,7 +88,7 @@ const backendRoutes: RouteRecordRaw[] = [
   {
     path: '/announcement',
     meta: {
-      title: '公告管理',
+      title: '公告',
       icon: 'ChatLineRound',
       role: RoleTypeEnum.MAP_MANAGER,
     },
