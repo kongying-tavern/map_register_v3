@@ -1,5 +1,5 @@
 export * from './accessPolicy'
-export * from './channelEnum'
+export * from './notice'
 export * from './clock'
 export * from './constant'
 export * from './device'

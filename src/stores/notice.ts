@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { useUserAuthStore } from '.'
 import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
-import { ChannelEnum } from '@/shared'
+import { NoticeChannel } from '@/shared'
 import { useSocketStore } from '@/stores'
 
 export const useNoticeStore = defineStore('global-notice', () => {
@@ -15,7 +15,7 @@ export const useNoticeStore = defineStore('global-notice', () => {
       if (!userAuthStore.validateToken())
         return []
       const { data: { record = [] } = {} } = await Api.notice.listNotice({
-        channels: [ChannelEnum.COMMON, ChannelEnum.DASHBOARD],
+        channels: [NoticeChannel.COMMON, NoticeChannel.DASHBOARD],
         sort: ['validTimeStart-'],
         getValid: true,
         size: 100,

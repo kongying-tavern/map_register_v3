@@ -1,7 +1,7 @@
 import type { ShallowRef } from 'vue'
 import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
-import { ChannelEnum } from '@/shared'
+import { NoticeChannel } from '@/shared'
 import { useUserAuthStore } from '@/stores'
 
 export const useNoticeList = () => {
@@ -14,7 +14,7 @@ export const useNoticeList = () => {
       if (!userAuthStore.validateToken())
         return []
       const { data: { record = [] } = {} } = await Api.notice.listNotice({
-        channels: [ChannelEnum.COMMON, ChannelEnum.DASHBOARD],
+        channels: [NoticeChannel.COMMON, NoticeChannel.DASHBOARD],
         sort: ['validTimeStart-'],
         getValid: true,
         size: 100,
