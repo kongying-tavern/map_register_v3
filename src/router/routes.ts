@@ -92,7 +92,7 @@ const backendRoutes: RouteRecordRaw[] = [
       icon: 'ChatLineRound',
       role: RoleTypeEnum.MAP_MANAGER,
     },
-    component: () => import('@/pages/pageAnnouncementManager/PageAnnouncementManager.vue'),
+    component: () => import('@/pages/pageNoticeManager/PageNoticeManager.vue'),
   },
 ]
 
