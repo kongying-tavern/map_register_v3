@@ -77,7 +77,7 @@ const { height } = useElementSize(tableRef)
     >
       <el-table-column prop="status" label="状态" :width="81">
         <template #default="{ $index }">
-          <el-tag :type="stateList[$index].type">
+          <el-tag :type="stateList[$index].type" disable-transitions>
             {{ stateList[$index].label }}
           </el-tag>
         </template>
