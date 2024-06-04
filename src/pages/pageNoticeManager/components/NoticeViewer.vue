@@ -1,19 +1,24 @@
 <script lang="ts" setup>
-import { ElMessage } from 'element-plus'
 import { Check, Close } from '@element-plus/icons-vue'
 import type { ComputedRef } from 'vue'
-import { computed, ref, watch } from 'vue'
-import { AppRichtextEditor, GlobalDialogController, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
+import { useNoticeCreate, useNoticeUpdate } from '../hooks'
+import {
+  AppRichtextEditor,
+  GlobalDialogController,
+  WinDialog,
+  WinDialogFooter,
+  WinDialogTabPanel,
+  WinDialogTitleBar,
+} from '@/components'
 import { Logger } from '@/utils'
 import type { ItemFormRules } from '@/utils'
 import type { ElFormType } from '@/shared'
 import { NOTICE_NAME_MAP } from '@/shared'
 import { useFetchHook } from '@/hooks'
-import Api from '@/api/api'
 
 const props = defineProps<{
-  notice: API.NoticeVo
-  status: 'detail' | 'create' | 'update'
+  notice?: API.NoticeVo
+  status: 'create' | 'update'
 }>()
 
 const emits = defineEmits<{
@@ -22,7 +27,7 @@ const emits = defineEmits<{
 
 const logger = new Logger('公告')
 
-const formData = ref<API.NoticeVo>(JSON.parse(JSON.stringify(props.notice)))
+const formData = ref<API.NoticeVo>(JSON.parse(JSON.stringify(props.notice ?? {})))
 
 const formRef = ref<ElFormType | null>(null)
 
@@ -61,48 +66,23 @@ const rules: ComputedRef<ItemFormRules<API.NoticeVo>> = computed(() => ({
   ],
 }))
 
-watch(props.notice, (newData) => {
-  formData.value = newData
-})
+const { createNotice } = useNoticeCreate()
+const { updateNotice } = useNoticeUpdate()
 
-const { loading, refresh: submit, onSuccess, onError } = useFetchHook({
+const { loading, refresh: submit, onSuccess } = useFetchHook({
   onRequest: async () => {
-    if (props.status === 'create')
-      await Api.notice.createNotice(formData.value)
-    else if (props.status === 'update')
-      await Api.notice.updateNotice(formData.value)
+    await formRef.value?.validate()
+    await ({
+      create: createNotice,
+      update: updateNotice,
+    })[props.status](formData.value)
   },
 })
 
-const createNotice = async () => {
-  try {
-    await formRef.value?.validate()
-    await submit()
-  }
-  catch {
-    // inValid form, no error
-  }
-}
-
 onSuccess(() => {
-  ElMessage.success({
-    message: '新增公告成功',
-    offset: 48,
-  })
   GlobalDialogController.close()
   emits('success')
 })
-
-const statusMap = {
-  detail: '详情',
-  create: '新增',
-  update: '修改',
-}
-
-onError((err: Error) => ElMessage.error({
-  message: `${statusMap[props.status || 'detail']}公告失败，原因为：${err.message}`,
-  offset: 48,
-}))
 
 const channels = [...NOTICE_NAME_MAP.entries()].map(([channel, name]) => ({
   label: name,
@@ -167,7 +147,7 @@ const channels = [...NOTICE_NAME_MAP.entries()].map(([channel, name]) => ({
     </WinDialogTabPanel>
 
     <WinDialogFooter>
-      <el-button :icon="Check" type="primary" :loading="loading" @click="createNotice">
+      <el-button :icon="Check" type="primary" :loading="loading" @click="submit">
         确认
       </el-button>
       <el-button :icon="Close" :disabled="loading" @click="GlobalDialogController.close">

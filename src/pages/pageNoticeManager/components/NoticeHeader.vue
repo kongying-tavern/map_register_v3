@@ -110,7 +110,7 @@ const options = [...NOTICE_NAME_MAP.entries()]
 
     <el-divider direction="vertical" />
 
-    <el-button text :icon="CirclePlus">
+    <el-button text :icon="CirclePlus" @click="() => $emit('create')">
       新增
     </el-button>
   </div>

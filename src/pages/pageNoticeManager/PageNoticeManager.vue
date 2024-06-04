@@ -37,16 +37,37 @@ const { noticeList, loading, refresh } = useNoticeList({
 
 const { DialogService } = useGlobalDialog()
 
+const SHARED_CONFIG = {
+  alignCenter: true,
+  closeOnClickModal: false,
+  closeOnPressEscape: false,
+}
+
+const handleCreateNotice = () => {
+  DialogService
+    .config({
+      ...SHARED_CONFIG,
+    })
+    .props({
+      status: 'create',
+    })
+    .listeners({
+      success: refresh,
+    })
+    .open(NoticeViewer)
+}
+
 const handleReviewNotice = (notice: API.NoticeVo) => {
   DialogService
     .config({
-      alignCenter: true,
-      closeOnClickModal: false,
-      closeOnPressEscape: false,
+      ...SHARED_CONFIG,
     })
     .props({
       notice,
       status: 'update',
+    })
+    .listeners({
+      success: refresh,
     })
     .open(NoticeViewer)
 }
@@ -54,9 +75,7 @@ const handleReviewNotice = (notice: API.NoticeVo) => {
 const handleDeleteNotice = (notice: API.NoticeVo) => {
   DialogService
     .config({
-      alignCenter: true,
-      closeOnClickModal: false,
-      closeOnPressEscape: false,
+      ...SHARED_CONFIG,
     })
     .props({
       title: '删除公告',
@@ -76,6 +95,7 @@ const handleDeleteNotice = (notice: API.NoticeVo) => {
       v-model:pagination="pagination"
       :data="1"
       @change="refresh"
+      @create="handleCreateNotice"
     />
 
     <NoticeTable
