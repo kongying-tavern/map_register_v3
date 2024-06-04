@@ -86,7 +86,7 @@ const backendRoutes: RouteRecordRaw[] = [
     component: () => import('@/pages/pageHistory/PageHistory.vue'),
   },
   {
-    path: '/announcement',
+    path: '/notice',
     meta: {
       title: '公告',
       icon: 'ChatLineRound',
