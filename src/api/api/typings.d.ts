@@ -400,7 +400,7 @@ declare namespace API {
   }
 
   interface SysUserSearchVo {
-    /** 当前页，从0开始 */
+    /** 当前页，从1开始 */
     current?: number
     /** 每页大小，默认为10 */
     size?: number
@@ -494,7 +494,7 @@ declare namespace API {
   }
 
   interface SysUserDeviceSearchVo {
-    /** 当前页，从0开始 */
+    /** 当前页，从1开始 */
     current?: number
     /** 每页大小，默认为10 */
     size?: number
@@ -527,7 +527,7 @@ declare namespace API {
   }
 
   interface PageAndTypeSearchVo {
-    /** 当前页，从0开始 */
+    /** 当前页，从1开始 */
     current?: number
     /** 每页大小，默认为10 */
     size?: number
@@ -587,7 +587,7 @@ declare namespace API {
     tagList?: string[]
     /**  图标标签分类列表 */
     typeIdList?: number[]
-    /** 当前页，从0开始 */
+    /** 当前页，从1开始 */
     current?: number
     /** 每页大小，默认为10 */
     size?: number
@@ -638,7 +638,7 @@ declare namespace API {
     creatorNicknamePart?: string
     /** 创建人id，此字段不能与昵称模糊搜索字段共存 */
     creatorId?: string
-    /** 当前页，从0开始 */
+    /** 当前页，从1开始 */
     current?: number
     /** 每页大小，默认为10 */
     size?: number
@@ -661,7 +661,7 @@ declare namespace API {
   }
 
   interface PageSearchVo {
-    /** 当前页，从0开始 */
+    /** 当前页，从1开始 */
     current?: number
     /** 每页大小，默认为10 */
     size?: number
@@ -727,7 +727,7 @@ declare namespace API {
     transformer?: string
     /** 排序条件 */
     sort?: string[]
-    /** 当前页，从0开始 */
+    /** 当前页，从1开始 */
     current?: number
     /** 每页大小，默认为10 */
     size?: number
@@ -1019,7 +1019,7 @@ declare namespace API {
     areaIdList?: number[]
     /** 物品名 */
     name?: string
-    /** 当前页，从0开始 */
+    /** 当前页，从1开始 */
     current?: number
     /** 每页大小，默认为10 */
     size?: number
@@ -1088,7 +1088,7 @@ declare namespace API {
     typeIdList?: number[]
     /** 图标名 */
     name?: string
-    /** 当前页，从0开始 */
+    /** 当前页，从1开始 */
     current?: number
     /** 每页大小，默认为10 */
     size?: number
@@ -1111,7 +1111,7 @@ declare namespace API {
   }
 
   interface HistorySearchVo {
-    /** 当前页，从0开始 */
+    /** 当前页，从1开始 */
     current?: number
     /** 每页大小，默认为10 */
     size?: number
