@@ -51,7 +51,7 @@ const handleClose = () => {
       <el-scrollbar class="flex-1">
         <SelectList
           v-model="selectedId"
-          class="h-full overflow-auto"
+          class="h-full overflow-auto gap-1 grid grid-cols-2"
           :list="markerAdvancedFilterConfigs"
           value-key="id"
         >
@@ -92,7 +92,7 @@ const handleClose = () => {
   padding: 36px 28px;
   background: paint(dark-card-border);
   color: var(--gs-text-color-priamry);
-  width: 400px;
+  width: 500px;
   height: 600px;
   max-width: 100dvw;
   max-height: 100dvh;
