@@ -118,7 +118,7 @@ const channels = [...NOTICE_NAME_MAP.entries()].map(([channel, name]) => ({
             />
           </el-form-item>
 
-          <el-form-item label="发布时间" prop="validTimeStart">
+          <el-form-item label="生效时间" prop="validTimeStart">
             <el-date-picker v-model="formData.validTimeStart" style="--el-date-editor-width: 100%" type="datetime" placeholder="请选择发布时间" />
           </el-form-item>
 
