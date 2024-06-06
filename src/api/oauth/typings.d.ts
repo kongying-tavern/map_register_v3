@@ -22,6 +22,7 @@ declare namespace API {
     scope: string
     userRoles: string[]
     userId: number
-    jti: string
+    jti: string,
+    message?: string
   };
 }

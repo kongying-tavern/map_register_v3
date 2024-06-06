@@ -59,10 +59,20 @@ export const useLoginForm = () => {
   const userAuthStore = useUserAuthStore()
 
   onSuccess((auth) => {
-    ElMessage.success({
-      message: '登录成功',
-      offset: 48,
-    })
+    if (auth?.message) {
+      ElMessage.warning({
+        message: auth?.message,
+        offset: 48,
+        duration: 5000,
+      })
+    }
+    else {
+      ElMessage.success({
+        message: '登录成功',
+        offset: 48,
+      })
+    }
+
     userAuthStore.setAuth(auth)
     // TODO 登录后应当跳转到上次退出前保持的页面
     router.push('/map')
