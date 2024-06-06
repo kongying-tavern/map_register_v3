@@ -43,7 +43,7 @@ export const useUserInfoStore = defineStore('global-user-info', () => {
       const { userId } = userAuthStore.auth
       if (userId === undefined)
         throw new Error('用户凭证中的用户 id 为空')
-      const { data = {} } = await Api.sysUserController.getUserInfo({ userId })
+      const { data = {} } = await Api.user.getUserInfo({ userId })
       return data
     },
   })

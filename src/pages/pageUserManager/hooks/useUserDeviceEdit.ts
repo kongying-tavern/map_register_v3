@@ -12,7 +12,7 @@ export const useUserDeviceEdit = (data: Ref<API.SysUserDeviceVo | undefined>, op
       if (id === undefined)
         throw new Error('设备 id 为空')
 
-      await Api.sysUserDeviceController.updateDevice({
+      await Api.device.updateDevice({
         id,
         status: status as API.SysUserDeviceVo['status'],
       })

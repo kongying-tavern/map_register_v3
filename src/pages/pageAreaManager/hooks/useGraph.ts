@@ -393,7 +393,7 @@ export const useGraph = (options: {
     })
 
     graph.on('viewportchange', () => {
-      const { x: gx, y: gy } = graph.getGraphCenterPoint()
+      const { x: gx, y: gy } = graph.getMarkerLinkageGraphCenterPoint()
       viewState.value = {
         x: gx,
         y: gy,

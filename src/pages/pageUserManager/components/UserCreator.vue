@@ -38,7 +38,7 @@ const rules: ItemFormRules<UserRegisterVo> = {
 const { loading, refresh: submit, onSuccess, onError } = useFetchHook({
   onRequest: async () => {
     const { username, password } = formData.value
-    await Api.sysUserController.registerUser({ username, password })
+    await Api.user.registerUser({ username, password })
   },
 })
 

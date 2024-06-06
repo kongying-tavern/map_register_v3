@@ -17,7 +17,7 @@ export const usePasswordUpdate = (form: Ref<API.SysUserPasswordUpdateVo>, option
       if (userId === undefined)
         throw new Error('表单信息中用户 id 为空')
 
-      await Api.sysUserController.updateUserPasswordByAdmin({
+      await Api.user.updateUserPasswordByAdmin({
         userId,
         password,
         oldPassword,

@@ -37,7 +37,7 @@ const rules: ItemFormRules<UnwrapRef<typeof formData>> = {
 }
 
 const { loading, refresh: submit, onSuccess, onError } = useFetchHook({
-  onRequest: () => Api.sysUserController.updateUser(formData.value),
+  onRequest: () => Api.user.updateUser(formData.value),
 })
 
 onSuccess(() => {

@@ -20,7 +20,7 @@ const { loading, refresh: updateUserInfo, onSuccess } = useFetchHook({
   onRequest: async () => {
     if (!selectedAvatar.value?.icon)
       throw new Error('头像地址为空')
-    await Api.sysUserController.updateUser({
+    await Api.user.updateUser({
       ...pick(userInfoStore.info, 'nickname', 'qq', 'phone', 'roleId'),
       userId: userInfoStore.info.id,
       logo: selectedAvatar.value.icon,

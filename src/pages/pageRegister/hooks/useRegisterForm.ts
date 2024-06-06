@@ -31,7 +31,7 @@ export const useRegisterForm = () => {
 
   const { refresh: submit, onSuccess, onError, ...rest } = useFetchHook({
     onRequest: async () => {
-      await Api.sysUserController.registerUserByQQ(registerForm)
+      await Api.user.registerUserByQQ(registerForm)
       return Oauth.oauth.token({
         grant_type: 'password',
         ...registerForm,

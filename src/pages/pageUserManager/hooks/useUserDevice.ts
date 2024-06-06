@@ -20,7 +20,7 @@ export const useUserDevice = (form: Ref<API.SysUserVo>, options: UserDeviceHookO
 
       const { current, pageSize } = toValue(pagination)
 
-      const { data: { record = [], total = 0 } = {} } = await Api.sysUserDeviceController.searchPage({
+      const { data: { record = [], total = 0 } = {} } = await Api.device.searchPage({
         current,
         sort: ['lastLoginTime-'],
         size: pageSize,

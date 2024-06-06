@@ -27,7 +27,7 @@ export const useUserList = (options: UserListHookOptions) => {
       const { key: sortKey, type: sortType } = toValue(sortInfo)
       const filter = {}
       _.set(filter, filterKey.value, filterValue.value)
-      return Api.sysUserController.getUserList({
+      return Api.user.getUserList({
         ...filter,
         sort: [`${sortKey}${sortType}`],
         current,

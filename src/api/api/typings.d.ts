@@ -476,6 +476,10 @@ declare namespace API {
     version?: number
     /** ID */
     id?: number
+    /** 创建人 */
+    creatorId?: number
+    /** 创建时间 */
+    createTime?: string
     /** 更新人 */
     updaterId?: number
     /** 更新时间 */
@@ -524,6 +528,68 @@ declare namespace API {
     data?: PageListVoSysUserDeviceVo
     users?: Record<string, SysUserSmallVo>
     time?: string
+  }
+
+  interface SysActionLogSearchVo {
+    /** 当前页，从0开始 */
+    current?: number
+    /** 每页大小，默认为10 */
+    size?: number
+    /** 用户ID */
+    userId?: number
+    /** IPv4 */
+    ipv4?: string
+    /** 设备ID */
+    deviceId?: string
+    /** 操作名 */
+    action?: string
+    /** 是否是错误 */
+    isError?: boolean
+    /** 排序条件 */
+    sort?: string[]
+  }
+
+  interface PageListVoSysActionLogVo {
+    record?: SysActionLogVo[]
+    total?: number
+    size?: number
+  }
+
+  interface RPageListVoSysActionLogVo {
+    error?: boolean
+    errorStatus?: number
+    errorData?: unknown
+    message?: string
+    data?: PageListVoSysActionLogVo
+    users?: Record<string, SysUserSmallVo>
+    time?: string
+  }
+
+  interface SysActionLogVo {
+    /** 乐观锁 */
+    version?: number
+    /** ID */
+    id?: number
+    /** 创建人 */
+    creatorId?: number
+    /** 创建时间 */
+    createTime?: string
+    /** 更新人 */
+    updaterId?: number
+    /** 更新时间 */
+    updateTime?: string
+    /** 用户ID */
+    userId?: number
+    /** IPv4 */
+    ipv4?: string
+    /** 设备编码 */
+    deviceId?: string
+    /** 操作名 */
+    action?: string
+    /** 是否是错误 */
+    isError?: boolean
+    /** JSON对象 */
+    extraData?: Record<string, unknown>
   }
 
   interface PageAndTypeSearchVo {

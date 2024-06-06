@@ -17,7 +17,7 @@ export async function linkMarker(
 }
 
 /** 关联点位列表 关联点位列表 POST /api/marker_link/get/list */
-export async function getList(
+export async function getMarkerLinkageList(
   body: API.MarkerLinkageSearchVo,
   options?: AxiosRequestConfig,
 ) {
@@ -32,7 +32,7 @@ export async function getList(
 }
 
 /** 关联点位图数据 关联点位图数据 POST /api/marker_link/get/graph */
-export async function getGraph(
+export async function getMarkerLinkageGraph(
   body: API.MarkerLinkageSearchVo,
   options?: AxiosRequestConfig,
 ) {

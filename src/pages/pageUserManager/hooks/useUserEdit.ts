@@ -21,7 +21,7 @@ export const useUserEdit = (form: Ref<API.SysUserVo>, options: { loading: Ref<bo
       if (id === undefined)
         throw new Error('表单信息中用户 id 为空')
 
-      await Api.sysUserController.updateUser({
+      await Api.user.updateUser({
         userId: id,
         accessPolicy,
         logo,

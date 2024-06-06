@@ -8,7 +8,7 @@ export const useUserKickOut = (form: Ref<API.SysUserVo>) => {
       const { id } = toValue(form)
       if (id === undefined)
         throw new Error('用户 id 为空')
-      await Api.sysUserController.kickOutUser({ workId: id })
+      await Api.user.kickOutUser({ workId: id })
     },
   })
 

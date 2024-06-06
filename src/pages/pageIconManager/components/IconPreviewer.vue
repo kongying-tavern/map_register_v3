@@ -22,7 +22,7 @@ const userCache = ref<Record<number, API.SysUserVo>>({})
 const { refresh: getUserInfo, loading: isUserInfoLoading, onSuccess } = useFetchHook<API.SysUserVo[], [userIds: number[]]>({
   onRequest: (userIds: number[]) => Promise.all([...new Set(userIds)].reduce((seed, userId) => {
     if (userCache.value[userId] === undefined) {
-      seed.push(Api.sysUserController
+      seed.push(Api.user
         .getUserInfo({ userId })
         .then(({ data = {} }) => data)
         .catch(() => ({ id: userId } as API.SysUserVo)),

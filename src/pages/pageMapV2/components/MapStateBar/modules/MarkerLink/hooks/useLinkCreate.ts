@@ -39,7 +39,7 @@ export const useLinkCreate = (context: MLContext) => {
       const { data: linkageId = '' } = await Api.markerLink.linkMarker(linkList)
 
       // 查询关联更新
-      const { data: updatedLinks = {} } = await Api.markerLink.getList({
+      const { data: updatedLinks = {} } = await Api.markerLink.getMarkerLinkageList({
         groupIds: [linkageId],
       })
 

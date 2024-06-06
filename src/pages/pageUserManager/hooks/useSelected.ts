@@ -31,7 +31,7 @@ export const useSelected = (options: SelectedHookOptions = {}) => {
     const missions = selected.value.map(({ id }) => {
       if (!id)
         return undefined
-      return Api.sysUserController.deleteUser({ workId: id })
+      return Api.user.deleteUser({ workId: id })
     })
     try {
       batchDeleteLoading.value = true

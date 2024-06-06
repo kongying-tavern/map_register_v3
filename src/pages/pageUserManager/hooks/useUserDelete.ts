@@ -8,7 +8,7 @@ export const useUserDelete = (form: Ref<API.SysUserVo>) => {
       const { id } = toValue(form)
       if (id === undefined)
         throw new Error('用户 id 为空')
-      await Api.sysUserController.deleteUser({ workId: id })
+      await Api.user.deleteUser({ workId: id })
     },
   })
 

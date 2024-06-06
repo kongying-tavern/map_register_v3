@@ -80,7 +80,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
   socketStore.event.on('MarkerDeleted', async (id) => {
     await db.marker.delete(id)
 
-    const { data: { record: [history] = [] } = {}, users = {} } = await Api.history.getList1({
+    const { data: { record: [history] = [] } = {}, users = {} } = await Api.history.searchHistory({
       current: 0,
       id: [id],
       size: 1,

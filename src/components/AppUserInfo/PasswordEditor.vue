@@ -45,7 +45,7 @@ const { loading, refresh: updatePassword, onSuccess } = useFetchHook({
       throw new Error('用户 id 为空')
 
     const { oldPassword, password } = form.value
-    await Api.sysUserController.updateUserPassword({
+    await Api.user.updateUserPassword({
       userId,
       oldPassword,
       password,

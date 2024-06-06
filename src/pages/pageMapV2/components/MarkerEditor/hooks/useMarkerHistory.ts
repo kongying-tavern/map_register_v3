@@ -17,7 +17,7 @@ export const useMarkerHistory = (markerVo: Ref<API.MarkerVo>) => {
       if (id === undefined)
         throw new Error('点位 id 为空')
 
-      const { data: { record = [] } = {} } = await Api.history.getList1({
+      const { data: { record = [] } = {} } = await Api.history.searchHistory({
         current: 1,
         size: 100,
         id: [id],

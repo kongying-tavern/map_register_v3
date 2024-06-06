@@ -14,7 +14,7 @@ export const useHistoryList = (options: {
   const { refresh: updateHistoryList, onSuccess, ...rest } = useFetchHook({
     immediate: true,
     onRequest: async () => {
-      const { data: { record = [], total = 0 } = {}, users = {} } = await Api.history.getList1({
+      const { data: { record = [], total = 0 } = {}, users = {} } = await Api.history.searchHistory({
         type: historyType.value,
         current: pagination.value.current,
         size: pagination.value.pageSize,
