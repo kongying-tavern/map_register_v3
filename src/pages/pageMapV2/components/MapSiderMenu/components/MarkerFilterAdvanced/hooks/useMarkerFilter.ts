@@ -30,6 +30,10 @@ export const useMarkerFilter = () => {
       for (let itemIndex = 0; itemIndex < group.children.length; itemIndex++) {
         const item = group.children[itemIndex]
         const filterConfig: MAFConfig = getMAFConfig(item.id)
+        const filterId = filterConfig.id
+        if (filterId === null || filterId === undefined || filterId <= 0)
+          continue
+
         const {
           option: filterOption,
           semantic: filterSemantic,
