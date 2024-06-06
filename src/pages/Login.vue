@@ -65,9 +65,14 @@ export default {
       get_token(this.username, this.password)
         .then((res) => {
           this.loading = false;
-          set_user_data(res.data || {});
+          const auth = res.data || {};
+          set_user_data(auth);
           this.$router.push("/");
-          create_notify("登录成功！");
+          create_notify(
+            auth?.message || "登录成功！",
+            auth?.message ? "warning" : "positive",
+            { timeout: 5000 }
+          );
         })
         .catch((err) => {
           console.log(err);
