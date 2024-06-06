@@ -2,7 +2,7 @@ import type {
   MAFConfig,
   MAFMetaIdRange,
   MAFOptionInput,
-  MAFValueInput,
+  MAFValueString,
 } from '@/stores/types'
 
 export class IdRange implements MAFConfig {
@@ -12,21 +12,21 @@ export class IdRange implements MAFConfig {
     placeholder: '格式为数字，A,B或A-B',
   }
 
-  get defaultVal(): MAFValueInput {
+  get defaultVal(): MAFValueString {
     return {
-      v: '',
+      s: '',
     }
   }
 
-  prepare(val: MAFValueInput): MAFMetaIdRange {
+  prepare(val: MAFValueString): MAFMetaIdRange {
     const meta: MAFMetaIdRange = {
       idSet: new Set<number>(),
     }
 
-    if (!val.v)
+    if (!val.s)
       return meta
 
-    const ids: string[] = val.v.split(',')
+    const ids: string[] = val.s.split(',')
     for (const id of ids) {
       if (!id) {
         continue
@@ -52,13 +52,13 @@ export class IdRange implements MAFConfig {
     return meta
   }
 
-  semantic(val: MAFValueInput, _opt: MAFOptionInput, meta: MAFMetaIdRange, opposite: boolean): string {
+  semantic(val: MAFValueString, _opt: MAFOptionInput, meta: MAFMetaIdRange, opposite: boolean): string {
     if (meta.idSet.size <= 0)
       return ''
-    return `ID${opposite ? '不' : ''}属于范围【${val.v ?? ''}】`
+    return `ID${opposite ? '不' : ''}属于范围【${val.s ?? ''}】`
   }
 
-  filter(_val: MAFValueInput, _opt: MAFOptionInput, meta: MAFMetaIdRange, marker: API.MarkerVo): boolean {
+  filter(_val: MAFValueString, _opt: MAFOptionInput, meta: MAFMetaIdRange, marker: API.MarkerVo): boolean {
     return meta.idSet.has(marker.id!)
   }
 }

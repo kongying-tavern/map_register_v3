@@ -52,11 +52,11 @@ export interface MAFValue {}
 export interface MAFValueDummy extends MAFValue {
 }
 
-export interface MAFValueInput extends MAFValue {
-  v: string
+export interface MAFValueString extends MAFValue {
+  s: string
 }
 
-export interface MAFValueSwitch extends MAFValue {
+export interface MAFValueBoolean extends MAFValue {
   b: boolean
 }
 

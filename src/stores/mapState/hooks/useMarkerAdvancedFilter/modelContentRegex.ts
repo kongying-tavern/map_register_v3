@@ -2,7 +2,7 @@ import type {
   MAFConfig,
   MAFMetaContentRegex,
   MAFOptionInput,
-  MAFValueInput,
+  MAFValueString,
 } from '@/stores/types'
 
 export class ContentRegex implements MAFConfig {
@@ -12,21 +12,21 @@ export class ContentRegex implements MAFConfig {
     placeholder: '',
   }
 
-  get defaultVal(): MAFValueInput {
+  get defaultVal(): MAFValueString {
     return {
-      v: '',
+      s: '',
     }
   }
 
-  prepare(val: MAFValueInput): MAFMetaContentRegex {
+  prepare(val: MAFValueString): MAFMetaContentRegex {
     const meta: MAFMetaContentRegex = {
       re: undefined,
     }
-    if (!val.v)
+    if (!val.s)
       return meta
 
     try {
-      meta.re = new RegExp(val.v, 'gui')
+      meta.re = new RegExp(val.s, 'gui')
     }
     catch (_err) {
       // 忽略错误
@@ -34,13 +34,13 @@ export class ContentRegex implements MAFConfig {
     return meta
   }
 
-  semantic(val: MAFValueInput, _opt: MAFOptionInput, _meta: MAFMetaContentRegex, opposite: boolean): string {
-    if (!val.v)
+  semantic(val: MAFValueString, _opt: MAFOptionInput, _meta: MAFMetaContentRegex, opposite: boolean): string {
+    if (!val.s)
       return ''
-    return `内容${opposite ? '不' : ''}满足正则【${val.v ?? ''}】`
+    return `内容${opposite ? '不' : ''}满足正则【${val.s ?? ''}】`
   }
 
-  filter(_val: MAFValueInput, _opt: MAFOptionInput, meta: MAFMetaContentRegex, marker: API.MarkerVo): boolean {
+  filter(_val: MAFValueString, _opt: MAFOptionInput, meta: MAFMetaContentRegex, marker: API.MarkerVo): boolean {
     if (!meta.re)
       return false
     return meta.re.test(marker.content ?? '')

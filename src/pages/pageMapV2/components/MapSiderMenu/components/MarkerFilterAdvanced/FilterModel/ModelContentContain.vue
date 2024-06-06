@@ -1,15 +1,15 @@
 <script lang="ts" setup>
 import { InputBase } from '.'
-import type { MAFOptionInput, MAFValueInput } from '@/stores/types'
+import type { MAFOptionInput, MAFValueString } from '@/stores/types'
 
 defineProps<{
   options: MAFOptionInput
 }>()
 
-const modelValue = defineModel<MAFValueInput>('modelValue', {
+const modelValue = defineModel<MAFValueString>('modelValue', {
   required: false,
   default: {
-    v: '',
+    s: '',
   },
   type: Object,
 })
@@ -19,7 +19,7 @@ const modelValue = defineModel<MAFValueInput>('modelValue', {
   <div class="flex-auto flex gap-1 items-center">
     <span class="flex-none">内容包含</span>
     <InputBase
-      v-model="modelValue.v"
+      v-model="modelValue.s"
       class="flex-auto"
       :options="options"
     />
