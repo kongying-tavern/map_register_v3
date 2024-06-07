@@ -5,8 +5,6 @@ import { usePreferenceStore, useSocketStore, useUserInfoStore } from '@/stores'
 const socketStore = useSocketStore()
 const userInfoStore = useUserInfoStore()
 
-const url = computed(() => `${import.meta.env.VITE_WS_BASE}/${userInfoStore.info.id}`)
-
 const text = computed(() => {
   return socketStore.status === WebSocket.OPEN
     ? `${socketStore.delay} ms`
@@ -55,7 +53,7 @@ const wsEvents: { label: string; value: API.WSEventType; divider?: boolean }[] =
 
       <SettingBar label="操作">
         <template #setting>
-          <el-button @click="() => socketStore.connect(url)">
+          <el-button @click="() => socketStore.connect(userInfoStore.info.id)">
             连接
           </el-button>
         </template>
