@@ -56,6 +56,11 @@ export interface MAFValueString extends MAFValue {
   s: string
 }
 
+export interface MAFValueNumberRange extends MAFValue {
+  nMin: number | null
+  nMax: number | null
+}
+
 export interface MAFValueBoolean extends MAFValue {
   b: boolean
 }
@@ -68,6 +73,11 @@ export interface MAFOptionDummy extends MAFOption {
 
 export interface MAFOptionInput extends MAFOption {
   placeholder?: string
+}
+
+export interface MAFOptionRange extends MAFOption {
+  placeholderMin?: string
+  placeholderMax?: string
 }
 
 export interface MAFOptionSwitch extends MAFOption {

@@ -588,7 +588,7 @@ declare namespace API {
     action?: string
     /** 是否是错误 */
     isError?: boolean
-    /** JSON对象 */
+    /** 附加信息 */
     extraData?: Record<string, unknown>
   }
 

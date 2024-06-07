@@ -6,6 +6,7 @@ import {
   ModelIdRange,
   ModelImage,
   ModelLinkage,
+  ModelRefreshTime,
   ModelTitleContain,
   ModelUnderground,
   ModelVideo,
@@ -31,6 +32,7 @@ const modelTemplate = computed(() => {
     7: ModelImage,
     8: ModelVideo,
     9: ModelLinkage,
+    10: ModelRefreshTime,
   }[props.condition.id]
 }) as ComputedRef<Component>
 
