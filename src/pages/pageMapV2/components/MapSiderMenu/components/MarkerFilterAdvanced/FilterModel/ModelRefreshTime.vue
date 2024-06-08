@@ -12,7 +12,6 @@ const modelValue = defineModel<MAFValueNumberRange>('modelValue', {
     nMin: null,
     nMax: null,
   },
-  type: Object,
 })
 </script>
 

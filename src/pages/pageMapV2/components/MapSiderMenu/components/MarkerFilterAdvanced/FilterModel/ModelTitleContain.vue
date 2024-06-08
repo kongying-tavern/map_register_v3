@@ -11,7 +11,6 @@ const modelValue = defineModel<MAFValueString>('modelValue', {
   default: {
     s: '',
   },
-  type: Object,
 })
 </script>
 
