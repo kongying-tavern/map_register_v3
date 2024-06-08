@@ -9,11 +9,13 @@ export interface PropsOptions {
   merge?: boolean
 }
 
+export type PropsObject = Omit<Partial<DialogProps & { class: string }>, 'modelValue'> // 这里先 hack 一下类型，等 element 更新 2.3.0
+
 /** 全局弹窗服务，内部调用 */
 export class GlobalDialogService {
   /** 传递给 el-dialog 的属性 */
   static config = (
-    propsObj: Omit<Partial<DialogProps & { class: string }>, 'modelValue'>, // 这里先 hack 一下类型，等 element 更新 2.3.0
+    propsObj: PropsObject,
     options: PropsOptions = {},
   ) => {
     const { merge } = options

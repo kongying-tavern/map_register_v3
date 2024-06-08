@@ -1,16 +1,31 @@
+import { computed } from 'vue'
 import type {
   MAFConfig,
   MAFMetaDummy,
-  MAFOptionDummy,
+  MAFOptionRange,
+  MAFOptionSelect,
   MAFOptionSwitch,
   MAFValueBoolean,
   MAFValueNumberRange,
 } from '@/stores/types'
+import { useRefreshTimeOptions } from '@/hooks'
 
 export class RefreshTime implements MAFConfig {
   id = 10
   name = '刷新时间'
-  option: MAFOptionDummy = {}
+  option: ComputedRef<MAFOptionRange & MAFOptionSelect<{ label: string; value: number }>> = computed(() => {
+    const { refreshTimeOptions } = useRefreshTimeOptions()
+
+    return {
+      placeholderMin: '不限制',
+      placeholderMax: '不限制',
+      dialogTitle: '选择刷新时间',
+      dialogListClass: 'grid grid-cols-2',
+      options: refreshTimeOptions.value,
+      optionLabel: 'label',
+      optionValue: 'value',
+    }
+  })
 
   get defaultVal(): MAFValueNumberRange {
     return {

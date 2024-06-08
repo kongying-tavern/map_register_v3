@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { toValue } from 'vue'
 import type { Component } from 'vue'
 import {
   ModelContentContain,
@@ -36,12 +37,11 @@ const modelTemplate = computed(() => {
   }[props.condition.id]
 }) as ComputedRef<Component>
 
-const modelOptions = computed<MAFOption>(() => model.value.option)
+const modelOptions = computed<MAFOption>(() => toValue(model.value.option))
 
 const modelValue = defineModel<MAFValue>('modelValue', {
   required: false,
   default: {},
-  type: Object,
 })
 </script>
 
