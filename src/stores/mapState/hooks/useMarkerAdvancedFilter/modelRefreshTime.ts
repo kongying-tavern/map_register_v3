@@ -4,16 +4,16 @@ import type {
   MAFMetaDummy,
   MAFOptionRange,
   MAFOptionSelect,
-  MAFOptionSwitch,
-  MAFValueBoolean,
   MAFValueNumberRange,
 } from '@/stores/types'
 import { useRefreshTimeOptions } from '@/hooks'
 
+type OptionType = MAFOptionRange & MAFOptionSelect<{ label: string; value: number }>
+
 export class RefreshTime implements MAFConfig {
   id = 10
   name = '刷新时间'
-  option: ComputedRef<MAFOptionRange & MAFOptionSelect<{ label: string; value: number }>> = computed(() => {
+  option: ComputedRef<OptionType> = computed(() => {
     const { refreshTimeOptions } = useRefreshTimeOptions()
 
     return {
@@ -34,15 +34,39 @@ export class RefreshTime implements MAFConfig {
     }
   }
 
-  prepare(_val: MAFValueBoolean): MAFMetaDummy {
+  prepare(_val: MAFValueNumberRange): MAFMetaDummy {
     return {}
   }
 
-  semantic(_val: MAFValueBoolean, _opt: MAFOptionSwitch, _meta: MAFMetaDummy, _opposite: boolean): string {
+  semantic(val: MAFValueNumberRange, _opt: OptionType, _meta: MAFMetaDummy, _opposite: boolean): string {
+    const { refreshTimeTypeNameMap } = useRefreshTimeOptions()
+
+    if (!Number.isFinite(val.nMin) && !Number.isFinite(val.nMax)) {
+      return '不限刷新时间'
+    }
+    else if (Number.isFinite(val.nMin) && Number.isFinite(val.nMax)) {
+      if (val.nMin === val.nMax) {
+        if (Number(val.nMin) <= 0)
+          return `刷新时间【${refreshTimeTypeNameMap.value[val.nMin ?? '']}】`
+        else
+          return `刷新时间【${val.nMin}小时】`
+      }
+      else {
+        return `刷新时间【${val.nMin}~${val.nMax}小时】`
+      }
+    }
+    else if (Number.isFinite(val.nMin) && !Number.isFinite(val.nMax)) {
+      return `刷新时间【≥${val.nMin}小时】`
+    }
+    else if (!Number.isFinite(val.nMin) && Number.isFinite(val.nMax)) {
+      return `刷新时间【≤${val.nMax}小时】`
+    }
     return ''
   }
 
-  filter(_val: MAFValueBoolean, _opt: MAFOptionSwitch, _meta: MAFMetaDummy, _marker: API.MarkerVo): boolean {
-    return false
+  filter(val: MAFValueNumberRange, _opt: OptionType, _meta: MAFMetaDummy, marker: API.MarkerVo): boolean {
+    const minVal: number = val.nMin === undefined || val.nMin === null ? Number.NEGATIVE_INFINITY : (val.nMin <= 0 ? val.nMin : val.nMin * 3600 * 1000)
+    const maxVal: number = val.nMax === undefined || val.nMax === null ? +Number.POSITIVE_INFINITY : (val.nMax <= 0 ? val.nMax : val.nMax * 3600 * 1000)
+    return marker.refreshTime! >= minVal && marker.refreshTime! <= maxVal
   }
 }
