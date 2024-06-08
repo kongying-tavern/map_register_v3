@@ -51,7 +51,7 @@ const modelValueMax = defineModel<number | null>('max', {
       >
       <div class="condition-unit-input__sep">
         <slot name="separator">
-          —
+          -
         </slot>
       </div>
       <input

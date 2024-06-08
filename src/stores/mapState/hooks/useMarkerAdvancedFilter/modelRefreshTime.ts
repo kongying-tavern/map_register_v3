@@ -17,8 +17,8 @@ export class RefreshTime implements MAFConfig {
     const { refreshTimeOptions } = useRefreshTimeOptions()
 
     return {
-      placeholderMin: '不限制',
-      placeholderMax: '不限制',
+      placeholderMin: '不限',
+      placeholderMax: '不限',
       dialogTitle: '选择刷新时间',
       dialogListClass: 'grid grid-cols-2',
       options: refreshTimeOptions.value,

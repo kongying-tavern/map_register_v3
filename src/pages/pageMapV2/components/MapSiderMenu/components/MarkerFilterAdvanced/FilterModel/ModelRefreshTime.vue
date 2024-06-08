@@ -67,7 +67,7 @@ const selectTag = computed(() => {
       :options="options"
     >
       <template #append>
-        小时
+        h
       </template>
     </NumberRangeBase>
   </div>
