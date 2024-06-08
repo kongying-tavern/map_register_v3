@@ -91,6 +91,10 @@ export const useMarkers = (options: MarkerHookOptions) => {
             break
 
           const filterConfig = getMAFConfig(item.id)
+          const filterId = filterConfig.id
+          if (filterId === null || filterId === undefined || filterId <= 0)
+            continue
+
           const {
             prepare: filterPrepare,
             option: filterOption,

@@ -1,3 +1,5 @@
+import type { MaybeComputedRef } from '@vueuse/core'
+
 // ==================== 基础筛选模型 ====================
 interface PresetType {
   basic: Record<string, MBFItem>
@@ -39,7 +41,7 @@ export interface MAFItem {
 export interface MAFConfig {
   readonly id: number
   readonly name: string
-  readonly option: MAFOption
+  readonly option: MaybeComputedRef<MAFValue>
   readonly defaultVal: MAFValue
   prepare(val: MAFValue): MAFMeta
   semantic(val: MAFValue, opt: MAFOption, meta: MAFMeta, opposite: boolean): string
@@ -52,11 +54,16 @@ export interface MAFValue {}
 export interface MAFValueDummy extends MAFValue {
 }
 
-export interface MAFValueInput extends MAFValue {
-  v: string
+export interface MAFValueString extends MAFValue {
+  s: string
 }
 
-export interface MAFValueSwitch extends MAFValue {
+export interface MAFValueNumberRange extends MAFValue {
+  nMin: number | null
+  nMax: number | null
+}
+
+export interface MAFValueBoolean extends MAFValue {
   b: boolean
 }
 
@@ -68,6 +75,19 @@ export interface MAFOptionDummy extends MAFOption {
 
 export interface MAFOptionInput extends MAFOption {
   placeholder?: string
+}
+
+export interface MAFOptionSelect<T> extends MAFOption {
+  dialogTitle?: string
+  dialogListClass?: string
+  options: T[]
+  optionLabel: keyof T
+  optionValue: keyof T
+}
+
+export interface MAFOptionRange extends MAFOption {
+  placeholderMin?: string
+  placeholderMax?: string
 }
 
 export interface MAFOptionSwitch extends MAFOption {

@@ -1,0 +1,74 @@
+<script lang="ts" setup>
+import { computed } from 'vue'
+import { MarkerFilterButton } from '../../MarkerFilterComponent'
+import { NumberRangeBase, SelectBase } from '.'
+import type { MAFOptionRange, MAFOptionSelect, MAFValueNumberRange } from '@/stores/types'
+import { IconTimer } from '@/components/AppIcons'
+import { useRefreshTimeOptions } from '@/hooks'
+
+defineProps<{
+  options: MAFOptionRange & MAFOptionSelect<{ label: string; value: number }>
+}>()
+
+const modelValue = defineModel<MAFValueNumberRange>('modelValue', {
+  required: false,
+  default: {
+    nMin: null,
+    nMax: null,
+  },
+})
+
+const { refreshTimeTypeNameMap } = useRefreshTimeOptions()
+
+const isCustom = computed(() => !(Number.isFinite(modelValue.value.nMin) && Number(modelValue.value.nMin) <= 0 && Number.isFinite(modelValue.value.nMax) && Number(modelValue.value.nMax) <= 0))
+
+const selectValue = computed<number | null>({
+  get: () => isCustom.value ? 12 * 3600 * 1000 : modelValue.value.nMin,
+  set: (value) => {
+    if (Number.isFinite(value) && Number(value) <= 0) {
+      modelValue.value.nMin = value
+      modelValue.value.nMax = value
+    }
+    else {
+      modelValue.value.nMin = 12
+      modelValue.value.nMax = 12
+    }
+  },
+})
+
+const selectTag = computed(() => {
+  if (isCustom.value)
+    return ''
+  return refreshTimeTypeNameMap.value[selectValue.value ?? '']
+})
+</script>
+
+<template>
+  <div class="flex-auto flex gap-1 items-center">
+    <span class="flex-none">刷新时间</span>
+    <SelectBase
+      v-model="selectValue"
+      :options="options"
+    >
+      <MarkerFilterButton theme="dark">
+        <template #icon>
+          <IconTimer />
+        </template>
+        <template v-if="selectTag" #default>
+          {{ selectTag }}
+        </template>
+      </MarkerFilterButton>
+    </SelectBase>
+    <NumberRangeBase
+      v-if="isCustom"
+      v-model:min="modelValue.nMin"
+      v-model:max="modelValue.nMax"
+      class="flex-auto"
+      :options="options"
+    >
+      <template #append>
+        h
+      </template>
+    </NumberRangeBase>
+  </div>
+</template>

@@ -2,7 +2,7 @@ import type {
   MAFConfig,
   MAFMetaDummy,
   MAFOptionSwitch,
-  MAFValueSwitch,
+  MAFValueBoolean,
 } from '@/stores/types'
 
 export class Linkage implements MAFConfig {
@@ -13,21 +13,21 @@ export class Linkage implements MAFConfig {
     textActive: '存在',
   }
 
-  get defaultVal(): MAFValueSwitch {
+  get defaultVal(): MAFValueBoolean {
     return {
       b: true,
     }
   }
 
-  prepare(_val: MAFValueSwitch): MAFMetaDummy {
+  prepare(_val: MAFValueBoolean): MAFMetaDummy {
     return {}
   }
 
-  semantic(val: MAFValueSwitch, _opt: MAFOptionSwitch, _meta: MAFMetaDummy, opposite: boolean): string {
+  semantic(val: MAFValueBoolean, _opt: MAFOptionSwitch, _meta: MAFMetaDummy, opposite: boolean): string {
     return `${opposite === !!val.b ? '不' : ''}存在点位关联`
   }
 
-  filter(val: MAFValueSwitch, _opt: MAFOptionSwitch, _meta: MAFMetaDummy, marker: API.MarkerVo): boolean {
+  filter(val: MAFValueBoolean, _opt: MAFOptionSwitch, _meta: MAFMetaDummy, marker: API.MarkerVo): boolean {
     return val.b ? !!marker.linkageId : !marker.linkageId
   }
 }

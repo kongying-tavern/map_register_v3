@@ -2,7 +2,7 @@ import type {
   MAFConfig,
   MAFMetaDummy,
   MAFOptionInput,
-  MAFValueInput,
+  MAFValueString,
 } from '@/stores/types'
 
 export class ContentContain implements MAFConfig {
@@ -12,25 +12,25 @@ export class ContentContain implements MAFConfig {
     placeholder: '',
   }
 
-  get defaultVal(): MAFValueInput {
+  get defaultVal(): MAFValueString {
     return {
-      v: '',
+      s: '',
     }
   }
 
-  prepare(_val: MAFValueInput): MAFMetaDummy {
+  prepare(_val: MAFValueString): MAFMetaDummy {
     return {}
   }
 
-  semantic(val: MAFValueInput, _opt: MAFOptionInput, _meta: MAFMetaDummy, opposite: boolean): string {
-    if (!val.v)
+  semantic(val: MAFValueString, _opt: MAFOptionInput, _meta: MAFMetaDummy, opposite: boolean): string {
+    if (!val.s)
       return ''
-    return `内容${opposite ? '不' : ''}包含【${val.v ?? ''}】`
+    return `内容${opposite ? '不' : ''}包含【${val.s ?? ''}】`
   }
 
-  filter(val: MAFValueInput, _opt: MAFOptionInput, _meta: MAFMetaDummy, marker: API.MarkerVo): boolean {
-    if (!val.v)
+  filter(val: MAFValueString, _opt: MAFOptionInput, _meta: MAFMetaDummy, marker: API.MarkerVo): boolean {
+    if (!val.s)
       return false
-    return (marker.content ?? '').includes(val.v)
+    return (marker.content ?? '').includes(val.s)
   }
 }

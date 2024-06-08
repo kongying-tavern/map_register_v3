@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { toValue } from 'vue'
 import type { Component } from 'vue'
 import {
   ModelContentContain,
@@ -6,6 +7,7 @@ import {
   ModelIdRange,
   ModelImage,
   ModelLinkage,
+  ModelRefreshTime,
   ModelTitleContain,
   ModelUnderground,
   ModelVideo,
@@ -31,15 +33,15 @@ const modelTemplate = computed(() => {
     7: ModelImage,
     8: ModelVideo,
     9: ModelLinkage,
+    10: ModelRefreshTime,
   }[props.condition.id]
 }) as ComputedRef<Component>
 
-const modelOptions = computed<MAFOption>(() => model.value.option)
+const modelOptions = computed<MAFOption>(() => toValue(model.value.option))
 
 const modelValue = defineModel<MAFValue>('modelValue', {
   required: false,
   default: {},
-  type: Object,
 })
 </script>
 
