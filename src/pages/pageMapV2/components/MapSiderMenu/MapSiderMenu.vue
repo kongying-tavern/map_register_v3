@@ -101,7 +101,7 @@ const switchFilterMode = () => {
           </el-icon>
 
           <div
-            class="absolute right-0 bottom-0 -translate-x-[-2px] -translate-y-[-2px] rounded-full text-sm font-bold px-1.5 py-0.2 align-middle leading-snug"
+            class="absolute right-0 bottom-0 -translate-x-[-2px] -translate-y-[-2px] rounded-full text-sm font-bold px-1.5 py-0.2 align-middle leading-snug hover:outline hover:outline-2 hover:outline-gray-200 cursor-pointer"
             :class="[isAdvancedFilter ? 'bg-[#806BA7]' : 'bg-[#68B11E]']"
             @click="switchFilterMode()"
           >
