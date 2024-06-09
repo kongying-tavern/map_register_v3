@@ -135,6 +135,8 @@ declare namespace API {
   interface TileConfig {
     /** 区域代码，用以拼接图片 URL 用，必填 */
     code?: string
+    /** 底图名字，用以使用于地区切换 */
+    name?: string
     /**
      * 继承其他配置，将当前配置与此值表示的配置项合并后的配置作为此项的配置项
      * @note 仅支持一层继承

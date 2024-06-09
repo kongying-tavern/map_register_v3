@@ -1,11 +1,11 @@
 <script lang="ts" setup>
+import { storeToRefs } from 'pinia'
 import { SelectList } from '../SelectList'
-import { FilterIcon } from './FilterIcon'
-import { useMapStateStore } from '@/stores'
 import { GSButton, GSDivider } from '@/components'
+import { usePreferenceStore, useTileStore } from '@/stores'
 
 const emits = defineEmits<{
-  select: [v: number]
+  select: [v?: string]
 }>()
 
 const modelValue = defineModel<boolean>('modelValue', {
@@ -13,21 +13,19 @@ const modelValue = defineModel<boolean>('modelValue', {
   default: false,
 })
 
-const { markerAdvancedFilterConfigs } = useMapStateStore()
+const { preference } = storeToRefs(usePreferenceStore())
+const { currentTileCode, mapTileOptions } = storeToRefs(useTileStore())
 
-const selectedId = ref(0)
+const selectedValue = ref<string>('')
 
-const handleSelect = () => {
-  if (!selectedId.value || selectedId.value <= 0)
-    return
-
-  emits('select', selectedId.value)
-  selectedId.value = 0
+const confirm = () => {
+  preference.value['markerFilter.state.areaCode'] = selectedValue.value
+  emits('select', selectedValue.value)
+  selectedValue.value = ''
   modelValue.value = false
 }
 
-const handleClose = () => {
-  selectedId.value = 0
+const cancel = () => {
   modelValue.value = false
 }
 </script>
@@ -40,26 +38,23 @@ const handleClose = () => {
     append-to-body
     align-center
     width="fit-content"
-    class="custom-dialog hidden-header bg-transparent"
-    @closed="handleClose"
+    class="custom-dialog hidden-header bg-transparent min-w-[400px]"
   >
     <div class="gs-dark-card flex flex-col overflow-hidden genshin-text">
       <div class="text-xl text-center">
-        选择筛选类型
+        选择地图
       </div>
       <GSDivider color="#76716A" />
+
       <el-scrollbar class="flex-1">
         <SelectList
-          v-model="selectedId"
-          class="h-full overflow-auto gap-1 grid grid-cols-2"
-          :list="markerAdvancedFilterConfigs"
-          value-key="id"
+          v-model="selectedValue"
+          :list="mapTileOptions"
+          class="grid grid-cols-2"
+          value-key="code"
         >
-          <template #icon="{ item }">
-            <FilterIcon :id="item.id" class="w-[1rem] h-[1rem] self-center mr-2" />
-          </template>
           <template #default="{ item }">
-            {{ item.name }}
+            {{ item.tile.name }}
           </template>
         </SelectList>
       </el-scrollbar>
@@ -70,17 +65,17 @@ const handleClose = () => {
         <GSButton
           class="flex-1"
           icon="cancel"
-          @click="handleClose"
+          @click="cancel()"
         >
           取消
         </GSButton>
         <GSButton
-          :disabled="!selectedId && selectedId <= 0"
           class="flex-1"
+          :disabled="!selectedValue"
           icon="submit"
-          @click="handleSelect"
+          @click="confirm()"
         >
-          使用
+          切换
         </GSButton>
       </div>
     </div>
@@ -92,10 +87,6 @@ const handleClose = () => {
   padding: 36px 28px;
   background: paint(dark-card-border);
   color: var(--gs-text-color-priamry);
-  width: 500px;
-  height: 600px;
-  max-width: 100dvw;
-  max-height: 100dvh;
   @supports not (background: paint(user-card-border)) {
     background: #3E4556;
     border-radius: 24px;

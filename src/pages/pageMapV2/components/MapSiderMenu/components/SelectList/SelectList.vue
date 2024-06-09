@@ -1,4 +1,6 @@
 <script lang="ts" setup generic="T extends Record<string, any>, LK extends keyof T, V extends T[LK], VV extends V[]">
+import { get } from 'lodash'
+
 const props = defineProps<{
   list: T[]
   valueKey: LK
@@ -23,23 +25,25 @@ const modelMultipleValue = defineModel<VV>('modelMultipleValue', {
 })
 
 const isActived = (targetOpt: T) => !props.multiple
-  ? modelValue.value === targetOpt[props.valueKey]
-  : modelMultipleValue.value.findIndex(value => value === targetOpt[props.valueKey]) > -1
+  ? modelValue.value === get(targetOpt, props.valueKey)
+  : modelMultipleValue.value.findIndex(value => value === get(targetOpt, props.valueKey)) > -1
 
 const patchValue = (patchOpt: T) => {
   // 单选
   if (!props.multiple) {
-    modelValue.value = patchOpt[props.valueKey] !== modelValue.value ? patchOpt[props.valueKey] : null
-    emits('change', patchOpt[props.valueKey] as V)
+    const optValue = get(patchOpt, props.valueKey)
+    modelValue.value = optValue !== modelValue.value ? optValue : null
+    emits('change', optValue as V)
   }
   // 多选
   else {
     const shallowCopyValue = [...modelMultipleValue.value]
-    const findIndex = shallowCopyValue.findIndex(value => value === patchOpt[props.valueKey])
+    const optValue = get(patchOpt, props.valueKey)
+    const findIndex = shallowCopyValue.findIndex(value => value === optValue)
     if (findIndex > -1)
       shallowCopyValue.splice(findIndex, 1)
     else
-      shallowCopyValue.push(patchOpt[props.valueKey])
+      shallowCopyValue.push(optValue)
     modelMultipleValue.value = shallowCopyValue as VV
     emits('multipleChange', shallowCopyValue as VV)
   }
@@ -50,7 +54,7 @@ const patchValue = (patchOpt: T) => {
   <div class="flex flex-col gap-1">
     <div
       v-for="item in list"
-      :key="`${item[valueKey as keyof T]}`"
+      :key="`${get(item, valueKey as keyof T)}`"
       class="condition-row"
       :class="{
         actived: isActived(item),
