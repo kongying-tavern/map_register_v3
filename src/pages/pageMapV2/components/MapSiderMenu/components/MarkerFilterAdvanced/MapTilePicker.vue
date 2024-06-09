@@ -38,7 +38,7 @@ const cancel = () => {
     append-to-body
     align-center
     width="fit-content"
-    class="custom-dialog hidden-header bg-transparent min-w-[400px]"
+    class="custom-dialog hidden-header bg-transparent min-w-[500px]"
   >
     <div class="gs-dark-card flex flex-col overflow-hidden genshin-text">
       <div class="text-xl text-center">
