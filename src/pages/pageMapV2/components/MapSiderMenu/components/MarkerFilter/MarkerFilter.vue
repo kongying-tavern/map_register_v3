@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { storeToRefs } from 'pinia'
-import { Filter as IconFilter, StarFilled as IconStarFilled } from '@element-plus/icons-vue'
 import { MarkerFilterAdvanced } from '../MarkerFilterAdvanced'
 import { MarkerFilterBasic } from '../MarkerFilterBasic'
 import { PresetManager } from '.'
@@ -18,20 +17,6 @@ const conditionManagerVisible = ref(false)
 <template>
   <div class="marker-filter genshin-text h-full flex flex-col">
     <MarkerFilterAdvanced v-if="preference['markerFilter.setting.filterType'] === 'advanced'">
-      <template #prepend>
-        <GSButton
-          class="flex-1"
-          size="small"
-          @click="preference['markerFilter.setting.filterType'] = 'basic'"
-        >
-          <template #icon>
-            <el-icon color="var(--gs-color-success)">
-              <IconFilter />
-            </el-icon>
-          </template>
-          基础筛选
-        </GSButton>
-      </template>
       <template #append>
         <GSButton
           class="flex-1"
@@ -48,20 +33,6 @@ const conditionManagerVisible = ref(false)
       </template>
     </MarkerFilterAdvanced>
     <MarkerFilterBasic v-else>
-      <template #prepend>
-        <GSButton
-          class="flex-1"
-          size="small"
-          @click="preference['markerFilter.setting.filterType'] = 'advanced'"
-        >
-          <template #icon>
-            <el-icon color="var(--gs-color-success)">
-              <IconStarFilled />
-            </el-icon>
-          </template>
-          高级筛选
-        </GSButton>
-      </template>
       <template #append>
         <GSButton
           class="flex-1"

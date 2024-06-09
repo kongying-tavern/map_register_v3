@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { computed } from 'vue'
 import { CoffeeCup, Filter, Grid, List, PieChart, Promotion, Setting } from '@element-plus/icons-vue'
 import { storeToRefs } from 'pinia'
 import type { FeatureOption } from './components'
@@ -70,11 +71,45 @@ const features: FeatureOption[] = [
   { label: '检查预渲染图', icon: Promotion, cb: openTagSpriteImage },
   { label: '预渲染点位图', icon: Promotion, cb: openMarkerSpriteImage },
 ]
+
+/**
+ * --------------------------------------------------
+ * 过滤器相关
+ * --------------------------------------------------
+ */
+const isAdvancedFilter = computed(() => preference.value['markerFilter.setting.filterType'] === 'advanced')
+
+const switchFilterMode = () => {
+  if (isAdvancedFilter.value)
+    preference.value['markerFilter.setting.filterType'] = 'basic'
+  else
+    preference.value['markerFilter.setting.filterType'] = 'advanced'
+}
 </script>
 
 <template>
   <SiderMenu v-model="tabName" v-model:collapse="collapse">
-    <SiderMenuItem name="filter" label="点位筛选" :icon="Filter">
+    <SiderMenuItem name="filter" :label="isAdvancedFilter ? '高级筛选' : '基础筛选'">
+      <template #icon>
+        <div class="w-full h-full overflow-hidden select-none">
+          <el-icon
+            class="left-0 top-0"
+            color="var(--icon-color)"
+            :size="38"
+          >
+            <Filter />
+          </el-icon>
+
+          <div
+            class="absolute right-0 bottom-0 -translate-x-[-2px] -translate-y-[-2px] rounded-full text-sm font-bold px-1.5 py-0.2 align-middle leading-snug"
+            :class="[isAdvancedFilter ? 'bg-[#806BA7]' : 'bg-[#68B11E]']"
+            @click="switchFilterMode()"
+          >
+            {{ isAdvancedFilter ? 'Pro' : 'Base' }}
+          </div>
+        </div>
+      </template>
+
       <MarkerFilter />
     </SiderMenuItem>
 
