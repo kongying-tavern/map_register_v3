@@ -163,13 +163,14 @@ export const useTileStore = defineStore('global-map-tile', () => {
     for (const areaCode in mergedTileConfigs.value) {
       const tileConfig = mergedTileConfigs.value[areaCode]
       const tileName = tileConfig.tile.name
+      const tileCode = tileConfig.tile.code
       if (!tileName)
         continue
-      else if (tileOptions[tileName])
+      else if (tileOptions[tileCode])
         continue
 
       const { tile, initViewState } = tileConfig
-      tileOptions[tileName] = { code: areaCode, tile, initViewState, tags: [] }
+      tileOptions[tileCode] = { code: areaCode, tile, initViewState, tags: [] }
     }
     return Object.entries(tileOptions).map(([_, v]) => v)
   })
