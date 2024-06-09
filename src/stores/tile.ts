@@ -5,6 +5,7 @@ import type { AreaTagTuple } from '@/configs'
 import { AREA_ADDITIONAL_CONFIG_MAP } from '@/configs'
 
 export interface TileInfo extends Required<Pick<API.TileConfig, | 'code'
+| 'name'
 | 'extension'
 | 'tilesOffset'
 | 'size'
@@ -19,6 +20,8 @@ type AreaTagConfigs = Required<(typeof AREA_ADDITIONAL_CONFIG_MAP)[string]>['tag
  * 3. 对于打点工具来说，关注地区信息比关注 tile 信息本身的时候会更多
  */
 export interface AreaTileConfig {
+  /** 地区 code，便于在列表中使用 */
+  code?: string
   /** 地区关联的 tile 的信息，使用对象是为了方便复用 */
   tile: TileInfo
   /** 导航到该地区时的默认视口状态 */
@@ -59,6 +62,7 @@ export const useTileStore = defineStore('global-map-tile', () => {
 
       const {
         code = '',
+        name = '',
         center = [0, 0],
         extension = 'png',
         settings = {},
@@ -78,6 +82,7 @@ export const useTileStore = defineStore('global-map-tile', () => {
         tags,
         tile: {
           code,
+          name,
           center,
           size,
           extension,
@@ -152,6 +157,24 @@ export const useTileStore = defineStore('global-map-tile', () => {
     return levelTagsMap
   })
 
+  /** 地图贴片选项 */
+  const mapTileOptions = computed(() => {
+    const tileOptions: Record<string, AreaTileConfig> = {}
+    for (const areaCode in mergedTileConfigs.value) {
+      const tileConfig = mergedTileConfigs.value[areaCode]
+      const tileName = tileConfig.tile.name
+      const tileCode = tileConfig.tile.code
+      if (!tileName)
+        continue
+      else if (tileOptions[tileCode])
+        continue
+
+      const { tile, initViewState } = tileConfig
+      tileOptions[tileCode] = { code: areaCode, tile, initViewState, tags: [] }
+    }
+    return Object.entries(tileOptions).map(([_, v]) => v)
+  })
+
   /** 将地图坐标转换为点位坐标 */
   const toMarkerCoordinate = ([x, y]: [number, number]) => {
     if (!currentTileConfig.value)
@@ -174,6 +197,7 @@ export const useTileStore = defineStore('global-map-tile', () => {
     currentTileCode,
     visibleTagGroups,
     visibleArea,
+    mapTileOptions,
 
     toMarkerCoordinate,
     toMapCoordinate,

@@ -1,9 +1,10 @@
 <script lang="ts" setup>
 import { storeToRefs } from 'pinia'
-import { DeleteFilled, Plus, QuestionFilled } from '@element-plus/icons-vue'
+import { DeleteFilled, MapLocation, Plus, QuestionFilled } from '@element-plus/icons-vue'
 import { useMarkerFilter } from './hooks'
 import { FilterModel } from './FilterModel'
 import {
+  MapTilePicker,
   ModelItem,
   ModelPicker,
   ModelRow,
@@ -27,21 +28,33 @@ const {
   clearCondition,
 } = useMarkerFilter()
 
-const pickerVisible = ref(false)
+// ------------------------------------------------
+// 地区底图选择器相关
+// ------------------------------------------------
+const mapTilePickerVisible = ref(false)
 
-const pickerGroupIndex = ref(-1)
-
-const openPicker = (groupIndex: number) => {
-  pickerGroupIndex.value = groupIndex
-  pickerVisible.value = true
+const openMapTilePicker = () => {
+  mapTilePickerVisible.value = true
 }
 
-const handlePickerSelected = (id: number) => {
-  if (!Number.isFinite(pickerGroupIndex.value) || pickerGroupIndex.value <= -1)
+// ------------------------------------------------
+// 模型选择器相关
+// ------------------------------------------------
+const modelPickerVisible = ref(false)
+
+const modelPickerGroupIndex = ref(-1)
+
+const openPicker = (groupIndex: number) => {
+  modelPickerGroupIndex.value = groupIndex
+  modelPickerVisible.value = true
+}
+
+const handleModelPickerSelected = (id: number) => {
+  if (!Number.isFinite(modelPickerGroupIndex.value) || modelPickerGroupIndex.value <= -1)
     return
 
-  appendCondition(pickerGroupIndex.value, id)
-  pickerGroupIndex.value = -1
+  appendCondition(modelPickerGroupIndex.value, id)
+  modelPickerGroupIndex.value = -1
 }
 </script>
 
@@ -57,6 +70,17 @@ const handlePickerSelected = (id: number) => {
       </el-tooltip>
     </div>
     <div class="flex-none flex gap-1">
+      <GSButton
+        size="small"
+        @click="openMapTilePicker()"
+      >
+        <template #icon>
+          <el-icon color="var(--gs-color-success)">
+            <MapLocation />
+          </el-icon>
+        </template>
+        地区
+      </GSButton>
       <GSButton
         icon="submit"
         size="small"
@@ -149,8 +173,11 @@ const handlePickerSelected = (id: number) => {
     <slot name="append" />
   </div>
 
+  <MapTilePicker
+    v-model="mapTilePickerVisible"
+  />
   <ModelPicker
-    v-model="pickerVisible"
-    @select="handlePickerSelected"
+    v-model="modelPickerVisible"
+    @select="handleModelPickerSelected"
   />
 </template>

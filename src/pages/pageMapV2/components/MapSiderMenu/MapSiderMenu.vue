@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { defineModel } from 'vue'
 import { CoffeeCup, Filter, Grid, List, PieChart, Promotion, Setting } from '@element-plus/icons-vue'
 import { storeToRefs } from 'pinia'
 import type { FeatureOption } from './components'
