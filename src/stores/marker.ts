@@ -26,7 +26,9 @@ export const useMarkerStore = defineStore('global-marker', () => {
     },
     async (md5) => {
       const buffer = await Api.markerDoc.listPageMarkerByBinary({ md5 }, { responseType: 'arraybuffer' }) as unknown as ArrayBuffer
-      const data = await Zip.decompressAs<API.MarkerVo[]>(new Uint8Array(buffer))
+      const data = await Zip.decompressAs<API.MarkerVo[]>(new Uint8Array(buffer), {
+        name: `marker-${md5}`,
+      })
       return data
     },
   )

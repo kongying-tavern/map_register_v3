@@ -17,9 +17,11 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
       const { data = '' } = await Api.markerLinkDoc.listAllMarkerLinkageBinaryMD5()
       return [data]
     },
-    async () => {
+    async (md5) => {
       const buffer = await Api.markerLinkDoc.listAllMarkerLinkageBinary({ responseType: 'arraybuffer' }) as unknown as ArrayBuffer
-      const data = await Zip.decompressAs<Record<string, API.MarkerLinkageVo[]>>(new Uint8Array(buffer))
+      const data = await Zip.decompressAs<Record<string, API.MarkerLinkageVo[]>>(new Uint8Array(buffer), {
+        name: `markerLink-${md5}`,
+      })
       const arrayData = Object.values(data).flat(1)
       return arrayData
     },

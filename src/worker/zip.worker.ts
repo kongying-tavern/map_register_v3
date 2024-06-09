@@ -8,6 +8,7 @@ declare const globalThis: DedicatedWorkerGlobalScope
 export interface ZipWorkerPayload {
   data: Uint8Array
   wasm: ArrayBuffer
+  name: string
   log?: boolean
 }
 
@@ -15,17 +16,17 @@ export type ZipWorkerMessage = Uint8Array | string
 
 /** 解压文件 */
 const decompressFile = async (options: ZipWorkerPayload): Promise<Uint8Array> => {
-  const { data, wasm, log = false } = options
+  const { data, wasm, name, log = false } = options
 
-  const logger = new Logger('Zip', () => log)
+  const logger = new Logger('·Zip', () => log)
 
   const zip = await SevenZip({
     wasmBinary: wasm,
     stdout: code => logger.stdout.write(String.fromCharCode(code)),
   })
 
-  const tempFilename = 'temp.bin'
-  const extractedFilename = 'temp'
+  const tempFilename = `${name}.bin`
+  logger.info(`正在解压 ${tempFilename}`)
 
   const stream = zip.FS.open(tempFilename, 'w+')
   zip.FS.write(stream, data, 0, data.length)
@@ -33,7 +34,10 @@ const decompressFile = async (options: ZipWorkerPayload): Promise<Uint8Array> =>
 
   // 解压，详细用法见 7-zip 命令行帮助
   zip.callMain(['x', tempFilename, '-y'])
-  const res = zip.FS.readFile(extractedFilename)
+
+  logger.info(`${tempFilename} 解压完毕，文件大小：${zip.FS.stat(name).size}`)
+
+  const res = zip.FS.readFile(name)
 
   return res
 }

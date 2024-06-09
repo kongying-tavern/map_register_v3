@@ -25,7 +25,9 @@ export const useDadianStore = defineStore('global-dadian-json', () => {
         return
       }
 
-      const newConfig = await Zip.decompressAs<API.DadianJSON>(new Uint8Array(dadianConfigFile))
+      const newConfig = await Zip.decompressAs<API.DadianJSON>(new Uint8Array(dadianConfigFile), {
+        name: 'dadian',
+      })
       raw.value = newConfig
 
       await db.cache.put({

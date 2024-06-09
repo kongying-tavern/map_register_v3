@@ -24,9 +24,11 @@ export const useItemStore = defineStore('global-item', () => {
       const { data = '' } = await Api.itemDoc.listAllItemBinaryMd5()
       return [data]
     },
-    async () => {
+    async (md5) => {
       const buffer = await Api.itemDoc.listAllItemBinary({ responseType: 'arraybuffer' }) as unknown as ArrayBuffer
-      const data = Zip.decompressAs<API.ItemVo[]>(new Uint8Array(buffer))
+      const data = Zip.decompressAs<API.ItemVo[]>(new Uint8Array(buffer), {
+        name: `item-${md5}`,
+      })
       return data
     },
   )
