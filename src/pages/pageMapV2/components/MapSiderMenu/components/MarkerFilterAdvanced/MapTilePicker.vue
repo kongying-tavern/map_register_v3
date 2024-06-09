@@ -14,9 +14,14 @@ const modelValue = defineModel<boolean>('modelValue', {
 })
 
 const { preference } = storeToRefs(usePreferenceStore())
-const { mapTileOptions } = storeToRefs(useTileStore())
+const { currentTileCode, mapTileOptions } = storeToRefs(useTileStore())
 
 const selectedValue = ref<string>('')
+
+const open = () => {
+  const currentTileOption = mapTileOptions.value.find(v => v.tile.code === currentTileCode.value)
+  selectedValue.value = currentTileOption?.code ?? ''
+}
 
 const confirm = () => {
   preference.value['markerFilter.state.areaCode'] = selectedValue.value
@@ -26,6 +31,7 @@ const confirm = () => {
 }
 
 const cancel = () => {
+  selectedValue.value = ''
   modelValue.value = false
 }
 </script>
@@ -39,6 +45,7 @@ const cancel = () => {
     align-center
     width="fit-content"
     class="custom-dialog hidden-header bg-transparent min-w-[500px]"
+    @open="open()"
   >
     <div class="gs-dark-card flex flex-col overflow-hidden genshin-text">
       <div class="text-xl text-center">
