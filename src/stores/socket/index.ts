@@ -29,7 +29,7 @@ export const useSocketStore = defineStore('global-web-socket', () => {
     return ElNotification(...options)
   }
 
-  const { onMessage, connect: _connect, ...rest } = useSocket<API.WSData, API.WSSentData>({
+  const { onMessage, connect: _connect, close: _close, ...rest } = useSocket<API.WSData, API.WSSentData>({
     logger,
     pingInterval: 5000,
     pingMessage: {
@@ -45,7 +45,11 @@ export const useSocketStore = defineStore('global-web-socket', () => {
 
   const _userId = ref<number>()
 
-  const connect = async (userId: number) => {
+  const connect = async (userId?: number) => {
+    if (userId === undefined) {
+      _close()
+      return
+    }
     const url = `${import.meta.env.VITE_WS_BASE}/${userId}`
     await _connect(url)
     _userId.value = userId
@@ -63,6 +67,7 @@ export const useSocketStore = defineStore('global-web-socket', () => {
     userId: _userId as Readonly<Ref<number | undefined>>,
     notice,
     connect,
+    close: _close,
     ...rest,
   }
 })
