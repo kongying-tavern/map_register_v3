@@ -104,6 +104,8 @@ export const useMarkerFilter = () => {
   const deleteConditionGroup = (groupIndex: number) => {
     if (preference.value['markerFilter.filter.advancedFilterCache'][groupIndex])
       preference.value['markerFilter.filter.advancedFilterCache'].splice(groupIndex, 1)
+    if (preference.value['markerFilter.filter.advancedFilterCache'].length <= 0)
+      appendConditionGroup()
   }
 
   const appendCondition = (groupIndex: number, id: number = 0) => {
