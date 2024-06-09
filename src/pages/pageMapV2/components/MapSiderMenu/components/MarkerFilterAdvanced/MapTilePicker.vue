@@ -14,7 +14,7 @@ const modelValue = defineModel<boolean>('modelValue', {
 })
 
 const { preference } = storeToRefs(usePreferenceStore())
-const { currentTileCode, mapTileOptions } = storeToRefs(useTileStore())
+const { mapTileOptions } = storeToRefs(useTileStore())
 
 const selectedValue = ref<string>('')
 
