@@ -1,4 +1,4 @@
-import type { Dexie } from 'dexie'
+import type { Dexie, IndexableType } from 'dexie'
 import type { Awaitable } from '@vueuse/core'
 import { get } from 'lodash'
 import { useFetchHook } from '@/hooks'
@@ -98,27 +98,46 @@ export const useBackendUpdate = <T, Key>(
       let deleteCount = 0
       let updateCount = 0
 
-      // 3. 要删除的摘要组
-      for (const { code, range } of oldDigestList.filter(({ code }) => !newDigestCodeSet.has(code))) {
-        await db.transaction('rw', table as Dexie.Table, db.digest, async () => {
-          deleteCount += await table.where(src).inAnyRange([range], { includeUppers: true }).delete()
-          await db.digest.where('tableName').equals(table.name).and(({ code: oldCode }) => oldCode === code).delete()
-        })
-      }
+      // 3. 计算要更新的摘要组
+      const dataForUpdating: T[] = []
+      const digestForUpdating: DBType.DigestInfo[] = []
 
-      // 4. 要更新的摘要组
-      for (const code of digestCodeList.filter(oldDigest => !oldDigestCodeSet.has(oldDigest))) {
-        const data = await getData(code)
-        updateCount += data.length
-        await db.transaction('rw', table as Dexie.Table, db.digest, async () => {
-          await table.bulkPut(data)
-          await db.digest.put({
+      for await (const code of digestCodeList.filter(oldDigest => !oldDigestCodeSet.has(oldDigest))) {
+        try {
+          const data = await getData(code)
+          updateCount += data.length
+          dataForUpdating.push(...data)
+          digestForUpdating.push({
             code,
             range: getRangeOfList(data),
             tableName: table.name,
           })
+        }
+        catch (err) {
+          throw new Error(`Get data error: ${err instanceof Error ? err.message : `${err}`}`)
+        }
+      }
+
+      // 4. 计算要删除的摘要组
+      const dataKeyForDelete: IndexableType[] = []
+      const digestCodeForDelete: string[] = []
+
+      for (const { code, range } of oldDigestList.filter(({ code }) => !newDigestCodeSet.has(code))) {
+        table.where(src).inAnyRange([range], { includeUppers: true }).eachKey((key) => {
+          dataKeyForDelete.push(key)
+          deleteCount++
+        })
+        db.digest.where('tableName').equals(table.name).and(({ code: oldCode }) => oldCode === code).each((digest) => {
+          digestCodeForDelete.push(digest.code)
         })
       }
+
+      await db.transaction('rw', table as Dexie.Table, db.digest, async () => {
+        await table.where(src).anyOf(dataKeyForDelete).delete()
+        await db.digest.where('code').anyOf(digestCodeForDelete).delete()
+        await table.bulkPut(dataForUpdating)
+        await db.digest.bulkPut(digestForUpdating)
+      })
 
       return {
         deleteCount,
