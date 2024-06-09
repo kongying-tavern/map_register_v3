@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ArrowDown, CirclePlus, Filter, Search, Sort } from '@element-plus/icons-vue'
+import ListSorter from './ListSorter.vue'
 import type { PaginationState } from '@/hooks'
 import { NOTICE_NAME_MAP } from '@/shared'
 
@@ -22,6 +23,15 @@ const resetCurrentAndChange = () => {
 }
 
 const options = [...NOTICE_NAME_MAP.entries()]
+
+const sortableKeyOptions: { label: string; key: string }[] = [
+  { label: '标题', key: 'title' },
+  { label: '有效性', key: 'isValid' },
+  { label: '有效起始时间', key: 'validTimeStart' },
+  { label: '有效截止时间', key: 'validTimeEnd' },
+  { label: '更新时间', key: 'updateTime' },
+  { label: '排序权重', key: 'sortIndex' },
+]
 </script>
 
 <template>
@@ -89,7 +99,7 @@ const options = [...NOTICE_NAME_MAP.entries()]
 
     <el-divider direction="vertical" />
 
-    <el-dropdown>
+    <el-dropdown trigger="click">
       <template #default>
         <el-button text :icon="Sort">
           排序
@@ -100,11 +110,11 @@ const options = [...NOTICE_NAME_MAP.entries()]
       </template>
 
       <template #dropdown>
-        <el-dropdown-menu>
-          <el-dropdown-item>
-            开发中
-          </el-dropdown-item>
-        </el-dropdown-menu>
+        <ListSorter
+          v-model="filterParams.sort"
+          :options="sortableKeyOptions"
+          @change="resetCurrentAndChange"
+        />
       </template>
     </el-dropdown>
 
