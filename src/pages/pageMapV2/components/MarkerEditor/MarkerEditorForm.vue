@@ -56,8 +56,8 @@ const rules: FormRules = {
       trigger: 'change',
     },
     {
-      validator: (_, items: API.MarkerItemLinkVo[] = []) => items.every(({ count = 0 }) => !Number.isNaN(count) && (count > 0)),
-      message: '物品数量不能为 0',
+      validator: (_, items: API.MarkerItemLinkVo[] = []) => items.every(({ count = 0 }) => !Number.isNaN(count)),
+      message: '必须是一个合法的数字',
       trigger: 'change',
     },
     isTreasureChestMatched(),
