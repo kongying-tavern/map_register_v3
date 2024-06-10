@@ -30,9 +30,14 @@ export const createWorkerHelper = <Input, Output>(worker: Worker, options: Worke
     }
 
     loggerChannel.port1.onmessage = ({ data }: MessageEvent<LogInfo>) => {
-      Logger.isInit
-        ? Logger.logsCache.push(data)
-        : Logger.event.emit('log', data)
+      if (Logger.isInit) {
+        Logger.event.emit('register', data.label)
+        Logger.event.emit('log', data)
+      }
+      else {
+        Logger.loggerLabelsCache.add(data.label)
+        Logger.logsCache.push(data)
+      }
     }
 
     worker.postMessage(payload, [mainChannel.port2, loggerChannel.port2, ...transfer])

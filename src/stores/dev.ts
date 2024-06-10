@@ -39,6 +39,8 @@ export const useDevStore = defineStore('global-dev', () => {
   })
 
   const registerLogger = (label: string) => {
+    if (loggerLabels.value.has(label))
+      return
     loggerLabels.value.add(label)
   }
 
