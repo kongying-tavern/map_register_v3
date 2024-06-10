@@ -58,6 +58,18 @@ export interface MAFValueString extends MAFValue {
   s: string
 }
 
+export interface MAFValueStringArray extends MAFValue {
+  sa: string[]
+}
+
+export interface MAFValueNumber extends MAFValue {
+  n: number | null
+}
+
+export interface MAFValueNumberArray extends MAFValue {
+  na: number[]
+}
+
 export interface MAFValueNumberRange extends MAFValue {
   nMin: number | null
   nMax: number | null

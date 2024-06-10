@@ -11,5 +11,6 @@ export { default as ModelImage } from './ModelImage.vue'
 export { default as ModelVideo } from './ModelVideo.vue'
 export { default as ModelLinkage } from './ModelLinkage.vue'
 export { default as ModelRefreshTime } from './ModelRefreshTime.vue'
+export { default as ModelVisibility } from './ModelVisibility.vue'
 
 export { default as FilterModel } from './FilterModel.vue'
