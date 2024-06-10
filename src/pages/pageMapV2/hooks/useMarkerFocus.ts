@@ -1,15 +1,10 @@
-import db from '@/database'
 import { useAreaStore, useItemStore, useMapStateStore, usePreferenceStore, useTileStore } from '@/stores'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
 import { createRenderMarkers } from '@/stores/utils'
-import { useDatabaseHook } from '@/hooks'
-import { Logger, messageFrom } from '@/utils'
 import { EaseoutInterpolator } from '@/pages/pageMapV2/core/interpolator'
 
 /** 点位 focus 状态管理 hook */
 export const _useMarkerFocus = () => {
-  const logger = new Logger('markerFocusHook')
-
   const preferenceStore = usePreferenceStore()
   const mapStateStore = useMapStateStore()
   const areaStore = useAreaStore()
@@ -50,27 +45,6 @@ export const _useMarkerFocus = () => {
   }
 
   const updateLoading = ref(false)
-
-  // 数据库更新时刷新 focus 缓存
-  useDatabaseHook(db.marker, async () => {
-    try {
-      if (!isPopoverActived.value || !focus.value)
-        return
-      updateLoading.value = true
-      const query = await db.marker.get(focus.value.id!)
-      if (!query) {
-        updateFocus(null)
-        return
-      }
-      updateFocus(normalizeMarker(query))
-    }
-    catch (err) {
-      logger.error(messageFrom(err))
-    }
-    finally {
-      updateLoading.value = false
-    }
-  }, ['creating', 'updating', 'deleting'])
 
   const delayTimer = ref<number>()
 
@@ -145,6 +119,7 @@ export const _useMarkerFocus = () => {
     updateLoading,
     normalizeMarker,
     focusMarker,
+    updateFocus,
     blur,
     hoverMarker,
     out,

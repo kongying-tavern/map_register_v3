@@ -15,7 +15,7 @@ const accessStore = useAccessStore()
 const mapStateStore = useMapStateStore()
 const { tagSpriteUrl, tagPositionMap } = storeToRefs(useIconTagStore())
 
-const { cachedMarkerVo, isPopoverActived, focus, updateLoading, blur } = useMarkerFocus()
+const { cachedMarkerVo, isPopoverActived, focus, blur } = useMarkerFocus()
 
 const { pictureUrl, loading: imageLoading } = useSkeletonPicture(cachedMarkerVo)
 
@@ -134,7 +134,7 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
             v-if="accessStore.get('MARKER_EDIT')"
             size="small"
             theme="dark"
-            :disabled="updateLoading || hasMapMission"
+            :disabled="hasMapMission"
             @click="openMarkerEditor"
           >
             <template #icon>
@@ -147,7 +147,6 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
 
           <GSButton
             :theme="isFinished ? undefined : 'dark'"
-            :disabled="updateLoading"
             class="flex-1" size="small"
             @click="isFinished = !isFinished"
           >
@@ -156,14 +155,14 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
                 <component :is="isFinished ? Check : CirclePlus" />
               </el-icon>
             </template>
-            {{ updateLoading ? '更新中' : isFinished ? '已完成' : '完成' }}
+            {{ isFinished ? '已完成' : '完成' }}
           </GSButton>
 
           <GSButton
             v-if="accessStore.get('MARKER_EDIT')"
             :theme="isMoving ? undefined : 'dark'"
             size="small"
-            :disabled="!isEnable || updateLoading"
+            :disabled="!isEnable"
             title="移动点位"
             @click="isMoving = !isMoving"
           >
@@ -179,7 +178,7 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
             size="small"
             theme="dark"
             title="删除点位"
-            :disabled="updateLoading || hasMapMission"
+            :disabled="hasMapMission"
             @click="() => confirmDeleteMarker(cachedMarkerVo)"
           >
             <template #icon>
