@@ -38,28 +38,28 @@ export class RefreshTime implements MAFConfig {
     return {}
   }
 
-  semantic(val: MAFValueNumberRange, _opt: OptionType, _meta: MAFMetaDummy, _opposite: boolean): string {
+  semantic(val: MAFValueNumberRange, _opt: OptionType, _meta: MAFMetaDummy, opposite: boolean): string {
     const { refreshTimeTypeNameMap } = useRefreshTimeOptions()
 
     if (!Number.isFinite(val.nMin) && !Number.isFinite(val.nMax)) {
-      return '不限刷新时间'
+      return opposite ? '无刷新时间' : '不限刷新时间'
     }
     else if (Number.isFinite(val.nMin) && Number.isFinite(val.nMax)) {
       if (val.nMin === val.nMax) {
         if (Number(val.nMin) <= 0)
-          return `刷新时间【${refreshTimeTypeNameMap.value[val.nMin ?? '']}】`
+          return `刷新时间${opposite ? '非' : ''}【${refreshTimeTypeNameMap.value[val.nMin ?? '']}】`
         else
-          return `刷新时间【${val.nMin}小时】`
+          return `刷新时间${opposite ? '非' : ''}【${val.nMin}小时】`
       }
       else {
-        return `刷新时间【${val.nMin}~${val.nMax}小时】`
+        return `刷新时间${opposite ? '非' : ''}【${val.nMin}~${val.nMax}小时】`
       }
     }
     else if (Number.isFinite(val.nMin) && !Number.isFinite(val.nMax)) {
-      return `刷新时间【≥${val.nMin}小时】`
+      return `刷新时间【${opposite ? '＜' : '≥'}${val.nMin}小时】`
     }
     else if (!Number.isFinite(val.nMin) && Number.isFinite(val.nMax)) {
-      return `刷新时间【≤${val.nMax}小时】`
+      return `刷新时间【${opposite ? '＞' : '≤'}${val.nMax}小时】`
     }
     return ''
   }
