@@ -17,7 +17,7 @@ import { Logger } from '@/utils'
 import { useArchiveStore, useIconTagStore, useMapStateStore, useOverlayStore, usePreferenceStore, useTileStore } from '@/stores'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
 
-const logger = new Logger('图层组', () => !usePreferenceStore().preference['developer.setting.hideCompositeLayerLogger'])
+const logger = new Logger('图层组')
 
 // eslint-disable-next-line ts/no-explicit-any
 interface StrategyOptions<D = any, T = any> {

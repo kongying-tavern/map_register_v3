@@ -22,7 +22,7 @@ import { ExitLeft } from '@/components/GenshinUI/GSIcon'
 
 const collapse = defineModel<boolean>('collapse', { required: true })
 
-const logger = new Logger('debug')
+const logger = new Logger('侧边栏')
 
 const accessStore = useAccessStore()
 const iconTagStore = useIconTagStore()

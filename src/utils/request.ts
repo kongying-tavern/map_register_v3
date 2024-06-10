@@ -5,7 +5,7 @@ import { upperFirst } from 'lodash'
 import { useUserAuthStore } from '@/stores'
 import { Logger } from '@/utils'
 
-const logger = new Logger('axios')
+const logger = new Logger('Axios')
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE,

@@ -1,10 +1,9 @@
 import type { Plugin } from 'vue'
 import { Logger } from '@/utils'
-import { usePreferenceStore } from '@/stores'
 
-const logger = new Logger('SW-main')
+const logger = new Logger('服务线程注册器')
 
-const swLogger = new Logger('SW-worker', () => !usePreferenceStore().preference['developer.setting.hideServiceWorkerLogger'])
+const swLogger = new Logger('服务线程')
 
 export type ServiceWorkerOutput = {
   action: 'log'
@@ -16,7 +15,7 @@ export type ServiceWorkerOutput = {
 
 const ensureServiceWorker = async () => {
   if (!('serviceWorker' in navigator))
-    throw new Error('浏览器不支持 Service Worker 或网站没有运行于安全上下文 (HTTPS、localhost) 中')
+    throw new Error('浏览器不支持 Service Worker')
 
   navigator.serviceWorker.addEventListener('message', (ev: MessageEvent<ServiceWorkerOutput>) => {
     if (ev.data.action !== 'log')
