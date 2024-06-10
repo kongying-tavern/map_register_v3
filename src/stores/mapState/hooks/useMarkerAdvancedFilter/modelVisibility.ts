@@ -33,11 +33,21 @@ export class Visibility implements MAFConfig {
     return {}
   }
 
-  semantic(_val: MAFValueNumberArray, _opt: MAFOptionSelect<OptionType>, _meta: MAFMetaDummy, _opposite: boolean): string {
-    return ''
+  semantic(val: MAFValueNumberArray, _opt: MAFOptionSelect<OptionType>, _meta: MAFMetaDummy, opposite: boolean): string {
+    const { hiddenFlagNameMap } = useHiddenFlagOptions()
+    if (!val.na || val.na.length <= 0) {
+      return opposite ? '不限可见范围' : '无可见范围'
+    }
+    else {
+      const tag: string = (val.na ?? [])
+        .map(v => hiddenFlagNameMap.value[v ?? ''])
+        .filter(v => v)
+        .join(',')
+      return `可见范围${opposite ? '不为' : '为'}【${tag}】`
+    }
   }
 
-  filter(_val: MAFValueNumberArray, _opt: MAFOptionSelect<OptionType>, _meta: MAFMetaDummy, _marker: API.MarkerVo): boolean {
-    return false
+  filter(val: MAFValueNumberArray, _opt: MAFOptionSelect<OptionType>, _meta: MAFMetaDummy, marker: API.MarkerVo): boolean {
+    return (val.na ?? []).includes(marker.hiddenFlag!)
   }
 }
