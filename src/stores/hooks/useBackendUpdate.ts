@@ -10,7 +10,7 @@ import { Logger } from '@/utils'
 /** 默认更新间隔 30 分钟 */
 const DEFAULT_UPDATE_GAP = 30 * 60 * 1000
 
-const logger = new Logger('后台更新', () => !usePreferenceStore().preference['developer.setting.hideDatabaseUpdaterLogger'])
+const logger = new Logger('后台更新')
 
 /** 判断是否为对象数组 */
 const isObjectArray = (v: unknown[]): v is Record<string, unknown>[] => {
@@ -171,6 +171,8 @@ export const useBackendUpdate = <T, Key>(
   })
 
   onSuccess(({ deleteCount, updateCount }) => {
+    if (!deleteCount || !updateCount)
+      return
     logger.info(`表 ${table.name} 删除了 ${deleteCount} 项，更新了 ${updateCount} 项。`)
   })
 
