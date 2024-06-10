@@ -56,7 +56,7 @@ const initLogInfo = (args: unknown[]) => {
     <SettingGroup name="日志">
       <div class="logger-list">
         <AppVirtualTable
-          :data="devStore.logList"
+          :data="devStore.visibleLogList"
           :item-height="24"
           :cached-rows="2"
           class="logger-list-content"
@@ -83,7 +83,11 @@ const initLogInfo = (args: unknown[]) => {
         </AppVirtualTable>
       </div>
 
-      <div class="flex justify-end">
+      <div class="flex justify-end items-center">
+        <el-text size="small">
+          {{ `${devStore.visibleLogList.length} / ${devStore.logList.length}` }} 次记录
+        </el-text>
+        <el-divider direction="vertical" style="height: 24px" />
         <el-button :icon="Delete" type="danger" @click="devStore.clearLogs">
           清空
         </el-button>
@@ -91,26 +95,17 @@ const initLogInfo = (args: unknown[]) => {
 
       <SettingBar label="日志可见性" note="控制日志是否在面板上输出" :icon="Setting">
         <template #detail>
-          <div class="grid grid-cols-3">
-            <el-switch
-              v-model="preference['developer.setting.hideServiceWorkerLogger']"
-              :active-value="false"
-              :inactive-value="true"
-              active-text="Service Worker"
-            />
-            <el-switch
-              v-model="preference['developer.setting.hideDatabaseUpdaterLogger']"
-              :active-value="false"
-              :inactive-value="true"
-              active-text="后台更新"
-            />
-            <el-switch
-              v-model="preference['developer.setting.hideCompositeLayerLogger']"
-              :active-value="false"
-              :inactive-value="true"
-              active-text="图层组"
-            />
-          </div>
+          <el-checkbox-group v-model="preference['developer.setting.enableLoggers']" @change="devStore.refreshLogs">
+            <div class="grid grid-cols-4">
+              <el-checkbox
+                v-for="label in devStore.loggerLabels"
+                :key="label"
+                :value="label"
+              >
+                {{ label }}
+              </el-checkbox>
+            </div>
+          </el-checkbox-group>
         </template>
       </SettingBar>
     </SettingGroup>
@@ -128,7 +123,7 @@ const initLogInfo = (args: unknown[]) => {
 <style scoped>
 .logger-list {
   width: 100%;
-  height: 168px;
+  height: 240px;
   overflow: hidden;
   background: #23262A;
   color: white;

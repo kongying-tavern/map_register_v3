@@ -116,14 +116,11 @@ export interface UserPreference {
 
   // ====================      开发者      ====================
 
-  /** 是否隐藏 service worker 缓存 logger  */
-  'developer.setting.hideServiceWorkerLogger'?: boolean
-
-  /** 是否隐藏数据库自动更新 logger */
-  'developer.setting.hideDatabaseUpdaterLogger'?: boolean
-
-  /** 是否隐藏图层组的 logger */
-  'developer.setting.hideCompositeLayerLogger'?: boolean
+  /**
+   * 可见日志
+   * @note 此项设置的 undefined 值作为第三种状态被使用，请勿初始化
+   */
+  'developer.setting.enableLoggers'?: string[]
 }
 
 export const getDefaultPreference = (): UserPreference => ({
