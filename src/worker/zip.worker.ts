@@ -1,24 +1,25 @@
 import SevenZip from '7z-wasm'
-import { Logger } from '@/utils/logger'
+import type { Logger } from '@/utils/logger'
+import { formatByteSize } from '@/utils/formatByteSize'
+import { useLoggerWorker } from '@/hooks/useWorkerLogger'
 
 export {}
 
 declare const globalThis: DedicatedWorkerGlobalScope
 
-export interface ZipWorkerPayload {
+export interface WorkerInput {
   data: Uint8Array
   wasm: ArrayBuffer
   name: string
-  log?: boolean
 }
 
-export type ZipWorkerMessage = Uint8Array | string
+export type WorkerSuccessOutput = Uint8Array | string
+
+export type WorkerOutput = Uint8Array | string
 
 /** 解压文件 */
-const decompressFile = async (options: ZipWorkerPayload): Promise<Uint8Array> => {
-  const { data, wasm, name, log = false } = options
-
-  const logger = new Logger('·Zip', () => log)
+const decompressFile = async (options: WorkerInput, logger: Logger): Promise<Uint8Array> => {
+  const { data, wasm, name } = options
 
   const zip = await SevenZip({
     wasmBinary: wasm,
@@ -27,7 +28,6 @@ const decompressFile = async (options: ZipWorkerPayload): Promise<Uint8Array> =>
 
   const tempFilename = `${name}.bin`
   logger.info(`正在解压 ${tempFilename}`)
-
   const stream = zip.FS.open(tempFilename, 'w+')
   zip.FS.write(stream, data, 0, data.length)
   zip.FS.close(stream)
@@ -35,20 +35,22 @@ const decompressFile = async (options: ZipWorkerPayload): Promise<Uint8Array> =>
   // 解压，详细用法见 7-zip 命令行帮助
   zip.callMain(['x', tempFilename, '-y'])
 
-  logger.info(`${tempFilename} 解压完毕，文件大小：${zip.FS.stat(name).size}`)
+  logger.info(`${tempFilename} 解压完毕，文件大小：${formatByteSize(zip.FS.stat(name).size, { binary: true })}`)
 
   const res = zip.FS.readFile(name)
 
   return res
 }
 
-/** 消息处理 */
-globalThis.addEventListener('message', async (ev: MessageEvent<ZipWorkerPayload>) => {
+globalThis.addEventListener('message', async (ev: MessageEvent<WorkerInput>) => {
+  const { send, logger } = useLoggerWorker<WorkerInput, WorkerOutput>(ev, 'Zip')
+
   try {
-    const extractFile = await decompressFile(ev.data)
-    globalThis.postMessage(extractFile as ZipWorkerMessage, [extractFile.buffer])
+    const res = await decompressFile(ev.data, logger)
+    send(res, [res.buffer])
   }
   catch (err) {
-    globalThis.postMessage((err as Error).message as ZipWorkerMessage)
+    logger.error(err instanceof Error ? err.message : `${err}`)
+    send(err instanceof Error ? err.message : `${err}`)
   }
 })

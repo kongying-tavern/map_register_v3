@@ -1,7 +1,8 @@
 import type { IconMapping } from '@deck.gl/layers/typed/icon-layer/icon-manager'
-import { Logger } from '@/utils/logger'
+import type { Logger } from '@/utils/logger'
 import { AppDatabase } from '@/database'
 import { getDigest } from '@/utils/getDigest'
+import { useLoggerWorker } from '@/hooks/useWorkerLogger'
 
 const db = new AppDatabase()
 
@@ -374,17 +375,14 @@ const render = async (options: WorkerInput, logger: Logger): Promise<WorkerSucce
 }
 
 globalThis.addEventListener('message', async (ev: MessageEvent<WorkerInput>) => {
-  const [mainPort, loggerPort] = ev.ports
-  const logger = new Logger('点位渲染', () => true, {
-    port: loggerPort,
-  })
+  const { send, logger } = useLoggerWorker<WorkerInput, WorkerOutput>(ev, '点位渲染')
 
   try {
     const res = await render(ev.data, logger)
-    mainPort.postMessage(res, [res.image])
+    send(res, [res.image])
   }
   catch (err) {
     logger.error(err instanceof Error ? err.message : `${err}`)
-    mainPort.postMessage(err instanceof Error ? err.message : `${err}`)
+    send(err instanceof Error ? err.message : `${err}`)
   }
 })

@@ -1,8 +1,9 @@
 import { getObjectFitSize } from '@/utils/getObjectFitSize'
 import { limitPromiseAll } from '@/utils/limitPromiseAll'
-import { Logger } from '@/utils/logger'
+import type { Logger } from '@/utils/logger'
 import { getDigest } from '@/utils/getDigest'
 import { AppDatabase } from '@/database'
+import { useLoggerWorker } from '@/hooks/useWorkerLogger'
 
 const db = new AppDatabase()
 
@@ -150,16 +151,14 @@ const render = async (params: WorkerInput, logger: Logger): Promise<WorkerSucces
 }
 
 globalThis.addEventListener('message', async (ev: MessageEvent<WorkerInput>) => {
-  const [mainPort, loggerPort] = ev.ports
-  const logger = new Logger('图标渲染', () => true, {
-    port: loggerPort,
-  })
+  const { send, logger } = useLoggerWorker<WorkerInput, WorkerOutput>(ev, '图标渲染')
 
   try {
-    const result = await render(ev.data, logger)
-    mainPort.postMessage(result, [result.image])
+    const res = await render(ev.data, logger)
+    send(res, [res.image])
   }
   catch (err) {
-    mainPort.postMessage(err instanceof Error ? err.message : `${err}`)
+    logger.error(err instanceof Error ? err.message : `${err}`)
+    send(err instanceof Error ? err.message : `${err}`)
   }
 })
