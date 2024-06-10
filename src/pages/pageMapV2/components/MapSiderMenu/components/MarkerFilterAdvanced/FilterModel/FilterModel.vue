@@ -11,6 +11,7 @@ import {
   ModelTitleContain,
   ModelUnderground,
   ModelVideo,
+  ModelVisibility,
 } from '.'
 import { useMapStateStore } from '@/stores'
 import type { MAFItem, MAFOption, MAFValue } from '@/stores/types'
@@ -34,6 +35,7 @@ const modelTemplate = computed(() => {
     8: ModelVideo,
     9: ModelLinkage,
     10: ModelRefreshTime,
+    11: ModelVisibility,
   }[props.condition.id]
 }) as ComputedRef<Component>
 

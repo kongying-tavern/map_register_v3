@@ -58,6 +58,18 @@ export interface MAFValueString extends MAFValue {
   s: string
 }
 
+export interface MAFValueStringArray extends MAFValue {
+  sa: string[]
+}
+
+export interface MAFValueNumber extends MAFValue {
+  n: number | null
+}
+
+export interface MAFValueNumberArray extends MAFValue {
+  na: number[]
+}
+
 export interface MAFValueNumberRange extends MAFValue {
   nMin: number | null
   nMax: number | null
@@ -81,6 +93,7 @@ export interface MAFOptionSelect<T> extends MAFOption {
   dialogTitle?: string
   dialogListClass?: string
   options: T[]
+  optionSelectMultiple?: boolean
   optionLabel: keyof T
   optionValue: keyof T
 }

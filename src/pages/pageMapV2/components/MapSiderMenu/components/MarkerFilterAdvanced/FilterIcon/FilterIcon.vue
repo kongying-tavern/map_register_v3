@@ -2,6 +2,7 @@
 import {
   IconDocument,
   IconDocumentRegex,
+  IconEye,
   IconImage,
   IconLayers,
   IconLink,
@@ -26,6 +27,7 @@ const iconComponent = computed(() => {
     8: IconVideoPlay,
     9: IconLink,
     10: IconTimer,
+    11: IconEye,
   }[props.id]
 }) as ComputedRef<Component>
 </script>

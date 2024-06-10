@@ -73,6 +73,7 @@ const handleDeleteItem = () => {
     </MarkerFilterButton>
   </div>
   <slot />
+
   <div class="flex-none flex gap-1 items-center">
     <MarkerFilterButton
       v-if="withMoveUp && !isFirst"

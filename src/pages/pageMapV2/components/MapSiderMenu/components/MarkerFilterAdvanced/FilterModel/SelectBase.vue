@@ -8,7 +8,7 @@ defineProps<{
   options: MAFOptionSelect<{ [key: string]: string | number }>
 }>()
 
-const modelValue = defineModel<ValueType>('modelValue', {
+const modelValue = defineModel<ValueType | ValueType[]>('modelValue', {
   required: true,
   default: null,
 })
@@ -16,7 +16,9 @@ const modelValue = defineModel<ValueType>('modelValue', {
 
 <template>
   <MarkerFilterSelect
-    v-model="modelValue"
+    v-model:model-value="modelValue"
+    v-model:multiple-value="modelValue"
+    :multiple="options.optionSelectMultiple"
     :list="options.options"
     :label-key="options.optionLabel"
     :value-key="options.optionValue"
