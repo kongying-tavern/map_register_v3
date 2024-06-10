@@ -1,6 +1,7 @@
 import SevenZipWASM from '7z-wasm/7zz.wasm?url'
+import { createWorkerHelper } from '.'
 import ZipWorker from '@/worker/zip.worker?worker'
-import type { ZipWorkerMessage, ZipWorkerPayload } from '@/worker/zip.worker'
+import type { WorkerInput } from '@/worker/zip.worker'
 
 /** 7-zip 包装类 */
 export class Zip {
@@ -13,29 +14,20 @@ export class Zip {
   static decompress = async (file: Uint8Array, name = 'temp') => {
     const wasm = await this.#zipWasmBinary
 
-    return new Promise<Uint8Array>((resolve, reject) => {
-      const worker = new ZipWorker()
+    const copyZipWasm = wasm.slice(0)
 
-      const copyZipWasm = wasm.slice(0)
-
-      worker.postMessage({
-        data: file,
-        name,
-        log: true,
-        wasm: copyZipWasm,
-      } as ZipWorkerPayload, [file.buffer, copyZipWasm])
-
-      worker.onmessage = (ev: MessageEvent<ZipWorkerMessage>) => {
-        const { data } = ev
-
-        worker.terminate()
-
-        if (typeof data === 'string')
-          return reject(new Error(data))
-
-        resolve(data)
-      }
+    const send = createWorkerHelper<WorkerInput, Uint8Array>(new ZipWorker(), {
+      label: 'Zip',
+      autoTerminate: true,
     })
+
+    const decompressedData = await send({
+      data: file,
+      name,
+      wasm: copyZipWasm,
+    }, [file.buffer, copyZipWasm])
+
+    return decompressedData
   }
 
   /**
