@@ -1,8 +1,5 @@
 import { EventBus } from '@/utils/EventBus'
 
-/* eslint-disable no-console */
-const isDebug = import.meta.env.DEV
-
 export interface LoggerOptions {
   dateTimeColor?: string
   labelBackground?: string
@@ -13,65 +10,62 @@ export interface LoggerOptions {
 export type LogType = 'info' | 'warn' | 'error'
 
 export interface LogInfo {
+  label: string
+  isWorker: boolean
   type: LogType
   timestamp: number
   args: unknown[]
+  options: LoggerOptions
 }
 
 export interface LoggerEvents {
   log: [LogInfo]
+  register: [label: string]
 }
 
-/** 开发模式下在命令行打印信息 */
+/**
+ * # Logger
+ * 开发模式下在命令行打印信息
+ * @param label {string} 日志注册名，该项会被动态的加入到【设置→开发者设置→日志可见性】项中，请慎重取名
+ * @param options {LoggerOptions} 日志配置
+ */
 export class Logger {
-  #prefix: string
+  #label: string
   #options: LoggerOptions
-  #enable = () => true
 
-  static event = new EventBus<LoggerEvents>()
+  static #isInit = false
 
-  constructor(
-    prefix = '',
-    enable: () => boolean = () => true,
-    options: LoggerOptions = {},
-  ) {
-    this.#prefix = prefix
-    this.#options = options
-    this.#enable = enable
+  static get isInit() {
+    return this.#isInit
   }
 
-  #getPrefix = () => {
-    const now = new Date().toLocaleString('zh-CN', { hour12: false })
-    return `%c[${now}]%c${this.#prefix}`
+  static loggerLabelsCache = new Set<string>()
+  static logsCache: LogInfo[] = []
+
+  static init = () => {
+    this.#isInit = true
+    this.loggerLabelsCache.clear()
+    this.logsCache = []
   }
 
-  #stringifyStyle = (style: Record<string, string>) => {
+  static getPrefix = (label: string, number: number) => {
+    const now = new Date(number).toLocaleString('zh-CN', { hour12: false })
+    return `%c[${now}]%c${label}`
+  }
+
+  static #stringifyStyle = (style: Record<string, string>) => {
     return Object
       .entries(style)
       .map(([key, value]) => `${key}:${value}`)
       .join(';')
   }
 
-  #stdoutCache = ''
-  stdout = {
-    write: (char: string) => {
-      this.#stdoutCache += char
-    },
-    getCache: () => this.#stdoutCache,
-    print: () => {
-      console.group(this.#prefix)
-      console.log(this.#stdoutCache)
-      console.groupEnd()
-    },
-  }
-
-  #getStyle = () => {
+  static getStyle = (options: LoggerOptions): string[] => {
     const {
       dateTimeColor = 'green',
       labelBackground = '#393B40',
       labelColor = '#DEBC60',
-    } = this.#options
-    Object.entries({}).map(([key, value]) => `${key}:${value}`).join(',')
+    } = options
     return [
       this.#stringifyStyle({
         color: dateTimeColor,
@@ -86,23 +80,53 @@ export class Logger {
     ]
   }
 
-  #log = (type: LogType) => (...args: unknown[]) => {
-    if (!this.#enable())
-      return
+  static event = new EventBus<LoggerEvents>()
 
+  constructor(
+    label = '',
+    options: LoggerOptions = {},
+  ) {
+    this.#label = label
+    this.#options = options
+
+    Logger.isInit
+      ? Logger.event.emit('register', label)
+      : Logger.loggerLabelsCache.add(label)
+  }
+
+  #stdoutCache = ''
+  stdout = {
+    write: (char: string) => {
+      this.#stdoutCache += char
+    },
+    print: () => {
+      this.info(this.#stdoutCache)
+      this.#stdoutCache = ''
+    },
+  }
+
+  #log = (type: LogType) => (...args: unknown[]) => {
     const timestamp = Date.now()
 
-    if (this.#options.port) {
-      this.#options.port.postMessage({ type, message: args })
-      Logger.event.emit('log', { type, timestamp, args })
+    const { port, ...rest } = this.#options
+
+    const logInfo: LogInfo = {
+      label: this.#label,
+      isWorker: Object.prototype.toString.call(globalThis) !== '[object Window]',
+      type,
+      timestamp,
+      args: [Logger.getPrefix(this.#label, timestamp), ...Logger.getStyle(this.#options), ...args],
+      options: rest,
+    }
+
+    if (port) {
+      port.postMessage(logInfo)
       return
     }
 
-    const logs = [this.#getPrefix(), ...this.#getStyle(), ...args]
-
-    isDebug && console[type](...logs)
-
-    Logger.event.emit('log', { type, timestamp, args: logs })
+    Logger.isInit
+      ? Logger.event.emit('log', logInfo)
+      : Logger.logsCache.push(logInfo)
   }
 
   info = this.#log('info')
