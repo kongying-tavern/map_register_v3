@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ArrowDown, CirclePlus, Filter, Search, Sort } from '@element-plus/icons-vue'
+import { CirclePlus, Filter, Search, Sort } from '@element-plus/icons-vue'
 import ListSorter from './ListSorter.vue'
+import HeaderDropdown from './HeaderDropdown.vue'
 import type { PaginationState } from '@/hooks'
 import { NOTICE_NAME_MAP } from '@/shared'
 
@@ -32,6 +33,19 @@ const sortableKeyOptions: { label: string; key: string }[] = [
   { label: '更新时间', key: 'updateTime' },
   { label: '排序权重', key: 'sortIndex' },
 ]
+
+const dropdownKey = ref('')
+
+const sortRef = ref<InstanceType<typeof HeaderDropdown>>()
+
+const handleSortChange = () => {
+  sortRef.value?.close()
+  resetCurrentAndChange()
+}
+
+const handleSortChangeCancel = () => {
+  sortRef.value?.close()
+}
 </script>
 
 <template>
@@ -53,14 +67,9 @@ const sortableKeyOptions: { label: string; key: string }[] = [
 
     <el-divider direction="vertical" />
 
-    <el-dropdown>
+    <HeaderDropdown v-model="dropdownKey" dropdown-key="filter" :icon="Filter">
       <template #default>
-        <el-button text :icon="Filter">
-          过滤
-          <el-icon class="el-icon--right" :size="12">
-            <ArrowDown />
-          </el-icon>
-        </el-button>
+        过滤
       </template>
 
       <template #dropdown>
@@ -95,28 +104,25 @@ const sortableKeyOptions: { label: string; key: string }[] = [
           </el-checkbox-group>
         </div>
       </template>
-    </el-dropdown>
+    </HeaderDropdown>
 
     <el-divider direction="vertical" />
 
-    <el-dropdown trigger="click">
+    <HeaderDropdown ref="sortRef" v-model="dropdownKey" dropdown-key="sort" :icon="Sort">
       <template #default>
-        <el-button text :icon="Sort">
-          排序
-          <el-icon class="el-icon--right" :size="12">
-            <ArrowDown />
-          </el-icon>
-        </el-button>
+        排序
       </template>
 
       <template #dropdown>
         <ListSorter
           v-model="filterParams.sort"
+          :visible="dropdownKey === 'sort'"
           :options="sortableKeyOptions"
-          @change="resetCurrentAndChange"
+          @change="handleSortChange"
+          @cancel="handleSortChangeCancel"
         />
       </template>
-    </el-dropdown>
+    </HeaderDropdown>
 
     <el-divider direction="vertical" />
 

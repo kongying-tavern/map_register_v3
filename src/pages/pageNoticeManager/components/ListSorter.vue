@@ -1,19 +1,86 @@
 <script setup lang="ts">
 import { ArrowLeft, ArrowRight } from '@element-plus/icons-vue'
 
-defineProps<{
+const props = defineProps<{
   options: { label: string; key: string }[]
+  visible: boolean
 }>()
+
+const emits = defineEmits<{
+  change: [string[]]
+  cancel: []
+}>()
+
+const optionsMap = computed(() => props.options.reduce((map, { key, label }) => {
+  map.set(key, label)
+  return map
+}, new Map<string, string>()))
 
 const modelValue = defineModel<string[]>('modelValue', {
   required: false,
   default: () => [],
 })
 
-const vvv = ref<boolean[]>([])
+const parseSorters = (sortUnits: string[]) => {
+  return sortUnits.reduce((seed, unit) => {
+    const flag = unit.slice(-1)
+    const key = unit.slice(0, -1)
+    seed.push({ key, flag })
+    return seed
+  }, [] as { key: string; flag: string }[])
+}
+
+const stringifySorters = (list: { key: string; flag: string }[]) => {
+  return list.map(({ key, flag }) => `${key}${flag}`)
+}
+
+const sortList = ref<ReturnType<typeof parseSorters>>([])
+
+whenever(() => props.visible, () => {
+  sortList.value = parseSorters(modelValue.value)
+})
+
+const keysInSortList = computed(() => sortList.value.reduce((set, { key }) => {
+  set.add(key)
+  return set
+}, new Set<string>()))
+
+const visibleOptions = computed(() => props.options.filter(({ key }) => !keysInSortList.value.has(key)))
+
+const confirm = () => {
+  const res = stringifySorters(sortList.value)
+  modelValue.value = res
+  emits('change', res)
+}
+
+const cancel = () => {
+  emits('cancel')
+}
 
 const selectedSortKey = ref<string>('')
 const isAddMode = ref(true)
+
+const addToSort = () => {
+  const key = toValue(selectedSortKey)
+
+  if (!isAddMode.value || keysInSortList.value.has(key))
+    return
+
+  sortList.value.push({
+    key,
+    flag: '-',
+  })
+}
+
+const removeSort = () => {
+  const key = toValue(selectedSortKey)
+
+  if (isAddMode.value || !keysInSortList.value.has(key))
+    return
+
+  const index = sortList.value.findIndex(({ key: findKey }) => findKey === key)
+  sortList.value.splice(index, 1)
+}
 
 const selectSortKey = (key: string, isAdding = false) => {
   selectedSortKey.value = key
@@ -22,11 +89,19 @@ const selectSortKey = (key: string, isAdding = false) => {
 </script>
 
 <template>
-  <div class="p-2 flex flex-col gap-2">
-    <div class="flex">
-      <div class="w-40 h-52 border rounded overflow-auto">
+  <div class="p-2 flex flex-col">
+    <div class="w-full grid grid-cols-[160px_42px_176px]">
+      <div class="border border-[var(--el-border-color)] rounded rounded-b-none bg-[var(--el-color-info-light-7)] px-1 py-0.5 font-bold">
+        可用排序
+      </div>
+      <div />
+      <div class="border border-[var(--el-border-color)] rounded rounded-b-none bg-[var(--el-color-info-light-7)] px-1 py-0.5 font-bold">
+        当前排序
+      </div>
+
+      <div class="h-52 border border-t-0 border-[var(--el-border-color)] rounded rounded-t-none overflow-auto">
         <div
-          v-for="option in options"
+          v-for="option in visibleOptions"
           :key="option.key"
           :class="{
             'is-actived': isAddMode && option.key === selectedSortKey,
@@ -40,38 +115,60 @@ const selectSortKey = (key: string, isAdding = false) => {
 
       <div class="h-52 grid place-items-center place-content-center px-2 gap-2">
         <div>
-          <el-button :disabled="!isAddMode || !selectedSortKey" size="small" :icon="ArrowRight" style="padding: 4px 6px" />
+          <el-button
+            :disabled="!isAddMode || !selectedSortKey"
+            :icon="ArrowRight"
+            size="small"
+            type="primary"
+            style="padding: 4px 6px"
+            @click="addToSort"
+          />
         </div>
         <div>
-          <el-button :disabled="isAddMode || !selectedSortKey" size="small" :icon="ArrowLeft" style="padding: 4px 6px" />
+          <el-button
+            :disabled="isAddMode || !selectedSortKey"
+            :icon="ArrowLeft"
+            size="small"
+            type="primary"
+            style="padding: 4px 6px"
+            @click="removeSort"
+          />
         </div>
       </div>
 
-      <div class="w-44 h-52 border rounded overflow-auto">
+      <div class="h-52 border border-t-0 border-[var(--el-border-color)] rounded rounded-t-none overflow-auto">
         <div
-          v-for="(option, index) in options"
-          :key="option.key"
+          v-for="(sortUnit, index) in sortList"
+          :key="sortUnit.key"
           :class="{
-            'is-actived': !isAddMode && option.key === selectedSortKey,
+            'is-actived': !isAddMode && sortUnit.key === selectedSortKey,
           }"
           class="sorter-item justify-between"
-          @click="() => selectSortKey(option.key)"
+          @click="() => selectSortKey(sortUnit.key)"
         >
           <div>
-            {{ index + 1 }} {{ option.label }}
+            {{ index + 1 }}. {{ optionsMap.get(sortUnit.key) ?? sortUnit.key }}
           </div>
           <div>
-            <el-switch v-model="vvv[index]" size="small" inline-prompt active-text="升序" inactive-text="降序" />
+            <el-switch
+              v-model="sortUnit.flag"
+              size="small"
+              inline-prompt
+              active-text="升序"
+              inactive-text="降序"
+              active-value="+"
+              inactive-value="-"
+            />
           </div>
         </div>
       </div>
     </div>
 
-    <div class="flex justify-end">
-      <el-button size="small" type="primary">
+    <div class="flex justify-end pt-2">
+      <el-button size="small" type="primary" @click="confirm">
         确认
       </el-button>
-      <el-button size="small">
+      <el-button size="small" @click="cancel">
         取消
       </el-button>
     </div>
