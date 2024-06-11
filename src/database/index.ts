@@ -1,6 +1,5 @@
-import { AppDatabase } from './appdatabase'
+import { MainThreadDB } from './db/main'
 
-const db = new AppDatabase()
+const db = new MainThreadDB()
 
 export default db
-export * from './appdatabase'

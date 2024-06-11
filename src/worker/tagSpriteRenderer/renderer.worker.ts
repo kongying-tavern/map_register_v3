@@ -2,10 +2,10 @@ import { getObjectFitSize } from '@/utils/getObjectFitSize'
 import { limitPromiseAll } from '@/utils/limitPromiseAll'
 import type { Logger } from '@/utils/logger'
 import { getDigest } from '@/utils/getDigest'
-import { AppDatabase } from '@/database'
+import { WorkerThreadDB } from '@/database/db/worker'
 import { useLoggerWorker } from '@/hooks/useWorkerLogger'
 
-const db = new AppDatabase()
+const db = new WorkerThreadDB()
 
 declare const globalThis: DedicatedWorkerGlobalScope
 

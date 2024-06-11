@@ -1,10 +1,10 @@
 import type { IconMapping } from '@deck.gl/layers/typed/icon-layer/icon-manager'
 import type { Logger } from '@/utils/logger'
-import { AppDatabase } from '@/database'
+import { WorkerThreadDB } from '@/database/db/worker'
 import { getDigest } from '@/utils/getDigest'
 import { useLoggerWorker } from '@/hooks/useWorkerLogger'
 
-const db = new AppDatabase()
+const db = new WorkerThreadDB()
 
 declare const globalThis: DedicatedWorkerGlobalScope
 

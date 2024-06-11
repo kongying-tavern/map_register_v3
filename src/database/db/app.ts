@@ -1,8 +1,7 @@
 import { Dexie } from 'dexie'
-import { markerFormater } from './middleware'
-import type { UserPreference } from '@/stores/types'
+import type { UserPreference } from '@/stores/types/userPreference'
 
-/** 应用数据库 */
+/** 数据库核心定义 */
 export class AppDatabase extends Dexie {
   /** 地区 @全量接口 */
   declare area: Dexie.Table<API.AreaVo, number>
@@ -31,21 +30,10 @@ export class AppDatabase extends Dexie {
   /** 数据摘要 @仅限本地 */
   declare digest: Dexie.Table<DBType.DigestInfo, string>
 
+  /** 数据库结构版本 */
+  readonly VERSION = 4.1
+
   constructor() {
     super('AppDatabase')
-    this
-      .use(markerFormater)
-      .version(4.1)
-      .stores({
-        area: '&id, parentId, name, code, hiddenFlag',
-        iconTag: '&tag, *typeIdList',
-        item: '&id, *typeIdList, areaId, name, specialFlag, hiddenFlag',
-        itemType: '&id, name, hiddenFlag',
-        marker: '&id, *itemIdList, markerTitle, refreshTime, linkageId',
-        markerLink: '&id, fromId, toId, linkAction, groupId',
-        user: '&id',
-        cache: '&id',
-        digest: '&code, tableName',
-      })
   }
 }
