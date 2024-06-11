@@ -60,18 +60,18 @@ export class Logger {
       .join(';')
   }
 
-  static getStyle = (options: LoggerOptions): string[] => {
+  static getStyle = (options: LoggerOptions, isWorker = false): string[] => {
     const {
       dateTimeColor = 'green',
-      labelBackground = '#393B40',
-      labelColor = '#DEBC60',
+      labelBackground = isWorker ? 'linear-gradient(90deg, #A0F1F2, #FCE8E8)' : '#393B40',
+      labelColor = isWorker ? '#362F36' : '#DEBC60',
     } = options
     return [
       this.#stringifyStyle({
         color: dateTimeColor,
       }),
       this.#stringifyStyle({
-        'background-color': labelBackground,
+        'background': labelBackground,
         'color': labelColor,
         'padding': '0.25em 0.5em',
         'margin': '0 4px',
@@ -110,12 +110,14 @@ export class Logger {
 
     const { port, ...rest } = this.#options
 
+    const isWorker = Object.prototype.toString.call(globalThis) !== '[object Window]'
+
     const logInfo: LogInfo = {
       label: this.#label,
-      isWorker: Object.prototype.toString.call(globalThis) !== '[object Window]',
+      isWorker,
       type,
       timestamp,
-      args: [Logger.getPrefix(this.#label, timestamp), ...Logger.getStyle(this.#options), ...args],
+      args: [Logger.getPrefix(this.#label, timestamp), ...Logger.getStyle(this.#options, isWorker), ...args],
       options: rest,
     }
 
