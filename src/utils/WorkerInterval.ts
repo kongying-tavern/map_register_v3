@@ -3,7 +3,7 @@ import type { IntervalPayload } from '@/worker/interval.worker'
 
 /** 基于 worker 线程的定时任务，以避免主线程重负载阻塞所造成的定时误差 */
 export class WorkerInterval {
-  private static worker: Worker = new IntervalWorker()
+  private static worker: Worker = new IntervalWorker({ name: '定时器线程' })
   private static intervalMap: Record<string, Function> = {}
 
   // 初始化
