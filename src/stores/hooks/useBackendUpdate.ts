@@ -1,4 +1,4 @@
-import type { Dexie, IndexableType } from 'dexie'
+import type { Dexie, IndexableTypePart, Table } from 'dexie'
 import type { Awaitable } from '@vueuse/core'
 import { get } from 'lodash'
 import { useFetchHook } from '@/hooks'
@@ -82,7 +82,7 @@ export const useBackendUpdate = <T, Key>(
   }
 
   const { data: lastUpdateCount, loading, refresh, onFinish, onSuccess, onError } = useFetchHook({
-    onRequest: async () => {
+    onRequest: async (forceUpdate = false) => {
       startTime.value = Date.now()
 
       // 1. 获取新的摘要数组
@@ -102,29 +102,42 @@ export const useBackendUpdate = <T, Key>(
       const dataForUpdating: T[] = []
       const digestForUpdating: DBType.DigestInfo[] = []
 
-      for await (const code of digestCodeList.filter(oldDigest => !oldDigestCodeSet.has(oldDigest))) {
-        try {
-          const data = await getData(code)
-          updateCount += data.length
-          dataForUpdating.push(...data)
-          digestForUpdating.push({
-            code,
-            range: getRangeOfList(data),
-            tableName: table.name,
-          })
-        }
-        catch (err) {
-          throw new Error(`Get data error: ${err instanceof Error ? err.message : `${err}`}`)
+      await Promise.all(digestCodeList
+        .filter(oldDigest => forceUpdate || !oldDigestCodeSet.has(oldDigest))
+        .map(async (code) => {
+          try {
+            const data = await getData(code)
+            updateCount += data.length
+            dataForUpdating.push(...data)
+            digestForUpdating.push({
+              code,
+              range: getRangeOfList(data),
+              tableName: table.name,
+            })
+          }
+          catch (err) {
+            throw new Error(`Get data error: ${err instanceof Error ? err.message : `${err}`}`)
+          }
+        }),
+      )
+
+      if (forceUpdate) {
+        await (table as Table<T, IndexableTypePart>).clear()
+        await table.bulkPut(dataForUpdating)
+        await db.digest.bulkPut(digestForUpdating)
+        return {
+          deleteCount,
+          updateCount,
         }
       }
 
       // 4. 计算要删除的摘要组
-      const dataKeyForDelete: IndexableType[] = []
+      const dataKeyForDelete: IndexableTypePart[] = []
       const digestCodeForDelete: string[] = []
 
       for (const { code, range } of oldDigestList.filter(({ code }) => !newDigestCodeSet.has(code))) {
         table.where(src).inAnyRange([range], { includeUppers: true }).eachKey((key) => {
-          dataKeyForDelete.push(key)
+          dataKeyForDelete.push(key as IndexableTypePart)
           deleteCount++
         })
         db.digest.where('tableName').equals(table.name).and(({ code: oldCode }) => oldCode === code).each((digest) => {
@@ -132,9 +145,9 @@ export const useBackendUpdate = <T, Key>(
         })
       }
 
-      await db.transaction('rw', table as Dexie.Table, db.digest, async () => {
-        await table.where(src).anyOf(dataKeyForDelete).delete()
-        await db.digest.where('code').anyOf(digestCodeForDelete).delete()
+      await db.transaction('rw', table as Table<T, IndexableTypePart>, db.digest, async () => {
+        await (table as Table<T, IndexableTypePart>).bulkDelete(dataKeyForDelete)
+        await db.digest.bulkDelete(digestCodeForDelete)
         await table.bulkPut(dataForUpdating)
         await db.digest.bulkPut(digestForUpdating)
       })
@@ -145,6 +158,8 @@ export const useBackendUpdate = <T, Key>(
       }
     },
   })
+
+  const forceUpdate = () => refresh(true)
 
   const stop = () => {
     window.clearTimeout(loopTimer.value)
@@ -187,6 +202,7 @@ export const useBackendUpdate = <T, Key>(
     costTime,
     restTime,
     refresh,
+    forceUpdate,
     stop,
     start,
     onFinish,

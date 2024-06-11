@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Refresh, WarnTriangleFilled } from '@element-plus/icons-vue'
+import { Refresh, RefreshLeft, WarnTriangleFilled } from '@element-plus/icons-vue'
 import type { UnwrapRef } from 'vue'
 import { ElMessageBox } from 'element-plus'
 import { SettingBar, SettingGroup, SettingPanel } from '../components'
@@ -47,7 +47,7 @@ const deleteDatabase = async () => {
       <SettingBar v-for="({ name, store }) in options" :key="name" :label="name">
         <template #note>
           <div class="flex flex-col text-xs text-[var(--el-text-color-regular)]">
-            <div>已存储 {{ store.total }} 项数据</div>
+            <div>已存储 {{ store.backendUpdater.loading ? '...' : store.total }} 项数据</div>
             <div v-if="store.backendUpdater.isWatting">
               {{
                 store.backendUpdater.isWatting
@@ -60,8 +60,11 @@ const deleteDatabase = async () => {
           </div>
         </template>
         <template #setting>
-          <el-button :loading="store.backendUpdater.loading" :icon="Refresh" @click="store.backendUpdater.refresh">
-            立即更新
+          <el-button text type="warning" :loading="store.backendUpdater.loading" :icon="Refresh" @click="store.backendUpdater.forceUpdate">
+            重新获取
+          </el-button>
+          <el-button text type="primary" :loading="store.backendUpdater.loading" :icon="RefreshLeft" @click="store.backendUpdater.refresh">
+            检查更新
           </el-button>
         </template>
       </SettingBar>
