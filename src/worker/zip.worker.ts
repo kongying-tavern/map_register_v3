@@ -27,7 +27,6 @@ const decompressFile = async (options: WorkerInput, logger: Logger): Promise<Uin
   })
 
   const tempFilename = `${name}.bin`
-  logger.info(`正在解压 ${tempFilename}`)
   const stream = zip.FS.open(tempFilename, 'w+')
   zip.FS.write(stream, data, 0, data.length)
   zip.FS.close(stream)
@@ -35,7 +34,10 @@ const decompressFile = async (options: WorkerInput, logger: Logger): Promise<Uin
   // 解压，详细用法见 7-zip 命令行帮助
   zip.callMain(['x', tempFilename, '-y'])
 
-  logger.info(`${tempFilename} 解压完毕，文件大小：${formatByteSize(zip.FS.stat(name).size, { binary: true })}`)
+  logger.info('已解压', {
+    file: tempFilename,
+    size: formatByteSize(zip.FS.stat(name).size, { binary: true }),
+  })
 
   const res = zip.FS.readFile(name)
 
