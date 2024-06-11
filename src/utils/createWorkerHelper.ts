@@ -2,8 +2,7 @@ import type { LogInfo } from '.'
 import { Logger } from '.'
 
 export interface WorkerHelperOptions {
-  label?: string
-  autoTerminate?: boolean
+  cacheWorker?: boolean
 }
 
 /**
@@ -14,7 +13,7 @@ export interface WorkerHelperOptions {
  */
 export const createWorkerHelper = <Input, Output>(worker: Worker, options: WorkerHelperOptions = {}) => {
   const {
-    autoTerminate = false,
+    cacheWorker = true,
   } = options
 
   return (payload: Input, transfer: Transferable[] = []) => new Promise<Output>((resolve, reject) => {
@@ -22,7 +21,7 @@ export const createWorkerHelper = <Input, Output>(worker: Worker, options: Worke
     const loggerChannel = new MessageChannel()
 
     mainChannel.port1.onmessage = (ev: MessageEvent<Output | string>) => {
-      autoTerminate && worker.terminate()
+      !cacheWorker && worker.terminate()
       const { data } = ev
       if (typeof data === 'string')
         return reject(new Error(data))
