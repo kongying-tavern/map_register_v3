@@ -80,6 +80,6 @@ userHook.onInfoChange(useSocketStore, (store) => {
     return
   }
 
-  if (info.id !== store.userId)
+  if (store.status !== WebSocket.OPEN || info.id !== store.userId)
     store.connect(info.id)
 })
