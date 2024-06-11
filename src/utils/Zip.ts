@@ -7,6 +7,8 @@ import type { WorkerInput } from '@/worker/zip.worker'
 export class Zip {
   static #zipWasmBinary = fetch(SevenZipWASM).then(res => res.arrayBuffer())
 
+  static #send = createWorkerHelper<WorkerInput, Uint8Array>(new ZipWorker({ name: '7zip工作线程' }))
+
   /**
    * 解压缩文件
    * @param file 需要被解压的文件
@@ -16,12 +18,7 @@ export class Zip {
 
     const copyZipWasm = wasm.slice(0)
 
-    const send = createWorkerHelper<WorkerInput, Uint8Array>(new ZipWorker(), {
-      label: 'Zip',
-      autoTerminate: true,
-    })
-
-    const decompressedData = await send({
+    const decompressedData = await this.#send({
       data: file,
       name,
       wasm: copyZipWasm,
