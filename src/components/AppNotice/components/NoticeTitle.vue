@@ -85,11 +85,12 @@ const emits = defineEmits<{
 
   &:active {
     --line-color: #E5D9C2;
-    background: #EDE3CE;
+    background: #f0efec;
   }
 
   &.is-selected {
     color: #3B4354;
+    outline-color: #da9781;
     background: #FFFDFA;
     --arrow-opacity: 1;
   }
