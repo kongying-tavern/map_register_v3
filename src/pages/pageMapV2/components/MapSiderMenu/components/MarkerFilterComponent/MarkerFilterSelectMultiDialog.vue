@@ -36,20 +36,25 @@ const cancel = () => {
       </div>
       <GSDivider color="#76716A" />
 
-      <el-scrollbar class="flex-1">
-        <SelectList
-          v-model:model-multiple-value="modelValue"
-          class="h-full overflow-auto gap-1"
-          :multiple="true"
-          :class="listClass"
-          :list="list"
-          :value-key="valueKey"
-        >
-          <template #default="{ item }">
-            {{ item[labelKey] }}
-          </template>
-        </SelectList>
-      </el-scrollbar>
+      <template v-if="$slots.default">
+        <slot />
+      </template>
+      <template v-else>
+        <el-scrollbar class="flex-1">
+          <SelectList
+            v-model:model-multiple-value="modelValue"
+            class="h-full overflow-auto gap-1"
+            :multiple="true"
+            :class="listClass"
+            :list="list"
+            :value-key="valueKey"
+          >
+            <template #default="{ item }">
+              {{ item[labelKey] }}
+            </template>
+          </SelectList>
+        </el-scrollbar>
+      </template>
 
       <GSDivider color="#76716A" />
 

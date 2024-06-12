@@ -2,6 +2,7 @@
 import { toValue } from 'vue'
 import type { Component } from 'vue'
 import {
+  ModelArea,
   ModelContentContain,
   ModelContentRegex,
   ModelIdRange,
@@ -36,6 +37,7 @@ const modelTemplate = computed(() => {
     9: ModelLinkage,
     10: ModelRefreshTime,
     11: ModelVisibility,
+    101: ModelArea,
   }[props.condition.id]
 }) as ComputedRef<Component>
 

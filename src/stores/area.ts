@@ -5,6 +5,10 @@ import { useAccessStore, useUserAuthStore } from '.'
 import Api from '@/api/api'
 import db from '@/database'
 
+export interface AreaWithChildren extends API.AreaVo {
+  children?: AreaWithChildren[]
+}
+
 /** 本地地区数据 */
 export const useAreaStore = defineStore('global-area', () => {
   const accessStore = useAccessStore()
@@ -35,6 +39,8 @@ export const useAreaStore = defineStore('global-area', () => {
 
   const parentAreaList = computed<API.AreaVo[]>(() => areaList.value.filter(area => !area.isFinal))
   const childrenAreaList = computed<API.AreaVo[]>(() => areaList.value.filter(area => area.isFinal))
+  const areaTree = computed<AreaWithChildren[]>(() => parentAreaList.value.map(parentArea => ({ ...parentArea, children: childrenAreaList.value.filter(childArea => childArea.parentId === parentArea.id) })))
+  const childrenAreaParentMap = computed<Record<number, API.AreaVo[]>>(() => Object.fromEntries(areaTree.value.map(area => [area.id!, area.children ?? []])))
 
   const _cachedData = shallowRef<API.AreaVo[]>([])
 
@@ -64,6 +70,8 @@ export const useAreaStore = defineStore('global-area', () => {
     areaCodeMap,
     parentAreaList,
     childrenAreaList,
+    childrenAreaParentMap,
+    areaTree,
     backendUpdater,
   }
 })

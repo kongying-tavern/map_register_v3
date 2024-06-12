@@ -1,5 +1,6 @@
 import { keyBy } from 'lodash'
 import {
+  Area,
   ContentContain,
   ContentRegex,
   IdRange,
@@ -30,6 +31,7 @@ const markerAdvancedFilterConfigs: MAFConfig[] = [
   new Linkage(),
   new RefreshTime(),
   new Visibility(),
+  new Area(),
 ]
 
 const markerAdvancedFilterConfigMap: Record<number, MAFConfig> = keyBy(markerAdvancedFilterConfigs, 'id')

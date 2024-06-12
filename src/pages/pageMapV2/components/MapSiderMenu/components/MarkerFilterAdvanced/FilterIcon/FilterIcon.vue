@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { Place } from '@element-plus/icons-vue'
 import {
   IconDocument,
   IconDocumentRegex,
@@ -28,6 +29,7 @@ const iconComponent = computed(() => {
     9: IconLink,
     10: IconTimer,
     11: IconEye,
+    101: Place,
   }[props.id]
 }) as ComputedRef<Component>
 </script>
