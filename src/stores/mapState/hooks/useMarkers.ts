@@ -36,7 +36,7 @@ export const useMarkers = (options: MarkerHookOptions) => {
   const markersFilterLoading = ref(false)
 
   /** 当前基础筛选器（地区-类型-物品）条件表示下的所有点位 */
-  const markersForBasicFilter = asyncComputed(async () => {
+  const markersForBasicFilter = computed(() => {
     const tileConfigs = tileStore.mergedTileConfigs
     if (!tileConfigs)
       return []
@@ -52,10 +52,10 @@ export const useMarkers = (options: MarkerHookOptions) => {
       return false
     })
     return createRenderMarkers(res, { tileConfigs, areaIdMap, itemIdMap })
-  }, [], { evaluating: markersFilterLoading })
+  })
 
   /** 当前高级筛选器条件表示下的所有点位 */
-  const markersForAdvancedFilter = asyncComputed(async () => {
+  const markersForAdvancedFilter = computed(() => {
     const tileConfigs = tileStore.mergedTileConfigs
     if (!tileConfigs)
       return []
@@ -120,7 +120,7 @@ export const useMarkers = (options: MarkerHookOptions) => {
       return globalVal
     })
     return createRenderMarkers(res, { tileConfigs, areaIdMap, itemIdMap })
-  }, [], { evaluating: markersFilterLoading })
+  })
 
   /** 当前混合选择器 */
   const markersForFilter = computed(() => {
