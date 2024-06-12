@@ -25,7 +25,7 @@ const filterParams = ref<Omit<API.NoticeSearchVo, 'current' | 'size'>>({
     NoticeChannel.WEB,
   ],
   getValid: undefined,
-  sort: ['isValid-'],
+  sort: ['isValid-', 'sortIndex-'],
   title: '',
   transformer: '',
 })
