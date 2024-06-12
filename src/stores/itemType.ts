@@ -14,6 +14,7 @@ export const useItemTypeStore = defineStore('global-item-type', () => {
   const itemTypeList = computed(() => _itemTypeList.value.filter(({ hiddenFlag }) => accessStore.checkHiddenFlag(hiddenFlag)))
   const total = computed(() => itemTypeList.value.length)
 
+  /** @deprecated 使用 `itemTypeIdMap` 代替 */
   const itemTypeMap = computed(() => (Object.fromEntries(itemTypeList.value.map(itemType => [
     itemType.id as number,
     itemType,

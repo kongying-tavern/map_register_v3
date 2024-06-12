@@ -14,7 +14,7 @@ export const useAreaStore = defineStore('global-area', () => {
   const areaList = computed(() => _areaList.value.filter(({ hiddenFlag }) => accessStore.checkHiddenFlag(hiddenFlag)))
   const total = computed(() => _areaList.value.length)
 
-  /** @deprecated */
+  /** @deprecated 使用 `areaIdMap` 代替 */
   const areaMap = computed<Record<string, API.AreaVo>>(() => (Object.fromEntries(areaList.value.map(area => [
     area.id as number,
     area,

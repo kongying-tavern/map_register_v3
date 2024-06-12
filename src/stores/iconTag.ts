@@ -17,7 +17,7 @@ export const useIconTagStore = defineStore('global-icon-tag', () => {
     return seed
   }, new Map<string, API.TagVo>()))
 
-  /** @deprecated */
+  /** @deprecated 使用 `tagNameMap` 代替 */
   const iconTagMap = computed(() => Object.fromEntries(tagList.value.map(iconTag => [
     iconTag.tag as string,
     iconTag as API.TagVo,
