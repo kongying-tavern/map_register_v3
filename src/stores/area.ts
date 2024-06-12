@@ -11,7 +11,10 @@ export const useAreaStore = defineStore('global-area', () => {
 
   const _areaList = shallowRef<API.AreaVo[]>([])
 
-  const areaList = computed(() => _areaList.value.filter(({ hiddenFlag }) => accessStore.checkHiddenFlag(hiddenFlag)))
+  const areaList = computed(() => _areaList.value
+    .filter(({ hiddenFlag }) => accessStore.checkHiddenFlag(hiddenFlag))
+    .sort(({ sortIndex: ia = 0 }, { sortIndex: ib = 0 }) => ib - ia),
+  )
   const total = computed(() => _areaList.value.length)
 
   /** @deprecated */
@@ -29,6 +32,9 @@ export const useAreaStore = defineStore('global-area', () => {
     seed.set(area.code!, area)
     return seed
   }, new Map<string, API.AreaVo>()))
+
+  const parentAreaList = computed<API.AreaVo[]>(() => areaList.value.filter(area => !area.isFinal))
+  const childrenAreaList = computed<API.AreaVo[]>(() => areaList.value.filter(area => area.isFinal))
 
   const _cachedData = shallowRef<API.AreaVo[]>([])
 
@@ -56,6 +62,8 @@ export const useAreaStore = defineStore('global-area', () => {
     areaMap,
     areaIdMap,
     areaCodeMap,
+    parentAreaList,
+    childrenAreaList,
     backendUpdater,
   }
 })

@@ -21,23 +21,14 @@ import { fallbackToStaticIcon } from '@/configs'
 const archiveStore = useArchiveStore()
 const iconTagStore = useIconTagStore()
 
-const { areaList, areaCodeMap } = storeToRefs(useAreaStore())
+const { areaCodeMap, parentAreaList, childrenAreaList } = storeToRefs(useAreaStore())
 const { itemList, itemIdMap } = storeToRefs(useItemStore())
-const { itemTypeIdMap } = storeToRefs(useItemTypeStore())
+const { itemTypeList, itemTypeIdMap } = storeToRefs(useItemTypeStore())
 const { markerBasicFilters } = storeToRefs(useMapStateStore())
 const { preference } = storeToRefs(usePreferenceStore())
 const { markerList } = storeToRefs(useMarkerStore())
 
 // ==================== 其他 ====================
-interface Sortable {
-  sortIndex?: number
-}
-const indexSorter = (a: Sortable, b: Sortable) => {
-  const { sortIndex: ia = 0 } = a
-  const { sortIndex: ib = 0 } = b
-  return ib - ia
-}
-
 /** 筛选预设管理器 */
 const { reviewCondition, deleteCondition, clearCondition } = useMarkerFilter()
 
@@ -57,31 +48,22 @@ const archivedMarkers = asyncComputed(async () => {
 }, [])
 
 // ==================== 地区 ====================
-const accessAreaList = computed<API.AreaVo[]>(() => {
-  return areaList.value.sort(indexSorter)
-})
-
-const parentAreaList = computed<API.AreaVo[]>(() => accessAreaList.value.filter(area => !area.isFinal))
-
 const selectedParentArea = computed(() => {
   if (!preference.value['markerFilter.state.parentAreaCode'])
     return
   return areaCodeMap.value.get(preference.value['markerFilter.state.parentAreaCode'])
 })
 
-const childrenAreaList = computed<API.AreaVo[]>(() => {
+const selectedChildrenAreaList = computed<API.AreaVo[]>(() => {
   if (!selectedParentArea.value)
     return []
-  return accessAreaList.value.filter(({ parentId }) => parentId === selectedParentArea.value?.id)
+  return childrenAreaList.value.filter(({ parentId }) => parentId === selectedParentArea.value?.id)
 })
 
 const selectedArea = computed(() => areaCodeMap.value.get(preference.value['markerFilter.state.areaCode'] ?? ''))
 
 // ==================== 分类 ====================
-const itemTypeList = asyncComputed<API.ItemTypeVo[]>(async () => {
-  const res = await db.itemType.filter(type => Boolean(type.isFinal)).toArray()
-  return res.sort(indexSorter)
-}, [])
+const accessItemTypeList = computed<API.ItemTypeVo[]>(() => itemTypeList.value.filter(type => Boolean(type.isFinal)))
 
 const selectedType = computed(() => {
   const itemTypeId = preference.value['markerFilter.state.itemTypeId']
@@ -99,7 +81,6 @@ const accessItemList = computed(() => {
     return []
   return [...itemList.value]
     .filter(item => item.areaId === area.id)
-    .sort(indexSorter)
 })
 
 /** 当前分类可用的全部物品 */
@@ -237,7 +218,7 @@ const handleDragItem = (ev: DragEvent) => {
       <CheckboxGroup
         v-model="preference['markerFilter.state.areaCode']"
         class="flex-1"
-        :options="childrenAreaList"
+        :options="selectedChildrenAreaList"
         label-key="name"
         value-key="code"
         @change="autoNextTab"
@@ -257,7 +238,7 @@ const handleDragItem = (ev: DragEvent) => {
     <CheckboxGroup
       v-else-if="preference['markerFilter.state.step'] === 1"
       v-model="preference['markerFilter.state.itemTypeId']"
-      :options="itemTypeList"
+      :options="accessItemTypeList"
       label-key="name"
       value-key="id"
       two-col

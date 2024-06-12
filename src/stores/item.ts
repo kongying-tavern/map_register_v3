@@ -41,7 +41,10 @@ export const useItemStore = defineStore('global-item', () => {
   return {
     // getters
     total: _total as Readonly<Ref<number>>,
-    itemList: computed(() => _itemList.value.filter(({ hiddenFlag }) => accessStore.checkHiddenFlag(hiddenFlag))),
+    itemList: computed(() => _itemList.value
+      .filter(({ hiddenFlag }) => accessStore.checkHiddenFlag(hiddenFlag))
+      .sort(({ sortIndex: ia = 0 }, { sortIndex: ib = 0 }) => ib - ia),
+    ),
 
     itemIdMap,
     backendUpdater,
