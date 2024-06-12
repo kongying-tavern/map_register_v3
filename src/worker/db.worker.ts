@@ -27,8 +27,6 @@ export type WorkerOutput =
 
 const db = new WorkerThreadDB()
 
-Reflect.set(globalThis, 'db', db)
-
 const mutate = async (ev: MessageEvent<WorkerInput>, logger: Logger): Promise<DBCoreMutateResponse> => {
   const { data } = ev
 
