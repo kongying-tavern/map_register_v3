@@ -11,11 +11,17 @@ const isBasicResponse = (v: unknown): v is BasicResponseBody => {
 }
 
 export interface FetchHookOptions<T, A extends unknown[] = []> {
+  /** loading 值，可以使用外部响应式值 */
   loading?: ShallowRef<boolean>
+  /** 是否在函数执行后立即发起请求 */
   immediate?: boolean
+  /** 当依赖响应式 data 时最好提供此值 */
   initialValue?: T
+  /** `onRequest` 提供了返回值时可以使用响应式 data，该选项会提供一个浅层响应式值 */
   shallow?: boolean
+  /** 检测 data 是否发生变化，如果没变则不触发 onSuccess 回调 */
   diff?: (oldData: T, newData: T) => boolean
+  /** 发起网络请求或其他异步操作，错误已被捕获，可以直接在过程中抛出 */
   onRequest?: (...args: A) => Promise<T>
 }
 
