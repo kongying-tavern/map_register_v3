@@ -6,8 +6,8 @@ export interface WorkerHelperOptions {
 }
 
 /**
- * Worker 包装函数
- * @param worker 必须按照如下类型输出结果
+ * #### Worker 包装函数
+ * 必须按照如下类型输出结果
  * - string 类型表示错误原因
  * - 对象类型表示成功结果
  */
