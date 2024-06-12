@@ -1,20 +1,16 @@
 <script setup lang="ts">
-import type { NoticeContext } from '../context'
+import { context } from '../context'
 import NoticeTitle from './NoticeTitle.vue'
 import { AppRichtextEditor, GSButton } from '@/components'
 import { CloseFilled } from '@/components/GenshinUI/GSIcon'
+import { useNoticeStore } from '@/stores'
 
-defineProps<{
-  context: NoticeContext
-  noticeList: API.NoticeVo[]
-  records: Set<number>
-  selectedNotice?: API.NoticeVo
-  selectedIndex: number
-}>()
+const noticeStore = useNoticeStore()
 
-const emits = defineEmits<{
-  titleClick: [index: number, id: number]
-}>()
+const handleTitleSelect = (notice: API.NoticeVo) => {
+  noticeStore.read(notice.id!)
+  noticeStore.selected = notice
+}
 </script>
 
 <template>
@@ -37,26 +33,26 @@ const emits = defineEmits<{
     <div class="card-content">
       <div class="sider">
         <NoticeTitle
-          v-for="notice, index in noticeList"
+          v-for="notice in noticeStore.noticeList"
           :key="notice.id"
           :notice="notice"
-          :hidden="records.has(notice.id!)"
-          :is-selected="selectedIndex === index"
-          @click="() => emits('titleClick', index, notice.id!)"
+          :hidden="noticeStore.isRead(notice.id!)"
+          :is-selected="noticeStore.selected?.id === notice.id"
+          @click="() => handleTitleSelect(notice)"
         />
       </div>
 
-      <div v-if="!selectedNotice" class="detail">
+      <div v-if="!noticeStore.selected" class="detail">
         No content
       </div>
 
       <div v-else class="detail">
         <div class="detail-title">
-          {{ selectedNotice.title }}
+          {{ noticeStore.selected.title }}
         </div>
         <AppRichtextEditor
           class="flex-1"
-          :model-value="selectedNotice.content"
+          :model-value="noticeStore.selected.content"
           :base-text-size="20"
           :headers="[2, 4]"
           :view-line-height="1.5"

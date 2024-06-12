@@ -1,31 +1,15 @@
 <script setup lang="ts">
 import { context } from './context'
-import { useNoticeList, useReadingRecord } from './hooks'
 import { NoticeCard } from './components'
 
-const { noticeList } = useNoticeList()
-
-const { records, read } = useReadingRecord(context, noticeList)
-
-const selectedIndex = ref(0)
-
-const onTitleClick = (index: number, id: number) => {
-  selectedIndex.value = index
-  read(id)
-}
-
-const selectedNotice = computed(() => noticeList.value[selectedIndex.value])
+const selectedNotice = shallowRef<API.NoticeVo>()
 </script>
 
 <template>
   <dialog :ref="context.dialogRef" class="app-notice-provider genshin-text">
     <NoticeCard
+      v-model:selected-notice="selectedNotice"
       :context="context"
-      :notice-list="noticeList"
-      :selected-notice="selectedNotice"
-      :selected-index="selectedIndex"
-      :records="records"
-      @title-click="onTitleClick"
     />
   </dialog>
 </template>

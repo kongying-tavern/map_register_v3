@@ -11,7 +11,13 @@ export const usePreferenceStore = defineStore('global-user-preference', () => {
 
   const archiveStore = useArchiveStore()
 
-  const { data: preference, refresh: _updateUserPreference } = useFetchHook<UserPreference, [userId: number]>({
+  const _resolve = shallowRef<() => void>()
+
+  const ready = shallowRef(new Promise<void>((resolve) => {
+    _resolve.value = resolve
+  }))
+
+  const { data: preference, refresh: _updateUserPreference, onSuccess } = useFetchHook<UserPreference, [userId: number]>({
     initialValue: getDefaultPreference(),
     onRequest: async (userId) => {
       const queryPreference = await db.user.get(userId)
@@ -22,6 +28,10 @@ export const usePreferenceStore = defineStore('global-user-preference', () => {
         ...archiveStore.currentArchive.body.Preference,
       }
     },
+  })
+
+  onSuccess(() => {
+    _resolve.value?.()
   })
 
   // 获取当前用户的 userId
@@ -65,6 +75,7 @@ export const usePreferenceStore = defineStore('global-user-preference', () => {
 
   return {
     // states
+    ready,
     preference,
 
     // actions

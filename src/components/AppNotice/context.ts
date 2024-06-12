@@ -2,8 +2,6 @@ import type { EventHook } from '@vueuse/core'
 
 export interface NoticeContext {
   dialogRef: Ref<HTMLDialogElement | null>
-  newCount: Ref<number>
-  currentRecords: Ref<Set<number>>
   visible: Ref<boolean>
   closeHook: EventHook<string | undefined>
   show(): void
@@ -12,10 +10,6 @@ export interface NoticeContext {
 
 export const context: NoticeContext = {
   dialogRef: ref<HTMLDialogElement | null>(null),
-
-  newCount: ref(0),
-
-  currentRecords: ref(new Set<number>()),
 
   visible: ref(false),
 

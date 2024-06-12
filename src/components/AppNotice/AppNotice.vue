@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { ChatLineRound } from '@element-plus/icons-vue'
 import { context } from './context'
+import { useNoticeStore } from '@/stores'
+
+const noticeStore = useNoticeStore()
 </script>
 
 <template>
   <el-badge
-    :value="context.newCount.value"
-    :hidden="context.newCount.value < 1"
+    :value="noticeStore.newCount"
     class="notice-count"
   >
     <el-button
