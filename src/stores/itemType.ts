@@ -11,7 +11,10 @@ export const useItemTypeStore = defineStore('global-item-type', () => {
 
   const _itemTypeList = shallowRef<API.ItemTypeVo[]>([])
 
-  const itemTypeList = computed(() => _itemTypeList.value.filter(({ hiddenFlag }) => accessStore.checkHiddenFlag(hiddenFlag)))
+  const itemTypeList = computed(() => _itemTypeList.value
+    .filter(({ hiddenFlag }) => accessStore.checkHiddenFlag(hiddenFlag))
+    .sort(({ sortIndex: ia = 0 }, { sortIndex: ib = 0 }) => ib - ia),
+  )
   const total = computed(() => itemTypeList.value.length)
 
   /** @deprecated 使用 `itemTypeIdMap` 代替 */

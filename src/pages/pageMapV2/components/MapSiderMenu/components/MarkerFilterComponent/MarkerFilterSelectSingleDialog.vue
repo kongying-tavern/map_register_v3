@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import { SelectList } from '../SelectList'
-import { GSButton, GSDivider, GlobalDialogController } from '@/components'
+import { GSButton, GSDivider } from '@/components'
 
 type ValueType = string | number | null
 interface ItemType { [key: string]: ValueType }
-type KeyType = keyof ItemType
+type KeyType = string
 
 defineProps<{
   title?: string
@@ -14,46 +14,60 @@ defineProps<{
   valueKey: KeyType
 }>()
 
-const isNullable = (v: ValueType): boolean => v === undefined || v === null
+const emits = defineEmits<{
+  'update:modelValue': [v: ValueType]
+  'confirm': [v: ValueType]
+  'cancel': []
+}>()
 
 const modelValue = defineModel<ValueType>('modelValue', {
   required: false,
   default: null,
 })
 
+const isNullable = (v: ValueType): boolean => v === undefined || v === null
+
 const confirm = () => {
   if (isNullable(modelValue.value))
     return
-
-  GlobalDialogController.close()
+  emits('confirm', modelValue.value)
 }
 
 const cancel = () => {
-  GlobalDialogController.close()
+  emits('cancel')
 }
 </script>
 
 <template>
-  <div class="gs-dark-card flex flex-col overflow-hidden genshin-text min-w-[400px]">
+  <div class="genshin-dark-card flex flex-col overflow-hidden genshin-text min-w-[400px] w-[500px] h-[600px] max-w-[100dvw] max-h-[100dvh]">
     <template v-if="title">
       <div class="text-xl text-center">
         {{ title }}
       </div>
       <GSDivider color="#76716A" />
 
-      <el-scrollbar class="flex-1">
-        <SelectList
-          v-model="modelValue"
-          class="h-full overflow-auto gap-1"
-          :class="listClass"
-          :list="list"
-          :value-key="valueKey"
-        >
-          <template #default="{ item }">
-            {{ item[labelKey] }}
-          </template>
-        </SelectList>
-      </el-scrollbar>
+      <template v-if="$slots.list">
+        <slot
+          name="list"
+          v-bind="{ modelValue, listClass, list, labelKey, valueKey }"
+          @update:model-value="(v) => emits('update:modelValue', v)"
+        />
+      </template>
+      <template v-else>
+        <el-scrollbar class="flex-1">
+          <SelectList
+            v-model="modelValue"
+            class="h-full overflow-auto gap-1"
+            :class="listClass"
+            :list="list"
+            :value-key="valueKey"
+          >
+            <template #default="{ item }">
+              {{ item[labelKey] }}
+            </template>
+          </SelectList>
+        </el-scrollbar>
+      </template>
 
       <GSDivider color="#76716A" />
 
@@ -77,21 +91,3 @@ const cancel = () => {
     </template>
   </div>
 </template>
-
-<style lang="scss" scoped>
-.gs-dark-card {
-  padding: 36px 28px;
-  background: paint(dark-card-border);
-  color: var(--gs-text-color-priamry);
-  width: 500px;
-  height: 600px;
-  max-width: 100dvw;
-  max-height: 100dvh;
-  @supports not (background: paint(user-card-border)) {
-    background: #3E4556;
-    border-radius: 24px;
-    outline: 6px solid #393E52;
-    outline-offset: -6px;
-  }
-}
-</style>

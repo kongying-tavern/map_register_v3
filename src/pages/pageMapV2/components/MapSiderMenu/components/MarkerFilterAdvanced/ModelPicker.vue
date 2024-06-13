@@ -43,7 +43,7 @@ const handleClose = () => {
     class="custom-dialog hidden-header bg-transparent"
     @closed="handleClose"
   >
-    <div class="gs-dark-card flex flex-col overflow-hidden genshin-text">
+    <div class="genshin-dark-card flex flex-col overflow-hidden genshin-text w-[500px] h-[600px] max-w-[100dvw] max-h-[100dvh]">
       <div class="text-xl text-center">
         选择筛选类型
       </div>
@@ -86,21 +86,3 @@ const handleClose = () => {
     </div>
   </el-dialog>
 </template>
-
-<style lang="scss" scoped>
-.gs-dark-card {
-  padding: 36px 28px;
-  background: paint(dark-card-border);
-  color: var(--gs-text-color-priamry);
-  width: 500px;
-  height: 600px;
-  max-width: 100dvw;
-  max-height: 100dvh;
-  @supports not (background: paint(user-card-border)) {
-    background: #3E4556;
-    border-radius: 24px;
-    outline: 6px solid #393E52;
-    outline-offset: -6px;
-  }
-}
-</style>

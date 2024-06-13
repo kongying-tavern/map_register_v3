@@ -1,4 +1,4 @@
-<script lang="ts" setup generic="T extends Record<string, any>, LK extends keyof T, V extends T[LK], VV extends V[]">
+<script lang="ts" setup generic="T extends Record<string, any>, LK extends string, V extends unknown">
 import { get } from 'lodash'
 
 const props = defineProps<{
@@ -8,44 +8,38 @@ const props = defineProps<{
 }>()
 
 const emits = defineEmits<{
-  change: [v?: V]
-  multipleChange: [v: VV]
+  change: [v?: V | V[]]
 }>()
 
-/** 单选值 */
-const modelValue = defineModel<V | null>('modelValue', {
+const modelValue = defineModel<V | V[] | null>('modelValue', {
   required: false,
   default: null,
 })
 
-/** 多选值 */
-const modelMultipleValue = defineModel<VV>('modelMultipleValue', {
-  required: false,
-  default: [],
-})
+const isValueEqual = (v: V, obj: T) => JSON.stringify(v) === JSON.stringify(get(obj, props.valueKey))
 
 const isActived = (targetOpt: T) => !props.multiple
-  ? modelValue.value === get(targetOpt, props.valueKey)
-  : modelMultipleValue.value.findIndex(value => value === get(targetOpt, props.valueKey)) > -1
+  ? isValueEqual(modelValue.value as V, targetOpt)
+  : ((modelValue.value ?? []) as V[]).findIndex(value => isValueEqual(value, targetOpt)) > -1
 
 const patchValue = (patchOpt: T) => {
   // 单选
   if (!props.multiple) {
     const optValue = get(patchOpt, props.valueKey)
     modelValue.value = optValue !== modelValue.value ? optValue : null
-    emits('change', optValue as V)
+    emits('change', optValue)
   }
   // 多选
   else {
-    const shallowCopyValue = [...modelMultipleValue.value]
+    const shallowCopyValue = [...((modelValue.value ?? []) as V[])]
     const optValue = get(patchOpt, props.valueKey)
     const findIndex = shallowCopyValue.findIndex(value => value === optValue)
     if (findIndex > -1)
       shallowCopyValue.splice(findIndex, 1)
     else
       shallowCopyValue.push(optValue)
-    modelMultipleValue.value = shallowCopyValue as VV
-    emits('multipleChange', shallowCopyValue as VV)
+    modelValue.value = shallowCopyValue
+    emits('change', shallowCopyValue)
   }
 }
 </script>

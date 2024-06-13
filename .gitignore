@@ -31,3 +31,6 @@ auto-imports.d.ts
 # 文件补丁
 /patch-edit
 *.timestamp-*.*
+
+# VSCode
+.vscode/**/*.code-snippets

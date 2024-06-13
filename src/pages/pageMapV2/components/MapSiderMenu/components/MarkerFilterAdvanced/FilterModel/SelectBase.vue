@@ -2,13 +2,13 @@
 import { MarkerFilterSelect } from '../../MarkerFilterComponent'
 import type { MAFOptionSelect } from '@/stores/types'
 
-type ValueType = string | number | null
+type ValueType = string | number
 
 defineProps<{
   options: MAFOptionSelect<{ [key: string]: string | number }>
 }>()
 
-const modelValue = defineModel<ValueType | ValueType[]>('modelValue', {
+const modelValue = defineModel<ValueType | ValueType[] | undefined>('modelValue', {
   required: true,
   default: null,
 })
@@ -16,8 +16,7 @@ const modelValue = defineModel<ValueType | ValueType[]>('modelValue', {
 
 <template>
   <MarkerFilterSelect
-    v-model:model-value="modelValue"
-    v-model:multiple-value="modelValue"
+    v-model="modelValue"
     :multiple="options.optionSelectMultiple"
     :list="options.options"
     :label-key="options.optionLabel"

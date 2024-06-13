@@ -47,7 +47,7 @@ const cancel = () => {
     class="custom-dialog hidden-header bg-transparent min-w-[500px]"
     @open="open()"
   >
-    <div class="gs-dark-card flex flex-col overflow-hidden genshin-text">
+    <div class="genshin-dark-card flex flex-col overflow-hidden genshin-text">
       <div class="text-xl text-center">
         选择地图
       </div>
@@ -88,17 +88,3 @@ const cancel = () => {
     </div>
   </el-dialog>
 </template>
-
-<style lang="scss" scoped>
-.gs-dark-card {
-  padding: 36px 28px;
-  background: paint(dark-card-border);
-  color: var(--gs-text-color-priamry);
-  @supports not (background: paint(user-card-border)) {
-    background: #3E4556;
-    border-radius: 24px;
-    outline: 6px solid #393E52;
-    outline-offset: -6px;
-  }
-}
-</style>

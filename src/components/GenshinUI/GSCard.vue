@@ -5,9 +5,9 @@ defineProps<{
 </script>
 
 <template>
-  <div class="gs-card-dark flex flex-col" v-bind="$attrs">
+  <div class="genshin-dark-card flex flex-col" v-bind="$attrs">
     <slot name="header">
-      <div v-if="title || $slots.title" class="gs-card-title genshin-text text-center">
+      <div v-if="title || $slots.title" class="genshin-card-title genshin-text text-center px-[36px]">
         <slot name="title">
           {{ title }}
         </slot>
@@ -17,21 +17,3 @@ defineProps<{
     <slot name="default" />
   </div>
 </template>
-
-<style lang="scss" scoped>
-.gs-card-dark {
-  background: paint(dark-card-border);
-  padding: 36px;
-  @supports not (background: paint(user-card-border)) {
-    background: #3E4556;
-    border-radius: 24px;
-    outline: 6px solid #393E52;
-    outline-offset: -6px;
-  }
-}
-
-.gs-card-title {
-  color: #D3BC8E;
-  font-size: 30px;
-}
-</style>
