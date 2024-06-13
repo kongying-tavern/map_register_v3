@@ -20,6 +20,10 @@ export declare namespace MapWindow {
     minWidth?: number
     /** @default 300 */
     minHeight?: number
+    /** @default 0 */
+    x?: number
+    /** @default 0 */
+    y?: number
     beforeClose?: () => boolean
   }
 
