@@ -43,6 +43,16 @@ const childrenCountMap = computed(() => {
   })
   return childrenCount
 })
+
+const removeChildren = (parent: AreaWithChildren) => {
+  const shallowCopyValue = [...modelValue.value]
+  const valueSet = new Set<number>(shallowCopyValue)
+  const childrenIds: number[] = (parent.children ?? []).map(child => child.id!).filter(v => v)
+  childrenIds.forEach((childId) => {
+    valueSet.delete(childId)
+  })
+  modelValue.value = Array.from(valueSet)
+}
 </script>
 
 <template>
@@ -56,14 +66,17 @@ const childrenCountMap = computed(() => {
       >
         <template #default="{ item }">
           <span class="flex-auto">{{ item[labelKey] }}</span>
-          <el-tag
+          <el-button
             v-if=" childrenCountMap[item.id!] > 0"
             class="flex-none"
-            effect="dark"
+            type="primary"
+            size="small"
             round
+            .draggable="true"
+            @drag.stop="removeChildren(item)"
           >
             {{ childrenCountMap[item.id!] }}
-          </el-tag>
+          </el-button>
         </template>
       </SelectList>
     </el-scrollbar>
