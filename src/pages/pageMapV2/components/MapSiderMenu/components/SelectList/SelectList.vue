@@ -1,4 +1,4 @@
-<script lang="ts" setup generic="T extends Record<string, any>, LK extends keyof T, V extends T[LK]">
+<script lang="ts" setup generic="T extends Record<string, any>, LK extends string, V extends unknown">
 import { get } from 'lodash'
 
 const props = defineProps<{
@@ -16,9 +16,11 @@ const modelValue = defineModel<V | V[] | null>('modelValue', {
   default: null,
 })
 
+const isValueEqual = (v: V, obj: T) => JSON.stringify(v) === JSON.stringify(get(obj, props.valueKey))
+
 const isActived = (targetOpt: T) => !props.multiple
-  ? modelValue.value === get(targetOpt, props.valueKey)
-  : ((modelValue.value ?? []) as V[]).findIndex(value => value === get(targetOpt, props.valueKey)) > -1
+  ? isValueEqual(modelValue.value as V, targetOpt)
+  : ((modelValue.value ?? []) as V[]).findIndex(value => isValueEqual(value, targetOpt)) > -1
 
 const patchValue = (patchOpt: T) => {
   // 单选

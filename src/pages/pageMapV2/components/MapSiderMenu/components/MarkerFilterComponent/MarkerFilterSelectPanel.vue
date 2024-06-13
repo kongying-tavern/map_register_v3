@@ -65,7 +65,10 @@ const cancel = () => {
       @cancel="cancel()"
     >
       <template v-if="$slots.list" #list="slotProps">
-        <slot name="list" v-bind="slotProps" />
+        <slot
+          name="list"
+          v-bind="slotProps"
+        />
       </template>
     </component>
   </el-dialog>

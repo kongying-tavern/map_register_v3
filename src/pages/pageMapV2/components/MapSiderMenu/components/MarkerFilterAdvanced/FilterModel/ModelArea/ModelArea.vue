@@ -37,7 +37,10 @@ const modelValue = defineModel<MAFValueNumberArray>('modelValue', {
       </template>
 
       <template #list="props">
-        <ModelAreaDialog v-bind="props" />
+        <ModelAreaDialog
+          v-model="modelValue.na"
+          v-bind="props"
+        />
       </template>
     </MarkerFilterSelectPanel>
   </div>
