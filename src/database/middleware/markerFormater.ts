@@ -15,6 +15,8 @@ export const markerFormater: Middleware<DBCore> = {
       return {
         ...downlevelTable,
         mutate: (req) => {
+          if (downlevelTable.name !== 'marker')
+            return downlevelTable.mutate(req)
           if (req.type === 'add' || req.type === 'put') {
             req.values = req.values.map((markerVo: API.MarkerVo) => ({
               ...markerVo,
