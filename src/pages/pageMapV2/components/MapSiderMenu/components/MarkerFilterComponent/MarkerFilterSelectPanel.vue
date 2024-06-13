@@ -1,4 +1,4 @@
-<script lang="ts" setup generic="T extends {[key: string]: string | number}, K extends keyof string, V extends unknown">
+<script lang="ts" setup generic="T extends {[key: string]: string | number}, K extends string, V extends unknown">
 import type { Component, Ref } from 'vue'
 import SingleDialog from './MarkerFilterSelectSingleDialog.vue'
 import MultiDialog from './MarkerFilterSelectMultiDialog.vue'

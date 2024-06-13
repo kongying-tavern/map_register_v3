@@ -8,8 +8,8 @@ import type { AreaWithChildren } from '@/stores'
 defineProps<{
   listClass?: string
   list: AreaWithChildren[]
-  labelKey: keyof AreaWithChildren
-  valueKey: keyof AreaWithChildren
+  labelKey: string
+  valueKey: string
 }>()
 
 const modelValue = defineModel<number[]>('modelValue', {
@@ -46,7 +46,6 @@ const childrenCountMap = computed(() => {
 </script>
 
 <template>
-  {{ modelValue }}
   <div class="w-full flex-1 flex gap-2">
     <el-scrollbar class="flex-1">
       <SelectList
@@ -70,7 +69,7 @@ const childrenCountMap = computed(() => {
     </el-scrollbar>
     <el-scrollbar class="flex-1">
       <SelectList
-        v-model:model-multiple-value="modelValue"
+        v-model="modelValue"
         :multiple="true"
         class="h-full overflow-auto gap-1"
         :list="childrenList"
