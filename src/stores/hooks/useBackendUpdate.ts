@@ -90,7 +90,8 @@ export const useBackendUpdate = <T, Key>(
       const newDigestCodeSet = new Set(digestCodeList)
 
       // 2. 获取旧的摘要数组
-      const oldDigestList = await db.digest.where('tableName').equals(table.name).toArray()
+      const oldDigestCollection = db.digest.where('tableName').equals(table.name)
+      const oldDigestList = await oldDigestCollection.toArray()
 
       const oldDigestCodeList = oldDigestList.map(({ code }) => code)
       const oldDigestCodeSet = new Set(oldDigestCodeList)
@@ -135,22 +136,27 @@ export const useBackendUpdate = <T, Key>(
       const dataKeyForDelete: IndexableTypePart[] = []
       const digestCodeForDelete: string[] = []
 
-      for (const { code, range } of oldDigestList.filter(({ code }) => !newDigestCodeSet.has(code))) {
+      // 检测新旧摘要数量是否一致，不一致则清除全部的旧摘要
+      const isBalaenced = oldDigestList.length === digestCodeList.length
+
+      for (const { code, range } of oldDigestList.filter(({ code }) => !isBalaenced || !newDigestCodeSet.has(code))) {
         table.where(src).inAnyRange([range], { includeUppers: true }).eachKey((key) => {
           dataKeyForDelete.push(key as IndexableTypePart)
           deleteCount++
         })
-        db.digest.where('tableName').equals(table.name).and(({ code: oldCode }) => oldCode === code).each((digest) => {
-          digestCodeForDelete.push(digest.code)
-        })
+        digestCodeForDelete.push(code)
       }
 
-      await db.transaction('rw', table as Table<T, IndexableTypePart>, db.digest, async () => {
-        await (table as Table<T, IndexableTypePart>).bulkDelete(dataKeyForDelete)
-        await db.digest.bulkDelete(digestCodeForDelete)
-        await table.bulkPut(dataForUpdating)
-        await db.digest.bulkPut(digestForUpdating)
-      })
+      /**
+       * @fixme 由于依赖 worker 代理大数据操作，主线程创建的数据库事务会被 worker 进行的数据库事务提前终止而导致异常
+       * 因此这里暂时放弃事务
+       */
+      // await db.transaction('rw', table as Table<T, IndexableTypePart>, db.digest, async () => {
+      await (table as Table<T, IndexableTypePart>).bulkDelete(dataKeyForDelete)
+      await table.bulkPut(dataForUpdating)
+      await db.digest.bulkDelete(digestCodeForDelete)
+      await db.digest.bulkPut(digestForUpdating)
+      // })
 
       return {
         deleteCount,

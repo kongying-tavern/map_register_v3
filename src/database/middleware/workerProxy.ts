@@ -7,6 +7,7 @@ import type {
   DBCoreTable,
   Middleware,
 } from 'dexie'
+import { get } from 'lodash'
 import { createWorkerHelper } from '@/utils'
 import Worker from '@/worker/db.worker?worker'
 import type { WorkerInput, WorkerOutput } from '@/worker/db.worker'
@@ -22,32 +23,64 @@ const collectTransferable = (value: unknown, transferable: Transferable[] = []) 
     return transferable.push(value.buffer)
   if (Array.isArray(value))
     return value.forEach(item => collectTransferable(item, transferable))
+  return Object.keys(value).forEach(key => collectTransferable(value[key], transferable))
 }
 
+/** 代理 add 操作 */
 const handlerAdd = async (req: DBCoreAddRequest, table: DBCoreTable): Promise<DBCoreMutateResponse> => {
+  const { keyPath } = table.schema.primaryKey
+  const lastResult = req.values.at(-1)
+
   const defaultRes = {
     failures: {},
-    lastResult: undefined,
+    lastResult: keyPath ? get(lastResult, keyPath) : lastResult,
     numFailures: 0,
-    results: [],
+    results: req.values.map(value => keyPath ? get(value, keyPath) : value),
   }
 
   if (!req.values.length)
     return defaultRes
 
-  return table.mutate(req)
+  if (req.values.length < 200)
+    return table.mutate(req)
+
+  const transferable: Transferable[] = []
+  collectTransferable(req.values, transferable)
+
+  const res = await send({
+    tableName: table.name,
+    type: 'add',
+    values: req.values,
+  }, transferable)
+
+  if (typeof res === 'string') {
+    const error = new Error(res)
+    defaultRes.failures = req.values.map(() => error)
+    defaultRes.numFailures = req.values.length
+    defaultRes.lastResult = undefined
+    defaultRes.results = []
+  }
+
+  return defaultRes
 }
 
+/** 代理 put 操作 */
 const handlerPut = async (req: DBCorePutRequest, table: DBCoreTable): Promise<DBCoreMutateResponse> => {
+  const { keyPath } = table.schema.primaryKey
+  const lastResult = req.values.at(-1)
+
   const defaultRes = {
     failures: {},
-    lastResult: undefined,
+    lastResult: keyPath ? get(lastResult, keyPath) : lastResult,
     numFailures: 0,
-    results: [],
+    results: req.values.map(value => keyPath ? get(value, keyPath) : value),
   }
 
   if (!req.values.length)
     return defaultRes
+
+  if (req.values.length < 200)
+    return table.mutate(req)
 
   const transferable: Transferable[] = []
   collectTransferable(req.values, transferable)
@@ -62,6 +95,8 @@ const handlerPut = async (req: DBCorePutRequest, table: DBCoreTable): Promise<DB
     const error = new Error(res)
     defaultRes.failures = req.values.map(() => error)
     defaultRes.numFailures = req.values.length
+    defaultRes.lastResult = undefined
+    defaultRes.results = []
   }
 
   return defaultRes
@@ -78,12 +113,7 @@ const workerMutate = (req: DBCoreMutateRequest, table: DBCoreTable): Promise<DBC
     case 'put':
       return handlerPut(req, table)
     default:
-      return Promise.resolve<DBCoreMutateResponse>({
-        failures: {},
-        lastResult: undefined,
-        numFailures: 0,
-        results: [],
-      })
+      return table.mutate(req)
   }
 }
 

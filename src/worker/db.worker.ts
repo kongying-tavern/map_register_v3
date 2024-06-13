@@ -5,7 +5,6 @@ import type {
 } from 'dexie'
 import { WorkerThreadDB } from '@/database/db/worker'
 import { useLoggerWorker } from '@/hooks/useWorkerLogger'
-import type { Logger } from '@/utils/logger'
 
 declare const globalThis: DedicatedWorkerGlobalScope
 
@@ -27,10 +26,8 @@ export type WorkerOutput =
 
 const db = new WorkerThreadDB()
 
-const mutate = async (ev: MessageEvent<WorkerInput>, logger: Logger): Promise<DBCoreMutateResponse> => {
+const mutate = async (ev: MessageEvent<WorkerInput>): Promise<DBCoreMutateResponse> => {
   const { data } = ev
-
-  logger.info(`正在代理表 ${data.tableName} 的 ${data.type} 操作, 数据长度: ${data.values.length}`)
 
   switch (data.type) {
     case 'add':
@@ -54,12 +51,16 @@ const mutate = async (ev: MessageEvent<WorkerInput>, logger: Logger): Promise<DB
 globalThis.addEventListener('message', async (ev: MessageEvent<WorkerInput>) => {
   const { send, logger } = useLoggerWorker<WorkerInput, WorkerOutput>(ev, '数据库代理')
 
+  const { tableName, type, values } = ev.data
+
   try {
-    const res = await mutate(ev, logger)
+    const now = Date.now()
+    const res = await mutate(ev)
+    logger.info(`代理表 ${tableName} 的 ${type} 操作成功，共 ${values.length} 条数据，耗时 ${Date.now() - now} ms`)
     send(res)
   }
   catch (err) {
-    logger.error(err instanceof Error ? err.message : `${err}`)
+    logger.error(`代理表 ${tableName} 的 ${type} 操作失败，原因为：${err instanceof Error ? err.message : `${err}`}`)
     send(err instanceof Error ? err.message : `${err}`)
   }
 })
