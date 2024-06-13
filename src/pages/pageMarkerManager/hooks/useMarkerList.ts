@@ -1,7 +1,8 @@
 import type { Ref } from 'vue'
 import type { PaginationState } from '@/hooks'
 import { useFetchHook } from '@/hooks'
-import db from '@/database'
+import { useAreaStore, useItemStore, useItemTypeStore, useMarkerStore } from '@/stores'
+import Api from '@/api/api'
 
 export interface MarkerSearchParams {
   areaIdList: number[]
@@ -22,72 +23,125 @@ const markerList = ref<API.MarkerVo[]>([]) as Ref<API.MarkerVo[]>
 export const useSearchMarkerList = (options: MarkerSearchHookOptions) => {
   const { pagination, getParams } = options
 
-  const params = computed(() => getParams())
+  const areaStore = useAreaStore()
+  const itemStore = useItemStore()
+  const markerStore = useMarkerStore()
+  const itemTypeStore = useItemTypeStore()
 
-  const hasIntersection = (a: number[], b: number[]) => {
-    const numSet = a.length < b.length ? new Set(a) : new Set(b)
-    const arr = a.length < b.length ? b : a
-    for (const num of arr) {
-      if (numSet.has(num))
-        return true
-    }
-    return false
-  }
+  const lastQueryFlag = shallowRef<string>('')
+  const lastQueryCache = shallowRef<API.MarkerVo[]>([])
 
   const { refresh: updateMarkerList, onSuccess, ...rest } = useFetchHook({
     immediate: true,
+    initialValue: {
+      markers: [],
+      total: 0,
+    },
     onRequest: async () => {
-      const { areaIdList, typeIdList, itemIdList, markerIdList } = params.value
+      const { areaIdList, typeIdList, itemIdList, markerIdList } = getParams()
       const { current, pageSize: size } = pagination.value
 
-      const queryAreaItemIds = areaIdList.length > 0 ? (await db.item.where('areaId').anyOf(areaIdList).toArray()).map(itemVo => itemVo.id!) : undefined
-      const queryTypeItemIds = typeIdList.length > 0 ? (await db.item.where('typeIdList').anyOf(typeIdList).toArray()).map(itemVo => itemVo.id!) : undefined
-      const idSet = new Set(markerIdList)
+      const { itemIdMap } = itemStore
+      const { markerList } = markerStore
 
-      // 1. 优先查询包含地区
-      let collection = queryAreaItemIds ? db.marker.where('itemIdList').anyOf(queryAreaItemIds) : db.marker.toCollection()
+      const dirtyFlag = JSON.stringify({ areaIdList, typeIdList, itemIdList, markerIdList })
 
-      collection = collection.and(({ id, itemList = [] }) => {
-        const itemLinkIds = itemList.map(itemLink => itemLink.itemId!)
+      const areaIds = new Set<number>(areaIdList)
+      const typeIds = new Set(typeIdList)
+      const itemIds = new Set(itemIdList)
+      const markerIds = new Set(markerIdList)
 
-        // 2. 查询包含类型
-        if (queryTypeItemIds && !hasIntersection(itemLinkIds, queryTypeItemIds))
-          return false
+      const result = dirtyFlag === lastQueryFlag.value
+        ? lastQueryCache.value
+        : markerList.filter(({ id: markerId, itemList = [] }) => {
+          const items = itemList.reduce((seed, { itemId = -1 }) => {
+            const item = itemIdMap.get(itemId) ?? { id: itemId }
+            seed.push(item)
+            return seed
+          }, [] as API.ItemVo[])
 
-        // 3. 查询包含物品
-        if (itemIdList.length && !hasIntersection(itemLinkIds, itemIdList))
-          return false
+          // 1. 筛选包含地区
+          if (areaIds.size > 0) {
+            for (const { areaId } of items) {
+              if (areaId === undefined || !areaIds.has(areaId!))
+                return false
+            }
+          }
 
-        // 4. 查询包含 id
-        if (markerIdList.length && !idSet.has(id!))
-          return false
+          // 2. 筛选物品类型
+          if (typeIds.size > 0) {
+            const itemTypeIds = items.reduce((set, { typeIdList = [] }) => {
+              typeIdList.forEach(id => set.add(id!))
+              return set
+            }, new Set<number>())
+            if (itemTypeIds.isDisjointFrom(typeIds))
+              return false
+          }
 
-        return true
-      })
+          // 3. 筛选物品
+          if (itemIds.size > 0) {
+            for (const { id } of items) {
+              if (!itemIds.has(id!))
+                return false
+            }
+          }
 
-      const totalMarkers = await collection.toArray()
+          // 4. 筛选 id
+          if (markerIds.size > 0) {
+            if (!markerIds.has(markerId!))
+              return false
+          }
+
+          return true
+        })
+
+      if (result.length > 0) {
+        lastQueryFlag.value = dirtyFlag
+        lastQueryCache.value = result
+      }
 
       const offset = (current - 1) * size
-      const markers = totalMarkers.slice(offset, offset + size)
-      const total = totalMarkers.length
+      const total = result.length
+      const markers = result.slice(offset, offset + size)
 
       return { markers, total }
     },
   })
 
+  const cacheUserInfo = ref(new Map<number, API.SysUserVo>())
+
+  const cachedUserIds = ref(new Set<number>())
+
+  const fetchUserInfo = async (markers: API.MarkerVo[]) => {
+    const userIds = new Set(markers.map(({ creatorId }) => creatorId!)).difference(cachedUserIds.value)
+
+    await Promise.allSettled([...userIds].map(async (userId) => {
+      const { data = {} } = await Api.user.getUserInfo({ userId }).catch(() => ({ data: {} }))
+      cachedUserIds.value.add(userId)
+      cacheUserInfo.value.set(userId, data)
+    }))
+  }
+
+  watchDebounced(() => [
+    markerStore.markerList,
+    areaStore.areaList,
+    itemStore.itemList,
+    itemTypeStore.itemTypeList,
+  ], updateMarkerList, {
+    debounce: 300,
+  })
+
   onSuccess(({ markers, total }) => {
     markerList.value = markers
     pagination.value.total = total
+    fetchUserInfo(markers)
   })
 
-  const resetPaginationUpdate = () => {
-    pagination.value.current = 1
-    updateMarkerList()
+  return {
+    markerList,
+    cacheUserInfo,
+    updateMarkerList,
+    onSuccess,
+    ...rest,
   }
-
-  watch(() => pagination.value.current, updateMarkerList)
-  watch(() => [pagination.value.pageSize], resetPaginationUpdate)
-  watchDebounced(() => params.value, resetPaginationUpdate, { debounce: 500 })
-
-  return { markerList, updateMarkerList, onSuccess, ...rest }
 }

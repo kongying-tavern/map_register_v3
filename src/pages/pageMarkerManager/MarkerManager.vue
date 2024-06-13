@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import type { MarkerSearchParams } from './hooks'
-import { useItemList, useMarkerBatchEdit, useSearchMarkerList } from './hooks'
-import { MarkerBatchEditor, MarkerFilter, MarkerTable } from './components'
-import { PgUnit, usePagination } from '@/hooks'
+import { useItemList, useSearchMarkerList } from './hooks'
+import { MarkerDeleteConfirm, MarkerFilter, MarkerTable } from './components'
+import { PgUnit, useGlobalDialog, usePagination } from '@/hooks'
 
 // ==================== 搜索 ====================
 const queryForm = ref<MarkerSearchParams>({
@@ -19,28 +19,15 @@ const { layout, pagination } = usePagination({
 })
 
 // ==================== 点位 ====================
-const { markerList, loading, updateMarkerList } = useSearchMarkerList({
+const { markerList, cacheUserInfo, updateMarkerList } = useSearchMarkerList({
   pagination,
   getParams: () => queryForm.value,
 })
 
-// ==================== 批量编辑 ====================
-const markerSelections = ref<API.MarkerVo[]>([])
-
-const countSelections = computed(() => {
-  const lens = markerSelections.value.length
-  return lens > 0 ? `: ${lens}` : ''
-})
-
-const multipleEditDialogVisible = ref<boolean>(false)
-const handleBatchEdit = () => {
-  multipleEditDialogVisible.value = true
+const resetCurrentRefresh = async () => {
+  pagination.value.current = 1
+  await updateMarkerList()
 }
-
-const { batchEditForm, batchEditMarker, onSuccess: onBatchUpdateSuccess } = useMarkerBatchEdit({
-  getParams: () => markerSelections.value,
-})
-onBatchUpdateSuccess(updateMarkerList)
 
 // ==================== 物品 ====================
 const { itemOptions } = useItemList({
@@ -59,24 +46,39 @@ watch(itemOptions, (options) => {
     }
   }
 })
+
+const { DialogService } = useGlobalDialog()
+
+const handleDeleteMarker = (marker: API.MarkerVo) => {
+  DialogService
+    .config({
+      alignCenter: true,
+      closeOnClickModal: false,
+      closeOnPressEscape: false,
+    })
+    .props({
+      title: '删除点位',
+      marker,
+    })
+    .listeners({
+      success: updateMarkerList,
+    })
+    .open(MarkerDeleteConfirm)
+}
 </script>
 
 <template>
-  <div class="h-full flex-1 flex flex-col gap-2 overflow-hidden p-4">
-    <MarkerFilter v-model="queryForm">
-      <template #footer>
-        <div class="w-full flex  justify-end">
-          <el-button :disabled="!markerSelections.length" @click="handleBatchEdit">
-            批量修改 {{ countSelections }}
-          </el-button>
-          <el-button type="danger" :disabled="!markerSelections.length">
-            批量删除 {{ countSelections }}
-          </el-button>
-        </div>
-      </template>
-    </MarkerFilter>
+  <div class="h-full flex-1 flex flex-col overflow-hidden">
+    <MarkerFilter
+      v-model="queryForm"
+      @change="resetCurrentRefresh"
+    />
 
-    <MarkerTable v-model:selections="markerSelections" :marker-list="markerList" :loading="loading" />
+    <MarkerTable
+      :marker-list="markerList"
+      :cache-user-info="cacheUserInfo"
+      @delete="handleDeleteMarker"
+    />
 
     <el-pagination
       v-model:current-page="pagination.current"
@@ -85,15 +87,10 @@ watch(itemOptions, (options) => {
       :layout="layout"
       :page-sizes="[10, 20, 30]"
       :pager-count="5"
-      class="flex justify-end items-center"
+      class="flex justify-end items-center p-2"
       background
-    />
-
-    <MarkerBatchEditor
-      v-model:visible="multipleEditDialogVisible"
-      v-model="batchEditForm"
-      :selections="markerSelections"
-      @submit="batchEditMarker"
+      @current-change="updateMarkerList"
+      @size-change="updateMarkerList"
     />
   </div>
 </template>

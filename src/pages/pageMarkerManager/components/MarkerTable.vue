@@ -1,41 +1,25 @@
 <script lang="ts" setup>
-import { QuestionFilled, VideoCamera } from '@element-plus/icons-vue'
+import { Delete, QuestionFilled, VideoCamera } from '@element-plus/icons-vue'
 import { useGlobalDialog } from '@/hooks'
 import { refreshTimeFormatter } from '@/utils'
 import { AppBilibiliVideoPlayer } from '@/components'
+import { useAreaStore, useItemStore } from '@/stores'
+import { HIDDEN_FLAG_NAME_MAP } from '@/shared'
 
 defineProps<{
-  loading: boolean
   markerList: API.MarkerVo[]
-  selections: API.MarkerVo[]
+  cacheUserInfo: Map<number, API.SysUserVo>
 }>()
 
-const emits = defineEmits<{
-  'update:selections': [markers: API.MarkerVo[]]
+defineEmits<{
+  delete: [API.MarkerVo]
 }>()
+
+const areaStore = useAreaStore()
+const itemStore = useItemStore()
 
 const tableContainerRef = ref<HTMLElement | null>(null)
 const { width, height } = useElementSize(tableContainerRef)
-
-const handleSelectionChange = (val: API.MarkerVo[]) => {
-  emits('update:selections', val)
-}
-
-const getLargePictureUrl = (url: string) => {
-  if (!url)
-    return ''
-  const previewUrl = new URL(url)
-  const pathnames = previewUrl.pathname.split('/')
-  pathnames.splice(-1, 1, pathnames.at(-1)?.replace(/\.jpg/, '_large.jpg') ?? '')
-  return `${previewUrl.origin}${pathnames.join('/')}`
-}
-
-const positionFormatter = (row: API.MarkerVo) => {
-  const [x, y] = row.position!.split(',')
-  const numX = Math.floor(Number.parseFloat(x))
-  const numY = Math.floor(Number.parseFloat(y))
-  return `(${numX}, ${numY})`
-}
 
 const { DialogService } = useGlobalDialog()
 
@@ -50,42 +34,61 @@ const playBilibiliVideo = (row: API.MarkerVo) => {
     })
     .open(AppBilibiliVideoPlayer)
 }
+
+const getItemAreaNames = ({ itemList = [] }: API.MarkerVo) => {
+  return itemList.reduce((set, { itemId }) => {
+    const item = itemStore.itemIdMap.get(itemId!)
+    if (!item)
+      return set.add(`(itemId: ${itemId})`)
+
+    const area = areaStore.areaIdMap.get(item.areaId!)
+    if (!area)
+      return set.add(`(itemId: ${itemId})`)
+
+    return set.add(area.name ?? `(areaId: ${area.id!})`)
+  }, new Set<string>())
+}
 </script>
 
 <template>
-  <div ref="tableContainerRef" v-loading="loading" element-loading-text="点位加载中..." class="flex-1 overflow-hidden">
+  <div
+    ref="tableContainerRef"
+    class="flex-1 overflow-hidden px-2"
+  >
     <el-table
       :data="markerList"
-      :border="true"
       :width="width"
       :max-height="height"
       :height="height"
       class="marker-table"
-      @selection-change="handleSelectionChange"
     >
-      <el-table-column align="center" type="selection" width="50" />
-
       <el-table-column prop="id" label="ID" :width="100" />
 
-      <el-table-column prop="markerTitle" label="点位名称" :width="150" />
+      <el-table-column prop="markerTitle" label="名称" :width="150" show-overflow-tooltip />
 
-      <el-table-column prop="position" label="点位位置" :width="150" :formatter="positionFormatter" />
+      <el-table-column label="地区" :width="200">
+        <template #default="{ row }">
+          <el-tag
+            v-for="name in getItemAreaNames(row)"
+            :key="name"
+            :title="name"
+            disable-transitions
+          >
+            {{ name }}
+          </el-tag>
+        </template>
+      </el-table-column>
 
-      <el-table-column prop="content" label="点位描述" :width="300" show-overflow-tooltip />
+      <el-table-column prop="content" label="描述" show-overflow-tooltip />
 
-      <el-table-column prop="picture" label="点位图片" class-name="compact" :width="101">
+      <el-table-column prop="picture" label="图片" class-name="compact" :width="53">
         <template #default="{ row }">
           <el-image
             :src="row.picture"
             :z-index="5000"
-            :preview-src-list="[
-              row.picture,
-              getLargePictureUrl(row.picture),
-            ]"
-            style="width: 100px; height: 100px"
-            crossorigin=""
+            :preview-src-list="[row.picture]"
+            style="width: 52px; height: 52px"
             preview-teleported
-            lazy
           >
             <template #error>
               <div class="w-full h-full grid place-content-center place-items-center gap-2">
@@ -98,23 +101,42 @@ const playBilibiliVideo = (row: API.MarkerVo) => {
         </template>
       </el-table-column>
 
-      <el-table-column prop="videoPath" align="center" label="点位视频" :width="100">
+      <el-table-column prop="videoPath" align="center" label="视频" :width="100">
         <template #default="{ row }">
-          <el-button v-if="row.videoPath" :icon="VideoCamera" @click="() => playBilibiliVideo(row)" />
+          <el-button v-if="row.videoPath" text :icon="VideoCamera" @click="() => playBilibiliVideo(row)" />
+          <div v-else>
+            无
+          </div>
         </template>
       </el-table-column>
 
-      <el-table-column prop="creator.nickname" label="点位创建者" :width="150">
+      <el-table-column prop="creator.nickname" label="创建者" :width="150">
         <template #default="{ row }">
-          {{ row.creator?.nickname }}
+          {{ cacheUserInfo.get(row.creatorId)?.nickname ?? `(id: ${row.creatorId})` }}
         </template>
       </el-table-column>
 
-      <el-table-column prop="refreshTime" label="刷新时间" :formatter="refreshTimeFormatter" :width="150" />
+      <el-table-column prop="refreshTime" label="刷新类型" :formatter="refreshTimeFormatter" :width="150" />
 
-      <el-table-column prop="hiddenFlag" label="是否隐藏" :width="100">
+      <el-table-column prop="hiddenFlag" label="flag" :width="90">
         <template #default="{ row }">
-          {{ row.hiddenFlag ? '是' : '否' }}
+          {{ HIDDEN_FLAG_NAME_MAP[row.hiddenFlag] ?? 'unknown' }}
+        </template>
+      </el-table-column>
+
+      <el-table-column label="操作" :width="100" header-align="center" align="center">
+        <template #default="{ row }">
+          <el-button
+            circle
+            text
+            type="danger"
+            :icon="Delete"
+            style="
+              --el-fill-color: var(--el-color-danger-light-7);
+              --el-fill-color-light: var(--el-color-danger-light-9);
+            "
+            @click="() => $emit('delete', row)"
+          />
         </template>
       </el-table-column>
     </el-table>
@@ -127,7 +149,7 @@ const playBilibiliVideo = (row: API.MarkerVo) => {
     padding: 0;
     .cell {
       padding: 0;
-      line-height: 1;
+      line-height: 0;
     }
   }
 }
