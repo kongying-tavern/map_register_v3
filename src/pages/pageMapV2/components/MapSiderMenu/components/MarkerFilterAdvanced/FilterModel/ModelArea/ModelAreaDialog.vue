@@ -80,6 +80,7 @@ const removeChildren = (parent: AreaWithChildren) => {
         </template>
       </SelectList>
     </el-scrollbar>
+    <div class="w-[2px] h-[97%] translate-y-[1.5%] bg-[#E3DDD140]" />
     <el-scrollbar class="flex-1">
       <SelectList
         v-model="modelValue"
