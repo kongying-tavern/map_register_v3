@@ -14,12 +14,16 @@ defineProps<{
   valueKey: KeyType
 }>()
 
-const isNullable = (v: ValueType): boolean => v === undefined || v === null
+const emits = defineEmits<{
+  'update:modelValue': [v: ValueType]
+}>()
 
 const modelValue = defineModel<ValueType>('modelValue', {
   required: false,
   default: null,
 })
+
+const isNullable = (v: ValueType): boolean => v === undefined || v === null
 
 const confirm = () => {
   if (isNullable(modelValue.value))
@@ -41,8 +45,12 @@ const cancel = () => {
       </div>
       <GSDivider color="#76716A" />
 
-      <template v-if="$slots.default">
-        <slot />
+      <template v-if="$slots.list">
+        <slot
+          name="list"
+          v-bind="{ modelValue, listClass, list, labelKey, valueKey }"
+          @update:model-value="(v) => emits('update:modelValue', v)"
+        />
       </template>
       <template v-else>
         <el-scrollbar class="flex-1">

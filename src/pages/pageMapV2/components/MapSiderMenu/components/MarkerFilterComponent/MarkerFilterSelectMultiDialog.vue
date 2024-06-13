@@ -14,6 +14,10 @@ defineProps<{
   valueKey: KeyType
 }>()
 
+const emits = defineEmits<{
+  'update:modelValue': [v: ValueType[]]
+}>()
+
 const modelValue = defineModel<ValueType[]>('modelValue', {
   required: false,
   default: [],
@@ -36,13 +40,17 @@ const cancel = () => {
       </div>
       <GSDivider color="#76716A" />
 
-      <template v-if="$slots.default">
-        <slot />
+      <template v-if="$slots.list">
+        <slot
+          name="list"
+          v-bind="{ modelValue, listClass, list, labelKey, valueKey }"
+          @update:model-value="(v) => emits('update:modelValue', v)"
+        />
       </template>
       <template v-else>
         <el-scrollbar class="flex-1">
           <SelectList
-            v-model:model-multiple-value="modelValue"
+            v-model="modelValue"
             class="h-full overflow-auto gap-1"
             :multiple="true"
             :class="listClass"

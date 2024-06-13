@@ -18,14 +18,9 @@ const emits = defineEmits<{
   'update:modelValue': [v: V | V[]]
 }>()
 
-const modelValue = defineModel<V>('modelValue', {
-  required: true,
+const modelValue = defineModel<V | V[]>('modelValue', {
+  required: false,
   default: null,
-})
-
-const multipleValue = defineModel<V[]>('multipleValue', {
-  required: true,
-  default: [],
 })
 
 const { DialogService } = useGlobalDialog()
@@ -39,13 +34,13 @@ const getDialogConfig = () => ({
 })
 
 const openDialog = () => {
-  const slots: Record<string, Component> = props.dialogListComponent ? { default: props.dialogListComponent } : {}
+  const slots: Record<string, Component> = props.dialogListComponent ? { list: props.dialogListComponent } : {}
 
   if (props.multiple) {
     DialogService
       .config(getDialogConfig())
       .props({
-        modelValue: multipleValue,
+        modelValue,
         title: props.dialogTitle,
         listClass: props.dialogListClass,
         list: props.list,

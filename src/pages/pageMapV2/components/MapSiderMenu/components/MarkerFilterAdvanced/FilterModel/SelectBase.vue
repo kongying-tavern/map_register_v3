@@ -16,8 +16,7 @@ const modelValue = defineModel<ValueType | ValueType[]>('modelValue', {
 
 <template>
   <MarkerFilterSelect
-    v-model:model-value="modelValue"
-    v-model:multiple-value="modelValue"
+    v-model="modelValue"
     :multiple="options.optionSelectMultiple"
     :list="options.options"
     :label-key="options.optionLabel"

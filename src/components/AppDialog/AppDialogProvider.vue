@@ -31,7 +31,7 @@ const hiddenHeader = computed(() => !context.dialogProps.value.showClose && !con
     <component :is="context.component.value" v-bind="context.props.value" v-on="context.listener.value">
       <template v-for="(slot, slotName) in context.slots.value">
         <slot :name="slotName">
-          <component :is="slot" v-bind="context.props.value" />
+          <component :is="slot" />
         </slot>
       </template>
     </component>
