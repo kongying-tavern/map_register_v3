@@ -1,32 +1,42 @@
+import { useAreaStore } from '@/stores/area'
+import type { AreaWithChildren } from '@/stores'
 import type {
   MAFConfig,
   MAFMetaDummy,
   MAFOptionSelect,
-  MAFValueDummy,
+  MAFValueNumberArray,
 } from '@/stores/types'
 
 export class Area implements MAFConfig {
   id = 101
   name = '地区'
-  option: MAFOptionSelect<unknown> = {
-    options: [],
-    optionLabel: 'label',
-    optionValue: 'value',
+  option: ComputedRef<MAFOptionSelect<AreaWithChildren>> = computed(() => {
+    const { areaTree } = useAreaStore()
+
+    return {
+      options: areaTree,
+      optionLabel: 'name',
+      optionValue: 'id',
+      optionSelectMultiple: true,
+      dialogTitle: '选择地区',
+    }
+  })
+
+  get defaultVal(): MAFValueNumberArray {
+    return {
+      na: [],
+    }
   }
 
-  get defaultVal(): MAFValueDummy {
+  prepare(_val: MAFValueNumberArray): MAFMetaDummy {
     return {}
   }
 
-  prepare(_val: MAFValueDummy): MAFMetaDummy {
-    return {}
-  }
-
-  semantic(_val: MAFValueDummy, _opt: MAFOptionSelect, _meta: MAFMetaDummy, _opposite: boolean): string {
+  semantic(_val: MAFValueNumberArray, _opt: MAFOptionSelect<AreaWithChildren>, _meta: MAFMetaDummy, _opposite: boolean): string {
     return ''
   }
 
-  filter(_val: MAFValueDummy, _opt: MAFOptionSelect, _meta: MAFMetaDummy, _marker: API.MarkerVo): boolean {
+  filter(_val: MAFValueNumberArray, _opt: MAFOptionSelect<AreaWithChildren>, _meta: MAFMetaDummy, _marker: API.MarkerVo): boolean {
     return false
   }
 }
