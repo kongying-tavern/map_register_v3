@@ -43,7 +43,7 @@ const areaTag = computed(() => modelValue.value.na
           <template #icon>
             <Place />
           </template>
-          <template #default>
+          <template v-if="areaTag" #default>
             {{ areaTag }}
           </template>
         </MarkerFilterButton>
