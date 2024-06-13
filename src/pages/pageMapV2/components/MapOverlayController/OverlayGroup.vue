@@ -3,7 +3,7 @@ import type { OverlayChunk, OverlayChunkGroup } from '@/stores'
 import { useMapStateStore, useOverlayStore } from '@/stores'
 
 const props = defineProps<{
-  data: OverlayControllerChunkGroup
+  group: OverlayControllerChunkGroup
 }>()
 
 interface OverlayControllerChunkGroup extends OverlayChunkGroup {
@@ -13,11 +13,8 @@ interface OverlayControllerChunkGroup extends OverlayChunkGroup {
 const overlayStore = useOverlayStore()
 const mapStateStore = useMapStateStore()
 
-const items = computed(() => Map.groupBy(props.data.chunks, ({ item, group }) => {
-  return {
-    ...item,
-    role: group.role,
-  }
+const items = computed(() => Map.groupBy(props.group.chunks, ({ item }) => {
+  return item
 }))
 
 const resetItemVisible = () => {
@@ -38,13 +35,27 @@ const updateHover = (chunks: OverlayChunk[] | null) => {
 <template>
   <div class="overlay-group">
     <div class="flex justify-between rounded-[4px_4px_0_0] overflow-hidden">
-      <div class="py-1 px-2 flex gap-1">
-        <span>
-          {{ data.name }}
-        </span>
-        <el-tag v-if="data.role === 'tile'">
-          {{ data.role }}
-        </el-tag>
+      <div class="py-1 px-2 w-full flex items-center gap-1 overflow-hidden">
+        <div
+          class="overflow-hidden whitespace-nowrap text-ellipsis"
+          :title="group.name"
+        >
+          {{ group.name }}
+        </div>
+        <div
+          v-if="group.role === 'tile'"
+          class="
+            flex-shrink-0
+            translate-y-[-1px]
+            px-1 pb-0.5 pt-[3px] grid place-items-center
+            border border-[#DEA827] rounded
+            text-xs text-[#C59A44]
+            bg-[#F9ED99]
+          "
+          title="当前附加图层组属于底图类型，在显示模式上将会区分于普通附加图层"
+        >
+          底图
+        </div>
       </div>
 
       <el-icon
@@ -63,18 +74,24 @@ const updateHover = (chunks: OverlayChunk[] | null) => {
       </el-icon>
     </div>
 
-    <div class="flex flex-col">
+    <div class="flex flex-wrap p-1 gap-1">
       <el-checkbox
         v-for="([item, chunks]) in items"
         :key="item.id"
         class="overlay-item"
+        :class="{
+          'is-actived': overlayStore.visibleItemIds.has(item.id),
+        }"
         style="margin-right: 0"
         :model-value="overlayStore.visibleItemIds.has(item.id)"
+        :title="item.name"
         @update:model-value="v => overlayStore.visibleItemIds[Boolean(v) ? 'add' : 'delete'](item.id)"
         @pointerenter="() => updateHover(chunks)"
         @pointerleave="() => updateHover(null)"
       >
-        {{ item.name }}
+        <div class="flex-1 overflow-hidden whitespace-nowrap text-ellipsis">
+          {{ item.name.replace(group.name, '') }}
+        </div>
       </el-checkbox>
     </div>
   </div>
@@ -85,24 +102,40 @@ const updateHover = (chunks: OverlayChunk[] | null) => {
   background: #F7F2E8;
   border: 2px solid #D6AD8560;
   color: #495366;
-  border-radius: 6px;
+  border-radius: 8px;
   display: flex;
   flex-direction: column;
-  transition: all ease 100ms;
-  &:hover {
-    border-color: #D6AD85;
-    color: #D6AD85;
-  }
 }
 
 .overlay-item {
+  width: 200px;
+  color: #495366;
   padding: 0 8px;
-  transition: all ease 100ms;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border: 2px solid transparent;
+  background: #D6AD8540;
+  border-radius: 4px;
+
   &:hover {
+    border-color: #D6AD8520;
     background: #D6AD8560;
   }
   &:active {
     background: #D6AD8530;
+  }
+
+  &.is-actived {
+    /* border-color: var(--el-color-primary); */
+    border-color: #D6AD85;
+  }
+
+  :deep(.el-checkbox__label) {
+    flex: 1;
+    flex: 1;
+    display: flex;
+    overflow: hidden;
   }
 }
 </style>

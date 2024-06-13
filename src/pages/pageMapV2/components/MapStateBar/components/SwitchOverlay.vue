@@ -9,11 +9,21 @@ const id = crypto.randomUUID()
 
 const overlayVisible = computed(() => overlayStore.visibleItemIds.size > 0)
 
-const openOverlayWindow = () => {
-  windowCtx.openWindow({
-    id,
-    name: '附加图层控制器',
-  })
+const toggleOverlayWindow = () => {
+  const { clientWidth } = document.body
+  if (!windowCtx.getWindow(id)) {
+    windowCtx.openWindow({
+      id,
+      name: '附加图层控制器',
+      minWidth: 236,
+      minHeight: 200,
+      x: clientWidth - 236 - 6,
+      y: 8,
+    })
+  }
+  else {
+    windowCtx.closeWindow(id)
+  }
 }
 </script>
 
@@ -21,7 +31,7 @@ const openOverlayWindow = () => {
   <BarItem
     divider
     :label="`附加图层：${overlayVisible ? '显示' : '隐藏'}`"
-    @click="openOverlayWindow"
+    @click="toggleOverlayWindow"
   >
     <template #default>
       <div

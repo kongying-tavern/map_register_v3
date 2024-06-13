@@ -26,19 +26,20 @@ const overlayGroups = computed(() => {
 </script>
 
 <template>
-  <div class="overlay-control-panel genshin-text">
-    <OverlayGroup
-      v-for="([group, chunks]) in overlayGroups"
-      :key="group.id"
-      :data="{ ...group, chunks }"
-    />
+  <div class="w-full h-full overflow-hidden flex flex-col">
+    <div class="overlay-control-panel genshin-text">
+      <OverlayGroup
+        v-for="([group, chunks]) in overlayGroups"
+        :key="group.id"
+        :group="{ ...group, chunks }"
+      />
+    </div>
   </div>
 </template>
 
 <style scoped>
 .overlay-control-panel {
-  width: 100%;
-  height: 100%;
+  flex: 1;
   overflow: auto;
   display: flex;
   flex-direction: column;
@@ -47,13 +48,11 @@ const overlayGroups = computed(() => {
   gap: 8px;
 
   &::-webkit-scrollbar {
-    width: 10px;
+    width: 8px;
     background-color: #D9D3C8;
-    border-radius: 10px;
   }
   &::-webkit-scrollbar-thumb {
     background-color: #4A5366;
-    border-radius: 10px;
   }
   &::-webkit-scrollbar-thumb:hover {
     background-color: #4A536680;
