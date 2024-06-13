@@ -23,7 +23,6 @@ const childrenList = ref<AreaWithChildren[]>([])
 
 const parentIdMap = computed(() => {
   const parentIds: Record<number, number> = {}
-  modelValue.value = [32, 22]
   modelValue.value.forEach((areaId) => {
     const area = areaIdMap.value.get(areaId)
     if (!area)
@@ -47,6 +46,7 @@ const childrenCountMap = computed(() => {
 </script>
 
 <template>
+  {{ modelValue }}
   <div class="w-full flex-1 flex gap-2">
     <el-scrollbar class="flex-1">
       <SelectList

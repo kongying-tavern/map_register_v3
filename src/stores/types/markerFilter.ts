@@ -94,8 +94,8 @@ export interface MAFOptionSelect<T> extends MAFOption {
   dialogListClass?: string
   options: T[]
   optionSelectMultiple?: boolean
-  optionLabel: keyof T
-  optionValue: keyof T
+  optionLabel: string
+  optionValue: string
 }
 
 export interface MAFOptionRange extends MAFOption {

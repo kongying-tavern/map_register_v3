@@ -1,15 +1,20 @@
-<script lang="ts" setup generic="L extends {[key: string]: string | number}[], T extends L[number], K extends keyof T, V extends T[K]">
-import type { Component } from 'vue'
+<script lang="ts" setup generic="T extends {[key: string]: string | number}, K extends keyof string, V extends unknown">
+import type { Component, Ref } from 'vue'
 import SingleDialog from './MarkerFilterSelectSingleDialog.vue'
 import MultiDialog from './MarkerFilterSelectMultiDialog.vue'
 
 const props = defineProps<{
   multiple?: boolean
-  list: L
+  list: T[]
   labelKey: K
   valueKey: K
   dialogTitle?: string
   dialogListClass?: string
+}>()
+
+const emits = defineEmits<{
+  change: [V | V[]]
+  cancel: []
 }>()
 
 const modelValue = defineModel<V | V[]>('modelValue', {
@@ -17,11 +22,14 @@ const modelValue = defineModel<V | V[]>('modelValue', {
   default: null,
 })
 
+const dialogValue: Ref<V | V[] | undefined> = ref(undefined)
+
 const dialogTemplate = computed<Component>(() => props.multiple ? MultiDialog : SingleDialog)
 
 const dialogVisible = ref<boolean>(false)
 
 const openDialog = () => {
+  dialogValue.value = modelValue.value
   dialogVisible.value = true
 }
 
@@ -29,11 +37,14 @@ const closeDialog = () => {
   dialogVisible.value = false
 }
 
-const confirm = (_v?: V | V[]) => {
+const confirm = (v: V | V[]) => {
+  modelValue.value = v
+  emits('change', v)
   closeDialog()
 }
 
 const cancel = () => {
+  emits('cancel')
   closeDialog()
 }
 </script>
@@ -54,7 +65,7 @@ const cancel = () => {
   >
     <component
       :is="dialogTemplate"
-      v-model="modelValue"
+      v-model="dialogValue"
       v-bind="{
         title: dialogTitle,
         listClass: dialogListClass,
@@ -62,8 +73,8 @@ const cancel = () => {
         labelKey,
         valueKey,
       }"
-      @confirm="confirm()"
-      @cancel="cancel()"
+      @confirm="confirm"
+      @cancel="cancel"
     >
       <template v-if="$slots.list" #list="slotProps">
         <slot

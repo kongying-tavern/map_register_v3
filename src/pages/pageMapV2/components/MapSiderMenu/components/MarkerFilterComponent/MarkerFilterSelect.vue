@@ -1,4 +1,5 @@
-<script lang="ts" setup generic="L extends {[key: string]: string | number}[], T extends L[number], K extends keyof T, V extends T[K]">
+<script lang="ts" setup generic="T extends {[key: string]: string | number}, K extends string, V extends unknown">
+import type { Ref } from 'vue'
 import SingleDialog from './MarkerFilterSelectSingleDialog.vue'
 import MultiDialog from './MarkerFilterSelectMultiDialog.vue'
 import { useGlobalDialog } from '@/hooks'
@@ -6,7 +7,7 @@ import { GlobalDialogController } from '@/components'
 
 const props = defineProps<{
   multiple?: boolean
-  list: L
+  list: T[]
   labelKey: K
   valueKey: K
   dialogTitle?: string
@@ -14,7 +15,8 @@ const props = defineProps<{
 }>()
 
 const emits = defineEmits<{
-  'update:modelValue': [v: V | V[]]
+  change: [v: V | V[]]
+  cancel: []
 }>()
 
 const modelValue = defineModel<V | V[]>('modelValue', {
@@ -23,6 +25,8 @@ const modelValue = defineModel<V | V[]>('modelValue', {
 })
 
 const { DialogService } = useGlobalDialog()
+
+const dialogValue: Ref<V | V[] | undefined> = ref(undefined)
 
 const getDialogConfig = () => ({
   width: 'fit-content',
@@ -34,10 +38,11 @@ const getDialogConfig = () => ({
 
 const openDialog = () => {
   if (props.multiple) {
+    dialogValue.value = modelValue.value
     DialogService
       .config(getDialogConfig())
       .props({
-        modelValue,
+        modelValue: dialogValue,
         title: props.dialogTitle,
         listClass: props.dialogListClass,
         list: props.list,
@@ -46,22 +51,26 @@ const openDialog = () => {
       })
       .listeners({
         'update:modelValue': (v: V[]) => {
-          emits('update:modelValue', v)
+          dialogValue.value = v
         },
-        'confirm': (_v: V[]) => {
+        'confirm': (v: V[]) => {
+          modelValue.value = v
+          emits('change', v)
           GlobalDialogController.close()
         },
         'cancel': () => {
+          emits('cancel')
           GlobalDialogController.close()
         },
       })
       .open(MultiDialog)
   }
   else {
+    dialogValue.value = modelValue.value
     DialogService
       .config(getDialogConfig())
       .props({
-        modelValue,
+        modelValue: dialogValue,
         title: props.dialogTitle,
         listClass: props.dialogListClass,
         list: props.list,
@@ -70,12 +79,15 @@ const openDialog = () => {
       })
       .listeners({
         'update:modelValue': (v: V) => {
-          emits('update:modelValue', v)
+          dialogValue.value = v
         },
-        'confirm': (_v: V) => {
+        'confirm': (v: V) => {
+          modelValue.value = v
+          emits('change', v)
           GlobalDialogController.close()
         },
         'cancel': () => {
+          emits('cancel')
           GlobalDialogController.close()
         },
       })
