@@ -6,6 +6,7 @@ export const context = {
   visible: ref(false),
   component: shallowRef<Component | null>(null),
   props: ref<Record<string, unknown>>({}),
+  slots: ref<Record<string, Component>>({}),
   payloadCache: ref<unknown>(),
   dialogProps: ref<Omit<Partial<DialogProps>, 'modelValue'>>({}),
   closeResolver: ref<((payload: unknown) => void) | null>(null),

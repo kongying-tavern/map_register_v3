@@ -1,4 +1,5 @@
 <script lang="ts" setup generic="L extends {[key: string]: string | number}[], T extends L[number], K extends keyof T, V extends T[K]">
+import type { Component } from 'vue'
 import SingleDialog from './MarkerFilterSelectSingleDialog.vue'
 import MultiDialog from './MarkerFilterSelectMultiDialog.vue'
 import { useGlobalDialog } from '@/hooks'
@@ -10,6 +11,7 @@ const props = defineProps<{
   valueKey: K
   dialogTitle?: string
   dialogListClass?: string
+  dialogListComponent?: Component
 }>()
 
 const emits = defineEmits<{
@@ -37,6 +39,8 @@ const getDialogConfig = () => ({
 })
 
 const openDialog = () => {
+  const slots: Record<string, Component> = props.dialogListComponent ? { default: props.dialogListComponent } : {}
+
   if (props.multiple) {
     DialogService
       .config(getDialogConfig())
@@ -53,7 +57,7 @@ const openDialog = () => {
           emits('update:modelValue', v)
         },
       })
-      .open(MultiDialog)
+      .open(MultiDialog, slots)
   }
   else {
     DialogService
@@ -71,7 +75,7 @@ const openDialog = () => {
           emits('update:modelValue', v)
         },
       })
-      .open(SingleDialog)
+      .open(SingleDialog, slots)
   }
 }
 </script>
