@@ -45,7 +45,7 @@ const { savePreset, deletePreset, loadPreset } = usePresets({
     @update:model-value="(v: boolean) => $emit('update:modelValue', v)"
     @closed="handleClosed"
   >
-    <div class="genshin-dark-card flex flex-col overflow-hidden genshin-text w-[400px] h-[600px] max-w-[100dvw] max-height-[100dvh]">
+    <div class="genshin-dark-card flex flex-col overflow-hidden genshin-text w-[400px] h-[600px] max-w-[100dvw] max-h-[100dvh]">
       <div class="text-xl text-center">
         点位筛选条件预设
       </div>
