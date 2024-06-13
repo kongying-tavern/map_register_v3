@@ -1,8 +1,8 @@
 <script lang="ts" setup generic="L extends {[key: string]: string | number}[], T extends L[number], K extends keyof T, V extends T[K]">
-import type { Component } from 'vue'
 import SingleDialog from './MarkerFilterSelectSingleDialog.vue'
 import MultiDialog from './MarkerFilterSelectMultiDialog.vue'
 import { useGlobalDialog } from '@/hooks'
+import { GlobalDialogController } from '@/components'
 
 const props = defineProps<{
   multiple?: boolean
@@ -11,7 +11,6 @@ const props = defineProps<{
   valueKey: K
   dialogTitle?: string
   dialogListClass?: string
-  dialogListComponent?: Component
 }>()
 
 const emits = defineEmits<{
@@ -49,6 +48,12 @@ const openDialog = () => {
         'update:modelValue': (v: V[]) => {
           emits('update:modelValue', v)
         },
+        'confirm': (_v: V[]) => {
+          GlobalDialogController.close()
+        },
+        'cancel': () => {
+          GlobalDialogController.close()
+        },
       })
       .open(MultiDialog)
   }
@@ -67,6 +72,12 @@ const openDialog = () => {
         'update:modelValue': (v: V) => {
           emits('update:modelValue', v)
         },
+        'confirm': (_v: V) => {
+          GlobalDialogController.close()
+        },
+        'cancel': () => {
+          GlobalDialogController.close()
+        },
       })
       .open(SingleDialog)
   }
@@ -74,7 +85,10 @@ const openDialog = () => {
 </script>
 
 <template>
-  <div class="inline-block" @click="openDialog">
+  <div
+    class="inline-block"
+    @click="openDialog"
+  >
     <slot />
   </div>
 </template>

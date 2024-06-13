@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { SelectList } from '../SelectList'
-import { GSButton, GSDivider, GlobalDialogController } from '@/components'
+import { GSButton, GSDivider } from '@/components'
 
 type ValueType = string | number | null
 interface ItemType { [key: string]: ValueType }
@@ -16,6 +16,8 @@ defineProps<{
 
 const emits = defineEmits<{
   'update:modelValue': [v: ValueType]
+  'confirm': [v: ValueType]
+  'cancel': []
 }>()
 
 const modelValue = defineModel<ValueType>('modelValue', {
@@ -28,12 +30,11 @@ const isNullable = (v: ValueType): boolean => v === undefined || v === null
 const confirm = () => {
   if (isNullable(modelValue.value))
     return
-
-  GlobalDialogController.close()
+  emits('confirm', modelValue.value)
 }
 
 const cancel = () => {
-  GlobalDialogController.close()
+  emits('cancel')
 }
 </script>
 
