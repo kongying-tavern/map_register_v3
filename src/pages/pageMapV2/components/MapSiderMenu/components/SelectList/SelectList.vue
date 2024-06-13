@@ -18,7 +18,7 @@ const modelValue = defineModel<V | V[] | null>('modelValue', {
 
 const isActived = (targetOpt: T) => !props.multiple
   ? modelValue.value === get(targetOpt, props.valueKey)
-  : (modelValue.value as V[]).findIndex(value => value === get(targetOpt, props.valueKey)) > -1
+  : ((modelValue.value ?? []) as V[]).findIndex(value => value === get(targetOpt, props.valueKey)) > -1
 
 const patchValue = (patchOpt: T) => {
   // 单选
@@ -29,7 +29,7 @@ const patchValue = (patchOpt: T) => {
   }
   // 多选
   else {
-    const shallowCopyValue = [...(modelValue.value as V[])]
+    const shallowCopyValue = [...((modelValue.value ?? []) as V[])]
     const optValue = get(patchOpt, props.valueKey)
     const findIndex = shallowCopyValue.findIndex(value => value === optValue)
     if (findIndex > -1)

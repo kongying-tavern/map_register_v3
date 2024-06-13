@@ -34,8 +34,6 @@ const getDialogConfig = () => ({
 })
 
 const openDialog = () => {
-  const slots: Record<string, Component> = props.dialogListComponent ? { list: props.dialogListComponent } : {}
-
   if (props.multiple) {
     DialogService
       .config(getDialogConfig())
@@ -52,7 +50,7 @@ const openDialog = () => {
           emits('update:modelValue', v)
         },
       })
-      .open(MultiDialog, slots)
+      .open(MultiDialog)
   }
   else {
     DialogService
@@ -70,7 +68,7 @@ const openDialog = () => {
           emits('update:modelValue', v)
         },
       })
-      .open(SingleDialog, slots)
+      .open(SingleDialog)
   }
 }
 </script>

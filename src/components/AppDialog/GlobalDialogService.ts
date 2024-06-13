@@ -1,4 +1,4 @@
-import type { Component, SlotsType } from 'vue'
+import type { Component } from 'vue'
 import type { DialogProps } from 'element-plus'
 import { context } from './context'
 import { GlobalDialogController } from './GlobalDialogController'
@@ -46,10 +46,9 @@ export class GlobalDialogService {
   }
 
   /** 打开弹窗，返回弹窗控制器 */
-  static open = (comp: Component, slots?: SlotsType) => {
+  static open = (comp: Component) => {
     context.visible.value && GlobalDialogController.close(undefined, true)
     context.component.value = comp
-    context.slots.value = slots ?? {}
     context.visible.value = true
     return GlobalDialogController
   }
