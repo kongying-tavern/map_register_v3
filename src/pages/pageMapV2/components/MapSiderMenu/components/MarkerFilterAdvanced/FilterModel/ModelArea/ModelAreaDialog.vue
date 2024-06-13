@@ -1,9 +1,12 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
+import { storeToRefs } from 'pinia'
 import { SelectList } from '../../../SelectList'
+import { useAreaStore } from '@/stores'
 import type { AreaWithChildren } from '@/stores'
 
 defineProps<{
+  listClass?: string
   list: AreaWithChildren[]
   labelKey: keyof AreaWithChildren
   valueKey: keyof AreaWithChildren
@@ -14,7 +17,33 @@ const modelValue = defineModel<number[]>('modelValue', {
   default: [],
 })
 
+const { areaIdMap } = storeToRefs(useAreaStore())
+
 const childrenList = ref<AreaWithChildren[]>([])
+
+const parentIdMap = computed(() => {
+  const parentIds: Record<number, number> = {}
+  modelValue.value = [32, 22]
+  modelValue.value.forEach((areaId) => {
+    const area = areaIdMap.value.get(areaId)
+    if (!area)
+      return
+    parentIds[area.id!] = area.parentId!
+  })
+  return parentIds
+})
+
+const childrenCountMap = computed(() => {
+  const childrenCount: Record<number, number> = {}
+  modelValue.value.forEach((areaId) => {
+    const parentId = parentIdMap.value[areaId]
+    if (!parentId)
+      return
+    childrenCount[parentId] ??= 0
+    childrenCount[parentId]++
+  })
+  return childrenCount
+})
 </script>
 
 <template>
@@ -27,7 +56,15 @@ const childrenList = ref<AreaWithChildren[]>([])
         value-key="children"
       >
         <template #default="{ item }">
-          {{ item[labelKey] }}
+          <span class="flex-auto">{{ item[labelKey] }}</span>
+          <el-tag
+            v-if=" childrenCountMap[item.id!] > 0"
+            class="flex-none"
+            effect="dark"
+            round
+          >
+            {{ childrenCountMap[item.id!] }}
+          </el-tag>
         </template>
       </SelectList>
     </el-scrollbar>
