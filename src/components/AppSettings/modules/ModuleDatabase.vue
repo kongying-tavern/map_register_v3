@@ -60,10 +60,10 @@ const deleteDatabase = async () => {
           </div>
         </template>
         <template #setting>
-          <el-button text type="warning" :loading="store.backendUpdater.loading" :icon="Refresh" @click="store.backendUpdater.forceUpdate">
+          <el-button text type="warning" :loading="store.backendUpdater.loading" :icon="Refresh" @click="() => store.backendUpdater.forceUpdate()">
             重新获取
           </el-button>
-          <el-button text type="primary" :loading="store.backendUpdater.loading" :icon="RefreshLeft" @click="store.backendUpdater.refresh">
+          <el-button text type="primary" :loading="store.backendUpdater.loading" :icon="RefreshLeft" @click="() => store.backendUpdater.refresh()">
             检查更新
           </el-button>
         </template>
