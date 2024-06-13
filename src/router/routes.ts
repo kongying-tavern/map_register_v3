@@ -14,13 +14,22 @@ const backendRoutes: RouteRecordRaw[] = [
     component: () => import('@/pages/pageItemManager/ItemManager.vue'),
   },
   {
-    path: '/common-items',
+    path: '/area',
     meta: {
-      title: '公共物品',
-      icon: 'Files',
+      title: '地区',
+      icon: 'Place',
       role: RoleTypeEnum.MAP_MANAGER,
     },
-    component: () => import('@/pages/pageCommonItemManager/CommonItemManager.vue'),
+    component: () => import('@/pages/pageAreaManager/AreaManager.vue'),
+  },
+  {
+    path: '/markers',
+    meta: {
+      title: '点位',
+      icon: 'Location',
+      role: RoleTypeEnum.MAP_MANAGER,
+    },
+    component: () => import('@/pages/pageMarkerManager/MarkerManager.vue'),
   },
   {
     path: '/type',
@@ -41,6 +50,15 @@ const backendRoutes: RouteRecordRaw[] = [
     component: () => import('@/pages/pageIconManager/IconManager.vue'),
   },
   {
+    path: '/common-items',
+    meta: {
+      title: '公共物品',
+      icon: 'Files',
+      role: RoleTypeEnum.MAP_MANAGER,
+    },
+    component: () => import('@/pages/pageCommonItemManager/CommonItemManager.vue'),
+  },
+  {
     path: '/users',
     meta: {
       title: '用户',
@@ -57,24 +75,6 @@ const backendRoutes: RouteRecordRaw[] = [
       role: RoleTypeEnum.ADMIN,
     },
     component: () => import('@/pages/pageScoreManager/ScoreManager.vue'),
-  },
-  {
-    path: '/markers',
-    meta: {
-      title: '点位',
-      icon: 'Location',
-      role: RoleTypeEnum.MAP_MANAGER,
-    },
-    component: () => import('@/pages/pageMarkerManager/MarkerManager.vue'),
-  },
-  {
-    path: '/area',
-    meta: {
-      title: '地区',
-      icon: 'Place',
-      role: RoleTypeEnum.MAP_MANAGER,
-    },
-    component: () => import('@/pages/pageAreaManager/AreaManager.vue'),
   },
   {
     path: '/history',
