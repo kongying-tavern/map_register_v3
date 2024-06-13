@@ -1,4 +1,5 @@
 <script lang="ts" setup generic="L extends {[key: string]: string | number}[], T extends L[number], K extends keyof T, V extends T[K]">
+import type { Component } from 'vue'
 import SingleDialog from './MarkerFilterSelectSingleDialog.vue'
 import MultiDialog from './MarkerFilterSelectMultiDialog.vue'
 
@@ -16,7 +17,7 @@ const modelValue = defineModel<V | V[]>('modelValue', {
   default: null,
 })
 
-const dialogTemplate = computed(() => props.multiple ? MultiDialog : SingleDialog)
+const dialogTemplate = computed<Component>(() => props.multiple ? MultiDialog : SingleDialog)
 
 const dialogVisible = ref<boolean>(false)
 

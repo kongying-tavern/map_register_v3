@@ -4,7 +4,7 @@ import { GSButton, GSDivider } from '@/components'
 
 type ValueType = string | number | null
 interface ItemType { [key: string]: ValueType }
-type KeyType = keyof ItemType
+type KeyType = string
 
 defineProps<{
   title?: string
