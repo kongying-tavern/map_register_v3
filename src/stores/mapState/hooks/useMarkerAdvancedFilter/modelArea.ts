@@ -1,8 +1,8 @@
 import { useAreaStore } from '@/stores/area'
-import type { AreaWithChildren } from '@/stores'
+import { type AreaWithChildren, useItemStore } from '@/stores'
 import type {
   MAFConfig,
-  MAFMetaDummy,
+  MAFMetaArea,
   MAFOptionSelect,
   MAFValueNumberArray,
 } from '@/stores/types'
@@ -28,15 +28,41 @@ export class Area implements MAFConfig {
     }
   }
 
-  prepare(_val: MAFValueNumberArray): MAFMetaDummy {
-    return {}
+  prepare(val: MAFValueNumberArray): MAFMetaArea {
+    const meta: MAFMetaArea = {
+      itemIds: new Set<number>(),
+    }
+    if (!val.na || val.na.length <= 0)
+      return meta
+
+    const { itemList } = useItemStore()
+    const itemIdList: number[] = itemList
+      .filter(item => val.na.includes(item.areaId!))
+      .map(item => item.id!)
+      .filter(v => v)
+    meta.itemIds = new Set(itemIdList)
+
+    return meta
   }
 
-  semantic(_val: MAFValueNumberArray, _opt: MAFOptionSelect<AreaWithChildren>, _meta: MAFMetaDummy, _opposite: boolean): string {
-    return ''
+  semantic(val: MAFValueNumberArray, _opt: MAFOptionSelect<AreaWithChildren>, _meta: MAFMetaArea, opposite: boolean): string {
+    if (!val.na || val.na.length <= 0)
+      return opposite ? '属于所有地区' : '不属于任何地区'
+
+    const { areaIdMap } = useAreaStore()
+    const areaNames = val.na
+      .map(areaId => (areaIdMap.get(areaId!) ?? {}).name)
+      .filter(v => v)
+      .join(',')
+    return `地区为【${areaNames}】`
   }
 
-  filter(_val: MAFValueNumberArray, _opt: MAFOptionSelect<AreaWithChildren>, _meta: MAFMetaDummy, _marker: API.MarkerVo): boolean {
+  filter(_val: MAFValueNumberArray, _opt: MAFOptionSelect<AreaWithChildren>, meta: MAFMetaArea, marker: API.MarkerVo): boolean {
+    const itemIds: number[] = (marker.itemList ?? []).map(v => v.itemId!).filter(v => v)
+    for (const itemId of itemIds) {
+      if (meta.itemIds.has(itemId))
+        return true
+    }
     return false
   }
 }

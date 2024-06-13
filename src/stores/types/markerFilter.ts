@@ -121,3 +121,7 @@ export interface MAFMetaIdRange extends MAFMeta {
 export interface MAFMetaContentRegex extends MAFMeta {
   re?: RegExp
 }
+
+export interface MAFMetaArea extends MAFMeta {
+  itemIds: Set<number>
+}
