@@ -24,11 +24,30 @@ export class ItemSize implements MAFConfig {
     return {}
   }
 
-  semantic(_val: MAFValueNumberRange, _opt: MAFOptionRange, _meta: MAFMetaDummy, _opposite: boolean): string {
+  semantic(val: MAFValueNumberRange, _opt: MAFOptionRange, _meta: MAFMetaDummy, opposite: boolean): string {
+    if (!Number.isFinite(val.nMin) && !Number.isFinite(val.nMax)) {
+      return opposite ? '无物品条数' : '不限物品条数'
+    }
+    else if (Number.isFinite(val.nMin) && Number.isFinite(val.nMax)) {
+      if (val.nMin === val.nMax)
+        return `物品条数${opposite ? '非' : ''}【${val.nMin}】`
+
+      else
+        return `物品条数${opposite ? '非' : ''}【${val.nMin}~${val.nMax}】`
+    }
+    else if (Number.isFinite(val.nMin) && !Number.isFinite(val.nMax)) {
+      return `物品条数【${opposite ? '＜' : '≥'}${val.nMin}】`
+    }
+    else if (!Number.isFinite(val.nMin) && Number.isFinite(val.nMax)) {
+      return `物品条数【${opposite ? '＞' : '≤'}${val.nMax}】`
+    }
     return ''
   }
 
-  filter(_val: MAFValueNumberRange, _opt: MAFOptionRange, _meta: MAFMetaDummy, _marker: API.MarkerVo): boolean {
-    return false
+  filter(val: MAFValueNumberRange, _opt: MAFOptionRange, _meta: MAFMetaDummy, marker: API.MarkerVo): boolean {
+    const minVal: number = val.nMin === undefined || val.nMin === null ? Number.NEGATIVE_INFINITY : val.nMin
+    const maxVal: number = val.nMax === undefined || val.nMax === null ? Number.POSITIVE_INFINITY : val.nMax
+    const itemList = marker.itemList ?? []
+    return itemList.length >= minVal && itemList.length <= maxVal
   }
 }
