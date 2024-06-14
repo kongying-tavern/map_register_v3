@@ -4,10 +4,11 @@ import { storeToRefs } from 'pinia'
 import { MarkerFilterButton, MarkerFilterSelectPanel } from '../../../MarkerFilterComponent'
 import ModelAreaDialog from './ModelAreaDialog.vue'
 import type { MAFOptionSelect, MAFValueNumberArray } from '@/stores/types'
+import type { AreaWithChildren } from '@/stores'
 import { useAreaStore } from '@/stores'
 
 defineProps<{
-  options: MAFOptionSelect<{ [key: string]: string }>
+  options: MAFOptionSelect<AreaWithChildren>
 }>()
 
 const modelValue = defineModel<MAFValueNumberArray>('modelValue', {
