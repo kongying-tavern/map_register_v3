@@ -1,14 +1,16 @@
 import type {
   MAFConfig,
   MAFMetaDummy,
-  MAFOptionDummy,
+  MAFOptionInput,
   MAFValueString,
 } from '@/stores/types'
 
 export class ItemName implements MAFConfig {
   id = 103
   name = '物品名称'
-  option: MAFOptionDummy = {}
+  option: MAFOptionInput = {
+    placeholder: '格式：A,B,C',
+  }
 
   get defaultVal(): MAFValueString {
     return {
@@ -20,11 +22,11 @@ export class ItemName implements MAFConfig {
     return {}
   }
 
-  semantic(_val: MAFValueString, _opt: MAFOptionDummy, _meta: MAFMetaDummy, _opposite: boolean): string {
+  semantic(_val: MAFValueString, _opt: MAFOptionInput, _meta: MAFMetaDummy, _opposite: boolean): string {
     return ''
   }
 
-  filter(_val: MAFValueString, _opt: MAFOptionDummy, _meta: MAFMetaDummy, _marker: API.MarkerVo): boolean {
+  filter(_val: MAFValueString, _opt: MAFOptionInput, _meta: MAFMetaDummy, _marker: API.MarkerVo): boolean {
     return false
   }
 }
