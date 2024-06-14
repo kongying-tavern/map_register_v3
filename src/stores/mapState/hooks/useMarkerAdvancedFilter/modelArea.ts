@@ -54,7 +54,7 @@ export class Area implements MAFConfig {
       .map(areaId => (areaIdMap.get(areaId!) ?? {}).name)
       .filter(v => v)
       .join(',')
-    return `地区为【${areaNames}】`
+    return `地区${opposite ? '不' : ''}为【${areaNames}】`
   }
 
   filter(_val: MAFValueNumberArray, _opt: MAFOptionSelect<AreaWithChildren>, meta: MAFMetaArea, marker: API.MarkerVo): boolean {
