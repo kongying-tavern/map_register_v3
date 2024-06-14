@@ -1,1 +1,1 @@
-export { default as AppItemSelecter } from './AppItemSelecter.vue'
+export { default as AppItemSelecter } from './ItemSelecter.vue'
