@@ -1,5 +1,5 @@
 import type { Subscription } from 'rxjs'
-import { filter } from 'rxjs'
+import { filter, throttleTime } from 'rxjs'
 import { WebSocketSubject } from 'rxjs/webSocket'
 import type { Logger } from '@/utils'
 
@@ -20,6 +20,7 @@ export interface SocketHookOptions<T, V> {
 
 export interface ConnectInitOptions {
   isReconnect?: boolean
+  uuid?: string
 }
 
 export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived, Send>) => {
@@ -98,9 +99,10 @@ export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived,
 
   /** 连接初始化 */
   const _init = async (url: string, options: ConnectInitOptions = {}) => {
-    const uuid = crypto.randomUUID()
-
-    const { isReconnect = false } = options
+    const {
+      isReconnect = false,
+      uuid = crypto.randomUUID(),
+    } = options
 
     const {
       count = 3,
@@ -196,7 +198,10 @@ export const useSocket = <Recedived, Send>(options: SocketHookOptions<Recedived,
       })
 
     // 心跳处理
-    ws.pipe(filter(pongFilter as (message: unknown) => boolean))
+    ws.pipe(
+      filter(pongFilter as (message: unknown) => boolean),
+      throttleTime(pingInterval),
+    )
       .subscribe({
         next: async () => {
           delay.value = Date.now() - heartStartTime
