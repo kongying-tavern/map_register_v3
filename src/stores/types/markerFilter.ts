@@ -125,3 +125,7 @@ export interface MAFMetaContentRegex extends MAFMeta {
 export interface MAFMetaArea extends MAFMeta {
   itemIds: Set<number>
 }
+
+export interface MAFMetaItemType extends MAFMeta {
+  itemIds: Set<number>
+}
