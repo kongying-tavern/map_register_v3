@@ -82,6 +82,11 @@ export const useMarkerFilter = () => {
     preference.value['markerFilter.filter.advancedFilterCache'].push(cloneDeep(emptyGroup))
   }
 
+  const initCondition = () => {
+    if (preference.value['markerFilter.filter.advancedFilterCache'].length <= 0)
+      appendConditionGroup()
+  }
+
   const insertConditionGroup = (groupIndex: number) => {
     if (groupIndex > preference.value['markerFilter.filter.advancedFilterCache'].length) {
       appendConditionGroup()
@@ -104,8 +109,7 @@ export const useMarkerFilter = () => {
   const deleteConditionGroup = (groupIndex: number) => {
     if (preference.value['markerFilter.filter.advancedFilterCache'][groupIndex])
       preference.value['markerFilter.filter.advancedFilterCache'].splice(groupIndex, 1)
-    if (preference.value['markerFilter.filter.advancedFilterCache'].length <= 0)
-      appendConditionGroup()
+    initCondition()
   }
 
   const appendCondition = (groupIndex: number, id: number = 0) => {
@@ -157,6 +161,7 @@ export const useMarkerFilter = () => {
 
   const clearCondition = () => {
     preference.value['markerFilter.filter.advancedFilterCache'] = []
+    initCondition()
   }
 
   return {
@@ -166,8 +171,8 @@ export const useMarkerFilter = () => {
     conditionSame,
 
     copyConditions,
-
     appendConditionGroup,
+    initCondition,
     insertConditionGroup,
     swapConditionGroup,
     deleteConditionGroup,
