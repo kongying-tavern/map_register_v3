@@ -1,5 +1,5 @@
-import { useAreaStore } from '@/stores/area'
-import { type AreaWithChildren, useItemStore } from '@/stores'
+import { useAreaStore, useItemStore } from '@/stores'
+import type { AreaWithChildren } from '@/stores'
 import type {
   MAFConfig,
   MAFMetaArea,
