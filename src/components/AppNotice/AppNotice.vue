@@ -9,6 +9,7 @@ const noticeStore = useNoticeStore()
 <template>
   <el-badge
     :value="noticeStore.newCount"
+    :hidden="!noticeStore.newCount"
     class="notice-count"
   >
     <el-button
