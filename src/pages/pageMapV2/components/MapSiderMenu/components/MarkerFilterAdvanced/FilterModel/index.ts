@@ -14,5 +14,6 @@ export { default as ModelRefreshTime } from './ModelRefreshTime.vue'
 export { default as ModelVisibility } from './ModelVisibility.vue'
 export { default as ModelArea } from './ModelArea'
 export { default as ModelItemType } from './ModelItemType.vue'
+export { default as ModelItemName } from './ModelItemName.vue'
 
 export { default as FilterModel } from './FilterModel.vue'

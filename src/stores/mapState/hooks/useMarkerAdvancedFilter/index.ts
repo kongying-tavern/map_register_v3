@@ -5,6 +5,7 @@ import {
   ContentRegex,
   IdRange,
   Image,
+  ItemName,
   ItemType,
   Linkage,
   RefreshTime,
@@ -34,6 +35,7 @@ const markerAdvancedFilterConfigs: MAFConfig[] = [
   new Visibility(),
   new Area(),
   new ItemType(),
+  new ItemName(),
 ]
 
 const markerAdvancedFilterConfigMap: Record<number, MAFConfig> = keyBy(markerAdvancedFilterConfigs, 'id')
