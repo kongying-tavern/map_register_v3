@@ -1,28 +1,32 @@
 import type {
   MAFConfig,
   MAFMetaDummy,
-  MAFOptionDummy,
-  MAFValueDummy,
+  MAFOptionInput,
+  MAFValueString,
 } from '@/stores/types'
 
 export class ItemNameRegex implements MAFConfig {
   id = 104
   name = '物品名称正则'
-  option: MAFOptionDummy = {}
+  option: MAFOptionInput = {
+    placeholder: '',
+  }
 
-  get defaultVal(): MAFValueDummy {
+  get defaultVal(): MAFValueString {
+    return {
+      s: '',
+    }
+  }
+
+  prepare(_val: MAFValueString): MAFMetaDummy {
     return {}
   }
 
-  prepare(_val: MAFValueDummy): MAFMetaDummy {
-    return {}
-  }
-
-  semantic(_val: MAFValueDummy, _opt: MAFOptionDummy, _meta: MAFMetaDummy, _opposite: boolean): string {
+  semantic(_val: MAFValueString, _opt: MAFOptionInput, _meta: MAFMetaDummy, _opposite: boolean): string {
     return ''
   }
 
-  filter(_val: MAFValueDummy, _opt: MAFOptionDummy, _meta: MAFMetaDummy, _marker: API.MarkerVo): boolean {
+  filter(_val: MAFValueString, _opt: MAFOptionInput, _meta: MAFMetaDummy, _marker: API.MarkerVo): boolean {
     return false
   }
 }
