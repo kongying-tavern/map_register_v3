@@ -1,18 +1,28 @@
 <script lang="ts" setup>
-import type { MAFOptionDummy, MAFValueDummy } from '@/stores/types'
+import { NumberRangeBase } from '.'
+import type { MAFOptionRange, MAFValueNumberRange } from '@/stores/types'
 
 defineProps<{
-  options: MAFOptionDummy
+  options: MAFOptionRange
 }>()
 
-defineModel<MAFValueDummy>('modelValue', {
+const modelValue = defineModel<MAFValueNumberRange>('modelValue', {
   required: false,
-  default: {},
+  default: {
+    nMin: null,
+    nMax: null,
+  },
 })
 </script>
 
 <template>
   <div class="flex-auto flex gap-1 items-center">
     <span class="flex-none">物品条数</span>
+    <NumberRangeBase
+      v-model:min="modelValue.nMin"
+      v-model:max="modelValue.nMax"
+      class="flex-auto"
+      :options="options"
+    />
   </div>
 </template>

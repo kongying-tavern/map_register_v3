@@ -1,28 +1,34 @@
 import type {
   MAFConfig,
   MAFMetaDummy,
-  MAFOptionDummy,
-  MAFValueDummy,
+  MAFOptionRange,
+  MAFValueNumberRange,
 } from '@/stores/types'
 
 export class ItemSize implements MAFConfig {
   id = 105
   name = '物品条数'
-  option: MAFOptionDummy = {}
+  option: MAFOptionRange = {
+    placeholderMin: '不限',
+    placeholderMax: '不限',
+  }
 
-  get defaultVal(): MAFValueDummy {
+  get defaultVal(): MAFValueNumberRange {
+    return {
+      nMin: null,
+      nMax: null,
+    }
+  }
+
+  prepare(_val: MAFValueNumberRange): MAFMetaDummy {
     return {}
   }
 
-  prepare(_val: MAFValueDummy): MAFMetaDummy {
-    return {}
-  }
-
-  semantic(_val: MAFValueDummy, _opt: MAFOptionDummy, _meta: MAFMetaDummy, _opposite: boolean): string {
+  semantic(_val: MAFValueNumberRange, _opt: MAFOptionRange, _meta: MAFMetaDummy, _opposite: boolean): string {
     return ''
   }
 
-  filter(_val: MAFValueDummy, _opt: MAFOptionDummy, _meta: MAFMetaDummy, _marker: API.MarkerVo): boolean {
+  filter(_val: MAFValueNumberRange, _opt: MAFOptionRange, _meta: MAFMetaDummy, _marker: API.MarkerVo): boolean {
     return false
   }
 }
