@@ -14,11 +14,11 @@ export class Area implements MAFConfig {
     const { areaTree } = useAreaStore()
 
     return {
+      dialogTitle: '选择地区',
       options: areaTree,
       optionLabel: 'name',
       optionValue: 'id',
       optionSelectMultiple: true,
-      dialogTitle: '选择地区',
     }
   })
 
