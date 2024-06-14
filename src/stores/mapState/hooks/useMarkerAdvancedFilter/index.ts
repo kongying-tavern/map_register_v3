@@ -7,6 +7,7 @@ import {
   Image,
   ItemName,
   ItemNameRegex,
+  ItemSize,
   ItemType,
   Linkage,
   RefreshTime,
@@ -38,6 +39,7 @@ const markerAdvancedFilterConfigs: MAFConfig[] = [
   new ItemType(),
   new ItemName(),
   new ItemNameRegex(),
+  new ItemSize(),
 ]
 
 const markerAdvancedFilterConfigMap: Record<number, MAFConfig> = keyBy(markerAdvancedFilterConfigs, 'id')

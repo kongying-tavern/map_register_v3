@@ -16,5 +16,6 @@ export { default as ModelArea } from './ModelArea'
 export { default as ModelItemType } from './ModelItemType.vue'
 export { default as ModelItemName } from './ModelItemName.vue'
 export { default as ModelItemNameRegex } from './ModelItemNameRegex.vue'
+export { default as ModelItemSize } from './ModelItemSize.vue'
 
 export { default as FilterModel } from './FilterModel.vue'

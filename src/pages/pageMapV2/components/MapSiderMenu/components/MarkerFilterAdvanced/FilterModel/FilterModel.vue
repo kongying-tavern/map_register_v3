@@ -9,6 +9,7 @@ import {
   ModelImage,
   ModelItemName,
   ModelItemNameRegex,
+  ModelItemSize,
   ModelItemType,
   ModelLinkage,
   ModelRefreshTime,
@@ -44,6 +45,7 @@ const modelTemplate = computed(() => {
     102: ModelItemType,
     103: ModelItemName,
     104: ModelItemNameRegex,
+    105: ModelItemSize,
   }[props.condition.id]
 }) as ComputedRef<Component>
 
