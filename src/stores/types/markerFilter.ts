@@ -133,3 +133,7 @@ export interface MAFMetaItemType extends MAFMeta {
 export interface MAFMetaItemName extends MAFMeta {
   itemIds: Set<number>
 }
+
+export interface MAFMetaItemNameRegex extends MAFMeta {
+  itemIds: Set<number>
+}
