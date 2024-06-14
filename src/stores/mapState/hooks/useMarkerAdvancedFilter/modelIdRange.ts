@@ -9,7 +9,7 @@ export class IdRange implements MAFConfig {
   id = 1
   name = 'ID范围'
   option: MAFOptionInput = {
-    placeholder: '格式为数字，A,B或A-B',
+    placeholder: '格式：1,2,3-5',
   }
 
   get defaultVal(): MAFValueString {
@@ -54,7 +54,7 @@ export class IdRange implements MAFConfig {
 
   semantic(val: MAFValueString, _opt: MAFOptionInput, meta: MAFMetaIdRange, opposite: boolean): string {
     if (meta.idSet.size <= 0)
-      return ''
+      return opposite ? '不限ID' : 'ID不属于任何范围'
     return `ID${opposite ? '不' : ''}属于范围【${val.s ?? ''}】`
   }
 

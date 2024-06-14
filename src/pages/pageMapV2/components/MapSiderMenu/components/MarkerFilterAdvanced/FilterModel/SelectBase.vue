@@ -5,7 +5,7 @@ import type { MAFOptionSelect } from '@/stores/types'
 type ValueType = string | number
 
 defineProps<{
-  options: MAFOptionSelect<{ [key: string]: string | number }>
+  options: MAFOptionSelect<{ [key: string]: string | number } | unknown>
 }>()
 
 const modelValue = defineModel<ValueType | ValueType[] | undefined>('modelValue', {

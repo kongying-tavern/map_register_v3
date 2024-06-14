@@ -1,5 +1,5 @@
-import { useAreaStore } from '@/stores/area'
-import { type AreaWithChildren, useItemStore } from '@/stores'
+import { useAreaStore, useItemStore } from '@/stores'
+import type { AreaWithChildren } from '@/stores'
 import type {
   MAFConfig,
   MAFMetaArea,
@@ -14,11 +14,11 @@ export class Area implements MAFConfig {
     const { areaTree } = useAreaStore()
 
     return {
+      dialogTitle: '选择地区',
       options: areaTree,
       optionLabel: 'name',
       optionValue: 'id',
       optionSelectMultiple: true,
-      dialogTitle: '选择地区',
     }
   })
 
@@ -54,7 +54,7 @@ export class Area implements MAFConfig {
       .map(areaId => (areaIdMap.get(areaId!) ?? {}).name)
       .filter(v => v)
       .join(',')
-    return `地区为【${areaNames}】`
+    return `地区${opposite ? '不' : ''}为【${areaNames}】`
   }
 
   filter(_val: MAFValueNumberArray, _opt: MAFOptionSelect<AreaWithChildren>, meta: MAFMetaArea, marker: API.MarkerVo): boolean {

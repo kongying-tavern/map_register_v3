@@ -43,7 +43,7 @@ const handleClose = () => {
     class="custom-dialog hidden-header bg-transparent"
     @closed="handleClose"
   >
-    <div class="genshin-dark-card flex flex-col overflow-hidden genshin-text w-[500px] h-[600px] max-w-[100dvw] max-h-[100dvh]">
+    <div class="genshin-dark-card flex flex-col overflow-hidden genshin-text min-w-[600px] h-[600px] max-w-[100dvw] max-h-[100dvh]">
       <div class="text-xl text-center">
         选择筛选类型
       </div>
@@ -51,12 +51,12 @@ const handleClose = () => {
       <el-scrollbar class="flex-1">
         <SelectList
           v-model="selectedId"
-          class="h-full overflow-auto gap-1 grid grid-cols-2"
+          class="h-full overflow-auto gap-1 grid grid-cols-3"
           :list="markerAdvancedFilterConfigs"
           value-key="id"
         >
           <template #icon="{ item }">
-            <FilterIcon :id="item.id" class="w-[1rem] h-[1rem] self-center mr-2" />
+            <FilterIcon :id="item.id" class="w-[1.3rem] h-[1.3rem] self-center mr-2" />
           </template>
           <template #default="{ item }">
             {{ item.name }}
