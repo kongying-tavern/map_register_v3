@@ -12,10 +12,12 @@ export class ItemType implements MAFConfig {
   option: ComputedRef<MAFOptionSelect<API.ItemTypeVo>> = computed(() => {
     const { itemTypeList } = useItemTypeStore()
 
+    const typeList = itemTypeList.filter(itemType => itemType.isFinal)
+
     return {
       dialogTitle: '选择分类',
       dialogListClass: 'grid grid-cols-2',
-      options: itemTypeList,
+      options: typeList,
       optionLabel: 'name',
       optionValue: 'id',
       optionSelectMultiple: true,
