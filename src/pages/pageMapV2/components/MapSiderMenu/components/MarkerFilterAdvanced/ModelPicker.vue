@@ -56,7 +56,7 @@ const handleClose = () => {
           value-key="id"
         >
           <template #icon="{ item }">
-            <FilterIcon :id="item.id" class="w-[1rem] h-[1rem] self-center mr-2" />
+            <FilterIcon :id="item.id" class="w-[1.3rem] h-[1.3rem] self-center mr-2" />
           </template>
           <template #default="{ item }">
             {{ item.name }}
