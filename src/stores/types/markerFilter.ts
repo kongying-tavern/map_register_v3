@@ -129,3 +129,7 @@ export interface MAFMetaArea extends MAFMeta {
 export interface MAFMetaItemType extends MAFMeta {
   itemIds: Set<number>
 }
+
+export interface MAFMetaItemName extends MAFMeta {
+  itemIds: Set<number>
+}
