@@ -52,8 +52,16 @@ export class ItemType implements MAFConfig {
     return meta
   }
 
-  semantic(_val: MAFValueNumberArray, _opt: MAFOptionSelect<API.ItemTypeVo>, _meta: MAFMetaItemType, _opposite: boolean): string {
-    return ''
+  semantic(val: MAFValueNumberArray, _opt: MAFOptionSelect<API.ItemTypeVo>, _meta: MAFMetaItemType, opposite: boolean): string {
+    if (!val.na || val.na.length <= 0)
+      return opposite ? '属于所有分类' : '不属于任何分类'
+
+    const { itemTypeMap } = useItemTypeStore()
+    const itemTypeNames = val.na
+      .map(itemTypeId => (itemTypeMap[itemTypeId!] ?? {}).name)
+      .filter(v => v)
+      .join(',')
+    return `分类${opposite ? '不' : ''}为【${itemTypeNames}】`
   }
 
   filter(_val: MAFValueNumberArray, _opt: MAFOptionSelect<API.ItemTypeVo>, meta: MAFMetaItemType, marker: API.MarkerVo): boolean {
