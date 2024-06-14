@@ -9,7 +9,7 @@ export class IdRange implements MAFConfig {
   id = 1
   name = 'ID范围'
   option: MAFOptionInput = {
-    placeholder: '格式为数字，A,B或A-B',
+    placeholder: '格式：1,2,3-5',
   }
 
   get defaultVal(): MAFValueString {
