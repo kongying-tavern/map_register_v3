@@ -23,8 +23,6 @@ export class ContentContain implements MAFConfig {
   }
 
   semantic(val: MAFValueString, _opt: MAFOptionInput, _meta: MAFMetaDummy, opposite: boolean): string {
-    if (!val.s)
-      return ''
     return `内容${opposite ? '不' : ''}包含【${val.s ?? ''}】`
   }
 

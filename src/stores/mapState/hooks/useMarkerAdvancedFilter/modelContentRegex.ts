@@ -35,8 +35,6 @@ export class ContentRegex implements MAFConfig {
   }
 
   semantic(val: MAFValueString, _opt: MAFOptionInput, _meta: MAFMetaContentRegex, opposite: boolean): string {
-    if (!val.s)
-      return ''
     return `内容${opposite ? '不' : ''}满足正则【${val.s ?? ''}】`
   }
 
