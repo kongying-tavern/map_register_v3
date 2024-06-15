@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { ref, shallowRef } from 'vue'
 import { storeToRefs } from 'pinia'
 import { SelectList } from '../../../SelectList'
 import { useAreaStore } from '@/stores'
@@ -44,7 +44,9 @@ const childrenCountMap = computed(() => {
   return childrenCount
 })
 
-const removeChildren = (parent: AreaWithChildren) => {
+const removeChildren = (parent: AreaWithChildren | null) => {
+  if (!parent)
+    return
   const shallowCopyValue = [...modelValue.value]
   const valueSet = new Set<number>(shallowCopyValue)
   const childrenIds: number[] = (parent.children ?? []).map(child => child.id!).filter(v => v)
@@ -52,6 +54,27 @@ const removeChildren = (parent: AreaWithChildren) => {
     valueSet.delete(childId)
   })
   modelValue.value = Array.from(valueSet)
+}
+
+const dragCacheItem = shallowRef<AreaWithChildren | null>(null)
+
+const dragStartHandler = (_e: DragEvent, item: AreaWithChildren) => {
+  dragCacheItem.value = item
+}
+
+const dragEndHandler = (_e: DragEvent) => {
+  removeChildren(dragCacheItem.value)
+  dragCacheItem.value = null
+}
+
+const dropHandler = (e: DragEvent) => {
+  const composedPath = e.composedPath() as HTMLElement[]
+  const dragId = Number(composedPath.find(el => Number(el.dataset.dragId) > 0)?.dataset.dragId)
+  if (!Number.isFinite(dragId))
+    removeChildren(dragCacheItem.value)
+  if (dragCacheItem.value && dragId !== dragCacheItem.value.id!)
+    removeChildren(dragCacheItem.value)
+  dragCacheItem.value = null
 }
 </script>
 
@@ -63,20 +86,28 @@ const removeChildren = (parent: AreaWithChildren) => {
         class="h-full overflow-auto gap-1"
         :list="list"
         value-key="children"
+        @dragover.prevent
+        @dragend.stop="dragEndHandler"
+        @drop="dropHandler"
       >
         <template #default="{ item }">
-          <span class="flex-auto">{{ item[labelKey] }}</span>
-          <el-button
-            v-if=" childrenCountMap[item.id!] > 0"
-            class="flex-none"
-            type="primary"
-            size="small"
-            round
-            .draggable="true"
-            @drag.stop="removeChildren(item)"
+          <div
+            class="flex-auto flex"
+            :data-drag-id="item.id"
           >
-            {{ childrenCountMap[item.id!] }}
-          </el-button>
+            <span class="flex-auto">{{ item[labelKey] }}</span>
+            <el-button
+              v-if=" childrenCountMap[item.id!] > 0"
+              class="flex-none"
+              type="primary"
+              size="small"
+              round
+              .draggable="true"
+              @dragstart.stop="(e) => dragStartHandler(e, item)"
+            >
+              {{ childrenCountMap[item.id!] }}
+            </el-button>
+          </div>
         </template>
       </SelectList>
     </el-scrollbar>
