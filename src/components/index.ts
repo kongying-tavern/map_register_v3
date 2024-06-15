@@ -1,5 +1,6 @@
 export * from './AppAreaCodeSelecter'
 export * from './AppDialog'
+export * from './AppDraggableTable'
 export * from './AppImageCropper'
 export * from './AppItemSelecter'
 export * from './AppNotice'

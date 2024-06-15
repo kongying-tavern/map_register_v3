@@ -11,3 +11,14 @@ interface Set<T> {
   /** 该方法采用一个集合并返回一个新集合，其中包含此集合中的元素，但不包含给定集合中的元素。 */
   difference(other: Set<T>): Set<T>
 }
+
+interface ViewTransition {
+  finished: Promise<void>
+  ready: Promise<void>
+  updateCallbackDone: Promise<void>
+  skipTransition(): void
+}
+
+interface Document {
+  startViewTransition(callback: () => void): ViewTransition
+}
