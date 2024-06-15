@@ -142,7 +142,7 @@ const typeCountMap = computed(() => calculateTypeCount(archivedMarkers.value))
 const calculateItemCount = (markers: API.MarkerVo[]) => {
   return markers.reduce((seed, marker: API.MarkerVo) => {
     marker.itemList?.forEach((item) => {
-      seed[item.itemId!] = (seed[item.itemId!] ?? 0) + 1
+      seed[item.itemId!] = (seed[item.itemId!] ?? 0) + (item.count ?? 0)
     })
     return seed
   }, {} as Record<number, number>)
