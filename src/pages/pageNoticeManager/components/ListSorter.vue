@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ArrowLeft, ArrowRight } from '@element-plus/icons-vue'
+import { AppDraggableTable } from '@/components'
 
 const props = defineProps<{
   options: { label: string; key: string }[]
@@ -137,30 +138,37 @@ const selectSortKey = (key: string, isAdding = false) => {
       </div>
 
       <div class="h-52 border border-t-0 border-[var(--el-border-color)] rounded rounded-t-none overflow-auto">
-        <div
-          v-for="(sortUnit, index) in sortList"
-          :key="sortUnit.key"
-          :class="{
-            'is-actived': !isAddMode && sortUnit.key === selectedSortKey,
-          }"
-          class="sorter-item justify-between"
-          @click="() => selectSortKey(sortUnit.key)"
+        <AppDraggableTable
+          v-model="sortList"
+          :get-key="item => item.key"
         >
-          <div>
-            {{ index + 1 }}. {{ optionsMap.get(sortUnit.key) ?? sortUnit.key }}
-          </div>
-          <div>
-            <el-switch
-              v-model="sortUnit.flag"
-              size="small"
-              inline-prompt
-              active-text="升序"
-              inactive-text="降序"
-              active-value="+"
-              inactive-value="-"
-            />
-          </div>
-        </div>
+          <template #default="{ item, index, isGrabbing, isDragging }">
+            <div
+              :class="{
+                'is-actived': !isAddMode && item.key === selectedSortKey,
+                'is-dragging': isDragging,
+                'is-grabbing': isGrabbing,
+              }"
+              class="sorter-item justify-between"
+              @click="() => selectSortKey(item.key)"
+            >
+              <div>
+                {{ index + 1 }}. {{ optionsMap.get(item.key) ?? item.key }}
+              </div>
+              <div>
+                <el-switch
+                  v-model="item.flag"
+                  size="small"
+                  inline-prompt
+                  active-text="升序"
+                  inactive-text="降序"
+                  active-value="+"
+                  inactive-value="-"
+                />
+              </div>
+            </div>
+          </template>
+        </AppDraggableTable>
       </div>
     </div>
 
@@ -179,22 +187,31 @@ const selectSortKey = (key: string, isAdding = false) => {
 .sorter-item {
   transition: all ease 150ms;
   user-select: none;
-  cursor: pointer;
+  width: 100%;
   height: 24px;
   display: flex;
   align-items: center;
   padding: 0 4px;
 
-  &:hover {
+  &:not(.is-dragging) {
+    cursor: pointer;
+  }
+
+  &:not(.is-dragging):hover {
     background: var(--el-fill-color-light);
   }
-  &:active {
+  &:not(.is-dragging):active {
     background: var(--el-fill-color);
   }
 
   &.is-actived {
     color: var(--el-color-primary);
     background: var(--el-color-primary-light-9);
+  }
+
+  &.is-grabbing {
+    color: var(--el-color-warning);
+    background: var(--el-color-warning-light-9);
   }
 }
 </style>
