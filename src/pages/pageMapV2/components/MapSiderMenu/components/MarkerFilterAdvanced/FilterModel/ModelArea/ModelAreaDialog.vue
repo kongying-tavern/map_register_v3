@@ -70,9 +70,7 @@ const dragEndHandler = (_e: DragEvent) => {
 const dropHandler = (e: DragEvent) => {
   const composedPath = e.composedPath() as HTMLElement[]
   const dragId = Number(composedPath.find(el => Number(el.dataset.dragId) > 0)?.dataset.dragId)
-  if (!Number.isFinite(dragId))
-    removeChildren(dragCacheItem.value)
-  if (dragCacheItem.value && dragId !== dragCacheItem.value.id!)
+  if (!(dragCacheItem.value && dragId === dragCacheItem.value.id!))
     removeChildren(dragCacheItem.value)
   dragCacheItem.value = null
 }
