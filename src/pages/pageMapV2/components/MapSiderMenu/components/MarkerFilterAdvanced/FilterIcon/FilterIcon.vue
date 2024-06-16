@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { Place } from '@element-plus/icons-vue'
+import { MapLocation } from '@element-plus/icons-vue'
 import {
   IconApplication,
   IconDocument,
@@ -34,7 +34,7 @@ const iconComponent = computed(() => {
     9: IconLink,
     10: IconTimer,
     11: IconEye,
-    101: Place,
+    101: MapLocation,
     102: IconApplication,
     103: IconPackage,
     104: IconPackageRegex,
