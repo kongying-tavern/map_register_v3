@@ -51,7 +51,7 @@ const contentRef = ref<HTMLElement>()
   <div
     class="
       w-[800px] h-[600px] overflow-hidden
-      max-w-[100dvw] max-h-[100dvh]
+      max-w-[90dvw] max-h-[100dvh]
       flex flex-col
       bg-[var(--el-bg-color)]
       transition-[background-color,width]
@@ -102,7 +102,7 @@ const contentRef = ref<HTMLElement>()
             v-for="setting in settingOptions"
             :key="setting.key"
             class="py-0.5 text-sm overflow-hidden group cursor-pointer"
-            @click="activedKey = setting.key"
+            @click="(activedKey = setting.key) && (show = false)"
           >
             <div
               class="px-2 py-1 w-full h-8 overflow-hidden flex items-center gap-2 transition-[color,background-color] rounded"
