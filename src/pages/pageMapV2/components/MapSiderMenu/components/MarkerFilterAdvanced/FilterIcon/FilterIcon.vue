@@ -11,6 +11,7 @@ import {
   IconPackage,
   IconPackageList,
   IconPackageRegex,
+  IconPackageTimesNumber,
   IconPound,
   IconTimer,
   IconTitleSerif,
@@ -38,6 +39,7 @@ const iconComponent = computed(() => {
     103: IconPackage,
     104: IconPackageRegex,
     105: IconPackageList,
+    106: IconPackageTimesNumber,
   }[props.id]
 }) as ComputedRef<Component>
 </script>
