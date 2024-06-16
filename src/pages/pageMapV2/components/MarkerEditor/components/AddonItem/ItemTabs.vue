@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { formItemContextKey, useFormItem } from 'element-plus'
-import { Close } from '@element-plus/icons-vue'
 import { AddonTeleporter } from '..'
 import type { InternalItemData } from './types'
 import ItemSubSummary from './ItemSubSummary.vue'
@@ -10,6 +9,7 @@ import { useAreaStore, useItemStore, useItemTypeStore } from '@/stores'
 const emits = defineEmits<{
   removeArea: [API.AreaVo]
   addArea: [API.AreaVo]
+  active: []
 }>()
 
 const areaStore = useAreaStore()
@@ -30,6 +30,19 @@ const itemsGroup = defineModel<Map<API.AreaVo, InternalItemData[]>>('itemsGroup'
   required: false,
   default: () => new Map(),
 })
+
+const deleteItem = (item: API.ItemVo) => {
+  const area = areaStore.areaIdMap.get(item.areaId!)
+  if (!area)
+    return
+  const items = itemsGroup.value.get(area)
+  if (!items)
+    return
+  const findIndex = items.findIndex(existItem => existItem.itemId === item.id)
+  if (findIndex < 0)
+    return
+  items.splice(findIndex, 1)
+}
 
 const areaCode = defineModel<string>('areaCode', {
   required: false,
@@ -189,6 +202,7 @@ const isError = computed(() => formItemContext?.validateState === 'error')
                 ? 'var(--el-color-primary)'
                 : 'var(--el-border-color)',
           }"
+          @tab-click="() => emits('active')"
         >
           <el-tab-pane
             v-for="([area, items]) in itemsGroup"
@@ -206,26 +220,26 @@ const isError = computed(() => formItemContext?.validateState === 'error')
                     {{ area.name }}
                   </div>
                 </div>
-
-                <div
-                  v-if="areaCode === area.code"
-                  class="
-                    w-4 h-4 grid place-items-center rounded-full cursor-pointer
-                    hover:bg-[var(--el-color-danger-light-7)]
-                    active:bg-[var(--el-color-danger-light-9)]
-                  "
-                  @click.stop="() => $emit('removeArea', area)"
-                >
-                  <el-icon :size="12" color="var(--el-color-danger)">
-                    <Close />
-                  </el-icon>
-                </div>
               </div>
             </template>
 
             <div class="h-[70px]">
-              <div v-if="!items.length" class="h-full grid place-items-center text-[var(--el-text-color-secondary)]">
-                请选择物品
+              <div v-if="!items.length" class="text-center px-2">
+                当前地区没有物品
+              </div>
+              <div
+                v-if="!items.length"
+                class="w-full flex items-center justify-center gap-2"
+              >
+                <el-button text type="danger" style="padding: 4px 8px" @click="() => emits('removeArea', area)">
+                  删除地区
+                </el-button>
+                <div class="text-[var(--el-text-color-secondary)]">
+                  或
+                </div>
+                <el-button text type="primary" style="padding: 4px 8px" @click="() => emits('active')">
+                  添加物品
+                </el-button>
               </div>
               <el-scrollbar always noresize>
                 <ItemSubSummary
@@ -236,7 +250,7 @@ const isError = computed(() => formItemContext?.validateState === 'error')
                   v-model:popover-items="popoverItems"
                   :data="item"
                   class="h-[32px]"
-                  @delete.stop=""
+                  @delete="() => deleteItem(item._raw)"
                 />
               </el-scrollbar>
             </div>

@@ -184,6 +184,7 @@ const handleVisibleChange = (visible: boolean) => {
       v-model:is-addon-actived="isAddonActived"
       @remove-area="handleRemoveArea"
       @add-area="handleAddArea"
+      @active="isAddonActived = true"
     />
 
     <div class="flex flex-col gap-1">
