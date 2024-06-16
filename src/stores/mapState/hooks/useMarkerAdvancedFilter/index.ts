@@ -14,6 +14,7 @@ import {
   RefreshTime,
   TitleContain,
   Underground,
+  UndergroundLayer,
   Video,
   Visibility,
 } from './models'
@@ -31,6 +32,7 @@ const markerAdvancedFilterConfigs: MAFConfig[] = [
   new ContentContain(),
   new ContentRegex(),
   new Underground(),
+  new UndergroundLayer(),
   new Image(),
   new Video(),
   new Linkage(),

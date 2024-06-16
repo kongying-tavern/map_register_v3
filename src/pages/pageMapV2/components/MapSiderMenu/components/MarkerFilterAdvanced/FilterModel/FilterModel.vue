@@ -16,6 +16,7 @@ import {
   ModelRefreshTime,
   ModelTitleContain,
   ModelUnderground,
+  ModelUndergroundLayer,
   ModelVideo,
   ModelVisibility,
 } from '.'
@@ -37,6 +38,7 @@ const modelTemplate = computed(() => {
     3: ModelContentContain,
     4: ModelContentRegex,
     5: ModelUnderground,
+    6: ModelUndergroundLayer,
     7: ModelImage,
     8: ModelVideo,
     9: ModelLinkage,
