@@ -18,6 +18,7 @@ export const useHistoryList = (options: {
         type: historyType.value,
         current: pagination.value.current,
         size: pagination.value.pageSize,
+        sort: ['updateTime-'],
       })
 
       return { list: record, total, users }
