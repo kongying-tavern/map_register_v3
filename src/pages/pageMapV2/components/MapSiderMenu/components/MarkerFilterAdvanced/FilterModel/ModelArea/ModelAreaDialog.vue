@@ -1,9 +1,10 @@
 <script lang="ts" setup>
-import { ref, shallowRef } from 'vue'
+import { ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { SelectList } from '../../../SelectList'
 import { useAreaStore } from '@/stores'
 import type { AreaWithChildren } from '@/stores'
+import { useListBubbleDrag } from '@/hooks'
 
 defineProps<{
   listClass?: string
@@ -44,9 +45,11 @@ const childrenCountMap = computed(() => {
   return childrenCount
 })
 
-const removeChildren = (parent: AreaWithChildren | null) => {
-  if (!parent)
-    return
+/* --------------------------------------------------
+ * 拖拽计数清除分组逻辑
+ * --------------------------------------------------
+ */
+const removeChildren = (parent: AreaWithChildren) => {
   const shallowCopyValue = [...modelValue.value]
   const valueSet = new Set<number>(shallowCopyValue)
   const childrenIds: number[] = (parent.children ?? []).map(child => child.id!).filter(v => v)
@@ -56,24 +59,10 @@ const removeChildren = (parent: AreaWithChildren | null) => {
   modelValue.value = Array.from(valueSet)
 }
 
-const dragCacheItem = shallowRef<AreaWithChildren | null>(null)
-
-const dragStartHandler = (_e: DragEvent, item: AreaWithChildren) => {
-  dragCacheItem.value = item
-}
-
-const dragEndHandler = (_e: DragEvent) => {
-  removeChildren(dragCacheItem.value)
-  dragCacheItem.value = null
-}
-
-const dropHandler = (e: DragEvent) => {
-  const composedPath = e.composedPath() as HTMLElement[]
-  const dragId = Number(composedPath.find(el => Number(el.dataset.dragId) > 0)?.dataset.dragId)
-  if (!(dragCacheItem.value && dragId === dragCacheItem.value.id!))
-    removeChildren(dragCacheItem.value)
-  dragCacheItem.value = null
-}
+const { onDragStart, onDragEnd, onDrop } = useListBubbleDrag<AreaWithChildren>({
+  isDropback: (ev, item) => Boolean(ev.composedPath().find(target => (target instanceof HTMLElement) && Number(target.dataset.dragId) === item.id!)),
+  onClearBubble: removeChildren,
+})
 </script>
 
 <template>
@@ -85,8 +74,8 @@ const dropHandler = (e: DragEvent) => {
         :list="list"
         value-key="children"
         @dragover.prevent
-        @dragend.stop="dragEndHandler"
-        @drop="dropHandler"
+        @dragend="onDragEnd"
+        @drop="onDrop"
       >
         <template #default="{ item }">
           <div
@@ -101,7 +90,7 @@ const dropHandler = (e: DragEvent) => {
               size="small"
               round
               .draggable="true"
-              @dragstart.stop="(e) => dragStartHandler(e, item)"
+              @dragstart.stop="(ev) => onDragStart(ev, item)"
             >
               {{ childrenCountMap[item.id!] }}
             </el-button>
