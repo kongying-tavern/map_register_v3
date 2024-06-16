@@ -79,9 +79,7 @@ export const useAccessStore = defineStore('global-access', () => {
     return (roleBinaryFlag.value & ACCESS_CONTROL[key]) > 0
   }
 
-  const hasNeigui = computed(() => {
-    return get('HIDDEN_FLAG_HIDDEN')
-  })
+  const hasNeigui = computed(() => get('HIDDEN_FLAG_NEIGUI'))
 
   return {
     hasNeigui,
