@@ -159,8 +159,12 @@ export const useTileStore = defineStore('global-map-tile', () => {
 
   /** 地图贴片选项 */
   const mapTileOptions = computed(() => {
+    const { areaCodeMap } = areaStore
     const tileOptions: Record<string, AreaTileConfig> = {}
     for (const areaCode in mergedTileConfigs.value) {
+      if (!areaCodeMap.has(areaCode))
+        continue
+
       const tileConfig = mergedTileConfigs.value[areaCode]
       const tileName = tileConfig.tile.name
       const tileCode = tileConfig.tile.code

@@ -49,6 +49,7 @@ export class ItemNameRegex implements MAFConfig {
   }
 
   semantic(val: MAFValueString, _opt: MAFOptionInput, _meta: MAFMetaItemNameRegex, opposite: boolean): string {
+    return `物品名${opposite ? '不' : ''}满足正则【${val.s ?? ''}】`
   }
 
   filter(_val: MAFValueString, _opt: MAFOptionInput, meta: MAFMetaItemNameRegex, marker: API.MarkerVo): boolean {

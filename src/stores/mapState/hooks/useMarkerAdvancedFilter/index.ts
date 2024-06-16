@@ -5,8 +5,10 @@ import {
   ContentRegex,
   IdRange,
   Image,
+  ItemCount,
   ItemName,
   ItemNameRegex,
+  ItemSize,
   ItemType,
   Linkage,
   RefreshTime,
@@ -38,6 +40,8 @@ const markerAdvancedFilterConfigs: MAFConfig[] = [
   new ItemType(),
   new ItemName(),
   new ItemNameRegex(),
+  new ItemSize(),
+  new ItemCount(),
 ]
 
 const markerAdvancedFilterConfigMap: Record<number, MAFConfig> = keyBy(markerAdvancedFilterConfigs, 'id')

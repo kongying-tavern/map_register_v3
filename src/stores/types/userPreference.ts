@@ -144,8 +144,20 @@ export const getDefaultPreference = (): UserPreference => ({
   'mapSiderMenu.state.collapse': false,
 
   // markerFilter
-  'markerFilter.filter.advancedFilterCache': [],
-  'markerFilter.filter.advancedFilter': [],
+  'markerFilter.filter.advancedFilterCache': [
+    {
+      operator: true,
+      opposite: false,
+      children: [],
+    },
+  ],
+  'markerFilter.filter.advancedFilter': [
+    {
+      operator: true,
+      opposite: false,
+      children: [],
+    },
+  ],
   'markerFilter.state.step': 0,
   'markerFilter.state.parentAreaCode': 'C:FD',
   'markerFilter.state.areaCode': 'A:FD:FENGDAN',

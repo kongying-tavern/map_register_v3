@@ -4,6 +4,7 @@ import { storeToRefs } from 'pinia'
 import { SelectList } from '../../../SelectList'
 import { useAreaStore } from '@/stores'
 import type { AreaWithChildren } from '@/stores'
+import { useListBubbleDrag } from '@/hooks'
 
 defineProps<{
   listClass?: string
@@ -44,6 +45,10 @@ const childrenCountMap = computed(() => {
   return childrenCount
 })
 
+/* --------------------------------------------------
+ * 拖拽计数清除分组逻辑
+ * --------------------------------------------------
+ */
 const removeChildren = (parent: AreaWithChildren) => {
   const shallowCopyValue = [...modelValue.value]
   const valueSet = new Set<number>(shallowCopyValue)
@@ -53,6 +58,11 @@ const removeChildren = (parent: AreaWithChildren) => {
   })
   modelValue.value = Array.from(valueSet)
 }
+
+const { onDragStart, onDragEnd, onDrop } = useListBubbleDrag<AreaWithChildren>({
+  isDropback: (ev, item) => Boolean(ev.composedPath().find(target => (target instanceof HTMLElement) && Number(target.dataset.dragId) === item.id!)),
+  onClearBubble: removeChildren,
+})
 </script>
 
 <template>
@@ -63,20 +73,28 @@ const removeChildren = (parent: AreaWithChildren) => {
         class="h-full overflow-auto gap-1"
         :list="list"
         value-key="children"
+        @dragover.prevent
+        @dragend="onDragEnd"
+        @drop="onDrop"
       >
         <template #default="{ item }">
-          <span class="flex-auto">{{ item[labelKey] }}</span>
-          <el-button
-            v-if=" childrenCountMap[item.id!] > 0"
-            class="flex-none"
-            type="primary"
-            size="small"
-            round
-            .draggable="true"
-            @drag.stop="removeChildren(item)"
+          <div
+            class="flex-auto flex"
+            :data-drag-id="item.id"
           >
-            {{ childrenCountMap[item.id!] }}
-          </el-button>
+            <span class="flex-auto">{{ item[labelKey] }}</span>
+            <el-button
+              v-if=" childrenCountMap[item.id!] > 0"
+              class="flex-none"
+              type="primary"
+              size="small"
+              round
+              .draggable="true"
+              @dragstart.stop="(ev) => onDragStart(ev, item)"
+            >
+              {{ childrenCountMap[item.id!] }}
+            </el-button>
+          </div>
         </template>
       </SelectList>
     </el-scrollbar>
