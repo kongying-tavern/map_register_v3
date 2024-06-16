@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { Odometer } from '@element-plus/icons-vue'
+import { Odometer, PictureRounded } from '@element-plus/icons-vue'
 import { storeToRefs } from 'pinia'
-import { SettingBar, SettingPanel } from '../components'
+import { SettingBar, SettingGroup, SettingPanel } from '../components'
 import { useUserInfoStore } from '@/stores'
 import { formatByteSize } from '@/utils'
 
@@ -25,6 +25,25 @@ const { state: storageEstimate } = useAsyncState<StorageEstimateExpand>(navigato
     serviceWorkerRegistrations: 0,
   },
 })
+
+const { state: glInfo } = useAsyncState<{ label: string; value: unknown }[]>(async () => {
+  const canvas = document.createElement('canvas')
+  const gl = canvas.getContext('webgl2')
+  if (!gl)
+    return []
+  return [
+    'MAX_TEXTURE_SIZE',
+    'DEPTH_BITS',
+    'MAX_VIEWPORT_DIMS',
+    'RENDERER',
+    'VENDOR',
+    'VERSION',
+    'SHADING_LANGUAGE_VERSION',
+  ].map(key => ({
+    label: key.replace(/_/g, ' ').toLowerCase(),
+    value: gl.getParameter(gl[key as keyof WebGL2RenderingContext] as number),
+  }))
+}, [])
 
 const storageDetails = computed<{ name: string; percentage: number; text: string }[]>(() => {
   if (!storageEstimate.value.usageDetails)
@@ -69,32 +88,53 @@ const userAgent = navigator.userAgent
       </div>
     </div>
 
-    <SettingBar label="存储" note="这包括本地数据库、缓存等" :icon="Odometer" open>
-      <template #setting>
-        <div class="grid place-items-center text-xs">
-          {{ formatByteSize(storageEstimate.usage ?? 0) }} / {{ formatByteSize(storageEstimate.quota ?? 0) }}
-        </div>
-      </template>
+    <SettingGroup name="设备信息">
+      <SettingBar label="WebGL" note="Make Web Greate Again!" :icon="PictureRounded">
+        <template #detail>
+          <el-descriptions
+            :border="true"
+            :column="3"
+            size="small"
+            direction="vertical"
+          >
+            <el-descriptions-item
+              v-for="({ label, value }) in glInfo"
+              :key="label"
+              :label="label"
+            >
+              {{ value }}
+            </el-descriptions-item>
+          </el-descriptions>
+        </template>
+      </SettingBar>
 
-      <template v-if="storageEstimate.usageDetails" #detail>
-        <div class="flex flex-col gap-3" style="--el-border-color-lighter: var(--el-border-color-dark)">
-          <div v-for="storageDetail in storageDetails" :key="storageDetail.name" class="flex flex-col gap-1">
-            <div class="flex justify-between">
-              <div class="text-sm">
-                {{ storageDetail.name }}
-              </div>
-              <div class="text-xs">
-                已使用 {{ storageDetail.text }}
-              </div>
-            </div>
-            <el-progress
-              :percentage="storageDetail.percentage || 0"
-              :stroke-width="12"
-              :show-text="false"
-            />
+      <SettingBar label="本地存储" note="这包括本地数据库、缓存等" :icon="Odometer">
+        <template #setting>
+          <div class="grid place-items-center text-xs">
+            {{ formatByteSize(storageEstimate.usage ?? 0) }} / {{ formatByteSize(storageEstimate.quota ?? 0) }}
           </div>
-        </div>
-      </template>
-    </SettingBar>
+        </template>
+
+        <template v-if="storageEstimate.usageDetails" #detail>
+          <div class="flex flex-col gap-3" style="--el-border-color-lighter: var(--el-border-color-dark)">
+            <div v-for="storageDetail in storageDetails" :key="storageDetail.name" class="flex flex-col gap-1">
+              <div class="flex justify-between">
+                <div class="text-sm">
+                  {{ storageDetail.name }}
+                </div>
+                <div class="text-xs">
+                  已使用 {{ storageDetail.text }}
+                </div>
+              </div>
+              <el-progress
+                :percentage="storageDetail.percentage || 0"
+                :stroke-width="12"
+                :show-text="false"
+              />
+            </div>
+          </div>
+        </template>
+      </SettingBar>
+    </SettingGroup>
   </SettingPanel>
 </template>
