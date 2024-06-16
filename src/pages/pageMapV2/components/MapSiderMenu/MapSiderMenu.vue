@@ -13,6 +13,7 @@ import {
   useIconTagStore,
   useMapStateStore,
   usePreferenceStore,
+  useTileStore,
   useUserAuthStore,
   useUserInfoStore,
 } from '@/stores'
@@ -68,6 +69,7 @@ const features: FeatureOption[] = [
   { label: '赞助我们', icon: CoffeeCup, cb: () => window.open('https://opencollective.com/genshinmap') },
   { label: 'GitHub', icon: IconGithub, cb: () => window.open('https://github.com/kongying-tavern/map_register_v3') },
   { label: '检查订阅配置', icon: Promotion, cb: () => logger.info(JSON.parse(JSON.stringify(useDadianStore()._raw))) },
+  { label: '检查底图配置', icon: Promotion, cb: () => logger.info(JSON.parse(JSON.stringify(useTileStore().mergedTileConfigs))) },
   { label: '检查预渲染图', icon: Promotion, cb: openTagSpriteImage },
   { label: '预渲染点位图', icon: Promotion, cb: openMarkerSpriteImage },
 ]
@@ -101,7 +103,13 @@ const switchFilterMode = () => {
           </el-icon>
 
           <div
-            class="absolute right-0 bottom-0 -translate-x-[-2px] -translate-y-[-2px] rounded-full text-sm font-bold px-1.5 py-0.2 align-middle leading-snug hover:outline hover:outline-2 hover:outline-gray-200 cursor-pointer"
+            class="
+              absolute right-0 bottom-0 rounded-full px-1.5 py-0.2
+              align-middle leading-snug text-sm font-bold
+              -translate-x-[-2px] -translate-y-[-2px]
+              hover:outline hover:outline-2 hover:outline-gray-200
+              cursor-pointer
+            "
             :class="[isAdvancedFilter ? 'bg-[#806BA7]' : 'bg-[#68B11E]']"
             @click="switchFilterMode()"
           >
