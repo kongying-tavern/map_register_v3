@@ -92,14 +92,18 @@ export const useUserInfoStore = defineStore('global-user-info', () => {
 })
 
 userHook.onAuthChange(useUserInfoStore, async (store) => {
-  const isLogin = useUserAuthStore().validateToken()
+  const userAuthStore = useUserAuthStore()
+  const isLogin = userAuthStore.validateToken()
   if (!isLogin) {
     store.info = {}
     return
   }
 
+  // 仅当 roleList 为空时重新拉取
   !store.roleList.length && await store.updateRoleList()
-  await store.updateUserInfo()
+
+  // 仅当 userId 发生变化时重新拉取
+  store.info.id !== userAuthStore.auth.userId && await store.updateUserInfo()
 })
 
 routerHook.onBeforeRouterEnter(useUserInfoStore, async (store) => {
