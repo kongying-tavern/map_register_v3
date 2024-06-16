@@ -101,7 +101,7 @@ const setRestItems = (target: HTMLElement | undefined, items: number[] = []) => 
     <input
       v-model="numberCount"
       type="number"
-      :min="1"
+      :min="0"
       required
       class="
         number-input
