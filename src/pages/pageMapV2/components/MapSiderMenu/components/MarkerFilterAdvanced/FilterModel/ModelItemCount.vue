@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { computed } from 'vue'
 import { MarkerFilterButton } from '../../MarkerFilterComponent'
 import { NumberRangeBase } from '.'
 import type { MAFOptionRange, MAFOptionSwitch, MAFValueBoolean, MAFValueNumberRange } from '@/stores/types'
@@ -16,19 +17,27 @@ const modelValue = defineModel<MAFValueBoolean & MAFValueNumberRange>('modelValu
   },
 })
 
-const toggleMatchType = () => {
+const toggleMatchMode = () => {
   modelValue.value.b = !modelValue.value.b
 }
+
+const modeTip = computed(() => modelValue.value.b ? '点位物品关联全部满足计数区间' : '点位物品关联部分满足计数区间')
 </script>
 
 <template>
   <div class="flex-auto flex gap-1 items-center">
     <MarkerFilterButton
       theme="light"
-      @click="toggleMatchType"
+      @click="toggleMatchMode"
     >
       <template #default>
-        {{ modelValue.b ? options.textActive : options.textInactive }}
+        <el-tooltip
+          placement="top-start"
+          effect="light"
+          :content="modeTip"
+        >
+          {{ modelValue.b ? options.textActive : options.textInactive }}
+        </el-tooltip>
       </template>
     </MarkerFilterButton>
     <span class="flex-none">物品计数</span>
