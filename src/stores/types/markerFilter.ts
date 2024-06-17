@@ -122,11 +122,17 @@ export interface MAFMetaContentRegex extends MAFMeta {
   re?: RegExp
 }
 
+export interface MAFMetaVisibility extends MAFMeta {
+  tag: string
+}
+
 export interface MAFMetaArea extends MAFMeta {
+  tag: string
   itemIds: Set<number>
 }
 
 export interface MAFMetaItemType extends MAFMeta {
+  tag: string
   itemIds: Set<number>
 }
 

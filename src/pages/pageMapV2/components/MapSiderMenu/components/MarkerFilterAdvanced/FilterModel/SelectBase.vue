@@ -8,7 +8,7 @@ defineProps<{
   options: MAFOptionSelect<{ [key: string]: string | number } | unknown>
 }>()
 
-const modelValue = defineModel<ValueType | ValueType[] | undefined>('modelValue', {
+const modelValue = defineModel<ValueType | ValueType[] | null | undefined>('modelValue', {
   required: true,
   default: null,
 })

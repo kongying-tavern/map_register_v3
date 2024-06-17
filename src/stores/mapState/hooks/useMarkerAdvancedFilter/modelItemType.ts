@@ -32,11 +32,20 @@ export class ItemType implements MAFConfig {
 
   prepare(val: MAFValueNumberArray): MAFMetaItemType {
     const meta: MAFMetaItemType = {
+      tag: '',
       itemIds: new Set<number>(),
     }
     if (!val.na || val.na.length <= 0)
       return meta
 
+    // 处理标签名
+    const { itemTypeMap } = useItemTypeStore()
+    meta.tag = val.na
+      .map(typeId => itemTypeMap[typeId]?.name)
+      .filter(v => v)
+      .join(',')
+
+    // 处理物品ID
     const { itemList } = useItemStore()
     const itemIdList: number[] = itemList
       .reduce<number[]>((seed, item) => {
@@ -52,16 +61,10 @@ export class ItemType implements MAFConfig {
     return meta
   }
 
-  semantic(val: MAFValueNumberArray, _opt: MAFOptionSelect<API.ItemTypeVo>, _meta: MAFMetaItemType, opposite: boolean): string {
+  semantic(val: MAFValueNumberArray, _opt: MAFOptionSelect<API.ItemTypeVo>, meta: MAFMetaItemType, opposite: boolean): string {
     if (!val.na || val.na.length <= 0)
       return opposite ? '属于所有分类' : '不属于任何分类'
-
-    const { itemTypeMap } = useItemTypeStore()
-    const itemTypeNames = val.na
-      .map(itemTypeId => (itemTypeMap[itemTypeId!] ?? {}).name)
-      .filter(v => v)
-      .join(',')
-    return `分类${opposite ? '不' : ''}为【${itemTypeNames}】`
+    return `分类${opposite ? '不' : ''}为【${meta.tag ?? ''}】`
   }
 
   filter(_val: MAFValueNumberArray, _opt: MAFOptionSelect<API.ItemTypeVo>, meta: MAFMetaItemType, marker: API.MarkerVo): boolean {

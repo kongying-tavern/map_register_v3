@@ -1,9 +1,10 @@
 <script lang="ts" setup>
-import type { MAFOptionSwitch, MAFValueBoolean } from '@/stores/types'
+import type { MAFMetaDummy, MAFOptionSwitch, MAFValueBoolean } from '@/stores/types'
 import { GSSwitch } from '@/components/GenshinUI'
 
 defineProps<{
   options: MAFOptionSwitch
+  meta: MAFMetaDummy
 }>()
 
 const modelValue = defineModel<MAFValueBoolean>('modelValue', {

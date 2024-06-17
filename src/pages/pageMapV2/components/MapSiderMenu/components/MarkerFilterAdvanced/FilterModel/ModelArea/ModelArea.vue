@@ -1,14 +1,13 @@
 <script lang="ts" setup>
 import { Place } from '@element-plus/icons-vue'
-import { storeToRefs } from 'pinia'
 import { MarkerFilterButton, MarkerFilterSelectPanel } from '../../../MarkerFilterComponent'
 import ModelAreaDialog from './ModelAreaDialog.vue'
-import type { MAFOptionSelect, MAFValueNumberArray } from '@/stores/types'
+import type { MAFMetaArea, MAFOptionSelect, MAFValueNumberArray } from '@/stores/types'
 import type { AreaWithChildren } from '@/stores'
-import { useAreaStore } from '@/stores'
 
 defineProps<{
   options: MAFOptionSelect<AreaWithChildren>
+  meta: MAFMetaArea
 }>()
 
 const modelValue = defineModel<MAFValueNumberArray>('modelValue', {
@@ -17,14 +16,6 @@ const modelValue = defineModel<MAFValueNumberArray>('modelValue', {
     na: [],
   },
 })
-
-const { areaIdMap } = storeToRefs(useAreaStore())
-
-const areaTag = computed(() => modelValue.value.na
-  .map(areaId => (areaIdMap.value.get(areaId) ?? {}).name!)
-  .filter(v => v)
-  .join(','),
-)
 </script>
 
 <template>
@@ -44,8 +35,8 @@ const areaTag = computed(() => modelValue.value.na
           <template #icon>
             <Place />
           </template>
-          <template v-if="areaTag" #default>
-            {{ areaTag }}
+          <template v-if="meta.tag" #default>
+            {{ meta.tag }}
           </template>
         </MarkerFilterButton>
       </template>

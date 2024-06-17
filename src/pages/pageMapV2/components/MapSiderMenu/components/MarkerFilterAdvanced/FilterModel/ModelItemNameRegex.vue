@@ -1,9 +1,10 @@
 <script lang="ts" setup>
 import { InputBase } from '.'
-import type { MAFOptionInput, MAFValueString } from '@/stores/types'
+import type { MAFMetaItemNameRegex, MAFOptionInput, MAFValueString } from '@/stores/types'
 
 defineProps<{
   options: MAFOptionInput
+  meta: MAFMetaItemNameRegex
 }>()
 
 const modelValue = defineModel<MAFValueString>('modelValue', {

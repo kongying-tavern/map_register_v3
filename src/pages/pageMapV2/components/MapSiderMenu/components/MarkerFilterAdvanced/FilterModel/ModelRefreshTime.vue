@@ -2,12 +2,13 @@
 import { computed } from 'vue'
 import { MarkerFilterButton } from '../../MarkerFilterComponent'
 import { NumberRangeBase, SelectBase } from '.'
-import type { MAFOptionRange, MAFOptionSelect, MAFValueNumberRange } from '@/stores/types'
+import type { MAFMetaDummy, MAFOptionRange, MAFOptionSelect, MAFValueNumberRange } from '@/stores/types'
 import { IconTimer } from '@/components/AppIcons'
 import { useRefreshTimeOptions } from '@/hooks'
 
 defineProps<{
   options: MAFOptionRange & MAFOptionSelect<{ label: string; value: number }>
+  meta: MAFMetaDummy
 }>()
 
 const modelValue = defineModel<MAFValueNumberRange>('modelValue', {

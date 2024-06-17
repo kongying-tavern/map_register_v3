@@ -1,14 +1,12 @@
 <script lang="ts" setup>
-import { computed } from 'vue'
-import { storeToRefs } from 'pinia'
 import { MarkerFilterButton } from '../../MarkerFilterComponent'
 import { SelectBase } from '.'
-import type { MAFOptionSelect, MAFValueNumberArray } from '@/stores/types'
+import type { MAFMetaItemType, MAFOptionSelect, MAFValueNumberArray } from '@/stores/types'
 import { IconApplication } from '@/components/AppIcons'
-import { useItemTypeStore } from '@/stores'
 
 defineProps<{
   options: MAFOptionSelect<API.ItemTypeVo>
+  meta: MAFMetaItemType
 }>()
 
 const modelValue = defineModel<MAFValueNumberArray>('modelValue', {
@@ -17,14 +15,6 @@ const modelValue = defineModel<MAFValueNumberArray>('modelValue', {
     na: [],
   },
 })
-
-const { itemTypeMap } = storeToRefs(useItemTypeStore())
-
-const typeTag = computed(() => modelValue.value.na
-  .map(typeId => itemTypeMap.value[typeId]?.name)
-  .filter(v => v)
-  .join(','),
-)
 </script>
 
 <template>
@@ -38,8 +28,8 @@ const typeTag = computed(() => modelValue.value.na
         <template #icon>
           <IconApplication />
         </template>
-        <template v-if="typeTag" #default>
-          {{ typeTag }}
+        <template v-if="meta.tag" #default>
+          {{ meta.tag }}
         </template>
       </MarkerFilterButton>
     </SelectBase>

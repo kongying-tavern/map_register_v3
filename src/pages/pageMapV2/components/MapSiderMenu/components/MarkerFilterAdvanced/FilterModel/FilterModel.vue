@@ -21,11 +21,16 @@ import {
   ModelVisibility,
 } from '.'
 import { useMapStateStore } from '@/stores'
-import type { MAFItem, MAFOption, MAFValue } from '@/stores/types'
+import type { MAFItem, MAFMeta, MAFOption, MAFValue } from '@/stores/types'
 
 const props = defineProps<{
   condition: MAFItem
 }>()
+
+const modelValue = defineModel<MAFValue>('modelValue', {
+  required: false,
+  default: {},
+})
 
 const { getMAFConfig } = useMapStateStore()
 
@@ -55,10 +60,7 @@ const modelTemplate = computed(() => {
 
 const modelOptions = computed<MAFOption>(() => toValue(model.value.option))
 
-const modelValue = defineModel<MAFValue>('modelValue', {
-  required: false,
-  default: {},
-})
+const modelMeta = computed<MAFMeta>(() => model.value.prepare(modelValue.value))
 </script>
 
 <template>
@@ -67,5 +69,6 @@ const modelValue = defineModel<MAFValue>('modelValue', {
     v-if="modelTemplate"
     v-model="modelValue"
     :options="modelOptions"
+    :meta="modelMeta"
   />
 </template>

@@ -1,9 +1,10 @@
 <script lang="ts" setup>
 import { NumberRangeBase } from '.'
-import type { MAFOptionRange, MAFValueNumberRange } from '@/stores/types'
+import type { MAFMetaDummy, MAFOptionRange, MAFValueNumberRange } from '@/stores/types'
 
 defineProps<{
   options: MAFOptionRange
+  meta: MAFMetaDummy
 }>()
 
 const modelValue = defineModel<MAFValueNumberRange>('modelValue', {
