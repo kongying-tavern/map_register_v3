@@ -4,6 +4,7 @@ import { computed, ref } from 'vue'
 import { SelectList } from '../../../SelectList'
 import type { AreaWithExtraConfig } from '@/stores'
 import type { MAFMetaUndergroundLayer } from '@/stores/types'
+import { useListBubbleDrag } from '@/hooks'
 
 const props = defineProps<{
   meta: MAFMetaUndergroundLayer
@@ -59,6 +60,28 @@ const layerCountMap = computed(() => {
   })
   return countMap
 })
+
+/* --------------------------------------------------
+ * 拖拽计数清除分组逻辑
+ * --------------------------------------------------
+ */
+const removeArea = (area: AreaWithExtraConfig) => {
+  const shallowCopyValue = [...modelValue.value]
+  const valueSet = new Set<string>(shallowCopyValue);
+  (area.extraConfig?.underground?.levels ?? []).forEach((group) => {
+    group.children.forEach(layer => valueSet.delete(layer.value!))
+  })
+  modelValue.value = Array.from(valueSet)
+}
+
+const {
+  onDragStart: onAreaDragStart,
+  onDragEnd: onAreaDragEnd,
+  onDrop: onAreaDrop,
+} = useListBubbleDrag<AreaWithExtraConfig>({
+  isDropback: (ev, item) => Boolean(ev.composedPath().find(target => (target instanceof HTMLElement) && Number(target.dataset.dragAreaId) === item.id!)),
+  onClearBubble: removeArea,
+})
 </script>
 
 <template>
@@ -69,9 +92,15 @@ const layerCountMap = computed(() => {
         class="h-full overflow-auto gap-1"
         :list="list"
         value-key="id"
+        @dragover.prevent
+        @dragend="onAreaDragEnd"
+        @drop="onAreaDrop"
       >
         <template #default="{ item }">
-          <div class="flex-auto flex items-center">
+          <div
+            class="flex-auto flex items-center"
+            :data-drag-area-id="item.id"
+          >
             <span class="flex-auto">{{ item.name }}</span>
             <el-button
               v-if="layerCountMap[item.id!]"
@@ -79,6 +108,8 @@ const layerCountMap = computed(() => {
               type="primary"
               size="small"
               round
+              .draggable="true"
+              @dragstart.stop="(ev) => onAreaDragStart(ev, item)"
             >
               {{ layerCountMap[item.id!] }}
             </el-button>
