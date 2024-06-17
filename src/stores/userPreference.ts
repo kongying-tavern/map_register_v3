@@ -32,6 +32,7 @@ export const usePreferenceStore = defineStore('global-user-preference', () => {
 
   onSuccess(() => {
     _resolve.value?.()
+    internalUpdateFlag.value = false
   })
 
   // 获取当前用户的 userId
@@ -40,15 +41,19 @@ export const usePreferenceStore = defineStore('global-user-preference', () => {
     return auth.userId
   }
 
-  const updateUserPreference = async () => {
+  const updateUserPreference = async (init = false) => {
     const userId = _getUserId()
     if (userId === undefined)
       return
+    if (init)
+      internalUpdateFlag.value = true
     await _updateUserPreference(userId)
   }
 
   // 存档更新时，更新用户首选项
-  watch(() => archiveStore.currentArchive.body.Preference, updateUserPreference)
+  watch(() => archiveStore.currentArchive.body.Preference, async () => {
+    await updateUserPreference(true)
+  })
 
   /** 同步首选项更新至存档 */
   const syncUserPreference = async () => {
@@ -84,6 +89,10 @@ export const usePreferenceStore = defineStore('global-user-preference', () => {
 })
 
 userHook.onInfoChange(usePreferenceStore, async (store) => {
-  const { validateToken } = useUserAuthStore()
-  validateToken() && await store.updateUserPreference()
+  const { validateToken, auth } = useUserAuthStore()
+
+  if (!validateToken() || auth.userId === store.preference.id)
+    return
+
+  await store.updateUserPreference(true)
 })
