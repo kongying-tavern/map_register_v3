@@ -21,6 +21,7 @@ import * as score from './score'
 import * as punctuateAudit from './punctuateAudit'
 import * as markerLink from './markerLink'
 import * as history from './history'
+import * as app from './app'
 import * as role from './role'
 import * as tagDoc from './tagDoc'
 import * as markerLinkDoc from './markerLinkDoc'
@@ -51,6 +52,7 @@ export default {
   punctuateAudit,
   markerLink,
   history,
+  app,
   role,
   tagDoc,
   markerLinkDoc,
