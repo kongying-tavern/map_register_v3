@@ -9,13 +9,14 @@ import { useAccessStore, useIconTagStore, useMapStateStore } from '@/stores'
 import { CloseFilled } from '@/components/GenshinUI/GSIcon'
 import { AppBilibiliVideoPlayer, AppIconTagRenderer, GSButton } from '@/components'
 import { useGlobalDialog } from '@/hooks'
+import type { GSMapState } from '@/stores/types/genshin-map-state'
 
 const accessStore = useAccessStore()
 
 const mapStateStore = useMapStateStore()
 const { tagSpriteUrl, tagPositionMap } = storeToRefs(useIconTagStore())
 
-const { cachedMarkerVo, isPopoverActived, focus, blur } = useMarkerFocus()
+const { cachedMarkerVo, isPopoverActived, focus, blur, updateFocus } = useMarkerFocus()
 
 const { pictureUrl, loading: imageLoading } = useSkeletonPicture(cachedMarkerVo)
 
@@ -27,8 +28,10 @@ const { isUnderground, hiddenFlagType, refreshTimeType } = useMarkerExtra(cached
 
 // ==================== 编辑点位 ====================
 const { DialogService } = useGlobalDialog()
-const openMarkerEditor = () => {
-  focus.value && DialogService
+const openMarkerEditor = async () => {
+  if (!focus.value)
+    return
+  const formData = await DialogService
     .config({
       width: 'fit-content',
       alignCenter: true,
@@ -40,6 +43,9 @@ const openMarkerEditor = () => {
       markerInfo: focus.value,
     })
     .open(MarkerEditPanel)
+    .afterClosed<GSMapState.MarkerWithRenderConfig>()
+  updateFocus(formData)
+  cachedMarkerVo.value = formData
 }
 
 // ==================== 删除点位 ====================

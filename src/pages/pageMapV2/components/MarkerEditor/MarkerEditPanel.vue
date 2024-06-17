@@ -4,9 +4,11 @@ import { useMarkerEdit } from './hooks'
 import { MarkerEditorForm } from '.'
 import { GlobalDialogController } from '@/components'
 import db from '@/database'
+import type { GSMapState } from '@/stores/types/genshin-map-state'
+import { createRenderMarkers } from '@/stores/utils'
 
 const props = defineProps<{
-  markerInfo: API.MarkerVo
+  markerInfo: GSMapState.MarkerWithRenderConfig
 }>()
 
 /** 表单数据 */
@@ -24,7 +26,13 @@ const initAreaCode = asyncComputed(async () => {
 
 const { editorRef, loading, editMarker, onSuccess } = useMarkerEdit(form)
 
-onSuccess(GlobalDialogController.close)
+// 修改成功后更新外部值
+onSuccess(() => {
+  const rerenderInfo = createRenderMarkers([form.value], { reset: true })[0]
+  if (rerenderInfo)
+    form.value = rerenderInfo
+  GlobalDialogController.close(form.value)
+})
 
 const isOfflineMode = import.meta.env.VITE_DEVELOPMENT_MODE === 'offline'
 </script>
@@ -36,14 +44,14 @@ const isOfflineMode = import.meta.env.VITE_DEVELOPMENT_MODE === 'offline'
     v-model="form"
     :loading="loading"
     :init-area-code="initAreaCode"
-    @close="GlobalDialogController.close"
+    @close="() => GlobalDialogController.close(markerInfo)"
   >
     <template #footer>
       <div class="w-full flex justify-end">
         <el-button :icon="Check" type="primary" :disabled="isOfflineMode" :loading="loading" @click="editMarker">
           保存
         </el-button>
-        <el-button :icon="Close" :disabled="loading" @click="GlobalDialogController.close">
+        <el-button :icon="Close" :disabled="loading" @click="() => GlobalDialogController.close(markerInfo)">
           取消
         </el-button>
       </div>
