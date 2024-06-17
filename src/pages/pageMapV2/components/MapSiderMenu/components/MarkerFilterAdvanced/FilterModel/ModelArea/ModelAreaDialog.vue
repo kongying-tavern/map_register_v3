@@ -67,12 +67,12 @@ const { onDragStart, onDragEnd, onDrop } = useListBubbleDrag<AreaWithChildren>({
       >
         <template #default="{ item }">
           <div
-            class="flex-auto flex"
+            class="flex-auto flex items-center"
             :data-drag-id="item.id"
           >
             <span class="flex-auto">{{ item[labelKey] }}</span>
             <el-button
-              v-if=" childrenCountMap[item.id!] > 0"
+              v-if="childrenCountMap[item.id!] > 0"
               class="flex-none"
               type="primary"
               size="small"
