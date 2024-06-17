@@ -65,6 +65,7 @@ const layerCountMap = computed(() => {
  * 拖拽计数清除分组逻辑
  * --------------------------------------------------
  */
+// 地区计数拖动
 const removeArea = (area: AreaWithExtraConfig) => {
   const shallowCopyValue = [...modelValue.value]
   const valueSet = new Set<string>(shallowCopyValue);
@@ -82,6 +83,26 @@ const {
   isDropback: (ev, item) => Boolean(ev.composedPath().find(target => (target instanceof HTMLElement) && Number(target.dataset.dragAreaId) === item.id!)),
   onClearBubble: removeArea,
 })
+
+// 分组计数拖动
+const removeGroup = (item: ConfigLayerUnit) => {
+  const shallowCopyValue = [...modelValue.value]
+  const valueSet = new Set<string>(shallowCopyValue);
+  (item.children ?? []).forEach((layer) => {
+    valueSet.delete(layer.value)
+  })
+  modelValue.value = Array.from(valueSet)
+}
+
+const {
+  isDragging: isGroupDragging,
+  onDragStart: onGroupDragStart,
+  onDragEnd: onGroupDragEnd,
+  onDrop: onGroupDrop,
+} = useListBubbleDrag<ConfigLayerUnit>({
+  isDropback: (ev, item) => Boolean(ev.composedPath().find(target => (target instanceof HTMLElement) && target.dataset.dragGroupId === item.value)),
+  onClearBubble: removeGroup,
+})
 </script>
 
 <template>
@@ -90,6 +111,7 @@ const {
       <SelectList
         v-model="selectedAreaId"
         class="h-full overflow-auto gap-1"
+        :disabled="isGroupDragging"
         :list="list"
         value-key="id"
         @dragover.prevent
@@ -118,12 +140,20 @@ const {
       </SelectList>
     </el-scrollbar>
     <div class="w-[2px] h-[97%] translate-y-[1.5%] bg-[#E3DDD140]" />
-    <el-scrollbar class="flex-1">
+    <el-scrollbar
+      class="flex-1"
+      @dragover.prevent
+      @dragend="onGroupDragEnd"
+      @drop="onGroupDrop"
+    >
       <template
         v-for="(layerGroup, layerGroupIndex) in selectedLayers"
         :key="layerGroupIndex"
       >
-        <div v-if="layerGroup.children && layerGroup.children.length > 0">
+        <div
+          v-if="layerGroup.children && layerGroup.children.length > 0"
+          :data-drag-group-id="layerGroup.value"
+        >
           <div class="flex pt-2 pb-1 gap-2 items-end">
             <span class="flex-none text-base leading-loose">
               {{ layerGroup.label }}
@@ -135,6 +165,8 @@ const {
                 type="primary"
                 size="small"
                 round
+                .draggable="true"
+                @dragstart="(ev) => onGroupDragStart(ev, layerGroup)"
               >
                 {{ layerCountMap[`${selectedAreaId}-${layerGroup.value}`] }}
               </el-button>

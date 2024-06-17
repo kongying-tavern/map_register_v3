@@ -2,6 +2,7 @@
 import { get } from 'lodash'
 
 const props = defineProps<{
+  disabled?: boolean
   list: T[]
   valueKey: LK
   multiple?: boolean
@@ -23,6 +24,9 @@ const isActived = (targetOpt: T) => !props.multiple
   : ((modelValue.value ?? []) as V[]).findIndex(value => isValueEqual(value, targetOpt)) > -1
 
 const patchValue = (patchOpt: T) => {
+  if (props.disabled)
+    return
+
   // 单选
   if (!props.multiple) {
     const optValue = get(patchOpt, props.valueKey)
