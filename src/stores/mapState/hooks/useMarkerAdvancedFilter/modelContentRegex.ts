@@ -18,7 +18,7 @@ export class ContentRegex implements MAFConfig {
     }
   }
 
-  prepare(val: MAFValueString): MAFMetaContentRegex {
+  prepare(val: MAFValueString, _opt: MAFOptionInput): MAFMetaContentRegex {
     const meta: MAFMetaContentRegex = {
       re: undefined,
     }

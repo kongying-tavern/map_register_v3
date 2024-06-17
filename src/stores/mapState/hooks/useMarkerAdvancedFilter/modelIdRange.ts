@@ -18,7 +18,7 @@ export class IdRange implements MAFConfig {
     }
   }
 
-  prepare(val: MAFValueString): MAFMetaIdRange {
+  prepare(val: MAFValueString, _opt: MAFOptionInput): MAFMetaIdRange {
     const meta: MAFMetaIdRange = {
       idSet: new Set<number>(),
     }

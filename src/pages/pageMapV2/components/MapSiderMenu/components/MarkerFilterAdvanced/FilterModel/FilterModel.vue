@@ -60,7 +60,7 @@ const modelTemplate = computed(() => {
 
 const modelOptions = computed<MAFOption>(() => toValue(model.value.option))
 
-const modelMeta = computed<MAFMeta>(() => model.value.prepare(modelValue.value))
+const modelMeta = computed<MAFMeta>(() => model.value.prepare(modelValue.value, modelOptions.value))
 </script>
 
 <template>

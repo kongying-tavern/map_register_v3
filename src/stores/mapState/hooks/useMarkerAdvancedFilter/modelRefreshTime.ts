@@ -34,7 +34,7 @@ export class RefreshTime implements MAFConfig {
     }
   }
 
-  prepare(_val: MAFValueNumberRange): MAFMetaDummy {
+  prepare(_val: MAFValueNumberRange, _opt: OptionType): MAFMetaDummy {
     return {}
   }
 

@@ -19,7 +19,7 @@ export class ItemName implements MAFConfig {
     }
   }
 
-  prepare(val: MAFValueString): MAFMetaItemName {
+  prepare(val: MAFValueString, _opt: MAFOptionInput): MAFMetaItemName {
     const meta: MAFMetaItemName = {
       itemIds: new Set<number>(),
     }

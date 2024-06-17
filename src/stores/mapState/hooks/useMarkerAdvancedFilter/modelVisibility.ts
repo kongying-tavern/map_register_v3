@@ -6,12 +6,12 @@ import type {
 } from '@/stores/types'
 import { useHiddenFlagOptions } from '@/hooks'
 
-interface OptionType { label: string; value: number }
+type OptionType = MAFOptionSelect<{ label: string; value: number }>
 
 export class Visibility implements MAFConfig {
   id = 11
   name = '可见范围'
-  option: ComputedRef<MAFOptionSelect<OptionType>> = computed(() => {
+  option: ComputedRef<OptionType> = computed(() => {
     const { hiddenFlagOptions } = useHiddenFlagOptions()
 
     return {
@@ -29,7 +29,7 @@ export class Visibility implements MAFConfig {
     }
   }
 
-  prepare(val: MAFValueNumberArray): MAFMetaVisibility {
+  prepare(val: MAFValueNumberArray, _opt: OptionType): MAFMetaVisibility {
     const meta: MAFMetaVisibility = {
       tag: '',
     }
@@ -44,13 +44,13 @@ export class Visibility implements MAFConfig {
     return meta
   }
 
-  semantic(val: MAFValueNumberArray, _opt: MAFOptionSelect<OptionType>, meta: MAFMetaVisibility, opposite: boolean): string {
+  semantic(val: MAFValueNumberArray, _opt: OptionType, meta: MAFMetaVisibility, opposite: boolean): string {
     if (!val.na || val.na.length <= 0)
       return opposite ? '不限可见范围' : '无可见范围'
     return `可见范围${opposite ? '不为' : '为'}【${meta.tag ?? ''}】`
   }
 
-  filter(val: MAFValueNumberArray, _opt: MAFOptionSelect<OptionType>, _meta: MAFMetaVisibility, marker: API.MarkerVo): boolean {
+  filter(val: MAFValueNumberArray, _opt: OptionType, _meta: MAFMetaVisibility, marker: API.MarkerVo): boolean {
     return (val.na ?? []).includes(marker.hiddenFlag!)
   }
 }

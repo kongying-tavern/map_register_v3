@@ -19,7 +19,7 @@ export class ItemNameRegex implements MAFConfig {
     }
   }
 
-  prepare(val: MAFValueString): MAFMetaItemNameRegex {
+  prepare(val: MAFValueString, _opt: MAFOptionInput): MAFMetaItemNameRegex {
     const meta: MAFMetaItemNameRegex = {
       re: undefined,
       itemIds: new Set<number>(),

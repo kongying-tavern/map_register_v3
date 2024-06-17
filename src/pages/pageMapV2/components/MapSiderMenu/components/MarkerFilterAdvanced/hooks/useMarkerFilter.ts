@@ -1,4 +1,5 @@
 import { cloneDeep } from 'lodash'
+import { toValue } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useMapStateStore, usePreferenceStore } from '@/stores'
 import type { MAFConfig, MAFGroup, MAFItem, MAFMeta } from '@/stores/types'
@@ -39,7 +40,7 @@ export const useMarkerFilter = () => {
           semantic: filterSemantic,
           prepare: filterPrepare,
         } = filterConfig
-        const filterMeta: MAFMeta = filterPrepare(item.value)
+        const filterMeta: MAFMeta = filterPrepare(item.value, toValue(filterOption))
         const itemOp: string = item.operator ? '且' : '或'
         const itemText: string = filterSemantic(item.value, filterOption, filterMeta, item.opposite)
         if (itemText)

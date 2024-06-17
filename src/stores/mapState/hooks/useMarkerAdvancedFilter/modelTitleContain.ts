@@ -18,7 +18,7 @@ export class TitleContain implements MAFConfig {
     }
   }
 
-  prepare(_val: MAFValueString): MAFMetaDummy {
+  prepare(_val: MAFValueString, _opt: MAFOptionInput): MAFMetaDummy {
     return {}
   }
 

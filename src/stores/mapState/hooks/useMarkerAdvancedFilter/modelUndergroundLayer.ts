@@ -1,17 +1,19 @@
 import { computed } from 'vue'
 import type {
   MAFConfig,
-  MAFMetaDummy,
+  MAFMetaUndergroundLayer,
   MAFOptionSelect,
   MAFValueStringArray,
 } from '@/stores/types'
 import { useAreaStore, useMarkerExtraStore } from '@/stores'
 import type { AreaWithExtraConfig } from '@/stores'
 
+type OptionType = MAFOptionSelect<AreaWithExtraConfig>
+
 export class UndergroundLayer implements MAFConfig {
   id = 6
   name = '地下层级'
-  option: ComputedRef<MAFOptionSelect<AreaWithExtraConfig>> = computed(() => {
+  option: ComputedRef<OptionType> = computed(() => {
     const { areaCodeMap } = useAreaStore()
     const { mergedAreaExtraConfigs } = useMarkerExtraStore()
 
@@ -46,15 +48,15 @@ export class UndergroundLayer implements MAFConfig {
     }
   }
 
-  prepare(_val: MAFValueStringArray): MAFMetaDummy {
+  prepare(_val: MAFValueStringArray, _opt: OptionType): MAFMetaUndergroundLayer {
     return {}
   }
 
-  semantic(_val: MAFValueStringArray, _opt: MAFOptionSelect<AreaWithExtraConfig>, _meta: MAFMetaDummy, _opposite: boolean): string {
+  semantic(_val: MAFValueStringArray, _opt: OptionType, _meta: MAFMetaUndergroundLayer, _opposite: boolean): string {
     return ''
   }
 
-  filter(_val: MAFValueStringArray, _opt: MAFOptionSelect<AreaWithExtraConfig>, _meta: MAFMetaDummy, _marker: API.MarkerVo): boolean {
+  filter(_val: MAFValueStringArray, _opt: OptionType, _meta: MAFMetaUndergroundLayer, _marker: API.MarkerVo): boolean {
     return false
   }
 }

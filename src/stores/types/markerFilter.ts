@@ -43,7 +43,7 @@ export interface MAFConfig {
   readonly name: string
   readonly option: MaybeComputedRef<MAFValue>
   readonly defaultVal: MAFValue
-  prepare(val: MAFValue): MAFMeta
+  prepare(val: MAFValue, opt: MAFOption): MAFMeta
   semantic(val: MAFValue, opt: MAFOption, meta: MAFMeta, opposite: boolean): string
   filter(val: MAFValue, opt: MAFOption, meta: MAFMeta, marker: API.MarkerVo): boolean
 }
@@ -120,6 +120,15 @@ export interface MAFMetaIdRange extends MAFMeta {
 
 export interface MAFMetaContentRegex extends MAFMeta {
   re?: RegExp
+}
+
+export interface MAFMetaUndergroundLayer extends MAFMeta {
+  layerKeyMap: Record<string, {
+    areaId: number
+    areaName: string
+    groupKey: string
+    groupName: string
+  }>
 }
 
 export interface MAFMetaVisibility extends MAFMeta {
