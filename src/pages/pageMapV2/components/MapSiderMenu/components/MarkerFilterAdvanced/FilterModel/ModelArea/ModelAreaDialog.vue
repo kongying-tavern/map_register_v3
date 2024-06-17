@@ -1,12 +1,12 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
-import { storeToRefs } from 'pinia'
 import { SelectList } from '../../../SelectList'
-import { useAreaStore } from '@/stores'
 import type { AreaWithChildren } from '@/stores'
 import { useListBubbleDrag } from '@/hooks'
+import type { MAFMetaArea } from '@/stores/types'
 
-defineProps<{
+const props = defineProps<{
+  meta: MAFMetaArea
   listClass?: string
   list: AreaWithChildren[]
   labelKey: string
@@ -18,24 +18,16 @@ const modelValue = defineModel<number[]>('modelValue', {
   default: [],
 })
 
-const { childrenAreaList } = storeToRefs(useAreaStore())
-
 const childrenList = ref<AreaWithChildren[]>([])
 
 /* --------------------------------------------------
  * 计数相关数据
  * --------------------------------------------------
  */
-const parentIdMap = computed(() => Object.fromEntries(
-  childrenAreaList.value.map(({ id: childId = 0, parentId = -1 }) => [childId, parentId]),
-))
-
 const childrenCountMap = computed(() => {
   const childrenCount: Record<number, number> = {}
   modelValue.value.forEach((areaId) => {
-    const parentId = parentIdMap.value[areaId]
-    if (!parentId)
-      return
+    const parentId = props.meta.areaParentIdMap[areaId] ?? -1
     childrenCount[parentId] = (childrenCount[parentId] ?? 0) + 1
   })
   return childrenCount

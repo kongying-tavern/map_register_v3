@@ -128,6 +128,7 @@ export interface MAFMetaVisibility extends MAFMeta {
 
 export interface MAFMetaArea extends MAFMeta {
   tag: string
+  areaParentIdMap: Record<number, number>
   itemIds: Set<number>
 }
 
@@ -141,5 +142,6 @@ export interface MAFMetaItemName extends MAFMeta {
 }
 
 export interface MAFMetaItemNameRegex extends MAFMeta {
+  re?: RegExp
   itemIds: Set<number>
 }

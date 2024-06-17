@@ -22,15 +22,17 @@ export class ContentRegex implements MAFConfig {
     const meta: MAFMetaContentRegex = {
       re: undefined,
     }
-    if (!val.s)
-      return meta
 
-    try {
-      meta.re = new RegExp(val.s, 'gui')
+    // 处理正则表达式
+    if (val.s) {
+      try {
+        meta.re = new RegExp(val.s, 'gui')
+      }
+      catch (_err) {
+        // 忽略错误
+      }
     }
-    catch (_err) {
-      // 忽略错误
-    }
+
     return meta
   }
 

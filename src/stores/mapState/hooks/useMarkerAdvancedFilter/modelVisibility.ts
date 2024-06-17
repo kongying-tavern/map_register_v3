@@ -33,8 +33,6 @@ export class Visibility implements MAFConfig {
     const meta: MAFMetaVisibility = {
       tag: '',
     }
-    if (!val.na || val.na.length <= 0)
-      return meta
 
     // 处理标签名
     const { hiddenFlagNameMap } = useHiddenFlagOptions()

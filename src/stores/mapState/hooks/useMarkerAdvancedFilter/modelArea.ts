@@ -31,25 +31,29 @@ export class Area implements MAFConfig {
   prepare(val: MAFValueNumberArray): MAFMetaArea {
     const meta: MAFMetaArea = {
       tag: '',
+      areaParentIdMap: {},
       itemIds: new Set<number>(),
     }
-    if (!val.na || val.na.length <= 0)
-      return meta
 
+    const { areaIdMap, childrenAreaList } = useAreaStore()
     // 处理标签名
-    const { areaIdMap } = useAreaStore()
     meta.tag = val.na
       .map(areaId => (areaIdMap.get(areaId) ?? {}).name!)
       .filter(v => v)
       .join(',')
 
+    // 处理地区父ID映射
+    meta.areaParentIdMap = Object.fromEntries(childrenAreaList.map(({ id: childId = 0, parentId = -1 }) => [childId, parentId]))
+
     // 处理物品ID
-    const { itemList } = useItemStore()
-    const itemIdList: number[] = itemList
-      .filter(item => val.na.includes(item.areaId!))
-      .map(item => item.id!)
-      .filter(v => v)
-    meta.itemIds = new Set(itemIdList)
+    if (val.na && val.na.length > 0) {
+      const { itemList } = useItemStore()
+      const itemIdList: number[] = itemList
+        .filter(item => val.na.includes(item.areaId!))
+        .map(item => item.id!)
+        .filter(v => v)
+      meta.itemIds = new Set(itemIdList)
+    }
 
     return meta
   }

@@ -35,8 +35,6 @@ export class ItemType implements MAFConfig {
       tag: '',
       itemIds: new Set<number>(),
     }
-    if (!val.na || val.na.length <= 0)
-      return meta
 
     // 处理标签名
     const { itemTypeMap } = useItemTypeStore()
@@ -46,17 +44,19 @@ export class ItemType implements MAFConfig {
       .join(',')
 
     // 处理物品ID
-    const { itemList } = useItemStore()
-    const itemIdList: number[] = itemList
-      .reduce<number[]>((seed, item) => {
-        const typeIds = item.typeIdList ?? []
-        for (const typeId of typeIds) {
-          if (val.na.includes(typeId))
-            return [...seed, item.id!]
-        }
-        return seed
-      }, [])
-    meta.itemIds = new Set(itemIdList)
+    if (val.na && val.na.length > 0) {
+      const { itemList } = useItemStore()
+      const itemIdList: number[] = itemList
+        .reduce<number[]>((seed, item) => {
+          const typeIds = item.typeIdList ?? []
+          for (const typeId of typeIds) {
+            if (val.na.includes(typeId))
+              return [...seed, item.id!]
+          }
+          return seed
+        }, [])
+      meta.itemIds = new Set(itemIdList)
+    }
 
     return meta
   }

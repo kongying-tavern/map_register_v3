@@ -42,7 +42,10 @@ const modelValue = defineModel<MAFValueNumberArray>('modelValue', {
       </template>
 
       <template #list="listProps">
-        <ModelAreaDialog v-bind="listProps" />
+        <ModelAreaDialog
+          v-bind="listProps"
+          :meta="meta"
+        />
       </template>
     </MarkerFilterSelectPanel>
   </div>

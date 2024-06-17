@@ -21,29 +21,31 @@ export class ItemNameRegex implements MAFConfig {
 
   prepare(val: MAFValueString): MAFMetaItemNameRegex {
     const meta: MAFMetaItemNameRegex = {
+      re: undefined,
       itemIds: new Set<number>(),
     }
-    if (!val.s)
-      return meta
 
-    let re: RegExp | undefined
-    try {
-      re = new RegExp(val.s, 'gui')
+    // 处理正则表达式
+    if (val.s) {
+      try {
+        meta.re = new RegExp(val.s, 'gui')
+      }
+      catch (_err) {
+        // 忽略错误
+      }
     }
-    catch (_err) {
-      // 忽略错误
-    }
-    if (!re)
-      return meta
 
-    const { itemList } = useItemStore()
-    const itemIdSet: Set<number> = itemList
-      .reduce<Set<number>>((seed, item) => {
-        if (re.test(item.name!))
-          seed.add(item.id!)
-        return seed
-      }, new Set())
-    meta.itemIds = itemIdSet
+    // 处理物品ID
+    if (meta.re) {
+      const { itemList } = useItemStore()
+      const itemIdSet: Set<number> = itemList
+        .reduce<Set<number>>((seed, item) => {
+          if (meta.re!.test(item.name!))
+            seed.add(item.id!)
+          return seed
+        }, new Set())
+      meta.itemIds = itemIdSet
+    }
 
     return meta
   }
