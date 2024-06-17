@@ -47,7 +47,7 @@ export class Visibility implements MAFConfig {
   semantic(val: MAFValueNumberArray, _opt: OptionType, meta: MAFMetaVisibility, opposite: boolean): string {
     if (!val.na || val.na.length <= 0)
       return opposite ? '不限可见范围' : '无可见范围'
-    return `可见范围${opposite ? '不为' : '为'}【${meta.tag ?? ''}】`
+    return `可见范围${opposite ? '不' : ''}为【${meta.tag ?? ''}】`
   }
 
   filter(val: MAFValueNumberArray, _opt: OptionType, _meta: MAFMetaVisibility, marker: API.MarkerVo): boolean {
