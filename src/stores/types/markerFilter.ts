@@ -129,6 +129,8 @@ export interface MAFMetaUndergroundLayer extends MAFMeta {
     groupKey: string
     groupName: string
   }[]>
+  layerNameMap: Record<string, string>
+  tag: string
 }
 
 export interface MAFMetaVisibility extends MAFMeta {

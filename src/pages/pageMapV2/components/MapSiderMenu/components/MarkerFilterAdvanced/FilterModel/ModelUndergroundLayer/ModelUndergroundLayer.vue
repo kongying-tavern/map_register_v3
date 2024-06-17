@@ -35,6 +35,9 @@ const modelValue = defineModel<MAFValueStringArray>('modelValue', {
           <template #icon>
             <IconLayersFilled />
           </template>
+          <template v-if="meta.tag" #default>
+            {{ meta.tag }}
+          </template>
         </MarkerFilterButton>
       </template>
 
