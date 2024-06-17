@@ -93,19 +93,21 @@ const layerCountMap = computed(() => {
         :key="layerGroupIndex"
       >
         <div v-if="layerGroup.children && layerGroup.children.length > 0">
-          <div class="flex pt-2 pb-1 items-end">
-            <span class="flex-auto text-base leading-loose">
+          <div class="flex pt-2 pb-1 gap-2 items-end">
+            <span class="flex-none text-base leading-loose">
               {{ layerGroup.label }}
             </span>
-            <el-button
-              v-if="layerCountMap[`${selectedAreaId}-${layerGroup.value}`]"
-              class="flex-none mb-[8px]"
-              type="primary"
-              size="small"
-              round
-            >
-              {{ layerCountMap[`${selectedAreaId}-${layerGroup.value}`] }}
-            </el-button>
+            <div class="flex-auto">
+              <el-button
+                v-if="layerCountMap[`${selectedAreaId}-${layerGroup.value}`]"
+                class="mb-[8px]"
+                type="primary"
+                size="small"
+                round
+              >
+                {{ layerCountMap[`${selectedAreaId}-${layerGroup.value}`] }}
+              </el-button>
+            </div>
           </div>
           <SelectList
             v-model="modelValue"
