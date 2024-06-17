@@ -66,7 +66,7 @@ const { onDragStart, onDragEnd, onDrop } = useListBubbleDrag<AreaWithChildren>({
 </script>
 
 <template>
-  <div class="w-full flex-1 flex gap-2">
+  <div class="w-full flex-1 flex gap-2 overflow-hidden">
     <el-scrollbar class="flex-1">
       <SelectList
         v-model="childrenList"
