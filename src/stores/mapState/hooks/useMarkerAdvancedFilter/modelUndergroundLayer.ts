@@ -48,8 +48,41 @@ export class UndergroundLayer implements MAFConfig {
     }
   }
 
-  prepare(_val: MAFValueStringArray, _opt: OptionType): MAFMetaUndergroundLayer {
-    return {}
+  prepare(_val: MAFValueStringArray, opt: OptionType): MAFMetaUndergroundLayer {
+    const meta: MAFMetaUndergroundLayer = {
+      layerKeyMap: {},
+    }
+
+    // 处理层级键映射
+    opt.options.forEach((area) => {
+      const {
+        id: areaId = 0,
+        name: areaName = '',
+        extraConfig = {},
+      } = area
+      const { underground = {} } = extraConfig
+      const { levels = [] } = underground
+      levels.forEach((group) => {
+        const {
+          value: groupKey = '',
+          label: groupName = '',
+        } = group
+        group.children.forEach((item) => {
+          const { value: itemKey = '' } = item
+          meta.layerKeyMap[itemKey] = [
+            ...(meta.layerKeyMap[itemKey] ?? []),
+            {
+              areaId,
+              areaName,
+              groupKey,
+              groupName,
+            },
+          ]
+        })
+      })
+    })
+
+    return meta
   }
 
   semantic(_val: MAFValueStringArray, _opt: OptionType, _meta: MAFMetaUndergroundLayer, _opposite: boolean): string {

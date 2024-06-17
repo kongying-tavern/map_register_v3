@@ -1,12 +1,13 @@
 <script lang="ts" setup>
 import { MarkerFilterButton, MarkerFilterSelectPanel } from '../../../MarkerFilterComponent'
 import ModelUndergroundLayerDialog from './ModelUndergroundLayerDialog.vue'
-import type { MAFOptionSelect, MAFValueStringArray } from '@/stores/types'
+import type { MAFMetaUndergroundLayer, MAFOptionSelect, MAFValueStringArray } from '@/stores/types'
 import type { AreaWithExtraConfig } from '@/stores'
 import { IconLayersFilled } from '@/components/AppIcons'
 
 defineProps<{
   options: MAFOptionSelect<AreaWithExtraConfig>
+  meta: MAFMetaUndergroundLayer
 }>()
 
 const modelValue = defineModel<MAFValueStringArray>('modelValue', {
@@ -38,7 +39,10 @@ const modelValue = defineModel<MAFValueStringArray>('modelValue', {
       </template>
 
       <template #list="listProps">
-        <ModelUndergroundLayerDialog v-bind="listProps" />
+        <ModelUndergroundLayerDialog
+          v-bind="listProps"
+          :meta="meta"
+        />
       </template>
     </MarkerFilterSelectPanel>
   </div>

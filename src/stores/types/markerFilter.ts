@@ -128,7 +128,7 @@ export interface MAFMetaUndergroundLayer extends MAFMeta {
     areaName: string
     groupKey: string
     groupName: string
-  }>
+  }[]>
 }
 
 export interface MAFMetaVisibility extends MAFMeta {

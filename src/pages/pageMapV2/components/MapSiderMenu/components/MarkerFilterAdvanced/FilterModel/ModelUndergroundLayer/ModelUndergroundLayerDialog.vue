@@ -3,8 +3,10 @@ import { keyBy } from 'lodash'
 import { computed, ref } from 'vue'
 import { SelectList } from '../../../SelectList'
 import type { AreaWithExtraConfig } from '@/stores'
+import type { MAFMetaUndergroundLayer } from '@/stores/types'
 
 const props = defineProps<{
+  meta: MAFMetaUndergroundLayer
   listClass?: string
   list: AreaWithExtraConfig[]
   labelKey: string
@@ -36,6 +38,27 @@ const selectedLayers = computed<ConfigLayerUnit[]>(() => {
   const { levels = [] } = underground
   return levels
 })
+
+/* --------------------------------------------------
+ * 计数相关数据
+ * --------------------------------------------------
+ */
+const layerCountMap = computed(() => {
+  const countMap: Record<string | number, number> = {}
+  modelValue.value.forEach((layerKey) => {
+    const layerKeyItem = props.meta.layerKeyMap[layerKey]
+    if (!layerKeyItem)
+      return
+    layerKeyItem.forEach((keyItem) => {
+      const { areaId = 0, groupKey = '' } = keyItem
+      if (!areaId || !groupKey)
+        return
+      countMap[areaId] = (countMap[areaId] ?? 0) + 1
+      countMap[`${areaId}-${groupKey}`] = (countMap[`${areaId}-${groupKey}`] ?? 0) + 1
+    })
+  })
+  return countMap
+})
 </script>
 
 <template>
@@ -48,8 +71,17 @@ const selectedLayers = computed<ConfigLayerUnit[]>(() => {
         value-key="id"
       >
         <template #default="{ item }">
-          <div class="flex-auto flex">
+          <div class="flex-auto flex items-center">
             <span class="flex-auto">{{ item.name }}</span>
+            <el-button
+              v-if="layerCountMap[item.id!]"
+              class="flex-none"
+              type="primary"
+              size="small"
+              round
+            >
+              {{ layerCountMap[item.id!] }}
+            </el-button>
           </div>
         </template>
       </SelectList>
@@ -61,10 +93,19 @@ const selectedLayers = computed<ConfigLayerUnit[]>(() => {
         :key="layerGroupIndex"
       >
         <div v-if="layerGroup.children && layerGroup.children.length > 0">
-          <div class="flex pt-2 pb-1">
+          <div class="flex pt-2 pb-1 items-end">
             <span class="flex-auto text-base leading-loose">
               {{ layerGroup.label }}
             </span>
+            <el-button
+              v-if="layerCountMap[`${selectedAreaId}-${layerGroup.value}`]"
+              class="flex-none mb-[8px]"
+              type="primary"
+              size="small"
+              round
+            >
+              {{ layerCountMap[`${selectedAreaId}-${layerGroup.value}`] }}
+            </el-button>
           </div>
           <SelectList
             v-model="modelValue"
@@ -74,9 +115,7 @@ const selectedLayers = computed<ConfigLayerUnit[]>(() => {
             :value-key="valueKey"
           >
             <template #default="{ item }">
-              <div class="flex-auto flex">
-                <span class="flex-auto">{{ item[labelKey] }}</span>
-              </div>
+              {{ item[labelKey] }}
             </template>
           </SelectList>
         </div>
