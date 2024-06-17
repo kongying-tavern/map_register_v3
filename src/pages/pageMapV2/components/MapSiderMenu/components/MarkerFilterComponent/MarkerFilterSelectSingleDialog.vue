@@ -44,7 +44,7 @@ const cancel = () => {
       <div class="text-xl text-center">
         {{ title }}
       </div>
-      <GSDivider color="#76716A" />
+      <GSDivider color="#76716A" :height="34" />
 
       <template v-if="$slots.list">
         <slot
@@ -69,7 +69,7 @@ const cancel = () => {
         </el-scrollbar>
       </template>
 
-      <GSDivider color="#76716A" />
+      <GSDivider color="#76716A" :height="34" />
 
       <div class="flex gap-4">
         <GSButton
