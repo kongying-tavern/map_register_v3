@@ -134,19 +134,9 @@ export const useMarkers = (options: MarkerHookOptions) => {
   })
 
   /** 将点位分配到对应的底图中 */
-  const markersGroupByTile = computed(() => {
-    const markers = markersForFilter.value
-    const map: Record<string, GSMapState.MarkerWithRenderConfig[]> = {}
-    for (let i = 0; i < markers.length; i++) {
-      const marker = markers[i]
-      if (!map[marker.render.tileCode]) {
-        map[marker.render.tileCode] = [marker]
-        continue
-      }
-      map[marker.render.tileCode].push(marker)
-    }
-    return map
-  })
+  const markersGroupByTile = computed(() => Object.groupBy(markersForFilter.value, (marker) => {
+    return marker.render.tileCode
+  }))
 
   // ==================== 临时点位 - start ====================
 
@@ -229,18 +219,14 @@ export const useMarkers = (options: MarkerHookOptions) => {
     })
   })
 
-  const currentLayerMarkersIds = computed(() => {
-    return currentLayerMarkers.value.concat(tempMarkers.value).map(marker => marker.id!)
-  })
+  const dynamicMarkers = computed(() => currentLayerMarkers.value.concat(tempMarkers.value))
 
-  const currentLayerMarkersMap = computed(() => {
-    const markers = currentLayerMarkers.value.concat(tempMarkers.value)
-    const map: Record<number, GSMapState.MarkerWithRenderConfig> = {}
-    markers.forEach((marker) => {
-      map[marker.id!] = marker
-    })
+  const currentMarkerIds = computed(() => dynamicMarkers.value.map(marker => marker.id!))
+
+  const currentMarkerIdMap = computed(() => dynamicMarkers.value.reduce((map, marker) => {
+    map.set(marker.id!, marker)
     return map
-  })
+  }, new Map<number, GSMapState.MarkerWithRenderConfig>()))
 
   return {
     setTempMarkers,
@@ -249,8 +235,8 @@ export const useMarkers = (options: MarkerHookOptions) => {
     markersFilterLoading,
     markersGroupByTile,
     currentLayerMarkers,
-    currentLayerMarkersIds,
-    currentLayerMarkersMap,
+    currentMarkerIds,
+    currentMarkerIdMap,
     staticMarkers,
     staticMarkerIds,
     tempMarkers,

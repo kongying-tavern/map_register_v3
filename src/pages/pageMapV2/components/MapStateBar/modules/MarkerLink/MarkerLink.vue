@@ -80,13 +80,13 @@ const mapAffixLayerRef = inject(mapAffixLayerKey, ref(null))
           @pointerleave="() => updateLinkHover(null)"
         >
           <span class="flex-1 text-center">
-            {{ `${mapStateStore.currentLayerMarkersMap[fromId ?? -1]?.markerTitle}` }}
+            {{ `${mapStateStore.currentMarkerIdMap.get(fromId!)?.markerTitle}` }}
           </span>
           <span class="flex-1 text-center">
             {{ linkAction }}
           </span>
           <span class="flex-1 text-center">
-            {{ `${mapStateStore.currentLayerMarkersMap[toId ?? -1]?.markerTitle}` }}
+            {{ `${mapStateStore.currentMarkerIdMap.get(toId!)?.markerTitle}` }}
           </span>
           <el-button
             text

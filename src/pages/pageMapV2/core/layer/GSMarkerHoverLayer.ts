@@ -29,7 +29,7 @@ export class GSMarkerHoverLayer extends IconLayer<number> {
 
     /** 由于 id 进行了重排，需要确保 y 坐标更低的排在后面 */
     const sorter = (idA: number, idB: number) => {
-      return markersMap[idA].render.position[1] - markersMap[idB].render.position[1]
+      return markersMap.get(idA)!.render.position[1] - markersMap.get(idB)!.render.position[1]
     }
 
     const getData = () => {
@@ -57,12 +57,12 @@ export class GSMarkerHoverLayer extends IconLayer<number> {
       iconAtlas: markerSpriteImage,
       iconMapping: markerSpriteMapping,
       getIcon: (id) => {
-        const { render: { isUnderground, mainIconTag } } = markersMap[id]
+        const { render: { isUnderground, mainIconTag } } = markersMap.get(id)!
         const type = isUnderground ? 'underground' : 'default'
         return `${mainIconTag}.hover.${type}`
       },
       getPosition: (id) => {
-        const { render: { position } } = markersMap[id]
+        const { render: { position } } = markersMap.get(id)!
         const rewritePosition = markerDraggingMap[id]
         return rewritePosition ?? position
       },

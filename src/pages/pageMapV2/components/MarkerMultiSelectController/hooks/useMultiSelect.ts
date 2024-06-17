@@ -1,6 +1,6 @@
 import { Observable, filter, finalize, fromEvent, map, switchMap, takeUntil } from 'rxjs'
 import { useSubscription } from '@vueuse/rxjs'
-import type { PickingInfo } from '@deck.gl/core/typed'
+import type { PickingInfo } from '@deck.gl/core'
 import KDBush from 'kdbush'
 import { useAccessStore, useMapStateStore } from '@/stores'
 import { genshinMapCanvasKey } from '@/pages/pageMapV2/shared'
@@ -39,7 +39,7 @@ export const useMultiSelect = (options: MultiSelectHookOptions) => {
   const markerList = computed(() => {
     const list: GSMapState.MarkerWithRenderConfig[] = []
     currentSelectedIds.value?.forEach((id) => {
-      const marker = mapStateStore.currentLayerMarkersMap[id]
+      const marker = mapStateStore.currentMarkerIdMap.get(id)
       marker && list.push(marker)
     })
     return list

@@ -24,13 +24,13 @@ export const useMarkerPositionEdit = () => {
 
       const [cx, cy] = tileConfig.tile.center
 
-      const currentLayerMarkersMap = mapStateStore.currentLayerMarkersMap
+      const { currentMarkerIdMap } = mapStateStore
       const missions = draggingMission.value
 
       const form: API.MarkerVo[] = []
 
       for (const id in missions) {
-        const marker = currentLayerMarkersMap[id]
+        const marker = currentMarkerIdMap.get(Number(id))
         if (!marker)
           continue
         const {

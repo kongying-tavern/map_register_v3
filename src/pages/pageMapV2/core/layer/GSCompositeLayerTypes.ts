@@ -14,7 +14,7 @@ export interface GSCompositeLayerState {
   // marker
   hover: GSMapState.InteractionInfo | null
   focus: GSMapState.InteractionInfo | null
-  markersMap: Record<number, GSMapState.MarkerWithRenderConfig>
+  markersMap: Map<number, GSMapState.MarkerWithRenderConfig>
   markersIds: number[]
   markerDraggingMap: Record<number, API.Coordinate2D>
   markerDraggingList: { id: string; position: API.Coordinate2D }[]

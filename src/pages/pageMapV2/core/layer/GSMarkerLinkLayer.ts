@@ -32,8 +32,8 @@ export class GSMarkerLinkLayer extends PolygonLayer<GSMapState.MLRenderUnit, Lay
       getFillColor: ({ type }) => LINK_ACTION_CONFIG[type].lineColor,
       getLineColor: ({ type }) => LINK_ACTION_CONFIG[type].lineColor,
       getPolygon: ({ source, target }) => {
-        const [x1, y1] = markersMap[source].render.position
-        const [x2, y2] = markersMap[target].render.position
+        const [x1, y1] = markersMap.get(source)!.render.position
+        const [x2, y2] = markersMap.get(target)!.render.position
         /** 旋转角 */
         const θ = Math.atan((y2 - y1) / (x2 - x1))
         /** 象限标识 */

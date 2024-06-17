@@ -57,13 +57,13 @@ export class GSCompositeLayer extends CompositeLayer {
       buildStrategy<number, GSMapState.MarkerWithRenderConfig>({
         type: 'defaultMarker',
         layer: GSMarkerLayer,
-        getData: object => this.state.markersMap[object],
+        getData: object => this.state.markersMap.get(object)!,
         isSameOne: (a, b) => a.id === b.id,
       }),
       buildStrategy<number, GSMapState.MarkerWithRenderConfig>({
         type: 'defaultMarker',
         layer: GSMarkerHoverLayer,
-        getData: object => this.state.markersMap[object],
+        getData: object => this.state.markersMap.get(object)!,
         isSameOne: (a, b) => a.id === b.id,
       }),
       buildStrategy<GSMapState.MLRenderUnit, GSMapState.MLRenderUnit>({
@@ -78,7 +78,7 @@ export class GSCompositeLayer extends CompositeLayer {
       {
         type: 'defaultMarker',
         layer: GSMarkerHoverLayer,
-        getData: (object: number) => this.state.markersMap[object],
+        getData: (object: number) => this.state.markersMap.get(object)!,
       },
     ]
 
@@ -167,8 +167,8 @@ export class GSCompositeLayer extends CompositeLayer {
         showZoneTag: preferenceStore.preference['map.setting.showZoneTag'],
         visibleTagGroups: tileStore.visibleTagGroups,
         // 点位
-        markersMap: mapStateStore.currentLayerMarkersMap,
-        markersIds: mapStateStore.currentLayerMarkersIds,
+        markersMap: mapStateStore.currentMarkerIdMap,
+        markersIds: mapStateStore.currentMarkerIds,
         markerDraggingMap: markerDraggingMap.value,
         markerDraggingList: markerDraggingList.value,
         markerSpriteMapping: iconTagStore.markerSpriteMapping,

@@ -18,7 +18,7 @@ export class GSDraggingLineLayer extends LineLayer<{ id: number; position: API.C
     super({
       id: 'genshin-dragging-line-layer',
       data: markerDraggingList,
-      getSourcePosition: ({ id }) => markersMap[id].render.position,
+      getSourcePosition: ({ id }) => markersMap.get(id)!.render.position,
       getTargetPosition: ({ position }) => position,
       getColor: [255, 255, 0, 255],
       getWidth: 1,

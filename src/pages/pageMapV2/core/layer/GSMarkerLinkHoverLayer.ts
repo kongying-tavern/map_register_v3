@@ -30,8 +30,8 @@ export class GSMarkerLinkHoverLayer extends LineLayer<GSMapState.MLRenderUnit, L
         const A = isHover(key) ? 50 : 0
         return [R, G, B, A]
       },
-      getSourcePosition: ({ source }) => markersMap[source].render.position,
-      getTargetPosition: ({ target }) => markersMap[target].render.position,
+      getSourcePosition: ({ source }) => markersMap.get(source)!.render.position,
+      getTargetPosition: ({ target }) => markersMap.get(target)!.render.position,
       updateTriggers: {
         getColor: hover,
       },
