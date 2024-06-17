@@ -18,20 +18,17 @@ const modelValue = defineModel<number[]>('modelValue', {
   default: [],
 })
 
-const { areaIdMap } = storeToRefs(useAreaStore())
+const { childrenAreaList } = storeToRefs(useAreaStore())
 
 const childrenList = ref<AreaWithChildren[]>([])
 
-const parentIdMap = computed(() => {
-  const parentIds: Record<number, number> = {}
-  modelValue.value.forEach((areaId) => {
-    const area = areaIdMap.value.get(areaId)
-    if (!area)
-      return
-    parentIds[area.id!] = area.parentId!
-  })
-  return parentIds
-})
+/* --------------------------------------------------
+ * 计数相关数据
+ * --------------------------------------------------
+ */
+const parentIdMap = computed(() => Object.fromEntries(
+  childrenAreaList.value.map(({ id: childId = 0, parentId = -1 }) => [childId, parentId]),
+))
 
 const childrenCountMap = computed(() => {
   const childrenCount: Record<number, number> = {}
@@ -39,8 +36,7 @@ const childrenCountMap = computed(() => {
     const parentId = parentIdMap.value[areaId]
     if (!parentId)
       return
-    childrenCount[parentId] ??= 0
-    childrenCount[parentId]++
+    childrenCount[parentId] = (childrenCount[parentId] ?? 0) + 1
   })
   return childrenCount
 })
