@@ -1,21 +1,27 @@
 import type { GSMapState } from '../types/genshin-map-state'
 import type { AreaTileConfig } from '@/stores'
 import { pickMainItem } from '@/utils'
+import { useAreaStore, useItemStore, useTileStore } from '@/stores'
 
 export interface NormalizeMarkerOptions {
-  tileConfigs: Record<string, AreaTileConfig>
-  itemIdMap: Map<number, API.ItemVo>
-  areaIdMap: Map<number, API.AreaVo>
+  tileConfigs?: Record<string, AreaTileConfig>
+  itemIdMap?: Map<number, API.ItemVo>
+  areaIdMap?: Map<number, API.AreaVo>
   isTemporary?: boolean
+  reset?: boolean
 }
 
 /** 为点位列表附加渲染配置 */
-export const createRenderMarkers = (markers: (API.MarkerVo | GSMapState.MarkerWithRenderConfig)[], options: NormalizeMarkerOptions) => {
+export const createRenderMarkers = (
+  markers: (API.MarkerVo | GSMapState.MarkerWithRenderConfig)[],
+  options: NormalizeMarkerOptions = {},
+) => {
   const {
-    tileConfigs = {},
-    areaIdMap,
-    itemIdMap,
+    tileConfigs = useTileStore().mergedTileConfigs ?? {},
+    areaIdMap = useAreaStore().areaIdMap,
+    itemIdMap = useItemStore().itemIdMap,
     isTemporary = false,
+    reset = false,
   } = options
 
   /** 缓存从物品 id 查询到的地区信息和底图配置，减少索引时间复杂度 */
@@ -26,7 +32,7 @@ export const createRenderMarkers = (markers: (API.MarkerVo | GSMapState.MarkerWi
   for (let i = 0; i < markers.length; i++) {
     const marker = markers[i]
 
-    if ('render' in marker) {
+    if (!reset && 'render' in marker) {
       normalizedMarkers.push(marker)
       continue
     }
