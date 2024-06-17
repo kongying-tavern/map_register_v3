@@ -23,8 +23,10 @@ export const useListBubbleDrag = <T>(options: ListBubbleDragHookOptions<T>) => {
   }
 
   const onDragEnd = (_ev: DragEvent) => {
-    if (!data.value)
+    if (!data.value) {
+      isDragging.value = false
       return
+    }
     onClearBubble && onClearBubble(data.value)
     data.value = null
     isDragging.value = false
