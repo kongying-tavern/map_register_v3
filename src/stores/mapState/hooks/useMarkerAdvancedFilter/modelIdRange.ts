@@ -1,5 +1,6 @@
 import type {
   MAFConfig,
+  MAFSemanticUnit,
   MAFMetaIdRange,
   MAFOptionInput,
   MAFValueString,
@@ -53,7 +54,7 @@ export class IdRange implements MAFConfig {
     return meta
   }
 
-  semantic(val: MAFValueString, _opt: MAFOptionInput, meta: MAFMetaIdRange, opposite: boolean): string {
+  semantic(val: MAFValueString, _opt: MAFOptionInput, meta: MAFMetaIdRange, opposite: boolean): MAFSemanticUnit[] {
     if (meta.idSet.size <= 0)
       return opposite ? '不限ID' : 'ID不属于任何范围'
     return `ID${opposite ? '不' : ''}属于范围【${val.s ?? ''}】`

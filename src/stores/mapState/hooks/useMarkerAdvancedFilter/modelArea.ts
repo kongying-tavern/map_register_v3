@@ -60,7 +60,7 @@ export class Area implements MAFConfig {
     return meta
   }
 
-  semantic(val: MAFValueNumberArray, _opt: OptionType, meta: MAFMetaArea, opposite: boolean): string {
+  semantic(val: MAFValueNumberArray, _opt: OptionType, meta: MAFMetaArea, opposite: boolean): MAFSemanticUnit[] {
     if (!val.na || val.na.length <= 0)
       return opposite ? '属于所有地区' : '不属于任何地区'
     return `地区${opposite ? '不' : ''}为【${meta.tag ?? ''}】`

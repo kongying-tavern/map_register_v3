@@ -2,6 +2,7 @@ import type {
   MAFConfig,
   MAFMetaContentRegex,
   MAFOptionInput,
+  MAFSemanticUnit,
   MAFValueString,
 } from '@/stores/types'
 
@@ -36,7 +37,7 @@ export class ContentRegex implements MAFConfig {
     return meta
   }
 
-  semantic(val: MAFValueString, _opt: MAFOptionInput, _meta: MAFMetaContentRegex, opposite: boolean): string {
+  semantic(val: MAFValueString, _opt: MAFOptionInput, _meta: MAFMetaContentRegex, opposite: boolean): MAFSemanticUnit[] {
     return `内容${opposite ? '不' : ''}满足正则【${val.s ?? ''}】`
   }
 

@@ -2,6 +2,7 @@ import type {
   MAFConfig,
   MAFMetaDummy,
   MAFOptionRange,
+  MAFSemanticUnit,
   MAFValueNumberRange,
 } from '@/stores/types'
 
@@ -24,7 +25,7 @@ export class ItemSize implements MAFConfig {
     return {}
   }
 
-  semantic(val: MAFValueNumberRange, _opt: MAFOptionRange, _meta: MAFMetaDummy, opposite: boolean): string {
+  semantic(val: MAFValueNumberRange, _opt: MAFOptionRange, _meta: MAFMetaDummy, opposite: boolean): MAFSemanticUnit[] {
     if (!Number.isFinite(val.nMin) && !Number.isFinite(val.nMax)) {
       return opposite ? '无物品条数' : '不限物品条数'
     }

@@ -2,6 +2,7 @@ import type {
   MAFConfig,
   MAFMetaDummy,
   MAFOptionSwitch,
+  MAFSemanticUnit,
   MAFValueBoolean,
 } from '@/stores/types'
 
@@ -27,7 +28,7 @@ export class Underground implements MAFConfig {
     return {}
   }
 
-  semantic(val: MAFValueBoolean, opt: MAFOptionSwitch, _meta: MAFMetaDummy, opposite: boolean): string {
+  semantic(val: MAFValueBoolean, opt: MAFOptionSwitch, _meta: MAFMetaDummy, opposite: boolean): MAFSemanticUnit[] {
     return `${opposite ? '不' : ''}为${val.b ? opt.textActive : opt.textInactive}点位`
   }
 

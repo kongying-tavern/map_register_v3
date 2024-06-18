@@ -4,6 +4,7 @@ import type {
   MAFMetaDummy,
   MAFOptionRange,
   MAFOptionSelect,
+  MAFSemanticUnit,
   MAFValueNumberRange,
 } from '@/stores/types'
 import { useRefreshTimeOptions } from '@/hooks'
@@ -42,7 +43,7 @@ export class RefreshTime implements MAFConfig {
     return {}
   }
 
-  semantic(val: MAFValueNumberRange, _opt: OptionType, _meta: MAFMetaDummy, opposite: boolean): string {
+  semantic(val: MAFValueNumberRange, _opt: OptionType, _meta: MAFMetaDummy, opposite: boolean): MAFSemanticUnit[] {
     const { refreshTimeTypeNameMap } = useRefreshTimeOptions()
 
     if (!Number.isFinite(val.nMin) && !Number.isFinite(val.nMax)) {

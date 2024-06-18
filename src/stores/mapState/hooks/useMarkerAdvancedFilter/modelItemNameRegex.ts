@@ -3,6 +3,7 @@ import type {
   MAFConfig,
   MAFMetaItemNameRegex,
   MAFOptionInput,
+  MAFSemanticUnit,
   MAFValueString,
 } from '@/stores/types'
 
@@ -50,7 +51,7 @@ export class ItemNameRegex implements MAFConfig {
     return meta
   }
 
-  semantic(val: MAFValueString, _opt: MAFOptionInput, _meta: MAFMetaItemNameRegex, opposite: boolean): string {
+  semantic(val: MAFValueString, _opt: MAFOptionInput, _meta: MAFMetaItemNameRegex, opposite: boolean): MAFSemanticUnit[] {
     return `物品名${opposite ? '不' : ''}满足正则【${val.s ?? ''}】`
   }
 

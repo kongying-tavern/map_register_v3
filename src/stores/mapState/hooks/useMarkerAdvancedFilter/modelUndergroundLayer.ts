@@ -3,6 +3,7 @@ import type {
   MAFConfig,
   MAFMetaUndergroundLayer,
   MAFOptionSelect,
+  MAFSemanticUnit,
   MAFValueStringArray,
 } from '@/stores/types'
 import { useAreaStore, useMarkerExtraStore } from '@/stores'
@@ -104,7 +105,7 @@ export class UndergroundLayer implements MAFConfig {
     return meta
   }
 
-  semantic(val: MAFValueStringArray, _opt: OptionType, meta: MAFMetaUndergroundLayer, opposite: boolean): string {
+  semantic(val: MAFValueStringArray, _opt: OptionType, meta: MAFMetaUndergroundLayer, opposite: boolean): MAFSemanticUnit[] {
     if (!val.sa || val.sa.length <= 0)
       return opposite ? '不限地下层级' : '无地下层级'
     return `可见范围${opposite ? '不' : ''}为【${meta.tag ?? ''}】`

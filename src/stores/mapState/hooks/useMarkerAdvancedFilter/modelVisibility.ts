@@ -2,6 +2,7 @@ import type {
   MAFConfig,
   MAFMetaVisibility,
   MAFOptionSelect,
+  MAFSemanticUnit,
   MAFValueNumberArray,
 } from '@/stores/types'
 import { useHiddenFlagOptions } from '@/hooks'
@@ -44,7 +45,7 @@ export class Visibility implements MAFConfig {
     return meta
   }
 
-  semantic(val: MAFValueNumberArray, _opt: OptionType, meta: MAFMetaVisibility, opposite: boolean): string {
+  semantic(val: MAFValueNumberArray, _opt: OptionType, meta: MAFMetaVisibility, opposite: boolean): MAFSemanticUnit[] {
     if (!val.na || val.na.length <= 0)
       return opposite ? '不限可见范围' : '无可见范围'
     return `可见范围${opposite ? '不' : ''}为【${meta.tag ?? ''}】`

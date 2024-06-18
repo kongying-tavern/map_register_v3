@@ -3,6 +3,7 @@ import type {
   MAFConfig,
   MAFMetaItemType,
   MAFOptionSelect,
+  MAFSemanticUnit,
   MAFValueNumberArray,
 } from '@/stores/types'
 
@@ -63,7 +64,7 @@ export class ItemType implements MAFConfig {
     return meta
   }
 
-  semantic(val: MAFValueNumberArray, _opt: OptionType, meta: MAFMetaItemType, opposite: boolean): string {
+  semantic(val: MAFValueNumberArray, _opt: OptionType, meta: MAFMetaItemType, opposite: boolean): MAFSemanticUnit[] {
     if (!val.na || val.na.length <= 0)
       return opposite ? '属于所有分类' : '不属于任何分类'
     return `分类${opposite ? '不' : ''}为【${meta.tag ?? ''}】`

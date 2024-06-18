@@ -38,13 +38,27 @@ export interface MAFItem {
   value: MAFValue
 }
 
+export type MAFSemanticType =
+  'logic-operator' |
+  'opposite-indicator' |
+  'parenthesis' |
+  'error' |
+  'regex' |
+  'tag' |
+  'text'
+
+export interface MAFSemanticUnit {
+  type: MAFSemanticType
+  text?: string
+}
+
 export interface MAFConfig {
   readonly id: number
   readonly name: string
   readonly option: MaybeComputedRef<MAFValue>
   readonly defaultVal: MAFValue
   prepare(val: MAFValue, opt: MAFOption): MAFMeta
-  semantic(val: MAFValue, opt: MAFOption, meta: MAFMeta, opposite: boolean): string
+  semantic(val: MAFValue, opt: MAFOption, meta: MAFMeta, opposite: boolean): MAFSemanticUnit[]
   filter(val: MAFValue, opt: MAFOption, meta: MAFMeta, marker: API.MarkerVo): boolean
 }
 

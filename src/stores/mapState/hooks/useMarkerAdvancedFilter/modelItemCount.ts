@@ -3,6 +3,7 @@ import type {
   MAFMetaDummy,
   MAFOptionRange,
   MAFOptionSwitch,
+  MAFSemanticUnit,
   MAFValueBoolean,
   MAFValueNumberRange,
 } from '@/stores/types'
@@ -32,7 +33,7 @@ export class ItemCount implements MAFConfig {
     return {}
   }
 
-  semantic(val: ValueType, opt: OptionType, _meta: MAFMetaDummy, opposite: boolean): string {
+  semantic(val: ValueType, opt: OptionType, _meta: MAFMetaDummy, opposite: boolean): MAFSemanticUnit[] {
     const optionTag = val.b ? opt.textActive! : opt.textInactive!
     if (!Number.isFinite(val.nMin) && !Number.isFinite(val.nMax)) {
       return opposite ? `无${optionTag}物品计数` : `不限${optionTag}物品计数`

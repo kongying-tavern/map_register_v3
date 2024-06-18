@@ -3,6 +3,7 @@ import type {
   MAFConfig,
   MAFMetaItemName,
   MAFOptionInput,
+  MAFSemanticUnit,
   MAFValueString,
 } from '@/stores/types'
 
@@ -39,7 +40,7 @@ export class ItemName implements MAFConfig {
     return meta
   }
 
-  semantic(val: MAFValueString, _opt: MAFOptionInput, _meta: MAFMetaItemName, opposite: boolean): string {
+  semantic(val: MAFValueString, _opt: MAFOptionInput, _meta: MAFMetaItemName, opposite: boolean): MAFSemanticUnit[] {
     return `物品${opposite ? '不' : ''}为【${val.s ?? ''}】`
   }
 

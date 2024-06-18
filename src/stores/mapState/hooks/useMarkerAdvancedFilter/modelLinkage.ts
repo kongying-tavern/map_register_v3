@@ -2,6 +2,7 @@ import type {
   MAFConfig,
   MAFMetaDummy,
   MAFOptionSwitch,
+  MAFSemanticUnit,
   MAFValueBoolean,
 } from '@/stores/types'
 
@@ -23,7 +24,7 @@ export class Linkage implements MAFConfig {
     return {}
   }
 
-  semantic(val: MAFValueBoolean, _opt: MAFOptionSwitch, _meta: MAFMetaDummy, opposite: boolean): string {
+  semantic(val: MAFValueBoolean, _opt: MAFOptionSwitch, _meta: MAFMetaDummy, opposite: boolean): MAFSemanticUnit[] {
     return `${opposite === !!val.b ? '不' : ''}存在点位关联`
   }
 

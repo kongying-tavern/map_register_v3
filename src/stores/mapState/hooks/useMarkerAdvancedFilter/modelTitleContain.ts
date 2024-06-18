@@ -2,6 +2,7 @@ import type {
   MAFConfig,
   MAFMetaDummy,
   MAFOptionInput,
+  MAFSemanticUnit,
   MAFValueString,
 } from '@/stores/types'
 
@@ -22,7 +23,7 @@ export class TitleContain implements MAFConfig {
     return {}
   }
 
-  semantic(val: MAFValueString, _opt: MAFOptionInput, _meta: MAFMetaDummy, opposite: boolean): string {
+  semantic(val: MAFValueString, _opt: MAFOptionInput, _meta: MAFMetaDummy, opposite: boolean): MAFSemanticUnit[] {
     return `标题${opposite ? '不' : ''}包含【${val.s ?? ''}】`
   }
 
