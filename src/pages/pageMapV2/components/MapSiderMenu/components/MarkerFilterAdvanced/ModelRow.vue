@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ArrowDownBold, ArrowUpBold, DeleteFilled } from '@element-plus/icons-vue'
 import { MarkerFilterButton } from '../MarkerFilterComponent'
-import type { MAFGroup } from '@/stores/types'
+import type { MAFGroupComposed } from '@/stores/types'
 
 const props = defineProps<{
   disabled?: boolean
@@ -9,7 +9,7 @@ const props = defineProps<{
   isLast?: boolean
   withMoveUp?: boolean
   withMoveDown?: boolean
-  condition: MAFGroup
+  composedCondition: MAFGroupComposed
 }>()
 
 const emits = defineEmits<{
@@ -84,12 +84,12 @@ const handleAppendItem = () => {
           @click="handleSwitchOperator"
         >
           <template #icon>
-            {{ condition.operator ? '且' : '或' }}
+            {{ composedCondition.operator ? '且' : '或' }}
           </template>
         </MarkerFilterButton>
         <MarkerFilterButton
           theme="dark"
-          :icon-color="condition.opposite ? 'var(--gs-color-confirm)' : 'var(--gs-color-text)'"
+          :icon-color="composedCondition.opposite ? 'var(--gs-color-confirm)' : 'var(--gs-color-text)'"
           @click="handleToggleOpposite"
         >
           <template #icon>
@@ -130,14 +130,14 @@ const handleAppendItem = () => {
     </div>
 
     <div
-      v-for="(item, itemIndex) in condition.children"
+      v-for="(item, itemIndex) in composedCondition.children"
       :key="itemIndex"
       class="condition-item flex"
     >
       <slot
-        :condition="item"
+        :composed-condition="item"
         :index="itemIndex"
-        :size="condition.children.length"
+        :size="composedCondition.children.length"
       />
     </div>
   </div>

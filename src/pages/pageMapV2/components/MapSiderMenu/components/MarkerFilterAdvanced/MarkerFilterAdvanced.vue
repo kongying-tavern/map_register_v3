@@ -103,9 +103,9 @@ const handleModelPickerSelected = (id: number) => {
     <el-scrollbar class="px-2" height="100%">
       <div class="h-full flex flex-col gap-2">
         <ModelRow
-          v-for="(group, groupIndex) in mapStateStore.markerAdvancedFilters"
+          v-for="(group, groupIndex) in mapStateStore.markerAdvancedComposed"
           :key="groupIndex"
-          :condition="group"
+          :composed-condition="group"
           :is-first="groupIndex <= 0"
           :is-last="groupIndex >= mapStateStore.markerAdvancedFilters.length - 1"
           :with-move-up="true"
@@ -117,9 +117,9 @@ const handleModelPickerSelected = (id: number) => {
           @delete-group="() => deleteMAFGroup(groupIndex)"
           @append-item="() => openPicker(groupIndex)"
         >
-          <template #default="{ condition: item, index: itemIndex, size: itemSize }">
+          <template #default="{ composedCondition: item, index: itemIndex, size: itemSize }">
             <ModelItem
-              :condition="item"
+              :composed-condition="item"
               :is-first="itemIndex <= 0"
               :is-last="itemIndex >= itemSize - 1"
               :with-move-up="true"
@@ -132,7 +132,7 @@ const handleModelPickerSelected = (id: number) => {
             >
               <FilterModel
                 v-model="item.value"
-                :condition="item"
+                :composed-condition="item"
               />
             </ModelItem>
           </template>
