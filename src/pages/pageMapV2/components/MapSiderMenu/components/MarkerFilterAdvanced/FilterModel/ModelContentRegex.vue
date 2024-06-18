@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { InputBase } from '.'
+import { InputBase } from '../FilterModelComponent'
 import type { MAFMetaContentRegex, MAFOptionInput, MAFValueString } from '@/stores/types'
 
 defineProps<{

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
 import { MarkerFilterButton } from '../../MarkerFilterComponent'
-import { NumberRangeBase, SelectBase } from '.'
+import { NumberRangeBase, SelectBase } from '../FilterModelComponent'
 import type { MAFMetaDummy, MAFOptionRange, MAFOptionSelect, MAFValueNumberRange } from '@/stores/types'
 import { IconTimer } from '@/components/AppIcons'
 import { useRefreshTimeOptions } from '@/hooks'
