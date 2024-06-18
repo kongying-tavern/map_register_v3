@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import type { Component } from 'vue'
 import {
   ModelArea,
   ModelContentContain,
@@ -51,6 +50,8 @@ const modelTemplate = computed(() => {
     106: ModelItemCount,
   }[props.composedCondition.id]
 }) as ComputedRef<Component>
+
+const modelOptions = computed(() => toValue(props.composedCondition.option))
 </script>
 
 <template>
@@ -58,7 +59,7 @@ const modelTemplate = computed(() => {
     :is="modelTemplate"
     v-if="modelTemplate"
     v-model="modelValue"
-    :options="composedCondition.option"
+    :options="modelOptions"
     :meta="composedCondition.meta"
   />
 </template>
