@@ -4,6 +4,7 @@ import type { MAFOptionInput } from '@/stores/types'
 
 defineProps<{
   options: MAFOptionInput
+  error?: boolean
 }>()
 
 const modelValue = defineModel<string>('modelValue', {
@@ -16,6 +17,7 @@ const modelValue = defineModel<string>('modelValue', {
   <MarkerFilterInput
     v-model="modelValue"
     :placeholder="options?.placeholder"
+    :error="error"
   >
     <template v-if="$slots.prepend" #prepend>
       <slot name="prepend" />

@@ -119,7 +119,8 @@ export interface MAFMetaIdRange extends MAFMeta {
 }
 
 export interface MAFMetaContentRegex extends MAFMeta {
-  re?: RegExp
+  /** 解析过的正则表达式，null 表示解析失败，undefined 表示空 */
+  re?: RegExp | null
 }
 
 export interface MAFMetaUndergroundLayer extends MAFMeta {
@@ -153,6 +154,7 @@ export interface MAFMetaItemName extends MAFMeta {
 }
 
 export interface MAFMetaItemNameRegex extends MAFMeta {
-  re?: RegExp
+  /** 解析过的正则表达式，null 表示解析失败，undefined 表示空 */
+  re?: RegExp | null
   itemIds: Set<number>
 }

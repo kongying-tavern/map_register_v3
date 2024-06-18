@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 defineProps<{
   disabled?: boolean
+  error?: boolean
   placeholder?: string
 }>()
 
@@ -17,7 +18,10 @@ const modelValue = defineModel<string>('modelValue', {
     class="condition-unit"
     :class="{ disabled }"
   >
-    <div class="condition-unit-input__inner">
+    <div
+      class="condition-unit-input__inner"
+      :class="[error ? 'ring-2 ring-offset-0 ring-[#E6455F]' : '']"
+    >
       <template v-if="$slots.prepend">
         <div class="condition-unit-input__separator condition-unit-input__prepend">
           <slot name="prepend" />

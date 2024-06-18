@@ -29,7 +29,7 @@ export class ContentRegex implements MAFConfig {
         meta.re = new RegExp(val.s, 'gui')
       }
       catch (_err) {
-        // 忽略错误
+        meta.re = null
       }
     }
 

@@ -22,6 +22,7 @@ const modelValue = defineModel<MAFValueString>('modelValue', {
       v-model="modelValue.s"
       class="flex-auto"
       :options="options"
+      :error="meta.re === null"
     />
   </div>
 </template>
