@@ -1,20 +1,32 @@
 <script lang="ts" setup>
-defineProps<{
+const props = defineProps<{
   disabledMin?: boolean
   disabledMax?: boolean
   placeholderMin?: string
   placeholderMax?: string
+  minValueMin?: number
+  minValueMinInclude?: boolean
+  minValueMax?: number
+  minValueMaxInclude?: boolean
+  maxValueMin?: number
+  maxValueMinInclude?: boolean
+  maxValueMax?: number
+  maxValueMaxInclude?: boolean
 }>()
 
-const isValueNull = (value: unknown): boolean => {
-  if (value === undefined || value === null || value?.toString() === '')
+const isValueNull = (value?: unknown, min?: number, minInclude?: boolean, max?: number, maxInclude?: boolean): boolean => {
+  if (value === undefined || value == null || value?.toString() === '')
     return true
-  else if (typeof value === 'string' && !Number.isFinite(value))
+  const val: number = +value
+  if (!Number.isFinite(val))
     return true
-
-  return false
+  const minVal = min ?? Number.NEGATIVE_INFINITY
+  const maxVal = max ?? Number.POSITIVE_INFINITY
+  const gtMin = (minInclude ?? true) ? val >= minVal : val > minVal
+  const ltMax = (maxInclude ?? true) ? val <= maxVal : val < maxVal
+  return !(gtMin && ltMax)
 }
-const valueSetter = (value: unknown) => isValueNull(value) ? null : value
+const valueSetter = (value?: unknown, min?: number, minInclude?: boolean, max?: number, maxInclude?: boolean) => isValueNull(value, min, minInclude, max, maxInclude) ? null : Number(value)
 
 const nativeInputMinRef = ref<HTMLInputElement>() as Ref<HTMLInputElement>
 const nativeInputMaxRef = ref<HTMLInputElement>() as Ref<HTMLInputElement>
@@ -22,12 +34,14 @@ const nativeInputMaxRef = ref<HTMLInputElement>() as Ref<HTMLInputElement>
 const modelValueMin = defineModel<number | null>('min', {
   required: false,
   default: null,
-  set: valueSetter,
+  get: value => value,
+  set: value => valueSetter(value, props.minValueMin, props.minValueMinInclude, props.minValueMax, props.minValueMaxInclude),
 })
 const modelValueMax = defineModel<number | null>('max', {
   required: false,
   default: null,
-  set: valueSetter,
+  get: value => value,
+  set: value => valueSetter(value, props.maxValueMin, props.maxValueMinInclude, props.maxValueMax, props.maxValueMaxInclude),
 })
 </script>
 
@@ -44,7 +58,7 @@ const modelValueMax = defineModel<number | null>('max', {
       </template>
       <input
         ref="nativeInputMinRef"
-        v-model.number="modelValueMin"
+        v-model="modelValueMin"
         class="condition-unit-input__internal"
         :placeholder="placeholderMin"
         :disabled="disabledMin"
@@ -56,7 +70,7 @@ const modelValueMax = defineModel<number | null>('max', {
       </div>
       <input
         ref="nativeInputMaxRef"
-        v-model.number="modelValueMax"
+        v-model="modelValueMax"
         class="condition-unit-input__internal"
         :placeholder="placeholderMax"
         :disabled="disabledMax"

@@ -101,6 +101,14 @@ export interface MAFOptionSelect<T> extends MAFOption {
 export interface MAFOptionRange extends MAFOption {
   placeholderMin?: string
   placeholderMax?: string
+  startMin?: number
+  startMinIncluded?: boolean
+  startMax?: number
+  startMaxIncluded?: boolean
+  endMin?: number
+  endMinIncluded?: boolean
+  endMax?: number
+  endMaxIncluded?: boolean
 }
 
 export interface MAFOptionSwitch extends MAFOption {
