@@ -25,6 +25,7 @@ import type {
   MAFGroupComposed,
   MAFItem,
   MAFItemComposed,
+  MAFMeta,
 } from '@/stores/types'
 
 interface MarkerAdvancedFilterHookOptions {
@@ -86,39 +87,6 @@ export const useMarkerAdvancedFilter = (options: MarkerAdvancedFilterHookOptions
   }
 
   const conditions = computed(() => preferenceStore.preference['markerFilter.filter.advancedFilterCache'])
-
-  const conditionSemanticText = computed<string>(() => {
-    const filters = preferenceStore.preference['markerFilter.filter.advancedFilterCache'] ?? []
-    const globalSem: string[] = []
-    for (let groupIndex = 0; groupIndex < filters.length; groupIndex++) {
-      const group = filters[groupIndex]
-      const groupSem: string[] = []
-      for (let itemIndex = 0; itemIndex < group.children.length; itemIndex++) {
-        const item = group.children[itemIndex]
-        const filterConfig: MAFConfig = getMAFConfig(item.id)
-        const filterId = filterConfig.id
-        if (filterId === null || filterId === undefined || filterId <= 0)
-          continue
-
-        const {
-          option: filterOption,
-          semantic: filterSemantic,
-          prepare: filterPrepare,
-        } = filterConfig
-        const filterMeta: MAFMeta = filterPrepare(item.value, toValue(filterOption))
-        const itemOp: string = item.operator ? '且' : '或'
-        const itemText: string = filterSemantic(item.value, filterOption, filterMeta, item.opposite)
-        if (itemText)
-          groupSem.push(itemIndex > 0 ? ` ${itemOp} ${itemText}` : itemText)
-      }
-      if (groupSem.length > 0) {
-        const groupOp: string = (group.operator ? '且' : '或')
-        const groupText: string = `${group.opposite ? '非' : ''}(${groupSem.join('')})`
-        globalSem.push(groupIndex > 0 ? ` ${groupOp} ${groupText}` : groupText)
-      }
-    }
-    return globalSem.join('')
-  })
 
   const conditionComposed = computed<MAFGroupComposed[]>(() => {
     const groupComposed: MAFGroupComposed[] = []
@@ -306,7 +274,6 @@ export const useMarkerAdvancedFilter = (options: MarkerAdvancedFilterHookOptions
     getMAFConfig,
 
     markerAdvancedFilters: conditions,
-    markerAdvancedSemantic: conditionSemanticText,
     markerAdvancedComposed: conditionComposed,
     markerAdvancedCacheCount: conditionCacheCount,
     markerAdvancedCount: conditionCount,
