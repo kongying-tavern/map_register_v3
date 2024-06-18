@@ -104,10 +104,8 @@ export class UndergroundLayer implements MAFConfig {
     return meta
   }
 
-  semantic(val: MAFValueStringArray, _opt: OptionType, meta: MAFMetaUndergroundLayer, opposite: boolean): MAFSemanticUnit[] {
-    if (!val.sa || val.sa.length <= 0)
-      return opposite ? '不限地下层级' : '无地下层级'
-    return `可见范围${opposite ? '不' : ''}为【${meta.tag ?? ''}】`
+  semantic(_val: MAFValueStringArray, _opt: OptionType, _meta: MAFMetaUndergroundLayer, _opposite: boolean): MAFSemanticUnit[] {
+    return []
   }
 
   filter(val: MAFValueStringArray, _opt: OptionType, _meta: MAFMetaUndergroundLayer, marker: API.MarkerVo): boolean {

@@ -25,24 +25,8 @@ export class ItemSize implements MAFConfig {
     return {}
   }
 
-  semantic(val: MAFValueNumberRange, _opt: MAFOptionRange, _meta: MAFMetaDummy, opposite: boolean): MAFSemanticUnit[] {
-    if (!Number.isFinite(val.nMin) && !Number.isFinite(val.nMax)) {
-      return opposite ? '无物品条数' : '不限物品条数'
-    }
-    else if (Number.isFinite(val.nMin) && Number.isFinite(val.nMax)) {
-      if (val.nMin === val.nMax)
-        return `物品条数${opposite ? '非' : ''}【${val.nMin}】`
-
-      else
-        return `物品条数${opposite ? '非' : ''}【${val.nMin}~${val.nMax}】`
-    }
-    else if (Number.isFinite(val.nMin) && !Number.isFinite(val.nMax)) {
-      return `物品条数【${opposite ? '＜' : '≥'}${val.nMin}】`
-    }
-    else if (!Number.isFinite(val.nMin) && Number.isFinite(val.nMax)) {
-      return `物品条数【${opposite ? '＞' : '≤'}${val.nMax}】`
-    }
-    return ''
+  semantic(_val: MAFValueNumberRange, _opt: MAFOptionRange, _meta: MAFMetaDummy, _opposite: boolean): MAFSemanticUnit[] {
+    return []
   }
 
   filter(val: MAFValueNumberRange, _opt: MAFOptionRange, _meta: MAFMetaDummy, marker: API.MarkerVo): boolean {

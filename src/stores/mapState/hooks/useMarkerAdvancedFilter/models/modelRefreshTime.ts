@@ -42,30 +42,8 @@ export class RefreshTime implements MAFConfig {
     return {}
   }
 
-  semantic(val: MAFValueNumberRange, _opt: OptionType, _meta: MAFMetaDummy, opposite: boolean): MAFSemanticUnit[] {
-    const { refreshTimeTypeNameMap } = useRefreshTimeOptions()
-
-    if (!Number.isFinite(val.nMin) && !Number.isFinite(val.nMax)) {
-      return opposite ? '无刷新时间' : '不限刷新时间'
-    }
-    else if (Number.isFinite(val.nMin) && Number.isFinite(val.nMax)) {
-      if (val.nMin === val.nMax) {
-        if (Number(val.nMin) <= 0)
-          return `刷新时间${opposite ? '非' : ''}【${refreshTimeTypeNameMap.value[val.nMin ?? '']}】`
-        else
-          return `刷新时间${opposite ? '非' : ''}【${val.nMin}小时】`
-      }
-      else {
-        return `刷新时间${opposite ? '非' : ''}【${val.nMin}~${val.nMax}小时】`
-      }
-    }
-    else if (Number.isFinite(val.nMin) && !Number.isFinite(val.nMax)) {
-      return `刷新时间【${opposite ? '＜' : '≥'}${val.nMin}小时】`
-    }
-    else if (!Number.isFinite(val.nMin) && Number.isFinite(val.nMax)) {
-      return `刷新时间【${opposite ? '＞' : '≤'}${val.nMax}小时】`
-    }
-    return ''
+  semantic(_val: MAFValueNumberRange, _opt: OptionType, _meta: MAFMetaDummy, _opposite: boolean): MAFSemanticUnit[] {
+    return []
   }
 
   filter(val: MAFValueNumberRange, _opt: OptionType, _meta: MAFMetaDummy, marker: API.MarkerVo): boolean {

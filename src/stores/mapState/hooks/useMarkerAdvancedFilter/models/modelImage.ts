@@ -24,8 +24,8 @@ export class Image implements MAFConfig {
     return {}
   }
 
-  semantic(val: MAFValueBoolean, _opt: MAFOptionSwitch, _meta: MAFMetaDummy, opposite: boolean): MAFSemanticUnit[] {
-    return `${opposite === !!val.b ? '不' : ''}包含图片`
+  semantic(_val: MAFValueBoolean, _opt: MAFOptionSwitch, _meta: MAFMetaDummy, _opposite: boolean): MAFSemanticUnit[] {
+    return []
   }
 
   filter(val: MAFValueBoolean, _opt: MAFOptionSwitch, _meta: MAFMetaDummy, marker: API.MarkerVo): boolean {

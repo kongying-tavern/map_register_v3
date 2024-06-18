@@ -64,10 +64,8 @@ export class ItemType implements MAFConfig {
     return meta
   }
 
-  semantic(val: MAFValueNumberArray, _opt: OptionType, meta: MAFMetaItemType, opposite: boolean): MAFSemanticUnit[] {
-    if (!val.na || val.na.length <= 0)
-      return opposite ? '属于所有分类' : '不属于任何分类'
-    return `分类${opposite ? '不' : ''}为【${meta.tag ?? ''}】`
+  semantic(_val: MAFValueNumberArray, _opt: OptionType, _meta: MAFMetaItemType, _opposite: boolean): MAFSemanticUnit[] {
+    return []
   }
 
   filter(_val: MAFValueNumberArray, _opt: OptionType, meta: MAFMetaItemType, marker: API.MarkerVo): boolean {

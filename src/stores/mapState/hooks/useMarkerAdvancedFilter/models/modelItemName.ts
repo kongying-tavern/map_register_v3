@@ -40,8 +40,8 @@ export class ItemName implements MAFConfig {
     return meta
   }
 
-  semantic(val: MAFValueString, _opt: MAFOptionInput, _meta: MAFMetaItemName, opposite: boolean): MAFSemanticUnit[] {
-    return `物品${opposite ? '不' : ''}为【${val.s ?? ''}】`
+  semantic(_val: MAFValueString, _opt: MAFOptionInput, _meta: MAFMetaItemName, _opposite: boolean): MAFSemanticUnit[] {
+    return []
   }
 
   filter(_val: MAFValueString, _opt: MAFOptionInput, meta: MAFMetaItemName, marker: API.MarkerVo): boolean {
