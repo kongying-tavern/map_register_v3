@@ -17,9 +17,13 @@ const mapStateStore = useMapStateStore()
 const {
   copyMAFCache,
   clearMAFCache,
+  toggleMAFGroupOperator,
+  toggleMAFGroupOpposite,
   appendMAFGroup,
   swapMAFGroup,
   deleteMAFGroup,
+  toggleMAFItemOperator,
+  toggleMAFItemOpposite,
   appendMAFItem,
   swapMAFItem,
   deleteMAFItem,
@@ -110,8 +114,8 @@ const handleModelPickerSelected = (id: number) => {
           :is-last="groupIndex >= mapStateStore.markerAdvancedFilters.length - 1"
           :with-move-up="true"
           :with-move-down="true"
-          @switch-operator="() => { group.operator = !group.operator }"
-          @toggle-opposite="() => { group.opposite = !group.opposite }"
+          @switch-operator="() => toggleMAFGroupOperator(groupIndex)"
+          @toggle-opposite="() => toggleMAFGroupOpposite(groupIndex)"
           @move-up-group="() => swapMAFGroup(groupIndex, groupIndex - 1)"
           @move-down-group="() => swapMAFGroup(groupIndex, groupIndex + 1)"
           @delete-group="() => deleteMAFGroup(groupIndex)"
@@ -124,8 +128,8 @@ const handleModelPickerSelected = (id: number) => {
               :is-last="itemIndex >= itemSize - 1"
               :with-move-up="true"
               :with-move-down="true"
-              @switch-operator="() => { item.operator = !item.operator }"
-              @toggle-opposite="() => { item.opposite = !item.opposite }"
+              @switch-operator="() => toggleMAFItemOperator(groupIndex, itemIndex)"
+              @toggle-opposite="() => toggleMAFItemOpposite(groupIndex, itemIndex)"
               @move-up-item="() => swapMAFItem(groupIndex, itemIndex, itemIndex - 1)"
               @move-down-item="() => swapMAFItem(groupIndex, itemIndex, itemIndex + 1)"
               @delete-item="() => deleteMAFItem(groupIndex, itemIndex)"

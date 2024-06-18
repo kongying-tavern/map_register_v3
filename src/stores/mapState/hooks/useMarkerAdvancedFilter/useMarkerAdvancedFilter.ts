@@ -186,13 +186,25 @@ export const useMarkerAdvancedFilter = (options: MarkerAdvancedFilterHookOptions
     return JSON.stringify(cache) === JSON.stringify(filter)
   })
 
-  const appendConditionGroup = () => {
-    preferenceStore.preference['markerFilter.filter.advancedFilterCache'].push(cloneDeep(emptyGroup))
-  }
-
   const initCondition = () => {
     if (preferenceStore.preference['markerFilter.filter.advancedFilterCache'].length <= 0)
-      appendConditionGroup()
+      preferenceStore.preference['markerFilter.filter.advancedFilterCache'].push(cloneDeep(emptyGroup))
+  }
+
+  const toggleConditionGroupOperator = (groupIndex: number) => {
+    const group = preferenceStore.preference['markerFilter.filter.advancedFilterCache'][groupIndex]
+    if (group)
+      group.operator = !(group.operator ?? true)
+  }
+
+  const toggleConditionGroupOpposite = (groupIndex: number) => {
+    const group = preferenceStore.preference['markerFilter.filter.advancedFilterCache'][groupIndex]
+    if (group)
+      group.opposite = !(group.opposite ?? false)
+  }
+
+  const appendConditionGroup = () => {
+    preferenceStore.preference['markerFilter.filter.advancedFilterCache'].push(cloneDeep(emptyGroup))
   }
 
   const insertConditionGroup = (groupIndex: number) => {
@@ -218,6 +230,18 @@ export const useMarkerAdvancedFilter = (options: MarkerAdvancedFilterHookOptions
     if (preferenceStore.preference['markerFilter.filter.advancedFilterCache'][groupIndex])
       preferenceStore.preference['markerFilter.filter.advancedFilterCache'].splice(groupIndex, 1)
     initCondition()
+  }
+
+  const toggleConditionOperator = (groupIndex: number, itemIndex: number) => {
+    const item = preferenceStore.preference['markerFilter.filter.advancedFilterCache'][groupIndex]?.children[itemIndex]
+    if (item)
+      item.operator = !(item.operator ?? true)
+  }
+
+  const toggleConditionOpposite = (groupIndex: number, itemIndex: number) => {
+    const item = preferenceStore.preference['markerFilter.filter.advancedFilterCache'][groupIndex]?.children[itemIndex]
+    if (item)
+      item.opposite = !(item.opposite ?? false)
   }
 
   const appendCondition = (groupIndex: number, id: number = 0) => {
@@ -289,10 +313,14 @@ export const useMarkerAdvancedFilter = (options: MarkerAdvancedFilterHookOptions
     markerAdvancedSame: conditionSame,
     copyMAFCache: copyConditions,
     clearMAFCache: clearConditions,
+    toggleMAFGroupOperator: toggleConditionGroupOperator,
+    toggleMAFGroupOpposite: toggleConditionGroupOpposite,
     appendMAFGroup: appendConditionGroup,
     insertMAFGroup: insertConditionGroup,
     swapMAFGroup: swapConditionGroup,
     deleteMAFGroup: deleteConditionGroup,
+    toggleMAFItemOperator: toggleConditionOperator,
+    toggleMAFItemOpposite: toggleConditionOpposite,
     appendMAFItem: appendCondition,
     insertMAFItem: insertCondition,
     swapMAFItem: swapCondition,
