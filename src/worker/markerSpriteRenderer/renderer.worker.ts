@@ -27,9 +27,6 @@ export interface WorkerInput {
 
   /** 绘制间隙空间，用于避免舍入精度导致的层叠问题（除非使用奇数尺寸，否则不需要给这个值） */
   gap?: number
-
-  /** 纹理尺寸限制 @default 8192 */
-  textureSizeLimit?: number
 }
 
 interface MppingOptions extends WorkerInput {
@@ -61,7 +58,7 @@ const createSnapshot = ([width, height]: [number, number], draw: (ctx: Offscreen
  * 纹理尺寸限制
  * @note 这个值在 chrome 以外的环境下可能是不同的！
  */
-const DEFAULT_TEXTURE_LIMIT = 8192
+const DEFAULT_TEXTURE_LIMIT = 4096
 
 /** 内容区相比于图标大小的缩放比，根据 `BORDER_PATH` 的实际情况进行修改 */
 const CONTENT_SCALE = 0.64375
@@ -237,7 +234,6 @@ const render = async (options: WorkerInput, logger: Logger): Promise<WorkerSucce
     states,
     iconSize = 64,
     gap = 0,
-    textureSizeLimit = DEFAULT_TEXTURE_LIMIT,
   } = options
 
   const tagSpriteDigest = await getDigest(tagSprite, 'SHA-256')
@@ -246,6 +242,11 @@ const render = async (options: WorkerInput, logger: Logger): Promise<WorkerSucce
     { type: 'default' },
     { type: 'underground', icon: UG_ICON },
   ]
+
+  const oc = new OffscreenCanvas(0, 0)
+  const gl = oc.getContext('webgl2') ?? oc.getContext('webgl')
+
+  const textureSizeLimit = (gl?.getParameter(gl.MAX_TEXTURE_SIZE) ?? DEFAULT_TEXTURE_LIMIT)
 
   const stateCount = states.length
   const typeCount = types.length
@@ -295,7 +296,7 @@ const render = async (options: WorkerInput, logger: Logger): Promise<WorkerSucce
   if (cache)
     return cache
 
-  logger.info('编排画板', { w: canvasW, h: canvasH, unitW, unitH, cols, rows })
+  logger.info('编排画板', { w: canvasW, h: canvasH, unitW, unitH, cols, rows, textureSizeLimit })
 
   const canvas = new OffscreenCanvas(canvasW, canvasH)
   const ctx = canvas.getContext('2d')!
