@@ -1,12 +1,13 @@
 <script lang="ts" setup>
-import { useMarkerFilter } from './hooks'
+import { storeToRefs } from 'pinia'
+import { useMapStateStore } from '@/stores'
 
-const { conditionSemanticText } = useMarkerFilter()
+const { markerAdvancedSemantic } = storeToRefs(useMapStateStore())
 </script>
 
 <template>
-  <div v-if="conditionSemanticText" class="semantic-text">
-    {{ conditionSemanticText }}
+  <div v-if="markerAdvancedSemantic" class="semantic-text">
+    {{ markerAdvancedSemantic }}
   </div>
 </template>
 
