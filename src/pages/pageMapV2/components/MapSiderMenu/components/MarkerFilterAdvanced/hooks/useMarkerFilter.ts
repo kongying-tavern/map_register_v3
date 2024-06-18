@@ -2,7 +2,14 @@ import { cloneDeep } from 'lodash'
 import { toValue } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useMapStateStore, usePreferenceStore } from '@/stores'
-import type { MAFConfig, MAFGroup, MAFItem, MAFMeta } from '@/stores/types'
+import type {
+  MAFConfig,
+  MAFGroup,
+  MAFGroupComposed,
+  MAFItem,
+  MAFItemComposed,
+  MAFMeta,
+} from '@/stores/types'
 
 const { getMAFConfig } = useMapStateStore()
 
@@ -53,6 +60,58 @@ export const useMarkerFilter = () => {
       }
     }
     return globalSem.join('')
+  })
+
+  const conditionComposed = computed<MAFGroupComposed[]>(() => {
+    const groupComposed: MAFGroupComposed[] = []
+    const filters = preference.value['markerFilter.filter.advancedFilterCache'] ?? []
+
+    // 处理组
+    filters.forEach((filter) => {
+      const {
+        operator: groupOperator = true,
+        opposite: groupOpposite = false,
+        children = [],
+      } = filter
+      const itemComposed: MAFItemComposed[] = []
+
+      // 处理子项
+      children.forEach((child) => {
+        const {
+          id = 0,
+          operator: itemOperator,
+          opposite: itemOpposite,
+          value = {},
+        } = child
+        const {
+          option,
+          prepare,
+          semantic,
+          filter,
+        } = getMAFConfig(id)
+        let meta: MAFMeta = {}
+        if (prepare && typeof prepare === 'function')
+          meta = prepare(value, toValue(option))
+        itemComposed.push({
+          id,
+          operator: itemOperator,
+          opposite: itemOpposite,
+          value,
+          option,
+          meta,
+          semantic,
+          filter,
+        })
+      })
+
+      groupComposed.push({
+        operator: groupOperator,
+        opposite: groupOpposite,
+        children: itemComposed,
+      })
+    })
+
+    return groupComposed
   })
 
   const getCount = (filter: MAFGroup[] = []) => {
@@ -167,6 +226,7 @@ export const useMarkerFilter = () => {
 
   return {
     conditionSemanticText,
+    conditionComposed,
     conditionCacheCount,
     conditionCount,
     conditionSame,
