@@ -38,7 +38,7 @@ export class Visibility implements MAFConfig {
     // 处理标签名
     const { hiddenFlagNameMap } = useHiddenFlagOptions()
     meta.tag = (val.na ?? [])
-      .map(v => hiddenFlagNameMap[v ?? ''])
+      .map(v => hiddenFlagNameMap.value[v ?? ''])
       .filter(v => v)
       .join(',')
 
