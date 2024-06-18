@@ -1,8 +1,8 @@
 import type {
   MAFConfig,
-  MAFSemanticUnit,
   MAFMetaIdRange,
   MAFOptionInput,
+  MAFSemanticUnit,
   MAFValueString,
 } from '@/stores/types'
 
