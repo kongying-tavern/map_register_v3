@@ -7,7 +7,7 @@ import { useFetchHook } from '@/hooks'
 import db from '@/database'
 
 export const usePreferenceStore = defineStore('global-user-preference', () => {
-  const internalUpdateFlag = ref(false)
+  const initFlag = ref(false)
 
   const archiveStore = useArchiveStore()
 
@@ -17,11 +17,12 @@ export const usePreferenceStore = defineStore('global-user-preference', () => {
     _resolve.value = resolve
   }))
 
-  const { data: preference, refresh: _updateUserPreference, onSuccess } = useFetchHook<UserPreference, [userId: number]>({
+  const { data: preference, refresh: _updateUserPreference, onSuccess } = useFetchHook<UserPreference, [userId: number, isInit?: boolean]>({
     initialValue: getDefaultPreference(),
-    onRequest: async (userId) => {
+    onRequest: async (userId, isInit = false) => {
       const queryPreference = await db.user.get(userId)
-      internalUpdateFlag.value = true
+      if (isInit)
+        initFlag.value = true
       return {
         ...getDefaultPreference(),
         ...queryPreference,
@@ -32,7 +33,6 @@ export const usePreferenceStore = defineStore('global-user-preference', () => {
 
   onSuccess(() => {
     _resolve.value?.()
-    internalUpdateFlag.value = false
   })
 
   // 获取当前用户的 userId
@@ -45,9 +45,7 @@ export const usePreferenceStore = defineStore('global-user-preference', () => {
     const userId = _getUserId()
     if (userId === undefined)
       return
-    if (init)
-      internalUpdateFlag.value = true
-    await _updateUserPreference(userId)
+    await _updateUserPreference(userId, init)
   }
 
   // 存档更新时，更新用户首选项
@@ -61,8 +59,8 @@ export const usePreferenceStore = defineStore('global-user-preference', () => {
     if (userId === undefined)
       return
 
-    if (internalUpdateFlag.value) {
-      internalUpdateFlag.value = false
+    if (initFlag.value) {
+      initFlag.value = false
       return
     }
 
