@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { computed } from 'vue'
 import { MarkerFilterButton } from '../../MarkerFilterComponent'
 import { NumberRangeBase } from '../FilterModelComponent'
 import type { MAFMetaDummy, MAFOptionRange, MAFOptionSwitch, MAFValueBoolean, MAFValueNumberRange } from '@/stores/types'

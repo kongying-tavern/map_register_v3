@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { ref } from 'vue'
 import { SelectList } from '../../../SelectList'
 import type { AreaWithChildren } from '@/stores'
 import { useListBubbleDrag } from '@/hooks'
