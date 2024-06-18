@@ -19,6 +19,10 @@ export class RefreshTime implements MAFConfig {
     return {
       placeholderMin: '不限',
       placeholderMax: '不限',
+      startMin: 0,
+      startMinIncluded: false,
+      endMin: 0,
+      endMinIncluded: false,
       dialogTitle: '选择刷新时间',
       dialogListClass: 'grid grid-cols-2',
       options: refreshTimeOptions.value,
@@ -34,7 +38,7 @@ export class RefreshTime implements MAFConfig {
     }
   }
 
-  prepare(_val: MAFValueNumberRange): MAFMetaDummy {
+  prepare(_val: MAFValueNumberRange, _opt: OptionType): MAFMetaDummy {
     return {}
   }
 

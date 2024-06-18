@@ -1,28 +1,19 @@
 <script lang="ts" setup>
 import { MarkerFilterButton } from '../../MarkerFilterComponent'
 import { SelectBase } from '.'
-import type { MAFOptionSelect, MAFValueNumberArray } from '@/stores/types'
+import type { MAFMetaVisibility, MAFOptionSelect, MAFValueNumberArray } from '@/stores/types'
 import { IconEye } from '@/components/AppIcons'
-import { useHiddenFlagOptions } from '@/hooks'
 
 defineProps<{
   options: MAFOptionSelect<{ label: string; value: number }>
+  meta: MAFMetaVisibility
 }>()
-
-const { hiddenFlagNameMap } = useHiddenFlagOptions()
 
 const modelValue = defineModel<MAFValueNumberArray>('modelValue', {
   required: false,
   default: {
     na: [],
   },
-})
-
-const selectTag = computed(() => {
-  return (modelValue.value.na ?? [])
-    .map(v => hiddenFlagNameMap.value[v ?? ''])
-    .filter(v => v)
-    .join(',')
 })
 </script>
 
@@ -37,8 +28,8 @@ const selectTag = computed(() => {
         <template #icon>
           <IconEye />
         </template>
-        <template v-if="selectTag" #default>
-          {{ selectTag }}
+        <template v-if="meta.tag" #default>
+          {{ meta.tag }}
         </template>
       </MarkerFilterButton>
     </SelectBase>

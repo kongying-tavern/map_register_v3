@@ -20,7 +20,7 @@ export class ItemSize implements MAFConfig {
     }
   }
 
-  prepare(_val: MAFValueNumberRange): MAFMetaDummy {
+  prepare(_val: MAFValueNumberRange, _opt: MAFOptionRange): MAFMetaDummy {
     return {}
   }
 

@@ -43,7 +43,7 @@ export interface MAFConfig {
   readonly name: string
   readonly option: MaybeComputedRef<MAFValue>
   readonly defaultVal: MAFValue
-  prepare(val: MAFValue): MAFMeta
+  prepare(val: MAFValue, opt: MAFOption): MAFMeta
   semantic(val: MAFValue, opt: MAFOption, meta: MAFMeta, opposite: boolean): string
   filter(val: MAFValue, opt: MAFOption, meta: MAFMeta, marker: API.MarkerVo): boolean
 }
@@ -101,6 +101,14 @@ export interface MAFOptionSelect<T> extends MAFOption {
 export interface MAFOptionRange extends MAFOption {
   placeholderMin?: string
   placeholderMax?: string
+  startMin?: number
+  startMinIncluded?: boolean
+  startMax?: number
+  startMaxIncluded?: boolean
+  endMin?: number
+  endMinIncluded?: boolean
+  endMax?: number
+  endMaxIncluded?: boolean
 }
 
 export interface MAFOptionSwitch extends MAFOption {
@@ -119,14 +127,33 @@ export interface MAFMetaIdRange extends MAFMeta {
 }
 
 export interface MAFMetaContentRegex extends MAFMeta {
-  re?: RegExp
+  /** 解析过的正则表达式，null 表示解析失败，undefined 表示空 */
+  re?: RegExp | null
+}
+
+export interface MAFMetaUndergroundLayer extends MAFMeta {
+  layerKeyMap: Record<string, {
+    areaId: number
+    areaName: string
+    groupKey: string
+    groupName: string
+  }[]>
+  layerNameMap: Record<string, string>
+  tag: string
+}
+
+export interface MAFMetaVisibility extends MAFMeta {
+  tag: string
 }
 
 export interface MAFMetaArea extends MAFMeta {
+  tag: string
+  areaParentIdMap: Record<number, number>
   itemIds: Set<number>
 }
 
 export interface MAFMetaItemType extends MAFMeta {
+  tag: string
   itemIds: Set<number>
 }
 
@@ -135,5 +162,7 @@ export interface MAFMetaItemName extends MAFMeta {
 }
 
 export interface MAFMetaItemNameRegex extends MAFMeta {
+  /** 解析过的正则表达式，null 表示解析失败，undefined 表示空 */
+  re?: RegExp | null
   itemIds: Set<number>
 }

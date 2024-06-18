@@ -47,7 +47,7 @@ const handleClose = () => {
       <div class="text-xl text-center">
         选择筛选类型
       </div>
-      <GSDivider color="#76716A" />
+      <GSDivider color="#76716A" :height="34" />
       <el-scrollbar class="flex-1">
         <SelectList
           v-model="selectedId"
@@ -64,7 +64,7 @@ const handleClose = () => {
         </SelectList>
       </el-scrollbar>
 
-      <GSDivider color="#76716A" />
+      <GSDivider color="#76716A" :height="34" />
 
       <div class="flex gap-4">
         <GSButton

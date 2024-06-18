@@ -21,8 +21,16 @@ const modelValueMax = defineModel<number | null>('max', {
   <MarkerFilterNumberRange
     v-model:min="modelValueMin"
     v-model:max="modelValueMax"
-    :placeholder-min="options?.placeholderMin"
-    :placeholder-max="options?.placeholderMax"
+    :placeholder-min="options.placeholderMin"
+    :placeholder-max="options.placeholderMax"
+    :min-value-min="options.startMin"
+    :min-value-min-include="options.startMinIncluded"
+    :min-value-max="options.startMax"
+    :min-value-max-include="options.startMaxIncluded"
+    :max-value-min="options.endMin"
+    :max-value-min-include="options.endMinIncluded"
+    :max-value-max="options.endMax"
+    :max-value-max-include="options.endMaxIncluded"
   >
     <template v-if="$slots.prepend" #prepend>
       <slot name="prepend" />

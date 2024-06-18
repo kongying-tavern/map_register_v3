@@ -7,17 +7,20 @@ import type {
   MAFValueNumberRange,
 } from '@/stores/types'
 
+type ValueType = MAFValueBoolean & MAFValueNumberRange
+type OptionType = MAFOptionSwitch & MAFOptionRange
+
 export class ItemCount implements MAFConfig {
   id = 106
   name = '物品计数'
-  option: MAFOptionSwitch & MAFOptionRange = {
+  option: OptionType = {
     textActive: '全部',
     textInactive: '任意',
     placeholderMin: '不限',
     placeholderMax: '不限',
   }
 
-  get defaultVal(): MAFValueBoolean & MAFValueNumberRange {
+  get defaultVal(): ValueType {
     return {
       b: false,
       nMin: null,
@@ -25,11 +28,11 @@ export class ItemCount implements MAFConfig {
     }
   }
 
-  prepare(_val: MAFValueBoolean & MAFValueNumberRange): MAFMetaDummy {
+  prepare(_val: ValueType, _opt: OptionType): MAFMetaDummy {
     return {}
   }
 
-  semantic(val: MAFValueBoolean & MAFValueNumberRange, opt: MAFOptionSwitch & MAFOptionRange, _meta: MAFMetaDummy, opposite: boolean): string {
+  semantic(val: ValueType, opt: OptionType, _meta: MAFMetaDummy, opposite: boolean): string {
     const optionTag = val.b ? opt.textActive! : opt.textInactive!
     if (!Number.isFinite(val.nMin) && !Number.isFinite(val.nMax)) {
       return opposite ? `无${optionTag}物品计数` : `不限${optionTag}物品计数`
@@ -50,7 +53,7 @@ export class ItemCount implements MAFConfig {
     return ''
   }
 
-  filter(val: MAFValueBoolean & MAFValueNumberRange, _opt: MAFOptionSwitch & MAFOptionRange, _meta: MAFMetaDummy, marker: API.MarkerVo): boolean {
+  filter(val: ValueType, _opt: OptionType, _meta: MAFMetaDummy, marker: API.MarkerVo): boolean {
     const minVal: number = val.nMin === undefined || val.nMin === null ? Number.NEGATIVE_INFINITY : val.nMin
     const maxVal: number = val.nMax === undefined || val.nMax === null ? Number.POSITIVE_INFINITY : val.nMax
     const itemList = marker.itemList ?? []

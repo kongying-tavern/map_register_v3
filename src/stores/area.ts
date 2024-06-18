@@ -9,6 +9,10 @@ export interface AreaWithChildren extends API.AreaVo {
   children?: AreaWithChildren[]
 }
 
+export interface AreaWithExtraConfig extends API.AreaVo {
+  extraConfig?: API.ExtraConfig
+}
+
 /** 本地地区数据 */
 export const useAreaStore = defineStore('global-area', () => {
   const accessStore = useAccessStore()

@@ -1,9 +1,10 @@
 <script lang="ts" setup>
 import { InputBase } from '.'
-import type { MAFOptionInput, MAFValueString } from '@/stores/types'
+import type { MAFMetaItemNameRegex, MAFOptionInput, MAFValueString } from '@/stores/types'
 
 defineProps<{
   options: MAFOptionInput
+  meta: MAFMetaItemNameRegex
 }>()
 
 const modelValue = defineModel<MAFValueString>('modelValue', {
@@ -21,6 +22,7 @@ const modelValue = defineModel<MAFValueString>('modelValue', {
       v-model="modelValue.s"
       class="flex-auto"
       :options="options"
+      :error="meta.re === null"
     />
   </div>
 </template>

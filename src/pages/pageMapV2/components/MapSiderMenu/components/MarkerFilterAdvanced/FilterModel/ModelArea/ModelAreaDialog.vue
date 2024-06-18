@@ -1,12 +1,12 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
-import { storeToRefs } from 'pinia'
 import { SelectList } from '../../../SelectList'
-import { useAreaStore } from '@/stores'
 import type { AreaWithChildren } from '@/stores'
 import { useListBubbleDrag } from '@/hooks'
+import type { MAFMetaArea } from '@/stores/types'
 
-defineProps<{
+const props = defineProps<{
+  meta: MAFMetaArea
   listClass?: string
   list: AreaWithChildren[]
   labelKey: string
@@ -18,29 +18,17 @@ const modelValue = defineModel<number[]>('modelValue', {
   default: [],
 })
 
-const { areaIdMap } = storeToRefs(useAreaStore())
-
 const childrenList = ref<AreaWithChildren[]>([])
 
-const parentIdMap = computed(() => {
-  const parentIds: Record<number, number> = {}
-  modelValue.value.forEach((areaId) => {
-    const area = areaIdMap.value.get(areaId)
-    if (!area)
-      return
-    parentIds[area.id!] = area.parentId!
-  })
-  return parentIds
-})
-
+/* --------------------------------------------------
+ * 计数相关数据
+ * --------------------------------------------------
+ */
 const childrenCountMap = computed(() => {
   const childrenCount: Record<number, number> = {}
   modelValue.value.forEach((areaId) => {
-    const parentId = parentIdMap.value[areaId]
-    if (!parentId)
-      return
-    childrenCount[parentId] ??= 0
-    childrenCount[parentId]++
+    const parentId = props.meta.areaParentIdMap[areaId] ?? -1
+    childrenCount[parentId] = (childrenCount[parentId] ?? 0) + 1
   })
   return childrenCount
 })
@@ -66,7 +54,7 @@ const { onDragStart, onDragEnd, onDrop } = useListBubbleDrag<AreaWithChildren>({
 </script>
 
 <template>
-  <div class="w-full flex-1 flex gap-2">
+  <div class="w-full flex-1 flex gap-2 overflow-hidden">
     <el-scrollbar class="flex-1">
       <SelectList
         v-model="childrenList"
@@ -79,12 +67,12 @@ const { onDragStart, onDragEnd, onDrop } = useListBubbleDrag<AreaWithChildren>({
       >
         <template #default="{ item }">
           <div
-            class="flex-auto flex"
+            class="flex-auto flex items-center"
             :data-drag-id="item.id"
           >
             <span class="flex-auto">{{ item[labelKey] }}</span>
             <el-button
-              v-if=" childrenCountMap[item.id!] > 0"
+              v-if="childrenCountMap[item.id!] > 0"
               class="flex-none"
               type="primary"
               size="small"

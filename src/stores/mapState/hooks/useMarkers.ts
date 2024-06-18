@@ -1,3 +1,4 @@
+import { toValue } from 'vue'
 import { useMarkerAdvancedFilter, useMarkerFilter } from '.'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
 import { createRenderMarkers } from '@/stores/utils'
@@ -103,7 +104,7 @@ export const useMarkers = (options: MarkerHookOptions) => {
           const itemMetaKey: string = `${groupIndex}-${itemIndex}`
           let itemMeta: MAFMeta | undefined = metaCache.get(itemMetaKey)
           if (!itemMeta) {
-            itemMeta = filterPrepare(item.value)
+            itemMeta = filterPrepare(item.value, toValue(filterOption))
             metaCache.set(itemMetaKey, itemMeta)
           }
           let itemVal: boolean = filterAction(item.value, filterOption, itemMeta, marker)

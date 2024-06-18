@@ -1,17 +1,17 @@
 import type {
   MAFConfig,
-  MAFMetaDummy,
+  MAFMetaVisibility,
   MAFOptionSelect,
   MAFValueNumberArray,
 } from '@/stores/types'
 import { useHiddenFlagOptions } from '@/hooks'
 
-interface OptionType { label: string; value: number }
+type OptionType = MAFOptionSelect<{ label: string; value: number }>
 
 export class Visibility implements MAFConfig {
   id = 11
   name = '可见范围'
-  option: ComputedRef<MAFOptionSelect<OptionType>> = computed(() => {
+  option: ComputedRef<OptionType> = computed(() => {
     const { hiddenFlagOptions } = useHiddenFlagOptions()
 
     return {
@@ -29,25 +29,28 @@ export class Visibility implements MAFConfig {
     }
   }
 
-  prepare(_val: MAFValueNumberArray): MAFMetaDummy {
-    return {}
-  }
+  prepare(val: MAFValueNumberArray, _opt: OptionType): MAFMetaVisibility {
+    const meta: MAFMetaVisibility = {
+      tag: '',
+    }
 
-  semantic(val: MAFValueNumberArray, _opt: MAFOptionSelect<OptionType>, _meta: MAFMetaDummy, opposite: boolean): string {
+    // 处理标签名
     const { hiddenFlagNameMap } = useHiddenFlagOptions()
-    if (!val.na || val.na.length <= 0) {
-      return opposite ? '不限可见范围' : '无可见范围'
-    }
-    else {
-      const tag: string = (val.na ?? [])
-        .map(v => hiddenFlagNameMap.value[v ?? ''])
-        .filter(v => v)
-        .join(',')
-      return `可见范围${opposite ? '不为' : '为'}【${tag}】`
-    }
+    meta.tag = (val.na ?? [])
+      .map(v => hiddenFlagNameMap[v ?? ''])
+      .filter(v => v)
+      .join(',')
+
+    return meta
   }
 
-  filter(val: MAFValueNumberArray, _opt: MAFOptionSelect<OptionType>, _meta: MAFMetaDummy, marker: API.MarkerVo): boolean {
+  semantic(val: MAFValueNumberArray, _opt: OptionType, meta: MAFMetaVisibility, opposite: boolean): string {
+    if (!val.na || val.na.length <= 0)
+      return opposite ? '不限可见范围' : '无可见范围'
+    return `可见范围${opposite ? '不' : ''}为【${meta.tag ?? ''}】`
+  }
+
+  filter(val: MAFValueNumberArray, _opt: OptionType, _meta: MAFMetaVisibility, marker: API.MarkerVo): boolean {
     return (val.na ?? []).includes(marker.hiddenFlag!)
   }
 }

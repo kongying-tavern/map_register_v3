@@ -18,19 +18,21 @@ export class ContentRegex implements MAFConfig {
     }
   }
 
-  prepare(val: MAFValueString): MAFMetaContentRegex {
+  prepare(val: MAFValueString, _opt: MAFOptionInput): MAFMetaContentRegex {
     const meta: MAFMetaContentRegex = {
       re: undefined,
     }
-    if (!val.s)
-      return meta
 
-    try {
-      meta.re = new RegExp(val.s, 'gui')
+    // 处理正则表达式
+    if (val.s) {
+      try {
+        meta.re = new RegExp(val.s, 'gui')
+      }
+      catch (_err) {
+        meta.re = null
+      }
     }
-    catch (_err) {
-      // 忽略错误
-    }
+
     return meta
   }
 

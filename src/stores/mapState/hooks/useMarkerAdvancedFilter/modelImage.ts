@@ -19,7 +19,7 @@ export class Image implements MAFConfig {
     }
   }
 
-  prepare(_val: MAFValueBoolean): MAFMetaDummy {
+  prepare(_val: MAFValueBoolean, _opt: MAFOptionSwitch): MAFMetaDummy {
     return {}
   }
 

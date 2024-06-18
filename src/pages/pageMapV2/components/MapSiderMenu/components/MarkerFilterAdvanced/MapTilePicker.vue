@@ -51,7 +51,7 @@ const cancel = () => {
       <div class="text-xl text-center">
         选择地图
       </div>
-      <GSDivider color="#76716A" />
+      <GSDivider color="#76716A" :height="34" />
 
       <el-scrollbar class="flex-1">
         <SelectList
@@ -66,7 +66,7 @@ const cancel = () => {
         </SelectList>
       </el-scrollbar>
 
-      <GSDivider color="#76716A" />
+      <GSDivider color="#76716A" :height="34" />
 
       <div class="flex gap-4">
         <GSButton

@@ -19,21 +19,22 @@ export class ItemName implements MAFConfig {
     }
   }
 
-  prepare(val: MAFValueString): MAFMetaItemName {
+  prepare(val: MAFValueString, _opt: MAFOptionInput): MAFMetaItemName {
     const meta: MAFMetaItemName = {
       itemIds: new Set<number>(),
     }
-    if (!val.s)
-      return meta
 
-    const { itemList } = useItemStore()
-    const itemNames = val.s.split(',').filter(v => v)
-    const itemNameSet = new Set(itemNames)
-    const itemIdList: number[] = itemList
-      .filter(item => itemNameSet.has(item.name!))
-      .map(item => item.id!)
-      .filter(v => v)
-    meta.itemIds = new Set(itemIdList)
+    // 处理物品ID
+    if (val.s) {
+      const { itemList } = useItemStore()
+      const itemNames = val.s.split(',').filter(v => v)
+      const itemNameSet = new Set(itemNames)
+      const itemIdList: number[] = itemList
+        .filter(item => itemNameSet.has(item.name!))
+        .map(item => item.id!)
+        .filter(v => v)
+      meta.itemIds = new Set(itemIdList)
+    }
 
     return meta
   }

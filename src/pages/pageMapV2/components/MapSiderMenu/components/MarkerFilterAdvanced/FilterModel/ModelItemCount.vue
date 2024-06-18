@@ -2,10 +2,11 @@
 import { computed } from 'vue'
 import { MarkerFilterButton } from '../../MarkerFilterComponent'
 import { NumberRangeBase } from '.'
-import type { MAFOptionRange, MAFOptionSwitch, MAFValueBoolean, MAFValueNumberRange } from '@/stores/types'
+import type { MAFMetaDummy, MAFOptionRange, MAFOptionSwitch, MAFValueBoolean, MAFValueNumberRange } from '@/stores/types'
 
 defineProps<{
   options: MAFOptionSwitch & MAFOptionRange
+  meta: MAFMetaDummy
 }>()
 
 const modelValue = defineModel<MAFValueBoolean & MAFValueNumberRange>('modelValue', {
