@@ -5,7 +5,7 @@ import { SemanticBlock } from '.'
 import { useMapStateStore } from '@/stores'
 import type { MAFSemanticUnit } from '@/stores/types'
 
-const { markerAdvancedComposed } = storeToRefs(useMapStateStore())
+const { markerAdvancedComposed, markerAdvancedCacheCount } = storeToRefs(useMapStateStore())
 
 const semUnitLeftParenthesis: MAFSemanticUnit = { type: 'parenthesis', text: '(' }
 const semUnitRightParenthesis: MAFSemanticUnit = { type: 'parenthesis', text: ')' }
@@ -67,7 +67,7 @@ const semBlocks = computed<MAFSemanticUnit[]>(() => {
 
 <template>
   <div
-    v-if="semBlocks.length > 0"
+    v-if="markerAdvancedCacheCount > 0"
     class="semantic-text"
   >
     <SemanticBlock
