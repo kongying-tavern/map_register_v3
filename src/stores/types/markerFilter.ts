@@ -195,6 +195,7 @@ export interface MAFMetaArea extends MAFMeta {
 }
 
 export interface MAFMetaItemType extends MAFMeta {
+  tagList: string[]
   tag: string
   itemIds: Set<number>
 }

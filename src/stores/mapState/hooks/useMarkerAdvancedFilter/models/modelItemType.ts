@@ -35,16 +35,17 @@ export class ItemType implements MAFConfig {
 
   prepare(val: MAFValueNumberArray, _opt: OptionType): MAFMetaItemType {
     const meta: MAFMetaItemType = {
+      tagList: [],
       tag: '',
       itemIds: new Set<number>(),
     }
 
     // 处理标签名
     const { itemTypeMap } = useItemTypeStore()
-    meta.tag = val.na
+    meta.tagList = val.na
       .map(typeId => itemTypeMap[typeId]?.name)
-      .filter(v => v)
-      .join(',')
+      .filter(v => v) as string[]
+    meta.tag = meta.tagList.join(',')
 
     // 处理物品ID
     if (val.na && val.na.length > 0) {
@@ -64,8 +65,13 @@ export class ItemType implements MAFConfig {
     return meta
   }
 
-  semantic(_val: MAFValueNumberArray, _opt: OptionType, _meta: MAFMetaItemType, _opposite: boolean): MAFSemanticUnit[] {
-    return []
+  semantic(_val: MAFValueNumberArray, _opt: OptionType, meta: MAFMetaItemType, opposite: boolean): MAFSemanticUnit[] {
+    return [
+      { type: 'text', text: '类别' },
+      opposite ? { type: 'opposite-indicator', text: '不' } : null,
+      { type: 'text', text: '为' },
+      ...meta.tagList.map(tag => ({ type: 'tag', text: tag })),
+    ].filter(v => v) as MAFSemanticUnit[]
   }
 
   filter(_val: MAFValueNumberArray, _opt: OptionType, meta: MAFMetaItemType, marker: API.MarkerVo): boolean {
