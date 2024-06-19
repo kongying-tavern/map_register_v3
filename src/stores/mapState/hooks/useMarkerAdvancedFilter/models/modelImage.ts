@@ -24,8 +24,11 @@ export class Image implements MAFConfig {
     return {}
   }
 
-  semantic(_val: MAFValueBoolean, _opt: MAFOptionSwitch, _meta: MAFMetaDummy, _opposite: boolean): MAFSemanticUnit[] {
-    return []
+  semantic(val: MAFValueBoolean, opt: MAFOptionSwitch, _meta: MAFMetaDummy, opposite: boolean): MAFSemanticUnit[] {
+    return [
+      { type: 'text', text: '点位图片' },
+      { type: 'tag', text: val.b === opposite ? opt.textInactive : opt.textActive },
+    ].filter(v => v) as MAFSemanticUnit[]
   }
 
   filter(val: MAFValueBoolean, _opt: MAFOptionSwitch, _meta: MAFMetaDummy, marker: API.MarkerVo): boolean {
