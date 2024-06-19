@@ -15,7 +15,7 @@ defineProps<{
 <style lang="scss" scoped>
 .sem-parenthesis {
   vertical-align: middle;
-  font-family: 'MATH';
+  font-family: 'MATHFT';
   font-size: 1.6rem;
   line-height: 1.6;
   font-weight: bold;

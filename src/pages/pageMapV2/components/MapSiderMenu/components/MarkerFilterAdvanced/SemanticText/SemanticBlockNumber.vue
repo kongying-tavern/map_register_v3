@@ -14,7 +14,7 @@ defineProps<{
 
 <style lang="scss" scoped>
 .sem-number {
-  font-family: 'MATH';
+  font-family: 'MATHFT';
   font-style: italic;
   font-size: 1.1rem;
   margin: 0 .2rem

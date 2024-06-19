@@ -1,10 +1,12 @@
 <script lang="ts" setup>
 import {
+  SemanticBlockError,
   SemanticBlockHighlight,
   SemanticBlockLogicOperator,
   SemanticBlockNumber,
   SemanticBlockOppositeIndicator,
   SemanticBlockParenthesis,
+  SemanticBlockRegex,
   SemanticBlockTag,
   SemanticBlockText,
 } from '.'
@@ -19,6 +21,8 @@ const blockComponent = computed<Component>(() => {
     'logic-operator': SemanticBlockLogicOperator,
     'opposite-indicator': SemanticBlockOppositeIndicator,
     'parenthesis': SemanticBlockParenthesis,
+    'error': SemanticBlockError,
+    'regex': SemanticBlockRegex,
     'tag': SemanticBlockTag,
     'highlight': SemanticBlockHighlight,
     'text': SemanticBlockText,
