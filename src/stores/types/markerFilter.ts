@@ -156,7 +156,7 @@ export interface MAFMetaDummy extends MAFMeta {
 }
 
 export interface MAFMetaIdRange extends MAFMeta {
-  idRange: (number[] | number)[]
+  idRange: ([number, number] | number)[]
   idSet: Set<number>
 }
 

@@ -26,22 +26,23 @@ export class IdRange implements MAFConfig {
     }
 
     // 处理ID区间
+    const isValidNumber = (num: number): boolean => Number.isInteger(num) && num > 0 && num <= (2 ** 32 - 1)
     if (val.s) {
       const ids: string[] = val.s.split(',').filter(v => v)
       ids.forEach((id) => {
         if (id.includes('-')) {
-          const idNums: string[] = id.split('-', 2)
-          const idNum1: number = +idNums[0]
-          const idNum2: number = +idNums[1]
+          const idNums: string[] = id.split('-')
+          const idNum1: number = Number(idNums.shift())
+          const idNum2: number = Number(idNums.join('-'))
           if (
-            Number.isInteger(idNum1) && Number.isInteger(idNum2)
-            && idNum1 > 0 && idNum2 > 0 && idNum2 > idNum1
+            isValidNumber(idNum1) && isValidNumber(idNum2)
+            && idNum2 > idNum1 && idNum2 - idNum1 < 1e6
           )
             meta.idRange.push([idNum1, idNum2])
         }
         else {
-          const idNum: number = +id
-          if (Number.isInteger(idNum))
+          const idNum: number = Number(id)
+          if (isValidNumber(idNum))
             meta.idRange.push(idNum)
         }
       })
@@ -56,7 +57,7 @@ export class IdRange implements MAFConfig {
           .fill(0)
           .forEach((_, offset) => meta.idSet.add(idNum1 + offset))
       }
-      else if (Number.isFinite(idRange)) {
+      else if (isValidNumber(idRange)) {
         meta.idSet.add(idRange as number)
       }
     })
