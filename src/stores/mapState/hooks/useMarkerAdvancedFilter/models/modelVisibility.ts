@@ -2,6 +2,7 @@ import type {
   MAFConfig,
   MAFMetaVisibility,
   MAFOptionSelect,
+  MAFSemanticUnit,
   MAFValueNumberArray,
 } from '@/stores/types'
 import { useHiddenFlagOptions } from '@/hooks'
@@ -31,23 +32,27 @@ export class Visibility implements MAFConfig {
 
   prepare(val: MAFValueNumberArray, _opt: OptionType): MAFMetaVisibility {
     const meta: MAFMetaVisibility = {
+      tagList: [],
       tag: '',
     }
 
     // 处理标签名
     const { hiddenFlagNameMap } = useHiddenFlagOptions()
-    meta.tag = (val.na ?? [])
-      .map(v => hiddenFlagNameMap[v ?? ''])
+    meta.tagList = (val.na ?? [])
+      .map(v => hiddenFlagNameMap.value[v ?? ''])
       .filter(v => v)
-      .join(',')
+    meta.tag = meta.tagList.join(',')
 
     return meta
   }
 
-  semantic(val: MAFValueNumberArray, _opt: OptionType, meta: MAFMetaVisibility, opposite: boolean): string {
-    if (!val.na || val.na.length <= 0)
-      return opposite ? '不限可见范围' : '无可见范围'
-    return `可见范围${opposite ? '不' : ''}为【${meta.tag ?? ''}】`
+  semantic(_val: MAFValueNumberArray, _opt: OptionType, meta: MAFMetaVisibility, opposite: boolean): MAFSemanticUnit[] {
+    return [
+      { type: 'text', text: '可见范围' },
+      opposite ? { type: 'opposite-indicator', text: '不' } : null,
+      { type: 'text', text: '为' },
+      ...meta.tagList.map(tag => ({ type: 'tag', text: tag })),
+    ].filter(v => v) as MAFSemanticUnit[]
   }
 
   filter(val: MAFValueNumberArray, _opt: OptionType, _meta: MAFMetaVisibility, marker: API.MarkerVo): boolean {

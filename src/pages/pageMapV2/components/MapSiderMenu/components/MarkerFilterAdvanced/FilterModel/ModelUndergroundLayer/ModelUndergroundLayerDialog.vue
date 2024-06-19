@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { keyBy } from 'lodash'
-import { computed, ref } from 'vue'
 import { SelectList } from '../../../SelectList'
 import type { AreaWithExtraConfig } from '@/stores'
 import type { MAFMetaUndergroundLayer } from '@/stores/types'

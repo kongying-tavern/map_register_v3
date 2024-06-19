@@ -4,6 +4,7 @@ import type {
   MAFConfig,
   MAFMetaArea,
   MAFOptionSelect,
+  MAFSemanticUnit,
   MAFValueNumberArray,
 } from '@/stores/types'
 
@@ -32,6 +33,7 @@ export class Area implements MAFConfig {
 
   prepare(val: MAFValueNumberArray, _opt: OptionType): MAFMetaArea {
     const meta: MAFMetaArea = {
+      tagList: [],
       tag: '',
       areaParentIdMap: {},
       itemIds: new Set<number>(),
@@ -39,10 +41,10 @@ export class Area implements MAFConfig {
 
     const { areaIdMap, childrenAreaList } = useAreaStore()
     // 处理标签名
-    meta.tag = val.na
+    meta.tagList = val.na
       .map(areaId => (areaIdMap.get(areaId) ?? {}).name!)
       .filter(v => v)
-      .join(',')
+    meta.tag = meta.tagList.join(',')
 
     // 处理地区父ID映射
     meta.areaParentIdMap = Object.fromEntries(childrenAreaList.map(({ id: childId = 0, parentId = -1 }) => [childId, parentId]))
@@ -60,10 +62,13 @@ export class Area implements MAFConfig {
     return meta
   }
 
-  semantic(val: MAFValueNumberArray, _opt: OptionType, meta: MAFMetaArea, opposite: boolean): string {
-    if (!val.na || val.na.length <= 0)
-      return opposite ? '属于所有地区' : '不属于任何地区'
-    return `地区${opposite ? '不' : ''}为【${meta.tag ?? ''}】`
+  semantic(_val: MAFValueNumberArray, _opt: OptionType, meta: MAFMetaArea, opposite: boolean): MAFSemanticUnit[] {
+    return [
+      { type: 'text', text: '地区' },
+      opposite ? { type: 'opposite-indicator', text: '不' } : null,
+      { type: 'text', text: '为' },
+      ...meta.tagList.map(tag => ({ type: 'tag', text: tag })),
+    ].filter(v => v) as MAFSemanticUnit[]
   }
 
   filter(_val: MAFValueNumberArray, _opt: OptionType, meta: MAFMetaArea, marker: API.MarkerVo): boolean {

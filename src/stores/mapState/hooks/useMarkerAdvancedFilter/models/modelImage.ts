@@ -2,6 +2,7 @@ import type {
   MAFConfig,
   MAFMetaDummy,
   MAFOptionSwitch,
+  MAFSemanticUnit,
   MAFValueBoolean,
 } from '@/stores/types'
 
@@ -23,8 +24,11 @@ export class Image implements MAFConfig {
     return {}
   }
 
-  semantic(val: MAFValueBoolean, _opt: MAFOptionSwitch, _meta: MAFMetaDummy, opposite: boolean): string {
-    return `${opposite === !!val.b ? '不' : ''}包含图片`
+  semantic(val: MAFValueBoolean, opt: MAFOptionSwitch, _meta: MAFMetaDummy, opposite: boolean): MAFSemanticUnit[] {
+    return [
+      { type: 'text', text: '点位图片' },
+      { type: 'tag', text: val.b === opposite ? opt.textInactive : opt.textActive },
+    ].filter(v => v) as MAFSemanticUnit[]
   }
 
   filter(val: MAFValueBoolean, _opt: MAFOptionSwitch, _meta: MAFMetaDummy, marker: API.MarkerVo): boolean {

@@ -3,6 +3,16 @@
   src: url('@/style/fonts/genshinFont.woff2') format('woff2');
 }
 
+@font-face {
+  font-family: 'MATHFT';
+  src: url('@/style/fonts/mathFont.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'MONOFT';
+  src: url('@/style/fonts/monospaceFont.woff2') format('woff2');
+}
+
 .genshin-text {
   font-family: 'MHYG', sans-serif;
 }

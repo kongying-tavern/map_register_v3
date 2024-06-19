@@ -38,13 +38,46 @@ export interface MAFItem {
   value: MAFValue
 }
 
+export interface MAFGroupComposed {
+  operator: boolean
+  opposite: boolean
+  children: MAFItemComposed[]
+}
+
+export interface MAFItemComposed {
+  id: number
+  operator: boolean
+  opposite: boolean
+  value: MAFValue
+  option: MaybeComputedRef<MAFOption>
+  meta: MAFMeta
+  semantic?: (val: MAFValue, opt: MAFOption, meta: MAFMeta, opposite: boolean) => MAFSemanticUnit[]
+  filter?: (val: MAFValue, opt: MAFOption, meta: MAFMeta, marker: API.MarkerVo) => boolean
+}
+
+export type MAFSemanticType =
+  'logic-operator' |
+  'opposite-indicator' |
+  'parenthesis' |
+  'error' |
+  'regex' |
+  'tag' |
+  'highlight' |
+  'text' |
+  'number'
+
+export interface MAFSemanticUnit {
+  type: MAFSemanticType
+  text?: string
+}
+
 export interface MAFConfig {
   readonly id: number
   readonly name: string
-  readonly option: MaybeComputedRef<MAFValue>
+  readonly option: MaybeComputedRef<MAFOption>
   readonly defaultVal: MAFValue
   prepare(val: MAFValue, opt: MAFOption): MAFMeta
-  semantic(val: MAFValue, opt: MAFOption, meta: MAFMeta, opposite: boolean): string
+  semantic(val: MAFValue, opt: MAFOption, meta: MAFMeta, opposite: boolean): MAFSemanticUnit[]
   filter(val: MAFValue, opt: MAFOption, meta: MAFMeta, marker: API.MarkerVo): boolean
 }
 
@@ -123,6 +156,7 @@ export interface MAFMetaDummy extends MAFMeta {
 }
 
 export interface MAFMetaIdRange extends MAFMeta {
+  idRange: ([number, number] | number)[]
   idSet: Set<number>
 }
 
@@ -139,25 +173,35 @@ export interface MAFMetaUndergroundLayer extends MAFMeta {
     groupName: string
   }[]>
   layerNameMap: Record<string, string>
+  tagList: string[]
   tag: string
 }
 
+export interface MAFMetaRefreshTime extends MAFMeta {
+  isCustom: boolean
+  tagNameMap: Record<number, string>
+}
+
 export interface MAFMetaVisibility extends MAFMeta {
+  tagList: string[]
   tag: string
 }
 
 export interface MAFMetaArea extends MAFMeta {
+  tagList: string[]
   tag: string
   areaParentIdMap: Record<number, number>
   itemIds: Set<number>
 }
 
 export interface MAFMetaItemType extends MAFMeta {
+  tagList: string[]
   tag: string
   itemIds: Set<number>
 }
 
 export interface MAFMetaItemName extends MAFMeta {
+  tagList: string[]
   itemIds: Set<number>
 }
 

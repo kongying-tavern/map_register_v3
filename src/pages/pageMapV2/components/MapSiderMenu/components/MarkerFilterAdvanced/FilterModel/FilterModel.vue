@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { toValue } from 'vue'
-import type { Component } from 'vue'
 import {
   ModelArea,
   ModelContentContain,
@@ -20,21 +18,16 @@ import {
   ModelVideo,
   ModelVisibility,
 } from '.'
-import { useMapStateStore } from '@/stores'
-import type { MAFItem, MAFMeta, MAFOption, MAFValue } from '@/stores/types'
+import type { MAFItemComposed, MAFValue } from '@/stores/types'
 
 const props = defineProps<{
-  condition: MAFItem
+  composedCondition: MAFItemComposed
 }>()
 
 const modelValue = defineModel<MAFValue>('modelValue', {
   required: false,
   default: {},
 })
-
-const { getMAFConfig } = useMapStateStore()
-
-const model = computed(() => getMAFConfig(props.condition.id))
 
 const modelTemplate = computed(() => {
   return {
@@ -55,12 +48,10 @@ const modelTemplate = computed(() => {
     104: ModelItemNameRegex,
     105: ModelItemSize,
     106: ModelItemCount,
-  }[props.condition.id]
+  }[props.composedCondition.id]
 }) as ComputedRef<Component>
 
-const modelOptions = computed<MAFOption>(() => toValue(model.value.option))
-
-const modelMeta = computed<MAFMeta>(() => model.value.prepare(modelValue.value, modelOptions.value))
+const modelOptions = computed(() => toValue(props.composedCondition.option))
 </script>
 
 <template>
@@ -69,6 +60,6 @@ const modelMeta = computed<MAFMeta>(() => model.value.prepare(modelValue.value, 
     v-if="modelTemplate"
     v-model="modelValue"
     :options="modelOptions"
-    :meta="modelMeta"
+    :meta="composedCondition.meta"
   />
 </template>

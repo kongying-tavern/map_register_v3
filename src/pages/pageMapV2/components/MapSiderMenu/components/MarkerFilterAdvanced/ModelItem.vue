@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { MarkerFilterButton } from '../MarkerFilterComponent'
-import type { MAFItem } from '@/stores/types'
+import type { MAFItemComposed } from '@/stores/types'
 
 const props = defineProps<{
   disabled?: boolean
@@ -8,7 +8,7 @@ const props = defineProps<{
   isLast?: boolean
   withMoveUp?: boolean
   withMoveDown?: boolean
-  condition: MAFItem
+  composedCondition: MAFItemComposed
 }>()
 
 const emits = defineEmits<{
@@ -59,12 +59,12 @@ const handleDeleteItem = () => {
       @click="handleSwitchOperator"
     >
       <template #icon>
-        {{ condition.operator ? '且' : '或' }}
+        {{ composedCondition.operator ? '且' : '或' }}
       </template>
     </MarkerFilterButton>
     <MarkerFilterButton
       theme="dark"
-      :icon-color="condition.opposite ? 'var(--gs-color-confirm)' : 'var(--gs-color-text)'"
+      :icon-color="composedCondition.opposite ? 'var(--gs-color-confirm)' : 'var(--gs-color-text)'"
       @click="handleToggleOpposite"
     >
       <template #icon>

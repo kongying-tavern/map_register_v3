@@ -1,7 +1,5 @@
 <script lang="ts" setup>
-import { storeToRefs } from 'pinia'
 import { DeleteFilled, MapLocation, Plus, QuestionFilled } from '@element-plus/icons-vue'
-import { useMarkerFilter } from './hooks'
 import { FilterModel } from './FilterModel'
 import {
   MapTilePicker,
@@ -10,23 +8,26 @@ import {
   ModelRow,
   SemanticText,
 } from '.'
-import { GSButton } from '@/components'
 import { useMapStateStore } from '@/stores'
+import { GSButton } from '@/components'
 
-const { markerAdvancedFilters } = storeToRefs(useMapStateStore())
+const mapStateStore = useMapStateStore()
 
 /** 筛选预设管理器 */
 const {
-  conditionSame,
-  copyConditions,
-  appendConditionGroup,
-  swapConditionGroup,
-  deleteConditionGroup,
-  appendCondition,
-  swapCondition,
-  deleteCondition,
-  clearCondition,
-} = useMarkerFilter()
+  copyMAFCache,
+  clearMAFCache,
+  toggleMAFGroupOperator,
+  toggleMAFGroupOpposite,
+  appendMAFGroup,
+  swapMAFGroup,
+  deleteMAFGroup,
+  toggleMAFItemOperator,
+  toggleMAFItemOpposite,
+  appendMAFItem,
+  swapMAFItem,
+  deleteMAFItem,
+} = mapStateStore
 
 // ------------------------------------------------
 // 地区底图选择器相关
@@ -53,7 +54,7 @@ const handleModelPickerSelected = (id: number) => {
   if (!Number.isFinite(modelPickerGroupIndex.value) || modelPickerGroupIndex.value <= -1)
     return
 
-  appendCondition(modelPickerGroupIndex.value, id)
+  appendMAFItem(modelPickerGroupIndex.value, id)
   modelPickerGroupIndex.value = -1
 }
 </script>
@@ -84,14 +85,14 @@ const handleModelPickerSelected = (id: number) => {
       <GSButton
         icon="submit"
         size="small"
-        :disabled="conditionSame"
-        @click="copyConditions()"
+        :disabled="mapStateStore.markerAdvancedSame"
+        @click="copyMAFCache()"
       >
         应用
       </GSButton>
       <GSButton
         size="small"
-        @click="appendConditionGroup()"
+        @click="appendMAFGroup()"
       >
         <template #icon>
           <el-icon color="var(--gs-color-cancel)">
@@ -106,36 +107,36 @@ const handleModelPickerSelected = (id: number) => {
     <el-scrollbar class="px-2" height="100%">
       <div class="h-full flex flex-col gap-2">
         <ModelRow
-          v-for="(group, groupIndex) in markerAdvancedFilters"
+          v-for="(group, groupIndex) in mapStateStore.markerAdvancedComposed"
           :key="groupIndex"
-          :condition="group"
+          :composed-condition="group"
           :is-first="groupIndex <= 0"
-          :is-last="groupIndex >= markerAdvancedFilters.length - 1"
+          :is-last="groupIndex >= mapStateStore.markerAdvancedFilters.length - 1"
           :with-move-up="true"
           :with-move-down="true"
-          @switch-operator="() => { group.operator = !group.operator }"
-          @toggle-opposite="() => { group.opposite = !group.opposite }"
-          @move-up-group="() => swapConditionGroup(groupIndex, groupIndex - 1)"
-          @move-down-group="() => swapConditionGroup(groupIndex, groupIndex + 1)"
-          @delete-group="() => deleteConditionGroup(groupIndex)"
+          @switch-operator="() => toggleMAFGroupOperator(groupIndex)"
+          @toggle-opposite="() => toggleMAFGroupOpposite(groupIndex)"
+          @move-up-group="() => swapMAFGroup(groupIndex, groupIndex - 1)"
+          @move-down-group="() => swapMAFGroup(groupIndex, groupIndex + 1)"
+          @delete-group="() => deleteMAFGroup(groupIndex)"
           @append-item="() => openPicker(groupIndex)"
         >
-          <template #default="{ condition: item, index: itemIndex, size: itemSize }">
+          <template #default="{ composedCondition: item, index: itemIndex, size: itemSize }">
             <ModelItem
-              :condition="item"
+              :composed-condition="item"
               :is-first="itemIndex <= 0"
               :is-last="itemIndex >= itemSize - 1"
               :with-move-up="true"
               :with-move-down="true"
-              @switch-operator="() => { item.operator = !item.operator }"
-              @toggle-opposite="() => { item.opposite = !item.opposite }"
-              @move-up-item="() => swapCondition(groupIndex, itemIndex, itemIndex - 1)"
-              @move-down-item="() => swapCondition(groupIndex, itemIndex, itemIndex + 1)"
-              @delete-item="() => deleteCondition(groupIndex, itemIndex)"
+              @switch-operator="() => toggleMAFItemOperator(groupIndex, itemIndex)"
+              @toggle-opposite="() => toggleMAFItemOpposite(groupIndex, itemIndex)"
+              @move-up-item="() => swapMAFItem(groupIndex, itemIndex, itemIndex - 1)"
+              @move-down-item="() => swapMAFItem(groupIndex, itemIndex, itemIndex + 1)"
+              @delete-item="() => deleteMAFItem(groupIndex, itemIndex)"
             >
               <FilterModel
                 v-model="item.value"
-                :condition="item"
+                :composed-condition="item"
               />
             </ModelItem>
           </template>
@@ -160,8 +161,8 @@ const handleModelPickerSelected = (id: number) => {
     <GSButton
       class="flex-1"
       size="small"
-      :disabled="!markerAdvancedFilters.length"
-      @click="clearCondition"
+      :disabled="!mapStateStore.markerAdvancedFilters.length"
+      @click="clearMAFCache"
     >
       <template #icon>
         <el-icon color="var(--gs-color-danger)">

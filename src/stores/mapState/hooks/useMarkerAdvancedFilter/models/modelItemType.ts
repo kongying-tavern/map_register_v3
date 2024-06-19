@@ -3,6 +3,7 @@ import type {
   MAFConfig,
   MAFMetaItemType,
   MAFOptionSelect,
+  MAFSemanticUnit,
   MAFValueNumberArray,
 } from '@/stores/types'
 
@@ -10,7 +11,7 @@ type OptionType = MAFOptionSelect<API.ItemTypeVo>
 
 export class ItemType implements MAFConfig {
   id = 102
-  name = '分类'
+  name = '类别'
   option: ComputedRef<OptionType> = computed(() => {
     const { itemTypeList } = useItemTypeStore()
 
@@ -34,16 +35,17 @@ export class ItemType implements MAFConfig {
 
   prepare(val: MAFValueNumberArray, _opt: OptionType): MAFMetaItemType {
     const meta: MAFMetaItemType = {
+      tagList: [],
       tag: '',
       itemIds: new Set<number>(),
     }
 
     // 处理标签名
     const { itemTypeMap } = useItemTypeStore()
-    meta.tag = val.na
+    meta.tagList = val.na
       .map(typeId => itemTypeMap[typeId]?.name)
-      .filter(v => v)
-      .join(',')
+      .filter(v => v) as string[]
+    meta.tag = meta.tagList.join(',')
 
     // 处理物品ID
     if (val.na && val.na.length > 0) {
@@ -63,10 +65,13 @@ export class ItemType implements MAFConfig {
     return meta
   }
 
-  semantic(val: MAFValueNumberArray, _opt: OptionType, meta: MAFMetaItemType, opposite: boolean): string {
-    if (!val.na || val.na.length <= 0)
-      return opposite ? '属于所有分类' : '不属于任何分类'
-    return `分类${opposite ? '不' : ''}为【${meta.tag ?? ''}】`
+  semantic(_val: MAFValueNumberArray, _opt: OptionType, meta: MAFMetaItemType, opposite: boolean): MAFSemanticUnit[] {
+    return [
+      { type: 'text', text: '类别' },
+      opposite ? { type: 'opposite-indicator', text: '不' } : null,
+      { type: 'text', text: '为' },
+      ...meta.tagList.map(tag => ({ type: 'tag', text: tag })),
+    ].filter(v => v) as MAFSemanticUnit[]
   }
 
   filter(_val: MAFValueNumberArray, _opt: OptionType, meta: MAFMetaItemType, marker: API.MarkerVo): boolean {

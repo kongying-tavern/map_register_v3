@@ -2,6 +2,7 @@ import type {
   MAFConfig,
   MAFMetaDummy,
   MAFOptionRange,
+  MAFSemanticUnit,
   MAFValueNumberRange,
 } from '@/stores/types'
 
@@ -24,24 +25,13 @@ export class ItemSize implements MAFConfig {
     return {}
   }
 
-  semantic(val: MAFValueNumberRange, _opt: MAFOptionRange, _meta: MAFMetaDummy, opposite: boolean): string {
-    if (!Number.isFinite(val.nMin) && !Number.isFinite(val.nMax)) {
-      return opposite ? '无物品条数' : '不限物品条数'
-    }
-    else if (Number.isFinite(val.nMin) && Number.isFinite(val.nMax)) {
-      if (val.nMin === val.nMax)
-        return `物品条数${opposite ? '非' : ''}【${val.nMin}】`
-
-      else
-        return `物品条数${opposite ? '非' : ''}【${val.nMin}~${val.nMax}】`
-    }
-    else if (Number.isFinite(val.nMin) && !Number.isFinite(val.nMax)) {
-      return `物品条数【${opposite ? '＜' : '≥'}${val.nMin}】`
-    }
-    else if (!Number.isFinite(val.nMin) && Number.isFinite(val.nMax)) {
-      return `物品条数【${opposite ? '＞' : '≤'}${val.nMax}】`
-    }
-    return ''
+  semantic(val: MAFValueNumberRange, _opt: MAFOptionRange, _meta: MAFMetaDummy, opposite: boolean): MAFSemanticUnit[] {
+    return [
+      { type: 'text', text: '物品条数' },
+      opposite ? { type: 'opposite-indicator', text: '不' } : null,
+      { type: 'text', text: '为' },
+      { type: 'highlight', text: `${val.nMin ?? '不限'} ~ ${val.nMax ?? '不限'}` },
+    ].filter(v => v) as MAFSemanticUnit[]
   }
 
   filter(val: MAFValueNumberRange, _opt: MAFOptionRange, _meta: MAFMetaDummy, marker: API.MarkerVo): boolean {

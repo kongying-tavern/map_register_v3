@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { MarkerFilterButton } from '../../MarkerFilterComponent'
-import { SelectBase } from '.'
+import { SelectBase } from '../FilterModelComponent'
 import type { MAFMetaVisibility, MAFOptionSelect, MAFValueNumberArray } from '@/stores/types'
 import { IconEye } from '@/components/AppIcons'
 
