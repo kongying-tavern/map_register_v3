@@ -160,6 +160,5 @@ const handleAppendItem = () => {
   background-color: #E6E3DE;
   font-size: 14px;
   padding: 2px 4px;
-  padding-left: 8px;
 }
 </style>
