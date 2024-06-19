@@ -23,16 +23,13 @@ const semBlocks = computed<MAFSemanticUnit[]>(() => {
   const blocks: MAFSemanticUnit[] = []
 
   // 处理分组数据
-  markerAdvancedComposed.value.forEach((group) => {
+  markerAdvancedComposed.value.forEach((group, groupIndex) => {
     const {
       operator: groupOperator = true,
       opposite: groupOpposite = false,
       children = [],
     } = group
-    let isFirstGroup: boolean = true
-    if (isFirstGroup)
-      isFirstGroup = false
-    else
+    if (groupIndex > 0)
       semanticAppend(blocks, cloneDeep(groupOperator ? semUnitAndLogic : semUnitOrLogic))
     semanticAppend(
       blocks,
@@ -41,7 +38,7 @@ const semBlocks = computed<MAFSemanticUnit[]>(() => {
     )
 
     // 处理子数据
-    children.forEach((child) => {
+    children.forEach((child, childIndex) => {
       const {
         operator: itemOperator = true,
         opposite: itemOpposite = false,
@@ -50,9 +47,7 @@ const semBlocks = computed<MAFSemanticUnit[]>(() => {
         meta = {},
         semantic,
       } = child
-      let isFirstItem: boolean = true
-      if (isFirstItem)
-        isFirstItem = false
+      if (childIndex > 0)
       else
         semanticAppend(blocks, cloneDeep(itemOperator ? semUnitAndLogic : semUnitOrLogic))
       if (semantic && typeof semantic === 'function')
