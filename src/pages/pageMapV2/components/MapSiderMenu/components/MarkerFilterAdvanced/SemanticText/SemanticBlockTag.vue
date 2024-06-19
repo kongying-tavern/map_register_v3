@@ -15,10 +15,11 @@ defineProps<{
 <style lang="scss" scoped>
 .sem-tag {
   background-color: var(--gs-color-cancel);
-  border-radius: 0.7lh;
-  border: 1px solid #dedede;
+  border-radius: .4rem;
+  border: 1px solid #ccc;
   color: #fff;
   font-weight: normal;
-  padding: .2rem .4rem;
+  padding: 0 .4rem;
+  margin: 0 .2rem;
 }
 </style>
