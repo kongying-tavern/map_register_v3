@@ -3,6 +3,11 @@
   src: url('@/style/fonts/genshinFont.woff2') format('woff2');
 }
 
+@font-face {
+  font-family: 'MATH';
+  src: url('@/style/fonts/mathFont.woff2') format('woff2');
+}
+
 .genshin-text {
   font-family: 'MHYG', sans-serif;
 }

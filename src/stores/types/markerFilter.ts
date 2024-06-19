@@ -62,7 +62,8 @@ export type MAFSemanticType =
   'error' |
   'regex' |
   'tag' |
-  'text'
+  'text' |
+  'number'
 
 export interface MAFSemanticUnit {
   type: MAFSemanticType
@@ -154,6 +155,7 @@ export interface MAFMetaDummy extends MAFMeta {
 }
 
 export interface MAFMetaIdRange extends MAFMeta {
+  idRange: (number[] | number)[]
   idSet: Set<number>
 }
 

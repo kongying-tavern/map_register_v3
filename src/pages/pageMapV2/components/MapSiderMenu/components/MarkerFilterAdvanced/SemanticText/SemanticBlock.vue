@@ -1,4 +1,10 @@
 <script lang="ts" setup>
+import {
+  SemanticBlockNumber,
+  SemanticBlockOppositeIndicator,
+  SemanticBlockParenthesis,
+  SemanticBlockText,
+} from '.'
 import type { MAFSemanticUnit } from '@/stores/types'
 
 const props = defineProps<{
@@ -6,7 +12,12 @@ const props = defineProps<{
 }>()
 
 const blockComponent = computed<Component>(() => {
-  return {}[props.block.type]
+  return {
+    'opposite-indicator': SemanticBlockOppositeIndicator,
+    'parenthesis': SemanticBlockParenthesis,
+    'text': SemanticBlockText,
+    'number': SemanticBlockNumber,
+  }[props.block.type]
 })
 </script>
 
