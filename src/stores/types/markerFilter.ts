@@ -201,6 +201,7 @@ export interface MAFMetaItemType extends MAFMeta {
 }
 
 export interface MAFMetaItemName extends MAFMeta {
+  tagList: string[]
   itemIds: Set<number>
 }
 

@@ -22,8 +22,14 @@ export class ItemName implements MAFConfig {
 
   prepare(val: MAFValueString, _opt: MAFOptionInput): MAFMetaItemName {
     const meta: MAFMetaItemName = {
+      tagList: [],
       itemIds: new Set<number>(),
     }
+
+    // 处理物品标签名
+    meta.tagList = val.s
+      .split(',')
+      .filter(v => v)
 
     // 处理物品ID
     if (val.s) {
@@ -40,8 +46,13 @@ export class ItemName implements MAFConfig {
     return meta
   }
 
-  semantic(_val: MAFValueString, _opt: MAFOptionInput, _meta: MAFMetaItemName, _opposite: boolean): MAFSemanticUnit[] {
-    return []
+  semantic(_val: MAFValueString, _opt: MAFOptionInput, meta: MAFMetaItemName, opposite: boolean): MAFSemanticUnit[] {
+    return [
+      { type: 'text', text: '物品名' },
+      opposite ? { type: 'opposite-indicator', text: '不' } : null,
+      { type: 'text', text: '为' },
+      ...meta.tagList.map(tag => ({ type: 'tag', text: tag })),
+    ].filter(v => v) as MAFSemanticUnit[]
   }
 
   filter(_val: MAFValueString, _opt: MAFOptionInput, meta: MAFMetaItemName, marker: API.MarkerVo): boolean {
