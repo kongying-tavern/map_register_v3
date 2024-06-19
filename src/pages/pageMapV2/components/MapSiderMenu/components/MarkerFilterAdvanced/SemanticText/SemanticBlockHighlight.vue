@@ -14,8 +14,10 @@ defineProps<{
 
 <style lang="scss" scoped>
 .sem-highlight {
+  vertical-align: middle;
+  min-height: 1lh;
   border-bottom: var(--gs-color-cancel) .2rem dotted;
-  padding: .1rem .1rem;
+  padding: 0 .3rem;
   margin: 0 .2rem;
   background-color: #f5e192;
 
