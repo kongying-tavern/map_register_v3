@@ -11,7 +11,7 @@ type OptionType = MAFOptionSelect<API.ItemTypeVo>
 
 export class ItemType implements MAFConfig {
   id = 102
-  name = '分类'
+  name = '类别'
   option: ComputedRef<OptionType> = computed(() => {
     const { itemTypeList } = useItemTypeStore()
 
