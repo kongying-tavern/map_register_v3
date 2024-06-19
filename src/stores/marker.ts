@@ -33,6 +33,9 @@ export const useMarkerStore = defineStore('global-marker', () => {
     },
   )
 
+  const singleUpdateHook = createEventHook<API.MarkerVo>()
+  const multiUpdteHook = createEventHook<API.MarkerVo[]>()
+
   liveQuery(() => db.marker.toArray()).subscribe((list) => {
     _markerList.value = list
   })
@@ -57,6 +60,8 @@ export const useMarkerStore = defineStore('global-marker', () => {
       customClass: 'text-[var(--el-color-primary)]',
       offset: 48,
     })
+
+    singleUpdateHook.trigger(markerInfo)
   })
 
   // 单个点位新增
@@ -122,9 +127,13 @@ export const useMarkerStore = defineStore('global-marker', () => {
       customClass: 'text-[var(--el-color-success)]',
       offset: 48,
     })
+
+    multiUpdteHook.trigger(data)
   })
 
   return {
+    onMarkerUpdate: singleUpdateHook.on,
+    onMarkerTweake: multiUpdteHook.on,
     total,
     markerList,
     backendUpdater,
