@@ -21,6 +21,6 @@ defineProps<{
   color: #fff;
   font-weight: normal;
   padding: 0 .4rem;
-  margin: 0 .2rem;
+  margin: 0 .05rem;
 }
 </style>
