@@ -7,18 +7,20 @@ defineProps<{
 </script>
 
 <template>
-  <span class="semantic-block sem-parenthesis">
+  <span class="semantic-block sem-highlight">
     {{ option.text ?? '' }}
   </span>
 </template>
 
 <style lang="scss" scoped>
-.sem-parenthesis {
-  vertical-align: middle;
-  font-family: 'MATH';
-  font-size: 1.6rem;
-  line-height: 1.6;
-  font-weight: bold;
+.sem-highlight {
+  border-bottom: var(--gs-color-cancel) .2rem dotted;
+  padding: .1rem .1rem;
   margin: 0 .2rem;
+  background-color: #f5e192;
+
+  &:hover {
+    background-color: rgb(250, 219, 81);
+  }
 }
 </style>

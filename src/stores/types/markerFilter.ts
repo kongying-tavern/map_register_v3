@@ -62,6 +62,7 @@ export type MAFSemanticType =
   'error' |
   'regex' |
   'tag' |
+  'highlight' |
   'text' |
   'number'
 

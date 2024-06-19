@@ -48,7 +48,6 @@ const semBlocks = computed<MAFSemanticUnit[]>(() => {
         semantic,
       } = child
       if (childIndex > 0)
-      else
         semanticAppend(blocks, cloneDeep(itemOperator ? semUnitAndLogic : semUnitOrLogic))
       if (semantic && typeof semantic === 'function')
         semanticAppend(blocks, ...semantic(value, toValue(option), meta, itemOpposite))
@@ -83,5 +82,9 @@ const semBlocks = computed<MAFSemanticUnit[]>(() => {
   color: var(--color-text);
   border-radius: var(--radius);
   padding: 8px;
+
+  :deep(.semantic-block) {
+    word-wrap: break-all;
+  }
 }
 </style>

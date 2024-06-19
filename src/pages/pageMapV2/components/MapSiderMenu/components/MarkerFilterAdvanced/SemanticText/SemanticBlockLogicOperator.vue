@@ -7,16 +7,16 @@ defineProps<{
 </script>
 
 <template>
-  <span class="semantic-block sem-number">
+  <span class="semantic-block sem-logic-operator">
     {{ option.text ?? '' }}
   </span>
 </template>
 
 <style lang="scss" scoped>
-.sem-number {
-  font-family: 'MATH';
-  font-style: italic;
-  font-size: 1.1rem;
-  margin: 0 .2rem
+.sem-logic-operator {
+  vertical-align: middle;
+  color: #2283a7;
+  margin: 0 .2rem;
+  font-size: 1.2rem;
 }
 </style>

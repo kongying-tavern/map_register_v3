@@ -23,8 +23,13 @@ export class TitleContain implements MAFConfig {
     return {}
   }
 
-  semantic(_val: MAFValueString, _opt: MAFOptionInput, _meta: MAFMetaDummy, _opposite: boolean): MAFSemanticUnit[] {
-    return []
+  semantic(val: MAFValueString, _opt: MAFOptionInput, _meta: MAFMetaDummy, opposite: boolean): MAFSemanticUnit[] {
+    return [
+      { type: 'text', text: '标题' },
+      opposite ? { type: 'opposite-indicator', text: '不' } : null,
+      { type: 'text', text: '包含' },
+      { type: 'highlight', text: val.s },
+    ].filter(v => v) as MAFSemanticUnit[]
   }
 
   filter(val: MAFValueString, _opt: MAFOptionInput, _meta: MAFMetaDummy, marker: API.MarkerVo): boolean {
