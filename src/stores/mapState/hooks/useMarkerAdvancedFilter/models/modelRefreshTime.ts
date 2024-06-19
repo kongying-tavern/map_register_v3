@@ -65,9 +65,9 @@ export class RefreshTime implements MAFConfig {
     ].filter(v => v) as MAFSemanticUnit[]
   }
 
-  filter(val: MAFValueNumberRange, _opt: OptionType, _meta: MAFMetaRefreshTime, marker: API.MarkerVo): boolean {
-    const minVal: number = val.nMin === undefined || val.nMin === null ? Number.NEGATIVE_INFINITY : (val.nMin <= 0 ? val.nMin : val.nMin * 3600 * 1000)
-    const maxVal: number = val.nMax === undefined || val.nMax === null ? Number.POSITIVE_INFINITY : (val.nMax <= 0 ? val.nMax : val.nMax * 3600 * 1000)
+  filter(val: MAFValueNumberRange, _opt: OptionType, meta: MAFMetaRefreshTime, marker: API.MarkerVo): boolean {
+    const minVal: number = meta.isCustom ? (val.nMin === undefined || val.nMin === null ? Number.NEGATIVE_INFINITY : val.nMin * 3600 * 1000) : (val.nMin as number)
+    const maxVal: number = meta.isCustom ? (val.nMax === undefined || val.nMax === null ? Number.POSITIVE_INFINITY : val.nMax * 3600 * 1000) : (val.nMin as number)
     return marker.refreshTime! >= minVal && marker.refreshTime! <= maxVal
   }
 }
