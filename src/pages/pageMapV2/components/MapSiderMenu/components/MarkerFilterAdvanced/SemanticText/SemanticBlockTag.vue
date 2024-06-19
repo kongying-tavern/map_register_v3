@@ -14,6 +14,7 @@ defineProps<{
 
 <style lang="scss" scoped>
 .sem-tag {
+  display: inline-block !important;
   background-color: var(--gs-color-cancel);
   border-radius: .4rem;
   border: 1px solid #ccc;
