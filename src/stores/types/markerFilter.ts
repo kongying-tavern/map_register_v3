@@ -188,6 +188,7 @@ export interface MAFMetaVisibility extends MAFMeta {
 }
 
 export interface MAFMetaArea extends MAFMeta {
+  tagList: string[]
   tag: string
   areaParentIdMap: Record<number, number>
   itemIds: Set<number>
