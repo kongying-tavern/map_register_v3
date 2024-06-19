@@ -56,6 +56,7 @@ export class UndergroundLayer implements MAFConfig {
     const meta: MAFMetaUndergroundLayer = {
       layerKeyMap: {},
       layerNameMap: {},
+      tagList: [],
       tag: '',
     }
 
@@ -96,16 +97,21 @@ export class UndergroundLayer implements MAFConfig {
     })
 
     // 处理标签名
-    meta.tag = val.sa
+    meta.tagList = val.sa
       .map(v => meta.layerNameMap[v])
       .filter(v => v)
-      .join(',')
+    meta.tag = meta.tagList.join(',')
 
     return meta
   }
 
-  semantic(_val: MAFValueStringArray, _opt: OptionType, _meta: MAFMetaUndergroundLayer, _opposite: boolean): MAFSemanticUnit[] {
-    return []
+  semantic(_val: MAFValueStringArray, _opt: OptionType, meta: MAFMetaUndergroundLayer, opposite: boolean): MAFSemanticUnit[] {
+    return [
+      { type: 'text', text: '地下层级' },
+      opposite ? { type: 'opposite-indicator', text: '不' } : null,
+      { type: 'text', text: '属于' },
+      ...meta.tagList.map(tag => ({ type: 'tag', text: tag })),
+    ].filter(v => v) as MAFSemanticUnit[]
   }
 
   filter(val: MAFValueStringArray, _opt: OptionType, _meta: MAFMetaUndergroundLayer, marker: API.MarkerVo): boolean {

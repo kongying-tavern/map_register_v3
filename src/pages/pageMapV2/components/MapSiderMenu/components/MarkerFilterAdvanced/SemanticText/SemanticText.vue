@@ -84,7 +84,7 @@ const semBlocks = computed<MAFSemanticUnit[]>(() => {
   padding: 8px;
 
   :deep(.semantic-block) {
-    display: inline-block;
+    display: inline;
     word-break: break-all;
   }
 }

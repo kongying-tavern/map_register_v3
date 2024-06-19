@@ -173,6 +173,7 @@ export interface MAFMetaUndergroundLayer extends MAFMeta {
     groupName: string
   }[]>
   layerNameMap: Record<string, string>
+  tagList: string[]
   tag: string
 }
 
