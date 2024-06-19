@@ -183,6 +183,7 @@ export interface MAFMetaRefreshTime extends MAFMeta {
 }
 
 export interface MAFMetaVisibility extends MAFMeta {
+  tagList: string[]
   tag: string
 }
 

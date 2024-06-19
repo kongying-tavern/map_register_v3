@@ -32,21 +32,27 @@ export class Visibility implements MAFConfig {
 
   prepare(val: MAFValueNumberArray, _opt: OptionType): MAFMetaVisibility {
     const meta: MAFMetaVisibility = {
+      tagList: [],
       tag: '',
     }
 
     // 处理标签名
     const { hiddenFlagNameMap } = useHiddenFlagOptions()
-    meta.tag = (val.na ?? [])
+    meta.tagList = (val.na ?? [])
       .map(v => hiddenFlagNameMap.value[v ?? ''])
       .filter(v => v)
-      .join(',')
+    meta.tag = meta.tagList.join(',')
 
     return meta
   }
 
-  semantic(_val: MAFValueNumberArray, _opt: OptionType, _meta: MAFMetaVisibility, _opposite: boolean): MAFSemanticUnit[] {
-    return []
+  semantic(_val: MAFValueNumberArray, _opt: OptionType, meta: MAFMetaVisibility, _opposite: boolean): MAFSemanticUnit[] {
+    return [
+      { type: 'text', text: '可见范围' },
+      { type: 'opposite-indicator', text: '不' },
+      { type: 'text', text: '为' },
+      ...meta.tagList.map(tag => ({ type: 'tag', text: tag })),
+    ].filter(v => v) as MAFSemanticUnit[]
   }
 
   filter(val: MAFValueNumberArray, _opt: OptionType, _meta: MAFMetaVisibility, marker: API.MarkerVo): boolean {
