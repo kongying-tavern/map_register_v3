@@ -46,10 +46,10 @@ export class Visibility implements MAFConfig {
     return meta
   }
 
-  semantic(_val: MAFValueNumberArray, _opt: OptionType, meta: MAFMetaVisibility, _opposite: boolean): MAFSemanticUnit[] {
+  semantic(_val: MAFValueNumberArray, _opt: OptionType, meta: MAFMetaVisibility, opposite: boolean): MAFSemanticUnit[] {
     return [
       { type: 'text', text: '可见范围' },
-      { type: 'opposite-indicator', text: '不' },
+      opposite ? { type: 'opposite-indicator', text: '不' } : null,
       { type: 'text', text: '为' },
       ...meta.tagList.map(tag => ({ type: 'tag', text: tag })),
     ].filter(v => v) as MAFSemanticUnit[]
