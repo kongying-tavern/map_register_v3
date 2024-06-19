@@ -1,13 +1,12 @@
 <script lang="ts" setup>
 import { MarkerFilterButton } from '../../MarkerFilterComponent'
 import { NumberRangeBase, SelectBase } from '../FilterModelComponent'
-import type { MAFMetaDummy, MAFOptionRange, MAFOptionSelect, MAFValueNumberRange } from '@/stores/types'
+import type { MAFMetaRefreshTime, MAFOptionRange, MAFOptionSelect, MAFValueNumberRange } from '@/stores/types'
 import { IconTimer } from '@/components/AppIcons'
-import { useRefreshTimeOptions } from '@/hooks'
 
-defineProps<{
+const props = defineProps<{
   options: MAFOptionRange & MAFOptionSelect<{ label: string; value: number }>
-  meta: MAFMetaDummy
+  meta: MAFMetaRefreshTime
 }>()
 
 const modelValue = defineModel<MAFValueNumberRange>('modelValue', {
@@ -18,12 +17,8 @@ const modelValue = defineModel<MAFValueNumberRange>('modelValue', {
   },
 })
 
-const { refreshTimeTypeNameMap } = useRefreshTimeOptions()
-
-const isCustom = computed(() => !(Number.isFinite(modelValue.value.nMin) && Number(modelValue.value.nMin) <= 0 && Number.isFinite(modelValue.value.nMax) && Number(modelValue.value.nMax) <= 0))
-
 const selectValue = computed<number | null>({
-  get: () => isCustom.value ? 12 * 3600 * 1000 : modelValue.value.nMin,
+  get: () => props.meta.isCustom ? 12 * 3600 * 1000 : modelValue.value.nMin,
   set: (value) => {
     if (Number.isFinite(value) && Number(value) <= 0) {
       modelValue.value.nMin = value
@@ -37,9 +32,9 @@ const selectValue = computed<number | null>({
 })
 
 const selectTag = computed(() => {
-  if (isCustom.value)
+  if (props.meta.isCustom)
     return ''
-  return refreshTimeTypeNameMap.value[selectValue.value ?? '']
+  return props.meta.tagNameMap[selectValue.value ?? '']
 })
 </script>
 
@@ -60,7 +55,7 @@ const selectTag = computed(() => {
       </MarkerFilterButton>
     </SelectBase>
     <NumberRangeBase
-      v-if="isCustom"
+      v-if="meta.isCustom"
       v-model:min="modelValue.nMin"
       v-model:max="modelValue.nMax"
       class="flex-auto"

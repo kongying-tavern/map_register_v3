@@ -177,6 +177,11 @@ export interface MAFMetaUndergroundLayer extends MAFMeta {
   tag: string
 }
 
+export interface MAFMetaRefreshTime extends MAFMeta {
+  isCustom: boolean
+  tagNameMap: Record<number, string>
+}
+
 export interface MAFMetaVisibility extends MAFMeta {
   tag: string
 }
