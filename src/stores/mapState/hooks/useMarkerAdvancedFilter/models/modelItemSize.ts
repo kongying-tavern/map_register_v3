@@ -25,8 +25,13 @@ export class ItemSize implements MAFConfig {
     return {}
   }
 
-  semantic(_val: MAFValueNumberRange, _opt: MAFOptionRange, _meta: MAFMetaDummy, _opposite: boolean): MAFSemanticUnit[] {
-    return []
+  semantic(val: MAFValueNumberRange, _opt: MAFOptionRange, _meta: MAFMetaDummy, opposite: boolean): MAFSemanticUnit[] {
+    return [
+      { type: 'text', text: '物品条数' },
+      opposite ? { type: 'opposite-indicator', text: '不' } : null,
+      { type: 'text', text: '为' },
+      { type: 'highlight', text: `${val.nMin ?? '不限'} ~ ${val.nMax ?? '不限'}` },
+    ].filter(v => v) as MAFSemanticUnit[]
   }
 
   filter(val: MAFValueNumberRange, _opt: MAFOptionRange, _meta: MAFMetaDummy, marker: API.MarkerVo): boolean {
