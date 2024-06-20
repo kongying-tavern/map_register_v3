@@ -60,6 +60,9 @@ const createSnapshot = ([width, height]: [number, number], draw: (ctx: Offscreen
  */
 const DEFAULT_TEXTURE_LIMIT = 4096
 
+/** 最大尺寸限制，以避免纹理本体过大影响解析 */
+const MAX_TEXTURE_LIMIT = 8192
+
 /** 内容区相比于图标大小的缩放比，根据 `BORDER_PATH` 的实际情况进行修改 */
 const CONTENT_SCALE = 0.64375
 
@@ -246,7 +249,7 @@ const render = async (options: WorkerInput, logger: Logger): Promise<WorkerSucce
   const oc = new OffscreenCanvas(0, 0)
   const gl = oc.getContext('webgl2') ?? oc.getContext('webgl')
 
-  const textureSizeLimit = (gl?.getParameter(gl.MAX_TEXTURE_SIZE) ?? DEFAULT_TEXTURE_LIMIT)
+  const textureSizeLimit = Math.min(MAX_TEXTURE_LIMIT, gl?.getParameter(gl.MAX_TEXTURE_SIZE) ?? DEFAULT_TEXTURE_LIMIT)
 
   const stateCount = states.length
   const typeCount = types.length
@@ -281,6 +284,7 @@ const render = async (options: WorkerInput, logger: Logger): Promise<WorkerSucce
       return
     // 检查缓存的纹理尺寸是否符合限制要求
     const { width, height } = await createImageBitmap(new Blob([cacheInfo.value.image], { type: 'image/png' }))
+    logger.info({ width, height, textureSizeLimit })
     if (width > textureSizeLimit || height > textureSizeLimit) {
       await db.cache.delete(cacheInfo.id)
       logger.warn('缓存的纹理不符合限制要求，重新生成')

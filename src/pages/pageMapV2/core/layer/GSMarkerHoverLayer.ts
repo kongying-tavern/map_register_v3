@@ -17,9 +17,14 @@ export class GSMarkerHoverLayer extends IconLayer<number> {
       markerDraggingList,
       focus,
       hover,
+      markedMarkers,
       markerSpriteImage,
       markerSpriteMapping,
     } = state
+
+    const isMarked = (id: number) => {
+      return markedMarkers.has(id)
+    }
 
     const getSize = focus?.type === 'defaultMarker'
       ? (id?: number) => focus.value.id === id ? 44 : 36
@@ -35,11 +40,11 @@ export class GSMarkerHoverLayer extends IconLayer<number> {
     const getData = () => {
       const idSet = new Set<number>()
       let ids: number[] | undefined
-      if (focus?.type === 'defaultMarker')
+      if (focus?.type === 'defaultMarker' && markersMap.has(focus.value.id!))
         idSet.add(focus.value.id!)
       if (focus?.type === 'multipleMarkers')
-        focus.value.forEach(id => idSet.add(id))
-      if (hover?.type === 'defaultMarker') {
+        focus.value.forEach(id => markersMap.has(id) && idSet.add(id))
+      if (hover?.type === 'defaultMarker' && markersMap.has(hover.value.id!)) {
         idSet.delete(hover.value.id!)
         ids = [...idSet].sort(sorter)
         ids.push(hover.value.id!) // 确保 hover 在最顶层
@@ -58,8 +63,9 @@ export class GSMarkerHoverLayer extends IconLayer<number> {
       iconMapping: markerSpriteMapping,
       getIcon: (id) => {
         const { render: { isUnderground, mainIconTag } } = markersMap.get(id)!
+        const state = isMarked(id!) ? 'marked' : 'default'
         const type = isUnderground ? 'underground' : 'default'
-        return `${mainIconTag}.hover.${type}`
+        return `${mainIconTag}.${state}.${type}`
       },
       getPosition: (id) => {
         const { render: { position } } = markersMap.get(id)!
