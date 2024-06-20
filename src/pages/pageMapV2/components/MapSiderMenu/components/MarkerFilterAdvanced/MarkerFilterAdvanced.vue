@@ -80,7 +80,7 @@ const handleModelPickerSelected = (id: number) => {
             <MapLocation />
           </el-icon>
         </template>
-        地区
+        地图
       </GSButton>
       <GSButton
         icon="submit"
