@@ -5,15 +5,17 @@ import { useMarkerFocus } from '../../hooks'
 import { MapAffix, MarkerEditPanel } from '..'
 import { MarkerPanel } from './components'
 import { useMarkerDelete, useMarkerExtra, useMarkerFinished, useMarkerMove, useSkeletonPicture } from './hooks'
-import { useAccessStore, useIconTagStore, useMapStateStore } from '@/stores'
+import { useAccessStore, useIconTagStore, useMapStateStore, useMarkerStore } from '@/stores'
 import { CloseFilled } from '@/components/GenshinUI/GSIcon'
 import { AppBilibiliVideoPlayer, AppIconTagRenderer, GSButton } from '@/components'
 import { useGlobalDialog } from '@/hooks'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
+import { createRenderMarkers } from '@/stores/utils'
 
 const accessStore = useAccessStore()
-
+const markerStore = useMarkerStore()
 const mapStateStore = useMapStateStore()
+
 const { tagSpriteUrl, tagPositionMap } = storeToRefs(useIconTagStore())
 
 const { cachedMarkerVo, isPopoverActived, focus, blur, updateFocus } = useMarkerFocus()
@@ -25,6 +27,27 @@ const { isFinished } = useMarkerFinished(cachedMarkerVo)
 const { isMoving, isEnable, position } = useMarkerMove(cachedMarkerVo)
 
 const { isUnderground, hiddenFlagType, refreshTimeType } = useMarkerExtra(cachedMarkerVo)
+
+// 被动点位更新
+markerStore.onMarkerUpdate((marker) => {
+  if (!cachedMarkerVo.value || marker.id !== cachedMarkerVo.value.id)
+    return
+  const renderMarker = createRenderMarkers([marker])[0]
+  updateFocus(renderMarker)
+  cachedMarkerVo.value = renderMarker
+})
+
+markerStore.onMarkerTweake((markers) => {
+  if (!cachedMarkerVo.value)
+    return
+  const findId = cachedMarkerVo.value.id
+  const find = markers.find(({ id }) => findId === id)
+  if (!find)
+    return
+  const renderMarker = createRenderMarkers([find])[0]
+  updateFocus(renderMarker)
+  cachedMarkerVo.value = renderMarker
+})
 
 // ==================== 编辑点位 ====================
 const { DialogService } = useGlobalDialog()
