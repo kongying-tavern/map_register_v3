@@ -27,6 +27,21 @@ socketStore.event.on('UserKickedOut', () => {
     duration: 0,
   })
 })
+
+// 应用刷新
+socketStore.event.on('AppUpdated', () => {
+  const delay = 5 * 60 * 1000 // 5 分钟后刷新
+  const time = new Date(Date.now() + delay).toLocaleTimeString('zh-CN', { hour12: false })
+  ElNotification({
+    message: `网站已更新，将于 ${time} 进行刷新`,
+    type: 'info',
+    position: 'bottom-right',
+    duration: 0,
+  })
+  window.setTimeout(() => {
+    window.location.reload()
+  }, delay)
+})
 </script>
 
 <template>
