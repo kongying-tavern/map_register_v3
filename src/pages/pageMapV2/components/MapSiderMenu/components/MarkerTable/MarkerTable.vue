@@ -8,11 +8,14 @@ const iconTagStore = useIconTagStore()
 const mapStateStore = useMapStateStore()
 
 const { hover: hoveredMarker, focus: focusedMarker, focusMarker, hoverMarker } = useMarkerFocus()
+
+/** 由于地图依赖点位排序来控制遮挡顺序，这里按 id 升序重新排序 */
+const resortedMarkers = computed(() => mapStateStore.currentLayerMarkers.toSorted((a, b) => a.id! - b.id!))
 </script>
 
 <template>
   <div class="marker-filter h-full">
-    <div v-if="!mapStateStore.currentLayerMarkers.length" class="h-full grid place-items-center content-center text-white genshin-text">
+    <div v-if="!resortedMarkers.length" class="h-full grid place-items-center content-center text-white genshin-text">
       <img class="w-60 h-60" src="/icons/qiliangliang.png">
       <div>没有符合条件的点位</div>
     </div>
@@ -20,7 +23,7 @@ const { hover: hoveredMarker, focus: focusedMarker, focusMarker, hoverMarker } =
     <AppVirtualTable
       v-else
       always-scrollbar
-      :data="mapStateStore.currentLayerMarkers"
+      :data="resortedMarkers"
       :item-height="60"
       :cached-rows="2"
       :scrollbar-style="{
