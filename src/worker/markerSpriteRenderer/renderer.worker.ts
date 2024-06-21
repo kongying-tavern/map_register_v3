@@ -221,7 +221,7 @@ const createMapping = ({
 
   logger.info('生成 mapping', { total, tagCount })
 
-  return mapping
+  return { mapping, total, tagCount }
 }
 
 /**
@@ -277,28 +277,38 @@ const render = async (options: WorkerInput, logger: Logger): Promise<WorkerSucce
     unitH,
   }
 
+  const { mapping, total: mappingTotal } = createMapping(mappingOptions, logger)
+
   // 如果存在缓存，则跳过绘制步骤，只生成 mapping
   const cache = await (async () => {
     const cacheInfo = await db.cache.get('markerSprite')
     if (!cacheInfo || cacheInfo.id !== 'markerSprite' || cacheInfo.value.tagSpriteDigest !== tagSpriteDigest)
       return
-    // 检查缓存的纹理尺寸是否符合限制要求
+
     const { width, height } = await createImageBitmap(new Blob([cacheInfo.value.image], { type: 'image/png' }))
-    logger.info({ width, height, textureSizeLimit })
-    if (width > textureSizeLimit || height > textureSizeLimit) {
+
+    const message = (() => {
+      if (width > textureSizeLimit || height > textureSizeLimit)
+        return '缓存的纹理不符合限制要求'
+      if (width !== canvasW || height !== canvasH)
+        return '纹理尺寸不统一'
+      if (Object.keys(cacheInfo.value.mapping).length !== mappingTotal)
+        return '状态总数不统一'
+    })()
+
+    if (message) {
       await db.cache.delete(cacheInfo.id)
-      logger.warn('缓存的纹理不符合限制要求，重新生成')
+      logger.warn(message)
       return
     }
-    logger.info('缓存有效，跳过预渲染')
-    return {
-      image: cacheInfo.value.image,
-      mapping: createMapping(mappingOptions, logger),
-      tagSpriteDigest,
-    }
+
+    return cacheInfo.value
   })()
-  if (cache)
+
+  if (cache) {
+    logger.info('缓存有效，跳过预渲染')
     return cache
+  }
 
   logger.info('编排画板', { w: canvasW, h: canvasH, unitW, unitH, cols, rows, textureSizeLimit })
 
@@ -361,8 +371,6 @@ const render = async (options: WorkerInput, logger: Logger): Promise<WorkerSucce
   // 转换为图片
   const image = await (await canvas.convertToBlob()).arrayBuffer()
   logger.info('绘制结果', { cols, rows, canvasW, canvasH, byteLength: image.byteLength })
-
-  const mapping = createMapping(mappingOptions, logger)
 
   // 更新缓存
   const digest = await getDigest(image, 'SHA-256')
