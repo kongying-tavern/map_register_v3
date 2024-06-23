@@ -121,6 +121,7 @@ export const useMarkerAdvancedFilter = (options: MarkerAdvancedFilterHookOptions
           if (prepare && typeof prepare === 'function')
             meta = prepare(value, toValue(option))
           itemComposed.push({
+            key: crypto.randomUUID(),
             id,
             operator: itemOperator,
             opposite: itemOpposite,
@@ -133,6 +134,7 @@ export const useMarkerAdvancedFilter = (options: MarkerAdvancedFilterHookOptions
         })
 
         groupComposed.push({
+          key: crypto.randomUUID(),
           operator: groupOperator,
           opposite: groupOpposite,
           children: itemComposed,

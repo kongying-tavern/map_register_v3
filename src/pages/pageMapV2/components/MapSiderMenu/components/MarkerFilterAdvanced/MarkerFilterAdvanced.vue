@@ -106,6 +106,7 @@ const handleModelPickerSelected = (id: number) => {
       <AppDraggableTable
         v-model="mapStateStore.markerAdvancedComposed"
         class="h-full flex flex-col gap-2"
+        :get-key="g => g.key"
       >
         <template
           #default="{

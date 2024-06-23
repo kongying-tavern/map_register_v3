@@ -137,6 +137,7 @@ const handleAppendItem = () => {
       v-if="composedConditionValue.children.length > 0"
       v-model="composedConditionValue.children"
       class="flex flex-col gap-1"
+      :get-key="i => i.key"
     >
       <template #default="{ item, index: itemIndex, isGrabbing: isItemGrabbing, isDragging: isItemDragging }">
         <slot

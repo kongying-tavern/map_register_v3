@@ -39,12 +39,14 @@ export interface MAFItem {
 }
 
 export interface MAFGroupComposed {
+  key: string
   operator: boolean
   opposite: boolean
   children: MAFItemComposed[]
 }
 
 export interface MAFItemComposed {
+  key: string
   id: number
   operator: boolean
   opposite: boolean
