@@ -1,10 +1,9 @@
-import type { IconMapping } from '@deck.gl/layers/typed/icon-layer/icon-manager'
-import type { Texture } from '@deck.gl/core/typed'
+import type { IconLayerProps } from '@deck.gl/layers'
 import type { AreaTileConfig, OverlayChunk } from '@/stores'
 import type { AreaTagTuple } from '@/configs'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
 
-export interface GSCompositeLayerState {
+export interface GSCompositeLayerState extends Record<string, unknown> {
   areaCode?: string
   tileConfig?: AreaTileConfig
   isViewPortChanging: boolean
@@ -18,8 +17,8 @@ export interface GSCompositeLayerState {
   markersIds: number[]
   markerDraggingMap: Record<number, API.Coordinate2D>
   markerDraggingList: { id: string; position: API.Coordinate2D }[]
-  markerSpriteImage: string | Texture
-  markerSpriteMapping: IconMapping
+  markerSpriteImage: IconLayerProps['iconAtlas']
+  markerSpriteMapping: IconLayerProps['iconMapping']
   markedMarkers: Set<number>
   markerLinkRenderList: GSMapState.MLRenderUnit[]
   archiveHash: string

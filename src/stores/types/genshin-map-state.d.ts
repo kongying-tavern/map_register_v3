@@ -1,9 +1,10 @@
-import type { OrbitViewState } from '@deck.gl/core/typed'
+import type { OrthographicViewState } from '@deck.gl/core'
 import type { LinkActionEnum } from '@/shared'
 
 declare namespace GSMapState {
   /** 地图视口状态 */
-  interface ViewState extends Omit<OrbitViewState, 'target'> {
+  interface ViewState extends Omit<OrthographicViewState, 'target'> {
+    zoom: number
     minZoom: number
     maxZoom: number
     target: API.Coordinate2D

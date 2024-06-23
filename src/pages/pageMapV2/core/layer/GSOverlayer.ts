@@ -1,6 +1,6 @@
-import { BitmapLayer, SolidPolygonLayer } from '@deck.gl/layers/typed'
-import type { LayersList } from '@deck.gl/core/typed'
-import { CompositeLayer } from '@deck.gl/core/typed'
+import { BitmapLayer, SolidPolygonLayer } from '@deck.gl/layers'
+import type { LayersList } from '@deck.gl/core'
+import { CompositeLayer } from '@deck.gl/core'
 import type { GSCompositeLayerState } from '.'
 
 /** 拖拽指示线图层 */

@@ -1,4 +1,4 @@
-import { LinearInterpolator } from '@deck.gl/core/typed'
+import { LinearInterpolator } from '@deck.gl/core'
 
 /** 缓动插值器 */
 export class EaseoutInterpolator extends LinearInterpolator {

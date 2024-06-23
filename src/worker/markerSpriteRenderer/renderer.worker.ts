@@ -1,4 +1,4 @@
-import type { IconMapping } from '@deck.gl/layers/typed/icon-layer/icon-manager'
+import type { IconLayerProps } from '@deck.gl/layers'
 import type { Logger } from '@/utils/logger'
 import { WorkerThreadDB } from '@/database/db/worker'
 import { getDigest } from '@/utils/getDigest'
@@ -189,7 +189,7 @@ const createMapping = ({
 }: MppingOptions, logger: Logger) => {
   // 关于 key 的格式
   // `${tag}.${state}.${type}`
-  const mapping: IconMapping = {}
+  const mapping: IconLayerProps['iconMapping'] = {}
 
   let total = 0
   let tagCount = 0

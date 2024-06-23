@@ -1,4 +1,4 @@
-import { IconLayer } from '@deck.gl/layers/typed'
+import { IconLayer } from '@deck.gl/layers'
 import type { GSCompositeLayerState, LayerAttachOptions } from '.'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
 

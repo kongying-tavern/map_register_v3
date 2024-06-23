@@ -1,4 +1,4 @@
-import { LineLayer } from '@deck.gl/layers/typed'
+import { LineLayer } from '@deck.gl/layers'
 import type { GSCompositeLayerState } from '.'
 
 /** 拖拽指示线图层 */

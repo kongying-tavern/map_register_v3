@@ -1,4 +1,4 @@
-import { PolygonLayer } from '@deck.gl/layers/typed'
+import { PolygonLayer } from '@deck.gl/layers'
 import type { GSCompositeLayerState, LayerAttachOptions } from '.'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
 import { LINK_ACTION_CONFIG } from '@/shared'

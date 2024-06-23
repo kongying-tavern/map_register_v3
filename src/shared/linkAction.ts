@@ -1,4 +1,4 @@
-import type { Color } from '@deck.gl/core/typed'
+import type { Color } from '@deck.gl/core'
 
 /** 点位关联行为枚举 */
 export enum LinkActionEnum {

@@ -1,5 +1,5 @@
-import { BitmapLayer } from '@deck.gl/layers/typed'
-import { TileLayer } from '@deck.gl/geo-layers/typed'
+import { BitmapLayer } from '@deck.gl/layers'
+import { TileLayer } from '@deck.gl/geo-layers'
 import type { GSCompositeLayerState } from '.'
 
 interface TileData {

@@ -1,5 +1,5 @@
-import { LinearInterpolator, OrthographicController } from '@deck.gl/core/typed'
-import type { ControllerProps } from '@deck.gl/core/typed/controllers/controller'
+import type { ControllerProps } from '@deck.gl/core'
+import { LinearInterpolator, OrthographicController } from '@deck.gl/core'
 import { usePreferenceStore } from '@/stores'
 
 /** @inject 此控制器包含来自 `usePreferenceStore` 的依赖注入 */

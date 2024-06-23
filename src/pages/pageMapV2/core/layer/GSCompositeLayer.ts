@@ -1,5 +1,5 @@
-import type { LayersList, UpdateParameters } from '@deck.gl/core/typed'
-import { CompositeLayer } from '@deck.gl/core/typed'
+import type { LayersList, UpdateParameters } from '@deck.gl/core'
+import { CompositeLayer } from '@deck.gl/core'
 import type { GenshinMap } from '../map'
 import { EaseoutInterpolator } from '../interpolator'
 import type { GSCompositeLayerState } from './GSCompositeLayerTypes'
@@ -233,7 +233,7 @@ export class GSCompositeLayer extends CompositeLayer {
   }
 
   /** @生命周期 确认更新 */
-  shouldUpdateState({ changeFlags }: UpdateParameters<GSCompositeLayer>): boolean {
+  shouldUpdateState({ changeFlags }: UpdateParameters<CompositeLayer>): boolean {
     return changeFlags.somethingChanged
   }
 

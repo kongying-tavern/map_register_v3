@@ -1,4 +1,4 @@
-import type { PickingInfo } from '@deck.gl/core/typed'
+import type { PickingInfo } from '@deck.gl/core'
 import { useMapStateStore } from '@/stores'
 import { mapWindowContext as windowCtx } from '@/pages/pageMapV2/components'
 import { GSMarkerHoverLayer } from '@/pages/pageMapV2/core/layer'
@@ -352,7 +352,7 @@ export class MLContext {
 
     // 当没有源点时，设置源点
     if (this.sourceMarker.value === undefined) {
-      const marker = this.mapStateStore.currentLayerMarkersMap[info.object as number]
+      const marker = this.mapStateStore.currentMarkerIdMap.get(info.object as number)
       if (!marker)
         throw new Error('源点位不在地图上')
       await this.selectSourceMarker(marker)
@@ -365,7 +365,7 @@ export class MLContext {
 
     // 当没有目标点时，设置目标点
     if (this.targetMarker.value === undefined) {
-      const marker = this.mapStateStore.currentLayerMarkersMap[info.object as number]
+      const marker = this.mapStateStore.currentMarkerIdMap.get(info.object as number)
       if (!marker)
         throw new Error('目标点位不在地图上')
       await this.selectTargetMarker(marker)

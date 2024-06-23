@@ -1,20 +1,19 @@
-import type { DeckProps } from '@deck.gl/core/typed'
+import type { DeckProps } from '@deck.gl/core'
+import type { OrthographicView } from '@deck.gl/core'
 import type { GenshinMap } from '../core'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
 
 declare namespace GSMap {
-  type ExtractParamters<T extends keyof DeckProps> = Parameters<NonNullable<DeckProps[T]>>
-
   interface ConstructorOptions extends DeckProps {
     canvas: HTMLCanvasElement
   }
 
   interface EventMap {
-    hover: ExtractParamters<'onHover'>
-    click: ExtractParamters<'onClick'>
-    dragStart: ExtractParamters<'onDragStart'>
-    drag: ExtractParamters<'onDrag'>
-    viewStateChange: ExtractParamters<'onViewStateChange'>
+    hover: Parameters<NonNullable<DeckProps<OrthographicView>['onHover']>>
+    click: Parameters<NonNullable<DeckProps<OrthographicView>['onClick']>>
+    dragStart: Parameters<NonNullable<DeckProps<OrthographicView>['onDragStart']>>
+    drag: Parameters<NonNullable<DeckProps<OrthographicView>['onDrag']>>
+    viewStateChange: Parameters<NonNullable<DeckProps<OrthographicView>['onViewStateChange']>>
     load: [map: GenshinMap]
     setViewState: [state: Partial<GSMapState.ViewState>]
   }
