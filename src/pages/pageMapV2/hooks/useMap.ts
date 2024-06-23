@@ -9,10 +9,20 @@ const logger = new Logger('地图')
 const mapRef = shallowRef<GenshinMap>()
 
 const initMap = async (canvas: HTMLCanvasElement) => {
-  const newMap = await GenshinMap.create({ canvas })
-  await newMap.ready
-  mapRef.value = newMap
-  logger.info('地图已准备就绪', newMap)
+  const instance = await GenshinMap.create({ canvas })
+
+  await instance.ready
+  mapRef.value = instance
+
+  logger.info('地图已准备就绪', instance)
+
+  canvas.addEventListener('webglcontextlost', () => {
+    instance.finalize()
+  }, { once: true })
+
+  canvas.addEventListener('webglcontextrestored', () => {
+    initMap(canvas)
+  }, { once: true })
 }
 
 export const useMap = (canvasRef?: Ref<HTMLCanvasElement | null>) => {
