@@ -1,4 +1,4 @@
-import { TRANSITION_EVENTS } from '@deck.gl/core/typed'
+import { TRANSITION_EVENTS } from '@deck.gl/core'
 import type { ShallowRef } from 'vue'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
 import { TRANSITION } from '@/pages/pageMapV2/shared'
@@ -14,11 +14,7 @@ interface ViewStateHookOptions {
 export const useViewState = (options: ViewStateHookOptions) => {
   const { event, preferenceStore } = options
 
-  const viewState = shallowRef<GSMapState.ViewState>({
-    maxRotationX: 90,
-    minRotationX: -90,
-    rotationX: 0,
-    rotationOrbit: 0,
+  const viewState = ref<GSMapState.ViewState>({
     zoom: -4,
     minZoom: -4,
     maxZoom: 2,
@@ -29,7 +25,7 @@ export const useViewState = (options: ViewStateHookOptions) => {
   })
 
   event.on('viewStateChange', ({ viewState: newViewState }) => {
-    viewState.value = newViewState as GSMapState.ViewState
+    Object.assign(viewState.value, newViewState)
   })
 
   const setViewState = (state: Partial<GSMapState.ViewState>) => {

@@ -1,11 +1,11 @@
-import { Deck, OrthographicView } from '@deck.gl/core/typed'
+import { Deck, OrthographicView } from '@deck.gl/core'
 import { GSMapController } from '../controllers'
 import { GSCompositeLayer } from '../layer'
 import { loadFonts } from '../utils'
 import { useMapStateStore } from '@/stores'
 import type { GSMap } from '@/pages/pageMapV2/types/map'
 
-export class GenshinMap extends Deck {
+export class GenshinMap extends Deck<OrthographicView> {
   static create = async (options: GSMap.ConstructorOptions) => {
     await loadFonts()
     return new this(options)
@@ -21,6 +21,16 @@ export class GenshinMap extends Deck {
     const { canvas, ...rest } = options
 
     const mapStateStore = useMapStateStore()
+
+    const {
+      maxZoom,
+      minZoom,
+      zoom,
+      target,
+      transitionDuration,
+      transitionEasing,
+      transitionInterruption,
+    } = mapStateStore.viewState
 
     super({
       ...rest,
@@ -39,7 +49,15 @@ export class GenshinMap extends Deck {
         },
       }),
       layers: [new GSCompositeLayer()],
-      initialViewState: mapStateStore.viewState,
+      initialViewState: {
+        maxZoom,
+        minZoom,
+        zoom,
+        target,
+        transitionDuration,
+        transitionEasing,
+        transitionInterruption,
+      },
       getCursor: ({ isDragging, isHovering }) => {
         return mapStateStore.cursor !== undefined
           ? mapStateStore.cursor
@@ -49,21 +67,14 @@ export class GenshinMap extends Deck {
               ? 'pointer'
               : 'inherit'
       },
-      onViewStateChange: ({ viewState, oldViewState, ...rest }) => {
+      onViewStateChange: (params) => {
         if (mapStateStore.isViewPortLocked)
-          return oldViewState
-        // TODO 由于使用 initialViewState 作为视口状态，
-        // 导致 map 的视口状态由 view 自行管理，
-        // 因此需要 hack 部分不受控的属性，比如 minZoom、maxZoom。
-        for (const key in viewState) {
-          if (typeof viewState[key] !== 'number')
-            continue
-          if (Number.isFinite(viewState[key]))
-            continue
-          viewState[key] = mapStateStore.viewState[key as keyof typeof mapStateStore.viewState]
-        }
-        mapStateStore.event.emit('viewStateChange', { viewState, oldViewState, ...rest })
-        return viewState
+          return params.oldViewState
+        const { viewState: { maxZoom: _, minZoom: __, ...rest } } = params
+        const { maxZoom, minZoom } = mapStateStore.viewState
+        Object.assign(params.viewState, { ...rest, maxZoom, minZoom })
+        mapStateStore.event.emit('viewStateChange', params)
+        return params.viewState
       },
       onHover: (...args) => {
         mapStateStore.event.emit('hover', ...args)
@@ -86,44 +97,25 @@ export class GenshinMap extends Deck {
       mapStateStore.event.once('load', resolve)
     })
 
-    this.setProps = (...[props]: Parameters<Deck['setProps']>) => {
-      if (props.viewState) {
-        props.viewState = {
-          ...mapStateStore.viewState,
-          ...props.viewState,
-        }
-      }
-      super.setProps(props)
-    }
-
     mapStateStore.event.on('setViewState', this.setViewState)
 
-    this.mapStateStore = mapStateStore
+    this.#mapStateStore = mapStateStore
   }
 
   finalize = () => {
-    this.mapStateStore.event.off('setViewState', this.setViewState)
+    this.#mapStateStore.event.off('setViewState', this.setViewState)
     super.finalize()
   }
 
-  protected mapStateStore: ReturnType<typeof useMapStateStore>
+  #mapStateStore: ReturnType<typeof useMapStateStore>
 
   readonly ready: Promise<GenshinMap>
 
-  readonly getViewController = () => {
-    return this.viewManager?.controllers[GenshinMap.ID.main] as GSMapController | undefined
-  }
-
-  readonly getViewManage = () => {
-    return this.viewManager
-  }
-
-  readonly setViewState = (...[state]: GSMap.EventMap['setViewState']) => {
-    const { target, zoom } = this.getViewManage()?.getViewState(GenshinMap.ID.main) ?? {}
-    const fullState = { target, zoom, ...state }
+  setViewState = (...[state]: GSMap.EventMap['setViewState']) => {
+    const mergedState = Object.assign({}, this.#mapStateStore.viewState, state)
     this.setProps({
-      initialViewState: fullState,
+      initialViewState: mergedState,
     })
-    this.mapStateStore.setViewState(fullState)
+    this.#mapStateStore.setViewState(mergedState)
   }
 }
