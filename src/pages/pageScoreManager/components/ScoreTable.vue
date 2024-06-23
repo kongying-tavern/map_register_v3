@@ -20,7 +20,7 @@ const { height } = useElementSize(tableRef)
     >
       <el-table-column align="center" label="用户">
         <el-table-column align="center" label="ID" prop="userId" width="60px" />
-        <el-table-column align="center" label="QQ" prop="user.qq" width="130px" />
+        <el-table-column align="center" label="用户名" prop="user.username" width="130px" />
         <el-table-column align="center" label="昵称" prop="user.nickname" width="200px" />
       </el-table-column>
       <el-table-column align="center" label="字数统计">
