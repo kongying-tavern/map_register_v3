@@ -1,7 +1,9 @@
 <script lang="ts" setup>
 import { ArrowDownBold, ArrowUpBold, DeleteFilled } from '@element-plus/icons-vue'
+import type { MaybeComputedRef } from '@vueuse/core'
 import { MarkerFilterButton } from '../MarkerFilterComponent'
 import type { MAFGroupComposed } from '@/stores/types'
+import { AppDraggableTable } from '@/components'
 
 const props = defineProps<{
   disabled?: boolean
@@ -9,7 +11,7 @@ const props = defineProps<{
   isLast?: boolean
   withMoveUp?: boolean
   withMoveDown?: boolean
-  composedCondition: MAFGroupComposed
+  composedCondition: MaybeComputedRef<MAFGroupComposed>
 }>()
 
 const emits = defineEmits<{
@@ -20,6 +22,8 @@ const emits = defineEmits<{
   deleteGroup: []
   appendItem: []
 }>()
+
+const composedConditionValue = computed(() => toValue(props.composedCondition))
 
 const handleSwitchOperator = () => {
   if (props.disabled)
@@ -84,12 +88,12 @@ const handleAppendItem = () => {
           @click="handleSwitchOperator"
         >
           <template #icon>
-            {{ composedCondition.operator ? '且' : '或' }}
+            {{ composedConditionValue.operator ? '且' : '或' }}
           </template>
         </MarkerFilterButton>
         <MarkerFilterButton
           theme="dark"
-          :icon-color="composedCondition.opposite ? 'var(--gs-color-confirm)' : 'var(--gs-color-text)'"
+          :icon-color="composedConditionValue.opposite ? 'var(--gs-color-confirm)' : 'var(--gs-color-text)'"
           @click="handleToggleOpposite"
         >
           <template #icon>
@@ -129,17 +133,23 @@ const handleAppendItem = () => {
       </div>
     </div>
 
-    <div
-      v-for="(item, itemIndex) in composedCondition.children"
-      :key="itemIndex"
-      class="condition-item flex"
+    <AppDraggableTable
+      v-if="composedConditionValue.children.length > 0"
+      v-model="composedConditionValue.children"
+      class="flex flex-col gap-1"
     >
-      <slot
-        :composed-condition="item"
-        :index="itemIndex"
-        :size="composedCondition.children.length"
-      />
-    </div>
+      <template #default="{ item, index: itemIndex, isGrabbing: isItemGrabbing, isDragging: isItemDragging }">
+        <slot
+          :composed-condition="item"
+          :index="itemIndex"
+          :size="composedConditionValue.children.length"
+          :is-first="itemIndex <= 0"
+          :is-last="itemIndex >= composedConditionValue.children.length - 1"
+          :is-grabbing="isItemGrabbing"
+          :is-dragging="isItemDragging"
+        />
+      </template>
+    </AppDraggableTable>
   </div>
 </template>
 
@@ -153,12 +163,5 @@ const handleAppendItem = () => {
   border-radius: var(--radius);
   background-color: var(--color-light);
   color: var(--color-dark);
-}
-
-.condition-item {
-  border-radius: calc(var(--height) / 2);
-  background-color: #E6E3DE;
-  font-size: 14px;
-  padding: 2px 4px;
 }
 </style>
