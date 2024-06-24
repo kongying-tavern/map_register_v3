@@ -4,8 +4,8 @@ import { FilterModel } from './FilterModel'
 import {
   MapTilePicker,
   ModelComponent,
+  ModelItem,
   ModelPicker,
-  ModelRow,
   SemanticText,
 } from '.'
 import { useMapStateStore } from '@/stores'
@@ -116,7 +116,7 @@ const handleModelPickerSelected = (id: number) => {
             isDragging: isGroupDragging,
           }"
         >
-          <ModelRow
+          <ModelItem
             class="sort-group"
             :class="{
               'is-grabbing': isGroupGrabbing,
@@ -163,7 +163,7 @@ const handleModelPickerSelected = (id: number) => {
                 />
               </ModelComponent>
             </template>
-          </ModelRow>
+          </ModelItem>
         </template>
       </AppDraggableTable>
     </el-scrollbar>
