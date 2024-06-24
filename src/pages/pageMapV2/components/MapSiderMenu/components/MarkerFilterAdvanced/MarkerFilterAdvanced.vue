@@ -98,7 +98,7 @@ const handleModelPickerSelected = (id: number) => {
       </GSButton>
     </div>
   </div>
-  <div class="flex-3 py-1 overflow-hidden sort-list">
+  <div class="flex-3 py-1 overflow-hidden">
     <el-scrollbar class="px-2" height="100%">
       <ModelGroup
         v-model="mapStateStore.markerAdvancedComposed"
@@ -167,46 +167,3 @@ const handleModelPickerSelected = (id: number) => {
     @select="handleModelPickerSelected"
   />
 </template>
-
-<style lang="scss" scoped>
-.sort-list {
-  :deep(.sort-group) {
-    position: relative;
-    &:not(.is-dragging) {
-      // cursor: pointer;
-    }
-
-    --border-color: transparent;
-    &:not(.is-dragging):hover {
-      --border-color: var(--gs-color-cancel);
-    }
-    &:not(.is-dragging):active {
-      --border-color: transparent;
-    }
-    &.is-grabbing {
-      --border-color: var(--gs-color-confirm);
-    }
-
-    &::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border: 3px solid var(--border-color);
-      border-radius: 1rem;
-    }
-  }
-
-  // TODO: 后续优化拖动样式
-  :deep(.sort-item) {
-    &:not(.is-dragging):hover {
-      background: orange;
-    }
-    &:not(.is-dragging):active {
-      background: black;
-    }
-    &.is-grabbing {
-      background: blue;
-    }
-  }
-}
-</style>

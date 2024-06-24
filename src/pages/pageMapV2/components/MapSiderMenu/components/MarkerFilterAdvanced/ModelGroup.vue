@@ -28,7 +28,7 @@ const openPicker = (groupIndex: number) => {
 <template>
   <AppDraggableTable
     v-model="modelValue"
-    class="h-full flex flex-col gap-2"
+    class="h-full flex flex-col gap-2 sort-list"
     :get-key="g => g.key"
   >
     <template
@@ -84,3 +84,55 @@ const openPicker = (groupIndex: number) => {
     </template>
   </AppDraggableTable>
 </template>
+
+<style lang="scss" scoped>
+.sort-list {
+  :deep(.sort-group) {
+    position: relative;
+    user-select: none;
+
+    &:not(.is-dragging) {
+      cursor: pointer;
+    }
+
+    --border-color: transparent;
+    &:has(.sort-item:not(.is-dragging):hover),
+    &:has(.sort-item:not(.is-dragging):active),
+    &:has(.sort-item.is-grabbing) {
+      --border-color: transparent !important;
+    }
+    &:not(.is-dragging):hover {
+      --border-color: color(from var(--gs-color-cancel) srgb r g b / 0.5);
+    }
+    &:not(.is-dragging):active {
+      --border-color: color(from var(--gs-color-cancel) srgb r g b / 0.3);;
+    }
+    &.is-grabbing {
+      --border-color: color(from var(--gs-color-cancel) srgb r g b / 0.8);
+    }
+    &::after {
+      pointer-events: none;
+      content: '';
+      position: absolute;
+      inset: 0;
+      border: 3px solid var(--border-color);
+      border-radius: 1rem;
+    }
+  }
+
+  // TODO: 后续优化拖动样式
+  :deep(.sort-item) {
+    user-select: none;
+
+    &:not(.is-dragging):hover {
+      box-shadow: 0 0 6px var(--gs-color-cancel);
+    }
+    &:not(.is-dragging):active {
+      box-shadow: none;
+    }
+    &.is-grabbing {
+      box-shadow: 0 0 6px var(--gs-color-confirm);
+    }
+  }
+}
+</style>
