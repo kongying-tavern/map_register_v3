@@ -1,7 +1,7 @@
 import type { PickingInfo } from '@deck.gl/core'
 import { useMapStateStore } from '@/stores'
 import { mapWindowContext as windowCtx } from '@/pages/pageMapV2/components'
-import { GSMarkerHoverLayer } from '@/pages/pageMapV2/core/layer'
+import { GSMarkerLayer } from '@/pages/pageMapV2/core/layer'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
 import db from '@/database'
 import { LinkActionEnum } from '@/shared'
@@ -147,7 +147,7 @@ export class MLContext {
       return
     }
     // 清理 focus 及其副作用
-    this.setMarkerFocus(null)
+    this.removeMarkerFocus()
     // 暂停 focus 交互，点击事件交由该上下文处理
     this.pauseFocus()
     // 注册点击事件处理器
@@ -248,15 +248,11 @@ export class MLContext {
     this.pauseSync = pauseSync
     this.resumeSync = resumeSync
 
-    // 订阅 focus 交互
-    const {
-      pause: pauseFocus,
-      resume: resumeFocus,
-      update: setMarkerFocus,
-    } = this.mapStateStore.subscribeInteractionInfo('focus', 'defaultMarker')
+    const { pauseFocus, resumeFocus, addFocus, removeFocus } = this.mapStateStore
 
-    this.pauseFocus = pauseFocus
-    this.setMarkerFocus = setMarkerFocus
+    this.pauseFocus = () => pauseFocus('marker')
+    this.setMarkerFocus = (id: number) => addFocus<number>('marker', id)
+    this.removeMarkerFocus = () => removeFocus('marker')
 
     // 将点位关联任务渲染到地图上
     const {
@@ -276,7 +272,7 @@ export class MLContext {
 
     // 任务结束时清理状态
     onClear(() => {
-      resumeFocus()
+      resumeFocus('marker')
       this.mapStateStore.setIsPopoverOnHover(false)
       this.mapStateStore.setMLRenderList([])
       this.mapStateStore.event.off('click', this.handleMapClick)
@@ -294,7 +290,8 @@ export class MLContext {
   protected updateMission: (value: API.MarkerLinkageVo[] | null) => void
 
   protected pauseFocus: () => void
-  protected setMarkerFocus: (value: GSMapState.MarkerWithRenderConfig | null) => void
+  protected setMarkerFocus: (id: number) => void
+  protected removeMarkerFocus: () => void
 
   protected pauseRender: () => void
   protected resumeRender: () => void
@@ -345,7 +342,7 @@ export class MLContext {
       return
 
     // 点击对象不为点位时，取消当前选择项
-    if (!(info.sourceLayer instanceof GSMarkerHoverLayer)) {
+    if (!(info.sourceLayer instanceof GSMarkerLayer)) {
       this.cancelSelect()
       return
     }

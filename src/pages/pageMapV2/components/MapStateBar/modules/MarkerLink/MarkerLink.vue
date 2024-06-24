@@ -28,7 +28,7 @@ const showDeleted = computed({
 
 const mapStateStore = useMapStateStore()
 
-const { data, update: updateLinkHover } = mapStateStore.subscribeInteractionInfo('hover', 'defaultMarkerLink')
+const { addHover, isHover, removeHover } = mapStateStore
 
 const { refresh: submit } = useLinkCreate(props.context)
 
@@ -73,11 +73,11 @@ const mapAffixLayerRef = inject(mapAffixLayerKey, ref(null))
           :key="key"
           class="link-item"
           :class="{
-            'is-hover': data?.key === key,
+            'is-hover': isHover<string>('markerLink', key),
             'is-delete': isDelete,
           }"
-          @pointerenter="() => updateLinkHover({ key, source: fromId, target: toId, type: linkAction })"
-          @pointerleave="() => updateLinkHover(null)"
+          @pointerenter="() => addHover<string>('markerLink', key, true)"
+          @pointerleave="() => removeHover<string>('markerLink', key)"
         >
           <span class="flex-1 text-center">
             {{ `${mapStateStore.currentMarkerIdMap.get(fromId!)?.markerTitle}` }}
