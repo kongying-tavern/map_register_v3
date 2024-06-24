@@ -4,12 +4,12 @@ import { FilterModel } from './FilterModel'
 import {
   MapTilePicker,
   ModelComponent,
-  ModelItem,
+  ModelGroup,
   ModelPicker,
   SemanticText,
 } from '.'
 import { useMapStateStore } from '@/stores'
-import { AppDraggableTable, GSButton } from '@/components'
+import { GSButton } from '@/components'
 
 const mapStateStore = useMapStateStore()
 
@@ -17,10 +17,7 @@ const mapStateStore = useMapStateStore()
 const {
   copyMAFCache,
   clearMAFCache,
-  toggleMAFGroupOperator,
-  toggleMAFGroupOpposite,
   appendMAFGroup,
-  deleteMAFGroup,
   toggleMAFItemOperator,
   toggleMAFItemOpposite,
   appendMAFItem,
@@ -103,69 +100,33 @@ const handleModelPickerSelected = (id: number) => {
   </div>
   <div class="flex-3 py-1 overflow-hidden sort-list">
     <el-scrollbar class="px-2" height="100%">
-      <AppDraggableTable
+      <ModelGroup
         v-model="mapStateStore.markerAdvancedComposed"
-        class="h-full flex flex-col gap-2"
-        :get-key="g => g.key"
+        @append-item="(groupIndex) => openPicker(groupIndex)"
       >
-        <template
-          #default="{
-            item: group,
-            index: groupIndex,
-            isGrabbing: isGroupGrabbing,
-            isDragging: isGroupDragging,
-          }"
-        >
-          <ModelItem
-            class="sort-group"
+        <template #default="{ groupIndex, item, itemIndex, isFirstItem, isLastItem, isItemGrabbing, isItemDragging }">
+          <ModelComponent
+            class="sort-item"
             :class="{
-              'is-grabbing': isGroupGrabbing,
-              'is-dragging': isGroupDragging,
+              'is-grabbing': isItemGrabbing,
+              'is-dragging': isItemDragging,
             }"
-            :composed-condition="group"
-            :is-first="groupIndex <= 0"
-            :is-last="groupIndex >= mapStateStore.markerAdvancedFilters.length - 1"
+            :composed-condition="item"
+            :is-first="isFirstItem"
+            :is-last="isLastItem"
             :with-move-up="false"
             :with-move-down="false"
-            @switch-operator="() => toggleMAFGroupOperator(groupIndex)"
-            @toggle-opposite="() => toggleMAFGroupOpposite(groupIndex)"
-            @delete-group="() => deleteMAFGroup(groupIndex)"
-            @append-item="() => openPicker(groupIndex)"
+            @switch-operator="() => toggleMAFItemOperator(groupIndex, itemIndex)"
+            @toggle-opposite="() => toggleMAFItemOpposite(groupIndex, itemIndex)"
+            @delete-item="() => deleteMAFItem(groupIndex, itemIndex)"
           >
-            <template
-              #default="{
-                composedCondition: item,
-                index: itemIndex,
-                isFirst: isFirstItem,
-                isLast: isLastItem,
-                isGrabbing: isItemGrabbing,
-                isDragging: isItemDragging,
-              }"
-            >
-              <ModelComponent
-                class="sort-item"
-                :class="{
-                  'is-grabbing': isItemGrabbing,
-                  'is-dragging': isItemDragging,
-                }"
-                :composed-condition="item"
-                :is-first="isFirstItem"
-                :is-last="isLastItem"
-                :with-move-up="false"
-                :with-move-down="false"
-                @switch-operator="() => toggleMAFItemOperator(groupIndex, itemIndex)"
-                @toggle-opposite="() => toggleMAFItemOpposite(groupIndex, itemIndex)"
-                @delete-item="() => deleteMAFItem(groupIndex, itemIndex)"
-              >
-                <FilterModel
-                  v-model="item.value"
-                  :composed-condition="item"
-                />
-              </ModelComponent>
-            </template>
-          </ModelItem>
+            <FilterModel
+              v-model="item.value"
+              :composed-condition="item"
+            />
+          </ModelComponent>
         </template>
-      </AppDraggableTable>
+      </ModelGroup>
     </el-scrollbar>
   </div>
 
@@ -212,7 +173,7 @@ const handleModelPickerSelected = (id: number) => {
   :deep(.sort-group) {
     position: relative;
     &:not(.is-dragging) {
-      cursor: pointer;
+      // cursor: pointer;
     }
 
     --border-color: transparent;
