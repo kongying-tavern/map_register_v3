@@ -13,7 +13,14 @@ const mapStateStore = useMapStateStore()
 const canvasRef = inject(genshinMapCanvasKey) as Ref<HTMLCanvasElement>
 
 // ==================== 移动点位 ====================
-const { data: hoverMarker } = mapStateStore.subscribeInteractionInfo('hover', 'defaultMarker')
+const { hasHover, hoverElements } = mapStateStore
+
+const hoverMarker = computed(() => {
+  if (!hasHover('marker'))
+    return
+  const set = hoverElements.get('marker')!
+  return mapStateStore.currentMarkerIdMap.get(set.values().next().value)
+})
 
 const {
   isMissionEmpty,
