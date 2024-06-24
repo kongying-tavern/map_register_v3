@@ -3,7 +3,7 @@ import { DeleteFilled, MapLocation, Plus, QuestionFilled } from '@element-plus/i
 import { FilterModel } from './FilterModel'
 import {
   MapTilePicker,
-  ModelItem,
+  ModelComponent,
   ModelPicker,
   ModelRow,
   SemanticText,
@@ -142,7 +142,7 @@ const handleModelPickerSelected = (id: number) => {
                 isDragging: isItemDragging,
               }"
             >
-              <ModelItem
+              <ModelComponent
                 class="sort-item"
                 :class="{
                   'is-grabbing': isItemGrabbing,
@@ -161,7 +161,7 @@ const handleModelPickerSelected = (id: number) => {
                   v-model="item.value"
                   :composed-condition="item"
                 />
-              </ModelItem>
+              </ModelComponent>
             </template>
           </ModelRow>
         </template>
