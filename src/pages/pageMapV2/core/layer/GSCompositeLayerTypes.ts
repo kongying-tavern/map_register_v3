@@ -10,9 +10,8 @@ export interface GSCompositeLayerState extends Record<string, unknown> {
   // tag
   showZoneTag?: boolean
   visibleTagGroups: AreaTagTuple[][]
-  // marker
-  hover: GSMapState.InteractionInfo | null
-  focus: GSMapState.InteractionInfo | null
+  // 交互
+  interactionTimestamp: number
   markersMap: Map<number, GSMapState.MarkerWithRenderConfig>
   markersIds: number[]
   markerDraggingMap: Record<number, API.Coordinate2D>

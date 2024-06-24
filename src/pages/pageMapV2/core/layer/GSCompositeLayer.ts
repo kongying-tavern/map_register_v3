@@ -5,9 +5,7 @@ import { EaseoutInterpolator } from '../interpolator'
 import type { GSCompositeLayerState } from './GSCompositeLayerTypes'
 import {
   GSDraggingLineLayer,
-  GSMarkerHoverLayer,
   GSMarkerLayer,
-  GSMarkerLinkHoverLayer,
   GSMarkerLinkLayer,
   GSOverlayer,
   GSTagLayer,
@@ -15,25 +13,8 @@ import {
 } from '.'
 import { Logger } from '@/utils'
 import { useArchiveStore, useIconTagStore, useMapStateStore, useOverlayStore, usePreferenceStore, useTileStore } from '@/stores'
-import type { GSMapState } from '@/stores/types/genshin-map-state'
 
 const logger = new Logger('图层组')
-
-// eslint-disable-next-line ts/no-explicit-any
-interface StrategyOptions<D = any, T = any> {
-  type: keyof GSMapState.InteractionTypeMap
-  layer: Function
-  getData: (object: D) => T
-  isSameOne?: (value: T, oldValue: T) => boolean
-}
-
-const buildStrategy = <D, T>(options: StrategyOptions<D, T>) => options
-
-interface InteractionStrategy {
-  subscriber: ReturnType<ReturnType<typeof useMapStateStore>['subscribeInteractionInfo']>
-  getData: (object: unknown) => void
-  isSameOne?: (value: unknown, oldValue: unknown) => boolean
-}
 
 export class GSCompositeLayer extends CompositeLayer {
   // ==================== type declare  ====================
@@ -51,78 +32,26 @@ export class GSCompositeLayer extends CompositeLayer {
   // ====================   constructor  ====================
 
   constructor() {
-    const mapStateStore = useMapStateStore()
-
-    const hoverStrategyOptionList: StrategyOptions[] = [
-      buildStrategy<number, GSMapState.MarkerWithRenderConfig>({
-        type: 'defaultMarker',
-        layer: GSMarkerLayer,
-        getData: object => this.state.markersMap.get(object)!,
-        isSameOne: (a, b) => a.id === b.id,
-      }),
-      buildStrategy<number, GSMapState.MarkerWithRenderConfig>({
-        type: 'defaultMarker',
-        layer: GSMarkerHoverLayer,
-        getData: object => this.state.markersMap.get(object)!,
-        isSameOne: (a, b) => a.id === b.id,
-      }),
-      buildStrategy<GSMapState.MLRenderUnit, GSMapState.MLRenderUnit>({
-        type: 'defaultMarkerLink',
-        layer: GSMarkerLinkHoverLayer,
-        getData: object => object,
-        isSameOne: (a, b) => a.key === b.key,
-      }),
-    ]
-
-    const focusStrategyOptionList: StrategyOptions[] = [
-      {
-        type: 'defaultMarker',
-        layer: GSMarkerHoverLayer,
-        getData: (object: number) => this.state.markersMap.get(object)!,
-      },
-    ]
-
-    const hoverStrategies = hoverStrategyOptionList.reduce((strategies, { type, layer, getData, isSameOne }) => strategies.set(layer, {
-      subscriber: mapStateStore.subscribeInteractionInfo('hover', type),
-      getData,
-      isSameOne,
-    }), new Map<Function, InteractionStrategy>())
-
-    const focusStrategies = focusStrategyOptionList.reduce((strategies, { type, layer, getData, isSameOne }) => strategies.set(layer, {
-      subscriber: mapStateStore.subscribeInteractionInfo('focus', type),
-      getData,
-      isSameOne,
-    }), new Map<Function, InteractionStrategy>())
-
     super({
       id: 'genshin-composite-layer',
-      onHover: ({ object = null, sourceLayer = null }) => {
-        if (!object || !sourceLayer) {
-          hoverStrategies.forEach(({ subscriber }) => subscriber.update(null))
-          return
-        }
-        const strategy = hoverStrategies.get(sourceLayer.constructor)
-        if (!strategy)
-          return
-        const { subscriber, getData, isSameOne } = strategy
-        const newValue = getData(object)
-        if (isSameOne && subscriber.data.value && isSameOne(subscriber.data.value, newValue))
-          return
-        subscriber.update(newValue)
+      onHover: (info, event) => {
+        const layers = this.getSubLayers()
+        layers.filter(layer => layer.id === info.sourceLayer?.id).forEach(layer => layer.props.onHover?.(info, event))
       },
-      onClick: ({ object = null, sourceLayer = null }, ev) => {
-        if (('leftButton' in ev && !ev.leftButton) || !object || !sourceLayer) {
-          focusStrategies.forEach(({ subscriber }) => subscriber.update(null))
-          return
-        }
-        const strategy = focusStrategies.get(sourceLayer.constructor)
-        if (!strategy)
-          return
-        const { subscriber, getData, isSameOne } = strategy
-        const newValue = getData(object)
-        if (isSameOne && subscriber.data.value && isSameOne(subscriber.data.value, newValue))
-          return
-        subscriber.update(newValue)
+      onClick: (info, event) => {
+        const layers = this.getSubLayers()
+        layers.filter(layer => layer.id === info.sourceLayer?.id).forEach(layer => layer.props.onClick?.(info, event))
+      },
+      onDrag: (info, event) => {
+        this.getSubLayers().filter((layer) => {
+          return layer.id === info.sourceLayer?.id
+        }).forEach(layer => layer.props.onDrag?.(info, event))
+      },
+      onDragEnd: (info, event) => {
+        this.getSubLayers().filter(layer => layer.id === info.sourceLayer?.id).forEach(layer => layer.props.onDragEnd?.(info, event))
+      },
+      onDragStart: (info, event) => {
+        this.getSubLayers().filter(layer => layer.id === info.sourceLayer?.id).forEach(layer => layer.props.onDragStart?.(info, event))
       },
     })
   }
@@ -161,8 +90,7 @@ export class GSCompositeLayer extends CompositeLayer {
         tileConfig: tileStore.currentTileConfig,
         isViewPortChanging: mapStateStore.isViewPortChanging,
         // 交互
-        hover: mapStateStore.hover as GSMapState.InteractionInfo | null,
-        focus: mapStateStore.focus as GSMapState.InteractionInfo | null,
+        interactionTimestamp: mapStateStore.interactionTimestamp,
         // 标签
         showZoneTag: preferenceStore.preference['map.setting.showZoneTag'],
         visibleTagGroups: tileStore.visibleTagGroups,
@@ -229,7 +157,6 @@ export class GSCompositeLayer extends CompositeLayer {
   initializeState = (/** context: typeof this.context */) => {
     super.initializeState(this.context)
     this.#linkToVueReactiveSystem()
-    // this.#reactiveEffectRunner = this.#linkToVueReactiveSystem()
   }
 
   /** @生命周期 确认更新 */
@@ -245,7 +172,7 @@ export class GSCompositeLayer extends CompositeLayer {
 
   /** @生命周期 刷新图层，只要 shouldUpdateState 返回为 true 就会执行 */
   renderLayers = (): LayersList => {
-    const { tileConfig, markerSpriteImage } = this.state
+    const { tileConfig } = this.state
 
     const options = {
       zoom: this.context.viewport.zoom,
@@ -261,20 +188,14 @@ export class GSCompositeLayer extends CompositeLayer {
       // 地区标签图层
       tileConfig ? new GSTagLayer(this.state, options) : undefined,
 
-      // 点位关联指示线 hover 状态图层
-      new GSMarkerLinkHoverLayer(this.state),
-
       // 点位关联指示线
       new GSMarkerLinkLayer(this.state, options),
 
       // 拖拽点位时的指示线
       new GSDraggingLineLayer(this.state),
 
-      // 点位图层，必须确保点位精灵图存在才能加载此图层
-      markerSpriteImage ? new GSMarkerLayer(this.state, options) : undefined,
-
-      // 点位图层 hover 状态图层
-      markerSpriteImage ? new GSMarkerHoverLayer(this.state, options) : undefined,
+      // 点位图层
+      new GSMarkerLayer(this.state, options),
     ]
   }
 }
