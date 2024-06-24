@@ -80,6 +80,10 @@ export class GenshinMap extends Deck<OrthographicView> {
         mapStateStore.event.emit('hover', ...args)
       },
       onClick: (...args) => {
+        const [info] = args
+        // 转发一次无 sourceLayer 的点击事件以便子图层进行诸如 removeFocus 等操作
+        if (!info.sourceLayer)
+          this.layerManager?.layers.forEach(layer => layer.props.onClick?.(...args))
         mapStateStore.event.emit('click', ...args)
       },
       onDrag: (...args) => {
