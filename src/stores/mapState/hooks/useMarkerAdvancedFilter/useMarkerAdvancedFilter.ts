@@ -26,6 +26,7 @@ import type {
   MAFItem,
   MAFItemComposed,
   MAFMeta,
+  MAFValue,
 } from '@/stores/types'
 
 interface MarkerAdvancedFilterHookOptions {
@@ -88,56 +89,91 @@ export const useMarkerAdvancedFilter = (options: MarkerAdvancedFilterHookOptions
 
   const conditions = computed(() => preferenceStore.preference['markerFilter.filter.advancedFilterCache'])
 
-  const conditionComposed = computed<MAFGroupComposed[]>(() => {
-    const groupComposed: MAFGroupComposed[] = []
-    const filters = preferenceStore.preference['markerFilter.filter.advancedFilterCache'] ?? []
+  const conditionComposed = computed<MAFGroupComposed[]>({
+    get: () => {
+      const groupComposed: MAFGroupComposed[] = []
+      const filters = preferenceStore.preference['markerFilter.filter.advancedFilterCache'] ?? []
 
-    // 处理组
-    filters.forEach((filter) => {
-      const {
-        operator: groupOperator = true,
-        opposite: groupOpposite = false,
-        children = [],
-      } = filter
-      const itemComposed: MAFItemComposed[] = []
+      // 处理组
+      filters.forEach((filter) => {
+        const {
+          operator: groupOperator = true,
+          opposite: groupOpposite = false,
+          children = [],
+        } = filter
+        const itemComposed: MAFItemComposed[] = []
 
-      // 处理子项
-      children.forEach((child) => {
-        const {
-          id = 0,
-          operator: itemOperator,
-          opposite: itemOpposite,
-          value = {},
-        } = child
-        const {
-          option,
-          prepare,
-          semantic,
-          filter,
-        } = getMAFConfig(id)
-        let meta: MAFMeta = {}
-        if (prepare && typeof prepare === 'function')
-          meta = prepare(value, toValue(option))
-        itemComposed.push({
-          id,
-          operator: itemOperator,
-          opposite: itemOpposite,
-          value,
-          option,
-          meta,
-          semantic,
-          filter,
+        // 处理子项
+        children.forEach((child) => {
+          const {
+            id = 0,
+            operator: itemOperator,
+            opposite: itemOpposite,
+            value = {},
+          } = child
+          const {
+            option,
+            prepare,
+            semantic,
+            filter,
+          } = getMAFConfig(id)
+          let meta: MAFMeta = {}
+          if (prepare && typeof prepare === 'function')
+            meta = prepare(value, toValue(option))
+          itemComposed.push({
+            key: crypto.randomUUID(),
+            id,
+            operator: itemOperator,
+            opposite: itemOpposite,
+            value,
+            option,
+            meta,
+            semantic,
+            filter,
+          })
+        })
+
+        groupComposed.push({
+          key: crypto.randomUUID(),
+          operator: groupOperator,
+          opposite: groupOpposite,
+          children: itemComposed,
         })
       })
 
-      groupComposed.push({
-        operator: groupOperator,
-        opposite: groupOpposite,
-        children: itemComposed,
+      return groupComposed
+    },
+    set: (list: MAFGroupComposed[]) => {
+      const convertedData: MAFGroup[] = []
+      list.forEach((group) => {
+        const {
+          operator: groupOperator = true,
+          opposite: groupOpposite = false,
+          children = [],
+        } = group
+        const convertedChildren: MAFItem[] = children.map((child) => {
+          const {
+            id = 0,
+            operator: itemOperator = true,
+            opposite: itemOpposite = false,
+            value = {} as MAFValue,
+          } = child
+          return {
+            id,
+            operator: itemOperator,
+            opposite: itemOpposite,
+            value,
+          }
+        })
+        convertedData.push({
+          operator: groupOperator,
+          opposite: groupOpposite,
+          children: convertedChildren,
+        })
       })
-    })
 
-    return groupComposed
+      preferenceStore.preference['markerFilter.filter.advancedFilterCache'] = convertedData
+    },
   })
 
   const conditionCacheCount = computed(() => getCount(preferenceStore.preference['markerFilter.filter.advancedFilterCache']))

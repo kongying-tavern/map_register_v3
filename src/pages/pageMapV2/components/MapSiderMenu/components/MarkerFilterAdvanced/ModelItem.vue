@@ -1,6 +1,9 @@
 <script lang="ts" setup>
+import { ArrowDownBold, ArrowUpBold, DeleteFilled } from '@element-plus/icons-vue'
+import type { MaybeComputedRef } from '@vueuse/core'
 import { MarkerFilterButton } from '../MarkerFilterComponent'
-import type { MAFItemComposed } from '@/stores/types'
+import type { MAFGroupComposed } from '@/stores/types'
+import { AppDraggableTable } from '@/components'
 
 const props = defineProps<{
   disabled?: boolean
@@ -8,16 +11,19 @@ const props = defineProps<{
   isLast?: boolean
   withMoveUp?: boolean
   withMoveDown?: boolean
-  composedCondition: MAFItemComposed
+  composedCondition: MaybeComputedRef<MAFGroupComposed>
 }>()
 
 const emits = defineEmits<{
   switchOperator: []
   toggleOpposite: []
-  moveUpItem: []
-  moveDownItem: []
-  deleteItem: []
+  moveUpGroup: []
+  moveDownGroup: []
+  deleteGroup: []
+  appendItem: []
 }>()
+
+const composedConditionValue = computed(() => toValue(props.composedCondition))
 
 const handleSwitchOperator = () => {
   if (props.disabled)
@@ -31,75 +37,132 @@ const handleToggleOpposite = () => {
   emits('toggleOpposite')
 }
 
-const handleMoveUpItem = () => {
+const handleMoveUpGroup = () => {
   if (props.disabled)
     return
-  emits('moveUpItem')
+  emits('moveUpGroup')
 }
 
-const handleMoveDownItem = () => {
+const handleMoveDownGroup = () => {
   if (props.disabled)
     return
-  emits('moveDownItem')
+  emits('moveDownGroup')
 }
 
-const handleDeleteItem = () => {
+const handleDeleteGroup = () => {
   if (props.disabled)
     return
-  emits('deleteItem')
+  emits('deleteGroup')
+}
+
+const handleAppendItem = () => {
+  if (props.disabled)
+    return
+  emits('appendItem')
 }
 </script>
 
 <template>
-  <div class="flex-none flex gap-1 items-center mr-0.5">
-    <MarkerFilterButton
-      v-if="!isFirst"
-      theme="dark"
-      icon-color="var(--gs-color-text)"
-      @click="handleSwitchOperator"
-    >
-      <template #icon>
-        {{ composedCondition.operator ? '且' : '或' }}
-      </template>
-    </MarkerFilterButton>
-    <MarkerFilterButton
-      theme="dark"
-      :icon-color="composedCondition.opposite ? 'var(--gs-color-confirm)' : 'var(--gs-color-text)'"
-      @click="handleToggleOpposite"
-    >
-      <template #icon>
-        非
-      </template>
-    </MarkerFilterButton>
-  </div>
-  <slot />
+  <div class="condition-group flex flex-col p-1 gap-1">
+    <div class="condition-group-title flex">
+      <div class="flex-none flex gap-1">
+        <MarkerFilterButton
+          theme="dark"
+          icon-color="var(--gs-color-danger)"
+          @click="handleDeleteGroup"
+        >
+          <template #icon>
+            <DeleteFilled />
+          </template>
+          删除
+        </MarkerFilterButton>
+      </div>
 
-  <div class="flex-none flex gap-1 items-center">
-    <MarkerFilterButton
-      v-if="withMoveUp && !isFirst"
-      icon-color="var(--gs-color-success)"
-      @click="handleMoveUpItem"
+      <div class="flex-auto" />
+
+      <div class="flex-none flex gap-1">
+        <MarkerFilterButton
+          v-if="!isFirst"
+          theme="dark"
+          icon-color="var(--gs-color-text)"
+          @click="handleSwitchOperator"
+        >
+          <template #icon>
+            {{ composedConditionValue.operator ? '且' : '或' }}
+          </template>
+        </MarkerFilterButton>
+        <MarkerFilterButton
+          theme="dark"
+          :icon-color="composedConditionValue.opposite ? 'var(--gs-color-confirm)' : 'var(--gs-color-text)'"
+          @click="handleToggleOpposite"
+        >
+          <template #icon>
+            非
+          </template>
+        </MarkerFilterButton>
+        <MarkerFilterButton
+          v-if="withMoveUp && !isFirst"
+          theme="dark"
+          icon-color="var(--gs-color-confirm)"
+          @click="handleMoveUpGroup"
+        >
+          <template #icon>
+            <ArrowUpBold />
+          </template>
+        </MarkerFilterButton>
+        <MarkerFilterButton
+          v-if="withMoveDown && !isLast"
+          theme="dark"
+          icon-color="var(--gs-color-confirm)"
+          @click="handleMoveDownGroup"
+        >
+          <template #icon>
+            <ArrowDownBold />
+          </template>
+        </MarkerFilterButton>
+        <MarkerFilterButton
+          theme="dark"
+          icon-color="var(--gs-color-success)"
+          @click="handleAppendItem"
+        >
+          <template #icon>
+            <Plus />
+          </template>
+          新增条目
+        </MarkerFilterButton>
+      </div>
+    </div>
+
+    <AppDraggableTable
+      v-if="composedConditionValue.children.length > 0"
+      v-model="composedConditionValue.children"
+      class="flex flex-col gap-1"
+      :get-key="i => i.key"
     >
-      <template #icon>
-        <ArrowUpBold />
+      <template #default="{ item, index: itemIndex, isGrabbing: isItemGrabbing, isDragging: isItemDragging }">
+        <slot
+          :composed-condition="item"
+          :index="itemIndex"
+          :size="composedConditionValue.children.length"
+          :is-first="itemIndex <= 0"
+          :is-last="itemIndex >= composedConditionValue.children.length - 1"
+          :is-grabbing="isItemGrabbing"
+          :is-dragging="isItemDragging"
+        />
       </template>
-    </MarkerFilterButton>
-    <MarkerFilterButton
-      v-if="withMoveDown && !isLast"
-      icon-color="var(--gs-color-success)"
-      @click="handleMoveDownItem"
-    >
-      <template #icon>
-        <ArrowDownBold />
-      </template>
-    </MarkerFilterButton>
-    <MarkerFilterButton
-      icon-color="var(--gs-color-danger)"
-      @click="handleDeleteItem"
-    >
-      <template #icon>
-        <CloseBold />
-      </template>
-    </MarkerFilterButton>
+    </AppDraggableTable>
   </div>
 </template>
+
+<style lang="scss" scoped>
+.condition-group {
+  --height: 32px;
+  --radius: 16px;
+  --color-light: #C6C2BA;
+  --color-dark: #313131;
+
+  border-radius: var(--radius);
+  background-color: var(--color-light);
+  color: var(--color-dark);
+}
+</style>
