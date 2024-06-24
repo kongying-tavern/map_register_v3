@@ -33,7 +33,7 @@ markerStore.onMarkerUpdate((marker) => {
   if (!cachedMarkerVo.value || marker.id !== cachedMarkerVo.value.id)
     return
   const renderMarker = createRenderMarkers([marker])[0]
-  updateFocus(renderMarker)
+  updateFocus(renderMarker.id)
   cachedMarkerVo.value = renderMarker
 })
 
@@ -45,7 +45,7 @@ markerStore.onMarkerTweake((markers) => {
   if (!find)
     return
   const renderMarker = createRenderMarkers([find])[0]
-  updateFocus(renderMarker)
+  updateFocus(renderMarker.id)
   cachedMarkerVo.value = renderMarker
 })
 
@@ -67,7 +67,7 @@ const openMarkerEditor = async () => {
     })
     .open(MarkerEditPanel)
     .afterClosed<GSMapState.MarkerWithRenderConfig>()
-  updateFocus(formData)
+  updateFocus(formData.id)
   cachedMarkerVo.value = formData
 }
 
