@@ -23,12 +23,12 @@ const resetItemVisible = () => {
   })
 }
 
-const { update } = mapStateStore.subscribeInteractionInfo('hover', 'overlayChunks')
+const { setHover, removeHover } = mapStateStore
 
 const updateHover = (chunks: OverlayChunk[] | null) => {
   if (!chunks)
-    return update(null)
-  update(new Set(chunks.map(({ id }) => id)))
+    return removeHover('overlay')
+  setHover<string>('overlay', new Set(chunks.map(({ id }) => id)))
 }
 </script>
 

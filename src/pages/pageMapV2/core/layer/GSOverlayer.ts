@@ -2,6 +2,7 @@ import { BitmapLayer, SolidPolygonLayer } from '@deck.gl/layers'
 import type { LayersList } from '@deck.gl/core'
 import { CompositeLayer } from '@deck.gl/core'
 import type { GSCompositeLayerState } from '.'
+import { useMapStateStore } from '@/stores'
 
 /** 拖拽指示线图层 */
 export class GSOverlayer extends CompositeLayer<GSCompositeLayerState> {
@@ -24,6 +25,8 @@ export class GSOverlayer extends CompositeLayer<GSCompositeLayerState> {
       hover,
     } = this.props
 
+    const { isHover, hasHover } = useMapStateStore()
+
     const [w, h] = tileConfig!.tile.size
     const [ox, oy] = tileConfig!.tile.tilesOffset
 
@@ -31,12 +34,6 @@ export class GSOverlayer extends CompositeLayer<GSCompositeLayerState> {
     const ymin = oy
     const xmax = w + ox
     const ymax = h + oy
-
-    const hasHover = hover?.type === 'overlayChunks'
-
-    const isHover: (id: string) => boolean = hover?.type === 'overlayChunks'
-      ? (id: string) => hover.value.has(id)
-      : () => false
 
     return [
       tileLikeChunks.map((chunkId) => {
@@ -77,7 +74,7 @@ export class GSOverlayer extends CompositeLayer<GSCompositeLayerState> {
           id,
           bounds: [xmin, ymax, xmax, ymin],
           image: url,
-          tintColor: !hasHover ? [255, 255, 255, 0] : isHover(chunkId) ? [255, 255, 255, 0] : [66, 66, 66, 40],
+          tintColor: !hasHover('overlay') ? [255, 255, 255, 0] : isHover('overlay', chunkId) ? [255, 255, 255, 0] : [66, 66, 66, 40],
           updateTriggers: {
             tintColor: hover,
           },
