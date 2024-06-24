@@ -55,18 +55,6 @@ declare namespace GSMapState {
     type: LinkActionEnum
   }
 
-  /** 交互类型表 */
-  interface InteractionTypeMap {
-    defaultMarker: MarkerWithRenderConfig
-    defaultMarkerLink: MLRenderUnit
-    multipleMarkers: Set<number>
-    overlayChunks: Set<string>
-    unknown: unknown
-  }
-
-  /** 混合交互类型 */
-  type InteractionInfo = MapToSchema<InteractionTypeMap>
-
   /** 任务类型表 */
   interface MissionTypeMap {
     markerDragging: Record<number, API.Coordinate2D>
