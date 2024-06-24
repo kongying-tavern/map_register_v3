@@ -123,6 +123,7 @@ export const useMultiSelect = (options: MultiSelectHookOptions) => {
   const toggleMultiSelectWindow = () => {
     if (!markerList.value.length) {
       closeWindow()
+      finalizeMission()
       return
     }
     mapWindowContext.openWindow({
