@@ -31,24 +31,19 @@ export const useMultiSelect = (options: MultiSelectHookOptions) => {
   const { currentHeight: bannerHeight } = useBanner()
 
   // ==================== 多选点位 ====================
-  const {
-    data: currentSelectedIds,
-    update: setMultiSelecte,
-  } = mapStateStore.subscribeInteractionInfo('focus', 'multipleMarkers')
+  const { pauseFocus, resumeFocus, isFocus, setFocus, removeFocus } = mapStateStore
 
-  const markerList = computed(() => {
-    const list: GSMapState.MarkerWithRenderConfig[] = []
-    currentSelectedIds.value?.forEach((id) => {
-      const marker = mapStateStore.currentMarkerIdMap.get(id)
-      marker && list.push(marker)
-    })
-    return list
-  })
+  const pauseFocusMarker = () => pauseFocus('marker')
 
-  const {
-    pause: pauseFocusMarker,
-    resume: resumeFocusMarker,
-  } = mapStateStore.subscribeInteractionInfo('focus', 'defaultMarker')
+  const resumeFocusMarker = () => resumeFocus('marker')
+
+  const setMultiSelecte = (set: Set<number>) => setFocus<number>('marker', set)
+
+  const removeMultiSelecte = () => removeFocus('marker')
+
+  const markerList = computed(() => mapStateStore.currentLayerMarkers.filter(marker => isFocus('marker', marker.id)))
+
+  const currentSelectedIds = computed(() => mapStateStore.focusElements.get('marker') as Set<number> | undefined)
 
   const {
     isEnable,
@@ -110,7 +105,7 @@ export const useMultiSelect = (options: MultiSelectHookOptions) => {
   // ==================== 框选实现 ====================
   const finalizeMission = () => {
     resumeFocusMarker()
-    setMultiSelecte(null)
+    removeMultiSelecte()
     clearMission()
     mapStateStore.setCursor()
     mapStateStore.setViewPortLocked(false)
@@ -126,7 +121,7 @@ export const useMultiSelect = (options: MultiSelectHookOptions) => {
   }
 
   const toggleMultiSelectWindow = () => {
-    if (!currentSelectedIds.value?.size) {
+    if (!markerList.value.length) {
       closeWindow()
       return
     }
@@ -148,8 +143,8 @@ export const useMultiSelect = (options: MultiSelectHookOptions) => {
     }),
 
     switchMap(([startInfo, startEvent]) => {
-      pauseFocusMarker()
       setMission(true)
+      resumeFocusMarker()
       mapStateStore.setCursor('crosshair')
       mapStateStore.setIsPopoverOnHover(true)
       mapStateStore.setViewPortLocked(true)
@@ -209,6 +204,7 @@ export const useMultiSelect = (options: MultiSelectHookOptions) => {
         // 注意！这里不是直接恢复初始状态，而是恢复到更新选择矩形之前的状态。
         // 只有当多选点位弹出的操作窗口关闭后才恢复到初始状态。
         finalize(() => {
+          pauseFocusMarker()
           mapStateStore.setCursor()
           mapStateStore.setViewPortLocked(false)
           mapStateStore.setTempMarkers('markerMultiSelect', markerList.value)
