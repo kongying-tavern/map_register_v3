@@ -2,6 +2,7 @@
 const props = defineProps<{
   modelValue?: number
   disabled?: boolean
+  disabledAutofucus?: boolean
 }>()
 
 const emits = defineEmits<{
@@ -41,6 +42,8 @@ const hours = naturalNumberComputed('hours')
 const minutes = naturalNumberComputed('minutes')
 
 const selectInput = (ev: Event) => {
+  if (props.disabledAutofucus)
+    return
   const { target } = ev
   if (!(target instanceof HTMLInputElement))
     return
