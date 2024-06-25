@@ -66,7 +66,7 @@ onFinalize(() => {
       <div class="h-full flex overflow-hidden p-2">
         <div class="h-full w-[300px] flex flex-col pr-2">
           <div class="pb-2">
-            <ElDropdown ref="drownRef" placement="bottom-start" :show-timeout="0" :hide-timeout="100">
+            <ElDropdown ref="drownRef" placement="bottom-start" trigger="click" :teleported="false">
               <el-button :icon="CirclePlus">
                 添加编辑操作
                 <el-icon class="el-icon--right" :size="12">
@@ -118,11 +118,11 @@ onFinalize(() => {
             <div v-if="!selectedModifier" class="flex-1" />
             <template v-else>
               <div class="flex-1">
-                {{ selectedModifier.options.label }} ({{ selectedIndex }})
+                {{ selectedModifier.options.label }}
               </div>
               <el-divider direction="vertical" style="height: 100%" />
               <div class="flex-1">
-                {{ selectedModifier.options.replaceLabel }} ({{ selectedIndex + 1 }})
+                {{ selectedModifier.options.replaceLabel }}
               </div>
             </template>
           </div>
