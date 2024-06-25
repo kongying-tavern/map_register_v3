@@ -1,4 +1,4 @@
-import { TextModifier } from '../core/modifiers'
+import { TextModifier, TimeModifier } from '../core/modifiers'
 import type { Modifier, ModifierConstructorOptions } from '../core'
 import { Logger, messageFrom } from '@/utils'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
@@ -19,6 +19,10 @@ const modifierMap = new Map<string, (type: string) => Modifier>()
   .set('content', createFactory(TextModifier, {
     field: 'content',
     label: '描述内容',
+  }))
+  .set('refreshTime', createFactory(TimeModifier, {
+    field: 'refreshTime',
+    label: '刷新时间',
   }))
 
 export interface TweakControlInfo {
@@ -80,7 +84,6 @@ const options = [
   {
     label: '刷新时间',
     value: 'refreshTime',
-    disabled: true,
     children: [
       { label: '更新', value: 'update' },
     ],
