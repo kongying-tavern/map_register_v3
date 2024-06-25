@@ -16,26 +16,30 @@ export const useInteractionInfo = () => {
 
   const interactionTimestamp = ref(Date.now())
 
+  const updateTime = () => {
+    interactionTimestamp.value = Date.now()
+  }
+
   /** single 为 true 时将会移除其他 type 的此类交互效果 */
   const addInteraction = (interaction: 'focus' | 'hover') => {
     const elements = interaction === 'focus' ? focusElements.value : hoverElements.value
     return <T>(type: string, value: T, single = false) => {
       if (isPaused[interaction][type] || value === undefined || value === null)
         return
-      if (!elements.has(type))
-        elements.set(type, new Set())
-      const set = elements.get(type)!
-      if (set.has(value))
-        return
       if (single) {
         elements.clear()
         elements.set(type, new Set([value]))
+        return updateTime()
       }
-      else {
-        set.clear()
-        set.add(value)
+      const set = elements.get(type)
+      if (!set) {
+        elements.set(type, new Set([value]))
+        return updateTime()
       }
-      interactionTimestamp.value = Date.now()
+      if (set.has(value))
+        return
+      set.add(value)
+      return updateTime()
     }
   }
 
@@ -45,7 +49,7 @@ export const useInteractionInfo = () => {
       if (isPaused[interaction][type])
         return
       elements.set(type, value)
-      interactionTimestamp.value = Date.now()
+      return updateTime()
     }
   }
 
@@ -67,7 +71,7 @@ export const useInteractionInfo = () => {
 
       if (set.size === 0)
         elements.delete(type)
-      interactionTimestamp.value = Date.now()
+      return updateTime()
     }
   }
 
@@ -77,7 +81,7 @@ export const useInteractionInfo = () => {
       if (elements.size === 0)
         return
       elements.clear()
-      interactionTimestamp.value = Date.now()
+      return updateTime()
     }
   }
 
