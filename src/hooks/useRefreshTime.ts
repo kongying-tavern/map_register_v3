@@ -18,6 +18,16 @@ export const useRefreshTime = (refreshTime: Ref<number | undefined>) => {
 
   const isCustom = computed(() => refreshTime.value !== undefined && refreshTime.value > 0)
 
+  const humanFriendlyTimeText = computed(() => {
+    if (!isCustom.value)
+      return ''
+    const time = Number(refreshTime.value) || 0
+    const days = Math.floor(time / 86400000)
+    const hours = Math.floor((time % 86400000) / 3600000)
+    const minutes = Math.floor((time % 3600000) / 60000)
+    return `${days} 天 ${hours} 小时 ${minutes} 分钟`
+  })
+
   return {
     refreshTimeOptions,
     refreshTimeTypeOptions,
@@ -25,5 +35,6 @@ export const useRefreshTime = (refreshTime: Ref<number | undefined>) => {
     refreshTimeTypeMap,
     refreshTimeType,
     isCustom,
+    humanFriendlyTimeText,
   }
 }
