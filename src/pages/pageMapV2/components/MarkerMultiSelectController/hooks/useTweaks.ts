@@ -1,14 +1,16 @@
-import { TextModifier, TimeModifier } from '../core/modifiers'
+import { EnumModifier, TextModifier, TimeModifier } from '../core/modifiers'
 import type { Modifier, ModifierConstructorOptions } from '../core'
 import { Logger, messageFrom } from '@/utils'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
+import type { HiddenFlagEnum } from '@/shared'
+import { HIDDEN_FLAG_OPTIONS } from '@/shared'
 
-interface ModifierConstructor {
-  new(options: ModifierConstructorOptions): Modifier
+interface ModifierConstructor<T> {
+  new(options: ModifierConstructorOptions<T>): Modifier
 }
 
-const createFactory = (ModifierClass: ModifierConstructor, options: Omit<ModifierConstructorOptions, 'type'>) => {
-  return (type: string) => new ModifierClass({ ...options, type })
+const createFactory = <T = void>(ModifierClass: ModifierConstructor<T>, options: Omit<ModifierConstructorOptions<T>, 'type'>) => {
+  return (type: string) => new ModifierClass({ ...options, type } as ModifierConstructorOptions<T>)
 }
 
 const modifierMap = new Map<string, (type: string) => Modifier>()
@@ -23,6 +25,15 @@ const modifierMap = new Map<string, (type: string) => Modifier>()
   .set('refreshTime', createFactory(TimeModifier, {
     field: 'refreshTime',
     label: '刷新时间',
+  }))
+  .set('hiddenFlag', createFactory(EnumModifier<HiddenFlagEnum>, {
+    field: 'hiddenFlag',
+    label: '显示状态',
+    options: HIDDEN_FLAG_OPTIONS,
+    optionMap: HIDDEN_FLAG_OPTIONS.reduce((map, option) => {
+      map.set(option.value, option.label)
+      return map
+    }, new Map<HiddenFlagEnum, string>()),
   }))
 
 export interface TweakControlInfo {
@@ -89,9 +100,8 @@ const options = [
     ],
   },
   {
-    label: '可见范围',
+    label: '显示状态',
     value: 'hiddenFlag',
-    disabled: true,
     children: [
       { label: '更新', value: 'update' },
     ],

@@ -1,6 +1,6 @@
 import type { GSMapState } from '@/stores/types/genshin-map-state'
 
-export interface ModifierConstructorOptions {
+export type ModifierConstructorOptions<T = void> = {
   label: string
   /** @default '修改为' */
   replaceLabel?: string
@@ -8,7 +8,7 @@ export interface ModifierConstructorOptions {
   field: keyof GSMapState.MarkerWithRenderConfig
   /** 修改类型 */
   type: string
-}
+} & T
 
 interface Strategy<T> {
   label: string
@@ -16,8 +16,8 @@ interface Strategy<T> {
   cardComp: () => Promise<Component>
 }
 
-export abstract class Modifier {
-  options: Required<ModifierConstructorOptions>
+export abstract class Modifier<T = void> {
+  options: Required<ModifierConstructorOptions<T>>
 
   abstract previewer: Component
   card: Component
@@ -30,7 +30,7 @@ export abstract class Modifier {
   }
 
   constructor(
-    options: ModifierConstructorOptions,
+    options: ModifierConstructorOptions<T>,
     strategies: Record<string, Strategy<GSMapState.MarkerWithRenderConfig>>,
   ) {
     const {
@@ -41,7 +41,7 @@ export abstract class Modifier {
     this.options = {
       ...rest,
       replaceLabel,
-    }
+    } as Required<ModifierConstructorOptions<T>>
 
     const strategy = strategies[this.options.type]
     if (!strategy)
