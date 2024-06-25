@@ -14,7 +14,7 @@ export const _useMarkerFocus = () => {
   /** 缓存的点位信息, 用于在关闭弹窗时保持信息，使动画显示状态平滑 */
   const cachedMarkerVo = shallowRef<GSMapState.MarkerWithRenderConfig | null>(null)
 
-  const { hasFocus, hasHover, addFocus, addHover, removeFocus, removeHover, focusElements, hoverElements } = mapStateStore
+  const { hasFocus, hasHover, addFocus, addHover, removeFocus, removeHover } = mapStateStore
 
   const updateFocus = (id?: number) => {
     return addFocus('marker', id, true)
@@ -28,31 +28,29 @@ export const _useMarkerFocus = () => {
   })
 
   const focus = computed(() => {
-    if (!hasFocus('marker'))
-      return undefined
-    const focusIds = focusElements.get('marker')
-    if (!focusIds || focusIds.size > 1)
-      return
-    return mapStateStore.currentMarkerIdMap.get(focusIds.values().next().value)
-  })
-
-  const hover = computed(() => {
-    if (!hasHover('marker'))
-      return undefined
-    const hoverIds = hoverElements.get('marker')
-    if (!hoverIds || hoverIds.size > 1)
-      return
-    return mapStateStore.currentMarkerIdMap.get(hoverIds.values().next().value)
-  })
-
-  const isPopoverActived = computed(() => {
     if (preferenceStore.preference['map.setting.hideMarkerPopover'])
-      return false
-    return Boolean(mapStateStore.isPopoverOnHover
-      ? hover.value
-      : focus.value,
-    )
+      return
+    if (mapStateStore.isPopoverOnHover) {
+      if (!hasHover('marker'))
+        return undefined
+      const hoverIds = mapStateStore.hoverElements.get('marker')
+      if (!hoverIds || hoverIds.size > 1)
+        return
+      const markerId = hoverIds.values().next().value
+      return mapStateStore.currentMarkerIdMap.get(markerId)
+    }
+    else {
+      if (!hasFocus('marker'))
+        return undefined
+      const focusIds = mapStateStore.focusElements.get('marker')
+      if (!focusIds || focusIds.size > 1)
+        return
+      const markerId = focusIds.values().next().value
+      return mapStateStore.currentMarkerIdMap.get(markerId)
+    }
   })
+
+  const isPopoverActived = computed(() => focus.value !== undefined)
 
   const normalizeMarker = (markerVo: API.MarkerVo | GSMapState.MarkerWithRenderConfig): GSMapState.MarkerWithRenderConfig => {
     return 'render' in markerVo
@@ -108,7 +106,7 @@ export const _useMarkerFocus = () => {
     return markerWithRender
   }
 
-  function hoverMarker(markerVo: API.MarkerVo | GSMapState.MarkerWithRenderConfig | null) {
+  const hoverMarker = (markerVo: API.MarkerVo | GSMapState.MarkerWithRenderConfig | null) => {
     if (!markerVo) {
       removeHover('marker')
       return
@@ -121,20 +119,18 @@ export const _useMarkerFocus = () => {
   /** 与 hover 相反的行为 */
   const out = () => removeHover('marker')
 
-  watch(() => [focus.value, hover.value, mapStateStore.isPopoverOnHover] as const, ([currentFocus, currentHover, isPopoverOnHover]) => {
-    const target = isPopoverOnHover ? currentHover : currentFocus
-    if (!target) {
+  watch(() => [focus.value, mapStateStore.isPopoverOnHover] as const, ([currentFocus, isPopoverOnHover]) => {
+    if (!currentFocus) {
       !isPopoverOnHover && mapStateStore.setTempMarkers('focus', [])
       return
     }
-    cachedMarkerVo.value = target
-    !isPopoverOnHover && mapStateStore.setTempMarkers('focus', [target])
+    cachedMarkerVo.value = currentFocus
+    !isPopoverOnHover && mapStateStore.setTempMarkers('focus', [currentFocus])
   })
 
   return {
     isPopoverActived,
     cachedMarkerVo,
-    hover,
     focus,
     updateLoading,
     normalizeMarker,
