@@ -1,7 +1,9 @@
 import { computed } from 'vue'
 import { useDadianStore } from '@/stores'
 
-export const useRefreshTimeOptions = () => {
+let _cache: ReturnType<typeof _useRefreshTimeOptions> | undefined
+
+export const _useRefreshTimeOptions = () => {
   const dadianStore = useDadianStore()
 
   const refreshTimeOptions = computed(() => {
@@ -25,4 +27,10 @@ export const useRefreshTimeOptions = () => {
     refreshTimeTypeNameMap,
     refreshTimeTypeMap,
   }
+}
+
+export const useRefreshTimeOptions = () => {
+  if (!_cache)
+    _cache = _useRefreshTimeOptions()
+  return _cache
 }
