@@ -31,12 +31,17 @@ export class GSCompositeLayer extends CompositeLayer {
 
   // ====================   constructor  ====================
 
+  #lastHover: unknown = undefined
+
   constructor() {
     super({
       id: 'genshin-composite-layer',
       onHover: (info, event) => {
+        if (this.#lastHover === info.object)
+          return
         const layers = this.getSubLayers()
         layers.filter(layer => layer.id === info.sourceLayer?.id).forEach(layer => layer.props.onHover?.(info, event))
+        this.#lastHover = info.object
       },
       onClick: (info, event) => {
         const layers = this.getSubLayers()

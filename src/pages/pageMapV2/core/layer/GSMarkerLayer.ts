@@ -13,8 +13,6 @@ export class GSMarkerLayer extends CompositeLayer<GSCompositeLayerState & LayerA
       id: 'genshin-marker-layer',
       onHover: (info) => {
         const { addHover, removeHover, isHover } = useMapStateStore()
-        if (info.sourceLayer?.id !== this.id)
-          return removeHover('markerLink')
         const markerId = info.object as number | undefined
         if (markerId === undefined)
           return removeHover('marker')
