@@ -14,6 +14,7 @@ defineProps<{
     <component
       :is="modifier.previewer"
       :value="modifier.getValue(data)"
+      :options="modifier.options"
     />
 
     <template #fallback>

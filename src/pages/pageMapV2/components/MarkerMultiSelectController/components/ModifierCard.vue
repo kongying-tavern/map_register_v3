@@ -48,7 +48,7 @@ const activeModifier = () => {
         </div>
       </div>
       <div class="card-content">
-        <component :is="modifier.card" v-model="modelValue" />
+        <component :is="modifier.card" v-model="modelValue" :options="modifier.options" />
       </div>
     </div>
 
