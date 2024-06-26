@@ -1,9 +1,18 @@
 import type { GSMapState } from '@/stores/types/genshin-map-state'
 
 export type ModifierConstructorOptions<T = void> = {
+  /** 旧内容表头 */
   label: string
-  /** @default '修改为' */
+  /**
+   * 新内容表头
+   * @default '修改为'
+   */
   replaceLabel?: string
+  /**
+   * 预览项的高度
+   * @default 32
+   */
+  previewHeight?: number
   /** 字段名 */
   field: keyof GSMapState.MarkerWithRenderConfig
   /** 修改类型 */

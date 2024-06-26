@@ -6,6 +6,7 @@ defineProps<{
   modifier: Modifier
   meta: API.TweakConfigMetaVo
   data: GSMapState.MarkerWithRenderConfig
+  oldData?: GSMapState.MarkerWithRenderConfig
 }>()
 </script>
 
@@ -14,6 +15,7 @@ defineProps<{
     <component
       :is="modifier.previewer"
       :value="modifier.getValue(data)"
+      :old-value="oldData ? modifier.getValue(oldData) : undefined"
       :options="modifier.options"
     />
 

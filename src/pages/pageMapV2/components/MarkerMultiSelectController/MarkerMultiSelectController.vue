@@ -110,12 +110,14 @@ onFinalize(() => {
         </div>
 
         <div class="flex-1 h-full flex flex-col overflow-hidden rounded bg-[var(--el-fill-color-light)]">
-          <div class="flex h-8 items-center text-xs mx-2 border-b-[1px] border-[var(--el-border-color)]">
+          <div class="flex h-8 items-center text-xs ml-2 mr-3 border-b-[1px] border-[var(--el-border-color)]">
             <div class="w-16 mx-2 ml-4 text-center">
               点位
             </div>
             <el-divider direction="vertical" style="height: 100%" />
-            <div v-if="!selectedModifier" class="flex-1" />
+            <div v-if="!selectedModifier" class="flex-1 text-center">
+              请添加编辑操作
+            </div>
             <template v-else>
               <div class="flex-1">
                 {{ selectedModifier.options.label }}
@@ -129,13 +131,13 @@ onFinalize(() => {
 
           <AppVirtualTable
             :data="modifiedMarkerList"
-            :item-height="64"
+            :item-height="selectedModifier?.options.previewHeight ?? 32"
             :cached-rows="1"
             class="flex-1 overflow-hidden"
           >
             <template #default="{ item: { oldData, newData }, index }">
               <div
-                class="h-full overflow-hidden text-sm flex items-center border-[var(--el-border-color)] mx-2 bg-clip-content"
+                class="h-full overflow-hidden text-sm flex items-center border-[var(--el-border-color)] ml-2 mr-3 bg-clip-content"
                 :class="index < modifiedMarkerList.length - 1 ? 'border-b-[1px]' : ''"
               >
                 <div class="w-10 text-xs text-right">
@@ -149,14 +151,16 @@ onFinalize(() => {
                   />
                 </div>
                 <el-divider direction="vertical" style="height: 100%" />
-                <div v-if="!selectedModifier" class="flex-1" />
+                <div v-if="!selectedModifier" class="flex-1 text-center text-xs text-[var(--el-text-color-secondary)]">
+                  no action
+                </div>
                 <template v-else>
                   <div class="h-full flex-1 overflow-hidden">
                     <ModifierPreview :modifier="selectedModifier" :data="oldData" :meta="selectedMeta!" />
                   </div>
                   <el-divider direction="vertical" style="height: 100%" />
                   <div class="h-full flex-1 overflow-hidden">
-                    <ModifierPreview :modifier="selectedModifier" :data="newData" :meta="selectedMeta!" />
+                    <ModifierPreview :modifier="selectedModifier" :data="newData" :old-data="oldData" :meta="selectedMeta!" />
                   </div>
                 </template>
               </div>

@@ -22,6 +22,7 @@ const modifierMap = new Map<string, (type: string) => Modifier>()
   .set('content', createFactory(TextModifier, {
     field: 'content',
     label: '描述内容',
+    previewHeight: 90,
     allowMultiline: true,
   }))
   .set('refreshTime', createFactory(TimeModifier, {
