@@ -56,18 +56,20 @@ const configList: MAFConfig[] = [
 
 const configMap: Record<number, MAFConfig> = keyBy(configList, 'id')
 
-const emptyGroup: MAFGroup = {
+const createEmptyGroup = (): MAFGroup => ({
+  key: crypto.randomUUID(),
   operator: true,
   opposite: false,
   children: [],
-}
+})
 
-const emptyItem: MAFItem = {
+const createEmptyItem = (): MAFItem => ({
   id: 0,
+  key: crypto.randomUUID(),
   operator: true,
   opposite: false,
   value: {},
-}
+})
 
 export const useMarkerAdvancedFilter = (options: MarkerAdvancedFilterHookOptions) => {
   const { preferenceStore } = options
@@ -97,6 +99,7 @@ export const useMarkerAdvancedFilter = (options: MarkerAdvancedFilterHookOptions
       // 处理组
       filters.forEach((filter) => {
         const {
+          key: groupKey,
           operator: groupOperator = true,
           opposite: groupOpposite = false,
           children = [],
@@ -106,6 +109,7 @@ export const useMarkerAdvancedFilter = (options: MarkerAdvancedFilterHookOptions
         // 处理子项
         children.forEach((child) => {
           const {
+            key,
             id = 0,
             operator: itemOperator,
             opposite: itemOpposite,
@@ -121,7 +125,7 @@ export const useMarkerAdvancedFilter = (options: MarkerAdvancedFilterHookOptions
           if (prepare && typeof prepare === 'function')
             meta = prepare(value, toValue(option))
           itemComposed.push({
-            key: crypto.randomUUID(),
+            key,
             id,
             operator: itemOperator,
             opposite: itemOpposite,
@@ -134,7 +138,7 @@ export const useMarkerAdvancedFilter = (options: MarkerAdvancedFilterHookOptions
         })
 
         groupComposed.push({
-          key: crypto.randomUUID(),
+          key: groupKey,
           operator: groupOperator,
           opposite: groupOpposite,
           children: itemComposed,
@@ -147,6 +151,7 @@ export const useMarkerAdvancedFilter = (options: MarkerAdvancedFilterHookOptions
       const convertedData: MAFGroup[] = []
       list.forEach((group) => {
         const {
+          key: groupKey,
           operator: groupOperator = true,
           opposite: groupOpposite = false,
           children = [],
@@ -154,18 +159,21 @@ export const useMarkerAdvancedFilter = (options: MarkerAdvancedFilterHookOptions
         const convertedChildren: MAFItem[] = children.map((child) => {
           const {
             id = 0,
+            key,
             operator: itemOperator = true,
             opposite: itemOpposite = false,
             value = {} as MAFValue,
           } = child
           return {
             id,
+            key,
             operator: itemOperator,
             opposite: itemOpposite,
             value,
           }
         })
         convertedData.push({
+          key: groupKey,
           operator: groupOperator,
           opposite: groupOpposite,
           children: convertedChildren,
@@ -192,7 +200,7 @@ export const useMarkerAdvancedFilter = (options: MarkerAdvancedFilterHookOptions
 
   const initCondition = () => {
     if (preferenceStore.preference['markerFilter.filter.advancedFilterCache'].length <= 0)
-      preferenceStore.preference['markerFilter.filter.advancedFilterCache'].push(cloneDeep(emptyGroup))
+      preferenceStore.preference['markerFilter.filter.advancedFilterCache'].push(createEmptyGroup())
   }
 
   const toggleConditionGroupOperator = (groupIndex: number) => {
@@ -208,7 +216,7 @@ export const useMarkerAdvancedFilter = (options: MarkerAdvancedFilterHookOptions
   }
 
   const appendConditionGroup = () => {
-    preferenceStore.preference['markerFilter.filter.advancedFilterCache'].push(cloneDeep(emptyGroup))
+    preferenceStore.preference['markerFilter.filter.advancedFilterCache'].push(createEmptyGroup())
   }
 
   const insertConditionGroup = (groupIndex: number) => {
@@ -218,7 +226,7 @@ export const useMarkerAdvancedFilter = (options: MarkerAdvancedFilterHookOptions
     }
     if (groupIndex < 0)
       groupIndex = 0
-    preferenceStore.preference['markerFilter.filter.advancedFilterCache'].splice(groupIndex, 0, cloneDeep(emptyGroup))
+    preferenceStore.preference['markerFilter.filter.advancedFilterCache'].splice(groupIndex, 0, createEmptyGroup())
   }
 
   const swapConditionGroup = (groupIndexLeft: number, groupIndexRight: number) => {
@@ -251,7 +259,7 @@ export const useMarkerAdvancedFilter = (options: MarkerAdvancedFilterHookOptions
   const appendCondition = (groupIndex: number, id: number = 0) => {
     if (preferenceStore.preference['markerFilter.filter.advancedFilterCache'][groupIndex].children) {
       const conditionModel = getMAFConfig(id)
-      const newItem: MAFItem = cloneDeep(emptyItem)
+      const newItem = createEmptyItem()
       newItem.id = id
       newItem.value = cloneDeep(conditionModel.defaultVal)
       preferenceStore.preference['markerFilter.filter.advancedFilterCache'][groupIndex].children.push(newItem)
@@ -269,7 +277,7 @@ export const useMarkerAdvancedFilter = (options: MarkerAdvancedFilterHookOptions
     if (itemIndex < 0)
       itemIndex = 0
     const conditionModel = getMAFConfig(id)
-    const newItem: MAFItem = cloneDeep(emptyItem)
+    const newItem = createEmptyItem()
     newItem.id = id
     newItem.value = cloneDeep(conditionModel.defaultVal)
     preferenceStore.preference['markerFilter.filter.advancedFilterCache'][groupIndex].children.splice(itemIndex, 0, newItem)

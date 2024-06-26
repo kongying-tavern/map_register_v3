@@ -24,6 +24,7 @@ export interface MBFItem {
 
 // ==================== 高级筛选模型 ====================
 export interface MAFGroup {
+  key: string
   // true 为 AND，false 为 OR
   operator: boolean
   opposite: boolean
@@ -31,6 +32,7 @@ export interface MAFGroup {
 }
 
 export interface MAFItem {
+  key: string
   id: number
   // true 为 AND，false 为 OR
   operator: boolean
