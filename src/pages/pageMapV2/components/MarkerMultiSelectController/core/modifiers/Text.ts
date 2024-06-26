@@ -1,10 +1,14 @@
 import type { ModifierConstructorOptions } from '..'
 import { Modifier } from '..'
 
-export class TextModifier extends Modifier {
+export interface TextModifierProps {
+  allowMultiline?: boolean
+}
+
+export class TextModifier extends Modifier<TextModifierProps> {
   previewer = defineAsyncComponent(() => import('../PreviewImpls/CommonText.vue'))
 
-  constructor(options: ModifierConstructorOptions) {
+  constructor(options: ModifierConstructorOptions<TextModifierProps>) {
     super(options, {
       update: {
         label: '文本更新',

@@ -17,10 +17,12 @@ const modifierMap = new Map<string, (type: string) => Modifier>()
   .set('title', createFactory(TextModifier, {
     field: 'markerTitle',
     label: '点位标题',
+    allowMultiline: false,
   }))
   .set('content', createFactory(TextModifier, {
     field: 'content',
     label: '描述内容',
+    allowMultiline: true,
   }))
   .set('refreshTime', createFactory(TimeModifier, {
     field: 'refreshTime',
