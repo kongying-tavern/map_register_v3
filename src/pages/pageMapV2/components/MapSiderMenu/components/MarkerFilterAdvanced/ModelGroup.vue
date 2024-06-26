@@ -101,6 +101,9 @@ const openPicker = (groupIndex: number) => {
     &:has(.sort-item.is-grabbing) {
       --border-color: transparent !important;
     }
+    &:not(.is-dragging):hover {
+      --border-color: color(from var(--gs-color-cancel) srgb r g b / 0.5);
+    }
     &:not(.is-dragging):active {
       --border-color: color(from var(--gs-color-cancel) srgb r g b / 0.3);;
     }
@@ -120,6 +123,9 @@ const openPicker = (groupIndex: number) => {
   :deep(.sort-item) {
     user-select: none;
 
+    &:not(.is-dragging):hover {
+      box-shadow: 0 0 6px var(--gs-color-success);
+    }
     &:not(.is-dragging):active {
       box-shadow: none;
     }
