@@ -5,11 +5,21 @@ defineProps<{
   newData?: string
   oldData?: string
 }>()
+
+const withBreaks = (str: string) => {
+  const units = str.split('\n')
+  return units.reduce((seed, char, index) => {
+    seed.push(char)
+    if (index < units.length - 1)
+      seed.push('\n')
+    return seed
+  }, [] as string[])
+}
 </script>
 
 <template>
   <span
-    v-for="([flag, char], index) in fastDiff(oldData ?? '', newData ?? '')"
+    v-for="([flag, str], index) in fastDiff(oldData ?? '', newData ?? '')"
     :key="index"
     class="differ-text"
     :class="{
@@ -18,7 +28,12 @@ defineProps<{
       [DELETE]: 'delete',
     }[flag]"
   >
-    {{ char }}
+    <template v-for="(char, charIndex) in withBreaks(str)" :key="charIndex">
+      <template v-if="char !== '\n'">
+        {{ char }}
+      </template>
+      <br v-else>
+    </template>
   </span>
 </template>
 
