@@ -6,9 +6,14 @@ defineProps<{
 
 <template>
   <div class="diff-item">
-    <div class="label">
-      {{ label }}
-    </div>
+    <el-divider
+      content-position="left"
+      style="margin: 12px 0 16px; --el-bg-color: var(--el-fill-color-blank)"
+    >
+      <div class=" font-bold">
+        {{ label }}
+      </div>
+    </el-divider>
 
     <div>
       <slot name="default" />
