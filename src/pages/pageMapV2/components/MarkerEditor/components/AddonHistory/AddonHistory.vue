@@ -19,7 +19,7 @@ const markerVo = defineModel<API.MarkerVo>('markerVo', {
   required: true,
 })
 
-const { currentIndex, data, refresh, preHistory, nextHistory } = useMarkerHistory(markerVo)
+const { currentIndex, data, refresh, preHistory, loading, nextHistory } = useMarkerHistory(markerVo)
 
 whenever(isAddonActived, refresh, { immediate: true })
 </script>
@@ -75,6 +75,7 @@ whenever(isAddonActived, refresh, { immediate: true })
       <div class="flex-1 overflow-hidden">
         <el-scrollbar height="100%">
           <HistoryViewer
+            :loading="loading"
             :pre-history="preHistory"
             :next-history="nextHistory"
           />
