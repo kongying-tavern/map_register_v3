@@ -10,6 +10,9 @@ interface Set<T> {
 
   /** 该方法采用一个集合并返回一个新集合，其中包含此集合中的元素，但不包含给定集合中的元素。 */
   difference(other: Set<T>): Set<T>
+
+  /** 方法采取一个集合并返回一个新的集合，该集合包含该集合和给定集合中的一个或两个元素。 */
+  union(other: Set<T>): Set<T>
 }
 
 interface ViewTransition {
