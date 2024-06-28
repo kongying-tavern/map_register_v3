@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { Clock } from '@element-plus/icons-vue'
+import { BottomLeft, Clock } from '@element-plus/icons-vue'
 import { useMarkerHistory } from '../../hooks'
 import { AddonTeleporter } from '..'
 import HistoryViewer from './HistoryViewer.vue'
@@ -36,7 +36,9 @@ whenever(isAddonActived, refresh, { immediate: true })
   <AddonTeleporter :active="isAddonActived">
     <div class="h-full overflow-hidden flex flex-col gap-2">
       <div class="flex-shrink-0 flex items-center">
-        <el-button>应用</el-button>
+        <el-button :disabled="loading" :icon="BottomLeft" title="将此记录填充至表单">
+          应用记录
+        </el-button>
 
         <div class="flex-1 text-center">
           <div v-if="nextHistory">
@@ -49,7 +51,7 @@ whenever(isAddonActived, refresh, { immediate: true })
         </div>
 
         <el-button-group class="flex-shrink-0">
-          <el-button style="padding: 0 4px" :disabled="currentIndex + 1 >= data.length" @click="currentIndex++">
+          <el-button style="padding: 0 4px" :disabled="currentIndex + 1 >= data.record.length" @click="currentIndex++">
             <div class="flex flex-col items-center text-xs">
               <el-icon>
                 <Back />
@@ -78,6 +80,7 @@ whenever(isAddonActived, refresh, { immediate: true })
             :loading="loading"
             :pre-history="preHistory"
             :next-history="nextHistory"
+            :users="data.users"
           />
         </el-scrollbar>
       </div>

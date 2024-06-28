@@ -11,13 +11,16 @@ export const useMarkerHistory = (markerVo: Ref<API.MarkerVo>) => {
 
   // TODO 暂时写死 100 条，后续改为动态加载
   const { data, refresh, ...rest } = useFetchHook({
-    initialValue: [],
+    initialValue: {
+      record: [],
+      users: new Map(),
+    },
     onRequest: async () => {
       const { id } = toValue(markerVo)
       if (id === undefined)
         throw new Error('点位 id 为空')
 
-      const { data: { record = [] } = {} } = await Api.history.searchHistory({
+      const { data: { record = [] } = {}, users: _users = {} } = await Api.history.searchHistory({
         current: 1,
         size: 100,
         id: [id],
@@ -25,16 +28,18 @@ export const useMarkerHistory = (markerVo: Ref<API.MarkerVo>) => {
         sort: ['updateTime-'],
       })
 
-      return record
+      const users = new Map(Object.entries(_users))
+
+      return { record, users }
     },
   })
 
   const nextHistory = computed(() => {
-    return data.value[currentIndex.value] as API.HistoryVo | undefined
+    return data.value.record[currentIndex.value] as API.HistoryVo | undefined
   })
 
   const preHistory = computed(() => {
-    return data.value[currentIndex.value + 1] as API.HistoryVo | undefined
+    return data.value.record[currentIndex.value + 1] as API.HistoryVo | undefined
   })
 
   return {
