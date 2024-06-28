@@ -19,7 +19,17 @@ const markerVo = defineModel<API.MarkerVo>('markerVo', {
   required: true,
 })
 
-const { currentIndex, data, refresh, preHistory, loading, nextHistory } = useMarkerHistory(markerVo)
+const {
+  data,
+  current,
+  history,
+  nextDisabled,
+  preDisabled,
+  loading,
+  nextRecord,
+  preRecord,
+  refresh,
+} = useMarkerHistory(markerVo)
 
 whenever(isAddonActived, refresh, { immediate: true })
 </script>
@@ -41,17 +51,17 @@ whenever(isAddonActived, refresh, { immediate: true })
         </el-button>
 
         <div class="flex-1 text-center">
-          <div v-if="nextHistory">
-            {{ new Date(nextHistory.updateTime ?? '').toLocaleString() }}
+          <div v-if="history">
+            {{ new Date(history.updateTime ?? '').toLocaleString() }}
           </div>
 
-          <div v-else>
-            none
+          <div v-else class="text-[var(--el-text-secondary)]">
+            -N/A-
           </div>
         </div>
 
         <el-button-group class="flex-shrink-0">
-          <el-button style="padding: 0 4px" :disabled="currentIndex + 1 >= data.record.length" @click="currentIndex++">
+          <el-button style="padding: 0 4px" :disabled="preDisabled" @click="preRecord">
             <div class="flex flex-col items-center text-xs">
               <el-icon>
                 <Back />
@@ -61,7 +71,7 @@ whenever(isAddonActived, refresh, { immediate: true })
               </div>
             </div>
           </el-button>
-          <el-button style="padding: 0 4px" :disabled="currentIndex <= 0" @click="currentIndex--">
+          <el-button style="padding: 0 4px" :disabled="nextDisabled" @click="nextRecord">
             <div class="flex flex-col items-center text-xs">
               <el-icon>
                 <Right />
@@ -78,8 +88,8 @@ whenever(isAddonActived, refresh, { immediate: true })
         <el-scrollbar height="100%">
           <HistoryViewer
             :loading="loading"
-            :pre-history="preHistory"
-            :next-history="nextHistory"
+            :current="current"
+            :history="history"
             :users="data.users"
           />
         </el-scrollbar>

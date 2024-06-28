@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import fastDiff, { DELETE, INSERT } from 'fast-diff'
 
-defineProps<{
-  newData?: string
-  oldData?: string
-}>()
+const props = withDefaults(defineProps<{
+  history?: string
+  current?: string
+}>(), {
+  history: '',
+  current: '',
+})
 
 const withBreaks = (str: string) => {
   const units = str.split('\n')
@@ -15,26 +18,36 @@ const withBreaks = (str: string) => {
     return seed
   }, [] as string[])
 }
+
+const difference = computed(() => fastDiff(props.history, props.current))
 </script>
 
 <template>
-  <span
-    v-for="([flag, str], index) in fastDiff(oldData ?? '', newData ?? '')"
-    :key="index"
-    class="differ-text"
-    :class="{
-      [0]: '',
-      [INSERT]: 'insert',
-      [DELETE]: 'delete',
-    }[flag]"
-  >
-    <template v-for="(char, charIndex) in withBreaks(str)" :key="charIndex">
-      <template v-if="char !== '\n'">
-        {{ char }}
-      </template>
-      <br v-else>
+  <div>
+    <div v-if="!difference.length" class="text-[var(--el-text-color-secondary)] text-center">
+      无内容
+    </div>
+
+    <template v-else>
+      <span
+        v-for="([flag, str], index) in difference"
+        :key="index"
+        class="differ-text"
+        :class="{
+          [0]: '',
+          [INSERT]: 'insert',
+          [DELETE]: 'delete',
+        }[flag]"
+      >
+        <template v-for="(char, charIndex) in withBreaks(str)" :key="charIndex">
+          <template v-if="char !== '\n'">
+            {{ char }}
+          </template>
+          <br v-else>
+        </template>
+      </span>
     </template>
-  </span>
+  </div>
 </template>
 
 <style scoped>

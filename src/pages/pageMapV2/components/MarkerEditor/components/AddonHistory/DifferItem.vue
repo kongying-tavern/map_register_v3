@@ -3,22 +3,22 @@ import { useIconTagStore, useItemStore } from '@/stores'
 import { AppIconTagRenderer } from '@/components'
 
 const props = withDefaults(defineProps<{
-  newData?: API.MarkerItemLinkVo[]
-  oldData?: API.MarkerItemLinkVo[]
+  history?: API.MarkerItemLinkVo[]
+  current?: API.MarkerItemLinkVo[]
 }>(), {
-  newData: () => [],
-  oldData: () => [],
+  history: () => [],
+  current: () => [],
 })
 
 const itemStore = useItemStore()
 const iconTagStore = useIconTagStore()
 
 const diffItems = computed(() => {
-  const oldIds = props.oldData.reduce((set, { itemId }) => set.add(itemId!), new Set<number>())
-  const oldCountMap = props.oldData.reduce((map, { itemId, count = 0 }) => map.set(itemId!, count), new Map<number, number>())
+  const oldIds = props.history.reduce((set, { itemId }) => set.add(itemId!), new Set<number>())
+  const oldCountMap = props.history.reduce((map, { itemId, count = 0 }) => map.set(itemId!, count), new Map<number, number>())
 
-  const newIds = props.newData.reduce((set, { itemId }) => set.add(itemId!), new Set<number>())
-  const newCountMap = props.newData.reduce((map, { itemId, count = 0 }) => map.set(itemId!, count), new Map<number, number>())
+  const newIds = props.current.reduce((set, { itemId }) => set.add(itemId!), new Set<number>())
+  const newCountMap = props.current.reduce((map, { itemId, count = 0 }) => map.set(itemId!, count), new Map<number, number>())
 
   const bothIds = newIds.union(oldIds)
 
