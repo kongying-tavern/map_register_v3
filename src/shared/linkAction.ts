@@ -27,6 +27,9 @@ export const LINK_ACTION_OPTIONS = [
   { label: '等价', value: LinkActionEnum.EQUIVALENT },
 ]
 
+export const LINK_ACTION_NAME_MAP = LINK_ACTION_OPTIONS
+  .reduce((map, { label, value }) => map.set(value, label), new Map<LinkActionEnum, string>())
+
 export interface LinkActionConfig {
   /** 指示线颜色 */
   lineColor: Color

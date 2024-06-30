@@ -4,7 +4,7 @@ import { LinkIndicator, MarkerIndicator, MarkerInfo } from './components'
 import type { MLContext } from './core'
 import { useLinkCreate } from './hooks'
 import { useMapStateStore } from '@/stores'
-import { LINK_ACTION_OPTIONS } from '@/shared'
+import { LINK_ACTION_NAME_MAP, LINK_ACTION_OPTIONS } from '@/shared'
 import { mapAffixLayerKey } from '@/pages/pageMapV2/shared'
 
 const props = defineProps<{
@@ -83,7 +83,7 @@ const mapAffixLayerRef = inject(mapAffixLayerKey, ref(null))
             {{ `${mapStateStore.currentMarkerIdMap.get(fromId!)?.markerTitle}` }}
           </span>
           <span class="flex-1 text-center">
-            {{ linkAction }}
+            {{ LINK_ACTION_NAME_MAP.get(linkAction) }}
           </span>
           <span class="flex-1 text-center">
             {{ `${mapStateStore.currentMarkerIdMap.get(toId!)?.markerTitle}` }}
