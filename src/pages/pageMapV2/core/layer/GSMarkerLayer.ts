@@ -4,7 +4,9 @@ import { CompositeLayer } from '@deck.gl/core'
 import type { GSCompositeLayerState, LayerAttachOptions } from '.'
 import { useMapStateStore } from '@/stores'
 
-// TODO 应将该图层将与 GSMarkerHoverLayer 合并为组合图层
+/**
+ * # 点位图层
+ */
 export class GSMarkerLayer extends CompositeLayer<GSCompositeLayerState & LayerAttachOptions> {
   static layerName = 'GenshinMarkerLayer'
 
@@ -67,14 +69,14 @@ export class GSMarkerLayer extends CompositeLayer<GSCompositeLayerState & LayerA
       return seed
     }, { defaultIds: [] as number[], topIds: [] as number[] })
 
-    const getColor: [number, number, number, number] | ((id: number) => [number, number, number, number]) = transparentMarked
+    const getColor: [number, number, number, number] | ((id: number) => [number, number, number, number]) = !transparentMarked
       ? [0, 0, 0, 255]
       : (id: number) => markedMarkers.has(id)
           ? [0, 0, 0, 128]
           : [0, 0, 0, 255]
 
     return [
-      new IconLayer(({
+      new IconLayer<number>(({
         id: 'genshin-hover-markers',
         pickable: true,
         data: defaultIds,
@@ -92,7 +94,7 @@ export class GSMarkerLayer extends CompositeLayer<GSCompositeLayerState & LayerA
           return rewritePosition ?? position
         },
         getSize: id => isFocus<number>('marker', id) ? 44 : 36,
-        getColor: [0, 0, 0, 255],
+        getColor,
         sizeScale: 1,
         sizeMaxPixels: 40 * 2 ** (zoom + 2),
         sizeMinPixels: 4,
@@ -101,7 +103,7 @@ export class GSMarkerLayer extends CompositeLayer<GSCompositeLayerState & LayerA
           getSize: [interactionTimestamp],
         },
       })),
-      new IconLayer({
+      new IconLayer<number>({
         id: 'genshin-markers',
         pickable: !isViewPortChanging,
         data: topIds,
