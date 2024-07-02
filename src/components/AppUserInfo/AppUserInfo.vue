@@ -29,17 +29,44 @@ const tab = ref('archive')
       <div class="bg-card rounded" />
 
       <div class="user-info overflow-hidden rounded flex flex-col items-center p-8 pt-28">
-        <div class="banner absolute top-0 left-0 text-center text-lg p-4" :style="{ '--bg': `url('${BANNER_IMAGE_URL}')` }">
-          ID {{ userInfoStore.info.id }}
+        <div class="banner absolute top-0 left-0 text-center text-lg">
+          <el-image
+            :src="BANNER_IMAGE_URL"
+            class="absolute w-full h-full left-0 top-0"
+            fit="cover"
+            style="z-index: -1"
+            crossorigin=""
+          >
+            <template #placeholder>
+              <el-skeleton style="width: 532px; height: 200px" animated>
+                <template #template>
+                  <el-skeleton-item variant="image" style="width: 100%; height: 100%" />
+                </template>
+              </el-skeleton>
+            </template>
+          </el-image>
+          <div class="absolute left-1/2 top-4 z-10">
+            ID {{ userInfoStore.info.id }}
+          </div>
         </div>
 
         <div class="user-avatar w-40 h-40 p-2 flex justify-center items-center">
-          <img
+          <el-image
             v-if="userInfoStore.info.logo?.trim()"
             :src="userInfoStore.info.logo?.trim()"
             class="w-full h-full rounded-full"
+            fit="cover"
+            style="z-index: -1"
             crossorigin=""
           >
+            <template #placeholder>
+              <el-skeleton style="width: 144px; height: 144px" animated>
+                <template #template>
+                  <el-skeleton-item variant="image" style="width: 100%; height: 100%" />
+                </template>
+              </el-skeleton>
+            </template>
+          </el-image>
           <Avatar v-else style="background: var(--el-color-info-light-3);" class="rounded-full text-white" />
         </div>
 

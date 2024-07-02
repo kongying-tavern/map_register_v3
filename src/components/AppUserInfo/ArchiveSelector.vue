@@ -85,12 +85,21 @@ const timeFormater = (time?: string) => time
           @click="archiveViewIndex = archiveSlot.slotIndex"
         >
           <div class="archive-banner items-center text-lg grid place-items-start">
-            <img
+            <el-image
               :src="lastestMarkerArea[archiveSlot.slotIndex as number]"
-              class="absolute w-full h-full left-0 top-0 object-center object-cover"
+              class="absolute w-full h-full left-0 top-0 object-center"
+              fit="cover"
               style="z-index: -1"
               crossorigin=""
             >
+              <template #placeholder>
+                <el-skeleton style="width: 536px; height: 99px" animated>
+                  <template #template>
+                    <el-skeleton-item variant="image" style="width: 100%; height: 100%" />
+                  </template>
+                </el-skeleton>
+              </template>
+            </el-image>
             <div
               v-show="`${index}` === `${archiveStore.currentArchive.slotIndex}`"
               class="absolute left-3 top-3 w-10 h-10 rounded-full border-2 grid place-items-center"
