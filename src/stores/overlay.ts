@@ -119,6 +119,10 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
         role,
         multiple = false,
       } of mergedOverlayGroups.value[areaCode]) {
+        const tileConfigInArea = mergedTileConfigs[areaCode]
+        if (!tileConfigInArea)
+          continue
+
         const group = {
           id: groupId,
           name: groupLabel,
@@ -150,7 +154,7 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
               continue
             urlSet.add(url)
 
-            const { center: [cx, cy] } = mergedTileConfigs[areaCode].tile
+            const { center: [cx, cy] } = tileConfigInArea.tile
             const [[xmin, ymin], [xmax, ymax]] = itemBounds
 
             result.push({
@@ -179,7 +183,7 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
               continue
             urlSet.add(url)
 
-            const { center: [cx, cy] } = mergedTileConfigs[areaCode].tile
+            const { center: [cx, cy] } = tileConfigInArea.tile
             const [[xmin, ymin], [xmax, ymax]] = chunkBounds
 
             result.push({
@@ -246,7 +250,10 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
     const { mergedTileConfigs } = tileStore
     const { code: currentLayerCode } = currentTileConfig.tile
     return normalizedOverlayChunks.value.filter(({ areaCode }) => {
-      return mergedTileConfigs[areaCode].tile.code === currentLayerCode
+      const config = mergedTileConfigs[areaCode]
+      if (!config)
+        return false
+      return config.tile.code === currentLayerCode
     })
   })
 
