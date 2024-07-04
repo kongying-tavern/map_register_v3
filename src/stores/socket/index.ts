@@ -24,6 +24,7 @@ export const useSocketStore = defineStore('global-web-socket', () => {
     open,
     close,
     onOpen,
+    onClose,
     ...rest
   } = useSocket(`${import.meta.env.VITE_WS_BASE}/{userId}`, {
     params: () => ({
@@ -43,6 +44,10 @@ export const useSocketStore = defineStore('global-web-socket', () => {
     _eventBus.emit(event, data)
   })
 
+  onClose(() => {
+    _userId.value = undefined
+  })
+
   return {
     event: _eventBus,
     userId: _userId as Readonly<Ref<number | undefined>>,
@@ -50,6 +55,7 @@ export const useSocketStore = defineStore('global-web-socket', () => {
     connect,
     close,
     onOpen,
+    onClose,
     ...rest,
   }
 })
