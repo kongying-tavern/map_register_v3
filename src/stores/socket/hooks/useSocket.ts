@@ -21,6 +21,7 @@ export const useSocket = (templatedUrl: string, options: SocketHookOptions) => {
 
   const socketEventHook = createEventHook<API.WSData>()
   const openHook = createEventHook<void>()
+  const closeHook = createEventHook<void>()
 
   const socketWorker = new SocketWorker({
     name: 'Socket 工作线程',
@@ -31,6 +32,10 @@ export const useSocket = (templatedUrl: string, options: SocketHookOptions) => {
   message$.pipe(
     filter(({ data }) => data.event === SocketWorkerEvent.StatusChange),
     map(({ data }) => data.data as unknown as number),
+    tap((newStatus) => {
+      if (newStatus === WebSocket.CLOSED)
+        closeHook.trigger()
+    }),
   ).subscribe(setStatus)
 
   message$.pipe(
@@ -100,6 +105,7 @@ export const useSocket = (templatedUrl: string, options: SocketHookOptions) => {
     data$,
     onMessage: socketEventHook.on,
     onOpen: openHook.on,
+    onClose: closeHook.on,
     send,
     close,
     open,
