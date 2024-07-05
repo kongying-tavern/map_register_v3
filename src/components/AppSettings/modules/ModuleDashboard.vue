@@ -38,6 +38,7 @@ const { state: glInfo } = useAsyncState<{ label: string; value: unknown }[]>(asy
     'RENDERER',
     'VENDOR',
     'VERSION',
+    'MAX_TEXTURE_IMAGE_UNITS',
     'SHADING_LANGUAGE_VERSION',
   ].map(key => ({
     label: key.replace(/_/g, ' ').toLowerCase(),
