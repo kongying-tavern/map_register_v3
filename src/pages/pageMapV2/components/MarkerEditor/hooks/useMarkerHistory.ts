@@ -2,7 +2,16 @@ import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 import { HistoryRecordType } from '@/shared'
 
+/**
+ * 注意，该 hook 静态复制了初次传入的表单值，刷新需要主动调用 `refreshSource`
+ */
 export const useMarkerHistory = (markerVo: Ref<API.MarkerVo>) => {
+  const clonedMarkerVo = ref(JSON.parse(JSON.stringify(markerVo.value)) as API.MarkerVo)
+
+  const refreshSource = () => {
+    clonedMarkerVo.value = JSON.parse(JSON.stringify(markerVo.value)) as API.MarkerVo
+  }
+
   /**
    * 当前选择的记录索引，比对器会将该条与上一条进行对比
    * 在 updateTime- 排序模式下，index 越小记录越新
@@ -19,7 +28,7 @@ export const useMarkerHistory = (markerVo: Ref<API.MarkerVo>) => {
     onRequest: async () => {
       selectedHistoryIndex.value = 0
 
-      const { id } = toValue(markerVo)
+      const { id } = toValue(clonedMarkerVo)
       if (id === undefined)
         throw new Error('点位 id 为空')
 
@@ -49,14 +58,9 @@ export const useMarkerHistory = (markerVo: Ref<API.MarkerVo>) => {
     },
   })
 
-  const current = computed(() => {
-    const nextHistory = data.value.record[selectedHistoryIndex.value - 1]
-    return nextHistory ? JSON.parse(nextHistory.content ?? '{}') as API.MarkerVo : markerVo.value
-  })
-
   const nextDisabled = computed(() => selectedHistoryIndex.value <= 0)
 
-  const preDisabled = computed(() => selectedHistoryIndex.value + 1 >= data.value.record.length)
+  const preDisabled = computed(() => selectedHistoryIndex.value >= data.value.record.length)
 
   const nextRecord = () => {
     if (nextDisabled.value)
@@ -70,13 +74,31 @@ export const useMarkerHistory = (markerVo: Ref<API.MarkerVo>) => {
     selectedHistoryIndex.value += 1
   }
 
-  const history = computed(() => data.value.record[selectedHistoryIndex.value])
+  const currentHistory = computed(() => {
+    return data.value.record[selectedHistoryIndex.value - 1] as API.HistoryVo | undefined
+  })
+
+  const current = computed(() => {
+    const currentHistory = data.value.record[selectedHistoryIndex.value - 1] as API.HistoryVo | undefined
+    return currentHistory ? JSON.parse(currentHistory.content ?? '{}') as API.MarkerVo : clonedMarkerVo.value
+  })
+
+  const currentTime = computed(() => {
+    return currentHistory.value?.updateTime ?? clonedMarkerVo.value.updateTime
+  })
+
+  const history = computed(() => {
+    // 如果历史记录是初始那条，则其记录的 content 是创建时的表单而非修改前的表单
+    return data.value.record[selectedHistoryIndex.value] ?? data.value.record[selectedHistoryIndex.value - 1] as API.HistoryVo | undefined
+  })
 
   return {
     data,
     current,
+    currentTime,
     nextDisabled,
     preDisabled,
+    refreshSource,
     nextRecord,
     preRecord,
     refresh,
