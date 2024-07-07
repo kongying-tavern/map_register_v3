@@ -32,8 +32,8 @@ const historyContent = computed(() => JSON.parse(props.history?.content ?? '{}')
 
         <HistoryDifferItem label="点位层级">
           <DifferText
-            :history="JSON.stringify(historyContent.extra ?? '{}')"
-            :current="JSON.stringify(current.extra ?? '{}')"
+            :history="JSON.stringify(historyContent.extra ?? Object.create({}))"
+            :current="JSON.stringify(current.extra ?? Object.create({}))"
           />
         </HistoryDifferItem>
 
