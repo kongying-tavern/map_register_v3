@@ -3,6 +3,7 @@ import HistoryDifferItem from './HistoryDifferItem.vue'
 import DifferText from './DifferText.vue'
 import DifferItem from './DifferItem.vue'
 import DifferUser from './DifferUser.vue'
+import { HIDDEN_FLAG_NAME_MAP } from '@/shared'
 
 const props = defineProps<{
   loading?: boolean
@@ -60,8 +61,8 @@ const historyContent = computed(() => JSON.parse(props.history?.content ?? '{}')
 
         <HistoryDifferItem label="显示状态">
           <DifferText
-            :history="`${historyContent.hiddenFlag}`"
-            :current="`${current.hiddenFlag}`"
+            :history="HIDDEN_FLAG_NAME_MAP[`${historyContent.hiddenFlag}`]"
+            :current="HIDDEN_FLAG_NAME_MAP[`${current.hiddenFlag}`]"
           />
         </HistoryDifferItem>
 
