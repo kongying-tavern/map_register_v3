@@ -37,11 +37,16 @@ const form = ref<API.MarkerVo & { areaCode: string }>({
   extra: props.modelValue.extra ?? {},
   areaCode: props.initAreaCode ?? '',
 })
+
 watch(form, () => {
   if (props.loading)
     return
   emits('update:modelValue', form.value)
 }, { deep: true })
+
+const handleUsingHistory = (history: API.MarkerVo) => {
+  Object.assign(form.value, history)
+}
 
 /** 表单校验规则 */
 const rules: FormRules = {
@@ -142,7 +147,13 @@ defineExpose({
           <el-form-item label="点位名称" prop="markerTitle">
             <div class="w-full flex justify-between gap-1">
               <el-input v-model="form.markerTitle" />
-              <AddonHistory v-if="form.id !== undefined" v-model:addon-id="addonId" v-model:marker-vo="form" />
+              <AddonHistory
+                v-if="form.id !== undefined"
+                v-model:addon-id="addonId"
+                v-model:marker-vo="form"
+                :loading="loading"
+                @use-history="handleUsingHistory"
+              />
             </div>
           </el-form-item>
 

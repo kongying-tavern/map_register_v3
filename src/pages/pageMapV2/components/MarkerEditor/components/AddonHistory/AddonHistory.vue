@@ -1,8 +1,16 @@
 <script lang="ts" setup>
-import { BottomLeft, Clock } from '@element-plus/icons-vue'
+import { Clock, CopyDocument } from '@element-plus/icons-vue'
 import { useMarkerHistory } from '../../hooks'
 import { AddonTeleporter } from '..'
 import HistoryViewer from './HistoryViewer.vue'
+
+defineProps<{
+  loading?: boolean
+}>()
+
+defineEmits<{
+  useHistory: [API.MarkerVo]
+}>()
 
 const addonId = defineModel<string | undefined>('addonId', {
   required: false,
@@ -22,10 +30,11 @@ const markerVo = defineModel<API.MarkerVo>('markerVo', {
 const {
   data,
   current,
+  currentTime,
   history,
   nextDisabled,
   preDisabled,
-  loading,
+  loading: historyLoading,
   nextRecord,
   preRecord,
   refresh,
@@ -46,13 +55,9 @@ whenever(isAddonActived, refresh, { immediate: true })
   <AddonTeleporter :active="isAddonActived">
     <div class="h-full overflow-hidden flex flex-col gap-2">
       <div class="flex-shrink-0 flex items-center">
-        <el-button :disabled="loading" :icon="BottomLeft" title="将此记录填充至表单">
-          应用记录
-        </el-button>
-
         <div class="flex-1 text-center">
           <div v-if="history">
-            {{ new Date(history.updateTime ?? '').toLocaleString() }}
+            {{ new Date(currentTime ?? '').toLocaleString() }}
           </div>
 
           <div v-else class="text-[var(--el-text-secondary)]">
@@ -84,16 +89,31 @@ whenever(isAddonActived, refresh, { immediate: true })
         </el-button-group>
       </div>
 
+      <el-divider style="margin: 0;" />
+
       <div class="flex-1 overflow-hidden">
         <el-scrollbar height="100%">
           <HistoryViewer
-            :loading="loading"
+            :loading="historyLoading"
             :current="current"
             :history="history"
             :users="data.users"
           />
         </el-scrollbar>
       </div>
+
+      <el-divider style="margin: 0;" />
+
+      <el-button
+        :disabled="!history || historyLoading || loading"
+        :icon="CopyDocument"
+        title="将此记录填充至表单"
+        type="primary"
+        plain
+        @click="() => $emit('useHistory', current)"
+      >
+        将此记录填充至表单
+      </el-button>
     </div>
   </AddonTeleporter>
 </template>
