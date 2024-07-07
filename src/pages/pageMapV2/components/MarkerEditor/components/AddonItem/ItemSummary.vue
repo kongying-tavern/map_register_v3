@@ -106,11 +106,21 @@ const areaTree = computed(() => {
 
 const internalUpdateFlag = ref(false)
 
-watch(modelValue, () => {
+watch(() => modelValue.value.itemList, (newItemList = []) => {
   if (internalUpdateFlag.value) {
     internalUpdateFlag.value = false
     return
   }
+  areaCodeForAdding.value = newItemList.reduce((seed, { itemId }) => {
+    const item = itemStore.itemIdMap.get(itemId!)
+    if (!item)
+      return seed
+    const area = areaStore.areaIdMap.get(item.areaId!)
+    if (!area)
+      return seed
+    seed.push(area.code!)
+    return seed
+  }, [] as string[])
   const newItemsGroup = calculateItemsGroup()
   itemsGroup.value.forEach((_, key) => {
     itemsGroup.value.set(key, [])
