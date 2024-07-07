@@ -52,10 +52,10 @@ const setRestItems = (target: HTMLElement | undefined, items: number[] = []) => 
       hover:bg-[var(--el-color-primary-light-9)]
     "
   >
-    <div class="w-8 h-8 p-0.5">
+    <div class="w-8 h-8 p-0.5" :title="data._raw.iconTag">
       <AppIconTagRenderer
         :src="iconTagStore.tagSpriteUrl"
-        :mapping="iconTagStore.tagPositionMap[data.iconTag ?? 'unknown']"
+        :mapping="iconTagStore.tagPositionMap[data._raw.iconTag ?? 'unknown']"
         class="w-full h-full"
       />
     </div>
