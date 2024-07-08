@@ -22,7 +22,7 @@ const { cachedMarkerVo, isPopoverActived, focus, blur, updateFocus } = useMarker
 
 const { pictureUrl, loading: imageLoading } = useSkeletonPicture(cachedMarkerVo)
 
-const { isFinished } = useMarkerFinished(cachedMarkerVo)
+const { isFinished, toggle: toggleFinished } = useMarkerFinished(cachedMarkerVo)
 
 const { isMoving, isEnable, position } = useMarkerMove(cachedMarkerVo)
 
@@ -177,7 +177,7 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
           <GSButton
             :theme="isFinished ? undefined : 'dark'"
             class="flex-1" size="small"
-            @click="isFinished = !isFinished"
+            @click="toggleFinished"
           >
             <template #icon>
               <el-icon :color="isFinished ? 'var(--el-color-success)' : 'var(--el-color-info)'">

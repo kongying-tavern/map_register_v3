@@ -21,5 +21,10 @@ export const useMarkerFinished = (markerInfo: ShallowRef<API.MarkerVo | null>) =
     },
   })
 
-  return { isFinished }
+  const toggle = async () => {
+    isFinished.value = !isFinished.value
+    await archiveStore.saveArchiveToSlot(archiveStore.currentArchive.slotIndex)
+  }
+
+  return { isFinished, toggle }
 }
