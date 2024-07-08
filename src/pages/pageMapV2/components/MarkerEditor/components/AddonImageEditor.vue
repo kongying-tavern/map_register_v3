@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { CircleCheck, Plus, Scissor, Setting } from '@element-plus/icons-vue'
+import { CircleCheck, Delete, Plus, Scissor, Setting } from '@element-plus/icons-vue'
 import { useLocalPicture, useMarkerPicture } from '../hooks'
 import { AddonTeleporter } from '.'
 import { formatByteSize } from '@/utils'
@@ -22,6 +22,7 @@ const {
   localPictureUrl: newPictureUrl,
   refresh: selectFile,
   onSuccess: onSelectSuccess,
+  clear: clearLocalPicture,
 } = useLocalPicture()
 
 // ==================== 生成缩略图 ====================
@@ -52,6 +53,15 @@ const onCrop = (image: Blob) => {
   const url = new URL(croppedImageUrl.value)
   url.searchParams.append('raw', newPictureUrl.value!)
   modelValue.value = url.toString()
+}
+
+// ====================  清除图片  ====================
+const clearImage = () => {
+  modelValue.value = ''
+  croppedImage.value = undefined
+  croppedImageUrl.value = ''
+  URL.revokeObjectURL(croppedImageUrl.value)
+  clearLocalPicture()
 }
 
 // ====================  附加组件  ====================
@@ -105,8 +115,19 @@ onSelectSuccess((file) => {
       </div>
     </div>
 
-    <div v-if="croppedImage" class="h-40 flex-1 pl-2 flex flex-col justify-end">
-      <div class="flex items-center text-sm gap-1 text-[var(--el-color-success)] leading-none">
+    <div class="full flex-1 px-2 flex flex-col justify-between">
+      <div class="flex flex-col justify-start">
+        <el-button
+          title="删除图片"
+          plain
+          type="danger"
+          :icon="Delete"
+          :disabled="!modelValue"
+          style="width: 32px; padding: 0"
+          @click="clearImage"
+        />
+      </div>
+      <div v-if="croppedImage" class="flex items-center text-sm gap-1 text-[var(--el-color-success)] leading-none">
         <el-icon :size="16">
           <CircleCheck />
         </el-icon>

@@ -34,9 +34,14 @@ export const useLocalPicture = () => {
 
   const localPictureUrl = useObjectUrl(localPicture)
 
+  const clear = () => {
+    localPicture.value = undefined
+  }
+
   return {
     localPicture,
     localPictureUrl,
+    clear,
     ...rest,
   }
 }
