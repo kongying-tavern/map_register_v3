@@ -1,6 +1,6 @@
 import { createProgram, createShader } from './utils'
-import VS_SOURCE from './shaders/ssim.vs?raw'
-import FS_SOURCE from './shaders/ssim.fs?raw'
+import VS_SOURCE from './shaders/ssim.vs.glsl?raw'
+import FS_SOURCE from './shaders/ssim.fs.glsl?raw'
 
 export interface ImageComparerOptions {
   width: number
