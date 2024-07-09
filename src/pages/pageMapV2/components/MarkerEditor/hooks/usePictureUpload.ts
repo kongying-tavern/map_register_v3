@@ -49,21 +49,10 @@ export const usePictureUpload = () => {
     const thumbImage = await (await fetch(thumbUrl)).blob()
     const thumbImageName = `${await getDigest(thumbImage, 'SHA-256')}.png`
 
-    // 提取大图
-    const largeUrl = `${url.searchParams.get('raw')}`
-    const largeImage = await (await fetch(largeUrl)).blob()
-    const largeImageName = `${await getDigest(largeImage, 'SHA-256')}.png`
-
     // 上传缩略图
     const { data: { fileUrl } = {} } = await uploadImage({
       file: new File([thumbImage], thumbImageName, { type: 'image/png', lastModified }),
       filePath: `${folder}/${thumbImageName}`,
-    })
-
-    // 上传大图
-    await uploadImage({
-      file: new File([largeImage], largeImageName, { type: 'image/png', lastModified }),
-      filePath: `${folder}/${largeImageName}`,
     })
 
     form.picture = fileUrl

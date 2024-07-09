@@ -46,13 +46,9 @@ const withoutSearchParams = (url?: string) => {
 
 const onCrop = (image: Blob) => {
   URL.revokeObjectURL(croppedImageUrl.value)
-
   croppedImage.value = image
   croppedImageUrl.value = URL.createObjectURL(image)
-
-  const url = new URL(croppedImageUrl.value)
-  url.searchParams.append('raw', newPictureUrl.value!)
-  modelValue.value = url.toString()
+  modelValue.value = croppedImageUrl.value
 }
 
 // ====================  清除图片  ====================
