@@ -16,13 +16,18 @@ const { count, set: setCount } = useCountDown()
 const trigger = async () => {
   if (count.value > 0)
     return
+  setCount(3)
   await login()
-  setCount(2)
 }
 </script>
 
 <template>
-  <div class="h-full grid place-items-center">
+  <div
+    class="login-page h-full grid place-items-center"
+    :class="{
+      'is-loading': loading,
+    }"
+  >
     <el-card class="w-96 py-2" style="--el-card-border-radius: 8px">
       <div class="flex flex-col justify-center items-center genshin-text pb-4">
         <img class="w-12 h-12" src="/favicon.ico">
@@ -53,7 +58,7 @@ const trigger = async () => {
                 离线 (仅开发可用)
               </el-button>
               <el-button type="primary" class="w-full" size="large" :disabled="count > 0" :loading="loading" @click="trigger">
-                登录 {{ count > 0 ? `(${count}s)` : '' }}
+                登录 {{ count > 0 ? `(${count})` : '' }}
               </el-button>
             </div>
           </el-tab-pane>
@@ -75,3 +80,41 @@ const trigger = async () => {
     </el-card>
   </div>
 </template>
+
+<style scoped>
+@property --login-page-offset {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 0%;
+}
+
+@keyframes login-page-anime {
+  from {
+    --login-page-offset: 100%;
+  }
+  to {
+    --login-page-offset: 0%;
+  }
+}
+
+.login-page {
+  --color-a: var(--el-color-primary-light-5);
+  --color-b: transparent;
+  --gap: 5%;
+  --state: paused;
+
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--color-a) var(--login-page-offset),
+    var(--color-a) calc(var(--login-page-offset) + var(--gap)),
+    var(--color-b) calc(var(--login-page-offset) + var(--gap)),
+    var(--color-b) calc(var(--login-page-offset) + 2 * var(--gap))
+  );
+  animation: login-page-anime 30s linear 0s infinite;
+  animation-play-state: var(--state);
+
+  &.is-loading {
+    --state: running;
+  }
+}
+</style>
