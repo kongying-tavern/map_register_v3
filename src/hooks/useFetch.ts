@@ -43,19 +43,25 @@ export const useFetchHook = <T, A extends unknown[] = []>(options: FetchHookOpti
     ? shallowRef(initialValue) as ShallowRef<T>
     : ref(initialValue) as Ref<T>
 
-  const timestamp = shallowRef(Date.now())
+  const abortController = shallowRef<AbortController>()
 
   const refresh = async (...args: A) => {
-    const current = Date.now()
-    timestamp.value = current
+    if (abortController.value) {
+      abortController.value.abort()
+      abortController.value = undefined
+    }
+
+    const abort = new AbortController()
+    abortController.value = abort
+
     try {
       loading.value = true
       if (onRequest) {
         const res = await onRequest(...args)
+        if (abort.signal.aborted)
+          return
         if (isBasicResponse(res) && res.error)
           throw new Error(`error in server: ${res.message}`)
-        if (current < timestamp.value)
-          return
         if (diff && diff(data.value, res))
           return
         data.value = res as T
@@ -68,6 +74,7 @@ export const useFetchHook = <T, A extends unknown[] = []>(options: FetchHookOpti
     finally {
       loading.value = false
       onFinishHook.trigger()
+      abortController.value = undefined
     }
   }
 
@@ -75,3 +82,4 @@ export const useFetchHook = <T, A extends unknown[] = []>(options: FetchHookOpti
 
   return { data, loading, refresh, onSuccess: onSuccessHook.on, onError: onErrorHook.on, onFinish: onFinishHook.on }
 }
+Reflect.set(globalThis, 'useFetchHook', useFetchHook)
