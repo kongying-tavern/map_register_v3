@@ -19,6 +19,8 @@ export const useMarkerSprite = (options: MarkerSpriteHookOptions) => {
 
   const states: { state: string; color: string }[] = [
     { state: 'default', color: '#FFFFFF' },
+    { state: 'hover', color: '#DDDDDD' },
+    { state: 'focus', color: '#FFFF00' },
     { state: 'marked', color: '#00FFFD' },
   ]
 
