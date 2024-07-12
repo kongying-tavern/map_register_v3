@@ -71,10 +71,7 @@ export const usePreferenceStore = defineStore('global-user-preference', () => {
     await archiveStore.saveArchiveToSlot(archiveStore.currentArchive.slotIndex)
   }
 
-  watchDebounced(preference, syncUserPreference, {
-    deep: true,
-    debounce: 500,
-  })
+  watch(preference, syncUserPreference, { deep: true })
 
   return {
     // states
