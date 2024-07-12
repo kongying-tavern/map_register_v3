@@ -13,11 +13,13 @@ export const useRouteStore = defineStore('global-route', () => {
 
   const [loading, setLoading] = useState(false)
 
-  /** 上次导航错误 */
-  const lastError = ref({
-    path: '',
-    count: 0,
-  })
+  const error = shallowRef<Error>()
+
+  const consumeError = () => {
+    const err = error.value
+    error.value = undefined
+    return err
+  }
 
   /** 根据权限筛选出的一级菜单的路由 */
   const menuRoutes = computed(() => {
@@ -36,12 +38,12 @@ export const useRouteStore = defineStore('global-route', () => {
   return {
     // states
     loading,
-    lastError,
 
     // getters
     menuRoutes,
 
     // actions
     setLoading,
+    consumeError,
   }
 })

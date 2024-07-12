@@ -48,15 +48,12 @@ router.beforeEach((to) => {
 
 router.afterEach((to) => {
   const routeStore = useRouteStore()
+  routeStore.setLoading(false)
   routerHook.applyCallbacks('onAfterRouterEnter')
   nextTick(() => {
     useRouteStore().setLoading(false)
     const title = useTitle()
     title.value = to.meta.title ?? import.meta.env.VITE_TITLE
-    routeStore.lastError = {
-      path: '',
-      count: 0,
-    }
   })
 })
 
