@@ -63,10 +63,17 @@ const render = async (params: WorkerInput, logger: Logger): Promise<WorkerSucces
   const digest = await getDigest(new TextEncoder().encode(JSON.stringify(tagList)).buffer, 'SHA-256')
   const cache = await db.cache.get('tagSprite')
 
-  // 如果存在缓存，则直接返回
-  if (cache && cache.id === 'tagSprite' && digest && cache.digest === digest) {
-    logger.info('缓存有效，跳过预渲染')
+  const validCache = (() => {
+    if (!cache || cache.id !== 'tagSprite')
+      return
+    if (cache.digest !== digest)
+      return
     return cache.value
+  })()
+
+  if (validCache) {
+    logger.info('缓存有效，跳过渲染')
+    return validCache
   }
 
   // 备用图片
@@ -95,6 +102,7 @@ const render = async (params: WorkerInput, logger: Logger): Promise<WorkerSucces
     image: fallbackImage,
   }
 
+  logger.info('请求图片...')
   const renderList = await limitPromiseAll(fetchList, async ({ tags, url }) => {
     try {
       const image = await loadImage(url)
@@ -113,25 +121,30 @@ const render = async (params: WorkerInput, logger: Logger): Promise<WorkerSucces
     initResult: [fallbackRenderObject],
   })
 
+  logger.info('检测重复图片...')
+
   // ==================== 绘制矩阵 ====================
 
   const { cols, rows } = calculateGrid(renderList.length)
-  const canvasSize = cols * size + (cols - 1) * gap
+  const canvasSize = cols * (size + gap) + gap
   const canvas = new OffscreenCanvas(canvasSize, canvasSize)
   const ctx = canvas.getContext('2d')!
 
   const tagsPositionList: WorkerSuccessOutput['tagsPositionList'] = []
 
+  logger.info('正在绘制...')
   renderList.forEach(({ tags, image }, index) => {
     const row = Math.floor(index / rows)
     const col = index - row * cols
-    const x = col * (size + gap)
-    const y = row * (size + gap)
+    const x = col * size + (col + 1) * gap
+    const y = row * size + (row + 1) * gap
     const { sx, sy, sw, sh, dx, dy, dw, dh } = getObjectFitSize('contain', size, size, image.width, image.height)
-    ctx.drawImage(image, sx, sy, sw, sh, x + dx, y + dy, dw, dh)
+    const absoluteX = x + dx
+    const absoluteY = y + dy
+    ctx.drawImage(image, sx, sy, sw, sh, absoluteX, absoluteY, dw, dh)
     tagsPositionList.push({
       tags,
-      pos: [x, y],
+      pos: [absoluteX, absoluteY],
     })
   })
 
