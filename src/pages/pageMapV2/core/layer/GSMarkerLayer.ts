@@ -1,6 +1,6 @@
-import { IconLayer } from '@deck.gl/layers'
 import type { LayersList } from '@deck.gl/core'
 import { CompositeLayer } from '@deck.gl/core'
+import { MarkerSubLayer } from './MarkerSubLayer'
 import type { GSCompositeLayerState, LayerAttachOptions } from '.'
 import { useMapStateStore } from '@/stores'
 
@@ -75,66 +75,68 @@ export class GSMarkerLayer extends CompositeLayer<GSCompositeLayerState & LayerA
           ? [0, 0, 0, 128]
           : [0, 0, 0, 255]
 
+    const getIcon = (id: number) => {
+      const { render: { mainIconTag = '无' } } = markersMap.get(id)!
+      return mainIconTag
+    }
+
+    const getIconFlag = (id: number) => {
+      const { render: { isUnderground } } = markersMap.get(id)!
+      const state = isMarked(id)
+        ? 0b1000
+        : isFocus<number>('marker', id)
+          ? 0b0100
+          : isHover<number>('marker', id)
+            ? 0b0010
+            : 0b0001
+      return state + (isUnderground ? 0b10000 : 0b00000)
+    }
+
+    const getPosition = (id: number) => {
+      const { render: { position } } = markersMap.get(id)!
+      const rewritePosition = markerDraggingMap[id]
+      return rewritePosition ?? position
+    }
+
+    const sizeMaxPixels = 40 * 2 ** (zoom + 2)
+
     return [
-      new IconLayer<number>(({
-        id: 'genshin-hover-markers',
-        pickable: true,
+      new MarkerSubLayer({
+        id: 'genshin-default-markers',
+        pickable: !isViewPortChanging,
         data: defaultIds,
         iconAtlas: markerSpriteImage,
         iconMapping: markerSpriteMapping,
-        getIcon: (id) => {
-          const { render: { isUnderground, mainIconTag } } = markersMap.get(id)!
-          const state = isMarked(id!) ? 'marked' : 'default'
-          const type = isUnderground ? 'underground' : 'default'
-          return `${mainIconTag}.${state}.${type}`
-        },
-        getPosition: (id) => {
-          const { render: { position } } = markersMap.get(id)!
-          const rewritePosition = markerDraggingMap[id]
-          return rewritePosition ?? position
-        },
-        getSize: id => isFocus<number>('marker', id) ? 44 : 36,
+        getIcon,
+        getIconFlag,
+        getPosition,
+        getSize: 44,
         getColor,
         sizeScale: 1,
-        sizeMaxPixels: 40 * 2 ** (zoom + 2),
-        sizeMinPixels: 4,
-        updateTriggers: {
-          getPosition: [markerDraggingList],
-          getSize: [interactionTimestamp],
-        },
-      })),
-      new IconLayer<number>({
-        id: 'genshin-markers',
-        pickable: !isViewPortChanging,
-        data: topIds,
-        iconAtlas: markerSpriteImage,
-        iconMapping: markerSpriteMapping,
-        getIcon: (id) => {
-          const { render: { isUnderground, mainIconTag = '无' } } = markersMap.get(id)!
-          const state = isMarked(id!) ? 'marked' : 'default'
-          const type = isUnderground ? 'underground' : 'default'
-          return `${mainIconTag}.${state}.${type}`
-        },
-        getPosition: (id) => {
-          const { render: { position } } = markersMap.get(id)!
-          const rewritePosition = markerDraggingMap[id]
-          return rewritePosition ?? position
-        },
-        getSize: (id) => {
-          if (isFocus<number>('marker', id))
-            return 44
-          if (isHover<number>('marker', id))
-            return 40
-          return 36
-        },
-        getColor,
-        sizeScale: 1,
-        sizeMaxPixels: 40 * 2 ** (zoom + 2),
+        sizeMaxPixels,
         sizeMinPixels: 4,
         updateTriggers: {
           getIcon: [interactionTimestamp, archiveHash],
           getPosition: [markerDraggingList],
-          getSize: [interactionTimestamp],
+        },
+      }),
+      new MarkerSubLayer({
+        id: 'genshin-top-markers',
+        pickable: !isViewPortChanging,
+        data: topIds,
+        iconAtlas: markerSpriteImage,
+        iconMapping: markerSpriteMapping,
+        getIcon,
+        getIconFlag,
+        getPosition,
+        getSize: 44,
+        getColor: [0, 0, 0, 255],
+        sizeScale: 1,
+        sizeMaxPixels,
+        sizeMinPixels: 4,
+        updateTriggers: {
+          getIcon: [interactionTimestamp, archiveHash],
+          getPosition: [markerDraggingList],
           getColor: [transparentMarked, archiveHash],
         },
       }),
