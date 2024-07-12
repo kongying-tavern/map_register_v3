@@ -16,8 +16,11 @@ export class GSOverlayer extends CompositeLayer<GSCompositeLayerState> {
   }
 
   renderLayers = (): LayersList => {
+    const { tileConfig } = this.props
+    if (!tileConfig)
+      return []
+
     const {
-      tileConfig,
       showOverlayMask,
       chunkMap,
       normalChunks,
@@ -27,8 +30,8 @@ export class GSOverlayer extends CompositeLayer<GSCompositeLayerState> {
 
     const { isHover, hasHover } = useMapStateStore()
 
-    const [w, h] = tileConfig!.tile.size
-    const [ox, oy] = tileConfig!.tile.tilesOffset
+    const [w, h] = tileConfig.tile.size
+    const [ox, oy] = tileConfig.tile.tilesOffset
 
     const xmin = ox
     const ymin = oy
