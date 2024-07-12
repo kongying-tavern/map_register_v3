@@ -46,7 +46,8 @@ axiosInstance.interceptors.response.use(
   (error) => {
     if (error instanceof AxiosError) {
       logger.error('response', error.response)
-      if (error.response?.status === 401)
+      const { status } = error.response ?? {}
+      if (status !== undefined && [401, 403].includes(status))
         useUserAuthStore().logout()
     }
     return Promise.reject(error)
