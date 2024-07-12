@@ -1,4 +1,4 @@
-import type { IconLayerProps } from '@deck.gl/layers'
+import type { IconMapping } from 'node_modules/@deck.gl/layers/dist/icon-layer/icon-manager'
 import type { Logger } from '@/utils/logger'
 import { WorkerThreadDB } from '@/database/db/worker'
 import { getDigest } from '@/utils/getDigest'
@@ -17,7 +17,7 @@ export interface WorkerInput {
   tagsPositionList: DBType.CacheTypes['tagSprite']['tagsPositionList']
 
   /** 点位图标的交互状态列表，颜色会被渲染在图标的图标状态部分路径上 */
-  states: { state: string; color: string }[]
+  states: StateOption[]
 
   /** 点位图标的无状态部分的颜色 */
   outlineColor?: string
@@ -29,13 +29,18 @@ export interface WorkerInput {
   gap?: number
 }
 
-interface MppingOptions extends WorkerInput {
-  types: { type: string; icon?: ImageBitmap }[]
-  rows: number
-  singleSize: number
-  stateCount: number
-  unitW: number
-  unitH: number
+interface StateOption {
+  state: string
+  color: string
+}
+
+interface AttachOption {
+  /** 附加纹理的 key，用于获取纹理映射坐标 */
+  key: string
+  /** 附加纹理 */
+  icon: ImageBitmap
+  /** 附加纹理是否渲染于图标层级之下 */
+  under?: boolean
 }
 
 /** 主线程接收数据 */
@@ -143,85 +148,79 @@ const UG_ICON = createSnapshot([64, 64], (ctx) => {
   ctx.fill(UG_INNER_PATH)
 })
 
-/** 编排元素使画板 */
-const arrangeCanvas = ({ tagsPositionList, stateCount, typeCount, iconSize, gap, textureSizeLimit }: {
+/**
+ * 编排画板并生成 mapping，具体思路如下：
+ * 1. 第一行预留给状态纹理+附加纹理，正常情况下够用了，
+ */
+const calculate = ({ tagsPositionList, states, attachs, iconSize, gap, textureSizeLimit }: {
   tagsPositionList: DBType.CacheTypes['tagSprite']['tagsPositionList']
-  stateCount: number
-  typeCount: number
+  states: StateOption[]
+  attachs: AttachOption[]
   iconSize: number
   gap: number
   textureSizeLimit: number
 }) => {
-  const unitW = (iconSize + gap) * stateCount * typeCount
-  const unitH = iconSize + gap
+  const size = iconSize + gap
 
-  let cols = 1
-  let rows = tagsPositionList.length
+  /** 最小列数以保证 状态纹理+附加纹理 的总数能被容纳 */
+  const minCols = states.length + attachs.length
 
-  let width = unitW * cols
-  let height = unitH * rows
+  const cols = Math.max(Math.ceil(Math.sqrt(tagsPositionList.length)), minCols)
+  const rows = (cols - 1) * cols >= tagsPositionList.length ? cols : cols + 1
 
-  while (height > textureSizeLimit && width <= textureSizeLimit) {
-    cols += 1
-    rows = Math.ceil(tagsPositionList.length / cols)
-    width = unitW * cols
-    height = unitH * rows
-  }
+  const width = cols * size
+  const height = rows * size
 
-  if (width > textureSizeLimit)
+  if (width > textureSizeLimit || height > textureSizeLimit)
     throw new Error(`纹理尺寸超出 WebGL 绘图限制`)
 
-  return { cols, rows, canvasW: width, canvasH: height, unitW, unitH }
-}
-
-/** 生成 mapping */
-const createMapping = ({
-  tagsPositionList,
-  states,
-  iconSize = 64,
-  gap = 0,
-  types,
-  rows,
-  unitH,
-  unitW,
-  singleSize,
-  stateCount,
-}: MppingOptions, logger: Logger) => {
-  // 关于 key 的格式
-  // `${tag}.${state}.${type}`
-  const mapping: IconLayerProps['iconMapping'] = {}
+  const mapping: IconMapping = {}
 
   let total = 0
   let tagCount = 0
 
-  // 这里只有 3 个层级，但是有 4 层循环是因为有些 tag 复用了同一个图标
-  // 在生成 tagSprite 的时候出于 worker 传输数据的考虑对数据进行了分组压缩
-  tagsPositionList.forEach(({ tags }, posIndex) => {
-    tagCount++
-    states.forEach(({ state }, stateIndex) => {
-      types.forEach(({ type }, typeIndex) => {
-        const col = Math.floor(posIndex / rows)
-        const row = posIndex - col * rows
-        tags.forEach((tag) => {
-          total++
-          const startX = gap + col * unitW + singleSize * (stateCount * typeIndex + stateIndex)
-          const startY = gap + row * unitH
-          mapping[`${tag}.${state}.${type}`] = {
-            x: startX,
-            y: startY,
-            width: iconSize,
-            height: iconSize,
-            anchorX: ANCHOR.X,
-            anchorY: ANCHOR.Y,
-          }
-        })
-      })
-    })
+  states.forEach(({ state }) => {
+    mapping[state] = {
+      x: total * size + gap,
+      y: gap,
+      width: iconSize,
+      height: iconSize,
+      anchorX: ANCHOR.X,
+      anchorY: ANCHOR.Y,
+    }
+    total += 1
   })
 
-  logger.info('生成 mapping', { total, tagCount })
+  attachs.forEach(({ key }) => {
+    mapping[key] = {
+      x: total * size + gap,
+      y: gap,
+      width: iconSize,
+      height: iconSize,
+      anchorX: ANCHOR.X,
+      anchorY: ANCHOR.Y,
+    }
+    total += 1
+  })
 
-  return { mapping, total, tagCount }
+  tagsPositionList.forEach(({ tags }, index) => tags.forEach((tag) => {
+    const row = Math.floor(index / cols)
+    const col = index - row * cols
+    const startX = col * size
+    const startY = (row + 1) * size
+    mapping[tag] = {
+      x: startX,
+      y: startY,
+      width: iconSize,
+      height: iconSize,
+      anchorX: ANCHOR.X,
+      anchorY: ANCHOR.Y,
+    }
+    total += 1
+    tagCount += 1
+  }))
+
+  return { cols, rows, canvasW: width, canvasH: height, mapping, total, tagCount }
 }
 
 /**
@@ -241,43 +240,25 @@ const render = async (options: WorkerInput, logger: Logger): Promise<WorkerSucce
 
   const tagSpriteDigest = await getDigest(tagSprite, 'SHA-256')
 
-  const types: { type: string; icon?: ImageBitmap }[] = [
-    { type: 'default' },
-    { type: 'underground', icon: UG_ICON },
+  const attachs: AttachOption[] = [
+    { key: 'underground', icon: UG_ICON },
   ]
 
-  const oc = new OffscreenCanvas(0, 0)
-  const gl = oc.getContext('webgl2') ?? oc.getContext('webgl')
-
-  const textureSizeLimit = Math.min(MAX_TEXTURE_LIMIT, gl?.getParameter(gl.MAX_TEXTURE_SIZE) ?? DEFAULT_TEXTURE_LIMIT)
-
-  const stateCount = states.length
-  const typeCount = types.length
+  const gl = new OffscreenCanvas(0, 0).getContext('webgl2')!
+  const textureSizeLimit = Math.min(MAX_TEXTURE_LIMIT, gl.getParameter(gl.MAX_TEXTURE_SIZE) ?? DEFAULT_TEXTURE_LIMIT)
 
   // 计算画板尺寸
-  const { cols, rows, canvasW, canvasH, unitW, unitH } = arrangeCanvas({
+  const { cols, rows, canvasW, canvasH, mapping, total, tagCount } = calculate({
     tagsPositionList,
-    stateCount,
+    states,
+    attachs,
     iconSize,
     gap,
-    typeCount,
     textureSizeLimit,
   })
 
   /** 单个图标的实际占用尺寸 */
-  const singleSize = 64 + gap
-
-  const mappingOptions: MppingOptions = {
-    ...options,
-    types,
-    rows,
-    singleSize,
-    stateCount,
-    unitW,
-    unitH,
-  }
-
-  const { mapping, total: mappingTotal } = createMapping(mappingOptions, logger)
+  const size = iconSize + gap
 
   // 如果存在缓存，则跳过绘制步骤，只生成 mapping
   const cache = await (async () => {
@@ -292,7 +273,7 @@ const render = async (options: WorkerInput, logger: Logger): Promise<WorkerSucce
         return '缓存的纹理不符合限制要求'
       if (width !== canvasW || height !== canvasH)
         return '纹理尺寸不统一'
-      if (Object.keys(cacheInfo.value.mapping).length !== mappingTotal)
+      if (Object.keys(cacheInfo.value.mapping).length !== total)
         return '状态总数不统一'
     })()
 
@@ -310,8 +291,10 @@ const render = async (options: WorkerInput, logger: Logger): Promise<WorkerSucce
     return cache
   }
 
-  logger.info('编排画板', { w: canvasW, h: canvasH, unitW, unitH, cols, rows, textureSizeLimit })
+  logger.info('编排画板', { w: canvasW, h: canvasH, cols, rows, textureSizeLimit })
 
+  logger.info('正在绘制...')
+  const startTime = Date.now()
   const canvas = new OffscreenCanvas(canvasW, canvasH)
   const ctx = canvas.getContext('2d')!
 
@@ -319,58 +302,56 @@ const render = async (options: WorkerInput, logger: Logger): Promise<WorkerSucce
   ctx.translate(gap, gap)
 
   // 绘制 outline
-  const outline = createSnapshot([singleSize, singleSize], (scopedCtx) => {
+  ctx.fillStyle = ctx.createPattern(createSnapshot([size, size], (scopedCtx) => {
     scopedCtx.fillStyle = outlineColor
     scopedCtx.fill(OUTLINE_PATH)
-  })
-  ctx.fillStyle = ctx.createPattern(outline, 'repeat')!
-  ctx.fillRect(0, 0, canvasW, canvasH)
+  }), 'repeat')!
+  ctx.fillRect(0, size, canvasW, canvasH - size)
 
   // 绘制 border
-  states.forEach(({ color }, stateIndex) => {
-    ctx.fillStyle = ctx.createPattern(createSnapshot([singleSize, singleSize], (scopedCtx) => {
+  states.forEach(({ color }, index) => {
+    ctx.drawImage(createSnapshot([size, size], (scopedCtx) => {
       scopedCtx.fillStyle = color
       scopedCtx.fill(BORDER_PATH)
-    }), 'repeat')!
-    types.forEach((_, typeIndex) => {
-      for (let col = 0; col < cols; col++) {
-        const startX = singleSize * (stateCount * typeIndex + stateIndex + col * stateCount * typeCount)
-        ctx.fillRect(startX, 0, singleSize, canvasH)
-      }
-    })
+    }), index * size, 0)
+  })
+
+  // 绘制附加层
+  attachs.forEach(({ icon }, index) => {
+    ctx.drawImage(icon, (states.length + index) * size, 0)
   })
 
   // 绘制 content
   const spriteImage = await createImageBitmap(new Blob([tagSprite], { type: 'image/png' }))
-  tagsPositionList.forEach(({ pos: [x, y] }, index) => {
-    ctx.fillStyle = ctx.createPattern(createSnapshot([singleSize, singleSize], (scopedCtx) => {
-      scopedCtx.clip(CONTENT_PATH)
-      scopedCtx.translate(CENTER.X, CENTER.Y)
-      scopedCtx.scale(CONTENT_SCALE, CONTENT_SCALE)
-      scopedCtx.drawImage(spriteImage, x, y, 64, 64, -32, -32, 64, 64)
-    }), 'repeat')!
-    const col = Math.floor(index / rows)
-    const startX = col * unitW
-    const row = index - col * rows
-    const startY = row * unitH
-    ctx.fillRect(startX, startY, unitW, unitH)
-  })
 
-  // 绘制附加层
-  const stateUnitWidth = singleSize * stateCount
-  types.forEach(({ icon }, index) => {
-    if (!icon)
-      return
-    ctx.fillStyle = ctx.createPattern(icon, 'repeat')!
-    for (let col = 0; col < cols; col++) {
-      const startX = stateUnitWidth * index + col * unitW
-      ctx.fillRect(startX, 0, stateUnitWidth, canvasH)
-    }
+  tagsPositionList.forEach(({ pos: [x, y] }, index) => {
+    const row = Math.floor(index / cols)
+    const col = index - row * cols
+    const startX = col * size
+    const startY = (row + 1) * size
+    ctx.save()
+    ctx.translate(startX, startY)
+    // ctx.strokeStyle = 'red'
+    // ctx.strokeRect(0, 0, size, size)
+    ctx.clip(CONTENT_PATH)
+    ctx.translate(CENTER.X, CENTER.Y)
+    ctx.scale(CONTENT_SCALE, CONTENT_SCALE)
+    ctx.drawImage(spriteImage, x, y, 64, 64, -32, -32, 64, 64)
+    ctx.restore()
   })
 
   // 转换为图片
   const image = await (await canvas.convertToBlob()).arrayBuffer()
-  logger.info('绘制结果', { cols, rows, canvasW, canvasH, byteLength: image.byteLength })
+  logger.info('绘制结果', {
+    cost: `${Date.now() - startTime} ms`,
+    cols,
+    rows,
+    canvasW,
+    canvasH,
+    byteLength: image.byteLength,
+    total,
+    tagCount,
+  })
 
   // 更新缓存
   const digest = await getDigest(image, 'SHA-256')
