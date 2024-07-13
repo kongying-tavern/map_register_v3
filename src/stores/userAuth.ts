@@ -38,7 +38,10 @@ export const useUserAuthStore = defineStore('global-user-auth', () => {
 
   const router = useRouter()
 
-  const setAuth = (newAuth: API.SysToken) => {
+  const isSkipped = ref(false)
+
+  const setAuth = (newAuth: API.SysToken, skipHook = false) => {
+    isSkipped.value = skipHook
     const { refreshToken, userId, expiresIn, tokenType, accessToken } = toCamelCaseObject(newAuth)
     auth.value = {
       refreshToken,
@@ -90,7 +93,13 @@ export const useUserAuthStore = defineStore('global-user-auth', () => {
     })
   })
 
-  watch(auth, () => userHook.applyCallbacks('onAuthChange'), { deep: true })
+  watch(auth, () => {
+    if (isSkipped.value) {
+      isSkipped.value = false
+      return
+    }
+    userHook.applyCallbacks('onAuthChange')
+  }, { deep: true })
 
   /** 刷新计时器 */
   const intervalRefreshTimer = ref<number>()

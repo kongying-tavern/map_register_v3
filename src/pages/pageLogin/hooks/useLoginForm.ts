@@ -2,7 +2,7 @@ import { reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 import type { AxiosError } from 'axios'
-import { useUserAuthStore } from '@/stores'
+import { useUserAuthStore, useUserInfoStore } from '@/stores'
 import type { ElFormType } from '@/shared'
 import { useFetchHook } from '@/hooks'
 import Oauth from '@/api/oauth'
@@ -11,6 +11,10 @@ import { passwordCheck } from '@/utils'
 
 /** 登录逻辑封装 */
 export const useLoginForm = () => {
+  const router = useRouter()
+  const userInfoStore = useUserInfoStore()
+  const userAuthStore = useUserAuthStore()
+
   const formRef = ref<ElFormType | null>(null)
 
   const loginForm = reactive<API.SysTokenVO>({
@@ -42,7 +46,13 @@ export const useLoginForm = () => {
   }
 
   const { refresh: submit, onSuccess, onError, ...rest } = useFetchHook({
-    onRequest: () => Oauth.oauth.token(loginForm),
+    onRequest: async () => {
+      const auth = await Oauth.oauth.token(loginForm)
+      userAuthStore.setAuth(auth, true)
+      await userInfoStore.updateRoleList()
+      await userInfoStore.updateUserInfo()
+      return auth
+    },
   })
 
   const login = async () => {
@@ -55,9 +65,6 @@ export const useLoginForm = () => {
     }
   }
 
-  const router = useRouter()
-  const userAuthStore = useUserAuthStore()
-
   onSuccess((auth) => {
     ElMessage({
       type: auth?.message ? 'warning' : 'success',
@@ -65,7 +72,6 @@ export const useLoginForm = () => {
       offset: 48,
       duration: 5000,
     })
-    userAuthStore.setAuth(auth)
     // TODO 登录后应当跳转到上次退出前保持的页面
     router.push('/map')
   })
