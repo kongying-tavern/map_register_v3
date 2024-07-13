@@ -98,7 +98,7 @@ const trigger = async () => {
 }
 
 .login-page {
-  --color-a: var(--el-color-primary-light-5);
+  --color-a: var(--el-color-primary-light-7);
   --color-b: transparent;
   --gap: 5%;
   --state: paused;
