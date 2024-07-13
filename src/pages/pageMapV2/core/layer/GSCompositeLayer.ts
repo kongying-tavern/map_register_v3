@@ -47,17 +47,6 @@ export class GSCompositeLayer extends CompositeLayer {
         const layers = this.getSubLayers()
         layers.filter(layer => layer.id === info.sourceLayer?.id).forEach(layer => layer.props.onClick?.(info, event))
       },
-      onDrag: (info, event) => {
-        this.getSubLayers().filter((layer) => {
-          return layer.id === info.sourceLayer?.id
-        }).forEach(layer => layer.props.onDrag?.(info, event))
-      },
-      onDragEnd: (info, event) => {
-        this.getSubLayers().filter(layer => layer.id === info.sourceLayer?.id).forEach(layer => layer.props.onDragEnd?.(info, event))
-      },
-      onDragStart: (info, event) => {
-        this.getSubLayers().filter(layer => layer.id === info.sourceLayer?.id).forEach(layer => layer.props.onDragStart?.(info, event))
-      },
     })
   }
 
