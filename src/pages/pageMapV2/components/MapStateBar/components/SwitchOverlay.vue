@@ -4,34 +4,44 @@ import { MapOverlayController, MapWindowTeleporter, mapWindowContext as windowCt
 import { useOverlayStore } from '@/stores'
 
 const overlayStore = useOverlayStore()
+const overlayCache = ref(new Set(overlayStore.visibleItemIds))
 
 const id = crypto.randomUUID()
 
-const overlayVisible = computed(() => overlayStore.visibleItemIds.size > 0)
-
-const toggleOverlayWindow = () => {
-  const { clientWidth } = document.body
-  if (!windowCtx.getWindow(id)) {
-    windowCtx.openWindow({
-      id,
-      name: '附加图层控制器',
-      minWidth: 236,
-      minHeight: 200,
-      x: clientWidth - 236 - 6,
-      y: 8,
-    })
-  }
-  else {
-    windowCtx.closeWindow(id)
-  }
-}
+const overlayVisible = computed({
+  get: () => Boolean(windowCtx.getWindow(id)),
+  set: (visible) => {
+    if (visible) {
+      const { clientWidth } = document.body
+      overlayStore.visibleItemIds = overlayCache.value
+      windowCtx.openWindow({
+        id,
+        name: '附加图层控制器',
+        minWidth: 236,
+        minHeight: 200,
+        x: clientWidth - 236 - 6,
+        y: 8,
+        beforeClose: () => {
+          overlayCache.value = new Set(overlayStore.visibleItemIds)
+          overlayStore.visibleItemIds = new Set()
+          return true
+        },
+      })
+    }
+    else {
+      windowCtx.closeWindow(id)
+      overlayCache.value = new Set(overlayStore.visibleItemIds)
+      overlayStore.visibleItemIds = new Set()
+    }
+  },
+})
 </script>
 
 <template>
   <BarItem
     divider
     :label="`附加图层：${overlayVisible ? '显示' : '隐藏'}`"
-    @click="toggleOverlayWindow"
+    @click="overlayVisible = !overlayVisible"
   >
     <template #default>
       <div
