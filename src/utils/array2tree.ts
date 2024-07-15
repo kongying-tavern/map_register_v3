@@ -28,18 +28,16 @@ export const array2Tree = <T extends object, C extends string, I extends keyof T
     rootId,
   } = options
 
-  const itemMap = new Map<T[I] | T[P], AddChildrenKeyToObject<T, C>>()
+  const itemMap = items.reduce((map, item) => {
+    return map.set(item[idKey], {
+      ...item,
+      [childrenKey]: [],
+    } as AddChildrenKeyToObject<T, C>)
+  }, new Map<T[I] | T[P], AddChildrenKeyToObject<T, C>>())
 
-  return items.reduce((result, item) => {
+  const result = items.reduce((treeData, item) => {
     const id = item[idKey]
     const pid = item[pidKey]
-
-    if (!itemMap.has(id)) {
-      itemMap.set(id, {
-        ...item,
-        [childrenKey]: [],
-      } as AddChildrenKeyToObject<T, C>)
-    }
 
     const indexItem = itemMap.get(id)!
 
@@ -49,16 +47,15 @@ export const array2Tree = <T extends object, C extends string, I extends keyof T
     })
 
     if (pid === rootId) {
-      result.push(indexItem)
+      treeData.push(indexItem)
     }
     else {
-      !itemMap.has(pid) && itemMap.set(pid, {
-        [childrenKey]: [],
-      } as AddChildrenKeyToObject<T, C>)
       const children = itemMap.get(pid)![childrenKey]
       ;(children as AddChildrenKeyToObject<T, C>[]).push(indexItem)
     }
 
-    return result
+    return treeData
   }, [] as AddChildrenKeyToObject<T, C>[])
+
+  return result
 }
