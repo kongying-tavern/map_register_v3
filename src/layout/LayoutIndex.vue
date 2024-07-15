@@ -8,9 +8,14 @@ import {
   AppLogo,
   AppNotice,
   AppSidemenu,
+  AppUpdatePush,
   AppUserAvatar,
 } from '@/components'
 import { LayoutAside, LayoutHeader, LayoutPage } from '@/layout'
+
+import { useAccessStore } from '@/stores'
+
+const accessStore = useAccessStore()
 </script>
 
 <template>
@@ -27,6 +32,7 @@ import { LayoutAside, LayoutHeader, LayoutPage } from '@/layout'
         <AppBreadCrumb class="flex-1" />
 
         <div class="flex-1 flex justify-end items-center gap-1">
+          <AppUpdatePush v-if="accessStore.get('ADMIN_COMPONENT')" title="推送应用更新" />
           <AppNotice title="公告" />
           <SettingButton title="设置" />
           <DarkModeSwitch title="黑暗模式" />
