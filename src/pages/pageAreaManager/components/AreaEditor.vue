@@ -55,7 +55,7 @@ const updateArea = async () => {
 <template>
   <WinDialog>
     <WinDialogTitleBar :loading="loading" @close="GlobalDialogController.close">
-      {{ area.name }} 编辑地区
+      {{ area.name }} (ID: {{ area.id }}) 编辑地区
     </WinDialogTitleBar>
 
     <WinDialogTabPanel>
