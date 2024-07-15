@@ -202,6 +202,15 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
     return result
   })
 
+  const items = computed(() => {
+    const itemGroups = Map.groupBy(normalizedOverlayChunks.value, chunk => chunk.item)
+    return [...itemGroups.entries()].map(([item, chunks]) => ({
+      ...item,
+      areaCode: chunks[0].areaCode,
+      chunks,
+    }))
+  })
+
   /** chunk 索引表 */
   const chunkMap = computed(() => normalizedOverlayChunks.value.reduce((map, chunk) => {
     map.set(chunk.id, chunk)
@@ -219,6 +228,8 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
     }
     return map
   }, new Map<string, OverlayChunk[]>()))
+
+  const visibleItems = computed(() => items.value.filter(item => visibleItemIds.value.has(item.id)))
 
   const visibleChunks = computed(() => {
     const normal: string[] = []
@@ -274,9 +285,11 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
     visibleItemIds,
 
     // getters
+    items,
     chunkMap,
     existOverlays,
     showMask,
+    visibleItems,
     visibleChunks,
   }
 })

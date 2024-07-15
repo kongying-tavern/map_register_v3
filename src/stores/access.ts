@@ -23,6 +23,9 @@ export const ACCESS_HIDDEN_FLAG = {
 
 /** 权限表 */
 const ACCESS_CONTROL = {
+  /** 根管理员组件 */
+  ADMIN_COMPONENT: 0b100000,
+
   /** 管理员组件 */
   MANAGER_COMPONENT: 0b110000,
 
