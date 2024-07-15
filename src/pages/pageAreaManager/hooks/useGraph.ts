@@ -70,8 +70,6 @@ export const useGraph = (options: {
     return map
   }, new Map<number, API.AreaVo>()))
 
-  getComputedStyle(document.body)
-
   const graphRef = shallowRef<InstanceType<typeof G6.TreeGraph> | null>(null)
 
   watch(graphData, (newGraphData, oldGraphData) => {
@@ -110,7 +108,7 @@ export const useGraph = (options: {
   G6.registerNode('area-card', {
     draw: (cfg, group) => {
       const { label = '' } = cfg
-      const { code = '', updateTime = '' } = (cfg.raw ?? {}) as API.AreaVo
+      const { id, code = '', updateTime = '' } = (cfg.raw ?? {}) as API.AreaVo
       const { 1: zone = '', length: codeUnitLength } = code.split(':')
 
       /** 包围盒 */
@@ -144,11 +142,26 @@ export const useGraph = (options: {
         visible: false,
       })
 
-      /** code */
+      /** id */
       group.addShape('text', {
         attrs: {
           x: sharedProps.padding,
           y: sharedProps.padding,
+          text: `ID: ${id ?? -1}`,
+          fill: sharedProps.textColorRegular,
+          fontSize: 14,
+          lineHeight: 14,
+          textBaseline: 'top',
+        },
+        name: 'code',
+        capture: false,
+      })
+
+      /** code */
+      group.addShape('text', {
+        attrs: {
+          x: sharedProps.padding,
+          y: sharedProps.padding + 16,
           text: code || 'TEYVAT',
           fill: sharedProps.textColorRegular,
           fontSize: 14,
@@ -166,7 +179,7 @@ export const useGraph = (options: {
       group.addShape('text', {
         attrs: {
           x: sharedProps.padding,
-          y: sharedProps.padding + 20,
+          y: sharedProps.padding + 36,
           text: textWidth > (sharedProps.width - 2 * sharedProps.padding) ? `${text.slice(0, 8)}...` : text,
           fill: sharedProps.textColorPrimary,
           fontSize: 24,
