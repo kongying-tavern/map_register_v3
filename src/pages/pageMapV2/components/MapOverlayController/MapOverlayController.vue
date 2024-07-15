@@ -1,15 +1,12 @@
 <script lang="ts" setup>
-import { OverlayGroup } from '.'
+import OverlayArea from './OverlayArea.vue'
+import OverlayGroup from './OverlayGroup.vue'
 import { useOverlayStore, usePreferenceStore } from '@/stores'
 
 const overlayStore = useOverlayStore()
 const preferenceStore = usePreferenceStore()
 
 const areaCode = computed(() => preferenceStore.preference['markerFilter.state.areaCode'])
-
-watch(areaCode, () => {
-  overlayStore.visibleItemIds.clear()
-})
 
 const overlayGroups = computed(() => {
   const currentAreaCode = areaCode.value
@@ -26,8 +23,10 @@ const overlayGroups = computed(() => {
 </script>
 
 <template>
-  <div class="w-full h-full overflow-hidden flex flex-col">
-    <div class="overlay-control-panel genshin-text">
+  <div class="overlay-control-panel genshin-text w-full h-full overflow-hidden flex flex-col">
+    <OverlayArea />
+
+    <div class="overlay-scrollbar overflow-auto flex-1 flex flex-col p-2 gap-2">
       <OverlayGroup
         v-for="([group, chunks]) in overlayGroups"
         :key="group.id"
@@ -39,14 +38,10 @@ const overlayGroups = computed(() => {
 
 <style scoped>
 .overlay-control-panel {
-  flex: 1;
-  overflow: auto;
-  display: flex;
-  flex-direction: column;
-  background: #ECE5D8;
-  padding: 8px;
-  gap: 8px;
+  background: #ECE5D8
+}
 
+.overlay-scrollbar {
   &::-webkit-scrollbar {
     width: 8px;
     background-color: #D9D3C8;

@@ -4,36 +4,44 @@ import { MapOverlayController, MapWindowTeleporter, mapWindowContext as windowCt
 import { useOverlayStore } from '@/stores'
 
 const overlayStore = useOverlayStore()
+
 const overlayCache = ref(new Set(overlayStore.visibleItemIds))
+const cachable = ref(false)
 
 const id = crypto.randomUUID()
+
+const MIN_WIDTH = window.matchMedia('(min-width: 600px)').matches ? 440 : 240
 
 const overlayVisible = computed({
   get: () => Boolean(windowCtx.getWindow(id)),
   set: (visible) => {
-    if (visible) {
-      const { clientWidth } = document.body
-      overlayStore.visibleItemIds = overlayCache.value
-      windowCtx.openWindow({
-        id,
-        name: '附加图层控制器',
-        minWidth: 236,
-        minHeight: 200,
-        x: clientWidth - 236 - 6,
-        y: 8,
-        beforeClose: () => {
-          overlayCache.value = new Set(overlayStore.visibleItemIds)
-          overlayStore.visibleItemIds = new Set()
-          return true
-        },
-      })
-    }
-    else {
+    if (!visible) {
       windowCtx.closeWindow(id)
-      overlayCache.value = new Set(overlayStore.visibleItemIds)
-      overlayStore.visibleItemIds = new Set()
+      return
     }
+    cachable.value = true
+    const { clientWidth } = document.body
+    overlayStore.visibleItemIds = overlayCache.value
+    windowCtx.openWindow({
+      id,
+      name: '附加图层控制器',
+      minWidth: MIN_WIDTH,
+      minHeight: 420,
+      x: clientWidth - MIN_WIDTH - 6,
+      y: 8,
+      beforeClose: () => {
+        cachable.value = false
+        overlayStore.visibleItemIds.clear()
+        return true
+      },
+    })
   },
+})
+
+watch(() => overlayStore.visibleItemIds.size, () => {
+  if (!cachable.value)
+    return
+  overlayCache.value = new Set(overlayStore.visibleItemIds)
 })
 </script>
 

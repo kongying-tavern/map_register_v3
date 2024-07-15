@@ -90,7 +90,7 @@ const updateHover = (chunks: OverlayChunk[] | null) => {
         @pointerleave="() => updateHover(null)"
       >
         <div class="flex-1 overflow-hidden whitespace-nowrap text-ellipsis">
-          {{ item.name.replace(group.name, '') }}
+          {{ item.name === group.name ? group.name : item.name.replace(group.name, '') }}
         </div>
       </el-checkbox>
     </div>
@@ -127,7 +127,6 @@ const updateHover = (chunks: OverlayChunk[] | null) => {
   }
 
   &.is-actived {
-    /* border-color: var(--el-color-primary); */
     border-color: #D6AD85;
   }
 
