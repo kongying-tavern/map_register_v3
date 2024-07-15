@@ -139,12 +139,10 @@ const render = async (params: WorkerInput, logger: Logger): Promise<WorkerSucces
     const x = col * size + (col + 1) * gap
     const y = row * size + (row + 1) * gap
     const { sx, sy, sw, sh, dx, dy, dw, dh } = getObjectFitSize('contain', size, size, image.width, image.height)
-    const absoluteX = x + dx
-    const absoluteY = y + dy
-    ctx.drawImage(image, sx, sy, sw, sh, absoluteX, absoluteY, dw, dh)
+    ctx.drawImage(image, sx, sy, sw, sh, x + dx, y + dy, dw, dh)
     tagsPositionList.push({
       tags,
-      pos: [absoluteX, absoluteY],
+      pos: [x, y],
     })
   })
 
