@@ -24,8 +24,10 @@ const colorMap = {
   DQ: '#D1A1FB',
   XM: '#ABDD54',
   FD: '#0FABF4',
+  NT: '#FEA56F',
   APPLE: 'l(45) 0.3:#FFD700 1:#00DAFF',
   VELURIYAM: 'l(45) 0.3:#00DAFF 1:#ABDD54',
+  SIMULANKA: 'l(45) 0.3:#C99CC4 1:#81EBD8',
 }
 
 export const useGraph = (options: {
