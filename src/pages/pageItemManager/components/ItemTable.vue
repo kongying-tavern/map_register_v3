@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { Delete } from '@element-plus/icons-vue'
 import { AppRowImage, AppUserPopover } from '@/components'
 import { useAreaStore, useIconTagStore, useItemTypeStore } from '@/stores'
 import { useUserPopover } from '@/hooks'
@@ -13,6 +14,8 @@ const props = defineProps<{
 
 const emits = defineEmits<{
   selectionChange: [selections: API.ItemVo[]]
+  review: [API.ItemVo]
+  delete: [API.ItemVo]
 }>()
 
 const areaStore = useAreaStore()
@@ -22,6 +25,19 @@ const itemTypeStore = useItemTypeStore()
 // ==================== 表格尺寸 ====================
 const containerRef = ref<HTMLElement | null>(null)
 const { height, width } = useElementSize(containerRef)
+
+const getCellClassName = (cell: { column: { property?: string }; rowIndex: number }) => {
+  const { property } = cell.column
+  if (!property)
+    return ''
+  return `prop-${property}`
+}
+
+const handleCellClick = (row: API.ItemVo, col: { property?: string }) => {
+  if (col.property !== 'name')
+    return
+  emits('review', row)
+}
 
 // ==================== 显示类型 ====================
 const hiddenFlagMap: Record<number, string> = {
@@ -44,7 +60,7 @@ const proxySelectionChange = (selections: API.ItemVo[]) => {
   <div
     ref="containerRef"
     v-loading="loading"
-    class="flex-1 overflow-hidden"
+    class="flex-1 overflow-hidden px-2"
     element-loading-text="加载中..."
     @pointerover="trigger"
     @pointerout="close"
@@ -55,9 +71,11 @@ const proxySelectionChange = (selections: API.ItemVo[]) => {
       :data="itemList"
       :width="width"
       :height="height"
-      :border="true"
+      :cell-class-name="getCellClassName"
       row-key="id"
+      class="item-table"
       @selection-change="proxySelectionChange"
+      @cell-click="handleCellClick"
     >
       <el-table-column align="center" type="selection" width="50" />
 
@@ -123,11 +141,34 @@ const proxySelectionChange = (selections: API.ItemVo[]) => {
 
       <el-table-column label="修改时间" prop="updateTime" width="170" :formatter="timeFormatter" />
 
-      <el-table-column fixed="right" label="操作" width="130">
-        <template #default="{ $index, row }">
-          <slot name="action" :index="$index" :row="row" />
+      <el-table-column fixed="right" label="操作" :width="60">
+        <template #default="{ row }">
+          <el-button
+            type="danger"
+            text
+            circle
+            :icon="Delete"
+            @click="() => $emit('delete', row)"
+          />
         </template>
       </el-table-column>
     </el-table>
   </div>
 </template>
+
+<style scoped>
+.item-table {
+  :deep(.el-table__cell) {
+    &.prop-name {
+      font-weight: bolder;
+      text-decoration: underline 1px dashed;
+      text-underline-offset: 4px;
+      cursor: pointer;
+
+      &:hover {
+        text-decoration-style: solid;
+      }
+    }
+  }
+}
+</style>

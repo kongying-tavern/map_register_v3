@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { Delete, Edit, RefreshRight } from '@element-plus/icons-vue'
 import type { ItemQueryForm } from './hooks'
 import { useItemCreate, useItemDelete, useItemEdit, useItemList, useItemTable } from './hooks'
 import { ItemFilter, ItemTable } from './components'
@@ -19,11 +18,7 @@ const queryForm = ref<ItemQueryForm>({
 // ==================== 物品列表 ====================
 const { itemList, loading: itemLoading, userMap, updateItemList, resetCurrent } = useItemList({
   pagination,
-  getParams: () => ({
-    name: queryForm.value.name,
-    areaId: queryForm.value.areaId,
-    itemTypeId: queryForm.value.itemTypeId,
-  }),
+  getParams: () => toValue(queryForm),
 })
 
 // ==================== 物品表格 ====================
@@ -48,8 +43,12 @@ onDeleteSuccess(updateItemList)
 </script>
 
 <template>
-  <div class="h-full flex-1 flex flex-col gap-2 overflow-hidden p-4">
-    <ItemFilter v-model="queryForm" @change="resetCurrent">
+  <div class="h-full flex-1 flex flex-col overflow-hidden">
+    <ItemFilter
+      v-model="queryForm"
+      @change="resetCurrent"
+      @create="openItemCreatorDialog"
+    >
       <template #footer>
         <div class="w-full flex items-center justify-end">
           <el-button
@@ -60,10 +59,9 @@ onDeleteSuccess(updateItemList)
           >
             批量删除 {{ selection.length ? ` ${selection.length} 项` : '' }}
           </el-button>
-          <el-button type="primary" @click="openItemCreatorDialog">
+          <el-button text @click="openItemCreatorDialog">
             添加物品
           </el-button>
-          <el-button :icon="RefreshRight" circle :loading="itemLoading" title="强制刷新" @click="updateItemList" />
         </div>
       </template>
     </ItemFilter>
@@ -73,21 +71,9 @@ onDeleteSuccess(updateItemList)
       :loading="itemLoading"
       :user-map="userMap"
       @selection-change="handleSelectionChange"
-    >
-      <template #action="{ row }">
-        <el-button
-          plain
-          :icon="Edit"
-          @click="() => openItemEditorDialog(row)"
-        />
-        <el-button
-          type="danger"
-          plain
-          :icon="Delete"
-          @click="() => confirmDelete(row)"
-        />
-      </template>
-    </ItemTable>
+      @review="openItemEditorDialog"
+      @delete="confirmDelete"
+    />
 
     <el-pagination
       v-model:current-page="pagination.current"
@@ -97,7 +83,7 @@ onDeleteSuccess(updateItemList)
       :page-sizes="[10, 20, 30]"
       :pager-count="5"
       :disabled="itemLoading"
-      class="flex justify-end items-center"
+      class="flex justify-end items-center p-2"
       background
       @current-change="updateItemList"
       @size-change="updateItemList"

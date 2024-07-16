@@ -1,27 +1,19 @@
 <script lang="ts" setup>
+import { CirclePlus } from '@element-plus/icons-vue'
 import type { ItemQueryForm } from '../hooks'
 import { useAreaStore, useItemTypeStore } from '@/stores'
 
-const props = defineProps<{
-  modelValue: ItemQueryForm
+defineEmits<{
+  create: []
+  change: []
 }>()
 
-const emits = defineEmits<{
-  'update:modelValue': [form: ItemQueryForm]
-  'change': []
-}>()
+const modelValue = defineModel<ItemQueryForm>('modelValue', {
+  required: true,
+})
 
 const areaStore = useAreaStore()
 const itemTypeStore = useItemTypeStore()
-
-const model = <K extends keyof ItemQueryForm>(key: K) => computed({
-  get: () => props.modelValue[key],
-  set: v => emits('update:modelValue', { ...props.modelValue, [key]: v }),
-})
-
-const name = model('name')
-const areaId = model('areaId')
-const itemTypeId = model('itemTypeId')
 
 const areaList = computed(() => {
   return areaStore.areaList
@@ -37,42 +29,46 @@ const typeList = computed(() => {
 </script>
 
 <template>
-  <el-form>
+  <el-form class="w-full p-2 border-b-[1px] border-[var(--el-border-color-lighter)]">
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8">
-      <el-form-item label="物品名称">
+      <el-form-item label="物品名称" style="margin-bottom: 0">
         <el-input
-          v-model="name"
+          v-model="modelValue.name"
           clearable
           placeholder="请输入物品名称"
           style="width: 100%;"
-          @change="$emit('change')"
+          @change="() => $emit('change')"
         />
       </el-form-item>
 
-      <el-form-item label="所属地区">
+      <el-form-item label="所属地区" style="margin-bottom: 0">
         <el-select-v2
-          v-model="areaId"
+          v-model="modelValue.areaId"
           :options="areaList"
           :props="{ label: 'name', value: 'id' }"
           clearable
           filterable
-          @change="$emit('change')"
+          @change="() => $emit('change')"
         />
       </el-form-item>
 
-      <el-form-item label="物品类型">
+      <el-form-item label="物品类型" style="margin-bottom: 0">
         <el-select-v2
-          v-model="itemTypeId"
+          v-model="modelValue.itemTypeId"
           :options="typeList"
           :props="{ label: 'name', value: 'id' }"
           clearable
           filterable
-          @change="$emit('change')"
+          @change="() => $emit('change')"
         />
       </el-form-item>
 
-      <el-form-item v-if="$slots.footer" label-width="0px">
-        <slot name="footer" />
+      <el-form-item label-width="0px" style="margin-bottom: 0">
+        <div class="w-full flex items-center justify-end">
+          <el-button text :icon="CirclePlus" @click="() => $emit('create')">
+            新增
+          </el-button>
+        </div>
       </el-form-item>
     </div>
   </el-form>
