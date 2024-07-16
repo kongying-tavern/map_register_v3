@@ -46,8 +46,8 @@ const proxySelectionChange = (selections: API.ItemVo[]) => {
     v-loading="loading"
     class="flex-1 overflow-hidden"
     element-loading-text="加载中..."
-    @pointerenter="trigger"
-    @pointerleave="close"
+    @pointerover="trigger"
+    @pointerout="close"
   >
     <AppUserPopover :trigger-ref="triggerRef" :data="userData" />
 
