@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import type { ItemQueryForm } from './hooks'
+import { ExplorerType } from './shared'
 import { useItemCreate, useItemDelete, useItemEdit, useItemList, useItemTable } from './hooks'
-import { ItemFilter, ItemTable } from './components'
+import { ItemFilter, ItemGridExplorer, ItemTable } from './components'
 import { PgUnit, usePagination } from '@/hooks'
 
 // ==================== 筛选信息 ====================
@@ -23,6 +24,8 @@ const { itemList, loading: itemLoading, userMap, updateItemList, resetCurrent } 
 
 // ==================== 物品表格 ====================
 const { selection, handleSelectionChange } = useItemTable()
+
+const explorerType = ref<ExplorerType>(ExplorerType.Grid)
 
 // ==================== 新增物品 ====================
 const { openItemCreatorDialog, onSuccess: onCreateSuccess } = useItemCreate({
@@ -46,6 +49,7 @@ onDeleteSuccess(updateItemList)
   <div class="h-full flex-1 flex flex-col overflow-hidden">
     <ItemFilter
       v-model="queryForm"
+      v-model:explorer-type="explorerType"
       @change="resetCurrent"
       @create="openItemCreatorDialog"
     >
@@ -67,6 +71,17 @@ onDeleteSuccess(updateItemList)
     </ItemFilter>
 
     <ItemTable
+      v-if="explorerType === ExplorerType.List"
+      :item-list="itemList"
+      :loading="itemLoading"
+      :user-map="userMap"
+      @selection-change="handleSelectionChange"
+      @review="openItemEditorDialog"
+      @delete="confirmDelete"
+    />
+
+    <ItemGridExplorer
+      v-else-if="explorerType === ExplorerType.Grid"
       :item-list="itemList"
       :loading="itemLoading"
       :user-map="userMap"

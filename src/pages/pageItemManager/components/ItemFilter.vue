@@ -1,7 +1,10 @@
 <script lang="ts" setup>
-import { CirclePlus } from '@element-plus/icons-vue'
+import { CirclePlus, Menu } from '@element-plus/icons-vue'
 import type { ItemQueryForm } from '../hooks'
+import { ExplorerType } from '../shared'
 import { useAreaStore, useItemTypeStore } from '@/stores'
+import { AppDropdown } from '@/components'
+import { IconListView } from '@/components/AppIcons'
 
 defineEmits<{
   create: []
@@ -11,6 +14,19 @@ defineEmits<{
 const modelValue = defineModel<ItemQueryForm>('modelValue', {
   required: true,
 })
+
+const explorerType = defineModel<ExplorerType>('explorerType', {
+  required: true,
+})
+
+const explorerTypes = shallowRef([
+  { label: '网格', value: ExplorerType.Grid, icon: Menu },
+  { label: '列表', value: ExplorerType.List, icon: IconListView },
+])
+
+const handleExplorerTypeChange = (type: ExplorerType) => {
+  explorerType.value = type
+}
 
 const areaStore = useAreaStore()
 const itemTypeStore = useItemTypeStore()
@@ -26,6 +42,8 @@ const typeList = computed(() => {
     .filter(({ isFinal }) => isFinal)
     .toSorted(({ sortIndex: ia = 0 }, { sortIndex: ib = 0 }) => ib - ia)
 })
+
+const dropdownKey = ref('')
 </script>
 
 <template>
@@ -65,6 +83,45 @@ const typeList = computed(() => {
 
       <el-form-item label-width="0px" style="margin-bottom: 0">
         <div class="w-full flex items-center justify-end">
+          <AppDropdown
+            v-model="dropdownKey"
+            dropdown-key="filter"
+            :icon="explorerType === ExplorerType.List ? IconListView : Menu"
+            @command="handleExplorerTypeChange"
+          >
+            <template #default>
+              查看
+            </template>
+
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item
+                  v-for="option in explorerTypes"
+                  :key="option.value"
+                  :command="option.value"
+                >
+                  <div class="flex items-center gap-2">
+                    <el-icon
+                      class="transition-all"
+                      :style="{
+                        'content-visibility': option.value === explorerType ? 'auto' : 'hidden',
+                      }"
+                      :size="12"
+                    >
+                      <CircleCheck />
+                    </el-icon>
+                    <el-icon>
+                      <component :is="option.icon" />
+                    </el-icon>
+                    <div>{{ option.label }}</div>
+                  </div>
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </AppDropdown>
+
+          <el-divider direction="vertical" />
+
           <el-button text :icon="CirclePlus" @click="() => $emit('create')">
             新增
           </el-button>
