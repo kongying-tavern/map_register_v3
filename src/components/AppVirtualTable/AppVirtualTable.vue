@@ -10,6 +10,7 @@ const props = withDefaults(defineProps<{
   itemHeight?: number
   itemWidth?: number
   itemGap?: [number, number]
+  itemClass?: string | string[] | Record<string, boolean>
   cachedRows?: number
   alwaysScrollbar?: boolean
   scrollbarStyle?: StyleValue
@@ -106,6 +107,7 @@ const style = computed<Record<string, number>>(() => ({
             :style="{
               '--offset': `var(--t${rowIndex})`,
             }"
+            :class="itemClass"
             class="virtual-item"
           >
             <template v-if="(rowIndexList[rowIndex] * gridColumns + colIndex) <= data.length">
@@ -126,6 +128,7 @@ const style = computed<Record<string, number>>(() => ({
           :style="{
             '--offset': `var(--t${i})`,
           }"
+          :class="itemClass"
           class="virtual-item"
         >
           <template v-if="rowIndexList[i] < data.length">
