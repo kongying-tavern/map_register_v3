@@ -19,6 +19,10 @@ export const useDevStore = defineStore('global-dev', () => {
   const preLogList = ref<LogInfo[]>([])
 
   const handleLog = (logInfo: LogInfo) => {
+    const maxLogs = preferenceStore.preference['developer.setting.maxLogs'] ?? 100
+
+    preLogList.value = preLogList.value.slice(0, maxLogs - 1)
+
     if (preferenceStore.preference['developer.setting.enableLoggers'] === undefined) {
       preLogList.value.push(logInfo)
       return

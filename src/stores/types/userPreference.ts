@@ -131,6 +131,12 @@ export interface UserPreference {
    * @note 此项设置的 undefined 值作为第三种状态被使用，请勿初始化
    */
   'developer.setting.enableLoggers'?: string[]
+
+  /**
+   * 本地缓存日志的最大数量
+   * @default 100
+   */
+  'developer.setting.maxLogs'?: number
 }
 
 export const getDefaultPreference = (): UserPreference => ({
