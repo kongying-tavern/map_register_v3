@@ -38,7 +38,7 @@ export const useIconTagStore = defineStore('global-icon-tag', () => {
     },
   )
 
-  const { tagSpriteImage, tagSpriteUrl, tagPositionMap, tagsPositionList, refresh: refreshTagSprite } = useTagSprite()
+  const { tagSpriteImage, tagSpriteUrl, tagPositionMap, tagsPositionList, refresh: refreshTagSprite, ...rest } = useTagSprite()
 
   const { markerSpriteUrl, markerSpriteMapping } = useMarkerSprite({
     tagsPositionList,
@@ -60,6 +60,7 @@ export const useIconTagStore = defineStore('global-icon-tag', () => {
     tagPositionMap,
     markerSpriteUrl,
     markerSpriteMapping,
+    ...rest,
 
     // actions
     backendUpdater,
