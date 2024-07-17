@@ -8,8 +8,8 @@ defineProps<{
   <div
     class="w-8 h-8
       rounded-full
-      border border-[var(--el-border-color)]
-      bg-[var(--el-color-primary-light-9)]
+      border border-[var(--el-color-info-light-5)]
+      bg-[var(--el-color-info-light-7)]
       flex-shrink-0
     "
   >
