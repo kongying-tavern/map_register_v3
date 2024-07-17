@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { CirclePlus, Filter, Search, Sort } from '@element-plus/icons-vue'
 import ListSorter from './ListSorter.vue'
-import HeaderDropdown from './HeaderDropdown.vue'
 import type { PaginationState } from '@/hooks'
 import { NOTICE_NAME_MAP } from '@/shared'
+import { AppDropdown } from '@/components'
 
 const emits = defineEmits<{
   change: []
@@ -36,7 +36,7 @@ const sortableKeyOptions: { label: string; key: string }[] = [
 
 const dropdownKey = ref('')
 
-const sortRef = ref<InstanceType<typeof HeaderDropdown>>()
+const sortRef = ref<InstanceType<typeof AppDropdown>>()
 
 const handleSortChange = () => {
   sortRef.value?.close()
@@ -67,7 +67,7 @@ const handleSortChangeCancel = () => {
 
     <el-divider direction="vertical" />
 
-    <HeaderDropdown v-model="dropdownKey" dropdown-key="filter" :icon="Filter">
+    <AppDropdown v-model="dropdownKey" dropdown-key="filter" :icon="Filter">
       <template #default>
         过滤
       </template>
@@ -104,11 +104,11 @@ const handleSortChangeCancel = () => {
           </el-checkbox-group>
         </div>
       </template>
-    </HeaderDropdown>
+    </AppDropdown>
 
     <el-divider direction="vertical" />
 
-    <HeaderDropdown ref="sortRef" v-model="dropdownKey" dropdown-key="sort" :icon="Sort">
+    <AppDropdown ref="sortRef" v-model="dropdownKey" dropdown-key="sort" :icon="Sort">
       <template #default>
         排序
       </template>
@@ -122,7 +122,7 @@ const handleSortChangeCancel = () => {
           @cancel="handleSortChangeCancel"
         />
       </template>
-    </HeaderDropdown>
+    </AppDropdown>
 
     <el-divider direction="vertical" />
 

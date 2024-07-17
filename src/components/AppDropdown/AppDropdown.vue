@@ -1,10 +1,19 @@
 <script setup lang="ts">
 import { ElDropdown } from 'element-plus'
-import DropdownButton from './DropdownButton.vue'
+import DropdownButton from './components/DropdownButton.vue'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   dropdownKey: string
   icon?: string | Component
+  trigger?: 'click' | 'hover' | 'focus' | 'contextmenu'
+  hideOnClick?: boolean
+}>(), {
+  trigger: 'click',
+})
+
+defineEmits<{
+  // eslint-disable-next-line ts/no-explicit-any
+  command: [any]
 }>()
 
 const modelValue = defineModel<string>('modelValue', {
@@ -40,8 +49,10 @@ defineExpose({
 <template>
   <ElDropdown
     ref="dropdownRef"
-    trigger="click"
+    :trigger
+    :hide-on-click="hideOnClick"
     @visible-change="v => handleVisibleChange(v)"
+    @command="command => $emit('command', command)"
   >
     <template #default>
       <DropdownButton :is-open="dropdownKey === modelValue" :icon="icon">
