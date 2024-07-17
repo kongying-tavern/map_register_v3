@@ -41,7 +41,12 @@ export const useMarkerStore = defineStore('global-marker', () => {
   })
 
   // 点位压缩数据更新
-  socketStore.event.on('MarkerBinaryPurged', backendUpdater.refresh)
+  socketStore.event.on('MarkerBinaryPurged', () => {
+    // 已连接同步服务时不需要全量更新
+    if (socketStore.status === WebSocket.OPEN)
+      return
+    backendUpdater.refresh()
+  })
 
   // 单个点位更新
   socketStore.event.on('MarkerUpdated', async (id) => {
