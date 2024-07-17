@@ -96,6 +96,8 @@ export const useBackendUpdate = <T, Key>(
       const oldDigestCodeList = oldDigestList.map(({ code }) => code)
       const oldDigestCodeSet = new Set(oldDigestCodeList)
 
+      const isBalanced = oldDigestList.length === digestCodeList.length
+
       let deleteCount = 0
       let updateCount = 0
 
@@ -122,7 +124,7 @@ export const useBackendUpdate = <T, Key>(
         }),
       )
 
-      if (forceUpdate) {
+      if (forceUpdate || !isBalanced) {
         await (table as Table<T, IndexableTypePart>).clear()
         await table.bulkPut(dataForUpdating)
         await db.digest.bulkPut(digestForUpdating)
@@ -137,9 +139,7 @@ export const useBackendUpdate = <T, Key>(
       const digestCodeForDelete: string[] = []
 
       // 检测新旧摘要数量是否一致，不一致则清除全部的旧摘要
-      const isBalaenced = oldDigestList.length === digestCodeList.length
-
-      for (const { code, range } of oldDigestList.filter(({ code }) => !isBalaenced || !newDigestCodeSet.has(code))) {
+      for (const { code, range } of oldDigestList.filter(({ code }) => !newDigestCodeSet.has(code))) {
         table.where(src).inAnyRange([range], { includeUppers: true }).eachKey((key) => {
           dataKeyForDelete.push(key as IndexableTypePart)
           deleteCount++
