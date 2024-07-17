@@ -146,6 +146,7 @@ export const getDefaultPreference = (): UserPreference => ({
   // markerFilter
   'markerFilter.filter.advancedFilterCache': [
     {
+      key: crypto.randomUUID(),
       operator: true,
       opposite: false,
       children: [],
@@ -153,6 +154,7 @@ export const getDefaultPreference = (): UserPreference => ({
   ],
   'markerFilter.filter.advancedFilter': [
     {
+      key: crypto.randomUUID(),
       operator: true,
       opposite: false,
       children: [],
