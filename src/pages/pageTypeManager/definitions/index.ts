@@ -1,18 +1,18 @@
-import { ItemTypeManager } from './itemType'
+import type { TypeManager } from '../config'
 import { IconTypeManager } from './iconType'
+import { ItemTypeManager } from './itemType'
 import { TagTypeManager } from './tagType'
 
 export {
   ItemTypeManager,
-  IconTypeManager,
   TagTypeManager,
 }
 
 export const TYPE_MANAGER_KEY_MAP = {
   itemType: new ItemTypeManager(),
-  iconType: new IconTypeManager(),
   tagType: new TagTypeManager(),
-}
+  iconTypeManager: new IconTypeManager(),
+} as Record<string, TypeManager>
 
 export type TypeManagerMap = typeof TYPE_MANAGER_KEY_MAP
 

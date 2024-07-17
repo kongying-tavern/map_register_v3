@@ -1,25 +1,21 @@
-<script lang="ts" setup>
+<script lang="ts" setup generic="T">
 import { ElTable } from 'element-plus'
-import type { TypeManager, TypeObject } from '../config'
-import { ItemTypeManager } from '../definitions'
+import type { TypeManager } from '../config'
 import { AppRowImage, AppUserPopover } from '@/components'
 import { useUserPopover } from '@/hooks'
 import { timeFormatter } from '@/utils'
 import { useIconTagStore } from '@/stores'
 
 const props = defineProps<{
-  data: TypeObject[]
+  data: T[]
   userMap: Record<string, API.SysUserSmallVo>
   loading: boolean
-  manager: TypeManager<TypeObject>
+  manager: TypeManager<T>
 }>()
 
-const emits = defineEmits<{
-  selectionChange: [TypeObject[]]
-  gotoTypeNode: [TypeObject]
+defineEmits<{
+  selectNode: [T]
 }>()
-
-const isItemManager = computed(() => props.manager instanceof ItemTypeManager)
 
 const iconTagStore = useIconTagStore()
 
@@ -31,8 +27,6 @@ watch(() => props.data, () => tableRef.value?.scrollTo({
   top: 0,
 }))
 
-const typeAssert = (row: unknown) => row as TypeObject
-
 const { IDENTIFICATION_SYMBOL, triggerRef, userData, trigger, close } = useUserPopover({
   getUser: userId => props.userMap[userId],
 })
@@ -42,10 +36,10 @@ const { IDENTIFICATION_SYMBOL, triggerRef, userData, trigger, close } = useUserP
   <div
     ref="tableContainerRef"
     v-loading="loading"
-    class="flex-1 overflow-hidden"
+    class="flex-1 px-2 overflow-hidden"
     element-loading-text="加载中..."
-    @pointerenter="trigger"
-    @pointerleave="close"
+    @pointerover="trigger"
+    @pointerout="close"
   >
     <AppUserPopover :trigger-ref="triggerRef" :data="userData" />
 
@@ -54,16 +48,12 @@ const { IDENTIFICATION_SYMBOL, triggerRef, userData, trigger, close } = useUserP
       :data="data"
       :max-height="height"
       :height="height"
-      :border="true"
-      row-key="id"
+      :row-key="manager.getKey"
       cell-class-name="whitespace-nowrap"
-      @selection-change="(v) => emits('selectionChange', v)"
     >
-      <el-table-column type="selection" align="center" :width="50" />
-
       <el-table-column label="ID" prop="id" :width="100" />
 
-      <el-table-column v-if="isItemManager" label="图标" prop="iconTag" :width="60">
+      <el-table-column label="图标" prop="iconTag" :width="60">
         <template #default="{ row }">
           <AppRowImage :src="iconTagStore.iconTagMap[row.iconTag]?.url" />
         </template>
@@ -71,7 +61,7 @@ const { IDENTIFICATION_SYMBOL, triggerRef, userData, trigger, close } = useUserP
 
       <el-table-column label="类型名称" prop="name">
         <template #default="{ row }">
-          <el-link type="primary" @click="() => emits('gotoTypeNode', row)">
+          <el-link type="primary" @click="() => $emit('selectNode', row)">
             {{ row.name }}
           </el-link>
         </template>
@@ -109,7 +99,7 @@ const { IDENTIFICATION_SYMBOL, triggerRef, userData, trigger, close } = useUserP
 
       <el-table-column label="操作" :width="130">
         <template #default="{ row }">
-          <slot name="action" :row="typeAssert(row)" />
+          <slot name="action" :row="row" />
         </template>
       </el-table-column>
     </ElTable>

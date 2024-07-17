@@ -1,11 +1,11 @@
-import type { PageListQueryParams } from '../config'
-import type { TypeManagerKeys, TypeManagerMap } from '../definitions'
-import { TYPE_MANAGER_KEY_MAP } from '../definitions'
+import type { PageListQueryParams, TypeManager } from '../config'
+import type { TYPE_MANAGER_KEY_MAP, TypeManagerKeys, TypeManagerMap } from '../definitions'
+
 import type { PaginationState } from '@/hooks'
 import { useFetchHook } from '@/hooks'
 
 export interface TypeListHookOptions {
-  typeKey: Ref<keyof typeof TYPE_MANAGER_KEY_MAP>
+  manager: ComputedRef<TypeManager>
   pagination: Ref<PaginationState>
   getParams: () => Omit<PageListQueryParams, 'current' | 'size'>
 }
@@ -21,7 +21,7 @@ type ExtractListType<K extends TypeManagerKeys> = NonNullable<
 >
 
 export const useTypeList = <K extends keyof typeof TYPE_MANAGER_KEY_MAP>(options: TypeListHookOptions) => {
-  const { typeKey, pagination, getParams } = options
+  const { manager, pagination, getParams } = options
 
   const params = computed(() => getParams())
 
@@ -32,8 +32,9 @@ export const useTypeList = <K extends keyof typeof TYPE_MANAGER_KEY_MAP>(options
     immediate: true,
     onRequest: () => {
       const { current, pageSize: size } = pagination.value
-      const { typeIdList } = params.value
-      return TYPE_MANAGER_KEY_MAP[typeKey.value].list({ current, size, typeIdList })
+      const { list } = manager.value
+      const { node } = params.value
+      return list({ current, size, node })
     },
   })
 

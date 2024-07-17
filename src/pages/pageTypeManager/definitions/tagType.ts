@@ -4,11 +4,21 @@ import Api from '@/api/api'
 export class TagTypeManager implements TypeManager<API.TagTypeVo> {
   get info() {
     return {
-      label: '标签类型',
+      label: '图标类型',
     }
   }
 
-  list = (params: PageListQueryParams) => Api.tagType.listTagType(params)
+  getKey = (data: API.TagTypeVo) => `${data.id}`
+
+  getName = (data: API.TagTypeVo) => `${data.name ?? `(id:${data.id})`}`
+
+  list = (params: PageListQueryParams<API.IconTypeVo>) => {
+    const { node, ...rest } = params
+    return Api.tagType.listTagType({
+      typeIdList: node === undefined ? [-1] : [node.id!],
+      ...rest,
+    })
+  }
 
   create = (tagType: API.TagTypeVo) => Api.tagType.addTagType(tagType)
 

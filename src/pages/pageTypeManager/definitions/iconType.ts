@@ -4,11 +4,21 @@ import Api from '@/api/api'
 export class IconTypeManager implements TypeManager<API.IconTypeVo> {
   get info() {
     return {
-      label: '图标类型',
+      label: '图片资源类型',
     }
   }
 
-  list = (params: PageListQueryParams) => Api.iconType.listIconType(params)
+  getKey = (data: API.IconTypeVo) => `${data.id}`
+
+  getName = (data: API.IconTypeVo) => `${data.name ?? `(id:${data.id})`}`
+
+  list = (params: PageListQueryParams<API.IconTypeVo>) => {
+    const { node, ...rest } = params
+    return Api.iconType.listIconType({
+      typeIdList: node === undefined ? [-1] : [node.id!],
+      ...rest,
+    })
+  }
 
   create = (iconType: API.IconTypeVo) => Api.iconType.addIconType(iconType)
 

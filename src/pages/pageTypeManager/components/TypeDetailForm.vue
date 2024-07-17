@@ -64,7 +64,7 @@ defineExpose({
 </script>
 
 <template>
-  <el-form ref="formRef" label-width="80px" :model="modelValue" :rules="rules">
+  <el-form ref="formRef" class="w-[300px]" label-width="80px" :model="modelValue" :rules="rules">
     <el-form-item label="父级分类">
       {{ parent ? parent.name : '根分类' }}
     </el-form-item>
@@ -74,15 +74,15 @@ defineExpose({
     </el-form-item>
 
     <el-form-item label="排序" prop="sortIndex">
-      <el-input v-model="sortIndex" />
+      <el-input-number v-model="sortIndex" :min="0" :step="1" style="width: 100%" />
     </el-form-item>
 
-    <el-form-item v-if="(manager instanceof ItemTypeManager)" label="补充说明" prop="content">
+    <el-form-item v-if="(manager instanceof ItemTypeManager)" label="描述" prop="content">
       <el-input v-model="form.content" type="textarea" :rows="3" />
     </el-form-item>
 
     <el-form-item v-if="(manager instanceof ItemTypeManager)" label="图标" prop="iconTag">
-      <div class="grid gap-2" style="grid-template-columns: 32px 1fr;">
+      <div class="w-full grid gap-2" style="grid-template-columns: 32px 1fr;">
         <AppRowImage :src="iconTagStore.iconTagMap[form.iconTag ?? '']?.url" />
         <el-select-v2
           v-model="form.iconTag"

@@ -8,10 +8,17 @@ export class ItemTypeManager implements TypeManager<API.ItemTypeVo> {
     }
   }
 
-  list = (params: PageListQueryParams) => Api.itemType.listItemType1({ self: 1 }, {
-    ...params,
-    typeIdList: params.typeIdList ? params.typeIdList : [-1],
-  })
+  getKey = (data: API.ItemTypeVo) => `${data.id}`
+
+  getName = (data: API.ItemTypeVo) => `${data.name ?? `(id:${data.id})`}`
+
+  list = (params: PageListQueryParams<API.ItemTypeVo>) => {
+    const { node, ...rest } = params
+    return Api.itemType.listItemType1({ self: 1 }, {
+      typeIdList: node === undefined ? [-1] : [node.id!],
+      ...rest,
+    })
+  }
 
   create = (itemType: API.ItemTypeVo) => Api.itemType.addItemType(itemType)
 

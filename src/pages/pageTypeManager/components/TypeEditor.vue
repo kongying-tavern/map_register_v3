@@ -1,10 +1,17 @@
 <script lang="ts" setup>
+import { Check, Close } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { cloneDeep } from 'lodash'
 import type { TypeManager, TypeObject } from '../config'
 import { TypeDetailForm } from '.'
 import { useFetchHook } from '@/hooks'
-import { GlobalDialogController } from '@/components'
+import {
+  GlobalDialogController,
+  WinDialog,
+  WinDialogFooter,
+  WinDialogTabPanel,
+  WinDialogTitleBar,
+} from '@/components'
 
 const props = defineProps<{
   data: TypeObject
@@ -50,17 +57,23 @@ const editType = async () => {
 </script>
 
 <template>
-  <div class="p-5">
-    <TypeDetailForm v-model="form" :parent="parent" :manager="manager" />
+  <WinDialog>
+    <WinDialogTitleBar :loading="loading" @close="() => GlobalDialogController.close()">
+      编辑 {{ manager.info.label }}
+    </WinDialogTitleBar>
 
-    <div class="text-end">
-      <el-button type="primary" :loading="loading" @click="editType">
-        确认
+    <WinDialogTabPanel>
+      <TypeDetailForm v-model="form" :parent="parent" :manager="manager" />
+    </WinDialogTabPanel>
+
+    <WinDialogFooter>
+      <el-button type="primary" :icon="Check" :loading="loading" @click="editType">
+        保存
       </el-button>
 
-      <el-button :disabled="loading" @click="GlobalDialogController.close">
+      <el-button :disabled="loading" :icon="Close" @click="GlobalDialogController.close">
         取消
       </el-button>
-    </div>
-  </div>
+    </WinDialogFooter>
+  </WinDialog>
 </template>
