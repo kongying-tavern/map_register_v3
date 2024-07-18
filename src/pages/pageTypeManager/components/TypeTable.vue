@@ -97,7 +97,7 @@ const { IDENTIFICATION_SYMBOL, triggerRef, userData, trigger, close } = useUserP
 
       <el-table-column label="修改时间" prop="updateTime" :formatter="timeFormatter" :width="180" />
 
-      <el-table-column label="操作" :width="130">
+      <el-table-column label="操作" :width="100">
         <template #default="{ row }">
           <slot name="action" :row="row" />
         </template>
