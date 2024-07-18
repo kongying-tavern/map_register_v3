@@ -20,13 +20,15 @@ export interface TypeManager<T = unknown> {
     label: string
   }
 
-  getKey: (node: T) => string
+  getId: (node: T) => string | number | undefined
 
   getName: (node: T) => string
 
+  getIsLeaf: (node: T) => boolean | undefined
+
   list: (params: PageListQueryParams<T>) => Promise<PageListResponse<T>>
 
-  create: (node: T) => Promise<unknown>
+  create: (node: T, parent?: T) => Promise<unknown>
 
   delete: (node: T) => Promise<unknown>
 

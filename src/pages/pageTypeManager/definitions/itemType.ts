@@ -8,9 +8,11 @@ export class ItemTypeManager implements TypeManager<API.ItemTypeVo> {
     }
   }
 
-  getKey = (data: API.ItemTypeVo) => `${data.id}`
+  getId = (data: API.ItemTypeVo) => data.id
 
   getName = (data: API.ItemTypeVo) => `${data.name ?? `(id:${data.id})`}`
+
+  getIsLeaf = (data: API.ItemTypeVo) => data.isFinal
 
   list = (params: PageListQueryParams<API.ItemTypeVo>) => {
     const { node, ...rest } = params
@@ -20,9 +22,15 @@ export class ItemTypeManager implements TypeManager<API.ItemTypeVo> {
     })
   }
 
-  create = (itemType: API.ItemTypeVo) => Api.itemType.addItemType(itemType)
+  create = (data: API.ItemTypeVo, parent?: API.ItemTypeVo) => {
+    const { ...rest } = data
+    return Api.itemType.addItemType({
+      ...rest,
+      parentId: parent?.id ?? -1,
+    })
+  }
 
-  delete = (itemType: API.ItemTypeVo) => Api.itemType.deleteItemType({ itemTypeId: itemType.id! })
+  delete = (data: API.ItemTypeVo) => Api.itemType.deleteItemType({ itemTypeId: data.id! })
 
-  update = (itemType: API.ItemTypeVo) => Api.itemType.updateItemType(itemType)
+  update = (data: API.ItemTypeVo) => Api.itemType.updateItemType(data)
 }

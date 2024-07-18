@@ -49,7 +49,7 @@ const handleNodeSelect = (data?: unknown) => {
       return
     }
 
-    const { getKey } = manager.value
+    const { getId: getKey } = manager.value
     const findIndex = parentPath.value.findIndex(node => getKey(node) === getKey(data))
     if (findIndex > -1) {
       parentPath.value = parentPath.value.slice(0, findIndex + 1)
@@ -120,7 +120,7 @@ const confirmDelete = (data: unknown) => DialogService
             </el-link>
           </el-breadcrumb-item>
           <el-breadcrumb-item v-for="node in parentPath" :key="node">
-            <el-text v-if="manager.getKey(node) === manager.getKey(parent)">
+            <el-text v-if="manager.getId(node) === manager.getId(parent)">
               {{ manager.getName(node) }}
             </el-text>
             <el-link v-else @click="() => handleNodeSelect(node)">

@@ -8,9 +8,11 @@ export class TagTypeManager implements TypeManager<API.TagTypeVo> {
     }
   }
 
-  getKey = (data: API.TagTypeVo) => `${data.id}`
+  getId = (data: API.TagTypeVo) => data.id
 
   getName = (data: API.TagTypeVo) => `${data.name ?? `(id:${data.id})`}`
+
+  getIsLeaf = (data: API.TagTypeVo) => data.isFinal
 
   list = (params: PageListQueryParams<API.IconTypeVo>) => {
     const { node, ...rest } = params
@@ -20,7 +22,13 @@ export class TagTypeManager implements TypeManager<API.TagTypeVo> {
     })
   }
 
-  create = (tagType: API.TagTypeVo) => Api.tagType.addTagType(tagType)
+  create = (tagType: API.TagTypeVo, parent?: API.TagTypeVo) => {
+    const { ...rest } = tagType
+    return Api.tagType.addTagType({
+      ...rest,
+      parent: parent?.id ?? -1,
+    })
+  }
 
   delete = (tagType: API.TagTypeVo) => Api.tagType.deleteTagType({ typeId: tagType.id! })
 

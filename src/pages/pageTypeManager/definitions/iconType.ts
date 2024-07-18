@@ -8,9 +8,11 @@ export class IconTypeManager implements TypeManager<API.IconTypeVo> {
     }
   }
 
-  getKey = (data: API.IconTypeVo) => `${data.id}`
+  getId = (data: API.IconTypeVo) => data.id
 
   getName = (data: API.IconTypeVo) => `${data.name ?? `(id:${data.id})`}`
+
+  getIsLeaf = (data: API.IconTypeVo) => data.isFinal
 
   list = (params: PageListQueryParams<API.IconTypeVo>) => {
     const { node, ...rest } = params
@@ -20,7 +22,13 @@ export class IconTypeManager implements TypeManager<API.IconTypeVo> {
     })
   }
 
-  create = (iconType: API.IconTypeVo) => Api.iconType.addIconType(iconType)
+  create = (iconType: API.IconTypeVo, parent?: API.IconTypeVo) => {
+    const { ...rest } = iconType
+    return Api.iconType.addIconType({
+      ...rest,
+      parent: parent?.id ?? -1,
+    })
+  }
 
   delete = (iconType: API.IconTypeVo) => Api.iconType.deleteIconType({ typeId: iconType.id! })
 

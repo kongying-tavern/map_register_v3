@@ -28,7 +28,7 @@ const form = ref<TypeObject>({
 })
 
 const { loading, refresh: submit, onSuccess, onError } = useFetchHook({
-  onRequest: () => props.manager.create(form.value),
+  onRequest: () => props.manager.create(form.value, props.parent),
 })
 
 onSuccess(() => {

@@ -47,7 +47,7 @@ const confirm = async () => {
       <div>确实要永久性的删除此项吗？</div>
       <div class="text-[var(--el-text-color-primary)]">
         <div>名称: {{ manager.getName(data) }}</div>
-        <div>ID: {{ manager.getKey(data) }}</div>
+        <div>ID: {{ manager.getId(data) }}</div>
       </div>
     </div>
 

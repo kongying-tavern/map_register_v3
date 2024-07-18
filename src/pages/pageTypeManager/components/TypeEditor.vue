@@ -63,7 +63,11 @@ const editType = async () => {
     </WinDialogTitleBar>
 
     <WinDialogTabPanel>
-      <TypeDetailForm v-model="form" :parent="parent" :manager="manager" />
+      <TypeDetailForm
+        v-model="form"
+        :parent="parent"
+        :manager="manager"
+      />
     </WinDialogTabPanel>
 
     <WinDialogFooter>

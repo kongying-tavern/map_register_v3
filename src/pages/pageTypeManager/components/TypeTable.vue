@@ -48,10 +48,10 @@ const { IDENTIFICATION_SYMBOL, triggerRef, userData, trigger, close } = useUserP
       :data="data"
       :max-height="height"
       :height="height"
-      :row-key="manager.getKey"
+      :row-key="row => `${manager.getId(row)}`"
       cell-class-name="whitespace-nowrap"
     >
-      <el-table-column label="ID" prop="id" :width="100" />
+      <el-table-column label="ID" prop="id" :width="80" />
 
       <el-table-column label="图标" prop="iconTag" :width="60">
         <template #default="{ row }">
@@ -64,6 +64,12 @@ const { IDENTIFICATION_SYMBOL, triggerRef, userData, trigger, close } = useUserP
           <el-link type="primary" @click="() => $emit('selectNode', row)">
             {{ row.name }}
           </el-link>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="子分类" :width="80">
+        <template #default="{ row }">
+          {{ manager.getIsLeaf(row) ? '无' : '有' }}
         </template>
       </el-table-column>
 

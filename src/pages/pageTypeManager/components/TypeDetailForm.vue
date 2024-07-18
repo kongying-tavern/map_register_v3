@@ -8,19 +8,18 @@ import { useFetchHook } from '@/hooks'
 import { AppRowImage } from '@/components'
 import { useIconTagStore } from '@/stores'
 
-const props = defineProps<{
-  modelValue: TypeObject
+defineProps<{
   parent?: TypeObject
   manager: TypeManager<TypeObject>
 }>()
 
-defineEmits<{
-  'update:modelValue': [TypeObject]
-}>()
+const iconTagStore = useIconTagStore()
 
 const formRef = ref<ElFormType | null>(null)
 
-const iconTagStore = useIconTagStore()
+const modelValue = defineModel<TypeObject>('modelValue', {
+  required: true,
+})
 
 const tagOptions = ref<(API.TagVo & { label: string; value: string })[]>([])
 const { loading, refresh: getTagList, onSuccess } = useFetchHook({
@@ -39,22 +38,20 @@ const rules: FormRules = {
   name: [{ required: true, message: '名称不能为空', validator: (_, v = '') => v.length > 0 }],
 }
 
-const form = toRef(props, 'modelValue')
-
 const name = computed({
-  get: () => props.modelValue.name ?? '',
+  get: () => modelValue.value.name ?? '',
   set: (v) => {
-    form.value.name = v.replaceAll(/\s+/g, '')
+    modelValue.value.name = v.replaceAll(/\s+/g, '')
   },
 })
 
 const sortIndex = computed({
-  get: () => props.modelValue.sortIndex,
+  get: () => modelValue.value.sortIndex,
   set: (v) => {
     const sortNumber = Number(v)
     if (!Number.isInteger(sortNumber))
       return
-    form.value.sortIndex = sortNumber
+    modelValue.value.sortIndex = sortNumber
   },
 })
 
@@ -73,19 +70,19 @@ defineExpose({
       <el-input v-model="name" />
     </el-form-item>
 
-    <el-form-item label="排序" prop="sortIndex">
+    <el-form-item v-if="(manager instanceof ItemTypeManager)" label="排序" prop="sortIndex">
       <el-input-number v-model="sortIndex" :min="0" :step="1" style="width: 100%" />
     </el-form-item>
 
     <el-form-item v-if="(manager instanceof ItemTypeManager)" label="描述" prop="content">
-      <el-input v-model="form.content" type="textarea" :rows="3" />
+      <el-input v-model="modelValue.content" type="textarea" :rows="3" />
     </el-form-item>
 
     <el-form-item v-if="(manager instanceof ItemTypeManager)" label="图标" prop="iconTag">
-      <div class="w-full grid gap-2" style="grid-template-columns: 32px 1fr;">
-        <AppRowImage :src="iconTagStore.iconTagMap[form.iconTag ?? '']?.url" />
+      <div class="w-full grid grid-cols-[32px,1fr] gap-2">
+        <AppRowImage :src="iconTagStore.iconTagMap[modelValue.iconTag ?? '']?.url" />
         <el-select-v2
-          v-model="form.iconTag"
+          v-model="modelValue.iconTag"
           filterable
           remote
           clearable
