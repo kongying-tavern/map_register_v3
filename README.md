@@ -5,25 +5,25 @@
   <h2>空荧后厨</h2>
   <div>
     <a href="https://www.typescriptlang.org" target="_blank">
-      <img src="https://img.shields.io/badge/typescript-5.3-blue">
+      <img src="https://img.shields.io/badge/typescript-5.4-blue">
     </a>
     <a href="https://nodejs.org" target="_blank">
       <img src="https://img.shields.io/badge/node.js-18-green">
     </a>
     <a href="https://cn.vitejs.dev" target="_blank">
-      <img src="https://img.shields.io/badge/vite.js-5.1-green">
+      <img src="https://img.shields.io/badge/vite.js-5-green">
     </a>
     <a href="https://cn.vuejs.org" target="_blank">
-      <img src="https://img.shields.io/badge/vue.js-3.4-green">
+      <img src="https://img.shields.io/badge/vue.js-3-green">
     </a>
     <a href="https://deck.gl" target="_blank">
-      <img src="https://img.shields.io/badge/deck.gl-8.9-B77546">
+      <img src="https://img.shields.io/badge/deck.gl-9-B77546">
     </a>
     <a href="https://tiptap.dev" target="_blank">
-      <img src="https://img.shields.io/badge/tiptap-2.2-B77546">
+      <img src="https://img.shields.io/badge/tiptap-2-B77546">
     </a>
     <a href="https://dexie.org" target="_blank">
-      <img src="https://img.shields.io/badge/dexie.js-3.2-B77546">
+      <img src="https://img.shields.io/badge/dexie.js-3-B77546">
     </a>
   </div>
 </div>
