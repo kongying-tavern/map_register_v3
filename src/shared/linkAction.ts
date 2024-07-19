@@ -41,17 +41,14 @@ export const LINK_ACTION_CONFIG: Record<LinkActionEnum, LinkActionConfig> = {
   },
   [LinkActionEnum.TRIGGER_ALL]: {
     lineColor: [0, 0, 128], // rgb(0 0 128)
-
   },
   [LinkActionEnum.TRIGGER_ANY]: {
     lineColor: [173, 216, 230], // rgb(173 216 230)
   },
   [LinkActionEnum.RELATED]: {
     lineColor: [255, 165, 0], // rgb(255 165 0)
-
   },
   [LinkActionEnum.EQUIVALENT]: {
     lineColor: [0, 128, 0], // rgb(0 128 0)
-
   },
 }

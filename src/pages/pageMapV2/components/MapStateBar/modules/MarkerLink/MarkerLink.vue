@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Check, Close, RefreshLeft } from '@element-plus/icons-vue'
-import { LinkIndicator, MarkerIndicator, MarkerInfo } from './components'
+import { LinkIndicator, MarkerIndicator, MarkerInfo, MarkerSummary } from './components'
 import type { MLContext } from './core'
 import { useLinkCreate } from './hooks'
 import { useMapStateStore } from '@/stores'
@@ -79,21 +79,23 @@ const mapAffixLayerRef = inject(mapAffixLayerKey, ref(null))
           @pointerenter="() => addHover<string>('markerLink', key, true)"
           @pointerleave="() => removeHover<string>('markerLink', key)"
         >
-          <span class="flex-1 text-center">
-            {{ `${mapStateStore.currentMarkerIdMap.get(fromId!)?.markerTitle}` }}
-          </span>
-          <span class="flex-1 text-center">
-            {{ LINK_ACTION_NAME_MAP.get(linkAction) }}
-          </span>
-          <span class="flex-1 text-center">
-            {{ `${mapStateStore.currentMarkerIdMap.get(toId!)?.markerTitle}` }}
-          </span>
+          <MarkerSummary :data="mapStateStore.currentMarkerIdMap.get(fromId!)" />
+          <div class="flex-[0.4] flex-shrink-0 text-center flex flex-col items-center overflow-hidden">
+            <div>
+              {{ LINK_ACTION_NAME_MAP.get(linkAction) }}
+            </div>
+            <el-icon>
+              <Right />
+            </el-icon>
+          </div>
+          <MarkerSummary :data="mapStateStore.currentMarkerIdMap.get(toId!)" />
           <el-button
             text
             circle
             :type="isDelete ? 'success' : 'danger'"
             :title="isDelete ? '撤销删除' : '删除此项关联'"
             :icon="isDelete ? RefreshLeft : Close"
+            style="--el-fill-color-light: var(--el-color-danger-light-9); --el-fill-color: var(--el-color-danger-light-7)"
             @click="() => context[isDelete ? 'revokeDeletion' : 'deleteLink']({ key, fromId, toId, linkAction })"
           />
         </div>
@@ -163,10 +165,11 @@ const mapAffixLayerRef = inject(mapAffixLayerKey, ref(null))
   justify-content: space-between;
   margin: 0 4px 0 8px;
   padding: 2px 4px;
-  background-color: var(--el-color-info-light-7);
+  background-color: var(--el-color-info-light-9);
   border-radius: 20px;
   position: relative;
   outline-offset: -2px;
+  gap: 4px;
 
   &.is-hover {
     outline: 2px solid #6CE;
