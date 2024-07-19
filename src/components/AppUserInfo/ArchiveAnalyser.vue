@@ -34,6 +34,7 @@ const RESTRICTED_AREA_CODES = [
   'A:APPLE:2_8',
   'A:DQ:SANJIE',
   'A:VELURIYAM:3_8',
+  'A:SIMULANKA:4_8',
 ]
 
 const isRestrictedArea = (code?: string) => {
@@ -130,7 +131,7 @@ const getTotal = (groupItem?: GroupedMarkers[keyof GroupedMarkers]) => {
 
 <template>
   <div class="w-full flex-1 flex flex-col overflow-hidden">
-    <div class="w-full flex justify-between items-center text-lg p-2" style="color:#84603D;">
+    <div class="flex-shink-0 w-full flex justify-between items-center text-lg p-2" style="color:#84603D;">
       <span
         class="inline-block w-72 overflow-hidden text-ellipsis whitespace-nowrap"
         :title="archiveStore.currentArchive.slotIndex ? archiveStore.archiveSlots[archiveStore.currentArchive.slotIndex]?.name : ''"
@@ -145,31 +146,35 @@ const getTotal = (groupItem?: GroupedMarkers[keyof GroupedMarkers]) => {
       />
     </div>
 
-    <div class="gs-archive-analyser-container grid gap-2 grid-cols-2 grid-rows-4 m-1">
-      <template v-for="(item, code, index) in rawMarkersGroup" :key="code">
-        <div
-          v-if="showRestrictedArea || item.normal > 0"
-          class="gs-archive-analyser-item grid gap-x-1"
-          :style="{
-            '--markers-ratio': `${(100 * (getTotal(markersGroup[code]) / getTotal(item))).toFixed(2)}%`,
-            '--anime-delay': `${index * 50}ms`,
-          }"
-        >
-          <div class="gs-archive-area w-12 h-12 row-span-2 rounded-sm" :style="{ '--icon': `url(${item.icon})` }" />
+    <div class="flex-1 overflow-hidden">
+      <el-scrollbar>
+        <div class="gs-archive-analyser-container grid gap-2 grid-cols-2 grid-rows-4 m-1">
+          <template v-for="(item, code, index) in rawMarkersGroup" :key="code">
+            <div
+              v-if="showRestrictedArea || item.normal > 0"
+              class="gs-archive-analyser-item grid gap-x-1"
+              :style="{
+                '--markers-ratio': `${(100 * (getTotal(markersGroup[code]) / getTotal(item))).toFixed(2)}%`,
+                '--anime-delay': `${index * 50}ms`,
+              }"
+            >
+              <div class="gs-archive-area w-12 h-12 row-span-2 rounded-sm" :style="{ '--icon': `url(${item.icon})` }" />
 
-          <div class="text-base overflow-hidden whitespace-nowrap text-ellipsis" :title="item.parentArea.name">
-            {{ item.parentArea.name }}
-          </div>
+              <div class="text-base overflow-hidden whitespace-nowrap text-ellipsis" :title="item.parentArea.name">
+                {{ item.parentArea.name }}
+              </div>
 
-          <div class="text-sm text-right">
-            {{ getTotal(markersGroup[code]) }} / {{ getTotal(item) }}
-          </div>
+              <div class="text-sm text-right">
+                {{ getTotal(markersGroup[code]) }} / {{ getTotal(item) }}
+              </div>
 
-          <div class="gs-archive-analyser-bar col-span-2 flex items-center justify-end text-xs">
-            {{ (100 * (getTotal(markersGroup[code]) / getTotal(item))).toFixed(2) }} %
-          </div>
+              <div class="gs-archive-analyser-bar col-span-2 flex items-center justify-end text-xs">
+                {{ (100 * (getTotal(markersGroup[code]) / getTotal(item))).toFixed(2) }} %
+              </div>
+            </div>
+          </template>
         </div>
-      </template>
+      </el-scrollbar>
     </div>
   </div>
 </template>
