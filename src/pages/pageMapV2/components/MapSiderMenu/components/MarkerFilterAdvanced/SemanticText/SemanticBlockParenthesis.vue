@@ -7,7 +7,7 @@ defineProps<{
 </script>
 
 <template>
-  <span class="semantic-block sem-parenthesis">
+  <span class="semantic-block sem-parenthesis font-['AsanaMath']">
     {{ option.text ?? '' }}
   </span>
 </template>
@@ -15,7 +15,6 @@ defineProps<{
 <style lang="scss" scoped>
 .sem-parenthesis {
   vertical-align: middle;
-  font-family: 'MATHFT';
   font-size: 1.6rem;
   line-height: 1.6;
   font-weight: bold;

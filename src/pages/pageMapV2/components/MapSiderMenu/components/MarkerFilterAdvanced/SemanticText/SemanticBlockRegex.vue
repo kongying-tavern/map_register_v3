@@ -7,14 +7,13 @@ defineProps<{
 </script>
 
 <template>
-  <span class="semantic-block sem-regex">
+  <span class="semantic-block sem-regex font-['CascadiaMono']">
     <span class="text">{{ option.text ?? '' }}</span>
   </span>
 </template>
 
 <style lang="scss" scoped>
 .sem-regex {
-  font-family: 'MONOFT';
   font-weight: bolder;
   margin: .2rem;
 
