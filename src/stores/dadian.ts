@@ -10,6 +10,7 @@ import db from '@/database'
 export const useDadianStore = defineStore('global-dadian-json', () => {
   const raw = shallowRef<API.DadianJSON>({})
 
+  // 自动加载字体资源
   watch(raw, ({ editor = {} }) => {
     const familySet = new Set<string>()
     document.fonts.forEach((fontFace) => {
