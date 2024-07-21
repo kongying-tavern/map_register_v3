@@ -2,12 +2,12 @@ export default {
   id: 5,
   name: "underground",
   icon: "mdi-layers-outline",
-  title: "地下匹配",
+  title: "地面层级",
   label: "点位属于",
   model: "toggle",
   modelOpts: {
-    textInactive: "地上",
-    textActive: "地下",
+    textInactive: "地面",
+    textActive: "非地面",
   },
   modelVals: {
     value: true,

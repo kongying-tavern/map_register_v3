@@ -41,7 +41,7 @@ const extra_options = computed(() => {
       :stages="extra_options['2_8_island']?.stages"
     />
 
-    <!-- 地下层级 -->
+    <!-- 分层层级 -->
     <plUnderground
       v-else-if="plugin_tag === 'underground'"
       :textInactive="extra_options.underground?.textInactive"

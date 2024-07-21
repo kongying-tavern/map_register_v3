@@ -19,11 +19,11 @@ defineComponent({
 const props = defineProps({
   textInactive: {
     type: String,
-    default: "地上",
+    default: "地面",
   },
   textActive: {
     type: String,
-    default: "地下",
+    default: "非地面",
   },
   undergroundDetail: {
     type: Boolean,
@@ -107,7 +107,7 @@ onMounted(() => {
 
 <template>
   <q-item>
-    <q-item-section side top> 地下区域 </q-item-section>
+    <q-item-section side top> 分层层级 </q-item-section>
     <q-item-section>
       <div class="row q-pb-sm content-top">
         <q-toggle

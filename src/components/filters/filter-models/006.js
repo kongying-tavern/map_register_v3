@@ -32,15 +32,15 @@ const slotAfter = () =>
                         default: () => [
                           "无选中等价于",
                           h("b", {}, "全选所有可选层级"),
-                          "，当前区域无地下层级则此条件默认为真",
+                          "，当前区域无分层层级则此条件默认为真",
                         ],
                       }
                     ),
-                    h("li", {}, "选项仅包含当前区域的地下层级"),
+                    h("li", {}, "选项仅包含当前区域的分层层级"),
                     h(
                       "li",
                       {},
-                      "若区域和已选地下层级无法匹配，选项可能出现层级标识，不影响具体筛选功能"
+                      "若区域和已选分层层级无法匹配，选项可能出现层级标识，不影响具体筛选功能"
                     ),
                   ],
                 }
@@ -55,15 +55,15 @@ export default {
   id: 6,
   name: "underground-layer",
   icon: "mdi-layers-search-outline",
-  title: "地下层级",
-  label: "地下层级位于",
+  title: "分层层级",
+  label: "分层层级位于",
   model: "select",
   modelOpts: {
     multiple: true,
     behavior: "dialog",
     useChips: true,
     optionValue: "value",
-    noOptionText: "无可选地下层级，请切换至有地下层级的地区",
+    noOptionText: "无可选分层层级，请切换至有分层层级的地区",
     optionsFunc: computed(() => {
       const pluginConfigMap = map_plugin_config.value || {};
       const options = [];
@@ -115,8 +115,8 @@ export default {
 
     if (selectedAll) {
       return oppositeValue
-        ? "点位不属于当前区域任何地下层级"
-        : "点位属于当前区域所有地下层级";
+        ? "点位不属于当前区域任何分层层级"
+        : "点位属于当前区域所有分层层级";
     }
 
     const levelNameExists = [];
@@ -136,11 +136,11 @@ export default {
     if (oppositeValue) {
       levelNameExistsText = `点位不属于${levelNameExists.join(",")}`;
       levelNameMissingText =
-        levelNameMissing > 0 ? `及其他地区的${levelNameMissing}个地下层级` : "";
+        levelNameMissing > 0 ? `及其他地区的${levelNameMissing}个分层层级` : "";
     } else {
       levelNameExistsText = `点位属于${levelNameExists.join(",")}`;
       levelNameMissingText =
-        levelNameMissing > 0 ? `或其他地区的${levelNameMissing}个地下层级` : "";
+        levelNameMissing > 0 ? `或其他地区的${levelNameMissing}个分层层级` : "";
     }
 
     return `${levelNameExistsText}${levelNameMissingText}`;
