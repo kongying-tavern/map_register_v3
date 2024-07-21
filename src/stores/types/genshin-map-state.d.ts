@@ -35,7 +35,7 @@ declare namespace GSMapState {
       /** 副图标 id 列表 */
       restItemIds: number[]
 
-      /** 是否为地下图标 */
+      /** 是否为分层层级图标 */
       isUnderground: boolean
 
       /** 是否为临时点位 */

@@ -116,7 +116,7 @@
     if (tilesCode)
       return `tiles-${tilesCode}`
 
-    // 2. 地下/附加图层
+    // 2. 附加图层
     if (pathname.includes('/d/underground/'))
       return 'overlays'
 

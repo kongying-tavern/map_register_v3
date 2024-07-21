@@ -148,7 +148,7 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
 
         <template #append>
           <div class="flex gap-1 pt-0 p-1">
-            <el-tag>{{ isUnderground ? '地下' : '地上' }}</el-tag>
+            <el-tag>{{ isUnderground ? '非地面' : '地面' }}</el-tag>
             <el-tag>{{ hiddenFlagType }}</el-tag>
             <el-tag>{{ refreshTimeType }}</el-tag>
             <el-tag v-if="cachedMarkerVo.linkageId">

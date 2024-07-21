@@ -20,7 +20,7 @@ const modelValue = defineModel<MAFValueStringArray>('modelValue', {
 
 <template>
   <div class="flex-auto flex gap-1 items-center">
-    <span class="flex-none">地下层级</span>
+    <span class="flex-none">分层层级</span>
     <MarkerFilterSelectPanel
       v-model="modelValue.sa"
       :multiple="options.optionSelectMultiple"

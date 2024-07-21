@@ -49,9 +49,9 @@ declare namespace API {
       }[]
     }
     'underground'?: {
-      /** 开启地下选项时的提示文本 */
+      /** 开启附加图层选项时的提示文本 */
       textActive?: string
-      /** 关闭地下选项时的提示文本 */
+      /** 关闭附加图层选项时的提示文本 */
       textInactive?: string
       /** 是否使用详细的层级信息，如果为 false 则不显示层级选项，且默认设置层级为空 */
       useDetail?: boolean
@@ -105,7 +105,7 @@ declare namespace API {
      */
     overlayMask?: boolean
     /**
-     * 是否在有地下层级选中时才进行暗色覆盖
+     * 是否在有分层层级选中时才进行暗色覆盖
      * @default true
      */
     overlayMaskOnSelected?: boolean
@@ -165,7 +165,7 @@ declare namespace API {
   }
 
   interface MarkerExtra {
-    /** 地下区域 */
+    /** 非地面区域 */
     'underground'?: {
       is_underground?: boolean
       region_levels?: string[]

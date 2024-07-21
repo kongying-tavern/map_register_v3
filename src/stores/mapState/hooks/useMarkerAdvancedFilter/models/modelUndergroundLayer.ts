@@ -16,7 +16,7 @@ interface ExtraUnderground {
 
 export class UndergroundLayer implements MAFConfig {
   id = 6
-  name = '地下层级'
+  name = '分层层级'
   option: ComputedRef<OptionType> = computed(() => {
     const { areaCodeMap } = useAreaStore()
     const { mergedAreaExtraConfigs } = useMarkerExtraStore()
@@ -38,7 +38,7 @@ export class UndergroundLayer implements MAFConfig {
     }
 
     return {
-      dialogTitle: '选择地下层级',
+      dialogTitle: '选择分层层级',
       options: undergroundOptions,
       optionSelectMultiple: true,
       optionLabel: 'label',
@@ -107,7 +107,7 @@ export class UndergroundLayer implements MAFConfig {
 
   semantic(_val: MAFValueStringArray, _opt: OptionType, meta: MAFMetaUndergroundLayer, opposite: boolean): MAFSemanticUnit[] {
     return [
-      { type: 'text', text: '地下层级' },
+      { type: 'text', text: '分层层级' },
       opposite ? { type: 'opposite-indicator', text: '不' } : null,
       { type: 'text', text: '属于' },
       ...meta.tagList.map(tag => ({ type: 'tag', text: tag })),

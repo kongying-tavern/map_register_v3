@@ -65,7 +65,7 @@ const island28Options = computed(() => {
   }) as CascaderOption[]
 })
 
-// ==================== 地下字段特殊处理 ====================
+// ==================== 分层层级字段特殊处理 ====================
 
 const isUnderground = computed({
   get: () => Boolean(props.modelValue?.underground?.is_underground),
@@ -167,8 +167,8 @@ watch(() => props.extraConfig, () => {
     <div v-else-if="extraConfig.underground" class="flex gap-2 overflow-hidden">
       <el-switch
         v-model="isUnderground"
-        :active-text="extraConfig.underground.textActive ?? '地下'"
-        :inactive-text="extraConfig.underground.textInactive ?? '地上'"
+        :active-text="extraConfig.underground.textActive ?? '非地面'"
+        :inactive-text="extraConfig.underground.textInactive ?? '地面'"
         inline-prompt
         class="flex-shrink-0"
       />

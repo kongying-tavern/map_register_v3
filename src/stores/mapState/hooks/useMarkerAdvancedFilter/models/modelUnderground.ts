@@ -12,10 +12,10 @@ interface ExtraUnderground {
 
 export class Underground implements MAFConfig {
   id = 5
-  name = '点位地下'
+  name = '地面点位'
   option: MAFOptionSwitch = {
-    textInactive: '地上',
-    textActive: '地下',
+    textInactive: '地面',
+    textActive: '非地面',
   }
 
   get defaultVal(): MAFValueBoolean {

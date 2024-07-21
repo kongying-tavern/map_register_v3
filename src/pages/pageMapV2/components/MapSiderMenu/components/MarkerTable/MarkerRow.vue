@@ -51,7 +51,7 @@ const themeColor = computed(() => {
 
       <div class="flex gap-1 text-white text-xs">
         <div v-if="data.render.isUnderground" class="info-tag">
-          地下
+          非地面
         </div>
       </div>
     </div>
