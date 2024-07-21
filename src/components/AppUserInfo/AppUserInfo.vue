@@ -6,7 +6,7 @@ import { GSTab } from '@/components'
 
 const userInfoStore = useUserInfoStore()
 
-const BANNER_IMAGE_URL = 'https://upload-bbs.miyoushe.com/upload/2023/09/08/75276539/e048366f518c6c6edfbbcfec3162b10f_1620230996664613985.jpg?x-oss-process=image//resize,s_600/quality,q_80/auto-orient,0/interlace,1/format,jpg'
+const banner = import.meta.env.VITE_BANNER_IMAGE
 
 const tabs: { title: string; value: string }[] = [
   { title: '云存档', value: 'archive' },
@@ -25,13 +25,13 @@ const tab = ref('archive')
     width="fit-content"
     class="custom-dialog hidden-header bg-transparent"
   >
-    <div class="user-info-dialog relative overflow-visible grid grid-cols-2 place-items-center genshin-text">
+    <div class="user-info-dialog relative overflow-visible grid grid-cols-2 place-items-center font-['HYWenHei-85W']">
       <div class="bg-card rounded" />
 
       <div class="user-info overflow-hidden rounded flex flex-col items-center p-8 pt-28">
         <div class="banner absolute top-0 left-0 text-center text-lg">
           <el-image
-            :src="BANNER_IMAGE_URL"
+            :src="banner"
             class="absolute w-full h-full left-0 top-0"
             fit="cover"
             style="z-index: -1"
