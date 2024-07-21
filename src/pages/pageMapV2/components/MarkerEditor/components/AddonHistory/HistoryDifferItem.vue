@@ -1,16 +1,18 @@
 <script setup lang="ts">
 defineProps<{
   label: string
+  isDifferent?: boolean
+  autoCollapse?: boolean
 }>()
 </script>
 
 <template>
-  <details open class="diff-item pr-3 mb-2">
+  <details :open="!autoCollapse || isDifferent" class="diff-item ml-1 mr-3 my-2" :class="{ 'is-different': isDifferent }">
     <summary class="divider-line font-bold select-none">
       {{ label }}
     </summary>
 
-    <div class="mb-2">
+    <div class="p-1">
       <slot name="default" />
     </div>
   </details>
@@ -18,41 +20,32 @@ defineProps<{
 
 <style scoped>
 .diff-item {
-  --tint-color: var(--el-text-color-secondary);
+  --summary-text-color: var(--el-text-color-secondary);
+  --summary-bg-color: var(--el-color-primary-light-7);
+
+  border: 1px solid var(--summary-bg-color);
+  border-radius: 4px;
+  overflow: hidden;
 
   &[open] {
-    --tint-color: var(--el-color-primary);
+    --summary-text-color: var(--el-text-color-regular);
+  }
+
+  &.is-different {
+    --summary-text-color: var(--el-color-warning);
+    --summary-bg-color: var(--el-color-warning-light-7);
   }
 }
 
 .divider-line {
   position: relative;
-  color: var(--tint-color);
+  color: var(--summary-text-color);
   cursor: pointer;
-
-  &:hover {
-    --tint-color: var(--el-text-color-regular);
-  }
+  padding: 0 4px;
+  background: var(--summary-bg-color);
 
   &::marker {
-    background: var(--tint-color);
-  }
-
-  &::before {
-    width: 100%;
-    height: 100%;
-    left: 0;
-    position: absolute;
-    content: '';
-    pointer-events: none;
-    background: linear-gradient(
-      to bottom,
-      transparent calc(50% - 0.5px),
-      var(--tint-color) calc(50% - 0.5px),
-      var(--tint-color) calc(50% + 0.5px),
-      transparent calc(50% + 0.5px)
-    );
-    clip-path: inset(0 0 0 21%);
+    background: var(--summary-text-color);
   }
 }
 </style>

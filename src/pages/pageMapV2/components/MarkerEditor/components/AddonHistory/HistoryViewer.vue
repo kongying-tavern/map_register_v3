@@ -2,81 +2,115 @@
 import HistoryDifferItem from './HistoryDifferItem.vue'
 import DifferText from './DifferText.vue'
 import DifferItem from './DifferItem.vue'
-import DifferUser from './DifferUser.vue'
 import { HIDDEN_FLAG_NAME_MAP } from '@/shared'
 
-const props = defineProps<{
+defineProps<{
   loading?: boolean
-  current: API.MarkerVo
-  history?: API.HistoryVo
-  users: Map<string, API.SysUserSmallVo>
+  newContent: API.MarkerVo
+  oldContent: API.MarkerVo
+  autoCollapse?: boolean
 }>()
+const isPlainDifferent = <T = unknown>(current?: T, history?: T) => current !== history
 
-const updator = computed(() => props.users.get(`${props.history?.updaterId}`))
+const isExtraDifferent = (current: Record<string, unknown> = {}, history: Record<string, unknown> = {}) => {
+  return JSON.stringify(current) !== JSON.stringify(history)
+}
 
-const historyContent = computed(() => JSON.parse(props.history?.content ?? '{}') as API.MarkerVo)
+const isItemDifferent = (current: API.MarkerItemLinkVo[] = [], history: API.MarkerItemLinkVo[] = []) => {
+  const itemCountMap = current.reduce((map, { itemId, count = 0 }) => map.set(itemId!, count), new Map<number, number>())
+
+  history.forEach(({ itemId, count = 0 }) => {
+    const newOne = itemCountMap.get(itemId!)
+    if (newOne === undefined || newOne !== count) {
+      itemCountMap.set(itemId!, count)
+      return
+    }
+    itemCountMap.delete(itemId!)
+  })
+
+  return itemCountMap.size > 0
+}
 </script>
 
 <template>
   <el-skeleton :rows="5" :loading="loading" animated>
     <template #default>
-      <div v-if="!history">
-        无历史记录
-      </div>
-      <div v-else>
-        <HistoryDifferItem label="点位名称">
-          <DifferText
-            :history="historyContent.markerTitle"
-            :current="current.markerTitle"
-          />
-        </HistoryDifferItem>
+      <HistoryDifferItem
+        label="点位名称"
+        :auto-collapse="autoCollapse"
+        :is-different="isPlainDifferent(newContent.markerTitle, oldContent.markerTitle)"
+      >
+        <DifferText
+          :current="newContent.markerTitle"
+          :history="oldContent.markerTitle"
+        />
+      </HistoryDifferItem>
 
-        <HistoryDifferItem label="点位层级">
-          <DifferText
-            :history="JSON.stringify(historyContent.extra ?? Object.create({}))"
-            :current="JSON.stringify(current.extra ?? Object.create({}))"
-          />
-        </HistoryDifferItem>
+      <HistoryDifferItem
+        label="点位层级"
+        :auto-collapse="autoCollapse"
+        :is-different="isExtraDifferent(newContent.extra, oldContent.extra)"
+      >
+        <DifferText
+          :current="JSON.stringify(newContent.extra ?? Object.create({}))"
+          :history="JSON.stringify(oldContent.extra ?? Object.create({}))"
+        />
+      </HistoryDifferItem>
 
-        <HistoryDifferItem label="所属物品">
-          <DifferItem
-            :history="historyContent.itemList"
-            :current="current.itemList"
-          />
-        </HistoryDifferItem>
+      <HistoryDifferItem
+        label="所属物品"
+        :auto-collapse="autoCollapse"
+        :is-different="isItemDifferent(newContent.itemList, oldContent.itemList)"
+      >
+        <DifferItem
+          :current="newContent.itemList"
+          :history="oldContent.itemList"
+        />
+      </HistoryDifferItem>
 
-        <HistoryDifferItem label="点位描述">
-          <DifferText
-            :history="historyContent.content"
-            :current="current.content"
-          />
-        </HistoryDifferItem>
+      <HistoryDifferItem
+        label="点位描述"
+        :auto-collapse="autoCollapse"
+        :is-different="isPlainDifferent(newContent.content, oldContent.content)"
+      >
+        <DifferText
+          :current="newContent.content"
+          :history="oldContent.content"
+        />
+      </HistoryDifferItem>
 
-        <HistoryDifferItem label="点位图像">
-          <DifferText
-            :history="historyContent.picture"
-            :current="current.picture"
-          />
-        </HistoryDifferItem>
+      <HistoryDifferItem
+        label="点位图像"
+        :auto-collapse="autoCollapse"
+        :is-different="isPlainDifferent(newContent.picture, oldContent.picture)"
+      >
+        <DifferText
+          :current="newContent.picture"
+          :history="oldContent.picture"
+        />
+      </HistoryDifferItem>
 
-        <HistoryDifferItem label="显示状态">
-          <DifferText
-            :history="HIDDEN_FLAG_NAME_MAP[`${historyContent.hiddenFlag}`]"
-            :current="HIDDEN_FLAG_NAME_MAP[`${current.hiddenFlag}`]"
-          />
-        </HistoryDifferItem>
+      <HistoryDifferItem
+        label="显示状态"
+        :auto-collapse="autoCollapse"
+        :is-different="isPlainDifferent(oldContent.hiddenFlag, newContent.hiddenFlag)"
+      >
+        <DifferText
+          :current="HIDDEN_FLAG_NAME_MAP[`${newContent.hiddenFlag}`]"
+          :history="HIDDEN_FLAG_NAME_MAP[`${oldContent.hiddenFlag}`]"
+        />
+      </HistoryDifferItem>
 
-        <HistoryDifferItem label="视频链接">
-          <DifferText
-            :history="historyContent.videoPath"
-            :current="current.videoPath"
-          />
-        </HistoryDifferItem>
-
-        <HistoryDifferItem label="修改人">
-          <DifferUser :user-id="history.updaterId" :updator="updator" />
-        </HistoryDifferItem>
-      </div>
+      <HistoryDifferItem
+        label="视频链接"
+        :auto-collapse="autoCollapse"
+        :is-different="isPlainDifferent(newContent.videoPath, oldContent.videoPath)"
+      >
+        <DifferText
+          :current="newContent.videoPath"
+          :history="oldContent.videoPath"
+        />
+      </HistoryDifferItem>
     </template>
   </el-skeleton>
 </template>
