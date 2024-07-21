@@ -97,7 +97,7 @@ const handleDragStart = (ev: DragEvent, row: T) => {
 <template>
   <div
     v-bind="$attrs"
-    class="checkbox-group genshin-text"
+    class="checkbox-group font-['HYWenHei-85W']"
   >
     <el-scrollbar
       class="checkbox-group-scrollbar"

@@ -25,7 +25,7 @@ const color = computed(() => {
 <template>
   <BarItem label="连接状态" divider>
     <div
-      class="h-full flex items-center genshin-text px-1"
+      class="h-full flex items-center font-['HYWenHei-85W'] px-1"
       :style="{
         'color': color,
         '--color-null': '#3B4255',

@@ -25,3 +25,7 @@ interface ViewTransition {
 interface Document {
   startViewTransition(callback: () => void): ViewTransition
 }
+
+interface FontFaceSet {
+  add(font: FontFace): void
+}

@@ -23,7 +23,7 @@ const overlayGroups = computed(() => {
 </script>
 
 <template>
-  <div class="overlay-control-panel genshin-text w-full h-full overflow-hidden flex flex-col">
+  <div class="overlay-control-panel font-['HYWenHei-85W'] w-full h-full overflow-hidden flex flex-col">
     <OverlayArea />
 
     <div class="overlay-scrollbar overflow-auto flex-1 flex flex-col p-2 gap-2">

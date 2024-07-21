@@ -15,7 +15,7 @@ const resortedMarkers = computed(() => mapStateStore.currentLayerMarkers.toSorte
 
 <template>
   <div class="marker-filter h-full">
-    <div v-if="!resortedMarkers.length" class="h-full grid place-items-center content-center text-white genshin-text">
+    <div v-if="!resortedMarkers.length" class="h-full grid place-items-center content-center text-white font-['HYWenHei-85W']">
       <img class="w-60 h-60" src="/icons/qiliangliang.png">
       <div>没有符合条件的点位</div>
     </div>

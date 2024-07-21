@@ -35,7 +35,7 @@ const cancel = () => {
 </script>
 
 <template>
-  <div class="genshin-dark-card flex flex-col overflow-hidden genshin-text min-w-[400px] w-[500px] h-[600px] max-w-[100dvw] max-h-[100dvh]">
+  <div class="genshin-dark-card flex flex-col overflow-hidden font-['HYWenHei-85W'] min-w-[400px] w-[500px] h-[600px] max-w-[100dvw] max-h-[100dvh]">
     <template v-if="title">
       <div class="text-xl text-center">
         {{ title }}

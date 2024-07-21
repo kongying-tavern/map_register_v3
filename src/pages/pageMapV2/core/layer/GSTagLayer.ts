@@ -1,7 +1,6 @@
 import type { LayersList } from '@deck.gl/core'
 import { CompositeLayer } from '@deck.gl/core'
 import { TextLayer } from '@deck.gl/layers'
-import { MAP_FONTFAMILY } from '../../shared'
 import type { GSCompositeLayerState, LayerAttachOptions } from '.'
 import type { AreaTagTuple } from '@/configs'
 
@@ -13,6 +12,13 @@ export class GSTagLayer extends CompositeLayer<GSCompositeLayerState & LayerAtta
       id: 'genshin-tag-layer',
       ...state,
       zoom,
+    })
+  }
+
+  initializeState(...[context]: Parameters<CompositeLayer['initializeState']>): void {
+    super.initializeState(context)
+    document.fonts.addEventListener('loadingdone', () => {
+      this.setNeedsRedraw()
     })
   }
 
@@ -39,7 +45,7 @@ export class GSTagLayer extends CompositeLayer<GSCompositeLayerState & LayerAtta
       visible: showZoneTag,
       data: tags,
       characterSet: 'auto',
-      fontFamily: `${MAP_FONTFAMILY}, Monaco, monospace`,
+      fontFamily: `HYWenHei-85W, Monaco, monospace`,
       fontSettings: {
         buffer: 8,
         sdf: true,

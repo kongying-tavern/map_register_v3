@@ -20,6 +20,8 @@ declare namespace API {
     quickInputSnippets?: string[]
     /** 用于提供特殊刷新时间的数据对应 */
     refreshTimeSpecial?: { label: string; value: number }[]
+    /** 字体资源 */
+    fontResources?: Record<string, { url: string; type: string }>
   }
 
   interface ExtraConfig {

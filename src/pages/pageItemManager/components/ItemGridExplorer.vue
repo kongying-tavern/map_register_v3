@@ -72,7 +72,7 @@ const markerCountMap = computed(() => markerStore.markerList.reduce((map, { item
         </div>
 
         <div class="w-full h-full overflow-hidden flex flex-col justify-center gap-1">
-          <div class="genshin-text leading-none text-[var(--el-text-color-primary)]">
+          <div class="font-['HYWenHei-85W'] leading-none text-[var(--el-text-color-primary)]">
             {{ item.name }}
           </div>
           <div class="text-xs font-mono leading-none text-[var(--el-text-color-regular)]">

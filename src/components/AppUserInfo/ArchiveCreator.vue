@@ -74,7 +74,7 @@ const onBeforeClose = (done: () => void) => {
     <GSCard class="gap-4" :title="`新建存档 ${indexShowCache}`">
       <div class="flex-1 flex flex-col mt-10 mb-10 gap-2">
         <GSInput v-model="archiveName" placeholder="请输入存档名称" />
-        <div class="err-msg genshin-text text-base h-6">
+        <div class="err-msg font-['HYWenHei-85W'] text-base h-6">
           {{ errMsg }}
         </div>
       </div>

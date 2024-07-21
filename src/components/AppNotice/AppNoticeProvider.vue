@@ -6,7 +6,7 @@ const selectedNotice = shallowRef<API.NoticeVo>()
 </script>
 
 <template>
-  <dialog :ref="context.dialogRef" class="app-notice-provider genshin-text">
+  <dialog :ref="context.dialogRef" class="app-notice-provider font-['HYWenHei-85W']">
     <NoticeCard
       v-model:selected-notice="selectedNotice"
       :context="context"

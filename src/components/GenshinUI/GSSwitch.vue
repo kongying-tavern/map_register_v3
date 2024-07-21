@@ -20,7 +20,7 @@ defineEmits<GSSwitchEmits>()
 
 <template>
   <div
-    class="gs-switch gs-switch-variable genshin-text"
+    class="gs-switch gs-switch-variable font-['HYWenHei-85W']"
     :class="{
       actived: modelValue,
       label,

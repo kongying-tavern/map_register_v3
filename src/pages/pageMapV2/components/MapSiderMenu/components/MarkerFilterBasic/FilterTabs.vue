@@ -10,7 +10,7 @@ defineEmits<{
 </script>
 
 <template>
-  <div class="filter-tabs genshin-text">
+  <div class="filter-tabs font-['HYWenHei-85W']">
     <div
       v-for="(key, index) in tabNames"
       :key="key"

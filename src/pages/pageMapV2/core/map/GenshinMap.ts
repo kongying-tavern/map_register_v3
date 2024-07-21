@@ -1,13 +1,11 @@
 import { Deck, OrthographicView } from '@deck.gl/core'
 import { GSMapController } from '../controllers'
 import { GSCompositeLayer } from '../layer'
-import { loadFonts } from '../utils'
 import { useMapStateStore } from '@/stores'
 import type { GSMap } from '@/pages/pageMapV2/types/map'
 
 export class GenshinMap extends Deck<OrthographicView> {
-  static create = async (options: GSMap.ConstructorOptions) => {
-    await loadFonts()
+  static create = (options: GSMap.ConstructorOptions) => {
     return new this(options)
   }
 

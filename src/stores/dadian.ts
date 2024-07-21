@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import type { ShallowRef } from 'vue'
 import { userHook } from './hooks'
+import { useUserInfoStore } from '.'
 import { Zip } from '@/utils'
 import Api from '@/api/config'
 import db from '@/database'
@@ -9,12 +10,38 @@ import db from '@/database'
 export const useDadianStore = defineStore('global-dadian-json', () => {
   const raw = shallowRef<API.DadianJSON>({})
 
+  watch(raw, ({ editor = {} }) => {
+    const familySet = new Set<string>()
+    document.fonts.forEach((fontFace) => {
+      familySet.add(fontFace.family)
+    })
+
+    const { fontResources = {} } = editor
+    const mission = Object.entries(fontResources).filter(([family]) => !familySet.has(family))
+    if (!mission.length)
+      return
+
+    mission.forEach(([family, { url }]) => {
+      if (familySet.has(family))
+        return
+      const fontFace = new FontFace(family, `url(${url})`)
+      document.fonts.add(fontFace)
+      fontFace.load()
+    })
+  })
+
   const getDigest = async (data: ArrayBuffer) => {
     const hash = new Uint8Array(await crypto.subtle.digest('SHA-256', data))
     return [...new Uint8Array(hash)].map(num => num.toString(16).padStart(2, '0')).join('')
   }
 
   const update = async () => {
+    const { id } = useUserInfoStore().info
+    if (id === undefined) {
+      raw.value = {}
+      return
+    }
+
     try {
       const dadianConfigFile = await Api.getDadianConfig()
       const newDigest = await getDigest(dadianConfigFile)

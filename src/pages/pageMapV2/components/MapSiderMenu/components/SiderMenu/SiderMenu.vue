@@ -77,7 +77,7 @@ provide(mapSidermenuKey, mapSidermenuRef)
       :virtual-ref="virtualRef"
       :content="tooltipContent"
       :offset="4"
-      popper-class="sider-menu-tooltip genshin-text"
+      popper-class="sider-menu-tooltip font-['HYWenHei-85W']"
       placement="right"
       effect="customized"
       virtual-triggering

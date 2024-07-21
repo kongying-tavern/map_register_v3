@@ -47,7 +47,7 @@ const cancel = () => {
     class="custom-dialog hidden-header bg-transparent min-w-[500px]"
     @open="open()"
   >
-    <div class="genshin-dark-card flex flex-col overflow-hidden genshin-text">
+    <div class="genshin-dark-card flex flex-col overflow-hidden font-['HYWenHei-85W']">
       <div class="text-xl text-center">
         选择地图
       </div>

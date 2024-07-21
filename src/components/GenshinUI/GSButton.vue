@@ -27,7 +27,7 @@ const onClick = (ev: MouseEvent) => {
 <template>
   <button
     v-bind="$attrs"
-    class="gs-button gs-button-variable genshin-text"
+    class="gs-button gs-button-variable font-['HYWenHei-85W']"
     :class="[
       `gs-button--theme-${theme ?? 'light'}`,
       `gs-button--size-${size ?? 'medium'}`,

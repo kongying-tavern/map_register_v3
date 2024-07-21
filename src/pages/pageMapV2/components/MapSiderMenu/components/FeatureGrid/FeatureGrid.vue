@@ -8,7 +8,7 @@ defineProps<{
 
 <template>
   <el-scrollbar height="100%">
-    <div class="feature-grid genshin-text">
+    <div class="feature-grid font-['HYWenHei-85W']">
       <div v-for="feature in features" :key="feature.label" class="grid-unit" @click="() => feature.cb()">
         <div class="grid-unit-icon">
           <component :is="feature.icon" class="h-full" />

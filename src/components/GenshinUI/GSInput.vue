@@ -56,7 +56,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div v-bind="$attrs" class="gs-input genshin-text" :class="{ focused, disabled }">
+  <div v-bind="$attrs" class="gs-input font-['HYWenHei-85W']" :class="{ focused, disabled }">
     <div v-if="$slots.prepend" class="gs-input__prepend">
       <slot name="prepend" />
     </div>

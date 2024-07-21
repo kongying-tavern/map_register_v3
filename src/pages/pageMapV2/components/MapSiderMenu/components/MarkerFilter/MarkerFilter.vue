@@ -15,7 +15,7 @@ const conditionManagerVisible = ref(false)
 </script>
 
 <template>
-  <div class="marker-filter genshin-text h-full flex flex-col">
+  <div class="marker-filter font-['HYWenHei-85W'] h-full flex flex-col">
     <MarkerFilterAdvanced v-if="preference['markerFilter.setting.filterType'] === 'advanced'">
       <template #append>
         <GSButton

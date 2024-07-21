@@ -15,7 +15,7 @@ import.meta.env.VITE_ENV_BANNER && show(import.meta.env.VITE_ENV_BANNER)
   <Transition name="draw-y" mode="out-in" appear>
     <div
       v-show="visible"
-      class="genshin-text absolute w-full top-0 text-md p-1 px-2 text-center"
+      class="font-['HYWenHei-85W'] absolute w-full top-0 text-md p-1 px-2 text-center"
       :style="{
         height: `${height}px`,
         background: '#E2DED5',

@@ -10,7 +10,7 @@ withDefaults(defineProps<{
 <template>
   <div
     v-bind="$attrs"
-    class="genshin-marker-popover genshin-text"
+    class="genshin-marker-popover font-['HYWenHei-85W']"
     :class="{ actived }"
     :style="{
       '--arrow-offset-y': `${32 * 2 ** (zoom > -2 ? 0 : (zoom + 2))}px`,
