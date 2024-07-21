@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import HistoryDifferItem from './HistoryDifferItem.vue'
+import DifferCoord from './DifferCoord.vue'
 import DifferText from './DifferText.vue'
 import DifferItem from './DifferItem.vue'
 import { HIDDEN_FLAG_NAME_MAP } from '@/shared'
@@ -76,6 +77,17 @@ const isItemDifferent = (current: API.MarkerItemLinkVo[] = [], history: API.Mark
         <DifferText
           :current="newContent.content"
           :history="oldContent.content"
+        />
+      </HistoryDifferItem>
+
+      <HistoryDifferItem
+        label="点位坐标"
+        :auto-collapse="autoCollapse"
+        :is-different="isPlainDifferent(newContent.position, oldContent.position)"
+      >
+        <DifferCoord
+          :current="newContent.position"
+          :history="oldContent.position"
         />
       </HistoryDifferItem>
 
