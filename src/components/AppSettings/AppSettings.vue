@@ -3,6 +3,7 @@ import {
   Close,
   Coin,
   Expand,
+  Files,
   MapLocation,
   Monitor,
   Moon,
@@ -16,6 +17,7 @@ import {
   ModuleDashboard,
   ModuleDatabase,
   ModuleDeveloper,
+  ModuleManager,
   ModuleMapSetting,
   ModuleNetwork,
 } from './modules'
@@ -29,6 +31,7 @@ const preferenceStore = usePreferenceStore()
 const settingOptions: { key: string; name: string; is: Component; icon?: Component }[] = [
   { key: 'dashboard', name: '基本信息', is: ModuleDashboard, icon: Monitor },
   { key: 'mapsetting', name: '地图', is: ModuleMapSetting, icon: MapLocation },
+  { key: 'manager', name: '管理组件', is: ModuleManager, icon: Files },
   { key: 'database', name: '数据库', is: ModuleDatabase, icon: Coin },
   { key: 'network', name: '网络', is: ModuleNetwork, icon: MostlyCloudy },
   { key: 'developer', name: '开发者', is: ModuleDeveloper, icon: TurnOff },

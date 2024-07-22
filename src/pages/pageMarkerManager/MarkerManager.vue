@@ -4,6 +4,7 @@ import type { MarkerSearchParams } from './hooks'
 import { useItemList, useSearchMarkerList } from './hooks'
 import { MarkerDeleteConfirm, MarkerFilter, MarkerTable } from './components'
 import { PgUnit, useGlobalDialog, usePagination } from '@/hooks'
+import { ManagerModule } from '@/shared'
 
 // ==================== 搜索 ====================
 const queryForm = ref<MarkerSearchParams>({
@@ -14,8 +15,9 @@ const queryForm = ref<MarkerSearchParams>({
 })
 
 // ==================== 分页 ====================
-const { layout, pagination } = usePagination({
+const { layout, pagination, onChange: onPaginationChange } = usePagination({
   units: [PgUnit.TOTAL, PgUnit.SIZE, PgUnit.PREV, PgUnit.PAGER, PgUnit.NEXT],
+  module: ManagerModule.Marker,
 })
 
 // ==================== 点位 ====================
@@ -23,6 +25,8 @@ const { markerList, cacheUserInfo, updateMarkerList } = useSearchMarkerList({
   pagination,
   getParams: () => queryForm.value,
 })
+
+onPaginationChange(updateMarkerList)
 
 const resetCurrentRefresh = async () => {
   pagination.value.current = 1
@@ -89,8 +93,6 @@ const handleDeleteMarker = (marker: API.MarkerVo) => {
       :pager-count="5"
       class="flex justify-end items-center p-2"
       background
-      @current-change="updateMarkerList"
-      @size-change="updateMarkerList"
     />
   </div>
 </template>

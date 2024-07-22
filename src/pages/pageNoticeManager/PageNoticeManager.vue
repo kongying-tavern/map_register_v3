@@ -2,15 +2,11 @@
 import { useNoticeList } from './hooks'
 import { NoticeDeleteConfirm, NoticeHeader, NoticeTable, NoticeViewer } from './components'
 import { PgUnit, useGlobalDialog, usePagination } from '@/hooks'
-import { NoticeChannel } from '@/shared'
+import { ManagerModule, NoticeChannel } from '@/shared'
 
-const { pagination, layout } = usePagination({
+const { pagination, layout, onChange: onPaginationChange } = usePagination({
   units: [PgUnit.TOTAL, PgUnit.SIZE, PgUnit.JUMPER, PgUnit.PREV, PgUnit.PAGER, PgUnit.NEXT],
-  init: {
-    current: 1,
-    pageSize: 20,
-    total: 0,
-  },
+  module: ManagerModule.Notice,
 })
 
 const filterParams = ref<Omit<API.NoticeSearchVo, 'current' | 'size'>>({
@@ -34,6 +30,8 @@ const { noticeList, loading, refresh } = useNoticeList({
   pagination,
   getParams: () => toValue(filterParams),
 })
+
+onPaginationChange(refresh)
 
 const { DialogService } = useGlobalDialog()
 
@@ -110,13 +108,11 @@ const handleDeleteNotice = (notice: API.NoticeVo) => {
       v-model:page-size="pagination.pageSize"
       :total="pagination.total"
       :layout="layout"
-      :page-sizes="[10, 20, 30, 40]"
+      :page-sizes="pagination.sizes"
       :pager-count="5"
       :disabled="loading"
       class="flex justify-end items-center p-2"
       background
-      @current-change="refresh"
-      @size-change="refresh"
     />
   </div>
 </template>

@@ -8,6 +8,8 @@ export interface PaginationState {
   current: number
   /** 每页条数 */
   pageSize: number
+  /** 每页条数的可选项 */
+  sizes: number[]
 }
 
 /** el-pagination 的控制器单元 */
@@ -44,38 +46,65 @@ export interface PaginationHookOptions {
 export const usePagination = (options: PaginationHookOptions = {}) => {
   const preferenceStore = usePreferenceStore()
 
-  const pageSizeSetting = computed(() => new Map(preferenceStore.preference['manager.setting.pageSize']))
+  const pageSizeMap = computed(() => new Map(preferenceStore.preference['manager.setting.pageSize']))
 
   const {
-    init,
+    init: {
+      current = 1,
+      pageSize = 10,
+      sizes = [10, 20, 30],
+      total = 0,
+    } = {},
     units = [PgUnit.TOTAL, PgUnit.SIZE, PgUnit.PREV, PgUnit.PAGER, PgUnit.NEXT, PgUnit.JUMPER],
     module,
   } = options
 
-  const getModulePagination = (module?: ManagerModule, init: Partial<PaginationState> = {}): PaginationState => {
-    const defaultPagination = {
-      total: 0,
-      current: 1,
-      pageSize: 10,
-    }
+  const defaultSizes = computed(() => new Set(sizes))
+
+  const getModulePagination = (module?: ManagerModule): PaginationState => {
     if (!module)
-      return Object.assign(defaultPagination, init)
-    const size = Number(pageSizeSetting.value.get(module))
-    return Object.assign(defaultPagination, init, {
-      pageSize: Number.isInteger(size) ? size : defaultPagination.pageSize,
-    })
+      return { current, pageSize, sizes, total }
+    const size = Number(pageSizeMap.value.get(module))
+    return {
+      current,
+      pageSize: Number.isInteger(size) ? size : pageSize,
+      sizes: Number.isInteger(size) ? !defaultSizes.value.has(size) ? sizes.concat(size) : sizes : sizes,
+      total,
+    }
   }
 
   const layout = computed(() => units.join(','))
 
-  const pagination = ref<PaginationState>(getModulePagination(module, init))
+  const pagination = ref<PaginationState>(getModulePagination(module))
 
-  // 如果提供了 module，更新 pageSize 时将其同步到用户首选项
+  const changeEvent = createEventHook<PaginationState>()
+
+  // 如果提供了 module，绑定相关分页参数到用户首选项
   if (module) {
+    const internalUpdateFlag = ref(false)
+
     watch(() => pagination.value.pageSize, (pageSize) => {
-      preferenceStore.preference['manager.setting.pageSize'] = [...new Map(pageSizeSetting.value).set(module, pageSize).entries()]
+      if (internalUpdateFlag.value) {
+        internalUpdateFlag.value = false
+        return
+      }
+      preferenceStore.preference['manager.setting.pageSize'] = [...new Map(pageSizeMap.value).set(module, pageSize).entries()]
     }, { deep: true })
+
+    watch(() => pageSizeMap.value.get(module), (size) => {
+      if (size === undefined)
+        return
+      internalUpdateFlag.value = true
+      pagination.value = getModulePagination(module)
+    })
   }
+
+  watch(() => {
+    const { current, pageSize } = toValue(pagination)
+    return [current, pageSize]
+  }, () => {
+    changeEvent.trigger(toValue(pagination))
+  }, { deep: true })
 
   const pages = computed(() => Math.ceil(pagination.value.total / pagination.value.pageSize))
 
@@ -95,5 +124,5 @@ export const usePagination = (options: PaginationHookOptions = {}) => {
     pagination.value.current -= 1
   }
 
-  return { pagination, pages, layout, disabledNext, disabledPre, nextPage, prePage }
+  return { pagination, pages, layout, disabledNext, disabledPre, nextPage, prePage, onChange: changeEvent.on }
 }

@@ -7,4 +7,5 @@ export enum ManagerModule {
   User = 'user',
   Score = 'score',
   History = 'history',
+  Notice = 'notice',
 }

@@ -3,6 +3,7 @@ import { CirclePlus } from '@element-plus/icons-vue'
 import { useRoleList, useUserList } from './hooks'
 import { UserCreator, UserFilter, UserIntegratedPanel, UserTable } from './components'
 import { PgUnit, useGlobalDialog, usePagination } from '@/hooks'
+import { ManagerModule } from '@/shared'
 
 const { DialogService } = useGlobalDialog()
 const getDialogConfig = () => ({
@@ -15,8 +16,9 @@ const getDialogConfig = () => ({
 
 const { roleList, roleMap } = useRoleList()
 
-const { pagination, layout } = usePagination({
+const { pagination, layout, onChange: onPaginationChange } = usePagination({
   units: [PgUnit.TOTAL, PgUnit.SIZE, PgUnit.JUMPER, PgUnit.PREV, PgUnit.PAGER, PgUnit.NEXT],
+  module: ManagerModule.User,
 })
 
 const sortInfo = ref({
@@ -35,6 +37,8 @@ const {
   pagination,
   sortInfo,
 })
+
+onPaginationChange(updateUserList)
 
 // ==================== 新增用户 ====================
 const openUserCreator = () => DialogService
@@ -83,13 +87,11 @@ const openUserEditor = (data: API.SysUserVo) => DialogService
       v-model:page-size="pagination.pageSize"
       :total="pagination.total"
       :layout="layout"
-      :page-sizes="[10, 20, 30]"
+      :page-sizes="pagination.sizes"
       :pager-count="5"
       :disabled="loading"
       class="flex justify-end items-center p-2"
       background
-      @current-change="updateUserList"
-      @size-change="updateUserList"
     />
   </div>
 </template>

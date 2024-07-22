@@ -4,10 +4,12 @@ import { ExplorerType } from './shared'
 import { useItemCreate, useItemDelete, useItemEdit, useItemList, useItemTable } from './hooks'
 import { ItemFilter, ItemGridExplorer, ItemTable } from './components'
 import { PgUnit, usePagination } from '@/hooks'
+import { ManagerModule } from '@/shared'
 
 // ==================== 筛选信息 ====================
-const { pagination, layout } = usePagination({
+const { pagination, layout, onChange: onPaginationChange } = usePagination({
   units: [PgUnit.TOTAL, PgUnit.SIZE, PgUnit.PREV, PgUnit.PAGER, PgUnit.NEXT],
+  module: ManagerModule.Item,
 })
 
 const queryForm = ref<ItemQueryForm>({
@@ -21,6 +23,8 @@ const { itemList, loading: itemLoading, userMap, updateItemList, resetCurrent } 
   pagination,
   getParams: () => toValue(queryForm),
 })
+
+onPaginationChange(updateItemList)
 
 // ==================== 物品表格 ====================
 const { selection, handleSelectionChange } = useItemTable()
@@ -95,13 +99,11 @@ onDeleteSuccess(updateItemList)
       v-model:page-size="pagination.pageSize"
       :total="pagination.total"
       :layout="layout"
-      :page-sizes="[10, 20, 30]"
+      :page-sizes="pagination.sizes"
       :pager-count="5"
       :disabled="itemLoading"
       class="flex justify-end items-center p-2"
       background
-      @current-change="updateItemList"
-      @size-change="updateItemList"
     />
   </div>
 </template>

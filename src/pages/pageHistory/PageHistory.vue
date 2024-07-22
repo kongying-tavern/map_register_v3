@@ -3,7 +3,7 @@ import { HistoryTable } from './components'
 import { useHistoryList } from './hooks'
 import { usePagination } from '@/hooks'
 
-const { pagination, layout } = usePagination()
+const { pagination, layout, onChange: onPaginationChange } = usePagination()
 
 const HISTORY_OPTIONS = [
   { label: '点位', value: 4 },
@@ -15,6 +15,8 @@ const { historyList, userMap, loading, updateHistoryList } = useHistoryList({
   pagination,
   historyType,
 })
+
+onPaginationChange(updateHistoryList)
 </script>
 
 <template>
@@ -34,13 +36,11 @@ const { historyList, userMap, loading, updateHistoryList } = useHistoryList({
       v-model:page-size="pagination.pageSize"
       :total="pagination.total"
       :layout="layout"
-      :page-sizes="[10, 20, 30]"
+      :page-sizes="pagination.sizes"
       :pager-count="5"
       :disabled="loading"
       class="flex justify-end items-center"
       background
-      @current-change="updateHistoryList"
-      @size-change="updateHistoryList"
     />
   </div>
 </template>

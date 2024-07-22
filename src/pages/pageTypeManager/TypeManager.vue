@@ -5,6 +5,7 @@ import { TYPE_MANAGER_KEY_MAP, TYPE_MANAGER_OPTIONS } from './definitions'
 import { useTypeList } from './hooks'
 import { TypeCreator, TypeDeleteConfirm, TypeEditor, TypeTable } from './components'
 import { PgUnit, useGlobalDialog, usePagination } from '@/hooks'
+import { ManagerModule } from '@/shared'
 
 const { DialogService } = useGlobalDialog()
 const getDialogConfig = () => ({
@@ -16,8 +17,9 @@ const getDialogConfig = () => ({
 })
 
 // ==================== 分页参数 ====================
-const { pagination, layout } = usePagination({
+const { pagination, layout, onChange: onPaginationChange } = usePagination({
   units: [PgUnit.TOTAL, PgUnit.SIZE, PgUnit.PREV, PgUnit.PAGER, PgUnit.NEXT],
+  module: ManagerModule.Type,
 })
 
 // ==================== 表格参数 ====================
@@ -36,6 +38,8 @@ const { typeList, userMap, loading, updateTypeList } = useTypeList({
     node: parent.value,
   }),
 })
+
+onPaginationChange(updateTypeList)
 
 const onTypeKeyChange = () => {
   parentPath.value = []
@@ -157,11 +161,9 @@ const confirmDelete = (data: unknown) => DialogService
       :total="pagination.total"
       :layout="layout"
       :pager-count="5"
-      :page-sizes="[10, 20, 30]"
+      :page-sizes="pagination.sizes"
       background
       class="flex justify-end items-center p-2"
-      @current-change="updateTypeList"
-      @size-change="updateTypeList"
     />
   </div>
 </template>
