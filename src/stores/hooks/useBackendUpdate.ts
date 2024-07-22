@@ -98,6 +98,8 @@ export const useBackendUpdate = <T, Key>(
 
       const isBalanced = oldDigestList.length === digestCodeList.length
 
+      forceUpdate = !isBalanced
+
       let deleteCount = 0
       let updateCount = 0
 
@@ -124,9 +126,10 @@ export const useBackendUpdate = <T, Key>(
         }),
       )
 
-      if (forceUpdate || !isBalanced) {
+      if (forceUpdate) {
         await (table as Table<T, IndexableTypePart>).clear()
         await table.bulkPut(dataForUpdating)
+        await db.digest.where('tableName').equals(table.name).delete()
         await db.digest.bulkPut(digestForUpdating)
         return {
           deleteCount,
