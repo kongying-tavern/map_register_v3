@@ -1,4 +1,5 @@
 import type { FilterPreset, FilterType, MAFGroup } from '.'
+import type { ManagerModule } from '@/shared'
 
 /**
  * ### 用户首选项
@@ -52,6 +53,11 @@ export interface UserPreference {
 
   /** 显示附加图层 */
   'map.state.showOverlay'?: boolean
+
+  // ====================      管理      ====================
+
+  /** 分页列表，每页项目数设置 */
+  'manager.setting.pageSize'?: [ManagerModule, number][]
 
   // ====================     数据库     ====================
 
