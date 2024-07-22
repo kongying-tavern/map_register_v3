@@ -66,11 +66,12 @@ export const useImageUpload = (options: ImageUploadHookOptions) => {
       }, {
         onUploadProgress: (ev) => {
           const { loaded = 0, total = 0 } = ev
-          percentage.value = (loaded / total) || 0
+          percentage.value = 100 * (loaded / total) || 0
         },
       })
       if (!fileUrl)
         throw new Error('上传失败，响应的 url 为空')
+      percentage.value = 100
 
       text.value = '正在创建图片资产'
       const { data: iconId } = await Api.icon.createIcon({
