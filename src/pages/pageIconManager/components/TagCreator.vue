@@ -4,7 +4,6 @@ import { ElMessage } from 'element-plus'
 import dayjs from 'dayjs'
 import { useFetchHook } from '@/hooks'
 import { GlobalDialogController, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
-
 import Api from '@/api/api'
 import db from '@/database'
 import { useUserInfoStore } from '@/stores'
@@ -28,8 +27,14 @@ const userInfoStore = useUserInfoStore()
 
 const { loading, refresh: createTag, onSuccess, onError } = useFetchHook({
   onRequest: async () => {
-    const cacheTagName = tagName.value
-    await Api.tag.createTag({ tagName: cacheTagName })
+    const name = toValue(tagName)
+    const { data = false } = await Api.tag.createTag({ tagName: name })
+
+    // 如果 data 为 false，说明已经存在同名 tag，直接查询该 tag 信息返回
+    if (!data) {
+      const { data = {} } = await Api.tag.getTag({ name })
+      return data
+    }
 
     // TODO 目前 tag 添加后需要等待缓存刷新才能查询到更新，这里将添加后的信息先更新到本地数据库
     // 可能导致的问题：初始化信息的行为与后端不一致
@@ -37,7 +42,7 @@ const { loading, refresh: createTag, onSuccess, onError } = useFetchHook({
     const current = dayjs().format('YYYY-MM-DD HH:mm:ss')
 
     const createdTag = {
-      tag: cacheTagName,
+      tag: name,
       iconId: 0,
       url: '',
       creatorId: userInfoStore.info.id,
