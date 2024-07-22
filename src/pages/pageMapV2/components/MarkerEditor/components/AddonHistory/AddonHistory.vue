@@ -3,6 +3,8 @@ import { Clock, CopyDocument } from '@element-plus/icons-vue'
 import { useMarkerHistory } from '../../hooks'
 import { AddonTeleporter } from '..'
 import HistoryViewer from './HistoryViewer.vue'
+import { useFetchHook } from '@/hooks'
+import Api from '@/api/api'
 
 defineProps<{
   loading?: boolean
@@ -27,6 +29,18 @@ const markerVo = defineModel<API.MarkerVo>('markerVo', {
   required: true,
 })
 
+const { data: creator } = useFetchHook({
+  immediate: true,
+  initialValue: {},
+  onRequest: async () => {
+    const { creatorId } = toValue(markerVo)
+    if (creatorId === undefined)
+      return {}
+    const { data = {} } = await Api.user.getUserInfo({ userId: creatorId })
+    return data
+  },
+})
+
 const isAutoCollapse = ref(true)
 
 const {
@@ -46,7 +60,13 @@ whenever(isAddonActived, refresh, { immediate: true })
 
 const updaterId = computed(() => oldHistory.value?.creatorId ?? markerVo.value.creatorId)
 
-const updater = computed(() => data.value.users.get(`${updaterId.value}`))
+const updater = computed(() => {
+  const user = data.value.users.get(`${updaterId.value}`)
+  if (user)
+    return user
+  if (!oldHistory.value)
+    return creator.value
+})
 </script>
 
 <template>
@@ -131,8 +151,6 @@ const updater = computed(() => data.value.users.get(`${updaterId.value}`))
             :new-content="newContent"
             :old-content="oldContent"
             :history="oldHistory"
-            :updater-id="oldHistory?.creatorId ?? markerVo.creatorId"
-            :users="data.users"
             :auto-collapse="isAutoCollapse"
           />
         </el-scrollbar>
