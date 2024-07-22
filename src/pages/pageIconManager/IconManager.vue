@@ -159,7 +159,7 @@ async function loadTagType(node: Node, resolve: (data: API.TagTypeVo[]) => void)
         <template v-if="activedTag">
           <el-divider direction="vertical" />
           图标原始地址：
-          <a :href="activedTag.url" class="hover:underline underline-offset-4">
+          <a :href="activedTag.url" class="hover:underline underline-offset-4" target="_blank" rel="noopener">
             {{ decodeURIComponent(activedTag.url ?? '') }}
           </a>
         </template>
