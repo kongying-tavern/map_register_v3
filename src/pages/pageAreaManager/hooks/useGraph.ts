@@ -55,8 +55,8 @@ export const useGraph = (options: {
 
     const tree = array2Tree(list, {
       childrenKey: 'children',
-      idKey: 'id',
-      pidKey: 'pid',
+      getId: item => item.id,
+      getPid: item => item.pid,
       rootId: '-1',
     })
 

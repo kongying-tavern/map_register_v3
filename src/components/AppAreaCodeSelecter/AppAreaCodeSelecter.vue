@@ -53,8 +53,8 @@ const areaOptions = computed(() => {
     isFinal: area.isFinal,
   })), {
     childrenKey: 'children',
-    idKey: 'id',
-    pidKey: 'pid',
+    getId: area => area.id!,
+    getPid: area => area.pid!,
     rootId: -1,
   })
 })

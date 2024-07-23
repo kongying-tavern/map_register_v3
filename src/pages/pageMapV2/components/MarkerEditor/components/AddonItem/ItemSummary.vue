@@ -97,9 +97,9 @@ const areaTree = computed(() => {
     disabled: currentAreaCodeSet.has(area.code!),
     pid: area.parentId,
   })), {
-    idKey: 'id',
-    pidKey: 'pid',
     childrenKey: 'children',
+    getId: area => area.id!,
+    getPid: area => area.pid!,
     rootId: -1,
   })
 })
