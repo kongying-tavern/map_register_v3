@@ -98,7 +98,7 @@ export const useBackendUpdate = <T, Key>(
 
       const isBalanced = oldDigestList.length === digestCodeList.length
 
-      forceUpdate = !isBalanced
+      forceUpdate ||= !isBalanced
 
       let deleteCount = 0
       let updateCount = 0
