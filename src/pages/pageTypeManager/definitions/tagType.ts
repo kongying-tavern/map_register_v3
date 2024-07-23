@@ -23,10 +23,10 @@ export class TagTypeManager implements TypeManager<API.TagTypeVo> {
   }
 
   create = (tagType: API.TagTypeVo, parent?: API.TagTypeVo) => {
-    const { ...rest } = tagType
+    const { name } = tagType
     return Api.tagType.addTagType({
-      ...rest,
-      parent: parent?.id ?? -1,
+      name,
+      parentId: parent?.id ?? -1,
     })
   }
 

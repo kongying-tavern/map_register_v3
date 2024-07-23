@@ -23,10 +23,10 @@ export class IconTypeManager implements TypeManager<API.IconTypeVo> {
   }
 
   create = (iconType: API.IconTypeVo, parent?: API.IconTypeVo) => {
-    const { ...rest } = iconType
+    const { name } = iconType
     return Api.iconType.addIconType({
-      ...rest,
-      parent: parent?.id ?? -1,
+      name,
+      parentId: parent?.id ?? -1,
     })
   }
 
