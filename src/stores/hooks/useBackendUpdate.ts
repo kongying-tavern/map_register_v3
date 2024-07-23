@@ -184,14 +184,14 @@ export const useBackendUpdate = <T, Key>(
 
   onFinish(() => {
     stop()
-    if (!useUserAuthStore().validateToken()) {
-      loopTimer.value = undefined
-      return
-    }
     endTime.value = Date.now()
     const gap = getUpdateGap()
     nextTime.value = Date.now() + gap
-    loopTimer.value = window.setTimeout(refresh, gap)
+    loopTimer.value = window.setTimeout(() => {
+      if (!useUserAuthStore().validateToken())
+        return stop()
+      refresh()
+    }, gap)
   })
 
   onSuccess(({ deleteCount, updateCount }) => {
