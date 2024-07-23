@@ -38,7 +38,7 @@ declare namespace API {
     /** 分类名称 */
     name?: string
     /** 父级分类ID（-1为根分类） */
-    parent?: number
+    parentId?: number
     /** 是否为末端类型 */
     isFinal?: boolean
   }
@@ -319,7 +319,7 @@ declare namespace API {
     /** 分类名 */
     name?: string
     /** 父级分类ID（-1为根分类） */
-    parent?: number
+    parentId?: number
     /** 是否为末端类型 */
     isFinal?: boolean
   }
