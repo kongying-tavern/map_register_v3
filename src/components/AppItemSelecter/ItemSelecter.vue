@@ -142,7 +142,7 @@ watch(() => itemList.value, () => scrollbarRef.value?.setScrollTop(0))
     }"
   >
     <div
-      class="grid grid-cols-[120px_auto] grid-rows-[auto_1fr] gap-y-2"
+      class="grid grid-cols-[100px_auto] grid-rows-[auto_1fr] gap-y-2"
       :class="[showTotal ? 'w-80 pr-2' : 'w-full']"
     >
       <div class="flex flex-col gap-2 col-span-2">
@@ -162,7 +162,7 @@ watch(() => itemList.value, () => scrollbarRef.value?.setScrollTop(0))
       </div>
 
       <div class="w-full h-full overflow-hidden">
-        <ElScrollbar class="pr-2">
+        <ElScrollbar class="pr-1">
           <TypeSelectButton
             v-for="itemType in itemTypeList"
             :key="itemType.id"
@@ -178,23 +178,25 @@ watch(() => itemList.value, () => scrollbarRef.value?.setScrollTop(0))
 
       <div
         v-loading="loading"
-        class="w-full h-full flex flex-col overflow-hidden pl-2 border-l-[1px] border-dashed border-[var(--el-border-color)]"
+        class="w-full h-full flex flex-col overflow-hidden pl-1 border-l-[1px] border-dashed border-[var(--el-border-color)]"
         element-loading-text="查询中..."
       >
         <div v-if="!modelAreaCode" class="w-full h-full grid place-items-center">
           请选择地区
         </div>
         <ElScrollbar v-else ref="scrollbarRef">
-          <ItemSelectButton
-            v-for="item in itemList"
-            :key="item.id"
-            :item="item"
-            :icon-map="iconMap"
-            :actived="selectionsMap.has(item.id!)"
-            :src="iconTagStore.tagSpriteUrl"
-            :mapping="iconTagStore.tagPositionMap[item.iconTag ?? '']"
-            @click="() => toggleItem(item)"
-          />
+          <div class="grid grid-cols-2 gap-1">
+            <ItemSelectButton
+              v-for="item in itemList"
+              :key="item.id"
+              :item="item"
+              :icon-map="iconMap"
+              :actived="selectionsMap.has(item.id!)"
+              :src="iconTagStore.tagSpriteUrl"
+              :mapping="iconTagStore.tagPositionMap[item.iconTag ?? '']"
+              @click="() => toggleItem(item)"
+            />
+          </div>
         </ElScrollbar>
       </div>
     </div>

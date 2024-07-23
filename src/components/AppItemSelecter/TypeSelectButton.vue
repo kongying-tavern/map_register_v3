@@ -1,35 +1,43 @@
 <script lang="ts" setup>
 import { AppIconTagRenderer } from '@/components'
 
-defineProps<{
+withDefaults(defineProps<{
   itemType: API.ItemTypeVo
   nums?: number
   actived: boolean
   src?: string
   mapping?: [number, number]
-}>()
+}>(), {
+  nums: 0,
+})
 </script>
 
 <template>
   <div
     :title="itemType.name"
     :class="{ actived }"
-    class="type-select-button flex items-center rounded p-1 pr-3"
+    class="type-select-button flex items-center rounded p-1 mb-0.5 gap-1 relative"
   >
     <AppIconTagRenderer
       :src="src"
       :mapping="mapping"
-      class="w-8 h-8 flex-shrink-0"
+      class="w-7 h-7 flex-shrink-0"
     />
-    <el-badge
-      type="primary"
-      :value="nums ?? 0"
-      :hidden="!nums"
-      style="width: 100%"
-      class="pl-1"
+    <div class="overflow-hidden text-ellipsis whitespace-nowrap text-xs">
+      {{ itemType.name }}
+    </div>
+    <div
+      v-show="nums > 0"
+      class="
+        min-w-[16px] px-0.5 rounded
+        absolute top-0 right-0
+        grid place-content-center
+        bg-[var(--el-color-primary-light-5)]
+        text-xs text-[var(--el-text-color-regular)]
+      "
     >
-      <span class="overflow-hidden text-ellipsis whitespace-nowrap">{{ itemType.name }}</span>
-    </el-badge>
+      {{ nums }}
+    </div>
   </div>
 </template>
 
