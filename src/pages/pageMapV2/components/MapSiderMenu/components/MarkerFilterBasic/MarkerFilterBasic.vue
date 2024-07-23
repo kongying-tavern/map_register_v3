@@ -2,7 +2,8 @@
 import { DeleteFilled } from '@element-plus/icons-vue'
 import { storeToRefs } from 'pinia'
 import { useMarkerFilter } from './hooks'
-import { CheckboxGroup, CheckboxItem, ConditionRow, FilterTabs, ItemButton } from '.'
+import { FilterTabPanel, FilterTabs } from './components'
+import { CheckboxGroup, CheckboxItem, ConditionRow, ItemButton } from '.'
 import { AppIconTagRenderer, GSButton } from '@/components'
 import {
   useArchiveStore,
@@ -14,7 +15,6 @@ import {
   useMarkerStore,
   usePreferenceStore,
 } from '@/stores'
-import db from '@/database'
 import { isItemVo } from '@/utils'
 import { fallbackToStaticIcon } from '@/configs'
 
@@ -38,14 +38,10 @@ const autoNextTab = () => {
   preference.value['markerFilter.state.step'] += 1
 }
 
-const archivedMarkers = asyncComputed(async () => {
-  const archivedMarkerIds = [...archiveStore.currentArchive.body.Data_KYJG]
-  const archivedMarkers: API.MarkerVo[] = []
-  await db.marker.where('id').anyOf(archivedMarkerIds).each((marker) => {
-    archivedMarkers.push(marker)
-  })
-  return archivedMarkers
-}, [])
+const archivedMarkers = computed(() => {
+  const set = archiveStore.currentArchive.body.Data_KYJG
+  return markerList.value.filter(marker => set.has(marker.id!))
+})
 
 // ==================== 地区 ====================
 const selectedParentArea = computed(() => {
@@ -117,20 +113,19 @@ const selectedItemCount = computed(() => {
 // ==================== 分类计数 ====================
 
 const calculateTypeCount = (markers: API.MarkerVo[]) => {
-  return markers.reduce((seed, marker) => {
+  return markers.reduce((map, marker) => {
     marker.itemList?.forEach(({ itemId }) => {
       if (!visibleItemIds.value.has(itemId!))
         return
       const item = itemIdMap.value.get(itemId!)
       if (!item)
-        return seed
+        return
       item.typeIdList?.forEach((typeId) => {
-        seed[typeId] = (seed[typeId] ?? 0) + 1
+        map.set(typeId, (map.get(typeId) ?? 0) + 1)
       })
-      return seed
     })
-    return seed
-  }, {} as Record<number, number>)
+    return map
+  }, new Map<number, number>())
 }
 
 const typeTotalMap = computed(() => calculateTypeCount(markerList.value))
@@ -139,21 +134,19 @@ const typeCountMap = computed(() => calculateTypeCount(archivedMarkers.value))
 
 // ==================== 物品计数 ====================
 
-const calculateItemCount = (markers: API.MarkerVo[]) => {
-  return markers.reduce((seed, marker: API.MarkerVo) => {
-    marker.itemList?.forEach((item) => {
-      seed[item.itemId!] = (seed[item.itemId!] ?? 0) + (item.count ?? 0)
-    })
-    return seed
-  }, {} as Record<number, number>)
-}
+const calculateItemCount = (markers: API.MarkerVo[]) => markers.reduce((map, marker: API.MarkerVo) => {
+  marker.itemList?.forEach(({ itemId, count = 0 }) => {
+    map.set(itemId!, (map.get(itemId!) ?? 0) + count)
+  })
+  return map
+}, new Map<number, number>())
 
 const itemTotalMap = computed(() => calculateItemCount(markerList.value))
 
 const itemCountMap = computed(() => calculateItemCount(archivedMarkers.value))
 
 // ==================== 打点物品 ====================
-const dropzoneRef = ref<HTMLElement | null>(null)
+const dropzoneRef = ref<HTMLElement>()
 const { isOverDropZone } = useDropZone(dropzoneRef)
 
 const defaultMarkingItem = asyncComputed(() => {
@@ -183,44 +176,55 @@ const handleDragItem = (ev: DragEvent) => {
 </script>
 
 <template>
-  <FilterTabs v-model="preference['markerFilter.state.step']" :tab-names="['地区', '分类', '物品']">
-    <template #key-0>
-      {{ selectedArea?.name ?? '--' }}
-    </template>
-    <template #key-1>
-      {{ selectedType?.name ?? '--' }}
-    </template>
-    <template #key-2>
-      {{ selectedType ? `已选 ${selectedItemCount} 项` : '--' }}
-    </template>
-  </FilterTabs>
+  <FilterTabs v-model="preference['markerFilter.state.step']" class="flex-1" style="min-height: 350px; max-height: 500px">
+    <FilterTabPanel label="地区" :content="selectedArea?.name ?? '--'" :value="0">
+      <div class="h-full grid grid-cols-[1fr_auto_1fr]">
+        <CheckboxGroup
+          v-model="preference['markerFilter.state.parentAreaCode']"
+          :options="parentAreaList"
+          label-key="name"
+          value-key="code"
+        >
+          <template #icon="{ row }">
+            <AppIconTagRenderer
+              :src="iconTagStore.tagSpriteUrl"
+              :mapping="iconTagStore.tagCoordMap.get(row.iconTag ?? '')"
+              class="w-full aspect-square"
+            >
+              <img :src="fallbackToStaticIcon(row)">
+            </AppIconTagRenderer>
+          </template>
+        </CheckboxGroup>
 
-  <div class="flex-1 overflow-hidden" style="max-height: 400px;">
-    <div v-if="preference['markerFilter.state.step'] === 0" class="h-full flex">
+        <div style="width: 1px; height: 100%; background: #E3DDD140;" />
+
+        <CheckboxGroup
+          v-model="preference['markerFilter.state.areaCode']"
+          :options="selectedChildrenAreaList"
+          label-key="name"
+          value-key="code"
+          @change="autoNextTab"
+        >
+          <template #icon="{ row }">
+            <AppIconTagRenderer
+              :src="iconTagStore.tagSpriteUrl"
+              :mapping="iconTagStore.tagCoordMap.get(row.iconTag ?? '')"
+              class="w-full aspect-square"
+            >
+              <img :src="fallbackToStaticIcon(row)">
+            </AppIconTagRenderer>
+          </template>
+        </CheckboxGroup>
+      </div>
+    </FilterTabPanel>
+
+    <FilterTabPanel label="类型" :content="selectedType?.name ?? '--'" :value="1">
       <CheckboxGroup
-        v-model="preference['markerFilter.state.parentAreaCode']"
-        class="flex-1"
-        :options="parentAreaList"
+        v-model="preference['markerFilter.state.itemTypeId']"
+        :options="accessItemTypeList"
         label-key="name"
-        value-key="code"
-      >
-        <template #icon="{ row }">
-          <AppIconTagRenderer
-            :src="iconTagStore.tagSpriteUrl"
-            :mapping="iconTagStore.tagPositionMap[row.iconTag ?? '']"
-            class="w-full aspect-square"
-          >
-            <img :src="fallbackToStaticIcon(row)">
-          </AppIconTagRenderer>
-        </template>
-      </CheckboxGroup>
-      <div style="width: 1px; height: 98%; background: #E3DDD140;" />
-      <CheckboxGroup
-        v-model="preference['markerFilter.state.areaCode']"
-        class="flex-1"
-        :options="selectedChildrenAreaList"
-        label-key="name"
-        value-key="code"
+        value-key="id"
+        two-col
         @change="autoNextTab"
       >
         <template #icon="{ row }">
@@ -228,67 +232,56 @@ const handleDragItem = (ev: DragEvent) => {
             :src="iconTagStore.tagSpriteUrl"
             :mapping="iconTagStore.tagPositionMap[row.iconTag ?? '']"
             class="w-full aspect-square"
-          >
-            <img :src="fallbackToStaticIcon(row)">
-          </AppIconTagRenderer>
+          />
+        </template>
+        <template #default="{ row, actived }">
+          <ItemButton
+            :finished-num="typeCountMap.get(row.id!)"
+            :total-num="typeTotalMap.get(row.id!)"
+            :name="row.name"
+            :actived="actived"
+          />
         </template>
       </CheckboxGroup>
-    </div>
+    </FilterTabPanel>
 
-    <CheckboxGroup
-      v-else-if="preference['markerFilter.state.step'] === 1"
-      v-model="preference['markerFilter.state.itemTypeId']"
-      :options="accessItemTypeList"
-      label-key="name"
-      value-key="id"
-      two-col
-      @change="autoNextTab"
-    >
-      <template #icon="{ row }">
-        <AppIconTagRenderer
-          :src="iconTagStore.tagSpriteUrl"
-          :mapping="iconTagStore.tagPositionMap[row.iconTag ?? '']"
-          class="w-full aspect-square"
-        />
-      </template>
-      <template #default="{ row, actived }">
-        <ItemButton
-          :finished-num="typeCountMap[row.id!]"
-          :total-num="typeTotalMap[row.id!]"
-          :name="row.name"
-          :actived="actived"
-        />
-      </template>
-    </CheckboxGroup>
-
-    <CheckboxGroup
-      v-else-if="preference['markerFilter.state.step'] === 2"
-      v-model:multiple-value="preference['markerFilter.state.itemIds']"
-      :options="visibleItemList"
-      label-key="name"
-      value-key="id"
-      multiple
-      show-select-all-btn
-      two-col
-      draggable
-    >
-      <template #icon="{ row }">
-        <AppIconTagRenderer
-          :src="iconTagStore.tagSpriteUrl"
-          :mapping="iconTagStore.tagPositionMap[row.iconTag ?? '']"
-          class="w-full aspect-square"
-        />
-      </template>
-      <template #default="{ row, actived }">
-        <ItemButton
-          :finished-num="itemCountMap[row.id!]"
-          :total-num="itemTotalMap[row.id!]"
-          :name="row.name"
-          :actived="actived"
-        />
-      </template>
-    </CheckboxGroup>
-  </div>
+    <FilterTabPanel label="物品" :content="selectedType ? `已选 ${selectedItemCount} 项` : '--'" :value="2">
+      <CheckboxGroup
+        v-model:multiple-value="preference['markerFilter.state.itemIds']"
+        :options="visibleItemList"
+        label-key="name"
+        value-key="id"
+        multiple
+        show-select-all-btn
+        two-col
+        draggable
+      >
+        <template #icon="{ row }">
+          <AppIconTagRenderer
+            :src="iconTagStore.tagSpriteUrl"
+            :mapping="iconTagStore.tagPositionMap[row.iconTag ?? '']"
+            class="w-full aspect-square"
+          />
+        </template>
+        <template #all="{ actived }">
+          <ItemButton
+            :finished-num="selectedType ? typeCountMap.get(selectedType.id!) : 0"
+            :total-num="selectedType ? typeTotalMap.get(selectedType.id!) : 0"
+            name="选择全部"
+            :actived="actived"
+          />
+        </template>
+        <template #default="{ row, actived }">
+          <ItemButton
+            :finished-num="itemCountMap.get(row.id!)"
+            :total-num="itemTotalMap.get(row.id!)"
+            :name="row.name"
+            :actived="actived"
+          />
+        </template>
+      </CheckboxGroup>
+    </FilterTabPanel>
+  </FilterTabs>
 
   <div class="text-white px-2 pt-1">
     默认打点物品
@@ -319,7 +312,8 @@ const handleDragItem = (ev: DragEvent) => {
         <div class="marking-item--content">
           <ItemButton
             :name="defaultMarkingItem.name"
-            :finished-num="itemCountMap[defaultMarkingItem.id!]"
+            :finished-num="itemCountMap.get(defaultMarkingItem.id!)"
+            :total-num="itemTotalMap.get(defaultMarkingItem.id!)"
             actived
           />
           <div class="grid px-2 place-items-center" style="background-color: var(--gs-color-danger);">
@@ -332,7 +326,7 @@ const handleDragItem = (ev: DragEvent) => {
     </CheckboxItem>
   </div>
 
-  <div class="flex items-center gap-2 text-white px-2 pt-1">
+  <div class="flex-shrink-0 flex items-center gap-2 text-white px-2 pt-1">
     条件列表
     <el-tooltip placement="top-start" effect="light" content="部分物品可能从属于多个分类，从而对应多个条件。">
       <el-icon :size="16">
@@ -341,7 +335,7 @@ const handleDragItem = (ev: DragEvent) => {
     </el-tooltip>
   </div>
 
-  <div class="flex-1 pt-2 pb-0 overflow-hidden">
+  <div class="flex-shrink-0 flex-1 pt-2 pb-0 overflow-hidden">
     <el-scrollbar class="px-2" height="100%">
       <div class="h-full flex flex-col gap-2">
         <ConditionRow

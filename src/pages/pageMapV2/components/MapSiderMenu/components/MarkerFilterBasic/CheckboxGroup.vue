@@ -1,4 +1,8 @@
-<script lang="ts" setup generic="T extends Record<string, any>, LK extends keyof T, VK extends keyof T, V extends T[VK], VV extends V[]">
+<script
+  setup
+  lang="ts"
+  generic="T extends Record<string, any>, LK extends keyof T, VK extends keyof T, V extends T[VK], VV extends V[]"
+>
 import { Finished } from '@element-plus/icons-vue'
 import { CheckboxItem } from '.'
 
@@ -95,10 +99,7 @@ const handleDragStart = (ev: DragEvent, row: T) => {
 </script>
 
 <template>
-  <div
-    v-bind="$attrs"
-    class="checkbox-group font-['HYWenHei-85W']"
-  >
+  <div class="checkbox-group font-[HYWenHei-85W]">
     <el-scrollbar
       class="checkbox-group-scrollbar"
       always
@@ -114,6 +115,10 @@ const handleDragStart = (ev: DragEvent, row: T) => {
           <slot name="all-select-icon">
             <Finished />
           </slot>
+        </template>
+
+        <template v-if="$slots.all" #default>
+          <slot name="all" :actived="isAllSelected" />
         </template>
       </CheckboxItem>
 
@@ -138,7 +143,7 @@ const handleDragStart = (ev: DragEvent, row: T) => {
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style scoped>
 .checkbox-group {
   overflow: auto;
   height: 100%;
