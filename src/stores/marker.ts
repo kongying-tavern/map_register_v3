@@ -57,10 +57,10 @@ export const useMarkerStore = defineStore('global-marker', () => {
     await db.marker.put(markerInfo)
 
     const { markerTitle, updaterId } = markerInfo
-    const { username = `(uid: ${updaterId})`, nickname = username } = users[updaterId!] ?? {}
+    const { username = `(uid: ${updaterId})`, nickname } = users[updaterId!] ?? {}
 
     socketStore.notice('MarkerUpdated', {
-      message: `${nickname} 更新了点位 ${markerTitle} (id:${id})`,
+      message: `${nickname ?? username} 更新了点位 ${markerTitle} (id:${id})`,
       icon: Location,
       customClass: 'text-[var(--el-color-primary)]',
       offset: 48,
@@ -78,10 +78,10 @@ export const useMarkerStore = defineStore('global-marker', () => {
     await db.marker.put(markerInfo)
 
     const { markerTitle, creatorId } = markerInfo
-    const { username = `(uid: ${creatorId})`, nickname = username } = users[creatorId!] ?? {}
+    const { username = `(uid: ${creatorId})`, nickname } = users[creatorId!] ?? {}
 
     socketStore.notice('MarkerAdded', {
-      message: `${nickname} 新增了点位 ${markerTitle} (id:${id})`,
+      message: `${nickname ?? username} 新增了点位 ${markerTitle} (id:${id})`,
       icon: AddLocation,
       customClass: 'text-[var(--el-color-success)]',
       offset: 48,
@@ -104,10 +104,10 @@ export const useMarkerStore = defineStore('global-marker', () => {
       return
 
     const { markerTitle, creatorId } = JSON.parse(history.content ?? '{}') as API.MarkerVo
-    const { username = `(uid: ${creatorId})`, nickname = username } = users[history.creatorId!] ?? {}
+    const { username = `(uid: ${creatorId})`, nickname } = users[history.creatorId!] ?? {}
 
     socketStore.notice('MarkerDeleted', {
-      message: `${nickname} 删除了点位 ${markerTitle} (id:${id})`,
+      message: `${nickname ?? username} 删除了点位 ${markerTitle} (id:${id})`,
       icon: DeleteLocation,
       customClass: 'text-[var(--el-color-danger)]',
       offset: 48,
@@ -124,10 +124,10 @@ export const useMarkerStore = defineStore('global-marker', () => {
 
     const [{ updaterId }] = data
 
-    const { username = `(uid: ${updaterId})`, nickname = username } = users[updaterId!] ?? {}
+    const { username = `(uid: ${updaterId})`, nickname } = users[updaterId!] ?? {}
 
     socketStore.notice('MarkerTweaked', {
-      message: `${nickname} 批量更新了点位: ${ids.join(', ')}`,
+      message: `${nickname ?? username} 批量更新了点位: ${ids.join(', ')}`,
       icon: Location,
       customClass: 'text-[var(--el-color-success)]',
       offset: 48,
