@@ -5,6 +5,7 @@ import { AppRowImage, AppUserPopover } from '@/components'
 import { useUserPopover } from '@/hooks'
 import { timeFormatter } from '@/utils'
 import { useIconTagStore } from '@/stores'
+import { HIDDEN_FLAG_NAME_MAP } from '@/shared'
 
 const props = defineProps<{
   data: T[]
@@ -59,11 +60,19 @@ const { IDENTIFICATION_SYMBOL, triggerRef, userData, trigger, close } = useUserP
         </template>
       </el-table-column>
 
-      <el-table-column label="类型名称" prop="name">
+      <el-table-column label="名称" prop="name">
         <template #default="{ row }">
           <el-link type="primary" @click="() => $emit('selectNode', row)">
             {{ row.name }}
           </el-link>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="可见性" prop="hiddenFlag">
+        <template #default="{ row }">
+          <div :class="{ 'text-[var(--el-text-color-disabled)]': HIDDEN_FLAG_NAME_MAP[row.hiddenFlag] === undefined }">
+            {{ HIDDEN_FLAG_NAME_MAP[row.hiddenFlag] ?? '缺省' }}
+          </div>
         </template>
       </el-table-column>
 

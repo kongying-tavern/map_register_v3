@@ -2,17 +2,18 @@
 import type { FormRules } from 'element-plus'
 import type { TypeManager, TypeObject } from '../config'
 import { ItemTypeManager } from '../definitions'
-import type { ElFormType } from '@/shared'
+import { type ElFormType, HIDDEN_FLAG_OPTIONS } from '@/shared'
 import db from '@/database'
 import { useFetchHook } from '@/hooks'
 import { AppRowImage } from '@/components'
-import { useIconTagStore } from '@/stores'
+import { useAccessStore, useIconTagStore } from '@/stores'
 
 defineProps<{
   parent?: TypeObject
   manager: TypeManager<TypeObject>
 }>()
 
+const accessStore = useAccessStore()
 const iconTagStore = useIconTagStore()
 
 const formRef = ref<ElFormType | null>(null)
@@ -99,6 +100,14 @@ defineExpose({
           </template>
         </el-select-v2>
       </div>
+    </el-form-item>
+
+    <el-form-item v-if="(manager instanceof ItemTypeManager)" label="可见性" prop="hiddenFlag">
+      <el-select-v2
+        v-model="modelValue.hiddenFlag"
+        :options="HIDDEN_FLAG_OPTIONS"
+        :disabled="!accessStore.get('MANAGER_COMPONENT')"
+      />
     </el-form-item>
   </el-form>
 </template>
