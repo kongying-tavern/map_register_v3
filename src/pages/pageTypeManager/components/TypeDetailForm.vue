@@ -64,7 +64,7 @@ defineExpose({
 <template>
   <el-form ref="formRef" class="w-[300px]" label-width="80px" :model="modelValue" :rules="rules">
     <el-form-item label="父级分类">
-      {{ parent ? parent.name : '根分类' }}
+      {{ parent ? parent.name : '全部' }}
     </el-form-item>
 
     <el-form-item label="类型名称" prop="name">
