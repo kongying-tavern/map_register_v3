@@ -18,7 +18,7 @@ defineEmits<{
 const areaStore = useAreaStore()
 const itemStore = useItemStore()
 
-const tableContainerRef = ref<HTMLElement | null>(null)
+const tableContainerRef = ref<HTMLElement>()
 const { width, height } = useElementSize(tableContainerRef)
 
 const { DialogService } = useGlobalDialog()

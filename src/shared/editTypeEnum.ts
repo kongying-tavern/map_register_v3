@@ -7,7 +7,7 @@ export enum EditTypeEnum {
 }
 
 /** 操作记录类型表 */
-export const EDIT_TYPE_MAP = {
+export const EDIT_TYPE_MAP: Record<EditTypeEnum, string> = {
   [EditTypeEnum.NONE]: '缺省',
   [EditTypeEnum.CREATE]: '新增',
   [EditTypeEnum.DELETE]: '删除',

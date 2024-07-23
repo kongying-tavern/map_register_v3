@@ -78,7 +78,7 @@ const insertChar = async (char: string, newline = false) => {
 }
 
 // ==================== 自适应 textarea 行高 ====================
-const textareaContainerRef = ref<HTMLElement | null>(null)
+const textareaContainerRef = ref<HTMLElement>()
 const { height } = useElementSize(textareaContainerRef)
 const textareaRows = computed(() => Math.floor((height.value - 20) / 21))
 </script>

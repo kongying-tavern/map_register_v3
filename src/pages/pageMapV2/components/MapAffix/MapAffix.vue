@@ -26,7 +26,7 @@ const switchScaleRatio = computed(() => props.zoomWithMap ? scaleRatio.value : 1
 
 const affixVisible = computed(() => props.pos !== undefined && props.visible !== false)
 
-const mapaffixRef = ref<HTMLElement | null>(null)
+const mapaffixRef = ref<HTMLElement>()
 useEventListener(mapaffixRef, 'contextmenu', ev => ev.preventDefault())
 </script>
 

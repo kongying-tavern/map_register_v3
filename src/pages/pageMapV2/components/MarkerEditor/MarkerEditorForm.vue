@@ -84,7 +84,7 @@ const rules: FormRules = {
 const addonId = ref('content')
 
 /** 表单实例 */
-const formRef = ref<ElFormType | null>(null)
+const formRef = ref<ElFormType>()
 
 // ==================== 点位 extra ====================
 const markerExtraStore = useMarkerExtraStore()
@@ -98,7 +98,7 @@ const availableExtraConfig = computed(() => {
 const isExtraEditable = computed(() => Object.keys(availableExtraConfig.value).length > 0)
 
 // ==================== 拓展面板 ====================
-const addonPanelRef = ref<HTMLDivElement | null>(null)
+const addonPanelRef = ref<HTMLDivElement>()
 provide(addonPanelRefKey, addonPanelRef)
 
 const addonPanelVisible = ref(true)

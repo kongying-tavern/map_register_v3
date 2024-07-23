@@ -56,7 +56,7 @@ const contentFormatter = (...{ 2: value = '' }) => {
   return content.length > 50 ? `${content.slice(0, 50)}...` : content
 }
 
-const tableRef = ref<HTMLElement | null>(null)
+const tableRef = ref<HTMLElement>()
 const { height } = useElementSize(tableRef)
 </script>
 

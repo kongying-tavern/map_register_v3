@@ -13,7 +13,7 @@ const emits = defineEmits<{
 
 const roleMap = computed(() => Object.fromEntries(props.roleList.map(role => [role.id!, role])))
 
-const tableRef = ref<HTMLElement | null>(null)
+const tableRef = ref<HTMLElement>()
 const { height } = useElementSize(tableRef)
 </script>
 

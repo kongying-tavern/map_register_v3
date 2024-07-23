@@ -19,7 +19,7 @@ defineEmits<{
 
 const iconTagStore = useIconTagStore()
 
-const tableContainerRef = ref<HTMLElement | null>(null)
+const tableContainerRef = ref<HTMLElement>()
 const { height } = useElementSize(tableContainerRef)
 
 const tableRef = ref<InstanceType<typeof ElTable> | null>(null)

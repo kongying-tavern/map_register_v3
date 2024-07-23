@@ -18,8 +18,8 @@ import { useAccessStore } from '@/stores'
 const accessStore = useAccessStore()
 
 const canvasRef = ref() as Ref<HTMLCanvasElement>
-const mutuallyExclusiveLayerRef = ref<HTMLElement | null>(null)
-const mapAffixLayerRef = ref<HTMLElement | null>(null)
+const mutuallyExclusiveLayerRef = ref<HTMLElement>()
+const mapAffixLayerRef = ref<HTMLElement>()
 
 useMap(canvasRef)
 

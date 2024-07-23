@@ -14,8 +14,8 @@ const getDialogConfig = () => ({
 const { data, updateAreaList } = useAreaList()
 
 // ==================== 地图图表 ====================
-const containerRef = ref<HTMLElement | null>(null)
-const minimapRef = ref<HTMLDivElement | null>(null)
+const containerRef = ref<HTMLElement>()
+const minimapRef = ref<HTMLDivElement>()
 
 const { graph, onEditClick, onAddClick, onDeleteClick } = useGraph({
   containerRef,

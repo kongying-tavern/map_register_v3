@@ -20,7 +20,7 @@ const activedTag = defineModel<API.TagVo | null>('activedTag', {
   required: true,
 })
 
-const tableContainerRef = ref<HTMLElement | null>(null)
+const tableContainerRef = ref<HTMLElement>()
 const { width } = useElementSize(tableContainerRef)
 const gridItems = computed(() => Math.floor((width.value - 32) / ICON_SIZE))
 

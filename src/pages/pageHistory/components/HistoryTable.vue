@@ -2,6 +2,7 @@
 import { AppUserPopover } from '@/components'
 import { useUserPopover } from '@/hooks'
 import { timeFormatter } from '@/utils'
+import type { EditTypeEnum } from '@/shared'
 import { EDIT_TYPE_MAP } from '@/shared'
 
 const props = defineProps<{
@@ -11,7 +12,7 @@ const props = defineProps<{
   historyType: number
 }>()
 
-const tableRef = ref<HTMLElement | null>(null)
+const tableRef = ref<HTMLElement>()
 const { height } = useElementSize(tableRef)
 
 const { IDENTIFICATION_SYMBOL, triggerRef, userData, trigger, close } = useUserPopover({
@@ -45,7 +46,7 @@ const { IDENTIFICATION_SYMBOL, triggerRef, userData, trigger, close } = useUserP
 
       <el-table-column label="操作类型" prop="editType" :width="100">
         <template #default="{ row }">
-          {{ EDIT_TYPE_MAP[row.editType] }}
+          {{ EDIT_TYPE_MAP[row.editType as EditTypeEnum] }}
         </template>
       </el-table-column>
 

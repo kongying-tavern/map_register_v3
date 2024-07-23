@@ -5,7 +5,7 @@ defineProps<{
   placeholder?: string
 }>()
 
-const nativeInputRef = ref<HTMLInputElement>() as Ref<HTMLInputElement>
+const nativeInputRef = ref<HTMLInputElement>()
 
 const modelValue = defineModel<string>('modelValue', {
   required: true,

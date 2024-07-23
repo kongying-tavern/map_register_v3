@@ -18,7 +18,7 @@ const opacityMap = {
   deleteButtonClick: 0.7,
 }
 
-const colorMap = {
+const colorMap: Record<string, string> = {
   MD: '#8FF3F3',
   LY: '#F7D442',
   DQ: '#D1A1FB',
@@ -31,8 +31,8 @@ const colorMap = {
 }
 
 export const useGraph = (options: {
-  containerRef: Ref<HTMLElement | null>
-  minimapRef: Ref<HTMLDivElement | null>
+  containerRef: Ref<HTMLElement | undefined>
+  minimapRef: Ref<HTMLDivElement | undefined>
   data: Ref<API.AreaVo[]>
 }) => {
   const { containerRef, minimapRef, data } = options

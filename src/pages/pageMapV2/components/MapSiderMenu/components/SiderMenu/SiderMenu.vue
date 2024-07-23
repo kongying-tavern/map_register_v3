@@ -13,7 +13,7 @@ const emits = defineEmits<{
   (e: 'update:modelValue', v?: string): void
 }>()
 
-const contentRef = ref<HTMLElement | null>(null)
+const contentRef = ref<HTMLElement>()
 provide(contentRefKey, contentRef)
 
 const bindTabName = computed({
@@ -42,7 +42,7 @@ const checkTooltip = (ev: Event) => {
 useEventListener('pointermove', checkTooltip)
 useEventListener('pointerdown', checkTooltip)
 
-const mapSidermenuRef = ref<HTMLElement | null>(null)
+const mapSidermenuRef = ref<HTMLElement>()
 provide(mapSidermenuKey, mapSidermenuRef)
 </script>
 

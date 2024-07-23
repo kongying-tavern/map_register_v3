@@ -28,8 +28,8 @@ const isValueNull = (value?: unknown, min?: number, minInclude?: boolean, max?: 
 }
 const valueSetter = (value?: unknown, min?: number, minInclude?: boolean, max?: number, maxInclude?: boolean) => isValueNull(value, min, minInclude, max, maxInclude) ? null : Number(value)
 
-const nativeInputMinRef = ref<HTMLInputElement>() as Ref<HTMLInputElement>
-const nativeInputMaxRef = ref<HTMLInputElement>() as Ref<HTMLInputElement>
+const nativeInputMinRef = ref<HTMLInputElement>()
+const nativeInputMaxRef = ref<HTMLInputElement>()
 
 const modelValueMin = defineModel<number | null>('min', {
   required: false,

@@ -1,7 +1,7 @@
 import { useBanner } from '@/hooks'
 
 const sharedContext = {
-  cursorRef: ref<HTMLElement | null>(null),
+  cursorRef: ref<HTMLElement>(),
   isVisible: ref(false),
   pos: ref({ x: 0, y: 0 }),
 }
@@ -14,7 +14,7 @@ export const useMapCursor = (isRoot = false) => {
       if (!sharedContext.isVisible.value)
         return
       sharedContext.pos.value.x = pageX
-      sharedContext.pos.value.y = pageY - (visible.value ? bannerHeight : 0)
+      sharedContext.pos.value.y = pageY - (visible.value ? bannerHeight.value : 0)
     })
   }
 

@@ -9,11 +9,11 @@ export interface NoticeContext {
 }
 
 export const context: NoticeContext = {
-  dialogRef: ref<HTMLDialogElement | null>(null),
+  dialogRef: ref(null),
 
   visible: ref(false),
 
-  closeHook: createEventHook<string | undefined>(),
+  closeHook: createEventHook(),
 
   show: () => {
     context.dialogRef.value?.showModal()

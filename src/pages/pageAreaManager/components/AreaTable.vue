@@ -16,7 +16,7 @@ const emits = defineEmits<{
   'update:parentPath': [path: API.AreaVo[]]
 }>()
 
-const tableContainerRef = ref<HTMLElement | null>(null)
+const tableContainerRef = ref<HTMLElement>()
 const { height } = useElementSize(tableContainerRef)
 
 const iconTagStore = useIconTagStore()

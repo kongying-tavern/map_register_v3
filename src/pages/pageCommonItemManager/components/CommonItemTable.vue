@@ -20,7 +20,7 @@ const iconTagStore = useIconTagStore()
 const itemTypeStore = useItemTypeStore()
 
 // ==================== 表格尺寸 ====================
-const containerRef = ref<HTMLElement | null>(null)
+const containerRef = ref<HTMLElement>()
 const { height, width } = useElementSize(containerRef)
 
 // ==================== 用户信息 ====================
