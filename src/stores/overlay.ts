@@ -217,41 +217,8 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
     return map
   }, new Map<string, OverlayChunk>()))
 
-  /** item 索引表 */
-  const itemMap = computed(() => normalizedOverlayChunks.value.reduce((map, chunk) => {
-    if (!map.has(chunk.item.id)) {
-      map.set(chunk.item.id, [chunk])
-    }
-    else {
-      const item = map.get(chunk.item.id)!
-      item.push(chunk)
-    }
-    return map
-  }, new Map<string, OverlayChunk[]>()))
-
+  /** 可见的 items，不限定图层 */
   const visibleItems = computed(() => items.value.filter(item => visibleItemIds.value.has(item.id)))
-
-  const visibleChunks = computed(() => {
-    const normal: string[] = []
-    const tiles: string[] = []
-
-    visibleItemIds.value.forEach((itemId) => {
-      const chunks = itemMap.value.get(itemId)
-      if (!chunks)
-        return
-      chunks.forEach((chunk) => {
-        if (chunk.group.role === 'tile')
-          tiles.push(chunk.id)
-        else
-          normal.push(chunk.id)
-      })
-    })
-
-    return {
-      normal,
-      tiles,
-    }
-  })
 
   /** 只存在于当前图层内的 overlay */
   const existOverlays = computed((): OverlayChunk[] => {
@@ -268,6 +235,19 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
     })
   })
 
+  /** 只存在于当前图层内且可见的 chunks */
+  const visibleChunks = computed(() => {
+    return existOverlays.value.reduce((seed, chunk) => {
+      if (!visibleItemIds.value.has(chunk.item.id))
+        return seed
+      seed[chunk.group.role].push(chunk.id)
+      return seed
+    }, {
+      default: [] as string[],
+      tile: [] as string[],
+    })
+  })
+
   const isOverlaysHasMask = computed(() => {
     for (const chunk of existOverlays.value) {
       if (chunk.group.mask)
@@ -277,7 +257,7 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
   })
 
   const showMask = computed((): boolean => {
-    return visibleItemIds.value.size > 0 && isOverlaysHasMask.value
+    return isOverlaysHasMask.value && Boolean(existOverlays.value.find(chunk => visibleItemIds.value.has(chunk.item.id) && chunk.group.mask))
   })
 
   return {
