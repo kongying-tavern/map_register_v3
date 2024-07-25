@@ -68,8 +68,8 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
   const dadianStore = useDadianStore()
   const tileStore = useTileStore()
 
-  /** 当前显示的 overlay 单元 */
-  const visibleItemIds = ref(new Set<string>())
+  /** 当前激活的 overlay 单元（激活状态并不代表显示状态） */
+  const activedItemIds = ref(new Set<string>())
 
   const mergedPlugins = computed(() => {
     const { plugins = {}, pluginsNeigui = {} } = dadianStore._raw
@@ -217,8 +217,8 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
     return map
   }, new Map<string, OverlayChunk>()))
 
-  /** 可见的 items，不限定图层 */
-  const visibleItems = computed(() => items.value.filter(item => visibleItemIds.value.has(item.id)))
+  /** 当前激活的 overlay 单元（激活状态并不代表显示状态） */
+  const activedItems = computed(() => items.value.filter(item => activedItemIds.value.has(item.id)))
 
   /** 只存在于当前图层内的 overlay */
   const existOverlays = computed((): OverlayChunk[] => {
@@ -238,7 +238,7 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
   /** 只存在于当前图层内且可见的 chunks */
   const visibleChunks = computed(() => {
     return existOverlays.value.reduce((seed, chunk) => {
-      if (!visibleItemIds.value.has(chunk.item.id))
+      if (!activedItemIds.value.has(chunk.item.id))
         return seed
       seed[chunk.group.role].push(chunk.id)
       return seed
@@ -257,19 +257,19 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
   })
 
   const showMask = computed((): boolean => {
-    return isOverlaysHasMask.value && Boolean(existOverlays.value.find(chunk => visibleItemIds.value.has(chunk.item.id) && chunk.group.mask))
+    return isOverlaysHasMask.value && Boolean(existOverlays.value.find(chunk => activedItemIds.value.has(chunk.item.id) && chunk.group.mask))
   })
 
   return {
     // state
-    visibleItemIds,
+    activedItemIds,
 
     // getters
     items,
     chunkMap,
     existOverlays,
     showMask,
-    visibleItems,
+    activedItems,
     visibleChunks,
   }
 })

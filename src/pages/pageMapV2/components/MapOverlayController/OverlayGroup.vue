@@ -19,7 +19,7 @@ const items = computed(() => Map.groupBy(props.group.chunks, ({ item }) => {
 
 const resetItemVisible = () => {
   items.value.forEach((_, { id }) => {
-    overlayStore.visibleItemIds.delete(id)
+    overlayStore.activedItemIds.delete(id)
   })
 }
 
@@ -80,12 +80,12 @@ const updateHover = (chunks: OverlayChunk[] | null) => {
         :key="item.id"
         class="overlay-item"
         :class="{
-          'is-actived': overlayStore.visibleItemIds.has(item.id),
+          'is-actived': overlayStore.activedItemIds.has(item.id),
         }"
         style="margin-right: 0"
-        :model-value="overlayStore.visibleItemIds.has(item.id)"
+        :model-value="overlayStore.activedItemIds.has(item.id)"
         :title="item.name"
-        @update:model-value="v => overlayStore.visibleItemIds[Boolean(v) ? 'add' : 'delete'](item.id)"
+        @update:model-value="v => overlayStore.activedItemIds[Boolean(v) ? 'add' : 'delete'](item.id)"
         @pointerenter="() => updateHover(chunks)"
         @pointerleave="() => updateHover(null)"
       >

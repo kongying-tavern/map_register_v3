@@ -5,7 +5,7 @@ import { useOverlayStore } from '@/stores'
 
 const overlayStore = useOverlayStore()
 
-const overlayCache = ref(new Set(overlayStore.visibleItemIds))
+const overlayCache = ref(new Set(overlayStore.activedItemIds))
 const cachable = ref(false)
 
 const id = crypto.randomUUID()
@@ -21,7 +21,7 @@ const overlayVisible = computed({
     }
     cachable.value = true
     const { clientWidth } = document.body
-    overlayStore.visibleItemIds = overlayCache.value
+    overlayStore.activedItemIds = overlayCache.value
     windowCtx.openWindow({
       id,
       name: '附加图层控制器',
@@ -31,17 +31,17 @@ const overlayVisible = computed({
       y: 8,
       beforeClose: () => {
         cachable.value = false
-        overlayStore.visibleItemIds.clear()
+        overlayStore.activedItemIds.clear()
         return true
       },
     })
   },
 })
 
-watch(() => overlayStore.visibleItemIds.size, () => {
+watch(() => overlayStore.activedItemIds.size, () => {
   if (!cachable.value)
     return
-  overlayCache.value = new Set(overlayStore.visibleItemIds)
+  overlayCache.value = new Set(overlayStore.activedItemIds)
 })
 </script>
 

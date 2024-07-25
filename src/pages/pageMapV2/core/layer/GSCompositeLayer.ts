@@ -102,8 +102,8 @@ export class GSCompositeLayer extends CompositeLayer {
         // 附加图层
         showOverlayMask: overlayStore.showMask,
         chunkMap: overlayStore.chunkMap,
-        normalChunks: overlayStore.visibleChunks.normal,
-        tileLikeChunks: overlayStore.visibleChunks.tiles,
+        normalChunks: overlayStore.visibleChunks.default,
+        tileLikeChunks: overlayStore.visibleChunks.tile,
       }), (newState, oldState) => {
         const { tileConfig } = newState
         if (!tileConfig)

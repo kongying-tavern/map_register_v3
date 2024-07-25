@@ -7,7 +7,7 @@ const areaStore = useAreaStore()
 const overlayStore = useOverlayStore()
 const preferenceStore = usePreferenceStore()
 
-const overlayCountMap = computed(() => overlayStore.visibleItems.reduce((map, item) => {
+const overlayCountMap = computed(() => overlayStore.activedItems.reduce((map, item) => {
   return map.set(item.areaCode, (map.get(item.areaCode) ?? 0) + 1)
 }, new Map<string, number>()))
 
@@ -15,7 +15,7 @@ const overlayTotalMap = computed(() => overlayStore.items.reduce((map, item) => 
   return map.set(item.areaCode, (map.get(item.areaCode) ?? 0) + 1)
 }, new Map<string, number>()))
 
-const parentOverlayCountMap = computed(() => overlayStore.visibleItems.reduce((map, item) => {
+const parentOverlayCountMap = computed(() => overlayStore.activedItems.reduce((map, item) => {
   const area = areaStore.areaCodeMap.get(item.areaCode)
   if (!area)
     return map
