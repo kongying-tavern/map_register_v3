@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { Delete } from '@element-plus/icons-vue'
 import { timeFormatter } from '@/utils'
-import { NOTICE_NAME_MAP, secondClock } from '@/shared'
+import { NOTICE_NAME_MAP, now } from '@/shared'
 
 const props = defineProps<{
   loading: boolean
@@ -22,7 +22,7 @@ const covertNoticeList = computed(() => props.data.map(notice => ({
 })))
 
 const stateList = computed(() => {
-  const now = secondClock.value
+  const now = now.value
   return covertNoticeList.value.map(({ time: { start, end } }) => {
     let state: { label: string; type: 'success' | 'warning' | 'info' } = {
       label: '生效中',

@@ -3,7 +3,7 @@ import type { Awaitable } from '@vueuse/core'
 import { get } from 'lodash'
 import { useFetchHook } from '@/hooks'
 import { usePreferenceStore, useUserAuthStore } from '@/stores'
-import { secondClock } from '@/shared'
+import { now } from '@/shared'
 import db from '@/database'
 import { Logger } from '@/utils'
 
@@ -45,7 +45,7 @@ export const useBackendUpdate = <T, Key>(
   const nextTime = ref<number>()
 
   /** 距离下次更新需要的时间 */
-  const restTime = computed(() => !nextTime.value ? 0 : nextTime.value - secondClock.value)
+  const restTime = computed(() => !nextTime.value ? 0 : nextTime.value - now.value)
 
   const { src } = table.schema.primKey
 

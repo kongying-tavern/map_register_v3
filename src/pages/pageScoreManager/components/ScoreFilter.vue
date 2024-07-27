@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { secondClock } from '@/shared'
+import { now } from '@/shared'
 
 defineEmits<{
   change: []
@@ -45,7 +45,7 @@ const shortcuts = [
 ]
 
 const getDisabledData = (date: Date) => {
-  return date.getTime() > secondClock.value
+  return date.getTime() > now.value
 }
 </script>
 
