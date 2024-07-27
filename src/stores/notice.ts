@@ -124,6 +124,8 @@ export const useNoticeStore = defineStore('global-notice', () => {
     pause,
     resume,
     onSuccess,
+    show: noticeContext.show,
+    close: noticeContext.close,
     ...rest,
   }
 })
