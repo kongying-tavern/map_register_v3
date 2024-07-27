@@ -22,15 +22,15 @@ const covertNoticeList = computed(() => props.data.map(notice => ({
 })))
 
 const stateList = computed(() => {
-  const now = now.value
+  const nowTime = now.value
   return covertNoticeList.value.map(({ time: { start, end } }) => {
     let state: { label: string; type: 'success' | 'warning' | 'info' } = {
       label: '生效中',
       type: 'success',
     }
-    if (start && start > now)
+    if (start && start > nowTime)
       state = state = { label: '待生效', type: 'warning' }
-    if (end && end < now)
+    if (end && end < nowTime)
       state = state = { label: '已失效', type: 'info' }
     return state
   })
