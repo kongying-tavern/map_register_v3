@@ -1,48 +1,43 @@
 <script lang="ts" setup>
 import dayjs from 'dayjs'
-import { useScore } from './hooks'
+import { useCharsChart, useCountChart, useScore } from './hooks'
+import type { ScoreFilterParmas } from './hooks'
 import { ScoreFilter, ScoreTable } from './components'
 
-const init = () => {
-  const end = new Date()
-  const start = new Date()
-  start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
-  return [dayjs(start).format('YYYY-MM-DDThh:mm:ss.0000'), dayjs(end).format('YYYY-MM-DDThh:mm:ss.0000')]
-} // 默认: 一周
-
-const data = ref<string[]>(init())
-
-const { scoreData, loading, generateLoading, generateScore, updateScore } = useScore({
-  getParams: () => ({
-    scope: 'PUNCTUATE',
-    startTime: data.value[0],
-    endTime: data.value[1],
-    span: 'DAY',
-  }),
+const filterForm = ref<ScoreFilterParmas>({
+  range: (() => {
+    const now = dayjs()
+    const toFormated = (time: dayjs.Dayjs) => time.valueOf()
+    return [toFormated(now.add(-180, 'day')), toFormated(now)]
+  })(),
 })
+
+const { data, loading, refresh } = useScore(filterForm)
+
+const countChartRef = ref<HTMLElement>()
+useCountChart(countChartRef, data)
+
+const charsChartRef = ref<HTMLElement>()
+useCharsChart(charsChartRef, data)
 </script>
 
 <template>
-  <div class="h-full flex flex-col gap-2 overflow-hidden p-4">
-    <ScoreFilter v-model="data">
-      <template #footer>
-        <el-button :loading="generateLoading" @click="() => generateScore()">
-          生成数据
-        </el-button>
-        <el-button :loading="loading" @click="() => updateScore()">
-          刷新
-        </el-button>
-      </template>
-    </ScoreFilter>
+  <div class="h-full flex flex-col overflow-hidden">
+    <ScoreFilter
+      v-model="filterForm.range"
+      class="flex-shrink-0"
+      @change="refresh"
+    />
 
-    <ScoreTable :data="scoreData" :loading="loading" />
+    <div class="flex-1 p-2 flex gap-2">
+      <div ref="countChartRef" class="flex-1 rounded border border-[var(--el-border-color)]" />
+      <div ref="charsChartRef" class="flex-1 rounded border border-[var(--el-border-color)]" />
+    </div>
+
+    <ScoreTable
+      class="flex-2 px-2 pb-2"
+      :data="data"
+      :loading="loading"
+    />
   </div>
 </template>
-
-<style lang="scss" scoped>
-.user-table {
-  :deep(.el-table__cell) {
-    padding: 6px 0;
-  }
-}
-</style>

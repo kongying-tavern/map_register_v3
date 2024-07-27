@@ -1,17 +1,17 @@
 <script lang="ts" setup>
-import type { ScoreVo } from '../shared'
+import type { FormatedScore } from '../shared'
 
 defineProps<{
   loading: boolean
-  data: ScoreVo[]
+  data: FormatedScore[]
 }>()
 
-const tableRef = ref<HTMLElement | null>(null)
+const tableRef = ref<HTMLElement>()
 const { height } = useElementSize(tableRef)
 </script>
 
 <template>
-  <div ref="tableRef" v-loading="loading" element-loading-text="载入中..." class="flex-1 overflow-hidden">
+  <div ref="tableRef" v-loading="loading" element-loading-text="载入中..." class="overflow-hidden">
     <el-table
       :data="data"
       :height="height"
@@ -20,8 +20,8 @@ const { height } = useElementSize(tableRef)
     >
       <el-table-column align="center" label="用户">
         <el-table-column align="center" label="ID" prop="userId" width="60px" />
-        <el-table-column align="center" label="用户名" prop="user.username" width="130px" />
-        <el-table-column align="center" label="昵称" prop="user.nickname" width="200px" />
+        <el-table-column align="center" label="用户名" prop="username" width="130px" />
+        <el-table-column align="center" label="昵称" prop="nickname" width="200px" />
       </el-table-column>
       <el-table-column align="center" label="字数统计">
         <el-table-column align="center" label="标题" prop="data.chars.markerTitle" />

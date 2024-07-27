@@ -60,3 +60,8 @@ export interface Fields {
   updaterId?: number
   updateTime?: number
 }
+
+export interface FormatedScore extends Omit<ScoreVo & ScoreVo['user'], 'user'> {
+  totalChars: number
+  totalCount: number
+}

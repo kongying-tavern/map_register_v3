@@ -1,69 +1,70 @@
 <script setup lang="ts">
-const props = defineProps<{
-  modelValue: string[]
-}>()
-const emit = defineEmits(['update:modelValue'])
+import { secondClock } from '@/shared'
 
-const data = useVModel(props, 'modelValue', emit)
+defineEmits<{
+  change: []
+}>()
+
+const modelValue = defineModel<number[]>('modelValue', {
+  required: true,
+})
 
 const shortcuts = [
   {
-    text: '一周',
+    text: '近 7 天',
     value: () => {
-      const end = new Date()
-      const start = new Date()
-      start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
-      return [start, end]
+      const now = new Date()
+      const start = new Date(now.getTime() - 7 * 86400_000)
+      return [start, now]
     },
   },
   {
-    text: '一个月',
+    text: '近 30 天',
     value: () => {
-      const end = new Date()
-      const start = new Date()
-      start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
-      return [start, end]
+      const now = new Date()
+      const start = new Date(now.getTime() - 30 * 86400_000)
+      return [start, now]
     },
   },
   {
-    text: '三个月',
+    text: '近 90 天',
     value: () => {
-      const end = new Date()
-      const start = new Date()
-      start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
-      return [start, end]
+      const now = new Date()
+      const start = new Date(now.getTime() - 90 * 86400_000)
+      return [start, now]
+    },
+  },
+  {
+    text: '近 180 天',
+    value: () => {
+      const now = new Date()
+      const start = new Date(now.getTime() - 180 * 86400_000)
+      return [start, now]
     },
   },
 ]
+
+const getDisabledData = (date: Date) => {
+  return date.getTime() > secondClock.value
+}
 </script>
 
 <template>
-  <el-form>
-    <div class="flex gap-x-8">
-      <el-form-item label="时间范围">
-        <el-date-picker
-          v-model="data"
-          type="datetimerange"
-          :shortcuts="shortcuts"
-          range-separator="To"
-          start-placeholder="Start date"
-          end-placeholder="End date"
-          format="YYYY-MM-DD hh:mm"
-          value-format="YYYY-MM-DDThh:mm:ss.0000"
-        />
-      </el-form-item>
-
-      <div label-width="0" class="ml-auto">
-        <slot name="footer" />
-      </div>
+  <div class="p-2 flex justify-end border-b-[1px] border-[var(--el-border-color-lighter)]">
+    <div>
+      <el-date-picker
+        v-model="modelValue"
+        type="datetimerange"
+        range-separator="To"
+        start-placeholder="Start date"
+        end-placeholder="End date"
+        format="YYYY-MM-DD hh:mm"
+        value-format="x"
+        :clearable="false"
+        :shortcuts="shortcuts"
+        :disabled-date="getDisabledData"
+        @change="() => $emit('change')"
+      />
     </div>
-  </el-form>
+  </div>
 </template>
-
-<style lang="scss" scoped>
-.type-input {
-  :deep(.el-input-group__prepend) {
-    background-color: transparent;
-  }
-}
-</style>
