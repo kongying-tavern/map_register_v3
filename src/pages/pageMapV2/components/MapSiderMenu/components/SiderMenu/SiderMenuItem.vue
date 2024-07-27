@@ -12,7 +12,7 @@ const emits = defineEmits<{
   (e: 'click', v: MouseEvent): void
 }>()
 
-const contentRef = inject(contentRefKey, ref(null))
+const contentRef = inject(contentRefKey, ref())
 const tabNameRef = inject(tabNameRefKey, ref())
 
 const actived = computed(() => tabNameRef.value === props.name)
@@ -29,7 +29,7 @@ const activeTab = (ev: MouseEvent) => {
   <div class="sider-menu-tab" :class="{ actived }" :data-tab-label="label" @click="ev => activeTab(ev)">
     <slot name="tab">
       <div class="sider-menu-tab-button">
-        <slot name="icon">
+        <slot name="icon" color="var(--icon-color)">
           <component :is="icon ?? Grid" style="color: var(--icon-color)" />
         </slot>
       </div>

@@ -12,12 +12,13 @@ import {
   useDadianStore,
   useIconTagStore,
   useMapStateStore,
+  useNoticeStore,
   usePreferenceStore,
   useTileStore,
   useUserAuthStore,
   useUserInfoStore,
 } from '@/stores'
-import { IconGithub } from '@/components/AppIcons'
+import { IconGithub, IconNotice } from '@/components/AppIcons'
 import { FALLBACK_AVATAR_URL } from '@/shared/constant'
 import { ExitLeft } from '@/components/GenshinUI/GSIcon'
 
@@ -30,6 +31,7 @@ const iconTagStore = useIconTagStore()
 const userInfoStore = useUserInfoStore()
 const userAuthStore = useUserAuthStore()
 const mapStateStore = useMapStateStore()
+const noticeStore = useNoticeStore()
 const { preference } = storeToRefs(usePreferenceStore())
 
 const { DialogService } = useGlobalDialog()
@@ -134,19 +136,9 @@ const switchFilterMode = () => {
 
           <div
             v-show="mapStateStore.markersFilterLoading || mapStateStore.currentLayerMarkers.length > 0"
-            class="absolute left-1/2 bottom-1 -translate-x-1/2 w-fit h-5 rounded-full p-0.5 grid place-items-center"
-            :class="[mapStateStore.markersFilterLoading ? 'bg-[#FFBB28]' : 'bg-[#68B11E]']"
+            class="absolute left-1/2 bottom-1 -translate-x-1/2 w-fit h-5 rounded-full p-0.5 grid place-items-center bg-[#68B11E]"
           >
-            <el-icon
-              v-if="mapStateStore.markersFilterLoading"
-              class="is-loading"
-              color="white"
-              :size="16"
-            >
-              <Loading />
-            </el-icon>
-
-            <span v-else class="text-xs leading-none px-0.5 text-white">
+            <span class="text-xs leading-none px-0.5 text-white">
               {{ mapStateStore.currentLayerMarkers.length }}
             </span>
           </div>
@@ -170,6 +162,21 @@ const switchFilterMode = () => {
             :size="38"
             :src="userInfoStore.info.logo || FALLBACK_AVATAR_URL"
           />
+        </template>
+      </SiderMenuItem>
+
+      <SiderMenuItem label="公告" :icon="IconNotice" @click="noticeStore.show">
+        <template #icon="{ color }">
+          <el-icon :color="color" :size="38">
+            <IconNotice />
+          </el-icon>
+
+          <div
+            class="absolute top-0 right-0 h-[18px] w-[18px] bg-[#E6455F] text-xs text-white rounded-full grid place-content-center font-[HYWenHei-85W]"
+            style="transform: rotate(10deg);"
+          >
+            !
+          </div>
         </template>
       </SiderMenuItem>
 
