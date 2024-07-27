@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import {
+  CurrentTime,
   DarkModeSwitch,
   SettingButton,
 } from './components'
@@ -32,6 +33,7 @@ const accessStore = useAccessStore()
         <AppBreadCrumb class="flex-1" />
 
         <div class="flex-1 flex justify-end items-center gap-1">
+          <CurrentTime />
           <AppUpdatePush v-if="accessStore.get('ADMIN_COMPONENT')" title="推送应用更新" />
           <AppNotice title="公告" />
           <SettingButton title="设置" />
