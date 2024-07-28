@@ -1,5 +1,5 @@
 /** 图标样式类型枚举 */
-export enum IconStyleTyleEnum {
+export enum IconStyle {
   /** 默认 */
   DEFAULT = 0,
   /** 无边框 */

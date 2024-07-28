@@ -3,7 +3,7 @@ import { ItemCreator } from '../components'
 import { useFetchHook, useGlobalDialog } from '@/hooks'
 import { GSMessageService, GlobalDialogController } from '@/components'
 
-import { HiddenFlagEnum, IconStyleTyleEnum } from '@/shared'
+import { HiddenFlagEnum, IconStyle } from '@/shared'
 import Api from '@/api/api'
 
 const { refresh: submit, onSuccess, onError, ...rest } = useFetchHook({
@@ -23,7 +23,7 @@ export const useItemCreate = (options: ItemCreateHookOptions = {}) => {
     defaultRefreshTime: 0,
     typeIdList: [],
     hiddenFlag: HiddenFlagEnum.SHOW,
-    iconStyleType: IconStyleTyleEnum.DEFAULT,
+    iconStyleType: IconStyle.DEFAULT,
     sortIndex: 0,
   })
 

@@ -3,7 +3,7 @@ import type { ItemFormRules } from '@/utils'
 import { lengthCheck, requireCheck } from '@/utils'
 import { useBinaryFlag, useIconList, useRefreshTime } from '@/hooks'
 import type { ElFormType } from '@/shared'
-import { HIDDEN_FLAG_OPTIONS, IconStyleTyleEnum } from '@/shared'
+import { HIDDEN_FLAG_OPTIONS, IconStyle } from '@/shared'
 import { AppTimeSelect } from '@/components'
 import { useAccessStore, useAreaStore, useItemTypeStore } from '@/stores'
 
@@ -73,10 +73,10 @@ const iconList = computed(() => rawIconList.value.map(iconTag => ({
 
 // ==================== 图标类型 ====================
 const iconStyleOptions = [
-  { label: '默认', value: IconStyleTyleEnum.DEFAULT },
-  { label: '无边框', value: IconStyleTyleEnum.NO_BORDER },
-  { label: '类神瞳', value: IconStyleTyleEnum.PUPIL },
-  { label: '类神瞳无对钩', value: IconStyleTyleEnum.NO_TICK },
+  { label: '默认', value: IconStyle.DEFAULT },
+  { label: '无边框', value: IconStyle.NO_BORDER },
+  { label: '类神瞳', value: IconStyle.PUPIL },
+  { label: '类神瞳无对钩', value: IconStyle.NO_TICK },
 ]
 
 // ==================== 刷新时间 ====================
