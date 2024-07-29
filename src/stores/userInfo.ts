@@ -6,6 +6,11 @@ import { useFetchHook } from '@/hooks'
 import { useUserAuthStore } from '@/stores'
 import { RoleLevel, RoleTypeEnum } from '@/shared'
 
+const FALLBACK_ROLE: API.SysRoleVo = Object.freeze({
+  code: RoleTypeEnum.VISITOR,
+  name: '游客',
+})
+
 export const useUserInfoStore = defineStore('global-user-info', () => {
   const userAuthStore = useUserAuthStore()
 
@@ -25,10 +30,11 @@ export const useUserInfoStore = defineStore('global-user-info', () => {
     })
   })
 
-  const roleMap = computed(() => roleList.value.reduce((seed, role) => {
-    seed[role.id!] = role
-    return seed
-  }, {} as Record<number, API.SysRoleVo>))
+  const roleMap = computed(() => roleList.value.reduce((map, role) => {
+    return map.set(role.id!, role)
+  }, new Map<number, API.SysRoleVo>()))
+
+  roleList.value.reduce((map, role) => map.set(role.id!, role), new Map<number, API.SysRoleVo>())
 
   // ==================== 用户基本信息 ====================
   const showUserInfo = ref(false)
@@ -58,10 +64,7 @@ export const useUserInfoStore = defineStore('global-user-info', () => {
   })
 
   const userRole = computed<API.SysRoleVo>(() => {
-    return roleMap.value[info.value.roleId ?? ''] ?? {
-      code: RoleTypeEnum.VISITOR,
-      name: '游客',
-    }
+    return roleMap.value.get(info.value.roleId ?? -1) ?? FALLBACK_ROLE
   })
 
   const userRoleLevel = computed(() => {
