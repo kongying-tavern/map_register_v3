@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import type { ItemQueryForm } from './hooks'
 import { ExplorerType } from './shared'
-import { useItemCreate, useItemDelete, useItemEdit, useItemList, useItemTable } from './hooks'
-import { ItemFilter, ItemGridExplorer, ItemTable } from './components'
-import { PgUnit, usePagination } from '@/hooks'
+import { useItemCreate, useItemEdit, useItemList } from './hooks'
+import { ItemDeleteConfirm, ItemFilter, ItemGridExplorer, ItemTable } from './components'
+import { PgUnit, useGlobalDialog, usePagination } from '@/hooks'
 import { ManagerModule } from '@/shared'
 
 // ==================== 筛选信息 ====================
@@ -27,8 +27,6 @@ const { itemList, loading: itemLoading, userMap, updateItemList, resetCurrent } 
 onPaginationChange(updateItemList)
 
 // ==================== 物品表格 ====================
-const { selection, handleSelectionChange } = useItemTable()
-
 const explorerType = ref<ExplorerType>(ExplorerType.Grid)
 
 // ==================== 新增物品 ====================
@@ -45,8 +43,23 @@ const { openItemEditorDialog, onSuccess: onEditSuccess } = useItemEdit({
 onEditSuccess(updateItemList)
 
 // ==================== 删除物品 ====================
-const { loading: deleteLoading, confirmDelete, onSuccess: onDeleteSuccess } = useItemDelete()
-onDeleteSuccess(updateItemList)
+
+const { DialogService } = useGlobalDialog()
+
+const confirmDelete = (item: API.ItemVo) => DialogService
+  .config({
+    alignCenter: true,
+    showClose: false,
+    closeOnClickModal: false,
+    closeOnPressEscape: false,
+  })
+  .props({
+    item,
+  })
+  .listeners({
+    success: updateItemList,
+  })
+  .open(ItemDeleteConfirm)
 </script>
 
 <template>
@@ -56,30 +69,13 @@ onDeleteSuccess(updateItemList)
       v-model:explorer-type="explorerType"
       @change="resetCurrent"
       @create="openItemCreatorDialog"
-    >
-      <template #footer>
-        <div class="w-full flex items-center justify-end">
-          <el-button
-            type="danger"
-            :disabled="!selection.length"
-            :loading="deleteLoading"
-            @click="() => confirmDelete(selection)"
-          >
-            批量删除 {{ selection.length ? ` ${selection.length} 项` : '' }}
-          </el-button>
-          <el-button text @click="openItemCreatorDialog">
-            添加物品
-          </el-button>
-        </div>
-      </template>
-    </ItemFilter>
+    />
 
     <ItemTable
       v-if="explorerType === ExplorerType.List"
       :item-list="itemList"
       :loading="itemLoading"
       :user-map="userMap"
-      @selection-change="handleSelectionChange"
       @review="openItemEditorDialog"
       @delete="confirmDelete"
     />
@@ -89,7 +85,6 @@ onDeleteSuccess(updateItemList)
       :item-list="itemList"
       :loading="itemLoading"
       :user-map="userMap"
-      @selection-change="handleSelectionChange"
       @review="openItemEditorDialog"
       @delete="confirmDelete"
     />
