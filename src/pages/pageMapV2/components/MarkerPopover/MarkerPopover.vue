@@ -127,12 +127,19 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
         </template>
 
         <template #picture>
-          <el-skeleton style="width: 256px; height: 256px" :loading="imageLoading" :throttle="500" animated>
+          <el-skeleton style="width: 256px; height: 256px" :loading="imageLoading" animated>
             <template #template>
               <el-skeleton-item variant="image" style="width: 100%; height: 100%;" />
             </template>
             <template #default>
-              <img v-if="pictureUrl" :src="pictureUrl" crossorigin="" class="w-64 h-64 aspect-video object-cover">
+              <el-image
+                v-if="pictureUrl"
+                :src="pictureUrl"
+                :preview-src-list="[pictureUrl]"
+                preview-teleported
+                fit="cover"
+                class="w-64 h-64"
+              />
               <div v-else class="w-64 h-64 grid place-items-center bg-[#4A5366] text-[#D3BC8E]">
                 没有图片
               </div>

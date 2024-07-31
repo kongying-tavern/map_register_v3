@@ -87,6 +87,7 @@ withDefaults(defineProps<{
   color: #D3BC8E;
   border-radius: var(--card-radius) var(--card-radius) 0 0;
   background-color: #3D4555;
+  z-index: 1;
 }
 
 .popover-body {
