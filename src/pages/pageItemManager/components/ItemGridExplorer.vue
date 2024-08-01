@@ -45,48 +45,54 @@ const markerCountMap = computed(() => markerStore.markerList.reduce((map, { item
       <div
         v-for="item in itemList"
         :key="item.id"
-        class="w-[280px] h-[74px] relative overflow-hidden"
+        class="item-card-var w-[280px] h-[74px] relative overflow-hidden"
       >
         <div class="item-card" :title="item.name" @click="() => $emit('review', item)">
-          <div class="flex flex-col gap-1">
+          <div class="w-12 h-full flex flex-col justify-center items-center gap-0.5">
             <AppIconTagRenderer
               :src="iconTagStore.tagSpriteUrl"
               :mapping="iconTagStore.tagCoordMap.get(item.iconTag ?? 'unknown')"
               class="
-                w-12 h-12
+                w-10 h-10
                 flex-shrink-0
                 rounded-full
                 bg-[var(--el-color-info-light-7)]
                 border border-[var(--el-color-info-light-5)]
               "
             />
+            <el-tag class="w-full" size="small" disable-transitions :type="hiddenFlagTypeMap[item.hiddenFlag as HiddenFlagEnum]">
+              {{ HIDDEN_FLAG_NAME_MAP[item.hiddenFlag!] }}
+            </el-tag>
           </div>
 
-          <div class="w-full h-full overflow-hidden flex flex-col justify-center gap-1 px-2">
-            <div class="font-['HYWenHei-85W'] leading-none text-[var(--el-text-color-primary)]">
+          <div class="flex-1 h-full overflow-hidden flex flex-col justify-center px-2">
+            <div class="font-['HYWenHei-85W'] text-[var(--el-text-color-primary)] overflow-text">
               {{ item.name }}
             </div>
 
-            <div class="text-xs leading-none text-[var(--el-text-color-regular)] flex items-center overflow-hidden">
-              <div class="inline-block max-w-[160px] whitespace-nowrap overflow-hidden text-ellipsis">
-                {{ areaStore.areaIdMap.get(item.areaId!)?.name ?? `(id:${item.id})` }}
-              </div>
-              <div class="flex-shrink-0">
-                / {{ markerCountMap.get(item.id!) ?? 0 }}
-              </div>
+            <div class="text-xs text-[var(--el-text-color-regular)] overflow-text">
+              {{ areaStore.areaIdMap.get(item.areaId!)?.name ?? `(id:${item.id})` }}
             </div>
 
-            <div class="flex justify-between items-center">
-              <el-tag class="w-16" size="small" disable-transitions :type="hiddenFlagTypeMap[item.hiddenFlag as HiddenFlagEnum]">
-                {{ HIDDEN_FLAG_NAME_MAP[item.hiddenFlag!] }}
-              </el-tag>
+            <div class="text-xs text-[var(--el-text-color-regular)]">
+              排序: {{ item.sortIndex ?? 0 }}
             </div>
           </div>
         </div>
 
         <div
-          class="absolute right-0 bottom-0 z-10 pr-1 pb-1"
+          class="
+            absolute right-[1px] top-[1px]
+            min-w-[32px] h-5 rounded-[0px_11px_0px_11px]
+            grid place-content-center border-l-[1px] border-b-[1px] border-[var(--el-color-warning-light-3)]
+            text-xs text-[var(--el-color-warning-dark-2)] bg-[var(--el-color-warning-light-7)]
+          "
+          title="物品下属点位数量"
         >
+          {{ markerCountMap.get(item.id!) ?? 0 }}
+        </div>
+
+        <div class="absolute right-0 bottom-0 z-10 pr-1 pb-1">
           <el-button
             circle
             text
@@ -104,11 +110,20 @@ const markerCountMap = computed(() => markerStore.markerList.reduce((map, { item
 </template>
 
 <style scoped>
+.item-card-var {
+  --border-color: var(--el-border-color);
+}
+
+.overflow-text {
+  @apply max-w-[160px] overflow-hidden whitespace-nowrap text-ellipsis;
+}
+
 .item-card {
   @apply
-    w-[280px] h-[74px] pl-2 relative
+    relative
+    w-[280px] h-[74px] pl-2 rounded-xl
     flex items-center
-    border rounded-xl
+    border border-[var(--border-color)]
     cursor-pointer
     select-none
   ;
@@ -118,10 +133,8 @@ const markerCountMap = computed(() => markerStore.markerList.reduce((map, { item
   }
 
   &:active {
-    @apply
-      active:bg-[var(--el-color-primary-light-7)]
-      active:border-[var(--el-color-primary-light-3)]
-    ;
+    @apply bg-[var(--el-color-primary-light-7)];
+    --border-color: var(--el-color-primary-light-3);
   }
 }
 </style>
