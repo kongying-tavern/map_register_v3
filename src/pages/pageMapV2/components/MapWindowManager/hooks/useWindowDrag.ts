@@ -6,7 +6,7 @@ import { genshinMapCanvasKey } from '@/pages/pageMapV2/shared'
 export const useWindowDrag = (context: WindowContext) => {
   const { pointerdown, pointermove, pointerup } = context
 
-  const mapCanvas = inject(genshinMapCanvasKey, ref(null))
+  const mapCanvas = inject(genshinMapCanvasKey, ref())
 
   const optimizeWindowPosition = () => {
     if (!mapCanvas.value)
