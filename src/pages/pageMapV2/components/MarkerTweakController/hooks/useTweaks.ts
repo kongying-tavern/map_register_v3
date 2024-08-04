@@ -4,6 +4,7 @@ import { Logger, messageFrom } from '@/utils'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
 import type { HiddenFlagEnum } from '@/shared'
 import { HIDDEN_FLAG_OPTIONS } from '@/shared'
+import { useArchiveStore } from '@/stores'
 
 interface ModifierConstructor<T> {
   new(options: ModifierConstructorOptions<T>): Modifier
@@ -13,36 +14,11 @@ const createFactory = <T = void>(ModifierClass: ModifierConstructor<T>, options:
   return (type: string) => new ModifierClass({ ...options, type } as ModifierConstructorOptions<T>)
 }
 
-const modifierMap = new Map<string, (type: string) => Modifier>()
-  .set('title', createFactory(TextModifier, {
-    field: 'markerTitle',
-    label: '点位标题',
-    allowMultiline: false,
-  }))
-  .set('content', createFactory(TextModifier, {
-    field: 'content',
-    label: '描述内容',
-    previewHeight: 90,
-    allowMultiline: true,
-  }))
-  .set('refreshTime', createFactory(TimeModifier, {
-    field: 'refreshTime',
-    label: '刷新时间',
-  }))
-  .set('hiddenFlag', createFactory(EnumModifier<HiddenFlagEnum>, {
-    field: 'hiddenFlag',
-    label: '显示状态',
-    options: HIDDEN_FLAG_OPTIONS,
-    optionMap: HIDDEN_FLAG_OPTIONS.reduce((map, option) => {
-      map.set(option.value, option.label)
-      return map
-    }, new Map<HiddenFlagEnum, string>()),
-  }))
-
 export interface TweakControlInfo {
   id: string
   prop: string
   modifier: Modifier
+  isCustom?: boolean
 }
 
 const textCommonOptions = [
@@ -110,6 +86,13 @@ const options = [
     ],
   },
   {
+    label: '标记状态',
+    value: 'marked',
+    children: [
+      { label: '更新', value: 'update' },
+    ],
+  },
+  {
     label: '额外数据',
     value: 'extra',
     disabled: true,
@@ -133,6 +116,60 @@ const options = [
 
 export const useTweaks = (markerList: ComputedRef<GSMapState.MarkerWithRenderConfig[]>) => {
   const logger = new Logger('批量修改')
+
+  const archiveStore = useArchiveStore()
+
+  const modifierMap = new Map<string, (type: string) => Modifier>()
+    .set('title', createFactory(TextModifier, {
+      field: 'markerTitle',
+      label: '点位标题',
+      allowMultiline: false,
+    }))
+    .set('content', createFactory(TextModifier, {
+      field: 'content',
+      label: '描述内容',
+      previewHeight: 90,
+      allowMultiline: true,
+    }))
+    .set('refreshTime', createFactory(TimeModifier, {
+      field: 'refreshTime',
+      label: '刷新时间',
+    }))
+    .set('hiddenFlag', createFactory(EnumModifier<HiddenFlagEnum>, {
+      field: 'hiddenFlag',
+      label: '显示状态',
+      options: HIDDEN_FLAG_OPTIONS,
+      optionMap: HIDDEN_FLAG_OPTIONS.reduce((map, option) => {
+        map.set(option.value, option.label)
+        return map
+      }, new Map<HiddenFlagEnum, string>()),
+    }))
+    .set('marked', (() => {
+      const options = [
+        { label: '已完成', value: true },
+        { label: '未完成', value: false },
+      ]
+      return createFactory(EnumModifier<boolean>, {
+        field: 'id',
+        label: '标记状态',
+        options,
+        customModify: async (markerList, { value }) => {
+          markerList.forEach(({ id }) => {
+            archiveStore.currentArchive.body.Data_KYJG[value ? 'add' : 'delete'](id!)
+          })
+          await archiveStore.saveArchiveToSlot(archiveStore.currentArchive.slotIndex)
+        },
+        customGetValue: ({ id }, isOld, meta = {}) => {
+          if (isOld)
+            return archiveStore.currentArchive.body.Data_KYJG.has(id!)
+          return meta.value
+        },
+        optionMap: options.reduce((map, option) => {
+          map.set(option.value, option.label)
+          return map
+        }, new Map<boolean, string>()),
+      })
+    })())
 
   const tweakList = shallowRef<TweakControlInfo[]>([])
   const tweakData = ref(new Map<string, API.TweakConfigMetaVo>())
@@ -176,6 +213,7 @@ export const useTweaks = (markerList: ComputedRef<GSMapState.MarkerWithRenderCon
         id,
         prop,
         modifier,
+        isCustom: modifier.options.customModify !== undefined,
       }]
       tweakData.value.set(id, {})
 
