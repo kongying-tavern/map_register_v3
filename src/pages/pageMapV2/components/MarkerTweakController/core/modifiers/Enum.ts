@@ -7,8 +7,6 @@ export interface EnumModifierProps<T> {
     value: T
   }[]
   optionMap: Map<T, string>
-  label?: string
-  value?: string
 }
 
 export class EnumModifier<T = unknown> extends Modifier<EnumModifierProps<T>> {
@@ -19,7 +17,9 @@ export class EnumModifier<T = unknown> extends Modifier<EnumModifierProps<T>> {
       update: {
         label: '更新',
         modify: (data, { value = '' }) => {
-          const { field } = this.options
+          const { field, customModify } = this.options
+          if (customModify !== undefined)
+            return data
           return { ...data, [field]: value }
         },
         cardComp: () => import('../CardImpls/EnumUpdate.vue'),

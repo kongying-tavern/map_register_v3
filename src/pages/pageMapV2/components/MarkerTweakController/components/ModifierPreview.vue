@@ -14,8 +14,8 @@ defineProps<{
   <Suspense>
     <component
       :is="modifier.previewer"
-      :value="modifier.getValue(data)"
-      :old-value="oldData ? modifier.getValue(oldData) : undefined"
+      :value="modifier.getValue(data, !oldData, meta)"
+      :old-value="oldData ? modifier.getValue(oldData, true, meta) : undefined"
       :options="modifier.options"
     />
 

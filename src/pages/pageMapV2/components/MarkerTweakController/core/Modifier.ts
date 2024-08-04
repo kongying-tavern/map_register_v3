@@ -17,6 +17,10 @@ export type ModifierConstructorOptions<T = void> = {
   field: keyof GSMapState.MarkerWithRenderConfig
   /** 修改类型 */
   type: string
+  /** 用于自定义修改行为，当设置此值时，将会跳过通过接口进行的修改 */
+  customModify?: (markers: API.MarkerVo[], meta: API.TweakConfigMetaVo) => void | Promise<void>
+  /** 将会覆盖 Modifier 的 getValue 行为 */
+  customGetValue?: (data: GSMapState.MarkerWithRenderConfig, isOld: boolean, meta?: API.TweakConfigMetaVo) => unknown
 } & T
 
 interface Strategy<T> {
@@ -33,8 +37,10 @@ export abstract class Modifier<T = void> {
   typeLabel: string
   modify: Strategy<GSMapState.MarkerWithRenderConfig>['modify']
 
-  getValue = (data: GSMapState.MarkerWithRenderConfig) => {
-    const { field } = this.options
+  getValue = (data: GSMapState.MarkerWithRenderConfig, isOld: boolean, meta?: API.TweakConfigMetaVo) => {
+    const { field, customGetValue } = this.options
+    if (customGetValue)
+      return customGetValue(data, isOld, meta)
     return data[field]
   }
 

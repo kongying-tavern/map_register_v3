@@ -19,7 +19,16 @@ export const useMarkerTweaks = (options: TweakHookOptions) => {
     onRequest: async () => {
       const markerIds = markerList.value.map(marker => marker.id!)
 
-      const tweaks = tweakList.value.map(({ id, prop, modifier }) => {
+      // 处理自定义批量修改
+      const customTweaks = tweakList.value.filter(({ isCustom }) => isCustom)
+
+      await Promise.all(customTweaks.map(async ({ id, modifier }) => {
+        const meta = tweakData.value.get(id)!
+        await modifier.options.customModify?.(markerList.value, meta)
+      }))
+
+      // 处理通用批量修改
+      const tweaks = tweakList.value.filter(({ isCustom }) => !isCustom).map(({ id, prop, modifier }) => {
         const meta = tweakData.value.get(id)!
         const config: API.TweakConfigVo = {
           prop,
@@ -29,14 +38,13 @@ export const useMarkerTweaks = (options: TweakHookOptions) => {
         return config
       })
 
-      const { data = [] } = await Api.marker.tweakMarkers({
-        markerIds,
-        tweaks,
-      })
-
-      await db.marker.bulkPut(data)
-
-      return data
+      if (tweaks.length > 0) {
+        const { data = [] } = await Api.marker.tweakMarkers({
+          markerIds,
+          tweaks,
+        })
+        await db.marker.bulkPut(data)
+      }
     },
   })
 
