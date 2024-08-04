@@ -9,8 +9,8 @@ import {
   MapStateBar,
   MapWindowManager,
   MarkerMoveController,
-  MarkerMultiSelectController,
   MarkerPopover,
+  MarkerTweakController,
   ZoomController,
 } from './components'
 import { useAccessStore } from '@/stores'
@@ -68,8 +68,8 @@ provide(mapAffixLayerKey, mapAffixLayerRef)
       ref="mutuallyExclusiveLayerRef"
       class="mutually-exclusive-layer absolute left-0 top-0 w-full h-full pointer-events-none"
     >
-      <MarkerMoveController />
-      <MarkerMultiSelectController v-if="accessStore.get('MARKER_BATCH_EDIT')" />
+      <MarkerMoveController v-if="accessStore.get('MARKER_EDIT')" />
+      <MarkerTweakController v-if="accessStore.get('MARKER_BATCH_EDIT')" />
     </div>
   </div>
 </template>
