@@ -669,10 +669,8 @@ export default {
         (v) => v === "宝箱品质"
       );
       if (
-        !(
-          item_list_companion_1.length === 1 &&
-          item_list_companion_2.length === 1
-        )
+        item_list_companion_1.length + item_list_companion_2.length > 0 &&
+        (item_list_companion_1.length <= 0 || item_list_companion_2.length <= 0)
       ) {
         data_pack.errors.push("获取方式和宝箱品质需同时选中");
       }
