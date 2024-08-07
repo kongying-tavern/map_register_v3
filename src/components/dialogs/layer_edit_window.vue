@@ -662,9 +662,18 @@ export default {
         .value();
       const item_list_companion_1 = _.filter(
         item_list_types,
-        (v) => v === "获取方式" || v === "宝箱品质"
+        (v) => v === "获取方式"
       );
-      if (item_list_companion_1.length === 1) {
+      const item_list_companion_2 = _.filter(
+        item_list_types,
+        (v) => v === "宝箱品质"
+      );
+      if (
+        !(
+          item_list_companion_1.length === 1 &&
+          item_list_companion_2.length === 1
+        )
+      ) {
         data_pack.errors.push("获取方式和宝箱品质需同时选中");
       }
 
