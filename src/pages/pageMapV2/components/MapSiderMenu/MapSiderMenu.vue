@@ -172,6 +172,7 @@ const switchFilterMode = () => {
           </el-icon>
 
           <div
+            v-if="noticeStore.newCount > 0"
             class="absolute top-0 right-0 h-[18px] w-[18px] bg-[#E6455F] text-xs text-white rounded-full grid place-content-center font-[HYWenHei-85W]"
             style="transform: rotate(10deg);"
           >
