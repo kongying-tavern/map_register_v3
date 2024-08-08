@@ -10,14 +10,11 @@ const logger = new Logger('Axios')
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE,
   timeout: 60000,
+  validateStatus: status => status >= 200 && status < 300,
 })
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    config.validateStatus = (status) => {
-      return status === 400 || (status >= 200 && status < 300)
-    }
-
     const userAuthStore = useUserAuthStore()
 
     const hasToken = config.headers.Authorization ?? config.headers.authorization
