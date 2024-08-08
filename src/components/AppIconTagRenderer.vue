@@ -16,6 +16,7 @@ defineProps<{
     <div
       v-else
       class="image-renderer w-16 h-16 origin-top-left"
+      draggable="false"
       :style="{
         'background': `url(${src})`,
         'background-position': `${-mapping[0]}px ${-mapping[1]}px`,
