@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { liveQuery } from 'dexie'
+import type { ShallowRef } from 'vue'
 import { useBackendUpdate, useMarkerSprite, useTagSprite, userHook } from './hooks'
 import { useUserAuthStore } from '.'
 import { Zip } from '@/utils'
@@ -52,6 +53,7 @@ export const useIconTagStore = defineStore('global-icon-tag', () => {
 
   return {
     // getters
+    tagList: tagList as Readonly<ShallowRef<API.TagVo[]>>,
     total,
     tagNameMap,
     iconTagMap,
