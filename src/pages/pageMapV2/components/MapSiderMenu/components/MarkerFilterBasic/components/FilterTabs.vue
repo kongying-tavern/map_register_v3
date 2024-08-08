@@ -16,6 +16,8 @@ const modelValue = defineModel<number>('modelValue', {
   required: true,
 })
 
+provide('modelValue', modelValue)
+
 const tabPanels = computed(() => slots.default().filter(isTabPanel))
 </script>
 
@@ -42,15 +44,7 @@ const tabPanels = computed(() => slots.default().filter(isTabPanel))
     </div>
 
     <div class="flex-1 overflow-hidden">
-      <template
-        v-for="panel in tabPanels"
-        :key="panel.props!.value"
-      >
-        <component
-          :is="(panel.children as Record<string, () => VNode>).default"
-          v-if="panel.props!.value === modelValue"
-        />
-      </template>
+      <slot name="default" />
     </div>
   </div>
 </template>
