@@ -90,7 +90,7 @@ const userAgent = navigator.userAgent
     </div>
 
     <SettingGroup name="设备信息">
-      <SettingBar label="WebGL" note="Make Web Greate Again!" :icon="PictureRounded">
+      <SettingBar label="WebGL" note="Make Web Great Again!" :icon="PictureRounded">
         <template #detail>
           <el-descriptions
             :border="true"
