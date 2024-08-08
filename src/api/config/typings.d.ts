@@ -180,6 +180,11 @@ declare namespace API {
       island_state?: string[]
     }
 
+    /** 覆盖图标 */
+    'iconOverride'?: {
+      tag?: string
+    }
+
     /**
      * 洞口关联
      * @deprecated
