@@ -72,6 +72,8 @@ export const useRules = () => {
             // 宝箱品质 和 获取方式 必须成对存在，不得孤立（异或取反）
             if (maskQuality ^ maskWay)
               throw new Error(maskQuality ? `须为【${areaName}】选择至少一个获取方式` : `须为【${areaName}】选择一个宝箱品质`)
+
+            callback()
           })
         }
         catch (err) {
