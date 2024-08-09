@@ -1,20 +1,18 @@
 <script lang="ts" setup>
-import type { FormRules } from 'element-plus'
-import { cloneDeep } from 'lodash'
 import { addonPanelRefKey } from './shared'
 import {
   AddonContenEditor,
-  AddonExtraEditor,
+  AddonExtra,
   AddonHistory,
   AddonImageEditor,
   AddonItem,
   AddonRefreshtimeEditor,
 } from './components'
+import { useRules } from './validators'
 import { WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
-import { useAccessStore, useMarkerExtraStore } from '@/stores'
+import { useAccessStore, useItemStore, useMarkerExtraStore } from '@/stores'
 import type { ElFormType } from '@/shared'
-import { HiddenFlagEnum } from '@/shared'
-import { isTreasureChestMatched, requireCheck } from '@/utils'
+import { HiddenFlagEnum, specialMask } from '@/shared'
 
 const props = defineProps<{
   modelValue: API.MarkerVo
@@ -27,12 +25,12 @@ const emits = defineEmits<{
   'close': []
 }>()
 
-/** 用户权限 */
+const itemStore = useItemStore()
 const accessStore = useAccessStore()
 
 /** 表单数据 */
 const form = ref<API.MarkerVo & { areaCode: string }>({
-  ...cloneDeep(props.modelValue),
+  ...props.modelValue,
   picture: props.modelValue.picture ?? '',
   extra: props.modelValue.extra ?? {},
   areaCode: props.initAreaCode ?? '',
@@ -48,34 +46,7 @@ const handleUsingHistory = (history: API.MarkerVo) => {
   Object.assign(form.value, history)
 }
 
-/** 表单校验规则 */
-const rules: FormRules = {
-  areaCode: [requireCheck('change', '所属地区')],
-  markerTitle: [requireCheck('change', '标题')],
-  hiddenFlag: [requireCheck('change', '点位标识')],
-  itemList: [
-    {
-      required: true,
-      validator: (_, items: API.MarkerItemLinkVo[] = []) => (form.value.itemList ??= items).length > 0,
-      message: '至少需要选择一项物品',
-      trigger: 'change',
-    },
-    {
-      validator: (_, items: API.MarkerItemLinkVo[] = []) => items.every(({ count = 0 }) => !Number.isNaN(count)),
-      message: '必须是一个合法的数字',
-      trigger: 'change',
-    },
-    isTreasureChestMatched(),
-  ],
-  videoPath: [{
-    validator: (_, value = '') => {
-      form.value.videoPath = value.trim()
-      return !form.value.videoPath || /^https:\/\/www.bilibili.com\/video\/BV[a-zA-Z0-9]+/.test(form.value.videoPath)
-    },
-    message: '视频链接不正确(需要B站链接)',
-    trigger: 'blur',
-  }],
-}
+const { rules } = useRules()
 
 /**
  * 右侧额外面板识别 id
@@ -95,7 +66,20 @@ const availableExtraConfig = computed(() => {
   return markerExtraStore.mergedAreaExtraConfigs[form.value.areaCode] ?? {}
 })
 
-const isExtraEditable = computed(() => Object.keys(availableExtraConfig.value).length > 0)
+/**
+ * 判断是否可被设置图标覆盖（检测所属物品是否存在 special 掩码第二位为 1）
+ * @see `src\shared\specialFlag.ts`
+ */
+const isIconOverridable = computed(() => toValue(form).itemList?.find(({ itemId }) => {
+  const item = itemStore.itemIdMap.get(itemId!)
+  if (!item)
+    return false
+  return specialMask.isActive(item.specialFlag ?? 0, 'isIconCustomizable')
+}) !== undefined)
+
+const isExtraEditable = computed(() => {
+  return toValue(isIconOverridable) || Object.keys(availableExtraConfig.value).length > 0
+})
 
 // ==================== 拓展面板 ====================
 const addonPanelRef = ref<HTMLDivElement>()
@@ -162,10 +146,24 @@ defineExpose({
               v-model="form"
               v-model:addon-id="addonId"
             />
+            <template #error="{ error }">
+              <div
+                class="absolute -bottom-[18px] h-[18px] text-xs text-[var(--el-color-danger)] z-10"
+                :title="error"
+              >
+                {{ error }}
+              </div>
+            </template>
           </el-form-item>
 
-          <el-form-item v-if="isExtraEditable" label="点位层级" prop="extra">
-            <AddonExtraEditor v-model="form.extra" :area-code="form.areaCode" :extra-config="availableExtraConfig" />
+          <el-form-item v-if="isExtraEditable" label="附加信息" prop="extra">
+            <AddonExtra
+              v-model="form.extra"
+              v-model:addon-id="addonId"
+              :config="availableExtraConfig"
+              :item-list="form.itemList"
+              :is-icon-overridable="isIconOverridable"
+            />
           </el-form-item>
 
           <el-form-item label="点位描述" prop="content">
