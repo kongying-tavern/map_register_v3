@@ -1,9 +1,10 @@
 <script lang="ts" setup>
+import { useSpecialFlag } from '../hooks'
 import type { ItemFormRules } from '@/utils'
 import { lengthCheck, requireCheck } from '@/utils'
-import { useBinaryFlag, useIconList, useRefreshTime } from '@/hooks'
+import { useIconList, useRefreshTime } from '@/hooks'
 import type { ElFormType } from '@/shared'
-import { HIDDEN_FLAG_OPTIONS, IconStyle } from '@/shared'
+import { HIDDEN_FLAG_OPTIONS, IconStyle, SPECIALFLAG_OPTIONS } from '@/shared'
 import { AppTimeSelect } from '@/components'
 import { useAccessStore, useAreaStore, useItemTypeStore } from '@/stores'
 
@@ -87,10 +88,7 @@ const refreshTime = computed({
 const { refreshTimeType, refreshTimeTypeOptions, isCustom } = useRefreshTime(refreshTime)
 
 // ==================== 特殊标识 ====================
-const { teleportable } = useBinaryFlag(toRef(formData.value, 'specialFlag'), {
-  teleportable: 0,
-  iconCustomized: 1,
-})
+const { specialFlag } = useSpecialFlag(formData)
 
 // ==================== 其他定义 ====================
 defineExpose({
@@ -105,8 +103,17 @@ defineExpose({
         <el-input v-model="formData.name" placeholder="请输入物品名称" />
       </el-form-item>
 
-      <el-form-item label="可传送" title="是否为传送点位" prop="specialFlag">
-        <el-switch v-model="teleportable" />
+      <el-form-item label="物品属性" prop="specialFlag">
+        <el-select-v2
+          v-model="specialFlag"
+          :options="SPECIALFLAG_OPTIONS"
+          filterable
+          collapse-tags
+          collapse-tags-tooltip
+          multiple
+          placeholder="选择物品属性"
+          style="width: 100%"
+        />
       </el-form-item>
     </div>
 

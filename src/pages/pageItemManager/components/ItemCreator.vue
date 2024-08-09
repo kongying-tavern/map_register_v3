@@ -4,7 +4,13 @@ import { useItemCreate } from '../hooks'
 import { ItemDetailForm } from '.'
 import { GlobalDialogController, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 
-const { detailFormRef, formData, loading, handleSubmit } = useItemCreate()
+const emits = defineEmits<{
+  success: []
+}>()
+
+const { detailFormRef, formData, loading, handleSubmit, onSuccess } = useItemCreate()
+
+onSuccess(() => emits('success'))
 </script>
 
 <template>

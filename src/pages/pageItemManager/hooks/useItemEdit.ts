@@ -1,24 +1,21 @@
 import { pick } from 'lodash'
 import type { ItemDetailForm } from '../components'
-import { ItemEditor } from '../components'
-import { useFetchHook, useGlobalDialog } from '@/hooks'
+import { useFetchHook } from '@/hooks'
 import { GSMessageService, GlobalDialogController } from '@/components'
 import Api from '@/api/api'
 
 export interface ItemEditHookOptions {
-  /** 用于控制事件监听器只会被附加一次的 flag */
-  isRoot?: boolean
   initFormData?: () => API.ItemVo
 }
 
 const sharedEditSame = ref<0 | 1>(0)
 
-const { refresh: submit, onSuccess, onError, ...rest } = useFetchHook({
-  onRequest: (editSame: 0 | 1, item: API.ItemVo) => Api.item.updateItem({ editSame }, [item]),
-})
-
 export const useItemEdit = (options: ItemEditHookOptions = {}) => {
-  const { isRoot = false, initFormData } = options
+  const { initFormData } = options
+
+  const { refresh: submit, onSuccess, onError, ...rest } = useFetchHook({
+    onRequest: (editSame: 0 | 1, item: API.ItemVo) => Api.item.updateItem({ editSame }, [item]),
+  })
 
   const detailFormRef = ref<InstanceType<typeof ItemDetailForm> | null>(null)
   const formData = ref<API.ItemVo>(initFormData?.() ?? {})
@@ -45,42 +42,23 @@ export const useItemEdit = (options: ItemEditHookOptions = {}) => {
     if (!isValid)
       return
     const form = pickRequiredKeys(formData.value)
-    form.version = (form.version ?? 0) + 1
     await submit(sharedEditSame.value, form)
   }
 
-  if (isRoot) {
-    onSuccess(() => {
-      GSMessageService.info('编辑成功', {
-        type: 'success',
-        duration: 3000,
-      })
-      GlobalDialogController.close()
+  onSuccess(() => {
+    GSMessageService.info('编辑成功', {
+      type: 'success',
+      duration: 3000,
     })
-    onError((err) => {
-      GSMessageService.info(`编辑失败: ${err.message}`, {
-        type: 'error',
-        duration: 50000,
-      })
+    GlobalDialogController.close()
+  })
+
+  onError((err) => {
+    GSMessageService.info(`编辑失败: ${err.message}`, {
+      type: 'error',
+      duration: 50000,
     })
-  }
+  })
 
-  const { DialogService } = useGlobalDialog()
-  const openItemEditorDialog = (item: API.ItemVo, editSame: 0 | 1 = 0) => {
-    DialogService
-      .config({
-        width: 'fit-content',
-        alignCenter: true,
-        showClose: false,
-        closeOnClickModal: false,
-        closeOnPressEscape: false,
-      })
-      .props({
-        item,
-      })
-      .open(ItemEditor)
-    sharedEditSame.value = editSame
-  }
-
-  return { detailFormRef, formData, handleSubmit, openItemEditorDialog, onSuccess, onError, ...rest }
+  return { detailFormRef, formData, handleSubmit, onSuccess, onError, ...rest }
 }

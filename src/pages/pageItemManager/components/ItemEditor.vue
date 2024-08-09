@@ -14,9 +14,15 @@ const props = withDefaults(defineProps<ItemEditorProps>(), {
   editSame: 0,
 })
 
-const { detailFormRef, formData, loading, handleSubmit } = useItemEdit({
+const emits = defineEmits<{
+  success: []
+}>()
+
+const { detailFormRef, formData, loading, handleSubmit, onSuccess } = useItemEdit({
   initFormData: () => cloneDeep(props.item),
 })
+
+onSuccess(() => emits('success'))
 </script>
 
 <template>

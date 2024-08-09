@@ -1,10 +1,19 @@
 <script lang="ts" setup>
 import type { ItemQueryForm } from './hooks'
 import { ExplorerType } from './shared'
-import { useItemCreate, useItemEdit, useItemList } from './hooks'
-import { ItemDeleteConfirm, ItemFilter, ItemGridExplorer, ItemTable } from './components'
+import { useItemList } from './hooks'
+import { ItemCreator, ItemDeleteConfirm, ItemEditor, ItemFilter, ItemGridExplorer, ItemTable } from './components'
 import { PgUnit, useGlobalDialog, usePagination } from '@/hooks'
 import { ManagerModule } from '@/shared'
+
+const { DialogService } = useGlobalDialog()
+
+const COMMON_CONFIG = {
+  alignCenter: true,
+  closeOnClickModal: false,
+  closeOnPressEscape: false,
+  showClose: false,
+}
 
 // ==================== 筛选信息 ====================
 const { pagination, layout, onChange: onPaginationChange } = usePagination({
@@ -30,36 +39,31 @@ onPaginationChange(updateItemList)
 const explorerType = ref<ExplorerType>(ExplorerType.Grid)
 
 // ==================== 新增物品 ====================
-const { openItemCreatorDialog, onSuccess: onCreateSuccess } = useItemCreate({
-  isRoot: true,
-})
-onCreateSuccess(updateItemList)
+const openItemCreatorDialog = () => {
+  DialogService
+    .config(COMMON_CONFIG)
+    .listeners({ success: updateItemList })
+    .open(ItemCreator)
+}
 
 // ==================== 编辑物品 ====================
-// TODO 批量编辑
-const { openItemEditorDialog, onSuccess: onEditSuccess } = useItemEdit({
-  isRoot: true,
-})
-onEditSuccess(updateItemList)
+const openItemEditorDialog = (item: API.ItemVo) => {
+  DialogService
+    .config(COMMON_CONFIG)
+    .props({ item })
+    .listeners({ success: updateItemList })
+    .open(ItemEditor)
+}
 
 // ==================== 删除物品 ====================
 
-const { DialogService } = useGlobalDialog()
-
-const confirmDelete = (item: API.ItemVo) => DialogService
-  .config({
-    alignCenter: true,
-    showClose: false,
-    closeOnClickModal: false,
-    closeOnPressEscape: false,
-  })
-  .props({
-    item,
-  })
-  .listeners({
-    success: updateItemList,
-  })
-  .open(ItemDeleteConfirm)
+const confirmDelete = (item: API.ItemVo) => {
+  DialogService
+    .config(COMMON_CONFIG)
+    .props({ item })
+    .listeners({ success: updateItemList })
+    .open(ItemDeleteConfirm)
+}
 </script>
 
 <template>

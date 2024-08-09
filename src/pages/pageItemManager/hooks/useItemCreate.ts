@@ -1,28 +1,26 @@
 import type { ItemDetailForm } from '../components'
-import { ItemCreator } from '../components'
-import { useFetchHook, useGlobalDialog } from '@/hooks'
+import { useFetchHook } from '@/hooks'
 import { GSMessageService, GlobalDialogController } from '@/components'
 
 import { HiddenFlagEnum, IconStyle } from '@/shared'
 import Api from '@/api/api'
-
-const { refresh: submit, onSuccess, onError, ...rest } = useFetchHook({
-  onRequest: (item: API.ItemVo) => Api.item.createItem(item),
-})
 
 export interface ItemCreateHookOptions {
   /** 用于控制事件监听器只会被附加一次的 flag */
   isRoot?: boolean
 }
 
-export const useItemCreate = (options: ItemCreateHookOptions = {}) => {
-  const { isRoot = false } = options
+export const useItemCreate = () => {
+  const { refresh: submit, onSuccess, onError, ...rest } = useFetchHook({
+    onRequest: (item: API.ItemVo) => Api.item.createItem(item),
+  })
 
   const initFormData = (): API.ItemVo => ({
     defaultCount: 1,
     defaultRefreshTime: 0,
     typeIdList: [],
     hiddenFlag: HiddenFlagEnum.SHOW,
+    iconTag: '',
     iconStyleType: IconStyle.DEFAULT,
     sortIndex: 0,
   })
@@ -37,32 +35,18 @@ export const useItemCreate = (options: ItemCreateHookOptions = {}) => {
     await submit(formData.value)
   }
 
-  if (isRoot) {
-    onSuccess(() => {
-      GSMessageService.info('新增成功，数据同步可能需要几分钟时间', {
-        type: 'success',
-        duration: 5000,
-      })
-      GlobalDialogController.close()
-    })
-    onError(err => GSMessageService.info(`新增失败：${err.message}`, {
-      type: 'error',
+  onSuccess(() => {
+    GSMessageService.info('新增成功，数据同步可能需要几分钟时间', {
+      type: 'success',
       duration: 5000,
-    }))
-  }
+    })
+    GlobalDialogController.close()
+  })
 
-  const { DialogService } = useGlobalDialog()
-  const openItemCreatorDialog = () => {
-    DialogService
-      .config({
-        width: 'fit-content',
-        alignCenter: true,
-        closeOnClickModal: false,
-        closeOnPressEscape: false,
-        showClose: false,
-      })
-      .open(ItemCreator)
-  }
+  onError(err => GSMessageService.info(`新增失败：${err.message}`, {
+    type: 'error',
+    duration: 5000,
+  }))
 
-  return { formData, detailFormRef, openItemCreatorDialog, initFormData, handleSubmit, onSuccess, ...rest }
+  return { formData, detailFormRef, initFormData, handleSubmit, onSuccess, ...rest }
 }
