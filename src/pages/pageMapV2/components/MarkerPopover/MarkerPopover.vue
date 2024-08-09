@@ -26,7 +26,7 @@ const { isFinished, toggle: toggleFinished } = useMarkerFinished(cachedMarkerVo)
 
 const { isMoving, isEnable, position } = useMarkerMove(cachedMarkerVo)
 
-const { isUnderground, hiddenFlagType, refreshTimeType } = useMarkerExtra(cachedMarkerVo)
+const { hiddenFlagType, refreshTimeType } = useMarkerExtra(cachedMarkerVo)
 
 // 被动点位更新
 markerStore.onMarkerUpdate((marker) => {
@@ -75,17 +75,13 @@ const openMarkerEditor = async () => {
 const { confirmDeleteMarker } = useMarkerDelete()
 
 // 预览点位视频
-const playBilibiliVideo = () => {
-  if (!cachedMarkerVo.value)
-    return
+const playBilibiliVideo = (url: string) => {
   DialogService
     .config({
       alignCenter: true,
       width: 'fit-content',
     })
-    .props({
-      url: cachedMarkerVo.value.videoPath,
-    })
+    .props({ url })
     .open(AppBilibiliVideoPlayer)
 }
 
@@ -132,16 +128,36 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
               <el-skeleton-item variant="image" style="width: 100%; height: 100%;" />
             </template>
             <template #default>
-              <el-image
-                v-if="pictureUrl"
-                :src="pictureUrl"
-                :preview-src-list="[pictureUrl]"
-                preview-teleported
-                fit="cover"
-                class="w-64 h-64"
-              />
-              <div v-else class="w-64 h-64 grid place-items-center bg-[#4A5366] text-[#D3BC8E]">
-                没有图片
+              <div class="w-64 h-64 relative">
+                <el-image
+                  v-if="pictureUrl"
+                  :src="pictureUrl"
+                  :preview-src-list="[pictureUrl]"
+                  preview-teleported
+                  fit="cover"
+                  class="w-64 h-64"
+                />
+                <div v-else class="w-64 h-64 grid place-items-center bg-[#4A5366] text-[#D3BC8E]">
+                  没有图片
+                </div>
+                <div
+                  v-if="cachedMarkerVo.videoPath"
+                  class="
+                    w-6 h-6 rounded-sm grid place-content-center
+                    absolute bottom-[4px] left-[4px]
+                    text-xs text-[#676D7A]
+                  bg-[#ece5d8de]
+                    z-10
+                    cursor-pointer
+                    hover:bg-[#ece5d8]
+                  "
+                  title="预览视频"
+                  @click="() => playBilibiliVideo(cachedMarkerVo!.videoPath!)"
+                >
+                  <el-icon :size="20">
+                    <VideoCamera />
+                  </el-icon>
+                </div>
               </div>
             </template>
           </el-skeleton>
@@ -155,13 +171,11 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
 
         <template #append>
           <div class="flex gap-1 pt-0 p-1">
-            <el-tag>{{ isUnderground ? '非地面' : '地面' }}</el-tag>
             <el-tag>{{ hiddenFlagType }}</el-tag>
             <el-tag>{{ refreshTimeType }}</el-tag>
             <el-tag v-if="cachedMarkerVo.linkageId">
               关联
             </el-tag>
-            <el-button v-if="cachedMarkerVo.videoPath" size="small" :icon="VideoCamera" @click="playBilibiliVideo" />
           </div>
         </template>
 
