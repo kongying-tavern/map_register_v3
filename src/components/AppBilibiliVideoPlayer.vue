@@ -3,16 +3,17 @@ const props = defineProps<{
   url: string
 }>()
 
-const urlObject = computed(() => new URL(props.url))
-
-const bvid = computed(() => urlObject.value.pathname.match(/(?<=(\/video\/))\S+(?=\/)/)?.[0])
+useUrlSearchParams()
 
 const playerUrl = computed(() => {
-  if (!bvid.value)
+  const bvid = props.url.match(/\/video\/([a-zA-Z0-9]+)/)?.[1]
+  if (!bvid)
     return ''
-  const params = new URLSearchParams(urlObject.value.searchParams)
-  params.set('bvid', bvid.value)
-  return `//player.bilibili.com/player.html?${params.toString()}`
+  const urlObject = new URL(props.url)
+  const params = new URLSearchParams(urlObject.searchParams)
+  params.set('bvid', bvid)
+  const iframeUrl = `//player.bilibili.com/player.html?${params.toString()}`
+  return iframeUrl
 })
 </script>
 
@@ -23,7 +24,7 @@ const playerUrl = computed(() => {
     border="0"
     frameborder="no"
     framespacing="0"
-    allowfullscreen
+    allowfullscreen="true"
     style="width: 640px; height: 400px; border-radius: 8px;"
   />
 </template>
