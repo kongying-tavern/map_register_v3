@@ -123,13 +123,15 @@ export const useTweaks = (markerList: ComputedRef<GSMapState.MarkerWithRenderCon
     .set('title', createFactory(TextModifier, {
       field: 'markerTitle',
       label: '点位标题',
-      allowMultiline: false,
+      matchMultiline: false,
+      replaceMultiline: false,
     }))
     .set('content', createFactory(TextModifier, {
       field: 'content',
       label: '描述内容',
       previewHeight: 90,
-      allowMultiline: true,
+      matchMultiline: true,
+      replaceMultiline: true,
     }))
     .set('refreshTime', createFactory(TimeModifier, {
       field: 'refreshTime',

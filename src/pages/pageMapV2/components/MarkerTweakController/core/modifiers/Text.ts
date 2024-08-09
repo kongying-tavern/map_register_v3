@@ -2,7 +2,8 @@ import type { ModifierConstructorOptions } from '..'
 import { Modifier } from '..'
 
 export interface TextModifierProps {
-  allowMultiline?: boolean
+  matchMultiline?: boolean
+  replaceMultiline?: boolean
 }
 
 export class TextModifier extends Modifier<TextModifierProps> {

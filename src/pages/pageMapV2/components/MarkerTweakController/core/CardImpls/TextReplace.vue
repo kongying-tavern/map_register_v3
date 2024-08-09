@@ -43,8 +43,8 @@ const text = computed<string>({
       v-model="text"
       placeholder="替换为"
       clearable
-      :type="options.allowMultiline ? 'textarea' : 'text'"
-      :autosize="options.allowMultiline ? { minRows: 2, maxRows: 4 } : false"
+      :type="options.replaceMultiline ? 'textarea' : 'text'"
+      :autosize="options.replaceMultiline ? { minRows: 2, maxRows: 4 } : false"
     />
   </div>
 </template>
