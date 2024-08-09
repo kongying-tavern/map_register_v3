@@ -164,6 +164,7 @@ const isAddonActive = useAddonActive(addonId, 'extra')
             hover:border-[var(--el-color-primary-light-5)]
             select-none cursor-pointer
           "
+          @click="isAddonActive = true"
         >
           <div
             class="
