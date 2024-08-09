@@ -49,6 +49,18 @@ export class BinaryMask<T extends string = string> {
   }
 
   /**
+   * 将掩码解码为功能 key 列表
+   */
+  decode = (mask: number) => {
+    const keys: T[] = []
+    this.#indexMap.forEach((_, key) => {
+      const isActive = this.isActive(mask, key)
+      isActive && keys.push(key)
+    })
+    return keys
+  }
+
+  /**
    * 通过配置友好的方式构造一个初始掩码
    */
   build = (options: Record<T, boolean | undefined>): number => {
