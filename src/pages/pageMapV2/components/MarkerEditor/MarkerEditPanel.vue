@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { Check, Close } from '@element-plus/icons-vue'
+import { cloneDeep } from 'lodash'
 import { useMarkerEdit } from './hooks'
 import { MarkerEditorForm } from '.'
 import { GlobalDialogController } from '@/components'
@@ -12,7 +13,7 @@ const props = defineProps<{
 }>()
 
 /** 表单数据 */
-const form = ref(props.markerInfo ?? {})
+const form = ref(cloneDeep(props.markerInfo))
 
 const initAreaCode = asyncComputed(async () => {
   if (!form.value.itemList)
