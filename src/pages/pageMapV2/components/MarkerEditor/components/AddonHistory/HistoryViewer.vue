@@ -3,6 +3,7 @@ import HistoryDifferItem from './HistoryDifferItem.vue'
 import DifferCoord from './DifferCoord.vue'
 import DifferText from './DifferText.vue'
 import DifferItem from './DifferItem.vue'
+import DifferImage from './DifferImage.vue'
 import { HIDDEN_FLAG_NAME_MAP } from '@/shared'
 
 defineProps<{
@@ -96,7 +97,7 @@ const isItemDifferent = (current: API.MarkerItemLinkVo[] = [], history: API.Mark
         :auto-collapse="autoCollapse"
         :is-different="isPlainDifferent(newContent.picture, oldContent.picture)"
       >
-        <DifferText
+        <DifferImage
           :current="newContent.picture"
           :history="oldContent.picture"
         />
