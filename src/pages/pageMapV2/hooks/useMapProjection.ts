@@ -3,12 +3,13 @@ import { useMapStateStore, useTileStore } from '@/stores'
 
 export interface MapProjectionHookOptions {
   noCovertCoord?: boolean
+  integer?: boolean
 }
 
 export const useMapProjection = (coord: API.Coordinate2D | Ref<API.Coordinate2D | undefined>, options: MapProjectionHookOptions = {}) => {
-  const { noCovertCoord = false } = options
+  const { noCovertCoord = false, integer = false } = options
 
-  const viewRef = inject(genshinMapCanvasKey, ref(null))
+  const viewRef = inject(genshinMapCanvasKey, ref())
 
   const { width, height } = useElementSize(viewRef)
   const mapStateStore = useMapStateStore()
@@ -35,7 +36,9 @@ export const useMapProjection = (coord: API.Coordinate2D | Ref<API.Coordinate2D 
     const lx = (x + coordOffsetX - tx) * scale
     const ly = (y + coordOffsetY - ty) * scale
     const [cx, cy] = center.value
-    return [cx + lx, cy + ly]
+    return integer
+      ? [Math.floor(cx + lx), Math.floor(cy + ly)]
+      : [cx + lx, cy + ly]
   })
 
   return {
