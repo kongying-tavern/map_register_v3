@@ -26,7 +26,17 @@ withDefaults(defineProps<{
 
         <slot name="prepend" />
 
-        <el-scrollbar :height="128" class="text-sm" always>
+        <el-scrollbar
+          :height="160"
+          class="text-sm"
+          always
+          style="
+            --el-scrollbar-opacity: 0.6;
+            --el-scrollbar-hover-opacity: 1;
+            --el-scrollbar-bg-color: #4A5366;
+            --el-scrollbar-hover-bg-color: #434343;
+          "
+        >
           <div class="p-1 px-2">
             <slot name="content" />
           </div>
