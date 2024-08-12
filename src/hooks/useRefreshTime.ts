@@ -1,6 +1,12 @@
 import { useRefreshTimeOptions } from '.'
 
-export const useRefreshTime = (refreshTime: Ref<number | undefined>) => {
+interface RefreshTimeHookOptions {
+  toHumanFriendly?: (days: number, hours: number, minutes: number) => string
+}
+
+export const useRefreshTime = (refreshTime: Ref<number | undefined>, options: RefreshTimeHookOptions = {}) => {
+  const { toHumanFriendly } = options
+
   const { refreshTimeOptions, refreshTimeTypeOptions, refreshTimeTypeNameMap, refreshTimeTypeMap } = useRefreshTimeOptions()
 
   const refreshTimeType = computed({
@@ -20,12 +26,12 @@ export const useRefreshTime = (refreshTime: Ref<number | undefined>) => {
 
   const humanFriendlyTimeText = computed(() => {
     if (!isCustom.value)
-      return ''
+      return toHumanFriendly?.(0, 0, 0) ?? ''
     const time = Number(refreshTime.value) || 0
     const days = Math.floor(time / 86400000)
     const hours = Math.floor((time % 86400000) / 3600000)
     const minutes = Math.floor((time % 3600000) / 60000)
-    return `${days} 天 ${hours} 小时 ${minutes} 分钟`
+    return toHumanFriendly?.(days, hours, minutes) ?? `${days} 天 ${hours} 小时 ${minutes} 分钟`
   })
 
   return {
