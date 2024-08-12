@@ -25,15 +25,9 @@ const emitClose = () => {
 
     <div
       class="title-action"
-      :class="[
-        disabled
-          ? 'cursor-not-allowed'
-          : '\
-            hover:bg-[var(--el-color-danger)]\
-            hover:text-[var(--el-bg-color)]\
-            active:bg-[var(--el-color-danger-light-3)]\
-            active:text-[var(--el-bg-color)]',
-      ]"
+      :class="{
+        'is-disabled': disabled,
+      }"
       @click="emitClose"
     >
       <el-icon :size="16">
@@ -46,7 +40,7 @@ const emitClose = () => {
 <style scoped>
 .win-dialog-title-bar {
   @apply
-    flex justify-between items-center
+    flex justify-between items-start
     bg-[var(--el-color-primary-light-9)]
   ;
 }
@@ -62,9 +56,27 @@ const emitClose = () => {
 .title-action {
   @apply
     h-full p-1.5 px-2
-    flex items-center
+    grid place-content-center
     transition-all
     select-none
   ;
+
+  &:not(.is-disabled):hover {
+    @apply
+      bg-[var(--el-color-danger)]
+      text-[var(--el-bg-color)]
+    ;
+  }
+
+  &:not(.is-disabled):active {
+    @apply
+      bg-[var(--el-color-danger-light-3)]
+      text-[var(--el-bg-color)]
+    ;
+  }
+
+  &.is-disabled {
+    @apply cursor-not-allowed;
+  }
 }
 </style>
