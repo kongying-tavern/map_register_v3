@@ -113,23 +113,6 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
     <template #default="{ zoom }">
       <MarkerPanel :actived="isPopoverActived" :zoom="zoom">
         <template #header>
-          <div
-            class="
-              flex-shrink-0 px-1 rounded-sm
-              absolute top-full left-0
-              translate-y-1 translate-x-1
-              text-xs decoration-dashed underline-offset-2
-              text-[#676D7A]
-              bg-[#ece5d8de]
-              hover:underline
-              active:decoration-solid
-              cursor-pointer
-            "
-            @click="copyId"
-          >
-            {{ idText }}
-          </div>
-
           <AppIconTagRenderer
             class="w-7 h-7 flex-shrink-0"
             :src="tagSpriteUrl"
@@ -153,48 +136,56 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
           </el-icon>
         </template>
 
+        <template #prepend>
+          <div class="h-8 p-1 flex gap-1 text-xs text-[#676D7A] z-10">
+            <div
+              class="
+                info-tag is-interactive
+                decoration-dashed underline-offset-2
+                hover:underline
+                active:decoration-solid
+              "
+              @click="copyId"
+            >
+              {{ idText }}
+            </div>
+            <div
+              v-if="cachedMarkerVo.videoPath"
+              class="info-tag is-interactive"
+              title="预览视频"
+              @click="() => playBilibiliVideo(cachedMarkerVo!.videoPath!)"
+            >
+              <el-icon :size="20">
+                <VideoCamera />
+              </el-icon>
+            </div>
+            <div class="info-tag">
+              {{ hiddenFlagType }}
+            </div>
+            <div class="info-tag">
+              {{ refreshTimeText }}
+            </div>
+          </div>
+        </template>
+
         <template #picture>
-          <el-skeleton style="width: 256px; height: 256px" :loading="imageLoading" animated>
+          <el-skeleton style="width: 256px; height: 200px" :loading="imageLoading" animated>
             <template #template>
               <el-skeleton-item variant="image" style="width: 100%; height: 100%;" />
             </template>
             <template #default>
-              <div class="w-64 h-64 relative">
+              <div
+                class="w-64 grid place-content-center bg-[#4A5265] text-[#D3BC8E] transition-[height]"
+                :class="pictureUrl ? 'h-[200px]' : 'h-0'"
+              >
                 <el-image
                   v-if="pictureUrl"
                   :src="pictureUrl"
                   :preview-src-list="[pictureUrl]"
                   preview-teleported
                   fit="cover"
-                  class="w-64 h-64"
+                  style="height: 100%"
                 />
-                <div v-else class="w-64 h-64 grid place-items-center relative bg-[#4A5366] text-[#D3BC8E]">
-                  没有图片
-                </div>
-                <div class="h-6 flex gap-1 absolute bottom-[4px] left-[4px] text-xs z-10">
-                  <div
-                    v-if="cachedMarkerVo.videoPath"
-                    class="
-                      w-6 rounded-sm
-                      grid place-content-center
-                      text-[#676D7A] bg-[#ece5d8de]
-                      cursor-pointer
-                      hover:bg-[#ece5d8]
-                    "
-                    title="预览视频"
-                    @click="() => playBilibiliVideo(cachedMarkerVo!.videoPath!)"
-                  >
-                    <el-icon :size="20">
-                      <VideoCamera />
-                    </el-icon>
-                  </div>
-                  <div class="h-6 px-1 rounded-sm grid place-content-center text-xs text-[#676D7A] bg-[#ece5d8de]">
-                    {{ hiddenFlagType }}
-                  </div>
-                  <div class="h-6 px-1 rounded-sm grid place-content-center text-xs text-[#676D7A] bg-[#ece5d8de]">
-                    {{ refreshTimeText }}
-                  </div>
-                </div>
               </div>
             </template>
           </el-skeleton>
@@ -269,3 +260,21 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
     </template>
   </MapAffix>
 </template>
+
+<style scoped>
+.info-tag {
+  @apply
+    h-6 px-1 rounded-sm
+    grid place-content-center
+    text-xs
+    bg-[#faf5ed]
+  ;
+
+  &.is-interactive {
+    @apply cursor-pointer;
+    &:hover {
+      @apply bg-[#ece5d8];
+    }
+  }
+}
+</style>

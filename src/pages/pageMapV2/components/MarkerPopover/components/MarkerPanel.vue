@@ -22,9 +22,9 @@ withDefaults(defineProps<{
       </div>
 
       <div class="popover-body overflow-hidden flex flex-col">
-        <slot name="picture" />
-
         <slot name="prepend" />
+
+        <slot name="picture" />
 
         <el-scrollbar
           :height="160"
