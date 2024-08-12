@@ -18,6 +18,7 @@ const props = defineProps<{
   modelValue: API.MarkerVo
   initAreaCode?: string
   loading?: boolean
+  title?: string
 }>()
 
 const emits = defineEmits<{
@@ -122,7 +123,9 @@ defineExpose({
       :loading="loading"
       @close="() => emits('close')"
     >
-      {{ form.id === undefined ? '添加点位' : `(id: ${form.id}) ${form.markerTitle}` }}
+      <slot name="title">
+        {{ title }}
+      </slot>
     </WinDialogTitleBar>
 
     <WinDialogTabPanel>

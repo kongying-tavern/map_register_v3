@@ -43,6 +43,7 @@ const isOfflineMode = import.meta.env.VITE_DEVELOPMENT_MODE === 'offline'
     v-if="initAreaCode"
     ref="editorRef"
     v-model="form"
+    :title="`${markerInfo.id} ${markerInfo.markerTitle}`"
     :loading="loading"
     :init-area-code="initAreaCode"
     @close="() => GlobalDialogController.close(markerInfo)"

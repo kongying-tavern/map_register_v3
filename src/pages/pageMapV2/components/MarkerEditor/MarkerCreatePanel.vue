@@ -56,6 +56,7 @@ onSuccess(GlobalDialogController.close)
   <MarkerEditorForm
     ref="editorRef"
     v-model="form"
+    title="新增点位"
     :loading="loading"
     :init-area-code="initAreaCode"
     @close="GlobalDialogController.close"
