@@ -15,9 +15,9 @@ const OPTIONS = {
   /** 心跳包 */
   HEARTBEAT: {
     /** 心跳包发送间隔 */
-    INTERVAL: 3000,
+    INTERVAL: 30000,
     /** 超时判定时间 */
-    TIMEOUT: 10000,
+    TIMEOUT: 30000,
   },
   /** 断线重连 */
   RECONNECT: {
@@ -196,7 +196,7 @@ open$.pipe(
     // 超时检查的 Observable
     const pongOrTimeout = race(
       pingAndWaitForPong, // 等待 Pong
-      timer(OPTIONS.HEARTBEAT.TIMEOUT).pipe(map(() => 'timeout')), // 设置 5 秒定时器作为超时信号
+      timer(OPTIONS.HEARTBEAT.TIMEOUT).pipe(map(() => 'timeout')), // 超时信号
     )
 
     // 处理 Pong 或超时事件
