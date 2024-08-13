@@ -1,47 +1,43 @@
 <script setup lang="ts">
 import BarItem from './BarItem.vue'
 import { MapOverlayController, MapWindowTeleporter, mapWindowContext as windowCtx } from '@/pages/pageMapV2/components'
-import { useOverlayStore } from '@/stores'
+import { usePreferenceStore } from '@/stores'
 
-const overlayStore = useOverlayStore()
-
-const overlayCache = ref(new Set(overlayStore.activedItemIds))
-const cachable = ref(false)
+const preferenceStore = usePreferenceStore()
 
 const id = crypto.randomUUID()
 
 const MIN_WIDTH = window.matchMedia('(min-width: 600px)').matches ? 440 : 240
 
 const overlayVisible = computed({
-  get: () => Boolean(windowCtx.getWindow(id)),
-  set: (visible) => {
-    if (!visible) {
-      windowCtx.closeWindow(id)
-      return
-    }
-    cachable.value = true
-    const { clientWidth } = document.body
-    overlayStore.activedItemIds = overlayCache.value
-    windowCtx.openWindow({
-      id,
-      name: '附加图层控制器',
-      minWidth: MIN_WIDTH,
-      minHeight: 420,
-      x: clientWidth - MIN_WIDTH - 6,
-      y: 8,
-      beforeClose: () => {
-        cachable.value = false
-        overlayStore.activedItemIds.clear()
-        return true
-      },
-    })
+  get: () => preferenceStore.preference['map.state.showOverlay'],
+  set: (bool) => {
+    preferenceStore.preference['map.state.showOverlay'] = bool
   },
 })
 
-watch(() => overlayStore.activedItemIds.size, () => {
-  if (!cachable.value)
+watch(overlayVisible, (visible) => {
+  if (!visible) {
+    windowCtx.closeWindow(id)
     return
-  overlayCache.value = new Set(overlayStore.activedItemIds)
+  }
+  const { clientWidth } = document.body
+  windowCtx.openWindow({
+    id,
+    name: '附加图层控制器',
+    minWidth: MIN_WIDTH,
+    minHeight: 420,
+    x: clientWidth - MIN_WIDTH - 6,
+    y: 8,
+    beforeClose: () => {
+      overlayVisible.value = false
+      return true
+    },
+  })
+}, { immediate: true })
+
+onUnmounted(() => {
+  windowCtx.closeWindow(id)
 })
 </script>
 

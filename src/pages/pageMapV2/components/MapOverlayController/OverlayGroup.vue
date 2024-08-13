@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { ElCheckbox, ElRadio } from 'element-plus'
 import type { OverlayChunk, OverlayChunkGroup } from '@/stores'
 import { useMapStateStore, useOverlayStore } from '@/stores'
 
@@ -17,6 +18,21 @@ const items = computed(() => Map.groupBy(props.group.chunks, ({ item }) => {
   return item
 }))
 
+const tileModelValue = computed({
+  get: () => {
+    const item = [...items.value.entries()].find(([{ id: itemId }]) => {
+      return overlayStore.activedItemIds.has(itemId)
+    })
+    if (!item)
+      return ''
+    return item[0].id
+  },
+  set: (itemId) => {
+    items.value.forEach((_, { id }) => overlayStore.activedItemIds.delete(id))
+    overlayStore.activedItemIds.add(itemId)
+  },
+})
+
 const resetItemVisible = () => {
   items.value.forEach((_, { id }) => {
     overlayStore.activedItemIds.delete(id)
@@ -29,6 +45,10 @@ const updateHover = (chunks: OverlayChunk[] | null) => {
   if (!chunks)
     return removeHover('overlay')
   setHover<string>('overlay', new Set(chunks.map(({ id }) => id)))
+}
+
+const toggleOverlayItem = (itemId: string, bool: boolean) => {
+  overlayStore.activedItemIds[bool ? 'add' : 'delete'](itemId)
 }
 </script>
 
@@ -75,24 +95,47 @@ const updateHover = (chunks: OverlayChunk[] | null) => {
     </div>
 
     <div class="flex flex-wrap p-1 gap-1">
-      <el-checkbox
-        v-for="([item, chunks]) in items"
-        :key="item.id"
-        class="overlay-item"
-        :class="{
-          'is-actived': overlayStore.activedItemIds.has(item.id),
-        }"
-        style="margin-right: 0"
-        :model-value="overlayStore.activedItemIds.has(item.id)"
-        :title="item.name"
-        @update:model-value="v => overlayStore.activedItemIds[Boolean(v) ? 'add' : 'delete'](item.id)"
-        @pointerenter="() => updateHover(chunks)"
-        @pointerleave="() => updateHover(null)"
-      >
-        <div class="flex-1 overflow-hidden whitespace-nowrap text-ellipsis">
-          {{ item.name === group.name ? group.name : item.name.replace(group.name, '') }}
-        </div>
-      </el-checkbox>
+      <template v-if="group.role === 'tile'">
+        <ElRadio
+          v-for="([item, chunks]) in items"
+          :key="item.id"
+          v-model="tileModelValue"
+          :title="item.name"
+          :value="item.id"
+          :class="{
+            'is-actived': overlayStore.activedItemIds.has(item.id),
+          }"
+          class="overlay-item"
+          style="margin-right: 0"
+          @pointerenter="() => updateHover(chunks)"
+          @pointerleave="() => updateHover(null)"
+        >
+          <div class="flex-1 overflow-hidden whitespace-nowrap text-ellipsis">
+            {{ item.name === group.name ? group.name : item.name.replace(group.name, '') }}
+          </div>
+        </ElRadio>
+      </template>
+
+      <template v-else>
+        <ElCheckbox
+          v-for="([item, chunks]) in items"
+          :key="item.id"
+          class="overlay-item"
+          :class="{
+            'is-actived': overlayStore.activedItemIds.has(item.id),
+          }"
+          style="margin-right: 0"
+          :model-value="overlayStore.activedItemIds.has(item.id)"
+          :title="item.name"
+          @update:model-value="v => toggleOverlayItem(item.id, Boolean(v))"
+          @pointerenter="() => updateHover(chunks)"
+          @pointerleave="() => updateHover(null)"
+        >
+          <div class="flex-1 overflow-hidden whitespace-nowrap text-ellipsis">
+            {{ item.name === group.name ? group.name : item.name.replace(group.name, '') }}
+          </div>
+        </ElCheckbox>
+      </template>
     </div>
   </div>
 </template>

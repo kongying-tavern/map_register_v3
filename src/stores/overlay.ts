@@ -202,6 +202,24 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
     return result
   })
 
+  // 初始化地图类型附加图层
+  watch(normalizedOverlayChunks, (chunks) => {
+    const selectedItemInGroup = new Map<string, string>()
+    chunks.forEach((chunk) => {
+      const { role, id: groupId } = chunk.group
+      const { id: itemId } = chunk.item
+      // 底图图层在每组内只能为单选
+      if (role !== 'tile' || selectedItemInGroup.has(groupId))
+        return
+      selectedItemInGroup.set(groupId, itemId)
+    })
+    const itemIdSet = new Set<string>()
+    selectedItemInGroup.forEach((itemId) => {
+      itemIdSet.add(itemId)
+    })
+    activedItemIds.value = itemIdSet
+  }, { immediate: true })
+
   const items = computed(() => {
     const itemGroups = Map.groupBy(normalizedOverlayChunks.value, chunk => chunk.item)
     return [...itemGroups.entries()].map(([item, chunks]) => ({
@@ -257,7 +275,14 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
   })
 
   const showMask = computed((): boolean => {
-    return isOverlaysHasMask.value && Boolean(existOverlays.value.find(chunk => activedItemIds.value.has(chunk.item.id) && chunk.group.mask))
+    if (!isOverlaysHasMask.value)
+      return false
+    return Boolean(existOverlays.value.find((chunk) => {
+      const { role, mask } = chunk.group
+      if (!mask || role === 'tile')
+        return false
+      return activedItemIds.value.has(chunk.item.id)
+    }))
   })
 
   return {
