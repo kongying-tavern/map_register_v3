@@ -278,8 +278,8 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
     if (!isOverlaysHasMask.value)
       return false
     return Boolean(existOverlays.value.find((chunk) => {
-      const { role, mask } = chunk.group
-      if (!mask || role === 'tile')
+      const { role } = chunk.group
+      if (role === 'tile')
         return false
       return activedItemIds.value.has(chunk.item.id)
     }))
