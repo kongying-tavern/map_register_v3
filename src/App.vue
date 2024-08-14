@@ -8,11 +8,21 @@ import {
   AppUserInfo,
   GSMessageProvider,
 } from '@/components'
-import { useBanner } from '@/hooks'
-import { useSocketStore, useUserAuthStore } from '@/stores'
+import { useBanner, useTheme } from '@/hooks'
+import { usePreferenceStore, useShortcutStore, useSocketStore, useUserAuthStore } from '@/stores'
 
 const socketStore = useSocketStore()
+const shortcutStore = useShortcutStore()
 const userSuthStore = useUserAuthStore()
+const preferenceStore = usePreferenceStore()
+
+const { isDark } = useTheme()
+shortcutStore.useKeys(
+  computed(() => preferenceStore.preference['app.shortcutKey.toggleDarkMode']),
+  () => {
+    isDark.value = !isDark.value
+  },
+)
 
 // 开发模式下显示 banner
 const { visible } = useBanner()
