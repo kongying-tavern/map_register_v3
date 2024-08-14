@@ -1,19 +1,8 @@
 <script lang="ts" setup>
-import {
-  Close,
-  Coin,
-  Expand,
-  Files,
-  MapLocation,
-  Monitor,
-  Moon,
-  MostlyCloudy,
-  Star,
-  Sunny,
-  TurnOff,
-} from '@element-plus/icons-vue'
+import * as El from '@element-plus/icons-vue'
 import {
   ModuleAbout,
+  ModuleApp,
   ModuleDashboard,
   ModuleDatabase,
   ModuleDeveloper,
@@ -29,13 +18,14 @@ const { isDark } = useTheme()
 const preferenceStore = usePreferenceStore()
 
 const settingOptions: { key: string; name: string; is: Component; icon?: Component }[] = [
-  { key: 'dashboard', name: '基本信息', is: ModuleDashboard, icon: Monitor },
-  { key: 'mapsetting', name: '地图', is: ModuleMapSetting, icon: MapLocation },
-  { key: 'manager', name: '管理组件', is: ModuleManager, icon: Files },
-  { key: 'database', name: '数据库', is: ModuleDatabase, icon: Coin },
-  { key: 'network', name: '网络', is: ModuleNetwork, icon: MostlyCloudy },
-  { key: 'developer', name: '开发者', is: ModuleDeveloper, icon: TurnOff },
-  { key: 'about', name: '关于空荧后厨', is: ModuleAbout, icon: Star },
+  { key: 'dashboard', name: '基本信息', is: ModuleDashboard, icon: El.Monitor },
+  { key: 'app', name: '应用', is: ModuleApp, icon: El.Box },
+  { key: 'mapsetting', name: '地图', is: ModuleMapSetting, icon: El.MapLocation },
+  { key: 'manager', name: '管理组件', is: ModuleManager, icon: El.Files },
+  { key: 'database', name: '数据库', is: ModuleDatabase, icon: El.Coin },
+  { key: 'network', name: '网络', is: ModuleNetwork, icon: El.MostlyCloudy },
+  { key: 'developer', name: '开发者', is: ModuleDeveloper, icon: El.TurnOff },
+  { key: 'about', name: '关于空荧后厨', is: ModuleAbout, icon: El.Star },
 ]
 
 const activedKey = computed({
@@ -65,13 +55,13 @@ const contentRef = ref<HTMLElement>()
     <div class="h-9 flex justify-between items-center p-0.5 mb-2">
       <div class="flex items-center gap-1">
         <span class="hidden max-[800px]:flex">
-          <el-button text :icon="Expand" @click="show = !show" />
+          <el-button text :icon="El.Expand" @click="show = !show" />
         </span>
         <span class="leading-9 px-2">设置</span>
         <el-switch
           v-model="isDark"
-          :active-action-icon="Moon"
-          :inactive-action-icon="Sunny"
+          :active-action-icon="El.Moon"
+          :inactive-action-icon="El.Sunny"
           style="
             --el-switch-on-color: var(--el-fill-color-darker);
           "
@@ -82,7 +72,7 @@ const contentRef = ref<HTMLElement>()
           text
           type="danger"
           style="--el-fill-color-light: var(--el-color-danger-light-7); --el-fill-color: var(--el-color-danger-light-9);"
-          :icon="Close"
+          :icon="El.Close"
           @click="GlobalDialogController.close"
         />
       </div>
