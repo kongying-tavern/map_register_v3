@@ -3,7 +3,7 @@ import { Check, Close } from '@element-plus/icons-vue'
 import { useMarkerCreate } from './hooks'
 import { MarkerEditorForm } from '.'
 import { GlobalDialogController } from '@/components'
-import { useAreaStore, useUserInfoStore } from '@/stores'
+import { useUserInfoStore } from '@/stores'
 
 const props = defineProps<{
   coordinate: API.Coordinate2D
@@ -11,16 +11,6 @@ const props = defineProps<{
 }>()
 
 const userInfoStore = useUserInfoStore()
-const areaStore = useAreaStore()
-
-const initAreaCode = computed(() => {
-  if (!props.defaultItem)
-    return
-  const area = areaStore.areaIdMap.get(props.defaultItem.areaId!)
-  if (!area)
-    return
-  return area.code!
-})
 
 /** 初始化新增点位信息 */
 const initFormData = (): API.MarkerVo => {
@@ -58,7 +48,6 @@ onSuccess(GlobalDialogController.close)
     v-model="form"
     title="新增点位"
     :loading="loading"
-    :init-area-code="initAreaCode"
     @close="GlobalDialogController.close"
   >
     <template #footer>

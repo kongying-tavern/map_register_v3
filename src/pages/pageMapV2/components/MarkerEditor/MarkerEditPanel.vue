@@ -5,7 +5,6 @@ import { ElMessage } from 'element-plus'
 import { useMarkerEdit } from './hooks'
 import { MarkerEditorForm } from '.'
 import { GlobalDialogController } from '@/components'
-import db from '@/database'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
 import { createRenderMarkers } from '@/stores/utils'
 
@@ -15,16 +14,6 @@ const props = defineProps<{
 
 /** 表单数据 */
 const form = ref(cloneDeep(props.markerInfo))
-
-const initAreaCode = asyncComputed(async () => {
-  if (!form.value.itemList)
-    return
-  const item = await db.item.get(form.value.itemList[0].itemId!)
-  if (!item)
-    return
-  const area = await db.area.get(item.areaId!)
-  return area?.code
-}, undefined)
 
 const { editorRef, loading, editMarker, onSuccess } = useMarkerEdit(form)
 
@@ -60,12 +49,10 @@ const copyId = async () => {
 
 <template>
   <MarkerEditorForm
-    v-if="initAreaCode"
     ref="editorRef"
     v-model="form"
     :title="`${markerInfo.id} ${markerInfo.markerTitle}`"
     :loading="loading"
-    :init-area-code="initAreaCode"
     @close="() => GlobalDialogController.close(markerInfo)"
   >
     <template #title>

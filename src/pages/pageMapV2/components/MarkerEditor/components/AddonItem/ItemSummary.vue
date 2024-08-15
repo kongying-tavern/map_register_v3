@@ -55,12 +55,9 @@ const itemDataList = computed({
   },
 })
 
-const areaCode = ref((() => {
-  const first = itemDataList.value[0]
-  if (!first)
-    return ''
-  return areaStore.areaIdMap.get(first._raw.areaId!)?.code ?? ''
-})())
+const areaCode = defineModel<string>('areaCode', {
+  required: true,
+})
 
 // 只要与地区 tab 交互就激活其附加面板
 watch(areaCode, () => {

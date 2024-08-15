@@ -11,13 +11,12 @@ import {
 import { useRules } from './validators'
 import type { InternalItemData } from './components/AddonItem/types'
 import { WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
-import { useAccessStore, useItemStore, useMarkerExtraStore } from '@/stores'
+import { useAccessStore, useAreaStore, useItemStore, useMarkerExtraStore } from '@/stores'
 import type { ElFormType } from '@/shared'
 import { HiddenFlagEnum, specialMask } from '@/shared'
 
 const props = defineProps<{
   modelValue: API.MarkerVo
-  initAreaCode?: string
   loading?: boolean
   title?: string
 }>()
@@ -27,15 +26,15 @@ const emits = defineEmits<{
   'close': []
 }>()
 
+const areaStore = useAreaStore()
 const itemStore = useItemStore()
 const accessStore = useAccessStore()
 
 /** 表单数据 */
-const form = ref<API.MarkerVo & { areaCode: string }>({
+const form = ref<API.MarkerVo>({
   ...props.modelValue,
   picture: props.modelValue.picture ?? '',
   extra: props.modelValue.extra ?? {},
-  areaCode: props.initAreaCode ?? '',
 })
 
 watch(form, () => {
@@ -63,6 +62,16 @@ const formRef = ref<ElFormType>()
 const markerExtraStore = useMarkerExtraStore()
 
 const itemsGroup = ref<Map<API.AreaVo, InternalItemData[]>>(new Map())
+
+const areaCode = ref((() => {
+  const first = form.value.itemList?.[0]
+  if (!first)
+    return ''
+  const item = itemStore.itemIdMap.get(first.itemId!)
+  if (!item)
+    return ''
+  return areaStore.areaIdMap.get(item.areaId!)?.code ?? ''
+})())
 
 const availableExtraConfig = computed(() => {
   const codes = [...itemsGroup.value.entries()].map(([area]) => area.code!)
@@ -136,8 +145,8 @@ const onAddonPanelTransitionEnd = (ev: TransitionEvent) => {
 
 // ==================== 面板样式 ====================
 const themeColor = computed(() => {
-  const { areaCode = '' } = form.value
-  const zone = areaCode.split(':')[1]
+  const code = toValue(areaCode)
+  const zone = code.split(':')[1]
   if (!zone)
     return '#409eff'
   return `var(--gs-color-${zone.toLowerCase()})`
@@ -186,6 +195,7 @@ defineExpose({
             <AddonItem
               v-model="form"
               v-model:items-group="itemsGroup"
+              v-model:area-code="areaCode"
               v-model:addon-id="addonId"
             />
             <template #error="{ error }">
