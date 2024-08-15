@@ -5,6 +5,7 @@ import { routerHook, userHook } from './hooks'
 import { Logger } from '@/utils'
 import Oauth from '@/api/oauth'
 import { USERAUTH_KEY } from '@/shared'
+import { router } from '@/router'
 
 export interface LocalAuth {
   refreshToken: string
@@ -35,8 +36,6 @@ const toCamelCaseObject = <T extends Record<string, unknown>>(obj: T): SnakeCase
 
 export const useUserAuthStore = defineStore('global-user-auth', () => {
   const auth = useLocalStorage<Partial<LocalAuth>>(USERAUTH_KEY, {})
-
-  const router = useRouter()
 
   const isSkipped = ref(false)
 
