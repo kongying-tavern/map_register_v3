@@ -62,7 +62,7 @@ export const useNoticeStore = defineStore('global-notice', () => {
   /** 未被阅读过的新公告数量 */
   const newCount = computed(() => {
     if (!preferenceStore.preference['notice.state.read'])
-      return 0
+      return noticeList.value.length
     const sum = noticeList.value.reduce((sum, notice) => {
       const readTime = readArchive.value.get(notice.id!)
       if (readTime === undefined || readTime < Number(notice.updateTime))
