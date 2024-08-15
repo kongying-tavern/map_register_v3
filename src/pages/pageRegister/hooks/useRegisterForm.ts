@@ -61,7 +61,7 @@ export const useRegisterForm = () => {
     userAuthStore.setAuth(auth)
     await router.push('/map')
     await archiveStore.fetchArchive()
-    archiveStore.loadLatestArchive()
+    await archiveStore.loadLatestArchive()
   })
 
   onError(err => ElMessage.error({
