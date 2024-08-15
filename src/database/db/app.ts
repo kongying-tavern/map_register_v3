@@ -21,6 +21,9 @@ export class AppDatabase extends Dexie {
   /** 点位关联 @全量接口 */
   declare markerLink: Dexie.Table<API.MarkerLinkageVo, number>
 
+  /** 用户存档 @仅限本地 */
+  declare userArchive: Dexie.Table<UserArchiveBody, number>
+
   /** 用户首选项 @仅限本地 */
   declare user: Dexie.Table<UserPreference, number>
 
@@ -31,7 +34,7 @@ export class AppDatabase extends Dexie {
   declare digest: Dexie.Table<DBType.DigestInfo, string>
 
   /** 数据库结构版本 */
-  readonly VERSION = 4.1
+  readonly VERSION = 4.2
 
   constructor() {
     super('AppDatabase')

@@ -16,7 +16,8 @@ export class MainThreadDB extends AppDatabase {
         itemType: '&id, name, hiddenFlag',
         marker: '&id, *itemIdList, markerTitle, refreshTime, linkageId',
         markerLink: '&id, fromId, toId, linkAction, groupId',
-        user: '&id',
+        user: 'id',
+        userArchive: 'id',
         cache: '&id',
         digest: '&code, tableName',
       })
