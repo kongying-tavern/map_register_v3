@@ -9,6 +9,7 @@ import {
   AddonRefreshtimeEditor,
 } from './components'
 import { useRules } from './validators'
+import type { InternalItemData } from './components/AddonItem/types'
 import { WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 import { useAccessStore, useItemStore, useMarkerExtraStore } from '@/stores'
 import type { ElFormType } from '@/shared'
@@ -61,11 +62,48 @@ const formRef = ref<ElFormType>()
 // ==================== 点位 extra ====================
 const markerExtraStore = useMarkerExtraStore()
 
+const itemsGroup = ref<Map<API.AreaVo, InternalItemData[]>>(new Map())
+
 const availableExtraConfig = computed(() => {
-  if (!form.value.areaCode)
+  const codes = [...itemsGroup.value.entries()].map(([area]) => area.code!)
+  if (!codes.length)
     return {}
-  return markerExtraStore.mergedAreaExtraConfigs[form.value.areaCode] ?? {}
+  const config = codes.reduce((config, areaCode) => {
+    const { underground = {}, ...rest } = markerExtraStore.mergedAreaExtraConfigs[areaCode]
+    const { levels = [], ...undergroundRest } = underground
+    return Object.assign(config, rest, {
+      underground: {
+        ...undergroundRest,
+        levels: [...levels, ...(config.underground?.levels ?? [])],
+      },
+    })
+  }, {} as API.ExtraConfig)
+  return config
 })
+
+// 在 extra config 变化后移除不存在 config 内的值
+watch(() => availableExtraConfig.value, (config) => {
+  const extraData = (toValue(form).extra ?? {}) as API.MarkerExtra
+  const { region_levels } = extraData.underground ?? {}
+  if (region_levels) {
+    const { levels = [] } = config.underground ?? {}
+    const region = levels.reduce((set, { children = [] }) => {
+      children.forEach(({ value }) => set.add(value))
+      return set
+    }, new Set<string>())
+    const validRegions = region_levels.filter(regionValue => region.has(regionValue))
+    form.value.extra!.underground = validRegions.length
+      ? {
+          is_underground: true,
+          region_levels: validRegions,
+        }
+      : null
+  }
+  if (!config['2_8_island'])
+    delete form.value.extra!['2_8_island']
+  if (!config['1_6_island'])
+    delete form.value.extra!['1_6_island']
+}, { deep: true })
 
 /**
  * 判断是否可被设置图标覆盖（检测所属物品是否存在 special 掩码第二位为 1）
@@ -147,6 +185,7 @@ defineExpose({
           <el-form-item label="所属物品" prop="itemList">
             <AddonItem
               v-model="form"
+              v-model:items-group="itemsGroup"
               v-model:addon-id="addonId"
             />
             <template #error="{ error }">

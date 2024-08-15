@@ -85,7 +85,10 @@ const calculateItemsGroup = () => itemDataList.value.reduce((map, item) => {
 }, new Map<API.AreaVo, InternalItemData[]>())
 
 /** 按地区分类的物品列表 */
-const itemsGroup = ref(calculateItemsGroup())
+const itemsGroup = defineModel<Map<API.AreaVo, InternalItemData[]>>('itemsGroup', {
+  required: true,
+})
+itemsGroup.value = calculateItemsGroup()
 
 const areaTree = computed(() => {
   const currentAreaCodeSet = new Set([...itemsGroup.value.keys()].map(area => area.code!))
@@ -154,11 +157,13 @@ const handleAddArea = (area = areaForAdding.value) => {
 }
 
 const handleRemoveArea = (area: API.AreaVo) => {
-  const items = itemsGroup.value.get(area)
+  const itemsGroupMap = new Map(itemsGroup.value)
+
+  const items = itemsGroupMap.get(area)
   if (!items)
     return
 
-  const keys = [...itemsGroup.value.keys()]
+  const keys = [...itemsGroupMap.keys()]
 
   const searchIndex = keys.indexOf(area)
   if (searchIndex < 0)
@@ -171,7 +176,8 @@ const handleRemoveArea = (area: API.AreaVo) => {
   if (neighborKey !== undefined)
     areaCode.value = neighborKey.code!
 
-  itemsGroup.value.delete(area)
+  itemsGroupMap.delete(area)
+  itemsGroup.value = itemsGroupMap
 }
 
 const cancel = () => {
