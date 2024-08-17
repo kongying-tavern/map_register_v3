@@ -4,7 +4,7 @@ import { ElAlert, ElButton } from 'element-plus'
 import { filter, fromEvent, tap } from 'rxjs'
 import { useSubscription } from '@vueuse/rxjs'
 import { ShortcutKeyUtil } from '@/utils'
-import { useShortcutStore } from '@/stores'
+import { usePreferenceStore, useShortcutStore } from '@/stores'
 import { WinDialog, WinDialogFooter } from '@/components/WinUI'
 import { CONTROL_KEYS, KEYBOARD_ALIAS, STANDARD_KEYBOARD_KEYS } from '@/shared'
 
@@ -15,6 +15,18 @@ const props = withDefaults(defineProps<{
 })
 
 const shortcutStore = useShortcutStore()
+const preferenceStore = usePreferenceStore()
+
+const existKeys = computed(() => Object
+  .entries(preferenceStore.preference)
+  .filter(([key]) => key.startsWith('app.shortcutKey'))
+  .reduce((set, [_, value]) => {
+    if (typeof value !== 'string' || !value)
+      return set
+    set.add(value)
+    return set
+  }, new Set<string>()),
+)
 
 onBeforeMount(() => {
   shortcutStore.isPaused = true
@@ -36,12 +48,14 @@ const modelValue = defineModel<string>('modelValue', {
 
 const shortcutKeys = shallowRef<string[]>(ShortcutKeyUtil.parse(modelValue.value))
 
+const shortcutValue = computed(() => ShortcutKeyUtil.stringify(shortcutKeys.value))
+
 const clearDisabled = computed(() => !shortcutKeys.value.length)
 const clear = () => {
   shortcutKeys.value = []
 }
 
-const isResetDisabled = computed(() => props.defaultValue === undefined || ShortcutKeyUtil.stringify(shortcutKeys.value) === props.defaultValue)
+const isResetDisabled = computed(() => props.defaultValue === undefined || shortcutValue.value === props.defaultValue)
 const reset = () => {
   if (props.defaultValue === undefined)
     return
@@ -60,6 +74,10 @@ const error = computed(() => {
   const lastKey = shortcutKeys.value.at(-1) ?? ''
   if (CONTROL_KEYS.has(lastKey))
     return '缺少终止键'
+
+  if (shortcutValue.value !== modelValue.value && existKeys.value.has(shortcutValue.value))
+    return '按键冲突'
+
   return ''
 })
 
