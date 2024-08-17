@@ -9,7 +9,7 @@ const logger = new Logger('地图')
 const mapRef = shallowRef<GenshinMap>()
 
 const initMap = async (canvas: HTMLCanvasElement) => {
-  const instance = await GenshinMap.create({ canvas })
+  const instance = GenshinMap.create({ canvas })
 
   await instance.ready
   mapRef.value = instance
