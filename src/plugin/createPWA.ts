@@ -23,7 +23,9 @@ const ensureServiceWorker = async () => {
     swLogger[ev.data.value.type](...ev.data.value.args)
   })
 
-  const registration = await navigator.serviceWorker.register('/service.worker.js', { scope: '/' })
+  const serviceWorkerURL = new URL('../../public/service.worker.js', import.meta.url)
+
+  const registration = await navigator.serviceWorker.register(serviceWorkerURL, { scope: '/' })
   await registration.update()
   const result = await navigator.serviceWorker.ready
 
