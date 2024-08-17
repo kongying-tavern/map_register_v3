@@ -5,16 +5,19 @@ interface ImportMetaEnv {
   /** 标题 */
   readonly VITE_TITLE: string
 
+  /** @dev 是否启用 HTTPS */
+  readonly VITE_HTTPS?: string
+
   /** 接口地址 */
   readonly VITE_API_BASE: string
 
-  /** 接口反代理 */
+  /** @dev 接口反代理 */
   readonly VITE_API_PROXY_TARGET: string
 
   /** 路由创建历史记录的模式 */
   readonly VITE_ROUTER_MODE: 'history' | 'hash' | 'memory'
 
-  /** 顶部指示环境的置顶文本 */
+  /** @dev 顶部指示环境的置顶文本 */
   readonly VITE_ENV_BANNER: string
 
   /** 个人信息面板 banner 展示图 */
@@ -26,10 +29,10 @@ interface ImportMetaEnv {
    */
   readonly VITE_TOKEN_REFRESH_REST_TIME: number
 
-  /** 开发模式下自动填充用户名 */
+  /** @dev 下自动填充用户名 */
   readonly VITE_AUTO_COMPLETE_USERNAME: string
 
-  /** 开发模式下自动填充密码 */
+  /** @dev 下自动填充密码 */
   readonly VITE_AUTO_COMPLETE_PASSWORD: string
 
   /** 阿里云盘地址 */
@@ -50,13 +53,13 @@ interface ImportMetaEnv {
   /** 资源服务器反代理 */
   readonly VITE_ASSETS_PROXY_TARGET: string
 
-  /** 开发模式 */
+  /** @dev 网络模式 */
   readonly VITE_DEVELOPMENT_MODE: 'default' | 'offline'
 
-  /** API前置账号 */
+  /** API 前置账号 */
   readonly VITE_API_AUTH_USERNAME: string
 
-  /** API前置口令 */
+  /** API 前置口令 */
   readonly VITE_API_AUTH_PASSWORD: string
 
   /** 图床前置账号 */

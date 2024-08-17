@@ -1,9 +1,10 @@
 import { join, resolve } from 'node:path'
-import type { ProxyOptions } from 'vite'
+import type { Plugin, ProxyOptions } from 'vite'
 import { defineConfig, loadEnv } from 'vite'
 import Vue from '@vitejs/plugin-vue'
 import VueJsx from '@vitejs/plugin-vue-jsx'
 import AutoImport from 'unplugin-auto-import/vite'
+import BaseSSL from '@vitejs/plugin-basic-ssl'
 import { openapi2ts } from './plugins'
 
 export default defineConfig(({ mode }) => {
@@ -30,6 +31,34 @@ export default defineConfig(({ mode }) => {
       changeOrigin: true,
       rewrite: path => path.replace(new RegExp(`${ENV.VITE_ASSETS_BASE}`), ''),
     },
+  }
+
+  const plugins: Plugin[] = [
+    Vue({
+      script: {
+        defineModel: true,
+      },
+    }),
+    VueJsx(),
+    AutoImport({
+      imports: ['vue', '@vueuse/core', 'vue-router'],
+      dts: './types/auto-imports.d.ts',
+    }),
+    openapi2ts([
+      {
+        schemaPath: `${ENV.VITE_API_PROXY_TARGET}/v3/api-docs`,
+        requestImportStatement: 'import { request } from \'@/utils\'',
+        serversPath: join('./src/api'),
+        apiPrefix: '',
+        projectName: 'api',
+      },
+    ], ENV.VITE_DEVELOPMENT_MODE === 'offline'),
+  ]
+
+  if (ENV.VITE_HTTPS) {
+    plugins.push(BaseSSL({
+      name: 'test',
+    }))
   }
 
   return {
@@ -67,26 +96,6 @@ export default defineConfig(({ mode }) => {
       ],
     },
 
-    plugins: [
-      Vue({
-        script: {
-          defineModel: true,
-        },
-      }),
-      VueJsx(),
-      AutoImport({
-        imports: ['vue', '@vueuse/core', 'vue-router'],
-        dts: './types/auto-imports.d.ts',
-      }),
-      openapi2ts([
-        {
-          schemaPath: `${ENV.VITE_API_PROXY_TARGET}/v3/api-docs`,
-          requestImportStatement: 'import { request } from \'@/utils\'',
-          serversPath: join('./src/api'),
-          apiPrefix: '',
-          projectName: 'api',
-        },
-      ], ENV.VITE_DEVELOPMENT_MODE === 'offline'),
-    ],
+    plugins,
   }
 })
