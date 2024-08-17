@@ -1,7 +1,7 @@
 import { template } from 'lodash'
 import { filter, fromEvent, map, tap } from 'rxjs'
 import { Logger } from '@/utils'
-import SocketWorkerURL from '@/worker/webSocket/socket.worker?url'
+import SocketWorkerURL from '@/worker/webSocket/socket.worker?worker&url'
 import { SocketCloseReason, SocketWorkerEvent } from '@/shared'
 import type { WS } from '@/worker/webSocket/types'
 import { useState } from '@/hooks'
