@@ -8,7 +8,7 @@ export enum SocketAction {
   Ping = 'Ping',
 }
 
-declare const globalThis: SharedWorkerGlobalScope
+declare const globalThis: (SharedWorkerGlobalScope | DedicatedWorkerGlobalScope)
 
 /** 连接配置。出于稳定性考虑，连接参数不再通过运行时确定。 */
 const OPTIONS = {
@@ -28,8 +28,13 @@ const OPTIONS = {
 
 // ==================== state ====================
 
+interface MessageTarget {
+  postMessage: (data: unknown, transfer: Transferable[]) => void
+  close: () => void
+}
+
 /** 用于维护 port 连接 */
-const ports = new Map<string, MessagePort>()
+const ports = new Map<string, MessageTarget>()
 
 /** 事件总线 */
 const workerEvent = new EventBus<WS.WorkerEventMap>()
@@ -267,31 +272,60 @@ workerEvent.on(SocketWorkerEvent.Unload, (_, id) => {
 
 // ==================== message ====================
 
-globalThis.onconnect = (connectEvent: MessageEvent<WS.Message>) => {
-  const port = connectEvent.ports[0]
+if (Object.prototype.toString.call(globalThis) === '[object SharedWorkerGlobalScope]') {
+  void (globalThis as SharedWorkerGlobalScope).addEventListener('connect', (connectEvent: MessageEvent<WS.Message>) => {
+    const port = connectEvent.ports[0]
 
-  const portId = crypto.randomUUID()
+    const portId = crypto.randomUUID()
 
-  ports.set(portId, port)
+    ports.set(portId, port)
 
-  const sendToTab = <T extends SocketWorkerEvent>(message: Omit<WS.Message<T>, 'id'>, transfer: Transferable[] = []) => {
-    const messageId = crypto.randomUUID()
-    port.postMessage({ ...message, id: messageId }, transfer)
-  }
+    const sendToTab = <T extends SocketWorkerEvent>(message: Omit<WS.Message<T>, 'id'>, transfer: Transferable[] = []) => {
+      const messageId = crypto.randomUUID()
+      port.postMessage({ ...message, id: messageId }, transfer)
+    }
 
-  const portMessage$ = fromEvent<MessageEvent<WS.Message>>(port, 'message')
+    const portMessage$ = fromEvent<MessageEvent<WS.Message>>(port, 'message')
 
-  portMessage$.pipe(
-    filter(({ data }) => data.event !== SocketWorkerEvent.Confirm),
-    tap(({ data }) => {
-      sendToTab({ event: SocketWorkerEvent.Confirm, data: data.id }) // 消息确认
-      // eslint-disable-next-line ts/no-explicit-any
-      workerEvent.emit(data.event, data.data as any, portId)
-    }),
-  ).subscribe()
-  port.start()
+    portMessage$.pipe(
+      filter(({ data }) => data.event !== SocketWorkerEvent.Confirm),
+      tap(({ data }) => {
+        sendToTab({ event: SocketWorkerEvent.Confirm, data: data.id }) // 消息确认
+        // eslint-disable-next-line ts/no-explicit-any
+        workerEvent.emit(data.event, data.data as any, portId)
+      }),
+    ).subscribe()
+    port.start()
 
-  // 初始化标签页的 ws 状态
-  if (ws.instance)
-    sendToTab({ event: SocketWorkerEvent.StatusChange, data: ws.instance.readyState })
+    // 初始化标签页的 ws 状态
+    if (ws.instance)
+      sendToTab({ event: SocketWorkerEvent.StatusChange, data: ws.instance.readyState })
+  })
+}
+// HACK 兼容移动端 Chrome
+else {
+  ((ctx: DedicatedWorkerGlobalScope) => {
+    const portId = crypto.randomUUID()
+    ports.set(portId, ctx)
+
+    const sendToTab = <T extends SocketWorkerEvent>(message: Omit<WS.Message<T>, 'id'>, transfer: Transferable[] = []) => {
+      const messageId = crypto.randomUUID()
+      ctx.postMessage({ ...message, id: messageId }, transfer)
+    }
+
+    const portMessage$ = fromEvent<MessageEvent<WS.Message>>(ctx, 'message')
+
+    portMessage$.pipe(
+      filter(({ data }) => data.event !== SocketWorkerEvent.Confirm),
+      tap(({ data }) => {
+        sendToTab({ event: SocketWorkerEvent.Confirm, data: data.id }) // 消息确认
+        // eslint-disable-next-line ts/no-explicit-any
+        workerEvent.emit(data.event, data.data as any, portId)
+      }),
+    ).subscribe()
+
+    // 初始化标签页的 ws 状态
+    if (ws.instance)
+      sendToTab({ event: SocketWorkerEvent.StatusChange, data: ws.instance.readyState })
+  })(globalThis as DedicatedWorkerGlobalScope)
 }

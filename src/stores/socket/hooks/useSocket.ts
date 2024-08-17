@@ -1,7 +1,7 @@
 import { template } from 'lodash'
 import { filter, fromEvent, map, tap } from 'rxjs'
 import { Logger } from '@/utils'
-import SocketWorker from '@/worker/webSocket/socket.worker?sharedworker'
+import SocketWorkerURL from '@/worker/webSocket/socket.worker?url'
 import { SocketCloseReason, SocketWorkerEvent } from '@/shared'
 import type { WS } from '@/worker/webSocket/types'
 import { useState } from '@/hooks'
@@ -23,11 +23,22 @@ export const useSocket = (templatedUrl: string, options: SocketHookOptions) => {
   const openHook = createEventHook<void>()
   const closeHook = createEventHook<void>()
 
-  const socketWorker = new SocketWorker({
+  const socketWorker = new ('SharedWorker' in globalThis ? SharedWorker : Worker)(SocketWorkerURL, {
+    type: 'module',
     name: 'Socket 工作线程',
   })
 
-  const message$ = fromEvent<MessageEvent<WS.Message>>(socketWorker.port, 'message')
+  const messageTarget = (() => {
+    // HACK 兼容移动端 Chrome
+    const type = Object.prototype.toString.call(socketWorker)
+    if (type === '[object SharedWorker]') {
+      (socketWorker as SharedWorker).port.start()
+      return (socketWorker as SharedWorker).port
+    }
+    return socketWorker as Worker
+  })()
+
+  const message$ = fromEvent<MessageEvent<WS.Message>>(messageTarget, 'message')
 
   message$.pipe(
     filter(({ data }) => data.event === SocketWorkerEvent.StatusChange),
@@ -54,11 +65,9 @@ export const useSocket = (templatedUrl: string, options: SocketHookOptions) => {
     }),
   ).subscribe(socketEventHook.trigger)
 
-  socketWorker.port.start()
-
   const send = <T extends SocketWorkerEvent>(message: Omit<WS.Message<T>, 'id' | 'message'>, transfer: Transferable[] = []) => {
     const id = crypto.randomUUID()
-    socketWorker.port.postMessage({ ...message, id }, transfer)
+    messageTarget.postMessage({ ...message, id }, transfer)
   }
 
   fromEvent<BeforeUnloadEvent>(window, 'beforeunload').pipe(
