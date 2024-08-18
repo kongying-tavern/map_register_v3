@@ -76,12 +76,19 @@ export class GSMarkerLayer extends CompositeLayer<GSCompositeLayerState & LayerA
           : [0, 0, 0, 255]
 
     const getIcon = (id: number) => {
-      const { render: { mainIconTag = '无' } } = markersMap.get(id)!
-      return mainIconTag
+      const info = markersMap.get(id)
+      if (!info)
+        return '无'
+      const extra = info.extra as API.MarkerExtra | undefined
+      const { render: { mainIconTag = '无' } } = info
+      return extra?.iconOverride?.tag ?? mainIconTag
     }
 
     const getIconFlag = (id: number) => {
-      const { render: { isUnderground } } = markersMap.get(id)!
+      const info = markersMap.get(id)
+      if (!info)
+        return 0b0001
+      const { render: { isUnderground } } = info
       const state = isMarked(id)
         ? 0b1000
         : isFocus<number>('marker', id)
@@ -93,7 +100,10 @@ export class GSMarkerLayer extends CompositeLayer<GSCompositeLayerState & LayerA
     }
 
     const getPosition = (id: number) => {
-      const { render: { position } } = markersMap.get(id)!
+      const info = markersMap.get(id)
+      if (!info)
+        return [999_999, 999_999] as [number, number]
+      const { render: { position } } = info
       const rewritePosition = markerDraggingMap[id]
       return rewritePosition ?? position
     }
