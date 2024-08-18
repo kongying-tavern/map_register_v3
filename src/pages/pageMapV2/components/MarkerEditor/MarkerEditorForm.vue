@@ -78,7 +78,10 @@ const availableExtraConfig = computed(() => {
   if (!codes.length)
     return {}
   const config = codes.reduce((config, areaCode) => {
-    const { underground = {}, ...rest } = markerExtraStore.mergedAreaExtraConfigs[areaCode]
+    const areaConfig = markerExtraStore.mergedAreaExtraConfigs[areaCode]
+    if (!areaConfig)
+      return config
+    const { underground = {}, ...rest } = areaConfig ?? {}
     const { levels = [], ...undergroundRest } = underground
     return Object.assign(config, rest, {
       underground: {
