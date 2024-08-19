@@ -50,7 +50,9 @@ export class IdRange implements MAFConfig {
 
     // 处理ID范围
     meta.idRange.forEach((idRange) => {
-      if (Array.isArray(idRange) && idRange.length >= 2) {
+      if (Array.isArray(idRange)) {
+        if (idRange.length < 2)
+          throw new Error('数组所需的元素数量不满足最低要求')
         const idNum1 = idRange[0]
         const idNum2 = idRange[1]
         Array(idNum2 - idNum1 + 1)
