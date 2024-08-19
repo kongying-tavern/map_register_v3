@@ -2,10 +2,10 @@ import { Observable, filter, finalize, fromEvent, map, switchMap, takeUntil } fr
 import { useSubscription } from '@vueuse/rxjs'
 import type { PickingInfo } from '@deck.gl/core'
 import KDBush from 'kdbush'
-import { useAccessStore, useMapStateStore } from '@/stores'
+import { useTweakWindow } from '.'
+import { useAccessStore, useMapStateStore, usePreferenceStore, useShortcutStore } from '@/stores'
 import { genshinMapCanvasKey } from '@/pages/pageMapV2/shared'
 import { useBanner } from '@/hooks'
-import { mapWindowContext } from '@/pages/pageMapV2/components'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
 
 interface MultiSelectHookOptions {
@@ -18,12 +18,12 @@ export const useMultiSelect = (options: MultiSelectHookOptions) => {
     windowName,
   } = options
 
-  const id = crypto.randomUUID()
-
   const finalizeHook = createEventHook<void>()
 
   const accessStore = useAccessStore()
   const mapStateStore = useMapStateStore()
+  const shortcutStore = useShortcutStore()
+  const preferenceStore = usePreferenceStore()
 
   const canvasRef = inject(genshinMapCanvasKey) as Ref<HTMLCanvasElement>
   const { width, height } = useElementSize(canvasRef)
@@ -46,7 +46,7 @@ export const useMultiSelect = (options: MultiSelectHookOptions) => {
   const currentSelectedIds = computed(() => mapStateStore.focusElements.get('marker') as Set<number> | undefined)
 
   const {
-    isEnable,
+    isProcessing,
     update: setMission,
     clear: clearMission,
   } = mapStateStore.subscribeMission('markerMultiSelect', () => false)
@@ -116,35 +116,32 @@ export const useMultiSelect = (options: MultiSelectHookOptions) => {
     finalizeHook.trigger()
   }
 
-  const closeWindow = () => {
-    mapWindowContext.closeWindow(id)
-  }
+  const { id, openWindow, closeWindow } = useTweakWindow(windowName, () => {
+    finalizeMission()
+    return true
+  })
 
-  const toggleMultiSelectWindow = () => {
-    if (!markerList.value.length) {
-      closeWindow()
-      finalizeMission()
-      return
-    }
-    mapWindowContext.openWindow({
-      id,
-      name: windowName,
-      minWidth: 700,
-    })
-  }
+  shortcutStore.useKeys(
+    computed(() => preferenceStore.preference['app.shortcutKey.multiselectMarker']),
+    () => {
+      if (isProcessing.value)
+        return
+      setMission(true)
+      openWindow()
+    },
+  )
 
   useSubscription(dragStart.pipe(
     filter(([info, ev]) => {
       return [
         accessStore.get('MARKER_BATCH_EDIT'),
-        ev.ctrlKey, // 只在按住 ctrl 时可以开启多选
-        isEnable.value,
+        isProcessing.value,
         info.coordinate !== undefined,
+        ev.ctrlKey,
       ].every(condition => condition)
     }),
 
     switchMap(([startInfo, startEvent]) => {
-      setMission(true)
       resumeFocusMarker()
       mapStateStore.setCursor('crosshair')
       mapStateStore.setIsPopoverOnHover(true)
@@ -210,11 +207,13 @@ export const useMultiSelect = (options: MultiSelectHookOptions) => {
           mapStateStore.setViewPortLocked(false)
           mapStateStore.setTempMarkers('markerMultiSelect', markerList.value)
           rect.value = undefined
-          toggleMultiSelectWindow()
+          openWindow()
         }),
       )
     }),
   ).subscribe())
+
+  onUnmounted(finalizeMission)
 
   return {
     id,
@@ -223,6 +222,7 @@ export const useMultiSelect = (options: MultiSelectHookOptions) => {
     shape,
     currentSelectedIds,
     markerList,
+    isProcessing,
 
     finalizeMission,
     closeWindow,

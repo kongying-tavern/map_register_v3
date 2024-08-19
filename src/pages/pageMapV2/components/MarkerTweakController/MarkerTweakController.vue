@@ -11,7 +11,7 @@ import { pickMainItem } from '@/utils'
 const itemStore = useItemStore()
 const iconTagStore = useIconTagStore()
 
-const { id, shape, markerList, width, height, finalizeMission, closeWindow, onFinalize } = useMultiSelect({
+const { id, shape, markerList, width, height, isProcessing, finalizeMission, closeWindow, onFinalize } = useMultiSelect({
   windowName: '点位批量操作',
 })
 
@@ -61,6 +61,14 @@ onFinalize(() => {
         stroke-width="2"
       />
     </svg>
+
+    <div v-if="isProcessing" class="mission-info">
+      <p class="text-lg font-bold">
+        多选点位
+      </p>
+      - 按住 <span class="keyboard-key mb-1">Ctrl</span> 选择点位<br>
+      - 按住 <span class="keyboard-key">Ctrl</span> + <span class="keyboard-key">Alt</span> 取消选择点位。
+    </div>
 
     <MapWindowTeleporter :id="id" @close="finalizeMission">
       <div class="h-full flex overflow-hidden p-2">
@@ -176,5 +184,32 @@ onFinalize(() => {
 .marker-multiselect-controller {
   z-index: 1;
   pointer-events: none;
+}
+
+@keyframes multiselect-anime-in {
+  from {
+    transform: translateX(calc(100% + 8px));
+  }
+  to {
+    transform: translateX(0px);
+  }
+}
+
+.mission-info {
+  @apply
+    absolute right-1 bottom-[48px] p-2 px-3
+    border border-[#ECE5D820] rounded
+    text-sm text-[#C6C2BA]
+    bg-[#263240]
+  ;
+  animation: multiselect-anime-in ease 150ms;
+}
+
+.keyboard-key {
+  @apply
+    inline-block p-px px-1
+    border border-[#C6C2BA] rounded
+    text-xs
+  ;
 }
 </style>

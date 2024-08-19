@@ -26,6 +26,9 @@ export interface UserPreference {
   /** 开关黑暗模式的快捷键 */
   'app.shortcutKey.toggleDarkMode': string
 
+  /** 多选点位的快捷键 */
+  'app.shortcutKey.multiselectMarker': string
+
   // ====================    用户中心    ====================
 
   /** 是否显示限定地区 */
@@ -152,6 +155,7 @@ export interface UserPreference {
 
 export const getDefaultPreference = (): UserPreference => ({
   'app.shortcutKey.toggleDarkMode': 'control_alt_t',
+  'app.shortcutKey.multiselectMarker': 'control_alt_a',
 
   // map
   'map.setting.showZoneTag': true,
