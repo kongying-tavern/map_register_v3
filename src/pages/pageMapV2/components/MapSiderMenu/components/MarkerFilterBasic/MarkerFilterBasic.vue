@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { DeleteFilled } from '@element-plus/icons-vue'
 import { storeToRefs } from 'pinia'
-import { useMarkerFilter } from './hooks'
+import { useItemCount, useMarkerFilter, useTypeCount } from './hooks'
 import { FilterTabPanel, FilterTabs } from './components'
 import { CheckboxGroup, CheckboxItem, ConditionRow, ItemButton } from '.'
 import { AppIconTagRenderer, GSButton } from '@/components'
@@ -112,38 +112,19 @@ const selectedItemCount = computed(() => {
 
 // ==================== 分类计数 ====================
 
-const calculateTypeCount = (markers: API.MarkerVo[]) => {
-  return markers.reduce((map, marker) => {
-    marker.itemList?.forEach(({ itemId }) => {
-      if (!visibleItemIds.value.has(itemId!))
-        return
-      const item = itemIdMap.value.get(itemId!)
-      if (!item)
-        return
-      item.typeIdList?.forEach((typeId) => {
-        map.set(typeId, (map.get(typeId) ?? 0) + 1)
-      })
-    })
-    return map
-  }, new Map<number, number>())
-}
-
-const typeTotalMap = computed(() => calculateTypeCount(markerList.value))
-
-const typeCountMap = computed(() => calculateTypeCount(archivedMarkers.value))
+const { typeTotalMap, typeCountMap } = useTypeCount({
+  archivedMarkers,
+  itemIdMap,
+  markerList,
+  visibleItemIds,
+})
 
 // ==================== 物品计数 ====================
 
-const calculateItemCount = (markers: API.MarkerVo[]) => markers.reduce((map, marker: API.MarkerVo) => {
-  marker.itemList?.forEach(({ itemId, count = 0 }) => {
-    map.set(itemId!, (map.get(itemId!) ?? 0) + count)
-  })
-  return map
-}, new Map<number, number>())
-
-const itemTotalMap = computed(() => calculateItemCount(markerList.value))
-
-const itemCountMap = computed(() => calculateItemCount(archivedMarkers.value))
+const { itemTotalMap, itemCountMap } = useItemCount({
+  archivedMarkers,
+  markerList,
+})
 
 // ==================== 打点物品 ====================
 const dropzoneRef = ref<HTMLElement>()
