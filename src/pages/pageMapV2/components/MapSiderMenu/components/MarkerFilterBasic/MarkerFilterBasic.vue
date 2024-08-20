@@ -2,8 +2,8 @@
 import { DeleteFilled } from '@element-plus/icons-vue'
 import { storeToRefs } from 'pinia'
 import { useItemCount, useMarkerFilter, useTypeCount } from './hooks'
-import { FilterTabPanel, FilterTabs } from './components'
-import { CheckboxGroup, CheckboxItem, ConditionRow, ItemButton } from '.'
+import { DefaultMarkingItem, FilterTabPanel, FilterTabs } from './components'
+import { CheckboxGroup, ConditionRow, ItemButton } from '.'
 import { AppIconTagRenderer, GSButton } from '@/components'
 import {
   useArchiveStore,
@@ -15,7 +15,6 @@ import {
   useMarkerStore,
   usePreferenceStore,
 } from '@/stores'
-import { isItemVo } from '@/utils'
 import { fallbackToStaticIcon } from '@/configs'
 
 const archiveStore = useArchiveStore()
@@ -125,35 +124,6 @@ const { itemTotalMap, itemCountMap } = useItemCount({
   archivedMarkers,
   markerList,
 })
-
-// ==================== 打点物品 ====================
-const dropzoneRef = ref<HTMLElement>()
-const { isOverDropZone } = useDropZone(dropzoneRef)
-
-const defaultMarkingItem = asyncComputed(() => {
-  const id = preference.value['markerFilter.state.defaultMarkingItemId']
-  if (id === undefined)
-    return
-  return itemIdMap.value.get(id)
-})
-
-const removeDefaultMarkingItem = () => {
-  preference.value['markerFilter.state.defaultMarkingItemId'] = undefined
-}
-
-const handleDragItem = (ev: DragEvent) => {
-  if (!ev.dataTransfer)
-    return
-  // 数据来源搜索 dataTransfer.setData
-  const str = ev.dataTransfer.getData('text')
-  if (!str)
-    return
-  const data = JSON.parse(str)
-  if (!isItemVo(data))
-    return
-  ev.preventDefault()
-  preference.value['markerFilter.state.defaultMarkingItemId'] = data.id!
-}
 </script>
 
 <template>
@@ -268,44 +238,11 @@ const handleDragItem = (ev: DragEvent) => {
     默认打点物品
   </div>
 
-  <div
-    ref="dropzoneRef"
-    class="marking-item"
-    :class="{
-      'over-drop': isOverDropZone,
-      'checked': Boolean(defaultMarkingItem),
-    }"
-    @drop="handleDragItem"
-  >
-    <template v-if="!defaultMarkingItem">
-      {{ isOverDropZone ? '放开以应用该物品' : '拖拽物品到此处' }}
-    </template>
-
-    <CheckboxItem v-else is-actived :label="defaultMarkingItem.name" style="margin: 0; width: 100%" @click="removeDefaultMarkingItem">
-      <template #icon>
-        <AppIconTagRenderer
-          :src="iconTagStore.tagSpriteUrl"
-          :mapping="iconTagStore.tagPositionMap[defaultMarkingItem.iconTag ?? '']"
-          class="w-full aspect-square"
-        />
-      </template>
-      <template #default>
-        <div class="marking-item--content">
-          <ItemButton
-            :name="defaultMarkingItem.name"
-            :finished-num="itemCountMap.get(defaultMarkingItem.id!)"
-            :total-num="itemTotalMap.get(defaultMarkingItem.id!)"
-            actived
-          />
-          <div class="grid px-2 place-items-center" style="background-color: var(--gs-color-danger);">
-            <el-icon :size="20" color="#FFF">
-              <DeleteFilled />
-            </el-icon>
-          </div>
-        </div>
-      </template>
-    </CheckboxItem>
-  </div>
+  <DefaultMarkingItem
+    v-model:item-id="preference['markerFilter.state.defaultMarkingItemId']"
+    :item-count-map="itemCountMap"
+    :item-total-map="itemTotalMap"
+  />
 
   <div class="flex-shrink-0 flex items-center gap-2 text-white px-2 pt-1">
     条件列表
@@ -348,32 +285,3 @@ const handleDragItem = (ev: DragEvent) => {
     <slot name="append" />
   </div>
 </template>
-
-<style scoped>
-.marking-item {
-  border: 2px dashed #C6C2BA;
-  border-radius: 8px;
-  margin: 8px;
-  height: 48px;
-  display: grid;
-  place-items: center;
-  color: #C6C2BA;
-
-  &.over-drop {
-    border-style: solid;
-    border-color: #FFF;
-  }
-
-  &.checked {
-    border-width: 0;
-    place-items: flex-start;
-  }
-}
-
-.marking-item--content {
-  width: 100%;
-  height: 100%;
-  display: grid;
-  grid-template-columns: 1fr auto;
-}
-</style>
