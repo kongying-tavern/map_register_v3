@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { Check, Close } from '@element-plus/icons-vue'
+import { ElSwitch } from 'element-plus'
 import { useImageLoad, useImageSelect, useImageUpload } from '../hooks'
 import { IconImageSelect } from '.'
 import { AppImageCropper, GlobalDialogController, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
@@ -31,6 +32,8 @@ const { localImageUrl, loading: localImageLoading, loadLocalImage } = useImageLo
 
 const croppedImage = shallowRef<Blob>()
 const croppedImageUrl = useObjectUrl(croppedImage)
+
+const fitType = ref<'cover' | 'contain'>('cover')
 
 const onImageCrop = (image: Blob) => {
   croppedImage.value = image
@@ -94,14 +97,23 @@ const cancel = () => {
       :tabs-disabled="confirmLoading"
     >
       <div v-show="activedTabKey === TabKey.UPLOAD" class="grid gap-2 grid-cols-[auto_1fr]">
-        <div class="p-2 bg-[var(--el-color-warning-light-9)] text-[var(--el-color-warning)] rounded col-span-2 text-xs">
-          提醒：新上传的图片不会立即生效，需要等待服务器刷新缓存。
+        <div class="col-span-2">
+          <ElSwitch
+            v-model="fitType"
+            active-value="cover"
+            active-text="Cover"
+            inactive-value="contain"
+            inactive-text="Contain"
+            inline-prompt
+            style="--el-switch-off-color: var(--el-color-primary)"
+          />
         </div>
 
         <AppImageCropper
           class="flex-shrink-0 w-64 h-64"
           :image="localImageUrl"
           :crop-ratio="0.25"
+          :fit="fitType"
           auto-crop
           @crop="onImageCrop"
         />
