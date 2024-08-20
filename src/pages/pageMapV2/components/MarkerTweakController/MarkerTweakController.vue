@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ArrowDown, Check, CirclePlus, Close } from '@element-plus/icons-vue'
 import { ElCascaderPanel, ElDropdown } from 'element-plus'
+import { MapMissionInfo } from '../MapMissionInfo'
 import { useMarkerTweaks, useMultiSelect, useTweaks } from './hooks'
 import { ModifierCard, ModifierPreview } from './components'
 import { MapWindowTeleporter } from '@/pages/pageMapV2/components'
@@ -62,13 +63,10 @@ onFinalize(() => {
       />
     </svg>
 
-    <div v-if="isProcessing" class="mission-info">
-      <p class="text-lg font-bold">
-        多选点位
-      </p>
+    <MapMissionInfo v-if="isProcessing" title="多选点位">
       - 按住 <span class="keyboard-key mb-1">Ctrl</span> 选择点位<br>
       - 按住 <span class="keyboard-key">Ctrl</span> + <span class="keyboard-key">Alt</span> 取消选择点位。
-    </div>
+    </MapMissionInfo>
 
     <MapWindowTeleporter :id="id" @close="finalizeMission">
       <div class="h-full flex overflow-hidden p-2">
@@ -184,25 +182,6 @@ onFinalize(() => {
 .marker-multiselect-controller {
   z-index: 1;
   pointer-events: none;
-}
-
-@keyframes multiselect-anime-in {
-  from {
-    transform: translateX(calc(100% + 8px));
-  }
-  to {
-    transform: translateX(0px);
-  }
-}
-
-.mission-info {
-  @apply
-    absolute right-1 bottom-[48px] p-2 px-3
-    border border-[#ECE5D820] rounded
-    text-sm text-[#C6C2BA]
-    bg-[#263240]
-  ;
-  animation: multiselect-anime-in ease 150ms;
 }
 
 .keyboard-key {
