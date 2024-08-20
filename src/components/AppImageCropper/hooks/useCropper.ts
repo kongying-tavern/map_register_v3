@@ -1,38 +1,46 @@
 import Konva from 'konva'
-import type { ShallowRef } from 'vue'
 import { clamp } from 'lodash'
 import { loadKonvaImage } from '../utils'
 import type { AppImageCropperProps } from '../types'
 import { getObjectFitSize } from '@/utils'
 
-export interface ImageInfoHookOptions extends ToRefDestructure<Required<AppImageCropperProps>> {
-  layer: ShallowRef<Konva.Layer | null>
-  width: Ref<number>
-  height: Ref<number>
+export interface ImageInfoHookOptions {
+  container: Ref<HTMLDivElement | undefined>
+  props: ToRefDestructure<Required<AppImageCropperProps>>
   onCrop: (blob: Blob) => void
   onError: (err: Error) => void
 }
 
-export const useImage = (options: ImageInfoHookOptions) => {
+export const useCropper = (options: ImageInfoHookOptions) => {
   const {
-    image,
-    layer,
-    width: cw,
-    height: ch,
-    maxZoom,
-    minZoom,
-    cropRatio,
-    autoCrop,
-    autoCropDebounce,
-    autoCropOnImageLoaded,
+    container,
+    props,
     onCrop,
     onError,
   } = options
 
-  const konvaImage = shallowRef<Konva.Image | null>(null)
+  const {
+    image: imageSource,
+    maxZoom,
+    minZoom,
+    fit,
+    cropRatio,
+    autoCrop,
+    autoCropDebounce,
+    autoCropOnImageLoaded,
+  } = props
+
+  const _stage = shallowRef<Konva.Stage>()
+  const _layer = shallowRef<Konva.Layer>()
+  const _image = shallowRef<Konva.Image>()
+
+  const containerSize = ref({
+    w: 0,
+    h: 0,
+  })
 
   const immediateCrop = async () => {
-    const stage = konvaImage.value?.getStage()
+    const stage = _image.value?.getStage()
     if (!stage)
       return
     const blob = await stage.toBlob({
@@ -45,27 +53,27 @@ export const useImage = (options: ImageInfoHookOptions) => {
 
   const debounceCrop = useDebounceFn(immediateCrop, autoCropDebounce)
 
-  const crop = () => {
-    // TODO 适配器
-    debounceCrop()
-  }
+  /** @alias */
+  const crop = () => debounceCrop()
 
   const minScale = computed(() => {
-    if (!konvaImage.value)
+    if (!_image.value)
       return 1
-    const iw = konvaImage.value.width()
-    const ih = konvaImage.value.height()
-    const { radio } = getObjectFitSize('cover', cw.value, ch.value, iw, ih)
+    const iw = _image.value.width()
+    const ih = _image.value.height()
+    const fitType = toValue(fit)
+    const { w: cw, h: ch } = toValue(containerSize)
+    const { radio } = getObjectFitSize(fitType, cw, ch, iw, ih)
     return minZoom.value === undefined ? radio : Math.max(radio, minZoom.value)
   })
 
   const maxScale = computed(() => {
-    if (!konvaImage.value || maxZoom.value === undefined)
+    if (!_image.value || maxZoom.value === undefined)
       return 1
     return Math.max(minScale.value, 2 ** maxZoom.value)
   })
 
-  const getBouondingPosition = (_image: Konva.Image, pos: { x: number; y: number }) => {
+  const _getBouondingPosition = (_image: Konva.Image, pos: { x: number; y: number }) => {
     const _stage = _image.getStage()
     if (!_stage)
       return pos
@@ -77,12 +85,12 @@ export const useImage = (options: ImageInfoHookOptions) => {
     }
   }
 
-  const attachDragController = (_image: Konva.Image) => {
-    _image.dragBoundFunc(pos => getBouondingPosition(_image, pos))
+  const _attachDragController = (_image: Konva.Image) => {
+    _image.dragBoundFunc(pos => _getBouondingPosition(_image, pos))
     _image.on('dragend', () => autoCrop.value && crop())
   }
 
-  const attachZoomController = (_image: Konva.Image) => {
+  const _attachZoomController = (_image: Konva.Image) => {
     const _stage = _image.getStage()
     if (!_stage)
       return
@@ -119,12 +127,12 @@ export const useImage = (options: ImageInfoHookOptions) => {
       _image.scale({
         x: newScale,
         y: newScale,
-      }).position(getBouondingPosition(_image, position))
+      }).position(_getBouondingPosition(_image, position))
       autoCrop.value && crop()
     })
   }
 
-  const attachRotateController = (_image: Konva.Image) => {
+  const _attachRotateController = (_image: Konva.Image) => {
     const _stage = _image.getStage()
     if (!_stage)
       return
@@ -152,51 +160,44 @@ export const useImage = (options: ImageInfoHookOptions) => {
     })
   }
 
-  const resetImagePosition = (_image: Konva.Image) => {
-    const layer = _image.getLayer()
+  const _resetImagePosition = (image?: Konva.Image) => {
+    if (!image)
+      return
+    const layer = image.getLayer()
     if (!layer)
       return
     const { width: cw, height: ch } = layer.size()
-    const { width, height } = _image.size()
+    const { width, height } = image.size()
     const scale = minScale.value
-    _image
+    image
       .offset({ x: width / 2, y: height / 2 })
       .scale({ x: scale, y: scale })
       .position({ x: cw / 2, y: ch / 2 })
       .setDraggable(true)
   }
 
-  watch(() => [cw.value, ch.value], () => {
-    const _image = konvaImage.value
-    if (!_image)
+  const _loadImage = async (imageURL?: string) => {
+    _image.value?.remove()
+    if (!imageURL)
       return
-    resetImagePosition(_image)
-    autoCrop.value && crop()
-  })
-
-  const initImage = async () => {
-    konvaImage.value?.remove()
-    if (!image.value)
-      return
-
     try {
-      const _image = await loadKonvaImage(image.value).catch(() => null)
-      if (!_image)
+      const image = await loadKonvaImage(imageURL)
+      if (!image)
         throw new Error('无法加载文件')
 
-      konvaImage.value = _image
+      _image.value = image
 
-      if (!layer.value)
+      if (!_layer.value)
         throw new Error('无法获取图层实例')
 
-      layer.value.add(_image)
+      _layer.value.add(image)
 
-      resetImagePosition(_image)
+      _resetImagePosition(image)
 
       autoCropOnImageLoaded.value && crop()
-      attachDragController(_image)
-      attachZoomController(_image)
-      attachRotateController(_image)
+      _attachDragController(image)
+      _attachZoomController(image)
+      _attachRotateController(image)
     }
     catch (err) {
       onError(err instanceof Error
@@ -206,13 +207,47 @@ export const useImage = (options: ImageInfoHookOptions) => {
     }
   }
 
-  const startWatchUrl = () => watch(image, initImage, { immediate: true })
+  onMounted(async () => {
+    if (!container.value)
+      return
+    const stage = new Konva.Stage({
+      container: container.value,
+    })
+    const layer = new Konva.Layer()
+    stage.add(layer)
+    _stage.value = stage
+    _layer.value = layer
+  })
+
+  onUnmounted(() => {
+    _stage.value?.destroy()
+  })
+
+  useResizeObserver(container, ([{ contentRect: { width: cw, height: ch } }]) => {
+    if (cw <= 0 || ch <= 0)
+      return
+    containerSize.value = { w: cw, h: ch }
+    _stage.value?.size({ width: cw, height: ch })
+    const image = toValue(_image)
+    if (!image)
+      return
+    _resetImagePosition(image)
+    props.autoCrop && crop()
+  })
+
+  watch(imageSource, _loadImage, { immediate: true })
+
+  watch(fit, () => {
+    _resetImagePosition(_image.value)
+    crop()
+  })
 
   return {
+    stage: _stage,
+    layer: _layer,
+    image: _image,
     minScale,
     maxScale,
-
     crop,
-    startWatchUrl,
   }
 }

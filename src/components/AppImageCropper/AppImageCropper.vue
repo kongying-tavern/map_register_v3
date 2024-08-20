@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import Konva from 'konva'
-import { useImage, useStage } from './hooks'
+import { useCropper } from './hooks'
 import type { AppImageCropperProps } from './types'
 
 // TODO 视情况添加更多裁切功能
@@ -8,6 +7,7 @@ const props = withDefaults(defineProps<AppImageCropperProps>(), {
   image: '',
   maxZoom: 1,
   minZoom: 0,
+  fit: 'cover',
   cropRatio: 1,
   autoCrop: false,
   autoCropDebounce: 200,
@@ -19,38 +19,13 @@ const emits = defineEmits<{
   error: [Error]
 }>()
 
-const destructureProps = toRefs(props)
+const containerRef = ref<HTMLDivElement>()
 
-const containerRef = ref() as Ref<HTMLDivElement>
-
-const { stage, width, height } = useStage(containerRef)
-
-const layer = shallowRef<Konva.Layer | null>(null)
-
-const { startWatchUrl, crop } = useImage({
-  ...destructureProps,
-  layer,
-  width,
-  height,
+const { crop } = useCropper({
+  props: toRefs(props),
+  container: containerRef,
   onCrop: blob => emits('crop', blob),
   onError: err => emits('error', err),
-})
-
-onMounted(async () => {
-  const _stage = new Konva.Stage({
-    container: containerRef.value,
-  })
-  const _layer = new Konva.Layer()
-  _stage.add(_layer)
-
-  stage.value = _stage
-  layer.value = _layer
-
-  startWatchUrl()
-})
-
-onBeforeUnmount(() => {
-  stage.value?.destroy()
 })
 
 defineExpose({

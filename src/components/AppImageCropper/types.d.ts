@@ -12,6 +12,9 @@ export interface AppImageCropperProps {
   /** 图片缩小上限，小于自适应最小缩放值时无效 @default 0 */
   minZoom?: number
 
+  /** 图片的适应类型 @default 'cover'' */
+  fit?: 'cover' | 'contain'
+
   /** 裁切尺寸与视口的缩放比 @default 1 */
   cropRatio?: number
 
