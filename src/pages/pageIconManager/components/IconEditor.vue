@@ -28,12 +28,13 @@ const tabs: { key: string; name: string }[] = [
 const activedTabKey = ref<TabKey>(TabKey.UPLOAD)
 
 // ==================== 裁切图片 ====================
-const { localImageUrl, loading: localImageLoading, loadLocalImage } = useImageLoad()
+const { localImage, localImageBitmap, localImageUrl, loading: localImageLoading, loadLocalImage } = useImageLoad()
 
 const croppedImage = shallowRef<Blob>()
 const croppedImageUrl = useObjectUrl(croppedImage)
 
 const fitType = ref<'cover' | 'contain'>('cover')
+const isClipMode = ref(true)
 
 const onImageCrop = (image: Blob) => {
   croppedImage.value = image
@@ -41,7 +42,7 @@ const onImageCrop = (image: Blob) => {
 
 // ==================== 上传图片 ====================
 const { loading: uploadLoading, percentage, status, text, uploadImage } = useImageUpload({
-  image: croppedImage,
+  image: computed(() => isClipMode.value ? croppedImage.value : localImage.value),
   tagName,
 })
 
@@ -52,7 +53,11 @@ const { selectedImage, useImage, loading: selectLoading } = useImageSelect({
 
 // ==================== 弹窗操作 ====================
 const confirmDisabled = computed(() => ({
-  [TabKey.UPLOAD]: () => !croppedImageUrl.value,
+  [TabKey.UPLOAD]: () => {
+    if (isClipMode.value)
+      return !croppedImageUrl.value
+    return !localImage
+  },
   [TabKey.SELECT]: () => !selectedImage.value,
 })[activedTabKey.value]())
 
@@ -97,8 +102,16 @@ const cancel = () => {
       :tabs-disabled="confirmLoading"
     >
       <div v-show="activedTabKey === TabKey.UPLOAD" class="grid gap-2 grid-cols-[auto_1fr]">
-        <div class="col-span-2">
+        <div class="col-span-2 flex gap-1">
           <ElSwitch
+            v-model="isClipMode"
+            active-text="启用裁剪"
+            inactive-text="原始尺寸"
+            inline-prompt
+            style="width: 72px; --el-switch-off-color: var(--el-color-warning); overflow: hidden;"
+          />
+          <ElSwitch
+            v-if="isClipMode"
             v-model="fitType"
             active-value="cover"
             active-text="Cover"
@@ -110,6 +123,7 @@ const cancel = () => {
         </div>
 
         <AppImageCropper
+          v-if="isClipMode"
           class="flex-shrink-0 w-64 h-64"
           :image="localImageUrl"
           :crop-ratio="0.25"
@@ -118,20 +132,44 @@ const cancel = () => {
           @crop="onImageCrop"
         />
 
+        <div
+          v-else
+          class="
+            flex-shrink-0 w-64 h-64
+            outline-[1px] outline-dashed outline-[var(--el-color-warning)] -outline-offset-1
+            bg-[length:32px_32px]
+            bg-alpha
+            grid place-content-center
+            overflow-auto
+          "
+        >
+          <img v-if="localImageUrl" :src="localImageUrl">
+        </div>
+
         <div class="w-full flex flex-col justify-between">
           <el-button @click="loadLocalImage">
             {{ localImageUrl ? '切换' : '选择' }}图片
           </el-button>
           <el-divider style="margin: 8px 0 0" />
-          <div class="flex-1 grid place-items-center place-content-center gap-1">
+
+          <div v-if="isClipMode" class="flex-1 grid place-items-center place-content-center gap-1">
             <div class="w-16 h-16 border border-[var(--el-border-color)] box-content">
-              <img v-if="croppedImageUrl" class="w-full h-full" :src="croppedImageUrl" crossorigin="">
+              <img v-if="croppedImageUrl" class="w-full h-full" :src="croppedImageUrl">
             </div>
-            <div class=" text-xs">
-              64x64 px
+            <div class="text-xs bg-alpha">
+              64 x 64
             </div>
             <div v-if="croppedImage" class=" text-xs">
               {{ formatByteSize(croppedImage.size) }}
+            </div>
+          </div>
+
+          <div v-else class="flex-1 grid place-items-center place-content-center gap-1">
+            <div v-if="localImageBitmap" class="text-xs">
+              {{ `${localImageBitmap.width} x ${localImageBitmap.height}` }}
+            </div>
+            <div v-if="localImage" class=" text-xs">
+              {{ formatByteSize(localImage.size) }}
             </div>
           </div>
         </div>

@@ -4,6 +4,15 @@ import { useFetchHook } from '@/hooks'
 
 export const useImageLoad = () => {
   const localImage = shallowRef<Blob>()
+  const localImageBitmap = shallowRef<ImageBitmap>()
+
+  watch(localImage, async () => {
+    if (!localImage.value) {
+      localImageBitmap.value = undefined
+      return
+    }
+    localImageBitmap.value = await createImageBitmap(localImage.value)
+  })
 
   const { refresh: loadLocalImage, onSuccess, onError, ...rest } = useFetchHook({
     initialValue: undefined,
@@ -50,5 +59,13 @@ export const useImageLoad = () => {
     offset: 48,
   }))
 
-  return { localImage, localImageUrl, loadLocalImage, onSuccess, onError, ...rest }
+  return {
+    localImage,
+    localImageBitmap,
+    localImageUrl,
+    loadLocalImage,
+    onSuccess,
+    onError,
+    ...rest,
+  }
 }
