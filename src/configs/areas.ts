@@ -388,6 +388,11 @@ export const AREA_ADDITIONAL_CONFIG_MAP: Record<string, AreaAdditionalConfig> = 
   'A:FD:ANCIENT_SEA': {
     tags: [],
   },
+
+  /** 希穆兰卡 - 父级 */
+  'C:SIMULANKA': {
+    icon: '/icons/area/希穆兰卡.png',
+  },
 }
 
 /** 当 iconTag 为空时使用静态配置中的图标 */
