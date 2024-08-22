@@ -51,7 +51,7 @@ onFinalize(() => {
 </script>
 
 <template>
-  <div class="marker-multiselect-controller absolute left-0 top-0 w-full h-full">
+  <div class="w-full h-full absolute left-0 top-0 pointer-events-none z-[1]">
     <svg v-if="shape" :viewBox="`0 0 ${width} ${height}`" fill="transparent">
       <rect
         :x="shape.xmin"
@@ -179,11 +179,6 @@ onFinalize(() => {
 </template>
 
 <style scoped>
-.marker-multiselect-controller {
-  z-index: 1;
-  pointer-events: none;
-}
-
 .keyboard-key {
   @apply
     inline-block p-px px-1
