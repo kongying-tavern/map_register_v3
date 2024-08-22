@@ -51,7 +51,7 @@ useSubscription(pointerdown.pipe(
 </script>
 
 <template>
-  <div class="genshin-zoom-controller -translate-y-1/2 -translate-x-6 select-none" v-bind="$attrs">
+  <div class="genshin-zoom-controller" v-bind="$attrs">
     <div class="zoom-button cursor-pointer" @click="() => zoomTo(Math.min(1, percentage + deltaZoom), true)">
       <el-icon :size="12" color="#FFF7EB" class="rotate-45">
         <CloseBold />
@@ -78,13 +78,15 @@ useSubscription(pointerdown.pipe(
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style scoped>
 .genshin-zoom-controller {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  z-index: 1;
+  @apply
+    absolute right-0 top-1/2
+    flex flex-col items-center gap-2
+    z-[1]
+    -translate-y-1/2 -translate-x-6
+    pointer-events-auto select-none
+  ;
 }
 
 .zoom-button {
