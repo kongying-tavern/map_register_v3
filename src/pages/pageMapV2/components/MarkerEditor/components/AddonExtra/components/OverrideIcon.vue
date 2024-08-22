@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Search } from '@element-plus/icons-vue'
+import { ElIcon, ElInput, ElSlider } from 'element-plus'
 import { AppIconTagRenderer, AppVirtualTable } from '@/components'
 import { useIconTagStore } from '@/stores'
 import { useState } from '@/hooks'
@@ -20,10 +21,27 @@ const modelValue = defineModel<API.MarkerExtra['iconOverride'] | undefined>({
   required: true,
 })
 
+const zoomRange = computed({
+  get: () => {
+    if (!modelValue.value)
+      return [-1, 4]
+    const { minZoom = -1, maxZoom = 4 } = modelValue.value
+    return [minZoom, maxZoom]
+  },
+  set: ([minZoom, maxZoom]) => {
+    modelValue.value = {
+      ...modelValue.value,
+      minZoom,
+      maxZoom,
+    }
+  },
+})
+
 const toggleTag = (tag: API.TagVo) => {
   const value = toValue(modelValue)
   if (!value || value.tag !== tag.tag) {
-    modelValue.value = { tag: tag.tag! }
+    const [minZoom, maxZoom] = zoomRange.value
+    modelValue.value = { tag: tag.tag!, minZoom, maxZoom }
     return
   }
   modelValue.value = undefined
@@ -37,18 +55,19 @@ const toggleTag = (tag: API.TagVo) => {
     </div>
 
     <div>
-      <el-input
+      <ElInput
         v-model="cacheText"
         placeholder="在 全部图标 中搜索..."
         class="mb-1"
+        clearable
         @change="setQuery"
       >
         <template #prefix>
-          <el-icon>
+          <ElIcon>
             <Search />
-          </el-icon>
+          </ElIcon>
         </template>
-      </el-input>
+      </ElInput>
 
       <div class="h-[258px] flex gap-1 overflow-hidden">
         <AppVirtualTable
@@ -64,7 +83,7 @@ const toggleTag = (tag: API.TagVo) => {
               :class="{ 'is-actived': modelValue?.tag === tag.tag }"
               @click="() => toggleTag(tag)"
             >
-              <el-icon
+              <ElIcon
                 v-if="modelValue?.tag === tag.tag"
                 class="checked-anime-in top-0 right-0 bg-[var(--el-color-primary)] rounded-[0_3px_0_4px] p-0.5 z-10"
                 style="position: absolute"
@@ -72,7 +91,7 @@ const toggleTag = (tag: API.TagVo) => {
                 :size="14"
               >
                 <Select />
-              </el-icon>
+              </ElIcon>
               <AppIconTagRenderer
                 :src="iconTagStore.tagSpriteUrl"
                 :mapping="iconTagStore.tagCoordMap.get(tag.tag!)"
@@ -83,7 +102,10 @@ const toggleTag = (tag: API.TagVo) => {
         </AppVirtualTable>
 
         <div class="flex-1 flex flex-col items-center">
-          <div class="text-sm flex-shrink-0 pt-4">
+          <div
+            class="w-[112px] text-center text-sm flex-shrink-0 pt-4 whitespace-nowrap text-ellipsis overflow-hidden"
+            :title="modelValue?.tag"
+          >
             {{ modelValue?.tag ?? '<选择图标>' }}
           </div>
 
@@ -95,10 +117,27 @@ const toggleTag = (tag: API.TagVo) => {
               v-else
               :src="iconTagStore.tagSpriteUrl"
               :mapping="iconTagStore.tagCoordMap.get(modelValue.tag)"
-              class="w-16 h-16 rounded-[32px] bg-[var(--el-color-info-light-9)]"
+              class="w-16 h-16 rounded bg-[var(--el-color-info-light-9)]"
             />
           </div>
         </div>
+      </div>
+
+      <div class="mt-3">
+        缩放级别
+      </div>
+
+      <div class="flex items-center gap-1 px-4 pb-4">
+        <ElSlider
+          v-model="zoomRange"
+          range
+          show-stops
+          :min="-1"
+          :max="4"
+          :step="1"
+          :disabled="!modelValue"
+          :marks="Object.fromEntries(Array.from({ length: 6 }).map((_, i) => [i - 1, `${i - 1}`]))"
+        />
       </div>
     </div>
   </div>
