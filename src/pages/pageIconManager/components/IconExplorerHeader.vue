@@ -53,7 +53,12 @@ const openTagCreatorDialog = () => {
 
 <template>
   <div class="col-span-3 flex justify-end items-center p-2 border-b-[1px] border-[var(--el-border-color-lighter)]">
-    <el-input v-model="queryTagName" style="max-width: 300px" :placeholder="`在 ${queryTagType.name} 中搜索`">
+    <el-input
+      v-model="queryTagName"
+      style="max-width: 300px"
+      :placeholder="`在 ${queryTagType.name} 中搜索`"
+      clearable
+    >
       <template #prefix>
         <el-icon>
           <Search />
