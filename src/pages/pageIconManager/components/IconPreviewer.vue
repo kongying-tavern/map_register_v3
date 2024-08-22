@@ -7,6 +7,7 @@ import { IconEditor } from '.'
 import { useIconTagStore } from '@/stores'
 import Api from '@/api/api'
 import { useFetchHook, useGlobalDialog } from '@/hooks'
+import { formatByteSize } from '@/utils'
 
 const props = defineProps<{
   tag?: API.TagVo | null
@@ -31,6 +32,21 @@ const { refresh: getUserInfo, loading: isUserInfoLoading, onSuccess } = useFetch
     return seed
   }, [] as Promise<API.SysUserVo>[])),
 })
+
+const { state, isLoading, execute } = useAsyncState<{ url?: string; size?: number[]; byteLength?: number }>(async () => {
+  if (!props.tag?.url)
+    return {}
+  const res = await fetch(props.tag.url)
+  const blob = await res.blob()
+  const bmp = await createImageBitmap(blob)
+  return {
+    url: props.tag.url,
+    byteLength: blob.size,
+    size: [bmp.width, bmp.height],
+  }
+}, {}, { immediate: false })
+
+watch(() => props.tag, () => execute(), { immediate: true })
 
 onSuccess(userInfos => userInfos.forEach((userInfo) => {
   userCache.value[userInfo.id!] = userInfo
@@ -92,13 +108,12 @@ const timeFormatter = (time?: string) => {
       <div
         v-else
         class="icon-image h-64 grid place-items-center overflow-hidden flex-shrink-0"
-        :style="{
-          '--bg': `url(${iconTagStore.tagSpriteUrl})`,
-          '--x': `${-iconTagStore.tagPositionMap[iconTag.tag!]?.[0]}px`,
-          '--y': `${-iconTagStore.tagPositionMap[iconTag.tag!]?.[1]}px`,
-        }"
       >
-        <div class="image-box w-16 h-16" />
+        <img
+          :src="iconTag.url"
+          class="hover:bg-[var(--el-color-primary)] max-w-full max-h-full object-contain"
+          crossorigin=""
+        >
       </div>
 
       <div class="icon-detail flex-1 px-2">
@@ -127,7 +142,7 @@ const timeFormatter = (time?: string) => {
             </el-text>
           </el-form-item>
 
-          <el-form-item label="作者" class="margin-bottom-0">
+          <el-form-item label="创建人" class="margin-bottom-0">
             <el-text truncated>
               {{ isUserInfoLoading ? '...' : userCache[form.creatorId ?? -1]?.nickname }} (id:{{ form.creatorId }})
             </el-text>
@@ -145,6 +160,14 @@ const timeFormatter = (time?: string) => {
 
           <el-form-item label="修改时间" class="margin-bottom-0">
             <el-text>{{ timeFormatter(form.updateTime) }}</el-text>
+          </el-form-item>
+
+          <el-form-item label="分辨率" class="margin-bottom-0">
+            <el-text>{{ isLoading ? '......' : `${state.size?.[0]} x ${state.size?.[1]}` }}</el-text>
+          </el-form-item>
+
+          <el-form-item label="文件大小" class="margin-bottom-0">
+            <el-text>{{ isLoading ? '......' : formatByteSize(state.byteLength ?? 0) }}</el-text>
           </el-form-item>
         </el-form>
       </div>
