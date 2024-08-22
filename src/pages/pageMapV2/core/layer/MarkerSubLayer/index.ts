@@ -14,7 +14,7 @@ export interface MarkerSubLayerProps {
 const ATTACH_TOTAL = 5
 
 export class MarkerSubLayer extends IconLayer<number, MarkerSubLayerProps> {
-  static layerName = 'MarkerLayer'
+  static layerName = 'MarkerSubLayer'
 
   static defaultProps = Object.assign({
     getIconFlag: { type: 'accessor', value: 0 },
