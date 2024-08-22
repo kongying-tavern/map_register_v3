@@ -156,7 +156,7 @@ const cancel = () => {
             <div class="w-16 h-16 border border-[var(--el-border-color)] box-content">
               <img v-if="croppedImageUrl" class="w-full h-full" :src="croppedImageUrl">
             </div>
-            <div class="text-xs bg-alpha">
+            <div class="text-xs">
               64 x 64
             </div>
             <div v-if="croppedImage" class=" text-xs">
