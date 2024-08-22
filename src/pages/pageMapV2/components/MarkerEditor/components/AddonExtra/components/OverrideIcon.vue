@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { Search } from '@element-plus/icons-vue'
-import { ElIcon, ElInput, ElSlider } from 'element-plus'
+import { QuestionFilled, Search } from '@element-plus/icons-vue'
+import { ElIcon, ElInput, ElPopover, ElSlider } from 'element-plus'
 import { AppIconTagRenderer, AppVirtualTable } from '@/components'
 import { useIconTagStore } from '@/stores'
 import { useState } from '@/hooks'
@@ -24,8 +24,8 @@ const modelValue = defineModel<API.MarkerExtra['iconOverride'] | undefined>({
 const zoomRange = computed({
   get: () => {
     if (!modelValue.value)
-      return [-1, 4]
-    const { minZoom = -1, maxZoom = 4 } = modelValue.value
+      return [0, 4]
+    const { minZoom = 0, maxZoom = 4 } = modelValue.value
     return [minZoom, maxZoom]
   },
   set: ([minZoom, maxZoom]) => {
@@ -36,6 +36,11 @@ const zoomRange = computed({
     }
   },
 })
+
+const marks = Object.fromEntries(Array.from({ length: 5 }).map((_, i) => {
+  const num = i
+  return [num, `${num}`]
+}))
 
 const toggleTag = (tag: API.TagVo) => {
   const value = toValue(modelValue)
@@ -123,8 +128,30 @@ const toggleTag = (tag: API.TagVo) => {
         </div>
       </div>
 
-      <div class="mt-3">
-        缩放级别
+      <div class="mt-3 flex gap-1 items-center">
+        <span>缩放级别</span>
+        <ElPopover placement="top-start" :width="300">
+          <div>
+            <div class="font-bold">
+              缩放级别说明
+            </div>
+            <div>0 - 地图缩小到最小时的级别</div>
+            <div>4 - 地图放大到最大时的级别</div>
+            <div class="font-bold mt-2">
+              参考级别
+            </div>
+            <div>七天神像: 0 ~ 4</div>
+            <div>传送锚点: 1 ~ 4</div>
+          </div>
+          <template #reference>
+            <ElIcon>
+              <QuestionFilled />
+            </ElIcon>
+          </template>
+        </ElPopover>
+        <div class="ml-1">
+          {{ !modelValue ? '' : `${zoomRange[0]} ~ ${zoomRange[1]}` }}
+        </div>
       </div>
 
       <div class="flex items-center gap-1 px-4 pb-4">
@@ -132,11 +159,11 @@ const toggleTag = (tag: API.TagVo) => {
           v-model="zoomRange"
           range
           show-stops
-          :min="-1"
+          :min="0"
           :max="4"
-          :step="1"
+          :step="0.5"
           :disabled="!modelValue"
-          :marks="Object.fromEntries(Array.from({ length: 6 }).map((_, i) => [i - 1, `${i - 1}`]))"
+          :marks="marks"
         />
       </div>
     </div>
