@@ -78,6 +78,8 @@ export const useWindowDrag = (context: WindowContext) => {
 
   useResizeObserver(mapCanvas, ([entry]) => {
     const { contentBoxSize: [boxSize] = [] } = entry
+    if (boxSize.blockSize === 0 || boxSize.inlineSize === 0)
+      return
     context.optimizeWindowPosition(boxSize)
   })
 
