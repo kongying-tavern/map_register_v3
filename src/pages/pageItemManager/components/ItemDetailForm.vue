@@ -165,7 +165,7 @@ defineExpose({
       </el-form-item>
 
       <el-form-item label="排序权重" prop="sortIndex">
-        <el-input-number v-model="formData.sortIndex" :min="0" :max="99" placeholder="请输入权重" style="width: 100%" />
+        <el-input-number v-model="formData.sortIndex" :min="-65536" :max="65535" :step="1" placeholder="请输入权重" style="width: 100%" />
       </el-form-item>
 
       <el-form-item label="物品图标" prop="iconTag">
