@@ -2,13 +2,15 @@ import { defineStore } from 'pinia'
 import { liveQuery } from 'dexie'
 import type { ShallowRef } from 'vue'
 import { useBackendUpdate, useMarkerSprite, useTagSprite, userHook } from './hooks'
-import { useUserAuthStore } from '.'
+import { useSocketStore, useUserAuthStore } from '.'
 import { Zip } from '@/utils'
 import Api from '@/api/api'
 import db from '@/database'
 
 /** 本地图标标签数据 */
 export const useIconTagStore = defineStore('global-icon-tag', () => {
+  const socketStore = useSocketStore()
+
   const tagList = shallowRef<API.TagVo[]>([])
   const total = computed(() => tagList.value.length)
 
@@ -39,9 +41,19 @@ export const useIconTagStore = defineStore('global-icon-tag', () => {
     },
   )
 
-  const { tagSpriteImage, tagSpriteUrl, tagPositionMap, tagsPositionList, refresh: refreshTagSprite, ...rest } = useTagSprite()
+  const {
+    tagSpriteImage,
+    tagSpriteUrl,
+    tagPositionMap,
+    tagsPositionList,
+    refresh: refreshTagSprite,
+    ...rest
+  } = useTagSprite()
 
-  const { markerSpriteUrl, markerSpriteMapping } = useMarkerSprite({
+  const {
+    markerSpriteUrl,
+    markerSpriteMapping,
+  } = useMarkerSprite({
     tagsPositionList,
     tagSprite: tagSpriteImage,
   })
@@ -50,6 +62,8 @@ export const useIconTagStore = defineStore('global-icon-tag', () => {
     tagList.value = data
     refreshTagSprite(data)
   })
+
+  socketStore.event.on('IconTagBinaryPurged', () => backendUpdater.refresh())
 
   return {
     // getters
