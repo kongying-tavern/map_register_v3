@@ -8,6 +8,7 @@ import {
   MapSiderMenu,
   MapStateBar,
   MapWindowManager,
+  MarkerBulkStateController,
   MarkerMoveController,
   MarkerPopover,
   MarkerTweakController,
@@ -57,7 +58,7 @@ provide(mapAffixLayerKey, mapAffixLayerRef)
 
       <MapWindowManager />
 
-      <ZoomController class="absolute right-0 top-1/2" :delta-zoom="0.2" />
+      <ZoomController :delta-zoom="0.2" />
 
       <MapStateBar />
 
@@ -65,6 +66,7 @@ provide(mapAffixLayerKey, mapAffixLayerRef)
 
       <MarkerMoveController v-if="accessStore.get('MARKER_EDIT')" />
       <MarkerTweakController v-if="accessStore.get('MARKER_BATCH_EDIT')" />
+      <MarkerBulkStateController />
     </div>
   </div>
 </template>

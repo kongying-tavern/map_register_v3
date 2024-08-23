@@ -60,6 +60,7 @@ declare namespace GSMapState {
     markerDragging: Record<number, API.Coordinate2D>
     markerLink: API.MarkerLinkageVo[]
     markerMultiSelect: boolean
+    markerBulkState: boolean
     unknown: unknown
   }
 

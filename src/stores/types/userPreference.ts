@@ -29,6 +29,9 @@ export interface UserPreference {
   /** 多选点位的快捷键 */
   'app.shortcutKey.multiselectMarker': string
 
+  /** 批量修改点位标记状态的快捷键 */
+  'app.shortcutKey.toggleMarkerState': string
+
   // ====================    用户中心    ====================
 
   /** 是否显示限定地区 */
@@ -156,6 +159,7 @@ export interface UserPreference {
 export const getDefaultPreference = (): UserPreference => ({
   'app.shortcutKey.toggleDarkMode': 'control_alt_t',
   'app.shortcutKey.multiselectMarker': 'control_alt_a',
+  'app.shortcutKey.toggleMarkerState': '',
 
   // map
   'map.setting.showZoneTag': true,
