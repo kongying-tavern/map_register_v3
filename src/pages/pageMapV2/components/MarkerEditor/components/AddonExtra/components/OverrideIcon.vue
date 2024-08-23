@@ -21,14 +21,18 @@ const modelValue = defineModel<API.MarkerExtra['iconOverride'] | undefined>({
   required: true,
 })
 
+/**
+ * @note
+ * 基于客户端逻辑，zoom+ 表示缩小，zoom- 表示放大。
+ */
 const zoomRange = computed({
   get: () => {
     if (!modelValue.value)
       return [0, 4]
-    const { minZoom = 0, maxZoom = 4 } = modelValue.value
-    return [minZoom, maxZoom]
+    const { maxZoom = 0, minZoom = 4 } = modelValue.value
+    return [maxZoom, minZoom]
   },
-  set: ([minZoom, maxZoom]) => {
+  set: ([maxZoom, minZoom]) => {
     modelValue.value = {
       ...modelValue.value,
       minZoom,
@@ -129,19 +133,20 @@ const toggleTag = (tag: API.TagVo) => {
       </div>
 
       <div class="mt-3 flex gap-1 items-center">
-        <span>缩放级别</span>
+        <span>可见放缩级别</span>
         <ElPopover placement="top-start" :width="300">
           <div>
             <div class="font-bold">
-              缩放级别说明
+              放缩级别说明
             </div>
-            <div>0 - 地图缩小到最小时的级别</div>
-            <div>4 - 地图放大到最大时的级别</div>
+            <div>4 - 地图缩小到最小时的级别</div>
+            <div>0 - 地图放大到最大时的级别</div>
             <div class="font-bold mt-2">
               参考级别
             </div>
-            <div>七天神像: 0 ~ 4</div>
-            <div>传送锚点: 1 ~ 4</div>
+            <div>七天神像: 0 ~ 3</div>
+            <div>传送锚点: 0 ~ 1</div>
+            <div>普通点位: 0 ~ 0.5</div>
           </div>
           <template #reference>
             <ElIcon>
