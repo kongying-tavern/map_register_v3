@@ -24,6 +24,8 @@ export const useImageUpload = (options: ImageUploadHookOptions) => {
 
   const text = ref('')
 
+  const iconName = ref('')
+
   const reset = () => {
     percentage.value = 0
     status.value = ''
@@ -75,7 +77,7 @@ export const useImageUpload = (options: ImageUploadHookOptions) => {
 
       text.value = '正在创建图片资产'
       const { data: iconId } = await Api.icon.createIcon({
-        name: fileName,
+        name: !iconName.value ? fileName : iconName.value,
         url: fileUrl,
         typeIdList: [],
         creatorId: userInfoStore.info.id,
@@ -113,5 +115,5 @@ export const useImageUpload = (options: ImageUploadHookOptions) => {
     })
   })
 
-  return { percentage, status, text, uploadImage, onSuccess, onError, ...rest }
+  return { iconName, percentage, status, text, uploadImage, onSuccess, onError, ...rest }
 }

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { Check, Close } from '@element-plus/icons-vue'
-import { ElSwitch } from 'element-plus'
+import { ElInput, ElSwitch } from 'element-plus'
 import { useImageLoad, useImageSelect, useImageUpload } from '../hooks'
 import { IconImageSelect } from '.'
 import { AppImageCropper, GlobalDialogController, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
@@ -34,17 +34,21 @@ const croppedImage = shallowRef<Blob>()
 const croppedImageUrl = useObjectUrl(croppedImage)
 
 const fitType = ref<'cover' | 'contain'>('cover')
-const isClipMode = ref(true)
+const isClipMode = ref(false)
 
 const onImageCrop = (image: Blob) => {
   croppedImage.value = image
 }
 
 // ==================== 上传图片 ====================
-const { loading: uploadLoading, percentage, status, text, uploadImage } = useImageUpload({
+const { iconName, loading: uploadLoading, percentage, status, text, uploadImage } = useImageUpload({
   image: computed(() => isClipMode.value ? croppedImage.value : localImage.value),
   tagName,
 })
+
+const trimNameSpace = () => {
+  iconName.value = iconName.value.trim()
+}
 
 // ==================== 复用图片 ====================
 const { selectedImage, useImage, loading: selectLoading } = useImageSelect({
@@ -102,23 +106,15 @@ const cancel = () => {
       :tabs-disabled="confirmLoading"
     >
       <div v-show="activedTabKey === TabKey.UPLOAD" class="grid gap-2 grid-cols-[auto_1fr]">
-        <div class="col-span-2 flex gap-1">
-          <ElSwitch
-            v-model="isClipMode"
-            active-text="启用裁剪"
-            inactive-text="原始尺寸"
-            inline-prompt
-            style="width: 72px; --el-switch-off-color: var(--el-color-warning); overflow: hidden;"
-          />
-          <ElSwitch
-            v-if="isClipMode"
-            v-model="fitType"
-            active-value="cover"
-            active-text="Cover"
-            inactive-value="contain"
-            inactive-text="Contain"
-            inline-prompt
-            style="--el-switch-off-color: var(--el-color-primary)"
+        <div class="col-span-2 flex items-center gap-1">
+          <div class="flex-shrink-0 whitespace-nowrap">
+            图片名称
+          </div>
+          <ElInput
+            v-model="iconName"
+            placeholder="留空将使用图片哈希值进行代替"
+            clearable
+            @change="trimNameSpace"
           />
         </div>
 
@@ -150,7 +146,28 @@ const cancel = () => {
           <el-button @click="loadLocalImage">
             {{ localImageUrl ? '切换' : '选择' }}图片
           </el-button>
-          <el-divider style="margin: 8px 0 0" />
+          <el-divider style="margin: 8px 0" />
+
+          <div class="w-full flex flex-col gap-1">
+            <ElSwitch
+              v-model="isClipMode"
+              active-text="启用裁剪"
+              inactive-text="原始尺寸"
+              inline-prompt
+              style="height: 20px; --el-switch-off-color: var(--el-color-warning); overflow: hidden;"
+            />
+            <ElSwitch
+              v-if="isClipMode"
+              v-model="fitType"
+              active-value="cover"
+              active-text="Cover"
+              inactive-value="contain"
+              inactive-text="Contain"
+              inline-prompt
+              style="height: 20px; --el-switch-off-color: var(--el-color-primary)"
+            />
+          </div>
+          <el-divider style="margin: 8px 0" />
 
           <div v-if="isClipMode" class="flex-1 grid place-items-center place-content-center gap-1">
             <div class="w-16 h-16 border border-[var(--el-border-color)] box-content">
