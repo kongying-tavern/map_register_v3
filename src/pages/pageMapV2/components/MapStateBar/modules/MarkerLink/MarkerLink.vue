@@ -4,7 +4,8 @@ import { LinkIndicator, MarkerIndicator, MarkerInfo, MarkerSummary } from './com
 import type { MLContext } from './core'
 import { useLinkCreate } from './hooks'
 import { useMapStateStore } from '@/stores'
-import { LINK_ACTION_NAME_MAP, LINK_ACTION_OPTIONS } from '@/shared'
+import type { LinkActionEnum } from '@/shared'
+import { LINK_ACTION_CONFIG, LINK_ACTION_NAME_MAP, LINK_ACTION_OPTIONS } from '@/shared'
 import { mapAffixLayerKey } from '@/pages/pageMapV2/shared'
 
 const props = defineProps<{
@@ -32,7 +33,7 @@ const { addHover, isHover, removeHover } = mapStateStore
 
 const { refresh: submit } = useLinkCreate(props.context)
 
-const mapAffixLayerRef = inject(mapAffixLayerKey, ref(null))
+const mapAffixLayerRef = inject(mapAffixLayerKey, ref())
 </script>
 
 <template>
@@ -41,12 +42,34 @@ const mapAffixLayerRef = inject(mapAffixLayerKey, ref(null))
       <div class="flex justify-between items-center">
         <MarkerInfo :marker="context.sourceMarker.value" placeholder="选择源点" color="#FF0" />
 
-        <el-select-v2
-          v-model="modelValue"
-          :options="LINK_ACTION_OPTIONS"
-          style="width: 110px"
-          class="px-1"
-        />
+        <div class="shrink-0 flex gap-2 items-center flex-col">
+          <el-select-v2
+            v-model="modelValue"
+            :options="LINK_ACTION_OPTIONS"
+            style="width: 120px"
+            class="px-1"
+          >
+            <template #default="{ item }">
+              <div class="w-full flex gap-1 items-center overflow-hidden">
+                <div
+                  class="shrink-0 w-1 h-[20px] bg-[var(--color)]"
+                  :style="{ '--color': `rgba(${LINK_ACTION_CONFIG[item.value as LinkActionEnum].lineColor.join(',')})` }"
+                />
+                <div class="overflow-hidden whitespace-nowrap text-ellipsis">
+                  {{ item.label }}
+                </div>
+              </div>
+            </template>
+          </el-select-v2>
+
+          <div
+            :style="{
+              '--width': '80%',
+              '--color': `rgba(${LINK_ACTION_CONFIG[modelValue].lineColor.join(',')})`,
+            }"
+            class="arrow-right"
+          />
+        </div>
 
         <MarkerInfo :marker="context.targetMarker.value" placeholder="选择目标点" color="#0F0" />
       </div>
@@ -76,6 +99,9 @@ const mapAffixLayerRef = inject(mapAffixLayerKey, ref(null))
             'is-hover': isHover<string>('markerLink', key),
             'is-delete': isDelete,
           }"
+          :style="{
+            '--color': `rgba(${LINK_ACTION_CONFIG[linkAction].lineColor.join(',')})`,
+          }"
           @pointerenter="() => addHover<string>('markerLink', key, true)"
           @pointerleave="() => removeHover<string>('markerLink', key)"
         >
@@ -84,9 +110,7 @@ const mapAffixLayerRef = inject(mapAffixLayerKey, ref(null))
             <div>
               {{ LINK_ACTION_NAME_MAP.get(linkAction) }}
             </div>
-            <el-icon>
-              <Right />
-            </el-icon>
+            <div class="arrow-right" />
           </div>
           <MarkerSummary :data="mapStateStore.currentMarkerIdMap.get(toId!)" />
           <el-button
@@ -178,5 +202,23 @@ const mapAffixLayerRef = inject(mapAffixLayerKey, ref(null))
   &.is-delete {
     background-color: #FAA;
   }
+}
+
+.arrow-right {
+  --h: 8px;
+  --stroke-width: 1px;
+  width: var(--width, 60%);
+  height: var(--h);
+  position: relative;
+  background: var(--color);
+  clip-path: polygon(
+    0% calc(50% - var(--stroke-width)),
+    calc(100% - var(--h)) calc(50% - var(--stroke-width)),
+    calc(100% - var(--h)) 0%,
+    100% 50%,
+    calc(100% - var(--h)) 100%,
+    calc(100% - var(--h)) calc(50% + var(--stroke-width)),
+    0% calc(50% + var(--stroke-width))
+  );
 }
 </style>
