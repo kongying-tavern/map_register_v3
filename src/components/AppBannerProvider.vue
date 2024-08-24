@@ -8,7 +8,7 @@ watch(visible, (isVisibile) => {
   cssHeight.value = isVisibile ? '32px' : '0px'
 }, { immediate: true })
 
-import.meta.env.VITE_ENV_BANNER && show(import.meta.env.VITE_ENV_BANNER)
+import.meta.env.VITE_ENV_BANNER && import.meta.env.VITE_ENV_BANNER_VISIBLE === 'on' && show(import.meta.env.VITE_ENV_BANNER)
 </script>
 
 <template>
