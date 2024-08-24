@@ -57,10 +57,6 @@ export class GSMarkerLayer extends CompositeLayer<GSCompositeLayerState & LayerA
       zoom,
     } = this.props
 
-    const isMarked = (id: number) => {
-      return markedMarkers.has(id)
-    }
-
     const { defaultIds, topIds } = markersIds.reduce((seed, id) => {
       if (isHover<number>('marker', id) || isFocus<number>('marker', id))
         seed.topIds.push(id)
@@ -89,7 +85,7 @@ export class GSMarkerLayer extends CompositeLayer<GSCompositeLayerState & LayerA
       if (!info)
         return 0b0001
       const { render: { isUnderground } } = info
-      const state = isMarked(id)
+      const state = markedMarkers.has(id)
         ? 0b1000
         : isFocus<number>('marker', id)
           ? 0b0100
