@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Brush, Crop } from '@element-plus/icons-vue'
+import { Brush, Crop, Grape } from '@element-plus/icons-vue'
 import { SettingBar, SettingGroup, SettingPanel, ShortcutKey } from '../components'
 import { usePreferenceStore } from '@/stores'
 import { getDefaultPreference } from '@/stores/types'
@@ -26,6 +26,15 @@ const defaultPreference = getDefaultPreference()
           <ShortcutKey
             v-model="preferenceStore.preference['app.shortcutKey.multiselectMarker']"
             :default-value="defaultPreference['app.shortcutKey.multiselectMarker']"
+          />
+        </template>
+      </SettingBar>
+
+      <SettingBar label="批量修改点位标记状态" :icon="Grape">
+        <template #setting>
+          <ShortcutKey
+            v-model="preferenceStore.preference['app.shortcutKey.toggleMarkerState']"
+            :default-value="defaultPreference['app.shortcutKey.toggleMarkerState']"
           />
         </template>
       </SettingBar>

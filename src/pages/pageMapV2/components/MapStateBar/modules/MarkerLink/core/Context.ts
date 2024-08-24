@@ -308,12 +308,12 @@ export class MLContext {
     this.existLinkGroups.value = {}
   }
 
-  protected cancelSelect = () => {
+  cancelSelect = () => {
     this.sourceMarker.value = undefined
     this.targetMarker.value = undefined
   }
 
-  protected selectSourceMarker = async (marker: GSMapState.MarkerWithRenderConfig) => {
+  selectSourceMarker = async (marker: GSMapState.MarkerWithRenderConfig) => {
     this.sourceMarker.value = marker
     this.targetMarker.value = undefined
     if (!this.existLinkGroups.value[marker.linkageId!]) {
@@ -387,3 +387,5 @@ export class MLContext {
     this.cancelSelect()
   }
 }
+
+export const markerLinkContext = new MLContext()

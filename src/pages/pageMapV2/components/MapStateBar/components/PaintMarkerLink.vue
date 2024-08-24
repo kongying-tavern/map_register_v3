@@ -1,12 +1,31 @@
 <script setup lang="ts">
 import { MarkerLink } from '../modules'
-import { MLContext } from '../modules/MarkerLink/core'
+import { markerLinkContext } from '../modules/MarkerLink/core'
 import BarItem from './BarItem.vue'
+import { useMapStateStore } from '@/stores'
 import { MapWindowTeleporter } from '@/pages/pageMapV2/components'
-
-const context = new MLContext()
+import { GSMarkerLinkLayer } from '@/pages/pageMapV2/core/layer'
+import type { GSMapState } from '@/stores/types/genshin-map-state'
 
 const prefix = crypto.randomUUID()
+const mapStateStore = useMapStateStore()
+
+const {
+  isEnable,
+  isProcessing,
+} = mapStateStore.subscribeMission('markerLink', () => [])
+
+mapStateStore.event.on('click', (info) => {
+  if (isProcessing.value || !isEnable.value || !(info.sourceLayer instanceof GSMarkerLinkLayer))
+    return
+  const { source } = (info.object) as GSMapState.MLRenderUnit
+  const marker = mapStateStore.currentMarkerIdMap.get(source)
+  if (!marker)
+    return
+  markerLinkContext.toggleMarkerLink()
+  markerLinkContext.selectSourceMarker(marker)
+  markerLinkContext.cancelSelect()
+})
 </script>
 
 <template>
@@ -14,11 +33,11 @@ const prefix = crypto.randomUUID()
     label="点位关联"
     class="grid place-content-center place-items-center"
     divider
-    :disabled="!context.isMissionEnable.value || context.loading.value"
-    @click="context.toggleMarkerLink"
+    :disabled="!markerLinkContext.isMissionEnable.value || markerLinkContext.loading.value"
+    @click="markerLinkContext.toggleMarkerLink"
   >
     <el-icon :size="20">
-      <svg class="icon" viewBox="0 0 1024 1024" :fill="context.isMissionProcessing.value ? '#00FF00' : 'currentColor'">
+      <svg class="icon" viewBox="0 0 1024 1024" :fill="markerLinkContext.isMissionProcessing.value ? '#00FF00' : 'currentColor'">
         <defs>
           <g :id="`${prefix}-a`" transform="translate(-72 -72)">
             <path d="M861.866667 164.266667c-87.466667-87.466667-230.4-89.6-320-2.133334l-68.266667 68.266667c-12.8 12.8-12.8 32 0 44.8s32 12.8 44.8 0l68.266667-68.266667c64-61.866667 166.4-61.866667 230.4 2.133334 64 64 64 168.533333 2.133333 232.533333l-117.333333 119.466667c-34.133333 34.133333-81.066667 51.2-128 49.066666-46.933333-4.266667-91.733333-27.733333-119.466667-66.133333-10.666667-14.933333-29.866667-17.066667-44.8-6.4-14.933333 10.666667-17.066667 29.866667-6.4 44.8 40.533333 53.333333 100.266667 87.466667 166.4 91.733333h17.066667c59.733333 0 119.466667-23.466667 162.133333-68.266666l117.333333-119.466667c83.2-89.6 83.2-234.666667-4.266666-322.133333z" />
@@ -40,8 +59,8 @@ const prefix = crypto.randomUUID()
       </svg>
     </el-icon>
 
-    <MapWindowTeleporter :id="context.id" @close="context.finalize">
-      <MarkerLink :context="context" />
+    <MapWindowTeleporter :id="markerLinkContext.id" @close="markerLinkContext.finalize">
+      <MarkerLink :context="markerLinkContext" />
     </MapWindowTeleporter>
   </BarItem>
 </template>
