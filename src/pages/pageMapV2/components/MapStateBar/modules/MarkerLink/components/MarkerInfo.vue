@@ -36,7 +36,7 @@ const areas = computed(() => {
 
 <template>
   <div
-    class="marker-info flex-1 flex-shrink-0 overflow-hidden"
+    class="marker-info"
     :style="{
       '--color': color,
     }"
@@ -57,13 +57,13 @@ const areas = computed(() => {
           {{ marker.markerTitle }}
         </div>
         <div class="flex gap-1">
-          <el-tag
+          <div
             v-for="area in areas"
             :key="area.id"
-            disable-transitions
+            class="text-xs text-[var(--el-text-color-secondary)] overflow-hidden whitespace-nowrap text-ellipsis"
           >
             {{ area.name }}
-          </el-tag>
+          </div>
         </div>
       </div>
     </div>
@@ -72,9 +72,10 @@ const areas = computed(() => {
 
 <style scoped>
 .marker-info {
-  height: 60px;
+  @apply flex-1 flex-shrink-0 overflow-hidden;
+  height: 52px;
   font-size: 14px;
   border: 2px solid color-mix(in srgb, var(--color), #00000020);
-  border-radius: 4px;
+  border-radius: 30px;
 }
 </style>
