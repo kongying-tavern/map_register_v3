@@ -57,8 +57,7 @@ const id = crypto.randomUUID()
   width: 40px;
   height: 40px;
   transform-origin: 50% 95%;
-  translate: -50% -95%;
-  scale: var(--scale);
+  transform: scale(var(--scale)) translate(-50%, -105%);
   color: var(--color);
 }
 
