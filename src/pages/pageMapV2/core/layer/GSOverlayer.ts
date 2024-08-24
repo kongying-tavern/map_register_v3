@@ -1,8 +1,11 @@
 import { BitmapLayer, SolidPolygonLayer } from '@deck.gl/layers'
-import type { LayersList } from '@deck.gl/core'
+import type { Color, LayersList } from '@deck.gl/core'
 import { CompositeLayer } from '@deck.gl/core'
 import type { GSCompositeLayerState } from '.'
 import { useMapStateStore } from '@/stores'
+
+const normalColor = [255, 255, 255, 0] as Color
+const activeColor = [255, 255, 0, 128] as Color
 
 /** 拖拽指示线图层 */
 export class GSOverlayer extends CompositeLayer<GSCompositeLayerState> {
@@ -28,7 +31,7 @@ export class GSOverlayer extends CompositeLayer<GSCompositeLayerState> {
       hover,
     } = this.props
 
-    const { isHover, hasHover } = useMapStateStore()
+    const { isHover } = useMapStateStore()
 
     const [w, h] = tileConfig.tile.size
     const [ox, oy] = tileConfig.tile.tilesOffset
@@ -45,6 +48,7 @@ export class GSOverlayer extends CompositeLayer<GSCompositeLayerState> {
           id,
           bounds: [xmin, ymax, xmax, ymin],
           image: url,
+          tintColor: isHover('overlay', chunkId) ? activeColor : normalColor,
           updateTriggers: {
             tintColor: hover,
           },
@@ -77,7 +81,7 @@ export class GSOverlayer extends CompositeLayer<GSCompositeLayerState> {
           id,
           bounds: [xmin, ymax, xmax, ymin],
           image: url,
-          tintColor: !hasHover('overlay') ? [255, 255, 255, 0] : isHover('overlay', chunkId) ? [255, 255, 255, 0] : [66, 66, 66, 40],
+          tintColor: isHover('overlay', chunkId) ? activeColor : normalColor,
           updateTriggers: {
             tintColor: hover,
           },
