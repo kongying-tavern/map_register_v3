@@ -20,12 +20,8 @@ interface ImportMetaEnv {
   /** @dev 顶部指示环境的置顶文本 */
   readonly VITE_ENV_BANNER: string
 
-  /** @dev 顶部指示环境标签的可见性 */
-  readonly VITE_ENV_BANNER_VISIBLE: 'on' | 'off'
-
-  /** 分支 & 提交 相关环境变量 */
-  VITE_COMMIT_BRANCH: string
-  VITE_COMMIT_REV_HASH: string
+  /** @dev 开发信息的可见性 */
+  readonly VITE_DEV_INFO_VISIBLE: 'on' | 'off'
 
   /** 个人信息面板 banner 展示图 */
   readonly VITE_BANNER_IMAGE: string

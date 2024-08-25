@@ -1,4 +1,5 @@
-import { join, resolve } from 'node:path'
+import path from 'node:path'
+import fs from 'node:fs/promises'
 import type { Plugin, ProxyOptions } from 'vite'
 import { defineConfig, loadEnv } from 'vite'
 import Vue from '@vitejs/plugin-vue'
@@ -51,7 +52,7 @@ export default defineConfig(async ({ mode }) => {
       {
         schemaPath: `${ENV.VITE_API_PROXY_TARGET}/v3/api-docs`,
         requestImportStatement: 'import { request } from \'@/utils\'',
-        serversPath: join('./src/api'),
+        serversPath: path.join('./src/api'),
         apiPrefix: '',
         projectName: 'api',
       },
@@ -67,20 +68,23 @@ export default defineConfig(async ({ mode }) => {
   const COMMIT_BRANCH = await git.revparse(['--abbrev-ref', 'HEAD'])
   const COMMIT_HASH = await git.revparse(['--short', 'HEAD'])
 
+  const packageJSON = await fs.readFile('package.json', { encoding: 'utf8' })
+  const VERSION = JSON.parse(packageJSON).version as string
+
   return {
     define: {
       // 关闭选项式 API 支持
-      '__VUE_OPTIONS_API__': false,
+      __VUE_OPTIONS_API__: false,
 
       // 在生产环境中关闭 devtools 支持
-      '__VUE_PROD_DEVTOOLS__': false,
+      __VUE_PROD_DEVTOOLS__: false,
 
       // 禁用生产版本中水合不匹配的详细警告以优化
-      '__VUE_PROD_HYDRATION_MISMATCH_DETAILS__': false,
+      __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false,
 
-      // 分支 & 提交 相关环境变量
-      'import.meta.env.VITE_COMMIT_BRANCH': JSON.stringify(COMMIT_BRANCH),
-      'import.meta.env.VITE_COMMIT_REV_HASH': JSON.stringify(COMMIT_HASH),
+      __APP_VERSION__: `'${VERSION}'`,
+      __APP_BRANCH__: `'${COMMIT_BRANCH}'`,
+      __APP_COMMIT_HASH__: `'${COMMIT_HASH}'`,
     },
 
     server: {
@@ -101,7 +105,7 @@ export default defineConfig(async ({ mode }) => {
       alias: [
         {
           find: /^@\//,
-          replacement: `${resolve(__dirname, 'src')}/`,
+          replacement: `${path.resolve(__dirname, 'src')}/`,
         },
       ],
     },

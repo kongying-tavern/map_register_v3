@@ -5,13 +5,10 @@ import KDBush from 'kdbush'
 import { useArchiveStore, useMapStateStore, usePreferenceStore, useShortcutStore } from '@/stores'
 import { genshinMapCanvasKey } from '@/pages/pageMapV2/shared'
 import { globalKeyUp$, globalPointerup$ } from '@/shared'
-import { useBanner } from '@/hooks'
 
 export const useMapSelect = () => {
   const canvasRef = inject(genshinMapCanvasKey) as Ref<HTMLCanvasElement>
   const { width, height } = useElementSize(canvasRef)
-
-  const { currentHeight: bannerHeight } = useBanner()
 
   const rect = ref<{
     start?: number[]
@@ -91,7 +88,7 @@ export const useMapSelect = () => {
 
       tap(([_, startEvent]) => {
         mapStateStore.setCursor('crosshair')
-        rect.value.start = [startEvent.clientX, startEvent.clientY - bannerHeight.value]
+        rect.value.start = [startEvent.clientX, startEvent.clientY]
       }),
 
       switchMap(([startInfo, startEvent]) => {
@@ -115,7 +112,7 @@ export const useMapSelect = () => {
           filter(([info]) => info.coordinate !== undefined),
 
           tap(([moveInfo, moveEvent]) => {
-            rect.value.end = [moveEvent.clientX, moveEvent.clientY - bannerHeight.value]
+            rect.value.end = [moveEvent.clientX, moveEvent.clientY]
 
             const [moveX, moveY] = moveInfo.coordinate!
             const [xmin, xmax] = startX <= moveX ? [startX, moveX] : [moveX, startX]

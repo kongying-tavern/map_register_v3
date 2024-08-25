@@ -1,5 +1,3 @@
-import { useBanner } from '@/hooks'
-
 const sharedContext = {
   cursorRef: ref<HTMLElement>(),
   isVisible: ref(false),
@@ -7,14 +5,12 @@ const sharedContext = {
 }
 
 export const useMapCursor = (isRoot = false) => {
-  const { visible, height: bannerHeight } = useBanner()
-
   if (isRoot) {
     useEventListener('pointermove', ({ pageX, pageY }) => {
       if (!sharedContext.isVisible.value)
         return
       sharedContext.pos.value.x = pageX
-      sharedContext.pos.value.y = pageY - (visible.value ? bannerHeight.value : 0)
+      sharedContext.pos.value.y = pageY
     })
   }
 

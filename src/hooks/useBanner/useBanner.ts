@@ -3,14 +3,6 @@ class BannerContext {
 
   visible = ref(false)
 
-  height = ref(32)
-
-  currentHeight = computed(() => {
-    if (!this.visible.value)
-      return 0
-    return this.height.value
-  })
-
   show = (msg?: string) => {
     if (!msg)
       return

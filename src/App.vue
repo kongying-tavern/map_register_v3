@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ElNotification } from 'element-plus'
+import AppDevInfo from './components/AppDevInfo.vue'
 import {
   AppBannerProvider,
   AppDialogProvider,
@@ -25,7 +26,7 @@ shortcutStore.useKeys(
 )
 
 // 开发模式下显示 banner
-const { visible } = useBanner()
+const { show } = useBanner()
 
 // 远程注销
 socketStore.event.on('UserKickedOut', () => {
@@ -42,25 +43,17 @@ socketStore.event.on('UserKickedOut', () => {
 socketStore.event.on('AppUpdated', () => {
   const delay = 5 * 60 * 1000 // 5 分钟后刷新
   const time = new Date(Date.now() + delay).toLocaleTimeString('zh-CN', { hour12: false })
-  ElNotification({
-    message: `网站已更新，将于 ${time} 进行刷新`,
-    type: 'info',
-    position: 'bottom-right',
-    duration: 0,
-  })
+  show(`网站已更新，将于 ${time} 进行刷新`)
   window.setTimeout(() => {
     window.location.reload()
   }, delay)
 })
+
+const devInfoVisible = import.meta.env.VITE_DEV_INFO_VISIBLE === 'on'
 </script>
 
 <template>
-  <div
-    class="w-full h-full overflow-hidden flex flex-col items-stretch transition-all duration-200"
-    :class="{
-      'pt-8': visible,
-    }"
-  >
+  <div class="w-full h-full overflow-hidden flex flex-col items-stretch">
     <AppLoadingPanel />
 
     <router-view v-slot="{ Component }">
@@ -72,6 +65,7 @@ socketStore.event.on('AppUpdated', () => {
     </router-view>
   </div>
 
+  <AppDevInfo v-if="devInfoVisible" />
   <AppBannerProvider />
   <AppDialogProvider />
   <AppNoticeProvider />
