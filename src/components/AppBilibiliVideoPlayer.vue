@@ -3,8 +3,6 @@ const props = defineProps<{
   url: string
 }>()
 
-useUrlSearchParams()
-
 const playerUrl = computed(() => {
   const bvid = props.url.match(/\/video\/([a-zA-Z0-9]+)/)?.[1]
   if (!bvid)
@@ -18,13 +16,22 @@ const playerUrl = computed(() => {
 </script>
 
 <template>
-  <iframe
-    :src="playerUrl"
-    scrolling="no"
-    border="0"
-    frameborder="no"
-    framespacing="0"
-    allowfullscreen="true"
-    style="width: 640px; height: 400px; border-radius: 8px;"
-  />
+  <div>
+    <template v-if="!playerUrl">
+      <slot name="error">
+        无法解析视频地址
+      </slot>
+    </template>
+
+    <iframe
+      v-else
+      :src="playerUrl"
+      scrolling="no"
+      border="0"
+      frameborder="no"
+      framespacing="0"
+      allowfullscreen="true"
+      style="width: 100%; height: 100%;"
+    />
+  </div>
 </template>
