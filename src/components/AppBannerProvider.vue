@@ -8,7 +8,10 @@ watch(visible, (isVisibile) => {
   cssHeight.value = isVisibile ? '32px' : '0px'
 }, { immediate: true })
 
-import.meta.env.VITE_ENV_BANNER && import.meta.env.VITE_ENV_BANNER_VISIBLE === 'on' && show(import.meta.env.VITE_ENV_BANNER)
+const parsedContent = (import.meta.env.VITE_ENV_BANNER ?? '')
+  .replace(/\{\{branch\}\}/g, import.meta.env.VITE_COMMIT_BRANCH)
+  .replace(/\{\{commit\}\}/g, import.meta.env.VITE_COMMIT_REV_HASH)
+parsedContent && import.meta.env.VITE_ENV_BANNER_VISIBLE === 'on' && show(import.meta.env.VITE_ENV_BANNER)
 </script>
 
 <template>

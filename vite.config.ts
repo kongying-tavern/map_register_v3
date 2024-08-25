@@ -5,9 +5,12 @@ import Vue from '@vitejs/plugin-vue'
 import VueJsx from '@vitejs/plugin-vue-jsx'
 import AutoImport from 'unplugin-auto-import/vite'
 import BaseSSL from '@vitejs/plugin-basic-ssl'
+import { simpleGit } from 'simple-git'
 import { openapi2ts } from './plugins'
 
-export default defineConfig(({ mode }) => {
+export default defineConfig(async ({ mode }) => {
+  const git = simpleGit()
+
   const ENV = loadEnv(mode, '.') as ImportMetaEnv
   // eslint-disable-next-line no-console
   console.log('[ENV]', ENV)
@@ -61,6 +64,9 @@ export default defineConfig(({ mode }) => {
     }))
   }
 
+  const COMMIT_BRANCH = await git.revparse(['--abbrev-ref', 'HEAD'])
+  const COMMIT_HASH = await git.revparse(['--abbrev-ref', 'HEAD'])
+
   return {
     define: {
       // 关闭选项式 API 支持
@@ -71,6 +77,10 @@ export default defineConfig(({ mode }) => {
 
       // 禁用生产版本中水合不匹配的详细警告以优化
       __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false,
+
+      // 分支 & 提交 相关环境变量
+      VITE_COMMIT_BRANCH: COMMIT_BRANCH,
+      VITE_COMMIT_REV_HASH: COMMIT_HASH,
     },
 
     server: {
