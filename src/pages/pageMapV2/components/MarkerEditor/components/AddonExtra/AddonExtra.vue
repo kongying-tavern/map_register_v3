@@ -199,8 +199,6 @@ const isAddonActive = useAddonActive(addonId, 'extra')
         @click="isAddonActive = !isAddonActive"
       />
 
-      <Transition />
-
       <AddonTeleporter :active="isAddonActive">
         <div class="w-full h-full flex flex-col overflow-x-hidden overflow-y-auto">
           <RegionCommon
