@@ -9,9 +9,9 @@ watch(visible, (isVisibile) => {
 }, { immediate: true })
 
 const parsedContent = (import.meta.env.VITE_ENV_BANNER ?? '')
-  .replace(/\{\{branch\}\}/g, import.meta.env.VITE_COMMIT_BRANCH)
-  .replace(/\{\{commit\}\}/g, import.meta.env.VITE_COMMIT_REV_HASH)
-parsedContent && import.meta.env.VITE_ENV_BANNER_VISIBLE === 'on' && show(import.meta.env.VITE_ENV_BANNER)
+  .replace(/\{\{branch\}\}/g, window.__APP_BRANCH__)
+  .replace(/\{\{commit\}\}/g, window.__APP_COMMIT_HASH__)
+parsedContent && import.meta.env.VITE_ENV_BANNER_VISIBLE === 'on' && show(parsedContent)
 </script>
 
 <template>

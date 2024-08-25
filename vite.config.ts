@@ -65,7 +65,7 @@ export default defineConfig(async ({ mode }) => {
   }
 
   const COMMIT_BRANCH = await git.revparse(['--abbrev-ref', 'HEAD'])
-  const COMMIT_HASH = await git.revparse(['--abbrev-ref', 'HEAD'])
+  const COMMIT_HASH = await git.revparse(['--short', 'HEAD'])
 
   return {
     define: {
@@ -79,8 +79,8 @@ export default defineConfig(async ({ mode }) => {
       __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false,
 
       // 分支 & 提交 相关环境变量
-      VITE_COMMIT_BRANCH: COMMIT_BRANCH,
-      VITE_COMMIT_REV_HASH: COMMIT_HASH,
+      __APP_BRANCH__: JSON.stringify(COMMIT_BRANCH),
+      __APP_COMMIT_HASH__: JSON.stringify(COMMIT_HASH),
     },
 
     server: {
