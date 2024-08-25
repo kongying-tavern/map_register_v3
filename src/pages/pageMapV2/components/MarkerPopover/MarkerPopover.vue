@@ -162,7 +162,7 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
             <div class="info-tag">
               {{ hiddenFlagType }}
             </div>
-            <div class="info-tag">
+            <div v-if="refreshTimeText" class="info-tag">
               {{ refreshTimeText }}
             </div>
           </div>
