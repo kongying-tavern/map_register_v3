@@ -7,6 +7,7 @@ import {
   AddonImageEditor,
   AddonItem,
   AddonRefreshtimeEditor,
+  AddonVideo,
 } from './components'
 import { useRules } from './validators'
 import type { InternalItemData } from './components/AddonItem/types'
@@ -248,7 +249,7 @@ defineExpose({
           </el-form-item>
 
           <el-form-item label="视频链接" prop="videoPath">
-            <el-input v-model="form.videoPath" />
+            <AddonVideo v-model="form.videoPath" v-model:addon-id="addonId" />
           </el-form-item>
         </el-form>
 
