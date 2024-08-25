@@ -31,6 +31,7 @@ const playBilibiliVideo = (row: API.MarkerVo) => {
     })
     .props({
       url: row.videoPath,
+      class: 'w-[640px] h-[360px] rounded overflow-hidden',
     })
     .open(AppBilibiliVideoPlayer)
 }

@@ -100,7 +100,10 @@ const playBilibiliVideo = (url: string) => {
       alignCenter: true,
       width: 'fit-content',
     })
-    .props({ url })
+    .props({
+      url,
+      class: 'w-[640px] h-[360px] rounded overflow-hidden',
+    })
     .open(AppBilibiliVideoPlayer)
 }
 
