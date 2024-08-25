@@ -232,14 +232,14 @@ export const useCropper = (options: ImageInfoHookOptions) => {
     if (!image)
       return
     _resetImagePosition(image)
-    props.autoCrop && crop()
+    autoCrop.value && crop()
   })
 
   watch(imageSource, _loadImage, { immediate: true })
 
   watch(fit, () => {
     _resetImagePosition(_image.value)
-    crop()
+    autoCrop.value && crop()
   })
 
   return {
