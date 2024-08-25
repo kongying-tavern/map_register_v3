@@ -70,17 +70,17 @@ export default defineConfig(async ({ mode }) => {
   return {
     define: {
       // 关闭选项式 API 支持
-      __VUE_OPTIONS_API__: false,
+      '__VUE_OPTIONS_API__': false,
 
       // 在生产环境中关闭 devtools 支持
-      __VUE_PROD_DEVTOOLS__: false,
+      '__VUE_PROD_DEVTOOLS__': false,
 
       // 禁用生产版本中水合不匹配的详细警告以优化
-      __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false,
+      '__VUE_PROD_HYDRATION_MISMATCH_DETAILS__': false,
 
       // 分支 & 提交 相关环境变量
-      __APP_BRANCH__: JSON.stringify(COMMIT_BRANCH),
-      __APP_COMMIT_HASH__: JSON.stringify(COMMIT_HASH),
+      'import.meta.env.VITE_COMMIT_BRANCH': JSON.stringify(COMMIT_BRANCH),
+      'import.meta.env.VITE_COMMIT_REV_HASH': JSON.stringify(COMMIT_HASH),
     },
 
     server: {
