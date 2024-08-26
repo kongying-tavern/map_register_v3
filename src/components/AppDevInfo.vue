@@ -1,9 +1,9 @@
 <script setup lang="ts">
 const {
-  __APP_VERSION__: version,
-  __APP_BRANCH__: branch,
-  __APP_COMMIT_HASH__: commitHash,
-} = window
+  APP_VERSION: version,
+  APP_BRANCH: branch,
+  APP_COMMIT_HASH: commitHash,
+} = import.meta.env
 </script>
 
 <template>

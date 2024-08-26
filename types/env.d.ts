@@ -73,6 +73,13 @@ interface ImportMetaEnv {
 
   /** WebSocket 地址 */
   readonly VITE_WS_BASE: string
+
+  /** @ignore */
+  readonly APP_VERSION: string
+  /** @ignore */
+  readonly APP_BRANCH: string
+  /** @ignore */
+  readonly APP_COMMIT_HASH: string
 }
 
 interface ImportMeta {

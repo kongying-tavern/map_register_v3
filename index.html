@@ -46,6 +46,11 @@
   <div id="app"></div>
 
   <script type="module">
+    window.__APP_VERSION__ = %APP_VERSION%;
+    window.__APP_BRANCH__ = %APP_BRANCH%;
+    window.__APP_COMMIT_HASH__ = %APP_COMMIT_HASH%;
+  </script>
+  <script type="module">
     const text = (() => {
       if (!window.isSecureContext)
         return '网站处于非安全上下文中，Web 应用无法正常运行。'
