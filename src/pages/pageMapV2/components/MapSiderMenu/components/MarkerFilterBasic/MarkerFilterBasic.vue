@@ -114,6 +114,7 @@ const selectedItemCount = computed(() => {
 const { typeTotalMap, typeCountMap } = useTypeCount({
   archivedMarkers,
   itemIdMap,
+  itemTypeIdMap,
   markerList,
   visibleItemIds,
 })
