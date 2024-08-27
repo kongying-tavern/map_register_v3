@@ -216,6 +216,7 @@ export class MLContext {
 
   /** 清除任务 */
   finalize = () => {
+    this.linkAction.value = LinkActionEnum.TRIGGER
     this.clearMission()
   }
 
