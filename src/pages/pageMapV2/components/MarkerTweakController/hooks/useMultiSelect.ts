@@ -5,7 +5,6 @@ import KDBush from 'kdbush'
 import { useTweakWindow } from '.'
 import { useAccessStore, useMapStateStore, usePreferenceStore, useShortcutStore } from '@/stores'
 import { genshinMapCanvasKey } from '@/pages/pageMapV2/shared'
-import { useBanner } from '@/hooks'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
 
 interface MultiSelectHookOptions {
@@ -27,8 +26,6 @@ export const useMultiSelect = (options: MultiSelectHookOptions) => {
 
   const canvasRef = inject(genshinMapCanvasKey) as Ref<HTMLCanvasElement>
   const { width, height } = useElementSize(canvasRef)
-
-  const { currentHeight: bannerHeight } = useBanner()
 
   // ==================== 多选点位 ====================
   const { pauseFocus, resumeFocus, isFocus, setFocus, removeFocus } = mapStateStore
@@ -147,7 +144,7 @@ export const useMultiSelect = (options: MultiSelectHookOptions) => {
       mapStateStore.setIsPopoverOnHover(true)
       mapStateStore.setViewPortLocked(true)
       rect.value = {
-        start: [startEvent.clientX, startEvent.clientY - bannerHeight.value],
+        start: [startEvent.clientX, startEvent.clientY],
       }
 
       const [startX, startY] = startInfo.coordinate!
@@ -171,7 +168,7 @@ export const useMultiSelect = (options: MultiSelectHookOptions) => {
         filter(([info]) => info.coordinate !== undefined),
 
         map(([moveInfo, moveEvent]) => {
-          rect.value!.end = [moveEvent.clientX, moveEvent.clientY - bannerHeight.value]
+          rect.value!.end = [moveEvent.clientX, moveEvent.clientY]
 
           const [moveX, moveY] = moveInfo.coordinate!
 
