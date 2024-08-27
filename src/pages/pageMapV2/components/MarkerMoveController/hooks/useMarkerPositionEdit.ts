@@ -1,8 +1,9 @@
-import { ElMessage, ElNotification } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import { useFetchHook } from '@/hooks'
 import db from '@/database'
 import Api from '@/api/api'
 import { useMapStateStore, useTileStore } from '@/stores'
+import { sleep } from '@/utils'
 
 export const useMarkerPositionEdit = () => {
   const tileStore = useTileStore()
@@ -53,6 +54,8 @@ export const useMarkerPositionEdit = () => {
 
       const { data: updatedMarkers = [] } = await Api.marker.listMarkerById(updateIds)
       await db.marker.bulkPut(updatedMarkers)
+
+      await sleep(1000)
     },
   })
 
@@ -67,8 +70,7 @@ export const useMarkerPositionEdit = () => {
   }
 
   onSuccess(() => {
-    ElNotification.success({
-      title: '移动点位',
+    ElMessage.success({
       message: '操作成功',
       offset: 48,
     })
