@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { QuestionFilled, Search } from '@element-plus/icons-vue'
-import { ElIcon, ElInput, ElPopover, ElSlider } from 'element-plus'
+import { ElButton, ElButtonGroup, ElIcon, ElInput, ElPopover, ElSlider } from 'element-plus'
 import { AppIconTagRenderer, AppVirtualTable } from '@/components'
 import { useIconTagStore } from '@/stores'
 import { useState } from '@/hooks'
@@ -29,10 +29,10 @@ const zoomRange = computed({
   get: () => {
     if (!modelValue.value)
       return [0, 4]
-    const { maxZoom = 0, minZoom = 4 } = modelValue.value
-    return [maxZoom, minZoom]
+    const { maxZoom = 4, minZoom = 0 } = modelValue.value
+    return [minZoom, maxZoom]
   },
-  set: ([maxZoom, minZoom]) => {
+  set: ([minZoom, maxZoom]) => {
     modelValue.value = {
       ...modelValue.value,
       minZoom,
@@ -40,6 +40,10 @@ const zoomRange = computed({
     }
   },
 })
+
+const quickSelect = (min: number, max: number) => {
+  zoomRange.value = [min, max]
+}
 
 const marks = Object.fromEntries(Array.from({ length: 5 }).map((_, i) => {
   const num = i
@@ -156,6 +160,19 @@ const toggleTag = (tag: API.TagVo) => {
         </ElPopover>
         <div class="ml-1">
           {{ !modelValue ? '' : `${zoomRange[0]} ~ ${zoomRange[1]}` }}
+        </div>
+        <div class="flex-1 flex justify-end">
+          <ElButtonGroup>
+            <ElButton size="small" @click="() => quickSelect(0, 3)">
+              神像
+            </ElButton>
+            <ElButton size="small" @click="() => quickSelect(0, 1)">
+              锚点
+            </ElButton>
+            <ElButton size="small" @click="() => quickSelect(0, 0.5)">
+              常规
+            </ElButton>
+          </ElButtonGroup>
         </div>
       </div>
 
