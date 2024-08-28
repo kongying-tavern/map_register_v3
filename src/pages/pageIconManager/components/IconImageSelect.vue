@@ -9,6 +9,21 @@ const modelValue = defineModel<API.IconVo | null>('modelValue', {
 
 const iconList = ref<API.IconVo[]>([])
 
+const { state, isLoading, execute } = useAsyncState<{ url?: string; size?: number[]; byteLength?: number }>(async () => {
+  if (!modelValue.value?.url)
+    return {}
+  const res = await fetch(modelValue.value.url)
+  const blob = await res.blob()
+  const bmp = await createImageBitmap(blob)
+  return {
+    url: modelValue.value.url,
+    byteLength: blob.size,
+    size: [bmp.width, bmp.height],
+  }
+}, {}, { immediate: true })
+
+watch(modelValue, () => execute())
+
 const iconQuery = ref('')
 
 const { pagination, layout } = usePagination({
@@ -114,7 +129,7 @@ onSuccess(({ record, total }) => {
           >
         </div>
         <div class="text-xs">
-          64x64 px
+          {{ isLoading ? 'loading...' : state.size ? `${state.size[0]} x ${state.size[1]} px` : '' }}
         </div>
       </div>
     </div>
