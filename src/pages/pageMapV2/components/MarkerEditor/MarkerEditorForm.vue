@@ -97,7 +97,7 @@ const availableExtraConfig = computed(() => {
 // 在 extra config 变化后移除不存在 config 内的值
 watch(() => availableExtraConfig.value, (config) => {
   const extraData = (toValue(form).extra ?? {}) as API.MarkerExtra
-  const { region_levels } = extraData.underground ?? {}
+  const { region_levels, is_underground } = extraData.underground ?? {}
   if (region_levels) {
     const { levels = [] } = config.underground ?? {}
     const region = levels.reduce((set, { children = [] }) => {
@@ -107,10 +107,13 @@ watch(() => availableExtraConfig.value, (config) => {
     const validRegions = region_levels.filter(regionValue => region.has(regionValue))
     form.value.extra!.underground = validRegions.length
       ? {
-          is_underground: true,
+          is_underground,
           region_levels: validRegions,
         }
-      : null
+      : {
+          is_underground,
+          region_levels: [],
+        }
   }
   if (!config['2_8_island'])
     delete form.value.extra!['2_8_island']
