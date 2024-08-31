@@ -40,7 +40,7 @@ const isUndergroundDifferent = computed(() => {
 const isIconoverrideDifferent = computed(() => {
   const a = props.current.iconOverride ?? {}
   const b = props.history.iconOverride ?? {}
-  return JSON.stringify(a) !== JSON.stringify(b)
+  return a.tag !== b.tag || a.maxZoom !== b.maxZoom || a.minZoom !== b.minZoom
 })
 </script>
 

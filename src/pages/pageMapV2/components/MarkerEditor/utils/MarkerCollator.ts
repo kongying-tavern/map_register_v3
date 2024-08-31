@@ -15,7 +15,7 @@ export class MarkerCollator {
     checkDifferent('position', a.position !== b.position)
     checkDifferent('picture', a.picture !== b.picture)
     checkDifferent('content', a.content !== b.content)
-    checkDifferent('extra', JSON.stringify(a.extra) !== JSON.stringify(b.extra))
+    checkDifferent('extra', JSON.stringify(a.extra ?? {}) !== JSON.stringify(b.extra ?? {}))
     checkDifferent('itemList', this.isItemDifferent(a.itemList, b.itemList))
 
     return differentKeys
