@@ -26,7 +26,8 @@ const { formItem } = useFormItem()
 const numberCount = computed({
   get: () => `${count.value}`,
   set: (value) => {
-    count.value = Number.parseInt(value, 10)
+    const num = Number(value)
+    count.value = num
   },
 })
 
@@ -100,8 +101,6 @@ const setRestItems = (target: HTMLElement | undefined, items: number[] = []) => 
 
     <input
       v-model="numberCount"
-      type="number"
-      :min="0"
       required
       class="
         number-input
