@@ -129,6 +129,19 @@ const isItemDifferent = (current: API.MarkerItemLinkVo[] = [], history: API.Mark
           :history="oldContent.videoPath"
         />
       </HistoryDifferItem>
+
+      <HistoryDifferItem
+        label="点位关联"
+        :auto-collapse="autoCollapse"
+        :is-different="isPlainDifferent(newContent.linkageId, oldContent.linkageId)"
+      >
+        <div class="text-xs">
+          旧关联组 ID: {{ oldContent.linkageId === undefined ? 'undefined' : `"${oldContent.linkageId}"` }}
+        </div>
+        <div class="text-xs">
+          新关联组 ID: {{ newContent.linkageId === undefined ? 'undefined' : `"${newContent.linkageId}"` }}
+        </div>
+      </HistoryDifferItem>
     </template>
   </el-skeleton>
 </template>
