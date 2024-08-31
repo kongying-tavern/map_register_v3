@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { MarkerCollator } from '../../utils'
 import HistoryDifferItem from './HistoryDifferItem.vue'
 import DifferCoord from './DifferCoord.vue'
 import DifferText from './DifferText.vue'
@@ -7,33 +8,14 @@ import DifferImage from './DifferImage.vue'
 import DifferExtra from './DifferExtra.vue'
 import { HIDDEN_FLAG_NAME_MAP } from '@/shared'
 
-defineProps<{
+const props = defineProps<{
   loading?: boolean
   newContent: API.MarkerVo
   oldContent: API.MarkerVo
   autoCollapse?: boolean
 }>()
 
-const isPlainDifferent = <T = unknown>(current?: T, history?: T) => current !== history
-
-const isExtraDifferent = (current: Record<string, unknown> = {}, history: Record<string, unknown> = {}) => {
-  return JSON.stringify(current) !== JSON.stringify(history)
-}
-
-const isItemDifferent = (current: API.MarkerItemLinkVo[] = [], history: API.MarkerItemLinkVo[] = []) => {
-  const itemCountMap = current.reduce((map, { itemId, count = 0 }) => map.set(itemId!, count), new Map<number, number>())
-
-  history.forEach(({ itemId, count = 0 }) => {
-    const newOne = itemCountMap.get(itemId!)
-    if (newOne === undefined || newOne !== count) {
-      itemCountMap.set(itemId!, count)
-      return
-    }
-    itemCountMap.delete(itemId!)
-  })
-
-  return itemCountMap.size > 0
-}
+const difference = computed(() => MarkerCollator.compare(props.newContent, props.oldContent))
 </script>
 
 <template>
@@ -42,7 +24,7 @@ const isItemDifferent = (current: API.MarkerItemLinkVo[] = [], history: API.Mark
       <HistoryDifferItem
         label="点位名称"
         :auto-collapse="autoCollapse"
-        :is-different="isPlainDifferent(newContent.markerTitle, oldContent.markerTitle)"
+        :is-different="difference.has('markerTitle')"
       >
         <DifferText
           :current="newContent.markerTitle"
@@ -53,7 +35,7 @@ const isItemDifferent = (current: API.MarkerItemLinkVo[] = [], history: API.Mark
       <HistoryDifferItem
         label="附加信息"
         :auto-collapse="autoCollapse"
-        :is-different="isExtraDifferent(newContent.extra, oldContent.extra)"
+        :is-different="difference.has('extra')"
       >
         <template #default="{ isDifferent }">
           <DifferExtra
@@ -67,7 +49,7 @@ const isItemDifferent = (current: API.MarkerItemLinkVo[] = [], history: API.Mark
       <HistoryDifferItem
         label="所属物品"
         :auto-collapse="autoCollapse"
-        :is-different="isItemDifferent(newContent.itemList, oldContent.itemList)"
+        :is-different="difference.has('itemList')"
       >
         <DifferItem
           :current="newContent.itemList"
@@ -78,7 +60,7 @@ const isItemDifferent = (current: API.MarkerItemLinkVo[] = [], history: API.Mark
       <HistoryDifferItem
         label="点位描述"
         :auto-collapse="autoCollapse"
-        :is-different="isPlainDifferent(newContent.content, oldContent.content)"
+        :is-different="difference.has('content')"
       >
         <DifferText
           :current="newContent.content"
@@ -89,7 +71,7 @@ const isItemDifferent = (current: API.MarkerItemLinkVo[] = [], history: API.Mark
       <HistoryDifferItem
         label="点位坐标"
         :auto-collapse="autoCollapse"
-        :is-different="isPlainDifferent(newContent.position, oldContent.position)"
+        :is-different="difference.has('position')"
       >
         <DifferCoord
           :current="newContent.position"
@@ -100,7 +82,7 @@ const isItemDifferent = (current: API.MarkerItemLinkVo[] = [], history: API.Mark
       <HistoryDifferItem
         label="点位图像"
         :auto-collapse="autoCollapse"
-        :is-different="isPlainDifferent(newContent.picture, oldContent.picture)"
+        :is-different="difference.has('picture')"
       >
         <DifferImage
           :current="newContent.picture"
@@ -111,7 +93,7 @@ const isItemDifferent = (current: API.MarkerItemLinkVo[] = [], history: API.Mark
       <HistoryDifferItem
         label="显示状态"
         :auto-collapse="autoCollapse"
-        :is-different="isPlainDifferent(oldContent.hiddenFlag, newContent.hiddenFlag)"
+        :is-different="difference.has('hiddenFlag')"
       >
         <DifferText
           :current="HIDDEN_FLAG_NAME_MAP[`${newContent.hiddenFlag}`]"
@@ -122,7 +104,7 @@ const isItemDifferent = (current: API.MarkerItemLinkVo[] = [], history: API.Mark
       <HistoryDifferItem
         label="视频链接"
         :auto-collapse="autoCollapse"
-        :is-different="isPlainDifferent(newContent.videoPath, oldContent.videoPath)"
+        :is-different="difference.has('videoPath')"
       >
         <DifferText
           :current="newContent.videoPath"
@@ -133,7 +115,7 @@ const isItemDifferent = (current: API.MarkerItemLinkVo[] = [], history: API.Mark
       <HistoryDifferItem
         label="点位关联"
         :auto-collapse="autoCollapse"
-        :is-different="isPlainDifferent(newContent.linkageId, oldContent.linkageId)"
+        :is-different="difference.has('linkageId')"
       >
         <div class="text-xs">
           旧关联组 ID: {{ oldContent.linkageId === undefined ? 'undefined' : `"${oldContent.linkageId}"` }}
