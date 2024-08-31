@@ -17,7 +17,6 @@ const filterParams = ref<Omit<API.NoticeSearchVo, 'current' | 'size'>>({
     NoticeChannel.COMMON,
     NoticeChannel.DADIAN,
     NoticeChannel.DASHBOARD,
-    NoticeChannel.TIANLI,
     NoticeChannel.WEB,
   ],
   getValid: undefined,

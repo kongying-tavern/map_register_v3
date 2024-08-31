@@ -20,9 +20,6 @@ export enum NoticeChannel {
 
   /** 后台 - 打点页 */
   DADIAN = 'DADIAN',
-
-  /** 维系天理 */
-  TIANLI = 'TIANLI',
 }
 
 export const NOTICE_NAME_MAP = new Map<string, string>([
@@ -33,5 +30,4 @@ export const NOTICE_NAME_MAP = new Map<string, string>([
   [NoticeChannel.WEB, '前台 - Web端'],
   [NoticeChannel.DASHBOARD, '后台'],
   [NoticeChannel.DADIAN, '后台 - 打点页'],
-  [NoticeChannel.TIANLI, '维系天理'],
 ])
