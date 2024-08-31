@@ -4,6 +4,7 @@ import DifferCoord from './DifferCoord.vue'
 import DifferText from './DifferText.vue'
 import DifferItem from './DifferItem.vue'
 import DifferImage from './DifferImage.vue'
+import DifferExtra from './DifferExtra.vue'
 import { HIDDEN_FLAG_NAME_MAP } from '@/shared'
 
 defineProps<{
@@ -12,6 +13,7 @@ defineProps<{
   oldContent: API.MarkerVo
   autoCollapse?: boolean
 }>()
+
 const isPlainDifferent = <T = unknown>(current?: T, history?: T) => current !== history
 
 const isExtraDifferent = (current: Record<string, unknown> = {}, history: Record<string, unknown> = {}) => {
@@ -49,14 +51,17 @@ const isItemDifferent = (current: API.MarkerItemLinkVo[] = [], history: API.Mark
       </HistoryDifferItem>
 
       <HistoryDifferItem
-        label="点位层级"
+        label="附加信息"
         :auto-collapse="autoCollapse"
         :is-different="isExtraDifferent(newContent.extra, oldContent.extra)"
       >
-        <DifferText
-          :current="JSON.stringify(newContent.extra ?? Object.create({}))"
-          :history="JSON.stringify(oldContent.extra ?? Object.create({}))"
-        />
+        <template #default="{ isDifferent }">
+          <DifferExtra
+            :current="newContent.extra"
+            :history="oldContent.extra"
+            :is-different="isDifferent"
+          />
+        </template>
       </HistoryDifferItem>
 
       <HistoryDifferItem

@@ -13,7 +13,7 @@ defineProps<{
     </summary>
 
     <div class="p-1">
-      <slot name="default" />
+      <slot name="default" :is-different="isDifferent" />
     </div>
   </details>
 </template>
