@@ -1,0 +1,55 @@
+<script setup lang="ts">
+import { ElDialog } from 'element-plus'
+import { useHistoryChart } from './hooks'
+import { WinDialog, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
+
+const props = defineProps<{
+  record: API.HistoryVo[]
+  current: API.MarkerVo
+  users: Map<string, API.SysUserSmallVo>
+}>()
+
+const visible = defineModel<boolean>('visible', {
+  required: true,
+})
+
+const containerRef = ref<HTMLElement>()
+useHistoryChart(containerRef, {
+  data: computed(() => props.record),
+  users: computed(() => props.users),
+  current: computed(() => props.current),
+})
+</script>
+
+<template>
+  <ElDialog
+    v-model="visible"
+    class="hidden-header bg-transparent"
+    width="fit-content"
+    align-center
+    destroy-on-close
+    append-to-body
+    :style="{
+      '--el-dialog-border-radius': '8px',
+      '--el-dialog-padding-primary': '0',
+    }"
+  >
+    <WinDialog>
+      <WinDialogTitleBar @close="visible = false">
+        历史记录统计图表
+      </WinDialogTitleBar>
+
+      <WinDialogTabPanel class="w-[512px] h-[384px] mb-2 flex flex-col overflow-hidden">
+        <div ref="containerRef" class="flex-1 w-full" />
+      </WinDialogTabPanel>
+    </WinDialog>
+  </ElDialog>
+</template>
+
+<style>
+.hidden-header {
+  .el-dialog__header {
+    display: none;
+  }
+}
+</style>
