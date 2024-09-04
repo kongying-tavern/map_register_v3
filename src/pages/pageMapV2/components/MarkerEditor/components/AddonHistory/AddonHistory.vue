@@ -3,6 +3,7 @@ import { Clock, CopyDocument } from '@element-plus/icons-vue'
 import { useMarkerHistory } from '../../hooks'
 import { AddonTeleporter } from '..'
 import HistoryViewer from './HistoryViewer.vue'
+import HistoryStatistic from './HistoryStatistic.vue'
 import { useFetchHook } from '@/hooks'
 import Api from '@/api/api'
 
@@ -67,6 +68,8 @@ const updater = computed(() => {
   if (!oldHistory.value)
     return creator.value
 })
+
+const statisticVisible = ref(false)
 </script>
 
 <template>
@@ -78,6 +81,13 @@ const updater = computed(() => {
     @click="isAddonActived = !isAddonActived"
   />
 
+  <HistoryStatistic
+    v-model:visible="statisticVisible"
+    :record="data.record"
+    :users="data.users"
+    :current="markerVo"
+  />
+
   <AddonTeleporter :active="isAddonActived">
     <div class="h-full overflow-hidden flex flex-col">
       <div class="flex-shrink-0 flex items-center mb-1">
@@ -86,8 +96,14 @@ const updater = computed(() => {
             <el-tag class="flex-shrink-0" :type="oldHistory ? 'warning' : 'success'" disable-transitions>
               {{ oldHistory ? '编辑' : '创建' }}
             </el-tag>
-            <div class="flex-1 text-xs">
-              {{ oldHistory ? new Date(oldHistory.createTime ?? '').toLocaleString() : new Date(markerVo.createTime ?? '').toLocaleString() }}
+            <div class="flex-1 px-1">
+              <el-button
+                text
+                style="width: 100%; padding: 0 4px; font-size: 12px;"
+                @click="statisticVisible = true"
+              >
+                {{ oldHistory ? new Date(oldHistory.createTime ?? '').toLocaleString() : new Date(markerVo.createTime ?? '').toLocaleString() }}
+              </el-button>
             </div>
           </div>
         </div>
