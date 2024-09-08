@@ -1,3 +1,4 @@
+export * from './GSGuide'
 export * from './GSMessage'
 export * from './GSSelect'
 export { default as GSButton } from './GSButton.vue'
