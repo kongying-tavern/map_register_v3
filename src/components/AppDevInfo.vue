@@ -10,7 +10,7 @@ const {
   <div
     class="
       fixed left-0 bottom-0 w-full h-8 leading-8 px-8
-      font-[HYWenHei-85W] text-white text-sm
+      font-[HYWenHei-85W] text-[var(--el-text-color-regular)] text-sm
       pointer-events-none
     "
     style="-webkit-text-stroke: 0.25px black;"
