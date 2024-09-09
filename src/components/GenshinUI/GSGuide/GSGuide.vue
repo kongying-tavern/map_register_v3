@@ -6,6 +6,11 @@ import { GuideBorder, GuideIcon } from './components'
 defineProps<{
   title?: string
   content?: string
+  hideClose?: boolean
+}>()
+
+defineEmits<{
+  close: []
 }>()
 </script>
 
@@ -15,8 +20,8 @@ defineProps<{
       <div class="w-[64px] h-[64px] border-[3px] border-[#ECE5D840] rounded-full">
         <GuideIcon class="w-full h-full" />
       </div>
-      <div class="absolute top-[45px] -translate-y-1/2 right-[30px]">
-        <GSButton theme="plain">
+      <div v-if="!hideClose" class="absolute top-[45px] -translate-y-1/2 right-[30px]">
+        <GSButton theme="plain" @click="() => $emit('close')">
           <template #icon>
             <el-icon color="var(--icon-color)" :size="20">
               <CloseFilled />
