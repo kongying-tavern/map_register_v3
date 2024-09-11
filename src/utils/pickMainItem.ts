@@ -32,9 +32,9 @@ export const pickMainItem = ({ itemList = [], extra = {} }: API.MarkerVo, itemId
   const { iconOverride } = extra as API.MarkerExtra
 
   return {
-    mainItemId: mainItem!.id!,
+    mainItemId: mainItem?.id ?? -1,
     restItemIds,
-    mainIconTag: iconOverride?.tag ?? mainItem!.iconTag!,
+    mainIconTag: iconOverride?.tag ?? mainItem?.iconTag ?? 'unknown',
     restIconTags,
   }
 }
