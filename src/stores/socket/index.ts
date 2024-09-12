@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ElNotification } from 'element-plus'
 import { usePreferenceStore, useUserInfoStore } from '..'
 import { userHook } from '../hooks'
-import { useSocket } from './hooks'
+import { useMessageEvent, useMessageList, useSocket } from './hooks'
 import { EventBus } from '@/utils'
 
 /** WebSocket 状态管理 */
@@ -33,17 +33,15 @@ export const useSocketStore = defineStore('global-web-socket', () => {
     }),
   })
 
+  const { event: messageEvent } = useMessageEvent(onMessage)
+  const { messageList } = useMessageList(messageEvent)
+
   const connect = async (userId?: number) => {
     if (userId === undefined)
       return close()
     _userId.value = userId
     open()
   }
-
-  onMessage((message) => {
-    const { event, data } = message
-    _eventBus.emit(event, data)
-  })
 
   onClose(() => {
     _userId.value = undefined
@@ -73,6 +71,7 @@ export const useSocketStore = defineStore('global-web-socket', () => {
   return {
     event: _eventBus,
     userId: _userId as Readonly<Ref<number | undefined>>,
+    messageList,
     status,
     notice,
     connect,
