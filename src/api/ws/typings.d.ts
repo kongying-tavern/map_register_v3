@@ -3,7 +3,7 @@ declare namespace API {
   interface WSReceviedData<K extends WSEventType> {
     event: K
     message?: string
-    data?: WSEventMap[K]
+    data: WSEventMap[K]
     time?: string
   }
 
@@ -17,26 +17,26 @@ declare namespace API {
     // ====================   其他   ====================
 
     /** 心跳包 */
-    Pong: void
+    Pong: []
 
     // ==================== 应用相关 ====================
 
     /** 应用更新通知 */
-    AppUpdated: void
+    AppUpdated: []
 
     // ==================== 图标相关 ====================
 
     /**
      * 图标标签 Bz2 刷新
      */
-    IconTagBinaryPurged: void
+    IconTagBinaryPurged: []
 
     // ==================== 物品相关 ====================
 
     /**
      * 物品 Bz2 刷新
      */
-    ItemBinaryPurged: void
+    ItemBinaryPurged: []
 
     // ==================== 点位相关 ====================
 
@@ -67,7 +67,7 @@ declare namespace API {
     /**
      * 点位 Bz2 刷新
      */
-    MarkerBinaryPurged: void
+    MarkerBinaryPurged: []
 
     // ==================== 点位关联相关 ====================
 
@@ -80,7 +80,7 @@ declare namespace API {
     /**
      * 点位关联Bz2刷新
      */
-    MarkerLinkageBinaryPurged: void
+    MarkerLinkageBinaryPurged: []
 
     // ==================== 公告相关 ====================
 
