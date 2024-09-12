@@ -50,6 +50,16 @@ export const _useMarkerFocus = () => {
     }
   })
 
+  const hover = computed(() => {
+    if (!hasHover('marker'))
+      return undefined
+    const hoverIds = mapStateStore.hoverElements.get('marker')
+    if (!hoverIds || hoverIds.size > 1)
+      return
+    const markerId = hoverIds.values().next().value
+    return mapStateStore.currentMarkerIdMap.get(markerId)
+  })
+
   const isPopoverActived = computed(() => focus.value !== undefined)
 
   const normalizeMarker = (markerVo: API.MarkerVo | GSMapState.MarkerWithRenderConfig): GSMapState.MarkerWithRenderConfig => {
@@ -74,14 +84,18 @@ export const _useMarkerFocus = () => {
 
   const focusMarker = (markerVo: API.MarkerVo | GSMapState.MarkerWithRenderConfig, {
     delay = 0,
+    duration = 400,
     flyToMarker = false,
   }: {
     delay?: number
+    duration?: number
     flyToMarker?: boolean
   }) => {
     blur()
     window.clearTimeout(delayTimer.value)
     const markerWithRender = normalizeMarker(markerVo)
+
+    mapStateStore.setTempMarkers('focus', [markerWithRender])
 
     if (delay > 0) {
       delayTimer.value = window.setTimeout(() => {
@@ -98,7 +112,7 @@ export const _useMarkerFocus = () => {
       mapStateStore.event.emit('setViewState', {
         target: [x, y],
         zoom: 0,
-        transitionDuration: delay,
+        transitionDuration: duration,
         transitionInterpolator: new EaseoutInterpolator(['target', 'zoom']),
       })
     }
@@ -131,6 +145,7 @@ export const _useMarkerFocus = () => {
   return {
     isPopoverActived,
     cachedMarkerVo,
+    hover,
     focus,
     updateLoading,
     normalizeMarker,
