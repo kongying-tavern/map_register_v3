@@ -42,6 +42,8 @@ export const useMarkerLink = (options: MarkerLinkHookOptions) => {
     }
 
     const focusedMarker = currentMarkerIdMap.value.get(markerIds.values().next().value)
+    if (!focusedMarker)
+      return setMLRenderList(list)
 
     const { linkageId } = focusedMarker!
 
