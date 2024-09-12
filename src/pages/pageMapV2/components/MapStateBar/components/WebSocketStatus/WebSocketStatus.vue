@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import BarItem from './BarItem.vue'
+import BarItem from '../BarItem.vue'
+import StatusWindow from './StatusWindow.vue'
 import { useSocketStore } from '@/stores'
-import { MapWindowTeleporter } from '@/pages/pageMapV2/components'
+import { MapWindowTeleporter, mapWindowContext as windowCtx } from '@/pages/pageMapV2/components'
 
 const socketStore = useSocketStore()
 
@@ -20,10 +21,30 @@ const color = computed(() => {
     return 'var(--color-norm)'
   return 'var(--color-fast)'
 })
+
+const toggleWSWindow = () => {
+  if (windowCtx.getWindow(id)) {
+    windowCtx.closeWindow(id)
+    return
+  }
+  const { clientWidth, clientHeight } = document.body
+  windowCtx.openWindow({
+    id,
+    name: '事件记录',
+    minWidth: 320,
+    minHeight: 400,
+    x: clientWidth - 320 - 8,
+    y: clientHeight - 400 - 80,
+  })
+}
+
+onUnmounted(() => {
+  windowCtx.closeWindow(id)
+})
 </script>
 
 <template>
-  <BarItem label="连接状态" divider>
+  <BarItem label="连接状态" divider @click="toggleWSWindow">
     <div
       class="h-full flex items-center font-['HYWenHei-85W'] px-1"
       :style="{
@@ -59,9 +80,7 @@ const color = computed(() => {
     </div>
 
     <MapWindowTeleporter :id="id">
-      <div>
-        {{ socketStore.status }}
-      </div>
+      <StatusWindow />
     </MapWindowTeleporter>
   </BarItem>
 </template>

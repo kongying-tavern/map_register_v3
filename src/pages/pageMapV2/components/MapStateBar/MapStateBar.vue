@@ -4,7 +4,7 @@ import {
   SwitchMarkerPopover,
   SwitchOverlay,
   ViewState,
-  WebSocketState,
+  WebSocketStatus,
 } from './components'
 import { useAccessStore } from '@/stores'
 
@@ -40,7 +40,7 @@ useEventListener(contentZoneRef, 'click', checkTooltip)
       <PaintMarkerLink v-if="accessStore.get('MARKER_LINK')" />
       <SwitchMarkerPopover />
       <SwitchOverlay />
-      <WebSocketState />
+      <WebSocketStatus />
       <ViewState />
     </div>
 
