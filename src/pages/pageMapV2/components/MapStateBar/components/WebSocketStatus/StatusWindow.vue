@@ -9,10 +9,11 @@ const userInfoStore = useUserInfoStore()
 <template>
   <div class="w-full h-full overflow-hidden overflow-y-auto bg-[var(--el-fill-color)]">
     <MessageItem
-      v-for="i in socketStore.messageList"
-      :key="i.key"
-      :data="i"
-      :is-self="i.user.id === userInfoStore.info.id"
+      v-for="(message, index) in socketStore.messageList"
+      :key="message.key"
+      :data="message"
+      :pre-data="socketStore.messageList[index - 1]"
+      :is-self="message.user.id === userInfoStore.info.id"
     />
   </div>
 </template>

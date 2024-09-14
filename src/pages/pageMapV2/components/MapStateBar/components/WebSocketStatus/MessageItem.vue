@@ -1,25 +1,33 @@
 <script setup lang="ts">
 import ILoading from './components/ILoading.vue'
 
-defineProps<{
+const props = defineProps<{
   data: Socket.DataEventRecord
+  preData?: Socket.DataEventRecord
   isSelf?: boolean
 }>()
+
+const isDifferentUser = computed(() => !props.preData || props.preData.user.id !== props.data.user.id)
 
 const modules: {
   [K in keyof Socket.DataEventMap]?: Component
 } = {
   MarkerAdded: defineAsyncComponent(() => import('./components/IMarkerAdd.vue')),
+  MarkerUpdated: defineAsyncComponent(() => import('./components/IMarkerUpdate.vue')),
+  MarkerDeleted: defineAsyncComponent(() => import('./components/IMarkerDelete.vue')),
 }
 </script>
 
 <template>
   <div
     class="p-2 flex gap-1 overflow-hidden"
-    :class="isSelf ? 'flex-row-reverse' : ''"
+    :class="{
+      'flex-row-reverse': isSelf,
+      'pt-0': !isDifferentUser,
+    }"
   >
     <div class="w-8 h-8 shrink-0">
-      <img class="rounded-[16px] bg-[var(--el-bg-color)]" :src="data.user.logo">
+      <img v-if="isDifferentUser" class="rounded-[16px] bg-[var(--el-bg-color)]" :src="data.user.logo">
     </div>
 
     <div
@@ -27,6 +35,7 @@ const modules: {
       :class="isSelf ? 'items-end' : 'items-start'"
     >
       <div
+        v-if="isDifferentUser"
         class="flex justify-end items-center gap-1"
         :class="isSelf ? 'flex-row-reverse' : ''"
       >
@@ -44,7 +53,7 @@ const modules: {
         </div>
 
         <Suspense v-else>
-          <component :is="modules[data.type]" :data="data" />
+          <component :is="modules[data.type]" :data="data" :pre-data="preData" />
           <template #fallback>
             <ILoading />
           </template>
