@@ -53,7 +53,7 @@ router.afterEach((to) => {
   nextTick(() => {
     useRouteStore().setLoading(false)
     const title = useTitle()
-    title.value = to.meta.title ?? import.meta.env.VITE_TITLE
+    title.value = `${import.meta.env.DEV ? '[DEV] ' : ''}${to.meta.title ?? import.meta.env.VITE_TITLE}`
   })
 })
 
