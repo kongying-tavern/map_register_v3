@@ -61,17 +61,21 @@ export const useHistoryChart = (element: Ref<HTMLElement | undefined>, options: 
       })
       .interaction('tooltip', {
         render: (_: Event, { items }: { items: { value: unknown; name: string }[] }) => {
-          const [id, diffs] = items
+          const [id, diffs, createTime] = items
           const user = users.value.get(`${id.value}`)
-          return `<div class="w-[120px] text-[var(--el-text-color-regular)]">
-            <div class="w-full text-sm font-bold whitespace-nowrap overflow-hidden text-ellipsis">${user?.nickname ?? user?.username ?? id.value}</div>
+          return `
+          <div class="w-[120px] text-[var(--el-text-color-regular)]">
+            <div>${new Date(Number(createTime.value)).toLocaleString()}</div>
+            <div class="w-full text-sm font-bold whitespace-nowrap overflow-hidden text-ellipsis">
+              ${user?.nickname ?? user?.username ?? id.value}
+            </div>
             <div>修改字段: ${Array.from((diffs.value as Set<string>)).join(', ')}</div>
           </div>`
         },
       })
 
     instance.line().encode('shape', 'smooth').tooltip({
-      items: ['creatorId', 'diffs'],
+      items: ['creatorId', 'diffs', 'createTime'],
     })
 
     instance.point().style('fill', 'white').tooltip(false)
