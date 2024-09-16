@@ -27,7 +27,8 @@ export const useMessageEvent = (onMessage: EventHookOn<API.WSData<keyof API.WSEv
       const { data: [markerInfo] = [], users = {} } = await Api.marker.listMarkerById([id])
       if (!markerInfo)
         return
-      _eventBus.emit('MarkerAdded', markerInfo, users[markerInfo.creatorId!] ?? {})
+      const userInfo = Object.assign({ id: markerInfo.creatorId }, users[markerInfo.creatorId!])
+      _eventBus.emit('MarkerAdded', markerInfo, userInfo)
     },
 
     MarkerBinaryPurged: () => {
@@ -43,7 +44,8 @@ export const useMessageEvent = (onMessage: EventHookOn<API.WSData<keyof API.WSEv
         sort: ['updateTime-'],
       })
       const markerInfo = JSON.parse(history.content!) as API.MarkerVo
-      _eventBus.emit('MarkerDeleted', markerInfo, users[history.creatorId!] ?? {})
+      const userInfo = Object.assign({ id: history.creatorId }, users[history.creatorId!])
+      _eventBus.emit('MarkerDeleted', markerInfo, userInfo)
     },
 
     MarkerLinkageBinaryPurged: () => {
@@ -55,7 +57,8 @@ export const useMessageEvent = (onMessage: EventHookOn<API.WSData<keyof API.WSEv
       if (!data.length)
         return
       const [{ updaterId }] = data
-      _eventBus.emit('MarkerLinked', data, users[updaterId!] ?? {})
+      const userInfo = Object.assign({ id: updaterId }, users[updaterId!])
+      _eventBus.emit('MarkerLinked', data, userInfo)
     },
 
     MarkerTweaked: async (ids) => {
@@ -63,14 +66,16 @@ export const useMessageEvent = (onMessage: EventHookOn<API.WSData<keyof API.WSEv
       if (!data.length)
         return
       const [{ updaterId }] = data
-      _eventBus.emit('MarkerTweaked', data, users[updaterId!] ?? {})
+      const userInfo = Object.assign({ id: updaterId }, users[updaterId!])
+      _eventBus.emit('MarkerTweaked', data, userInfo)
     },
 
     MarkerUpdated: async (id) => {
       const { data: [markerInfo] = [], users = {} } = await Api.marker.listMarkerById([id])
       if (!markerInfo)
         return
-      _eventBus.emit('MarkerUpdated', markerInfo, users[markerInfo.creatorId!] ?? {})
+      const userInfo = Object.assign({ id: markerInfo.updaterId }, users[markerInfo.updaterId!])
+      _eventBus.emit('MarkerUpdated', markerInfo, userInfo)
     },
 
     NoticeAdded: async (id) => {
