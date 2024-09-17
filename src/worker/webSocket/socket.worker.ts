@@ -2,6 +2,7 @@ import { EMPTY, defer, filter, fromEvent, map, of, race, repeat, switchMap, take
 import type { WS } from './types'
 import { SocketCloseReason, SocketWorkerEvent } from '@/shared/socket'
 import { EventBus } from '@/utils/EventBus'
+import { WEBSOCKET_WORKER_CONFIG } from '@/configs'
 
 export enum SocketAction {
   /** 心跳 */
@@ -9,22 +10,6 @@ export enum SocketAction {
 }
 
 declare const globalThis: (SharedWorkerGlobalScope | DedicatedWorkerGlobalScope)
-
-/** 连接配置。出于稳定性考虑，连接参数不再通过运行时确定。 */
-const OPTIONS = {
-  /** 心跳包 */
-  HEARTBEAT: {
-    /** 心跳包发送间隔 */
-    INTERVAL: 30000,
-    /** 超时判定时间 */
-    TIMEOUT: 30000,
-  },
-  /** 断线重连 */
-  RECONNECT: {
-    /** 重连等待时间 */
-    DELAY: 3000,
-  },
-}
 
 // ==================== state ====================
 
@@ -201,7 +186,7 @@ open$.pipe(
     // 超时检查的 Observable
     const pongOrTimeout = race(
       pingAndWaitForPong, // 等待 Pong
-      timer(OPTIONS.HEARTBEAT.TIMEOUT).pipe(map(() => 'timeout')), // 超时信号
+      timer(WEBSOCKET_WORKER_CONFIG.HEARTBEAT.TIMEOUT).pipe(map(() => 'timeout')), // 超时信号
     )
 
     // 处理 Pong 或超时事件
@@ -217,7 +202,7 @@ open$.pipe(
         }
       }),
 
-      repeat({ delay: OPTIONS.HEARTBEAT.INTERVAL }), // 重复发送 Ping 直到收到关闭事件或超时
+      repeat({ delay: WEBSOCKET_WORKER_CONFIG.HEARTBEAT.INTERVAL }), // 重复发送 Ping 直到收到关闭事件或超时
 
       takeUntil(close$), // 直到 socket 关闭停止发送
     )
@@ -233,7 +218,7 @@ close$.pipe(
   filter(ev => !ev.reason),
 
   switchMap(() => {
-    return timer(OPTIONS.RECONNECT.DELAY).pipe(
+    return timer(WEBSOCKET_WORKER_CONFIG.RECONNECT.DELAY).pipe(
       tap(() => {
         ws.reconnect()
       }),

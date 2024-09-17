@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { SettingBar, SettingGroup, SettingPanel } from '../components'
 import { usePreferenceStore, useSocketStore, useUserInfoStore } from '@/stores'
+import { WEBSOCKET_WORKER_CONFIG } from '@/configs'
 
 const socketStore = useSocketStore()
 const userInfoStore = useUserInfoStore()
@@ -45,7 +46,7 @@ const wsEvents: { label: string; value: API.WSEventType; divider?: boolean }[] =
 <template>
   <SettingPanel>
     <SettingGroup name="Web Socket">
-      <SettingBar label="响应时延" note="当前检测间隔: 5s">
+      <SettingBar label="响应时延" :note="`检测间隔: ${WEBSOCKET_WORKER_CONFIG.HEARTBEAT.INTERVAL / 1000}s`">
         <template #setting>
           {{ text }}
         </template>
