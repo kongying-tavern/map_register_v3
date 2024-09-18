@@ -5,6 +5,7 @@ import DifferText from './DifferText.vue'
 import DifferItem from './DifferItem.vue'
 import DifferImage from './DifferImage.vue'
 import DifferExtra from './DifferExtra.vue'
+import DifferRefreshTime from './DifferRefreshTime.vue'
 import { HIDDEN_FLAG_NAME_MAP } from '@/shared'
 
 const props = defineProps<{
@@ -108,6 +109,17 @@ const difference = computed(() => {
         <DifferText
           :current="HIDDEN_FLAG_NAME_MAP[`${newContent.hiddenFlag}`]"
           :history="HIDDEN_FLAG_NAME_MAP[`${oldContent.hiddenFlag}`]"
+        />
+      </HistoryDifferItem>
+
+      <HistoryDifferItem
+        label="刷新时间"
+        :auto-collapse="autoCollapse"
+        :is-different="difference.has('refreshTime')"
+      >
+        <DifferRefreshTime
+          :current="newContent.refreshTime"
+          :history="oldContent.refreshTime"
         />
       </HistoryDifferItem>
 
