@@ -6,7 +6,7 @@ import DifferItem from './DifferItem.vue'
 import DifferImage from './DifferImage.vue'
 import DifferExtra from './DifferExtra.vue'
 import DifferRefreshTime from './DifferRefreshTime.vue'
-import { HIDDEN_FLAG_NAME_MAP } from '@/shared'
+import DifferHiddenFlag from './DifferHiddenFlag.vue'
 
 const props = defineProps<{
   loading?: boolean
@@ -106,9 +106,9 @@ const difference = computed(() => {
         :auto-collapse="autoCollapse"
         :is-different="difference.has('hiddenFlag')"
       >
-        <DifferText
-          :current="HIDDEN_FLAG_NAME_MAP[`${newContent.hiddenFlag}`]"
-          :history="HIDDEN_FLAG_NAME_MAP[`${oldContent.hiddenFlag}`]"
+        <DifferHiddenFlag
+          :current="newContent.hiddenFlag"
+          :history="oldContent.hiddenFlag"
         />
       </HistoryDifferItem>
 
