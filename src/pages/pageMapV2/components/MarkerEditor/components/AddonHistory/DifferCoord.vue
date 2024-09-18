@@ -24,7 +24,7 @@ const vector = computed(() => {
   const [x1, y1] = toValue(start)
   const [x2, y2] = toValue(end)
   return {
-    angle: Math.atan((y2 - y1) / (x2 - x1)),
+    angle: Math.atan((y2 - y1) / (x2 - x1)) || 0,
     length: Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2),
   }
 })
@@ -32,7 +32,13 @@ const vector = computed(() => {
 
 <template>
   <div class="flex items-center gap-2">
-    <div class="vector" :style="{ '--arrow-angle': vector.angle }" />
+    <div
+      class="vector"
+      :class="{
+        'is-moved': vector.length > 0,
+      }"
+      :style="{ '--arrow-angle': vector.angle }"
+    />
     <div class="flex flex-col text-xs">
       <div>移动矢量</div>
       <div :title="history">
@@ -55,23 +61,11 @@ const vector = computed(() => {
   height: 80px;
   border-radius: 40px;
   border: 1px solid var(--draw-color);
-  background: linear-gradient(
-    to right,
-    transparent calc(50% - 0.5px),
-    var(--draw-color) calc(50% - 0.5px),
-    var(--draw-color) calc(50% + 0.5px),
-    transparent calc(50% + 0.5px)
-  ), linear-gradient(
-    to bottom,
-    transparent calc(50% - 0.5px),
-    var(--draw-color) calc(50% - 0.5px),
-    var(--draw-color) calc(50% + 0.5px),
-    transparent calc(50% + 0.5px)
-  );
+  background: radial-gradient(red 1px, transparent 1px);
   position: relative;
   overflow: hidden;
 
-  &::before {
+  &.is-moved::before {
     content: '';
     position: absolute;
     border-radius: 1px;
