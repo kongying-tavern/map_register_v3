@@ -6,7 +6,6 @@ import { useAccessStore, useSocketStore, useUserAuthStore } from '.'
 import { Zip } from '@/utils'
 import Api from '@/api/api'
 import db from '@/database'
-import { HistoryRecordType } from '@/shared'
 
 /** 全量点位的全局数据 */
 export const useMarkerStore = defineStore('global-marker', () => {
@@ -41,7 +40,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
   })
 
   // 点位压缩数据更新
-  socketStore.event.on('MarkerBinaryPurged', () => {
+  socketStore.messageEvent.on('MarkerBinaryPurged', () => {
     // 已连接同步服务时不需要全量更新
     if (socketStore.status === WebSocket.OPEN)
       return
@@ -49,85 +48,49 @@ export const useMarkerStore = defineStore('global-marker', () => {
   })
 
   // 单个点位更新
-  socketStore.event.on('MarkerUpdated', async (id) => {
-    const { data: [markerInfo] = [], users = {} } = await Api.marker.listMarkerById([id])
-    if (!markerInfo)
-      return
-
+  socketStore.messageEvent.on('MarkerUpdated', async (markerInfo, userInfo) => {
     await db.marker.put(markerInfo)
-
-    const { markerTitle, updaterId } = markerInfo
-    const { username = `(uid: ${updaterId})`, nickname } = users[updaterId!] ?? {}
-
+    const { id, markerTitle, updaterId } = markerInfo
+    const { username = `(uid: ${updaterId})`, nickname } = userInfo
     socketStore.notice('MarkerUpdated', {
       message: `${nickname ?? username} 更新了点位 ${markerTitle} (id:${id})`,
       icon: Location,
       customClass: 'text-[var(--el-color-primary)]',
-      offset: 48,
     })
-
     updateHook.trigger(markerInfo)
   })
 
   // 单个点位新增
-  socketStore.event.on('MarkerAdded', async (id) => {
-    const { data: [markerInfo] = [], users = {} } = await Api.marker.listMarkerById([id])
-    if (!markerInfo)
-      return
-
+  socketStore.messageEvent.on('MarkerAdded', async (markerInfo, userInfo) => {
     await db.marker.put(markerInfo)
-
-    const { markerTitle, creatorId } = markerInfo
-    const { username = `(uid: ${creatorId})`, nickname } = users[creatorId!] ?? {}
-
+    const { id, markerTitle, creatorId } = markerInfo
+    const { username = `(uid: ${creatorId})`, nickname } = userInfo
     socketStore.notice('MarkerAdded', {
       message: `${nickname ?? username} 新增了点位 ${markerTitle} (id:${id})`,
       icon: AddLocation,
       customClass: 'text-[var(--el-color-success)]',
-      offset: 48,
     })
   })
 
   // 单个点位删除
-  socketStore.event.on('MarkerDeleted', async (id) => {
-    await db.marker.delete(id)
-
-    const { data: { record: [history] = [] } = {}, users = {} } = await Api.history.searchHistory({
-      current: 0,
-      id: [id],
-      size: 1,
-      type: HistoryRecordType.MARKER,
-      sort: ['updateTime-'],
-    })
-
-    if (!history)
-      return
-
-    const { markerTitle, creatorId } = JSON.parse(history.content ?? '{}') as API.MarkerVo
-    const { username = `(uid: ${creatorId})`, nickname } = users[history.creatorId!] ?? {}
-
+  socketStore.messageEvent.on('MarkerDeleted', async (markerInfo, userInfo) => {
+    await db.marker.delete(markerInfo.id!)
+    const { id, markerTitle, creatorId } = markerInfo
+    const { username = `(uid: ${creatorId})`, nickname } = userInfo
     socketStore.notice('MarkerDeleted', {
       message: `${nickname ?? username} 删除了点位 ${markerTitle} (id:${id})`,
       icon: DeleteLocation,
       customClass: 'text-[var(--el-color-danger)]',
-      offset: 48,
     })
   })
 
   // 点位批量更新
-  socketStore.event.on('MarkerTweaked', async (ids) => {
-    const { data = [], users = {} } = await Api.marker.listMarkerById(ids)
-    if (!data.length)
-      return
-
+  socketStore.messageEvent.on('MarkerTweaked', async (data, userInfo) => {
     await db.marker.bulkPut(data)
-
     const [{ updaterId }] = data
-
-    const { username = `(uid: ${updaterId})`, nickname } = users[updaterId!] ?? {}
-
+    const { username = `(uid: ${updaterId})`, nickname } = userInfo
     socketStore.notice('MarkerTweaked', {
-      message: `${nickname ?? username} 批量更新了点位: ${ids.join(', ')}`,
+      message: `${nickname ?? username} 批量更新了 ${data.length} 个点位`,
       icon: Location,
       customClass: 'text-[var(--el-color-success)]',
       offset: 48,

@@ -71,6 +71,7 @@ export const useSocketStore = defineStore('global-web-socket', () => {
   return {
     event: _eventBus,
     userId: _userId as Readonly<Ref<number | undefined>>,
+    messageEvent,
     messageList,
     status,
     notice,
