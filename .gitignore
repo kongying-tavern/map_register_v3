@@ -25,6 +25,9 @@ debug.log
 # 忽略本地环境变量
 .env.*local
 
+# mock
+.mock
+
 # 自动更新
 auto-imports.d.ts
 
