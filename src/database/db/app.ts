@@ -33,8 +33,11 @@ export class AppDatabase extends Dexie {
   /** 数据摘要 @仅限本地 */
   declare digest: Dexie.Table<DBType.DigestInfo, string>
 
+  /** WebSocket 事件 @仅限本地 */
+  declare websocketEvents: Dexie.Table<Socket.DataEventRecord, string>
+
   /** 数据库结构版本 */
-  readonly VERSION = 4.2
+  readonly VERSION = 4.4
 
   constructor() {
     super('AppDatabase')

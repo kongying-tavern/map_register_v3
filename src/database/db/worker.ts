@@ -19,6 +19,7 @@ export class WorkerThreadDB extends AppDatabase {
         userArchive: 'id',
         cache: '&id',
         digest: '&code, tableName',
+        websocketEvents: '&key, time',
       })
   }
 }

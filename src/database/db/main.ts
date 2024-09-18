@@ -20,6 +20,7 @@ export class MainThreadDB extends AppDatabase {
         userArchive: 'id',
         cache: '&id',
         digest: '&code, tableName',
+        websocketEvents: '&key, time',
       })
   }
 }
