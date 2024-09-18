@@ -1,18 +1,14 @@
 import { defineStore } from 'pinia'
 import type { MaybeRef } from 'vue'
-import { filter, fromEvent, map } from 'rxjs'
+import { filter, map } from 'rxjs'
 import { useSubscription } from '@vueuse/rxjs'
-import { CONTROL_KEYS } from '@/shared'
+import { CONTROL_KEYS, globalKeydown$ } from '@/shared'
 import { ShortcutKeyUtil } from '@/utils'
 
 export const useShortcutStore = defineStore('shortcut-keys', () => {
   const isPaused = ref(false)
 
-  const keydown$ = fromEvent<KeyboardEvent>(document.body, 'keydown', {
-    passive: false,
-  })
-
-  const shortcut$ = keydown$.pipe(
+  const shortcut$ = globalKeydown$.pipe(
     filter(ev => [
       !isPaused.value,
       !ev.repeat,

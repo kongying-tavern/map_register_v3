@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { Check, Close, Delete, RefreshLeft } from '@element-plus/icons-vue'
 import { ElAlert, ElButton } from 'element-plus'
-import { filter, fromEvent, tap } from 'rxjs'
+import { filter, tap } from 'rxjs'
 import { useSubscription } from '@vueuse/rxjs'
 import { ShortcutKeyUtil } from '@/utils'
 import { usePreferenceStore, useShortcutStore } from '@/stores'
 import { WinDialog, WinDialogFooter } from '@/components/WinUI'
-import { CONTROL_KEYS, KEYBOARD_ALIAS, STANDARD_KEYBOARD_KEYS } from '@/shared'
+import { CONTROL_KEYS, KEYBOARD_ALIAS, STANDARD_KEYBOARD_KEYS, globalKeydown$ } from '@/shared'
 
 const props = withDefaults(defineProps<{
   defaultValue?: string
@@ -91,11 +91,7 @@ const cancel = () => {
   visible.value = false
 }
 
-const keydown$ = fromEvent<KeyboardEvent>(document.body, 'keydown', {
-  passive: false,
-})
-
-useSubscription(keydown$.pipe(
+useSubscription(globalKeydown$.pipe(
   filter(ev => !ev.repeat && STANDARD_KEYBOARD_KEYS.has(ev.key.toLowerCase())),
   tap((ev) => {
     ev.preventDefault()
