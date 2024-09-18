@@ -1,25 +1,13 @@
 import { Chart } from '@antv/g2'
-import { MarkerCollator } from '../../../utils'
 import { useTheme } from '@/hooks'
 
 interface HistoryChartHookOptions {
-  data: Ref<API.HistoryVo[]>
-  current: Ref<API.MarkerVo>
+  data: Ref<(API.HistoryVo & { diffs: Set<string> })[]>
   users: Ref<Map<string, API.SysUserSmallVo>>
 }
 
 export const useHistoryChart = (element: Ref<HTMLElement | undefined>, options: HistoryChartHookOptions) => {
-  const { data, users, current } = options
-
-  const coverteredData = computed(() => data.value.toReversed().map((item, index, arr) => {
-    const newContent = arr[index + 1]?.content
-    const newOne = newContent ? JSON.parse(newContent) as API.MarkerVo : current.value
-    const diffs = MarkerCollator.compare(newOne, JSON.parse(item.content!))
-    return {
-      ...item,
-      diffs,
-    }
-  }))
+  const { data, users } = options
 
   const { isDark } = useTheme()
 
@@ -45,9 +33,9 @@ export const useHistoryChart = (element: Ref<HTMLElement | undefined>, options: 
 
     instance
       .theme({ type: isDark.value ? 'dark' : 'light' })
-      .data(toValue(coverteredData))
-      .encode('x', (item: (typeof coverteredData)['value'][number]) => new Date(item.createTime ?? '').toLocaleString())
-      .encode('y', (item: (typeof coverteredData)['value'][number]) => item.diffs.size)
+      .data(toValue(data))
+      .encode('x', (item: (typeof data)['value'][number]) => new Date(item.createTime ?? '').toLocaleString())
+      .encode('y', (item: (typeof data)['value'][number]) => item.diffs.size)
       .axis('x', {
         title: '时间',
         labelSpacing: 15,
@@ -82,8 +70,8 @@ export const useHistoryChart = (element: Ref<HTMLElement | undefined>, options: 
 
     await instance.render()
 
-    const stopWatchData = watch(coverteredData, async () => {
-      await instance.changeData(toValue(coverteredData))
+    const stopWatchData = watch(data, async () => {
+      await instance.changeData(toValue(data))
       await instance.render()
     })
 

@@ -1,3 +1,4 @@
+import { MarkerCollator } from '../utils'
 import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 import { HistoryRecordType } from '@/shared'
@@ -10,6 +11,7 @@ import { HistoryRecordType } from '@/shared'
  * 2. 当 select index 为初始时，历史记录的 content 字段为 "创建时" 的内容拷贝，使用初始历史记录自身进行对比
  * 3. 其他情况下，使用上一条历史记录作为对比
  *
+ * ```
  *  select index  |       0      |       1      |       3      |
  * ───────────────┼──────────────┼──────────────┼──────────────┤
  *   [current]    |  <- new one  |              |              |
@@ -21,6 +23,7 @@ import { HistoryRecordType } from '@/shared'
  * │2. Record C │ |              |              |  <- new one  |
  * └────────────┘ |              |              |              |
  *   [Record C]   |              |              |  <- old one  |
+ * ```
  */
 export const useMarkerHistory = (markerVo: Ref<API.MarkerVo>) => {
   const clonedMarkerVo = ref(JSON.parse(JSON.stringify(markerVo.value)) as API.MarkerVo)
@@ -75,8 +78,28 @@ export const useMarkerHistory = (markerVo: Ref<API.MarkerVo>) => {
     },
   })
 
-  // index ∈ [0, history.length]
+  const users = computed(() => data.value.users)
 
+  const historyContents = computed(() => data.value.record.map(({ content, ...rest }) => {
+    const oldContent = JSON.parse(content ?? '{}') as API.MarkerVo
+    return {
+      ...rest,
+      content,
+      parseredContent: oldContent,
+    }
+  }))
+
+  const diffContents = computed(() => historyContents.value.map(({ parseredContent, ...rest }, index, arr) => {
+    const newContent = arr[index - 1]?.parseredContent ?? clonedMarkerVo.value
+    const diffs = MarkerCollator.compare(newContent, parseredContent)
+    return {
+      ...rest,
+      parseredContent,
+      diffs,
+    }
+  }))
+
+  // index ∈ [0, history.length]
   const newDisabled = computed(() => selectedHistoryIndex.value <= 0)
   const oldDisabled = computed(() => selectedHistoryIndex.value >= data.value.record.length)
 
@@ -92,21 +115,22 @@ export const useMarkerHistory = (markerVo: Ref<API.MarkerVo>) => {
     selectedHistoryIndex.value += 1
   }
 
-  const newHistory = computed(() => data.value.record[selectedHistoryIndex.value - 1] as API.HistoryVo | undefined)
-  const oldHistory = computed(() => data.value.record[selectedHistoryIndex.value] as API.HistoryVo | undefined)
+  const newHistory = computed(() => diffContents.value[selectedHistoryIndex.value - 1] as (typeof diffContents.value)[number] | undefined)
+  const oldHistory = computed(() => diffContents.value[selectedHistoryIndex.value] as (typeof diffContents.value)[number] | undefined)
 
   const newContent = computed(() => newHistory.value
-    ? JSON.parse(newHistory.value.content!) as API.MarkerVo
+    ? newHistory.value.parseredContent
     : clonedMarkerVo.value,
   )
 
   const oldContent = computed(() => oldHistory.value
-    ? JSON.parse(oldHistory.value.content!) as API.MarkerVo
+    ? oldHistory.value.parseredContent
     : newContent.value,
   )
 
   return {
-    data,
+    users,
+    record: diffContents,
     selectedHistoryIndex,
     newDisabled,
     oldDisabled,

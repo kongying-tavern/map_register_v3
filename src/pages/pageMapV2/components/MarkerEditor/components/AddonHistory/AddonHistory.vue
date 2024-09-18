@@ -45,7 +45,8 @@ const { data: creator } = useFetchHook({
 const isAutoCollapse = ref(true)
 
 const {
-  data,
+  users,
+  record,
   oldDisabled,
   newDisabled,
   oldContent,
@@ -62,7 +63,7 @@ whenever(isAddonActived, refresh, { immediate: true })
 const updaterId = computed(() => oldHistory.value?.creatorId ?? markerVo.value.creatorId)
 
 const updater = computed(() => {
-  const user = data.value.users.get(`${updaterId.value}`)
+  const user = users.value.get(`${updaterId.value}`)
   if (user)
     return user
   if (!oldHistory.value)
@@ -83,9 +84,8 @@ const statisticVisible = ref(false)
 
   <HistoryStatistic
     v-model:visible="statisticVisible"
-    :record="data.record"
-    :users="data.users"
-    :current="markerVo"
+    :record="record"
+    :users="users"
   />
 
   <AddonTeleporter :active="isAddonActived">
@@ -151,8 +151,8 @@ const statisticVisible = ref(false)
           </div>
         </div>
 
-        <div class="flex justify-end">
-          <el-checkbox v-model="isAutoCollapse" size="small">
+        <div class="flex items-center justify-end">
+          <el-checkbox v-model="isAutoCollapse" size="small" style="margin-right: 12px">
             自动折叠
           </el-checkbox>
         </div>
@@ -164,9 +164,9 @@ const statisticVisible = ref(false)
         <el-scrollbar height="100%">
           <HistoryViewer
             :loading="historyLoading"
+            :diffs="oldHistory?.diffs"
             :new-content="newContent"
             :old-content="oldContent"
-            :history="oldHistory"
             :auto-collapse="isAutoCollapse"
           />
         </el-scrollbar>

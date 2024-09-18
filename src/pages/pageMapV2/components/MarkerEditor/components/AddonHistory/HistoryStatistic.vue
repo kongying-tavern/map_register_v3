@@ -4,8 +4,7 @@ import { useHistoryChart } from './hooks'
 import { WinDialog, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 
 const props = defineProps<{
-  record: API.HistoryVo[]
-  current: API.MarkerVo
+  record: (API.HistoryVo & { diffs: Set<string> })[]
   users: Map<string, API.SysUserSmallVo>
 }>()
 
@@ -17,7 +16,6 @@ const containerRef = ref<HTMLElement>()
 useHistoryChart(containerRef, {
   data: computed(() => props.record),
   users: computed(() => props.users),
-  current: computed(() => props.current),
 })
 </script>
 

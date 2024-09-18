@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { MarkerCollator } from '../../utils'
 import HistoryDifferItem from './HistoryDifferItem.vue'
 import DifferCoord from './DifferCoord.vue'
 import DifferText from './DifferText.vue'
@@ -10,12 +9,23 @@ import { HIDDEN_FLAG_NAME_MAP } from '@/shared'
 
 const props = defineProps<{
   loading?: boolean
+  diffs?: Set<string>
   newContent: API.MarkerVo
   oldContent: API.MarkerVo
   autoCollapse?: boolean
 }>()
 
-const difference = computed(() => MarkerCollator.compare(props.newContent, props.oldContent))
+const rewriteSet = new (class RewriteSet extends Set<string> {
+  has = () => {
+    return true
+  }
+})()
+
+const difference = computed(() => {
+  if (!props.diffs)
+    return rewriteSet
+  return props.diffs
+})
 </script>
 
 <template>
