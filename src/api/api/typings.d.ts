@@ -1089,6 +1089,8 @@ declare namespace API {
     current?: number
     /** 每页大小，默认为10 */
     size?: number
+    /** 排序条件 */
+    sort?: string[]
   }
 
   interface PageListVoItemVo {
@@ -1185,6 +1187,14 @@ declare namespace API {
     type?: number
     /** 类型ID(配合记录类型使用) */
     id?: number[]
+    /** 操作数据类型 */
+    editType?: '0' | '1' | '2' | '3'
+    /** 创建人ID */
+    creatorId?: number
+    /** 创建时间开始时间 */
+    createTimeStart?: string
+    /** 创建时间结束时间 */
+    createTimeEnd?: string
     /** 排序条件 */
     sort?: string[]
   }
