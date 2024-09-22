@@ -61,7 +61,7 @@ export class RefreshTime implements MAFConfig {
       { type: 'text', text: '为' },
       meta.isCustom
         ? { type: 'highlight', text: `${val.nMin ?? '不限'} ~ ${val.nMax ?? '不限'} 小时` }
-        : { type: 'tag', text: meta.tagNameMap[val.nMin ?? ''] },
+        : { type: 'tag', text: meta.tagNameMap[val.nMin ?? 0] },
     ].filter(v => v) as MAFSemanticUnit[]
   }
 
