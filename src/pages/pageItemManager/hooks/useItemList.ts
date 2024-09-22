@@ -36,6 +36,7 @@ export const useItemList = (options: ItemHookOptions) => {
       return Api.item.listItemIdByType({
         current,
         size,
+        sort: ['sortIndex-'],
         areaIdList: !areaId ? [] : [areaId],
         typeIdList: !itemTypeId ? [] : [itemTypeId],
         name,
