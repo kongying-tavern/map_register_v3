@@ -63,9 +63,10 @@ export const useFetchHook = <T, A extends unknown[] = []>(options: FetchHookOpti
         if (isBasicResponse(res) && res.error)
           throw new Error(`error in server: ${res.message}`)
         if (diff && diff(data.value, res))
-          return
+          return data.value
         data.value = res as T
         onSuccessHook.trigger(res)
+        return res
       }
     }
     catch (err) {
