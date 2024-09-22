@@ -56,7 +56,6 @@ export const useImageLoad = () => {
 
   onError(err => ElMessage.error({
     message: `加载图片失败，原因为：${err.message}`,
-    offset: 48,
   }))
 
   return {

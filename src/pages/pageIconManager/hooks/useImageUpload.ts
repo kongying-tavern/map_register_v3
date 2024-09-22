@@ -101,7 +101,6 @@ export const useImageUpload = (options: ImageUploadHookOptions) => {
     status.value = 'success'
     ElMessage.success({
       message: '图片修改成功',
-      offset: 48,
     })
     GlobalDialogController.close()
   })
@@ -111,7 +110,6 @@ export const useImageUpload = (options: ImageUploadHookOptions) => {
     status.value = 'exception'
     ElMessage.error({
       message: `图片修改失败，原因为：${err.message}`,
-      offset: 48,
     })
   })
 

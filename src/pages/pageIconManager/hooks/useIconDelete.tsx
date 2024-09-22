@@ -34,12 +34,10 @@ export const useIconDelete = () => {
 
   onSuccess(() => ElMessage.success({
     message: '删除成功',
-    offset: 48,
   }))
 
   onError(err => ElMessage.error({
     message: `删除图标失败，原因为：${err.message}`,
-    offset: 48,
   }))
 
   return { confirmDeleteIcon, onSuccess, ...rest }

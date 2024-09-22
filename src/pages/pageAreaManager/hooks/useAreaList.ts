@@ -19,7 +19,6 @@ export const useAreaList = () => {
 
   onError(err => ElMessage.error({
     message: `获取地区列表失败，原因为：${err.message}`,
-    offset: 48,
   }))
 
   return { error, updateAreaList, onSuccess, ...rest }

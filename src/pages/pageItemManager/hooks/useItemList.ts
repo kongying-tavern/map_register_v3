@@ -59,7 +59,6 @@ export const useItemList = (options: ItemHookOptions) => {
     itemList.value = []
     ElMessage.error({
       message: `获取结果失败，原因为: ${err.message}`,
-      offset: 48,
     })
   })
 

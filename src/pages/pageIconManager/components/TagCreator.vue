@@ -61,7 +61,6 @@ const { loading, refresh: createTag, onSuccess, onError } = useFetchHook({
 onSuccess((tag) => {
   ElMessage.success({
     message: '新建图标成功',
-    offset: 48,
   })
   emits('success', tag)
   GlobalDialogController.close()
@@ -70,7 +69,6 @@ onSuccess((tag) => {
 onError((err) => {
   ElMessage.error({
     message: `新建图标失败，原因为：${err.message}`,
-    offset: 48,
   })
 })
 

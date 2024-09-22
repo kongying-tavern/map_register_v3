@@ -13,14 +13,12 @@ export const useItemDelete = () => {
   onSuccess(() => {
     ElMessage.success({
       message: '删除物品成功',
-      offset: 48,
     })
   })
 
   onError((err) => {
     ElMessage.error({
       message: `删除物品失败，原因为：${err.message}`,
-      offset: 48,
     })
   })
 

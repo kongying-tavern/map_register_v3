@@ -34,7 +34,6 @@ export const useNoticeList = (options: NoticeHookOptions) => {
   onError((err) => {
     ElMessage.error({
       message: `请求公告列表失败，原因为：${err.message}`,
-      offset: 48,
     })
   })
 

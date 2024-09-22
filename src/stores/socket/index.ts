@@ -52,13 +52,11 @@ export const useSocketStore = defineStore('global-web-socket', () => {
       title: 'Error',
       message: 'WebSocket 连接已断开',
       type: 'error',
-      offset: 48,
     }),
     [WebSocket.OPEN]: () => ElNotification({
       title: 'Success',
       message: 'WebSocket 已连接',
       type: 'success',
-      offset: 48,
     }),
   }
 

@@ -93,7 +93,6 @@ export const useMarkerStore = defineStore('global-marker', () => {
       message: `${nickname ?? username} 批量更新了 ${data.length} 个点位`,
       icon: Location,
       customClass: 'text-[var(--el-color-success)]',
-      offset: 48,
     })
 
     tweakHook.trigger(data)

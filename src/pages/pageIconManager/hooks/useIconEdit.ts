@@ -28,14 +28,12 @@ export const useIconEdit = (form: Ref<API.IconVo>) => {
   onSuccess(() => {
     ElMessage.success({
       message: '编辑成功',
-      offset: 48,
     })
     GlobalDialogController.close()
   })
 
   onError(err => ElMessage.error({
     message: `编辑图标失败，原因为：${err.message}`,
-    offset: 48,
   }))
 
   return { formRef, editIcon, onSuccess, onError, ...rest }

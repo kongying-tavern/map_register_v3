@@ -55,7 +55,6 @@ const createUser = async () => {
 onSuccess(() => {
   ElMessage.success({
     message: '添加成功',
-    offset: 48,
   })
   GlobalDialogController.close()
   emits('success')
@@ -63,7 +62,6 @@ onSuccess(() => {
 
 onError(err => ElMessage.error({
   message: `添加用户失败，原因为：${err.message}`,
-  offset: 48,
 }))
 </script>
 

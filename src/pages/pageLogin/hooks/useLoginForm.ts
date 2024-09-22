@@ -69,7 +69,6 @@ export const useLoginForm = () => {
     ElMessage({
       type: auth?.message ? 'warning' : 'success',
       message: auth?.message || '登录成功',
-      offset: 48,
       duration: 5000,
     })
     // TODO 登录后应当跳转到上次退出前保持的页面
@@ -83,14 +82,12 @@ export const useLoginForm = () => {
       case 'Bad credentials':
         ElMessage.error({
           message: `账号或密码错误`,
-          offset: 48,
         })
         break
       // 其他错误
       default:
         ElMessage.error({
           message: `登录失败，原因为：${(err as AxiosError<{ error_description?: string }>).response?.data?.error_description}`,
-          offset: 48,
         })
     }
   })

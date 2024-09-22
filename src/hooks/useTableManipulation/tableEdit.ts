@@ -61,7 +61,6 @@ export const useRowEdit = <T>(options: RowEditHookOptions<T>) => {
     catch (err) {
       ElMessage.error({
         message: `行编辑失败，原因为：${messageFrom(err)}`,
-        offset: 48,
       })
     }
     finally {

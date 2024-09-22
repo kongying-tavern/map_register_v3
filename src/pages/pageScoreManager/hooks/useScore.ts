@@ -51,7 +51,6 @@ export const useScore = (form: Ref<ScoreFilterParmas>) => {
   onError((err) => {
     ElMessage.error({
       message: `获取评分数据失败，原因为：${err.message}`,
-      offset: 48,
     })
   })
 

@@ -13,14 +13,12 @@ export const useAreaDelete = () => {
   onSuccess(() => {
     ElMessage.success({
       message: '删除地区成功',
-      offset: 48,
     })
   })
 
   onError((err) => {
     ElMessage.error({
       message: `删除地区失败，原因为：${err.message}`,
-      offset: 48,
     })
   })
 

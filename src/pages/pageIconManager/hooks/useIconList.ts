@@ -37,7 +37,6 @@ export const useIconList = (options: IconListHookOptions) => {
 
   onError(err => ElMessage.error({
     message: `更新图标列表失败，原因为：${err.message}`,
-    offset: 48,
   }))
 
   return { iconList, userMap, updateIconList, updateIconListWithResetCurrent, onSuccess, ...rest }

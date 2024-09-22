@@ -56,7 +56,6 @@ export const useRegisterForm = () => {
   onSuccess(async (auth) => {
     ElMessage.success({
       message: '注册成功',
-      offset: 48,
     })
     userAuthStore.setAuth(auth)
     await router.push('/map')
@@ -66,7 +65,6 @@ export const useRegisterForm = () => {
 
   onError(err => ElMessage.error({
     message: `注册失败，原因为：${err.message}`,
-    offset: 48,
   }))
 
   return { formRef, rules, registerForm, register, onSuccess, onError, ...rest }

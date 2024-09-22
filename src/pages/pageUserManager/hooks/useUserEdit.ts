@@ -36,14 +36,12 @@ export const useUserEdit = (form: Ref<API.SysUserVo>, options: { loading: Ref<bo
   onSuccess(() => {
     ElMessage.success({
       message: '编辑成功',
-      offset: 48,
     })
   })
 
   onError((err) => {
     ElMessage.error({
       message: `编辑失败，原因为：${err.message}`,
-      offset: 48,
     })
   })
 

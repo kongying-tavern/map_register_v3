@@ -36,7 +36,6 @@ const { loading, refresh: submit, onSuccess, onError } = useFetchHook({
 onSuccess((form) => {
   ElMessage.success({
     message: '新增地区成功',
-    offset: 48,
   })
   GlobalDialogController.close()
   emits('success', form)
@@ -45,7 +44,6 @@ onSuccess((form) => {
 onError((err) => {
   ElMessage.error({
     message: `新增地区失败，原因为：${err.message}`,
-    offset: 48,
   })
 })
 

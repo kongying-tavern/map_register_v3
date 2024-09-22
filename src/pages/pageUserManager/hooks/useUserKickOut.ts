@@ -15,14 +15,12 @@ export const useUserKickOut = (form: Ref<API.SysUserVo>) => {
   onSuccess(() => {
     ElMessage.success({
       message: '注销用户成功',
-      offset: 48,
     })
   })
 
   onError((err) => {
     ElMessage.error({
       message: `注销用户失败，原因为：${err.message}`,
-      offset: 48,
     })
   })
 

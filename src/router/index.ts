@@ -76,7 +76,6 @@ router.onError(async (err, to) => {
   routeStore.setLoading(false)
   ElMessage.error({
     message: `导航至${to.meta.title}失败，原因为：${messageFrom(err)}`,
-    offset: 48,
   })
 })
 

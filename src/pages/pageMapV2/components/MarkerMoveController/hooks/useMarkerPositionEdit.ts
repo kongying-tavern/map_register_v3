@@ -72,14 +72,12 @@ export const useMarkerPositionEdit = () => {
   onSuccess(() => {
     ElMessage.success({
       message: '操作成功',
-      offset: 48,
     })
     clearState()
   })
 
   onError(err => ElMessage.error({
     message: `移动点位失败，原因为：${err.message}`,
-    offset: 48,
   }))
 
   return {

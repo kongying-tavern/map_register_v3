@@ -99,7 +99,6 @@ onSuccess(async () => {
 })
 onError(err => ElMessage.error({
   message: `存档失败，原因为：${err.message}`,
-  offset: 48,
 }))
 
 /** 按住 3 秒以确认删除存档 */

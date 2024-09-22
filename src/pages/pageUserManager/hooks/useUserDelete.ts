@@ -15,14 +15,12 @@ export const useUserDelete = (form: Ref<API.SysUserVo>) => {
   onSuccess(() => {
     ElMessage.success({
       message: '删除成功',
-      offset: 48,
     })
   })
 
   onError((err) => {
     ElMessage.error({
       message: `删除失败，原因为：${err.message}`,
-      offset: 48,
     })
   })
 

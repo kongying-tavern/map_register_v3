@@ -28,14 +28,12 @@ export const usePasswordUpdate = (form: Ref<API.SysUserPasswordUpdateVo>, option
   onSuccess(() => {
     ElMessage.success({
       message: '密码修改成功',
-      offset: 48,
     })
   })
 
   onError((err) => {
     ElMessage.error({
       message: `密码修改失败，原因为：${err.message}`,
-      offset: 48,
     })
   })
 

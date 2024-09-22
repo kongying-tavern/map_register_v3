@@ -42,7 +42,6 @@ const copyId = async () => {
   ElMessage.success({
     message: `"${idStr}" 已复制到剪贴板`,
     center: true,
-    offset: 48,
   })
 }
 </script>

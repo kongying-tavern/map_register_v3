@@ -43,7 +43,6 @@ const copyId = async () => {
   await navigator.clipboard.writeText(idStr)
   ElMessage.success({
     message: `"${idStr}" 已复制到剪贴板`,
-    offset: 48,
   })
 }
 

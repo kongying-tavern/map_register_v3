@@ -34,7 +34,6 @@ const { loading, refresh: submit, onSuccess, onError } = useFetchHook({
 onSuccess(() => {
   ElMessage.success({
     message: `添加${props.manager.info.label}成功`,
-    offset: 48,
   })
   GlobalDialogController.close()
   emits('success')
@@ -42,7 +41,6 @@ onSuccess(() => {
 
 onError(err => ElMessage.error({
   message: `添加${props.manager.info.label}失败，原因为：${err.message}`,
-  offset: 48,
 }))
 
 const createType = async () => {

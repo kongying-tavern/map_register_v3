@@ -17,14 +17,12 @@ export const useMarkerDelete = () => {
   onSuccess(() => {
     ElMessage.success({
       message: '删除点位成功',
-      offset: 48,
     })
   })
 
   onError((err) => {
     ElMessage.error({
       message: `删除点位失败，原因为：${err.message}`,
-      offset: 48,
     })
   })
 

@@ -19,7 +19,6 @@ const { loading: addLoading, refresh: addCommonItem, onSuccess: onCreateSuccess 
 onCreateSuccess(() => {
   ElMessage.success({
     message: '添加公共物品成功',
-    offset: 48,
   })
   GlobalDialogController.close()
   emits('success')

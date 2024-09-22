@@ -35,7 +35,6 @@ export const useImageSelect = (options: ImageSelectHookOptions) => {
   onSuccess(() => {
     ElMessage.success({
       message: '图片修改成功',
-      offset: 48,
     })
     GlobalDialogController.close()
   })
@@ -43,7 +42,6 @@ export const useImageSelect = (options: ImageSelectHookOptions) => {
   onError((err) => {
     ElMessage.error({
       message: `图片修改失败，原因为：${err.message}`,
-      offset: 48,
     })
   })
 

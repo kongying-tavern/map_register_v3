@@ -51,14 +51,12 @@ export const useMarkerTweaks = (options: TweakHookOptions) => {
   onSuccess(() => {
     ElMessage.success({
       message: '批量编辑成功',
-      offset: 48,
     })
   })
 
   onError((err) => {
     ElMessage.error({
       message: `批量编辑失败，原因为：${err.message}`,
-      offset: 48,
     })
   })
 

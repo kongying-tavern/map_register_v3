@@ -26,7 +26,6 @@ export const useUserInfoStore = defineStore('global-user-info', () => {
   onRoleUpdateError((err) => {
     ElMessage.error({
       message: `获取角色信息失败，原因为：${err.message}`,
-      offset: 48,
     })
   })
 
@@ -59,7 +58,6 @@ export const useUserInfoStore = defineStore('global-user-info', () => {
   onUserInfoUpdateError((err) => {
     ElMessage.error({
       message: `获取用户信息失败，原因为：${err.message}`,
-      offset: 48,
     })
   })
 
