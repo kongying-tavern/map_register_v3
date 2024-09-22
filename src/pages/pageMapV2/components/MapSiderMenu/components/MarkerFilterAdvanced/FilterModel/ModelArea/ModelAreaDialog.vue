@@ -8,7 +8,7 @@ const props = defineProps<{
   meta: MAFMetaArea
   listClass?: string
   list: AreaWithChildren[]
-  labelKey: string
+  labelKey: keyof AreaWithChildren
   valueKey: string
 }>()
 
@@ -77,7 +77,7 @@ const { onDragStart, onDragEnd, onDrop } = useListBubbleDrag<AreaWithChildren>({
               size="small"
               round
               .draggable="true"
-              @dragstart.stop="(ev) => onDragStart(ev, item)"
+              @dragstart.stop="(ev: DragEvent) => onDragStart(ev, item)"
             >
               {{ childrenCountMap[item.id!] }}
             </el-button>

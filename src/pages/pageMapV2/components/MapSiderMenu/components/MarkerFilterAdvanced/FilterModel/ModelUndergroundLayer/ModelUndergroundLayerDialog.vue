@@ -9,7 +9,7 @@ const props = defineProps<{
   meta: MAFMetaUndergroundLayer
   listClass?: string
   list: AreaWithExtraConfig[]
-  labelKey: string
+  labelKey: keyof ConfigLayerUnit['children'][0]
   valueKey: string
 }>()
 
@@ -130,7 +130,7 @@ const {
               size="small"
               round
               .draggable="true"
-              @dragstart.stop="(ev) => onAreaDragStart(ev, item)"
+              @dragstart.stop="(ev: DragEvent) => onAreaDragStart(ev, item)"
             >
               {{ layerCountMap[item.id!] }}
             </el-button>
@@ -165,7 +165,7 @@ const {
                 size="small"
                 round
                 .draggable="true"
-                @dragstart="(ev) => onGroupDragStart(ev, layerGroup)"
+                @dragstart="(ev: DragEvent) => onGroupDragStart(ev, layerGroup)"
               >
                 {{ layerCountMap[`${selectedAreaId}-${layerGroup.value}`] }}
               </el-button>
