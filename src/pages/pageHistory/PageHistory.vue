@@ -9,6 +9,11 @@ const HISTORY_OPTIONS = [
   { label: '点位', value: 4 },
   { label: '物品', value: 3 },
 ]
+
+const HISTORY_TYPE_NAME_MAP = HISTORY_OPTIONS.reduce((map, option) => {
+  return map.set(option.value, option.label)
+}, new Map<number, string>())
+
 const historyType = ref(4)
 
 const { historyList, userMap, loading, updateHistoryList } = useHistoryList({
@@ -24,12 +29,21 @@ onPaginationChange(updateHistoryList)
     <el-form>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8">
         <el-form-item label="记录项">
-          <el-select-v2 v-model="historyType" :options="HISTORY_OPTIONS" @change="updateHistoryList" />
+          <el-select-v2
+            v-model="historyType"
+            :options="HISTORY_OPTIONS"
+            @change="updateHistoryList"
+          />
         </el-form-item>
       </div>
     </el-form>
 
-    <HistoryTable :data="historyList" :history-type="historyType" :user-map="userMap" :loading="loading" />
+    <HistoryTable
+      :data="historyList"
+      :history-name="HISTORY_TYPE_NAME_MAP.get(historyType) ?? '对象'"
+      :user-map="userMap"
+      :loading="loading"
+    />
 
     <el-pagination
       v-model:current-page="pagination.current"

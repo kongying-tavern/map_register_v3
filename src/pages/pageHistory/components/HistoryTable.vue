@@ -9,7 +9,7 @@ const props = defineProps<{
   loading: boolean
   data: API.HistoryVo[]
   userMap: Record<string, API.SysUserSmallVo>
-  historyType: number
+  historyName: string
 }>()
 
 const tableRef = ref<HTMLElement>()
@@ -42,7 +42,9 @@ const { IDENTIFICATION_SYMBOL, triggerRef, userData, trigger, close } = useUserP
         </template>
       </el-table-column>
 
-      <el-table-column label="ID" prop="id" :width="200" />
+      <el-table-column label="历史记录ID" prop="id" :width="120" />
+
+      <el-table-column :label="`${historyName}ID`" prop="tid" :width="120" />
 
       <el-table-column label="操作类型" prop="editType" :width="100">
         <template #default="{ row }">
