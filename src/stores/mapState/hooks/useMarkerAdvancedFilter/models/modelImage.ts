@@ -7,7 +7,7 @@ import type {
 } from '@/stores/types'
 
 export class Image implements MAFConfig {
-  id = 7
+  id = 5
   name = '点位图片'
   option: MAFOptionSwitch = {
     textInactive: '不存在',

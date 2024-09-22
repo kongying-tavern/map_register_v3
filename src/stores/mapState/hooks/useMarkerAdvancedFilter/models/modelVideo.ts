@@ -7,7 +7,7 @@ import type {
 } from '@/stores/types'
 
 export class Video implements MAFConfig {
-  id = 8
+  id = 6
   name = '点位视频'
   option: MAFOptionSwitch = {
     textInactive: '不存在',

@@ -15,7 +15,7 @@ interface ExtraUnderground {
 }
 
 export class UndergroundLayer implements MAFConfig {
-  id = 6
+  id = 202
   name = '分层层级'
   option: ComputedRef<OptionType> = computed(() => {
     const { areaCodeMap } = useAreaStore()

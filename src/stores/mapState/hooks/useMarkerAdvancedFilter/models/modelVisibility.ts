@@ -10,7 +10,7 @@ import { useHiddenFlagOptions } from '@/hooks'
 type OptionType = MAFOptionSelect<{ label: string; value: number }>
 
 export class Visibility implements MAFConfig {
-  id = 11
+  id = 8
   name = '可见范围'
   option: ComputedRef<OptionType> = computed(() => {
     const { hiddenFlagOptions } = useHiddenFlagOptions()

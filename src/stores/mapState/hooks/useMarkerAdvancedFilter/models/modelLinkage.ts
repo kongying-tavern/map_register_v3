@@ -7,7 +7,7 @@ import type {
 } from '@/stores/types'
 
 export class Linkage implements MAFConfig {
-  id = 9
+  id = 301
   name = '点位关联'
   option: MAFOptionSwitch = {
     textInactive: '不存在',
