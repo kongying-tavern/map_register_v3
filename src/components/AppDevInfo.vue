@@ -10,10 +10,10 @@ const {
   <div
     class="
       fixed left-0 bottom-0 w-full h-8 leading-8 px-8
-      font-[HYWenHei-85W] text-[var(--el-text-color-regular)] text-sm
+      font-[HYWenHei-85W] text-[var(--el-color-white)] text-sm
       pointer-events-none
     "
-    style="-webkit-text-stroke: 0.25px black;"
+    style="-webkit-text-stroke: 0.5px var(--el-color-black); paint-order: stroke"
   >
     {{ `${version.toUpperCase()}_${branch.toUpperCase()}_${commitHash.toUpperCase()}` }}
   </div>
