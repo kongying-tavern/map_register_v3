@@ -74,7 +74,7 @@ export const useAccessStore = defineStore('global-access', () => {
         .join(''),
       2,
     )
-    return (ACCESS_HIDDEN_FLAG[code] & binaryHiddenFlag) > 0
+    return (ACCESS_HIDDEN_FLAG[code as RoleTypeEnum] & binaryHiddenFlag) > 0
   }
 
   /** 获取某功能/资源权限 */
