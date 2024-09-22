@@ -596,6 +596,7 @@ export default {
           areaIdList: [selectorAreaId.value],
           current: 0,
           size: 9999,
+          sort: ['sortIndex-'],
         },
         this
       ).then((res) => {
