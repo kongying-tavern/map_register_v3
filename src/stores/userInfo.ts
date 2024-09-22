@@ -114,6 +114,15 @@ routerHook.onBeforeRouterEnter(useUserInfoStore, async (store) => {
   if (!isLogin)
     return
 
-  !store.roleList.length && await store.updateRoleList()
-  store.info.id === undefined && await store.updateUserInfo()
+  if (!store.roleList.length) {
+    const rolsList = await store.updateRoleList()
+    if (!rolsList)
+      throw new Error('无法获取角色列表')
+  }
+
+  if (store.info.id === undefined) {
+    const userInfo = await store.updateUserInfo()
+    if (!userInfo)
+      throw new Error('无法获取用户信息')
+  }
 })
