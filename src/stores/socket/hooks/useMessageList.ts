@@ -4,6 +4,10 @@ import db from '@/database'
 export const useMessageList = (messageEvent: EventBus<Socket.DataEventMap>) => {
   const _messageList = ref<Socket.DataEventRecord[]>([])
 
+  const clearMessageList = () => {
+    _messageList.value = []
+  }
+
   const afterInit = db.websocketEvents.orderBy('time').reverse().limit(100).toArray().then((record) => {
     _messageList.value = record
   })
@@ -77,5 +81,6 @@ export const useMessageList = (messageEvent: EventBus<Socket.DataEventMap>) => {
 
   return {
     messageList: _messageList as Readonly<Ref<Socket.DataEventRecord[]>>,
+    clearMessageList,
   }
 }

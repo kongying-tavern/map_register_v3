@@ -34,7 +34,7 @@ export const useSocketStore = defineStore('global-web-socket', () => {
   })
 
   const { event: messageEvent } = useMessageEvent(onMessage)
-  const { messageList } = useMessageList(messageEvent)
+  const { messageList, clearMessageList } = useMessageList(messageEvent)
 
   const connect = async (userId?: number) => {
     if (userId === undefined)
@@ -74,6 +74,7 @@ export const useSocketStore = defineStore('global-web-socket', () => {
     messageEvent,
     messageList,
     status,
+    clearMessageList,
     notice,
     connect,
     close,
