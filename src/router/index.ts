@@ -33,10 +33,23 @@ const router = createRouter({
 })
 
 // ==================== 导航栈开始 ====================
-router.beforeEach(async (...{ 1: from, 2: next }) => {
-  if (['/', '/login', '/register'].includes(from.path))
-    await routerHook.applyCallbacks('onBeforeRouterEnter')
-  next(true)
+router.beforeEach(async (to, from, next) => {
+  const routeStore = useRouteStore()
+  if (to.path === '/error') {
+    if (!routeStore.error)
+      return next('/login')
+    return next(true)
+  }
+
+  try {
+    if (['/', '/login', '/register'].includes(from.path))
+      await routerHook.applyCallbacks('onBeforeRouterEnter')
+    next(true)
+  }
+  catch (err) {
+    routeStore.error = err instanceof Error ? err.message : 'Unknown Error'
+    next('/error')
+  }
 })
 
 router.beforeEach(beforeEachGuard(router, logger))
