@@ -53,6 +53,15 @@ const initArchiveList = (): Record<number, ArchiveSlotData | undefined> => Objec
   Array.from({ length: 5 }).map((_, index) => [index + 1, undefined]),
 )
 
+const initArchive = (): ArchiveData => ({
+  body: {
+    Data_KYJG: new Set(),
+    Time_KYJG: {},
+    Preference: {},
+  },
+  timestamp: new Date().getTime(),
+})
+
 /**
  * 存档管理
  * @todo 冗余操作太多，待优化
@@ -60,14 +69,7 @@ const initArchiveList = (): Record<number, ArchiveSlotData | undefined> => Objec
 export const useArchiveStore = defineStore('global-archive', () => {
   const userAuthStore = useUserAuthStore()
 
-  const currentArchive = ref<ArchiveData>({
-    body: {
-      Data_KYJG: new Set(),
-      Time_KYJG: {},
-      Preference: {},
-    },
-    timestamp: new Date().getTime(),
-  })
+  const currentArchive = ref<ArchiveData>(initArchive())
 
   const hash = asyncComputed(async () => {
     const res = [...currentArchive.value.body.Data_KYJG.values()].join('')
@@ -242,6 +244,7 @@ export const useArchiveStore = defineStore('global-archive', () => {
 })
 
 userHook.onInfoChange(useArchiveStore, async (store) => {
+  store.currentArchive = initArchive()
   useUserAuthStore().validateToken() && await store.fetchArchive()
   await store.loadLatestArchive()
 })
