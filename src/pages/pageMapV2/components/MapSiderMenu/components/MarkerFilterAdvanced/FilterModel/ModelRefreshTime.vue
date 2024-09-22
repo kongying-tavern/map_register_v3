@@ -34,7 +34,7 @@ const selectValue = computed<number | null>({
 const selectTag = computed(() => {
   if (props.meta.isCustom)
     return ''
-  return props.meta.tagNameMap[selectValue.value ?? '']
+  return props.meta.tagNameMap[selectValue.value ?? 0]
 })
 </script>
 
