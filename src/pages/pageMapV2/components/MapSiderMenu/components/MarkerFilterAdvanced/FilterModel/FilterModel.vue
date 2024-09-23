@@ -11,6 +11,7 @@ import {
   ModelItemSize,
   ModelItemType,
   ModelLinkage,
+  ModelLinkageAction,
   ModelRefreshTime,
   ModelTitleContain,
   ModelUnderground,
@@ -48,6 +49,7 @@ const modelTemplate = computed(() => {
     201: ModelUnderground,
     202: ModelUndergroundLayer,
     301: ModelLinkage,
+    302: ModelLinkageAction,
   }[props.composedCondition.id]
 }) as ComputedRef<Component>
 

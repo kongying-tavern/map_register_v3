@@ -2,6 +2,7 @@
 import { MapLocation } from '@element-plus/icons-vue'
 import {
   IconApplication,
+  IconArrowDottedNeSw,
   IconDocument,
   IconDocumentRegex,
   IconEye,
@@ -42,6 +43,7 @@ const iconComponent = computed(() => {
     201: IconLayers,
     202: IconLayersFilled,
     301: IconLink,
+    302: IconArrowDottedNeSw,
   }[props.id]
 }) as ComputedRef<Component>
 </script>
