@@ -9,17 +9,17 @@ export class WindowContext implements MapWindow.Context {
 
   readonly dragHookId = [...crypto.getRandomValues(new Uint8Array(4))].map(num => num.toString(16).padStart(2, '0')).join('')
 
-  protected panels: Ref<Record<string, MapWindow.Info>> = ref({})
+  protected panels: Ref<Map<string, MapWindow.Info>> = ref(new Map())
 
-  protected cachedInfos: Record<string, MapWindow.Info> = {}
+  protected cachedInfos: Map<string, MapWindow.Info> = new Map()
 
   closeHook = createEventHook<string>()
 
   protected topOrder = computed(() => {
-    const panels = this.panels.value
     let order = 0
-    for (const key in panels)
-      order = Math.max(order, panels[key].order)
+    this.panels.value.forEach((panel) => {
+      order = Math.max(order, panel.order)
+    })
     return order
   })
 
@@ -45,26 +45,26 @@ export class WindowContext implements MapWindow.Context {
   pointerup = fromEvent<PointerEvent>(window, 'pointerup')
 
   isTop = (id: string) => {
-    const panel = this.panels.value[id]
+    const panel = this.panels.value.get(id)
     if (!panel)
       return false
     return panel.order === this.topOrder.value
   }
 
   getWindow = (id: string) => {
-    return this.panels.value[id] as MapWindow.Info | undefined
+    return this.panels.value.get(id)
   }
 
   getWindows = () => {
     return this.panels.value
   }
 
-  setWindows = (panels: Record<string, MapWindow.Info>) => {
+  setWindows = (panels: Map<string, MapWindow.Info>) => {
     this.panels.value = panels
   }
 
   openWindow = (params: MapWindow.WindowOpenParams) => {
-    if (this.panels.value[params.id])
+    if (this.panels.value.has(params.id))
       return
 
     const {
@@ -77,7 +77,7 @@ export class WindowContext implements MapWindow.Context {
     const {
       translate: { x = initX, y = initY } = {},
       size,
-    } = this.cachedInfos[params.id] ?? {}
+    } = this.cachedInfos.get(params.id) ?? {}
 
     const info = {
       ...params,
@@ -87,14 +87,20 @@ export class WindowContext implements MapWindow.Context {
       ref: null,
     }
 
-    this.panels.value[params.id] = info
-    this.cachedInfos[params.id] = info
+    this.panels.value.set(params.id, info)
+    this.cachedInfos.set(params.id, info)
     this.optimizeWindowPosition()
   }
 
+  minusWindow = (id: string) => {
+    const panel = this.panels.value.get(id)
+    if (!panel)
+      return
+    panel.isMinus = true
+  }
+
   closeWindow = (id: string) => {
-    const panels = this.panels.value
-    const panel = panels[id]
+    const panel = this.panels.value.get(id)
     if (!panel)
       return
 
@@ -103,55 +109,57 @@ export class WindowContext implements MapWindow.Context {
       return
 
     const { order } = panel
-    for (const key in panels) {
-      if (panels[key].order <= order)
-        continue
-      panels[key].order -= 1
-    }
-    delete this.panels.value[id]
+    this.panels.value.forEach((iPanel) => {
+      if (iPanel.order <= order)
+        return
+      iPanel.order -= 1
+    })
+    this.panels.value.delete(id)
     // TODO 后续可能需要为窗口添加过渡效果，需要确保过渡结束以后才触发 close hook
     this.closeHook.trigger(id)
   }
 
-  topping = (id: string) => {
-    const panels = this.panels.value
+  clearWindow = () => {
+    this.panels.value.forEach(panel => this.closeWindow(panel.id))
+  }
 
-    const target = panels[id]
+  topping = (id: string) => {
+    const target = this.panels.value.get(id)
     if (!target || target.order === this.topOrder.value)
       return
 
     let moveOrder = 0
-    for (const key in panels) {
-      const panel = panels[key]
+    this.panels.value.forEach((panel) => {
       if (panel.order <= target.order)
-        continue
+        return
       panel.order -= 1
       moveOrder += 1
-    }
+    })
 
     target.order += moveOrder
   }
 
   move = (id: string, pos: { x: number; y: number }) => {
-    const panels = this.panels.value
-
-    const target = panels[id]
+    const target = this.panels.value.get(id)
     if (!target)
       return
 
     target.translate = pos
-    this.cachedInfos[id].translate = pos
+    const cache = this.cachedInfos.get(id)
+    if (!cache)
+      return
+    cache.translate = pos
   }
 
   resize = (
     id: string,
     rect: MapWindow.ResizeProps,
   ) => {
-    if (!this.cachedInfos[id])
+    const cache = this.cachedInfos.get(id)
+    if (!cache)
       return
 
-    const panels = this.panels.value
-    const target = panels[id]
+    const target = this.panels.value.get(id)
     if (!target)
       return
 
@@ -182,26 +190,23 @@ export class WindowContext implements MapWindow.Context {
       height: resizeheight,
     }
 
-    this.cachedInfos[id].translate = target.translate
-    this.cachedInfos[id].size = target.size
+    cache.translate = target.translate
+    cache.size = target.size
   }
 
   /** 优化窗口位置，使其返回可见区域 */
   optimizeWindowPosition = (box?: ResizeObserverSize) => {
-    const panels = this.panels.value
-
     const { clientWidth, clientHeight } = document.body
 
     const { inlineSize = clientWidth, blockSize = clientHeight } = box ?? {}
-    for (const key in panels) {
-      const info = panels[key]
+    this.panels.value.forEach((info) => {
       const { width, height } = info.size
       const { x, y } = info.translate
       info.translate = {
         x: clamp(x, 0, Math.max(0, inlineSize - width)),
         y: clamp(y, 0, Math.max(0, blockSize - height - this.HEADER_HEIGHT)),
       }
-    }
+    })
   }
 }
 

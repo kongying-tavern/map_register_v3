@@ -32,6 +32,7 @@ export declare namespace MapWindow {
     size: MapWindow.Size
     order: number
     ref: HTMLElement | null
+    isMinus?: boolean
   }
 
   interface Context {

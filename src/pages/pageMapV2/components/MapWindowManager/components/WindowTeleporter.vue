@@ -10,6 +10,10 @@ const emits = defineEmits<{
   close: []
 }>()
 
+const contextWindow = computed(() => {
+  return context.getWindow(props.id)
+})
+
 context.closeHook.on((id) => {
   if (id !== props.id)
     return
@@ -18,7 +22,7 @@ context.closeHook.on((id) => {
 </script>
 
 <template>
-  <Teleport v-if="context.getWindows()[id]?.ref" :to="context.getWindows()[id].ref">
+  <Teleport v-if="contextWindow?.ref" :to="contextWindow.ref">
     <slot name="default" />
   </Teleport>
 </template>
