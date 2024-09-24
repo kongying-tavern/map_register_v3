@@ -37,6 +37,8 @@ const toCamelCaseObject = <T extends Record<string, unknown>>(obj: T): SnakeCase
 export const useUserAuthStore = defineStore('global-user-auth', () => {
   const auth = useLocalStorage<Partial<LocalAuth>>(USERAUTH_KEY, {})
 
+  const beforeLogout = createEventHook<void>()
+
   const isSkipped = ref(false)
 
   const setAuth = (newAuth: API.SysToken, skipHook = false) => {
@@ -153,6 +155,7 @@ export const useUserAuthStore = defineStore('global-user-auth', () => {
   }
 
   const logout = () => {
+    beforeLogout.trigger()
     clearAuth()
     router.push('/login')
   }
@@ -171,6 +174,7 @@ export const useUserAuthStore = defineStore('global-user-auth', () => {
     refreshAuth,
     ensureTokenRefreshMission,
     logout,
+    onBeforeLogout: beforeLogout.on,
   }
 })
 
