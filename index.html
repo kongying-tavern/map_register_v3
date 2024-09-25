@@ -44,12 +44,6 @@
 </head>
 <body>
   <div id="app"></div>
-
-  <script type="module">
-    window.__APP_VERSION__ = %APP_VERSION%;
-    window.__APP_BRANCH__ = %APP_BRANCH%;
-    window.__APP_COMMIT_HASH__ = %APP_COMMIT_HASH%;
-  </script>
   <script type="module">
     const text = (() => {
       if (!window.isSecureContext)
@@ -57,13 +51,25 @@
       return ''
     })()
 
+    const app = document.getElementById('app')
+
+    window.close = () => {
+      // 阻止此方法运行
+      // 理由详见 => src\stores\userAuth.ts 153 行
+    }
+
     if (text) {
-      const app = document.getElementById('app')
       app.innerText = text
     }
     else {
       import('./src/main.ts')
     }
+
+    window.addEventListener('error', (ev) => {
+      ev.preventDefault()
+      app.innerHTML = ''
+      app.innerText = ev.message
+    })
   </script>
 </body>
 </html>

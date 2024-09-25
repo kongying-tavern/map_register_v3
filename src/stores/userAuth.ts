@@ -150,6 +150,8 @@ export const useUserAuthStore = defineStore('global-user-auth', () => {
 
   const clearAuth = () => {
     stopAutoRefresh()
+    // FIXME 下面这行会导致 vue runtime 调用 window.close 使得页面关闭（有时候会被阻止），暂时不知道为什么。
+    // 目前已在 index.html 中将 window.close 改为空函数来缓解此问题。
     auth.value = {}
     userHook.applyCallbacks('onAuthChange')
   }
