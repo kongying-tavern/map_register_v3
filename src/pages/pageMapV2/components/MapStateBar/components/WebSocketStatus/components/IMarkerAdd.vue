@@ -45,7 +45,7 @@ const iconTag = computed(() => {
       hover:bg-[var(--el-color-success-light-7)]
       active:bg-[var(--el-color-success-light-9)]
       "
-      @click="() => focusMarker(markerInfo, { flyToMarker: true })"
+      @click="() => focusMarker(markerInfo, { flyToMarker: true, snapshot: true })"
     >
       <AppIconTagRenderer
         :src="iconTagStore.tagSpriteUrl"

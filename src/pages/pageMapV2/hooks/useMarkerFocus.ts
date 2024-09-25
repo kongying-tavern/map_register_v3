@@ -12,7 +12,7 @@ export const _useMarkerFocus = () => {
   const tileStore = useTileStore()
 
   /** 缓存的点位信息, 用于在关闭弹窗时保持信息，使动画显示状态平滑 */
-  const cachedMarkerVo = shallowRef<GSMapState.MarkerWithRenderConfig | null>(null)
+  const cachedMarkerVo = shallowRef<GSMapState.MarkerWithRenderConfig & { isSnapshot?: boolean } | null>(null)
 
   const { hasFocus, hasHover, addFocus, addHover, removeFocus, removeHover } = mapStateStore
 
@@ -60,7 +60,15 @@ export const _useMarkerFocus = () => {
     return mapStateStore.currentMarkerIdMap.get(markerId)
   })
 
+  /** 快照模式，点位只能查看不可交互 */
+  const isSnapshot = ref(false)
+
   const isPopoverActived = computed(() => focus.value !== undefined)
+
+  whenever(() => !focus.value, () => {
+    isSnapshot.value = false
+    mapStateStore.setTempMarkers('focus', [])
+  })
 
   const normalizeMarker = (markerVo: API.MarkerVo | GSMapState.MarkerWithRenderConfig): GSMapState.MarkerWithRenderConfig => {
     return 'render' in markerVo
@@ -77,25 +85,25 @@ export const _useMarkerFocus = () => {
   const delayTimer = ref<number>()
 
   /** 与 focus 相反的行为 */
-  const blur = () => {
-    mapStateStore.setTempMarkers('focus', [])
-    removeFocus('marker')
-  }
+  const blur = () => removeFocus('marker')
 
   const focusMarker = (markerVo: API.MarkerVo | GSMapState.MarkerWithRenderConfig, {
     delay = 0,
     duration = 400,
     flyToMarker = false,
+    snapshot = false,
   }: {
     delay?: number
     duration?: number
     flyToMarker?: boolean
+    snapshot?: boolean
   }) => {
     blur()
     window.clearTimeout(delayTimer.value)
     const markerWithRender = normalizeMarker(markerVo)
 
     mapStateStore.setTempMarkers('focus', [markerWithRender])
+    isSnapshot.value = snapshot
 
     if (delay > 0) {
       delayTimer.value = window.setTimeout(() => {
@@ -138,7 +146,10 @@ export const _useMarkerFocus = () => {
       !isPopoverOnHover && mapStateStore.setTempMarkers('focus', [])
       return
     }
-    cachedMarkerVo.value = currentFocus
+    cachedMarkerVo.value = {
+      ...currentFocus,
+      isSnapshot: isSnapshot.value,
+    }
     !isPopoverOnHover && mapStateStore.setTempMarkers('focus', [currentFocus])
   })
 

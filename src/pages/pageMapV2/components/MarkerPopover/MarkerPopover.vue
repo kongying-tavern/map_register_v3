@@ -200,63 +200,71 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
         </template>
 
         <template #footer>
-          <GSButton
-            v-if="accessStore.get('MARKER_EDIT')"
-            size="small"
-            theme="dark"
-            :disabled="hasMapMission"
-            @click="openMarkerEditor"
-          >
-            <template #icon>
-              <el-icon color="#F7BA3F">
-                <Edit />
-              </el-icon>
-            </template>
-            编辑
-          </GSButton>
+          <template v-if="cachedMarkerVo.isSnapshot">
+            <div class="w-full text-sm grid place-content-center">
+              点位快照
+            </div>
+          </template>
 
-          <GSButton
-            :theme="isFinished ? undefined : 'dark'"
-            class="flex-1" size="small"
-            @click="toggleFinished"
-          >
-            <template #icon>
-              <el-icon :color="isFinished ? 'var(--el-color-success)' : 'var(--el-color-info)'">
-                <component :is="isFinished ? Check : CirclePlus" />
-              </el-icon>
-            </template>
-            {{ isFinished ? '已完成' : '完成' }}
-          </GSButton>
+          <template v-else>
+            <GSButton
+              v-if="accessStore.get('MARKER_EDIT')"
+              size="small"
+              theme="dark"
+              :disabled="hasMapMission"
+              @click="openMarkerEditor"
+            >
+              <template #icon>
+                <el-icon color="#F7BA3F">
+                  <Edit />
+                </el-icon>
+              </template>
+              编辑
+            </GSButton>
 
-          <GSButton
-            v-if="accessStore.get('MARKER_EDIT')"
-            :theme="isMoving ? undefined : 'dark'"
-            size="small"
-            :disabled="!isEnable"
-            title="移动点位"
-            @click="isMoving = !isMoving"
-          >
-            <template #icon>
-              <el-icon color="#F7BA3F">
-                <Rank />
-              </el-icon>
-            </template>
-          </GSButton>
+            <GSButton
+              :theme="isFinished ? undefined : 'dark'"
+              class="flex-1" size="small"
+              @click="toggleFinished"
+            >
+              <template #icon>
+                <el-icon :color="isFinished ? 'var(--el-color-success)' : 'var(--el-color-info)'">
+                  <component :is="isFinished ? Check : CirclePlus" />
+                </el-icon>
+              </template>
+              {{ isFinished ? '已完成' : '完成' }}
+            </GSButton>
 
-          <GSButton
-            v-if="accessStore.get('MARKER_DELETE')"
-            size="small"
-            theme="dark"
-            title="删除点位"
-            :disabled="hasMapMission"
-            @click="() => confirmDeleteMarker(cachedMarkerVo)"
-          >
-            <template #icon>
-              <el-icon color="#CF5945">
-                <DeleteFilled />
-              </el-icon>
-            </template>
-          </GSButton>
+            <GSButton
+              v-if="accessStore.get('MARKER_EDIT')"
+              :theme="isMoving ? undefined : 'dark'"
+              size="small"
+              :disabled="!isEnable"
+              title="移动点位"
+              @click="isMoving = !isMoving"
+            >
+              <template #icon>
+                <el-icon color="#F7BA3F">
+                  <Rank />
+                </el-icon>
+              </template>
+            </GSButton>
+
+            <GSButton
+              v-if="accessStore.get('MARKER_DELETE')"
+              size="small"
+              theme="dark"
+              title="删除点位"
+              :disabled="hasMapMission"
+              @click="() => confirmDeleteMarker(cachedMarkerVo)"
+            >
+              <template #icon>
+                <el-icon color="#CF5945">
+                  <DeleteFilled />
+                </el-icon>
+              </template>
+            </GSButton>
+          </template>
         </template>
       </MarkerPanel>
     </template>
