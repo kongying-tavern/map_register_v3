@@ -165,7 +165,7 @@ const mapAffixLayerRef = inject(mapAffixLayerKey, ref())
 <style scoped>
 .link-table {
   height: 100%;
-  overflow: scroll;
+  overflow-y: scroll;
   display: flex;
   flex-direction: column;
   gap: 4px;
