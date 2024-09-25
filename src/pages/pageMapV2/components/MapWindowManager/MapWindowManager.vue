@@ -2,18 +2,25 @@
 import { WindowPanel } from './components'
 import { useWindowDrag } from './hooks'
 import { context } from './core'
+import { useUserAuthStore } from '@/stores'
+
+const userAuthStore = useUserAuthStore()
 
 const { optimizeWindowPosition } = useWindowDrag(context)
+
+userAuthStore.onBeforeLogout(() => {
+  context.clearWindow()
+})
 </script>
 
 <template>
   <div class="map-window-manager">
     <WindowPanel
-      v-for="(action, id) in context.getWindows()"
+      v-for="([id, info]) in context.getWindows()"
       :id="id"
       :key="id"
-      v-model:main-ref="action.ref"
-      :info="action"
+      v-model:main-ref="info.ref"
+      :info="info"
       :drag-hook-id="context.dragHookId"
       @optimize-window-position="optimizeWindowPosition"
     />
