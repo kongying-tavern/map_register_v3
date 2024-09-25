@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { ArrowDown, Check, CirclePlus, Close } from '@element-plus/icons-vue'
-import { ElCascaderPanel, ElDropdown } from 'element-plus'
+import { ElCascaderPanel, ElDropdown, ElIcon } from 'element-plus'
 import { MapMissionInfo } from '../MapMissionInfo'
 import { useMarkerTweaks, useMultiSelect, useTweaks } from './hooks'
 import { ModifierCard, ModifierPreview } from './components'
+import { IconMouse } from './icons'
 import { MapWindowTeleporter } from '@/pages/pageMapV2/components'
 import { AppIconTagRenderer, AppVirtualTable } from '@/components'
 import { useIconTagStore, useItemStore } from '@/stores'
@@ -64,8 +65,12 @@ onFinalize(() => {
     </svg>
 
     <MapMissionInfo v-if="isProcessing" title="多选点位">
-      - 按住 <span class="keyboard-key mb-1">Ctrl</span> 选择点位<br>
-      - 按住 <span class="keyboard-key">Ctrl</span> + <span class="keyboard-key">Alt</span> 取消选择点位。
+      <div class="flex items-center mb-1">
+        - 按住 <span class="keyboard-key">Ctrl</span> + <IconMouse class="w-5 h-5" left /> 选择点位<br>
+      </div>
+      <div class="flex items-center">
+        - 按住 <span class="keyboard-key">Ctrl</span> + <IconMouse class="w-5 h-5" right /> 取消选择点位。
+      </div>
     </MapMissionInfo>
 
     <MapWindowTeleporter :id="id" @close="finalizeMission">
@@ -75,9 +80,9 @@ onFinalize(() => {
             <ElDropdown ref="drownRef" placement="bottom-start" trigger="click" :teleported="false">
               <el-button :icon="CirclePlus">
                 添加编辑操作
-                <el-icon class="el-icon--right" :size="12">
+                <ElIcon class="el-icon--right" :size="12">
                   <ArrowDown />
-                </el-icon>
+                </ElIcon>
               </el-button>
               <template #dropdown>
                 <ElCascaderPanel
@@ -181,7 +186,7 @@ onFinalize(() => {
 <style scoped>
 .keyboard-key {
   @apply
-    inline-block p-px px-1
+    inline-block p-px px-1 mx-1
     border border-[#C6C2BA] rounded
     text-xs
   ;

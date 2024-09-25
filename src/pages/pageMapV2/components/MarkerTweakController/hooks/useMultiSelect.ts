@@ -1,4 +1,4 @@
-import { Observable, filter, finalize, fromEvent, map, switchMap, takeUntil } from 'rxjs'
+import { Observable, filter, finalize, map, switchMap, takeUntil } from 'rxjs'
 import { useSubscription } from '@vueuse/rxjs'
 import type { PickingInfo } from '@deck.gl/core'
 import KDBush from 'kdbush'
@@ -6,6 +6,7 @@ import { useTweakWindow } from '.'
 import { useAccessStore, useMapStateStore, usePreferenceStore, useShortcutStore } from '@/stores'
 import { genshinMapCanvasKey } from '@/pages/pageMapV2/shared'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
+import { globalPointerup$ } from '@/shared'
 
 interface MultiSelectHookOptions {
   /** 多选窗口标题 */
@@ -73,7 +74,6 @@ export const useMultiSelect = (options: MultiSelectHookOptions) => {
   })
 
   // ==================== 交互事件 ====================
-  const pointerup = fromEvent<PointerEvent>(window, 'pointerup')
 
   const drag = new Observable<[PickingInfo, MouseEvent | PointerEvent]>((observer) => {
     const handler = (info: PickingInfo, ev: { srcEvent: MouseEvent | TouchEvent | PointerEvent }) => {
@@ -134,8 +134,9 @@ export const useMultiSelect = (options: MultiSelectHookOptions) => {
         accessStore.get('MARKER_BATCH_EDIT'),
         isProcessing.value,
         info.coordinate !== undefined,
+        ev.buttons === 1 || ev.buttons === 2,
         ev.ctrlKey,
-      ].every(condition => condition)
+      ].every(Boolean)
     }),
 
     switchMap(([startInfo, startEvent]) => {
@@ -161,8 +162,8 @@ export const useMultiSelect = (options: MultiSelectHookOptions) => {
       const oldIds = [...currentSelectedIds.value ?? []]
       const oldIdsSet = new Set(oldIds)
 
-      /** alt 按下时为取消选择模式 */
-      const isRemoveMode = startEvent.altKey
+      /** 右键按下时为取消选择模式 */
+      const isRemoveMode = startEvent.buttons === 2
 
       return drag.pipe(
         filter(([info]) => info.coordinate !== undefined),
@@ -194,7 +195,7 @@ export const useMultiSelect = (options: MultiSelectHookOptions) => {
           setMultiSelecte(ids)
         }),
 
-        takeUntil(pointerup),
+        takeUntil(globalPointerup$),
 
         // 注意！这里不是直接恢复初始状态，而是恢复到更新选择矩形之前的状态。
         // 只有当多选点位弹出的操作窗口关闭后才恢复到初始状态。
