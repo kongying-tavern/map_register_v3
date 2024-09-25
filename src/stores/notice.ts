@@ -38,9 +38,9 @@ export const useNoticeStore = defineStore('global-notice', () => {
   }
 
   // 作为 ws 推送挂掉时的 fallback，定时刷新公告
-  const { resume, pause } = useTimeoutPoll(refresh, 20 * 60 * 1000, {
-    immediate: false,
-  })
+  const { resume, pause } = useTimeoutPoll(async () => {
+    await refresh()
+  }, 20 * 60 * 1000, { immediate: false })
 
   const readArchive = computed(() => (preferenceStore.preference['notice.state.read'] ?? []).reduce((record, [id, time]) => {
     record.set(id, time)
