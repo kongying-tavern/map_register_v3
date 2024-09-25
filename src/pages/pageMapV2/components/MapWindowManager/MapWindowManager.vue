@@ -11,6 +11,10 @@ const { optimizeWindowPosition } = useWindowDrag(context)
 userAuthStore.onBeforeLogout(() => {
   context.clearWindow()
 })
+
+onBeforeUnmount(() => {
+  context.clearWindow()
+})
 </script>
 
 <template>

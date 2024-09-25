@@ -14,6 +14,7 @@ import {
   MarkerTweakController,
   ZoomController,
 } from './components'
+import { context } from './components/MapWindowManager/core'
 import { useAccessStore } from '@/stores'
 
 const accessStore = useAccessStore()
@@ -56,7 +57,7 @@ provide(mapAffixLayerKey, mapAffixLayerRef)
         :style="{ '--tw-translate-x': interactionLayerVisible ? '0%' : '-300%' }"
       />
 
-      <MapWindowManager />
+      <MapWindowManager v-if="context.getWindows().size > 0" />
 
       <ZoomController :delta-zoom="0.2" />
 
