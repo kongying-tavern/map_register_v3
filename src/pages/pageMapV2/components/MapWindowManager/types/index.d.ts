@@ -1,5 +1,3 @@
-import type { Observable } from 'rxjs'
-
 export declare namespace MapWindow {
   interface Coordinate {
     x: number
@@ -38,15 +36,6 @@ export declare namespace MapWindow {
   interface Context {
     /** 拖动识别 id，固定值 */
     dragHookId: string
-
-    /** 指针按下的事件源 */
-    pointerdown: Observable<{ srcEvent: PointerEvent; target: HTMLElement; panelId: string } | undefined>
-
-    /** 指针移动的事件源 */
-    pointermove: Observable<PointerEvent>
-
-    /** 指针抬起的事件源 */
-    pointerup: Observable<PointerEvent>
 
     /** 窗口是否已置顶 */
     isTop(id: string): boolean

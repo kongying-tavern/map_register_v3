@@ -2,11 +2,27 @@ import { filter, finalize, map, switchMap, takeUntil } from 'rxjs'
 import { useSubscription } from '@vueuse/rxjs'
 import type { WindowContext } from '../core'
 import { genshinMapCanvasKey } from '@/pages/pageMapV2/shared'
+import { globalPointerDown$, globalPointerMove$, globalPointerup$ } from '@/shared'
 
 export const useWindowDrag = (context: WindowContext) => {
-  const { pointerdown, pointermove, pointerup } = context
-
   const mapCanvas = inject(genshinMapCanvasKey, ref())
+
+  const pointerdown = globalPointerDown$.pipe(
+    map((ev) => {
+      const result = ev.composedPath().find((target) => {
+        if (!(target instanceof HTMLElement))
+          return false
+        return target.dataset[context.dragHookId] !== undefined
+      }) as HTMLElement | undefined
+      if (!result)
+        return
+      return {
+        srcEvent: ev,
+        target: result,
+        panelId: result.dataset[context.dragHookId]!,
+      }
+    }),
+  )
 
   const optimizeWindowPosition = () => {
     if (!mapCanvas.value)
@@ -56,7 +72,7 @@ export const useWindowDrag = (context: WindowContext) => {
     }),
 
     switchMap(({ panelId, translate, startPosition }) => {
-      return pointermove.pipe(
+      return globalPointerMove$.pipe(
         map(({ x, y }) => {
           context.move(panelId, {
             x: translate.x + x - startPosition.x,
@@ -64,7 +80,7 @@ export const useWindowDrag = (context: WindowContext) => {
           })
         }),
 
-        takeUntil(pointerup),
+        takeUntil(globalPointerup$),
 
         finalize(() => {
           if (!mapCanvas.value)
