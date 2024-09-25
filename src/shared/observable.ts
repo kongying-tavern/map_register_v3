@@ -5,4 +5,6 @@ export const globalKeydown$ = fromEvent<KeyboardEvent>(window, 'keydown')
   .pipe(filter(ev => ev.key !== undefined))
 
 export const globalKeyUp$ = fromEvent<KeyboardEvent>(window, 'keyup')
-export const globalPointerup$ = fromEvent(window, 'pointerup')
+export const globalPointerDown$ = fromEvent<PointerEvent>(window, 'pointerdown')
+export const globalPointerMove$ = fromEvent<PointerEvent>(window, 'pointermove')
+export const globalPointerup$ = fromEvent<PointerEvent>(window, 'pointerup')
