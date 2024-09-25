@@ -1,4 +1,3 @@
-import { fromEvent, map } from 'rxjs'
 import { clamp } from 'lodash'
 import type { MapWindow } from '../types'
 
@@ -22,27 +21,6 @@ export class WindowContext implements MapWindow.Context {
     })
     return order
   })
-
-  pointerdown = fromEvent<PointerEvent>(window, 'pointerdown').pipe(
-    map((ev) => {
-      const result = ev.composedPath().find((target) => {
-        if (!(target instanceof HTMLElement))
-          return false
-        return target.dataset[this.dragHookId] !== undefined
-      }) as HTMLElement | undefined
-      if (!result)
-        return
-      return {
-        srcEvent: ev,
-        target: result,
-        panelId: result.dataset[this.dragHookId]!,
-      }
-    }),
-  )
-
-  pointermove = fromEvent<PointerEvent>(window, 'pointermove')
-
-  pointerup = fromEvent<PointerEvent>(window, 'pointerup')
 
   isTop = (id: string) => {
     const panel = this.panels.value.get(id)
@@ -96,7 +74,8 @@ export class WindowContext implements MapWindow.Context {
     const panel = this.panels.value.get(id)
     if (!panel)
       return
-    panel.isMinus = true
+    panel.isMinus = !panel.isMinus
+    this.optimizeWindowPosition()
   }
 
   closeWindow = (id: string) => {
@@ -202,10 +181,15 @@ export class WindowContext implements MapWindow.Context {
     this.panels.value.forEach((info) => {
       const { width, height } = info.size
       const { x, y } = info.translate
-      info.translate = {
-        x: clamp(x, 0, Math.max(0, inlineSize - width)),
-        y: clamp(y, 0, Math.max(0, blockSize - height - this.HEADER_HEIGHT)),
-      }
+      info.translate = info.isMinus
+        ? {
+            x: clamp(x, 0, Math.max(0, inlineSize - this.MIN_WIDTH)),
+            y: clamp(y, 0, Math.max(0, blockSize - this.HEADER_HEIGHT)),
+          }
+        : {
+            x: clamp(x, 0, Math.max(0, inlineSize - width)),
+            y: clamp(y, 0, Math.max(0, blockSize - height - this.HEADER_HEIGHT)),
+          }
     })
   }
 }
