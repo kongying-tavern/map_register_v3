@@ -9,6 +9,7 @@ const props = withDefaults(defineProps<AppImageCropperProps>(), {
   minZoom: 0,
   fit: 'cover',
   cropRatio: 1,
+  allowRotate: false,
   autoCrop: false,
   autoCropDebounce: 200,
   autoCropOnImageLoaded: true,

@@ -25,6 +25,7 @@ export const useCropper = (options: ImageInfoHookOptions) => {
     minZoom,
     fit,
     cropRatio,
+    allowRotate,
     autoCrop,
     autoCropDebounce,
     autoCropOnImageLoaded,
@@ -138,7 +139,7 @@ export const useCropper = (options: ImageInfoHookOptions) => {
       return
     let tween: Konva.Tween | null = null
     _image.on('click', () => {
-      if (tween)
+      if (tween || !allowRotate.value)
         return
       const { width: cw, height: ch } = _stage.size()
       const ro = _image.rotation() + 90

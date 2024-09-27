@@ -18,6 +18,9 @@ export interface AppImageCropperProps {
   /** 裁切尺寸与视口的缩放比 @default 1 */
   cropRatio?: number
 
+  /** 允许旋转操作 */
+  allowRotate?: boolean
+
   /** 在图像状态改变后自动裁切一次 @default false */
   autoCrop?: boolean
 
