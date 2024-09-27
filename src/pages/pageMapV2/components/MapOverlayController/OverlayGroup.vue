@@ -70,6 +70,7 @@ const toggleOverlayItem = (itemId: string, bool: boolean) => {
       </div>
 
       <el-icon
+        v-if="group.multiple"
         class="
           p-2
           cursor-pointer
