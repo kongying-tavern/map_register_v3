@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { merge, template } from 'lodash'
-import { useAccessStore, useDadianStore, useTileStore } from '.'
+import { useAccessStore, useDadianStore, usePreferenceStore, useTileStore } from '.'
 
 export interface OverlayGroup {
   id: string
@@ -67,6 +67,7 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
   const accessStore = useAccessStore()
   const dadianStore = useDadianStore()
   const tileStore = useTileStore()
+  const preferenceStore = usePreferenceStore()
 
   /** 当前激活的 overlay 单元（激活状态并不代表显示状态） */
   const activedItemIds = ref(new Set<string>())
@@ -245,9 +246,10 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
       return []
     const { mergedTileConfigs } = tileStore
     const { code: currentLayerCode } = currentTileConfig.tile
-    return normalizedOverlayChunks.value.filter(({ areaCode }) => {
+    const hideDefaultOverlay = !preferenceStore.preference['map.state.showOverlay']
+    return normalizedOverlayChunks.value.filter(({ areaCode, group }) => {
       const config = mergedTileConfigs[areaCode]
-      if (!config)
+      if (!config || (hideDefaultOverlay && group.role === 'default'))
         return false
       return config.tile.code === currentLayerCode
     })
