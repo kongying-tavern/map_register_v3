@@ -87,7 +87,7 @@ const toggleOverlayItem = (itemId: string, bool: boolean) => {
     </div>
 
     <div class="flex flex-wrap p-1 gap-1">
-      <template v-if="group.role === 'tile'">
+      <template v-if="!group.multiple">
         <ElRadio
           v-for="([item]) in items"
           :key="item.id"
