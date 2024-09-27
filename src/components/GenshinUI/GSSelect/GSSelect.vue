@@ -18,20 +18,23 @@ const emits = defineEmits<{
 
 const dropdownVisible = ref(false)
 const listRef = ref<HTMLElement>()
+const labelRef = ref<HTMLElement>()
 
 useEventListener('pointerdown', (ev) => {
   if (!dropdownVisible.value)
     return
-  const isInside = ev.composedPath().find(target => target === listRef.value)
-  if (isInside)
+  const hasTarget = ev.composedPath().find((target) => {
+    return (target === labelRef.value) || (target === listRef.value)
+  })
+  if (hasTarget)
     return
   dropdownVisible.value = false
   emits('dropdownVisibleChange', false)
 })
 
 const openOptionList = () => {
-  dropdownVisible.value = true
-  emits('dropdownVisibleChange', true)
+  dropdownVisible.value = !dropdownVisible.value
+  emits('dropdownVisibleChange', dropdownVisible.value)
 }
 
 const itemMap = computed(() => props.options.reduce((map, item) => {
@@ -64,13 +67,14 @@ const selectValue = (option: T) => {
 
 <template>
   <div class="gs-select gs-select-variable">
-    <div class="label-content" @click="openOptionList">
+    <div ref="labelRef" class="label-content" @click="openOptionList">
       <slot
         v-if="nameMap.get(modelValue as VK)"
         name="label"
         :label="itemMap.get(modelValue as VK)?.[labelKey as string]"
         :value="itemMap.get(modelValue as VK)?.[valueKey as string]"
         :option="itemMap.get(modelValue as VK)"
+        :dropdown-visible
       >
         {{ nameMap.get(modelValue as VK) }}
       </slot>
