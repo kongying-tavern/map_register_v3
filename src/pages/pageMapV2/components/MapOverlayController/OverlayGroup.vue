@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ElCheckbox, ElRadio } from 'element-plus'
 import type { OverlayChunk, OverlayChunkGroup } from '@/stores'
-import { useMapStateStore, useOverlayStore } from '@/stores'
+import { useOverlayStore } from '@/stores'
 
 const props = defineProps<{
   group: OverlayControllerChunkGroup
@@ -12,7 +12,6 @@ interface OverlayControllerChunkGroup extends OverlayChunkGroup {
 }
 
 const overlayStore = useOverlayStore()
-const mapStateStore = useMapStateStore()
 
 const items = computed(() => Map.groupBy(props.group.chunks, ({ item }) => {
   return item
@@ -37,14 +36,6 @@ const resetItemVisible = () => {
   items.value.forEach((_, { id }) => {
     overlayStore.activedItemIds.delete(id)
   })
-}
-
-const { setHover, removeHover } = mapStateStore
-
-const updateHover = (chunks: OverlayChunk[] | null) => {
-  if (!chunks)
-    return removeHover('overlay')
-  setHover<string>('overlay', new Set(chunks.map(({ id }) => id)))
 }
 
 const toggleOverlayItem = (itemId: string, bool: boolean) => {
@@ -97,7 +88,7 @@ const toggleOverlayItem = (itemId: string, bool: boolean) => {
     <div class="flex flex-wrap p-1 gap-1">
       <template v-if="group.role === 'tile'">
         <ElRadio
-          v-for="([item, chunks]) in items"
+          v-for="([item]) in items"
           :key="item.id"
           v-model="tileModelValue"
           :title="item.name"
@@ -107,8 +98,6 @@ const toggleOverlayItem = (itemId: string, bool: boolean) => {
           }"
           class="overlay-item"
           style="margin-right: 0"
-          @pointerenter="() => updateHover(chunks)"
-          @pointerleave="() => updateHover(null)"
         >
           <div class="flex-1 overflow-hidden whitespace-nowrap text-ellipsis">
             {{ item.name === group.name ? group.name : item.name.replace(group.name, '') }}
@@ -118,7 +107,7 @@ const toggleOverlayItem = (itemId: string, bool: boolean) => {
 
       <template v-else>
         <ElCheckbox
-          v-for="([item, chunks]) in items"
+          v-for="([item]) in items"
           :key="item.id"
           class="overlay-item"
           :class="{
@@ -128,8 +117,6 @@ const toggleOverlayItem = (itemId: string, bool: boolean) => {
           :model-value="overlayStore.activedItemIds.has(item.id)"
           :title="item.name"
           @update:model-value="v => toggleOverlayItem(item.id, Boolean(v))"
-          @pointerenter="() => updateHover(chunks)"
-          @pointerleave="() => updateHover(null)"
         >
           <div class="flex-1 overflow-hidden whitespace-nowrap text-ellipsis">
             {{ item.name === group.name ? group.name : item.name.replace(group.name, '') }}
