@@ -95,6 +95,9 @@ const availableExtraConfig = computed(() => {
 })
 
 // 在 extra config 变化后移除不存在 config 内的值
+// 该逻辑用于避免以下问题：
+// 假如用户设置点位为海岛层级，然后修改了地区
+// 此时海岛的层级选项会被筛选掉，但实际值未变，导致用户无法去掉点位的海岛层级
 watch(() => availableExtraConfig.value, (config) => {
   const extraData = (toValue(form).extra ?? {}) as API.MarkerExtra
   const { region_levels, is_underground } = extraData.underground ?? {}
