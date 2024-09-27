@@ -100,7 +100,7 @@ const toggleOverlayItem = (itemId: string, bool: boolean) => {
           style="margin-right: 0"
         >
           <div class="flex-1 overflow-hidden whitespace-nowrap text-ellipsis">
-            {{ item.name === group.name ? group.name : item.name.replace(group.name, '') }}
+            {{ item.name === group.name ? group.name : item.name.replace(group.name, '~') }}
           </div>
         </ElRadio>
       </template>
@@ -119,7 +119,7 @@ const toggleOverlayItem = (itemId: string, bool: boolean) => {
           @update:model-value="v => toggleOverlayItem(item.id, Boolean(v))"
         >
           <div class="flex-1 overflow-hidden whitespace-nowrap text-ellipsis">
-            {{ item.name === group.name ? group.name : item.name.replace(group.name, '') }}
+            {{ item.name === group.name ? group.name : item.name.replace(group.name, '~') }}
           </div>
         </ElCheckbox>
       </template>
