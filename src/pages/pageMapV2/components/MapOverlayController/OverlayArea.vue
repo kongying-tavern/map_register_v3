@@ -2,22 +2,36 @@
 import OverlayCount from './components/OverlayCount.vue'
 import { GSSelect } from '@/components'
 import { useAreaStore, useOverlayStore, usePreferenceStore } from '@/stores'
+import type { OverlayChunk } from '@/stores'
 
 const areaStore = useAreaStore()
 const overlayStore = useOverlayStore()
 const preferenceStore = usePreferenceStore()
 
+const isTile = (item: {
+  areaCode: string
+  chunks: OverlayChunk[]
+  id: string
+  name: string
+}) => {
+  return item.chunks[0]?.group.role === 'tile'
+}
+
 const overlayCountMap = computed(() => overlayStore.activedItems.reduce((map, item) => {
+  if (isTile(item))
+    return map
   return map.set(item.areaCode, (map.get(item.areaCode) ?? 0) + 1)
 }, new Map<string, number>()))
 
 const overlayTotalMap = computed(() => overlayStore.items.reduce((map, item) => {
+  if (isTile(item))
+    return map
   return map.set(item.areaCode, (map.get(item.areaCode) ?? 0) + 1)
 }, new Map<string, number>()))
 
 const parentOverlayCountMap = computed(() => overlayStore.activedItems.reduce((map, item) => {
   const area = areaStore.areaCodeMap.get(item.areaCode)
-  if (!area)
+  if (!area || isTile(item))
     return map
   const parentArea = areaStore.areaIdMap.get(area.parentId!)
   if (!parentArea)
@@ -27,7 +41,7 @@ const parentOverlayCountMap = computed(() => overlayStore.activedItems.reduce((m
 
 const parentOverlayTotalMap = computed(() => overlayStore.items.reduce((map, item) => {
   const area = areaStore.areaCodeMap.get(item.areaCode)
-  if (!area)
+  if (!area || isTile(item))
     return map
   const parentArea = areaStore.areaIdMap.get(area.parentId!)
   if (!parentArea)
@@ -57,18 +71,19 @@ const childrenAreaList = computed(() => {
         :options="areaStore.parentAreaList"
         label-key="name"
         value-key="code"
-        class="flex-1"
+        class="flex-1 text-sm"
       >
         <template #label="{ label, option }">
           <div v-if="!option">
             --/--
           </div>
-          <OverlayCount
+          <div
             v-else
-            :current="parentOverlayCountMap.get(option.code!)"
-            :total="parentOverlayTotalMap.get(option.code!)"
-            :label="label"
-          />
+            class="w-full overflow-hidden text-ellipsis whitespace-nowrap"
+            :title="label"
+          >
+            {{ label }}
+          </div>
         </template>
 
         <template #default="{ label, option }">
@@ -90,7 +105,7 @@ const childrenAreaList = computed(() => {
         :options="childrenAreaList"
         label-key="name"
         value-key="code"
-        class="flex-1"
+        class="flex-1 text-sm"
       >
         <template #missed>
           请选择子地区
@@ -100,12 +115,13 @@ const childrenAreaList = computed(() => {
           <div v-if="!option">
             --/--
           </div>
-          <OverlayCount
+          <div
             v-else
-            :current="overlayCountMap.get(option.code!)"
-            :total="overlayTotalMap.get(option.code!)"
-            :label="label"
-          />
+            class="w-full overflow-hidden text-ellipsis whitespace-nowrap"
+            :title="label"
+          >
+            {{ label }}
+          </div>
         </template>
 
         <template #default="{ label, option }">
