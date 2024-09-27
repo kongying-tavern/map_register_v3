@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { CircleCheck, Delete, Plus, Scissor, Setting } from '@element-plus/icons-vue'
+import { CircleCheck, Delete, Plus, Setting } from '@element-plus/icons-vue'
 import { useLocalPicture, useMarkerPicture } from '../hooks'
 import { AddonTeleporter } from '.'
 import { formatByteSize } from '@/utils'
@@ -123,11 +123,16 @@ onSelectSuccess((file) => {
           @click="clearImage"
         />
       </div>
-      <div v-if="croppedImage" class="flex items-center text-sm gap-1 text-[var(--el-color-success)] leading-none">
-        <el-icon :size="16">
+      <div v-if="croppedImage" class="text-xs gap-1 text-[var(--el-color-success)] leading-none grid grid-cols-[auto_1fr] grid-rows-2">
+        <el-icon class="row-span-2" :size="24">
           <CircleCheck />
         </el-icon>
-        <span>{{ formatByteSize(croppedImage.size) }}</span>
+        <div>
+          预计大小
+        </div>
+        <div>
+          {{ formatByteSize(croppedImage.size) }}
+        </div>
       </div>
     </div>
 
@@ -143,28 +148,28 @@ onSelectSuccess((file) => {
       <div class="w-full h-full flex flex-col gap-2">
         <el-alert type="warning" :closable="false">
           注意事项：
-          <li>仅当通过裁切生成了新的缩略图时，编辑器才会在提交表单的同时对图像进行上传。</li>
           <li>裁切尺寸固定为 256x256。</li>
-          <li>上传的图片并不会立即可用，需要等待CDN缓存刷新。</li>
+          <li>上传的图片可能需要等待 CDN 缓存刷新。</li>
         </el-alert>
         <div class="flex-1 grid place-items-center place-content-center gap-2">
           <AppImageCropper
             ref="cropperRef"
             :image="newPictureUrl ?? thumbImageUrl"
-            :auto-crop-on-image-loaded="false"
+            :auto-crop-on-image-loaded="newPictureUrl !== undefined"
+            :auto-crop="newPictureUrl !== undefined"
             class="w-64 h-64"
             @crop="onCrop"
           />
-          <el-button :icon="Scissor" :disabled="!newPictureUrl" @click="() => cropperRef?.crop()">
-            裁切
-          </el-button>
         </div>
         <el-alert type="info" :closable="false">
           操作指南：
           <ol class="list-disc">
-            <li>拖拽图像移动焦点。</li>
-            <li>滚轮缩放图像</li>
-            <li>点击图像进行旋转</li>
+            <li class="ml-4">
+              拖拽移动图像
+            </li>
+            <li class="ml-4">
+              滚轮缩放图像
+            </li>
           </ol>
         </el-alert>
       </div>
