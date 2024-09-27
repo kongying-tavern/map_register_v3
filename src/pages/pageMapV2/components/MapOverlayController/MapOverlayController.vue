@@ -2,6 +2,7 @@
 import OverlayArea from './OverlayArea.vue'
 import OverlayGroup from './OverlayGroup.vue'
 import { useOverlayStore, usePreferenceStore } from '@/stores'
+import type { OverlayChunk } from '@/stores'
 
 const overlayStore = useOverlayStore()
 const preferenceStore = usePreferenceStore()
@@ -11,8 +12,10 @@ const areaCode = computed(() => preferenceStore.preference['markerFilter.state.a
 const overlayGroups = computed(() => {
   const currentAreaCode = areaCode.value
 
+  const index = (chunk: OverlayChunk): number => Number(chunk?.group?.areaIndexes?.get(currentAreaCode))
   const chunks = overlayStore.existOverlays
-    .filter(chunk => chunk.areaCode === currentAreaCode)
+    .filter(chunk => chunk.areaCodes.has(currentAreaCode))
+    .sort((a, b) => index(a) - index(b))
 
   const groups = Map.groupBy(chunks, ({ group }) => {
     return group

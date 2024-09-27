@@ -36,8 +36,11 @@ export interface OverlayChunk {
     id: string
     name: string
   }
-  /** overlay 所属的地区代码 */
-  areaCode: string
+  /**
+   * overlay 所属的地区代码
+   * @note 一个层级可能存在于多个地区，所以使用 Set 类型进行存储
+   */
+  areaCodes: Set<string>
   /** overlay 图片地址 */
   url: string
   /** overlay 区域 */
@@ -50,7 +53,8 @@ export interface OverlayChunkGroup {
   mask: boolean
   role: API.OverlayRole
   multiple: boolean
-  areaCode: string
+  areaCodes: Set<string>
+  areaIndexes: Map<string, number>
 }
 
 export interface OverlayControlGroup extends OverlayChunkGroup {
@@ -105,33 +109,43 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
     const { mergedTileConfigs } = tileStore
     if (!mergedTileConfigs)
       return []
-    const result: OverlayChunk[] = []
-    const urlSet = new Set<string>()
+    const resultMap = new Map<string, OverlayChunk>()
+    const groupCache = new Map<string, OverlayChunkGroup>()
     for (const areaCode in mergedOverlayGroups.value) {
-      for (const {
-        id: groupId,
-        label: groupLabel = 'unknown',
-        value: groupValue,
-        items,
-        url: groupUrl,
-        urlTemplate: groupUrlTemplate,
-        bounds: groupBounds,
-        mask = false,
-        role,
-        multiple = false,
-      } of mergedOverlayGroups.value[areaCode]) {
+      for (let groupIndex = 0; groupIndex < mergedOverlayGroups.value[areaCode].length; groupIndex++) {
+        const {
+          id: groupId,
+          label: groupLabel = 'unknown',
+          value: groupValue = '',
+          items,
+          url: groupUrl,
+          urlTemplate: groupUrlTemplate,
+          bounds: groupBounds,
+          mask = false,
+          role,
+          multiple = false,
+        } = mergedOverlayGroups.value[areaCode][groupIndex]
+
         const tileConfigInArea = mergedTileConfigs[areaCode]
         if (!tileConfigInArea)
           continue
 
-        const group = {
-          id: groupId,
-          name: groupLabel,
-          mask,
-          role,
-          multiple,
-          areaCode,
+        if (groupCache.has(groupValue)) {
+          groupCache.get(groupValue)?.areaCodes.add(areaCode)
+          groupCache.get(groupValue)?.areaIndexes.set(areaCode, groupIndex)
         }
+        else {
+          groupCache.set(groupValue, {
+            id: groupId,
+            name: groupLabel,
+            mask,
+            role,
+            multiple,
+            areaCodes: new Set<string>([areaCode]),
+            areaIndexes: new Map<string, number>([[areaCode, groupIndex]]),
+          })
+        }
+        const group = groupCache.get(groupValue)!
 
         for (const {
           label: itemLabel = groupLabel,
@@ -151,16 +165,17 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
             if (!itemBounds)
               continue
             const url = itemUrl ?? complied({ groupLabel, groupValue, itemLabel, itemValue })
-            if (urlSet.has(url))
+            if (resultMap.has(url)) {
+              resultMap.get(url)!.areaCodes.add(areaCode)
               continue
-            urlSet.add(url)
+            }
 
             const { center: [cx, cy] } = tileConfigInArea.tile
             const [[xmin, ymin], [xmax, ymax]] = itemBounds
 
-            result.push({
+            resultMap.set(url, {
               id: `chunk-${crypto.randomUUID()}`,
-              areaCode,
+              areaCodes: new Set<string>([areaCode]),
               label: itemLabel,
               url,
               bounds: [[xmin + cx, ymin + cy], [xmax + cx, ymax + cy]],
@@ -180,16 +195,17 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
               continue
 
             const url = chunkUrl || complied({ groupLabel, groupValue, itemLabel, itemValue, chunkLabel, chunkValue })
-            if (urlSet.has(url))
+            if (resultMap.has(url)) {
+              resultMap.get(url)!.areaCodes.add(areaCode)
               continue
-            urlSet.add(url)
+            }
 
             const { center: [cx, cy] } = tileConfigInArea.tile
             const [[xmin, ymin], [xmax, ymax]] = chunkBounds
 
-            result.push({
+            resultMap.set(url, {
               id: `chunk-${crypto.randomUUID()}`,
-              areaCode,
+              areaCodes: new Set<string>([areaCode]),
               label: chunkLabel,
               url,
               bounds: [[xmin + cx, ymin + cy], [xmax + cx, ymax + cy]],
@@ -200,7 +216,7 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
         }
       }
     }
-    return result
+    return Array.from(resultMap.values())
   })
 
   // 初始化地图类型附加图层
@@ -223,11 +239,13 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
 
   const items = computed(() => {
     const itemGroups = Map.groupBy(normalizedOverlayChunks.value, chunk => chunk.item)
-    return [...itemGroups.entries()].map(([item, chunks]) => ({
-      ...item,
-      areaCode: chunks[0].areaCode,
-      chunks,
-    }))
+    return [...itemGroups.entries()].map(([item, chunks]) => {
+      return {
+        ...item,
+        areaCodes: chunks[0].areaCodes,
+        chunks,
+      }
+    })
   })
 
   /** chunk 索引表 */
@@ -247,11 +265,18 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
     const { mergedTileConfigs } = tileStore
     const { code: currentLayerCode } = currentTileConfig.tile
     const hideDefaultOverlay = !preferenceStore.preference['map.state.showOverlay']
-    return normalizedOverlayChunks.value.filter(({ areaCode, group }) => {
-      const config = mergedTileConfigs[areaCode]
-      if (!config || (hideDefaultOverlay && group.role === 'default'))
+    return normalizedOverlayChunks.value.filter(({ areaCodes, group }) => {
+      if (hideDefaultOverlay && group.role === 'default')
         return false
-      return config.tile.code === currentLayerCode
+
+      for (const areaCode of areaCodes) {
+        const config = mergedTileConfigs[areaCode]
+        if (!config)
+          continue
+        if (config.tile.code === currentLayerCode)
+          return true
+      }
+      return false
     })
   })
 
