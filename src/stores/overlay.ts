@@ -109,6 +109,7 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
     const { mergedTileConfigs } = tileStore
     if (!mergedTileConfigs)
       return []
+    // TODO Map 无法保证 KV 顺序，建议改为有序 Map
     const resultMap = new Map<string, OverlayChunk>()
     const groupCache = new Map<string, OverlayChunkGroup>()
     for (const areaCode in mergedOverlayGroups.value) {
