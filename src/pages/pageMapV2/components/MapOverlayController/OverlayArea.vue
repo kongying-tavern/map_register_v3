@@ -9,7 +9,7 @@ const overlayStore = useOverlayStore()
 const preferenceStore = usePreferenceStore()
 
 const isTile = (item: {
-  areaCode: string
+  areaCodes: Set<string>
   chunks: OverlayChunk[]
   id: string
   name: string
@@ -20,33 +20,43 @@ const isTile = (item: {
 const overlayCountMap = computed(() => overlayStore.activedItems.reduce((map, item) => {
   if (isTile(item))
     return map
-  return map.set(item.areaCode, (map.get(item.areaCode) ?? 0) + 1)
+  for (const areaCode of item.areaCodes)
+    map.set(areaCode, (map.get(areaCode) ?? 0) + 1)
+  return map
 }, new Map<string, number>()))
 
 const overlayTotalMap = computed(() => overlayStore.items.reduce((map, item) => {
   if (isTile(item))
     return map
-  return map.set(item.areaCode, (map.get(item.areaCode) ?? 0) + 1)
+  for (const areaCode of item.areaCodes)
+    map.set(areaCode, (map.get(areaCode) ?? 0) + 1)
+  return map
 }, new Map<string, number>()))
 
 const parentOverlayCountMap = computed(() => overlayStore.activedItems.reduce((map, item) => {
-  const area = areaStore.areaCodeMap.get(item.areaCode)
-  if (!area || isTile(item))
-    return map
-  const parentArea = areaStore.areaIdMap.get(area.parentId!)
-  if (!parentArea)
-    return map
-  return map.set(parentArea.code!, (map.get(parentArea.code!) ?? 0) + 1)
+  for (const areaCode of item.areaCodes) {
+    const area = areaStore.areaCodeMap.get(areaCode)
+    if (!area || isTile(item))
+      return map
+    const parentArea = areaStore.areaIdMap.get(area.parentId!)
+    if (!parentArea)
+      return map
+    map.set(parentArea.code!, (map.get(parentArea.code!) ?? 0) + 1)
+  }
+  return map
 }, new Map<string, number>()))
 
 const parentOverlayTotalMap = computed(() => overlayStore.items.reduce((map, item) => {
-  const area = areaStore.areaCodeMap.get(item.areaCode)
-  if (!area || isTile(item))
-    return map
-  const parentArea = areaStore.areaIdMap.get(area.parentId!)
-  if (!parentArea)
-    return map
-  return map.set(parentArea.code!, (map.get(parentArea.code!) ?? 0) + 1)
+  for (const areaCode of item.areaCodes) {
+    const area = areaStore.areaCodeMap.get(areaCode)
+    if (!area || isTile(item))
+      return map
+    const parentArea = areaStore.areaIdMap.get(area.parentId!)
+    if (!parentArea)
+      return map
+    map.set(parentArea.code!, (map.get(parentArea.code!) ?? 0) + 1)
+  }
+  return map
 }, new Map<string, number>()))
 
 const childrenAreaList = computed(() => {
