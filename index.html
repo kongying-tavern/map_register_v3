@@ -64,12 +64,6 @@
     else {
       import('./src/main.ts')
     }
-
-    window.addEventListener('error', (ev) => {
-      ev.preventDefault()
-      app.innerHTML = ''
-      app.innerText = ev.message
-    })
   </script>
 </body>
 </html>
