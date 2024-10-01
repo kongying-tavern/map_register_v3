@@ -89,8 +89,6 @@ export const useNoticeStore = defineStore('global-notice', () => {
   const selected = shallowRef<API.NoticeVo>()
 
   onSuccess(async (list) => {
-    await preferenceStore.ready
-
     const [first] = list
     selected.value = first
 

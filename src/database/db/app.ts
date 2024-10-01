@@ -1,4 +1,5 @@
 import { Dexie } from 'dexie'
+import type { UserArchiveBody } from 'types/database'
 import type { UserPreference } from '@/stores/types/userPreference'
 
 /** 数据库核心定义 */

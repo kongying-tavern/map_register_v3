@@ -1,13 +1,14 @@
 import { defineStore } from 'pinia'
 import type { ShallowRef } from 'vue'
-import { userHook } from './hooks'
-import { useUserInfoStore } from '.'
+import { useUserAuthStore } from '.'
 import { Zip } from '@/utils'
 import Api from '@/api/config'
 import db from '@/database'
 
 /** 订阅的打点配置 */
 export const useDadianStore = defineStore('global-dadian-json', () => {
+  const userAuthStore = useUserAuthStore()
+
   const raw = shallowRef<API.DadianJSON>({})
 
   // 自动加载字体资源
@@ -37,8 +38,7 @@ export const useDadianStore = defineStore('global-dadian-json', () => {
   }
 
   const update = async () => {
-    const { id } = useUserInfoStore().info
-    if (id === undefined) {
+    if (!useUserAuthStore().validateToken()) {
       raw.value = {}
       return
     }
@@ -71,19 +71,12 @@ export const useDadianStore = defineStore('global-dadian-json', () => {
     }
   }
 
-  const init = async () => {
-    await update()
-  }
+  watch(() => userAuthStore.auth.userId, update, { immediate: true })
 
   return {
     _raw: raw as Readonly<ShallowRef<API.DadianJSON>>,
 
     digest: getDigest,
     update,
-    init,
   }
-})
-
-userHook.onInfoChange(useDadianStore, async (store) => {
-  await store.update()
 })

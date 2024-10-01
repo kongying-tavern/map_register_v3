@@ -1,22 +1,16 @@
 {
   "extends": "@vue/tsconfig/tsconfig.dom.json",
   "include": [
-    "types/**/*.d.ts",
+    "types/**/*",
     "src/**/*",
-    "src/**/*.vue",
     "public/service.worker.js",
-  ],
-  "exclude": [
-    "dist",
-    ".vscode",
-    "node_modules",
-    "public",
   ],
   "compilerOptions": {
     "incremental": true,
     "noUnusedLocals": true,
     "strictNullChecks": true,
     "checkJs": true,
+    "target": "ESNext",
     "lib": ["DOM", "DOM.Iterable", "ESNext", "WebWorker"],
     "types": ["element-plus/global"],
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",

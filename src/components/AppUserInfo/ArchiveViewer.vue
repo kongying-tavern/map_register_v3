@@ -119,7 +119,7 @@ const loadArchive = () => {
     previewIndex.value = undefined
     return
   }
-  archiveStore.loadHistoryArchive(previewIndex.value!, selectedHistory.value.historyIndex!)
+  archiveStore.loadHistoryArchive(previewIndex.value!, selectedHistory.value.timestamp)
   previewIndex.value = undefined
 }
 

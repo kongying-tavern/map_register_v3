@@ -2,17 +2,15 @@ import { reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 import type { AxiosError } from 'axios'
-import { useUserAuthStore, useUserInfoStore } from '@/stores'
+import { useUserAuthStore } from '@/stores'
 import type { ElFormType } from '@/shared'
 import { useFetchHook } from '@/hooks'
-import Oauth from '@/api/oauth'
 import type { ItemFormRules } from '@/utils'
 import { passwordCheck } from '@/utils'
 
 /** 登录逻辑封装 */
 export const useLoginForm = () => {
   const router = useRouter()
-  const userInfoStore = useUserInfoStore()
   const userAuthStore = useUserAuthStore()
 
   const formRef = ref<ElFormType | null>(null)
@@ -46,13 +44,7 @@ export const useLoginForm = () => {
   }
 
   const { refresh: submit, onSuccess, onError, ...rest } = useFetchHook({
-    onRequest: async () => {
-      const auth = await Oauth.oauth.token(loginForm)
-      userAuthStore.setAuth(auth, true)
-      await userInfoStore.updateRoleList()
-      await userInfoStore.updateUserInfo()
-      return auth
-    },
+    onRequest: () => userAuthStore.login(loginForm),
   })
 
   const login = async () => {

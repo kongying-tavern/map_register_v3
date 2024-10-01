@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
 import { ElMessage } from 'element-plus'
-import { routerHook, userHook } from './hooks'
 import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 import { useUserAuthStore } from '@/stores'
@@ -19,6 +18,8 @@ export const useUserInfoStore = defineStore('global-user-info', () => {
     initialValue: [],
     onRequest: async () => {
       const { data = [] } = await Api.role.listRole()
+      if (!data.length)
+        throw new Error('角色列表为空')
       return data
     },
   })
@@ -45,15 +46,12 @@ export const useUserInfoStore = defineStore('global-user-info', () => {
   } = useFetchHook({
     initialValue: {},
     onRequest: async () => {
-      const { userId } = userAuthStore.auth
-      if (userId === undefined)
-        throw new Error('用户凭证中的用户 id 为空')
-      const { data = {} } = await Api.user.getUserInfo({ userId })
+      if (!userAuthStore.validateToken())
+        return {}
+      const { data = {} } = await Api.user.getUserInfo({ userId: userAuthStore.auth.userId! })
       return data
     },
   })
-
-  watch(info, () => userHook.applyCallbacks('onInfoChange'), { deep: true })
 
   onUserInfoUpdateError((err) => {
     ElMessage.error({
@@ -74,6 +72,12 @@ export const useUserInfoStore = defineStore('global-user-info', () => {
     return userRoleLevel.value >= RoleLevel[role]
   }
 
+  const init = async () => {
+    await updateRoleList()
+    await updateUserInfo()
+    watch(() => userAuthStore.auth.userId, updateUserInfo)
+  }
+
   return {
     // states
     showUserInfo,
@@ -89,38 +93,6 @@ export const useUserInfoStore = defineStore('global-user-info', () => {
     updateUserInfo,
     updateRoleList,
     hasRole,
-  }
-})
-
-userHook.onAuthChange(useUserInfoStore, async (store) => {
-  const userAuthStore = useUserAuthStore()
-  const isLogin = userAuthStore.validateToken()
-  if (!isLogin) {
-    store.info = {}
-    return
-  }
-
-  // 仅当 roleList 为空时重新拉取
-  !store.roleList.length && await store.updateRoleList()
-
-  // 仅当 userId 发生变化时重新拉取
-  store.info.id !== userAuthStore.auth.userId && await store.updateUserInfo()
-})
-
-routerHook.onBeforeRouterEnter(useUserInfoStore, async (store) => {
-  const isLogin = useUserAuthStore().validateToken()
-  if (!isLogin)
-    return
-
-  if (!store.roleList.length) {
-    const rolsList = await store.updateRoleList()
-    if (!rolsList)
-      throw new Error('无法获取角色列表')
-  }
-
-  if (store.info.id === undefined) {
-    const userInfo = await store.updateUserInfo()
-    if (!userInfo)
-      throw new Error('无法获取用户信息')
+    init,
   }
 })

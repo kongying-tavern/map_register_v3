@@ -6,6 +6,7 @@ import type { GSMapState } from '@/stores/types/genshin-map-state'
 declare namespace GSMap {
   interface ConstructorOptions extends DeckProps {
     canvas: HTMLCanvasElement
+    zoomTransitionDuration?: () => number
   }
 
   interface EventMap {

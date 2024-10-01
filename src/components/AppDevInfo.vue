@@ -13,7 +13,7 @@ const {
       font-[HYWenHei-85W] text-[var(--el-color-white)] text-sm
       pointer-events-none
     "
-    style="-webkit-text-stroke: 0.5px var(--el-color-black); paint-order: stroke"
+    style="-webkit-text-stroke: 2px #363D4D; paint-order: stroke"
   >
     {{ `${version.toUpperCase()}_${branch.toUpperCase()}_${commitHash.toUpperCase()}` }}
   </div>

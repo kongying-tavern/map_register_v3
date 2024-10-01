@@ -16,8 +16,6 @@ export default antfu({
     '**/*.ts',
     '**/*.js',
     '**/*.vue',
-    '**/*.jsx',
-    '**/*.tsx',
   ],
 
   stylistic: {
