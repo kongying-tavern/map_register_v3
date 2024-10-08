@@ -77,7 +77,7 @@
     "postcss-load-config": "5.0.2",
     "rimraf": "5.0.5",
     "sass": "1.70.0",
-    "simple-git": "^3.25.0",
+    "simple-git": "^3.27.0",
     "stylelint": "16.2.1",
     "stylelint-config-standard-scss": "13.0.0",
     "typescript": "5.4.5",
