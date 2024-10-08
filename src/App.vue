@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { TRANSITION_EVENTS } from '@deck.gl/core'
-import type { OrthographicViewState } from '@deck.gl/core'
+import { GenshinMapDeck } from '@/packages/map'
+import type { GenshinMapViewState } from '@/packages/map'
 
-const viewState: Ref<OrthographicViewState> = ref({
+const initialViewState: Ref<GenshinMapViewState> = ref({
   zoom: -4,
   minZoom: -4,
   maxZoom: 2,
@@ -15,6 +16,6 @@ const viewState: Ref<OrthographicViewState> = ref({
 
 <template>
   <div class="w-full h-full overflow-hidden">
-    {{ viewState }}
+    <GenshinMapDeck />
   </div>
 </template>
