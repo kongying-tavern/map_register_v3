@@ -46,7 +46,7 @@ export default defineConfig(async ({ mode }) => {
         apiPrefix: '',
         projectName: 'api',
       },
-    ], ENV.VITE_DEVELOPMENT_MODE === 'offline'),
+    ]),
   ]
 
   if (ENV.VITE_HTTPS) {
