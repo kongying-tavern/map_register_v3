@@ -9,8 +9,7 @@
   // ==================== global env ====================
 
   const VERSION = 2
-  const CACHEABLE_TYPES = /^.+\.(png|jpeg|jpg|jxl|jp2|webp|bmp|ttf|otf|woff|woff2|eot)$/
-  const CACHEABLE_MIME = /(font|image)\//
+  const AVAILABLE_DESTINATION = new Set(['audio', 'font', 'image', 'video'])
 
   // ==================== global utils ====================
 
@@ -20,7 +19,7 @@
      * @param {string[]} args
      */
     static output = async (type, args) => {
-      globalThis.clients
+      scope.clients
         .matchAll({ includeUncontrolled: true })
         .then((clients) => {
           clients.forEach(client => client.postMessage({
@@ -101,16 +100,11 @@
 
   // ====================    on fetch    ====================
 
-  /** @param {string} pathname */
-  const matchExtension = (pathname) => {
-    return pathname.match(CACHEABLE_TYPES)?.[1]
-  }
-
   /**
    * @param {string} pathname
-   * @param {string} extension
+   * @param {string} destination
    */
-  const matchCacheName = (pathname, extension) => {
+  const matchCacheName = (pathname, destination) => {
     // 1. 地图切片
     const tilesCode = pathname.match(/tiles_([a-zA-Z0-9]+)\//)?.[1]
     if (tilesCode)
@@ -121,8 +115,8 @@
       return 'overlays'
 
     // 3. 字体
-    if (['ttf', 'woff', 'woff2', 'eot'].find(name => name === extension))
-      return `fonts`
+    if (destination === 'font')
+      return 'fonts'
 
     // 4. 图标
     if (pathname.includes('/icons/'))
@@ -132,14 +126,18 @@
   }
 
   scope.addEventListener('fetch', (ev) => {
-    const { url, mode } = ev.request.clone()
-    const { pathname } = new URL(url)
+    const { url, mode, destination } = ev.request.clone()
+    const { protocol, hostname, pathname } = new URL(url)
 
-    const extension = matchExtension(pathname)
-    if (!extension)
+    if ([
+      !protocol.startsWith('http'),
+      hostname === 'localhost',
+      hostname === '127.0.0.1',
+      !AVAILABLE_DESTINATION.has(destination),
+    ].some(Boolean))
       return
 
-    const cacheName = matchCacheName(pathname, extension)
+    const cacheName = matchCacheName(pathname, destination)
     if (!cacheName)
       return
 
@@ -159,11 +157,8 @@
         const res = await fetch(ev.request)
         const clonedRes = res.clone()
 
-        if ([
-          clonedRes.status === 200,
-          clonedRes.headers.get('content-type')?.match(CACHEABLE_MIME),
-        ].every(Boolean)) {
-          Logger.info(`storage "${storageName}" cache`, clonedRes.url)
+        if (clonedRes.status === 200) {
+          Logger.info(`storage "${storageName}" cache`, url)
           await storage.put(url, clonedRes)
         }
 
