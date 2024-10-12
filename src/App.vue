@@ -67,7 +67,7 @@ const layers = computed<LayersList>(() => [
 ])
 
 // ================ 地图管理 ================
-const getTooltip = (...[info]: Parameters<NonNullable<GenshinMapProps['getTooltip']>>) => {
+const getTooltip: GenshinMapProps['getTooltip'] = (info) => {
   const { coordinate, layer, sourceLayer } = info
   if (!coordinate)
     return null
