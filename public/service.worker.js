@@ -3,13 +3,14 @@
 /**
  * @typedef {{ version: number; mode: string }} CacheInfoObject
  */
-(() => {
+void (() => {
   const scope = /** @type {ServiceWorkerGlobalScope} */ (/** @type {unknown} */ (globalThis))
 
   // ==================== global env ====================
 
   const VERSION = 2
   const AVAILABLE_DESTINATION = new Set(['audio', 'font', 'image', 'video'])
+  const IMAGE_TYPES = new Set(['apng', 'avif', 'gif', 'jpg', 'jpeg', 'jfif', 'pjpeg', 'pjp', 'png', 'svg', 'webp'])
 
   // ==================== global utils ====================
 
@@ -126,8 +127,16 @@
   }
 
   scope.addEventListener('fetch', (ev) => {
-    const { url, mode, destination } = ev.request.clone()
+    const { url, mode, destination: rawDestination } = ev.request.clone()
     const { protocol, hostname, pathname } = new URL(url)
+
+    // 由元素发起的请求会获取此值，但 fetch 发起的请求就没有了，需要通过技术手段确定
+    const destination = rawDestination || (() => {
+      const extname = (url.match(/(\.[a-zA-Z0-9]+)$/)?.[1] ?? '.unknown').replace('.', '').toLowerCase()
+      if (IMAGE_TYPES.has(extname))
+        return 'image'
+      return ''
+    })()
 
     if ([
       !protocol.startsWith('http'),
