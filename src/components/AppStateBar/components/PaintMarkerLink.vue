@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { MarkerLink } from '../modules'
-import { markerLinkContext } from '../modules/MarkerLink/core'
+import { MarkerLink } from './MarkerLink'
+import { MLContext } from './MarkerLink/core'
 import BarItem from './BarItem.vue'
 import { useMapStateStore } from '@/stores'
 import { MapWindowTeleporter } from '@/pages/pageMapV2/components'
@@ -9,6 +9,8 @@ import type { GSMapState } from '@/stores/types/genshin-map-state'
 
 const prefix = crypto.randomUUID()
 const mapStateStore = useMapStateStore()
+
+const markerLinkContext = new MLContext()
 
 const {
   isEnable,

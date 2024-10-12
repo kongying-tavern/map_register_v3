@@ -5,6 +5,10 @@ import { GSTagLayer, GSTileLayer, GSZoomController, GenshinMapDeck } from '@/pac
 import type { GenshinMap, GenshinMapProps, GenshinMapViewState } from '@/packages/map'
 import { useTileStore } from '@/stores'
 import { useResourceStatus } from '@/hooks'
+import {
+  AppDevInfo,
+  AppStateBar,
+} from '@/components'
 
 // ================ 全局状态 ================
 const tileStore = useTileStore()
@@ -26,10 +30,10 @@ const TRANSITION_DURATION = 150
  * ```
  */
 const viewState: Ref<GenshinMapViewState> = ref({
-  zoom: -4,
+  zoom: -1,
   minZoom: -4,
   maxZoom: 2,
-  target: [-7270, 8880],
+  target: [318, 6660],
   transitionDuration: TRANSITION_DURATION,
   transitionEasing: t => t,
   transitionInterruption: TRANSITION_EVENTS.BREAK,
@@ -73,8 +77,8 @@ const getTooltip: GenshinMapProps['getTooltip'] = (info) => {
     return null
   return {
     html: `
-    <div class="w-[200px] h-[200px] p-1 text-xs bg-[#00000060]">
-      <div>x: ${Math.floor(coordinate[0])}, y: ${Math.floor(coordinate[1])}</div>
+    <div class="w-[200px] h-[200px] p-1 text-xs text-white bg-[#00000080]">
+      <div>x: ${Math.floor(coordinate[0])}, y: ${Math.floor(coordinate[1])}, zoom: ${info.viewport?.zoom?.toFixed(2)}</div>
       <div>layer: ${layer ? layer.id : 'no layer'}</div>
       <div>layer: ${sourceLayer ? sourceLayer.id : 'no layer'}</div>
     </div>`,
@@ -102,5 +106,9 @@ const getTooltip: GenshinMapProps['getTooltip'] = (info) => {
       v-model="viewState"
       :transition-duration="TRANSITION_DURATION"
     />
+
+    <AppStateBar />
+
+    <AppDevInfo />
   </div>
 </template>

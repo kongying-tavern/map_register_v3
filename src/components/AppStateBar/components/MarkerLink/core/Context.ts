@@ -4,7 +4,7 @@ import { mapWindowContext as windowCtx } from '@/pages/pageMapV2/components'
 import { GSMarkerLayer } from '@/pages/pageMapV2/core/layer'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
 import db from '@/database'
-import { LinkActionEnum } from '@/shared'
+import { LinkActionEnum } from '@/shared/linkAction'
 
 interface MarkerLinkProps {
   key: string
@@ -73,7 +73,7 @@ export class MLContext {
     this.showDeleted.value = v
   }
 
-  protected mergeExistLinkList = (mergedList: MarkerLinkProps[], keys: Set<string>) => {
+  mergeExistLinkList = (mergedList: MarkerLinkProps[], keys: Set<string>) => {
     const existLinks = this.existLinkGroups.value
     for (const linkageId in existLinks) {
       const { links } = existLinks[linkageId]
@@ -285,27 +285,27 @@ export class MLContext {
     })
   }
 
-  protected mapStateStore = useMapStateStore()
+  mapStateStore = useMapStateStore()
 
-  protected clearMission: () => void
-  protected updateMission: (value: API.MarkerLinkageVo[] | null) => void
+  clearMission: () => void
+  updateMission: (value: API.MarkerLinkageVo[] | null) => void
 
-  protected pauseFocus: () => void
-  protected setMarkerFocus: (id: number) => void
-  protected removeMarkerFocus: () => void
+  pauseFocus: () => void
+  setMarkerFocus: (id: number) => void
+  removeMarkerFocus: () => void
 
-  protected pauseRender: () => void
-  protected resumeRender: () => void
+  pauseRender: () => void
+  resumeRender: () => void
 
-  protected pauseSync: () => void
-  protected resumeSync: () => void
+  pauseSync: () => void
+  resumeSync: () => void
 
-  protected resetSelectedState = () => {
+  resetSelectedState = () => {
     this.sourceMarker.value = undefined
     this.targetMarker.value = undefined
   }
 
-  protected clearTempLink = () => {
+  clearTempLink = () => {
     this.existLinkGroups.value = {}
   }
 
@@ -326,7 +326,7 @@ export class MLContext {
     }
   }
 
-  protected selectTargetMarker = async (marker: GSMapState.MarkerWithRenderConfig) => {
+  selectTargetMarker = async (marker: GSMapState.MarkerWithRenderConfig) => {
     this.targetMarker.value = marker
     if (!this.existLinkGroups.value[marker.linkageId!]) {
       const existLinks = await db.markerLink.where('groupId').equals(marker.linkageId!).toArray()
@@ -337,7 +337,7 @@ export class MLContext {
     }
   }
 
-  protected handleMapClick = async (info: PickingInfo, event: { leftButton?: boolean }) => {
+  handleMapClick = async (info: PickingInfo, event: { leftButton?: boolean }) => {
     // 确认是否符合触发条件
     if (!this.isMissionProcessing.value || !event.leftButton)
       return
@@ -388,5 +388,3 @@ export class MLContext {
     this.cancelSelect()
   }
 }
-
-export const markerLinkContext = new MLContext()
