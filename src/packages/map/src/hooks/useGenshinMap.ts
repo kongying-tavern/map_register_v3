@@ -1,6 +1,6 @@
 import type { ShallowRef } from 'vue'
 import type { GenshinMapProps } from '../types'
-import { GenshinMap } from '../genshinMap'
+import { GenshinMap } from '../core'
 
 export const useGenshinMap = (
   canvasRef: ShallowRef<HTMLCanvasElement | undefined>,
@@ -25,7 +25,7 @@ export const useGenshinMap = (
     instanceRef.value = instance
   })
 
-  onUnmounted(() => {
+  onBeforeUnmount(() => {
     finalize()
   })
 
