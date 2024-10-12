@@ -130,7 +130,7 @@ useSubscription(globalPointerDown$.pipe(
   @apply
     absolute right-0 top-1/2
     flex flex-col items-center gap-2
-    z-[1]
+    z-[9]
     -translate-y-1/2 -translate-x-6
     pointer-events-auto select-none
   ;
