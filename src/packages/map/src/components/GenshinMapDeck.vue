@@ -7,7 +7,6 @@ import type { GenshinMap } from '../core'
 const props = defineProps<{
   layers?: LayersList
   cursor?: string
-  initialViewState?: GenshinMapViewState
   disableViewStateChange?: boolean
   getTooltip?: GenshinMapProps['getTooltip']
 }>()
@@ -16,10 +15,14 @@ const emits = defineEmits<{
   load: [GenshinMap]
 }>()
 
+const viewState = defineModel<GenshinMapViewState>('viewState', {
+  required: true,
+})
+
 const canvasRef = shallowRef<HTMLCanvasElement>()
 
 const { instanceRef } = useGenshinMap(canvasRef, {
-  initialViewState: props.initialViewState,
+  initialViewState: viewState.value,
   layers: props.layers,
   controller: {
     scrollZoom: {
@@ -41,6 +44,9 @@ const { instanceRef } = useGenshinMap(canvasRef, {
   onViewStateChange: (params) => {
     if (props.disableViewStateChange)
       return
+    const { zoom, target } = params.viewState
+    viewState.value.zoom = zoom as number
+    viewState.value.target = target as [number, number]
     return params.viewState
   },
   onLoad: () => {
@@ -50,7 +56,12 @@ const { instanceRef } = useGenshinMap(canvasRef, {
   },
 })
 
-watch(() => props.layers, layers => instanceRef.value?.setProps({ layers }))
+watch(() => viewState.value, (initialViewState) => {
+  instanceRef.value?.setProps({ initialViewState })
+})
+watch(() => props.layers, (layers) => {
+  instanceRef.value?.setProps({ layers })
+})
 </script>
 
 <template>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { TRANSITION_EVENTS } from '@deck.gl/core'
 import type { LayersList } from '@deck.gl/core'
-import { GSTagLayer, GSTileLayer, GenshinMapDeck } from '@/packages/map'
+import { GSTagLayer, GSTileLayer, GSZoomController, GenshinMapDeck } from '@/packages/map'
 import type { GenshinMap, GenshinMapProps, GenshinMapViewState } from '@/packages/map'
 import { useTileStore } from '@/stores'
 import { useResourceStatus } from '@/hooks'
@@ -13,12 +13,24 @@ const tileStore = useTileStore()
 const genshinDeck = shallowRef<GenshinMap | null>(null)
 
 // ================ 视口状态 ================
-const initialViewState: Ref<GenshinMapViewState> = ref({
-  zoom: -2,
+const TRANSITION_DURATION = 150
+
+/**
+ * 基于 `Deck.setProps` 实现，因此
+ * 必须通过整体赋值的方式来设置视口状态。
+ * ```
+ * // Good √
+ * viewState.value = { ...viewState.value, zoom: -1 }
+ * // Bad ×
+ * viewState.value.zoom = -1
+ * ```
+ */
+const viewState: Ref<GenshinMapViewState> = ref({
+  zoom: -4,
   minZoom: -4,
   maxZoom: 2,
   target: [-7270, 8880],
-  transitionDuration: 150,
+  transitionDuration: TRANSITION_DURATION,
   transitionEasing: t => t,
   transitionInterruption: TRANSITION_EVENTS.BREAK,
 })
@@ -79,11 +91,16 @@ const getTooltip = (...[info]: Parameters<NonNullable<GenshinMapProps['getToolti
 <template>
   <div class="w-full h-full overflow-hidden">
     <GenshinMapDeck
-      class="bg-black"
+      v-model:view-state="viewState"
       :layers="layers"
-      :initial-view-state
       :get-tooltip="getTooltip"
+      class="bg-black"
       @load="(instance) => (genshinDeck = instance)"
+    />
+
+    <GSZoomController
+      v-model="viewState"
+      :transition-duration="TRANSITION_DURATION"
     />
   </div>
 </template>
