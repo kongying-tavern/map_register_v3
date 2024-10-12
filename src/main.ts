@@ -7,6 +7,7 @@ import { ElementIcons, createLogger, createPWA, customPaint } from '@/plugin'
 import './style/app.scss'
 import 'element-plus/dist/index.css'
 import 'element-plus/theme-chalk/dark/css-vars.css'
+import { useDadianStore } from '@/stores'
 
 const app = createApp(App)
 
@@ -19,4 +20,9 @@ app
     locale: zhCn,
   })
   .use(ElementIcons)
-  .mount('#app')
+
+const dadianStore = useDadianStore()
+
+await dadianStore.init()
+
+app.mount('#app')
