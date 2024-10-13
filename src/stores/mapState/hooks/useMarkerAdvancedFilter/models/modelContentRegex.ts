@@ -27,7 +27,7 @@ export class ContentRegex implements MAFConfig {
     // 处理正则表达式
     if (val.s) {
       try {
-        meta.re = new RegExp(val.s, 'gui')
+        meta.re = new RegExp(val.s, 'ui')
       }
       catch (_err) {
         meta.re = null
