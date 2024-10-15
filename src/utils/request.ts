@@ -1,58 +1,53 @@
-// TODO: 迁移
-import axios, { AxiosError } from 'axios'
-import type { AxiosRequestConfig } from 'axios'
+/* eslint-disable ts/no-explicit-any */
+// TODO 迁移至 fetch
+import axios from 'axios'
+import type { AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
 import { upperFirst } from 'lodash'
-import { useUserAuthStore } from '@/stores'
+import { useUserStore } from '@/stores'
 import { Logger } from '@/utils'
 
 const logger = new Logger('Axios')
 
-const axiosInstance = axios.create({
+const instance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE,
   timeout: 60000,
   validateStatus: status => status >= 200 && status < 300,
 })
 
-axiosInstance.interceptors.request.use(
-  (config) => {
-    const userAuthStore = useUserAuthStore()
+/** 请求拦截 */
+const onRequestFulfilled = <T>(config: InternalAxiosRequestConfig<T>) => {
+  const { auth } = useUserStore()
 
-    const hasToken = config.headers.Authorization ?? config.headers.authorization
+  // 如果 token 不为空且不存在自定义 token，则为所有请求附加上 token
+  if (auth.accessToken && !config.headers.hasAuthorization())
+    config.headers.setAuthorization(`${upperFirst(auth.tokenType)} ${auth.accessToken}`)
 
-    const { tokenType, accessToken } = userAuthStore.auth
-
-    // 如果存在自定义的凭证信息，则不对其进行覆盖
-    if (!hasToken && tokenType && accessToken)
-      config.headers.Authorization = `${upperFirst(tokenType)} ${userAuthStore.auth.accessToken}`
-
-    return config
-  },
-  (error) => {
-    logger.error('request', error.request)
-    Promise.reject(error)
-  },
-)
-
-axiosInstance.interceptors.response.use(
-  (response) => {
-    const { data } = response
-    if (data.error)
-      return Promise.reject(new Error(data.error_description ?? data.message))
-    return data
-  },
-  (error) => {
-    if (error instanceof AxiosError) {
-      logger.error('response', error.response)
-      const { status } = error.response ?? {}
-      if (status !== undefined && [401, 403].includes(status))
-        useUserAuthStore().logout()
-    }
-    return Promise.reject(error)
-  },
-)
-
-const request = async <T>(url: string, options: AxiosRequestConfig) => {
-  return (await axiosInstance(url, options)) as T
+  return config
 }
 
-export { axiosInstance, request }
+instance.interceptors.request.use(onRequestFulfilled, (error) => {
+  logger.error('Request Error:', error)
+  return Promise.reject(error)
+})
+
+/** 响应拦截 */
+const onResponseFulfilled = (response: AxiosResponse<any, any>) => {
+  const { data } = response
+  if (data.error)
+    return Promise.reject(new Error(data.message || data.error_description || data.errorData))
+  return data
+}
+
+instance.interceptors.response.use(onResponseFulfilled, (error) => {
+  logger.error('Response Error:', error)
+  const { status } = error.response ?? {}
+  if (status !== undefined && [401, 403].includes(status))
+    useUserStore().logout()
+  return Promise.reject(error)
+})
+
+const request = async <T>(url: string, options: AxiosRequestConfig) => {
+  return (await instance(url, options)) as T
+}
+
+export { instance, request }
