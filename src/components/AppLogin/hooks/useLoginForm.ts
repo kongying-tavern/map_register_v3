@@ -1,8 +1,6 @@
-import { reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import { useRouter } from 'vue-router'
 import type { AxiosError } from 'axios'
-import { useUserAuthStore } from '@/stores'
+import { useUserStore } from '@/stores'
 import type { ElFormType } from '@/shared'
 import { useFetchHook } from '@/hooks'
 import type { ItemFormRules } from '@/utils'
@@ -10,29 +8,19 @@ import { passwordCheck } from '@/utils'
 
 /** 登录逻辑封装 */
 export const useLoginForm = () => {
-  const router = useRouter()
-  const userAuthStore = useUserAuthStore()
+  const userStore = useUserStore()
 
   const formRef = ref<ElFormType | null>(null)
 
-  const loginForm = reactive<API.SysTokenVO>({
+  const loginForm = ref<API.SysTokenVO>({
     grant_type: 'password',
     username: import.meta.env.VITE_AUTO_COMPLETE_USERNAME ?? '',
     password: import.meta.env.VITE_AUTO_COMPLETE_PASSWORD ?? '',
   })
 
-  watch(loginForm, () => {
-    for (const key in loginForm) {
-      if (key === 'loginForm')
-        continue
-      const raw = loginForm[key as keyof Omit<API.SysTokenVO, 'grant_type'>] ?? ''
-      loginForm[key as keyof Omit<API.SysTokenVO, 'grant_type'>] = raw.replace(/\s+/g, '')
-    }
-  }, { deep: true })
-
   const rules: ItemFormRules<API.SysTokenVO> = {
     username: [
-      // 这里和注册不同，username 不一定是Q号
+      // 这里和注册不同，username 不一定是 Q 号
       {
         required: true,
         trigger: 'change',
@@ -44,7 +32,7 @@ export const useLoginForm = () => {
   }
 
   const { refresh: submit, onSuccess, onError, ...rest } = useFetchHook({
-    onRequest: () => userAuthStore.login(loginForm),
+    onRequest: () => userStore.login(loginForm.value),
   })
 
   const login = async () => {
@@ -63,8 +51,6 @@ export const useLoginForm = () => {
       message: auth?.message || '登录成功',
       duration: 5000,
     })
-    // TODO 登录后应当跳转到上次退出前保持的页面
-    router.push('/map')
   })
 
   onError((err) => {
