@@ -1,22 +1,27 @@
 <script setup lang="ts">
 import BarItem from './BarItem.vue'
-import { useMapStateStore, useTileStore } from '@/stores'
+import { useTileStore } from '@/stores'
 import { EaseoutInterpolator } from '@/pages/pageMapV2/core/interpolator'
+import type { GenshinMapViewState } from '@/packages/map'
 
 const tileStore = useTileStore()
-const mapStateStore = useMapStateStore()
+
+const viewState = defineModel<GenshinMapViewState>('modelValue', {
+  required: true,
+})
 
 const resetViewState = () => {
-  mapStateStore.event.emit('setViewState', {
-    target: [3568, 6969],
+  viewState.value = {
+    ...viewState.value,
+    target: [318, 6660],
     zoom: 0,
     transitionDuration: 200,
     transitionInterpolator: new EaseoutInterpolator(['target', 'zoom']),
-  })
+  }
 }
 
 const markerView = computed(() => {
-  const { target: [x, y], zoom } = mapStateStore.viewState
+  const { target: [x, y], zoom } = viewState.value
   const [mx, my] = tileStore.toMarkerCoordinate([x, y])
   return [mx, my, zoom]
 })

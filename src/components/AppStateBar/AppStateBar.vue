@@ -6,7 +6,12 @@ import {
   ViewState,
   WebSocketStatus,
 } from './components'
+import type { GenshinMapViewState } from '@/packages/map'
 import { useAccessStore } from '@/stores'
+
+const viewState = defineModel<GenshinMapViewState>('viewState', {
+  required: true,
+})
 
 const accessStore = useAccessStore()
 
@@ -30,8 +35,8 @@ const checkTooltip = (ev: Event) => {
   virtualRef.value = findRes as HTMLElement
   tooltipContent.value = (findRes as HTMLElement).dataset.label ?? ''
 }
-useEventListener(contentZoneRef, 'pointermove', checkTooltip)
-useEventListener(contentZoneRef, 'click', checkTooltip)
+useEventListener('pointermove', checkTooltip)
+useEventListener('click', checkTooltip)
 </script>
 
 <template>
@@ -41,7 +46,7 @@ useEventListener(contentZoneRef, 'click', checkTooltip)
       <SwitchMarkerPopover />
       <SwitchOverlay />
       <WebSocketStatus />
-      <ViewState />
+      <ViewState v-model="viewState" />
     </div>
 
     <el-tooltip
@@ -62,8 +67,6 @@ useEventListener(contentZoneRef, 'click', checkTooltip)
   padding: 2px 4px;
   background: #495168;
   color: #ECE5D8;
-  /* background: #ECE5D8; */
-  /* color: #495168; */
   font-size: 12px;
   .el-popper__arrow {
     display: none;
@@ -73,12 +76,10 @@ useEventListener(contentZoneRef, 'click', checkTooltip)
 
 <style scoped>
 .map-state-bar {
-  max-width: 100dvw;
-  position: absolute;
-  bottom: 0;
-  right: 0;
+  position: fixed;
+  bottom: 4px;
+  right: 4px;
   z-index: 9;
-  padding: 0 4px 4px;
   background-clip: content-box;
   pointer-events: none;
 }
@@ -87,8 +88,6 @@ useEventListener(contentZoneRef, 'click', checkTooltip)
   border-radius: 4px;
   background: #263240;
   color: #C6C2BA;
-  /* background: #C6C2BA; */
-  /* color: #263240; */
   padding: 2px;
   pointer-events: all;
   display: flex;
