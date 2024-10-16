@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ChromeFilled } from '@element-plus/icons-vue'
 import BarItem from '../BarItem.vue'
 import StatusWindow from './StatusWindow.vue'
 import { useSocketStore } from '@/stores'
@@ -11,8 +12,11 @@ const id = crypto.randomUUID()
 const delay = computed(() => Math.min(999, Math.max(0, socketStore.delay)))
 
 const isOpen = computed(() => socketStore.status === WebSocket.OPEN)
+const isConnecting = computed(() => socketStore.status === WebSocket.CONNECTING)
 
 const color = computed(() => {
+  if (isConnecting.value)
+    return 'var(--color-conn)'
   if (!isOpen.value)
     return 'var(--color-null)'
   if (delay.value > 500)
@@ -49,13 +53,20 @@ onUnmounted(() => {
       class="h-full flex items-center font-['HYWenHei-85W'] px-1"
       :style="{
         'color': color,
+        '--color-conn': '#9CDCDA',
         '--color-null': '#3B4255',
         '--color-fast': '#97C933',
         '--color-norm': '#FFCC32',
         '--color-slow': '#FE5C5C',
       }"
     >
-      <div class="h-full flex items-center">
+      <div v-if="isConnecting" class="h-full flex items-center">
+        <el-icon :size="16" color="var(--color-conn)" class="is-loading">
+          <ChromeFilled />
+        </el-icon>
+      </div>
+
+      <div v-else class="h-full flex items-center">
         <el-icon :size="16" color="currentColor">
           <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="200" height="200">
             <path
@@ -74,8 +85,13 @@ onUnmounted(() => {
         </el-icon>
       </div>
 
-      <div class="w-[50px] h-full flex justify-end items-center">
-        {{ isOpen ? `${delay}ms` : '未连接' }}
+      <div
+        class="min-w-[44px] h-full leading-8 text-right"
+        :class="{
+          'animate-pulse': isConnecting,
+        }"
+      >
+        {{ isConnecting ? '连接中' : isOpen ? `${delay}ms` : '未连接' }}
       </div>
     </div>
 
