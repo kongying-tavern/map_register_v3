@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { camelCase } from 'lodash'
 import { Logger } from '@/utils'
 import Oauth from '@/api/oauth'
-import { USERAUTH_KEY } from '@/shared'
+import { ROLE_MASK_MAP, USERAUTH_KEY } from '@/shared'
 import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 
@@ -116,7 +116,12 @@ export const useUserStore = defineStore('global-user', () => {
       return {
         id: userId,
         username,
-        role,
+        role: role
+          ? {
+              ...role,
+              mask: ROLE_MASK_MAP[role.code!],
+            }
+          : undefined,
         roleId,
         ...rest,
       }
