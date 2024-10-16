@@ -34,6 +34,9 @@ export interface UserPreference {
 
   // ====================    用户中心    ====================
 
+  /** 用户名片 */
+  'userCenter.setting.nameCard'?: string
+
   /** 是否显示限定地区 */
   'userCenter.setting.showRestrictedArea'?: boolean
 

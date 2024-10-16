@@ -61,8 +61,21 @@ export const useDadianStore = defineStore('global-dadian-json', () => {
     })
   })
 
+  // 名片
+  const nameCardList = computed(() => {
+    return raw.value.application?.nameCard ?? []
+  })
+
+  const nameCardMap = computed(() => nameCardList.value.reduce((map, nameCard) => {
+    if (nameCard.label)
+      map.set(nameCard.label, nameCard)
+    return map
+  }, new Map<string, API.NameCardOption>()))
+
   return {
     raw: raw as Readonly<ShallowRef<API.DadianJSON>>,
+    nameCardList,
+    nameCardMap,
     init,
   }
 })
