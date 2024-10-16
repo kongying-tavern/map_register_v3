@@ -1,64 +1,130 @@
 <script lang="ts" setup>
-import { Avatar, LocationFilled, SwitchButton, UserFilled } from '@element-plus/icons-vue'
-import { useUserAuthStore, useUserInfoStore } from '@/stores'
-import { useTheme } from '@/hooks'
+import { ElIcon, ElImage, ElSkeleton, ElSkeletonItem } from 'element-plus'
+import { Avatar, CircleCloseFilled } from '@element-plus/icons-vue'
+import { AppLogin } from './AppLogin'
+import { AppUserInfo } from './AppUserInfo'
+import { useUserStore } from '@/stores'
 
-defineProps<{
-  mapMode?: boolean
-}>()
+const userStore = useUserStore()
 
-const userInfoStore = useUserInfoStore()
-const userAuthStore = useUserAuthStore()
-const { isDark } = useTheme()
+const loginDialogVisible = ref(false)
+const infoDialogVisible = ref(false)
 
-const handleCommand = (command: string) => ({
-  userinfo: () => userInfoStore.showUserInfo = true,
-  themeschema: () => isDark.value = !isDark.value,
-  logout: () => userAuthStore.logout(),
-} as Record<string, () => void>)[command]?.()
+const handleClick = () => {
+  if (userStore.isLogin) {
+    infoDialogVisible.value = true
+    return
+  }
+  loginDialogVisible.value = true
+}
 </script>
 
 <template>
-  <el-dropdown class="genshin-avatar" trigger="click" style="--el-border-radius-base: 8px" @command="handleCommand">
-    <el-button v-bind="$attrs" text size="large" :style="{ padding: '4px 8px' }">
-      <el-avatar v-if="userInfoStore.info.logo?.trim()" class="rounded-full overflow-hidden" :size="30" :src="userInfoStore.info.logo.trim()" />
-      <el-icon v-else :size="30" class="rounded-full overflow-hidden" style="background: var(--el-color-info-light-3);" color="#FFF">
+  <div
+    class="map-user-box"
+    :title="userStore.info?.nickname"
+    @click="handleClick"
+  >
+    <div class="user-info">
+      <template v-if="userStore.isInfoLoading">
+        <div class="animate-pulse">
+          Loading...
+        </div>
+      </template>
+
+      <template v-else-if="!userStore.info">
+        <div class="text-center">
+          -- 未登录 --
+        </div>
+        <div class="text-center text-[#9DB0D4]">
+          部分功能可用
+        </div>
+      </template>
+
+      <template v-else>
+        <div class="text-center w-full whitespace-nowrap overflow-hidden text-ellipsis">
+          {{ userStore.info.nickname ?? userStore.info.id }}
+        </div>
+        <div class="text-center text-[#9DB0D4]">
+          {{ userStore.info.role?.name ?? 'unknown' }}
+        </div>
+      </template>
+    </div>
+
+    <div
+      class="user-avatar"
+      :class="{
+        'has-logo': userStore.info?.logo,
+      }"
+    >
+      <ElIcon v-if="!userStore.info?.logo" :size="32" color="#ECE5D8">
         <Avatar />
-      </el-icon>
-      <el-icon class="pl-1">
-        <ArrowDown />
-      </el-icon>
-    </el-button>
+      </ElIcon>
+      <ElImage v-else :src="userStore.info.logo" fit="cover" class="drop-shadow-[0_0_1px_#000000A0]">
+        <template #placeholder>
+          <ElSkeleton loading animated>
+            <template #template>
+              <ElSkeletonItem variant="image" style="width: 44px; height: 44px" />
+            </template>
+          </ElSkeleton>
+        </template>
+        <template #error>
+          <ElIcon :size="32" color="#FF5F40">
+            <CircleCloseFilled />
+          </ElIcon>
+        </template>
+      </ElImage>
+    </div>
 
-    <template #dropdown>
-      <el-dropdown-menu>
-        <el-dropdown-item :icon="UserFilled" command="userinfo">
-          个人中心
-        </el-dropdown-item>
-
-        <el-dropdown-item v-if="$route.path !== '/map'" :icon="LocationFilled">
-          <router-link to="/map">
-            返回地图
-          </router-link>
-        </el-dropdown-item>
-
-        <el-dropdown-item
-          :icon="SwitchButton"
-          divided
-          style="--el-text-color-regular: var(--el-color-danger); --el-dropdown-menuItem-hover-color: var(--el-color-danger)"
-          command="logout"
-        >
-          <el-text type="danger">
-            退出账户
-          </el-text>
-        </el-dropdown-item>
-      </el-dropdown-menu>
-    </template>
-  </el-dropdown>
+    <AppLogin v-model:visible="loginDialogVisible" />
+    <AppUserInfo v-model:visible="infoDialogVisible" />
+  </div>
 </template>
 
-<style lang="scss" scoped>
-.genshin-avatar {
-  transition: var(--el-transition-all);
+<style scoped>
+.map-user-box {
+  @apply
+    absolute right-[24px] top-[24px] z-[9]
+    flex
+    select-none cursor-pointer
+  ;
+  &:hover {
+    filter: drop-shadow(0 0 2px #FF0);
+  }
+  &:active {
+    filter: none;
+  }
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    pointer-events: none;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to left, transparent 24px, #38404FD0 24px);
+    mask: linear-gradient(to bottom, transparent 2px, #000 2px, #000 calc(100% - 2px), transparent calc(100% - 2px));
+    z-index: -1;
+  }
+}
+
+.user-avatar {
+  @apply
+    w-12 h-12 rounded-full overflow-hidden
+    grid place-content-center
+    bg-gray-500
+    border-2 border-[#ECE5D8]
+  ;
+  &.has-logo {
+    background: #DA9241;
+  }
+}
+
+.user-info {
+  @apply
+    w-[100px] p-0.5
+    grid place-content-center
+    text-[#ECE5D8] text-xs
+  ;
 }
 </style>

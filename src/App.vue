@@ -8,6 +8,7 @@ import { useResourceStatus } from '@/hooks'
 import {
   AppDevInfo,
   AppStateBar,
+  AppUserAvatar,
 } from '@/components'
 
 // ================ 全局状态 ================
@@ -102,12 +103,16 @@ const getTooltip: GenshinMapProps['getTooltip'] = (info) => {
       @load="(instance) => (genshinDeck = instance)"
     />
 
+    <AppUserAvatar />
+
     <GSZoomController
       v-model="viewState"
       :transition-duration="TRANSITION_DURATION"
     />
 
-    <AppStateBar />
+    <AppStateBar
+      v-model:view-state="viewState"
+    />
 
     <AppDevInfo />
   </div>
