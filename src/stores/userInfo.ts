@@ -3,7 +3,7 @@ import { ElMessage } from 'element-plus'
 import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 import { useUserAuthStore } from '@/stores'
-import { RoleLevel, RoleTypeEnum } from '@/shared'
+import { ROLE_MASK_MAP, RoleTypeEnum } from '@/shared'
 
 const FALLBACK_ROLE: API.SysRoleVo = Object.freeze({
   code: RoleTypeEnum.VISITOR,
@@ -64,12 +64,12 @@ export const useUserInfoStore = defineStore('global-user-info', () => {
   })
 
   const userRoleLevel = computed(() => {
-    return RoleLevel[userRole.value.code as RoleTypeEnum] ?? RoleLevel.VISITOR
+    return ROLE_MASK_MAP[userRole.value.code ?? ''] ?? ROLE_MASK_MAP.VISITOR
   })
 
   /** 判断用户是否具有大于指定权限等级的权限 */
-  const hasRole = (role: RoleTypeEnum) => {
-    return userRoleLevel.value >= RoleLevel[role]
+  const hasRole = (role: string) => {
+    return userRoleLevel.value >= ROLE_MASK_MAP[role]
   }
 
   const init = async () => {

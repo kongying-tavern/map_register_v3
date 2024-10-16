@@ -1,28 +1,26 @@
 import { defineStore } from 'pinia'
-import { useUserInfoStore } from '.'
-import { RoleTypeEnum } from '@/shared'
-
-const { MAP_MANAGER, MAP_PUNCTUATE, ADMIN, MAP_NEIGUI, MAP_USER, VISITOR } = RoleTypeEnum
+import { useUserStore } from '.'
+import { RoleTypeEnum } from '@/shared/roleTypeEnum'
 
 /**
- * 角色对应 hiddenFlag 的可访问性
+ * 角色对应 hiddenFlag 的可访问性掩码
  * 从低位到高位分别对应:
  * 0. 显示
  * 1. 隐藏
  * 2. 测试服
  * 3. 彩蛋
  */
-export const ACCESS_HIDDEN_FLAG = {
-  [ADMIN]: 0b1111,
-  [MAP_MANAGER]: 0b1011,
-  [MAP_NEIGUI]: 0b1111,
-  [MAP_PUNCTUATE]: 0b1011,
-  [MAP_USER]: 0b1001,
-  [VISITOR]: 0b1001,
+const HIDDEN_FLAG_BINARY_MASK: Record<string, number> = {
+  [RoleTypeEnum.ADMIN]: 0b1111,
+  [RoleTypeEnum.MAP_MANAGER]: 0b1011,
+  [RoleTypeEnum.MAP_NEIGUI]: 0b1111,
+  [RoleTypeEnum.MAP_PUNCTUATE]: 0b1011,
+  [RoleTypeEnum.MAP_USER]: 0b1001,
+  [RoleTypeEnum.VISITOR]: 0b1001,
 }
 
-/** 权限表 */
-const ACCESS_CONTROL = {
+/** 权限掩码 */
+const ACCESS_BINARY_MASK = {
   /** 根管理员组件 */
   ADMIN_COMPONENT: 0b100000,
 
@@ -53,33 +51,23 @@ const ACCESS_CONTROL = {
 
 /** 全局权限控制 */
 export const useAccessStore = defineStore('global-access', () => {
-  const userInfoStore = useUserInfoStore()
+  const userStore = useUserStore()
 
-  const roleBinaryFlag = computed(() => {
-    const flag = [0, 0, 0, 0, 0, 0]
-    flag[userInfoStore.userRoleLevel] = 1
-    return Number.parseInt(flag.reverse().join(''), 2)
+  const roleBinaryMask = computed(() => {
+    if (!userStore.info?.role)
+      return 0
+    return userStore.info.role.mask
   })
 
   const checkHiddenFlag = (hiddenFlag?: number) => {
-    const { code } = userInfoStore.userRole ?? {}
-    if (hiddenFlag === undefined || !code)
+    if (!userStore.info?.role?.code || hiddenFlag === undefined)
       return false
-    const binaryHiddenFlag = Number.parseInt(
-      Array
-        .from({ length: hiddenFlag + 1 })
-        .fill(0)
-        .with(hiddenFlag, 1)
-        .reverse()
-        .join(''),
-      2,
-    )
-    return (ACCESS_HIDDEN_FLAG[code as RoleTypeEnum] & binaryHiddenFlag) > 0
+    return (HIDDEN_FLAG_BINARY_MASK[userStore.info.role.code] & hiddenFlag) > 0
   }
 
   /** 获取某功能/资源权限 */
-  const get = <K extends keyof typeof ACCESS_CONTROL>(key: K): boolean => {
-    return (roleBinaryFlag.value & ACCESS_CONTROL[key]) > 0
+  const get = <K extends keyof typeof ACCESS_BINARY_MASK>(key: K): boolean => {
+    return (roleBinaryMask.value & ACCESS_BINARY_MASK[key]) > 0
   }
 
   const hasNeigui = computed(() => get('HIDDEN_FLAG_NEIGUI'))
