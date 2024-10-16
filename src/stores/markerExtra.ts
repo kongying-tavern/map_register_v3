@@ -8,7 +8,7 @@ export const useMarkerExtraStore = defineStore('global-marker-extra', () => {
   const dadianStore = useDadianStore()
 
   const mergedAreaExtraConfigs = computed(() => {
-    const { plugins = {}, pluginsNeigui = {} } = dadianStore._raw
+    const { plugins = {}, pluginsNeigui = {} } = dadianStore.raw
 
     const isNegui = accessStore.hasNeigui
 

@@ -41,7 +41,7 @@ export const useTileStore = defineStore('global-map-tile', () => {
   const preferenceStore = usePreferenceStore()
 
   const mergedTiles = computed(() => {
-    const { tiles = {}, tilesNeigui = {} } = dadianStore._raw
+    const { tiles = {}, tilesNeigui = {} } = dadianStore.raw
     return accessStore.hasNeigui
       ? merge(tiles, tilesNeigui)
       : tiles
