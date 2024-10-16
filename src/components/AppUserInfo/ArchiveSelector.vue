@@ -7,9 +7,6 @@ import { useArchiveStore } from '@/stores'
 import db from '@/database'
 
 const archiveStore = useArchiveStore()
-onMounted(() => {
-  import.meta.env.VITE_DEVELOPMENT_MODE !== 'offline' && archiveStore.fetchArchive()
-})
 
 const { archiveSlots } = storeToRefs(archiveStore)
 
@@ -98,6 +95,9 @@ const timeFormater = (time?: string) => time
                     <el-skeleton-item variant="image" style="width: 100%; height: 100%" />
                   </template>
                 </el-skeleton>
+              </template>
+              <template #error>
+                <div style="width: 536px; height: 99px" />
               </template>
             </el-image>
             <div

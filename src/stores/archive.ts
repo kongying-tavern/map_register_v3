@@ -4,7 +4,7 @@ import Api from '@/api/api'
 import db from '@/database'
 import { useFetchHook } from '@/hooks'
 import type { UserPreference } from '@/stores/types/userPreference'
-import { useUserAuthStore } from '@/stores'
+import { useUserStore } from '@/stores'
 
 export interface ArchiveBody {
   /** 点位存档 */
@@ -23,6 +23,7 @@ export interface ArchiveData {
   slotIndex: number
   body: ArchiveBody
   timestamp: number
+  historyIndex?: number
 }
 
 export interface ArchiveSlotData extends API.SysArchiveSlotVo {
@@ -30,7 +31,7 @@ export interface ArchiveSlotData extends API.SysArchiveSlotVo {
   timestamp: number
 }
 
-const parserArchive = ({ archive = '', time = '' }: API.SysArchiveVo, options: { slotIndex: number; userId: number }): ArchiveData => {
+const parserArchive = ({ archive = '', time = '', historyIndex }: API.SysArchiveVo, options: { slotIndex: number; userId: number }): ArchiveData => {
   const { Data_KYJG: datas = [], Time_KYJG: times = {}, Preference: preference = {} } = JSON.parse(archive) as {
     Data_KYJG?: (string | number)[]
     Time_KYJG?: Record<number, string>
@@ -39,6 +40,7 @@ const parserArchive = ({ archive = '', time = '' }: API.SysArchiveVo, options: {
   return {
     id: options.userId,
     slotIndex: options.slotIndex,
+    historyIndex,
     body: {
       Data_KYJG: new Set(datas.map(Number)),
       Time_KYJG: times,
@@ -65,10 +67,11 @@ const initArchive = (): ArchiveData => ({
 
 /** 存档管理 */
 export const useArchiveStore = defineStore('global-archive', () => {
-  const userAuthStore = useUserAuthStore()
+  const userStore = useUserStore()
 
   const currentArchive = ref<ArchiveData>(initArchive())
 
+  /** 点位存档 hash，用于触发地图点位重绘 */
   const hash = asyncComputed(async () => {
     const res = [...currentArchive.value.body.Data_KYJG.values()].join('')
     const digest = await crypto.subtle.digest('SHA-1', new TextEncoder().encode(res))
@@ -81,10 +84,18 @@ export const useArchiveStore = defineStore('global-archive', () => {
     Preference: currentArchive.value.body.Preference,
   })
 
+  /** 该 flag 用于跳过存档云同步 */
+  const escapeReactive = ref(false)
+
+  const setArchive = (archiveData: ArchiveData) => {
+    escapeReactive.value = true
+    currentArchive.value = archiveData
+  }
+
   const { data: archiveSlots, loading: fetchLoading, refresh: fetchArchive } = useFetchHook({
     onRequest: async () => {
       const slots = initArchiveList()
-      if (!userAuthStore.validateToken())
+      if (!userStore.validateToken())
         return slots
       const { data = [] } = await Api.archive.getAllHistoryArchive({})
       data.forEach(({ archive: historyArchives = [], slotIndex = -1, updateTime, ...rest } = {}) => {
@@ -94,7 +105,7 @@ export const useArchiveStore = defineStore('global-archive', () => {
           slotIndex,
           timestamp: (updateTime ? new Date(updateTime) : new Date()).getTime(),
           archiveList: historyArchives
-            .map(body => parserArchive(body, { slotIndex, userId: userAuthStore.auth.userId! }))
+            .map(body => parserArchive(body, { slotIndex, userId: userStore.auth.userId! }))
             .sort(({ timestamp: a }, { timestamp: b }) => b - a),
         }
         slots[slotIndex] = archive
@@ -103,27 +114,17 @@ export const useArchiveStore = defineStore('global-archive', () => {
     },
   })
 
-  /** 获取指定槽位的最新存档 */
-  const getLatestArchiveFromSlot = (slotIndex = -1) => {
-    const archiveSlot = archiveSlots.value[slotIndex]
-    if (!archiveSlot)
-      throw new Error(`槽位 ${slotIndex} 没有存档`)
-    const { archiveList } = archiveSlot
-    return archiveList[0]
-  }
-
-  const loadArchive = (archiveData: ArchiveData) => {
-    currentArchive.value = archiveData
-  }
-
   /** 加载指定槽位的最新存档 */
   const loadArchiveSlot = (slotIndex = -1) => {
     if (slotIndex < 0)
       return
-    const latestArchive = getLatestArchiveFromSlot(slotIndex)
+    const archiveSlot = archiveSlots.value[slotIndex]
+    if (!archiveSlot)
+      throw new Error(`槽位 ${slotIndex} 没有存档`)
+    const latestArchive = archiveSlot.archiveList[0]
     if (!latestArchive)
-      return
-    loadArchive(latestArchive)
+      throw new Error(`槽位 ${slotIndex} 没有存档历史`)
+    setArchive(latestArchive)
   }
 
   /**
@@ -145,12 +146,12 @@ export const useArchiveStore = defineStore('global-archive', () => {
 
   /** 将当前存档存入指定的存档槽位 */
   const saveArchiveToSlot = async (slotIndex = -1) => {
-    if (!userAuthStore.validateToken())
+    if (!userStore.validateToken())
       return
     // 同时存入本地数据库
     const { body, timestamp } = currentArchive.value
     await db.userArchive.put({
-      id: userAuthStore.auth.userId!,
+      id: userStore.auth.userId!,
       body: JSON.parse(JSON.stringify({
         Data_KYJG: [...body.Data_KYJG],
         Time_KYJG: body.Time_KYJG,
@@ -162,11 +163,9 @@ export const useArchiveStore = defineStore('global-archive', () => {
       await Api.archive.saveArchive({ slot_index: slotIndex }, getJSONArchive())
   }
 
-  watch(currentArchive, arcihve => saveArchiveToSlot(arcihve.slotIndex), { deep: true, immediate: true })
-
   /** 删除指定槽位的存档 */
   const deleteArchiveSlot = async (slotIndex = -1) => {
-    if (slotIndex < 0 || !userAuthStore.validateToken())
+    if (slotIndex < 0 || !userStore.validateToken())
       return
     if (slotIndex === currentArchive.value.slotIndex)
       currentArchive.value.slotIndex = -1
@@ -184,7 +183,7 @@ export const useArchiveStore = defineStore('global-archive', () => {
     const historyArchive = archiveSlot.archiveList.find(history => history.timestamp === timestamp)
     if (!historyArchive)
       throw new Error(`时间为 ${new Date(timestamp).toLocaleString()} 的存档历史为空`)
-    loadArchive(historyArchive)
+    setArchive(historyArchive)
   }
 
   /** 加载最新槽位的最新存档 */
@@ -199,7 +198,7 @@ export const useArchiveStore = defineStore('global-archive', () => {
         latestArchive = slotArchive
     }
 
-    const userId = userAuthStore.auth.userId
+    const userId = userStore.auth.userId
     if (userId === undefined)
       return
 
@@ -210,7 +209,7 @@ export const useArchiveStore = defineStore('global-archive', () => {
         return
       const preference = await db.user.get(userId)
       const { id, body, timestamp } = localArchive
-      loadArchive({
+      setArchive({
         id,
         slotIndex: -1,
         body: {
@@ -229,14 +228,18 @@ export const useArchiveStore = defineStore('global-archive', () => {
     loadArchiveSlot(latestArchive.slotIndex)
   }
 
-  watch(() => userAuthStore.auth.userId, async () => {
-    await fetchArchive()
-    await loadLatestArchive()
-  })
-
   const init = async () => {
-    await fetchArchive()
-    await loadLatestArchive()
+    watch(() => userStore.auth.userId, async () => {
+      await fetchArchive()
+      await loadLatestArchive()
+    }, { immediate: true })
+    watch(currentArchive, async (arcihve) => {
+      if (escapeReactive.value) {
+        escapeReactive.value = false
+        return
+      }
+      await saveArchiveToSlot(arcihve.slotIndex)
+    }, { deep: true, immediate: true })
   }
 
   return {

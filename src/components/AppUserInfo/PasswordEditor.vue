@@ -2,11 +2,10 @@
 import type { FormInstance, FormRules } from 'element-plus'
 import { GSButton, GSInput } from '@/components'
 import { useFetchHook } from '@/hooks'
-import { useUserAuthStore, useUserInfoStore } from '@/stores'
+import { useUserStore } from '@/stores'
 import Api from '@/api/api'
 
-const userInfoStore = useUserInfoStore()
-const userAuthStore = useUserAuthStore()
+const userStore = useUserStore()
 
 const form = ref({
   oldPassword: '',
@@ -36,17 +35,20 @@ const formRef = ref<FormInstance>()
 
 const { loading, refresh: updatePassword, onSuccess } = useFetchHook({
   onRequest: async () => {
+    if (!userStore.info?.id)
+      throw new Error('用户 id 为空')
+
     const isValid = await formRef.value?.validate().catch(() => false)
     if (!isValid)
       throw new Error('校验失败')
 
-    const { id: userId } = userInfoStore.info
+    const { id: userId } = userStore.info
     if (userId === undefined)
       throw new Error('用户 id 为空')
 
     const { oldPassword, password } = form.value
     await Api.user.updateUserPassword({
-      userId,
+      userId: userStore.info.id,
       oldPassword,
       password,
     })
@@ -54,7 +56,7 @@ const { loading, refresh: updatePassword, onSuccess } = useFetchHook({
 })
 
 onSuccess(() => {
-  userAuthStore.logout()
+  userStore.logout()
 })
 </script>
 

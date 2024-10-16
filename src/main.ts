@@ -8,7 +8,7 @@ import { ElementIcons, createLogger, createPWA, customPaint } from '@/plugin'
 import './style/app.scss'
 import 'element-plus/dist/index.css'
 import 'element-plus/theme-chalk/dark/css-vars.css'
-import { useDadianStore, useUserStore } from '@/stores'
+import { useArchiveStore, useDadianStore, useUserStore } from '@/stores'
 
 const container = '#app'
 
@@ -25,6 +25,7 @@ try {
     .use(ElementIcons)
   await useDadianStore().init()
   await useUserStore().init()
+  await useArchiveStore().init()
   app.mount('#app')
 }
 catch (err) {
