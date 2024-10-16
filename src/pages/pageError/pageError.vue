@@ -1,15 +1,7 @@
 <script setup lang="ts">
-import { useRouteStore } from '@/stores'
-
-const routeStore = useRouteStore()
-
-const error = ref('')
-
-// 消费错误信息，以避免重复载入
-onMounted(() => {
-  error.value = routeStore.error
-  routeStore.error = ''
-})
+defineProps<{
+  message: string
+}>()
 </script>
 
 <template>
@@ -22,8 +14,8 @@ onMounted(() => {
       因关键错误崩溃。
     </div>
 
-    <div class="min-h-[4em] text-xl mb-8">
-      {{ routeStore.error }}
+    <div class="h-[6em] text-xl mb-8 overflow-auto">
+      {{ message }}
     </div>
 
     <div>
