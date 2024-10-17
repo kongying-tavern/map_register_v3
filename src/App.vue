@@ -1,9 +1,19 @@
 <script setup lang="ts">
 import { TRANSITION_EVENTS } from '@deck.gl/core'
 import type { LayersList } from '@deck.gl/core'
-import { GSTagLayer, GSTileLayer, GSZoomController, GenshinMapDeck } from '@/packages/map'
+import {
+  EaseoutInterpolator,
+  GSOverlayer,
+  GSTagLayer,
+  GSTileLayer,
+  GSZoomController,
+  GenshinMapDeck,
+} from '@/packages/map'
 import type { GenshinMap, GenshinMapProps, GenshinMapViewState } from '@/packages/map'
-import { useTileStore } from '@/stores'
+import {
+  useOverlayStore,
+  useTileStore,
+} from '@/stores'
 import { useResourceStatus } from '@/hooks'
 import {
   AppDevInfo,
@@ -14,6 +24,7 @@ import {
 
 // ================ 全局状态 ================
 const tileStore = useTileStore()
+const overlayStore = useOverlayStore()
 
 // ================ 地图状态 ================
 const genshinDeck = shallowRef<GenshinMap | null>(null)
@@ -35,10 +46,24 @@ const viewState: Ref<GenshinMapViewState> = ref({
   zoom: -1,
   minZoom: -4,
   maxZoom: 2,
-  target: [318, 6660],
+  target: [328, 6660],
   transitionDuration: TRANSITION_DURATION,
   transitionEasing: t => t,
   transitionInterruption: TRANSITION_EVENTS.BREAK,
+})
+
+watch(() => tileStore.currentTileConfig, (currentTileConfig) => {
+  if (!currentTileConfig)
+    return
+  const { target: [x, y], zoom } = currentTileConfig.initViewState
+  const [ox, oy] = currentTileConfig.tile.center
+  viewState.value = {
+    ...viewState.value,
+    target: [x + ox, y + oy],
+    zoom,
+    transitionDuration: 1000,
+    transitionInterpolator: new EaseoutInterpolator(['target', 'zoom']),
+  }
 })
 
 // ================ 资源管理 ================
@@ -57,6 +82,24 @@ const tileLayer = computed(() => {
   })
 })
 
+const overlayer = computed(() => {
+  if (!tileStore.currentTileConfig)
+    return
+  const [w, h] = tileStore.currentTileConfig.tile.size
+  const [ox, oy] = tileStore.currentTileConfig.tile.tilesOffset
+  const xmin = ox
+  const ymin = oy
+  const xmax = w + ox
+  const ymax = h + oy
+  return new GSOverlayer({
+    bounds: [xmin, ymin, xmax, ymax],
+    showOverlayMask: overlayStore.showMask,
+    chunkMap: overlayStore.chunkMap,
+    normalChunks: overlayStore.visibleChunks.default,
+    tileLikeChunks: overlayStore.visibleChunks.tile,
+  })
+})
+
 const tagLayer = computed(() => {
   const tile = tileStore.currentTileConfig?.tile
   if (!tile || !resourceStatus.value.fonts)
@@ -69,6 +112,7 @@ const tagLayer = computed(() => {
 
 const layers = computed<LayersList>(() => [
   tileLayer.value,
+  overlayer.value,
   tagLayer.value,
 ])
 

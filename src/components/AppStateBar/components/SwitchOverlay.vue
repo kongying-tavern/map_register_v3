@@ -1,18 +1,22 @@
 <script setup lang="ts">
 import BarItem from './BarItem.vue'
-import { MapOverlayController, MapWindowTeleporter, mapWindowContext as windowCtx } from '@/pages/pageMapV2/components'
-import { usePreferenceStore } from '@/stores'
-
-const preferenceStore = usePreferenceStore()
+import { AppWindowTeleporter, MapOverlayController, useWindowContext } from '@/components'
+import { useArchiveStore } from '@/stores'
 
 const id = crypto.randomUUID()
+
+const windowCtx = useWindowContext()
+
+const archiveStore = useArchiveStore()
 
 const MIN_WIDTH = window.matchMedia('(min-width: 600px)').matches ? 440 : 240
 
 const overlayVisible = computed({
-  get: () => preferenceStore.preference['map.state.showOverlay'],
+  get: () => {
+    return archiveStore.currentArchive.body.Preference['map.state.showOverlay']
+  },
   set: (bool) => {
-    preferenceStore.preference['map.state.showOverlay'] = bool
+    archiveStore.currentArchive.body.Preference['map.state.showOverlay'] = bool
   },
 })
 
@@ -55,9 +59,9 @@ onUnmounted(() => {
         }"
       />
 
-      <MapWindowTeleporter :id="id">
+      <AppWindowTeleporter :id="id">
         <MapOverlayController />
-      </MapWindowTeleporter>
+      </AppWindowTeleporter>
     </template>
   </BarItem>
 </template>

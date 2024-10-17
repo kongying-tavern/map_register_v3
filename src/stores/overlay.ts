@@ -1,83 +1,28 @@
 import { defineStore } from 'pinia'
 import { merge, template } from 'lodash'
-import { useAccessStore, useDadianStore, usePreferenceStore, useTileStore } from '.'
-
-export interface OverlayGroup {
-  id: string
-  label?: API.OverlayGroupOption['label']
-  value?: API.OverlayGroupOption['value']
-  multiple: API.OverlayConfig['multiple']
-  mask: API.OverlayConfig['overlayMask']
-  url?: API.OverlayGroupOption['url']
-  urlTemplate?: API.OverlayGroupOption['urlTemplate']
-  bounds?: API.OverlayBounds
-  items: API.OverlayOption[]
-  role: API.OverlayRole
-}
-
-export interface OverlayUnit {
-  id: string
-  label?: string
-  value?: string
-  url?: API.OverlayOption['url']
-  urlTemplate?: API.OverlayOption['urlTemplate']
-  bounds?: API.OverlayBounds
-}
-
-export interface OverlayChunk {
-  /** config 自身的唯一 id */
-  id: string
-  /** overlay 名称 */
-  label: string
-  /** overlay 所属的分组 */
-  group: OverlayChunkGroup
-  /** chunk 所属的单元 */
-  item: {
-    id: string
-    name: string
-  }
-  /**
-   * overlay 所属的地区代码
-   * @note 一个层级可能存在于多个地区，所以使用 Set 类型进行存储
-   */
-  areaCodes: Set<string>
-  /** overlay 图片地址 */
-  url: string
-  /** overlay 区域 */
-  bounds: API.OverlayBounds
-}
-
-export interface OverlayChunkGroup {
-  id: string
-  name: string
-  mask: boolean
-  role: API.OverlayRole
-  multiple: boolean
-  areaCodes: Set<string>
-  areaIndexes: Map<string, number>
-}
-
-export interface OverlayControlGroup extends OverlayChunkGroup {
-  bounds: API.OverlayBounds
-  items: { id: string; name: string }[]
-}
-
-export interface MergedOverlayGroups {
-  [areaCode: string]: OverlayGroup[]
-}
+import { useAccessStore, useArchiveStore, useDadianStore, useTileStore } from '.'
+import type {
+  MergedOverlayGroups,
+  OverlayChunk,
+  OverlayChunkGroup,
+} from '@/packages/map'
 
 /** 地图附加图层 */
 export const useOverlayStore = defineStore('global-map-overlays', () => {
-  const accessStore = useAccessStore()
-  const dadianStore = useDadianStore()
   const tileStore = useTileStore()
-  const preferenceStore = usePreferenceStore()
+  const accessStore = useAccessStore()
+  const archiveStore = useArchiveStore()
+  const dadianStore = useDadianStore()
 
   /** 当前激活的 overlay 单元（激活状态并不代表显示状态） */
   const activedItemIds = ref(new Set<string>())
 
+  const showOverlay = computed(() => {
+    return archiveStore.currentArchive.body.Preference['map.state.showOverlay']
+  })
+
   const mergedPlugins = computed(() => {
-    const { plugins = {}, pluginsNeigui = {} } = dadianStore._raw
+    const { plugins = {}, pluginsNeigui = {} } = dadianStore.raw
     return accessStore.hasNeigui
       ? merge(plugins, pluginsNeigui)
       : plugins
@@ -265,7 +210,7 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
       return []
     const { mergedTileConfigs } = tileStore
     const { code: currentLayerCode } = currentTileConfig.tile
-    const hideDefaultOverlay = !preferenceStore.preference['map.state.showOverlay']
+    const hideDefaultOverlay = !showOverlay.value
     return normalizedOverlayChunks.value.filter(({ areaCodes, group }) => {
       if (hideDefaultOverlay && group.role === 'default')
         return false
