@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import BarItem from './BarItem.vue'
 import { useTileStore } from '@/stores'
-import { EaseoutInterpolator } from '@/pages/pageMapV2/core/interpolator'
+import { EaseoutInterpolator } from '@/packages/map'
 import type { GenshinMapViewState } from '@/packages/map'
 
 const tileStore = useTileStore()
