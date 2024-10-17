@@ -7,6 +7,7 @@ import {
 } from '@/packages/map'
 import type { GenshinMap, GenshinMapProps, GenshinMapViewState } from '@/packages/map'
 import {
+  useMapStateStore,
   useTileStore,
 } from '@/stores'
 import {
@@ -22,6 +23,7 @@ import {
 
 // ================ 全局状态 ================
 const tileStore = useTileStore()
+const mapStateStore = useMapStateStore()
 
 // ================ 地图状态 ================
 const genshinDeck = shallowRef<GenshinMap | null>(null)
@@ -47,6 +49,13 @@ const viewState: Ref<GenshinMapViewState> = ref({
   transitionDuration: TRANSITION_DURATION,
   transitionEasing: t => t,
   transitionInterruption: TRANSITION_EVENTS.BREAK,
+})
+
+mapStateStore.event.on('setViewState', (newViewState) => {
+  viewState.value = {
+    ...viewState.value,
+    ...newViewState,
+  }
 })
 
 watch(() => tileStore.currentTileConfig, (currentTileConfig) => {
