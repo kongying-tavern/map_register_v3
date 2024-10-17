@@ -59,15 +59,21 @@ export const useAccessStore = defineStore('global-access', () => {
     return userStore.info.role.mask
   })
 
+  const userHiddenFlagMask = computed(() => {
+    if (!userStore.info?.role?.code)
+      return HIDDEN_FLAG_BINARY_MASK[RoleTypeEnum.VISITOR]
+    return HIDDEN_FLAG_BINARY_MASK[userStore.info.role.code]
+  })
+
   const checkHiddenFlag = (hiddenFlag?: number) => {
-    if (!userStore.info?.role?.code || hiddenFlag === undefined)
-      return false
-    return (HIDDEN_FLAG_BINARY_MASK[userStore.info.role.code] & hiddenFlag) > 0
+    if (hiddenFlag === undefined)
+      return true
+    return (userHiddenFlagMask.value & (1 << hiddenFlag)) > 0
   }
 
   /** 获取某功能/资源权限 */
   const get = <K extends keyof typeof ACCESS_BINARY_MASK>(key: K): boolean => {
-    return (roleBinaryMask.value & ACCESS_BINARY_MASK[key]) > 0
+    return (1 << roleBinaryMask.value & ACCESS_BINARY_MASK[key]) > 0
   }
 
   const hasNeigui = computed(() => get('HIDDEN_FLAG_NEIGUI'))
