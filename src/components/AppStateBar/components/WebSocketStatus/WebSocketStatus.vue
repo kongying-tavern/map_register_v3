@@ -3,9 +3,10 @@ import { ChromeFilled } from '@element-plus/icons-vue'
 import BarItem from '../BarItem.vue'
 import StatusWindow from './StatusWindow.vue'
 import { useSocketStore } from '@/stores'
-import { MapWindowTeleporter, mapWindowContext as windowCtx } from '@/pages/pageMapV2/components'
+import { AppWindowTeleporter, useWindowContext } from '@/components'
 
 const socketStore = useSocketStore()
+const windowCtx = useWindowContext()
 
 const id = crypto.randomUUID()
 
@@ -95,8 +96,8 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <MapWindowTeleporter :id="id">
+    <AppWindowTeleporter :id="id">
       <StatusWindow />
-    </MapWindowTeleporter>
+    </AppWindowTeleporter>
   </BarItem>
 </template>

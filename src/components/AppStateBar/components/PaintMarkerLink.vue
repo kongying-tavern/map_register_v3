@@ -3,14 +3,16 @@ import { MarkerLink } from './MarkerLink'
 import { MLContext } from './MarkerLink/core'
 import BarItem from './BarItem.vue'
 import { useMapStateStore } from '@/stores'
-import { MapWindowTeleporter } from '@/pages/pageMapV2/components'
+import { AppWindowTeleporter, useWindowContext } from '@/components'
 import { GSMarkerLinkLayer } from '@/pages/pageMapV2/core/layer'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
 
 const prefix = crypto.randomUUID()
 const mapStateStore = useMapStateStore()
 
-const markerLinkContext = new MLContext()
+const windowContext = useWindowContext()
+
+const markerLinkContext = new MLContext(windowContext)
 
 const {
   isEnable,
@@ -61,8 +63,8 @@ mapStateStore.event.on('click', (info) => {
       </svg>
     </el-icon>
 
-    <MapWindowTeleporter :id="markerLinkContext.id" @close="markerLinkContext.finalize">
+    <AppWindowTeleporter :id="markerLinkContext.id" @close="markerLinkContext.finalize">
       <MarkerLink :context="markerLinkContext" />
-    </MapWindowTeleporter>
+    </AppWindowTeleporter>
   </BarItem>
 </template>

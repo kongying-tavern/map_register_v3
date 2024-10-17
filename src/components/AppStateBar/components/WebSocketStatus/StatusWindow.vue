@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import MessageItem from './MessageItem.vue'
-import { useSocketStore, useUserInfoStore } from '@/stores'
+import { useSocketStore, useUserStore } from '@/stores'
 import db from '@/database'
 import { useFetchHook } from '@/hooks'
 
 const socketStore = useSocketStore()
-const userInfoStore = useUserInfoStore()
+const userStore = useUserStore()
 
 const { refresh: clearMessageList, loading: clearLoading } = useFetchHook({
   onRequest: async () => {
@@ -29,7 +29,7 @@ const { refresh: clearMessageList, loading: clearLoading } = useFetchHook({
         :key="message.key"
         :data="message"
         :pre-data="socketStore.messageList[index - 1]"
-        :is-self="message.user.id === userInfoStore.info.id"
+        :is-self="message.user.id === userStore.info?.id"
       />
     </div>
 

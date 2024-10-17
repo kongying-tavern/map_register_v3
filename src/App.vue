@@ -9,6 +9,7 @@ import {
   AppDevInfo,
   AppStateBar,
   AppUserAvatar,
+  AppWindowProvider,
 } from '@/components'
 
 // ================ 全局状态 ================
@@ -115,5 +116,7 @@ const getTooltip: GenshinMapProps['getTooltip'] = (info) => {
     />
 
     <AppDevInfo />
+
+    <AppWindowProvider />
   </div>
 </template>

@@ -1,10 +1,10 @@
 import type { PickingInfo } from '@deck.gl/core'
 import { useMapStateStore } from '@/stores'
-import { mapWindowContext as windowCtx } from '@/pages/pageMapV2/components'
 import { GSMarkerLayer } from '@/pages/pageMapV2/core/layer'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
 import db from '@/database'
 import { LinkActionEnum } from '@/shared/linkAction'
+import type { WindowContext } from '@/components'
 
 interface MarkerLinkProps {
   key: string
@@ -143,7 +143,7 @@ export class MLContext {
   /** 切换任务开关 */
   toggleMarkerLink = async () => {
     if (this.isMissionProcessing.value) {
-      windowCtx.closeWindow(this.id)
+      this.windowContext.closeWindow(this.id)
       return
     }
     // 清理 focus 及其副作用
@@ -160,7 +160,7 @@ export class MLContext {
     // 初始化关联任务
     this.updateMission([])
     // 打开点位关联弹窗
-    windowCtx.openWindow({ id: this.id, name: '点位关联' })
+    this.windowContext.openWindow({ id: this.id, name: '点位关联' })
   }
 
   /** 新增/修改关联关系 */
@@ -222,10 +222,10 @@ export class MLContext {
 
   /** 取消对话 */
   cancel = () => {
-    windowCtx.closeWindow(this.id)
+    this.windowContext.closeWindow(this.id)
   }
 
-  constructor() {
+  constructor(private windowContext: WindowContext) {
     // 订阅点位关联任务并控制器
     const {
       isEnable,
