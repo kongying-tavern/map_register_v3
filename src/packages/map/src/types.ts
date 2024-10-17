@@ -18,8 +18,8 @@ export interface GenshinMapProps extends Omit<OrthographicViewMapProps, 'canvas'
 
 // ============================== Layer ==============================
 export interface GenshinMapViewState extends OrthographicViewState {
-  target?: [number, number]
-  zoom?: number
+  target: [number, number]
+  zoom: number
   minZoom?: number
   maxZoom?: number
 }
@@ -69,6 +69,9 @@ export interface GSMarkerLayerProps {
 
 // ============================== Marker ==============================
 export interface GSMarkerInfo extends API.MarkerVo {
+  /** 是否为快照 */
+  __gs_isSnapshot?: boolean
+
   /** 用于渲染的附加属性，避免在渲染层进行计算 */
   render: {
     /** 点位坐标 */
