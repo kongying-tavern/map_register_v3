@@ -1,20 +1,18 @@
 <script setup lang="ts">
 import { TRANSITION_EVENTS } from '@deck.gl/core'
-import type { LayersList } from '@deck.gl/core'
 import {
   EaseoutInterpolator,
-  GSOverlayer,
-  GSTagLayer,
-  GSTileLayer,
   GSZoomController,
   GenshinMapDeck,
 } from '@/packages/map'
 import type { GenshinMap, GenshinMapProps, GenshinMapViewState } from '@/packages/map'
 import {
-  useOverlayStore,
   useTileStore,
 } from '@/stores'
-import { useResourceStatus } from '@/hooks'
+import {
+  useMapLayers,
+  useResourceStatus,
+} from '@/hooks'
 import {
   AppDevInfo,
   AppStateBar,
@@ -24,7 +22,6 @@ import {
 
 // ================ 全局状态 ================
 const tileStore = useTileStore()
-const overlayStore = useOverlayStore()
 
 // ================ 地图状态 ================
 const genshinDeck = shallowRef<GenshinMap | null>(null)
@@ -70,51 +67,7 @@ watch(() => tileStore.currentTileConfig, (currentTileConfig) => {
 const { status: resourceStatus } = useResourceStatus()
 
 // ================ 图层管理 ================
-const tileLayer = computed(() => {
-  const tile = tileStore.currentTileConfig?.tile
-  if (!tile)
-    return
-  return new GSTileLayer({
-    code: tile.code,
-    size: tile.size,
-    extension: tile.extension,
-    tilesOffset: tile.tilesOffset,
-  })
-})
-
-const overlayer = computed(() => {
-  if (!tileStore.currentTileConfig)
-    return
-  const [w, h] = tileStore.currentTileConfig.tile.size
-  const [ox, oy] = tileStore.currentTileConfig.tile.tilesOffset
-  const xmin = ox
-  const ymin = oy
-  const xmax = w + ox
-  const ymax = h + oy
-  return new GSOverlayer({
-    bounds: [xmin, ymin, xmax, ymax],
-    showOverlayMask: overlayStore.showMask,
-    chunkMap: overlayStore.chunkMap,
-    normalChunks: overlayStore.visibleChunks.default,
-    tileLikeChunks: overlayStore.visibleChunks.tile,
-  })
-})
-
-const tagLayer = computed(() => {
-  const tile = tileStore.currentTileConfig?.tile
-  if (!tile || !resourceStatus.value.fonts)
-    return
-  return new GSTagLayer({
-    tagGroups: tileStore.visibleTagGroups,
-    offset: tile.center,
-  })
-})
-
-const layers = computed<LayersList>(() => [
-  tileLayer.value,
-  overlayer.value,
-  tagLayer.value,
-])
+const { layers } = useMapLayers({ resourceStatus })
 
 // ================ 地图管理 ================
 const getTooltip: GenshinMapProps['getTooltip'] = (info) => {
