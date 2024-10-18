@@ -72,6 +72,7 @@
     "@vue/tsconfig": "0.5.1",
     "autoprefixer": "10.4.14",
     "eslint": "8.53.0",
+    "mjolnir.js": "^2.7.3",
     "openapi2ts": "1.1.7",
     "postcss": "8.4.31",
     "postcss-load-config": "5.0.2",
