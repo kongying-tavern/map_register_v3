@@ -1,29 +1,15 @@
 <script setup lang="ts">
 import { TRANSITION_EVENTS } from '@deck.gl/core'
-import {
-  EaseoutInterpolator,
-  GSZoomController,
-  GenshinMapDeck,
-} from '@/packages/map'
+import { useSubscription } from '@vueuse/rxjs'
+import { EaseoutInterpolator, GSZoomController, GenshinMapDeck } from '@/packages/map'
 import type { GenshinMap, GenshinMapProps, GenshinMapViewState } from '@/packages/map'
-import {
-  useMapStateStore,
-  useTileStore,
-} from '@/stores'
-import {
-  useMapLayers,
-  useResourceStatus,
-} from '@/hooks'
-import {
-  AppDevInfo,
-  AppStateBar,
-  AppUserAvatar,
-  AppWindowProvider,
-} from '@/components'
+import { useTileStore } from '@/stores'
+import { useMapLayers, useResourceStatus } from '@/hooks'
+import { AppDevInfo, AppStateBar, AppUserAvatar, AppWindowProvider } from '@/components'
+import { MapSubject } from '@/shared'
 
 // ================ 全局状态 ================
 const tileStore = useTileStore()
-const mapStateStore = useMapStateStore()
 
 // ================ 地图状态 ================
 const genshinDeck = shallowRef<GenshinMap | null>(null)
@@ -51,13 +37,14 @@ const viewState: Ref<GenshinMapViewState> = ref({
   transitionInterruption: TRANSITION_EVENTS.BREAK,
 })
 
-mapStateStore.event.on('setViewState', (newViewState) => {
+useSubscription(MapSubject.viewState.subscribe((newViewState) => {
   viewState.value = {
     ...viewState.value,
     ...newViewState,
   }
-})
+}))
 
+// 切换地区时，使用地区配置的初始视口状态
 watch(() => tileStore.currentTileConfig, (currentTileConfig) => {
   if (!currentTileConfig)
     return
@@ -70,13 +57,10 @@ watch(() => tileStore.currentTileConfig, (currentTileConfig) => {
     transitionDuration: 1000,
     transitionInterpolator: new EaseoutInterpolator(['target', 'zoom']),
   }
-})
+}, { immediate: true })
 
 // ================ 资源管理 ================
 const { status: resourceStatus } = useResourceStatus()
-
-// ================ 图层管理 ================
-const { layers } = useMapLayers({ resourceStatus })
 
 // ================ 地图管理 ================
 const getTooltip: GenshinMapProps['getTooltip'] = (info) => {
@@ -87,8 +71,8 @@ const getTooltip: GenshinMapProps['getTooltip'] = (info) => {
     html: `
     <div class="w-[200px] h-[200px] p-1 text-xs text-white bg-[#00000080]">
       <div>x: ${Math.floor(coordinate[0])}, y: ${Math.floor(coordinate[1])}, zoom: ${info.viewport?.zoom?.toFixed(2)}</div>
-      <div>layer: ${layer ? layer.id : 'no layer'}</div>
-      <div>layer: ${sourceLayer ? sourceLayer.id : 'no layer'}</div>
+      <div>rootlayer: ${layer ? layer.id : 'no layer'}</div>
+      <div>sourceLayer: ${sourceLayer ? sourceLayer.id : 'no layer'}</div>
     </div>`,
     style: {
       padding: '0 0 0 32px',
@@ -98,6 +82,11 @@ const getTooltip: GenshinMapProps['getTooltip'] = (info) => {
     },
   }
 }
+
+// ================ 图层管理 ================
+const { layers } = useMapLayers({
+  resourceStatus,
+})
 </script>
 
 <template>
@@ -108,6 +97,11 @@ const getTooltip: GenshinMapProps['getTooltip'] = (info) => {
       :get-tooltip="getTooltip"
       class="bg-black"
       @load="(instance) => (genshinDeck = instance)"
+      @click="(info, event) => MapSubject.click.next({ info, event })"
+      @hover="(info, event) => MapSubject.hover.next({ info, event })"
+      @drag="(info, event) => MapSubject.click.next({ info, event })"
+      @drag-end="(info, event) => MapSubject.click.next({ info, event })"
+      @drag-start="(info, event) => MapSubject.click.next({ info, event })"
     />
 
     <AppUserAvatar />

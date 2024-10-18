@@ -1,10 +1,13 @@
 import type { PickingInfo } from '@deck.gl/core'
+import type { Subscription } from 'rxjs'
 import { useMapStateStore } from '@/stores'
 import { GSMarkerLayer } from '@/pages/pageMapV2/core/layer'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
 import db from '@/database'
 import { LinkActionEnum } from '@/shared/linkAction'
 import type { WindowContext } from '@/components'
+import type { GSMarkerInfo } from '@/packages/map'
+import { MapSubject } from '@/shared/mapSubject'
 
 interface MarkerLinkProps {
   key: string
@@ -19,10 +22,10 @@ export class MLContext {
   readonly id = crypto.randomUUID()
 
   /** 源点位 */
-  sourceMarker = ref<GSMapState.MarkerWithRenderConfig>()
+  sourceMarker = ref<GSMarkerInfo>()
 
   /** 目标点位 */
-  targetMarker = ref<GSMapState.MarkerWithRenderConfig>()
+  targetMarker = ref<GSMarkerInfo>()
 
   /** 关联行为 */
   linkAction = ref(LinkActionEnum.TRIGGER)
@@ -72,6 +75,9 @@ export class MLContext {
   setShowDeleted = (v: boolean) => {
     this.showDeleted.value = v
   }
+
+  /** 点击处理订阅 */
+  clickSubscription?: Subscription
 
   mergeExistLinkList = (mergedList: MarkerLinkProps[], keys: Set<string>) => {
     const existLinks = this.existLinkGroups.value
@@ -143,6 +149,7 @@ export class MLContext {
   /** 切换任务开关 */
   toggleMarkerLink = async () => {
     if (this.isMissionProcessing.value) {
+      this.clickSubscription?.unsubscribe()
       this.windowContext.closeWindow(this.id)
       return
     }
@@ -150,8 +157,8 @@ export class MLContext {
     this.removeMarkerFocus()
     // 暂停 focus 交互，点击事件交由该上下文处理
     this.pauseFocus()
-    // 注册点击事件处理器
-    this.mapStateStore.event.on('click', this.handleMapClick)
+    // 开启点击事件处理器
+    this.clickSubscription = MapSubject.click.subscribe(({ info, event }) => this.handleMapClick(info, event))
     // 开启关联数据变化到地图渲染的映射
     this.resumeSync()
     this.resumeRender()
@@ -276,7 +283,7 @@ export class MLContext {
       resumeFocus('marker')
       this.mapStateStore.setIsPopoverOnHover(false)
       this.mapStateStore.setMLRenderList([])
-      this.mapStateStore.event.off('click', this.handleMapClick)
+      this.clickSubscription?.unsubscribe()
       this.resetSelectedState()
       this.linkList.value = []
       this.clearTempLink()
@@ -314,7 +321,7 @@ export class MLContext {
     this.targetMarker.value = undefined
   }
 
-  selectSourceMarker = async (marker: GSMapState.MarkerWithRenderConfig) => {
+  selectSourceMarker = async (marker: GSMarkerInfo) => {
     this.sourceMarker.value = marker
     this.targetMarker.value = undefined
     if (!this.existLinkGroups.value[marker.linkageId!]) {
@@ -326,7 +333,7 @@ export class MLContext {
     }
   }
 
-  selectTargetMarker = async (marker: GSMapState.MarkerWithRenderConfig) => {
+  selectTargetMarker = async (marker: GSMarkerInfo) => {
     this.targetMarker.value = marker
     if (!this.existLinkGroups.value[marker.linkageId!]) {
       const existLinks = await db.markerLink.where('groupId').equals(marker.linkageId!).toArray()

@@ -8,23 +8,20 @@ import {
   useMarkerFilter,
   useMarkerLink,
   useMarkers,
-  useViewState,
 } from './hooks'
 import {
+  useArchiveStore,
   useAreaStore,
   useItemStore,
   useItemTypeStore,
   useMarkerLinkStore,
   useMarkerStore,
-  usePreferenceStore,
   useTileStore,
 } from '@/stores'
-import type { GSMap } from '@/pages/pageMapV2/types/map'
-import { EventBus } from '@/utils'
 
 /** 地图非持久化状态，此类状态会在页面刷新后消失 */
 export const useMapStateStore = defineStore('global-map-state', () => {
-  const preferenceStore = usePreferenceStore()
+  const archiveStore = useArchiveStore()
   const markerLinkStore = useMarkerLinkStore()
   const markerStore = useMarkerStore()
   const tileStore = useTileStore()
@@ -32,17 +29,8 @@ export const useMapStateStore = defineStore('global-map-state', () => {
   const itemTypeStore = useItemTypeStore()
   const itemStore = useItemStore()
 
-  // ============================== 地图事件 ==============================
-  const event = new EventBus<GSMap.EventMap>()
-
   // ============================== 地图指针 ==============================
   const cursorHook = useMapCursor()
-
-  // ============================== 地图视口 ==============================
-  const viewStateHook = useViewState({
-    event,
-    preferenceStore,
-  })
 
   // ============================== 地图任务 ==============================
   const missionHook = useMapMission()
@@ -52,7 +40,7 @@ export const useMapStateStore = defineStore('global-map-state', () => {
 
   // ============================== 地图点位 ==============================
   const markersHook = useMarkers({
-    preferenceStore,
+    archiveStore,
     markerStore,
     tileStore,
     areaStore,
@@ -71,7 +59,7 @@ export const useMapStateStore = defineStore('global-map-state', () => {
 
   // ============================== 点位过滤器 ==============================
   const markerFilterHookOptions = {
-    preferenceStore,
+    archiveStore,
     areaStore,
     itemTypeStore,
     itemStore,
@@ -81,10 +69,6 @@ export const useMapStateStore = defineStore('global-map-state', () => {
   const markerFilterHook = useMarkerFilter(markerFilterHookOptions)
 
   return {
-    event,
-
-    ...viewStateHook,
-
     ...cursorHook,
 
     ...interactionInfoHook,

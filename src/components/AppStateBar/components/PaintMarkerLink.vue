@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useSubscription } from '@vueuse/rxjs'
+import { filter } from 'rxjs'
 import { MarkerLink } from './MarkerLink'
 import { MLContext } from './MarkerLink/core'
 import BarItem from './BarItem.vue'
@@ -6,6 +8,7 @@ import { useMapStateStore } from '@/stores'
 import { AppWindowTeleporter, useWindowContext } from '@/components'
 import { GSMarkerLinkLayer } from '@/pages/pageMapV2/core/layer'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
+import { MapSubject } from '@/shared'
 
 const prefix = crypto.randomUUID()
 const mapStateStore = useMapStateStore()
@@ -19,9 +22,13 @@ const {
   isProcessing,
 } = mapStateStore.subscribeMission('markerLink', () => [])
 
-mapStateStore.event.on('click', (info) => {
-  if (isProcessing.value || !isEnable.value || !(info.sourceLayer instanceof GSMarkerLinkLayer))
-    return
+useSubscription(MapSubject.click.pipe(
+  filter(({ info }) => [
+    !isProcessing.value,
+    isEnable.value,
+    info.sourceLayer instanceof GSMarkerLinkLayer,
+  ].every(Boolean)),
+).subscribe(({ info }) => {
   const { source } = (info.object) as GSMapState.MLRenderUnit
   const marker = mapStateStore.currentMarkerIdMap.get(source)
   if (!marker)
@@ -29,7 +36,7 @@ mapStateStore.event.on('click', (info) => {
   markerLinkContext.toggleMarkerLink()
   markerLinkContext.selectSourceMarker(marker)
   markerLinkContext.cancelSelect()
-})
+}))
 </script>
 
 <template>

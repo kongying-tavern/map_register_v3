@@ -1,3 +1,5 @@
+import { useSubscription } from '@vueuse/rxjs'
+import { filter } from 'rxjs'
 import {
   useArchiveStore,
   useMapStateStore,
@@ -5,6 +7,7 @@ import {
 import type { GSMarkerInfo } from '@/packages/map'
 import { EaseoutInterpolator } from '@/packages/map'
 import { createRenderMarkers } from '@/stores/utils'
+import { MapSubject } from '@/shared'
 
 let cache: ReturnType<typeof _useMarkerControl>
 
@@ -25,12 +28,12 @@ export const _useMarkerControl = () => {
     return addFocus('marker', id, true)
   }
 
-  mapStateStore.event.on('click', (info) => {
-    if (info.object)
-      return
+  useSubscription(MapSubject.click.pipe(
+    filter(({ info }) => !info.object),
+  ).subscribe(() => {
     removeHover('marker')
     removeFocus('marker')
-  })
+  }))
 
   const focus = computed(() => {
     if (hideMarkerPopover.value)
@@ -118,7 +121,7 @@ export const _useMarkerControl = () => {
 
     if (flyToMarker) {
       const { render: { position: [x, y] } } = markerWithRender
-      mapStateStore.event.emit('setViewState', {
+      MapSubject.viewState.next({
         target: [x, y],
         zoom: 0,
         transitionDuration: duration,

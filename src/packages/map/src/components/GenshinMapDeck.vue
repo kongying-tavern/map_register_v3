@@ -13,6 +13,11 @@ const props = defineProps<{
 
 const emits = defineEmits<{
   load: [GenshinMap]
+  hover: Parameters<NonNullable<GenshinMapProps['onHover']>>
+  click: Parameters<NonNullable<GenshinMapProps['onClick']>>
+  drag: Parameters<NonNullable<GenshinMapProps['onDrag']>>
+  dragEnd: Parameters<NonNullable<GenshinMapProps['onDragEnd']>>
+  dragStart: Parameters<NonNullable<GenshinMapProps['onDragStart']>>
 }>()
 
 const viewState = defineModel<GenshinMapViewState>('viewState', {
@@ -49,6 +54,21 @@ const { instanceRef } = useGenshinMap(canvasRef, {
     viewState.value.target = target as [number, number]
     return params.viewState
   },
+  onDrag: (info, event) => {
+    emits('drag', info, event)
+  },
+  onDragEnd: (info, event) => {
+    emits('dragEnd', info, event)
+  },
+  onDragStart: (info, event) => {
+    emits('dragStart', info, event)
+  },
+  onHover: (info, event) => {
+    emits('hover', info, event)
+  },
+  onClick: (info, event) => {
+    emits('click', info, event)
+  },
   onLoad: () => {
     if (!instanceRef.value)
       return
@@ -65,5 +85,9 @@ watch(() => props.layers, (layers) => {
 </script>
 
 <template>
-  <canvas ref="canvasRef" draggable="false" />
+  <canvas
+    ref="canvasRef"
+    draggable="false"
+    @contextmenu.stop.prevent=""
+  />
 </template>
