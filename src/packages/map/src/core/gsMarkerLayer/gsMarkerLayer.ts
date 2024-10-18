@@ -19,31 +19,15 @@ export class GSMarkerLayer extends CompositeLayer<GSMarkerLayerProps> {
 
   constructor(props: GSMarkerLayerProps) {
     super({
-      id: 'genshin-marker-layer',
+      id: 'marker',
+      pickable: true,
       ...props,
-      // onHover: (info) => {
-      //   const { addHover, removeHover, isHover } = useMapStateStore()
-      //   const markerId = info.object as number | undefined
-      //   if (markerId === undefined)
-      //     return removeHover('marker')
-      //   if (isHover<number>('marker', markerId))
-      //     return
-      //   addHover('marker', markerId, true)
-      // },
-      // onClick: (info) => {
-      //   const markerId = info.object as number | undefined
-      //   const { addFocus, removeFocus, isFocus } = useMapStateStore()
-      //   if (info.sourceLayer?.id !== this.id || markerId === undefined)
-      //     return removeFocus('marker')
-      //   if (isFocus<number>('marker', markerId))
-      //     return
-      //   addFocus('marker', markerId, true)
-      // },
     })
   }
 
   shouldUpdateState(params: UpdateParameters<Layer<GSMarkerLayerProps & Required<CompositeLayerProps>>>): boolean {
-    return params.changeFlags.viewportChanged
+    const { propsOrDataChanged, viewportChanged } = params.changeFlags
+    return propsOrDataChanged || viewportChanged
   }
 
   renderLayers = (): LayersList => {
@@ -56,14 +40,9 @@ export class GSMarkerLayer extends CompositeLayer<GSMarkerLayerProps> {
     const {
       data,
       iconMapping,
+      hover,
       getFocus,
-      getHover,
       getMarked,
-      draggingMap,
-      interactHash,
-      draggingHash,
-      archiveHash,
-      transparentMarked,
     } = this.props
 
     const getIcon = (info: GSMarkerInfo) => {
@@ -76,45 +55,21 @@ export class GSMarkerLayer extends CompositeLayer<GSMarkerLayerProps> {
         ? 0b1000
         : getFocus(id!)
           ? 0b0100
-          : getHover(id!)
+          : hover.has(id!)
             ? 0b0010
             : 0b0001
       return state + (info.render.isUnderground ? 0b10000 : 0b00000)
     }
 
     const getPosition = (info: GSMarkerInfo) => {
-      return draggingMap[info.id!] ?? info.render.position
+      return info.render.position
     }
 
     const sizeMaxPixels = 40 * 2 ** (zoom + 2)
 
     return [
       new GSMarkerRenderLayer({
-        id: 'genshin-marker-layer-down',
-        pickable: false,
-        data,
-        statusCount: ATTACH_TOTAL,
-        iconAtlas,
-        iconMapping,
-        getIcon,
-        getIconFlag,
-        getPosition,
-        getSize: 44,
-        getColor: ({ id }) => {
-          if (getHover(id!) || getFocus(id!))
-            return [0, 0, 0, 0]
-          return [0, 0, 0, !transparentMarked && getMarked(id!) ? 128 : 255]
-        },
-        sizeScale: 1,
-        sizeMaxPixels,
-        sizeMinPixels: 4,
-        updateTriggers: {
-          getIcon: [interactHash, archiveHash],
-          getPosition: [draggingHash],
-        },
-      }),
-      new GSMarkerRenderLayer({
-        id: 'genshin-marker-layer-up',
+        id: `${this.id}-bottom`,
         pickable: true,
         data,
         statusCount: ATTACH_TOTAL,
@@ -124,18 +79,33 @@ export class GSMarkerLayer extends CompositeLayer<GSMarkerLayerProps> {
         getIconFlag,
         getPosition,
         getSize: 44,
-        getColor: ({ id }) => {
-          if (!getHover(id!) || !getFocus(id!))
-            return [0, 0, 0, 0]
-          return [0, 0, 0, 255]
-        },
+        getColor: ({ id }) => [0, 0, 0, hover.has(id!) ? 0 : 255],
         sizeScale: 1,
         sizeMaxPixels,
         sizeMinPixels: 4,
         updateTriggers: {
-          getIcon: [interactHash, archiveHash],
-          getPosition: [draggingHash],
-          getColor: [transparentMarked, archiveHash],
+          getIconFlag: [hover],
+          getColor: [hover],
+        },
+      }),
+      new GSMarkerRenderLayer({
+        id: `${this.id}-top`,
+        pickable: true,
+        data,
+        statusCount: ATTACH_TOTAL,
+        iconAtlas,
+        iconMapping,
+        getIcon,
+        getIconFlag,
+        getPosition,
+        getSize: 44,
+        getColor: ({ id }) => [0, 0, 0, hover.has(id!) ? 255 : 0],
+        sizeScale: 1,
+        sizeMaxPixels,
+        sizeMinPixels: 4,
+        updateTriggers: {
+          getIconFlag: [hover],
+          getColor: [hover],
         },
       }),
     ]

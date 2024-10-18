@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia'
 import { AddLocation, DeleteLocation, Location } from '@element-plus/icons-vue'
 import { liveQuery } from 'dexie'
-import { useBackendUpdate, userHook } from './hooks'
-import { useAccessStore, useSocketStore, useUserAuthStore } from '.'
+import { useBackendUpdate } from './hooks'
+import { useAccessStore, useSocketStore } from '.'
 import { Zip } from '@/utils'
 import Api from '@/api/api'
 import db from '@/database'
@@ -105,9 +105,4 @@ export const useMarkerStore = defineStore('global-marker', () => {
     markerList,
     backendUpdater,
   }
-})
-
-userHook.onInfoChange(useMarkerStore, async (store) => {
-  const { validateToken } = useUserAuthStore()
-  validateToken() ? await store.backendUpdater.start() : store.backendUpdater.stop()
 })

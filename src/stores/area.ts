@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { liveQuery } from 'dexie'
-import { useBackendUpdate, userHook } from './hooks'
-import { useAccessStore, useUserAuthStore } from '.'
+import { useBackendUpdate } from './hooks'
+import { useAccessStore } from '.'
 import Api from '@/api/api'
 import db from '@/database'
 
@@ -78,9 +78,4 @@ export const useAreaStore = defineStore('global-area', () => {
     areaTree,
     backendUpdater,
   }
-})
-
-userHook.onInfoChange(useAreaStore, async (store) => {
-  const { validateToken } = useUserAuthStore()
-  validateToken() ? await store.backendUpdater.start() : store.backendUpdater.stop()
 })

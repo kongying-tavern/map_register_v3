@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia'
 import { liveQuery } from 'dexie'
 import type { ShallowRef } from 'vue'
-import { useBackendUpdate, useMarkerSprite, useTagSprite, userHook } from './hooks'
-import { useSocketStore, useUserAuthStore } from '.'
+import { useBackendUpdate, useMarkerSprite, useTagSprite } from './hooks'
+import { useSocketStore } from '.'
 import { Zip } from '@/utils'
 import Api from '@/api/api'
 import db from '@/database'
@@ -81,9 +81,4 @@ export const useIconTagStore = defineStore('global-icon-tag', () => {
     // actions
     backendUpdater,
   }
-})
-
-userHook.onInfoChange(useIconTagStore, async (store) => {
-  const { validateToken } = useUserAuthStore()
-  validateToken() ? await store.backendUpdater.start() : store.backendUpdater.stop()
 })
