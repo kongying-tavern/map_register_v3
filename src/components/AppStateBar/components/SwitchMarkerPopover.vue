@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import BarItem from './BarItem.vue'
-import { usePreferenceStore } from '@/stores'
+import { useArchiveStore } from '@/stores'
 
-const preferenceStore = usePreferenceStore()
+const archiveStore = useArchiveStore()
 
 const isPopoverHide = computed({
-  get: () => preferenceStore.preference['map.setting.hideMarkerPopover'],
+  get: () => {
+    return archiveStore.currentArchive.body.Preference['map.setting.hideMarkerPopover']
+  },
   set: (v) => {
-    preferenceStore.preference['map.setting.hideMarkerPopover'] = v
+    archiveStore.currentArchive.body.Preference['map.setting.hideMarkerPopover'] = v
   },
 })
 

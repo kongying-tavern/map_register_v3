@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import dayjs from 'dayjs'
 import { AppIconTagRenderer } from '@/components'
-import { useMarkerFocus } from '@/pages/pageMapV2/hooks'
+import { useMarkerControl } from '@/hooks'
 import { useIconTagStore, useItemStore } from '@/stores'
 import { pickMainItem } from '@/utils'
 
@@ -12,7 +12,7 @@ const props = defineProps<{
 const itemStore = useItemStore()
 const iconTagStore = useIconTagStore()
 
-const { focusMarker } = useMarkerFocus()
+const { focusMarker } = useMarkerControl()
 
 const markerInfo = computed(() => {
   const [markerInfo] = props.data.args

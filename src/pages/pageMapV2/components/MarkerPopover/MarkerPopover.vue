@@ -2,16 +2,15 @@
 import { Check, CirclePlus, DeleteFilled, Edit, Rank, VideoCamera } from '@element-plus/icons-vue'
 import { storeToRefs } from 'pinia'
 import { ElMessage } from 'element-plus'
-import { useMarkerFocus } from '../../hooks'
 import { MapAffix, MarkerEditPanel } from '..'
 import { MarkerPanel } from './components'
 import { useMarkerDelete, useMarkerExtra, useMarkerFinished, useMarkerMove, useSkeletonPicture } from './hooks'
+import { useGlobalDialog, useMarkerControl } from '@/hooks'
 import { useAccessStore, useIconTagStore, useMapStateStore, useMarkerStore } from '@/stores'
 import { CloseFilled } from '@/components/GenshinUI/GSIcon'
 import { AppBilibiliVideoPlayer, AppIconTagRenderer, GSButton } from '@/components'
-import { useGlobalDialog } from '@/hooks'
-import type { GSMapState } from '@/stores/types/genshin-map-state'
 import { createRenderMarkers } from '@/stores/utils'
+import type { GSMarkerInfo } from '@/packages/map'
 
 const accessStore = useAccessStore()
 const markerStore = useMarkerStore()
@@ -19,7 +18,7 @@ const mapStateStore = useMapStateStore()
 
 const { tagSpriteUrl, tagPositionMap } = storeToRefs(useIconTagStore())
 
-const { cachedMarkerVo, isPopoverActived, focus, blur, updateFocus } = useMarkerFocus()
+const { cachedMarkerVo, isPopoverActived, focus, blur, updateFocus } = useMarkerControl()
 
 const { pictureUrl, loading: imageLoading } = useSkeletonPicture(cachedMarkerVo)
 
@@ -84,7 +83,7 @@ const openMarkerEditor = async () => {
       markerInfo: focus.value,
     })
     .open(MarkerEditPanel)
-    .afterClosed<GSMapState.MarkerWithRenderConfig>()
+    .afterClosed<GSMarkerInfo>()
   updateFocus(formData.id)
   cachedMarkerVo.value = formData
 }

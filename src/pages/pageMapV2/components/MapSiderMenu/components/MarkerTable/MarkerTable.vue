@@ -2,12 +2,12 @@
 import MarkerRow from './MarkerRow.vue'
 import { useIconTagStore, useMapStateStore } from '@/stores'
 import { AppVirtualTable } from '@/components'
-import { useMarkerFocus } from '@/pages/pageMapV2/hooks'
+import { useMarkerControl } from '@/hooks'
 
 const iconTagStore = useIconTagStore()
 const mapStateStore = useMapStateStore()
 
-const { hover: hoveredMarker, focus: focusedMarker, focusMarker, hoverMarker } = useMarkerFocus()
+const { hover: hoveredMarker, focus: focusedMarker, focusMarker, hoverMarker } = useMarkerControl()
 
 /** 由于地图依赖点位排序来控制遮挡顺序，这里按 id 升序重新排序 */
 const resortedMarkers = computed(() => mapStateStore.currentLayerMarkers.toSorted((a, b) => a.id! - b.id!))
