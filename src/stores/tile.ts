@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { defaultsDeep, merge } from 'lodash'
-import { useAccessStore, useAreaStore, useDadianStore, usePreferenceStore } from '@/stores'
+import { useAccessStore, useArchiveStore, useAreaStore, useDadianStore } from '@/stores'
 import type { AreaTagTuple } from '@/configs'
 import { AREA_ADDITIONAL_CONFIG_MAP } from '@/configs'
 
@@ -38,7 +38,11 @@ export const useTileStore = defineStore('global-map-tile', () => {
   const areaStore = useAreaStore()
   const accessStore = useAccessStore()
   const dadianStore = useDadianStore()
-  const preferenceStore = usePreferenceStore()
+  const archiveStore = useArchiveStore()
+
+  const areaCode = computed(() => {
+    return archiveStore.currentArchive.body.Preference['markerFilter.state.areaCode']
+  })
 
   const mergedTiles = computed(() => {
     const { tiles = {}, tilesNeigui = {} } = dadianStore.raw
@@ -100,10 +104,9 @@ export const useTileStore = defineStore('global-map-tile', () => {
 
   /** 当前激活的底图配置 */
   const currentTileConfig = computed(() => {
-    const areaCode = preferenceStore.preference['markerFilter.state.areaCode']
-    if (!areaCode)
+    if (!areaCode.value)
       return
-    return mergedTileConfigs.value[areaCode]
+    return mergedTileConfigs.value[areaCode.value]
   })
 
   /** 当前激活的底图code */

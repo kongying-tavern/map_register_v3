@@ -1,19 +1,19 @@
 import { toValue } from 'vue'
 import { useMarkerAdvancedFilter, useMarkerFilter } from '.'
-import type { GSMapState } from '@/stores/types/genshin-map-state'
+import type { GSMarkerInfo, TempMarkerType, TempMarkerTypeMap } from '@/packages/map'
 import { createRenderMarkers } from '@/stores/utils'
 import type {
+  useArchiveStore,
   useAreaStore,
   useItemStore,
   useItemTypeStore,
   useMarkerStore,
-  usePreferenceStore,
   useTileStore,
 } from '@/stores'
 import type { MAFMeta } from '@/stores/types'
 
 interface MarkerHookOptions {
-  preferenceStore: ReturnType<typeof usePreferenceStore>
+  archiveStore: ReturnType<typeof useArchiveStore>
   markerStore: ReturnType<typeof useMarkerStore>
   tileStore: ReturnType<typeof useTileStore>
   areaStore: ReturnType<typeof useAreaStore>
@@ -23,7 +23,7 @@ interface MarkerHookOptions {
 
 export const useMarkers = (options: MarkerHookOptions) => {
   const {
-    preferenceStore,
+    archiveStore,
     markerStore,
     tileStore,
     areaStore,
@@ -36,6 +36,9 @@ export const useMarkers = (options: MarkerHookOptions) => {
   /** 筛选处理状态 */
   const markersFilterLoading = ref(false)
 
+  const archiveItemIds = computed(() => archiveStore.currentArchive.body.Preference['markerFilter.state.itemIds'] ?? [])
+  const advancedFilter = computed(() => archiveStore.currentArchive.body.Preference['markerFilter.filter.advancedFilter'] ?? [])
+
   /** 当前基础筛选器（地区-类型-物品）条件表示下的所有点位 */
   const markersForBasicFilter = computed(() => {
     const tileConfigs = tileStore.mergedTileConfigs
@@ -44,7 +47,7 @@ export const useMarkers = (options: MarkerHookOptions) => {
 
     const areaIdMap = areaStore.areaIdMap
     const itemIdMap = itemStore.itemIdMap
-    const itemIds = new Set(preferenceStore.preference['markerFilter.state.itemIds'] ?? [])
+    const itemIds = new Set(archiveItemIds.value)
     const res = markerStore.markerList.filter(({ itemList = [] }) => {
       for (const { itemId } of itemList) {
         if (itemIds.has(itemId!))
@@ -63,8 +66,6 @@ export const useMarkers = (options: MarkerHookOptions) => {
     const areaIdMap = areaStore.areaIdMap
     const itemIdMap = itemStore.itemIdMap
 
-    const advancedFilters = preferenceStore.preference['markerFilter.filter.advancedFilter'] ?? []
-
     /** 合并计算布尔值，支持 null 值 */
     const operateBool = (v1: boolean | null, v2: boolean | null, op: boolean): boolean | null => {
       if (v1 === null)
@@ -80,8 +81,8 @@ export const useMarkers = (options: MarkerHookOptions) => {
     const metaCache = new Map<string, MAFMeta>()
     const res = markerStore.markerList.filter((marker: API.MarkerVo) => {
       let globalVal: boolean | null = null
-      for (let groupIndex = 0; groupIndex < advancedFilters.length; groupIndex++) {
-        const group = advancedFilters[groupIndex]
+      for (let groupIndex = 0; groupIndex < advancedFilter.value.length; groupIndex++) {
+        const group = advancedFilter.value[groupIndex]
         if (breakBool(globalVal, group.operator))
           break
 
@@ -151,11 +152,11 @@ export const useMarkers = (options: MarkerHookOptions) => {
   const staticMarkerIds = computed(() => new Set(staticMarkers.value.map(marker => marker.id!)))
 
   /** 临时点位集合 */
-  const tempMarkerMap = shallowRef(new Map<string, (API.MarkerVo | GSMapState.MarkerWithRenderConfig)[]>())
+  const tempMarkerMap = shallowRef(new Map<string, (API.MarkerVo | GSMarkerInfo)[]>())
 
   /** 未去重的临时点位 */
   const undifferentiated = computed(() => {
-    const markers: (API.MarkerVo | GSMapState.MarkerWithRenderConfig)[] = []
+    const markers: (API.MarkerVo | GSMarkerInfo)[] = []
     tempMarkerMap.value.forEach((typeMarkers) => {
       markers.push(...typeMarkers)
     })
@@ -185,20 +186,20 @@ export const useMarkers = (options: MarkerHookOptions) => {
     })
   })
 
-  const setTempMarkers = <K extends keyof GSMapState.TempMarkerTypeMap>(
-    type: GSMapState.TempMarkerType,
-    markers: GSMapState.TempMarkerTypeMap[K],
+  const setTempMarkers = <K extends keyof TempMarkerTypeMap>(
+    type: TempMarkerType,
+    markers: TempMarkerTypeMap[K],
   ) => {
     const map = new Map(tempMarkerMap.value)
     map.set(type, markers)
     tempMarkerMap.value = map
   }
 
-  const setTempMarkersBy = <K extends keyof GSMapState.TempMarkerTypeMap>(
+  const setTempMarkersBy = <K extends keyof TempMarkerTypeMap>(
     type: K,
-    cb: (oldMarkers: GSMapState.TempMarkerTypeMap[K], setter: (value: GSMapState.TempMarkerTypeMap[K]) => void) => void,
+    cb: (oldMarkers: TempMarkerTypeMap[K], setter: (value: TempMarkerTypeMap[K]) => void) => void,
   ) => {
-    cb((tempMarkerMap.value.get(type) ?? []) as GSMapState.TempMarkerTypeMap[K], (value) => {
+    cb((tempMarkerMap.value.get(type) ?? []) as TempMarkerTypeMap[K], (value) => {
       setTempMarkers(type, value)
     })
   }
@@ -210,9 +211,8 @@ export const useMarkers = (options: MarkerHookOptions) => {
   // ====================  临时点位 - end  ====================
 
   /**
-   * 所属于当前底图的点位
+   * 所属于当前底图的点位，不含临时点位
    * @note 根据 y 轴排序使得下方点位可以遮挡上方点位，降低视觉复杂度
-   * @todo 暂时去掉临时点位，后续加入到首选项中由用户控制
    */
   const currentLayerMarkers = computed(() => {
     return staticMarkers.value.sort(({ render: { position: { 1: y1 } } }, { render: { position: { 1: y2 } } }) => {
@@ -220,14 +220,17 @@ export const useMarkers = (options: MarkerHookOptions) => {
     })
   })
 
-  const dynamicMarkers = computed(() => currentLayerMarkers.value.concat(tempMarkers.value))
+  /**
+   * 地图全部可见点位，包含临时点位
+   */
+  const currentMarkers = computed(() => currentLayerMarkers.value.concat(tempMarkers.value))
 
-  const currentMarkerIds = computed(() => dynamicMarkers.value.map(marker => marker.id!))
+  const currentMarkerIds = computed(() => currentMarkers.value.map(marker => marker.id!))
 
-  const currentMarkerIdMap = computed(() => dynamicMarkers.value.reduce((map, marker) => {
+  const currentMarkerIdMap = computed(() => currentMarkers.value.reduce((map, marker) => {
     map.set(marker.id!, marker)
     return map
-  }, new Map<number, GSMapState.MarkerWithRenderConfig>()))
+  }, new Map<number, GSMarkerInfo>()))
 
   return {
     setTempMarkers,
@@ -236,6 +239,7 @@ export const useMarkers = (options: MarkerHookOptions) => {
     markersFilterLoading,
     markersGroupByTile,
     currentLayerMarkers,
+    currentMarkers,
     currentMarkerIds,
     currentMarkerIdMap,
     staticMarkers,

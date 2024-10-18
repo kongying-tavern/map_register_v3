@@ -1,40 +1,43 @@
 import { storeToRefs } from 'pinia'
-import type { useAreaStore, useItemStore, useItemTypeStore, usePreferenceStore } from '@/stores'
+import type { useArchiveStore, useAreaStore, useItemStore, useItemTypeStore } from '@/stores'
 import type { MBFItem } from '@/stores/types'
 
 interface MarkerBasicFilterHookOptions {
-  preferenceStore: ReturnType<typeof usePreferenceStore>
+  archiveStore: ReturnType<typeof useArchiveStore>
   areaStore: ReturnType<typeof useAreaStore>
   itemTypeStore: ReturnType<typeof useItemTypeStore>
   itemStore: ReturnType<typeof useItemStore>
 }
 
-export const useMarkerBasicFilter = (options: MarkerBasicFilterHookOptions) => {
+let cache: ReturnType<typeof _useMarkerBasicFilter>
+
+const _useMarkerBasicFilter = (options: MarkerBasicFilterHookOptions) => {
   const {
-    preferenceStore,
+    archiveStore,
     areaStore,
     itemTypeStore,
     itemStore,
   } = options
 
-  const { preference } = storeToRefs(preferenceStore)
   const { areaIdMap } = storeToRefs(areaStore)
   const { itemTypeIdMap } = storeToRefs(itemTypeStore)
   const { itemIdMap } = storeToRefs(itemStore)
+
+  const archiveItemIds = computed(() => {
+    return archiveStore.currentArchive.body.Preference['markerFilter.state.itemIds'] ?? []
+  })
 
   const conditions = computed(() => {
     const itemMap = itemIdMap.value
     const areaMap = areaIdMap.value
     const typeMap = itemTypeIdMap.value
-
-    const map = new Map<string, MBFItem>()
-    preference.value['markerFilter.state.itemIds']?.forEach((itemId) => {
+    return archiveItemIds.value.reduce((map, itemId) => {
       const item = itemMap.get(itemId)
       if (!item)
-        return
+        return map
       const area = areaMap.get(item.areaId!)
       if (!area)
-        return
+        return map
       item.typeIdList?.forEach((itemTypeId) => {
         const type = typeMap.get(itemTypeId!)
         if (!type)
@@ -51,12 +54,17 @@ export const useMarkerBasicFilter = (options: MarkerBasicFilterHookOptions) => {
         }
         existCondition.items.push(itemId)
       })
-    })
-
-    return map
+      return map
+    }, new Map<string, MBFItem>())
   })
 
   return {
     markerBasicFilters: conditions,
   }
+}
+
+export const useMarkerBasicFilter = (options: MarkerBasicFilterHookOptions) => {
+  if (!cache)
+    cache = _useMarkerBasicFilter(options)
+  return cache
 }
