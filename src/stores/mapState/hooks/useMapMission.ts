@@ -1,17 +1,20 @@
 import type { ShallowRef } from 'vue'
 import type { EventHook } from '@vueuse/core'
-import type { GSMapState } from '@/stores/types/genshin-map-state'
+import type {
+  Mission,
+  MissionTypeMap,
+} from '@/packages/map'
 import { ensureFrom } from '@/utils'
 
 // ============================== ↓ 共享地址而不是使用闭包，以避免订阅过多时导致的卡顿问题 ↓ ==============================
-type MissionTypeKey = keyof GSMapState.MissionTypeMap
-type MissionTypeValue = GSMapState.MissionTypeMap[MissionTypeKey]
+type MissionTypeKey = keyof MissionTypeMap
+type MissionTypeValue = MissionTypeMap[MissionTypeKey]
 
-type UpdateFunction<K extends keyof GSMapState.MissionTypeMap> = (value: GSMapState.MissionTypeMap[K] | null) => void
+type UpdateFunction<K extends keyof MissionTypeMap> = (value: MissionTypeMap[K] | null) => void
 
-type UpdateByFunction<K extends keyof GSMapState.MissionTypeMap> = (cb: (
-  oldData: GSMapState.MissionTypeMap[K],
-  setter: (newData: GSMapState.MissionTypeMap[K] | null) => void
+type UpdateByFunction<K extends keyof MissionTypeMap> = (cb: (
+  oldData: MissionTypeMap[K],
+  setter: (newData: MissionTypeMap[K] | null) => void
 ) => void) => void
 
 const cache = {
@@ -28,16 +31,16 @@ const cache = {
 // ============================== ↑ 共享地址而不是使用闭包，以避免订阅过多时导致的卡顿问题 ↑ ==============================
 
 export const useMapMission = () => {
-  const mission = shallowRef<GSMapState.Mission | null>(null)
+  const mission = shallowRef<Mission | null>(null)
 
   /** 仅限不关注任务类型的情况下调用 */
-  const setMission = (newMission: GSMapState.Mission | null) => {
+  const setMission = (newMission: Mission | null) => {
     mission.value = newMission
   }
 
   /** 关注某一任务类型的情况下，必须通过该 API 进行任务更新操作 */
-  const subscribeMission = <K extends keyof GSMapState.MissionTypeMap>(type: K, getDefaultValue: () => GSMapState.MissionTypeMap[K]) => {
-    const data = ensureFrom(cache.data, type, () => shallowRef(getDefaultValue())) as ShallowRef<GSMapState.MissionTypeMap[K]>
+  const subscribeMission = <K extends keyof MissionTypeMap>(type: K, getDefaultValue: () => MissionTypeMap[K]) => {
+    const data = ensureFrom(cache.data, type, () => shallowRef(getDefaultValue())) as ShallowRef<MissionTypeMap[K]>
 
     /** 是否空闲 */
     const isEmpty = ensureFrom(cache.isEmpty, type, () => computed(() => !mission.value))
@@ -55,25 +58,27 @@ export const useMapMission = () => {
         data.value = getDefaultValue()
         return
       }
-      data.value = newMission.value as GSMapState.MissionTypeMap[K]
+      data.value = newMission.value as MissionTypeMap[K]
     }, { deep: true, immediate: true }))
 
-    const update = ensureFrom(cache.updateCache, type, () => (value: GSMapState.MissionTypeMap[K] | null) => {
+    tryOnUnmounted(() => unsubscribe())
+
+    const update = ensureFrom(cache.updateCache, type, () => (value: MissionTypeMap[K] | null) => {
       if (!mission.value || mission.value.type === type) {
         if (value === null) {
           mission.value = null
           clearEventHook.trigger()
           return
         }
-        mission.value = { type, value } as GSMapState.Mission
+        mission.value = { type, value } as Mission
       }
     }) as UpdateFunction<K>
 
     /** 有时候需要在确保某种类型的任务更新后才执行某些操作 */
-    const updateBy = ensureFrom(cache.updateByCache, type, () => (cb: (oldData: GSMapState.MissionTypeMap[K], setter: (newData: GSMapState.MissionTypeMap[K] | null) => void) => void) => {
+    const updateBy = ensureFrom(cache.updateByCache, type, () => (cb: (oldData: MissionTypeMap[K], setter: (newData: MissionTypeMap[K] | null) => void) => void) => {
       if (mission.value?.type !== type)
         return
-      cb(data.value as GSMapState.MissionTypeMap[K], (newData) => {
+      cb(data.value as MissionTypeMap[K], (newData) => {
         update(newData)
       })
     }) as UpdateByFunction<K>

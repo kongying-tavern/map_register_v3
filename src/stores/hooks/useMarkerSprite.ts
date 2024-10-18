@@ -15,7 +15,7 @@ export const useMarkerSprite = (options: MarkerSpriteHookOptions) => {
   const markerSpriteUrl = useObjectUrl(markerSpriteImage)
 
   /** 标签 mapping  */
-  const markerSpriteMapping = shallowRef<IconLayerProps['iconMapping']>({})
+  const markerSpriteMapping = shallowRef<Exclude<NonNullable<IconLayerProps['iconMapping']>, string>>({})
 
   const states: { state: string; color: string }[] = [
     { state: 'default', color: '#FFFFFF' },

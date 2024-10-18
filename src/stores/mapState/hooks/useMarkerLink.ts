@@ -1,14 +1,14 @@
 import { useFetchHook } from '@/hooks'
-import type { GSMapState } from '@/stores/types/genshin-map-state'
 import db from '@/database'
+import type { GSMarkerInfo, MLRenderUnit, TempMarkerType } from '@/packages/map'
 import type { useMarkerLinkStore } from '@/stores'
 
 interface MarkerLinkHookOptions {
   markerLinkStore: ReturnType<typeof useMarkerLinkStore>
-  currentMarkerIdMap: ComputedRef<Map<number, GSMapState.MarkerWithRenderConfig>>
+  currentMarkerIdMap: ComputedRef<Map<number, GSMarkerInfo>>
   focusElements: Ref<Map<string, Set<unknown>>>
   staticMarkerIds: ComputedRef<Set<number>>
-  setTempMarkers: (type: GSMapState.TempMarkerType, markers: API.MarkerVo[]) => void
+  setTempMarkers: (type: TempMarkerType, markers: API.MarkerVo[]) => void
 }
 
 /** 点位关联处理 hook */
@@ -21,7 +21,7 @@ export const useMarkerLink = (options: MarkerLinkHookOptions) => {
     refresh: setMLRenderList,
   } = useFetchHook({
     initialValue: [],
-    onRequest: async (list: GSMapState.MLRenderUnit[]) => {
+    onRequest: async (list: MLRenderUnit[]) => {
       const tempMarkerIds = new Set<number>()
       list.forEach(({ source, target }) => {
         tempMarkerIds.add(source!)
@@ -34,7 +34,7 @@ export const useMarkerLink = (options: MarkerLinkHookOptions) => {
   })
 
   watch(() => focusElements.value.get('marker') as Set<number> | undefined, (markerIds) => {
-    const list: GSMapState.MLRenderUnit[] = []
+    const list: MLRenderUnit[] = []
 
     if (!markerIds || !markerIds.size || markerIds.size > 1) {
       setTempMarkers('markerLink', [])
@@ -53,8 +53,8 @@ export const useMarkerLink = (options: MarkerLinkHookOptions) => {
       list.push({
         source: fromId!,
         target: toId!,
-        type: linkAction! as GSMapState.MLRenderUnit['type'],
-        key: `${Math.min(fromId!, toId!)}-${Math.max(fromId!, toId!)}-${linkAction! as GSMapState.MLRenderUnit['type']}`,
+        type: linkAction! as MLRenderUnit['type'],
+        key: `${Math.min(fromId!, toId!)}-${Math.max(fromId!, toId!)}-${linkAction! as MLRenderUnit['type']}`,
       })
     })
 

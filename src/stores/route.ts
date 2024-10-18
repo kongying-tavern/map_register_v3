@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { routerHook } from './hooks'
 import { useState } from '@/hooks'
 import { useUserInfoStore } from '@/stores'
-import { RoleLevel } from '@/shared'
+import { ROLE_MASK_MAP } from '@/shared'
 
 /**
  * 用于共享路由状态、路由插件注入
@@ -21,7 +21,7 @@ export const useRouteStore = defineStore('global-route', () => {
     return routes.filter((record) => {
       if (!record.meta?.role)
         return true
-      return userInfoStore.userRoleLevel >= RoleLevel[record.meta.role]
+      return userInfoStore.userRoleLevel >= ROLE_MASK_MAP[record.meta.role]
     })
   })
 

@@ -59,19 +59,15 @@ export interface GSOverlayerProps {
   chunkMap: Map<string, OverlayChunk>
   normalChunks: string[]
   tileLikeChunks: string[]
+  pickable?: boolean
 }
 
 export interface GSMarkerLayerProps {
   data: GSMarkerInfo[]
   iconAtlas: IconLayerProps['iconAtlas']
   iconMapping: Required<IconLayerProps>['iconMapping']
-  archiveHash: string
-  markedIds: Set<number>
   transparentMarked: boolean
-  draggingMap: Record<number, API.Coordinate2D>
-  draggingHash: string
-  interactHash: string
-  getHover: (id: number) => boolean
+  hover: Set<number>
   getFocus: (id: number) => boolean
   getMarked: (id: number) => boolean
 }
@@ -224,10 +220,5 @@ export interface MergedOverlayGroups {
 // ============================== event ==============================
 
 export interface GSEventMap {
-  hover: Parameters<NonNullable<GenshinMapProps['onHover']>>
-  click: Parameters<NonNullable<GenshinMapProps['onClick']>>
-  dragStart: Parameters<NonNullable<GenshinMapProps['onDragStart']>>
-  drag: Parameters<NonNullable<GenshinMapProps['onDrag']>>
-  viewStateChange: Parameters<NonNullable<GenshinMapProps['onViewStateChange']>>
   setViewState: [state: Partial<GenshinMapViewState>]
 }
