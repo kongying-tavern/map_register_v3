@@ -29,6 +29,7 @@ export class GSOverlayer extends CompositeLayer<GSOverlayerProps> {
       tileLikeChunks.map((chunkId) => {
         const { id, url, bounds: [[xmin, ymin], [xmax, ymax]] } = chunkMap.get(chunkId)!
         return new BitmapLayer({
+          pickable: this.props.pickable,
           id,
           bounds: [xmin, ymax, xmax, ymin],
           image: url,
@@ -55,6 +56,7 @@ export class GSOverlayer extends CompositeLayer<GSOverlayerProps> {
       normalChunks.map((chunkId) => {
         const { id, url, bounds: [[xmin, ymin], [xmax, ymax]] } = chunkMap.get(chunkId)!
         return new BitmapLayer({
+          pickable: this.props.pickable,
           id,
           bounds: [xmin, ymax, xmax, ymin],
           image: url,
