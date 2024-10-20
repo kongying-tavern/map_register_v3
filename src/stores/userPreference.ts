@@ -19,9 +19,11 @@ export const usePreferenceStore = defineStore('global-user-preference', () => {
   const autoNext = model('markerFilter.setting.autoNext', () => false)
   const areaCode = model('markerFilter.state.areaCode', () => '')
   const defaultMarkingItemId = model('markerFilter.state.defaultMarkingItemId', () => -1)
+  const enableLoggers = model('developer.setting.enableLoggers', () => [])
   const filterType = model('markerFilter.setting.filterType', () => 'basic')
   const itemIds = model('markerFilter.state.itemIds', () => [])
   const itemTypeId = model('markerFilter.state.itemTypeId', () => -1)
+  const maxLogs = model('developer.setting.maxLogs', () => 100)
   const parentAreaCode = model('markerFilter.state.parentAreaCode', () => '')
   const presets = model('markerFilter.setting.presets', () => [])
   const step = model('markerFilter.state.step', () => -1)
@@ -33,9 +35,11 @@ export const usePreferenceStore = defineStore('global-user-preference', () => {
     autoNext,
     areaCode,
     defaultMarkingItemId,
+    enableLoggers,
     filterType,
     itemIds,
     itemTypeId,
+    maxLogs,
     parentAreaCode,
     presets,
     step,
