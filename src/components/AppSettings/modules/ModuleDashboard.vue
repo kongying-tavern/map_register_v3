@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { Odometer, PictureRounded } from '@element-plus/icons-vue'
-import { storeToRefs } from 'pinia'
 import { SettingBar, SettingGroup, SettingPanel } from '../components'
-import { useUserInfoStore } from '@/stores'
+import { useUserStore } from '@/stores'
 import { formatByteSize } from '@/utils'
 
-const { info, userRole } = storeToRefs(useUserInfoStore())
+const userStore = useUserStore()
 
 interface StorageEstimateExpand extends StorageEstimate {
   /** 用量详情，目前仅在 chromuim 内核浏览器下可用 */
@@ -79,11 +78,11 @@ const userAgent = navigator.userAgent
   <SettingPanel>
     <div class="pb-4">
       <div class="flex items-center">
-        <el-avatar class="flex-shrink-0" :src="info.logo" :size="100" />
+        <el-avatar class="flex-shrink-0" :src="userStore.info?.logo" :size="100" />
         <div class="flex-1 flex flex-col px-2">
-          <span class="text-base">{{ info.nickname }}</span>
-          <span class="text-xs">UID: {{ info.id }}</span>
-          <span class="text-xs">{{ userRole?.name ?? '未知角色' }}</span>
+          <span class="text-base">{{ userStore.info?.nickname }}</span>
+          <span class="text-xs">UID: {{ userStore.info?.id }}</span>
+          <span class="text-xs">{{ userStore.info?.role?.name ?? '未知角色' }}</span>
         </div>
         <pre class="flex-1 h-[100px] text-xs rounded bg-[var(--el-color-primary-light-9)] p-2 overflow-auto">{{ userAgent.match(/\S+\/\S+/g)?.join('\n') }}</pre>
       </div>

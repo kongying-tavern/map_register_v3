@@ -91,6 +91,7 @@ export const useSocketStore = defineStore('global-web-socket', () => {
       close()
       return
     }
+    _userId.value = userId
     open()
   })
 

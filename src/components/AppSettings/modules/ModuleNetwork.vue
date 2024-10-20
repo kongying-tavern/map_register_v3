@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { SettingBar, SettingGroup, SettingPanel } from '../components'
-import { usePreferenceStore, useSocketStore, useUserInfoStore } from '@/stores'
+import { usePreferenceStore, useSocketStore, useUserStore } from '@/stores'
 import { WEBSOCKET_WORKER_CONFIG } from '@/configs'
 
 const socketStore = useSocketStore()
-const userInfoStore = useUserInfoStore()
+const userStore = useUserStore()
 
 const text = computed(() => {
   return socketStore.status === WebSocket.OPEN
@@ -54,7 +54,7 @@ const wsEvents: { label: string; value: API.WSEventType; divider?: boolean }[] =
 
       <SettingBar label="操作">
         <template #setting>
-          <el-button @click="() => socketStore.connect(userInfoStore.info.id)">
+          <el-button @click="() => socketStore.connect(userStore.info?.id)">
             连接
           </el-button>
         </template>

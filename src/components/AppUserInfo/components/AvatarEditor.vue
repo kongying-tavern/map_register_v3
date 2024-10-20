@@ -4,31 +4,36 @@ import type { MiyousheAvatar } from '../hooks'
 import { useAvatarList } from '../hooks'
 import { AvatarPreview } from '.'
 import { AppVirtualTable, GSButton } from '@/components'
-import { useUserInfoStore } from '@/stores'
+import { useUserStore } from '@/stores'
 import { useFetchHook } from '@/hooks'
 import Api from '@/api/api'
 
-const userInfoStore = useUserInfoStore()
+const userStore = useUserStore()
 
 const { avatarList, loading: avatarsLoading, onSuccess: onAvatarListFetched } = useAvatarList()
 const selectedAvatar = ref<MiyousheAvatar | null>(null)
 onAvatarListFetched(() => {
-  selectedAvatar.value = avatarList.value.find(avatar => avatar.icon === userInfoStore.info.logo) ?? null
+  selectedAvatar.value = avatarList.value.find(avatar => avatar.icon === userStore.info?.logo) ?? null
 })
 
 const { loading, refresh: updateUserInfo, onSuccess } = useFetchHook({
   onRequest: async () => {
+    if (!userStore.info)
+      throw new Error('未登录')
     if (!selectedAvatar.value?.icon)
       throw new Error('头像地址为空')
     await Api.user.updateUser({
-      ...pick(userInfoStore.info, 'nickname', 'qq', 'phone', 'roleId'),
-      userId: userInfoStore.info.id,
+      ...pick(userStore.info, 'nickname', 'qq', 'phone', 'roleId'),
+      userId: userStore.info.id,
       logo: selectedAvatar.value.icon,
     })
   },
 })
+
 onSuccess(() => {
-  userInfoStore.info.logo = selectedAvatar.value?.icon
+  if (!userStore.info)
+    return
+  userStore.info.logo = selectedAvatar.value?.icon
 })
 
 const setSelectedIcon = (avatar: MiyousheAvatar) => {
@@ -56,7 +61,7 @@ const setSelectedIcon = (avatar: MiyousheAvatar) => {
           class="avatar-btn rounded overflow-hidden"
           :class="{
             'is-selected': item.id === selectedAvatar?.id,
-            'is-actived': item.icon === userInfoStore.info.logo,
+            'is-actived': item.icon === userStore.info?.logo,
           }"
           @click="setSelectedIcon(item)"
         >
@@ -82,7 +87,7 @@ const setSelectedIcon = (avatar: MiyousheAvatar) => {
         icon="submit"
         theme="dark"
         style="width: 100%;"
-        :disabled="!selectedAvatar || userInfoStore.info.logo === selectedAvatar.icon"
+        :disabled="!selectedAvatar || userStore.info?.logo === selectedAvatar.icon"
         :loading="loading"
         @click="updateUserInfo"
       >
