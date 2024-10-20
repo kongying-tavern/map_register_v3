@@ -97,6 +97,8 @@ export const useUserStore = defineStore('global-user', () => {
   }, new Map<number, API.SysRoleVo>()))
 
   // ==================== 用户信息 ====================
+  const userInfoVisible = ref(false)
+
   const { data: info, loading: isInfoLoading, refresh: refreshUserInfo } = useFetchHook({
     shallow: true,
     initialValue: null,
@@ -151,11 +153,11 @@ export const useUserStore = defineStore('global-user', () => {
   }
 
   const init = async () => {
-    if (!auth.value.refreshToken)
+    if (!auth.value?.refreshToken)
       return
     await refreshToken()
     resumeRefreshToken()
-    watch(() => auth.value.refreshToken, (refreshToken) => {
+    watch(() => auth.value?.refreshToken, (refreshToken) => {
       if (!refreshToken) {
         pauseRefreshToken()
         logger.info('token 刷新已暂停')
@@ -164,7 +166,7 @@ export const useUserStore = defineStore('global-user', () => {
       logger.info('token 刷新已启用')
       resumeRefreshToken()
     })
-    watch(() => auth.value.userId, refreshUserInfo, { immediate: true })
+    watch(() => auth.value?.userId, refreshUserInfo, { immediate: true })
   }
 
   return {
@@ -174,6 +176,7 @@ export const useUserStore = defineStore('global-user', () => {
     isLogin,
     isInfoLoading,
     isAutoRefreshActive,
+    userInfoVisible,
 
     // actions
     setAuth,

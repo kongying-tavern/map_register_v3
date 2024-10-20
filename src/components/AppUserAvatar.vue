@@ -8,11 +8,10 @@ import { useUserStore } from '@/stores'
 const userStore = useUserStore()
 
 const loginDialogVisible = ref(false)
-const infoDialogVisible = ref(false)
 
 const handleClick = () => {
   if (userStore.isLogin) {
-    infoDialogVisible.value = true
+    userStore.userInfoVisible = true
     return
   }
   loginDialogVisible.value = true
@@ -77,7 +76,7 @@ const handleClick = () => {
     </div>
 
     <AppLogin v-model:visible="loginDialogVisible" />
-    <AppUserInfo v-model:visible="infoDialogVisible" />
+    <AppUserInfo v-model:visible="userStore.userInfoVisible" />
   </div>
 </template>
 
