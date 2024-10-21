@@ -16,7 +16,7 @@ onAvatarListFetched(() => {
   selectedAvatar.value = avatarList.value.find(avatar => avatar.icon === userStore.info?.logo) ?? null
 })
 
-const { loading, refresh: updateUserInfo, onSuccess } = useFetchHook({
+const { loading, refresh: updateUserInfo } = useFetchHook({
   onRequest: async () => {
     if (!userStore.info)
       throw new Error('未登录')
@@ -27,13 +27,8 @@ const { loading, refresh: updateUserInfo, onSuccess } = useFetchHook({
       userId: userStore.info.id,
       logo: selectedAvatar.value.icon,
     })
+    await userStore.refreshUserInfo()
   },
-})
-
-onSuccess(() => {
-  if (!userStore.info)
-    return
-  userStore.info.logo = selectedAvatar.value?.icon
 })
 
 const setSelectedIcon = (avatar: MiyousheAvatar) => {
