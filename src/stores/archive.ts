@@ -198,7 +198,7 @@ export const useArchiveStore = defineStore('global-archive', () => {
         latestArchive = slotArchive
     }
 
-    const userId = userStore.auth.userId
+    const { userId } = userStore.auth
     if (userId === undefined)
       return
 

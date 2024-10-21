@@ -56,7 +56,6 @@ export const useDevStore = defineStore('global-dev', () => {
     Logger.init()
     Logger.event.on('register', registerLogger)
     Logger.event.on('log', handleLog)
-    console.log('init logger')
   }
 
   const clearLogs = () => {
