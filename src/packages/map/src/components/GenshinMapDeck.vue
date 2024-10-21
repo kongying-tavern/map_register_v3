@@ -26,6 +26,11 @@ const viewState = defineModel<GenshinMapViewState>('viewState', {
 
 const canvasRef = shallowRef<HTMLCanvasElement>()
 
+// WebGL 上下文丢失时刷新页面
+useEventListener(canvasRef, 'webglcontextlost', () => {
+  location.reload()
+})
+
 const { instanceRef } = useGenshinMap(canvasRef, {
   initialViewState: viewState.value,
   layers: props.layers,
