@@ -89,10 +89,15 @@
       }
     }
   </style>
+
+  <script type="module">
+    if (location.pathname !== '/')
+      location.replace(location.origin)
+  </script>
 </head>
 
 <body>
-  <div id="preloading" >
+  <div id="preloading">
     <h1>初始化应用</h1>
     <div>前面的区域，马上就能探索~</div>
   </div>
@@ -110,6 +115,7 @@
     const preloading = document.getElementById('preloading')
 
     window.close = () => {
+      console.warn('window.close is called')
       // 阻止此方法运行
       // 理由详见 => src\stores\userAuth.ts 153 行
     }
