@@ -28,6 +28,7 @@ export const usePreferenceStore = defineStore('global-user-preference', () => {
   const noticeShowTime = model('notice.state.showTime', () => 0)
   const parentAreaCode = model('markerFilter.state.parentAreaCode', () => '')
   const presets = model('markerFilter.setting.presets', () => [])
+  const settingActivedKey = model('settingPanel.state.activedKey', () => '')
   const step = model('markerFilter.state.step', () => -1)
   const tabName = model('mapSiderMenu.state.tabName', () => '')
 
@@ -46,6 +47,7 @@ export const usePreferenceStore = defineStore('global-user-preference', () => {
     noticeShowTime,
     parentAreaCode,
     presets,
+    settingActivedKey,
     step,
     tabName,
     preference: archiveStore.currentArchive.body.Preference,

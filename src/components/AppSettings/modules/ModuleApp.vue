@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { Brush, Crop, Grape } from '@element-plus/icons-vue'
 import { SettingBar, SettingGroup, SettingPanel, ShortcutKey } from '../components'
-import { usePreferenceStore } from '@/stores'
+import { useArchiveStore } from '@/stores'
 import { getDefaultPreference } from '@/stores/types'
 
-const preferenceStore = usePreferenceStore()
+const archiveStore = useArchiveStore()
 
 const defaultPreference = getDefaultPreference()
 </script>
@@ -15,7 +15,7 @@ const defaultPreference = getDefaultPreference()
       <SettingBar label="切换黑暗模式" :icon="Brush">
         <template #setting>
           <ShortcutKey
-            v-model="preferenceStore.preference['app.shortcutKey.toggleDarkMode']"
+            v-model="archiveStore.currentArchive.body.Preference['app.shortcutKey.toggleDarkMode']"
             :default-value="defaultPreference['app.shortcutKey.toggleDarkMode']"
           />
         </template>
@@ -24,7 +24,7 @@ const defaultPreference = getDefaultPreference()
       <SettingBar label="地图界面多选点位" :icon="Crop">
         <template #setting>
           <ShortcutKey
-            v-model="preferenceStore.preference['app.shortcutKey.multiselectMarker']"
+            v-model="archiveStore.currentArchive.body.Preference['app.shortcutKey.multiselectMarker']"
             :default-value="defaultPreference['app.shortcutKey.multiselectMarker']"
           />
         </template>
@@ -33,7 +33,7 @@ const defaultPreference = getDefaultPreference()
       <SettingBar label="批量修改点位标记状态" :icon="Grape">
         <template #setting>
           <ShortcutKey
-            v-model="preferenceStore.preference['app.shortcutKey.toggleMarkerState']"
+            v-model="archiveStore.currentArchive.body.Preference['app.shortcutKey.toggleMarkerState']"
             :default-value="defaultPreference['app.shortcutKey.toggleMarkerState']"
           />
         </template>

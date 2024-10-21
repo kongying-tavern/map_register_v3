@@ -29,9 +29,9 @@ const settingOptions: { key: string; name: string; is: Component; icon?: Compone
 ]
 
 const activedKey = computed({
-  get: () => preferenceStore.preference['settingPanel.state.activedKey'] ?? settingOptions[0].key,
+  get: () => preferenceStore.settingActivedKey || settingOptions[0].key,
   set: (v) => {
-    preferenceStore.preference['settingPanel.state.activedKey'] = v
+    preferenceStore.settingActivedKey = v
   },
 })
 
