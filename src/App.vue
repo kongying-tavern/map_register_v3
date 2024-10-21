@@ -5,13 +5,21 @@ import { EaseoutInterpolator, GSZoomController, GenshinMapDeck } from '@/package
 import type { GenshinMap, GenshinMapProps, GenshinMapViewState } from '@/packages/map'
 import { useTileStore } from '@/stores'
 import { useMapLayers, useResourceStatus } from '@/hooks'
-import { AppDevInfo, AppSiderMenu, AppStateBar, AppUserAvatar, AppWindowProvider } from '@/components'
+import {
+  AppDevInfo,
+  AppDialogProvider,
+  AppNoticeProvider,
+  AppSiderMenu,
+  AppStateBar,
+  AppUserAvatar,
+  AppWindowProvider,
+} from '@/components'
 import { MapSubject } from '@/shared'
 
 // ================ 全局状态 ================
 const tileStore = useTileStore()
 
-const siderMenuCollapse = ref(false)
+const siderMenuCollapse = ref(true)
 
 // ================ 地图状态 ================
 const genshinDeck = shallowRef<GenshinMap | null>(null)
@@ -124,5 +132,7 @@ const { layers } = useMapLayers({
     />
 
     <AppWindowProvider />
+    <AppNoticeProvider />
+    <AppDialogProvider />
   </div>
 </template>
