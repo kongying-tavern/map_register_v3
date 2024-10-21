@@ -32,9 +32,9 @@ const toCamelCaseObject = <T extends Record<string, unknown>>(obj: T): SnakeCase
 
 export const useUserStore = defineStore('global-user', () => {
   // ==================== token ====================
-  const auth = useLocalStorage<AppUserAuth | Partial<AppUserAuth>>(USERAUTH_KEY, {})
+  const auth = useLocalStorage<Partial<AppUserAuth>>(USERAUTH_KEY, {})
 
-  const isLogin = computed(() => Boolean(auth.value.userId !== undefined))
+  const isLogin = computed(() => Boolean(auth.value?.userId !== undefined))
 
   const setAuth = (newAuth: API.SysToken) => {
     const { refreshToken, userId, expiresIn, tokenType, accessToken } = toCamelCaseObject(newAuth)
@@ -51,12 +51,10 @@ export const useUserStore = defineStore('global-user', () => {
   const clearAuth = () => {
     // FIXME 下面这行会导致 vue runtime 调用 window.close 使得页面关闭（有时候会被阻止），暂时不知道为什么。
     // 目前已在 index.html 中将 window.close 改为空函数来缓解此问题。
-    auth.value = null
+    auth.value = {}
   }
 
   const validateToken = () => {
-    if (!auth.value)
-      return false
     const { expiresTime = 0 } = auth.value
     return expiresTime > Date.now()
   }
@@ -102,7 +100,7 @@ export const useUserStore = defineStore('global-user', () => {
   const { data: info, loading: isInfoLoading, refresh: refreshUserInfo } = useFetchHook({
     shallow: true,
     initialValue: null,
-    onRequest: async (userId?: number) => {
+    onRequest: async (userId: number | undefined = auth.value.userId) => {
       if (!userId)
         return null
 
@@ -153,11 +151,11 @@ export const useUserStore = defineStore('global-user', () => {
   }
 
   const init = async () => {
-    if (!auth.value?.refreshToken)
-      return
-    await refreshToken()
-    resumeRefreshToken()
-    watch(() => auth.value?.refreshToken, (refreshToken) => {
+    if (auth.value.refreshToken) {
+      await refreshToken()
+      resumeRefreshToken()
+    }
+    watch(() => auth.value.refreshToken, (refreshToken) => {
       if (!refreshToken) {
         pauseRefreshToken()
         logger.info('token 刷新已暂停')
@@ -166,7 +164,7 @@ export const useUserStore = defineStore('global-user', () => {
       logger.info('token 刷新已启用')
       resumeRefreshToken()
     })
-    watch(() => auth.value?.userId, refreshUserInfo, { immediate: true })
+    watch(() => auth.value.userId, refreshUserInfo, { immediate: true })
   }
 
   return {
