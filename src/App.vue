@@ -109,9 +109,9 @@ const { layers } = useMapLayers({
       @load="(instance) => (genshinDeck = instance)"
       @click="(info, event) => MapSubject.click.next({ info, event })"
       @hover="(info, event) => MapSubject.hover.next({ info, event })"
-      @drag="(info, event) => MapSubject.click.next({ info, event })"
-      @drag-end="(info, event) => MapSubject.click.next({ info, event })"
-      @drag-start="(info, event) => MapSubject.click.next({ info, event })"
+      @drag="(info, event) => MapSubject.drag.next({ info, event })"
+      @drag-end="(info, event) => MapSubject.dragEnd.next({ info, event })"
+      @drag-start="(info, event) => MapSubject.dragStart.next({ info, event })"
     />
 
     <AppUserAvatar />
