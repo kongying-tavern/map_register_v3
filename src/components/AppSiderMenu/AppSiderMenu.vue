@@ -1,13 +1,12 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
-import { CoffeeCup, Filter, Grid, List, PieChart, Promotion, Setting } from '@element-plus/icons-vue'
+import { CoffeeCup, Filter, Grid, List, Promotion, Setting } from '@element-plus/icons-vue'
 import type { FeatureOption } from './components'
-import { FeatureGrid, MarkerFilter, MarkerTable, SiderMenu, SiderMenuItem } from './components'
+import { CollapseButton, FeatureGrid, MarkerFilter, MarkerTable, SiderMenu, SiderMenuItem } from './components'
 import { AppSettings } from '@/components'
 import { useGlobalDialog } from '@/hooks'
 import { Logger } from '@/utils'
 import {
-  useAccessStore,
   useDadianStore,
   useIconTagStore,
   useMapStateStore,
@@ -17,14 +16,12 @@ import {
   useUserStore,
 } from '@/stores'
 import { IconGithub, IconNotice } from '@/components/AppIcons'
-import { FALLBACK_AVATAR_URL } from '@/shared/constant'
 import { ExitLeft } from '@/components/GenshinUI/GSIcon'
 
 const collapse = defineModel<boolean>('collapse', { required: true })
 
 const logger = new Logger('侧边栏')
 
-const accessStore = useAccessStore()
 const iconTagStore = useIconTagStore()
 const userStore = useUserStore()
 const mapStateStore = useMapStateStore()
@@ -32,10 +29,6 @@ const noticeStore = useNoticeStore()
 const preferenceStore = usePreferenceStore()
 
 const { DialogService } = useGlobalDialog()
-
-const openUserInfoDialog = () => {
-  userStore.userInfoVisible = true
-}
 
 const openSettingDialog = () => DialogService
   .config({
@@ -81,6 +74,7 @@ const switchFilterMode = () => {
 </script>
 
 <template>
+  <CollapseButton v-model:collapse="collapse" />
   <SiderMenu v-model="preferenceStore.tabName" v-model:collapse="collapse">
     <SiderMenuItem name="filter" :label="isAdvancedFilter ? '高级筛选' : '基础筛选'">
       <template #icon>
@@ -143,17 +137,6 @@ const switchFilterMode = () => {
     <el-image-viewer v-if="url" :url-list="[url]" @close="url = ''" />
 
     <template #footer>
-      <SiderMenuItem label="个人中心" @click="openUserInfoDialog">
-        <template #icon>
-          <el-avatar
-            shape="circle"
-            class="select-none"
-            :size="38"
-            :src="userStore.info?.logo || FALLBACK_AVATAR_URL"
-          />
-        </template>
-      </SiderMenuItem>
-
       <SiderMenuItem label="公告" :icon="IconNotice" @click="noticeStore.show">
         <template #icon="{ color }">
           <el-icon :color="color" :size="38">
@@ -173,12 +156,6 @@ const switchFilterMode = () => {
           </div>
         </template>
       </SiderMenuItem>
-
-      <SiderMenuItem
-        v-if="accessStore.get('MANAGER_COMPONENT')"
-        label="管理面板"
-        :icon="PieChart"
-      />
 
       <SiderMenuItem label="系统设置" :icon="Setting" @click="openSettingDialog" />
 
