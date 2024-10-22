@@ -52,6 +52,10 @@ export class GSMarkerLayer extends CompositeLayer<GSMarkerLayerProps> {
       return hoverMarkerIds?.has(id) || focusMarkerIds?.has(id)
     }
 
+    const isMarked = (id: number) => {
+      return markedMarkerIds?.has(id)
+    }
+
     const getIconFlag = (info: GSMarkerInfo) => {
       const id = info.id!
       const markerLevelMask = info.render.isUnderground ? 0b10000 : 0b00000
@@ -83,7 +87,7 @@ export class GSMarkerLayer extends CompositeLayer<GSMarkerLayerProps> {
         getIconFlag,
         getPosition,
         getSize: 44,
-        getColor: ({ id }) => [0, 0, 0, isInteraction(id!) ? 0 : 255],
+        getColor: ({ id }) => [0, 0, 0, isInteraction(id!) ? 0 : isMarked(id!) ? 128 : 255],
         sizeScale: 1,
         sizeMaxPixels,
         sizeMinPixels: 4,
