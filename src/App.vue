@@ -14,6 +14,7 @@ import {
   AppStateBar,
   AppUserAvatar,
   AppWindowProvider,
+  MapContextMenu,
   MapMarkerPopover,
 } from '@/components'
 import {
@@ -151,6 +152,7 @@ const { layers } = useMapLayers({
 
     <div ref="mapAffixRef" class="affix-layer">
       <MapMarkerPopover />
+      <MapContextMenu />
     </div>
 
     <GSZoomController
