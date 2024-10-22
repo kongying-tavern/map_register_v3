@@ -10,6 +10,8 @@ import { MapSubject } from '@/shared'
 let cache: ReturnType<typeof _useMarkerControl>
 
 const MARKER_INTERACTION_KEY = GSMarkerLayer.layerName
+// TODO 临时偏移量，后续改为根据侧边栏和视口尺寸实时计算
+const FLY_OFFSET = [-200, -200]
 
 export const _useMarkerControl = () => {
   const archiveStore = useArchiveStore()
@@ -117,7 +119,7 @@ export const _useMarkerControl = () => {
     if (flyToMarker) {
       const { render: { position: [x, y] } } = markerWithRender
       MapSubject.viewState.next({
-        target: [x, y],
+        target: [x + FLY_OFFSET[0], y + FLY_OFFSET[1]],
         zoom: 0,
         transitionDuration: duration,
         transitionInterpolator: new EaseoutInterpolator(['target', 'zoom']),
