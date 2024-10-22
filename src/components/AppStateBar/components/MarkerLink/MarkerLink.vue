@@ -5,8 +5,7 @@ import type { MLContext } from './core'
 import { useLinkCreate } from './hooks'
 import { useMapStateStore } from '@/stores'
 import type { LinkActionEnum } from '@/shared'
-import { LINK_ACTION_CONFIG, LINK_ACTION_NAME_MAP, LINK_ACTION_OPTIONS } from '@/shared'
-import { mapAffixLayerKey } from '@/pages/pageMapV2/shared'
+import { LINK_ACTION_CONFIG, LINK_ACTION_NAME_MAP, LINK_ACTION_OPTIONS, mapAffixKey } from '@/shared'
 
 const props = defineProps<{
   context: MLContext
@@ -33,7 +32,7 @@ const { addHover, isHover, removeHover } = mapStateStore
 
 const { refresh: submit } = useLinkCreate(props.context)
 
-const mapAffixLayerRef = inject(mapAffixLayerKey, ref())
+const mapAffixRef = inject(mapAffixKey, ref())
 </script>
 
 <template>
@@ -148,15 +147,15 @@ const mapAffixLayerRef = inject(mapAffixLayerKey, ref())
       </div>
     </div>
 
-    <teleport v-if="context.sourceMarker.value" :to="mapAffixLayerRef">
+    <teleport v-if="context.sourceMarker.value" :to="mapAffixRef">
       <MarkerIndicator :marker="context.sourceMarker.value" color="#FF0" />
     </teleport>
 
-    <teleport v-if="context.targetMarker.value" :to="mapAffixLayerRef">
+    <teleport v-if="context.targetMarker.value" :to="mapAffixRef">
       <MarkerIndicator :marker="context.targetMarker.value" color="#0F0" />
     </teleport>
 
-    <teleport v-if="context.sourceMarker.value && context.targetMarker.value" :to="mapAffixLayerRef">
+    <teleport v-if="context.sourceMarker.value && context.targetMarker.value" :to="mapAffixRef">
       <LinkIndicator :source="context.sourceMarker.value" :target="context.targetMarker.value" />
     </teleport>
   </div>
