@@ -34,8 +34,6 @@ export const useUserStore = defineStore('global-user', () => {
   // ==================== token ====================
   const auth = useLocalStorage<Partial<AppUserAuth>>(USERAUTH_KEY, {})
 
-  const isLogin = computed(() => Boolean(auth.value?.userId !== undefined))
-
   const setAuth = (newAuth: API.SysToken) => {
     const { refreshToken, userId, expiresIn, tokenType, accessToken } = toCamelCaseObject(newAuth)
     auth.value = {
@@ -171,7 +169,6 @@ export const useUserStore = defineStore('global-user', () => {
     // states
     auth,
     info,
-    isLogin,
     isInfoLoading,
     isAutoRefreshActive,
     userInfoVisible,

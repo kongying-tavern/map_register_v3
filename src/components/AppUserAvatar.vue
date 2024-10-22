@@ -9,8 +9,14 @@ const userStore = useUserStore()
 
 const loginDialogVisible = ref(false)
 
+const isLogin = computed(() => {
+  if (!userStore.auth.accessToken)
+    return false
+  return userStore.info !== undefined
+})
+
 const handleClick = () => {
-  if (userStore.isLogin) {
+  if (isLogin.value) {
     userStore.userInfoVisible = true
     return
   }
