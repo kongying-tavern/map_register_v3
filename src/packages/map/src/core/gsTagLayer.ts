@@ -47,6 +47,7 @@ export class GSTagLayer extends CompositeLayer<GSTagLayerProps> {
         buffer: 8,
         sdf: true,
       },
+      sizeMinPixels: 13,
       sizeMaxPixels: 32,
       sizeScale: 2 ** (zoom + 2),
       outlineColor: [102, 102, 102, getTagOpacity(level)],
