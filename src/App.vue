@@ -14,8 +14,16 @@ import {
   AppStateBar,
   AppUserAvatar,
   AppWindowProvider,
+  MapMarkerPopover,
 } from '@/components'
-import { MapSubject } from '@/shared'
+import {
+  MapSubject,
+  mapAffixKey,
+  mapContainerHeightKey,
+  mapContainerKey,
+  mapContainerWidthKey,
+  mapViewStateKey,
+} from '@/shared'
 
 // ================ 全局状态 ================
 const tileStore = useTileStore()
@@ -25,6 +33,16 @@ const siderMenuCollapse = ref(true)
 
 // ================ 地图状态 ================
 const genshinDeck = shallowRef<GenshinMap | null>(null)
+
+const mapAffixRef = shallowRef<HTMLDivElement>()
+const containerRef = shallowRef<HTMLDivElement>()
+const { width, height } = useElementSize(containerRef)
+
+// 以下注入用于实现地图悬浮组件的定位/投影等逻辑
+provide(mapContainerKey, containerRef)
+provide(mapContainerHeightKey, height)
+provide(mapContainerWidthKey, width)
+provide(mapAffixKey, mapAffixRef)
 
 // ================ 视口状态 ================
 const TRANSITION_DURATION = 150
@@ -48,6 +66,8 @@ const viewState: Ref<GenshinMapViewState> = ref({
   transitionEasing: t => t,
   transitionInterruption: TRANSITION_EVENTS.BREAK,
 })
+
+provide(mapViewStateKey, viewState)
 
 useSubscription(MapSubject.viewState.subscribe((newViewState) => {
   viewState.value = {
@@ -112,7 +132,10 @@ const { layers } = useMapLayers({
 </script>
 
 <template>
-  <div class="w-full h-full overflow-hidden">
+  <div
+    ref="containerRef"
+    class="w-full h-full overflow-hidden relative"
+  >
     <GenshinMapDeck
       v-model:view-state="viewState"
       :layers="layers"
@@ -125,6 +148,11 @@ const { layers } = useMapLayers({
       @drag-end="(info, event) => MapSubject.dragEnd.next({ info, event })"
       @drag-start="(info, event) => MapSubject.dragStart.next({ info, event })"
     />
+
+    <div ref="mapAffixRef" class="affix-layer">
+      <MapMarkerPopover />
+    </div>
+
     <GSZoomController
       v-model="viewState"
       :transition-duration="TRANSITION_DURATION"
@@ -139,3 +167,9 @@ const { layers } = useMapLayers({
     <AppDialogProvider />
   </div>
 </template>
+
+<style scoped>
+.affix-layer {
+  @apply absolute left-0 top-0 w-full h-full pointer-events-none;
+}
+</style>
