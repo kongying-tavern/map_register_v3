@@ -301,6 +301,8 @@ declare namespace API {
     typeIdList?: number[]
     /** 查询条件下物品总数 */
     count?: number
+    /** 物品总数区分 */
+    countSplit?: Record<string, number>
   }
 
   interface IconTypeVo {

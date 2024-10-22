@@ -1,18 +1,26 @@
 import type { AxiosRequestConfig } from 'axios'
 import { request } from '@/utils'
 
-/** 返回所有物品信息 查询所有物品信息，返回压缩格式的byte数组 GET /api/item_doc/all_bin */
-export async function listAllItemBinary(options?: AxiosRequestConfig) {
-  return request<string[]>('/api/item_doc/all_bin', {
+/** 返回物品分页的md5数组 返回物品分页的md5数组 GET /api/item_doc/list_page_bin_md5 */
+export async function listItemBinaryMD5(options?: AxiosRequestConfig) {
+  return request<API.RListString>('/api/item_doc/list_page_bin_md5', {
     method: 'GET',
     ...(options || {}),
   })
 }
 
-/** 返回所有物品信息的md5 返回所有物品信息的md5 GET /api/item_doc/all_bin_md5 */
-export async function listAllItemBinaryMd5(options?: AxiosRequestConfig) {
-  return request<API.RString>('/api/item_doc/all_bin_md5', {
+/** 返回物品分页 查询分页物品信息，返回压缩格式的byte数组 GET /api/item_doc/list_page_bin/${param0} */
+export async function listPageItemByBinary(
+  params: {
+    // path
+    md5: string
+  },
+  options?: AxiosRequestConfig,
+) {
+  const { md5: param0, ...queryParams } = params
+  return request<string[]>(`/api/item_doc/list_page_bin/${param0}`, {
     method: 'GET',
+    params: { ...queryParams },
     ...(options || {}),
   })
 }
