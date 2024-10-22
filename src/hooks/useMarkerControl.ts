@@ -1,15 +1,15 @@
-import { useSubscription } from '@vueuse/rxjs'
-import { filter } from 'rxjs'
 import {
   useArchiveStore,
   useMapStateStore,
 } from '@/stores'
 import type { GSMarkerInfo } from '@/packages/map'
-import { EaseoutInterpolator } from '@/packages/map'
+import { EaseoutInterpolator, GSMarkerLayer } from '@/packages/map'
 import { createRenderMarkers } from '@/stores/utils'
 import { MapSubject } from '@/shared'
 
 let cache: ReturnType<typeof _useMarkerControl>
+
+const MARKER_INTERACTION_KEY = GSMarkerLayer.layerName
 
 export const _useMarkerControl = () => {
   const archiveStore = useArchiveStore()
@@ -22,35 +22,30 @@ export const _useMarkerControl = () => {
   /** 缓存的点位信息, 用于在关闭弹窗时保持信息，使动画显示状态平滑 */
   const cachedMarkerVo = shallowRef<GSMarkerInfo & { isSnapshot?: boolean } | null>(null)
 
-  const { hasFocus, hasHover, addFocus, addHover, removeFocus, removeHover } = mapStateStore
+  const {
+    hasHover,
+    addFocus,
+    addHover,
+    removeFocus,
+    removeHover,
+  } = mapStateStore.interaction
 
   const updateFocus = (id?: number) => {
-    return addFocus('marker', id, true)
+    return addFocus(MARKER_INTERACTION_KEY, id, true)
   }
-
-  useSubscription(MapSubject.click.pipe(
-    filter(({ info }) => !info.object),
-  ).subscribe(() => {
-    removeHover('marker')
-    removeFocus('marker')
-  }))
 
   const focus = computed(() => {
     if (hideMarkerPopover.value)
       return
     if (mapStateStore.isPopoverOnHover) {
-      if (!hasHover('marker'))
-        return undefined
-      const hoverIds = mapStateStore.hoverElements.get('marker')
+      const hoverIds = mapStateStore.interaction.hoverElements.get(MARKER_INTERACTION_KEY)
       if (!hoverIds || hoverIds.size > 1)
         return
       const markerId = hoverIds.values().next().value
       return mapStateStore.currentMarkerIdMap.get(markerId)
     }
     else {
-      if (!hasFocus('marker'))
-        return undefined
-      const focusIds = mapStateStore.focusElements.get('marker')
+      const focusIds = mapStateStore.interaction.focusElements.get(MARKER_INTERACTION_KEY)
       if (!focusIds || focusIds.size > 1)
         return
       const markerId = focusIds.values().next().value
@@ -59,9 +54,9 @@ export const _useMarkerControl = () => {
   })
 
   const hover = computed(() => {
-    if (!hasHover('marker'))
+    if (!hasHover(MARKER_INTERACTION_KEY))
       return undefined
-    const hoverIds = mapStateStore.hoverElements.get('marker')
+    const hoverIds = mapStateStore.hoverElements.get(MARKER_INTERACTION_KEY)
     if (!hoverIds || hoverIds.size > 1)
       return
     const markerId = hoverIds.values().next().value
@@ -89,7 +84,7 @@ export const _useMarkerControl = () => {
   const delayTimer = ref<number>()
 
   /** 与 focus 相反的行为 */
-  const blur = () => removeFocus('marker')
+  const blur = () => removeFocus(MARKER_INTERACTION_KEY)
 
   const focusMarker = (markerVo: API.MarkerVo | GSMarkerInfo, {
     delay = 0,
@@ -111,12 +106,12 @@ export const _useMarkerControl = () => {
 
     if (delay > 0) {
       delayTimer.value = window.setTimeout(() => {
-        addFocus('marker', markerWithRender.id, true)
+        addFocus(MARKER_INTERACTION_KEY, markerWithRender.id, true)
         delayTimer.value = undefined
       }, delay)
     }
     else {
-      addFocus('marker', markerWithRender.id, true)
+      addFocus(MARKER_INTERACTION_KEY, markerWithRender.id, true)
     }
 
     if (flyToMarker) {
@@ -134,16 +129,16 @@ export const _useMarkerControl = () => {
 
   const hoverMarker = (markerVo: API.MarkerVo | GSMarkerInfo | null) => {
     if (!markerVo) {
-      removeHover('marker')
+      removeHover(MARKER_INTERACTION_KEY)
       return
     }
     const markerWithRender = normalizeMarker(markerVo)
-    addHover('marker', markerWithRender.id)
+    addHover(MARKER_INTERACTION_KEY, markerWithRender.id)
     return markerWithRender
   }
 
   /** 与 hover 相反的行为 */
-  const out = () => removeHover('marker')
+  const out = () => removeHover(MARKER_INTERACTION_KEY)
 
   watch(() => [focus.value, mapStateStore.isPopoverOnHover] as const, ([currentFocus, isPopoverOnHover]) => {
     if (!currentFocus) {
