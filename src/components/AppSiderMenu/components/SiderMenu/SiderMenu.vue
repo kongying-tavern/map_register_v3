@@ -85,7 +85,7 @@ provide(mapSidermenuKey, mapSidermenuRef)
   </div>
 </template>
 
-<style lang="scss">
+<style>
 .el-popper.is-customized.sider-menu-tooltip {
   padding: 6px 12px;
   background: #495168;
@@ -97,9 +97,10 @@ provide(mapSidermenuKey, mapSidermenuRef)
 }
 </style>
 
-<style lang="scss" scoped>
+<style scoped>
 .sider-menu {
   max-width: 100%;
+  z-index: 10;
   @media screen and (width < 500px) {
     width: 100%;
   }
