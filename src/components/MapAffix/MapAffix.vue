@@ -50,6 +50,7 @@ const affixVisible = computed(() => props.pos !== undefined && props.visible !==
       '--ty': `${position[1]}px`,
       'z-index': zIndex,
     }"
+    @contextmenu.prevent=""
   >
     <slot
       name="default"
