@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { TRANSITION_EVENTS } from '@deck.gl/core'
 import { useSubscription } from '@vueuse/rxjs'
+import { filter } from 'rxjs'
 import { EaseoutInterpolator, GSZoomController, GenshinMapDeck } from '@/packages/map'
 import type { GenshinMap, GenshinMapProps, GenshinMapViewState } from '@/packages/map'
-import { useTileStore } from '@/stores'
+import { useMapStateStore, useTileStore } from '@/stores'
 import { useMapLayers, useResourceStatus } from '@/hooks'
 import {
   AppDevInfo,
@@ -18,6 +19,7 @@ import { MapSubject } from '@/shared'
 
 // ================ 全局状态 ================
 const tileStore = useTileStore()
+const mapStateStore = useMapStateStore()
 
 const siderMenuCollapse = ref(true)
 
@@ -93,6 +95,16 @@ const getTooltip: GenshinMapProps['getTooltip'] = (info) => {
   }
 }
 
+// 地图 focus 清理
+useSubscription(MapSubject.click.pipe(
+  filter(({ info }) => !info.layer),
+).subscribe(() => mapStateStore.interaction.clearFocus()))
+
+// 地图 hover 清理
+useSubscription(MapSubject.hover.pipe(
+  filter(({ info }) => !info.layer),
+).subscribe(() => mapStateStore.interaction.clearHover()))
+
 // ================ 图层管理 ================
 const { layers } = useMapLayers({
   resourceStatus,
@@ -113,24 +125,15 @@ const { layers } = useMapLayers({
       @drag-end="(info, event) => MapSubject.dragEnd.next({ info, event })"
       @drag-start="(info, event) => MapSubject.dragStart.next({ info, event })"
     />
-
-    <AppUserAvatar />
-
     <GSZoomController
       v-model="viewState"
       :transition-duration="TRANSITION_DURATION"
     />
 
-    <AppStateBar
-      v-model:view-state="viewState"
-    />
-
+    <AppUserAvatar />
+    <AppStateBar v-model:view-state="viewState" />
     <AppDevInfo />
-
-    <AppSiderMenu
-      v-model:collapse="siderMenuCollapse"
-    />
-
+    <AppSiderMenu v-model:collapse="siderMenuCollapse" />
     <AppWindowProvider />
     <AppNoticeProvider />
     <AppDialogProvider />

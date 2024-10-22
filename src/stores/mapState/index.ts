@@ -72,6 +72,7 @@ export const useMapStateStore = defineStore('global-map-state', () => {
     ...cursorHook,
 
     ...interactionInfoHook,
+    interaction: interactionInfoHook,
 
     ...markersHook,
 

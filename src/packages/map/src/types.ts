@@ -67,9 +67,9 @@ export interface GSMarkerLayerProps {
   iconAtlas: IconLayerProps['iconAtlas']
   iconMapping: Required<IconLayerProps>['iconMapping']
   transparentMarked: boolean
-  hover: Set<number>
-  getFocus: (id: number) => boolean
-  getMarked: (id: number) => boolean
+  hoverMarkerIds?: Set<number>
+  focusMarkerIds?: Set<number>
+  markedMarkerIds?: Set<number>
 }
 
 // ============================== Marker ==============================

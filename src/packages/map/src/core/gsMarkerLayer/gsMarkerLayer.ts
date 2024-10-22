@@ -30,35 +30,39 @@ export class GSMarkerLayer extends CompositeLayer<GSMarkerLayerProps> {
     return propsOrDataChanged || viewportChanged
   }
 
+  getIcon = (info: GSMarkerInfo) => {
+    return (info.extra as API.MarkerExtra | undefined)?.iconOverride?.tag ?? info.render.mainIconTag ?? '无'
+  }
+
   renderLayers = (): LayersList => {
     const { iconAtlas } = this.props
     if (!iconAtlas)
       return []
 
     const { zoom } = this.context.viewport
-
     const {
       data,
       iconMapping,
-      hover,
-      getFocus,
-      getMarked,
+      hoverMarkerIds,
+      focusMarkerIds,
+      markedMarkerIds,
     } = this.props
 
-    const getIcon = (info: GSMarkerInfo) => {
-      return (info.extra as API.MarkerExtra | undefined)?.iconOverride?.tag ?? info.render.mainIconTag ?? '无'
+    const isInteraction = (id: number) => {
+      return hoverMarkerIds?.has(id) || focusMarkerIds?.has(id)
     }
 
     const getIconFlag = (info: GSMarkerInfo) => {
-      const { id } = info
-      const state = getMarked(id!)
+      const id = info.id!
+      const markerLevelMask = info.render.isUnderground ? 0b10000 : 0b00000
+      const markerStateMask = markedMarkerIds?.has(id)
         ? 0b1000
-        : getFocus(id!)
+        : focusMarkerIds?.has(id)
           ? 0b0100
-          : hover.has(id!)
+          : hoverMarkerIds?.has(id)
             ? 0b0010
             : 0b0001
-      return state + (info.render.isUnderground ? 0b10000 : 0b00000)
+      return markerLevelMask + markerStateMask
     }
 
     const getPosition = (info: GSMarkerInfo) => {
@@ -75,17 +79,17 @@ export class GSMarkerLayer extends CompositeLayer<GSMarkerLayerProps> {
         statusCount: ATTACH_TOTAL,
         iconAtlas,
         iconMapping,
-        getIcon,
+        getIcon: this.getIcon,
         getIconFlag,
         getPosition,
         getSize: 44,
-        getColor: ({ id }) => [0, 0, 0, hover.has(id!) ? 0 : 255],
+        getColor: ({ id }) => [0, 0, 0, isInteraction(id!) ? 0 : 255],
         sizeScale: 1,
         sizeMaxPixels,
         sizeMinPixels: 4,
         updateTriggers: {
-          getIconFlag: [hover],
-          getColor: [hover],
+          getIconFlag: [focusMarkerIds],
+          getColor: [focusMarkerIds, hoverMarkerIds],
         },
       }),
       new GSMarkerRenderLayer({
@@ -95,17 +99,17 @@ export class GSMarkerLayer extends CompositeLayer<GSMarkerLayerProps> {
         statusCount: ATTACH_TOTAL,
         iconAtlas,
         iconMapping,
-        getIcon,
+        getIcon: this.getIcon,
         getIconFlag,
         getPosition,
         getSize: 44,
-        getColor: ({ id }) => [0, 0, 0, hover.has(id!) ? 255 : 0],
+        getColor: ({ id }) => [0, 0, 0, isInteraction(id!) ? 255 : 0],
         sizeScale: 1,
         sizeMaxPixels,
         sizeMinPixels: 4,
         updateTriggers: {
-          getIconFlag: [hover],
-          getColor: [hover],
+          getIconFlag: [focusMarkerIds, hoverMarkerIds],
+          getColor: [focusMarkerIds, hoverMarkerIds],
         },
       }),
     ]

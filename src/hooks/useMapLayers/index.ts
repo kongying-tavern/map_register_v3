@@ -1,13 +1,11 @@
 import type { LayersList } from '@deck.gl/core'
+import { useMarkerLayer } from './useMarkerLayer'
 import {
-  GSMarkerLayer,
   GSOverlayer,
   GSTagLayer,
   GSTileLayer,
 } from '@/packages/map'
 import {
-  useIconTagStore,
-  useMapStateStore,
   useOverlayStore,
   useTileStore,
 } from '@/stores'
@@ -20,10 +18,8 @@ interface MapLayerHookOptions {
 export const useMapLayers = (options: MapLayerHookOptions) => {
   const { resourceStatus } = options
 
-  const iconTagStore = useIconTagStore()
   const tileStore = useTileStore()
   const overlayStore = useOverlayStore()
-  const mapStateStore = useMapStateStore()
 
   // ============================== 底图图层 ==============================
   const tileLayer = computed(() => {
@@ -69,19 +65,7 @@ export const useMapLayers = (options: MapLayerHookOptions) => {
   })
 
   // ============================== 点位图层 ==============================
-  const markerLayer = computed(() => {
-    if (!iconTagStore.markerSpriteUrl)
-      return
-    return new GSMarkerLayer({
-      data: mapStateStore.currentMarkers,
-      hover: new Set<number>(),
-      getFocus: () => false,
-      getMarked: () => false,
-      iconAtlas: iconTagStore.markerSpriteUrl,
-      iconMapping: iconTagStore.markerSpriteMapping,
-      transparentMarked: true,
-    })
-  })
+  const { markerLayer } = useMarkerLayer()
 
   const layers = computed<LayersList>(() => [
     tileLayer.value,
