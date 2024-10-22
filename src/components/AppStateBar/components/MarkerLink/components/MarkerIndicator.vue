@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { MapAffix } from '@/pages/pageMapV2/components'
+import { MapAffix } from '@/components'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
 
 withDefaults(defineProps<{

@@ -1,11 +1,15 @@
 import { filter, finalize, map, switchMap, takeUntil } from 'rxjs'
 import { useSubscription } from '@vueuse/rxjs'
 import type { WindowContext } from '../core'
-import { genshinMapCanvasKey } from '@/pages/pageMapV2/shared'
-import { globalPointerDown$, globalPointerMove$, globalPointerup$ } from '@/shared'
+import {
+  globalPointerDown$,
+  globalPointerMove$,
+  globalPointerup$,
+  mapContainerKey,
+} from '@/shared'
 
 export const useWindowDrag = (context: WindowContext) => {
-  const mapCanvas = inject(genshinMapCanvasKey, ref())
+  const mapContainer = inject(mapContainerKey, ref())
 
   const pointerdown = globalPointerDown$.pipe(
     map((ev) => {
@@ -25,9 +29,9 @@ export const useWindowDrag = (context: WindowContext) => {
   )
 
   const optimizeWindowPosition = () => {
-    if (!mapCanvas.value)
+    if (!mapContainer.value)
       return
-    const { width, height } = mapCanvas.value.getBoundingClientRect()
+    const { width, height } = mapContainer.value.getBoundingClientRect()
     context.optimizeWindowPosition({ inlineSize: width, blockSize: height })
   }
 
@@ -83,16 +87,16 @@ export const useWindowDrag = (context: WindowContext) => {
         takeUntil(globalPointerup$),
 
         finalize(() => {
-          if (!mapCanvas.value)
+          if (!mapContainer.value)
             return
-          const { width, height } = mapCanvas.value
+          const { width, height } = mapContainer.value.getBoundingClientRect()
           context.optimizeWindowPosition({ inlineSize: width, blockSize: height })
         }),
       )
     }),
   ).subscribe())
 
-  useResizeObserver(mapCanvas, ([entry]) => {
+  useResizeObserver(mapContainer, ([entry]) => {
     const { contentBoxSize: [boxSize] = [] } = entry
     if (boxSize.blockSize === 0 || boxSize.inlineSize === 0)
       return
