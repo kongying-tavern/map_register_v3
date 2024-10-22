@@ -12,7 +12,10 @@ export const useMarkerLayer = () => {
 
   // 点位 focus
   useSubscription(MapSubject.click.pipe(
-    filter(({ info }) => info.layer instanceof GSMarkerLayer),
+    filter(({ info, event }) => [
+      info.layer instanceof GSMarkerLayer,
+      event.leftButton,
+    ].every(Boolean)),
   ).subscribe(({ info }) => {
     const key = GSMarkerLayer.layerName
     if (!info.object) {
