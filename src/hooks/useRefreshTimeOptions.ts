@@ -7,7 +7,7 @@ export const _useRefreshTimeOptions = () => {
   const dadianStore = useDadianStore()
 
   const refreshTimeOptions = computed(() => {
-    const { refreshTimeSpecial = [] } = dadianStore._raw.editor ?? {}
+    const { refreshTimeSpecial = [] } = dadianStore.raw.editor ?? {}
     return [
       { label: '不刷新', value: 0 },
       { label: '自定义', value: 12 * 3600 * 1000 },
