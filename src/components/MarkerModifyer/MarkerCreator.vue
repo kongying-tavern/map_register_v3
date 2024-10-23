@@ -3,19 +3,18 @@ import { Check, Close } from '@element-plus/icons-vue'
 import { useMarkerCreate } from './hooks'
 import { MarkerForm } from './components'
 import { GlobalDialogController } from '@/components'
-import { useUserInfoStore } from '@/stores'
+import { useUserStore } from '@/stores'
 
 const props = defineProps<{
   coordinate: API.Coordinate2D
   defaultItem?: API.ItemVo
 }>()
 
-const userInfoStore = useUserInfoStore()
+const userStore = useUserStore()
 
 /** 初始化新增点位信息 */
 const initFormData = (): API.MarkerVo => {
   const [x, y] = props.coordinate
-  const { id: userId } = userInfoStore.info
   return {
     markerTitle: props.defaultItem?.name ?? '',
     content: props.defaultItem?.defaultContent ?? '',
@@ -30,7 +29,7 @@ const initFormData = (): API.MarkerVo => {
       : [],
     videoPath: '',
     refreshTime: props.defaultItem?.defaultRefreshTime ?? 0,
-    markerCreatorId: userId,
+    markerCreatorId: userStore.info?.id,
   }
 }
 

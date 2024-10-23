@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { WindowPanel } from './components'
 import { useWindowContext, useWindowDrag } from './hooks'
-import { useUserAuthStore } from '@/stores'
+import { useUserStore } from '@/stores'
 
-const userAuthStore = useUserAuthStore()
+const userStore = useUserStore()
 
 const context = useWindowContext()
 
 const { optimizeWindowPosition } = useWindowDrag(context)
 
-userAuthStore.onBeforeLogout(() => {
+userStore.onBeforeLogout(() => {
   context.clearWindow()
 })
 
