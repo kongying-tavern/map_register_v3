@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { storeToRefs } from 'pinia'
 import { Delete, Setting } from '@element-plus/icons-vue'
 import { SettingBar, SettingGroup, SettingPanel } from '../components'
 import { AppVirtualTable } from '@/components'
@@ -7,7 +6,7 @@ import { useDevStore, usePreferenceStore } from '@/stores'
 import { useBanner } from '@/hooks'
 
 const devStore = useDevStore()
-const { preference } = storeToRefs(usePreferenceStore())
+const preferenceStore = usePreferenceStore()
 
 const { visible } = useBanner()
 
@@ -95,7 +94,7 @@ const initLogInfo = (args: unknown[]) => {
 
       <SettingBar label="日志可见性" note="控制日志是否在面板上输出" :icon="Setting">
         <template #detail>
-          <el-checkbox-group v-model="preference['developer.setting.enableLoggers']" @change="devStore.refreshLogs">
+          <el-checkbox-group v-model="preferenceStore.enableLoggers" @change="devStore.refreshLogs">
             <div class="grid grid-cols-4">
               <el-checkbox
                 v-for="label in devStore.loggerLabels"

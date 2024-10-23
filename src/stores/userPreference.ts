@@ -26,6 +26,7 @@ export const usePreferenceStore = defineStore('global-user-preference', () => {
   const maxLogs = model('developer.setting.maxLogs', () => 100)
   const noticeRead = model('notice.state.read', () => [])
   const noticeShowTime = model('notice.state.showTime', () => 0)
+  const pageSize = model('manager.setting.pageSize', () => [])
   const parentAreaCode = model('markerFilter.state.parentAreaCode', () => '')
   const presets = model('markerFilter.setting.presets', () => [])
   const settingActivedKey = model('settingPanel.state.activedKey', () => '')
@@ -45,6 +46,7 @@ export const usePreferenceStore = defineStore('global-user-preference', () => {
     maxLogs,
     noticeRead,
     noticeShowTime,
+    pageSize,
     parentAreaCode,
     presets,
     settingActivedKey,
