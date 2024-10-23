@@ -3,9 +3,9 @@ import { TRANSITION_EVENTS } from '@deck.gl/core'
 import { useSubscription } from '@vueuse/rxjs'
 import { filter } from 'rxjs'
 import { EaseoutInterpolator, GSZoomController, GenshinMapDeck } from '@/packages/map'
-import type { GenshinMap, GenshinMapProps, GenshinMapViewState } from '@/packages/map'
-import { useMapStateStore, useTileStore } from '@/stores'
-import { useMapLayers, useResourceStatus } from '@/hooks'
+import type { GenshinMap, GenshinMapViewState } from '@/packages/map'
+import { useArchiveStore, useMapStateStore, useShortcutStore, useTileStore } from '@/stores'
+import { useMapLayers, useResourceStatus, useTheme } from '@/hooks'
 import {
   AppDevInfo,
   AppDialogProvider,
@@ -28,9 +28,19 @@ import {
 
 // ================ 全局状态 ================
 const tileStore = useTileStore()
+const archiveStore = useArchiveStore()
+const shortcutStore = useShortcutStore()
 const mapStateStore = useMapStateStore()
 
 const siderMenuCollapse = ref(true)
+
+const { toggle: toggleDarkMode } = useTheme()
+
+// ================ 热键处理 ================
+shortcutStore.useKeys(
+  computed(() => archiveStore.currentArchive.body.Preference['app.shortcutKey.toggleDarkMode']),
+  () => toggleDarkMode(),
+)
 
 // ================ 地图状态 ================
 const genshinDeck = shallowRef<GenshinMap | null>(null)
@@ -96,26 +106,6 @@ watch(() => tileStore.currentTileConfig, (currentTileConfig) => {
 const { status: resourceStatus } = useResourceStatus()
 
 // ================ 地图管理 ================
-const getTooltip: GenshinMapProps['getTooltip'] = (info) => {
-  const { coordinate, layer, sourceLayer } = info
-  if (!coordinate)
-    return null
-  return {
-    html: `
-    <div class="w-[200px] h-[200px] p-1 text-xs text-white bg-[#00000080]">
-      <div>x: ${Math.floor(coordinate[0])}, y: ${Math.floor(coordinate[1])}, zoom: ${info.viewport?.zoom?.toFixed(2)}</div>
-      <div>rootlayer: ${layer ? layer.id : 'no layer'}</div>
-      <div>sourceLayer: ${sourceLayer ? sourceLayer.id : 'no layer'}</div>
-    </div>`,
-    style: {
-      padding: '0 0 0 32px',
-      backgroundColor: 'unset',
-      backgroundClip: 'content-box',
-      overflow: 'hidden',
-    },
-  }
-}
-
 // 地图 focus 清理
 useSubscription(MapSubject.click.pipe(
   filter(({ info }) => !info.layer),
@@ -140,7 +130,6 @@ const { layers } = useMapLayers({
     <GenshinMapDeck
       v-model:view-state="viewState"
       :layers="layers"
-      :get-tooltip="getTooltip"
       class="bg-black"
       @load="(instance) => (genshinDeck = instance)"
       @click="(info, event) => MapSubject.click.next({ info, event })"
