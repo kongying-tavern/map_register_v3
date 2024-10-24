@@ -176,6 +176,12 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
             >
               {{ idText }}
             </div>
+            <div class="info-tag">
+              {{ hiddenFlagType }}
+            </div>
+            <div class="info-tag">
+              {{ refreshTimeText || '不刷新' }}
+            </div>
             <div
               v-if="cachedMarkerVo.videoPath"
               class="info-tag is-interactive"
@@ -185,12 +191,6 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
               <el-icon :size="20">
                 <VideoCamera />
               </el-icon>
-            </div>
-            <div class="info-tag">
-              {{ hiddenFlagType }}
-            </div>
-            <div class="info-tag">
-              {{ refreshTimeText || '不刷新' }}
             </div>
           </div>
         </template>
