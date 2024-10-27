@@ -12,6 +12,7 @@ const props = defineProps<{
 }>()
 
 const emits = defineEmits<{
+  focus: [FocusEvent]
   load: [GenshinMap]
   hover: Parameters<NonNullable<GenshinMapProps['onHover']>>
   click: Parameters<NonNullable<GenshinMapProps['onClick']>>
@@ -94,5 +95,6 @@ watch(() => props.layers, (layers) => {
     ref="canvasRef"
     draggable="false"
     @contextmenu.stop.prevent=""
+    @focus="ev => $emit('focus', ev)"
   />
 </template>
