@@ -46,6 +46,7 @@ export class GSMarkerLayer extends CompositeLayer<GSMarkerLayerProps> {
       hoverMarkerIds,
       focusMarkerIds,
       markedMarkerIds,
+      rewritePositions,
     } = this.props
 
     const isInteraction = (id: number) => {
@@ -70,7 +71,7 @@ export class GSMarkerLayer extends CompositeLayer<GSMarkerLayerProps> {
     }
 
     const getPosition = (info: GSMarkerInfo) => {
-      return info.render.position
+      return rewritePositions?.get(info.id!) ?? info.render.position
     }
 
     const sizeMaxPixels = 40 * 2 ** (zoom + 2)
@@ -86,7 +87,7 @@ export class GSMarkerLayer extends CompositeLayer<GSMarkerLayerProps> {
         getIcon: this.getIcon,
         getIconFlag,
         getPosition,
-        getSize: 44,
+        getSize: 40,
         getColor: ({ id }) => [0, 0, 0, isInteraction(id!) ? 0 : isMarked(id!) ? 128 : 255],
         sizeScale: 1,
         sizeMaxPixels,
@@ -94,6 +95,7 @@ export class GSMarkerLayer extends CompositeLayer<GSMarkerLayerProps> {
         updateTriggers: {
           getIconFlag: [focusMarkerIds],
           getColor: [focusMarkerIds, hoverMarkerIds],
+          getPosition: [rewritePositions],
         },
       }),
       new GSMarkerRenderLayer({
@@ -106,7 +108,7 @@ export class GSMarkerLayer extends CompositeLayer<GSMarkerLayerProps> {
         getIcon: this.getIcon,
         getIconFlag,
         getPosition,
-        getSize: 44,
+        getSize: 40,
         getColor: ({ id }) => [0, 0, 0, isInteraction(id!) ? 255 : 0],
         sizeScale: 1,
         sizeMaxPixels,
@@ -114,6 +116,7 @@ export class GSMarkerLayer extends CompositeLayer<GSMarkerLayerProps> {
         updateTriggers: {
           getIconFlag: [focusMarkerIds, hoverMarkerIds],
           getColor: [focusMarkerIds, hoverMarkerIds],
+          getPosition: [rewritePositions],
         },
       }),
     ]

@@ -5,12 +5,12 @@ import type { GSMarkerInfo } from '@/packages/map'
 export const useMarkerMove = (markerInfo: ShallowRef<GSMarkerInfo | null>) => {
   const mapStateStore = useMapStateStore()
 
-  const { data, isEnable, update } = mapStateStore.subscribeMission('markerDragging', () => ({}))
+  const { data, isEnable, update } = mapStateStore.subscribeMission('markerDragging', () => new Map())
 
   const draggingPosition = computed(() => {
     if (!markerInfo.value)
       return
-    return data.value[markerInfo.value.id!]
+    return data.value.get(markerInfo.value.id!)
   })
 
   const position = computed<API.Coordinate2D>(() => {
@@ -28,11 +28,11 @@ export const useMarkerMove = (markerInfo: ShallowRef<GSMarkerInfo | null>) => {
     set: (isStartDrag) => {
       if (!markerInfo.value)
         return false
-      const newData = { ...data.value }
+      const newData = new Map(data.value)
       if (!isStartDrag)
-        delete newData[markerInfo.value.id!]
+        newData.delete(markerInfo.value.id!)
       else
-        newData[markerInfo.value.id!] = markerInfo.value.render.position
+        newData.set(markerInfo.value.id!, markerInfo.value.render.position)
       update(newData)
     },
   })

@@ -1,11 +1,14 @@
 import type { LayersList } from '@deck.gl/core'
+import { LineLayer } from '@deck.gl/layers'
 import { useMarkerLayer } from './useMarkerLayer'
 import {
+  type GSMarkerInfo,
   GSOverlayer,
   GSTagLayer,
   GSTileLayer,
 } from '@/packages/map'
 import {
+  useMapStateStore,
   useOverlayStore,
   useTileStore,
 } from '@/stores'
@@ -20,6 +23,9 @@ export const useMapLayers = (options: MapLayerHookOptions) => {
 
   const tileStore = useTileStore()
   const overlayStore = useOverlayStore()
+  const mapStateStore = useMapStateStore()
+
+  const { data: markerDraggingMission } = mapStateStore.subscribeMission('markerDragging', () => new Map())
 
   // ============================== 底图图层 ==============================
   const tileLayer = computed(() => {
@@ -64,13 +70,38 @@ export const useMapLayers = (options: MapLayerHookOptions) => {
     })
   })
 
+  // ============================== 拖拽指示 ==============================
+  const markerDraggingLineLayer = computed(() => {
+    if (!markerDraggingMission.value.size)
+      return
+    const markers: GSMarkerInfo[] = []
+    markerDraggingMission.value.forEach((_, markerId) => {
+      const marker = mapStateStore.currentMarkerIdMap.get(markerId)
+      marker && markers.push(marker)
+    })
+    return new LineLayer<GSMarkerInfo>({
+      id: 'marker-dragging-line',
+      data: markers,
+      getColor: [255, 255, 0, 255],
+      getWidth: 2,
+      getSourcePosition: ({ render }) => {
+        return render.position
+      },
+      getTargetPosition: ({ id, render }) => {
+        return markerDraggingMission.value.get(id!) ?? render.position
+      },
+    })
+  })
+
   // ============================== 点位图层 ==============================
   const { markerLayer } = useMarkerLayer()
 
+  // ============================== 图层汇总 ==============================
   const layers = computed<LayersList>(() => [
     tileLayer.value,
     overlayer.value,
     tagLayer.value,
+    markerDraggingLineLayer.value,
     markerLayer.value,
   ])
 

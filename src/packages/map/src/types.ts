@@ -70,6 +70,7 @@ export interface GSMarkerLayerProps {
   hoverMarkerIds?: Set<number>
   focusMarkerIds?: Set<number>
   markedMarkerIds?: Set<number>
+  rewritePositions?: Map<number, [x: number, y: number]>
 }
 
 // ============================== Marker ==============================
@@ -122,7 +123,7 @@ export interface MLRenderUnit {
 
 /** 任务类型表 */
 export interface MissionTypeMap {
-  markerDragging: Record<number, API.Coordinate2D>
+  markerDragging: Map<number, API.Coordinate2D>
   markerLink: API.MarkerLinkageVo[]
   markerMultiSelect: boolean
   markerBulkState: boolean

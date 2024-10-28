@@ -15,6 +15,7 @@ import {
   AppUserAvatar,
   AppWindowProvider,
   MapContextMenu,
+  MapMarkerMoveController,
   MapMarkerPopover,
 } from '@/components'
 import {
@@ -32,16 +33,6 @@ const archiveStore = useArchiveStore()
 const shortcutStore = useShortcutStore()
 const mapStateStore = useMapStateStore()
 
-const siderMenuCollapse = ref(true)
-
-const { toggle: toggleDarkMode } = useTheme()
-
-// ================ 热键处理 ================
-shortcutStore.useKeys(
-  computed(() => archiveStore.currentArchive.body.Preference['app.shortcutKey.toggleDarkMode']),
-  () => toggleDarkMode(),
-)
-
 // ================ 地图状态 ================
 const genshinDeck = shallowRef<GenshinMap | null>(null)
 
@@ -49,11 +40,12 @@ const mapAffixRef = shallowRef<HTMLDivElement>()
 const containerRef = shallowRef<HTMLDivElement>()
 const { width, height } = useElementSize(containerRef)
 
-// 以下注入用于实现地图悬浮组件的定位/投影等逻辑
-provide(mapContainerKey, containerRef)
-provide(mapContainerHeightKey, height)
-provide(mapContainerWidthKey, width)
-provide(mapAffixKey, mapAffixRef)
+// 响应主题色切换
+const { toggle: toggleDarkMode } = useTheme()
+shortcutStore.useKeys(
+  computed(() => archiveStore.currentArchive.body.Preference['app.shortcutKey.toggleDarkMode']),
+  () => toggleDarkMode(),
+)
 
 // ================ 视口状态 ================
 const TRANSITION_DURATION = 150
@@ -78,8 +70,7 @@ const viewState: Ref<GenshinMapViewState> = ref({
   transitionInterruption: TRANSITION_EVENTS.BREAK,
 })
 
-provide(mapViewStateKey, viewState)
-
+//
 useSubscription(MapSubject.viewState.subscribe((newViewState) => {
   viewState.value = {
     ...viewState.value,
@@ -120,6 +111,13 @@ useSubscription(MapSubject.hover.pipe(
 const { layers } = useMapLayers({
   resourceStatus,
 })
+
+// ================ 依赖注入 ================
+provide(mapContainerKey, containerRef)
+provide(mapContainerHeightKey, height)
+provide(mapContainerWidthKey, width)
+provide(mapAffixKey, mapAffixRef)
+provide(mapViewStateKey, viewState)
 </script>
 
 <template>
@@ -130,7 +128,10 @@ const { layers } = useMapLayers({
     <GenshinMapDeck
       v-model:view-state="viewState"
       :layers="layers"
+      :disable-view-state-change="mapStateStore.isViewPortLocked"
+      :cursor="mapStateStore.cursor"
       class="bg-black"
+      @focus="event => MapSubject.focus.next(event)"
       @load="(instance) => (genshinDeck = instance)"
       @click="(info, event) => MapSubject.click.next({ info, event })"
       @hover="(info, event) => MapSubject.hover.next({ info, event })"
@@ -144,15 +145,13 @@ const { layers } = useMapLayers({
       <MapContextMenu />
     </div>
 
-    <GSZoomController
-      v-model="viewState"
-      :transition-duration="TRANSITION_DURATION"
-    />
+    <GSZoomController v-model="viewState" :transition-duration="TRANSITION_DURATION" />
+    <MapMarkerMoveController />
 
     <AppUserAvatar />
-    <AppStateBar v-model:view-state="viewState" />
+    <AppStateBar />
     <AppDevInfo />
-    <AppSiderMenu v-model:collapse="siderMenuCollapse" />
+    <AppSiderMenu />
     <AppWindowProvider />
     <AppNoticeProvider />
     <AppDialogProvider />

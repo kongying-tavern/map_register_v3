@@ -253,7 +253,6 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
               </GSButton>
 
               <GSButton
-                v-if="accessStore.get('MARKER_EDIT')"
                 :theme="isMoving ? undefined : 'dark'"
                 size="small"
                 :disabled="!isEnable"
