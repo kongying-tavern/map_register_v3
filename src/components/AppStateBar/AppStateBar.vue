@@ -6,12 +6,7 @@ import {
   ViewState,
   WebSocketStatus,
 } from './components'
-import type { GenshinMapViewState } from '@/packages/map'
 import { useAccessStore } from '@/stores'
-
-const viewState = defineModel<GenshinMapViewState>('viewState', {
-  required: true,
-})
 
 const accessStore = useAccessStore()
 
@@ -46,7 +41,7 @@ useEventListener('click', checkTooltip)
       <SwitchMarkerPopover />
       <SwitchOverlay />
       <WebSocketStatus />
-      <ViewState v-model="viewState" />
+      <ViewState />
     </div>
 
     <el-tooltip

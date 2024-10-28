@@ -3,21 +3,23 @@ import BarItem from './BarItem.vue'
 import { useTileStore } from '@/stores'
 import { EaseoutInterpolator } from '@/packages/map'
 import type { GenshinMapViewState } from '@/packages/map'
+import { MapSubject, mapViewStateKey } from '@/shared'
 
 const tileStore = useTileStore()
 
-const viewState = defineModel<GenshinMapViewState>('modelValue', {
-  required: true,
-})
+const viewState = inject(mapViewStateKey, ref<GenshinMapViewState>({
+  target: [0, 0],
+  zoom: 0,
+}))
 
 const resetViewState = () => {
-  viewState.value = {
+  MapSubject.viewState.next({
     ...viewState.value,
     target: [318, 6660],
     zoom: 0,
     transitionDuration: 200,
     transitionInterpolator: new EaseoutInterpolator(['target', 'zoom']),
-  }
+  })
 }
 
 const markerView = computed(() => {

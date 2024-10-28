@@ -152,11 +152,11 @@ export const useMarkers = (options: MarkerHookOptions) => {
   const staticMarkerIds = computed(() => new Set(staticMarkers.value.map(marker => marker.id!)))
 
   /** 临时点位集合 */
-  const tempMarkerMap = shallowRef(new Map<string, (API.MarkerVo | GSMarkerInfo)[]>())
+  const tempMarkerMap = shallowRef(new Map<keyof TempMarkerTypeMap, GSMarkerInfo[]>())
 
   /** 未去重的临时点位 */
   const undifferentiated = computed(() => {
-    const markers: (API.MarkerVo | GSMarkerInfo)[] = []
+    const markers: GSMarkerInfo[] = []
     tempMarkerMap.value.forEach((typeMarkers) => {
       markers.push(...typeMarkers)
     })
@@ -175,23 +175,23 @@ export const useMarkers = (options: MarkerHookOptions) => {
       ids.add(marker.id!)
       return true
     })
-    // 去重
-    const { areaIdMap } = areaStore
-    const { itemIdMap } = itemStore
-    return createRenderMarkers(differentiated, {
-      tileConfigs,
-      areaIdMap,
-      itemIdMap,
-      isTemporary: true,
-    })
+    return differentiated
   })
 
   const setTempMarkers = <K extends keyof TempMarkerTypeMap>(
     type: TempMarkerType,
     markers: TempMarkerTypeMap[K],
   ) => {
+    const { mergedTileConfigs: tileConfigs } = tileStore
+    const { areaIdMap } = areaStore
+    const { itemIdMap } = itemStore
     const map = new Map(tempMarkerMap.value)
-    map.set(type, markers)
+    map.set(type, createRenderMarkers(markers, {
+      tileConfigs,
+      areaIdMap,
+      itemIdMap,
+      isTemporary: true,
+    }))
     tempMarkerMap.value = map
   }
 
@@ -233,9 +233,6 @@ export const useMarkers = (options: MarkerHookOptions) => {
   }, new Map<number, GSMarkerInfo>()))
 
   return {
-    setTempMarkers,
-    setTempMarkersBy,
-    clearTempMarkes,
     markersFilterLoading,
     markersGroupByTile,
     currentLayerMarkers,
@@ -245,5 +242,9 @@ export const useMarkers = (options: MarkerHookOptions) => {
     staticMarkers,
     staticMarkerIds,
     tempMarkers,
+    tempMarkerMap,
+    setTempMarkers,
+    setTempMarkersBy,
+    clearTempMarkes,
   }
 }

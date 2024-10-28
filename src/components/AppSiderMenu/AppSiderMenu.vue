@@ -18,7 +18,7 @@ import {
 import { IconGithub, IconNotice } from '@/components/AppIcons'
 import { ExitLeft } from '@/components/GenshinUI/GSIcon'
 
-const collapse = defineModel<boolean>('collapse', { required: true })
+const collapse = ref(true)
 
 const logger = new Logger('侧边栏')
 

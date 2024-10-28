@@ -8,6 +8,7 @@ import {
   useMarkerFilter,
   useMarkerLink,
   useMarkers,
+  useViewPort,
 } from './hooks'
 import {
   useArchiveStore,
@@ -28,6 +29,9 @@ export const useMapStateStore = defineStore('global-map-state', () => {
   const areaStore = useAreaStore()
   const itemTypeStore = useItemTypeStore()
   const itemStore = useItemStore()
+
+  // ============================== 视口控制 ==============================
+  const viewPortHook = useViewPort()
 
   // ============================== 地图指针 ==============================
   const cursorHook = useMapCursor()
@@ -69,6 +73,8 @@ export const useMapStateStore = defineStore('global-map-state', () => {
   const markerFilterHook = useMarkerFilter(markerFilterHookOptions)
 
   return {
+    ...viewPortHook,
+
     ...cursorHook,
 
     ...interactionInfoHook,

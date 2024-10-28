@@ -54,7 +54,7 @@ const { instanceRef } = useGenshinMap(canvasRef, {
   },
   onViewStateChange: (params) => {
     if (props.disableViewStateChange)
-      return
+      return params.oldViewState
     const { zoom, target } = params.viewState
     viewState.value.zoom = zoom as number
     viewState.value.target = target as [number, number]
