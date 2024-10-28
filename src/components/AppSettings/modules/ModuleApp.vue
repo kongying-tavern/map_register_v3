@@ -38,6 +38,15 @@ const defaultPreference = getDefaultPreference()
           />
         </template>
       </SettingBar>
+
+      <SettingBar label="拖拽点位" :icon="Grape">
+        <template #setting>
+          <ShortcutKey
+            v-model="archiveStore.currentArchive.body.Preference['app.shortcutKey.draggingMarker']"
+            :default-value="defaultPreference['app.shortcutKey.draggingMarker']"
+          />
+        </template>
+      </SettingBar>
     </SettingGroup>
   </SettingPanel>
 </template>
