@@ -1,7 +1,6 @@
 import { useSubscription } from '@vueuse/rxjs'
 import { filter } from 'rxjs'
-import { GSMarkerLayer } from '@/packages/map'
-import type { GSMarkerInfo } from '@/packages/map'
+import { type GSMarkerInfo, GSMarkerLayer } from '@/packages/map'
 import { MapSubject } from '@/shared'
 import { useArchiveStore, useIconTagStore, useMapStateStore } from '@/stores'
 
@@ -9,6 +8,8 @@ export const useMarkerLayer = () => {
   const archiveStore = useArchiveStore()
   const iconTagStore = useIconTagStore()
   const mapStateStore = useMapStateStore()
+
+  const { data: rewritePositions } = mapStateStore.subscribeMission('markerDragging', () => new Map())
 
   // 点位 focus
   useSubscription(MapSubject.click.pipe(
@@ -62,6 +63,7 @@ export const useMarkerLayer = () => {
       iconAtlas: iconTagStore.markerSpriteUrl,
       iconMapping: iconTagStore.markerSpriteMapping,
       transparentMarked: true,
+      rewritePositions: rewritePositions.value,
     })
   })
 
