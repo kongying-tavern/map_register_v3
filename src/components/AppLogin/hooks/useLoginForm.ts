@@ -1,10 +1,10 @@
 import { ElMessage } from 'element-plus'
 import type { AxiosError } from 'axios'
+import { useValidateStatus } from './useValidateStatus'
 import { useUserStore } from '@/stores'
 import type { ElFormType } from '@/shared'
 import { useFetchHook } from '@/hooks'
 import type { ItemFormRules } from '@/utils'
-import { passwordCheck } from '@/utils'
 
 /** 登录逻辑封装 */
 export const useLoginForm = () => {
@@ -18,17 +18,31 @@ export const useLoginForm = () => {
     password: import.meta.env.VITE_AUTO_COMPLETE_PASSWORD ?? '',
   })
 
+  const { isValid, handleValidate } = useValidateStatus({
+    keys: [],
+  })
+
   const rules: ItemFormRules<API.SysTokenVO> = {
-    username: [
-      // 这里和注册不同，username 不一定是 Q 号
-      {
-        required: true,
-        trigger: 'change',
-        message: '用户名不能为空',
-        validator: (_, v = '') => v.length > 0,
+    username: {
+      required: true,
+      validator: (_, v: string, callback) => {
+        if (v.length < 6)
+          return callback('不能少于 6 个字符')
+        if (v.match(/\s/))
+          return callback('不能包含空白字符')
+        callback()
       },
-    ],
-    password: [passwordCheck()],
+    },
+    password: {
+      required: true,
+      validator: (_, v: string, callback) => {
+        if (v.length < 6)
+          return callback('不能少于 6 个字符')
+        if (v.match(/\s/))
+          return callback('不能包含空白字符')
+        callback()
+      },
+    },
   }
 
   const { refresh: submit, onSuccess, onError, ...rest } = useFetchHook({
@@ -70,5 +84,15 @@ export const useLoginForm = () => {
     }
   })
 
-  return { formRef, rules, loginForm, login, onSuccess, onError, ...rest }
+  return {
+    formRef,
+    rules,
+    loginForm,
+    isValid,
+    handleValidate,
+    login,
+    onSuccess,
+    onError,
+    ...rest,
+  }
 }
