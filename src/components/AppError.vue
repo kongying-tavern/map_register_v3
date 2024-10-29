@@ -2,6 +2,10 @@
 defineProps<{
   message: string
 }>()
+
+onBeforeMount(() => {
+  document.dispatchEvent(new Event('beforeMount'))
+})
 </script>
 
 <template>

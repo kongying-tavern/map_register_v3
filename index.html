@@ -120,18 +120,21 @@
       // 理由详见 => src\stores\userAuth.ts 153 行
     }
 
-    void (async () => {
-      if (text) {
-        app.innerText = text
-        return
-      }
-      await import('./src/main.ts')
+    document.addEventListener('beforeMount', (ev) => {
       preloading.classList.add('is-end')
       const removePreloading = () => {
         preloading.removeEventListener('transitionend', removePreloading)
         preloading.remove()
       }
       preloading.addEventListener('transitionend', removePreloading)
+    }, { once: true })
+
+    void (async () => {
+      if (text) {
+        app.innerText = text
+        return
+      }
+      await import('./src/main.ts')
     })()
   </script>
 </body>

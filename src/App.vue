@@ -118,6 +118,10 @@ provide(mapContainerHeightKey, height)
 provide(mapContainerWidthKey, width)
 provide(mapAffixKey, mapAffixRef)
 provide(mapViewStateKey, viewState)
+
+onBeforeMount(() => {
+  document.dispatchEvent(new Event('beforeMount'))
+})
 </script>
 
 <template>
