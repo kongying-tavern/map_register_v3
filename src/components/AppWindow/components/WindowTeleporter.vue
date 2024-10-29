@@ -1,30 +1,26 @@
 <script setup lang="ts">
-import { useWindowContext } from '../hooks'
+import { useAppWindow } from '../hooks'
+import type { MapWindow } from '../types'
 
 const props = defineProps<{
-  id: string
-  beforeClose?: (done: () => void) => void
+  info?: MapWindow.Info
 }>()
 
 const emits = defineEmits<{
   close: []
 }>()
 
-const context = useWindowContext()
-
-const contextWindow = computed(() => {
-  return context.getWindow(props.id)
-})
+const context = useAppWindow()
 
 context.closeHook.on((id) => {
-  if (id !== props.id)
+  if (id !== props.info?.id)
     return
   emits('close')
 })
 </script>
 
 <template>
-  <Teleport v-if="contextWindow?.ref" :to="contextWindow.ref">
+  <Teleport v-if="info?.ref" :to="info.ref">
     <slot name="default" />
   </Teleport>
 </template>

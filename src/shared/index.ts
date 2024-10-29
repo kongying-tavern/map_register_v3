@@ -1,5 +1,6 @@
 export * from './accessPolicy'
 export * from './device'
+export * from './document'
 export * from './editTypeEnum'
 export * from './hiddenFlag'
 export * from './history'

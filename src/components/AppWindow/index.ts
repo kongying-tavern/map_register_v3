@@ -1,4 +1,5 @@
 export { WindowTeleporter as AppWindowTeleporter } from './components'
 export { default as AppWindowProvider } from './AppWindowProvider.vue'
+export type * from './types'
 export { WindowContext } from './core'
-export { useWindowContext } from './hooks'
+export * from './hooks'

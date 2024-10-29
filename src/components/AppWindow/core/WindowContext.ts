@@ -37,10 +37,6 @@ export class WindowContext implements MapWindow.Context {
     return this.panels.value
   }
 
-  setWindows = (panels: Map<string, MapWindow.Info>) => {
-    this.panels.value = panels
-  }
-
   openWindow = (params: MapWindow.WindowOpenParams) => {
     if (this.panels.value.has(params.id))
       return
@@ -67,6 +63,30 @@ export class WindowContext implements MapWindow.Context {
 
     this.panels.value.set(params.id, info)
     this.cachedInfos.set(params.id, info)
+    this.optimizeWindowPosition()
+  }
+
+  updateWindow = (id: string, params: Partial<Omit<MapWindow.WindowOpenParams, 'id'>>) => {
+    if (!this.panels.value.has(id))
+      return
+
+    const currentInfo = this.panels.value.get(id)!
+
+    const {
+      minHeight: height = currentInfo.size.width,
+      minWidth: width = currentInfo.size.height,
+      beforeClose = currentInfo.beforeClose,
+      name = currentInfo.name,
+      x = currentInfo.translate.x,
+      y = currentInfo.translate.y,
+    } = params
+
+    currentInfo.beforeClose = beforeClose
+    currentInfo.size = { width, height }
+    currentInfo.translate = { x, y }
+    currentInfo.name = name
+
+    this.cachedInfos.set(id, currentInfo)
     this.optimizeWindowPosition()
   }
 

@@ -1,2 +1,2 @@
-export * from './useWindowContext'
+export * from './useAppWindow'
 export * from './useWindowDrag'

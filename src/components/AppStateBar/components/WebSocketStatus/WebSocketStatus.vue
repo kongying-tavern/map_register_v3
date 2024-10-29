@@ -3,12 +3,22 @@ import { ChromeFilled } from '@element-plus/icons-vue'
 import BarItem from '../BarItem.vue'
 import StatusWindow from './StatusWindow.vue'
 import { useSocketStore } from '@/stores'
-import { AppWindowTeleporter, useWindowContext } from '@/components'
+import { AppWindowTeleporter, useAppWindow } from '@/components'
 
 const socketStore = useSocketStore()
-const windowCtx = useWindowContext()
 
-const id = crypto.randomUUID()
+const { width, height } = useElementSize(document.body, {
+  width: 960,
+  height: 540,
+})
+
+const { info, toggle } = useAppWindow(computed(() => ({
+  name: '事件记录',
+  minWidth: 320,
+  minHeight: 400,
+  x: width.value - 320 - 8,
+  y: height.value - 400 - 80,
+})))
 
 const delay = computed(() => Math.min(999, Math.max(0, socketStore.delay)))
 
@@ -26,30 +36,10 @@ const color = computed(() => {
     return 'var(--color-norm)'
   return 'var(--color-fast)'
 })
-
-const toggleWSWindow = () => {
-  if (windowCtx.getWindow(id)) {
-    windowCtx.closeWindow(id)
-    return
-  }
-  const { clientWidth, clientHeight } = document.body
-  windowCtx.openWindow({
-    id,
-    name: '事件记录',
-    minWidth: 320,
-    minHeight: 400,
-    x: clientWidth - 320 - 8,
-    y: clientHeight - 400 - 80,
-  })
-}
-
-onUnmounted(() => {
-  windowCtx.closeWindow(id)
-})
 </script>
 
 <template>
-  <BarItem label="连接状态" divider @click="toggleWSWindow">
+  <BarItem label="连接状态" divider @click="toggle">
     <div
       class="h-full flex items-center font-['HYWenHei-85W'] px-1"
       :style="{
@@ -96,7 +86,7 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <AppWindowTeleporter :id="id">
+    <AppWindowTeleporter :info="info">
       <StatusWindow />
     </AppWindowTeleporter>
   </BarItem>

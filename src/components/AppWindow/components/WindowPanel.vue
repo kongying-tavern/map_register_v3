@@ -2,7 +2,7 @@
 import { Minus, Plus } from '@element-plus/icons-vue'
 import { ElIcon } from 'element-plus'
 import type { MapWindow } from '../types'
-import { useWindowContext } from '../hooks'
+import { useAppWindow } from '../hooks'
 import WindowResizer from './WindowResizer.vue'
 
 const props = defineProps<{
@@ -14,7 +14,7 @@ const emits = defineEmits<{
   optimizeWindowPosition: []
 }>()
 
-const context = useWindowContext()
+const context = useAppWindow()
 
 const info = defineModel<MapWindow.Info>('info', {
   required: true,
@@ -53,7 +53,7 @@ const handleResize = (resizeProps: MapWindow.ResizeProps) => {
         <ElIcon
           :size="30"
           class="header-action-button"
-          style="--hover-color: var(--el-color-primary); --active-color: var(--el-color-primary-light-3)"
+          style="--hover-color: #FFFFFF20; --active-color: #FFFFFF40"
           @click="() => context.minusWindow(id)"
         >
           <Plus v-if="info.isMinus" />

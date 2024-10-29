@@ -1,15 +1,12 @@
 <script setup lang="ts">
 import BarItem from './BarItem.vue'
-import { AppWindowTeleporter, MapOverlayController, useWindowContext } from '@/components'
+import { AppWindowTeleporter, MapOverlayController, useAppWindow } from '@/components'
 import { useArchiveStore } from '@/stores'
-
-const id = crypto.randomUUID()
-
-const windowCtx = useWindowContext()
-
-const archiveStore = useArchiveStore()
+import { bodyWidth } from '@/shared'
 
 const MIN_WIDTH = window.matchMedia('(min-width: 600px)').matches ? 440 : 240
+
+const archiveStore = useArchiveStore()
 
 const overlayVisible = computed({
   get: () => {
@@ -20,29 +17,19 @@ const overlayVisible = computed({
   },
 })
 
-watch(overlayVisible, (visible) => {
-  if (!visible) {
-    windowCtx.closeWindow(id)
-    return
-  }
-  const { clientWidth } = document.body
-  windowCtx.openWindow({
-    id,
-    name: '附加图层控制器',
-    minWidth: MIN_WIDTH,
-    minHeight: 420,
-    x: clientWidth - MIN_WIDTH - 6,
-    y: 8,
-    beforeClose: () => {
-      overlayVisible.value = false
-      return true
-    },
-  })
-}, { immediate: true })
+const { info, open, close } = useAppWindow(computed(() => ({
+  name: '附加图层控制器',
+  minWidth: MIN_WIDTH,
+  minHeight: 420,
+  x: bodyWidth.value - MIN_WIDTH - 6,
+  y: 8,
+  beforeClose: () => {
+    overlayVisible.value = false
+    return true
+  },
+})))
 
-onUnmounted(() => {
-  windowCtx.closeWindow(id)
-})
+watch(overlayVisible, visible => visible ? open() : close(), { immediate: true })
 </script>
 
 <template>
@@ -59,7 +46,7 @@ onUnmounted(() => {
         }"
       />
 
-      <AppWindowTeleporter :id="id">
+      <AppWindowTeleporter :info="info">
         <MapOverlayController />
       </AppWindowTeleporter>
     </template>

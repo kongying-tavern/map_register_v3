@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { WindowPanel } from './components'
-import { useWindowContext, useWindowDrag } from './hooks'
+import { useAppWindow, useWindowDrag } from './hooks'
 import { useUserStore } from '@/stores'
 
 const userStore = useUserStore()
 
-const context = useWindowContext()
+const context = useAppWindow()
 
 const { optimizeWindowPosition } = useWindowDrag(context)
 
