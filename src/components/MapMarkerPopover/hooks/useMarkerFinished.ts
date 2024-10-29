@@ -17,7 +17,9 @@ export const useMarkerFinished = (markerInfo: ShallowRef<API.MarkerVo | null>) =
     set: (v) => {
       if (markerInfo.value?.id === undefined)
         return
-      archiveStore.currentArchive.body.Data_KYJG[v ? 'add' : 'delete'](markerInfo.value.id)
+      const newArchive = new Set(archiveStore.currentArchive.body.Data_KYJG)
+      newArchive[v ? 'add' : 'delete'](markerInfo.value.id)
+      archiveStore.currentArchive.body.Data_KYJG = newArchive
     },
   })
 

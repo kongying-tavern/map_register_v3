@@ -93,7 +93,7 @@ export class GSMarkerLayer extends CompositeLayer<GSMarkerLayerProps> {
         sizeMaxPixels,
         sizeMinPixels: 4,
         updateTriggers: {
-          getIconFlag: [focusMarkerIds],
+          getIconFlag: [markedMarkerIds, focusMarkerIds],
           getColor: [focusMarkerIds, hoverMarkerIds],
           getPosition: [rewritePositions],
         },
@@ -114,7 +114,7 @@ export class GSMarkerLayer extends CompositeLayer<GSMarkerLayerProps> {
         sizeMaxPixels,
         sizeMinPixels: 4,
         updateTriggers: {
-          getIconFlag: [focusMarkerIds, hoverMarkerIds],
+          getIconFlag: [markedMarkerIds, focusMarkerIds, hoverMarkerIds],
           getColor: [focusMarkerIds, hoverMarkerIds],
           getPosition: [rewritePositions],
         },
