@@ -77,7 +77,7 @@ export const useMapMission = () => {
           })
         }
 
-        const clear = () => () => {
+        const clear = () => {
           if (mission.value?.type !== type)
             return
           mission.value = null
