@@ -39,18 +39,18 @@ export const _useMarkerControl = () => {
   const focus = computed(() => {
     if (hideMarkerPopover.value)
       return
-    if (mapStateStore.isPopoverOnHover) {
-      const hoverIds = mapStateStore.interaction.hoverElements.get(MARKER_INTERACTION_KEY)
+    if (mapStateStore.interaction.isPopoverOnHover) {
+      const hoverIds = mapStateStore.interaction.hoverElements.get(MARKER_INTERACTION_KEY) as (Set<number> | undefined)
       if (!hoverIds || hoverIds.size > 1)
         return
-      const markerId = hoverIds.values().next().value
+      const markerId = hoverIds.values().next().value!
       return mapStateStore.currentMarkerIdMap.get(markerId)
     }
     else {
-      const focusIds = mapStateStore.interaction.focusElements.get(MARKER_INTERACTION_KEY)
+      const focusIds = mapStateStore.interaction.focusElements.get(MARKER_INTERACTION_KEY) as (Set<number> | undefined)
       if (!focusIds || focusIds.size > 1)
         return
-      const markerId = focusIds.values().next().value
+      const markerId = focusIds.values().next().value!
       return mapStateStore.currentMarkerIdMap.get(markerId)
     }
   })
@@ -58,10 +58,10 @@ export const _useMarkerControl = () => {
   const hover = computed(() => {
     if (!hasHover(MARKER_INTERACTION_KEY))
       return undefined
-    const hoverIds = mapStateStore.hoverElements.get(MARKER_INTERACTION_KEY)
+    const hoverIds = mapStateStore.interaction.hoverElements.get(MARKER_INTERACTION_KEY) as (Set<number> | undefined)
     if (!hoverIds || hoverIds.size > 1)
       return
-    const markerId = hoverIds.values().next().value
+    const markerId = hoverIds.values().next().value!
     return mapStateStore.currentMarkerIdMap.get(markerId)
   })
 
@@ -142,7 +142,7 @@ export const _useMarkerControl = () => {
   /** 与 hover 相反的行为 */
   const out = () => removeHover(MARKER_INTERACTION_KEY)
 
-  watch(() => [focus.value, mapStateStore.isPopoverOnHover] as const, ([currentFocus, isPopoverOnHover]) => {
+  watch(() => [focus.value, mapStateStore.interaction.isPopoverOnHover] as const, ([currentFocus, isPopoverOnHover]) => {
     if (!currentFocus) {
       !isPopoverOnHover && mapStateStore.setTempMarkers('focus', [])
       return
