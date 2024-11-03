@@ -41,6 +41,10 @@ export class WindowContext implements MapWindow.Context {
     if (this.panels.value.has(params.id))
       return
 
+    const openable = params.beforeOpen ? params.beforeOpen() : true
+    if (!openable)
+      return
+
     const {
       minWidth = this.MIN_WIDTH,
       minHeight = this.MIN_HEIGHT,
@@ -193,7 +197,6 @@ export class WindowContext implements MapWindow.Context {
     cache.size = target.size
   }
 
-  /** 优化窗口位置，使其返回可见区域 */
   optimizeWindowPosition = (box?: ResizeObserverSize) => {
     const { clientWidth, clientHeight } = document.body
 
