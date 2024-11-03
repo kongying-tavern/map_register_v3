@@ -17,6 +17,14 @@ const ATTACH_TOTAL = 5
 export class GSMarkerLayer extends CompositeLayer<GSMarkerLayerProps> {
   static layerName = 'GenshinMarkerLayer'
 
+  static isInstance = (v?: Layer | null): v is GSMarkerLayer => {
+    if (!v)
+      return false
+    if (!(v instanceof this))
+      return false
+    return (v.constructor as typeof Layer).layerName === this.layerName
+  }
+
   constructor(props: GSMarkerLayerProps) {
     super({
       id: 'marker',
