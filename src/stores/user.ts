@@ -46,12 +46,6 @@ export const useUserStore = defineStore('global-user', () => {
     }
   }
 
-  const clearAuth = () => {
-    // FIXME 下面这行会导致 vue runtime 调用 window.close 使得页面关闭（有时候会被阻止），暂时不知道为什么。
-    // 目前已在 index.html 中将 window.close 改为空函数来缓解此问题。
-    auth.value = {}
-  }
-
   const validateToken = () => {
     const { expiresTime = 0 } = auth.value
     return expiresTime > Date.now()
@@ -132,11 +126,16 @@ export const useUserStore = defineStore('global-user', () => {
     return authData
   }
 
+  const clearLoginState = () => {
+    auth.value = {}
+    info.value = null
+  }
+
   const beforeLogout = createEventHook<void>()
 
   const logout = () => {
     beforeLogout.trigger()
-    clearAuth()
+    clearLoginState()
   }
 
   const onBeforeLogout = (fn: () => void) => {
@@ -175,7 +174,7 @@ export const useUserStore = defineStore('global-user', () => {
 
     // actions
     setAuth,
-    clearAuth,
+    clearAuth: clearLoginState,
     validateToken,
     refreshToken,
     refreshUserInfo,
