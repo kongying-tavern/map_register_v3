@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia'
 import { liveQuery } from 'dexie'
 import type { ShallowRef } from 'vue'
-import { useSocketStore, useUserAuthStore } from '.'
-import { useBackendUpdate, userHook } from '@/stores/hooks'
+import { useSocketStore } from '.'
+import { useBackendUpdate } from '@/stores/hooks'
 import Api from '@/api/api'
 import db from '@/database'
 import { Zip } from '@/utils'
@@ -40,9 +40,4 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
     markerLinkList: markerLinkList as Readonly<ShallowRef<API.MarkerLinkageVo[]>>,
     backendUpdater,
   }
-})
-
-userHook.onInfoChange(useMarkerLinkStore, async (store) => {
-  const { validateToken } = useUserAuthStore()
-  validateToken() ? await store.backendUpdater.start() : store.backendUpdater.stop()
 })
