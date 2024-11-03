@@ -14,7 +14,6 @@ interface GenshinMapAffixProps {
 }
 
 const props = withDefaults(defineProps<GenshinMapAffixProps>(), {
-  pos: () => [0, 0],
   visible: true,
   zIndex: 1,
 })
