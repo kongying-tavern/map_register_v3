@@ -6,7 +6,7 @@ import type {
   MAFSemanticUnit,
   MAFValueStringArray,
 } from '@/stores/types'
-import { LINK_ACTION_NAME_MAP, LINK_ACTION_OPTIONS, LinkActionEnum } from '@/shared'
+import { LINK_ACTION_NAME_MAP, LINK_ACTION_OPTIONS, LinkActionEnum } from '@/shared/linkAction'
 
 type OptionType = typeof LINK_ACTION_OPTIONS[0]
 
