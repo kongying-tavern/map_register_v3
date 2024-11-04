@@ -36,9 +36,10 @@ const idText = computed(() => {
 })
 
 const copyId = async () => {
-  const idStr = toValue(idText)
-  if (!idStr)
+  const id = toValue(cachedMarkerVo)?.id
+  if (!id)
     return
+  const idStr = id.toString()
   await navigator.clipboard.writeText(idStr)
   ElMessage.success({
     message: `"${idStr}" 已复制到剪贴板`,
