@@ -244,7 +244,7 @@ defineExpose({
               <el-radio-button :value="HiddenFlagEnum.HIDDEN">
                 隐藏
               </el-radio-button>
-              <el-radio-button v-if="accessStore.get('HIDDEN_FLAG_HIDDEN')" :value="HiddenFlagEnum.NEIGUI">
+              <el-radio-button v-if="accessStore.get('HIDDEN_FLAG_NEIGUI')" :value="HiddenFlagEnum.NEIGUI">
                 测试服点位
               </el-radio-button>
             </el-radio-group>
