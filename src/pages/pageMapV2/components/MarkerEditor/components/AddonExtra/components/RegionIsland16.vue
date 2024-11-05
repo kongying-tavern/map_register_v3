@@ -11,7 +11,7 @@ const modelValue = defineModel<API.MarkerExtra['1_6_island'] | undefined>({
 <template>
   <div class="mb-4">
     <div class="mb-1">
-      1.6 版本海岛层级
+      1.6 版本海岛阶段
     </div>
 
     <el-cascader
