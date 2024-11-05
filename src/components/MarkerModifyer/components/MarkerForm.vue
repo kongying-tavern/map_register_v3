@@ -80,14 +80,17 @@ const availableExtraConfig = computed(() => {
     const areaConfig = markerExtraStore.mergedAreaExtraConfigs[areaCode]
     if (!areaConfig)
       return config
-    const { underground = {}, ...rest } = areaConfig ?? {}
-    const { levels = [], ...undergroundRest } = underground
-    return Object.assign(config, rest, {
-      underground: {
-        ...undergroundRest,
-        levels: [...levels, ...(config.underground?.levels ?? [])],
-      },
-    })
+    const { underground, ...rest } = areaConfig ?? {}
+    if (underground) {
+      const { levels = [], ...undergroundRest } = underground
+      Object.assign(rest, {
+        underground: {
+          ...undergroundRest,
+          levels: [...levels, ...(config.underground?.levels ?? [])],
+        },
+      })
+    }
+    return Object.assign(config, rest)
   }, {} as API.ExtraConfig)
   return config
 })
