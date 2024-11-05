@@ -41,7 +41,7 @@ const island28BindValues = computed({
 <template>
   <div class="mb-4">
     <div class="mb-1">
-      2.8 版本海岛层级
+      2.8 版本海岛
     </div>
 
     <el-cascader

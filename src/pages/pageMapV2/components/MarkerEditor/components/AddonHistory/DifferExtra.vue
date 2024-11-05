@@ -48,11 +48,11 @@ const isIconoverrideDifferent = computed(() => {
   <div class="w-full overflow-hidden">
     <div v-if="isIsland16Different" class="mb-2">
       <div class="sub-title">
-        海岛 1.6 层级
+        海岛 1.6 阶段
       </div>
       <div class="w-full grid grid-cols-[60px_1fr_20px_1fr] leading-5 overflow-hidden">
         <div class="text-xs">
-          层级ID
+          阶段ID
         </div>
         <div class="text-xs">
           <div
@@ -82,7 +82,7 @@ const isIconoverrideDifferent = computed(() => {
 
     <div v-if="isIsland28Different" class="mb-2">
       <div class="sub-title">
-        海岛 2.8 层级
+        海岛 2.8 岛屿
       </div>
       <div class="w-full grid grid-cols-[60px_1fr_20px_1fr] leading-5 overflow-hidden">
         <div class="text-xs">
@@ -128,7 +128,7 @@ const isIconoverrideDifferent = computed(() => {
 
     <div v-if="isUndergroundDifferent" class="mb-2">
       <div class="sub-title">
-        附加层级
+        分层层级
       </div>
       <div class="w-full grid grid-cols-[60px_1fr_20px_1fr] leading-5 overflow-hidden">
         <div class="text-xs">

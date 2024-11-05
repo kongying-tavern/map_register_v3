@@ -59,7 +59,7 @@ const regionLevels = computed({
 <template>
   <div class="mb-4">
     <div class="mb-1">
-      附加层级
+      分层层级
     </div>
 
     <div class="flex gap-2 overflow-hidden">
