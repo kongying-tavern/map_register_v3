@@ -21,7 +21,7 @@ const defaultPreference = getDefaultPreference()
         </template>
       </SettingBar>
 
-      <SettingBar label="地图界面多选点位" :icon="Crop">
+      <SettingBar label="批量编辑点位" :icon="Crop">
         <template #setting>
           <ShortcutKey
             v-model="preferenceStore.preference['app.shortcutKey.multiselectMarker']"
@@ -30,7 +30,7 @@ const defaultPreference = getDefaultPreference()
         </template>
       </SettingBar>
 
-      <SettingBar label="批量修改点位标记状态" :icon="Grape">
+      <SettingBar label="批量标记点位" :icon="Grape">
         <template #setting>
           <ShortcutKey
             v-model="preferenceStore.preference['app.shortcutKey.toggleMarkerState']"
