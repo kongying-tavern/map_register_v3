@@ -90,7 +90,9 @@ export const useMarkerEdit = (markerData: Ref<API.MarkerVo | null>) => {
     try {
       if (!markerData.value)
         throw new Error('所需的点位数据为空')
-      await editorRef.value?.validate()
+      const isValid = await editorRef.value?.validate()
+      if (!isValid)
+        return
       await submit()
     }
     catch {
