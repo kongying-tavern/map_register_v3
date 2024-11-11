@@ -1,5 +1,3 @@
-import type { Color } from '@deck.gl/core'
-
 /** 点位关联行为枚举 */
 export enum LinkActionEnum {
   /** 单触发 - 点对点的单向触发。 */
@@ -44,7 +42,7 @@ export const LINK_ACTION_NAME_MAP = LINK_ACTION_OPTIONS
 
 export interface LinkActionConfig {
   /** 指示线颜色 */
-  lineColor: Color
+  lineColor: [r: number, g: number, b: number]
 }
 
 export const LINK_ACTION_CONFIG: Record<LinkActionEnum, LinkActionConfig> = {
