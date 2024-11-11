@@ -5,7 +5,7 @@ import { ElMessage } from 'element-plus'
 import { MarkerEditor } from '../MarkerModifyer'
 import { MapAffix } from '../MapAffix'
 import { MarkerPanel } from './components'
-import { useMarkerDelete, useMarkerExtra, useMarkerFinished, useMarkerMove, useSkeletonPicture } from './hooks'
+import { useMarkerDelete, useMarkerExtra, useMarkerFinished, useMarkerMove } from './hooks'
 import { useGlobalDialog, useMarkerControl } from '@/hooks'
 import { useAccessStore, useIconTagStore, useMapStateStore, useMarkerStore } from '@/stores'
 import { CloseFilled } from '@/components/GenshinUI/GSIcon'
@@ -20,8 +20,6 @@ const mapStateStore = useMapStateStore()
 const { tagSpriteUrl, tagPositionMap } = storeToRefs(useIconTagStore())
 
 const { cachedMarkerVo, isPopoverActived, focus, blur, updateFocus } = useMarkerControl()
-
-const { pictureUrl, loading: imageLoading } = useSkeletonPicture(cachedMarkerVo)
 
 const { isFinished, toggle: toggleFinished } = useMarkerFinished(cachedMarkerVo)
 
@@ -139,28 +137,23 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
         </template>
 
         <template #picture>
-          <el-skeleton style="width: 256px; height: 200px" :loading="imageLoading" animated>
-            <template #template>
-              <el-skeleton-item variant="image" style="width: 100%; height: 100%;" />
-            </template>
-            <template #default>
-              <div
-                class="
-                  w-64 shrink-0 grid place-content-center bg-[#4A5265] text-[#D3BC8E] transition-[height]
-                "
-                :class="cachedMarkerVo.picture ? 'h-[200px]' : 'h-0'"
-              >
-                <el-image
-                  v-if="pictureUrl"
-                  :src="pictureUrl"
-                  :preview-src-list="[pictureUrl]"
-                  preview-teleported
-                  fit="cover"
-                  style="height: 100%"
-                />
-              </div>
-            </template>
-          </el-skeleton>
+          <div class="w-[256px] h-[200px] bg-[#4A5265] overflow-hidden">
+            <el-image
+              :src="cachedMarkerVo.picture"
+              :preview-src-list="cachedMarkerVo.picture ? [cachedMarkerVo.picture] : undefined"
+              preview-teleported
+              fit="contain"
+              style="width: 100%; height: 100%"
+            >
+              <template #placeholder>
+                <el-skeleton style="width: 256px; height: 200px" loading animated>
+                  <template #template>
+                    <el-skeleton-item variant="image" style="width: 100%; height: 100%;" />
+                  </template>
+                </el-skeleton>
+              </template>
+            </el-image>
+          </div>
         </template>
 
         <template #append>
