@@ -8,6 +8,7 @@ export {}
 declare const globalThis: DedicatedWorkerGlobalScope
 
 export interface WorkerInput {
+  type: 'compress' | 'decompress'
   data: Uint8Array
   wasm: ArrayBuffer
   name: string
@@ -16,6 +17,33 @@ export interface WorkerInput {
 export type WorkerSuccessOutput = Uint8Array | string
 
 export type WorkerOutput = Uint8Array | string
+
+/** 压缩文件 */
+const compressFile = async (options: WorkerInput, logger: Logger): Promise<Uint8Array> => {
+  const { data, wasm, name } = options
+
+  const zip = await SevenZip({
+    wasmBinary: wasm,
+    stdout: code => logger.stdout.write(String.fromCharCode(code)),
+  })
+
+  const tempFilename = `${name}.bin`
+  const stream = zip.FS.open(tempFilename, 'w+')
+  zip.FS.write(stream, data, 0, data.length)
+  zip.FS.close(stream)
+
+  // 压缩，详细用法见 7-zip 命令行帮助
+  zip.callMain(['a', '-tzip', '-mx=9', '-mmt=8', '-mfb=273', '-mpass=15', '-y', name, tempFilename])
+
+  logger.info('已压缩', {
+    file: tempFilename,
+    size: formatByteSize(zip.FS.stat(name).size, { binary: true }),
+  })
+
+  const res = zip.FS.readFile(name)
+
+  return res
+}
 
 /** 解压文件 */
 const decompressFile = async (options: WorkerInput, logger: Logger): Promise<Uint8Array> => {
@@ -48,8 +76,17 @@ globalThis.addEventListener('message', async (ev: MessageEvent<WorkerInput>) => 
   const { send, logger } = useLoggerWorker<WorkerInput, WorkerOutput>(ev, 'Zip')
 
   try {
-    const res = await decompressFile(ev.data, logger)
-    send(res, [res.buffer])
+    let res: Uint8Array
+    switch (ev.type) {
+      case 'compress':
+        res = await compressFile(ev.data, logger)
+        send(res, [res.buffer])
+        break
+      case 'decompress':
+        res = await decompressFile(ev.data, logger)
+        send(res, [res.buffer])
+        break
+    }
   }
   catch (err) {
     logger.error(err instanceof Error ? err.message : `${err}`)
