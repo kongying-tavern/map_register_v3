@@ -10,6 +10,35 @@ export class Zip {
   static #send = createWorkerHelper<WorkerInput, Uint8Array>(new ZipWorker({ name: '7zip工作线程' }))
 
   /**
+   * 压缩文件
+   * @param file 需要被压缩的文件
+   */
+  static compress = async (file: Uint8Array, name = 'temp') => {
+    const wasm = await this.#zipWasmBinary
+
+    const copyZipWasm = wasm.slice(0)
+
+    const compressedData = await this.#send({
+      type: 'compress',
+      data: file,
+      name,
+      wasm: copyZipWasm,
+    }, [file.buffer, copyZipWasm])
+
+    return compressedData
+  }
+
+  /**
+   * 以 JSON 进行压缩
+   */
+  static compressFrom = async <T>(data: T, options: CompressFromObjectOptions = {}) => {
+    const { name } = options
+    const bufferData = new TextEncoder().encode(JSON.stringify(data))
+    const compressedData = await this.compress(bufferData)
+    return this.compress(compressedData, name)
+  }
+
+  /**
    * 解压缩文件
    * @param file 需要被解压的文件
    */
@@ -19,6 +48,7 @@ export class Zip {
     const copyZipWasm = wasm.slice(0)
 
     const decompressedData = await this.#send({
+      type: 'decompress',
       data: file,
       name,
       wasm: copyZipWasm,
@@ -32,10 +62,15 @@ export class Zip {
    */
   static decompressAs = async <T>(file: Uint8Array, options: DecompressAsObjectOptions = {}) => {
     const { utfLabel = 'utf-8', name } = options
-    const depressedData = await this.decompress(file, name)
-    const stringData = new TextDecoder(utfLabel).decode(depressedData.buffer)
+    const decompressedData = await this.decompress(file, name)
+    const stringData = new TextDecoder(utfLabel).decode(decompressedData.buffer)
     return JSON.parse(stringData) as T
   }
+}
+
+export interface CompressFromObjectOptions {
+  /** 临时文件的文件名，用于 debug */
+  name?: string
 }
 
 export interface DecompressAsObjectOptions {
