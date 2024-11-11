@@ -12,6 +12,7 @@ import {
   useOverlayStore,
   useTileStore,
 } from '@/stores'
+import { TempLayerIndex } from '@/shared'
 import type { useResourceStatus } from '@/hooks'
 
 interface MapLayerHookOptions {
@@ -97,13 +98,20 @@ export const useMapLayers = (options: MapLayerHookOptions) => {
   const { markerLayer } = useMarkerLayer()
 
   // ============================== 图层汇总 ==============================
-  const layers = computed<LayersList>(() => [
-    tileLayer.value,
-    overlayer.value,
-    tagLayer.value,
-    markerDraggingLineLayer.value,
-    markerLayer.value,
-  ])
+  const layers = computed<LayersList>(() => {
+    const res = [
+      tileLayer.value,
+      overlayer.value,
+      tagLayer.value,
+      ...mapStateStore.tempLayer.toLayers(TempLayerIndex.BeforeMarkerDraggingLine),
+      markerDraggingLineLayer.value,
+      ...mapStateStore.tempLayer.toLayers(TempLayerIndex.AfterMarkerDraggingLine),
+      ...mapStateStore.tempLayer.toLayers(TempLayerIndex.BeforeMarker),
+      markerLayer.value,
+      ...mapStateStore.tempLayer.toLayers(TempLayerIndex.AfterMarker),
+    ]
+    return res
+  })
 
   return {
     layers,

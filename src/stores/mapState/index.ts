@@ -8,6 +8,7 @@ import {
   useMarkerFilter,
   useMarkerLink,
   useMarkers,
+  useTempLayers,
   useViewPort,
 } from './hooks'
 import {
@@ -36,11 +37,14 @@ export const useMapStateStore = defineStore('global-map-state', () => {
   // ============================== 地图指针 ==============================
   const cursorHook = useMapCursor()
 
+  // ============================== 临时图层 ==============================
+  const tempLayer = useTempLayers()
+
   // ============================== 地图任务 ==============================
   const missionHook = useMapMission()
 
   // ============================== 地图交互 ==============================
-  const interactionInfoHook = useInteractionInfo()
+  const interaction = useInteractionInfo()
 
   // ============================== 地图点位 ==============================
   const markersHook = useMarkers({
@@ -55,7 +59,7 @@ export const useMapStateStore = defineStore('global-map-state', () => {
   // ============================== 点位关联 ==============================
   const markerLinkInfoHook = useMarkerLink({
     markerLinkStore,
-    focusElements: interactionInfoHook.focusElements,
+    focusElements: interaction.focusElements,
     currentMarkerIdMap: markersHook.currentMarkerIdMap,
     staticMarkerIds: markersHook.staticMarkerIds,
     setTempMarkers: markersHook.setTempMarkers,
@@ -77,7 +81,9 @@ export const useMapStateStore = defineStore('global-map-state', () => {
 
     ...cursorHook,
 
-    interaction: interactionInfoHook,
+    tempLayer,
+
+    interaction,
 
     ...markersHook,
 
