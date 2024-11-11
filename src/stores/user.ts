@@ -46,39 +46,6 @@ export const useUserStore = defineStore('global-user', () => {
     }
   }
 
-  const validateToken = () => {
-    const { expiresTime = 0 } = auth.value
-    return expiresTime > Date.now()
-  }
-
-  const refreshToken = async (onCancel?: () => void) => {
-    if (!auth.value.refreshToken) {
-      onCancel?.()
-      return
-    }
-    // 刷新时间如果大于阈值，跳过并等待下一轮刷新
-    if ((auth.value.expiresTime! - Date.now()) > (REFRESH_INTERVAL + RESTTIME_PRECISION))
-      return
-    const res = await Oauth.oauth.refresh({
-      grant_type: 'refresh_token',
-      refresh_token: auth.value.refreshToken,
-    }).catch(() => null)
-    // 如果此轮刷新失败，跳过并等待下一轮刷新
-    if (!res)
-      return
-    logger.info('token 已刷新')
-    setAuth(res)
-  }
-
-  // 自动刷新 token
-  const {
-    isActive: isAutoRefreshActive,
-    pause: pauseRefreshToken,
-    resume: resumeRefreshToken,
-  } = useTimeoutPoll(() => refreshToken(() => {
-    pauseRefreshToken()
-  }), REFRESH_INTERVAL)
-
   // ==================== 角色信息 ====================
   const roleList = shallowRef<API.SysRoleVo[]>([])
 
@@ -131,12 +98,48 @@ export const useUserStore = defineStore('global-user', () => {
     info.value = null
   }
 
+  const validateToken = () => {
+    const { expiresTime = 0 } = auth.value
+    return expiresTime > Date.now()
+  }
+
   const beforeLogout = createEventHook<void>()
 
   const logout = () => {
     beforeLogout.trigger()
     clearLoginState()
   }
+
+  const refreshToken = async (onCancel?: () => void) => {
+    if (!auth.value.refreshToken) {
+      onCancel?.()
+      return
+    }
+    // 刷新时间如果大于阈值，跳过并等待下一轮刷新
+    if ((auth.value.expiresTime! - Date.now()) > (REFRESH_INTERVAL + RESTTIME_PRECISION))
+      return
+    const res = await Oauth.oauth.refresh({
+      grant_type: 'refresh_token',
+      refresh_token: auth.value.refreshToken,
+    }).catch(() => null)
+    // 如果刷新失败，清空凭证并退出
+    if (!res) {
+      onCancel?.()
+      logout()
+      return
+    }
+    logger.info('token 已刷新')
+    setAuth(res)
+  }
+
+  // 自动刷新 token
+  const {
+    isActive: isAutoRefreshActive,
+    pause: pauseRefreshToken,
+    resume: resumeRefreshToken,
+  } = useTimeoutPoll(() => refreshToken(() => {
+    pauseRefreshToken()
+  }), REFRESH_INTERVAL)
 
   const onBeforeLogout = (fn: () => void) => {
     tryOnMounted(() => {
