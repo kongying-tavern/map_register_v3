@@ -1,0 +1,20 @@
+import { ScatterplotLayer } from '@deck.gl/layers'
+import type { GSMarkerInfo } from '@/packages/map'
+
+export class MarkerIndicatorLayer extends ScatterplotLayer<GSMarkerInfo> {
+  static layerName = 'GSMarkerIndicator'
+
+  constructor(options: {
+    data: GSMarkerInfo[]
+  }) {
+    super({
+      id: 'marker-indicator',
+      data: options.data,
+      getPosition: info => info.render.position,
+      getFillColor: [255, 140, 0],
+      getRadius: 6,
+      radiusMaxPixels: 6,
+      radiusMinPixels: 6,
+    })
+  }
+}

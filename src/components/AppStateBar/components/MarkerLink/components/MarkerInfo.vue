@@ -1,15 +1,13 @@
 <script setup lang="ts">
 import { useAreaStore, useIconTagStore, useItemStore } from '@/stores'
-import type { GSMapState } from '@/stores/types/genshin-map-state'
 import { AppIconTagRenderer } from '@/components'
+import type { GSMarkerInfo } from '@/packages/map'
 
 const props = withDefaults(defineProps<{
-  marker?: GSMapState.MarkerWithRenderConfig
+  marker?: GSMarkerInfo
   placeholder?: string
-  color?: string
 }>(), {
   placeholder: '--N/A--',
-  color: '#FFFF00',
 })
 
 const areaStore = useAreaStore()
@@ -35,17 +33,27 @@ const areas = computed(() => {
 </script>
 
 <template>
-  <div
-    class="marker-info"
-    :style="{
-      '--color': color,
-    }"
-  >
-    <div v-if="!marker" class="h-full grid place-items-center">
-      <el-text>{{ placeholder }}</el-text>
+  <div class="w-full overflow-hidden p-1">
+    <div
+      v-if="!marker"
+      class="
+        h-[48px] rounded px-2
+        grid place-content-center
+        bg-[var(--el-fill-color)]
+        text-[var(--el-text-color-secondary)]
+      "
+    >
+      {{ placeholder }}
     </div>
 
-    <div v-else class="h-full flex items-center p-1 gap-1">
+    <div
+      v-else
+      class="
+        h-[48px] rounded p-1
+        flex items-center gap-1
+        bg-[var(--el-fill-color)]
+      "
+    >
       <AppIconTagRenderer
         :mapping="iconTagStore.tagPositionMap[marker.render.mainIconTag]"
         :src="iconTagStore.tagSpriteUrl"

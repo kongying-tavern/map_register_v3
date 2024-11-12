@@ -28,7 +28,7 @@ const showDeleted = computed({
 
 const mapStateStore = useMapStateStore()
 
-const { addHover, isHover, removeHover } = mapStateStore
+const { addHover, isHover, removeHover } = mapStateStore.interaction
 
 const { refresh: submit } = useLinkCreate(props.context)
 

@@ -1,100 +1,168 @@
 <script setup lang="ts">
 import { MapAffix } from '@/components'
-import type { GSMapState } from '@/stores/types/genshin-map-state'
+import type { GSMarkerInfo } from '@/packages/map'
 
 const props = defineProps<{
-  source: GSMapState.MarkerWithRenderConfig
-  target: GSMapState.MarkerWithRenderConfig
+  hover?: GSMarkerInfo
+  source?: GSMarkerInfo
+  target?: GSMarkerInfo
 }>()
 
-const shape = computed(() => {
-  const { 0: xs } = props.source.render.position
-  const { 1: ys } = props.source.render.position
-  const { 0: xt } = props.target.render.position
-  const { 1: yt } = props.target.render.position
+/** 点位匹配尺寸 */
+const markerSize = ref(40)
 
-  const xmin = Math.min(xs, xt)
-  const xmax = Math.max(xs, xt)
-  const ymin = Math.min(ys, yt)
-  const ymax = Math.max(ys, yt)
+/** 图形基础尺寸 */
+const size = ref(50)
+const center = computed(() => ({
+  x: size.value / 2,
+  y: size.value / 2,
+}))
 
-  const w = xmax - xmin
-  const h = ymax - ymin
+const hoverPosition = computed(() => {
+  if (!props.hover
+    || (props.source && props.target)
+    || props.hover.id === props.source?.id
+    || props.hover.id === props.target?.id
+  )
+    return
+  return props.hover.render.position
+})
 
+const selectedShape = computed(() => {
+  if (!props.source || !props.target)
+    return
+  const [xa, ya] = props.source.render.position
+  const [xb, yb] = props.target.render.position
+  const length = Math.sqrt((xa - xb) ** 2 + (ya - yb) ** 2)
+  const theta = 180 * Math.atan2(yb - ya, xb - xa) / Math.PI
   return {
-    x1: xs > xt ? w : 0,
-    y1: ys > yt ? h : 0,
-    x2: xs < xt ? w : 0,
-    y2: ys < yt ? h : 0,
-    w,
-    h,
+    x: xa,
+    y: ya,
+    theta,
+    length,
   }
 })
 
-const xmin = computed(() => {
-  const { 0: x1 } = props.source.render.position
-  const { 0: x2 } = props.target.render.position
-  return Math.min(x1, x2)
+const preSelectShape = computed(() => {
+  if (!props.source || !props.hover || props.source.id === props.hover.id)
+    return
+  if (props.source && props.target)
+    return
+  const { 0: xa, 1: ya } = props.source.render.position
+  const { 0: xb, 1: yb } = props.hover.render.position
+  const xmin = Math.min(xa, xb)
+  const ymin = Math.min(ya, yb)
+  const xmax = Math.max(xa, xb)
+  const ymax = Math.max(ya, yb)
+  const width = xmax - xmin
+  const height = ymax - ymin
+  const theta = Math.atan2(yb - ya, xb - xa)
+  return {
+    xmin,
+    ymin,
+    xmax,
+    ymax,
+    width,
+    height,
+    x: xa,
+    y: ya,
+    theta,
+  }
 })
-
-const ymin = computed(() => {
-  const { 1: y1 } = props.source.render.position
-  const { 1: y2 } = props.target.render.position
-  return Math.min(y1, y2)
-})
-
-const prefix = crypto.randomUUID()
 </script>
 
 <template>
-  <MapAffix
-    :pos="[xmin, ymin]"
-    :z-index="0"
-    no-covert-coord
-    zoom-with-map
-  >
-    <template #default="{ scale }">
-      <div
-        class="link-indicator"
-        :style="{
-          '--w': shape.w,
-          '--h': shape.h,
-        }"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" :viewBox="`0 0 ${shape.w} ${shape.h}`">
-          <defs>
-            <linearGradient
-              :id="`${prefix}-linear`"
-              :x1="`${100 * shape.x1 / shape.w}%`"
-              :y1="`${100 * shape.y1 / shape.h}%`"
-              :x2="`${100 * shape.x2 / shape.w}%`"
-              :y2="`${100 * shape.y2 / shape.h}%`"
-            >
-              <stop offset="0%" stop-color="#FFFF00" />
-              <stop offset="100%" stop-color="#00FF00" />
-            </linearGradient>
-          </defs>
-          <line
-            :x1="shape.x1"
-            :y1="shape.y1"
-            :x2="shape.x2"
-            :y2="shape.y2"
-            :stroke-width="2 / scale"
-            :stroke="`url(#${prefix}-linear)`"
-            stroke-dasharray="5,5"
-          >
-            <animate attributeName="stroke-dashoffset" from="10" to="0" dur=".5s" repeatCount="indefinite" />
-          </line>
+  <MapAffix v-if="preSelectShape" :pos="[preSelectShape.xmin, preSelectShape.ymin]" no-covert-coord zoom-with-map>
+    <template #default>
+      <div class="overflow-visible border border-red-600" :style="`width: ${preSelectShape.width}px; height: ${preSelectShape.height}px`">
+        <svg
+          viewBox="0 0 100 100"
+          fill="transparent"
+        >
+          <rect x="0" y="0" width="100" height="100" stroke="red" stroke-width="2" />
         </svg>
       </div>
     </template>
   </MapAffix>
+
+  <!-- <MapAffix :pos="hoverPosition" no-covert-coord>
+    <template #default="{ zoom }">
+      <div class="w-0 h-0 overflow-visible">
+        <svg
+          viewBox="0 0 100 100"
+          fill="transparent"
+          :width="size"
+          :height="size"
+          :transform-origin="`${center.x} ${center.y}`"
+          :transform="`translate(-${center.x}, -${center.y + (markerSize / 2) * 2 ** Math.min(0, zoom + 2)}) scale(${2 ** Math.min(0, zoom + 2)})`"
+        >
+          <defs>
+            <mask id="mask">
+              <rect x="0" y="0" width="100" height="100" fill="white" />
+              <path d="M 50 -20 L 120 50 L 50 120 L -20 50 Z" fill="black" />
+            </mask>
+          </defs>
+          <rect
+            x="4"
+            y="4"
+            width="92"
+            height="92"
+            rx="16"
+            stroke="yellow"
+            stroke-width="6"
+            mask="url(#mask)"
+          />
+        </svg>
+      </div>
+    </template>
+  </MapAffix> -->
+
+  <!-- <MapAffix :pos="source?.render.position" no-covert-coord>
+    <template #default="{ zoom }">
+      <div class="w-0 h-0 overflow-visible">
+        <svg
+          viewBox="0 0 100 100"
+          fill="transparent"
+          :width="size"
+          :height="size"
+          :transform-origin="`${size / 2} ${size / 2}`"
+          :transform="`translate(-${center.x}, -${center.y}) scale(${2 ** Math.min(0, zoom + 2)})`"
+        >
+          <circle cx="50" cy="50" r="48" stroke="yellow" stroke-width="2">
+            <animate attributeName="r" values="48;1;1;2" dur="0.15s" repeatCount="1" fill="freeze" />
+          </circle>
+        </svg>
+      </div>
+    </template>
+  </MapAffix> -->
+
+  <!-- <MapAffix :pos="target?.render.position" no-covert-coord>
+    <template #default="{ zoom }">
+      <div class="w-0 h-0 overflow-visible">
+        <svg
+          viewBox="0 0 100 100"
+          fill="transparent"
+          :width="size"
+          :height="size"
+          :transform-origin="`${size / 2} ${size / 2}`"
+          :transform="`translate(-${center.x}, -${center.y}) scale(${2 ** Math.min(0, zoom + 2)})`"
+        >
+          <circle cx="50" cy="50" r="48" stroke="yellow" stroke-width="2">
+            <animate attributeName="r" values="48;1;1;2" dur="0.15s" repeatCount="1" fill="freeze" />
+          </circle>
+        </svg>
+      </div>
+    </template>
+  </MapAffix> -->
 </template>
 
 <style scoped>
-.link-indicator {
-  width: calc(var(--w) * 1px);
-  height: calc(var(--h) * 1px);
-  color: #FFFF00;
+@keyframes hover-ping {
+  75% {
+    transform: scale(2);
+  }
+  100% {
+    opacity: 0;
+  }
 }
 </style>

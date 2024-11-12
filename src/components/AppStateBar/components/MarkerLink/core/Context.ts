@@ -163,7 +163,7 @@ export class MLContext {
     this.resumeSync()
     this.resumeRender()
     // 切换 focus 与 hover 导致的点位弹窗行为
-    this.mapStateStore.setIsPopoverOnHover(true)
+    this.mapStateStore.interaction.setIsPopoverOnHover(true)
     // 初始化关联任务
     this.updateMission([])
     // 打开点位关联弹窗
@@ -256,7 +256,7 @@ export class MLContext {
     this.pauseSync = pauseSync
     this.resumeSync = resumeSync
 
-    const { pauseFocus, resumeFocus, addFocus, removeFocus } = this.mapStateStore
+    const { pauseFocus, resumeFocus, addFocus, removeFocus } = this.mapStateStore.interaction
 
     this.pauseFocus = () => pauseFocus('marker')
     this.setMarkerFocus = (id: number) => addFocus<number>('marker', id)
@@ -281,7 +281,7 @@ export class MLContext {
     // 任务结束时清理状态
     onClear(() => {
       resumeFocus('marker')
-      this.mapStateStore.setIsPopoverOnHover(false)
+      this.mapStateStore.interaction.setIsPopoverOnHover(false)
       this.mapStateStore.setMLRenderList([])
       this.clickSubscription?.unsubscribe()
       this.resetSelectedState()
