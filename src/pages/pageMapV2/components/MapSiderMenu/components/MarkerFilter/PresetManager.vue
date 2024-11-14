@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { storeToRefs } from 'pinia'
 import { ElMessage } from 'element-plus'
-import { DocumentCopy, Promotion } from '@element-plus/icons-vue'
+import { CloseBold, DocumentCopy, Download, Edit, Promotion } from '@element-plus/icons-vue'
 import { SelectList } from '../SelectList'
 import { usePresets } from './hooks'
 import { GSButton, GSDivider, GSInput } from '@/components'
@@ -33,6 +33,10 @@ const presetCodeStatus = ref<PresetHookOptions['codeStatus']>({
   isUpdatable: false,
 })
 
+const presetCodeEdit = ref<string>('')
+
+const presetCodeEditable = ref<boolean>(false)
+
 const copyPresetCode = async () => {
   if (!presetCode.value)
     return
@@ -42,18 +46,55 @@ const copyPresetCode = async () => {
   })
 }
 
-const handleClosed = () => {
-  presetName.value = ''
+const togglePresetCodeEdit = (editMode?: boolean) => {
+  presetCodeEditable.value = editMode ?? !presetCodeEditable.value
+  presetCodeEdit.value = presetCodeEditable.value ? presetCode.value : ''
 }
 
-const { savePreset, deletePreset, loadPreset } = usePresets({
+const togglePresetCodePanel = (panelOpen?: boolean) => {
+  presetCodeStatus.value.isUpdatable = panelOpen ?? !presetCodeStatus.value.isUpdatable
+  togglePresetCodeEdit(false)
+}
+
+const handleClosed = () => {
+  presetName.value = ''
+  presetCode.value = ''
+  presetCodeStatus.value = {
+    isUsingSelection: false,
+    isGenerating: false,
+    isUpdatable: false,
+  }
+  presetCodeEdit.value = ''
+  presetCodeEditable.value = false
+}
+
+const { savePreset, deletePreset, loadPreset, importPresetCode } = usePresets({
   nameToSave: presetName,
   nameToLoad: presetName,
   nameToUpdateCode: presetName,
   codeToUpdate: presetCode,
   codeStatus: presetCodeStatus,
+  nameToImportCode: presetName,
+  codeImportCallback: (success: boolean) => {
+    if (success) {
+      togglePresetCodeEdit(false)
+      ElMessage.success({
+        message: '导入分享码成功',
+      })
+    }
+    else {
+      ElMessage.error({
+        message: '导入分享码失败，请检查分享码',
+      })
+    }
+  },
   conditionGetter: computed(() => props.conditions),
 })
+
+// ==================== 自适应 textarea 行高 ====================
+const textareaContainerRef = ref<HTMLElement>()
+const { height } = useElementSize(textareaContainerRef)
+const textareaRows = computed(() => Math.floor((height.value - 20) / 19))
 </script>
 
 <template>
@@ -84,14 +125,14 @@ const { savePreset, deletePreset, loadPreset } = usePresets({
         <GSButton
           class="flex-none"
           size="small"
-          @click="() => presetCodeStatus.isUpdatable = !presetCodeStatus.isUpdatable"
+          @click="togglePresetCodePanel()"
         >
-          分享码
           <template #icon>
             <el-icon :color="presetCodeStatus.isUpdatable ? 'var(--gs-color-success)' : 'var(--gs-color-cancel)'">
               <Promotion />
             </el-icon>
           </template>
+          分享码
         </GSButton>
       </div>
       <div class="flex gap-2">
@@ -157,37 +198,90 @@ const { savePreset, deletePreset, loadPreset } = usePresets({
           </div>
         </div>
 
+        <div v-if="presetCodeStatus.isUpdatable" class="w-0 mt-4 border-r-[2px] border-r-[#76716A]" />
+
         <!-- 分享码 -->
         <div v-if="presetCodeStatus.isUpdatable" class="flex flex-col flex-1">
-          <div class="flex items-center gap-3 pt-4 pb-2">
-            <div class="text-white">
+          <div class="flex items-center gap-2 pt-4 pb-2">
+            <div class="text-white pr-1">
               · 分享码
             </div>
-            <GSButton
-              :disabled="!presetCode"
-              size="small"
-              title="复制分享码"
-              @click="copyPresetCode"
-            >
-              <template #icon>
-                <el-icon color="var(--gs-color-success)">
-                  <DocumentCopy />
-                </el-icon>
-              </template>
-            </GSButton>
+            <template v-if="!presetCodeEditable">
+              <GSButton
+                :disabled="!presetCode"
+                size="small"
+                title="复制分享码"
+                @click="copyPresetCode"
+              >
+                <template #icon>
+                  <el-icon color="var(--gs-color-success)">
+                    <DocumentCopy />
+                  </el-icon>
+                </template>
+              </GSButton>
+              <GSButton size="small" @click="togglePresetCodeEdit">
+                <template #icon>
+                  <el-icon color="var(--gs-color-confirm)">
+                    <Edit />
+                  </el-icon>
+                </template>
+                导入
+              </GSButton>
+            </template>
           </div>
-          <div v-if="!presetCodeStatus.isUsingSelection" class="bg-[#eacd96] mb-2 py-1 text-center text-[#232d3d]">
-            此分享码为当前过滤器分享码
-          </div>
-          <el-scrollbar
-            v-loading="presetCodeStatus.isGenerating"
-            element-loading-background="#00000070"
-            class="flex-1 overflow-hidden"
-          >
-            <div class="text-wrap break-all max-h-0 pr-1">
-              {{ presetCode }}
+          <template v-if="!presetCodeEditable">
+            <div v-if="!presetCodeStatus.isUsingSelection" class="bg-[#eacd96] mb-2 py-1 text-center text-[#232d3d]">
+              此分享码为当前过滤器分享码
             </div>
-          </el-scrollbar>
+            <el-scrollbar
+              v-loading="presetCodeStatus.isGenerating"
+              element-loading-background="#00000070"
+              class="flex-1 overflow-hidden"
+            >
+              <div class="text-wrap break-all max-h-0 pr-1">
+                {{ presetCode }}
+              </div>
+            </el-scrollbar>
+          </template>
+          <template v-else>
+            <div ref="textareaContainerRef" class="flex-1">
+              <el-input
+                v-model="presetCodeEdit"
+                type="textarea"
+                resize="none"
+                placeholder="请输入分享码"
+                :rows="textareaRows"
+              />
+            </div>
+
+            <GSDivider color="#76716A" />
+
+            <div class="flex flex-none gap-4">
+              <GSButton
+                class="flex-1"
+                @click="togglePresetCodeEdit(false)"
+              >
+                <template #icon>
+                  <el-icon color="var(--gs-color-cancel)">
+                    <CloseBold />
+                  </el-icon>
+                </template>
+                取消
+              </GSButton>
+              <GSButton
+                :disabled="!presetName || !presetCodeEdit"
+                class="flex-1"
+                @click="importPresetCode(presetCodeEdit)"
+              >
+                <template #icon>
+                  <el-icon color="var(--gs-color-confirm)">
+                    <Download />
+                  </el-icon>
+                </template>
+                导入
+              </GSButton>
+            </div>
+          </template>
         </div>
       </div>
     </div>

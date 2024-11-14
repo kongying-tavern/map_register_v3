@@ -8,7 +8,7 @@ interface PresetType {
 
 export type FilterType = keyof PresetType
 
-interface ExtractFilter<K extends FilterType> {
+export interface ExtractFilter<K extends FilterType> {
   name: string
   type: K
   conditions: PresetType[K]

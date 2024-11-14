@@ -1,8 +1,8 @@
 import { storeToRefs } from 'pinia'
 import { cloneDeep } from 'lodash'
 import { usePreferenceStore, useUserInfoStore } from '@/stores'
-import type { MAFGroup, MBFItem } from '@/stores/types'
-import { Zip } from '@/utils'
+import type { ExtractFilter, MAFGroup, MBFItem } from '@/stores/types'
+import { Zip, base64ToUint8Array, uint8ArrayToBase64 } from '@/utils'
 
 export interface PresetHookOptions {
   nameToSave: Ref<string>
@@ -14,8 +14,14 @@ export interface PresetHookOptions {
     isGenerating: boolean
     isUpdatable: boolean
   }>
+  nameToImportCode: Ref<string>
+  codeImportCallback: (success: boolean) => void
   conditionGetter: ComputedRef<Map<string, MBFItem> | MAFGroup[]>
 }
+
+type PresetPack =
+  | Pick<ExtractFilter<'basic'>, 'type' | 'conditions'>
+  | Pick<ExtractFilter<'advanced'>, 'type' | 'conditions'>
 
 export const usePresets = (options: PresetHookOptions) => {
   const {
@@ -24,6 +30,8 @@ export const usePresets = (options: PresetHookOptions) => {
     nameToUpdateCode,
     codeToUpdate,
     codeStatus,
+    nameToImportCode,
+    codeImportCallback,
     conditionGetter,
   } = options
 
@@ -154,9 +162,9 @@ export const usePresets = (options: PresetHookOptions) => {
 
   /** 更新预设分享码：当前配置 */
   const updateCurrentPresetCode = async () => {
-    const name = crypto.randomUUID()
+    const name = ''
     const conditions = conditionGetter.value
-    const object = conditions instanceof Map
+    const object: PresetPack = conditions instanceof Map
       ? {
           type: 'basic' as const,
           conditions: Object.fromEntries(conditions.entries()),
@@ -170,8 +178,7 @@ export const usePresets = (options: PresetHookOptions) => {
     const compressedData = await Zip.compressFrom(object, {
       name: `preset-code-${name}`,
     })
-    const compressedStr = new TextDecoder().decode(compressedData)
-    const base64 = btoa(encodeURIComponent(compressedStr))
+    const base64 = uint8ArrayToBase64(compressedData)
     codeToUpdate.value = base64
     codeStatus.value = {
       ...codeStatus.value,
@@ -183,7 +190,7 @@ export const usePresets = (options: PresetHookOptions) => {
   /** 更新预设分享码：基础预设 */
   const updateBasePresetCode = async (conditions: Record<string, MBFItem>) => {
     const name = nameToUpdateCode.value
-    const object = {
+    const object: PresetPack = {
       type: 'basic' as const,
       conditions,
     }
@@ -192,8 +199,7 @@ export const usePresets = (options: PresetHookOptions) => {
     const compressedData = await Zip.compressFrom(object, {
       name: `preset-code-${name}`,
     })
-    const compressedStr = new TextDecoder().decode(compressedData)
-    const base64 = btoa(encodeURIComponent(compressedStr))
+    const base64 = uint8ArrayToBase64(compressedData)
     codeToUpdate.value = base64
     codeStatus.value = {
       ...codeStatus.value,
@@ -205,7 +211,7 @@ export const usePresets = (options: PresetHookOptions) => {
   /** 更新预设分享码：高级预设 */
   const updateAdvancedPresetCode = async (conditions: MAFGroup[]) => {
     const name = nameToUpdateCode.value
-    const object = {
+    const object: PresetPack = {
       type: 'advanced' as const,
       conditions,
     }
@@ -214,8 +220,7 @@ export const usePresets = (options: PresetHookOptions) => {
     const compressedData = await Zip.compressFrom(object, {
       name: `preset-code-${name}`,
     })
-    const compressedStr = new TextDecoder().decode(compressedData)
-    const base64 = btoa(encodeURIComponent(compressedStr))
+    const base64 = uint8ArrayToBase64(compressedData)
     codeToUpdate.value = base64
     codeStatus.value = {
       ...codeStatus.value,
@@ -264,10 +269,41 @@ export const usePresets = (options: PresetHookOptions) => {
     await updatePresetCode()
   })
 
+  /** 导入预设分享码 */
+  const importPresetCode = async (base64: string) => {
+    if (info.value.id === undefined)
+      return
+    if (!base64)
+      return
+
+    try {
+      const presets = [...preference.value['markerFilter.setting.presets'] ?? []]
+      const name = nameToImportCode.value
+
+      const findIndex = presets.findIndex(preset => preset.name === name)
+      const findPreset = presets[findIndex]
+
+      const importName = findPreset === undefined ? '' : name
+      const compressedData = base64ToUint8Array(base64)
+      const object = await Zip.decompressAs<PresetPack>(compressedData, {
+        utfLabel: 'utf-8',
+        name: `preset-code-${importName}`,
+      })
+      object.type === 'basic'
+        ? saveBasePreset(Object.entries(object.conditions).reduce((map, [k, v]) => map.set(k, v), new Map<string, MBFItem>()))
+        : saveAdvancedPreset(object.conditions)
+      codeImportCallback(true)
+    }
+    catch {
+      codeImportCallback(false)
+    }
+  }
+
   return {
     savePreset,
     deletePreset,
     loadPreset,
     updatePresetCode,
+    importPresetCode,
   }
 }
