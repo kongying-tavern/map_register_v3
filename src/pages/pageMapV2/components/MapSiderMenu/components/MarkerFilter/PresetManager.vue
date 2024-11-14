@@ -13,7 +13,7 @@ const props = defineProps<{
   conditions: Map<string, MBFItem> | MAFGroup[]
 }>()
 
-defineEmits<{
+const emits = defineEmits<{
   'update:modelValue': [visible: boolean]
 }>()
 
@@ -90,6 +90,11 @@ const { savePreset, deletePreset, loadPreset, importPresetCode } = usePresets({
   },
   conditionGetter: computed(() => props.conditions),
 })
+
+const handleLoadPreset = () => {
+  loadPreset()
+  emits('update:modelValue', false)
+}
 
 // ==================== 自适应 textarea 行高 ====================
 const textareaContainerRef = ref<HTMLElement>()
@@ -191,7 +196,7 @@ const textareaRows = computed(() => Math.floor((height.value - 20) / 19))
               :disabled="!presetName"
               class="flex-1"
               icon="submit"
-              @click="loadPreset"
+              @click="handleLoadPreset"
             >
               读取
             </GSButton>
