@@ -27,17 +27,18 @@ const compressFile = async (options: WorkerInput, logger: Logger): Promise<Uint8
     stdout: code => logger.stdout.write(String.fromCharCode(code)),
   })
 
-  const tempFilename = `${name}.bin`
-  const stream = zip.FS.open(tempFilename, 'w+')
+  const inputFilename = `${name}.bin`
+  const stream = zip.FS.open(inputFilename, 'w+')
   zip.FS.write(stream, data, 0, data.length)
   zip.FS.close(stream)
 
   // 压缩，详细用法见 7-zip 命令行帮助
-  zip.callMain(['a', '-t7z', '-mx=9', '-m0=LZMA2', '-md=256m', '-ms=on', '-mhc', '-mhcf', name, tempFilename])
+  zip.callMain(['a', '-tgzip', '-mx=9', '-y', name, inputFilename])
 
-  const outputFilename = `${name}.7z`
+  const outputFilename = `${name}.gz`
   logger.info('已压缩', {
-    file: tempFilename,
+    file: inputFilename,
+    outFile: outputFilename,
     size: formatByteSize(zip.FS.stat(outputFilename).size, { binary: true }),
   })
 
@@ -55,20 +56,23 @@ const decompressFile = async (options: WorkerInput, logger: Logger): Promise<Uin
     stdout: code => logger.stdout.write(String.fromCharCode(code)),
   })
 
-  const tempFilename = `${name}.bin`
-  const stream = zip.FS.open(tempFilename, 'w+')
+  const inputFilename = `${name}.bin`
+  const stream = zip.FS.open(inputFilename, 'w+')
   zip.FS.write(stream, data, 0, data.length)
   zip.FS.close(stream)
 
   // 解压，详细用法见 7-zip 命令行帮助
-  zip.callMain(['x', '-y', tempFilename])
+  zip.callMain(['x', `-o${name}`, '-y', inputFilename])
 
+  const outputFilename = zip.FS.readdir(name).filter(name => name && !name.startsWith('.'))[0] ?? ''
+  const outputFilepath = `${name}/${outputFilename}`
   logger.info('已解压', {
-    file: tempFilename,
-    size: formatByteSize(zip.FS.stat(name).size, { binary: true }),
+    file: inputFilename,
+    outFile: outputFilename,
+    size: formatByteSize(zip.FS.stat(outputFilepath).size, { binary: true }),
   })
 
-  const res = zip.FS.readFile(name)
+  const res = zip.FS.readFile(outputFilepath)
 
   return res
 }
