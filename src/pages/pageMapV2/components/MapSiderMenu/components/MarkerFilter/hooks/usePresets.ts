@@ -2,15 +2,30 @@ import { storeToRefs } from 'pinia'
 import { cloneDeep } from 'lodash'
 import { usePreferenceStore, useUserInfoStore } from '@/stores'
 import type { MAFGroup, MBFItem } from '@/stores/types'
+import { Zip } from '@/utils'
 
 export interface PresetHookOptions {
   nameToSave: Ref<string>
   nameToLoad: Ref<string>
+  nameToUpdateCode: Ref<string>
+  codeToUpdate: Ref<string>
+  codeStatus: Ref<{
+    isUsingSelection: boolean
+    isGenerating: boolean
+    isUpdatable: boolean
+  }>
   conditionGetter: ComputedRef<Map<string, MBFItem> | MAFGroup[]>
 }
 
 export const usePresets = (options: PresetHookOptions) => {
-  const { nameToSave, nameToLoad, conditionGetter } = options
+  const {
+    nameToSave,
+    nameToLoad,
+    nameToUpdateCode,
+    codeToUpdate,
+    codeStatus,
+    conditionGetter,
+  } = options
 
   const { preference } = storeToRefs(usePreferenceStore())
   const { info } = storeToRefs(useUserInfoStore())
@@ -137,9 +152,122 @@ export const usePresets = (options: PresetHookOptions) => {
       : loadAdvancedPreset(conditions)
   }
 
+  /** 更新预设分享码：当前配置 */
+  const updateCurrentPresetCode = async () => {
+    const name = crypto.randomUUID()
+    const conditions = conditionGetter.value
+    const object = conditions instanceof Map
+      ? {
+          type: 'basic' as const,
+          conditions: Object.fromEntries(conditions.entries()),
+        }
+      : {
+          type: 'advanced' as const,
+          conditions,
+        }
+
+    codeStatus.value = { ...codeStatus.value, isGenerating: true }
+    const compressedData = await Zip.compressFrom(object, {
+      name: `preset-code-${name}`,
+    })
+    const compressedStr = new TextDecoder().decode(compressedData)
+    const base64 = btoa(encodeURIComponent(compressedStr))
+    codeToUpdate.value = base64
+    codeStatus.value = {
+      ...codeStatus.value,
+      isGenerating: false,
+      isUsingSelection: false,
+    }
+  }
+
+  /** 更新预设分享码：基础预设 */
+  const updateBasePresetCode = async (conditions: Record<string, MBFItem>) => {
+    const name = nameToUpdateCode.value
+    const object = {
+      type: 'basic' as const,
+      conditions,
+    }
+
+    codeStatus.value = { ...codeStatus.value, isGenerating: true }
+    const compressedData = await Zip.compressFrom(object, {
+      name: `preset-code-${name}`,
+    })
+    const compressedStr = new TextDecoder().decode(compressedData)
+    const base64 = btoa(encodeURIComponent(compressedStr))
+    codeToUpdate.value = base64
+    codeStatus.value = {
+      ...codeStatus.value,
+      isGenerating: false,
+      isUsingSelection: true,
+    }
+  }
+
+  /** 更新预设分享码：高级预设 */
+  const updateAdvancedPresetCode = async (conditions: MAFGroup[]) => {
+    const name = nameToUpdateCode.value
+    const object = {
+      type: 'advanced' as const,
+      conditions,
+    }
+
+    codeStatus.value = { ...codeStatus.value, isGenerating: true }
+    const compressedData = await Zip.compressFrom(object, {
+      name: `preset-code-${name}`,
+    })
+    const compressedStr = new TextDecoder().decode(compressedData)
+    const base64 = btoa(encodeURIComponent(compressedStr))
+    codeToUpdate.value = base64
+    codeStatus.value = {
+      ...codeStatus.value,
+      isGenerating: false,
+      isUsingSelection: true,
+    }
+  }
+
+  /** 更新预设分享码 */
+  const updatePresetCode = async () => {
+    if (info.value.id === undefined)
+      return
+    if (!codeStatus.value.isUpdatable)
+      return
+    codeStatus.value.isGenerating = false
+
+    const presets = [...preference.value['markerFilter.setting.presets'] ?? []]
+    const name = nameToUpdateCode.value
+
+    const findIndex = presets.findIndex(preset => preset.name === name)
+    const findPreset = presets[findIndex]
+    if (findPreset === undefined) {
+      await updateCurrentPresetCode()
+    }
+    else {
+      findPreset.type === 'basic'
+        ? await updateBasePresetCode(findPreset.conditions)
+        : await updateAdvancedPresetCode(findPreset.conditions)
+    }
+    codeStatus.value.isGenerating = false
+  }
+
+  /* 监听生成数据变更 */
+  watch(() => codeStatus.value.isUpdatable, async () => {
+    if (codeStatus.value.isGenerating)
+      return
+    if (!codeStatus.value.isUpdatable)
+      return
+    await updatePresetCode()
+  })
+  watch(nameToUpdateCode, async () => {
+    if (codeStatus.value.isGenerating)
+      return
+    if (!codeStatus.value.isUpdatable)
+      return
+    await updatePresetCode()
+  })
+
   return {
     savePreset,
     deletePreset,
     loadPreset,
+    updatePresetCode,
   }
 }
