@@ -33,14 +33,15 @@ const compressFile = async (options: WorkerInput, logger: Logger): Promise<Uint8
   zip.FS.close(stream)
 
   // 压缩，详细用法见 7-zip 命令行帮助
-  zip.callMain(['a', '-tzip', '-mx=9', '-mmt=8', '-mfb=273', '-mpass=15', '-y', name, tempFilename])
+  zip.callMain(['a', '-t7z', '-mx=9', '-m0=LZMA2', '-md=256m', '-ms=on', '-mmt=on', name, tempFilename])
 
+  const outputFilename = `${name}.7z`
   logger.info('已压缩', {
     file: tempFilename,
-    size: formatByteSize(zip.FS.stat(name).size, { binary: true }),
+    size: formatByteSize(zip.FS.stat(outputFilename).size, { binary: true }),
   })
 
-  const res = zip.FS.readFile(name)
+  const res = zip.FS.readFile(outputFilename)
 
   return res
 }
@@ -60,7 +61,7 @@ const decompressFile = async (options: WorkerInput, logger: Logger): Promise<Uin
   zip.FS.close(stream)
 
   // 解压，详细用法见 7-zip 命令行帮助
-  zip.callMain(['x', tempFilename, '-y'])
+  zip.callMain(['x', '-y', tempFilename])
 
   logger.info('已解压', {
     file: tempFilename,
@@ -77,7 +78,7 @@ globalThis.addEventListener('message', async (ev: MessageEvent<WorkerInput>) => 
 
   try {
     let res: Uint8Array
-    switch (ev.type) {
+    switch (ev.data.type) {
       case 'compress':
         res = await compressFile(ev.data, logger)
         send(res, [res.buffer])

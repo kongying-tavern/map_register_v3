@@ -34,8 +34,8 @@ export class Zip {
   static compressFrom = async <T>(data: T, options: CompressFromObjectOptions = {}) => {
     const { name } = options
     const bufferData = new TextEncoder().encode(JSON.stringify(data))
-    const compressedData = await this.compress(bufferData)
-    return this.compress(compressedData, name)
+    const compressedData = await this.compress(bufferData, name)
+    return compressedData
   }
 
   /**
