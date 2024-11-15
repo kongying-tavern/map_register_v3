@@ -21,7 +21,15 @@ const { preference } = storeToRefs(usePreferenceStore())
 
 const presetName = controlledRef('', {
   onBeforeChange: (value) => {
-    return !value || value.trim().length === value.length
+    if (!value)
+      return true
+    else if (!/^[^\\/:*?"'<>|]*$/gui.test(value))
+      return false
+    if (/^\./gui.test(value))
+      return false
+    else if (value.trim().length === value.length)
+      return true
+    return false
   },
 })
 
