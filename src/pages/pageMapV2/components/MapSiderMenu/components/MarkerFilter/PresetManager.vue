@@ -4,6 +4,7 @@ import { ElMessage } from 'element-plus'
 import { CloseBold, DocumentCopy, Download, Edit, Promotion } from '@element-plus/icons-vue'
 import { SelectList } from '../SelectList'
 import { usePresets } from './hooks'
+import type { PresetHookOptions } from './hooks'
 import { GSButton, GSDivider, GSInput } from '@/components'
 import { usePreferenceStore } from '@/stores'
 import type { MAFGroup, MBFItem } from '@/stores/types'
@@ -35,7 +36,7 @@ const presetName = controlledRef('', {
 
 const presetCode = ref<string>('')
 
-const presetCodeStatus = ref<PresetHookOptions['codeStatus']>({
+const presetCodeStatus: PresetHookOptions['codeStatus'] = ref({
   isUsingSelection: false,
   isGenerating: false,
   isUpdatable: false,
@@ -232,7 +233,7 @@ const textareaRows = computed(() => Math.floor((height.value - 20) / 19))
                   </el-icon>
                 </template>
               </GSButton>
-              <GSButton size="small" @click="togglePresetCodeEdit">
+              <GSButton size="small" @click="togglePresetCodeEdit()">
                 <template #icon>
                   <el-icon color="var(--gs-color-confirm)">
                     <Edit />
