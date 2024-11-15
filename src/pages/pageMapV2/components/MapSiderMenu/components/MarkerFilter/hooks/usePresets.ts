@@ -295,6 +295,7 @@ export const usePresets = (options: PresetHookOptions) => {
       codeImportCallback(true)
     }
     catch {
+      codeStatus.value.isGenerating = false
       codeImportCallback(false)
     }
   }
