@@ -160,10 +160,10 @@ const textareaRows = computed(() => Math.floor((height.value - 20) / 19))
           <div class="text-white pt-4 pb-2">
             · 预设列表
           </div>
-          <el-scrollbar class="flex-1">
+          <el-scrollbar class="flex-1 overflow-hidden">
             <SelectList
               v-model="presetName"
-              class="h-full overflow-auto"
+              class="flex-1 max-h-0"
               :list="preference['markerFilter.setting.presets']!"
               value-key="name"
             >
