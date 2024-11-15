@@ -39,9 +39,9 @@ export const usePresets = (options: PresetHookOptions) => {
   const { info } = storeToRefs(useUserInfoStore())
 
   /** 保存适配器：基础预设 */
-  const saveBasePreset = (conditions: Map<string, MBFItem>) => {
+  const saveBasePreset = (conditions: Map<string, MBFItem> | Record<string, MBFItem>) => {
     const name = nameToSave.value
-    const newConditions = Object.fromEntries(conditions.entries())
+    const newConditions = conditions instanceof Map ? Object.fromEntries(conditions.entries()) : conditions
     const presetList = [...preference.value['markerFilter.setting.presets'] ?? []]
 
     const object = {
@@ -290,7 +290,7 @@ export const usePresets = (options: PresetHookOptions) => {
         name: `preset-code-${importName}`,
       })
       object.type === 'basic'
-        ? saveBasePreset(Object.entries(object.conditions).reduce((map, [k, v]) => map.set(k, v), new Map<string, MBFItem>()))
+        ? saveBasePreset(object.conditions)
         : saveAdvancedPreset(object.conditions)
       codeImportCallback(true)
     }
