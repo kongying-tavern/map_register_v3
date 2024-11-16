@@ -72,7 +72,7 @@ const asideOpen = ref<boolean>(false)
       </div>
       <div class="flex gap-2">
         <GSInput v-model="presetName" class="flex-1" placeholder="请输入预设名称" />
-        <GSButton icon="submit" :disabled="!presetName" @click="savePreset">
+        <GSButton icon="submit" :disabled="!presetName" @click="savePreset()">
           保存
         </GSButton>
       </div>

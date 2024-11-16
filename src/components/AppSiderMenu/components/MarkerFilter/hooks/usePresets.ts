@@ -15,9 +15,9 @@ export const usePresets = (options: PresetHookOptions) => {
   const preferenceStore = usePreferenceStore()
 
   /** 保存适配器：基础预设 */
-  const saveBasePreset = (conditions: Map<string, MBFItem>) => {
+  const saveBasePreset = (conditions: Map<string, MBFItem> | Record<string, MBFItem>) => {
     const name = nameToSave.value
-    const newConditions = Object.fromEntries(conditions.entries())
+    const newConditions = conditions instanceof Map ? Object.fromEntries(conditions.entries()) : conditions
     const presetList = [...preferenceStore.presets]
 
     const object = {
@@ -58,12 +58,12 @@ export const usePresets = (options: PresetHookOptions) => {
   }
 
   /** 保存预设 */
-  const savePreset = () => {
+  const savePreset = (customConditions?: Map<string, MBFItem> | Record<string, MBFItem> | MAFGroup[]) => {
     if (userStore.info?.id === undefined)
       return
 
-    const conditions = conditionGetter.value
-    conditions instanceof Map
+    const conditions = customConditions ?? conditionGetter.value
+    !Array.isArray(conditions)
       ? saveBasePreset(conditions)
       : saveAdvancedPreset(conditions)
   }
