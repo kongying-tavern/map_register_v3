@@ -1,6 +1,7 @@
 <script lang="ts" setup>
-import { SelectList } from '../SelectList'
-import { usePresets } from './hooks'
+import { SelectList } from '../../SelectList'
+import { usePresets } from '../hooks'
+import { PresetCodePanel } from '.'
 import { GSButton, GSDivider, GSInput } from '@/components'
 import { usePreferenceStore } from '@/stores'
 import type { MAFGroup, MBFItem } from '@/stores/types'
@@ -30,8 +31,14 @@ const presetName = controlledRef('', {
   },
 })
 
+// ==================== 侧边栏 ====================
+const asideRef = ref<HTMLElement>()
+
+const asideOpen = ref<boolean>(false)
+
 const handleClosed = () => {
   presetName.value = ''
+  asideOpen.value = false
 }
 
 const { savePreset, deletePreset, loadPreset } = usePresets({
@@ -39,11 +46,6 @@ const { savePreset, deletePreset, loadPreset } = usePresets({
   nameToLoad: presetName,
   conditionGetter: computed(() => props.conditions),
 })
-
-// ==================== 侧边栏 ====================
-const asideRef = ref<HTMLElement>()
-
-const asideOpen = ref<boolean>(false)
 </script>
 
 <template>
@@ -67,8 +69,22 @@ const asideOpen = ref<boolean>(false)
 
       <GSDivider color="#76716A" />
 
-      <div class="text-white pb-2">
-        · 预设名称
+      <div class="flex gap-3 items-center pb-3">
+        <div class="text-white">
+          · 预设名称
+        </div>
+        <GSButton
+          class="flex-none"
+          size="small"
+          @click="() => asideOpen = !asideOpen"
+        >
+          <template #icon>
+            <el-icon :color="asideOpen ? 'var(--gs-color-success)' : 'var(--gs-color-cancel)'">
+              <Promotion />
+            </el-icon>
+          </template>
+          分享码
+        </GSButton>
       </div>
       <div class="flex gap-2">
         <GSInput v-model="presetName" class="flex-1" placeholder="请输入预设名称" />
@@ -140,8 +156,11 @@ const asideOpen = ref<boolean>(false)
   </el-dialog>
 
   <Teleport v-if="asideRef && asideOpen" :to="asideRef">
-    <div class="pt-4">
-      Coming Soon ...
-    </div>
+    <PresetCodePanel
+      :preset-name="presetName"
+      :conditions="conditions"
+      :save-preset="savePreset"
+      @imported="() => asideOpen = false"
+    />
   </Teleport>
 </template>

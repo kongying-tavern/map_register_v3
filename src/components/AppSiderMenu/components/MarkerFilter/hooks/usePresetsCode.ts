@@ -1,5 +1,4 @@
-import { storeToRefs } from 'pinia'
-import { usePreferenceStore, useUserInfoStore } from '@/stores'
+import { usePreferenceStore, useUserStore } from '@/stores'
 import type { ExtractFilter, FilterPreset, MAFGroup, MBFItem } from '@/stores/types'
 import { Zip, base64ToUint8Array, uint8ArrayToBase64 } from '@/utils'
 
@@ -24,11 +23,11 @@ export const usePresetsCode = (options: PresetCodeHookOptions) => {
     presetSaver,
   } = options
 
-  const { preference } = storeToRefs(usePreferenceStore())
-  const { info } = storeToRefs(useUserInfoStore())
+  const userStore = useUserStore()
+  const preferenceStore = usePreferenceStore()
 
   const previewConditions = computed<FilterPreset | null>(() => {
-    const presets = [...preference.value['markerFilter.setting.presets'] ?? []]
+    const presets = [...preferenceStore.presets]
     const name = nameToPreview.value
 
     const findIndex = presets.findIndex(preset => preset.name === name)
@@ -61,7 +60,7 @@ export const usePresetsCode = (options: PresetCodeHookOptions) => {
     return base64
   }
 
-  /** 更新预设分享码：基础预设 */
+  /** 获取预设分享码：基础预设 */
   const getBaseCode = async (conditions: Record<string, MBFItem>) => {
     const name = nameToPreview.value
     const object: PresetPack = {
@@ -76,7 +75,7 @@ export const usePresetsCode = (options: PresetCodeHookOptions) => {
     return base64
   }
 
-  /** 更新预设分享码：高级预设 */
+  /** 获取预设分享码：高级预设 */
   const getAdvancedCode = async (conditions: MAFGroup[]) => {
     const name = nameToPreview.value
     const object: PresetPack = {
@@ -91,24 +90,36 @@ export const usePresetsCode = (options: PresetCodeHookOptions) => {
     return base64
   }
 
-  const shareCode = computed(async () => {
+  /** 获取预设分享码 */
+  const syncCode = async () => {
     if (previewConditions.value === null)
       return await getCurrentCode()
     else if (previewConditions.value.type === 'basic')
       return await getBaseCode(previewConditions.value.conditions)
     else
       return await getAdvancedCode(previewConditions.value.conditions)
+  }
+
+  const shareCode = ref<string>('')
+
+  /** 监听预览条件，更新分享码 */
+  watch(previewConditions, async () => {
+    shareCode.value = await syncCode()
+  })
+
+  onMounted(async () => {
+    shareCode.value = await syncCode()
   })
 
   /** 导入预设分享码 */
   const importCode = async (base64: string) => {
-    if (info.value.id === undefined)
+    if (userStore.info?.id === undefined)
       return
     if (!base64)
       return
 
     try {
-      const presets = [...preference.value['markerFilter.setting.presets'] ?? []]
+      const presets = [...preferenceStore.presets]
       const name = nameToImport.value
 
       const findIndex = presets.findIndex(preset => preset.name === name)
@@ -129,8 +140,8 @@ export const usePresetsCode = (options: PresetCodeHookOptions) => {
   }
 
   return {
-    isUsingFilter,
     shareCode,
+    isUsingFilter,
     importCode,
   }
 }

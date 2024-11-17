@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { MarkerFilterAdvanced } from '../MarkerFilterAdvanced'
 import { MarkerFilterBasic } from '../MarkerFilterBasic'
-import { PresetManager } from '.'
+import { PresetManager } from './PresetManager'
 import { GSButton } from '@/components'
 import { IconSetting } from '@/components/AppIcons'
 import { useArchiveStore, useMapStateStore } from '@/stores'
