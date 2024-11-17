@@ -11,7 +11,7 @@ const props = defineProps<{
   conditions: Map<string, MBFItem> | MAFGroup[]
 }>()
 
-defineEmits<{
+const emits = defineEmits<{
   'update:modelValue': [visible: boolean]
 }>()
 
@@ -46,6 +46,11 @@ const { savePreset, deletePreset, loadPreset } = usePresets({
   nameToLoad: presetName,
   conditionGetter: computed(() => props.conditions),
 })
+
+const handlePresetLoad = () => {
+  loadPreset()
+  emits('update:modelValue', false)
+}
 </script>
 
 <template>
@@ -142,7 +147,7 @@ const { savePreset, deletePreset, loadPreset } = usePresets({
               :disabled="!presetName"
               class="flex-1"
               icon="submit"
-              @click="loadPreset"
+              @click="handlePresetLoad()"
             >
               读取
             </GSButton>
