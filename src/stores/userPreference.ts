@@ -37,6 +37,7 @@ export const usePreferenceStore = defineStore('global-user-preference', () => {
     transparentMarked: model('map.setting.transparentMarked', () => false),
     zoomTransitionDuration: model('map.setting.zoomTransitionDuration', () => 66),
 
+    /** @deprecated */
     preference: archiveStore.currentArchive.body.Preference,
   }
 })
