@@ -13,7 +13,7 @@ const MARKER_INTERACTION_KEY = GSMarkerLayer.layerName
 // TODO 临时偏移量，后续改为根据侧边栏和视口尺寸实时计算
 const FLY_OFFSET = [-200, -200]
 
-export const _useMarkerControl = () => {
+const _useMarkerControl = () => {
   const archiveStore = useArchiveStore()
   const mapStateStore = useMapStateStore()
 
