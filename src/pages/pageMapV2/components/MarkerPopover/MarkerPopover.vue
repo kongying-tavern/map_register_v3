@@ -5,7 +5,7 @@ import { ElMessage } from 'element-plus'
 import { useMarkerFocus } from '../../hooks'
 import { MapAffix, MarkerEditPanel } from '..'
 import { MarkerPanel } from './components'
-import { useMarkerDelete, useMarkerExtra, useMarkerFinished, useMarkerMove, useSkeletonPicture } from './hooks'
+import { useMarkerDelete, useMarkerExtra, useMarkerFinished, useMarkerMove } from './hooks'
 import { useAccessStore, useIconTagStore, useMapStateStore, useMarkerStore } from '@/stores'
 import { CloseFilled } from '@/components/GenshinUI/GSIcon'
 import { AppBilibiliVideoPlayer, AppIconTagRenderer, GSButton } from '@/components'
@@ -20,8 +20,6 @@ const mapStateStore = useMapStateStore()
 const { tagSpriteUrl, tagPositionMap } = storeToRefs(useIconTagStore())
 
 const { cachedMarkerVo, isPopoverActived, focus, blur, updateFocus } = useMarkerFocus()
-
-const { pictureUrl, loading: imageLoading } = useSkeletonPicture(cachedMarkerVo)
 
 const { isFinished, toggle: toggleFinished } = useMarkerFinished(cachedMarkerVo)
 
@@ -139,8 +137,8 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
           </el-icon>
         </template>
 
-        <template #prepend>
-          <div class="h-8 p-1 flex gap-1 text-xs text-[#676D7A] z-10">
+        <template #append>
+          <div class="h-8 mx-1 p-1 rounded flex gap-1 bg-[#676D7A40] text-xs text-[#676D7A] z-10">
             <div
               class="
                 info-tag is-interactive
@@ -152,6 +150,12 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
             >
               {{ idText }}
             </div>
+            <div class="info-tag">
+              {{ hiddenFlagType }}
+            </div>
+            <div class="info-tag">
+              {{ refreshTimeText || '不刷新' }}
+            </div>
             <div
               v-if="cachedMarkerVo.videoPath"
               class="info-tag is-interactive"
@@ -162,36 +166,28 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
                 <VideoCamera />
               </el-icon>
             </div>
-            <div class="info-tag">
-              {{ hiddenFlagType }}
-            </div>
-            <div v-if="refreshTimeText" class="info-tag">
-              {{ refreshTimeText }}
-            </div>
           </div>
         </template>
 
         <template #picture>
-          <el-skeleton style="width: 256px; height: 200px" :loading="imageLoading" animated>
-            <template #template>
-              <el-skeleton-item variant="image" style="width: 100%; height: 100%;" />
-            </template>
-            <template #default>
-              <div
-                class="w-64 grid place-content-center bg-[#4A5265] text-[#D3BC8E] transition-[height]"
-                :class="pictureUrl ? 'h-[200px]' : 'h-0'"
-              >
-                <el-image
-                  v-if="pictureUrl"
-                  :src="pictureUrl"
-                  :preview-src-list="[pictureUrl]"
-                  preview-teleported
-                  fit="cover"
-                  style="height: 100%"
-                />
-              </div>
-            </template>
-          </el-skeleton>
+          <div
+            class="w-[256px] mx-auto transition-[height] flex flex-col justify-end items-center"
+            :class="cachedMarkerVo.picture ? 'h-[248px]' : 'h-0'"
+          >
+            <el-image
+              v-if="cachedMarkerVo.picture"
+              :src="cachedMarkerVo.picture"
+              :preview-src-list="[cachedMarkerVo.picture]"
+              preview-teleported
+              fit="cover"
+              style="width: 240px; height: 240px"
+              class="rounded overflow-hidden"
+            >
+              <template #placeholder>
+                <div class="w-[240px] h-[240px] bg-[gray] animate-pulse" />
+              </template>
+            </el-image>
+          </div>
         </template>
 
         <template #content>
