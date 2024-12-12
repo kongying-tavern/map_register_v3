@@ -136,11 +136,11 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
           </el-icon>
         </template>
 
-        <template #picture>
+        <template v-if="cachedMarkerVo.picture" #picture>
           <div class="w-[256px] h-[200px] bg-[#4A5265] overflow-hidden">
             <el-image
               :src="cachedMarkerVo.picture"
-              :preview-src-list="cachedMarkerVo.picture ? [cachedMarkerVo.picture] : undefined"
+              :preview-src-list="[cachedMarkerVo.picture]"
               preview-teleported
               fit="contain"
               style="width: 100%; height: 100%"
@@ -189,23 +189,13 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
         </template>
 
         <template #content>
-          <el-scrollbar
-            :height="cachedMarkerVo.picture ? 160 : 360"
-            class="text-sm"
-            always
-            style="
-            --el-scrollbar-opacity: 0.6;
-            --el-scrollbar-hover-opacity: 1;
-            --el-scrollbar-bg-color: #4A5366;
-            --el-scrollbar-hover-bg-color: #434343;
-          "
-          >
-            <div class="p-1 px-2">
-              <p v-for="(line, i) in cachedMarkerVo.content?.trim().split('\n')" :key="i" class="leading-5 min-h-[1.5rem] font-[HYWenHei-55S]">
-                {{ line }}
-              </p>
-            </div>
-          </el-scrollbar>
+          <textarea
+            :value="cachedMarkerVo.content"
+            readonly
+            :rows="cachedMarkerVo.picture ? 8 : 16"
+            class="custom-scrollbar block p-1 text-sm outline-none resize-none bg-[var(--card-bg-color)]"
+            autocomplete="off"
+          />
         </template>
 
         <template #footer>
@@ -295,6 +285,24 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
     @apply cursor-pointer;
     &:hover {
       @apply bg-[#ece5d8];
+    }
+  }
+}
+
+.custom-scrollbar {
+  &::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+    background-color: var(--card-bg-color);
+  }
+  &::-webkit-scrollbar-thumb {
+    border-radius: 5px;
+    border: 2px solid var(--card-bg-color);
+    cursor: default;
+    background-color: #BFBBB5;
+    transition: all ease 150ms;
+    &:hover {
+      background-color: #FFFFFF;
     }
   }
 }
