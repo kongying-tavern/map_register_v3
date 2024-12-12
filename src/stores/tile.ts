@@ -3,6 +3,7 @@ import { defaultsDeep, merge } from 'lodash'
 import { useAccessStore, useArchiveStore, useAreaStore, useDadianStore } from '@/stores'
 import type { AreaTagTuple } from '@/configs'
 import { AREA_ADDITIONAL_CONFIG_MAP } from '@/configs'
+import type { Coordinate2D } from '@/packages/map'
 
 export interface TileInfo extends Required<Pick<API.TileConfig, | 'code'
 | 'name'
@@ -183,7 +184,7 @@ export const useTileStore = defineStore('global-map-tile', () => {
   })
 
   /** 将地图坐标转换为点位坐标 */
-  const toMarkerCoordinate = ([x, y]: [number, number]) => {
+  const toMarkerCoordinate = ([x, y]: Coordinate2D): Coordinate2D => {
     if (!currentTileConfig.value)
       return [x, y]
     const { center: [ox, oy] } = currentTileConfig.value.tile
@@ -191,7 +192,7 @@ export const useTileStore = defineStore('global-map-tile', () => {
   }
 
   /** 将点位坐标转换为地图坐标 */
-  const toMapCoordinate = ([x, y]: [number, number]) => {
+  const toMapCoordinate = ([x, y]: Coordinate2D): Coordinate2D => {
     if (!currentTileConfig.value)
       return [x, y]
     const { center: [ox, oy] } = currentTileConfig.value.tile
