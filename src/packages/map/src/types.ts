@@ -4,6 +4,7 @@ import type { IconLayerProps } from '@deck.gl/layers'
 import type { AreaTagTuple } from '@/configs'
 
 type OrthographicViewMapProps = DeckProps<OrthographicView>
+export type Coordinate2D = [x: number, y: number]
 
 // ============================== Map ==============================
 export interface GenshinMapProps extends Omit<OrthographicViewMapProps, 'canvas'> {
@@ -38,7 +39,7 @@ export interface GSTileLayerProps {
   extension?: string
 
   /** 图元偏移量 */
-  tilesOffset?: [x: number, y: number]
+  tilesOffset?: Coordinate2D
 }
 
 export interface GSTagLayerProps {
@@ -49,7 +50,7 @@ export interface GSTagLayerProps {
   visible?: boolean
 
   /** 坐标偏移量 */
-  offset?: [x: number, y: number]
+  offset?: Coordinate2D
 }
 
 export interface GSOverlayerProps {
@@ -70,7 +71,44 @@ export interface GSMarkerLayerProps {
   hoverMarkerIds?: Set<number>
   focusMarkerIds?: Set<number>
   markedMarkerIds?: Set<number>
-  rewritePositions?: Map<number, [x: number, y: number]>
+  rewritePositions?: Map<number, Coordinate2D>
+}
+
+export interface ArrowShapeOptions {
+  /** 箭体长度 @default 70 */
+  arrowBodyLength?: number
+  /** 箭体半径 @default 2 */
+  arrowBodyRadius?: number
+  /** 箭间距 @default 10 */
+  arrowGap?: number
+  /** 箭头半径 @default 10 */
+  arrowHeadRadius?: number
+  /** 箭头厚度 @default Math.SQRT2 * 4 */
+  arrowHeadWeight?: number
+  /** 箭头翼角（弧度） @default 0.75 * Math.PI */
+  arrowWingAngle?: number
+}
+
+export interface GSLinkLayerProps extends ArrowShapeOptions {
+  /** 关联数据 */
+  data: {
+    /** 关联连线的唯一 id */
+    id: string
+    /** 起始点 */
+    from: Coordinate2D
+    /** 终止点 */
+    to: Coordinate2D
+    /** 指示线（箭）的颜色 */
+    color: [r: number, g: number, b: number]
+  }[]
+  /** 描边宽度 */
+  outlineWidth?: number
+  /** 描边颜色 */
+  outlineColor?: [r: number, g: number, b: number]
+  /** hover 数据 */
+  hoverIds?: Set<string>
+  /** 点位坐标调整数据 */
+  rewritePositions?: Map<number, Coordinate2D>
 }
 
 // ============================== Marker ==============================
@@ -81,7 +119,7 @@ export interface GSMarkerInfo extends API.MarkerVo {
   /** 用于渲染的附加属性，避免在渲染层进行计算 */
   render: {
     /** 点位坐标 */
-    position: API.Coordinate2D
+    position: Coordinate2D
 
     /** 点位地区 */
     area: API.AreaVo
@@ -123,7 +161,7 @@ export interface MLRenderUnit {
 
 /** 任务类型表 */
 export interface MissionTypeMap {
-  markerDragging: Map<number, API.Coordinate2D>
+  markerDragging: Map<number, Coordinate2D>
   markerLink: API.MarkerLinkageVo[]
   markerMultiSelect: boolean
   markerBulkState: boolean
