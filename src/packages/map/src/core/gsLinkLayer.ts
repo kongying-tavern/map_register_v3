@@ -145,7 +145,15 @@ class LinkLayerContent extends CompositeLayer<GSLinkLayerProps> {
       arrowWingAngle = 0.75 * Math.PI,
       outlineColor = [255, 255, 255],
       outlineWidth = 2,
+      scale = 1,
     } = this.props
+
+    const abl = arrowBodyLength
+    const abr = arrowBodyRadius * scale
+    const gap = arrowGap * scale
+    const ahr = arrowHeadRadius * scale
+    const ahw = arrowHeadWeight * scale
+    const awa = arrowWingAngle
 
     return this.props.data.map((info, layerIndex) => {
       const { 0: xa, 1: ya } = info.from
@@ -156,14 +164,14 @@ class LinkLayerContent extends CompositeLayer<GSLinkLayerProps> {
         n,
         ox,
         oy,
-      } = this.calculateArrowLayout(xa, ya, xb, yb, arrowBodyLength + arrowHeadRadius, arrowGap)
+      } = this.calculateArrowLayout(xa, ya, xb, yb, abl + ahr, gap)
       const { points, pointCount } = this.calculateArrowTemplate(angle, {
-        arrowBodyLength: realUnitLength - arrowGap,
-        arrowBodyRadius,
-        arrowGap,
-        arrowHeadRadius,
-        arrowHeadWeight,
-        arrowWingAngle,
+        arrowBodyLength: realUnitLength - gap,
+        arrowBodyRadius: abr,
+        arrowGap: gap,
+        arrowHeadRadius: ahr,
+        arrowHeadWeight: ahw,
+        arrowWingAngle: awa,
       })
 
       const data = new Uint8Array(n)
@@ -186,8 +194,11 @@ class LinkLayerContent extends CompositeLayer<GSLinkLayerProps> {
         },
         getFillColor: info.color,
         getLineColor: outlineColor,
-        lineWidthMaxPixels: outlineWidth,
+        lineWidthMaxPixels: outlineWidth * scale,
         lineWidthMinPixels: 0,
+        updateTriggers: {
+          getPolygon: scale,
+        },
       })
     })
   }
@@ -212,6 +223,7 @@ export class GSLinkLayer extends CompositeLayer<GSLinkLayerProps> {
   renderLayers = () => {
     const { zoom } = this.context.viewport
     const { arrowHeadRadius = 10, hoverIds } = this.props
+    const scale = 2 ** -Math.max(0, zoom)
 
     return [
       // content
@@ -219,18 +231,18 @@ export class GSLinkLayer extends CompositeLayer<GSLinkLayerProps> {
         ...this.props,
         data: this.props.data,
         id: this.props.id ? `link-content-${this.props.id}` : undefined,
-        pickable: zoom >= 0,
+        scale,
       }),
 
       // hover
       new LineLayer<GSLinkLayerProps['data'][number]>({
         id: this.props.id ? `link-hover-${this.props.id}` : undefined,
-        pickable: zoom < 0,
+        pickable: true,
         data: this.props.data,
         getSourcePosition: info => info.from,
         getTargetPosition: info => info.to,
         getWidth: arrowHeadRadius,
-        widthScale: 2 ** (zoom + 1),
+        widthScale: scale * 2 ** (zoom + 1),
         getColor: info => [...info.color, hoverIds?.has(info.id) ? 80 : 0],
         widthMinPixels: 0,
         updateTriggers: {

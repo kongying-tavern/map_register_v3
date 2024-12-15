@@ -109,6 +109,8 @@ export interface GSLinkLayerProps extends ArrowShapeOptions {
   hoverIds?: Set<string>
   /** 点位坐标调整数据 */
   rewritePositions?: Map<number, Coordinate2D>
+  /** 缩放系数（不影响长度尺寸） */
+  scale?: number
 }
 
 // ============================== Marker ==============================
