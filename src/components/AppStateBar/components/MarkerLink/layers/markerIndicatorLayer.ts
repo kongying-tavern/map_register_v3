@@ -5,6 +5,7 @@ export class MarkerIndicatorLayer extends ScatterplotLayer<GSMarkerInfo> {
   static layerName = 'GSMarkerIndicator'
 
   constructor(options: {
+    id: string
     data: GSMarkerInfo[]
   }) {
     super({
