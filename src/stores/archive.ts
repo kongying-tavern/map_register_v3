@@ -146,10 +146,21 @@ export const useArchiveStore = defineStore('global-archive', () => {
 
   /** 将当前存档存入指定的存档槽位 */
   const saveArchiveToSlot = async (slotIndex = -1) => {
-    if (!userStore.validateToken())
-      return
-    // 同时存入本地数据库
     const { body, timestamp } = currentArchive.value
+    // 如果未登录，则存入 id 为 -1 的本地用户存档
+    if (!userStore.validateToken()) {
+      await db.userArchive.put({
+        id: -1,
+        body: JSON.parse(JSON.stringify({
+          Data_KYJG: [...body.Data_KYJG],
+          Time_KYJG: body.Time_KYJG,
+          Preference: body.Preference,
+        })),
+        timestamp,
+      })
+      return
+    }
+    // 同时存入本地数据库
     await db.userArchive.put({
       id: userStore.auth.userId!,
       body: JSON.parse(JSON.stringify({
@@ -202,12 +213,11 @@ export const useArchiveStore = defineStore('global-archive', () => {
     if (userId === undefined)
       return
 
-    // 如果没有存档，则读取本地数据库存档。
+    // 如果没有存档，则读取用户的本地数据库存档。
     if (!latestArchive) {
       const localArchive = await db.userArchive.get(userId)
       if (!localArchive)
         return
-      const preference = await db.user.get(userId)
       const { id, body, timestamp } = localArchive
       setArchive({
         id,
@@ -215,7 +225,7 @@ export const useArchiveStore = defineStore('global-archive', () => {
         body: {
           Data_KYJG: new Set(body.Data_KYJG),
           Time_KYJG: body.Time_KYJG,
-          Preference: preference ?? getDefaultPreference(),
+          Preference: body.Preference ?? getDefaultPreference(),
         },
         timestamp,
       })
@@ -229,6 +239,21 @@ export const useArchiveStore = defineStore('global-archive', () => {
   }
 
   const init = async () => {
+    const localArchive = await db.userArchive.get(-1)
+    // 读取未登录存档
+    if (localArchive) {
+      const { id, body, timestamp } = localArchive
+      setArchive({
+        id,
+        slotIndex: -1,
+        body: {
+          Data_KYJG: new Set(body.Data_KYJG),
+          Time_KYJG: body.Time_KYJG,
+          Preference: body.Preference ?? getDefaultPreference(),
+        },
+        timestamp,
+      })
+    }
     watch(() => userStore.auth.userId, async () => {
       await fetchArchive()
       await loadLatestArchive()
