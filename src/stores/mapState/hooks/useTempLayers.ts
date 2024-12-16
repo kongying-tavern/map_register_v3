@@ -8,11 +8,13 @@ import type { TempLayerIndex } from '@/shared'
 export const useTempLayers = () => {
   const tempLayerMap = shallowRef(new Map<TempLayerIndex, Map<string, Layer>>())
 
-  const set = (index: TempLayerIndex, layerId: string, layer: Layer) => {
+  const set = (index: TempLayerIndex, layer: Layer) => {
     if (!tempLayerMap.value.has(index))
       tempLayerMap.value.set(index, new Map())
+    if (!layer.id)
+      throw new Error('图层 id 为空')
     const layers = tempLayerMap.value.get(index)!
-    layers.set(layerId, layer)
+    layers.set(layer.id, layer)
     triggerRef(tempLayerMap)
   }
 
