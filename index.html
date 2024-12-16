@@ -114,19 +114,15 @@
     const app = document.getElementById('app')
     const preloading = document.getElementById('preloading')
 
-    window.close = () => {
-      console.warn('window.close is called')
-      // 阻止此方法运行
-      // 理由详见 => src\stores\userAuth.ts 153 行
+    const removePreloading = () => {
+      preloading.removeEventListener('transitionend', removePreloading)
+      preloading.remove()
     }
 
     document.addEventListener('beforeMount', (ev) => {
+      preloading.removeEventListener('transitionend', removePreloading)
+      preloading.addEventListener('transitionend', removePreloading, { once: true })
       preloading.classList.add('is-end')
-      const removePreloading = () => {
-        preloading.removeEventListener('transitionend', removePreloading)
-        preloading.remove()
-      }
-      preloading.addEventListener('transitionend', removePreloading)
     }, { once: true })
 
     void (async () => {
