@@ -101,14 +101,14 @@ export interface GSLinkLayerProps extends ArrowShapeOptions {
     /** 指示线（箭）的颜色 */
     color: [r: number, g: number, b: number]
   }[]
+  /** 指示线的透明度 0-255 */
+  colorOpacity?: number
   /** 描边宽度 */
   outlineWidth?: number
   /** 描边颜色 */
-  outlineColor?: [r: number, g: number, b: number]
+  outlineColor?: [r: number, g: number, b: number] | [r: number, g: number, b: number, a: number]
   /** hover 数据 */
   hoverIds?: Set<string>
-  /** 点位坐标调整数据 */
-  rewritePositions?: Map<number, Coordinate2D>
   /** 缩放系数（不影响长度尺寸） */
   scale?: number
 }
@@ -161,10 +161,16 @@ export interface MLRenderUnit {
   type: string
 }
 
+export interface MarkerLinkMission extends API.MarkerLinkageVo {
+  meta: {
+    key: string
+  }
+}
+
 /** 任务类型表 */
 export interface MissionTypeMap {
   markerDragging: Map<number, Coordinate2D>
-  markerLink: API.MarkerLinkageVo[]
+  markerLink: MarkerLinkMission[]
   markerMultiSelect: boolean
   markerBulkState: boolean
   unknown: unknown
