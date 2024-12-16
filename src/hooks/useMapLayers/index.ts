@@ -1,6 +1,7 @@
 import type { LayersList } from '@deck.gl/core'
 import { LineLayer } from '@deck.gl/layers'
 import { useMarkerLayer } from './useMarkerLayer'
+import { useLinkLayer } from './useLinkLayer'
 import {
   type GSMarkerInfo,
   GSOverlayer,
@@ -94,6 +95,9 @@ export const useMapLayers = (options: MapLayerHookOptions) => {
     })
   })
 
+  // ============================== 关联图层 ==============================
+  const { linkLayer } = useLinkLayer()
+
   // ============================== 点位图层 ==============================
   const { markerLayer } = useMarkerLayer()
 
@@ -101,11 +105,17 @@ export const useMapLayers = (options: MapLayerHookOptions) => {
   const layers = computed<LayersList>(() => {
     const res = [
       tileLayer.value,
+
       overlayer.value,
+
       tagLayer.value,
+
+      linkLayer.value,
+
       ...mapStateStore.tempLayer.toLayers(TempLayerIndex.BeforeMarkerDraggingLine),
       markerDraggingLineLayer.value,
       ...mapStateStore.tempLayer.toLayers(TempLayerIndex.AfterMarkerDraggingLine),
+
       ...mapStateStore.tempLayer.toLayers(TempLayerIndex.BeforeMarker),
       markerLayer.value,
       ...mapStateStore.tempLayer.toLayers(TempLayerIndex.AfterMarker),
