@@ -31,7 +31,7 @@ interface MissionSubscriber<K extends MissionTypeKey> {
 export const useMapMission = () => {
   const mission = ref<Mission | null>(null)
 
-  const sharedHook = new Map<string, unknown>()
+  const cache = shallowRef(new Map<string, unknown>())
 
   /** 仅限不关注任务类型的情况下调用 */
   const setMission = (newMission: Mission | null) => {
@@ -40,8 +40,8 @@ export const useMapMission = () => {
 
   /** 关注某一任务类型的情况下，必须通过该 API 进行任务更新操作 */
   const subscribeMission = <K extends MissionTypeKey>(type: K, getDefaultValue: () => MissionTypeMap[K]): MissionSubscriber<K> => {
-    if (!sharedHook.has(type)) {
-      sharedHook.set(type, (() => {
+    if (!cache.value.has(type)) {
+      cache.value.set(type, (() => {
         const data = computed(() => {
           if (mission.value?.type !== type)
             return getDefaultValue()
@@ -58,14 +58,14 @@ export const useMapMission = () => {
         const clearEventHook = createEventHook<void>()
 
         const update: UpdateFunction<K> = (value: MissionTypeMap[K] | null) => {
-          if (!mission.value || mission.value.type === type) {
-            if (value === null) {
-              mission.value = null
-              clearEventHook.trigger()
-              return
-            }
-            mission.value = { type, value } as Mission
+          if (mission.value && mission.value.type !== type)
+            return
+          if (value === null) {
+            mission.value = null
+            clearEventHook.trigger()
+            return
           }
+          mission.value = { type, value } as Mission
         }
 
         /** 有时候需要在确保某种类型的任务更新后才执行某些操作 */
@@ -96,7 +96,7 @@ export const useMapMission = () => {
         }
       })())
     }
-    return sharedHook.get(type)! as MissionSubscriber<K>
+    return cache.value.get(type)! as MissionSubscriber<K>
   }
 
   return {
