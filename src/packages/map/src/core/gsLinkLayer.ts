@@ -146,6 +146,7 @@ class LinkLayerContent extends CompositeLayer<GSLinkLayerProps> {
       outlineColor = [255, 255, 255],
       outlineWidth = 2,
       scale = 1,
+      colorOpacity: opacity = 255,
     } = this.props
 
     const abl = arrowBodyLength
@@ -192,12 +193,13 @@ class LinkLayerContent extends CompositeLayer<GSLinkLayerProps> {
           }
           return newPoints
         },
-        getFillColor: info.color,
+        getFillColor: [...info.color, opacity],
         getLineColor: outlineColor,
-        lineWidthMaxPixels: outlineWidth * scale,
+        lineWidthMaxPixels: outlineWidth,
         lineWidthMinPixels: 0,
         updateTriggers: {
           getPolygon: scale,
+          getFillColor: opacity,
         },
       })
     })
@@ -243,7 +245,10 @@ export class GSLinkLayer extends CompositeLayer<GSLinkLayerProps> {
         getTargetPosition: info => info.to,
         getWidth: arrowHeadRadius,
         widthScale: scale * 2 ** (zoom + 1),
-        getColor: info => [...info.color, hoverIds?.has(info.id) ? 80 : 0],
+        getColor: (info) => {
+          const { 0: r, 1: g, 2: b } = info.color
+          return [r, g, b, hoverIds?.has(info.id) ? 80 : 0]
+        },
         widthMinPixels: 0,
         updateTriggers: {
           getWidth: zoom,
