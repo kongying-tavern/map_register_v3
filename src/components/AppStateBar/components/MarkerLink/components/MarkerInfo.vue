@@ -6,6 +6,7 @@ import type { GSMarkerInfo } from '@/packages/map'
 const props = withDefaults(defineProps<{
   marker?: GSMarkerInfo
   placeholder?: string
+  reverse?: boolean
 }>(), {
   placeholder: '--N/A--',
 })
@@ -33,7 +34,7 @@ const areas = computed(() => {
 </script>
 
 <template>
-  <div class="w-full overflow-hidden p-1">
+  <div class="w-full h-full overflow-hidden p-2">
     <div
       v-if="!marker"
       class="
@@ -53,6 +54,7 @@ const areas = computed(() => {
         flex items-center gap-1
         bg-[var(--el-fill-color)]
       "
+      :class="reverse ? 'flex-row-reverse' : ''"
     >
       <AppIconTagRenderer
         :mapping="iconTagStore.tagPositionMap[marker.render.mainIconTag]"
@@ -60,11 +62,13 @@ const areas = computed(() => {
         class="w-10 h-10 bg-[var(--el-color-info-light-7)] p-0.5 rounded-full flex-shrink-0 border border-[var(--el-color-info)]"
       />
 
-      <div class="flex-1 flex flex-col overflow-hidden">
-        <div class="whitespace-nowrap overflow-hidden text-ellipsis">
+      <div class="flex-1 flex flex-col overflow-hidden" :class="reverse ? 'text-right' : ''">
+        <div
+          class="whitespace-nowrap overflow-hidden text-ellipsis"
+        >
           {{ marker.markerTitle }}
         </div>
-        <div class="flex gap-1">
+        <div class="flex gap-1" :class="reverse ? 'flex-row-reverse' : ''">
           <div
             v-for="area in areas"
             :key="area.id"

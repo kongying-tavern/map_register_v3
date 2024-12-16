@@ -1,4 +1,6 @@
 export * from './components'
 export * from './layers'
+export * from './shared'
+export * from './hooks'
 export { default as IconMarkerLink } from './IconMarkerLink.vue'
 export { default as MarkerLink } from './MarkerLink.vue'

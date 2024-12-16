@@ -13,7 +13,7 @@ defineProps<{
 <template>
   <div class="w-full h-full overflow-hidden flex items-center gap-1">
     <div
-      class="w-[3px] h-[14px] shrink-0 bg-[var(--bg)]"
+      class="w-[5px] h-[16px] shrink-0 bg-[var(--bg)] border border-white border-opacity-40"
       :style="{ '--bg': `rgba(${LINK_ACTION_CONFIG[value].lineColor.join(' ')})` }"
     />
     <div class="flex-1 overflow-hidden whitespace-nowrap text-ellipsis">
