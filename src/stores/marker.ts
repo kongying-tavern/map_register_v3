@@ -16,6 +16,15 @@ export const useMarkerStore = defineStore('global-marker', () => {
 
   const markerList = computed(() => _markerList.value.filter(({ hiddenFlag }) => accessStore.checkHiddenFlag(hiddenFlag)))
   const total = computed(() => markerList.value.length)
+  const idMap = computed(() => {
+    const map = new Map<number, API.MarkerVo>()
+    const { length } = markerList.value
+    for (let i = 0; i < length; i++) {
+      const marker = markerList.value[i]
+      map.set(marker.id!, marker)
+    }
+    return map
+  })
 
   const backendUpdater = useBackendUpdate(
     db.marker,
@@ -102,6 +111,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
     onMarkerUpdate: updateHook.on,
     onMarkerTweake: tweakHook.on,
     total,
+    idMap,
     markerList,
     backendUpdater,
   }
