@@ -4,7 +4,6 @@ import LinkGroupItem from './LinkGroupItem.vue'
 
 defineProps<{
   title: string
-  hoverLink: string
   groups?: Map<string, Map<string, ModifyLinkOptions>>
   tempGroups?: Map<string, Map<string, ModifyLinkOptions>>
   appendGroup?: Map<string, ModifyLinkOptions>
@@ -15,6 +14,11 @@ defineEmits<{
   extract: [linkKey: string, options: ModifyLinkOptions]
   revest: [linkKey: string, options: ModifyLinkOptions]
 }>()
+
+const hoverKey = defineModel<string>('hoverKey', {
+  required: false,
+  default: '',
+})
 </script>
 
 <template>
@@ -35,8 +39,8 @@ defineEmits<{
       <LinkGroupItem
         v-for="[groupId, group] in tempGroups"
         :key="groupId"
+        v-model:hover-key="hoverKey"
         :group="group"
-        :hover="hoverLink"
         :group-id="groupId"
         is-temp
       />
@@ -44,15 +48,15 @@ defineEmits<{
       <LinkGroupItem
         v-for="[groupId, group] in groups"
         :key="groupId"
+        v-model:hover-key="hoverKey"
         :group="group"
-        :hover="hoverLink"
         :group-id="groupId"
       />
 
       <LinkGroupItem
         v-if="appendGroup"
+        v-model:hover-key="hoverKey"
         :group="appendGroup"
-        :hover="hoverLink"
         group-id=""
         group-title="未提交组"
         editable

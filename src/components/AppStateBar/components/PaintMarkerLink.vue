@@ -17,7 +17,7 @@ import BarItem from './BarItem.vue'
 import { useMapStateStore, useMarkerLinkStore, useMarkerStore } from '@/stores'
 import { AppWindowTeleporter } from '@/components'
 import {
-  LINK_ACTION_CONFIG,
+  LINK_CONFIG_MAP,
   LinkActionEnum,
   MapSubject,
   TempLayerIndex,
@@ -49,7 +49,10 @@ const { start$, close$, info, toggle, close } = useLinkWindow()
 /** 关联类型 */
 const linkAction = ref(LinkActionEnum.TRIGGER)
 
-const actionColor = computed(() => LINK_ACTION_CONFIG[linkAction.value].lineColor)
+const actionColor = computed(() => {
+  const config = LINK_CONFIG_MAP.get(linkAction.value)
+  return config?.lineColor ?? ([0, 0, 0] as [number, number, number])
+})
 
 /** 关联设置 */
 const config = ref({
@@ -66,7 +69,22 @@ const prevMarker = shallowRef<GSMarkerInfo>()
 const nextMarker = shallowRef<GSMarkerInfo>()
 const hoverMarker = shallowRef<GSMarkerInfo>()
 const stopAnimation = ref<() => void>()
-const hoverLink = shallowRef('')
+
+const hoverLinkKey = computed({
+  get: () => {
+    const set = mapStateStore.interaction.hoverElements.get(GSLinkLayer.layerName) as (Set<string> | undefined)
+    if (!set?.size || set.size > 1)
+      return ''
+    return `${[...set][0]}`
+  },
+  set: (linkKey) => {
+    if (!linkKey) {
+      mapStateStore.interaction.removeHover(GSLinkLayer.layerName)
+      return
+    }
+    mapStateStore.interaction.setHover(GSLinkLayer.layerName, new Set([linkKey]))
+  },
+})
 
 /**
  * 正在编辑的关联项
@@ -504,8 +522,8 @@ onBeforeUnmount(() => clearMission())
         </div>
 
         <LinkGroupViewer
+          v-model:hover-key="hoverLinkKey"
           title="修改前"
-          :hover-link="hoverLink"
           :groups="containLinkGroups"
           :temp-groups="tempContainLinkGroups"
         />
@@ -513,8 +531,8 @@ onBeforeUnmount(() => clearMission())
         <div class="w-[1px] h-full bg-[var(--el-border-color)]" />
 
         <LinkGroupViewer
+          v-model:hover-key="hoverLinkKey"
           title="修改后"
-          :hover-link="hoverLink"
           :append-group="previewLinkGroups"
           @delete="(...args) => deleteLink(...args)"
           @extract="(...args) => extractLink(...args)"

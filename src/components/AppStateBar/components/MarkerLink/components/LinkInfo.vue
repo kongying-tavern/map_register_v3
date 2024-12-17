@@ -3,13 +3,12 @@ import { Delete, EditPen, RefreshLeft } from '@element-plus/icons-vue'
 import type { ModifyLinkOptions } from '..'
 import LinkMarkerInfo from './LinkMarkerInfo.vue'
 import type { LinkActionEnum } from '@/shared'
-import { LINK_ACTION_CONFIG, LINK_ACTION_NAME_MAP } from '@/shared'
+import { LINK_CONFIG_MAP, LINK_ACTION_NAME_MAP } from '@/shared'
 
 const props = defineProps<{
   linkKey: string
   linkOption: ModifyLinkOptions
   editable?: boolean
-  isHover?: boolean
 }>()
 
 defineEmits<{
@@ -18,13 +17,26 @@ defineEmits<{
   revest: []
 }>()
 
+const hoverKey = defineModel<string>('hoverKey', {
+  required: false,
+  default: '',
+})
+
+const enter = () => {
+  hoverKey.value = props.linkOption.key
+}
+
+const exit = () => {
+  hoverKey.value = ''
+}
+
 const color = computed(() => {
   const { linkAction } = props.linkOption.raw
   if (!linkAction)
-    return 'white'
-  const colorNums = LINK_ACTION_CONFIG[linkAction as LinkActionEnum]?.lineColor
+    return 'black'
+  const colorNums = LINK_CONFIG_MAP.get(linkAction as LinkActionEnum)?.lineColor
   if (!colorNums)
-    return 'white'
+    return 'black'
   return `rgba(${colorNums.join(' ')})`
 })
 </script>
@@ -39,10 +51,12 @@ const color = computed(() => {
     :class="[
       editable ? 'grid-cols-[1fr_auto_1fr_auto]' : 'grid-cols-[1fr_auto_1fr]',
       {
-        'is-hover': isHover,
+        'is-hover': linkOption.key === hoverKey,
         'is-delete': linkOption.isDelete,
       },
     ]"
+    @pointerenter="enter"
+    @pointerleave="exit"
   >
     <LinkMarkerInfo :marker-id="linkOption.raw.fromId" />
 
@@ -114,7 +128,7 @@ const color = computed(() => {
     opacity: 0.5;
   }
 
-  &:hover {
+  &.is-hover, &:hover {
     --hover-color: color-mix(in srgb, var(--el-color-primary) 20%, transparent 80%);
   }
 

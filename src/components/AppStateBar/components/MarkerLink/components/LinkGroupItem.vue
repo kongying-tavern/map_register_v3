@@ -5,7 +5,6 @@ import LinkInfo from './LinkInfo.vue'
 defineProps<{
   groupId: string
   group: Map<string, ModifyLinkOptions>
-  hover: string
   groupTitle?: string
   isTemp?: boolean
   editable?: boolean
@@ -16,6 +15,11 @@ defineEmits<{
   extract: [linkKey: string, options: ModifyLinkOptions]
   revest: [linkKey: string, options: ModifyLinkOptions]
 }>()
+
+const hoverKey = defineModel<string>('hoverKey', {
+  required: false,
+  default: '',
+})
 </script>
 
 <template>
@@ -50,7 +54,7 @@ defineEmits<{
         :link-key="key"
         :link-option="opt"
         :editable="editable"
-        :is-hover="hover === key"
+        v-model:hover-key="hoverKey"
         @delete="() => $emit('delete', key, opt)"
         @extract="() => $emit('extract', key, opt)"
         @revest="() => $emit('revest', key, opt)"
