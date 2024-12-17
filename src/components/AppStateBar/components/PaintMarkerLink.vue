@@ -1,15 +1,13 @@
 <script setup lang="ts">
 import { useSubscription } from '@vueuse/rxjs'
-import { Check, Close } from '@element-plus/icons-vue'
 import { Subject, filter, finalize, map, race, repeat, switchMap, takeUntil, tap } from 'rxjs'
 import { ElMessage } from 'element-plus'
 import {
   IconMarkerLink,
-  LinkActionLabel,
-  LinkActionSelect,
-  LinkGroupViewer,
+  LinkIndicator,
+  LinkWindow,
   MarkerIndicatorLayer,
-  MarkerInfo,
+  useLinkOperate,
   useLinkWindow,
 } from './MarkerLink'
 import type { ModifyLinkOptions } from './MarkerLink'
@@ -49,6 +47,7 @@ const { start$, close$, info, toggle, close } = useLinkWindow()
 /** 关联类型 */
 const linkAction = ref(LinkActionEnum.TRIGGER)
 
+/** 关联类型对应的颜色 */
 const actionColor = computed(() => {
   const config = LINK_CONFIG_MAP.get(linkAction.value)
   return config?.lineColor ?? ([0, 0, 0] as [number, number, number])
@@ -64,7 +63,7 @@ const config = ref({
 
 // ==================== 内部状态 ====================
 
-const floatCoord = ref<{ x: number; y: number }>()
+const linkIndicatorPosition = ref<{ x: number; y: number }>()
 const prevMarker = shallowRef<GSMarkerInfo>()
 const nextMarker = shallowRef<GSMarkerInfo>()
 const hoverMarker = shallowRef<GSMarkerInfo>()
@@ -93,36 +92,7 @@ const hoverLinkKey = computed({
  */
 const modifyLinks = ref(new Map<string, ModifyLinkOptions>())
 
-/** 删除关联 */
-const deleteLink = (linkKey: string, options: ModifyLinkOptions) => {
-  const currentLink = modifyLinks.value.get(linkKey)!
-  if (!currentLink)
-    return
-  // 对于具有原始组的关联（即并非本地关联）需要添加为删除项而不是简单的从表中移除
-  if (options.raw.groupId)
-    modifyLinks.value.set(linkKey, { ...options, isDelete: true })
-  // 对于本地项直接删除即可
-  else
-    modifyLinks.value.delete(linkKey)
-  triggerRef(modifyLinks)
-}
-
-/** 将自动合并的关联提取为手动编辑 */
-const extractLink = (linkKey: string, options: ModifyLinkOptions) => {
-  modifyLinks.value.set(linkKey, {
-    ...options,
-    isMerge: false,
-  })
-  triggerRef(modifyLinks)
-}
-
-/** 恢复关联（仅针对含有原始组的关联） */
-const revestLink = (linkKey: string, options: ModifyLinkOptions) => {
-  const currentLink = modifyLinks.value.get(linkKey)!
-  if (!currentLink || !options.raw.groupId)
-    return
-  modifyLinks.value.delete(linkKey)
-}
+const { deleteLink, extractLink, revestLink } = useLinkOperate(modifyLinks)
 
 /**
  * 受影响关联组（已在编辑数据中）
@@ -214,6 +184,7 @@ const previewLinkGroups = computed(() => {
 
 // ==================== 逻辑处理 ====================
 
+/** 清除选择状态 */
 const clearSelect = () => {
   mapStateStore.tempLayer.remove(TempLayerIndex.BeforeMarker)
   stopAnimation.value?.()
@@ -223,6 +194,7 @@ const clearSelect = () => {
   prevMarker.value = undefined
 }
 
+/** 进行一次点位 focus 设置 */
 const resumeOnceFocus = (data: number[]) => {
   mapStateStore.interaction.resumeFocus(GSMarkerLayer.layerName)
   mapStateStore.interaction.setFocus(GSMarkerLayer.layerName, new Set(data))
@@ -233,13 +205,13 @@ const resumeOnceFocus = (data: number[]) => {
 useSubscription(start$.pipe(
   switchMap(() => MapSubject.hover.pipe(
     tap(({ info }) => {
-      floatCoord.value = info.coordinate
+      linkIndicatorPosition.value = info.coordinate
         ? { x: info.x, y: info.y }
         : undefined
     }),
     takeUntil(race(close$, MapSubject.drag)),
     finalize(() => {
-      floatCoord.value = undefined
+      linkIndicatorPosition.value = undefined
     }),
     repeat(),
   )),
@@ -450,7 +422,6 @@ useSubscription(start$.pipe(
             linkAction: raw.linkAction,
           })
         })
-        console.log('links', result)
 
         update(result)
       }),
@@ -478,94 +449,31 @@ onBeforeUnmount(() => clearMission())
       <IconMarkerLink />
     </ElIcon>
 
-    <Teleport v-if="isProcessing && containerRef && floatCoord" :to="containerRef">
-      <div
-        class="
-          w-[160px] p-1 rounded
-          absolute left-0 top-0 z-[1000]
-          bg-[var(--el-bg-color)]
-          border border-[var(--el-border-color)]
-          text-[var(--el-text-color-regular)] text-sm
-          pointer-events-none
-        "
-        :style="{ transform: `translate(${floatCoord.x + 30}px, ${floatCoord.y}px)` }"
-      >
-        <div>
-          当前关联类型
-        </div>
-        <LinkActionLabel :value="linkAction" class="bg-[var(--el-fill-color)] p-1" />
-        <div
-          :class="!prevMarker
-            ? 'text-[var(--el-color-success)]'
-            : !nextMarker
-              ? 'text-[var(--el-color-success)]'
-              : 'text-[var(--el-color-warning)]'
-          "
-        >
-          {{ !prevMarker ? '请选择起始点' : !nextMarker ? '请选择终止点' : '再次选择终止点以确认' }}
-        </div>
-      </div>
+    <Teleport v-if="isProcessing && containerRef && linkIndicatorPosition" :to="containerRef">
+      <LinkIndicator
+        :position="linkIndicatorPosition"
+        :link-action="linkAction"
+        :next-marker="nextMarker"
+        :prev-marker="prevMarker"
+      />
     </Teleport>
 
     <AppWindowTeleporter :info="info">
-      <div
-        class="
-          w-full h-full overflow-hidden
-          grid grid-cols-[1fr_auto_1fr] grid-rows-[auto_1fr_auto] justify-items-center
-          text-sm
-        "
-      >
-        <div class="w-full h-full col-span-3 grid grid-cols-[1fr_auto_1fr] place-items-center">
-          <MarkerInfo :marker="prevMarker" placeholder="起始点" />
-          <LinkActionSelect v-model="linkAction" />
-          <MarkerInfo :marker="nextMarker" placeholder="终止点" reverse />
-        </div>
-
-        <LinkGroupViewer
-          v-model:hover-key="hoverLinkKey"
-          title="修改前"
-          :groups="containLinkGroups"
-          :temp-groups="tempContainLinkGroups"
-        />
-
-        <div class="w-[1px] h-full bg-[var(--el-border-color)]" />
-
-        <LinkGroupViewer
-          v-model:hover-key="hoverLinkKey"
-          title="修改后"
-          :append-group="previewLinkGroups"
-          @delete="(...args) => deleteLink(...args)"
-          @extract="(...args) => extractLink(...args)"
-          @revest="(...args) => revestLink(...args)"
-        />
-
-        <div class="w-full shrink-0 col-span-3 flex p-2">
-          <div class="flex-1 flex gap-2">
-            <el-switch
-              v-model="config.merge"
-              inline-prompt
-              style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
-              active-text="合并原有关联"
-              inactive-text="拆解原有关联"
-            />
-            <el-switch
-              v-model="config.showDelete"
-              inline-prompt
-              active-text="显示删除项"
-              inactive-text="隐藏删除项"
-            />
-          </div>
-
-          <div class="shrink-0">
-            <el-button :icon="Check">
-              保存
-            </el-button>
-            <el-button :icon="Close" @click="close">
-              取消
-            </el-button>
-          </div>
-        </div>
-      </div>
+      <LinkWindow
+        v-model:hover-link-key="hoverLinkKey"
+        v-model:link-action="linkAction"
+        v-model:merge="config.merge"
+        v-model:show-delete="config.showDelete"
+        :next-marker="nextMarker"
+        :prev-marker="prevMarker"
+        :contain-link-groups="containLinkGroups"
+        :temp-contain-link-groups="tempContainLinkGroups"
+        :preview-link-groups="previewLinkGroups"
+        @delete="deleteLink"
+        @extract="extractLink"
+        @revest="revestLink"
+        @cancel="close"
+      />
     </AppWindowTeleporter>
   </BarItem>
 </template>
