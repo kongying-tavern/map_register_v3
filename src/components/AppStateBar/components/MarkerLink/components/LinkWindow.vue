@@ -8,6 +8,7 @@ import LinkGroupViewer from './LinkGroupViewer.vue'
 import type { ModifyLinkOptions } from '../shared/types'
 
 defineProps<{
+  loading: boolean
   prevMarker?: GSMarkerInfo
   nextMarker?: GSMarkerInfo
   previewLinkGroups: Map<string, ModifyLinkOptions>
@@ -16,6 +17,7 @@ defineProps<{
 }>()
 
 defineEmits<{
+  submit: []
   cancel: []
   delete: [linkKey: string, options: ModifyLinkOptions]
   extract: [linkKey: string, options: ModifyLinkOptions]
@@ -89,10 +91,10 @@ const showDelete = defineModel<boolean>('showDelete', {
       </div>
 
       <div class="shrink-0">
-        <el-button :icon="Check">
+        <el-button :icon="Check" :loading="loading" @click="() => $emit('submit')">
           保存
         </el-button>
-        <el-button :icon="Close" @click="() => $emit('cancel')">
+        <el-button :icon="Close" :disabled="loading" @click="() => $emit('cancel')">
           取消
         </el-button>
       </div>

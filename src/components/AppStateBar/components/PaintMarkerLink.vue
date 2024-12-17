@@ -7,6 +7,7 @@ import {
   LinkIndicator,
   LinkWindow,
   MarkerIndicatorLayer,
+  useLinkCreate,
   useLinkOperate,
   useLinkWindow,
 } from './MarkerLink'
@@ -37,10 +38,15 @@ const {
   isProcessing,
   clear: clearMission,
   update,
+  data: linkMission,
 } = mapStateStore.subscribeMission('markerLink', () => [])
 
+const { loading, refresh: submit } = useLinkCreate()
+
+const submitLink = () => submit(linkMission.value)
+
 // ==================== 窗口管理 ====================
-const { start$, close$, info, toggle, close } = useLinkWindow()
+const { start$, close$, info, toggle, close } = useLinkWindow({ loading })
 
 // ==================== 表单状态 ====================
 
@@ -464,15 +470,17 @@ onBeforeUnmount(() => clearMission())
         v-model:link-action="linkAction"
         v-model:merge="config.merge"
         v-model:show-delete="config.showDelete"
-        :next-marker="nextMarker"
-        :prev-marker="prevMarker"
-        :contain-link-groups="containLinkGroups"
-        :temp-contain-link-groups="tempContainLinkGroups"
-        :preview-link-groups="previewLinkGroups"
+        :loading
+        :next-marker
+        :prev-marker
+        :contain-link-groups
+        :temp-contain-link-groups
+        :preview-link-groups
         @delete="deleteLink"
         @extract="extractLink"
         @revest="revestLink"
         @cancel="close"
+        @submit="submitLink"
       />
     </AppWindowTeleporter>
   </BarItem>
