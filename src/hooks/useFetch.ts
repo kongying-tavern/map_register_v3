@@ -12,7 +12,7 @@ const isBasicResponse = (v: unknown): v is BasicResponseBody => {
 
 export interface FetchHookOptions<T, A extends unknown[] = []> {
   /** loading 值，可以使用外部响应式值 */
-  loading?: ShallowRef<boolean>
+  loading?: Ref<boolean>
   /** 是否在函数执行后立即发起请求 */
   immediate?: boolean
   /** 当依赖响应式 data 时最好提供此值 */
@@ -28,7 +28,7 @@ export interface FetchHookOptions<T, A extends unknown[] = []> {
 export const useFetchHook = <T, A extends unknown[] = []>(options: FetchHookOptions<T, A>) => {
   const {
     immediate,
-    loading = shallowRef(false),
+    loading = ref(false),
     initialValue,
     shallow,
     diff,
