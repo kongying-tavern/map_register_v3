@@ -1,7 +1,13 @@
 import { Subject } from 'rxjs'
 import { useAppWindow } from '@/components'
 
-export const useLinkWindow = () => {
+interface LinkWindowHookOptions {
+  loading: Ref<boolean>
+}
+
+export const useLinkWindow = (options: LinkWindowHookOptions) => {
+  const { loading } = options
+
   const start$ = new Subject<void>()
   const close$ = new Subject<void>()
 
@@ -13,6 +19,8 @@ export const useLinkWindow = () => {
       return true
     },
     beforeClose: () => {
+      if (loading.value)
+        return false
       close$.next()
       return true
     },
