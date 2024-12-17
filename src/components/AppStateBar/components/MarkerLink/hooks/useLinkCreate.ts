@@ -1,66 +1,66 @@
 import { ElMessage } from 'element-plus'
-import type { MLContext } from '../core'
 import { useFetchHook } from '@/hooks'
 import Api from '@/api/api'
 import db from '@/database'
 
-export const useLinkCreate = (context: MLContext) => {
+export const useLinkCreate = () => {
   const { onSuccess, onError, onFinish, ...rest } = useFetchHook({
-    onRequest: async () => {
-      context.setLoading(true)
+    onRequest: async (links: API.MarkerLinkageVo[]) => {
+      if (!links.length)
+        throw new Error('提交的关联项为空')
 
-      // 受影响的点位集合
-      const affectedMarkerIds = new Set<number>()
+      // 1. 进行关联操作（只取必须的属性）
+      const { data: newLinkageId } = await Api.markerLink.linkMarker(links.map((link) => ({
+        fromId: link.fromId,
+        toId: link.toId,
+        linkAction: link.linkAction,
+        path: link.path,
+      })))
 
-      // 受影响的关联组集合（不属于新增关联），并排除掉为空的组ID
-      const affectedLinkGroupIds = Object.keys(context.existLinkGroups.value)
+      if (!newLinkageId)
+        throw new Error('服务器未返回新关联组 id')
 
-      // 将受影响的点位加入到受影响点位集合 (仅对组ID不为空的组进行处理)
-      await db.marker.where('linkageId').anyOf(affectedLinkGroupIds).each(({ id, linkageId }) => {
-        if (!linkageId)
-          return
-        affectedMarkerIds.add(id!)
+      // 2. 确认关联更新
+      const { data: linkGroups = {} } = await Api.markerLink.getMarkerLinkageList({
+        groupIds: [newLinkageId]
       })
+      const newLinks = Object.values(linkGroups).flat(1)
 
-      // 将新增关联内的点位加入到受影响的点位集合
-      context.modifiedLinkList.value.forEach(({ fromId, toId }) => {
-        affectedMarkerIds.add(fromId)
-        affectedMarkerIds.add(toId)
-      })
+      // 3. 收集旧关联影响的全部点位 id
+      const oldEffectedMarkerIdSet = links.reduce((result, { fromId = -1, toId = -1 }) => {
+        result.add(fromId)
+        result.add(toId)
+        return result
+      }, new Set<number>())
+      oldEffectedMarkerIdSet.delete(-1) // 优化: 添加默认值然后删除的操作比起在循环里判断是否为数值再添加更快
+      const oldEffectedMarkerIds = Array.from(oldEffectedMarkerIdSet)
 
-      // 提交关联
-      const linkList: API.MarkerLinkageVo[] = context.modifiedLinkList.value.map(({ fromId, toId, linkAction }) => ({
-        fromId,
-        toId,
-        linkAction,
-        linkReverse: false,
-      }))
+      // 4. 收集新关联影响的全部点位 id
+      const newEffectedMarkerIdSet = newLinks.reduce((result, { fromId = -1, toId = -1 }) => {
+        result.add(fromId)
+        result.add(toId)
+        return result
+      }, new Set<number>())
+      newEffectedMarkerIdSet.delete(-1)
+      const newEffectedMarkerIds = Array.from(newEffectedMarkerIdSet)
 
-      const { data: linkageId = '' } = await Api.markerLink.linkMarker(linkList)
-
-      // 查询关联更新
-      const { data: updatedLinks = {} } = await Api.markerLink.getMarkerLinkageList({
-        groupIds: [linkageId],
-      })
-
-      // 查询点位更新
-      const { data: updatedMarkers = [] } = await Api.marker.listMarkerById([...affectedMarkerIds])
-
+      // 5. 更新本地数据
       await db.transaction('rw', db.marker, db.markerLink, async () => {
-        // 1. 更新所有受影响的点位
-        await db.marker.bulkPut(updatedMarkers)
-        // 2. 删除所有受影响的关联组
-        await db.markerLink.where('groupId').anyOf(affectedLinkGroupIds).delete()
-        // 3. 更新新的关联组
-        await db.markerLink.bulkPut(Object.values(updatedLinks).flat(1))
+        // 5.1 更新本地关联表
+        await db.markerLink.bulkPut(newLinks)
+
+        // 5.2 清理受影响点位所属的关联组
+        await db.marker.where('id').anyOf(oldEffectedMarkerIds).modify({ linkageId: '' })
+
+        // 5.3 更新受影响的点位所属的关联组
+        await db.marker.where('id').anyOf(newEffectedMarkerIds).modify({ linkageId: newLinkageId })
       })
     },
   })
 
   onSuccess(() => {
-    context.cancel()
     ElMessage.success({
-      message: '关联成功',
+      message: '关联操作成功',
     })
   })
 
@@ -68,10 +68,6 @@ export const useLinkCreate = (context: MLContext) => {
     ElMessage.error({
       message: `关联操作失败，原因为：${err.message}`,
     })
-  })
-
-  onFinish(() => {
-    context.setLoading(false)
   })
 
   return { onSuccess, ...rest }
