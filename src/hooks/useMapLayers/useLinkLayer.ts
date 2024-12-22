@@ -3,7 +3,6 @@ import { type Coordinate2D, GSLinkLayer, type GSLinkLayerProps, GSMarkerLayer, t
 import type { LinkActionEnum } from '@/shared'
 import { LINK_CONFIG_MAP, MapSubject } from '@/shared'
 import { useMapStateStore, useMarkerLinkStore, useMarkerStore, useTileStore } from '@/stores'
-import { effect } from 'vue'
 
 export const useLinkLayer = () => {
   const markerStore = useMarkerStore()
@@ -78,7 +77,7 @@ export const useLinkLayer = () => {
     }, result)
   })
 
-  effect(() => {
+  watch(links, () => {
     if (!links.value?.length) {
       mapStateStore.setTempMarkers('markerLink', [])
       return
@@ -91,7 +90,7 @@ export const useLinkLayer = () => {
       return result
     }, [] as API.MarkerVo[])
     mapStateStore.setTempMarkers('markerLink', result)
-  })
+  }, { immediate: true })
 
   /** 关联图层建立 */
   const linkLayer = computed<GSLinkLayer | undefined>(() => {
