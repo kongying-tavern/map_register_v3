@@ -1,11 +1,11 @@
 import type { AxiosRequestConfig } from 'axios'
 import { request } from '@/utils'
 
-export const upload = (body: { file: File; filePath: string }, options?: AxiosRequestConfig) => {
+export const upload = (body: API.UploadResourceVo, options?: AxiosRequestConfig) => {
   const formData = new FormData()
 
   for (const key in body) {
-    const item = body[key]
+    const item = body[key as keyof API.UploadResourceVo]
     if (item === undefined)
       continue
     formData.append(key, item)
