@@ -27,20 +27,13 @@ const { isMoving, isEnable, position } = useMarkerMove(cachedMarkerVo)
 
 const { hiddenFlagType, refreshTimeText } = useMarkerExtra(cachedMarkerVo)
 
-const idText = computed(() => {
-  const id = toValue(cachedMarkerVo)?.id
-  if (!id)
-    return ''
-  return `ID ${id}`
-})
-
 const copyId = async () => {
-  const idStr = toValue(idText)
-  if (!idStr)
+  if (cachedMarkerVo.value?.id === undefined)
     return
+  const idStr = `${cachedMarkerVo.value.id}`
   await navigator.clipboard.writeText(idStr)
   ElMessage.success({
-    message: `"${idStr}" 已复制到剪贴板`,
+    message: `ID "${idStr}" 已复制到剪贴板`,
   })
 }
 
@@ -136,17 +129,17 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
           </el-icon>
         </template>
 
-        <template v-if="cachedMarkerVo.picture" #picture>
-          <div class="w-[256px] h-[200px] bg-[#4A5265] overflow-hidden">
+        <template #picture>
+          <div v-if="cachedMarkerVo.picture" class="w-[256px] h-[256px] overflow-hidden p-2">
             <el-image
               :src="cachedMarkerVo.picture"
               :preview-src-list="[cachedMarkerVo.picture]"
               preview-teleported
               fit="contain"
-              style="width: 100%; height: 100%"
+              style="width: 100%; height: 100%; border-radius: 4px"
             >
               <template #placeholder>
-                <el-skeleton style="width: 256px; height: 200px" loading animated>
+                <el-skeleton style="width: 256px; height: 256px" loading animated>
                   <template #template>
                     <el-skeleton-item variant="image" style="width: 100%; height: 100%;" />
                   </template>
@@ -167,7 +160,7 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
               "
               @click="copyId"
             >
-              {{ idText }}
+              ID {{ cachedMarkerVo.id }}
             </div>
             <div class="info-tag">
               {{ hiddenFlagType }}
@@ -193,7 +186,7 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
             :value="cachedMarkerVo.content"
             readonly
             :rows="cachedMarkerVo.picture ? 8 : 16"
-            class="custom-scrollbar block p-1 text-sm outline-none resize-none bg-[var(--card-bg-color)]"
+            class="custom-scrollbar block px-2 text-sm outline-none resize-none bg-[var(--card-bg-color)]"
             autocomplete="off"
           />
         </template>
