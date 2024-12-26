@@ -4,10 +4,10 @@ import { Avatar, CircleCloseFilled } from '@element-plus/icons-vue'
 import { AppLogin } from './AppLogin'
 import { AppUserInfo } from './AppUserInfo'
 import { useUserStore } from '@/stores'
+import { GSButton } from '@/components'
+import { ExitLeft } from '@/components/GenshinUI/GSIcon'
 
 const userStore = useUserStore()
-
-const loginDialogVisible = ref(false)
 
 const isLogin = computed(() => {
   if (!userStore.auth.accessToken)
@@ -20,76 +20,88 @@ const handleClick = () => {
     userStore.userInfoVisible = true
     return
   }
-  loginDialogVisible.value = true
+  userStore.loginPanelVisible = true
 }
 </script>
 
 <template>
-  <div
-    class="map-user-box"
-    :title="userStore.info?.nickname"
-    @click="handleClick"
-  >
-    <div class="user-info">
-      <template v-if="userStore.isInfoLoading">
-        <div class="animate-pulse">
-          Loading...
-        </div>
-      </template>
-
-      <template v-else-if="!userStore.info">
-        <div class="text-center">
-          -- 未登录 --
-        </div>
-        <div class="text-center text-[#9DB0D4]">
-          部分功能可用
-        </div>
-      </template>
-
-      <template v-else>
-        <div class="text-center w-full whitespace-nowrap overflow-hidden text-ellipsis">
-          {{ userStore.info.nickname ?? userStore.info.id }}
-        </div>
-        <div class="text-center text-[#9DB0D4]">
-          {{ userStore.info.role?.name ?? 'unknown' }}
-        </div>
-      </template>
-    </div>
+  <div class="absolute right-[24px] top-[24px] z-[9] flex flex-row-reverse gap-4">
+    <AppLogin v-model:visible="userStore.loginPanelVisible" />
+    <AppUserInfo v-model:visible="userStore.userInfoVisible" />
 
     <div
-      class="user-avatar"
-      :class="{
-        'has-logo': userStore.info?.logo,
-      }"
+      class="map-user-box"
+      :title="userStore.info?.nickname"
+      @click="handleClick"
     >
-      <ElIcon v-if="!userStore.info?.logo" :size="32" color="#ECE5D8">
-        <Avatar />
-      </ElIcon>
-      <ElImage v-else :src="userStore.info.logo" fit="cover" class="drop-shadow-[0_0_1px_#000000A0]">
-        <template #placeholder>
-          <ElSkeleton loading animated>
-            <template #template>
-              <ElSkeletonItem variant="image" style="width: 44px; height: 44px" />
-            </template>
-          </ElSkeleton>
+      <div class="user-info">
+        <template v-if="userStore.isInfoLoading">
+          <div class="animate-pulse">
+            Loading...
+          </div>
         </template>
-        <template #error>
-          <ElIcon :size="32" color="#FF5F40">
-            <CircleCloseFilled />
-          </ElIcon>
+
+        <template v-else-if="!userStore.info">
+          <div class="text-center">
+            -- 未登录 --
+          </div>
+          <div class="text-center text-[#9DB0D4]">
+            部分功能可用
+          </div>
         </template>
-      </ElImage>
+
+        <template v-else>
+          <div class="text-center w-full whitespace-nowrap overflow-hidden text-ellipsis">
+            {{ userStore.info.nickname ?? userStore.info.id }}
+          </div>
+          <div class="text-center text-[#9DB0D4]">
+            {{ userStore.info.role?.name ?? 'unknown' }}
+          </div>
+        </template>
+      </div>
+
+      <div
+        class="user-avatar"
+        :class="{
+          'has-logo': userStore.info?.logo,
+        }"
+      >
+        <ElIcon v-if="!userStore.info?.logo" :size="32" color="#ECE5D8">
+          <Avatar />
+        </ElIcon>
+        <ElImage v-else :src="userStore.info.logo" fit="cover" class="drop-shadow-[0_0_1px_#000000A0]">
+          <template #placeholder>
+            <ElSkeleton loading animated>
+              <template #template>
+                <ElSkeletonItem variant="image" style="width: 44px; height: 44px" />
+              </template>
+            </ElSkeleton>
+          </template>
+          <template #error>
+            <ElIcon :size="32" color="#FF5F40">
+              <CircleCloseFilled />
+            </ElIcon>
+          </template>
+        </ElImage>
+      </div>
     </div>
 
-    <AppLogin v-model:visible="loginDialogVisible" />
-    <AppUserInfo v-model:visible="userStore.userInfoVisible" />
+    <div v-if="userStore.info" class="grid place-items-center">
+      <GSButton theme="plain" title="退出" @click="userStore.logout">
+        <template #icon>
+          <el-icon :size="22">
+            <ExitLeft />
+          </el-icon>
+        </template>
+      </GSButton>
+    </div>
   </div>
 </template>
 
 <style scoped>
 .map-user-box {
   @apply
-    absolute right-[24px] top-[24px] z-[9]
+    relative
     flex
     select-none cursor-pointer
   ;

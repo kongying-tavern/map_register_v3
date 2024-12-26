@@ -32,6 +32,8 @@ const toCamelCaseObject = <T extends Record<string, unknown>>(obj: T): SnakeCase
 
 export const useUserStore = defineStore('global-user', () => {
   // ==================== token ====================
+  const loginPanelVisible = ref(false)
+
   const auth = useLocalStorage<Partial<AppUserAuth>>(USERAUTH_KEY, {})
 
   const setAuth = (newAuth: API.SysToken) => {
@@ -169,6 +171,7 @@ export const useUserStore = defineStore('global-user', () => {
 
   return {
     // states
+    loginPanelVisible,
     auth,
     info,
     isInfoLoading,

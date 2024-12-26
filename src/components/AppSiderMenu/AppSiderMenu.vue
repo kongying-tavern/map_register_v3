@@ -13,17 +13,14 @@ import {
   useNoticeStore,
   usePreferenceStore,
   useTileStore,
-  useUserStore,
 } from '@/stores'
 import { IconGithub, IconNotice } from '@/components/AppIcons'
-import { ExitLeft } from '@/components/GenshinUI/GSIcon'
 
 const collapse = ref(true)
 
 const logger = new Logger('侧边栏')
 
 const iconTagStore = useIconTagStore()
-const userStore = useUserStore()
 const mapStateStore = useMapStateStore()
 const noticeStore = useNoticeStore()
 const preferenceStore = usePreferenceStore()
@@ -158,8 +155,6 @@ const switchFilterMode = () => {
       </SiderMenuItem>
 
       <SiderMenuItem label="系统设置" :icon="Setting" @click="openSettingDialog" />
-
-      <SiderMenuItem label="退出" :icon="ExitLeft" @click="userStore.logout" />
     </template>
   </SiderMenu>
 </template>
