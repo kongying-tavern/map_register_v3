@@ -21,11 +21,6 @@ export default defineConfig(async ({ mode }) => {
       changeOrigin: true,
       rewrite: path => path.replace(new RegExp(`${ENV.VITE_API_BASE}`), ''),
     },
-    [ENV.VITE_ASSETS_BASE]: {
-      target: ENV.VITE_ASSETS_PROXY_TARGET,
-      changeOrigin: true,
-      rewrite: path => path.replace(new RegExp(`${ENV.VITE_ASSETS_BASE}`), ''),
-    },
   }
 
   const plugins: Plugin[] = [
