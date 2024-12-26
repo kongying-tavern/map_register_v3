@@ -1,7 +1,7 @@
 /* eslint-disable ts/no-explicit-any */
 // TODO 迁移至 fetch
 import axios from 'axios'
-import type { AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
+import type { AxiosError, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
 import { upperFirst } from 'lodash'
 import { useUserStore } from '@/stores'
 import { Logger } from '@/utils'
@@ -38,11 +38,20 @@ const onResponseFulfilled = (response: AxiosResponse<any, any>) => {
   return data
 }
 
-instance.interceptors.response.use(onResponseFulfilled, (error) => {
+instance.interceptors.response.use(onResponseFulfilled, (error: AxiosError) => {
   logger.error('Response Error:', error)
-  const { status } = error.response ?? {}
-  if (status !== undefined && [401, 403].includes(status))
-    useUserStore().logout()
+  const { status, data } = error.response ?? {}
+  switch (status) {
+    case 401:
+    case 403:
+      useUserStore().logout()
+      break
+    default:
+      break
+  }
+  if (!error.message && data instanceof Object && 'error_description' in data) {
+    error.message = `${data.error_description ?? 'Unknown Error'}`
+  }
   return Promise.reject(error)
 })
 

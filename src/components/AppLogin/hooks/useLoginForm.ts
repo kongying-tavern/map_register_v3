@@ -1,5 +1,4 @@
 import { ElMessage } from 'element-plus'
-import type { AxiosError } from 'axios'
 import { useValidateStatus } from './useValidateStatus'
 import { useUserStore } from '@/stores'
 import type { ElFormType } from '@/shared'
@@ -72,16 +71,15 @@ export const useLoginForm = () => {
     switch (err.message) {
       // 账号或密码错误
       case 'Bad credentials':
-        ElMessage.error({
-          message: `账号或密码错误`,
-        })
+        err.message = '账号或密码错误'
         break
       // 其他错误
       default:
-        ElMessage.error({
-          message: `登录失败，原因为：${(err as AxiosError<{ error_description?: string }>).response?.data?.error_description}`,
-        })
+        break
     }
+    ElMessage.error({
+      message: err.message,
+    })
   })
 
   return {
