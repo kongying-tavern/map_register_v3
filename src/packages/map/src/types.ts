@@ -172,7 +172,7 @@ export interface MissionTypeMap {
   markerEditting: number | undefined
   markerDragging: Map<number, Coordinate2D>
   markerLink: MarkerLinkMission[]
-  markerMultiSelect: boolean
+  markerMultiSelect: number[]
   markerBulkState: boolean
   unknown: unknown
 }
