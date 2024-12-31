@@ -68,10 +68,10 @@ export class GSMarkerLayer extends CompositeLayer<GSMarkerLayerProps> {
     const getIconFlag = (info: GSMarkerInfo) => {
       const id = info.id!
       const markerLevelMask = info.render.isUnderground ? 0b10000 : 0b00000
-      const markerStateMask = markedMarkerIds?.has(id)
-        ? 0b1000
-        : focusMarkerIds?.has(id)
-          ? 0b0100
+      const markerStateMask = focusMarkerIds?.has(id)
+        ? 0b0100
+        : markedMarkerIds?.has(id)
+          ? 0b1000
           : hoverMarkerIds?.has(id)
             ? 0b0010
             : 0b0001
