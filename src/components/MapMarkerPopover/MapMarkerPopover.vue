@@ -60,9 +60,17 @@ markerStore.onMarkerTweake((markers) => {
 
 // ==================== 编辑点位 ====================
 const { DialogService } = useGlobalDialog()
-const openMarkerEditor = async () => {
-  if (!focus.value)
+
+const {
+  isEnable: isEditable,
+  update: updateEditting,
+  clear: clearEditting,
+} = mapStateStore.subscribeMission('markerEditting', () => undefined)
+
+const editMarker = async () => {
+  if (!isEditable.value || !focus.value)
     return
+  updateEditting(focus.value.id)
   const formData = await DialogService
     .config({
       width: 'fit-content',
@@ -76,6 +84,7 @@ const openMarkerEditor = async () => {
     })
     .open(MarkerEditor)
     .afterClosed<GSMarkerInfo>()
+  clearEditting()
   updateFocus(formData.id)
   cachedMarkerVo.value = formData
 }
@@ -186,7 +195,7 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
             :value="cachedMarkerVo.content"
             readonly
             :rows="cachedMarkerVo.picture ? 8 : 16"
-            class="custom-scrollbar block px-2 text-sm outline-none resize-none bg-[var(--card-bg-color)]"
+            class="custom-scrollbar block p-1 text-sm outline-none resize-none bg-[var(--card-bg-color)]"
             autocomplete="off"
           />
         </template>
@@ -205,7 +214,7 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
                 size="small"
                 theme="dark"
                 :disabled="hasMapMission"
-                @click="openMarkerEditor"
+                @click="editMarker"
               >
                 <template #icon>
                   <el-icon color="#F7BA3F">

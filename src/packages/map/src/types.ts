@@ -169,6 +169,7 @@ export interface MarkerLinkMission extends API.MarkerLinkageVo {
 
 /** 任务类型表 */
 export interface MissionTypeMap {
+  markerEditting: number | undefined
   markerDragging: Map<number, Coordinate2D>
   markerLink: MarkerLinkMission[]
   markerMultiSelect: boolean
