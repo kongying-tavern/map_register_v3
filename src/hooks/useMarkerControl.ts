@@ -36,8 +36,10 @@ const _useMarkerControl = () => {
     return addFocus(MARKER_INTERACTION_KEY, id, true)
   }
 
+  const { isProcessing: isMultiSelecting } = mapStateStore.subscribeMission('markerMultiSelect', () => [])
+
   const focus = computed(() => {
-    if (hideMarkerPopover.value)
+    if (isMultiSelecting.value || hideMarkerPopover.value)
       return
     if (mapStateStore.interaction.isPopoverOnHover) {
       const hoverIds = mapStateStore.interaction.hoverElements.get(MARKER_INTERACTION_KEY) as (Set<number> | undefined)

@@ -12,6 +12,7 @@ export const useLinkLayer = () => {
 
   const { data: rewritePositions } = mapStateStore.subscribeMission('markerDragging', () => new Map())
   const { data: missionLinks } = mapStateStore.subscribeMission('markerLink', () => [])
+  const { isProcessing: isMultiSelecting } = mapStateStore.subscribeMission('markerMultiSelect', () => [])
 
   const interactionKey = GSLinkLayer.layerName
 
@@ -45,6 +46,8 @@ export const useLinkLayer = () => {
 
   /** 用于渲染的关联组 */
   const links = computed(() => {
+    if (isMultiSelecting.value)
+      return []
     const linkIds = new Set<string>()
     const result: MarkerLinkMission[] = []
     missionLinks.value.forEach((link) => {
