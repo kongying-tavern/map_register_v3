@@ -16,6 +16,7 @@ import {
   AppWindowProvider,
   MapContextMenu,
   MapMarkerMoveController,
+  MapMarkerToggleController,
   MapMarkerPopover,
 } from '@/components'
 import {
@@ -70,7 +71,7 @@ const viewState: Ref<GenshinMapViewState> = ref({
   transitionInterruption: TRANSITION_EVENTS.BREAK,
 })
 
-//
+// 将 viewState 变更事件响应到绑定对象上
 useSubscription(MapSubject.viewState.subscribe((newViewState) => {
   viewState.value = {
     ...viewState.value,
@@ -151,6 +152,7 @@ onBeforeMount(() => {
 
     <GSZoomController v-model="viewState" :transition-duration="TRANSITION_DURATION" />
     <MapMarkerMoveController />
+    <MapMarkerToggleController />
 
     <AppUserAvatar />
     <AppStateBar />
