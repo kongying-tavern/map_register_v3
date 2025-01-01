@@ -102,8 +102,6 @@ export const useLinkLayer = () => {
 
     const positionCache = new Map<number, Coordinate2D>()
 
-    console.log('map', rewritePositions.value)
-
     const data = links.value.reduce((result, { fromId, toId, linkAction, meta }) => {
       const from = markerStore.idMap.get(fromId!)
       if (!from?.position)
