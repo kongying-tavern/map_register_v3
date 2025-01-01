@@ -102,6 +102,8 @@ export const useLinkLayer = () => {
 
     const positionCache = new Map<number, Coordinate2D>()
 
+    console.log('map', rewritePositions.value)
+
     const data = links.value.reduce((result, { fromId, toId, linkAction, meta }) => {
       const from = markerStore.idMap.get(fromId!)
       if (!from?.position)
@@ -126,8 +128,8 @@ export const useLinkLayer = () => {
         return result
       result.push({
         id: meta.key,
-        from: tileStore.toMapCoordinate(rewritePositions.value.get(fromId!) ?? positionCache.get(fromId!)!),
-        to: tileStore.toMapCoordinate(rewritePositions.value.get(toId!) ?? positionCache.get(toId!)!),
+        from: rewritePositions.value.get(fromId!) ?? tileStore.toMapCoordinate(positionCache.get(fromId!)!),
+        to: rewritePositions.value.get(toId!) ?? tileStore.toMapCoordinate(positionCache.get(toId!)!),
         color,
       })
       return result
