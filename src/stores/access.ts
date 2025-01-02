@@ -19,7 +19,10 @@ const HIDDEN_FLAG_BINARY_MASK: Record<string, number> = {
   [RoleTypeEnum.VISITOR]: 0b1001,
 }
 
-/** 权限掩码 */
+/**
+ * 权限掩码，从高位到低位分别为：
+ * | 系统管理员 | 地图管理员 | 测试打点员 | 地图打点员 | 地图用户 | 匿名用户
+ */
 const ACCESS_BINARY_MASK = {
   /** 根管理员组件 */
   ADMIN_COMPONENT: 0b100000,
