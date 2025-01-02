@@ -3,6 +3,7 @@ import { filter, finalize, switchMap, takeUntil, tap } from 'rxjs'
 import { useSubscription } from '@vueuse/rxjs'
 import { useArchiveStore, useMapStateStore, useShortcutStore } from '@/stores'
 import { MapSubject, globalPointerup$, globalKeyUp$, mapContainerWidthKey, mapContainerHeightKey } from '@/shared'
+import { MultiSelect } from '@/shared/enum'
 import KDBush from 'kdbush'
 import { GSMarkerLayer } from '@/packages/map'
 
@@ -15,11 +16,13 @@ const UNMARKED_COLOR = '#FFFF00'
 
 // ==================== 任务 ====================
 const {
+  data: selectKey,
   isEmpty,
-  isProcessing,
-  update: updateMission,
-  clear: clearMission,
-} = mapStateStore.subscribeMission('markerMultiSelect', () => [])
+  update: setSelectKey,
+  clear: cancelSelect,
+} = mapStateStore.subscribeMission('markerMultiSelect', () => '')
+
+const isMatched = computed(() => selectKey.value === MultiSelect.MarkerToggle)
 
 // ==================== 图形 ====================
 const eventState = ref<{
@@ -60,22 +63,24 @@ const shortcutKeys = computed(() => {
 // 响应快捷键，开启任务
 const start$ = shortcutStore.shortcut$.pipe(
   filter(({ value }) => {
-    const hotKeys = toValue(shortcutKeys)
     return [
-      hotKeys,
       isEmpty.value,
-      value === hotKeys,
+      shortcutKeys.value,
+      value === shortcutKeys.value,
     ].every(Boolean)
   }),
 
   tap(() => {
-    updateMission([])
+    setSelectKey(MultiSelect.MarkerToggle)
   }),
 )
 
 // 处理框选和状态改变逻辑
 const core$ = start$.pipe(switchMap(() => MapSubject.dragStart.pipe(
-  filter(({ event }) => Boolean(event.leftButton || event.rightButton)),
+  filter(({ event }) => [
+    isMatched.value,
+    event.leftButton || event.rightButton,
+  ].every(Boolean)),
 
   tap(() => {
     mapStateStore.setCursor('crosshair')
@@ -83,7 +88,7 @@ const core$ = start$.pipe(switchMap(() => MapSubject.dragStart.pipe(
 
   switchMap(({ info: startInfo, event: startEvent }) => {
     // 左键为标记模式，右键为取消标记模式
-    const isRemoveMode = startEvent.leftButton === true
+    const isRemoveMode = startEvent.rightButton === true
 
     eventState.value.start = startEvent.center
     stroke.value = isRemoveMode ? UNMARKED_COLOR : MARKED_COLOR
@@ -140,7 +145,7 @@ const core$ = start$.pipe(switchMap(() => MapSubject.dragStart.pipe(
   takeUntil(globalKeyUp$),
 
   finalize(() => {
-    clearMission()
+    cancelSelect()
     stroke.value = 'transparent'
     eventState.value = {}
   }),
@@ -150,7 +155,7 @@ useSubscription(core$.subscribe())
 </script>
 
 <template>
-  <div v-if="isProcessing" class="marker-toggle-controller">
+  <div v-if="isMatched" class="marker-toggle-controller">
     <svg v-if="shape" :viewBox="`0 0 ${width} ${height}`" fill="transparent">
       <rect
         :x="shape.xmin"
