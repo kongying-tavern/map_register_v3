@@ -158,7 +158,7 @@ const ua = computed(() => {
       :page-sizes="[10]"
       :pager-count="5"
       :disabled="loading"
-      small
+      size="small"
       class="flex-shrink-0 flex justify-end items-center p-4"
       background
       @current-change="refresh"

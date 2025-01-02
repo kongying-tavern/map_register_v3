@@ -141,7 +141,7 @@ onSuccess(({ record, total }) => {
       :pager-count="5"
       :layout="layout"
       background
-      small
+      size="small"
       class="flex justify-end col-span-2"
       @current-change="updateIconList"
     >
