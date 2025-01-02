@@ -11,9 +11,12 @@ export const useMarkerLayer = () => {
 
   const { data: rewritePositions } = mapStateStore.subscribeMission('markerDragging', () => new Map())
 
+  const { isProcessing } = mapStateStore.subscribeMission('markerMultiSelect', () => '')
+
   // 点位 focus
   useSubscription(MapSubject.click.pipe(
     filter(({ info, event }) => [
+      !isProcessing.value,
       info.layer instanceof GSMarkerLayer,
       event.leftButton,
     ].every(Boolean)),
