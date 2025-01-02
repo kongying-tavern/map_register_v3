@@ -3,12 +3,13 @@ import { filter, finalize, switchMap, takeUntil, tap } from 'rxjs'
 import { useSubscription } from '@vueuse/rxjs'
 import type { Layer } from '@deck.gl/core'
 import { useMarkerPositionEdit } from './hooks'
-import { useArchiveStore, useMapStateStore, useShortcutStore } from '@/stores'
+import { useAccessStore, useArchiveStore, useMapStateStore, useShortcutStore } from '@/stores'
 import { GSButton } from '@/components'
 import { MapSubject } from '@/shared'
 import type { GSMarkerInfo } from '@/packages/map'
 import { GSMarkerLayer } from '@/packages/map'
 
+const accessStore = useAccessStore()
 const archiveStore = useArchiveStore()
 const mapStateStore = useMapStateStore()
 const shortcutStore = useShortcutStore()
@@ -32,11 +33,11 @@ const shortcutKeys = computed(() => {
 // 开始点位拖拽
 useSubscription(shortcutStore.shortcut$.pipe(
   filter(({ value }) => {
-    const hotKeys = toValue(shortcutKeys)
     return [
-      !!hotKeys,
+      accessStore.get('MARKER_EDIT'),
       isMissionEmpty.value,
-      hotKeys === value,
+      shortcutKeys.value,
+      value === shortcutKeys.value,
     ].every(Boolean)
   }),
 ).subscribe(() => {
