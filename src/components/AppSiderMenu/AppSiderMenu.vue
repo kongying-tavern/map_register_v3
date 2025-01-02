@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
-import { CoffeeCup, Filter, Grid, List, Promotion, Setting } from '@element-plus/icons-vue'
-import type { FeatureOption } from './components'
+import { Box, ChatLineRound, CoffeeCup, Coordinate, Filter, FolderOpened, Grid, List, Location, Memo, Picture, Promotion, Setting, Star, User } from '@element-plus/icons-vue'
+import type { FeatureGroupOption } from './components'
 import { CollapseButton, FeatureGrid, MarkerFilter, MarkerTable, SiderMenu, SiderMenuItem } from './components'
-import { AppSettings } from '@/components'
+import { AppSettings, AppWindowTeleporter, useAppWindow } from '@/components'
 import { useGlobalDialog } from '@/hooks'
 import { Logger } from '@/utils'
 import {
@@ -27,6 +27,70 @@ const preferenceStore = usePreferenceStore()
 
 const { DialogService } = useGlobalDialog()
 
+const { info: itemManagerInfo, open: openItemManager } = useAppWindow({
+  name: '物品管理',
+  minWidth: 887,
+  minHeight: 500,
+})
+
+const { info: areaManagerInfo, open: openAreaManager } = useAppWindow({
+  name: '地区管理',
+  minWidth: 887,
+  minHeight: 500,
+})
+
+const { info: markerManagerInfo, open: openMarkerManager } = useAppWindow({
+  name: '点位管理',
+  minWidth: 887,
+  minHeight: 500,
+})
+
+const { info: typeManagerInfo, open: openTypeManager } = useAppWindow({
+  name: '类型管理',
+  minWidth: 887,
+  minHeight: 500,
+})
+
+const { info: iconManagerInfo, open: openIconManager } = useAppWindow({
+  name: '图标管理',
+  minWidth: 887,
+  minHeight: 500,
+})
+
+const { info: noticeManagerInfo, open: openNoticeManager } = useAppWindow({
+  name: '公告管理',
+  minWidth: 887,
+  minHeight: 500,
+})
+
+const { info: scoreManagerInfo, open: openScoreManager } = useAppWindow({
+  name: '用户评分',
+  minWidth: 887,
+  minHeight: 500,
+})
+
+const { info: userManagerInfo, open: openUserManager } = useAppWindow({
+  name: '用户管理',
+  minWidth: 887,
+  minHeight: 500,
+})
+
+const { info: historyManagerInfo, open: openHistoryManager } = useAppWindow({
+  name: '操作记录',
+  minWidth: 887,
+  minHeight: 500,
+})
+
+const AreaManager = defineAsyncComponent(() => import('@/pages/pageAreaManager/AreaManager.vue'))
+const ItemManager = defineAsyncComponent(() => import('@/pages/pageItemManager/ItemManager.vue'))
+const MarkerManager = defineAsyncComponent(() => import('@/pages/pageMarkerManager/MarkerManager.vue'))
+const TypeManager  = defineAsyncComponent(() => import('@/pages/pageTypeManager/TypeManager.vue'))
+const IconManager = defineAsyncComponent(() => import('@/pages/pageIconManager/IconManager.vue'))
+const NoticeManager = defineAsyncComponent(() => import('@/pages/pageNoticeManager/PageNoticeManager.vue'))
+const ScoreManager = defineAsyncComponent(() => import('@/pages/pageScoreManager/ScoreManager.vue'))
+const UserManager = defineAsyncComponent(() => import('@/pages/pageUserManager/UserManager.vue'))
+const HistoryManager = defineAsyncComponent(() => import('@/pages/pageHistory/PageHistory.vue'))
+
 const openSettingDialog = () => DialogService
   .config({
     alignCenter: true,
@@ -37,22 +101,46 @@ const openSettingDialog = () => DialogService
 const url = ref('')
 
 const openTagSpriteImage = () => {
-  logger.info('mapping', iconTagStore.tagPositionMap)
+  logger.info('icontag mapping', iconTagStore.tagPositionMap)
   url.value = iconTagStore.tagSpriteUrl ?? ''
 }
 
 const openMarkerSpriteImage = () => {
-  logger.info('mapping', iconTagStore.markerSpriteMapping)
+  logger.info('marker mapping', iconTagStore.markerSpriteMapping)
   url.value = iconTagStore.markerSpriteUrl ?? ''
 }
 
-const features: FeatureOption[] = [
-  { label: '赞助我们', icon: CoffeeCup, cb: () => window.open('https://opencollective.com/genshinmap') },
-  { label: 'GitHub', icon: IconGithub, cb: () => window.open('https://github.com/kongying-tavern/map_register_v3') },
-  { label: '检查订阅配置', icon: Promotion, cb: () => logger.info(JSON.parse(JSON.stringify(useDadianStore().raw))) },
-  { label: '检查底图配置', icon: Promotion, cb: () => logger.info(JSON.parse(JSON.stringify(useTileStore().mergedTileConfigs))) },
-  { label: '检查预渲染图', icon: Promotion, cb: openTagSpriteImage },
-  { label: '预渲染点位图', icon: Promotion, cb: openMarkerSpriteImage },
+const features: FeatureGroupOption[] = [
+  {
+    label: '管理系统',
+    items: [
+      { label: '物品管理', role: 'MANAGER_COMPONENT', icon: Box, cb: () => openItemManager() },
+      { label: '地区管理', role: 'MANAGER_COMPONENT', icon: Coordinate, cb: () => openAreaManager() },
+      { label: '点位管理', role: 'MANAGER_COMPONENT', icon: Location, cb: () => openMarkerManager() },
+      { label: '类型管理', role: 'MANAGER_COMPONENT', icon: FolderOpened, cb: () => openTypeManager() },
+      { label: '图标管理', role: 'MANAGER_COMPONENT', icon: Picture, cb: () => openIconManager() },
+      { label: '公告管理', role: 'MANAGER_COMPONENT', icon: ChatLineRound, cb: () => openNoticeManager() },
+      { label: '用户评分', role: 'MANAGER_COMPONENT', icon: Star, cb: () => openScoreManager() },
+      { label: '用户管理', role: 'ADMIN_COMPONENT', icon: User, cb: () => openUserManager() },
+      { label: '操作记录', role: 'ADMIN_COMPONENT', icon: Memo, cb: () => openHistoryManager() },
+    ],
+  },
+  {
+    label: '开发者',
+    items: [
+      { label: '检查订阅配置', icon: Promotion, cb: () => logger.info(JSON.parse(JSON.stringify(useDadianStore().raw))) },
+      { label: '检查底图配置', icon: Promotion, cb: () => logger.info(JSON.parse(JSON.stringify(useTileStore().mergedTileConfigs))) },
+      { label: '检查预渲染图', icon: Promotion, cb: openTagSpriteImage },
+      { label: '预渲染点位图', icon: Promotion, cb: openMarkerSpriteImage },
+    ],
+  },
+  {
+    label: '其他',
+    items: [
+      { label: '赞助我们', icon: CoffeeCup, cb: () => window.open('https://opencollective.com/genshinmap') },
+      { label: 'GitHub', icon: IconGithub, cb: () => window.open('https://github.com/kongying-tavern/map_register_v3') },
+    ],
+  },
 ]
 
 /**
@@ -72,7 +160,48 @@ const switchFilterMode = () => {
 
 <template>
   <CollapseButton v-model:collapse="collapse" />
+
   <SiderMenu v-model="preferenceStore.tabName" v-model:collapse="collapse">
+    <AppWindowTeleporter :info="areaManagerInfo">
+      <AreaManager />
+    </AppWindowTeleporter>
+
+    <AppWindowTeleporter :info="itemManagerInfo">
+      <ItemManager />
+    </AppWindowTeleporter>
+
+    <AppWindowTeleporter :info="iconManagerInfo">
+      <IconManager />
+    </AppWindowTeleporter>
+
+    <AppWindowTeleporter :info="markerManagerInfo">
+      <MarkerManager />
+    </AppWindowTeleporter>
+
+    <AppWindowTeleporter :info="typeManagerInfo">
+      <TypeManager />
+    </AppWindowTeleporter>
+
+    <AppWindowTeleporter :info="iconManagerInfo">
+      <IconManager />
+    </AppWindowTeleporter>
+
+    <AppWindowTeleporter :info="noticeManagerInfo">
+      <NoticeManager />
+    </AppWindowTeleporter>
+
+    <AppWindowTeleporter :info="scoreManagerInfo">
+      <ScoreManager />
+    </AppWindowTeleporter>
+
+    <AppWindowTeleporter :info="userManagerInfo">
+      <UserManager />
+    </AppWindowTeleporter>
+
+    <AppWindowTeleporter :info="historyManagerInfo">
+      <HistoryManager />
+    </AppWindowTeleporter>
+
     <SiderMenuItem name="filter" :label="isAdvancedFilter ? '高级筛选' : '基础筛选'">
       <template #icon>
         <div class="w-full h-full overflow-hidden select-none">

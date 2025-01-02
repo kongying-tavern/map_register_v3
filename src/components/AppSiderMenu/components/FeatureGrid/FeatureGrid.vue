@@ -1,22 +1,37 @@
 <script lang="ts" setup>
-import type { FeatureOption } from '.'
+import type { FeatureGroupOption } from '.'
 
 defineProps<{
-  features: FeatureOption[]
+  features: FeatureGroupOption[]
 }>()
 </script>
 
 <template>
   <el-scrollbar height="100%">
-    <div class="feature-grid font-['HYWenHei-85W']">
-      <div v-for="feature in features" :key="feature.label" class="grid-unit" @click="() => feature.cb()">
-        <div class="grid-unit-icon">
-          <component :is="feature.icon" class="h-full" />
+    <div class="feature-grid w-[350px] p-4 h-full overflow-hidden flex flex-col gap-4 font-[HYWenHei-85W]">
+      <div
+        v-for="featureGroup in features"
+        :key="featureGroup.label"
+        class="grid grid-cols-3 gap-2"
+      >
+        <div class="col-span-3 text-white">
+          {{ featureGroup.label }}
         </div>
-        <div class="grid-unit-label">
-          <span class="w-full inline-block whitespace-nowrap text-ellipsis overflow-hidden text-center">
-            {{ feature.label }}
-          </span>
+
+        <div
+          v-for="feature in featureGroup.items"
+          :key="feature.label"
+          class="grid-unit"
+          @click="() => feature.cb()"
+        >
+          <div class="grid-unit-icon">
+            <component :is="feature.icon" class="h-full" />
+          </div>
+          <div class="grid-unit-label">
+            <span class="w-full inline-block whitespace-nowrap text-ellipsis overflow-hidden text-center">
+              {{ feature.label }}
+            </span>
+          </div>
         </div>
       </div>
     </div>
@@ -25,16 +40,7 @@ defineProps<{
 
 <style lang="scss" scoped>
 .feature-grid {
-  --gap: 8px;
   --transition: all ease-out 150ms;
-
-  display: grid;
-  width: 350px;
-  height: 100%;
-  place-content: start;
-  gap: 8px;
-  padding: 16px;
-  grid-template-columns: repeat(3, 1fr);
 }
 
 @keyframes jump-loop {
