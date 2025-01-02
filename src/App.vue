@@ -17,6 +17,7 @@ import {
   MapContextMenu,
   MapMarkerMoveController,
   MapMarkerToggleController,
+  MapMarkerTweakController,
   MapMarkerPopover,
 } from '@/components'
 import {
@@ -153,6 +154,7 @@ onBeforeMount(() => {
     <GSZoomController v-model="viewState" :transition-duration="TRANSITION_DURATION" />
     <MapMarkerMoveController />
     <MapMarkerToggleController />
+    <MapMarkerTweakController />
 
     <AppUserAvatar />
     <AppStateBar />
