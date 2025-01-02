@@ -1,3 +1,4 @@
+export * from './enum'
 export * from './accessPolicy'
 export * from './device'
 export * from './document'
