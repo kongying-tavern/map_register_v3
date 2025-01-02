@@ -20,7 +20,7 @@ const handleTitleSelect = (notice: API.NoticeVo) => {
         公告
       </div>
       <div class="absolute top-1/2 right-[16px] -translate-y-1/2">
-        <GSButton theme="plain" @click="context.close">
+        <GSButton theme="plain" @click="() => context.close()">
           <template #icon>
             <el-icon color="var(--icon-color)" :size="20">
               <CloseFilled />

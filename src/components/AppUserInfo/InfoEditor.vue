@@ -4,22 +4,20 @@ import { AvatarEditor } from './components'
 import { GSButton, GSDivider, GSInput } from '@/components'
 import { useFetchHook } from '@/hooks'
 import type { ElFormType } from '@/shared'
-import { useUserInfoStore } from '@/stores'
+import { useUserStore } from '@/stores'
 import Api from '@/api/api'
 
-const userInfoStore = useUserInfoStore()
+const userStore = useUserStore()
 
 const form = ref<API.SysUserUpdateVo>({
-  userId: userInfoStore.info.id,
-  nickname: userInfoStore.info.nickname,
-  qq: userInfoStore.info.qq,
-  phone: userInfoStore.info.phone,
-  logo: userInfoStore.info.logo,
+  ...userStore.info,
 })
 
 const isDifference = computed(() => {
+  if (!userStore.info)
+    return false
   const { nickname, qq, phone } = form.value
-  const { nickname: rawNickname, qq: rawQQ, phone: rawPhone } = userInfoStore.info
+  const { nickname: rawNickname, qq: rawQQ, phone: rawPhone } = userStore.info
   return [
     [nickname, rawNickname],
     [qq, rawQQ],
@@ -28,7 +26,7 @@ const isDifference = computed(() => {
     a ||= ''
     b ||= ''
     return a !== b
-  })
+  }) !== undefined
 })
 
 const formRef = ref<ElFormType | null>(null)
@@ -47,8 +45,7 @@ const { refresh: updateUserInfo, loading } = useFetchHook({
     if (!isValid)
       return
     await Api.user.updateUser(form.value)
-    await userInfoStore.updateUserInfo()
-    document.documentElement.style.setProperty('--user-icon', `url("${userInfoStore.info.logo}")`)
+    await userStore.refreshUserInfo()
   },
 })
 </script>

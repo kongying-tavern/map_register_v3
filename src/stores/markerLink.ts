@@ -1,15 +1,27 @@
 import { defineStore } from 'pinia'
 import { liveQuery } from 'dexie'
 import type { ShallowRef } from 'vue'
-import { useSocketStore, useUserAuthStore } from '.'
-import { useBackendUpdate, userHook } from '@/stores/hooks'
+import { useSocketStore } from '.'
+import { useBackendUpdate } from '@/stores/hooks'
 import Api from '@/api/api'
 import db from '@/database'
 import { Zip } from '@/utils'
 
 export const useMarkerLinkStore = defineStore('global-marker-link', () => {
   const markerLinkList = shallowRef<API.MarkerLinkageVo[]>([])
+
   const total = computed(() => markerLinkList.value.length)
+
+  const idMap = computed(() => markerLinkList.value.reduce((map, link) => {
+    return map.set(link.id!, link)
+  }, new Map<number, API.MarkerLinkageVo>()))
+
+  const groupIdMap = computed(() => markerLinkList.value.reduce((map, link) => {
+    if (!map.has(link.groupId!))
+      map.set(link.groupId!, [])
+    map.get(link.groupId!)!.push(link)
+    return map
+  }, new Map<string, API.MarkerLinkageVo[]>()))
 
   const backendUpdater = useBackendUpdate(
     db.markerLink,
@@ -38,11 +50,8 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
   return {
     total,
     markerLinkList: markerLinkList as Readonly<ShallowRef<API.MarkerLinkageVo[]>>,
+    idMap,
+    groupIdMap,
     backendUpdater,
   }
-})
-
-userHook.onInfoChange(useMarkerLinkStore, async (store) => {
-  const { validateToken } = useUserAuthStore()
-  validateToken() ? await store.backendUpdater.start() : store.backendUpdater.stop()
 })

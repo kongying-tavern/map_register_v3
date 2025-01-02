@@ -1,5 +1,3 @@
-import type { Color } from '@deck.gl/core'
-
 /** 点位关联行为枚举 */
 export enum LinkActionEnum {
   /** 单触发 - 点对点的单向触发。 */
@@ -44,9 +42,10 @@ export const LINK_ACTION_NAME_MAP = LINK_ACTION_OPTIONS
 
 export interface LinkActionConfig {
   /** 指示线颜色 */
-  lineColor: Color
+  lineColor: [r: number, g: number, b: number]
 }
 
+/** @deprecated */
 export const LINK_ACTION_CONFIG: Record<LinkActionEnum, LinkActionConfig> = {
   [LinkActionEnum.TRIGGER]: {
     lineColor: [255, 0, 0], // rgb(255 0 0)
@@ -73,3 +72,30 @@ export const LINK_ACTION_CONFIG: Record<LinkActionEnum, LinkActionConfig> = {
     lineColor: [0, 128, 0], // rgb(0 128 0)
   },
 }
+
+export const LINK_CONFIG_MAP = new Map<LinkActionEnum, LinkActionConfig>([
+  [LinkActionEnum.TRIGGER, {
+    lineColor: [255, 0, 0], // rgb(255 0 0)
+  }],
+  [LinkActionEnum.TRIGGER_ALL, {
+    lineColor: [0, 0, 128], // rgb(0 0 128)
+  }],
+  [LinkActionEnum.TRIGGER_ANY, {
+    lineColor: [173, 216, 230], // rgb(173 216 230)
+  }],
+  [LinkActionEnum.RELATED, {
+    lineColor: [0, 170, 255], // rgb(0 170 255)
+  }],
+  [LinkActionEnum.DIRECTED, {
+    lineColor: [255, 165, 0], // rgb(255 165 0)
+  }],
+  [LinkActionEnum.PATH_UNI_DIR, {
+    lineColor: [255, 153, 255], // rgb(255 153 255)
+  }],
+  [LinkActionEnum.PATH_BI_DIR, {
+    lineColor: [153, 153, 255], // rgb(153 153 255)
+  }],
+  [LinkActionEnum.EQUIVALENT, {
+    lineColor: [0, 128, 0], // rgb(0 128 0)
+  }],
+])

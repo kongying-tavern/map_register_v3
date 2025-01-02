@@ -1,12 +1,19 @@
 <script lang="ts" setup>
-import { Avatar } from '@element-plus/icons-vue'
+import { ElDialog } from 'element-plus'
+import { UserBanner } from './components'
 import { ArchiveAnalyser, ArchiveSelector, InfoEditor, PasswordEditor } from '.'
-import { useUserInfoStore } from '@/stores'
+import { useUserStore } from '@/stores'
 import { GSTab } from '@/components'
 
-const userInfoStore = useUserInfoStore()
+const userStore = useUserStore()
 
-const banner = import.meta.env.VITE_BANNER_IMAGE
+const visible = defineModel<boolean>('visible', {
+  required: true,
+})
+
+whenever(() => !userStore.info, () => {
+  visible.value = false
+})
 
 const tabs: { title: string; value: string }[] = [
   { title: '云存档', value: 'archive' },
@@ -17,72 +24,24 @@ const tab = ref('archive')
 </script>
 
 <template>
-  <el-dialog
-    v-model="userInfoStore.showUserInfo"
+  <ElDialog
+    v-if="userStore.info"
+    v-model="visible"
     :show-close="false"
+    destroy-on-close
     align-center
     append-to-body
     width="fit-content"
     class="custom-dialog hidden-header bg-transparent"
   >
-    <div class="user-info-dialog relative overflow-visible grid grid-cols-2 place-items-center font-['HYWenHei-85W']">
-      <div class="bg-card rounded" />
-
-      <div class="user-info overflow-hidden rounded flex flex-col items-center p-8 pt-28">
-        <div class="banner absolute top-0 left-0 text-center text-lg">
-          <el-image
-            :src="banner"
-            class="absolute w-full h-full left-0 top-0"
-            fit="cover"
-            style="z-index: -1"
-            crossorigin=""
-          >
-            <template #placeholder>
-              <el-skeleton style="width: 532px; height: 200px" animated>
-                <template #template>
-                  <el-skeleton-item variant="image" style="width: 100%; height: 100%" />
-                </template>
-              </el-skeleton>
-            </template>
-          </el-image>
-          <div class="absolute left-1/2 top-4 z-10">
-            ID {{ userInfoStore.info.id }}
-          </div>
-        </div>
-
-        <div class="user-avatar w-40 h-40 p-2 flex justify-center items-center">
-          <el-image
-            v-if="userInfoStore.info.logo?.trim()"
-            :src="userInfoStore.info.logo?.trim()"
-            class="w-full h-full rounded-full"
-            fit="cover"
-            style="z-index: -1"
-            crossorigin=""
-          >
-            <template #placeholder>
-              <el-skeleton style="width: 144px; height: 144px" animated>
-                <template #template>
-                  <el-skeleton-item variant="image" style="width: 100%; height: 100%" />
-                </template>
-              </el-skeleton>
-            </template>
-          </el-image>
-          <Avatar v-else style="background: var(--el-color-info-light-3);" class="rounded-full text-white" />
-        </div>
-
-        <div class="w-full flex flex-col items-center p-4">
-          <div class="flex items-center gap-2 text-3xl">
-            {{ userInfoStore.info.nickname }}
-          </div>
-          <div class="text-lg" style="color: #7198E3">
-            {{ userInfoStore.userRole?.name ?? '游客' }}
-          </div>
-        </div>
+    <div class="user-info-dialog">
+      <div class="user-info-card">
+        <UserBanner />
 
         <ArchiveAnalyser />
       </div>
 
-      <div class="user-action w-full h-full p-8 pl-0">
+      <div class="user-action">
         <GSTab v-model="tab" :tabs="tabs" class="h-full">
           <template #archive>
             <ArchiveSelector />
@@ -96,15 +55,37 @@ const tab = ref('archive')
         </GSTab>
       </div>
     </div>
-  </el-dialog>
+  </ElDialog>
 </template>
 
-<style lang="scss" scoped>
+<style scoped>
+@keyframes user-card-anime-in {
+  from { rotate: 3deg }
+  to { rotate: 0deg }
+}
+
+@keyframes user-card-bg-anime-in {
+  from { rotate: 5deg }
+  to { rotate: -1.5deg }
+}
+
+@keyframes user-action-anime-in {
+  from {
+    translate: -20px 0;
+  }
+  to {
+    translate: 0 0;
+  }
+}
+
 .user-info-dialog {
+  @apply
+    relative overflow-visible
+    font-[HYWenHei-85W] text-[#424F65]
+  ;
+  --paint-padding: 2;
   width: 1200px;
   height: 720px;
-  color: #424F65;
-  --paint-padding: 2;
   background: paint(user-card-border);
   @supports not (background: paint(user-card-border)) {
     background: #F0EBE3;
@@ -112,34 +93,30 @@ const tab = ref('archive')
     outline: 2px solid #DFD2C0;
     outline-offset: -8px;
   }
+  &::before {
+    content: '';
+    position: absolute;
+    left: 32px;
+    top: 0;
+    width: 540px;
+    height: 100%;
+    border-radius: 4px;
+    background: #F0EBE3;
+    filter: drop-shadow(0 0 12px #66666640);
+    animation: user-card-bg-anime-in 400ms forwards;
+  }
 }
 
-.bg-card {
-  @keyframes rotateIn2 {
-    from { rotate: 5deg }
-    to { rotate: -1.5deg }
-  }
-  position: absolute;
-  width: 540px;
-  height: calc(100% + 4px);
-  top: -2px;
-  left: 30px;
-  background: #F0EBE3;
-  filter: drop-shadow(0 0 12px rgba(150, 150, 150, 0.2));
-  animation: rotateIn2 400ms forwards;
-}
-
-.user-info {
-  @keyframes rotateIn {
-    from { rotate: 3deg }
-    to { rotate: 0deg }
-  }
+.user-info-card {
+  @apply rounded flex flex-col items-center;
   width: 540px;
   height: calc(100% + 4px);
   background: paint(user-card-info-border);
-  filter: drop-shadow(0 0 12px rgba(150, 150, 150, 0.2));
-  animation: rotateIn 400ms forwards;
-  position: relative;
+  filter: drop-shadow(0 0 4px #00000040);
+  animation: user-card-anime-in 400ms forwards;
+  position: absolute;
+  left: 32px;
+  top: 0;
   @supports not (background: paint(user-card-border)) {
     background: #F0EBE3;
     border-radius: 6px;
@@ -148,41 +125,11 @@ const tab = ref('archive')
   }
 }
 
-.banner {
-  width: calc(100% - 8px);
-  transform: translate(4px, 4px);
-  height: 200px;
-  background-image: var(--bg);
-  background-position: 50% 50%;
-  background-size: cover;
-  color: #F0EBE3;
-  text-shadow: 0 0 2px #000;
-}
-
-.user-avatar {
-  border-radius: 50%;
-  background: radial-gradient(
-    #CE9B76,
-    #CE9B76 calc(61% + 2px),
-    #F0EBE1 calc(61% + 3px),
-    #F0EBE1 calc(61% + 8px),
-    #D6C299 calc(61% + 9px),
-    #D6C299);
-  overflow: hidden;
-  position: relative;
-  filter: drop-shadow(0 0 6px #00000010);
-}
-
 .user-action {
-  @keyframes slideIn {
-    from {
-      translate: -20px 0;
-    }
-    to {
-      translate: 0 0;
-    }
-  }
-  animation: slideIn 400ms forwards;
+  @apply m-8 absolute top-0 right-0;
+  width: 540px;
+  height: calc(100% - 64px);
+  animation: user-action-anime-in 400ms forwards;
   overflow: hidden;
 }
 </style>

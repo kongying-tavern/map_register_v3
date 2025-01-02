@@ -3,15 +3,15 @@ import { SettingBar, SettingGroup, SettingPanel } from '../components'
 import { ManagerModule } from '@/shared'
 import { usePreferenceStore } from '@/stores'
 
-const preference = usePreferenceStore()
+const preferenceStore = usePreferenceStore()
 
-const pageSizeMap = computed(() => new Map(preference.preference['manager.setting.pageSize']))
+const pageSizeMap = computed(() => new Map(preferenceStore.pageSize))
 
 const usePageSize = (module: ManagerModule) => computed({
   get: () => pageSizeMap.value.get(module) ?? 10,
   set: (size) => {
     const result = new Map(pageSizeMap.value).set(module, size).entries()
-    preference.preference['manager.setting.pageSize'] = [...result]
+    preferenceStore.pageSize = [...result]
   },
 })
 

@@ -1,8 +1,9 @@
 import { defineStore } from 'pinia'
 import { defaultsDeep, merge } from 'lodash'
-import { useAccessStore, useAreaStore, useDadianStore, usePreferenceStore } from '@/stores'
+import { useAccessStore, useArchiveStore, useAreaStore, useDadianStore } from '@/stores'
 import type { AreaTagTuple } from '@/configs'
 import { AREA_ADDITIONAL_CONFIG_MAP } from '@/configs'
+import type { Coordinate2D } from '@/packages/map'
 
 export interface TileInfo extends Required<Pick<API.TileConfig, | 'code'
 | 'name'
@@ -38,10 +39,14 @@ export const useTileStore = defineStore('global-map-tile', () => {
   const areaStore = useAreaStore()
   const accessStore = useAccessStore()
   const dadianStore = useDadianStore()
-  const preferenceStore = usePreferenceStore()
+  const archiveStore = useArchiveStore()
+
+  const areaCode = computed(() => {
+    return archiveStore.currentArchive.body.Preference['markerFilter.state.areaCode']
+  })
 
   const mergedTiles = computed(() => {
-    const { tiles = {}, tilesNeigui = {} } = dadianStore._raw
+    const { tiles = {}, tilesNeigui = {} } = dadianStore.raw
     return accessStore.hasNeigui
       ? merge(tiles, tilesNeigui)
       : tiles
@@ -100,10 +105,9 @@ export const useTileStore = defineStore('global-map-tile', () => {
 
   /** 当前激活的底图配置 */
   const currentTileConfig = computed(() => {
-    const areaCode = preferenceStore.preference['markerFilter.state.areaCode']
-    if (!areaCode)
+    if (!areaCode.value)
       return
-    return mergedTileConfigs.value[areaCode]
+    return mergedTileConfigs.value[areaCode.value]
   })
 
   /** 当前激活的底图code */
@@ -180,7 +184,7 @@ export const useTileStore = defineStore('global-map-tile', () => {
   })
 
   /** 将地图坐标转换为点位坐标 */
-  const toMarkerCoordinate = ([x, y]: [number, number]) => {
+  const toMarkerCoordinate = ([x, y]: Coordinate2D): Coordinate2D => {
     if (!currentTileConfig.value)
       return [x, y]
     const { center: [ox, oy] } = currentTileConfig.value.tile
@@ -188,7 +192,7 @@ export const useTileStore = defineStore('global-map-tile', () => {
   }
 
   /** 将点位坐标转换为地图坐标 */
-  const toMapCoordinate = ([x, y]: [number, number]) => {
+  const toMapCoordinate = ([x, y]: Coordinate2D): Coordinate2D => {
     if (!currentTileConfig.value)
       return [x, y]
     const { center: [ox, oy] } = currentTileConfig.value.tile

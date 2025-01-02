@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { catchError, from, of, retry } from 'rxjs'
 import { camelCase } from 'lodash'
-import { routerHook, userHook } from './hooks'
+import { userHook } from './hooks'
 import { Logger } from '@/utils'
 import Oauth from '@/api/oauth'
 import { USERAUTH_KEY } from '@/shared'
@@ -39,10 +39,7 @@ export const useUserAuthStore = defineStore('global-user-auth', () => {
 
   const beforeLogout = createEventHook<void>()
 
-  const isSkipped = ref(false)
-
-  const setAuth = (newAuth: API.SysToken, skipHook = false) => {
-    isSkipped.value = skipHook
+  const setAuth = (newAuth: API.SysToken) => {
     const { refreshToken, userId, expiresIn, tokenType, accessToken } = toCamelCaseObject(newAuth)
     auth.value = {
       refreshToken,
@@ -55,9 +52,9 @@ export const useUserAuthStore = defineStore('global-user-auth', () => {
   }
 
   const validateToken = () => {
-    if (!auth.value.accessToken)
+    const { accessToken, expiresTime = 0, userId } = auth.value
+    if (!accessToken || !userId)
       return false
-    const { expiresTime = 0 } = auth.value
     return expiresTime > Date.now()
   }
 
@@ -66,9 +63,6 @@ export const useUserAuthStore = defineStore('global-user-auth', () => {
       return false
     const { expiresTime = 0 } = auth.value
     return expiresTime > Date.now()
-  })
-  watch(isTokenValid, (valid) => {
-    logger.info('token changed', valid)
   })
 
   const refreshAuth = () => new Promise<void>((resolve, reject) => {
@@ -94,14 +88,6 @@ export const useUserAuthStore = defineStore('global-user-auth', () => {
     })
   })
 
-  watch(auth, () => {
-    if (isSkipped.value) {
-      isSkipped.value = false
-      return
-    }
-    userHook.applyCallbacks('onAuthChange')
-  }, { deep: true })
-
   /** 刷新计时器 */
   const intervalRefreshTimer = ref<number>()
 
@@ -110,8 +96,8 @@ export const useUserAuthStore = defineStore('global-user-auth', () => {
     intervalRefreshTimer.value = undefined
   }
 
-  /** 确认自动刷新 token 任务存在 */
-  const ensureTokenRefreshMission = async () => {
+  /** 自动刷新 token */
+  const startAutoRefresh = async () => {
     try {
       const { expiresTime = 0 } = auth.value
       const refreshInterval = differenceTokenTime(expiresTime)
@@ -127,7 +113,7 @@ export const useUserAuthStore = defineStore('global-user-auth', () => {
         if (!auth.value.refreshToken)
           return
         await refreshAuth()
-        ensureTokenRefreshMission()
+        startAutoRefresh()
       }
 
       if (refreshInterval <= 0) {
@@ -156,10 +142,35 @@ export const useUserAuthStore = defineStore('global-user-auth', () => {
     userHook.applyCallbacks('onAuthChange')
   }
 
+  const login = async (form: API.SysTokenVO) => {
+    const authData = await Oauth.oauth.token(form)
+    setAuth(authData)
+    return authData
+  }
+
   const logout = () => {
     beforeLogout.trigger()
     clearAuth()
     router.push('/login')
+  }
+
+  const onBeforeLogout = (fn: () => void) => {
+    tryOnMounted(() => {
+      beforeLogout.on(fn)
+    })
+    tryOnUnmounted(() => {
+      beforeLogout.off(fn)
+    })
+  }
+
+  const init = async () => {
+    if (auth.value.refreshToken)
+      await refreshAuth()
+    if (!validateToken()) {
+      logout()
+      return
+    }
+    await startAutoRefresh()
   }
 
   return {
@@ -174,12 +185,11 @@ export const useUserAuthStore = defineStore('global-user-auth', () => {
     clearAuth,
     validateToken,
     refreshAuth,
-    ensureTokenRefreshMission,
+    stopAutoRefresh,
+    startAutoRefresh,
+    login,
     logout,
-    onBeforeLogout: beforeLogout.on,
+    onBeforeLogout,
+    init,
   }
-})
-
-routerHook.onBeforeRouterEnter(useUserAuthStore, async (store) => {
-  await store.ensureTokenRefreshMission()
 })

@@ -9,11 +9,12 @@ const {
 <template>
   <div
     class="
-      fixed left-0 bottom-0 w-full h-8 leading-8 px-8
+      fixed left-0 bottom-0 w-full h-8 leading-8 px-4
       font-[HYWenHei-85W] text-[var(--el-color-white)] text-sm
+      overflow-hidden text-ellipsis whitespace-nowrap
       pointer-events-none
     "
-    style="-webkit-text-stroke: 0.5px var(--el-color-black); paint-order: stroke"
+    style="-webkit-text-stroke: 2px #363D4D; paint-order: stroke"
   >
     {{ `${version.toUpperCase()}_${branch.toUpperCase()}_${commitHash.toUpperCase()}` }}
   </div>

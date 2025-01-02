@@ -1,12 +1,12 @@
 import { defineStore } from 'pinia'
-import { usePreferenceStore, useSocketStore, useUserAuthStore } from '.'
+import { usePreferenceStore, useSocketStore, useUserStore } from '.'
 import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 import { NoticeChannel } from '@/shared'
-import { userHook } from '@/stores/hooks'
 import { context as noticeContext } from '@/components/AppNotice/context'
 
 export const useNoticeStore = defineStore('global-notice', () => {
+  const userStore = useUserStore()
   const socketStore = useSocketStore()
   const preferenceStore = usePreferenceStore()
 
@@ -42,7 +42,7 @@ export const useNoticeStore = defineStore('global-notice', () => {
     await refresh()
   }, 20 * 60 * 1000, { immediate: false })
 
-  const readArchive = computed(() => (preferenceStore.preference['notice.state.read'] ?? []).reduce((record, [id, time]) => {
+  const readArchive = computed(() => preferenceStore.noticeRead.reduce((record, [id, time]) => {
     record.set(id, time)
     return record
   }, new Map<number, number>()))
@@ -60,17 +60,12 @@ export const useNoticeStore = defineStore('global-notice', () => {
   })
 
   /** 未被阅读过的新公告数量 */
-  const newCount = computed(() => {
-    if (!preferenceStore.preference['notice.state.read'])
-      return noticeList.value.length
-    const sum = noticeList.value.reduce((sum, notice) => {
-      const readTime = readArchive.value.get(notice.id!)
-      if (readTime === undefined || readTime < Number(notice.updateTime))
-        sum++
-      return sum
-    }, 0)
+  const newCount = computed(() => noticeList.value.reduce((sum, notice) => {
+    const readTime = readArchive.value.get(notice.id!)
+    if (readTime === undefined || readTime < Number(notice.updateTime))
+      sum++
     return sum
-  })
+  }, 0))
 
   const read = (id: number) => {
     const notice = noticeIdMap.value.get(id)
@@ -83,14 +78,12 @@ export const useNoticeStore = defineStore('global-notice', () => {
     const readMap = new Map(readArchive.value)
     readMap.set(id, Number(notice.updateTime))
 
-    preferenceStore.preference['notice.state.read'] = [...readMap.entries()]
+    preferenceStore.noticeRead = [...readMap.entries()]
   }
 
   const selected = shallowRef<API.NoticeVo>()
 
   onSuccess(async (list) => {
-    await preferenceStore.ready
-
     const [first] = list
     selected.value = first
 
@@ -99,17 +92,25 @@ export const useNoticeStore = defineStore('global-notice', () => {
       return updateTime > lastTime ? updateTime : lastTime
     }, 0)
 
-    const showTime = preferenceStore.preference['notice.state.showTime']
-    if (showTime && showTime >= maxUpdateTime)
+    if (preferenceStore.noticeShowTime >= maxUpdateTime)
       return
 
-    preferenceStore.preference['notice.state.showTime'] = maxUpdateTime
+    preferenceStore.noticeShowTime = maxUpdateTime
     noticeContext.show()
   })
 
   socketStore.event.on('NoticeAdded', refresh)
   socketStore.event.on('NoticeDeleted', refresh)
   socketStore.event.on('NoticeUpdated', refresh)
+
+  watch(() => userStore.info?.id, (userId) => {
+    if (userId === undefined) {
+      clear()
+      pause()
+      return
+    }
+    resume()
+  })
 
   return {
     newCount,
@@ -128,14 +129,4 @@ export const useNoticeStore = defineStore('global-notice', () => {
     close: noticeContext.close,
     ...rest,
   }
-})
-
-userHook.onInfoChange(useNoticeStore, (store) => {
-  if (!useUserAuthStore().validateToken()) {
-    store.clear()
-    store.pause()
-    return
-  }
-
-  store.resume()
 })

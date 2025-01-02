@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { liveQuery } from 'dexie'
-import { useBackendUpdate, userHook } from './hooks'
-import { useAccessStore, useUserAuthStore } from '.'
+import { useBackendUpdate } from './hooks'
+import { useAccessStore } from '.'
 import Api from '@/api/api'
 import db from '@/database'
 
@@ -55,9 +55,4 @@ export const useItemTypeStore = defineStore('global-item-type', () => {
     itemTypeIdMap,
     backendUpdater,
   }
-})
-
-userHook.onInfoChange(useItemTypeStore, async (store) => {
-  const { validateToken } = useUserAuthStore()
-  validateToken() ? await store.backendUpdater.start() : store.backendUpdater.stop()
 })

@@ -32,7 +32,13 @@ export interface UserPreference {
   /** 批量修改点位标记状态的快捷键 */
   'app.shortcutKey.toggleMarkerState': string
 
+  /** 移动点位的快捷键 */
+  'app.shortcutKey.draggingMarker': string
+
   // ====================    用户中心    ====================
+
+  /** 用户名片 */
+  'userCenter.setting.nameCard'?: string
 
   /** 是否显示限定地区 */
   'userCenter.setting.showRestrictedArea'?: boolean
@@ -159,7 +165,8 @@ export interface UserPreference {
 export const getDefaultPreference = (): UserPreference => ({
   'app.shortcutKey.toggleDarkMode': 'control_alt_t',
   'app.shortcutKey.multiselectMarker': 'control_alt_a',
-  'app.shortcutKey.toggleMarkerState': '',
+  'app.shortcutKey.toggleMarkerState': 'control_alt_s',
+  'app.shortcutKey.draggingMarker': 'control_alt_d',
 
   // map
   'map.setting.showZoneTag': true,

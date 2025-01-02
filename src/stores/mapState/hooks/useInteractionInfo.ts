@@ -1,9 +1,7 @@
 import { useState } from '@/hooks'
 
-// ============================== ↑ 共享地址而不是使用闭包，以避免订阅过多时导致的卡顿问题 ↑ ==============================
-
 export const useInteractionInfo = () => {
-  const isPaused = reactive<{
+  const isPaused = ref<{
     hover: Partial<Record<string, boolean>>
     focus: Partial<Record<string, boolean>>
   }>({
@@ -24,7 +22,7 @@ export const useInteractionInfo = () => {
   const addInteraction = (interaction: 'focus' | 'hover') => {
     const elements = interaction === 'focus' ? focusElements.value : hoverElements.value
     return <T>(type: string, value: T, single = false) => {
-      if (isPaused[interaction][type] || value === undefined || value === null)
+      if (isPaused.value[interaction][type] || value === undefined || value === null)
         return
       if (single) {
         elements.clear()
@@ -46,7 +44,7 @@ export const useInteractionInfo = () => {
   const setInteraction = (interaction: 'focus' | 'hover') => {
     const elements = interaction === 'focus' ? focusElements.value : hoverElements.value
     return <T>(type: string, value: Set<T>) => {
-      if (isPaused[interaction][type])
+      if (isPaused.value[interaction][type])
         return
       elements.set(type, value)
       return updateTime()
@@ -56,7 +54,7 @@ export const useInteractionInfo = () => {
   const removeInteraction = (interaction: 'focus' | 'hover') => {
     const elements = interaction === 'focus' ? focusElements.value : hoverElements.value
     return <T>(type: string, value?: T) => {
-      if (isPaused[interaction][type] || !elements.has(type))
+      if (isPaused.value[interaction][type] || !elements.has(type))
         return
 
       const set = elements.get(type)!
@@ -102,14 +100,14 @@ export const useInteractionInfo = () => {
   /** 暂停该类型交互的触发 */
   const pauseInteraction = (interaction: 'focus' | 'hover') => {
     return (type: string) => {
-      isPaused[interaction][type] = true
+      isPaused.value[interaction][type] = true
     }
   }
 
   /** 重新开始该类型交互的触发 */
   const resumeInteraction = (interaction: 'focus' | 'hover') => {
     return (type: string) => {
-      isPaused[interaction][type] = false
+      isPaused.value[interaction][type] = false
     }
   }
 

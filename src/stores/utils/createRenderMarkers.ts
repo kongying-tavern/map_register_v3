@@ -1,4 +1,4 @@
-import type { GSMapState } from '../types/genshin-map-state'
+import type { GSMarkerInfo } from '@/packages/map'
 import type { AreaTileConfig } from '@/stores'
 import { pickMainItem } from '@/utils'
 import { useAreaStore, useItemStore, useTileStore } from '@/stores'
@@ -13,7 +13,7 @@ export interface NormalizeMarkerOptions {
 
 /** 为点位列表附加渲染配置 */
 export const createRenderMarkers = (
-  markers: (API.MarkerVo | GSMapState.MarkerWithRenderConfig)[],
+  markers: (API.MarkerVo | GSMarkerInfo)[],
   options: NormalizeMarkerOptions = {},
 ) => {
   const {
@@ -27,7 +27,7 @@ export const createRenderMarkers = (
   /** 缓存从物品 id 查询到的地区信息和底图配置，减少索引时间复杂度 */
   const cacheMap = new Map<number, { area: API.AreaVo; tileConfig: AreaTileConfig }>()
 
-  const normalizedMarkers: GSMapState.MarkerWithRenderConfig[] = []
+  const normalizedMarkers: GSMarkerInfo[] = []
 
   for (let i = 0; i < markers.length; i++) {
     const marker = markers[i]

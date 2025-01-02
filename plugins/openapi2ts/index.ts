@@ -1,6 +1,7 @@
-import { join, resolve as resolvePath } from 'node:path'
-import { exec } from 'node:child_process'
-import { readFile, readdir, writeFile } from 'node:fs/promises'
+/* eslint-disable no-console */
+import cp from 'node:child_process'
+import path from 'node:path'
+import fs from 'node:fs/promises'
 import type { Plugin } from 'vite'
 import { generateService } from 'openapi2ts'
 import type { GenerateServiceProps } from 'openapi2ts'
@@ -17,33 +18,34 @@ export interface Openapi2tsOptions extends GenerateServiceProps {
 /**
  * 自动更新接口类型的钩子
  */
-export const openapi2ts = (optionList: Openapi2tsOptions[], initFlag = false): Plugin => {
+export const openapi2ts = (optionList: Openapi2tsOptions[]): Plugin => {
   const plugin: Plugin = {
     name: 'openapi-to-ts',
     apply: 'serve',
     configResolved: async ({ root }) => {
-      if (initFlag)
-        return
-
-      for (const options of optionList) {
+      for await (const options of optionList) {
         const {
-          serversPath = join(root, 'src'),
+          serversPath = path.join(root, 'src'),
           projectName = 'api',
           ...args
         } = options
 
-        await generateService({
+        const isGeneratedError = await generateService({
           serversPath,
           projectName,
           ...args,
-        })
+        }).catch(err => err instanceof Error ? err : new Error(`${err}`))
+        if (isGeneratedError) {
+          console.error('[openAPI]', isGeneratedError)
+          return
+        }
 
-        const dtsFolderPath = join(serversPath, projectName)
-        const dts = await readdir(dtsFolderPath)
+        const dtsFolderPath = path.join(serversPath, projectName)
+        const dts = await fs.readdir(dtsFolderPath)
 
         await Promise.all(dts.map(async (filename) => {
-          const filePath = join(serversPath, projectName, filename)
-          const fileContent = (await readFile(filePath)).toString()
+          const filePath = path.join(serversPath, projectName, filename)
+          const fileContent = (await fs.readFile(filePath, { encoding: 'utf8' })).toString()
           const writeContent = fileContent
             // 删除头部 eslint 禁用注释
             .replace('// @ts-ignore\n/* eslint-disable */\n', '')
@@ -62,21 +64,19 @@ export const openapi2ts = (optionList: Openapi2tsOptions[], initFlag = false): P
             // 将 options 类型指定为 AxiosRequestConfig
             .replace('import { request } from \'@/utils\'', 'import type { AxiosRequestConfig } from \'axios\'\r\nimport { request } from \'@/utils\'')
             .replace(/options\?: { \[key: string\]: unknown }/g, 'options?: AxiosRequestConfig')
-          await writeFile(filePath, writeContent)
+          await fs.writeFile(filePath, writeContent)
         }))
       }
 
       // run eslint, no need to await
       new Promise<string>((resolve, reject) => {
-        const childProcess = exec(`eslint ${resolvePath(__dirname, '../../src/api/api')} --fix`, (err, stdout) => {
+        const childProcess = cp.exec(`eslint ${path.resolve(__dirname, '../../src/api/api')} --fix`, (err, stdout) => {
           childProcess.kill()
           if (err)
             return reject(err)
           resolve(stdout)
         })
       }).catch(() => false)
-
-      initFlag = true
     },
   }
   return plugin

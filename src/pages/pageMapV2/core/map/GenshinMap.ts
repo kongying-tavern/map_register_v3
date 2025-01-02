@@ -1,5 +1,4 @@
-import { Deck, OrthographicView } from '@deck.gl/core'
-import { GSMapController } from '../controllers'
+import { Deck, OrthographicController, OrthographicView } from '@deck.gl/core'
 import { GSCompositeLayer } from '../layer'
 import { useMapStateStore } from '@/stores'
 import type { GSMap } from '@/pages/pageMapV2/types/map'
@@ -16,7 +15,11 @@ export class GenshinMap extends Deck<OrthographicView> {
   }
 
   constructor(options: GSMap.ConstructorOptions) {
-    const { canvas, ...rest } = options
+    const {
+      canvas,
+      zoomTransitionDuration,
+      ...rest
+    } = options
 
     const mapStateStore = useMapStateStore()
 
@@ -30,22 +33,52 @@ export class GenshinMap extends Deck<OrthographicView> {
       transitionInterruption,
     } = mapStateStore.viewState
 
+    const ViewController = class extends OrthographicController {
+      protected override _onWheel(...[event]: Parameters<OrthographicController['_onWheel']>): boolean {
+        if (!this.scrollZoom)
+          return false
+
+        const pos = this.getCenter(event)
+        if (!this.isPointInBounds(pos, event))
+          return false
+        event.srcEvent.preventDefault()
+
+        const { speed = 0.01, smooth = false } = this.scrollZoom === true ? {} : this.scrollZoom
+        const { delta } = event
+
+        let scale = 2 / (1 + Math.exp(-Math.abs(delta * speed)))
+        if (delta < 0 && scale !== 0)
+          scale = 1 / scale
+
+        const newControllerState = this.controllerState.zoom({ pos, scale })
+        const transitionDuration = smooth ? (zoomTransitionDuration?.() ?? 200) : 0
+        this.updateViewport(
+          newControllerState,
+          { ...this._getTransitionProps({ around: pos }), transitionDuration },
+          { isZooming: true, isPanning: true },
+        )
+        return true
+      }
+    }
+
+    const mainView = new OrthographicView({
+      id: GenshinMap.ID.main,
+      controller: {
+        doubleClickZoom: false,
+        scrollZoom: {
+          speed: 0.002,
+          smooth: true,
+        },
+        inertia: 500,
+        type: ViewController,
+      },
+    })
+
     super({
       ...rest,
       id: 'genshin-map',
       canvas,
-      views: new OrthographicView({
-        id: GenshinMap.ID.main,
-        controller: {
-          doubleClickZoom: false,
-          scrollZoom: {
-            speed: 0.002,
-            smooth: true,
-          },
-          inertia: 500,
-          type: GSMapController,
-        },
-      }),
+      views: mainView,
       layers: [new GSCompositeLayer()],
       initialViewState: {
         maxZoom,

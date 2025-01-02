@@ -1,6 +1,7 @@
 declare namespace API {
   /** 订阅的总配置项 */
   interface DadianJSON {
+    application?: ApplicationConfig
     editor?: API.EditorConfig
     plugins?: Record<string, API.PluginConfig>
     pluginsNeigui?: Record<string, API.PluginConfig>
@@ -12,6 +13,31 @@ declare namespace API {
   type Coordinate3D = [number, number, number]
   type OverlayBounds = [[xmin: number, ymin: number], [xmax: number, ymax: number]]
   type OverlayRole = 'default' | 'tile'
+
+  /** 头像 */
+  interface AvatarOption {
+    label?: string
+    url?: string
+  }
+
+  /** 名片 */
+  interface NameCardOption {
+    /** 名片大图地址 */
+    bg?: string
+    /** 名片描述 */
+    desc?: string
+    /** 名片图标地址 */
+    icon?: string
+    /** 名片名称 */
+    label?: string
+    /** 列表条带背景地址 */
+    strip?: string
+  }
+
+  interface ApplicationConfig {
+    avatar?: AvatarOption[]
+    nameCard?: NameCardOption[]
+  }
 
   interface EditorConfig {
     /** 用于控制显示的通告内容 */

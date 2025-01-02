@@ -8,7 +8,7 @@ import { Logger } from '@/utils'
 export const useDevStore = defineStore('global-dev', () => {
   const preferenceStore = usePreferenceStore()
 
-  const enableLoggers = computed(() => new Set(preferenceStore.preference['developer.setting.enableLoggers']))
+  const enableLoggers = computed(() => new Set(preferenceStore.enableLoggers))
 
   const loggerLabels = ref(new Set<string>())
 
@@ -19,11 +19,11 @@ export const useDevStore = defineStore('global-dev', () => {
   const preLogList = ref<LogInfo[]>([])
 
   const handleLog = (logInfo: LogInfo) => {
-    const maxLogs = preferenceStore.preference['developer.setting.maxLogs'] ?? 100
+    const maxLogs = preferenceStore.maxLogs
 
     preLogList.value = preLogList.value.slice(0, maxLogs - 1)
 
-    if (preferenceStore.preference['developer.setting.enableLoggers'] === undefined) {
+    if (preferenceStore.enableLoggers === undefined) {
       preLogList.value.push(logInfo)
       return
     }
@@ -37,7 +37,7 @@ export const useDevStore = defineStore('global-dev', () => {
     console[type](...args)
   }
 
-  watch(() => preferenceStore.preference['developer.setting.enableLoggers'], () => {
+  watch(() => preferenceStore.enableLoggers, () => {
     preLogList.value.forEach(handleLog)
     preLogList.value = []
   })

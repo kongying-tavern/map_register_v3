@@ -1,11 +1,10 @@
 <script lang="ts" setup>
 import db from '@/database'
-import { useArchiveStore, usePreferenceStore } from '@/stores'
+import { useArchiveStore } from '@/stores'
 import { GSSwitch } from '@/components'
 import { fallbackToStaticIcon } from '@/configs'
 
 const archiveStore = useArchiveStore()
-const preferenceStore = usePreferenceStore()
 
 interface GroupedMarkers {
   [key: string]: {
@@ -19,9 +18,9 @@ interface GroupedMarkers {
 
 /** 是否显示限定地区数据 */
 const showRestrictedArea = computed({
-  get: () => preferenceStore.preference['userCenter.setting.showRestrictedArea'] ?? false,
+  get: () => archiveStore.currentArchive.body.Preference['userCenter.setting.showRestrictedArea'],
   set: (v) => {
-    preferenceStore.preference['userCenter.setting.showRestrictedArea'] = v
+    archiveStore.currentArchive.body.Preference['userCenter.setting.showRestrictedArea'] = v
   },
 })
 
@@ -130,7 +129,7 @@ const getTotal = (groupItem?: GroupedMarkers[keyof GroupedMarkers]) => {
 </script>
 
 <template>
-  <div class="w-full flex-1 flex flex-col overflow-hidden">
+  <div class="w-[calc(100%_-_32px)] mx-4 flex-1 flex flex-col overflow-hidden">
     <div class="flex-shink-0 w-full flex justify-between items-center text-lg p-2" style="color:#84603D;">
       <span
         class="inline-block w-72 overflow-hidden text-ellipsis whitespace-nowrap"
@@ -179,7 +178,7 @@ const getTotal = (groupItem?: GroupedMarkers[keyof GroupedMarkers]) => {
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style scoped>
 @property --percentage {
   syntax: '<percentage>';
   inherits: false;

@@ -19,7 +19,7 @@ import {
   Video,
   Visibility,
 } from './models'
-import type { usePreferenceStore } from '@/stores'
+import type { useArchiveStore } from '@/stores'
 import type {
   MAFConfig,
   MAFGroup,
@@ -31,7 +31,7 @@ import type {
 } from '@/stores/types'
 
 interface MarkerAdvancedFilterHookOptions {
-  preferenceStore: ReturnType<typeof usePreferenceStore>
+  archiveStore: ReturnType<typeof useArchiveStore>
 }
 
 // ==================== 模型配置 ====================
@@ -73,8 +73,24 @@ const createEmptyItem = (): MAFItem => ({
   value: {},
 })
 
-export const useMarkerAdvancedFilter = (options: MarkerAdvancedFilterHookOptions) => {
-  const { preferenceStore } = options
+let cache: ReturnType<typeof _useMarkerAdvancedFilter>
+
+const _useMarkerAdvancedFilter = (options: MarkerAdvancedFilterHookOptions) => {
+  const { archiveStore } = options
+
+  const advancedFilter = computed({
+    get: () => archiveStore.currentArchive.body.Preference['markerFilter.filter.advancedFilter'] ?? [],
+    set: (filter) => {
+      archiveStore.currentArchive.body.Preference['markerFilter.filter.advancedFilter'] = filter
+    },
+  })
+
+  const advancedFilterCache = computed({
+    get: () => archiveStore.currentArchive.body.Preference['markerFilter.filter.advancedFilterCache'] ?? [],
+    set: (cache) => {
+      archiveStore.currentArchive.body.Preference['markerFilter.filter.advancedFilterCache'] = cache
+    },
+  })
 
   const getMAFConfig = (id: number): MAFConfig => configMap[id] ?? {
     id: 0,
@@ -91,12 +107,10 @@ export const useMarkerAdvancedFilter = (options: MarkerAdvancedFilterHookOptions
     }, 0)
   }
 
-  const conditions = computed(() => preferenceStore.preference['markerFilter.filter.advancedFilterCache'])
-
   const conditionComposed = computed<MAFGroupComposed[]>({
     get: () => {
       const groupComposed: MAFGroupComposed[] = []
-      const filters = preferenceStore.preference['markerFilter.filter.advancedFilterCache'] ?? []
+      const filters = advancedFilterCache.value
 
       // 处理组
       filters.forEach((filter) => {
@@ -182,17 +196,17 @@ export const useMarkerAdvancedFilter = (options: MarkerAdvancedFilterHookOptions
         })
       })
 
-      preferenceStore.preference['markerFilter.filter.advancedFilterCache'] = convertedData
+      advancedFilterCache.value = convertedData
     },
   })
 
-  const conditionCacheCount = computed(() => getCount(preferenceStore.preference['markerFilter.filter.advancedFilterCache']))
+  const conditionCacheCount = computed(() => getCount(advancedFilterCache.value))
 
-  const conditionCount = computed(() => getCount(preferenceStore.preference['markerFilter.filter.advancedFilter']))
+  const conditionCount = computed(() => getCount(advancedFilter.value))
 
   const conditionSame = computed(() => {
-    const cache = preferenceStore.preference['markerFilter.filter.advancedFilterCache']
-    const filter = preferenceStore.preference['markerFilter.filter.advancedFilter']
+    const cache = advancedFilterCache.value
+    const filter = advancedFilter.value
     if (cache.length !== filter.length)
       return false
     else if (conditionCacheCount.value !== conditionCount.value)
@@ -201,78 +215,78 @@ export const useMarkerAdvancedFilter = (options: MarkerAdvancedFilterHookOptions
   })
 
   const initCondition = () => {
-    if (preferenceStore.preference['markerFilter.filter.advancedFilterCache'].length <= 0)
-      preferenceStore.preference['markerFilter.filter.advancedFilterCache'].push(createEmptyGroup())
+    if (advancedFilterCache.value.length <= 0)
+      advancedFilterCache.value.push(createEmptyGroup())
   }
 
   const toggleConditionGroupOperator = (groupIndex: number) => {
-    const group = preferenceStore.preference['markerFilter.filter.advancedFilterCache'][groupIndex]
+    const group = advancedFilterCache.value[groupIndex]
     if (group)
       group.operator = !(group.operator ?? true)
   }
 
   const toggleConditionGroupOpposite = (groupIndex: number) => {
-    const group = preferenceStore.preference['markerFilter.filter.advancedFilterCache'][groupIndex]
+    const group = advancedFilterCache.value[groupIndex]
     if (group)
       group.opposite = !(group.opposite ?? false)
   }
 
   const appendConditionGroup = () => {
-    preferenceStore.preference['markerFilter.filter.advancedFilterCache'].push(createEmptyGroup())
+    advancedFilterCache.value.push(createEmptyGroup())
   }
 
   const insertConditionGroup = (groupIndex: number) => {
-    if (groupIndex > preferenceStore.preference['markerFilter.filter.advancedFilterCache'].length) {
+    if (groupIndex > advancedFilterCache.value.length) {
       appendConditionGroup()
       return
     }
     if (groupIndex < 0)
       groupIndex = 0
-    preferenceStore.preference['markerFilter.filter.advancedFilterCache'].splice(groupIndex, 0, createEmptyGroup())
+    advancedFilterCache.value.splice(groupIndex, 0, createEmptyGroup())
   }
 
   const swapConditionGroup = (groupIndexLeft: number, groupIndexRight: number) => {
-    const left = preferenceStore.preference['markerFilter.filter.advancedFilterCache'][groupIndexLeft]
-    const right = preferenceStore.preference['markerFilter.filter.advancedFilterCache'][groupIndexRight]
+    const left = advancedFilterCache.value[groupIndexLeft]
+    const right = advancedFilterCache.value[groupIndexRight]
     if (left && right) {
-      preferenceStore.preference['markerFilter.filter.advancedFilterCache'].splice(groupIndexLeft, 1, right)
-      preferenceStore.preference['markerFilter.filter.advancedFilterCache'].splice(groupIndexRight, 1, left)
+      advancedFilterCache.value.splice(groupIndexLeft, 1, right)
+      advancedFilterCache.value.splice(groupIndexRight, 1, left)
     }
   }
 
   const deleteConditionGroup = (groupIndex: number) => {
-    if (preferenceStore.preference['markerFilter.filter.advancedFilterCache'][groupIndex])
-      preferenceStore.preference['markerFilter.filter.advancedFilterCache'].splice(groupIndex, 1)
+    if (advancedFilterCache.value[groupIndex])
+      advancedFilterCache.value.splice(groupIndex, 1)
     initCondition()
   }
 
   const toggleConditionOperator = (groupIndex: number, itemIndex: number) => {
-    const item = preferenceStore.preference['markerFilter.filter.advancedFilterCache'][groupIndex]?.children[itemIndex]
+    const item = advancedFilterCache.value[groupIndex]?.children[itemIndex]
     if (item)
       item.operator = !(item.operator ?? true)
   }
 
   const toggleConditionOpposite = (groupIndex: number, itemIndex: number) => {
-    const item = preferenceStore.preference['markerFilter.filter.advancedFilterCache'][groupIndex]?.children[itemIndex]
+    const item = advancedFilterCache.value[groupIndex]?.children[itemIndex]
     if (item)
       item.opposite = !(item.opposite ?? false)
   }
 
   const appendCondition = (groupIndex: number, id: number = 0) => {
-    if (preferenceStore.preference['markerFilter.filter.advancedFilterCache'][groupIndex].children) {
+    if (advancedFilterCache.value[groupIndex].children) {
       const conditionModel = getMAFConfig(id)
       const newItem = createEmptyItem()
       newItem.id = id
       newItem.value = cloneDeep(conditionModel.defaultVal)
-      preferenceStore.preference['markerFilter.filter.advancedFilterCache'][groupIndex].children.push(newItem)
+      advancedFilterCache.value[groupIndex].children.push(newItem)
     }
   }
 
   const insertCondition = (groupIndex: number, itemIndex: number, id: number = 0) => {
-    if (!preferenceStore.preference['markerFilter.filter.advancedFilterCache'][groupIndex])
+    if (!advancedFilterCache.value[groupIndex])
       return
 
-    if (itemIndex > preferenceStore.preference['markerFilter.filter.advancedFilterCache'][groupIndex].children.length) {
+    if (itemIndex > advancedFilterCache.value[groupIndex].children.length) {
       appendCondition(groupIndex, id)
       return
     }
@@ -282,35 +296,35 @@ export const useMarkerAdvancedFilter = (options: MarkerAdvancedFilterHookOptions
     const newItem = createEmptyItem()
     newItem.id = id
     newItem.value = cloneDeep(conditionModel.defaultVal)
-    preferenceStore.preference['markerFilter.filter.advancedFilterCache'][groupIndex].children.splice(itemIndex, 0, newItem)
+    advancedFilterCache.value[groupIndex].children.splice(itemIndex, 0, newItem)
   }
 
   const swapCondition = (groupIndex: number, itemIndexLeft: number, itemIndexRight: number) => {
-    if (!preferenceStore.preference['markerFilter.filter.advancedFilterCache'][groupIndex])
+    if (!advancedFilterCache.value[groupIndex])
       return
 
-    const left = preferenceStore.preference['markerFilter.filter.advancedFilterCache'][groupIndex].children[itemIndexLeft]
-    const right = preferenceStore.preference['markerFilter.filter.advancedFilterCache'][groupIndex].children[itemIndexRight]
+    const left = advancedFilterCache.value[groupIndex].children[itemIndexLeft]
+    const right = advancedFilterCache.value[groupIndex].children[itemIndexRight]
     if (left && right) {
-      preferenceStore.preference['markerFilter.filter.advancedFilterCache'][groupIndex].children.splice(itemIndexLeft, 1, right)
-      preferenceStore.preference['markerFilter.filter.advancedFilterCache'][groupIndex].children.splice(itemIndexRight, 1, left)
+      advancedFilterCache.value[groupIndex].children.splice(itemIndexLeft, 1, right)
+      advancedFilterCache.value[groupIndex].children.splice(itemIndexRight, 1, left)
     }
   }
 
   const deleteCondition = (groupIndex: number, itemIndex: number) => {
     if (
-      preferenceStore.preference['markerFilter.filter.advancedFilterCache'][groupIndex]
-      && preferenceStore.preference['markerFilter.filter.advancedFilterCache'][groupIndex].children[itemIndex]
+      advancedFilterCache.value[groupIndex]
+      && advancedFilterCache.value[groupIndex].children[itemIndex]
     )
-      preferenceStore.preference['markerFilter.filter.advancedFilterCache'][groupIndex].children.splice(itemIndex, 1)
+      advancedFilterCache.value[groupIndex].children.splice(itemIndex, 1)
   }
 
   const copyConditions = () => {
-    preferenceStore.preference['markerFilter.filter.advancedFilter'] = cloneDeep(preferenceStore.preference['markerFilter.filter.advancedFilterCache'])
+    advancedFilter.value = cloneDeep(advancedFilterCache.value)
   }
 
   const clearConditions = () => {
-    preferenceStore.preference['markerFilter.filter.advancedFilterCache'] = []
+    advancedFilterCache.value = []
     initCondition()
   }
 
@@ -319,7 +333,7 @@ export const useMarkerAdvancedFilter = (options: MarkerAdvancedFilterHookOptions
     markerAdvancedFilterConfigMap: configMap,
     getMAFConfig,
 
-    markerAdvancedFilters: conditions,
+    markerAdvancedFilters: advancedFilterCache,
     markerAdvancedComposed: conditionComposed,
     markerAdvancedCacheCount: conditionCacheCount,
     markerAdvancedCount: conditionCount,
@@ -339,4 +353,10 @@ export const useMarkerAdvancedFilter = (options: MarkerAdvancedFilterHookOptions
     swapMAFItem: swapCondition,
     deleteMAFItem: deleteCondition,
   }
+}
+
+export const useMarkerAdvancedFilter = (options: MarkerAdvancedFilterHookOptions) => {
+  if (!cache)
+    cache = _useMarkerAdvancedFilter(options)
+  return cache
 }

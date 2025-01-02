@@ -4,7 +4,7 @@ import { ElAlert, ElButton } from 'element-plus'
 import { filter, tap } from 'rxjs'
 import { useSubscription } from '@vueuse/rxjs'
 import { ShortcutKeyUtil } from '@/utils'
-import { usePreferenceStore, useShortcutStore } from '@/stores'
+import { useArchiveStore, useShortcutStore } from '@/stores'
 import { WinDialog, WinDialogFooter } from '@/components/WinUI'
 import { CONTROL_KEYS, KEYBOARD_ALIAS, STANDARD_KEYBOARD_KEYS, globalKeydown$ } from '@/shared'
 
@@ -15,18 +15,19 @@ const props = withDefaults(defineProps<{
 })
 
 const shortcutStore = useShortcutStore()
-const preferenceStore = usePreferenceStore()
+const archiveStore = useArchiveStore()
 
-const existKeys = computed(() => Object
-  .entries(preferenceStore.preference)
-  .filter(([key]) => key.startsWith('app.shortcutKey'))
-  .reduce((set, [_, value]) => {
-    if (typeof value !== 'string' || !value)
+const existKeys = computed(() => {
+  return Object
+    .entries(archiveStore.currentArchive.body.Preference)
+    .filter(([key]) => key.startsWith('app.shortcutKey'))
+    .reduce((set, [_, value]) => {
+      if (typeof value !== 'string' || !value)
+        return set
+      set.add(value)
       return set
-    set.add(value)
-    return set
-  }, new Set<string>()),
-)
+    }, new Set<string>())
+})
 
 onBeforeMount(() => {
   shortcutStore.isPaused = true

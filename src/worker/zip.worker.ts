@@ -51,9 +51,14 @@ const compressFile = async (options: WorkerInput, logger: Logger): Promise<Uint8
 const decompressFile = async (options: WorkerInput, logger: Logger): Promise<Uint8Array> => {
   const { data, wasm, name } = options
 
+  const logs: string[] = []
+
   const zip = await SevenZip({
     wasmBinary: wasm,
-    stdout: code => logger.stdout.write(String.fromCharCode(code)),
+    stdout: (code) => {
+      const char = String.fromCharCode(code)
+      logs.push(char)
+    },
   })
 
   const inputFilename = `${name}.bin`
@@ -66,10 +71,12 @@ const decompressFile = async (options: WorkerInput, logger: Logger): Promise<Uin
 
   const outputFilename = zip.FS.readdir(name).filter(name => name && !name.startsWith('.'))[0] ?? ''
   const outputFilepath = `${name}/${outputFilename}`
+
   logger.info('已解压', {
     file: inputFilename,
     outFile: outputFilename,
     size: formatByteSize(zip.FS.stat(outputFilepath).size, { binary: true }),
+    logs: logs.join(''),
   })
 
   const res = zip.FS.readFile(outputFilepath)

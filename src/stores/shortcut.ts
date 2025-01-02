@@ -19,6 +19,7 @@ export const useShortcutStore = defineStore('shortcut-keys', () => {
       const value = ShortcutKeyUtil.stringify(hotKeys)
       return { ev, value }
     }),
+    filter(({ value }) => Boolean(value)),
   )
 
   const useKeys = (keys: MaybeRef<string | undefined>, triggerCallback?: () => void) => {

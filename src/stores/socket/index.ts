@@ -1,15 +1,18 @@
 import { defineStore } from 'pinia'
 import { ElNotification } from 'element-plus'
-import { usePreferenceStore, useUserInfoStore } from '..'
-import { userHook } from '../hooks'
+import { useArchiveStore, useUserStore } from '..'
 import { useMessageEvent, useMessageList, useSocket } from './hooks'
 import { EventBus } from '@/utils'
 
 /** WebSocket 状态管理 */
 export const useSocketStore = defineStore('global-web-socket', () => {
-  const preferenceStore = usePreferenceStore()
+  const archiveStore = useArchiveStore()
+  const userStore = useUserStore()
 
-  const _noticeEvents = computed(() => new Set(preferenceStore.preference['socket.setting.noticeEvents']))
+  const _noticeEvents = computed(() => {
+    return new Set(archiveStore.currentArchive.body.Preference['socket.setting.noticeEvents'])
+  })
+
   const _userId = ref<number>()
   const _eventBus = new EventBus<API.WSEventMap>()
 
@@ -29,7 +32,7 @@ export const useSocketStore = defineStore('global-web-socket', () => {
     ...rest
   } = useSocket(`${import.meta.env.VITE_WS_BASE}/{userId}`, {
     params: () => ({
-      userId: useUserInfoStore().info.id,
+      userId: userStore.info?.id,
     }),
   })
 
@@ -47,23 +50,13 @@ export const useSocketStore = defineStore('global-web-socket', () => {
     _userId.value = undefined
   })
 
-  const statusHandler: Record<number, () => void> = {
-    [WebSocket.CLOSED]: () => ElNotification({
-      title: 'Error',
-      message: 'WebSocket 连接已断开',
-      type: 'error',
-    }),
-    [WebSocket.OPEN]: () => ElNotification({
-      title: 'Success',
-      message: 'WebSocket 已连接',
-      type: 'success',
-    }),
-  }
-
-  watch(status, (newStatus, oldStatus) => {
-    if (newStatus === oldStatus)
+  watch(() => userStore.info?.id, (userId) => {
+    if (userId === undefined) {
+      close()
       return
-    statusHandler[newStatus]?.()
+    }
+    _userId.value = userId
+    open()
   })
 
   return {
@@ -80,16 +73,4 @@ export const useSocketStore = defineStore('global-web-socket', () => {
     onClose,
     ...rest,
   }
-})
-
-userHook.onInfoChange(useSocketStore, (store) => {
-  const { info } = useUserInfoStore()
-
-  if (info.id === undefined) {
-    store.close()
-    return
-  }
-
-  if (info.id !== store.userId)
-    store.connect(info.id)
 })

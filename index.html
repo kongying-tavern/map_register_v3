@@ -7,19 +7,9 @@
   <title>%VITE_TITLE%</title>
   <link rel="manifest" href="/manifest.json" />
   <style>
-    @supports (width: 100dvw) {
-      html {
-        width: 100dvw;
-        height: 100dvh;
-      }
-    }
-    @supports not (width: 100dvw) {
-      html {
-        width: 100vw;
-        height: 100vh;
-      }
-    }
     html {
+      width: 100dvw;
+      height: 100dvh;
       overflow: hidden;
       cursor: url('/icons/GensinMouse.svg') 0 0, auto;
     }
@@ -33,18 +23,88 @@
     body, #app {
       width: 100%;
       height: 100%;
-    }
-
-    #app {
-      display: grid;
-      place-items: center;
       overflow: hidden;
     }
+
+    @keyframes app-init {
+      from {
+        transform: translate(-50%, -50%) rotate(0deg);
+      }
+      to {
+        transform: translate(-50%, -50%) rotate(360deg);
+      }
+    }
+
+    #preloading {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      place-content: center;
+      color: #ECE5D8;
+      background-color: #25313F;
+      line-height: 2em;
+      &.is-end {
+        opacity: 0;
+        transition: opacity ease 300ms;
+        &::before {
+          clip-path: xywh(0 0 100% 100%);
+          animation-play-state: paused;
+        }
+      }
+      h1 {
+        font-size: 24px;
+        font-weight: bolder;
+      }
+      &::before {
+        content: '';
+        position: absolute;
+        box-sizing: border-box;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        border: 4px solid #ECE5D8F0;
+        clip-path: xywh(0 0 50% 50%);
+        width: 256px;
+        height: 256px;
+        border-radius: 128px;
+        pointer-events: none;
+        animation: app-init linear 2s infinite;
+      }
+      &::after {
+        content: '';
+        position: absolute;
+        box-sizing: border-box;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        border: 2px dashed #ECE5D860;
+        width: 254px;
+        height: 254px;
+        border-radius: 128px;
+        pointer-events: none;
+      }
+    }
   </style>
-</head>
-<body>
-  <div id="app"></div>
+
   <script type="module">
+    if (location.pathname !== '/')
+      location.replace(location.origin)
+  </script>
+</head>
+
+<body>
+  <div id="preloading">
+    <h1>初始化应用</h1>
+    <div>前面的区域，马上就能探索~</div>
+  </div>
+
+  <div id="app"></div>
+
+  <script type="module" async defer>
     const text = (() => {
       if (!window.isSecureContext)
         return '网站处于非安全上下文中，Web 应用无法正常运行。'
@@ -52,18 +112,26 @@
     })()
 
     const app = document.getElementById('app')
+    const preloading = document.getElementById('preloading')
 
-    window.close = () => {
-      // 阻止此方法运行
-      // 理由详见 => src\stores\userAuth.ts 153 行
+    const removePreloading = () => {
+      preloading.removeEventListener('transitionend', removePreloading)
+      preloading.remove()
     }
 
-    if (text) {
-      app.innerText = text
-    }
-    else {
-      import('./src/main.ts')
-    }
+    document.addEventListener('beforeMount', (ev) => {
+      preloading.removeEventListener('transitionend', removePreloading)
+      preloading.addEventListener('transitionend', removePreloading, { once: true })
+      preloading.classList.add('is-end')
+    }, { once: true })
+
+    void (async () => {
+      if (text) {
+        app.innerText = text
+        return
+      }
+      await import('./src/main.ts')
+    })()
   </script>
 </body>
 </html>

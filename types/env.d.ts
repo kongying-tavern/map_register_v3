@@ -38,23 +38,8 @@ interface ImportMetaEnv {
   /** @dev 下自动填充密码 */
   readonly VITE_AUTO_COMPLETE_PASSWORD: string
 
-  /** 阿里云盘地址 */
-  readonly VITE_ALIYUN_BASE: string
-
-  /** 云盘图片回显地址 */
-  readonly VITE_ALIYUN_IMAGE_BASE: string
-
-  /** 点位图片上传目录 */
-  readonly VITE_ALIYUN_MARKER_FOLDER: string
-
-  /** 64 * 64 尺寸图标上传目录 */
-  readonly VITE_ALIYUN_ICON_FOLDER: string
-
   /** 资源服务器地址 */
   readonly VITE_ASSETS_BASE: string
-
-  /** 资源服务器反代理 */
-  readonly VITE_ASSETS_PROXY_TARGET: string
 
   /** @dev 网络模式 */
   readonly VITE_DEVELOPMENT_MODE: 'default' | 'offline'
@@ -64,12 +49,6 @@ interface ImportMetaEnv {
 
   /** API 前置口令 */
   readonly VITE_API_AUTH_PASSWORD: string
-
-  /** 图床前置账号 */
-  readonly VITE_IMG_SERVER_USERNAME: string
-
-  /** 图床前置口令 */
-  readonly VITE_IMG_SERVER_PASSWORD: string
 
   /** WebSocket 地址 */
   readonly VITE_WS_BASE: string

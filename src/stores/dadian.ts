@@ -1,7 +1,5 @@
 import { defineStore } from 'pinia'
 import type { ShallowRef } from 'vue'
-import { userHook } from './hooks'
-import { useUserInfoStore } from '.'
 import { Zip } from '@/utils'
 import Api from '@/api/config'
 import db from '@/database'
@@ -10,58 +8,28 @@ import db from '@/database'
 export const useDadianStore = defineStore('global-dadian-json', () => {
   const raw = shallowRef<API.DadianJSON>({})
 
-  // 自动加载字体资源
-  watch(raw, ({ editor = {} }) => {
-    const familySet = new Set<string>()
-    document.fonts.forEach((fontFace) => {
-      familySet.add(fontFace.family)
-    })
-
-    const { fontResources = {} } = editor
-    const mission = Object.entries(fontResources).filter(([family]) => !familySet.has(family))
-    if (!mission.length)
-      return
-
-    mission.forEach(([family, { url }]) => {
-      if (familySet.has(family))
-        return
-      const fontFace = new FontFace(family, `url(${url})`)
-      document.fonts.add(fontFace)
-      fontFace.load()
-    })
-  })
-
   const getDigest = async (data: ArrayBuffer) => {
     const hash = new Uint8Array(await crypto.subtle.digest('SHA-256', data))
     return [...new Uint8Array(hash)].map(num => num.toString(16).padStart(2, '0')).join('')
   }
 
   const update = async () => {
-    const { id } = useUserInfoStore().info
-    if (id === undefined) {
-      raw.value = {}
-      return
-    }
-
     try {
-      const dadianConfigFile = await Api.getDadianConfig()
-      const newDigest = await getDigest(dadianConfigFile)
-
-      const cachedConfig = await db.cache.get('dadian')
-      if (cachedConfig && cachedConfig.id === 'dadian' && newDigest === cachedConfig.digest) {
-        raw.value = cachedConfig.value
+      const newDadianData = await Api.getDadianConfig()
+      const newDadianDigest = await getDigest(newDadianData)
+      const dadianCache = await db.cache.get('dadian')
+      if (dadianCache && dadianCache.id === 'dadian' && newDadianDigest === dadianCache.digest) {
+        raw.value = dadianCache.value
         return
       }
-
-      const newConfig = await Zip.decompressAs<API.DadianJSON>(new Uint8Array(dadianConfigFile), {
+      const newDadianJSON = await Zip.decompressAs<API.DadianJSON>(new Uint8Array(newDadianData), {
         name: 'dadian',
       })
-      raw.value = newConfig
-
+      raw.value = newDadianJSON
       await db.cache.put({
         id: 'dadian',
-        digest: newDigest,
-        value: newConfig,
+        digest: newDadianDigest,
+        value: newDadianJSON,
       })
     }
     catch {
@@ -71,19 +39,43 @@ export const useDadianStore = defineStore('global-dadian-json', () => {
     }
   }
 
+  const isInit = ref(false)
   const init = async () => {
+    if (isInit.value)
+      return
     await update()
+    isInit.value = true
   }
+
+  const fontFamilySet = new Set<string>()
+
+  // 自动加载字体资源
+  watch(() => raw.value?.editor?.fontResources, (fontResources = {}) => {
+    Object.entries(fontResources).forEach(([family, { url }]) => {
+      if (fontFamilySet.has(family))
+        return
+      fontFamilySet.add(family)
+      const fontFace = new FontFace(family, `url(${url})`)
+      document.fonts.add(fontFace)
+      fontFace.load()
+    })
+  })
+
+  // 名片
+  const nameCardList = computed(() => {
+    return raw.value.application?.nameCard ?? []
+  })
+
+  const nameCardMap = computed(() => nameCardList.value.reduce((map, nameCard) => {
+    if (nameCard.label)
+      map.set(nameCard.label, nameCard)
+    return map
+  }, new Map<string, API.NameCardOption>()))
 
   return {
-    _raw: raw as Readonly<ShallowRef<API.DadianJSON>>,
-
-    digest: getDigest,
-    update,
+    raw: raw as Readonly<ShallowRef<API.DadianJSON>>,
+    nameCardList,
+    nameCardMap,
     init,
   }
-})
-
-userHook.onInfoChange(useDadianStore, async (store) => {
-  await store.update()
 })

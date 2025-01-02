@@ -10,7 +10,6 @@ import {
   WinDialogTabPanel,
   WinDialogTitleBar,
 } from '@/components'
-import { Logger } from '@/utils'
 import type { ItemFormRules } from '@/utils'
 import type { ElFormType } from '@/shared'
 import { NOTICE_NAME_MAP } from '@/shared'
@@ -25,8 +24,6 @@ const emits = defineEmits<{
   success: []
 }>()
 
-const logger = new Logger('公告')
-
 const formData = ref<API.NoticeVo>(JSON.parse(JSON.stringify(props.notice ?? {})))
 
 const formRef = ref<ElFormType | null>(null)
@@ -40,29 +37,44 @@ const rules: ComputedRef<ItemFormRules<API.NoticeVo>> = computed(() => ({
   ],
   validTimeStart: [
     {
-      validator: (rule, value: number | null, cb) => {
-        if (!rule.required)
-          return cb()
+      trigger: 'change',
+      validator: (_, value: number | null, cb) => {
         if (!value)
-          return cb('发布时间不能为空')
+          return cb()
         if (!formData.value.validTimeEnd)
           return cb()
-        if (value < new Date(formData.value.validTimeEnd).getTime())
-          return cb('发布时间不能在截止时间之前')
+        if (value > new Date(formData.value.validTimeEnd).getTime())
+          return cb('生效时间不能在截止时间之后')
         cb()
       },
     },
   ],
   validTimeEnd: [
     {
+      trigger: 'change',
       validator: (_rule, value: number | null, cb) => {
-        logger.info('校验 validTimeEnd', value)
+        if (!value)
+          return cb()
+        if (!formData.value.validTimeStart)
+          return cb()
+        if (value < new Date(formData.value.validTimeStart).getTime())
+          return cb('截止时间不能在生效时间之前')
         cb()
       },
     },
   ],
   content: [
-    { required: true, message: '内容不能为空', trigger: 'blur' },
+    {
+      required: true,
+      trigger: 'blur',
+      validator: (_, value: string, cb) => {
+        const parser = new DOMParser()
+        const dom = parser.parseFromString(value, 'text/html')
+        if (!dom.textContent?.length)
+          return cb ('内容不能为空')
+        cb()
+      },
+    },
   ],
 }))
 
@@ -70,14 +82,18 @@ const { createNotice } = useNoticeCreate()
 const { updateNotice } = useNoticeUpdate()
 
 const { loading, refresh: submit, onSuccess } = useFetchHook({
-  onRequest: async () => {
-    await formRef.value?.validate()
-    await ({
-      create: createNotice,
-      update: updateNotice,
-    })[props.status](formData.value)
-  },
+  onRequest: () => ({
+    create: createNotice,
+    update: updateNotice,
+  })[props.status](formData.value),
 })
+
+const saveNotice = async () => {
+  const res = await formRef.value?.validate().catch(() => false)
+  if (!res)
+    return
+  await submit()
+}
 
 onSuccess(() => {
   GlobalDialogController.close()
@@ -91,23 +107,23 @@ const channels = [...NOTICE_NAME_MAP.entries()].map(([channel, name]) => ({
 </script>
 
 <template>
-  <WinDialog class="w-[720px]">
+  <WinDialog class="w-[1200px]">
     <WinDialogTitleBar :loading="loading" @close="GlobalDialogController.close">
       {{ `${formData.id === undefined ? '添加' : '编辑'}公告` }}
     </WinDialogTitleBar>
 
     <WinDialogTabPanel>
-      <el-form ref="formRef" v-bind="$attrs" label-width="80px" :model="formData" :rules="rules">
-        <div class="grid grid-cols-2 gap-y-1 gap-x-4">
-          <el-form-item class="col-span-2" label="标题" prop="title">
+      <el-form ref="formRef" v-bind="$attrs" label-width="80px" label-position="top" :model="formData" :rules="rules">
+        <div class="grid grid-cols-4 grid-rows-6 gap-y-1 gap-x-4">
+          <el-form-item label="标题" prop="title">
             <el-input v-model="formData.title" placeholder="请输入标题" clearable />
           </el-form-item>
 
-          <el-form-item class="col-span-2" label="内容" prop="content">
+          <el-form-item label="内容" prop="content" class="col-span-3 row-span-6">
             <AppRichtextEditor
               v-model="formData.content"
-              style="max-height: 50vh;"
-              :content-height="400"
+              style="max-height: 600px;"
+              :content-height="636"
               :base-text-size="20"
               :headers="[2, 4]"
               default-foreground="#4f473f"
@@ -147,7 +163,7 @@ const channels = [...NOTICE_NAME_MAP.entries()].map(([channel, name]) => ({
     </WinDialogTabPanel>
 
     <WinDialogFooter>
-      <el-button :icon="Check" type="primary" :loading="loading" @click="submit">
+      <el-button :icon="Check" type="primary" :loading="loading" @click="saveNotice">
         确认
       </el-button>
       <el-button :icon="Close" :disabled="loading" @click="GlobalDialogController.close">

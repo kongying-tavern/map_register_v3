@@ -22,8 +22,8 @@ const tabKey = defineModel<string>('tabKey', {
 
   <div
     v-bind="$attrs"
-    class="win-dialog-tab-panel"
-    :class="[tabs ? 'rounded rounded-t-none' : 'mt-2 rounded']"
+    class="win-dialog-tab-panel m-2 rounded"
+    :class="tabs ? 'rounded-t-none mt-0' : ''"
   >
     <slot name="default" />
   </div>
@@ -32,7 +32,6 @@ const tabKey = defineModel<string>('tabKey', {
 <style scoped>
 .win-dialog-tab-panel {
   @apply
-    mx-2
     p-2 overflow-hidden
     border border-[var(--el-border-color)]
     bg-[var(--el-fill-color-blank)]

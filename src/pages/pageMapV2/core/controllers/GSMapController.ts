@@ -53,4 +53,8 @@ export class GSMapController extends OrthographicController {
     )
     return true
   }
+
+  static inject = () => {
+    return this
+  }
 }
