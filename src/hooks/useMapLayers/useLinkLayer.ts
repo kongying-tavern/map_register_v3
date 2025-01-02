@@ -12,7 +12,7 @@ export const useLinkLayer = () => {
 
   const { data: rewritePositions } = mapStateStore.subscribeMission('markerDragging', () => new Map())
   const { data: missionLinks } = mapStateStore.subscribeMission('markerLink', () => [])
-  const { isProcessing: isMultiSelecting } = mapStateStore.subscribeMission('markerMultiSelect', () => [])
+  const { isProcessing: isMultiSelecting } = mapStateStore.subscribeMission('markerMultiSelect', () => '')
 
   const interactionKey = GSLinkLayer.layerName
 

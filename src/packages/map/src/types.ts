@@ -161,6 +161,7 @@ export interface MLRenderUnit {
   type: string
 }
 
+/** 包含元信息的点位关联对象 */
 export interface MarkerLinkMission extends API.MarkerLinkageVo {
   meta: {
     key: string
@@ -172,7 +173,7 @@ export interface MissionTypeMap {
   markerEditting: number | undefined
   markerDragging: Map<number, Coordinate2D>
   markerLink: MarkerLinkMission[]
-  markerMultiSelect: number[]
+  markerMultiSelect: string
   markerBulkState: boolean
   unknown: unknown
 }
