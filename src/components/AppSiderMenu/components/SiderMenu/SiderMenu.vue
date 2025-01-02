@@ -2,7 +2,6 @@
 import { CloseBold } from '@element-plus/icons-vue'
 import { contentRefKey, tabNameRefKey } from '.'
 import { GSButton } from '@/components'
-import { mapSidermenuKey } from '@/pages/pageMapV2/shared'
 
 const props = defineProps<{
   collapse?: boolean
@@ -41,9 +40,6 @@ const checkTooltip = (ev: Event) => {
 }
 useEventListener('pointermove', checkTooltip)
 useEventListener('pointerdown', checkTooltip)
-
-const mapSidermenuRef = ref<HTMLElement>()
-provide(mapSidermenuKey, mapSidermenuRef)
 </script>
 
 <template>
