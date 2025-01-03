@@ -46,7 +46,7 @@ export interface PaginationHookOptions {
 export const usePagination = (options: PaginationHookOptions = {}) => {
   const preferenceStore = usePreferenceStore()
 
-  const pageSizeMap = computed(() => new Map(preferenceStore.preference['manager.setting.pageSize']))
+  const pageSizeMap = computed(() => new Map(preferenceStore.pageSize))
 
   const {
     init: {
@@ -88,7 +88,7 @@ export const usePagination = (options: PaginationHookOptions = {}) => {
         internalUpdateFlag.value = false
         return
       }
-      preferenceStore.preference['manager.setting.pageSize'] = [...new Map(pageSizeMap.value).set(module, pageSize).entries()]
+      preferenceStore.pageSize = [...new Map(pageSizeMap.value).set(module, pageSize).entries()]
     }, { deep: true })
 
     watch(() => pageSizeMap.value.get(module), (size) => {
