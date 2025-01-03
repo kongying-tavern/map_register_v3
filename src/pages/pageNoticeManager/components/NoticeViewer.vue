@@ -70,7 +70,11 @@ const rules: ComputedRef<ItemFormRules<API.NoticeVo>> = computed(() => ({
       validator: (_, value: string, cb) => {
         const parser = new DOMParser()
         const dom = parser.parseFromString(value, 'text/html')
-        if (!dom.textContent?.length)
+        console.log({
+          value,
+          res: dom.body.textContent,
+        })
+        if (!dom.body.textContent?.length)
           return cb ('内容不能为空')
         cb()
       },
