@@ -7,6 +7,7 @@ import { AppSettings, AppWindowTeleporter, useAppWindow } from '@/components'
 import { useGlobalDialog } from '@/hooks'
 import { Logger } from '@/utils'
 import {
+  useAccessStore,
   useDadianStore,
   useIconTagStore,
   useMapStateStore,
@@ -20,6 +21,7 @@ const collapse = ref(true)
 
 const logger = new Logger('侧边栏')
 
+const accessStore = useAccessStore()
 const iconTagStore = useIconTagStore()
 const mapStateStore = useMapStateStore()
 const noticeStore = useNoticeStore()
@@ -110,7 +112,7 @@ const openMarkerSpriteImage = () => {
   url.value = iconTagStore.markerSpriteUrl ?? ''
 }
 
-const features: FeatureGroupOption[] = [
+const features = shallowRef<FeatureGroupOption[]>([
   {
     label: '管理系统',
     items: [
@@ -141,7 +143,18 @@ const features: FeatureGroupOption[] = [
       { label: 'GitHub', icon: IconGithub, cb: () => window.open('https://github.com/kongying-tavern/map_register_v3') },
     ],
   },
-]
+])
+
+const featuresWithRole = computed(() => features.value.reduce((seed, featureGroup) => {
+  const groupItems = featureGroup.items.filter(({ role }) => {
+    if (!role)
+      return true
+    return accessStore.get(role)
+  })
+  if (groupItems.length > 0)
+    seed.push({ label: featureGroup.label, items: groupItems })
+  return seed
+}, [] as FeatureGroupOption[]))
 
 /**
  * --------------------------------------------------
@@ -257,7 +270,7 @@ const switchFilterMode = () => {
     </SiderMenuItem>
 
     <SiderMenuItem name="features" label="更多功能" :icon="Grid">
-      <FeatureGrid :features="features" />
+      <FeatureGrid :features="featuresWithRole" />
     </SiderMenuItem>
 
     <el-image-viewer v-if="url" :url-list="[url]" @close="url = ''" />
