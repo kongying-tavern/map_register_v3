@@ -15,7 +15,8 @@ export class GSTagLayer extends CompositeLayer<GSTagLayerProps> {
   }
 
   shouldUpdateState(params: UpdateParameters<Layer<GSTagLayerProps & Required<CompositeLayerProps>>>): boolean {
-    return params.changeFlags.viewportChanged
+    const { propsChanged, viewportChanged } = params.changeFlags
+    return Boolean(propsChanged) || viewportChanged
   }
 
   renderLayers = (): LayersList => {
