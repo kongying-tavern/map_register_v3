@@ -114,24 +114,20 @@
     const app = document.getElementById('app')
     const preloading = document.getElementById('preloading')
 
-    const removePreloading = () => {
-      preloading.removeEventListener('transitionend', removePreloading)
+    preloading.addEventListener('transitionend', () => {
       preloading.remove()
-    }
+    }, { once: true })
 
     document.addEventListener('beforeMount', (ev) => {
-      preloading.removeEventListener('transitionend', removePreloading)
-      preloading.addEventListener('transitionend', removePreloading, { once: true })
       preloading.classList.add('is-end')
     }, { once: true })
 
-    void (async () => {
-      if (text) {
-        app.innerText = text
-        return
-      }
-      await import('./src/main.ts')
-    })()
+    if (text) {
+      app.innerText = text
+    }
+    else {
+      import('./src/main.ts')
+    }
   </script>
 </body>
 </html>
