@@ -34,10 +34,10 @@ const setNativeInputValue = () => {
 watch(nativeInputValue, setNativeInputValue)
 
 const handleInput = async (ev: InputEvent) => {
-  const { value } = ev.target as HTMLInputElement
-
-  if (props.disabled)
+  if (props.disabled || ev.isComposing)
     return
+
+  const { value } = ev.target as HTMLInputElement
 
   emits('update:modelValue', value)
   emits('input', ev)
