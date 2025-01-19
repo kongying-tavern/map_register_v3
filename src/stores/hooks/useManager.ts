@@ -13,9 +13,9 @@ export interface ManagerOptions<C, T> {
   /** 可用于初始化上下文, 在 update 时会且仅会被调用一次 */
   init?: (context: C) => Promise<void>
   /** 差异更新数据 */
-  diff(context: C): Promise<T>
+  diff?: (context: C) => Promise<T>
   /** 全量更新数据 */
-  full(context: C): Promise<T>
+  full: (context: C) => Promise<T>
   /** 写入数据 */
   commit(data: T, context: C): Promise<void>
 }
@@ -37,7 +37,7 @@ export const useManager = <C, T>(options: ManagerOptions<C, T>) => {
         })
       }
       const { isFull = false } = options
-      const data = await (isFull ? full : diff)(context)
+      const data = await (isFull ? full : diff ?? full)(context)
       await commit(data, context)
     },
   })
