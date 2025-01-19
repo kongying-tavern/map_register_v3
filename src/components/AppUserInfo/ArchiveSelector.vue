@@ -3,10 +3,12 @@ import { Flag } from '@element-plus/icons-vue'
 import dayjs from 'dayjs'
 import { storeToRefs } from 'pinia'
 import { ArchiveCreator, ArchiveViewer } from '.'
-import { useArchiveStore } from '@/stores'
-import db from '@/database'
+import { useAreaStore, useArchiveStore, useItemStore, useMarkerStore } from '@/stores'
 
+const areaStore = useAreaStore()
 const archiveStore = useArchiveStore()
+const itemStore = useItemStore()
+const markerStore = useMarkerStore()
 
 const { archiveSlots } = storeToRefs(archiveStore)
 
@@ -20,7 +22,7 @@ const AREA_IMG_URLS: Record<string, string> = {
   FD: 'https://act-webstatic.mihoyo.com/upload/contentweb/hk4e/721a74c43614d7aeb25b046cabfb57be_2012964858524199390.jpg',
 }
 
-const lastestMarkerArea = asyncComputed(async () => {
+const lastestMarkerArea = computed(() => {
   const areas: Record<number, string> = {}
   const setUrl = (slotIndex?: number, url = AREA_IMG_URLS.NA) => {
     if (slotIndex === undefined)
@@ -35,17 +37,20 @@ const lastestMarkerArea = asyncComputed(async () => {
       setUrl(archiveSlot?.slotIndex)
       continue
     }
-    const marker = await db.marker.get(latestMarkerId)
+    const marker = markerStore.idMap.get(latestMarkerId)
     if (!marker) {
       setUrl(archiveSlot?.slotIndex)
       continue
     }
-    const item = marker.itemList?.[0]?.itemId === undefined ? undefined : await db.item.get(marker.itemList[0].itemId)
+    const firstItemId = marker.itemList?.[0]?.itemId
+    if (!firstItemId)
+      continue
+    const item = itemStore.idMap.get(firstItemId)
     if (!item) {
       setUrl(archiveSlot?.slotIndex)
       continue
     }
-    const area = item.areaId === undefined ? undefined : await db.item.get(item.areaId)
+    const area = areaStore.areaIdMap.get(item.areaId!)
     if (!area) {
       setUrl(archiveSlot?.slotIndex)
       continue
@@ -53,7 +58,7 @@ const lastestMarkerArea = asyncComputed(async () => {
     setUrl(archiveSlot?.slotIndex, AREA_IMG_URLS[(area.code as string).split(':')[1]])
   }
   return areas
-}, {})
+})
 
 const archiveCreateIndex = ref<number>()
 const archiveViewIndex = ref<number>()

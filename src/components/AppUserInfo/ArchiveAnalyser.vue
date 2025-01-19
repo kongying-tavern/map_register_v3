@@ -1,20 +1,14 @@
 <script lang="ts" setup>
-import db from '@/database'
-import { useArchiveStore } from '@/stores'
-import { GSSwitch } from '@/components'
+import { useArchiveStore, useAreaStore, useIconTagStore, useItemStore, useMarkerStore, usePreferenceStore } from '@/stores'
+import { AppIconTagRenderer, GSSwitch } from '@/components'
 import { fallbackToStaticIcon } from '@/configs'
 
 const archiveStore = useArchiveStore()
-
-interface GroupedMarkers {
-  [key: string]: {
-    area: API.AreaVo
-    parentArea: API.AreaVo
-    normal: number
-    restricted: number
-    icon: string
-  }
-}
+const iconTagStore = useIconTagStore()
+const areaStore = useAreaStore()
+const itemStore = useItemStore()
+const markerStore = useMarkerStore()
+const preferenceStore = usePreferenceStore()
 
 /** 是否显示限定地区数据 */
 const showRestrictedArea = computed({
@@ -28,150 +22,127 @@ const showRestrictedArea = computed({
  * 属于限定的地区
  * @todo 从硬编码改为从订阅数据拉取
  */
-const RESTRICTED_AREA_CODES = [
-  'A:APPLE:1_6',
-  'A:APPLE:2_8',
-  'A:DQ:SANJIE',
-  'A:VELURIYAM:3_8',
-  'A:SIMULANKA:4_8',
-]
+const RESTRICTED_AREA_CODES = shallowRef(new Set([
+  'C:APPLE',
+  'C:APPLE',
+  'C:DQ:SANJIE',
+  'C:VELURIYAM',
+  'C:SIMULANKA',
+]))
 
-const isRestrictedArea = (code?: string) => {
-  if (!code)
-    return false
-  return RESTRICTED_AREA_CODES.findIndex(rcode => rcode === code) > -1
-}
+/** 物品对应的国级地区 id 表 */
+const itemAreaIdMap = computed(() => {
+  return itemStore.itemList.reduce((map, { id: itemId = -1, areaId = -1 }) => {
+    const area = areaStore.areaIdMap.get(areaId)
+    if (!area) {
+      return map.set(itemId, {
+        name: `未知地区(${areaId})`,
+        code: `UNKNOWN:${areaId}`,
+        id: areaId,
+      })
+    }
 
-const isMarkerInstances = (v: (number[]) | (API.MarkerVo[])): v is API.MarkerVo[] => typeof v[0] !== 'number'
+    if (!area.isFinal)
+      return map.set(itemId, area)
+
+    const parentArea = areaStore.areaIdMap.get(area.parentId!)
+    if (!parentArea) {
+      return map.set(itemId, {
+        name: `未知父地区 (${area.parentId})`,
+        code: `UNKNOWN:${area.parentId}`,
+        id: area.parentId,
+      })
+    }
+
+    map.set(itemId, parentArea)
+
+    return map
+  }, new Map<number, API.AreaVo>())
+})
 
 /** 为每个宝箱点位匹配其地区数据 */
-const matchMarkerArea = async (markerParams: (number[]) | (API.MarkerVo[])) => {
-  /** 需要查询的物品 id */
-  const queryItemIds = new Set<number>()
+const countMap = computed(() => {
+  const areaMap = areaStore.areaList.reduce((map, area) => {
+    if (!area.isFinal)
+      map.set(area.id!, { area, count: 0, total: 0 })
+    return map
+  }, new Map<number, { area: API.AreaVo, count: number, total: number }>())
 
-  const markers = isMarkerInstances(markerParams) ? markerParams : await db.marker.bulkGet(markerParams)
-  markers.forEach((marker) => {
-    const itemId = marker?.itemList?.[0]?.itemId
-    itemId !== undefined && queryItemIds.add(itemId)
-  })
-
-  const treasureChestType = await db.itemType.where('name').equals('宝箱品质').first()
-  if (!treasureChestType)
-    return {}
-
-  // 宝箱品质类型对应的物品
-  const items = await db.item.where('typeIdList').equals(treasureChestType.id as number).toArray()
-  const itemMap = items.reduce((seed, item) => {
-    seed[item.id as number] = item
-    return seed
-  }, {} as Record<number, API.ItemVo>)
-
-  const areas = await db.area.toArray()
-  const areaMap = areas.reduce((seed, area) => {
-    area !== undefined && (seed[area.id as number] = area)
-    return seed
-  }, {} as Record<string, API.AreaVo>)
-
-  const res = markers.reduce((seed, marker) => {
-    if (marker === undefined)
-      return seed
-
-    // 检查点位是否为宝箱类型
-    const findItem = marker.itemList?.find(item => (item.itemId as number) in itemMap)
-    if (!findItem)
-      return seed
-
-    const markerItem = itemMap[findItem.itemId as number]
-    const markerArea = areaMap[markerItem.areaId as number]
-    if (markerArea === undefined)
-      return seed
-
-    const parent = areaMap[markerArea.parentId as number]
-    const areaParentCode = parent?.code
-    if (areaParentCode === undefined)
-      return seed
-
-    if (!seed[areaParentCode]) {
-      seed[areaParentCode] = {
-        area: markerArea,
-        parentArea: parent,
-        icon: fallbackToStaticIcon(markerArea),
-        normal: 0,
-        restricted: 0,
-      }
-    }
-    const isRestrictedMarker = isRestrictedArea(markerArea.code)
-    seed[areaParentCode][isRestrictedMarker ? 'restricted' : 'normal'] += 1
-    return seed
-  }, {} as GroupedMarkers)
-
-  return res
-}
-
-const loading = ref(false)
-
-const rawMarkersGroup = asyncComputed<GroupedMarkers>(async () => {
-  const markers = await db.marker.toArray()
-  return matchMarkerArea(markers)
-}, {}, { evaluating: loading })
-
-const markersGroup = asyncComputed<GroupedMarkers>(() => {
-  return matchMarkerArea([...archiveStore.currentArchive.body.Data_KYJG])
-}, {}, { evaluating: loading })
-
-const getTotal = (groupItem?: GroupedMarkers[keyof GroupedMarkers]) => {
-  if (!groupItem)
-    return 0
-  return showRestrictedArea.value
-    ? groupItem.normal + groupItem.restricted
-    : groupItem.normal
-}
+  return markerStore.markerList.reduce((map, { id: markerId = -1, itemList = [] }) => {
+    itemList.forEach(({ itemId = -1 }) => {
+      const area = itemAreaIdMap.value.get(itemId)!
+      if (!area)
+        return
+      if (!map.has(area.id!))
+        map.set(area.id!, { area, count: 0, total: 0 })
+      const object = map.get(area.id!)!
+      object.total += 1
+      if (archiveStore.currentArchive.body.Data_KYJG.has(markerId))
+        object.count += 1
+    })
+    return map
+  }, areaMap)
+})
 </script>
 
 <template>
-  <div class="w-[calc(100%_-_32px)] mx-4 flex-1 flex flex-col overflow-hidden">
-    <div class="flex-shink-0 w-full flex justify-between items-center text-lg p-2" style="color:#84603D;">
-      <span
-        class="inline-block w-72 overflow-hidden text-ellipsis whitespace-nowrap"
-        :title="archiveStore.currentArchive.slotIndex ? archiveStore.archiveSlots[archiveStore.currentArchive.slotIndex]?.name : ''"
+  <div class="w-full flex-1 flex flex-col overflow-hidden">
+    <div class="flex-shink-0 w-full px-4 flex justify-between items-center text-lg p-2" style="color:#84603D;">
+      <div
+        v-if="!archiveStore.currentArchive.slotIndex"
+        class="w-72 flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap">
+        {{ '<未选取存档>' }}
+      </div>
+      <div
+        v-else
+        class="w-72 flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap"
+        :title="archiveStore.archiveSlots[archiveStore.currentArchive.slotIndex]?.name"
       >
-        宝箱收集进度({{ archiveStore.currentArchive.slotIndex ? archiveStore.archiveSlots[archiveStore.currentArchive.slotIndex]?.name : '<未选取存档>' }})
-      </span>
-      <GSSwitch
-        v-model="showRestrictedArea"
-        label="包含限定地区"
-        label-position="left"
-        label-inactive-color="#353D4F"
-      />
+        宝箱收集进度({{ archiveStore.archiveSlots[archiveStore.currentArchive.slotIndex]?.name }})
+      </div>
+
+      <div class="flex-1 flex justify-end">
+        <GSSwitch
+          v-model="showRestrictedArea"
+          label="包含限定地区"
+          label-position="left"
+          label-inactive-color="#353D4F"
+        />
+      </div>
     </div>
 
-    <div class="flex-1 overflow-hidden">
+    <div class="flex-1 pb-6 overflow-hidden">
       <el-scrollbar>
-        <div class="gs-archive-analyser-container grid gap-2 grid-cols-2 grid-rows-4 m-1">
-          <template v-for="(item, code, index) in rawMarkersGroup" :key="code">
-            <div
-              v-if="showRestrictedArea || item.normal > 0"
-              class="gs-archive-analyser-item grid gap-x-1"
-              :style="{
-                '--markers-ratio': `${(100 * (getTotal(markersGroup[code]) / getTotal(item))).toFixed(2)}%`,
-                '--anime-delay': `${index * 50}ms`,
-              }"
+        <div class="gs-archive-analyser-container grid grid-cols-2 grid-rows-4 px-3">
+          <div
+            v-for="[areaId, { area, count, total }] in countMap"
+            v-show="preferenceStore.showRestrictedArea || !RESTRICTED_AREA_CODES.has(area.code!)"
+            :key="areaId"
+            class="gs-archive-analyser-item"
+            :style="{
+              '--markers-ratio': `${(count / total || 0).toFixed(2)}%`,
+            }"
+          >
+            <AppIconTagRenderer
+              class="w-12 h-12 row-span-2 rounded-sm"
+              :src="iconTagStore.tagSpriteUrl"
+              :mapping="iconTagStore.tagCoordMap.get(area.iconTag!)"
             >
-              <div class="gs-archive-area w-12 h-12 row-span-2 rounded-sm" :style="{ '--icon': `url(${item.icon})` }" />
+              <div class="gs-archive-area w-full h-full row-span-2 rounded-sm" :style="{ '--icon': `url(${fallbackToStaticIcon(area)})` }" />
+            </AppIconTagRenderer>
 
-              <div class="text-base overflow-hidden whitespace-nowrap text-ellipsis" :title="item.parentArea.name">
-                {{ item.parentArea.name }}
-              </div>
-
-              <div class="text-sm text-right">
-                {{ getTotal(markersGroup[code]) }} / {{ getTotal(item) }}
-              </div>
-
-              <div class="gs-archive-analyser-bar col-span-2 flex items-center justify-end text-xs">
-                {{ (100 * (getTotal(markersGroup[code]) / getTotal(item))).toFixed(2) }} %
-              </div>
+            <div class="text-base overflow-hidden whitespace-nowrap text-ellipsis" :title="area.name">
+              {{ area.name }}
             </div>
-          </template>
+
+            <div class="text-xs text-right whitespace-nowrap">
+              {{ count }} / {{ total }}
+            </div>
+
+            <div class="gs-archive-analyser-bar col-span-2 flex items-center justify-end text-xs">
+              {{ (100 * count / total || 0).toFixed(2) }} %
+            </div>
+          </div>
         </div>
       </el-scrollbar>
     </div>
@@ -185,29 +156,25 @@ const getTotal = (groupItem?: GroupedMarkers[keyof GroupedMarkers]) => {
   initial-value: 0%;
 }
 
-@keyframes item-anime-in {
-  from { opacity: 0%; }
-  to { opacity: 100%; }
-}
-
 .gs-archive-analyser-item {
   --percentage: 0%;
   --radius: 8px;
   --clip: inset(0 0% 0 0);
   --shadow-color: #CCCCCC80;
 
+  display: grid;
+  gap: 0 4px;
+  align-items: center;
   grid-template-columns: auto 1fr 1fr;
-  padding: 4px 8px 4px 4px;
+  padding: 2px 4px 2px 2px;
+  margin: 4px;
   border-radius: 6px;
   border: 2px solid #E0D6CB;
   outline: 2px solid transparent;
   position: relative;
   background: #F0E9DC;
   justify-content: space-between;
-  opacity: 0;
   overflow: hidden;
-  animation: item-anime-in 100ms linear forwards;
-  animation-delay: calc(50ms + var(--anime-delay));
   user-select: none;
   box-shadow: 0 0 4px var(--shadow-color);
   cursor: pointer;
@@ -231,8 +198,9 @@ const getTotal = (groupItem?: GroupedMarkers[keyof GroupedMarkers]) => {
   --percentage: var(--markers-ratio);
 
   height: 16px;
+  padding: 0 2px;
   background: linear-gradient(to right, #F7BA3F var(--percentage), #e0dcd4 var(--percentage));
-  border-radius: 4px;
+  border-radius: 2px;
   transition: --percentage ease 500ms;
   transition-delay: var(--anime-delay);
   position: relative;
