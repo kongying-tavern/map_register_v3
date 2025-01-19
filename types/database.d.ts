@@ -11,3 +11,7 @@ interface UserArchiveBody {
   }
   timestamp: number
 }
+
+type Hash<T> = T & {
+  __hash?: string
+}
