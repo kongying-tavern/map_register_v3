@@ -1,7 +1,7 @@
 /** 从订阅源获取打点的相关依赖配置 */
 const getDadianConfig = async (options: {
-  timeout: number
-}) => {
+  timeout?: number
+} = {}) => {
   const {
     timeout = 10000,
   } = options
