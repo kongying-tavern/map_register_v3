@@ -1,19 +1,73 @@
 <script setup lang="ts">
 import { Refresh, RefreshLeft, WarnTriangleFilled } from '@element-plus/icons-vue'
-import type { UnwrapRef } from 'vue'
 import { ElMessageBox } from 'element-plus'
 import { SettingBar, SettingGroup, SettingPanel } from '../components'
-import { useAreaStore, useIconTagStore, useItemStore, useItemTypeStore, useMarkerLinkStore, useMarkerStore } from '@/stores'
-import type { useBackendUpdate } from '@/stores/hooks'
+import { useAreaStore, useIconTagStore, useItemStore, useItemTypeStore, useMarkerStore, useMarkerLinkStore } from '@/stores'
 import db from '@/database'
+import { now } from '@/shared'
 
-const options: { name: string; store: { total: number; backendUpdater: UnwrapRef<ReturnType<typeof useBackendUpdate>> } }[] = [
-  { name: '地区', store: useAreaStore() },
-  { name: '图标标签', store: useIconTagStore() },
-  { name: '物品', store: useItemStore() },
-  { name: '物品类型', store: useItemTypeStore() },
-  { name: '点位', store: useMarkerStore() },
-  { name: '点位关联', store: useMarkerLinkStore() },
+const areaStore = useAreaStore()
+const iconTagStore = useIconTagStore()
+const itemStore = useItemStore()
+const itemTypeStore = useItemTypeStore()
+const markerStore = useMarkerStore()
+const markerLinkStore = useMarkerLinkStore()
+
+const dbList = [
+  {
+    label: '地区',
+    total: computed(() => areaStore.total),
+    loading: computed(() => areaStore.updateLoading),
+    nextUpdateTime: computed(() => areaStore.nextUpdateTime),
+    message: computed(() => areaStore.context.message),
+    updateDiff: () => areaStore.update(),
+    updateFull: () => areaStore.update({ isFull: true }),
+  },
+  {
+    label: '图标',
+    total: computed(() => iconTagStore.total),
+    loading: computed(() => iconTagStore.updateLoading),
+    nextUpdateTime: computed(() => iconTagStore.nextUpdateTime),
+    message: computed(() => iconTagStore.context.message),
+    updateDiff: () => iconTagStore.update(),
+    updateFull: () => iconTagStore.update({ isFull: true }),
+  },
+  {
+    label: '物品',
+    total: computed(() => itemStore.total),
+    loading: computed(() => itemStore.updateLoading),
+    nextUpdateTime: computed(() => itemStore.nextUpdateTime),
+    message: computed(() => itemStore.context.message),
+    updateDiff: () => itemStore.update(),
+    updateFull: () => itemStore.update({ isFull: true }),
+  },
+  {
+    label: '物品类型',
+    total: computed(() => itemTypeStore.total),
+    loading: computed(() => itemTypeStore.updateLoading),
+    nextUpdateTime: computed(() => itemTypeStore.nextUpdateTime),
+    message: computed(() => itemTypeStore.context.message),
+    updateDiff: () => itemTypeStore.update(),
+    updateFull: () => itemTypeStore.update({ isFull: true }),
+  },
+  {
+    label: '点位',
+    total: computed(() => markerStore.total),
+    loading: computed(() => markerStore.updateLoading),
+    nextUpdateTime: computed(() => markerStore.nextUpdateTime),
+    message: computed(() => markerStore.context.message),
+    updateDiff: () => markerStore.update(),
+    updateFull: () => markerStore.update({ isFull: true }),
+  },
+  {
+    label: '点位关联',
+    total: computed(() => markerLinkStore.total),
+    loading: computed(() => markerLinkStore.updateLoading),
+    nextUpdateTime: computed(() => markerLinkStore.nextUpdateTime),
+    message: computed(() => markerLinkStore.context.message),
+    updateDiff: () => markerLinkStore.update(),
+    updateFull: () => markerLinkStore.update({ isFull: true }),
+  },
 ]
 
 const deleteDatabase = async () => {
@@ -44,28 +98,49 @@ const deleteDatabase = async () => {
 <template>
   <SettingPanel>
     <SettingGroup name="存储详情">
-      <SettingBar v-for="({ name, store }) in options" :key="name" :label="name">
+      <SettingBar
+        v-for="store in dbList"
+        :key="store.label"
+        :label="store.label"
+      >
         <template #note>
-          <div class="flex flex-col text-xs text-[var(--el-text-color-regular)]">
-            <div>已存储 {{ store.backendUpdater.loading ? '...' : store.total }} 项数据</div>
-            <div v-if="store.backendUpdater.isWatting">
-              {{
-                store.backendUpdater.isWatting
-                  ? `距离更新还有 ${Math.floor(store.backendUpdater.restTime / 1000)} 秒`
-                  : store.backendUpdater.loading
-                    ? '正在更新...'
-                    : '后台更新已停止'
-              }}
-            </div>
+          <div class="text-xs text-[var(--el-text-color-regular)] mb-0.5">
+            共 {{ store.total.value }} 项, 距离下次更新还有 {{ store.loading.value ? '----' : ((store.nextUpdateTime.value - now) / 1000).toFixed(0) }} 秒
           </div>
+          <el-progress
+            :percentage="100"
+            :stroke-width="16"
+            :duration="5"
+            text-inside
+            :show-text="false"
+            :striped="store.loading.value"
+            :striped-flow="store.loading.value"
+            :status="store.loading.value ? '' : 'success'"
+            style="width: 210px; --progress-radius: 2px"
+          >
+            <div class="w-[200px] text-left">
+              {{ store.message.value || '就绪' }}
+            </div>
+          </el-progress>
         </template>
+
         <template #setting>
-          <el-button text type="warning" :loading="store.backendUpdater.loading" :icon="Refresh" @click="() => store.backendUpdater.forceUpdate()">
-            重新获取
-          </el-button>
-          <el-button text type="primary" :loading="store.backendUpdater.loading" :icon="RefreshLeft" @click="() => store.backendUpdater.refresh()">
-            检查更新
-          </el-button>
+          <div class="flex flex-col">
+            <el-button
+              text type="primary" :icon="RefreshLeft"
+              :loading="store.loading.value"
+              @click="store.updateDiff"
+            >
+              差异更新
+            </el-button>
+            <el-button
+              text type="warning" :icon="Refresh" style="margin-left: 0;"
+              :loading="store.loading.value"
+              @click="store.updateFull"
+            >
+              重新获取
+            </el-button>
+          </div>
         </template>
       </SettingBar>
     </SettingGroup>
