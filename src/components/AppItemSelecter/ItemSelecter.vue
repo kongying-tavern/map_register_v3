@@ -4,9 +4,8 @@ import { ElScrollbar } from 'element-plus'
 import ItemSelectButton from './ItemSelectButton.vue'
 import ItemPreviewButton from './ItemPreviewButton.vue'
 import TypeSelectButton from './TypeSelectButton.vue'
-import db from '@/database'
-import { useFetchHook, useState } from '@/hooks'
-import { useIconTagStore, useItemTypeStore } from '@/stores'
+import { useState } from '@/hooks'
+import { useAreaStore, useItemStore, useIconTagStore, useItemTypeStore } from '@/stores'
 import { AppAreaCodeSelecter } from '@/components'
 
 const props = withDefaults(defineProps<{
@@ -30,7 +29,13 @@ const emits = defineEmits<{
   'update:areaCode': [string]
 }>()
 
+const areaStore = useAreaStore()
+const itemStore = useItemStore()
 const itemTypeStore = useItemTypeStore()
+
+const sorter = ({ sortIndex: sa = 0 }: { sortIndex?: number }, { sortIndex: sb = 0 }: { sortIndex?: number }) => {
+  return sb - sa
+}
 
 // ==================== 地区信息 ====================
 /** 当没有传入外部地区代码时使用内置缓存 */
@@ -47,10 +52,7 @@ const modelAreaCode = computed({
   },
 })
 
-const areaId = asyncComputed(async () => {
-  const area = await db.area.where('code').equals(modelAreaCode.value).first()
-  return area?.id
-})
+const areaId = computed(() => areaStore.areaCodeMap.get(modelAreaCode.value)?.id)
 
 // ==================== 图标信息 ====================
 const iconTagStore = useIconTagStore()
@@ -60,46 +62,32 @@ const iconMap = computed(() => iconTagStore.iconTagMap)
 const queryText = ref('')
 
 // ==================== 物品类型 ====================
-const [selectedType, setSelectedType] = useState<API.ItemTypeVo | null>(null)
-
-const sorter = ({ sortIndex: sa = 0 }: { sortIndex?: number }, { sortIndex: sb = 0 }: { sortIndex?: number }) => {
-  return sb - sa
-}
-
-const { data: itemTypeList, onSuccess: onItemTypeFetched } = useFetchHook({
-  immediate: true,
-  initialValue: [],
-  shallow: true,
-  onRequest: async () => {
-    const itemTypes = await db.itemType.filter(itemType => itemType.isFinal ?? false).toArray()
-    return itemTypes.sort(sorter)
-  },
+const itemTypeList = computed(() => {
+  return itemTypeStore.itemTypeList
+    .filter(({ isFinal }) => isFinal)
+    .sort(sorter)
 })
 
-onItemTypeFetched((itemTypes) => {
-  selectedType.value = itemTypes[0] ?? null
-})
+const [selectedType, setSelectedType] = useState<API.ItemTypeVo | null>(itemTypeList.value[0] ?? null)
 
 // ==================== 物品信息 ====================
-const loading = ref(false)
-const itemList = asyncComputed(async () => {
+const itemList = computed(() => {
   const queryTypeId = selectedType.value?.id
   const queryKeyword = queryText.value.trim()
   const queryAreaId = areaId.value
   if (queryTypeId === undefined)
     return []
-  const items = await db.item
-    .where('typeIdList')
-    .anyOf([queryTypeId])
-    .and((item) => {
-      const isQueryMatch = !queryKeyword || (item.name?.includes(queryKeyword) ?? false)
+  const items = itemStore.itemList
+    .filter(({ name = '', areaId = -1, typeIdList = [] }) => {
+      if (!new Set(typeIdList).has(queryTypeId))
+        return false
+      const isQueryMatch = !queryKeyword || (name.includes(queryKeyword) ?? false)
       if (!isQueryMatch)
         return false
-      return item.areaId === queryAreaId
+      return areaId === queryAreaId
     })
-    .toArray()
   return items.sort(sorter)
-}, [], { evaluating: loading })
+})
 
 // ==================== 已选物品 ====================
 const selectionsMap = computed(() => props.modelValue.reduce((seed, item) => {
@@ -176,11 +164,7 @@ watch(() => itemList.value, () => scrollbarRef.value?.setScrollTop(0))
         </ElScrollbar>
       </div>
 
-      <div
-        v-loading="loading"
-        class="w-full h-full flex flex-col overflow-hidden pl-1 border-l-[1px] border-dashed border-[var(--el-border-color)]"
-        element-loading-text="查询中..."
-      >
+      <div class="w-full h-full flex flex-col overflow-hidden pl-1 border-l-[1px] border-dashed border-[var(--el-border-color)]">
         <div v-if="!modelAreaCode" class="w-full h-full grid place-items-center">
           请选择地区
         </div>
