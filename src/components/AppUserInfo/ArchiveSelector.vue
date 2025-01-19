@@ -45,7 +45,7 @@ const lastestMarkerArea = asyncComputed(async () => {
       setUrl(archiveSlot?.slotIndex)
       continue
     }
-    const area = item.areaId === undefined ? undefined : await db.area.get(item.areaId)
+    const area = item.areaId === undefined ? undefined : await db.item.get(item.areaId)
     if (!area) {
       setUrl(archiveSlot?.slotIndex)
       continue

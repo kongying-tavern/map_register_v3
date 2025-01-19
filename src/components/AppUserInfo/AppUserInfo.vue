@@ -33,6 +33,7 @@ const tab = ref('archive')
     append-to-body
     width="fit-content"
     class="custom-dialog hidden-header bg-transparent"
+    style="--el-dialog-padding-primary: 8px"
   >
     <div class="user-info-dialog">
       <div class="user-info-card">
@@ -84,7 +85,7 @@ const tab = ref('archive')
     font-[HYWenHei-85W] text-[#424F65]
   ;
   --paint-padding: 2;
-  width: 1200px;
+  width: 1150px;
   height: 720px;
   background: paint(user-card-border);
   @supports not (background: paint(user-card-border)) {
@@ -126,7 +127,7 @@ const tab = ref('archive')
 }
 
 .user-action {
-  @apply m-8 absolute top-0 right-0;
+  @apply my-8 mr-4 absolute top-0 right-0;
   width: 540px;
   height: calc(100% - 64px);
   animation: user-action-anime-in 400ms forwards;

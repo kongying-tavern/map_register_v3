@@ -39,7 +39,7 @@ const setSelectedIcon = (avatar: MiyousheAvatar) => {
 </script>
 
 <template>
-  <div class="w-full flex-1 flex overflow-hidden select-none">
+  <div class="w-full flex-1 flex gap-2 overflow-hidden select-none">
     <AppVirtualTable
       v-loading="avatarsLoading"
       element-loading-background="transparent"
@@ -71,7 +71,7 @@ const setSelectedIcon = (avatar: MiyousheAvatar) => {
       </template>
     </AppVirtualTable>
 
-    <div class="flex-1 px-4 flex flex-col gap-8 justify-center items-center pb-1">
+    <div class="w-[150px] flex flex-col gap-8 justify-center items-center pb-1">
       <AvatarPreview :src="selectedAvatar?.icon" />
 
       <div class="avatar-name">
