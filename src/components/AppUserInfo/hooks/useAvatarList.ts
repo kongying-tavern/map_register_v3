@@ -37,7 +37,7 @@ export const useAvatarList = () => {
         .sort(({ sort_order: sa = 0 }, { sort_order: sb = 0 }) => sa - sb)
         .map((avatar) => {
           // 匹配所有汉字作为 name
-          const name = avatar.name?.match(/[\u4E00-\u9FA5]/g)?.join('') || '<社区头像>'
+          const name = avatar.name?.match(/[\u4E00-\u9FA5]/g)?.join('').replace(/社区|头像/g, '') || '<?>'
           return ({
             ...avatar,
             name,
