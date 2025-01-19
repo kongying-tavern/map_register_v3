@@ -139,9 +139,7 @@ export const useUserStore = defineStore('global-user', () => {
     isActive: isAutoRefreshActive,
     pause: pauseRefreshToken,
     resume: resumeRefreshToken,
-  } = useTimeoutPoll(() => refreshToken(() => {
-    pauseRefreshToken()
-  }), REFRESH_INTERVAL)
+  } = useTimeoutPoll(() => refreshToken(() => pauseRefreshToken()), REFRESH_INTERVAL)
 
   const onBeforeLogout = (fn: () => void) => {
     tryOnMounted(() => {
@@ -157,14 +155,17 @@ export const useUserStore = defineStore('global-user', () => {
       await refreshToken()
       resumeRefreshToken()
     }
-    watch(() => auth.value.refreshToken, (refreshToken) => {
-      if (!refreshToken) {
+    watch(() => auth.value.refreshToken, (newToken, oldToken) => {
+      if (!newToken) {
         pauseRefreshToken()
         logger.info('token 刷新已暂停')
         return
       }
-      logger.info('token 刷新已启用')
-      resumeRefreshToken()
+      if (!oldToken) {
+        logger.info('token 刷新已启用')
+        resumeRefreshToken()
+        return
+      }
     })
     watch(() => auth.value.userId, refreshUserInfo, { immediate: true })
   }
