@@ -25,6 +25,7 @@ export const usePreferenceStore = defineStore('global-user-preference', () => {
     itemIds: model('markerFilter.state.itemIds', () => []),
     itemTypeId: model('markerFilter.state.itemTypeId', () => -1),
     maxLogs: model('developer.setting.maxLogs', () => 100),
+    noticeEvents: model('socket.setting.noticeEvents', () => []),
     noticeRead: model('notice.state.read', () => []),
     noticeShowTime: model('notice.state.showTime', () => 0),
     pageSize: model('manager.setting.pageSize', () => []),

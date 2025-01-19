@@ -5,20 +5,13 @@ import { WEBSOCKET_WORKER_CONFIG } from '@/configs'
 
 const socketStore = useSocketStore()
 const userStore = useUserStore()
+const preferenceStore = usePreferenceStore()
 
 const text = computed(() => {
   return socketStore.status === WebSocket.OPEN
     ? `${socketStore.delay} ms`
     : '未连接'
 })
-
-const preferenceStore = usePreferenceStore()
-
-const currentEvents = ref(preferenceStore.preference['socket.setting.noticeEvents'] ?? [])
-
-watch(currentEvents, (events) => {
-  preferenceStore.preference['socket.setting.noticeEvents'] = events
-}, { deep: true })
 
 const wsEvents: { label: string; value: API.WSEventType; divider?: boolean }[] = [
   // 点位
@@ -62,7 +55,7 @@ const wsEvents: { label: string; value: API.WSEventType; divider?: boolean }[] =
 
       <SettingBar
         label="允许 socket 事件通知"
-        :note="preferenceStore.preference['socket.setting.enableNotice'] ? `已允许 ${currentEvents.length ?? 0} 个事件的通知` : '已关闭通知功能'"
+        :note="preferenceStore.preference['socket.setting.enableNotice'] ? `已允许 ${preferenceStore.noticeEvents.length ?? 0} 个事件的通知` : '已关闭通知功能'"
         :detail-disabled="!preferenceStore.preference['socket.setting.enableNotice']"
       >
         <template #setting>
@@ -70,7 +63,7 @@ const wsEvents: { label: string; value: API.WSEventType; divider?: boolean }[] =
         </template>
 
         <template #detail>
-          <el-checkbox-group v-model="currentEvents">
+          <el-checkbox-group v-model="preferenceStore.noticeEvents">
             <div class="grid grid-cols-4">
               <el-checkbox
                 v-for="event in wsEvents"
