@@ -46,7 +46,7 @@ const toggleCollapse = () => {
   >
     <slot name="default">
       <div
-        class="min-h-[66px] flex flex-shrink-0 items-center px-4 py-3 transition-[background-color]"
+        class="min-h-[66px] flex gap-2 flex-shrink-0 items-center px-4 py-3 transition-[background-color]"
         :class="(!detailDisabled && $slots.detail) ? 'hover:bg-[var(--el-fill-color)] active:bg-[var(--el-fill-color-darker)]' : ''"
       >
         <div class="flex-1 flex items-center">
