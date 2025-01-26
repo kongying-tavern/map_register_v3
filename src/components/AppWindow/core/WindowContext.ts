@@ -46,11 +46,29 @@ export class WindowContext implements MapWindow.Context {
       return
 
     const {
-      minWidth = this.MIN_WIDTH,
-      minHeight = this.MIN_HEIGHT,
+      center = false,
+      container = document.body,
+    } = params
+
+    let {
       x: initX = 0,
       y: initY = 0,
+      minWidth = this.MIN_WIDTH,
+      minHeight = this.MIN_HEIGHT,
     } = params
+
+    minWidth = Math.min(minWidth, container.clientWidth)
+    minHeight = Math.min(minHeight, container.clientHeight)
+
+    // 如果指定了 center，则在首次打开窗口时将 xy 修改为对应的值使得窗口居中
+    if (center) {
+      // 获取容器中心点
+      const centerX = container.clientWidth / 2
+      const centerY = container.clientHeight / 2
+      // 计算窗口左上角坐标
+      initX = centerX - minWidth / 2
+      initY = centerY - minHeight / 2
+    }
 
     const {
       translate: { x = initX, y = initY } = {},

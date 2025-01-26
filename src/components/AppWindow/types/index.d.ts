@@ -18,10 +18,14 @@ export declare namespace MapWindow {
     minWidth?: number
     /** @default 300 */
     minHeight?: number
-    /** @default 0 */
+    /** 窗口打开时的位置 @default 0 */
     x?: number
-    /** @default 0 */
+    /** 窗口打开时的位置 @default 0 */
     y?: number
+    /** 窗口打开时处于屏幕中间, 会覆盖 x 和 y 指定的位置 */
+    center?: boolean
+    /** 指定窗口容器 @default document.body */
+    container?: HTMLElement
     /**
      * 打开前的回调，返回非 true 值会阻止打开
      */
