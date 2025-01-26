@@ -29,69 +29,62 @@ const preferenceStore = usePreferenceStore()
 
 const { DialogService } = useGlobalDialog()
 
-const { info: itemManagerInfo, open: openItemManager } = useAppWindow({
-  name: '物品管理',
-  minWidth: 887,
-  minHeight: 500,
-})
-
-const { info: areaManagerInfo, open: openAreaManager } = useAppWindow({
-  name: '地区管理',
-  minWidth: 887,
-  minHeight: 500,
-})
-
-const { info: markerManagerInfo, open: openMarkerManager } = useAppWindow({
-  name: '点位管理',
-  minWidth: 887,
-  minHeight: 500,
-})
-
-const { info: typeManagerInfo, open: openTypeManager } = useAppWindow({
-  name: '类型管理',
-  minWidth: 887,
-  minHeight: 500,
-})
-
-const { info: iconManagerInfo, open: openIconManager } = useAppWindow({
-  name: '图标管理',
-  minWidth: 887,
-  minHeight: 500,
-})
-
-const { info: noticeManagerInfo, open: openNoticeManager } = useAppWindow({
-  name: '公告管理',
-  minWidth: 887,
-  minHeight: 500,
-})
-
-const { info: scoreManagerInfo, open: openScoreManager } = useAppWindow({
-  name: '用户评分',
-  minWidth: 887,
-  minHeight: 500,
-})
-
-const { info: userManagerInfo, open: openUserManager } = useAppWindow({
-  name: '用户管理',
-  minWidth: 887,
-  minHeight: 500,
-})
-
-const { info: historyManagerInfo, open: openHistoryManager } = useAppWindow({
-  name: '操作记录',
-  minWidth: 887,
-  minHeight: 500,
-})
-
-const AreaManager = defineAsyncComponent(() => import('@/pages/pageAreaManager/AreaManager.vue'))
-const ItemManager = defineAsyncComponent(() => import('@/pages/pageItemManager/ItemManager.vue'))
-const MarkerManager = defineAsyncComponent(() => import('@/pages/pageMarkerManager/MarkerManager.vue'))
-const TypeManager  = defineAsyncComponent(() => import('@/pages/pageTypeManager/TypeManager.vue'))
-const IconManager = defineAsyncComponent(() => import('@/pages/pageIconManager/IconManager.vue'))
-const NoticeManager = defineAsyncComponent(() => import('@/pages/pageNoticeManager/PageNoticeManager.vue'))
-const ScoreManager = defineAsyncComponent(() => import('@/pages/pageScoreManager/ScoreManager.vue'))
-const UserManager = defineAsyncComponent(() => import('@/pages/pageUserManager/UserManager.vue'))
-const HistoryManager = defineAsyncComponent(() => import('@/pages/pageHistory/PageHistory.vue'))
+const windowList = [
+  {
+    name: '物品管理',
+    hook: useAppWindow({ name: '物品管理', minWidth: 887, minHeight: 500, center: true }),
+    icon: Box,
+    comp: defineAsyncComponent(() => import('@/pages/pageItemManager/ItemManager.vue')),
+  },
+  {
+    name: '地区管理',
+    hook: useAppWindow({ name: '地区管理', minWidth: 887, minHeight: 500, center: true }),
+    icon: Coordinate,
+    comp: defineAsyncComponent(() => import('@/pages/pageAreaManager/AreaManager.vue')),
+  },
+  {
+    name: '点位管理',
+    hook: useAppWindow({ name: '点位管理', minWidth: 887, minHeight: 500, center: true }),
+    icon: Location,
+    comp: defineAsyncComponent(() => import('@/pages/pageMarkerManager/MarkerManager.vue')),
+  },
+  {
+    name: '类型管理',
+    hook: useAppWindow({ name: '类型管理', minWidth: 887, minHeight: 500, center: true }),
+    icon: FolderOpened,
+    comp: defineAsyncComponent(() => import('@/pages/pageTypeManager/TypeManager.vue')),
+  },
+  {
+    name: '图标管理',
+    hook: useAppWindow({ name: '图标管理', minWidth: 887, minHeight: 500, center: true }),
+    icon: Picture,
+    comp: defineAsyncComponent(() => import('@/pages/pageIconManager/IconManager.vue')),
+  },
+  {
+    name: '公告管理',
+    hook: useAppWindow({ name: '公告管理', minWidth: 887, minHeight: 500, center: true }),
+    icon: ChatLineRound,
+    comp: defineAsyncComponent(() => import('@/pages/pageNoticeManager/PageNoticeManager.vue')),
+  },
+  {
+    name: '用户评分',
+    hook: useAppWindow({ name: '用户评分', minWidth: 887, minHeight: 500, center: true }),
+    icon: Star,
+    comp: defineAsyncComponent(() => import('@/pages/pageContribution/PageContribution.vue')),
+  },
+  {
+    name: '用户管理',
+    hook: useAppWindow({ name: '用户管理', minWidth: 887, minHeight: 500, center: true }),
+    icon: User,
+    comp: defineAsyncComponent(() => import('@/pages/pageUserManager/UserManager.vue')),
+  },
+  {
+    name: '历史记录',
+    hook: useAppWindow({ name: '历史记录', minWidth: 887, minHeight: 500, center: true }),
+    icon: Memo,
+    comp: defineAsyncComponent(() => import('@/pages/pageHistory/PageHistory.vue')),
+  },
+]
 
 const openSettingDialog = () => DialogService
   .config({
@@ -115,17 +108,7 @@ const openMarkerSpriteImage = () => {
 const features = shallowRef<FeatureGroupOption[]>([
   {
     label: '管理系统',
-    items: [
-      { label: '物品管理', role: 'MANAGER_COMPONENT', icon: Box, cb: () => openItemManager() },
-      { label: '地区管理', role: 'MANAGER_COMPONENT', icon: Coordinate, cb: () => openAreaManager() },
-      { label: '点位管理', role: 'MANAGER_COMPONENT', icon: Location, cb: () => openMarkerManager() },
-      { label: '类型管理', role: 'MANAGER_COMPONENT', icon: FolderOpened, cb: () => openTypeManager() },
-      { label: '图标管理', role: 'MANAGER_COMPONENT', icon: Picture, cb: () => openIconManager() },
-      { label: '公告管理', role: 'MANAGER_COMPONENT', icon: ChatLineRound, cb: () => openNoticeManager() },
-      { label: '用户评分', role: 'MANAGER_COMPONENT', icon: Star, cb: () => openScoreManager() },
-      { label: '用户管理', role: 'ADMIN_COMPONENT', icon: User, cb: () => openUserManager() },
-      { label: '操作记录', role: 'ADMIN_COMPONENT', icon: Memo, cb: () => openHistoryManager() },
-    ],
+    items: windowList.map(({ name, hook, icon }) => ({ label: name, icon, cb: hook.open })),
   },
   {
     label: '开发者',
@@ -175,44 +158,12 @@ const switchFilterMode = () => {
   <CollapseButton v-model:collapse="collapse" />
 
   <SiderMenu v-model="preferenceStore.tabName" v-model:collapse="collapse">
-    <AppWindowTeleporter :info="areaManagerInfo">
-      <AreaManager />
-    </AppWindowTeleporter>
-
-    <AppWindowTeleporter :info="itemManagerInfo">
-      <ItemManager />
-    </AppWindowTeleporter>
-
-    <AppWindowTeleporter :info="iconManagerInfo">
-      <IconManager />
-    </AppWindowTeleporter>
-
-    <AppWindowTeleporter :info="markerManagerInfo">
-      <MarkerManager />
-    </AppWindowTeleporter>
-
-    <AppWindowTeleporter :info="typeManagerInfo">
-      <TypeManager />
-    </AppWindowTeleporter>
-
-    <AppWindowTeleporter :info="iconManagerInfo">
-      <IconManager />
-    </AppWindowTeleporter>
-
-    <AppWindowTeleporter :info="noticeManagerInfo">
-      <NoticeManager />
-    </AppWindowTeleporter>
-
-    <AppWindowTeleporter :info="scoreManagerInfo">
-      <ScoreManager />
-    </AppWindowTeleporter>
-
-    <AppWindowTeleporter :info="userManagerInfo">
-      <UserManager />
-    </AppWindowTeleporter>
-
-    <AppWindowTeleporter :info="historyManagerInfo">
-      <HistoryManager />
+    <AppWindowTeleporter
+      v-for="appWindow in windowList"
+      :key="appWindow.name"
+      :info="appWindow.hook.info.value"
+    >
+      <component :is="appWindow.comp" />
     </AppWindowTeleporter>
 
     <SiderMenuItem name="filter" :label="isAdvancedFilter ? '高级筛选' : '基础筛选'">
