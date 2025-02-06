@@ -12,7 +12,7 @@ export const usePreferenceStore = defineStore('global-user-preference', () => {
     set: (v) => {
       archiveStore.currentArchive.body.Preference[key] = v
     },
-  }) as WritableComputedRef<NonNullable<UserPreference[K]>>
+  }) as Ref<NonNullable<UserPreference[K]>>
 
   return {
     advancedFilter: model('markerFilter.filter.advancedFilter', () => []),
