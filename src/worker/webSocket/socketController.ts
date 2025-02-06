@@ -129,6 +129,7 @@ export class SocketController {
         this.#closeResolvers?.resolve(ev)
         this.#closeResolvers = undefined
         this.#openResolvers = undefined
+        this.#instance = undefined
         broadcast({
           event: SocketWorkerEvent.StatusChange,
           data: WebSocket.CLOSED,
