@@ -45,3 +45,18 @@ export async function getMarkerLinkageGraph(
     ...(options || {}),
   })
 }
+
+/** 删除点位关联 删除点位关联 DELETE /api/marker_link/delete */
+export async function deleteMarkerLinkage(
+  body: API.LinkDeleteQueryVo,
+  options?: AxiosRequestConfig,
+) {
+  return request<API.RLinkDeleteVo>('/api/marker_link/delete', {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  })
+}

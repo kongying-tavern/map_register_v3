@@ -1367,4 +1367,24 @@ declare namespace API {
     users?: Record<string, SysUserSmallVo>
     time?: string
   }
+
+  interface LinkDeleteQueryVo {
+    ids?: number[]
+    groupIds?: string[]
+  }
+
+  interface LinkDeleteVo {
+    groups?: string[]
+    markers?: number[]
+  }
+
+  interface RLinkDeleteVo {
+    error?: boolean
+    errorStatus?: number
+    errorData?: unknown
+    message?: string
+    data?: LinkDeleteVo
+    users?: Record<string, SysUserSmallVo>
+    time?: string
+  }
 }
