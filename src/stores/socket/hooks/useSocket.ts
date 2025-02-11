@@ -1,6 +1,6 @@
 import { template } from 'lodash'
 import { filter, fromEvent, map, tap } from 'rxjs'
-import { Logger } from '@/utils'
+import { EventBus, Logger } from '@/utils'
 import SocketWorkerURL from '@/worker/webSocket/socket.worker?worker&url'
 import { SocketCloseReason, SocketWorkerEvent } from '@/shared'
 import type { WS } from '@/worker/webSocket/types'
@@ -19,7 +19,8 @@ export const useSocket = (templatedUrl: string, options: SocketHookOptions) => {
   const [delay, setDelay] = useState(0)
   const [status, setStatus] = useState<number>(WebSocket.CLOSED)
 
-  const socketEventHook = createEventHook<API.WSData>()
+  const socketEvent = new EventBus<API.WSEventMap>()
+
   const openHook = createEventHook<void>()
   const closeHook = createEventHook<void>()
 
@@ -63,7 +64,9 @@ export const useSocket = (templatedUrl: string, options: SocketHookOptions) => {
     tap((data) => {
       logger.info('message', data)
     }),
-  ).subscribe(socketEventHook.trigger)
+  ).subscribe(({ event, data }) => {
+    ;(socketEvent as EventBus<Record<string, unknown>>).emit(event, data)
+  })
 
   const send = <T extends SocketWorkerEvent>(message: Omit<WS.Message<T>, 'id' | 'message'>, transfer: Transferable[] = []) => {
     const id = crypto.randomUUID()
@@ -112,7 +115,7 @@ export const useSocket = (templatedUrl: string, options: SocketHookOptions) => {
     delay: delay as Readonly<Ref<number>>,
     status: status as Readonly<Ref<number>>,
     data$,
-    onMessage: socketEventHook.on,
+    socketEvent,
     onOpen: openHook.on,
     onClose: closeHook.on,
     send,

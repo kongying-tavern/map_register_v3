@@ -1,3 +1,3 @@
 export * from './useSocket'
-export * from './useMessageEvent'
+export * from './useAppEvent'
 export * from './useMessageList'

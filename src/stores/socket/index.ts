@@ -1,8 +1,7 @@
 import { defineStore } from 'pinia'
 import { ElNotification } from 'element-plus'
 import { useArchiveStore, useUserStore } from '..'
-import { useMessageEvent, useMessageList, useSocket } from './hooks'
-import { EventBus } from '@/utils'
+import { useAppEvent, useMessageList, useSocket } from './hooks'
 
 /** WebSocket 状态管理 */
 export const useSocketStore = defineStore('global-web-socket', () => {
@@ -14,16 +13,15 @@ export const useSocketStore = defineStore('global-web-socket', () => {
   })
 
   const _userId = ref<number>()
-  const _eventBus = new EventBus<API.WSEventMap>()
 
   const notice = (key: API.WSEventType, ...options: Parameters<typeof ElNotification>) => {
     if (!_noticeEvents.value.has(key))
       return
-    return ElNotification(...options)
+    ElNotification(...options)
   }
 
   const {
-    onMessage,
+    socketEvent,
     open,
     close,
     onOpen,
@@ -36,8 +34,9 @@ export const useSocketStore = defineStore('global-web-socket', () => {
     }),
   })
 
-  const { event: messageEvent } = useMessageEvent(onMessage)
-  const { messageList, clearMessageList } = useMessageList(messageEvent)
+  const { event: appEvent } = useAppEvent(socketEvent)
+
+  const { messageList, clearMessageList } = useMessageList(appEvent)
 
   const connect = async (userId?: number) => {
     if (userId === undefined)
@@ -60,9 +59,9 @@ export const useSocketStore = defineStore('global-web-socket', () => {
   })
 
   return {
-    event: _eventBus,
     userId: _userId as Readonly<Ref<number | undefined>>,
-    messageEvent,
+    socketEvent,
+    appEvent,
     messageList,
     status,
     clearMessageList,
