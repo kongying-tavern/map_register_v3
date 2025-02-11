@@ -14,6 +14,11 @@ const text = computed(() => {
 })
 
 const wsEvents: { label: string; value: API.WSEventType; divider?: boolean }[] = [
+  // 物品
+  { label: '物品新增', value: 'ItemAdded' },
+  { label: '物品删除', value: 'ItemDeleted' },
+  { label: '物品更新', value: 'ItemUpdated' },
+  { label: '物品数据库更新', value: 'ItemBinaryPurged' },
   // 点位
   { label: '点位新增', value: 'MarkerAdded' },
   { label: '点位删除', value: 'MarkerDeleted' },
@@ -55,16 +60,16 @@ const wsEvents: { label: string; value: API.WSEventType; divider?: boolean }[] =
 
       <SettingBar
         label="允许 socket 事件通知"
-        :note="preferenceStore.preference['socket.setting.enableNotice'] ? `已允许 ${preferenceStore.noticeEvents.length ?? 0} 个事件的通知` : '已关闭通知功能'"
-        :detail-disabled="!preferenceStore.preference['socket.setting.enableNotice']"
+        :note="preferenceStore.enableNotice ? `已允许 ${preferenceStore.noticeEvents.length ?? 0} 个事件的通知` : '已关闭通知功能'"
+        :detail-disabled="!preferenceStore.enableNotice"
       >
         <template #setting>
-          <el-switch v-model="preferenceStore.preference['socket.setting.enableNotice']" />
+          <el-switch v-model="preferenceStore.enableNotice" />
         </template>
 
         <template #detail>
           <el-checkbox-group v-model="preferenceStore.noticeEvents">
-            <div class="grid grid-cols-4">
+            <div class="grid grid-cols-2 sm:grid-cols-4">
               <el-checkbox
                 v-for="event in wsEvents"
                 :key="event.value"

@@ -21,6 +21,7 @@ export const usePreferenceStore = defineStore('global-user-preference', () => {
     areaCode: model('markerFilter.state.areaCode', () => ''),
     defaultMarkingItemId: model('markerFilter.state.defaultMarkingItemId', () => -1),
     enableLoggers: model('developer.setting.enableLoggers', () => []),
+    enableNotice: model('socket.setting.enableNotice', () => false),
     filterType: model('markerFilter.setting.filterType', () => 'basic'),
     itemIds: model('markerFilter.state.itemIds', () => []),
     itemTypeId: model('markerFilter.state.itemTypeId', () => -1),
