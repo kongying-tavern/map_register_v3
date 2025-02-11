@@ -15,7 +15,11 @@ const queryTagType = defineModel<API.TagTypeVo>('queryTagType', {
   required: true,
 })
 
-const sortInfo = defineModel<Record<string, string>>('sortInfo', {
+const sortKey = defineModel<string>('sortKey', {
+  required: true,
+})
+
+const sortType = defineModel<string>('sortType', {
   required: true,
 })
 
@@ -28,9 +32,14 @@ const sortOptions: { role: 'key' | 'type'; value: string; name: string; divided?
   { role: 'type', value: '-', name: '倒序' },
 ]
 
-function handleSortCommand(command: string) {
-  const [key, value] = command.split(':')
-  Reflect.set(sortInfo.value, key, value)
+const handleSortCommand = (command: string) => {
+  const [role, value] = command.split(':')
+  if (role === 'key') {
+    sortKey.value = value
+  }
+  else {
+    sortType.value = value
+  }
 }
 
 const { DialogService } = useGlobalDialog()
@@ -85,7 +94,10 @@ const openTagCreatorDialog = () => {
             :divided="option.divided"
           >
             <div class="flex items-center gap-2">
-              <el-icon class="transition-all" :class="{ 'opacity-0': sortInfo[option.role] !== option.value }" :size="12">
+              <el-icon
+                class="transition-all"
+                :class="{ 'opacity-0': (option.role === 'key' ? sortKey : sortType) !== option.value }"
+                :size="12">
                 <CircleCheck />
               </el-icon>
               <div>{{ option.name }}</div>

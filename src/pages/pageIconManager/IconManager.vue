@@ -10,7 +10,10 @@ import type Node from 'element-plus/es/components/tree/src/model/node'
 import { IconExplorer, IconExplorerHeader, IconPreviewer } from './components'
 import db from '@/database'
 import Api from '@/api/api'
-import { useDatabaseHook, useFetchHook, useState } from '@/hooks'
+import { useState } from '@/hooks'
+import { useIconTagStore } from '@/stores'
+
+const iconTagStore = useIconTagStore()
 
 const activedTag = shallowRef<API.TagVo | null>(null)
 const [scrollTarget, setScrollTarget] = useState<API.TagVo | null>(null)
@@ -20,70 +23,66 @@ const queryTagType = ref<API.TagTypeVo>({
   id: -1,
   name: '全部类型',
 })
-const sortInfo = ref<Record<string, string>>({
-  key: 'createTime',
-  type: '-',
-})
 
-const tagSorter = (pre: API.TagVo, next: API.TagVo) => {
-  const valueA = pre[sortInfo.value.key as keyof API.TagVo]
-  const valueB = next[sortInfo.value.key as keyof API.TagVo]
-  const isAscending = sortInfo.value.type === '+'
+const sortKey = ref('createTime')
+const sortType = ref('-')
 
-  if (valueA === undefined)
-    return 0
+const tagList = computed(() => {
+  let result = iconTagStore.tagList
 
-  if (Array.isArray(valueA))
-    return 0
-
-  if (typeof valueA === 'number')
-    return isAscending ? (valueA - (valueB as number)) : ((valueB as number) - valueA)
-
-  if (typeof valueA === 'string') {
-    // 时间戳
-    if (sortInfo.value.key.endsWith('Time')) {
-      const timeA = new Date(valueA).getTime()
-      const timeB = new Date(valueB as string).getTime()
-      return isAscending ? (timeA - timeB) : (timeB - timeA)
-    }
-    return isAscending
-      ? valueA.localeCompare(valueB as string, undefined, { numeric: true, sensitivity: 'base' })
-      : (valueB as string).localeCompare(valueA, undefined, { numeric: true, sensitivity: 'base' })
+  const { id: typeId = -1 } = queryTagType.value
+  if (typeId > -1) {
+    result = iconTagStore.tagList.filter(({ typeIdList = [] }) => {
+      const set = new Set(typeIdList)
+      return set.has(typeId)
+    })
   }
 
-  return 0
-}
+  const queryName = queryTagName.value.trim()
+  if (queryName.length > 0) {
+    result = iconTagStore.tagList.filter(({ tag = '' }) => {
+      return tag.includes(queryName)
+    })
+  }
 
-const { data: tagList, loading, refresh: updateTagList, onSuccess: onTagRefreshSuccess } = useFetchHook<API.TagVo[]>({
-  initialValue: [],
-  immediate: true,
-  onRequest: async () => {
-    let collection = queryTagType.value.id === -1
-      ? db.iconTag.toCollection()
-      : db.iconTag.where('typeIdList').anyOf([queryTagType.value.id!])
+  const localSortKey = sortKey.value as keyof API.TagVo
+  const isAscending = sortType.value === '+'
 
-    const queryName = queryTagName.value.trim()
-    if (queryName)
-      collection = collection.and(tag => Boolean(tag.tag?.includes(queryName)))
+  return result.toSorted((pre, next) => {
+    const valueA = pre[localSortKey]
+    const valueB = next[localSortKey]
 
-    const result = await collection.toArray()
-    return result.sort(tagSorter)
-  },
+    if (valueA === undefined)
+      return 0
+
+    if (Array.isArray(valueA))
+      return 0
+
+    if (typeof valueA === 'number')
+      return isAscending ? (valueA - (valueB as number)) : ((valueB as number) - valueA)
+
+    if (typeof valueA === 'string') {
+      // 时间戳
+      if (localSortKey.endsWith('Time')) {
+        const timeA = new Date(valueA).getTime()
+        const timeB = new Date(valueB as string).getTime()
+        return isAscending ? (timeA - timeB) : (timeB - timeA)
+      }
+      return isAscending
+        ? valueA.localeCompare(valueB as string, undefined, { numeric: true, sensitivity: 'base' })
+        : (valueB as string).localeCompare(valueA, undefined, { numeric: true, sensitivity: 'base' })
+    }
+
+    return 0
+  })
 })
-
-watch([queryTagType, queryTagName, sortInfo], updateTagList, { deep: true })
-useDatabaseHook(db.iconTag, updateTagList, ['creating', 'deleting', 'updating'])
 
 const scrollMission = ref<API.TagVo | null>(null)
 const setScrollTargetWhenUpdate = (tag: API.TagVo) => {
-  if (loading.value) {
-    scrollMission.value = tag
-    return
-  }
   setScrollTarget(tag)
 }
 
-onTagRefreshSuccess(async () => {
+watch(tagList, async () => {
   // 用于在新建 tag 时滑动到对应的 tag 以提醒用户继续编辑图片
   if (scrollMission.value) {
     setScrollTarget(scrollMission.value)
@@ -101,19 +100,27 @@ onTagRefreshSuccess(async () => {
 const handleCurrentChange = (tagType: API.TagTypeVo) => {
   queryTagType.value = tagType
   activedTag.value = null
-  updateTagList()
 }
+
+const loading = ref(false)
 
 async function loadTagType(node: Node, resolve: (data: API.TagTypeVo[]) => void) {
   if (node.level === 0) {
     resolve([{ id: -1, name: '全部类型', isFinal: false }])
     return
   }
-  const { data: { record = [] } = {} } = await Api.tagType.listTagType({
-    typeIdList: [node.data.id],
-    size: 256,
-  })
-  resolve(record)
+  loading.value = true
+  try {
+    const { data: { record = [] } = {} } = await Api.tagType.listTagType({
+      typeIdList: [node.data.id],
+      size: 256,
+    })
+    resolve(record)
+  } catch {
+    resolve([])
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
@@ -122,7 +129,8 @@ async function loadTagType(node: Node, resolve: (data: API.TagTypeVo[]) => void)
     <IconExplorerHeader
       v-model:query-tag-name="queryTagName"
       v-model:query-tag-type="queryTagType"
-      v-model:sort-info="sortInfo"
+      v-model:sort-key="sortKey"
+      v-model:sort-type="sortType"
       @create-tag-success="setScrollTargetWhenUpdate"
     />
 
