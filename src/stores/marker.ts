@@ -146,12 +146,12 @@ export const useMarkerStore = defineStore('global-marker', () => {
   const tweakHook = createEventHook<API.MarkerVo[]>()
 
   // 点位压缩数据更新
-  socketStore.messageEvent.on('MarkerBinaryPurged', () => {
+  socketStore.appEvent.on('MarkerBinaryPurged', () => {
     update()
   })
 
   // 单个点位更新
-  socketStore.messageEvent.on('MarkerUpdated', async (markerInfo, userInfo) => {
+  socketStore.appEvent.on('MarkerUpdated', async (markerInfo, userInfo) => {
     await db.marker.put(markerInfo)
     const { id, markerTitle, updaterId } = markerInfo
     const { username = `(uid: ${updaterId})`, nickname } = userInfo
@@ -164,7 +164,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
   })
 
   // 单个点位新增
-  socketStore.messageEvent.on('MarkerAdded', async (markerInfo, userInfo) => {
+  socketStore.appEvent.on('MarkerAdded', async (markerInfo, userInfo) => {
     await db.marker.put(markerInfo)
     const { id, markerTitle, creatorId } = markerInfo
     const { username = `(uid: ${creatorId})`, nickname } = userInfo
@@ -176,7 +176,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
   })
 
   // 单个点位删除
-  socketStore.messageEvent.on('MarkerDeleted', async (markerInfo, userInfo) => {
+  socketStore.appEvent.on('MarkerDeleted', async (markerInfo, userInfo) => {
     await db.marker.delete(markerInfo.id!)
     const { id, markerTitle, creatorId } = markerInfo
     const { username = `(uid: ${creatorId})`, nickname } = userInfo
@@ -188,7 +188,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
   })
 
   // 点位批量更新
-  socketStore.messageEvent.on('MarkerTweaked', async (data, userInfo) => {
+  socketStore.appEvent.on('MarkerTweaked', async (data, userInfo) => {
     await db.marker.bulkPut(data)
     const [{ updaterId }] = data
     const { username = `(uid: ${updaterId})`, nickname } = userInfo

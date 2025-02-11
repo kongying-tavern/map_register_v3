@@ -158,7 +158,7 @@ export const useIconTagStore = defineStore('global-icon-tag', () => {
 
   // ==================== 外部响应 ====================
 
-  socketStore.event.on('IconTagBinaryPurged', () => update())
+  socketStore.appEvent.on('IconTagBinaryPurged', () => update())
 
   return {
     // 数据更新

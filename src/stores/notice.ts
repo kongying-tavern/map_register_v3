@@ -99,9 +99,9 @@ export const useNoticeStore = defineStore('global-notice', () => {
     noticeContext.show()
   })
 
-  socketStore.event.on('NoticeAdded', refresh)
-  socketStore.event.on('NoticeDeleted', refresh)
-  socketStore.event.on('NoticeUpdated', refresh)
+  socketStore.appEvent.on('NoticeAdded', refresh)
+  socketStore.appEvent.on('NoticeDeleted', refresh)
+  socketStore.appEvent.on('NoticeUpdated', refresh)
 
   watch(() => userStore.info?.id, (userId) => {
     if (userId === undefined) {

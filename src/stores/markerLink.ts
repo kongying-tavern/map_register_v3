@@ -148,7 +148,7 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
 
   // ==================== 外部响应 ====================
 
-  socketStore.event.on('MarkerLinkageBinaryPurged', () => update())
+  socketStore.appEvent.on('MarkerLinkageBinaryPurged', () => update())
 
   return {
     // 数据更新
