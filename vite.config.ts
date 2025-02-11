@@ -20,6 +20,16 @@ export default defineConfig(async ({ mode }) => {
       target: ENV.VITE_API_PROXY_TARGET,
       changeOrigin: true,
       rewrite: path => path.replace(new RegExp(`${ENV.VITE_API_BASE}`), ''),
+      configure: (proxy) => {
+        proxy.on('error', (err, _, res, target) => {
+          res.writeHead(500, { 'Content-Type': 'application/json' })
+          res.end(JSON.stringify({
+            target,
+            error: 'Internal Server Error',
+            message: err.message,
+          }))
+        })
+      },
     },
   }
 
