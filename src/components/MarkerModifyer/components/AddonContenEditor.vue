@@ -3,7 +3,7 @@ import { Setting } from '@element-plus/icons-vue'
 import type { InputInstance } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { AddonTeleporter } from '.'
-import db from '@/database'
+import { useItemStore } from '@/stores'
 
 const props = withDefaults(defineProps<{
   modelValue?: string
@@ -18,6 +18,8 @@ const emits = defineEmits<{
   (e: 'update:addonId', v: string): void
 }>()
 
+const itemStore = useItemStore()
+
 const isAddonActived = computed({
   get: () => props.addonId === 'content',
   set: v => emits('update:addonId', v ? 'content' : ''),
@@ -28,11 +30,12 @@ const internalBind = computed({
   set: v => emits('update:modelValue', v),
 })
 
+const conditionIds = computed(() => new Set(props.itemList.map(({ itemId }) => itemId!)))
+
 /** 根据已选物品 id 从数据库获取对应的物品对象 */
-const selectedItems = asyncComputed(() => db.item
-  .where('id')
-  .anyOf(props.itemList.map(item => item.itemId as number))
-  .toArray())
+const selectedItems = computed(() => {
+  return itemStore.itemList.filter(({ id }) => conditionIds.value.has(id!))
+})
 
 // ==================== 将填充字符插入到已有的文本中 ====================
 /** 快捷标点 */
