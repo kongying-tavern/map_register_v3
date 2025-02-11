@@ -7,6 +7,7 @@ import Api from '@/api/api'
 import db from '@/database'
 import BulkPutWorker from '@/worker/idb.worker?worker'
 import type { WorkerInput, WorkerOutput } from '@/worker/idb.worker'
+import { Box } from '@element-plus/icons-vue'
 
 /** 本地物品数据 */
 export const useItemStore = defineStore('global-item', () => {
@@ -145,7 +146,44 @@ export const useItemStore = defineStore('global-item', () => {
   }, new Map<number, API.ItemVo>()))
 
   // ==================== 外部响应 ====================
-  socketStore.event.on('ItemBinaryPurged', () => update())
+  const updateHook = createEventHook<API.ItemVo>()
+
+  socketStore.appEvent.on('ItemBinaryPurged', () => update())
+
+  socketStore.appEvent.on('ItemAdded', async (itemInfo, userInfo) => {
+    await db.item.put(itemInfo)
+    const { id, name, updaterId } = itemInfo
+    const { username = `(uid: ${updaterId})`, nickname } = userInfo
+    socketStore.notice('ItemAdded', {
+      message: `${nickname ?? username} 添加了物品 ${name} (id:${id})`,
+      icon: Box,
+      customClass: 'text-[var(--el-color-success)]',
+    })
+    updateHook.trigger(itemInfo)
+  })
+
+  socketStore.appEvent.on('ItemUpdated', async (itemInfo, userInfo) => {
+    await db.item.put(itemInfo)
+    const { id, name, updaterId } = itemInfo
+    const { username = `(uid: ${updaterId})`, nickname } = userInfo
+    socketStore.notice('ItemUpdated', {
+      message: `${nickname ?? username} 更新了物品 ${name} (id:${id})`,
+      icon: Box,
+      customClass: 'text-[var(--el-color-primary)]',
+    })
+    updateHook.trigger(itemInfo)
+  })
+
+  socketStore.appEvent.on('ItemDeleted', async (itemInfo, userInfo) => {
+    await db.item.delete(itemInfo.id!)
+    const { id, name, creatorId } = itemInfo
+    const { username = `(uid: ${creatorId})`, nickname } = userInfo
+    socketStore.notice('ItemDeleted', {
+      message: `${nickname ?? username} 删除了物品 ${name} (id:${id})`,
+      icon: Box,
+      customClass: 'text-[var(--el-color-danger)]',
+    })
+  })
 
   return {
     // 数据更新

@@ -34,6 +34,24 @@ declare namespace API {
     // ==================== 物品相关 ====================
 
     /**
+     * 物品新增
+     * @local 服务端无此 ws 事件
+     */
+    ItemAdded: [ItemId: number]
+
+    /**
+     * 物品修改
+     * @local 服务端无此 ws 事件
+     */
+    ItemUpdated: [ItemId: number]
+
+    /**
+     * 物品修改
+     * @local 服务端无此 ws 事件
+     */
+    ItemDeleted: [ItemId: number]
+
+    /**
      * 物品 Bz2 刷新
      */
     ItemBinaryPurged: []

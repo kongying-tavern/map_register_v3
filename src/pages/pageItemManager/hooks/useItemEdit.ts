@@ -3,6 +3,7 @@ import type { ItemDetailForm } from '../components'
 import { useFetchHook } from '@/hooks'
 import { GSMessageService, GlobalDialogController } from '@/components'
 import Api from '@/api/api'
+import { useSocketStore } from '@/stores'
 
 export interface ItemEditHookOptions {
   initFormData?: () => API.ItemVo
@@ -10,39 +11,45 @@ export interface ItemEditHookOptions {
 
 const sharedEditSame = ref<0 | 1>(0)
 
+/** 只选择需要的字段 */
+const pickRequiredKeys = (item: API.ItemVo): API.ItemVo => pick(item, [
+  'id',
+  'name',
+  'areaId',
+  'defaultContent',
+  'iconTag',
+  'typeIdList',
+  'iconStyleType',
+  'hiddenFlag',
+  'defaultRefreshTime',
+  'defaultCount',
+  'sortIndex',
+  'specialFlag',
+  'version',
+])
+
 export const useItemEdit = (options: ItemEditHookOptions = {}) => {
   const { initFormData } = options
 
+  const socketStore = useSocketStore()
+
   const { refresh: submit, onSuccess, onError, ...rest } = useFetchHook({
-    onRequest: (editSame: 0 | 1, item: API.ItemVo) => Api.item.updateItem({ editSame }, [item]),
+    onRequest: async (editSame: 0 | 1, item: API.ItemVo) => {
+      const { error, message } = await Api.item.updateItem({ editSame }, [pickRequiredKeys(item)])
+      if (error)
+        throw new Error(message)
+      socketStore.socketEvent.emit('ItemUpdated', item.id!)
+    },
   })
 
   const detailFormRef = ref<InstanceType<typeof ItemDetailForm> | null>(null)
   const formData = ref<API.ItemVo>(initFormData?.() ?? {})
 
-  /** 只选择需要的字段 */
-  const pickRequiredKeys = (item: API.ItemVo): API.ItemVo => pick(item, [
-    'id',
-    'name',
-    'areaId',
-    'defaultContent',
-    'iconTag',
-    'typeIdList',
-    'iconStyleType',
-    'hiddenFlag',
-    'defaultRefreshTime',
-    'defaultCount',
-    'sortIndex',
-    'specialFlag',
-    'version',
-  ])
-
   const handleSubmit = async () => {
     const isValid = await detailFormRef.value?.validate()
     if (!isValid)
       return
-    const form = pickRequiredKeys(formData.value)
-    await submit(sharedEditSame.value, form)
+    await submit(sharedEditSame.value, formData.value)
   }
 
   onSuccess(() => {

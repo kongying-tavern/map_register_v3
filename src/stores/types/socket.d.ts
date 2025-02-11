@@ -1,5 +1,9 @@
 declare namespace Socket {
   interface DataEventMap extends API.WSEventMap {
+    ItemAdded: [API.ItemVo, API.SysUserSmallVo]
+    ItemUpdated: [API.ItemVo, API.SysUserSmallVo]
+    ItemDeleted: [API.ItemVo, API.SysUserSmallVo]
+
     MarkerAdded: [API.MarkerVo, API.SysUserSmallVo]
     MarkerUpdated: [API.MarkerVo, API.SysUserSmallVo]
     MarkerDeleted: [API.MarkerVo, API.SysUserSmallVo]

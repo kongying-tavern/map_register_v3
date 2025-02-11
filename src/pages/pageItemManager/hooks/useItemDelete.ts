@@ -1,11 +1,15 @@
 import { ElMessage } from 'element-plus'
 import { useFetchHook } from '@/hooks'
 import Api from '@/api/api'
+import { useSocketStore } from '@/stores'
 
 export const useItemDelete = () => {
+  const socketStore = useSocketStore()
+
   const { loading, refresh: deleteItem, onSuccess, onError, ...rest } = useFetchHook({
     onRequest: async (item: API.ItemVo) => {
       await Api.item.deleteItem({ itemId: item.id! })
+      socketStore.socketEvent.emit('ItemDeleted', item.id!)
       return item
     },
   })
