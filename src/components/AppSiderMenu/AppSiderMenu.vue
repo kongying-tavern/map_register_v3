@@ -1,12 +1,12 @@
 <script lang="ts" setup>
-import { computed } from 'vue'
 import { Box, ChatLineRound, CoffeeCup, Coordinate, Filter, FolderOpened, Grid, List, Location, Memo, Picture, Promotion, Setting, Star, User } from '@element-plus/icons-vue'
 import type { FeatureGroupOption } from './components'
 import { CollapseButton, FeatureGrid, MarkerFilter, MarkerTable, SiderMenu, SiderMenuItem } from './components'
-import { AppSettings, AppWindowTeleporter, useAppWindow } from '@/components'
+import { AppSettings, AppWindowTeleporter, useAppWindow, type WindowContextHookReturnType } from '@/components'
 import { useGlobalDialog } from '@/hooks'
 import { Logger } from '@/utils'
 import {
+  ACCESS_BINARY_MASK,
   useAccessStore,
   useDadianStore,
   useIconTagStore,
@@ -16,6 +16,14 @@ import {
   useTileStore,
 } from '@/stores'
 import { IconGithub, IconNotice } from '@/components/AppIcons'
+
+interface ManagerModuleOption {
+  name: string
+  hook: WindowContextHookReturnType
+  icon: Component
+  comp: Component
+  role: keyof typeof ACCESS_BINARY_MASK
+}
 
 const collapse = ref(true)
 
@@ -29,60 +37,69 @@ const preferenceStore = usePreferenceStore()
 
 const { DialogService } = useGlobalDialog()
 
-const windowList = [
+const windowList: ManagerModuleOption[] = [
   {
     name: '物品管理',
     hook: useAppWindow({ name: '物品管理', minWidth: 887, minHeight: 500, center: true }),
     icon: Box,
     comp: defineAsyncComponent(() => import('@/pages/pageItemManager/ItemManager.vue')),
+    role:  'MANAGER_COMPONENT',
   },
   {
     name: '地区管理',
     hook: useAppWindow({ name: '地区管理', minWidth: 887, minHeight: 500, center: true }),
     icon: Coordinate,
     comp: defineAsyncComponent(() => import('@/pages/pageAreaManager/AreaManager.vue')),
+    role:  'MANAGER_COMPONENT',
   },
   {
     name: '点位管理',
     hook: useAppWindow({ name: '点位管理', minWidth: 887, minHeight: 500, center: true }),
     icon: Location,
     comp: defineAsyncComponent(() => import('@/pages/pageMarkerManager/MarkerManager.vue')),
+    role:  'MANAGER_COMPONENT',
   },
   {
     name: '类型管理',
     hook: useAppWindow({ name: '类型管理', minWidth: 887, minHeight: 500, center: true }),
     icon: FolderOpened,
     comp: defineAsyncComponent(() => import('@/pages/pageTypeManager/TypeManager.vue')),
+    role:  'MANAGER_COMPONENT',
   },
   {
     name: '图标管理',
     hook: useAppWindow({ name: '图标管理', minWidth: 887, minHeight: 500, center: true }),
     icon: Picture,
     comp: defineAsyncComponent(() => import('@/pages/pageIconManager/IconManager.vue')),
+    role:  'MANAGER_COMPONENT',
   },
   {
     name: '公告管理',
     hook: useAppWindow({ name: '公告管理', minWidth: 887, minHeight: 500, center: true }),
     icon: ChatLineRound,
     comp: defineAsyncComponent(() => import('@/pages/pageNoticeManager/PageNoticeManager.vue')),
+    role:  'MANAGER_COMPONENT',
   },
   {
-    name: '用户评分',
-    hook: useAppWindow({ name: '用户评分', minWidth: 887, minHeight: 500, center: true }),
+    name: '用户统计',
+    hook: useAppWindow({ name: '用户统计', minWidth: 887, minHeight: 500, center: true }),
     icon: Star,
     comp: defineAsyncComponent(() => import('@/pages/pageContribution/PageContribution.vue')),
+    role:  'ADMIN_COMPONENT',
   },
   {
     name: '用户管理',
     hook: useAppWindow({ name: '用户管理', minWidth: 887, minHeight: 500, center: true }),
     icon: User,
     comp: defineAsyncComponent(() => import('@/pages/pageUserManager/UserManager.vue')),
+    role:  'ADMIN_COMPONENT',
   },
   {
     name: '历史记录',
     hook: useAppWindow({ name: '历史记录', minWidth: 887, minHeight: 500, center: true }),
     icon: Memo,
     comp: defineAsyncComponent(() => import('@/pages/pageHistory/PageHistory.vue')),
+    role:  'MANAGER_COMPONENT',
   },
 ]
 
@@ -108,7 +125,7 @@ const openMarkerSpriteImage = () => {
 const features = shallowRef<FeatureGroupOption[]>([
   {
     label: '管理系统',
-    items: windowList.map(({ name, hook, icon }) => ({ label: name, icon, cb: hook.open })),
+    items: windowList.map(({ name, hook, icon, role }) => ({ label: name, icon, cb: hook.open, role })),
   },
   {
     label: '开发者',
@@ -158,13 +175,14 @@ const switchFilterMode = () => {
   <CollapseButton v-model:collapse="collapse" />
 
   <SiderMenu v-model="preferenceStore.tabName" v-model:collapse="collapse">
-    <AppWindowTeleporter
-      v-for="appWindow in windowList"
-      :key="appWindow.name"
-      :info="appWindow.hook.info.value"
-    >
-      <component :is="appWindow.comp" />
-    </AppWindowTeleporter>
+    <template v-for="appWindow in windowList" :key="appWindow.name">
+      <AppWindowTeleporter
+        v-if="accessStore.get(appWindow.role)"
+        :info="appWindow.hook.info.value"
+      >
+        <component :is="appWindow.comp" />
+      </AppWindowTeleporter>
+    </template>
 
     <SiderMenuItem name="filter" :label="isAdvancedFilter ? '高级筛选' : '基础筛选'">
       <template #icon>

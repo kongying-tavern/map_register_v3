@@ -2,7 +2,7 @@ import type { MaybeRef } from 'vue'
 import { WindowContext } from '../core'
 import type { MapWindow } from '../types'
 
-interface WindowContextHookReturnType {
+export interface WindowContextHookReturnType {
   context: WindowContext
   id: ReturnType<typeof crypto.randomUUID>
   info: ComputedRef<MapWindow.Info | undefined>
