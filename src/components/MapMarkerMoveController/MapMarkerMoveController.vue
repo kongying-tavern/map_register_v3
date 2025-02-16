@@ -51,6 +51,7 @@ useSubscription(MapSubject.dragStart.pipe(
     (info.layer?.constructor as (undefined | typeof Layer))?.layerName === GSMarkerLayer.layerName,
     info.object,
     info.viewport,
+    !loading.value,
   ].every(Boolean)),
 
   switchMap(({ info, event: startEvent }) => {
@@ -104,7 +105,7 @@ useSubscription(MapSubject.dragStart.pipe(
       <div>正在编辑点位坐标</div>
       <GSButton
         icon="submit"
-        :disabled="!Object.keys(draggingMission).length"
+        :disabled="!draggingMission.size"
         :loading="loading"
         @click="moveMarker"
       >

@@ -1,13 +1,12 @@
 import { ElMessage } from 'element-plus'
 import { useFetchHook } from '@/hooks'
-import db from '@/database'
 import Api from '@/api/api'
-import { useMapStateStore, useTileStore } from '@/stores'
-import { sleep } from '@/utils'
+import { useMapStateStore, useTileStore, useMarkerStore } from '@/stores'
 
 export const useMarkerPositionEdit = () => {
   const tileStore = useTileStore()
   const mapStateStore = useMapStateStore()
+  const markerStore = useMarkerStore()
 
   const {
     isEmpty: isMissionEmpty,
@@ -49,12 +48,16 @@ export const useMarkerPositionEdit = () => {
       if (!form.length)
         throw new Error('已验证的提交信息为空')
 
+      ElMessage.warning({
+        message: '操作已提交，正在验证中...',
+        duration: 0,
+      })
+
       const updateIds = await Promise.all(form.map(marker => Api.marker.updateMarker(marker).then(() => marker.id!)))
 
-      const { data: updatedMarkers = [] } = await Api.marker.listMarkerById(updateIds)
-      await db.marker.bulkPut(updatedMarkers)
+      await markerStore.afterUpdated(updateIds)
 
-      await sleep(1000)
+      return updateIds
     },
   })
 
@@ -64,6 +67,7 @@ export const useMarkerPositionEdit = () => {
   }
 
   onSuccess(() => {
+    ElMessage.closeAll('warning')
     ElMessage.success({
       message: '操作成功',
     })

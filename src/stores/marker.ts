@@ -16,7 +16,6 @@ export const useMarkerStore = defineStore('global-marker', () => {
   const userStore = useUserStore()
 
   // ==================== 数据更新 ====================
-
   const { context, nextUpdateTime, loading: updateLoading, update } = useManager({
     timeoutPull: {
       time: 20 * 60 * 1000,
@@ -104,6 +103,46 @@ export const useMarkerStore = defineStore('global-marker', () => {
     },
   })
 
+  const markerUpdated = createEventHook<number | 'query'>()
+
+  /**
+   * 等待指定的 id 都被更新一次。
+   * 此逻辑用于确保更新被写入数据库后才执行一些临时任务的状态重置，以避免实际状态和显示状态不一致的问题。
+   */
+  const afterUpdated = (ids: number[], timeout = 60000) => {
+    const { resolve, reject, promise } = Promise.withResolvers<void>()
+    const mission = new Set(ids)
+    const timerId = setTimeout(() => {
+      reject(new Error('任务超时'))
+    }, timeout)
+    const { off } = markerUpdated.on((arg) => {
+      if (arg === 'query') {
+        if (mission.size > 0)
+          return
+        return resolve()
+      }
+      if (!mission.has(arg))
+        return
+      mission.delete(arg)
+    })
+    return promise.finally(() => {
+      window.clearTimeout(timerId)
+      off()
+    })
+  }
+
+  db.marker.hook('creating', (id) => {
+    markerUpdated.trigger(id)
+  })
+
+  db.marker.hook('updating', (_, id) => {
+    markerUpdated.trigger(id)
+  })
+
+  db.marker.hook('deleting', (id) => {
+    markerUpdated.trigger(id)
+  })
+
   liveQuery(() => db.marker.toArray()).subscribe((dbList) => {
     context.hashMap.value = dbList.reduce((map, { __hash: hash = '', ...info }) => {
       if (!map.has(hash))
@@ -111,6 +150,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
       map.get(hash)!.push(info)
       return map
     }, new Map<string, API.MarkerVo[]>())
+    markerUpdated.trigger('query')
   })
 
   // ==================== 计算状态 ====================
@@ -142,9 +182,6 @@ export const useMarkerStore = defineStore('global-marker', () => {
 
   // ==================== 外部响应 ====================
 
-  const updateHook = createEventHook<API.MarkerVo>()
-  const tweakHook = createEventHook<API.MarkerVo[]>()
-
   // 点位压缩数据更新
   socketStore.appEvent.on('MarkerBinaryPurged', () => {
     update()
@@ -152,21 +189,24 @@ export const useMarkerStore = defineStore('global-marker', () => {
 
   // 单个点位更新
   socketStore.appEvent.on('MarkerUpdated', async (markerInfo, userInfo) => {
-    await db.marker.put(markerInfo)
     const { id, markerTitle, updaterId } = markerInfo
+    if (!id)
+      return
+    await db.marker.put(markerInfo)
     const { username = `(uid: ${updaterId})`, nickname } = userInfo
     socketStore.notice('MarkerUpdated', {
       message: `${nickname ?? username} 更新了点位 ${markerTitle} (id:${id})`,
       icon: Location,
       customClass: 'text-[var(--el-color-primary)]',
     })
-    updateHook.trigger(markerInfo)
   })
 
   // 单个点位新增
   socketStore.appEvent.on('MarkerAdded', async (markerInfo, userInfo) => {
-    await db.marker.put(markerInfo)
     const { id, markerTitle, creatorId } = markerInfo
+    if (!id)
+      return
+    await db.marker.put(markerInfo)
     const { username = `(uid: ${creatorId})`, nickname } = userInfo
     socketStore.notice('MarkerAdded', {
       message: `${nickname ?? username} 新增了点位 ${markerTitle} (id:${id})`,
@@ -177,8 +217,10 @@ export const useMarkerStore = defineStore('global-marker', () => {
 
   // 单个点位删除
   socketStore.appEvent.on('MarkerDeleted', async (markerInfo, userInfo) => {
-    await db.marker.delete(markerInfo.id!)
     const { id, markerTitle, creatorId } = markerInfo
+    if (!id)
+      return
+    await db.marker.delete(markerInfo.id!)
     const { username = `(uid: ${creatorId})`, nickname } = userInfo
     socketStore.notice('MarkerDeleted', {
       message: `${nickname ?? username} 删除了点位 ${markerTitle} (id:${id})`,
@@ -197,8 +239,6 @@ export const useMarkerStore = defineStore('global-marker', () => {
       icon: Location,
       customClass: 'text-[var(--el-color-success)]',
     })
-
-    tweakHook.trigger(data)
   })
 
   return {
@@ -207,14 +247,11 @@ export const useMarkerStore = defineStore('global-marker', () => {
     nextUpdateTime,
     updateLoading,
     update,
+    afterUpdated,
 
     // 计算状态
     markerList: list,
     total,
     idMap,
-
-    // 外部响应
-    onMarkerUpdate: updateHook.on,
-    onMarkerTweake: tweakHook.on,
   }
 })
