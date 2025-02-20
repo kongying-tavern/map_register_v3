@@ -10,6 +10,10 @@ export const useAppEvent = (socketEvent: EventBus<API.WSEventMap>) => {
     appEvent.emit('AppUpdated')
   })
 
+  socketEvent.on('UserKickedOut', () => {
+    appEvent.emit('UserKickedOut')
+  })
+
   // ==================== 图标 ====================
   socketEvent.on('IconTagBinaryPurged', () => {
     appEvent.emit('IconTagBinaryPurged')
@@ -121,10 +125,6 @@ export const useAppEvent = (socketEvent: EventBus<API.WSEventMap>) => {
   // ==================== 系统 ====================
   socketEvent.on('Pong', () => {
     appEvent.emit('Pong')
-  })
-
-  socketEvent.on('UserKickedOut', () => {
-    appEvent.emit('UserKickedOut')
   })
 
   return {

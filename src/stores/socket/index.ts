@@ -36,6 +36,26 @@ export const useSocketStore = defineStore('global-web-socket', () => {
 
   const { event: appEvent } = useAppEvent(socketEvent)
 
+  appEvent.on('AppUpdated', () => {
+    ElNotification.warning({
+      title: '系统提示',
+      message: '应用已更新，页面将在 5 分钟后重载。',
+      duration: 0,
+    })
+    window.setTimeout(() => {
+      window.location.reload()
+    }, 5 * 60 * 1000)
+  })
+
+  appEvent.on('UserKickedOut', () => {
+    ElNotification.error({
+      title: '系统提示',
+      message: '您已被管理员强制下线。',
+      duration: 0,
+    })
+    userStore.logout()
+  })
+
   const { messageList, clearMessageList } = useMessageList(appEvent)
 
   const connect = async (userId?: number) => {
