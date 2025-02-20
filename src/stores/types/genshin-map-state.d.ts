@@ -1,4 +1,4 @@
-import type { OrthographicViewState } from '@deck.gl/core'
+import type { OrthographicViewState } from 'deck.gl'
 import type { LinkActionEnum } from '@/shared'
 
 declare namespace GSMapState {

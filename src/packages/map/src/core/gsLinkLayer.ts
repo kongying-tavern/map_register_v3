@@ -1,6 +1,6 @@
-import { LineLayer, PolygonLayer } from '@deck.gl/layers'
-import { CompositeLayer } from '@deck.gl/core'
-import type { CompositeLayerProps, GetPickingInfoParams, Layer, PickingInfo, UpdateParameters } from '@deck.gl/core'
+import { LineLayer, PolygonLayer } from 'deck.gl'
+import { CompositeLayer } from 'deck.gl'
+import type { CompositeLayerProps, GetPickingInfoParams, Layer, PickingInfo, UpdateParameters } from 'deck.gl'
 import type { ArrowShapeOptions, GSLinkLayerProps } from '../types'
 
 /** 此处再包一层是避免 viewPort 变化时重新进行昂贵的顶点计算 */

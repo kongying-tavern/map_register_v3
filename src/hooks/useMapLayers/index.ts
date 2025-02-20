@@ -1,5 +1,4 @@
-import type { LayersList } from '@deck.gl/core'
-import { LineLayer } from '@deck.gl/layers'
+import { LineLayer, type LayersList } from 'deck.gl'
 import { useMarkerLayer } from './useMarkerLayer'
 import { useLinkLayer } from './useLinkLayer'
 import { useTagLayer } from './useTagLayer'

@@ -1,4 +1,4 @@
-import type { Layer } from '@deck.gl/core'
+import type { Layer } from 'deck.gl'
 import type { ShallowRef } from 'vue'
 import type { TempLayerIndex } from '@/shared'
 

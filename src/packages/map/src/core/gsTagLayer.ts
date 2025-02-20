@@ -1,6 +1,6 @@
-import type { CompositeLayerProps, Layer, LayersList, UpdateParameters } from '@deck.gl/core'
-import { CompositeLayer } from '@deck.gl/core'
-import { TextLayer } from '@deck.gl/layers'
+import type { CompositeLayerProps, Layer, LayersList, UpdateParameters } from 'deck.gl'
+import { CompositeLayer } from 'deck.gl'
+import { TextLayer } from 'deck.gl'
 import type { GSTagLayerProps } from '../types'
 import type { AreaTagTuple } from '@/configs'
 

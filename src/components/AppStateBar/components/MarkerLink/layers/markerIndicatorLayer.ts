@@ -1,4 +1,4 @@
-import { ScatterplotLayer } from '@deck.gl/layers'
+import { ScatterplotLayer } from 'deck.gl'
 import type { GSMarkerInfo } from '@/packages/map'
 
 export class MarkerIndicatorLayer extends ScatterplotLayer<GSMarkerInfo> {

@@ -1,6 +1,5 @@
-import type { DeckProps, OrthographicView, OrthographicViewState } from '@deck.gl/core'
-import type { ControllerOptions } from 'node_modules/@deck.gl/core/dist/controllers/controller'
-import type { IconLayerProps } from '@deck.gl/layers'
+import type { DeckProps, OrthographicView, OrthographicViewState } from 'deck.gl'
+import type { IconLayerProps } from 'deck.gl'
 import type { AreaTagTuple } from '@/configs'
 
 type OrthographicViewMapProps = DeckProps<OrthographicView>
@@ -8,7 +7,22 @@ export type Coordinate2D = [x: number, y: number]
 
 // ============================== Map ==============================
 export interface GenshinMapProps extends Omit<OrthographicViewMapProps, 'canvas'> {
-  controller?: ControllerOptions & {
+  controller?: {
+    dragPan?: boolean
+    dragRotate?: boolean
+    doubleClickZoom?: boolean
+    touchZoom?: boolean
+    touchRotate?: boolean
+    keyboard?:
+      | boolean
+      | {
+          zoomSpeed?: number
+          moveSpeed?: number
+          rotateSpeedX?: number
+          rotateSpeedY?: number
+        }
+    dragMode?: 'pan' | 'rotate'
+    inertia?: boolean | number
     scrollZoom?: {
       speed?: number
       smooth?: boolean

@@ -1,5 +1,5 @@
 import type { ShallowRef } from 'vue'
-import type { IconLayerProps } from '@deck.gl/layers'
+import type { IconLayerProps } from 'deck.gl'
 import { renderMarkerSprite } from '@/worker/markerSpriteRenderer'
 
 export interface MarkerSpriteHookOptions {

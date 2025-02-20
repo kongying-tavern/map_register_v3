@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { filter, finalize, switchMap, takeUntil, tap } from 'rxjs'
 import { useSubscription } from '@vueuse/rxjs'
-import type { Layer } from '@deck.gl/core'
+import type { Layer } from 'deck.gl'
 import { useMarkerPositionEdit } from './hooks'
 import { useAccessStore, useArchiveStore, useMapStateStore, useShortcutStore } from '@/stores'
 import { GSButton } from '@/components'

@@ -1,5 +1,5 @@
-import { IconLayer } from '@deck.gl/layers'
-import type { IconLayerProps } from '@deck.gl/layers'
+import { IconLayer } from 'deck.gl'
+import type { IconLayerProps } from 'deck.gl'
 import type { GSMarkerInfo } from '../../types'
 import fs from './gsMarkerRenderLayer.fs.glsl?raw'
 
@@ -52,7 +52,7 @@ export class GSMarkerRenderLayer extends IconLayer<GSMarkerInfo, MarkerRenderLay
               rawCoord,
               rawCoord + iconSize,
               (positions.xy + 1.0) / 2.0
-            ) / iconsTextureDim;
+            ) / icon.iconsTextureDim;
             vAttachCoords[i] = vec3(coord, alpha);
           }
         `,

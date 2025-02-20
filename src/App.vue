@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { TRANSITION_EVENTS } from '@deck.gl/core'
+import { TRANSITION_EVENTS } from 'deck.gl'
 import { useSubscription } from '@vueuse/rxjs'
 import { filter } from 'rxjs'
 import { EaseoutInterpolator, GSZoomController, GenshinMapDeck } from '@/packages/map'

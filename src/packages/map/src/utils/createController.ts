@@ -1,4 +1,4 @@
-import { OrthographicController } from '@deck.gl/core'
+import { OrthographicController } from 'deck.gl'
 import type { GenshinMapProps } from '..'
 
 export const createController = (props: GenshinMapProps) => {

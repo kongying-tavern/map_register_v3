@@ -1,5 +1,4 @@
-import { BitmapLayer } from '@deck.gl/layers'
-import { TileLayer } from '@deck.gl/geo-layers'
+import { BitmapLayer, TileLayer } from 'deck.gl'
 import type { GSTileLayerProps } from '../types'
 
 interface TileData {

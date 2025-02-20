@@ -1,4 +1,4 @@
-import { Deck, OrthographicView, TRANSITION_EVENTS } from '@deck.gl/core'
+import { Deck, OrthographicView, TRANSITION_EVENTS } from 'deck.gl'
 import { createController } from '../utils'
 import type { GenshinMapProps } from '../types'
 

@@ -1,4 +1,4 @@
-import type { IconMapping } from 'node_modules/@deck.gl/layers/dist/icon-layer/icon-manager'
+import type { IconLayer } from 'deck.gl'
 import type { Logger } from '@/utils/logger'
 import { WorkerThreadDB } from '@/database/db/worker'
 import { getDigest } from '@/utils/getDigest'
@@ -174,7 +174,7 @@ const calculate = ({ tagsPositionList, states, attachs, iconSize, gap, textureSi
   if (width > textureSizeLimit || height > textureSizeLimit)
     throw new Error(`纹理尺寸超出 WebGL 绘图限制`)
 
-  const mapping: IconMapping = {}
+  const mapping: Exclude<IconLayer['props']['iconMapping'], string> = {}
 
   let total = 0
   let tagCount = 0
