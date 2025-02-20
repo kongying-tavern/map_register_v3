@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { MarkerCreation, UserScore } from './components'
+import { UserScore } from './components'
 
 const tabName = ref(1)
 </script>
@@ -8,10 +8,6 @@ const tabName = ref(1)
   <el-tabs v-model="tabName" class="contribution-container">
     <el-tab-pane label="综合评分" :name="1" lazy>
       <UserScore />
-    </el-tab-pane>
-
-    <el-tab-pane label="点位创建" :name="2" lazy>
-      <MarkerCreation />
     </el-tab-pane>
   </el-tabs>
 </template>

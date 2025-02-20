@@ -1,13 +1,28 @@
 <script setup lang="ts">
-import { useFetchHook, useTheme } from '@/hooks'
-import Api from '@/api/api'
-import dayjs from 'dayjs'
-import { from, mergeMap, toArray, lastValueFrom } from 'rxjs'
+import { useTheme } from '@/hooks'
 import { DATA_START_TIME } from '@/shared/constant'
 import { disabledDate, shortcuts } from '../shared'
-import type { ScoreVo } from '@/pages/pageScoreManager/shared'
 import { TableSheet, type S2DataConfig } from '@antv/s2'
-import db from '@/database'
+import { useScoreData } from '../hooks'
+
+interface SheetableData {
+  // user info
+  userId: number
+  nickname?: string
+  // local data
+  markerCreation: number
+  // chars
+  markerTitleChars: number
+  contentChars: number
+  // fields
+  markerTitle: number
+  content: number
+  extra: number
+  hiddenFlag: number
+  picture: number
+  position: number
+  refreshTime: number
+}
 
 const containerRef = useTemplateRef('container')
 
@@ -22,123 +37,12 @@ const note = ref('就绪')
 const sortKey = ref('markerTitle')
 const sortType = ref<'ASC' | 'DESC'>('DESC')
 
-const splitTimeRange = (startTime: number, endTime: number, unit: 'year' | 'month'): { startTime: number; endTime: number }[] => {
-  const start = dayjs(startTime);
-  const end = dayjs(endTime);
-  const result: { startTime: number; endTime: number }[] = [];
-
-  if (!start.isValid() || !end.isValid()) {
-    throw new Error('Invalid start or end time');
-  }
-
-  if (unit === 'year') {
-    let current = start.startOf('year');
-    const endOfYear = end.endOf('year');
-
-    while (current.isBefore(endOfYear) || current.isSame(endOfYear)) {
-      const next = current.clone().endOf('year');
-      result.push({
-        startTime: current.valueOf(),
-        endTime: next.isAfter(end) ? end.valueOf() : next.valueOf()
-      });
-      current = current.add(1, 'year').startOf('year');
-    }
-  } else if (unit === 'month') {
-    let current = start.startOf('month');
-    const endOfMonth = end.endOf('month');
-
-    while (current.isBefore(endOfMonth) || current.isSame(endOfMonth)) {
-      const next = current.clone().endOf('month');
-      result.push({
-        startTime: current.valueOf(),
-        endTime: next.isAfter(end) ? end.valueOf() : next.valueOf()
-      });
-      current = current.add(1, 'month').startOf('month');
-    }
-  } else {
-    throw new Error('Invalid unit. Use "year" or "month".');
-  }
-
-  return result;
-}
-
-const promisePool = <T>(missions: (() => Promise<T>)[], limit = 6): Promise<T[]> => {
-  return lastValueFrom(from(missions).pipe(
-    mergeMap(mission => mission(), limit),
-    toArray(),
-  ))
-}
-
 const abortController = shallowRef<AbortController>()
 
-const { data, loading, refresh, onSuccess, onError } = useFetchHook({
-  immediate: true,
-  initialValue: [],
-  onRequest: async () => {
-    if (!containerRef.value)
-      return []
-
-    const [rangeStartTime, rangeEndTime] = timeRange.value
-
-    const start = dayjs(rangeStartTime)
-    if (!start.isValid())
-      throw new Error(`开始时间 "${rangeStartTime}" 不是一个合法的时间`)
-    const end = dayjs(rangeEndTime)
-    if (!end.isValid())
-      throw new Error(`结束时间 "${rangeEndTime}" 不是一个合法的时间`)
-
-    note.value = ''
-
-    const result = splitTimeRange(rangeStartTime, rangeEndTime, 'month')
-
-    let generatedCount = 0
-
-    const newAbortController = new AbortController()
-
-    abortController.value = newAbortController
-
-    const cachedScoreList = await db.scoreCache.toArray()
-    const cachedScoreSet = new Set(cachedScoreList.map(({ id }) => id))
-
-    const missions = result.map(({ startTime, endTime }) => {
-      return async () => {
-        const rangeId = `${startTime}-${endTime}`
-        // 查询区间是否已经生成过，是则跳过生成
-        if (cachedScoreSet.has(rangeId)) {
-          note.value = `正在生成评分: ${(100 * ++generatedCount / result.length).toFixed(2)}%`
-          return
-        }
-        const { data: status, message = '' } = await Api.score.generate({
-          span: 'DAY',
-          scope: 'PUNCTUATE',
-          startTime: startTime as unknown as string,
-          endTime: endTime as unknown as string,
-        }, {
-          signal: newAbortController.signal,
-        })
-        if (status !== 'ok')
-          throw new Error(message)
-        note.value = `正在生成评分: ${(100 * ++generatedCount / result.length).toFixed(2)}%`
-        return rangeId
-      }
-    })
-
-    const generatedIds = await promisePool(missions, 6)
-
-    // 缓存已经查询过的区间
-    await db.scoreCache.bulkPut((generatedIds.filter(Boolean) as string[]).map(id => ({ id })))
-
-    note.value = '正在汇总评分...'
-
-    const { data: list = [] } = await Api.score.getData({
-      span: 'DAY',
-      scope: 'PUNCTUATE',
-      startTime: rangeStartTime as unknown as string,
-      endTime: rangeEndTime as unknown as string,
-    })
-
-    return list as ScoreVo[]
-  },
+const { data: rawData, loading, refresh, onSuccess, onError } = useScoreData({
+  note,
+  timeRange,
+  abortController,
 })
 
 watch(timeRange, () => refresh())
@@ -149,57 +53,6 @@ onSuccess(() => {
 
 onError((error) => {
   note.value = error.message
-})
-
-interface SheetableData {
-  userId: number
-  nickname?: string
-  markerTitleChars: number
-  contentChars: number
-  markerTitle: number
-  content: number
-  extra: number
-  hiddenFlag: number
-  picture: number
-  position: number
-  refreshTime: number
-}
-
-const transformeData = computed(() => {
-  const list = data.value.reduce((result, { data: contribution = {}, userId, user: userInfo = {} } ) => {
-    if (userId === undefined)
-      return result
-
-    const { chars = {}, fields = {} } = contribution
-    const { markerTitle: markerTitleChars = 0, content: contentChars = 0 } = chars
-    const {
-      markerTitle = 0,
-      content = 0,
-      extra = 0,
-      hiddenFlag = 0,
-      picture = 0,
-      position = 0,
-      refreshTime = 0,
-    } = fields
-
-    result.push({
-      userId,
-      nickname: userInfo.nickname,
-      markerTitleChars,
-      contentChars,
-      markerTitle,
-      content,
-      extra,
-      hiddenFlag,
-      picture,
-      position,
-      refreshTime,
-    })
-
-    return result
-  }, [] as SheetableData[])
-
-  return list
 })
 
 const sheetRef = shallowRef<TableSheet>()
@@ -220,6 +73,7 @@ const buildDataConfig = (data: SheetableData[]): S2DataConfig => {
           title: '次数',
           field: 'fields',
           children: [
+            { field: 'markerCreation', title: '创建点位' },
             { field: 'markerTitle', title: '点位标题' },
             { field: 'content', title: '点位描述' },
             { field: 'position', title: '点位坐标' },
@@ -268,7 +122,7 @@ onMounted(() => {
 
   const sheet = new TableSheet(
     containerRef.value,
-    buildDataConfig(transformeData.value),
+    buildDataConfig(rawData.value),
     {
       hd: true,
       width: 800,
@@ -344,11 +198,11 @@ useResizeObserver(containerRef, ([entry]) => {
 })
 
 watch([sortKey, sortType], () => {
-  sheetRef.value?.setDataCfg(buildDataConfig(transformeData.value), false)
+  sheetRef.value?.setDataCfg(buildDataConfig(rawData.value), false)
   sheetRef.value?.render()
 })
 
-watch(transformeData, (data) => {
+watch(rawData, (data) => {
   sheetRef.value?.setDataCfg(buildDataConfig(data), true)
   sheetRef.value?.render()
 })
