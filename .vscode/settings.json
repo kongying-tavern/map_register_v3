@@ -5,7 +5,8 @@
   "eslint.useFlatConfig": true,
   "editor.defaultFormatter": "dbaeumer.vscode-eslint",
   "editor.codeActionsOnSave": {
-    "source.fixAll": "explicit",
+    "source.fixAll": "never",
+    "source.fixAll.eslint": "always",
     "source.organizeImports": "never",
   },
 
