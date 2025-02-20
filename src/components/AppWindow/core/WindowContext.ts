@@ -231,6 +231,10 @@ export class WindowContext implements MapWindow.Context {
             x: clamp(x, 0, Math.max(0, inlineSize - width)),
             y: clamp(y, 0, Math.max(0, blockSize - height - this.HEADER_HEIGHT)),
           }
+      info.size = {
+        width: Math.min(clientWidth, info.minWidth ?? this.MIN_WIDTH),
+        height: Math.min(clientHeight, info.minHeight ?? this.MIN_HEIGHT),
+      }
     })
   }
 }
