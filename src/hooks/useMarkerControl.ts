@@ -22,7 +22,13 @@ const _useMarkerControl = () => {
   })
 
   /** 缓存的点位信息, 用于在关闭弹窗时保持信息，使动画显示状态平滑 */
-  const cachedMarkerVo = shallowRef<GSMarkerInfo & { isSnapshot?: boolean } | null>(null)
+  const cachedMarkerId = ref<number>()
+
+  const cachedMarkerVo = computed<GSMarkerInfo | null>(() => {
+    if (cachedMarkerId.value == undefined)
+      return null
+    return mapStateStore.currentMarkerIdMap.get(cachedMarkerId.value) ?? null
+  })
 
   const {
     hasHover,
@@ -149,14 +155,12 @@ const _useMarkerControl = () => {
       !isPopoverOnHover && mapStateStore.setTempMarkers('focus', [])
       return
     }
-    cachedMarkerVo.value = {
-      ...currentFocus,
-      isSnapshot: isSnapshot.value,
-    }
+    cachedMarkerId.value = currentFocus.id
     !isPopoverOnHover && mapStateStore.setTempMarkers('focus', [currentFocus])
   })
 
   return {
+    isSnapshot,
     isPopoverActived,
     cachedMarkerVo,
     hover,

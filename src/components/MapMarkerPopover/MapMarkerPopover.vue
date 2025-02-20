@@ -7,19 +7,17 @@ import { MapAffix } from '../MapAffix'
 import { MarkerPanel } from './components'
 import { useMarkerDelete, useMarkerExtra, useMarkerFinished, useMarkerMove } from './hooks'
 import { useGlobalDialog, useMarkerControl } from '@/hooks'
-import { useAccessStore, useIconTagStore, useMapStateStore, useMarkerStore } from '@/stores'
+import { useAccessStore, useIconTagStore, useMapStateStore } from '@/stores'
 import { CloseFilled } from '@/components/GenshinUI/GSIcon'
 import { AppBilibiliVideoPlayer, AppIconTagRenderer, GSButton } from '@/components'
-import { createRenderMarkers } from '@/stores/utils'
 import type { GSMarkerInfo } from '@/packages/map'
 
 const accessStore = useAccessStore()
-const markerStore = useMarkerStore()
 const mapStateStore = useMapStateStore()
 
 const { tagSpriteUrl, tagPositionMap } = storeToRefs(useIconTagStore())
 
-const { cachedMarkerVo, isPopoverActived, focus, blur, updateFocus } = useMarkerControl()
+const { cachedMarkerVo, isSnapshot, isPopoverActived, focus, blur } = useMarkerControl()
 
 const { isFinished, toggle: toggleFinished } = useMarkerFinished(cachedMarkerVo)
 
@@ -37,27 +35,6 @@ const copyId = async () => {
   })
 }
 
-// 被动点位更新
-markerStore.onMarkerUpdate((marker) => {
-  if (!cachedMarkerVo.value || marker.id !== cachedMarkerVo.value.id)
-    return
-  const renderMarker = createRenderMarkers([marker])[0]
-  updateFocus(renderMarker.id)
-  cachedMarkerVo.value = renderMarker
-})
-
-markerStore.onMarkerTweake((markers) => {
-  if (!cachedMarkerVo.value)
-    return
-  const findId = cachedMarkerVo.value.id
-  const find = markers.find(({ id }) => findId === id)
-  if (!find)
-    return
-  const renderMarker = createRenderMarkers([find])[0]
-  updateFocus(renderMarker.id)
-  cachedMarkerVo.value = renderMarker
-})
-
 // ==================== 编辑点位 ====================
 const { DialogService } = useGlobalDialog()
 
@@ -71,7 +48,7 @@ const editMarker = async () => {
   if (!isEditable.value || !focus.value)
     return
   updateEditting(focus.value.id)
-  const formData = await DialogService
+  await DialogService
     .config({
       width: 'fit-content',
       alignCenter: true,
@@ -85,8 +62,6 @@ const editMarker = async () => {
     .open(MarkerEditor)
     .afterClosed<GSMarkerInfo>()
   clearEditting()
-  updateFocus(formData.id)
-  cachedMarkerVo.value = formData
 }
 
 // ==================== 删除点位 ====================
@@ -201,7 +176,7 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
         </template>
 
         <template #footer>
-          <template v-if="cachedMarkerVo.isSnapshot">
+          <template v-if="isSnapshot">
             <div class="w-full text-sm grid place-content-center">
               点位快照
             </div>
