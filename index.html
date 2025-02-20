@@ -118,9 +118,7 @@
       preloading.remove()
     }, { once: true })
 
-    document.addEventListener('beforeMount', (ev) => {
-      preloading.classList.add('is-end')
-    }, { once: true })
+    Reflect.set(globalThis, 'preloading', preloading)
 
     if (text) {
       app.innerText = text

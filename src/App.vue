@@ -122,7 +122,7 @@ provide(mapAffixKey, mapAffixRef)
 provide(mapViewStateKey, viewState)
 
 onBeforeMount(() => {
-  document.dispatchEvent(new Event('beforeMount'))
+  window.preloading.classList.add('is-end')
 })
 </script>
 

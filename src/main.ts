@@ -30,8 +30,9 @@ import { AppError } from '@/components'
     app.mount(container)
   }
   catch (err) {
+    const formatedError = err instanceof Error ? err : new Error(`${err}`)
     createApp(AppError, {
-      message: err instanceof Error ? err.message : `${err}`,
+      error: formatedError,
     }).mount(container)
   }
 })()

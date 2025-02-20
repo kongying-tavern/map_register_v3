@@ -26,6 +26,10 @@ interface Document {
   startViewTransition(callback: () => void): ViewTransition
 }
 
+interface Window {
+  preloading: HTMLElement
+}
+
 interface FontFaceSet {
   add(font: FontFace): void
 }

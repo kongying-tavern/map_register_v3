@@ -1,10 +1,18 @@
 <script setup lang="ts">
-defineProps<{
-  message: string
+const props = defineProps<{
+  error: Error
 }>()
 
+const stack = computed<undefined | { label: string; codes: string[] }>(() => {
+  const { stack } = props.error
+  if (!stack)
+    return
+  const [label, ...codes] = stack.split('at ')
+  return { label, codes }
+})
+
 onBeforeMount(() => {
-  document.dispatchEvent(new Event('beforeMount'))
+  window.preloading.classList.add('is-end')
 })
 </script>
 
@@ -18,8 +26,16 @@ onBeforeMount(() => {
       因关键错误崩溃。
     </div>
 
-    <div class="h-[6em] text-xl mb-8 overflow-auto">
-      {{ message }}
+    <div class="custom-scrollbar h-[6em] text-xl mb-8 overflow-auto">
+      <p>{{ error.message }}</p>
+      <div v-if="stack">
+        <div class="whitespace-nowrap">
+          {{ stack.label }}
+        </div>
+        <div class="pl-4 whitespace-nowrap text-sm" v-for="code in stack.codes" :key="code">
+          at {{ code }}
+        </div>
+      </div>
     </div>
 
     <div>
@@ -35,3 +51,20 @@ onBeforeMount(() => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.custom-scrollbar {
+  &::-webkit-scrollbar {
+    border-radius: 8px;
+    background-color: var(--el-color-primary-dark-2);
+  }
+  &::-webkit-scrollbar-thumb {
+    border-radius: 8px;
+    border: 2px solid var(--el-color-primary-dark-2);
+    background-color: var(--el-color-primary-light-3);
+    &:hover {
+      background-color: var(--el-color-primary-light-5);
+    }
+  }
+}
+</style>
