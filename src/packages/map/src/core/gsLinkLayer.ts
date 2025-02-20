@@ -1,5 +1,5 @@
-import { LineLayer, PolygonLayer } from 'deck.gl'
-import { CompositeLayer } from 'deck.gl'
+import { CompositeLayer, LineLayer, PolygonLayer } from 'deck.gl'
+
 import type { CompositeLayerProps, GetPickingInfoParams, Layer, PickingInfo, UpdateParameters } from 'deck.gl'
 import type { ArrowShapeOptions, GSLinkLayerProps } from '../types'
 

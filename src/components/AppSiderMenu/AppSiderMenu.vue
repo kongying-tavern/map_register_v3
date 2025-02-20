@@ -2,11 +2,13 @@
 import { Box, ChatLineRound, CoffeeCup, Coordinate, Filter, FolderOpened, Grid, List, Location, Memo, Picture, Promotion, Setting, Star, User } from '@element-plus/icons-vue'
 import type { FeatureGroupOption } from './components'
 import { CollapseButton, FeatureGrid, MarkerFilter, MarkerTable, SiderMenu, SiderMenuItem } from './components'
-import { AppSettings, AppWindowTeleporter, useAppWindow, type WindowContextHookReturnType } from '@/components'
+import { AppSettings, AppWindowTeleporter, type WindowContextHookReturnType, useAppWindow } from '@/components'
 import { useGlobalDialog } from '@/hooks'
 import { Logger } from '@/utils'
-import {
+import type {
   ACCESS_BINARY_MASK,
+} from '@/stores'
+import {
   useAccessStore,
   useDadianStore,
   useIconTagStore,
@@ -43,63 +45,63 @@ const windowList: ManagerModuleOption[] = [
     hook: useAppWindow({ name: '物品管理', minWidth: 887, minHeight: 500, center: true }),
     icon: Box,
     comp: defineAsyncComponent(() => import('@/pages/pageItemManager/ItemManager.vue')),
-    role:  'MANAGER_COMPONENT',
+    role: 'MANAGER_COMPONENT',
   },
   {
     name: '地区管理',
     hook: useAppWindow({ name: '地区管理', minWidth: 887, minHeight: 500, center: true }),
     icon: Coordinate,
     comp: defineAsyncComponent(() => import('@/pages/pageAreaManager/AreaManager.vue')),
-    role:  'MANAGER_COMPONENT',
+    role: 'MANAGER_COMPONENT',
   },
   {
     name: '点位管理',
     hook: useAppWindow({ name: '点位管理', minWidth: 887, minHeight: 500, center: true }),
     icon: Location,
     comp: defineAsyncComponent(() => import('@/pages/pageMarkerManager/MarkerManager.vue')),
-    role:  'MANAGER_COMPONENT',
+    role: 'MANAGER_COMPONENT',
   },
   {
     name: '类型管理',
     hook: useAppWindow({ name: '类型管理', minWidth: 887, minHeight: 500, center: true }),
     icon: FolderOpened,
     comp: defineAsyncComponent(() => import('@/pages/pageTypeManager/TypeManager.vue')),
-    role:  'MANAGER_COMPONENT',
+    role: 'MANAGER_COMPONENT',
   },
   {
     name: '图标管理',
     hook: useAppWindow({ name: '图标管理', minWidth: 887, minHeight: 500, center: true }),
     icon: Picture,
     comp: defineAsyncComponent(() => import('@/pages/pageIconManager/IconManager.vue')),
-    role:  'MANAGER_COMPONENT',
+    role: 'MANAGER_COMPONENT',
   },
   {
     name: '公告管理',
     hook: useAppWindow({ name: '公告管理', minWidth: 887, minHeight: 500, center: true }),
     icon: ChatLineRound,
     comp: defineAsyncComponent(() => import('@/pages/pageNoticeManager/PageNoticeManager.vue')),
-    role:  'MANAGER_COMPONENT',
+    role: 'MANAGER_COMPONENT',
   },
   {
     name: '用户统计',
     hook: useAppWindow({ name: '用户统计', minWidth: 887, minHeight: 500, center: true }),
     icon: Star,
     comp: defineAsyncComponent(() => import('@/pages/pageContribution/PageContribution.vue')),
-    role:  'ADMIN_COMPONENT',
+    role: 'ADMIN_COMPONENT',
   },
   {
     name: '用户管理',
     hook: useAppWindow({ name: '用户管理', minWidth: 887, minHeight: 500, center: true }),
     icon: User,
     comp: defineAsyncComponent(() => import('@/pages/pageUserManager/UserManager.vue')),
-    role:  'ADMIN_COMPONENT',
+    role: 'ADMIN_COMPONENT',
   },
   {
     name: '历史记录',
     hook: useAppWindow({ name: '历史记录', minWidth: 887, minHeight: 500, center: true }),
     icon: Memo,
     comp: defineAsyncComponent(() => import('@/pages/pageHistory/PageHistory.vue')),
-    role:  'MANAGER_COMPONENT',
+    role: 'MANAGER_COMPONENT',
   },
 ]
 

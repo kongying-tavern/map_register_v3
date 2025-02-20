@@ -32,7 +32,7 @@ onBeforeMount(() => {
         <div class="whitespace-nowrap">
           {{ stack.label }}
         </div>
-        <div class="pl-4 whitespace-nowrap text-sm" v-for="code in stack.codes" :key="code">
+        <div v-for="code in stack.codes" :key="code" class="pl-4 whitespace-nowrap text-sm">
           at {{ code }}
         </div>
       </div>

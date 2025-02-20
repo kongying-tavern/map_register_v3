@@ -89,9 +89,9 @@ const handleClick = () => {
     <div v-if="userStore.info" class="grid place-items-center">
       <GSButton theme="plain" title="退出" @click="userStore.logout">
         <template #icon>
-          <el-icon :size="22">
+          <ElIcon :size="22">
             <ExitLeft />
-          </el-icon>
+          </ElIcon>
         </template>
       </GSButton>
     </div>

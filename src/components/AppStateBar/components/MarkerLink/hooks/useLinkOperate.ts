@@ -1,4 +1,4 @@
-import type { ModifyLinkOptions } from "../shared/types"
+import type { ModifyLinkOptions } from '../shared/types'
 
 export const useLinkOperate = (modifyLinks: Ref<Map<string, ModifyLinkOptions>>) => {
   /** 删除关联 */

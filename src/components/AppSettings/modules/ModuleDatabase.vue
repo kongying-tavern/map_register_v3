@@ -2,7 +2,7 @@
 import { Refresh, RefreshLeft, WarnTriangleFilled } from '@element-plus/icons-vue'
 import { ElMessageBox } from 'element-plus'
 import { SettingBar, SettingGroup, SettingPanel } from '../components'
-import { useAreaStore, useIconTagStore, useItemStore, useItemTypeStore, useMarkerStore, useMarkerLinkStore } from '@/stores'
+import { useAreaStore, useIconTagStore, useItemStore, useItemTypeStore, useMarkerLinkStore, useMarkerStore } from '@/stores'
 import db from '@/database'
 import { now } from '@/shared'
 

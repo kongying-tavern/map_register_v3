@@ -1,6 +1,6 @@
 declare namespace API {
   interface UploadResourceVo {
-    file: File;
+    file: File
     filePath: string
   }
 }

@@ -3,7 +3,7 @@ import { Delete, EditPen, RefreshLeft } from '@element-plus/icons-vue'
 import type { ModifyLinkOptions } from '..'
 import LinkMarkerInfo from './LinkMarkerInfo.vue'
 import type { LinkActionEnum } from '@/shared'
-import { LINK_CONFIG_MAP, LINK_ACTION_NAME_MAP } from '@/shared'
+import { LINK_ACTION_NAME_MAP, LINK_CONFIG_MAP } from '@/shared'
 
 const props = defineProps<{
   linkKey: string

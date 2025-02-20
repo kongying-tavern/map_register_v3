@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { liveQuery } from 'dexie'
+import { Box } from '@element-plus/icons-vue'
 import { useManager } from './hooks'
 import { useAccessStore, useSocketStore, useUserStore } from '.'
 import { Zip } from '@/utils'
@@ -7,7 +8,6 @@ import Api from '@/api/api'
 import db from '@/database'
 import BulkPutWorker from '@/worker/idb.worker?worker'
 import type { WorkerInput, WorkerOutput } from '@/worker/idb.worker'
-import { Box } from '@element-plus/icons-vue'
 
 /** 本地物品数据 */
 export const useItemStore = defineStore('global-item', () => {

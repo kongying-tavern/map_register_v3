@@ -58,7 +58,6 @@ const init = async () => {
     .tooltip(false)
 
   await chart.render()
-
 }
 
 watch(isDark, (dark) => {

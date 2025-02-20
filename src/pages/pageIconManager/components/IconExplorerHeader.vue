@@ -34,12 +34,11 @@ const sortOptions: { role: 'key' | 'type'; value: string; name: string; divided?
 
 const handleSortCommand = (command: string) => {
   const [role, value] = command.split(':')
-  if (role === 'key') {
+  if (role === 'key')
     sortKey.value = value
-  }
-  else {
+
+  else
     sortType.value = value
-  }
 }
 
 const { DialogService } = useGlobalDialog()
@@ -97,7 +96,8 @@ const openTagCreatorDialog = () => {
               <el-icon
                 class="transition-all"
                 :class="{ 'opacity-0': (option.role === 'key' ? sortKey : sortType) !== option.value }"
-                :size="12">
+                :size="12"
+              >
                 <CircleCheck />
               </el-icon>
               <div>{{ option.name }}</div>

@@ -1,12 +1,12 @@
 import { defineStore } from 'pinia'
 import { liveQuery } from 'dexie'
+import type { Hash } from 'types/database'
 import { useManager } from './hooks'
 import { useAccessStore, useUserStore } from '.'
 import Api from '@/api/api'
 import db from '@/database'
 import BulkPutWorker from '@/worker/idb.worker?worker'
 import type { WorkerInput, WorkerOutput } from '@/worker/idb.worker'
-import type { Hash } from 'types/database'
 
 export interface AreaWithChildren extends API.AreaVo {
   children?: AreaWithChildren[]
@@ -65,7 +65,7 @@ export const useAreaStore = defineStore('global-area', () => {
       const cachedData = await db.area.where('__hash').anyOf(hashList).toArray()
 
       const newData = needUpdateHashList.length
-        ? data.map((area) => ({ ...area, __hash: digest } as Hash<API.AreaVo>))
+        ? data.map(area => ({ ...area, __hash: digest } as Hash<API.AreaVo>))
         : []
 
       updateCount.value = newData.length

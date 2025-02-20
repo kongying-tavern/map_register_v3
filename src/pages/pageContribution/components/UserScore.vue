@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import { type S2DataConfig, TableSheet } from '@antv/s2'
+import { disabledDate, shortcuts } from '../shared'
+import { useScoreData } from '../hooks'
 import { useTheme } from '@/hooks'
 import { DATA_START_TIME } from '@/shared/constant'
-import { disabledDate, shortcuts } from '../shared'
-import { TableSheet, type S2DataConfig } from '@antv/s2'
-import { useScoreData } from '../hooks'
 
 interface SheetableData {
   // user info

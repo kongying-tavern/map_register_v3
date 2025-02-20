@@ -1,5 +1,5 @@
-import type { DeckProps, OrthographicView, OrthographicViewState } from 'deck.gl'
-import type { IconLayerProps } from 'deck.gl'
+import type { DeckProps, IconLayerProps, OrthographicView, OrthographicViewState } from 'deck.gl'
+
 import type { AreaTagTuple } from '@/configs'
 
 type OrthographicViewMapProps = DeckProps<OrthographicView>
@@ -16,11 +16,11 @@ export interface GenshinMapProps extends Omit<OrthographicViewMapProps, 'canvas'
     keyboard?:
       | boolean
       | {
-          zoomSpeed?: number
-          moveSpeed?: number
-          rotateSpeedX?: number
-          rotateSpeedY?: number
-        }
+        zoomSpeed?: number
+        moveSpeed?: number
+        rotateSpeedX?: number
+        rotateSpeedY?: number
+      }
     dragMode?: 'pan' | 'rotate'
     inertia?: boolean | number
     scrollZoom?: {

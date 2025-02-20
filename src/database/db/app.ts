@@ -1,5 +1,5 @@
 import { Dexie } from 'dexie'
-import type { UserArchiveBody, ScoreGeneratedCache, Hash } from 'types/database'
+import type { Hash, ScoreGeneratedCache, UserArchiveBody } from 'types/database'
 
 /** 数据库核心定义 */
 export class AppDatabase extends Dexie {

@@ -66,7 +66,7 @@ const countMap = computed(() => {
     if (!area.isFinal)
       map.set(area.id!, { area, count: 0, total: 0 })
     return map
-  }, new Map<number, { area: API.AreaVo, count: number, total: number }>())
+  }, new Map<number, { area: API.AreaVo; count: number; total: number }>())
 
   return markerStore.markerList.reduce((map, { id: markerId = -1, itemList = [] }) => {
     itemList.forEach(({ itemId = -1 }) => {
@@ -90,7 +90,8 @@ const countMap = computed(() => {
     <div class="flex-shink-0 w-full px-4 flex justify-between items-center text-lg p-2" style="color:#84603D;">
       <div
         v-if="!archiveStore.currentArchive.slotIndex"
-        class="w-72 flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap">
+        class="w-72 flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap"
+      >
         {{ '<未选取存档>' }}
       </div>
       <div

@@ -116,9 +116,11 @@ async function loadTagType(node: Node, resolve: (data: API.TagTypeVo[]) => void)
       size: 256,
     })
     resolve(record)
-  } catch {
+  }
+  catch {
     resolve([])
-  } finally {
+  }
+  finally {
     loading.value = false
   }
 }

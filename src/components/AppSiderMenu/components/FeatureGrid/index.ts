@@ -1,5 +1,5 @@
 import type { Component } from 'vue'
-import { useAccessStore } from '@/stores'
+import type { useAccessStore } from '@/stores'
 
 export { default as FeatureGrid } from './FeatureGrid.vue'
 

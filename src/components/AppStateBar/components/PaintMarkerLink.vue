@@ -2,6 +2,7 @@
 import { useSubscription } from '@vueuse/rxjs'
 import { Subject, filter, finalize, map, race, repeat, switchMap, takeUntil, tap } from 'rxjs'
 import { ElMessage } from 'element-plus'
+import { animate } from 'popmotion'
 import {
   IconMarkerLink,
   LinkIndicator,
@@ -23,7 +24,6 @@ import {
   mapContainerKey,
 } from '@/shared'
 import { GSLinkLayer, type GSMarkerInfo, GSMarkerLayer, type MarkerLinkMission } from '@/packages/map'
-import { animate } from 'popmotion'
 
 const mapStateStore = useMapStateStore()
 const markerStore = useMarkerStore()
@@ -414,9 +414,7 @@ useSubscription(start$.pipe(
     return paramsChange$.pipe(
       tap((groups) => {
         const result: MarkerLinkMission[] = []
-        let index = 0
         groups.forEach(({ isDelete, raw, key }) => {
-          index++
           if (isDelete)
             return
           result.push({

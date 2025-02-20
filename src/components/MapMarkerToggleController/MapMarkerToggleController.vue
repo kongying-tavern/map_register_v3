@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import { filter, finalize, switchMap, takeUntil, tap } from 'rxjs'
 import { useSubscription } from '@vueuse/rxjs'
-import { useArchiveStore, useMapStateStore, useShortcutStore } from '@/stores'
-import { MapSubject, globalPointerup$, globalKeyUp$, mapContainerWidthKey, mapContainerHeightKey } from '@/shared'
-import { MultiSelect } from '@/shared/enum'
 import KDBush from 'kdbush'
+import { useArchiveStore, useMapStateStore, useShortcutStore } from '@/stores'
+import { MapSubject, globalKeyUp$, globalPointerup$, mapContainerHeightKey, mapContainerWidthKey } from '@/shared'
+import { MultiSelect } from '@/shared/enum'
 import { GSMarkerLayer } from '@/packages/map'
 
 const archiveStore = useArchiveStore()
@@ -106,7 +106,7 @@ const core$ = start$.pipe(switchMap(() => MapSubject.dragStart.pipe(
     const [startX, startY] = startInfo.coordinate!
 
     return MapSubject.drag.pipe(
-      filter(({ info }) => info.coordinate!== undefined),
+      filter(({ info }) => info.coordinate !== undefined),
 
       tap(({ info: moveInfo, event }) => {
         eventState.value.end = event.center
@@ -168,9 +168,15 @@ useSubscription(core$.subscribe())
     </svg>
 
     <div class="controller-footer">
-      <div class="w-[180px]">批量操作：</div>
-      <div class="w-[180px]">左键框选来<span :style="`color: ${MARKED_COLOR}`">标记</span>点位</div>
-      <div class="w-[180px]">右键框选来<span :style="`color: ${UNMARKED_COLOR}`">取消标记</span>点位</div>
+      <div class="w-[180px]">
+        批量操作：
+      </div>
+      <div class="w-[180px]">
+        左键框选来<span :style="`color: ${MARKED_COLOR}`">标记</span>点位
+      </div>
+      <div class="w-[180px]">
+        右键框选来<span :style="`color: ${UNMARKED_COLOR}`">取消标记</span>点位
+      </div>
     </div>
   </div>
 </template>

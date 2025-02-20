@@ -10,7 +10,9 @@ import 'element-plus/theme-chalk/dark/css-vars.css'
 import { useArchiveStore, useDadianStore, useUserStore } from '@/stores'
 import { AppError } from '@/components'
 
-;(async () => {
+;
+
+(async () => {
   const container = '#app'
 
   try {

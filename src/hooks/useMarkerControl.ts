@@ -25,7 +25,7 @@ const _useMarkerControl = () => {
   const cachedMarkerId = ref<number>()
 
   const cachedMarkerVo = computed<GSMarkerInfo | null>(() => {
-    if (cachedMarkerId.value == undefined)
+    if (cachedMarkerId.value === undefined)
       return null
     return mapStateStore.currentMarkerIdMap.get(cachedMarkerId.value) ?? null
   })

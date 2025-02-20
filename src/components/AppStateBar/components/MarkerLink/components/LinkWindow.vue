@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { Check, Close } from '@element-plus/icons-vue'
-import type { LinkActionEnum } from '@/shared'
-import type { GSMarkerInfo } from '@/packages/map'
+import type { ModifyLinkOptions } from '../shared/types'
 import MarkerInfo from './MarkerInfo.vue'
 import LinkActionSelect from './LinkActionSelect.vue'
 import LinkGroupViewer from './LinkGroupViewer.vue'
-import type { ModifyLinkOptions } from '../shared/types'
+import type { LinkActionEnum } from '@/shared'
+import type { GSMarkerInfo } from '@/packages/map'
 
 defineProps<{
   loading: boolean

@@ -1,4 +1,4 @@
-import { useFetchHook } from "@/hooks"
+import { useFetchHook } from '@/hooks'
 
 export interface ManagerOptions<C, T> {
   /** 是否启用定时更新 */

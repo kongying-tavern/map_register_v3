@@ -164,7 +164,6 @@ export const useUserStore = defineStore('global-user', () => {
       if (!oldToken) {
         logger.info('token 刷新已启用')
         resumeRefreshToken()
-        return
       }
     })
     watch(() => auth.value.userId, refreshUserInfo, { immediate: true })

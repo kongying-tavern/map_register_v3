@@ -4,7 +4,7 @@ import Api from '@/api/api'
 
 export type MaybeArray<T> = T | T[]
 
-export const useCommonItemDelete = () => {
+export function useCommonItemDelete() {
   const { refresh: deleteCommonItem, loading, onSuccess, onError, ...rest } = useFetchHook({
     onRequest: async (maybeItems: MaybeArray<API.ItemAreaPublicVo>) => {
       const mission = Array.isArray(maybeItems)

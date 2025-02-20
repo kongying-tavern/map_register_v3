@@ -1,5 +1,5 @@
-import { useTileStore, usePreferenceStore } from '@/stores'
 import type { MapLayerHookOptions } from '.'
+import { usePreferenceStore, useTileStore } from '@/stores'
 import {
   GSTagLayer,
 } from '@/packages/map'

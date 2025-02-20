@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import { Chart } from '@antv/g2'
+import { lines } from '@antv/g-pattern'
+import { disabledDate, shortcuts } from '../shared'
 import { useFetchHook, useTheme } from '@/hooks'
 import { useMarkerStore } from '@/stores'
-import { Chart } from '@antv/g2'
 import Api from '@/api/api'
-import { lines } from '@antv/g-pattern'
 import { DATA_START_TIME } from '@/shared/constant'
-import { disabledDate, shortcuts } from '../shared'
 
 interface UserCountInfo {
   userId: number

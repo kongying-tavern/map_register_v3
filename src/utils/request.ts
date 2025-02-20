@@ -49,9 +49,9 @@ instance.interceptors.response.use(onResponseFulfilled, (error: AxiosError) => {
     default:
       break
   }
-  if (!error.message && data instanceof Object && 'error_description' in data) {
+  if (!error.message && data instanceof Object && 'error_description' in data)
     error.message = `${data.error_description ?? 'Unknown Error'}`
-  }
+
   return Promise.reject(error)
 })
 

@@ -4,13 +4,13 @@ import Api from '@/api/api'
 import db from '@/database'
 
 export const useLinkCreate = () => {
-  const { onSuccess, onError, onFinish, ...rest } = useFetchHook({
+  const { onSuccess, onError, ...rest } = useFetchHook({
     onRequest: async (links: API.MarkerLinkageVo[]) => {
       if (!links.length)
         throw new Error('提交的关联项为空')
 
       // 1. 进行关联操作（只取必须的属性）
-      const { data: newLinkageId } = await Api.markerLink.linkMarker(links.map((link) => ({
+      const { data: newLinkageId } = await Api.markerLink.linkMarker(links.map(link => ({
         fromId: link.fromId,
         toId: link.toId,
         linkAction: link.linkAction,
@@ -22,7 +22,7 @@ export const useLinkCreate = () => {
 
       // 2. 确认关联更新
       const { data: linkGroups = {} } = await Api.markerLink.getMarkerLinkageList({
-        groupIds: [newLinkageId]
+        groupIds: [newLinkageId],
       })
       const newLinks = Object.values(linkGroups).flat(1)
 

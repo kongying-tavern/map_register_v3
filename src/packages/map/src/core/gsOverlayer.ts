@@ -1,6 +1,6 @@
-import { BitmapLayer, SolidPolygonLayer } from 'deck.gl'
+import { BitmapLayer, CompositeLayer, SolidPolygonLayer } from 'deck.gl'
 import type { LayersList } from 'deck.gl'
-import { CompositeLayer } from 'deck.gl'
+
 import type { GSOverlayerProps } from '../types'
 
 /** 拖拽指示线图层 */

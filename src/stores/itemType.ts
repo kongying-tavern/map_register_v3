@@ -1,12 +1,12 @@
 import { defineStore } from 'pinia'
 import { liveQuery } from 'dexie'
+import type { Hash } from 'types/database'
 import { useManager } from './hooks'
 import { useAccessStore, useUserStore } from '.'
 import Api from '@/api/api'
 import db from '@/database'
 import BulkPutWorker from '@/worker/idb.worker?worker'
 import type { WorkerInput, WorkerOutput } from '@/worker/idb.worker'
-import type { Hash } from 'types/database'
 
 /** 本地物品类型数据 */
 export const useItemTypeStore = defineStore('global-item-type', () => {
@@ -60,7 +60,7 @@ export const useItemTypeStore = defineStore('global-item-type', () => {
       const cachedData = await db.itemType.where('__hash').anyOf(hashList).toArray()
 
       const newData = needUpdateHashList.length
-        ? data.map((itemType) => ({ ...itemType, __hash: digest } as Hash<API.ItemTypeVo>))
+        ? data.map(itemType => ({ ...itemType, __hash: digest } as Hash<API.ItemTypeVo>))
         : []
 
       updateCount.value = newData.length

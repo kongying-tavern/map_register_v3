@@ -5,7 +5,7 @@ import ItemSelectButton from './ItemSelectButton.vue'
 import ItemPreviewButton from './ItemPreviewButton.vue'
 import TypeSelectButton from './TypeSelectButton.vue'
 import { useState } from '@/hooks'
-import { useAreaStore, useItemStore, useIconTagStore, useItemTypeStore } from '@/stores'
+import { useAreaStore, useIconTagStore, useItemStore, useItemTypeStore } from '@/stores'
 import { AppAreaCodeSelecter } from '@/components'
 
 const props = withDefaults(defineProps<{

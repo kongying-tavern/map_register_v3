@@ -51,10 +51,10 @@ const hoverKey = defineModel<string>('hoverKey', {
       <LinkInfo
         v-for="[key, opt] in group"
         :key="key"
+        v-model:hover-key="hoverKey"
         :link-key="key"
         :link-option="opt"
         :editable="editable"
-        v-model:hover-key="hoverKey"
         @delete="() => $emit('delete', key, opt)"
         @extract="() => $emit('extract', key, opt)"
         @revest="() => $emit('revest', key, opt)"

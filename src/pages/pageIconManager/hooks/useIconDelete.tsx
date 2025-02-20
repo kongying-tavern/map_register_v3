@@ -3,7 +3,7 @@ import { useFetchHook } from '@/hooks'
 import Api from '@/api/api'
 import db from '@/database'
 
-export const useIconDelete = () => {
+export function useIconDelete() {
   const { refresh: submitDeleteIcon, loading, onSuccess, onError, ...rest } = useFetchHook({
     onRequest: async (tag: API.TagVo) => {
       await Api.tag.deleteTag({ tagName: tag.tag! })

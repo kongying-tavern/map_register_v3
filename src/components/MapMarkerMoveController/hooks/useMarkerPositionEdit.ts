@@ -1,7 +1,7 @@
 import { ElMessage } from 'element-plus'
 import { useFetchHook } from '@/hooks'
 import Api from '@/api/api'
-import { useMapStateStore, useTileStore, useMarkerStore } from '@/stores'
+import { useMapStateStore, useMarkerStore, useTileStore } from '@/stores'
 
 export const useMarkerPositionEdit = () => {
   const tileStore = useTileStore()

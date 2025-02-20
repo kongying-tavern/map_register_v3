@@ -16,9 +16,9 @@ import {
   AppWindowProvider,
   MapContextMenu,
   MapMarkerMoveController,
+  MapMarkerPopover,
   MapMarkerToggleController,
   MapMarkerTweakController,
-  MapMarkerPopover,
 } from '@/components'
 import {
   MapSubject,
