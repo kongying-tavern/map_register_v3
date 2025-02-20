@@ -4,6 +4,8 @@ import { useMarkerStore } from '@/stores'
 import { Chart } from '@antv/g2'
 import Api from '@/api/api'
 import { lines } from '@antv/g-pattern'
+import { DATA_START_TIME } from '@/shared/constant'
+import { disabledDate, shortcuts } from '../shared'
 
 interface UserCountInfo {
   userId: number
@@ -22,41 +24,10 @@ const containerRef = useTemplateRef('container')
 const timeRange = ref(((): [number, number] => {
   const now = Date.now()
   return [
-    0,
+    DATA_START_TIME,
     now,
   ]
 })())
-
-const shortcuts = [
-  {
-    text: '最近一周',
-    value: () => {
-      const now = Date.now()
-      return [now - 7 * 24 * 3600 * 1000, now]
-    },
-  },
-  {
-    text: '最近一月',
-    value: () => {
-      const now = Date.now()
-      return [now - 30 * 24 * 3600 * 1000, now]
-    },
-  },
-  {
-    text: '最近一年',
-    value: () => {
-      const now = Date.now()
-      return [now - 365 * 24 * 3600 * 1000, now]
-    },
-  },
-  {
-    text: '全部',
-    value: () => {
-      const now = Date.now()
-      return [0, now]
-    },
-  },
-]
 
 const histories = computed(() => {
   const [startTime, endTime] = timeRange.value
@@ -236,6 +207,7 @@ onMounted(() => {
       <el-date-picker
         v-model="timeRange"
         type="datetimerange"
+        :disabled-date
         :clearable="false"
         :value-on-clear="false"
         :teleported="false"
@@ -247,7 +219,7 @@ onMounted(() => {
 
     <div
       ref="container"
-      class="w-[calc(100%_-_16px)] flex-1 border rounded mx-2 mb-2 overflow-hidden"
+      class="w-[calc(100%_-_16px)] flex-1 border border-[var(--el-border-color)] rounded mx-2 mb-2 overflow-hidden"
     />
 
     <div
