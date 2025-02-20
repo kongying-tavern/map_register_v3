@@ -184,6 +184,8 @@ export class WindowContext implements MapWindow.Context {
     if (!target)
       return
 
+    const { clientWidth, clientHeight } = document.body
+
     const {
       translate,
       size,
@@ -198,8 +200,8 @@ export class WindowContext implements MapWindow.Context {
       height = size.height,
     } = rect
 
-    const resizeWidth = Math.max(width, minWidth)
-    const resizeheight = Math.max(height, minHeight)
+    const resizeWidth = Math.min(Math.max(width, minWidth), clientWidth)
+    const resizeheight = Math.min(Math.max(height, minHeight), clientHeight)
 
     target.translate = {
       x: resizeWidth === size.width ? translate.x : x,
@@ -232,8 +234,8 @@ export class WindowContext implements MapWindow.Context {
             y: clamp(y, 0, Math.max(0, blockSize - height - this.HEADER_HEIGHT)),
           }
       info.size = {
-        width: Math.min(clientWidth, info.minWidth ?? this.MIN_WIDTH),
-        height: Math.min(clientHeight, info.minHeight ?? this.MIN_HEIGHT),
+        width: Math.min(clientWidth, info.size.width),
+        height: Math.min(clientHeight, info.size.height),
       }
     })
   }

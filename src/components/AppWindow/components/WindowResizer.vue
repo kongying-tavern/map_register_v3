@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { fromEvent as fromRefEvent, useSubscription } from '@vueuse/rxjs'
 import type { Observable } from 'rxjs'
-import { filter, finalize, fromEvent, map, switchMap, takeUntil } from 'rxjs'
+import { filter, finalize, map, merge, race, switchMap, takeUntil } from 'rxjs'
 import type { MapWindow } from '../types'
+import { globalPointerMove$, globalPointerup$, globalTouchmove$, globalTouchend$ } from '@/shared'
 
 const props = defineProps<{
   translate: MapWindow.Coordinate
@@ -17,8 +18,6 @@ const emits = defineEmits<{
 const resizerRef = ref<HTMLElement>() as Ref<HTMLElement>
 
 const pointerdown = fromRefEvent(resizerRef, 'pointerdown') as Observable<PointerEvent>
-const pointermove = fromEvent<PointerEvent>(window, 'pointermove')
-const pointerup = fromEvent<PointerEvent>(window, 'pointerup')
 
 useSubscription(pointerdown.pipe(
   filter((ev) => {
@@ -58,13 +57,15 @@ useSubscription(pointerdown.pipe(
       height: getH(moveY),
     })
 
-    return pointermove.pipe(
+    return merge(globalPointerMove$, globalTouchmove$).pipe(
       map((moveEvent) => {
-        const { x, y } = moveEvent
+        const { x, y } = moveEvent instanceof PointerEvent
+          ? { x: moveEvent.x, y: moveEvent.y }
+          : { x: moveEvent.touches[0].clientX, y: moveEvent.touches[0].clientY }
         emits('resize', getResizeProps(x, y))
       }),
 
-      takeUntil(pointerup),
+      takeUntil(race(globalPointerup$, globalTouchend$)),
 
       finalize(() => {
         emits('resizeEnd')
