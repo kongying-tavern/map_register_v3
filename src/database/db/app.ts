@@ -1,5 +1,5 @@
 import { Dexie } from 'dexie'
-import type { UserArchiveBody, Hash } from 'types/database'
+import type { UserArchiveBody, ScoreGeneratedCache, Hash } from 'types/database'
 
 /** 数据库核心定义 */
 export class AppDatabase extends Dexie {
@@ -30,8 +30,11 @@ export class AppDatabase extends Dexie {
   /** WebSocket 事件 @仅限本地 */
   declare websocketEvents: Dexie.Table<Socket.DataEventRecord, string>
 
+  /** 评分生成缓存月份 @仅限本地 */
+  declare scoreCache: Dexie.Table<ScoreGeneratedCache, string>
+
   /** 数据库结构版本 */
-  readonly VERSION = 4.5
+  readonly VERSION = 4.6
 
   readonly STORES = {
     area: '&id, __hash',
@@ -43,6 +46,7 @@ export class AppDatabase extends Dexie {
     userArchive: 'id',
     cache: '&id',
     websocketEvents: '&key, time',
+    scoreCache: '&id',
   }
 
   constructor() {

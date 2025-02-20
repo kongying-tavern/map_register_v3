@@ -12,6 +12,16 @@ interface UserArchiveBody {
   timestamp: number
 }
 
+interface ScoreGeneratedCache {
+  /**
+   * 遵循如下格式
+   * ```
+   * ${Timestamp}-${TimeStamp}
+   * ```
+   */
+  id: string
+}
+
 type Hash<T> = T & {
   __hash?: string
 }
