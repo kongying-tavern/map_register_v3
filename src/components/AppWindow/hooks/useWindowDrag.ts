@@ -1,10 +1,12 @@
-import { filter, finalize, map, switchMap, takeUntil } from 'rxjs'
+import { filter, finalize, map, merge, race, switchMap, takeUntil } from 'rxjs'
 import { useSubscription } from '@vueuse/rxjs'
 import type { WindowContext } from '../core'
 import {
   globalPointerDown$,
   globalPointerMove$,
   globalPointerup$,
+  globalTouchend$,
+  globalTouchmove$,
   mapContainerKey,
 } from '@/shared'
 
@@ -76,15 +78,22 @@ export const useWindowDrag = (context: WindowContext) => {
     }),
 
     switchMap(({ panelId, translate, startPosition }) => {
-      return globalPointerMove$.pipe(
-        map(({ x, y }) => {
+      return merge(globalPointerMove$, globalTouchmove$).pipe(
+        map((moveEvent) => {
+          const { x, y } = moveEvent instanceof PointerEvent ? {
+            x: moveEvent.x,
+            y: moveEvent.y,
+          } : {
+            x: moveEvent.touches[0].clientX,
+            y: moveEvent.touches[0].clientY,
+          }
           context.move(panelId, {
             x: translate.x + x - startPosition.x,
             y: translate.y + y - startPosition.y,
           })
         }),
 
-        takeUntil(globalPointerup$),
+        takeUntil(race(globalPointerup$, globalTouchend$)),
 
         finalize(() => {
           if (!mapContainer.value)
