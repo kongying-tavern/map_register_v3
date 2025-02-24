@@ -1,21 +1,17 @@
 <script lang="ts" setup>
-import { Box, ChatLineRound, CoffeeCup, Coordinate, Filter, FolderOpened, Grid, List, Location, Memo, Picture, Promotion, Setting, Star, User } from '@element-plus/icons-vue'
+import * as ElIcons from '@element-plus/icons-vue'
 import type { FeatureGroupOption } from './components'
 import { CollapseButton, FeatureGrid, MarkerFilter, MarkerTable, SiderMenu, SiderMenuItem } from './components'
 import { AppSettings, AppWindowTeleporter, type WindowContextHookReturnType, useAppWindow } from '@/components'
 import { useGlobalDialog } from '@/hooks'
-import { Logger } from '@/utils'
 import type {
   ACCESS_BINARY_MASK,
 } from '@/stores'
 import {
   useAccessStore,
-  useDadianStore,
-  useIconTagStore,
   useMapStateStore,
   useNoticeStore,
   usePreferenceStore,
-  useTileStore,
 } from '@/stores'
 import { IconGithub, IconNotice } from '@/components/AppIcons'
 
@@ -25,129 +21,135 @@ interface ManagerModuleOption {
   icon: Component
   comp: Component
   role: keyof typeof ACCESS_BINARY_MASK
+  type: string
+  cols?: number
 }
 
 const collapse = ref(true)
 
-const logger = new Logger('侧边栏')
-
 const accessStore = useAccessStore()
-const iconTagStore = useIconTagStore()
 const mapStateStore = useMapStateStore()
 const noticeStore = useNoticeStore()
 const preferenceStore = usePreferenceStore()
 
 const { DialogService } = useGlobalDialog()
 
-const windowList: ManagerModuleOption[] = [
+const WINDOW_LIST: ManagerModuleOption[] = [
   {
     name: '物品管理',
     hook: useAppWindow({ name: '物品管理', minWidth: 887, minHeight: 500, center: true }),
-    icon: Box,
+    icon: ElIcons.Box,
     comp: defineAsyncComponent(() => import('@/pages/pageItemManager/ItemManager.vue')),
     role: 'MANAGER_COMPONENT',
+    type: 'manager',
   },
   {
     name: '地区管理',
     hook: useAppWindow({ name: '地区管理', minWidth: 887, minHeight: 500, center: true }),
-    icon: Coordinate,
+    icon: ElIcons.Coordinate,
     comp: defineAsyncComponent(() => import('@/pages/pageAreaManager/AreaManager.vue')),
     role: 'MANAGER_COMPONENT',
+    type: 'manager',
   },
   {
     name: '点位管理',
     hook: useAppWindow({ name: '点位管理', minWidth: 887, minHeight: 500, center: true }),
-    icon: Location,
+    icon: ElIcons.Location,
     comp: defineAsyncComponent(() => import('@/pages/pageMarkerManager/MarkerManager.vue')),
     role: 'MANAGER_COMPONENT',
+    type: 'manager',
   },
   {
     name: '类型管理',
     hook: useAppWindow({ name: '类型管理', minWidth: 887, minHeight: 500, center: true }),
-    icon: FolderOpened,
+    icon: ElIcons.FolderOpened,
     comp: defineAsyncComponent(() => import('@/pages/pageTypeManager/TypeManager.vue')),
     role: 'MANAGER_COMPONENT',
+    type: 'manager',
   },
   {
     name: '图标管理',
     hook: useAppWindow({ name: '图标管理', minWidth: 887, minHeight: 500, center: true }),
-    icon: Picture,
+    icon: ElIcons.Picture,
     comp: defineAsyncComponent(() => import('@/pages/pageIconManager/IconManager.vue')),
     role: 'MANAGER_COMPONENT',
+    type: 'manager',
   },
   {
     name: '公告管理',
     hook: useAppWindow({ name: '公告管理', minWidth: 887, minHeight: 500, center: true }),
-    icon: ChatLineRound,
+    icon: ElIcons.ChatLineRound,
     comp: defineAsyncComponent(() => import('@/pages/pageNoticeManager/PageNoticeManager.vue')),
     role: 'MANAGER_COMPONENT',
+    type: 'manager',
   },
   {
     name: '用户统计',
     hook: useAppWindow({ name: '用户统计', minWidth: 887, minHeight: 500, center: true }),
-    icon: Star,
+    icon: ElIcons.Star,
     comp: defineAsyncComponent(() => import('@/pages/pageContribution/PageContribution.vue')),
     role: 'ADMIN_COMPONENT',
+    type: 'manager',
   },
   {
     name: '用户管理',
     hook: useAppWindow({ name: '用户管理', minWidth: 887, minHeight: 500, center: true }),
-    icon: User,
+    icon: ElIcons.User,
     comp: defineAsyncComponent(() => import('@/pages/pageUserManager/UserManager.vue')),
     role: 'ADMIN_COMPONENT',
+    type: 'manager',
   },
   {
     name: '历史记录',
     hook: useAppWindow({ name: '历史记录', minWidth: 887, minHeight: 500, center: true }),
-    icon: Memo,
+    icon: ElIcons.Memo,
     comp: defineAsyncComponent(() => import('@/pages/pageHistory/PageHistory.vue')),
     role: 'MANAGER_COMPONENT',
+    type: 'manager',
+  },
+  {
+    name: '控制中心',
+    hook: useAppWindow({ name: '控制中心', minWidth: 887, minHeight: 500, center: true }),
+    icon: ElIcons.Operation,
+    comp: defineAsyncComponent(() => import('@/pages/pageDeveloper/PageDeveloper.vue')),
+    role: 'ADMIN_COMPONENT',
+    type: 'developer',
+    cols: 3,
   },
 ]
 
-const openSettingDialog = () => DialogService
-  .config({
-    alignCenter: true,
-    width: 'fit-content',
-  })
-  .open(AppSettings)
-
-const url = ref('')
-
-const openTagSpriteImage = () => {
-  logger.info('icontag mapping', iconTagStore.tagPositionMap)
-  url.value = iconTagStore.tagSpriteUrl ?? ''
-}
-
-const openMarkerSpriteImage = () => {
-  logger.info('marker mapping', iconTagStore.markerSpriteMapping)
-  url.value = iconTagStore.markerSpriteUrl ?? ''
-}
-
-const features = shallowRef<FeatureGroupOption[]>([
+const FEATURE_OPTIONS: FeatureGroupOption[] = [
   {
     label: '管理系统',
-    items: windowList.map(({ name, hook, icon, role }) => ({ label: name, icon, cb: hook.open, role })),
+    items: WINDOW_LIST
+      .filter(({ type }) => type === 'manager')
+      .map(({ name, hook, ...args }) => ({ label: name, cb: hook.open, hook, ...args })),
   },
   {
     label: '开发者',
-    items: [
-      { label: '检查订阅配置', icon: Promotion, cb: () => logger.info(JSON.parse(JSON.stringify(useDadianStore().raw))) },
-      { label: '检查底图配置', icon: Promotion, cb: () => logger.info(JSON.parse(JSON.stringify(useTileStore().mergedTileConfigs))) },
-      { label: '检查预渲染图', icon: Promotion, cb: openTagSpriteImage },
-      { label: '预渲染点位图', icon: Promotion, cb: openMarkerSpriteImage },
-    ],
+    items: WINDOW_LIST
+      .filter(({ type }) => type === 'developer')
+      .map(({ name, hook, ...args }) => ({ label: name, cb: hook.open, hook, ...args })),
   },
   {
-    label: '其他',
+    label: '关于项目',
     items: [
-      { label: '赞助我们', icon: CoffeeCup, cb: () => window.open('https://opencollective.com/genshinmap') },
       { label: 'GitHub', icon: IconGithub, cb: () => window.open('https://github.com/kongying-tavern/map_register_v3') },
+      { label: '赞助我们', icon: ElIcons.CoffeeCup, cb: () => window.open('https://opencollective.com/genshinmap') },
     ],
   },
-])
+]
 
-const featuresWithRole = computed(() => features.value.reduce((seed, featureGroup) => {
+const openSettingDialog = () => {
+  DialogService
+    .config({
+      alignCenter: true,
+      width: 'fit-content',
+    })
+    .open(AppSettings)
+}
+
+const featuresWithRole = computed(() => FEATURE_OPTIONS.reduce((seed, featureGroup) => {
   const groupItems = featureGroup.items.filter(({ role }) => {
     if (!role)
       return true
@@ -177,7 +179,7 @@ const switchFilterMode = () => {
   <CollapseButton v-model:collapse="collapse" />
 
   <SiderMenu v-model="preferenceStore.tabName" v-model:collapse="collapse">
-    <template v-for="appWindow in windowList" :key="appWindow.name">
+    <template v-for="appWindow in WINDOW_LIST" :key="appWindow.name">
       <AppWindowTeleporter
         v-if="accessStore.get(appWindow.role)"
         :info="appWindow.hook.info.value"
@@ -240,11 +242,9 @@ const switchFilterMode = () => {
       <MarkerTable />
     </SiderMenuItem>
 
-    <SiderMenuItem name="features" label="更多功能" :icon="Grid">
+    <SiderMenuItem name="features" label="更多功能" :icon="ElIcons.Grid">
       <FeatureGrid :features="featuresWithRole" />
     </SiderMenuItem>
-
-    <el-image-viewer v-if="url" :url-list="[url]" @close="url = ''" />
 
     <template #footer>
       <SiderMenuItem label="公告" :icon="IconNotice" @click="noticeStore.show">
@@ -267,7 +267,7 @@ const switchFilterMode = () => {
         </template>
       </SiderMenuItem>
 
-      <SiderMenuItem label="系统设置" :icon="Setting" @click="openSettingDialog" />
+      <SiderMenuItem label="系统设置" :icon="ElIcons.Setting" @click="openSettingDialog" />
     </template>
   </SiderMenu>
 </template>

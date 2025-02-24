@@ -1,5 +1,5 @@
-import type { Component } from 'vue'
 import type { useAccessStore } from '@/stores'
+import type { WindowContextHookReturnType } from '@/components'
 
 export { default as FeatureGrid } from './FeatureGrid.vue'
 
@@ -7,7 +7,10 @@ export interface FeatureOption {
   label: string
   icon: Component
   cb: () => void
+  hook?: WindowContextHookReturnType
   role?: Parameters<ReturnType<typeof useAccessStore>['get']>['0']
+  cols?: number
+  isOpen?: boolean
 }
 
 export interface FeatureGroupOption {

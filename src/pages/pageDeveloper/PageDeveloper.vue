@@ -1,16 +1,21 @@
 <script setup lang="ts">
-import { Logger } from '@/utils'
+import Api from '@/api/api'
+import { useFetchHook } from '@/hooks';
 
-const logger = new Logger('开发者')
+const { refresh: refreshApp, loading: refreshLoading } = useFetchHook({
+  onRequest: () => Api.app.triggerAppUpdate(),
+})
 </script>
 
 <template>
-  <div class="h-full grid place-items-center place-content-center overflow-hidden p-4">
-    <el-text>
-      当前页仅在开发模式下可见。在此处进行任意测试，但不要提交该目录下改动。
-    </el-text>
-    <el-button @click="() => logger.info('Hello world')">
-      Logger
-    </el-button>
+  <div class="w-full h-full overflow-hidden text-sm">
+    <div class="m-2 p-2 flex justify-between items-center gap-2 rounded-lg border border-[var(--el-color-info-light-5)]">
+      <el-text class="flex-1">
+        发送刷新信号，将会导致所有在线用户刷新页面
+      </el-text>
+      <el-button class="shrink-0" :loading="refreshLoading" @click="refreshApp">
+        刷新应用
+      </el-button>
+    </div>
   </div>
 </template>
