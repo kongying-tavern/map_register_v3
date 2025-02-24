@@ -134,6 +134,12 @@ onMounted(() => {
           withFormat: true,
           withHeader: true,
         },
+        resize: {
+          colCellHorizontal: false,
+          colCellVertical: false,
+          rowCellVertical: false,
+          cornerCellHorizontal: false,
+        },
       },
       headerActionIcons: [
         {
