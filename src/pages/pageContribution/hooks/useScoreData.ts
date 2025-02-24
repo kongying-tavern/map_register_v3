@@ -59,6 +59,11 @@ export const useScoreData = (options: ScoreDataHookOptions) => {
           })
           if (status !== 'ok')
             throw new Error(message)
+          const splitedEndtime = dayjs(endTime)
+          const endOfMonth = splitedEndtime.endOf('month')
+          // 只缓存完整的月份生成记录，如果结束时间不是每月最后一天的结束时刻，则跳过此区间的缓存
+          if (!splitedEndtime.isSame(endOfMonth))
+            return
           note.value = `正在生成评分: ${(100 * ++generatedCount / result.length).toFixed(2)}%`
           return rangeId
         }
