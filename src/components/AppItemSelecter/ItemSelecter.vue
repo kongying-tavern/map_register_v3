@@ -4,7 +4,6 @@ import { ElScrollbar } from 'element-plus'
 import ItemSelectButton from './ItemSelectButton.vue'
 import ItemPreviewButton from './ItemPreviewButton.vue'
 import TypeSelectButton from './TypeSelectButton.vue'
-import { useState } from '@/hooks'
 import { useAreaStore, useIconTagStore, useItemStore, useItemTypeStore } from '@/stores'
 import { AppAreaCodeSelecter } from '@/components'
 
@@ -33,10 +32,6 @@ const areaStore = useAreaStore()
 const itemStore = useItemStore()
 const itemTypeStore = useItemTypeStore()
 
-const sorter = ({ sortIndex: sa = 0 }: { sortIndex?: number }, { sortIndex: sb = 0 }: { sortIndex?: number }) => {
-  return sb - sa
-}
-
 // ==================== 地区信息 ====================
 /** 当没有传入外部地区代码时使用内置缓存 */
 const internalAreaCode = ref('')
@@ -62,31 +57,44 @@ const iconMap = computed(() => iconTagStore.iconTagMap)
 const queryText = ref('')
 
 // ==================== 物品类型 ====================
+
+// 将 typeId 为 -1 的类型表示为全部搜索结果
 const itemTypeList = computed(() => {
-  return itemTypeStore.itemTypeList
-    .filter(({ isFinal }) => isFinal)
-    .sort(sorter)
+  const queryKeyword = queryText.value.trim()
+  const result = itemTypeStore.itemTypeList.filter(({ isFinal }) => isFinal)
+  if (!queryKeyword)
+    return result
+  return [{ id: -1, name: '搜索结果' }, ...result]
 })
 
-const [selectedType, setSelectedType] = useState<API.ItemTypeVo | null>(itemTypeList.value[0] ?? null)
+const selectedTypeId = ref<number>()
+
+watch(queryText, (text) => {
+  const queryKeyword = text.trim()
+  if (!queryKeyword) {
+    selectedTypeId.value = itemTypeList.value[0]?.id
+    return
+  }
+  selectedTypeId.value = -1
+})
 
 // ==================== 物品信息 ====================
 const itemList = computed(() => {
-  const queryTypeId = selectedType.value?.id
+  const queryTypeId = selectedTypeId.value
   const queryKeyword = queryText.value.trim()
   const queryAreaId = areaId.value
   if (queryTypeId === undefined)
     return []
   const items = itemStore.itemList
     .filter(({ name = '', areaId = -1, typeIdList = [] }) => {
-      if (!new Set(typeIdList).has(queryTypeId))
+      if (queryTypeId !== -1 && !new Set(typeIdList).has(queryTypeId))
         return false
       const isQueryMatch = !queryKeyword || (name.includes(queryKeyword) ?? false)
       if (!isQueryMatch)
         return false
       return areaId === queryAreaId
     })
-  return items.sort(sorter)
+  return items
 })
 
 // ==================== 已选物品 ====================
@@ -155,12 +163,18 @@ watch(() => itemList.value, () => scrollbarRef.value?.setScrollTop(0))
             v-for="itemType in itemTypeList"
             :key="itemType.id"
             :item-type="itemType"
-            :actived="itemType.id === selectedType?.id"
+            :actived="itemType.id === selectedTypeId"
             :src="iconTagStore.tagSpriteUrl"
             :mapping="iconTagStore.tagPositionMap[itemType.iconTag ?? '']"
             :nums="groupedItems[itemType.id!]?.length"
-            @click="() => setSelectedType(itemType)"
-          />
+            @click="selectedTypeId = itemType.id"
+          >
+            <template v-if="itemType.id === -1" #icon>
+              <el-icon :size="28" class="p-1">
+                <Search />
+              </el-icon>
+            </template>
+          </TypeSelectButton>
         </ElScrollbar>
       </div>
 

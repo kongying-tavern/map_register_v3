@@ -18,11 +18,13 @@ withDefaults(defineProps<{
     :class="{ actived }"
     class="type-select-button flex items-center rounded p-1 mb-0.5 gap-1 relative"
   >
-    <AppIconTagRenderer
-      :src="src"
-      :mapping="mapping"
-      class="w-7 h-7 flex-shrink-0"
-    />
+    <slot name="icon">
+      <AppIconTagRenderer
+        :src="src"
+        :mapping="mapping"
+        class="w-7 h-7 flex-shrink-0"
+      />
+    </slot>
     <div class="overflow-hidden text-ellipsis whitespace-nowrap text-xs">
       {{ itemType.name }}
     </div>
