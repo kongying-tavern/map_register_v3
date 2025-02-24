@@ -3,12 +3,9 @@ import { Delete, Setting } from '@element-plus/icons-vue'
 import { SettingBar, SettingGroup, SettingPanel } from '../components'
 import { AppVirtualTable } from '@/components'
 import { useDevStore, usePreferenceStore } from '@/stores'
-import { useBanner } from '@/hooks'
 
 const devStore = useDevStore()
 const preferenceStore = usePreferenceStore()
-
-const { visible } = useBanner()
 
 const initLogInfo = (args: unknown[]) => {
   const str: {
@@ -105,14 +102,6 @@ const initLogInfo = (args: unknown[]) => {
               </el-checkbox>
             </div>
           </el-checkbox-group>
-        </template>
-      </SettingBar>
-    </SettingGroup>
-
-    <SettingGroup name="调试">
-      <SettingBar label="banner" note="banner 控制器">
-        <template #setting>
-          <el-switch v-model="visible" />
         </template>
       </SettingBar>
     </SettingGroup>
