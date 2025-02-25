@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { CircleCloseFilled } from '@element-plus/icons-vue'
 import { AppIconTagRenderer } from '@/components'
+import { CircleCloseFilled } from '@element-plus/icons-vue'
 
 defineProps<{
   item: API.ItemVo

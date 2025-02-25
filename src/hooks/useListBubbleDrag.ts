@@ -2,7 +2,7 @@ import type { ShallowRef } from 'vue'
 
 export interface ListBubbleDragHookOptions<T> {
   /** 判断是否将元素丢弃回原条目 */
-  isDropback? (ev: DragEvent, item: T): boolean
+  isDropback?: (ev: DragEvent, item: T) => boolean
   /** 执行清除气泡元素的方法 */
   onClearBubble?: (item: T) => void
 }

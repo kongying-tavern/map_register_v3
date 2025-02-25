@@ -1,8 +1,21 @@
 <script setup lang="ts">
+import type { GSMarkerInfo, MarkerLinkMission } from '@/packages/map'
+import type { ModifyLinkOptions } from './MarkerLink'
+import { AppWindowTeleporter } from '@/components'
+import { GSLinkLayer, GSMarkerLayer } from '@/packages/map'
+import {
+  LINK_CONFIG_MAP,
+  LinkActionEnum,
+  mapContainerKey,
+  MapSubject,
+  TempLayerIndex,
+} from '@/shared'
+import { useMapStateStore, useMarkerLinkStore, useMarkerStore } from '@/stores'
 import { useSubscription } from '@vueuse/rxjs'
-import { Subject, filter, finalize, map, race, repeat, switchMap, takeUntil, tap } from 'rxjs'
 import { ElMessage } from 'element-plus'
 import { animate } from 'popmotion'
+import { filter, finalize, map, race, repeat, Subject, switchMap, takeUntil, tap } from 'rxjs'
+import BarItem from './BarItem.vue'
 import {
   IconMarkerLink,
   LinkIndicator,
@@ -12,18 +25,6 @@ import {
   useLinkOperate,
   useLinkWindow,
 } from './MarkerLink'
-import type { ModifyLinkOptions } from './MarkerLink'
-import BarItem from './BarItem.vue'
-import { useMapStateStore, useMarkerLinkStore, useMarkerStore } from '@/stores'
-import { AppWindowTeleporter } from '@/components'
-import {
-  LINK_CONFIG_MAP,
-  LinkActionEnum,
-  MapSubject,
-  TempLayerIndex,
-  mapContainerKey,
-} from '@/shared'
-import { GSLinkLayer, type GSMarkerInfo, GSMarkerLayer, type MarkerLinkMission } from '@/packages/map'
 
 const mapStateStore = useMapStateStore()
 const markerStore = useMarkerStore()
@@ -69,7 +70,7 @@ const config = ref({
 
 // ==================== 内部状态 ====================
 
-const linkIndicatorPosition = ref<{ x: number; y: number }>()
+const linkIndicatorPosition = ref<{ x: number, y: number }>()
 const prevMarker = shallowRef<GSMarkerInfo>()
 const nextMarker = shallowRef<GSMarkerInfo>()
 const hoverMarker = shallowRef<GSMarkerInfo>()
@@ -231,8 +232,9 @@ useSubscription(start$.pipe(
         if (!info.layer
           || !GSMarkerLayer.isInstance(info.layer)
           || !info.object
-        )
+        ) {
           return undefined
+        }
         return info.object as GSMarkerInfo
       }),
 

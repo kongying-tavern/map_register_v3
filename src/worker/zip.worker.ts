@@ -1,7 +1,7 @@
-import SevenZip from '7z-wasm'
 import type { Logger } from '@/utils/logger'
-import { formatByteSize } from '@/utils/formatByteSize'
+import SevenZip from '7z-wasm'
 import { useLoggerWorker } from '@/hooks/useWorkerLogger'
+import { formatByteSize } from '@/utils/formatByteSize'
 
 export {}
 

@@ -1,9 +1,9 @@
 <script lang="ts" setup>
+import type { AreaWithChildren } from '@/stores'
+import type { MAFMetaArea, MAFOptionSelect, MAFValueNumberArray } from '@/stores/types'
 import { Place } from '@element-plus/icons-vue'
 import { MarkerFilterButton, MarkerFilterSelectPanel } from '../../../MarkerFilterComponent'
 import ModelAreaDialog from './ModelAreaDialog.vue'
-import type { MAFMetaArea, MAFOptionSelect, MAFValueNumberArray } from '@/stores/types'
-import type { AreaWithChildren } from '@/stores'
 
 defineProps<{
   options: MAFOptionSelect<AreaWithChildren>

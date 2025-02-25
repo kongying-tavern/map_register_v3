@@ -1,10 +1,10 @@
 <script lang="ts" setup>
+import Api from '@/api/api'
+import { GlobalDialogController, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
+import { useFetchHook } from '@/hooks'
 import { Check, Close } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { AreaDetailForm } from '.'
-import { useFetchHook } from '@/hooks'
-import { GlobalDialogController, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
-import Api from '@/api/api'
 
 const props = defineProps<{
   parent?: API.AreaVo

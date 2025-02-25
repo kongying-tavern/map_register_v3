@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import HistoryDifferItem from './HistoryDifferItem.vue'
 import DifferCoord from './DifferCoord.vue'
-import DifferText from './DifferText.vue'
-import DifferItem from './DifferItem.vue'
-import DifferImage from './DifferImage.vue'
 import DifferExtra from './DifferExtra.vue'
-import DifferRefreshTime from './DifferRefreshTime.vue'
 import DifferHiddenFlag from './DifferHiddenFlag.vue'
+import DifferImage from './DifferImage.vue'
+import DifferItem from './DifferItem.vue'
+import DifferRefreshTime from './DifferRefreshTime.vue'
+import DifferText from './DifferText.vue'
+import HistoryDifferItem from './HistoryDifferItem.vue'
 
 const props = defineProps<{
   loading?: boolean

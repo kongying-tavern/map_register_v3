@@ -1,5 +1,5 @@
-import { OrthographicController } from 'deck.gl'
 import type { GenshinMapProps } from '..'
+import { OrthographicController } from 'deck.gl'
 
 export const createController = (props: GenshinMapProps) => {
   const { scrollZoom } = (props.controller ?? {})

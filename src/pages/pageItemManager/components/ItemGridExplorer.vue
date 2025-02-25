@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { Delete } from '@element-plus/icons-vue'
 import { AppIconTagRenderer } from '@/components'
-import { useAreaStore, useIconTagStore, useMarkerStore } from '@/stores'
 import { HIDDEN_FLAG_NAME_MAP, HiddenFlagEnum } from '@/shared'
+import { useAreaStore, useIconTagStore, useMarkerStore } from '@/stores'
+import { Delete } from '@element-plus/icons-vue'
 
 defineProps<{
   loading: boolean

@@ -1,5 +1,5 @@
-import type { ShallowRef } from 'vue'
 import type { IconLayerProps } from 'deck.gl'
+import type { ShallowRef } from 'vue'
 import { renderMarkerSprite } from '@/worker/markerSpriteRenderer'
 
 export interface MarkerSpriteHookOptions {
@@ -17,7 +17,7 @@ export const useMarkerSprite = (options: MarkerSpriteHookOptions) => {
   /** 标签 mapping  */
   const markerSpriteMapping = shallowRef<Exclude<NonNullable<IconLayerProps['iconMapping']>, string>>({})
 
-  const states: { state: string; color: string }[] = [
+  const states: { state: string, color: string }[] = [
     { state: 'default', color: '#FFFFFF' },
     { state: 'hover', color: '#DDDDDD' },
     { state: 'focus', color: '#FFFF00' },

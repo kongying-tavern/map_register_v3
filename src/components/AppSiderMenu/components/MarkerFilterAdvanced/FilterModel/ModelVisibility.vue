@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-import { MarkerFilterButton } from '../../MarkerFilterComponent'
-import { SelectBase } from '../FilterModelComponent'
 import type { MAFMetaVisibility, MAFOptionSelect, MAFValueNumberArray } from '@/stores/types'
 import { IconEye } from '@/components/AppIcons'
+import { MarkerFilterButton } from '../../MarkerFilterComponent'
+import { SelectBase } from '../FilterModelComponent'
 
 defineProps<{
-  options: MAFOptionSelect<{ label: string; value: number }>
+  options: MAFOptionSelect<{ label: string, value: number }>
   meta: MAFMetaVisibility
 }>()
 

@@ -1,8 +1,8 @@
 <script lang="tsx" setup>
-import MarkerRow from './MarkerRow.vue'
-import { useIconTagStore, useMapStateStore } from '@/stores'
 import { AppVirtualTable } from '@/components'
 import { useMarkerControl } from '@/hooks'
+import { useIconTagStore, useMapStateStore } from '@/stores'
+import MarkerRow from './MarkerRow.vue'
 
 const iconTagStore = useIconTagStore()
 const mapStateStore = useMapStateStore()

@@ -1,5 +1,5 @@
-import type { useAccessStore } from '@/stores'
 import type { WindowContextHookReturnType } from '@/components'
+import type { useAccessStore } from '@/stores'
 
 export { default as FeatureGrid } from './FeatureGrid.vue'
 

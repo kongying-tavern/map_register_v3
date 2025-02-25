@@ -1,7 +1,4 @@
-import { toValue } from 'vue'
-import { useMarkerAdvancedFilter, useMarkerFilter } from '.'
 import type { GSMarkerInfo, TempMarkerType, TempMarkerTypeMap } from '@/packages/map'
-import { createRenderMarkers } from '@/stores/utils'
 import type {
   useArchiveStore,
   useAreaStore,
@@ -11,6 +8,9 @@ import type {
   useTileStore,
 } from '@/stores'
 import type { MAFMeta } from '@/stores/types'
+import { createRenderMarkers } from '@/stores/utils'
+import { toValue } from 'vue'
+import { useMarkerAdvancedFilter, useMarkerFilter } from '.'
 
 interface MarkerHookOptions {
   archiveStore: ReturnType<typeof useArchiveStore>

@@ -1,8 +1,8 @@
-import G6 from '@antv/g6'
 import type { IG6GraphEvent, TreeGraphData } from '@antv/g6'
+import { array2Tree } from '@/utils'
+import G6 from '@antv/g6'
 import dayjs from 'dayjs'
 import { symbolDelete, symbolPlus } from '../utils'
-import { array2Tree } from '@/utils'
 
 const opacityMap = {
   container: 0.6,

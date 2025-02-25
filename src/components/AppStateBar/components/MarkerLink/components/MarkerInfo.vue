@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useAreaStore, useIconTagStore, useItemStore } from '@/stores'
-import { AppIconTagRenderer } from '@/components'
 import type { GSMarkerInfo } from '@/packages/map'
+import { AppIconTagRenderer } from '@/components'
+import { useAreaStore, useIconTagStore, useItemStore } from '@/stores'
 
 const props = withDefaults(defineProps<{
   marker?: GSMarkerInfo

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
+import { GSButton } from '@/components'
 import { CloseBold } from '@element-plus/icons-vue'
 import { contentRefKey, tabNameRefKey } from '.'
-import { GSButton } from '@/components'
 
 const props = defineProps<{
   collapse?: boolean

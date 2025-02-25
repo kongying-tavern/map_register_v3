@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { Loading, Search } from '@element-plus/icons-vue'
-import { PgUnit, useFetchHook, usePagination } from '@/hooks'
 import Api from '@/api/api'
+import { PgUnit, useFetchHook, usePagination } from '@/hooks'
+import { Loading, Search } from '@element-plus/icons-vue'
 
 const modelValue = defineModel<API.IconVo | null>('modelValue', {
   default: null,
@@ -9,7 +9,7 @@ const modelValue = defineModel<API.IconVo | null>('modelValue', {
 
 const iconList = ref<API.IconVo[]>([])
 
-const { state, isLoading, execute } = useAsyncState<{ url?: string; size?: number[]; byteLength?: number }>(async () => {
+const { state, isLoading, execute } = useAsyncState<{ url?: string, size?: number[], byteLength?: number }>(async () => {
   if (!modelValue.value?.url)
     return {}
   const res = await fetch(modelValue.value.url)

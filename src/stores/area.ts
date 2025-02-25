@@ -1,12 +1,12 @@
-import { defineStore } from 'pinia'
-import { liveQuery } from 'dexie'
+import type { WorkerInput, WorkerOutput } from '@/worker/idb.worker'
 import type { Hash } from 'types/database'
-import { useManager } from './hooks'
-import { useAccessStore, useUserStore } from '.'
 import Api from '@/api/api'
 import db from '@/database'
 import BulkPutWorker from '@/worker/idb.worker?worker'
-import type { WorkerInput, WorkerOutput } from '@/worker/idb.worker'
+import { liveQuery } from 'dexie'
+import { defineStore } from 'pinia'
+import { useAccessStore, useUserStore } from '.'
+import { useManager } from './hooks'
 
 export interface AreaWithChildren extends API.AreaVo {
   children?: AreaWithChildren[]

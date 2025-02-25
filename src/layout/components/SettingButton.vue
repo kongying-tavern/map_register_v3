@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { Setting } from '@element-plus/icons-vue'
 import { AppSettings } from '@/components'
 import { useGlobalDialog } from '@/hooks'
+import { Setting } from '@element-plus/icons-vue'
 
 const { DialogService } = useGlobalDialog()
 

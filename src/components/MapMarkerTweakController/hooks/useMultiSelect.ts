@@ -1,11 +1,11 @@
-import { filter, finalize, map, switchMap, takeUntil, tap } from 'rxjs'
+import { useAppWindow } from '@/components'
+import { GSMarkerLayer } from '@/packages/map'
+import { globalPointerup$, mapContainerHeightKey, mapContainerWidthKey, MapSubject } from '@/shared'
+import { MultiSelect } from '@/shared/enum'
+import { useAccessStore, useArchiveStore, useMapStateStore, useShortcutStore } from '@/stores'
 import { useSubscription } from '@vueuse/rxjs'
 import KDBush from 'kdbush'
-import { useAccessStore, useArchiveStore, useMapStateStore, useShortcutStore } from '@/stores'
-import { MapSubject, globalPointerup$, mapContainerHeightKey, mapContainerWidthKey } from '@/shared'
-import { useAppWindow } from '@/components'
-import { MultiSelect } from '@/shared/enum'
-import { GSMarkerLayer } from '@/packages/map'
+import { filter, finalize, map, switchMap, takeUntil, tap } from 'rxjs'
 
 const INCREASE_COLOR = '#00FFFD'
 const DECREASE_COLOR = '#FFFF00'
@@ -41,8 +41,8 @@ export const useMultiSelect = () => {
 
   // ==================== 界面控制 ====================
   const rect = ref<{
-    start?: { x: number; y: number }
-    end?: { x: number; y: number }
+    start?: { x: number, y: number }
+    end?: { x: number, y: number }
   }>({})
 
   const shape = computed(() => {

@@ -33,7 +33,7 @@ const setCurrentColor = () => {
   setColor(currentColor.value)
 }
 
-const colorList: { label: string; color: string }[] = [
+const colorList: { label: string, color: string }[] = [
   { label: '深红色', color: '#C00000' },
   { label: '红色', color: '#FF0000' },
   { label: '橙色', color: '#FFC000' },

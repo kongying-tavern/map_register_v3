@@ -1,6 +1,7 @@
 <script lang="ts" setup>
+import { GSButton } from '@/components'
+import { useMapStateStore } from '@/stores'
 import { DeleteFilled, MapLocation, Plus, QuestionFilled } from '@element-plus/icons-vue'
-import { FilterModel } from './FilterModel'
 import {
   MapTilePicker,
   ModelComponent,
@@ -8,8 +9,7 @@ import {
   ModelPicker,
   SemanticText,
 } from '.'
-import { useMapStateStore } from '@/stores'
-import { GSButton } from '@/components'
+import { FilterModel } from './FilterModel'
 
 const mapStateStore = useMapStateStore()
 

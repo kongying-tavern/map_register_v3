@@ -1,5 +1,5 @@
-import { getFileType } from '@/utils'
 import { useFetchHook } from '@/hooks'
+import { getFileType } from '@/utils'
 
 export const useLocalPicture = () => {
   const { data: localPicture, ...rest } = useFetchHook({

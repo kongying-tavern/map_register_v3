@@ -1,6 +1,6 @@
 import type { MaybeRef } from 'vue'
-import { WindowContext } from '../core'
 import type { MapWindow } from '../types'
+import { WindowContext } from '../core'
 
 export interface WindowContextHookReturnType {
   context: WindowContext

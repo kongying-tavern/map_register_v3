@@ -1,9 +1,9 @@
 <script lang="ts" setup>
+import type { EditTypeEnum } from '@/shared'
 import { AppUserPopover } from '@/components'
 import { useUserPopover } from '@/hooks'
-import { timeFormatter } from '@/utils'
-import type { EditTypeEnum } from '@/shared'
 import { EDIT_TYPE_MAP } from '@/shared'
+import { timeFormatter } from '@/utils'
 
 const props = defineProps<{
   loading: boolean

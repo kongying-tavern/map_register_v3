@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { LayersList } from 'deck.gl'
+import type { GenshinMap } from '../core'
 import type { GenshinMapProps, GenshinMapViewState } from '../types'
 import { useGenshinMap } from '../hooks'
-import type { GenshinMap } from '../core'
 
 const props = defineProps<{
   layers?: LayersList

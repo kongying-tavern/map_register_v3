@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useIconTagStore } from '@/stores'
 import { AppIconTagRenderer, AppVirtualTable } from '@/components'
+import { useIconTagStore } from '@/stores'
 
 const props = defineProps<{
   tagList: API.TagVo[]

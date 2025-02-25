@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import { ArrowDownBold, ArrowUpBold, DeleteFilled } from '@element-plus/icons-vue'
-import type { MaybeComputedRef } from '@vueuse/core'
-import { MarkerFilterButton } from '../MarkerFilterComponent'
 import type { MAFGroupComposed } from '@/stores/types'
+import type { MaybeComputedRef } from '@vueuse/core'
 import { AppDraggableTable } from '@/components'
+import { ArrowDownBold, ArrowUpBold, DeleteFilled } from '@element-plus/icons-vue'
+import { MarkerFilterButton } from '../MarkerFilterComponent'
 
 const props = defineProps<{
   disabled?: boolean

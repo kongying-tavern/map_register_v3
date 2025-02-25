@@ -1,11 +1,5 @@
 <script setup lang="ts">
-import { TRANSITION_EVENTS } from 'deck.gl'
-import { useSubscription } from '@vueuse/rxjs'
-import { filter } from 'rxjs'
-import { EaseoutInterpolator, GSZoomController, GenshinMapDeck } from '@/packages/map'
 import type { GenshinMap, GenshinMapViewState } from '@/packages/map'
-import { useArchiveStore, useMapStateStore, useShortcutStore, useTileStore } from '@/stores'
-import { useMapLayers, useResourceStatus, useTheme } from '@/hooks'
 import {
   AppDevInfo,
   AppDialogProvider,
@@ -20,14 +14,20 @@ import {
   MapMarkerToggleController,
   MapMarkerTweakController,
 } from '@/components'
+import { useMapLayers, useResourceStatus, useTheme } from '@/hooks'
+import { EaseoutInterpolator, GenshinMapDeck, GSZoomController } from '@/packages/map'
 import {
-  MapSubject,
   mapAffixKey,
   mapContainerHeightKey,
   mapContainerKey,
   mapContainerWidthKey,
+  MapSubject,
   mapViewStateKey,
 } from '@/shared'
+import { useArchiveStore, useMapStateStore, useShortcutStore, useTileStore } from '@/stores'
+import { useSubscription } from '@vueuse/rxjs'
+import { TRANSITION_EVENTS } from 'deck.gl'
+import { filter } from 'rxjs'
 
 // ================ 全局状态 ================
 const tileStore = useTileStore()

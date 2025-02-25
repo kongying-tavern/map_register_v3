@@ -1,6 +1,6 @@
-import { ElMessage } from 'element-plus'
 import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
+import { ElMessage } from 'element-plus'
 
 export const useAreaList = () => {
   const error = ref('')

@@ -1,5 +1,5 @@
-import { mapContainerHeightKey, mapContainerWidthKey, mapViewStateKey } from '@/shared'
 import type { GenshinMapViewState } from '@/packages/map'
+import { mapContainerHeightKey, mapContainerWidthKey, mapViewStateKey } from '@/shared'
 import { useTileStore } from '@/stores'
 
 export interface MapProjectionHookOptions {

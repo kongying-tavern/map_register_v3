@@ -1,6 +1,6 @@
-import 'vue-router'
-import type * as ElIcons from '@element-plus/icons-vue'
 import type { RoleTypeEnum } from '@/shared'
+import type * as ElIcons from '@element-plus/icons-vue'
+import 'vue-router'
 
 declare module 'vue-router' {
   /** 拓展元信息类型 */

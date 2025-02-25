@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { Check, Close } from '@element-plus/icons-vue'
+import type { ElFormType } from '@/shared'
+import type { ItemFormRules } from '@/utils'
 import type { ComputedRef } from 'vue'
-import { useNoticeCreate, useNoticeUpdate } from '../hooks'
 import {
   AppRichtextEditor,
   GlobalDialogController,
@@ -10,10 +10,10 @@ import {
   WinDialogTabPanel,
   WinDialogTitleBar,
 } from '@/components'
-import type { ItemFormRules } from '@/utils'
-import type { ElFormType } from '@/shared'
-import { NOTICE_NAME_MAP } from '@/shared'
 import { useFetchHook } from '@/hooks'
+import { NOTICE_NAME_MAP } from '@/shared'
+import { Check, Close } from '@element-plus/icons-vue'
+import { useNoticeCreate, useNoticeUpdate } from '../hooks'
 
 const props = defineProps<{
   notice?: API.NoticeVo

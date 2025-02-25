@@ -1,12 +1,12 @@
-import { ElMessage } from 'element-plus'
 import type { Ref } from 'vue'
-import { pick } from 'lodash'
 import type { MarkerForm } from '../components'
-import { usePictureUpload } from './usePictureUpload'
 import Api from '@/api/api'
+import db from '@/database'
 import { useFetchHook } from '@/hooks'
 import { useUserStore } from '@/stores'
-import db from '@/database'
+import { ElMessage } from 'element-plus'
+import { pick } from 'lodash'
+import { usePictureUpload } from './usePictureUpload'
 
 /** 新增点位，已自动处理 version 和 methodType 字段 */
 export const useMarkerCreate = (markerData: Ref<API.MarkerVo | null>) => {
@@ -67,7 +67,7 @@ export const useMarkerCreate = (markerData: Ref<API.MarkerVo | null>) => {
         return
       await submit()
     }
-    catch (err) {
+    catch {
       // validate, no error
     }
   }

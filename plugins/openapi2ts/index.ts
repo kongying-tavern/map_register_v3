@@ -1,10 +1,10 @@
 /* eslint-disable no-console */
-import cp from 'node:child_process'
-import path from 'node:path'
-import fs from 'node:fs/promises'
-import type { Plugin } from 'vite'
-import { generateService } from 'openapi2ts'
 import type { GenerateServiceProps } from 'openapi2ts'
+import type { Plugin } from 'vite'
+import cp from 'node:child_process'
+import fs from 'node:fs/promises'
+import path from 'node:path'
+import { generateService } from 'openapi2ts'
 
 export interface Openapi2tsOptions extends GenerateServiceProps {
   /** openAPI 3.0 的地址 */
@@ -54,7 +54,7 @@ export const openapi2ts = (optionList: Openapi2tsOptions[]): Plugin => {
             // 格式化
             // .replace(/{\/\//g, '{\n    \/\/')
             // params 上的空对象类型替换
-            .replace(/params: {}/g, 'params: NonNullable<unknown>')
+            .replace(/params: \{\}/g, 'params: NonNullable<unknown>')
             // 尾部分号去除
             // .replace(/;(?=(\r?\n))/g, '')
             // 尾换行符使用 windows 风格
@@ -63,7 +63,7 @@ export const openapi2ts = (optionList: Openapi2tsOptions[]): Plugin => {
             .replace(/(?<=[,:]\s+)any/g, 'unknown')
             // 将 options 类型指定为 AxiosRequestConfig
             .replace('import { request } from \'@/utils\'', 'import type { AxiosRequestConfig } from \'axios\'\r\nimport { request } from \'@/utils\'')
-            .replace(/options\?: { \[key: string\]: unknown }/g, 'options?: AxiosRequestConfig')
+            .replace(/options\?: \{ \[key: string\]: unknown \}/g, 'options?: AxiosRequestConfig')
           await fs.writeFile(filePath, writeContent)
         }))
       }

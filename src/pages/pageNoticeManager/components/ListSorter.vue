@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ArrowLeft, ArrowRight } from '@element-plus/icons-vue'
 import { AppDraggableTable } from '@/components'
+import { ArrowLeft, ArrowRight } from '@element-plus/icons-vue'
 
 const props = defineProps<{
-  options: { label: string; key: string }[]
+  options: { label: string, key: string }[]
   visible: boolean
 }>()
 
@@ -28,10 +28,10 @@ const parseSorters = (sortUnits: string[]) => {
     const key = unit.slice(0, -1)
     seed.push({ key, flag })
     return seed
-  }, [] as { key: string; flag: string }[])
+  }, [] as { key: string, flag: string }[])
 }
 
-const stringifySorters = (list: { key: string; flag: string }[]) => {
+const stringifySorters = (list: { key: string, flag: string }[]) => {
   return list.map(({ key, flag }) => `${key}${flag}`)
 }
 

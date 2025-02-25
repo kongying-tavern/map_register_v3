@@ -2,7 +2,7 @@
 import WinDialogTabs from './WinDialogTabs.vue'
 
 defineProps<{
-  tabs?: { key: string; name: string }[]
+  tabs?: { key: string, name: string }[]
   tabsDisabled?: boolean
 }>()
 

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ElButton, ElDivider, ElForm, ElFormItem, ElInput } from 'element-plus'
-import { CirclePlus } from '@element-plus/icons-vue'
-import { useRegisterForm } from '../hooks'
-import { useCountDown } from '@/hooks'
 import { WinDialog, WinDialogTitleBar } from '@/components/WinUI'
+import { useCountDown } from '@/hooks'
+import { CirclePlus } from '@element-plus/icons-vue'
+import { ElButton, ElDivider, ElForm, ElFormItem, ElInput } from 'element-plus'
+import { useRegisterForm } from '../hooks'
 
 const visible = defineModel<boolean>('visible', {
   required: true,

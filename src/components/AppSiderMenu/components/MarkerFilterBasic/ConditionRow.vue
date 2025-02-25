@@ -1,7 +1,7 @@
 <script lang="ts" setup>
+import type { MBFItem } from '@/stores/types'
 import { DeleteFilled } from '@element-plus/icons-vue'
 import { MarkerFilterButton } from '../MarkerFilterComponent'
-import type { MBFItem } from '@/stores/types'
 
 const props = defineProps<{
   disabled?: boolean

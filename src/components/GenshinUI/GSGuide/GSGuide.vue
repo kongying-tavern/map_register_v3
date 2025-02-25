@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { CloseFilled } from '../GSIcon'
 import GSButton from '../GSButton.vue'
+import { CloseFilled } from '../GSIcon'
 import { GuideBorder, GuideIcon } from './components'
 
 defineProps<{

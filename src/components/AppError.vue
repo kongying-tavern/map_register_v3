@@ -3,7 +3,7 @@ const props = defineProps<{
   error: Error
 }>()
 
-const stack = computed<undefined | { label: string; codes: string[] }>(() => {
+const stack = computed<undefined | { label: string, codes: string[] }>(() => {
   const { stack } = props.error
   if (!stack)
     return

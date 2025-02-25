@@ -1,10 +1,6 @@
 <script lang="ts" setup>
-import { DeleteFilled } from '@element-plus/icons-vue'
-import { storeToRefs } from 'pinia'
-import { useItemCount, useMarkerFilter, useTypeCount } from './hooks'
-import { DefaultMarkingItem, FilterTabPanel, FilterTabs } from './components'
-import { CheckboxGroup, ConditionRow, ItemButton } from '.'
 import { AppIconTagRenderer, GSButton } from '@/components'
+import { fallbackToStaticIcon } from '@/configs'
 import {
   useArchiveStore,
   useAreaStore,
@@ -15,7 +11,11 @@ import {
   useMarkerStore,
   usePreferenceStore,
 } from '@/stores'
-import { fallbackToStaticIcon } from '@/configs'
+import { DeleteFilled } from '@element-plus/icons-vue'
+import { storeToRefs } from 'pinia'
+import { CheckboxGroup, ConditionRow, ItemButton } from '.'
+import { DefaultMarkingItem, FilterTabPanel, FilterTabs } from './components'
+import { useItemCount, useMarkerFilter, useTypeCount } from './hooks'
 
 const archiveStore = useArchiveStore()
 const iconTagStore = useIconTagStore()

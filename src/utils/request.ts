@@ -1,10 +1,10 @@
 /* eslint-disable ts/no-explicit-any */
-// TODO 迁移至 fetch
-import axios from 'axios'
 import type { AxiosError, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
-import { upperFirst } from 'lodash'
 import { useUserStore } from '@/stores'
 import { Logger } from '@/utils'
+// TODO 迁移至 fetch
+import axios from 'axios'
+import { upperFirst } from 'lodash'
 
 const logger = new Logger('Axios')
 

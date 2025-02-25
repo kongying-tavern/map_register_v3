@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import MessageItem from './MessageItem.vue'
-import { useSocketStore, useUserStore } from '@/stores'
 import db from '@/database'
 import { useFetchHook } from '@/hooks'
+import { useSocketStore, useUserStore } from '@/stores'
+import MessageItem from './MessageItem.vue'
 
 const socketStore = useSocketStore()
 const userStore = useUserStore()

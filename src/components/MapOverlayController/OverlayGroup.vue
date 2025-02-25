@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { ElCheckbox, ElRadio } from 'element-plus'
 import type { OverlayChunk, OverlayChunkGroup } from '@/packages/map'
 import { useOverlayStore } from '@/stores'
+import { ElCheckbox, ElRadio } from 'element-plus'
 
 const props = defineProps<{
   group: OverlayControllerChunkGroup

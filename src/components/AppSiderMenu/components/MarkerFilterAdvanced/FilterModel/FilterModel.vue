@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import type { MAFItemComposed, MAFValue } from '@/stores/types'
 import {
   ModelArea,
   ModelContentContain,
@@ -19,7 +20,6 @@ import {
   ModelVideo,
   ModelVisibility,
 } from '.'
-import type { MAFItemComposed, MAFValue } from '@/stores/types'
 
 const props = defineProps<{
   composedCondition: MAFItemComposed

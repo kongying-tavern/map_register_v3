@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import type { InternalItemData } from './types'
+import { AppIconTagRenderer } from '@/components'
+import { useIconTagStore, useItemTypeStore } from '@/stores'
 import { Delete } from '@element-plus/icons-vue'
 import { useFormItem } from 'element-plus'
-import type { InternalItemData } from './types'
-import { useIconTagStore, useItemTypeStore } from '@/stores'
-import { AppIconTagRenderer } from '@/components'
 
 defineProps<{
   data: InternalItemData

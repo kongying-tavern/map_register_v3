@@ -1,9 +1,9 @@
-import { getObjectFitSize } from '@/utils/getObjectFitSize'
-import { limitPromiseAll } from '@/utils/limitPromiseAll'
 import type { Logger } from '@/utils/logger'
-import { getDigest } from '@/utils/getDigest'
 import { WorkerThreadDB } from '@/database/db/worker'
 import { useLoggerWorker } from '@/hooks/useWorkerLogger'
+import { getDigest } from '@/utils/getDigest'
+import { getObjectFitSize } from '@/utils/getObjectFitSize'
+import { limitPromiseAll } from '@/utils/limitPromiseAll'
 
 const db = new WorkerThreadDB()
 
@@ -11,7 +11,7 @@ declare const globalThis: DedicatedWorkerGlobalScope
 
 export interface WorkerInput {
   /** 需要被渲染的标签列表 */
-  tagList: { tag: string; url: string }[]
+  tagList: { tag: string, url: string }[]
   /** 图标尺寸 @default 64 */
   size?: number
   /** 图标之间的空隙，用于避免精度误差导致的重叠 */
@@ -90,7 +90,7 @@ const render = async (params: WorkerInput, logger: Logger): Promise<WorkerSucces
       urlTagsMap.set(url, [...tags, tag])
   })
 
-  const fetchList: { tags: string[]; url: string }[] = []
+  const fetchList: { tags: string[], url: string }[] = []
   urlTagsMap.forEach((tags, url) => {
     fetchList.push({ tags, url })
   })

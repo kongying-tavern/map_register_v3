@@ -75,14 +75,14 @@ export interface MAFSemanticUnit {
   text?: string
 }
 
-export interface MAFConfig {
+export interface MAFConfig<V extends MAFValue = MAFValue, O extends MAFOption = MAFOption, M extends MAFMeta = MAFMeta> {
   readonly id: number
   readonly name: string
-  readonly option: MaybeComputedRef<MAFOption>
-  readonly defaultVal: MAFValue
-  prepare(val: MAFValue, opt: MAFOption): MAFMeta
-  semantic(val: MAFValue, opt: MAFOption, meta: MAFMeta, opposite: boolean): MAFSemanticUnit[]
-  filter(val: MAFValue, opt: MAFOption, meta: MAFMeta, marker: API.MarkerVo): boolean
+  readonly option: MaybeComputedRef<O>
+  readonly defaultVal: V
+  prepare: (val: V, opt: O) => M
+  semantic: (val: V, opt: O, meta: M, opposite: boolean) => MAFSemanticUnit[]
+  filter: (val: V, opt: O, meta: M, marker: API.MarkerVo) => boolean
 }
 
 // ==================== 数据模型 ====================

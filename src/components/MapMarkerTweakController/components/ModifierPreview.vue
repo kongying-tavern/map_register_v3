@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { Modifier } from '../core'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
+import type { Modifier } from '../core'
 
 defineProps<{
   modifier: Modifier

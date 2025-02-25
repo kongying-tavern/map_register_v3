@@ -17,7 +17,7 @@ export interface ManagerOptions<C, T> {
   /** 全量更新数据 */
   full: (context: C) => Promise<T>
   /** 写入数据 */
-  commit(data: T, context: C): Promise<void>
+  commit: (data: T, context: C) => Promise<void>
 }
 
 export interface ManagerUpdateOptions {

@@ -1,6 +1,5 @@
-import { ref, shallowRef } from 'vue'
-import type { Component } from 'vue'
 import type { DialogProps } from 'element-plus'
+import type { Component } from 'vue'
 
 export const context = {
   visible: ref(false),
@@ -9,7 +8,7 @@ export const context = {
   payloadCache: ref<unknown>(),
   dialogProps: ref<Omit<Partial<DialogProps>, 'modelValue'>>({}),
   closeResolver: ref<((payload: unknown) => void) | null>(null),
-  listener: ref<Record<string, Function>>({}),
+  listener: ref<Record<string, (...args: unknown[]) => void>>({}),
   resetState: () => {
     context.props.value = {}
     context.dialogProps.value = {}

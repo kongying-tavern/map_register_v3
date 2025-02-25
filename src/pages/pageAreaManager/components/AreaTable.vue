@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { useUserPopover } from '@/hooks'
-import { timeFormatter } from '@/utils'
 import { AppRowImage, AppUserPopover } from '@/components'
+import { useUserPopover } from '@/hooks'
 import { useIconTagStore } from '@/stores'
+import { timeFormatter } from '@/utils'
 
 const props = defineProps<{
   areaList: API.AreaVo[]

@@ -1,10 +1,10 @@
-import { defineStore } from 'pinia'
-import { getDefaultPreference } from './types'
+import type { UserPreference } from '@/stores/types/userPreference'
 import Api from '@/api/api'
 import db from '@/database'
 import { useFetchHook } from '@/hooks'
-import type { UserPreference } from '@/stores/types/userPreference'
 import { useUserStore } from '@/stores'
+import { defineStore } from 'pinia'
+import { getDefaultPreference } from './types'
 
 export interface ArchiveBody {
   /** 点位存档 */
@@ -31,7 +31,7 @@ export interface ArchiveSlotData extends API.SysArchiveSlotVo {
   timestamp: number
 }
 
-const parserArchive = ({ archive = '', time = '', historyIndex }: API.SysArchiveVo, options: { slotIndex: number; userId: number }): ArchiveData => {
+const parserArchive = ({ archive = '', time = '', historyIndex }: API.SysArchiveVo, options: { slotIndex: number, userId: number }): ArchiveData => {
   const { Data_KYJG: datas = [], Time_KYJG: times = {}, Preference: preference = {} } = JSON.parse(archive) as {
     Data_KYJG?: (string | number)[]
     Time_KYJG?: Record<number, string>

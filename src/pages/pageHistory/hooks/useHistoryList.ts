@@ -1,6 +1,6 @@
 import type { PaginationState } from '@/hooks'
-import { useFetchHook } from '@/hooks'
 import Api from '@/api/api'
+import { useFetchHook } from '@/hooks'
 
 export const useHistoryList = (options: {
   historyType: Ref<number>

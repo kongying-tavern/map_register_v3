@@ -1,8 +1,8 @@
 <script lang="tsx" setup>
-import { Delete, RefreshRight } from '@element-plus/icons-vue'
-import { useCommonItemDelete, useCommonItemList } from './hooks'
-import { CommonItemSelector, CommonItemTable } from './components'
 import { PgUnit, useGlobalDialog, usePagination, useState } from '@/hooks'
+import { Delete, RefreshRight } from '@element-plus/icons-vue'
+import { CommonItemSelector, CommonItemTable } from './components'
+import { useCommonItemDelete, useCommonItemList } from './hooks'
 
 const { DialogService } = useGlobalDialog()
 const [selections, setSelections] = useState<API.ItemAreaPublicVo[]>([])

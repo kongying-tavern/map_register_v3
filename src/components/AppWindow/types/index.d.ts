@@ -49,43 +49,43 @@ export declare namespace MapWindow {
     dragHookId: string
 
     /** 窗口是否已置顶 */
-    isTop(id: string): boolean
+    isTop: (id: string) => boolean
 
     /** 通过 id 获取窗口信息 */
-    getWindow(id: string): MapWindow.Info | undefined
+    getWindow: (id: string) => MapWindow.Info | undefined
 
     /** 获取所有窗口信息 */
-    getWindows(): Map<string, MapWindow.Info>
+    getWindows: () => Map<string, MapWindow.Info>
 
     /** 清除所有窗口 */
-    clearWindow(): void
+    clearWindow: () => void
 
     /** 置顶指定 id 的面板 */
-    topping(id: string): void
+    topping: (id: string) => void
 
     /** 移动指定的面板 */
-    move(id: string, pos: Coordinate): void
+    move: (id: string, pos: Coordinate) => void
 
     /** 打开窗口，如果已存在对应 id 的面板则跳过操作 */
-    openWindow(params: MapWindow.WindowOpenParams): void
+    openWindow: (params: MapWindow.WindowOpenParams) => void
 
     /** 更新窗口信息，除了 id */
-    updateWindow(id: string, params: Partial<Omit<MapWindow.WindowOpenParams, 'id'>>): void
+    updateWindow: (id: string, params: Partial<Omit<MapWindow.WindowOpenParams, 'id'>>) => void
 
     /** 关闭窗口 */
-    closeWindow(id: string): void
+    closeWindow: (id: string) => void
 
     /** 最小化窗口 */
-    minusWindow(id: string): void
+    minusWindow: (id: string) => void
 
     /** 移动窗口 */
-    move(id: string, pos: { x: number; y: number }): void
+    move: (id: string, pos: { x: number, y: number }) => void
 
     /** 调整窗口尺寸 */
-    resize(id: string, rect: MapWindow.ResizeProps,): void
+    resize: (id: string, rect: MapWindow.ResizeProps,) => void
 
     /** 优化窗口位置，使其返回可见区域 */
-    optimizeWindowPosition(box?: ResizeObserverSize): void
+    optimizeWindowPosition: (box?: ResizeObserverSize) => void
   }
 
   interface WindowDragHookOptions {

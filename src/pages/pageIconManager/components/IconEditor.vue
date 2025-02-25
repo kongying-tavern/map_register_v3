@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import { Check, Close } from '@element-plus/icons-vue'
-import { ElInput, ElSwitch } from 'element-plus'
-import { useImageLoad, useImageSelect, useImageUpload } from '../hooks'
-import { IconImageSelect } from '.'
 import { AppImageCropper, GlobalDialogController, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 import { formatByteSize } from '@/utils'
+import { Check, Close } from '@element-plus/icons-vue'
+import { ElInput, ElSwitch } from 'element-plus'
+import { IconImageSelect } from '.'
+import { useImageLoad, useImageSelect, useImageUpload } from '../hooks'
 
 const props = defineProps<{
   icon: API.TagVo
@@ -20,7 +20,7 @@ enum TabKey {
   SELECT = 'select',
 }
 
-const tabs: { key: string; name: string }[] = [
+const tabs: { key: string, name: string }[] = [
   { key: TabKey.UPLOAD, name: '添加新图片' },
   { key: TabKey.SELECT, name: '使用已有图片' },
 ]

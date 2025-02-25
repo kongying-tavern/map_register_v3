@@ -4,8 +4,8 @@ export interface NoticeContext {
   dialogRef: Ref<HTMLDialogElement | null>
   visible: Ref<boolean>
   closeHook: EventHook<string | undefined>
-  show(): void
-  close(returnValue?: string): void
+  show: () => void
+  close: (returnValue?: string) => void
 }
 
 export const context: NoticeContext = {

@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-import { ElIcon, ElImage, ElSkeleton, ElSkeletonItem } from 'element-plus'
-import { Avatar, CircleCloseFilled } from '@element-plus/icons-vue'
-import { AppLogin } from './AppLogin'
-import { AppUserInfo } from './AppUserInfo'
-import { useUserStore } from '@/stores'
 import { GSButton } from '@/components'
 import { ExitLeft } from '@/components/GenshinUI/GSIcon'
+import { useUserStore } from '@/stores'
+import { Avatar, CircleCloseFilled } from '@element-plus/icons-vue'
+import { ElIcon, ElImage, ElSkeleton, ElSkeletonItem } from 'element-plus'
+import { AppLogin } from './AppLogin'
+import { AppUserInfo } from './AppUserInfo'
 
 const userStore = useUserStore()
 

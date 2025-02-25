@@ -17,7 +17,7 @@ const sortInfo = defineModel<Record<string, string>>('sortInfo', {
   required: true,
 })
 
-const sortOptions: { role: 'key' | 'type'; value: string; name: string; divided?: boolean }[] = [
+const sortOptions: { role: 'key' | 'type', value: string, name: string, divided?: boolean }[] = [
   { role: 'key', value: 'id', name: 'id' },
   { role: 'key', value: 'nickname', name: '昵称' },
   { role: 'key', value: 'createTime', name: '创建时间' },

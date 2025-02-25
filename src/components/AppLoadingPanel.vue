@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { ElNotification } from 'element-plus'
 import { useRouteStore } from '@/stores'
+import { ElNotification } from 'element-plus'
 
 const routeStore = useRouteStore()
 

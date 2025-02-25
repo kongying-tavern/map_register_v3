@@ -8,7 +8,7 @@ export const isMarkerVo = (v: unknown): v is API.MarkerVo => {
   return true
 }
 
-export const isMovingMarker = (v: unknown): v is { origin: API.MarkerVo; offset: API.Coordinate2D } => {
+export const isMovingMarker = (v: unknown): v is { origin: API.MarkerVo, offset: API.Coordinate2D } => {
   if (typeof v !== 'object' || v === null)
     return false
   if (!isMarkerVo((v as Record<string, unknown>).origin))

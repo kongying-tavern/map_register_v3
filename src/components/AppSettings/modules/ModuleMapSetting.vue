@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { SettingBar, SettingGroup, SettingPanel } from '../components'
 import { usePreferenceStore } from '@/stores'
+import { SettingBar, SettingGroup, SettingPanel } from '../components'
 
 const preferenceStore = usePreferenceStore()
 </script>

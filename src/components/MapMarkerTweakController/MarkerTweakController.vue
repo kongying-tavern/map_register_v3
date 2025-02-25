@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { ArrowDown, Check, CirclePlus, Close } from '@element-plus/icons-vue'
-import { ElCascaderPanel, ElDropdown, ElIcon } from 'element-plus'
-import { MapMissionInfo } from '../MapMissionInfo'
-import { useMarkerTweaks, useMultiSelect, useTweaks } from './hooks'
-import { ModifierCard, ModifierPreview } from './components'
-import { IconMouse } from './icons'
 import { AppIconTagRenderer, AppVirtualTable, AppWindowTeleporter } from '@/components'
 import { useIconTagStore, useItemStore } from '@/stores'
 import { pickMainItem } from '@/utils'
+import { ArrowDown, Check, CirclePlus, Close } from '@element-plus/icons-vue'
+import { ElCascaderPanel, ElDropdown, ElIcon } from 'element-plus'
+import { MapMissionInfo } from '../MapMissionInfo'
+import { ModifierCard, ModifierPreview } from './components'
+import { useMarkerTweaks, useMultiSelect, useTweaks } from './hooks'
+import { IconMouse } from './icons'
 
 const itemStore = useItemStore()
 const iconTagStore = useIconTagStore()

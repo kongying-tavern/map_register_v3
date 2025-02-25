@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { NumberRangeBase } from '../FilterModelComponent'
 import type { MAFMetaDummy, MAFOptionRange, MAFValueNumberRange } from '@/stores/types'
+import { NumberRangeBase } from '../FilterModelComponent'
 
 defineProps<{
   options: MAFOptionRange

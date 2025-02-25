@@ -1,11 +1,11 @@
+import Oauth from '@/api/oauth'
+import { router } from '@/router'
+import { USERAUTH_KEY } from '@/shared'
+import { Logger } from '@/utils'
+import { camelCase } from 'lodash'
 import { defineStore } from 'pinia'
 import { catchError, from, of, retry } from 'rxjs'
-import { camelCase } from 'lodash'
 import { userHook } from './hooks'
-import { Logger } from '@/utils'
-import Oauth from '@/api/oauth'
-import { USERAUTH_KEY } from '@/shared'
-import { router } from '@/router'
 
 export interface LocalAuth {
   refreshToken: string

@@ -1,9 +1,9 @@
 <script lang="ts" setup>
+import type { AreaWithExtraConfig } from '@/stores'
+import type { MAFMetaUndergroundLayer, MAFOptionSelect, MAFValueStringArray } from '@/stores/types'
+import { IconLayersFilled } from '@/components/AppIcons'
 import { MarkerFilterButton, MarkerFilterSelectPanel } from '../../../MarkerFilterComponent'
 import ModelUndergroundLayerDialog from './ModelUndergroundLayerDialog.vue'
-import type { MAFMetaUndergroundLayer, MAFOptionSelect, MAFValueStringArray } from '@/stores/types'
-import type { AreaWithExtraConfig } from '@/stores'
-import { IconLayersFilled } from '@/components/AppIcons'
 
 defineProps<{
   options: MAFOptionSelect<AreaWithExtraConfig>

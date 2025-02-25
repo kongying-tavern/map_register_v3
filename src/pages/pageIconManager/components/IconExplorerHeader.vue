@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { useGlobalDialog } from '@/hooks'
 import { ArrowDown, CircleCheck, CirclePlus, Sort } from '@element-plus/icons-vue'
 import { TagCreator } from '.'
-import { useGlobalDialog } from '@/hooks'
 
 const emits = defineEmits<{
   createTagSuccess: [tag: API.TagVo]
@@ -23,7 +23,7 @@ const sortType = defineModel<string>('sortType', {
   required: true,
 })
 
-const sortOptions: { role: 'key' | 'type'; value: string; name: string; divided?: boolean }[] = [
+const sortOptions: { role: 'key' | 'type', value: string, name: string, divided?: boolean }[] = [
   { role: 'key', value: 'tag', name: '名称' },
   { role: 'key', value: 'iconId', name: '图片 id' },
   { role: 'key', value: 'createTime', name: '创建时间' },

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { fromEvent as fromRefEvent, useSubscription } from '@vueuse/rxjs'
 import type { Observable } from 'rxjs'
-import { filter, finalize, map, merge, race, switchMap, takeUntil } from 'rxjs'
 import type { MapWindow } from '../types'
-import { globalPointerMove$, globalPointerup$, globalTouchmove$, globalTouchend$ } from '@/shared'
+import { globalPointerMove$, globalPointerup$, globalTouchend$, globalTouchmove$ } from '@/shared'
+import { fromEvent as fromRefEvent, useSubscription } from '@vueuse/rxjs'
+import { filter, finalize, map, merge, race, switchMap, takeUntil } from 'rxjs'
 
 const props = defineProps<{
   translate: MapWindow.Coordinate

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const slots = defineSlots<{
-  default(): VNode[]
+  default: () => VNode[]
 }>()
 
 const isTabPanel = (vnode: VNode) => {

@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import { AppWindowTeleporter, useAppWindow } from '@/components'
+import { useSocketStore } from '@/stores'
 import { ChromeFilled } from '@element-plus/icons-vue'
 import BarItem from '../BarItem.vue'
 import StatusWindow from './StatusWindow.vue'
-import { useSocketStore } from '@/stores'
-import { AppWindowTeleporter, useAppWindow } from '@/components'
 
 const socketStore = useSocketStore()
 

@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import dayjs from 'dayjs'
-import { useCharsChart, useCountChart, useScore } from './hooks'
 import type { ScoreFilterParmas } from './hooks'
+import dayjs from 'dayjs'
 import { ScoreFilter, ScoreTable } from './components'
+import { useCharsChart, useCountChart, useScore } from './hooks'
 
 const filterForm = ref<ScoreFilterParmas>({
   range: (() => {

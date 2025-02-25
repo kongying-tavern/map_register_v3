@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { Delete } from '@element-plus/icons-vue'
-import { timeFormatter } from '@/utils'
 import { NOTICE_NAME_MAP, now } from '@/shared'
+import { timeFormatter } from '@/utils'
+import { Delete } from '@element-plus/icons-vue'
 
 const props = defineProps<{
   loading: boolean
@@ -24,7 +24,7 @@ const covertNoticeList = computed(() => props.data.map(notice => ({
 const stateList = computed(() => {
   const nowTime = now.value
   return covertNoticeList.value.map(({ time: { start, end } }) => {
-    let state: { label: string; type: 'success' | 'warning' | 'info' } = {
+    let state: { label: string, type: 'success' | 'warning' | 'info' } = {
       label: '生效中',
       type: 'success',
     }
@@ -36,7 +36,7 @@ const stateList = computed(() => {
   })
 })
 
-const getCellClassName = (cell: { column: { property?: string }; rowIndex: number }) => {
+const getCellClassName = (cell: { column: { property?: string }, rowIndex: number }) => {
   const { property } = cell.column
   if (!property)
     return ''

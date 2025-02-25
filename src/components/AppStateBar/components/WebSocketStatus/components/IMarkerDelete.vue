@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import dayjs from 'dayjs'
 import { AppIconTagRenderer } from '@/components'
 import { useMarkerControl } from '@/hooks'
 import { useIconTagStore, useItemStore } from '@/stores'
 import { pickMainItem } from '@/utils'
+import dayjs from 'dayjs'
 
 const props = defineProps<{
   data: Socket.DataEventRecord<'MarkerAdded'>

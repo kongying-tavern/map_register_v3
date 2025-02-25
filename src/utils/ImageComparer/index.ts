@@ -1,6 +1,6 @@
-import { createProgram, createShader } from './utils'
-import VS_SOURCE from './shaders/ssim.vs.glsl?raw'
 import FS_SOURCE from './shaders/ssim.fs.glsl?raw'
+import VS_SOURCE from './shaders/ssim.vs.glsl?raw'
+import { createProgram, createShader } from './utils'
 
 export interface ImageComparerOptions {
   width: number
@@ -54,7 +54,7 @@ export class ImageComparer {
 
   #vertexCount = 4
 
-  #attribute: { name: string; type: keyof WebGL2RenderingContext; size: number; offset?: number }[] = [
+  #attribute: { name: string, type: keyof WebGL2RenderingContext, size: number, offset?: number }[] = [
     { name: 'instancePosition', type: 'FLOAT', size: 2 },
     { name: 'instanceTexCoord', type: 'FLOAT', size: 2 },
   ]

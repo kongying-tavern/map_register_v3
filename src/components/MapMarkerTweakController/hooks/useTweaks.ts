@@ -1,10 +1,10 @@
-import { EnumModifier, TextModifier, TimeModifier } from '../core/modifiers'
-import type { Modifier, ModifierConstructorOptions } from '../core'
-import { Logger, messageFrom } from '@/utils'
-import type { GSMapState } from '@/stores/types/genshin-map-state'
 import type { HiddenFlagEnum } from '@/shared'
+import type { GSMapState } from '@/stores/types/genshin-map-state'
+import type { Modifier, ModifierConstructorOptions } from '../core'
 import { HIDDEN_FLAG_OPTIONS } from '@/shared'
 import { useArchiveStore } from '@/stores'
+import { Logger, messageFrom } from '@/utils'
+import { EnumModifier, TextModifier, TimeModifier } from '../core/modifiers'
 
 interface ModifierConstructor<T> {
   new(options: ModifierConstructorOptions<T>): Modifier

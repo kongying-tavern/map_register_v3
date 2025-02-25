@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Api from '@/api/api'
-import { useFetchHook } from '@/hooks';
+import { useFetchHook } from '@/hooks'
 
 const { refresh: refreshApp, loading: refreshLoading } = useFetchHook({
   onRequest: () => Api.app.triggerAppUpdate(),

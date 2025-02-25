@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { MarkerFilterNumberRange } from '../../MarkerFilterComponent'
 import type { MAFOptionRange } from '@/stores/types'
+import { MarkerFilterNumberRange } from '../../MarkerFilterComponent'
 
 defineProps<{
   options: MAFOptionRange

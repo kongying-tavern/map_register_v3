@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { WarnTriangleFilled } from '@element-plus/icons-vue'
 import type { MAFSemanticUnit } from '@/stores/types'
+import { WarnTriangleFilled } from '@element-plus/icons-vue'
 
 defineProps<{
   option: MAFSemanticUnit

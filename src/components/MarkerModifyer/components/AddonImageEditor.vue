@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import { CircleCheck, Delete, Plus, Setting } from '@element-plus/icons-vue'
-import { useLocalPicture, useMarkerPicture } from '../hooks'
-import { AddonTeleporter } from '.'
-import { formatByteSize } from '@/utils'
 import { AppImageCropper } from '@/components'
+import { formatByteSize } from '@/utils'
+import { CircleCheck, Delete, Plus, Setting } from '@element-plus/icons-vue'
+import { AddonTeleporter } from '.'
+import { useLocalPicture, useMarkerPicture } from '../hooks'
 
 // ==================== 表单图片 ====================
 const modelValue = defineModel<string>('modelValue', {

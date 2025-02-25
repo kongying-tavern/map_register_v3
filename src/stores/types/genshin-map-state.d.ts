@@ -1,5 +1,5 @@
-import type { OrthographicViewState } from 'deck.gl'
 import type { LinkActionEnum } from '@/shared'
+import type { OrthographicViewState } from 'deck.gl'
 
 declare namespace GSMapState {
   /** 地图视口状态 */

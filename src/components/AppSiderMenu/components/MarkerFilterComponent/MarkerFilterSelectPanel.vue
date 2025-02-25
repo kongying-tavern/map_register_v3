@@ -1,6 +1,6 @@
 <script lang="ts" setup generic="T extends {[key: string]: string | number} | unknown, K extends string, V extends unknown">
-import SingleDialog from './MarkerFilterSelectSingleDialog.vue'
 import MultiDialog from './MarkerFilterSelectMultiDialog.vue'
+import SingleDialog from './MarkerFilterSelectSingleDialog.vue'
 
 const props = defineProps<{
   multiple?: boolean

@@ -1,14 +1,14 @@
-import { defineStore } from 'pinia'
-import { liveQuery } from 'dexie'
-import type { ShallowRef } from 'vue'
+import type { WorkerInput, WorkerOutput } from '@/worker/idb.worker'
 import type { Hash } from 'types/database'
-import { useSocketStore, useUserStore } from '.'
-import { useManager } from '@/stores/hooks'
+import type { ShallowRef } from 'vue'
 import Api from '@/api/api'
 import db from '@/database'
-import BulkPutWorker from '@/worker/idb.worker?worker'
-import type { WorkerInput, WorkerOutput } from '@/worker/idb.worker'
+import { useManager } from '@/stores/hooks'
 import { Zip } from '@/utils'
+import BulkPutWorker from '@/worker/idb.worker?worker'
+import { liveQuery } from 'dexie'
+import { defineStore } from 'pinia'
+import { useSocketStore, useUserStore } from '.'
 
 export const useMarkerLinkStore = defineStore('global-marker-link', () => {
   const socketStore = useSocketStore()

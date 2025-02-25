@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { useAreaList, useGraph } from './hooks'
-import { AreaCreator, AreaDeleteConfirm, AreaEditor } from './components'
 import { useGlobalDialog } from '@/hooks'
+import { AreaCreator, AreaDeleteConfirm, AreaEditor } from './components'
+import { useAreaList, useGraph } from './hooks'
 
 const { DialogService } = useGlobalDialog()
 const getDialogConfig = () => ({

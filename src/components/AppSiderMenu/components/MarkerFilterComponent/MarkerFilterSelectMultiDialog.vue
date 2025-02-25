@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { SelectList } from '../SelectList'
 import { GSButton, GSDivider } from '@/components'
+import { SelectList } from '../SelectList'
 
 type ValueType = string | number
 interface ItemType { [key: string]: ValueType }

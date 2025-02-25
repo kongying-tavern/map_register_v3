@@ -1,8 +1,8 @@
-import type { Ref } from 'vue'
 import type { PaginationState } from '@/hooks'
+import type { Ref } from 'vue'
+import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 import { useAreaStore, useItemStore, useItemTypeStore, useMarkerStore } from '@/stores'
-import Api from '@/api/api'
 
 export interface MarkerSearchParams {
   areaIdList: number[]
@@ -54,46 +54,46 @@ export const useSearchMarkerList = (options: MarkerSearchHookOptions) => {
       const result = dirtyFlag === lastQueryFlag.value
         ? lastQueryCache.value
         : markerList.filter(({ id: markerId, itemList = [] }) => {
-          const items = itemList.reduce((seed, { itemId = -1 }) => {
-            const item = itemIdMap.get(itemId) ?? { id: itemId }
-            seed.push(item)
-            return seed
-          }, [] as API.ItemVo[])
+            const items = itemList.reduce((seed, { itemId = -1 }) => {
+              const item = itemIdMap.get(itemId) ?? { id: itemId }
+              seed.push(item)
+              return seed
+            }, [] as API.ItemVo[])
 
-          // 1. 筛选包含地区
-          if (areaIds.size > 0) {
-            for (const { areaId } of items) {
-              if (areaId === undefined || !areaIds.has(areaId!))
+            // 1. 筛选包含地区
+            if (areaIds.size > 0) {
+              for (const { areaId } of items) {
+                if (areaId === undefined || !areaIds.has(areaId!))
+                  return false
+              }
+            }
+
+            // 2. 筛选物品类型
+            if (typeIds.size > 0) {
+              const itemTypeIds = items.reduce((set, { typeIdList = [] }) => {
+                typeIdList.forEach(id => set.add(id!))
+                return set
+              }, new Set<number>())
+              if (itemTypeIds.isDisjointFrom(typeIds))
                 return false
             }
-          }
 
-          // 2. 筛选物品类型
-          if (typeIds.size > 0) {
-            const itemTypeIds = items.reduce((set, { typeIdList = [] }) => {
-              typeIdList.forEach(id => set.add(id!))
-              return set
-            }, new Set<number>())
-            if (itemTypeIds.isDisjointFrom(typeIds))
-              return false
-          }
+            // 3. 筛选物品
+            if (itemIds.size > 0) {
+              for (const { id } of items) {
+                if (!itemIds.has(id!))
+                  return false
+              }
+            }
 
-          // 3. 筛选物品
-          if (itemIds.size > 0) {
-            for (const { id } of items) {
-              if (!itemIds.has(id!))
+            // 4. 筛选 id
+            if (markerIds.size > 0) {
+              if (!markerIds.has(markerId!))
                 return false
             }
-          }
 
-          // 4. 筛选 id
-          if (markerIds.size > 0) {
-            if (!markerIds.has(markerId!))
-              return false
-          }
-
-          return true
-        })
+            return true
+          })
 
       if (result.length > 0) {
         lastQueryFlag.value = dirtyFlag

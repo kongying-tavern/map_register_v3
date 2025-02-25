@@ -1,12 +1,12 @@
 import type { Ref } from 'vue'
-import { ElMessage } from 'element-plus'
-import { pick } from 'lodash'
 import type { MarkerForm } from '../components'
-import { usePictureUpload } from './usePictureUpload'
 import Api from '@/api/api'
+import db from '@/database'
 import { useFetchHook } from '@/hooks'
 import { useUserStore } from '@/stores'
-import db from '@/database'
+import { ElMessage } from 'element-plus'
+import { pick } from 'lodash'
+import { usePictureUpload } from './usePictureUpload'
 
 /** 编辑点位，已自动处理 methodType 字段 */
 export const useMarkerEdit = (markerData: Ref<API.MarkerVo | null>) => {

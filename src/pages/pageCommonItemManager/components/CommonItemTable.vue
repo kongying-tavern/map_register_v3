@@ -1,9 +1,9 @@
 <script lang="ts" setup>
+import { AppUserPopover } from '@/components'
 import { useUserPopover } from '@/hooks'
+import { HIDDEN_FLAG_NAME_MAP } from '@/shared'
 import { useAreaStore, useIconTagStore, useItemTypeStore } from '@/stores'
 import { refreshTimeFormatter, timeFormatter } from '@/utils'
-import { HIDDEN_FLAG_NAME_MAP } from '@/shared'
-import { AppUserPopover } from '@/components'
 
 const props = defineProps<{
   loading: boolean

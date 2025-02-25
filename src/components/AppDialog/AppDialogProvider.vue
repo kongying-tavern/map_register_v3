@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { computed } from 'vue'
 import { context } from './context'
 
 const beforeClose = (done: () => void) => {

@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { MarkerFilterButton } from '../../MarkerFilterComponent'
-import { SelectBase } from '../FilterModelComponent'
 import type { MAFMetaItemType, MAFOptionSelect, MAFValueNumberArray } from '@/stores/types'
 import { IconApplication } from '@/components/AppIcons'
+import { MarkerFilterButton } from '../../MarkerFilterComponent'
+import { SelectBase } from '../FilterModelComponent'
 
 defineProps<{
   options: MAFOptionSelect<API.ItemTypeVo>

@@ -1,13 +1,13 @@
-import { defineStore } from 'pinia'
-import { liveQuery } from 'dexie'
+import type { WorkerInput, WorkerOutput } from '@/worker/idb.worker'
 import type { ShallowRef } from 'vue'
-import { useManager, useMarkerSprite, useTagSprite } from './hooks'
-import { useSocketStore, useUserStore } from '.'
-import { Zip } from '@/utils'
 import Api from '@/api/api'
 import db from '@/database'
+import { Zip } from '@/utils'
 import BulkPutWorker from '@/worker/idb.worker?worker'
-import type { WorkerInput, WorkerOutput } from '@/worker/idb.worker'
+import { liveQuery } from 'dexie'
+import { defineStore } from 'pinia'
+import { useSocketStore, useUserStore } from '.'
+import { useManager, useMarkerSprite, useTagSprite } from './hooks'
 
 /** 本地图标标签数据 */
 export const useIconTagStore = defineStore('global-icon-tag', () => {

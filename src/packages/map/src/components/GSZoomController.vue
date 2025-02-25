@@ -1,9 +1,5 @@
 <script lang="ts" setup>
-import { filter, map, race, switchMap, takeUntil } from 'rxjs'
-import { CloseBold, SemiSelect } from '@element-plus/icons-vue'
-import { useSubscription } from '@vueuse/rxjs'
 import type { GenshinMapViewState } from '../types'
-import { EaseoutInterpolator } from '../interpolator'
 import {
   globalPointerDown$,
   globalPointerMove$,
@@ -12,6 +8,10 @@ import {
   globalTouchmove$,
   globalTouchstart$,
 } from '@/shared'
+import { CloseBold, SemiSelect } from '@element-plus/icons-vue'
+import { useSubscription } from '@vueuse/rxjs'
+import { filter, map, race, switchMap, takeUntil } from 'rxjs'
+import { EaseoutInterpolator } from '../interpolator'
 
 const props = withDefaults(defineProps<{
   /** 点击按钮的缩放差，必须为大于 0 小于 1 的值 @default 0.25 */

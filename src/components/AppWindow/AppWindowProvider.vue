@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { useUserStore } from '@/stores'
 import { WindowPanel } from './components'
 import { useAppWindow, useWindowDrag } from './hooks'
-import { useUserStore } from '@/stores'
 
 const userStore = useUserStore()
 

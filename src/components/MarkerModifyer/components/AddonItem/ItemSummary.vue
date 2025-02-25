@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import { ElDropdown } from 'element-plus'
-import { Plus, Setting } from '@element-plus/icons-vue'
-import ItemTabs from './ItemTabs.vue'
 import type { InternalItemData } from './types'
 import { useAreaStore, useItemStore } from '@/stores'
 import { array2Tree } from '@/utils'
+import { Plus, Setting } from '@element-plus/icons-vue'
+import { ElDropdown } from 'element-plus'
+import ItemTabs from './ItemTabs.vue'
 
 const areaStore = useAreaStore()
 const itemStore = useItemStore()

@@ -1,10 +1,10 @@
-import { defineStore } from 'pinia'
-import { camelCase } from 'lodash'
-import { Logger } from '@/utils'
-import Oauth from '@/api/oauth'
-import { ROLE_MASK_MAP, USERAUTH_KEY } from '@/shared'
 import Api from '@/api/api'
+import Oauth from '@/api/oauth'
 import { useFetchHook } from '@/hooks'
+import { ROLE_MASK_MAP, USERAUTH_KEY } from '@/shared'
+import { Logger } from '@/utils'
+import { camelCase } from 'lodash'
+import { defineStore } from 'pinia'
 
 interface AppUserAuth {
   refreshToken: string

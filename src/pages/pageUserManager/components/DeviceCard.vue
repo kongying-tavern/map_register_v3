@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { UAParser } from 'ua-parser-js'
-import dayjs from 'dayjs'
-import { isUnknown } from '../utils'
 import { DeviceStatus } from '@/shared'
+import dayjs from 'dayjs'
+import { UAParser } from 'ua-parser-js'
+import { isUnknown } from '../utils'
 
 const props = defineProps<{
   data: API.SysUserDeviceVo

@@ -1,6 +1,6 @@
-import { EventBus } from '@/utils'
 import Api from '@/api/api'
 import { HistoryRecordType } from '@/shared'
+import { EventBus } from '@/utils'
 
 export const useAppEvent = (socketEvent: EventBus<API.WSEventMap>) => {
   const appEvent = new EventBus<Socket.DataEventMap>()

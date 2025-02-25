@@ -1,6 +1,6 @@
+import type { GenshinMapProps } from '../types'
 import { Deck, OrthographicView, TRANSITION_EVENTS } from 'deck.gl'
 import { createController } from '../utils'
-import type { GenshinMapProps } from '../types'
 
 export class GenshinMap extends Deck<OrthographicView> {
   constructor(canvas: HTMLCanvasElement, props: GenshinMapProps = {}) {

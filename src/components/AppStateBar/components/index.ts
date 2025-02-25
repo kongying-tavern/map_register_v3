@@ -1,5 +1,5 @@
-export * from './WebSocketStatus'
 export { default as PaintMarkerLink } from './PaintMarkerLink.vue'
 export { default as SwitchMarkerPopover } from './SwitchMarkerPopover.vue'
 export { default as SwitchOverlay } from './SwitchOverlay.vue'
 export { default as ViewState } from './ViewState.vue'
+export * from './WebSocketStatus'

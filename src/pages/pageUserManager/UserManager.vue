@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import { CirclePlus } from '@element-plus/icons-vue'
-import { useRoleList, useUserList } from './hooks'
-import { UserCreator, UserFilter, UserIntegratedPanel, UserTable } from './components'
 import { PgUnit, useGlobalDialog, usePagination } from '@/hooks'
 import { ManagerModule } from '@/shared'
+import { CirclePlus } from '@element-plus/icons-vue'
+import { UserCreator, UserFilter, UserIntegratedPanel, UserTable } from './components'
+import { useRoleList, useUserList } from './hooks'
 
 const { DialogService } = useGlobalDialog()
 const getDialogConfig = () => ({

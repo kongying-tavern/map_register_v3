@@ -18,7 +18,7 @@ export type TypeManagerMap = typeof TYPE_MANAGER_KEY_MAP
 
 export type TypeManagerKeys = keyof TypeManagerMap
 
-export const TYPE_MANAGER_OPTIONS: { label: string; value: TypeManagerKeys }[] = Object
+export const TYPE_MANAGER_OPTIONS: { label: string, value: TypeManagerKeys }[] = Object
   .entries(TYPE_MANAGER_KEY_MAP)
   .map(([typeKey, typeManager]) => ({
     label: typeManager.info.label,

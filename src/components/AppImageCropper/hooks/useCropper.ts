@@ -1,8 +1,8 @@
+import type { AppImageCropperProps } from '../types'
+import { getObjectFitSize } from '@/utils'
 import Konva from 'konva'
 import { clamp } from 'lodash'
 import { loadKonvaImage } from '../utils'
-import type { AppImageCropperProps } from '../types'
-import { getObjectFitSize } from '@/utils'
 
 export interface ImageInfoHookOptions {
   container: Ref<HTMLDivElement | undefined>
@@ -74,7 +74,7 @@ export const useCropper = (options: ImageInfoHookOptions) => {
     return Math.max(minScale.value, 2 ** maxZoom.value)
   })
 
-  const _getBouondingPosition = (_image: Konva.Image, pos: { x: number; y: number }) => {
+  const _getBouondingPosition = (_image: Konva.Image, pos: { x: number, y: number }) => {
     const _stage = _image.getStage()
     if (!_stage)
       return pos

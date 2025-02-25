@@ -1,4 +1,7 @@
 <script lang="ts" setup>
+import { GlobalDialogController } from '@/components'
+import { useTheme } from '@/hooks'
+import { usePreferenceStore } from '@/stores'
 import * as El from '@element-plus/icons-vue'
 import {
   ModuleAbout,
@@ -10,14 +13,11 @@ import {
   ModuleMapSetting,
   ModuleNetwork,
 } from './modules'
-import { usePreferenceStore } from '@/stores'
-import { useTheme } from '@/hooks'
-import { GlobalDialogController } from '@/components'
 
 const { isDark } = useTheme()
 const preferenceStore = usePreferenceStore()
 
-const settingOptions: { key: string; name: string; is: Component; icon?: Component }[] = [
+const settingOptions: { key: string, name: string, is: Component, icon?: Component }[] = [
   { key: 'dashboard', name: '基本信息', is: ModuleDashboard, icon: El.Monitor },
   { key: 'app', name: '应用', is: ModuleApp, icon: El.Box },
   { key: 'mapsetting', name: '地图', is: ModuleMapSetting, icon: El.MapLocation },

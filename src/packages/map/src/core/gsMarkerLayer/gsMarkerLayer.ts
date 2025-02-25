@@ -1,6 +1,6 @@
 import type { CompositeLayerProps, Layer, LayersList, UpdateParameters } from 'deck.gl'
-import { CompositeLayer } from 'deck.gl'
 import type { GSMarkerInfo, GSMarkerLayerProps } from '../../types'
+import { CompositeLayer } from 'deck.gl'
 import { GSMarkerRenderLayer } from './gsMarkerRenderLayer'
 
 /**

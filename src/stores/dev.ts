@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
-import { defineStore } from 'pinia'
-import { usePreferenceStore } from '.'
 import type { LogInfo } from '@/utils'
 import { Logger } from '@/utils'
+import { defineStore } from 'pinia'
+import { usePreferenceStore } from '.'
 
 /** 开发者工具 store */
 export const useDevStore = defineStore('global-dev', () => {

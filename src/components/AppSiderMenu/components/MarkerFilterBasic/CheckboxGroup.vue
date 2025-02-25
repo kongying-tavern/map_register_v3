@@ -80,9 +80,9 @@ const toggleAllSelect = () => {
     isAllSelected.value
       ? props.options.forEach(item => existValues.delete(item[props.valueKey]))
       : props.options.forEach((item) => {
-        const value = item[props.valueKey]
-        !existValues.has(value) && existValues.add(value)
-      })
+          const value = item[props.valueKey]
+          !existValues.has(value) && existValues.add(value)
+        })
     return [...existValues]
   })())
 

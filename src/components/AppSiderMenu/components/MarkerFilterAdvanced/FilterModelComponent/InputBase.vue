@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { MarkerFilterInput } from '../../MarkerFilterComponent'
 import type { MAFOptionInput } from '@/stores/types'
+import { MarkerFilterInput } from '../../MarkerFilterComponent'
 
 defineProps<{
   options: MAFOptionInput

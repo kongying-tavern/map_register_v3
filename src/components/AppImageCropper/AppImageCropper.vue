@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useCropper } from './hooks'
 import type { AppImageCropperProps } from './types'
+import { useCropper } from './hooks'
 
 // TODO 视情况添加更多裁切功能
 const props = withDefaults(defineProps<AppImageCropperProps>(), {

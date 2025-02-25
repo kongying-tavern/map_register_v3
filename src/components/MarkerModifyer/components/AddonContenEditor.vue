@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import { Setting } from '@element-plus/icons-vue'
 import type { InputInstance } from 'element-plus'
+import { useItemStore } from '@/stores'
+import { Setting } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { AddonTeleporter } from '.'
-import { useItemStore } from '@/stores'
 
 const props = withDefaults(defineProps<{
   modelValue?: string

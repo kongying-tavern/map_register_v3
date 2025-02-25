@@ -1,6 +1,6 @@
-import { useMarkerAdvancedFilter, useMarkerBasicFilter } from '.'
 import type { useArchiveStore, useAreaStore, useItemStore, useItemTypeStore } from '@/stores'
 import type { MAFGroup, MBFItem } from '@/stores/types'
+import { useMarkerAdvancedFilter, useMarkerBasicFilter } from '.'
 
 interface MarkerFilterHookOptions {
   archiveStore: ReturnType<typeof useArchiveStore>

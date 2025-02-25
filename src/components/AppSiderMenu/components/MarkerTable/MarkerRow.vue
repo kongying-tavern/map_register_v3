@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { AppIconTagRenderer } from '@/components'
 import type { GSMarkerInfo } from '@/packages/map'
+import { AppIconTagRenderer } from '@/components'
 
 const props = defineProps<{
   data: GSMarkerInfo

@@ -1,29 +1,29 @@
 interface Set<T> {
   /** 该方法采用一个集合并返回一个包含该集合和给定集合中元素的新集合。 */
-  intersection(other: Set<T>): Set<T>
+  intersection: (other: Set<T>) => Set<T>
 
   /** 该方法采用一个集合并返回一个布尔值，指示该集合是否与给定集合没有共同的元素。 */
-  isDisjointFrom(other: Set<T>): boolean
+  isDisjointFrom: (other: Set<T>) => boolean
 
   /** 该方法采用一个集合并返回一个新集合，其中包含此集合或给定集合中的元素，但不在两者中。 */
-  symmetricDifference(other: Set<T>): Set<T>
+  symmetricDifference: (other: Set<T>) => Set<T>
 
   /** 该方法采用一个集合并返回一个新集合，其中包含此集合中的元素，但不包含给定集合中的元素。 */
-  difference(other: Set<T>): Set<T>
+  difference: (other: Set<T>) => Set<T>
 
   /** 方法采取一个集合并返回一个新的集合，该集合包含该集合和给定集合中的一个或两个元素。 */
-  union(other: Set<T>): Set<T>
+  union: (other: Set<T>) => Set<T>
 }
 
 interface ViewTransition {
   finished: Promise<void>
   ready: Promise<void>
   updateCallbackDone: Promise<void>
-  skipTransition(): void
+  skipTransition: () => void
 }
 
 interface Document {
-  startViewTransition(callback: () => void): ViewTransition
+  startViewTransition: (callback: () => void) => ViewTransition
 }
 
 interface Window {
@@ -31,7 +31,7 @@ interface Window {
 }
 
 interface FontFaceSet {
-  add(font: FontFace): void
+  add: (font: FontFace) => void
 }
 
 /**
@@ -62,7 +62,7 @@ declare const scheduler: {
    *
    * 如果指定了延迟并且大于 0，则任务的执行将延迟至少那么多毫秒。否则，任务将立即安排优先级。
    */
-  postTask(callback: () => void, options?: {
+  postTask: (callback: () => void, options?: {
     /**
      * 任务的不可变优先级。以下其中之一:
      * ```
@@ -85,7 +85,7 @@ declare const scheduler: {
      * 将任务添加到调度程序队列后的最短时间，以毫秒为单位。实际延迟可能高于指定值，但不会低于指定值。默认延迟为 0。
      */
     delay?: number
-  }): void
+  }) => void
 
   /**
    * 调度器接口的 `yield()` 方法用于在任务期间向主线程让步，并在以后继续执行，
@@ -101,5 +101,5 @@ declare const scheduler: {
    *
    * 此外，如果 `yield()` 调用后的工作继续发生在 `postTask()` 回调中，并且任务被中止，则可以取消。
    */
-  yield(): Promise<void>
+  yield: () => Promise<void>
 }

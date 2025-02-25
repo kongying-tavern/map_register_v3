@@ -1,10 +1,10 @@
-import { ElMessage } from 'element-plus'
-import { useValidateStatus } from './useValidateStatus'
 import type { ElFormType } from '@/shared'
-import { useFetchHook } from '@/hooks'
 import type { ItemFormRules } from '@/utils'
 import Api from '@/api/api'
+import { useFetchHook } from '@/hooks'
 import { useUserStore } from '@/stores'
+import { ElMessage } from 'element-plus'
+import { useValidateStatus } from './useValidateStatus'
 
 /** 注册逻辑封装 */
 export const useRegisterForm = () => {

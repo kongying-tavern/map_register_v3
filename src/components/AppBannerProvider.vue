@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { ElIcon } from 'element-plus'
-import { Close } from '@element-plus/icons-vue'
 import { useBanner } from '@/hooks'
+import { Close } from '@element-plus/icons-vue'
+import { ElIcon } from 'element-plus'
 
 const { content, visible, close } = useBanner()
 </script>

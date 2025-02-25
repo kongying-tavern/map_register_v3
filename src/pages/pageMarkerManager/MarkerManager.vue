@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import { ref } from 'vue'
 import type { MarkerSearchParams } from './hooks'
-import { useItemList, useSearchMarkerList } from './hooks'
-import { MarkerDeleteConfirm, MarkerFilter, MarkerTable } from './components'
 import { PgUnit, useGlobalDialog, usePagination } from '@/hooks'
 import { ManagerModule } from '@/shared'
+import { ref } from 'vue'
+import { MarkerDeleteConfirm, MarkerFilter, MarkerTable } from './components'
+import { useItemList, useSearchMarkerList } from './hooks'
 
 // ==================== 搜索 ====================
 const queryForm = ref<MarkerSearchParams>({

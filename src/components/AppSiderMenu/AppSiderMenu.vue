@@ -1,19 +1,20 @@
 <script lang="ts" setup>
-import * as ElIcons from '@element-plus/icons-vue'
-import type { FeatureGroupOption } from './components'
-import { CollapseButton, FeatureGrid, MarkerFilter, MarkerTable, SiderMenu, SiderMenuItem } from './components'
-import { AppSettings, AppWindowTeleporter, type WindowContextHookReturnType, useAppWindow } from '@/components'
-import { useGlobalDialog } from '@/hooks'
+import type { WindowContextHookReturnType } from '@/components'
 import type {
   ACCESS_BINARY_MASK,
 } from '@/stores'
+import type { FeatureGroupOption } from './components'
+import { AppSettings, AppWindowTeleporter, useAppWindow } from '@/components'
+import { IconGithub, IconNotice } from '@/components/AppIcons'
+import { useGlobalDialog } from '@/hooks'
 import {
   useAccessStore,
   useMapStateStore,
   useNoticeStore,
   usePreferenceStore,
 } from '@/stores'
-import { IconGithub, IconNotice } from '@/components/AppIcons'
+import * as ElIcons from '@element-plus/icons-vue'
+import { CollapseButton, FeatureGrid, MarkerFilter, MarkerTable, SiderMenu, SiderMenuItem } from './components'
 
 interface ManagerModuleOption {
   name: string

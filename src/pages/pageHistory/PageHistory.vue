@@ -1,7 +1,7 @@
 <script lang="ts" setup>
+import { usePagination } from '@/hooks'
 import { HistoryTable } from './components'
 import { useHistoryList } from './hooks'
-import { usePagination } from '@/hooks'
 
 const { pagination, layout, onChange: onPaginationChange } = usePagination()
 

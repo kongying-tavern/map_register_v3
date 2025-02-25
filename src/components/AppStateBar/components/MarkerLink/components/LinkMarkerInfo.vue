@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { AppIconTagRenderer } from '@/components'
 import { useAreaStore, useIconTagStore, useItemStore, useMarkerStore } from '@/stores'
 import { pickMainItem } from '@/utils'
-import { AppIconTagRenderer } from '@/components'
 
 const props = defineProps<{
   markerId?: number

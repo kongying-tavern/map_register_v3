@@ -1,6 +1,6 @@
+import { RoleTypeEnum } from '@/shared/roleTypeEnum'
 import { defineStore } from 'pinia'
 import { useUserStore } from '.'
-import { RoleTypeEnum } from '@/shared/roleTypeEnum'
 
 /**
  * 角色对应 hiddenFlag 的可访问性掩码

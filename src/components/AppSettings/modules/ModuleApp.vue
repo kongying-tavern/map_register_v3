@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { Brush, Crop, Grape } from '@element-plus/icons-vue'
-import { SettingBar, SettingGroup, SettingPanel, ShortcutKey } from '../components'
 import { useArchiveStore } from '@/stores'
 import { getDefaultPreference } from '@/stores/types'
+import { Brush, Crop, Grape } from '@element-plus/icons-vue'
+import { SettingBar, SettingGroup, SettingPanel, ShortcutKey } from '../components'
 
 const archiveStore = useArchiveStore()
 

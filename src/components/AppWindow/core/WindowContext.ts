@@ -1,5 +1,5 @@
-import { clamp } from 'lodash'
 import type { MapWindow } from '../types'
+import { clamp } from 'lodash'
 
 export class WindowContext implements MapWindow.Context {
   readonly HEADER_HEIGHT = 30
@@ -160,7 +160,7 @@ export class WindowContext implements MapWindow.Context {
     target.order += moveOrder
   }
 
-  move = (id: string, pos: { x: number; y: number }) => {
+  move = (id: string, pos: { x: number, y: number }) => {
     const target = this.panels.value.get(id)
     if (!target)
       return

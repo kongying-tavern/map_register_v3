@@ -1,11 +1,11 @@
-import { defineStore } from 'pinia'
-import { merge, template } from 'lodash'
-import { useAccessStore, useArchiveStore, useDadianStore, useTileStore } from '.'
 import type {
   MergedOverlayGroups,
   OverlayChunk,
   OverlayChunkGroup,
 } from '@/packages/map'
+import { merge, template } from 'lodash'
+import { defineStore } from 'pinia'
+import { useAccessStore, useArchiveStore, useDadianStore, useTileStore } from '.'
 
 /** 地图附加图层 */
 export const useOverlayStore = defineStore('global-map-overlays', () => {

@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-import { filter, finalize, switchMap, takeUntil, tap } from 'rxjs'
+import { GSMarkerLayer } from '@/packages/map'
+import { globalKeyUp$, globalPointerup$, mapContainerHeightKey, mapContainerWidthKey, MapSubject } from '@/shared'
+import { MultiSelect } from '@/shared/enum'
+import { useArchiveStore, useMapStateStore, useShortcutStore } from '@/stores'
 import { useSubscription } from '@vueuse/rxjs'
 import KDBush from 'kdbush'
-import { useArchiveStore, useMapStateStore, useShortcutStore } from '@/stores'
-import { MapSubject, globalKeyUp$, globalPointerup$, mapContainerHeightKey, mapContainerWidthKey } from '@/shared'
-import { MultiSelect } from '@/shared/enum'
-import { GSMarkerLayer } from '@/packages/map'
+import { filter, finalize, switchMap, takeUntil, tap } from 'rxjs'
 
 const archiveStore = useArchiveStore()
 const mapStateStore = useMapStateStore()
@@ -26,8 +26,8 @@ const isMatched = computed(() => selectKey.value === MultiSelect.MarkerToggle)
 
 // ==================== 图形 ====================
 const eventState = ref<{
-  start?: { x: number; y: number }
-  end?: { x: number; y: number }
+  start?: { x: number, y: number }
+  end?: { x: number, y: number }
 }>({})
 
 const width = inject(mapContainerWidthKey, ref(0))

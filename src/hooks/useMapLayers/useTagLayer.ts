@@ -1,8 +1,8 @@
 import type { MapLayerHookOptions } from '.'
-import { usePreferenceStore, useTileStore } from '@/stores'
 import {
   GSTagLayer,
 } from '@/packages/map'
+import { usePreferenceStore, useTileStore } from '@/stores'
 
 export const useTagLayer = (options: MapLayerHookOptions) => {
   const { resourceStatus } = options

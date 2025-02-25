@@ -1,6 +1,6 @@
-import { IconLayer } from 'deck.gl'
 import type { IconLayerProps } from 'deck.gl'
 import type { GSMarkerInfo } from '../../types'
+import { IconLayer } from 'deck.gl'
 import fs from './gsMarkerRenderLayer.fs.glsl?raw'
 
 export interface MarkerRenderLayerProps extends IconLayerProps<GSMarkerInfo> {

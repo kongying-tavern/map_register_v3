@@ -1,3 +1,12 @@
+import {
+  useArchiveStore,
+  useAreaStore,
+  useItemStore,
+  useItemTypeStore,
+  useMarkerLinkStore,
+  useMarkerStore,
+  useTileStore,
+} from '@/stores'
 import { defineStore } from 'pinia'
 import {
   useInteractionInfo,
@@ -11,15 +20,6 @@ import {
   useTempLayers,
   useViewPort,
 } from './hooks'
-import {
-  useArchiveStore,
-  useAreaStore,
-  useItemStore,
-  useItemTypeStore,
-  useMarkerLinkStore,
-  useMarkerStore,
-  useTileStore,
-} from '@/stores'
 
 /** 地图非持久化状态，此类状态会在页面刷新后消失 */
 export const useMapStateStore = defineStore('global-map-state', () => {

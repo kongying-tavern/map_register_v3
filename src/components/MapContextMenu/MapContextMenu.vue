@@ -1,9 +1,4 @@
 <script lang="ts" setup>
-import { Plus, Setting } from '@element-plus/icons-vue'
-import { storeToRefs } from 'pinia'
-import { useSubscription } from '@vueuse/rxjs'
-import { MapAffix } from '../MapAffix'
-import { MarkerCreator } from '../MarkerModifyer'
 import { AppSettings, GSButton } from '@/components'
 import { useGlobalDialog } from '@/hooks'
 import { MapSubject } from '@/shared'
@@ -14,6 +9,11 @@ import {
   usePreferenceStore,
   useTileStore,
 } from '@/stores'
+import { Plus, Setting } from '@element-plus/icons-vue'
+import { useSubscription } from '@vueuse/rxjs'
+import { storeToRefs } from 'pinia'
+import { MapAffix } from '../MapAffix'
+import { MarkerCreator } from '../MarkerModifyer'
 
 const accessStore = useAccessStore()
 const mapStateStore = useMapStateStore()

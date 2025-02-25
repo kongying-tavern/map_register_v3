@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { InputBase } from '../FilterModelComponent'
 import type { MAFMetaDummy, MAFOptionInput, MAFValueString } from '@/stores/types'
+import { InputBase } from '../FilterModelComponent'
 
 defineProps<{
   options: MAFOptionInput

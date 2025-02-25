@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { Check, Close, WarnTriangleFilled } from '@element-plus/icons-vue'
 import {
   GlobalDialogController,
   WinDialog,
   WinDialogFooter,
   WinDialogTitleBar,
 } from '@/components'
+import { Check, Close, WarnTriangleFilled } from '@element-plus/icons-vue'
 
 const cancel = () => {
   GlobalDialogController.close(false)

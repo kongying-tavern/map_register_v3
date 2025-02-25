@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import type { MAFSemanticUnit } from '@/stores/types'
 import {
   SemanticBlockError,
   SemanticBlockHighlight,
@@ -10,7 +11,6 @@ import {
   SemanticBlockTag,
   SemanticBlockText,
 } from '.'
-import type { MAFSemanticUnit } from '@/stores/types'
 
 const props = defineProps<{
   block: MAFSemanticUnit

@@ -1,14 +1,14 @@
 <script setup lang="ts">
+import { GlobalDialogController, WinDialog, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
+import { ExitLeft } from '@/components/GenshinUI/GSIcon'
+import { ACCESS_POLICY_OPTIONS } from '@/shared'
+import { useUserInfoStore } from '@/stores'
 import { CircleCheck, Delete, PictureFilled, RefreshLeft } from '@element-plus/icons-vue'
 import { usePasswordUpdate, useUserEdit } from '../hooks'
 import UserDeleteConfirm from './UserDeleteConfirm.vue'
 import UserDevice from './UserDevice.vue'
 import UserKickoutConfirm from './UserKickoutConfirm.vue'
 import UserPasswordEditor from './UserPasswordEditor.vue'
-import { ExitLeft } from '@/components/GenshinUI/GSIcon'
-import { GlobalDialogController, WinDialog, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
-import { useUserInfoStore } from '@/stores'
-import { ACCESS_POLICY_OPTIONS } from '@/shared'
 
 const props = defineProps<{
   data: API.SysUserVo

@@ -1,5 +1,5 @@
-import { BitmapLayer, TileLayer } from 'deck.gl'
 import type { GSTileLayerProps } from '../types'
+import { BitmapLayer, TileLayer } from 'deck.gl'
 
 interface TileData {
   byteLength: number

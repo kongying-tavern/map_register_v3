@@ -1,5 +1,5 @@
-import type { FilterPreset, FilterType, MAFGroup } from '.'
 import type { ManagerModule } from '@/shared'
+import type { FilterPreset, FilterType, MAFGroup } from '.'
 
 /**
  * ### 用户首选项

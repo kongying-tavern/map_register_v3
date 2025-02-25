@@ -1,8 +1,8 @@
-import { Subject, filter, tap } from 'rxjs'
 import type { WS } from './types'
-import { SocketController } from './socketController'
 import { SocketCloseReason, SocketWorkerEvent } from '@/shared/socket'
 import { EventBus } from '@/utils/EventBus'
+import { filter, Subject, tap } from 'rxjs'
+import { SocketController } from './socketController'
 
 interface WebSocketClient extends EventTarget {
   postMessage: (data: unknown, transfer: Transferable[]) => void

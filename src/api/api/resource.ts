@@ -19,8 +19,9 @@ export async function uploadImage(
         formData.append(ele, item)
       }
       else {
-        for (const k in item)
+        for (const k in item) {
           formData.append(k, item[k])
+        }
       }
     }
   })

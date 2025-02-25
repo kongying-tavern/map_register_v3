@@ -1,6 +1,6 @@
+import type { PaginationState } from '@/hooks'
 import type { Ref } from 'vue'
 import Api from '@/api/api'
-import type { PaginationState } from '@/hooks'
 import { useFetchHook } from '@/hooks'
 
 interface CommonItemListHookOptions {

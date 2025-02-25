@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { Delete } from '@element-plus/icons-vue'
 import type { Modifier } from '../core'
+import { Delete } from '@element-plus/icons-vue'
 
 const props = defineProps<{
   index: number

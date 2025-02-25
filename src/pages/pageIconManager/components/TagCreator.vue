@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { Check, Close } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
-import dayjs from 'dayjs'
-import { useFetchHook } from '@/hooks'
-import { GlobalDialogController, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 import Api from '@/api/api'
+import { GlobalDialogController, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 import db from '@/database'
+import { useFetchHook } from '@/hooks'
 import { useUserInfoStore } from '@/stores'
+import { Check, Close } from '@element-plus/icons-vue'
+import dayjs from 'dayjs'
+import { ElMessage } from 'element-plus'
 
 const emits = defineEmits<{
   success: [tag: API.TagVo]
@@ -78,7 +78,7 @@ const cancel = () => {
   GlobalDialogController.close()
 }
 
-const tabs: { key: string; name: string }[] = [
+const tabs: { key: string, name: string }[] = [
   { key: 'base', name: '基本信息' },
 ]
 const activedTabKey = ref('base')

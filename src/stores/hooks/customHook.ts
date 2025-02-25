@@ -1,4 +1,4 @@
-import type { StateTree, Store, StoreDefinition, _ActionsTree, _GettersTree } from 'pinia'
+import type { _ActionsTree, _GettersTree, StateTree, Store, StoreDefinition } from 'pinia'
 
 export class CustomHook<T extends string> {
   #callbackMap: Record<string, {

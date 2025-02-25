@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import BarItem from './BarItem.vue'
-import { useTileStore } from '@/stores'
-import { EaseoutInterpolator } from '@/packages/map'
 import type { GenshinMapViewState } from '@/packages/map'
+import { EaseoutInterpolator } from '@/packages/map'
 import { MapSubject, mapViewStateKey } from '@/shared'
+import { useTileStore } from '@/stores'
+import BarItem from './BarItem.vue'
 
 const tileStore = useTileStore()
 

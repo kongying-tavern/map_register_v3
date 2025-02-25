@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import BarItem from './BarItem.vue'
 import { AppWindowTeleporter, MapOverlayController, useAppWindow } from '@/components'
-import { useArchiveStore } from '@/stores'
 import { bodyWidth } from '@/shared'
+import { useArchiveStore } from '@/stores'
+import BarItem from './BarItem.vue'
 
 const MIN_WIDTH = window.matchMedia('(min-width: 600px)').matches ? 440 : 240
 

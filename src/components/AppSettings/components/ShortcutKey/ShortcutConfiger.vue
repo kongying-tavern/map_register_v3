@@ -1,12 +1,12 @@
 <script setup lang="ts">
+import { WinDialog, WinDialogFooter } from '@/components/WinUI'
+import { CONTROL_KEYS, globalKeydown$, KEYBOARD_ALIAS, STANDARD_KEYBOARD_KEYS } from '@/shared'
+import { useArchiveStore, useShortcutStore } from '@/stores'
+import { ShortcutKeyUtil } from '@/utils'
 import { Check, Close, Delete, RefreshLeft } from '@element-plus/icons-vue'
+import { useSubscription } from '@vueuse/rxjs'
 import { ElAlert, ElButton } from 'element-plus'
 import { filter, tap } from 'rxjs'
-import { useSubscription } from '@vueuse/rxjs'
-import { ShortcutKeyUtil } from '@/utils'
-import { useArchiveStore, useShortcutStore } from '@/stores'
-import { WinDialog, WinDialogFooter } from '@/components/WinUI'
-import { CONTROL_KEYS, KEYBOARD_ALIAS, STANDARD_KEYBOARD_KEYS, globalKeydown$ } from '@/shared'
 
 const props = withDefaults(defineProps<{
   defaultValue?: string

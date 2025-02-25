@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-import { MarkerFilterButton } from '../../MarkerFilterComponent'
-import { NumberRangeBase, SelectBase } from '../FilterModelComponent'
 import type { MAFMetaRefreshTime, MAFOptionRange, MAFOptionSelect, MAFValueNumberRange } from '@/stores/types'
 import { IconTimer } from '@/components/AppIcons'
+import { MarkerFilterButton } from '../../MarkerFilterComponent'
+import { NumberRangeBase, SelectBase } from '../FilterModelComponent'
 
 const props = defineProps<{
-  options: MAFOptionRange & MAFOptionSelect<{ label: string; value: number }>
+  options: MAFOptionRange & MAFOptionSelect<{ label: string, value: number }>
   meta: MAFMetaRefreshTime
 }>()
 

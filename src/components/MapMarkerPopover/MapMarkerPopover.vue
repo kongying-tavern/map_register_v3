@@ -1,16 +1,16 @@
 <script lang="ts" setup>
-import { Check, CirclePlus, DeleteFilled, Edit, Rank, VideoCamera } from '@element-plus/icons-vue'
-import { storeToRefs } from 'pinia'
-import { ElMessage } from 'element-plus'
-import { MarkerEditor } from '../MarkerModifyer'
-import { MapAffix } from '../MapAffix'
-import { MarkerPanel } from './components'
-import { useMarkerDelete, useMarkerExtra, useMarkerFinished, useMarkerMove } from './hooks'
+import type { GSMarkerInfo } from '@/packages/map'
+import { AppBilibiliVideoPlayer, AppIconTagRenderer, GSButton } from '@/components'
+import { CloseFilled } from '@/components/GenshinUI/GSIcon'
 import { useGlobalDialog, useMarkerControl } from '@/hooks'
 import { useAccessStore, useIconTagStore, useMapStateStore } from '@/stores'
-import { CloseFilled } from '@/components/GenshinUI/GSIcon'
-import { AppBilibiliVideoPlayer, AppIconTagRenderer, GSButton } from '@/components'
-import type { GSMarkerInfo } from '@/packages/map'
+import { Check, CirclePlus, DeleteFilled, Edit, Rank, VideoCamera } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
+import { storeToRefs } from 'pinia'
+import { MapAffix } from '../MapAffix'
+import { MarkerEditor } from '../MarkerModifyer'
+import { MarkerPanel } from './components'
+import { useMarkerDelete, useMarkerExtra, useMarkerFinished, useMarkerMove } from './hooks'
 
 const accessStore = useAccessStore()
 const mapStateStore = useMapStateStore()

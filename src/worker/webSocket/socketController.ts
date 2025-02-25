@@ -1,11 +1,11 @@
-import { EMPTY, Subject, defer, filter, map, of, race, repeat, switchMap, take, takeUntil, tap, timer } from 'rxjs'
 import type { WS } from './types'
-import { SocketCloseReason, SocketWorkerEvent } from '@/shared/socket'
 import { WEBSOCKET_WORKER_CONFIG } from '@/configs'
+import { SocketCloseReason, SocketWorkerEvent } from '@/shared/socket'
+import { defer, EMPTY, filter, map, of, race, repeat, Subject, switchMap, take, takeUntil, tap, timer } from 'rxjs'
 
 interface SocketControllerOptions {
   /** 向客户端进行广播的调用 */
-  broadcast<T extends SocketWorkerEvent>(message: Omit<WS.Message<T>, 'id'>, transfer: Transferable[]): void
+  broadcast: <T extends SocketWorkerEvent>(message: Omit<WS.Message<T>, 'id'>, transfer: Transferable[]) => void
   /** 心跳包配置 */
   heartbeat?: {
     /**

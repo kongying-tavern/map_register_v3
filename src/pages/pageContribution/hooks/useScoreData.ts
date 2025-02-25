@@ -1,10 +1,10 @@
+import type { ScoreVo } from '@/pages/pageScoreManager/shared'
+import type { SheetableData } from '../types'
+import Api from '@/api/api'
+import db from '@/database'
+import { useFetchHook } from '@/hooks'
 import dayjs from 'dayjs'
 import { promisePool, splitTimeRange } from '../utils'
-import type { SheetableData } from '../types'
-import { useFetchHook } from '@/hooks'
-import Api from '@/api/api'
-import type { ScoreVo } from '@/pages/pageScoreManager/shared'
-import db from '@/database'
 
 interface ScoreDataHookOptions {
   note: Ref<string>

@@ -1,11 +1,11 @@
 <script lang="ts" setup>
+import type { ElFormType } from '@/shared'
 import type { FormRules } from 'element-plus'
-import { AvatarEditor } from './components'
+import Api from '@/api/api'
 import { GSButton, GSDivider, GSInput } from '@/components'
 import { useFetchHook } from '@/hooks'
-import type { ElFormType } from '@/shared'
 import { useUserStore } from '@/stores'
-import Api from '@/api/api'
+import { AvatarEditor } from './components'
 
 const userStore = useUserStore()
 
@@ -33,7 +33,7 @@ const formRef = ref<ElFormType | null>(null)
 
 const rules: FormRules = {
   nickname: [{ required: true, message: '昵称不能为空' }],
-  qq: [{ required: true, message: '不是合法的Q号格式', validator: (_, v: string) => /[1-9][0-9][4,9]/.test(v) }],
+  qq: [{ required: true, message: '不是合法的Q号格式', validator: (_, v: string) => /[1-9]\d[4,9]/.test(v) }],
   phone: [{ message: '不是合法的手机号格式', validator: (_, v: string) => !v || /^1[3-9]\d{9}$/.test(v) }],
 }
 

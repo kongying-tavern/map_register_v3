@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { useTemplateRef } from 'vue'
-import { type S2DataConfig, TableSheet } from '@antv/s2'
-import { disabledDate, shortcuts } from '../shared'
-import { useScoreData } from '../hooks'
+import type { S2DataConfig } from '@antv/s2'
 import { useTheme } from '@/hooks'
 import { DATA_START_TIME } from '@/shared/constant'
+import { TableSheet } from '@antv/s2'
+import { useTemplateRef } from 'vue'
+import { useScoreData } from '../hooks'
+import { disabledDate, shortcuts } from '../shared'
 
 interface SheetableData {
   // user info

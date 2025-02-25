@@ -1,8 +1,8 @@
 <script lang="ts" setup>
+import type { OverlayChunk, OverlayChunkGroup } from '@/packages/map'
+import { useArchiveStore, useOverlayStore } from '@/stores'
 import OverlayArea from './OverlayArea.vue'
 import OverlayGroup from './OverlayGroup.vue'
-import { useArchiveStore, useOverlayStore } from '@/stores'
-import type { OverlayChunk, OverlayChunkGroup } from '@/packages/map'
 
 const overlayStore = useOverlayStore()
 const archiveStore = useArchiveStore()

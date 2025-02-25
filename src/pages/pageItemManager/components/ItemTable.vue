@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import { Delete } from '@element-plus/icons-vue'
 import { AppRowImage, AppUserPopover } from '@/components'
-import { useAreaStore, useIconTagStore, useItemTypeStore } from '@/stores'
 import { useUserPopover } from '@/hooks'
 import { HiddenFlagEnum } from '@/shared'
+import { useAreaStore, useIconTagStore, useItemTypeStore } from '@/stores'
 import { refreshTimeFormatter, timeFormatter } from '@/utils'
+import { Delete } from '@element-plus/icons-vue'
 
 const props = defineProps<{
   loading: boolean
@@ -26,7 +26,7 @@ const itemTypeStore = useItemTypeStore()
 const containerRef = ref<HTMLElement>()
 const { height, width } = useElementSize(containerRef)
 
-const getCellClassName = (cell: { column: { property?: string }; rowIndex: number }) => {
+const getCellClassName = (cell: { column: { property?: string }, rowIndex: number }) => {
   const { property } = cell.column
   if (!property)
     return ''

@@ -10,7 +10,7 @@ const FILE_HEADER_MAP: Record<number, string> = {
 }
 
 /* eslint-disable no-labels */
-/* eslint-disable no-restricted-syntax */
+
 /**
  * 读取文件头来判断文件类型
  * @todo 目前只支持 (png, jpg, bmp, webp)

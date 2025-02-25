@@ -1,9 +1,9 @@
 <script lang="ts" setup>
+import { GlobalDialogController, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 import { Check, Close } from '@element-plus/icons-vue'
 import { cloneDeep } from 'lodash'
-import { useItemEdit } from '../hooks'
 import { ItemDetailForm } from '.'
-import { GlobalDialogController, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
+import { useItemEdit } from '../hooks'
 
 interface ItemEditorProps {
   item: API.ItemVo

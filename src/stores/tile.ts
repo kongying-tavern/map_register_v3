@@ -1,16 +1,16 @@
-import { defineStore } from 'pinia'
-import { defaultsDeep, merge } from 'lodash'
-import { useAccessStore, useArchiveStore, useAreaStore, useDadianStore } from '@/stores'
 import type { AreaTagTuple } from '@/configs'
-import { AREA_ADDITIONAL_CONFIG_MAP } from '@/configs'
 import type { Coordinate2D } from '@/packages/map'
+import { AREA_ADDITIONAL_CONFIG_MAP } from '@/configs'
+import { useAccessStore, useArchiveStore, useAreaStore, useDadianStore } from '@/stores'
+import { defaultsDeep, merge } from 'lodash'
+import { defineStore } from 'pinia'
 
 export interface TileInfo extends Required<Pick<API.TileConfig, | 'code'
-| 'name'
-| 'extension'
-| 'tilesOffset'
-| 'size'
-| 'center'>> {}
+  | 'name'
+  | 'extension'
+  | 'tilesOffset'
+  | 'size'
+  | 'center'>> {}
 
 type AreaTagConfigs = Required<(typeof AREA_ADDITIONAL_CONFIG_MAP)[string]>['tags']
 
@@ -58,7 +58,7 @@ export const useTileStore = defineStore('global-map-tile', () => {
 
     for (const maybeAreaCode in mergedTiles.value) {
       // 只保留实际配置，继承用的配置忽略
-      if (!/[A-Z]:[A-Z]+(:\s+)?/.test(maybeAreaCode))
+      if (!/[A-Z]:[A-Z]+(?::\s+)?/.test(maybeAreaCode))
         continue
 
       const tileConfig = mergedTiles.value[maybeAreaCode]

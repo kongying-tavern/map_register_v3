@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import type { ItemQueryForm } from './hooks'
-import { ExplorerType } from './shared'
-import { useItemList } from './hooks'
-import { ItemCreator, ItemDeleteConfirm, ItemEditor, ItemFilter, ItemGridExplorer, ItemTable } from './components'
 import { PgUnit, useGlobalDialog, usePagination } from '@/hooks'
 import { ManagerModule } from '@/shared'
+import { ItemCreator, ItemDeleteConfirm, ItemEditor, ItemFilter, ItemGridExplorer, ItemTable } from './components'
+import { useItemList } from './hooks'
+import { ExplorerType } from './shared'
 
 const { DialogService } = useGlobalDialog()
 

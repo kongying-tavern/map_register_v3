@@ -1,16 +1,13 @@
-import { createApp } from 'vue'
-import { createPinia } from 'pinia'
+import { AppError } from '@/components'
+import { createLogger, createPWA, customPaint, ElementIcons } from '@/plugin'
+import { useArchiveStore, useDadianStore, useUserStore } from '@/stores'
 import ElementPlus from 'element-plus'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
+import { createPinia } from 'pinia'
 import App from './App.vue'
-import { ElementIcons, createLogger, createPWA, customPaint } from '@/plugin'
 import './style/app.scss'
 import 'element-plus/dist/index.css'
 import 'element-plus/theme-chalk/dark/css-vars.css'
-import { useArchiveStore, useDadianStore, useUserStore } from '@/stores'
-import { AppError } from '@/components'
-
-;
 
 (async () => {
   const container = '#app'

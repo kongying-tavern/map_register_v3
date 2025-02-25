@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { useTemplateRef } from 'vue'
-import { UserFilled } from '@element-plus/icons-vue'
-import { Chart } from '@antv/g2'
 import type { TransformedScore } from '../types'
 import { useTheme } from '@/hooks'
+import { Chart } from '@antv/g2'
+import { UserFilled } from '@element-plus/icons-vue'
+import { useTemplateRef } from 'vue'
 
 const props = defineProps<{
   data: TransformedScore

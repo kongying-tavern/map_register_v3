@@ -1,12 +1,12 @@
 <script lang="ts" setup>
-import { Check, Close } from '@element-plus/icons-vue'
-import { cloneDeep } from 'lodash'
-import { ElMessage } from 'element-plus'
-import { useMarkerEdit } from './hooks'
-import { MarkerForm } from './components'
-import { GlobalDialogController } from '@/components'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
+import { GlobalDialogController } from '@/components'
 import { createRenderMarkers } from '@/stores/utils'
+import { Check, Close } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
+import { cloneDeep } from 'lodash'
+import { MarkerForm } from './components'
+import { useMarkerEdit } from './hooks'
 
 const props = defineProps<{
   markerInfo: GSMapState.MarkerWithRenderConfig

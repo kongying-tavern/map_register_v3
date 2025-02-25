@@ -1,8 +1,8 @@
 <script lang="ts" setup generic="T extends {[key: string]: string | number} | unknown, K extends string, V extends unknown">
-import SingleDialog from './MarkerFilterSelectSingleDialog.vue'
-import MultiDialog from './MarkerFilterSelectMultiDialog.vue'
-import { useGlobalDialog } from '@/hooks'
 import { GlobalDialogController } from '@/components'
+import { useGlobalDialog } from '@/hooks'
+import MultiDialog from './MarkerFilterSelectMultiDialog.vue'
+import SingleDialog from './MarkerFilterSelectSingleDialog.vue'
 
 const props = defineProps<{
   multiple?: boolean
@@ -49,12 +49,12 @@ const openDialog = () => {
         valueKey: props.valueKey,
       })
       .listeners({
-        'update:modelValue': (v: V[]) => {
-          dialogValue.value = v
+        'update:modelValue': (v) => {
+          dialogValue.value = v as V[]
         },
-        'confirm': (v: V[]) => {
-          modelValue.value = v
-          emits('change', v)
+        'confirm': (v) => {
+          modelValue.value = v as V[]
+          emits('change', v as V[])
           GlobalDialogController.close()
         },
         'cancel': () => {
@@ -77,12 +77,12 @@ const openDialog = () => {
         valueKey: props.valueKey,
       })
       .listeners({
-        'update:modelValue': (v: V) => {
-          dialogValue.value = v
+        'update:modelValue': (v) => {
+          dialogValue.value = v as V
         },
-        'confirm': (v: V) => {
-          modelValue.value = v
-          emits('change', v)
+        'confirm': (v) => {
+          modelValue.value = v as V
+          emits('change', v as V)
           GlobalDialogController.close()
         },
         'cancel': () => {

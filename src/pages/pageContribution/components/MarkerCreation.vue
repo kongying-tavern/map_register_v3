@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { useTemplateRef } from 'vue'
+import Api from '@/api/api'
+import { useFetchHook, useTheme } from '@/hooks'
+import { DATA_START_TIME } from '@/shared/constant'
+import { useMarkerStore } from '@/stores'
 import { Chart } from '@antv/g2'
 import { lines } from '@antv/g-pattern'
+import { useTemplateRef } from 'vue'
 import { disabledDate, shortcuts } from '../shared'
-import { useFetchHook, useTheme } from '@/hooks'
-import { useMarkerStore } from '@/stores'
-import Api from '@/api/api'
-import { DATA_START_TIME } from '@/shared/constant'
 
 interface UserCountInfo {
   userId: number

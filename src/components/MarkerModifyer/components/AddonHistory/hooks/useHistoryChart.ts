@@ -1,5 +1,5 @@
-import { Chart } from '@antv/g2'
 import { useTheme } from '@/hooks'
+import { Chart } from '@antv/g2'
 
 interface HistoryChartHookOptions {
   data: Ref<(API.HistoryVo & { diffs: Set<string> })[]>
@@ -48,7 +48,7 @@ export const useHistoryChart = (element: Ref<HTMLElement | undefined>, options: 
         nice: true,
       })
       .interaction('tooltip', {
-        render: (_: Event, { items }: { items: { value: unknown; name: string }[] }) => {
+        render: (_: Event, { items }: { items: { value: unknown, name: string }[] }) => {
           const [id, diffs, createTime] = items
           const user = users.value.get(`${id.value}`)
           return `

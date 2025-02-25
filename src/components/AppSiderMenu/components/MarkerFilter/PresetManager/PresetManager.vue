@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import { SelectList } from '../../SelectList'
-import { usePresets } from '../hooks'
-import { PresetCodePanel } from '.'
+import type { MAFGroup, MBFItem } from '@/stores/types'
 import { GSButton, GSDivider, GSInput } from '@/components'
 import { usePreferenceStore } from '@/stores'
-import type { MAFGroup, MBFItem } from '@/stores/types'
+import { PresetCodePanel } from '.'
+import { SelectList } from '../../SelectList'
+import { usePresets } from '../hooks'
 
 const props = defineProps<{
   modelValue: boolean
@@ -21,9 +21,9 @@ const presetName = controlledRef('', {
   onBeforeChange: (value) => {
     if (!value)
       return true
-    else if (!/^[^\\/:*?"'<>|]*$/gui.test(value))
+    else if (!/^[^\\/:*?"'<>|]*$/u.test(value))
       return false
-    if (/^\./gui.test(value))
+    if (/^\./u.test(value))
       return false
     else if (value.trim().length === value.length)
       return true

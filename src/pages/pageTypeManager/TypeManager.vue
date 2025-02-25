@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-import { CirclePlus, Delete, Edit } from '@element-plus/icons-vue'
 import type { TypeManagerKeys } from './definitions'
-import { TYPE_MANAGER_KEY_MAP, TYPE_MANAGER_OPTIONS } from './definitions'
-import { useTypeList } from './hooks'
-import { TypeCreator, TypeDeleteConfirm, TypeEditor, TypeTable } from './components'
 import { PgUnit, useGlobalDialog, usePagination } from '@/hooks'
 import { ManagerModule } from '@/shared'
+import { CirclePlus, Delete, Edit } from '@element-plus/icons-vue'
+import { TypeCreator, TypeDeleteConfirm, TypeEditor, TypeTable } from './components'
+import { TYPE_MANAGER_KEY_MAP, TYPE_MANAGER_OPTIONS } from './definitions'
+import { useTypeList } from './hooks'
 
 const { DialogService } = useGlobalDialog()
 const getDialogConfig = () => ({

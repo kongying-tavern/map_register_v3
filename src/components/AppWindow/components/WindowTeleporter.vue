@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useAppWindow } from '../hooks'
 import type { MapWindow } from '../types'
+import { useAppWindow } from '../hooks'
 
 const props = defineProps<{
   info?: MapWindow.Info

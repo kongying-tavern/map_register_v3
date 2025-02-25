@@ -1,6 +1,6 @@
+import type { TempLayerIndex } from '@/shared'
 import type { Layer } from 'deck.gl'
 import type { ShallowRef } from 'vue'
-import type { TempLayerIndex } from '@/shared'
 
 /**
  * 临时图层将会附加在指定 index 的图层之上

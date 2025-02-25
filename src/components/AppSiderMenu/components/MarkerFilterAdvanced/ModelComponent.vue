@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { MarkerFilterButton } from '../MarkerFilterComponent'
 import type { MAFItemComposed } from '@/stores/types'
+import { MarkerFilterButton } from '../MarkerFilterComponent'
 
 const props = defineProps<{
   disabled?: boolean

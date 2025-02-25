@@ -1,7 +1,7 @@
-import type { PageListQueryParams, TypeManager } from '../config'
-import type { TYPE_MANAGER_KEY_MAP, TypeManagerKeys, TypeManagerMap } from '../definitions'
-
 import type { PaginationState } from '@/hooks'
+import type { PageListQueryParams, TypeManager } from '../config'
+
+import type { TYPE_MANAGER_KEY_MAP, TypeManagerKeys, TypeManagerMap } from '../definitions'
 import { useFetchHook } from '@/hooks'
 
 export interface TypeListHookOptions {

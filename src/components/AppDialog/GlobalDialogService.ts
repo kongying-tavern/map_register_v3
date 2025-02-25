@@ -1,8 +1,8 @@
-import type { Component } from 'vue'
+import type { AnyObject } from '@/shared'
 import type { DialogProps } from 'element-plus'
+import type { Component } from 'vue'
 import { context } from './context'
 import { GlobalDialogController } from './GlobalDialogController'
-import type { AnyObject } from '@/shared'
 
 export interface PropsOptions {
   /** 合并模式 */
@@ -37,7 +37,7 @@ export class GlobalDialogService {
   }
 
   /** 传递给弹窗默认插槽上的组件的事件监听器 */
-  static listeners = <T extends Record<string, Function>>(listenersObj: T) => {
+  static listeners = <T extends Record<string, (...args: unknown[]) => void>>(listenersObj: T) => {
     context.listener.value = {
       ...listenersObj,
     }

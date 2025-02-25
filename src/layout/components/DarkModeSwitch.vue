@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { Moon, Sunny } from '@element-plus/icons-vue'
 import { useTheme } from '@/hooks'
+import { Moon, Sunny } from '@element-plus/icons-vue'
 
 const { isDark } = useTheme()
 </script>

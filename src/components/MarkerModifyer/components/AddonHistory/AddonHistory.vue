@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-import { Clock, CopyDocument } from '@element-plus/icons-vue'
-import { useMarkerHistory } from '../../hooks'
-import { AddonTeleporter } from '..'
-import HistoryViewer from './HistoryViewer.vue'
-import HistoryStatistic from './HistoryStatistic.vue'
-import { useFetchHook } from '@/hooks'
 import Api from '@/api/api'
+import { useFetchHook } from '@/hooks'
+import { Clock, CopyDocument } from '@element-plus/icons-vue'
+import { AddonTeleporter } from '..'
+import { useMarkerHistory } from '../../hooks'
+import HistoryStatistic from './HistoryStatistic.vue'
+import HistoryViewer from './HistoryViewer.vue'
 
 defineProps<{
   loading?: boolean
@@ -68,6 +68,7 @@ const updater = computed(() => {
     return user
   if (!oldHistory.value)
     return creator.value
+  return undefined
 })
 
 const statisticVisible = ref(false)

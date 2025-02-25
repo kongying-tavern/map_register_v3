@@ -1,11 +1,11 @@
 <script lang="ts" setup>
+import type { ElFormType } from '@/shared'
+import type { ItemFormRules } from '@/utils'
+import Api from '@/api/api'
+import { GlobalDialogController, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
+import { useFetchHook } from '@/hooks'
 import { Check, Close } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import Api from '@/api/api'
-import { useFetchHook } from '@/hooks'
-import type { ItemFormRules } from '@/utils'
-import type { ElFormType } from '@/shared'
-import { GlobalDialogController, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 
 const emits = defineEmits<{
   success: []

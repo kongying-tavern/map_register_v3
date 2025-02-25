@@ -1,8 +1,8 @@
-import { defineStore } from 'pinia'
 import type { ShallowRef } from 'vue'
-import { Zip } from '@/utils'
 import Api from '@/api/config'
 import db from '@/database'
+import { Zip } from '@/utils'
+import { defineStore } from 'pinia'
 
 /** 订阅的打点配置 */
 export const useDadianStore = defineStore('global-dadian-json', () => {

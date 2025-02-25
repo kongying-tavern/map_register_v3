@@ -1,4 +1,9 @@
 <script lang="ts" setup>
+import type Node from 'element-plus/es/components/tree/src/model/node'
+import Api from '@/api/api'
+import db from '@/database'
+import { useState } from '@/hooks'
+import { useIconTagStore } from '@/stores'
 /**
  * @注意
  * 这个组件虽然名为 IconManager，但它主要管理的是 icon tag（图标标签）。
@@ -6,12 +11,7 @@
  * 关于图标与标签的关系，可以理解为，Tag 是 Icon 的“快捷方式”。
  */
 import { ElTree } from 'element-plus'
-import type Node from 'element-plus/es/components/tree/src/model/node'
 import { IconExplorer, IconExplorerHeader, IconPreviewer } from './components'
-import db from '@/database'
-import Api from '@/api/api'
-import { useState } from '@/hooks'
-import { useIconTagStore } from '@/stores'
 
 const iconTagStore = useIconTagStore()
 

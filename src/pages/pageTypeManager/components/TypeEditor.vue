@@ -1,10 +1,5 @@
 <script lang="ts" setup>
-import { Check, Close } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
-import { cloneDeep } from 'lodash'
 import type { TypeManager, TypeObject } from '../config'
-import { TypeDetailForm } from '.'
-import { useFetchHook } from '@/hooks'
 import {
   GlobalDialogController,
   WinDialog,
@@ -12,6 +7,11 @@ import {
   WinDialogTabPanel,
   WinDialogTitleBar,
 } from '@/components'
+import { useFetchHook } from '@/hooks'
+import { Check, Close } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
+import { cloneDeep } from 'lodash'
+import { TypeDetailForm } from '.'
 
 const props = defineProps<{
   data: TypeObject

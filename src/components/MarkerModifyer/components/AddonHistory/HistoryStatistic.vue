@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { WinDialog, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 import { ElDialog } from 'element-plus'
 import { useHistoryChart } from './hooks'
-import { WinDialog, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 
 const props = defineProps<{
   record: (API.HistoryVo & { diffs: Set<string> })[]

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { MapAffix } from '@/components'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
+import { MapAffix } from '@/components'
 
 withDefaults(defineProps<{
   marker: GSMapState.MarkerWithRenderConfig

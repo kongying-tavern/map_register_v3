@@ -1,13 +1,13 @@
 <script lang="ts" setup>
-import { filter, finalize, switchMap, takeUntil, tap } from 'rxjs'
-import { useSubscription } from '@vueuse/rxjs'
-import type { Layer } from 'deck.gl'
-import { useMarkerPositionEdit } from './hooks'
-import { useAccessStore, useArchiveStore, useMapStateStore, useShortcutStore } from '@/stores'
-import { GSButton } from '@/components'
-import { MapSubject } from '@/shared'
 import type { GSMarkerInfo } from '@/packages/map'
+import type { Layer } from 'deck.gl'
+import { GSButton } from '@/components'
 import { GSMarkerLayer } from '@/packages/map'
+import { MapSubject } from '@/shared'
+import { useAccessStore, useArchiveStore, useMapStateStore, useShortcutStore } from '@/stores'
+import { useSubscription } from '@vueuse/rxjs'
+import { filter, finalize, switchMap, takeUntil, tap } from 'rxjs'
+import { useMarkerPositionEdit } from './hooks'
 
 const accessStore = useAccessStore()
 const archiveStore = useArchiveStore()

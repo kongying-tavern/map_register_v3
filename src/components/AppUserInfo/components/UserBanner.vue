@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ElIcon, ElImage, ElSkeleton, ElSkeletonItem } from 'element-plus'
-import { Avatar } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores'
+import { Avatar } from '@element-plus/icons-vue'
+import { ElIcon, ElImage, ElSkeleton, ElSkeletonItem } from 'element-plus'
 
 const userStore = useUserStore()
 

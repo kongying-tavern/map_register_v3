@@ -1,7 +1,7 @@
 <script lang="ts" setup>
+import type { MAFMetaDummy, MAFOptionRange, MAFOptionSwitch, MAFValueBoolean, MAFValueNumberRange } from '@/stores/types'
 import { MarkerFilterButton } from '../../MarkerFilterComponent'
 import { NumberRangeBase } from '../FilterModelComponent'
-import type { MAFMetaDummy, MAFOptionRange, MAFOptionSwitch, MAFValueBoolean, MAFValueNumberRange } from '@/stores/types'
 
 defineProps<{
   options: MAFOptionSwitch & MAFOptionRange

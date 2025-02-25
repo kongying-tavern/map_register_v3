@@ -1,12 +1,12 @@
 <script lang="ts" setup>
-import { pick } from 'lodash'
 import type { MiyousheAvatar } from '../hooks'
-import { useAvatarList } from '../hooks'
-import { AvatarPreview } from '.'
-import { AppVirtualTable, GSButton } from '@/components'
-import { useUserStore } from '@/stores'
-import { useFetchHook } from '@/hooks'
 import Api from '@/api/api'
+import { AppVirtualTable, GSButton } from '@/components'
+import { useFetchHook } from '@/hooks'
+import { useUserStore } from '@/stores'
+import { pick } from 'lodash'
+import { AvatarPreview } from '.'
+import { useAvatarList } from '../hooks'
 
 const userStore = useUserStore()
 

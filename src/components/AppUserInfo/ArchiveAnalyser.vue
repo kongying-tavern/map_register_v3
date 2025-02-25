@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { useArchiveStore, useAreaStore, useIconTagStore, useItemStore, useMarkerStore, usePreferenceStore } from '@/stores'
 import { AppIconTagRenderer, GSSwitch } from '@/components'
 import { fallbackToStaticIcon } from '@/configs'
+import { useArchiveStore, useAreaStore, useIconTagStore, useItemStore, useMarkerStore, usePreferenceStore } from '@/stores'
 
 const archiveStore = useArchiveStore()
 const iconTagStore = useIconTagStore()
@@ -66,7 +66,7 @@ const countMap = computed(() => {
     if (!area.isFinal)
       map.set(area.id!, { area, count: 0, total: 0 })
     return map
-  }, new Map<number, { area: API.AreaVo; count: number; total: number }>())
+  }, new Map<number, { area: API.AreaVo, count: number, total: number }>())
 
   return markerStore.markerList.reduce((map, { id: markerId = -1, itemList = [] }) => {
     itemList.forEach(({ itemId = -1 }) => {

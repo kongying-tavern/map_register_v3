@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { HIDDEN_FLAG_NAME_MAP } from '@/shared'
 import { Right } from '@element-plus/icons-vue'
 import { ElIcon } from 'element-plus'
-import { HIDDEN_FLAG_NAME_MAP } from '@/shared'
 
 const props = withDefaults(defineProps<{
   history?: number

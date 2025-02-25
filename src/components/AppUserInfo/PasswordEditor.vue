@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import type { FormInstance, FormRules } from 'element-plus'
+import Api from '@/api/api'
 import { GSButton, GSInput } from '@/components'
 import { useFetchHook } from '@/hooks'
 import { useUserStore } from '@/stores'
-import Api from '@/api/api'
 
 const userStore = useUserStore()
 

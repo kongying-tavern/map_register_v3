@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { UAParser } from 'ua-parser-js'
+import { PgUnit, usePagination } from '@/hooks'
+import { DeviceStatus } from '@/shared'
 import dayjs from 'dayjs'
+import { UAParser } from 'ua-parser-js'
 import { useUserDevice, useUserDeviceEdit } from '../hooks'
 import { isUnknown } from '../utils'
 import DeviceCard from './DeviceCard.vue'
-import { PgUnit, usePagination } from '@/hooks'
-import { DeviceStatus } from '@/shared'
 
 const props = defineProps<{
   data: API.SysUserVo

@@ -1,5 +1,5 @@
 /** 权限策略配置 */
-const ACCESS_POLICY_CONFIG: Record<string, { label: string; value: string }[]> = {
+const ACCESS_POLICY_CONFIG: Record<string, { label: string, value: string }[]> = {
   ip: [
     { label: '与最后一次登录 ip 相同', value: 'same_last_ip' },
     { label: '对列表中有效的 ip 放行', value: 'pass_allow_ip' },
@@ -24,4 +24,4 @@ export const ACCESS_POLICY_OPTIONS = Object.entries(ACCESS_POLICY_CONFIG).reduce
     })
   })
   return options
-}, [] as { label: string; value: string }[])
+}, [] as { label: string, value: string }[])

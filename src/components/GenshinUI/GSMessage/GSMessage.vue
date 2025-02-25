@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { ClickOutside as vClickOutside } from 'element-plus'
-import { promiseTimeout } from '@vueuse/core'
 import type { GSMessageProps } from '.'
+import { promiseTimeout } from '@vueuse/core'
+import { ClickOutside as vClickOutside } from 'element-plus'
 
 const props = withDefaults(defineProps<Partial<GSMessageProps>>(), {
   message: '',

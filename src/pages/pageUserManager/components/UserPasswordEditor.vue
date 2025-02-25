@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import type { ElFormType } from '@/shared'
+import type { ItemFormRules } from '@/utils'
 import { Check } from '@element-plus/icons-vue'
 import { ref } from 'vue'
 import { emptyCheck, lengthCheck } from '../utils/formRules'
-import type { ElFormType } from '@/shared'
-import type { ItemFormRules } from '@/utils'
 
 defineProps<{
   loading: boolean

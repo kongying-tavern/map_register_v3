@@ -7,7 +7,7 @@ const swLogger = new Logger('服务线程')
 
 export type ServiceWorkerOutput = {
   action: 'log'
-  value: { type: 'info' | 'error'; args: string[] }
+  value: { type: 'info' | 'error', args: string[] }
 } & {
   action: string
   value: unknown

@@ -1,5 +1,5 @@
-import { useFetchHook } from '@/hooks'
 import Api from '@/api/api'
+import { useFetchHook } from '@/hooks'
 
 export const useRoleList = () => {
   const roleList = ref<API.SysRoleVo[]>([])

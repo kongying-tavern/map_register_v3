@@ -3,7 +3,7 @@ import { GSDivider } from '.'
 
 const props = defineProps<{
   modelValue: string
-  tabs: { title: string; value: string }[]
+  tabs: { title: string, value: string }[]
 }>()
 
 const emits = defineEmits<{

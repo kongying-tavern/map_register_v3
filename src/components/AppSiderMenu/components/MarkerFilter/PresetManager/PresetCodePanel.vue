@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import { ElMessage } from 'element-plus'
-import { CloseBold, DocumentCopy, Download } from '@element-plus/icons-vue'
-import { usePresetsCode } from '../hooks'
 import type { MAFGroup, MBFItem } from '@/stores/types'
 import { GSButton, GSDivider } from '@/components'
+import { CloseBold, DocumentCopy, Download } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
+import { usePresetsCode } from '../hooks'
 
 const props = defineProps<{
   conditions: Map<string, MBFItem> | MAFGroup[]

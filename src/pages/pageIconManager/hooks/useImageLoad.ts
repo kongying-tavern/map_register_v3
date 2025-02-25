@@ -1,6 +1,6 @@
-import { ElMessage } from 'element-plus'
-import { getFileType } from '@/utils'
 import { useFetchHook } from '@/hooks'
+import { getFileType } from '@/utils'
+import { ElMessage } from 'element-plus'
 
 export const useImageLoad = () => {
   const localImage = shallowRef<Blob>()

@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import type { MapWindow } from '../types'
 import { Minus, Plus } from '@element-plus/icons-vue'
 import { ElIcon } from 'element-plus'
-import type { MapWindow } from '../types'
 import { useAppWindow } from '../hooks'
 import WindowResizer from './WindowResizer.vue'
 

@@ -1,6 +1,6 @@
 import type { FormRules } from 'element-plus'
-import { requireCheck } from '@/utils'
 import { useAreaStore, useItemStore, useItemTypeStore } from '@/stores'
+import { requireCheck } from '@/utils'
 
 export const useRules = () => {
   const areaStore = useAreaStore()

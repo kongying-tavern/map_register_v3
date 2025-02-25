@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { Check, Close, Delete } from '@element-plus/icons-vue'
-import { useNoticeDelete } from '../hooks'
 import {
   GlobalDialogController,
   WinDialog,
   WinDialogFooter,
   WinDialogTitleBar,
 } from '@/components'
+import { Check, Close, Delete } from '@element-plus/icons-vue'
+import { useNoticeDelete } from '../hooks'
 
 const props = defineProps<{
   title: string

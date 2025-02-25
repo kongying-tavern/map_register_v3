@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-import { cloneDeep } from 'lodash'
-import { useTagOptions } from '../hooks'
 import type { ElFormType } from '@/shared'
-import { HIDDEN_FLAG_OPTIONS } from '@/shared'
 import type { ItemFormRules } from '@/utils'
 import { AppIconTagRenderer, AppItemSelecter } from '@/components'
+import { HIDDEN_FLAG_OPTIONS } from '@/shared'
 import { useAccessStore, useIconTagStore } from '@/stores'
+import { cloneDeep } from 'lodash'
+import { useTagOptions } from '../hooks'
 
 const props = defineProps<{
   parent?: API.AreaVo

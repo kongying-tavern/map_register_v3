@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { ElIcon } from 'element-plus'
-import { DeleteFilled } from '@element-plus/icons-vue'
-import { CheckboxItem, ItemButton } from '..'
 import { AppIconTagRenderer } from '@/components'
-import { isItemVo } from '@/utils'
-import { useAreaStore, useIconTagStore, useItemStore } from '@/stores'
 import { fallbackToStaticIcon } from '@/configs'
+import { useAreaStore, useIconTagStore, useItemStore } from '@/stores'
+import { isItemVo } from '@/utils'
+import { DeleteFilled } from '@element-plus/icons-vue'
+import { ElIcon } from 'element-plus'
+import { CheckboxItem, ItemButton } from '..'
 
 defineProps<{
   itemCountMap: Map<number, number>

@@ -1,7 +1,7 @@
-import SevenZipWASM from '7z-wasm/7zz.wasm?url'
-import { createWorkerHelper } from '.'
-import ZipWorker from '@/worker/zip.worker?worker'
 import type { WorkerInput } from '@/worker/zip.worker'
+import SevenZipWASM from '7z-wasm/7zz.wasm?url'
+import ZipWorker from '@/worker/zip.worker?worker'
+import { createWorkerHelper } from '.'
 
 /** 7-zip 包装类 */
 export class Zip {

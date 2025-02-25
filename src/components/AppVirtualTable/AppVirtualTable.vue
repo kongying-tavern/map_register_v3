@@ -27,7 +27,7 @@ const tableRef = ref<HTMLElement>()
 const { width, height } = useElementSize(tableRef)
 
 const scrollHeight = ref(0)
-const handleScroll = ({ scrollTop }: { scrollTop: number; scrollLeft: number }) => {
+const handleScroll = ({ scrollTop }: { scrollTop: number, scrollLeft: number }) => {
   scrollHeight.value = scrollTop
 }
 

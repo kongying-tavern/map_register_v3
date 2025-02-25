@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { SettingBar, SettingGroup, SettingPanel } from '../components'
-import { usePreferenceStore, useSocketStore, useUserStore } from '@/stores'
 import { WEBSOCKET_WORKER_CONFIG } from '@/configs'
+import { usePreferenceStore, useSocketStore, useUserStore } from '@/stores'
+import { SettingBar, SettingGroup, SettingPanel } from '../components'
 
 const socketStore = useSocketStore()
 const userStore = useUserStore()
@@ -13,7 +13,7 @@ const text = computed(() => {
     : '未连接'
 })
 
-const wsEvents: { label: string; value: API.WSEventType; divider?: boolean }[] = [
+const wsEvents: { label: string, value: API.WSEventType, divider?: boolean }[] = [
   // 物品
   { label: '物品新增', value: 'ItemAdded' },
   { label: '物品删除', value: 'ItemDeleted' },

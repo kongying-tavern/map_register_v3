@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import { MarkerFilterButton } from '../../MarkerFilterComponent'
-import { SelectBase } from '../FilterModelComponent'
 import type { LINK_ACTION_OPTIONS } from '@/shared/linkAction'
 import type { MAFMetaVisibility, MAFOptionSelect, MAFValueStringArray } from '@/stores/types'
 import { IconLink } from '@/components/AppIcons'
+import { MarkerFilterButton } from '../../MarkerFilterComponent'
+import { SelectBase } from '../FilterModelComponent'
 
 defineProps<{
   options: MAFOptionSelect<typeof LINK_ACTION_OPTIONS[0]>

@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { ModelItem } from '.'
 import type { MAFGroupComposed } from '@/stores/types'
-import { useMapStateStore } from '@/stores'
 import { AppDraggableTable } from '@/components'
+import { useMapStateStore } from '@/stores'
+import { ModelItem } from '.'
 
 const emits = defineEmits<{
   appendItem: [groupIndex: number]

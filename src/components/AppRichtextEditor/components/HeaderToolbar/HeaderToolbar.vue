@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { Link } from '@element-plus/icons-vue'
 import type { HeaderToolbarProps } from '../../types'
-import ToolbarItem from './components/ToolbarItem.vue'
+import { Link } from '@element-plus/icons-vue'
 import { TextColor } from './components'
+import ToolbarItem from './components/ToolbarItem.vue'
 
 const props = withDefaults(defineProps<HeaderToolbarProps>(), {
   baseSize: 32,
@@ -54,8 +54,9 @@ const sizeAliasList = computed(() => {
     props.headerMin && props.headerMax
     && Number.isFinite(props.headerMin) && Number.isFinite(props.headerMax)
     && props.headerMin <= props.headerMax
-  )
+  ) {
     return sizeAliasFullList.slice(props.headerMin - 1, props.headerMax)
+  }
 
   return []
 })

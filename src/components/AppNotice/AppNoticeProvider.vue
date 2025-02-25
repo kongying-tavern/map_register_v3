@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { context } from './context'
 import { NoticeCard } from './components'
+import { context } from './context'
 
 const selectedNotice = shallowRef<API.NoticeVo>()
 </script>

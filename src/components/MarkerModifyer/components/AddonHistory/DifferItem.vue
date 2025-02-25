@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useIconTagStore, useItemStore } from '@/stores'
 import { AppIconTagRenderer } from '@/components'
+import { useIconTagStore, useItemStore } from '@/stores'
 
 const props = withDefaults(defineProps<{
   history?: API.MarkerItemLinkVo[]

@@ -2,7 +2,7 @@ import db from '@/database'
 import { useFetchHook } from '@/hooks'
 
 export const useTagOptions = () => {
-  const tagOptions = ref<(API.TagVo & { label: string; value: string })[]>([])
+  const tagOptions = ref<(API.TagVo & { label: string, value: string })[]>([])
 
   const { loading, refresh: getTagList, onSuccess, ...rest } = useFetchHook({
     immediate: true,

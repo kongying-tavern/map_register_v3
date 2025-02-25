@@ -28,7 +28,7 @@ const searchText = computed({
         test,
       }
     }
-    catch (err) {
+    catch {
       errorCache.value = test
       return false
     }

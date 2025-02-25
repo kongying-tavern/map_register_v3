@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useAccessStore } from '@/stores'
 import {
   PaintMarkerLink,
   SwitchMarkerPopover,
@@ -6,7 +7,6 @@ import {
   ViewState,
   WebSocketStatus,
 } from './components'
-import { useAccessStore } from '@/stores'
 
 const accessStore = useAccessStore()
 

@@ -1,7 +1,7 @@
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { useFetchHook } from '@/hooks'
 import Api from '@/api/api'
 import db from '@/database'
+import { useFetchHook } from '@/hooks'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
 export function useIconDelete() {
   const { refresh: submitDeleteIcon, loading, onSuccess, onError, ...rest } = useFetchHook({

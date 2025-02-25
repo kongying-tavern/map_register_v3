@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { Odometer, PictureRounded } from '@element-plus/icons-vue'
-import { SettingBar, SettingGroup, SettingPanel } from '../components'
 import { useUserStore } from '@/stores'
 import { formatByteSize } from '@/utils'
+import { Odometer, PictureRounded } from '@element-plus/icons-vue'
+import { SettingBar, SettingGroup, SettingPanel } from '../components'
 
 const userStore = useUserStore()
 
@@ -25,7 +25,7 @@ const { state: storageEstimate } = useAsyncState<StorageEstimateExpand>(navigato
   },
 })
 
-const { state: glInfo } = useAsyncState<{ label: string; value: unknown }[]>(async () => {
+const { state: glInfo } = useAsyncState<{ label: string, value: unknown }[]>(async () => {
   const canvas = document.createElement('canvas')
   const gl = canvas.getContext('webgl2')
   if (!gl)
@@ -45,7 +45,7 @@ const { state: glInfo } = useAsyncState<{ label: string; value: unknown }[]>(asy
   }))
 }, [])
 
-const storageDetails = computed<{ name: string; percentage: number; text: string }[]>(() => {
+const storageDetails = computed<{ name: string, percentage: number, text: string }[]>(() => {
   if (!storageEstimate.value.usageDetails)
     return []
   const { caches, indexedDB, serviceWorkerRegistrations } = storageEstimate.value.usageDetails

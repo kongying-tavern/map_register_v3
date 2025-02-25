@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import LinkActionLabel from './LinkActionLabel.vue'
 import type { LinkActionEnum } from '@/shared'
 import { LINK_ACTION_CONFIG, LINK_ACTION_OPTIONS } from '@/shared'
+import LinkActionLabel from './LinkActionLabel.vue'
 
 const modelValue = defineModel<LinkActionEnum>('modelValue', {
   required: true,

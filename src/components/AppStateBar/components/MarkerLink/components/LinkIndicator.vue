@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import LinkActionLabel from './LinkActionLabel.vue'
 import type { GSMarkerInfo } from '@/packages/map'
 import type { LinkActionEnum } from '@/shared'
+import LinkActionLabel from './LinkActionLabel.vue'
 
 defineProps<{
-  position: { x: number; y: number }
+  position: { x: number, y: number }
   linkAction: LinkActionEnum
   prevMarker?: GSMarkerInfo
   nextMarker?: GSMarkerInfo

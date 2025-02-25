@@ -1,9 +1,9 @@
-import { pick } from 'lodash'
 import type { ItemDetailForm } from '../components'
-import { useFetchHook } from '@/hooks'
-import { GSMessageService, GlobalDialogController } from '@/components'
 import Api from '@/api/api'
+import { GlobalDialogController, GSMessageService } from '@/components'
+import { useFetchHook } from '@/hooks'
 import { useSocketStore } from '@/stores'
+import { pick } from 'lodash'
 
 export interface ItemEditHookOptions {
   initFormData?: () => API.ItemVo

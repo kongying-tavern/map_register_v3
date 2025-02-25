@@ -1,7 +1,7 @@
 import type { GSMarkerInfo } from '@/packages/map'
 import type { AreaTileConfig } from '@/stores'
-import { pickMainItem } from '@/utils'
 import { useAreaStore, useItemStore, useTileStore } from '@/stores'
+import { pickMainItem } from '@/utils'
 
 export interface NormalizeMarkerOptions {
   tileConfigs?: Record<string, AreaTileConfig>
@@ -25,7 +25,7 @@ export const createRenderMarkers = (
   } = options
 
   /** 缓存从物品 id 查询到的地区信息和底图配置，减少索引时间复杂度 */
-  const cacheMap = new Map<number, { area: API.AreaVo; tileConfig: AreaTileConfig }>()
+  const cacheMap = new Map<number, { area: API.AreaVo, tileConfig: AreaTileConfig }>()
 
   const normalizedMarkers: GSMarkerInfo[] = []
 

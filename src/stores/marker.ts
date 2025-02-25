@@ -1,13 +1,13 @@
-import { defineStore } from 'pinia'
-import { AddLocation, DeleteLocation, Location } from '@element-plus/icons-vue'
-import { liveQuery } from 'dexie'
-import { useAccessStore, useSocketStore, useUserStore } from '.'
-import { Zip } from '@/utils'
+import type { WorkerInput, WorkerOutput } from '@/worker/idb.worker'
 import Api from '@/api/api'
 import db from '@/database'
 import { useManager } from '@/stores/hooks'
+import { Zip } from '@/utils'
 import BulkPutWorker from '@/worker/idb.worker?worker'
-import type { WorkerInput, WorkerOutput } from '@/worker/idb.worker'
+import { AddLocation, DeleteLocation, Location } from '@element-plus/icons-vue'
+import { liveQuery } from 'dexie'
+import { defineStore } from 'pinia'
+import { useAccessStore, useSocketStore, useUserStore } from '.'
 
 /** 全量点位的全局数据 */
 export const useMarkerStore = defineStore('global-marker', () => {

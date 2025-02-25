@@ -1,12 +1,12 @@
 <script lang="ts" setup>
-import { useSpecialFlag } from '../hooks'
-import type { ItemFormRules } from '@/utils'
-import { lengthCheck, requireCheck } from '@/utils'
-import { useIconList, useRefreshTime } from '@/hooks'
 import type { ElFormType } from '@/shared'
-import { HIDDEN_FLAG_OPTIONS, IconStyle, SPECIALFLAG_OPTIONS } from '@/shared'
+import type { ItemFormRules } from '@/utils'
 import { AppTimeSelect } from '@/components'
+import { useIconList, useRefreshTime } from '@/hooks'
+import { HIDDEN_FLAG_OPTIONS, IconStyle, SPECIALFLAG_OPTIONS } from '@/shared'
 import { useAccessStore, useAreaStore, useItemTypeStore } from '@/stores'
+import { lengthCheck, requireCheck } from '@/utils'
+import { useSpecialFlag } from '../hooks'
 
 const props = defineProps<{
   modelValue: API.ItemVo

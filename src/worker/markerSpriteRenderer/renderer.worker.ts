@@ -1,8 +1,8 @@
-import type { IconLayer } from 'deck.gl'
 import type { Logger } from '@/utils/logger'
+import type { IconLayer } from 'deck.gl'
 import { WorkerThreadDB } from '@/database/db/worker'
-import { getDigest } from '@/utils/getDigest'
 import { useLoggerWorker } from '@/hooks/useWorkerLogger'
+import { getDigest } from '@/utils/getDigest'
 
 const db = new WorkerThreadDB()
 

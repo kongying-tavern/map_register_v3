@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import BarItem from './BarItem.vue'
 import { useArchiveStore } from '@/stores'
+import BarItem from './BarItem.vue'
 
 const archiveStore = useArchiveStore()
 

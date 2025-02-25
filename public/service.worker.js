@@ -132,7 +132,7 @@ void (() => {
 
     // 由元素发起的请求会获取此值，但 fetch 发起的请求就没有了，需要通过技术手段确定
     const destination = rawDestination || (() => {
-      const extname = (url.match(/(\.[a-zA-Z0-9]+)$/)?.[1] ?? '.unknown').replace('.', '').toLowerCase()
+      const extname = (url.match(/(\.[a-z0-9]+)$/i)?.[1] ?? '.unknown').replace('.', '').toLowerCase()
       if (IMAGE_TYPES.has(extname))
         return 'image'
       return ''
@@ -143,8 +143,9 @@ void (() => {
       hostname === 'localhost',
       hostname === '127.0.0.1',
       !AVAILABLE_DESTINATION.has(destination),
-    ].some(Boolean))
+    ].some(Boolean)) {
       return
+    }
 
     const cacheName = matchCacheName(pathname, destination)
     if (!cacheName)

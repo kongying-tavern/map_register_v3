@@ -1,9 +1,9 @@
+import type { ElFormType } from '@/shared'
+import type { ItemFormRules } from '@/utils'
+import { useFetchHook } from '@/hooks'
+import { useUserStore } from '@/stores'
 import { ElMessage } from 'element-plus'
 import { useValidateStatus } from './useValidateStatus'
-import { useUserStore } from '@/stores'
-import type { ElFormType } from '@/shared'
-import { useFetchHook } from '@/hooks'
-import type { ItemFormRules } from '@/utils'
 
 /** 登录逻辑封装 */
 export const useLoginForm = () => {

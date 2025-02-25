@@ -1,9 +1,9 @@
-import { defineStore } from 'pinia'
-import { ElMessage } from 'element-plus'
 import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
-import { useUserAuthStore } from '@/stores'
 import { ROLE_MASK_MAP, RoleTypeEnum } from '@/shared'
+import { useUserAuthStore } from '@/stores'
+import { ElMessage } from 'element-plus'
+import { defineStore } from 'pinia'
 
 const FALLBACK_ROLE: API.SysRoleVo = Object.freeze({
   code: RoleTypeEnum.VISITOR,

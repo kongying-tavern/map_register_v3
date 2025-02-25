@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { useNoticeList } from './hooks'
-import { NoticeDeleteConfirm, NoticeHeader, NoticeTable, NoticeViewer } from './components'
 import { PgUnit, useGlobalDialog, usePagination } from '@/hooks'
 import { ManagerModule, NoticeChannel } from '@/shared'
+import { NoticeDeleteConfirm, NoticeHeader, NoticeTable, NoticeViewer } from './components'
+import { useNoticeList } from './hooks'
 
 const { pagination, layout, onChange: onPaginationChange } = usePagination({
   units: [PgUnit.TOTAL, PgUnit.SIZE, PgUnit.JUMPER, PgUnit.PREV, PgUnit.PAGER, PgUnit.NEXT],

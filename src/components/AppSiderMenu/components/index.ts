@@ -1,5 +1,5 @@
+export { default as CollapseButton } from './CollapseButton.vue'
 export * from './FeatureGrid'
 export * from './MarkerFilter'
 export * from './MarkerTable'
 export * from './SiderMenu'
-export { default as CollapseButton } from './CollapseButton.vue'

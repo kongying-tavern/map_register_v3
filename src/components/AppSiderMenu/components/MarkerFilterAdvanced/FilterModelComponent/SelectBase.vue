@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { MarkerFilterSelect } from '../../MarkerFilterComponent'
 import type { MAFOptionSelect } from '@/stores/types'
+import { MarkerFilterSelect } from '../../MarkerFilterComponent'
 
 type ValueType = string | number
 

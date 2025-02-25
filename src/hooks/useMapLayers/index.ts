@@ -1,15 +1,17 @@
-import { type LayersList, LineLayer } from 'deck.gl'
-import { useMarkerLayer } from './useMarkerLayer'
-import { useLinkLayer } from './useLinkLayer'
-import { useTagLayer } from './useTagLayer'
-import { type GSMarkerInfo, GSOverlayer, GSTileLayer } from '@/packages/map'
+import type { useResourceStatus } from '@/hooks'
+import type { GSMarkerInfo } from '@/packages/map'
+import type { LayersList } from 'deck.gl'
+import { GSOverlayer, GSTileLayer } from '@/packages/map'
+import { TempLayerIndex } from '@/shared'
 import {
   useMapStateStore,
   useOverlayStore,
   useTileStore,
 } from '@/stores'
-import { TempLayerIndex } from '@/shared'
-import type { useResourceStatus } from '@/hooks'
+import { LineLayer } from 'deck.gl'
+import { useLinkLayer } from './useLinkLayer'
+import { useMarkerLayer } from './useMarkerLayer'
+import { useTagLayer } from './useTagLayer'
 
 export interface MapLayerHookOptions {
   resourceStatus: ReturnType<typeof useResourceStatus>['status']

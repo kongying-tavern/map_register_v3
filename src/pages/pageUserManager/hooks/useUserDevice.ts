@@ -1,5 +1,5 @@
-import Api from '@/api/api'
 import type { PaginationState } from '@/hooks'
+import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 
 interface UserDeviceHookOptions {

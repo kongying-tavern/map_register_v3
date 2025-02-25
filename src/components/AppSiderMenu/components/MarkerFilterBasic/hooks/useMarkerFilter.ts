@@ -1,5 +1,5 @@
-import { storeToRefs } from 'pinia'
 import { useMapStateStore, usePreferenceStore } from '@/stores'
+import { storeToRefs } from 'pinia'
 
 export const useMarkerFilter = () => {
   const preferenceStore = usePreferenceStore()

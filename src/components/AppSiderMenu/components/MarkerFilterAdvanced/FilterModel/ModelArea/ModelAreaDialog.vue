@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { SelectList } from '../../../SelectList'
 import type { AreaWithChildren } from '@/stores'
-import { useListBubbleDrag } from '@/hooks'
 import type { MAFMetaArea } from '@/stores/types'
+import { useListBubbleDrag } from '@/hooks'
+import { SelectList } from '../../../SelectList'
 
 const props = defineProps<{
   meta: MAFMetaArea

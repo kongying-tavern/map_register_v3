@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import PushConfirm from './components/PushConfirm.vue'
 import Api from '@/api/api'
 import { useFetchHook, useGlobalDialog } from '@/hooks'
+import PushConfirm from './components/PushConfirm.vue'
 
 const { DialogService } = useGlobalDialog()
 

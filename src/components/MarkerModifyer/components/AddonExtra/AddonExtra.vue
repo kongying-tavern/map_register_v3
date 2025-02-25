@@ -27,7 +27,7 @@ const regionMap = computed(() => {
       map.set(value, { label, value, parent: { label: pl, value: pv } })
     })
     return map
-  }, new Map<string, { label: string; value: string; parent: { label: string; value: string } }>())
+  }, new Map<string, { label: string, value: string, parent: { label: string, value: string } }>())
 })
 
 const regionIsland28Map = computed(() => {
@@ -37,7 +37,7 @@ const regionIsland28Map = computed(() => {
     children.forEach(({ label: cl, value: cv }) => childrenMap.set(cv, cl))
     map.set(value, { label, value, children: childrenMap })
     return map
-  }, new Map<string, { label: string; value: string; children: Map<string, string> }>())
+  }, new Map<string, { label: string, value: string, children: Map<string, string> }>())
 })
 
 const regionIsland16Map = computed(() => {

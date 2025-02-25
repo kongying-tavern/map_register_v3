@@ -1,11 +1,11 @@
 <script lang="ts" setup generic="T">
-import { ElTable } from 'element-plus'
 import type { TypeManager } from '../config'
 import { AppRowImage, AppUserPopover } from '@/components'
 import { useUserPopover } from '@/hooks'
-import { timeFormatter } from '@/utils'
-import { useIconTagStore } from '@/stores'
 import { HIDDEN_FLAG_NAME_MAP } from '@/shared'
+import { useIconTagStore } from '@/stores'
+import { timeFormatter } from '@/utils'
+import { ElTable } from 'element-plus'
 
 const props = defineProps<{
   data: T[]

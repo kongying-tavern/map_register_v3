@@ -1,6 +1,6 @@
-import type { DeckProps, IconLayerProps, OrthographicView, OrthographicViewState } from 'deck.gl'
-
 import type { AreaTagTuple } from '@/configs'
+
+import type { DeckProps, IconLayerProps, OrthographicView, OrthographicViewState } from 'deck.gl'
 
 type OrthographicViewMapProps = DeckProps<OrthographicView>
 export type Coordinate2D = [x: number, y: number]
@@ -273,7 +273,7 @@ export interface OverlayChunkGroup {
 
 export interface OverlayControlGroup extends OverlayChunkGroup {
   bounds: API.OverlayBounds
-  items: { id: string; name: string }[]
+  items: { id: string, name: string }[]
 }
 
 export interface MergedOverlayGroups {

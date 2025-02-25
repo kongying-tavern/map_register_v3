@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { useRefreshTime } from '@/hooks'
 import { Right } from '@element-plus/icons-vue'
 import { ElIcon } from 'element-plus'
-import { useRefreshTime } from '@/hooks'
 
 const props = withDefaults(defineProps<{
   history?: number

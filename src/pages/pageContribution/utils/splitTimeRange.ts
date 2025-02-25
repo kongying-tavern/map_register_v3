@@ -1,9 +1,9 @@
 import dayjs from 'dayjs'
 
-export const splitTimeRange = (startTime: number, endTime: number, unit: 'year' | 'month'): { startTime: number; endTime: number }[] => {
+export const splitTimeRange = (startTime: number, endTime: number, unit: 'year' | 'month'): { startTime: number, endTime: number }[] => {
   const start = dayjs(startTime)
   const end = dayjs(endTime)
-  const result: { startTime: number; endTime: number }[] = []
+  const result: { startTime: number, endTime: number }[] = []
 
   if (!start.isValid() || !end.isValid())
     throw new Error('Invalid start or end time')

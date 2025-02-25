@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { useMapProjection } from './hooks'
-import { mapViewStateKey } from '@/shared'
 import type { GenshinMapViewState } from '@/packages/map'
+import { mapViewStateKey } from '@/shared'
+import { useMapProjection } from './hooks'
 
 interface GenshinMapAffixProps {
   zoomWithMap?: boolean

@@ -1,10 +1,10 @@
+import type { RouterHistory, RouterScrollBehavior } from 'vue-router'
 import {
   createMemoryHistory,
   createRouter,
   createWebHashHistory,
   createWebHistory,
 } from 'vue-router'
-import type { RouterHistory, RouterScrollBehavior } from 'vue-router'
 import routes from './routes'
 
 const history: RouterHistory = ({

@@ -1,13 +1,13 @@
-import { ref } from 'vue'
-import _ from 'lodash'
-import { ElMessage } from 'element-plus'
 import type { PaginationState } from '@/hooks/usePagination'
-import { useFetchHook } from '@/hooks'
 import Api from '@/api/api'
+import { useFetchHook } from '@/hooks'
+import { ElMessage } from 'element-plus'
+import _ from 'lodash'
+import { ref } from 'vue'
 
 interface UserListHookOptions {
   pagination: Ref<PaginationState>
-  sortInfo: Ref<{ key: string; type: string }>
+  sortInfo: Ref<{ key: string, type: string }>
 }
 
 /** 列表数据与核心操作封装 */

@@ -1,9 +1,9 @@
-import { defineStore } from 'pinia'
-import { usePreferenceStore, useSocketStore, useUserStore } from '.'
 import Api from '@/api/api'
+import { context as noticeContext } from '@/components/AppNotice/context'
 import { useFetchHook } from '@/hooks'
 import { NoticeChannel } from '@/shared'
-import { context as noticeContext } from '@/components/AppNotice/context'
+import { defineStore } from 'pinia'
+import { usePreferenceStore, useSocketStore, useUserStore } from '.'
 
 export const useNoticeStore = defineStore('global-notice', () => {
   const userStore = useUserStore()

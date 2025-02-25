@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import OverlayCount from './components/OverlayCount.vue'
+import type { OverlayChunk } from '@/packages/map'
 import { GSSelect } from '@/components'
 import { useArchiveStore, useAreaStore, useOverlayStore } from '@/stores'
-import type { OverlayChunk } from '@/packages/map'
+import OverlayCount from './components/OverlayCount.vue'
 
 const areaStore = useAreaStore()
 const archiveStore = useArchiveStore()

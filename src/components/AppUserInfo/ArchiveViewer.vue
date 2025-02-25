@@ -1,13 +1,13 @@
 <script lang="ts" setup>
+import type { ArchiveData, ArchiveSlotData } from '@/stores'
+import Api from '@/api/api'
+import { GSButton, GSCard, GSDivider, GSInput } from '@/components'
+import { useFetchHook } from '@/hooks'
+import { useArchiveStore } from '@/stores'
 // TODO 逻辑拆分
 import { CaretBottom, CaretTop, DeleteFilled, Edit } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { ArchiveHistory } from '.'
-import { GSButton, GSCard, GSDivider, GSInput } from '@/components'
-import type { ArchiveData, ArchiveSlotData } from '@/stores'
-import { useArchiveStore } from '@/stores'
-import { useFetchHook } from '@/hooks'
-import Api from '@/api/api'
 
 const props = defineProps<{
   slotIndex?: number

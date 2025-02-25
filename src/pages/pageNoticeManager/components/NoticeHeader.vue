@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import type { PaginationState } from '@/hooks'
+import { AppDropdown } from '@/components'
+import { NOTICE_NAME_MAP } from '@/shared'
 import { CirclePlus, Filter, Search, Sort } from '@element-plus/icons-vue'
 import ListSorter from './ListSorter.vue'
-import type { PaginationState } from '@/hooks'
-import { NOTICE_NAME_MAP } from '@/shared'
-import { AppDropdown } from '@/components'
 
 const emits = defineEmits<{
   change: []
@@ -25,7 +25,7 @@ const resetCurrentAndChange = () => {
 
 const options = [...NOTICE_NAME_MAP.entries()]
 
-const sortableKeyOptions: { label: string; key: string }[] = [
+const sortableKeyOptions: { label: string, key: string }[] = [
   { label: '标题', key: 'title' },
   { label: '有效性', key: 'isValid' },
   { label: '有效起始时间', key: 'validTimeStart' },

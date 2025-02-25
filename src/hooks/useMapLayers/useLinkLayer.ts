@@ -1,8 +1,9 @@
-import { useSubscription } from '@vueuse/rxjs'
-import { type Coordinate2D, GSLinkLayer, type GSLinkLayerProps, GSMarkerLayer, type MarkerLinkMission } from '@/packages/map'
+import type { Coordinate2D, GSLinkLayerProps, MarkerLinkMission } from '@/packages/map'
 import type { LinkActionEnum } from '@/shared'
+import { GSLinkLayer, GSMarkerLayer } from '@/packages/map'
 import { LINK_CONFIG_MAP, MapSubject } from '@/shared'
 import { useMapStateStore, useMarkerLinkStore, useMarkerStore, useTileStore } from '@/stores'
+import { useSubscription } from '@vueuse/rxjs'
 
 export const useLinkLayer = () => {
   const markerStore = useMarkerStore()

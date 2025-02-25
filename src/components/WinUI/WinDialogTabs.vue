@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const props = defineProps<{
-  options: { key: string; name: string }[]
+  options: { key: string, name: string }[]
   disabled?: boolean
 }>()
 

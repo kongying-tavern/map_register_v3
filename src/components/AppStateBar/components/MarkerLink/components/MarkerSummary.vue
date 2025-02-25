@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { GSMapState } from '@/stores/types/genshin-map-state'
-import { useIconTagStore } from '@/stores'
 import { AppIconTagRenderer } from '@/components'
+import { useIconTagStore } from '@/stores'
 
 defineProps<{
   data?: GSMapState.MarkerWithRenderConfig

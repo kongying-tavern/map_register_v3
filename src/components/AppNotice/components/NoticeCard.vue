@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { context } from '../context'
-import NoticeTitle from './NoticeTitle.vue'
 import { AppRichtextEditor, GSButton } from '@/components'
 import { CloseFilled } from '@/components/GenshinUI/GSIcon'
 import { useNoticeStore } from '@/stores'
+import { context } from '../context'
+import NoticeTitle from './NoticeTitle.vue'
 
 const noticeStore = useNoticeStore()
 

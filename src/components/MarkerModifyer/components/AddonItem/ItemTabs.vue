@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import type { InternalItemData } from './types'
+import { useAreaStore, useItemStore, useItemTypeStore } from '@/stores'
 import { formItemContextKey, useFormItem } from 'element-plus'
 import { AddonTeleporter } from '..'
-import type { InternalItemData } from './types'
-import ItemSubSummary from './ItemSubSummary.vue'
 import ItemDetail from './ItemDetail.vue'
-import { useAreaStore, useItemStore, useItemTypeStore } from '@/stores'
+import ItemSubSummary from './ItemSubSummary.vue'
 
 const emits = defineEmits<{
   removeArea: [API.AreaVo]

@@ -1,6 +1,6 @@
+import type { FetchHookOptions } from '@/hooks'
 import type { Ref } from 'vue'
 import Api from '@/api/api'
-import type { FetchHookOptions } from '@/hooks'
 import { useFetchHook } from '@/hooks'
 
 /** 共享的物品列表 */

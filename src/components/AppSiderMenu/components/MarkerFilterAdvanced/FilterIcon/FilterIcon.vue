@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { MapLocation } from '@element-plus/icons-vue'
 import {
   IconApplication,
   IconArrowDottedNeSw,
@@ -19,6 +18,7 @@ import {
   IconTitleSerif,
   IconVideoPlay,
 } from '@/components/AppIcons'
+import { MapLocation } from '@element-plus/icons-vue'
 
 const props = defineProps<{
   id: number

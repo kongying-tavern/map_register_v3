@@ -1,5 +1,5 @@
-import { defineStore } from 'pinia'
 import { ElNotification } from 'element-plus'
+import { defineStore } from 'pinia'
 import { useArchiveStore, useUserStore } from '..'
 import { useAppEvent, useMessageList, useSocket } from './hooks'
 

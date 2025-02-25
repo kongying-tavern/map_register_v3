@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { cloneDeep } from 'lodash'
-import { Delete } from '@element-plus/icons-vue'
-import dayjs from 'dayjs'
-import { useIconDelete } from '../hooks'
-import { IconEditor } from '.'
-import { useIconTagStore } from '@/stores'
 import Api from '@/api/api'
 import { useFetchHook, useGlobalDialog } from '@/hooks'
+import { useIconTagStore } from '@/stores'
 import { formatByteSize } from '@/utils'
+import { Delete } from '@element-plus/icons-vue'
+import dayjs from 'dayjs'
+import { cloneDeep } from 'lodash'
+import { IconEditor } from '.'
+import { useIconDelete } from '../hooks'
 
 const props = defineProps<{
   tag?: API.TagVo | null
@@ -33,7 +33,7 @@ const { refresh: getUserInfo, loading: isUserInfoLoading, onSuccess } = useFetch
   }, [] as Promise<API.SysUserVo>[])),
 })
 
-const { state, isLoading, execute } = useAsyncState<{ url?: string; size?: number[]; byteLength?: number }>(async () => {
+const { state, isLoading, execute } = useAsyncState<{ url?: string, size?: number[], byteLength?: number }>(async () => {
   if (!props.tag?.url)
     return {}
   const res = await fetch(props.tag.url)

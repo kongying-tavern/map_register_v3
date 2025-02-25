@@ -1,10 +1,5 @@
 <script lang="ts" setup>
 import {
-  CurrentTime,
-  DarkModeSwitch,
-  SettingButton,
-} from './components'
-import {
   AppBreadCrumb,
   AppLogo,
   AppNotice,
@@ -13,8 +8,13 @@ import {
   AppUserAvatar,
 } from '@/components'
 import { LayoutAside, LayoutHeader, LayoutPage } from '@/layout'
-
 import { useAccessStore } from '@/stores'
+
+import {
+  CurrentTime,
+  DarkModeSwitch,
+  SettingButton,
+} from './components'
 
 const accessStore = useAccessStore()
 </script>

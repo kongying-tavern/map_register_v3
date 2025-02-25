@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useRegisterForm } from './hooks'
 import { useCountDown } from '@/hooks'
+import { useRegisterForm } from './hooks'
 
 const title = import.meta.env.VITE_TITLE
 const { formRef, rules, registerForm, loading, register } = useRegisterForm()

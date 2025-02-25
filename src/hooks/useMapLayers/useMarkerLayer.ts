@@ -1,8 +1,9 @@
-import { useSubscription } from '@vueuse/rxjs'
-import { filter } from 'rxjs'
-import { type GSMarkerInfo, GSMarkerLayer } from '@/packages/map'
+import type { GSMarkerInfo } from '@/packages/map'
+import { GSMarkerLayer } from '@/packages/map'
 import { MapSubject } from '@/shared'
 import { useArchiveStore, useIconTagStore, useMapStateStore } from '@/stores'
+import { useSubscription } from '@vueuse/rxjs'
+import { filter } from 'rxjs'
 
 export const useMarkerLayer = () => {
   const archiveStore = useArchiveStore()

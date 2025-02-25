@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import { ElButton, ElInput } from 'element-plus'
-import { Setting } from '@element-plus/icons-vue'
-import { useAddonActive } from '../hooks'
-import { AddonTeleporter } from '.'
 import { AppBilibiliVideoPlayer } from '@/components'
+import { Setting } from '@element-plus/icons-vue'
+import { ElButton, ElInput } from 'element-plus'
+import { AddonTeleporter } from '.'
+import { useAddonActive } from '../hooks'
 
 const videoURL = defineModel('modelValue', {
   required: false,

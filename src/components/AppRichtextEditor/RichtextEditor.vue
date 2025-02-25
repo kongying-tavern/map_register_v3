@@ -1,14 +1,14 @@
 <script lang="ts" setup>
-import { EditorContent, useEditor } from '@tiptap/vue-3'
 import type { Extension } from '@tiptap/core'
-import StarterKit from '@tiptap/starter-kit'
-import TextAlign from '@tiptap/extension-text-align'
-import TextLink from '@tiptap/extension-link'
-import TextUnderline from '@tiptap/extension-underline'
 import type { EditorProps } from './types'
-import { Color, Size } from './marks'
-import { TextColor, TextSize } from './extensions'
+import TextLink from '@tiptap/extension-link'
+import TextAlign from '@tiptap/extension-text-align'
+import TextUnderline from '@tiptap/extension-underline'
+import StarterKit from '@tiptap/starter-kit'
+import { EditorContent, useEditor } from '@tiptap/vue-3'
 import { HeaderToolbar } from './components'
+import { TextColor, TextSize } from './extensions'
+import { Color, Size } from './marks'
 
 const props = withDefaults(defineProps<EditorProps>(), {
   sizeRatio: 1,

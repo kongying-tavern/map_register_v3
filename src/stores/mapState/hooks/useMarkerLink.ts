@@ -1,7 +1,7 @@
-import { useFetchHook } from '@/hooks'
-import db from '@/database'
 import type { GSMarkerInfo, MLRenderUnit, TempMarkerType } from '@/packages/map'
 import type { useMarkerLinkStore } from '@/stores'
+import db from '@/database'
+import { useFetchHook } from '@/hooks'
 
 interface MarkerLinkHookOptions {
   markerLinkStore: ReturnType<typeof useMarkerLinkStore>

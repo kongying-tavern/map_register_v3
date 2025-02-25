@@ -1,7 +1,7 @@
-import { ElMessage, ElMessageBox } from 'element-plus'
 import Api from '@/api/api'
-import { useFetchHook } from '@/hooks'
 import db from '@/database'
+import { useFetchHook } from '@/hooks'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
 export const useMarkerDelete = () => {
   const { refresh: deleteMarker, loading, onSuccess, onError, ...rest } = useFetchHook({

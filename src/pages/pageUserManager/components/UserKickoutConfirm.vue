@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { Check, Close } from '@element-plus/icons-vue'
-import { useUserKickOut } from '../hooks'
 import {
   WinDialog,
   WinDialogFooter,
   WinDialogTitleBar,
 } from '@/components'
 import { ExitLeft } from '@/components/GenshinUI/GSIcon'
+import { Check, Close } from '@element-plus/icons-vue'
+import { useUserKickOut } from '../hooks'
 
 const props = defineProps<{
   data: API.SysUserVo

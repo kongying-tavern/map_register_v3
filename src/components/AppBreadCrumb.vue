@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { useRoute } from 'vue-router'
 import { ArrowRight } from '@element-plus/icons-vue'
+import { useRoute } from 'vue-router'
 
 const route = useRoute()
 </script>

@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import { ElDialog } from 'element-plus'
-import { UserBanner } from './components'
-import { ArchiveAnalyser, ArchiveSelector, InfoEditor, PasswordEditor } from '.'
-import { useUserStore } from '@/stores'
 import { GSTab } from '@/components'
+import { useUserStore } from '@/stores'
+import { ElDialog } from 'element-plus'
+import { ArchiveAnalyser, ArchiveSelector, InfoEditor, PasswordEditor } from '.'
+import { UserBanner } from './components'
 
 const userStore = useUserStore()
 
@@ -15,7 +15,7 @@ whenever(() => !userStore.info, () => {
   visible.value = false
 })
 
-const tabs: { title: string; value: string }[] = [
+const tabs: { title: string, value: string }[] = [
   { title: '云存档', value: 'archive' },
   { title: '编辑信息', value: 'info' },
   { title: '修改密码', value: 'password' },

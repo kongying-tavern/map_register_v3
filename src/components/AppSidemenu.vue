@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { useRoute } from 'vue-router'
 import { useRouteStore } from '@/stores'
+import { useRoute } from 'vue-router'
 
 const route = useRoute()
 const routeStore = useRouteStore()

@@ -1,12 +1,13 @@
 <script lang="ts" setup>
+import type { ElFormType } from '@/shared'
 import type { FormRules } from 'element-plus'
 import type { TypeManager, TypeObject } from '../config'
-import { ItemTypeManager } from '../definitions'
-import { type ElFormType, HIDDEN_FLAG_OPTIONS } from '@/shared'
+import { AppRowImage } from '@/components'
 import db from '@/database'
 import { useFetchHook } from '@/hooks'
-import { AppRowImage } from '@/components'
+import { HIDDEN_FLAG_OPTIONS } from '@/shared'
 import { useAccessStore, useIconTagStore } from '@/stores'
+import { ItemTypeManager } from '../definitions'
 
 defineProps<{
   parent?: TypeObject
@@ -22,7 +23,7 @@ const modelValue = defineModel<TypeObject>('modelValue', {
   required: true,
 })
 
-const tagOptions = ref<(API.TagVo & { label: string; value: string })[]>([])
+const tagOptions = ref<(API.TagVo & { label: string, value: string })[]>([])
 const { loading, refresh: getTagList, onSuccess } = useFetchHook({
   immediate: true,
   onRequest: (query: string) => db.iconTag.filter(tag => !query ? true : (tag.tag?.includes(query) ?? false)).toArray(),

@@ -1,5 +1,5 @@
-import { Subject } from 'rxjs'
 import type { GenshinMapProps, GenshinMapViewState } from '@/packages/map'
+import { Subject } from 'rxjs'
 
 export class MapSubject {
   static readonly viewState = new Subject<Partial<GenshinMapViewState>>()

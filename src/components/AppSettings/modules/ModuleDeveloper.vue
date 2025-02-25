@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { Delete, Setting } from '@element-plus/icons-vue'
-import { SettingBar, SettingGroup, SettingPanel } from '../components'
 import { AppVirtualTable } from '@/components'
 import { useDevStore, usePreferenceStore } from '@/stores'
+import { Delete, Setting } from '@element-plus/icons-vue'
+import { SettingBar, SettingGroup, SettingPanel } from '../components'
 
 const devStore = useDevStore()
 const preferenceStore = usePreferenceStore()

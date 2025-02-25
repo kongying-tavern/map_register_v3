@@ -1,4 +1,4 @@
-import { Mark, getMarkAttributes } from '@tiptap/core'
+import { getMarkAttributes, Mark } from '@tiptap/core'
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {

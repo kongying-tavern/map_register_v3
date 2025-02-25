@@ -1,9 +1,9 @@
-import { liveQuery } from 'dexie'
-import { useSubscription } from '@vueuse/rxjs'
 import type { FetchHookOptions } from '@/hooks'
+import db from '@/database'
 import { useFetchHook } from '@/hooks'
 import { array2Tree } from '@/utils'
-import db from '@/database'
+import { useSubscription } from '@vueuse/rxjs'
+import { liveQuery } from 'dexie'
 
 /** 物品类型列表与相关操作方法 */
 export const useTypeList = (options: FetchHookOptions<API.RPageListVoItemTypeVo> = {}) => {

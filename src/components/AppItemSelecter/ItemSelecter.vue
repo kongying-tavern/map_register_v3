@@ -1,11 +1,11 @@
 <script lang="ts" setup>
+import { AppAreaCodeSelecter } from '@/components'
+import { useAreaStore, useIconTagStore, useItemStore, useItemTypeStore } from '@/stores'
 import { Search } from '@element-plus/icons-vue'
 import { ElScrollbar } from 'element-plus'
-import ItemSelectButton from './ItemSelectButton.vue'
 import ItemPreviewButton from './ItemPreviewButton.vue'
+import ItemSelectButton from './ItemSelectButton.vue'
 import TypeSelectButton from './TypeSelectButton.vue'
-import { useAreaStore, useIconTagStore, useItemStore, useItemTypeStore } from '@/stores'
-import { AppAreaCodeSelecter } from '@/components'
 
 const props = withDefaults(defineProps<{
   modelValue: API.ItemVo[]

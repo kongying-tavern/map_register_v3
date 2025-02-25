@@ -1,7 +1,7 @@
-import { ElMessage } from 'element-plus'
-import Api from '@/api/api'
 import type { PaginationState } from '@/hooks'
+import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
+import { ElMessage } from 'element-plus'
 
 interface NoticeHookOptions {
   pagination: Ref<PaginationState>

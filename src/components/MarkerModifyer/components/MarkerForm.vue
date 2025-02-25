@@ -1,4 +1,9 @@
 <script lang="ts" setup>
+import type { ElFormType } from '@/shared'
+import type { InternalItemData } from './AddonItem/types'
+import { WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
+import { HiddenFlagEnum, specialMask } from '@/shared'
+import { useAccessStore, useAreaStore, useItemStore, useMarkerExtraStore } from '@/stores'
 import { addonPanelRefKey } from '../shared'
 import { useRules } from '../validators'
 import AddonContenEditor from './AddonContenEditor.vue'
@@ -8,11 +13,6 @@ import AddonImageEditor from './AddonImageEditor.vue'
 import { AddonItem } from './AddonItem'
 import AddonRefreshtimeEditor from './AddonRefreshtimeEditor.vue'
 import AddonVideo from './AddonVideo.vue'
-import type { InternalItemData } from './AddonItem/types'
-import { WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
-import { useAccessStore, useAreaStore, useItemStore, useMarkerExtraStore } from '@/stores'
-import type { ElFormType } from '@/shared'
-import { HiddenFlagEnum, specialMask } from '@/shared'
 
 const props = defineProps<{
   modelValue: API.MarkerVo

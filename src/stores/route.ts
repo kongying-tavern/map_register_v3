@@ -1,8 +1,8 @@
+import { useState } from '@/hooks'
+import { ROLE_MASK_MAP } from '@/shared'
+import { useUserInfoStore } from '@/stores'
 import { defineStore } from 'pinia'
 import { routerHook } from './hooks'
-import { useState } from '@/hooks'
-import { useUserInfoStore } from '@/stores'
-import { ROLE_MASK_MAP } from '@/shared'
 
 /**
  * 用于共享路由状态、路由插件注入

@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import { AppIconTagRenderer, AppVirtualTable } from '@/components'
+import { useState } from '@/hooks'
+import { useIconTagStore } from '@/stores'
 import { QuestionFilled, Search } from '@element-plus/icons-vue'
 import { ElButton, ElButtonGroup, ElIcon, ElInput, ElPopover, ElSlider } from 'element-plus'
-import { AppIconTagRenderer, AppVirtualTable } from '@/components'
-import { useIconTagStore } from '@/stores'
-import { useState } from '@/hooks'
 
 const iconTagStore = useIconTagStore()
 

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { SettingBar, SettingGroup, SettingPanel } from '../components'
 import { ManagerModule } from '@/shared'
 import { usePreferenceStore } from '@/stores'
+import { SettingBar, SettingGroup, SettingPanel } from '../components'
 
 const preferenceStore = usePreferenceStore()
 

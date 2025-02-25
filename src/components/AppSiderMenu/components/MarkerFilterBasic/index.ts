@@ -1,5 +1,5 @@
 export { default as CheckboxGroup } from './CheckboxGroup.vue'
 export { default as CheckboxItem } from './CheckboxItem.vue'
-export { default as ItemButton } from './ItemButton.vue'
 export { default as ConditionRow } from './ConditionRow.vue'
+export { default as ItemButton } from './ItemButton.vue'
 export { default as MarkerFilterBasic } from './MarkerFilterBasic.vue'
