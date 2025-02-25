@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useTemplateRef } from 'vue'
 import { Chart } from '@antv/g2'
 import { lines } from '@antv/g-pattern'
 import { disabledDate, shortcuts } from '../shared'

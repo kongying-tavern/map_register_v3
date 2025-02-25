@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useTemplateRef } from 'vue'
 import { type S2DataConfig, TableSheet } from '@antv/s2'
 import { disabledDate, shortcuts } from '../shared'
 import { useScoreData } from '../hooks'
