@@ -6,7 +6,7 @@ import type {
   MAFValueBoolean,
 } from '@/stores/types'
 
-export class Image implements MAFConfig {
+export class Image implements MAFConfig<MAFValueBoolean, MAFOptionSwitch, MAFMetaDummy> {
   id = 5
   name = '点位图片'
   option: MAFOptionSwitch = {

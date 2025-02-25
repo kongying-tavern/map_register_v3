@@ -10,7 +10,7 @@ interface ExtraUnderground {
   is_underground?: boolean
 }
 
-export class Underground implements MAFConfig {
+export class Underground implements MAFConfig<MAFValueBoolean, MAFOptionSwitch, MAFMetaDummy> {
   id = 201
   name = '地面点位'
   option: MAFOptionSwitch = {

@@ -1,4 +1,3 @@
-import { useMarkerLinkStore } from '@/stores'
 import type {
   MAFConfig,
   MAFMetaLinkageAction,
@@ -7,10 +6,11 @@ import type {
   MAFValueStringArray,
 } from '@/stores/types'
 import { LINK_ACTION_NAME_MAP, LINK_ACTION_OPTIONS, LinkActionEnum } from '@/shared/linkAction'
+import { useMarkerLinkStore } from '@/stores'
 
 type OptionType = typeof LINK_ACTION_OPTIONS[0]
 
-export class LinkageAction implements MAFConfig {
+export class LinkageAction implements MAFConfig<MAFValueStringArray, MAFOptionSelect<OptionType>, MAFMetaLinkageAction> {
   id = 302
   name = '点位关联类型'
   option: MAFOptionSelect<OptionType> = {

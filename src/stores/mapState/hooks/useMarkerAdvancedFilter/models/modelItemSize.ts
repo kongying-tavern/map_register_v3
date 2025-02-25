@@ -6,7 +6,7 @@ import type {
   MAFValueNumberRange,
 } from '@/stores/types'
 
-export class ItemSize implements MAFConfig {
+export class ItemSize implements MAFConfig<MAFValueNumberRange, MAFOptionRange, MAFMetaDummy> {
   id = 105
   name = '物品条数'
   option: MAFOptionRange = {

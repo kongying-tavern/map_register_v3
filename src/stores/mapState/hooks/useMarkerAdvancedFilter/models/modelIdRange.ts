@@ -6,7 +6,7 @@ import type {
   MAFValueString,
 } from '@/stores/types'
 
-export class IdRange implements MAFConfig {
+export class IdRange implements MAFConfig<MAFValueString, MAFOptionInput, MAFMetaIdRange> {
   id = 1
   name = 'ID范围'
   option: MAFOptionInput = {
@@ -37,8 +37,9 @@ export class IdRange implements MAFConfig {
           if (
             isValidNumber(idNum1) && isValidNumber(idNum2)
             && idNum2 > idNum1 && idNum2 - idNum1 < 1e6
-          )
+          ) {
             meta.idRange.push([idNum1, idNum2])
+          }
         }
         else {
           const idNum: number = Number(id)
@@ -55,7 +56,7 @@ export class IdRange implements MAFConfig {
           throw new Error('数组所需的元素数量不满足最低要求')
         const idNum1 = idRange[0]
         const idNum2 = idRange[1]
-        Array(idNum2 - idNum1 + 1)
+        Array.from({ length: idNum2 - idNum1 + 1 })
           .fill(0)
           .forEach((_, offset) => meta.idSet.add(idNum1 + offset))
       }

@@ -1,4 +1,3 @@
-import { useAreaStore, useItemStore } from '@/stores'
 import type { AreaWithChildren } from '@/stores'
 import type {
   MAFConfig,
@@ -7,10 +6,11 @@ import type {
   MAFSemanticUnit,
   MAFValueNumberArray,
 } from '@/stores/types'
+import { useAreaStore, useItemStore } from '@/stores'
 
 type OptionType = MAFOptionSelect<AreaWithChildren>
 
-export class Area implements MAFConfig {
+export class Area implements MAFConfig<MAFValueNumberArray, OptionType, MAFMetaArea> {
   id = 101
   name = '地区'
   option: ComputedRef<OptionType> = computed(() => {

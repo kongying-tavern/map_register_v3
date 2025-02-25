@@ -11,7 +11,7 @@ import type {
 type ValueType = MAFValueBoolean & MAFValueNumberRange
 type OptionType = MAFOptionSwitch & MAFOptionRange
 
-export class ItemCount implements MAFConfig {
+export class ItemCount implements MAFConfig<ValueType, OptionType, MAFMetaDummy> {
   id = 106
   name = '物品计数'
   option: OptionType = {

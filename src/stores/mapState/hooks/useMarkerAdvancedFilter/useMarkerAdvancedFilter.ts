@@ -1,3 +1,13 @@
+import type { useArchiveStore } from '@/stores'
+import type {
+  MAFConfig,
+  MAFGroup,
+  MAFGroupComposed,
+  MAFItem,
+  MAFItemComposed,
+  MAFMeta,
+  MAFValue,
+} from '@/stores/types'
 import { cloneDeep, keyBy } from 'lodash'
 import {
   Area,
@@ -19,23 +29,13 @@ import {
   Video,
   Visibility,
 } from './models'
-import type { useArchiveStore } from '@/stores'
-import type {
-  MAFConfig,
-  MAFGroup,
-  MAFGroupComposed,
-  MAFItem,
-  MAFItemComposed,
-  MAFMeta,
-  MAFValue,
-} from '@/stores/types'
 
 interface MarkerAdvancedFilterHookOptions {
   archiveStore: ReturnType<typeof useArchiveStore>
 }
 
 // ==================== 模型配置 ====================
-const configList: MAFConfig[] = [
+const configList = [
   new IdRange(),
   new TitleContain(),
   new ContentContain(),
@@ -56,7 +56,7 @@ const configList: MAFConfig[] = [
   new ItemCount(),
 ]
 
-const configMap: Record<number, MAFConfig> = keyBy(configList, 'id')
+const configMap: Record<number, MAFConfig> = keyBy(configList as unknown as MAFConfig[], 'id')
 
 const createEmptyGroup = (): MAFGroup => ({
   key: crypto.randomUUID(),
@@ -315,8 +315,9 @@ const _useMarkerAdvancedFilter = (options: MarkerAdvancedFilterHookOptions) => {
     if (
       advancedFilterCache.value[groupIndex]
       && advancedFilterCache.value[groupIndex].children[itemIndex]
-    )
+    ) {
       advancedFilterCache.value[groupIndex].children.splice(itemIndex, 1)
+    }
   }
 
   const copyConditions = () => {

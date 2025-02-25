@@ -1,4 +1,3 @@
-import { useItemStore } from '@/stores'
 import type {
   MAFConfig,
   MAFMetaItemNameRegex,
@@ -6,8 +5,9 @@ import type {
   MAFSemanticUnit,
   MAFValueString,
 } from '@/stores/types'
+import { useItemStore } from '@/stores'
 
-export class ItemNameRegex implements MAFConfig {
+export class ItemNameRegex implements MAFConfig<MAFValueString, MAFOptionInput, MAFMetaItemNameRegex> {
   id = 104
   name = '物品名称正则'
   option: MAFOptionInput = {
@@ -29,9 +29,9 @@ export class ItemNameRegex implements MAFConfig {
     // 处理正则表达式
     if (val.s) {
       try {
-        meta.re = new RegExp(val.s, 'ui')
+        meta.re = new RegExp(val.s, 'iu')
       }
-      catch (_err) {
+      catch {
         meta.re = null
       }
     }

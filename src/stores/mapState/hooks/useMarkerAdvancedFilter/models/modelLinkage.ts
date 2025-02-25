@@ -6,7 +6,7 @@ import type {
   MAFValueBoolean,
 } from '@/stores/types'
 
-export class Linkage implements MAFConfig {
+export class Linkage implements MAFConfig<MAFValueBoolean, MAFOptionSwitch, MAFMetaDummy> {
   id = 301
   name = '点位关联'
   option: MAFOptionSwitch = {

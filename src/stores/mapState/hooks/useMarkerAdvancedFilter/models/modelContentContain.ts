@@ -6,7 +6,7 @@ import type {
   MAFValueString,
 } from '@/stores/types'
 
-export class ContentContain implements MAFConfig {
+export class ContentContain implements MAFConfig<MAFValueString, MAFOptionInput, MAFMetaDummy> {
   id = 3
   name = '内容包含'
   option: MAFOptionInput = {

@@ -1,4 +1,3 @@
-import { useItemStore } from '@/stores'
 import type {
   MAFConfig,
   MAFMetaItemName,
@@ -6,8 +5,9 @@ import type {
   MAFSemanticUnit,
   MAFValueString,
 } from '@/stores/types'
+import { useItemStore } from '@/stores'
 
-export class ItemName implements MAFConfig {
+export class ItemName implements MAFConfig<MAFValueString, MAFOptionInput, MAFMetaItemName> {
   id = 103
   name = '物品名称'
   option: MAFOptionInput = {

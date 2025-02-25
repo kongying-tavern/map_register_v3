@@ -7,9 +7,9 @@ import type {
 } from '@/stores/types'
 import { useHiddenFlagOptions } from '@/hooks'
 
-type OptionType = MAFOptionSelect<{ label: string; value: number }>
+type OptionType = MAFOptionSelect<{ label: string, value: number }>
 
-export class Visibility implements MAFConfig {
+export class Visibility implements MAFConfig<MAFValueNumberArray, OptionType, MAFMetaVisibility> {
   id = 8
   name = '可见范围'
   option: ComputedRef<OptionType> = computed(() => {

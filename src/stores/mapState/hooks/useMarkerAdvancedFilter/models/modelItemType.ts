@@ -1,4 +1,3 @@
-import { useItemStore, useItemTypeStore } from '@/stores'
 import type {
   MAFConfig,
   MAFMetaItemType,
@@ -6,10 +5,11 @@ import type {
   MAFSemanticUnit,
   MAFValueNumberArray,
 } from '@/stores/types'
+import { useItemStore, useItemTypeStore } from '@/stores'
 
 type OptionType = MAFOptionSelect<API.ItemTypeVo>
 
-export class ItemType implements MAFConfig {
+export class ItemType implements MAFConfig<MAFValueNumberArray, OptionType, MAFMetaItemType> {
   id = 102
   name = '类别'
   option: ComputedRef<OptionType> = computed(() => {

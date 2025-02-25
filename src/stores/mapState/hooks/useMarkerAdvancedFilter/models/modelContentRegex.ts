@@ -6,7 +6,7 @@ import type {
   MAFValueString,
 } from '@/stores/types'
 
-export class ContentRegex implements MAFConfig {
+export class ContentRegex implements MAFConfig<MAFValueString, MAFOptionInput, MAFMetaContentRegex> {
   id = 4
   name = '内容正则匹配'
   option: MAFOptionInput = {
@@ -27,9 +27,9 @@ export class ContentRegex implements MAFConfig {
     // 处理正则表达式
     if (val.s) {
       try {
-        meta.re = new RegExp(val.s, 'ui')
+        meta.re = new RegExp(val.s, 'iu')
       }
-      catch (_err) {
+      catch {
         meta.re = null
       }
     }

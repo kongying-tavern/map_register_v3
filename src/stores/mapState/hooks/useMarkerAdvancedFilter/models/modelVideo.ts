@@ -6,7 +6,7 @@ import type {
   MAFValueBoolean,
 } from '@/stores/types'
 
-export class Video implements MAFConfig {
+export class Video implements MAFConfig<MAFValueBoolean, MAFOptionSwitch, MAFMetaDummy> {
   id = 6
   name = '点位视频'
   option: MAFOptionSwitch = {

@@ -8,9 +8,9 @@ import type {
 } from '@/stores/types'
 import { useRefreshTimeOptions } from '@/hooks'
 
-type OptionType = MAFOptionRange & MAFOptionSelect<{ label: string; value: number }>
+type OptionType = MAFOptionRange & MAFOptionSelect<{ label: string, value: number }>
 
-export class RefreshTime implements MAFConfig {
+export class RefreshTime implements MAFConfig<MAFValueNumberRange, OptionType, MAFMetaRefreshTime> {
   id = 7
   name = '刷新时间'
   option: ComputedRef<OptionType> = computed(() => {

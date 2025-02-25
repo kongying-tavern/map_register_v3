@@ -1,3 +1,4 @@
+import type { AreaWithExtraConfig } from '@/stores'
 import type {
   MAFConfig,
   MAFMetaUndergroundLayer,
@@ -6,7 +7,6 @@ import type {
   MAFValueStringArray,
 } from '@/stores/types'
 import { useAreaStore, useMarkerExtraStore } from '@/stores'
-import type { AreaWithExtraConfig } from '@/stores'
 
 type OptionType = MAFOptionSelect<AreaWithExtraConfig>
 
@@ -14,7 +14,7 @@ interface ExtraUnderground {
   region_levels?: string[]
 }
 
-export class UndergroundLayer implements MAFConfig {
+export class UndergroundLayer implements MAFConfig<MAFValueStringArray, OptionType, MAFMetaUndergroundLayer> {
   id = 202
   name = '分层层级'
   option: ComputedRef<OptionType> = computed(() => {
