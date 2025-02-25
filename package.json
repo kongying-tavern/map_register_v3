@@ -1,6 +1,6 @@
 {
   "name": "map-register-v3",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "空荧酒馆原神地图点位后台（点位标记系统）",
   "productName": "空荧后厨",
   "author": "Alex Fang <deeno@qq.com>",
@@ -18,8 +18,8 @@
     "patch:init": "pnpm patch:clean && pnpm patch --edit-dir patch-edit openapi2ts",
     "patch:install": "pnpm i --force --prefer-offline",
     "type-check": "vue-tsc --build --force",
-    "lint": "eslint ./plugins ./public ./src ./types",
-    "lint:fix": "eslint ./plugins ./public ./src ./types --fix"
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "dependencies": {
     "7z-wasm": "1.1.0",
@@ -59,7 +59,7 @@
     "vue-router": "4.3.0"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "1.1.0",
+    "@antfu/eslint-config": "4.3.0",
     "@tsconfig/node18": "18.2.4",
     "@types/lodash": "4.14.200",
     "@types/node": "18.15.11",
@@ -69,7 +69,7 @@
     "@vitejs/plugin-vue": "5.2.1",
     "@vue/tsconfig": "0.5.1",
     "autoprefixer": "10.4.14",
-    "eslint": "8.53.0",
+    "eslint": "9.21.0",
     "less": "4.2.2",
     "openapi2ts": "1.1.7",
     "postcss": "8.4.31",
@@ -85,8 +85,8 @@
     "vue-tsc": "2.0.28"
   },
   "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=8.0.0",
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0",
     "yarn": ">=1.0.0",
     "pnpm": ">=8.0.0"
   },
@@ -95,5 +95,5 @@
       "openapi2ts@1.1.7": "patches/openapi2ts@1.1.7.patch"
     }
   },
-  "packageManager": "pnpm@8.10.0+sha512.9c2cb83f2b6cf6a25d8c58300bf99197c7ef3be84cf3e766f29054b40b83b42f8aaba6fcc314a9ecf27c00f7ce80a757bb4c608800e7adbe2d29dc5c7056f5be"
+  "packageManager": "pnpm@8.10.0"
 }

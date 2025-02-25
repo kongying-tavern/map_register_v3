@@ -11,13 +11,6 @@ export default antfu({
     '**/node_modules',
   ],
 
-  // 在 eslint cli 指定的目录中过滤如下模式文件
-  files: [
-    '**/*.ts',
-    '**/*.js',
-    '**/*.vue',
-  ],
-
   stylistic: {
     indent: 2,
     quotes: 'single',
@@ -32,10 +25,7 @@ export default antfu({
     'style/linebreak-style': ['error', 'windows'],
 
     // 文件末尾保留空行
-    'eol-last': 'error',
-
-    // 确保命名导入与命名导出相对应
-    'import/named': 'error',
+    'style/eol-last': 'error',
   },
 
   overrides: {

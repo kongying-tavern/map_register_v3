@@ -1,18 +1,18 @@
-import path from 'node:path'
-import fs from 'node:fs/promises'
 import type { Plugin, ProxyOptions } from 'vite'
-import { defineConfig, loadEnv } from 'vite'
-import Vue from '@vitejs/plugin-vue'
-import AutoImport from 'unplugin-auto-import/vite'
+import fs from 'node:fs/promises'
+import path from 'node:path'
 import BaseSSL from '@vitejs/plugin-basic-ssl'
+import Vue from '@vitejs/plugin-vue'
 import { simpleGit } from 'simple-git'
+import AutoImport from 'unplugin-auto-import/vite'
+import { defineConfig, loadEnv } from 'vite'
 import { openapi2ts } from './plugins'
 
 export default defineConfig(async ({ mode }) => {
   const git = simpleGit()
 
   const ENV = loadEnv(mode, '.') as ImportMetaEnv
-  // eslint-disable-next-line no-console
+
   console.log('[ENV]', ENV)
 
   const proxy: Record<string, string | ProxyOptions> = {
