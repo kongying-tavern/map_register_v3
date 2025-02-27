@@ -28,6 +28,25 @@ interface Document {
 
 interface Window {
   preloading: HTMLElement
+
+  /** @实验性的 显示一个文件选择器，以允许用户选择一个或多个文件并返回这些文件的句柄 */
+  showOpenFilePicker: (options?: {
+    /** 应用文件类型过滤器. */
+    excludeAcceptAllOption?: boolean
+    /** 通过指定 ID，浏览器可以为不同的 ID 记住不同的目录。 */
+    id?: string
+    /** 布尔值，默认为 `false`。当设置为 `true` 时，可以选择多个文件。 */
+    multiple?: boolean
+    /** 一个 `FileSystemHandle` 对象或一个众所周知的目录 */
+    startIn?: FileSystemHandle | string
+    /** 允许选择的文件类型的数组。每个项目都是一个具有以下选项的对象： */
+    types?: {
+      /** 允许的文件类型类别的可选描述。默认为空字符串。 */
+      description?: string
+      /** 一个 Object，其键设置为 MIME 类型，值设置为文件扩展名的数组（参见下面的示例）。 */
+      accept: Record<string, string[]>
+    }[]
+  }) => Promise<FileSystemFileHandle[]>
 }
 
 interface FontFaceSet {

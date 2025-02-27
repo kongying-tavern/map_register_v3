@@ -1,12 +1,32 @@
 <script setup lang="ts">
-import { usePreferenceStore } from '@/stores'
+import { useDadianStore, usePreferenceStore, useTileStore } from '@/stores'
 import { SettingBar, SettingGroup, SettingPanel } from '../components'
 
+const tileStore = useTileStore()
+const dadianStore = useDadianStore()
 const preferenceStore = usePreferenceStore()
+
+const consoleConfig = () => {
+  console.log(tileStore.mergedTileConfigs)
+}
 </script>
 
 <template>
   <SettingPanel>
+    <SettingGroup name="状态">
+      <SettingBar label="配置状态">
+        <template #note>
+          <div class="text-xs text-[var(--el-text-color-regular)]">
+            <div>签名：{{ dadianStore.meta.digest.slice(-16) }}</div>
+            <div>版本：{{ dadianStore.meta.version }}</div>
+          </div>
+        </template>
+        <template #setting>
+          <el-button @click="consoleConfig">查看配置</el-button>
+        </template>
+      </SettingBar>
+    </SettingGroup>
+
     <SettingGroup name="筛选器设置">
       <SettingBar label="条件预设" note="当前存储的自定义条件预设总数">
         <template #setting>

@@ -2,7 +2,7 @@ type CovertMapToSchemas<T> = {
   [K in keyof T]: {
     id: K
     value: T[K]
-    digest?: string
+    digest: string
   }
 }[keyof T]
 
