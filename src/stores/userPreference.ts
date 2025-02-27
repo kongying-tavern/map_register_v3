@@ -39,8 +39,5 @@ export const usePreferenceStore = defineStore('global-user-preference', () => {
     tabName: model('mapSiderMenu.state.tabName', () => ''),
     transparentMarked: model('map.setting.transparentMarked', () => false),
     zoomTransitionDuration: model('map.setting.zoomTransitionDuration', () => 66),
-
-    /** @deprecated */
-    preference: archiveStore.currentArchive.body.Preference,
   }
 })
