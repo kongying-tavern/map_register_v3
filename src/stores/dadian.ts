@@ -5,53 +5,60 @@ import { defineStore } from 'pinia'
 import { validateDadianJSON } from '@/configs'
 import { ElMessage } from 'element-plus'
 import { useFetchHook } from '@/hooks'
+import { useUserStore } from './user'
+
+const getDigest = async (data: ArrayBuffer) => {
+  const hash = new Uint8Array(await crypto.subtle.digest('SHA-256', data))
+  return [...new Uint8Array(hash)].map(num => num.toString(16).padStart(2, '0')).join('')
+}
+
+const getVersion = (config: API.DadianJSON) => {
+  return `${config.tiles?.['提瓦特-base0'].code ?? '-NA-'} / ${config.tilesNeigui?.['提瓦特-base0'].code ?? '-NA-'}`
+}
 
 /** 订阅的打点配置 */
 export const useDadianStore = defineStore('global-dadian-json', () => {
-  const raw = shallowRef<API.DadianJSON>({})
-
-  const meta = shallowRef({
-    digest: '',
-    version: '',
-  })
-
-  const getDigest = async (data: ArrayBuffer) => {
-    const hash = new Uint8Array(await crypto.subtle.digest('SHA-256', data))
-    return [...new Uint8Array(hash)].map(num => num.toString(16).padStart(2, '0')).join('')
-  }
-
-  const getVersion = (config: API.DadianJSON) => {
-    return `${config.tiles?.['提瓦特-base0'].code ?? '-NA-'} / ${config.tilesNeigui?.['提瓦特-base0'].code ?? '-NA-'}`
-  }
+  const userStore = useUserStore()
 
   // 直接请求新的配置，当请求失败时回退到本地缓存
-  const { refresh: update, loading, onError } = useFetchHook({
+  const { data, refresh: update, loading, onSuccess, onError } = useFetchHook({
+    initialValue: {
+      json: {},
+      hash: '',
+    },
     onRequest: async () => {
       const currentDadianData = await Api.getDadianConfig()
       const currentDadianJSON = await Zip.decompressAs<API.DadianJSON>(new Uint8Array(currentDadianData), {
         name: 'dadian',
       })
-      raw.value = currentDadianJSON
       const currentDadianDigest = await getDigest(currentDadianData)
-      meta.value = {
-        digest: currentDadianDigest,
-        version: getVersion(currentDadianJSON),
-      }
-      await db.cache.put({
-        id: 'dadian',
-        digest: currentDadianDigest,
-        value: currentDadianJSON,
-      })
+      return { json: currentDadianJSON, hash: currentDadianDigest }
     },
+  })
+
+  watch(() => userStore.info?.roleId, () => update())
+
+  const raw = computed(() => data.value.json)
+
+  const meta = computed(() => ({
+    digest: data.value.hash,
+    version: getVersion(data.value.json),
+  }))
+
+  onSuccess(async ({ json, hash }) => {
+    await db.cache.put({
+      id: 'dadian',
+      digest: hash,
+      value: json,
+    })
   })
 
   onError(async () => {
     const cachedDadianData = await db.cache.get('dadian')
     if (cachedDadianData && cachedDadianData.id === 'dadian') {
-      raw.value = cachedDadianData.value
-      meta.value = {
-        digest: cachedDadianData.digest,
-        version: getVersion(cachedDadianData.value),
+      data.value = {
+        json: cachedDadianData.value,
+        hash: cachedDadianData.digest,
       }
     }
   })
@@ -70,10 +77,9 @@ export const useDadianStore = defineStore('global-dadian-json', () => {
       const { valid, errors } = validateDadianJSON(json)
       if (!valid)
         throw new Error(errors ? errors[0]?.message : 'unknown')
-      raw.value = json
-      meta.value = {
-        digest: newDadianDigest,
-        version: getVersion(json),
+      data.value = {
+        json,
+        hash: newDadianDigest,
       }
       ElMessage.success('加载成功')
     }
@@ -116,7 +122,7 @@ export const useDadianStore = defineStore('global-dadian-json', () => {
   }, new Map<string, API.NameCardOption>()))
 
   return {
-    raw: computed(() => raw.value),
+    raw,
     meta,
     nameCardList,
     nameCardMap,
