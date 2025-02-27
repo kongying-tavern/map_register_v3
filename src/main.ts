@@ -23,8 +23,8 @@ import 'element-plus/theme-chalk/dark/css-vars.css'
         locale: zhCn,
       })
       .use(ElementIcons)
-    await useDadianStore().init()
     await useUserStore().init()
+    await useDadianStore().init()
     await useArchiveStore().init()
     app.mount(container)
   }
