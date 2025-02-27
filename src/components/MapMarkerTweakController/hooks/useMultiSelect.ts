@@ -93,7 +93,7 @@ export const useMultiSelect = () => {
 
   useSubscription(shortcutStore.shortcut$.pipe(
     filter(({ value }) => [
-      accessStore.get('ADMIN_COMPONENT'),
+      accessStore.get('MARKER_BATCH_EDIT'),
       isEmpty.value,
       shortcutKeys.value,
       value === shortcutKeys.value,
