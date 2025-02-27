@@ -8,7 +8,7 @@ defineProps<{
 
 <template>
   <el-scrollbar height="100%">
-    <div class="feature-grid w-[350px] max-w-full p-4 h-full overflow-hidden flex flex-col gap-4 font-[HYWenHei-85W]">
+    <div class="feature-grid w-[350px] max-w-full p-3 h-full overflow-hidden flex flex-col gap-4 font-[HYWenHei-85W]">
       <div
         v-for="featureGroup in features"
         :key="featureGroup.label"
@@ -42,7 +42,16 @@ defineProps<{
 
 <style scoped>
 .feature-grid {
+  --base-size: 100px;
   --transition: all ease-out 100ms;
+  container-type: inline-size;
+  container-name: feature;
+}
+
+@media screen and (max-width: 400px)  {
+  .feature-grid {
+    --base-size: 80px;
+  }
 }
 
 @keyframes jump-loop {
@@ -67,8 +76,8 @@ defineProps<{
   --arrow-visible: hidden;
 
   padding: 2.5%;
-  min-width: 100px;
-  height: 100px;
+  min-width: var(--base-size);
+  height: var(--base-size);
   display: grid;
   align-content: center;
   justify-items: center;
