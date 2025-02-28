@@ -105,25 +105,23 @@ void (() => {
    * @param {string} pathname
    * @param {string} destination
    */
-  const matchCacheName = (pathname, destination) => {
+  const matchCache = (pathname, destination) => {
     // 1. 地图切片
     const tilesCode = pathname.match(/tiles_([a-zA-Z0-9]+)\//)?.[1]
     if (tilesCode)
-      return `tiles-${tilesCode}`
+      return { name: `tiles-${tilesCode}`, typeValidate: /^image\// }
 
     // 2. 附加图层
     if (pathname.includes('/d/underground/'))
-      return 'overlays'
+      return { name: 'overlays', typeValidate: /^image\// }
 
     // 3. 字体
     if (destination === 'font')
-      return 'fonts'
+      return { name: 'fonts', typeValidate: /^(application\/font)|(font\/)/ }
 
     // 4. 图标
     if (pathname.includes('/icons/'))
-      return 'icons'
-
-    return ''
+      return { name: 'icons', typeValidate: /^image\// }
   }
 
   scope.addEventListener('fetch', (ev) => {
@@ -147,8 +145,8 @@ void (() => {
       return
     }
 
-    const cacheName = matchCacheName(pathname, destination)
-    if (!cacheName)
+    const storageMeta = matchCache(pathname, destination)
+    if (!storageMeta)
       return
 
     ev.respondWith((async () => {
@@ -157,12 +155,17 @@ void (() => {
           version: VERSION,
           mode,
         })
-        const storageName = `${cacheName}${strCacheInfo}`
+        const storageName = `${storageMeta.name}${strCacheInfo}`
         const storage = await scope.caches.open(storageName)
 
         const maybeCachedResponse = await storage.match(url)
-        if (maybeCachedResponse)
-          return maybeCachedResponse
+        if (maybeCachedResponse) {
+          const contentType = maybeCachedResponse.headers.get('Content-Type') ?? ''
+          if (storageMeta.typeValidate && storageMeta.typeValidate.test(contentType))
+            return maybeCachedResponse
+          else
+            await storage.delete(url)
+        }
 
         const res = await fetch(ev.request)
         const clonedRes = res.clone()
