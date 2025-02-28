@@ -76,7 +76,7 @@ export const useSocketStore = defineStore('global-web-socket', () => {
     }
     _userId.value = userId
     open()
-  })
+  }, { immediate: true })
 
   return {
     userId: _userId as Readonly<Ref<number | undefined>>,
