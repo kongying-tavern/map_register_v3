@@ -1,6 +1,7 @@
 export * from './access'
 export * from './archive'
 export * from './area'
+export * from './broadcast'
 export * from './dadian'
 export * from './dev'
 export * from './iconTag'

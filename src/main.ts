@@ -1,6 +1,6 @@
 import { AppError } from '@/components'
 import { createLogger, createPWA, customPaint, ElementIcons } from '@/plugin'
-import { useArchiveStore, useDadianStore, useUserStore } from '@/stores'
+import { useArchiveStore, useBroadcastStore, useDadianStore, useUserStore } from '@/stores'
 import ElementPlus from 'element-plus'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import { createPinia } from 'pinia'
@@ -23,6 +23,7 @@ import 'element-plus/theme-chalk/dark/css-vars.css'
         locale: zhCn,
       })
       .use(ElementIcons)
+    useBroadcastStore().init()
     await useUserStore().init()
     await useDadianStore().init()
     await useArchiveStore().init()

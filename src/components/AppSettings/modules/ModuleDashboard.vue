@@ -1,10 +1,15 @@
 <script setup lang="ts">
-import { useUserStore } from '@/stores'
+import { useBroadcastStore, useUserStore } from '@/stores'
 import { formatByteSize } from '@/utils'
 import { Odometer, PictureRounded } from '@element-plus/icons-vue'
 import { SettingBar, SettingGroup, SettingPanel } from '../components'
 
 const userStore = useUserStore()
+const broadcastStore = useBroadcastStore()
+
+const clients = computed(() => {
+  return [...broadcastStore.state.clients.values()].sort(({ time: ta }, { time: tb }) => ta - tb)
+})
 
 interface StorageEstimateExpand extends StorageEstimate {
   /** 用量详情，目前仅在 chromuim 内核浏览器下可用 */
@@ -131,6 +136,27 @@ const userAgent = navigator.userAgent
                 :stroke-width="12"
                 :show-text="false"
               />
+            </div>
+          </div>
+        </template>
+      </SettingBar>
+    </SettingGroup>
+
+    <SettingGroup name="页面信息">
+      <SettingBar label="页面实例" :note="`当前 ${clients.length} 个页面正在运作中`">
+        <template #detail>
+          <div class="text-xs">
+            <div
+              v-for="meta in clients"
+              :key="meta.id"
+              class="flex justify-between"
+            >
+              <div :class="{ 'text-[var(--el-color-success)]': meta.id === broadcastStore.meta.id }">
+                {{ meta.id }} <span v-if="meta.id === broadcastStore.meta.id">[当前]</span>
+              </div>
+              <div>
+                创建于 {{ new Date(meta.time).toLocaleString() }}
+              </div>
             </div>
           </div>
         </template>
