@@ -37,7 +37,7 @@ useEventListener('click', checkTooltip)
 <template>
   <div class="map-state-bar">
     <div ref="contentZoneRef" class="bar-content">
-      <PaintMarkerLink v-if="accessStore.get('ADMIN_COMPONENT')" />
+      <PaintMarkerLink v-if="accessStore.get('MANAGER_COMPONENT')" />
       <SwitchMarkerPopover />
       <SwitchOverlay />
       <WebSocketStatus />
