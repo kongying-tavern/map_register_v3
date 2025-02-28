@@ -103,54 +103,44 @@ export const useMarkerStore = defineStore('global-marker', () => {
     },
   })
 
-  const markerUpdated = createEventHook<number | 'query'>()
+  const markerUpdated = createEventHook<void>()
+
+  const waitForUpdate = ref(new Set<number>())
 
   /**
    * 等待指定的 id 都被更新一次。
    * 此逻辑用于确保更新被写入数据库后才执行一些临时任务的状态重置，以避免实际状态和显示状态不一致的问题。
    */
-  const afterUpdated = (ids: number[], timeout = 60000) => {
-    const { resolve, reject, promise } = Promise.withResolvers<void>()
-    const mission = new Set(ids)
-    const timerId = setTimeout(() => {
-      reject(new Error('任务超时'))
-    }, timeout)
-    const { off } = markerUpdated.on((arg) => {
-      if (arg === 'query') {
-        if (mission.size > 0)
-          return
-        return resolve()
-      }
-      if (!mission.has(arg))
-        return
-      mission.delete(arg)
+  const afterUpdated = async (ids: number[]) => {
+    const { resolve, promise } = Promise.withResolvers<void>()
+
+    ids.forEach((id) => {
+      waitForUpdate.value.add(id)
     })
-    return promise.finally(() => {
-      window.clearTimeout(timerId)
-      off()
+
+    const { data = [] } = await Api.marker.listMarkerById(ids)
+
+    markerUpdated.on(() => resolve())
+
+    data.forEach(({ id = -1 }) => {
+      waitForUpdate.value.delete(id)
     })
+
+    await db.marker.bulkPut(data)
+
+    return promise
   }
 
-  db.marker.hook('creating', (id) => {
-    markerUpdated.trigger(id)
-  })
-
-  db.marker.hook('updating', (_, id) => {
-    markerUpdated.trigger(id)
-  })
-
-  db.marker.hook('deleting', (id) => {
-    markerUpdated.trigger(id)
-  })
-
   liveQuery(() => db.marker.toArray()).subscribe((dbList) => {
+    if (waitForUpdate.value.size > 0)
+      return
     context.hashMap.value = dbList.reduce((map, { __hash: hash = '', ...info }) => {
       if (!map.has(hash))
         map.set(hash, [])
       map.get(hash)!.push(info)
       return map
     }, new Map<string, API.MarkerVo[]>())
-    markerUpdated.trigger('query')
+    markerUpdated.trigger()
   })
 
   // ==================== 计算状态 ====================
@@ -190,7 +180,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
   // 单个点位更新
   socketStore.appEvent.on('MarkerUpdated', async (markerInfo, userInfo) => {
     const { id, markerTitle, updaterId } = markerInfo
-    if (!id)
+    if (!id || waitForUpdate.value.has(id))
       return
     await db.marker.put(markerInfo)
     const { username = `(uid: ${updaterId})`, nickname } = userInfo
@@ -204,7 +194,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
   // 单个点位新增
   socketStore.appEvent.on('MarkerAdded', async (markerInfo, userInfo) => {
     const { id, markerTitle, creatorId } = markerInfo
-    if (!id)
+    if (!id || waitForUpdate.value.has(id))
       return
     await db.marker.put(markerInfo)
     const { username = `(uid: ${creatorId})`, nickname } = userInfo
@@ -218,7 +208,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
   // 单个点位删除
   socketStore.appEvent.on('MarkerDeleted', async (markerInfo, userInfo) => {
     const { id, markerTitle, creatorId } = markerInfo
-    if (!id)
+    if (!id || waitForUpdate.value.has(id))
       return
     await db.marker.delete(markerInfo.id!)
     const { username = `(uid: ${creatorId})`, nickname } = userInfo
@@ -231,11 +221,12 @@ export const useMarkerStore = defineStore('global-marker', () => {
 
   // 点位批量更新
   socketStore.appEvent.on('MarkerTweaked', async (data, userInfo) => {
-    await db.marker.bulkPut(data)
-    const [{ updaterId }] = data
+    const requiredData = data.filter(({ id }) => !waitForUpdate.value.has(id!))
+    await db.marker.bulkPut(requiredData)
+    const [{ updaterId }] = requiredData
     const { username = `(uid: ${updaterId})`, nickname } = userInfo
     socketStore.notice('MarkerTweaked', {
-      message: `${nickname ?? username} 批量更新了 ${data.length} 个点位`,
+      message: `${nickname ?? username} 批量更新了 ${requiredData.length} 个点位`,
       icon: Location,
       customClass: 'text-[var(--el-color-success)]',
     })

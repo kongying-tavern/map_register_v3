@@ -16,7 +16,7 @@ export const useMarkerPositionEdit = () => {
     updateBy: updateDraggingBy,
   } = mapStateStore.subscribeMission('markerDragging', () => new Map())
 
-  const { refresh: moveMarker, onSuccess, onError, ...rest } = useFetchHook({
+  const { refresh: moveMarker, onSuccess, onError, onFinish, ...rest } = useFetchHook({
     onRequest: async () => {
       const tileConfig = tileStore.currentTileConfig
       if (!tileConfig)
@@ -66,17 +66,22 @@ export const useMarkerPositionEdit = () => {
     updateDragging(null)
   }
 
-  onSuccess(() => {
+  onFinish(() => {
     ElMessage.closeAll('warning')
+  })
+
+  onSuccess(() => {
     ElMessage.success({
       message: '操作成功',
     })
     clearState()
   })
 
-  onError(err => ElMessage.error({
-    message: `移动点位失败，原因为：${err.message}`,
-  }))
+  onError(err => {
+    ElMessage.error({
+      message: `移动点位失败，原因为：${err.message}`,
+    })
+  })
 
   return {
     isMissionEmpty,
