@@ -1,15 +1,11 @@
 <script setup lang="ts">
+import { useFetchHook, useTheme } from '@/hooks'
 import { useBroadcastStore, useUserStore } from '@/stores'
 import { formatByteSize } from '@/utils'
+import { Chart } from '@antv/g2'
 import { Odometer, PictureRounded } from '@element-plus/icons-vue'
+import * as ElIcons from '@element-plus/icons-vue'
 import { SettingBar, SettingGroup, SettingPanel } from '../components'
-
-const userStore = useUserStore()
-const broadcastStore = useBroadcastStore()
-
-const clients = computed(() => {
-  return [...broadcastStore.state.clients.values()].sort(({ time: ta }, { time: tb }) => ta - tb)
-})
 
 interface StorageEstimateExpand extends StorageEstimate {
   /** 用量详情，目前仅在 chromuim 内核浏览器下可用 */
@@ -20,13 +16,49 @@ interface StorageEstimateExpand extends StorageEstimate {
   }
 }
 
-const { state: storageEstimate } = useAsyncState<StorageEstimateExpand>(navigator.storage.estimate(), {
+interface UsageItem {
+  name: string
+  value: number
+  percentage: number
+  text: string
+}
+
+const userStore = useUserStore()
+const broadcastStore = useBroadcastStore()
+
+const { isDark } = useTheme()
+
+const clients = computed(() => {
+  return [...broadcastStore.state.clients.values()].sort(({ time: ta }, { time: tb }) => ta - tb)
+})
+
+const {
+  execute: refreshStorageEstimate,
+  state: storageEstimate,
+} = useAsyncState<StorageEstimateExpand>(navigator.storage.estimate(), {
   quota: 0,
   usage: 0,
   usageDetails: {
     caches: 0,
     indexedDB: 0,
     serviceWorkerRegistrations: 0,
+  },
+})
+
+const {
+  execute: refreshCacheKeys,
+  state: cacheKeys,
+  isLoading: cacheKeysLoading,
+} = useAsyncState(() => window.caches.keys(), [])
+
+const selectedCacheKeys = ref<string[]>([])
+
+const { refresh: deleteCache, loading: deletingLoading } = useFetchHook({
+  onRequest: async () => {
+    await Promise.all(selectedCacheKeys.value.map(cacheKey => window.caches.delete(cacheKey)))
+    await refreshStorageEstimate()
+    await refreshCacheKeys()
+    selectedCacheKeys.value = []
   },
 })
 
@@ -50,33 +82,79 @@ const { state: glInfo } = useAsyncState<{ label: string, value: unknown }[]>(asy
   }))
 }, [])
 
-const storageDetails = computed<{ name: string, percentage: number, text: string }[]>(() => {
+const storageDetails = computed<UsageItem[]>(() => {
   if (!storageEstimate.value.usageDetails)
     return []
   const { caches, indexedDB, serviceWorkerRegistrations } = storageEstimate.value.usageDetails
   const totalUsage = storageEstimate.value.usage ?? 0
-  const formatTotalUsage = formatByteSize(totalUsage)
   const res = [
     {
       name: '缓存',
+      value: caches,
       percentage: 100 * caches / totalUsage,
-      text: `${formatByteSize(caches)} / ${formatTotalUsage}`,
+      text: `${formatByteSize(caches)}`,
     },
     {
       name: '数据库',
+      value: indexedDB,
       percentage: 100 * indexedDB / totalUsage,
-      text: `${formatByteSize(indexedDB)} / ${formatTotalUsage}`,
+      text: `${formatByteSize(indexedDB)}`,
     },
     {
       name: '服务线程',
+      value: serviceWorkerRegistrations,
       percentage: 100 * serviceWorkerRegistrations / totalUsage,
-      text: `${formatByteSize(serviceWorkerRegistrations)} / ${formatTotalUsage}`,
+      text: `${formatByteSize(serviceWorkerRegistrations)}`,
     },
   ]
   return res
 })
 
 const userAgent = navigator.userAgent
+
+const chartRef = useTemplateRef('chart')
+onMounted(() => {
+  if (!chartRef.value)
+    return
+  const chart = new Chart({
+    container: chartRef.value,
+    autoFit: true,
+    width: 300,
+    height: 240,
+  })
+  chart.coordinate({ type: 'theta', outerRadius: 0.8 })
+  chart
+    .interval()
+    .data(storageDetails.value)
+    .transform({ type: 'stackY' })
+    .encode('y', 'percentage')
+    .encode('color', 'name')
+    .label({
+      text: (data: UsageItem) => {
+        return `${data.name}: ${data.percentage.toFixed(2)}%\n${data.text}`
+      },
+      position: 'spider',
+      transform: [
+        { type: 'exceedAdjust' },
+        { type: 'overlapDodgeY' },
+      ],
+    })
+    .interaction({
+      elementHighlight: true,
+    })
+    .legend(false)
+    .tooltip(false)
+    .theme({ type: isDark.value ? 'classicDark' : 'classic' })
+  watch(storageDetails, (newData) => {
+    chart.changeData(newData)
+    chart.render()
+  })
+  watch(isDark, (dark) => {
+    chart.theme({ type: dark ? 'classicDark' : 'classic' })
+    chart.render()
+  })
+  chart.render()
+})
 </script>
 
 <template>
@@ -121,21 +199,43 @@ const userAgent = navigator.userAgent
         </template>
 
         <template v-if="storageEstimate.usageDetails" #detail>
-          <div class="flex flex-col gap-3" style="--el-border-color-lighter: var(--el-border-color-dark)">
-            <div v-for="storageDetail in storageDetails" :key="storageDetail.name" class="flex flex-col gap-1">
-              <div class="flex justify-between">
-                <div class="text-sm">
-                  {{ storageDetail.name }}
-                </div>
-                <div class="text-xs">
-                  已使用 {{ storageDetail.text }}
-                </div>
+          <div class="w-full flex flex-wrap gap-2">
+            <div ref="chart" class="w-[300px]" />
+            <div
+              v-loading="cacheKeysLoading"
+              element-loading-text="正在加载缓存列表..."
+              class="flex-1 h-[240px] text-xs flex flex-col gap-1 overflow-hidden"
+            >
+              <div class="shrink-0">
+                缓存存储 ({{ cacheKeys.length }})
               </div>
-              <el-progress
-                :percentage="storageDetail.percentage || 0"
-                :stroke-width="12"
-                :show-text="false"
-              />
+              <el-checkbox-group
+                v-model="selectedCacheKeys"
+                size="small"
+                class="flex-1 flex flex-col overflow-auto"
+                :disabled="deletingLoading"
+              >
+                <el-checkbox
+                  v-for="cacheKey, index in cacheKeys"
+                  :key="cacheKey"
+                  :value="cacheKey"
+                  class="shrink-0"
+                >
+                  {{ `(${index + 1}) ${cacheKey}` }}
+                </el-checkbox>
+              </el-checkbox-group>
+              <div class="shrink-0 flex justify-end">
+                <el-button
+                  size="small"
+                  type="danger"
+                  plain
+                  :disabled="!selectedCacheKeys.length"
+                  :icon="ElIcons.Delete"
+                  @click="deleteCache"
+                >
+                  删除选中项
+                </el-button>
+              </div>
             </div>
           </div>
         </template>
