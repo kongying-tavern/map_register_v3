@@ -194,7 +194,7 @@ onMounted(() => {
       <SettingBar label="本地存储" note="这包括本地数据库、缓存等" :icon="Odometer">
         <template #setting>
           <div class="grid place-items-center text-xs">
-            {{ formatByteSize(storageEstimate.usage ?? 0) }} / {{ formatByteSize(storageEstimate.quota ?? 0) }}
+            目前占用 {{ formatByteSize(storageEstimate.usage ?? 0) }}
           </div>
         </template>
 
@@ -210,7 +210,7 @@ onMounted(() => {
                 缓存存储 ({{ cacheKeys.length }})
               </div>
               <el-checkbox-group
-                v-model="selectedCacheKeys"
+                v-model="selectedCacheKeys as unknown as (string | number)[]"
                 size="small"
                 class="flex-1 flex flex-col overflow-auto"
                 :disabled="deletingLoading"
