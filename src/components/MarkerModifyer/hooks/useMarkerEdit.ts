@@ -5,7 +5,7 @@ import db from '@/database'
 import { useFetchHook } from '@/hooks'
 import { useUserStore } from '@/stores'
 import { ElMessage } from 'element-plus'
-import { pick } from 'lodash'
+import { omit } from 'lodash'
 import { usePictureUpload } from './usePictureUpload'
 
 /** 编辑点位，已自动处理 methodType 字段 */
@@ -40,25 +40,17 @@ export const useMarkerEdit = (markerData: Ref<API.MarkerVo | null>) => {
     return isChanged
   }
 
-  const commonKeys = [
-    'id',
-    'itemList',
-    'position',
-    'content',
-    'picture',
-    'videoPath',
-    'refreshTime',
-    'hiddenFlag',
-    'markerTitle',
-    'version',
-    'extra',
+  const commonKeys: (keyof API.MarkerVo)[] = [
+    'updateTime',
+    'createTime',
   ]
 
   const buildAdminMarkerForm = (marker: API.MarkerVo): API.MarkerVo => {
     const isPictureChanged = checkPictureChange(marker)
     return {
-      ...pick(marker, commonKeys),
+      ...omit(marker, commonKeys),
       pictureCreatorId: isPictureChanged ? userStore.info?.id : marker.pictureCreatorId,
+      version: 1,
     }
   }
 
