@@ -47,6 +47,11 @@ export class GenshinMap extends Deck<OrthographicView> {
     super({
       id: 'genshin-map',
       ...rest,
+      eventRecognizerOptions: {
+        dblclick: {
+          taps: 3, // 禁用双击事件，使其直接触发两次单击
+        },
+      },
       canvas,
       views: mainView,
       initialViewState: {
