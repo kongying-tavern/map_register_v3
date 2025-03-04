@@ -50,7 +50,6 @@ export const useMarkerEdit = (markerData: Ref<API.MarkerVo | null>) => {
     return {
       ...omit(marker, commonKeys),
       pictureCreatorId: isPictureChanged ? userStore.info?.id : marker.pictureCreatorId,
-      version: 1,
     }
   }
 
