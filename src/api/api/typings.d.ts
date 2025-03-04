@@ -1190,7 +1190,7 @@ declare namespace API {
     /** 类型ID(配合记录类型使用) */
     id?: number[]
     /** 操作数据类型 */
-    editType?: '0' | '1' | '2' | '3'
+    editType?: '0' | '1' | '2' | '3' | '10'
     /** 创建人ID */
     creatorId?: number
     /** 创建时间开始时间 */
@@ -1223,7 +1223,7 @@ declare namespace API {
     /** IPv4 */
     ipv4?: string
     /** 修改类型 */
-    editType?: 0 | 1 | 2 | 3
+    editType?: 0 | 1 | 2 | 3 | 10
     tid?: number
   }
 
