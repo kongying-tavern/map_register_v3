@@ -28,7 +28,7 @@ export const useMarkerTweaks = (options: TweakHookOptions) => {
       }))
 
       // 处理通用批量修改
-      const tweaks = tweakList.value.filter(({ isCustom }) => !isCustom).map(({ id, prop, modifier }) => {
+      const tweaks = tweakList.value.map(({ id, prop, modifier }) => {
         const meta = tweakData.value.get(id)!
         const config: API.TweakConfigVo = {
           prop,
@@ -38,11 +38,13 @@ export const useMarkerTweaks = (options: TweakHookOptions) => {
         return config
       })
 
+      const payload: API.TweakVo[] = [{
+        markerIds,
+        tweaks,
+      }]
+
       if (tweaks.length > 0) {
-        const { data = [] } = await Api.marker.tweakMarkers({
-          markerIds,
-          tweaks,
-        })
+        const { data = [] } = await Api.marker.tweakMarkers(payload)
         await db.marker.bulkPut(data)
       }
     },

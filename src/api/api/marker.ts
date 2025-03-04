@@ -26,7 +26,10 @@ export async function updateMarker(body: API.MarkerVo, options?: AxiosRequestCon
 }
 
 /** 调整点位 对点位数据进行微调 POST /api/marker/tweak */
-export async function tweakMarkers(body: API.TweakVo, options?: AxiosRequestConfig) {
+export async function tweakMarkers(
+  body: API.TweakVo[],
+  options?: AxiosRequestConfig,
+) {
   return request<API.RListMarkerVo>('/api/marker/tweak', {
     method: 'POST',
     headers: {
