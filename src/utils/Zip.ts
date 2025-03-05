@@ -16,7 +16,9 @@ export class Zip {
 
     const copyZipWasm = wasm.slice(0)
 
-    const process = createWorkerHelper<WorkerInput, Uint8Array>(new ZipWorker({ name: '压缩线程' }))
+    const process = createWorkerHelper<WorkerInput, Uint8Array>(new ZipWorker({ name: '压缩线程' }), {
+      cacheWorker: false,
+    })
 
     const compressedData = await process({
       type: 'compress',
@@ -47,7 +49,9 @@ export class Zip {
 
     const copyZipWasm = wasm.slice(0)
 
-    const process = createWorkerHelper<WorkerInput, Uint8Array>(new ZipWorker({ name: '解压线程' }))
+    const process = createWorkerHelper<WorkerInput, Uint8Array>(new ZipWorker({ name: '解压线程' }), {
+      cacheWorker: false,
+    })
 
     const decompressedData = await process({
       type: 'decompress',
