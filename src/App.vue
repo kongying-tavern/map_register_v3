@@ -14,7 +14,7 @@ import {
   MapMarkerToggleController,
   MapMarkerTweakController,
 } from '@/components'
-import { useMapLayers, useResourceStatus, useTheme } from '@/hooks'
+import { useMapLayers, useTheme } from '@/hooks'
 import { EaseoutInterpolator, GenshinMapDeck, GSZoomController } from '@/packages/map'
 import {
   mapAffixKey,
@@ -95,9 +95,6 @@ watch(() => tileStore.currentTileConfig, (currentTileConfig) => {
   }
 }, { immediate: true })
 
-// ================ 资源管理 ================
-const { status: resourceStatus } = useResourceStatus()
-
 // ================ 地图管理 ================
 // 地图 focus 清理
 useSubscription(MapSubject.click.pipe(
@@ -110,9 +107,7 @@ useSubscription(MapSubject.hover.pipe(
 ).subscribe(() => mapStateStore.interaction.clearHover()))
 
 // ================ 图层管理 ================
-const { layers } = useMapLayers({
-  resourceStatus,
-})
+const { layers } = useMapLayers()
 
 // ================ 依赖注入 ================
 provide(mapContainerKey, containerRef)

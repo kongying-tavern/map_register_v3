@@ -65,6 +65,9 @@ export interface GSTagLayerProps {
 
   /** 坐标偏移量 */
   offset?: Coordinate2D
+
+  /** 字体 */
+  fontFamily?: string
 }
 
 export interface GSOverlayerProps {
@@ -123,6 +126,8 @@ export interface GSLinkLayerProps extends ArrowShapeOptions {
   outlineColor?: [r: number, g: number, b: number] | [r: number, g: number, b: number, a: number]
   /** hover 数据 */
   hoverIds?: Set<string>
+  /** focus 数据 */
+  focusIds?: Set<string>
   /** 缩放系数（不影响长度尺寸） */
   scale?: number
 }

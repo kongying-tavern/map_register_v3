@@ -1,4 +1,3 @@
-import type { useResourceStatus } from '@/hooks'
 import type { GSMarkerInfo } from '@/packages/map'
 import type { LayersList } from 'deck.gl'
 import { GSOverlayer, GSTileLayer } from '@/packages/map'
@@ -13,11 +12,7 @@ import { useLinkLayer } from './useLinkLayer'
 import { useMarkerLayer } from './useMarkerLayer'
 import { useTagLayer } from './useTagLayer'
 
-export interface MapLayerHookOptions {
-  resourceStatus: ReturnType<typeof useResourceStatus>['status']
-}
-
-export const useMapLayers = (options: MapLayerHookOptions) => {
+export const useMapLayers = () => {
   const tileStore = useTileStore()
   const overlayStore = useOverlayStore()
   const mapStateStore = useMapStateStore()
@@ -57,7 +52,7 @@ export const useMapLayers = (options: MapLayerHookOptions) => {
   })
 
   // ============================== 标签图层 ==============================
-  const { tagLayer } = useTagLayer(options)
+  const { tagLayer } = useTagLayer()
 
   // ============================== 拖拽指示 ==============================
   const markerDraggingLineLayer = computed(() => {

@@ -1,10 +1,10 @@
 import Api from '@/api/config'
-import db from '@/database'
-import { Zip } from '@/utils'
-import { defineStore } from 'pinia'
 import { validateDadianJSON } from '@/configs'
-import { ElMessage } from 'element-plus'
+import db from '@/database'
 import { useFetchHook } from '@/hooks'
+import { Zip } from '@/utils'
+import { ElMessage } from 'element-plus'
+import { defineStore } from 'pinia'
 import { useUserStore } from './user'
 
 const getDigest = async (data: ArrayBuffer) => {
@@ -96,17 +96,21 @@ export const useDadianStore = defineStore('global-dadian-json', () => {
     isInit.value = true
   }
 
-  const fontFamilySet = new Set<string>()
+  const fontFamilySet = ref(new Set<string>())
+
+  const fontFamilyMission = ref(new Set<string>())
 
   // 自动加载字体资源
   watch(() => raw.value?.editor?.fontResources, (fontResources = {}) => {
     Object.entries(fontResources).forEach(([family, { url }]) => {
-      if (fontFamilySet.has(family))
+      if (fontFamilyMission.value.has(family))
         return
-      fontFamilySet.add(family)
+      fontFamilyMission.value.add(family)
       const fontFace = new FontFace(family, `url(${url})`)
       document.fonts.add(fontFace)
-      fontFace.load()
+      fontFace.load().then(() => {
+        fontFamilySet.value.add(family)
+      })
     })
   })
 
@@ -130,5 +134,6 @@ export const useDadianStore = defineStore('global-dadian-json', () => {
     loadDadianJSON,
     update,
     loading,
+    fontFamilySet,
   }
 })

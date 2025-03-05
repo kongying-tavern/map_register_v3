@@ -20,7 +20,7 @@ export class GSTagLayer extends CompositeLayer<GSTagLayerProps> {
   }
 
   renderLayers = (): LayersList => {
-    const { tagGroups = [], visible = true, offset = [0, 0] } = this.props
+    const { tagGroups = [], visible = true, offset = [0, 0], fontFamily } = this.props
     const { zoom } = this.context.viewport
     const [cx, cy] = offset
 
@@ -43,7 +43,7 @@ export class GSTagLayer extends CompositeLayer<GSTagLayerProps> {
       visible,
       data: tags,
       characterSet: 'auto',
-      fontFamily: 'HYWenHei-85W, Monaco, monospace',
+      fontFamily,
       fontSettings: {
         buffer: 8,
         sdf: true,
