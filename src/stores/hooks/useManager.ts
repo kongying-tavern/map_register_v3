@@ -45,15 +45,19 @@ export const useManager = <C, T>(options: ManagerOptions<C, T>) => {
   /** 下一次更新的时间 */
   const nextUpdateTime = ref<number>(Date.now())
 
+  const pollTime = ref(0)
+
+  const { isActive, pause, resume } = useTimeoutPoll(async () => {
+    if (!loading.value)
+      await update()
+    nextUpdateTime.value = Date.now() + pollTime.value
+  }, pollTime, {
+    immediate: false,
+  })
+
   if (timeoutPull) {
     const { condition, time } = timeoutPull
-    const { pause, resume } = useTimeoutPoll(async () => {
-      if (!loading.value)
-        await update()
-      nextUpdateTime.value = Date.now() + time
-    }, time, {
-      immediate: false,
-    })
+    pollTime.value = time
     watch(() => condition(), (isTrue) => {
       if (!isTrue) {
         pause()
@@ -68,6 +72,7 @@ export const useManager = <C, T>(options: ManagerOptions<C, T>) => {
     update,
     loading,
     nextUpdateTime,
+    isActive,
     ...rest,
   }
 }

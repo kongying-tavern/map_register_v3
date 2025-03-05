@@ -47,9 +47,18 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
       const { data: digest = '' } = await Api.markerLinkDoc.listAllMarkerLinkageBinaryMD5()
       const hashList = [digest]
 
-      message.value = '缓存无变动项'
-      const needUpdateHashList = hashList.filter(hash => !hashMap.value.has(hash))
-      const cachedData = await db.markerLink.where('__hash').anyOf(hashList).toArray()
+      const newHashSet = new Set(hashList)
+
+      const oldHashSet = new Set(hashMap.value.keys())
+
+      const needUpdateHashList = [...newHashSet.difference(oldHashSet)]
+
+      const needDeleteKeys = [...oldHashSet.difference(newHashSet)].reduce((collect, hash) => {
+        hashMap.value.get(hash)?.forEach(({ id }) => {
+          collect.push(id!)
+        })
+        return collect
+      }, [] as number[])
 
       message.value = '获取更新数据'
       const newData = (await Promise.all(needUpdateHashList.map(async (md5) => {
@@ -65,9 +74,12 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
         }, [] as Hash<API.MarkerLinkageVo>[])
       }))).flat(1)
 
+      message.value = '清理脏数据'
+      await db.markerLink.bulkDelete(needDeleteKeys)
+
       updateCount.value = newData.length
 
-      return [...cachedData, ...newData]
+      return newData
     },
 
     full: async ({ updateCount, startTime, message, hashMap }) => {

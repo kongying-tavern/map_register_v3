@@ -8,6 +8,7 @@ import { liveQuery } from 'dexie'
 import { defineStore } from 'pinia'
 import { useSocketStore, useUserStore } from '.'
 import { useManager, useMarkerSprite, useTagSprite } from './hooks'
+import { createHashMap } from './utils'
 
 /** 本地图标标签数据 */
 export const useIconTagStore = defineStore('global-icon-tag', () => {
@@ -32,12 +33,7 @@ export const useIconTagStore = defineStore('global-icon-tag', () => {
     init: async ({ message, hashMap }) => {
       message.value = '初始化上下文'
       const dbList = await db.iconTag.toArray()
-      hashMap.value = dbList.reduce((map, { __hash: hash = '', ...info }) => {
-        if (!map.has(hash))
-          map.set(hash, [])
-        map.get(hash)!.push(info)
-        return map
-      }, new Map<string, API.TagVo[]>())
+      hashMap.value = createHashMap(dbList)
     },
 
     diff: async ({ updateCount, startTime, message, hashMap }) => {
@@ -47,9 +43,18 @@ export const useIconTagStore = defineStore('global-icon-tag', () => {
       const { data: digest = '' } = await Api.tagDoc.listAllTagBinaryMd5()
       const hashList = [digest]
 
-      message.value = '缓存无变动项'
-      const needUpdateHashList = hashList.filter(hash => !hashMap.value.has(hash))
-      const cachedData = await db.iconTag.where('__hash').anyOf(hashList).toArray()
+      const newHashSet = new Set(hashList)
+
+      const oldHashSet = new Set(hashMap.value.keys())
+
+      const needUpdateHashList = [...newHashSet.difference(oldHashSet)]
+
+      const needDeleteKeys = [...oldHashSet.difference(newHashSet)].reduce((collect, hash) => {
+        hashMap.value.get(hash)?.forEach(({ tag }) => {
+          collect.push(tag!)
+        })
+        return collect
+      }, [] as string[])
 
       message.value = '获取更新数据'
       const newData = (await Promise.all(needUpdateHashList.map(async (md5) => {
@@ -60,9 +65,12 @@ export const useIconTagStore = defineStore('global-icon-tag', () => {
         return data.map(iconTag => ({ ...iconTag, __hash: md5 }))
       }))).flat(1)
 
+      message.value = '清理脏数据'
+      await db.iconTag.bulkDelete(needDeleteKeys)
+
       updateCount.value = newData.length
 
-      return [...cachedData, ...newData]
+      return newData
     },
 
     full: async ({ updateCount, startTime, message, hashMap }) => {
@@ -121,12 +129,7 @@ export const useIconTagStore = defineStore('global-icon-tag', () => {
   })
 
   liveQuery(() => db.iconTag.toArray()).subscribe((dbList) => {
-    context.hashMap.value = dbList.reduce((map, { __hash: hash = '', ...info }) => {
-      if (!map.has(hash))
-        map.set(hash, [])
-      map.get(hash)!.push(info)
-      return map
-    }, new Map<string, API.TagVo[]>())
+    context.hashMap.value = createHashMap(dbList)
     refreshTagSprite(dbList)
   })
 

@@ -19,7 +19,6 @@ globalThis.addEventListener('message', async (ev: MessageEvent<WorkerInput>) => 
     const { tableName, data } = ev.data
     const table = db.table(tableName)
     await db.transaction('rw!', table, async () => {
-      await table.clear()
       await table.bulkPut(data)
     })
     globalThis.postMessage({

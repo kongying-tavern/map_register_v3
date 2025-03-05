@@ -7,6 +7,7 @@ import { liveQuery } from 'dexie'
 import { defineStore } from 'pinia'
 import { useAccessStore, useUserStore } from '.'
 import { useManager } from './hooks'
+import { createHashMap } from './utils'
 
 /** 本地物品类型数据 */
 export const useItemTypeStore = defineStore('global-item-type', () => {
@@ -31,12 +32,7 @@ export const useItemTypeStore = defineStore('global-item-type', () => {
     init: async ({ message, hashMap }) => {
       message.value = '初始化上下文'
       const dbList = await db.itemType.toArray()
-      hashMap.value = dbList.reduce((map, { __hash: hash = '', ...info }) => {
-        if (!map.has(hash))
-          map.set(hash, [])
-        map.get(hash)!.push(info)
-        return map
-      }, new Map<string, API.ItemTypeVo[]>())
+      hashMap.value = createHashMap(dbList)
     },
 
     full: async ({ updateCount, startTime, message, hashMap }) => {
@@ -85,12 +81,7 @@ export const useItemTypeStore = defineStore('global-item-type', () => {
   })
 
   liveQuery(() => db.itemType.toArray()).subscribe((dbList) => {
-    context.hashMap.value = dbList.reduce((map, { __hash: hash = '', ...info }) => {
-      if (!map.has(hash))
-        map.set(hash, [])
-      map.get(hash)!.push(info)
-      return map
-    }, new Map<string, API.ItemTypeVo[]>())
+    context.hashMap.value = createHashMap(dbList)
   })
 
   // ==================== 计算状态 ====================

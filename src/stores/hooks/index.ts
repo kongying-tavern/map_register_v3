@@ -1,5 +1,6 @@
 export * from './customHook'
 export * from './routerHook'
+export * from './useAfterUpdated'
 export * from './useManager'
 export * from './useMarkerSprite'
 export * from './userHook'

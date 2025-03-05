@@ -1,4 +1,5 @@
 import type { WorkerInput, WorkerOutput } from '@/worker/idb.worker'
+import type { Hash } from 'types/database'
 import Api from '@/api/api'
 import db from '@/database'
 import { Zip } from '@/utils'
@@ -7,7 +8,8 @@ import { Box } from '@element-plus/icons-vue'
 import { liveQuery } from 'dexie'
 import { defineStore } from 'pinia'
 import { useAccessStore, useSocketStore, useUserStore } from '.'
-import { useManager } from './hooks'
+import { useAfterUpdated, useManager } from './hooks'
+import { createHashMap } from './utils'
 
 /** 本地物品数据 */
 export const useItemStore = defineStore('global-item', () => {
@@ -27,18 +29,13 @@ export const useItemStore = defineStore('global-item', () => {
       updateCount: ref(0),
       startTime: ref(Date.now()),
       message: ref(''),
-      hashMap: shallowRef(new Map<string, API.ItemVo[]>()),
+      hashMap: shallowRef(new Map<string, Hash<API.ItemVo>[]>()),
     },
 
     init: async ({ message, hashMap }) => {
       message.value = '初始化上下文'
       const dbList = await db.item.toArray()
-      hashMap.value = dbList.reduce((map, { __hash: hash = '', ...info }) => {
-        if (!map.has(hash))
-          map.set(hash, [])
-        map.get(hash)!.push(info)
-        return map
-      }, new Map<string, API.ItemVo[]>())
+      hashMap.value = createHashMap(dbList)
     },
 
     diff: async ({ updateCount, startTime, message, hashMap }) => {
@@ -47,12 +44,21 @@ export const useItemStore = defineStore('global-item', () => {
       message.value = '获取签名列表'
       const { data: hashList = [] } = await Api.itemDoc.listItemBinaryMD5()
 
-      message.value = '缓存无变动项'
-      const needUpdateHashList = hashList.filter(hash => !hashMap.value.has(hash))
-      const cachedItems = await db.item.where('__hash').anyOf(hashList).toArray()
+      const newHashSet = new Set(hashList)
+
+      const oldHashSet = new Set(hashMap.value.keys())
+
+      const needUpdateHashList = [...newHashSet.difference(oldHashSet)]
+
+      const needDeleteKeys = [...oldHashSet.difference(newHashSet)].reduce((collect, hash) => {
+        hashMap.value.get(hash)?.forEach(({ id }) => {
+          collect.push(id!)
+        })
+        return collect
+      }, [] as number[])
 
       message.value = '获取更新数据'
-      const newItemData = (await Promise.all(needUpdateHashList.map(async (md5) => {
+      const newData = (await Promise.all(needUpdateHashList.map(async (md5) => {
         const buffer = await (Api.itemDoc.listPageItemByBinary({ md5 }, { responseType: 'arraybuffer' }) as unknown as Promise<ArrayBuffer>)
         const data = await Zip.decompressAs<API.ItemVo[]>(new Uint8Array(buffer), {
           name: `item-${md5}`,
@@ -60,9 +66,12 @@ export const useItemStore = defineStore('global-item', () => {
         return data.map(item => ({ ...item, __hash: md5 }))
       }))).flat(1)
 
-      updateCount.value = newItemData.length
+      message.value = '清理脏数据'
+      await db.item.bulkDelete(needDeleteKeys)
 
-      return [...cachedItems, ...newItemData]
+      updateCount.value = newData.length
+
+      return newData
     },
 
     full: async ({ updateCount, startTime, message, hashMap }) => {
@@ -75,7 +84,7 @@ export const useItemStore = defineStore('global-item', () => {
       const { data: hashList = [] } = await Api.itemDoc.listItemBinaryMD5()
 
       message.value = '获取更新数据'
-      const newItemData = (await Promise.all(hashList.map(async (md5) => {
+      const newData = (await Promise.all(hashList.map(async (md5) => {
         const buffer = await (Api.itemDoc.listPageItemByBinary({ md5 }, { responseType: 'arraybuffer' }) as unknown as Promise<ArrayBuffer>)
         const data = await Zip.decompressAs<API.ItemVo[]>(new Uint8Array(buffer), {
           name: `item-${md5}`,
@@ -83,9 +92,9 @@ export const useItemStore = defineStore('global-item', () => {
         return data.map(item => ({ ...item, __hash: md5 }))
       }))).flat(1)
 
-      updateCount.value = newItemData.length
+      updateCount.value = newData.length
 
-      return newItemData
+      return newData
     },
 
     commit: async (data, { message, startTime, updateCount }) => {
@@ -104,16 +113,35 @@ export const useItemStore = defineStore('global-item', () => {
     },
   })
 
+  const { waitForUpdate, afterUpdated, triggerUpdated } = useAfterUpdated<number, API.ItemVo>({
+    getData: async (ids) => {
+      const { data = [] } = await Api.item.listItemById(ids)
+      return data
+    },
+    getKey: item => item.id!,
+    commit: async (data) => {
+      await db.item.bulkPut(data)
+    },
+  })
+
   liveQuery(() => db.item.toArray()).subscribe((dbList) => {
-    context.hashMap.value = dbList.reduce((map, { __hash: hash = '', ...info }) => {
-      if (!map.has(hash))
-        map.set(hash, [])
-      map.get(hash)!.push(info)
-      return map
-    }, new Map<string, API.ItemVo[]>())
+    if (waitForUpdate.value.size > 0)
+      return
+    context.hashMap.value = createHashMap(dbList)
+    triggerUpdated()
   })
 
   // ==================== 计算状态 ====================
+
+  const idHashMap = computed(() => {
+    const result = new Map<number, string>()
+    context.hashMap.value.forEach((items) => {
+      items.forEach(({ id, __hash = '' }) => {
+        result.set(id!, __hash)
+      })
+    })
+    return result
+  })
 
   const list = computed(() => {
     const res: API.ItemVo[] = []
@@ -146,32 +174,38 @@ export const useItemStore = defineStore('global-item', () => {
   }, new Map<number, API.ItemVo>()))
 
   // ==================== 外部响应 ====================
-  const updateHook = createEventHook<API.ItemVo>()
-
   socketStore.appEvent.on('ItemBinaryPurged', () => update())
 
   socketStore.appEvent.on('ItemAdded', async (itemInfo, userInfo) => {
-    await db.item.put(itemInfo)
     const { id, name, updaterId } = itemInfo
+    if (!id || waitForUpdate.value.has(id))
+      return
+    await db.item.put({
+      ...itemInfo,
+      __hash: idHashMap.value.get(itemInfo.id!),
+    })
     const { username = `(uid: ${updaterId})`, nickname } = userInfo
     socketStore.notice('ItemAdded', {
       message: `${nickname ?? username} 添加了物品 ${name} (id:${id})`,
       icon: Box,
       customClass: 'text-[var(--el-color-success)]',
     })
-    updateHook.trigger(itemInfo)
   })
 
   socketStore.appEvent.on('ItemUpdated', async (itemInfo, userInfo) => {
-    await db.item.put(itemInfo)
     const { id, name, updaterId } = itemInfo
+    if (!id || waitForUpdate.value.has(id))
+      return
+    await db.item.put({
+      ...itemInfo,
+      __hash: idHashMap.value.get(itemInfo.id!),
+    })
     const { username = `(uid: ${updaterId})`, nickname } = userInfo
     socketStore.notice('ItemUpdated', {
       message: `${nickname ?? username} 更新了物品 ${name} (id:${id})`,
       icon: Box,
       customClass: 'text-[var(--el-color-primary)]',
     })
-    updateHook.trigger(itemInfo)
   })
 
   socketStore.appEvent.on('ItemDeleted', async (itemInfo, userInfo) => {
@@ -191,6 +225,7 @@ export const useItemStore = defineStore('global-item', () => {
     nextUpdateTime,
     updateLoading,
     update,
+    afterUpdated,
 
     // 计算状态
     itemList: list,
