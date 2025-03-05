@@ -27,25 +27,25 @@ export const useMarkerPositionEdit = () => {
       const { currentMarkerIdMap } = mapStateStore
       const missions = draggingMission.value
 
-      const form: API.MarkerVo[] = []
+      const payload: API.TweakVo[] = []
 
       missions.forEach(([x, y], id) => {
         const marker = currentMarkerIdMap.get(id)
         if (!marker)
-          return
-        const {
-          render: _1,
-          createTime: _2,
-          updateTime: _3,
-          ...rest
-        } = marker
-        form.push({
-          ...rest,
-          position: `${x - cx},${y - cy}`,
+          throw new Error(`获取 id 为 ${id} 的点位数据时出错，对象不存在。`)
+        payload.push({
+          markerIds: [id],
+          tweaks: [{
+            prop: 'position',
+            type: 'update',
+            meta: {
+              value: `${x - cx},${y - cy}`,
+            },
+          }],
         })
       })
 
-      if (!form.length)
+      if (!payload.length)
         throw new Error('已验证的提交信息为空')
 
       ElMessage.warning({
@@ -53,11 +53,9 @@ export const useMarkerPositionEdit = () => {
         duration: 0,
       })
 
-      const updateIds = await Promise.all(form.map(marker => Api.marker.updateMarker(marker).then(() => marker.id!)))
+      const { data = [] } = await Api.marker.tweakMarkers(payload)
 
-      await markerStore.afterUpdated(updateIds)
-
-      return updateIds
+      await markerStore.afterUpdated(data.map(({ id }) => id!))
     },
   })
 
