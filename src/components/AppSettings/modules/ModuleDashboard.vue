@@ -211,7 +211,7 @@ onMounted(() => {
                 缓存存储 ({{ cacheKeys.length }})
               </div>
               <el-checkbox-group
-                v-model="selectedCacheKeys as unknown as (string | number)[]"
+                v-model="selectedCacheKeys"
                 size="small"
                 class="flex-1 flex flex-col overflow-auto"
                 :disabled="deletingLoading"
