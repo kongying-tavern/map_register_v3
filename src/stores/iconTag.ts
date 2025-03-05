@@ -9,11 +9,40 @@ import { defineStore } from 'pinia'
 import { useSocketStore, useUserStore } from '.'
 import { useManager, useMarkerSprite, useTagSprite } from './hooks'
 import { createHashMap } from './utils'
+import type { Hash } from 'types/database'
 
 /** 本地图标标签数据 */
 export const useIconTagStore = defineStore('global-icon-tag', () => {
   const socketStore = useSocketStore()
   const userStore = useUserStore()
+
+  // ==================== 内部状态 ====================
+  const hashMap = shallowRef(new Map<string, API.TagVo[]>())
+
+  // ==================== 外部状态 ====================
+  const tagList = computed(() => {
+    const result: API.TagVo[] = []
+    hashMap.value.forEach((tagGroup) => {
+      tagGroup.forEach((tag) => {
+        result.push(tag)
+      })
+    })
+    return result
+  })
+
+  const total = computed(() => tagList.value.length)
+
+  /** tag 名称到实体的索引表 */
+  const keyMap = computed(() => tagList.value.reduce((seed, tag) => {
+    seed.set(tag.tag!, tag)
+    return seed
+  }, new Map<string, API.TagVo>()))
+
+  /** @deprecated 使用 `tagNameMap` 代替 */
+  const iconTagMap = computed(() => Object.fromEntries(tagList.value.map(iconTag => [
+    iconTag.tag as string,
+    iconTag as API.TagVo,
+  ])) as Record<string, API.TagVo>)
 
   // ==================== 数据更新 ====================
 
@@ -27,16 +56,15 @@ export const useIconTagStore = defineStore('global-icon-tag', () => {
       updateCount: ref(0),
       startTime: ref(Date.now()),
       message: ref(''),
-      hashMap: shallowRef(new Map<string, API.TagVo[]>()),
     },
 
-    init: async ({ message, hashMap }) => {
+    init: async ({ message }) => {
       message.value = '初始化上下文'
       const dbList = await db.iconTag.toArray()
       hashMap.value = createHashMap(dbList)
     },
 
-    diff: async ({ updateCount, startTime, message, hashMap }) => {
+    diff: async ({ updateCount, startTime, message }) => {
       startTime.value = Date.now()
 
       message.value = '获取签名列表'
@@ -57,49 +85,61 @@ export const useIconTagStore = defineStore('global-icon-tag', () => {
       }, [] as string[])
 
       message.value = '获取更新数据'
-      const newData = (await Promise.all(needUpdateHashList.map(async (md5) => {
+      const newData = (await Promise.all(needUpdateHashList.map(async (hash) => {
         const buffer = await (Api.tagDoc.listAllTagBinary({ responseType: 'arraybuffer' }) as unknown as Promise<ArrayBuffer>)
         const data = await Zip.decompressAs<API.TagVo[]>(new Uint8Array(buffer), {
-          name: `iconTag-${md5}`,
+          name: `iconTag-${hash}`,
         })
-        return data.map(iconTag => ({ ...iconTag, __hash: md5 }))
+        return data.map((newOne) => {
+          const oldOne = keyMap.value.get(newOne.tag!)
+          if (!oldOne || ((oldOne.updateTime ?? 0) <= (newOne.updateTime ?? 0)))
+            return { ...newOne, __hash: hash }
+          return { ...newOne, __hash: hash }
+        })
       }))).flat(1)
-
-      message.value = '清理脏数据'
-      await db.iconTag.bulkDelete(needDeleteKeys)
 
       updateCount.value = newData.length
 
-      return newData
+      return {
+        bulkPutData: newData,
+        bulkDeleteKeys: needDeleteKeys,
+        clear: false,
+      }
     },
 
-    full: async ({ updateCount, startTime, message, hashMap }) => {
+    full: async ({ updateCount, startTime, message }) => {
       startTime.value = Date.now()
 
-      hashMap.value.clear()
-      triggerRef(hashMap)
-
       message.value = '获取签名列表'
-      const { data: md5 = '' } = await Api.tagDoc.listAllTagBinaryMd5()
+      const { data: hash = '' } = await Api.tagDoc.listAllTagBinaryMd5()
 
       message.value = '获取更新数据'
       const buffer = await (Api.tagDoc.listAllTagBinary({ responseType: 'arraybuffer' }) as unknown as Promise<ArrayBuffer>)
       const data = await Zip.decompressAs<API.TagVo[]>(new Uint8Array(buffer), {
-        name: `iconTag-${md5}`,
+        name: `iconTag-${hash}`,
       })
-      const newData = data.map(iconTag => ({ ...iconTag, __hash: md5 }))
+      const newData = data.map((newOne) => {
+        const oldOne = keyMap.value.get(newOne.tag!)
+        if (!oldOne || ((oldOne.updateTime ?? 0) <= (newOne.updateTime ?? 0)))
+          return { ...newOne, __hash: hash }
+        return { ...newOne, __hash: hash }
+      })
 
       updateCount.value = newData.length
 
-      return newData
+      return {
+        bulkPutData: newData,
+        bulkDeleteKeys: [],
+        clear: true,
+      }
     },
 
-    commit: async (data, { message, startTime, updateCount }) => {
+    commit: async (options, { message, startTime, updateCount }) => {
       message.value = '写入更新数据'
       const { resolve, promise } = Promise.withResolvers<WorkerOutput>()
-      const worker = new BulkPutWorker({ name: '物品数据更新线程' })
+      const worker = new BulkPutWorker({ name: '图标标签更新线程' })
       worker.addEventListener('message', (ev: MessageEvent<WorkerOutput>) => resolve(ev.data))
-      worker.postMessage({ tableName: 'iconTag', data } as WorkerInput)
+      worker.postMessage({ tableName: 'iconTag', ...options } as WorkerInput<string, Hash<API.TagVo>>)
       const { error, message: workerMsg } = await promise
       worker.terminate()
       if (error) {
@@ -129,35 +169,9 @@ export const useIconTagStore = defineStore('global-icon-tag', () => {
   })
 
   liveQuery(() => db.iconTag.toArray()).subscribe((dbList) => {
-    context.hashMap.value = createHashMap(dbList)
+    hashMap.value = createHashMap(dbList)
     refreshTagSprite(dbList)
   })
-
-  // ==================== 计算状态 ====================
-
-  const tagList = computed(() => {
-    const result: API.TagVo[] = []
-    context.hashMap.value.forEach((tagGroup) => {
-      tagGroup.forEach((tag) => {
-        result.push(tag)
-      })
-    })
-    return result
-  })
-
-  const total = computed(() => tagList.value.length)
-
-  /** tag 名称到实体的索引表 */
-  const tagNameMap = computed(() => tagList.value.reduce((seed, tag) => {
-    seed.set(tag.tag!, tag)
-    return seed
-  }, new Map<string, API.TagVo>()))
-
-  /** @deprecated 使用 `tagNameMap` 代替 */
-  const iconTagMap = computed(() => Object.fromEntries(tagList.value.map(iconTag => [
-    iconTag.tag as string,
-    iconTag as API.TagVo,
-  ])) as Record<string, API.TagVo>)
 
   // ==================== 外部响应 ====================
 
@@ -184,7 +198,7 @@ export const useIconTagStore = defineStore('global-icon-tag', () => {
     // 计算状态
     tagList: tagList as Readonly<ShallowRef<API.TagVo[]>>,
     total,
-    tagNameMap,
+    tagNameMap: keyMap,
     iconTagMap,
   }
 })

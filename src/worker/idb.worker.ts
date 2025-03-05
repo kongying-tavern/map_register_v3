@@ -4,9 +4,11 @@ declare const globalThis: DedicatedWorkerGlobalScope
 
 const db = new WorkerThreadDB()
 
-export interface WorkerInput {
+export interface WorkerInput<Key = number, Data = unknown> {
   tableName: string
-  data: unknown[]
+  clear?: boolean
+  bulkPutData?: Data[]
+  bulkDeleteKeys?: Key[]
 }
 
 export interface WorkerOutput {
@@ -16,10 +18,21 @@ export interface WorkerOutput {
 
 globalThis.addEventListener('message', async (ev: MessageEvent<WorkerInput>) => {
   try {
-    const { tableName, data } = ev.data
+    const {
+      tableName,
+      clear = false,
+      bulkPutData = [],
+      bulkDeleteKeys = [],
+    } = ev.data
+
     const table = db.table(tableName)
     await db.transaction('rw!', table, async () => {
-      await table.bulkPut(data)
+      if (clear)
+        await table.clear()
+      else if (bulkDeleteKeys.length)
+        await table.bulkDelete(bulkDeleteKeys)
+      if (bulkPutData.length)
+        await table.bulkPut(bulkPutData)
     })
     globalThis.postMessage({
       message: 'success',

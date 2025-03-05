@@ -17,125 +17,12 @@ export const useMarkerStore = defineStore('global-marker', () => {
   const socketStore = useSocketStore()
   const userStore = useUserStore()
 
-  // ==================== 数据更新 ====================
-
-  const { context, nextUpdateTime, loading: updateLoading, update } = useManager({
-    timeoutPull: {
-      time: 20 * 60 * 1000,
-      condition: () => userStore.info?.roleId !== undefined,
-    },
-
-    context: {
-      startTime: ref(Date.now()),
-      message: ref(''),
-      hashMap: shallowRef(new Map<string, Hash<API.MarkerVo>[]>()),
-      updateCount: ref(0),
-    },
-
-    init: async ({ message, hashMap }) => {
-      message.value = '初始化上下文'
-      const dbList = await db.marker.toArray()
-      hashMap.value = createHashMap(dbList)
-    },
-
-    diff: async ({ startTime, message, hashMap, updateCount }) => {
-      startTime.value = Date.now()
-
-      message.value = '获取签名列表'
-      const { data: hashList = [] } = await Api.markerDoc.listMarkerBinaryMD5({})
-
-      const newHashSet = new Set(hashList)
-
-      const oldHashSet = new Set(hashMap.value.keys())
-
-      const needUpdateHashList = [...newHashSet.difference(oldHashSet)]
-
-      const needDeleteKeys = [...oldHashSet.difference(newHashSet)].reduce((collect, hash) => {
-        hashMap.value.get(hash)?.forEach(({ id }) => {
-          collect.push(id!)
-        })
-        return collect
-      }, [] as number[])
-
-      message.value = '获取更新数据'
-      const newData = (await Promise.all(needUpdateHashList.map(async (md5) => {
-        const buffer = await (Api.markerDoc.listPageMarkerByBinary({ md5 }, { responseType: 'arraybuffer' }) as unknown as Promise<ArrayBuffer>)
-        const data = await Zip.decompressAs<API.MarkerVo[]>(new Uint8Array(buffer), {
-          name: `marker-${md5}`,
-        })
-        return data.map(marker => ({ ...marker, __hash: md5 }))
-      }))).flat(1)
-
-      message.value = '清理脏数据'
-      await db.marker.bulkDelete(needDeleteKeys)
-
-      updateCount.value = newData.length
-
-      return newData
-    },
-
-    full: async ({ startTime, message, hashMap, updateCount }) => {
-      startTime.value = Date.now()
-
-      hashMap.value.clear()
-      triggerRef(hashMap)
-
-      message.value = '获取签名列表'
-      const { data: hashList = [] } = await Api.markerDoc.listMarkerBinaryMD5({})
-
-      message.value = '获取更新数据'
-      const newData = (await Promise.all(hashList.map(async (md5) => {
-        const buffer = await (Api.markerDoc.listPageMarkerByBinary({ md5 }, { responseType: 'arraybuffer' }) as unknown as Promise<ArrayBuffer>)
-        const data = await Zip.decompressAs<API.MarkerVo[]>(new Uint8Array(buffer), {
-          name: `marker-${md5}`,
-        })
-        return data.map(marker => ({ ...marker, __hash: md5 }))
-      }))).flat(1)
-
-      updateCount.value = newData.length
-
-      return newData
-    },
-
-    commit: async (data, { message, startTime, updateCount }) => {
-      message.value = '写入更新数据'
-      const { resolve, promise } = Promise.withResolvers<WorkerOutput>()
-      const worker = new BulkPutWorker({ name: '点位数据更新线程' })
-      worker.addEventListener('message', (ev: MessageEvent<WorkerOutput>) => resolve(ev.data))
-      worker.postMessage({ tableName: 'marker', data } as WorkerInput)
-      const { error, message: workerMsg } = await promise
-      worker.terminate()
-      if (error) {
-        message.value = workerMsg
-        return
-      }
-      message.value = `更新 ${updateCount.value} 项, 耗时: ${((Date.now() - startTime.value) / 1000).toFixed(1)}s`
-    },
-  })
-
-  const { waitForUpdate, afterUpdated, triggerUpdated } = useAfterUpdated<number, API.MarkerVo>({
-    getData: async (ids) => {
-      const { data = [] } = await Api.marker.listMarkerById(ids)
-      return data
-    },
-    getKey: marker => marker.id!,
-    commit: async (data) => {
-      await db.marker.bulkPut(data)
-    },
-  })
-
-  liveQuery(() => db.marker.toArray()).subscribe((dbList) => {
-    if (waitForUpdate.value.size > 0)
-      return
-    context.hashMap.value = createHashMap(dbList)
-    triggerUpdated()
-  })
-
-  // ==================== 计算状态 ====================
+  // ==================== 内部状态 ====================
+  const hashMap = shallowRef(new Map<string, Hash<API.MarkerVo>[]>())
 
   const idHashMap = computed(() => {
     const result = new Map<number, string>()
-    context.hashMap.value.forEach((group) => {
+    hashMap.value.forEach((group) => {
       group.forEach(({ id, __hash: hash = '' }) => {
         result.set(id!, hash)
       })
@@ -143,9 +30,10 @@ export const useMarkerStore = defineStore('global-marker', () => {
     return result
   })
 
+  // ==================== 外部状态 ====================
   const list = computed(() => {
     const res: API.MarkerVo[] = []
-    context.hashMap.value.forEach((hashedMarkerList) => {
+    hashMap.value.forEach((hashedMarkerList) => {
       for (let i = 0; i < hashedMarkerList.length; i++) {
         const markerInfo = hashedMarkerList[i]
         if (!accessStore.checkHiddenFlag(markerInfo.hiddenFlag))
@@ -166,6 +54,131 @@ export const useMarkerStore = defineStore('global-marker', () => {
       map.set(marker.id!, marker)
     }
     return map
+  })
+
+  // ==================== 数据更新 ====================
+
+  const { context, nextUpdateTime, loading: updateLoading, update } = useManager({
+    timeoutPull: {
+      time: 20 * 60 * 1000,
+      condition: () => userStore.info?.roleId !== undefined,
+    },
+
+    context: {
+      startTime: ref(Date.now()),
+      message: ref(''),
+      updateCount: ref(0),
+    },
+
+    init: async ({ message }) => {
+      message.value = '初始化上下文'
+      const dbList = await db.marker.toArray()
+      hashMap.value = createHashMap(dbList)
+    },
+
+    diff: async ({ startTime, message, updateCount }) => {
+      startTime.value = Date.now()
+
+      message.value = '获取签名列表'
+      const { data: hashList = [] } = await Api.markerDoc.listMarkerBinaryMD5({})
+
+      const newHashSet = new Set(hashList)
+
+      const oldHashSet = new Set(hashMap.value.keys())
+
+      const needUpdateHashList = [...newHashSet.difference(oldHashSet)]
+
+      const needDeleteKeys = [...oldHashSet.difference(newHashSet)].reduce((collect, hash) => {
+        hashMap.value.get(hash)?.forEach(({ id }) => {
+          collect.push(id!)
+        })
+        return collect
+      }, [] as number[])
+
+      message.value = '获取更新数据'
+      const newData = (await Promise.all(needUpdateHashList.map(async (hash) => {
+        const buffer = await (Api.markerDoc.listPageMarkerByBinary({ md5: hash }, { responseType: 'arraybuffer' }) as unknown as Promise<ArrayBuffer>)
+        const data = await Zip.decompressAs<API.MarkerVo[]>(new Uint8Array(buffer), {
+          name: `marker-${hash}`,
+        })
+        return data.map((newOne) => {
+          const oldOne = idMap.value.get(newOne.id!)
+          if (!oldOne || ((oldOne.updateTime ?? 0) <= (newOne.updateTime ?? 0)))
+            return { ...newOne, __hash: hash }
+          return { ...newOne, __hash: hash }
+        })
+      }))).flat(1)
+
+      updateCount.value = newData.length
+
+      return {
+        bulkPutData: newData,
+        bulkDeleteKeys: needDeleteKeys,
+        clear: false,
+      }
+    },
+
+    full: async ({ startTime, message, updateCount }) => {
+      startTime.value = Date.now()
+
+      message.value = '获取签名列表'
+      const { data: hashList = [] } = await Api.markerDoc.listMarkerBinaryMD5({})
+
+      message.value = '获取更新数据'
+      const newData = (await Promise.all(hashList.map(async (hash) => {
+        const buffer = await (Api.markerDoc.listPageMarkerByBinary({ md5: hash }, { responseType: 'arraybuffer' }) as unknown as Promise<ArrayBuffer>)
+        const data = await Zip.decompressAs<API.MarkerVo[]>(new Uint8Array(buffer), {
+          name: `marker-${hash}`,
+        })
+        return data.map((newOne) => {
+          const oldOne = idMap.value.get(newOne.id!)
+          if (!oldOne || ((oldOne.updateTime ?? 0) <= (newOne.updateTime ?? 0)))
+            return { ...newOne, __hash: hash }
+          return { ...newOne, __hash: hash }
+        })
+      }))).flat(1)
+
+      updateCount.value = newData.length
+
+      return {
+        bulkPutData: newData,
+        bulkDeleteKeys: [],
+        clear: true,
+      }
+    },
+
+    commit: async (options, { message, startTime, updateCount }) => {
+      message.value = '写入更新数据'
+      const { resolve, promise } = Promise.withResolvers<WorkerOutput>()
+      const worker = new BulkPutWorker({ name: '点位更新线程' })
+      worker.addEventListener('message', (ev: MessageEvent<WorkerOutput>) => resolve(ev.data))
+      worker.postMessage({ tableName: 'marker', ...options } as WorkerInput<number, Hash<API.MarkerVo>>)
+      const { error, message: workerMsg } = await promise
+      worker.terminate()
+      if (error) {
+        message.value = workerMsg
+        return
+      }
+      message.value = `更新 ${updateCount.value} 项, 耗时: ${((Date.now() - startTime.value) / 1000).toFixed(1)}s`
+    },
+  })
+
+  const { waitForUpdate, afterUpdated, triggerUpdated } = useAfterUpdated<number, Hash<API.MarkerVo>>({
+    getData: async (ids) => {
+      const { data = [] } = await Api.marker.listMarkerById(ids)
+      return data.map(newOne => ({ ...newOne, __hash: idHashMap.value.get(newOne.id!) }))
+    },
+    getKey: marker => marker.id!,
+    commit: async (data) => {
+      await db.marker.bulkPut(data)
+    },
+  })
+
+  liveQuery(() => db.marker.toArray()).subscribe((dbList) => {
+    if (waitForUpdate.value.size > 0)
+      return
+    hashMap.value = createHashMap(dbList)
+    triggerUpdated()
   })
 
   // ==================== 外部响应 ====================

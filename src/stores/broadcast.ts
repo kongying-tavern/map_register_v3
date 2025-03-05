@@ -26,6 +26,11 @@ export const useBroadcastStore = defineStore('broadcast-channel', () => {
     ]),
   })
 
+  const clients = computed(() => [...state.value.clients.values()].sort(({ time: ta }, { time: tb }) => ta - tb))
+
+  /** 是否为主控页面 */
+  const isMaster = computed(() => clients.value.findIndex(client => client.id === meta.id) === 0)
+
   /** 状态同步频道 */
   const bc = new BroadcastChannel('state-sync')
 
@@ -67,5 +72,7 @@ export const useBroadcastStore = defineStore('broadcast-channel', () => {
     init,
     meta,
     state,
+    clients,
+    isMaster,
   }
 })

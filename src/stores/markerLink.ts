@@ -14,6 +14,33 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
   const socketStore = useSocketStore()
   const userStore = useUserStore()
 
+  // ==================== 内部状态 ====================
+  const hashMap = shallowRef(new Map<string, Hash<API.MarkerLinkageVo>[]>())
+
+  // ==================== 外部状态 ====================
+  const markerLinkList = computed(() => {
+    const result: API.MarkerLinkageVo[] = []
+    hashMap.value.forEach((linkGroup) => {
+      linkGroup.forEach((markerLink) => {
+        result.push(markerLink)
+      })
+    })
+    return result
+  })
+
+  const total = computed(() => markerLinkList.value.length)
+
+  const idMap = computed(() => markerLinkList.value.reduce((map, link) => {
+    return map.set(link.id!, link)
+  }, new Map<number, API.MarkerLinkageVo>()))
+
+  const groupIdMap = computed(() => markerLinkList.value.reduce((map, link) => {
+    if (!map.has(link.groupId!))
+      map.set(link.groupId!, [])
+    map.get(link.groupId!)!.push(link)
+    return map
+  }, new Map<string, API.MarkerLinkageVo[]>()))
+
   // ==================== 数据更新 ====================
 
   const { context, nextUpdateTime, loading: updateLoading, update } = useManager({
@@ -26,10 +53,9 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
       updateCount: ref(0),
       startTime: ref(Date.now()),
       message: ref(''),
-      hashMap: shallowRef(new Map<string, API.MarkerLinkageVo[]>()),
     },
 
-    init: async ({ message, hashMap }) => {
+    init: async ({ message }) => {
       message.value = '初始化上下文'
       const dbList = await db.markerLink.toArray()
       hashMap.value = dbList.reduce((map, { __hash: hash = '', ...info }) => {
@@ -40,7 +66,7 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
       }, new Map<string, API.MarkerLinkageVo[]>())
     },
 
-    diff: async ({ updateCount, startTime, message, hashMap }) => {
+    diff: async ({ updateCount, startTime, message }) => {
       startTime.value = Date.now()
 
       message.value = '获取签名列表'
@@ -61,51 +87,61 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
       }, [] as number[])
 
       message.value = '获取更新数据'
-      const newData = (await Promise.all(needUpdateHashList.map(async (md5) => {
+      const newData = (await Promise.all(needUpdateHashList.map(async (hash) => {
         const buffer = await (Api.markerLinkDoc.listAllMarkerLinkageBinary({ responseType: 'arraybuffer' }) as unknown as Promise<ArrayBuffer>)
         const data = await Zip.decompressAs<Record<string, API.MarkerLinkageVo[]>>(new Uint8Array(buffer), {
-          name: `markerLink-${md5}`,
+          name: `markerLink-${hash}`,
         })
         return Object.values(data).reduce((result, linkGroups) => {
-          linkGroups.forEach((markerLink) => {
-            result.push({ ...markerLink, __hash: md5 } as Hash<API.MarkerLinkageVo>)
+          linkGroups.forEach((newOne) => {
+            const oldOne = idMap.value.get(newOne.id!)
+            if (!oldOne || ((oldOne.updateTime ?? 0) <= (newOne.updateTime ?? 0)))
+              result.push({ ...newOne, __hash: hash } as Hash<API.MarkerLinkageVo>)
+            else
+              result.push({ ...oldOne, __hash: hash } as Hash<API.MarkerLinkageVo>)
           })
           return result
         }, [] as Hash<API.MarkerLinkageVo>[])
       }))).flat(1)
 
-      message.value = '清理脏数据'
-      await db.markerLink.bulkDelete(needDeleteKeys)
-
       updateCount.value = newData.length
 
-      return newData
+      return {
+        bulkPutData: newData,
+        bulkDeleteKeys: needDeleteKeys,
+        clear: false,
+      }
     },
 
-    full: async ({ updateCount, startTime, message, hashMap }) => {
+    full: async ({ updateCount, startTime, message }) => {
       startTime.value = Date.now()
 
-      hashMap.value.clear()
-      triggerRef(hashMap)
-
       message.value = '获取签名列表'
-      const { data: md5 = '' } = await Api.markerLinkDoc.listAllMarkerLinkageBinaryMD5()
+      const { data: hash = '' } = await Api.markerLinkDoc.listAllMarkerLinkageBinaryMD5()
 
       message.value = '获取更新数据'
       const buffer = await (Api.markerLinkDoc.listAllMarkerLinkageBinary({ responseType: 'arraybuffer' }) as unknown as Promise<ArrayBuffer>)
       const data = await Zip.decompressAs<Record<string, API.MarkerLinkageVo[]>>(new Uint8Array(buffer), {
-        name: `markerLink-${md5}`,
+        name: `markerLink-${hash}`,
       })
       const newData = Object.values(data).reduce((result, linkGroups) => {
-        linkGroups.forEach((markerLink) => {
-          result.push({ ...markerLink, __hash: md5 } as Hash<API.MarkerLinkageVo>)
+        linkGroups.forEach((newOne) => {
+          const oldOne = idMap.value.get(newOne.id!)
+          if (!oldOne || ((oldOne.updateTime ?? 0) <= (newOne.updateTime ?? 0)))
+            result.push({ ...newOne, __hash: hash } as Hash<API.MarkerLinkageVo>)
+          else
+            result.push({ ...oldOne, __hash: hash } as Hash<API.MarkerLinkageVo>)
         })
         return result
       }, [] as Hash<API.MarkerLinkageVo>[])
 
       updateCount.value = newData.length
 
-      return newData
+      return {
+        bulkPutData: newData,
+        bulkDeleteKeys: [],
+        clear: true,
+      }
     },
 
     commit: async (data, { message, startTime, updateCount }) => {
@@ -125,38 +161,13 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
   })
 
   liveQuery(() => db.markerLink.toArray()).subscribe((dbList) => {
-    context.hashMap.value = dbList.reduce((map, { __hash: hash = '', ...info }) => {
+    hashMap.value = dbList.reduce((map, { __hash: hash = '', ...info }) => {
       if (!map.has(hash))
         map.set(hash, [])
       map.get(hash)!.push(info)
       return map
     }, new Map<string, API.MarkerLinkageVo[]>())
   })
-
-  // ==================== 计算状态 ====================
-
-  const markerLinkList = computed(() => {
-    const result: API.MarkerLinkageVo[] = []
-    context.hashMap.value.forEach((linkGroup) => {
-      linkGroup.forEach((markerLink) => {
-        result.push(markerLink)
-      })
-    })
-    return result
-  })
-
-  const total = computed(() => markerLinkList.value.length)
-
-  const idMap = computed(() => markerLinkList.value.reduce((map, link) => {
-    return map.set(link.id!, link)
-  }, new Map<number, API.MarkerLinkageVo>()))
-
-  const groupIdMap = computed(() => markerLinkList.value.reduce((map, link) => {
-    if (!map.has(link.groupId!))
-      map.set(link.groupId!, [])
-    map.get(link.groupId!)!.push(link)
-    return map
-  }, new Map<string, API.MarkerLinkageVo[]>()))
 
   // ==================== 外部响应 ====================
 
