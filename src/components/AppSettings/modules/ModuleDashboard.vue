@@ -6,6 +6,7 @@ import { Chart } from '@antv/g2'
 import { Odometer, PictureRounded } from '@element-plus/icons-vue'
 import * as ElIcons from '@element-plus/icons-vue'
 import { SettingBar, SettingGroup, SettingPanel } from '../components'
+import { useTemplateRef } from 'vue'
 
 interface StorageEstimateExpand extends StorageEstimate {
   /** 用量详情，目前仅在 chromuim 内核浏览器下可用 */
