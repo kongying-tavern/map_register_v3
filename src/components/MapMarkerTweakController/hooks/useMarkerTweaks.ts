@@ -1,7 +1,7 @@
 import type { TweakControlInfo } from '.'
 import Api from '@/api/api'
-import db from '@/database'
 import { useFetchHook } from '@/hooks'
+import { useMarkerStore } from '@/stores'
 import { ElMessage } from 'element-plus'
 
 export interface TweakHookOptions {
@@ -12,6 +12,8 @@ export interface TweakHookOptions {
 
 export const useMarkerTweaks = (options: TweakHookOptions) => {
   const { markerList, tweakList, tweakData } = options
+
+  const markerStore = useMarkerStore()
 
   const isDisabled = computed(() => !tweakList.value.length)
 
@@ -45,7 +47,7 @@ export const useMarkerTweaks = (options: TweakHookOptions) => {
 
       if (tweaks.length > 0) {
         const { data = [] } = await Api.marker.tweakMarkers(payload)
-        await db.marker.bulkPut(data)
+        await markerStore.afterUpdated(data.map(({ id }) => id!))
       }
     },
   })

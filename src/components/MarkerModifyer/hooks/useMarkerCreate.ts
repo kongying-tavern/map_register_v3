@@ -1,9 +1,8 @@
 import type { Ref } from 'vue'
 import type { MarkerForm } from '../components'
 import Api from '@/api/api'
-import db from '@/database'
 import { useFetchHook } from '@/hooks'
-import { useUserStore } from '@/stores'
+import { useMarkerStore, useUserStore } from '@/stores'
 import { ElMessage } from 'element-plus'
 import { omit } from 'lodash'
 import { usePictureUpload } from './usePictureUpload'
@@ -11,6 +10,7 @@ import { usePictureUpload } from './usePictureUpload'
 /** 新增点位，已自动处理 version 和 methodType 字段 */
 export const useMarkerCreate = (markerData: Ref<API.MarkerVo | null>) => {
   const userStore = useUserStore()
+  const markerStore = useMarkerStore()
 
   /** 编辑器实例 */
   const editorRef = ref<InstanceType<typeof MarkerForm> | null>(null)
@@ -42,12 +42,7 @@ export const useMarkerCreate = (markerData: Ref<API.MarkerVo | null>) => {
     if (markerId === undefined)
       throw new Error('无法确认点位信息，未返回对应的点位 id')
 
-    const { data: { 0: submitedMarkerInfo } = [] } = await Api.marker.listMarkerById([markerId!])
-
-    if (!submitedMarkerInfo)
-      throw new Error('无法确认点位信息，点位对象为空')
-
-    await db.marker.put(submitedMarkerInfo)
+    await markerStore.afterUpdated([markerId])
   }
 
   const { refresh: submit, onSuccess, onError, ...rest } = useFetchHook({ onRequest: request })
