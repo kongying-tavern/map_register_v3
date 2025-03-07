@@ -1,6 +1,18 @@
-import type { ModifyLinkOptions } from '../shared/types'
+import type { ModifyLinkOptions } from '../components/MarkerLink'
+import { useMapStateStore } from '@/stores'
 
-export const useLinkOperate = (modifyLinks: Ref<Map<string, ModifyLinkOptions>>) => {
+/**
+ * 正在编辑的关联项
+ * - key 表示的意义
+ * `${minMarkerId}-${maxMarkerId}-${linkAction}`
+ */
+const modifyLinks = ref(new Map<string, ModifyLinkOptions>())
+
+export const useLinkOperate = () => {
+  const mapStateStore = useMapStateStore()
+
+  const { isEnable, isProcessing, update } = mapStateStore.subscribeMission('markerLink', () => [])
+
   /** 删除关联 */
   const deleteLink = (linkKey: string, options: ModifyLinkOptions) => {
     const currentLink = modifyLinks.value.get(linkKey)!
@@ -17,6 +29,10 @@ export const useLinkOperate = (modifyLinks: Ref<Map<string, ModifyLinkOptions>>)
 
   /** 将自动合并的关联提取为手动编辑 */
   const extractLink = (linkKey: string, options: ModifyLinkOptions) => {
+    if (!isEnable.value)
+      return
+    if (!isProcessing.value)
+      update([])
     modifyLinks.value.set(linkKey, {
       ...options,
       isMerge: false,
@@ -33,6 +49,7 @@ export const useLinkOperate = (modifyLinks: Ref<Map<string, ModifyLinkOptions>>)
   }
 
   return {
+    modifyLinks,
     deleteLink,
     extractLink,
     revestLink,
