@@ -18,6 +18,16 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
   const hashMap = shallowRef(new Map<string, Hash<API.MarkerLinkageVo>[]>())
 
   // ==================== 外部状态 ====================
+  const idHashMap = computed(() => {
+    const result = new Map<number, string>()
+    hashMap.value.forEach((group) => {
+      group.forEach(({ id, __hash: hash = '' }) => {
+        result.set(id!, hash)
+      })
+    })
+    return result
+  })
+
   const markerLinkList = computed(() => {
     const result: API.MarkerLinkageVo[] = []
     hashMap.value.forEach((linkGroup) => {
@@ -174,16 +184,17 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
   socketStore.appEvent.on('MarkerLinkageBinaryPurged', () => update())
 
   return {
+    // 计算状态
+    idHashMap,
+    total,
+    markerLinkList: markerLinkList as Readonly<ShallowRef<API.MarkerLinkageVo[]>>,
+    idMap,
+    groupIdMap,
+
     // 数据更新
     context,
     nextUpdateTime,
     updateLoading,
     update,
-
-    // 计算状态
-    total,
-    markerLinkList: markerLinkList as Readonly<ShallowRef<API.MarkerLinkageVo[]>>,
-    idMap,
-    groupIdMap,
   }
 })

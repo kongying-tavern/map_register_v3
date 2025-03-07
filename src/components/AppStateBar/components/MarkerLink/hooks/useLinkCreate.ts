@@ -2,8 +2,12 @@ import Api from '@/api/api'
 import db from '@/database'
 import { useFetchHook } from '@/hooks'
 import { ElMessage } from 'element-plus'
+import { useMarkerLinkStore } from '@/stores'
+import type { Hash } from 'types/database'
 
 export const useLinkCreate = () => {
+  const markerLinkStore = useMarkerLinkStore()
+
   const { onSuccess, onError, ...rest } = useFetchHook({
     onRequest: async (links: API.MarkerLinkageVo[]) => {
       if (!links.length)
@@ -24,7 +28,11 @@ export const useLinkCreate = () => {
       const { data: linkGroups = {} } = await Api.markerLink.getMarkerLinkageList({
         groupIds: [newLinkageId],
       })
-      const newLinks = Object.values(linkGroups).flat(1)
+
+      const newLinks: Hash<API.MarkerLinkageVo>[] = Object.values(linkGroups).flat(1).map(link => ({
+        ...link,
+        __hash: markerLinkStore.idHashMap.get(link.id!),
+      }))
 
       // 3. 收集旧关联影响的全部点位 id
       const oldEffectedMarkerIdSet = links.reduce((result, { fromId = -1, toId = -1 }) => {
