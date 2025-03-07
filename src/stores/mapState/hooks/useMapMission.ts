@@ -1,9 +1,6 @@
-import type {
-  Mission,
-  MissionTypeMap,
-} from '@/packages/map'
-import type { EventHookOn } from '@vueuse/core'
+import type { Mission, MissionTypeMap } from '@/packages/map'
 import type { ComputedRef } from 'vue'
+import { Subject } from 'rxjs'
 
 // ============================== ↓ 共享地址而不是使用闭包，以避免订阅过多时导致的卡顿问题 ↓ ==============================
 type MissionTypeKey = keyof MissionTypeMap
@@ -16,6 +13,8 @@ type UpdateByFunction<K extends MissionTypeKey> = (cb: (
 ) => void) => void
 
 interface MissionSubscriber<K extends MissionTypeKey> {
+  start$: Subject<MissionTypeMap[K]>
+  end$: Subject<void>
   isEmpty: Readonly<Ref<boolean>>
   isEnable: Readonly<Ref<boolean>>
   isProcessing: Readonly<Ref<boolean>>
@@ -23,7 +22,6 @@ interface MissionSubscriber<K extends MissionTypeKey> {
   update: UpdateFunction<K>
   updateBy: UpdateByFunction<K>
   clear: () => void
-  onClear: EventHookOn<void>
 }
 
 // ============================== ↑ 共享地址而不是使用闭包，以避免订阅过多时导致的卡顿问题 ↑ ==============================
@@ -48,6 +46,9 @@ export const useMapMission = () => {
           return mission.value.value
         }) as ComputedRef<MissionTypeMap[K]>
 
+        const start$ = new Subject<MissionTypeMap[K]>()
+        const end$ = new Subject<void>()
+
         const isEmpty = computed(() => !mission.value)
         /** 是否可以进行任务设置（包括任务为空） */
         const isEnable = computed(() => !mission.value || mission.value.type === type)
@@ -62,9 +63,12 @@ export const useMapMission = () => {
             return
           if (value === null) {
             mission.value = null
+            end$.next()
             clearEventHook.trigger()
             return
           }
+          if (!mission.value)
+            start$.next(value)
           mission.value = { type, value } as Mission
         }
 
@@ -81,10 +85,13 @@ export const useMapMission = () => {
           if (mission.value?.type !== type)
             return
           mission.value = null
+          end$.next()
           clearEventHook.trigger()
         }
 
         return {
+          start$,
+          end$,
           isEmpty,
           isEnable,
           isProcessing,
@@ -92,7 +99,6 @@ export const useMapMission = () => {
           update,
           updateBy,
           clear,
-          onClear: clearEventHook.on,
         }
       })())
     }
