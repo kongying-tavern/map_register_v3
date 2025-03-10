@@ -42,7 +42,7 @@
     "@vueuse/core": "9.13.0",
     "@vueuse/rxjs": "9.13.0",
     "ajv": "8.17.1",
-    "axios": "1.7.4",
+    "axios": "1.8.2",
     "dayjs": "1.11.7",
     "deck.gl": "9.1.2",
     "dexie": "3.2.3",
