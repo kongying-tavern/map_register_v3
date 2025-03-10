@@ -22,19 +22,32 @@ export const useAfterUpdated = <Key, Data>(options: AfterUpdatedHookOptions<Key,
   const afterUpdated = async (ids: Key[]) => {
     const { resolve, promise } = Promise.withResolvers<void>()
 
-    ids.forEach((id) => {
-      waitForUpdate.value.add(id)
-    })
+    const finish = () => {
+      resolve()
+      updated.off(finish)
+    }
 
-    const data = await getData(ids)
+    try {
+      updated.on(finish)
 
-    updated.on(() => resolve())
+      const data = await getData(ids)
 
-    data.forEach((data) => {
-      waitForUpdate.value.delete(getKey(data))
-    })
+      ids.forEach((id) => {
+        waitForUpdate.value.add(id)
+      })
 
-    await commit(data)
+      await commit(data)
+
+      data.forEach((data) => {
+        waitForUpdate.value.delete(getKey(data))
+      })
+    }
+    catch {
+      ids.forEach((id) => {
+        waitForUpdate.value.delete(id)
+      })
+      updated.off(finish)
+    }
 
     return promise
   }
