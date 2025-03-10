@@ -1,9 +1,9 @@
+import type { Hash } from 'types/database'
 import Api from '@/api/api'
 import db from '@/database'
 import { useFetchHook } from '@/hooks'
-import { ElMessage } from 'element-plus'
 import { useMarkerLinkStore } from '@/stores'
-import type { Hash } from 'types/database'
+import { ElMessage } from 'element-plus'
 
 export const useLinkCreate = () => {
   const markerLinkStore = useMarkerLinkStore()

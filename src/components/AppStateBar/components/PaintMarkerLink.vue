@@ -14,7 +14,8 @@ import { useMapStateStore, useMarkerLinkStore, useMarkerStore } from '@/stores'
 import { useSubscription } from '@vueuse/rxjs'
 import { ElMessage } from 'element-plus'
 import { animate } from 'popmotion'
-import { filter, finalize, map, race, repeat, Subject, switchMap, takeUntil, tap } from 'rxjs'
+import { filter, finalize, map, race, repeat, switchMap, takeUntil, tap } from 'rxjs'
+import { useLinkOperate } from '../hooks'
 import BarItem from './BarItem.vue'
 import {
   IconMarkerLink,
@@ -22,7 +23,6 @@ import {
   LinkWindow,
   MarkerIndicatorLayer,
   useLinkCreate,
-  useLinkOperate,
   useLinkWindow,
 } from './MarkerLink'
 
@@ -35,6 +35,8 @@ const containerRef = inject(mapContainerKey, ref())
 // ==================== 任务管理 ====================
 
 const {
+  start$,
+  end$,
   isEnable,
   isProcessing,
   clear: clearMission,
@@ -44,21 +46,33 @@ const {
 
 const { loading, refresh: submit } = useLinkCreate()
 
-const submitLink = () => submit(linkMission.value)
+const { info, close$, close, open } = useLinkWindow({ loading })
 
-// ==================== 窗口管理 ====================
-const { start$, close$, info, toggle, close } = useLinkWindow({ loading })
+const { modifyLinks, deleteLink, extractLink, revestLink } = useLinkOperate()
+
+useSubscription(start$.subscribe(() => {
+  open()
+  mapStateStore.interaction.clearFocus()
+  mapStateStore.interaction.setIsPopoverOnHover(true)
+  mapStateStore.interaction.pauseFocus(GSMarkerLayer.layerName)
+}))
+
+useSubscription(end$.subscribe(() => {
+  close()
+  mapStateStore.interaction.resumeFocus(GSMarkerLayer.layerName)
+  mapStateStore.interaction.setIsPopoverOnHover(false)
+  modifyLinks.value.clear()
+  triggerRef(modifyLinks)
+}))
+
+useSubscription(close$.subscribe(() => {
+  isProcessing.value && clearMission()
+}))
 
 // ==================== 表单状态 ====================
 
 /** 关联类型 */
 const linkAction = ref(LinkActionEnum.TRIGGER)
-
-/** 关联类型对应的颜色 */
-const actionColor = computed(() => {
-  const config = LINK_CONFIG_MAP.get(linkAction.value)
-  return config?.lineColor ?? ([0, 0, 0] as [number, number, number])
-})
 
 /** 关联设置 */
 const config = ref({
@@ -70,10 +84,25 @@ const config = ref({
 
 // ==================== 内部状态 ====================
 
+/** 关联类型对应的颜色 */
+const actionColor = computed(() => {
+  const config = LINK_CONFIG_MAP.get(linkAction.value)
+  return config?.lineColor ?? ([0, 0, 0] as [number, number, number])
+})
+
+/** 点位指示器所在的坐标 */
 const linkIndicatorPosition = ref<{ x: number, y: number }>()
+
+/** 起始点 */
 const prevMarker = shallowRef<GSMarkerInfo>()
+
+/** 终止点 */
 const nextMarker = shallowRef<GSMarkerInfo>()
+
+/** hover 点 */
 const hoverMarker = shallowRef<GSMarkerInfo>()
+
+/** 用于结束关联连线的相关动画 */
 const stopAnimation = ref<() => void>()
 
 const hoverLinkKey = computed({
@@ -92,14 +121,21 @@ const hoverLinkKey = computed({
   },
 })
 
-/**
- * 正在编辑的关联项
- * - key 表示的意义
- * `${minId}-${maxId}-${action}`
- */
-const modifyLinks = ref(new Map<string, ModifyLinkOptions>())
-
-const { deleteLink, extractLink, revestLink } = useLinkOperate(modifyLinks)
+const focusLinkKey = computed({
+  get: () => {
+    const set = mapStateStore.interaction.focusElements.get(GSLinkLayer.layerName) as (Set<string> | undefined)
+    if (!set?.size || set.size > 1)
+      return ''
+    return `${[...set][0]}`
+  },
+  set: (linkKey) => {
+    if (!linkKey) {
+      mapStateStore.interaction.removeFocus(GSLinkLayer.layerName)
+      return
+    }
+    mapStateStore.interaction.setFocus(GSLinkLayer.layerName, new Set([linkKey]))
+  },
+})
 
 /**
  * 受影响关联组（已在编辑数据中）
@@ -108,9 +144,7 @@ const { deleteLink, extractLink, revestLink } = useLinkOperate(modifyLinks)
 const containLinkGroups = computed(() => {
   const groupIds = new Set<string>()
 
-  modifyLinks.value.forEach(({ raw, isMerge, isDelete }) => {
-    if (isMerge || isDelete)
-      return
+  modifyLinks.value.forEach(({ raw }) => {
     const fromMarker = markerStore.idMap.get(raw.fromId!)
     fromMarker?.linkageId && groupIds.add(fromMarker.linkageId)
     const toMarker = markerStore.idMap.get(raw.toId!)
@@ -130,7 +164,7 @@ const containLinkGroups = computed(() => {
         isReverse
           ? `${toId}-${fromId}-${linkAction}`
           : `${fromId}-${toId}-${linkAction}`,
-        { isDelete: false, isMerge: true, isReverse, raw: link, key: `${id}` },
+        { isDelete: false, isMerge: true, isReverse, raw: link, id: `${id}` },
       )
     }, new Map<string, ModifyLinkOptions>()))
   })
@@ -155,7 +189,7 @@ const tempContainLinkGroups = computed(() => {
       const isReverse = fromId! > toId!
       return map.set(
         isReverse ? `${toId}-${fromId}-${linkAction}` : `${fromId}-${toId}-${linkAction}`,
-        { isDelete: false, isMerge: true, isReverse, raw: link, key: `${id}` },
+        { isDelete: false, isMerge: true, isReverse, raw: link, id: `${id}` },
       )
     }, new Map<string, ModifyLinkOptions>()))
   })
@@ -195,7 +229,7 @@ const previewLinkGroups = computed(() => {
 const clearSelect = () => {
   mapStateStore.tempLayer.remove(TempLayerIndex.BeforeMarker)
   stopAnimation.value?.()
-  mapStateStore.interaction.clearFocus()
+  mapStateStore.interaction.removeFocus(GSMarkerLayer.layerName)
   mapStateStore.setTempMarkers('markerLink', [])
   nextMarker.value = undefined
   prevMarker.value = undefined
@@ -208,6 +242,41 @@ const resumeOnceFocus = (data: number[]) => {
   mapStateStore.interaction.pauseFocus(GSMarkerLayer.layerName)
 }
 
+/** 切换任务状态 */
+const toggleMission = () => {
+  if (!isEnable.value)
+    return
+  if (isProcessing.value) {
+    clearMission()
+    return
+  }
+  update([])
+}
+
+/** 提交表单 */
+const submitLink = () => submit(linkMission.value)
+
+/** 自动更新任务 */
+watch(previewLinkGroups, (groups) => {
+  mapStateStore.interaction.removeFocus(GSLinkLayer.layerName)
+  if (!isProcessing.value)
+    return
+  const result: MarkerLinkMission[] = []
+  groups.forEach(({ isDelete, raw, id: key }) => {
+    if (isDelete)
+      return
+    result.push({
+      meta: {
+        key: raw.id ? `${raw.id}` : key,
+      },
+      toId: raw.toId,
+      fromId: raw.fromId,
+      linkAction: raw.linkAction,
+    })
+  })
+  update(result)
+}, { deep: true })
+
 /** 悬浮指示器更新 */
 useSubscription(start$.pipe(
   switchMap(() => MapSubject.hover.pipe(
@@ -216,7 +285,7 @@ useSubscription(start$.pipe(
         ? { x: info.x, y: info.y }
         : undefined
     }),
-    takeUntil(race(close$, MapSubject.drag)),
+    takeUntil(race(end$, MapSubject.drag)),
     finalize(() => {
       linkIndicatorPosition.value = undefined
     }),
@@ -284,7 +353,7 @@ useSubscription(start$.pipe(
         }).stop
       }),
 
-      takeUntil(close$),
+      takeUntil(end$),
 
       finalize(() => {
         stopAnimation.value?.()
@@ -302,13 +371,6 @@ useSubscription(start$.pipe(
  */
 useSubscription(start$.pipe(
   switchMap(() => {
-    update([])
-
-    // 初始化交互态
-    mapStateStore.interaction.clearFocus()
-    mapStateStore.interaction.pauseFocus(GSMarkerLayer.layerName)
-    mapStateStore.interaction.setIsPopoverOnHover(true)
-
     return MapSubject.click.pipe(
       filter(({ event }) => Boolean(event.leftButton)),
 
@@ -368,14 +430,10 @@ useSubscription(start$.pipe(
 
       filter(result => result !== undefined),
 
-      takeUntil(close$),
+      takeUntil(end$),
 
       finalize(() => {
         clearSelect()
-        clearMission()
-        mapStateStore.interaction.resumeFocus(GSMarkerLayer.layerName)
-        mapStateStore.interaction.setIsPopoverOnHover(false)
-        modifyLinks.value.clear()
       }),
     )
   }),
@@ -389,56 +447,21 @@ useSubscription(start$.pipe(
     : `${prev.id}-${next.id}-${action}`
 
   modifyLinks.value.set(linkKey, {
-    key: `temp-${crypto.randomUUID()}`,
+    id: `temp-${crypto.randomUUID()}`,
     isReverse,
     isDelete: false,
     isMerge: false,
+    isTemp: true,
     raw: {
       fromId: prev.id,
       toId: next.id,
       linkAction: action,
     },
   })
-
   triggerRef(modifyLinks)
 
   clearSelect()
 }))
-
-/** 自动更新任务 */
-useSubscription(start$.pipe(
-  switchMap(() => {
-    const paramsChange$ = new Subject<Map<string, ModifyLinkOptions>>()
-    const stopWatch = watch(previewLinkGroups, (params) => {
-      paramsChange$.next(params)
-    })
-
-    return paramsChange$.pipe(
-      tap((groups) => {
-        const result: MarkerLinkMission[] = []
-        groups.forEach(({ isDelete, raw, key }) => {
-          if (isDelete)
-            return
-          result.push({
-            meta: {
-              key: raw.id ? `${raw.id}` : key,
-            },
-            toId: raw.toId,
-            fromId: raw.fromId,
-            linkAction: raw.linkAction,
-          })
-        })
-
-        update(result)
-      }),
-
-      takeUntil(close$),
-      finalize(() => {
-        stopWatch()
-      }),
-    )
-  }),
-).subscribe())
 
 onBeforeUnmount(() => clearMission())
 </script>
@@ -449,7 +472,7 @@ onBeforeUnmount(() => clearMission())
     class="grid place-content-center place-items-center"
     divider
     :disabled="!isEnable"
-    @click="toggle"
+    @click="toggleMission"
   >
     <ElIcon :size="20" :color="isProcessing ? '#00FF00' : 'currentColor'">
       <IconMarkerLink />
@@ -467,6 +490,7 @@ onBeforeUnmount(() => clearMission())
     <AppWindowTeleporter :info="info">
       <LinkWindow
         v-model:hover-link-key="hoverLinkKey"
+        v-model:focus-link-key="focusLinkKey"
         v-model:link-action="linkAction"
         v-model:merge="config.merge"
         v-model:show-delete="config.showDelete"

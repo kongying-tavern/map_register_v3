@@ -8,14 +8,14 @@ interface LinkWindowHookOptions {
 export const useLinkWindow = (options: LinkWindowHookOptions) => {
   const { loading } = options
 
-  const start$ = new Subject<void>()
+  const open$ = new Subject<void>()
   const close$ = new Subject<void>()
 
-  const { info, toggle, close } = useAppWindow({
+  const { ...rest } = useAppWindow({
     name: '点位关联',
     minWidth: 580,
     beforeOpen: () => {
-      start$.next()
+      open$.next()
       return true
     },
     beforeClose: () => {
@@ -27,10 +27,8 @@ export const useLinkWindow = (options: LinkWindowHookOptions) => {
   })
 
   return {
-    start$,
+    open$,
     close$,
-    info,
-    toggle,
-    close,
+    ...rest,
   }
 }
