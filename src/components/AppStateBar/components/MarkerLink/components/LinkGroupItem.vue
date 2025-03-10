@@ -20,6 +20,11 @@ const hoverKey = defineModel<string>('hoverKey', {
   required: false,
   default: '',
 })
+
+const focusKey = defineModel<string>('focusKey', {
+  required: false,
+  default: '',
+})
 </script>
 
 <template>
@@ -52,6 +57,7 @@ const hoverKey = defineModel<string>('hoverKey', {
         v-for="[key, opt] in group"
         :key="key"
         v-model:hover-key="hoverKey"
+        v-model:focus-key="focusKey"
         :link-key="key"
         :link-option="opt"
         :editable="editable"

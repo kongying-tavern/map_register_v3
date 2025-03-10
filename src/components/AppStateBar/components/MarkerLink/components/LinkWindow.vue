@@ -32,6 +32,10 @@ const hoverLinkKey = defineModel<string>('hoverLinkKey', {
   required: true,
 })
 
+const focusLinkKey = defineModel<string>('focusLinkKey', {
+  required: true,
+})
+
 const merge = defineModel<boolean>('merge', {
   required: true,
 })
@@ -57,6 +61,7 @@ const showDelete = defineModel<boolean>('showDelete', {
 
     <LinkGroupViewer
       v-model:hover-key="hoverLinkKey"
+      v-model:focus-key="focusLinkKey"
       title="修改前"
       :groups="containLinkGroups"
       :temp-groups="tempContainLinkGroups"
@@ -66,6 +71,7 @@ const showDelete = defineModel<boolean>('showDelete', {
 
     <LinkGroupViewer
       v-model:hover-key="hoverLinkKey"
+      v-model:focus-key="focusLinkKey"
       title="修改后"
       :append-group="previewLinkGroups"
       @delete="(...args) => $emit('delete', ...args)"

@@ -19,6 +19,11 @@ const hoverKey = defineModel<string>('hoverKey', {
   required: false,
   default: '',
 })
+
+const focusKey = defineModel<string>('focusKey', {
+  required: false,
+  default: '',
+})
 </script>
 
 <template>
@@ -40,6 +45,7 @@ const hoverKey = defineModel<string>('hoverKey', {
         v-for="[groupId, group] in tempGroups"
         :key="groupId"
         v-model:hover-key="hoverKey"
+        v-model:focus-key="focusKey"
         :group="group"
         :group-id="groupId"
         is-temp
@@ -49,6 +55,7 @@ const hoverKey = defineModel<string>('hoverKey', {
         v-for="[groupId, group] in groups"
         :key="groupId"
         v-model:hover-key="hoverKey"
+        v-model:focus-key="focusKey"
         :group="group"
         :group-id="groupId"
       />
@@ -56,6 +63,7 @@ const hoverKey = defineModel<string>('hoverKey', {
       <LinkGroupItem
         v-if="appendGroup"
         v-model:hover-key="hoverKey"
+        v-model:focus-key="focusKey"
         :group="appendGroup"
         group-id=""
         group-title="未提交组"

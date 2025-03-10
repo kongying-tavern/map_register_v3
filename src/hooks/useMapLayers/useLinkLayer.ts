@@ -4,6 +4,7 @@ import { GSLinkLayer, GSMarkerLayer } from '@/packages/map'
 import { LINK_CONFIG_MAP, MapSubject } from '@/shared'
 import { useMapStateStore, useMarkerLinkStore, useMarkerStore, useTileStore } from '@/stores'
 import { useSubscription } from '@vueuse/rxjs'
+import { filter } from 'rxjs'
 
 export const useLinkLayer = () => {
   const markerStore = useMarkerStore()
@@ -15,25 +16,38 @@ export const useLinkLayer = () => {
   const { data: missionLinks } = mapStateStore.subscribeMission('markerLink', () => [])
   const { isProcessing: isMultiSelecting } = mapStateStore.subscribeMission('markerMultiSelect', () => '')
 
-  const interactionKey = GSLinkLayer.layerName
-
-  // 关联暂无 focus 逻辑
-  // TODO 后续为关联连线添加弹出菜单，点击菜单进入到关联的编辑功能中
+  // 点位关联 focus 逻辑
+  useSubscription(MapSubject.click.pipe(
+    filter(({ event }) => [
+      !isMultiSelecting.value,
+      event.leftButton,
+    ].every(Boolean)),
+  ).subscribe(({ info }) => {
+    if (!info.object || !(info.layer instanceof GSLinkLayer)) {
+      mapStateStore.interaction.removeFocus(GSLinkLayer.layerName)
+      return
+    }
+    const linkInfo = info.object as GSLinkLayerProps['data'][number]
+    const oldHover = mapStateStore.interaction.focusElements.get(GSLinkLayer.layerName) as (Set<string> | undefined)
+    if (oldHover?.has(linkInfo.id))
+      return
+    mapStateStore.interaction.setFocus(GSLinkLayer.layerName, new Set([linkInfo.id]))
+  }))
 
   // 关联 hover
   useSubscription(MapSubject.hover.subscribe(({ info }) => {
     if (!(info.layer instanceof GSLinkLayer) || !info.object) {
-      mapStateStore.interaction.removeHover(interactionKey)
+      mapStateStore.interaction.removeHover(GSLinkLayer.layerName)
       mapStateStore.interaction.removeHover(GSMarkerLayer.layerName)
       return
     }
     const linkInfo = info.object as GSLinkLayerProps['data'][number]
     if (!linkInfo.id)
       return
-    const oldHover = mapStateStore.interaction.hoverElements.get(interactionKey) as (Set<string> | undefined)
+    const oldHover = mapStateStore.interaction.hoverElements.get(GSLinkLayer.layerName) as (Set<string> | undefined)
     if (oldHover?.has(linkInfo.id!))
       return
-    mapStateStore.interaction.setHover(interactionKey, new Set([linkInfo.id!]))
+    mapStateStore.interaction.setHover(GSLinkLayer.layerName, new Set([linkInfo.id!]))
     if (linkInfo.id.startsWith('temp'))
       return
     const linkId = Number(linkInfo.id)
@@ -139,9 +153,12 @@ export const useLinkLayer = () => {
       color: [r: number, g: number, b: number]
     }[])
 
+    const focusIds = mapStateStore.interaction.focusElements.get(GSLinkLayer.layerName) as (Set<string> | undefined)
+
     return new GSLinkLayer({
       id: 'genshin-link',
-      hoverIds: mapStateStore.interaction.hoverElements.get(interactionKey) as (Set<string> | undefined),
+      focusIds,
+      hoverIds: mapStateStore.interaction.hoverElements.get(GSLinkLayer.layerName) as (Set<string> | undefined),
       data,
     })
   })

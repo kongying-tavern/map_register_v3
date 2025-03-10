@@ -224,10 +224,29 @@ export class GSLinkLayer extends CompositeLayer<GSLinkLayerProps> {
 
   renderLayers = () => {
     const { zoom } = this.context.viewport
-    const { arrowHeadRadius = 10, hoverIds } = this.props
+    const { arrowHeadRadius = 10, hoverIds, focusIds } = this.props
     const scale = 2 ** -Math.max(0, zoom)
 
     return [
+      // focus
+      new LineLayer<GSLinkLayerProps['data'][number]>({
+        id: this.props.id ? `link-focus-${this.props.id}` : undefined,
+        pickable: true,
+        data: this.props.data,
+        getSourcePosition: info => info.from,
+        getTargetPosition: info => info.to,
+        getWidth: arrowHeadRadius,
+        widthScale: scale * 2 ** (zoom + 1),
+        getColor: (info) => {
+          return [255, 255, 0, focusIds?.has(info.id) ? 80 : 0]
+        },
+        widthMinPixels: 0,
+        updateTriggers: {
+          getWidth: zoom,
+          getColor: focusIds,
+        },
+      }),
+
       // content
       new LinkLayerContent({
         ...this.props,
@@ -247,7 +266,7 @@ export class GSLinkLayer extends CompositeLayer<GSLinkLayerProps> {
         widthScale: scale * 2 ** (zoom + 1),
         getColor: (info) => {
           const { 0: r, 1: g, 2: b } = info.color
-          return [r, g, b, hoverIds?.has(info.id) ? 80 : 0]
+          return [r, g, b, (focusIds?.has(info.id) || !hoverIds?.has(info.id)) ? 0 : 80]
         },
         widthMinPixels: 0,
         updateTriggers: {

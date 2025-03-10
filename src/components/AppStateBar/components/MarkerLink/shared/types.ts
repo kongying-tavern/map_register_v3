@@ -1,6 +1,7 @@
 /** 关联项配置 */
 export interface ModifyLinkOptions {
-  key: string
+  /** `${linkId}` */
+  id: string
   /** 原始数据 */
   raw: API.MarkerLinkageVo
   /** 是否反向 */

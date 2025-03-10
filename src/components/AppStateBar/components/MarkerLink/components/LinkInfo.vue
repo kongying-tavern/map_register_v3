@@ -22,8 +22,13 @@ const hoverKey = defineModel<string>('hoverKey', {
   default: '',
 })
 
+const focusKey = defineModel<string>('focusKey', {
+  required: false,
+  default: '',
+})
+
 const enter = () => {
-  hoverKey.value = props.linkOption.key
+  hoverKey.value = props.linkOption.id
 }
 
 const exit = () => {
@@ -51,12 +56,14 @@ const color = computed(() => {
     :class="[
       editable ? 'grid-cols-[1fr_auto_1fr_auto]' : 'grid-cols-[1fr_auto_1fr]',
       {
-        'is-hover': linkOption.key === hoverKey,
+        'is-hover': linkOption.id === hoverKey,
+        'is-focus': linkOption.id === focusKey,
         'is-delete': linkOption.isDelete,
       },
     ]"
     @pointerenter="enter"
     @pointerleave="exit"
+    @click="focusKey = (linkOption.id === focusKey ? '' : linkOption.id)"
   >
     <LinkMarkerInfo :marker-id="linkOption.raw.fromId" />
 
@@ -86,7 +93,7 @@ const color = computed(() => {
         v-if="linkOption.isMerge"
         class="interaction-button bg-[var(--el-color-info-light-7)]"
         title="此项关联来自自动合并，点击以进行编辑"
-        @click="() => $emit('extract')"
+        @click.stop="() => $emit('extract')"
       >
         <el-icon :size="12" color="var(--el-color-info)">
           <EditPen />
@@ -97,7 +104,7 @@ const color = computed(() => {
         v-else-if="!linkOption.isDelete"
         class="interaction-button bg-[var(--el-color-danger-light-7)]"
         title="点击以进行删除"
-        @click="() => $emit('delete')"
+        @click.stop="() => $emit('delete')"
       >
         <el-icon :size="12" color="var(--el-color-danger)">
           <Delete />
@@ -108,7 +115,7 @@ const color = computed(() => {
         v-else
         class="interaction-button bg-[var(--el-color-warning-light-7)]"
         title="此项关联来自自动合并且已删除，点击以进行恢复"
-        @click="() => $emit('revest')"
+        @click.stop="() => $emit('revest')"
       >
         <el-icon :size="12" color="var(--el-color-warning)">
           <RefreshLeft />
@@ -120,7 +127,7 @@ const color = computed(() => {
 
 <style scoped>
 .link-info {
-  --hover-color: transparent;
+  --color: transparent;
 
   @apply relative;
 
@@ -128,8 +135,12 @@ const color = computed(() => {
     opacity: 0.5;
   }
 
-  &.is-hover, &:hover {
-    --hover-color: color-mix(in srgb, var(--el-color-primary) 20%, transparent 80%);
+  &:not(.is-focus).is-hover, &:hover {
+    --color: color-mix(in srgb, var(--el-color-primary) 20%, transparent 80%);
+  }
+
+  &.is-focus {
+    --color: color-mix(in srgb, var(--el-color-warning) 20%, transparent 80%);
   }
 
   &::before {
@@ -141,7 +152,7 @@ const color = computed(() => {
     left: 4px;
     width: calc(100% - 8px);
     height: calc(100% - 8px);
-    background-color: var(--hover-color);
+    background-color: var(--color);
   }
 }
 

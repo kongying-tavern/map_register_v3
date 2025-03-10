@@ -9,6 +9,7 @@ import {
   AppUserAvatar,
   AppWindowProvider,
   MapContextMenu,
+  MapLinkPopover,
   MapMarkerMoveController,
   MapMarkerPopover,
   MapMarkerToggleController,
@@ -143,6 +144,7 @@ onBeforeMount(() => {
 
     <div ref="mapAffixRef" class="affix-layer">
       <MapMarkerPopover />
+      <MapLinkPopover />
       <MapContextMenu />
     </div>
 
