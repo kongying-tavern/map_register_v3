@@ -34,7 +34,7 @@ export class AppDatabase extends Dexie {
   declare scoreCache: Dexie.Table<ScoreGeneratedCache, string>
 
   /** 数据库结构版本 */
-  readonly VERSION = 4.6
+  readonly VERSION = 4.7
 
   readonly STORES = {
     area: '&id, __hash',
@@ -42,7 +42,7 @@ export class AppDatabase extends Dexie {
     item: '&id, __hash',
     itemType: '&id, __hash',
     marker: '&id, __hash',
-    markerLink: '&id, __hash',
+    markerLink: '&id, groupId, __hash',
     userArchive: 'id',
     cache: '&id',
     websocketEvents: '&key, time',
