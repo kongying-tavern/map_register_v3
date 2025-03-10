@@ -37,7 +37,8 @@ export class GlobalDialogService {
   }
 
   /** 传递给弹窗默认插槽上的组件的事件监听器 */
-  static listeners = <T extends Record<string, (...args: unknown[]) => void>>(listenersObj: T) => {
+  // eslint-disable-next-line ts/no-explicit-any
+  static listeners = <T extends Record<string, (...args: any[]) => void>>(listenersObj: T) => {
     context.listener.value = {
       ...listenersObj,
     }
