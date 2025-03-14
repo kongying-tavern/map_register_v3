@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import type { MapWindow } from '../types'
-import { Minus, Plus } from '@element-plus/icons-vue'
-import { ElIcon } from 'element-plus'
+import * as ElIcons from '@element-plus/icons-vue'
 import { useAppWindow } from '../hooks'
 import WindowResizer from './WindowResizer.vue'
+import { vTransition } from '@/directives'
 
 const props = defineProps<{
   id: string
@@ -24,17 +24,46 @@ const mainRef = defineModel<HTMLElement | null>('mainRef', {
   default: null,
 })
 
+const instanceRef = ref<HTMLDivElement>()
+
+const isTransitioning = ref(false)
+
+const isMinimize = computed(() => info.value.sizeState === 'minimize')
+
+const isMaximize = computed(() => info.value.sizeState === 'maximize')
+
 const handleResize = (resizeProps: MapWindow.ResizeProps) => {
   context.resize(props.id, resizeProps)
 }
+
+const handleResizeStart = () => {
+  context.setInteractionState(props.id, 'manual')
+}
+
+const handleResizeEnd = () => {
+  context.setInteractionState(props.id, 'default')
+  emits('optimizeWindowPosition')
+}
+
+const isResizerEnable = computed(() => {
+  if (isTransitioning.value || isMaximize.value || isMinimize.value || !context.getWindow(props.id))
+    return false
+  return true
+})
 </script>
 
 <template>
   <div
+    ref="instanceRef"
+    v-transition:height="isTransitioning"
     class="window-instance"
     :class="{
       'is-top': context.isTop(id),
-      'is-collapse': info.isMinus,
+      'is-minimize': isMinimize,
+      'is-maximize': isMaximize,
+      'is-manual': info.interactionState === 'manual',
+      'is-transitioning': isTransitioning,
+      'use-transition': context.transitionId === id,
     }"
     :style="{
       '--w': info.size.width,
@@ -44,41 +73,52 @@ const handleResize = (resizeProps: MapWindow.ResizeProps) => {
     }"
     :[`data-${dragHookId}`]="id"
   >
-    <div class="window-header" :class="{ 'is-collapse': info.isMinus }">
+    <div class="window-header" :class="{ 'is-minimize': isMinimize }">
       <div class="header-title" data-draggable="true">
         {{ info.name }}
       </div>
 
       <div class="header-action flex-shrink-0">
-        <ElIcon
+        <el-icon
           :size="30"
           class="header-action-button"
           style="--hover-color: #FFFFFF20; --active-color: #FFFFFF40"
-          @click="() => context.minusWindow(id)"
+          @click="() => context.setSizeState(id, 'minimize')"
         >
-          <Plus v-if="info.isMinus" />
-          <Minus v-else />
-        </ElIcon>
+          <ElIcons.Plus v-if="isMinimize" />
+          <ElIcons.Minus v-else />
+        </el-icon>
 
-        <ElIcon
+        <el-icon
+          :size="30"
+          class="header-action-button"
+          style="--hover-color: #FFFFFF20; --active-color: #FFFFFF40"
+          @click="() => context.setSizeState(id, 'maximize')"
+        >
+          <ElIcons.CopyDocument v-if="isMaximize" />
+          <ElIcons.FullScreen v-else />
+        </el-icon>
+
+        <el-icon
           :size="30"
           class="header-action-button"
           style="--hover-color: var(--el-color-danger); --active-color: var(--el-color-danger-light-3)"
           @click="() => context.closeWindow(id)"
         >
-          <Close />
-        </ElIcon>
+          <ElIcons.Close />
+        </el-icon>
       </div>
     </div>
 
-    <div ref="mainRef" class="window-content" :class="{ 'is-collapse': info.isMinus }" />
+    <div ref="mainRef" class="window-content" />
 
     <WindowResizer
-      v-if="!info.isMinus && context.getWindow(id)"
+      v-if="isResizerEnable"
       :size="context.getWindow(id)!.size"
       :translate="context.getWindow(id)!.translate"
       @resize="handleResize"
-      @resize-end="() => emits('optimizeWindowPosition')"
+      @resize-start="handleResizeStart"
+      @resize-end="handleResizeEnd"
     />
   </div>
 </template>
@@ -86,6 +126,7 @@ const handleResize = (resizeProps: MapWindow.ResizeProps) => {
 <style scoped>
 .window-instance {
   width: calc(var(--w, 400) * 1px);
+  height: calc(var(--h, 400) * 1px);
   border-radius: 6px;
   pointer-events: auto;
   position: absolute;
@@ -96,11 +137,35 @@ const handleResize = (resizeProps: MapWindow.ResizeProps) => {
   flex-direction: column;
   z-index: v-bind('info.order');
   outline: 1px solid color-mix(in srgb, var(--el-border-color-darker) 50%, transparent 50%);
-
+  transition-property: width, height, translate;
+  transition-duration: 200ms;
+  transition-timing-function: ease;
   @apply shadow-sm;
 
-  &.is-collapse {
+  &.use-transition {
+    view-transition-name: window-instance;
+  }
+
+  &.is-manual {
+    transition: none;
+  }
+
+  &.is-minimize {
     width: 300px;
+    height: 30px;
+    &.window-content {
+      display: none;
+    }
+  }
+
+  &.is-maximize {
+    translate: 0 0;
+    width: 100dvw;
+    height: 100dvh;
+  }
+
+  &.is-transitioning {
+    background: #263240;
   }
 
   &.is-top {
@@ -117,7 +182,7 @@ const handleResize = (resizeProps: MapWindow.ResizeProps) => {
   border-radius: 6px 6px 0 0;
   display: flex;
   justify-content: space-between;
-  &.is-collapse {
+  &.is-minimize {
     border-radius: 6px;
   }
 }
@@ -143,12 +208,9 @@ const handleResize = (resizeProps: MapWindow.ResizeProps) => {
 }
 
 .window-content {
-  height: calc(var(--h, 600) * 1px);
+  height: 100%;
   background: var(--el-bg-color);
   overflow: auto;
   border-radius: 0 0 6px 6px;
-  &.is-collapse {
-    display: none;
-  }
 }
 </style>

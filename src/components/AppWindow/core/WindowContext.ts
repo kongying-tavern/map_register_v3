@@ -8,6 +8,11 @@ export class WindowContext implements MapWindow.Context {
 
   readonly dragHookId = [...crypto.getRandomValues(new Uint8Array(4))].map(num => num.toString(16).padStart(2, '0')).join('')
 
+  #transitionId = ref('')
+  get transitionId() {
+    return this.#transitionId.value
+  }
+
   protected panels: Ref<Map<string, MapWindow.Info>> = ref(new Map())
 
   protected cachedInfos: Map<string, MapWindow.Info> = new Map()
@@ -37,7 +42,7 @@ export class WindowContext implements MapWindow.Context {
     return this.panels.value
   }
 
-  openWindow = (params: MapWindow.WindowOpenParams) => {
+  openWindow = async (params: MapWindow.WindowOpenParams) => {
     if (this.panels.value.has(params.id))
       return
 
@@ -72,6 +77,7 @@ export class WindowContext implements MapWindow.Context {
 
     const {
       translate: { x = initX, y = initY } = {},
+      sizeState = params.sizeState,
       size,
     } = this.cachedInfos.get(params.id) ?? {}
 
@@ -81,9 +87,15 @@ export class WindowContext implements MapWindow.Context {
       size: size ?? { width: minWidth, height: minHeight },
       order: this.topOrder.value + 1,
       ref: null,
+      sizeState,
     }
 
-    this.panels.value.set(params.id, info)
+    this.#transitionId.value = params.id
+    await document.startViewTransition?.(() => {
+      this.panels.value.set(params.id, info)
+    }).ready ?? this.panels.value.set(params.id, info)
+    this.#transitionId.value = ''
+
     this.cachedInfos.set(params.id, info)
     this.optimizeWindowPosition()
   }
@@ -112,15 +124,23 @@ export class WindowContext implements MapWindow.Context {
     this.optimizeWindowPosition()
   }
 
-  minusWindow = (id: string) => {
+  setSizeState = (id: string, state: MapWindow.SizeState = 'default') => {
     const panel = this.panels.value.get(id)
     if (!panel)
       return
-    panel.isMinus = !panel.isMinus
+    panel.sizeState = state === panel.sizeState ? 'default' : state
     this.optimizeWindowPosition()
   }
 
-  closeWindow = (id: string) => {
+  setInteractionState = (id: string, state: MapWindow.InteractionState = 'default') => {
+    const panel = this.panels.value.get(id)
+    if (!panel)
+      return
+    panel.interactionState = state
+    this.optimizeWindowPosition()
+  }
+
+  closeWindow = async (id: string) => {
     const panel = this.panels.value.get(id)
     if (!panel)
       return
@@ -135,8 +155,13 @@ export class WindowContext implements MapWindow.Context {
         return
       iPanel.order -= 1
     })
-    this.panels.value.delete(id)
-    // TODO 后续可能需要为窗口添加过渡效果，需要确保过渡结束以后才触发 close hook
+
+    this.#transitionId.value = id
+    await document.startViewTransition?.(() => {
+      this.panels.value.delete(id)
+    })?.finished ?? this.panels.value.delete(id)
+    this.#transitionId.value = ''
+
     this.closeHook.trigger(id)
   }
 
@@ -224,14 +249,14 @@ export class WindowContext implements MapWindow.Context {
     this.panels.value.forEach((info) => {
       const { width, height } = info.size
       const { x, y } = info.translate
-      info.translate = info.isMinus
+      info.translate = info.sizeState === 'minimize'
         ? {
             x: clamp(x, 0, Math.max(0, inlineSize - this.MIN_WIDTH)),
             y: clamp(y, 0, Math.max(0, blockSize - this.HEADER_HEIGHT)),
           }
         : {
             x: clamp(x, 0, Math.max(0, inlineSize - width)),
-            y: clamp(y, 0, Math.max(0, blockSize - height - this.HEADER_HEIGHT)),
+            y: clamp(y, 0, Math.max(0, blockSize - height)),
           }
       info.size = {
         width: Math.min(clientWidth, info.size.width),

@@ -12,6 +12,7 @@ const props = defineProps<{
 
 const emits = defineEmits<{
   resize: [MapWindow.ResizeProps]
+  resizeStart: []
   resizeEnd: []
 }>()
 
@@ -30,6 +31,7 @@ useSubscription(pointerdown.pipe(
   }),
 
   switchMap((startEvent) => {
+    emits('resizeStart')
     const { x: startX, y: startY } = startEvent
 
     const { x: windowStartX, y: windowStartY } = props.translate

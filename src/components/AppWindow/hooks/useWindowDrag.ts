@@ -58,6 +58,7 @@ export const useWindowDrag = (context: WindowContext) => {
     map((result) => {
       const { target, srcEvent } = result!
       const panelId = target!.dataset[context.dragHookId]!
+      context.setInteractionState(panelId, 'manual')
 
       const style = getComputedStyle(target!)
       const translate = {
@@ -98,6 +99,7 @@ export const useWindowDrag = (context: WindowContext) => {
         takeUntil(race(globalPointerup$, globalTouchend$)),
 
         finalize(() => {
+          context.setInteractionState(panelId, 'default')
           if (!mapContainer.value)
             return
           const { width, height } = mapContainer.value.getBoundingClientRect()
