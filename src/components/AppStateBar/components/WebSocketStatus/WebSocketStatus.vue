@@ -16,8 +16,8 @@ const { info, toggle } = useAppWindow(computed(() => ({
   name: '事件记录',
   minWidth: 320,
   minHeight: 400,
-  x: width.value - 320 - 8,
-  y: height.value - 400 - 80,
+  x: width.value - 320 - 6,
+  y: height.value - 400 - 50,
 })))
 
 const delay = computed(() => Math.min(999, Math.max(0, socketStore.delay)))

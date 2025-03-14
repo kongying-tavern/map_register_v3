@@ -38,7 +38,7 @@ const { DialogService } = useGlobalDialog()
 const WINDOW_LIST: ManagerModuleOption[] = [
   {
     name: '物品管理',
-    hook: useAppWindow({ name: '物品管理', minWidth: 887, minHeight: 500, center: true }),
+    hook: useAppWindow({ name: '物品管理', minWidth: 887, minHeight: 500, center: true, sizeState: 'maximize' }),
     icon: ElIcons.Box,
     comp: defineAsyncComponent(() => import('@/pages/pageItemManager/ItemManager.vue')),
     role: 'MANAGER_COMPONENT',
@@ -46,7 +46,7 @@ const WINDOW_LIST: ManagerModuleOption[] = [
   },
   {
     name: '地区管理',
-    hook: useAppWindow({ name: '地区管理', minWidth: 887, minHeight: 500, center: true }),
+    hook: useAppWindow({ name: '地区管理', minWidth: 887, minHeight: 500, center: true, sizeState: 'maximize' }),
     icon: ElIcons.Coordinate,
     comp: defineAsyncComponent(() => import('@/pages/pageAreaManager/AreaManager.vue')),
     role: 'MANAGER_COMPONENT',
@@ -54,7 +54,7 @@ const WINDOW_LIST: ManagerModuleOption[] = [
   },
   {
     name: '点位管理',
-    hook: useAppWindow({ name: '点位管理', minWidth: 887, minHeight: 500, center: true }),
+    hook: useAppWindow({ name: '点位管理', minWidth: 887, minHeight: 500, center: true, sizeState: 'maximize' }),
     icon: ElIcons.Location,
     comp: defineAsyncComponent(() => import('@/pages/pageMarkerManager/MarkerManager.vue')),
     role: 'MANAGER_COMPONENT',
@@ -62,7 +62,7 @@ const WINDOW_LIST: ManagerModuleOption[] = [
   },
   {
     name: '类型管理',
-    hook: useAppWindow({ name: '类型管理', minWidth: 887, minHeight: 500, center: true }),
+    hook: useAppWindow({ name: '类型管理', minWidth: 887, minHeight: 500, center: true, sizeState: 'maximize' }),
     icon: ElIcons.FolderOpened,
     comp: defineAsyncComponent(() => import('@/pages/pageTypeManager/TypeManager.vue')),
     role: 'MANAGER_COMPONENT',
@@ -70,7 +70,7 @@ const WINDOW_LIST: ManagerModuleOption[] = [
   },
   {
     name: '图标管理',
-    hook: useAppWindow({ name: '图标管理', minWidth: 887, minHeight: 500, center: true }),
+    hook: useAppWindow({ name: '图标管理', minWidth: 887, minHeight: 500, center: true, sizeState: 'maximize' }),
     icon: ElIcons.Picture,
     comp: defineAsyncComponent(() => import('@/pages/pageIconManager/IconManager.vue')),
     role: 'MANAGER_COMPONENT',
@@ -78,7 +78,7 @@ const WINDOW_LIST: ManagerModuleOption[] = [
   },
   {
     name: '公告管理',
-    hook: useAppWindow({ name: '公告管理', minWidth: 887, minHeight: 500, center: true }),
+    hook: useAppWindow({ name: '公告管理', minWidth: 887, minHeight: 500, center: true, sizeState: 'maximize' }),
     icon: ElIcons.ChatLineRound,
     comp: defineAsyncComponent(() => import('@/pages/pageNoticeManager/PageNoticeManager.vue')),
     role: 'MANAGER_COMPONENT',
@@ -86,7 +86,7 @@ const WINDOW_LIST: ManagerModuleOption[] = [
   },
   {
     name: '用户统计',
-    hook: useAppWindow({ name: '用户统计', minWidth: 887, minHeight: 500, center: true }),
+    hook: useAppWindow({ name: '用户统计', minWidth: 887, minHeight: 500, center: true, sizeState: 'maximize' }),
     icon: ElIcons.Star,
     comp: defineAsyncComponent(() => import('@/pages/pageContribution/PageContribution.vue')),
     role: 'ADMIN_COMPONENT',
@@ -94,7 +94,7 @@ const WINDOW_LIST: ManagerModuleOption[] = [
   },
   {
     name: '用户管理',
-    hook: useAppWindow({ name: '用户管理', minWidth: 887, minHeight: 500, center: true }),
+    hook: useAppWindow({ name: '用户管理', minWidth: 887, minHeight: 500, center: true, sizeState: 'maximize' }),
     icon: ElIcons.User,
     comp: defineAsyncComponent(() => import('@/pages/pageUserManager/UserManager.vue')),
     role: 'ADMIN_COMPONENT',
@@ -102,7 +102,7 @@ const WINDOW_LIST: ManagerModuleOption[] = [
   },
   {
     name: '历史记录',
-    hook: useAppWindow({ name: '历史记录', minWidth: 887, minHeight: 500, center: true }),
+    hook: useAppWindow({ name: '历史记录', minWidth: 887, minHeight: 500, center: true, sizeState: 'maximize' }),
     icon: ElIcons.Memo,
     comp: defineAsyncComponent(() => import('@/pages/pageHistory/PageHistory.vue')),
     role: 'MANAGER_COMPONENT',
