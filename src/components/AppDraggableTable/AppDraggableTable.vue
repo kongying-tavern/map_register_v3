@@ -52,7 +52,6 @@ if (!parent) {
   animation-duration: ${props.transitionDuration}ms;
   animation-timing-function: ease;
 }
-::view-transition-
 `), {
     immediate: false,
   })
