@@ -6,6 +6,9 @@ node_modules
 dist
 build
 
+# visualizer files
+stats.html
+
 # Log files
 npm-debug.log*
 yarn-debug.log*

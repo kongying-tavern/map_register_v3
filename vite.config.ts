@@ -7,6 +7,7 @@ import { simpleGit } from 'simple-git'
 import AutoImport from 'unplugin-auto-import/vite'
 import { defineConfig, loadEnv } from 'vite'
 import { openapi2ts } from './plugins'
+import { visualizer } from 'rollup-plugin-visualizer'
 
 export default defineConfig(async ({ mode }) => {
   const git = simpleGit()
@@ -52,6 +53,7 @@ export default defineConfig(async ({ mode }) => {
         projectName: 'api',
       },
     ]),
+    visualizer(),
   ]
 
   if (ENV.VITE_HTTPS) {
