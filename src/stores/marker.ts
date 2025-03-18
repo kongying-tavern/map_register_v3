@@ -58,7 +58,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
 
   // ==================== 数据更新 ====================
 
-  const { context, error: managerError, nextUpdateTime, loading: updateLoading, update } = useManager({
+  const { context, isActive, error: managerError, nextUpdateTime, loading: updateLoading, update } = useManager({
     timeoutPull: {
       time: 20 * 60 * 1000,
       condition: () => userStore.info?.roleId !== undefined,
@@ -298,9 +298,10 @@ export const useMarkerStore = defineStore('global-marker', () => {
   return {
     // 数据更新
     context,
+    isActive,
+    managerError,
     nextUpdateTime,
     updateLoading,
-    managerError,
     update,
     afterUpdated,
 

@@ -45,7 +45,7 @@ export const useItemTypeStore = defineStore('global-item-type', () => {
 
   // ==================== 数据更新 ====================
 
-  const { context, nextUpdateTime, loading: updateLoading, update } = useManager({
+  const { context, isActive, error: managerError, nextUpdateTime, loading: updateLoading, update } = useManager({
     timeoutPull: {
       time: 20 * 60 * 1000,
       condition: () => userStore.info?.roleId !== undefined,
@@ -111,6 +111,8 @@ export const useItemTypeStore = defineStore('global-item-type', () => {
   return {
     // 数据更新
     context,
+    isActive,
+    managerError,
     nextUpdateTime,
     updateLoading,
     update,

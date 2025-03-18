@@ -21,6 +21,7 @@ const dbList = [
     nextUpdateTime: computed(() => areaStore.nextUpdateTime),
     message: computed(() => areaStore.context.message),
     error: computed(() => areaStore.managerError),
+    isActive: computed(() => areaStore.isActive),
     updateDiff: () => areaStore.update(),
     updateFull: () => areaStore.update({ isFull: true }),
   },
@@ -30,7 +31,8 @@ const dbList = [
     loading: computed(() => iconTagStore.updateLoading),
     nextUpdateTime: computed(() => iconTagStore.nextUpdateTime),
     message: computed(() => iconTagStore.context.message),
-    error: computed(() => areaStore.managerError),
+    error: computed(() => iconTagStore.managerError),
+    isActive: computed(() => iconTagStore.isActive),
     updateDiff: () => iconTagStore.update(),
     updateFull: () => iconTagStore.update({ isFull: true }),
   },
@@ -40,7 +42,8 @@ const dbList = [
     loading: computed(() => itemStore.updateLoading),
     nextUpdateTime: computed(() => itemStore.nextUpdateTime),
     message: computed(() => itemStore.context.message),
-    error: computed(() => areaStore.managerError),
+    error: computed(() => itemStore.managerError),
+    isActive: computed(() => itemStore.isActive),
     updateDiff: () => itemStore.update(),
     updateFull: () => itemStore.update({ isFull: true }),
   },
@@ -50,7 +53,8 @@ const dbList = [
     loading: computed(() => itemTypeStore.updateLoading),
     nextUpdateTime: computed(() => itemTypeStore.nextUpdateTime),
     message: computed(() => itemTypeStore.context.message),
-    error: computed(() => areaStore.managerError),
+    error: computed(() => itemTypeStore.managerError),
+    isActive: computed(() => itemTypeStore.isActive),
     updateDiff: () => itemTypeStore.update(),
     updateFull: () => itemTypeStore.update({ isFull: true }),
   },
@@ -60,7 +64,8 @@ const dbList = [
     loading: computed(() => markerStore.updateLoading),
     nextUpdateTime: computed(() => markerStore.nextUpdateTime),
     message: computed(() => markerStore.context.message),
-    error: computed(() => areaStore.managerError),
+    error: computed(() => markerStore.managerError),
+    isActive: computed(() => markerStore.isActive),
     updateDiff: () => markerStore.update(),
     updateFull: () => markerStore.update({ isFull: true }),
   },
@@ -70,7 +75,8 @@ const dbList = [
     loading: computed(() => markerLinkStore.updateLoading),
     nextUpdateTime: computed(() => markerLinkStore.nextUpdateTime),
     message: computed(() => markerLinkStore.context.message),
-    error: computed(() => areaStore.managerError),
+    error: computed(() => markerLinkStore.managerError),
+    isActive: computed(() => markerLinkStore.isActive),
     updateDiff: () => markerLinkStore.update(),
     updateFull: () => markerLinkStore.update({ isFull: true }),
   },
@@ -111,7 +117,13 @@ const deleteDatabase = async () => {
       >
         <template #note>
           <div class="text-xs text-[var(--el-text-color-regular)] mb-0.5">
-            共 {{ store.total.value }} 项, 距离下次更新还有 {{ store.loading.value ? '----' : ((store.nextUpdateTime.value - now) / 1000).toFixed(0) }} 秒
+            共 {{ store.total.value }} 项{{
+              !store.isActive.value
+                ? '，更新已暂停'
+                : store.loading.value
+                  ? ''
+                  : `，距离下次更新还有 ${((store.nextUpdateTime.value - now) / 1000).toFixed(0)} 秒`
+            }}
           </div>
           <el-progress
             :percentage="100"
