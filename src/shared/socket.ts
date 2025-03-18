@@ -43,8 +43,31 @@ export enum SocketWorkerEvent {
   Unload = 6,
 }
 
+export enum SocketStatus {
+  /** 正在初始化上下文 */
+  INIT = -1,
+
+  /** @ref `WebSocket.CONNECTING` 正在连接 */
+  CONNECTING = 0,
+
+  /** @ref `WebSocket.OPEN` 已连接 */
+  OPEN = 1,
+
+  /** @ref `WebSocket.CLOSING` 正在关闭 */
+  CLOSING = 2,
+
+  /** @ref `WebSocket.CLOSED` 已关闭 */
+  CLOSED = 3,
+
+  /** 正在等待重连 */
+  WRECONNECT = 4,
+}
+
 /** Socket 关闭的原因，用于实现断线重连等操作 */
 export enum SocketCloseReason {
+  /** 缺省操作 */
+  DEFAULT = 'DEFAULT',
+
   /** 用户主动关闭 */
   CLOSED_BY_USER = 'CLOSED_BY_USER',
 
@@ -53,4 +76,7 @@ export enum SocketCloseReason {
 
   /** 因为 url 改变而关闭 */
   URL_CHANGED = 'URL_CHANGED',
+
+  /** 因为心跳超时而关闭 */
+  HEARTBEAT_TIMEOUT = 'HEARTBEAT_TIMEOUT',
 }

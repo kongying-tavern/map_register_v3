@@ -1,7 +1,8 @@
 import type { WS } from './types'
 import { WEBSOCKET_WORKER_CONFIG } from '@/configs'
-import { SocketCloseReason, SocketWorkerEvent } from '@/shared/socket'
+import { SocketCloseReason, SocketStatus, SocketWorkerEvent } from '@/shared/socket'
 import { defer, EMPTY, filter, map, of, race, repeat, Subject, switchMap, take, takeUntil, tap, timer } from 'rxjs'
+import { socketLogger } from './socketLogger'
 
 interface SocketControllerOptions {
   /** 向客户端进行广播的调用 */
@@ -29,6 +30,8 @@ interface SocketControllerOptions {
   }
 }
 
+type SocketConnectState = 'open' | 'close'
+
 export enum ServerAction {
   /** 心跳 */
   Ping = 'Ping',
@@ -41,10 +44,8 @@ export class SocketController {
     return this.#instance
   }
 
-  #closeReason?: string
-  #closeResolvers?: PromiseWithResolvers<CloseEvent>
-  #openResolvers?: PromiseWithResolvers<Event>
   #options: SocketControllerOptions
+  #state: SocketConnectState = 'close'
 
   readonly close$ = new Subject<CloseEvent>()
   readonly error$ = new Subject<Event>()
@@ -66,24 +67,19 @@ export class SocketController {
 
     // 连接建立
     this.open$.pipe(
-      tap((ev) => {
-        this.#openResolvers?.resolve(ev)
-        this.#openResolvers = undefined
+      switchMap(() => {
+        socketLogger.info(`Open: ${this.#instance?.url}`)
         broadcast({
           event: SocketWorkerEvent.StatusChange,
-          data: WebSocket.OPEN,
+          data: SocketStatus.OPEN,
         }, [])
-      }),
 
-      // 心跳控制
-      switchMap(() => {
-        // 发送 Ping 并等待 Pong 的 Observable
+
+        // 发送 Ping
+        let index = 0
         const pingAndWaitForPong = defer(() => {
-          // 记录发送时间
-          const pingTime = Date.now()
-
-          this.send({ action: ServerAction.Ping })
-
+          const pingTime = Date.now() // 发送时间
+          this.send({ action: ServerAction.Ping, index: index++ })
           return this.data$.pipe(
             filter(({ event }) => event === 'Pong'),
             take(1), // 只取第一个 Pong 消息
@@ -97,7 +93,7 @@ export class SocketController {
           )
         })
 
-        // 超时检查的 Observable
+        // 超时检查
         const pongOrTimeout = race(
           pingAndWaitForPong, // 等待 Pong
           timer(heartbeatTimeout).pipe(map(() => 'timeout')), // 超时信号
@@ -108,7 +104,7 @@ export class SocketController {
           switchMap((result) => {
             // 超时未收到 Pong 回应，则断开连接
             if (typeof result === 'string') {
-              this.close()
+              this.close(SocketCloseReason.HEARTBEAT_TIMEOUT)
               return EMPTY // 结束流
             }
             else {
@@ -123,24 +119,26 @@ export class SocketController {
       }),
     ).subscribe()
 
-    // 重连
+    // 连接关闭与重连
     this.close$.pipe(
       tap((ev) => {
-        this.#closeResolvers?.resolve(ev)
-        this.#closeResolvers = undefined
-        this.#openResolvers = undefined
+        socketLogger.info(`Close: ${ev.reason}`)
         this.#instance = undefined
         broadcast({
           event: SocketWorkerEvent.StatusChange,
-          data: WebSocket.CLOSED,
+          data: SocketStatus.CLOSED,
         }, [])
       }),
 
-      // 如果上一次关闭存在用户原因，则并非为错误导致的关闭，不进行自动重连
-      filter(() => !this.#closeReason),
+      // 仅当关闭原因为 “心跳超时” 才进行重连
+      filter((ev) => {
+        const { reason } = ev
+        if (!reason || ev.reason === SocketCloseReason.HEARTBEAT_TIMEOUT)
+          return true
+        return false
+      }),
 
       switchMap(() => {
-        this.#closeReason = undefined
         return timer(reconnectDelay).pipe(
           tap(() => {
             this.reconnect()
@@ -151,84 +149,80 @@ export class SocketController {
     ).subscribe()
 
     // 错误处理
-    this.error$.subscribe(() => {
-      this.#closeResolvers = undefined
-      this.#openResolvers = undefined
+    this.error$.subscribe((ev) => {
+      if (ev instanceof ErrorEvent)
+        socketLogger.error(ev.error instanceof Error ? ev.error.message : ev.message)
+      else if (ev instanceof DOMException)
+        socketLogger.error(ev.message ?? ev.name)
+      else
+        socketLogger.error(ev.type)
     })
 
     // 接收到消息
     this.data$.pipe(
       filter(({ event }) => event !== 'Pong'),
-      tap(data => broadcast({
-        event: SocketWorkerEvent.Message,
-        data,
-      }, [])),
+      tap((data) => {
+        socketLogger.info(JSON.stringify(data))
+        broadcast({
+          event: SocketWorkerEvent.Message,
+          data,
+        }, [])
+      }),
     ).subscribe()
   }
 
-  open = async (url: string) => {
+  #getPath = (url: string) => {
+    return url.replace(/^([a-zA-Z][a-zA-Z0-9+.-]*):\/\//, '')
+  }
+
+  open = (url: string) => {
     if (this.instance) {
-      if (this.instance.url !== url)
-        await this.close(SocketCloseReason.URL_CHANGED)
-      else if (this.instance.readyState === WebSocket.OPEN)
+      if (this.#getPath(this.instance.url) !== this.#getPath(url))
+        this.close(SocketCloseReason.URL_CHANGED)
+      else if (this.instance.readyState === SocketStatus.OPEN)
         return
-      else if (this.#openResolvers)
-        return await this.#openResolvers.promise
     }
 
-    const openResolvers = Promise.withResolvers<Event>()
-    this.#openResolvers = openResolvers
-
-    const newSocket = new WebSocket(url)
-    this.#instance = newSocket
-
+    this.#state = 'open'
+    const instance = new WebSocket(url)
+    socketLogger.info('Connecting')
     this.#options.broadcast({
       event: SocketWorkerEvent.StatusChange,
-      data: WebSocket.CONNECTING,
+      data: SocketStatus.CONNECTING,
     }, [])
 
     // 将事件监听器转换为 subject 以便通过 rxjs 操作符处理
-    newSocket.addEventListener('open', ev => this.open$.next(ev))
-    newSocket.addEventListener('message', ev => this.message$.next(ev))
-    newSocket.addEventListener('close', ev => this.close$.next(ev))
-    newSocket.addEventListener('error', ev => this.error$.next(ev))
+    instance.addEventListener('open', ev => this.open$.next(ev))
+    instance.addEventListener('message', ev => this.message$.next(ev))
+    instance.addEventListener('close', ev => this.close$.next(ev))
+    instance.addEventListener('error', ev => this.error$.next(ev))
+
+    this.#instance = instance
   }
 
   reconnect = async () => {
-    if (!this.instance || this.instance.readyState === WebSocket.OPEN)
+    if (!this.instance || this.instance.readyState === SocketStatus.OPEN)
       return
-
-    if (this.#openResolvers)
-      return await this.#openResolvers.promise
-
-    await this.open(this.instance.url)
+    this.open(this.instance.url)
   }
 
-  close = async (reason?: SocketCloseReason) => {
-    if (!this.instance)
+  close = (reason: SocketCloseReason) => {
+    if (!this.#instance || this.#state === 'close')
       return
-
-    if (this.#closeResolvers)
-      return await this.#closeResolvers.promise
-
-    const closeResolvers = Promise.withResolvers<CloseEvent>()
-
-    this.#closeResolvers = closeResolvers
-
+    this.#state = 'close'
+    socketLogger.info('Closing')
     this.#options.broadcast({
       event: SocketWorkerEvent.StatusChange,
-      data: WebSocket.CLOSING,
+      data: SocketStatus.CLOSING,
     }, [])
-
-    this.instance.close()
-    this.#closeReason = reason
-
-    return await closeResolvers.promise
+    this.#instance.close(1000, reason)
   }
 
   send = <T>(data: API.WSSentData<T>) => {
-    if (!this.instance || this.instance.readyState !== WebSocket.OPEN)
+    if (!this.instance || this.instance.readyState !== SocketStatus.OPEN || this.#state === 'close')
       return
+    if (data.action !== ServerAction.Ping)
+      socketLogger.info(JSON.stringify(data))
     this.instance.send(JSON.stringify(data))
   }
 }

@@ -28,10 +28,12 @@ export const useSocketStore = defineStore('global-web-socket', () => {
     onClose,
     status,
     ...rest
-  } = useSocket(`${import.meta.env.VITE_WS_BASE}/{userId}`, {
-    params: () => ({
-      userId: userStore.info?.id,
-    }),
+  } = useSocket({
+    getURL: () => {
+      if (!userStore.info)
+        return
+      return `${import.meta.env.VITE_WS_BASE}/${userStore.info.id}`
+    },
   })
 
   const { event: appEvent } = useAppEvent(socketEvent)

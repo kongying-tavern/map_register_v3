@@ -8,7 +8,7 @@ declare namespace API {
   }
 
   /** WebSocket 发送的数据 */
-  interface WSSentData<T = unknown> {
+  interface WSSentData<T = unknown> extends Record<string, unknown> {
     action: string
     data?: T
   }

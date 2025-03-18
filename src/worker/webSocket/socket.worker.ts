@@ -1,5 +1,5 @@
 import type { WS } from './types'
-import { SocketCloseReason, SocketWorkerEvent } from '@/shared/socket'
+import { SocketCloseReason, SocketStatus, SocketWorkerEvent } from '@/shared/socket'
 import { EventBus } from '@/utils/EventBus'
 import { filter, Subject, tap } from 'rxjs'
 import { SocketController } from './socketController'
@@ -71,15 +71,15 @@ workerEvent.on(SocketWorkerEvent.Unload, (_, id) => {
 
 /** 初始化标签页的 ws 状态 */
 const initClientStatus = (client: WebSocketClient) => {
-  client.postMessage({
+  client.postMessage(<WS.Message>{
     id: crypto.randomUUID(),
     event: SocketWorkerEvent.StatusChange,
-    data: ws.instance?.readyState ?? WebSocket.CLOSED,
+    data: ws.instance?.readyState ?? SocketStatus.INIT,
   }, [])
 }
 
 if (Object.prototype.toString.call(globalThis) === '[object SharedWorkerGlobalScope]') {
-  void (globalThis as SharedWorkerGlobalScope).addEventListener('connect', (connectEvent: MessageEvent<WS.Message>) => {
+  void (<SharedWorkerGlobalScope>globalThis).addEventListener('connect', (connectEvent: MessageEvent<WS.Message>) => {
     const client = connectEvent.ports[0]
     const clientId = crypto.randomUUID()
 
@@ -93,6 +93,9 @@ if (Object.prototype.toString.call(globalThis) === '[object SharedWorkerGlobalSc
     client.start()
 
     initClientStatus(client)
+  })
+  void (<SharedWorkerGlobalScope>globalThis).addEventListener('error', (ev) => {
+    console.log('[error]', ev.message)
   })
 }
 // HACK 兼容移动端 Chrome

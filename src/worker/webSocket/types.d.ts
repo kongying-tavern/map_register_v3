@@ -56,4 +56,15 @@ export declare namespace WS {
   type WorkerEventMap = {
     [K in SocketWorkerEvent]: [data: Message<K>['data'], portId: string]
   }
+
+  interface Log {
+    id?: number
+    t: number
+    msg: string
+    /**
+     * - `0` info
+     * - `1` error
+     */
+    type: 0 | 1
+  }
 }

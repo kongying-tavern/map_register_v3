@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { AppWindowTeleporter, useAppWindow } from '@/components'
+import { SocketStatus } from '@/shared'
 import { useSocketStore } from '@/stores'
 import { ChromeFilled } from '@element-plus/icons-vue'
 import BarItem from '../BarItem.vue'
@@ -22,8 +23,20 @@ const { info, toggle } = useAppWindow(computed(() => ({
 
 const delay = computed(() => Math.min(999, Math.max(0, socketStore.delay)))
 
-const isOpen = computed(() => socketStore.status === WebSocket.OPEN)
-const isConnecting = computed(() => socketStore.status === WebSocket.CONNECTING)
+const isOpen = computed(() => socketStore.status === SocketStatus.OPEN)
+const isConnecting = computed(() => socketStore.status === SocketStatus.CONNECTING)
+
+const statusText = computed(() => {
+  const { status } = socketStore
+  return {
+    [SocketStatus.INIT]: '初始化',
+    [SocketStatus.CONNECTING]: '连接中',
+    [SocketStatus.CLOSED]: '未连接',
+    [SocketStatus.CLOSING]: '关闭中',
+    [SocketStatus.OPEN]: `${delay.value}ms`,
+    [SocketStatus.WRECONNECT]: '重连中',
+  }[status]
+})
 
 const color = computed(() => {
   if (isConnecting.value)
@@ -41,7 +54,7 @@ const color = computed(() => {
 <template>
   <BarItem label="连接状态" divider @click="toggle">
     <div
-      class="h-full flex items-center font-['HYWenHei-85W'] px-1"
+      class="h-full flex items-center px-1"
       :style="{
         'color': color,
         '--color-conn': '#9CDCDA',
@@ -82,7 +95,7 @@ const color = computed(() => {
           'animate-pulse': isConnecting,
         }"
       >
-        {{ isConnecting ? '连接中' : isOpen ? `${delay}ms` : '未连接' }}
+        {{ statusText }}
       </div>
     </div>
 

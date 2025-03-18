@@ -1,23 +1,19 @@
 import type { WS } from '@/worker/webSocket/types'
 import { useState } from '@/hooks'
-import { SocketCloseReason, SocketWorkerEvent } from '@/shared'
+import { SocketCloseReason, SocketStatus, SocketWorkerEvent } from '@/shared'
 import { EventBus, Logger } from '@/utils'
 import SocketWorkerURL from '@/worker/webSocket/socket.worker?worker&url'
-import { template } from 'lodash'
 import { filter, fromEvent, map, tap } from 'rxjs'
 
 const logger = new Logger('Socket')
 
-export const useSocket = (templatedUrl: string, options: SocketHookOptions) => {
-  const {
-    params,
-    query,
-  } = options
+export const useSocket = (options: SocketHookOptions) => {
+  const { getURL } = options
 
   const isSending = ref(false)
   const isReceving = ref(false)
   const [delay, setDelay] = useState(0)
-  const [status, setStatus] = useState<number>(WebSocket.CLOSED)
+  const [status, setStatus] = useState<SocketStatus>(SocketStatus.CLOSED)
 
   const socketEvent = new EventBus<API.WSEventMap>()
 
@@ -33,8 +29,8 @@ export const useSocket = (templatedUrl: string, options: SocketHookOptions) => {
     // HACK 兼容移动端 Chrome
     const type = Object.prototype.toString.call(socketWorker)
     if (type === '[object SharedWorker]') {
-      (socketWorker as SharedWorker).port.start()
-      return (socketWorker as SharedWorker).port
+      ;(<SharedWorker>socketWorker).port.start()
+      return (<SharedWorker>socketWorker).port
     }
     return socketWorker as Worker
   })()
@@ -45,7 +41,7 @@ export const useSocket = (templatedUrl: string, options: SocketHookOptions) => {
     filter(({ data }) => data.event === SocketWorkerEvent.StatusChange),
     map(({ data }) => data.data as unknown as number),
     tap((newStatus) => {
-      if (newStatus === WebSocket.CLOSED)
+      if (newStatus === SocketStatus.CLOSED)
         closeHook.trigger()
     }),
   ).subscribe(setStatus)
@@ -89,23 +85,9 @@ export const useSocket = (templatedUrl: string, options: SocketHookOptions) => {
   })
 
   const open = () => {
-    let url = templatedUrl
-
-    if (params) {
-      const complied = template(url, { interpolate: /\{([\s\S]+?)\}/g })
-      url = complied(params())
-    }
-
-    const urlWithQuery = new URL(url)
-
-    if (query) {
-      Object.entries(query()).forEach(([key, value]) => {
-        urlWithQuery.searchParams.append(key, `${value}`)
-      })
-    }
-
-    url = urlWithQuery.toString()
-
+    const url = getURL()
+    if (!url)
+      return
     send({ event: SocketWorkerEvent.Open, data: url })
   }
 
