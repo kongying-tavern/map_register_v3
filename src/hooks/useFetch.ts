@@ -65,11 +65,13 @@ export const useFetchHook = <T, A extends unknown[] = []>(options: FetchHookOpti
         if (diff && diff(data.value, res))
           return data.value
         data.value = res as T
+        loading.value = false
         onSuccessHook.trigger(res)
         return res
       }
     }
     catch (err) {
+      loading.value = false
       onErrorHook.trigger(err instanceof Error ? err : new Error(messageFrom(err)))
     }
     finally {
