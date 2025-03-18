@@ -6,6 +6,7 @@ import {
   useMarkerLinkStore,
   useMarkerStore,
   useTileStore,
+  useUserStore,
 } from '@/stores'
 import { defineStore } from 'pinia'
 import {
@@ -30,6 +31,7 @@ export const useMapStateStore = defineStore('global-map-state', () => {
   const areaStore = useAreaStore()
   const itemTypeStore = useItemTypeStore()
   const itemStore = useItemStore()
+  const userStore = useUserStore()
 
   // ============================== 视口控制 ==============================
   const viewPortHook = useViewPort()
@@ -42,6 +44,10 @@ export const useMapStateStore = defineStore('global-map-state', () => {
 
   // ============================== 地图任务 ==============================
   const missionHook = useMapMission()
+
+  userStore.onBeforeLogout(() => {
+    missionHook.setMission(null)
+  })
 
   // ============================== 地图交互 ==============================
   const interaction = useInteractionInfo()
