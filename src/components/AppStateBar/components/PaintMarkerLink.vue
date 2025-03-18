@@ -44,9 +44,10 @@ const {
   data: linkMission,
 } = mapStateStore.subscribeMission('markerLink', () => [])
 
-const { loading, refresh: submit } = useLinkCreate()
+const { loading, refresh: submit, onSuccess } = useLinkCreate()
 
 const { info, close$, close, open } = useLinkWindow({ loading })
+onSuccess(() => close())
 
 const { modifyLinks, deleteLink, extractLink, revestLink } = useLinkOperate()
 
