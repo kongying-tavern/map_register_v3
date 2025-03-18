@@ -13,9 +13,26 @@ interface OverlayControllerChunkGroup extends OverlayChunkGroup {
 
 const overlayStore = useOverlayStore()
 
-const items = computed(() => Map.groupBy(props.group.chunks, ({ item }) => {
-  return item
-}))
+const items = computed(() => {
+  const { chunks, name: groupName } = props.group
+  // 将所属于同一个 item 的 chunk 进行合并
+  const { list: mergedChunks } = chunks.reduce((collect, chunk) => {
+    if (!collect.ids.has(chunk.item.id)) {
+      collect.ids.add(chunk.item.id)
+      collect.list.push(chunk)
+    }
+    return collect
+  }, { list: [] as OverlayChunk[], ids: new Set<string>() })
+  return Map.groupBy(mergedChunks, ({ item }) => {
+    const prefix = item.name.match(new RegExp(`(${groupName})·`))?.[1]
+    return {
+      ...item,
+      name: prefix ? item.name.replace(prefix, '~') : item.name,
+    }
+  })
+})
+
+Reflect.set(globalThis, 'items', items)
 
 const tileModelValue = computed({
   get: () => {
@@ -100,8 +117,8 @@ const toggleOverlayItem = (itemId: string, bool: boolean) => {
           class="overlay-item"
           style="margin-right: 0"
         >
-          <div class="flex-1 overflow-hidden whitespace-nowrap text-ellipsis">
-            {{ item.name === group.name ? group.name : item.name.replace(group.name, '~') }}
+          <div class="text-container">
+            {{ item.name }}
           </div>
         </ElRadio>
       </template>
@@ -119,8 +136,8 @@ const toggleOverlayItem = (itemId: string, bool: boolean) => {
           :title="item.name"
           @update:model-value="v => toggleOverlayItem(item.id, Boolean(v))"
         >
-          <div class="flex-1 overflow-hidden whitespace-nowrap text-ellipsis">
-            {{ item.name === group.name ? group.name : item.name.replace(group.name, '~') }}
+          <div class="text-container">
+            {{ item.name }}
           </div>
         </ElCheckbox>
       </template>
@@ -138,11 +155,16 @@ const toggleOverlayItem = (itemId: string, bool: boolean) => {
   flex-direction: column;
 }
 
+@keyframes marquee {
+	to {
+		transform: translateX(min(100cqw - 100%, 0px));
+	}
+}
+
 .overlay-item {
   width: 200px;
   color: #495366;
   padding: 0 8px;
-  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   border: 2px solid transparent;
@@ -162,10 +184,15 @@ const toggleOverlayItem = (itemId: string, bool: boolean) => {
   }
 
   :deep(.el-checkbox__label) {
+    text-overflow: ellipsis;
     flex: 1;
-    flex: 1;
-    display: flex;
+    container-type: inline-size;
     overflow: hidden;
   }
+}
+
+.text-container {
+  display: inline-flex;
+  animation: marquee 3s linear infinite both alternate;
 }
 </style>
