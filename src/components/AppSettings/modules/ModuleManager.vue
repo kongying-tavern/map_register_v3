@@ -25,48 +25,33 @@ const historyPageSize = usePageSize(ManagerModule.History)
 
 <template>
   <SettingPanel>
-    <SettingGroup name="物品管理">
-      <SettingBar label="分页项目数">
+    <SettingGroup name="列表组件的分页数量">
+      <SettingBar label="物品管理">
         <template #setting>
           <el-input-number v-model="itemPageSize" :min="10" :max="100" :step="1" />
         </template>
       </SettingBar>
-    </SettingGroup>
-
-    <SettingGroup name="点位管理">
-      <SettingBar label="分页项目数">
+      <SettingBar label="点位管理">
         <template #setting>
           <el-input-number v-model="markerPageSize" :min="10" :max="100" :step="1" />
         </template>
       </SettingBar>
-    </SettingGroup>
-
-    <SettingGroup name="类型管理">
-      <SettingBar label="分页项目数">
+      <SettingBar label="图标管理">
         <template #setting>
           <el-input-number v-model="typePageSize" :min="10" :max="100" :step="1" />
         </template>
       </SettingBar>
-    </SettingGroup>
-
-    <SettingGroup name="用户管理">
-      <SettingBar label="分页项目数">
+      <SettingBar label="用户管理">
         <template #setting>
           <el-input-number v-model="userPageSize" :min="10" :max="100" :step="1" />
         </template>
       </SettingBar>
-    </SettingGroup>
-
-    <SettingGroup name="公告管理">
-      <SettingBar label="分页项目数">
+      <SettingBar label="公告管理">
         <template #setting>
           <el-input-number v-model="noticePageSize" :min="10" :max="100" :step="1" />
         </template>
       </SettingBar>
-    </SettingGroup>
-
-    <SettingGroup name="历史记录">
-      <SettingBar label="分页项目数">
+      <SettingBar label="历史记录">
         <template #setting>
           <el-input-number v-model="historyPageSize" :min="10" :max="100" :step="1" />
         </template>
