@@ -9,7 +9,7 @@ import { liveQuery } from 'dexie'
 import { defineStore } from 'pinia'
 import { useAccessStore, useSocketStore, useUserStore } from '.'
 import { useAfterUpdated, useManager } from './hooks'
-import { createHashMap } from './utils'
+import { createHashGroupMap, type HashGroupMeta } from './utils'
 
 /** 全量点位的全局数据 */
 export const useMarkerStore = defineStore('global-marker', () => {
@@ -18,12 +18,12 @@ export const useMarkerStore = defineStore('global-marker', () => {
   const userStore = useUserStore()
 
   // ==================== 内部状态 ====================
-  const hashMap = shallowRef(new Map<string, Hash<API.MarkerVo>[]>())
+  const hashGroupMap = shallowRef(new Map<string, HashGroupMeta<Hash<API.MarkerVo>>>())
 
   const idHashMap = computed(() => {
     const result = new Map<number, string>()
-    hashMap.value.forEach((group) => {
-      group.forEach(({ id, __hash: hash = '' }) => {
+    hashGroupMap.value.forEach(({ list }) => {
+      list.forEach(({ id, __hash: hash = '' }) => {
         result.set(id!, hash)
       })
     })
@@ -33,9 +33,9 @@ export const useMarkerStore = defineStore('global-marker', () => {
   // ==================== 外部状态 ====================
   const list = computed(() => {
     const res: API.MarkerVo[] = []
-    hashMap.value.forEach((hashedMarkerList) => {
-      for (let i = 0; i < hashedMarkerList.length; i++) {
-        const markerInfo = hashedMarkerList[i]
+    hashGroupMap.value.forEach(({ list: scopeList }) => {
+      for (let i = 0; i < scopeList.length; i++) {
+        const markerInfo = scopeList[i]
         if (!accessStore.checkHiddenFlag(markerInfo.hiddenFlag))
           continue
         res.push(markerInfo)
@@ -58,7 +58,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
 
   // ==================== 数据更新 ====================
 
-  const { context, nextUpdateTime, loading: updateLoading, update } = useManager({
+  const { context, error: managerError, nextUpdateTime, loading: updateLoading, update } = useManager({
     timeoutPull: {
       time: 20 * 60 * 1000,
       condition: () => userStore.info?.roleId !== undefined,
@@ -73,41 +73,94 @@ export const useMarkerStore = defineStore('global-marker', () => {
     init: async ({ message }) => {
       message.value = '初始化上下文'
       const dbList = await db.marker.toArray()
-      hashMap.value = createHashMap(dbList)
+      hashGroupMap.value = createHashGroupMap(dbList)
     },
 
     diff: async ({ startTime, message, updateCount }) => {
       startTime.value = Date.now()
 
-      message.value = '获取签名列表'
+      message.value = '获取 hash 列表'
       const { data: hashList = [] } = await Api.markerDoc.listMarkerBinaryMD5({})
 
+      // TODO 等待接口更新
+      // const hashList = data.map((md5) => {
+      //   return { hash: md5, time: Date.now() }
+      // })
+
+      /** oldHashSet 的最晚更新时间 */
+      let oldUpdateTime = 0
+      hashGroupMap.value.forEach(({ time }) => {
+        if (time > oldUpdateTime)
+          oldUpdateTime = time
+      })
+
+      /** newHashSet 的最晚更新时间 */
+      let newUpdateTime = 0
+
+      // TODO 等待接口更新
+      // hashList.forEach(({ time }) => {
+      //   if (time > newUpdateTime)
+      //     newUpdateTime = time
+      // })
+
+      // TODO 等待接口更新
+      // TODO 如果 newHashSet 的最晚更新时间小于 oldHashSet 的最晚更新时间，则表示压缩数据落后于本地，跳过更新
+      // if (newUpdateTime <= oldUpdateTime) {
+      //   return {
+      //     bulkPutData: [],
+      //     bulkDeleteKeys: [],
+      //     clear: false,
+      //   }
+      // }
+
       const newHashSet = new Set(hashList)
+      const oldHashSet = new Set(hashGroupMap.value.keys())
 
-      const oldHashSet = new Set(hashMap.value.keys())
-
+      // 1. 找出所有不存在于旧 hash 里的值，这代表需要进行后续请求以及写入的新数据
       const needUpdateHashList = [...newHashSet.difference(oldHashSet)]
 
-      const needDeleteKeys = [...oldHashSet.difference(newHashSet)].reduce((collect, hash) => {
-        hashMap.value.get(hash)?.forEach(({ id }) => {
-          collect.push(id!)
-        })
-        return collect
-      }, [] as number[])
+      // 2. 找出需要被删除的点位 id，必须满足以下两个条件:
+      //   a. 点位的 hash 不存在于 newHashSet 里
+      //   b. 点位的更新时间小于 newHashSet 的最晚更新时间，这代表在最新的压缩数据里，此点位一定不存在
+      // 否则无法区分 "新增" 和 "删除" 点位（假如压缩数据尚未更新，则这两者的 hash 必然不存在于 newHashSet 里）
+      const needDeleteKeys: number[] = []
+
+      // TODO 等待接口更新
+      // hashGroupMap.value.forEach(({ time, list }, oldHash) => {
+      //   if (newHashSet.has(oldHash) || time >= newUpdateTime)
+      //     return
+      //   for (let i = 0; i < list.length; i++) {
+      //     const info = list[i]
+      //     if (new Date(info.updateTime!).getTime() >= newUpdateTime)
+      //       continue
+      //     needDeleteKeys.push(info.id!)
+      //   }
+      // })
 
       message.value = '获取更新数据'
+
       const newData = (await Promise.all(needUpdateHashList.map(async (hash) => {
-        const buffer = await (Api.markerDoc.listPageMarkerByBinary({ md5: hash }, { responseType: 'arraybuffer' }) as unknown as Promise<ArrayBuffer>)
-        const data = await Zip.decompressAs<API.MarkerVo[]>(new Uint8Array(buffer), {
-          name: `marker-${hash}`,
-        })
-        return data.map((newOne) => {
-          const oldOne = idMap.value.get(newOne.id!)
-          if (!oldOne || ((oldOne.updateTime ?? 0) <= (newOne.updateTime ?? 0)))
-            return { ...newOne, __hash: hash }
-          return { ...newOne, __hash: hash }
-        })
+        const buffer = await <Promise<ArrayBuffer>>(<unknown>Api.markerDoc.listPageMarkerByBinary({ md5: hash }, { responseType: 'arraybuffer' }))
+        const data = await Zip.decompressAs<API.MarkerVo[]>(new Uint8Array(buffer), { name: `marker-${hash}` })
+        return data.map((newOne) => (<Hash<API.MarkerVo>>{ ...newOne, __hash: hash }))
       }))).flat(1)
+
+      const newHashGroup = createHashGroupMap(newData)
+      newHashGroup.forEach(({ time }) => {
+        if (time > newUpdateTime)
+          newUpdateTime = time
+      })
+
+      hashGroupMap.value.forEach(({ time, list }, oldHash) => {
+        if (newHashSet.has(oldHash) || time >= newUpdateTime)
+          return
+        for (let i = 0; i < list.length; i++) {
+          const item = list[i]
+          if (new Date(item.updateTime!).getTime() >= newUpdateTime)
+            continue
+          needDeleteKeys.push(item.id!)
+        }
+      })
 
       updateCount.value = newData.length
 
@@ -126,16 +179,9 @@ export const useMarkerStore = defineStore('global-marker', () => {
 
       message.value = '获取更新数据'
       const newData = (await Promise.all(hashList.map(async (hash) => {
-        const buffer = await (Api.markerDoc.listPageMarkerByBinary({ md5: hash }, { responseType: 'arraybuffer' }) as unknown as Promise<ArrayBuffer>)
-        const data = await Zip.decompressAs<API.MarkerVo[]>(new Uint8Array(buffer), {
-          name: `marker-${hash}`,
-        })
-        return data.map((newOne) => {
-          const oldOne = idMap.value.get(newOne.id!)
-          if (!oldOne || ((oldOne.updateTime ?? 0) <= (newOne.updateTime ?? 0)))
-            return { ...newOne, __hash: hash }
-          return { ...newOne, __hash: hash }
-        })
+        const buffer = await <Promise<ArrayBuffer>>(<unknown>Api.markerDoc.listPageMarkerByBinary({ md5: hash }, { responseType: 'arraybuffer' }))
+        const data = await Zip.decompressAs<API.MarkerVo[]>(new Uint8Array(buffer), { name: `marker-${hash}` })
+        return data.map((newOne) => (<Hash<API.MarkerVo>>{ ...newOne, __hash: hash }))
       }))).flat(1)
 
       updateCount.value = newData.length
@@ -152,7 +198,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
       const { resolve, promise } = Promise.withResolvers<WorkerOutput>()
       const worker = new BulkPutWorker({ name: '点位更新线程' })
       worker.addEventListener('message', (ev: MessageEvent<WorkerOutput>) => resolve(ev.data))
-      worker.postMessage({ tableName: 'marker', ...options } as WorkerInput<number, Hash<API.MarkerVo>>)
+      worker.postMessage(<WorkerInput<number, Hash<API.MarkerVo>>>{ tableName: 'marker', ...options })
       const { error, message: workerMsg } = await promise
       worker.terminate()
       if (error) {
@@ -177,7 +223,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
   liveQuery(() => db.marker.toArray()).subscribe((dbList) => {
     if (waitForUpdate.value.size > 0)
       return
-    hashMap.value = createHashMap(dbList)
+    hashGroupMap.value = createHashGroupMap(dbList)
     triggerUpdated()
   })
 
@@ -208,10 +254,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
     const { id, markerTitle, creatorId } = markerInfo
     if (!id || waitForUpdate.value.has(id))
       return
-    await db.marker.put({
-      ...markerInfo,
-      __hash: idHashMap.value.get(markerInfo.id!),
-    })
+    await db.marker.put(markerInfo)
     const { username = `(uid: ${creatorId})`, nickname } = userInfo
     socketStore.notice('MarkerAdded', {
       message: `${nickname ?? username} 新增了点位 ${markerTitle} (id:${id})`,
@@ -257,6 +300,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
     context,
     nextUpdateTime,
     updateLoading,
+    managerError,
     update,
     afterUpdated,
 

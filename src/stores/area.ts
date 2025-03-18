@@ -7,7 +7,7 @@ import { liveQuery } from 'dexie'
 import { defineStore } from 'pinia'
 import { useAccessStore, useUserStore } from '.'
 import { useManager } from './hooks'
-import { createHashMap } from './utils'
+import { createHashGroupMap, type HashGroupMeta } from './utils'
 
 export interface AreaWithChildren extends API.AreaVo {
   children?: AreaWithChildren[]
@@ -23,14 +23,14 @@ export const useAreaStore = defineStore('global-area', () => {
   const userStore = useUserStore()
 
   // ==================== 内部状态 ====================
-  const hashMap = shallowRef(new Map<string, Hash<API.AreaVo>[]>())
+  const hashGroupMap = shallowRef(new Map<string, HashGroupMeta<Hash<API.AreaVo>>>())
 
   // ==================== 外部状态 ====================
 
-  const areaList = computed(() => {
+  const list = computed(() => {
     const result: API.AreaVo[] = []
-    hashMap.value.forEach((areaGroup) => {
-      areaGroup.forEach((area) => {
+    hashGroupMap.value.forEach(({ list: scopeList }) => {
+      scopeList.forEach((area) => {
         if (!accessStore.checkHiddenFlag(area.hiddenFlag))
           return
         result.push(area)
@@ -39,32 +39,32 @@ export const useAreaStore = defineStore('global-area', () => {
     return result.sort(({ sortIndex: ia = 0 }, { sortIndex: ib = 0 }) => ib - ia)
   })
 
-  const total = computed(() => areaList.value.length)
+  const total = computed(() => list.value.length)
 
   /** @deprecated 使用 `areaIdMap` 代替 */
-  const areaMap = computed<Record<string, API.AreaVo>>(() => (Object.fromEntries(areaList.value.map(area => [
+  const areaMap = computed<Record<string, API.AreaVo>>(() => (Object.fromEntries(list.value.map(area => [
     area.id as number,
     area,
   ]))))
 
-  const idMap = computed(() => areaList.value.reduce((seed, area) => {
+  const idMap = computed(() => list.value.reduce((seed, area) => {
     seed.set(area.id!, area)
     return seed
   }, new Map<number, API.AreaVo>()))
 
-  const codeMap = computed(() => areaList.value.reduce((seed, area) => {
+  const codeMap = computed(() => list.value.reduce((seed, area) => {
     seed.set(area.code!, area)
     return seed
   }, new Map<string, API.AreaVo>()))
 
-  const parentAreaList = computed<API.AreaVo[]>(() => areaList.value.filter(area => !area.isFinal))
-  const childrenAreaList = computed<API.AreaVo[]>(() => areaList.value.filter(area => area.isFinal))
+  const parentAreaList = computed<API.AreaVo[]>(() => list.value.filter(area => !area.isFinal))
+  const childrenAreaList = computed<API.AreaVo[]>(() => list.value.filter(area => area.isFinal))
   const areaTree = computed<AreaWithChildren[]>(() => parentAreaList.value.map(parentArea => ({ ...parentArea, children: childrenAreaList.value.filter(childArea => childArea.parentId === parentArea.id) })))
   const childrenAreaParentMap = computed<Record<number, API.AreaVo[]>>(() => Object.fromEntries(areaTree.value.map(area => [area.id!, area.children ?? []])))
 
   // ==================== 数据更新 ====================
 
-  const { context, nextUpdateTime, loading: updateLoading, update } = useManager({
+  const { context, error: managerError, nextUpdateTime, loading: updateLoading, update } = useManager({
     timeoutPull: {
       time: 20 * 60 * 1000,
       condition: () => userStore.info?.roleId !== undefined,
@@ -79,13 +79,13 @@ export const useAreaStore = defineStore('global-area', () => {
     init: async ({ message }) => {
       message.value = '初始化上下文'
       const dbList = await db.area.toArray()
-      hashMap.value = createHashMap(dbList)
+      hashGroupMap.value = createHashGroupMap(dbList)
     },
 
     full: async ({ updateCount, startTime, message }) => {
       startTime.value = Date.now()
 
-      // 由于 area 接口暂无档案版，这里直接获取数据本体进行差异判断
+      // 由于 area 接口暂无档案版，直接跳过 diff 进行覆盖更新
       message.value = '获取更新数据'
       const { data = [] } = await Api.area.listArea({ parentId: -1, isTraverse: true })
 
@@ -95,10 +95,7 @@ export const useAreaStore = defineStore('global-area', () => {
       const hash = [...new Uint8Array(binaryHash)].map(num => num.toString(16).padStart(2, '0')).join('')
 
       const newData = data.map((newOne) => {
-        const oldOne = idMap.value.get(newOne.id!)
-        if (!oldOne || ((oldOne.updateTime ?? 0) <= (newOne.updateTime ?? 0)))
-          return { ...newOne, __hash: hash }
-        return { ...oldOne, __hash: hash }
+        return { ...newOne, __hash: hash }
       })
 
       updateCount.value = newData.length
@@ -115,7 +112,7 @@ export const useAreaStore = defineStore('global-area', () => {
       const { resolve, promise } = Promise.withResolvers<WorkerOutput>()
       const worker = new BulkPutWorker({ name: '地区更新线程' })
       worker.addEventListener('message', (ev: MessageEvent<WorkerOutput>) => resolve(ev.data))
-      worker.postMessage({ tableName: 'area', ...options } as WorkerInput<number, Hash<API.AreaVo>>)
+      worker.postMessage(<WorkerInput<number, Hash<API.AreaVo>>>{ tableName: 'area', ...options })
       const { error, message: workerMsg } = await promise
       worker.terminate()
       if (error) {
@@ -127,18 +124,19 @@ export const useAreaStore = defineStore('global-area', () => {
   })
 
   liveQuery(() => db.area.toArray()).subscribe((dbList) => {
-    hashMap.value = createHashMap(dbList)
+    hashGroupMap.value = createHashGroupMap(dbList)
   })
 
   return {
     // 数据更新
     context,
+    managerError,
     nextUpdateTime,
     updateLoading,
     update,
 
     total,
-    areaList,
+    areaList: list,
     areaMap,
     areaIdMap: idMap,
     areaCodeMap: codeMap,

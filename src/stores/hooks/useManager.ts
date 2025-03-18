@@ -29,8 +29,11 @@ export const useManager = <C, T>(options: ManagerOptions<C, T>) => {
 
   const isInit = ref(false)
 
-  const { refresh: update, loading, ...rest } = useFetchHook({
+  const error = ref('')
+
+  const { refresh: update, loading, onError, ...rest } = useFetchHook({
     onRequest: async (options: ManagerUpdateOptions = {}) => {
+      error.value = ''
       if (!isInit.value && init) {
         await init(context).finally(() => {
           isInit.value = true
@@ -40,6 +43,10 @@ export const useManager = <C, T>(options: ManagerOptions<C, T>) => {
       const data = await (isFull ? full : diff ?? full)(context)
       await commit(data, context)
     },
+  })
+
+  onError((err) => {
+    error.value = err.message
   })
 
   /** 下一次更新的时间 */
@@ -68,8 +75,10 @@ export const useManager = <C, T>(options: ManagerOptions<C, T>) => {
   }
 
   return {
+    error,
     context,
     update,
+    onError,
     loading,
     nextUpdateTime,
     isActive,

@@ -8,7 +8,7 @@ import { liveQuery } from 'dexie'
 import { defineStore } from 'pinia'
 import { useSocketStore, useUserStore } from '.'
 import { useManager, useMarkerSprite, useTagSprite } from './hooks'
-import { createHashMap } from './utils'
+import { createHashGroupMap, type HashGroupMeta } from './utils'
 import type { Hash } from 'types/database'
 
 /** 本地图标标签数据 */
@@ -17,36 +17,36 @@ export const useIconTagStore = defineStore('global-icon-tag', () => {
   const userStore = useUserStore()
 
   // ==================== 内部状态 ====================
-  const hashMap = shallowRef(new Map<string, API.TagVo[]>())
+  const hashGroupMap = shallowRef(new Map<string, HashGroupMeta<Hash<API.TagVo>>>())
 
   // ==================== 外部状态 ====================
-  const tagList = computed(() => {
+  const list = computed(() => {
     const result: API.TagVo[] = []
-    hashMap.value.forEach((tagGroup) => {
-      tagGroup.forEach((tag) => {
+    hashGroupMap.value.forEach(({ list: scopeList }) => {
+      scopeList.forEach((tag) => {
         result.push(tag)
       })
     })
     return result
   })
 
-  const total = computed(() => tagList.value.length)
+  const total = computed(() => list.value.length)
 
   /** tag 名称到实体的索引表 */
-  const keyMap = computed(() => tagList.value.reduce((seed, tag) => {
+  const keyMap = computed(() => list.value.reduce((seed, tag) => {
     seed.set(tag.tag!, tag)
     return seed
   }, new Map<string, API.TagVo>()))
 
   /** @deprecated 使用 `tagNameMap` 代替 */
-  const iconTagMap = computed(() => Object.fromEntries(tagList.value.map(iconTag => [
+  const iconTagMap = computed(() => Object.fromEntries(list.value.map(iconTag => [
     iconTag.tag as string,
     iconTag as API.TagVo,
   ])) as Record<string, API.TagVo>)
 
   // ==================== 数据更新 ====================
 
-  const { context, nextUpdateTime, loading: updateLoading, update } = useManager({
+  const { context, error: managerError, nextUpdateTime, loading: updateLoading, update } = useManager({
     timeoutPull: {
       time: 20 * 60 * 1000,
       condition: () => userStore.info?.roleId !== undefined,
@@ -61,7 +61,7 @@ export const useIconTagStore = defineStore('global-icon-tag', () => {
     init: async ({ message }) => {
       message.value = '初始化上下文'
       const dbList = await db.iconTag.toArray()
-      hashMap.value = createHashMap(dbList)
+      hashGroupMap.value = createHashGroupMap(dbList)
     },
 
     diff: async ({ updateCount, startTime, message }) => {
@@ -71,32 +71,44 @@ export const useIconTagStore = defineStore('global-icon-tag', () => {
       const { data: digest = '' } = await Api.tagDoc.listAllTagBinaryMd5()
       const hashList = [digest]
 
-      const newHashSet = new Set(hashList)
+      let oldUpdateTime = 0
+      hashGroupMap.value.forEach(({ time }) => {
+        if (time > oldUpdateTime)
+          oldUpdateTime = time
+      })
 
-      const oldHashSet = new Set(hashMap.value.keys())
+      let newUpdateTime = 0
+
+      const newHashSet = new Set(hashList)
+      const oldHashSet = new Set(hashGroupMap.value.keys())
 
       const needUpdateHashList = [...newHashSet.difference(oldHashSet)]
-
-      const needDeleteKeys = [...oldHashSet.difference(newHashSet)].reduce((collect, hash) => {
-        hashMap.value.get(hash)?.forEach(({ tag }) => {
-          collect.push(tag!)
-        })
-        return collect
-      }, [] as string[])
+      const needDeleteKeys: string[] = []
 
       message.value = '获取更新数据'
+
       const newData = (await Promise.all(needUpdateHashList.map(async (hash) => {
-        const buffer = await (Api.tagDoc.listAllTagBinary({ responseType: 'arraybuffer' }) as unknown as Promise<ArrayBuffer>)
-        const data = await Zip.decompressAs<API.TagVo[]>(new Uint8Array(buffer), {
-          name: `iconTag-${hash}`,
-        })
-        return data.map((newOne) => {
-          const oldOne = keyMap.value.get(newOne.tag!)
-          if (!oldOne || ((oldOne.updateTime ?? 0) <= (newOne.updateTime ?? 0)))
-            return { ...newOne, __hash: hash }
-          return { ...newOne, __hash: hash }
-        })
+        const buffer = await <Promise<ArrayBuffer>>(<unknown>Api.tagDoc.listAllTagBinary({ responseType: 'arraybuffer' }))
+        const data = await Zip.decompressAs<API.TagVo[]>(new Uint8Array(buffer), { name: `iconTag-${hash}` })
+        return data.map((newOne) => (<Hash<API.TagVo>>{ ...newOne, __hash: hash }))
       }))).flat(1)
+
+      const newHashGroup = createHashGroupMap(newData)
+      newHashGroup.forEach(({ time }) => {
+        if (time > newUpdateTime)
+          newUpdateTime = time
+      })
+
+      hashGroupMap.value.forEach(({ time, list }, oldHash) => {
+        if (newHashSet.has(oldHash) || time >= newUpdateTime)
+          return
+        for (let i = 0; i < list.length; i++) {
+          const item = list[i]
+          if (new Date(item.updateTime!).getTime() >= newUpdateTime)
+            continue
+          needDeleteKeys.push(item.tag!)
+        }
+      })
 
       updateCount.value = newData.length
 
@@ -114,16 +126,9 @@ export const useIconTagStore = defineStore('global-icon-tag', () => {
       const { data: hash = '' } = await Api.tagDoc.listAllTagBinaryMd5()
 
       message.value = '获取更新数据'
-      const buffer = await (Api.tagDoc.listAllTagBinary({ responseType: 'arraybuffer' }) as unknown as Promise<ArrayBuffer>)
-      const data = await Zip.decompressAs<API.TagVo[]>(new Uint8Array(buffer), {
-        name: `iconTag-${hash}`,
-      })
-      const newData = data.map((newOne) => {
-        const oldOne = keyMap.value.get(newOne.tag!)
-        if (!oldOne || ((oldOne.updateTime ?? 0) <= (newOne.updateTime ?? 0)))
-          return { ...newOne, __hash: hash }
-        return { ...newOne, __hash: hash }
-      })
+      const buffer = await <Promise<ArrayBuffer>>(<unknown>Api.tagDoc.listAllTagBinary({ responseType: 'arraybuffer' }))
+      const data = await Zip.decompressAs<API.TagVo[]>(new Uint8Array(buffer), { name: `iconTag-${hash}` })
+      const newData = data.map((newOne) => (<Hash<API.TagVo>>{ ...newOne, __hash: hash }))
 
       updateCount.value = newData.length
 
@@ -169,7 +174,7 @@ export const useIconTagStore = defineStore('global-icon-tag', () => {
   })
 
   liveQuery(() => db.iconTag.toArray()).subscribe((dbList) => {
-    hashMap.value = createHashMap(dbList)
+    hashGroupMap.value = createHashGroupMap(dbList)
     refreshTagSprite(dbList)
   })
 
@@ -180,6 +185,7 @@ export const useIconTagStore = defineStore('global-icon-tag', () => {
   return {
     // 数据更新
     context,
+    managerError,
     nextUpdateTime,
     updateLoading,
     update,
@@ -196,7 +202,7 @@ export const useIconTagStore = defineStore('global-icon-tag', () => {
     markerSpriteMapping,
 
     // 计算状态
-    tagList: tagList as Readonly<ShallowRef<API.TagVo[]>>,
+    tagList: list as Readonly<ShallowRef<API.TagVo[]>>,
     total,
     tagNameMap: keyMap,
     iconTagMap,

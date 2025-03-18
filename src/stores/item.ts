@@ -9,7 +9,7 @@ import { liveQuery } from 'dexie'
 import { defineStore } from 'pinia'
 import { useAccessStore, useSocketStore, useUserStore } from '.'
 import { useAfterUpdated, useManager } from './hooks'
-import { createHashMap } from './utils'
+import { createHashGroupMap, type HashGroupMeta } from './utils'
 
 /** 本地物品数据 */
 export const useItemStore = defineStore('global-item', () => {
@@ -18,12 +18,12 @@ export const useItemStore = defineStore('global-item', () => {
   const userStore = useUserStore()
 
   // ==================== 内部状态 ====================
-  const hashMap = shallowRef(new Map<string, Hash<API.ItemVo>[]>())
+  const hashGroupMap = shallowRef(new Map<string, HashGroupMeta<Hash<API.ItemVo>>>())
 
   const idHashMap = computed(() => {
     const result = new Map<number, string>()
-    hashMap.value.forEach((items) => {
-      items.forEach(({ id, __hash = '' }) => {
+    hashGroupMap.value.forEach(({ list }) => {
+      list.forEach(({ id, __hash = '' }) => {
         result.set(id!, __hash)
       })
     })
@@ -33,9 +33,9 @@ export const useItemStore = defineStore('global-item', () => {
   // ==================== 外部状态 ====================
   const list = computed(() => {
     const res: API.ItemVo[] = []
-    hashMap.value.forEach((hashedItemList) => {
-      for (let i = 0; i < hashedItemList.length; i++) {
-        const itemInfo = hashedItemList[i]
+    hashGroupMap.value.forEach(({ list: scopeList }) => {
+      for (let i = 0; i < scopeList.length; i++) {
+        const itemInfo = scopeList[i]
         if (!accessStore.checkHiddenFlag(itemInfo.hiddenFlag))
           continue
         res.push(itemInfo)
@@ -78,7 +78,7 @@ export const useItemStore = defineStore('global-item', () => {
     init: async ({ message }) => {
       message.value = '初始化上下文'
       const dbList = await db.item.toArray()
-      hashMap.value = createHashMap(dbList)
+      hashGroupMap.value = createHashGroupMap(dbList)
     },
 
     diff: async ({ updateCount, startTime, message }) => {
@@ -87,35 +87,44 @@ export const useItemStore = defineStore('global-item', () => {
       message.value = '获取签名列表'
       const { data: hashList = [] } = await Api.itemDoc.listItemBinaryMD5()
 
-      const newHashSet = new Set(hashList)
+      let oldUpdateTime = 0
+      hashGroupMap.value.forEach(({ time }) => {
+        if (time > oldUpdateTime)
+          oldUpdateTime = time
+      })
 
-      const oldHashSet = new Set(hashMap.value.keys())
+      let newUpdateTime = 0
+
+      const newHashSet = new Set(hashList)
+      const oldHashSet = new Set(hashGroupMap.value.keys())
 
       const needUpdateHashList = [...newHashSet.difference(oldHashSet)]
 
-      const needDeleteKeys = [...oldHashSet.difference(newHashSet)].reduce((collect, hash) => {
-        hashMap.value.get(hash)?.forEach(({ id }) => {
-          collect.push(id!)
-        })
-        return collect
-      }, [] as number[])
+      const needDeleteKeys: number[] = []
 
       message.value = '获取更新数据'
       const newData = (await Promise.all(needUpdateHashList.map(async (hash) => {
-        const buffer = await (Api.itemDoc.listPageItemByBinary({ md5: hash }, { responseType: 'arraybuffer' }) as unknown as Promise<ArrayBuffer>)
-        const data = await Zip.decompressAs<API.ItemVo[]>(new Uint8Array(buffer), {
-          name: `item-${hash}`,
-        })
-        return data.map((newOne) => {
-          const oldOne = idMap.value.get(newOne.id!)
-          if (!oldOne || ((oldOne.updateTime ?? 0) <= (newOne.updateTime ?? 0)))
-            return { ...newOne, __hash: hash }
-          return { ...newOne, __hash: hash }
-        })
+        const buffer = await <Promise<ArrayBuffer>>(<unknown>Api.itemDoc.listPageItemByBinary({ md5: hash }, { responseType: 'arraybuffer' }))
+        const data = await Zip.decompressAs<API.ItemVo[]>(new Uint8Array(buffer), { name: `item-${hash}` })
+        return data.map((newOne) => (<Hash<API.ItemVo>>{ ...newOne, __hash: hash }))
       }))).flat(1)
 
-      message.value = '清理脏数据'
-      await db.item.bulkDelete(needDeleteKeys)
+      const newHashGroup = createHashGroupMap(newData)
+      newHashGroup.forEach(({ time }) => {
+        if (time > newUpdateTime)
+          newUpdateTime = time
+      })
+
+      hashGroupMap.value.forEach(({ time, list }, oldHash) => {
+        if (newHashSet.has(oldHash) || time >= newUpdateTime)
+          return
+        for (let i = 0; i < list.length; i++) {
+          const item = list[i]
+          if (new Date(item.updateTime!).getTime() >= newUpdateTime)
+            continue
+          needDeleteKeys.push(item.id!)
+        }
+      })
 
       updateCount.value = newData.length
 
@@ -134,16 +143,9 @@ export const useItemStore = defineStore('global-item', () => {
 
       message.value = '获取更新数据'
       const newData = (await Promise.all(hashList.map(async (hash) => {
-        const buffer = await (Api.itemDoc.listPageItemByBinary({ md5: hash }, { responseType: 'arraybuffer' }) as unknown as Promise<ArrayBuffer>)
-        const data = await Zip.decompressAs<API.ItemVo[]>(new Uint8Array(buffer), {
-          name: `item-${hash}`,
-        })
-        return data.map((newOne) => {
-          const oldOne = idMap.value.get(newOne.id!)
-          if (!oldOne || ((oldOne.updateTime ?? 0) <= (newOne.updateTime ?? 0)))
-            return { ...newOne, __hash: hash }
-          return { ...newOne, __hash: hash }
-        })
+        const buffer = await <Promise<ArrayBuffer>>(<unknown>Api.itemDoc.listPageItemByBinary({ md5: hash }, { responseType: 'arraybuffer' }))
+        const data = await Zip.decompressAs<API.ItemVo[]>(new Uint8Array(buffer), { name: `item-${hash}` })
+        return data.map((newOne) => (<Hash<API.ItemVo>>{ ...newOne, __hash: hash }))
       }))).flat(1)
 
       updateCount.value = newData.length
@@ -160,7 +162,7 @@ export const useItemStore = defineStore('global-item', () => {
       const { resolve, promise } = Promise.withResolvers<WorkerOutput>()
       const worker = new BulkPutWorker({ name: '物品更新线程' })
       worker.addEventListener('message', (ev: MessageEvent<WorkerOutput>) => resolve(ev.data))
-      worker.postMessage({ tableName: 'item', ...options } as WorkerInput<number, Hash<API.ItemVo>>)
+      worker.postMessage(<WorkerInput<number, Hash<API.ItemVo>>>{ tableName: 'item', ...options })
       const { error, message: workerMsg } = await promise
       worker.terminate()
       if (error) {
@@ -185,7 +187,7 @@ export const useItemStore = defineStore('global-item', () => {
   liveQuery(() => db.item.toArray()).subscribe((dbList) => {
     if (waitForUpdate.value.size > 0)
       return
-    hashMap.value = createHashMap(dbList)
+    hashGroupMap.value = createHashGroupMap(dbList)
     triggerUpdated()
   })
 
