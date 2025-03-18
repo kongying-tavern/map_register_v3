@@ -5,6 +5,7 @@ import { ROLE_MASK_MAP, USERAUTH_KEY } from '@/shared'
 import { Logger } from '@/utils'
 import { camelCase } from 'lodash'
 import { defineStore } from 'pinia'
+import { from, retry, lastValueFrom } from 'rxjs'
 
 interface AppUserAuth {
   refreshToken: string
@@ -110,6 +111,7 @@ export const useUserStore = defineStore('global-user', () => {
   const logout = () => {
     beforeLogout.trigger()
     clearLoginState()
+    loginPanelVisible.value = true
   }
 
   onFetchInfoError(() => {
@@ -124,10 +126,10 @@ export const useUserStore = defineStore('global-user', () => {
     // 刷新时间如果大于阈值，跳过并等待下一轮刷新
     if ((auth.value.expiresTime! - Date.now()) > (REFRESH_INTERVAL + RESTTIME_PRECISION))
       return
-    const res = await Oauth.oauth.refresh({
+    const res = await lastValueFrom(from(Oauth.oauth.refresh({
       grant_type: 'refresh_token',
       refresh_token: auth.value.refreshToken,
-    }).catch(() => null)
+    })).pipe(retry({ count: 3, delay: 50 }))).catch(() => null)
     // 如果刷新失败，清空凭证并退出
     if (!res) {
       onCancel?.()
