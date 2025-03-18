@@ -1,13 +1,15 @@
 .draw-y {
   &-enter-active, &-leave-active {
-    transition: all 200ms;
+    transition: all 200ms ease;
   }
 
   &-enter-from {
-    transform: translateY(-32px);
+    opacity: 0;
+    transform: translateY(-60px);
   }
 
   &-leave-to {
-    transform: translateY(-32px);
+    opacity: 0;
+    transform: translateY(-60px);
   }
 }
