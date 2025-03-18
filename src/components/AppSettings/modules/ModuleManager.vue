@@ -18,6 +18,7 @@ const usePageSize = (module: ManagerModule) => computed({
 const itemPageSize = usePageSize(ManagerModule.Item)
 const markerPageSize = usePageSize(ManagerModule.Marker)
 const typePageSize = usePageSize(ManagerModule.Type)
+const userPageSize = usePageSize(ManagerModule.User)
 const noticePageSize = usePageSize(ManagerModule.Notice)
 const historyPageSize = usePageSize(ManagerModule.History)
 </script>
@@ -51,7 +52,7 @@ const historyPageSize = usePageSize(ManagerModule.History)
     <SettingGroup name="用户管理">
       <SettingBar label="分页项目数">
         <template #setting>
-          <el-input-number v-model="noticePageSize" :min="10" :max="100" :step="1" />
+          <el-input-number v-model="userPageSize" :min="10" :max="100" :step="1" />
         </template>
       </SettingBar>
     </SettingGroup>
