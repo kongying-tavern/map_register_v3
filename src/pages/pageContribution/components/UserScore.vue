@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { S2DataConfig } from '@antv/s2'
+import type { S2DataConfig, S2Options, S2Theme } from '@antv/s2'
 import { useTheme } from '@/hooks'
 import { DATA_START_TIME } from '@/shared/constant'
 import { TableSheet } from '@antv/s2'
@@ -25,6 +25,8 @@ interface SheetableData {
   position: number
   refreshTime: number
 }
+
+const { isDark } = useTheme()
 
 const containerRef = useTemplateRef('container')
 
@@ -116,79 +118,91 @@ const buildDataConfig = (data: SheetableData[]): S2DataConfig => {
   }
 }
 
-const { isDark } = useTheme()
+const sheetOptions: S2Options = {
+  hd: true,
+  width: 800,
+  height: 600,
+  hierarchyType: 'grid',
+  interaction: {
+    copy: {
+      enable: true,
+      withFormat: true,
+      withHeader: true,
+    },
+    resize: {
+      colCellHorizontal: false,
+      colCellVertical: false,
+      rowCellVertical: false,
+      cornerCellHorizontal: false,
+    },
+  },
+  transformCanvasConfig: () => ({
+    supportsCSSTransform: true,
+  }),
+  headerActionIcons: [
+    {
+      icons: ['Minus'],
+      belongsCell: 'colCell',
+      displayCondition: (meta) => {
+        if (meta.level !== 1)
+          return false
+        return meta.field !== sortKey.value
+      },
+      onClick: ({ meta }) => {
+        sortKey.value = meta.field
+        sortType.value = 'DESC'
+      },
+    },
+    {
+      icons: ['SortUpSelected'],
+      belongsCell: 'colCell',
+      displayCondition: (meta) => {
+        if (meta.level !== 1)
+          return false
+        return meta.field === sortKey.value && sortType.value === 'ASC'
+      },
+      onClick: () => {
+        sortType.value = 'DESC'
+      },
+    },
+    {
+      icons: ['SortDownSelected'],
+      belongsCell: 'colCell',
+      displayCondition: (meta) => {
+        if (meta.level !== 1)
+          return false
+        return meta.field === sortKey.value && sortType.value === 'DESC'
+      },
+      onClick: () => {
+        sortType.value = 'ASC'
+      },
+    },
+  ],
+}
+
+const sheetTheme: S2Theme = {
+  dataCell: {
+    cell: {
+      interactionState: {
+        hoverFocus: {
+          borderColor: 'transparent',
+        },
+      },
+    },
+  },
+}
 
 onMounted(() => {
   if (!containerRef.value)
     return
 
-  const sheet = new TableSheet(
-    containerRef.value,
-    buildDataConfig(rawData.value),
-    {
-      hd: true,
-      width: 800,
-      height: 600,
-      hierarchyType: 'grid',
-      interaction: {
-        copy: {
-          enable: true,
-          withFormat: true,
-          withHeader: true,
-        },
-        resize: {
-          colCellHorizontal: false,
-          colCellVertical: false,
-          rowCellVertical: false,
-          cornerCellHorizontal: false,
-        },
-      },
-      headerActionIcons: [
-        {
-          icons: ['Minus'],
-          belongsCell: 'colCell',
-          displayCondition: (meta) => {
-            if (meta.level !== 1)
-              return false
-            return meta.field !== sortKey.value
-          },
-          onClick: ({ meta }) => {
-            sortKey.value = meta.field
-            sortType.value = 'DESC'
-          },
-        },
-        {
-          icons: ['SortUpSelected'],
-          belongsCell: 'colCell',
-          displayCondition: (meta) => {
-            if (meta.level !== 1)
-              return false
-            return meta.field === sortKey.value && sortType.value === 'ASC'
-          },
-          onClick: () => {
-            sortType.value = 'DESC'
-          },
-        },
-        {
-          icons: ['SortDownSelected'],
-          belongsCell: 'colCell',
-          displayCondition: (meta) => {
-            if (meta.level !== 1)
-              return false
-            return meta.field === sortKey.value && sortType.value === 'DESC'
-          },
-          onClick: () => {
-            sortType.value = 'ASC'
-          },
-        },
-      ],
-    },
-  )
+  const sheet = new TableSheet(containerRef.value, buildDataConfig(rawData.value), sheetOptions)
 
   sheetRef.value = sheet
 
   sheet.setThemeCfg({
     name: isDark.value ? 'dark' : 'default',
+    theme: sheetTheme,
   })
 
   sheet.render()
@@ -199,27 +213,28 @@ onBeforeUnmount(() => {
   sheetRef.value?.destroy()
 })
 
-useResizeObserver(containerRef, ([entry]) => {
+useResizeObserver(containerRef, useDebounceFn(([entry]) => {
   const { width, height } = entry.contentRect
   sheetRef.value?.changeSheetSize(width, height)
   sheetRef.value?.render(false)
-})
+}, 200))
 
 watch([sortKey, sortType], () => {
   sheetRef.value?.setDataCfg(buildDataConfig(rawData.value), false)
-  sheetRef.value?.render()
+  sheetRef.value?.render(false)
 })
 
 watch(rawData, (data) => {
   sheetRef.value?.setDataCfg(buildDataConfig(data), true)
-  sheetRef.value?.render()
+  sheetRef.value?.render(true)
 })
 
 watch(isDark, (dark) => {
   sheetRef.value?.setThemeCfg({
     name: dark ? 'dark' : 'default',
+    theme: sheetTheme,
   })
-  sheetRef.value?.render()
+  sheetRef.value?.render(false)
 })
 </script>
 
