@@ -92,7 +92,7 @@ const initLogInfo = (args: unknown[]) => {
       <SettingBar label="日志可见性" note="控制日志是否在面板上输出" :icon="Setting">
         <template #detail>
           <el-checkbox-group v-model="preferenceStore.enableLoggers" @change="devStore.refreshLogs">
-            <div class="grid grid-cols-4">
+            <div class="grid grid-cols-2 sm:grid-cols-4">
               <el-checkbox
                 v-for="label in devStore.loggerLabels"
                 :key="label"
