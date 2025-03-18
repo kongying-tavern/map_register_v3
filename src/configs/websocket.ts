@@ -16,7 +16,7 @@ interface WebSocketWorkerConfig {
 /** 连接配置。出于稳定性考虑，连接参数不再通过运行时确定。 */
 export const WEBSOCKET_WORKER_CONFIG: WebSocketWorkerConfig = {
   HEARTBEAT: {
-    INTERVAL: 30000,
+    INTERVAL: 15000,
     TIMEOUT: 30000,
   },
   RECONNECT: {
