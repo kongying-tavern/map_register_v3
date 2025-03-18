@@ -130,12 +130,14 @@ export class SocketController {
         }, [])
       }),
 
-      // 仅当关闭原因为 “心跳超时” 才进行重连
+      // 当关闭原因为如下时，不进行重连
       filter((ev) => {
         const { reason } = ev
-        if (!reason || ev.reason === SocketCloseReason.HEARTBEAT_TIMEOUT)
-          return true
-        return false
+        return ![
+          SocketCloseReason.CLOSED_BY_USER,
+          SocketCloseReason.URL_CHANGED,
+          SocketCloseReason.ALL_PORTS_CLOSED,
+        ].some((r) => r === reason)
       }),
 
       switchMap(() => {
@@ -155,7 +157,7 @@ export class SocketController {
       else if (ev instanceof DOMException)
         socketLogger.error(ev.message ?? ev.name)
       else
-        socketLogger.error(ev.type)
+        socketLogger.error('unknown')
     })
 
     // 接收到消息
