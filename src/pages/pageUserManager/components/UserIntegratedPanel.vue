@@ -2,7 +2,7 @@
 import { GlobalDialogController, WinDialog, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 import { ExitLeft } from '@/components/GenshinUI/GSIcon'
 import { ACCESS_POLICY_OPTIONS } from '@/shared'
-import { useUserInfoStore } from '@/stores'
+import { useUserStore } from '@/stores'
 import { CircleCheck, Delete, PictureFilled, RefreshLeft } from '@element-plus/icons-vue'
 import { usePasswordUpdate, useUserEdit } from '../hooks'
 import UserDeleteConfirm from './UserDeleteConfirm.vue'
@@ -20,11 +20,11 @@ const emits = defineEmits<{
   success: []
 }>()
 
-const userInfoStore = useUserInfoStore()
+const userStore = useUserStore()
 
 // ==================== 面板状态 ====================
 /** 当前打开的面板是否为自己 */
-const isYourSelf = computed(() => userInfoStore.info.id === props.data.id)
+const isYourSelf = computed(() => userStore.info?.id === props.data.id)
 
 /** 面板任务处理状态 */
 const panelLoading = ref(false)

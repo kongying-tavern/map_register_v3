@@ -58,7 +58,7 @@ export const useUserStore = defineStore('global-user', () => {
   // ==================== 用户信息 ====================
   const userInfoVisible = ref(false)
 
-  const { data: info, loading: isInfoLoading, refresh: refreshUserInfo } = useFetchHook({
+  const { data: info, loading: isInfoLoading, refresh: refreshUserInfo, onError: onFetchInfoError } = useFetchHook({
     shallow: true,
     initialValue: null,
     onRequest: async (userId: number | undefined = auth.value.userId) => {
@@ -111,6 +111,10 @@ export const useUserStore = defineStore('global-user', () => {
     beforeLogout.trigger()
     clearLoginState()
   }
+
+  onFetchInfoError(() => {
+    logout()
+  })
 
   const refreshToken = async (onCancel?: () => void) => {
     if (!auth.value.refreshToken) {

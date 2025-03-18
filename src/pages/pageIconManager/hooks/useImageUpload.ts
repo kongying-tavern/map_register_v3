@@ -3,7 +3,7 @@ import Resource from '@/api/resource'
 import { GlobalDialogController } from '@/components'
 import db from '@/database'
 import { useFetchHook } from '@/hooks'
-import { useUserInfoStore } from '@/stores'
+import { useUserStore } from '@/stores'
 import { getDigest } from '@/utils'
 import dayjs from 'dayjs'
 import { ElMessage } from 'element-plus'
@@ -16,7 +16,7 @@ interface ImageUploadHookOptions {
 export const useImageUpload = (options: ImageUploadHookOptions) => {
   const { image, tagName } = options
 
-  const userInfoStore = useUserInfoStore()
+  const userStore = useUserStore()
 
   const percentage = ref(0)
 
@@ -36,6 +36,9 @@ export const useImageUpload = (options: ImageUploadHookOptions) => {
 
   const { refresh: uploadImage, onSuccess, onError, ...rest } = useFetchHook({
     onRequest: async () => {
+      if (!userStore.info)
+        throw new Error('未登录')
+
       const imageBlob = toValue(image)
       if (!imageBlob)
         throw new Error('图片为空')
@@ -80,7 +83,7 @@ export const useImageUpload = (options: ImageUploadHookOptions) => {
         name: !iconName.value ? fileName : iconName.value,
         url: fileUrl,
         typeIdList: [],
-        creatorId: userInfoStore.info.id,
+        creatorId: userStore.info.id,
       })
       if (iconId === undefined)
         throw new Error('新增图片资产的 id 为空')

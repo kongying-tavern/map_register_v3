@@ -3,7 +3,7 @@ import Api from '@/api/api'
 import { GlobalDialogController, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 import db from '@/database'
 import { useFetchHook } from '@/hooks'
-import { useUserInfoStore } from '@/stores'
+import { useUserStore } from '@/stores'
 import { Check, Close } from '@element-plus/icons-vue'
 import dayjs from 'dayjs'
 import { ElMessage } from 'element-plus'
@@ -23,10 +23,13 @@ const tagName = controlledRef('', {
   },
 })
 
-const userInfoStore = useUserInfoStore()
+const userStore = useUserStore()
 
 const { loading, refresh: createTag, onSuccess, onError } = useFetchHook({
   onRequest: async () => {
+    if (!userStore.info)
+      throw new Error('未登录')
+
     const name = toValue(tagName)
     const { data = false } = await Api.tag.createTag({ tagName: name })
 
@@ -45,9 +48,9 @@ const { loading, refresh: createTag, onSuccess, onError } = useFetchHook({
       tag: name,
       iconId: 0,
       url: '',
-      creatorId: userInfoStore.info.id,
+      creatorId: userStore.info.id,
       createTime: current,
-      updaterId: userInfoStore.info.id,
+      updaterId: userStore.info.id,
       updateTime: current,
       typeIdList: [],
       version: 1,

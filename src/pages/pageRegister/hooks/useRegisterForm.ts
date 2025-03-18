@@ -3,7 +3,7 @@ import type { ItemFormRules } from '@/utils'
 import Api from '@/api/api'
 import Oauth from '@/api/oauth'
 import { useFetchHook } from '@/hooks'
-import { useArchiveStore, useUserAuthStore } from '@/stores'
+import { useArchiveStore, useUserStore } from '@/stores'
 import { passwordCheck, qqCheck } from '@/utils'
 import { ElMessage } from 'element-plus'
 import { reactive, ref } from 'vue'
@@ -49,7 +49,7 @@ export const useRegisterForm = () => {
     }
   }
 
-  const userAuthStore = useUserAuthStore()
+  const userStore = useUserStore()
   const router = useRouter()
   const archiveStore = useArchiveStore()
 
@@ -57,7 +57,7 @@ export const useRegisterForm = () => {
     ElMessage.success({
       message: '注册成功',
     })
-    userAuthStore.setAuth(auth)
+    userStore.setAuth(auth)
     await router.push('/map')
     await archiveStore.fetchArchive()
     await archiveStore.loadLatestArchive()
