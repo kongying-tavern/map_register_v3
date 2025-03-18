@@ -83,7 +83,7 @@ const handleDragItem = (ev: DragEvent) => {
       <div class="grid grid-rows-2 grid-cols-[48px_1fr] text-sm overflow-hidden">
         <AppIconTagRenderer
           :src="iconTagStore.tagSpriteUrl"
-          :mapping="area?.iconTag ? iconTagStore.tagCoordMap.get(area.iconTag) : undefined"
+          :mapping="iconTagStore.tagCoordMap.get(area?.iconTag || parentArea?.iconTag || '') ?? undefined"
           class="row-span-2 w-12 h-12 p-1"
         >
           <img v-if="area" draggable="false" :src="fallbackToStaticIcon(area)">

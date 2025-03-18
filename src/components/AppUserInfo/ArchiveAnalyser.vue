@@ -126,8 +126,12 @@ const countMap = computed(() => {
           >
             <AppIconTagRenderer
               class="w-12 h-12 row-span-2 rounded-sm"
+              :style="{
+                '--theme-color': '#84603D',
+              }"
               :src="iconTagStore.tagSpriteUrl"
               :mapping="iconTagStore.tagCoordMap.get(area.iconTag!)"
+              mask="var(--theme-color)"
             >
               <div class="gs-archive-area w-full h-full row-span-2 rounded-sm" :style="{ '--icon': `url(${fallbackToStaticIcon(area)})` }" />
             </AppIconTagRenderer>
@@ -190,7 +194,7 @@ const countMap = computed(() => {
 }
 
 .gs-archive-area {
-  background: #84603D;
+  background: var(--theme-color);
   mask: var(--icon);
   mask-size: contain;
 }

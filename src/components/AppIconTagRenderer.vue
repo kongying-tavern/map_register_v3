@@ -1,7 +1,8 @@
 <script lang="ts" setup>
-defineProps<{
+const props = defineProps<{
   src?: string
   mapping?: [number, number]
+  mask?: string
 }>()
 </script>
 
@@ -16,10 +17,15 @@ defineProps<{
     <div
       v-else
       class="image-renderer w-16 h-16 origin-top-left"
+      :class="{
+        'is-mask': mask,
+      }"
       draggable="false"
       :style="{
-        'background': `url(${src})`,
-        'background-position': `${-mapping[0]}px ${-mapping[1]}px`,
+        '--x': `${-mapping[0]}px`,
+        '--y': `${-mapping[1]}px`,
+        '--mask-color': props.mask,
+        '--icon': `url(${src})`,
       }"
     />
   </div>
@@ -48,5 +54,12 @@ defineProps<{
   scale:
     tan(atan2(var(--image-container-width), 64px))
     tan(atan2(var(--image-container-height), 64px));
+  background: var(--icon);
+  background-position: var(--x) var(--y);
+  &.is-mask {
+    background: var(--mask-color);
+    mask: var(--icon);
+    mask-position: var(--x) var(--y);
+  }
 }
 </style>

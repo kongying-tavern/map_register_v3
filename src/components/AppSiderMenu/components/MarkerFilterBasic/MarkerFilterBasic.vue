@@ -20,7 +20,7 @@ import { useItemCount, useMarkerFilter, useTypeCount } from './hooks'
 const archiveStore = useArchiveStore()
 const iconTagStore = useIconTagStore()
 const preferenceStore = usePreferenceStore()
-const { areaCodeMap, parentAreaList, childrenAreaList } = storeToRefs(useAreaStore())
+const { areaIdMap, areaCodeMap, parentAreaList, childrenAreaList } = storeToRefs(useAreaStore())
 const { itemList, itemIdMap } = storeToRefs(useItemStore())
 const { itemTypeList, itemTypeIdMap } = storeToRefs(useItemTypeStore())
 const { markerBasicFilters } = storeToRefs(useMapStateStore())
@@ -135,7 +135,7 @@ const { itemTotalMap, itemCountMap } = useItemCount({
           <template #icon="{ row }">
             <AppIconTagRenderer
               :src="iconTagStore.tagSpriteUrl"
-              :mapping="iconTagStore.tagCoordMap.get(row.iconTag ?? '')"
+              :mapping="iconTagStore.tagCoordMap.get(row.iconTag || areaIdMap.get(row.parentId ?? -1)?.iconTag || '')"
               class="w-full aspect-square"
             >
               <img :src="fallbackToStaticIcon(row)">
@@ -155,7 +155,7 @@ const { itemTotalMap, itemCountMap } = useItemCount({
           <template #icon="{ row }">
             <AppIconTagRenderer
               :src="iconTagStore.tagSpriteUrl"
-              :mapping="iconTagStore.tagCoordMap.get(row.iconTag ?? '')"
+              :mapping="iconTagStore.tagCoordMap.get(row.iconTag || areaIdMap.get(row.parentId ?? -1)?.iconTag || '')"
               class="w-full aspect-square"
             >
               <img :src="fallbackToStaticIcon(row)">
