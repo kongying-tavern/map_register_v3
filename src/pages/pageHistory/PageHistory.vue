@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { usePagination } from '@/hooks'
+import { HistoryActionType } from '@/shared'
 import { HistoryTable } from './components'
 import { useHistoryList } from './hooks'
 
@@ -10,15 +11,24 @@ const HISTORY_OPTIONS = [
   { label: '物品', value: 3 },
 ]
 
+const HISTORY_ACTIONS = [
+  { label: '新增', value: HistoryActionType.CREATE },
+  { label: '修改', value: HistoryActionType.UPDATE },
+  { label: '批量修改', value: HistoryActionType.TWEAK },
+  { label: '删除', value: HistoryActionType.DELETE },
+]
+
 const HISTORY_TYPE_NAME_MAP = HISTORY_OPTIONS.reduce((map, option) => {
   return map.set(option.value, option.label)
 }, new Map<number, string>())
 
 const historyType = ref(4)
+const editType = ref<HistoryActionType>()
 
 const { historyList, userMap, loading, updateHistoryList } = useHistoryList({
   pagination,
   historyType,
+  editType,
 })
 
 onPaginationChange(updateHistoryList)
@@ -32,6 +42,14 @@ onPaginationChange(updateHistoryList)
           <el-select-v2
             v-model="historyType"
             :options="HISTORY_OPTIONS"
+            @change="updateHistoryList"
+          />
+        </el-form-item>
+        <el-form-item label="操作类型">
+          <el-select-v2
+            v-model="editType"
+            :options="HISTORY_ACTIONS"
+            clearable
             @change="updateHistoryList"
           />
         </el-form-item>
