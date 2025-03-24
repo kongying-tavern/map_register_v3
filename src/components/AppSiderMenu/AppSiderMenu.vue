@@ -80,13 +80,6 @@ const WINDOW_LIST: ManagerModuleOption[] = [
     role: 'MANAGER_COMPONENT',
   },
   {
-    name: '公告管理',
-    hook: useAppWindow({ name: '公告管理', ...commonWindowOptions }),
-    icon: ElIcons.ChatLineRound,
-    comp: defineAsyncComponent(() => import('@/pages/pageNoticeManager/PageNoticeManager.vue')),
-    role: 'MANAGER_COMPONENT',
-  },
-  {
     name: '用户统计',
     hook: useAppWindow({ name: '用户统计', ...commonWindowOptions }),
     icon: ElIcons.Star,
@@ -99,6 +92,13 @@ const WINDOW_LIST: ManagerModuleOption[] = [
     icon: ElIcons.User,
     comp: defineAsyncComponent(() => import('@/pages/pageUserManager/UserManager.vue')),
     role: 'ADMIN_COMPONENT',
+  },
+  {
+    name: '公告管理',
+    hook: useAppWindow({ name: '公告管理', ...commonWindowOptions }),
+    icon: ElIcons.ChatLineRound,
+    comp: defineAsyncComponent(() => import('@/pages/pageNoticeManager/PageNoticeManager.vue')),
+    role: 'MANAGER_COMPONENT',
   },
   {
     name: '历史记录',
