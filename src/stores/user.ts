@@ -5,7 +5,7 @@ import { ROLE_MASK_MAP, USERAUTH_KEY } from '@/shared'
 import { Logger } from '@/utils'
 import { camelCase } from 'lodash'
 import { defineStore } from 'pinia'
-import { from, retry, lastValueFrom } from 'rxjs'
+import { from, lastValueFrom, retry } from 'rxjs'
 
 interface AppUserAuth {
   refreshToken: string
