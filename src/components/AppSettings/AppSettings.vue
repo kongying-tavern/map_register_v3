@@ -1,7 +1,9 @@
 <script lang="ts" setup>
+import type { ElSwitch } from 'element-plus'
 import { GlobalDialogController } from '@/components'
 import { useTheme } from '@/hooks'
 import { usePreferenceStore } from '@/stores'
+import { transitionToggleSchema } from '@/utils'
 import * as El from '@element-plus/icons-vue'
 import {
   ModuleAbout,
@@ -38,6 +40,23 @@ const activedKey = computed({
 const show = ref(false)
 
 const contentRef = ref<HTMLElement>()
+
+const switchRef = ref<InstanceType<typeof ElSwitch>>()
+
+const beforeChange = async () => {
+  const { resolve, promise } = Promise.withResolvers<boolean>()
+
+  const switchElement = switchRef.value?.$el as HTMLElement
+  const rect = switchElement.getBoundingClientRect()
+  const x = rect.left + rect.width / 2
+  const y = rect.top + rect.height / 2
+
+  transitionToggleSchema(x, y, () => {
+    resolve(true)
+  })
+
+  return await promise
+}
 </script>
 
 <template>
@@ -59,9 +78,11 @@ const contentRef = ref<HTMLElement>()
         </span>
         <span class="leading-9 px-2">设置</span>
         <el-switch
+          ref="switchRef"
           v-model="isDark"
           :active-action-icon="El.Moon"
           :inactive-action-icon="El.Sunny"
+          :before-change="beforeChange"
           style="
             --el-switch-on-color: var(--el-fill-color-darker);
           "

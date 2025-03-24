@@ -9,3 +9,7 @@
   // 禁用移动端点击反馈背景色
   -webkit-tap-highlight-color: transparent;
 }
+
+html {
+  view-transition-name: schema-change;
+}
