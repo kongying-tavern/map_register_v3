@@ -36,7 +36,7 @@ export const usePreferenceStore = defineStore('global-user-preference', () => {
     showRestrictedArea: model('userCenter.setting.showRestrictedArea', () => false),
     showZoneTag: model('map.setting.showZoneTag', () => true),
     step: model('markerFilter.state.step', () => 0),
-    tabName: model('mapSiderMenu.state.tabName', () => ''),
+    tabName: model('mapSiderMenu.state.tabName', () => 'filter'),
     transparentMarked: model('map.setting.transparentMarked', () => false),
     zoomTransitionDuration: model('map.setting.zoomTransitionDuration', () => 66),
   }

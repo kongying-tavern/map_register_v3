@@ -6,7 +6,6 @@ import {
   AppNoticeProvider,
   AppSiderMenu,
   AppStateBar,
-  AppUserAvatar,
   AppWindowProvider,
   MapContextMenu,
   MapLinkPopover,
@@ -153,7 +152,6 @@ onBeforeMount(() => {
     <MapMarkerToggleController />
     <MapMarkerTweakController />
 
-    <AppUserAvatar />
     <AppStateBar />
     <AppDevInfo />
     <AppSiderMenu />

@@ -4,7 +4,7 @@ import type {
   ACCESS_BINARY_MASK,
 } from '@/stores'
 import type { FeatureGroupOption } from './components'
-import { AppSettings, AppWindowTeleporter, useAppWindow } from '@/components'
+import { AppSettings, AppUserAvatar, AppWindowTeleporter, useAppWindow } from '@/components'
 import { IconNotice } from '@/components/AppIcons'
 import { useGlobalDialog } from '@/hooks'
 import {
@@ -12,6 +12,7 @@ import {
   useMapStateStore,
   useNoticeStore,
   usePreferenceStore,
+  useUserStore,
 } from '@/stores'
 import * as ElIcons from '@element-plus/icons-vue'
 import { CollapseButton, FeatureGrid, MarkerFilter, MarkerTable, SiderMenu, SiderMenuItem } from './components'
@@ -31,6 +32,7 @@ const accessStore = useAccessStore()
 const mapStateStore = useMapStateStore()
 const noticeStore = useNoticeStore()
 const preferenceStore = usePreferenceStore()
+const userStore = useUserStore()
 
 const { DialogService } = useGlobalDialog()
 
@@ -146,6 +148,25 @@ const switchFilterMode = () => {
   else
     preferenceStore.filterType = 'advanced'
 }
+
+const isLogin = computed(() => {
+  if (!userStore.auth.accessToken)
+    return false
+  return userStore.info !== undefined
+})
+
+watch(isLogin, (login) => {
+  if (!login)
+    preferenceStore.tabName = 'filter'
+})
+
+const handleAvatarClick = () => {
+  if (isLogin.value) {
+    userStore.userInfoVisible = true
+    return
+  }
+  userStore.loginPanelVisible = true
+}
 </script>
 
 <template>
@@ -237,6 +258,12 @@ const switchFilterMode = () => {
           >
             {{ noticeStore.newCount }}
           </div>
+        </template>
+      </SiderMenuItem>
+
+      <SiderMenuItem :label="userStore.info ? '用户中心' : '登录'" style="--icon-padding: 2px" @click="handleAvatarClick">
+        <template #icon>
+          <AppUserAvatar />
         </template>
       </SiderMenuItem>
 

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { GSButton } from '@/components'
+import { ExitLeft } from '@/components/GenshinUI/GSIcon'
 import { useUserStore } from '@/stores'
 import { Avatar } from '@element-plus/icons-vue'
 import { ElIcon, ElImage, ElSkeleton, ElSkeletonItem } from 'element-plus'
@@ -31,6 +33,16 @@ const BANNER_FALLBACK_URL = import.meta.env.VITE_BANNER_IMAGE
       </div>
 
       <div class="flex mx-8 flex-col items-center shrink-0">
+        <div class="absolute left-4 top-4">
+          <GSButton theme="plain" title="退出" @click="userStore.logout">
+            <template #icon>
+              <ElIcon :size="22">
+                <ExitLeft />
+              </ElIcon>
+            </template>
+          </GSButton>
+        </div>
+
         <div
           class="
             w-[144px] h-[144px] m-2 rounded-[80px] grid place-content-center overflow-hidden

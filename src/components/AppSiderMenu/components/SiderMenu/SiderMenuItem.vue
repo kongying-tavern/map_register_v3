@@ -40,8 +40,9 @@ const activeTab = (ev: MouseEvent) => {
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style scoped>
 .sider-menu-tab {
+  --icon-padding: 5px;
   --icon-color: #D3BC8E;
   --scale: 1;
   --button-bg: transparent;
@@ -64,7 +65,7 @@ const activeTab = (ev: MouseEvent) => {
 .sider-menu-tab-button {
   width: 100%;
   height: 100%;
-  padding: 5px;
+  padding: var(--icon-padding);
   scale: var(--scale);
   border-radius: 50%;
   background: var(--button-bg);
