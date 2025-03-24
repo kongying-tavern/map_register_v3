@@ -22,7 +22,9 @@ export const openapi2ts = (optionList: Openapi2tsOptions[]): Plugin => {
   const plugin: Plugin = {
     name: 'openapi-to-ts',
     apply: 'serve',
-    configResolved: async ({ root }) => {
+    configResolved: async ({ root, mode, isProduction }) => {
+      if (mode !== 'development' || isProduction)
+        return
       try {
         await Promise.all(optionList.map(async (options) => {
           const {
