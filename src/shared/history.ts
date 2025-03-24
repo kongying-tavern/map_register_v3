@@ -33,3 +33,11 @@ export enum HistoryActionType {
   /** 批量 */
   TWEAK = 10,
 }
+
+export const HISTORY_ACTION_TYPE_NAME_MAP = new Map<number, string>([
+  [HistoryActionType.NONE, '缺省'],
+  [HistoryActionType.CREATE, '新增'],
+  [HistoryActionType.UPDATE, '更新'],
+  [HistoryActionType.DELETE, '删除'],
+  [HistoryActionType.TWEAK, '批量编辑'],
+])
