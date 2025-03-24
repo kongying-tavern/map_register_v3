@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-import type { WindowContextHookReturnType } from '@/components'
+import type { MapWindow, WindowContextHookReturnType } from '@/components'
 import type {
   ACCESS_BINARY_MASK,
 } from '@/stores'
 import type { FeatureGroupOption } from './components'
 import { AppSettings, AppWindowTeleporter, useAppWindow } from '@/components'
-import { IconGithub, IconNotice } from '@/components/AppIcons'
+import { IconNotice } from '@/components/AppIcons'
 import { useGlobalDialog } from '@/hooks'
 import {
   useAccessStore,
@@ -22,7 +22,6 @@ interface ManagerModuleOption {
   icon: Component
   comp: Component
   role: keyof typeof ACCESS_BINARY_MASK
-  type: string
   cols?: number
 }
 
@@ -35,109 +34,82 @@ const preferenceStore = usePreferenceStore()
 
 const { DialogService } = useGlobalDialog()
 
+const commonWindowOptions: Omit<MapWindow.WindowOpenParams, 'id' | 'name'> = {
+  minWidth: 887,
+  minHeight: 500,
+  center: true,
+  sizeState: 'maximize',
+}
+
 const WINDOW_LIST: ManagerModuleOption[] = [
   {
     name: '物品管理',
-    hook: useAppWindow({ name: '物品管理', minWidth: 887, minHeight: 500, center: true, sizeState: 'maximize' }),
+    hook: useAppWindow({ name: '物品管理', ...commonWindowOptions }),
     icon: ElIcons.Box,
     comp: defineAsyncComponent(() => import('@/pages/pageItemManager/ItemManager.vue')),
-    role: 'MANAGER_COMPONENT',
-    type: 'manager',
+    role: 'ADMIN_COMPONENT',
   },
   {
     name: '地区管理',
-    hook: useAppWindow({ name: '地区管理', minWidth: 887, minHeight: 500, center: true, sizeState: 'maximize' }),
+    hook: useAppWindow({ name: '地区管理', ...commonWindowOptions }),
     icon: ElIcons.Coordinate,
     comp: defineAsyncComponent(() => import('@/pages/pageAreaManager/AreaManager.vue')),
-    role: 'MANAGER_COMPONENT',
-    type: 'manager',
+    role: 'ADMIN_COMPONENT',
   },
   {
     name: '点位管理',
-    hook: useAppWindow({ name: '点位管理', minWidth: 887, minHeight: 500, center: true, sizeState: 'maximize' }),
+    hook: useAppWindow({ name: '点位管理', ...commonWindowOptions }),
     icon: ElIcons.Location,
     comp: defineAsyncComponent(() => import('@/pages/pageMarkerManager/MarkerManager.vue')),
     role: 'MANAGER_COMPONENT',
-    type: 'manager',
   },
   {
     name: '类型管理',
-    hook: useAppWindow({ name: '类型管理', minWidth: 887, minHeight: 500, center: true, sizeState: 'maximize' }),
+    hook: useAppWindow({ name: '类型管理', ...commonWindowOptions }),
     icon: ElIcons.FolderOpened,
     comp: defineAsyncComponent(() => import('@/pages/pageTypeManager/TypeManager.vue')),
-    role: 'MANAGER_COMPONENT',
-    type: 'manager',
+    role: 'ADMIN_COMPONENT',
   },
   {
     name: '图标管理',
-    hook: useAppWindow({ name: '图标管理', minWidth: 887, minHeight: 500, center: true, sizeState: 'maximize' }),
+    hook: useAppWindow({ name: '图标管理', ...commonWindowOptions }),
     icon: ElIcons.Picture,
     comp: defineAsyncComponent(() => import('@/pages/pageIconManager/IconManager.vue')),
     role: 'MANAGER_COMPONENT',
-    type: 'manager',
   },
   {
     name: '公告管理',
-    hook: useAppWindow({ name: '公告管理', minWidth: 887, minHeight: 500, center: true, sizeState: 'maximize' }),
+    hook: useAppWindow({ name: '公告管理', ...commonWindowOptions }),
     icon: ElIcons.ChatLineRound,
     comp: defineAsyncComponent(() => import('@/pages/pageNoticeManager/PageNoticeManager.vue')),
     role: 'MANAGER_COMPONENT',
-    type: 'manager',
   },
   {
     name: '用户统计',
-    hook: useAppWindow({ name: '用户统计', minWidth: 887, minHeight: 500, center: true, sizeState: 'maximize' }),
+    hook: useAppWindow({ name: '用户统计', ...commonWindowOptions }),
     icon: ElIcons.Star,
     comp: defineAsyncComponent(() => import('@/pages/pageContribution/PageContribution.vue')),
     role: 'ADMIN_COMPONENT',
-    type: 'manager',
   },
   {
     name: '用户管理',
-    hook: useAppWindow({ name: '用户管理', minWidth: 887, minHeight: 500, center: true, sizeState: 'maximize' }),
+    hook: useAppWindow({ name: '用户管理', ...commonWindowOptions }),
     icon: ElIcons.User,
     comp: defineAsyncComponent(() => import('@/pages/pageUserManager/UserManager.vue')),
     role: 'ADMIN_COMPONENT',
-    type: 'manager',
   },
   {
     name: '历史记录',
-    hook: useAppWindow({ name: '历史记录', minWidth: 887, minHeight: 500, center: true, sizeState: 'maximize' }),
+    hook: useAppWindow({ name: '历史记录', ...commonWindowOptions }),
     icon: ElIcons.Memo,
     comp: defineAsyncComponent(() => import('@/pages/pageHistory/PageHistory.vue')),
     role: 'MANAGER_COMPONENT',
-    type: 'manager',
-  },
-  {
-    name: '控制中心',
-    hook: useAppWindow({ name: '控制中心', minWidth: 887, minHeight: 500, center: true }),
-    icon: ElIcons.Operation,
-    comp: defineAsyncComponent(() => import('@/pages/pageDeveloper/PageDeveloper.vue')),
-    role: 'ADMIN_COMPONENT',
-    type: 'developer',
-    cols: 3,
   },
 ]
 
 const FEATURE_OPTIONS: FeatureGroupOption[] = [
   {
-    label: '管理系统',
-    items: WINDOW_LIST
-      .filter(({ type }) => type === 'manager')
-      .map(({ name, hook, ...args }) => ({ label: name, cb: hook.open, hook, ...args })),
-  },
-  {
-    label: '开发者',
-    items: WINDOW_LIST
-      .filter(({ type }) => type === 'developer')
-      .map(({ name, hook, ...args }) => ({ label: name, cb: hook.open, hook, ...args })),
-  },
-  {
-    label: '关于项目',
-    items: [
-      { label: 'GitHub', icon: IconGithub, cb: () => window.open('https://github.com/kongying-tavern/map_register_v3') },
-      { label: '赞助我们', icon: ElIcons.CoffeeCup, cb: () => window.open('https://opencollective.com/genshinmap') },
-    ],
+    items: WINDOW_LIST.map(({ name, hook, ...args }) => ({ label: name, cb: hook.open, hook, ...args })),
   },
 ]
 
@@ -197,7 +169,7 @@ const switchFilterMode = () => {
             color="var(--icon-color)"
             :size="38"
           >
-            <Filter />
+            <ElIcons.Filter />
           </el-icon>
 
           <div
@@ -227,7 +199,7 @@ const switchFilterMode = () => {
             color="var(--icon-color)"
             :size="38"
           >
-            <List />
+            <ElIcons.List />
           </el-icon>
 
           <div
@@ -243,11 +215,11 @@ const switchFilterMode = () => {
       <MarkerTable />
     </SiderMenuItem>
 
-    <SiderMenuItem name="features" label="更多功能" :icon="ElIcons.Grid">
-      <FeatureGrid :features="featuresWithRole" />
-    </SiderMenuItem>
-
     <template #footer>
+      <SiderMenuItem v-if="accessStore.get('MANAGER_COMPONENT')" name="features" label="系统管理" :icon="ElIcons.Grid">
+        <FeatureGrid :features="featuresWithRole" />
+      </SiderMenuItem>
+
       <SiderMenuItem label="公告" :icon="IconNotice" @click="noticeStore.show">
         <template #icon="{ color }">
           <el-icon :color="color" :size="38">

@@ -14,7 +14,7 @@ defineProps<{
         :key="featureGroup.label"
         class="grid grid-cols-3 gap-2"
       >
-        <div class="col-span-3 text-white">
+        <div v-if="featureGroup.label" class="col-span-3 text-white">
           {{ featureGroup.label }}
         </div>
 

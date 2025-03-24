@@ -61,7 +61,9 @@ useEventListener('pointerdown', checkTooltip)
         </div>
       </el-scrollbar>
 
-      <slot name="footer" />
+      <div class="flex-1 flex flex-col justify-center items-center">
+        <slot name="footer" />
+      </div>
     </div>
 
     <div class="overflow-hidden h-full w-full">

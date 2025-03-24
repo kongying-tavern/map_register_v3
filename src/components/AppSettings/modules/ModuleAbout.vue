@@ -1,8 +1,13 @@
 <script setup lang="ts">
+import * as ElIcons from '@element-plus/icons-vue'
 import { SettingGroup, SettingPanel } from '../components'
 
 const gotoGithub = () => {
-  window.open('https://github.com/kongying-tavern/map_register_v3')
+  window.open('https://github.com/kongying-tavern/map_register_v3', '_blank')
+}
+
+const gotoSponsor = () => {
+  window.open('https://opencollective.com/genshinmap', '_blank')
 }
 </script>
 
@@ -35,6 +40,9 @@ const gotoGithub = () => {
           <template #default>
             Github
           </template>
+        </el-button>
+        <el-button size="large" :icon="ElIcons.MilkTea" @click="gotoSponsor">
+          赞助我们
         </el-button>
       </div>
     </SettingGroup>

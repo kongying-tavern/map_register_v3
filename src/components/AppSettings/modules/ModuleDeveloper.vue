@@ -1,9 +1,13 @@
 <script setup lang="ts">
+import Api from '@/api/api'
 import { AppVirtualTable } from '@/components'
-import { useDevStore, usePreferenceStore } from '@/stores'
+import { useFetchHook } from '@/hooks'
+import { useAccessStore, useDadianStore, useDevStore, usePreferenceStore } from '@/stores'
 import { Delete, Setting } from '@element-plus/icons-vue'
 import { SettingBar, SettingGroup, SettingPanel } from '../components'
 
+const accessStore = useAccessStore()
+const dadianStore = useDadianStore()
 const devStore = useDevStore()
 const preferenceStore = usePreferenceStore()
 
@@ -44,6 +48,15 @@ const initLogInfo = (args: unknown[]) => {
   })
 
   return str
+}
+
+const { refresh: refreshApp, loading: refreshLoading } = useFetchHook({
+  onRequest: () => Api.app.triggerAppUpdate(),
+})
+
+const showDadianJson = () => {
+  // eslint-disable-next-line no-console
+  console.log('[DadianJSON]', dadianStore.raw)
 }
 </script>
 
@@ -102,6 +115,40 @@ const initLogInfo = (args: unknown[]) => {
               </el-checkbox>
             </div>
           </el-checkbox-group>
+        </template>
+      </SettingBar>
+    </SettingGroup>
+
+    <SettingGroup v-if="accessStore.get('ADMIN_COMPONENT')" name="开发者工具">
+      <SettingBar label="发送刷新信号，将会导致所有在线用户刷新页面">
+        <template #setting>
+          <el-button class="shrink-0" :loading="refreshLoading" @click="refreshApp">
+            刷新应用
+          </el-button>
+        </template>
+      </SettingBar>
+
+      <SettingBar label="在控制台打印地图配置">
+        <template #setting>
+          <el-button @click="showDadianJson">
+            查看地图配置
+          </el-button>
+        </template>
+      </SettingBar>
+
+      <SettingBar label="从本地文件加载测试用的地图配置（会经过校验）">
+        <template #setting>
+          <el-button @click="dadianStore.loadDadianJSON">
+            加载地图配置
+          </el-button>
+        </template>
+      </SettingBar>
+
+      <SettingBar label="恢复为当前订阅的地图配置">
+        <template #setting>
+          <el-button @click="dadianStore.update">
+            恢复地图配置
+          </el-button>
         </template>
       </SettingBar>
     </SettingGroup>

@@ -14,6 +14,6 @@ export interface FeatureOption {
 }
 
 export interface FeatureGroupOption {
-  label: string
+  label?: string
   items: FeatureOption[]
 }
