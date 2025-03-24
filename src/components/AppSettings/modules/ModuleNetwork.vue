@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { WEBSOCKET_WORKER_CONFIG } from '@/configs'
-import { usePreferenceStore, useSocketStore, useUserStore } from '@/stores'
-import { SettingBar, SettingGroup, SettingPanel } from '../components'
-import { SocketStatus } from '@/shared'
-import { useFetchHook } from '@/hooks'
-import { wsdb } from '@/database'
-import { liveQuery } from 'dexie'
-import { useSubscription } from '@vueuse/rxjs'
 import type { WS } from '@/worker/webSocket/types'
+import { WEBSOCKET_WORKER_CONFIG } from '@/configs'
+import { wsdb } from '@/database'
+import { useFetchHook } from '@/hooks'
+import { SocketStatus } from '@/shared'
+import { usePreferenceStore, useSocketStore, useUserStore } from '@/stores'
+import { useSubscription } from '@vueuse/rxjs'
+import { liveQuery } from 'dexie'
+import { SettingBar, SettingGroup, SettingPanel } from '../components'
 
 const socketStore = useSocketStore()
 const userStore = useUserStore()
@@ -70,7 +70,7 @@ const { refresh: exportLogs, loading: exportLoading } = useFetchHook({
     const encoder = new TextEncoder()
     const uarray = encoder.encode(JSON.stringify(logs))
     const blob = new Blob([uarray], {
-      type: 'application/json'
+      type: 'application/json',
     })
     const a = document.createElement('a')
     const url = URL.createObjectURL(blob)
@@ -79,6 +79,12 @@ const { refresh: exportLogs, loading: exportLoading } = useFetchHook({
     a.click()
     a.remove()
     URL.revokeObjectURL(url)
+  },
+})
+
+const { refresh: clearLogs, loading: clearLoading } = useFetchHook({
+  onRequest: async () => {
+    await wsdb.logs.clear()
   },
 })
 </script>
@@ -99,12 +105,20 @@ const { refresh: exportLogs, loading: exportLoading } = useFetchHook({
           </el-button>
         </template>
         <template #detail>
+          <div v-if="!wsLogs.total" class="text-[var(--el-text-color-secondary)]">
+            无内容
+          </div>
           <div
             v-for="log in wsLogs.list"
             :key="log.id"
             class="text-xs"
           >
             <b>{{ `[${new Date(log.t).toLocaleString()}]` }}</b> {{ log.msg }}
+          </div>
+          <div class="mt-2">
+            <el-button type="danger" plain size="small" :loading="clearLoading" :disabled="!wsLogs.total" @click="clearLogs">
+              清空日志
+            </el-button>
           </div>
         </template>
       </SettingBar>
