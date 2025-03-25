@@ -25,8 +25,8 @@ export const useLoginForm = () => {
     username: {
       required: true,
       validator: (_, v: string, callback) => {
-        if (v.length < 6)
-          return callback('不能少于 6 个字符')
+        if (!v.length)
+          return callback('不能为空')
         if (v.match(/\s/))
           return callback('不能包含空白字符')
         callback()
@@ -35,8 +35,8 @@ export const useLoginForm = () => {
     password: {
       required: true,
       validator: (_, v: string, callback) => {
-        if (v.length < 6)
-          return callback('不能少于 6 个字符')
+        if (!v.length)
+          return callback('不能为空')
         if (v.match(/\s/))
           return callback('不能包含空白字符')
         callback()
