@@ -110,7 +110,7 @@ export const useNoticeStore = defineStore('global-notice', () => {
       return
     }
     resume()
-  })
+  }, { immediate: true })
 
   return {
     newCount,
