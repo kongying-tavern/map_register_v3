@@ -47,7 +47,7 @@ const userStore = useUserStore()
 <style scoped>
 .user-avatar {
   @apply
-    w-full h-full rounded-full overflow-visible
+    w-full h-full rounded-full overflow-hidden
     grid place-content-center
     bg-gray-500
     border-2 border-transparent
