@@ -80,6 +80,13 @@ const WINDOW_LIST: ManagerModuleOption[] = [
     role: 'MANAGER_COMPONENT',
   },
   {
+    name: '公告管理',
+    hook: useAppWindow({ name: '公告管理', ...commonWindowOptions }),
+    icon: ElIcons.ChatLineRound,
+    comp: defineAsyncComponent(() => import('@/pages/pageNoticeManager/PageNoticeManager.vue')),
+    role: 'MANAGER_COMPONENT',
+  },
+  {
     name: '用户统计',
     hook: useAppWindow({ name: '用户统计', ...commonWindowOptions }),
     icon: ElIcons.Star,
@@ -92,13 +99,6 @@ const WINDOW_LIST: ManagerModuleOption[] = [
     icon: ElIcons.User,
     comp: defineAsyncComponent(() => import('@/pages/pageUserManager/UserManager.vue')),
     role: 'ADMIN_COMPONENT',
-  },
-  {
-    name: '公告管理',
-    hook: useAppWindow({ name: '公告管理', ...commonWindowOptions }),
-    icon: ElIcons.ChatLineRound,
-    comp: defineAsyncComponent(() => import('@/pages/pageNoticeManager/PageNoticeManager.vue')),
-    role: 'MANAGER_COMPONENT',
   },
   {
     name: '历史记录',
@@ -241,6 +241,12 @@ const handleAvatarClick = () => {
         <FeatureGrid :features="featuresWithRole" />
       </SiderMenuItem>
 
+      <SiderMenuItem :label="userStore.info ? '用户中心' : '登录'" style="--icon-padding: 2px" @click="handleAvatarClick">
+        <template #icon>
+          <AppUserAvatar />
+        </template>
+      </SiderMenuItem>
+
       <SiderMenuItem label="公告" :icon="IconNotice" @click="noticeStore.show">
         <template #icon="{ color }">
           <el-icon :color="color" :size="38">
@@ -258,12 +264,6 @@ const handleAvatarClick = () => {
           >
             {{ noticeStore.newCount }}
           </div>
-        </template>
-      </SiderMenuItem>
-
-      <SiderMenuItem :label="userStore.info ? '用户中心' : '登录'" style="--icon-padding: 2px" @click="handleAvatarClick">
-        <template #icon>
-          <AppUserAvatar />
         </template>
       </SiderMenuItem>
 
