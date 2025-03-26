@@ -33,8 +33,8 @@ const { localImage, localImageBitmap, localImageUrl, loading: localImageLoading,
 const croppedImage = shallowRef<Blob>()
 const croppedImageUrl = useObjectUrl(croppedImage)
 
-const fitType = ref<'cover' | 'contain'>('cover')
-const isClipMode = ref(false)
+const fitType = ref<'cover' | 'contain'>('contain')
+const isClipMode = ref(true)
 
 const onImageCrop = (image: Blob) => {
   croppedImage.value = image
