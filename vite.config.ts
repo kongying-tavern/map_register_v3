@@ -53,8 +53,11 @@ export default defineConfig(async ({ mode }) => {
         projectName: 'api',
       },
     ]),
-    visualizer(),
   ]
+
+  if (mode === 'development') {
+    plugins.push(visualizer())
+  }
 
   if (ENV.VITE_HTTPS) {
     plugins.push(BaseSSL({
