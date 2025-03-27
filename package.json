@@ -7,6 +7,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "cz": "czg",
     "dev": "vite",
     "build": "vite build",
     "build:stage": "vite build --mode stage",
@@ -19,7 +20,8 @@
     "patch:install": "pnpm i --force --prefer-offline",
     "type-check": "vue-tsc --build --force",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "prepare": "husky"
   },
   "dependencies": {
     "7z-wasm": "1.1.0",
@@ -61,6 +63,8 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "4.3.0",
+    "@commitlint/cli": "19.8.0",
+    "@commitlint/config-conventional": "19.8.0",
     "@tsconfig/node18": "18.2.4",
     "@types/json-schema": "7.0.15",
     "@types/lodash": "4.14.200",
@@ -71,8 +75,12 @@
     "@vitejs/plugin-vue": "5.2.1",
     "@vue/tsconfig": "0.5.1",
     "autoprefixer": "10.4.14",
+    "cz-git": "1.11.1",
+    "czg": "1.11.1",
     "eslint": "9.21.0",
+    "husky": "9.1.7",
     "less": "4.2.2",
+    "lint-staged": "^15.5.0",
     "openapi2ts": "1.1.7",
     "postcss": "8.4.31",
     "postcss-load-config": "5.0.2",
@@ -98,5 +106,8 @@
       "openapi2ts@1.1.7": "patches/openapi2ts@1.1.7.patch"
     }
   },
-  "packageManager": "pnpm@8.10.0"
+  "packageManager": "pnpm@8.10.0",
+  "lint-staged": {
+    "*.{vue,js,ts,md,json}": "eslint --fix"
+  }
 }
