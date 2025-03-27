@@ -13,7 +13,7 @@ const getDigest = async (data: ArrayBuffer) => {
 }
 
 const getVersion = (config: API.DadianJSON) => {
-  return `${config.tiles?.['提瓦特-base0'].code ?? '-NA-'} / ${config.tilesNeigui?.['提瓦特-base0'].code ?? '-NA-'}`
+  return `${config.tiles?.['提瓦特-base0']?.code ?? '-NA-'} / ${config.tilesNeigui?.['提瓦特-base0']?.code ?? '-NA-'}`
 }
 
 /** 订阅的打点配置 */
