@@ -1,6 +1,6 @@
+export * from './dashboard'
 export { default as ModuleAbout } from './ModuleAbout.vue'
 export { default as ModuleApp } from './ModuleApp.vue'
-export { default as ModuleDashboard } from './ModuleDashboard.vue'
 export { default as ModuleDatabase } from './ModuleDatabase.vue'
 export { default as ModuleDeveloper } from './ModuleDeveloper.vue'
 export { default as ModuleManager } from './ModuleManager.vue'

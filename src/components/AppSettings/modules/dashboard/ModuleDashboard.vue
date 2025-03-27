@@ -1,33 +1,15 @@
 <script setup lang="ts">
-import { useFetchHook, useTheme } from '@/hooks'
+import type { StorageEstimateExpand, UsageItem } from './types'
+import { useFetchHook } from '@/hooks'
 import { useBroadcastStore, useUserStore } from '@/stores'
 import { formatByteSize } from '@/utils'
-import { Chart } from '@antv/g2'
 import { Odometer, PictureRounded } from '@element-plus/icons-vue'
 import * as ElIcons from '@element-plus/icons-vue'
-import { useTemplateRef } from 'vue'
-import { SettingBar, SettingGroup, SettingPanel } from '../components'
-
-interface StorageEstimateExpand extends StorageEstimate {
-  /** 用量详情，目前仅在 chromuim 内核浏览器下可用 */
-  usageDetails?: {
-    caches: number
-    indexedDB: number
-    serviceWorkerRegistrations: number
-  }
-}
-
-interface UsageItem {
-  name: string
-  value: number
-  percentage: number
-  text: string
-}
+import { SettingBar, SettingGroup, SettingPanel } from '../../components'
+import { StorageChart } from './components'
 
 const userStore = useUserStore()
 const broadcastStore = useBroadcastStore()
-
-const { isDark } = useTheme()
 
 const clients = computed(() => {
   return [...broadcastStore.state.clients.values()].sort(({ time: ta }, { time: tb }) => ta - tb)
@@ -112,57 +94,6 @@ const storageDetails = computed<UsageItem[]>(() => {
 })
 
 const userAgent = navigator.userAgent
-
-const chartContainerRef = useTemplateRef('chart')
-const chartRef = shallowRef<Chart>()
-
-onMounted(() => {
-  if (!chartContainerRef.value)
-    return
-  const chart = new Chart({
-    container: chartContainerRef.value,
-    autoFit: true,
-    width: 300,
-    height: 240,
-  })
-  chart.coordinate({ type: 'theta', outerRadius: 0.8 })
-  chart
-    .interval()
-    .data(storageDetails.value)
-    .transform({ type: 'stackY' })
-    .encode('y', 'percentage')
-    .encode('color', 'name')
-    .label({
-      text: (data: UsageItem) => {
-        return `${data.name}: ${data.percentage.toFixed(2)}%\n${data.text}`
-      },
-      position: 'spider',
-      transform: [
-        { type: 'exceedAdjust' },
-        { type: 'overlapDodgeY' },
-      ],
-    })
-    .interaction({
-      elementHighlight: true,
-    })
-    .legend(false)
-    .tooltip(false)
-    .theme({ type: isDark.value ? 'classicDark' : 'classic' })
-  watch(storageDetails, (newData) => {
-    chart.changeData(newData)
-    chart.render()
-  })
-  watch(isDark, (dark) => {
-    chart.theme({ type: dark ? 'classicDark' : 'classic' })
-    chart.render()
-  })
-  chart.render()
-  chartRef.value = chart
-})
-
-onUnmounted(() => {
-  chartRef.value?.destroy()
-})
 </script>
 
 <template>
@@ -175,7 +106,9 @@ onUnmounted(() => {
           <span class="text-xs">UID: {{ userStore.info?.id }}</span>
           <span class="text-xs">{{ userStore.info?.role?.name ?? '未知角色' }}</span>
         </div>
-        <pre class="flex-1 h-[100px] text-xs rounded bg-[var(--el-color-primary-light-9)] p-2 overflow-auto">{{ userAgent.match(/\S+\/\S+/g)?.join('\n') }}</pre>
+        <pre
+          class="flex-1 h-[100px] text-xs rounded bg-[var(--el-color-primary-light-9)] p-2 overflow-auto"
+        >{{ userAgent.match(/\S+\/\S+/g)?.join('\n') }}</pre>
       </div>
     </div>
 
@@ -208,7 +141,7 @@ onUnmounted(() => {
 
         <template v-if="storageEstimate.usageDetails" #detail>
           <div class="w-full flex flex-wrap gap-2">
-            <div ref="chart" class="w-[300px]" />
+            <StorageChart :data="storageDetails" />
             <div
               v-loading="cacheKeysLoading"
               element-loading-text="正在加载缓存列表..."
@@ -267,6 +200,14 @@ onUnmounted(() => {
               </div>
             </div>
           </div>
+        </template>
+      </SettingBar>
+    </SettingGroup>
+
+    <SettingGroup name="账户信息">
+      <SettingBar label="登录日志">
+        <template #detail>
+          日志
         </template>
       </SettingBar>
     </SettingGroup>
