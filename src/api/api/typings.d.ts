@@ -20,6 +20,8 @@ declare namespace API {
     phone?: string
     /** 头像链接 */
     logo?: string
+    /** 备注 */
+    remark?: string
   }
 
   interface TagTypeVo {
@@ -387,6 +389,7 @@ declare namespace API {
     phone?: string
     logo?: string
     roleId?: number
+    remark?: string
     accessPolicy?: string[]
   }
 
@@ -453,8 +456,109 @@ declare namespace API {
     logo?: string
     /** 角色ID */
     roleId?: number
+    /** 备注 */
+    remark?: string
     /** access_policy */
     accessPolicy?: string[]
+  }
+
+  interface SysUserInvitationVo {
+    /** 乐观锁 */
+    version?: number
+    /** ID */
+    id?: number
+    /** 创建人 */
+    creatorId?: number
+    /** 创建时间 */
+    createTime?: string
+    /** 更新人 */
+    updaterId?: number
+    /** 更新时间 */
+    updateTime?: string
+    /** 邀请码 */
+    code?: string
+    /** 用户名 */
+    username?: string
+    /** 角色ID */
+    roleId?: number
+    /** 备注 */
+    remark?: string
+    /** 权限策略 */
+    accessPolicy?: string[]
+  }
+
+  interface RSysUserInvitationSmallVo {
+    error?: boolean
+    errorStatus?: number
+    errorData?: unknown
+    message?: string
+    data?: SysUserInvitationSmallVo
+    users?: Record<string, SysUserSmallVo>
+    time?: string
+  }
+
+  interface SysUserInvitationSmallVo {
+    /** 邀请码 */
+    code?: string
+    /** 用户名 */
+    username?: string
+  }
+
+  interface SysUserInvitationSearchVo {
+    /** 当前页，从1开始 */
+    current?: number
+    /** 每页大小，默认为10 */
+    size?: number
+    /** 邀请码 */
+    code?: string
+    /** 用户名 */
+    username?: string
+    /** 排序条件 */
+    sort?: string[]
+  }
+
+  interface PageListVoSysUserInvitationVo {
+    record?: SysUserInvitationVo[]
+    total?: number
+    size?: number
+  }
+
+  interface RPageListVoSysUserInvitationVo {
+    error?: boolean
+    errorStatus?: number
+    errorData?: unknown
+    message?: string
+    data?: PageListVoSysUserInvitationVo
+    users?: Record<string, SysUserSmallVo>
+    time?: string
+  }
+
+  interface SysUserInvitationConsumeVo {
+    /** 邀请码 */
+    code?: string
+    /** 用户名 */
+    username?: string
+    /** 密码 */
+    password?: string
+    /** 昵称 */
+    nickname?: string
+  }
+
+  interface RSysUserInvitationConsumeResultVo {
+    error?: boolean
+    errorStatus?: number
+    errorData?: unknown
+    message?: string
+    data?: SysUserInvitationConsumeResultVo
+    users?: Record<string, SysUserSmallVo>
+    time?: string
+  }
+
+  interface SysUserInvitationConsumeResultVo {
+    /** 用户ID */
+    userId?: number
+    /** 条件结果 */
+    result?: 'EXISTING' | 'SUCCESS'
   }
 
   interface Region {

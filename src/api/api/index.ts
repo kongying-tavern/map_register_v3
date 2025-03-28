@@ -9,6 +9,7 @@ import * as device from './device'
 import * as history from './history'
 import * as icon from './icon'
 import * as iconType from './iconType'
+import * as invitation from './invitation'
 import * as item from './item'
 import * as itemCommon from './itemCommon'
 import * as itemDoc from './itemDoc'
@@ -46,6 +47,7 @@ export default {
   icon,
   area,
   user,
+  invitation,
   device,
   actionLog,
   score,

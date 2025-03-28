@@ -1,7 +1,7 @@
 import type { AxiosRequestConfig } from 'axios'
 import { request } from '@/utils'
 
-/** 历史记录分页 历史记录分页 POST /system/action_log/list */
+/** 操作日志分页 操作日志分页 POST /system/action_log/list */
 export async function searchActionLog(
   body: API.SysActionLogSearchVo,
   options?: AxiosRequestConfig,
