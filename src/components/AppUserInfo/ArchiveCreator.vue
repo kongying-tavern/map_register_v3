@@ -59,6 +59,11 @@ onError((err) => {
 const onBeforeClose = (done: () => void) => {
   !loading.value && done()
 }
+
+onUnmounted(() => {
+  archiveName.value = ''
+  errMsg.value = ''
+})
 </script>
 
 <template>
