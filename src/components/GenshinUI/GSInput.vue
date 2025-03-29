@@ -33,20 +33,25 @@ const setNativeInputValue = () => {
 }
 watch(nativeInputValue, setNativeInputValue)
 
-const handleInput = async (ev: InputEvent) => {
+useEventListener<InputEvent>(nativeInputRef, 'input', async (ev) => {
   if (props.disabled || ev.isComposing)
     return
-
   const { value } = ev.target as HTMLInputElement
-
   emits('update:modelValue', value)
   emits('input', ev)
-
   await nextTick()
   setNativeInputValue()
-}
+})
 
-useEventListener<InputEvent>(nativeInputRef, 'input', handleInput)
+useEventListener<CompositionEvent>(nativeInputRef, 'compositionend', async (ev) => {
+  if (props.disabled)
+    return
+  const { value } = ev.target as HTMLInputElement
+  emits('update:modelValue', value)
+  await nextTick()
+  setNativeInputValue()
+})
+
 useEventListener<FocusEvent>(nativeInputRef, 'focus', ev => emits('focus', ev))
 
 onMounted(() => {
