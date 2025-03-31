@@ -7,6 +7,7 @@ const dadianStore = useDadianStore()
 const preferenceStore = usePreferenceStore()
 
 const consoleConfig = () => {
+  // eslint-disable-next-line no-console
   console.log(tileStore.mergedTileConfigs)
 }
 </script>
@@ -22,7 +23,9 @@ const consoleConfig = () => {
           </div>
         </template>
         <template #setting>
-          <el-button @click="consoleConfig">查看配置</el-button>
+          <el-button @click="consoleConfig">
+            查看配置
+          </el-button>
         </template>
       </SettingBar>
     </SettingGroup>
