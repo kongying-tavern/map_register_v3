@@ -49,7 +49,7 @@ const WINDOW_LIST: ManagerModuleOption[] = [
     hook: useAppWindow({ name: '物品管理', ...commonWindowOptions }),
     icon: ElIcons.Box,
     comp: defineAsyncComponent(() => import('@/pages/pageItemManager/ItemManager.vue')),
-    role: 'ADMIN_COMPONENT',
+    role: 'MANAGER_COMPONENT',
   },
   {
     name: '地区管理',
