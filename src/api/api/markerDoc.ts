@@ -3,7 +3,7 @@ import { request } from '@/utils'
 
 /** 返回点位分页的md5数组 返回点位分页的md5数组 GET /api/marker_doc/list_page_bin_md5 */
 export async function listMarkerBinaryMD5(options?: AxiosRequestConfig) {
-  return request<API.RListString>('/api/marker_doc/list_page_bin_md5', {
+  return request<API.RListBinaryMD5Vo>('/api/marker_doc/list_page_bin_md5', {
     method: 'GET',
     ...(options || {}),
   })

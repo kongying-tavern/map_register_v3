@@ -1462,12 +1462,29 @@ declare namespace API {
     time?: string
   }
 
-  interface RListString {
+  interface BinaryMD5Vo {
+    /** md5 */
+    md5?: string
+    /** 时间戳 */
+    time?: number
+  }
+
+  interface RBinaryMD5Vo {
     error?: boolean
     errorStatus?: number
     errorData?: unknown
     message?: string
-    data?: string[]
+    data?: BinaryMD5Vo
+    users?: Record<string, SysUserSmallVo>
+    time?: string
+  }
+
+  interface RListBinaryMD5Vo {
+    error?: boolean
+    errorStatus?: number
+    errorData?: unknown
+    message?: string
+    data?: BinaryMD5Vo[]
     users?: Record<string, SysUserSmallVo>
     time?: string
   }

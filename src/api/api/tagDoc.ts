@@ -11,7 +11,7 @@ export async function listAllTagBinary(options?: AxiosRequestConfig) {
 
 /** 返回所有标签信息的md5 返回所有标签信息的md5 GET /api/tag_doc/all_bin_md5 */
 export async function listAllTagBinaryMd5(options?: AxiosRequestConfig) {
-  return request<API.RString>('/api/tag_doc/all_bin_md5', {
+  return request<API.RBinaryMD5Vo>('/api/tag_doc/all_bin_md5', {
     method: 'GET',
     ...(options || {}),
   })

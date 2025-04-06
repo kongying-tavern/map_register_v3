@@ -11,7 +11,7 @@ export async function listAllMarkerLinkageBinary(options?: AxiosRequestConfig) {
 
 /** 返回所有点位关联列表的md5 返回所有点位关联列表的md5 GET /api/marker_link_doc/all_list_bin_md5 */
 export async function listAllMarkerLinkageBinaryMD5(options?: AxiosRequestConfig) {
-  return request<API.RString>('/api/marker_link_doc/all_list_bin_md5', {
+  return request<API.RBinaryMD5Vo>('/api/marker_link_doc/all_list_bin_md5', {
     method: 'GET',
     ...(options || {}),
   })
