@@ -3,7 +3,7 @@ import { GSButton } from '@/components'
 import { ExitLeft } from '@/components/GenshinUI/GSIcon'
 import { useUserStore } from '@/stores'
 import { Avatar } from '@element-plus/icons-vue'
-import { ElIcon, ElImage, ElSkeleton, ElSkeletonItem } from 'element-plus'
+import { ElIcon, ElImage } from 'element-plus'
 
 const userStore = useUserStore()
 
@@ -45,7 +45,7 @@ const BANNER_FALLBACK_URL = import.meta.env.VITE_BANNER_IMAGE
 
         <div
           class="
-            w-[144px] h-[144px] m-2 rounded-[80px] grid place-content-center overflow-hidden
+            w-[144px] h-[144px] m-2 rounded-[80px] overflow-hidden
             bg-[#DAAB86]
             outline-[#ECE5D820] outline outline-8
             border-[#ECE5D8] border-[5px]
@@ -53,22 +53,22 @@ const BANNER_FALLBACK_URL = import.meta.env.VITE_BANNER_IMAGE
         >
           <ElImage
             :src="userStore.info.logo"
-            class="drop-shadow-lg"
-            draggable="false"
             fit="cover"
             style="width: 100%; height: 100%"
           >
             <template #placeholder>
-              <ElSkeleton loading animated style="width: 100%; height: 100%">
-                <template #template>
-                  <ElSkeletonItem variant="image" style="width: 100%; height: 100%" />
-                </template>
-              </ElSkeleton>
+              <div class="w-full h-full grid place-content-center">
+                <ElIcon :size="64" color="#F0EBE3">
+                  <Avatar />
+                </ElIcon>
+              </div>
             </template>
             <template #error>
-              <ElIcon :size="64" color="#F0EBE3">
-                <Avatar />
-              </ElIcon>
+              <div class="w-full h-full grid place-content-center">
+                <ElIcon :size="64" color="#F0EBE3">
+                  <Avatar />
+                </ElIcon>
+              </div>
             </template>
           </ElImage>
         </div>
