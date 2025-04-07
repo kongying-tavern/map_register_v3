@@ -2,7 +2,6 @@
 const props = defineProps<{
   modelValue?: number
   disabled?: boolean
-  disabledAutofucus?: boolean
 }>()
 
 const emits = defineEmits<{
@@ -16,11 +15,10 @@ const parseredTime = computed({
     return {
       days: Math.floor(props.modelValue / 86400000),
       hours: Math.floor((props.modelValue % 86400000) / 3600000),
-      minutes: Math.floor((props.modelValue % 3600000) / 60000),
     }
   },
-  set: ({ days, hours, minutes }) => {
-    emits('update:modelValue', (days * 86400 + hours * 3600 + minutes * 60) * 1000)
+  set: ({ days, hours }) => {
+    emits('update:modelValue', (days * 86400 + hours * 3600) * 1000)
   },
 })
 
@@ -39,33 +37,18 @@ const naturalNumberComputed = <T extends keyof (typeof parseredTime.value)>(key:
 
 const days = naturalNumberComputed('days')
 const hours = naturalNumberComputed('hours')
-const minutes = naturalNumberComputed('minutes')
-
-const selectInput = (ev: Event) => {
-  if (props.disabledAutofucus)
-    return
-  const { target } = ev
-  if (!(target instanceof HTMLInputElement))
-    return
-  target.select()
-}
 </script>
 
 <template>
   <div v-bind="$attrs" class="app-time-select">
-    <el-input v-model="days" :disabled="disabled" class="time-input" @mouseover="selectInput">
+    <el-input v-model="days" :disabled="disabled" class="time-input">
       <template #append>
         天
       </template>
     </el-input>
-    <el-input v-model="hours" :disabled="disabled" class="time-input" @mouseover="selectInput">
+    <el-input v-model="hours" :disabled="disabled" class="time-input">
       <template #append>
         时
-      </template>
-    </el-input>
-    <el-input v-model="minutes" :disabled="disabled" class="time-input" @mouseover="selectInput">
-      <template #append>
-        分
       </template>
     </el-input>
   </div>
@@ -74,7 +57,7 @@ const selectInput = (ev: Event) => {
 <style lang="scss" scoped>
 .app-time-select {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 8px;
   border-radius: 4px;
   text-align: center;
