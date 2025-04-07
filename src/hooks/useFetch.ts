@@ -17,7 +17,10 @@ export interface FetchHookOptions<T, A extends unknown[] = []> {
   immediate?: boolean
   /** 当依赖响应式 data 时最好提供此值 */
   initialValue?: T
-  /** `onRequest` 提供了返回值时可以使用响应式 data，该选项会提供一个浅层响应式值 */
+  /**
+   * `onRequest` 提供了返回值时可以使用响应式 data，该选项会提供一个浅层响应式值
+   * @default false
+   */
   shallow?: boolean
   /** 检测 data 是否发生变化，如果没变则不触发 onSuccess 回调 */
   diff?: (oldData: T, newData: T) => boolean
