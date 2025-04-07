@@ -21,18 +21,54 @@ const panelKey = ref('login')
     :style="{
       '--el-dialog-border-radius': '8px',
       '--el-dialog-padding-primary': '0',
-      '--el-dialog-width': 'auto',
+      '--el-dialog-width': '340px',
+      '--el-dialog-bg-color': 'transparent',
     }"
   >
-    <RegisterPanel
-      v-if="panelKey === 'register'"
-      v-model:panel-key="panelKey"
-      v-model:visible="visible"
-    />
-    <LoginPanel
-      v-if="panelKey === 'login'"
-      v-model:panel-key="panelKey"
-      v-model:visible="visible"
-    />
+    <transition :name="panelKey === 'login' ? 'anime-left' : 'anime-right'" mode="out-in" appear>
+      <component
+        :is="panelKey === 'login' ? LoginPanel : RegisterPanel"
+        v-model:panel-key="panelKey"
+        v-model:visible="visible"
+      />
+    </transition>
   </ElDialog>
 </template>
+
+<style scoped>
+.anime-left-enter-active,
+.anime-left-leave-active {
+  transition-property: opacity transform;
+  transition-duration: 150ms;
+  transition-timing-function: ease;
+}
+.anime-left-enter-from,
+.anime-left-leave-to {
+  opacity: 0;
+  transform-origin: 50% 50%;
+}
+.anime-left-enter-from {
+  transform: translate(-50%, 0);
+}
+.anime-left-leave-to {
+  transform: translate(50%, 0);
+}
+
+.anime-right-enter-active,
+.anime-right-leave-active {
+  transition-property: opacity transform;
+  transition-duration: 150ms;
+  transition-timing-function: ease;
+}
+.anime-right-enter-from,
+.anime-right-leave-to {
+  opacity: 0;
+  transform-origin: 50% 50%;
+}
+.anime-right-enter-from {
+  transform: translate(50%, 0);
+}
+.anime-right-leave-to {
+  transform: translate(-50%, 0);
+}
+</style>
