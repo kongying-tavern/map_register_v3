@@ -3,7 +3,8 @@ import Api from '@/api/api'
 import { AppVirtualTable } from '@/components'
 import { useFetchHook } from '@/hooks'
 import { useAccessStore, useDadianStore, useDevStore, usePreferenceStore } from '@/stores'
-import { Delete, Setting } from '@element-plus/icons-vue'
+import * as ElIcons from '@element-plus/icons-vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { SettingBar, SettingGroup, SettingPanel } from '../components'
 
 const accessStore = useAccessStore()
@@ -51,8 +52,41 @@ const initLogInfo = (args: unknown[]) => {
 }
 
 const { refresh: refreshApp, loading: refreshLoading } = useFetchHook({
-  onRequest: () => Api.app.triggerAppUpdate(),
+  onRequest: async () => {
+    await Api.app.triggerAppUpdate()
+  },
 })
+
+const confirmRefreshApp = async () => {
+  await ElMessageBox.confirm(
+    '该操作将会导致全部在线用户执行刷新操作，是否继续？',
+    '警告',
+    {
+      type: 'warning',
+      closeOnClickModal: false,
+      closeOnPressEscape: false,
+      closeOnHashChange: false,
+      showClose: false,
+      distinguishCancelAndClose: true,
+      cancelButtonClass: 'el-button--primary el-button--danger',
+      cancelButtonText: '确定',
+      confirmButtonClass: 'el-button--info is-text',
+      confirmButtonText: '取消',
+      beforeClose: (action, instance, done) => {
+        if (refreshLoading.value)
+          return
+        if (action !== 'cancel')
+          return done()
+        instance.cancelButtonLoading = true
+        refreshApp().then(() => {
+          ElMessage.success('操作成功')
+          instance.cancelButtonLoading = false
+          done()
+        })
+      },
+    },
+  ).catch(() => false)
+}
 
 const showDadianJson = () => {
   // eslint-disable-next-line no-console
@@ -97,12 +131,12 @@ const showDadianJson = () => {
           {{ `${devStore.visibleLogList.length} / ${devStore.logList.length}` }} 次记录
         </el-text>
         <el-divider direction="vertical" style="height: 24px" />
-        <el-button :icon="Delete" type="danger" @click="devStore.clearLogs">
+        <el-button :icon="ElIcons.Delete" type="danger" @click="devStore.clearLogs">
           清空
         </el-button>
       </div>
 
-      <SettingBar label="日志可见性" note="控制日志是否在面板上输出" :icon="Setting">
+      <SettingBar label="日志可见性" note="控制日志是否在面板上输出" :icon="ElIcons.Setting">
         <template #detail>
           <el-checkbox-group v-model="preferenceStore.enableLoggers" @change="devStore.refreshLogs">
             <div class="grid grid-cols-2 sm:grid-cols-4">
@@ -122,7 +156,12 @@ const showDadianJson = () => {
     <SettingGroup v-if="accessStore.get('ADMIN_COMPONENT')" name="开发者工具">
       <SettingBar label="发送刷新信号，将会导致所有在线用户刷新页面">
         <template #setting>
-          <el-button class="shrink-0" :loading="refreshLoading" @click="refreshApp">
+          <el-button
+            class="shrink-0"
+            :icon="ElIcons.WarnTriangleFilled"
+            :loading="refreshLoading"
+            @click="confirmRefreshApp"
+          >
             刷新应用
           </el-button>
         </template>
