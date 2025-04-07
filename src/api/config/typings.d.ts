@@ -92,6 +92,8 @@ declare namespace API {
           label: string
           /** 层级标记，为实际绑定到层级上的值 */
           value: string
+          /** 全图（无层级） */
+          isGlobal?: boolean
         }[]
       }[]
     }
