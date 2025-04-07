@@ -4,7 +4,7 @@ import { request } from '@/utils'
 /** 登录 - 密码模式 */
 export async function token(
   body: API.SysTokenVO,
-  options?: AxiosRequestConfig,
+  options: AxiosRequestConfig = {},
 ) {
   const form = new FormData()
   for (const key in body) {
@@ -21,11 +21,14 @@ export async function token(
       username: import.meta.env.VITE_API_AUTH_USERNAME,
       password: import.meta.env.VITE_API_AUTH_PASSWORD,
     },
-    ...(options || {}),
+    ...options,
   })
 }
 
-export async function refresh(header: API.SysRefreshVO) {
+export async function refresh(
+  header: API.SysRefreshVO,
+  options: AxiosRequestConfig = {},
+) {
   const params = new URLSearchParams()
   for (const key in header)
     params.append(key, header[key as keyof API.SysRefreshVO])
@@ -38,5 +41,6 @@ export async function refresh(header: API.SysRefreshVO) {
       username: import.meta.env.VITE_API_AUTH_USERNAME,
       password: import.meta.env.VITE_API_AUTH_PASSWORD,
     },
+    ...options,
   })
 }
