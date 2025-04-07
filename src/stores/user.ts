@@ -50,7 +50,14 @@ export const useUserStore = defineStore('global-user', () => {
   }
 
   // ==================== 角色信息 ====================
-  const roleList = shallowRef<API.SysRoleVo[]>([])
+  const { data: roleList, loading: roleListLoading, refresh: refreshRoleList } = useFetchHook({
+    initialValue: [],
+    shallow: true,
+    onRequest: async () => {
+      const { data: newRoleList = [] } = await Api.role.listRole()
+      return newRoleList
+    },
+  })
 
   const roleMap = computed(() => roleList.value.reduce((map, role) => {
     return map.set(role.id!, role)
@@ -66,10 +73,8 @@ export const useUserStore = defineStore('global-user', () => {
       if (!userId)
         return null
 
-      if (!roleList.value.length) {
-        const { data: newRoleList = [] } = await Api.role.listRole()
-        roleList.value = newRoleList
-      }
+      if (!roleList.value.length)
+        await refreshRoleList()
 
       const { data = {} } = await Api.user.getUserInfo({ userId })
       const { roleId = -1, username = '', ...rest } = data
@@ -179,6 +184,9 @@ export const useUserStore = defineStore('global-user', () => {
     // states
     loginPanelVisible,
     auth,
+    roleList,
+    roleListLoading,
+    roleMap,
     info,
     isInfoLoading,
     isAutoRefreshActive,
