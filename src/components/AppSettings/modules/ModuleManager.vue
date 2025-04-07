@@ -19,6 +19,7 @@ const itemPageSize = usePageSize(ManagerModule.Item)
 const markerPageSize = usePageSize(ManagerModule.Marker)
 const typePageSize = usePageSize(ManagerModule.Type)
 const userPageSize = usePageSize(ManagerModule.User)
+const invitationPageSize = usePageSize(ManagerModule.Invitation)
 const noticePageSize = usePageSize(ManagerModule.Notice)
 const historyPageSize = usePageSize(ManagerModule.History)
 </script>
@@ -44,6 +45,11 @@ const historyPageSize = usePageSize(ManagerModule.History)
       <SettingBar label="用户管理">
         <template #setting>
           <el-input-number v-model="userPageSize" :min="10" :max="100" :step="1" />
+        </template>
+      </SettingBar>
+      <SettingBar label="用户邀请">
+        <template #setting>
+          <el-input-number v-model="invitationPageSize" :min="10" :max="100" :step="1" />
         </template>
       </SettingBar>
       <SettingBar label="公告管理">

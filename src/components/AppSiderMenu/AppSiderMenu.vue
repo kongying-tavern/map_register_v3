@@ -5,7 +5,7 @@ import type {
 } from '@/stores'
 import type { FeatureGroupOption } from './components'
 import { AppSettings, AppUserAvatar, AppWindowTeleporter, useAppWindow } from '@/components'
-import { IconNotice } from '@/components/AppIcons'
+import { IconInvitation, IconNotice } from '@/components/AppIcons'
 import { useGlobalDialog } from '@/hooks'
 import {
   useAccessStore,
@@ -98,6 +98,13 @@ const WINDOW_LIST: ManagerModuleOption[] = [
     hook: useAppWindow({ name: '用户管理', ...commonWindowOptions }),
     icon: ElIcons.User,
     comp: defineAsyncComponent(() => import('@/pages/pageUserManager/UserManager.vue')),
+    role: 'ADMIN_COMPONENT',
+  },
+  {
+    name: '用户邀请',
+    hook: useAppWindow({ name: '用户邀请', ...commonWindowOptions }),
+    icon: IconInvitation,
+    comp: defineAsyncComponent(() => import('@/pages/invitationManager/InvitationManager.vue')),
     role: 'ADMIN_COMPONENT',
   },
   {

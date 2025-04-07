@@ -21,12 +21,22 @@ export const useRegisterForm = () => {
   })
 
   const form = ref({
+    code: '',
     username: '',
+    nickname: '',
     password: '',
     repeatPassword: '',
   })
 
   const rules: ItemFormRules<typeof form.value> = {
+    code: {
+      required: true,
+      validator: (_, v: string, callback) => {
+        if (!v.trim().length)
+          return callback('邀请码不能为空')
+        callback()
+      },
+    },
     username: {
       required: true,
       validator: (_, v: string, callback) => {
@@ -63,14 +73,18 @@ export const useRegisterForm = () => {
 
   const { refresh: register, onSuccess, onError, ...rest } = useFetchHook({
     onRequest: async () => {
-      const isFormValie = await formRef.value?.validate().then(() => true).catch(() => false)
-      if (!isFormValie)
+      const isFormValid = await formRef.value?.validate().then(() => true).catch(() => false)
+      if (!isFormValid)
         throw new Error('表单校验未通过')
-      const { username, password } = form.value
-      await Api.user.registerUserByQQ({
+      const { code, username, nickname, password } = form.value
+      const { data, message } = await Api.invitation.consumeInvitation({
+        code,
+        nickname,
         username,
         password,
       })
+      if (!data)
+        throw new Error(message ?? '无效的注册码')
       // 注册后自动登录
       const auth = await userStore.login({
         grant_type: 'password',

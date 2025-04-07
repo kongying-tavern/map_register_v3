@@ -2,7 +2,6 @@
 import { WinDialog, WinDialogTitleBar } from '@/components/WinUI'
 import { useCountDown } from '@/hooks'
 import { CirclePlus } from '@element-plus/icons-vue'
-import { ElButton, ElDivider, ElForm, ElFormItem, ElInput } from 'element-plus'
 import { useRegisterForm } from '../hooks'
 
 const visible = defineModel<boolean>('visible', {
@@ -46,13 +45,13 @@ const trigger = async () => {
       注册
     </WinDialogTitleBar>
 
-    <div class="w-[340px] flex flex-col p-4 bg-[var(--el-bg-color)]" style="--el-border-radius-base: 8px">
+    <div class="w-full flex flex-col p-4 bg-[var(--el-bg-color)]" style="--el-border-radius-base: 8px">
       <div class="flex flex-col justify-center items-center font-['HYWenHei-85W'] pb-4">
         <img class="w-12 h-12" src="/favicon.ico">
         {{ title }}
       </div>
 
-      <ElForm
+      <el-form
         ref="formRef"
         label-width="70px"
         label-position="left"
@@ -62,33 +61,52 @@ const trigger = async () => {
         class="user-form"
         @validate="handleValidate"
       >
-        <ElFormItem label="用户名" prop="username">
-          <ElInput
-            v-model="form.username"
-            placeholder="请输入用户名或Q号" type="text"
+        <el-form-item label="邀请码" prop="code">
+          <el-input
+            v-model="form.code"
+            placeholder="请输入注册邀请码"
+            type="text"
           />
-        </ElFormItem>
+        </el-form-item>
 
-        <ElFormItem label="密码" prop="password">
-          <ElInput
+        <el-form-item label="用户名" prop="username">
+          <el-input
+            v-model="form.username"
+            placeholder="请输入用户名或Q号"
+            type="text"
+          />
+        </el-form-item>
+
+        <el-form-item label="昵称" prop="nickname">
+          <el-input
+            v-model="form.nickname"
+            placeholder="请输入昵称"
+            type="text"
+          />
+        </el-form-item>
+
+        <el-divider />
+
+        <el-form-item label="密码" prop="password">
+          <el-input
             v-model="form.password"
             placeholder="请输入密码"
             type="password"
             show-password
           />
-        </ElFormItem>
+        </el-form-item>
 
-        <ElFormItem label="确认密码" prop="repeatPassword">
-          <ElInput
+        <el-form-item label="确认密码" prop="repeatPassword">
+          <el-input
             v-model="form.repeatPassword"
             placeholder="请输入密码"
             type="password"
             show-password
           />
-        </ElFormItem>
+        </el-form-item>
 
         <div class="flex">
-          <ElButton
+          <el-button
             type="success"
             class="w-full"
             size="large"
@@ -98,16 +116,16 @@ const trigger = async () => {
             @click="trigger"
           >
             注册 {{ count > 0 ? `(${count})` : '' }}
-          </ElButton>
+          </el-button>
         </div>
-      </ElForm>
+      </el-form>
 
-      <ElDivider style="margin: 24px 0 16px" />
+      <el-divider style="margin: 24px 0 16px" />
 
       <div class="flex justify-between">
-        <ElButton link type="primary" :disabled="loading" @click="panelKey = 'login'">
+        <el-button link type="primary" :disabled="loading" @click="panelKey = 'login'">
           ← 去登录
-        </ElButton>
+        </el-button>
       </div>
     </div>
   </WinDialog>

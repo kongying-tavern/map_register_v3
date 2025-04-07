@@ -8,4 +8,5 @@ export enum ManagerModule {
   Score = 'score',
   History = 'history',
   Notice = 'notice',
+  Invitation = 'invitation',
 }
