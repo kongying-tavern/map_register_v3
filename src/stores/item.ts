@@ -1,5 +1,6 @@
 import type { WorkerInput, WorkerOutput } from '@/worker/idb.worker'
 import type { Hash } from 'types/database'
+import type { HashGroupMeta } from './utils'
 import Api from '@/api/api'
 import db from '@/database'
 import { Zip } from '@/utils'
@@ -9,7 +10,7 @@ import { liveQuery } from 'dexie'
 import { defineStore } from 'pinia'
 import { useAccessStore, useSocketStore, useUserStore } from '.'
 import { useAfterUpdated, useManager } from './hooks'
-import { createHashGroupMap, type HashGroupMeta } from './utils'
+import { createHashGroupMap } from './utils'
 
 /** 本地物品数据 */
 export const useItemStore = defineStore('global-item', () => {
@@ -93,9 +94,23 @@ export const useItemStore = defineStore('global-item', () => {
           oldUpdateTime = time
       })
 
+      /** newHashSet 的最晚更新时间 */
       let newUpdateTime = 0
+      hashList.forEach(({ time = 0 }) => {
+        if (time > newUpdateTime)
+          newUpdateTime = time
+      })
 
-      const newHashSet = new Set(hashList)
+      // 如果 newHashSet 的最晚更新时间小于 oldHashSet 的最晚更新时间，则表示压缩数据落后于本地，跳过更新
+      if (newUpdateTime <= oldUpdateTime) {
+        return {
+          bulkPutData: [],
+          bulkDeleteKeys: [],
+          clear: false,
+        }
+      }
+
+      const newHashSet = new Set(hashList.map(({ md5 = '' }) => md5))
       const oldHashSet = new Set(hashGroupMap.value.keys())
 
       const needUpdateHashList = [...newHashSet.difference(oldHashSet)]
@@ -106,14 +121,8 @@ export const useItemStore = defineStore('global-item', () => {
       const newData = (await Promise.all(needUpdateHashList.map(async (hash) => {
         const buffer = await <Promise<ArrayBuffer>>(<unknown>Api.itemDoc.listPageItemByBinary({ md5: hash }, { responseType: 'arraybuffer' }))
         const data = await Zip.decompressAs<API.ItemVo[]>(new Uint8Array(buffer), { name: `item-${hash}` })
-        return data.map((newOne) => (<Hash<API.ItemVo>>{ ...newOne, __hash: hash }))
+        return data.map(newOne => (<Hash<API.ItemVo>>{ ...newOne, __hash: hash }))
       }))).flat(1)
-
-      const newHashGroup = createHashGroupMap(newData)
-      newHashGroup.forEach(({ time }) => {
-        if (time > newUpdateTime)
-          newUpdateTime = time
-      })
 
       hashGroupMap.value.forEach(({ time, list }, oldHash) => {
         if (newHashSet.has(oldHash) || time >= newUpdateTime)
@@ -142,10 +151,12 @@ export const useItemStore = defineStore('global-item', () => {
       const { data: hashList = [] } = await Api.itemDoc.listItemBinaryMD5()
 
       message.value = '获取更新数据'
-      const newData = (await Promise.all(hashList.map(async (hash) => {
+      const newData = (await Promise.all(hashList.map(async ({ md5: hash = '' }) => {
+        if (!hash)
+          return []
         const buffer = await <Promise<ArrayBuffer>>(<unknown>Api.itemDoc.listPageItemByBinary({ md5: hash }, { responseType: 'arraybuffer' }))
         const data = await Zip.decompressAs<API.ItemVo[]>(new Uint8Array(buffer), { name: `item-${hash}` })
-        return data.map((newOne) => (<Hash<API.ItemVo>>{ ...newOne, __hash: hash }))
+        return data.map(newOne => (<Hash<API.ItemVo>>{ ...newOne, __hash: hash }))
       }))).flat(1)
 
       updateCount.value = newData.length

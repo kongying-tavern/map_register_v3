@@ -1,6 +1,7 @@
 import type { WorkerInput, WorkerOutput } from '@/worker/idb.worker'
 import type { Hash } from 'types/database'
 import type { ShallowRef } from 'vue'
+import type { HashGroupMeta } from './utils'
 import Api from '@/api/api'
 import db from '@/database'
 import { useAfterUpdated, useManager } from '@/stores/hooks'
@@ -9,7 +10,7 @@ import BulkPutWorker from '@/worker/idb.worker?worker'
 import { liveQuery } from 'dexie'
 import { defineStore } from 'pinia'
 import { useSocketStore, useUserStore } from '.'
-import { createHashGroupMap, type HashGroupMeta } from './utils'
+import { createHashGroupMap } from './utils'
 
 export const useMarkerLinkStore = defineStore('global-marker-link', () => {
   const socketStore = useSocketStore()
@@ -76,7 +77,8 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
       startTime.value = Date.now()
 
       message.value = '获取签名列表'
-      const { data: digest = '' } = await Api.markerLinkDoc.listAllMarkerLinkageBinaryMD5()
+      const { data: digestData = {} } = await Api.markerLinkDoc.listAllMarkerLinkageBinaryMD5()
+      const { md5: digest = '', time: newUpdateTime = 0 } = digestData
       const hashList = [digest]
 
       let oldUpdateTime = 0
@@ -85,7 +87,8 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
           oldUpdateTime = time
       })
 
-      let newUpdateTime = 0
+      if (oldUpdateTime >= newUpdateTime)
+        return
 
       const newHashSet = new Set(hashList)
       const oldHashSet = new Set(hashGroupMap.value.keys())
@@ -106,12 +109,6 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
           return result
         }, [] as Hash<API.MarkerLinkageVo>[])
       }))).flat(1)
-
-      const newHashGroup = createHashGroupMap(newData)
-      newHashGroup.forEach(({ time }) => {
-        if (time > newUpdateTime)
-          newUpdateTime = time
-      })
 
       hashGroupMap.value.forEach(({ time, list }, oldHash) => {
         if (newHashSet.has(oldHash) || time >= newUpdateTime)
@@ -137,7 +134,15 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
       startTime.value = Date.now()
 
       message.value = '获取签名列表'
-      const { data: hash = '' } = await Api.markerLinkDoc.listAllMarkerLinkageBinaryMD5()
+      const { data: digestData = {} } = await Api.markerLinkDoc.listAllMarkerLinkageBinaryMD5()
+      const { md5: hash = '' } = digestData
+      if (!hash) {
+        return {
+          bulkPutData: [],
+          bulkDeleteKeys: [],
+          clear: false,
+        }
+      }
 
       message.value = '获取更新数据'
       const buffer = await <Promise<ArrayBuffer>>(<unknown>Api.markerLinkDoc.listAllMarkerLinkageBinary({ responseType: 'arraybuffer' }))
