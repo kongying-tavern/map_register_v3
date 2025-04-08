@@ -139,7 +139,7 @@ useSubscription(MapSubject.dragStart.pipe(
 
 .controller-info-bar {
   @apply
-    w-1/2 min-w-[360px] max-w-full py-4 px-4 rounded-lg shadow-2xl
+    w-1/2 min-w-[360px] max-w-[480px] py-4 px-4 rounded-lg shadow-2xl
     absolute left-1/2 top-0 sm:translate-y-4
     -translate-x-1/2 translate-y-[80px]
     flex gap-4 justify-between items-center
