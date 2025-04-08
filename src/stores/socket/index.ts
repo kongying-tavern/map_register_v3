@@ -1,3 +1,4 @@
+import { SocketStatus } from '@/shared'
 import { ElNotification } from 'element-plus'
 import { defineStore } from 'pinia'
 import { useArchiveStore, useUserStore } from '..'
@@ -45,7 +46,7 @@ export const useSocketStore = defineStore('global-web-socket', () => {
       duration: 0,
     })
     window.setTimeout(() => {
-      window.location.reload()
+      window.location.replace(`${window.location.origin}?t=${Date.now()}`)
     }, 5 * 60 * 1000)
   })
 
@@ -71,14 +72,27 @@ export const useSocketStore = defineStore('global-web-socket', () => {
     _userId.value = undefined
   })
 
-  watch(() => userStore.info?.id, (userId) => {
+  const checkConnect = (userId?: number) => {
     if (userId === undefined) {
-      close()
-      return
+      if (status.value === SocketStatus.CLOSING || status.value === SocketStatus.CLOSED)
+        return
+      return close()
+    }
+    if (userId === _userId.value) {
+      if (status.value === SocketStatus.CONNECTING || status.value === SocketStatus.OPEN)
+        return
     }
     _userId.value = userId
     open()
-  }, { immediate: true })
+  }
+
+  useTimeoutPoll(() => {
+    if (status.value === SocketStatus.OPEN)
+      return
+    checkConnect(_userId.value)
+  }, 5000, { immediate: true })
+
+  watch(() => userStore.info?.id, checkConnect, { immediate: true })
 
   return {
     userId: _userId as Readonly<Ref<number | undefined>>,
