@@ -1,11 +1,10 @@
-import type { RouterHistory, RouterScrollBehavior } from 'vue-router'
+import type { RouterHistory } from 'vue-router'
 import {
   createMemoryHistory,
   createRouter,
   createWebHashHistory,
   createWebHistory,
 } from 'vue-router'
-import routes from './routes'
 
 const history: RouterHistory = ({
   history: createWebHistory,
@@ -13,16 +12,16 @@ const history: RouterHistory = ({
   memory: createMemoryHistory,
 }[import.meta.env.VITE_ROUTER_MODE] ?? createWebHashHistory)(import.meta.env.BASE_URL)
 
-const scrollBehavior: RouterScrollBehavior = () => ({
-  top: 0,
-  left: 0,
-  behavior: 'smooth',
-})
-
 const router = createRouter({
-  routes,
+  routes: [
+    { path: '/:pathMatch(.*)', name: 'NotFound', component: () => import('../HomePage.vue') },
+  ],
   history,
-  scrollBehavior,
+  scrollBehavior: () => ({
+    top: 0,
+    left: 0,
+    behavior: 'smooth',
+  }),
 })
 
 export { router }

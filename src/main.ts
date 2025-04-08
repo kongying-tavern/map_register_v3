@@ -1,5 +1,6 @@
 import { AppError } from '@/components'
 import { createLogger, createPWA, customPaint, ElementIcons } from '@/plugin'
+import { router } from '@/router'
 import { useArchiveStore, useBroadcastStore, useDadianStore, useUserStore } from '@/stores'
 import ElementPlus from 'element-plus'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
@@ -23,6 +24,7 @@ import 'element-plus/theme-chalk/dark/css-vars.css'
         locale: zhCn,
       })
       .use(ElementIcons)
+      .use(router)
     useBroadcastStore().init()
     await useUserStore().init()
     await useDadianStore().init()
