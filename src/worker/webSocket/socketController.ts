@@ -74,7 +74,6 @@ export class SocketController {
           data: SocketStatus.OPEN,
         }, [])
 
-
         // 发送 Ping
         let index = 0
         const pingAndWaitForPong = defer(() => {
@@ -137,7 +136,7 @@ export class SocketController {
           SocketCloseReason.CLOSED_BY_USER,
           SocketCloseReason.URL_CHANGED,
           SocketCloseReason.ALL_PORTS_CLOSED,
-        ].some((r) => r === reason)
+        ].includes(reason as SocketCloseReason)
       }),
 
       switchMap(() => {
@@ -152,19 +151,23 @@ export class SocketController {
 
     // 错误处理
     this.error$.subscribe((ev) => {
-      if (ev instanceof ErrorEvent)
-        socketLogger.error(ev.error instanceof Error ? ev.error.message : ev.message)
-      else if (ev instanceof DOMException)
-        socketLogger.error(ev.message ?? ev.name)
-      else
-        socketLogger.error('unknown')
+      if (ev instanceof ErrorEvent) {
+        socketLogger.error(`Error: ${ev.error instanceof Error ? ev.error.message : ev.message}`)
+      }
+      else if (ev instanceof DOMException) {
+        socketLogger.error(`Error: ${ev.message ?? ev.name}`)
+      }
+      else {
+        const { stack = `Error: unknown` } = new Error('stack')
+        socketLogger.error(stack)
+      }
     })
 
     // 接收到消息
     this.data$.pipe(
       filter(({ event }) => event !== 'Pong'),
       tap((data) => {
-        socketLogger.info(JSON.stringify(data))
+        socketLogger.info(`Message: ${JSON.stringify(data)}`)
         broadcast({
           event: SocketWorkerEvent.Message,
           data,
@@ -174,7 +177,7 @@ export class SocketController {
   }
 
   #getPath = (url: string) => {
-    return url.replace(/^([a-zA-Z][a-zA-Z0-9+.-]*):\/\//, '')
+    return url.replace(/^([a-z][a-z0-9+.-]*):\/\//i, '')
   }
 
   open = (url: string) => {
@@ -205,6 +208,7 @@ export class SocketController {
   reconnect = async () => {
     if (!this.instance || this.instance.readyState === SocketStatus.OPEN)
       return
+    socketLogger.info(`Reconnect`)
     this.open(this.instance.url)
   }
 

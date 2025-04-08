@@ -4,7 +4,7 @@ import { Dexie } from 'dexie'
 export class WebsocketDatabase extends Dexie {
   declare logs: Dexie.Table<WS.Log, number>
 
-  readonly VERSION = 1.0
+  readonly VERSION = 1.1
 
   readonly STORES = {
     logs: '++id',
