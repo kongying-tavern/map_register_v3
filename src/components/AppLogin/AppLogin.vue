@@ -1,38 +1,31 @@
 <script setup lang="ts">
-import { ElDialog } from 'element-plus'
+import { GlobalDialogController } from '@/components/AppDialog'
 import { LoginPanel, RegisterPanel } from './components'
 
-const visible = defineModel<boolean>('visible', {
-  required: true,
-})
+const props = defineProps<{
+  code?: string
+  username?: string
+  isRegisterMode?: boolean
+}>()
 
-const panelKey = ref('login')
+const emits = defineEmits<{
+  success: []
+}>()
+
+const isRegisterMode = ref(props.isRegisterMode ?? false)
 </script>
 
 <template>
-  <ElDialog
-    v-model="visible"
-    destroy-on-close
-    append-to-body
-    align-center
-    :close-on-click-modal="false"
-    :close-on-press-escape="false"
-    class="custom-dialog hidden-header"
-    :style="{
-      '--el-dialog-border-radius': '8px',
-      '--el-dialog-padding-primary': '0',
-      '--el-dialog-width': '340px',
-      '--el-dialog-bg-color': 'transparent',
-    }"
-  >
-    <transition :name="panelKey === 'login' ? 'anime-left' : 'anime-right'" mode="out-in" appear>
-      <component
-        :is="panelKey === 'login' ? LoginPanel : RegisterPanel"
-        v-model:panel-key="panelKey"
-        v-model:visible="visible"
-      />
-    </transition>
-  </ElDialog>
+  <transition :name="isRegisterMode ? 'anime-right' : 'anime-left'" mode="out-in" appear>
+    <component
+      :is="isRegisterMode ? RegisterPanel : LoginPanel"
+      v-model:is-register="isRegisterMode"
+      :code="props.code"
+      :username="props.username"
+      @success="() => emits('success')"
+      @close="GlobalDialogController.close"
+    />
+  </transition>
 </template>
 
 <style scoped>

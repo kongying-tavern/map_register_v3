@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import type { ElForm, FormItemRule } from 'element-plus'
 import { GlobalDialogController, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
-import { GROUPED_ACCESS_POLICY_OPTIONS } from '@/shared'
+import { GROUPED_ACCESS_POLICY_OPTIONS, RouteQuery } from '@/shared'
 import { useUserStore } from '@/stores'
 import * as ElIcons from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 import { useInvitationCreate, useInvitationUpdate } from '../hooks'
 
 const props = defineProps<{
@@ -69,10 +70,31 @@ const rules: Partial<Record<keyof API.SysUserInvitationVo, FormItemRule>> = {
     message: '必须选择一个权限',
   },
 }
+
+const invitationUrl = computed(() => {
+  const { code, username } = form.value
+  if (!code || !username)
+    return
+  const url = new URL(location.origin)
+  url.searchParams.append(RouteQuery.Invitation.getKey(), RouteQuery.Invitation.stringify({ code, username }))
+  return url.toString()
+})
+
+const copyInvitationCode = async () => {
+  if (!invitationUrl.value)
+    return
+  try {
+    await navigator.clipboard.writeText(invitationUrl.value)
+    ElMessage.success('邀请链接已复制到剪贴板')
+  }
+  catch {
+    // cancel
+  }
+}
 </script>
 
 <template>
-  <WinDialog class="w-[300px]">
+  <WinDialog class="w-[330px]">
     <WinDialogTitleBar :loading="loading" @close="GlobalDialogController.close">
       {{ props.title }}
     </WinDialogTitleBar>
@@ -80,7 +102,8 @@ const rules: Partial<Record<keyof API.SysUserInvitationVo, FormItemRule>> = {
     <WinDialogTabPanel>
       <el-form
         ref="formRef"
-        label-position="top"
+        label-width="80px"
+        label-position="right"
         :disabled="loading"
         :model="form"
         :rules="rules"
@@ -88,12 +111,6 @@ const rules: Partial<Record<keyof API.SysUserInvitationVo, FormItemRule>> = {
         <el-form-item label="用户名" prop="username" :disabled="isUpdateMode">
           <el-input
             v-model="form.username"
-          />
-        </el-form-item>
-
-        <el-form-item label="用户备注" prop="remark">
-          <el-input
-            v-model="form.remark"
           />
         </el-form-item>
 
@@ -110,15 +127,25 @@ const rules: Partial<Record<keyof API.SysUserInvitationVo, FormItemRule>> = {
           />
         </el-form-item>
 
+        <el-form-item label="备注" prop="remark">
+          <el-input
+            v-model="form.remark"
+          />
+        </el-form-item>
+
         <el-form-item label="登录策略" prop="accessPolicy">
           <el-select-v2
             v-model="form.accessPolicy"
             :options="GROUPED_ACCESS_POLICY_OPTIONS"
             :max-collapse-tags="1"
             multiple
-            collapse-tags
-            collapse-tags-tooltip
           />
+        </el-form-item>
+
+        <el-form-item v-if="invitationUrl" label="邀请链接" style="margin-bottom: 0;">
+          <el-button :icon="ElIcons.Link" :disabled="!isSame" class="w-full" @click="copyInvitationCode">
+            {{ isSame ? '复制链接' : '提交更新后获取' }}
+          </el-button>
         </el-form-item>
       </el-form>
     </WinDialogTabPanel>

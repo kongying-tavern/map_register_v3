@@ -4,11 +4,12 @@ import { useCountDown } from '@/hooks'
 import { User } from '@element-plus/icons-vue'
 import { useLoginForm } from '../hooks'
 
-const visible = defineModel<boolean>('visible', {
-  required: true,
-})
+const emits = defineEmits<{
+  success: []
+  close: []
+}>()
 
-const panelKey = defineModel<string>('panelKey', {
+const isRegister = defineModel<boolean>('isRegister', {
   required: true,
 })
 
@@ -26,7 +27,8 @@ const {
 } = useLoginForm()
 
 onSuccess(() => {
-  visible.value = false
+  emits('success')
+  emits('close')
 })
 
 const { count, set: setCount } = useCountDown()
@@ -40,8 +42,8 @@ const trigger = async () => {
 </script>
 
 <template>
-  <WinDialog>
-    <WinDialogTitleBar :loading="loading" @close="visible = false">
+  <WinDialog class="w-[340px]">
+    <WinDialogTitleBar :loading="loading" @close="() => emits('close')">
       登录
     </WinDialogTitleBar>
 
@@ -98,7 +100,7 @@ const trigger = async () => {
         <el-button link type="primary" disabled title="暂时没做这个功能">
           忘记密码
         </el-button>
-        <el-button link type="success" :disabled="loading" @click="panelKey = 'register'">
+        <el-button link type="success" :disabled="loading" @click="isRegister = true">
           没有账号？去注册 →
         </el-button>
       </div>

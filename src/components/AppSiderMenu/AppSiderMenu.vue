@@ -4,7 +4,7 @@ import type {
   ACCESS_BINARY_MASK,
 } from '@/stores'
 import type { FeatureGroupOption } from './components'
-import { AppSettings, AppUserAvatar, AppWindowTeleporter, useAppWindow } from '@/components'
+import { AppLogin, AppSettings, AppUserAvatar, AppUserInfo, AppWindowTeleporter, useAppWindow } from '@/components'
 import { IconInvitation, IconNotice } from '@/components/AppIcons'
 import { useGlobalDialog } from '@/hooks'
 import {
@@ -168,11 +168,7 @@ watch(isLogin, (login) => {
 })
 
 const handleAvatarClick = () => {
-  if (isLogin.value) {
-    userStore.userInfoVisible = true
-    return
-  }
-  userStore.loginPanelVisible = true
+  DialogService.open(isLogin.value ? AppUserInfo : AppLogin)
 }
 </script>
 

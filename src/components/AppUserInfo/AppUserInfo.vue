@@ -1,19 +1,12 @@
 <script lang="ts" setup>
-import { GSButton, GSTab } from '@/components'
+import { GlobalDialogController, GSButton, GSTab } from '@/components'
 import { useUserStore } from '@/stores'
-import { ElDialog } from 'element-plus'
 import { ArchiveAnalyser, ArchiveSelector, InfoEditor, PasswordEditor } from '.'
 import { UserBanner } from './components'
 
 const userStore = useUserStore()
 
-const visible = defineModel<boolean>('visible', {
-  required: true,
-})
-
-whenever(() => !userStore.info, () => {
-  visible.value = false
-})
+whenever(() => !userStore.info, GlobalDialogController.close)
 
 const tabs: { title: string, value: string }[] = [
   { title: '云存档', value: 'archive' },
@@ -24,43 +17,31 @@ const tab = ref('archive')
 </script>
 
 <template>
-  <ElDialog
-    v-if="userStore.info"
-    v-model="visible"
-    :show-close="false"
-    destroy-on-close
-    align-center
-    append-to-body
-    width="fit-content"
-    class="custom-dialog hidden-header bg-transparent"
-    style="--el-dialog-padding-primary: 8px"
-  >
-    <div class="user-info-dialog">
-      <div class="absolute right-[-48px] top-[2px]">
-        <GSButton icon="cancel" theme="plain" style="--icon-color: #816D51" @click="visible = false" />
-      </div>
-
-      <div class="user-info-card">
-        <UserBanner />
-
-        <ArchiveAnalyser />
-      </div>
-
-      <div class="user-action">
-        <GSTab v-model="tab" :tabs="tabs" class="h-full">
-          <template #archive>
-            <ArchiveSelector />
-          </template>
-          <template #info>
-            <InfoEditor />
-          </template>
-          <template #password>
-            <PasswordEditor />
-          </template>
-        </GSTab>
-      </div>
+  <div class="user-info-dialog">
+    <div class="absolute right-[-48px] top-[2px]">
+      <GSButton icon="cancel" theme="plain" style="--icon-color: #816D51" @click="GlobalDialogController.close" />
     </div>
-  </ElDialog>
+
+    <div class="user-info-card">
+      <UserBanner />
+
+      <ArchiveAnalyser />
+    </div>
+
+    <div class="user-action">
+      <GSTab v-model="tab" :tabs="tabs" class="h-full">
+        <template #archive>
+          <ArchiveSelector />
+        </template>
+        <template #info>
+          <InfoEditor />
+        </template>
+        <template #password>
+          <PasswordEditor />
+        </template>
+      </GSTab>
+    </div>
+  </div>
 </template>
 
 <style scoped>

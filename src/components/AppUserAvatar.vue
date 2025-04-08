@@ -2,8 +2,6 @@
 import { useUserStore } from '@/stores'
 import { Avatar, CircleCloseFilled } from '@element-plus/icons-vue'
 import { ElIcon, ElImage, ElSkeleton, ElSkeletonItem } from 'element-plus'
-import { AppLogin } from './AppLogin'
-import { AppUserInfo } from './AppUserInfo'
 
 const userStore = useUserStore()
 </script>
@@ -16,9 +14,6 @@ const userStore = useUserStore()
       'has-logo': userStore.info?.logo,
     }"
   >
-    <AppLogin v-model:visible="userStore.loginPanelVisible" />
-    <AppUserInfo v-model:visible="userStore.userInfoVisible" />
-
     <ElIcon v-if="!userStore.info" :size="32" color="#263240">
       <Avatar />
     </ElIcon>

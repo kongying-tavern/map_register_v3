@@ -3,12 +3,14 @@ import type { InvitationFilterOptions, InvitationSortOptions } from './types'
 import Api from '@/api/api'
 import { PgUnit, useFetchHook, useGlobalDialog, usePagination } from '@/hooks'
 import { ManagerModule } from '@/shared'
+import { useUserStore } from '@/stores'
 import { timeFormatter } from '@/utils'
 import * as ElIcons from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
 import { InvitationEditor } from './components'
 import InvitationDeleteConfirm from './components/InvitationDeleteConfirm.vue'
 import InvitationHeader from './components/InvitationHeader.vue'
+
+const userStore = useUserStore()
 
 const { DialogService } = useGlobalDialog()
 
@@ -117,22 +119,9 @@ const openInvitationDeleteConfirm = (data: API.SysUserInvitationVo) => {
     .open(InvitationDeleteConfirm)
 }
 
-const copyInvitationCode = async ({ code }: API.SysUserInvitationVo) => {
-  if (!code)
-    return
-  try {
-    await navigator.clipboard.writeText(code)
-    ElMessage.success('邀请码已复制到剪贴板')
-  }
-  catch {
-    // cancel
-  }
-}
-
-const handleRowClick = (data: API.SysUserInvitationVo, col: { property?: string }) => {
+const handleRowClick = (data: API.SysUserInvitationVo, col: { property?: string } = {}) => {
   const { property = '' } = col
   return ({
-    code: () => copyInvitationCode(data),
     username: () => openInvitationEditor(data),
   } as Record<string, () => void>)[property]?.()
 }
@@ -142,10 +131,6 @@ const getCellClassName = (cell: { column: { property?: string } }) => {
   if (!property)
     return ''
   return `prop-${property}`
-}
-
-const codeFormatter = (...{ 2: code = '' }) => {
-  return code.slice(-12)
 }
 
 const userFormatter = (...{ 2: uid = -1 }) => {
@@ -183,20 +168,27 @@ const userFormatter = (...{ 2: uid = -1 }) => {
 
         <el-table-column prop="remark" label="用户备注" :width="100" />
 
-        <el-table-column prop="roldId" label="角色" :width="100" />
+        <el-table-column prop="roleId" label="角色" :width="100">
+          <template #default="{ row }">
+            <el-tag disable-transitions>
+              {{ userStore.roleMap.get(row.roleId)?.name ?? `(RID: ${row.roleId})` }}
+            </el-tag>
+          </template>
+        </el-table-column>
 
-        <el-table-column prop="code" label="邀请码" :width="150" :formatter="codeFormatter" />
+        <el-table-column prop="code" label="邀请码" />
 
         <el-table-column prop="creatorId" label="创建人" :width="100" :formatter="userFormatter" />
 
-        <el-table-column prop="createTime" label="创建时间" :formatter="timeFormatter" />
+        <el-table-column prop="createTime" label="创建时间" :width="150" :formatter="timeFormatter" />
 
-        <el-table-column fixed="right" label="操作" :width="60">
+        <el-table-column fixed="right" label="操作" :width="100">
           <template #default="{ row }">
             <el-button
               type="danger"
               text
               circle
+              title="删除"
               :icon="ElIcons.Delete"
               @click="() => openInvitationDeleteConfirm(row)"
             />
@@ -237,14 +229,6 @@ const userFormatter = (...{ 2: uid = -1 }) => {
 
       &:hover {
         text-decoration-style: solid;
-      }
-    }
-
-    /** 邀请码列的特殊样式 */
-    &.prop-code {
-      cursor: pointer;
-      &:hover {
-        color: var(--el-color-primary);
       }
     }
   }

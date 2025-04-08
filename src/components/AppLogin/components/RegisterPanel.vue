@@ -4,11 +4,17 @@ import { useCountDown } from '@/hooks'
 import { CirclePlus } from '@element-plus/icons-vue'
 import { useRegisterForm } from '../hooks'
 
-const visible = defineModel<boolean>('visible', {
-  required: true,
-})
+const props = defineProps<{
+  code?: string
+  username?: string
+}>()
 
-const panelKey = defineModel<string>('panelKey', {
+const emits = defineEmits<{
+  success: []
+  close: []
+}>()
+
+const isRegister = defineModel<boolean>('isRegister', {
   required: true,
 })
 
@@ -23,10 +29,14 @@ const {
   register,
   onSuccess,
   handleValidate,
-} = useRegisterForm()
+} = useRegisterForm({
+  code: props.code,
+  username: props.username,
+})
 
 onSuccess(() => {
-  visible.value = false
+  emits('success')
+  emits('close')
 })
 
 const { count, set: setCount } = useCountDown()
@@ -40,8 +50,8 @@ const trigger = async () => {
 </script>
 
 <template>
-  <WinDialog>
-    <WinDialogTitleBar :loading="loading" @close="visible = false">
+  <WinDialog class="w-[340px]">
+    <WinDialogTitleBar :loading="loading" @close="() => emits('close')">
       注册
     </WinDialogTitleBar>
 
@@ -123,7 +133,7 @@ const trigger = async () => {
       <el-divider style="margin: 24px 0 16px" />
 
       <div class="flex justify-between">
-        <el-button link type="primary" :disabled="loading" @click="panelKey = 'login'">
+        <el-button link type="primary" :disabled="loading" @click="isRegister = false">
           ← 去登录
         </el-button>
       </div>

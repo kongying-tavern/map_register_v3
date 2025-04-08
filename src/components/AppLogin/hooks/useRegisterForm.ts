@@ -6,8 +6,16 @@ import { useUserStore } from '@/stores'
 import { ElMessage } from 'element-plus'
 import { useValidateStatus } from './useValidateStatus'
 
+interface RegisterForm {
+  code?: string
+  username?: string
+  nickname?: string
+  password?: string
+  repeatPassword?: string
+}
+
 /** 注册逻辑封装 */
-export const useRegisterForm = () => {
+export const useRegisterForm = (init: RegisterForm = {}) => {
   const userStore = useUserStore()
 
   const formRef = ref<ElFormType | null>(null)
@@ -26,6 +34,7 @@ export const useRegisterForm = () => {
     nickname: '',
     password: '',
     repeatPassword: '',
+    ...init,
   })
 
   const rules: ItemFormRules<typeof form.value> = {
