@@ -50,7 +50,7 @@ export class GlobalDialogService {
   static open = (comp: Component) => {
     if (comp === context.component.value) {
       context.visible.value = true
-      return
+      return GlobalDialogController
     }
     context.visible.value && GlobalDialogController.close(undefined, true)
     context.component.value = comp
