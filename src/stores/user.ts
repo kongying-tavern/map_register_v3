@@ -1,8 +1,11 @@
+import type { MessageHandler } from 'element-plus'
 import Api from '@/api/api'
 import Oauth from '@/api/oauth'
-import { useFetchHook } from '@/hooks'
+import { AppLogin } from '@/components'
+import { useFetchHook, useGlobalDialog } from '@/hooks'
 import { ROLE_MASK_MAP, USERAUTH_KEY } from '@/shared'
 import { Logger } from '@/utils'
+import { ElMessage } from 'element-plus'
 import { camelCase } from 'lodash'
 import { defineStore } from 'pinia'
 import { from, lastValueFrom, retry } from 'rxjs'
@@ -32,9 +35,9 @@ const toCamelCaseObject = <T extends Record<string, unknown>>(obj: T): SnakeCase
 }
 
 export const useUserStore = defineStore('global-user', () => {
-  // ==================== token ====================
-  const loginPanelVisible = ref(false)
+  const { DialogService } = useGlobalDialog()
 
+  // ==================== token ====================
   const auth = useLocalStorage<Partial<AppUserAuth>>(USERAUTH_KEY, {})
 
   const setAuth = (newAuth: API.SysToken) => {
@@ -64,8 +67,6 @@ export const useUserStore = defineStore('global-user', () => {
   }, new Map<number, API.SysRoleVo>()))
 
   // ==================== 用户信息 ====================
-  const userInfoVisible = ref(false)
-
   const { data: info, loading: isInfoLoading, refresh: refreshUserInfo, onError: onFetchInfoError } = useFetchHook({
     shallow: true,
     initialValue: null,
@@ -95,9 +96,12 @@ export const useUserStore = defineStore('global-user', () => {
     },
   })
 
+  const logoutMessageHandler = shallowRef<MessageHandler>()
+
   const login = async (form: API.SysTokenVO) => {
     const authData = await Oauth.oauth.token(form)
     setAuth(authData)
+    logoutMessageHandler.value?.close()
     return authData
   }
 
@@ -113,10 +117,18 @@ export const useUserStore = defineStore('global-user', () => {
 
   const beforeLogout = createEventHook<void>()
 
-  const logout = () => {
+  const logout = async () => {
     beforeLogout.trigger()
     clearLoginState()
-    loginPanelVisible.value = true
+    logoutMessageHandler.value = ElMessage({
+      type: 'warning',
+      message: '已退出',
+      duration: 0,
+      showClose: true,
+      onClose: () => {
+        logoutMessageHandler.value = undefined
+      },
+    })
   }
 
   onFetchInfoError(() => {
@@ -170,19 +182,25 @@ export const useUserStore = defineStore('global-user', () => {
       if (!newToken) {
         pauseRefreshToken()
         logger.info('token 刷新已暂停')
+        DialogService
+          .config({
+            center: true,
+            closeOnClickModal: false,
+            closeOnPressEscape: false,
+          })
+          .open(AppLogin)
         return
       }
       if (!oldToken) {
         logger.info('token 刷新已启用')
         resumeRefreshToken()
       }
-    })
+    }, { immediate: true })
     watch(() => auth.value.userId, refreshUserInfo, { immediate: true })
   }
 
   return {
     // states
-    loginPanelVisible,
     auth,
     roleList,
     roleListLoading,
@@ -190,7 +208,6 @@ export const useUserStore = defineStore('global-user', () => {
     info,
     isInfoLoading,
     isAutoRefreshActive,
-    userInfoVisible,
 
     // actions
     setAuth,
