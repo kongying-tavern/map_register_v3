@@ -48,6 +48,10 @@ export class GlobalDialogService {
 
   /** 打开弹窗，返回弹窗控制器 */
   static open = (comp: Component) => {
+    if (comp === context.component.value) {
+      context.visible.value = true
+      return
+    }
     context.visible.value && GlobalDialogController.close(undefined, true)
     context.component.value = comp
     context.visible.value = true

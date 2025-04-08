@@ -13,26 +13,35 @@ const hiddenHeader = computed(() => !context.dialogProps.value.showClose && !con
 <template>
   <el-dialog
     v-model="context.visible.value"
-    v-bind="context.dialogProps.value"
-    :before-close="beforeClose"
-    class="custom-dialog"
+    v-bind="{
+      width: 'fit-content',
+      alignCenter: true,
+      closeOnClickModal: false,
+      closeOnPressEscape: false,
+      ...context.dialogProps.value,
+    }"
+    destroy-on-close
     append-to-body
+    class="custom-dialog bg-transparent"
+    :before-close="beforeClose"
     :class="{
       'hidden-header': hiddenHeader,
     }"
-    :style="{
-      '--el-dialog-border-radius': '8px',
-      '--el-dialog-padding-primary': '0',
-      '--el-dialog-width': 'auto',
-    }"
     @closed="context.resetState"
   >
-    <component :is="context.component.value" v-bind="context.props.value" v-on="context.listener.value" />
+    <component
+      :is="context.component.value"
+      v-bind="context.props.value"
+      v-on="context.listener.value"
+    />
   </el-dialog>
 </template>
 
 <style>
-.custom-dialog {
+.custom-dialog.el-dialog {
+  --el-dialog-border-radius: 8px;
+  --el-dialog-padding-primary: 0;
+
   &.bg-transparent {
     background: transparent;
   }
