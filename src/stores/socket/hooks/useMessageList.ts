@@ -1,19 +1,22 @@
 import type { EventBus } from '@/utils'
 import db from '@/database'
+import { useSubscription } from '@vueuse/rxjs'
+import { liveQuery } from 'dexie'
 
 export const useMessageList = (messageEvent: EventBus<Socket.DataEventMap>) => {
-  const _messageList = ref<Socket.DataEventRecord[]>([])
+  const _messageList = shallowRef<Socket.DataEventRecord[]>([])
 
   const clearMessageList = () => {
     _messageList.value = []
   }
 
-  const afterInit = db.websocketEvents.orderBy('time').reverse().limit(100).toArray().then((record) => {
-    _messageList.value = record
-  })
+  useSubscription(liveQuery(() => {
+    return db.websocketEvents.orderBy('time').reverse().limit(100).reverse().toArray()
+  }).subscribe((list) => {
+    _messageList.value = list
+  }))
 
   messageEvent.on('MarkerAdded', async (markerInfo, user) => {
-    await afterInit
     const data: Socket.DataEventRecord<'MarkerAdded'> = {
       key: crypto.randomUUID(),
       type: 'MarkerAdded',
@@ -22,11 +25,9 @@ export const useMessageList = (messageEvent: EventBus<Socket.DataEventMap>) => {
       user,
     }
     await db.websocketEvents.add(JSON.parse(JSON.stringify(data)))
-    _messageList.value.push(data)
   })
 
   messageEvent.on('MarkerUpdated', async (markerInfo, user) => {
-    await afterInit
     const data: Socket.DataEventRecord<'MarkerUpdated'> = {
       key: crypto.randomUUID(),
       type: 'MarkerUpdated',
@@ -35,11 +36,9 @@ export const useMessageList = (messageEvent: EventBus<Socket.DataEventMap>) => {
       user,
     }
     await db.websocketEvents.add(JSON.parse(JSON.stringify(data)))
-    _messageList.value.push(data)
   })
 
   messageEvent.on('MarkerDeleted', async (markerInfo, user) => {
-    await afterInit
     const data: Socket.DataEventRecord<'MarkerDeleted'> = {
       key: crypto.randomUUID(),
       type: 'MarkerDeleted',
@@ -48,11 +47,9 @@ export const useMessageList = (messageEvent: EventBus<Socket.DataEventMap>) => {
       user,
     }
     await db.websocketEvents.add(JSON.parse(JSON.stringify(data)))
-    _messageList.value.push(data)
   })
 
   messageEvent.on('MarkerTweaked', async (markers, user) => {
-    await afterInit
     const [first] = markers
     const data: Socket.DataEventRecord<'MarkerTweaked'> = {
       key: crypto.randomUUID(),
@@ -62,11 +59,9 @@ export const useMessageList = (messageEvent: EventBus<Socket.DataEventMap>) => {
       user,
     }
     await db.websocketEvents.add(JSON.parse(JSON.stringify(data)))
-    _messageList.value.push(data)
   })
 
   messageEvent.on('MarkerLinked', async (markers, user) => {
-    await afterInit
     const [first] = markers
     const data: Socket.DataEventRecord<'MarkerLinked'> = {
       key: crypto.randomUUID(),
@@ -76,7 +71,6 @@ export const useMessageList = (messageEvent: EventBus<Socket.DataEventMap>) => {
       user,
     }
     await db.websocketEvents.add(JSON.parse(JSON.stringify(data)))
-    _messageList.value.push(data)
   })
 
   return {

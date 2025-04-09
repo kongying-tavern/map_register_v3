@@ -13,11 +13,22 @@ const { refresh: clearMessageList, loading: clearLoading } = useFetchHook({
     socketStore.clearMessageList()
   },
 })
+
+const wrapperRef = shallowRef<HTMLDivElement>()
+
+const scrollToBottom = useDebounceFn(() => {
+  if (!wrapperRef.value)
+    return
+  wrapperRef.value.scrollTo({
+    behavior: 'smooth',
+    top: wrapperRef.value.scrollHeight,
+  })
+}, 50)
 </script>
 
 <template>
   <div class="w-full h-full flex flex-col overflow-hidden">
-    <div class="flex-1 overflow-y-auto bg-[var(--el-fill-color)]">
+    <div ref="wrapperRef" class="flex-1 overflow-y-auto bg-[var(--el-fill-color)]">
       <div
         v-if="!socketStore.messageList.length"
         class="h-full grid place-content-center text-xs text-[var(--el-text-color-secondary)]"
@@ -30,6 +41,7 @@ const { refresh: clearMessageList, loading: clearLoading } = useFetchHook({
         :data="message"
         :pre-data="socketStore.messageList[index - 1]"
         :is-self="message.user.id === userStore.info?.id"
+        @resolve="scrollToBottom"
       />
     </div>
 

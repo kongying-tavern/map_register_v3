@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import dayjs from 'dayjs'
 import ILoading from './components/ILoading.vue'
 
 const props = defineProps<{
@@ -7,7 +8,14 @@ const props = defineProps<{
   isSelf?: boolean
 }>()
 
-const isDifferentUser = computed(() => !props.preData || props.preData.user.id !== props.data.user.id)
+const emits = defineEmits<{
+  resolve: []
+}>()
+
+const isDifferentUser = computed(() => {
+  const { id: currentUserId } = props.data.user
+  return currentUserId !== props.preData?.user.id
+})
 
 const modules: {
   [K in keyof Socket.DataEventMap]?: Component
@@ -20,14 +28,14 @@ const modules: {
 
 <template>
   <div
-    class="p-2 flex gap-1 overflow-hidden"
+    class="message-item"
     :class="{
-      'flex-row-reverse': isSelf,
-      'pt-0': !isDifferentUser,
+      'is-different': isDifferentUser,
+      'is-selfuser': isSelf,
     }"
   >
-    <div class="w-8 h-8 shrink-0">
-      <img v-if="isDifferentUser" class="rounded-[16px] bg-[var(--el-bg-color)]" :src="data.user.logo">
+    <div class="w-8 shrink-0 overflow-hidden">
+      <img class="w-8 h-8 object-cover rounded-[16px] bg-[var(--el-bg-color)]" :src="data.user.logo">
     </div>
 
     <div
@@ -35,9 +43,8 @@ const modules: {
       :class="isSelf ? 'items-end' : 'items-start'"
     >
       <div
-        v-if="isDifferentUser"
-        class="flex justify-end items-center gap-1"
-        :class="isSelf ? 'flex-row-reverse' : ''"
+        class="w-full flex justify-end items-center gap-1 overflow-hidden"
+        :class="isSelf ? '' : 'flex-row-reverse'"
       >
         <div class="text-[var(--el-text-color-secondary)] whitespace-nowrap">
           {{ data.user.nickname }}
@@ -49,10 +56,16 @@ const modules: {
         :class="isSelf ? 'ml-4' : 'mr-4'"
       >
         <div v-if="!modules[data.type]" class="p-2 text-[var(--el-text-color-secondary)]">
-          未支持的消息类型: {{ data.type }}
+          <div>
+            未支持的消息类型: {{ data.type }}
+          </div>
+          <el-divider style="margin: 4px 0" />
+          <div>
+            {{ dayjs(data.time).format('YYYY-MM-DD HH:mm:ss') }}
+          </div>
         </div>
 
-        <Suspense v-else>
+        <Suspense v-else @resolve="() => emits('resolve')">
           <component :is="modules[data.type]" :data="data" :pre-data="preData" />
           <template #fallback>
             <ILoading />
@@ -62,3 +75,22 @@ const modules: {
     </div>
   </div>
 </template>
+
+<style scoped>
+.message-item {
+  --base-text-align: left;
+  --base-flex-direction: row;
+
+  margin: 8px 8px 16px;
+  display: flex;
+  gap: 4px;
+  overflow: hidden;
+  text-align: var(--base-text-align);
+  flex-direction: var(--base-flex-direction);
+
+  &.is-selfuser {
+    --base-flex-direction: row-reverse;
+    --base-text-align: right;
+  }
+}
+</style>
