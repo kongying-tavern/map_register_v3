@@ -51,7 +51,7 @@ const resortedMarkers = computed(() => mapStateStore.currentLayerMarkers.toSorte
           :is-focus="focusedMarker?.id === item.id"
           :icon-src="iconTagStore.tagSpriteUrl"
           :icon-mapping="iconTagStore.tagPositionMap[item.render.mainIconTag]"
-          @focus="marker => focusMarker(marker, { flyToMarker: true, delay: 400 })"
+          @focus="marker => focusMarker(marker)"
           @hover="hoverMarker"
         />
       </template>
