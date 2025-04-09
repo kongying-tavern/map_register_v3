@@ -3,9 +3,14 @@ import { EaseoutInterpolator, GSMarkerLayer } from '@/packages/map'
 import { MapSubject } from '@/shared'
 import {
   useArchiveStore,
+  useAreaStore,
+  useItemStore,
   useMapStateStore,
+  useMarkerStore,
+  useSocketStore,
 } from '@/stores'
 import { createRenderMarkers } from '@/stores/utils'
+import { ElMessage } from 'element-plus'
 
 let cache: ReturnType<typeof _useMarkerControl>
 
@@ -14,8 +19,12 @@ const MARKER_INTERACTION_KEY = GSMarkerLayer.layerName
 const FLY_OFFSET = [-200, -200]
 
 const _useMarkerControl = () => {
+  const areaStore = useAreaStore()
+  const itemStore = useItemStore()
+  const markerStore = useMarkerStore()
   const archiveStore = useArchiveStore()
   const mapStateStore = useMapStateStore()
+  const socketStore = useSocketStore()
 
   const hideMarkerPopover = computed(() => {
     return archiveStore.currentArchive.body.Preference['map.setting.hideMarkerPopover']
@@ -37,10 +46,6 @@ const _useMarkerControl = () => {
     removeFocus,
     removeHover,
   } = mapStateStore.interaction
-
-  const updateFocus = (id?: number) => {
-    return addFocus(MARKER_INTERACTION_KEY, id, true)
-  }
 
   const { isProcessing: isMultiSelecting } = mapStateStore.subscribeMission('markerMultiSelect', () => '')
 
@@ -76,10 +81,10 @@ const _useMarkerControl = () => {
   /** 快照模式，点位只能查看不可交互 */
   const isSnapshot = ref(false)
 
+  /** 是否由 hover 触发弹窗而不是 focus */
   const isPopoverActived = computed(() => focus.value !== undefined)
 
   whenever(() => !focus.value, () => {
-    isSnapshot.value = false
     mapStateStore.setTempMarkers('focus', [])
   })
 
@@ -94,25 +99,65 @@ const _useMarkerControl = () => {
   const delayTimer = ref<number>()
 
   /** 与 focus 相反的行为 */
-  const blur = () => removeFocus(MARKER_INTERACTION_KEY)
+  const blur = (markerId?: number) => {
+    if (markerId !== undefined && focus.value?.id !== markerId)
+      return
+    removeFocus(MARKER_INTERACTION_KEY)
+  }
 
-  const focusMarker = (markerVo: API.MarkerVo | GSMarkerInfo, {
+  socketStore.appEvent.on('MarkerDeleted', ({ id }) => {
+    blur(id)
+  })
+
+  const focusMarker = (markerVo: API.MarkerVo, {
     delay = 0,
     duration = 400,
-    flyToMarker = false,
-    snapshot = false,
   }: {
+    /** 在将视口移动到点位附近后才真正执行 focus */
     delay?: number
     duration?: number
-    flyToMarker?: boolean
-    snapshot?: boolean
-  }) => {
+  } = {}) => {
     blur()
     window.clearTimeout(delayTimer.value)
-    const markerWithRender = normalizeMarker(markerVo)
+
+    if (markerVo.id === undefined) {
+      ElMessage.error('点位 id 为空')
+      return
+    }
+
+    const existMarkerInfo = markerStore.idMap.get(markerVo.id)
+    const markerWithRender = existMarkerInfo
+      ? normalizeMarker(existMarkerInfo)
+      : normalizeMarker(markerVo)
+
+    // 如果无法在当前数据中查询到所给的点位信息，则只能使用快照模式
+    isSnapshot.value = !existMarkerInfo
 
     mapStateStore.setTempMarkers('focus', [markerWithRender])
-    isSnapshot.value = snapshot
+
+    // 点位可能不在筛选器的当前地区图层，需要切换到对应的地区
+    const { itemList: [firstItem] = [] } = markerWithRender
+    void (() => {
+      if (!firstItem)
+        return
+      const { itemId = -1 } = firstItem
+      const item = itemStore.idMap.get(itemId)
+      if (item?.areaId === undefined)
+        return
+      const area = areaStore.areaIdMap.get(item.areaId)
+      if (area?.code === undefined)
+        return
+      archiveStore.currentArchive.body.Preference['markerFilter.state.areaCode'] = area.code
+    })()
+
+    // 将视口移动到点位附近
+    const { render: { position: [x, y] } } = markerWithRender
+    MapSubject.viewState.next({
+      target: [x + FLY_OFFSET[0], y + FLY_OFFSET[1]],
+      zoom: 0,
+      transitionDuration: duration,
+      transitionInterpolator: new EaseoutInterpolator(['target', 'zoom']),
+    })
 
     if (delay > 0) {
       delayTimer.value = window.setTimeout(() => {
@@ -123,28 +168,15 @@ const _useMarkerControl = () => {
     else {
       addFocus(MARKER_INTERACTION_KEY, markerWithRender.id, true)
     }
-
-    if (flyToMarker) {
-      const { render: { position: [x, y] } } = markerWithRender
-      MapSubject.viewState.next({
-        target: [x + FLY_OFFSET[0], y + FLY_OFFSET[1]],
-        zoom: 0,
-        transitionDuration: duration,
-        transitionInterpolator: new EaseoutInterpolator(['target', 'zoom']),
-      })
-    }
-
-    return markerWithRender
   }
 
-  const hoverMarker = (markerVo: API.MarkerVo | GSMarkerInfo | null) => {
+  const hoverMarker = (markerVo: API.MarkerVo | null) => {
     if (!markerVo) {
       removeHover(MARKER_INTERACTION_KEY)
       return
     }
     const markerWithRender = normalizeMarker(markerVo)
     addHover(MARKER_INTERACTION_KEY, markerWithRender.id)
-    return markerWithRender
   }
 
   /** 与 hover 相反的行为 */
@@ -168,7 +200,6 @@ const _useMarkerControl = () => {
     updateLoading,
     normalizeMarker,
     focusMarker,
-    updateFocus,
     blur,
     hoverMarker,
     out,
