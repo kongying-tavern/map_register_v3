@@ -177,7 +177,7 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
 
         <template #footer>
           <template v-if="isSnapshot">
-            <div class="w-full text-sm grid place-content-center">
+            <div class="w-full h-[40px] text-sm grid place-content-center">
               点位快照
             </div>
           </template>
