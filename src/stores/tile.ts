@@ -52,7 +52,10 @@ export const useTileStore = defineStore('global-map-tile', () => {
       : tiles
   })
 
-  /** key 是用于构建 tiles url 的参数 */
+  /**
+   * key 是用于构建 tiles url 的参数
+   * @deprecated 用 `codeMap` 代替
+   */
   const mergedTileConfigs = computed((): Record<string, AreaTileConfig> => {
     const areaTileConfigs: Record<string, AreaTileConfig> = {}
 
@@ -101,6 +104,60 @@ export const useTileStore = defineStore('global-map-tile', () => {
     }
 
     return areaTileConfigs
+  })
+
+  /**
+   * @key 表示地区 code
+   * @value 表示 tile 的相关配置
+   */
+  const codeMap = computed<Map<string, AreaTileConfig>>(() => {
+    const map = new Map<string, AreaTileConfig>()
+
+    for (const areaCode in mergedTiles.value) {
+      // 只保留实际配置，继承用的配置忽略
+      if (!/[A-Z]:[A-Z]+(?::\s+)?/.test(areaCode))
+        continue
+
+      const tileConfig = mergedTiles.value[areaCode]
+      if (tileConfig.extend)
+        defaultsDeep(tileConfig, mergedTiles.value[tileConfig.extend])
+
+      const {
+        code = '',
+        name = '',
+        center = [0, 0],
+        extension = 'png',
+        settings = {},
+        size = [0, 0],
+        tilesOffset = [0, 0],
+      } = tileConfig
+      const {
+        tags = [],
+        target: rewriteTarget,
+      } = AREA_ADDITIONAL_CONFIG_MAP[areaCode] ?? {}
+      const {
+        center: target = [0, 0],
+        zoom = 0,
+      } = settings
+
+      map.set(areaCode, {
+        tags,
+        tile: {
+          code,
+          name,
+          center,
+          size,
+          extension,
+          tilesOffset,
+        },
+        initViewState: {
+          target: rewriteTarget ?? target,
+          zoom,
+        },
+      })
+    }
+
+    return map
   })
 
   /** 当前激活的底图配置 */
@@ -200,6 +257,7 @@ export const useTileStore = defineStore('global-map-tile', () => {
   }
 
   return {
+    codeMap,
     mergedTileConfigs,
     currentTileConfig,
     currentTileCode,
