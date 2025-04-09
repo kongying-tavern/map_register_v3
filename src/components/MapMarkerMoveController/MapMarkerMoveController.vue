@@ -3,7 +3,7 @@ import type { GSMarkerInfo } from '@/packages/map'
 import type { Layer } from 'deck.gl'
 import { GSButton } from '@/components'
 import { GSMarkerLayer } from '@/packages/map'
-import { MapSubject } from '@/shared'
+import { mapCanvasRef, MapSubject } from '@/shared'
 import { useAccessStore, useArchiveStore, useMapStateStore, useShortcutStore } from '@/stores'
 import { useSubscription } from '@vueuse/rxjs'
 import { filter, finalize, switchMap, takeUntil, tap } from 'rxjs'
@@ -30,10 +30,13 @@ const shortcutKeys = computed(() => {
   return archiveStore.currentArchive.body.Preference['app.shortcutKey.draggingMarker']
 })
 
+const { focused } = useFocus(mapCanvasRef)
+
 // 开始点位拖拽
 useSubscription(shortcutStore.shortcut$.pipe(
   filter(({ value }) => {
     return [
+      focused.value,
       accessStore.get('MARKER_EDIT'),
       isMissionEmpty.value,
       shortcutKeys.value,

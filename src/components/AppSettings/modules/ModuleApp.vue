@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { mapCanvasRef } from '@/shared'
 import { useArchiveStore } from '@/stores'
 import { getDefaultPreference } from '@/stores/types'
 import { Brush, Crop, Grape } from '@element-plus/icons-vue'
@@ -44,6 +45,7 @@ const defaultPreference = getDefaultPreference()
           <ShortcutKey
             v-model="archiveStore.currentArchive.body.Preference['app.shortcutKey.draggingMarker']"
             :default-value="defaultPreference['app.shortcutKey.draggingMarker']"
+            :focus-element="mapCanvasRef"
           />
         </template>
       </SettingBar>

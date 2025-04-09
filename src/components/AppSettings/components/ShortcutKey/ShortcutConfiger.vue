@@ -10,8 +10,10 @@ import { filter, tap } from 'rxjs'
 
 const props = withDefaults(defineProps<{
   defaultValue?: string
+  focusElement?: HTMLElement
 }>(), {
   defaultValue: undefined,
+  focusElement: undefined,
 })
 
 const shortcutStore = useShortcutStore()
@@ -69,7 +71,7 @@ const error = computed(() => {
     return ''
 
   const firstKey = shortcutKeys.value[0]
-  if (!CONTROL_KEYS.has(firstKey))
+  if (!props.focusElement && !CONTROL_KEYS.has(firstKey))
     return '开始键只能为 Ctrl、Shift 或 Alt'
 
   const lastKey = shortcutKeys.value.at(-1) ?? ''
@@ -120,8 +122,8 @@ useSubscription(globalKeydown$.pipe(
         按组合键以更改此快捷键
       </div>
 
-      <div class="py-12">
-        <div class="box-content flex gap-2 justify-center h-8">
+      <div class="my-2">
+        <div class="py-10 box-content flex gap-2 justify-center h-8">
           <div
             v-for="key in shortcutKeys"
             :key="key"
@@ -142,7 +144,11 @@ useSubscription(globalKeydown$.pipe(
       </div>
 
       <div class="text-xs mb-1">
-        只有以 Ctrl、Alt 或 Shift 开头的快捷键才有效。
+        {{
+          props.focusElement
+            ? '该功能指定了聚焦元素，可以设置单按键快捷键'
+            : '只有以 Ctrl、Alt 或 Shift 开头的快捷键才有效。'
+        }}
       </div>
 
       <div class="text-xs text-[var(--el-text-color-secondary)]">

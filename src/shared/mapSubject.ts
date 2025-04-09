@@ -3,7 +3,11 @@ import { Subject } from 'rxjs'
 
 export class MapSubject {
   static readonly viewState = new Subject<Partial<GenshinMapViewState>>()
+
   static readonly focus = new Subject<FocusEvent>()
+
+  static readonly blur = new Subject<FocusEvent>()
+
   static readonly click = new Subject<{
     info: Parameters<NonNullable<GenshinMapProps['onClick']>>[0]
     event: Parameters<NonNullable<GenshinMapProps['onClick']>>[1]

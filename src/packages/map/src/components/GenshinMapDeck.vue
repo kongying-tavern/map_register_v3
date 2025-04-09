@@ -13,6 +13,7 @@ const props = defineProps<{
 
 const emits = defineEmits<{
   focus: [FocusEvent]
+  blur: [FocusEvent]
   load: [GenshinMap]
   hover: Parameters<NonNullable<GenshinMapProps['onHover']>>
   click: Parameters<NonNullable<GenshinMapProps['onClick']>>
@@ -25,7 +26,16 @@ const viewState = defineModel<GenshinMapViewState>('viewState', {
   required: true,
 })
 
+const modelCanvasRef = defineModel<HTMLCanvasElement | undefined>('canvasRef', {
+  required: false,
+  default: undefined,
+})
+
 const canvasRef = shallowRef<HTMLCanvasElement>()
+
+onMounted(() => {
+  modelCanvasRef.value = canvasRef.value
+})
 
 // WebGL 上下文丢失时刷新页面
 useEventListener(canvasRef, 'webglcontextlost', () => {
@@ -96,5 +106,6 @@ watch(() => props.layers, (layers) => {
     draggable="false"
     @contextmenu.stop.prevent=""
     @focus="ev => $emit('focus', ev)"
+    @blur="ev => $emit('blur', ev)"
   />
 </template>

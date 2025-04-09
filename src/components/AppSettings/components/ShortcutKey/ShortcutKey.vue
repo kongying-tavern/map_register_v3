@@ -5,10 +5,16 @@ import { EditPen } from '@element-plus/icons-vue'
 import { ElDialog } from 'element-plus'
 import ShortcutConfiger from './ShortcutConfiger.vue'
 
-withDefaults(defineProps<{
+const props = withDefaults(defineProps<{
   defaultValue?: string
+  /**
+   * 只有传入了聚焦判断元素属性，此功能才可以设置不需要触发按键的快捷键组合
+   * @警告 未约束快捷键实现时是否处于 focus，需要自行处理
+   */
+  focusElement?: HTMLElement
 }>(), {
   defaultValue: undefined,
+  focusElement: undefined,
 })
 
 const modelValue = defineModel<string>('modelValue', {
@@ -64,7 +70,8 @@ const showConfiger = () => {
       <ShortcutConfiger
         v-model:visible="configVisible"
         v-model="modelValue"
-        :default-value="defaultValue"
+        :default-value="props.defaultValue"
+        :focus-element="props.focusElement"
       />
     </ElDialog>
   </div>

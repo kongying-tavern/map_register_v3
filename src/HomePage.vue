@@ -18,19 +18,21 @@ import { useMapLayers, useTheme } from '@/hooks'
 import { EaseoutInterpolator, GenshinMapDeck, GSZoomController } from '@/packages/map'
 import {
   mapAffixKey,
+  mapCanvasRef,
   mapContainerHeightKey,
   mapContainerKey,
   mapContainerWidthKey,
   MapSubject,
   mapViewStateKey,
 } from '@/shared'
-import { useArchiveStore, useMapStateStore, useShortcutStore, useTileStore } from '@/stores'
+import { useAccessStore, useArchiveStore, useMapStateStore, useShortcutStore, useTileStore } from '@/stores'
 import { useSubscription } from '@vueuse/rxjs'
 import { TRANSITION_EVENTS } from 'deck.gl'
 import { filter } from 'rxjs'
 
 // ================ 全局状态 ================
 const tileStore = useTileStore()
+const accessStore = useAccessStore()
 const archiveStore = useArchiveStore()
 const shortcutStore = useShortcutStore()
 const mapStateStore = useMapStateStore()
@@ -136,12 +138,14 @@ onBeforeMount(() => {
     class="w-full h-full overflow-hidden relative"
   >
     <GenshinMapDeck
+      v-model:canvas-ref="mapCanvasRef"
       v-model:view-state="viewState"
       :layers="layers"
       :disable-view-state-change="mapStateStore.isViewPortLocked"
       :cursor="mapStateStore.cursor"
       class="bg-black"
       @focus="event => MapSubject.focus.next(event)"
+      @blur="event => MapSubject.blur.next(event)"
       @load="(instance) => (genshinDeck = instance)"
       @click="(info, event) => MapSubject.click.next({ info, event })"
       @hover="(info, event) => MapSubject.hover.next({ info, event })"
@@ -152,7 +156,7 @@ onBeforeMount(() => {
 
     <div ref="mapAffixRef" class="affix-layer">
       <MapMarkerPopover />
-      <MapLinkPopover />
+      <MapLinkPopover v-if="accessStore.get('MANAGER_COMPONENT')" />
       <MapContextMenu />
     </div>
 
