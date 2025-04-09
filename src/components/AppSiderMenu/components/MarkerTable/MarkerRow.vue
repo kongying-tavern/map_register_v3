@@ -106,7 +106,7 @@ const themeColor = computed(() => {
   background: #F4F1EB;
   border: 1px solid rgba(128, 128, 128, 0.6);
   color: #8E6C4E;
-  border-radius: 20px;
+  border-radius: 4px;
   padding: 1px 6px;
 }
 </style>

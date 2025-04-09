@@ -9,8 +9,19 @@ const mapStateStore = useMapStateStore()
 
 const { hover: hoveredMarker, focus: focusedMarker, focusMarker, hoverMarker } = useMarkerControl()
 
-/** 由于地图依赖点位排序来控制遮挡顺序，这里按 id 升序重新排序 */
-const resortedMarkers = computed(() => mapStateStore.currentLayerMarkers.toSorted((a, b) => a.id! - b.id!))
+/**
+ * 由于地图依赖点位排序来控制遮挡顺序，这里需要重新排序。
+ * 按 updateTime 降序。
+ */
+const resortedMarkers = computed(() => mapStateStore.currentLayerMarkers.toSorted(({ updateTime: ta }, { updateTime: tb }) => {
+  if ((ta === undefined) && (tb === undefined))
+    return 0
+  if (ta === undefined)
+    return -1
+  if (tb === undefined)
+    return 1
+  return new Date(tb).getTime() - new Date(ta).getTime()
+}))
 </script>
 
 <template>
