@@ -86,20 +86,25 @@ const deleteDatabase = async () => {
   try {
     await ElMessageBox.confirm('将会完全删除数据库内所有数据并刷新页面，确认操作？', '警告', {
       type: 'warning',
-      confirmButtonClass: 'el-button--danger',
-      showClose: false,
-      closeOnPressEscape: false,
       closeOnClickModal: false,
-      beforeClose: (action, instance, done) => {
-        if (action !== 'confirm')
+      closeOnPressEscape: false,
+      closeOnHashChange: false,
+      showClose: false,
+      distinguishCancelAndClose: true,
+      cancelButtonClass: 'el-button--primary el-button--danger',
+      cancelButtonText: '确定',
+      confirmButtonClass: 'el-button--info is-text',
+      confirmButtonText: '取消',
+      beforeClose: async (action, instance, done) => {
+        if (action !== 'cancel')
           return done()
-        instance.confirmButtonLoading = true
         instance.cancelButtonLoading = true
-        instance.cancelButtonClass = 'is-disabled'
-        db.delete().then(done)
+        await db.delete().catch(() => false)
+        instance.cancelButtonLoading = false
+        done()
+        location.reload()
       },
     })
-    location.reload()
   }
   catch {
     // cancel, no error

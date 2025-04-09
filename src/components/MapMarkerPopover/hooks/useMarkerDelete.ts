@@ -18,16 +18,25 @@ export const useMarkerDelete = () => {
       '确认删除点位',
       '警告',
       {
-        confirmButtonClass: 'el-button--danger',
+        type: 'warning',
+        closeOnClickModal: false,
+        closeOnPressEscape: false,
+        closeOnHashChange: false,
+        showClose: false,
+        distinguishCancelAndClose: true,
+        cancelButtonClass: 'el-button--primary el-button--danger',
+        cancelButtonText: '确定',
+        confirmButtonClass: 'el-button--info is-text',
+        confirmButtonText: '取消',
         beforeClose: async (action, instance, done) => {
           if (loading.value)
             return
-          if (action !== 'confirm')
+          if (action !== 'cancel')
             return done()
-          instance.confirmButtonLoading = true
+          instance.cancelButtonLoading = true
           await deleteMarker(marker.id!)
-          instance.confirmButtonLoading = false
-          done()
+          instance.cancelButtonLoading = false
+          ElMessage.success('操作成功')
         },
       },
     ).catch(() => false)
