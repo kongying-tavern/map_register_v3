@@ -80,6 +80,7 @@ export const useItemStore = defineStore('global-item', () => {
       message.value = '初始化上下文'
       const dbList = await db.item.toArray()
       hashGroupMap.value = createHashGroupMap(dbList)
+      triggerRef(hashGroupMap)
     },
 
     diff: async ({ updateCount, startTime, message }) => {
@@ -199,6 +200,7 @@ export const useItemStore = defineStore('global-item', () => {
     if (waitForUpdate.value.size > 0)
       return
     hashGroupMap.value = createHashGroupMap(dbList)
+    triggerRef(hashGroupMap)
     triggerUpdated()
   })
 

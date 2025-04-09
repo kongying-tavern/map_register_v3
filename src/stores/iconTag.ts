@@ -63,6 +63,7 @@ export const useIconTagStore = defineStore('global-icon-tag', () => {
       message.value = '初始化上下文'
       const dbList = await db.iconTag.toArray()
       hashGroupMap.value = createHashGroupMap(dbList)
+      triggerRef(hashGroupMap)
     },
 
     diff: async ({ updateCount, startTime, message }) => {
@@ -185,6 +186,7 @@ export const useIconTagStore = defineStore('global-icon-tag', () => {
 
   liveQuery(() => db.iconTag.toArray()).subscribe((dbList) => {
     hashGroupMap.value = createHashGroupMap(dbList)
+    triggerRef(hashGroupMap)
     refreshTagSprite(dbList)
   })
 

@@ -71,6 +71,7 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
       message.value = '初始化上下文'
       const dbList = await db.markerLink.toArray()
       hashGroupMap.value = createHashGroupMap(dbList)
+      triggerRef(hashGroupMap)
     },
 
     diff: async ({ updateCount, startTime, message }) => {
@@ -205,6 +206,7 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
     if (waitForUpdate.value.size > 0)
       return
     hashGroupMap.value = createHashGroupMap(dbList)
+    triggerRef(hashGroupMap)
     triggerUpdated()
   })
 

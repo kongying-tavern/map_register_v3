@@ -75,6 +75,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
       message.value = '初始化上下文'
       const dbList = await db.marker.toArray()
       hashGroupMap.value = createHashGroupMap(dbList)
+      triggerRef(hashGroupMap)
     },
 
     diff: async ({ startTime, message, updateCount }) => {
@@ -212,6 +213,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
     if (waitForUpdate.value.size > 0)
       return
     hashGroupMap.value = createHashGroupMap(dbList)
+    triggerRef(hashGroupMap)
     triggerUpdated()
   })
 

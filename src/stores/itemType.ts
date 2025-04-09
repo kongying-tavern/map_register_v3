@@ -1,5 +1,6 @@
 import type { WorkerInput, WorkerOutput } from '@/worker/idb.worker'
 import type { Hash } from 'types/database'
+import type { HashGroupMeta } from './utils'
 import Api from '@/api/api'
 import db from '@/database'
 import BulkPutWorker from '@/worker/idb.worker?worker'
@@ -7,7 +8,7 @@ import { liveQuery } from 'dexie'
 import { defineStore } from 'pinia'
 import { useAccessStore, useUserStore } from '.'
 import { useManager } from './hooks'
-import { createHashGroupMap, type HashGroupMeta } from './utils'
+import { createHashGroupMap } from './utils'
 
 /** 本地物品类型数据 */
 export const useItemTypeStore = defineStore('global-item-type', () => {
@@ -61,6 +62,7 @@ export const useItemTypeStore = defineStore('global-item-type', () => {
       message.value = '初始化上下文'
       const dbList = await db.itemType.toArray()
       hashGroupMap.value = createHashGroupMap(dbList)
+      triggerRef(hashGroupMap)
     },
 
     full: async ({ updateCount, startTime, message }) => {
@@ -106,6 +108,7 @@ export const useItemTypeStore = defineStore('global-item-type', () => {
 
   liveQuery(() => db.itemType.toArray()).subscribe((dbList) => {
     hashGroupMap.value = createHashGroupMap(dbList)
+    triggerRef(hashGroupMap)
   })
 
   return {
