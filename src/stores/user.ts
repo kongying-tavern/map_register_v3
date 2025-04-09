@@ -4,7 +4,7 @@ import Oauth from '@/api/oauth'
 import { AppLogin } from '@/components'
 import { useFetchHook, useGlobalDialog } from '@/hooks'
 import { ROLE_MASK_MAP, USERAUTH_KEY } from '@/shared'
-import { Logger } from '@/utils'
+import { Logger, sleep } from '@/utils'
 import { ElMessage } from 'element-plus'
 import { camelCase } from 'lodash'
 import { defineStore } from 'pinia'
@@ -178,10 +178,14 @@ export const useUserStore = defineStore('global-user', () => {
       await refreshToken()
       resumeRefreshToken()
     }
-    watch(() => auth.value.refreshToken, (newToken, oldToken) => {
+
+    // 启用/暂停 token 自动刷新
+    // 自动弹出登录窗口
+    watch(() => auth.value.refreshToken, async (newToken, oldToken) => {
       if (!newToken) {
         pauseRefreshToken()
         logger.info('token 刷新已暂停')
+        await sleep(100)
         DialogService
           .config({
             center: true,
@@ -196,6 +200,8 @@ export const useUserStore = defineStore('global-user', () => {
         resumeRefreshToken()
       }
     }, { immediate: true })
+
+    // 自动更新用户信息
     watch(() => auth.value.userId, refreshUserInfo, { immediate: true })
   }
 
