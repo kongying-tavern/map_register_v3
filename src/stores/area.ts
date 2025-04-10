@@ -1,5 +1,6 @@
 import type { WorkerInput, WorkerOutput } from '@/worker/idb.worker'
 import type { Hash } from 'types/database'
+import type { HashGroupMeta } from './utils'
 import Api from '@/api/api'
 import db from '@/database'
 import BulkPutWorker from '@/worker/idb.worker?worker'
@@ -7,7 +8,7 @@ import { liveQuery } from 'dexie'
 import { defineStore } from 'pinia'
 import { useAccessStore, useUserStore } from '.'
 import { useManager } from './hooks'
-import { createHashGroupMap, type HashGroupMeta } from './utils'
+import { createHashGroupMap } from './utils'
 
 export interface AreaWithChildren extends API.AreaVo {
   children?: AreaWithChildren[]

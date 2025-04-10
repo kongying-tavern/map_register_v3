@@ -10,6 +10,7 @@ const { refresh: refreshApp, loading: refreshLoading } = useFetchHook({
 })
 
 const showDadianJson = () => {
+  // eslint-disable-next-line no-console
   console.log('[DadianJSON]', dadianStore.raw)
 }
 </script>

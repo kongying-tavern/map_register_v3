@@ -75,7 +75,7 @@ export const useMarkerPositionEdit = () => {
     clearState()
   })
 
-  onError(err => {
+  onError((err) => {
     ElMessage.error({
       message: `移动点位失败，原因为：${err.message}`,
     })

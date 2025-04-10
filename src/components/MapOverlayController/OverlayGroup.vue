@@ -156,9 +156,9 @@ const toggleOverlayItem = (itemId: string, bool: boolean) => {
 }
 
 @keyframes marquee {
-	to {
-		transform: translateX(min(100cqw - 100%, 0px));
-	}
+  to {
+    transform: translateX(min(100cqw - 100%, 0px));
+  }
 }
 
 .overlay-item {

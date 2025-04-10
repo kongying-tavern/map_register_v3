@@ -95,6 +95,7 @@ if (Object.prototype.toString.call(globalThis) === '[object SharedWorkerGlobalSc
     initClientStatus(client)
   })
   void (<SharedWorkerGlobalScope>globalThis).addEventListener('error', (ev) => {
+    // eslint-disable-next-line no-console
     console.log('[error]', ev.message)
   })
 }

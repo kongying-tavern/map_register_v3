@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import type { MapWindow } from '../types'
+import { vTransition } from '@/directives'
 import * as ElIcons from '@element-plus/icons-vue'
 import { useAppWindow } from '../hooks'
 import WindowResizer from './WindowResizer.vue'
-import { vTransition } from '@/directives'
 
 const props = defineProps<{
   id: string
