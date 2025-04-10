@@ -74,8 +74,9 @@ export class UndergroundLayer implements MAFConfig<MAFValueStringArray, OptionTy
         const {
           value: groupKey = '',
           label: groupName = '',
+          children: groupLevels = [],
         } = group
-        group.children.forEach((item) => {
+        groupLevels.forEach((item) => {
           const {
             value: itemKey = '',
             label: itemName = '',
