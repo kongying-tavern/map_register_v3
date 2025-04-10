@@ -61,13 +61,19 @@ const tagParser: Record<string, (data: unknown) => TagInfo | TagInfo[]> = {
   'underground': (data: unknown) => {
     if (typeof data !== 'object' || !data)
       return []
-    const { region_levels: levels = [], is_underground: isUnderground } = (data as API.MarkerExtra['underground']) ?? {}
+    const {
+      region_levels: levels = [],
+      is_underground: isUnderground,
+      is_global: isGlobal,
+    } = (data as API.MarkerExtra['underground']) ?? {}
     if (!isUnderground)
       return []
     const defaultInfo = { type: '非地面', label: 'unknown' }
     const undergroundConfig = props.config.underground
     if (!undergroundConfig)
       return defaultInfo
+    if (isGlobal)
+      return { type: '非地面', label: '无层级' }
     if (!levels.length)
       return { type: defaultInfo.type, label: '未设置层级' }
     const map = toValue(regionMap)

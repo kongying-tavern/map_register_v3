@@ -92,8 +92,6 @@ declare namespace API {
           label: string
           /** 层级标记，为实际绑定到层级上的值 */
           value: string
-          /** 全图（无层级） */
-          isGlobal?: boolean
         }[]
       }[]
     }
@@ -196,6 +194,7 @@ declare namespace API {
     /** 非地面区域 */
     'underground'?: {
       is_underground?: boolean
+      is_global?: boolean
       region_levels?: string[]
     } | null
 
