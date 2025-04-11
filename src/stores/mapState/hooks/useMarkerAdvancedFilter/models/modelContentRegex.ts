@@ -38,13 +38,13 @@ export class ContentRegex implements MAFConfig<MAFValueString, MAFOptionInput, M
     return meta
   }
 
-  semantic(val: MAFValueString, _opt: MAFOptionInput, meta: MAFMetaContentRegex, opposite: boolean): MAFSemanticUnit[] {
+  semantic(val: MAFValueString, _opt: MAFOptionInput, meta: MAFMetaContentRegex, opposite: boolean): (MAFSemanticUnit | null)[] {
     return [
       { type: 'text', text: '内容' },
       opposite ? { type: 'opposite-indicator', text: '不' } : null,
       { type: 'text', text: '满足正则' },
       meta.re === null ? { type: 'error', text: '正则错误' } : { type: 'regex', text: val.s },
-    ].filter(v => v) as MAFSemanticUnit[]
+    ]
   }
 
   filter(_val: MAFValueString, _opt: MAFOptionInput, meta: MAFMetaContentRegex, marker: API.MarkerVo): boolean {

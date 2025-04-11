@@ -85,7 +85,7 @@ export interface MAFConfig<
   readonly option: MaybeComputedRef<O>
   readonly defaultVal: V
   prepare: (val: V, opt: O) => M
-  semantic: (val: V, opt: O, meta: M, opposite: boolean) => MAFSemanticUnit[]
+  semantic: (val: V, opt: O, meta: M, opposite: boolean) => (MAFSemanticUnit | null)[]
   filter: (val: V, opt: O, meta: M, marker: API.MarkerVo) => boolean
 }
 

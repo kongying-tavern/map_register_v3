@@ -47,13 +47,13 @@ export class ItemName implements MAFConfig<MAFValueString, MAFOptionInput, MAFMe
     return meta
   }
 
-  semantic(_val: MAFValueString, _opt: MAFOptionInput, meta: MAFMetaItemName, opposite: boolean): MAFSemanticUnit[] {
+  semantic(_val: MAFValueString, _opt: MAFOptionInput, meta: MAFMetaItemName, opposite: boolean): (MAFSemanticUnit | null)[] {
     return [
       { type: 'text', text: '物品名' },
       opposite ? { type: 'opposite-indicator', text: '不' } : null,
       { type: 'text', text: '为' },
       ...meta.tagList.map(tag => ({ type: 'tag', text: tag })),
-    ].filter(v => v) as MAFSemanticUnit[]
+    ]
   }
 
   filter(_val: MAFValueString, _opt: MAFOptionInput, meta: MAFMetaItemName, marker: API.MarkerVo): boolean {

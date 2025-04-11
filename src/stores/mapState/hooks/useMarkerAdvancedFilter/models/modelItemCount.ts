@@ -34,7 +34,7 @@ export class ItemCount implements MAFConfig<ValueType, OptionType, MAFMetaDummy>
     return {}
   }
 
-  semantic(val: ValueType, opt: OptionType, _meta: MAFMetaDummy, opposite: boolean): MAFSemanticUnit[] {
+  semantic(val: ValueType, opt: OptionType, _meta: MAFMetaDummy, opposite: boolean): (MAFSemanticUnit | null)[] {
     return [
       { type: 'highlight', text: val.b ? opt.textActive : opt.textInactive },
       { type: 'text', text: '物品计数' },
@@ -42,7 +42,7 @@ export class ItemCount implements MAFConfig<ValueType, OptionType, MAFMetaDummy>
       val.b ? { type: 'text', text: '均' } : null,
       { type: 'text', text: '为' },
       { type: 'highlight', text: `${val.nMin ?? '不限'} ~ ${val.nMax ?? '不限'}` },
-    ].filter(v => v) as MAFSemanticUnit[]
+    ]
   }
 
   filter(val: ValueType, _opt: OptionType, _meta: MAFMetaDummy, marker: API.MarkerVo): boolean {

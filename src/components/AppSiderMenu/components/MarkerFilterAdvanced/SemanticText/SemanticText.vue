@@ -49,8 +49,10 @@ const semBlocks = computed<MAFSemanticUnit[]>(() => {
       } = child
       if (childIndex > 0)
         semanticAppend(blocks, cloneDeep(itemOperator ? semUnitAndLogic : semUnitOrLogic))
-      if (semantic && typeof semantic === 'function')
-        semanticAppend(blocks, ...semantic(value, toValue(option), meta, itemOpposite))
+      if (semantic && typeof semantic === 'function') {
+        const semanticParts = (semantic(value, toValue(option), meta, itemOpposite)).filter(v => v)
+        semanticAppend(blocks, ...semanticParts)
+      }
     })
 
     semanticAppend(blocks, cloneDeep(semUnitRightParenthesis))

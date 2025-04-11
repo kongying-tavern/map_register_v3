@@ -63,13 +63,13 @@ export class Area implements MAFConfig<MAFValueNumberArray, OptionType, MAFMetaA
     return meta
   }
 
-  semantic(_val: MAFValueNumberArray, _opt: OptionType, meta: MAFMetaArea, opposite: boolean): MAFSemanticUnit[] {
+  semantic(_val: MAFValueNumberArray, _opt: OptionType, meta: MAFMetaArea, opposite: boolean): (MAFSemanticUnit | null)[] {
     return [
       { type: 'text', text: '地区' },
       opposite ? { type: 'opposite-indicator', text: '不' } : null,
       { type: 'text', text: '为' },
-      ...meta.tagList.map(tag => ({ type: 'tag', text: tag })),
-    ].filter(v => v) as MAFSemanticUnit[]
+      ...meta.tagList.map<MAFSemanticUnit>(tag => ({ type: 'tag', text: tag })),
+    ]
   }
 
   filter(_val: MAFValueNumberArray, _opt: OptionType, meta: MAFMetaArea, marker: API.MarkerVo): boolean {

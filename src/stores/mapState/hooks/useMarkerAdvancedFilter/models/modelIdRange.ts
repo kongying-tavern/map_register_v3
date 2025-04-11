@@ -69,7 +69,7 @@ export class IdRange implements MAFConfig<MAFValueString, MAFOptionInput, MAFMet
     return meta
   }
 
-  semantic(_val: MAFValueString, _opt: MAFOptionInput, meta: MAFMetaIdRange, opposite: boolean): MAFSemanticUnit[] {
+  semantic(_val: MAFValueString, _opt: MAFOptionInput, meta: MAFMetaIdRange, opposite: boolean): (MAFSemanticUnit | null)[] {
     const idTags: string = meta.idRange
       .map(range => Array.isArray(range) ? `${range[0]}-${range[1]}` : `${range}`)
       .join(', ')
@@ -78,7 +78,7 @@ export class IdRange implements MAFConfig<MAFValueString, MAFOptionInput, MAFMet
       opposite ? { type: 'opposite-indicator', text: '不' } : null,
       { type: 'text', text: '为' },
       { type: 'number', text: idTags },
-    ].filter(v => v) as MAFSemanticUnit[]
+    ]
   }
 
   filter(_val: MAFValueString, _opt: MAFOptionInput, meta: MAFMetaIdRange, marker: API.MarkerVo): boolean {

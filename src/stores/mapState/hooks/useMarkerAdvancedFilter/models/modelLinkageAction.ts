@@ -59,13 +59,13 @@ export class LinkageAction implements MAFConfig<MAFValueStringArray, MAFOptionSe
     return meta
   }
 
-  semantic(_val: MAFValueStringArray, _opt: MAFOptionSelect<OptionType>, meta: MAFMetaLinkageAction, opposite: boolean): MAFSemanticUnit[] {
+  semantic(_val: MAFValueStringArray, _opt: MAFOptionSelect<OptionType>, meta: MAFMetaLinkageAction, opposite: boolean): (MAFSemanticUnit | null)[] {
     return [
       { type: 'text', text: '点位关联' },
       opposite ? { type: 'opposite-indicator', text: '不' } : null,
       { type: 'text', text: '包含' },
       ...meta.tagList.map(tag => ({ type: 'tag', text: tag })),
-    ].filter(v => v) as MAFSemanticUnit[]
+    ]
   }
 
   filter(val: MAFValueStringArray, _opt: MAFOptionSelect<OptionType>, meta: MAFMetaLinkageAction, marker: API.MarkerVo): boolean {

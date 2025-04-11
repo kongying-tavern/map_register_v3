@@ -103,13 +103,13 @@ export class UndergroundLayer implements MAFConfig<MAFValueStringArray, OptionTy
     return meta
   }
 
-  semantic(_val: MAFValueStringArray, _opt: OptionType, meta: MAFMetaUndergroundLayer, opposite: boolean): MAFSemanticUnit[] {
+  semantic(_val: MAFValueStringArray, _opt: OptionType, meta: MAFMetaUndergroundLayer, opposite: boolean): (MAFSemanticUnit | null)[] {
     return [
       { type: 'text', text: '分层层级' },
       opposite ? { type: 'opposite-indicator', text: '不' } : null,
       { type: 'text', text: '属于' },
-      ...meta.tagList.map(tag => ({ type: 'tag', text: tag })),
-    ].filter(v => v) as MAFSemanticUnit[]
+      ...meta.tagList.map<MAFSemanticUnit>(tag => ({ type: 'tag', text: tag })),
+    ]
   }
 
   filter(val: MAFValueStringArray, _opt: OptionType, _meta: MAFMetaUndergroundLayer, marker: API.MarkerVo): boolean {

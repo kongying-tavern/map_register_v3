@@ -55,7 +55,7 @@ export class RefreshTime implements MAFConfig<MAFValueNumberRange, OptionType, M
     return meta
   }
 
-  semantic(val: MAFValueNumberRange, _opt: OptionType, meta: MAFMetaRefreshTime, opposite: boolean): MAFSemanticUnit[] {
+  semantic(val: MAFValueNumberRange, _opt: OptionType, meta: MAFMetaRefreshTime, opposite: boolean): (MAFSemanticUnit | null)[] {
     return [
       { type: 'text', text: '刷新时间' },
       opposite ? { type: 'opposite-indicator', text: '不' } : null,
@@ -63,7 +63,7 @@ export class RefreshTime implements MAFConfig<MAFValueNumberRange, OptionType, M
       meta.isCustom
         ? { type: 'highlight', text: `${val.nMin ?? '不限'} ~ ${val.nMax ?? '不限'} 小时` }
         : { type: 'tag', text: meta.tagNameMap[val.nMin ?? 0] },
-    ].filter(v => v) as MAFSemanticUnit[]
+    ]
   }
 
   filter(val: MAFValueNumberRange, _opt: OptionType, meta: MAFMetaRefreshTime, marker: API.MarkerVo): boolean {

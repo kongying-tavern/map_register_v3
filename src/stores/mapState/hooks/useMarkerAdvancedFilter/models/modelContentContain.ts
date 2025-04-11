@@ -24,13 +24,13 @@ export class ContentContain implements MAFConfig<MAFValueString, MAFOptionInput,
     return {}
   }
 
-  semantic(val: MAFValueString, _opt: MAFOptionInput, _meta: MAFMetaDummy, opposite: boolean): MAFSemanticUnit[] {
+  semantic(val: MAFValueString, _opt: MAFOptionInput, _meta: MAFMetaDummy, opposite: boolean): (MAFSemanticUnit | null)[] {
     return [
       { type: 'text', text: '内容' },
       opposite ? { type: 'opposite-indicator', text: '不' } : null,
       { type: 'text', text: '包含' },
       { type: 'highlight', text: val.s },
-    ].filter(v => v) as MAFSemanticUnit[]
+    ]
   }
 
   filter(val: MAFValueString, _opt: MAFOptionInput, _meta: MAFMetaDummy, marker: API.MarkerVo): boolean {

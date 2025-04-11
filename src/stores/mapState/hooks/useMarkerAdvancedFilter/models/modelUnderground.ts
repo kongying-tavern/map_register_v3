@@ -45,14 +45,14 @@ export class Underground implements MAFConfig<MAFValueNumberExact, OptionType, M
     return meta
   }
 
-  semantic(_val: MAFValueNumberExact, _opt: OptionType, meta: MAFMetaUnderground, opposite: boolean): MAFSemanticUnit[] {
+  semantic(_val: MAFValueNumberExact, _opt: OptionType, meta: MAFMetaUnderground, opposite: boolean): (MAFSemanticUnit | null)[] {
     return [
       { type: 'text', text: '点位' },
       opposite ? { type: 'opposite-indicator', text: '不' } : null,
       { type: 'text', text: '为' },
       { type: 'tag', text: meta.tag },
       { type: 'text', text: '点位' },
-    ].filter(v => v) as MAFSemanticUnit[]
+    ]
   }
 
   filter(val: MAFValueNumberExact, _opt: OptionType, _meta: MAFMetaUnderground, marker: API.MarkerVo): boolean {
