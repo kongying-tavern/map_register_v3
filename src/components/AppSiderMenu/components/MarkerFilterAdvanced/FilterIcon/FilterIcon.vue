@@ -1,50 +1,13 @@
 <script lang="ts" setup>
-import {
-  IconApplication,
-  IconArrowDottedNeSw,
-  IconDocument,
-  IconDocumentRegex,
-  IconEye,
-  IconImage,
-  IconLayers,
-  IconLayersFilled,
-  IconLink,
-  IconPackage,
-  IconPackageList,
-  IconPackageRegex,
-  IconPackageTimesNumber,
-  IconPound,
-  IconTimer,
-  IconTitleSerif,
-  IconVideoPlay,
-} from '@/components/AppIcons'
-import { MapLocation } from '@element-plus/icons-vue'
+import type { MAFModelId } from '@/shared'
+import { MAF_MODEL_ICON_MAP } from '@/shared'
 
 const props = defineProps<{
-  id: number
+  id: MAFModelId
 }>()
 
 const iconComponent = computed(() => {
-  return {
-    1: IconPound,
-    2: IconTitleSerif,
-    3: IconDocument,
-    4: IconDocumentRegex,
-    5: IconImage,
-    6: IconVideoPlay,
-    7: IconTimer,
-    8: IconEye,
-    101: MapLocation,
-    102: IconApplication,
-    103: IconPackage,
-    104: IconPackageRegex,
-    105: IconPackageList,
-    106: IconPackageTimesNumber,
-    201: IconLayers,
-    202: IconLayersFilled,
-    301: IconLink,
-    302: IconArrowDottedNeSw,
-  }[props.id]
+  return MAF_MODEL_ICON_MAP[props.id]
 }) as ComputedRef<Component>
 </script>
 

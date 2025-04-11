@@ -5,10 +5,11 @@ import type {
   MAFSemanticUnit,
   MAFValueBoolean,
 } from '@/stores/types'
+import { MAF_MODEL_NAME_MAP, MAFModelId } from '@/shared'
 
 export class Video implements MAFConfig<MAFValueBoolean, MAFOptionSwitch, MAFMetaDummy> {
-  id = 6
-  name = '点位视频'
+  id = MAFModelId.VIDEO
+  name = MAF_MODEL_NAME_MAP[MAFModelId.VIDEO]
   option: MAFOptionSwitch = {
     textInactive: '不存在',
     textActive: '存在',

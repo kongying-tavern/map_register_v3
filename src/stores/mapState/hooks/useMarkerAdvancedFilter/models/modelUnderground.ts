@@ -5,14 +5,15 @@ import type {
   MAFSemanticUnit,
   MAFValueBoolean,
 } from '@/stores/types'
+import { MAF_MODEL_NAME_MAP, MAFModelId } from '@/shared'
 
 interface ExtraUnderground {
   is_underground?: boolean
 }
 
 export class Underground implements MAFConfig<MAFValueBoolean, MAFOptionSwitch, MAFMetaDummy> {
-  id = 201
-  name = '地面点位'
+  id = MAFModelId.UNDERGROUND
+  name = MAF_MODEL_NAME_MAP[MAFModelId.UNDERGROUND]
   option: MAFOptionSwitch = {
     textInactive: '地面',
     textActive: '非地面',

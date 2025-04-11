@@ -5,11 +5,12 @@ import type {
   MAFSemanticUnit,
   MAFValueString,
 } from '@/stores/types'
+import { MAF_MODEL_NAME_MAP, MAFModelId } from '@/shared'
 import { useItemStore } from '@/stores'
 
 export class ItemName implements MAFConfig<MAFValueString, MAFOptionInput, MAFMetaItemName> {
-  id = 103
-  name = '物品名称'
+  id = MAFModelId.ITEM_NAME
+  name = MAF_MODEL_NAME_MAP[MAFModelId.ITEM_NAME]
   option: MAFOptionInput = {
     placeholder: '格式：A,B,C',
   }

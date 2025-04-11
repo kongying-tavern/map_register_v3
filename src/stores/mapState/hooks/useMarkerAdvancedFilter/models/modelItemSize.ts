@@ -5,10 +5,11 @@ import type {
   MAFSemanticUnit,
   MAFValueNumberRange,
 } from '@/stores/types'
+import { MAF_MODEL_NAME_MAP, MAFModelId } from '@/shared'
 
 export class ItemSize implements MAFConfig<MAFValueNumberRange, MAFOptionRange, MAFMetaDummy> {
-  id = 105
-  name = '物品条数'
+  id = MAFModelId.ITEM_SIZE
+  name = MAF_MODEL_NAME_MAP[MAFModelId.ITEM_SIZE]
   option: MAFOptionRange = {
     placeholderMin: '不限',
     placeholderMax: '不限',

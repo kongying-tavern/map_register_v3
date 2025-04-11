@@ -5,10 +5,11 @@ import type {
   MAFSemanticUnit,
   MAFValueString,
 } from '@/stores/types'
+import { MAF_MODEL_NAME_MAP, MAFModelId } from '@/shared'
 
 export class ContentRegex implements MAFConfig<MAFValueString, MAFOptionInput, MAFMetaContentRegex> {
-  id = 4
-  name = '内容正则匹配'
+  id = MAFModelId.CONTENT_REGEX
+  name = MAF_MODEL_NAME_MAP[MAFModelId.CONTENT_REGEX]
   option: MAFOptionInput = {
     placeholder: '',
   }

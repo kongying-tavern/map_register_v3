@@ -75,7 +75,11 @@ export interface MAFSemanticUnit {
   text?: string
 }
 
-export interface MAFConfig<V extends MAFValue = MAFValue, O extends MAFOption = MAFOption, M extends MAFMeta = MAFMeta> {
+export interface MAFConfig<
+  V extends MAFValue = MAFValue,
+  O extends MAFOption = MAFOption,
+  M extends MAFMeta = MAFMeta,
+> {
   readonly id: number
   readonly name: string
   readonly option: MaybeComputedRef<O>
@@ -86,9 +90,10 @@ export interface MAFConfig<V extends MAFValue = MAFValue, O extends MAFOption = 
 }
 
 // ==================== 数据模型 ====================
-export interface MAFValue {}
+export type MAFValue = Record<string, unknown>
 
 export interface MAFValueDummy extends MAFValue {
+  [key: string]: never
 }
 
 export interface MAFValueString extends MAFValue {
@@ -117,9 +122,10 @@ export interface MAFValueBoolean extends MAFValue {
 }
 
 // ==================== 配置模型 ====================
-export interface MAFOption {}
+export type MAFOption = Record<string, unknown>
 
 export interface MAFOptionDummy extends MAFOption {
+  [key: string]: never
 }
 
 export interface MAFOptionInput extends MAFOption {
@@ -154,9 +160,10 @@ export interface MAFOptionSwitch extends MAFOption {
 }
 
 // ==================== 预处理数据模型 ====================
-export interface MAFMeta {}
+export type MAFMeta = Record<string, unknown>
 
 export interface MAFMetaDummy extends MAFMeta {
+  [key: string]: never
 }
 
 export interface MAFMetaIdRange extends MAFMeta {

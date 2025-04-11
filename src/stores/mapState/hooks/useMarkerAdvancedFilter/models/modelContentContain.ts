@@ -5,10 +5,11 @@ import type {
   MAFSemanticUnit,
   MAFValueString,
 } from '@/stores/types'
+import { MAF_MODEL_NAME_MAP, MAFModelId } from '@/shared'
 
 export class ContentContain implements MAFConfig<MAFValueString, MAFOptionInput, MAFMetaDummy> {
-  id = 3
-  name = '内容包含'
+  id = MAFModelId.CONTENT_CONTAIN
+  name = MAF_MODEL_NAME_MAP[MAFModelId.CONTENT_CONTAIN]
   option: MAFOptionInput = {
     placeholder: '',
   }

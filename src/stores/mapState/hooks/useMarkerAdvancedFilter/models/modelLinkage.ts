@@ -5,10 +5,11 @@ import type {
   MAFSemanticUnit,
   MAFValueBoolean,
 } from '@/stores/types'
+import { MAF_MODEL_NAME_MAP, MAFModelId } from '@/shared'
 
 export class Linkage implements MAFConfig<MAFValueBoolean, MAFOptionSwitch, MAFMetaDummy> {
-  id = 301
-  name = '点位关联'
+  id = MAFModelId.LINKAGE
+  name = MAF_MODEL_NAME_MAP[MAFModelId.LINKAGE]
   option: MAFOptionSwitch = {
     textInactive: '不存在',
     textActive: '存在',

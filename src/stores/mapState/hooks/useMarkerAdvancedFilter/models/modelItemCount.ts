@@ -7,13 +7,14 @@ import type {
   MAFValueBoolean,
   MAFValueNumberRange,
 } from '@/stores/types'
+import { MAF_MODEL_NAME_MAP, MAFModelId } from '@/shared'
 
 type ValueType = MAFValueBoolean & MAFValueNumberRange
 type OptionType = MAFOptionSwitch & MAFOptionRange
 
 export class ItemCount implements MAFConfig<ValueType, OptionType, MAFMetaDummy> {
-  id = 106
-  name = '物品计数'
+  id = MAFModelId.ITEM_COUNT
+  name = MAF_MODEL_NAME_MAP[MAFModelId.ITEM_COUNT]
   option: OptionType = {
     textActive: '所有',
     textInactive: '任意',
