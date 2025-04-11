@@ -11,10 +11,6 @@ import { useAreaStore, useMarkerExtraStore } from '@/stores'
 
 type OptionType = MAFOptionSelect<AreaWithExtraConfig>
 
-interface ExtraUnderground {
-  region_levels?: string[]
-}
-
 export class UndergroundLayer implements MAFConfig<MAFValueStringArray, OptionType, MAFMetaUndergroundLayer> {
   id = MAFModelId.UNDERGROUND_LAYER
   name = MAF_MODEL_NAME_MAP[MAFModelId.UNDERGROUND_LAYER]
@@ -117,8 +113,8 @@ export class UndergroundLayer implements MAFConfig<MAFValueStringArray, OptionTy
   }
 
   filter(val: MAFValueStringArray, _opt: OptionType, _meta: MAFMetaUndergroundLayer, marker: API.MarkerVo): boolean {
-    const extra = (marker.extra?.underground ?? {}) as ExtraUnderground
-    const regionLevels = extra.region_levels ?? []
+    const extra = (marker.extra?.underground ?? {}) as API.MarkerExtra['underground']
+    const regionLevels = extra?.region_levels ?? []
     for (const regionLevel of regionLevels) {
       if (val.sa.includes(regionLevel))
         return true

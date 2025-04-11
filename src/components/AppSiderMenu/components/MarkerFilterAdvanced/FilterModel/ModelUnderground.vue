@@ -1,28 +1,30 @@
 <script lang="ts" setup>
-import type { MAFMetaDummy, MAFOptionSwitch, MAFValueBoolean } from '@/stores/types'
-import { GSSwitch } from '@/components/GenshinUI'
+import type { MAFMetaDummy, MAFOptionSelect, MAFValueNumberExact } from '@/stores/types'
+import { GSSegmented } from '@/components'
 
 defineProps<{
-  options: MAFOptionSwitch
+  options: MAFOptionSelect<{ label: string, value: number }>
   meta: MAFMetaDummy
 }>()
 
-const modelValue = defineModel<MAFValueBoolean>('modelValue', {
+const modelValue = defineModel<MAFValueNumberExact>('modelValue', {
   required: false,
   default: {
-    b: false,
+    nx: 0,
   },
 })
 </script>
 
 <template>
   <div class="flex-auto flex gap-1 items-center">
-    <span class="flex-none">点位属于</span>
-    <GSSwitch
-      v-model="modelValue.b"
-      :label="modelValue.b ? options.textActive : options.textInactive"
-      label-inactive-color="#313131"
-      label-active-color="#313131"
+    <span class="flex-none">点位为</span>
+    <GSSegmented
+      v-model="modelValue.nx"
+      size="small"
+      :options="options.options"
+      :label-key="options.optionLabel"
+      :value-key="options.optionValue"
     />
+    <span class="flex-none">点位</span>
   </div>
 </template>

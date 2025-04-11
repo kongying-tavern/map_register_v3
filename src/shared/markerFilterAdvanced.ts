@@ -67,7 +67,7 @@ export const MAF_MODEL_NAME_MAP: Record<MAFModelId, string> = {
   [MAFModelId.ITEM_COUNT]: '物品计数',
 
   /** 分层相关 */
-  [MAFModelId.UNDERGROUND]: '地面点位',
+  [MAFModelId.UNDERGROUND]: '点位分层',
   [MAFModelId.UNDERGROUND_LAYER]: '分层层级',
 
   /** 点位关联相关 */

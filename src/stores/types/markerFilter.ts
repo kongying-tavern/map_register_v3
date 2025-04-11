@@ -108,6 +108,10 @@ export interface MAFValueNumber extends MAFValue {
   n: number | null
 }
 
+export interface MAFValueNumberExact extends MAFValue {
+  nx: number
+}
+
 export interface MAFValueNumberArray extends MAFValue {
   na: number[]
 }
@@ -174,6 +178,10 @@ export interface MAFMetaIdRange extends MAFMeta {
 export interface MAFMetaContentRegex extends MAFMeta {
   /** 解析过的正则表达式，null 表示解析失败，undefined 表示空 */
   re?: RegExp | null
+}
+
+export interface MAFMetaUnderground extends MAFMeta {
+  tag: string
 }
 
 export interface MAFMetaUndergroundLayer extends MAFMeta {
