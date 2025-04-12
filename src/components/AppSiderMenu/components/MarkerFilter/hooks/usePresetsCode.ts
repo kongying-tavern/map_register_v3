@@ -125,7 +125,7 @@ export const usePresetsCode = (options: PresetCodeHookOptions) => {
   const unzipAdvancedCode = (zipped: Uint8Array): MAFGroup[] => {
     const conditions: MAFGroup[] = []
     let pointer = 0
-    while (pointer <= zipped.byteLength) {
+    while (pointer < zipped.byteLength) {
       const group: MAFGroup = {
         key: crypto.randomUUID(),
         opposite: false,
