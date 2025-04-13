@@ -71,6 +71,7 @@ const confirmDelete = (item: API.ItemVo) => {
     <ItemFilter
       v-model="queryForm"
       v-model:explorer-type="explorerType"
+      :loading="itemLoading"
       @change="resetCurrent"
       @create="openItemCreatorDialog"
     />
