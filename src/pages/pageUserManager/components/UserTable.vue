@@ -38,9 +38,7 @@ const { height } = useElementSize(tableRef)
         </template>
       </el-table-column>
 
-      <el-table-column label="昵称" :width="200" prop="nickname" show-overflow-tooltip />
-
-      <el-table-column label="用户名" :width="200" prop="username">
+      <el-table-column label="用户名" :width="150" prop="username">
         <template #default="{ row }">
           <div
             class="
@@ -56,11 +54,15 @@ const { height } = useElementSize(tableRef)
         </template>
       </el-table-column>
 
+      <el-table-column label="昵称" :width="100" prop="nickname" show-overflow-tooltip />
+
+      <el-table-column label="备注" prop="remark" show-overflow-tooltip />
+
       <el-table-column label="QQ" prop="qq" :width="150" />
 
       <el-table-column label="手机号" prop="phone" :width="150" />
 
-      <el-table-column label="角色" prop="roleId">
+      <el-table-column label="角色" prop="roleId" :width="150">
         <template #default="{ row }">
           <el-tag disable-transitions>
             {{ roleMap[row.roleId]?.name ?? '...' }}

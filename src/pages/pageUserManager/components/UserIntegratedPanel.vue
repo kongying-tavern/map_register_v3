@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import type { FormItemRule } from 'element-plus'
 import { GlobalDialogController, WinDialog, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 import { ExitLeft } from '@/components/GenshinUI/GSIcon'
-import { ACCESS_POLICY_OPTIONS } from '@/shared'
+import { GROUPED_ACCESS_POLICY_OPTIONS } from '@/shared'
 import { useUserStore } from '@/stores'
 import { CircleCheck, Delete, PictureFilled, RefreshLeft } from '@element-plus/icons-vue'
 import { usePasswordUpdate, useUserEdit } from '../hooks'
@@ -58,7 +59,14 @@ const resetUserInfo = () => {
   userInfoForm.value = JSON.parse(JSON.stringify(props.data))
 }
 
-const { submit, onSuccess: onEditSuccess } = useUserEdit(userInfoForm, {
+const rules: Partial<Record<keyof API.SysUserVo, FormItemRule>> = {
+  roleId: {
+    required: true,
+    message: '角色不能为空',
+  },
+}
+
+const { formRef, submit, onSuccess: onEditSuccess } = useUserEdit(userInfoForm, {
   loading: panelLoading,
 })
 
@@ -88,7 +96,7 @@ const { submit: submitPwsUpdate, loading: pwdUpdateLoading } = usePasswordUpdate
       v-model:tab-key="tabKey"
       :tabs="tabs"
       :tabs-disabled="panelLoading"
-      class="mb-2 w-96 h-[480px]"
+      class="mb-2 w-[360px] max-w-[calc(100dvw_-_18px)] h-[530px]"
       style="padding: 0"
     >
       <div v-if="tabKey === 'baseinfo'" class="p-4">
@@ -147,9 +155,13 @@ const { submit: submitPwsUpdate, loading: pwdUpdateLoading } = usePasswordUpdate
           编辑信息
         </el-divider>
 
-        <el-form :model="userInfoForm" label-width="80px">
+        <el-form ref="formRef" :model="userInfoForm" label-width="70px" :rules="rules">
           <el-form-item label="昵称" prop="nickname">
             <el-input v-model="userInfoForm.nickname" placeholder="最好有一个" />
+          </el-form-item>
+
+          <el-form-item label="备注" prop="remark">
+            <el-input v-model="userInfoForm.remark" />
           </el-form-item>
 
           <el-form-item label="角色" prop="roleId">
@@ -163,13 +175,13 @@ const { submit: submitPwsUpdate, loading: pwdUpdateLoading } = usePasswordUpdate
             />
           </el-form-item>
 
-          <el-form-item label="权限策略" prop="accessPolicy">
+          <el-form-item label="风控" prop="accessPolicy">
             <el-select-v2
               v-model="userInfoForm.accessPolicy"
               multiple
               collapse-tags
               collapse-tags-tooltip
-              :options="ACCESS_POLICY_OPTIONS"
+              :options="GROUPED_ACCESS_POLICY_OPTIONS"
               clearable
             />
           </el-form-item>

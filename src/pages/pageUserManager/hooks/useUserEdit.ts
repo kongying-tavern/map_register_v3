@@ -1,3 +1,4 @@
+import type { ElForm } from 'element-plus'
 import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 import { ElMessage } from 'element-plus'
@@ -5,9 +6,15 @@ import { ElMessage } from 'element-plus'
 export const useUserEdit = (form: Ref<API.SysUserVo>, options: { loading: Ref<boolean> }) => {
   const { loading } = options
 
+  const formRef = shallowRef<InstanceType<typeof ElForm>>()
+
   const { refresh: submit, onError, onSuccess, ...rest } = useFetchHook({
     loading,
     onRequest: async () => {
+      const isValid = formRef.value?.validate().then(() => true).catch(() => false)
+      if (!isValid)
+        throw new Error('表单校验未通过')
+
       const {
         id,
         accessPolicy = [],
@@ -16,6 +23,7 @@ export const useUserEdit = (form: Ref<API.SysUserVo>, options: { loading: Ref<bo
         phone = '',
         qq = '',
         roleId,
+        remark = '',
       } = toValue(form)
 
       if (id === undefined)
@@ -29,6 +37,7 @@ export const useUserEdit = (form: Ref<API.SysUserVo>, options: { loading: Ref<bo
         phone,
         qq,
         roleId,
+        remark,
       })
     },
   })
@@ -45,5 +54,11 @@ export const useUserEdit = (form: Ref<API.SysUserVo>, options: { loading: Ref<bo
     })
   })
 
-  return { submit, onSuccess, onError, ...rest }
+  return {
+    formRef,
+    submit,
+    onSuccess,
+    onError,
+    ...rest,
+  }
 }

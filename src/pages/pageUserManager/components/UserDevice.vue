@@ -19,7 +19,7 @@ const { pagination, layout } = usePagination({
   units: [PgUnit.TOTAL, PgUnit.PREV, PgUnit.PAGER, PgUnit.NEXT],
   init: {
     current: 1,
-    pageSize: 5,
+    pageSize: 6,
     total: 0,
   },
 })
