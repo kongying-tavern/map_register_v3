@@ -72,8 +72,14 @@ onError(err => ElMessage.error({
     </WinDialogTitleBar>
 
     <WinDialogTabPanel>
-      <el-form ref="formRef" v-bind="$attrs" label-width="100px" :model="formData" :rules="rules">
-        <el-form-item label="用户名/QQ" prop="username">
+      <el-form
+        ref="formRef"
+        v-bind="$attrs"
+        label-width="100px"
+        :model="formData"
+        :rules="rules"
+      >
+        <el-form-item label="用户名" prop="username">
           <el-input v-model="formData.username" placeholder="请输入用户名或Q号" />
         </el-form-item>
 
