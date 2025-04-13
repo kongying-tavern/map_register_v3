@@ -26,7 +26,7 @@ export const useRefreshTime = (refreshTime: Ref<number | undefined>, options: Re
 
   const humanFriendlyTimeText = computed(() => {
     const time = Number(refreshTime.value) || 0
-    if (time < 0)
+    if (time <= 0)
       return refreshTimeType.value
     const days = Math.floor(time / 86400000)
     const hours = Math.floor((time % 86400000) / 3600000)
