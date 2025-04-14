@@ -36,7 +36,7 @@ const handleSortCommand = (command: string) => {
 }
 
 const filterKeys = [
-  { label: 'ID', value: 'id' },
+  { label: '邀请码', value: 'code' },
   { label: '用户名', value: 'username' },
 ]
 
@@ -57,8 +57,11 @@ const filterKeyLabelMap = filterKeys.reduce((map, { label, value }) => {
         @change="() => emits('change')"
       >
         <template #prefix>
-          <el-icon>
-            <Search />
+          <el-icon
+            :class="props.loading ? '' : 'cursor-pointer hover:text-[var(--el-color-primary)]'"
+            @click="() => !props.loading && emits('change')"
+          >
+            <ElIcons.Search />
           </el-icon>
         </template>
         <template #prepend>
@@ -66,7 +69,6 @@ const filterKeyLabelMap = filterKeys.reduce((map, { label, value }) => {
             v-model="filter.key"
             :options="filterKeys"
             style="width: 100px"
-            @change="() => emits('change')"
           />
         </template>
       </el-input>
