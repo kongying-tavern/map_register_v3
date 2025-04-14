@@ -54,6 +54,7 @@ const dropdownKey = ref('')
   <el-form
     class="w-full p-2 border-b-[1px] border-[var(--el-border-color-lighter)]"
     :disabled="loading"
+    @submit.prevent=""
   >
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8">
       <el-form-item label="物品名称" style="margin-bottom: 0">
