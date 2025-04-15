@@ -14,10 +14,8 @@ defineProps<{
     <div v-if="value === oldValue" class="text-[var(--el-text-color-secondary)]">
       无变化
     </div>
-    <div v-else class="text-wrapper h-full overflow-auto">
-      <p v-for="paragraph in value.split('\n')" :key="paragraph" class="min-h-[16px]">
-        {{ paragraph }}
-      </p>
+    <div v-else class="h-full overflow-hidden">
+      <textarea readonly :value="value" class="w-full h-full outline-none resize-none bg-transparent text-wrapper" />
     </div>
   </div>
 </template>
@@ -25,11 +23,24 @@ defineProps<{
 <style scoped>
 .text-wrapper {
   &::-webkit-scrollbar {
-    width: 4px;
-    background-color: var(--el-border-color);
+    width: 6px;
+    height: 6px;
+    cursor: pointer;
+    background-color: light-dark(#FCFCFC, #2C2C2C);
   }
+
   &::-webkit-scrollbar-thumb {
-    background-color: var(--el-color-primary);
+    border-radius: 3px;
+    cursor: pointer;
+    background-color: light-dark(#8B8B8B, #9F9F9F);
+    border-width: 1px;
+    border-style: solid;
+    border-color: light-dark(#FCFCFC, #2C2C2C);
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: light-dark(#b9b8b8, #d6d4d4);
+    border-color: light-dark(#b9b8b8, #d6d4d4);
   }
 }
 </style>
