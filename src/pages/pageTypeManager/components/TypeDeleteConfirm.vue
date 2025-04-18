@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { TypeManager } from '../config'
 import {
-  GlobalDialogController,
   WinDialog,
   WinDialogFooter,
   WinDialogTitleBar,
@@ -16,6 +15,7 @@ const props = defineProps<{
 
 const emits = defineEmits<{
   success: []
+  close: [boolean]
 }>()
 
 const { loading, refresh: deleteType, onSuccess } = useTypeDelete(computed(() => props.manager))
@@ -23,12 +23,12 @@ const { loading, refresh: deleteType, onSuccess } = useTypeDelete(computed(() =>
 onSuccess(() => emits('success'))
 
 const cancel = () => {
-  GlobalDialogController.close(false)
+  emits('close', false)
 }
 
 const confirm = async () => {
   await deleteType(props.data)
-  GlobalDialogController.close(true)
+  emits('close', true)
 }
 </script>
 

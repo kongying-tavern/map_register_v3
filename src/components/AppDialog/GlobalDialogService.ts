@@ -1,60 +1,77 @@
+/* eslint-disable ts/no-explicit-any */
 import type { AnyObject } from '@/shared'
-import type { DialogProps } from 'element-plus'
 import type { Component } from 'vue'
+import type { GlobalDialogOptions, GlobalDialogPropsHack, GlobalDialogServiceImpl } from './types'
 import { context } from './context'
 import { GlobalDialogController } from './GlobalDialogController'
 
-export interface PropsOptions {
-  /** 合并模式 */
-  merge?: boolean
-}
-
-export type PropsObject = Omit<Partial<DialogProps & { class: string }>, 'modelValue'> // 这里先 hack 一下类型，等 element 更新 2.3.0
-
 /** 全局弹窗服务，内部调用 */
-export class GlobalDialogService {
+export class GlobalDialogService implements GlobalDialogServiceImpl {
+  #id: string
+
+  #config: GlobalDialogPropsHack = {
+    width: 'fit-content',
+    showClose: false,
+    alignCenter: true,
+    closeOnClickModal: false,
+    closeOnPressEscape: false,
+  }
+
+  #props: AnyObject = {}
+
+  #listeners: Record<string, (...args: any[]) => void> = {}
+
+  #component?: Component
+
+  constructor() {
+    this.#id = crypto.randomUUID()
+  }
+
+  _getId = () => {
+    return this.#id
+  }
+
+  _getOptions = (): GlobalDialogOptions => {
+    return {
+      id: this.#id,
+      config: this.#config,
+      props: this.#props,
+      listeners: this.#listeners,
+      component: this.#component,
+    }
+  }
+
   /** 传递给 el-dialog 的属性 */
-  static config = (
-    propsObj: PropsObject,
-    options: PropsOptions = {},
-  ) => {
-    const { merge } = options
-    if (merge)
-      Object.assign(context.dialogProps.value, propsObj)
-    else
-      context.dialogProps.value = propsObj
+  config = (configObj: GlobalDialogPropsHack) => {
+    this.#config = {
+      ...this.#config,
+      ...configObj,
+    }
     return this
   }
 
   /** 传递给弹窗默认插槽上的组件的属性 */
-  static props = <T extends AnyObject>(propsObj: T, options: PropsOptions = {}) => {
-    const { merge } = options
-    if (merge)
-      Object.assign(context.props.value, propsObj)
-    else
-      context.props.value = propsObj
+  props = <T extends AnyObject>(propsObj: T) => {
+    this.#props = {
+      ...this.#props,
+      ...propsObj,
+    }
     return this
   }
 
   /** 传递给弹窗默认插槽上的组件的事件监听器 */
-  // eslint-disable-next-line ts/no-explicit-any
-  static listeners = <T extends Record<string, (...args: any[]) => void>>(listenersObj: T) => {
-    context.listener.value = {
+  listeners = <T extends Record<string, (...args: any[]) => void>>(listenersObj: T) => {
+    this.#listeners = {
+      ...this.#listeners,
       ...listenersObj,
     }
-
     return this
   }
 
   /** 打开弹窗，返回弹窗控制器 */
-  static open = (comp: Component) => {
-    if (comp === context.component.value) {
-      context.visible.value = true
-      return GlobalDialogController
-    }
-    context.visible.value && GlobalDialogController.close(undefined, true)
-    context.component.value = comp
-    context.visible.value = true
-    return GlobalDialogController
+  open = (comp: Component) => {
+    this.#component = comp
+    context.open(this)
+    return new GlobalDialogController(this)
   }
 }

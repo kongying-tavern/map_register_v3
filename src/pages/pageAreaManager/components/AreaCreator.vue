@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import Api from '@/api/api'
-import { GlobalDialogController, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
+import { WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 import { useFetchHook } from '@/hooks'
 import { Check, Close } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
@@ -12,6 +12,7 @@ const props = defineProps<{
 
 const emits = defineEmits<{
   success: [API.AreaVo]
+  close: []
 }>()
 
 const formData = ref<API.AreaVo>({
@@ -37,7 +38,7 @@ onSuccess((form) => {
   ElMessage.success({
     message: '新增地区成功',
   })
-  GlobalDialogController.close()
+  emits('close')
   emits('success', form)
 })
 
@@ -61,7 +62,7 @@ const createArea = async () => {
 
 <template>
   <WinDialog>
-    <WinDialogTitleBar :loading="loading" @close="GlobalDialogController.close">
+    <WinDialogTitleBar :loading="loading" @close="() => emits('close')">
       添加地区
     </WinDialogTitleBar>
 
@@ -73,7 +74,7 @@ const createArea = async () => {
       <el-button :icon="Check" type="primary" :loading="loading" @click="createArea">
         确定
       </el-button>
-      <el-button :icon="Close" :disabled="loading" @click="GlobalDialogController.close">
+      <el-button :icon="Close" :disabled="loading" @click="() => emits('close')">
         取消
       </el-button>
     </WinDialogFooter>

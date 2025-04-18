@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { GlobalDialogController } from '@/components/AppDialog'
 import { LoginPanel, RegisterPanel } from './components'
 
 const props = defineProps<{
@@ -10,20 +9,25 @@ const props = defineProps<{
 
 const emits = defineEmits<{
   success: []
+  close: []
 }>()
 
-const isRegisterMode = ref(props.isRegisterMode ?? false)
+const isRegister = ref(Boolean(props.isRegisterMode))
+
+watch(() => props.isRegisterMode, (bool) => {
+  isRegister.value = bool
+})
 </script>
 
 <template>
-  <transition :name="isRegisterMode ? 'anime-right' : 'anime-left'" mode="out-in" appear>
+  <transition :name="isRegister ? 'anime-right' : 'anime-left'" mode="out-in" appear>
     <component
-      :is="isRegisterMode ? RegisterPanel : LoginPanel"
-      v-model:is-register="isRegisterMode"
+      :is="isRegister ? RegisterPanel : LoginPanel"
+      v-model:is-register="isRegister"
       :code="props.code"
       :username="props.username"
       @success="() => emits('success')"
-      @close="GlobalDialogController.close"
+      @close="() => emits('close')"
     />
   </transition>
 </template>

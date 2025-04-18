@@ -27,8 +27,8 @@ const {
 } = useLoginForm()
 
 onSuccess(() => {
-  emits('success')
   emits('close')
+  emits('success')
 })
 
 const { count, set: setCount } = useCountDown()

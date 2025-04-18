@@ -123,12 +123,7 @@ const FEATURE_OPTIONS: FeatureGroupOption[] = [
 ]
 
 const openSettingDialog = () => {
-  DialogService
-    .config({
-      alignCenter: true,
-      width: 'fit-content',
-    })
-    .open(AppSettings)
+  DialogService.open(AppSettings)
 }
 
 const featuresWithRole = computed(() => FEATURE_OPTIONS.reduce((seed, featureGroup) => {
@@ -228,7 +223,7 @@ const handleAvatarClick = () => {
 
           <div
             v-show="mapStateStore.markersFilterLoading || mapStateStore.currentLayerMarkers.length > 0"
-            class="absolute left-1/2 bottom-1 -translate-x-1/2 w-fit h-5 rounded-full p-0.5 grid place-items-center bg-[#68B11E]"
+            class="absolute left-1/2 bottom-1 -translate-x-1/2 w-fit h-5 min-w-[20px] rounded-full p-0.5 grid place-items-center bg-[#68B11E]"
           >
             <span class="text-xs leading-none px-0.5 text-white">
               {{ mapStateStore.currentLayerMarkers.length }}

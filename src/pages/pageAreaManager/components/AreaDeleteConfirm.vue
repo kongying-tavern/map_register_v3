@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {
-  GlobalDialogController,
   WinDialog,
   WinDialogFooter,
   WinDialogTitleBar,
@@ -15,6 +14,7 @@ const props = defineProps<{
 
 const emits = defineEmits<{
   success: [API.AreaVo]
+  close: [boolean]
 }>()
 
 const { loading, deleteArea, onSuccess } = useAreaDelete()
@@ -22,12 +22,12 @@ const { loading, deleteArea, onSuccess } = useAreaDelete()
 onSuccess(form => emits('success', form))
 
 const cancel = () => {
-  GlobalDialogController.close(false)
+  emits('close', false)
 }
 
 const confirm = async () => {
   await deleteArea(props.area)
-  GlobalDialogController.close(true)
+  emits('close', true)
 }
 </script>
 

@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import type { ElSwitch } from 'element-plus'
-import { GlobalDialogController } from '@/components'
 import { useTheme } from '@/hooks'
 import { usePreferenceStore } from '@/stores'
 import { transitionToggleSchema } from '@/utils'
@@ -15,6 +14,10 @@ import {
   ModuleMapSetting,
   ModuleNetwork,
 } from './modules'
+
+const emits = defineEmits<{
+  close: []
+}>()
 
 const { isDark } = useTheme()
 const preferenceStore = usePreferenceStore()
@@ -94,7 +97,7 @@ const beforeChange = async () => {
           type="danger"
           style="--el-fill-color-light: var(--el-color-danger-light-7); --el-fill-color: var(--el-color-danger-light-9);"
           :icon="El.Close"
-          @click="GlobalDialogController.close"
+          @click="() => emits('close')"
         />
       </div>
     </div>

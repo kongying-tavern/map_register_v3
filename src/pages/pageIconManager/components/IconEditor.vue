@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { AppImageCropper, GlobalDialogController, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
+import { AppImageCropper, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 import { formatByteSize } from '@/utils'
 import { Check, Close } from '@element-plus/icons-vue'
 import { ElInput, ElSwitch } from 'element-plus'
@@ -8,6 +8,10 @@ import { useImageLoad, useImageSelect, useImageUpload } from '../hooks'
 
 const props = defineProps<{
   icon: API.TagVo
+}>()
+
+const emits = defineEmits<{
+  close: []
 }>()
 
 const tagName = computed(() => props.icon.tag)
@@ -41,19 +45,23 @@ const onImageCrop = (image: Blob) => {
 }
 
 // ==================== 上传图片 ====================
-const { iconName, loading: uploadLoading, percentage, status, text, uploadImage } = useImageUpload({
+const { iconName, loading: uploadLoading, percentage, status, text, uploadImage, onSuccess: onImageUploadSuccess } = useImageUpload({
   image: computed(() => isClipMode.value ? croppedImage.value : localImage.value),
   tagName,
 })
+
+onImageUploadSuccess(() => emits('close'))
 
 const trimNameSpace = () => {
   iconName.value = iconName.value.trim()
 }
 
 // ==================== 复用图片 ====================
-const { selectedImage, useImage, loading: selectLoading } = useImageSelect({
+const { selectedImage, useImage, loading: selectLoading, onSuccess: onImageSelectSuccess } = useImageSelect({
   tagName,
 })
+
+onImageSelectSuccess(() => emits('close'))
 
 // ==================== 弹窗操作 ====================
 const confirmDisabled = computed(() => ({
@@ -82,7 +90,7 @@ const confirm = async () => {
 const cancel = () => {
   if (confirmLoading.value)
     return
-  GlobalDialogController.close()
+  emits('close')
 }
 </script>
 

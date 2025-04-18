@@ -18,13 +18,6 @@ const queryHandlers = new Map<string, (value: LocationQueryValue | LocationQuery
         throw new Error('邀请码参数为空')
       const { code, username } = RouteQuery.Invitation.parse(value)
       DialogService
-        .config({
-          width: 'fit-content',
-          alignCenter: true,
-          closeOnClickModal: false,
-          closeOnPressEscape: false,
-          class: 'custom-dialog hidden-header bg-transparent',
-        })
         .props({
           code,
           username,

@@ -4,7 +4,7 @@ import Oauth from '@/api/oauth'
 import { AppLogin } from '@/components'
 import { useFetchHook, useGlobalDialog } from '@/hooks'
 import { ROLE_MASK_MAP, USERAUTH_KEY } from '@/shared'
-import { Logger, sleep } from '@/utils'
+import { Logger } from '@/utils'
 import { ElMessage } from 'element-plus'
 import { camelCase } from 'lodash'
 import { defineStore } from 'pinia'
@@ -185,14 +185,7 @@ export const useUserStore = defineStore('global-user', () => {
       if (!newToken) {
         pauseRefreshToken()
         logger.info('token 刷新已暂停')
-        await sleep(100)
-        DialogService
-          .config({
-            center: true,
-            closeOnClickModal: false,
-            closeOnPressEscape: false,
-          })
-          .open(AppLogin)
+        DialogService.open(AppLogin)
         return
       }
       if (!oldToken) {

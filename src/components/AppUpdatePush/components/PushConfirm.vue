@@ -1,18 +1,21 @@
 <script setup lang="ts">
 import {
-  GlobalDialogController,
   WinDialog,
   WinDialogFooter,
   WinDialogTitleBar,
 } from '@/components'
 import { Check, Close, WarnTriangleFilled } from '@element-plus/icons-vue'
 
+const emits = defineEmits<{
+  close: [boolean]
+}>()
+
 const cancel = () => {
-  GlobalDialogController.close(false)
+  emits('close', false)
 }
 
 const confirm = () => {
-  GlobalDialogController.close(true)
+  emits('close', true)
 }
 </script>
 

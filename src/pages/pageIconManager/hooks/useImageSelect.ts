@@ -1,5 +1,4 @@
 import Api from '@/api/api'
-import { GlobalDialogController } from '@/components'
 import db from '@/database'
 import { useFetchHook } from '@/hooks'
 import { ElMessage } from 'element-plus'
@@ -36,7 +35,6 @@ export const useImageSelect = (options: ImageSelectHookOptions) => {
     ElMessage.success({
       message: '图片修改成功',
     })
-    GlobalDialogController.close()
   })
 
   onError((err) => {

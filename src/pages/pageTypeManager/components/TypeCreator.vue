@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import type { TypeManager, TypeObject } from '../config'
 import {
-  GlobalDialogController,
   WinDialog,
   WinDialogFooter,
   WinDialogTabPanel,
@@ -19,6 +18,7 @@ const props = defineProps<{
 
 const emits = defineEmits<{
   success: []
+  close: []
 }>()
 
 const formRef = ref<InstanceType<typeof TypeDetailForm> | null>(null)
@@ -35,7 +35,7 @@ onSuccess(() => {
   ElMessage.success({
     message: `添加${props.manager.info.label}成功`,
   })
-  GlobalDialogController.close()
+  emits('close')
   emits('success')
 })
 
@@ -56,7 +56,7 @@ const createType = async () => {
 
 <template>
   <WinDialog>
-    <WinDialogTitleBar :loading="loading" @close="() => GlobalDialogController.close()">
+    <WinDialogTitleBar :loading="loading" @close="() => emits('close')">
       新增 {{ manager.info.label }}
     </WinDialogTitleBar>
 
@@ -69,7 +69,7 @@ const createType = async () => {
         新增
       </el-button>
 
-      <el-button :disabled="loading" :icon="Close" @click="GlobalDialogController.close">
+      <el-button :disabled="loading" :icon="Close" @click="() => emits('close')">
         取消
       </el-button>
     </WinDialogFooter>

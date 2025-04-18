@@ -1,11 +1,12 @@
 <script lang="ts" setup>
 import Api from '@/api/api'
-import { AppItemSelecter, GlobalDialogController } from '@/components'
+import { AppItemSelecter } from '@/components'
 import { useFetchHook } from '@/hooks'
 import { ElMessage } from 'element-plus'
 
 const emits = defineEmits<{
   success: []
+  close: []
 }>()
 
 // ==================== 已选物品 ====================
@@ -20,7 +21,7 @@ onCreateSuccess(() => {
   ElMessage.success({
     message: '添加公共物品成功',
   })
-  GlobalDialogController.close()
+  emits('close')
   emits('success')
 })
 </script>
@@ -32,7 +33,7 @@ onCreateSuccess(() => {
         <el-button type="primary" :disabled="!selectionItems.length" :loading="addLoading" @click="addCommonItem">
           确认
         </el-button>
-        <el-button :disabled="addLoading" @click="GlobalDialogController.close">
+        <el-button :disabled="addLoading" @click="() => emits('close')">
           取消
         </el-button>
       </div>

@@ -1,9 +1,6 @@
-import { GlobalDialogController, GlobalDialogService } from '@/components'
-
-export interface PropsOptions {
-  /** 合并模式 */
-  merge?: boolean
-}
+import type { GlobalDialogControllerImpl, GlobalDialogPropsHack } from '@/components'
+import type { AnyObject } from '@/shared'
+import { GlobalDialogService } from '@/components'
 
 /**
  * ### 获取弹窗服务
@@ -17,9 +14,35 @@ export interface PropsOptions {
  * 2. 如果你的弹窗很复杂，请直接使用 `el-dialog`
  */
 export const useGlobalDialog = () => {
+  const dialog = new GlobalDialogService()
+
+  const controller = shallowRef<GlobalDialogControllerImpl>()
+
+  class DialogService {
+    static config = (configObj: GlobalDialogPropsHack) => {
+      dialog.config(configObj)
+      return this
+    }
+
+    static props = (propsObj: AnyObject) => {
+      dialog.props(propsObj)
+      return this
+    }
+
+    static listeners = (listenersObj: Record<string, (...args: unknown[]) => void>) => {
+      dialog.listeners(listenersObj)
+      return this
+    }
+
+    static open = (comp: Component) => {
+      controller.value = dialog.open(comp)
+      return controller.value
+    }
+  }
+
   tryOnUnmounted(() => {
-    GlobalDialogController.close(undefined, true)
+    controller.value?.close()
   })
 
-  return { DialogService: GlobalDialogService }
+  return { DialogService }
 }

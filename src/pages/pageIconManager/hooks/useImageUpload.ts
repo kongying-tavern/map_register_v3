@@ -1,6 +1,5 @@
 import Api from '@/api/api'
 import Resource from '@/api/resource'
-import { GlobalDialogController } from '@/components'
 import db from '@/database'
 import { useFetchHook } from '@/hooks'
 import { useUserStore } from '@/stores'
@@ -105,7 +104,6 @@ export const useImageUpload = (options: ImageUploadHookOptions) => {
     ElMessage.success({
       message: '图片修改成功',
     })
-    GlobalDialogController.close()
   })
 
   onError((err) => {

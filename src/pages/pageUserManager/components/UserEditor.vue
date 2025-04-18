@@ -3,7 +3,7 @@ import type { ElFormType } from '@/shared'
 import type { ItemFormRules } from '@/utils'
 import type { UnwrapRef } from 'vue'
 import Api from '@/api/api'
-import { GlobalDialogController, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
+import { WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 import { useFetchHook } from '@/hooks'
 import { Check, Close } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
@@ -15,6 +15,7 @@ const props = defineProps<{
 
 const emits = defineEmits<{
   success: []
+  close: []
 }>()
 
 const roleOptions = computed(() => props.roleList.map(role => ({
@@ -44,7 +45,7 @@ onSuccess(() => {
   ElMessage.success({
     message: '编辑成功',
   })
-  GlobalDialogController.close()
+  emits('close')
   emits('success')
 })
 
@@ -65,7 +66,7 @@ const editUser = async () => {
 
 <template>
   <WinDialog>
-    <WinDialogTitleBar :loading="loading" @close="GlobalDialogController.close">
+    <WinDialogTitleBar :loading="loading" @close="() => emits('close')">
       编辑用户 {{ data.username }}
     </WinDialogTitleBar>
 
@@ -105,7 +106,7 @@ const editUser = async () => {
       <el-button :icon="Check" type="primary" :loading="loading" @click="editUser">
         确认
       </el-button>
-      <el-button :icon="Close" :disabled="loading" @click="GlobalDialogController.close">
+      <el-button :icon="Close" :disabled="loading" @click="() => emits('close')">
         取消
       </el-button>
     </WinDialogFooter>

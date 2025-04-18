@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { GlobalDialogController } from '@/components'
 import { useUserStore } from '@/stores'
 import { Check, Close } from '@element-plus/icons-vue'
 import { MarkerForm } from './components'
@@ -8,6 +7,10 @@ import { useMarkerCreate } from './hooks'
 const props = defineProps<{
   coordinate: API.Coordinate2D
   defaultItem?: API.ItemVo
+}>()
+
+const emits = defineEmits<{
+  close: []
 }>()
 
 const userStore = useUserStore()
@@ -38,7 +41,7 @@ const form = ref(initFormData())
 
 const { editorRef, loading, createMarker, onSuccess } = useMarkerCreate(form)
 
-onSuccess(GlobalDialogController.close)
+onSuccess(() => emits('close'))
 </script>
 
 <template>
@@ -47,14 +50,14 @@ onSuccess(GlobalDialogController.close)
     v-model="form"
     title="新增点位"
     :loading="loading"
-    @close="GlobalDialogController.close"
+    @close="() => emits('close')"
   >
     <template #footer>
       <div class="w-full flex justify-end">
         <el-button :icon="Check" :loading="loading" type="primary" @click="createMarker">
           添加
         </el-button>
-        <el-button :icon="Close" :disabled="loading" @click="GlobalDialogController.close">
+        <el-button :icon="Close" :disabled="loading" @click="() => emits('close')">
           取消
         </el-button>
       </div>

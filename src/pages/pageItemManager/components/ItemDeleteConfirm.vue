@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import {
   AppIconTagRenderer,
-  GlobalDialogController,
   WinDialog,
   WinDialogFooter,
   WinDialogTitleBar,
@@ -16,6 +15,7 @@ const props = defineProps<{
 
 const emits = defineEmits<{
   success: [API.ItemVo]
+  close: [boolean]
 }>()
 
 const areaStore = useAreaStore()
@@ -30,12 +30,12 @@ const { loading, deleteItem, onSuccess } = useItemDelete()
 onSuccess(form => emits('success', form))
 
 const cancel = () => {
-  GlobalDialogController.close(false)
+  emits('close', false)
 }
 
 const confirm = async () => {
   await deleteItem(props.item)
-  GlobalDialogController.close(true)
+  emits('close', true)
 }
 </script>
 

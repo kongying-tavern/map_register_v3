@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Api from '@/api/api'
-import { GlobalDialogController, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
+import { WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 import db from '@/database'
 import { useFetchHook } from '@/hooks'
 import { useUserStore } from '@/stores'
@@ -10,6 +10,7 @@ import { ElMessage } from 'element-plus'
 
 const emits = defineEmits<{
   success: [tag: API.TagVo]
+  close: []
 }>()
 
 const LENGTH_LIMIT = 16
@@ -66,7 +67,7 @@ onSuccess((tag) => {
     message: '新建图标成功',
   })
   emits('success', tag)
-  GlobalDialogController.close()
+  emits('close')
 })
 
 onError((err) => {
@@ -78,7 +79,7 @@ onError((err) => {
 const cancel = () => {
   if (loading.value)
     return
-  GlobalDialogController.close()
+  emits('close')
 }
 
 const tabs: { key: string, name: string }[] = [

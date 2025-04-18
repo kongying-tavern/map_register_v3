@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import type { GSMapState } from '@/stores/types/genshin-map-state'
-import { GlobalDialogController } from '@/components'
 import { createRenderMarkers } from '@/stores/utils'
 import { Check, Close } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
@@ -10,6 +9,10 @@ import { useMarkerEdit } from './hooks'
 
 const props = defineProps<{
   markerInfo: GSMapState.MarkerWithRenderConfig
+}>()
+
+const emits = defineEmits<{
+  close: [GSMapState.MarkerWithRenderConfig]
 }>()
 
 /** 表单数据 */
@@ -22,7 +25,7 @@ onSuccess(() => {
   const rerenderInfo = createRenderMarkers([form.value], { reset: true })[0]
   if (rerenderInfo)
     form.value = rerenderInfo
-  GlobalDialogController.close(form.value)
+  emits('close', form.value)
 })
 
 const isOfflineMode = import.meta.env.VITE_DEVELOPMENT_MODE === 'offline'
@@ -52,7 +55,7 @@ const copyId = async () => {
     v-model="form"
     :title="`${markerInfo.id} ${markerInfo.markerTitle}`"
     :loading="loading"
-    @close="() => GlobalDialogController.close(markerInfo)"
+    @close="() => emits('close', markerInfo)"
   >
     <template #title>
       <div class="flex">
@@ -87,7 +90,7 @@ const copyId = async () => {
         <el-button :icon="Check" type="primary" :disabled="isOfflineMode" :loading="loading" @click="editMarker">
           保存
         </el-button>
-        <el-button :icon="Close" :disabled="loading" @click="() => GlobalDialogController.close(markerInfo)">
+        <el-button :icon="Close" :disabled="loading" @click="() => emits('close', markerInfo)">
           取消
         </el-button>
       </div>

@@ -1,12 +1,18 @@
 <script lang="ts" setup>
-import { GlobalDialogController, GSButton, GSTab } from '@/components'
+import { GSButton, GSTab } from '@/components'
 import { useUserStore } from '@/stores'
 import { ArchiveAnalyser, ArchiveSelector, InfoEditor, PasswordEditor } from '.'
 import { UserBanner } from './components'
 
+const emits = defineEmits<{
+  close: []
+}>()
+
 const userStore = useUserStore()
 
-whenever(() => !userStore.info, GlobalDialogController.close)
+whenever(() => !userStore.info, () => {
+  emits('close')
+})
 
 const tabs: { title: string, value: string }[] = [
   { title: '云存档', value: 'archive' },
@@ -19,7 +25,7 @@ const tab = ref('archive')
 <template>
   <div class="user-info-dialog">
     <div class="absolute right-[-48px] top-[2px]">
-      <GSButton icon="cancel" theme="plain" style="--icon-color: #816D51" @click="GlobalDialogController.close" />
+      <GSButton icon="cancel" theme="plain" style="--icon-color: #816D51" @click="() => emits('close')" />
     </div>
 
     <div class="user-info-card">

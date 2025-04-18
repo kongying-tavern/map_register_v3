@@ -4,7 +4,6 @@ import type { ItemFormRules } from '@/utils'
 import type { ComputedRef } from 'vue'
 import {
   AppRichtextEditor,
-  GlobalDialogController,
   WinDialog,
   WinDialogFooter,
   WinDialogTabPanel,
@@ -22,6 +21,7 @@ const props = defineProps<{
 
 const emits = defineEmits<{
   success: []
+  close: []
 }>()
 
 const formData = ref<API.NoticeVo>(JSON.parse(JSON.stringify(props.notice ?? {})))
@@ -96,7 +96,7 @@ const saveNotice = async () => {
 }
 
 onSuccess(() => {
-  GlobalDialogController.close()
+  emits('close')
   emits('success')
 })
 
@@ -108,7 +108,7 @@ const channels = [...NOTICE_NAME_MAP.entries()].map(([channel, name]) => ({
 
 <template>
   <WinDialog class="w-[1200px]">
-    <WinDialogTitleBar :loading="loading" @close="GlobalDialogController.close">
+    <WinDialogTitleBar :loading="loading" @close="() => emits('close')">
       {{ `${formData.id === undefined ? '添加' : '编辑'}公告` }}
     </WinDialogTitleBar>
 
@@ -166,7 +166,7 @@ const channels = [...NOTICE_NAME_MAP.entries()].map(([channel, name]) => ({
       <el-button :icon="Check" type="primary" :loading="loading" @click="saveNotice">
         确认
       </el-button>
-      <el-button :icon="Close" :disabled="loading" @click="GlobalDialogController.close">
+      <el-button :icon="Close" :disabled="loading" @click="() => emits('close')">
         取消
       </el-button>
     </WinDialogFooter>

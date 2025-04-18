@@ -2,13 +2,14 @@
 import type { ElFormType } from '@/shared'
 import type { ItemFormRules } from '@/utils'
 import Api from '@/api/api'
-import { GlobalDialogController, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
+import { WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 import { useFetchHook } from '@/hooks'
 import { Check, Close } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 
 const emits = defineEmits<{
   success: []
+  close: []
 }>()
 
 type UserRegisterVo = Required<API.SysUserRegisterVo & {
@@ -56,7 +57,7 @@ onSuccess(() => {
   ElMessage.success({
     message: '添加成功',
   })
-  GlobalDialogController.close()
+  emits('close')
   emits('success')
 })
 
@@ -67,7 +68,7 @@ onError(err => ElMessage.error({
 
 <template>
   <WinDialog>
-    <WinDialogTitleBar :loading="loading" @close="GlobalDialogController.close">
+    <WinDialogTitleBar :loading="loading" @close="emits('close')">
       添加用户
     </WinDialogTitleBar>
 
@@ -97,7 +98,7 @@ onError(err => ElMessage.error({
       <el-button :icon="Check" type="primary" :loading="loading" @click="createUser">
         确认
       </el-button>
-      <el-button :icon="Close" :disabled="loading" @click="GlobalDialogController.close">
+      <el-button :icon="Close" :disabled="loading" @click="emits('close')">
         取消
       </el-button>
     </WinDialogFooter>

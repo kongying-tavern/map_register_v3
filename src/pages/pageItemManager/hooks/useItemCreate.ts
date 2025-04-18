@@ -1,6 +1,6 @@
 import type { ItemDetailForm } from '../components'
 import Api from '@/api/api'
-import { GlobalDialogController, GSMessageService } from '@/components'
+import { GSMessageService } from '@/components'
 import { useFetchHook } from '@/hooks'
 import { HiddenFlagEnum, IconStyle } from '@/shared'
 import { useSocketStore } from '@/stores'
@@ -47,7 +47,6 @@ export const useItemCreate = () => {
       type: 'success',
       duration: 5000,
     })
-    GlobalDialogController.close()
   })
 
   onError(err => GSMessageService.info(`新增失败：${err.message}`, {

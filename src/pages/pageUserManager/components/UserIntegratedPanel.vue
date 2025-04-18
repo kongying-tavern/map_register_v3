@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { FormItemRule } from 'element-plus'
-import { GlobalDialogController, WinDialog, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
+import { WinDialog, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 import { ExitLeft } from '@/components/GenshinUI/GSIcon'
 import { GROUPED_ACCESS_POLICY_OPTIONS } from '@/shared'
 import { useUserStore } from '@/stores'
@@ -19,6 +19,7 @@ const props = defineProps<{
 
 const emits = defineEmits<{
   success: []
+  close: []
 }>()
 
 const userStore = useUserStore()
@@ -44,8 +45,8 @@ const tabs = [
 const tabKey = ref('baseinfo')
 
 const onDeleteSuccess = () => {
+  emits('close')
   emits('success')
-  GlobalDialogController.close()
 }
 
 // ==================== 修改信息 ====================
@@ -88,7 +89,7 @@ const { submit: submitPwsUpdate, loading: pwdUpdateLoading } = usePasswordUpdate
 
 <template>
   <WinDialog>
-    <WinDialogTitleBar :loading="panelLoading" @close="GlobalDialogController.close">
+    <WinDialogTitleBar :loading="panelLoading" @close="() => emits('close')">
       用户详情
     </WinDialogTitleBar>
 

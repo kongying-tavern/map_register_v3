@@ -1,6 +1,6 @@
 import type { ItemDetailForm } from '../components'
 import Api from '@/api/api'
-import { GlobalDialogController, GSMessageService } from '@/components'
+import { GSMessageService } from '@/components'
 import { useFetchHook } from '@/hooks'
 import { useSocketStore } from '@/stores'
 import { pick } from 'lodash'
@@ -57,7 +57,6 @@ export const useItemEdit = (options: ItemEditHookOptions = {}) => {
       type: 'success',
       duration: 3000,
     })
-    GlobalDialogController.close()
   })
 
   onError((err) => {
