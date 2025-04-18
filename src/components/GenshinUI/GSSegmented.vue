@@ -1,26 +1,26 @@
-<script lang="ts" setup generic="LK extends string, VK extends string, T extends { [vk in VK]: string | number | boolean }">
-import type { SegmentedProps } from 'element-plus'
+<script lang="ts" setup generic="T, V extends string | number | boolean">
 import { ElSegmented } from 'element-plus'
 
-type ValueTypes = string | number | boolean
-
-type OptionType = SegmentedProps['options'][0]
+interface NormalizedOption {
+  label: string
+  value: V
+}
 
 const props = defineProps<{
   size: '' | 'large' | 'default' | 'small'
   options: T[]
-  labelKey: LK
-  valueKey: VK
+  getLabel: (option: T) => string
+  getValue: (option: T) => V
 }>()
 
-const modelValue = defineModel<ValueTypes>('modelValue')
+const modelValue = defineModel<V>('modelValue')
 
-const componentOptions = computed<OptionType[]>(() => {
+const componentOptions = computed<NormalizedOption[]>(() => {
   return props.options
     .map((option) => {
-      const label = option[props.labelKey]
-      const value = option[props.valueKey] as ValueTypes
-      return { label, value } as OptionType
+      const label = props.getLabel(option)
+      const value = props.getValue(option)
+      return { label, value } satisfies NormalizedOption
     })
 })
 </script>

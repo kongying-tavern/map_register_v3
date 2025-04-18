@@ -22,8 +22,8 @@ const modelValue = defineModel<MAFValueNumberExact>('modelValue', {
       v-model="modelValue.nx"
       size="small"
       :options="options.options"
-      :label-key="options.optionLabel"
-      :value-key="options.optionValue"
+      :get-label="option => option.label"
+      :get-value="option => option.value"
     />
     <span class="flex-none">点位</span>
   </div>
