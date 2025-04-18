@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { ElForm, FormItemRule } from 'element-plus'
-import { GlobalDialogController, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
+import { WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 import { GROUPED_ACCESS_POLICY_OPTIONS, RouteQuery } from '@/shared'
 import { useUserStore } from '@/stores'
 import * as ElIcons from '@element-plus/icons-vue'
@@ -14,6 +14,7 @@ const props = defineProps<{
 
 const emits = defineEmits<{
   success: []
+  close: [data?: API.RSysUserInvitationSmallVo]
 }>()
 
 const userStore = useUserStore()
@@ -26,8 +27,8 @@ const raw = JSON.parse(JSON.stringify(props.data ?? {})) as API.SysUserInvitatio
 
 const form = ref<API.SysUserInvitationVo>({
   accessPolicy: [
-    'same_last_ip',
-    'same_last_device',
+    'ip:same_last_ip',
+    'dev:same_last_device',
   ],
   username: '',
   remark: '',
@@ -50,8 +51,8 @@ const { data, loading, refresh: submit, onSuccess } = (isUpdateMode ? useInvitat
 })
 
 onSuccess(() => {
+  emits('close', data.value)
   emits('success')
-  GlobalDialogController.close(data.value)
 })
 
 const rules: Partial<Record<keyof API.SysUserInvitationVo, FormItemRule>> = {
@@ -95,15 +96,14 @@ const copyInvitationCode = async () => {
 
 <template>
   <WinDialog class="w-[330px]">
-    <WinDialogTitleBar :loading="loading" @close="GlobalDialogController.close">
+    <WinDialogTitleBar :loading="loading" @close="() => emits('close')">
       {{ props.title }}
     </WinDialogTitleBar>
 
     <WinDialogTabPanel>
       <el-form
         ref="formRef"
-        label-width="80px"
-        label-position="right"
+        label-position="top"
         :disabled="loading"
         :model="form"
         :rules="rules"
@@ -137,7 +137,7 @@ const copyInvitationCode = async () => {
           <el-select-v2
             v-model="form.accessPolicy"
             :options="GROUPED_ACCESS_POLICY_OPTIONS"
-            :max-collapse-tags="1"
+            :props="{ label: 'label', value: 'value', options: 'options' }"
             multiple
           />
         </el-form-item>
@@ -164,7 +164,7 @@ const copyInvitationCode = async () => {
         :loading="loading"
         :disabled="loading"
         :icon="ElIcons.Close"
-        @click="GlobalDialogController.close"
+        @click="() => emits('close')"
       >
         取消
       </el-button>
