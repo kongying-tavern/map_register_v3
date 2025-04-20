@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import type { TagProps } from 'element-plus'
 import { AppIconTagRenderer } from '@/components'
-import { useBinaryFlag, useRefreshTime } from '@/hooks'
-import { HIDDEN_FLAG_NAME_MAP, ICON_STYLE_NAME_MAP } from '@/shared'
+import { useRefreshTime } from '@/hooks'
+import { HIDDEN_FLAG_NAME_MAP, HiddenFlagEnum, ICON_STYLE_META_MAP, IconStyle } from '@/shared'
 import { useAreaStore, useIconTagStore } from '@/stores'
 import { Delete } from '@element-plus/icons-vue'
 
@@ -23,27 +24,26 @@ const areaName = computed(() => {
   return areaStore.areaIdMap.get(areaId!)?.name ?? `(AreaId: ${areaId})`
 })
 
+const iconStyleMeta = computed(() => {
+  return ICON_STYLE_META_MAP.get(props.data.iconStyleType!)
+})
+
+const hiddenFlagType = computed(() => {
+  const { hiddenFlag } = props.data
+  if (hiddenFlag === undefined)
+    return 'warning'
+  return {
+    [HiddenFlagEnum.SHOW]: 'success',
+    [HiddenFlagEnum.NEIGUI]: 'info',
+    [HiddenFlagEnum.EASTER]: 'primary',
+    [HiddenFlagEnum.HIDDEN]: 'danger',
+  }[hiddenFlag] as TagProps['type']
+})
+
 const { humanFriendlyTimeText } = useRefreshTime(computed(() => props.data.defaultRefreshTime), {
   toHumanFriendly: (days, hours) => {
     return `${days} 天 ${hours} 小时`
   },
-})
-
-const { isTeleportable, isIconCustomizable, isCaveEntrance } = useBinaryFlag(computed(() => props.data.specialFlag), {
-  isTeleportable: 0,
-  isIconCustomizable: 1,
-  isCaveEntrance: 2,
-})
-
-const specialProperties = computed(() => {
-  const result: string[] = []
-  if (isTeleportable.value)
-    result.push('可传送')
-  if (isIconCustomizable.value)
-    result.push('可自定义图标')
-  if (isCaveEntrance.value)
-    result.push('洞口')
-  return result
 })
 </script>
 
@@ -53,6 +53,7 @@ const specialProperties = computed(() => {
       <AppIconTagRenderer
         :src="iconTagStore.tagSpriteUrl"
         :mapping="iconTagStore.tagCoordMap.get(props.data.iconTag ?? 'unknown')"
+        :class="`type-${props.data.iconStyleType ?? IconStyle.DEFAULT}`"
         class="item-icon"
       />
 
@@ -81,20 +82,16 @@ const specialProperties = computed(() => {
     </div>
 
     <div class="mt-3 h-4 flex items-center text-xs">
-      <div class="inline-sperator">
-        {{ ICON_STYLE_NAME_MAP.get(props.data.iconStyleType!) ?? '未知图标类型' }}
+      <div class="inline-sperator" :title="iconStyleMeta?.description">
+        {{ iconStyleMeta?.name ?? '未知图标类型' }}
       </div>
       <div class="inline-sperator">
-        {{ HIDDEN_FLAG_NAME_MAP[props.data.hiddenFlag!] ?? '未知显示类型' }}
+        <el-tag :type="hiddenFlagType" size="small" disable-transitions>
+          {{ HIDDEN_FLAG_NAME_MAP[props.data.hiddenFlag!] ?? '未知显示类型' }}
+        </el-tag>
       </div>
       <div class="inline-sperator">
         {{ humanFriendlyTimeText }}
-      </div>
-    </div>
-
-    <div class="mt-2 h-4 flex items-center text-xs">
-      <div v-for="property in specialProperties" :key="property" class="inline-sperator">
-        {{ property }}
       </div>
     </div>
 
@@ -105,14 +102,18 @@ const specialProperties = computed(() => {
         <div>
           点位数量
         </div>
-        {{ props.count ?? 0 }}
+        <el-text type="primary" size="small">
+          {{ props.count ?? 0 }}
+        </el-text>
       </div>
 
       <div class="flex-1 shrink-0 flex items-center gap-2">
         <div>
           排序权重
         </div>
-        {{ props.data.sortIndex ?? '未设置' }}
+        <el-text type="primary" size="small">
+          {{ props.data.sortIndex ?? '未设置' }}
+        </el-text>
       </div>
     </div>
   </div>
@@ -122,11 +123,11 @@ const specialProperties = computed(() => {
 .item-grid-card {
   flex-shrink: 0;
   width: 260px;
-  padding: 12px;
+  padding: 10px 10px 8px;
   position: relative;
   overflow: hidden;
   border: 1px solid var(--el-border-color);
-  border-radius: 4px;
+  border-radius: 6px;
   display: flex;
   flex-direction: column;
   background-color: var(--el-bg-color);
@@ -144,14 +145,35 @@ const specialProperties = computed(() => {
 }
 
 .item-icon {
+  --icon-border: var(--el-color-info-light-9);
+  --icon-bg: var(--el-color-info-light-3);
+
   flex-shrink: 0;
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background-color: #00000020;
-  border: 4px solid white;
-  outline: 1px solid #00000020;
+  background-color: var(--icon-bg);
+  border: 4px solid var(--icon-border);
+  outline: 1px solid var(--icon-bg);
   overflow: hidden;
+
+  /** 无边框 */
+  &.type-1 {
+    --icon-bg: transparent;
+    --icon-border: transparent;
+  }
+
+  /** 类神瞳 */
+  &.type-2 {
+    --icon-bg: transparent;
+    --icon-border: transparent;
+  }
+
+  /** 类神瞳无对钩 */
+  &.type-3 {
+    --icon-bg: transparent;
+    --icon-border: transparent;
+  }
 }
 
 .inline-sperator {
