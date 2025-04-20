@@ -70,13 +70,10 @@ const { confirmDeleteMarker } = useMarkerDelete()
 // 预览点位视频
 const playBilibiliVideo = (url: string) => {
   DialogService
-    .config({
-      alignCenter: true,
-      width: 'fit-content',
-    })
     .props({
       url,
-      class: 'w-[640px] h-[360px] rounded overflow-hidden',
+      width: 640,
+      height: 360,
     })
     .open(AppBilibiliVideoPlayer)
 }

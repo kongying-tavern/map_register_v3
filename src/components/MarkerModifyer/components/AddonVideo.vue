@@ -40,7 +40,9 @@ const isAddonActive = useAddonActive(addonId, 'video')
         <AppBilibiliVideoPlayer
           v-else
           :url="cachedVideoURL"
-          class="w-[384px] h-[216px]"
+          :width="384"
+          :height="216"
+          :is-dialog="false"
         />
 
         <template v-if="videoURL !== cachedVideoURL">
@@ -61,7 +63,9 @@ const isAddonActive = useAddonActive(addonId, 'video')
           <AppBilibiliVideoPlayer
             v-else
             :url="videoURL"
-            class="w-[384px] h-[216px]"
+            :width="384"
+            :height="216"
+            :is-dialog="false"
           >
             <template #error>
               <div
