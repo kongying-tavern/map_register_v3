@@ -24,9 +24,9 @@ const { height } = useElementSize(tableRef)
       :height="height"
       table-layout="auto"
     >
-      <el-table-column label="ID" prop="id" :width="100" />
+      <el-table-column label="ID" prop="id" :width="80" />
 
-      <el-table-column label="头像" width="80" class="custom">
+      <el-table-column label="头像" :width="80">
         <template #default="{ row }">
           <div class="w-10 h-10 rounded border border-[var(--el-color-primary-light-8)] bg-[var(--el-color-primary-light-9)]">
             <img
@@ -38,7 +38,7 @@ const { height } = useElementSize(tableRef)
         </template>
       </el-table-column>
 
-      <el-table-column label="用户名" :width="150" prop="username">
+      <el-table-column label="用户名" prop="username" :width="150">
         <template #default="{ row }">
           <div
             class="
@@ -54,13 +54,9 @@ const { height } = useElementSize(tableRef)
         </template>
       </el-table-column>
 
-      <el-table-column label="昵称" :width="200" prop="nickname" show-overflow-tooltip />
+      <el-table-column label="昵称" prop="nickname" :width="200" show-overflow-tooltip />
 
-      <el-table-column label="备注" prop="remark" show-overflow-tooltip />
-
-      <el-table-column label="QQ" prop="qq" :width="150" />
-
-      <el-table-column label="手机号" prop="phone" :width="150" />
+      <el-table-column label="备注" prop="remark" :width="200" show-overflow-tooltip />
 
       <el-table-column label="角色" prop="roleId" :width="150">
         <template #default="{ row }">
@@ -70,7 +66,11 @@ const { height } = useElementSize(tableRef)
         </template>
       </el-table-column>
 
-      <el-table-column label="修改时间" prop="updateTime" :width="180" :formatter="timeFormatter" />
+      <el-table-column label="QQ" prop="qq" :width="150" />
+
+      <el-table-column label="手机号" prop="phone" :width="150" />
+
+      <el-table-column label="修改时间" prop="updateTime" :formatter="timeFormatter" />
     </el-table>
   </div>
 </template>
