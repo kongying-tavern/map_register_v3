@@ -71,6 +71,7 @@ const { formRef, submit, onSuccess: onEditSuccess } = useUserEdit(userInfoForm, 
 
 onEditSuccess(() => {
   useInfoRaw.value = JSON.parse(JSON.stringify(userInfoForm.value))
+  emits('close')
   emits('success')
 })
 
