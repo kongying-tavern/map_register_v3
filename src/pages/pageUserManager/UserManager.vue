@@ -3,18 +3,9 @@ import { PgUnit, useGlobalDialog, usePagination } from '@/hooks'
 import { ManagerModule } from '@/shared'
 import { CirclePlus } from '@element-plus/icons-vue'
 import { UserCreator, UserFilter, UserIntegratedPanel, UserTable } from './components'
-import { useRoleList, useUserList } from './hooks'
+import { useUserList } from './hooks'
 
 const { DialogService } = useGlobalDialog()
-const getDialogConfig = () => ({
-  alignCenter: true,
-  showClose: false,
-  closeOnClickModal: false,
-  closeOnPressEscape: false,
-  width: 'fit-content',
-})
-
-const { roleList, roleMap } = useRoleList()
 
 const { pagination, layout, onChange: onPaginationChange } = usePagination({
   units: [PgUnit.TOTAL, PgUnit.SIZE, PgUnit.JUMPER, PgUnit.PREV, PgUnit.PAGER, PgUnit.NEXT],
@@ -42,18 +33,12 @@ onPaginationChange(updateUserList)
 
 // ==================== 新增用户 ====================
 const openUserCreator = () => DialogService
-  .config(getDialogConfig())
   .listeners({ success: updateUserList })
   .open(UserCreator)
 
 // ==================== 编辑用户 ====================
 const openUserEditor = (data: API.SysUserVo) => DialogService
-  .config(getDialogConfig())
-  .props({
-    data,
-    roleMap,
-    roleList,
-  })
+  .props({ data })
   .listeners({
     success: updateUserList,
   })
@@ -77,7 +62,6 @@ const openUserEditor = (data: API.SysUserVo) => DialogService
 
     <UserTable
       :data="userList"
-      :role-list="roleList"
       :loading="loading"
       @view-row="openUserEditor"
     />

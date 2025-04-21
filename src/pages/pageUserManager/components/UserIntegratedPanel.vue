@@ -13,8 +13,6 @@ import UserPasswordEditor from './UserPasswordEditor.vue'
 
 const props = defineProps<{
   data: API.SysUserVo
-  roleMap: Map<number, API.SysRoleVo>
-  roleList: API.SysRoleVo[]
 }>()
 
 const emits = defineEmits<{
@@ -168,7 +166,7 @@ const { submit: submitPwsUpdate, loading: pwdUpdateLoading } = usePasswordUpdate
           <el-form-item label="角色" prop="roleId">
             <el-select-v2
               v-model="userInfoForm.roleId"
-              :options="roleList"
+              :options="userStore.roleList"
               :props="{
                 label: 'name',
                 value: 'id',

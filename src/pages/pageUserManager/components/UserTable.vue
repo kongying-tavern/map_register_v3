@@ -1,9 +1,9 @@
 <script lang="ts" setup generic="T">
+import { useUserStore } from '@/stores'
 import { timeFormatter } from '@/utils'
 
-const props = defineProps<{
+defineProps<{
   loading: boolean
-  roleList: API.SysRoleVo[]
   data: T[]
 }>()
 
@@ -11,7 +11,7 @@ const emits = defineEmits<{
   viewRow: [T]
 }>()
 
-const roleMap = computed(() => Object.fromEntries(props.roleList.map(role => [role.id!, role])))
+const userStore = useUserStore()
 
 const tableRef = ref<HTMLElement>()
 const { height } = useElementSize(tableRef)
@@ -54,7 +54,7 @@ const { height } = useElementSize(tableRef)
         </template>
       </el-table-column>
 
-      <el-table-column label="昵称" :width="100" prop="nickname" show-overflow-tooltip />
+      <el-table-column label="昵称" :width="200" prop="nickname" show-overflow-tooltip />
 
       <el-table-column label="备注" prop="remark" show-overflow-tooltip />
 
@@ -65,7 +65,7 @@ const { height } = useElementSize(tableRef)
       <el-table-column label="角色" prop="roleId" :width="150">
         <template #default="{ row }">
           <el-tag disable-transitions>
-            {{ roleMap[row.roleId]?.name ?? '...' }}
+            {{ userStore.roleMap.get(row.roleId!)?.name ?? '...' }}
           </el-tag>
         </template>
       </el-table-column>
