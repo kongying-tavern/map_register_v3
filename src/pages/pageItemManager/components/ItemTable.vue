@@ -1,12 +1,11 @@
 <script lang="ts" setup>
-import { AppRowImage, AppUserPopover } from '@/components'
-import { useUserPopover } from '@/hooks'
-import { HiddenFlagEnum } from '@/shared'
+import { AppRowImage } from '@/components'
+import { HiddenFlagEnum, ICON_STYLE_META_MAP } from '@/shared'
 import { useAreaStore, useIconTagStore, useItemTypeStore } from '@/stores'
 import { refreshTimeFormatter, timeFormatter } from '@/utils'
 import { Delete } from '@element-plus/icons-vue'
 
-const props = defineProps<{
+defineProps<{
   loading: boolean
   itemList: API.ItemVo[]
   userMap: Record<string, API.SysUserSmallVo>
@@ -46,10 +45,6 @@ const hiddenFlagMap: Record<number, string> = {
   [HiddenFlagEnum.NEIGUI]: '测试服',
 }
 
-const { IDENTIFICATION_SYMBOL, triggerRef, userData, trigger, close } = useUserPopover({
-  getUser: userId => props.userMap[userId],
-})
-
 // ==================== 事件代理 ====================
 const proxySelectionChange = (selections: API.ItemVo[]) => {
   emits('selectionChange', selections)
@@ -62,11 +57,7 @@ const proxySelectionChange = (selections: API.ItemVo[]) => {
     v-loading="loading"
     class="flex-1 overflow-hidden px-2"
     element-loading-text="加载中..."
-    @pointerover="trigger"
-    @pointerout="close"
   >
-    <AppUserPopover :trigger-ref="triggerRef" :data="userData" />
-
     <el-table
       :data="itemList"
       :width="width"
@@ -87,7 +78,13 @@ const proxySelectionChange = (selections: API.ItemVo[]) => {
         </template>
       </el-table-column>
 
-      <el-table-column label="物品名称" prop="name" width="200" />
+      <el-table-column label="物品名称" prop="name" :width="150" />
+
+      <el-table-column label="图标类型" :width="150">
+        <template #default="{ row }">
+          {{ ICON_STYLE_META_MAP.get(row.iconStyleType)?.name }}
+        </template>
+      </el-table-column>
 
       <el-table-column label="所属地区" width="150">
         <template #default="{ row }">
@@ -97,15 +94,11 @@ const proxySelectionChange = (selections: API.ItemVo[]) => {
 
       <el-table-column label="物品类型" width="150">
         <template #default="{ row }">
-          <el-tag v-for="typeId in row.typeIdList" :key="typeId" disable-transitions type="success" class="mr-1">
+          <el-tag v-for="typeId in row.typeIdList" :key="typeId" disable-transitions type="primary" class="mr-1">
             {{ itemTypeStore.itemTypeIdMap.get(typeId)?.name ?? 'unknown' }}
           </el-tag>
         </template>
       </el-table-column>
-
-      <el-table-column label="描述模板" prop="defaultContent" width="200" show-overflow-tooltip />
-
-      <el-table-column label="刷新时间" prop="defaultRefreshTime" width="100" :formatter="refreshTimeFormatter" />
 
       <el-table-column label="显示类型" prop="hiddenFlag" width="100">
         <template #default="{ row }">
@@ -113,29 +106,21 @@ const proxySelectionChange = (selections: API.ItemVo[]) => {
         </template>
       </el-table-column>
 
-      <el-table-column label="创建人" prop="creatorId" width="100">
+      <el-table-column label="描述模板" prop="defaultContent" width="200" show-overflow-tooltip />
+
+      <el-table-column label="刷新时间" prop="defaultRefreshTime" width="100" :formatter="refreshTimeFormatter" />
+
+      <el-table-column label="创建人" prop="creatorId" :width="150">
         <template #default="{ row }">
-          <el-tag
-            disable-transitions
-            :data-symbol="IDENTIFICATION_SYMBOL"
-            :data-user-id="row.creatorId"
-          >
-            {{ userMap[row.creatorId]?.nickname ?? `(id: ${row.creatorId})` }}
-          </el-tag>
+          {{ userMap[row.creatorId]?.nickname ?? `(id: ${row.creatorId})` }}
         </template>
       </el-table-column>
 
       <el-table-column label="创建时间" prop="createTime" width="170" :formatter="timeFormatter" />
 
-      <el-table-column label="修改人" prop="updaterId" width="100">
+      <el-table-column label="修改人" prop="updaterId" :width="150">
         <template #default="{ row }">
-          <el-tag
-            disable-transitions
-            :data-symbol="IDENTIFICATION_SYMBOL"
-            :data-user-id="row.updaterId"
-          >
-            {{ userMap[row.updaterId]?.nickname ?? `(id: ${row.updaterId})` }}
-          </el-tag>
+          {{ userMap[row.updaterId]?.nickname ?? `(id: ${row.updaterId})` }}
         </template>
       </el-table-column>
 
