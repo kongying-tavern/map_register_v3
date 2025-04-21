@@ -221,7 +221,7 @@ useResizeObserver(containerRef, useDebounceFn(([entry]) => {
 
 watch([sortKey, sortType], () => {
   sheetRef.value?.setDataCfg(buildDataConfig(rawData.value), false)
-  sheetRef.value?.render(false)
+  sheetRef.value?.render(true)
 })
 
 watch(rawData, (data) => {
