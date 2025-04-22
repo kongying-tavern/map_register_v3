@@ -23,7 +23,7 @@ const modelValue = defineModel<MAFValueStringArray>('modelValue', {
     <span class="flex-none">点位关联包含</span>
     <SelectBase
       v-model="modelValue.sa"
-      :options="options"
+      :options="options.options"
     >
       <MarkerFilterButton theme="dark">
         <template #icon>
