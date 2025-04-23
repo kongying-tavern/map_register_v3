@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { InputInstance } from 'element-plus'
-import { useItemStore } from '@/stores'
+import { useDadianStore, useItemStore } from '@/stores'
 import { Setting } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { AddonTeleporter } from '.'
@@ -18,6 +18,7 @@ const emits = defineEmits<{
   (e: 'update:addonId', v: string): void
 }>()
 
+const dadianStore = useDadianStore()
 const itemStore = useItemStore()
 
 const isAddonActived = computed({
@@ -39,7 +40,7 @@ const selectedItems = computed(() => {
 
 // ==================== 将填充字符插入到已有的文本中 ====================
 /** 快捷标点 */
-const characters = ['「', '」', '《', '》', '【', '】', ' · ', '…', '×']
+const characters = computed(() => dadianStore.raw.editor?.quickInputSnippets ?? [])
 
 /** 选区 */
 const selection = reactive({ start: 0, end: 0 })
