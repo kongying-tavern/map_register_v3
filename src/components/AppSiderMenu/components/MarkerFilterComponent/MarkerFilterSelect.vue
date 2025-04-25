@@ -31,7 +31,7 @@ const openDialog = () => {
     dialogValue.value = modelValue.value
     const controller = DialogService
       .props({
-        modelValue: dialogValue,
+        modelValue: toValue(dialogValue),
         title: props.dialogTitle,
         listClass: props.dialogListClass,
         list: props.list,
@@ -58,7 +58,7 @@ const openDialog = () => {
     dialogValue.value = modelValue.value
     const controller = DialogService
       .props({
-        modelValue: dialogValue,
+        modelValue: toValue(dialogValue),
         title: props.dialogTitle,
         listClass: props.dialogListClass,
         list: props.list,
