@@ -38,9 +38,9 @@ const idText = computed(() => {
 })
 
 const copyId = async () => {
-  const idStr = toValue(idText)
-  if (!idStr)
+  if (props.markerInfo?.id === undefined)
     return
+  const idStr = `${props.markerInfo?.id}`
   await navigator.clipboard.writeText(idStr)
   ElMessage.success({
     message: `"${idStr}" 已复制到剪贴板`,
