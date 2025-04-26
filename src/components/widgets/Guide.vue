@@ -11,17 +11,11 @@
 </template>
 
 <script>
-import { auth_guide } from "src/service/guide_request";
-
 export default {
   name: "PluginGuide",
   methods: {
     open_guide() {
-      auth_guide().then((res) => {
-        if (res) {
-          window.open(import.meta.env.VITE_GUIDE_URL, "_blank");
-        }
-      });
+      window.open(import.meta.env.VITE_GUIDE_URL, "_blank");
     },
   },
 };
