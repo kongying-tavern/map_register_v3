@@ -24,4 +24,5 @@ export interface GlobalDialogServiceImpl {
 export interface GlobalDialogControllerImpl {
   close: <T>(payload?: T) => void
   afterClosed: <T = undefined>() => Promise<T>
+  updateProps: (props: AnyObject) => void
 }

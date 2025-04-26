@@ -1,3 +1,4 @@
+import type { AnyObject } from '@/shared'
 import type { GlobalDialogService } from './GlobalDialogService'
 import type { GlobalDialogControllerImpl } from './types'
 import { context } from './context'
@@ -26,4 +27,13 @@ export class GlobalDialogController implements GlobalDialogControllerImpl {
       context.resolves.set(id, [])
     context.resolves.get(id)!.push(resolve as (value: unknown) => void)
   })
+
+  updateProps = (props: AnyObject) => {
+    if (!context.current.value || context.current.value?.id !== this.#instance._getId())
+      return
+    context.current.value.props = {
+      ...context.current.value.props,
+      ...props,
+    }
+  }
 }
