@@ -108,6 +108,7 @@ export const useUserStore = defineStore('global-user', () => {
   const clearLoginState = () => {
     auth.value = {}
     info.value = null
+    logoutMessageHandler.value?.close()
   }
 
   const validateToken = () => {
@@ -123,7 +124,7 @@ export const useUserStore = defineStore('global-user', () => {
     logoutMessageHandler.value = ElMessage({
       type: 'warning',
       message: '已退出',
-      duration: 0,
+      duration: 10 * 1000,
       showClose: true,
       onClose: () => {
         logoutMessageHandler.value = undefined
