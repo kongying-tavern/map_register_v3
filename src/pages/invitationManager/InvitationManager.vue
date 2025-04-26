@@ -6,6 +6,7 @@ import { ManagerModule } from '@/shared'
 import { useUserStore } from '@/stores'
 import { timeFormatter } from '@/utils'
 import * as ElIcons from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 import { InvitationEditor } from './components'
 import InvitationDeleteConfirm from './components/InvitationDeleteConfirm.vue'
 import InvitationHeader from './components/InvitationHeader.vue'
@@ -70,9 +71,6 @@ onPaginationChange(refresh)
 const openInvitationCreator = () => {
   DialogService
     .config({
-      alignCenter: true,
-      closeOnClickModal: true,
-      closeOnPressEscape: false,
       width: 300,
     })
     .props({
@@ -87,9 +85,6 @@ const openInvitationCreator = () => {
 const openInvitationEditor = (data: API.SysUserInvitationVo) => {
   DialogService
     .config({
-      alignCenter: true,
-      closeOnClickModal: true,
-      closeOnPressEscape: false,
       width: 300,
     })
     .props({
@@ -105,9 +100,6 @@ const openInvitationEditor = (data: API.SysUserInvitationVo) => {
 const openInvitationDeleteConfirm = (data: API.SysUserInvitationVo) => {
   DialogService
     .config({
-      alignCenter: true,
-      closeOnClickModal: true,
-      closeOnPressEscape: false,
       width: 300,
     })
     .props({
@@ -119,10 +111,18 @@ const openInvitationDeleteConfirm = (data: API.SysUserInvitationVo) => {
     .open(InvitationDeleteConfirm)
 }
 
+const copyInvitationCode = async (data: API.SysUserInvitationVo) => {
+  if (!data.code)
+    return
+  await navigator.clipboard.writeText(data.code)
+  ElMessage.success('已复制邀请码到剪贴板')
+}
+
 const handleRowClick = (data: API.SysUserInvitationVo, col: { property?: string } = {}) => {
   const { property = '' } = col
   return ({
     username: () => openInvitationEditor(data),
+    code: () => copyInvitationCode(data),
   } as Record<string, () => void>)[property]?.()
 }
 
@@ -229,6 +229,13 @@ const userFormatter = (...{ 2: uid = -1 }) => {
 
       &:hover {
         text-decoration-style: solid;
+      }
+    }
+
+    &.prop-code {
+      cursor: pointer;
+      &:hover {
+        color: var(--el-color-primary);
       }
     }
   }
