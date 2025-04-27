@@ -16,13 +16,14 @@ const modelValue = defineModel<ValueType | ValueType[] | null | undefined>('mode
 
 <template>
   <MarkerFilterSelect
-    v-model="modelValue"
+    :value="modelValue"
     :multiple="options.optionSelectMultiple"
     :list="options.options"
     :label-key="options.optionLabel"
     :value-key="options.optionValue"
     :dialog-title="options.dialogTitle"
     :dialog-list-class="options.dialogListClass"
+    @change="(v) => modelValue = v"
   >
     <template v-if="$slots.default">
       <slot />

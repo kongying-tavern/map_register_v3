@@ -3,35 +3,30 @@ import { useGlobalDialog } from '@/hooks'
 import MultiDialog from './MarkerFilterSelectMultiDialog.vue'
 import SingleDialog from './MarkerFilterSelectSingleDialog.vue'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
+  value?: V | V[] | null
   multiple?: boolean
   list: T[]
   labelKey: K
   valueKey: K
   dialogTitle?: string
   dialogListClass?: string
-}>()
+}>(), {
+  value: null,
+})
 
 const emits = defineEmits<{
   change: [v: V | V[]]
   cancel: []
 }>()
 
-const modelValue = defineModel<V | V[]>('modelValue', {
-  required: false,
-  default: null,
-})
-
 const { DialogService } = useGlobalDialog()
-
-const dialogValue: Ref<V | V[] | undefined> = ref(undefined)
 
 const openDialog = () => {
   if (props.multiple) {
-    dialogValue.value = modelValue.value
     const controller = DialogService
       .props({
-        modelValue: toValue(dialogValue),
+        modelValue: props.value,
         title: props.dialogTitle,
         listClass: props.dialogListClass,
         list: props.list,
@@ -39,15 +34,11 @@ const openDialog = () => {
         valueKey: props.valueKey,
       })
       .listeners({
-        'update:modelValue': (v) => {
-          dialogValue.value = v as V[]
-        },
-        'confirm': (v) => {
-          modelValue.value = v as V[]
+        confirm: (v) => {
           emits('change', v as V[])
           controller.close()
         },
-        'cancel': () => {
+        cancel: () => {
           emits('cancel')
           controller.close()
         },
@@ -55,10 +46,9 @@ const openDialog = () => {
       .open(MultiDialog)
   }
   else {
-    dialogValue.value = modelValue.value
     const controller = DialogService
       .props({
-        modelValue: toValue(dialogValue),
+        modelValue: props.value,
         title: props.dialogTitle,
         listClass: props.dialogListClass,
         list: props.list,
@@ -66,15 +56,11 @@ const openDialog = () => {
         valueKey: props.valueKey,
       })
       .listeners({
-        'update:modelValue': (v) => {
-          dialogValue.value = v as V
-        },
-        'confirm': (v) => {
-          modelValue.value = v as V
+        confirm: (v) => {
           emits('change', v as V)
           controller.close()
         },
-        'cancel': () => {
+        cancel: () => {
           emits('cancel')
           controller.close()
         },
