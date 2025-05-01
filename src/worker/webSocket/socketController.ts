@@ -121,7 +121,7 @@ export class SocketController {
     // 连接关闭与重连
     this.close$.pipe(
       tap((ev) => {
-        socketLogger.info(`Close: ${ev.reason}`)
+        socketLogger.info(`Close: "${ev.reason}"`)
         this.#instance = undefined
         broadcast({
           event: SocketWorkerEvent.StatusChange,
@@ -132,11 +132,13 @@ export class SocketController {
       // 当关闭原因为如下时，不进行重连
       filter((ev) => {
         const { reason } = ev
-        return ![
+        const isReconnect = ![
           SocketCloseReason.CLOSED_BY_USER,
           SocketCloseReason.URL_CHANGED,
           SocketCloseReason.ALL_PORTS_CLOSED,
         ].includes(reason as SocketCloseReason)
+        !isReconnect && socketLogger.info(`Reconnect: Blocked because reason "${reason}"`)
+        return isReconnect
       }),
 
       switchMap(() => {
