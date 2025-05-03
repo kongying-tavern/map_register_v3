@@ -23,6 +23,19 @@ export class GlobalDialogService implements GlobalDialogServiceImpl {
 
   #component?: Component
 
+  #reset = () => {
+    this.#config = {
+      width: 'fit-content',
+      showClose: false,
+      alignCenter: true,
+      closeOnClickModal: false,
+      closeOnPressEscape: false,
+    }
+    this.#props = {}
+    this.#listeners = {}
+    this.#component = undefined
+  }
+
   constructor() {
     this.#id = crypto.randomUUID()
   }
@@ -72,6 +85,10 @@ export class GlobalDialogService implements GlobalDialogServiceImpl {
   open = (comp: Component) => {
     this.#component = comp
     context.open(this)
-    return new GlobalDialogController(this)
+    const controller = new GlobalDialogController(this)
+    controller.afterClosed().then(() => {
+      this.#reset()
+    })
+    return controller
   }
 }
