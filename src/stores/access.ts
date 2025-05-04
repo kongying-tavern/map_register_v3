@@ -33,6 +33,9 @@ export const ACCESS_BINARY_MASK = {
   /** 打点员组件 */
   PUNCTUATE_COMPONENT: 0b101100,
 
+  /** 普通用户组件 */
+  NORMAL_COMPONENT: 0b111111,
+
   /** 点位关联 */
   MARKER_LINK: 0b110000,
 

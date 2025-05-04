@@ -114,6 +114,13 @@ const WINDOW_LIST: ManagerModuleOption[] = [
     comp: defineAsyncComponent(() => import('@/pages/pageHistory/PageHistory.vue')),
     role: 'MANAGER_COMPONENT',
   },
+  {
+    name: '用户手册',
+    hook: useAppWindow({ name: '用户手册', ...commonWindowOptions }),
+    icon: ElIcons.Reading,
+    comp: defineAsyncComponent(() => import('@/pages/document/PageDocument.vue')),
+    role: 'NORMAL_COMPONENT',
+  },
 ]
 
 const FEATURE_OPTIONS: FeatureGroupOption[] = [

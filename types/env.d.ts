@@ -5,6 +5,9 @@ interface ImportMetaEnv {
   /** 标题 */
   readonly VITE_TITLE: string
 
+  /** 内嵌文档地址  */
+  readonly VITE_DOCUMENT_URL: string
+
   /** @dev 是否启用 HTTPS */
   readonly VITE_HTTPS?: string
 
