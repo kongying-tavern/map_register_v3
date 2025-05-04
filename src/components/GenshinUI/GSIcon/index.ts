@@ -1,2 +1,5 @@
 export { default as CloseFilled } from './CloseFilled.vue'
 export { default as ExitLeft } from './ExitLeft.vue'
+export { default as LeftRegular } from './LeftRegular.vue'
+export { default as MenuRegular } from './MenuRegular.vue'
+export { default as RightRegular } from './RightRegular.vue'

@@ -1,11 +1,20 @@
 <script setup lang="ts">
-import { AppRichtextEditor, GSButton } from '@/components'
-import { CloseFilled } from '@/components/GenshinUI/GSIcon'
+import { GSButton } from '@/components'
+import { CloseFilled, LeftRegular, RightRegular } from '@/components/GenshinUI/GSIcon'
 import { useNoticeStore } from '@/stores'
 import { context } from '../context'
+import NoticeDetail from './NoticeDetail.vue'
 import NoticeTitle from './NoticeTitle.vue'
 
 const noticeStore = useNoticeStore()
+
+const isMobileScreen = useMediaQuery('screen and (max-width: 400px)')
+
+const isSiderCollapsed = ref(false)
+
+watch(isMobileScreen, () => {
+  isSiderCollapsed.value = true
+})
 
 const handleTitleSelect = (notice: API.NoticeVo) => {
   noticeStore.read(notice.id!)
@@ -16,9 +25,20 @@ const handleTitleSelect = (notice: API.NoticeVo) => {
 <template>
   <div class="card-body">
     <div class="card-header">
+      <div v-if="isMobileScreen" class="absolute left-0 top-0 w-[60px] h-[60px] flex items-center p-4">
+        <GSButton theme="plain" @click="isSiderCollapsed = !isSiderCollapsed">
+          <template #icon>
+            <el-icon color="var(--icon-color)" :size="20">
+              <component :is="isSiderCollapsed ? RightRegular : LeftRegular" />
+            </el-icon>
+          </template>
+        </GSButton>
+      </div>
+
       <div class="title">
         公告
       </div>
+
       <div class="absolute top-1/2 right-[16px] -translate-y-1/2">
         <GSButton theme="plain" @click="() => context.close()">
           <template #icon>
@@ -31,7 +51,12 @@ const handleTitleSelect = (notice: API.NoticeVo) => {
     </div>
 
     <div class="card-content">
-      <div class="sider">
+      <div
+        class="sider"
+        :class="{
+          'is-collapsed': isSiderCollapsed,
+        }"
+      >
         <NoticeTitle
           v-for="notice in noticeStore.noticeList"
           :key="notice.id"
@@ -42,30 +67,7 @@ const handleTitleSelect = (notice: API.NoticeVo) => {
         />
       </div>
 
-      <div v-if="!noticeStore.selected" class="detail">
-        No content
-      </div>
-
-      <div v-else class="detail">
-        <div class="detail-title">
-          {{ noticeStore.selected.title }}
-        </div>
-        <AppRichtextEditor
-          class="flex-1"
-          :model-value="noticeStore.selected.content"
-          :base-text-size="20"
-          :headers="[2, 4]"
-          :view-line-height="1.5"
-          :view-zoom="0.75"
-          readonly
-          default-foreground="#656565"
-          default-background="transparent"
-          view-font="MHYG, sans-serif"
-          scrollbar-color="#D8D7D5"
-          scrollbar-thumb-color="#FFF"
-          scrollbar-width="8px"
-        />
-      </div>
+      <NoticeDetail :data="noticeStore.selected" />
     </div>
   </div>
 </template>
@@ -79,6 +81,10 @@ const handleTitleSelect = (notice: API.NoticeVo) => {
   flex-direction: column;
   transform: scale(var(--dialog-body-scale));
   transition: transform var(--dialog-body-tr-timing) var(--dialog-body-tr-duration);
+  position: relative;
+  @media screen and (max-width: 400px) {
+    height: 100dvh;
+  }
 }
 
 .card-header {
@@ -118,46 +124,46 @@ const handleTitleSelect = (notice: API.NoticeVo) => {
   flex-shrink: 0;
   display: flex;
   overflow: hidden;
+  position: relative;
+  padding-left: 200px;
+  @media screen and (max-width: 400px) {
+    padding-left: 0px;
+  }
 }
 
 .sider {
   width: 200px;
   height: 100%;
   overflow: auto;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-}
-
-.detail {
-  --padding: 2px;
-  --line-color: #F5F0EA;
-
-  flex: 1;
-  flex-shrink: 0;
-  background: #F9F6F2;
-  position: relative;
-  padding: 16px;
-  overflow: auto;
-  display: flex;
-  height: 100%;
-  overflow: hidden;
-  flex-direction: column;
-
-  --link-underline-color: #8cb4ff;
-  --link-bg-color: #f5edd5;
-  --link-bg-color-hover: #d5e0f7;
-  outline: none;
-  min-height: 100%;
-  color: var(--el-text-color-primary);
-}
-
-.detail-title {
-  font-size: 24px;
-  line-height: 1.2em;
-  padding-bottom: 12px;
-  border-bottom: 2px solid #CBC2B040;
-  margin-bottom: 16px;
-  color: #656565;
+  padding: 12px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  filter: none;
+  backdrop-filter: blur(2px);
+  transform: translateX(0%);
+  transition: transform ease 150ms;
+  z-index: 1;
+  @media screen and (max-width: 400px) {
+    background-color: #EBE7DFA0;
+    filter: drop-shadow(0 0 8px #33333380);
+    &.is-collapsed {
+      transform: translateX(-100%);
+      filter: none;
+    }
+  }
+  &::-webkit-scrollbar {
+    width: 8px;
+    background-color: #D8D7D5;
+    border-radius: 8px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: #FFF;
+    border-radius: 8px;
+    border: 1px solid #D8D7D5;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: color-mix(in srgb, #FFF 90%, transparent 10%);
+  }
 }
 </style>

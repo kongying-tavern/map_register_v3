@@ -7,10 +7,7 @@ const selectedNotice = shallowRef<API.NoticeVo>()
 
 <template>
   <dialog :ref="context.dialogRef" class="app-notice-provider font-['HYWenHei-85W']">
-    <NoticeCard
-      v-model:selected-notice="selectedNotice"
-      :context="context"
-    />
+    <NoticeCard v-model:selected-notice="selectedNotice" />
   </dialog>
 </template>
 

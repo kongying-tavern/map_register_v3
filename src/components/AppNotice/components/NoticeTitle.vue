@@ -31,6 +31,12 @@ const emits = defineEmits<{
 
 <style scoped>
 .notice-title {
+  --mb: 0;
+
+  &:not(:last-of-type) {
+    --mb: 12px;
+  }
+
   :deep(.el-badge__content) {
     border: none;
     filter: drop-shadow(0 0 1px #E6445E);
@@ -71,7 +77,7 @@ const emits = defineEmits<{
   filter: drop-shadow(0 0 4px #33333340);
   cursor: pointer;
   user-select: none;
-  margin: 0 0 12px;
+  margin: 0 0 var(--mb);
   height: 50px;
   line-height: 50px;
   white-space: nowrap;
