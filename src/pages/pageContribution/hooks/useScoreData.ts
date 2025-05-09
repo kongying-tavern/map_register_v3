@@ -16,7 +16,7 @@ export const useScoreData = (options: ScoreDataHookOptions) => {
   const { note, timeRange, abortController } = options
 
   const hook = useFetchHook({
-    immediate: true,
+    immediate: false,
     initialValue: [],
     onRequest: async () => {
       const [rangeStartTime, rangeEndTime] = timeRange.value

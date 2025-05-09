@@ -49,8 +49,6 @@ const { data: rawData, loading, refresh, onSuccess, onError } = useScoreData({
   abortController,
 })
 
-watch(timeRange, () => refresh())
-
 onSuccess(() => {
   note.value = '完成'
 })
@@ -246,6 +244,7 @@ watch(isDark, (dark) => {
       <el-date-picker
         v-model="timeRange"
         type="datetimerange"
+        :disabled="loading"
         :disabled-date
         :clearable="false"
         :value-on-clear="false"
@@ -254,6 +253,10 @@ watch(isDark, (dark) => {
         :shortcuts="shortcuts"
         style="max-width: 400px;"
       />
+
+      <el-button :loading="loading" @click="refresh">
+        开始统计
+      </el-button>
     </div>
 
     <div
