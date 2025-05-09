@@ -27,7 +27,9 @@
 
   "files.eol": "\r\n",
   "files.associations": {
-    ".env*": "dotenv"
+    ".env": "dotenv",
+    ".env.*": "dotenv",
+    ".env.*.local": "dotenv",
   },
 
   "css.validate": false,
