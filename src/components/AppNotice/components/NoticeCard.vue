@@ -10,7 +10,7 @@ const noticeStore = useNoticeStore()
 
 const isMobileScreen = useMediaQuery('screen and (max-width: 400px)')
 
-const isSiderCollapsed = ref(false)
+const isSiderCollapsed = ref(isMobileScreen.value)
 
 watch(isMobileScreen, () => {
   isSiderCollapsed.value = true
