@@ -55,6 +55,7 @@ export class GSMarkerLayer extends CompositeLayer<GSMarkerLayerProps> {
       focusMarkerIds,
       markedMarkerIds,
       rewritePositions,
+      transparentMarked,
     } = this.props
 
     const isInteraction = (id: number) => {
@@ -84,6 +85,8 @@ export class GSMarkerLayer extends CompositeLayer<GSMarkerLayerProps> {
 
     const sizeMaxPixels = 40 * 2 ** (zoom + 2)
 
+    const markeredOpacity = transparentMarked ? 80 : 255
+
     return [
       new GSMarkerRenderLayer({
         id: `${this.id}-bottom`,
@@ -96,13 +99,13 @@ export class GSMarkerLayer extends CompositeLayer<GSMarkerLayerProps> {
         getIconFlag,
         getPosition,
         getSize: 40,
-        getColor: ({ id }) => [0, 0, 0, isInteraction(id!) ? 0 : isMarked(id!) ? 128 : 255],
+        getColor: ({ id }) => [0, 0, 0, isInteraction(id!) ? 0 : isMarked(id!) ? markeredOpacity : 255],
         sizeScale: 1,
         sizeMaxPixels,
         sizeMinPixels: 4,
         updateTriggers: {
           getIconFlag: [markedMarkerIds, focusMarkerIds],
-          getColor: [focusMarkerIds, hoverMarkerIds],
+          getColor: [focusMarkerIds, hoverMarkerIds, markeredOpacity],
           getPosition: [rewritePositions],
         },
       }),
@@ -123,7 +126,7 @@ export class GSMarkerLayer extends CompositeLayer<GSMarkerLayerProps> {
         sizeMinPixels: 4,
         updateTriggers: {
           getIconFlag: [markedMarkerIds, focusMarkerIds, hoverMarkerIds],
-          getColor: [focusMarkerIds, hoverMarkerIds],
+          getColor: [focusMarkerIds, hoverMarkerIds, markeredOpacity],
           getPosition: [rewritePositions],
         },
       }),
