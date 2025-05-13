@@ -34,17 +34,8 @@ onPaginationChange(refresh)
 
 const { DialogService } = useGlobalDialog()
 
-const SHARED_CONFIG = {
-  alignCenter: true,
-  closeOnClickModal: false,
-  closeOnPressEscape: false,
-}
-
 const handleCreateNotice = () => {
   DialogService
-    .config({
-      ...SHARED_CONFIG,
-    })
     .props({
       status: 'create',
     })
@@ -56,9 +47,6 @@ const handleCreateNotice = () => {
 
 const handleReviewNotice = (notice: API.NoticeVo) => {
   DialogService
-    .config({
-      ...SHARED_CONFIG,
-    })
     .props({
       notice,
       status: 'update',
@@ -71,9 +59,6 @@ const handleReviewNotice = (notice: API.NoticeVo) => {
 
 const handleDeleteNotice = (notice: API.NoticeVo) => {
   DialogService
-    .config({
-      ...SHARED_CONFIG,
-    })
     .props({
       title: '删除公告',
       notice,
