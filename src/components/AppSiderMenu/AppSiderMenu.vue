@@ -114,13 +114,6 @@ const WINDOW_LIST: ManagerModuleOption[] = [
     comp: defineAsyncComponent(() => import('@/pages/pageHistory/PageHistory.vue')),
     role: 'MANAGER_COMPONENT',
   },
-  {
-    name: '用户手册',
-    hook: useAppWindow({ name: '用户手册', ...commonWindowOptions }),
-    icon: ElIcons.Reading,
-    comp: defineAsyncComponent(() => import('@/pages/document/PageDocument.vue')),
-    role: 'NORMAL_COMPONENT',
-  },
 ]
 
 const FEATURE_OPTIONS: FeatureGroupOption[] = [
@@ -172,6 +165,12 @@ watch(isLogin, (login) => {
 const handleAvatarClick = () => {
   DialogService.open(isLogin.value ? AppUserInfo : AppLogin)
 }
+
+const ManualInfo = defineAsyncComponent(() => import('@/pages/document/PageDocument.vue'))
+const { isOpen: isManulOpen, info: manualInfo, toggle: toggleManual } = useAppWindow({
+  name: '用户手册',
+  ...commonWindowOptions,
+})
 </script>
 
 <template>
@@ -186,6 +185,12 @@ const handleAvatarClick = () => {
         <component :is="appWindow.comp" />
       </AppWindowTeleporter>
     </template>
+    <AppWindowTeleporter
+      v-if="accessStore.get('NORMAL_COMPONENT')"
+      :info="manualInfo"
+    >
+      <ManualInfo />
+    </AppWindowTeleporter>
 
     <SiderMenuItem name="filter" :label="isAdvancedFilter ? '高级筛选' : '基础筛选'">
       <template #icon>
@@ -242,6 +247,20 @@ const handleAvatarClick = () => {
     </SiderMenuItem>
 
     <template #footer>
+      <SiderMenuItem
+        v-if="accessStore.get('NORMAL_COMPONENT')"
+        label="用户手册"
+        @click="toggleManual"
+      >
+        <template #icon="{ color }">
+          <div class="w-full h-full">
+            <el-icon :color="isManulOpen ? '#68B11E' : color" :size="38">
+              <ElIcons.Reading />
+            </el-icon>
+          </div>
+        </template>
+      </SiderMenuItem>
+
       <SiderMenuItem v-if="accessStore.get('MANAGER_COMPONENT')" name="features" label="系统管理" :icon="ElIcons.Grid">
         <FeatureGrid :features="featuresWithRole" />
       </SiderMenuItem>
