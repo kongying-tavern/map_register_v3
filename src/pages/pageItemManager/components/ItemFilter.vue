@@ -3,7 +3,7 @@ import type { ItemQueryForm } from '../hooks'
 import { AppDropdown } from '@/components'
 import { IconListView } from '@/components/AppIcons'
 import { useAreaStore, useItemTypeStore } from '@/stores'
-import { CirclePlus, Menu } from '@element-plus/icons-vue'
+import { CirclePlus, Menu, RefreshRight } from '@element-plus/icons-vue'
 import { ExplorerType } from '../shared'
 
 defineProps<{
@@ -13,6 +13,7 @@ defineProps<{
 defineEmits<{
   create: []
   change: []
+  refresh: []
 }>()
 
 const modelValue = defineModel<ItemQueryForm>('modelValue', {
@@ -56,7 +57,7 @@ const dropdownKey = ref('')
     :disabled="loading"
     @submit.prevent=""
   >
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8">
+    <div class="flow-grid grid gap-y-1 gap-x-8">
       <el-form-item label="物品名称" style="margin-bottom: 0">
         <el-input
           v-model="modelValue.name"
@@ -91,6 +92,15 @@ const dropdownKey = ref('')
 
       <el-form-item label-width="0px" style="margin-bottom: 0">
         <div class="w-full flex items-center justify-end">
+          <el-button
+            :loading="loading"
+            :icon="RefreshRight"
+            text
+            @click="() => $emit('refresh')"
+          >
+            刷新
+          </el-button>
+
           <AppDropdown
             v-model="dropdownKey"
             dropdown-key="filter"
@@ -138,3 +148,9 @@ const dropdownKey = ref('')
     </div>
   </el-form>
 </template>
+
+<style scoped>
+.flow-grid {
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+</style>

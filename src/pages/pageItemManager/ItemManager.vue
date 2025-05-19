@@ -74,19 +74,11 @@ const confirmDelete = (item: API.ItemVo) => {
       :loading="itemLoading"
       @change="resetCurrent"
       @create="openItemCreatorDialog"
+      @refresh="updateItemList"
     />
 
-    <ItemTable
-      v-if="explorerType === ExplorerType.List"
-      :item-list="itemList"
-      :loading="itemLoading"
-      :user-map="userMap"
-      @review="openItemEditorDialog"
-      @delete="confirmDelete"
-    />
-
-    <ItemGridExplorer
-      v-else-if="explorerType === ExplorerType.Grid"
+    <component
+      :is="explorerType === ExplorerType.List ? ItemTable : ItemGridExplorer"
       :item-list="itemList"
       :loading="itemLoading"
       :user-map="userMap"
