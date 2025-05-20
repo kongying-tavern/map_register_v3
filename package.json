@@ -68,7 +68,7 @@
     "@tsconfig/node18": "18.2.4",
     "@types/json-schema": "7.0.15",
     "@types/lodash": "4.14.200",
-    "@types/node": "18.15.11",
+    "@types/node": "22.15.19",
     "@types/serviceworker": "0.0.76",
     "@types/ua-parser-js": "0.7.39",
     "@vitejs/plugin-basic-ssl": "1.1.0",
