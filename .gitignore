@@ -1,5 +1,9 @@
+# OS file
 .DS_Store
 .thumbs.db
+Microsoft
+
+# deps
 node_modules
 
 # build
