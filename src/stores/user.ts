@@ -1,14 +1,14 @@
 import type { MessageHandler } from 'element-plus'
+import { ElMessage } from 'element-plus'
+import { camelCase } from 'lodash'
+import { defineStore } from 'pinia'
+import { defer, lastValueFrom, retry } from 'rxjs'
 import Api from '@/api/api'
 import Oauth from '@/api/oauth'
 import { AppLogin } from '@/components'
 import { useFetchHook, useGlobalDialog } from '@/hooks'
 import { ROLE_MASK_MAP, USERAUTH_KEY } from '@/shared'
 import { Logger } from '@/utils'
-import { ElMessage } from 'element-plus'
-import { camelCase } from 'lodash'
-import { defineStore } from 'pinia'
-import { from, lastValueFrom, retry } from 'rxjs'
 
 interface AppUserAuth {
   refreshToken: string
@@ -137,23 +137,22 @@ export const useUserStore = defineStore('global-user', () => {
   })
 
   const refreshToken = async (onCancel?: () => void) => {
-    if (!auth.value.refreshToken) {
+    const refershToken = auth.value.refreshToken
+    // 如果 token 为空，表示已经登出，暂停自动刷新任务
+    if (!refershToken) {
       onCancel?.()
       return
     }
     // 刷新时间如果大于阈值，跳过并等待下一轮刷新
     if ((auth.value.expiresTime! - Date.now()) > (REFRESH_INTERVAL + RESTTIME_PRECISION))
       return
-    const res = await lastValueFrom(from(Oauth.oauth.refresh({
+    const res = await lastValueFrom(defer(() => Oauth.oauth.refresh({
       grant_type: 'refresh_token',
-      refresh_token: auth.value.refreshToken,
-    })).pipe(retry({ count: 3, delay: 50 }))).catch(() => null)
-    // 如果刷新失败，清空凭证并退出
-    if (!res) {
-      onCancel?.()
-      logout()
+      refresh_token: refershToken,
+    })).pipe(retry({ count: 3, delay: 1000 }))).catch(() => null)
+    // 如果刷新失败，跳过并等待下一轮刷新
+    if (!res)
       return
-    }
     logger.info('token 已刷新')
     setAuth(res)
   }
