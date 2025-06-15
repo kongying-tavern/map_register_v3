@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import type { LocationQueryValue } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import { AppLogin } from '@/components'
 import { useGlobalDialog } from '@/hooks'
 import { RouteQuery } from '@/shared'
-import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 
@@ -41,10 +41,6 @@ onMounted(async () => {
       return
     await handler(value)
   }))
-})
-
-onBeforeMount(() => {
-  window.preloading.classList.add('is-end')
 })
 </script>
 

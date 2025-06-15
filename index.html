@@ -16,7 +16,6 @@
     * {
       box-sizing: border-box;
       margin: 0;
-      padding: 0;
     }
 
     body, #app {
@@ -34,11 +33,9 @@
       }
     }
 
-    #preloading {
-      position: fixed;
+    #first-loading {
       width: 100%;
       height: 100%;
-      z-index: 1;
       overflow: hidden;
       display: grid;
       place-items: center;
@@ -91,12 +88,12 @@
 </head>
 
 <body>
-  <div id="preloading">
-    <h1>初始化应用</h1>
-    <div>前面的区域，马上就能探索~</div>
+  <div id="app">
+    <div id="first-loading">
+      <h1>初始化应用</h1>
+      <div>前面的区域，马上就能探索~</div>
+    </div>
   </div>
-
-  <div id="app"></div>
 
   <script type="module" async defer>
     const text = (() => {
@@ -106,15 +103,10 @@
     })()
 
     const app = document.getElementById('app')
-    const preloading = document.getElementById('preloading')
-
-    preloading.addEventListener('transitionend', () => {
-      preloading.remove()
-    }, { once: true })
-
-    Reflect.set(globalThis, 'preloading', preloading)
+    const loading = document.getElementById('first-loading')
 
     if (text) {
+      app.removeChild(loading)
       app.innerText = text
     }
     else {

@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import type { GenshinMap, GenshinMapViewState } from '@/packages/map'
+import { useSubscription } from '@vueuse/rxjs'
+import { TRANSITION_EVENTS } from 'deck.gl'
+import { filter } from 'rxjs'
 import {
   AppDevInfo,
   AppDialogProvider,
@@ -26,9 +29,6 @@ import {
   mapViewStateKey,
 } from '@/shared'
 import { useAccessStore, useArchiveStore, useMapStateStore, useShortcutStore, useTileStore } from '@/stores'
-import { useSubscription } from '@vueuse/rxjs'
-import { TRANSITION_EVENTS } from 'deck.gl'
-import { filter } from 'rxjs'
 
 // ================ 全局状态 ================
 const tileStore = useTileStore()
@@ -125,10 +125,6 @@ onMounted(() => {
   const { pathMatch } = route.params
   if (pathMatch)
     router.replace('/')
-})
-
-onBeforeMount(() => {
-  window.preloading.classList.add('is-end')
 })
 </script>
 

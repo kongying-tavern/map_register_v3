@@ -27,8 +27,6 @@ interface Document {
 }
 
 interface Window {
-  preloading: HTMLElement
-
   /** @实验性的 显示一个文件选择器，以允许用户选择一个或多个文件并返回这些文件的句柄 */
   showOpenFilePicker: (options?: {
     /** 应用文件类型过滤器. */

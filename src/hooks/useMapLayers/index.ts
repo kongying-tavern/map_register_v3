@@ -1,5 +1,6 @@
-import type { GSMarkerInfo } from '@/packages/map'
 import type { LayersList } from 'deck.gl'
+import type { GSMarkerInfo } from '@/packages/map'
+import { LineLayer } from 'deck.gl'
 import { GSOverlayer, GSTileLayer } from '@/packages/map'
 import { TempLayerIndex } from '@/shared'
 import {
@@ -7,7 +8,6 @@ import {
   useOverlayStore,
   useTileStore,
 } from '@/stores'
-import { LineLayer } from 'deck.gl'
 import { useLinkLayer } from './useLinkLayer'
 import { useMarkerLayer } from './useMarkerLayer'
 import { useTagLayer } from './useTagLayer'

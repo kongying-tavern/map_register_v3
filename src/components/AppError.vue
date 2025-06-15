@@ -10,10 +10,6 @@ const stack = computed<undefined | { label: string, codes: string[] }>(() => {
   const [label, ...codes] = stack.split('at ')
   return { label, codes }
 })
-
-onBeforeMount(() => {
-  window.preloading.classList.add('is-end')
-})
 </script>
 
 <template>
