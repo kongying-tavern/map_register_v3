@@ -1,9 +1,9 @@
 <script lang="ts" setup>
+import { Delete } from '@element-plus/icons-vue'
 import { AppRowImage } from '@/components'
 import { HiddenFlagEnum, ICON_STYLE_META_MAP } from '@/shared'
 import { useAreaStore, useIconTagStore, useItemTypeStore } from '@/stores'
 import { refreshTimeFormatter, timeFormatter } from '@/utils'
-import { Delete } from '@element-plus/icons-vue'
 
 defineProps<{
   loading: boolean

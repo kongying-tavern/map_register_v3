@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { IconLoading } from '@/components/AppIcons'
 import { useMarkerStore } from '@/stores'
-import {} from '@element-plus/icons-vue'
 import ItemGridCard from './ItemGridCard.vue'
 
 defineProps<{

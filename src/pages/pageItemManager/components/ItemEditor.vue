@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 import { Check, Close } from '@element-plus/icons-vue'
 import { cloneDeep } from 'lodash'
+import { WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 import { ItemDetailForm } from '.'
 import { useItemEdit } from '../hooks'
 

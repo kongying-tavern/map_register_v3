@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import type { ElFormType } from '@/shared'
+import type { ElFormType, IconStyle } from '@/shared'
 import type { ItemFormRules } from '@/utils'
 import { AppTimeSelect } from '@/components'
 import { useIconList, useRefreshTime } from '@/hooks'
-import { HIDDEN_FLAG_OPTIONS, IconStyle, SPECIALFLAG_OPTIONS } from '@/shared'
+import { HIDDEN_FLAG_OPTIONS, ICON_STYLE_META_MAP, SPECIALFLAG_OPTIONS } from '@/shared'
 import { useAccessStore, useAreaStore, useItemTypeStore } from '@/stores'
 import { lengthCheck, requireCheck } from '@/utils'
 import { useSpecialFlag } from '../hooks'
@@ -73,12 +73,12 @@ const iconList = computed(() => rawIconList.value.map(iconTag => ({
 })))
 
 // ==================== 图标类型 ====================
-const iconStyleOptions = [
-  { label: '默认', value: IconStyle.DEFAULT },
-  { label: '无边框', value: IconStyle.NO_BORDER },
-  { label: '类神瞳', value: IconStyle.PUPIL },
-  { label: '类神瞳无对钩', value: IconStyle.NO_TICK },
-]
+const iconStyleOptions = [...ICON_STYLE_META_MAP.entries()].map(([key, meta]) => ({
+  label: meta.name,
+  value: key,
+}))
+
+const previewMarkered = ref(false)
 
 // ==================== 刷新时间 ====================
 const refreshTime = computed({
@@ -172,7 +172,7 @@ defineExpose({
         <el-select-v2 v-model="formData.iconTag" :options="iconList" filterable placeholder="选择图标" style="width: 100%">
           <template #default="{ item }">
             <div class="flex items-center gap-2">
-              <img v-if="Boolean(item.url)" :src="item.url" class="object-contain" style="width: 34px; height: 34px; padding: 2px;" loading="lazy" crossorigin="">
+              <img v-if="Boolean(item.url)" :src="item.url" class="object-contain p-[2px] w-[34px] h-[34px]" loading="lazy" crossorigin="">
               <span class="flex-1 overflow-hidden text-ellipsis whitespace-nowrap" :title="item.label">{{ item.label }}</span>
             </div>
           </template>
@@ -180,7 +180,23 @@ defineExpose({
       </el-form-item>
 
       <el-form-item label="图标预览">
-        <img v-if="formData.iconTag" class="w-8 h-8 object-contain border rounded" :src="iconMap[formData.iconTag]" crossorigin="">
+        <div class="flex items-center gap-4">
+          <el-tooltip
+            :content="ICON_STYLE_META_MAP.get(formData.iconStyleType as IconStyle)?.description"
+            placement="top"
+          >
+            <div class="w-8 h-8 relative" :class="[previewMarkered ? 'is-markered' : '', `icon-type-${formData.iconStyleType}`]">
+              <img
+                v-if="formData.iconTag"
+                class="w-8 h-8 object-contain overflow-hidden absolute left-0 top-0"
+                :src="iconMap[formData.iconTag]"
+                draggable="false"
+                crossorigin=""
+              >
+            </div>
+          </el-tooltip>
+          <el-checkbox v-model="previewMarkered" label="预览标记状态" />
+        </div>
       </el-form-item>
 
       <el-form-item label="刷新时间" prop="defaultRefreshTime">
@@ -193,3 +209,27 @@ defineExpose({
     </div>
   </el-form>
 </template>
+
+<style scoped>
+.icon-type-0 > img {
+  border-radius: 50%;
+  border: 4px solid #00f5f3;
+  outline: 2px solid #CCCCCC60;
+  background-color: #CCCCCC60;
+}
+:is(.icon-type-0, .icon-type-1).is-markered::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 60%;
+  transform-origin: 50% 50%;
+  transform: translateY(20%) rotate(-45deg) scale(0.7);
+  border-width: 0 0 6px 6px;
+  border-style: solid;
+  border-color: #41dfb4;
+  filter: drop-shadow(0 0 1px #FFF) drop-shadow(0 0 1px #FFF) drop-shadow(0 0 1px #FFF);
+  z-index: 1;
+}
+</style>
