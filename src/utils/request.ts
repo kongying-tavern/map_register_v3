@@ -1,16 +1,16 @@
 /* eslint-disable ts/no-explicit-any */
 import type { AxiosError, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
-import { useUserStore } from '@/stores'
-import { Logger } from '@/utils'
 // TODO 迁移至 fetch
 import axios from 'axios'
 import { upperFirst } from 'lodash'
+import { useUserStore } from '@/stores'
+import { Logger } from '@/utils'
 
 const logger = new Logger('Axios')
 
 const instance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE,
-  timeout: 60000,
+  timeout: 300000,
   validateStatus: status => status >= 200 && status < 300,
 })
 
