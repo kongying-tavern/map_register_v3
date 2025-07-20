@@ -1,3 +1,4 @@
+/** 用于管理和操作来自 url 的参数响应 */
 export class RouteQuery {
   /** 注册邀请码 */
   static readonly Invitation = {
