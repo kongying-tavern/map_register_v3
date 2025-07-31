@@ -17,7 +17,7 @@ const resortedMarkers = computed(() => mapStateStore.currentLayerMarkers.toSorte
   { id: idA = 0 },
   { id: idB = 0 },
 ) => {
-  return idA - idB
+  return idB - idA
 }))
 </script>
 
