@@ -39,6 +39,11 @@ export default defineConfig(async ({ mode }) => {
       script: {
         defineModel: true,
       },
+      template: {
+        compilerOptions: {
+          comments: false,
+        },
+      },
     }),
     AutoImport({
       imports: ['vue', '@vueuse/core', 'vue-router'],
