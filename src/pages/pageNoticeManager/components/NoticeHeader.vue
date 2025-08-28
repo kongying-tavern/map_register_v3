@@ -14,6 +14,10 @@ const filterParams = defineModel<Omit<API.NoticeSearchVo, 'current' | 'size'>>('
   required: true,
 })
 
+const sort = defineModel<string[]>('sort', {
+  required: true,
+})
+
 const pagination = defineModel<PaginationState>('pagination', {
   required: true,
 })
@@ -116,7 +120,7 @@ const handleSortChangeCancel = () => {
 
       <template #dropdown>
         <ListSorter
-          v-model="filterParams.sort"
+          v-model="sort"
           :visible="dropdownKey === 'sort'"
           :options="sortableKeyOptions"
           @change="handleSortChange"

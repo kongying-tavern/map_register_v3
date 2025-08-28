@@ -1,5 +1,5 @@
-import type { ManagerModule } from '@/shared'
 import type { FilterPreset, FilterType, MAFGroup } from '.'
+import type { ManagerModule } from '@/shared'
 
 /**
  * ### 用户首选项
@@ -57,6 +57,11 @@ export interface UserPreference {
    * - 将此时间与公告列表的最新更新时间进行对比来判断是否应该弹窗
    */
   'notice.state.showTime'?: number
+
+  /**
+   * 公告的排序规则
+   */
+  'notice.setting.sort'?: string[]
 
   // ====================      地图      ====================
 

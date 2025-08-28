@@ -897,8 +897,6 @@ declare namespace API {
     getValid?: boolean
     /** 数据转换器 */
     transformer?: string
-    /** 排序条件 */
-    sort?: string[]
     /** 当前页，从1开始 */
     current?: number
     /** 每页大小，默认为10 */

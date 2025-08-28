@@ -1,8 +1,20 @@
 <script setup lang="ts">
 import { PgUnit, useGlobalDialog, usePagination } from '@/hooks'
 import { ManagerModule, NoticeChannel } from '@/shared'
+import { useArchiveStore } from '@/stores'
 import { NoticeDeleteConfirm, NoticeHeader, NoticeTable, NoticeViewer } from './components'
 import { useNoticeList } from './hooks'
+
+const archiveStore = useArchiveStore()
+
+const sort = computed({
+  get: () => {
+    return archiveStore.currentArchive.body.Preference['notice.setting.sort'] ?? ['isValid-', 'sortIndex-']
+  },
+  set: (v) => {
+    archiveStore.currentArchive.body.Preference['notice.setting.sort'] = v
+  },
+})
 
 const { pagination, layout, onChange: onPaginationChange } = usePagination({
   units: [PgUnit.TOTAL, PgUnit.SIZE, PgUnit.JUMPER, PgUnit.PREV, PgUnit.PAGER, PgUnit.NEXT],
@@ -20,7 +32,6 @@ const filterParams = ref<Omit<API.NoticeSearchVo, 'current' | 'size'>>({
     NoticeChannel.WEB,
   ],
   getValid: undefined,
-  sort: ['isValid-', 'sortIndex-'],
   title: '',
   transformer: '',
 })
@@ -74,6 +85,7 @@ const handleDeleteNotice = (notice: API.NoticeVo) => {
   <div class="h-full flex flex-col overflow-hidden">
     <NoticeHeader
       v-model="filterParams"
+      v-model:sort="sort"
       v-model:pagination="pagination"
       :data="1"
       @change="refresh"
