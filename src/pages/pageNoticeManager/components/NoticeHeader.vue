@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { PaginationState } from '@/hooks'
+import { CirclePlus, Filter, Search, Sort } from '@element-plus/icons-vue'
 import { AppDropdown } from '@/components'
 import { NOTICE_NAME_MAP } from '@/shared'
-import { CirclePlus, Filter, Search, Sort } from '@element-plus/icons-vue'
 import ListSorter from './ListSorter.vue'
 
 const emits = defineEmits<{
@@ -28,6 +28,7 @@ const options = [...NOTICE_NAME_MAP.entries()]
 const sortableKeyOptions: { label: string, key: string }[] = [
   { label: '标题', key: 'title' },
   { label: '有效性', key: 'isValid' },
+  { label: '生效类型', key: 'validType' },
   { label: '有效起始时间', key: 'validTimeStart' },
   { label: '有效截止时间', key: 'validTimeEnd' },
   { label: '更新时间', key: 'updateTime' },
