@@ -19,6 +19,9 @@ export const useTypeCount = (options: TypeCountHookOptions) => {
    * @warning HACK 01
    * 2024-08-27 应用户 [鈴(QQ 717818652)] 要求，添加如下特殊逻辑：
    * 当【物品分类】为【宝箱品质】时，【选择全部】的点位计数不包含名为【其他】物品的点位计数
+   * @warning HACK 02
+   * 2025-08-28 应用户 [鈴(QQ 717818652)] 要求，添加如下特殊逻辑：
+   * 当【物品分类】为【宝箱品质】时，【选择全部】的点位计数不包含名为【宝箱相关】物品的点位计数
    */
   const calculateTypeCount = (markers: API.MarkerVo[]) => {
     return markers.reduce((map, marker) => {
@@ -30,10 +33,11 @@ export const useTypeCount = (options: TypeCountHookOptions) => {
           return
         item.typeIdList?.forEach((typeId) => {
           const itemType = itemTypeIdMap.value.get(typeId)
-          // HACK 01
-          if (!itemType || (itemType.name === '宝箱品质' && item.name === '其他'))
+          if (!itemType)
             return
-          map.set(typeId, (map.get(typeId) ?? 0) + count)
+          // HACK 01, 02
+          if (itemType.name !== '宝箱品质' || !['其他', '宝箱相关'].includes(item.name ?? ''))
+            map.set(typeId, (map.get(typeId) ?? 0) + count)
         })
       })
       return map
