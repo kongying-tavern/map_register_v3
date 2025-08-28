@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { TagProps } from 'element-plus'
+import { Delete } from '@element-plus/icons-vue'
 import { AppIconTagRenderer } from '@/components'
 import { useRefreshTime } from '@/hooks'
 import { HIDDEN_FLAG_NAME_MAP, HiddenFlagEnum, ICON_STYLE_META_MAP, IconStyle } from '@/shared'
 import { useAreaStore, useIconTagStore } from '@/stores'
-import { Delete } from '@element-plus/icons-vue'
 
 const props = defineProps<{
   data: API.ItemVo
@@ -57,12 +57,15 @@ const { humanFriendlyTimeText } = useRefreshTime(computed(() => props.data.defau
         class="item-icon"
       />
 
-      <div class="mx-3 h-12 flex-1 overflow-hidden" style="contain: layout;">
-        <div class="font-[HYWenHei-85W] mb-1">
+      <div class="mx-3 h-12 flex-1 flex-col overflow-hidden" style="contain: layout;">
+        <div
+          class="w-full mb-1 overflow-hidden whitespace-nowrap text-ellipsis font-[HYWenHei-85W]"
+          :title="data.name"
+        >
           {{ data.name }}
         </div>
         <div
-          class="text-xs whitespace-nowrap overflow-hidden text-ellipsis"
+          class="w-full overflow-hidden whitespace-nowrap text-ellipsis text-xs"
           :title="areaName"
         >
           {{ areaName }}
