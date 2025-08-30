@@ -38,7 +38,10 @@ const filterParams = ref<Omit<API.NoticeSearchVo, 'current' | 'size'>>({
 
 const { noticeList, loading, refresh } = useNoticeList({
   pagination,
-  getParams: () => toValue(filterParams),
+  getParams: () => ({
+    ...toValue(filterParams),
+    sort: sort.value,
+  }),
 })
 
 onPaginationChange(refresh)
