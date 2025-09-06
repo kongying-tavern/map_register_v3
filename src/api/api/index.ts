@@ -8,6 +8,7 @@ import * as cache from './cache'
 import * as device from './device'
 import * as history from './history'
 import * as icon from './icon'
+import * as iconDoc from './iconDoc'
 import * as iconType from './iconType'
 import * as invitation from './invitation'
 import * as item from './item'
@@ -26,15 +27,10 @@ import * as resource from './resource'
 import * as role from './role'
 import * as route from './route'
 import * as score from './score'
-import * as tag from './tag'
-import * as tagDoc from './tagDoc'
-import * as tagType from './tagType'
 import * as user from './user'
 
 export default {
   archive,
-  tagType,
-  tag,
   route,
   resource,
   punctuate,
@@ -56,10 +52,10 @@ export default {
   history,
   app,
   role,
-  tagDoc,
   markerLinkDoc,
   markerDoc,
   itemDoc,
+  iconDoc,
   jwkController,
   cache,
 }

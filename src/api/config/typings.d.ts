@@ -209,8 +209,8 @@ declare namespace API {
 
     /** 覆盖图标 */
     'iconOverride'?: {
-      /** iconTag */
-      tag?: string
+      /** `icon.id` */
+      id?: number
       /** 最小可见缩放级别，大于该值可见 */
       minZoom?: number
       /** 最大可见缩放级别，小于该值可见 */

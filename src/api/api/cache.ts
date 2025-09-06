@@ -33,12 +33,9 @@ export async function cleanItemCache(options?: AxiosRequestConfig) {
   })
 }
 
-/** 删除标签缓存 list为空则删除所有标签缓存 DELETE /api/cache/iconTag */
-export async function cleanIconTagCache(
-  body: string[],
-  options?: AxiosRequestConfig,
-) {
-  return request<API.RBoolean>('/api/cache/iconTag', {
+/** 删除图标缓存 list为空则删除所有图标缓存 DELETE /api/cache/icon */
+export async function cleanIconCache(body: number[], options?: AxiosRequestConfig) {
+  return request<API.RBoolean>('/api/cache/icon', {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',

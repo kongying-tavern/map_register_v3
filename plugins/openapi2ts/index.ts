@@ -4,6 +4,7 @@ import type { Plugin } from 'vite'
 import cp from 'node:child_process'
 import fs from 'node:fs/promises'
 import path from 'node:path'
+import colors from '@colors/colors'
 import { generateService } from 'openapi2ts'
 
 export interface Openapi2tsOptions extends GenerateServiceProps {
@@ -32,6 +33,8 @@ export const openapi2ts = (optionList: Openapi2tsOptions[]): Plugin => {
             projectName = 'api',
             ...args
           } = options
+
+          console.log(colors.cyan('[openAPI]'), `Generate from: ${options.schemaPath}`)
 
           await generateService({ serversPath, projectName, ...args })
 
@@ -73,7 +76,7 @@ export const openapi2ts = (optionList: Openapi2tsOptions[]): Plugin => {
         }).catch(() => false)
       }
       catch (err) {
-        console.log('[OpenAPI] 生成失败：', err instanceof Error ? err.message : `${err}`)
+        console.log(colors.cyan('[openAPI]'), '生成失败：', err instanceof Error ? err.message : `${err}`)
       }
     },
   }

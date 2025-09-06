@@ -24,37 +24,6 @@ declare namespace API {
     remark?: string
   }
 
-  interface TagTypeVo {
-    /** 乐观锁 */
-    version?: number
-    /** ID */
-    id?: number
-    /** 创建人 */
-    creatorId?: number
-    /** 创建时间 */
-    createTime?: string
-    /** 更新人 */
-    updaterId?: number
-    /** 更新时间 */
-    updateTime?: string
-    /** 分类名称 */
-    name?: string
-    /** 父级分类ID（-1为根分类） */
-    parentId?: number
-    /** 是否为末端类型 */
-    isFinal?: boolean
-  }
-
-  interface RLong {
-    error?: boolean
-    errorStatus?: number
-    errorData?: unknown
-    message?: string
-    data?: number
-    users?: Record<string, SysUserSmallVo>
-    time?: string
-  }
-
   interface RouteVo {
     /** 乐观锁 */
     version?: number
@@ -82,6 +51,16 @@ declare namespace API {
     extra?: Record<string, unknown>
     /** 创建人昵称 */
     creatorNickname?: string
+  }
+
+  interface RLong {
+    error?: boolean
+    errorStatus?: number
+    errorData?: unknown
+    message?: string
+    data?: number
+    users?: Record<string, SysUserSmallVo>
+    time?: string
   }
 
   interface ResourceUploadVo {
@@ -182,8 +161,8 @@ declare namespace API {
     itemId?: number
     /** 物品于该点位数量 */
     count?: number
-    /** 图标标签 */
-    iconTag?: string
+    /** 图标ID */
+    iconId?: number
   }
 
   interface MarkerVo {
@@ -240,8 +219,8 @@ declare namespace API {
     updaterId?: number
     /** 更新时间 */
     updateTime?: string
-    /** 图标标签 */
-    iconTag?: string
+    /** 图标ID */
+    iconId?: number
     /** 类型名 */
     name?: string
     /** 类型补充说明 */
@@ -289,8 +268,8 @@ declare namespace API {
     defaultContent?: string
     /** 默认数量 */
     defaultCount?: number
-    /** 图标标签 */
-    iconTag?: string
+    /** 图标ID */
+    iconId?: number
     /** 图标样式类型 */
     iconStyleType?: number
     /** 隐藏标志 */
@@ -341,12 +320,14 @@ declare namespace API {
     updaterId?: number
     /** 更新时间 */
     updateTime?: string
-    /** 图标名称 */
-    name?: string
+    /** 图标标签 */
+    tag?: string
     /** 图标类型ID列表 */
     typeIdList?: number[]
     /** 图标url */
     url?: string
+    /** 图标描述 */
+    description?: string
   }
 
   interface AreaVo {
@@ -368,8 +349,8 @@ declare namespace API {
     code?: string
     /** 地区说明 */
     content?: string
-    /** 图标标签 */
-    iconTag?: string
+    /** 图标ID */
+    iconId?: number
     /** 父级地区ID（无父级则为-1） */
     parentId?: number
     /** 是否为末端地区 */
@@ -696,89 +677,6 @@ declare namespace API {
     isError?: boolean
     /** 附加信息 */
     extraData?: Record<string, unknown>
-  }
-
-  interface PageAndTypeSearchVo {
-    /** 当前页，从1开始 */
-    current?: number
-    /** 每页大小，默认为10 */
-    size?: number
-    /** 父级类型ID列表 */
-    typeIdList?: number[]
-  }
-
-  interface PageListVoTagTypeVo {
-    record?: TagTypeVo[]
-    total?: number
-    size?: number
-  }
-
-  interface RPageListVoTagTypeVo {
-    error?: boolean
-    errorStatus?: number
-    errorData?: unknown
-    message?: string
-    data?: PageListVoTagTypeVo
-    users?: Record<string, SysUserSmallVo>
-    time?: string
-  }
-
-  interface TagVo {
-    /** 乐观锁 */
-    version?: number
-    /** 创建人 */
-    creatorId?: number
-    /** 创建时间 */
-    createTime?: string
-    /** 更新人 */
-    updaterId?: number
-    /** 更新时间 */
-    updateTime?: string
-    /** 标签名 */
-    tag?: string
-    /** 标签类型ID列表 */
-    typeIdList?: number[]
-    /** 图标ID */
-    iconId?: number
-    /** 图标url */
-    url?: string
-  }
-
-  interface RTagVo {
-    error?: boolean
-    errorStatus?: number
-    errorData?: unknown
-    message?: string
-    data?: TagVo
-    users?: Record<string, SysUserSmallVo>
-    time?: string
-  }
-
-  interface TagSearchVo {
-    /** 标签名列表 */
-    tagList?: string[]
-    /**  图标标签分类列表 */
-    typeIdList?: number[]
-    /** 当前页，从1开始 */
-    current?: number
-    /** 每页大小，默认为10 */
-    size?: number
-  }
-
-  interface PageListVoTagVo {
-    record?: TagVo[]
-    total?: number
-    size?: number
-  }
-
-  interface RPageListVoTagVo {
-    error?: boolean
-    errorStatus?: number
-    errorData?: unknown
-    message?: string
-    data?: PageListVoTagVo
-    users?: Record<string, SysUserSmallVo>
-    time?: string
   }
 
   interface ScoreParamsVo {
@@ -1113,6 +1011,15 @@ declare namespace API {
     time?: string
   }
 
+  interface PageAndTypeSearchVo {
+    /** 当前页，从1开始 */
+    current?: number
+    /** 每页大小，默认为10 */
+    size?: number
+    /** 父级类型ID列表 */
+    typeIdList?: number[]
+  }
+
   interface PageListVoItemTypeVo {
     record?: ItemTypeVo[]
     total?: number
@@ -1154,8 +1061,8 @@ declare namespace API {
     defaultContent?: string
     /** 默认数量 */
     defaultCount?: number
-    /** 图标标签 */
-    iconTag?: string
+    /** 图标ID */
+    iconId?: number
     /** 图标样式类型 */
     iconStyleType?: number
     /** 隐藏标志 */
@@ -1260,8 +1167,8 @@ declare namespace API {
     creator?: number
     /** 图标分类列表 */
     typeIdList?: number[]
-    /** 图标名 */
-    name?: string
+    /** 图标标签 */
+    tag?: string
     /** 当前页，从1开始 */
     current?: number
     /** 每页大小，默认为10 */
@@ -1322,7 +1229,7 @@ declare namespace API {
     content?: string
     /** MD5 */
     md5?: string
-    /** 操作数据类型;1地区; 2图标; 3物品; 4点位; 5标签 */
+    /** 操作数据类型;1地区; 2图标; 3物品; 4点位; */
     type?: number
     /** IPv4 */
     ipv4?: string

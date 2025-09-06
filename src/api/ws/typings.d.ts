@@ -16,20 +16,24 @@ declare namespace API {
   interface WSEventMap {
     // ====================   其他   ====================
 
-    /** 心跳包 */
+    /**
+     * 心跳包
+     */
     Pong: []
 
     // ==================== 应用相关 ====================
 
-    /** 应用更新通知 */
+    /**
+     * 应用更新通知
+     */
     AppUpdated: []
 
     // ==================== 图标相关 ====================
 
     /**
-     * 图标标签 Bz2 刷新
+     * 图标压缩数据刷新
      */
-    IconTagBinaryPurged: []
+    IconBinaryPurged: []
 
     // ==================== 物品相关 ====================
 
@@ -52,7 +56,7 @@ declare namespace API {
     ItemDeleted: [ItemId: number]
 
     /**
-     * 物品 Bz2 刷新
+     * 物品压缩数据刷新
      */
     ItemBinaryPurged: []
 
@@ -83,7 +87,7 @@ declare namespace API {
     MarkerTweaked: [number[]]
 
     /**
-     * 点位 Bz2 刷新
+     * 点位压缩数据刷新
      */
     MarkerBinaryPurged: []
 
@@ -96,7 +100,7 @@ declare namespace API {
     MarkerLinked: [WSMarkerLinkData]
 
     /**
-     * 点位关联Bz2刷新
+     * 点位关联压缩数据刷新
      */
     MarkerLinkageBinaryPurged: []
 
