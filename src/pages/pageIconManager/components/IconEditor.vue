@@ -1,236 +1,204 @@
 <script lang="ts" setup>
-import { AppImageCropper, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
-import { formatByteSize } from '@/utils'
-import { Check, Close } from '@element-plus/icons-vue'
-import { ElInput, ElSwitch } from 'element-plus'
-import { IconImageSelect } from '.'
-import { useImageLoad, useImageSelect, useImageUpload } from '../hooks'
+import { ArrowDown, Check, Close, Upload } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
+import { WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
+import { getObjectFitSize } from '@/utils'
+import { useImageCropper } from '../hooks'
 
 const props = defineProps<{
-  icon: API.TagVo
+  icon: API.IconVo
 }>()
 
 const emits = defineEmits<{
   close: []
 }>()
 
-const tagName = computed(() => props.icon.tag)
+const rawJSON = JSON.stringify(props.icon)
 
-// ==================== Tab 操作 ====================
-enum TabKey {
-  /** 添加新图片 */
-  UPLOAD = 'upload',
-  /** 使用已有图片 */
-  SELECT = 'select',
-}
+const iconForm = ref<API.IconVo>(JSON.parse(rawJSON))
 
-const tabs: { key: string, name: string }[] = [
-  { key: TabKey.UPLOAD, name: '添加新图片' },
-  { key: TabKey.SELECT, name: '使用已有图片' },
-]
-
-const activedTabKey = ref<TabKey>(TabKey.UPLOAD)
-
-// ==================== 裁切图片 ====================
-const { localImage, localImageBitmap, localImageUrl, loading: localImageLoading, loadLocalImage } = useImageLoad()
-
-const croppedImage = shallowRef<Blob>()
-const croppedImageUrl = useObjectUrl(croppedImage)
-
-const fitType = ref<'cover' | 'contain'>('contain')
-const isClipMode = ref(true)
-
-const onImageCrop = (image: Blob) => {
-  croppedImage.value = image
-}
-
-// ==================== 上传图片 ====================
-const { iconName, loading: uploadLoading, percentage, status, text, uploadImage, onSuccess: onImageUploadSuccess } = useImageUpload({
-  image: computed(() => isClipMode.value ? croppedImage.value : localImage.value),
-  tagName,
+const config = ref({
+  clipCircle: false,
+  keepRatio: false,
 })
 
-onImageUploadSuccess(() => emits('close'))
+const outputSize = ref({ w: 0, h: 0 })
+const rawImage = shallowRef<ImageBitmap | null>(null)
 
-const trimNameSpace = () => {
-  iconName.value = iconName.value.trim()
-}
-
-// ==================== 复用图片 ====================
-const { selectedImage, useImage, loading: selectLoading, onSuccess: onImageSelectSuccess } = useImageSelect({
-  tagName,
+const containerRef = shallowRef<HTMLDivElement>()
+const {
+  ready,
+  destory,
+  loadFromFile,
+  loadFromUrl,
+  onFrame,
+  onImageLoad,
+  onError: onCropperError,
+} = useImageCropper(containerRef, {
+  keepRatio: computed(() => config.value.keepRatio),
 })
 
-onImageSelectSuccess(() => emits('close'))
-
-// ==================== 弹窗操作 ====================
-const confirmDisabled = computed(() => ({
-  [TabKey.UPLOAD]: () => {
-    if (isClipMode.value)
-      return !croppedImageUrl.value
-    return !localImage
-  },
-  [TabKey.SELECT]: () => !selectedImage.value,
-})[activedTabKey.value]())
-
-const confirmLoading = computed(() => ({
-  [TabKey.UPLOAD]: uploadLoading,
-  [TabKey.SELECT]: selectLoading,
-})[activedTabKey.value].value)
-
-const confirm = async () => {
-  if (confirmDisabled.value)
+onImageLoad((bmp) => {
+  if (rawImage.value !== null)
     return
-  await ({
-    [TabKey.UPLOAD]: uploadImage,
-    [TabKey.SELECT]: useImage,
-  })[activedTabKey.value]()
-}
+  rawImage.value = bmp
+})
+
+onCropperError((err) => {
+  ElMessage.error(err.message)
+})
+
+const previewerRef = shallowRef<HTMLCanvasElement>()
+onMounted(() => {
+  const previewer = previewerRef.value
+  if (!previewer)
+    return
+  const ctx = previewer.getContext('2d')!
+  onFrame(({ rect, image }) => {
+    const { x: ix, y: iy } = image.getClientRect()
+    const { x, y, width: w, height: h } = rect.getClientRect()
+    ctx.clearRect(0, 0, 64, 64)
+    ctx.save()
+    if (config.value.clipCircle)
+      ctx.clip(new Path2D('M32,0 A32,32 0,0,1 32,64 A32,32 0,0,1 32,0 Z'))
+    const { sx, sy, sw, sh, dx, dy, dw, dh } = getObjectFitSize('contain', 64, 64, w, h)
+    outputSize.value = { w: dw, h: dh }
+    ctx.drawImage(image.toCanvas(), x + sx - ix, y + sy - iy, sw, sh, dx, dy, dw, dh)
+    ctx.restore()
+  })
+})
+
+watch(() => props.icon.url, async (url) => {
+  if (!url)
+    return
+  await ready
+  await loadFromUrl(url)
+}, { immediate: true })
 
 const cancel = () => {
-  if (confirmLoading.value)
-    return
   emits('close')
 }
+
+onBeforeUnmount(() => {
+  destory()
+})
 </script>
 
 <template>
   <WinDialog
-    v-loading.fullscreen="localImageLoading"
     element-loading-text="等待文件系统响应..."
     element-loading-background="var(--el-mask-color-extra-light)"
   >
     <WinDialogTitleBar
-      :disabled="confirmLoading"
       @close="cancel"
     >
-      {{ icon.tag }} 修改图片
+      编辑图标 | {{ icon.tag }}
     </WinDialogTitleBar>
 
     <WinDialogTabPanel
-      v-model:tab-key="activedTabKey"
-      class="w-[370px] h-[340px]"
-      :tabs="tabs"
-      :tabs-disabled="confirmLoading"
+      class="w-[384px] mb-0 flex flex-col"
     >
-      <div v-show="activedTabKey === TabKey.UPLOAD" class="grid gap-2 grid-cols-[auto_1fr]">
-        <div class="col-span-2 flex items-center gap-1">
-          <div class="flex-shrink-0 whitespace-nowrap">
-            图片名称
+      <el-form
+        :model="iconForm"
+        label-width="60px"
+        class="w-full shrink-0 overflow-hidden"
+      >
+        <el-form-item label="名称" prop="tag">
+          <el-input v-model="iconForm.tag" />
+        </el-form-item>
+
+        <el-form-item label="描述" prop="description">
+          <el-input v-model="iconForm.description" type="textarea" />
+        </el-form-item>
+      </el-form>
+
+      <div class="flex-1 w-full overflow-hidden flex gap-2">
+        <div class="shrink-0 w-[240px] flex flex-col gap-2">
+          <!-- 裁切容器 -->
+          <div ref="containerRef" class="w-full h-[240px] chessboard-background" />
+
+          <div class="h-[32px] flex items-center">
+            <el-checkbox v-model="config.clipCircle" label="圆形" />
+            <el-checkbox v-model="config.keepRatio" label="保持比例" />
           </div>
-          <ElInput
-            v-model="iconName"
-            placeholder="留空将使用图片哈希值进行代替"
-            clearable
-            @change="trimNameSpace"
-          />
         </div>
 
-        <AppImageCropper
-          v-if="isClipMode"
-          class="flex-shrink-0 w-64 h-64"
-          :image="localImageUrl"
-          :crop-ratio="0.25"
-          :fit="fitType"
-          auto-crop
-          @crop="onImageCrop"
-        />
+        <div class="flex-1 h-[280px] flex flex-col gap-2 justify-between">
+          <div class="w-full shrink-0">
+            <el-button style="width: 100%" :icon="Upload" @click="loadFromFile">
+              选择图片
+            </el-button>
+          </div>
 
-        <div
-          v-else
-          class="
-            flex-shrink-0 w-64 h-64
-            outline-[1px] outline-dashed outline-[var(--el-color-warning)] -outline-offset-1
-            bg-[length:32px_32px]
-            bg-alpha
-            grid place-content-center
-            overflow-auto
-          "
-        >
-          <img v-if="localImageUrl" :src="localImageUrl">
-        </div>
+          <div class="flex-1 flex flex-col gap-1 items-center justify-center">
+            <!-- 修改前预览 -->
+            <img
+              class="border border-[var(--el-border-color)]"
+              :src="props.icon.url"
+              draggable="false"
+              crossorigin=""
+            >
+            <div class="shrink-0 text-xs">
+              {{ (rawImage?.width ?? 0).toFixed(1) }} x {{ (rawImage?.height ?? 0).toFixed(1) }}
+            </div>
+          </div>
 
-        <div class="w-full flex flex-col justify-between">
-          <el-button @click="loadLocalImage">
-            {{ localImageUrl ? '切换' : '选择' }}图片
-          </el-button>
-          <el-divider style="margin: 8px 0" />
+          <div class="flex items-center justify-center">
+            <el-icon>
+              <ArrowDown />
+            </el-icon>
+          </div>
 
-          <div class="w-full flex flex-col gap-1">
-            <ElSwitch
-              v-model="isClipMode"
-              active-text="启用裁剪"
-              inactive-text="原始尺寸"
-              inline-prompt
-              style="height: 20px; --el-switch-off-color: var(--el-color-warning); overflow: hidden;"
+          <div class="flex-1 flex flex-col gap-1 items-center justify-center">
+            <!-- 修改后预览 -->
+            <canvas
+              ref="previewerRef"
+              class="border border-[var(--el-border-color)]"
+              width="64"
+              height="64"
             />
-            <ElSwitch
-              v-if="isClipMode"
-              v-model="fitType"
-              active-value="cover"
-              active-text="Cover"
-              inactive-value="contain"
-              inactive-text="Contain"
-              inline-prompt
-              style="height: 20px; --el-switch-off-color: var(--el-color-primary)"
-            />
-          </div>
-          <el-divider style="margin: 8px 0" />
-
-          <div v-if="isClipMode" class="flex-1 grid place-items-center place-content-center gap-1">
-            <div class="w-16 h-16 border border-[var(--el-border-color)] box-content">
-              <img v-if="croppedImageUrl" class="w-full h-full" :src="croppedImageUrl">
-            </div>
-            <div class="text-xs">
-              64 x 64
-            </div>
-            <div v-if="croppedImage" class=" text-xs">
-              {{ formatByteSize(croppedImage.size) }}
+            <div class="shrink-0 text-xs">
+              {{ outputSize.w.toFixed(2) }} x {{ outputSize.h.toFixed(2) }}
             </div>
           </div>
 
-          <div v-else class="flex-1 grid place-items-center place-content-center gap-1">
-            <div v-if="localImageBitmap" class="text-xs">
-              {{ `${localImageBitmap.width} x ${localImageBitmap.height}` }}
-            </div>
-            <div v-if="localImage" class=" text-xs">
-              {{ formatByteSize(localImage.size) }}
-            </div>
-          </div>
+          <div class="shrink-0 w-full h-[32px]" />
         </div>
-
-        <el-progress
-          v-if="text"
-          :percentage="percentage"
-          :status="status"
-          :duration="4"
-          :stroke-width="18"
-          :striped-flow="uploadLoading"
-          striped
-          text-inside
-          class="col-span-2"
-          style="--progress-radius: 4px"
-        >
-          {{ text }}
-        </el-progress>
       </div>
-
-      <IconImageSelect v-show="activedTabKey === TabKey.SELECT" v-model="selectedImage" />
     </WinDialogTabPanel>
 
     <WinDialogFooter>
       <el-button
         type="primary"
         :icon="Check"
-        :loading="uploadLoading"
-        :disabled="confirmDisabled"
-        @click="confirm"
       >
         确认
       </el-button>
-      <el-button :icon="Close" :disabled="uploadLoading" @click="cancel">
+      <el-button
+        :icon="Close"
+        @click="cancel"
+      >
         取消
       </el-button>
     </WinDialogFooter>
   </WinDialog>
 </template>
+
+<style scoped>
+.chessboard-background {
+  --s: 32px;
+  --color-a: transparent;
+  --color-b: var(--el-fill-color-darker);
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    var(--color-a) 25%,
+    var(--color-b) 25%,
+    var(--color-b) 50%,
+    var(--color-a) 50%,
+    var(--color-a) 75%,
+    var(--color-b) 75%,
+    var(--color-b) 100%
+  );
+  background-size: var(--s) var(--s);
+}
+</style>
