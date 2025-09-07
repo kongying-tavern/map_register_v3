@@ -4,6 +4,11 @@ import { clamp } from '@vueuse/core'
 import Konva from 'konva'
 import { getObjectFitSize } from '@/utils'
 
+const config = {
+  anchorFill: '#FFF',
+  anchorStroke: '#00CCFF',
+}
+
 /**
  * ### 图像裁切器 hook
  * - 确保在 `ready` 之后才调用相关 api
@@ -12,7 +17,7 @@ export const useImageCropper = (
   containerRef: ShallowRef<HTMLDivElement | undefined>,
   options: ImageCropperOptions = {},
 ) => {
-  const { keepRatio = false } = options
+  const { disabled = false, keepRatio = false } = options
 
   /** 裁切器是否已经初始化完毕 */
   const { resolve, promise: ready } = Promise.withResolvers<Konva.Stage>()
@@ -32,7 +37,7 @@ export const useImageCropper = (
   }
 
   /** 图片加载 hook */
-  const imageHook = createEventHook<ImageBitmap>()
+  const imageHook = createEventHook<[bmp: ImageBitmap, blob: Blob, fromURL: boolean]>()
   /** 错误处理 hook */
   const errorHook = createEventHook<Error>()
   /** 渲染处理 hook */
@@ -74,6 +79,7 @@ export const useImageCropper = (
       container: div,
       width: div.clientWidth,
       height: div.clientHeight,
+      listening: !toValue(disabled),
     })
     const resizeOb = new ResizeObserver(([entry]) => {
       const [size] = entry.devicePixelContentBoxSize
@@ -90,7 +96,6 @@ export const useImageCropper = (
 
   /** 将加载的图片装载为图层 */
   const setupLayer = (bmp: ImageBitmap) => {
-    imageHook.trigger(bmp)
     const stage = context.stage.value
     if (!stage)
       throw new Error('裁切器未初始化')
@@ -127,10 +132,14 @@ export const useImageCropper = (
         }
       },
     })
+    const isDisabled = toValue(disabled)
     const tr = new Konva.Transformer({
       nodes: [rect],
       rotateEnabled: false,
       keepRatio: toValue(keepRatio),
+      borderStroke: isDisabled ? 'transparent' : config.anchorStroke,
+      anchorFill: isDisabled ? 'transparent' : config.anchorFill,
+      anchorStroke: isDisabled ? 'transparent' : config.anchorStroke,
       boundBoxFunc: ({ width: ow, height: oh }, { x, y, width: w, height: h }) => {
         const rect = {
           x: Math.round(clamp(x, dx, dx + dw - ow)),
@@ -179,6 +188,20 @@ export const useImageCropper = (
     })
   }
 
+  if (isRef(disabled)) {
+    watch(disabled, (v) => {
+      const stage = context.stage.value
+      if (stage)
+        stage.listening(!v)
+      const transformer = context.transformer.value
+      if (transformer) {
+        transformer.anchorFill(v ? 'transparent' : config.anchorFill)
+        transformer.anchorStroke(v ? 'transparent' : config.anchorStroke)
+        transformer.borderStroke(v ? 'transparent' : config.anchorStroke)
+      }
+    })
+  }
+
   /** 从文件选择器加载图片 */
   const loadFromFile = async () => {
     try {
@@ -194,6 +217,7 @@ export const useImageCropper = (
       const file = await handle.getFile()
       const bmp = await createImageBitmap(file)
       setupLayer(bmp)
+      imageHook.trigger([bmp, file, false])
     }
     catch (err) {
       catchError(err)
@@ -211,8 +235,11 @@ export const useImageCropper = (
       loadController.value = ac
       // 加载图片
       const res = await fetch(src, { signal: ac.signal, mode: 'cors' })
-      const bmp = await createImageBitmap(await res.blob())
+      const blob = await res.blob()
+      const bmp = await createImageBitmap(blob)
       setupLayer(bmp)
+      imageHook.trigger([bmp, blob, true])
+      return bmp
     }
     catch (err) {
       catchError(err)
@@ -239,5 +266,8 @@ export const useImageCropper = (
 }
 
 interface ImageCropperOptions {
+  /** 是否禁用裁切器 */
+  disabled?: MaybeRef<boolean>
+  /** 是否保持选区宽高比 */
   keepRatio?: MaybeRef<boolean>
 }

@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import Api from '@/api/api'
-import { useFetchHook, useGlobalDialog } from '@/hooks'
-import { useIconTagStore } from '@/stores'
-import { formatByteSize } from '@/utils'
 import { Delete } from '@element-plus/icons-vue'
 import dayjs from 'dayjs'
 import { cloneDeep } from 'lodash'
-import { IconEditor } from '.'
+import Api from '@/api/api'
+import { useFetchHook, useGlobalDialog } from '@/hooks'
+import { useIconStore } from '@/stores'
+import { formatByteSize } from '@/utils'
 import { useIconDelete } from '../hooks'
+import IconEditor from './IconEditor.vue'
 
 const props = defineProps<{
-  tag?: API.TagVo | null
+  icon?: API.IconVo | null
 }>()
 
-const iconTagStore = useIconTagStore()
+const iconStore = useIconStore()
 
 const { DialogService } = useGlobalDialog()
 
@@ -34,42 +34,38 @@ const { refresh: getUserInfo, loading: isUserInfoLoading, onSuccess } = useFetch
 })
 
 const { state, isLoading, execute } = useAsyncState<{ url?: string, size?: number[], byteLength?: number }>(async () => {
-  if (!props.tag?.url)
+  if (!props.icon?.url)
     return {}
-  const res = await fetch(props.tag.url)
+  const res = await fetch(props.icon.url)
   const blob = await res.blob()
   const bmp = await createImageBitmap(blob)
   return {
-    url: props.tag.url,
+    url: props.icon.url,
     byteLength: blob.size,
     size: [bmp.width, bmp.height],
   }
 }, {}, { immediate: false })
 
-watch(() => props.tag, () => execute(), { immediate: true })
+watch(() => props.icon, () => execute(), { immediate: true })
 
 onSuccess(userInfos => userInfos.forEach((userInfo) => {
   userCache.value[userInfo.id!] = userInfo
 }))
 
 // ==================== 图标信息 ====================
-const iconTag = defineModel<API.TagVo | null>('modelValue', {
+const icon = defineModel<API.IconVo | null>('modelValue', {
   default: null,
 })
 
-const form = ref(cloneDeep(props.tag ?? {}))
+const form = ref(cloneDeep(props.icon ?? {}))
 
 // ==================== 修改图片 ====================
-const openImageEditor = () => {
+const showIconEditor = () => {
+  if (!props.icon)
+    return
   DialogService
-    .config({
-      width: 'fit-content',
-      closeOnClickModal: false,
-      closeOnPressEscape: false,
-      alignCenter: true,
-    })
     .props({
-      icon: form.value,
+      icon: props.icon,
     })
     .open(IconEditor)
 }
@@ -77,11 +73,11 @@ const openImageEditor = () => {
 // 删除图标
 const { confirmDeleteIcon } = useIconDelete()
 
-watch(() => props.tag, () => {
-  if (!props.tag)
+watch(() => props.icon, () => {
+  if (!props.icon)
     return
-  form.value = cloneDeep(iconTag.value ?? {})
-  form.value.creatorId !== undefined && getUserInfo([props.tag.creatorId!, props.tag.updaterId!])
+  form.value = cloneDeep(icon.value ?? {})
+  form.value.creatorId !== undefined && getUserInfo([props.icon.creatorId!, props.icon.updaterId!])
 })
 
 // ==================== 其他 ====================
@@ -98,19 +94,19 @@ const timeFormatter = (time?: string) => {
     element-loading-background="var(--el-overlay-color-lighter)"
     class="icon-previewer h-full"
   >
-    <div v-if="!iconTag" class="w-64 h-full grid place-items-center">
+    <div v-if="!icon" class="w-64 h-full grid place-items-center">
       选择要预览的图标
     </div>
 
     <div v-else class="w-64 h-full overflow-auto flex flex-col">
-      <div v-if="!iconTagStore.tagPositionMap[iconTag.tag!]" class="icon-image h-64" />
+      <div v-if="!iconStore.iconCoordMap.get(icon.id!)" class="icon-image h-64" />
 
       <div
         v-else
         class="icon-image h-64 grid place-items-center overflow-hidden flex-shrink-0"
       >
         <img
-          :src="iconTag.url"
+          :src="icon.url"
           class="hover:bg-[var(--el-color-primary)] max-w-full max-h-full object-contain"
           crossorigin=""
         >
@@ -119,8 +115,8 @@ const timeFormatter = (time?: string) => {
       <div class="icon-detail flex-1 px-2">
         <el-form label-width="70px" label-position="left" :model="form">
           <el-form-item label-width="0px" class="margin-bottom-0">
-            <el-button class="flex-1" @click="openImageEditor">
-              修改图片
+            <el-button class="flex-1" @click="showIconEditor">
+              编辑图标信息
             </el-button>
             <el-button
               type="danger"
@@ -138,9 +134,23 @@ const timeFormatter = (time?: string) => {
 
           <el-form-item label="图片 id" class="margin-bottom-0">
             <el-text>
-              {{ form.iconId }}
+              {{ form.id }}
             </el-text>
           </el-form-item>
+
+          <el-form-item label="分辨率" class="margin-bottom-0">
+            <el-text>{{ isLoading ? '......' : `${state.size?.[0]} x ${state.size?.[1]}` }}</el-text>
+          </el-form-item>
+
+          <el-form-item label="文件大小" class="margin-bottom-0">
+            <el-text>{{ isLoading ? '......' : formatByteSize(state.byteLength ?? 0) }}</el-text>
+          </el-form-item>
+
+          <el-form-item label="描述" class="margin-bottom-0">
+            <el-text>{{ form.description }}</el-text>
+          </el-form-item>
+
+          <el-divider style="margin: 8px 0" />
 
           <el-form-item label="创建人" class="margin-bottom-0">
             <el-text truncated>
@@ -160,14 +170,6 @@ const timeFormatter = (time?: string) => {
 
           <el-form-item label="修改时间" class="margin-bottom-0">
             <el-text>{{ timeFormatter(form.updateTime) }}</el-text>
-          </el-form-item>
-
-          <el-form-item label="分辨率" class="margin-bottom-0">
-            <el-text>{{ isLoading ? '......' : `${state.size?.[0]} x ${state.size?.[1]}` }}</el-text>
-          </el-form-item>
-
-          <el-form-item label="文件大小" class="margin-bottom-0">
-            <el-text>{{ isLoading ? '......' : formatByteSize(state.byteLength ?? 0) }}</el-text>
           </el-form-item>
         </el-form>
       </div>

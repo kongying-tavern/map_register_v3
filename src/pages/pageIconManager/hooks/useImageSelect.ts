@@ -1,7 +1,5 @@
-import Api from '@/api/api'
-import db from '@/database'
-import { useFetchHook } from '@/hooks'
 import { ElMessage } from 'element-plus'
+import { useFetchHook } from '@/hooks'
 
 interface ImageSelectHookOptions {
   tagName: Ref<string | undefined>
@@ -20,14 +18,7 @@ export const useImageSelect = (options: ImageSelectHookOptions) => {
       const shallowTagName = tagName.value
       if (!shallowTagName)
         throw new Error('icon tag 为空')
-
-      await Api.tag.updateTag({
-        tagName: shallowTagName,
-        iconId: selectedImage.value.id!,
-      })
-
-      const { data = {} } = await Api.tag.getTag({ name: shallowTagName })
-      await db.iconTag.put(data)
+      console.warn('此模块已弃用')
     },
   })
 

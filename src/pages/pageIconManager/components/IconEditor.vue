@@ -1,9 +1,11 @@
 <script lang="ts" setup>
-import { ArrowDown, Check, Close, Upload } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
-import { WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
-import { getObjectFitSize } from '@/utils'
-import { useImageCropper } from '../hooks'
+import { Check, Close } from '@element-plus/icons-vue'
+import dayjs from 'dayjs'
+import Api from '@/api/api'
+import { IconRenderer, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
+import { formatByteSize } from '@/utils'
+import { useIconUpdate } from '../hooks'
+import { ImageCropper } from './ImageCropper'
 
 const props = defineProps<{
   icon: API.IconVo
@@ -13,169 +15,183 @@ const emits = defineEmits<{
   close: []
 }>()
 
+/** 原始表单 */
 const rawJSON = JSON.stringify(props.icon)
 
+/** 用户信息 */
+const { state: userMap } = useAsyncState(async () => {
+  const map = new Map<number, API.SysUserVo>()
+  const { creatorId, updaterId } = props.icon
+  if (creatorId !== undefined) {
+    const { data: creator = {} } = await Api.user.getUserInfo({ userId: creatorId })
+    map.set(creatorId, creator)
+  }
+  if (updaterId !== undefined && updaterId !== creatorId) {
+    const { data: updator = {} } = await Api.user.getUserInfo({ userId: updaterId })
+    map.set(updaterId, updator)
+  }
+  return map
+}, new Map<number, API.SysUserVo>())
+
+/** 绑定表单 */
 const iconForm = ref<API.IconVo>(JSON.parse(rawJSON))
 
-const config = ref({
-  clipCircle: false,
-  keepRatio: false,
-})
+/** 是否启用图像编辑 */
+const iconEditable = ref(false)
 
-const outputSize = ref({ w: 0, h: 0 })
-const rawImage = shallowRef<ImageBitmap | null>(null)
+/** 原始图标元信息 */
+const rawIconMeta = shallowRef<{
+  bmp: ImageBitmap
+  blob: Blob
+} | null>(null)
 
-const containerRef = shallowRef<HTMLDivElement>()
+/** 更新逻辑封装 */
 const {
-  ready,
-  destory,
-  loadFromFile,
-  loadFromUrl,
-  onFrame,
-  onImageLoad,
-  onError: onCropperError,
-} = useImageCropper(containerRef, {
-  keepRatio: computed(() => config.value.keepRatio),
+  isChanged,
+  loading,
+  onSuccess,
+  stashIcon,
+  clearStash,
+  updateIcon,
+} = useIconUpdate(iconForm, {
+  iconEditable,
 })
 
-onImageLoad((bmp) => {
-  if (rawImage.value !== null)
+onSuccess(() => {
+  emits('close')
+})
+
+/** 记录图标变更情况 */
+const handleImageLoad = (bmp: ImageBitmap, blob: Blob, fromURL: boolean, canvas: HTMLCanvasElement) => {
+  if (rawIconMeta.value === null) {
+    rawIconMeta.value = { bmp, blob }
     return
-  rawImage.value = bmp
-})
-
-onCropperError((err) => {
-  ElMessage.error(err.message)
-})
-
-const previewerRef = shallowRef<HTMLCanvasElement>()
-onMounted(() => {
-  const previewer = previewerRef.value
-  if (!previewer)
-    return
-  const ctx = previewer.getContext('2d')!
-  onFrame(({ rect, image }) => {
-    const { x: ix, y: iy } = image.getClientRect()
-    const { x, y, width: w, height: h } = rect.getClientRect()
-    ctx.clearRect(0, 0, 64, 64)
-    ctx.save()
-    if (config.value.clipCircle)
-      ctx.clip(new Path2D('M32,0 A32,32 0,0,1 32,64 A32,32 0,0,1 32,0 Z'))
-    const { sx, sy, sw, sh, dx, dy, dw, dh } = getObjectFitSize('contain', 64, 64, w, h)
-    outputSize.value = { w: dw, h: dh }
-    ctx.drawImage(image.toCanvas(), x + sx - ix, y + sy - iy, sw, sh, dx, dy, dw, dh)
-    ctx.restore()
-  })
-})
-
-watch(() => props.icon.url, async (url) => {
-  if (!url)
-    return
-  await ready
-  await loadFromUrl(url)
-}, { immediate: true })
+  }
+  fromURL ? clearStash() : stashIcon(canvas)
+}
 
 const cancel = () => {
   emits('close')
 }
-
-onBeforeUnmount(() => {
-  destory()
-})
 </script>
 
 <template>
-  <WinDialog
-    element-loading-text="等待文件系统响应..."
-    element-loading-background="var(--el-mask-color-extra-light)"
-  >
+  <WinDialog>
     <WinDialogTitleBar
+      class="gap-2"
+      :disabled="loading"
       @close="cancel"
     >
-      编辑图标 | {{ icon.tag }}
+      <el-tag size="small" type="warning">
+        ID: {{ props.icon.id }}
+      </el-tag>
+      <div>
+        {{ props.icon.tag }}
+      </div>
     </WinDialogTitleBar>
 
-    <WinDialogTabPanel
-      class="w-[384px] mb-0 flex flex-col"
-    >
-      <el-form
-        :model="iconForm"
-        label-width="60px"
-        class="w-full shrink-0 overflow-hidden"
+    <WinDialogTabPanel class="w-[384px] mb-0 flex flex-col">
+      <div class="w-full shrink-0 overflow-hidden flex">
+        <div
+          class="shrink-0 relative toggle-cropper border border-[var(--el-border-color)] rounded overflow-hidden"
+          :class="{
+            'is-editting': iconEditable,
+          }"
+        >
+          <IconRenderer
+            class="w-[120px] h-[120px]"
+            :icon-id="props.icon.id"
+            @click="iconEditable = !iconEditable"
+          />
+        </div>
+
+        <el-form
+          :disabled="loading"
+          :model="iconForm"
+          label-width="60px"
+          class="flex-1"
+        >
+          <el-form-item label="名称" prop="tag" style="margin-bottom: 17px;">
+            <el-input v-model="iconForm.tag" />
+          </el-form-item>
+
+          <el-form-item label="描述" prop="description" style="margin-bottom: 0;">
+            <el-input v-model="iconForm.description" :rows="3" resize="none" type="textarea" />
+          </el-form-item>
+        </el-form>
+      </div>
+
+      <el-divider style="margin: 8px 0" />
+
+      <div class="grid grid-cols-2 place-items-start text-xs">
+        <div class="w-full grid grid-cols-[60px_1fr]">
+          <div>分辨率</div>
+          <div>
+            {{ rawIconMeta ? `${rawIconMeta.bmp.width.toFixed(2)} x ${rawIconMeta.bmp.height.toFixed(2)}` : 'Loading...' }}
+          </div>
+          <div>文件大小</div>
+          <div>
+            {{ rawIconMeta ? formatByteSize(rawIconMeta.blob.size) : 'Loading...' }}
+          </div>
+        </div>
+        <div class="w-full grid grid-cols-[60px_1fr]">
+          <div class="w-full overflow-hidden whitespace-nowrap text-ellipsis">
+            创建人
+          </div>
+          <div class="w-full overflow-hidden whitespace-nowrap text-ellipsis">
+            {{ userMap.get(icon.creatorId ?? -1)?.nickname || `(ID: ${icon.creatorId})` }}
+          </div>
+          <div class="w-full overflow-hidden whitespace-nowrap text-ellipsis">
+            创建时间
+          </div>
+          <div class="w-full overflow-hidden whitespace-nowrap text-ellipsis">
+            {{ icon.createTime ? dayjs(icon.createTime).format('YYYY-MM-DD HH:mm:ss') : '--N/A--' }}
+          </div>
+          <div class="w-full overflow-hidden whitespace-nowrap text-ellipsis">
+            最后修改
+          </div>
+          <div class="w-full overflow-hidden whitespace-nowrap text-ellipsis">
+            {{ userMap.get(icon.updaterId ?? -1)?.nickname || `(ID: ${icon.updaterId})` }}
+          </div>
+          <div class="w-full overflow-hidden whitespace-nowrap text-ellipsis">
+            修改时间
+          </div>
+          <div class="w-full overflow-hidden whitespace-nowrap text-ellipsis">
+            {{ icon.updateTime ? dayjs(icon.updateTime).format('YYYY-MM-DD HH:mm:ss') : '--N/A--' }}
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="transition-[height] overflow-visible"
+        :class="iconEditable ? 'h-[297px]' : 'h-0'"
       >
-        <el-form-item label="名称" prop="tag">
-          <el-input v-model="iconForm.tag" />
-        </el-form-item>
-
-        <el-form-item label="描述" prop="description">
-          <el-input v-model="iconForm.description" type="textarea" />
-        </el-form-item>
-      </el-form>
-
-      <div class="flex-1 w-full overflow-hidden flex gap-2">
-        <div class="shrink-0 w-[240px] flex flex-col gap-2">
-          <!-- 裁切容器 -->
-          <div ref="containerRef" class="w-full h-[240px] chessboard-background" />
-
-          <div class="h-[32px] flex items-center">
-            <el-checkbox v-model="config.clipCircle" label="圆形" />
-            <el-checkbox v-model="config.keepRatio" label="保持比例" />
-          </div>
-        </div>
-
-        <div class="flex-1 h-[280px] flex flex-col gap-2 justify-between">
-          <div class="w-full shrink-0">
-            <el-button style="width: 100%" :icon="Upload" @click="loadFromFile">
-              选择图片
-            </el-button>
-          </div>
-
-          <div class="flex-1 flex flex-col gap-1 items-center justify-center">
-            <!-- 修改前预览 -->
-            <img
-              class="border border-[var(--el-border-color)]"
-              :src="props.icon.url"
-              draggable="false"
-              crossorigin=""
-            >
-            <div class="shrink-0 text-xs">
-              {{ (rawImage?.width ?? 0).toFixed(1) }} x {{ (rawImage?.height ?? 0).toFixed(1) }}
-            </div>
-          </div>
-
-          <div class="flex items-center justify-center">
-            <el-icon>
-              <ArrowDown />
-            </el-icon>
-          </div>
-
-          <div class="flex-1 flex flex-col gap-1 items-center justify-center">
-            <!-- 修改后预览 -->
-            <canvas
-              ref="previewerRef"
-              class="border border-[var(--el-border-color)]"
-              width="64"
-              height="64"
-            />
-            <div class="shrink-0 text-xs">
-              {{ outputSize.w.toFixed(2) }} x {{ outputSize.h.toFixed(2) }}
-            </div>
-          </div>
-
-          <div class="shrink-0 w-full h-[32px]" />
-        </div>
+        <el-divider style="margin: 8px 0" />
+        <ImageCropper
+          :raw="props.icon.url"
+          class="w-full flex-1"
+          @image-load="handleImageLoad"
+        />
       </div>
     </WinDialogTabPanel>
 
-    <WinDialogFooter>
+    <WinDialogFooter class="items-center">
+      <div class="flex-1">
+        <el-tag v-if="iconEditable && isChanged" disable-transitions type="success">
+          将会更新图片
+        </el-tag>
+      </div>
       <el-button
         type="primary"
         :icon="Check"
+        :loading="loading"
+        @click="updateIcon"
       >
         确认
       </el-button>
       <el-button
         :icon="Close"
+        :disabled="loading"
         @click="cancel"
       >
         取消
@@ -185,20 +201,43 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-.chessboard-background {
-  --s: 32px;
-  --color-a: transparent;
-  --color-b: var(--el-fill-color-darker);
-  background: conic-gradient(
-    from 0deg at 50% 50%,
-    var(--color-a) 25%,
-    var(--color-b) 25%,
-    var(--color-b) 50%,
-    var(--color-a) 50%,
-    var(--color-a) 75%,
-    var(--color-b) 75%,
-    var(--color-b) 100%
-  );
-  background-size: var(--s) var(--s);
+.toggle-cropper {
+  --content: '编辑图片';
+  --bg: var(--el-color-primary);
+  --bg-alpha: 0%;
+  --text-alpha: 0%;
+
+  cursor: pointer;
+
+  &::before {
+    content: var(--content);
+    border-radius: 4px;
+    display: grid;
+    place-content: center;
+    color: color-mix(in srgb, var(--el-color-white) var(--text-alpha), transparent calc(100% - var(--text-alpha)));
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    opacity: var(--alpha);
+    background-color: color-mix(in srgb, var(--bg) var(--bg-alpha), transparent calc(100% - var(--bg-alpha)));
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  &:hover {
+    --text-alpha: 100%;
+    --bg-alpha: 50%;
+  }
+  &:active {
+    --bg-alpha: 30%;
+  }
+
+  &.is-editting {
+    --bg: var(--el-color-warning);
+    --content: '取消编辑';
+    border-color: var(--el-color-warning);
+  }
 }
 </style>

@@ -1,6 +1,6 @@
 export * from './useIconDelete'
 export * from './useIconList'
 export * from './useIconTypeList'
+export { useIconUpdate } from './useIconUpdate'
 export * from './useImageLoad'
 export * from './useImageSelect'
-export * from './useImageUpload'

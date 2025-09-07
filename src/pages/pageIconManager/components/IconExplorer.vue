@@ -1,22 +1,22 @@
 <script setup lang="ts">
-import { AppIconTagRenderer, AppVirtualTable } from '@/components'
-import { useIconTagStore } from '@/stores'
+import { AppVirtualTable, IconRenderer } from '@/components'
+import { useIconStore } from '@/stores'
 
 const props = defineProps<{
-  tagList: API.TagVo[]
+  tagList: API.IconVo[]
   loading: boolean
 }>()
 
-const scrollTarget = defineModel<API.TagVo | null>('scrollTarget', {
+const scrollTarget = defineModel<API.IconVo | null>('scrollTarget', {
   required: false,
   default: null,
 })
 
 const ICON_SIZE = 100
 
-const iconTagStore = useIconTagStore()
+const iconStore = useIconStore()
 
-const activedTag = defineModel<API.TagVo | null>('activedTag', {
+const activedTag = defineModel<API.IconVo | null>('activedTag', {
   required: true,
 })
 
@@ -24,7 +24,7 @@ const tableContainerRef = ref<HTMLElement>()
 const { width } = useElementSize(tableContainerRef)
 const gridItems = computed(() => Math.floor((width.value - 32) / ICON_SIZE))
 
-const scrollTo = (target: API.TagVo | null) => {
+const scrollTo = (target: API.IconVo | null) => {
   if (!target)
     return
 
@@ -55,7 +55,7 @@ watch(scrollTarget, scrollTo)
     class="border-r-[1px] border-[var(--el-border-color-light)] h-full overflow-hidden"
     element-loading-text="正在处理..."
     :style="{
-      '--sprite-image': `url(${iconTagStore.tagSpriteUrl})`,
+      '--sprite-image': `url(${iconStore.iconTextureUrl})`,
     }"
   >
     <AppVirtualTable
@@ -64,22 +64,21 @@ watch(scrollTarget, scrollTo)
       :item-height="ICON_SIZE"
       :item-width="ICON_SIZE"
     >
-      <template #default="{ item }">
+      <template #default="{ item: icon }">
         <div
           class="grid-item"
-          :title="item.tag"
+          :title="icon.tag"
           :class="{
-            'is-actived': item.tag === activedTag?.tag,
+            'is-actived': icon.tag === activedTag?.tag,
           }"
-          @click="activedTag = item"
+          @click="activedTag = icon"
         >
-          <AppIconTagRenderer
+          <IconRenderer
             class="w-12 h-12 text-[#AB9073]"
-            :src="iconTagStore.tagSpriteUrl"
-            :mapping="iconTagStore.tagPositionMap[item.tag!]"
+            :icon-id="icon.id"
           />
           <div class="item-label">
-            {{ item.tag }}
+            {{ icon.tag }}
           </div>
         </div>
       </template>

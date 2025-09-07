@@ -1,17 +1,15 @@
 <script setup lang="ts">
-import { useGlobalDialog } from '@/hooks'
 import { ArrowDown, CircleCheck, CirclePlus, Sort } from '@element-plus/icons-vue'
-import { TagCreator } from '.'
 
-const emits = defineEmits<{
-  createTagSuccess: [tag: API.TagVo]
+defineEmits<{
+  createTagSuccess: [tag: API.IconVo]
 }>()
 
-const queryTagName = defineModel<string>('queryTagName', {
+const queryName = defineModel<string>('queryName', {
   required: true,
 })
 
-const queryTagType = defineModel<API.TagTypeVo>('queryTagType', {
+const queryType = defineModel<API.IconTypeVo>('queryType', {
   required: true,
 })
 
@@ -25,7 +23,7 @@ const sortType = defineModel<string>('sortType', {
 
 const sortOptions: { role: 'key' | 'type', value: string, name: string, divided?: boolean }[] = [
   { role: 'key', value: 'tag', name: '名称' },
-  { role: 'key', value: 'iconId', name: '图片 id' },
+  { role: 'key', value: 'id', name: '图片 id' },
   { role: 'key', value: 'createTime', name: '创建时间' },
   { role: 'key', value: 'updateTime', name: '修改时间' },
   { role: 'type', value: '+', name: '正序', divided: true },
@@ -40,31 +38,15 @@ const handleSortCommand = (command: string) => {
   else
     sortType.value = value
 }
-
-const { DialogService } = useGlobalDialog()
-
-const openTagCreatorDialog = () => {
-  DialogService
-    .config({
-      width: 'fit-content',
-      showClose: false,
-      closeOnClickModal: false,
-      closeOnPressEscape: false,
-      alignCenter: true,
-    })
-    .listeners({
-      success: (tag: API.TagVo) => emits('createTagSuccess', tag),
-    })
-    .open(TagCreator)
-}
 </script>
 
 <template>
   <div class="col-span-3 flex justify-end items-center p-2 border-b-[1px] border-[var(--el-border-color-lighter)]">
+    <!-- 搜索输入框 -->
     <el-input
-      v-model="queryTagName"
+      v-model="queryName"
       style="max-width: 300px"
-      :placeholder="`在 ${queryTagType.name} 中搜索`"
+      :placeholder="`在 ${queryType.name} 中搜索`"
       clearable
     >
       <template #prefix>
@@ -76,6 +58,7 @@ const openTagCreatorDialog = () => {
 
     <el-divider direction="vertical" />
 
+    <!-- 排序选择器 -->
     <el-dropdown :hide-on-click="false" @command="handleSortCommand">
       <el-button text :icon="Sort">
         排序
@@ -109,7 +92,8 @@ const openTagCreatorDialog = () => {
 
     <el-divider direction="vertical" />
 
-    <el-button text :icon="CirclePlus" @click="openTagCreatorDialog">
+    <!-- 操作栏 -->
+    <el-button text :icon="CirclePlus">
       新建
     </el-button>
   </div>

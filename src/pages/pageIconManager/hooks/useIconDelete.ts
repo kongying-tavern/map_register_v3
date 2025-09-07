@@ -1,18 +1,16 @@
-import Api from '@/api/api'
-import db from '@/database'
-import { useFetchHook } from '@/hooks'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import Api from '@/api/api'
+import { useFetchHook } from '@/hooks'
 
 export const useIconDelete = () => {
   const { refresh: submitDeleteIcon, loading, onSuccess, onError, ...rest } = useFetchHook({
-    onRequest: async (tag: API.TagVo) => {
-      await Api.tag.deleteTag({ tagName: tag.tag! })
-      await db.iconTag.delete(tag.tag!)
+    onRequest: async (icon: API.IconVo) => {
+      await Api.icon.deleteIcon({ iconId: icon.id! })
     },
   })
 
-  const confirmDeleteIcon = async (tag: API.TagVo) => ElMessageBox.confirm(
-    `该操作不可恢复，确认删除图标 ${tag.tag} ？`,
+  const confirmDeleteIcon = async (icon: API.IconVo) => ElMessageBox.confirm(
+    `该操作不可恢复，确认删除图标 ${icon.tag} ？`,
     '警告',
     {
       type: 'warning',
@@ -31,7 +29,7 @@ export const useIconDelete = () => {
         if (action !== 'cancel')
           return done()
         instance.cancelButtonLoading = true
-        await submitDeleteIcon(tag)
+        await submitDeleteIcon(icon)
         instance.cancelButtonLoading = false
         done()
       },
