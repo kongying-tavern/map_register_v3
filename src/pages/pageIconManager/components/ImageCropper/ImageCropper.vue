@@ -43,9 +43,7 @@ const previewerCtxRef = shallowRef<CanvasRenderingContext2D>()
 const previewerSize = computed(() => {
   if (!config.value.rawSize || !newImage.value)
     return { w: 64, h: 64 }
-  const { width, height } = newImage.value
-  const edge = Math.max(width, height)
-  return { w: edge, h: edge }
+  return outputSize.value
 })
 
 const disabledEdit = computed(() => {
@@ -94,7 +92,9 @@ const { off: off2 } = onCropperError((err) => {
 /** 绘制裁切预览 */
 onMounted(() => {
   const canvas = previewerRef.value!
-  const ctx = canvas.getContext('2d')!
+  const ctx = canvas.getContext('2d', {
+
+  })!
   previewerCtxRef.value = ctx
 })
 
@@ -106,26 +106,33 @@ const { off: off3 } = onFrame(({ rect, image }) => {
   if (!raw)
     return
   const { width: cw, height: ch } = ctx.canvas
-  const maxEdge = Math.max(cw, ch)
-  const r = maxEdge / 2
-  const clipPath = new Path2D(`M${r},0 A${r},${r} 0,0,1 ${r},${maxEdge} A${r},${r} 0,0,1 ${r},0 Z`)
   ctx.clearRect(0, 0, cw, ch)
   ctx.save()
+  const maxEdge = Math.max(cw, ch)
+  const ccw = cw / 2
+  const cch = ch / 2
+  const r = maxEdge / 2
+  const clipPath = new Path2D()
+  clipPath.arc(ccw, cch, r, 0, 2 * Math.PI)
   if (config.value.clipCircle)
     ctx.clip(clipPath)
+  // 基于原图尺寸渲染
   if (config.value.rawSize) {
     const { width: rawW, height: rawH } = raw
     const { x: baseX, y: baseY, width: baseW, height: baseH } = image.getClientRect()
     const { x: rectX, y: rectY, width: rectW, height: rectH } = rect.getClientRect()
     const x = rawW * (rectX - baseX) / baseW
     const y = rawH * (rectY - baseY) / baseH
-    const w = rawW * rectW / baseW
-    const h = rawH * rectH / baseH
-    const { sx, sy, sw, sh, dx, dy, dw, dh } = getObjectFitSize('contain', cw, ch, w, h)
-    outputSize.value = { w, h }
-    ctx.drawImage(raw, x + sx, y + sy, sw, sh, dx, dy, dw, dh)
+    const w = Math.round(rawW * rectW / baseW)
+    const h = Math.round(rawH * rectH / baseH)
+    if (outputSize.value.w !== w)
+      outputSize.value.w = w
+    if (outputSize.value.h !== h)
+      outputSize.value.h = h
+    ctx.drawImage(raw, x, y, w, h, 0, 0, w, h)
     emits('outputChange', outputSize.value)
   }
+  // 基于缩比场景渲染
   else {
     const { x: ix, y: iy } = image.getClientRect()
     const { x, y, width: w, height: h } = rect.getClientRect()
@@ -170,7 +177,7 @@ onBeforeUnmount(() => {
         </el-button>
 
         <!-- 修改前预览 -->
-        <div class="flex-1 flex flex-col gap-1 items-center justify-center">
+        <div v-if="raw" class="flex-1 flex flex-col gap-1 items-center justify-center">
           <img
             class="w-[66px] h-[66px] border border-[var(--el-border-color)] object-contain"
             :src="props.raw"
@@ -183,15 +190,15 @@ onBeforeUnmount(() => {
         </div>
 
         <!-- 指向图标 -->
-        <div v-show="newImage" class="flex items-center justify-center">
+        <div v-show="(raw && newImage)" class="flex items-center justify-center">
           <el-icon>
             <ArrowDown />
           </el-icon>
         </div>
 
         <!-- 修改后预览 -->
-        <div v-show="newImage" class="flex-1 flex flex-col gap-1 items-center justify-center">
-          <div class="w-[66px] h-[66px] border border-[var(--el-border-color)] scale-container">
+        <div v-show="!raw || (raw && newImage)" class="flex-1 flex flex-col gap-1 items-center justify-center">
+          <div class="w-[66px] h-[66px] border border-[var(--el-border-color)] relative scale-container">
             <canvas
               ref="previewerRef"
               class="scale-to-container"
@@ -236,7 +243,7 @@ onBeforeUnmount(() => {
           style="margin: 0"
         />
       </div>
-      <div class="flex-1 flex justify-end">
+      <div v-if="raw" class="flex-1 flex justify-end">
         <el-button
           size="small"
           :disabled="disabledEdit"
@@ -269,15 +276,16 @@ onBeforeUnmount(() => {
 }
 
 .scale-container {
-  container-type: size;
+  display: grid;
+  place-content: center;
 }
 
 .scale-to-container {
   --scale: 1;
-  transform-origin: 0 0;
+  transform-origin: center;
   transform: scale(var(--scale));
   &.raw-size {
-    --scale: calc(100cqw / (var(--w) * 1px));
+    --scale: calc(min(64 / var(--w), 64 / var(--h)));
   }
 }
 </style>
