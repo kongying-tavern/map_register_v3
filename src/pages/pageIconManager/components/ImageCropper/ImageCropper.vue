@@ -13,55 +13,77 @@ const props = withDefaults(defineProps<{
 
 const emits = defineEmits<{
   outputChange: [size: { w: number, h: number }]
-  imageLoad: [bmp: ImageBitmap, blob: Blob, fromURL: boolean, canvas: HTMLCanvasElement]
+  imageLoad: [bmp: ImageBitmap, blob: Blob, isRaw: boolean, canvas: HTMLCanvasElement]
 }>()
 
 /** 裁切器界面 */
 const config = ref({
+  /** 原始尺寸 */
+  rawSize: false,
   /** 圆形裁切 */
   clipCircle: false,
   /** 保持比例 */
   keepRatio: true,
 })
 
-/** 原始图像 */
-const rawImage = shallowRef<ImageBitmap | null>(null)
+/** 初始图像 */
+const oldImage = shallowRef<ImageBitmap | null>(null)
+/** 新图像 */
+const newImage = shallowRef<ImageBitmap | null>(null)
 /** 输出图像尺寸 */
 const outputSize = ref({ w: 0, h: 0 })
-/** 是否为新图像 */
-const isNewImage = ref(false)
 
 /** 裁切容器 */
 const containerRef = shallowRef<HTMLDivElement>()
 /** 预览容器 */
 const previewerRef = shallowRef<HTMLCanvasElement>()
+/** 预览容器的上下文 */
+const previewerCtxRef = shallowRef<CanvasRenderingContext2D>()
+/** 预览容器尺寸 */
+const previewerSize = computed(() => {
+  if (!config.value.rawSize || !newImage.value)
+    return { w: 64, h: 64 }
+  const { width, height } = newImage.value
+  const edge = Math.max(width, height)
+  return { w: edge, h: edge }
+})
+
+const disabledEdit = computed(() => {
+  return props.loading || !newImage.value
+})
 
 /** 裁切逻辑封装 */
 const {
   ready,
   destory,
   loadFromFile,
-  loadFromUrl,
+  loadFromSrc,
   onFrame,
   onImageLoad,
   onError: onCropperError,
 } = useImageCropper(containerRef, {
-  disabled: computed(() => props.loading || !isNewImage.value),
+  disabled: disabledEdit,
   keepRatio: computed(() => config.value.keepRatio),
 })
 
 /** 恢复原始图片 */
 const reset = () => {
   if (props.raw)
-    loadFromUrl(props.raw)
+    loadFromSrc(props.raw, { raw: true })
 }
 
 /** 记录首次加载图片 */
-const { off: off1 } = onImageLoad(([bmp, blob, fromURL]) => {
+const { off: off1 } = onImageLoad(([bmp, blob, isRaw]) => {
   if (!previewerRef.value)
     return
-  isNewImage.value = !fromURL
-  emits('imageLoad', bmp, blob, fromURL, previewerRef.value)
+  if (isRaw) {
+    oldImage.value = bmp
+    newImage.value = null
+  }
+  else {
+    newImage.value = bmp
+  }
+  emits('imageLoad', bmp, blob, isRaw, previewerRef.value)
 })
 
 /** 错误处理 */
@@ -69,38 +91,64 @@ const { off: off2 } = onCropperError((err) => {
   ElMessage.error(err.message)
 })
 
+/** 绘制裁切预览 */
 onMounted(() => {
-  const previewer = previewerRef.value
-  if (!previewer)
+  const canvas = previewerRef.value!
+  const ctx = canvas.getContext('2d')!
+  previewerCtxRef.value = ctx
+})
+
+const { off: off3 } = onFrame(({ rect, image }) => {
+  const ctx = previewerCtxRef.value
+  if (!ctx)
     return
-  const ctx = previewer.getContext('2d')!
-  onFrame(({ rect, image }) => {
+  const raw = newImage.value
+  if (!raw)
+    return
+  const { width: cw, height: ch } = ctx.canvas
+  const maxEdge = Math.max(cw, ch)
+  const r = maxEdge / 2
+  const clipPath = new Path2D(`M${r},0 A${r},${r} 0,0,1 ${r},${maxEdge} A${r},${r} 0,0,1 ${r},0 Z`)
+  ctx.clearRect(0, 0, cw, ch)
+  ctx.save()
+  if (config.value.clipCircle)
+    ctx.clip(clipPath)
+  if (config.value.rawSize) {
+    const { width: rawW, height: rawH } = raw
+    const { x: baseX, y: baseY, width: baseW, height: baseH } = image.getClientRect()
+    const { x: rectX, y: rectY, width: rectW, height: rectH } = rect.getClientRect()
+    const x = rawW * (rectX - baseX) / baseW
+    const y = rawH * (rectY - baseY) / baseH
+    const w = rawW * rectW / baseW
+    const h = rawH * rectH / baseH
+    const { sx, sy, sw, sh, dx, dy, dw, dh } = getObjectFitSize('contain', cw, ch, w, h)
+    outputSize.value = { w, h }
+    ctx.drawImage(raw, x + sx, y + sy, sw, sh, dx, dy, dw, dh)
+    emits('outputChange', outputSize.value)
+  }
+  else {
     const { x: ix, y: iy } = image.getClientRect()
     const { x, y, width: w, height: h } = rect.getClientRect()
-    ctx.clearRect(0, 0, 64, 64)
-    ctx.save()
-    if (config.value.clipCircle)
-      ctx.clip(new Path2D('M32,0 A32,32 0,0,1 32,64 A32,32 0,0,1 32,0 Z'))
-    const { sx, sy, sw, sh, dx, dy, dw, dh } = getObjectFitSize('contain', 64, 64, w, h)
+    const { sx, sy, sw, sh, dx, dy, dw, dh } = getObjectFitSize('contain', cw, ch, w, h)
     outputSize.value = { w: dw, h: dh }
-    emits('outputChange', outputSize.value)
     ctx.drawImage(image.toCanvas(), x + sx - ix, y + sy - iy, sw, sh, dx, dy, dw, dh)
-    ctx.restore()
-  })
+    emits('outputChange', outputSize.value)
+  }
+  ctx.restore()
 })
 
 watch(() => props.raw, async (url) => {
   if (!url)
     return
   await ready
-  const bmp = await loadFromUrl(url)
-  rawImage.value = bmp ?? null
+  await loadFromSrc(url, { raw: true })
 }, { immediate: true })
 
 onBeforeUnmount(() => {
-  destory()
   off1()
   off2()
+  off3()
+  destory()
 })
 </script>
 
@@ -116,7 +164,7 @@ onBeforeUnmount(() => {
           style="width: 100%"
           :icon="FolderOpened"
           :disabled="loading"
-          @click="loadFromFile"
+          @click="() => loadFromFile(false)"
         >
           选择图片
         </el-button>
@@ -130,25 +178,35 @@ onBeforeUnmount(() => {
             crossorigin=""
           >
           <div class="shrink-0 text-xs">
-            {{ (rawImage?.width ?? 0).toFixed(2) }} x {{ (rawImage?.height ?? 0).toFixed(2) }}
+            {{ (oldImage?.width ?? 0).toFixed(2) }} x {{ (oldImage?.height ?? 0).toFixed(2) }}
           </div>
         </div>
 
         <!-- 指向图标 -->
-        <div v-show="isNewImage" class="flex items-center justify-center">
+        <div v-show="newImage" class="flex items-center justify-center">
           <el-icon>
             <ArrowDown />
           </el-icon>
         </div>
 
         <!-- 修改后预览 -->
-        <div v-show="isNewImage" class="flex-1 flex flex-col gap-1 items-center justify-center">
-          <canvas
-            ref="previewerRef"
-            class="border border-[var(--el-border-color)]"
-            width="64"
-            height="64"
-          />
+        <div v-show="newImage" class="flex-1 flex flex-col gap-1 items-center justify-center">
+          <div class="w-[66px] h-[66px] border border-[var(--el-border-color)] scale-container">
+            <canvas
+              ref="previewerRef"
+              class="scale-to-container"
+              :style="{
+                '--w': previewerSize.w,
+                '--h': previewerSize.h,
+              }"
+              :class="{
+                'raw-size': config.rawSize,
+              }"
+              :width="previewerSize.w"
+              :height="previewerSize.h"
+            />
+          </div>
+
           <div class="shrink-0 text-xs">
             {{ outputSize.w.toFixed(2) }} x {{ outputSize.h.toFixed(2) }}
           </div>
@@ -158,22 +216,30 @@ onBeforeUnmount(() => {
 
     <!-- 底部操作栏 -->
     <div class="h-[32px] flex items-center">
-      <div class="flex-1 flex items-center">
+      <div class="shrink-0 flex gap-4 items-center">
         <el-checkbox
           v-model="config.clipCircle"
-          :disabled="loading || !isNewImage"
+          :disabled="disabledEdit"
           label="圆形裁切"
+          style="margin: 0"
+        />
+        <el-checkbox
+          v-model="config.rawSize"
+          :disabled="disabledEdit"
+          label="原始尺寸"
+          style="margin: 0"
         />
         <el-checkbox
           v-model="config.keepRatio"
-          :disabled="loading || !isNewImage"
+          :disabled="disabledEdit"
           label="保持比例"
+          style="margin: 0"
         />
       </div>
-      <div class="shrink-0 flex justify-end">
+      <div class="flex-1 flex justify-end">
         <el-button
           size="small"
-          :disabled="loading || !isNewImage"
+          :disabled="disabledEdit"
           :icon="Refresh"
           @click="reset"
         >
@@ -200,5 +266,18 @@ onBeforeUnmount(() => {
     var(--color-b) 100%
   );
   background-size: var(--s) var(--s);
+}
+
+.scale-container {
+  container-type: size;
+}
+
+.scale-to-container {
+  --scale: 1;
+  transform-origin: 0 0;
+  transform: scale(var(--scale));
+  &.raw-size {
+    --scale: calc(100cqw / (var(--w) * 1px));
+  }
 }
 </style>

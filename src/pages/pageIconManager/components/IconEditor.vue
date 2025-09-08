@@ -62,12 +62,13 @@ onSuccess(() => {
 })
 
 /** 记录图标变更情况 */
-const handleImageLoad = (bmp: ImageBitmap, blob: Blob, fromURL: boolean, canvas: HTMLCanvasElement) => {
-  if (rawIconMeta.value === null) {
+const handleImageLoad = (bmp: ImageBitmap, blob: Blob, isRaw: boolean, canvas: HTMLCanvasElement) => {
+  if (isRaw) {
     rawIconMeta.value = { bmp, blob }
+    clearStash()
     return
   }
-  fromURL ? clearStash() : stashIcon(canvas)
+  stashIcon(canvas)
 }
 
 const cancel = () => {

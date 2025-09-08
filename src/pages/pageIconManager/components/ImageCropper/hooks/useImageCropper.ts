@@ -37,7 +37,7 @@ export const useImageCropper = (
   }
 
   /** 图片加载 hook */
-  const imageHook = createEventHook<[bmp: ImageBitmap, blob: Blob, fromURL: boolean]>()
+  const imageHook = createEventHook<[bmp: ImageBitmap, blob: Blob, isRaw: boolean]>()
   /** 错误处理 hook */
   const errorHook = createEventHook<Error>()
   /** 渲染处理 hook */
@@ -203,7 +203,10 @@ export const useImageCropper = (
   }
 
   /** 从文件选择器加载图片 */
-  const loadFromFile = async () => {
+  const loadFromFile = async (
+    /** 是否为原始图片 */
+    raw = false,
+  ) => {
     try {
       const [handle] = await window.showOpenFilePicker({
         types: [
@@ -217,7 +220,7 @@ export const useImageCropper = (
       const file = await handle.getFile()
       const bmp = await createImageBitmap(file)
       setupLayer(bmp)
-      imageHook.trigger([bmp, file, false])
+      imageHook.trigger([bmp, file, raw])
     }
     catch (err) {
       catchError(err)
@@ -227,18 +230,34 @@ export const useImageCropper = (
   /** 异步操作取消/中断的控制器 */
   const loadController = shallowRef<AbortController | null>(null)
 
-  /** 从远程地址加载图片 */
-  const loadFromUrl = async (src: string) => {
+  /** 从非本地源加载图片 */
+  const loadFromSrc = async (
+    /** 图源 */
+    src: string | Blob | ArrayBuffer,
+    options: {
+      /** 是否为原始图片 @default false */
+      raw?: boolean
+      /** 使用二进制源时指定图片的 MIME 类型 @default 'image/webp' */
+      type?: string
+    } = {},
+  ) => {
+    const { raw = false, type = 'image/webp' } = options
     try {
       loadController.value?.abort('Image Source Changed')
       const ac = new AbortController()
       loadController.value = ac
       // 加载图片
-      const res = await fetch(src, { signal: ac.signal, mode: 'cors' })
-      const blob = await res.blob()
+      const blob = await (async () => {
+        if (src instanceof Blob)
+          return src
+        if (src instanceof ArrayBuffer)
+          return new Blob([src], { type })
+        const res = await fetch(src, { signal: ac.signal, mode: 'cors' })
+        return res.blob()
+      })()
       const bmp = await createImageBitmap(blob)
       setupLayer(bmp)
-      imageHook.trigger([bmp, blob, true])
+      imageHook.trigger([bmp, blob, raw])
       return bmp
     }
     catch (err) {
@@ -258,7 +277,7 @@ export const useImageCropper = (
     ready,
     destory,
     loadFromFile,
-    loadFromUrl,
+    loadFromSrc,
     onImageLoad: imageHook.on,
     onError: errorHook.on,
     onFrame: frameHook.on,
