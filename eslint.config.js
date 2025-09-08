@@ -37,6 +37,8 @@ export default antfu({
       'default-param-last': 'error',
     },
     typescript: {
+      'eslint-comments/no-unlimited-disable': ['off'],
+
       // 一般情况下不允许使用 any
       'ts/no-explicit-any': 'warn',
 

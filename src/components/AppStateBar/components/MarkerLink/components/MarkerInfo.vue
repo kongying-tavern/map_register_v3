@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { GSMarkerInfo } from '@/packages/map'
 import { AppIconTagRenderer } from '@/components'
-import { useAreaStore, useIconTagStore, useItemStore } from '@/stores'
+import { useAreaStore, useIconStore, useItemStore } from '@/stores'
 
 const props = withDefaults(defineProps<{
   marker?: GSMarkerInfo
@@ -13,7 +13,7 @@ const props = withDefaults(defineProps<{
 
 const areaStore = useAreaStore()
 const itemStore = useItemStore()
-const iconTagStore = useIconTagStore()
+const iconStore = useIconStore()
 
 const areas = computed(() => {
   if (!props.marker)
@@ -57,8 +57,8 @@ const areas = computed(() => {
       :class="reverse ? 'flex-row-reverse' : ''"
     >
       <AppIconTagRenderer
-        :mapping="iconTagStore.tagPositionMap[marker.render.mainIconTag]"
-        :src="iconTagStore.tagSpriteUrl"
+        :mapping="iconStore.iconCoordMap.get(marker.render.mainIconId)"
+        :src="iconStore.iconTextureUrl"
         class="w-10 h-10 bg-[var(--el-color-info-light-7)] p-0.5 rounded-full flex-shrink-0 border border-[var(--el-color-info)]"
       />
 

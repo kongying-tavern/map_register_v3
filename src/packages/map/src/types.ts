@@ -1,6 +1,6 @@
-import type { AreaTagTuple } from '@/configs'
-
 import type { DeckProps, IconLayerProps, OrthographicView, OrthographicViewState } from 'deck.gl'
+
+import type { AreaTagTuple } from '@/configs'
 
 type OrthographicViewMapProps = DeckProps<OrthographicView>
 export type Coordinate2D = [x: number, y: number]
@@ -151,8 +151,8 @@ export interface GSMarkerInfo extends API.MarkerVo {
     /** 被渲染为主图标的物品 id */
     mainItemId: number
 
-    /** 主图标 tag */
-    mainIconTag: string
+    /** 主图标 id */
+    mainIconId: number
 
     /** 副图标 tag 列表 */
     restIconTags: string[]

@@ -1,11 +1,11 @@
 <script lang="ts" setup>
 import type { ElFormType } from '@/shared'
 import type { ItemFormRules } from '@/utils'
+import { cloneDeep } from 'lodash'
 import { AppIconTagRenderer, AppItemSelecter } from '@/components'
 import { HIDDEN_FLAG_OPTIONS } from '@/shared'
-import { useAccessStore, useIconTagStore } from '@/stores'
-import { cloneDeep } from 'lodash'
-import { useTagOptions } from '../hooks'
+import { useAccessStore, useIconStore } from '@/stores'
+import { useIconOptions } from '../hooks'
 
 const props = defineProps<{
   parent?: API.AreaVo
@@ -54,9 +54,9 @@ const areaCode = computed({
   },
 })
 
-const iconTagStore = useIconTagStore()
+const iconStore = useIconStore()
 
-const { loading, tagOptions, getTagList } = useTagOptions()
+const { loading, tagOptions, getTagList } = useIconOptions()
 
 const hiddenFlagOptions = useArrayFilter(HIDDEN_FLAG_OPTIONS, ({ value }) => accessStore.checkHiddenFlag(value))
 
@@ -110,15 +110,15 @@ defineExpose({
         <el-input v-model="formData.content" type="textarea" :rows="3" resize="none" />
       </el-form-item>
 
-      <el-form-item label="地区图标" prop="iconTag">
+      <el-form-item label="地区图标" prop="iconId">
         <div class="w-full flex gap-2">
           <AppIconTagRenderer
-            :src="iconTagStore.tagSpriteUrl"
-            :mapping="iconTagStore.tagPositionMap[formData.iconTag ?? '']"
+            :src="iconStore.iconTextureUrl"
+            :mapping="iconStore.iconCoordMap.get(formData.iconId ?? -1)"
             class="w-8 h-8 flex-shrink-0"
           />
           <el-select-v2
-            v-model="formData.iconTag"
+            v-model="formData.iconId"
             filterable
             remote
             clearable
@@ -127,7 +127,7 @@ defineExpose({
             :remote-method="getTagList"
             :loading="loading"
             :options="tagOptions"
-            @clear="formData.iconTag = ''"
+            @clear="formData.iconId = -1"
           >
             <template #default="{ item }">
               <div class="h-full flex justify-center items-center gap-1 overflow-hidden px-2" :title="item.label">

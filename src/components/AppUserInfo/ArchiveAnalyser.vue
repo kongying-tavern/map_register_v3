@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import { AppIconTagRenderer, GSSwitch } from '@/components'
 import { fallbackToStaticIcon } from '@/configs'
-import { useArchiveStore, useAreaStore, useIconTagStore, useItemStore, useMarkerStore, usePreferenceStore } from '@/stores'
+import { useArchiveStore, useAreaStore, useIconStore, useItemStore, useMarkerStore, usePreferenceStore } from '@/stores'
 
 const archiveStore = useArchiveStore()
-const iconTagStore = useIconTagStore()
+const iconStore = useIconStore()
 const areaStore = useAreaStore()
 const itemStore = useItemStore()
 const markerStore = useMarkerStore()
@@ -129,8 +129,8 @@ const countMap = computed(() => {
               :style="{
                 '--theme-color': '#84603D',
               }"
-              :src="iconTagStore.tagSpriteUrl"
-              :mapping="iconTagStore.tagCoordMap.get(area.iconTag!)"
+              :src="iconStore.iconTextureUrl"
+              :mapping="iconStore.iconCoordMap.get(area.iconId ?? -1)"
               mask="var(--theme-color)"
             >
               <div class="gs-archive-area w-full h-full row-span-2 rounded-sm" :style="{ '--icon': `url(${fallbackToStaticIcon(area)})` }" />

@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import type { InternalItemData } from './types'
-import { useAreaStore, useItemStore } from '@/stores'
-import { array2Tree } from '@/utils'
 import { Plus, Setting } from '@element-plus/icons-vue'
 import { ElDropdown } from 'element-plus'
+import { useAreaStore, useItemStore } from '@/stores'
+import { array2Tree } from '@/utils'
 import ItemTabs from './ItemTabs.vue'
 
 const areaStore = useAreaStore()
@@ -46,10 +46,10 @@ const itemDataList = computed({
   set: (list) => {
     modelValue.value = {
       ...modelValue.value,
-      itemList: list.map(({ itemId, iconTag, count = 0 }) => ({
+      itemList: list.map(({ itemId, iconId, count = 0 }) => ({
         itemId,
         count,
-        iconTag,
+        iconId,
       })),
     }
   },

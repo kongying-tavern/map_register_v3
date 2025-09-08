@@ -162,9 +162,9 @@ const timeFormatter = (time?: string) => {
             <el-text>{{ timeFormatter(form.createTime) }}</el-text>
           </el-form-item>
 
-          <el-form-item label="修改人" class="margin-bottom-0">
+          <el-form-item label="最后修改" class="margin-bottom-0">
             <el-text truncated>
-              {{ isUserInfoLoading ? '...' : userCache[form.creatorId ?? -1]?.nickname }} (id:{{ form.creatorId }})
+              {{ isUserInfoLoading ? '...' : userCache[form.updaterId ?? -1]?.nickname }} (id:{{ form.updaterId }})
             </el-text>
           </el-form-item>
 

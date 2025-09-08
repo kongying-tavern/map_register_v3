@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { AppIconTagRenderer, AppVirtualTable, AppWindowTeleporter } from '@/components'
-import { useIconTagStore, useItemStore } from '@/stores'
-import { pickMainItem } from '@/utils'
 import { ArrowDown, Check, CirclePlus, Close } from '@element-plus/icons-vue'
 import { ElCascaderPanel, ElDropdown, ElIcon } from 'element-plus'
+import { AppIconTagRenderer, AppVirtualTable, AppWindowTeleporter } from '@/components'
+import { useIconStore, useItemStore } from '@/stores'
+import { pickMainItem } from '@/utils'
 import { MapMissionInfo } from '../MapMissionInfo'
 import { ModifierCard, ModifierPreview } from './components'
 import { useMarkerTweaks, useMultiSelect, useTweaks } from './hooks'
 import { IconMouse } from './icons'
 
 const itemStore = useItemStore()
-const iconTagStore = useIconTagStore()
+const iconStore = useIconStore()
 
 const {
   windowInfo,
@@ -163,8 +163,8 @@ onFinalize(() => {
                 </div>
                 <div class="w-6 mx-2 ml-4">
                   <AppIconTagRenderer
-                    :mapping="iconTagStore.tagPositionMap[pickMainItem(newData, itemStore.itemIdMap).mainIconTag]"
-                    :src="iconTagStore.tagSpriteUrl"
+                    :mapping="iconStore.iconCoordMap.get(pickMainItem(newData, itemStore.itemIdMap).mainIconId)"
+                    :src="iconStore.iconTextureUrl"
                     class="w-6 h-6"
                   />
                 </div>

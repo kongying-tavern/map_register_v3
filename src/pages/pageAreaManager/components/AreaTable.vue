@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { AppRowImage, AppUserPopover } from '@/components'
 import { useUserPopover } from '@/hooks'
-import { useIconTagStore } from '@/stores'
+import { useIconStore } from '@/stores'
 import { timeFormatter } from '@/utils'
 
 const props = defineProps<{
@@ -19,7 +19,7 @@ const emits = defineEmits<{
 const tableContainerRef = ref<HTMLElement>()
 const { height } = useElementSize(tableContainerRef)
 
-const iconTagStore = useIconTagStore()
+const iconStore = useIconStore()
 
 const { IDENTIFICATION_SYMBOL, userData, triggerRef, trigger, close } = useUserPopover({
   getUser: userId => props.userMap[userId],
@@ -56,7 +56,7 @@ const typeAssert = (row: unknown) => row as API.AreaVo
 
       <el-table-column label="图标" :width="60">
         <template #default="{ row }">
-          <AppRowImage :src="iconTagStore.iconTagMap[row.iconTag ?? '']?.url" />
+          <AppRowImage :src="iconStore.idMap.get(row.iconId ?? -1)?.url" />
         </template>
       </el-table-column>
 

@@ -1,12 +1,12 @@
 <script setup lang="ts">
+import { Check, Close, Delete } from '@element-plus/icons-vue'
 import {
   AppIconTagRenderer,
   WinDialog,
   WinDialogFooter,
   WinDialogTitleBar,
 } from '@/components'
-import { useAreaStore, useIconTagStore } from '@/stores'
-import { Check, Close, Delete } from '@element-plus/icons-vue'
+import { useAreaStore, useIconStore } from '@/stores'
 import { useItemDelete } from '../hooks'
 
 const props = defineProps<{
@@ -19,7 +19,7 @@ const emits = defineEmits<{
 }>()
 
 const areaStore = useAreaStore()
-const iconTagStore = useIconTagStore()
+const iconStore = useIconStore()
 
 const area = computed(() => {
   return areaStore.areaIdMap.get(props.item.areaId!)
@@ -58,8 +58,8 @@ const confirm = async () => {
 
       <div class="py-1 px-2 rounded flex items-center bg-[var(--el-bg-color)] border border-[var(--el-border-color)]">
         <AppIconTagRenderer
-          :src="iconTagStore.tagSpriteUrl"
-          :mapping="iconTagStore.tagCoordMap.get(item.iconTag!)"
+          :src="iconStore.iconTextureUrl"
+          :mapping="iconStore.iconCoordMap.get(item.iconId ?? -1)"
           class="
             shrink-0
             w-12 h-12 mr-3 rounded-full

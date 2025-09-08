@@ -1,12 +1,12 @@
 <script lang="ts" setup>
-import type { ElFormType } from '@/shared'
 import type { FormRules } from 'element-plus'
 import type { TypeManager, TypeObject } from '../config'
+import type { ElFormType } from '@/shared'
 import { AppRowImage } from '@/components'
 import db from '@/database'
 import { useFetchHook } from '@/hooks'
 import { HIDDEN_FLAG_OPTIONS } from '@/shared'
-import { useAccessStore, useIconTagStore } from '@/stores'
+import { useAccessStore, useIconStore } from '@/stores'
 import { ItemTypeManager } from '../definitions'
 
 defineProps<{
@@ -15,7 +15,7 @@ defineProps<{
 }>()
 
 const accessStore = useAccessStore()
-const iconTagStore = useIconTagStore()
+const iconStore = useIconStore()
 
 const formRef = ref<ElFormType | null>(null)
 
@@ -23,17 +23,20 @@ const modelValue = defineModel<TypeObject>('modelValue', {
   required: true,
 })
 
-const tagOptions = ref<(API.TagVo & { label: string, value: string })[]>([])
-const { loading, refresh: getTagList, onSuccess } = useFetchHook({
+/** 图标选项列表 */
+const { data: iconOptions, loading, refresh: refreshIconOptions } = useFetchHook({
   immediate: true,
-  onRequest: (query: string) => db.iconTag.filter(tag => !query ? true : (tag.tag?.includes(query) ?? false)).toArray(),
-})
-onSuccess((tagList) => {
-  tagOptions.value = tagList.map(tag => ({
-    label: tag.tag!,
-    value: tag.tag!,
-    ...tag,
-  }))
+  onRequest: async (query: string) => {
+    const trimText = query.trim()
+    const iconList = trimText
+      ? await db.icon.filter(({ tag = '' }) => tag.includes(trimText)).toArray()
+      : await db.icon.toArray()
+    return iconList.map(icon => ({
+      label: icon.tag!,
+      value: icon.tag!,
+      ...icon,
+    }))
+  },
 })
 
 const rules: FormRules = {
@@ -80,18 +83,18 @@ defineExpose({
       <el-input v-model="modelValue.content" type="textarea" :rows="3" />
     </el-form-item>
 
-    <el-form-item v-if="(manager instanceof ItemTypeManager)" label="图标" prop="iconTag">
+    <el-form-item v-if="(manager instanceof ItemTypeManager)" label="图标" prop="iconId">
       <div class="w-full grid grid-cols-[32px,1fr] gap-2">
-        <AppRowImage :src="iconTagStore.iconTagMap[modelValue.iconTag ?? '']?.url" />
+        <AppRowImage :src="iconStore.idMap.get(modelValue.iconId ?? -1)?.url" />
         <el-select-v2
-          v-model="modelValue.iconTag"
+          v-model="modelValue.iconId"
           filterable
           remote
           clearable
           placeholder="搜索标签名称"
-          :remote-method="getTagList"
+          :remote-method="refreshIconOptions"
           :loading="loading"
-          :options="tagOptions"
+          :options="iconOptions"
         >
           <template #default="{ item }">
             <div class="flex items-center gap-2">

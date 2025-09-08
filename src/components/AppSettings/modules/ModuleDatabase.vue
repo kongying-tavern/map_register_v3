@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import db from '@/database'
-import { now } from '@/shared'
-import { useAreaStore, useIconTagStore, useItemStore, useItemTypeStore, useMarkerLinkStore, useMarkerStore } from '@/stores'
 import { Refresh, RefreshLeft, WarnTriangleFilled } from '@element-plus/icons-vue'
 import { ElMessageBox } from 'element-plus'
+import db from '@/database'
+import { now } from '@/shared'
+import { useAreaStore, useIconStore, useItemStore, useItemTypeStore, useMarkerLinkStore, useMarkerStore } from '@/stores'
 import { SettingBar, SettingGroup, SettingPanel } from '../components'
 
 const areaStore = useAreaStore()
-const iconTagStore = useIconTagStore()
+const iconStore = useIconStore()
 const itemStore = useItemStore()
 const itemTypeStore = useItemTypeStore()
 const markerStore = useMarkerStore()
@@ -27,14 +27,14 @@ const dbList = [
   },
   {
     label: '图标',
-    total: computed(() => iconTagStore.total),
-    loading: computed(() => iconTagStore.updateLoading),
-    nextUpdateTime: computed(() => iconTagStore.nextUpdateTime),
-    message: computed(() => iconTagStore.context.message),
-    error: computed(() => iconTagStore.managerError),
-    isActive: computed(() => iconTagStore.isActive),
-    updateDiff: () => iconTagStore.update(),
-    updateFull: () => iconTagStore.update({ isFull: true }),
+    total: computed(() => iconStore.total),
+    loading: computed(() => iconStore.updateLoading),
+    nextUpdateTime: computed(() => iconStore.nextUpdateTime),
+    message: computed(() => iconStore.context.message),
+    error: computed(() => iconStore.managerError),
+    isActive: computed(() => iconStore.isActive),
+    updateDiff: () => iconStore.update(),
+    updateFull: () => iconStore.update({ isFull: true }),
   },
   {
     label: '物品',

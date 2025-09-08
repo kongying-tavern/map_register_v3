@@ -27,7 +27,7 @@ export const useItemCreate = () => {
     defaultRefreshTime: 0,
     typeIdList: [],
     hiddenFlag: HiddenFlagEnum.SHOW,
-    iconTag: '',
+    iconId: undefined,
     iconStyleType: IconStyle.DEFAULT,
     sortIndex: 0,
   })

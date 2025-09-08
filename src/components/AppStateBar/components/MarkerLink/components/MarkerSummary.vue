@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import type { GSMapState } from '@/stores/types/genshin-map-state'
 import { AppIconTagRenderer } from '@/components'
-import { useIconTagStore } from '@/stores'
+import { useIconStore } from '@/stores'
 
 defineProps<{
   data?: GSMapState.MarkerWithRenderConfig
 }>()
 
-const iconTagStore = useIconTagStore()
+const iconStore = useIconStore()
 </script>
 
 <template>
@@ -18,8 +18,8 @@ const iconTagStore = useIconTagStore()
 
     <div v-else class="flex gap-1 items-center overflow-hidden">
       <AppIconTagRenderer
-        :src="iconTagStore.tagSpriteUrl"
-        :mapping="iconTagStore.tagCoordMap.get(data.render.mainIconTag)"
+        :src="iconStore.iconTextureUrl"
+        :mapping="iconStore.iconCoordMap.get(data.render.mainIconId)"
         class="flex-shrink-0 w-8 h-8 rounded-full p-0.5"
       />
       <div class="flex-1 whitespace-nowrap overflow-hidden text-ellipsis">

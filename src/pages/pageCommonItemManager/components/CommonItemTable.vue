@@ -2,7 +2,7 @@
 import { AppUserPopover } from '@/components'
 import { useUserPopover } from '@/hooks'
 import { HIDDEN_FLAG_NAME_MAP } from '@/shared'
-import { useAreaStore, useIconTagStore, useItemTypeStore } from '@/stores'
+import { useAreaStore, useIconStore, useItemTypeStore } from '@/stores'
 import { refreshTimeFormatter, timeFormatter } from '@/utils'
 
 const props = defineProps<{
@@ -16,7 +16,7 @@ const emits = defineEmits<{
 }>()
 
 const areaStore = useAreaStore()
-const iconTagStore = useIconTagStore()
+const iconStore = useIconStore()
 const itemTypeStore = useItemTypeStore()
 
 // ==================== 表格尺寸 ====================
@@ -65,7 +65,7 @@ const typeAssert = (row: unknown) => row as API.ItemAreaPublicVo
         <template #default="{ row }">
           <img
             class="w-8 h-8 object-contain rounded border"
-            :src="iconTagStore.iconTagMap[row.iconTag ?? ''].url"
+            :src="iconStore.idMap.get(row.iconId ?? -1)?.url"
             crossorigin=""
             style="background-color: var(--el-color-primary-light-9); border-color: var(--el-color-primary-light-8);"
           >

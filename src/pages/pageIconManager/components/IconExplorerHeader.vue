@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ArrowDown, CircleCheck, CirclePlus, Sort } from '@element-plus/icons-vue'
 
-defineEmits<{
-  createTagSuccess: [tag: API.IconVo]
+const emits = defineEmits<{
+  createIcon: []
 }>()
 
 const queryName = defineModel<string>('queryName', {
@@ -93,7 +93,7 @@ const handleSortCommand = (command: string) => {
     <el-divider direction="vertical" />
 
     <!-- 操作栏 -->
-    <el-button text :icon="CirclePlus">
+    <el-button text :icon="CirclePlus" @click="() => emits('createIcon')">
       新建
     </el-button>
   </div>

@@ -1,10 +1,9 @@
 <script lang="ts" setup>
-import { AppIconTagRenderer } from '@/components'
 import { CircleCloseFilled } from '@element-plus/icons-vue'
+import { AppIconTagRenderer } from '@/components'
 
 defineProps<{
   item: API.ItemVo
-  iconMap: Record<string, API.TagVo>
   src?: string
   mapping?: [number, number]
 }>()

@@ -1,12 +1,12 @@
 <script lang="ts" setup>
 import type { GSMarkerInfo } from '@/packages/map'
-import { AppBilibiliVideoPlayer, AppIconTagRenderer, GSButton } from '@/components'
-import { CloseFilled } from '@/components/GenshinUI/GSIcon'
-import { useGlobalDialog, useMarkerControl } from '@/hooks'
-import { useAccessStore, useIconTagStore, useMapStateStore } from '@/stores'
 import { Check, CirclePlus, DeleteFilled, Edit, Rank, VideoCamera } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { storeToRefs } from 'pinia'
+import { AppBilibiliVideoPlayer, AppIconTagRenderer, GSButton } from '@/components'
+import { CloseFilled } from '@/components/GenshinUI/GSIcon'
+import { useGlobalDialog, useMarkerControl } from '@/hooks'
+import { useAccessStore, useIconStore, useMapStateStore } from '@/stores'
 import { MapAffix } from '../MapAffix'
 import { MarkerEditor } from '../MarkerModifyer'
 import { MarkerPanel } from './components'
@@ -15,7 +15,7 @@ import { useMarkerDelete, useMarkerExtra, useMarkerFinished, useMarkerMove } fro
 const accessStore = useAccessStore()
 const mapStateStore = useMapStateStore()
 
-const { tagSpriteUrl, tagPositionMap } = storeToRefs(useIconTagStore())
+const { iconTextureUrl: tagSpriteUrl, iconCoordMap } = storeToRefs(useIconStore())
 
 const { cachedMarkerVo, isSnapshot, isPopoverActived, focus, blur } = useMarkerControl()
 
@@ -90,7 +90,7 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
           <AppIconTagRenderer
             class="w-7 h-7 flex-shrink-0"
             :src="tagSpriteUrl"
-            :mapping="tagPositionMap[cachedMarkerVo.render.mainIconTag]"
+            :mapping="iconCoordMap.get(cachedMarkerVo.render.mainIconId)"
           />
 
           <div

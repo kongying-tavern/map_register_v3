@@ -1,13 +1,13 @@
 import type { Hash, ScoreGeneratedCache, UserArchiveBody } from 'types/database'
 import { Dexie } from 'dexie'
 
-/** 数据库核心定义 */
-export class AppDatabase extends Dexie {
+/** 本地通用数据库 */
+export class AppDexie extends Dexie {
   /** 地区 @全量接口 */
   declare area: Dexie.Table<Hash<API.AreaVo>, number>
 
-  /** 图标标签 @全量接口 */
-  declare iconTag: Dexie.Table<Hash<API.TagVo>, string>
+  /** 图标 @全量接口 */
+  declare icon: Dexie.Table<Hash<API.IconVo>, string>
 
   /** 物品 @全量接口 */
   declare item: Dexie.Table<Hash<API.ItemVo>, number>
@@ -34,22 +34,24 @@ export class AppDatabase extends Dexie {
   declare scoreCache: Dexie.Table<ScoreGeneratedCache, string>
 
   /** 数据库结构版本 */
-  readonly VERSION = 4.7
+  readonly VERSION = 1
 
   readonly STORES = {
     area: '&id, __hash',
-    iconTag: '&tag, __hash',
+    icon: '&id, __hash',
     item: '&id, __hash',
     itemType: '&id, __hash',
     marker: '&id, __hash',
     markerLink: '&id, groupId, __hash',
-    userArchive: 'id',
-    cache: '&id',
+    userArchive: '&id',
     websocketEvents: '&key, time',
     scoreCache: '&id',
   }
 
   constructor() {
-    super('AppDatabase')
+    super('AppData')
+    this
+      .version(this.VERSION)
+      .stores(this.STORES)
   }
 }

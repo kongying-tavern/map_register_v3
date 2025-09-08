@@ -3,16 +3,19 @@ import type { ShallowRef } from 'vue'
 import { renderMarkerSprite } from '@/worker/markerSpriteRenderer'
 
 export interface MarkerSpriteHookOptions {
-  tagSprite: Readonly<ShallowRef<Blob | undefined>>
-  tagsPositionList: Readonly<ShallowRef<DBType.TagSprite['tagsPositionList']>>
+  /** 图标纹理 */
+  iconTexture: Readonly<ShallowRef<Blob | undefined>>
+  /** 图标 id 到纹理坐标的映射 */
+  positionList: Readonly<ShallowRef<DBType.IconSprite['positionList']>>
 }
 
-export const useMarkerSprite = (options: MarkerSpriteHookOptions) => {
-  const { tagSprite, tagsPositionList } = options
+/** 点位纹理 - 预渲染 */
+export const useMarkerTextureRender = (options: MarkerSpriteHookOptions) => {
+  const { iconTexture, positionList } = options
 
-  const markerSpriteImage = shallowRef<Blob>()
+  const texture = shallowRef<Blob>()
 
-  const markerSpriteUrl = useObjectUrl(markerSpriteImage)
+  const textureUrl = useObjectUrl(texture)
 
   /** 标签 mapping  */
   const markerSpriteMapping = shallowRef<Exclude<NonNullable<IconLayerProps['iconMapping']>, string>>({})
@@ -25,24 +28,24 @@ export const useMarkerSprite = (options: MarkerSpriteHookOptions) => {
   ]
 
   const refreshSpriteImage = async () => {
-    if (!tagSprite.value)
+    if (!iconTexture.value)
       return
 
     const res = await renderMarkerSprite({
       states,
-      tagsPositionList: tagsPositionList.value,
-      tagSprite: await tagSprite.value.arrayBuffer(),
+      positionList: positionList.value,
+      texture: await iconTexture.value.arrayBuffer(),
     })
 
-    markerSpriteImage.value = new Blob([res.image], { type: 'image/png' })
+    texture.value = new Blob([res.texture], { type: 'image/png' })
     markerSpriteMapping.value = res.mapping
   }
 
-  watch(tagSprite, refreshSpriteImage)
+  watch(iconTexture, refreshSpriteImage)
 
   return {
-    markerSpriteImage,
-    markerSpriteUrl,
+    markerSpriteImage: texture,
+    markerSpriteUrl: textureUrl,
     markerSpriteMapping,
     refreshSpriteImage,
   }

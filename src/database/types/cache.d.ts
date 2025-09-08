@@ -8,18 +8,27 @@ type CovertMapToSchemas<T> = {
 
 declare namespace DBType {
   /** 图标的精灵图信息缓存 */
-  interface TagSprite {
-    image: ArrayBuffer
-    tagsPositionList: {
-      tags: string[]
+  interface IconSprite {
+    /** 纹理文件 */
+    texture: ArrayBuffer
+    /** 文件签名 */
+    digest: string
+    /** 图标 id 到渲染坐标的映射 */
+    positionList: {
+      ids: number[]
       pos: [x: number, y: number]
     }[]
   }
 
   /** 点位的精灵图信息缓存 */
   interface MarkerSprite {
-    image: ArrayBuffer
-    tagSpriteDigest: string
+    /** 纹理文件 */
+    texture: ArrayBuffer
+    /** 文件签名 */
+    digest: string
+    /** 所用的 icon 纹理的签名 */
+    iconSpriteDigest: string
+    /** 点位 key 到纹理坐标的映射 */
     mapping: Record<string, {
       x: number
       y: number
@@ -30,9 +39,15 @@ declare namespace DBType {
     }>
   }
 
+  /** dadian json 订阅缓存 */
+  interface DadianJSON {
+    digest: string
+    json: API.DadianJSON
+  }
+
   /** 实体缓存类型表 */
   interface CacheTypes {
-    tagSprite: TagSprite
+    iconSprite: IconSprite
     markerSprite: MarkerSprite
     dadian: API.DadianJSON
   }

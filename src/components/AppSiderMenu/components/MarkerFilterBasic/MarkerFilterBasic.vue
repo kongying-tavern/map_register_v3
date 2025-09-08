@@ -1,24 +1,24 @@
 <script lang="ts" setup>
+import { DeleteFilled } from '@element-plus/icons-vue'
+import { storeToRefs } from 'pinia'
 import { AppIconTagRenderer, GSButton } from '@/components'
 import { fallbackToStaticIcon } from '@/configs'
 import {
   useArchiveStore,
   useAreaStore,
-  useIconTagStore,
+  useIconStore,
   useItemStore,
   useItemTypeStore,
   useMapStateStore,
   useMarkerStore,
   usePreferenceStore,
 } from '@/stores'
-import { DeleteFilled } from '@element-plus/icons-vue'
-import { storeToRefs } from 'pinia'
 import { CheckboxGroup, ConditionRow, ItemButton } from '.'
 import { DefaultMarkingItem, FilterTabPanel, FilterTabs } from './components'
 import { useItemCount, useMarkerFilter, useTypeCount } from './hooks'
 
 const archiveStore = useArchiveStore()
-const iconTagStore = useIconTagStore()
+const iconStore = useIconStore()
 const preferenceStore = usePreferenceStore()
 const { areaIdMap, areaCodeMap, parentAreaList, childrenAreaList } = storeToRefs(useAreaStore())
 const { itemList, itemIdMap } = storeToRefs(useItemStore())
@@ -134,8 +134,8 @@ const { itemTotalMap, itemCountMap } = useItemCount({
         >
           <template #icon="{ row }">
             <AppIconTagRenderer
-              :src="iconTagStore.tagSpriteUrl"
-              :mapping="iconTagStore.tagCoordMap.get(row.iconTag || areaIdMap.get(row.parentId ?? -1)?.iconTag || '')"
+              :src="iconStore.iconTextureUrl"
+              :mapping="iconStore.iconCoordMap.get(row.iconId ?? areaIdMap.get(row.parentId ?? -1)?.iconId ?? -1)"
               class="w-full aspect-square"
             >
               <img :src="fallbackToStaticIcon(row)">
@@ -154,8 +154,8 @@ const { itemTotalMap, itemCountMap } = useItemCount({
         >
           <template #icon="{ row }">
             <AppIconTagRenderer
-              :src="iconTagStore.tagSpriteUrl"
-              :mapping="iconTagStore.tagCoordMap.get(row.iconTag || areaIdMap.get(row.parentId ?? -1)?.iconTag || '')"
+              :src="iconStore.iconTextureUrl"
+              :mapping="iconStore.iconCoordMap.get(row.iconId ?? areaIdMap.get(row.parentId ?? -1)?.iconId ?? -1)"
               class="w-full aspect-square"
             >
               <img :src="fallbackToStaticIcon(row)">
@@ -176,8 +176,8 @@ const { itemTotalMap, itemCountMap } = useItemCount({
       >
         <template #icon="{ row }">
           <AppIconTagRenderer
-            :src="iconTagStore.tagSpriteUrl"
-            :mapping="iconTagStore.tagPositionMap[row.iconTag ?? '']"
+            :src="iconStore.iconTextureUrl"
+            :mapping="iconStore.iconCoordMap.get(row.iconId ?? -1)"
             class="w-full aspect-square"
           />
         </template>
@@ -205,8 +205,8 @@ const { itemTotalMap, itemCountMap } = useItemCount({
       >
         <template #icon="{ row }">
           <AppIconTagRenderer
-            :src="iconTagStore.tagSpriteUrl"
-            :mapping="iconTagStore.tagPositionMap[row.iconTag ?? '']"
+            :src="iconStore.iconTextureUrl"
+            :mapping="iconStore.iconCoordMap.get(row.iconId ?? -1)"
             class="w-full aspect-square"
           />
         </template>

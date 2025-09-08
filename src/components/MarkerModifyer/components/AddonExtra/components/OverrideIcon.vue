@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { AppIconTagRenderer, AppVirtualTable } from '@/components'
-import { useState } from '@/hooks'
-import { useIconTagStore } from '@/stores'
 import { QuestionFilled, Search } from '@element-plus/icons-vue'
 import { ElButton, ElButtonGroup, ElIcon, ElInput, ElPopover, ElSlider } from 'element-plus'
+import { AppIconTagRenderer, AppVirtualTable } from '@/components'
+import { useState } from '@/hooks'
+import { useIconStore } from '@/stores'
 
-const iconTagStore = useIconTagStore()
+const iconStore = useIconStore()
 
 const cacheText = ref('')
 const [query, setQuery] = useState('')
@@ -13,8 +13,8 @@ const [query, setQuery] = useState('')
 const tagList = computed(() => {
   const queryText = toValue(query).trim()
   if (!queryText)
-    return iconTagStore.tagList
-  return iconTagStore.tagList.filter(({ tag = '' }) => tag.includes(queryText))
+    return iconStore.iconList
+  return iconStore.iconList.filter(({ tag = '' }) => tag.includes(queryText))
 })
 
 const modelValue = defineModel<API.MarkerExtra['iconOverride'] | undefined>({
@@ -50,11 +50,11 @@ const marks = Object.fromEntries(Array.from({ length: 5 }).map((_, i) => {
   return [num, `${num}`]
 }))
 
-const toggleTag = (tag: API.TagVo) => {
+const toggleTag = (tag: API.IconVo) => {
   const value = toValue(modelValue)
-  if (!value || value.tag !== tag.tag) {
+  if (!value || value.id !== tag.tag) {
     const [minZoom, maxZoom] = zoomRange.value
-    modelValue.value = { tag: tag.tag!, minZoom, maxZoom }
+    modelValue.value = { id: tag.tag!, minZoom, maxZoom }
     return
   }
   modelValue.value = undefined
@@ -93,11 +93,11 @@ const toggleTag = (tag: API.TagVo) => {
           <template #default="{ item: tag }">
             <div
               class="tag-item"
-              :class="{ 'is-actived': modelValue?.tag === tag.tag }"
+              :class="{ 'is-actived': modelValue?.id === tag.tag }"
               @click="() => toggleTag(tag)"
             >
               <ElIcon
-                v-if="modelValue?.tag === tag.tag"
+                v-if="modelValue?.id === tag.tag"
                 class="checked-anime-in top-0 right-0 bg-[var(--el-color-primary)] rounded-[0_3px_0_4px] p-0.5 z-10"
                 style="position: absolute"
                 color="var(--el-color-primary-light-7)"
@@ -106,8 +106,8 @@ const toggleTag = (tag: API.TagVo) => {
                 <Select />
               </ElIcon>
               <AppIconTagRenderer
-                :src="iconTagStore.tagSpriteUrl"
-                :mapping="iconTagStore.tagCoordMap.get(tag.tag!)"
+                :src="iconStore.iconTextureUrl"
+                :mapping="iconStore.iconCoordMap.get(tag.tag!)"
                 class="w-10 h-10 rounded-[20px] bg-[var(--el-color-info-light-9)]"
               />
             </div>
@@ -117,19 +117,19 @@ const toggleTag = (tag: API.TagVo) => {
         <div class="flex-1 flex flex-col items-center">
           <div
             class="w-[112px] text-center text-sm flex-shrink-0 pt-4 whitespace-nowrap text-ellipsis overflow-hidden"
-            :title="modelValue?.tag"
+            :title="modelValue?.id"
           >
-            {{ modelValue?.tag ?? '<选择图标>' }}
+            {{ modelValue?.id ?? '<选择图标>' }}
           </div>
 
           <div class="flex-1 w-full grid place-content-center">
-            <div v-if="!modelValue?.tag">
+            <div v-if="!modelValue?.id">
               无
             </div>
             <AppIconTagRenderer
               v-else
-              :src="iconTagStore.tagSpriteUrl"
-              :mapping="iconTagStore.tagCoordMap.get(modelValue.tag)"
+              :src="iconStore.iconTextureUrl"
+              :mapping="iconStore.iconCoordMap.get(modelValue.id)"
               class="w-16 h-16 rounded bg-[var(--el-color-info-light-9)]"
             />
           </div>

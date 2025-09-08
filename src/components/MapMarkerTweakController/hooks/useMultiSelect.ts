@@ -1,11 +1,11 @@
-import { useAppWindow } from '@/components'
-import { GSMarkerLayer } from '@/packages/map'
-import { globalPointerup$, mapContainerHeightKey, mapContainerWidthKey, MapSubject } from '@/shared'
-import { MultiSelect } from '@/shared/enum'
-import { useAccessStore, useArchiveStore, useMapStateStore, useShortcutStore } from '@/stores'
 import { useSubscription } from '@vueuse/rxjs'
 import KDBush from 'kdbush'
 import { filter, finalize, map, switchMap, takeUntil, tap } from 'rxjs'
+import { useAppWindow } from '@/components'
+import { GSMarkerLayer } from '@/packages/map'
+import { globalPointerup$, mapCanvasRef, mapContainerHeightKey, mapContainerWidthKey, MapSubject } from '@/shared'
+import { MultiSelect } from '@/shared/enum'
+import { useAccessStore, useArchiveStore, useMapStateStore, useShortcutStore } from '@/stores'
 
 const INCREASE_COLOR = '#00FFFD'
 const DECREASE_COLOR = '#FFFF00'
@@ -91,10 +91,13 @@ export const useMultiSelect = () => {
     return archiveStore.currentArchive.body.Preference['app.shortcutKey.multiselectMarker']
   })
 
+  const { focused } = useFocus(mapCanvasRef)
+
   useSubscription(shortcutStore.shortcut$.pipe(
     filter(({ value }) => [
       accessStore.get('MARKER_BATCH_EDIT'),
       isEmpty.value,
+      focused.value,
       shortcutKeys.value,
       value === shortcutKeys.value,
     ].every(Boolean)),

@@ -1,16 +1,16 @@
 <script setup lang="ts">
+import dayjs from 'dayjs'
 import { AppIconTagRenderer } from '@/components'
 import { useMarkerControl } from '@/hooks'
-import { useIconTagStore, useItemStore } from '@/stores'
+import { useIconStore, useItemStore } from '@/stores'
 import { pickMainItem } from '@/utils'
-import dayjs from 'dayjs'
 
 const props = defineProps<{
   data: Socket.DataEventRecord<'MarkerAdded'>
 }>()
 
 const itemStore = useItemStore()
-const iconTagStore = useIconTagStore()
+const iconStore = useIconStore()
 
 const { focusMarker } = useMarkerControl()
 
@@ -19,9 +19,9 @@ const markerInfo = computed(() => {
   return markerInfo
 })
 
-const iconTag = computed(() => {
-  const { mainIconTag } = pickMainItem(markerInfo.value, itemStore.itemIdMap)
-  return mainIconTag
+const iconId = computed(() => {
+  const { mainIconId } = pickMainItem(markerInfo.value, itemStore.itemIdMap)
+  return mainIconId
 })
 </script>
 
@@ -48,8 +48,8 @@ const iconTag = computed(() => {
       @click="() => focusMarker(markerInfo)"
     >
       <AppIconTagRenderer
-        :src="iconTagStore.tagSpriteUrl"
-        :mapping="iconTagStore.tagCoordMap.get(iconTag)"
+        :src="iconStore.iconTextureUrl"
+        :mapping="iconStore.iconCoordMap.get(iconId)"
         class="w-8 h-8 rounded-full bg-[color-mix(in_srgb,var(--el-text-color-primary)_10%,transparent_90%)]"
       />
       <div>

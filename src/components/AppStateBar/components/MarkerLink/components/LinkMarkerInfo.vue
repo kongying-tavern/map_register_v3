@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { AppIconTagRenderer } from '@/components'
-import { useAreaStore, useIconTagStore, useItemStore, useMarkerStore } from '@/stores'
+import { useAreaStore, useIconStore, useItemStore, useMarkerStore } from '@/stores'
 import { pickMainItem } from '@/utils'
 
 const props = defineProps<{
@@ -9,7 +9,7 @@ const props = defineProps<{
 }>()
 
 const areaStore = useAreaStore()
-const iconTagStore = useIconTagStore()
+const iconStore = useIconStore()
 const itemStore = useItemStore()
 const markerStore = useMarkerStore()
 
@@ -20,11 +20,11 @@ const markerInfo = computed(() => {
   const markerInfo = markerStore.idMap.get(markerId)
   if (!markerInfo)
     return
-  const { mainIconTag } = pickMainItem(markerInfo, itemStore.itemIdMap)
+  const { mainIconId } = pickMainItem(markerInfo, itemStore.itemIdMap)
   return {
     ...markerInfo,
     render: {
-      mainIconTag,
+      mainIconId,
     },
   }
 })
@@ -63,8 +63,8 @@ const areas = computed(() => {
       :class="reverse ? 'flex-row-reverse' : ''"
     >
       <AppIconTagRenderer
-        :src="iconTagStore.tagSpriteUrl"
-        :mapping="iconTagStore.tagCoordMap.get(markerInfo.render.mainIconTag)"
+        :src="iconStore.iconTextureUrl"
+        :mapping="iconStore.iconCoordMap.get(markerInfo.render.mainIconId)"
         class="w-10 h-10 p-1 shrink-0 bg-[var(--el-color-info-light-9)] bg-clip-content rounded-[20px]"
       />
 

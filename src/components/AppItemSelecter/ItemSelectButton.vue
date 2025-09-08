@@ -3,7 +3,6 @@ import { AppIconTagRenderer } from '@/components'
 
 defineProps<{
   item: API.ItemVo
-  iconMap: Record<string, API.TagVo>
   actived: boolean
   src?: string
   mapping?: [number, number]

@@ -3,7 +3,7 @@ export enum ManagerModule {
   Area = 'area',
   Marker = 'marker',
   Type = 'type',
-  IconTag = 'iconTag',
+  Icon = 'icon',
   User = 'user',
   Score = 'score',
   History = 'history',

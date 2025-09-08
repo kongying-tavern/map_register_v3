@@ -12,7 +12,7 @@ export interface PageListQueryParams<T = unknown> {
   node?: T
 }
 
-export type TypeObject = API.ItemTypeVo & API.IconTypeVo & API.TagTypeVo & Record<string, unknown>
+export type TypeObject = API.ItemTypeVo & API.IconTypeVo & Record<string, unknown>
 
 /** 实现类型表的增删改查所需要实现的方法 */
 export interface TypeManager<T = unknown> {

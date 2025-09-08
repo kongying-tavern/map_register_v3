@@ -4,7 +4,7 @@ import dayjs from 'dayjs'
 import Api from '@/api/api'
 import { IconRenderer, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 import { formatByteSize } from '@/utils'
-import { useIconUpdate } from '../hooks'
+import { useIconFormRules, useIconUpdate } from '../hooks'
 import { ImageCropper } from './ImageCropper'
 
 const props = defineProps<{
@@ -55,6 +55,25 @@ const {
   updateIcon,
 } = useIconUpdate(iconForm, {
   iconEditable,
+})
+
+/** 校验规则 */
+const { rules } = useIconFormRules(iconForm)
+
+/** 确认按钮可用性 */
+const disabledConfirm = computed(() => {
+  const { tag = '' } = iconForm.value
+  if (!tag.trim().length)
+    return true
+  if ([
+    props.icon.tag === iconForm.value.tag,
+    props.icon.description === iconForm.value.description,
+    JSON.stringify(props.icon.typeIdList ?? []) === JSON.stringify(iconForm.value.typeIdList ?? []),
+    !iconEditable.value || (iconEditable.value && !isChanged.value),
+  ].every(Boolean)) {
+    return true
+  }
+  return false
 })
 
 onSuccess(() => {
@@ -108,6 +127,7 @@ const cancel = () => {
 
         <el-form
           :disabled="loading"
+          :rules="rules"
           :model="iconForm"
           label-width="60px"
           class="flex-1"
@@ -185,6 +205,7 @@ const cancel = () => {
       <el-button
         type="primary"
         :icon="Check"
+        :disabled="disabledConfirm"
         :loading="loading"
         @click="updateIcon"
       >

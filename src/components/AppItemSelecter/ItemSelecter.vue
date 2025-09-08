@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { AppAreaCodeSelecter } from '@/components'
-import { useAreaStore, useIconTagStore, useItemStore, useItemTypeStore } from '@/stores'
 import { Search } from '@element-plus/icons-vue'
 import { ElScrollbar } from 'element-plus'
+import { AppAreaCodeSelecter } from '@/components'
+import { useAreaStore, useIconStore, useItemStore, useItemTypeStore } from '@/stores'
 import ItemPreviewButton from './ItemPreviewButton.vue'
 import ItemSelectButton from './ItemSelectButton.vue'
 import TypeSelectButton from './TypeSelectButton.vue'
@@ -50,8 +50,7 @@ const modelAreaCode = computed({
 const areaId = computed(() => areaStore.areaCodeMap.get(modelAreaCode.value)?.id)
 
 // ==================== 图标信息 ====================
-const iconTagStore = useIconTagStore()
-const iconMap = computed(() => iconTagStore.iconTagMap)
+const iconStore = useIconStore()
 
 // ==================== 关键词 ====================
 const queryText = ref('')
@@ -164,8 +163,8 @@ watch(() => itemList.value, () => scrollbarRef.value?.setScrollTop(0))
             :key="itemType.id"
             :item-type="itemType"
             :actived="itemType.id === selectedTypeId"
-            :src="iconTagStore.tagSpriteUrl"
-            :mapping="iconTagStore.tagPositionMap[itemType.iconTag ?? '']"
+            :src="iconStore.iconTextureUrl"
+            :mapping="iconStore.iconCoordMap.get(itemType.iconId ?? -1)"
             :nums="groupedItems[itemType.id!]?.length"
             @click="selectedTypeId = itemType.id"
           >
@@ -188,10 +187,9 @@ watch(() => itemList.value, () => scrollbarRef.value?.setScrollTop(0))
               v-for="item in itemList"
               :key="item.id"
               :item="item"
-              :icon-map="iconMap"
               :actived="selectionsMap.has(item.id!)"
-              :src="iconTagStore.tagSpriteUrl"
-              :mapping="iconTagStore.tagPositionMap[item.iconTag ?? '']"
+              :src="iconStore.iconTextureUrl"
+              :mapping="iconStore.iconCoordMap.get(item.iconId ?? -1)"
               @click="() => toggleItem(item)"
             />
           </div>
@@ -228,9 +226,8 @@ watch(() => itemList.value, () => scrollbarRef.value?.setScrollTop(0))
                 v-for="item in items"
                 :key="item.id"
                 :item="item"
-                :icon-map="iconMap"
-                :src="iconTagStore.tagSpriteUrl"
-                :mapping="iconTagStore.tagPositionMap[item.iconTag ?? '']"
+                :src="iconStore.iconTextureUrl"
+                :mapping="iconStore.iconCoordMap.get(item.iconId ?? -1)"
                 @click="() => toggleItem(item)"
               />
             </div>

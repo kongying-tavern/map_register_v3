@@ -40,7 +40,7 @@ const isUndergroundDifferent = computed(() => {
 const isIconoverrideDifferent = computed(() => {
   const a = props.current.iconOverride ?? {}
   const b = props.history.iconOverride ?? {}
-  return a.tag !== b.tag || a.maxZoom !== b.maxZoom || a.minZoom !== b.minZoom
+  return a.id !== b.id || a.maxZoom !== b.maxZoom || a.minZoom !== b.minZoom
 })
 </script>
 
@@ -181,13 +181,13 @@ const isIconoverrideDifferent = computed(() => {
           tag
         </div>
         <div class="text-xs">
-          {{ history.iconOverride?.tag }}
+          {{ history.iconOverride?.id }}
         </div>
         <ElIcon>
           <Right />
         </ElIcon>
         <div class="text-xs">
-          {{ current.iconOverride?.tag }}
+          {{ current.iconOverride?.id }}
         </div>
         <div class="text-xs">
           最大缩放

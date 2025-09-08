@@ -39,7 +39,7 @@ export class GSMarkerLayer extends CompositeLayer<GSMarkerLayerProps> {
   }
 
   getIcon = (info: GSMarkerInfo) => {
-    return (info.extra as API.MarkerExtra | undefined)?.iconOverride?.tag ?? info.render.mainIconTag ?? '无'
+    return (info.extra as API.MarkerExtra | undefined)?.iconOverride?.id ?? info.render.mainIconId ?? '无'
   }
 
   renderLayers = (): LayersList => {

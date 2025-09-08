@@ -23,11 +23,11 @@ export class ItemTypeManager implements TypeManager<API.ItemTypeVo> {
   }
 
   create = (data: API.ItemTypeVo, parent?: API.ItemTypeVo) => {
-    const { name, content = '', iconTag = '', sortIndex, hiddenFlag } = data
+    const { name, content = '', iconId, sortIndex, hiddenFlag } = data
     return Api.itemType.addItemType({
       name,
       content,
-      iconTag,
+      iconId,
       sortIndex,
       hiddenFlag,
       parentId: parent?.id ?? -1,

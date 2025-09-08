@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import type { InternalItemData } from './types'
-import { AppIconTagRenderer } from '@/components'
-import { useIconTagStore, useItemTypeStore } from '@/stores'
 import { Delete } from '@element-plus/icons-vue'
 import { useFormItem } from 'element-plus'
+import { AppIconTagRenderer } from '@/components'
+import { useIconStore, useItemTypeStore } from '@/stores'
 
 defineProps<{
   data: InternalItemData
@@ -13,7 +13,7 @@ defineEmits<{
   delete: []
 }>()
 
-const iconTagStore = useIconTagStore()
+const iconStore = useIconStore()
 const itemTypeStore = useItemTypeStore()
 
 const count = defineModel<number>('count', {
@@ -53,10 +53,10 @@ const setRestItems = (target: HTMLElement | undefined, items: number[] = []) => 
       hover:bg-[var(--el-color-primary-light-9)]
     "
   >
-    <div class="w-8 h-8 p-0.5" :title="data._raw.iconTag">
+    <div class="w-8 h-8 p-0.5">
       <AppIconTagRenderer
-        :src="iconTagStore.tagSpriteUrl"
-        :mapping="iconTagStore.tagPositionMap[data._raw.iconTag ?? 'unknown']"
+        :src="iconStore.iconTextureUrl"
+        :mapping="iconStore.iconCoordMap.get(data._raw.iconId ?? -1)"
         class="w-full h-full"
       />
     </div>

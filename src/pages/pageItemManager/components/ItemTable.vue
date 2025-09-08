@@ -2,7 +2,7 @@
 import { Delete } from '@element-plus/icons-vue'
 import { AppRowImage } from '@/components'
 import { HiddenFlagEnum, ICON_STYLE_META_MAP } from '@/shared'
-import { useAreaStore, useIconTagStore, useItemTypeStore } from '@/stores'
+import { useAreaStore, useIconStore, useItemTypeStore } from '@/stores'
 import { refreshTimeFormatter, timeFormatter } from '@/utils'
 
 defineProps<{
@@ -18,7 +18,7 @@ const emits = defineEmits<{
 }>()
 
 const areaStore = useAreaStore()
-const iconTagStore = useIconTagStore()
+const iconStore = useIconStore()
 const itemTypeStore = useItemTypeStore()
 
 // ==================== 表格尺寸 ====================
@@ -74,7 +74,7 @@ const proxySelectionChange = (selections: API.ItemVo[]) => {
 
       <el-table-column label="图标" width="60">
         <template #default="{ row }">
-          <AppRowImage :src="iconTagStore.iconTagMap[row.iconTag ?? '']?.url" />
+          <AppRowImage :src="iconStore.idMap.get(row.iconId ?? -1)?.url" />
         </template>
       </el-table-column>
 

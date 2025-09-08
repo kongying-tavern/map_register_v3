@@ -1,11 +1,11 @@
 <script lang="ts" setup generic="T">
 import type { TypeManager } from '../config'
+import { ElTable } from 'element-plus'
 import { AppRowImage, AppUserPopover } from '@/components'
 import { useUserPopover } from '@/hooks'
 import { HIDDEN_FLAG_NAME_MAP } from '@/shared'
-import { useIconTagStore } from '@/stores'
+import { useIconStore } from '@/stores'
 import { timeFormatter } from '@/utils'
-import { ElTable } from 'element-plus'
 
 const props = defineProps<{
   data: T[]
@@ -18,7 +18,7 @@ defineEmits<{
   selectNode: [T]
 }>()
 
-const iconTagStore = useIconTagStore()
+const iconStore = useIconStore()
 
 const tableContainerRef = ref<HTMLElement>()
 const { height } = useElementSize(tableContainerRef)
@@ -54,9 +54,9 @@ const { IDENTIFICATION_SYMBOL, triggerRef, userData, trigger, close } = useUserP
     >
       <el-table-column label="ID" prop="id" :width="80" />
 
-      <el-table-column label="图标" prop="iconTag" :width="60">
+      <el-table-column label="图标" prop="iconId" :width="60">
         <template #default="{ row }">
-          <AppRowImage :src="iconTagStore.iconTagMap[row.iconTag]?.url" />
+          <AppRowImage :src="iconStore.idMap.get(row.iconId ?? -1)?.url" />
         </template>
       </el-table-column>
 

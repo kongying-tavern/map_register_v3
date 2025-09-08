@@ -49,7 +49,7 @@ const tagParser: Record<string, (data: unknown) => TagInfo | TagInfo[]> = {
   'iconOverride': (data: unknown) => {
     if (typeof data !== 'object' || !data)
       return []
-    const { tag } = (data as API.MarkerExtra['iconOverride']) ?? {}
+    const { id: tag } = (data as API.MarkerExtra['iconOverride']) ?? {}
     if (!tag)
       return []
     return {

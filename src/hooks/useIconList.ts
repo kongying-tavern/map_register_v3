@@ -1,8 +1,8 @@
 import type { FetchHookOptions } from '@/hooks'
-import db from '@/database'
-import { useFetchHook } from '@/hooks'
 import { useSubscription } from '@vueuse/rxjs'
 import { liveQuery } from 'dexie'
+import db from '@/database'
+import { useFetchHook } from '@/hooks'
 
 interface IconsHookOptions extends FetchHookOptions<API.RPageListVoIconVo> {
   params?: () => API.IconSearchVo
@@ -13,7 +13,7 @@ export const useIconList = (options: IconsHookOptions = {}) => {
   const { immediate, loading } = options
 
   /** 图标列表 */
-  const iconList = ref<API.TagVo[]>([])
+  const iconList = shallowRef<API.IconVo[]>([])
 
   /** 图标映射表 */
   const iconMap = computed(() => iconList.value.reduce((seed, { tag, url }) => {
@@ -25,10 +25,10 @@ export const useIconList = (options: IconsHookOptions = {}) => {
   const { refresh: updateIconList, onSuccess, ...rest } = useFetchHook({
     immediate,
     loading,
-    onRequest: () => db.iconTag.toArray(),
+    onRequest: () => db.icon.toArray(),
   })
 
-  useSubscription(liveQuery(() => db.iconTag.toCollection()).subscribe(updateIconList))
+  useSubscription(liveQuery(() => db.icon.toCollection()).subscribe(updateIconList))
 
   onSuccess((record) => {
     iconList.value = record

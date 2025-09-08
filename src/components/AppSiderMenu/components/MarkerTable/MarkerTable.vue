@@ -1,10 +1,10 @@
 <script lang="tsx" setup>
 import { AppVirtualTable } from '@/components'
 import { useMarkerControl } from '@/hooks'
-import { useIconTagStore, useMapStateStore } from '@/stores'
+import { useIconStore, useMapStateStore } from '@/stores'
 import MarkerRow from './MarkerRow.vue'
 
-const iconTagStore = useIconTagStore()
+const iconStore = useIconStore()
 const mapStateStore = useMapStateStore()
 
 const { hover: hoveredMarker, focus: focusedMarker, focusMarker, hoverMarker } = useMarkerControl()
@@ -46,8 +46,8 @@ const resortedMarkers = computed(() => mapStateStore.currentLayerMarkers.toSorte
           :data="item"
           :is-hover="hoveredMarker?.id === item.id"
           :is-focus="focusedMarker?.id === item.id"
-          :icon-src="iconTagStore.tagSpriteUrl"
-          :icon-mapping="iconTagStore.tagPositionMap[item.render.mainIconTag]"
+          :icon-src="iconStore.iconTextureUrl"
+          :icon-mapping="iconStore.iconCoordMap.get(item.render.mainIconId)"
           @focus="marker => focusMarker(marker)"
           @hover="hoverMarker"
         />

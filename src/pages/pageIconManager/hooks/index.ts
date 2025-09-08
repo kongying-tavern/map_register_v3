@@ -1,4 +1,6 @@
+export { useIconCreate } from './useIconCreate'
 export * from './useIconDelete'
+export { useIconFormRules } from './useIconFormRules'
 export * from './useIconList'
 export * from './useIconTypeList'
 export { useIconUpdate } from './useIconUpdate'

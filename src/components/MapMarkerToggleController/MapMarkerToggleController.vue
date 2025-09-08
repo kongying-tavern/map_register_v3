@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-import { GSMarkerLayer } from '@/packages/map'
-import { globalKeyUp$, globalPointerup$, mapContainerHeightKey, mapContainerWidthKey, MapSubject } from '@/shared'
-import { MultiSelect } from '@/shared/enum'
-import { useArchiveStore, useMapStateStore, useShortcutStore } from '@/stores'
 import { useSubscription } from '@vueuse/rxjs'
 import KDBush from 'kdbush'
 import { filter, finalize, switchMap, takeUntil, tap } from 'rxjs'
+import { GSMarkerLayer } from '@/packages/map'
+import { globalKeyUp$, globalPointerup$, mapCanvasRef, mapContainerHeightKey, mapContainerWidthKey, MapSubject } from '@/shared'
+import { MultiSelect } from '@/shared/enum'
+import { useArchiveStore, useMapStateStore, useShortcutStore } from '@/stores'
 
 const archiveStore = useArchiveStore()
 const mapStateStore = useMapStateStore()
@@ -60,11 +60,14 @@ const shortcutKeys = computed(() => {
   return archiveStore.currentArchive.body.Preference['app.shortcutKey.toggleMarkerState']
 })
 
+const { focused } = useFocus(mapCanvasRef)
+
 // 响应快捷键，开启任务
 const start$ = shortcutStore.shortcut$.pipe(
   filter(({ value }) => {
     return [
       isEmpty.value,
+      focused.value,
       shortcutKeys.value,
       value === shortcutKeys.value,
     ].every(Boolean)

@@ -1,51 +1,44 @@
 <script lang="ts" setup>
 import type Node from 'element-plus/es/components/tree/src/model/node'
-import Api from '@/api/api'
-import db from '@/database'
-import { useState } from '@/hooks'
-import { useIconTagStore } from '@/stores'
-/**
- * @注意
- * 这个组件虽然名为 IconManager，但它主要管理的是 icon tag（图标标签）。
- *
- * 关于图标与标签的关系，可以理解为，Tag 是 Icon 的“快捷方式”。
- */
 import { ElTree } from 'element-plus'
+import Api from '@/api/api'
+import { useGlobalDialog } from '@/hooks'
+import { useIconStore } from '@/stores'
 import { IconExplorer, IconExplorerHeader, IconPreviewer } from './components'
+import IconCreator from './components/IconCreator.vue'
 
-const iconTagStore = useIconTagStore()
+const iconStore = useIconStore()
 
-const activedTag = shallowRef<API.TagVo | null>(null)
-const [scrollTarget, setScrollTarget] = useState<API.TagVo | null>(null)
+const activedIcon = shallowRef<API.IconVo | null>(null)
 
-const queryTagName = ref('')
-const queryTagType = ref<API.TagTypeVo>({
+const queryIconName = ref('')
+const queryIconType = ref<API.IconTypeVo>({
   id: -1,
   name: '全部类型',
 })
 
-const sortKey = ref('createTime')
+const sortKey = ref('id')
 const sortType = ref('-')
 
-const tagList = computed(() => {
-  let result = iconTagStore.tagList
+const filteredIconList = computed(() => {
+  let result = iconStore.iconList
 
-  const { id: typeId = -1 } = queryTagType.value
+  const { id: typeId = -1 } = queryIconType.value
   if (typeId > -1) {
-    result = iconTagStore.tagList.filter(({ typeIdList = [] }) => {
+    result = iconStore.iconList.filter(({ typeIdList = [] }) => {
       const set = new Set(typeIdList)
       return set.has(typeId)
     })
   }
 
-  const queryName = queryTagName.value.trim()
+  const queryName = queryIconName.value.trim()
   if (queryName.length > 0) {
-    result = iconTagStore.tagList.filter(({ tag = '' }) => {
+    result = iconStore.iconList.filter(({ tag = '' }) => {
       return tag.includes(queryName)
     })
   }
 
-  const localSortKey = sortKey.value as keyof API.TagVo
+  const localSortKey = sortKey.value as keyof API.IconVo
   const isAscending = sortType.value === '+'
 
   return result.toSorted((pre, next) => {
@@ -77,41 +70,21 @@ const tagList = computed(() => {
   })
 })
 
-const scrollMission = ref<API.TagVo | null>(null)
-const setScrollTargetWhenUpdate = (tag: API.TagVo) => {
-  setScrollTarget(tag)
-}
-
-watch(tagList, async () => {
-  // 用于在新建 tag 时滑动到对应的 tag 以提醒用户继续编辑图片
-  if (scrollMission.value) {
-    setScrollTarget(scrollMission.value)
-    activedTag.value = scrollMission.value
-    scrollMission.value = null
-    return
-  }
-  // 用于在更新列表时更新对应的已选 tag 信息
-  if (activedTag.value) {
-    const res = await db.iconTag.get(activedTag.value.tag!) ?? null
-    activedTag.value = res
-  }
-})
-
-const handleCurrentChange = (tagType: API.TagTypeVo) => {
-  queryTagType.value = tagType
-  activedTag.value = null
+const handleCurrentChange = (iconType: API.IconTypeVo) => {
+  queryIconType.value = iconType
+  activedIcon.value = null
 }
 
 const loading = ref(false)
 
-async function loadTagType(node: Node, resolve: (data: API.TagTypeVo[]) => void) {
+async function loadTagType(node: Node, resolve: (data: API.IconTypeVo[]) => void) {
   if (node.level === 0) {
     resolve([{ id: -1, name: '全部类型', isFinal: false }])
     return
   }
   loading.value = true
   try {
-    const { data: { record = [] } = {} } = await Api.tagType.listTagType({
+    const { data: { record = [] } = {} } = await Api.iconType.listIconType({
       typeIdList: [node.data.id],
       size: 256,
     })
@@ -124,16 +97,22 @@ async function loadTagType(node: Node, resolve: (data: API.TagTypeVo[]) => void)
     loading.value = false
   }
 }
+
+const { DialogService } = useGlobalDialog()
+const openIconCreator = () => {
+  DialogService
+    .open(IconCreator)
+}
 </script>
 
 <template>
   <div class="icon-manager grid grid-cols-[200px_1fr_auto] grid-rows-[auto_1fr_auto] h-full overflow-hidden text-xs">
     <IconExplorerHeader
-      v-model:query-tag-name="queryTagName"
-      v-model:query-tag-type="queryTagType"
+      v-model:query-name="queryIconName"
+      v-model:query-type="queryIconType"
       v-model:sort-key="sortKey"
       v-model:sort-type="sortType"
-      @create-tag-success="setScrollTargetWhenUpdate"
+      @create-icon="openIconCreator"
     />
 
     <div class="h-full border-r-[1px] border-[var(--el-border-color-lighter)] overflow-auto">
@@ -155,22 +134,21 @@ async function loadTagType(node: Node, resolve: (data: API.TagTypeVo[]) => void)
     </div>
 
     <IconExplorer
-      v-model:actived-tag="activedTag"
-      v-model:scroll-target="scrollTarget"
+      v-model:actived-item="activedIcon"
       :loading="loading"
-      :tag-list="tagList"
+      :data="filteredIconList"
     />
 
-    <IconPreviewer v-model="activedTag" :tag="activedTag" />
+    <IconPreviewer v-model="activedIcon" :icon="activedIcon" />
 
     <div class="border-t-[1px] border-[var(--el-border-color-lighter)] col-span-3 p-2 px-3">
       <el-text size="small">
-        {{ tagList.length }} 个项目
-        <template v-if="activedTag">
+        {{ filteredIconList.length }} 个项目
+        <template v-if="activedIcon">
           <el-divider direction="vertical" />
           图标原始地址：
-          <a :href="activedTag.url" class="hover:underline underline-offset-4" target="_blank" rel="noopener">
-            {{ decodeURIComponent(activedTag.url ?? '') }}
+          <a :href="activedIcon.url" class="hover:underline underline-offset-4" target="_blank" rel="noopener">
+            {{ decodeURIComponent(activedIcon.url ?? '') }}
           </a>
         </template>
       </el-text>

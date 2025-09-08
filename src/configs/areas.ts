@@ -23,8 +23,7 @@ export interface AreaAdditionalConfig {
 
   /**
    * ### 地区图标
-   * - 可用于存档管理页显示地区图标
-   * - 可以覆盖来自地区对象上 iconTag 字段的配置
+   * - 可用于存档管理页显示地区图标的回退
    * - 当子级地区未指定时，会使用其父级地区的值
    */
   icon?: string
@@ -416,11 +415,9 @@ export const AREA_ADDITIONAL_CONFIG_MAP: Record<string, AreaAdditionalConfig> = 
   },
 }
 
-/** 当 iconTag 为空时使用静态配置中的图标 */
-export const fallbackToStaticIcon = ({ code, iconTag = '' }: API.AreaVo) => {
-  if (iconTag)
-    return iconTag
+/** 使用静态配置中的图标 */
+export const fallbackToStaticIcon = ({ code }: API.AreaVo) => {
   const { 1: areaTag } = code!.split(':')
   const fallbackIcon = AREA_ADDITIONAL_CONFIG_MAP[code!]?.icon ?? AREA_ADDITIONAL_CONFIG_MAP[`C:${areaTag}`]?.icon
-  return fallbackIcon ?? iconTag
+  return fallbackIcon
 }

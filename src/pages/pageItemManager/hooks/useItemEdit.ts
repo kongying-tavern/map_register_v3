@@ -1,9 +1,9 @@
 import type { ItemDetailForm } from '../components'
+import { pick } from 'lodash'
 import Api from '@/api/api'
 import { GSMessageService } from '@/components'
 import { useFetchHook } from '@/hooks'
 import { useSocketStore } from '@/stores'
-import { pick } from 'lodash'
 
 export interface ItemEditHookOptions {
   initFormData?: () => API.ItemVo
@@ -17,7 +17,7 @@ const pickRequiredKeys = (item: API.ItemVo): API.ItemVo => pick(item, [
   'name',
   'areaId',
   'defaultContent',
-  'iconTag',
+  'iconId',
   'typeIdList',
   'iconStyleType',
   'hiddenFlag',

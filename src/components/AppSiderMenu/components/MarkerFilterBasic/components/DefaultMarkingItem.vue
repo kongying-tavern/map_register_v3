@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { AppIconTagRenderer } from '@/components'
-import { fallbackToStaticIcon } from '@/configs'
-import { useAreaStore, useIconTagStore, useItemStore } from '@/stores'
-import { isItemVo } from '@/utils'
 import { DeleteFilled } from '@element-plus/icons-vue'
 import { ElIcon } from 'element-plus'
+import { AppIconTagRenderer } from '@/components'
+import { fallbackToStaticIcon } from '@/configs'
+import { useAreaStore, useIconStore, useItemStore } from '@/stores'
+import { isItemVo } from '@/utils'
 import { CheckboxItem, ItemButton } from '..'
 
 defineProps<{
@@ -14,7 +14,7 @@ defineProps<{
 
 const areaStore = useAreaStore()
 const itemStore = useItemStore()
-const iconTagStore = useIconTagStore()
+const iconStore = useIconStore()
 
 const markingItemId = defineModel<number | undefined>('itemId', {
   required: false,
@@ -82,8 +82,8 @@ const handleDragItem = (ev: DragEvent) => {
     <div v-else class="w-full h-12 grid grid-cols-2 gap-1">
       <div class="grid grid-rows-2 grid-cols-[48px_1fr] text-sm overflow-hidden">
         <AppIconTagRenderer
-          :src="iconTagStore.tagSpriteUrl"
-          :mapping="iconTagStore.tagCoordMap.get(area?.iconTag || parentArea?.iconTag || '') ?? undefined"
+          :src="iconStore.iconTextureUrl"
+          :mapping="iconStore.iconCoordMap.get(area?.iconId || parentArea?.iconId || -1)"
           class="row-span-2 w-12 h-12 p-1"
         >
           <img v-if="area" draggable="false" :src="fallbackToStaticIcon(area)">
@@ -99,8 +99,8 @@ const handleDragItem = (ev: DragEvent) => {
       <CheckboxItem is-actived :label="markingItem.name" style="margin: 0; width: 100%" @click="removeDefaultMarkingItem">
         <template #icon>
           <AppIconTagRenderer
-            :src="iconTagStore.tagSpriteUrl"
-            :mapping="iconTagStore.tagPositionMap[markingItem.iconTag ?? '']"
+            :src="iconStore.iconTextureUrl"
+            :mapping="iconStore.iconCoordMap.get(markingItem.iconId ?? -1)"
             class="w-full aspect-square"
           />
         </template>

@@ -2,55 +2,22 @@
 import { AppVirtualTable, IconRenderer } from '@/components'
 import { useIconStore } from '@/stores'
 
-const props = defineProps<{
-  tagList: API.IconVo[]
+defineProps<{
+  data: API.IconVo[]
   loading: boolean
 }>()
-
-const scrollTarget = defineModel<API.IconVo | null>('scrollTarget', {
-  required: false,
-  default: null,
-})
 
 const ICON_SIZE = 100
 
 const iconStore = useIconStore()
 
-const activedTag = defineModel<API.IconVo | null>('activedTag', {
+const activedIcon = defineModel<API.IconVo | null>('activedItem', {
   required: true,
 })
-
-const tableContainerRef = ref<HTMLElement>()
-const { width } = useElementSize(tableContainerRef)
-const gridItems = computed(() => Math.floor((width.value - 32) / ICON_SIZE))
-
-const scrollTo = (target: API.IconVo | null) => {
-  if (!target)
-    return
-
-  const scroller = tableContainerRef.value?.firstElementChild
-  if (!scroller)
-    return
-
-  const tagIndex = props.tagList.findIndex(tag => tag.tag === target.tag)
-  if (tagIndex < 0)
-    return
-
-  const top = Math.floor(tagIndex / gridItems.value) * ICON_SIZE
-
-  scroller.scrollTo({
-    top,
-    behavior: 'smooth',
-  })
-  scrollTarget.value = null
-}
-
-watch(scrollTarget, scrollTo)
 </script>
 
 <template>
   <div
-    ref="tableContainerRef"
     v-loading="loading"
     class="border-r-[1px] border-[var(--el-border-color-light)] h-full overflow-hidden"
     element-loading-text="正在处理..."
@@ -59,7 +26,7 @@ watch(scrollTarget, scrollTo)
     }"
   >
     <AppVirtualTable
-      :data="tagList"
+      :data="data"
       :cached-rows="1"
       :item-height="ICON_SIZE"
       :item-width="ICON_SIZE"
@@ -69,9 +36,9 @@ watch(scrollTarget, scrollTo)
           class="grid-item"
           :title="icon.tag"
           :class="{
-            'is-actived': icon.tag === activedTag?.tag,
+            'is-actived': icon.tag === activedIcon?.tag,
           }"
-          @click="activedTag = icon"
+          @click="activedIcon = icon"
         >
           <IconRenderer
             class="w-12 h-12 text-[#AB9073]"

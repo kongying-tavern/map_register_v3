@@ -19,7 +19,7 @@ const emitClose = () => {
 
 <template>
   <div class="win-dialog-title-bar">
-    <div class="title-name">
+    <div v-bind="$attrs" class="title-name">
       <slot name="default" />
     </div>
 
@@ -48,7 +48,7 @@ const emitClose = () => {
 .title-name {
   @apply
     overflow-hidden
-    flex-1 p-1.5 px-2
+    h-[28px] flex-1 flex items-center px-2
     text-xs text-ellipsis whitespace-nowrap
   ;
 }

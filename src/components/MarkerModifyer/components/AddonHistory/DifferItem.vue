@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { AppIconTagRenderer } from '@/components'
-import { useIconTagStore, useItemStore } from '@/stores'
+import { useIconStore, useItemStore } from '@/stores'
 
 const props = withDefaults(defineProps<{
   history?: API.MarkerItemLinkVo[]
@@ -11,7 +11,7 @@ const props = withDefaults(defineProps<{
 })
 
 const itemStore = useItemStore()
-const iconTagStore = useIconTagStore()
+const iconStore = useIconStore()
 
 const diffItems = computed(() => {
   const oldIds = props.history.reduce((set, { itemId }) => set.add(itemId!), new Set<number>())
@@ -51,8 +51,8 @@ const diffItems = computed(() => {
       >
         <AppIconTagRenderer
           class="w-8 h-8"
-          :src="iconTagStore.tagSpriteUrl"
-          :mapping="iconTagStore.tagPositionMap[item?.iconTag ?? 'unknown']"
+          :src="iconStore.iconTextureUrl"
+          :mapping="iconStore.iconCoordMap.get(item?.iconId ?? -1)"
         />
         <div class="flex-1">
           <div>

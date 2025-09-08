@@ -1,9 +1,9 @@
 <script lang="ts" setup>
+import { Check, Close } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 import Api from '@/api/api'
 import { WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 import { useFetchHook } from '@/hooks'
-import { Check, Close } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
 import { AreaDetailForm } from '.'
 
 const props = defineProps<{
@@ -17,7 +17,7 @@ const emits = defineEmits<{
 
 const formData = ref<API.AreaVo>({
   parentId: props.parent?.id ?? -1,
-  iconTag: '',
+  iconId: -1,
   isFinal: Boolean(props.parent),
 })
 

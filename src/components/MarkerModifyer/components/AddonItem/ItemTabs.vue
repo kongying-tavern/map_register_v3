@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { InternalItemData } from './types'
-import { useAreaStore, useItemStore, useItemTypeStore } from '@/stores'
 import { formItemContextKey, useFormItem } from 'element-plus'
+import { useAreaStore, useItemStore, useItemTypeStore } from '@/stores'
 import { AddonTeleporter } from '..'
 import ItemDetail from './ItemDetail.vue'
 import ItemSubSummary from './ItemSubSummary.vue'
@@ -72,7 +72,7 @@ const itemList = computed({
     itemsGroup.value.set(area, list.map(item => ({
       itemId: item.id,
       count: itemCountIdMap.value.get(item.id!) ?? 1,
-      iconTag: item.iconTag,
+      iconId: item.iconId,
       _raw: item,
     })))
   },
@@ -139,7 +139,7 @@ const changeArea = (newAreaCode: string, oldAreaCode: string) => {
         itemId: item.id,
         // 从旧地区的物品名称与数量映射表中继承物品数量
         count: itemCountNameMap.get(item.name ?? '') ?? 1,
-        iconTag: item.iconTag,
+        iconId: item.iconId,
       }))
     })
 

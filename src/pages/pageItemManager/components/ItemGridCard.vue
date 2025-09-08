@@ -4,7 +4,7 @@ import { Delete } from '@element-plus/icons-vue'
 import { AppIconTagRenderer } from '@/components'
 import { useRefreshTime } from '@/hooks'
 import { HIDDEN_FLAG_NAME_MAP, HiddenFlagEnum, ICON_STYLE_META_MAP, IconStyle } from '@/shared'
-import { useAreaStore, useIconTagStore } from '@/stores'
+import { useAreaStore, useIconStore } from '@/stores'
 
 const props = defineProps<{
   data: API.ItemVo
@@ -17,7 +17,7 @@ const emits = defineEmits<{
 }>()
 
 const areaStore = useAreaStore()
-const iconTagStore = useIconTagStore()
+const iconStore = useIconStore()
 
 const areaName = computed(() => {
   const { areaId } = props.data
@@ -51,8 +51,8 @@ const { humanFriendlyTimeText } = useRefreshTime(computed(() => props.data.defau
   <div class="item-grid-card" @click="() => emits('review', props.data)">
     <div class="flex">
       <AppIconTagRenderer
-        :src="iconTagStore.tagSpriteUrl"
-        :mapping="iconTagStore.tagCoordMap.get(props.data.iconTag ?? 'unknown')"
+        :src="iconStore.iconTextureUrl"
+        :mapping="iconStore.iconCoordMap.get(props.data.iconId ?? -1)"
         :class="`type-${props.data.iconStyleType ?? IconStyle.DEFAULT}`"
         class="item-icon"
       />

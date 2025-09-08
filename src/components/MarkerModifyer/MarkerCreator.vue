@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { useUserStore } from '@/stores'
 import { Check, Close } from '@element-plus/icons-vue'
+import { useUserStore } from '@/stores'
 import { MarkerForm } from './components'
 import { useMarkerCreate } from './hooks'
 
@@ -26,7 +26,7 @@ const initFormData = (): API.MarkerVo => {
     itemList: props.defaultItem
       ? [{
           count: props.defaultItem.defaultCount ?? 1,
-          iconTag: props.defaultItem.iconTag,
+          iconId: props.defaultItem.iconId,
           itemId: props.defaultItem.id,
         }]
       : [],

@@ -1,20 +1,18 @@
-import type { Logger } from '@/utils/logger'
 import type { IconLayer } from 'deck.gl'
-import { WorkerThreadDB } from '@/database/db/worker'
+import type { Logger } from '@/utils/logger'
+import db from '@/database/db'
 import { useLoggerWorker } from '@/hooks/useWorkerLogger'
 import { getDigest } from '@/utils/getDigest'
-
-const db = new WorkerThreadDB()
 
 declare const globalThis: DedicatedWorkerGlobalScope
 
 /** 主线程输入数据 */
 export interface WorkerInput {
   /** 图标标签的精灵图 */
-  tagSprite: ArrayBuffer
+  texture: ArrayBuffer
 
-  /** 图标标签的坐标 mapping */
-  tagsPositionList: DBType.CacheTypes['tagSprite']['tagsPositionList']
+  /** 图标 id 到坐标的映射 */
+  positionList: DBType.CacheTypes['iconSprite']['positionList']
 
   /** 点位图标的交互状态列表，颜色会被渲染在图标的图标状态部分路径上 */
   states: StateOption[]
@@ -44,7 +42,7 @@ interface AttachOption {
 }
 
 /** 主线程接收数据 */
-export type WorkerSuccessOutput = Omit<DBType.MarkerSprite, 'tagSpriteDigest'>
+export type WorkerSuccessOutput = DBType.MarkerSprite
 
 /** 主线程接收数据 */
 export type WorkerOutput =
@@ -152,12 +150,18 @@ const UG_ICON = createSnapshot([64, 64], (ctx) => {
  * 编排画板并生成 mapping，具体思路如下：
  * 1. 第一行预留给状态纹理+附加纹理，正常情况下够用了，
  */
-const calculate = ({ tagsPositionList, states, attachs, iconSize, gap, textureSizeLimit }: {
-  tagsPositionList: DBType.CacheTypes['tagSprite']['tagsPositionList']
-  states: StateOption[]
+const calculate = ({ positionList, states, attachs, iconSize, gap, textureSizeLimit }: {
+  /** 图标布局信息 */
+  positionList: WorkerInput['positionList']
+  /** 可切换状态 */
+  states: WorkerInput['states']
+  /** 附加纹理 */
   attachs: AttachOption[]
+  /** 图标尺寸 */
   iconSize: number
+  /** 纹理单位间隔距离 */
   gap: number
+  /** 纹理尺寸限制 */
   textureSizeLimit: number
 }) => {
   const size = iconSize + gap
@@ -165,8 +169,8 @@ const calculate = ({ tagsPositionList, states, attachs, iconSize, gap, textureSi
   /** 最小列数以保证 状态纹理+附加纹理 的总数能被容纳 */
   const minCols = states.length + attachs.length
 
-  const cols = Math.max(Math.ceil(Math.sqrt(tagsPositionList.length)), minCols)
-  const rows = (cols - 1) * cols >= tagsPositionList.length ? cols : cols + 1
+  const cols = Math.max(Math.ceil(Math.sqrt(positionList.length)), minCols)
+  const rows = (cols - 1) * cols >= positionList.length ? cols : cols + 1
 
   const width = cols * size
   const height = rows * size
@@ -176,51 +180,55 @@ const calculate = ({ tagsPositionList, states, attachs, iconSize, gap, textureSi
 
   const mapping: Exclude<IconLayer['props']['iconMapping'], string> = {}
 
-  let total = 0
-  let tagCount = 0
+  /** 总渲染数 */
+  let totalRenders = 0
+  /** 图标数 */
+  let totalIcons = 0
 
   states.forEach(({ state }) => {
     mapping[state] = {
-      x: total * size + gap,
+      x: totalRenders * size + gap,
       y: gap,
       width: iconSize,
       height: iconSize,
       anchorX: ANCHOR.X,
       anchorY: ANCHOR.Y,
     }
-    total += 1
+    totalRenders += 1
   })
 
   attachs.forEach(({ key }) => {
     mapping[key] = {
-      x: total * size + gap,
+      x: totalRenders * size + gap,
       y: gap,
       width: iconSize,
       height: iconSize,
       anchorX: ANCHOR.X,
       anchorY: ANCHOR.Y,
     }
-    total += 1
+    totalRenders += 1
   })
 
-  tagsPositionList.forEach(({ tags }, index) => tags.forEach((tag) => {
-    const row = Math.floor(index / cols)
-    const col = index - row * cols
-    const startX = col * size
-    const startY = (row + 1) * size
-    mapping[tag] = {
-      x: startX,
-      y: startY,
-      width: iconSize,
-      height: iconSize,
-      anchorX: ANCHOR.X,
-      anchorY: ANCHOR.Y,
-    }
-    total += 1
-    tagCount += 1
-  }))
+  positionList.forEach(({ ids: iconIds }, index) => {
+    iconIds.forEach((iconId) => {
+      const row = Math.floor(index / cols)
+      const col = index - row * cols
+      const startX = col * size
+      const startY = (row + 1) * size
+      mapping[iconId] = {
+        x: startX,
+        y: startY,
+        width: iconSize,
+        height: iconSize,
+        anchorX: ANCHOR.X,
+        anchorY: ANCHOR.Y,
+      }
+      totalRenders += 1
+      totalIcons += 1
+    })
+  })
 
-  return { cols, rows, canvasW: width, canvasH: height, mapping, total, tagCount }
+  return { cols, rows, canvasW: width, canvasH: height, mapping, totalRenders, totalIcons }
 }
 
 /**
@@ -230,15 +238,15 @@ const calculate = ({ tagsPositionList, states, attachs, iconSize, gap, textureSi
  */
 const render = async (options: WorkerInput, logger: Logger): Promise<WorkerSuccessOutput> => {
   const {
-    tagSprite,
-    tagsPositionList,
+    texture: iconTexture,
+    positionList,
     outlineColor = '#33333360',
     states,
     iconSize = 64,
     gap = 0,
   } = options
 
-  const tagSpriteDigest = await getDigest(tagSprite, 'SHA-256')
+  const iconSpriteDigest = await getDigest(iconTexture, 'SHA-256')
 
   const attachs: AttachOption[] = [
     { key: 'underground', icon: UG_ICON },
@@ -248,8 +256,8 @@ const render = async (options: WorkerInput, logger: Logger): Promise<WorkerSucce
   const textureSizeLimit = Math.min(MAX_TEXTURE_LIMIT, gl.getParameter(gl.MAX_TEXTURE_SIZE) ?? DEFAULT_TEXTURE_LIMIT)
 
   // 计算画板尺寸
-  const { cols, rows, canvasW, canvasH, mapping, total, tagCount } = calculate({
-    tagsPositionList,
+  const { cols, rows, canvasW, canvasH, mapping, totalRenders, totalIcons } = calculate({
+    positionList,
     states,
     attachs,
     iconSize,
@@ -262,28 +270,25 @@ const render = async (options: WorkerInput, logger: Logger): Promise<WorkerSucce
 
   // 如果存在缓存，则跳过绘制步骤，只生成 mapping
   const cache = await (async () => {
-    const cacheInfo = await db.cache.get('markerSprite')
-    if (!cacheInfo || cacheInfo.id !== 'markerSprite' || cacheInfo.value.tagSpriteDigest !== tagSpriteDigest)
-      return
-
-    const { width, height } = await createImageBitmap(new Blob([cacheInfo.value.image], { type: 'image/png' }))
-
-    const message = (() => {
+    try {
+      const [cacheMarkerSprite] = await db.cache.markerSprite.toArray()
+      if (!cacheMarkerSprite)
+        throw new Error('没有可用的点位预渲染纹理缓存')
+      if (cacheMarkerSprite.iconSpriteDigest !== iconSpriteDigest)
+        throw new Error('点位预渲染纹理缓存所使用的图标缓存已过期')
+      const { width, height } = await createImageBitmap(new Blob([cacheMarkerSprite.texture], { type: 'image/png' }))
       if (width > textureSizeLimit || height > textureSizeLimit)
-        return '缓存的纹理不符合限制要求'
+        throw new Error('缓存的纹理不符合限制要求')
       if (width !== canvasW || height !== canvasH)
-        return '纹理尺寸不统一'
-      if (Object.keys(cacheInfo.value.mapping).length !== total)
-        return '状态总数不统一'
-    })()
-
-    if (message) {
-      await db.cache.delete(cacheInfo.id)
-      logger.warn(message)
-      return
+        throw new Error('纹理尺寸不统一')
+      if (Object.keys(cacheMarkerSprite.mapping).length !== totalRenders)
+        throw new Error('状态总数不统一')
+      return cacheMarkerSprite
     }
-
-    return cacheInfo.value
+    catch (err) {
+      await db.cache.markerSprite.clear()
+      logger.error(err instanceof Error ? err.message : JSON.stringify(err))
+    }
   })()
 
   if (cache) {
@@ -292,7 +297,6 @@ const render = async (options: WorkerInput, logger: Logger): Promise<WorkerSucce
   }
 
   logger.info('编排画板', { w: canvasW, h: canvasH, cols, rows, textureSizeLimit })
-
   logger.info('正在绘制...')
   const startTime = Date.now()
   const canvas = new OffscreenCanvas(canvasW, canvasH)
@@ -322,15 +326,16 @@ const render = async (options: WorkerInput, logger: Logger): Promise<WorkerSucce
   })
 
   // 绘制 content
-  const spriteImage = await createImageBitmap(new Blob([tagSprite], { type: 'image/png' }))
+  const spriteImage = await createImageBitmap(new Blob([iconTexture], { type: 'image/png' }))
 
-  tagsPositionList.forEach(({ pos: [x, y] }, index) => {
+  positionList.forEach(({ pos: [x, y] }, index) => {
     const row = Math.floor(index / cols)
     const col = index - row * cols
     const startX = col * size
     const startY = (row + 1) * size
     ctx.save()
     ctx.translate(startX, startY)
+    // DEBUG
     // ctx.strokeStyle = 'red'
     // ctx.strokeRect(0, 0, size, size)
     ctx.clip(CONTENT_PATH)
@@ -349,23 +354,26 @@ const render = async (options: WorkerInput, logger: Logger): Promise<WorkerSucce
     canvasW,
     canvasH,
     byteLength: image.byteLength,
-    total,
-    tagCount,
+    totalRenders,
+    totalIcons,
   })
 
   // 更新缓存
   const digest = await getDigest(image, 'SHA-256')
-  await db.cache.put({
-    id: 'markerSprite',
-    value: {
-      image,
-      mapping,
-      tagSpriteDigest,
-    },
+
+  await db.cache.markerSprite.put({
     digest,
+    texture: image,
+    mapping,
+    iconSpriteDigest,
   })
 
-  return { image, mapping }
+  return {
+    digest,
+    iconSpriteDigest,
+    texture: image,
+    mapping,
+  }
 }
 
 globalThis.addEventListener('message', async (ev: MessageEvent<WorkerInput>) => {
@@ -373,7 +381,7 @@ globalThis.addEventListener('message', async (ev: MessageEvent<WorkerInput>) => 
 
   try {
     const res = await render(ev.data, logger)
-    send(res, [res.image])
+    send(res, [res.texture])
   }
   catch (err) {
     logger.error(err instanceof Error ? err.message : `${err}`)

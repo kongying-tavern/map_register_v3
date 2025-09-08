@@ -4,7 +4,7 @@ import type { ItemFormRules } from '@/utils'
 import { AppTimeSelect } from '@/components'
 import { useIconList, useRefreshTime } from '@/hooks'
 import { HIDDEN_FLAG_OPTIONS, ICON_STYLE_META_MAP, SPECIALFLAG_OPTIONS } from '@/shared'
-import { useAccessStore, useAreaStore, useItemTypeStore } from '@/stores'
+import { useAccessStore, useAreaStore, useIconStore, useItemTypeStore } from '@/stores'
 import { lengthCheck, requireCheck } from '@/utils'
 import { useSpecialFlag } from '../hooks'
 
@@ -17,6 +17,7 @@ const emits = defineEmits<{
 }>()
 
 const accessStore = useAccessStore()
+const iconStore = useIconStore()
 
 // ==================== 表单数据 ====================
 const formData = ref(props.modelValue)
@@ -38,6 +39,7 @@ watch(formData, () => {
 
 // ==================== 表单校验 ====================
 const formRef = ref<ElFormType | null>(null)
+
 const rules: ItemFormRules<API.ItemVo> = {
   name: [lengthCheck('blur', '名称', 10)],
   areaId: [requireCheck('change', '地区')],
@@ -49,6 +51,7 @@ const rules: ItemFormRules<API.ItemVo> = {
 
 // ==================== 物品地区 ====================
 const areaStore = useAreaStore()
+
 const areaList = computed(() => areaStore.areaList
   .filter(area => area.isFinal)
   .sort(({ sortIndex: ia = 0 }, { sortIndex: ib = 0 }) => ib - ia),
@@ -56,6 +59,7 @@ const areaList = computed(() => areaStore.areaList
 
 // ==================== 物品类型 ====================
 const itemTypeStore = useItemTypeStore()
+
 const itemTypeList = computed(() => itemTypeStore.itemTypeList
   .filter(itemType => itemType.isFinal)
   .sort(({ sortIndex: ia = 0 }, { sortIndex: ib = 0 }) => ib - ia),
@@ -65,11 +69,12 @@ const itemTypeList = computed(() => itemTypeStore.itemTypeList
 const hiddenFlagOptions = useArrayFilter(HIDDEN_FLAG_OPTIONS, ({ value }) => accessStore.checkHiddenFlag(value))
 
 // ==================== 物品图标 ====================
-const { iconMap, iconList: rawIconList } = useIconList()
-const iconList = computed(() => rawIconList.value.map(iconTag => ({
-  label: iconTag.tag!,
-  value: iconTag.tag!,
-  url: iconTag.url,
+const { iconList: rawIconList } = useIconList()
+
+const iconList = computed(() => rawIconList.value.map(icon => ({
+  label: icon.tag ?? '',
+  value: icon.id,
+  url: icon.url,
 })))
 
 // ==================== 图标类型 ====================
@@ -168,8 +173,8 @@ defineExpose({
         <el-input-number v-model="formData.sortIndex" :min="-65536" :max="65535" :step="1" placeholder="请输入权重" style="width: 100%" />
       </el-form-item>
 
-      <el-form-item label="物品图标" prop="iconTag">
-        <el-select-v2 v-model="formData.iconTag" :options="iconList" filterable placeholder="选择图标" style="width: 100%">
+      <el-form-item label="物品图标" prop="iconId">
+        <el-select-v2 v-model="formData.iconId" :options="iconList" filterable placeholder="选择图标" style="width: 100%">
           <template #default="{ item }">
             <div class="flex items-center gap-2">
               <img v-if="Boolean(item.url)" :src="item.url" class="object-contain p-[2px] w-[34px] h-[34px]" loading="lazy" crossorigin="">
@@ -187,9 +192,9 @@ defineExpose({
           >
             <div class="w-8 h-8 relative" :class="[previewMarkered ? 'is-markered' : '', `icon-type-${formData.iconStyleType}`]">
               <img
-                v-if="formData.iconTag"
+                v-if="formData.iconId"
                 class="w-8 h-8 object-contain overflow-hidden absolute left-0 top-0"
-                :src="iconMap[formData.iconTag]"
+                :src="iconStore.idMap.get(formData.iconId)?.url"
                 draggable="false"
                 crossorigin=""
               >

@@ -1,10 +1,10 @@
-import Api from '@/api/config'
-import { validateDadianJSON } from '@/configs'
-import db from '@/database'
-import { useFetchHook } from '@/hooks'
-import { Zip } from '@/utils'
 import { ElMessage } from 'element-plus'
 import { defineStore } from 'pinia'
+import Api from '@/api/config'
+import { validateDadianJSON } from '@/configs'
+import db from '@/database/db'
+import { useFetchHook } from '@/hooks'
+import { Zip } from '@/utils'
 import { useUserStore } from './user'
 
 const getDigest = async (data: ArrayBuffer) => {
@@ -21,7 +21,7 @@ export const useDadianStore = defineStore('global-dadian-json', () => {
   const userStore = useUserStore()
 
   // 直接请求新的配置，当请求失败时回退到本地缓存
-  const { data, refresh: update, loading, onSuccess, onError } = useFetchHook({
+  const { data, refresh: update, loading, onError } = useFetchHook({
     initialValue: {
       json: {},
       hash: '',
@@ -32,7 +32,15 @@ export const useDadianStore = defineStore('global-dadian-json', () => {
         name: 'dadian',
       })
       const currentDadianDigest = await getDigest(currentDadianData)
-      return { json: currentDadianJSON, hash: currentDadianDigest }
+      await db.cache.dadianJson.clear()
+      await db.cache.dadianJson.put({
+        digest: currentDadianDigest,
+        json: currentDadianJSON,
+      })
+      return {
+        json: currentDadianJSON,
+        hash: currentDadianDigest,
+      }
     },
   })
 
@@ -45,21 +53,13 @@ export const useDadianStore = defineStore('global-dadian-json', () => {
     version: getVersion(data.value.json),
   }))
 
-  onSuccess(async ({ json, hash }) => {
-    await db.cache.put({
-      id: 'dadian',
-      digest: hash,
-      value: json,
-    })
-  })
-
   onError(async () => {
-    const cachedDadianData = await db.cache.get('dadian')
-    if (cachedDadianData && cachedDadianData.id === 'dadian') {
-      data.value = {
-        json: cachedDadianData.value,
-        hash: cachedDadianData.digest,
-      }
+    const [cachedDadianData] = await db.cache.dadianJson.toArray()
+    if (!cachedDadianData?.json)
+      return
+    data.value = {
+      json: cachedDadianData.json,
+      hash: cachedDadianData.digest,
     }
   })
 

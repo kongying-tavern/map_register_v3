@@ -1,7 +1,7 @@
-import { AppDatabase } from './app'
+import { AppDexie } from './app'
 
 /** 主线程数据库 */
-export class MainThreadDB extends AppDatabase {
+export class MainThreadDB extends AppDexie {
   constructor() {
     super()
     this

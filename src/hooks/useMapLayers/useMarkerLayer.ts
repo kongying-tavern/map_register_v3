@@ -1,13 +1,13 @@
 import type { GSMarkerInfo } from '@/packages/map'
-import { GSMarkerLayer } from '@/packages/map'
-import { MapSubject } from '@/shared'
-import { useArchiveStore, useIconTagStore, useMapStateStore, usePreferenceStore } from '@/stores'
 import { useSubscription } from '@vueuse/rxjs'
 import { filter } from 'rxjs'
+import { GSMarkerLayer } from '@/packages/map'
+import { MapSubject } from '@/shared'
+import { useArchiveStore, useIconStore, useMapStateStore, usePreferenceStore } from '@/stores'
 
 export const useMarkerLayer = () => {
   const archiveStore = useArchiveStore()
-  const iconTagStore = useIconTagStore()
+  const iconStore = useIconStore()
   const mapStateStore = useMapStateStore()
   const preferenceStore = usePreferenceStore()
 
@@ -52,7 +52,7 @@ export const useMarkerLayer = () => {
   }))
 
   const markerLayer = computed<GSMarkerLayer | undefined>(() => {
-    if (!iconTagStore.markerSpriteUrl)
+    if (!iconStore.markerSpriteUrl)
       return
 
     const key = GSMarkerLayer.layerName
@@ -65,8 +65,8 @@ export const useMarkerLayer = () => {
       hoverMarkerIds,
       focusMarkerIds,
       markedMarkerIds,
-      iconAtlas: iconTagStore.markerSpriteUrl,
-      iconMapping: iconTagStore.markerSpriteMapping,
+      iconAtlas: iconStore.markerSpriteUrl,
+      iconMapping: iconStore.markerSpriteMapping,
       transparentMarked: preferenceStore.transparentMarked,
       rewritePositions: rewritePositions.value,
     })
