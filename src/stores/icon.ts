@@ -128,7 +128,7 @@ export const useIconStore = defineStore('global-icon', () => {
       message.value = '获取签名列表'
       const { data: digestData = {} } = await Api.iconDoc.listAllIconBinaryMd5()
       const { md5: hash = '' } = digestData
-      if (hash) {
+      if (!hash) {
         return {
           bulkPutData: [],
           bulkDeleteKeys: [],
