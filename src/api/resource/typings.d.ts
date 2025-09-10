@@ -3,4 +3,8 @@ declare namespace API {
     file: File
     filePath: string
   }
+
+  interface GetResourceVo {
+    filePath: string
+  }
 }
