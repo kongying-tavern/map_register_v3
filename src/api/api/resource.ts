@@ -36,18 +36,19 @@ export async function uploadImage(
   })
 }
 
-/** 获取资源配置 获取资源配置 GET /api/res/get/${param0} */
+/** 获取资源配置 获取资源配置 GET /api/res/get */
 export async function getResource(
   params: {
-    // path
+    // query
     filePath: string
   },
   options?: AxiosRequestConfig,
 ) {
-  const { filePath: param0, ...queryParams } = params
-  return request<API.RResourceUploadVo>(`/api/res/get/${param0}`, {
+  return request<API.RResourceUploadVo>('/api/res/get', {
     method: 'GET',
-    params: { ...queryParams },
+    params: {
+      ...params,
+    },
     ...(options || {}),
   })
 }
