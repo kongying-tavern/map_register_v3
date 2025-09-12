@@ -7,7 +7,7 @@ import { useFetchHook } from '@/hooks'
 import { getDigest } from '@/utils'
 
 export const useIconUpdate = (form: Ref<API.IconVo>, options: IconUpdateOptions = {}) => {
-  const { type = 'webp', iconEditable = true } = options
+  const { type = 'png', iconEditable = true } = options
 
   const stash = shallowRef<HTMLCanvasElement | null>(null)
 
@@ -129,7 +129,7 @@ export const useIconUpdate = (form: Ref<API.IconVo>, options: IconUpdateOptions 
 }
 
 interface IconUpdateOptions {
-  /** @default 'webp' */
+  /** @default 'png' */
   type?: string
   /** @default true 图像是否可编辑 */
   iconEditable?: MaybeRef<boolean>

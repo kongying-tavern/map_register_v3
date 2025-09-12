@@ -237,11 +237,11 @@ export const useImageCropper = (
     options: {
       /** 是否为原始图片 @default false */
       raw?: boolean
-      /** 使用二进制源时指定图片的 MIME 类型 @default 'image/webp' */
+      /** 使用二进制源时指定图片的 MIME 类型 @default 'image/png' */
       type?: string
     } = {},
   ) => {
-    const { raw = false, type = 'image/webp' } = options
+    const { raw = false, type = 'image/png' } = options
     try {
       loadController.value?.abort('Image Source Changed')
       const ac = new AbortController()

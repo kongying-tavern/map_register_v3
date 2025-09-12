@@ -7,7 +7,7 @@ import { useFetchHook } from '@/hooks'
 import { getDigest } from '@/utils'
 
 export const useIconCreate = (form: Ref<API.IconVo>, options: IconCreateOptions = {}) => {
-  const { type = 'webp' } = options
+  const { type = 'png' } = options
 
   const stash = shallowRef<HTMLCanvasElement | null>(null)
 
@@ -52,15 +52,18 @@ export const useIconCreate = (form: Ref<API.IconVo>, options: IconCreateOptions 
       const file = new File([icon], fileName)
 
       const {
-        message = '上传图片失败',
+        message: uploadMessage = '上传图片失败',
         data: {
           fileUrl = '',
         } = {},
       } = await Resource.image.upload({ file, filePath })
       if (!fileUrl)
-        throw new Error(message)
+        throw new Error(uploadMessage)
 
-      await Api.icon.createIcon({
+      const {
+        data: iconId,
+        message: createMessage = '创建失败',
+      } = await Api.icon.createIcon({
         description,
         id,
         tag,
@@ -69,7 +72,9 @@ export const useIconCreate = (form: Ref<API.IconVo>, options: IconCreateOptions 
       })
 
       try {
-        const { data = {}, error, message = '' } = await Api.icon.getIcon({ iconId: form.value.id! })
+        if (iconId === undefined)
+          throw new Error(createMessage)
+        const { data = {}, error, message = '' } = await Api.icon.getIcon({ iconId })
         if (error)
           throw new Error(message)
         await db.app.icon.put(data)
@@ -108,6 +113,6 @@ export const useIconCreate = (form: Ref<API.IconVo>, options: IconCreateOptions 
 }
 
 interface IconCreateOptions {
-  /** @default 'webp' */
+  /** @default 'png' */
   type?: string
 }
