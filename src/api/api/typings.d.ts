@@ -326,6 +326,8 @@ declare namespace API {
     typeIdList?: number[]
     /** 图标url */
     url?: string
+    /** 图标变体url */
+    urlVariants?: Record<string, string>
     /** 图标描述 */
     description?: string
   }
