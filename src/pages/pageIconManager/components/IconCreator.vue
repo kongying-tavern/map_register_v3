@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { Check, Close } from '@element-plus/icons-vue'
 import { WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
+import { useIconType } from '@/hooks'
 import { formatByteSize } from '@/utils'
 import { useIconCreate, useIconFormRules } from '../hooks'
 import { ImageCropper } from './ImageCropper'
@@ -26,6 +27,12 @@ const {
   stashIcon,
   createIcon,
 } = useIconCreate(iconForm)
+
+/** 图标类型 */
+const {
+  props: typeTreeProps,
+  load: loadIconType,
+} = useIconType()
 
 /** 校验规则 */
 const { rules } = useIconFormRules(iconForm)
@@ -101,12 +108,24 @@ const cancel = () => {
           label-width="60px"
           class="flex-1"
         >
-          <el-form-item label="名称" prop="tag" style="margin-bottom: 17px;">
+          <el-form-item label="名称" prop="tag" style="margin-bottom: 16px">
             <el-input v-model="iconForm.tag" />
           </el-form-item>
 
-          <el-form-item label="描述" prop="description" style="margin-bottom: 0;">
+          <el-form-item label="描述" prop="description" style="margin-bottom: 8px">
             <el-input v-model="iconForm.description" :rows="3" resize="none" type="textarea" />
+          </el-form-item>
+
+          <el-form-item label="类型" prop="typeIdList" style="margin-bottom: 0">
+            <el-tree-select
+              v-model="iconForm.typeIdList"
+              lazy
+              multiple
+              collapse-tags
+              collapse-tags-tooltip
+              :load="loadIconType"
+              :props="typeTreeProps"
+            />
           </el-form-item>
         </el-form>
       </div>

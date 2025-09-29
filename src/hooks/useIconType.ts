@@ -1,0 +1,46 @@
+import type { Props } from 'element-plus/es/components/select-v2/src/useProps.mjs'
+import type Node from 'element-plus/es/components/tree/src/model/node.mjs'
+import type { TreeOptionProps } from 'element-plus/es/components/tree/src/tree.type.mjs'
+import Api from '@/api/api'
+
+const cache = ref<Map<number, API.IconTypeVo[]>>(new Map())
+
+const getIconTypeList = async (parentId = -1, size = 128, useCache = false) => {
+  if (useCache && cache.value.has(parentId))
+    return cache.value.get(parentId)!
+  const { data: { record = [] } = {} } = await Api.iconType.listIconType({
+    typeIdList: [parentId],
+    current: 1,
+    size,
+  })
+  cache.value.set(parentId, record)
+  return record
+}
+
+/** 可供 el-tree 或者 el-tree-select 使用的树形结构图标类型数据 */
+export const useIconType = (useCache = true) => {
+  const props: TreeOptionProps & Props = {
+    label: 'name',
+    value: 'id',
+    isLeaf: 'isFinal',
+  }
+
+  /** 懒加载树形类型列表 */
+  const load = (node: Node, resolve: (data: API.IconTypeVo[]) => void) => {
+    if (node.level === 0) {
+      getIconTypeList(-1, 128, useCache).then(resolve)
+      return
+    }
+    const { id } = node.data as API.IconTypeVo
+    if (id === undefined) {
+      resolve([])
+      return
+    }
+    getIconTypeList(id, 128, useCache).then(resolve)
+  }
+
+  return {
+    props,
+    load,
+  }
+}

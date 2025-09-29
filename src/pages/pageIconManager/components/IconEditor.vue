@@ -3,6 +3,7 @@ import { Check, Close } from '@element-plus/icons-vue'
 import dayjs from 'dayjs'
 import Api from '@/api/api'
 import { IconRenderer, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
+import { useIconType } from '@/hooks'
 import { formatByteSize } from '@/utils'
 import { useIconFormRules, useIconUpdate } from '../hooks'
 import { ImageCropper } from './ImageCropper'
@@ -56,6 +57,9 @@ const {
 } = useIconUpdate(iconForm, {
   iconEditable,
 })
+
+/** 图标类型 */
+const { props: typeTreeProps, load: loadIconType } = useIconType()
 
 /** 校验规则 */
 const { rules } = useIconFormRules(iconForm)
@@ -113,7 +117,7 @@ const cancel = () => {
     <WinDialogTabPanel class="w-[384px] mb-0 flex flex-col">
       <div class="w-full shrink-0 overflow-hidden flex">
         <div
-          class="shrink-0 relative toggle-cropper border border-[var(--el-border-color)] rounded overflow-hidden"
+          class="shrink-0 h-fit relative toggle-cropper border border-[var(--el-border-color)] rounded overflow-hidden"
           :class="{
             'is-editting': iconEditable,
           }"
@@ -136,8 +140,20 @@ const cancel = () => {
             <el-input v-model="iconForm.tag" />
           </el-form-item>
 
-          <el-form-item label="描述" prop="description" style="margin-bottom: 0;">
+          <el-form-item label="描述" prop="description" style="margin-bottom: 8px;">
             <el-input v-model="iconForm.description" :rows="3" resize="none" type="textarea" />
+          </el-form-item>
+
+          <el-form-item label="分类" prop="typeIdList" style="margin-bottom: 0;">
+            <el-tree-select
+              v-model="iconForm.typeIdList"
+              lazy
+              multiple
+              collapse-tags
+              collapse-tags-tooltip
+              :load="loadIconType"
+              :props="typeTreeProps"
+            />
           </el-form-item>
         </el-form>
       </div>
