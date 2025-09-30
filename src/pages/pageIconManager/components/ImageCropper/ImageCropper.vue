@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { ArrowDown, FolderOpened, Refresh } from '@element-plus/icons-vue'
+import { ArrowDown, Delete, FolderOpened } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { getObjectFitSize } from '@/utils'
 import { useImageCropper } from './hooks'
 
 const props = withDefaults(defineProps<{
   raw?: string
+  type: 'default' | 'inactive' | 'active'
   loading?: boolean
 }>(), {
   loading: false,
@@ -61,14 +62,9 @@ const {
   onError: onCropperError,
 } = useImageCropper(containerRef, {
   disabled: disabledEdit,
+  variant: computed(() => props.type),
   keepRatio: computed(() => config.value.keepRatio),
 })
-
-/** 恢复原始图片 */
-const reset = () => {
-  if (props.raw)
-    loadFromSrc(props.raw, { raw: true })
-}
 
 /** 记录首次加载图片 */
 const { off: off1 } = onImageLoad(([bmp, blob, isRaw]) => {
@@ -148,7 +144,7 @@ watch(() => props.raw, async (url) => {
   if (!url)
     return
   await ready
-  await loadFromSrc(url, { raw: true })
+  await loadFromSrc(url)
 }, { immediate: true })
 
 onBeforeUnmount(() => {
@@ -161,23 +157,36 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="overflow-hidden flex flex-col gap-2">
-    <div class="shrink-0 w-full flex gap-2">
+    <div class="shrink-0 w-full flex gap-1">
       <!-- 裁切容器 -->
       <div ref="containerRef" class="shrink-0 w-[240px] h-[240px] chessboard-background" />
 
       <!-- 右侧状态栏 -->
-      <div class="flex-1 h-[240px] flex flex-col">
-        <el-button
-          style="width: 100%"
-          :icon="FolderOpened"
-          :disabled="loading"
-          @click="() => loadFromFile(false)"
-        >
-          选择图片
-        </el-button>
+      <div class="flex-1 h-[240px] flex flex-col gap-1">
+        <div class="flex gap-1">
+          <el-button
+            style="width: 100%"
+            :icon="FolderOpened"
+            :disabled="loading"
+            size="small"
+            @click="loadFromFile"
+          >
+            选择
+          </el-button>
+          <el-button
+            v-if="type !== 'default'"
+            style="margin-left: 0"
+            type="danger"
+            plain
+            :icon="Delete"
+            :disabled="loading"
+            size="small"
+            @click="loadFromFile"
+          />
+        </div>
 
         <!-- 修改前预览 -->
-        <div v-if="raw" class="flex-1 flex flex-col gap-1 items-center justify-center">
+        <div v-if="props.raw" class="flex-1 flex flex-col gap-0.5 items-center justify-center">
           <img
             class="w-[66px] h-[66px] border border-[var(--el-border-color)] object-contain"
             :src="props.raw"
@@ -197,7 +206,7 @@ onBeforeUnmount(() => {
         </div>
 
         <!-- 修改后预览 -->
-        <div v-show="!raw || (raw && newImage)" class="flex-1 flex flex-col gap-1 items-center justify-center">
+        <div v-show="!raw || (raw && newImage)" class="flex-1 flex flex-col gap-0.5 items-center justify-center">
           <div class="w-[66px] h-[66px] border border-[var(--el-border-color)] relative scale-container">
             <canvas
               ref="previewerRef"
@@ -242,16 +251,6 @@ onBeforeUnmount(() => {
           label="保持比例"
           style="margin: 0"
         />
-      </div>
-      <div v-if="raw" class="flex-1 flex justify-end">
-        <el-button
-          size="small"
-          :disabled="disabledEdit"
-          :icon="Refresh"
-          @click="reset"
-        >
-          重置
-        </el-button>
       </div>
     </div>
   </div>

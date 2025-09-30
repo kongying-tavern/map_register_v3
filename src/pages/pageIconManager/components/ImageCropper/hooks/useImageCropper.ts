@@ -17,7 +17,11 @@ export const useImageCropper = (
   containerRef: ShallowRef<HTMLDivElement | undefined>,
   options: ImageCropperOptions = {},
 ) => {
-  const { disabled = false, keepRatio = false } = options
+  const {
+    disabled = false,
+    keepRatio = false,
+    variant = 'default',
+  } = options
 
   /** 裁切器是否已经初始化完毕 */
   const { resolve, promise: ready } = Promise.withResolvers<Konva.Stage>()
@@ -203,10 +207,7 @@ export const useImageCropper = (
   }
 
   /** 从文件选择器加载图片 */
-  const loadFromFile = async (
-    /** 是否为原始图片 */
-    raw = false,
-  ) => {
+  const loadFromFile = async () => {
     try {
       const [handle] = await window.showOpenFilePicker({
         types: [
@@ -220,7 +221,7 @@ export const useImageCropper = (
       const file = await handle.getFile()
       const bmp = await createImageBitmap(file)
       setupLayer(bmp)
-      imageHook.trigger([bmp, file, raw])
+      imageHook.trigger([bmp, file, toValue(variant) === 'default'])
     }
     catch (err) {
       catchError(err)
@@ -235,13 +236,11 @@ export const useImageCropper = (
     /** 图源 */
     src: string | Blob | ArrayBuffer,
     options: {
-      /** 是否为原始图片 @default false */
-      raw?: boolean
       /** 使用二进制源时指定图片的 MIME 类型 @default 'image/png' */
       type?: string
     } = {},
   ) => {
-    const { raw = false, type = 'image/png' } = options
+    const { type = 'image/png' } = options
     try {
       loadController.value?.abort('Image Source Changed')
       const ac = new AbortController()
@@ -257,7 +256,7 @@ export const useImageCropper = (
       })()
       const bmp = await createImageBitmap(blob)
       setupLayer(bmp)
-      imageHook.trigger([bmp, blob, raw])
+      imageHook.trigger([bmp, blob, toValue(variant) === 'default'])
       return bmp
     }
     catch (err) {
@@ -289,4 +288,6 @@ interface ImageCropperOptions {
   disabled?: MaybeRef<boolean>
   /** 是否保持选区宽高比 */
   keepRatio?: MaybeRef<boolean>
+  /** 图标变体类型 */
+  variant?: MaybeRef<'default' | 'inactive' | 'active'>
 }

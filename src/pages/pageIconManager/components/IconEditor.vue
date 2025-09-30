@@ -1,10 +1,7 @@
 <script lang="ts" setup>
 import { Check, Close } from '@element-plus/icons-vue'
-import dayjs from 'dayjs'
-import Api from '@/api/api'
 import { IconRenderer, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 import { useIconType } from '@/hooks'
-import { formatByteSize } from '@/utils'
 import { useIconFormRules, useIconUpdate } from '../hooks'
 import { ImageCropper } from './ImageCropper'
 
@@ -16,35 +13,32 @@ const emits = defineEmits<{
   close: []
 }>()
 
-/** 原始表单 */
-const rawJSON = JSON.stringify(props.icon)
-
-/** 用户信息 */
-const { state: userMap } = useAsyncState(async () => {
-  const map = new Map<number, API.SysUserVo>()
-  const { creatorId, updaterId } = props.icon
-  if (creatorId !== undefined) {
-    const { data: creator = {} } = await Api.user.getUserInfo({ userId: creatorId })
-    map.set(creatorId, creator)
-  }
-  if (updaterId !== undefined && updaterId !== creatorId) {
-    const { data: updator = {} } = await Api.user.getUserInfo({ userId: updaterId })
-    map.set(updaterId, updator)
-  }
-  return map
-}, new Map<number, API.SysUserVo>())
-
 /** 绑定表单 */
-const iconForm = ref<API.IconVo>(JSON.parse(rawJSON))
+const iconForm = ref<API.IconVo>(JSON.parse(JSON.stringify(props.icon)))
 
 /** 是否启用图像编辑 */
 const iconEditable = ref(false)
 
-/** 原始图标元信息 */
-const rawIconMeta = shallowRef<{
-  bmp: ImageBitmap
-  blob: Blob
-} | null>(null)
+/** 图标变体 */
+const variant = ref('default')
+
+const withVariantState = (label: string, name: string) => {
+  const { urlVariants = {} } = iconForm.value
+  if (!urlVariants[name])
+    return `${label} (未配置)`
+  return label
+}
+
+const getVariantUrl = (name: string) => {
+  const { urlVariants = {} } = iconForm.value
+  return urlVariants[name]
+}
+
+const variantTabs = [
+  { label: '默认', name: 'default', required: true },
+  { label: '已激活', name: 'inactive', required: false },
+  { label: '未激活', name: 'active', required: false },
+] as const
 
 /** 更新逻辑封装 */
 const {
@@ -85,9 +79,8 @@ onSuccess(() => {
 })
 
 /** 记录图标变更情况 */
-const handleImageLoad = (bmp: ImageBitmap, blob: Blob, isRaw: boolean, canvas: HTMLCanvasElement) => {
+const handleImageLoad = (_: ImageBitmap, __: Blob, isRaw: boolean, canvas: HTMLCanvasElement) => {
   if (isRaw) {
-    rawIconMeta.value = { bmp, blob }
     clearStash()
     return
   }
@@ -158,57 +151,30 @@ const cancel = () => {
         </el-form>
       </div>
 
-      <el-divider style="margin: 8px 0" />
-
-      <div class="grid grid-cols-2 place-items-start text-xs">
-        <div class="w-full grid grid-cols-[60px_1fr]">
-          <div>分辨率</div>
-          <div>
-            {{ rawIconMeta ? `${rawIconMeta.bmp.width.toFixed(2)} x ${rawIconMeta.bmp.height.toFixed(2)}` : 'Loading...' }}
-          </div>
-          <div>文件大小</div>
-          <div>
-            {{ rawIconMeta ? formatByteSize(rawIconMeta.blob.size) : 'Loading...' }}
-          </div>
-        </div>
-        <div class="w-full grid grid-cols-[60px_1fr]">
-          <div class="w-full overflow-hidden whitespace-nowrap text-ellipsis">
-            创建人
-          </div>
-          <div class="w-full overflow-hidden whitespace-nowrap text-ellipsis">
-            {{ userMap.get(icon.creatorId ?? -1)?.nickname || `(ID: ${icon.creatorId})` }}
-          </div>
-          <div class="w-full overflow-hidden whitespace-nowrap text-ellipsis">
-            创建时间
-          </div>
-          <div class="w-full overflow-hidden whitespace-nowrap text-ellipsis">
-            {{ icon.createTime ? dayjs(icon.createTime).format('YYYY-MM-DD HH:mm:ss') : '--N/A--' }}
-          </div>
-          <div class="w-full overflow-hidden whitespace-nowrap text-ellipsis">
-            最后修改
-          </div>
-          <div class="w-full overflow-hidden whitespace-nowrap text-ellipsis">
-            {{ userMap.get(icon.updaterId ?? -1)?.nickname || `(ID: ${icon.updaterId})` }}
-          </div>
-          <div class="w-full overflow-hidden whitespace-nowrap text-ellipsis">
-            修改时间
-          </div>
-          <div class="w-full overflow-hidden whitespace-nowrap text-ellipsis">
-            {{ icon.updateTime ? dayjs(icon.updateTime).format('YYYY-MM-DD HH:mm:ss') : '--N/A--' }}
-          </div>
-        </div>
-      </div>
-
       <div
         class="transition-[height] overflow-visible"
-        :class="iconEditable ? 'h-[297px]' : 'h-0'"
+        :class="iconEditable ? 'h-[336px]' : 'h-0'"
       >
         <el-divider style="margin: 8px 0" />
-        <ImageCropper
-          :raw="props.icon.url"
-          class="w-full flex-1"
-          @image-load="handleImageLoad"
-        />
+        <el-tabs
+          v-model="variant"
+          class="custom-tabs"
+          type="border-card"
+        >
+          <el-tab-pane
+            v-for="tab in variantTabs"
+            :key="tab.name"
+            :name="tab.name"
+            :label="withVariantState(tab.label, tab.name)"
+          >
+            <ImageCropper
+              :raw="getVariantUrl(tab.name)"
+              :type="tab.name"
+              class="w-full flex-1"
+              @image-load="handleImageLoad"
+            />
+          </el-tab-pane>
+        </el-tabs>
       </div>
     </WinDialogTabPanel>
 
@@ -276,6 +242,30 @@ const cancel = () => {
     --bg: var(--el-color-warning);
     --content: '取消编辑';
     border-color: var(--el-color-warning);
+  }
+}
+
+.custom-tabs {
+  --el-tabs-header-height: 30px;
+
+  :deep(.el-tabs__item.el-tabs__item.el-tabs__item) {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+  :deep(.el-tabs__header.is-top) {
+    margin-bottom: 0;
+  }
+  :deep(.el-tabs__item) {
+    font-size: 12px;
+    transition: none;
+  }
+  :deep(.el-tabs__content) {
+    padding: 4px;
+    flex: 1;
+  }
+  :deep(.el-tab-pane) {
+    display: flex;
+    flex-direction: column;
   }
 }
 </style>

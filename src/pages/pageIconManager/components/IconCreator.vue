@@ -19,6 +19,9 @@ const iconMeta = shallowRef<{
   blob: Blob
 } | null>(null)
 
+/** 图标变体 */
+const variant = ref<'default' | 'inactive' | 'active'>('default')
+
 /** 更新逻辑封装 */
 const {
   loading,
@@ -133,6 +136,7 @@ const cancel = () => {
       <el-divider style="margin: 8px 0" />
 
       <ImageCropper
+        :type="variant"
         class="w-full flex-1"
         @image-load="handleImageLoad"
         @output-change="handleSizeChange"
