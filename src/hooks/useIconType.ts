@@ -25,21 +25,36 @@ export const useIconType = (useCache = true) => {
     isLeaf: 'isFinal',
   }
 
+  const loading = ref(false)
+
   /** 懒加载树形类型列表 */
   const load = (node: Node, resolve: (data: API.IconTypeVo[]) => void) => {
+    loading.value = true
     if (node.level === 0) {
-      getIconTypeList(-1, 128, useCache).then(resolve)
+      getIconTypeList(-1, 128, useCache)
+        .then(resolve)
+        .catch(() => resolve([]))
+        .finally(() => {
+          loading.value = false
+        })
       return
     }
     const { id } = node.data as API.IconTypeVo
     if (id === undefined) {
+      loading.value = false
       resolve([])
       return
     }
-    getIconTypeList(id, 128, useCache).then(resolve)
+    getIconTypeList(id, 128, useCache)
+      .then(resolve)
+      .catch(() => resolve([]))
+      .finally(() => {
+        loading.value = false
+      })
   }
 
   return {
+    loading,
     props,
     load,
   }
