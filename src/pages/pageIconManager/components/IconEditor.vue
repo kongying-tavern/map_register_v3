@@ -88,6 +88,7 @@ const handleImageLoad = ({ canvas, isRaw, variant }: {
   stashIcon(variant, canvas)
 }
 
+/** 删除时为变体字段赋值为 null */
 const handleIconVariantDelete = (variant: IconVariant) => {
   if (!form.value.urlVariants)
     form.value.urlVariants = {}

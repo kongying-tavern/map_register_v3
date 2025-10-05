@@ -40,6 +40,7 @@ export const useIconUpdate = (form: Ref<API.IconVo>, options: IconUpdateOptions 
         tag,
         typeIdList,
         url,
+        urlVariants = {},
         version,
       } = form.value
 
@@ -65,6 +66,7 @@ export const useIconUpdate = (form: Ref<API.IconVo>, options: IconUpdateOptions 
           tag,
           typeIdList,
           url,
+          urlVariants,
           version,
         })
         await updateLocalInfo()
@@ -97,7 +99,7 @@ export const useIconUpdate = (form: Ref<API.IconVo>, options: IconUpdateOptions 
       })
 
       const urls = await Promise.all(mission)
-      const urlVariants = urls.reduce((acc, cur) => {
+      const newUrlVariants = urls.reduce((acc, cur) => {
         acc[cur.variant] = cur.url
         return acc
       }, {} as Record<string, string>)
@@ -109,7 +111,10 @@ export const useIconUpdate = (form: Ref<API.IconVo>, options: IconUpdateOptions 
         typeIdList,
         version,
         url: urlVariants.default,
-        urlVariants,
+        urlVariants: {
+          ...urlVariants,
+          ...newUrlVariants,
+        },
       })
       await updateLocalInfo()
     },
