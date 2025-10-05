@@ -21,7 +21,7 @@ export class Underground implements MAFConfig<MAFValueNumberExact, OptionType, M
   option: OptionType = {
     options: [
       { label: '非分层', value: OptionValue.UNLAYERED },
-      { label: '有层级', value: OptionValue.LAYERED },
+      { label: '分层', value: OptionValue.LAYERED },
       { label: '无层级', value: OptionValue.LAYERED_GLOBAL },
     ],
     optionLabel: 'label',
