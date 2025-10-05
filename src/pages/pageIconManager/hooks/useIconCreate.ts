@@ -4,19 +4,21 @@ import Api from '@/api/api'
 import Resource from '@/api/resource'
 import db from '@/database/db'
 import { useFetchHook } from '@/hooks'
-import { getDigest } from '@/utils'
+import { getDigest, toBlob } from '@/utils'
 
 export const useIconCreate = (form: Ref<API.IconVo>, options: IconCreateOptions = {}) => {
   const { type = 'png' } = options
 
-  const stash = shallowRef<HTMLCanvasElement | null>(null)
+  const stash = shallowRef<Record<string, HTMLCanvasElement>>({})
 
-  const stashIcon = (canvas: HTMLCanvasElement) => {
-    stash.value = canvas
+  const stashIcon = (variant: string, canvas: HTMLCanvasElement) => {
+    stash.value[variant] = canvas
+    triggerRef(stash)
   }
 
-  const clearStash = () => {
-    stash.value = null
+  const clearStash = (variant: string) => {
+    delete stash.value[variant]
+    triggerRef(stash)
   }
 
   const {
@@ -26,9 +28,8 @@ export const useIconCreate = (form: Ref<API.IconVo>, options: IconCreateOptions 
     onSuccess,
   } = useFetchHook({
     onRequest: async () => {
-      const canvas = stash.value
-      if (!canvas)
-        throw new Error('图像为空')
+      if (!stash.value.default)
+        throw new Error('默认图标变体不能为空')
 
       const {
         description,
@@ -37,38 +38,44 @@ export const useIconCreate = (form: Ref<API.IconVo>, options: IconCreateOptions 
         typeIdList,
       } = form.value
 
-      const icon = await new Promise<Blob>((resolve, reject) => {
-        canvas.toBlob((blob) => {
-          if (!blob)
-            return reject(new Error('序列化图像失败'))
-          resolve(blob)
-        })
+      const mission = Object.entries(stash.value).map(async ([variant, canvas]) => {
+        const blob = await toBlob(canvas)
+        const hash = await getDigest(blob, 'SHA-256')
+        const time = dayjs()
+        const fileName = `${hash}.${type}`
+        const folderName = time.format('YYYY-MM-DD')
+        /** @example '2025-09-09/abcdefg.png' */
+        const filePath = `${folderName}/${fileName}`
+        // 如果资源已经存在，直接返回已存在的链接
+        const { data } = await Api.resource.getResource({ filePath })
+        if (data?.fileUrl)
+          return { variant, url: data.fileUrl }
+        // 资源不存在，上传资源
+        const file = new File([blob], fileName, { type: blob.type })
+        const {
+          message = `上传 ${filePath} 失败`,
+          data: {
+            fileUrl = '',
+          } = {},
+        } = await Resource.image.upload({ file, filePath })
+        if (!fileUrl)
+          throw new Error(message)
+        return { variant, url: fileUrl }
       })
-      const hash = await getDigest(icon, 'SHA-1')
-      const time = dayjs()
-      const fileName = `${hash}-${time.valueOf()}.${type}`
-      const folderName = time.format('YYYY-MM-DD')
-      const filePath = `${folderName}/${fileName}`
-      const file = new File([icon], fileName)
 
-      const {
-        message: uploadMessage = '上传图片失败',
-        data: {
-          fileUrl = '',
-        } = {},
-      } = await Resource.image.upload({ file, filePath })
-      if (!fileUrl)
-        throw new Error(uploadMessage)
+      const urls = await Promise.all(mission)
+      const urlVariants = urls.reduce((acc, cur) => {
+        acc[cur.variant] = cur.url
+        return acc
+      }, {} as Record<string, string>)
 
-      const {
-        data: iconId,
-        message: createMessage = '创建失败',
-      } = await Api.icon.createIcon({
+      const { data: iconId, message: createMessage } = await Api.icon.createIcon({
         description,
         id,
         tag,
         typeIdList,
-        url: fileUrl,
+        url: urlVariants.default,
+        urlVariants,
       })
 
       try {
@@ -81,7 +88,7 @@ export const useIconCreate = (form: Ref<API.IconVo>, options: IconCreateOptions 
       }
       catch (err) {
         const message = err instanceof Error ? err.message : JSON.stringify(err)
-        ElMessage.warning(`创建成功，但在确认图标信息时出现了错误: ${message}。稍后将会同步此图标的信息。`)
+        ElMessage.warning(`创建图标成功，但在确认图标信息时出现了错误: ${message}。稍后将会同步此图标的信息。`)
       }
     },
   })

@@ -1,5 +1,6 @@
 import type { Unsubscribable } from 'rxjs'
 import type { ShallowRef } from 'vue'
+import type { IconVariant } from '@/pages/pageIconManager/types'
 import { clamp } from '@vueuse/core'
 import Konva from 'konva'
 import { getObjectFitSize } from '@/utils'
@@ -41,7 +42,12 @@ export const useImageCropper = (
   }
 
   /** 图片加载 hook */
-  const imageHook = createEventHook<[bmp: ImageBitmap, blob: Blob, isRaw: boolean]>()
+  const imageHook = createEventHook<{
+    variant: IconVariant
+    bmp: ImageBitmap
+    blob: Blob
+    isRaw: boolean
+  }>()
   /** 错误处理 hook */
   const errorHook = createEventHook<Error>()
   /** 渲染处理 hook */
@@ -85,10 +91,10 @@ export const useImageCropper = (
       height: div.clientHeight,
       listening: !toValue(disabled),
     })
-    const resizeOb = new ResizeObserver(([entry]) => {
-      const [size] = entry.devicePixelContentBoxSize
-      stage.width(size.inlineSize)
-      stage.height(size.blockSize)
+    const resizeOb = new ResizeObserver(() => {
+      const { clientWidth: cw, clientHeight: ch } = div
+      stage.width(cw)
+      stage.height(ch)
     })
     resizeOb.observe(div)
     context.subscriptions.push({
@@ -144,6 +150,7 @@ export const useImageCropper = (
       borderStroke: isDisabled ? 'transparent' : config.anchorStroke,
       anchorFill: isDisabled ? 'transparent' : config.anchorFill,
       anchorStroke: isDisabled ? 'transparent' : config.anchorStroke,
+      anchorSize: 6,
       boundBoxFunc: ({ width: ow, height: oh }, { x, y, width: w, height: h }) => {
         const rect = {
           x: Math.round(clamp(x, dx, dx + dw - ow)),
@@ -207,7 +214,7 @@ export const useImageCropper = (
   }
 
   /** 从文件选择器加载图片 */
-  const loadFromFile = async () => {
+  const loadFromFile = async (isRaw = false) => {
     try {
       const [handle] = await window.showOpenFilePicker({
         types: [
@@ -221,7 +228,12 @@ export const useImageCropper = (
       const file = await handle.getFile()
       const bmp = await createImageBitmap(file)
       setupLayer(bmp)
-      imageHook.trigger([bmp, file, toValue(variant) === 'default'])
+      imageHook.trigger({
+        bmp,
+        blob: file,
+        isRaw,
+        variant: toValue(variant),
+      })
     }
     catch (err) {
       catchError(err)
@@ -236,11 +248,13 @@ export const useImageCropper = (
     /** 图源 */
     src: string | Blob | ArrayBuffer,
     options: {
+      /** 是否为原始图片 */
+      isRaw?: boolean
       /** 使用二进制源时指定图片的 MIME 类型 @default 'image/png' */
       type?: string
     } = {},
   ) => {
-    const { type = 'image/png' } = options
+    const { isRaw = false, type = 'image/png' } = options
     try {
       loadController.value?.abort('Image Source Changed')
       const ac = new AbortController()
@@ -256,7 +270,12 @@ export const useImageCropper = (
       })()
       const bmp = await createImageBitmap(blob)
       setupLayer(bmp)
-      imageHook.trigger([bmp, blob, toValue(variant) === 'default'])
+      imageHook.trigger({
+        bmp,
+        blob,
+        isRaw,
+        variant: toValue(variant),
+      })
       return bmp
     }
     catch (err) {
@@ -289,5 +308,5 @@ interface ImageCropperOptions {
   /** 是否保持选区宽高比 */
   keepRatio?: MaybeRef<boolean>
   /** 图标变体类型 */
-  variant?: MaybeRef<'default' | 'inactive' | 'active'>
+  variant?: MaybeRef<IconVariant>
 }

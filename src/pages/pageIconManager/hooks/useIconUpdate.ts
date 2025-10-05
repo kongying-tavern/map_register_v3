@@ -4,21 +4,27 @@ import Api from '@/api/api'
 import Resource from '@/api/resource'
 import db from '@/database/db'
 import { useFetchHook } from '@/hooks'
-import { getDigest } from '@/utils'
+import { getDigest, toBlob } from '@/utils'
 
 export const useIconUpdate = (form: Ref<API.IconVo>, options: IconUpdateOptions = {}) => {
-  const { type = 'png', iconEditable = true } = options
+  const { type = 'png' } = options
 
-  const stash = shallowRef<HTMLCanvasElement | null>(null)
+  const stash = shallowRef<Record<string, HTMLCanvasElement>>({})
 
-  const isChanged = computed(() => Boolean(stash.value))
+  const iconEditable = ref(false)
 
-  const stashIcon = (canvas: HTMLCanvasElement) => {
-    stash.value = canvas
+  const isChanged = computed(() => {
+    return Object.keys(stash.value).length > 0
+  })
+
+  const stashIcon = (variant: string, canvas: HTMLCanvasElement) => {
+    stash.value[variant] = canvas
+    triggerRef(stash)
   }
 
-  const clearStash = () => {
-    stash.value = null
+  const clearStash = (variant: string) => {
+    delete stash.value[variant]
+    triggerRef(stash)
   }
 
   const {
@@ -28,8 +34,6 @@ export const useIconUpdate = (form: Ref<API.IconVo>, options: IconUpdateOptions 
     onSuccess,
   } = useFetchHook({
     onRequest: async () => {
-      const canvas = stash.value
-
       const {
         description,
         id,
@@ -39,6 +43,7 @@ export const useIconUpdate = (form: Ref<API.IconVo>, options: IconUpdateOptions 
         version,
       } = form.value
 
+      /** 更新本地图标信息 */
       const updateLocalInfo = async () => {
         try {
           const { data = {}, error, message = '' } = await Api.icon.getIcon({ iconId: form.value.id! })
@@ -48,12 +53,12 @@ export const useIconUpdate = (form: Ref<API.IconVo>, options: IconUpdateOptions 
         }
         catch (err) {
           const message = err instanceof Error ? err.message : JSON.stringify(err)
-          ElMessage.warning(`创建成功，但在确认图标信息时出现了错误: ${message}。稍后将会同步此图标的信息。`)
+          ElMessage.warning(`更新图标成功，但在确认图标信息时出现了错误: ${message}。稍后将会同步此图标的信息。`)
         }
       }
 
       // 如果没有传递 icon，跳过图片上传
-      if (!canvas || !toValue(iconEditable)) {
+      if (!isChanged.value || !toValue(iconEditable)) {
         await Api.icon.updateIcon({
           description,
           id,
@@ -66,29 +71,36 @@ export const useIconUpdate = (form: Ref<API.IconVo>, options: IconUpdateOptions 
         return
       }
 
-      const icon = await new Promise<Blob>((resolve, reject) => {
-        canvas.toBlob((blob) => {
-          if (!blob)
-            return reject(new Error('序列化图像失败'))
-          resolve(blob)
-        })
+      const mission = Object.entries(stash.value).map(async ([variant, canvas]) => {
+        const blob = await toBlob(canvas)
+        const hash = await getDigest(blob, 'SHA-256')
+        const time = dayjs()
+        const fileName = `${hash}.${type}`
+        const folderName = time.format('YYYY-MM-DD')
+        /** @example '2025-09-09/abcdefg.png' */
+        const filePath = `${folderName}/${fileName}`
+        // 如果资源已经存在，直接返回已存在的链接
+        const { data } = await Api.resource.getResource({ filePath })
+        if (data?.fileUrl)
+          return { variant, url: data.fileUrl }
+        // 资源不存在，上传资源
+        const file = new File([blob], fileName, { type: blob.type })
+        const {
+          message = `上传 ${filePath} 失败`,
+          data: {
+            fileUrl = '',
+          } = {},
+        } = await Resource.image.upload({ file, filePath })
+        if (!fileUrl)
+          throw new Error(message)
+        return { variant, url: fileUrl }
       })
-      const hash = await getDigest(icon, 'SHA-256')
-      const time = dayjs()
-      const fileName = `${hash}.${type}`
-      const folderName = time.format('YYYY-MM-DD')
-      /** @example '2025-09-09/abcdefg.png' */
-      const filePath = `${folderName}/${fileName}`
-      const file = new File([icon], fileName)
 
-      const {
-        message = '上传图片失败',
-        data: {
-          fileUrl = '',
-        } = {},
-      } = await Resource.image.upload({ file, filePath })
-      if (!fileUrl)
-        throw new Error(message)
+      const urls = await Promise.all(mission)
+      const urlVariants = urls.reduce((acc, cur) => {
+        acc[cur.variant] = cur.url
+        return acc
+      }, {} as Record<string, string>)
 
       await Api.icon.updateIcon({
         description,
@@ -96,7 +108,8 @@ export const useIconUpdate = (form: Ref<API.IconVo>, options: IconUpdateOptions 
         tag,
         typeIdList,
         version,
-        url: fileUrl,
+        url: urlVariants.default,
+        urlVariants,
       })
       await updateLocalInfo()
     },
@@ -111,6 +124,10 @@ export const useIconUpdate = (form: Ref<API.IconVo>, options: IconUpdateOptions 
   })
 
   return {
+    /** 待上传的变体图片组 */
+    stash,
+    /** 是否启用图像编辑 */
+    iconEditable,
     /** 图像是否已编辑 */
     isChanged,
     /** 更新进行中 */
@@ -129,8 +146,6 @@ export const useIconUpdate = (form: Ref<API.IconVo>, options: IconUpdateOptions 
 }
 
 interface IconUpdateOptions {
-  /** @default 'png' */
+  /** @default 'png' 上传类型 */
   type?: string
-  /** @default true 图像是否可编辑 */
-  iconEditable?: MaybeRef<boolean>
 }

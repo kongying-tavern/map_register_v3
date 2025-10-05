@@ -1,8 +1,6 @@
 <script lang="ts" setup>
-import type Node from 'element-plus/es/components/tree/src/model/node'
 import { ElTree } from 'element-plus'
-import Api from '@/api/api'
-import { useGlobalDialog } from '@/hooks'
+import { useGlobalDialog, useIconType } from '@/hooks'
 import { useIconStore } from '@/stores'
 import { IconExplorer, IconExplorerHeader, IconPreviewer } from './components'
 import IconCreator from './components/IconCreator.vue'
@@ -75,28 +73,7 @@ const handleCurrentChange = (iconType: API.IconTypeVo) => {
   activedIcon.value = null
 }
 
-const loading = ref(false)
-
-async function loadTagType(node: Node, resolve: (data: API.IconTypeVo[]) => void) {
-  if (node.level === 0) {
-    resolve([{ id: -1, name: '全部类型', isFinal: false }])
-    return
-  }
-  loading.value = true
-  try {
-    const { data: { record = [] } = {} } = await Api.iconType.listIconType({
-      typeIdList: [node.data.id],
-      size: 256,
-    })
-    resolve(record)
-  }
-  catch {
-    resolve([])
-  }
-  finally {
-    loading.value = false
-  }
-}
+const { load: loadIconType } = useIconType(true)
 
 const { DialogService } = useGlobalDialog()
 const openIconCreator = () => {
@@ -128,18 +105,21 @@ const openIconCreator = () => {
           label: 'name',
           isLeaf: 'isFinal',
         }"
-        :load="loadTagType"
+        :load="loadIconType"
         @current-change="handleCurrentChange"
       />
     </div>
 
     <IconExplorer
       v-model:actived-item="activedIcon"
-      :loading="loading"
       :data="filteredIconList"
     />
 
-    <IconPreviewer v-model="activedIcon" :icon="activedIcon" />
+    <IconPreviewer
+      v-model="activedIcon"
+      :icon="activedIcon"
+      @refresh="() => iconStore.update({ isFull: true })"
+    />
 
     <div class="border-t-[1px] border-[var(--el-border-color-lighter)] col-span-3 p-2 px-3">
       <el-text size="small">

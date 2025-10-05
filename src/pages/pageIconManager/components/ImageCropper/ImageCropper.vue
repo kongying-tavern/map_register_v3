@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { IconVariant } from '../../types'
 import { ArrowDown, Delete, FolderOpened } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { getObjectFitSize } from '@/utils'
@@ -6,15 +7,25 @@ import { useImageCropper } from './hooks'
 
 const props = withDefaults(defineProps<{
   raw?: string
-  type: 'default' | 'inactive' | 'active'
+  variant: IconVariant
   loading?: boolean
 }>(), {
   loading: false,
 })
 
 const emits = defineEmits<{
+  /** 点击删除按钮 */
+  delete: [variant: IconVariant]
+  /** 输出尺寸发生变化 */
   outputChange: [size: { w: number, h: number }]
-  imageLoad: [bmp: ImageBitmap, blob: Blob, isRaw: boolean, canvas: HTMLCanvasElement]
+  /** 裁切器发生图片加载事件 */
+  imageLoad: [meta: {
+    variant: IconVariant
+    bmp: ImageBitmap
+    blob: Blob
+    isRaw: boolean
+    canvas: HTMLCanvasElement
+  }]
 }>()
 
 /** 裁切器界面 */
@@ -62,12 +73,14 @@ const {
   onError: onCropperError,
 } = useImageCropper(containerRef, {
   disabled: disabledEdit,
-  variant: computed(() => props.type),
+  variant: computed(() => props.variant),
   keepRatio: computed(() => config.value.keepRatio),
 })
 
+const cleanups = ref<(() => void)[]>([])
+
 /** 记录首次加载图片 */
-const { off: off1 } = onImageLoad(([bmp, blob, isRaw]) => {
+const imageLoadHook = onImageLoad(({ bmp, blob, isRaw }) => {
   if (!previewerRef.value)
     return
   if (isRaw) {
@@ -77,24 +90,24 @@ const { off: off1 } = onImageLoad(([bmp, blob, isRaw]) => {
   else {
     newImage.value = bmp
   }
-  emits('imageLoad', bmp, blob, isRaw, previewerRef.value)
+  emits('imageLoad', {
+    variant: props.variant,
+    bmp,
+    blob,
+    isRaw,
+    canvas: previewerRef.value,
+  })
 })
+cleanups.value.push(imageLoadHook.off)
 
 /** 错误处理 */
-const { off: off2 } = onCropperError((err) => {
+const cropperErrorHook = onCropperError((err) => {
   ElMessage.error(err.message)
 })
+cleanups.value.push(cropperErrorHook.off)
 
-/** 绘制裁切预览 */
-onMounted(() => {
-  const canvas = previewerRef.value!
-  const ctx = canvas.getContext('2d', {
-
-  })!
-  previewerCtxRef.value = ctx
-})
-
-const { off: off3 } = onFrame(({ rect, image }) => {
+/** 连续绘制截取区 */
+const frameHook = onFrame(({ rect, image }) => {
   const ctx = previewerCtxRef.value
   if (!ctx)
     return
@@ -139,18 +152,24 @@ const { off: off3 } = onFrame(({ rect, image }) => {
   }
   ctx.restore()
 })
+cleanups.value.push(frameHook.off)
+
+/** 绘制裁切预览 */
+onMounted(() => {
+  const canvas = previewerRef.value!
+  const ctx = canvas.getContext('2d')!
+  previewerCtxRef.value = ctx
+})
 
 watch(() => props.raw, async (url) => {
   if (!url)
     return
   await ready
-  await loadFromSrc(url)
+  await loadFromSrc(url, { isRaw: true })
 }, { immediate: true })
 
 onBeforeUnmount(() => {
-  off1()
-  off2()
-  off3()
+  cleanups.value.forEach(off => off())
   destory()
 })
 </script>
@@ -159,7 +178,10 @@ onBeforeUnmount(() => {
   <div class="overflow-hidden flex flex-col gap-2">
     <div class="shrink-0 w-full flex gap-1">
       <!-- 裁切容器 -->
-      <div ref="containerRef" class="shrink-0 w-[240px] h-[240px] chessboard-background" />
+      <div
+        ref="containerRef"
+        class="cropper-container shrink-0 w-[240px] h-[240px] chessboard-background overflow-hidden"
+      />
 
       <!-- 右侧状态栏 -->
       <div class="flex-1 h-[240px] flex flex-col gap-1">
@@ -169,46 +191,52 @@ onBeforeUnmount(() => {
             :icon="FolderOpened"
             :disabled="loading"
             size="small"
-            @click="loadFromFile"
+            @click="() => loadFromFile()"
           >
             选择
           </el-button>
           <el-button
-            v-if="type !== 'default'"
+            v-if="variant !== 'default'"
             style="margin-left: 0"
             type="danger"
             plain
             :icon="Delete"
             :disabled="loading"
             size="small"
-            @click="loadFromFile"
+            @click="() => emits('delete', variant)"
           />
         </div>
 
         <!-- 修改前预览 -->
-        <div v-if="props.raw" class="flex-1 flex flex-col gap-0.5 items-center justify-center">
-          <img
-            class="w-[66px] h-[66px] border border-[var(--el-border-color)] object-contain"
-            :src="props.raw"
-            draggable="false"
-            crossorigin=""
-          >
-          <div class="shrink-0 text-xs">
-            {{ (oldImage?.width ?? 0).toFixed(2) }} x {{ (oldImage?.height ?? 0).toFixed(2) }}
+        <div class="flex-1 flex flex-col gap-0.5 items-center justify-center select-none">
+          <template v-if="oldImage">
+            <img
+              class="w-[66px] h-[66px] border border-[var(--el-border-color)] object-contain"
+              :src="props.raw"
+              draggable="false"
+              crossorigin=""
+            >
+            <div class="shrink-0 text-xs">
+              {{ `${(oldImage.width).toFixed(2)} x ${(oldImage.height).toFixed(2)}` }}
+            </div>
+          </template>
+          <div v-else class="w-[66px] h-[66px] text-xs grid place-content-center border border-[var(--el-border-color)]">
+            无
           </div>
         </div>
 
         <!-- 指向图标 -->
-        <div v-show="(raw && newImage)" class="flex items-center justify-center">
+        <div class="flex items-center justify-center">
           <el-icon>
             <ArrowDown />
           </el-icon>
         </div>
 
         <!-- 修改后预览 -->
-        <div v-show="!raw || (raw && newImage)" class="flex-1 flex flex-col gap-0.5 items-center justify-center">
+        <div class="flex-1 flex flex-col gap-0.5 items-center justify-center">
           <div class="w-[66px] h-[66px] border border-[var(--el-border-color)] relative scale-container">
             <canvas
+              v-show="newImage"
               ref="previewerRef"
               class="scale-to-container"
               :style="{
@@ -221,10 +249,13 @@ onBeforeUnmount(() => {
               :width="previewerSize.w"
               :height="previewerSize.h"
             />
+            <div v-show="!newImage" class="w-full h-full text-xs grid place-content-center select-none">
+              无
+            </div>
           </div>
 
-          <div class="shrink-0 text-xs">
-            {{ outputSize.w.toFixed(2) }} x {{ outputSize.h.toFixed(2) }}
+          <div v-if="newImage" class="shrink-0 text-xs">
+            {{ `${outputSize.w.toFixed(2)} x ${outputSize.h.toFixed(2)}` }}
           </div>
         </div>
       </div>

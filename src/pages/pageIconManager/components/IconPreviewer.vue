@@ -1,16 +1,19 @@
 <script setup lang="ts">
 import { Delete } from '@element-plus/icons-vue'
 import dayjs from 'dayjs'
-import { cloneDeep } from 'lodash'
 import Api from '@/api/api'
 import { useFetchHook, useGlobalDialog } from '@/hooks'
 import { useIconStore } from '@/stores'
 import { formatByteSize } from '@/utils'
-import { useIconDelete } from '../hooks'
+import IconDeleteConfirm from './IconDeleteConfirm.vue'
 import IconEditor from './IconEditor.vue'
 
 const props = defineProps<{
   icon?: API.IconVo | null
+}>()
+
+const emits = defineEmits<{
+  refresh: []
 }>()
 
 const iconStore = useIconStore()
@@ -31,6 +34,15 @@ const { refresh: getUserInfo, loading: isUserInfoLoading, onSuccess } = useFetch
     }
     return seed
   }, [] as Promise<API.SysUserVo>[])),
+})
+
+watch(() => props.icon, (icon) => {
+  if (!icon)
+    return
+  const ids = new Set<number>()
+  icon.creatorId && ids.add(icon.creatorId)
+  icon.updaterId && ids.add(icon.updaterId)
+  getUserInfo([...ids])
 })
 
 const { state, isLoading, execute } = useAsyncState<{ url?: string, size?: number[], byteLength?: number }>(async () => {
@@ -57,9 +69,7 @@ const icon = defineModel<API.IconVo | null>('modelValue', {
   default: null,
 })
 
-const form = ref(cloneDeep(props.icon ?? {}))
-
-// ==================== 修改图片 ====================
+// ==================== 修改图标 ====================
 const showIconEditor = () => {
   if (!props.icon)
     return
@@ -67,18 +77,28 @@ const showIconEditor = () => {
     .props({
       icon: props.icon,
     })
+    .listeners({
+      success: () => {
+        emits('refresh')
+      },
+    })
     .open(IconEditor)
 }
 
-// 删除图标
-const { confirmDeleteIcon } = useIconDelete()
-
-watch(() => props.icon, () => {
-  if (!props.icon)
-    return
-  form.value = cloneDeep(icon.value ?? {})
-  form.value.creatorId !== undefined && getUserInfo([props.icon.creatorId!, props.icon.updaterId!])
-})
+// ==================== 删除图标 ====================
+const showIconDeleteConfirm = (icon: API.IconVo) => {
+  DialogService
+    .props({
+      title: '删除地区',
+      icon,
+    })
+    .listeners({
+      success: () => {
+        emits('refresh')
+      },
+    })
+    .open(IconDeleteConfirm)
+}
 
 // ==================== 其他 ====================
 const timeFormatter = (time?: string) => {
@@ -86,6 +106,18 @@ const timeFormatter = (time?: string) => {
     return ''
   return dayjs(time).format('YYYY-MM-DD HH:mm:ss')
 }
+
+// 图标变体
+const variants = computed(() => {
+  const list: { label: string, name: string }[] = []
+  if (props.icon?.urlVariants?.default)
+    list.push({ label: '默认', name: 'default' })
+  if (props.icon?.urlVariants?.active)
+    list.push({ label: '已激活', name: 'active' })
+  if (props.icon?.urlVariants?.inactive)
+    list.push({ label: '未激活', name: 'inactive' })
+  return list
+})
 </script>
 
 <template>
@@ -113,7 +145,7 @@ const timeFormatter = (time?: string) => {
       </div>
 
       <div class="icon-detail flex-1 px-2">
-        <el-form label-width="70px" label-position="left" :model="form">
+        <el-form label-width="70px" label-position="left" :model="icon">
           <el-form-item label-width="0px" class="margin-bottom-0">
             <el-button class="flex-1" @click="showIconEditor">
               编辑图标信息
@@ -122,19 +154,19 @@ const timeFormatter = (time?: string) => {
               type="danger"
               plain
               :icon="Delete"
-              @click="() => confirmDeleteIcon(form)"
+              @click="() => showIconDeleteConfirm(icon!)"
             />
           </el-form-item>
 
           <el-form-item label="名称" class="margin-bottom-0">
             <el-text truncated>
-              {{ JSON.stringify(form.tag).slice(1, -1) }}
+              {{ JSON.stringify(icon.tag).slice(1, -1) }}
             </el-text>
           </el-form-item>
 
           <el-form-item label="图片 id" class="margin-bottom-0">
             <el-text>
-              {{ form.id }}
+              {{ icon.id }}
             </el-text>
           </el-form-item>
 
@@ -147,29 +179,40 @@ const timeFormatter = (time?: string) => {
           </el-form-item>
 
           <el-form-item label="描述" class="margin-bottom-0">
-            <el-text>{{ form.description }}</el-text>
+            <el-text>{{ icon.description }}</el-text>
+          </el-form-item>
+
+          <el-form-item label="变体" class="margin-bottom-0">
+            <el-tag
+              v-for="variant in variants"
+              :key="variant.name"
+              type="success"
+              disable-transitions
+            >
+              {{ variant.label }}
+            </el-tag>
           </el-form-item>
 
           <el-divider style="margin: 8px 0" />
 
           <el-form-item label="创建人" class="margin-bottom-0">
             <el-text truncated>
-              {{ isUserInfoLoading ? '...' : userCache[form.creatorId ?? -1]?.nickname }} (id:{{ form.creatorId }})
+              {{ isUserInfoLoading ? '...' : userCache[icon.creatorId ?? -1]?.nickname }} (id:{{ icon.creatorId }})
             </el-text>
           </el-form-item>
 
           <el-form-item label="创建时间" class="margin-bottom-0">
-            <el-text>{{ timeFormatter(form.createTime) }}</el-text>
+            <el-text>{{ timeFormatter(icon.createTime) }}</el-text>
           </el-form-item>
 
           <el-form-item label="最后修改" class="margin-bottom-0">
             <el-text truncated>
-              {{ isUserInfoLoading ? '...' : userCache[form.updaterId ?? -1]?.nickname }} (id:{{ form.updaterId }})
+              {{ isUserInfoLoading ? '...' : userCache[icon.updaterId ?? -1]?.nickname }} (id:{{ icon.updaterId }})
             </el-text>
           </el-form-item>
 
           <el-form-item label="修改时间" class="margin-bottom-0">
-            <el-text>{{ timeFormatter(form.updateTime) }}</el-text>
+            <el-text>{{ timeFormatter(icon.updateTime) }}</el-text>
           </el-form-item>
         </el-form>
       </div>

@@ -1,35 +1,51 @@
 <script lang="ts" setup>
+import type { IconVariant } from '../types'
 import { Check, Close } from '@element-plus/icons-vue'
 import { WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 import { useIconType } from '@/hooks'
-import { formatByteSize } from '@/utils'
 import { useIconCreate, useIconFormRules } from '../hooks'
 import { ImageCropper } from './ImageCropper'
 
 const emits = defineEmits<{
   close: []
+  success: []
 }>()
 
 /** 绑定表单 */
-const iconForm = ref<API.IconVo>({})
-
-/** 图标元信息 */
-const iconMeta = shallowRef<{
-  bmp: ImageBitmap
-  blob: Blob
-} | null>(null)
+const form = ref<API.IconVo>({})
 
 /** 图标变体 */
-const variant = ref<'default' | 'inactive' | 'active'>('default')
+const variant = ref('default')
+
+const variantTabs = [
+  { label: '默认', name: 'default', required: true },
+  { label: '已激活', name: 'inactive', required: false },
+  { label: '未激活', name: 'active', required: false },
+] as const
 
 /** 更新逻辑封装 */
 const {
-  loading,
   stash,
+  loading,
   onSuccess,
   stashIcon,
   createIcon,
-} = useIconCreate(iconForm)
+  clearStash,
+} = useIconCreate(form)
+
+const withVariantState = (label: string, name: string) => {
+  const { urlVariants = {} } = form.value
+  if (stash.value[name])
+    return `${label} (待上传)`
+  if (!urlVariants[name])
+    return `${label} (未配置)`
+  return label
+}
+
+const getVariantUrl = (name: string) => {
+  const { urlVariants = {} } = form.value
+  return urlVariants[name]
+}
 
 /** 图标类型 */
 const {
@@ -38,53 +54,38 @@ const {
 } = useIconType()
 
 /** 校验规则 */
-const { rules } = useIconFormRules(iconForm)
+const { rules } = useIconFormRules(form)
 
 /** 确认按钮可用性 */
 const disabledConfirm = computed(() => {
-  const { tag = '' } = iconForm.value
+  const { tag = '' } = form.value
   if (!tag.trim().length)
     return true
-  if (!iconMeta.value)
-    return true
-  return false
+  return Object.keys(stash.value).length === 0
 })
 
 onSuccess(() => {
   emits('close')
-})
-
-const { state: fileSize, isLoading, execute: refresh } = useAsyncState(async () => {
-  const canvas = stash.value
-  if (!canvas)
-    return 0
-  const blob = await new Promise<Blob>((resolve, reject) => {
-    canvas.toBlob((data) => {
-      if (!data)
-        return reject(new Error('Failed execute toBlob on canvas'))
-      resolve(data)
-    })
-  })
-  return blob.size
-}, 0)
-
-const currentSize = ref({ w: 0, h: 0 })
-const handleSizeChange = (size: { w: number, h: number }) => {
-  currentSize.value = size
-}
-
-const debounceRefresh = useDebounceFn(refresh, 500)
-
-watch(currentSize, ({ w: ow, h: oh }, { w, h }) => {
-  if (w === ow && h === oh)
-    return
-  debounceRefresh()
+  emits('success')
 })
 
 /** 记录图标变更情况 */
-const handleImageLoad = (bmp: ImageBitmap, blob: Blob, _: boolean, canvas: HTMLCanvasElement) => {
-  iconMeta.value = { bmp, blob }
-  stashIcon(canvas)
+const handleImageLoad = ({ canvas, isRaw, variant }: {
+  canvas: HTMLCanvasElement
+  isRaw: boolean
+  variant: IconVariant
+}) => {
+  if (isRaw) {
+    clearStash(variant)
+    return
+  }
+  stashIcon(variant, canvas)
+}
+
+const handleIconVariantDelete = (variant: IconVariant) => {
+  if (!form.value.urlVariants)
+    form.value.urlVariants = {}
+  form.value.urlVariants[variant] = null as unknown as string
 }
 
 const cancel = () => {
@@ -107,21 +108,21 @@ const cancel = () => {
         <el-form
           :rules="rules"
           :disabled="loading"
-          :model="iconForm"
+          :model="form"
           label-width="60px"
           class="flex-1"
         >
           <el-form-item label="名称" prop="tag" style="margin-bottom: 16px">
-            <el-input v-model="iconForm.tag" />
+            <el-input v-model="form.tag" />
           </el-form-item>
 
           <el-form-item label="描述" prop="description" style="margin-bottom: 8px">
-            <el-input v-model="iconForm.description" :rows="3" resize="none" type="textarea" />
+            <el-input v-model="form.description" :rows="3" resize="none" type="textarea" />
           </el-form-item>
 
           <el-form-item label="类型" prop="typeIdList" style="margin-bottom: 0">
             <el-tree-select
-              v-model="iconForm.typeIdList"
+              v-model="form.typeIdList"
               lazy
               multiple
               collapse-tags
@@ -133,22 +134,32 @@ const cancel = () => {
         </el-form>
       </div>
 
-      <el-divider style="margin: 8px 0" />
-
-      <ImageCropper
-        :type="variant"
-        class="w-full flex-1"
-        @image-load="handleImageLoad"
-        @output-change="handleSizeChange"
-      />
+      <div class="h-[336px] overflow-visible transition-all">
+        <el-divider style="margin: 8px 0" />
+        <el-tabs
+          v-model="variant"
+          class="custom-tabs"
+          type="border-card"
+        >
+          <el-tab-pane
+            v-for="tab in variantTabs"
+            :key="tab.name"
+            :name="tab.name"
+            :label="withVariantState(tab.label, tab.name)"
+          >
+            <ImageCropper
+              :raw="getVariantUrl(tab.name)"
+              :variant="tab.name"
+              class="w-full flex-1"
+              @image-load="handleImageLoad"
+              @delete="handleIconVariantDelete"
+            />
+          </el-tab-pane>
+        </el-tabs>
+      </div>
     </WinDialogTabPanel>
 
     <WinDialogFooter class="items-center">
-      <div class="flex-1">
-        <el-tag v-if="iconMeta" type="success">
-          {{ isLoading ? '......' : formatByteSize(fileSize) }}
-        </el-tag>
-      </div>
       <el-button
         type="primary"
         :icon="Check"
@@ -168,3 +179,29 @@ const cancel = () => {
     </WinDialogFooter>
   </WinDialog>
 </template>
+
+<style scoped>
+.custom-tabs {
+  --el-tabs-header-height: 30px;
+
+  :deep(.el-tabs__item.el-tabs__item.el-tabs__item) {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+  :deep(.el-tabs__header.is-top) {
+    margin-bottom: 0;
+  }
+  :deep(.el-tabs__item) {
+    font-size: 12px;
+    transition: none;
+  }
+  :deep(.el-tabs__content) {
+    padding: 4px;
+    flex: 1;
+  }
+  :deep(.el-tab-pane) {
+    display: flex;
+    flex-direction: column;
+  }
+}
+</style>

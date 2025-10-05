@@ -4,7 +4,6 @@ import { useIconStore } from '@/stores'
 
 defineProps<{
   data: API.IconVo[]
-  loading: boolean
 }>()
 
 const ICON_SIZE = 100
@@ -18,7 +17,6 @@ const activedIcon = defineModel<API.IconVo | null>('activedItem', {
 
 <template>
   <div
-    v-loading="loading"
     class="border-r-[1px] border-[var(--el-border-color-light)] h-full overflow-hidden"
     element-loading-text="正在处理..."
     :style="{
