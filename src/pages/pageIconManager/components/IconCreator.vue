@@ -12,7 +12,9 @@ const emits = defineEmits<{
 }>()
 
 /** 绑定表单 */
-const form = ref<API.IconVo>({})
+const form = ref<API.IconVo>({
+  urlVariants: {},
+})
 
 /** 图标变体 */
 const variant = ref('default')
