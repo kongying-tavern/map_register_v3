@@ -89,7 +89,7 @@ const countMap = computed(() => {
   <div class="w-full flex-1 flex flex-col overflow-hidden">
     <div class="flex-shink-0 w-full px-4 flex justify-between items-center text-lg p-2" style="color:#84603D;">
       <div
-        v-if="!archiveStore.currentArchive.slotIndex"
+        v-if="archiveStore.currentArchive.slotIndex < 0"
         class="w-72 flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap"
       >
         {{ '<未选取存档>' }}
