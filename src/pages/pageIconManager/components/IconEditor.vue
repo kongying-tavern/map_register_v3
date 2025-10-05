@@ -23,8 +23,8 @@ const variant = ref('default')
 
 const variantTabs = [
   { label: '默认', name: 'default', required: true },
-  { label: '已激活', name: 'inactive', required: false },
-  { label: '未激活', name: 'active', required: false },
+  { label: '已激活', name: 'active', required: false },
+  { label: '未激活', name: 'inactive', required: false },
 ] as const
 
 /** 更新逻辑封装 */
