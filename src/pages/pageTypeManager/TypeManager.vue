@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import type { TypeManagerKeys } from './definitions'
+import { CirclePlus, Delete, Edit } from '@element-plus/icons-vue'
 import { PgUnit, useGlobalDialog, usePagination } from '@/hooks'
 import { ManagerModule } from '@/shared'
-import { CirclePlus, Delete, Edit } from '@element-plus/icons-vue'
 import { TypeCreator, TypeDeleteConfirm, TypeEditor, TypeTable } from './components'
 import { TYPE_MANAGER_KEY_MAP, TYPE_MANAGER_OPTIONS } from './definitions'
 import { useTypeList } from './hooks'
@@ -123,7 +123,7 @@ const confirmDelete = (data: unknown) => DialogService
               全部
             </el-link>
           </el-breadcrumb-item>
-          <el-breadcrumb-item v-for="node in parentPath" :key="node">
+          <el-breadcrumb-item v-for="node in parentPath" :key="manager.getId(node)">
             <el-text v-if="manager.getId(node) === manager.getId(parent)">
               {{ manager.getName(node) }}
             </el-text>

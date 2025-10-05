@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import type { TypeManager } from '../config'
+import { Check, Close, Delete } from '@element-plus/icons-vue'
 import {
   WinDialog,
   WinDialogFooter,
   WinDialogTitleBar,
 } from '@/components'
-import { Check, Close, Delete } from '@element-plus/icons-vue'
 import { useTypeDelete } from '../hooks'
 
 const props = defineProps<{

@@ -26,6 +26,7 @@ const modelValue = defineModel<TypeObject>('modelValue', {
 /** 图标选项列表 */
 const { data: iconOptions, loading, refresh: refreshIconOptions } = useFetchHook({
   immediate: true,
+  initialValue: [],
   onRequest: async (query: string) => {
     const trimText = query.trim()
     const iconList = trimText
