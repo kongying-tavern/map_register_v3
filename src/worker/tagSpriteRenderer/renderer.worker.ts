@@ -88,7 +88,7 @@ const render = async (params: WorkerInput, logger: Logger): Promise<WorkerSucces
     }
     catch (err) {
       await db.cache.iconSprite.clear()
-      logger.error(err instanceof Error ? err.message : `Can't get icon cache cause: ${JSON.stringify(err)}`)
+      logger.warn(err instanceof Error ? err.message : `Can't get icon cache cause: ${JSON.stringify(err)}`)
     }
   })()
 

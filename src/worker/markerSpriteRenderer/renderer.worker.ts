@@ -287,7 +287,7 @@ const render = async (options: WorkerInput, logger: Logger): Promise<WorkerSucce
     }
     catch (err) {
       await db.cache.markerSprite.clear()
-      logger.error(err instanceof Error ? err.message : JSON.stringify(err))
+      logger.warn(err instanceof Error ? err.message : JSON.stringify(err))
     }
   })()
 
