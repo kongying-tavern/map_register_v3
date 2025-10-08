@@ -35,19 +35,24 @@ const {
   clearStash,
 } = useIconCreate(form)
 
-const withVariantState = (label: string, name: string) => {
-  const { urlVariants = {} } = form.value
-  if (stash.value[name])
-    return `${label} (待上传)`
-  if (!urlVariants[name])
-    return `${label} (未配置)`
-  return label
+const variantLabelRecord: Record<IconVariant, string> = {
+  default: '默认',
+  active: '已激活',
+  inactive: '未激活',
 }
 
-const getVariantUrl = (name: string) => {
-  const { urlVariants = {} } = form.value
-  return urlVariants[name]
-}
+const variantStatusRecord = computed(() => {
+  const status = {} as Record<IconVariant, string>
+  variantTabs.forEach(({ name }) => {
+    if (name === 'default')
+      status.default = stash.value.default ? '待上传' : form.value.url ? '' : '未配置'
+    else if (stash.value[name] === null)
+      status[name] = '待移除'
+    else
+      status[name] = stash.value[name] ? '待上传' : (form.value.urlVariants?.[name] ? '' : '未配置')
+  })
+  return status
+})
 
 /** 图标类型 */
 const {
@@ -85,9 +90,7 @@ const handleImageLoad = ({ canvas, isRaw, variant }: {
 }
 
 const handleIconVariantDelete = (variant: IconVariant) => {
-  if (!form.value.urlVariants)
-    form.value.urlVariants = {}
-  form.value.urlVariants[variant] = null as unknown as string
+  clearStash(variant)
 }
 
 const cancel = () => {
@@ -147,11 +150,14 @@ const cancel = () => {
             v-for="tab in variantTabs"
             :key="tab.name"
             :name="tab.name"
-            :label="withVariantState(tab.label, tab.name)"
+            :label="`${variantLabelRecord[tab.name]} ${variantStatusRecord[tab.name] ? `(${variantStatusRecord[tab.name]})` : ''}`"
+            lazy
           >
             <ImageCropper
-              :raw="getVariantUrl(tab.name)"
+              :raw="tab.name === 'default' ? form.url : form.urlVariants?.[tab.name]"
               :variant="tab.name"
+              :disabled-delete="!stash[tab.name]"
+              :show-preview="stash[tab.name] !== undefined"
               class="w-full flex-1"
               @image-load="handleImageLoad"
               @delete="handleIconVariantDelete"

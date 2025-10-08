@@ -11,8 +11,11 @@ export const useIconCreate = (form: Ref<API.IconVo>, options: IconCreateOptions 
 
   const stash = shallowRef<Record<string, HTMLCanvasElement>>({})
 
-  const stashIcon = (variant: string, canvas: HTMLCanvasElement) => {
-    stash.value[variant] = canvas
+  const stashIcon = (variant: string, canvas: HTMLCanvasElement | null) => {
+    if (!canvas)
+      delete stash.value[variant]
+    else
+      stash.value[variant] = canvas
     triggerRef(stash)
   }
 
@@ -64,7 +67,9 @@ export const useIconCreate = (form: Ref<API.IconVo>, options: IconCreateOptions 
       })
 
       const urls = await Promise.all(mission)
-      const urlVariants = urls.reduce((acc, cur) => {
+
+      // default 变体不进入 urlVariants 字段
+      const { default: defaultVariant = '', ...urlVariants } = urls.reduce((acc, cur) => {
         acc[cur.variant] = cur.url
         return acc
       }, {} as Record<string, string>)
@@ -74,7 +79,7 @@ export const useIconCreate = (form: Ref<API.IconVo>, options: IconCreateOptions 
         id,
         tag,
         typeIdList,
-        url: urlVariants.default,
+        url: defaultVariant,
         urlVariants,
       })
 

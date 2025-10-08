@@ -9,7 +9,8 @@ import { getDigest, toBlob } from '@/utils'
 export const useIconUpdate = (form: Ref<API.IconVo>, options: IconUpdateOptions = {}) => {
   const { type = 'png' } = options
 
-  const stash = shallowRef<Record<string, HTMLCanvasElement>>({})
+  /** 待处理画布 */
+  const stash = shallowRef<Record<string, HTMLCanvasElement | null>>({})
 
   const iconEditable = ref(false)
 
@@ -17,8 +18,8 @@ export const useIconUpdate = (form: Ref<API.IconVo>, options: IconUpdateOptions 
     return Object.keys(stash.value).length > 0
   })
 
-  const stashIcon = (variant: string, canvas: HTMLCanvasElement) => {
-    stash.value[variant] = canvas
+  const stashIcon = (variant: string, canvasOrRemove: HTMLCanvasElement | null) => {
+    stash.value[variant] = canvasOrRemove
     triggerRef(stash)
   }
 
@@ -74,6 +75,8 @@ export const useIconUpdate = (form: Ref<API.IconVo>, options: IconUpdateOptions 
       }
 
       const mission = Object.entries(stash.value).map(async ([variant, canvas]) => {
+        if (!canvas)
+          return { variant, url: null }
         const blob = await toBlob(canvas)
         const hash = await getDigest(blob, 'SHA-256')
         const time = dayjs()
@@ -99,8 +102,12 @@ export const useIconUpdate = (form: Ref<API.IconVo>, options: IconUpdateOptions 
       })
 
       const urls = await Promise.all(mission)
-      const newUrlVariants = urls.reduce((acc, cur) => {
-        acc[cur.variant] = cur.url
+
+      // default 变体不进入 urlVariants 字段
+      const { default: defaultVariant = url, ...newUrlVariants } = urls.reduce((acc, cur) => {
+        // HACK: 通过赋予 null 值来删除某个变体
+        // default 变体不允许删除
+        acc[cur.variant] = cur.url as unknown as string
         return acc
       }, {} as Record<string, string>)
 
@@ -110,7 +117,7 @@ export const useIconUpdate = (form: Ref<API.IconVo>, options: IconUpdateOptions 
         tag,
         typeIdList,
         version,
-        url: urlVariants.default,
+        url: defaultVariant,
         urlVariants: {
           ...urlVariants,
           ...newUrlVariants,

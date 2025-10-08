@@ -24,8 +24,7 @@ const filteredIconList = computed(() => {
   const { id: typeId = -1 } = queryIconType.value
   if (typeId > -1) {
     result = iconStore.iconList.filter(({ typeIdList = [] }) => {
-      const set = new Set(typeIdList)
-      return set.has(typeId)
+      return typeIdList.includes(typeId)
     })
   }
 
@@ -117,7 +116,6 @@ const openIconCreator = () => {
 
     <IconPreviewer
       v-model="activedIcon"
-      :icon="activedIcon"
       @refresh="() => iconStore.update({ isFull: true })"
     />
 
