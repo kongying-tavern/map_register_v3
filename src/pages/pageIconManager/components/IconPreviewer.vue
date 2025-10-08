@@ -8,10 +8,6 @@ import { formatByteSize } from '@/utils'
 import IconDeleteConfirm from './IconDeleteConfirm.vue'
 import IconEditor from './IconEditor.vue'
 
-const props = defineProps<{
-  icon?: API.IconVo | null
-}>()
-
 const emits = defineEmits<{
   refresh: []
 }>()
@@ -19,6 +15,10 @@ const emits = defineEmits<{
 const iconStore = useIconStore()
 
 const { DialogService } = useGlobalDialog()
+
+const icon = defineModel<API.IconVo | null>('modelValue', {
+  default: null,
+})
 
 // ==================== 用户信息 ====================
 const userCache = ref<Record<number, API.SysUserVo>>({})
@@ -36,7 +36,7 @@ const { refresh: getUserInfo, loading: isUserInfoLoading, onSuccess } = useFetch
   }, [] as Promise<API.SysUserVo>[])),
 })
 
-watch(() => props.icon, (icon) => {
+watch(() => icon.value, (icon) => {
   if (!icon)
     return
   const ids = new Set<number>()
@@ -45,37 +45,47 @@ watch(() => props.icon, (icon) => {
   getUserInfo([...ids])
 })
 
-const { state, isLoading, execute } = useAsyncState<{ url?: string, size?: number[], byteLength?: number }>(async () => {
-  if (!props.icon?.url)
+const { state, isLoading, execute: refreshIconMeta } = useAsyncState<{ url?: string, size?: number[], byteLength?: number }>(async () => {
+  if (!icon.value?.url)
     return {}
-  const res = await fetch(props.icon.url)
+  const res = await fetch(icon.value.url)
   const blob = await res.blob()
   const bmp = await createImageBitmap(blob)
   return {
-    url: props.icon.url,
+    url: icon.value.url,
     byteLength: blob.size,
     size: [bmp.width, bmp.height],
   }
 }, {}, { immediate: false })
-
-watch(() => props.icon, () => execute(), { immediate: true })
 
 onSuccess(userInfos => userInfos.forEach((userInfo) => {
   userCache.value[userInfo.id!] = userInfo
 }))
 
 // ==================== 图标信息 ====================
-const icon = defineModel<API.IconVo | null>('modelValue', {
-  default: null,
-})
+
+/** 用于预览的变体 */
+const previewVariant = ref('')
+
+const toggleVariant = (name: string, bool: boolean) => {
+  if (bool)
+    previewVariant.value = name
+  else
+    previewVariant.value = ''
+}
+
+watch(() => icon.value, () => {
+  refreshIconMeta()
+  previewVariant.value = ''
+}, { immediate: true })
 
 // ==================== 修改图标 ====================
 const showIconEditor = () => {
-  if (!props.icon)
+  if (!icon.value)
     return
   DialogService
     .props({
-      icon: props.icon,
+      icon: icon.value,
     })
     .listeners({
       success: () => {
@@ -107,15 +117,19 @@ const timeFormatter = (time?: string) => {
   return dayjs(time).format('YYYY-MM-DD HH:mm:ss')
 }
 
+const vatiantLabelRecord: Record<string, string> = {
+  default: '默认',
+  active: '已激活',
+  inactive: '未激活',
+}
+
 // 图标变体
 const variants = computed(() => {
-  const list: { label: string, name: string }[] = []
-  if (props.icon?.urlVariants?.default)
-    list.push({ label: '默认', name: 'default' })
-  if (props.icon?.urlVariants?.active)
-    list.push({ label: '已激活', name: 'active' })
-  if (props.icon?.urlVariants?.inactive)
-    list.push({ label: '未激活', name: 'inactive' })
+  const list: string[] = []
+  if (icon.value?.urlVariants?.active)
+    list.push('active')
+  if (icon.value?.urlVariants?.inactive)
+    list.push('inactive')
   return list
 })
 </script>
@@ -135,10 +149,13 @@ const variants = computed(() => {
 
       <div
         v-else
-        class="icon-image h-64 grid place-items-center overflow-hidden flex-shrink-0"
+        class="icon-image h-64 grid place-items-center overflow-hidden flex-shrink-0 relative"
       >
+        <el-tag v-if="previewVariant" class="absolute left-1 top-1">
+          变体: {{ vatiantLabelRecord[previewVariant] }}
+        </el-tag>
         <img
-          :src="icon.url"
+          :src="previewVariant ? icon.urlVariants?.[previewVariant] : icon.url"
           class="hover:bg-[var(--el-color-primary)] max-w-full max-h-full object-contain"
           crossorigin=""
         >
@@ -183,14 +200,19 @@ const variants = computed(() => {
           </el-form-item>
 
           <el-form-item label="变体" class="margin-bottom-0">
-            <el-tag
-              v-for="variant in variants"
-              :key="variant.name"
-              type="success"
-              disable-transitions
-            >
-              {{ variant.label }}
-            </el-tag>
+            <div class="w-full flex gap-1">
+              <el-check-tag
+                v-for="variant in variants"
+                :key="variant"
+                :checked="previewVariant === variant"
+                type="success"
+                size="small"
+                disable-transitions
+                @update:checked="(bool) => toggleVariant(variant, bool)"
+              >
+                {{ vatiantLabelRecord[variant] }}
+              </el-check-tag>
+            </div>
           </el-form-item>
 
           <el-divider style="margin: 8px 0" />
