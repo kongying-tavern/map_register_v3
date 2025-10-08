@@ -119,6 +119,8 @@ export const useUserStore = defineStore('global-user', () => {
   const beforeLogout = createEventHook<void>()
 
   const logout = async () => {
+    if (!auth.value.accessToken)
+      return
     beforeLogout.trigger()
     clearLoginState()
     logoutMessageHandler.value = ElMessage({
