@@ -1100,6 +1100,8 @@ declare namespace API {
     areaIdList?: number[]
     /** 物品名 */
     name?: string
+    /** 特殊标记 */
+    specialFlag?: number
     /** 当前页，从1开始 */
     current?: number
     /** 每页大小，默认为10 */
