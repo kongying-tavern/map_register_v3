@@ -7,9 +7,12 @@ import { useImageCropper } from './hooks'
 
 const props = withDefaults(defineProps<{
   raw?: string
+  showPreview?: boolean
+  disabledDelete?: boolean
   variant: IconVariant
   loading?: boolean
 }>(), {
+  showPreview: true,
   loading: false,
 })
 
@@ -201,7 +204,7 @@ onBeforeUnmount(() => {
             type="danger"
             plain
             :icon="Delete"
-            :disabled="loading"
+            :disabled="loading || props.disabledDelete"
             size="small"
             @click="() => emits('delete', variant)"
           />
@@ -226,14 +229,17 @@ onBeforeUnmount(() => {
         </div>
 
         <!-- 指向图标 -->
-        <div class="flex items-center justify-center">
+        <div v-show="props.showPreview" class="flex items-center justify-center">
           <el-icon>
             <ArrowDown />
           </el-icon>
         </div>
 
         <!-- 修改后预览 -->
-        <div class="flex-1 flex flex-col gap-0.5 items-center justify-center">
+        <div
+          v-show="props.showPreview"
+          class="flex-1 flex flex-col gap-0.5 items-center justify-center"
+        >
           <div class="w-[66px] h-[66px] border border-[var(--el-border-color)] relative scale-container">
             <canvas
               v-show="newImage"
