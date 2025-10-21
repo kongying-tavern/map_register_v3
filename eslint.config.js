@@ -1,7 +1,12 @@
 import antfu from '@antfu/eslint-config'
 
 export default antfu({
-  typescript: true,
+  typescript: {
+    overrides: {
+      'ts/method-signature-style': ['off'],
+    },
+  },
+
   vue: true,
   jsonc: false,
   yaml: false,
