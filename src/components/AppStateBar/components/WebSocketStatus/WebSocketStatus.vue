@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { AppWindowTeleporter, useAppWindow } from '@/components'
-import { SocketStatus } from '@/shared'
-import { useSocketStore } from '@/stores'
 import { ChromeFilled } from '@element-plus/icons-vue'
+import { AppWindowTeleporter, useAppWindow } from '@/components'
+import { useSocketStore } from '@/stores'
 import BarItem from '../BarItem.vue'
 import StatusWindow from './StatusWindow.vue'
 
@@ -21,20 +20,19 @@ const { info, toggle } = useAppWindow(computed(() => ({
   y: height.value - 400 - 50,
 })))
 
-const delay = computed(() => Math.min(999, Math.max(0, socketStore.delay)))
+const delay = computed(() => Math.min(999, Math.max(0, socketStore.context.delay)))
 
-const isOpen = computed(() => socketStore.status === SocketStatus.OPEN)
-const isConnecting = computed(() => socketStore.status === SocketStatus.CONNECTING)
+const isOpen = computed(() => socketStore.context.status === 'OPEN')
+const isConnecting = computed(() => socketStore.context.status === 'CONNECTING')
 
 const statusText = computed(() => {
-  const { status } = socketStore
+  const { status } = socketStore.context
   return {
-    [SocketStatus.INIT]: '初始化',
-    [SocketStatus.CONNECTING]: '连接中',
-    [SocketStatus.CLOSED]: '未连接',
-    [SocketStatus.CLOSING]: '关闭中',
-    [SocketStatus.OPEN]: `${delay.value}ms`,
-    [SocketStatus.WRECONNECT]: '重连中',
+    INIT: '初始化',
+    CONNECTING: '连接中',
+    CLOSED: '未连接',
+    CLOSING: '关闭中',
+    OPEN: `${delay.value}ms`,
   }[status]
 })
 

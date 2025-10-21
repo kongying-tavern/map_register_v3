@@ -1,26 +1,27 @@
+import type { PageIPC } from '@/utils/worker'
 import Api from '@/api/api'
 import { HistoryRecordType } from '@/shared'
 import { EventBus } from '@/utils'
 
-export const useAppEvent = (socketEvent: EventBus<API.WSEventMap>) => {
+export const useAppEvent = (ipc: PageIPC<AppSocket.MainEventMap, AppSocket.WorkerEventMap>) => {
   const appEvent = new EventBus<Socket.DataEventMap>()
 
   // ==================== 应用 ====================
-  socketEvent.on('AppUpdated', () => {
+  ipc.on('AppUpdated', () => {
     appEvent.emit('AppUpdated')
   })
 
-  socketEvent.on('UserKickedOut', () => {
+  ipc.on('UserKickedOut', () => {
     appEvent.emit('UserKickedOut')
   })
 
   // ==================== 图标 ====================
-  socketEvent.on('IconTagBinaryPurged', () => {
-    appEvent.emit('IconTagBinaryPurged')
+  ipc.on('IconBinaryPurged', () => {
+    appEvent.emit('IconBinaryPurged')
   })
 
   // ==================== 物品 ====================
-  socketEvent.on('ItemAdded', async (id) => {
+  ipc.on('ItemAdded', async (id) => {
     const { data: [itemInfo] = [], users = {} } = await Api.item.listItemById([id])
     if (!itemInfo)
       return
@@ -28,7 +29,7 @@ export const useAppEvent = (socketEvent: EventBus<API.WSEventMap>) => {
     appEvent.emit('ItemAdded', itemInfo, userInfo)
   })
 
-  socketEvent.on('ItemUpdated', async (id) => {
+  ipc.on('ItemUpdated', async (id) => {
     const { data: [itemInfo] = [], users = {} } = await Api.item.listItemById([id])
     if (!itemInfo)
       return
@@ -36,7 +37,7 @@ export const useAppEvent = (socketEvent: EventBus<API.WSEventMap>) => {
     appEvent.emit('ItemUpdated', itemInfo, userInfo)
   })
 
-  socketEvent.on('ItemDeleted', async (id) => {
+  ipc.on('ItemDeleted', async (id) => {
     const { data: { record: [history] = [] } = {}, users = {} } = await Api.history.searchHistory({
       current: 0,
       id: [id],
@@ -49,12 +50,12 @@ export const useAppEvent = (socketEvent: EventBus<API.WSEventMap>) => {
     appEvent.emit('ItemDeleted', itemInfo, userInfo)
   })
 
-  socketEvent.on('ItemBinaryPurged', () => {
+  ipc.on('ItemBinaryPurged', () => {
     appEvent.emit('ItemBinaryPurged')
   })
 
   // ==================== 点位 ====================
-  socketEvent.on('MarkerAdded', async (id) => {
+  ipc.on('MarkerAdded', async (id) => {
     const { data: [markerInfo] = [], users = {} } = await Api.marker.listMarkerById([id])
     if (!markerInfo)
       return
@@ -62,11 +63,11 @@ export const useAppEvent = (socketEvent: EventBus<API.WSEventMap>) => {
     appEvent.emit('MarkerAdded', markerInfo, userInfo)
   })
 
-  socketEvent.on('MarkerBinaryPurged', () => {
+  ipc.on('MarkerBinaryPurged', () => {
     appEvent.emit('MarkerBinaryPurged')
   })
 
-  socketEvent.on('MarkerDeleted', async (id) => {
+  ipc.on('MarkerDeleted', async (id) => {
     const { data: { record: [history] = [] } = {}, users = {} } = await Api.history.searchHistory({
       current: 0,
       id: [id],
@@ -79,11 +80,11 @@ export const useAppEvent = (socketEvent: EventBus<API.WSEventMap>) => {
     appEvent.emit('MarkerDeleted', markerInfo, userInfo)
   })
 
-  socketEvent.on('MarkerLinkageBinaryPurged', () => {
+  ipc.on('MarkerLinkageBinaryPurged', () => {
     appEvent.emit('MarkerLinkageBinaryPurged')
   })
 
-  socketEvent.on('MarkerLinked', async ({ markers: ids }) => {
+  ipc.on('MarkerLinked', async ({ markers: ids }) => {
     const { data = [], users = {} } = await Api.marker.listMarkerById(ids)
     if (!data.length)
       return
@@ -92,7 +93,7 @@ export const useAppEvent = (socketEvent: EventBus<API.WSEventMap>) => {
     appEvent.emit('MarkerLinked', data, userInfo)
   })
 
-  socketEvent.on('MarkerTweaked', async (ids) => {
+  ipc.on('MarkerTweaked', async (ids) => {
     const { data = [], users = {} } = await Api.marker.listMarkerById(ids)
     if (!data.length)
       return
@@ -101,7 +102,7 @@ export const useAppEvent = (socketEvent: EventBus<API.WSEventMap>) => {
     appEvent.emit('MarkerTweaked', data, userInfo)
   })
 
-  socketEvent.on('MarkerUpdated', async (id) => {
+  ipc.on('MarkerUpdated', async (id) => {
     const { data: [markerInfo] = [], users = {} } = await Api.marker.listMarkerById([id])
     if (!markerInfo)
       return
@@ -110,20 +111,20 @@ export const useAppEvent = (socketEvent: EventBus<API.WSEventMap>) => {
   })
 
   // ==================== 公告 ====================
-  socketEvent.on('NoticeAdded', async (id) => {
+  ipc.on('NoticeAdded', async (id) => {
     appEvent.emit('NoticeAdded', id)
   })
 
-  socketEvent.on('NoticeDeleted', (id) => {
+  ipc.on('NoticeDeleted', (id) => {
     appEvent.emit('NoticeDeleted', id)
   })
 
-  socketEvent.on('NoticeUpdated', (id) => {
+  ipc.on('NoticeUpdated', (id) => {
     appEvent.emit('NoticeUpdated', id)
   })
 
   // ==================== 系统 ====================
-  socketEvent.on('Pong', () => {
+  ipc.on('Pong', () => {
     appEvent.emit('Pong')
   })
 

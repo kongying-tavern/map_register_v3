@@ -1,106 +1,65 @@
-import type { WS } from '@/worker/webSocket/types'
-import { useState } from '@/hooks'
-import { SocketCloseReason, SocketStatus, SocketWorkerEvent } from '@/shared'
-import { EventBus, Logger } from '@/utils'
+import { useUserStore } from '@/stores'
+import { EventBus } from '@/utils'
+import { PageIPC } from '@/utils/worker'
 import SocketWorkerURL from '@/worker/webSocket/socket.worker?worker&url'
-import { filter, fromEvent, map, tap } from 'rxjs'
 
-const logger = new Logger('Socket')
+export const useSocket = () => {
+  const userStore = useUserStore()
 
-export const useSocket = (options: SocketHookOptions) => {
-  const { getURL } = options
-
-  const isSending = ref(false)
-  const isReceving = ref(false)
-  const [delay, setDelay] = useState(0)
-  const [status, setStatus] = useState<SocketStatus>(SocketStatus.CLOSED)
+  const context = ref<AppSocket.MainContext>({
+    delay: 0,
+    id: '',
+    status: 'INIT',
+  })
 
   const socketEvent = new EventBus<API.WSEventMap>()
 
   const openHook = createEventHook<void>()
   const closeHook = createEventHook<void>()
 
+  /**
+   * 由于移动端目前暂未支持 SharedWorker，所以使用 Worker 代替
+   * @data 2025-10-14
+   */
   const socketWorker = new ('SharedWorker' in globalThis ? SharedWorker : Worker)(SocketWorkerURL, {
     type: 'module',
     name: 'Socket 工作线程',
   })
 
-  const messageTarget = (() => {
-    // HACK 兼容移动端 Chrome
-    const type = Object.prototype.toString.call(socketWorker)
-    if (type === '[object SharedWorker]') {
-      ;(<SharedWorker>socketWorker).port.start()
-      return (<SharedWorker>socketWorker).port
-    }
-    return socketWorker as Worker
-  })()
+  const ipc = new PageIPC<AppSocket.MainEventMap, AppSocket.WorkerEventMap>(socketWorker)
 
-  const message$ = fromEvent<MessageEvent<WS.Message>>(messageTarget, 'message')
-
-  message$.pipe(
-    filter(({ data }) => data.event === SocketWorkerEvent.StatusChange),
-    map(({ data }) => data.data as unknown as number),
-    tap((newStatus) => {
-      if (newStatus === SocketStatus.CLOSED)
-        closeHook.trigger()
-    }),
-  ).subscribe(setStatus)
-
-  message$.pipe(
-    filter(({ data }) => data.event === SocketWorkerEvent.DelayChange),
-    map(({ data }) => data.data as unknown as number),
-  ).subscribe(setDelay)
-
-  const data$ = message$.pipe(
-    filter(({ data }) => data.event === SocketWorkerEvent.Message),
-    map(({ data }) => data.data as unknown as API.WSData),
-  )
-
-  data$.pipe(
-    tap((data) => {
-      logger.info('message', data)
-    }),
-  ).subscribe(({ event, data }) => {
-    ;(socketEvent as EventBus<Record<string, unknown>>).emit(event, data)
+  ipc.on('init', (id) => {
+    context.value.id = id
   })
 
-  const send = <T extends SocketWorkerEvent>(message: Omit<WS.Message<T>, 'id' | 'message'>, transfer: Transferable[] = []) => {
-    const id = crypto.randomUUID()
-    messageTarget.postMessage({ ...message, id }, transfer)
+  window.addEventListener('beforeunload', () => {
+    if (!context.value.id)
+      return
+    ipc.invoke('disconnect', context.value.id)
+  })
+
+  const close = async () => {
+    await ipc.invoke('close')
   }
 
-  fromEvent<BeforeUnloadEvent>(window, 'beforeunload').pipe(
-    tap(() => send({
-      event: SocketWorkerEvent.Unload,
-      data: undefined,
-    })),
-  ).subscribe()
-
-  const close = () => send({
-    event: SocketWorkerEvent.Close,
-    data: {
-      code: 1000,
-      reason: SocketCloseReason.CLOSED_BY_USER,
-    },
-  })
-
-  const open = () => {
-    const url = getURL()
-    if (!url)
+  const open = async () => {
+    if (userStore.info?.id === undefined)
       return
-    send({ event: SocketWorkerEvent.Open, data: url })
+    const url = new URL(import.meta.env.VITE_WS_BASE)
+    await ipc.invoke('open', url.origin, {
+      path: url.pathname,
+      query: {
+        userId: `${userStore.info?.id}`,
+      },
+    })
   }
 
   return {
-    isSending: isSending as Readonly<Ref<boolean>>,
-    isReceving: isReceving as Readonly<Ref<boolean>>,
-    delay: delay as Readonly<Ref<number>>,
-    status: status as Readonly<Ref<number>>,
-    data$,
+    context,
+    ipc,
     socketEvent,
     onOpen: openHook.on,
     onClose: closeHook.on,
-    send,
     close,
     open,
   }

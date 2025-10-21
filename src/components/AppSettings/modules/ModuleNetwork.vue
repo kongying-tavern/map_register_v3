@@ -1,27 +1,22 @@
 <script setup lang="ts">
 import type { WS } from '@/worker/webSocket/types'
+import { useSubscription } from '@vueuse/rxjs'
+import { liveQuery } from 'dexie'
 import { WEBSOCKET_WORKER_CONFIG } from '@/configs'
 import { wsdb } from '@/database'
 import { useFetchHook } from '@/hooks'
-import { SocketStatus } from '@/shared'
 import { usePreferenceStore, useSocketStore, useUserStore } from '@/stores'
-import { useSubscription } from '@vueuse/rxjs'
-import { liveQuery } from 'dexie'
 import { SettingBar, SettingGroup, SettingPanel } from '../components'
 
 const socketStore = useSocketStore()
 const userStore = useUserStore()
 const preferenceStore = usePreferenceStore()
 
-const text = computed(() => {
-  return SocketStatus[socketStore.status]
-})
-
 const linkDisabled = computed(() => {
   if (!userStore.info)
     return true
-  const { status } = socketStore
-  if (status === SocketStatus.OPEN || status === SocketStatus.CONNECTING)
+  const { status } = socketStore.context
+  if (status === 'OPEN' || status === 'CONNECTING')
     return true
   return false
 })
@@ -42,7 +37,7 @@ const wsEvents: { label: string, value: API.WSEventType, divider?: boolean }[] =
   { label: '关联新增', value: 'MarkerLinked' },
   { label: '关联数据库更新', value: 'MarkerLinkageBinaryPurged' },
   // 图标
-  { label: '图标数据库更新', value: 'IconTagBinaryPurged' },
+  { label: '图标数据库更新', value: 'IconBinaryPurged' },
   // 公告
   { label: '公告新增', value: 'NoticeAdded' },
   { label: '公告删除', value: 'NoticeDeleted' },
@@ -94,7 +89,7 @@ const { refresh: clearLogs, loading: clearLoading } = useFetchHook({
     <SettingGroup name="Web Socket">
       <SettingBar label="响应时延" :note="`检测间隔: ${WEBSOCKET_WORKER_CONFIG.HEARTBEAT.INTERVAL / 1000}s`">
         <template #setting>
-          {{ text }}
+          {{ socketStore.context.status }}
         </template>
       </SettingBar>
 
@@ -125,7 +120,7 @@ const { refresh: clearLogs, loading: clearLoading } = useFetchHook({
 
       <SettingBar label="操作">
         <template #setting>
-          <el-button :disabled="linkDisabled" @click="() => socketStore.connect(userStore.info?.id)">
+          <el-button :disabled="linkDisabled" @click="socketStore.connect">
             连接
           </el-button>
         </template>

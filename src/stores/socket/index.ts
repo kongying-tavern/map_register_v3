@@ -1,45 +1,32 @@
-import { SocketStatus } from '@/shared'
 import { ElNotification } from 'element-plus'
 import { defineStore } from 'pinia'
 import { useArchiveStore, useUserStore } from '..'
 import { useAppEvent, useMessageList, useSocket } from './hooks'
 
 /** WebSocket 状态管理 */
-export const useSocketStore = defineStore('global-web-socket', () => {
+export const useSocketStore = defineStore('socket', () => {
   const archiveStore = useArchiveStore()
   const userStore = useUserStore()
 
-  const _noticeEvents = computed(() => {
+  const noticeEvents = computed(() => {
     return new Set(archiveStore.currentArchive.body.Preference['socket.setting.noticeEvents'])
   })
 
-  const _userId = ref<number>()
-
   const notice = (key: API.WSEventType, ...options: Parameters<typeof ElNotification>) => {
-    if (!_noticeEvents.value.has(key))
+    if (!noticeEvents.value.has(key))
       return
     ElNotification(...options)
   }
 
   const {
+    context,
+    ipc,
     socketEvent,
     open,
     close,
-    onOpen,
-    onClose,
-    status,
-    ...rest
-  } = useSocket({
-    getURL: () => {
-      if (!userStore.info)
-        return
-      return `${import.meta.env.VITE_WS_BASE}/${userStore.info.id}`
-    },
-  })
+  } = useSocket()
 
-  const { event: appEvent } = useAppEvent(socketEvent)
-
-  appEvent.on('AppUpdated', () => {
+  ipc.on('AppUpdated', () => {
     ElNotification.warning({
       title: '系统提示',
       message: '应用已更新，页面将在 5 分钟后重载。',
@@ -50,7 +37,7 @@ export const useSocketStore = defineStore('global-web-socket', () => {
     }, 5 * 60 * 1000)
   })
 
-  appEvent.on('UserKickedOut', () => {
+  ipc.on('UserKickedOut', () => {
     ElNotification.error({
       title: '系统提示',
       message: '您已被管理员强制下线。',
@@ -59,53 +46,28 @@ export const useSocketStore = defineStore('global-web-socket', () => {
     userStore.logout()
   })
 
+  const { event: appEvent } = useAppEvent(ipc)
   const { messageList, clearMessageList } = useMessageList(appEvent)
 
-  const connect = async (userId?: number) => {
-    if (userId === undefined)
-      return close()
-    _userId.value = userId
-    open()
-  }
-
-  onClose(() => {
-    _userId.value = undefined
-  })
-
-  const checkConnect = (userId?: number) => {
-    if (userId === undefined) {
-      if (status.value === SocketStatus.CLOSING || status.value === SocketStatus.CLOSED)
-        return
-      return close()
-    }
-    if (userId === _userId.value) {
-      if (status.value === SocketStatus.CONNECTING || status.value === SocketStatus.OPEN)
-        return
-    }
-    _userId.value = userId
-    open()
-  }
-
-  useTimeoutPoll(() => {
-    if (status.value === SocketStatus.OPEN)
+  watch(() => userStore.info?.id, (newUserId, oldUserId) => {
+    if (newUserId === undefined) {
+      close()
       return
-    checkConnect(_userId.value)
-  }, 5000, { immediate: true })
-
-  watch(() => userStore.info?.id, checkConnect, { immediate: true })
+    }
+    if (newUserId === oldUserId)
+      return
+    open()
+  }, { immediate: true })
 
   return {
-    userId: _userId as Readonly<Ref<number | undefined>>,
+    context,
+    ipc,
     socketEvent,
     appEvent,
     messageList,
-    status,
     clearMessageList,
     notice,
-    connect,
+    connect: open,
     close,
-    onOpen,
-    onClose,
-    ...rest,
   }
 })

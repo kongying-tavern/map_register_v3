@@ -1,117 +1,90 @@
-import type { WS } from './types'
-import { SocketCloseReason, SocketStatus, SocketWorkerEvent } from '@/shared/socket'
-import { EventBus } from '@/utils/EventBus'
-import { filter, Subject, tap } from 'rxjs'
-import { SocketController } from './socketController'
+import type { Socket } from 'socket.io-client'
+import { io } from 'socket.io-client'
+import { isSharedWorker } from '@/utils/worker/utils'
+import { WorkerIPC } from '@/utils/worker/worker-ipc'
 
-interface WebSocketClient extends EventTarget {
-  postMessage: (data: unknown, transfer: Transferable[]) => void
-  close: () => void
+declare const globalThis: WorkerGlobalScope
+
+interface Page {
+  id: string
+  port: MessagePort
 }
 
-interface ClientMessage {
-  client: WebSocketClient
-  clientId: string
-  event: MessageEvent<WS.Message>
+const context = {
+  socket: null as Socket | null,
+  openPromise: null as Promise<Socket> | null,
+  pages: new Set<Page>(),
 }
 
-declare const globalThis: (SharedWorkerGlobalScope | DedicatedWorkerGlobalScope)
+// DEBUG
+Reflect.set(globalThis, 'context', context)
 
-// ==================== state ====================
-
-/** 用于维护连接客户端 */
-const socketClients = new Map<string, WebSocketClient>()
-
-/** 事件总线 */
-const workerEvent = new EventBus<WS.WorkerEventMap>()
-
-const ws = new SocketController({
-  broadcast: (message, transfer = []) => {
-    socketClients.forEach((port) => {
-      port.postMessage(message, transfer)
+const ipc = new WorkerIPC<AppSocket.MainEventMap, AppSocket.WorkerEventMap>((message) => {
+  if (isSharedWorker(globalThis)) {
+    context.pages.forEach((page) => {
+      page.port.postMessage(message)
     })
-  },
+  }
+  else {
+    void (globalThis as DedicatedWorkerGlobalScope).postMessage(message)
+  }
 })
 
-const clientMessage$ = new Subject<ClientMessage>()
+ipc.handle('open', async (url, options) => {
+  if (context.socket) {
+    const { query = {} } = context.socket.io.opts
+    if (options.query.userId === query.userId)
+      return 'reused'
+  }
 
-clientMessage$.pipe(
-  filter(clientMessage => clientMessage.event.data.event !== SocketWorkerEvent.Confirm),
-  tap(({ client, clientId, event }) => {
-    client.postMessage({
-      event: SocketWorkerEvent.Confirm,
-      data: event.data.id,
-    }, [])
-    // eslint-disable-next-line ts/no-explicit-any
-    workerEvent.emit(event.data.event, event.data.data as any, clientId)
-  }),
-).subscribe()
+  if (context.openPromise) {
+    await context.openPromise
+    return 'reused'
+  }
 
-// ==================== 主线程操作处理 ====================
+  const { resolve, reject, promise } = Promise.withResolvers<Socket>()
+  const socket = io(url, {
+    path: options.path,
+    query: options.query,
+    transports: ['websocket'],
+  })
 
-workerEvent.on(SocketWorkerEvent.Open, (url) => {
-  ws.open(url)
+  socket.on('connect', () => {
+    resolve(socket)
+    context.socket = socket
+    context.openPromise = null
+  })
+
+  socket.on('connect_error', () => {
+    reject(new Error('Low level connection can not be established'))
+  })
+
+  context.openPromise = promise
+  await promise
+  return 'created'
 })
 
-workerEvent.on(SocketWorkerEvent.Close, ({ reason }) => {
-  ws.close(reason as SocketCloseReason)
-})
-
-workerEvent.on(SocketWorkerEvent.Unload, (_, id) => {
-  const client = socketClients.get(id)
-  if (!client)
+ipc.handle('close', async () => {
+  if (context.openPromise)
+    await context.openPromise
+  if (!context.socket)
     return
-  client.close()
-  socketClients.delete(id)
-  if (socketClients.size < 1)
-    ws.close(SocketCloseReason.ALL_PORTS_CLOSED)
+  context.socket.close()
+  context.socket = null
 })
-
-// ==================== 主线程接入 ====================
-
-/** 初始化标签页的 ws 状态 */
-const initClientStatus = (client: WebSocketClient) => {
-  client.postMessage(<WS.Message>{
-    id: crypto.randomUUID(),
-    event: SocketWorkerEvent.StatusChange,
-    data: ws.instance?.readyState ?? SocketStatus.INIT,
-  }, [])
-}
 
 if (Object.prototype.toString.call(globalThis) === '[object SharedWorkerGlobalScope]') {
-  void (<SharedWorkerGlobalScope>globalThis).addEventListener('connect', (connectEvent: MessageEvent<WS.Message>) => {
-    const client = connectEvent.ports[0]
-    const clientId = crypto.randomUUID()
-
-    socketClients.set(clientId, client)
-
-    client.addEventListener('message', (event: MessageEvent<WS.Message>) => clientMessage$.next({
-      client,
-      clientId,
-      event,
-    }))
-    client.start()
-
-    initClientStatus(client)
-  })
-  void (<SharedWorkerGlobalScope>globalThis).addEventListener('error', (ev) => {
-    // eslint-disable-next-line no-console
-    console.log('[error]', ev.message)
+  const scope = globalThis as SharedWorkerGlobalScope
+  scope.addEventListener('connect', (ev) => {
+    const id = crypto.randomUUID()
+    context.pages.add({
+      id,
+      port: ev.ports[0],
+    })
+    ipc.emit('init', id)
   })
 }
-// HACK 兼容移动端 Chrome
 else {
-  ((client: DedicatedWorkerGlobalScope) => {
-    const clientId = crypto.randomUUID()
-
-    socketClients.set(clientId, client)
-
-    client.addEventListener('message', (event: MessageEvent<WS.Message>) => clientMessage$.next({
-      client,
-      clientId,
-      event,
-    }))
-
-    initClientStatus(client)
-  })(globalThis as DedicatedWorkerGlobalScope)
+  const id = crypto.randomUUID()
+  ipc.emit('init', id)
 }

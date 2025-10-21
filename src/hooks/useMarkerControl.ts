@@ -1,4 +1,5 @@
 import type { GSMarkerInfo } from '@/packages/map'
+import { ElMessage } from 'element-plus'
 import { EaseoutInterpolator, GSMarkerLayer } from '@/packages/map'
 import { MapSubject } from '@/shared'
 import {
@@ -10,7 +11,6 @@ import {
   useSocketStore,
 } from '@/stores'
 import { createRenderMarkers } from '@/stores/utils'
-import { ElMessage } from 'element-plus'
 
 let cache: ReturnType<typeof _useMarkerControl>
 
@@ -105,7 +105,7 @@ const _useMarkerControl = () => {
     removeFocus(MARKER_INTERACTION_KEY)
   }
 
-  socketStore.appEvent.on('MarkerDeleted', ({ id }) => {
+  socketStore.ipc.on('MarkerDeleted', (id) => {
     blur(id)
   })
 
