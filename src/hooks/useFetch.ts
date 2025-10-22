@@ -65,7 +65,7 @@ export const useFetchHook = <T, A extends unknown[] = []>(options: FetchHookOpti
           return
         if (isBasicResponse(res) && res.error)
           throw new Error(`error in server: ${res.message}`)
-        if (diff && diff(data.value, res))
+        if (diff && !diff(data.value, res))
           return data.value
         data.value = res as T
         loading.value = false

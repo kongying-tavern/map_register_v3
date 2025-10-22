@@ -1,8 +1,8 @@
+import { defineStore } from 'pinia'
 import Api from '@/api/api'
 import { context as noticeContext } from '@/components/AppNotice/context'
 import { useFetchHook } from '@/hooks'
 import { NoticeChannel } from '@/shared'
-import { defineStore } from 'pinia'
 import { usePreferenceStore, useSocketStore, useUserStore } from '.'
 
 export const useNoticeStore = defineStore('global-notice', () => {
@@ -23,7 +23,7 @@ export const useNoticeStore = defineStore('global-notice', () => {
       return record
     },
     diff: (oldData, newData) => {
-      return JSON.stringify(oldData) === JSON.stringify(newData)
+      return JSON.stringify(oldData) !== JSON.stringify(newData)
     },
   })
 
