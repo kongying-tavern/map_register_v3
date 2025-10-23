@@ -1,6 +1,6 @@
 import type { UserPreference } from './types'
-import { useArchiveStore } from '@/stores'
 import { defineStore } from 'pinia'
+import { useArchiveStore } from '@/stores'
 
 export const usePreferenceStore = defineStore('global-user-preference', () => {
   const archiveStore = useArchiveStore()

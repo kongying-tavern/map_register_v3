@@ -1,9 +1,9 @@
 import type { UserPreference } from '@/stores/types/userPreference'
+import { defineStore } from 'pinia'
 import Api from '@/api/api'
 import db from '@/database'
 import { useFetchHook } from '@/hooks'
 import { useUserStore } from '@/stores'
-import { defineStore } from 'pinia'
 import { getDefaultPreference } from './types'
 
 export interface ArchiveBody {

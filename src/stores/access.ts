@@ -1,5 +1,5 @@
-import { RoleTypeEnum } from '@/shared/roleTypeEnum'
 import { defineStore } from 'pinia'
+import { RoleTypeEnum } from '@/shared/roleTypeEnum'
 import { useUserStore } from '.'
 
 /**

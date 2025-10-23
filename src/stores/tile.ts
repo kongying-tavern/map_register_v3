@@ -1,9 +1,9 @@
 import type { AreaTagTuple } from '@/configs'
 import type { Coordinate2D } from '@/packages/map'
-import { AREA_ADDITIONAL_CONFIG_MAP } from '@/configs'
-import { useAccessStore, useArchiveStore, useAreaStore, useDadianStore } from '@/stores'
 import { defaultsDeep, merge } from 'lodash'
 import { defineStore } from 'pinia'
+import { AREA_ADDITIONAL_CONFIG_MAP } from '@/configs'
+import { useAccessStore, useArchiveStore, useAreaStore, useDadianStore } from '@/stores'
 
 export interface TileInfo extends Required<Pick<API.TileConfig, | 'code'
   | 'name'

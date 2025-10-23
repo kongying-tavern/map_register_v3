@@ -1,9 +1,9 @@
 import type { MaybeRef } from 'vue'
-import { CONTROL_KEYS, globalKeydown$ } from '@/shared'
-import { ShortcutKeyUtil } from '@/utils'
 import { useSubscription } from '@vueuse/rxjs'
 import { defineStore } from 'pinia'
 import { filter, map } from 'rxjs'
+import { CONTROL_KEYS, globalKeydown$ } from '@/shared'
+import { ShortcutKeyUtil } from '@/utils'
 
 export const useShortcutStore = defineStore('shortcut-keys', () => {
   const isPaused = ref(false)

@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import type { LogInfo } from '@/utils'
-import { Logger } from '@/utils'
 import { defineStore } from 'pinia'
+import { Logger } from '@/utils'
 import { usePreferenceStore } from '.'
 
 /** 开发者工具 store */
