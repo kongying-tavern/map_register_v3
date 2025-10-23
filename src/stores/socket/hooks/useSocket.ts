@@ -32,6 +32,14 @@ export const useSocket = () => {
     context.value.id = id
   })
 
+  ipc.on('delayChange', (delay) => {
+    context.value.delay = delay
+  })
+
+  ipc.on('statusChange', (status) => {
+    context.value.status = status
+  })
+
   window.addEventListener('beforeunload', () => {
     if (!context.value.id)
       return

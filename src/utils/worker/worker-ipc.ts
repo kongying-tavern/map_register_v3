@@ -5,7 +5,7 @@ import type {
 import { isRequest, isSharedWorker } from './utils'
 
 declare const globalThis: DedicatedWorkerGlobalScope | SharedWorkerGlobalScope
-type Handler<A extends unknown[] = unknown[], T = void> = (...args: A) => T
+type Handler<A extends unknown[] = unknown[], T = void> = (...args: A) => MaybePromise<T>
 type MaybePromise<T> = Promise<T> | T
 interface PortLike {
   postMessage: MessagePort['postMessage']
@@ -74,14 +74,14 @@ export class WorkerIPC<
   ): void {
     if (this.#handlers.has(channel))
       throw new Error(`Attempted to register a second handler for '${String(channel)}'`)
-    this.#handlers.set(channel, handler)
+    this.#handlers.set(channel, handler as Handler)
   }
 
   removeHandler<C extends keyof MainEvents>(
     channel: C,
     handler: (...args: MainEvents[C]['args']) => MaybePromise<MainEvents[C]['return']>,
   ): void {
-    this.#handlers.set(channel, handler)
+    this.#handlers.set(channel, handler as Handler)
   }
 
   emit<C extends keyof WorkerEvents>(

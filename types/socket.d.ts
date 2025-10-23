@@ -31,9 +31,14 @@ declare namespace AppSocket {
       args: [id: string]
       return: void
     }
+    /** socket 时延改变 */
+    delayChange: {
+      args: [delay: number]
+      return: void
+    }
     /** socket 状态改变 */
     statusChange: {
-      args: [status: SocketStatus]
+      args: [status: Status]
       return: void
     }
   } & {
