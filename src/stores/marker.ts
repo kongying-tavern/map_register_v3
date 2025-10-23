@@ -1,13 +1,13 @@
-import type { WorkerInput, WorkerOutput } from '@/worker/idb.worker'
 import type { Hash } from 'types/database'
 import type { HashGroupMeta } from './utils'
+import type { WorkerInput, WorkerOutput } from '@/worker/idb.worker'
+import { AddLocation, DeleteLocation, Location } from '@element-plus/icons-vue'
+import { liveQuery } from 'dexie'
+import { defineStore } from 'pinia'
 import Api from '@/api/api'
 import db from '@/database'
 import { Zip } from '@/utils'
 import BulkPutWorker from '@/worker/idb.worker?worker'
-import { AddLocation, DeleteLocation, Location } from '@element-plus/icons-vue'
-import { liveQuery } from 'dexie'
-import { defineStore } from 'pinia'
 import { useAccessStore, useSocketStore, useUserStore } from '.'
 import { useAfterUpdated, useManager } from './hooks'
 import { createHashGroupMap } from './utils'
@@ -84,24 +84,15 @@ export const useMarkerStore = defineStore('global-marker', () => {
       message.value = '获取 hash 列表'
       const { data: hashList = [] } = await Api.markerDoc.listMarkerBinaryMD5({})
 
-      // TODO 等待接口更新
-      // const hashList = data.map((md5) => {
-      //   return { hash: md5, time: Date.now() }
-      // })
-
       /** oldHashSet 的最晚更新时间 */
-      let oldUpdateTime = 0
-      hashGroupMap.value.forEach(({ time }) => {
-        if (time > oldUpdateTime)
-          oldUpdateTime = time
-      })
+      const oldUpdateTime = Array.from(hashGroupMap.value.values()).reduce((max, { time }) => {
+        return Math.max(max, time)
+      }, 0)
 
       /** newHashSet 的最晚更新时间 */
-      let newUpdateTime = 0
-      hashList.forEach(({ time = 0 }) => {
-        if (time > newUpdateTime)
-          newUpdateTime = time
-      })
+      const newUpdateTime = hashList.reduce((max, { time = 0 }) => {
+        return Math.max(max, time)
+      }, 0)
 
       // 如果 newHashSet 的最晚更新时间小于 oldHashSet 的最晚更新时间，则表示压缩数据落后于本地，跳过更新
       if (newUpdateTime <= oldUpdateTime) {
@@ -131,12 +122,6 @@ export const useMarkerStore = defineStore('global-marker', () => {
         const data = await Zip.decompressAs<API.MarkerVo[]>(new Uint8Array(buffer), { name: `marker-${hash}` })
         return data.map(newOne => (<Hash<API.MarkerVo>>{ ...newOne, __hash: hash }))
       }))).flat(1)
-
-      const newHashGroup = createHashGroupMap(newData)
-      newHashGroup.forEach(({ time }) => {
-        if (time > newUpdateTime)
-          newUpdateTime = time
-      })
 
       hashGroupMap.value.forEach(({ time, list }, oldHash) => {
         if (newHashSet.has(oldHash) || time >= newUpdateTime)
