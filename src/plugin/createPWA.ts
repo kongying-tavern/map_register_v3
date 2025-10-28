@@ -1,9 +1,8 @@
 import type { Plugin } from 'vue'
 import { Logger } from '@/utils'
+import { PageIPC } from '@/utils/worker'
 
-const logger = new Logger('服务线程注册器')
-
-const swLogger = new Logger('服务线程')
+const logger = new Logger('服务线程')
 
 export type ServiceWorkerOutput = {
   action: 'log'
@@ -13,28 +12,34 @@ export type ServiceWorkerOutput = {
   value: unknown
 }
 
-const ensureServiceWorker = async () => {
-  if (!('serviceWorker' in navigator))
-    throw new Error('浏览器不支持 Service Worker')
-
-  navigator.serviceWorker.addEventListener('message', (ev: MessageEvent<ServiceWorkerOutput>) => {
-    if (ev.data.action !== 'log')
-      return
-    swLogger[ev.data.value.type](...ev.data.value.args)
-  })
-
-  const serviceWorkerURL = new URL('../../public/service.worker.js', import.meta.url)
-
-  const registration = await navigator.serviceWorker.register(serviceWorkerURL, { scope: '/' })
-  await registration.update()
-  const result = await navigator.serviceWorker.ready
-
-  logger.info({ registration: result })
-}
-
 /** 渐进式 Web 应用所需配置 */
 export const createPWA = (): Plugin => ({
   install: async () => {
-    await ensureServiceWorker()
+    const port = {
+      addEventListener: (...args: Parameters<MessagePort['addEventListener']>) => {
+        navigator.serviceWorker.addEventListener(...args)
+      },
+      removeEventListener: (...args: Parameters<MessagePort['removeEventListener']>) => {
+        navigator.serviceWorker.removeEventListener(...args)
+      },
+      postMessage: ((...args: Parameters<MessagePort['postMessage']>) => {
+        navigator.serviceWorker.controller?.postMessage(...args)
+      }) as MessagePort['postMessage'],
+    }
+
+    const ipc = new PageIPC<never, AppServiceWorker.EventMap>(port)
+    navigator.serviceWorker.startMessages()
+
+    ipc.on('log', (type, message) => {
+      logger[type](message)
+    })
+
+    await navigator.serviceWorker?.register(
+      import.meta.env.MODE === 'production'
+        ? '/service.worker.js'
+        : '/dev-sw.js?dev-sw',
+      { type: 'module' },
+    )
+    await navigator.serviceWorker.ready
   },
 })
