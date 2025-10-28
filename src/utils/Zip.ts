@@ -1,18 +1,34 @@
 import type { WorkerInput } from '@/worker/zip.worker'
-import SevenZipWASM from '7z-wasm/7zz.wasm?url'
+import SevenZipWasmUrl from '7z-wasm/7zz.wasm?url'
+import db from '@/database/db'
 import ZipWorker from '@/worker/zip.worker?worker'
 import { createWorkerHelper } from '.'
 
 /** 7-zip 包装类 */
 export class Zip {
-  static #zipWasmBinary = fetch(SevenZipWASM).then(res => res.arrayBuffer())
+  static #zipWasmBinary: ArrayBuffer
+
+  static getWasmBinary = async () => {
+    if (this.#zipWasmBinary)
+      return this.#zipWasmBinary
+    const cache = await db.cache.file.get('7zz.wasm')
+    if (cache) {
+      this.#zipWasmBinary = cache.buffer
+      return cache.buffer
+    }
+    const res = await fetch(SevenZipWasmUrl)
+    const buffer = await res.arrayBuffer()
+    this.#zipWasmBinary = buffer
+    await db.cache.file.put({ buffer, name: '7zz.wasm' })
+    return buffer
+  }
 
   /**
    * 压缩文件
    * @param file 需要被压缩的文件
    */
   static compress = async (file: Uint8Array, name = 'temp') => {
-    const wasm = await this.#zipWasmBinary
+    const wasm = await this.getWasmBinary()
 
     const copyZipWasm = wasm.slice(0)
 
@@ -45,7 +61,7 @@ export class Zip {
    * @param file 需要被解压的文件
    */
   static decompress = async (file: Uint8Array, name = 'temp') => {
-    const wasm = await this.#zipWasmBinary
+    const wasm = await this.getWasmBinary()
 
     const copyZipWasm = wasm.slice(0)
 

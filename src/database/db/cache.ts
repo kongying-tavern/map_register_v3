@@ -15,8 +15,11 @@ export class CacheDexie extends Dexie {
   /** 点位预渲染纹理 */
   declare markerSprite: Dexie.Table<DBType.MarkerSprite, string>
 
+  /** 二进制文件， key 表示文件名 */
+  declare file: Dexie.Table<DBType.FileCache, string>
+
   /** 结构版本 */
-  readonly VERSION = 1
+  readonly VERSION = 2
 
   /** 表结构 */
   readonly STORES = {
@@ -24,6 +27,7 @@ export class CacheDexie extends Dexie {
     iconSprite: '&digest',
     markerSprite: '&digest',
     userScore: '&id',
+    file: '&name',
   }
 
   constructor() {

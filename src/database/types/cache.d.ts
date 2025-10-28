@@ -45,6 +45,12 @@ declare namespace DBType {
     json: API.DadianJSON
   }
 
+  /** file 缓存 */
+  interface FileCache {
+    name: string
+    buffer: ArrayBuffer
+  }
+
   /** 实体缓存类型表 */
   interface CacheTypes {
     iconSprite: IconSprite
