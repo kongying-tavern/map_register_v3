@@ -26,7 +26,14 @@ export const useSocket = () => {
     name: 'Socket 工作线程',
   })
 
-  const ipc = new PageIPC<AppSocket.MainEventMap, AppSocket.WorkerEventMap>(socketWorker)
+  const messagePort = (() => {
+    if (socketWorker instanceof Worker)
+      return socketWorker
+    socketWorker.port.start()
+    return socketWorker.port
+  })()
+
+  const ipc = new PageIPC<AppSocket.MainEventMap, AppSocket.WorkerEventMap>(messagePort)
 
   ipc.on('init', (id) => {
     context.value.id = id
