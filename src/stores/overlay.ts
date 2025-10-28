@@ -3,8 +3,9 @@ import type {
   OverlayChunk,
   OverlayChunkGroup,
 } from '@/packages/map'
-import { merge, template } from 'lodash'
+import { merge } from 'lodash'
 import { defineStore } from 'pinia'
+import { UrlTemplate } from '@/utils'
 import { useAccessStore, useArchiveStore, useDadianStore, useTileStore } from '.'
 
 /** 地图附加图层 */
@@ -34,7 +35,12 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
     for (const areaCode in mergedPlugins.value) {
       overlayGroups[areaCode] = []
       const { overlay = false, overlayConfig = {} } = mergedPlugins.value[areaCode]
-      overlay && overlayConfig.overlays?.forEach(({ urlTemplate = overlayConfig.urlTemplate, children: items = [], role = 'default', ...rest }) => {
+      overlay && overlayConfig.overlays?.forEach(({
+        urlTemplate = overlayConfig.urlTemplate,
+        children: items = [],
+        role = 'default',
+        ...rest
+      }) => {
         overlayGroups[areaCode].push({
           multiple: overlayConfig.multiple ?? false,
           mask: overlayConfig.overlayMask ?? false,
@@ -54,7 +60,6 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
     const { mergedTileConfigs } = tileStore
     if (!mergedTileConfigs)
       return []
-    // TODO Map 无法保证 KV 顺序，建议改为有序 Map
     const resultMap = new Map<string, OverlayChunk>()
     const groupCache = new Map<string, OverlayChunkGroup>()
     for (const areaCode in mergedOverlayGroups.value) {
@@ -76,11 +81,7 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
         if (!tileConfigInArea)
           continue
 
-        if (groupCache.has(groupValue)) {
-          groupCache.get(groupValue)?.areaCodes.add(areaCode)
-          groupCache.get(groupValue)?.areaIndexes.set(areaCode, groupIndex)
-        }
-        else {
+        if (!groupCache.has(groupValue)) {
           groupCache.set(groupValue, {
             id: groupId,
             name: groupLabel,
@@ -92,6 +93,8 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
           })
         }
         const group = groupCache.get(groupValue)!
+        group.areaCodes.add(areaCode)
+        group.areaIndexes.set(areaCode, groupIndex)
 
         for (const {
           label: itemLabel = groupLabel,
@@ -105,12 +108,14 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
             id: `item-${crypto.randomUUID()}`,
             name: itemLabel,
           }
-          const complied = template(itemUrlTemplate, { interpolate: /\{\{([\s\S]+?)\}\}/g })
+
+          const templater = new UrlTemplate(itemUrlTemplate ?? '')
+          templater.compile({ groupLabel, groupValue, itemLabel, itemValue })
 
           if (!chunks.length) {
             if (!itemBounds)
               continue
-            const url = itemUrl ?? complied({ groupLabel, groupValue, itemLabel, itemValue })
+            const url = itemUrl ?? templater.toString()
             if (resultMap.has(url)) {
               resultMap.get(url)!.areaCodes.add(areaCode)
               continue
@@ -119,8 +124,10 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
             const { center: [cx, cy] } = tileConfigInArea.tile
             const [[xmin, ymin], [xmax, ymax]] = itemBounds
 
+            const { host, pathname } = new URL(url)
+
             resultMap.set(url, {
-              id: `chunk-${crypto.randomUUID()}`,
+              id: `chunk://${host}${pathname}`,
               areaCodes: new Set<string>([areaCode]),
               label: itemLabel,
               url,
@@ -134,13 +141,15 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
           for (const {
             label: chunkLabel = itemLabel,
             value: chunkValue = itemValue,
-            url: chunkUrl = itemUrl ?? complied({ groupLabel, groupValue, itemLabel, itemValue, chunkLabel, chunkValue }),
+            url: chunkUrl = itemUrl,
             bounds: chunkBounds = itemBounds,
           } of chunks) {
             if (!chunkBounds)
               continue
 
-            const url = chunkUrl || complied({ groupLabel, groupValue, itemLabel, itemValue, chunkLabel, chunkValue })
+            templater.compile({ chunkLabel, chunkValue })
+
+            const url = chunkUrl || templater.toString()
             if (resultMap.has(url)) {
               resultMap.get(url)!.areaCodes.add(areaCode)
               continue
