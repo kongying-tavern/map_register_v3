@@ -2,8 +2,7 @@
   "extends": "@vue/tsconfig/tsconfig.dom.json",
   "include": [
     "types/**/*",
-    "src/**/*",
-    "public/service.worker.js",
+    "src/**/*"
   ],
   "compilerOptions": {
     "incremental": true,
@@ -12,7 +11,7 @@
     "checkJs": true,
     "target": "ESNext",
     "lib": ["DOM", "DOM.Iterable", "ESNext", "WebWorker"],
-    "types": ["element-plus/global"],
+    "types": ["element-plus/global", "vite-plugin-pwa/client", "vite-plugin-pwa/vue"],
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "baseUrl": ".",
     "paths": {

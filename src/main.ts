@@ -1,10 +1,10 @@
+import ElementPlus from 'element-plus'
+import zhCn from 'element-plus/es/locale/lang/zh-cn'
+import { createPinia } from 'pinia'
 import { AppError } from '@/components'
 import { createLogger, createPWA, customPaint, ElementIcons } from '@/plugin'
 import { router } from '@/router'
 import { useArchiveStore, useBroadcastStore, useDadianStore, useUserStore } from '@/stores'
-import ElementPlus from 'element-plus'
-import zhCn from 'element-plus/es/locale/lang/zh-cn'
-import { createPinia } from 'pinia'
 import App from './App.vue'
 import './style/app.scss'
 import 'element-plus/dist/index.css'
@@ -16,9 +16,9 @@ import 'element-plus/theme-chalk/dark/css-vars.css'
   try {
     const app = createApp(App)
     app
+      .use(createPWA())
       .use(createPinia())
       .use(createLogger())
-      .use(createPWA())
       .use(customPaint())
       .use(ElementPlus, {
         locale: zhCn,

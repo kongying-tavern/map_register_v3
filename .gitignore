@@ -44,3 +44,6 @@ auto-imports.d.ts
 
 # VSCode
 .vscode/**/*.code-snippets
+
+# 临时文件
+temp

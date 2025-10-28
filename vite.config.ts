@@ -3,10 +3,10 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import BaseSSL from '@vitejs/plugin-basic-ssl'
 import Vue from '@vitejs/plugin-vue'
-import { visualizer } from 'rollup-plugin-visualizer'
 import { simpleGit } from 'simple-git'
 import AutoImport from 'unplugin-auto-import/vite'
 import { defineConfig, loadEnv } from 'vite'
+import { VitePWA } from 'vite-plugin-pwa'
 import { openapi2ts } from './plugins'
 
 export default defineConfig(async ({ mode }) => {
@@ -21,16 +21,6 @@ export default defineConfig(async ({ mode }) => {
       target: ENV.VITE_API_PROXY_TARGET,
       changeOrigin: true,
       rewrite: path => path.replace(new RegExp(`${ENV.VITE_API_BASE}`), ''),
-      configure: (proxy) => {
-        proxy.on('error', (err, _, res, target) => {
-          res.writeHead(500, { 'Content-Type': 'application/json' })
-          res.end(JSON.stringify({
-            target,
-            error: 'Internal Server Error',
-            message: err.message,
-          }))
-        })
-      },
     },
   }
 
@@ -47,7 +37,7 @@ export default defineConfig(async ({ mode }) => {
     }),
     AutoImport({
       imports: ['vue', '@vueuse/core', 'vue-router'],
-      dts: './types/auto-imports.d.ts',
+      dts: 'types/auto-imports.d.ts',
     }),
     openapi2ts([
       {
@@ -58,11 +48,23 @@ export default defineConfig(async ({ mode }) => {
         projectName: 'api',
       },
     ]),
+    VitePWA({
+      devOptions: {
+        enabled: true,
+        type: 'module',
+        resolveTempFolder: () => 'temp/dev-dist',
+      },
+      injectRegister: false,
+      manifest: false,
+      injectManifest: {
+        injectionPoint: undefined,
+      },
+      srcDir: 'src/worker/service',
+      filename: 'service.worker.ts',
+      strategies: 'injectManifest',
+      registerType: 'autoUpdate',
+    }),
   ]
-
-  if (mode === 'development') {
-    plugins.push(visualizer())
-  }
 
   if (ENV.VITE_HTTPS) {
     plugins.push(BaseSSL({
@@ -87,9 +89,9 @@ export default defineConfig(async ({ mode }) => {
       // 禁用生产版本中水合不匹配的详细警告以优化
       '__VUE_PROD_HYDRATION_MISMATCH_DETAILS__': false,
 
-      'import.meta.env.APP_VERSION': `'${VERSION}'`,
-      'import.meta.env.APP_BRANCH': `'${COMMIT_BRANCH}'`,
-      'import.meta.env.APP_COMMIT_HASH': `'${COMMIT_HASH}'`,
+      'import.meta.env.APP_VERSION': JSON.stringify(VERSION),
+      'import.meta.env.APP_BRANCH': JSON.stringify(COMMIT_BRANCH),
+      'import.meta.env.APP_COMMIT_HASH': JSON.stringify(COMMIT_HASH),
     },
 
     server: {
