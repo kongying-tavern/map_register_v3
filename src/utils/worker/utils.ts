@@ -19,3 +19,7 @@ export const isRequest = (v: unknown): v is RequestMessage => {
 export const isSharedWorker = (v: WorkerGlobalScope): v is SharedWorkerGlobalScope => {
   return 'SharedWorkerGlobalScope' in v
 }
+
+export const isServiceWorker = (v: WorkerGlobalScope): v is ServiceWorkerGlobalScope => {
+  return 'ServiceWorkerGlobalScope' in v
+}

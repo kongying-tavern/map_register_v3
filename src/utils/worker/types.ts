@@ -25,7 +25,7 @@ export interface Resolver {
 }
 
 /**
- * 用于兼容 `Worker` 或 `SharedWorker`
+ * 用于兼容 `Worker` 或 `SharedWorker` 或 `ServiceWorker`
  */
 export interface PortLike {
   postMessage(message: unknown, transfer: Transferable[]): void

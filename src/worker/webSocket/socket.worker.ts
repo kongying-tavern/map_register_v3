@@ -5,16 +5,13 @@ import { WorkerIPC } from '@/utils/worker/worker-ipc'
 
 declare const globalThis: WorkerGlobalScope
 
-interface Page {
-  id: string
-  port: MessagePort
-}
-
 const context = {
+  status: 'INIT' as AppSocket.Status,
   socket: null as Socket | null,
   delay: 999,
   openPromise: null as Promise<Socket> | null,
-  pages: new Set<Page>(),
+  pages: new Set<string>(),
+  ports: new Map<string, MessagePort>(),
 }
 
 // DEBUG
@@ -22,8 +19,12 @@ Reflect.set(globalThis, 'context', context)
 
 const ipc = new WorkerIPC<AppSocket.MainEventMap, AppSocket.WorkerEventMap>((message) => {
   if (isSharedWorker(globalThis)) {
-    context.pages.forEach((page) => {
-      page.port.postMessage(message)
+    const { pages, ports } = context
+    pages.forEach((pageId) => {
+      const port = ports.get(pageId)
+      if (!port)
+        return
+      port.postMessage(message)
     })
   }
   else {
@@ -31,10 +32,14 @@ const ipc = new WorkerIPC<AppSocket.MainEventMap, AppSocket.WorkerEventMap>((mes
   }
 })
 
+// ====================   event handler    ====================
+
+/** 开启 socket 连接 */
 ipc.handle('open', async (url, options) => {
   if (context.socket) {
     const { query = {} } = context.socket.io.opts
     if (options.query.userId === query.userId) {
+      context.status = 'OPEN'
       ipc.emit('statusChange', 'OPEN')
       return 'reused'
     }
@@ -48,36 +53,31 @@ ipc.handle('open', async (url, options) => {
 
   const { resolve, reject, promise } = Promise.withResolvers<Socket>()
 
-  ipc.emit('statusChange', 'CONNECTING')
+  context.status = 'CONNECTING'
+  ipc.emit('statusChange', context.status)
   const socket = io(url, {
     path: options.path,
     query: options.query,
     transports: ['websocket'],
   })
 
-  let pingTime = 0
-  socket.io.engine.on('ping', () => {
-    pingTime = Date.now()
-  })
-  socket.io.engine.on('pong', () => {
-    context.delay = Date.now() - pingTime
-    ipc.emit('delayChange', context.delay)
-  })
-
   socket.on('connect', () => {
     resolve(socket)
     context.socket = socket
     context.openPromise = null
-    ipc.emit('statusChange', 'OPEN')
+    context.status = 'OPEN'
+    ipc.emit('statusChange', context.status)
   })
 
   socket.on('connect_error', () => {
     reject(new Error('Low level connection can not be established'))
-    ipc.emit('statusChange', 'CLOSED')
+    context.status = 'CLOSED'
+    ipc.emit('statusChange', context.status)
   })
 
   socket.on('disconnect', () => {
-    ipc.emit('statusChange', 'CLOSED')
+    context.status = 'CLOSED'
+    ipc.emit('statusChange', context.status)
   })
 
   context.openPromise = promise
@@ -85,6 +85,7 @@ ipc.handle('open', async (url, options) => {
   return 'created'
 })
 
+/** 关闭 socket 连接 */
 ipc.handle('close', async () => {
   if (context.openPromise)
     await context.openPromise
@@ -94,30 +95,30 @@ ipc.handle('close', async () => {
   context.socket = null
 })
 
-const getStatus = () => {
-  if (context.socket)
-    return 'OPEN'
-  if (context.openPromise)
-    return 'CONNECTING'
-  return 'CLOSED'
-}
+/** 页面与 sharedworker 断开连接 */
+ipc.handle('disconnect', (id) => {
+  context.pages.delete(id)
+  context.ports.delete(id)
+})
 
+// ====================    event listener    ====================
+
+// sharedworker 下需要管理所有页面
 if (Object.prototype.toString.call(globalThis) === '[object SharedWorkerGlobalScope]') {
   const scope = globalThis as SharedWorkerGlobalScope
   scope.addEventListener('connect', (ev) => {
     const id = crypto.randomUUID()
-    context.pages.add({
-      id,
-      port: ev.ports[0],
-    })
+    context.pages.add(id)
+    context.ports.set(id, ev.ports[0])
     ipc.emit('init', id)
-    ipc.emit('statusChange', getStatus())
+    ipc.emit('statusChange', context.status)
     ipc.emit('delayChange', context.delay)
   })
 }
+// worker 下只需要管理单独页面
 else {
   const id = crypto.randomUUID()
   ipc.emit('init', id)
-  ipc.emit('statusChange', getStatus())
+  ipc.emit('statusChange', context.status)
   ipc.emit('delayChange', context.delay)
 }

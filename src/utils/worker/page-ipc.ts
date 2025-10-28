@@ -14,19 +14,11 @@ export class PageIPC<
   #port: PortLike
   #resolvers = new Map<string, Resolver>()
 
-  constructor(worker: Worker | SharedWorker) {
+  constructor(worker: PortLike) {
     if (typeof window === 'undefined')
       throw new Error('PageIPC 只能在渲染线程中使用')
-    if (!(worker instanceof Worker) && !(worker instanceof SharedWorker))
-      throw new Error('必须提供合法的 Worker 或 SharedWorker 实例')
 
-    if (worker instanceof Worker) {
-      this.#port = worker
-    }
-    else {
-      worker.port.start()
-      this.#port = worker.port
-    }
+    this.#port = worker
 
     this.#port.addEventListener('message', (ev) => {
       const { data } = ev
@@ -47,10 +39,10 @@ export class PageIPC<
   }
 
   /** 请求 worker 线程完成指定的任务 */
-  async invoke<C extends keyof MainEvents>(
+  invoke = async <C extends keyof MainEvents>(
     channel: C,
     ...args: MainEvents[C]['args']
-  ): Promise<MainEvents[C]['return']> {
+  ): Promise<MainEvents[C]['return']> => {
     const id = crypto.randomUUID()
     return new Promise<MainEvents[C]['return']>((resolve, reject) => {
       this.#resolvers.set(id, { resolve, reject })
@@ -65,10 +57,10 @@ export class PageIPC<
   }
 
   /** 监听 worker 线程发送的事件 */
-  on<C extends keyof WorkerEvents>(
+  on = <C extends keyof WorkerEvents>(
     channel: C,
     handler: (...args: WorkerEvents[C]['args']) => void,
-  ) {
+  ): (() => void) => {
     const listenerWrapper = (ev: MessageEvent) => {
       const { data } = ev
       if (!isRequest(data))

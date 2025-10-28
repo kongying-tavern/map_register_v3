@@ -1,10 +1,11 @@
 import type {
   EventMap,
+  RequestMessage,
   ResponseMessage,
 } from './types'
-import { isRequest, isSharedWorker } from './utils'
+import { isRequest, isServiceWorker, isSharedWorker } from './utils'
 
-declare const globalThis: DedicatedWorkerGlobalScope | SharedWorkerGlobalScope
+declare const globalThis: DedicatedWorkerGlobalScope | SharedWorkerGlobalScope | ServiceWorkerGlobalScope
 type Handler<A extends unknown[] = unknown[], T = void> = (...args: A) => MaybePromise<T>
 type MaybePromise<T> = Promise<T> | T
 interface PortLike {
@@ -12,11 +13,11 @@ interface PortLike {
 }
 
 export class WorkerIPC<
-  MainEvents extends EventMap,
-  WorkerEvents extends EventMap,
+  MainEvents extends EventMap = EventMap,
+  WorkerEvents extends EventMap = EventMap,
 > {
   #handlers: Map<keyof MainEvents, Handler> = new Map()
-  #messageSender: (message: unknown) => void
+  #messageSender: (request: RequestMessage<WorkerEvents[keyof WorkerEvents]['args']>) => void
 
   #createMessageListener = (port: PortLike) => {
     return async (ev: MessageEvent<unknown>) => {
@@ -46,7 +47,7 @@ export class WorkerIPC<
     }
   }
 
-  constructor(messageSender: (message: unknown) => void) {
+  constructor(messageSender: (request: RequestMessage<WorkerEvents[keyof WorkerEvents]['args']>) => void) {
     this.#messageSender = messageSender
     if (!(globalThis instanceof WorkerGlobalScope)) {
       throw new TypeError('WorkerIPC can only be used in a Worker Scope')
@@ -61,6 +62,10 @@ export class WorkerIPC<
       return
     }
 
+    // ServiceWorker 不支持事件监听
+    if (isServiceWorker(globalThis))
+      return
+
     globalThis.addEventListener('message', this.#createMessageListener(globalThis))
   }
 
@@ -68,29 +73,32 @@ export class WorkerIPC<
    * ### 处理来自主线程的事件
    * - 同名 handler 只能注册一个
    */
-  handle<C extends keyof MainEvents>(
+  handle = <C extends keyof MainEvents>(
     channel: C,
     handler: Handler<MainEvents[C]['args'], MaybePromise<MainEvents[C]['return']>>,
-  ): void {
+  ): void => {
     if (this.#handlers.has(channel))
       throw new Error(`Attempted to register a second handler for '${String(channel)}'`)
     this.#handlers.set(channel, handler as Handler)
   }
 
-  removeHandler<C extends keyof MainEvents>(
+  /** 移除 handler */
+  removeHandler = <C extends keyof MainEvents>(
     channel: C,
     handler: (...args: MainEvents[C]['args']) => MaybePromise<MainEvents[C]['return']>,
-  ): void {
+  ): void => {
     this.#handlers.set(channel, handler as Handler)
   }
 
-  emit<C extends keyof WorkerEvents>(
+  /** 向主线程发送事件 */
+  emit = <C extends keyof WorkerEvents>(
     channel: C,
     ...args: WorkerEvents[C]['args']
-  ): void {
+  ): void => {
     this.#messageSender({
+      id: crypto.randomUUID(),
       type: 'request',
-      channel,
+      channel: channel as string,
       args,
     })
   }
