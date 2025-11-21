@@ -41,11 +41,24 @@ declare namespace AppSocket {
       args: [status: Status]
       return: void
     }
+    /** socket 错误 */
+    error: {
+      args: [message: string, stack: string]
+      return: void
+    }
   } & {
     [K in keyof API.WSEventMap]: {
       args: API.WSEventMap[K]
       return: void
     }
+  }
+
+  interface SocketEventMap {
+    rttcheck: [feedback: {
+      id: string
+      receiveTimestamp: number
+      sendTimestamp: number
+    }]
   }
 
   /** 主线程 ws 上下文 */
