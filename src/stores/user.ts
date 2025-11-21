@@ -5,8 +5,7 @@ import { defineStore } from 'pinia'
 import { defer, lastValueFrom, retry } from 'rxjs'
 import Api from '@/api/api'
 import Oauth from '@/api/oauth'
-import { AppLogin } from '@/components'
-import { useFetchHook, useGlobalDialog } from '@/hooks'
+import { useFetchHook } from '@/hooks'
 import { ROLE_MASK_MAP, USERAUTH_KEY } from '@/shared'
 import { Logger } from '@/utils'
 
@@ -35,8 +34,6 @@ const toCamelCaseObject = <T extends Record<string, unknown>>(obj: T): SnakeCase
 }
 
 export const useUserStore = defineStore('global-user', () => {
-  const { DialogService } = useGlobalDialog()
-
   // ==================== token ====================
   const auth = useLocalStorage<Partial<AppUserAuth>>(USERAUTH_KEY, {})
 
@@ -94,6 +91,12 @@ export const useUserStore = defineStore('global-user', () => {
         ...rest,
       }
     },
+  })
+
+  const isLogin = computed(() => {
+    if (!auth.value.accessToken)
+      return false
+    return info.value !== undefined
   })
 
   const logoutMessageHandler = shallowRef<MessageHandler>()
@@ -182,12 +185,10 @@ export const useUserStore = defineStore('global-user', () => {
     }
 
     // 启用/暂停 token 自动刷新
-    // 自动弹出登录窗口
     watch(() => auth.value.refreshToken, async (newToken, oldToken) => {
       if (!newToken) {
         pauseRefreshToken()
         logger.info('token 刷新已暂停')
-        DialogService.open(AppLogin)
         return
       }
       if (!oldToken) {
@@ -209,6 +210,7 @@ export const useUserStore = defineStore('global-user', () => {
     info,
     isInfoLoading,
     isAutoRefreshActive,
+    isLogin,
 
     // actions
     setAuth,

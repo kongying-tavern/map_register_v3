@@ -6,6 +6,7 @@ import { filter } from 'rxjs'
 import {
   AppDevInfo,
   AppDialogProvider,
+  AppLogin,
   AppNoticeProvider,
   AppSiderMenu,
   AppStateBar,
@@ -28,10 +29,18 @@ import {
   MapSubject,
   mapViewStateKey,
 } from '@/shared'
-import { useAccessStore, useArchiveStore, useMapStateStore, useShortcutStore, useTileStore } from '@/stores'
+import {
+  useAccessStore,
+  useArchiveStore,
+  useMapStateStore,
+  useShortcutStore,
+  useTileStore,
+  useUserStore,
+} from '@/stores'
 
 // ================ 全局状态 ================
 const tileStore = useTileStore()
+const userStore = useUserStore()
 const accessStore = useAccessStore()
 const archiveStore = useArchiveStore()
 const shortcutStore = useShortcutStore()
@@ -167,6 +176,20 @@ onMounted(() => {
     <AppWindowProvider />
     <AppNoticeProvider />
     <AppDialogProvider />
+
+    <el-dialog
+      :model-value="!userStore.isLogin"
+      :show-close="false"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+      header-class="hidden"
+      body-class="bg-transparent"
+      style="--el-dialog-bg-color: transparent;"
+      append-to-body
+      width="fit-content"
+    >
+      <AppLogin />
+    </el-dialog>
   </div>
 </template>
 

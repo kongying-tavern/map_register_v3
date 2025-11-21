@@ -1,10 +1,11 @@
 <script lang="ts" setup>
+import type { FeatureGroupOption } from './components'
 import type { MapWindow, WindowContextHookReturnType } from '@/components'
 import type {
   ACCESS_BINARY_MASK,
 } from '@/stores'
-import type { FeatureGroupOption } from './components'
-import { AppLogin, AppSettings, AppUserAvatar, AppUserInfo, AppWindowTeleporter, useAppWindow } from '@/components'
+import * as ElIcons from '@element-plus/icons-vue'
+import { AppSettings, AppUserAvatar, AppUserInfo, AppWindowTeleporter, useAppWindow } from '@/components'
 import { IconInvitation, IconNotice } from '@/components/AppIcons'
 import { useGlobalDialog } from '@/hooks'
 import {
@@ -14,7 +15,6 @@ import {
   usePreferenceStore,
   useUserStore,
 } from '@/stores'
-import * as ElIcons from '@element-plus/icons-vue'
 import { CollapseButton, FeatureGrid, MarkerFilter, MarkerTable, SiderMenu, SiderMenuItem } from './components'
 
 interface ManagerModuleOption {
@@ -163,7 +163,9 @@ watch(isLogin, (login) => {
 })
 
 const handleAvatarClick = () => {
-  DialogService.open(isLogin.value ? AppUserInfo : AppLogin)
+  if (!isLogin.value)
+    return
+  DialogService.open(AppUserInfo)
 }
 
 const ManualInfo = defineAsyncComponent(() => import('@/pages/document/PageDocument.vue'))
