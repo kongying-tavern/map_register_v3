@@ -9,7 +9,7 @@ import db from '@/database'
 import { Zip } from '@/utils'
 import BulkPutWorker from '@/worker/idb.worker?worker'
 import { useAccessStore, useSocketStore, useUserStore } from '.'
-import { useAfterUpdated, useManager } from './hooks'
+import { useManager } from './hooks'
 import { createHashGroupMap } from './utils'
 
 /** 全量点位的全局数据 */
@@ -21,15 +21,48 @@ export const useMarkerStore = defineStore('global-marker', () => {
   // ==================== 内部状态 ====================
   const hashGroupMap = shallowRef(new Map<string, HashGroupMeta<Hash<API.MarkerVo>>>())
 
-  const idHashMap = computed(() => {
-    const result = new Map<number, string>()
+  /**
+   * 立即更新存在于 hashGroupMap 内的点位
+   * @note 只有在点位即将被 idb 的 liveQuery 更新前才能使用此方法
+   */
+  const unsafeModify = (markers: Hash<API.MarkerVo>[]) => {
+    const updateMarkersMap = markers.reduce((map, marker) => {
+      return map.set(marker.id!, marker)
+    }, new Map<number, Hash<API.MarkerVo>>())
     hashGroupMap.value.forEach(({ list }) => {
-      list.forEach(({ id, __hash: hash = '' }) => {
-        result.set(id!, hash)
+      list.forEach((marker, index) => {
+        if (!updateMarkersMap.has(marker.id!))
+          return
+        list[index] = updateMarkersMap.get(marker.id!)!
+        updateMarkersMap.delete(marker.id!)
       })
     })
-    return result
-  })
+    updateMarkersMap.forEach((marker) => {
+      if (!hashGroupMap.value.has(marker.__hash ?? ''))
+        return
+      hashGroupMap.value.set(marker.__hash!, {
+        time: Date.now(),
+        list: [marker],
+      })
+    })
+    triggerRef(hashGroupMap)
+  }
+
+  /**
+   * 立即删除存在于 hashGroupMap 内的点位
+   * @note 只有在点位即将被 idb 的 liveQuery 删除前才能使用此方法
+   */
+  const unsafeDelete = (markerIds: number[]) => {
+    const deleteIds = new Set(markerIds)
+    hashGroupMap.value.forEach(({ list }, hash) => {
+      list.forEach((marker) => {
+        if (deleteIds.has(marker.id!)) {
+          marker.__hash = hash
+        }
+      })
+    })
+    triggerRef(hashGroupMap)
+  }
 
   // ==================== 外部状态 ====================
   const list = computed(() => {
@@ -109,9 +142,10 @@ export const useMarkerStore = defineStore('global-marker', () => {
       // 1. 找出所有不存在于旧 hash 里的值，这代表需要进行后续请求以及写入的新数据
       const needUpdateHashList = [...newHashSet.difference(oldHashSet)]
 
-      // 2. 找出需要被删除的点位 id，必须满足以下两个条件:
+      // 2. 找出需要被删除的点位 id，必须满足以下条件:
       //   a. 点位的 hash 不存在于 newHashSet 里
       //   b. 点位的更新时间小于 newHashSet 的最晚更新时间，这代表在最新的压缩数据里，此点位一定不存在
+      //   c. 点位的 __local 字段不为 true，因为 __local === true 表示是本地新增的点位（通过 WebSocket 事件添加），不应该被删除
       // 否则无法区分 "新增" 和 "删除" 点位（假如压缩数据尚未更新，则这两者的 hash 必然不存在于 newHashSet 里）
       const needDeleteKeys: number[] = []
 
@@ -129,6 +163,9 @@ export const useMarkerStore = defineStore('global-marker', () => {
         for (let i = 0; i < list.length; i++) {
           const item = list[i]
           if (new Date(item.updateTime!).getTime() >= newUpdateTime)
+            continue
+          // 如果 __local === true，说明是本地新增的点位，不应该被删除
+          if (item.__local === true)
             continue
           needDeleteKeys.push(item.id!)
         }
@@ -183,23 +220,9 @@ export const useMarkerStore = defineStore('global-marker', () => {
     },
   })
 
-  const { waitForUpdate, afterUpdated, triggerUpdated } = useAfterUpdated<number, Hash<API.MarkerVo>>({
-    getData: async (ids) => {
-      const { data = [] } = await Api.marker.listMarkerById(ids)
-      return data.map(newOne => ({ ...newOne, __hash: idHashMap.value.get(newOne.id!) }))
-    },
-    getKey: marker => marker.id!,
-    commit: async (data) => {
-      await db.marker.bulkPut(data)
-    },
-  })
-
   liveQuery(() => db.marker.toArray()).subscribe((dbList) => {
-    if (waitForUpdate.value.size > 0)
-      return
     hashGroupMap.value = createHashGroupMap(dbList)
     triggerRef(hashGroupMap)
-    triggerUpdated()
   })
 
   // ==================== 外部响应 ====================
@@ -210,64 +233,77 @@ export const useMarkerStore = defineStore('global-marker', () => {
   // 单个点位更新
   socketStore.appEvent.on('MarkerUpdated', async (markerInfo, userInfo) => {
     const { id, markerTitle, updaterId } = markerInfo
-    if (!id || waitForUpdate.value.has(id))
+    if (!id)
       return
-    await db.marker.put({
-      ...markerInfo,
-      __hash: idHashMap.value.get(markerInfo.id!),
-    })
     const { username = `(uid: ${updaterId})`, nickname } = userInfo
     socketStore.notice('MarkerUpdated', {
       message: `${nickname ?? username} 更新了点位 ${markerTitle} (id:${id})`,
       icon: Location,
       customClass: 'text-[var(--el-color-primary)]',
     })
+    if (markerInfo.updaterId === userStore.info?.id)
+      return
+    await db.marker.put({
+      ...markerInfo,
+      __hash: 'update',
+      __local: true,
+    })
   })
 
   // 单个点位新增
   socketStore.appEvent.on('MarkerAdded', async (markerInfo, userInfo) => {
     const { id, markerTitle, creatorId } = markerInfo
-    if (!id || waitForUpdate.value.has(id))
+    if (!id)
       return
-    await db.marker.put(markerInfo)
     const { username = `(uid: ${creatorId})`, nickname } = userInfo
     socketStore.notice('MarkerAdded', {
       message: `${nickname ?? username} 新增了点位 ${markerTitle} (id:${id})`,
       icon: AddLocation,
       customClass: 'text-[var(--el-color-success)]',
     })
+    if (markerInfo.updaterId === userStore.info?.id)
+      return
+    await db.marker.put({
+      ...markerInfo,
+      __hash: 'add',
+      __local: true,
+    })
   })
 
   // 单个点位删除
   socketStore.appEvent.on('MarkerDeleted', async (markerInfo, userInfo) => {
     const { id, markerTitle, creatorId } = markerInfo
-    if (!id || waitForUpdate.value.has(id))
+    if (!id)
       return
-    await db.marker.delete(markerInfo.id!)
     const { username = `(uid: ${creatorId})`, nickname } = userInfo
     socketStore.notice('MarkerDeleted', {
       message: `${nickname ?? username} 删除了点位 ${markerTitle} (id:${id})`,
       icon: DeleteLocation,
       customClass: 'text-[var(--el-color-danger)]',
     })
+    if (markerInfo.updaterId === userStore.info?.id)
+      return
+    await db.marker.delete(markerInfo.id!)
   })
 
   // 点位批量更新
   socketStore.appEvent.on('MarkerTweaked', async (data, userInfo) => {
-    const requiredData = data.filter(({ id }) => !waitForUpdate.value.has(id!))
-    if (!requiredData.length)
+    if (!data.length)
       return
-    await db.marker.bulkPut(requiredData.map(info => ({
-      ...info,
-      __hash: idHashMap.value.get(info.id!),
-    })))
-    const [{ updaterId }] = requiredData
+    const [{ updaterId }] = data
     const { username = `(uid: ${updaterId})`, nickname } = userInfo
     socketStore.notice('MarkerTweaked', {
-      message: `${nickname ?? username} 批量更新了 ${requiredData.length} 个点位`,
+      message: `${nickname ?? username} 批量更新了 ${data.length} 个点位`,
       icon: Location,
       customClass: 'text-[var(--el-color-success)]',
     })
+    if (updaterId === userStore.info?.id)
+      return
+    await db.marker.bulkPut(data.map(info => ({
+      ...info,
+      __hash: 'tweak',
+      __local: true,
+    })))
   })
 
   return {
@@ -278,7 +314,8 @@ export const useMarkerStore = defineStore('global-marker', () => {
     nextUpdateTime,
     updateLoading,
     update,
-    afterUpdated,
+    unsafeModify,
+    unsafeDelete,
 
     // 计算状态
     markerList: list,
