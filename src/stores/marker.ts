@@ -38,12 +38,18 @@ export const useMarkerStore = defineStore('global-marker', () => {
       })
     })
     updateMarkersMap.forEach((marker) => {
-      if (!hashGroupMap.value.has(marker.__hash ?? ''))
-        return
-      hashGroupMap.value.set(marker.__hash!, {
-        time: Date.now(),
-        list: [marker],
-      })
+      const hash = marker.__hash ?? ''
+      if (!hashGroupMap.value.has(hash)) {
+        hashGroupMap.value.set(hash, {
+          time: Date.now(),
+          list: [marker],
+        })
+      }
+      else {
+        const group = hashGroupMap.value.get(hash)
+        if (group)
+          group.list.push(marker)
+      }
     })
     triggerRef(hashGroupMap)
   }
@@ -54,12 +60,13 @@ export const useMarkerStore = defineStore('global-marker', () => {
    */
   const unsafeDelete = (markerIds: number[]) => {
     const deleteIds = new Set(markerIds)
-    hashGroupMap.value.forEach(({ list }, hash) => {
-      list.forEach((marker) => {
-        if (deleteIds.has(marker.id!)) {
-          marker.__hash = hash
+    hashGroupMap.value.forEach(({ list }) => {
+      // 从后往前遍历，避免删除时索引错位
+      for (let i = list.length - 1; i >= 0; i--) {
+        if (deleteIds.has(list[i].id!)) {
+          list.splice(i, 1)
         }
-      })
+      }
     })
     triggerRef(hashGroupMap)
   }

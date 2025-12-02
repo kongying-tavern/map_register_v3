@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import type { GSMapState } from '@/stores/types/genshin-map-state'
-import { createRenderMarkers } from '@/stores/utils'
 import { Check, Close } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { cloneDeep } from 'lodash'
+import { createRenderMarkers } from '@/stores/utils'
 import { MarkerForm } from './components'
 import { useMarkerEdit } from './hooks'
 
@@ -44,7 +44,6 @@ const copyId = async () => {
   await navigator.clipboard.writeText(idStr)
   ElMessage.success({
     message: `"${idStr}" 已复制到剪贴板`,
-    center: true,
   })
 }
 </script>

@@ -19,6 +19,55 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
   // ==================== 内部状态 ====================
   const hashGroupMap = shallowRef(new Map<string, HashGroupMeta<Hash<API.MarkerLinkageVo>>>())
 
+  /**
+   * 立即更新存在于 hashGroupMap 内的点位关联
+   * @note 只有在点位关联即将被 idb 的 liveQuery 更新前才能使用此方法
+   */
+  const unsafeModify = (links: Hash<API.MarkerLinkageVo>[]) => {
+    const updateLinksMap = links.reduce((map, link) => {
+      return map.set(link.id!, link)
+    }, new Map<number, Hash<API.MarkerLinkageVo>>())
+    hashGroupMap.value.forEach(({ list }) => {
+      list.forEach((link, index) => {
+        if (!updateLinksMap.has(link.id!))
+          return
+        list[index] = updateLinksMap.get(link.id!)!
+        updateLinksMap.delete(link.id!)
+      })
+    })
+    updateLinksMap.forEach((link) => {
+      const hash = link.__hash ?? ''
+      if (!hashGroupMap.value.has(hash)) {
+        hashGroupMap.value.set(hash, {
+          time: Date.now(),
+          list: [link],
+        })
+      }
+      else {
+        const group = hashGroupMap.value.get(hash)
+        if (group)
+          group.list.push(link)
+      }
+    })
+    triggerRef(hashGroupMap)
+  }
+
+  /**
+   * 立即删除存在于 hashGroupMap 内的点位关联
+   * @note 只有在点位关联即将被 idb 的 liveQuery 删除前才能使用此方法
+   */
+  const unsafeDelete = (linkIds: number[]) => {
+    const deleteIds = new Set(linkIds)
+    hashGroupMap.value.forEach(({ list }) => {
+      list.forEach((link, index) => {
+        if (deleteIds.has(link.id!)) {
+          list.splice(index, 1)
+        }
+      })
+    })
+    triggerRef(hashGroupMap)
+  }
+
   // ==================== 外部状态 ====================
   const idHashMap = computed(() => {
     const result = new Map<number, string>()
@@ -229,6 +278,8 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
     nextUpdateTime,
     updateLoading,
     update,
+    unsafeModify,
+    unsafeDelete,
     afterUpdated,
   }
 })

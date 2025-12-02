@@ -1,8 +1,9 @@
 import type { TweakControlInfo } from '.'
+import { ElMessage } from 'element-plus'
 import Api from '@/api/api'
+import db from '@/database/db'
 import { useFetchHook } from '@/hooks'
 import { useMarkerStore } from '@/stores'
-import { ElMessage } from 'element-plus'
 
 export interface TweakHookOptions {
   markerList: Ref<API.MarkerVo[]>
@@ -12,7 +13,6 @@ export interface TweakHookOptions {
 
 export const useMarkerTweaks = (options: TweakHookOptions) => {
   const { markerList, tweakList, tweakData } = options
-
   const markerStore = useMarkerStore()
 
   const isDisabled = computed(() => !tweakList.value.length)
@@ -45,17 +45,33 @@ export const useMarkerTweaks = (options: TweakHookOptions) => {
         tweaks,
       }]
 
-      if (tweaks.length > 0) {
-        const { data = [] } = await Api.marker.tweakMarkers(payload)
-        await markerStore.afterUpdated(data.map(({ id }) => id!))
-      }
+      if (!tweaks.length)
+        return
+      const res = await Api.marker.tweakMarkers(payload)
+      const { data = [] } = res
+      markerStore.unsafeModify(data)
+      return res.data
     },
   })
 
-  onSuccess(() => {
-    ElMessage.success({
-      message: '批量编辑成功',
-    })
+  onSuccess(async (data = []) => {
+    const ids = data.map(marker => marker.id!)
+    try {
+      ElMessage.success({
+        message: '批量编辑成功',
+      })
+      const { data: markers = [] } = await Api.marker.listMarkerById(ids)
+      if (!markers.length)
+        return
+      await db.app.marker.bulkPut(markers.map(marker => ({
+        ...marker,
+        __hash: 'tweak',
+        __local: true,
+      })))
+    }
+    catch {
+      // no error
+    }
   })
 
   onError((err) => {

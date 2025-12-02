@@ -1,10 +1,10 @@
-import Api from '@/api/api'
-import { useFetchHook } from '@/hooks'
-import { useMarkerLinkStore, useMarkerStore } from '@/stores'
 import { ElMessage } from 'element-plus'
+import Api from '@/api/api'
+import db from '@/database/db'
+import { useFetchHook } from '@/hooks'
+import { useMarkerLinkStore } from '@/stores'
 
 export const useLinkDelete = () => {
-  const markerStore = useMarkerStore()
   const markerLinkStore = useMarkerLinkStore()
 
   const { onSuccess, onError, ...rest } = useFetchHook({
@@ -14,16 +14,38 @@ export const useLinkDelete = () => {
         throw new Error('此关联的 id 为空')
       if (groupId === undefined)
         throw new Error('此关联的组 id 为空')
-      const { data: { groups = [], markers = [] } = {} } = await Api.markerLink.deleteMarkerLinkage({
+      // 删除单条关联
+      const { data = {} } = await Api.markerLink.deleteMarkerLinkage({
         ids: [id],
       })
-      await markerLinkStore.afterUpdated(groups)
-      await markerStore.afterUpdated(markers)
+      markerLinkStore.unsafeDelete([id])
+      await db.app.markerLink.delete(id)
+      return data
     },
   })
 
-  onSuccess(() => {
-    ElMessage.success('删除成功')
+  onSuccess(async ({ groups: groupIds = [], markers: markerIds = [] }) => {
+    try {
+      ElMessage.success('删除成功')
+      await Promise.all([
+        (async () => {
+          const { data = {} } = await Api.markerLink.getMarkerLinkageList({ groupIds })
+          const links = Object.values(data).flat(1)
+          await db.app.markerLink.bulkPut(links)
+        })(),
+        (async () => {
+          const { data: markers = [] } = await Api.marker.listMarkerById(markerIds)
+          await db.app.marker.bulkPut(markers.map(marker => ({
+            ...marker,
+            __hash: 'update',
+            __local: true,
+          })))
+        })(),
+      ])
+    }
+    catch {
+      ElMessage.warning('删除成功，但是更新本地数据失败，稍后系统将会自动同步关联数据')
+    }
   })
 
   onError((err) => {

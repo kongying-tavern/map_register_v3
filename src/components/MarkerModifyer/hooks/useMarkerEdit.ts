@@ -1,10 +1,11 @@
 import type { Ref } from 'vue'
 import type { MarkerForm } from '../components'
-import Api from '@/api/api'
-import { useFetchHook } from '@/hooks'
-import { useMarkerStore, useUserStore } from '@/stores'
 import { ElMessage } from 'element-plus'
 import { omit } from 'lodash'
+import Api from '@/api/api'
+import db from '@/database/db'
+import { useFetchHook } from '@/hooks'
+import { useMarkerStore, useUserStore } from '@/stores'
 import { usePictureUpload } from './usePictureUpload'
 
 /** 编辑点位，已自动处理 methodType 字段 */
@@ -55,22 +56,18 @@ export const useMarkerEdit = (markerData: Ref<API.MarkerVo | null>) => {
 
   const { tryUploadPicture } = usePictureUpload()
 
-  /** 原始操作 */
-  const request = async () => {
-    const marker = markerData.value
-    if (!marker)
-      throw new Error('表单数据为空')
-
-    const form = buildAdminMarkerForm(marker)
-
-    await tryUploadPicture(form)
-
-    await Api.marker.updateMarker(form)
-
-    await markerStore.afterUpdated([form.id!])
-  }
-
-  const { refresh: submit, onSuccess, onError, ...rest } = useFetchHook({ onRequest: request })
+  const { refresh: submit, onSuccess, onError, ...rest } = useFetchHook({
+    onRequest: async () => {
+      const marker = { ...markerData.value }
+      if (!marker)
+        throw new Error('表单数据为空')
+      const form = buildAdminMarkerForm(marker)
+      await tryUploadPicture(form)
+      await Api.marker.updateMarker(form)
+      markerStore.unsafeModify([JSON.parse(JSON.stringify(form))])
+      return marker
+    },
+  })
 
   const editMarker = async () => {
     try {
@@ -86,15 +83,35 @@ export const useMarkerEdit = (markerData: Ref<API.MarkerVo | null>) => {
     }
   }
 
-  onSuccess(() => {
-    ElMessage.success({
-      message: '编辑点位成功',
-    })
+  onSuccess(async (form) => {
+    if (!form.id)
+      return
+    try {
+      ElMessage.success({
+        message: '编辑点位成功',
+      })
+      const { data: [marker] = [] } = await Api.marker.listMarkerById([form.id])
+      if (!marker) {
+        await db.app.marker.put({
+          ...JSON.parse(JSON.stringify(form)),
+          __hash: 'update',
+          __local: true,
+        })
+      }
+      await db.app.marker.put({
+        ...marker,
+        __hash: 'update',
+        __local: true,
+      })
+    }
+    catch {
+      // no error
+    }
   })
 
   onError(err => ElMessage.error({
     message: `编辑点位失败，原因为：${err.message}`,
   }))
 
-  return { editorRef, editMarker, request, onSuccess, onError, ...rest }
+  return { editorRef, editMarker, onSuccess, onError, ...rest }
 }
