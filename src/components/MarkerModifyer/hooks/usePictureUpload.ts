@@ -1,7 +1,7 @@
 import type { AxiosRequestConfig } from 'axios'
+import dayjs from 'dayjs'
 import { useUserStore } from '@/stores'
 import { getDigest, request } from '@/utils'
-import dayjs from 'dayjs'
 
 /** 图片上传 hook */
 export const usePictureUpload = () => {
