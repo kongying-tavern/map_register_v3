@@ -1,5 +1,6 @@
 import type { Socket } from 'socket.io-client'
 import { io } from 'socket.io-client'
+import { wsdb } from '@/database'
 import { isSharedWorker } from '@/utils/worker/utils'
 import { WorkerIPC } from '@/utils/worker/worker-ipc'
 
@@ -109,11 +110,16 @@ ipc.handle('open', async (url, options) => {
 
   startRttCheckLoop(socket)
 
-  socket.on('message', (message: string) => {
+  socket.on('message', async (message: string) => {
     try {
       const payload = JSON.parse(message) as ServerEvents
       // eslint-disable-next-line ts/no-explicit-any
       ipc.emit(payload.event, payload.data as any)
+      await wsdb.logs.add({
+        t: Date.now(),
+        msg: message,
+        type: 0,
+      })
     }
     catch (err) {
       const error = err instanceof Error ? err : new Error('Unknown error')
