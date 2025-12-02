@@ -47,10 +47,11 @@ export const useSocket = () => {
     context.value.status = status
   })
 
-  window.addEventListener('beforeunload', () => {
-    if (!context.value.id)
+  // 处理心跳 ping，响应 pong
+  ipc.on('ping', () => {
+    if (!context.value)
       return
-    ipc.invoke('disconnect', context.value.id)
+    ipc.invoke('pong', context.value.id)
   })
 
   const close = async () => {

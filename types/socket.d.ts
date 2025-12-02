@@ -17,8 +17,8 @@ declare namespace AppSocket {
       args: []
       return: void
     }
-    /** 页面与 sharedworker 断开连接 */
-    disconnect: {
+    /** 响应心跳 ping */
+    pong: {
       args: [id: string]
       return: void
     }
@@ -44,6 +44,11 @@ declare namespace AppSocket {
     /** socket 错误 */
     error: {
       args: [message: string, stack: string]
+      return: void
+    }
+    /** 心跳 ping */
+    ping: {
+      args: []
       return: void
     }
   } & {
