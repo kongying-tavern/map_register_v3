@@ -47,20 +47,19 @@ export const useMarkerTweaks = (options: TweakHookOptions) => {
 
       if (!tweaks.length)
         return
-      const res = await Api.marker.tweakMarkers(payload)
-      const { data = [] } = res
-      markerStore.unsafeModify(data)
-      return res.data
+      const { data: tweakedMarkers = [] } = await Api.marker.tweakMarkers(payload)
+      const ids = tweakedMarkers.map(marker => marker.id!)
+      const { data: markers = [] } = await Api.marker.listMarkerById(ids)
+      markerStore.unsafeModify(markers)
+      return markers
     },
   })
 
-  onSuccess(async (data = []) => {
-    const ids = data.map(marker => marker.id!)
+  onSuccess(async (markers = []) => {
     try {
       ElMessage.success({
         message: '批量编辑成功',
       })
-      const { data: markers = [] } = await Api.marker.listMarkerById(ids)
       if (!markers.length)
         return
       await db.app.marker.bulkPut(markers.map(marker => ({

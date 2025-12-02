@@ -54,9 +54,11 @@ export const useMarkerPositionEdit = () => {
         duration: 0,
       })
 
-      const { data = [] } = await Api.marker.tweakMarkers(payload)
-      markerStore.unsafeModify(data)
-      return data
+      const { data: tweakedMarkers = [] } = await Api.marker.tweakMarkers(payload)
+      const ids = tweakedMarkers.map(marker => marker.id!)
+      const { data: markers = [] } = await Api.marker.listMarkerById(ids)
+      markerStore.unsafeModify(markers)
+      return markers
     },
   })
 
@@ -69,17 +71,15 @@ export const useMarkerPositionEdit = () => {
     ElMessage.closeAll('warning')
   })
 
-  onSuccess(async (data) => {
+  onSuccess(async (markers) => {
     try {
       clearState()
       ElMessage.success({
         message: '操作成功',
       })
-      const ids = data.map(marker => marker.id!)
-      const { data: markers = [] } = await Api.marker.listMarkerById(ids)
       if (!markers.length)
         return
-      await db.app.marker.bulkPut(data.map(marker => ({
+      await db.app.marker.bulkPut(markers.map(marker => ({
         ...marker,
         __hash: 'tweak',
         __local: true,
