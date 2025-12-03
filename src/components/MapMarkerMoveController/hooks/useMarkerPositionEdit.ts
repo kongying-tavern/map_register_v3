@@ -54,9 +54,7 @@ export const useMarkerPositionEdit = () => {
         duration: 0,
       })
 
-      const { data: tweakedMarkers = [] } = await Api.marker.tweakMarkers(payload)
-      const ids = tweakedMarkers.map(marker => marker.id!)
-      const { data: markers = [] } = await Api.marker.listMarkerById(ids)
+      const { data: markers = [] } = await Api.marker.tweakMarkers(payload)
       markerStore.unsafeModify(markers)
       return markers
     },

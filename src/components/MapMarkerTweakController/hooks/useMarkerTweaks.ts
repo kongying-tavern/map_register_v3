@@ -46,10 +46,8 @@ export const useMarkerTweaks = (options: TweakHookOptions) => {
       }]
 
       if (!tweaks.length)
-        return
-      const { data: tweakedMarkers = [] } = await Api.marker.tweakMarkers(payload)
-      const ids = tweakedMarkers.map(marker => marker.id!)
-      const { data: markers = [] } = await Api.marker.listMarkerById(ids)
+        return []
+      const { data: markers = [] } = await Api.marker.tweakMarkers(payload)
       markerStore.unsafeModify(markers)
       return markers
     },
