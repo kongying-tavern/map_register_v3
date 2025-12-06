@@ -11,6 +11,7 @@ const props = defineProps<{
 
 const slots = defineSlots<{
   default: unknown
+  label: unknown
   setting: unknown
   detail: unknown
   note: unknown
@@ -50,16 +51,18 @@ const toggleCollapse = () => {
         :class="(!detailDisabled && $slots.detail) ? 'hover:bg-[var(--el-fill-color)] active:bg-[var(--el-fill-color-darker)]' : ''"
       >
         <div class="flex-1 flex items-center">
-          <div v-if="icon" class="row-span-2 grid place-items-center pr-4">
+          <div v-if="icon" class="grid place-items-center pr-4">
             <el-icon :size="20">
               <component :is="icon" />
             </el-icon>
           </div>
 
-          <div class="flex flex-col">
-            <div v-if="label" class="text-[var(--el-text-color-primary)]">
-              {{ label }}
-            </div>
+          <div class="flex-1 flex flex-col">
+            <slot name="label">
+              <div v-if="label" class="text-[var(--el-text-color-primary)]">
+                {{ label }}
+              </div>
+            </slot>
             <slot name="note">
               <div v-if="note" class="text-xs text-[var(--el-text-color-regular)]">
                 {{ note }}
