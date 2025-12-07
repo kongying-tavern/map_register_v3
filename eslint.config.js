@@ -4,6 +4,13 @@ export default antfu({
   typescript: {
     overrides: {
       'ts/method-signature-style': ['off'],
+
+      'no-restricted-syntax': [
+        'off',
+        {
+          selector: 'TSEnumDeclaration[const=true]',
+        },
+      ],
     },
   },
 
