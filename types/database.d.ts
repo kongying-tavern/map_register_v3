@@ -24,5 +24,4 @@ interface ScoreGeneratedCache {
 
 type Hash<T> = T & {
   __hash?: string
-  __local?: boolean
 }
