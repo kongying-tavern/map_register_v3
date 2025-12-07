@@ -5,6 +5,7 @@ import { omit } from 'lodash'
 import Api from '@/api/api'
 import db from '@/database/db'
 import { useFetchHook } from '@/hooks'
+import { HashFlag } from '@/shared'
 import { useMarkerStore, useUserStore } from '@/stores'
 import { usePictureUpload } from './usePictureUpload'
 
@@ -58,14 +59,19 @@ export const useMarkerEdit = (markerData: Ref<API.MarkerVo | null>) => {
 
   const { refresh: submit, onSuccess, onError, ...rest } = useFetchHook({
     onRequest: async () => {
-      const marker = { ...markerData.value }
-      if (!marker)
+      const localMarker = markerData.value
+      if (!localMarker)
         throw new Error('表单数据为空')
-      const form = buildAdminMarkerForm(marker)
+      const form = buildAdminMarkerForm(localMarker)
       await tryUploadPicture(form)
       await Api.marker.updateMarker(form)
-      markerStore.unsafeModify([JSON.parse(JSON.stringify(form))])
-      return marker
+      const { data: [remoteMarker] = [] } = await Api.marker.listMarkerById([form.id!])
+      const rewriteMarker = {
+        ...remoteMarker,
+        __hash: HashFlag.LOCAL,
+      }
+      markerStore.unsafeModify([rewriteMarker])
+      return rewriteMarker
     },
   })
 
@@ -83,26 +89,12 @@ export const useMarkerEdit = (markerData: Ref<API.MarkerVo | null>) => {
     }
   }
 
-  onSuccess(async (form) => {
-    if (!form.id)
-      return
+  onSuccess(async (remoteMarker) => {
     try {
       ElMessage.success({
         message: '编辑点位成功',
       })
-      const { data: [marker] = [] } = await Api.marker.listMarkerById([form.id])
-      if (!marker) {
-        await db.app.marker.put({
-          ...JSON.parse(JSON.stringify(form)),
-          __hash: 'update',
-          __local: true,
-        })
-      }
-      await db.app.marker.put({
-        ...marker,
-        __hash: 'update',
-        __local: true,
-      })
+      await db.app.marker.put(remoteMarker)
     }
     catch {
       // no error

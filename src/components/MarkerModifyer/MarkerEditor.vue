@@ -1,11 +1,10 @@
 <script lang="ts" setup>
 import type { GSMapState } from '@/stores/types/genshin-map-state'
-import { Check, Close } from '@element-plus/icons-vue'
+import { Check, Close, Right } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { cloneDeep } from 'lodash'
-import { createRenderMarkers } from '@/stores/utils'
 import { MarkerForm } from './components'
-import { useMarkerEdit } from './hooks'
+import { useMarkerEdit, useRemoteMarker } from './hooks'
 
 const props = defineProps<{
   markerInfo: GSMapState.MarkerWithRenderConfig
@@ -15,20 +14,19 @@ const emits = defineEmits<{
   close: [GSMapState.MarkerWithRenderConfig]
 }>()
 
+const isOfflineMode = import.meta.env.VITE_DEVELOPMENT_MODE === 'offline'
+
 /** 表单数据 */
 const form = ref(cloneDeep(props.markerInfo))
 
+// 实时更新的远程点位数据
+const {
+  data: remoteMarker,
+  loading: remoteMarkerLoading,
+} = useRemoteMarker(computed(() => props.markerInfo.id))
+
 const { editorRef, loading, editMarker, onSuccess } = useMarkerEdit(form)
-
-// 修改成功后更新外部值
-onSuccess(() => {
-  const rerenderInfo = createRenderMarkers([form.value], { reset: true })[0]
-  if (rerenderInfo)
-    form.value = rerenderInfo
-  emits('close', form.value)
-})
-
-const isOfflineMode = import.meta.env.VITE_DEVELOPMENT_MODE === 'offline'
+onSuccess(() => emits('close', form.value))
 
 const idText = computed(() => {
   const { id } = props.markerInfo
@@ -85,11 +83,35 @@ const copyId = async () => {
     </template>
 
     <template #footer>
-      <div class="w-full flex justify-end">
-        <el-button :icon="Check" type="primary" :disabled="isOfflineMode" :loading="loading" @click="editMarker">
+      <!-- 版本指示器 -->
+      <div class="flex-1 flex items-center gap-2">
+        <el-tag disable-transitions>
+          {{ `本地版本：${markerInfo.version}` }}
+        </el-tag>
+        <el-icon>
+          <Right />
+        </el-icon>
+        <el-tag disable-transitions>
+          {{ `最新版本：${remoteMarkerLoading ? 'Loading...' : Number.isInteger(remoteMarker?.version) ? remoteMarker?.version : '--'}` }}
+        </el-tag>
+      </div>
+
+      <!-- 操作栏 -->
+      <div class="shrink-0 flex justify-end">
+        <el-button
+          :icon="Check"
+          type="primary"
+          :disabled="isOfflineMode"
+          :loading="loading"
+          @click="editMarker"
+        >
           保存
         </el-button>
-        <el-button :icon="Close" :disabled="loading" @click="() => emits('close', markerInfo)">
+        <el-button
+          :icon="Close"
+          :disabled="loading"
+          @click="() => emits('close', markerInfo)"
+        >
           取消
         </el-button>
       </div>
