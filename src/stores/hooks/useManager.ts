@@ -10,7 +10,7 @@ export interface ManagerOptions<C, T> {
   }
   /** 自定义上下文 */
   context: C
-  /** 可用于初始化上下文, 在 update 时会且仅会被调用一次 */
+  /** 每次 update 后调用，如果状态未初始化，在 update 前会被调用一次 */
   init?: (context: C) => Promise<void>
   /** 差异更新数据 */
   diff?: (context: C) => Promise<T>
@@ -42,6 +42,7 @@ export const useManager = <C, T>(options: ManagerOptions<C, T>) => {
       const { isFull = false } = options
       const data = await (isFull ? full : diff ?? full)(context)
       await commit(data, context)
+      await init?.(context)
     },
   })
 

@@ -77,8 +77,7 @@ export const useItemStore = defineStore('global-item', () => {
       message: ref(''),
     },
 
-    init: async ({ message }) => {
-      message.value = '初始化上下文'
+    init: async () => {
       const dbList = await db.item.toArray()
       hashGroupMap.value = createHashGroupMap(dbList)
       triggerRef(hashGroupMap)

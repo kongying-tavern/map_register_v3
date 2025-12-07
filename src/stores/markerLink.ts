@@ -116,8 +116,7 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
       message: ref(''),
     },
 
-    init: async ({ message }) => {
-      message.value = '初始化上下文'
+    init: async () => {
       const dbList = await db.markerLink.toArray()
       hashGroupMap.value = createHashGroupMap(dbList)
       triggerRef(hashGroupMap)

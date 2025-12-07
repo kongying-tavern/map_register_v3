@@ -88,8 +88,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
       updateCount: ref(0),
     },
 
-    init: async ({ message }) => {
-      message.value = '初始化上下文'
+    init: async () => {
       const dbList = await db.marker.toArray()
       const { length } = dbList
       const idList: number[] = []
@@ -241,6 +240,13 @@ export const useMarkerStore = defineStore('global-marker', () => {
         message.value = '没有需要更新的数据'
         return
       }
+      const { bulkPutData, bulkDeleteKeys } = options
+      const deletedIds = new Set(bulkDeleteKeys)
+      for (let i = 0; i < bulkPutData.length; i++) {
+        localMarkerMap.value.set(bulkPutData[i].id!, bulkPutData[i])
+      }
+      markerIdList.value = markerIdList.value.filter(id => !deletedIds.has(id))
+      triggerRef(localMarkerMap)
       message.value = '写入更新数据'
       const { resolve, promise } = Promise.withResolvers<WorkerOutput>()
       const worker = new BulkPutWorker({ name: '点位更新线程' })

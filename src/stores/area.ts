@@ -77,8 +77,7 @@ export const useAreaStore = defineStore('global-area', () => {
       message: ref(''),
     },
 
-    init: async ({ message }) => {
-      message.value = '初始化上下文'
+    init: async () => {
       const dbList = await db.area.toArray()
       hashGroupMap.value = createHashGroupMap(dbList)
     },
