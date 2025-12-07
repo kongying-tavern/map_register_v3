@@ -38,7 +38,7 @@ interface FetchHookReturn<T, A extends unknown[], S extends boolean = false> {
 }
 
 export const useFetchHook = <T, A extends unknown[] = [], S extends boolean = false>(
-  options: FetchHookOptions<T, A>,
+  options: FetchHookOptions<T, A, S>,
 ): FetchHookReturn<T, A, S> => {
   const {
     immediate,
