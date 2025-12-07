@@ -1,4 +1,4 @@
-import { defineStore } from 'pinia'
+import { acceptHMRUpdate, defineStore } from 'pinia'
 import Api from '@/api/api'
 import { context as noticeContext } from '@/components/AppNotice/context'
 import { useFetchHook } from '@/hooks'
@@ -130,3 +130,7 @@ export const useNoticeStore = defineStore('global-notice', () => {
     ...rest,
   }
 })
+
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useNoticeStore, import.meta.hot))
+}

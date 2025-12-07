@@ -1,4 +1,4 @@
-import { defineStore } from 'pinia'
+import { acceptHMRUpdate, defineStore } from 'pinia'
 
 interface BroadcastMeta {
   /** 页面 id */
@@ -76,3 +76,7 @@ export const useBroadcastStore = defineStore('broadcast-channel', () => {
     isMaster,
   }
 })
+
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useBroadcastStore, import.meta.hot))
+}

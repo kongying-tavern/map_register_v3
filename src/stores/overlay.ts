@@ -4,7 +4,7 @@ import type {
   OverlayChunkGroup,
 } from '@/packages/map'
 import { merge } from 'lodash'
-import { defineStore } from 'pinia'
+import { acceptHMRUpdate, defineStore } from 'pinia'
 import { UrlTemplate } from '@/utils'
 import { useAccessStore, useArchiveStore, useDadianStore, useTileStore } from '.'
 
@@ -280,3 +280,7 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
     visibleChunks,
   }
 })
+
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useOverlayStore, import.meta.hot))
+}

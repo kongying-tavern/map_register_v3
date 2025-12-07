@@ -1,5 +1,5 @@
 import type { UserPreference } from '@/stores/types/userPreference'
-import { defineStore } from 'pinia'
+import { acceptHMRUpdate, defineStore } from 'pinia'
 import Api from '@/api/api'
 import db from '@/database'
 import { useFetchHook } from '@/hooks'
@@ -283,3 +283,7 @@ export const useArchiveStore = defineStore('global-archive', () => {
     init,
   }
 })
+
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useArchiveStore, import.meta.hot))
+}

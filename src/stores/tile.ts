@@ -1,7 +1,7 @@
 import type { AreaTagTuple } from '@/configs'
 import type { Coordinate2D } from '@/packages/map'
 import { defaultsDeep, merge } from 'lodash'
-import { defineStore } from 'pinia'
+import { acceptHMRUpdate, defineStore } from 'pinia'
 import { AREA_ADDITIONAL_CONFIG_MAP } from '@/configs'
 import { useAccessStore, useArchiveStore, useAreaStore, useDadianStore } from '@/stores'
 
@@ -269,3 +269,7 @@ export const useTileStore = defineStore('global-map-tile', () => {
     toMapCoordinate,
   }
 })
+
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useTileStore, import.meta.hot))
+}

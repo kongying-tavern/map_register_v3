@@ -2,7 +2,7 @@ import type { Hash } from 'types/database'
 import type { HashGroupMeta } from './utils'
 import type { WorkerInput, WorkerOutput } from '@/worker/idb.worker'
 import { liveQuery } from 'dexie'
-import { defineStore } from 'pinia'
+import { acceptHMRUpdate, defineStore } from 'pinia'
 import Api from '@/api/api'
 import db from '@/database'
 import BulkPutWorker from '@/worker/idb.worker?worker'
@@ -127,3 +127,7 @@ export const useItemTypeStore = defineStore('global-item-type', () => {
     itemTypeIdMap: idMap,
   }
 })
+
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useItemTypeStore, import.meta.hot))
+}

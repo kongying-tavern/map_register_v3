@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import type { LogInfo } from '@/utils'
-import { defineStore } from 'pinia'
+import { acceptHMRUpdate, defineStore } from 'pinia'
 import { Logger } from '@/utils'
 import { usePreferenceStore } from '.'
 
@@ -78,3 +78,7 @@ export const useDevStore = defineStore('global-dev', () => {
     initLogger,
   }
 })
+
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useDevStore, import.meta.hot))
+}

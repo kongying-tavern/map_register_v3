@@ -1,3 +1,4 @@
+import { acceptHMRUpdate, defineStore } from 'pinia'
 import {
   useArchiveStore,
   useAreaStore,
@@ -8,7 +9,6 @@ import {
   useTileStore,
   useUserStore,
 } from '@/stores'
-import { defineStore } from 'pinia'
 import {
   useInteractionInfo,
   useMapCursor,
@@ -103,3 +103,7 @@ export const useMapStateStore = defineStore('global-map-state', () => {
 
   }
 })
+
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useMapStateStore, import.meta.hot))
+}

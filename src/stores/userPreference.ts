@@ -1,5 +1,5 @@
 import type { UserPreference } from './types'
-import { defineStore } from 'pinia'
+import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useArchiveStore } from '@/stores'
 
 export const usePreferenceStore = defineStore('global-user-preference', () => {
@@ -41,3 +41,7 @@ export const usePreferenceStore = defineStore('global-user-preference', () => {
     zoomTransitionDuration: model('map.setting.zoomTransitionDuration', () => 66),
   }
 })
+
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(usePreferenceStore, import.meta.hot))
+}

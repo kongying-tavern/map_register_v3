@@ -6,6 +6,7 @@ import { liveQuery } from 'dexie'
 import { defineStore } from 'pinia'
 import Api from '@/api/api'
 import db from '@/database'
+import { HashFlag } from '@/shared'
 import { Zip } from '@/utils'
 import BulkPutWorker from '@/worker/idb.worker?worker'
 import { useAccessStore, useSocketStore, useUserStore } from '.'
@@ -24,7 +25,7 @@ export const useItemStore = defineStore('global-item', () => {
   const idHashMap = computed(() => {
     const result = new Map<number, string>()
     hashGroupMap.value.forEach(({ list }) => {
-      list.forEach(({ id, __hash = '' }) => {
+      list.forEach(({ id, __hash = HashFlag.DEFAULT }) => {
         result.set(id!, __hash)
       })
     })

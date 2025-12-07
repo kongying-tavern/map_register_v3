@@ -1,4 +1,4 @@
-import { defineStore } from 'pinia'
+import { acceptHMRUpdate, defineStore } from 'pinia'
 import { RoleTypeEnum } from '@/shared/roleTypeEnum'
 import { useUserStore } from '.'
 
@@ -93,3 +93,7 @@ export const useAccessStore = defineStore('global-access', () => {
     checkHiddenFlag,
   }
 })
+
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useAccessStore, import.meta.hot))
+}

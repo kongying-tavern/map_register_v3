@@ -1,6 +1,6 @@
 import type { MaybeRef } from 'vue'
 import { useSubscription } from '@vueuse/rxjs'
-import { defineStore } from 'pinia'
+import { acceptHMRUpdate, defineStore } from 'pinia'
 import { filter, map } from 'rxjs'
 import { CONTROL_KEYS, globalKeydown$ } from '@/shared'
 import { ShortcutKeyUtil } from '@/utils'
@@ -46,3 +46,7 @@ export const useShortcutStore = defineStore('shortcut-keys', () => {
     useKeys,
   }
 })
+
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useShortcutStore, import.meta.hot))
+}

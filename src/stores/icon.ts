@@ -3,7 +3,7 @@ import type { ShallowRef } from 'vue'
 import type { HashGroupMeta } from './utils'
 import type { WorkerInput, WorkerOutput } from '@/worker/idb.worker'
 import { liveQuery } from 'dexie'
-import { defineStore } from 'pinia'
+import { acceptHMRUpdate, defineStore } from 'pinia'
 import Api from '@/api/api'
 import db from '@/database'
 import { Zip } from '@/utils'
@@ -219,3 +219,7 @@ export const useIconStore = defineStore('global-icon', () => {
     iconTagMap,
   }
 })
+
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useIconStore, import.meta.hot))
+}

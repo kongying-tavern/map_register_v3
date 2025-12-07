@@ -1,7 +1,7 @@
 import type { MessageHandler } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { camelCase } from 'lodash'
-import { defineStore } from 'pinia'
+import { acceptHMRUpdate, defineStore } from 'pinia'
 import { defer, lastValueFrom, retry } from 'rxjs'
 import Api from '@/api/api'
 import Oauth from '@/api/oauth'
@@ -224,3 +224,7 @@ export const useUserStore = defineStore('global-user', () => {
     init,
   }
 })
+
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useUserStore, import.meta.hot))
+}

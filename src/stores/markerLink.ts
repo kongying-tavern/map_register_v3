@@ -3,7 +3,7 @@ import type { ShallowRef } from 'vue'
 import type { HashGroupMeta } from './utils'
 import type { WorkerInput, WorkerOutput } from '@/worker/idb.worker'
 import { liveQuery } from 'dexie'
-import { defineStore } from 'pinia'
+import { acceptHMRUpdate, defineStore } from 'pinia'
 import Api from '@/api/api'
 import db from '@/database'
 import { useAfterUpdated, useManager } from '@/stores/hooks'
@@ -283,3 +283,7 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
     afterUpdated,
   }
 })
+
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useMarkerLinkStore, import.meta.hot))
+}

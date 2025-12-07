@@ -1,5 +1,5 @@
 import { ElNotification } from 'element-plus'
-import { defineStore } from 'pinia'
+import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useArchiveStore, useUserStore } from '..'
 import { useAppEvent, useMessageList, useSocket } from './hooks'
 
@@ -71,3 +71,7 @@ export const useSocketStore = defineStore('socket', () => {
     close,
   }
 })
+
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useSocketStore, import.meta.hot))
+}

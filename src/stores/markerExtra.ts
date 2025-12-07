@@ -1,5 +1,5 @@
 import { defaultsDeep, pick } from 'lodash'
-import { defineStore } from 'pinia'
+import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useAccessStore, useDadianStore } from '@/stores'
 
 /** 点位额外信息解析 store */
@@ -29,3 +29,7 @@ export const useMarkerExtraStore = defineStore('global-marker-extra', () => {
     mergedAreaExtraConfigs,
   }
 })
+
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useMarkerExtraStore, import.meta.hot))
+}

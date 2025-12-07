@@ -1,5 +1,5 @@
 import { ElMessage } from 'element-plus'
-import { defineStore } from 'pinia'
+import { acceptHMRUpdate, defineStore } from 'pinia'
 import Api from '@/api/config'
 import { validateDadianJSON } from '@/configs'
 import db from '@/database/db'
@@ -137,3 +137,7 @@ export const useDadianStore = defineStore('global-dadian-json', () => {
     fontFamilySet,
   }
 })
+
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useDadianStore, import.meta.hot))
+}
