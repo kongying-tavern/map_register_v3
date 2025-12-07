@@ -1,9 +1,6 @@
 <script lang="ts" setup>
-import type { Extension } from '@tiptap/core'
 import type { EditorProps } from './types'
-import TextLink from '@tiptap/extension-link'
 import TextAlign from '@tiptap/extension-text-align'
-import TextUnderline from '@tiptap/extension-underline'
 import StarterKit from '@tiptap/starter-kit'
 import { EditorContent, useEditor } from '@tiptap/vue-3'
 import { HeaderToolbar } from './components'
@@ -42,17 +39,16 @@ const editor = useEditor({
       code: false,
       codeBlock: false,
       orderedList: false,
-    }) as Extension,
-    TextUnderline,
+      link: {
+        protocols: ['http', 'https', 'ftp', 'sftp', 'ftps', 'mailto'],
+        autolink: false,
+        openOnClick: false,
+        linkOnPaste: false,
+      },
+    }),
     TextAlign,
     TextColor,
     TextSize,
-    TextLink.configure({
-      protocols: ['http', 'https', 'ftp', 'sftp', 'ftps', 'mailto'],
-      autolink: false,
-      openOnClick: false,
-      linkOnPaste: false,
-    }) as Extension,
     Color,
     Size,
   ],
@@ -83,7 +79,9 @@ watch(modelValue, (newContent) => {
     return
   if (editor.value.getHTML() === newContent)
     return
-  editor.value.commands.setContent(newContent, false)
+  editor.value.commands.setContent(newContent, {
+    emitUpdate: false,
+  })
 })
 
 onMounted(() => {

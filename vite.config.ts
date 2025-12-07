@@ -108,6 +108,27 @@ export default defineConfig(async ({ mode }) => {
       proxy,
     },
 
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'vue': ['vue', 'vue-router', 'pinia'],
+            'element-plus': ['element-plus'],
+            'element-plus-icons': ['@element-plus/icons-vue'],
+            'deck': ['deck.gl'],
+            'dexie': ['dexie'],
+            'rxjs': ['rxjs'],
+            'antv-pattern': ['@antv/g-pattern'],
+            'antv-g2': ['@antv/g2'],
+            'antv-g6': ['@antv/g6'],
+            'antv-s2': ['@antv/s2'],
+            'tiptap': ['@tiptap/core', '@tiptap/extension-text-align', '@tiptap/starter-kit', '@tiptap/vue-3'],
+            'vueuse': ['@vueuse/core', '@vueuse/rxjs'],
+          },
+        },
+      },
+    },
+
     resolve: {
       alias: [
         {
