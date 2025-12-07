@@ -15,7 +15,7 @@ export class GenshinMap extends Deck<OrthographicView> {
       minZoom = Number.MIN_SAFE_INTEGER,
       zoom = 0,
       target = [0, 0],
-      // transitionDuration = 0,
+      transitionDuration = 0,
       transitionEasing = t => t,
       transitionInterruption = TRANSITION_EVENTS.BREAK,
       ...restViewState
@@ -24,7 +24,7 @@ export class GenshinMap extends Deck<OrthographicView> {
     const {
       doubleClickZoom = false,
       scrollZoom = {},
-      // inertia = 500,
+      inertia = 500,
       ...controllerRest
     } = controller
 
@@ -37,9 +37,9 @@ export class GenshinMap extends Deck<OrthographicView> {
           ? false
           : {
               speed: scrollZoom.speed ?? 0.002,
-              smooth: false,
+              smooth: true,
             },
-        inertia: false,
+        inertia,
         type: createController(props),
       },
     })
@@ -60,7 +60,7 @@ export class GenshinMap extends Deck<OrthographicView> {
         minZoom,
         zoom,
         target,
-        transitionDuration: 'auto',
+        transitionDuration,
         transitionEasing,
         transitionInterruption,
       },

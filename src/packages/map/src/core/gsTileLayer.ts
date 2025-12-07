@@ -30,6 +30,8 @@ export class GSTileLayer extends TileLayer<TileData | null> {
       tileSize: 256,
       minZoom: -3, // 固定值，对应服务端存储底图的 level 10
       maxZoom: 0, // 固定值，对应服务端存储底图的 level 13
+      maxCacheByteSize: Number.MAX_SAFE_INTEGER,
+      maxCacheSize: Number.MAX_SAFE_INTEGER,
       extent: [ox, h + oy, w + ox, oy],
       getTileData: async ({ index: { x, y, z }, signal }) => {
         try {
