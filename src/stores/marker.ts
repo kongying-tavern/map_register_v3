@@ -1,16 +1,14 @@
 import type { Hash } from 'types/database'
-import type { HashGroupMeta } from './utils'
 import type { WorkerInput, WorkerOutput } from '@/worker/idb.worker'
 import { AddLocation, DeleteLocation, Location } from '@element-plus/icons-vue'
-import { liveQuery } from 'dexie'
-import { defineStore } from 'pinia'
+import { acceptHMRUpdate, defineStore } from 'pinia'
 import Api from '@/api/api'
 import db from '@/database'
+import { HashFlag } from '@/shared'
 import { Zip } from '@/utils'
 import BulkPutWorker from '@/worker/idb.worker?worker'
 import { useAccessStore, useSocketStore, useUserStore } from '.'
 import { useManager } from './hooks'
-import { createHashGroupMap } from './utils'
 
 /** 全量点位的全局数据 */
 export const useMarkerStore = defineStore('global-marker', () => {
@@ -19,39 +17,29 @@ export const useMarkerStore = defineStore('global-marker', () => {
   const userStore = useUserStore()
 
   // ==================== 内部状态 ====================
-  const hashGroupMap = shallowRef(new Map<string, HashGroupMeta<Hash<API.MarkerVo>>>())
+
+  /** 原始点位 id 到点位对象的映射 */
+  const localMarkerMap = shallowRef(new Map<number, Hash<API.MarkerVo>>())
+
+  /** 点位序列 */
+  const markerIdList = ref<number[]>([])
 
   /**
    * 立即更新存在于 hashGroupMap 内的点位
    * @note 只有在点位即将被 idb 的 liveQuery 更新前才能使用此方法
    */
   const unsafeModify = (markers: Hash<API.MarkerVo>[]) => {
-    const updateMarkersMap = markers.reduce((map, marker) => {
-      return map.set(marker.id!, marker)
-    }, new Map<number, Hash<API.MarkerVo>>())
-    hashGroupMap.value.forEach(({ list }) => {
-      list.forEach((marker, index) => {
-        if (!updateMarkersMap.has(marker.id!))
-          return
-        list[index] = updateMarkersMap.get(marker.id!)!
-        updateMarkersMap.delete(marker.id!)
-      })
-    })
-    updateMarkersMap.forEach((marker) => {
-      const hash = marker.__hash ?? ''
-      if (!hashGroupMap.value.has(hash)) {
-        hashGroupMap.value.set(hash, {
-          time: Date.now(),
-          list: [marker],
-        })
-      }
-      else {
-        const group = hashGroupMap.value.get(hash)
-        if (group)
-          group.list.push(marker)
-      }
-    })
-    triggerRef(hashGroupMap)
+    if (!markers.length)
+      return
+    const { length } = markers
+    for (let i = 0; i < length; i++) {
+      const marker = markers[i]
+      const { id } = marker
+      if (!id)
+        continue
+      localMarkerMap.value.set(id, marker)
+    }
+    triggerRef(localMarkerMap)
   }
 
   /**
@@ -60,52 +48,41 @@ export const useMarkerStore = defineStore('global-marker', () => {
    */
   const unsafeDelete = (markerIds: number[]) => {
     const deleteIds = new Set(markerIds)
-    hashGroupMap.value.forEach(({ list }) => {
-      // 从后往前遍历，避免删除时索引错位
-      for (let i = list.length - 1; i >= 0; i--) {
-        if (deleteIds.has(list[i].id!)) {
-          list.splice(i, 1)
-        }
-      }
-    })
-    triggerRef(hashGroupMap)
+    markerIdList.value = markerIdList.value.filter(id => !deleteIds.has(id))
   }
 
   // ==================== 外部状态 ====================
+
+  /** 经过 hiddenFlag 过滤后的点位列表 */
   const list = computed(() => {
     const res: API.MarkerVo[] = []
-    hashGroupMap.value.forEach(({ list: scopeList }) => {
-      for (let i = 0; i < scopeList.length; i++) {
-        const markerInfo = scopeList[i]
-        if (!accessStore.checkHiddenFlag(markerInfo.hiddenFlag))
-          continue
-        res.push(markerInfo)
-      }
-    })
+    const { length } = markerIdList.value
+    for (let i = 0; i < length; i++) {
+      const id = markerIdList.value[i]
+      if (!id)
+        continue
+      const marker = localMarkerMap.value.get(id)
+      if (!marker)
+        continue
+      if (!accessStore.checkHiddenFlag(marker.hiddenFlag))
+        continue
+      res.push(marker)
+    }
     return res
   })
 
   const total = computed(() => list.value.length)
 
-  const idMap = computed(() => {
-    const map = new Map<number, API.MarkerVo>()
-    const { length } = list.value
-    for (let i = 0; i < length; i++) {
-      const marker = list.value[i]
-      map.set(marker.id!, marker)
-    }
-    return map
-  })
-
   // ==================== 数据更新 ====================
 
   const { context, isActive, error: managerError, nextUpdateTime, loading: updateLoading, update } = useManager({
     timeoutPull: {
-      time: 20 * 60 * 1000,
+      time: 60 * 60 * 1000,
       condition: () => userStore.info?.roleId !== undefined,
     },
 
     context: {
+      controller: shallowRef(new AbortController()),
       startTime: ref(Date.now()),
       message: ref(''),
       updateCount: ref(0),
@@ -114,75 +91,125 @@ export const useMarkerStore = defineStore('global-marker', () => {
     init: async ({ message }) => {
       message.value = '初始化上下文'
       const dbList = await db.marker.toArray()
-      hashGroupMap.value = createHashGroupMap(dbList)
-      triggerRef(hashGroupMap)
+      const { length } = dbList
+      const idList: number[] = []
+      for (let i = 0; i < length; i++) {
+        const marker = dbList[i]
+        if (marker.id === undefined)
+          continue
+        localMarkerMap.value.set(marker.id, marker)
+        idList.push(marker.id)
+      }
+      markerIdList.value = idList
+      triggerRef(localMarkerMap)
     },
 
-    diff: async ({ startTime, message, updateCount }) => {
+    diff: async ({ startTime, message, updateCount, controller }) => {
+      controller.value.abort()
+      const ac = new AbortController()
+      controller.value = ac
       startTime.value = Date.now()
 
-      message.value = '获取 hash 列表'
+      message.value = '获取远程 hash 列表'
       const { data: hashList = [] } = await Api.markerDoc.listMarkerBinaryMD5({})
+      if (ac.signal.aborted)
+        return
 
-      /** oldHashSet 的最晚更新时间 */
-      const oldUpdateTime = Array.from(hashGroupMap.value.values()).reduce((max, { time }) => {
-        return Math.max(max, time)
-      }, 0)
+      /** 远程 hash 集合 */
+      const remoteHashSet = new Set(hashList.map(({ md5 = HashFlag.DEFAULT }) => md5))
+      /** 远程 hash 的更新时间 */
+      const remoteUpdateTime = hashList.reduce((max, { time = 0 }) => Math.max(max, time), 0)
+      /** 远程数据集合 */
+      const remoteMarkersMap = new Map<number, Hash<API.MarkerVo>>()
+      /** 本地 hash 集合 */
+      const localHashSet = new Set<string>()
+      /** 本地点位映射 */
+      const localMarkerMapCopy = new Map(localMarkerMap.value)
+      /** 需要确认的点位 id 列表 */
+      const needConfirmMarkerIds: number[] = []
+      /** 需要被更新的点位数据集合 */
+      const needUpdateMarkers: Hash<API.MarkerVo>[] = []
+      /** 需要再次确认是否已经被删除的点位 id 列表 */
+      const needConfirmDeletedMarkerIds: number[] = []
+      /** 需要被删除的点位 id 列表 */
+      const needDeleteMarkerIds: number[] = []
 
-      /** newHashSet 的最晚更新时间 */
-      const newUpdateTime = hashList.reduce((max, { time = 0 }) => {
-        return Math.max(max, time)
-      }, 0)
+      message.value = '计算需要确认的点位 id 列表'
+      for (const [id, { __hash: hash, updateTime = 0 }] of localMarkerMapCopy) {
+        if (!hash)
+          continue
+        localHashSet.add(hash)
+        if (remoteHashSet.has(hash) || (new Date(updateTime).getTime() >= remoteUpdateTime))
+          continue
+        needConfirmMarkerIds.push(id!)
+      }
 
-      // 如果 newHashSet 的最晚更新时间小于 oldHashSet 的最晚更新时间，则表示压缩数据落后于本地，跳过更新
-      if (newUpdateTime <= oldUpdateTime) {
-        return {
-          bulkPutData: [],
-          bulkDeleteKeys: [],
-          clear: false,
+      /** 需要用于获取数据的 hash 集合 */
+      const needGetHashList = [...remoteHashSet.difference(localHashSet)]
+
+      message.value = '请求差异数据集合'
+      await Promise.all(needGetHashList.map(async (hash) => {
+        const buffer = await <Promise<ArrayBuffer>>(<unknown>Api.markerDoc.listPageMarkerByBinary({ md5: hash }, { responseType: 'arraybuffer' }))
+        if (ac.signal.aborted)
+          return
+        const data = await Zip.decompressAs<API.MarkerVo[]>(new Uint8Array(buffer), { name: `marker-${hash}` })
+        if (ac.signal.aborted)
+          return
+        const { length } = data
+        for (let i = 0; i < length; i++) {
+          const marker = data[i]
+          if (!marker.id)
+            continue
+          remoteMarkersMap.set(marker.id!, { ...marker, __hash: hash })
+        }
+      }))
+      if (ac.signal.aborted)
+        return
+
+      message.value = '计算差异更新数据'
+      const { length: needConfirmMarkerIdsLength } = needConfirmMarkerIds
+      for (let i = 0; i < needConfirmMarkerIdsLength; i++) {
+        const id = needConfirmMarkerIds[i]
+        const localMarker = localMarkerMapCopy.get(id)
+        // 1. 本地点位不存在（异常情况，忽略）
+        if (!localMarker)
+          continue
+        // 2. 如果远程点位不存在，表示点位可能为新增或删除点位，需要二次确认
+        const remoteMarker = remoteMarkersMap.get(id)
+        if (!remoteMarker) {
+          needConfirmDeletedMarkerIds.push(id)
+          continue
+        }
+        // 3. 如果远程点位版本落后于本地点位，忽略
+        // 使用小于是因为在通过接口更新时，会先更新本地点位数据，
+        // 但不会更新 hash，需要依赖服务端压缩数据的更新来更新本地 hash
+        if ((remoteMarker.version ?? 0) < (localMarker.version ?? 0))
+          continue
+        // 4. 如果远程点位版本领先于本地点位，将其加入需要更新的点位数据集合
+        needUpdateMarkers.push(remoteMarker)
+      }
+
+      updateCount.value = needUpdateMarkers.length + needDeleteMarkerIds.length
+
+      if (needConfirmDeletedMarkerIds.length > 0) {
+        message.value = '确认删除数据'
+        const { data: confirmedMarkers = [] } = await Api.marker.listMarkerById(needConfirmDeletedMarkerIds)
+        if (ac.signal.aborted)
+          return
+        const confirmedMarkersMap = new Map(confirmedMarkers.map(marker => [marker.id, marker]))
+        const { length: needConfirmDeletedMarkerIdsLength } = needConfirmDeletedMarkerIds
+        for (let i = 0; i < needConfirmDeletedMarkerIdsLength; i++) {
+          const id = needConfirmDeletedMarkerIds[i]
+          const confirmedMarker = confirmedMarkersMap.get(id)
+          if (!confirmedMarker)
+            continue
+          needDeleteMarkerIds.push(id)
         }
       }
 
-      const newHashSet = new Set(hashList.map(({ md5 = '' }) => md5))
-      const oldHashSet = new Set(hashGroupMap.value.keys())
-
-      // 1. 找出所有不存在于旧 hash 里的值，这代表需要进行后续请求以及写入的新数据
-      const needUpdateHashList = [...newHashSet.difference(oldHashSet)]
-
-      // 2. 找出需要被删除的点位 id，必须满足以下条件:
-      //   a. 点位的 hash 不存在于 newHashSet 里
-      //   b. 点位的更新时间小于 newHashSet 的最晚更新时间，这代表在最新的压缩数据里，此点位一定不存在
-      //   c. 点位的 __local 字段不为 true，因为 __local === true 表示是本地新增的点位（通过 WebSocket 事件添加），不应该被删除
-      // 否则无法区分 "新增" 和 "删除" 点位（假如压缩数据尚未更新，则这两者的 hash 必然不存在于 newHashSet 里）
-      const needDeleteKeys: number[] = []
-
-      message.value = '获取更新数据'
-
-      const newData = (await Promise.all(needUpdateHashList.map(async (hash) => {
-        const buffer = await <Promise<ArrayBuffer>>(<unknown>Api.markerDoc.listPageMarkerByBinary({ md5: hash }, { responseType: 'arraybuffer' }))
-        const data = await Zip.decompressAs<API.MarkerVo[]>(new Uint8Array(buffer), { name: `marker-${hash}` })
-        return data.map(newOne => (<Hash<API.MarkerVo>>{ ...newOne, __hash: hash }))
-      }))).flat(1)
-
-      hashGroupMap.value.forEach(({ time, list }, oldHash) => {
-        if (newHashSet.has(oldHash) || time >= newUpdateTime)
-          return
-        for (let i = 0; i < list.length; i++) {
-          const item = list[i]
-          if (new Date(item.updateTime!).getTime() >= newUpdateTime)
-            continue
-          // 如果 __local === true，说明是本地新增的点位，不应该被删除
-          if (item.__local === true)
-            continue
-          needDeleteKeys.push(item.id!)
-        }
-      })
-
-      updateCount.value = newData.length
-
       return {
-        bulkPutData: newData,
-        bulkDeleteKeys: needDeleteKeys,
+        bulkPutData: needUpdateMarkers,
+        bulkDeleteKeys: needDeleteMarkerIds,
         clear: false,
       }
     },
@@ -194,9 +221,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
       const { data: hashList = [] } = await Api.markerDoc.listMarkerBinaryMD5({})
 
       message.value = '获取更新数据'
-      const newData = (await Promise.all(hashList.map(async ({ md5: hash = '' }) => {
-        if (!hash)
-          return []
+      const newData = (await Promise.all(hashList.map(async ({ md5: hash = HashFlag.DEFAULT }) => {
         const buffer = await <Promise<ArrayBuffer>>(<unknown>Api.markerDoc.listPageMarkerByBinary({ md5: hash }, { responseType: 'arraybuffer' }))
         const data = await Zip.decompressAs<API.MarkerVo[]>(new Uint8Array(buffer), { name: `marker-${hash}` })
         return data.map(newOne => (<Hash<API.MarkerVo>>{ ...newOne, __hash: hash }))
@@ -212,6 +237,10 @@ export const useMarkerStore = defineStore('global-marker', () => {
     },
 
     commit: async (options, { message, startTime, updateCount }) => {
+      if (!options) {
+        message.value = '没有需要更新的数据'
+        return
+      }
       message.value = '写入更新数据'
       const { resolve, promise } = Promise.withResolvers<WorkerOutput>()
       const worker = new BulkPutWorker({ name: '点位更新线程' })
@@ -225,11 +254,6 @@ export const useMarkerStore = defineStore('global-marker', () => {
       }
       message.value = `更新 ${updateCount.value} 项, 耗时: ${((Date.now() - startTime.value) / 1000).toFixed(1)}s`
     },
-  })
-
-  liveQuery(() => db.marker.toArray()).subscribe((dbList) => {
-    hashGroupMap.value = createHashGroupMap(dbList)
-    triggerRef(hashGroupMap)
   })
 
   // ==================== 外部响应 ====================
@@ -252,8 +276,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
       return
     await db.marker.put({
       ...markerInfo,
-      __hash: 'update',
-      __local: true,
+      __hash: HashFlag.LOCAL,
     })
   })
 
@@ -272,8 +295,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
       return
     await db.marker.put({
       ...markerInfo,
-      __hash: 'add',
-      __local: true,
+      __hash: HashFlag.LOCAL,
     })
   })
 
@@ -308,8 +330,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
       return
     await db.marker.bulkPut(data.map(info => ({
       ...info,
-      __hash: 'tweak',
-      __local: true,
+      __hash: HashFlag.LOCAL,
     })))
   })
 
@@ -327,6 +348,10 @@ export const useMarkerStore = defineStore('global-marker', () => {
     // 计算状态
     markerList: list,
     total,
-    idMap,
+    idMap: localMarkerMap,
   }
 })
+
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useMarkerStore, import.meta.hot))
+}
