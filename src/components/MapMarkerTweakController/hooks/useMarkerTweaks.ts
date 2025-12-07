@@ -3,6 +3,7 @@ import { ElMessage } from 'element-plus'
 import Api from '@/api/api'
 import db from '@/database/db'
 import { useFetchHook } from '@/hooks'
+import { HashFlag } from '@/shared'
 import { useMarkerStore } from '@/stores'
 
 export interface TweakHookOptions {
@@ -62,8 +63,7 @@ export const useMarkerTweaks = (options: TweakHookOptions) => {
         return
       await db.app.marker.bulkPut(markers.map(marker => ({
         ...marker,
-        __hash: 'tweak',
-        __local: true,
+        __hash: HashFlag.LOCAL,
       })))
     }
     catch {

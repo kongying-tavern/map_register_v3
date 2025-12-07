@@ -5,6 +5,7 @@ import { omit } from 'lodash'
 import Api from '@/api/api'
 import db from '@/database/db'
 import { useFetchHook } from '@/hooks'
+import { HashFlag } from '@/shared'
 import { useMarkerStore, useUserStore } from '@/stores'
 import { usePictureUpload } from './usePictureUpload'
 
@@ -67,15 +68,13 @@ export const useMarkerCreate = (markerData: Ref<API.MarkerVo | null>) => {
         db.app.marker.put({
           ...form,
           id: form.id,
-          __hash: 'add',
-          __local: true,
+          __hash: HashFlag.LOCAL,
         })
         return
       }
       await db.app.marker.put({
         ...marker,
-        __hash: 'add',
-        __local: true,
+        __hash: HashFlag.LOCAL,
       })
     }
     catch {
