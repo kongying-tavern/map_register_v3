@@ -16,8 +16,8 @@ import 'element-plus/theme-chalk/dark/css-vars.css'
   try {
     const app = createApp(App)
     app
-      .use(createPWA())
       .use(createPinia())
+      .use(createPWA())
       .use(createLogger())
       .use(customPaint())
       .use(ElementPlus, {
