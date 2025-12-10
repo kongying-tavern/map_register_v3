@@ -1,11 +1,12 @@
 <script setup lang="ts">
+import { Check, Close, Delete } from '@element-plus/icons-vue'
 import {
   WinDialog,
   WinDialogFooter,
   WinDialogTitleBar,
 } from '@/components'
-import { Check, Close, Delete } from '@element-plus/icons-vue'
-import { useMarkerDelete } from '../hooks'
+import { useFetchHook } from '@/hooks'
+import { useMarkerStore } from '@/stores'
 
 const props = defineProps<{
   title: string
@@ -13,13 +14,21 @@ const props = defineProps<{
 }>()
 
 const emits = defineEmits<{
-  success: [API.MarkerVo]
+  success: []
   close: [boolean]
 }>()
 
-const { loading, deleteMarker, onSuccess } = useMarkerDelete()
+const markerStore = useMarkerStore()
 
-onSuccess(form => emits('success', form))
+const { loading, refresh: deleteMarker, onSuccess } = useFetchHook({
+  onRequest: async (marker: API.MarkerVo) => {
+    await markerStore.deleteMarker(marker.id!)
+  },
+})
+
+onSuccess(() => {
+  emits('success')
+})
 
 const cancel = () => {
   emits('close', false)

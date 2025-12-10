@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import type { MarkerSearchParams } from './hooks'
+import { ref } from 'vue'
 import { PgUnit, useGlobalDialog, usePagination } from '@/hooks'
 import { ManagerModule } from '@/shared'
-import { ref } from 'vue'
 import { MarkerDeleteConfirm, MarkerFilter, MarkerTable } from './components'
 import { useItemList, useSearchMarkerList } from './hooks'
 
