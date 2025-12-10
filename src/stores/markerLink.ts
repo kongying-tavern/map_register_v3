@@ -10,10 +10,12 @@ import { useManager } from '@/stores/hooks'
 import { Zip } from '@/utils'
 import BulkPutWorker from '@/worker/idb.worker?worker'
 import { useSocketStore, useUserStore } from '.'
+import { useMarkerStore } from './marker'
 
 export const useMarkerLinkStore = defineStore('global-marker-link', () => {
   const socketStore = useSocketStore()
   const userStore = useUserStore()
+  const markerStore = useMarkerStore()
 
   // ==================== 内部状态 ====================
 
@@ -97,6 +99,116 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
     map.get(link.groupId!)!.push(link)
     return map
   }, new Map<string, Hash<API.MarkerLinkageVo>[]>()))
+
+  // ==================== 服务器操作 ====================
+
+  /** @server 创建点位关联 */
+  const linkMarker = async (links: API.MarkerLinkageVo[]) => {
+    if (!links.length)
+      throw new Error('提交的关联项为空')
+
+    // 1. 进行关联操作（只取必须的属性）
+    const { data: newLinkageId } = await Api.markerLink.linkMarker(links.map(link => ({
+      fromId: link.fromId,
+      toId: link.toId,
+      linkAction: link.linkAction,
+      path: link.path,
+    })))
+
+    if (!newLinkageId)
+      throw new Error('服务器未返回新关联组 id')
+
+    // 2. 确认关联更新
+    const { data: linkGroups = {} } = await Api.markerLink.getMarkerLinkageList({
+      groupIds: [newLinkageId],
+    })
+
+    const newLinks: Hash<API.MarkerLinkageVo>[] = Object.values(linkGroups).flat(1).map(link => ({
+      ...link,
+      __hash: idHashMap.value.get(link.id!) ?? HashFlag.LOCAL,
+    }))
+
+    // 3. 收集旧关联影响的全部点位 id
+    const oldEffectedMarkerIdSet = links.reduce((result, { fromId = -1, toId = -1 }) => {
+      result.add(fromId)
+      result.add(toId)
+      return result
+    }, new Set<number>())
+    oldEffectedMarkerIdSet.delete(-1) // 优化: 添加默认值然后删除的操作比起在循环里判断是否为数值再添加更快
+    const oldEffectedMarkerIds = Array.from(oldEffectedMarkerIdSet)
+
+    // 4. 收集新关联影响的全部点位 id
+    const newEffectedMarkerIdSet = newLinks.reduce((result, { fromId = -1, toId = -1 }) => {
+      result.add(fromId)
+      result.add(toId)
+      return result
+    }, new Set<number>())
+    newEffectedMarkerIdSet.delete(-1)
+    const newEffectedMarkerIds = Array.from(newEffectedMarkerIdSet)
+
+    // 5. 合并所有受影响的点位 id
+    const allEffectedMarkerIds = Array.from(new Set([...oldEffectedMarkerIds, ...newEffectedMarkerIds]))
+
+    // 6. 获取所有受影响的点位数据并更新 linkageId
+    const updatedMarkers: Hash<API.MarkerVo>[] = []
+    const newEffectedMarkerIdSetForUpdate = new Set(newEffectedMarkerIds)
+    for (const markerId of allEffectedMarkerIds) {
+      const marker = markerStore.idMap.get(markerId)
+      if (!marker)
+        continue
+      const updatedMarker: Hash<API.MarkerVo> = {
+        ...marker,
+        linkageId: newEffectedMarkerIdSetForUpdate.has(markerId) ? newLinkageId : '',
+        __hash: marker.__hash ?? HashFlag.LOCAL,
+      }
+      updatedMarkers.push(updatedMarker)
+    }
+
+    // 7. 更新本地数据
+    // 7.1 更新本地关联表
+    updateLocal(newLinks)
+
+    // 7.2 更新受影响的点位数据
+    if (updatedMarkers.length) {
+      markerStore.updateLocal(updatedMarkers)
+    }
+
+    return newLinkageId
+  }
+
+  /** @server 删除点位关联 */
+  const deleteMarkerLinkage = async (linkIds: number[]) => {
+    if (!linkIds.length)
+      throw new Error('删除的关联 id 列表为空')
+
+    const { data = {} } = await Api.markerLink.deleteMarkerLinkage({ ids: linkIds })
+    const { groups: groupIds = [], markers: markerIds = [] } = data
+
+    // 删除本地关联数据
+    deleteLocal(linkIds)
+
+    // 异步更新相关关联组和点位数据（非关键路径，失败不影响删除操作）
+    Promise.all([
+      (async () => {
+        if (groupIds.length) {
+          const { data = {} } = await Api.markerLink.getMarkerLinkageList({ groupIds })
+          const links = Object.values(data).flat(1)
+          updateLocal(links.map(link => ({ ...link, __hash: HashFlag.LOCAL })))
+        }
+      })(),
+      (async () => {
+        if (markerIds.length) {
+          const { data: markers = [] } = await Api.marker.listMarkerById(markerIds)
+          const markerStore = useMarkerStore()
+          markerStore.updateLocal(markers.map(marker => ({ ...marker, __hash: HashFlag.LOCAL })))
+        }
+      })(),
+    ]).catch(() => {
+      // 静默处理错误，不影响删除操作
+    })
+
+    return data
+  }
 
   // ==================== 数据更新 ====================
 
@@ -364,6 +476,10 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
     update,
     updateLocal,
     deleteLocal,
+
+    // 服务器操作
+    linkMarker,
+    deleteMarkerLinkage,
   }
 })
 
