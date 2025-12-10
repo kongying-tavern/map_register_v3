@@ -237,6 +237,12 @@ export const useMarkerStore = defineStore('global-marker', () => {
         // 2. 如果远程点位不存在，表示点位可能为新增或删除点位，需要二次确认
         const remoteMarker = remoteMarkersMap.get(id)
         if (!remoteMarker) {
+          // 如果本地点位是本地新增的（通过 WS 事件添加），且远程点位不存在，
+          // 可能是因为远程压缩数据是过时的，应该保留本地点位，而不是尝试删除
+          if (localMarker.__hash === HashFlag.LOCAL) {
+            // 保留本地点位，不进行删除确认
+            continue
+          }
           needConfirmDeletedMarkerIds.push(id)
           continue
         }
@@ -261,8 +267,19 @@ export const useMarkerStore = defineStore('global-marker', () => {
         for (let i = 0; i < needConfirmDeletedMarkerIdsLength; i++) {
           const id = needConfirmDeletedMarkerIds[i]
           const confirmedMarker = confirmedMarkersMap.get(id)
-          if (!confirmedMarker)
+          // 如果服务器返回了点位，说明点位还存在，可能是压缩数据过时了
+          // 应该更新点位数据，而不是删除
+          if (confirmedMarker) {
+            // 获取本地点位用于版本比较
+            const localMarker = localMarkerMapCopy.get(id)
+            // 如果服务器点位版本领先于本地点位，更新本地点位
+            if (!localMarker || (confirmedMarker.version ?? 0) > (localMarker.version ?? 0)) {
+              needUpdateMarkers.push({ ...confirmedMarker, __hash: HashFlag.LOCAL })
+            }
+            // 如果服务器点位版本落后或等于本地点位，保留本地点位（不更新也不删除）
             continue
+          }
+          // 如果服务器没返回点位，说明点位已删除，应该删除本地点位
           needDeleteMarkerIds.push(id)
         }
       }
