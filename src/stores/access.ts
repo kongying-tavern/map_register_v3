@@ -1,6 +1,7 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { RoleTypeEnum } from '@/shared/roleTypeEnum'
 import { useUserStore } from '.'
+import { isAccessible } from './utils'
 
 /**
  * 角色对应 hiddenFlag 的可访问性掩码
@@ -75,9 +76,7 @@ export const useAccessStore = defineStore('global-access', () => {
   })
 
   const checkHiddenFlag = (hiddenFlag?: number) => {
-    if (hiddenFlag === undefined)
-      return true
-    return (userHiddenFlagMask.value & (1 << hiddenFlag)) > 0
+    return isAccessible(userHiddenFlagMask.value, hiddenFlag)
   }
 
   /** 获取某功能/资源权限 */
@@ -89,6 +88,7 @@ export const useAccessStore = defineStore('global-access', () => {
 
   return {
     hasNeigui,
+    userHiddenFlagMask,
     get,
     checkHiddenFlag,
   }
