@@ -1,6 +1,4 @@
 import { ElMessage, ElMessageBox } from 'element-plus'
-import Api from '@/api/api'
-import db from '@/database'
 import { useFetchHook } from '@/hooks'
 import { useMarkerStore } from '@/stores'
 
@@ -9,10 +7,7 @@ export const useMarkerDelete = () => {
 
   const { refresh: deleteMarker, loading, onSuccess, onError, ...rest } = useFetchHook({
     onRequest: async (markerId: number) => {
-      await Api.marker.deleteMarker({ markerId })
-      markerStore.unsafeDelete([markerId])
-      await db.marker.delete(markerId)
-      return markerId
+      await markerStore.deleteMarker(markerId)
     },
   })
 
@@ -47,11 +42,10 @@ export const useMarkerDelete = () => {
     ).catch(() => false)
   }
 
-  onSuccess((markerId) => {
+  onSuccess(() => {
     ElMessage.success({
       message: '删除点位成功',
     })
-    markerStore.unsafeDelete([markerId])
   })
 
   onError(err => ElMessage.error({

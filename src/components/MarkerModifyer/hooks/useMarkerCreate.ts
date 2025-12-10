@@ -2,10 +2,7 @@ import type { Ref } from 'vue'
 import type { MarkerForm } from '../components'
 import { ElMessage } from 'element-plus'
 import { omit } from 'lodash'
-import Api from '@/api/api'
-import db from '@/database/db'
 import { useFetchHook } from '@/hooks'
-import { HashFlag } from '@/shared'
 import { useMarkerStore, useUserStore } from '@/stores'
 import { usePictureUpload } from './usePictureUpload'
 
@@ -37,9 +34,7 @@ export const useMarkerCreate = (markerData: Ref<API.MarkerVo | null>) => {
         throw new Error('表单数据为空')
       const form = buildAdminMarkerForm(markerData.value)
       await tryUploadPicture(form)
-      const { data: markerId } = await Api.marker.createMarker(form)
-      markerStore.unsafeModify([JSON.parse(JSON.stringify(form))])
-      return { ...form, id: markerId } as API.MarkerVo
+      await markerStore.createMarker(form)
     },
   })
 
@@ -55,31 +50,10 @@ export const useMarkerCreate = (markerData: Ref<API.MarkerVo | null>) => {
     }
   }
 
-  onSuccess(async (form) => {
+  onSuccess(async () => {
     ElMessage.success({
       message: '新增点位成功',
     })
-    try {
-      if (form.id === undefined)
-        throw new Error('无法确认点位信息，未返回对应的点位 id')
-      // 乐观更新到本地
-      const { data: [marker] = [] } = await Api.marker.listMarkerById([form.id])
-      if (!marker) {
-        db.app.marker.put({
-          ...form,
-          id: form.id,
-          __hash: HashFlag.LOCAL,
-        })
-        return
-      }
-      await db.app.marker.put({
-        ...marker,
-        __hash: HashFlag.LOCAL,
-      })
-    }
-    catch {
-      // no error
-    }
   })
 
   onError(err => ElMessage.error({

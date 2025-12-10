@@ -1,9 +1,6 @@
 import type { TweakControlInfo } from '.'
 import { ElMessage } from 'element-plus'
-import Api from '@/api/api'
-import db from '@/database/db'
 import { useFetchHook } from '@/hooks'
-import { HashFlag } from '@/shared'
 import { useMarkerStore } from '@/stores'
 
 export interface TweakHookOptions {
@@ -48,27 +45,14 @@ export const useMarkerTweaks = (options: TweakHookOptions) => {
 
       if (!tweaks.length)
         return []
-      const { data: markers = [] } = await Api.marker.tweakMarkers(payload)
-      markerStore.unsafeModify(markers)
-      return markers
+      await markerStore.tweakMarkers(payload)
     },
   })
 
-  onSuccess(async (markers = []) => {
-    try {
-      ElMessage.success({
-        message: '批量编辑成功',
-      })
-      if (!markers.length)
-        return
-      await db.app.marker.bulkPut(markers.map(marker => ({
-        ...marker,
-        __hash: HashFlag.LOCAL,
-      })))
-    }
-    catch {
-      // no error
-    }
+  onSuccess(() => {
+    ElMessage.success({
+      message: '批量编辑成功',
+    })
   })
 
   onError((err) => {

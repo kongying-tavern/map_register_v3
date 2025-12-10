@@ -9,6 +9,7 @@ import { Zip } from '@/utils'
 import BulkPutWorker from '@/worker/idb.worker?worker'
 import { useAccessStore, useSocketStore, useUserStore } from '.'
 import { useManager } from './hooks'
+import { isAccessible } from './utils'
 
 /** 全量点位的全局数据 */
 export const useMarkerStore = defineStore('global-marker', () => {
@@ -25,30 +26,89 @@ export const useMarkerStore = defineStore('global-marker', () => {
   const markerIdList = ref<number[]>([])
 
   /**
-   * 立即更新存在于 hashGroupMap 内的点位
-   * @note 只有在点位即将被 idb 的 liveQuery 更新前才能使用此方法
+   * @local 更新本地点位
+   * @param markers 点位数据
+   * @param isDelete 是否为删除模式 (default: `false`)
    */
-  const unsafeModify = (markers: Hash<API.MarkerVo>[]) => {
+  const updateLocal = (markers: Hash<API.MarkerVo>[], isDelete = false) => {
     if (!markers.length)
       return
+    const ids = new Set(markerIdList.value)
+    const markersMap = new Map<number, Hash<API.MarkerVo>>(localMarkerMap.value)
     const { length } = markers
-    for (let i = 0; i < length; i++) {
-      const marker = markers[i]
-      const { id } = marker
-      if (!id)
-        continue
-      localMarkerMap.value.set(id, marker)
+    if (isDelete) {
+      for (let i = 0; i < length; i++) {
+        const marker = markers[i]
+        const { id } = marker
+        if (!id)
+          continue
+        ids.delete(id)
+        markersMap.delete(id)
+      }
     }
-    triggerRef(localMarkerMap)
+    else {
+      for (let i = 0; i < length; i++) {
+        const marker = markers[i]
+        const { id } = marker
+        if (!id)
+          continue
+        ids.add(id)
+        markersMap.set(id, marker)
+      }
+    }
+    markerIdList.value = [...ids]
+    localMarkerMap.value = markersMap
+    return db.marker.bulkPut(toRaw(markers))
   }
 
-  /**
-   * 立即删除存在于 hashGroupMap 内的点位
-   * @note 只有在点位即将被 idb 的 liveQuery 删除前才能使用此方法
-   */
-  const unsafeDelete = (markerIds: number[]) => {
+  /** @local 删除点位 */
+  const deleteLocal = (markerIds: number[]) => {
     const deleteIds = new Set(markerIds)
+    const markersMap = new Map<number, Hash<API.MarkerVo>>(localMarkerMap.value)
+    deleteIds.forEach(id => markersMap.delete(id))
     markerIdList.value = markerIdList.value.filter(id => !deleteIds.has(id))
+    localMarkerMap.value = markersMap
+    return db.marker.bulkDelete(toRaw(markerIds))
+  }
+
+  /** @server 创建点位 */
+  const createMarker = async (markerForm: API.MarkerVo) => {
+    const { data: markerId } = await Api.marker.createMarker(markerForm)
+    if (!markerId)
+      throw new Error('服务器未返回新点位 id')
+    const { data: [marker] = [] } = await Api.marker.listMarkerById([markerId])
+    if (!marker)
+      throw new Error('服务器未返回新点位数据')
+    const hashMarker: Hash<API.MarkerVo> = { ...marker, __hash: HashFlag.LOCAL }
+    updateLocal([hashMarker])
+  }
+
+  /** @server 更新点位 */
+  const updateMarker = async (markerForm: API.MarkerVo) => {
+    if (!markerForm.id)
+      throw new Error('点位 id 为空')
+    const { data: isSuccess, message } = await Api.marker.updateMarker(markerForm)
+    if (!isSuccess)
+      throw new Error(message)
+    const { data: [marker] = [] } = await Api.marker.listMarkerById([markerForm.id])
+    if (!marker)
+      throw new Error('服务器未返回新点位数据')
+    const hashMarker: Hash<API.MarkerVo> = { ...marker, __hash: HashFlag.LOCAL }
+    updateLocal([hashMarker])
+  }
+
+  /** @server 删除点位 */
+  const deleteMarker = async (markerId: number) => {
+    const { data: isSuccess, message } = await Api.marker.deleteMarker({ markerId })
+    if (!isSuccess)
+      throw new Error(message)
+    deleteLocal([markerId])
+  }
+
+  /** @server 批量操作点位 */
+  const tweakMarkers = async (tweaks: API.TweakVo[]) => {
+    const { data = [] } = await Api.marker.tweakMarkers(tweaks)
+    updateLocal(data.map(marker => ({ ...marker, __hash: HashFlag.LOCAL })))
   }
 
   // ==================== 外部状态 ====================
@@ -57,6 +117,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
   const list = computed(() => {
     const res: API.MarkerVo[] = []
     const { length } = markerIdList.value
+    const { userHiddenFlagMask } = accessStore
     for (let i = 0; i < length; i++) {
       const id = markerIdList.value[i]
       if (!id)
@@ -64,7 +125,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
       const marker = localMarkerMap.value.get(id)
       if (!marker)
         continue
-      if (!accessStore.checkHiddenFlag(marker.hiddenFlag))
+      if (!isAccessible(userHiddenFlagMask, marker.hiddenFlag))
         continue
       res.push(marker)
     }
@@ -280,10 +341,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
     })
     if (markerInfo.updaterId === userStore.info?.id)
       return
-    await db.marker.put({
-      ...markerInfo,
-      __hash: HashFlag.LOCAL,
-    })
+    updateLocal([{ ...markerInfo, __hash: HashFlag.LOCAL }])
   })
 
   // 单个点位新增
@@ -299,10 +357,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
     })
     if (markerInfo.updaterId === userStore.info?.id)
       return
-    await db.marker.put({
-      ...markerInfo,
-      __hash: HashFlag.LOCAL,
-    })
+    updateLocal([{ ...markerInfo, __hash: HashFlag.LOCAL }])
   })
 
   // 单个点位删除
@@ -318,7 +373,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
     })
     if (markerInfo.updaterId === userStore.info?.id)
       return
-    await db.marker.delete(markerInfo.id!)
+    deleteLocal([markerInfo.id!])
   })
 
   // 点位批量更新
@@ -334,10 +389,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
     })
     if (updaterId === userStore.info?.id)
       return
-    await db.marker.bulkPut(data.map(info => ({
-      ...info,
-      __hash: HashFlag.LOCAL,
-    })))
+    updateLocal(data.map(info => ({ ...info, __hash: HashFlag.LOCAL })), false)
   })
 
   return {
@@ -348,8 +400,12 @@ export const useMarkerStore = defineStore('global-marker', () => {
     nextUpdateTime,
     updateLoading,
     update,
-    unsafeModify,
-    unsafeDelete,
+    updateLocal,
+
+    createMarker,
+    updateMarker,
+    deleteMarker,
+    tweakMarkers,
 
     // 计算状态
     markerList: list,

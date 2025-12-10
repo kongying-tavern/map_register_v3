@@ -1,8 +1,5 @@
 import { ElMessage } from 'element-plus'
-import Api from '@/api/api'
-import db from '@/database/db'
 import { useFetchHook } from '@/hooks'
-import { HashFlag } from '@/shared'
 import { useMapStateStore, useMarkerStore, useTileStore } from '@/stores'
 
 export const useMarkerPositionEdit = () => {
@@ -55,9 +52,7 @@ export const useMarkerPositionEdit = () => {
         duration: 0,
       })
 
-      const { data: markers = [] } = await Api.marker.tweakMarkers(payload)
-      markerStore.unsafeModify(markers)
-      return markers
+      await markerStore.tweakMarkers(payload)
     },
   })
 
@@ -70,22 +65,11 @@ export const useMarkerPositionEdit = () => {
     ElMessage.closeAll('warning')
   })
 
-  onSuccess(async (markers) => {
-    try {
-      clearState()
-      ElMessage.success({
-        message: '操作成功',
-      })
-      if (!markers.length)
-        return
-      await db.app.marker.bulkPut(markers.map(marker => ({
-        ...marker,
-        __hash: HashFlag.LOCAL,
-      })))
-    }
-    catch {
-      // no error
-    }
+  onSuccess(() => {
+    clearState()
+    ElMessage.success({
+      message: '操作成功',
+    })
   })
 
   onError((err) => {

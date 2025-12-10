@@ -2,10 +2,7 @@ import type { Ref } from 'vue'
 import type { MarkerForm } from '../components'
 import { ElMessage } from 'element-plus'
 import { omit } from 'lodash'
-import Api from '@/api/api'
-import db from '@/database/db'
 import { useFetchHook } from '@/hooks'
-import { HashFlag } from '@/shared'
 import { useMarkerStore, useUserStore } from '@/stores'
 import { usePictureUpload } from './usePictureUpload'
 
@@ -64,14 +61,7 @@ export const useMarkerEdit = (markerData: Ref<API.MarkerVo | null>) => {
         throw new Error('表单数据为空')
       const form = buildAdminMarkerForm(localMarker)
       await tryUploadPicture(form)
-      await Api.marker.updateMarker(form)
-      const { data: [remoteMarker] = [] } = await Api.marker.listMarkerById([form.id!])
-      const rewriteMarker = {
-        ...remoteMarker,
-        __hash: HashFlag.LOCAL,
-      }
-      markerStore.unsafeModify([rewriteMarker])
-      return rewriteMarker
+      await markerStore.updateMarker(form)
     },
   })
 
@@ -89,12 +79,11 @@ export const useMarkerEdit = (markerData: Ref<API.MarkerVo | null>) => {
     }
   }
 
-  onSuccess(async (remoteMarker) => {
+  onSuccess(async () => {
     try {
       ElMessage.success({
         message: '编辑点位成功',
       })
-      await db.app.marker.put(remoteMarker)
     }
     catch {
       // no error
