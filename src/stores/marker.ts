@@ -28,33 +28,20 @@ export const useMarkerStore = defineStore('global-marker', () => {
   /**
    * @local 更新本地点位
    * @param markers 点位数据
-   * @param isDelete 是否为删除模式 (default: `false`)
    */
-  const updateLocal = (markers: Hash<API.MarkerVo>[], isDelete = false) => {
+  const updateLocal = (markers: Hash<API.MarkerVo>[]) => {
     if (!markers.length)
       return
     const ids = new Set(markerIdList.value)
     const markersMap = new Map<number, Hash<API.MarkerVo>>(localMarkerMap.value)
     const { length } = markers
-    if (isDelete) {
-      for (let i = 0; i < length; i++) {
-        const marker = markers[i]
-        const { id } = marker
-        if (!id)
-          continue
-        ids.delete(id)
-        markersMap.delete(id)
-      }
-    }
-    else {
-      for (let i = 0; i < length; i++) {
-        const marker = markers[i]
-        const { id } = marker
-        if (!id)
-          continue
-        ids.add(id)
-        markersMap.set(id, marker)
-      }
+    for (let i = 0; i < length; i++) {
+      const marker = markers[i]
+      const { id } = marker
+      if (!id)
+        continue
+      ids.add(id)
+      markersMap.set(id, marker)
     }
     markerIdList.value = [...ids]
     localMarkerMap.value = markersMap
@@ -406,7 +393,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
     })
     if (updaterId === userStore.info?.id)
       return
-    updateLocal(data.map(info => ({ ...info, __hash: HashFlag.LOCAL })), false)
+    updateLocal(data.map(info => ({ ...info, __hash: HashFlag.LOCAL })))
   })
 
   return {
