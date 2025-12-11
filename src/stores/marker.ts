@@ -123,7 +123,20 @@ export const useMarkerStore = defineStore('global-marker', () => {
 
   // ==================== 数据更新 ====================
 
-  const { context, isActive, error: managerError, nextUpdateTime, loading: updateLoading, update } = useManager({
+  interface DiffData {
+    bulkPutData?: Hash<API.MarkerVo>[]
+    bulkDeleteKeys?: number[]
+    clear?: boolean
+  }
+
+  const {
+    context,
+    isActive,
+    error: managerError,
+    nextUpdateTime,
+    loading: updateLoading,
+    update,
+  } = useManager({
     timeoutPull: {
       time: 60 * 60 * 1000,
       condition: () => userStore.info?.roleId !== undefined,
@@ -138,17 +151,40 @@ export const useMarkerStore = defineStore('global-marker', () => {
 
     init: async () => {
       const dbList = await db.marker.toArray()
-      const { length } = dbList
-      const idList: number[] = []
-      for (let i = 0; i < length; i++) {
-        const marker = dbList[i]
-        if (marker.id === undefined)
-          continue
-        localMarkerMap.value.set(marker.id, marker)
-        idList.push(marker.id)
+      return {
+        bulkPutData: dbList,
+        clear: true,
+      } as DiffData
+    },
+
+    syncState: (data, _, isInit) => {
+      if (data === undefined)
+        return
+      const { bulkPutData = [], bulkDeleteKeys = [], clear } = data
+      const isNew = (isInit || clear)
+      const { length: bulkPutDataLength } = bulkPutData
+      const deleteIds = new Set(bulkDeleteKeys)
+      const newMarkerMap = new Map<number, Hash<API.MarkerVo>>(isNew
+        ? []
+        : localMarkerMap.value,
+      )
+      const newIdList: number[] = isNew
+        ? []
+        : markerIdList.value.filter(id => !deleteIds.has(id))
+      // 居里化函数，不需要在循环内判断 clear
+      const coreProcess = isNew
+        ? (marker: Hash<API.MarkerVo>) => {
+            newMarkerMap.set(marker.id ?? -1, marker)
+            newIdList.push(marker.id ?? -1)
+          }
+        : (marker: Hash<API.MarkerVo>) => {
+            newMarkerMap.set(marker.id ?? -1, marker)
+          }
+      for (let i = 0; i < bulkPutDataLength; i++) {
+        coreProcess(bulkPutData[i])
       }
-      markerIdList.value = idList
-      triggerRef(localMarkerMap)
+      localMarkerMap.value = newMarkerMap
+      markerIdList.value = newIdList
     },
 
     diff: async ({ startTime, message, updateCount, controller }) => {
@@ -274,8 +310,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
       return {
         bulkPutData: needUpdateMarkers,
         bulkDeleteKeys: needDeleteMarkerIds,
-        clear: false,
-      }
+      } as DiffData
     },
 
     full: async ({ startTime, message, updateCount }) => {
@@ -295,23 +330,15 @@ export const useMarkerStore = defineStore('global-marker', () => {
 
       return {
         bulkPutData: newData,
-        bulkDeleteKeys: [],
         clear: true,
-      }
+      } as DiffData
     },
 
     commit: async (options, { message, startTime, updateCount }) => {
-      if (!options) {
+      if (!options || !updateCount.value) {
         message.value = '没有需要更新的数据'
         return
       }
-      const { bulkPutData, bulkDeleteKeys } = options
-      const deletedIds = new Set(bulkDeleteKeys)
-      for (let i = 0; i < bulkPutData.length; i++) {
-        localMarkerMap.value.set(bulkPutData[i].id!, bulkPutData[i])
-      }
-      markerIdList.value = markerIdList.value.filter(id => !deletedIds.has(id))
-      triggerRef(localMarkerMap)
       message.value = '写入更新数据'
       const { resolve, promise } = Promise.withResolvers<WorkerOutput>()
       const worker = new BulkPutWorker({ name: '点位更新线程' })
