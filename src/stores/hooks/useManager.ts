@@ -11,13 +11,20 @@ export interface ManagerOptions<C, T> {
   /** 自定义上下文 */
   context: C
   /** 每次 update 后调用，如果状态未初始化，在 update 前会被调用一次 */
-  init?: (context: C) => Promise<void>
+  init?: (context: C) => Promise<T | void>
   /** 差异更新数据 */
-  diff?: (context: C) => Promise<T>
+  diff?: (context: C) => Promise<T | void>
   /** 全量更新数据 */
-  full: (context: C) => Promise<T>
+  full: (context: C) => Promise<T | void>
   /** 写入数据 */
-  commit: (data: T, context: C) => Promise<void>
+  commit: (data: T | void, context: C) => Promise<void>
+  /**
+   * 用于同步本地状态
+   * @param data 要同步的数据，通常是 diff 或 full 返回的数据
+   * @param context 上下文
+   * @param isInit 是否为 init 阶段（true: 完全替换; false: 增量更新）
+   */
+  syncState?: (data: T | void, context: C, isInit: boolean) => void
 }
 
 export interface ManagerUpdateOptions {
@@ -25,24 +32,37 @@ export interface ManagerUpdateOptions {
 }
 
 export const useManager = <C, T>(options: ManagerOptions<C, T>) => {
-  const { timeoutPull, context, init, diff, full, commit } = options
+  const {
+    timeoutPull,
+    context,
+    init,
+    diff,
+    full,
+    commit,
+    syncState,
+  } = options
 
   const isInit = ref(false)
-
   const error = ref('')
+
+  const initPromise = init?.(context)
+    .then((initData) => {
+      if (initData === undefined || !syncState)
+        return
+      syncState(initData, context, true)
+    })
+    .finally(() => {
+      isInit.value = true
+    })
 
   const { refresh: update, loading, onError, ...rest } = useFetchHook({
     onRequest: async (options: ManagerUpdateOptions = {}) => {
       error.value = ''
-      if (!isInit.value && init) {
-        await init(context).finally(() => {
-          isInit.value = true
-        })
-      }
+      await initPromise
       const { isFull = false } = options
       const data = await (isFull ? full : diff ?? full)(context)
+      syncState?.(data, context, false)
       await commit(data, context)
-      await init?.(context)
     },
   })
 
