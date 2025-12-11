@@ -1,4 +1,5 @@
 import type { Hash } from 'types/database'
+import type { ShallowRef } from 'vue'
 import type { WorkerInput, WorkerOutput } from '@/worker/idb.worker'
 import { AddLocation, DeleteLocation, Location } from '@element-plus/icons-vue'
 import { acceptHMRUpdate, defineStore } from 'pinia'
@@ -123,6 +124,13 @@ export const useMarkerStore = defineStore('global-marker', () => {
 
   // ==================== 数据更新 ====================
 
+  interface DiffContext {
+    controller: ShallowRef<AbortController>
+    startTime: Ref<number>
+    message: Ref<string>
+    updateCount: Ref<number>
+  }
+
   interface DiffData {
     bulkPutData?: Hash<API.MarkerVo>[]
     bulkDeleteKeys?: number[]
@@ -136,7 +144,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
     nextUpdateTime,
     loading: updateLoading,
     update,
-  } = useManager({
+  } = useManager<DiffContext, DiffData | void>({
     timeoutPull: {
       time: 60 * 60 * 1000,
       condition: () => userStore.info?.roleId !== undefined,
@@ -149,8 +157,10 @@ export const useMarkerStore = defineStore('global-marker', () => {
       updateCount: ref(0),
     },
 
-    init: async () => {
+    init: async (context, full) => {
       const dbList = await db.marker.toArray()
+      if (!dbList.length)
+        return full(context)
       return {
         bulkPutData: dbList,
         clear: true,

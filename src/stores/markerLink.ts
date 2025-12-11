@@ -212,31 +212,81 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
 
   // ==================== 数据更新 ====================
 
-  const { context, isActive, error: managerError, nextUpdateTime, loading: updateLoading, update } = useManager({
+  interface DiffContext {
+    controller: ShallowRef<AbortController>
+    startTime: Ref<number>
+    message: Ref<string>
+    updateCount: Ref<number>
+  }
+
+  interface DiffData {
+    bulkPutData?: Hash<API.MarkerLinkageVo>[]
+    bulkDeleteKeys?: number[]
+    clear?: boolean
+  }
+
+  const {
+    context,
+    isActive,
+    error: managerError,
+    nextUpdateTime,
+    loading: updateLoading,
+    update,
+  } = useManager<DiffContext, DiffData | void>({
     timeoutPull: {
       time: 20 * 60 * 1000,
       condition: () => userStore.info?.roleId !== undefined,
     },
 
     context: {
-      controller: shallowRef<AbortController | undefined>(undefined),
+      controller: shallowRef(new AbortController()),
       updateCount: ref(0),
       startTime: ref(Date.now()),
       message: ref(''),
     },
 
-    init: async () => {
+    init: async (context, full) => {
       const dbList = await db.markerLink.toArray()
-      const { length } = dbList
-      const idList: number[] = []
-      for (let i = 0; i < length; i++) {
-        const link = dbList[i]
-        if (link.id === undefined)
-          continue
-        localLinkMap.value.set(link.id, link)
-        idList.push(link.id)
+      if (!dbList.length)
+        return full(context)
+      return {
+        bulkPutData: dbList,
+        clear: true,
+      } as DiffData
+    },
+
+    syncState: (data, _, isInit) => {
+      if (data === undefined)
+        return
+      const { bulkPutData = [], bulkDeleteKeys = [], clear } = data
+      const isNew = (isInit || clear)
+      const { length: bulkPutDataLength } = bulkPutData
+      const deleteIds = new Set(bulkDeleteKeys)
+      const newLinkMap = new Map<number, Hash<API.MarkerLinkageVo>>(isNew
+        ? []
+        : localLinkMap.value,
+      )
+      const newIdList: number[] = isNew
+        ? []
+        : linkIdList.value.filter(id => !deleteIds.has(id))
+      // 居里化函数，不需要在循环内判断 clear
+      const coreProcess = isNew
+        ? (link: Hash<API.MarkerLinkageVo>) => {
+            if (link.id !== undefined) {
+              newLinkMap.set(link.id, link)
+              newIdList.push(link.id)
+            }
+          }
+        : (link: Hash<API.MarkerLinkageVo>) => {
+            if (link.id !== undefined) {
+              newLinkMap.set(link.id, link)
+            }
+          }
+      for (let i = 0; i < bulkPutDataLength; i++) {
+        coreProcess(bulkPutData[i])
       }
-      linkIdList.value = idList
+      localLinkMap.value = newLinkMap
+      linkIdList.value = newIdList
       triggerRef(localLinkMap)
     },
 
@@ -428,18 +478,10 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
     },
 
     commit: async (options, { message, startTime, updateCount }) => {
-      if (!options) {
+      if (!options || !updateCount.value) {
         message.value = '没有需要更新的数据'
         return
       }
-      const { bulkPutData, bulkDeleteKeys } = options
-      const deletedIds = new Set(bulkDeleteKeys)
-      for (let i = 0; i < bulkPutData.length; i++) {
-        localLinkMap.value.set(bulkPutData[i].id!, bulkPutData[i])
-      }
-      linkIdList.value = linkIdList.value.filter(id => !deletedIds.has(id))
-      triggerRef(localLinkMap)
-
       message.value = '写入更新数据'
       const { resolve, promise } = Promise.withResolvers<WorkerOutput>()
       const worker = new BulkPutWorker({ name: '点位关联更新线程' })
