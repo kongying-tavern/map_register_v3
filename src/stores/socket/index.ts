@@ -1,3 +1,4 @@
+import type { NotificationHandle } from 'element-plus'
 import { ElNotification } from 'element-plus'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useArchiveStore, useUserStore } from '..'
@@ -12,10 +13,17 @@ export const useSocketStore = defineStore('socket', () => {
     return new Set(archiveStore.currentArchive.body.Preference['socket.setting.noticeEvents'])
   })
 
+  /** 正在通知的事件 */
+  const isNoticing = ref(new Map<API.WSEventType, NotificationHandle>())
+
   const notice = (key: API.WSEventType, ...options: Parameters<typeof ElNotification>) => {
+    // 检查用户设置是否允许通知
     if (!noticeEvents.value.has(key))
       return
-    ElNotification(...options)
+    // 清除同类通知
+    isNoticing.value.get(key)?.close()
+    // 本次通知
+    isNoticing.value.set(key, ElNotification(...options))
   }
 
   const {
