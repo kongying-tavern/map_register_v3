@@ -249,28 +249,14 @@ const { isOpen: isManulOpen, info: manualInfo, toggle: toggleManual } = useAppWi
     </SiderMenuItem>
 
     <template #footer>
-      <SiderMenuItem
-        v-if="accessStore.get('NORMAL_COMPONENT')"
-        label="用户手册"
-        @click="toggleManual"
-      >
-        <template #icon="{ color }">
-          <div class="w-full h-full">
-            <el-icon :color="isManulOpen ? '#68B11E' : color" :size="38">
-              <ElIcons.Reading />
-            </el-icon>
-          </div>
+      <SiderMenuItem :label="userStore.info ? '用户中心' : '登录'" style="--icon-padding: 2px" @click="handleAvatarClick">
+        <template #icon>
+          <AppUserAvatar />
         </template>
       </SiderMenuItem>
 
       <SiderMenuItem v-if="accessStore.get('MANAGER_COMPONENT')" name="features" label="系统管理" :icon="ElIcons.Grid">
         <FeatureGrid :features="featuresWithRole" />
-      </SiderMenuItem>
-
-      <SiderMenuItem :label="userStore.info ? '用户中心' : '登录'" style="--icon-padding: 2px" @click="handleAvatarClick">
-        <template #icon>
-          <AppUserAvatar />
-        </template>
       </SiderMenuItem>
 
       <SiderMenuItem label="公告" :icon="IconNotice" @click="noticeStore.show">
@@ -289,6 +275,20 @@ const { isOpen: isManulOpen, info: manualInfo, toggle: toggleManual } = useAppWi
             "
           >
             {{ noticeStore.newCount }}
+          </div>
+        </template>
+      </SiderMenuItem>
+
+      <SiderMenuItem
+        v-if="accessStore.get('NORMAL_COMPONENT')"
+        label="用户手册"
+        @click="toggleManual"
+      >
+        <template #icon="{ color }">
+          <div class="w-full h-full">
+            <el-icon :color="isManulOpen ? '#68B11E' : color" :size="38">
+              <ElIcons.Reading />
+            </el-icon>
           </div>
         </template>
       </SiderMenuItem>
