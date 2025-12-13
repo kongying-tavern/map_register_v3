@@ -10,7 +10,7 @@ export interface ManagerOptions<C, T> {
   }
   /** 自定义上下文 */
   context: C
-  /** 每次 update 后调用，如果状态未初始化，在 update 前会被调用一次 */
+  /** 初始化上下文 */
   init?: (context: C, full: (context: C) => Promise<T | void>) => Promise<T | void>
   /** 差异更新数据 */
   diff?: (context: C) => Promise<T | void>
