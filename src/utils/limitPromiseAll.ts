@@ -1,10 +1,14 @@
+import { filter, from, lastValueFrom, mergeMap, toArray } from 'rxjs'
+
 export interface LimitPromiseAllOptions<T> {
+  /** 最大并发数 */
   maxRequests?: number
+  /** 初始结果，用于初始化并发池 */
   initResult?: T[]
 }
 
 /**
- * 限制 promise 并发数，使用 Promise.all 进行处理
+ * 限制 promise 并发数，使用 RxJS 操作符进行处理
  *
  * 注意！返回为 null 的项会被过滤
  */
@@ -16,20 +20,13 @@ export const limitPromiseAll = async <D, T>(
     initResult = [],
   }: LimitPromiseAllOptions<T> = {},
 ) => {
-  let requestQueue: Promise<T | null>[] = []
+  const results = await lastValueFrom(
+    from(data).pipe(
+      mergeMap((item, index) => from(toPromise(item, index)), maxRequests),
+      filter((value): value is T => value !== null),
+      toArray(),
+    ),
+  )
 
-  for (let i = 0; i < data.length; i++) {
-    const item = data[i]
-    requestQueue.push(toPromise(item, i))
-    if (requestQueue.length >= maxRequests) {
-      initResult = initResult.concat((await Promise.all(requestQueue)).filter(Boolean) as T[])
-      requestQueue = []
-    }
-  }
-
-  // 清理剩余队列任务
-  if (requestQueue.length > 0)
-    initResult = initResult.concat((await Promise.all(requestQueue)).filter(Boolean) as T[])
-
-  return initResult
+  return initResult.concat(results)
 }
