@@ -53,7 +53,12 @@ globalThis.addEventListener('activate', (ev) => {
 // ====================    on fetch    ====================
 
 /** 匹配缓存库 */
-const matchCache = (pathname: string, destination: string): { name: string, typeValidate?: RegExp } | null => {
+const matchCache = (
+  urlObject: URL,
+  destination: string,
+): { name: string, typeValidate?: RegExp } | null => {
+  const { host, pathname } = urlObject
+
   // 1. 地图切片
   const tilesCode = pathname.match(/tiles_([a-zA-Z0-9]+)\//)?.[1]
   if (tilesCode)
@@ -68,7 +73,7 @@ const matchCache = (pathname: string, destination: string): { name: string, type
     return { name: 'fonts', typeValidate: /^(application\/font)|(font\/)/ }
 
   // 4. 图标
-  if (pathname.includes('/icons/'))
+  if (host.startsWith('oss.') || pathname.includes('/icons/'))
     return { name: 'icons', typeValidate: /^image\// }
 
   // 5. 瓦片
@@ -80,13 +85,14 @@ const matchCache = (pathname: string, destination: string): { name: string, type
 
 globalThis.addEventListener('fetch', (ev) => {
   const { url, mode, destination: rawDestination } = ev.request.clone()
-  const { protocol, hostname, pathname } = new URL(url)
+  const urlObject = new URL(url)
+  const { protocol, host, pathname } = urlObject
 
   logger.info(`fetch ${url}`)
 
   // 由元素发起的请求会获取此值，但 fetch 发起的请求就没有了，需要通过技术手段确定
   const destination = rawDestination || (() => {
-    const extname = (url.match(/(\.[a-z0-9]+)$/i)?.[1] ?? '.unknown').replace('.', '').toLowerCase()
+    const extname = (pathname.match(/(\.[a-z0-9]+)$/i)?.[1] ?? '.unknown').replace('.', '').toLowerCase()
     if (IMAGE_TYPES.has(extname))
       return 'image'
     return ''
@@ -94,14 +100,14 @@ globalThis.addEventListener('fetch', (ev) => {
 
   if ([
     !protocol.startsWith('http'),
-    hostname === 'localhost',
-    hostname === '127.0.0.1',
+    host === 'localhost',
+    host === '127.0.0.1',
     !AVAILABLE_DESTINATION.has(destination),
   ].some(Boolean)) {
     return
   }
 
-  const storageMeta = matchCache(pathname, destination)
+  const storageMeta = matchCache(urlObject, destination)
   if (!storageMeta)
     return
 
