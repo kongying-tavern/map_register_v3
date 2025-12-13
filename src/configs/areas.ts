@@ -416,7 +416,10 @@ export const AREA_ADDITIONAL_CONFIG_MAP: Record<string, AreaAdditionalConfig> = 
 }
 
 /** 使用静态配置中的图标 */
-export const fallbackToStaticIcon = ({ code }: API.AreaVo) => {
+export const fallbackToStaticIcon = (area?: API.AreaVo) => {
+  if (!area)
+    return ''
+  const { code } = area
   const { 1: areaTag } = code!.split(':')
   const fallbackIcon = AREA_ADDITIONAL_CONFIG_MAP[code!]?.icon ?? AREA_ADDITIONAL_CONFIG_MAP[`C:${areaTag}`]?.icon
   return fallbackIcon
