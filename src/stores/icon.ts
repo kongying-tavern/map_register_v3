@@ -2,7 +2,6 @@ import type { Hash } from 'types/database'
 import type { ShallowRef } from 'vue'
 import type { HashGroupMeta } from './utils'
 import type { WorkerInput, WorkerOutput } from '@/worker/idb.worker'
-import { liveQuery } from 'dexie'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import Api from '@/api/api'
 import db from '@/database'
@@ -45,6 +44,22 @@ export const useIconStore = defineStore('global-icon', () => {
     icon as API.IconVo,
   ])) as Record<string, API.IconVo>)
 
+  const {
+    texture: iconTexture,
+    textureUrl: iconTextureUrl,
+    positionList: iconPositionList,
+    coordMap: iconCoordMap,
+    refresh: refreshIconSprite,
+  } = useIconTextureRender()
+
+  const {
+    markerSpriteUrl,
+    markerSpriteMapping,
+  } = useMarkerTextureRender({
+    positionList: iconPositionList,
+    iconTexture,
+  })
+
   // ==================== 数据更新 ====================
 
   const { context, isActive, error: managerError, nextUpdateTime, loading: updateLoading, update } = useManager({
@@ -54,22 +69,29 @@ export const useIconStore = defineStore('global-icon', () => {
     },
 
     context: {
-      updateCount: ref(0),
+      controller: shallowRef(new AbortController()),
       startTime: ref(Date.now()),
       message: ref(''),
+      updateCount: ref(0),
     },
 
     init: async () => {
       const dbList = await db.icon.toArray()
       hashGroupMap.value = createHashGroupMap(dbList)
       triggerRef(hashGroupMap)
+      refreshIconSprite(dbList)
     },
 
-    diff: async ({ updateCount, startTime, message }) => {
+    diff: async ({ startTime, message, updateCount, controller }) => {
+      controller.value.abort()
+      const ac = new AbortController()
+      controller.value = ac
       startTime.value = Date.now()
 
       message.value = '获取签名列表'
       const { data: digestData = {} } = await Api.iconDoc.listAllIconBinaryMd5()
+      if (ac.signal.aborted)
+        return
       const { md5: digest = '', time: newUpdateTime = 0 } = digestData
       const hashList = [digest]
 
@@ -97,9 +119,15 @@ export const useIconStore = defineStore('global-icon', () => {
 
       const newData = (await Promise.all(needUpdateHashList.map(async (hash) => {
         const buffer = await <Promise<ArrayBuffer>>(<unknown>Api.iconDoc.listAllIconBinary({ responseType: 'arraybuffer' }))
+        if (ac.signal.aborted)
+          return []
         const data = await Zip.decompressAs<API.IconVo[]>(new Uint8Array(buffer), { name: `icon-${hash}` })
+        if (ac.signal.aborted)
+          return []
         return data.map(newOne => (<Hash<API.IconVo>>{ ...newOne, __hash: hash }))
       }))).flat(1)
+      if (ac.signal.aborted)
+        return
 
       hashGroupMap.value.forEach(({ time, list }, oldHash) => {
         if (newHashSet.has(oldHash) || time >= newUpdateTime)
@@ -121,7 +149,7 @@ export const useIconStore = defineStore('global-icon', () => {
       }
     },
 
-    full: async ({ updateCount, startTime, message }) => {
+    full: async ({ startTime, message, updateCount }) => {
       startTime.value = Date.now()
 
       message.value = '获取签名列表'
@@ -149,7 +177,78 @@ export const useIconStore = defineStore('global-icon', () => {
       }
     },
 
+    syncState: (options) => {
+      if (!options)
+        return
+      const { bulkPutData, bulkDeleteKeys, clear } = options
+      const deletedIds = new Set(bulkDeleteKeys)
+
+      // 更新本地状态
+      if (clear) {
+        hashGroupMap.value = createHashGroupMap(bulkPutData)
+      }
+      else {
+        const newHashGroupMap = new Map(hashGroupMap.value)
+
+        // 添加新数据
+        for (let i = 0; i < bulkPutData.length; i++) {
+          const icon = bulkPutData[i]
+          const hash = icon.__hash || ''
+          if (!hash)
+            continue
+
+          if (!newHashGroupMap.has(hash)) {
+            const time = new Date(icon.updateTime || 0).getTime()
+            newHashGroupMap.set(hash, { time, list: [icon] })
+          }
+          else {
+            const group = newHashGroupMap.get(hash)!
+            const time = new Date(icon.updateTime || 0).getTime()
+            if (time > group.time)
+              group.time = time
+
+            // 检查是否已存在相同 id 的图标，如果存在则替换，否则添加
+            const existingIndex = group.list.findIndex(item => item.id === icon.id)
+            if (existingIndex >= 0) {
+              group.list[existingIndex] = icon
+            }
+            else {
+              group.list.push(icon)
+            }
+          }
+        }
+
+        // 删除数据
+        if (deletedIds.size > 0) {
+          newHashGroupMap.forEach((group, hash) => {
+            group.list = group.list.filter(icon => !deletedIds.has(icon.id!))
+            if (group.list.length === 0) {
+              newHashGroupMap.delete(hash)
+            }
+            else {
+              // 更新组的最大时间
+              group.time = Math.max(...group.list.map(icon => new Date(icon.updateTime || 0).getTime()))
+            }
+          })
+        }
+
+        hashGroupMap.value = newHashGroupMap
+      }
+      triggerRef(hashGroupMap)
+
+      // 刷新图标精灵图
+      const allIcons: API.IconVo[] = []
+      hashGroupMap.value.forEach(({ list }) => {
+        allIcons.push(...list)
+      })
+      refreshIconSprite(allIcons)
+    },
+
     commit: async (options, { message, startTime, updateCount }) => {
+      if (!options || !updateCount.value) {
+        message.value = '没有需要更新的数据'
+        return
+      }
       message.value = '写入更新数据'
       const { resolve, promise } = Promise.withResolvers<WorkerOutput>()
       const worker = new BulkPutWorker({ name: '图标更新线程' })
@@ -163,28 +262,6 @@ export const useIconStore = defineStore('global-icon', () => {
       }
       message.value = `更新 ${updateCount.value} 项, 耗时: ${((Date.now() - startTime.value) / 1000).toFixed(1)}s`
     },
-  })
-
-  const {
-    texture: iconTexture,
-    textureUrl: iconTextureUrl,
-    positionList: iconPositionList,
-    coordMap: iconCoordMap,
-    refresh: refreshIconSprite,
-  } = useIconTextureRender()
-
-  const {
-    markerSpriteUrl,
-    markerSpriteMapping,
-  } = useMarkerTextureRender({
-    positionList: iconPositionList,
-    iconTexture,
-  })
-
-  liveQuery(() => db.icon.toArray()).subscribe((dbList) => {
-    hashGroupMap.value = createHashGroupMap(dbList)
-    triggerRef(hashGroupMap)
-    refreshIconSprite(dbList)
   })
 
   // ==================== 外部响应 ====================
