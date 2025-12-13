@@ -7,6 +7,8 @@ import { limitPromiseAll } from '@/utils/limitPromiseAll'
 
 declare const globalThis: DedicatedWorkerGlobalScope
 
+const CACHE_VERSION = 1
+
 export interface WorkerInput {
   /** 需要被渲染的图标列表 */
   iconList: {
@@ -49,7 +51,7 @@ const calculateGrid = (length: number) => {
 
 /** 将图片加载为 `ImageBitmap` */
 const loadImage = async (src: string) => {
-  return fetch(src, { mode: 'cors' })
+  return fetch(src, { mode: 'cors', method: 'GET' })
     .then(res => res.blob())
     .then(blob => createImageBitmap(blob))
 }
@@ -60,8 +62,10 @@ const render = async (params: WorkerInput, logger: Logger): Promise<WorkerSucces
     iconList,
     size = 64,
     gap = 2,
-    maxRequests = 1000,
+    maxRequests = 10,
   } = params
+
+  logger.info('渲染图标列表', { iconList })
 
   if (!Number.isInteger(size) || size < 0)
     throw new Error('图标尺寸必须为大于 0 的整数。此外，出于渲染效果的考虑，不建议尺寸小于 32。')
@@ -82,7 +86,7 @@ const render = async (params: WorkerInput, logger: Logger): Promise<WorkerSucces
   const cache = await (async () => {
     try {
       const cacheIconSprite = await db.cache.iconSprite.get(digest)
-      if (!cacheIconSprite)
+      if (!cacheIconSprite || cacheIconSprite.version !== CACHE_VERSION)
         throw new Error('没有可用的图标预渲染纹理缓存')
       return cacheIconSprite
     }
@@ -175,6 +179,7 @@ const render = async (params: WorkerInput, logger: Logger): Promise<WorkerSucces
   logger.info('绘制结果', { byteLength: texture.byteLength })
 
   await db.cache.iconSprite.put({
+    version: CACHE_VERSION,
     digest,
     positionList,
     texture,

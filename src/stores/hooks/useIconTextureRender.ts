@@ -35,7 +35,17 @@ export const useIconTextureRender = () => {
   /** 预渲染标签精灵图 */
   const refresh = async (list: API.IconVo[]) => {
     const renderResult = await renderTagSprite({
-      iconList: list.map(icon => ({ id: icon.id!, src: icon.url! })),
+      // oss 限制最大并发 50，这里给个保守值
+      maxRequests: 40,
+      // 绕过 cdn 以避免 cdn 缓存导致的问题
+      iconList: list.map((icon) => {
+        const url = new URL(icon.url!)
+        url.searchParams.set('with_origin', '1')
+        return {
+          id: icon.id!,
+          src: url.toString(),
+        }
+      }),
     })
     texture.value = new Blob([renderResult.texture], { type: 'image/png' })
     positionList.value = renderResult.positionList

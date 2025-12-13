@@ -9,6 +9,8 @@ type CovertMapToSchemas<T> = {
 declare namespace DBType {
   /** 图标的精灵图信息缓存 */
   interface IconSprite {
+    /** 缓存版本 */
+    version?: number
     /** 纹理文件 */
     texture: ArrayBuffer
     /** 文件签名 */
