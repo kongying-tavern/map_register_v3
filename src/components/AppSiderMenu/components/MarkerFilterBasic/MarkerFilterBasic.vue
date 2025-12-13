@@ -155,10 +155,12 @@ const { itemTotalMap, itemCountMap } = useItemCount({
           <template #icon="{ row }">
             <AppIconTagRenderer
               :src="iconStore.iconTextureUrl"
-              :mapping="iconStore.iconCoordMap.get(row.iconId ?? areaIdMap.get(row.parentId ?? -1)?.iconId ?? -1)"
+              :data-icon-id="row.iconId"
+              :data-parent-icon-id="areaIdMap.get(row.parentId ?? -1)?.iconId"
+              :mapping="iconStore.iconCoordMap.get(row.iconId!) ?? iconStore.iconCoordMap.get(areaIdMap.get(row.parentId ?? -1)?.iconId!)"
               class="w-full aspect-square"
             >
-              <img :src="fallbackToStaticIcon(row)">
+              <img :src="fallbackToStaticIcon(row) || fallbackToStaticIcon(areaIdMap.get(row.parentId ?? -1))">
             </AppIconTagRenderer>
           </template>
         </CheckboxGroup>
