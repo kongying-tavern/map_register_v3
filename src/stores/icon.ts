@@ -62,7 +62,14 @@ export const useIconStore = defineStore('global-icon', () => {
 
   // ==================== 数据更新 ====================
 
-  const { context, isActive, error: managerError, nextUpdateTime, loading: updateLoading, update } = useManager({
+  const {
+    context,
+    isActive,
+    error: managerError,
+    nextUpdateTime,
+    loading: updateLoading,
+    update,
+  } = useManager({
     timeoutPull: {
       time: 20 * 60 * 1000,
       condition: () => userStore.info?.roleId !== undefined,
@@ -77,9 +84,11 @@ export const useIconStore = defineStore('global-icon', () => {
 
     init: async () => {
       const dbList = await db.icon.toArray()
-      hashGroupMap.value = createHashGroupMap(dbList)
-      triggerRef(hashGroupMap)
-      refreshIconSprite(dbList)
+      return {
+        bulkPutData: dbList,
+        bulkDeleteKeys: [],
+        clear: true,
+      }
     },
 
     diff: async ({ startTime, message, updateCount, controller }) => {
@@ -101,13 +110,8 @@ export const useIconStore = defineStore('global-icon', () => {
           oldUpdateTime = time
       })
 
-      if (oldUpdateTime >= newUpdateTime) {
-        return {
-          bulkPutData: [],
-          bulkDeleteKeys: [],
-          clear: false,
-        }
-      }
+      if (oldUpdateTime >= newUpdateTime)
+        return
 
       const newHashSet = new Set(hashList)
       const oldHashSet = new Set(hashGroupMap.value.keys())
