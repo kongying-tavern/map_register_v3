@@ -22,21 +22,33 @@ export const useRemoteMarker = (markerId: MaybeRefOrGetter<number | undefined> |
 
   isRef(markerId) && watch(markerId, () => refresh())
 
-  const off1 = socketStore.socketEvent.on('MarkerUpdated', (remoteMarkerId) => {
-    if (remoteMarkerId !== toValue(markerId))
+  const off1 = socketStore.appEvent.on('MarkerUpdated', (remoteMarker) => {
+    if (remoteMarker.id !== toValue(markerId))
       return
-    refresh()
+    data.value = remoteMarker
   })
 
-  const off2 = socketStore.socketEvent.on('MarkerDeleted', (remoteMarkerId) => {
-    if (remoteMarkerId !== toValue(markerId))
+  const off2 = socketStore.appEvent.on('MarkerDeleted', (remoteMarker) => {
+    if (remoteMarker.id !== toValue(markerId))
       return
-    refresh()
+    data.value = {}
+  })
+
+  const off3 = socketStore.appEvent.on('MarkerTweaked', (remoteMarkers) => {
+    const { length } = remoteMarkers
+    for (let i = 0; i < length; i++) {
+      const remoteMarker = remoteMarkers[i]
+      if (remoteMarker.id !== toValue(markerId))
+        continue
+      data.value = remoteMarker
+      break
+    }
   })
 
   onBeforeUnmount(() => {
     off1()
     off2()
+    off3()
   })
 
   return {

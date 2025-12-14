@@ -46,7 +46,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
     }
     markerIdList.value = [...ids]
     localMarkerMap.value = markersMap
-    return db.marker.bulkPut(toRaw(markers))
+    db.marker.bulkPut(toRaw(markers))
   }
 
   /** @local 删除点位 */
@@ -56,7 +56,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
     deleteIds.forEach(id => markersMap.delete(id))
     markerIdList.value = markerIdList.value.filter(id => !deleteIds.has(id))
     localMarkerMap.value = markersMap
-    return db.marker.bulkDelete(toRaw(markerIds))
+    db.marker.bulkDelete(toRaw(markerIds))
   }
 
   /** @server 创建点位 */
@@ -380,8 +380,6 @@ export const useMarkerStore = defineStore('global-marker', () => {
       icon: Location,
       customClass: 'text-[var(--el-color-primary)]',
     })
-    if (markerInfo.updaterId === userStore.info?.id)
-      return
     updateLocal([{ ...markerInfo, __hash: HashFlag.LOCAL }])
   })
 
@@ -396,8 +394,6 @@ export const useMarkerStore = defineStore('global-marker', () => {
       icon: AddLocation,
       customClass: 'text-[var(--el-color-success)]',
     })
-    if (markerInfo.updaterId === userStore.info?.id)
-      return
     updateLocal([{ ...markerInfo, __hash: HashFlag.LOCAL }])
   })
 
@@ -412,8 +408,6 @@ export const useMarkerStore = defineStore('global-marker', () => {
       icon: DeleteLocation,
       customClass: 'text-[var(--el-color-danger)]',
     })
-    if (markerInfo.updaterId === userStore.info?.id)
-      return
     deleteLocal([markerInfo.id!])
   })
 
@@ -428,8 +422,6 @@ export const useMarkerStore = defineStore('global-marker', () => {
       icon: Location,
       customClass: 'text-[var(--el-color-success)]',
     })
-    if (updaterId === userStore.info?.id)
-      return
     updateLocal(data.map(info => ({ ...info, __hash: HashFlag.LOCAL })))
   })
 

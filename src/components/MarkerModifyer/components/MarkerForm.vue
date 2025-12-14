@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import type { ElFormType } from '@/shared'
 import type { InternalItemData } from './AddonItem/types'
+import type { ElFormType } from '@/shared'
 import { WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 import { HiddenFlagEnum, specialMask } from '@/shared'
 import { useAccessStore, useAreaStore, useItemStore, useMarkerExtraStore } from '@/stores'
@@ -15,8 +15,11 @@ import AddonRefreshtimeEditor from './AddonRefreshtimeEditor.vue'
 import AddonVideo from './AddonVideo.vue'
 
 const props = defineProps<{
+  /** 双向绑定点位表单数据 */
   modelValue: API.MarkerVo
+  /** 加载状态 */
   loading?: boolean
+  /** 标题 */
   title?: string
 }>()
 
@@ -72,6 +75,7 @@ const areaCode = ref((() => {
   return areaStore.areaIdMap.get(item.areaId!)?.code ?? ''
 })())
 
+/** @表单联动 当前可以被设置的 extra 配置 */
 const availableExtraConfig = computed(() => {
   const codes = [...itemsGroup.value.entries()].map(([area]) => area.code!)
   if (!codes.length)
@@ -164,7 +168,15 @@ const themeColor = computed(() => {
 })
 
 defineExpose({
-  validate: async () => await formRef.value?.validate().catch(() => false),
+  validate: async () => {
+    try {
+      await formRef.value?.validate()
+      return true
+    }
+    catch {
+      throw new Error('表单校验失败')
+    }
+  },
 })
 </script>
 

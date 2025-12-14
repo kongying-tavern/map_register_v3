@@ -7,12 +7,12 @@ import { useMarkerStore, useUserStore } from '@/stores'
 import { usePictureUpload } from './usePictureUpload'
 
 /** 编辑点位，已自动处理 methodType 字段 */
-export const useMarkerEdit = (markerData: Ref<API.MarkerVo | null>) => {
+export const useMarkerEdit = (
+  markerData: Ref<API.MarkerVo | null>,
+  editorRef: Ref<InstanceType<typeof MarkerForm> | null>,
+) => {
   const userStore = useUserStore()
   const markerStore = useMarkerStore()
-
-  /** 编辑器实例 */
-  const editorRef = ref<InstanceType<typeof MarkerForm> | null>(null)
 
   /**
    * 基于 url 参数传递来判断 picture 是否已经更改
@@ -54,45 +54,29 @@ export const useMarkerEdit = (markerData: Ref<API.MarkerVo | null>) => {
 
   const { tryUploadPicture } = usePictureUpload()
 
-  const { refresh: submit, onSuccess, onError, ...rest } = useFetchHook({
+  const { refresh: editMarker, onSuccess, onError, ...rest } = useFetchHook({
     onRequest: async () => {
       const localMarker = markerData.value
       if (!localMarker)
         throw new Error('表单数据为空')
+      await editorRef.value?.validate()
       const form = buildAdminMarkerForm(localMarker)
       await tryUploadPicture(form)
       await markerStore.updateMarker(form)
     },
   })
 
-  const editMarker = async () => {
-    try {
-      if (!markerData.value)
-        throw new Error('所需的点位数据为空')
-      const isValid = await editorRef.value?.validate()
-      if (!isValid)
-        return
-      await submit()
-    }
-    catch {
-      // validate, no error
-    }
-  }
-
   onSuccess(async () => {
-    try {
-      ElMessage.success({
-        message: '编辑点位成功',
-      })
-    }
-    catch {
-      // no error
-    }
+    ElMessage.success({
+      message: '编辑点位成功',
+    })
   })
 
-  onError(err => ElMessage.error({
-    message: `编辑点位失败，原因为：${err.message}`,
-  }))
+  onError((error) => {
+    ElMessage.error({
+      message: `编辑点位失败，原因为：${error.message}`,
+    })
+  })
 
-  return { editorRef, editMarker, onSuccess, onError, ...rest }
+  return { editMarker, onSuccess, onError, ...rest }
 }

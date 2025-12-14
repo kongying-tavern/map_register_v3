@@ -57,6 +57,8 @@ export const useManager = <C, T>(options: ManagerOptions<C, T>) => {
 
   const { refresh: update, loading, onError, ...rest } = useFetchHook({
     onRequest: async (options: ManagerUpdateOptions = {}) => {
+      if (!isInit.value)
+        return
       error.value = ''
       await initPromise
       const { isFull = false } = options
