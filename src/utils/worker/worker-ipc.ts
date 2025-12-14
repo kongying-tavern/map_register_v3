@@ -1,14 +1,13 @@
 import type {
   EventMap,
-  RequestMessage,
   ResponseMessage,
 } from './types'
-import { isRequest, isServiceWorker, isSharedWorker } from './utils'
+import { isRequest } from './utils'
 
-declare const globalThis: DedicatedWorkerGlobalScope | SharedWorkerGlobalScope | ServiceWorkerGlobalScope
 type Handler<A extends unknown[] = unknown[], T = void> = (...args: A) => MaybePromise<T>
 type MaybePromise<T> = Promise<T> | T
 interface PortLike {
+  addEventListener: MessagePort['addEventListener']
   postMessage: MessagePort['postMessage']
 }
 
@@ -17,7 +16,7 @@ export class WorkerIPC<
   WorkerEvents extends EventMap = EventMap,
 > {
   #handlers: Map<keyof MainEvents, Handler> = new Map()
-  #messageSender: (request: RequestMessage<WorkerEvents[keyof WorkerEvents]['args']>) => void
+  #port: PortLike
 
   #createMessageListener = (port: PortLike) => {
     return async (ev: MessageEvent<unknown>) => {
@@ -47,26 +46,9 @@ export class WorkerIPC<
     }
   }
 
-  constructor(messageSender: (request: RequestMessage<WorkerEvents[keyof WorkerEvents]['args']>) => void) {
-    this.#messageSender = messageSender
-    if (!(globalThis instanceof WorkerGlobalScope)) {
-      throw new TypeError('WorkerIPC can only be used in a Worker Scope')
-    }
-
-    if (isSharedWorker(globalThis)) {
-      globalThis.addEventListener('connect', (ev) => {
-        const port = ev.ports[0]
-        port.addEventListener('message', this.#createMessageListener(port))
-        port.start()
-      })
-      return
-    }
-
-    // ServiceWorker 不支持事件监听
-    if (isServiceWorker(globalThis))
-      return
-
-    globalThis.addEventListener('message', this.#createMessageListener(globalThis))
+  constructor(port: PortLike) {
+    this.#port = port
+    this.#port.addEventListener('message', this.#createMessageListener(this.#port))
   }
 
   /**
@@ -95,7 +77,7 @@ export class WorkerIPC<
     channel: C,
     ...args: WorkerEvents[C]['args']
   ): void => {
-    this.#messageSender({
+    this.#port.postMessage({
       id: crypto.randomUUID(),
       type: 'request',
       channel: channel as string,

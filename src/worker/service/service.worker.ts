@@ -4,9 +4,14 @@ import { ServiceWorkerLogger } from '@/worker/service/utils/service-worker-logge
 
 declare const globalThis: ServiceWorkerGlobalScope
 
-const ipc = new WorkerIPC<never, AppServiceWorker.EventMap>(async (request) => {
-  const clients = await globalThis.clients.matchAll({ includeUncontrolled: true })
-  clients.forEach(client => client.postMessage(request))
+const ipc = new WorkerIPC<never, AppServiceWorker.EventMap>({
+  addEventListener: (...args: Parameters<MessagePort['addEventListener']>) => {
+    globalThis.addEventListener(...args)
+  },
+  postMessage: async (request) => {
+    const clients = await globalThis.clients.matchAll({ includeUncontrolled: true })
+    clients.forEach(client => client.postMessage(request))
+  },
 })
 
 const logger = new ServiceWorkerLogger(ipc)

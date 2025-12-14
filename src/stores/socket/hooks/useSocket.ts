@@ -1,11 +1,8 @@
-import { useUserStore } from '@/stores'
 import { EventBus } from '@/utils'
 import { PageIPC } from '@/utils/worker'
 import SocketWorkerURL from '@/worker/webSocket/socket.worker?worker&url'
 
 export const useSocket = () => {
-  const userStore = useUserStore()
-
   const context = ref<AppSocket.MainContext>({
     delay: 0,
     id: '',
@@ -49,8 +46,6 @@ export const useSocket = () => {
 
   // 处理心跳 ping，响应 pong
   ipc.on('ping', () => {
-    if (!context.value)
-      return
     ipc.invoke('pong', context.value.id)
   })
 
@@ -58,14 +53,12 @@ export const useSocket = () => {
     await ipc.invoke('close')
   }
 
-  const open = async () => {
-    if (userStore.info?.id === undefined)
-      return
+  const open = async (userId: string) => {
     const url = new URL(import.meta.env.VITE_WS_BASE)
     await ipc.invoke('open', url.origin, {
       path: url.pathname,
       query: {
-        userId: `${userStore.info?.id}`,
+        userId,
       },
     })
   }

@@ -2,6 +2,11 @@ declare namespace AppSocket {
   /** 主线程可以发送的事件 */
   // eslint-disable-next-line ts/consistent-type-definitions
   type MainEventMap = {
+    /** 初始化 */
+    init: {
+      args: [pageId: string]
+      return: void
+    }
     /** 开启 socket 连接 */
     open: {
       args: [url: string, options: {
@@ -48,7 +53,7 @@ declare namespace AppSocket {
     }
     /** 心跳 ping */
     ping: {
-      args: []
+      args: [pageId: string]
       return: void
     }
   } & {

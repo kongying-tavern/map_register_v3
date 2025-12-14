@@ -1,4 +1,5 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
+import { useSocketStore } from './socket'
 
 interface BroadcastMeta {
   /** 页面 id */
@@ -13,23 +14,25 @@ interface BroadcastChannelPayload {
 }
 
 export const useBroadcastStore = defineStore('broadcast-channel', () => {
+  const socketStore = useSocketStore()
+
   /** 当前页面信息 */
-  const meta: BroadcastMeta = {
-    id: crypto.randomUUID().split('-')[0].toUpperCase(),
+  const meta = ref<BroadcastMeta>({
+    id: `temp-${Date.now()}`,
     time: Date.now(),
-  }
+  })
 
   /** 多页面状态 */
   const state = ref({
     clients: new Map<string, BroadcastMeta>([
-      [meta.id, meta],
+      [meta.value.id, meta.value],
     ]),
   })
 
   const clients = computed(() => [...state.value.clients.values()].sort(({ time: ta }, { time: tb }) => ta - tb))
 
   /** 是否为主控页面 */
-  const isMaster = computed(() => clients.value.findIndex(client => client.id === meta.id) === 0)
+  const isMaster = computed(() => clients.value.findIndex(client => client.id === meta.value.id) === 0)
 
   /** 状态同步频道 */
   const bc = new BroadcastChannel('state-sync')
@@ -46,7 +49,7 @@ export const useBroadcastStore = defineStore('broadcast-channel', () => {
     register: (data) => {
       const clientMeta = data as BroadcastMeta
       state.value.clients.set(clientMeta.id, clientMeta as BroadcastMeta)
-      bc.postMessage({ type: 'displaySelf', param: meta })
+      bc.postMessage({ type: 'displaySelf', param: toRaw(meta.value) })
     },
     /** 有其他页面关闭 */
     unregister: (data) => {
@@ -60,13 +63,19 @@ export const useBroadcastStore = defineStore('broadcast-channel', () => {
     actionMap[type]?.(param)
   })
 
-  const init = () => {
-    bc.postMessage({ type: 'register', param: meta })
+  socketStore.ipc.on('init', (pageId) => {
+    if (!meta.value.id.startsWith('temp-'))
+      return
+    meta.value.id = pageId.toUpperCase()
+    bc.postMessage({ type: 'register', param: toRaw(meta.value) })
+  })
 
-    window.addEventListener('beforeunload', () => {
-      bc.postMessage({ type: 'unregister', param: meta })
-    })
+  const init = () => {
   }
+
+  window.addEventListener('beforeunload', () => {
+    bc.postMessage({ type: 'unregister', param: toRaw(meta.value) })
+  })
 
   return {
     init,

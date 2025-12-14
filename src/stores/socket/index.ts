@@ -57,15 +57,11 @@ export const useSocketStore = defineStore('socket', () => {
   const { event: appEvent } = useAppEvent(ipc)
   const { messageList, clearMessageList } = useMessageList(appEvent)
 
-  watch(() => userStore.info?.id, (newUserId, oldUserId) => {
-    if (newUserId === undefined) {
-      close()
-      return
-    }
-    if (newUserId === oldUserId)
-      return
-    open()
-  }, { immediate: true })
+  watch(() => userStore.info?.id, (userId) => {
+    if (userId === undefined)
+      return close()
+    open(`${userId}`)
+  })
 
   return {
     context,
@@ -75,8 +71,6 @@ export const useSocketStore = defineStore('socket', () => {
     messageList,
     clearMessageList,
     notice,
-    connect: open,
-    close,
   }
 })
 
