@@ -38,11 +38,6 @@ export class GSMarkerLayer extends CompositeLayer<GSMarkerLayerProps> {
     return propsOrDataChanged || viewportChanged
   }
 
-  getIcon = (info: GSMarkerInfo) => {
-    const iconId = (info.extra as API.MarkerExtra | undefined)?.iconOverride?.id ?? info.render.mainIconId
-    return `${iconId}`
-  }
-
   renderLayers = (): LayersList => {
     const { iconAtlas } = this.props
     if (!iconAtlas)
@@ -80,6 +75,18 @@ export class GSMarkerLayer extends CompositeLayer<GSMarkerLayerProps> {
       return markerLevelMask + markerStateMask
     }
 
+    const fallbackIconId = Object.keys(iconMapping)[0]
+
+    const getIcon = typeof iconMapping === 'object'
+      ? (info: GSMarkerInfo) => {
+          const iconId = (info.extra as API.MarkerExtra | undefined)?.iconOverride?.id ?? info.render.mainIconId
+          return iconMapping[iconId] ? `${iconId}` : fallbackIconId
+        }
+      : (info: GSMarkerInfo) => {
+          const iconId = (info.extra as API.MarkerExtra | undefined)?.iconOverride?.id ?? info.render.mainIconId
+          return `${iconId}`
+        }
+
     const getPosition = (info: GSMarkerInfo) => {
       return rewritePositions?.get(info.id!) ?? info.render.position
     }
@@ -96,7 +103,7 @@ export class GSMarkerLayer extends CompositeLayer<GSMarkerLayerProps> {
         statusCount: ATTACH_TOTAL,
         iconAtlas,
         iconMapping,
-        getIcon: this.getIcon,
+        getIcon,
         getIconFlag,
         getPosition,
         getSize: 40,
@@ -117,7 +124,7 @@ export class GSMarkerLayer extends CompositeLayer<GSMarkerLayerProps> {
         statusCount: ATTACH_TOTAL,
         iconAtlas,
         iconMapping,
-        getIcon: this.getIcon,
+        getIcon,
         getIconFlag,
         getPosition,
         getSize: 40,
