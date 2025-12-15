@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import * as ElIcons from '@element-plus/icons-vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import Api from '@/api/api'
 import { AppVirtualTable } from '@/components'
 import { useFetchHook } from '@/hooks'
-import { useAccessStore, useDadianStore, useDevStore, usePreferenceStore } from '@/stores'
-import * as ElIcons from '@element-plus/icons-vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { useAccessStore, useDadianStore, useDevStore, useIconStore, usePreferenceStore } from '@/stores'
 import { SettingBar, SettingGroup, SettingPanel } from '../components'
 
 const accessStore = useAccessStore()
@@ -92,6 +92,25 @@ const showDadianJson = () => {
   // eslint-disable-next-line no-console
   console.log('[DadianJSON]', dadianStore.raw)
 }
+
+const iconStore = useIconStore()
+const downloadIconSprite = () => {
+  if (!iconStore.iconTextureUrl)
+    return
+  const a = document.createElement('a')
+  a.href = iconStore.iconTextureUrl
+  a.download = 'icon-sprite.png'
+  a.click()
+  a.remove()
+}
+
+const printIconSpriteMapping = () => {
+  // eslint-disable-next-line no-console
+  console.log('[mapping]', {
+    marker: iconStore.markerSpriteMapping,
+    icon: iconStore.iconCoordMap,
+  })
+}
 </script>
 
 <template>
@@ -163,6 +182,28 @@ const showDadianJson = () => {
             @click="confirmRefreshApp"
           >
             刷新应用
+          </el-button>
+        </template>
+      </SettingBar>
+
+      <SettingBar label="打印纹理坐标映射">
+        <template #setting>
+          <el-button
+            class="shrink-0"
+            @click="printIconSpriteMapping"
+          >
+            打印
+          </el-button>
+        </template>
+      </SettingBar>
+
+      <SettingBar label="下载图标精灵图">
+        <template #setting>
+          <el-button
+            class="shrink-0"
+            @click="downloadIconSprite"
+          >
+            下载
           </el-button>
         </template>
       </SettingBar>
