@@ -1,6 +1,5 @@
 import type { Hash } from 'types/database'
 import type { ShallowRef } from 'vue'
-import type { HashGroupMeta } from './utils'
 import type { WorkerInput, WorkerOutput } from '@/worker/idb.worker'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import Api from '@/api/api'
@@ -9,7 +8,6 @@ import { Zip } from '@/utils'
 import BulkPutWorker from '@/worker/idb.worker?worker'
 import { useSocketStore, useUserStore } from '.'
 import { useIconTextureRender, useManager, useMarkerTextureRender } from './hooks'
-import { createHashGroupMap } from './utils'
 
 /** 本地图标数据 */
 export const useIconStore = defineStore('global-icon', () => {
@@ -17,32 +15,29 @@ export const useIconStore = defineStore('global-icon', () => {
   const userStore = useUserStore()
 
   // ==================== 内部状态 ====================
-  const hashGroupMap = shallowRef(new Map<string, HashGroupMeta<Hash<API.IconVo>>>())
+  /** 原始图标 id 到图标对象的映射（与 markerStore 对齐） */
+  const localIconMap = shallowRef(new Map<number, Hash<API.IconVo>>())
+
+  /** 图标 id 序列（与 markerStore 对齐） */
+  const iconIdList = ref<number[]>([])
 
   // ==================== 外部状态 ====================
   const list = computed(() => {
     const result: API.IconVo[] = []
-    hashGroupMap.value.forEach(({ list: scopeList }) => {
-      scopeList.forEach((icon) => {
-        result.push(icon)
-      })
-    })
+    const { length } = iconIdList.value
+    for (let i = 0; i < length; i++) {
+      const id = iconIdList.value[i]
+      if (!id)
+        continue
+      const icon = localIconMap.value.get(id)
+      if (!icon)
+        continue
+      result.push(icon)
+    }
     return result
   })
 
   const total = computed(() => list.value.length)
-
-  /** `icon.id` 到 `icon` 的索引表 */
-  const idMap = computed(() => list.value.reduce((seed, icon) => {
-    seed.set(icon.id!, icon)
-    return seed
-  }, new Map<number, API.IconVo>()))
-
-  /** @deprecated 使用 `tagNameMap` 代替 */
-  const iconTagMap = computed(() => Object.fromEntries(list.value.map(icon => [
-    icon.tag as string,
-    icon as API.IconVo,
-  ])) as Record<string, API.IconVo>)
 
   const {
     texture: iconTexture,
@@ -102,54 +97,36 @@ export const useIconStore = defineStore('global-icon', () => {
       if (ac.signal.aborted)
         return
       const { md5: digest = '', time: newUpdateTime = 0 } = digestData
-      const hashList = [digest]
+      if (!digest)
+        return
 
+      // 计算本地数据的最新更新时间
       let oldUpdateTime = 0
-      hashGroupMap.value.forEach(({ time }) => {
+      localIconMap.value.forEach((icon) => {
+        const time = new Date(icon.updateTime || 0).getTime()
         if (time > oldUpdateTime)
           oldUpdateTime = time
       })
 
-      if (oldUpdateTime >= newUpdateTime)
+      // 远程数据没有比本地更新，跳过
+      if (newUpdateTime <= oldUpdateTime)
         return
-
-      const newHashSet = new Set(hashList)
-      const oldHashSet = new Set(hashGroupMap.value.keys())
-
-      const needUpdateHashList = [...newHashSet.difference(oldHashSet)]
-      const needDeleteKeys: number[] = []
 
       message.value = '获取更新数据'
 
-      const newData = (await Promise.all(needUpdateHashList.map(async (hash) => {
-        const buffer = await <Promise<ArrayBuffer>>(<unknown>Api.iconDoc.listAllIconBinary({ responseType: 'arraybuffer' }))
-        if (ac.signal.aborted)
-          return []
-        const data = await Zip.decompressAs<API.IconVo[]>(new Uint8Array(buffer), { name: `icon-${hash}` })
-        if (ac.signal.aborted)
-          return []
-        return data.map(newOne => (<Hash<API.IconVo>>{ ...newOne, __hash: hash }))
-      }))).flat(1)
+      const buffer = await <Promise<ArrayBuffer>>(<unknown>Api.iconDoc.listAllIconBinary({ responseType: 'arraybuffer' }))
       if (ac.signal.aborted)
         return
-
-      hashGroupMap.value.forEach(({ time, list }, oldHash) => {
-        if (newHashSet.has(oldHash) || time >= newUpdateTime)
-          return
-        for (let i = 0; i < list.length; i++) {
-          const item = list[i]
-          if (new Date(item.updateTime!).getTime() >= newUpdateTime)
-            continue
-          needDeleteKeys.push(item.id!)
-        }
-      })
+      const data = await Zip.decompressAs<API.IconVo[]>(new Uint8Array(buffer), { name: `icon-${digest}` })
+      const newData = data.map(newOne => (<Hash<API.IconVo>>{ ...newOne, __hash: digest }))
 
       updateCount.value = newData.length
 
+      // 为简化逻辑，图标采用全量覆盖更新（与地区等全量资源一致）
       return {
         bulkPutData: newData,
-        bulkDeleteKeys: needDeleteKeys,
-        clear: false,
+        bulkDeleteKeys: [],
+        clear: true,
       }
     },
 
@@ -185,66 +162,53 @@ export const useIconStore = defineStore('global-icon', () => {
       if (!options)
         return
       const { bulkPutData, bulkDeleteKeys, clear } = options
-      const deletedIds = new Set(bulkDeleteKeys)
+      const deletedIds = new Set<number>(bulkDeleteKeys as number[])
 
-      // 更新本地状态
-      if (clear) {
-        hashGroupMap.value = createHashGroupMap(bulkPutData)
-      }
-      else {
-        const newHashGroupMap = new Map(hashGroupMap.value)
+      // 更新本地状态（与 markerStore 对齐的 Map + idList 结构）
+      const isNew = clear
 
-        // 添加新数据
-        for (let i = 0; i < bulkPutData.length; i++) {
-          const icon = bulkPutData[i]
-          const hash = icon.__hash || ''
-          if (!hash)
-            continue
+      const newIconMap = isNew
+        ? new Map<number, Hash<API.IconVo>>()
+        : new Map<number, Hash<API.IconVo>>(localIconMap.value)
 
-          if (!newHashGroupMap.has(hash)) {
-            const time = new Date(icon.updateTime || 0).getTime()
-            newHashGroupMap.set(hash, { time, list: [icon] })
-          }
-          else {
-            const group = newHashGroupMap.get(hash)!
-            const time = new Date(icon.updateTime || 0).getTime()
-            if (time > group.time)
-              group.time = time
-
-            // 检查是否已存在相同 id 的图标，如果存在则替换，否则添加
-            const existingIndex = group.list.findIndex(item => item.id === icon.id)
-            if (existingIndex >= 0) {
-              group.list[existingIndex] = icon
-            }
-            else {
-              group.list.push(icon)
-            }
+      const newIdList: number[] = []
+      if (!isNew) {
+        const { length: originLength } = iconIdList.value
+        for (let i = 0; i < originLength; i++) {
+          const id = iconIdList.value[i]
+          if (!deletedIds.has(id)) {
+            newIdList.push(id)
           }
         }
-
-        // 删除数据
-        if (deletedIds.size > 0) {
-          newHashGroupMap.forEach((group, hash) => {
-            group.list = group.list.filter(icon => !deletedIds.has(icon.id!))
-            if (group.list.length === 0) {
-              newHashGroupMap.delete(hash)
-            }
-            else {
-              // 更新组的最大时间
-              group.time = Math.max(...group.list.map(icon => new Date(icon.updateTime || 0).getTime()))
-            }
-          })
-        }
-
-        hashGroupMap.value = newHashGroupMap
       }
-      triggerRef(hashGroupMap)
 
-      // 刷新图标精灵图
+      const { length } = bulkPutData
+      for (let i = 0; i < length; i++) {
+        const icon = bulkPutData[i]
+        const id = icon.id
+        if (!id)
+          continue
+        newIconMap.set(id, icon)
+        if (isNew) {
+          newIdList.push(id)
+        }
+        else if (!deletedIds.has(id) && !iconIdList.value.includes(id)) {
+          newIdList.push(id)
+        }
+      }
+
+      localIconMap.value = newIconMap
+      iconIdList.value = newIdList
+
+      // 刷新图标精灵图，保持与 iconList 顺序一致
       const allIcons: API.IconVo[] = []
-      hashGroupMap.value.forEach(({ list }) => {
-        allIcons.push(...list)
-      })
+      const { length: iconLength } = iconIdList.value
+      for (let i = 0; i < iconLength; i++) {
+        const id = iconIdList.value[i]
+        const icon = localIconMap.value.get(id)
+        if (icon)
+          allIcons.push(icon)
+      }
       refreshIconSprite(allIcons)
     },
 
@@ -295,8 +259,8 @@ export const useIconStore = defineStore('global-icon', () => {
     // 计算状态
     iconList: list as Readonly<ShallowRef<API.IconVo[]>>,
     total,
-    idMap,
-    iconTagMap,
+    /** 与 markerStore 一致，直接暴露本地 id -> icon 映射表 */
+    idMap: localIconMap as unknown as Readonly<ShallowRef<Map<number, API.IconVo>>>,
   }
 })
 
