@@ -1,11 +1,13 @@
 import { ElMessage } from 'element-plus'
-import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
+import { useIconStore } from '@/stores/icon'
 
 export const useIconDelete = () => {
+  const iconStore = useIconStore()
+
   const { refresh: deleteIcon, loading, onSuccess, onError, ...rest } = useFetchHook({
     onRequest: async (icon: API.IconVo) => {
-      await Api.icon.deleteIcon({ iconId: icon.id! })
+      await iconStore.deleteIcon(icon.id!)
       return icon
     },
   })

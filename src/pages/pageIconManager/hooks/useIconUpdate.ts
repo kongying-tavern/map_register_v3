@@ -2,12 +2,13 @@ import dayjs from 'dayjs'
 import { ElMessage } from 'element-plus'
 import Api from '@/api/api'
 import Resource from '@/api/resource'
-import db from '@/database/db'
 import { useFetchHook } from '@/hooks'
+import { useIconStore } from '@/stores/icon'
 import { getDigest, toBlob } from '@/utils'
 
 export const useIconUpdate = (form: Ref<API.IconVo>, options: IconUpdateOptions = {}) => {
   const { type = 'png' } = options
+  const iconStore = useIconStore()
 
   /** 待处理画布 */
   const stash = shallowRef<Record<string, HTMLCanvasElement | null>>({})
@@ -45,23 +46,9 @@ export const useIconUpdate = (form: Ref<API.IconVo>, options: IconUpdateOptions 
         version,
       } = form.value
 
-      /** 更新本地图标信息 */
-      const updateLocalInfo = async () => {
-        try {
-          const { data = {}, error, message = '' } = await Api.icon.getIcon({ iconId: form.value.id! })
-          if (error)
-            throw new Error(message)
-          await db.app.icon.put(data)
-        }
-        catch (err) {
-          const message = err instanceof Error ? err.message : JSON.stringify(err)
-          ElMessage.warning(`更新图标成功，但在确认图标信息时出现了错误: ${message}。稍后将会同步此图标的信息。`)
-        }
-      }
-
       // 如果没有传递 icon，跳过图片上传
       if (!isChanged.value || !toValue(iconEditable)) {
-        await Api.icon.updateIcon({
+        await iconStore.updateIcon({
           description,
           id,
           tag,
@@ -70,7 +57,6 @@ export const useIconUpdate = (form: Ref<API.IconVo>, options: IconUpdateOptions 
           urlVariants,
           version,
         })
-        await updateLocalInfo()
         return
       }
 
@@ -111,7 +97,7 @@ export const useIconUpdate = (form: Ref<API.IconVo>, options: IconUpdateOptions 
         return acc
       }, {} as Record<string, string>)
 
-      await Api.icon.updateIcon({
+      await iconStore.updateIcon({
         description,
         id,
         tag,
@@ -123,7 +109,6 @@ export const useIconUpdate = (form: Ref<API.IconVo>, options: IconUpdateOptions 
           ...newUrlVariants,
         },
       })
-      await updateLocalInfo()
     },
   })
 
