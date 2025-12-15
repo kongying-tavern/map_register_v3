@@ -4,6 +4,7 @@ import { useLoggerWorker } from '@/hooks/useWorkerLogger'
 import { getDigest } from '@/utils/getDigest'
 import { getObjectFitSize } from '@/utils/getObjectFitSize'
 import { limitPromiseAll } from '@/utils/limitPromiseAll'
+import UnknownIcon from '/icons/unknown.webp?inline'
 
 declare const globalThis: DedicatedWorkerGlobalScope
 
@@ -21,7 +22,7 @@ export interface WorkerInput {
   size?: number
   /** 图标之间的空隙，用于避免精度误差导致的重叠 */
   gap?: number
-  /** 并发请求限制 @default 1000 */
+  /** 并发请求限制 @default 10 */
   maxRequests?: number
 }
 
@@ -36,8 +37,6 @@ export type WorkerSuccessOutput = DBType.IconSprite
 export type WorkerOutput =
   | string // 错误原因
   | WorkerSuccessOutput
-
-const FALLBACK_IMAGE_URL = '/icons/unknown.webp'
 
 /** 计算最佳布局 */
 const calculateGrid = (length: number) => {
@@ -102,7 +101,7 @@ const render = async (params: WorkerInput, logger: Logger): Promise<WorkerSucces
   }
 
   // 备用图片
-  const fallbackImage = await loadImage(FALLBACK_IMAGE_URL)
+  const fallbackImage = await loadImage(UnknownIcon)
 
   // ==================== url 去重 ====================
 
