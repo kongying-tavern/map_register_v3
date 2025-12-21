@@ -7,7 +7,6 @@ import { simpleGit } from 'simple-git'
 import AutoImport from 'unplugin-auto-import/vite'
 import { defineConfig, loadEnv } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
-import { openapi2ts } from './plugins'
 
 export default defineConfig(async ({ mode }) => {
   const git = simpleGit()
@@ -39,15 +38,6 @@ export default defineConfig(async ({ mode }) => {
       imports: ['vue', '@vueuse/core', 'vue-router'],
       dts: 'types/auto-imports.d.ts',
     }),
-    openapi2ts([
-      {
-        schemaPath: `${ENV.VITE_API_PROXY_TARGET}/v3/api-docs`,
-        requestImportStatement: 'import { request } from \'@/utils\'',
-        serversPath: path.join('./src/api'),
-        apiPrefix: '',
-        projectName: 'api',
-      },
-    ]),
     VitePWA({
       devOptions: {
         enabled: true,
