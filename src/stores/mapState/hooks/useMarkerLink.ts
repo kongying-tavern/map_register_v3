@@ -1,9 +1,9 @@
 import type { GSMarkerInfo, MLRenderUnit, TempMarkerType } from '@/packages/map'
 import type { useMarkerLinkStore } from '@/stores'
-import db from '@/database'
 import { useFetchHook } from '@/hooks'
 
 interface MarkerLinkHookOptions {
+  markerIdMap: Map<number, API.MarkerVo>
   markerLinkStore: ReturnType<typeof useMarkerLinkStore>
   currentMarkerIdMap: ComputedRef<Map<number, GSMarkerInfo>>
   focusElements: Ref<Map<string, Set<unknown>>>
@@ -13,7 +13,13 @@ interface MarkerLinkHookOptions {
 
 /** 点位关联处理 hook */
 export const useMarkerLink = (options: MarkerLinkHookOptions) => {
-  const { markerLinkStore, currentMarkerIdMap, focusElements, setTempMarkers } = options
+  const {
+    markerIdMap,
+    markerLinkStore,
+    currentMarkerIdMap,
+    focusElements,
+    setTempMarkers,
+  } = options
 
   const {
     loading: markerLinkLoading,
@@ -27,7 +33,11 @@ export const useMarkerLink = (options: MarkerLinkHookOptions) => {
         tempMarkerIds.add(source!)
         tempMarkerIds.add(target!)
       })
-      const tempMarkers = (await db.marker.bulkGet([...tempMarkerIds])).filter(Boolean) as API.MarkerVo[]
+      const tempMarkers: API.MarkerVo[] = []
+      tempMarkerIds.forEach((id) => {
+        const marker = markerIdMap.get(id)
+        marker && tempMarkers.push(marker)
+      })
       setTempMarkers('markerLink', tempMarkers)
       return list
     },
@@ -41,7 +51,11 @@ export const useMarkerLink = (options: MarkerLinkHookOptions) => {
       return setMLRenderList(list)
     }
 
-    const focusedMarker = currentMarkerIdMap.value.get(markerIds.values().next().value)
+    const focusedMarkerId = markerIds.values().next().value
+    if (focusedMarkerId === undefined)
+      return setMLRenderList(list)
+
+    const focusedMarker = currentMarkerIdMap.value.get(focusedMarkerId)
     if (!focusedMarker)
       return setMLRenderList(list)
 

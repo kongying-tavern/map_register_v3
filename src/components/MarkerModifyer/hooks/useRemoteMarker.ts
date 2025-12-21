@@ -1,4 +1,5 @@
-import Api from '@/api/api'
+import type { MarkerVo } from '@/api/alova/globals'
+import Apis from '@/api/alova'
 import { useFetchHook } from '@/hooks'
 import { useSocketStore } from '@/stores'
 
@@ -15,8 +16,10 @@ export const useRemoteMarker = (markerId: MaybeRefOrGetter<number | undefined> |
       const id = toValue(markerId)
       if (id === undefined)
         return
-      const { data } = await Api.marker.listMarkerById([id])
-      return data?.[0]
+      const { data = [] } = await Apis.marker.listMarkerById({
+        data: { markerIdList: [id] },
+      })
+      return data[0]
     },
   })
 
@@ -25,7 +28,7 @@ export const useRemoteMarker = (markerId: MaybeRefOrGetter<number | undefined> |
   const off1 = socketStore.appEvent.on('MarkerUpdated', (remoteMarker) => {
     if (remoteMarker.id !== toValue(markerId))
       return
-    data.value = remoteMarker
+    data.value = remoteMarker as MarkerVo
   })
 
   const off2 = socketStore.appEvent.on('MarkerDeleted', (remoteMarker) => {
@@ -40,7 +43,7 @@ export const useRemoteMarker = (markerId: MaybeRefOrGetter<number | undefined> |
       const remoteMarker = remoteMarkers[i]
       if (remoteMarker.id !== toValue(markerId))
         continue
-      data.value = remoteMarker
+      data.value = remoteMarker as MarkerVo
       break
     }
   })

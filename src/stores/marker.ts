@@ -1,16 +1,85 @@
 import type { Hash } from 'types/database'
-import type { ShallowRef } from 'vue'
-import type { WorkerInput, WorkerOutput } from '@/worker/idb.worker'
+import type { MarkerRenderModelVo } from '@/api/alova/globals'
 import { AddLocation, DeleteLocation, Location } from '@element-plus/icons-vue'
 import { acceptHMRUpdate, defineStore } from 'pinia'
+import Apis from '@/api/alova'
 import Api from '@/api/api'
-import db from '@/database'
 import { HashFlag } from '@/shared'
-import { Zip } from '@/utils'
-import BulkPutWorker from '@/worker/idb.worker?worker'
+import { formatByteSize } from '@/utils'
 import { useAccessStore, useSocketStore, useUserStore } from '.'
 import { useManager } from './hooks'
 import { isAccessible } from './utils'
+
+interface ManagerContext {
+  timer: Ref<number>
+  startTime: Ref<number>
+  message: Ref<string>
+}
+
+const getAllMarkers = async (context: ManagerContext) => {
+  context.message.value = '正在获取区域列表'
+  const { data: areaList = [] } = await Apis.area.listArea({
+    data: { isTraverse: true },
+  })
+  const areaIds = areaList
+    .filter(area => area.parentId !== -1)
+    .map(({ id }) => id!)
+  context.message.value = '正在准备获取点位列表'
+  const markerList = await Apis.marker.searchMarker({
+    meta: { raw: true },
+    data: { areaIdList: areaIds },
+    transform: async (res) => {
+      const { body } = res as unknown as Response
+      if (!body)
+        return [] as API.MarkerVo[]
+      const decoder = new TextDecoder()
+      let text = ''
+      let totalBytes = 0
+      for await (const chunk of body) {
+        totalBytes += chunk.byteLength
+        context.message.value = `正在下载点位列表: ${formatByteSize(totalBytes)}`
+        text += decoder.decode(chunk, { stream: true })
+      }
+      const { data: markerList = [] } = JSON.parse(text) as { data: API.MarkerVo[] }
+      return markerList as API.MarkerVo[]
+    },
+  })
+  return markerList
+}
+
+const getAllRenderMarkers = async (context: ManagerContext) => {
+  context.message.value = '正在获取区域列表'
+  const { data: areaList = [] } = await Apis.area.listArea({
+    data: { isTraverse: true },
+  })
+  const areaIds = areaList
+    .filter(area => area.parentId !== -1)
+    .map(area => area.id!)
+  context.message.value = '正在准备获取点位列表'
+  const { data: markerIdList = [] } = await Apis.marker.searchMarkerId({
+    data: { areaIdList: areaIds },
+  })
+  const markerList = await Apis.marker.listRenderMarkerById({
+    meta: { raw: true },
+    data: { markerIdList },
+    transform: async (res) => {
+      const { body } = res as unknown as Response
+      if (!body)
+        return [] as API.MarkerVo[]
+      const decoder = new TextDecoder()
+      let text = ''
+      let totalBytes = 0
+      for await (const chunk of body) {
+        totalBytes += chunk.byteLength
+        context.message.value = `正在下载点位列表: ${formatByteSize(totalBytes)}`
+        text += decoder.decode(chunk, { stream: true })
+      }
+      const { data: markerList = [] } = JSON.parse(text) as { data: MarkerRenderModelVo[] }
+      return markerList as MarkerRenderModelVo[]
+    },
+  })
+  return markerList
+}
 
 /** 全量点位的全局数据 */
 export const useMarkerStore = defineStore('global-marker', () => {
@@ -21,10 +90,10 @@ export const useMarkerStore = defineStore('global-marker', () => {
   // ==================== 内部状态 ====================
 
   /** 原始点位 id 到点位对象的映射 */
-  const localMarkerMap = shallowRef(new Map<number, Hash<API.MarkerVo>>())
+  const localMarkerMap = shallowRef(new Map<number, API.MarkerVo>())
 
   /** 点位序列 */
-  const markerIdList = ref<number[]>([])
+  const markerIdList = computed(() => [...localMarkerMap.value.keys()])
 
   /**
    * @local 更新本地点位
@@ -44,9 +113,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
       ids.add(id)
       markersMap.set(id, marker)
     }
-    markerIdList.value = [...ids]
     localMarkerMap.value = markersMap
-    db.marker.bulkPut(toRaw(markers))
   }
 
   /** @local 删除点位 */
@@ -54,9 +121,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
     const deleteIds = new Set(markerIds)
     const markersMap = new Map<number, Hash<API.MarkerVo>>(localMarkerMap.value)
     deleteIds.forEach(id => markersMap.delete(id))
-    markerIdList.value = markerIdList.value.filter(id => !deleteIds.has(id))
     localMarkerMap.value = markersMap
-    db.marker.bulkDelete(toRaw(markerIds))
   }
 
   /** @server 创建点位 */
@@ -64,7 +129,9 @@ export const useMarkerStore = defineStore('global-marker', () => {
     const { data: markerId } = await Api.marker.createMarker(markerForm)
     if (!markerId)
       throw new Error('服务器未返回新点位 id')
-    const { data: [marker] = [] } = await Api.marker.listMarkerById([markerId])
+    const { data: [marker] = [] } = await Apis.marker.listMarkerById({
+      data: { markerIdList: [markerId] },
+    })
     if (!marker)
       throw new Error('服务器未返回新点位数据')
     const hashMarker: Hash<API.MarkerVo> = { ...marker, __hash: HashFlag.LOCAL }
@@ -78,7 +145,9 @@ export const useMarkerStore = defineStore('global-marker', () => {
     const { data: isSuccess, message } = await Api.marker.updateMarker(markerForm)
     if (!isSuccess)
       throw new Error(message)
-    const { data: [marker] = [] } = await Api.marker.listMarkerById([markerForm.id])
+    const { data: [marker] = [] } = await Apis.marker.listMarkerById({
+      data: { markerIdList: [markerForm.id] },
+    })
     if (!marker)
       throw new Error('服务器未返回新点位数据')
     const hashMarker: Hash<API.MarkerVo> = { ...marker, __hash: HashFlag.LOCAL }
@@ -124,19 +193,6 @@ export const useMarkerStore = defineStore('global-marker', () => {
 
   // ==================== 数据更新 ====================
 
-  interface DiffContext {
-    controller: ShallowRef<AbortController>
-    startTime: Ref<number>
-    message: Ref<string>
-    updateCount: Ref<number>
-  }
-
-  interface DiffData {
-    bulkPutData?: Hash<API.MarkerVo>[]
-    bulkDeleteKeys?: number[]
-    clear?: boolean
-  }
-
   const {
     context,
     isActive,
@@ -144,230 +200,81 @@ export const useMarkerStore = defineStore('global-marker', () => {
     nextUpdateTime,
     loading: updateLoading,
     update,
-  } = useManager<DiffContext, DiffData | void>({
+  } = useManager<ManagerContext, void | API.MarkerVo[]>({
     timeoutPull: {
       time: 60 * 60 * 1000,
       condition: () => userStore.info?.roleId !== undefined,
     },
 
     context: {
-      controller: shallowRef(new AbortController()),
+      timer: ref(-1),
       startTime: ref(Date.now()),
       message: ref(''),
-      updateCount: ref(0),
     },
 
     init: async (context, full) => {
-      const dbList = await db.marker.toArray()
-      if (!dbList.length)
-        return full(context)
-      return {
-        bulkPutData: dbList,
-        clear: true,
-      } as DiffData
+      window.clearTimeout(context.timer.value)
+      context.startTime.value = Date.now()
+      context.message.value = '正在初始化点位数据'
+      const markerList = await full()
+      return markerList
     },
 
-    syncState: (data, _, isInit) => {
-      if (data === undefined)
+    syncState: async (data) => {
+      if (!data)
         return
-      const { bulkPutData = [], bulkDeleteKeys = [], clear } = data
-      const isNew = (isInit || clear)
-      const { length: bulkPutDataLength } = bulkPutData
-      const deleteIds = new Set(bulkDeleteKeys)
-      const newMarkerMap = new Map<number, Hash<API.MarkerVo>>(isNew
-        ? []
-        : localMarkerMap.value,
-      )
-      const newIdList: number[] = isNew
-        ? []
-        : markerIdList.value.filter(id => !deleteIds.has(id))
-      // 居里化函数，不需要在循环内判断 clear
-      const coreProcess = isNew
-        ? (marker: Hash<API.MarkerVo>) => {
-            newMarkerMap.set(marker.id ?? -1, marker)
-            newIdList.push(marker.id ?? -1)
-          }
-        : (marker: Hash<API.MarkerVo>) => {
-            newMarkerMap.set(marker.id ?? -1, marker)
-          }
-      for (let i = 0; i < bulkPutDataLength; i++) {
-        coreProcess(bulkPutData[i])
+      const map = new Map<number, API.MarkerVo>(localMarkerMap.value)
+      const { length } = data
+      for (let i = 0; i < length; i++) {
+        const newMarker = data[i]
+        const oldMarker = map.get(newMarker.id!)
+        if (oldMarker && (oldMarker.version ?? 0) > (newMarker.version ?? 0))
+          continue
+        map.set(newMarker.id!, newMarker)
       }
-      localMarkerMap.value = newMarkerMap
-      markerIdList.value = newIdList
+      localMarkerMap.value = map
+      const costTime = (Date.now() - context.startTime.value) / 1000
+      context.message.value += `，耗时：${costTime.toFixed(2)}s`
     },
 
-    diff: async ({ startTime, message, updateCount, controller }) => {
-      controller.value.abort()
-      const ac = new AbortController()
-      controller.value = ac
-      startTime.value = Date.now()
-
-      message.value = '获取远程 hash 列表'
-      const { data: hashList = [] } = await Api.markerDoc.listMarkerBinaryMD5({})
-      if (ac.signal.aborted)
-        return
-
-      /** 远程 hash 集合 */
-      const remoteHashSet = new Set(hashList.map(({ md5 = HashFlag.DEFAULT }) => md5))
-      /** 远程 hash 的更新时间 */
-      const remoteUpdateTime = hashList.reduce((max, { time = 0 }) => Math.max(max, time), 0)
-      /** 远程数据集合 */
-      const remoteMarkersMap = new Map<number, Hash<API.MarkerVo>>()
-      /** 本地 hash 集合 */
-      const localHashSet = new Set<string>()
-      /** 本地点位映射 */
-      const localMarkerMapCopy = new Map(localMarkerMap.value)
-      /** 需要确认的点位 id 列表 */
-      const needConfirmMarkerIds: number[] = []
-      /** 需要被更新的点位数据集合 */
-      const needUpdateMarkers: Hash<API.MarkerVo>[] = []
-      /** 需要再次确认是否已经被删除的点位 id 列表 */
-      const needConfirmDeletedMarkerIds: number[] = []
-      /** 需要被删除的点位 id 列表 */
-      const needDeleteMarkerIds: number[] = []
-
-      message.value = '计算需要确认的点位 id 列表'
-      for (const [id, { __hash: hash, updateTime = 0 }] of localMarkerMapCopy) {
-        if (!hash)
-          continue
-        localHashSet.add(hash)
-        if (remoteHashSet.has(hash) || (new Date(updateTime).getTime() >= remoteUpdateTime))
-          continue
-        needConfirmMarkerIds.push(id!)
+    diff: async (context) => {
+      context.startTime.value = Date.now()
+      const renderMarkerList = await getAllRenderMarkers(context)
+      context.message.value = `正在对比点位数据`
+      const { length } = renderMarkerList
+      const newMarkerMap = new Map(localMarkerMap.value)
+      const deleteIds = new Set(newMarkerMap.keys())
+      const updateIds = new Set<number>()
+      for (let i = 0; i < length; i++) {
+        const { id, version = 0 } = renderMarkerList[i]
+        deleteIds.delete(id!)
+        const localMarker = localMarkerMap.value.get(id!)
+        if (!localMarker || (localMarker.version ?? 0) < version)
+          updateIds.add(id!)
       }
-
-      /** 需要用于获取数据的 hash 集合 */
-      const needGetHashList = [...remoteHashSet.difference(localHashSet)]
-
-      message.value = '请求差异数据集合'
-      await Promise.all(needGetHashList.map(async (hash) => {
-        const buffer = await <Promise<ArrayBuffer>>(<unknown>Api.markerDoc.listPageMarkerByBinary({ md5: hash }, { responseType: 'arraybuffer' }))
-        if (ac.signal.aborted)
-          return
-        const data = await Zip.decompressAs<API.MarkerVo[]>(new Uint8Array(buffer), { name: `marker-${hash}` })
-        if (ac.signal.aborted)
-          return
-        const { length } = data
-        for (let i = 0; i < length; i++) {
-          const marker = data[i]
-          if (!marker.id)
-            continue
-          remoteMarkersMap.set(marker.id!, { ...marker, __hash: hash })
-        }
-      }))
-      if (ac.signal.aborted)
-        return
-
-      message.value = '计算差异更新数据'
-      const { length: needConfirmMarkerIdsLength } = needConfirmMarkerIds
-      for (let i = 0; i < needConfirmMarkerIdsLength; i++) {
-        const id = needConfirmMarkerIds[i]
-        const localMarker = localMarkerMapCopy.get(id)
-        // 1. 本地点位不存在（异常情况，忽略）
-        if (!localMarker)
-          continue
-        // 2. 如果远程点位不存在，表示点位可能为新增或删除点位，需要二次确认
-        const remoteMarker = remoteMarkersMap.get(id)
-        if (!remoteMarker) {
-          // 如果本地点位是本地新增的（通过 WS 事件添加），且远程点位不存在，
-          // 可能是因为远程压缩数据是过时的，应该保留本地点位，而不是尝试删除
-          if (localMarker.__hash === HashFlag.LOCAL) {
-            // 保留本地点位，不进行删除确认
-            continue
-          }
-          needConfirmDeletedMarkerIds.push(id)
-          continue
-        }
-        // 3. 如果远程点位版本落后于本地点位，忽略
-        // 使用小于是因为在通过接口更新时，会先更新本地点位数据，
-        // 但不会更新 hash，需要依赖服务端压缩数据的更新来更新本地 hash
-        if ((remoteMarker.version ?? 0) < (localMarker.version ?? 0))
-          continue
-        // 4. 如果远程点位版本领先于本地点位，将其加入需要更新的点位数据集合
-        needUpdateMarkers.push(remoteMarker)
-      }
-
-      updateCount.value = needUpdateMarkers.length + needDeleteMarkerIds.length
-
-      if (needConfirmDeletedMarkerIds.length > 0) {
-        message.value = '确认删除数据'
-        const { data: confirmedMarkers = [] } = await Api.marker.listMarkerById(needConfirmDeletedMarkerIds)
-        if (ac.signal.aborted)
-          return
-        const confirmedMarkersMap = new Map(confirmedMarkers.map(marker => [marker.id, marker]))
-        const { length: needConfirmDeletedMarkerIdsLength } = needConfirmDeletedMarkerIds
-        for (let i = 0; i < needConfirmDeletedMarkerIdsLength; i++) {
-          const id = needConfirmDeletedMarkerIds[i]
-          const confirmedMarker = confirmedMarkersMap.get(id)
-          // 如果服务器返回了点位，说明点位还存在，可能是压缩数据过时了
-          // 应该更新点位数据，而不是删除
-          if (confirmedMarker) {
-            // 获取本地点位用于版本比较
-            const localMarker = localMarkerMapCopy.get(id)
-            // 如果服务器点位版本领先于本地点位，更新本地点位
-            if (!localMarker || (confirmedMarker.version ?? 0) > (localMarker.version ?? 0)) {
-              needUpdateMarkers.push({ ...confirmedMarker, __hash: HashFlag.LOCAL })
-            }
-            // 如果服务器点位版本落后或等于本地点位，保留本地点位（不更新也不删除）
-            continue
-          }
-          // 如果服务器没返回点位，说明点位已删除，应该删除本地点位
-          needDeleteMarkerIds.push(id)
-        }
-      }
-
-      return {
-        bulkPutData: needUpdateMarkers,
-        bulkDeleteKeys: needDeleteMarkerIds,
-      } as DiffData
+      deleteIds.forEach(id => newMarkerMap.delete(id))
+      context.message.value = `更新 ${updateIds.size} 项，删除 ${deleteIds.size} 项`
+      const { data: markerList = [] } = await Apis.marker.listMarkerById({
+        data: { markerIdList: Array.from(deleteIds) },
+      })
+      markerList.forEach(marker => newMarkerMap.set(marker.id!, marker))
+      return Array.from(newMarkerMap.values())
     },
 
-    full: async ({ startTime, message, updateCount }) => {
-      startTime.value = Date.now()
-
-      message.value = '获取签名列表'
-      const { data: hashList = [] } = await Api.markerDoc.listMarkerBinaryMD5({})
-
-      message.value = '获取更新数据'
-      const newData = (await Promise.all(hashList.map(async ({ md5: hash = HashFlag.DEFAULT }) => {
-        const buffer = await <Promise<ArrayBuffer>>(<unknown>Api.markerDoc.listPageMarkerByBinary({ md5: hash }, { responseType: 'arraybuffer' }))
-        const data = await Zip.decompressAs<API.MarkerVo[]>(new Uint8Array(buffer), { name: `marker-${hash}` })
-        return data.map(newOne => (<Hash<API.MarkerVo>>{ ...newOne, __hash: hash }))
-      }))).flat(1)
-
-      updateCount.value = newData.length
-
-      return {
-        bulkPutData: newData,
-        clear: true,
-      } as DiffData
+    full: async (context) => {
+      window.clearTimeout(context.timer.value)
+      context.startTime.value = Date.now()
+      context.message.value = '正在重新获取点位数据'
+      const markerList = await getAllMarkers(context)
+      context.message.value = `更新 ${markerList.length} 项`
+      return markerList
     },
 
-    commit: async (options, { message, startTime, updateCount }) => {
-      if (!options || !updateCount.value) {
-        message.value = '没有需要更新的数据'
-        return
-      }
-      message.value = '写入更新数据'
-      const { resolve, promise } = Promise.withResolvers<WorkerOutput>()
-      const worker = new BulkPutWorker({ name: '点位更新线程' })
-      worker.addEventListener('message', (ev: MessageEvent<WorkerOutput>) => resolve(ev.data))
-      worker.postMessage(<WorkerInput<number, Hash<API.MarkerVo>>>{ tableName: 'marker', ...options })
-      const { error, message: workerMsg } = await promise
-      worker.terminate()
-      if (error) {
-        message.value = workerMsg
-        return
-      }
-      message.value = `更新 ${updateCount.value} 项, 耗时: ${((Date.now() - startTime.value) / 1000).toFixed(1)}s`
+    commit: async () => {
     },
   })
 
   // ==================== 外部响应 ====================
-
-  // 点位压缩数据更新
-  socketStore.appEvent.on('MarkerBinaryPurged', () => update())
 
   // 单个点位更新
   socketStore.appEvent.on('MarkerUpdated', async (markerInfo, userInfo) => {

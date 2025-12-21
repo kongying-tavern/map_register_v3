@@ -65,6 +65,7 @@ export const useMapStateStore = defineStore('global-map-state', () => {
   // ============================== 点位关联 ==============================
   const markerLinkInfoHook = useMarkerLink({
     markerLinkStore,
+    markerIdMap: markerStore.idMap,
     focusElements: interaction.focusElements,
     currentMarkerIdMap: markersHook.currentMarkerIdMap,
     staticMarkerIds: markersHook.staticMarkerIds,

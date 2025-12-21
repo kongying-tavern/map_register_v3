@@ -56,7 +56,9 @@ export const useAppEvent = (ipc: PageIPC<AppSocket.MainEventMap, AppSocket.Worke
 
   // ==================== 点位 ====================
   ipc.on('MarkerAdded', async (id) => {
-    const { data: [markerInfo] = [], users = {} } = await Api.marker.listMarkerById([id])
+    const { data: [markerInfo] = [], users = {} } = await Apis.marker.listMarkerById({
+      data: { markerIdList: [id] },
+    })
     if (!markerInfo)
       return
     const userInfo = Object.assign({ id: markerInfo.creatorId }, users[markerInfo.creatorId!])
@@ -85,7 +87,9 @@ export const useAppEvent = (ipc: PageIPC<AppSocket.MainEventMap, AppSocket.Worke
   })
 
   ipc.on('MarkerLinked', async ({ markers: ids }) => {
-    const { data = [], users = {} } = await Api.marker.listMarkerById(ids)
+    const { data = [], users = {} } = await Apis.marker.listMarkerById({
+      data: { markerIdList: ids },
+    })
     if (!data.length)
       return
     const [{ updaterId }] = data
@@ -94,7 +98,9 @@ export const useAppEvent = (ipc: PageIPC<AppSocket.MainEventMap, AppSocket.Worke
   })
 
   ipc.on('MarkerTweaked', async (ids) => {
-    const { data = [], users = {} } = await Api.marker.listMarkerById(ids)
+    const { data = [], users = {} } = await Apis.marker.listMarkerById({
+      data: { markerIdList: ids },
+    })
     if (!data.length)
       return
     const [{ updaterId }] = data
@@ -103,7 +109,9 @@ export const useAppEvent = (ipc: PageIPC<AppSocket.MainEventMap, AppSocket.Worke
   })
 
   ipc.on('MarkerUpdated', async (id) => {
-    const { data: [markerInfo] = [], users = {} } = await Api.marker.listMarkerById([id])
+    const { data: [markerInfo] = [], users = {} } = await Apis.marker.listMarkerById({
+      data: { markerIdList: [id] },
+    })
     if (!markerInfo)
       return
     const userInfo = Object.assign({ id: markerInfo.updaterId }, users[markerInfo.updaterId!])

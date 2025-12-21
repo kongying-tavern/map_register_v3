@@ -4,7 +4,7 @@ declare namespace Socket {
     ItemUpdated: [API.ItemVo, API.SysUserSmallVo]
     ItemDeleted: [API.ItemVo, API.SysUserSmallVo]
 
-    MarkerAdded: [API.MarkerVo, API.SysUserSmallVo]
+    MarkerAdded: [MarkerVo, API.SysUserSmallVo]
     MarkerUpdated: [API.MarkerVo, API.SysUserSmallVo]
     MarkerDeleted: [API.MarkerVo, API.SysUserSmallVo]
     MarkerTweaked: [API.MarkerVo[], API.SysUserSmallVo]

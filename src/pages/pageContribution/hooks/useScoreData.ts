@@ -1,9 +1,10 @@
-import type { ScoreVo } from '@/pages/pageScoreManager/shared'
 import type { SheetableData } from '../types'
+import type { ScoreVo } from '@/pages/pageScoreManager/shared'
+import dayjs from 'dayjs'
 import Api from '@/api/api'
 import db from '@/database'
 import { useFetchHook } from '@/hooks'
-import dayjs from 'dayjs'
+import { useMarkerStore } from '@/stores'
 import { promisePool, splitTimeRange } from '../utils'
 
 interface ScoreDataHookOptions {
@@ -14,6 +15,8 @@ interface ScoreDataHookOptions {
 
 export const useScoreData = (options: ScoreDataHookOptions) => {
   const { note, timeRange, abortController } = options
+
+  const markerStore = useMarkerStore()
 
   const hook = useFetchHook({
     immediate: false,
@@ -115,7 +118,7 @@ export const useScoreData = (options: ScoreDataHookOptions) => {
       })
 
       // 查询点位创建数据
-      const markerList = await db.marker.toArray()
+      const markerList = markerStore.markerList
 
       markerList.forEach((markerInfo) => {
         const { createTime, creatorId } = markerInfo

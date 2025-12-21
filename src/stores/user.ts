@@ -37,6 +37,13 @@ export const useUserStore = defineStore('global-user', () => {
   // ==================== token ====================
   const auth = useLocalStorage<Partial<AppUserAuth>>(USERAUTH_KEY, {})
 
+  const isTokenValid = () => {
+    const { accessToken, refreshToken, expiresTime = 0 } = auth.value
+    if (!accessToken || !refreshToken)
+      return false
+    return expiresTime > Date.now()
+  }
+
   const setAuth = (newAuth: API.SysToken) => {
     const { refreshToken, userId, expiresIn, tokenType, accessToken } = toCamelCaseObject(newAuth)
     auth.value = {
@@ -50,7 +57,11 @@ export const useUserStore = defineStore('global-user', () => {
   }
 
   // ==================== 角色信息 ====================
-  const { data: roleList, loading: roleListLoading, refresh: refreshRoleList } = useFetchHook({
+  const {
+    data: roleList,
+    loading: roleListLoading,
+    refresh: refreshRoleList,
+  } = useFetchHook({
     initialValue: [],
     shallow: true,
     onRequest: async () => {
@@ -64,7 +75,12 @@ export const useUserStore = defineStore('global-user', () => {
   }, new Map<number, API.SysRoleVo>()))
 
   // ==================== 用户信息 ====================
-  const { data: info, loading: isInfoLoading, refresh: refreshUserInfo, onError: onFetchInfoError } = useFetchHook({
+  const {
+    data: info,
+    loading: isInfoLoading,
+    refresh: refreshUserInfo,
+    onError: onFetchInfoError,
+  } = useFetchHook({
     shallow: true,
     initialValue: null,
     onRequest: async (userId: number | undefined = auth.value.userId) => {
@@ -213,6 +229,7 @@ export const useUserStore = defineStore('global-user', () => {
     isLogin,
 
     // actions
+    isTokenValid,
     setAuth,
     clearAuth: clearLoginState,
     validateToken,

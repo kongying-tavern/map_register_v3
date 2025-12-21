@@ -11,20 +11,20 @@ export interface ManagerOptions<C, T> {
   /** 自定义上下文 */
   context: C
   /** 初始化上下文 */
-  init?: (context: C, full: (context: C) => Promise<T | void>) => Promise<T | void>
+  init?: (context: C, full: () => Promise<T>) => Promise<T>
   /** 差异更新数据 */
-  diff?: (context: C) => Promise<T | void>
+  diff?: (context: C) => Promise<T>
   /** 全量更新数据 */
-  full: (context: C) => Promise<T | void>
+  full: (context: C) => Promise<T>
   /** 写入数据 */
-  commit: (data: T | void, context: C) => Promise<void>
+  commit: (data: T, context: C) => Promise<void>
   /**
    * 用于同步本地状态
    * @param data 要同步的数据，通常是 diff 或 full 返回的数据
    * @param context 上下文
    * @param isInit 是否为 init 阶段（true: 完全替换; false: 增量更新）
    */
-  syncState?: (data: T | void, context: C, isInit: boolean) => void
+  syncState?: (data: T | void, context: C, isInit: boolean) => Promise<void> | void
 }
 
 export interface ManagerUpdateOptions {
@@ -45,11 +45,11 @@ export const useManager = <C, T>(options: ManagerOptions<C, T>) => {
   const isInit = ref(false)
   const error = ref('')
 
-  const initPromise = init?.(context, full)
+  const initPromise = init?.(context, () => full(context))
     .then((initData) => {
       if (initData === undefined || !syncState)
         return
-      syncState(initData, context, true)
+      return syncState(initData, context, true)
     })
     .finally(() => {
       isInit.value = true
@@ -63,7 +63,7 @@ export const useManager = <C, T>(options: ManagerOptions<C, T>) => {
       await initPromise
       const { isFull = false } = options
       const data = await (isFull ? full : diff ?? full)(context)
-      syncState?.(data, context, false)
+      await syncState?.(data, context, false)
       await commit(data, context)
     },
   })

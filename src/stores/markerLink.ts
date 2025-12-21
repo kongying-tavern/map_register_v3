@@ -3,6 +3,7 @@ import type { ShallowRef } from 'vue'
 import type { WorkerInput, WorkerOutput } from '@/worker/idb.worker'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed, ref, shallowRef, toRaw, triggerRef } from 'vue'
+import Apis from '@/api/alova'
 import Api from '@/api/api'
 import db from '@/database'
 import { HashFlag } from '@/shared'
@@ -159,7 +160,6 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
       const updatedMarker: Hash<API.MarkerVo> = {
         ...marker,
         linkageId: newEffectedMarkerIdSetForUpdate.has(markerId) ? newLinkageId : '',
-        __hash: marker.__hash ?? HashFlag.LOCAL,
       }
       updatedMarkers.push(updatedMarker)
     }
@@ -198,7 +198,9 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
       })(),
       (async () => {
         if (markerIds.length) {
-          const { data: markers = [] } = await Api.marker.listMarkerById(markerIds)
+          const { data: markers = [] } = await Apis.marker.listMarkerById({
+            data: { markerIdList: markerIds },
+          })
           const markerStore = useMarkerStore()
           markerStore.updateLocal(markers.map(marker => ({ ...marker, __hash: HashFlag.LOCAL })))
         }
@@ -245,10 +247,10 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
       message: ref(''),
     },
 
-    init: async (context, full) => {
+    init: async (_, full) => {
       const dbList = await db.markerLink.toArray()
       if (!dbList.length)
-        return full(context)
+        return full()
       return {
         bulkPutData: dbList,
         clear: true,
