@@ -25,6 +25,7 @@ export const alovaInstance = createAlova({
   baseURL: import.meta.env.VITE_API_BASE,
   timeout: 300 * 1000,
   statesHook: VueHook,
+  cacheFor: null,
   requestAdapter: fetchAdapter(),
 
   beforeRequest: onAuthRequired((method) => {

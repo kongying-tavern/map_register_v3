@@ -11010,6 +11010,23 @@ declare global {
       >(
         config: Config
       ): Alova2Method<string[], 'marker_doc.listPageMarkerByBinary', Config>;
+      /**
+       * ---
+       *
+       * [GET] 返回点位差异比对快照
+       *
+       * **path:** /api/marker_doc/list_diff_snapshot
+       *
+       * ---
+       *
+       * **Response**
+       * ```ts
+       * type Response = string[]
+       * ```
+       */
+      listMarkerDiffSnapshotByBinary<Config extends Alova2MethodConfig<string[]>>(
+        config?: Config
+      ): Alova2Method<string[], 'marker_doc.listMarkerDiffSnapshotByBinary', Config>;
     };
     item_doc: {
       /**

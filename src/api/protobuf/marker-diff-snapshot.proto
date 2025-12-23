@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package protobuf;
+
+// 点位快照
+message MarkerDiffSnapshotVo {
+    uint64 version = 1;
+    uint64 id = 2;
+}
+
+// 点位快照数组
+message MarkerDiffSnapshotVoList {
+    repeated MarkerDiffSnapshotVo snapshots = 1;
+}
