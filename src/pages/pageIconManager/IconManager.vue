@@ -7,7 +7,12 @@ import IconCreator from './components/IconCreator.vue'
 
 const iconStore = useIconStore()
 
-const activedIcon = shallowRef<API.IconVo | null>(null)
+const previewIconId = shallowRef<number>()
+const previewIcon = computed(() => {
+  if (!previewIconId.value)
+    return
+  return iconStore.idMap.get(previewIconId.value)
+})
 
 const queryIconName = ref('')
 const queryIconType = ref<API.IconTypeVo>({
@@ -69,7 +74,7 @@ const filteredIconList = computed(() => {
 
 const handleCurrentChange = (iconType: API.IconTypeVo) => {
   queryIconType.value = iconType
-  activedIcon.value = null
+  previewIconId.value = undefined
 }
 
 const { load: loadIconType } = useIconType(true)
@@ -110,23 +115,23 @@ const openIconCreator = () => {
     </div>
 
     <IconExplorer
-      v-model:actived-item="activedIcon"
+      v-model:actived-item="previewIconId"
       :data="filteredIconList"
     />
 
     <IconPreviewer
-      v-model="activedIcon"
+      v-model:icon-id="previewIconId"
       @refresh="() => iconStore.update({ isFull: true })"
     />
 
     <div class="border-t-[1px] border-[var(--el-border-color-lighter)] col-span-3 p-2 px-3">
       <el-text size="small">
         {{ filteredIconList.length }} 个项目
-        <template v-if="activedIcon">
+        <template v-if="previewIcon">
           <el-divider direction="vertical" />
           图标原始地址：
-          <a :href="activedIcon.url" class="hover:underline underline-offset-4" target="_blank" rel="noopener">
-            {{ decodeURIComponent(activedIcon.url ?? '') }}
+          <a :href="previewIcon.url" class="hover:underline underline-offset-4" target="_blank" rel="noopener">
+            {{ decodeURIComponent(previewIcon.url ?? '') }}
           </a>
         </template>
       </el-text>

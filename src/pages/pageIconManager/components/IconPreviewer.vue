@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type * as API2 from '@/api/alova/globals'
 import { Delete } from '@element-plus/icons-vue'
 import dayjs from 'dayjs'
 import Api from '@/api/api'
@@ -16,8 +17,14 @@ const iconStore = useIconStore()
 
 const { DialogService } = useGlobalDialog()
 
-const icon = defineModel<API.IconVo | null>('modelValue', {
-  default: null,
+const iconId = defineModel<number | undefined>('iconId', {
+  default: undefined,
+})
+
+const icon = computed(() => {
+  if (!iconId.value)
+    return
+  return iconStore.idMap.get(iconId.value)
 })
 
 // ==================== 用户信息 ====================
@@ -96,7 +103,7 @@ const showIconEditor = () => {
 }
 
 // ==================== 删除图标 ====================
-const showIconDeleteConfirm = (icon: API.IconVo) => {
+const showIconDeleteConfirm = (icon: API2.IconVo) => {
   DialogService
     .props({
       title: '删除地区',

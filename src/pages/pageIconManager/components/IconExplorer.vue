@@ -10,7 +10,7 @@ const ICON_SIZE = 100
 
 const iconStore = useIconStore()
 
-const activedIcon = defineModel<API.IconVo | null>('activedItem', {
+const activedIcon = defineModel<number | undefined>('activedItem', {
   required: true,
 })
 </script>
@@ -34,9 +34,9 @@ const activedIcon = defineModel<API.IconVo | null>('activedItem', {
           class="grid-item"
           :title="icon.tag"
           :class="{
-            'is-actived': icon.tag === activedIcon?.tag,
+            'is-actived': icon.id === activedIcon,
           }"
-          @click="activedIcon = icon"
+          @click="activedIcon = icon.id"
         >
           <IconRenderer
             class="w-12 h-12 text-[#AB9073]"
