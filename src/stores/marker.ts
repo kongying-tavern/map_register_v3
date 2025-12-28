@@ -1,11 +1,9 @@
 import type * as API2 from '@/api/alova/globals'
-import type { MarkerDiffSnapshot } from '@/api/protobuf/typings'
 import type { WorkerInput } from '@/worker/idb.worker'
 import { AddLocation, DeleteLocation, Location } from '@element-plus/icons-vue'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import Apis from '@/api/alova'
 import db from '@/database/db'
-import { formatByteSize } from '@/utils'
 import BulkPutWorker from '@/worker/idb.worker?worker'
 import { useAccessStore, useSocketStore, useUserStore } from '.'
 import { useManager } from './hooks'
@@ -30,39 +28,8 @@ const getMarkersByIds = async (ids: number[]) => {
   return data
 }
 
-const getAllMarkers = async (context: ManagerContext) => {
-  context.message.value = '正在获取区域列表'
-  const { data: areaList = [] } = await Apis.area.listArea({
-    data: { isTraverse: true },
-  })
-  const areaIds = areaList
-    .filter(area => area.parentId !== -1)
-    .map(({ id }) => id!)
-  context.message.value = '正在准备获取点位列表'
-  const markerList = await Apis.marker.searchMarker({
-    meta: { raw: true },
-    data: { areaIdList: areaIds },
-    transform: async (res) => {
-      const { body } = res as unknown as Response
-      if (!body)
-        return [] as API2.MarkerVo[]
-      const decoder = new TextDecoder()
-      let text = ''
-      let totalBytes = 0
-      for await (const chunk of body) {
-        totalBytes += chunk.byteLength
-        context.message.value = `正在下载点位列表: ${formatByteSize(totalBytes)}`
-        text += decoder.decode(chunk, { stream: true })
-      }
-      const { data: markerList = [] } = JSON.parse(text) as { data: API2.MarkerVo[] }
-      return markerList as API2.MarkerVo[]
-    },
-  })
-  return markerList
-}
-
 const diffMapMarkers = async (
-  snapshots: MarkerDiffSnapshot[],
+  snapshots: { id?: number | null, version?: number | null }[],
   markerMap: Map<number, API2.MarkerVo>,
 ) => {
   const deleteIds = new Set(markerMap.keys())
@@ -74,6 +41,8 @@ const diffMapMarkers = async (
     if (count % 2000 === 0)
       await scheduler.yield() // 每 2000 个点位等一次，避免卡顿
     const { id, version } = snapshots[i]
+    if (!id || !version)
+      continue
     deleteIds.delete(id)
     const currentMarker = markerMap.get(id)
     if (currentMarker && (currentMarker.version ?? 0) >= version)
@@ -267,7 +236,8 @@ export const useMarkerStore = defineStore('global-marker', () => {
       context.startTime.value = Date.now()
       context.tag.value = '全量'
       context.message.value = `[${context.tag.value}] 正在获取点位数据...`
-      const updateList = await getAllMarkers(context)
+      const { markers } = await Apis.marker_doc.listMarkersByBinary()
+      const updateList = markers as API2.MarkerVo[]
       return { updateList, deleteIds: [] as number[], clear: true }
     },
   })
