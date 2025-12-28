@@ -167,6 +167,79 @@ export interface ResourceUploadVo {
    */
   fileUrl?: string;
 }
+export interface Underground {
+  /**
+   * 是否是分层层级
+   * ---
+   */
+  is_underground?: boolean;
+  /**
+   * 是否是非地面层级
+   * ---
+   */
+  is_global?: boolean;
+  /**
+   * 分层区域
+   * ---
+   * 分层区域标签
+   */
+  region_levels?: string[];
+}
+export interface IconOverride {
+  /**
+   * 图标ID
+   * ---
+   */
+  id?: number;
+  /**
+   * 最小可见缩放级别
+   * ---
+   * 最小可见缩放级别，大于该值可见
+   */
+  minZoom?: number;
+  /**
+   * 最大可见缩放级别
+   * ---
+   * 最大可见缩放级别，小于该值可见
+   */
+  maxZoom?: number;
+}
+export interface V2_8_Island {
+  /**
+   * 海岛名
+   * ---
+   */
+  island_name?: string;
+  /**
+   * 海岛状态
+   * ---
+   * 海岛状态标签
+   */
+  island_state?: string[];
+}
+export interface MarkerExtraVo {
+  /**
+   * 分层层级数据
+   * ---
+   */
+  underground?: Underground;
+  /**
+   * 图标覆盖数据
+   * ---
+   */
+  iconOverride?: IconOverride;
+  /**
+   * 1.6 海岛数据
+   * ---
+   * 海岛阶段数组
+   */
+  '1_6_island'?: string[];
+  /**
+   * 2.8 海岛数据
+   * ---
+   */
+  '2_8_island'?: V2_8_Island;
+}
 export interface MarkerPunctuateVo {
   /**
    * 乐观锁
@@ -229,10 +302,10 @@ export interface MarkerPunctuateVo {
    */
   content?: string;
   /**
-   * 额外特殊字段
+   * 点位附加数据前端封装
    * ---
    */
-  extra?: Record<string, object>;
+  extra?: MarkerExtraVo;
   /**
    * 点位图片
    * ---
@@ -450,10 +523,10 @@ export interface MarkerVo {
    */
   hiddenFlag?: number;
   /**
-   * 额外特殊字段
+   * 点位附加数据前端封装
    * ---
    */
-  extra?: Record<string, object>;
+  extra?: MarkerExtraVo;
   /**
    * 点位关联组ID
    * ---
@@ -3916,8 +3989,53 @@ declare global {
        *   position?: string
        *   // [title] 点位说明
        *   content?: string
-       *   // [title] 额外特殊字段
-       *   extra?: Record<string, object>
+       *   // [title] 点位附加数据前端封装
+       *   extra?: {
+       *     // [title] 分层层级数据
+       *     underground?: {
+       *       // [title] 是否是分层层级
+       *       is_underground?: boolean
+       *       // [title] 是否是非地面层级
+       *       is_global?: boolean
+       *       // [title] 分层区域
+       *       // 分层区域标签
+       *       // [items] start
+       *       // [title] 分层区域
+       *       // 分层区域标签
+       *       // [items] end
+       *       region_levels?: string[]
+       *     }
+       *     // [title] 图标覆盖数据
+       *     iconOverride?: {
+       *       // [title] 图标ID
+       *       id?: number
+       *       // [title] 最小可见缩放级别
+       *       // 最小可见缩放级别，大于该值可见
+       *       minZoom?: number
+       *       // [title] 最大可见缩放级别
+       *       // 最大可见缩放级别，小于该值可见
+       *       maxZoom?: number
+       *     }
+       *     // [title] 1.6 海岛数据
+       *     // 海岛阶段数组
+       *     // [items] start
+       *     // [title] 1.6 海岛数据
+       *     // 海岛阶段数组
+       *     // [items] end
+       *     '1_6_island'?: string[]
+       *     // [title] 2.8 海岛数据
+       *     '2_8_island'?: {
+       *       // [title] 海岛名
+       *       island_name?: string
+       *       // [title] 海岛状态
+       *       // 海岛状态标签
+       *       // [items] start
+       *       // [title] 海岛状态
+       *       // 海岛状态标签
+       *       // [items] end
+       *       island_state?: string[]
+       *     }
+       *   }
        *   // [title] 点位图片
        *   picture?: string
        *   // [title] 点位初始标记者
@@ -4015,8 +4133,53 @@ declare global {
        *   position?: string
        *   // [title] 点位说明
        *   content?: string
-       *   // [title] 额外特殊字段
-       *   extra?: Record<string, object>
+       *   // [title] 点位附加数据前端封装
+       *   extra?: {
+       *     // [title] 分层层级数据
+       *     underground?: {
+       *       // [title] 是否是分层层级
+       *       is_underground?: boolean
+       *       // [title] 是否是非地面层级
+       *       is_global?: boolean
+       *       // [title] 分层区域
+       *       // 分层区域标签
+       *       // [items] start
+       *       // [title] 分层区域
+       *       // 分层区域标签
+       *       // [items] end
+       *       region_levels?: string[]
+       *     }
+       *     // [title] 图标覆盖数据
+       *     iconOverride?: {
+       *       // [title] 图标ID
+       *       id?: number
+       *       // [title] 最小可见缩放级别
+       *       // 最小可见缩放级别，大于该值可见
+       *       minZoom?: number
+       *       // [title] 最大可见缩放级别
+       *       // 最大可见缩放级别，小于该值可见
+       *       maxZoom?: number
+       *     }
+       *     // [title] 1.6 海岛数据
+       *     // 海岛阶段数组
+       *     // [items] start
+       *     // [title] 1.6 海岛数据
+       *     // 海岛阶段数组
+       *     // [items] end
+       *     '1_6_island'?: string[]
+       *     // [title] 2.8 海岛数据
+       *     '2_8_island'?: {
+       *       // [title] 海岛名
+       *       island_name?: string
+       *       // [title] 海岛状态
+       *       // 海岛状态标签
+       *       // [items] start
+       *       // [title] 海岛状态
+       *       // 海岛状态标签
+       *       // [items] end
+       *       island_state?: string[]
+       *     }
+       *   }
        *   // [title] 点位图片
        *   picture?: string
        *   // [title] 点位初始标记者
@@ -4194,8 +4357,53 @@ declare global {
        *       position?: string
        *       // [title] 点位说明
        *       content?: string
-       *       // [title] 额外特殊字段
-       *       extra?: Record<string, object>
+       *       // [title] 点位附加数据前端封装
+       *       extra?: {
+       *         // [title] 分层层级数据
+       *         underground?: {
+       *           // [title] 是否是分层层级
+       *           is_underground?: boolean
+       *           // [title] 是否是非地面层级
+       *           is_global?: boolean
+       *           // [title] 分层区域
+       *           // 分层区域标签
+       *           // [items] start
+       *           // [title] 分层区域
+       *           // 分层区域标签
+       *           // [items] end
+       *           region_levels?: string[]
+       *         }
+       *         // [title] 图标覆盖数据
+       *         iconOverride?: {
+       *           // [title] 图标ID
+       *           id?: number
+       *           // [title] 最小可见缩放级别
+       *           // 最小可见缩放级别，大于该值可见
+       *           minZoom?: number
+       *           // [title] 最大可见缩放级别
+       *           // 最大可见缩放级别，小于该值可见
+       *           maxZoom?: number
+       *         }
+       *         // [title] 1.6 海岛数据
+       *         // 海岛阶段数组
+       *         // [items] start
+       *         // [title] 1.6 海岛数据
+       *         // 海岛阶段数组
+       *         // [items] end
+       *         '1_6_island'?: string[]
+       *         // [title] 2.8 海岛数据
+       *         '2_8_island'?: {
+       *           // [title] 海岛名
+       *           island_name?: string
+       *           // [title] 海岛状态
+       *           // 海岛状态标签
+       *           // [items] start
+       *           // [title] 海岛状态
+       *           // 海岛状态标签
+       *           // [items] end
+       *           island_state?: string[]
+       *         }
+       *       }
        *       // [title] 点位图片
        *       picture?: string
        *       // [title] 点位初始标记者
@@ -4317,8 +4525,53 @@ declare global {
        *       position?: string
        *       // [title] 点位说明
        *       content?: string
-       *       // [title] 额外特殊字段
-       *       extra?: Record<string, object>
+       *       // [title] 点位附加数据前端封装
+       *       extra?: {
+       *         // [title] 分层层级数据
+       *         underground?: {
+       *           // [title] 是否是分层层级
+       *           is_underground?: boolean
+       *           // [title] 是否是非地面层级
+       *           is_global?: boolean
+       *           // [title] 分层区域
+       *           // 分层区域标签
+       *           // [items] start
+       *           // [title] 分层区域
+       *           // 分层区域标签
+       *           // [items] end
+       *           region_levels?: string[]
+       *         }
+       *         // [title] 图标覆盖数据
+       *         iconOverride?: {
+       *           // [title] 图标ID
+       *           id?: number
+       *           // [title] 最小可见缩放级别
+       *           // 最小可见缩放级别，大于该值可见
+       *           minZoom?: number
+       *           // [title] 最大可见缩放级别
+       *           // 最大可见缩放级别，小于该值可见
+       *           maxZoom?: number
+       *         }
+       *         // [title] 1.6 海岛数据
+       *         // 海岛阶段数组
+       *         // [items] start
+       *         // [title] 1.6 海岛数据
+       *         // 海岛阶段数组
+       *         // [items] end
+       *         '1_6_island'?: string[]
+       *         // [title] 2.8 海岛数据
+       *         '2_8_island'?: {
+       *           // [title] 海岛名
+       *           island_name?: string
+       *           // [title] 海岛状态
+       *           // 海岛状态标签
+       *           // [items] start
+       *           // [title] 海岛状态
+       *           // 海岛状态标签
+       *           // [items] end
+       *           island_state?: string[]
+       *         }
+       *       }
        *       // [title] 点位图片
        *       picture?: string
        *       // [title] 点位初始标记者
@@ -4820,8 +5073,53 @@ declare global {
        *   refreshTime?: number
        *   // [title] 隐藏标志
        *   hiddenFlag?: number
-       *   // [title] 额外特殊字段
-       *   extra?: Record<string, object>
+       *   // [title] 点位附加数据前端封装
+       *   extra?: {
+       *     // [title] 分层层级数据
+       *     underground?: {
+       *       // [title] 是否是分层层级
+       *       is_underground?: boolean
+       *       // [title] 是否是非地面层级
+       *       is_global?: boolean
+       *       // [title] 分层区域
+       *       // 分层区域标签
+       *       // [items] start
+       *       // [title] 分层区域
+       *       // 分层区域标签
+       *       // [items] end
+       *       region_levels?: string[]
+       *     }
+       *     // [title] 图标覆盖数据
+       *     iconOverride?: {
+       *       // [title] 图标ID
+       *       id?: number
+       *       // [title] 最小可见缩放级别
+       *       // 最小可见缩放级别，大于该值可见
+       *       minZoom?: number
+       *       // [title] 最大可见缩放级别
+       *       // 最大可见缩放级别，小于该值可见
+       *       maxZoom?: number
+       *     }
+       *     // [title] 1.6 海岛数据
+       *     // 海岛阶段数组
+       *     // [items] start
+       *     // [title] 1.6 海岛数据
+       *     // 海岛阶段数组
+       *     // [items] end
+       *     '1_6_island'?: string[]
+       *     // [title] 2.8 海岛数据
+       *     '2_8_island'?: {
+       *       // [title] 海岛名
+       *       island_name?: string
+       *       // [title] 海岛状态
+       *       // 海岛状态标签
+       *       // [items] start
+       *       // [title] 海岛状态
+       *       // 海岛状态标签
+       *       // [items] end
+       *       island_state?: string[]
+       *     }
+       *   }
        *   // [title] 点位关联组ID
        *   linkageId?: string
        * }
@@ -4922,8 +5220,53 @@ declare global {
        *   refreshTime?: number
        *   // [title] 隐藏标志
        *   hiddenFlag?: number
-       *   // [title] 额外特殊字段
-       *   extra?: Record<string, object>
+       *   // [title] 点位附加数据前端封装
+       *   extra?: {
+       *     // [title] 分层层级数据
+       *     underground?: {
+       *       // [title] 是否是分层层级
+       *       is_underground?: boolean
+       *       // [title] 是否是非地面层级
+       *       is_global?: boolean
+       *       // [title] 分层区域
+       *       // 分层区域标签
+       *       // [items] start
+       *       // [title] 分层区域
+       *       // 分层区域标签
+       *       // [items] end
+       *       region_levels?: string[]
+       *     }
+       *     // [title] 图标覆盖数据
+       *     iconOverride?: {
+       *       // [title] 图标ID
+       *       id?: number
+       *       // [title] 最小可见缩放级别
+       *       // 最小可见缩放级别，大于该值可见
+       *       minZoom?: number
+       *       // [title] 最大可见缩放级别
+       *       // 最大可见缩放级别，小于该值可见
+       *       maxZoom?: number
+       *     }
+       *     // [title] 1.6 海岛数据
+       *     // 海岛阶段数组
+       *     // [items] start
+       *     // [title] 1.6 海岛数据
+       *     // 海岛阶段数组
+       *     // [items] end
+       *     '1_6_island'?: string[]
+       *     // [title] 2.8 海岛数据
+       *     '2_8_island'?: {
+       *       // [title] 海岛名
+       *       island_name?: string
+       *       // [title] 海岛状态
+       *       // 海岛状态标签
+       *       // [items] start
+       *       // [title] 海岛状态
+       *       // 海岛状态标签
+       *       // [items] end
+       *       island_state?: string[]
+       *     }
+       *   }
        *   // [title] 点位关联组ID
        *   linkageId?: string
        * }
@@ -5081,8 +5424,53 @@ declare global {
        *     refreshTime?: number
        *     // [title] 隐藏标志
        *     hiddenFlag?: number
-       *     // [title] 额外特殊字段
-       *     extra?: Record<string, object>
+       *     // [title] 点位附加数据前端封装
+       *     extra?: {
+       *       // [title] 分层层级数据
+       *       underground?: {
+       *         // [title] 是否是分层层级
+       *         is_underground?: boolean
+       *         // [title] 是否是非地面层级
+       *         is_global?: boolean
+       *         // [title] 分层区域
+       *         // 分层区域标签
+       *         // [items] start
+       *         // [title] 分层区域
+       *         // 分层区域标签
+       *         // [items] end
+       *         region_levels?: string[]
+       *       }
+       *       // [title] 图标覆盖数据
+       *       iconOverride?: {
+       *         // [title] 图标ID
+       *         id?: number
+       *         // [title] 最小可见缩放级别
+       *         // 最小可见缩放级别，大于该值可见
+       *         minZoom?: number
+       *         // [title] 最大可见缩放级别
+       *         // 最大可见缩放级别，小于该值可见
+       *         maxZoom?: number
+       *       }
+       *       // [title] 1.6 海岛数据
+       *       // 海岛阶段数组
+       *       // [items] start
+       *       // [title] 1.6 海岛数据
+       *       // 海岛阶段数组
+       *       // [items] end
+       *       '1_6_island'?: string[]
+       *       // [title] 2.8 海岛数据
+       *       '2_8_island'?: {
+       *         // [title] 海岛名
+       *         island_name?: string
+       *         // [title] 海岛状态
+       *         // 海岛状态标签
+       *         // [items] start
+       *         // [title] 海岛状态
+       *         // 海岛状态标签
+       *         // [items] end
+       *         island_state?: string[]
+       *       }
+       *     }
        *     // [title] 点位关联组ID
        *     linkageId?: string
        *   }>
@@ -5195,8 +5583,53 @@ declare global {
        *       refreshTime?: number
        *       // [title] 隐藏标志
        *       hiddenFlag?: number
-       *       // [title] 额外特殊字段
-       *       extra?: Record<string, object>
+       *       // [title] 点位附加数据前端封装
+       *       extra?: {
+       *         // [title] 分层层级数据
+       *         underground?: {
+       *           // [title] 是否是分层层级
+       *           is_underground?: boolean
+       *           // [title] 是否是非地面层级
+       *           is_global?: boolean
+       *           // [title] 分层区域
+       *           // 分层区域标签
+       *           // [items] start
+       *           // [title] 分层区域
+       *           // 分层区域标签
+       *           // [items] end
+       *           region_levels?: string[]
+       *         }
+       *         // [title] 图标覆盖数据
+       *         iconOverride?: {
+       *           // [title] 图标ID
+       *           id?: number
+       *           // [title] 最小可见缩放级别
+       *           // 最小可见缩放级别，大于该值可见
+       *           minZoom?: number
+       *           // [title] 最大可见缩放级别
+       *           // 最大可见缩放级别，小于该值可见
+       *           maxZoom?: number
+       *         }
+       *         // [title] 1.6 海岛数据
+       *         // 海岛阶段数组
+       *         // [items] start
+       *         // [title] 1.6 海岛数据
+       *         // 海岛阶段数组
+       *         // [items] end
+       *         '1_6_island'?: string[]
+       *         // [title] 2.8 海岛数据
+       *         '2_8_island'?: {
+       *           // [title] 海岛名
+       *           island_name?: string
+       *           // [title] 海岛状态
+       *           // 海岛状态标签
+       *           // [items] start
+       *           // [title] 海岛状态
+       *           // 海岛状态标签
+       *           // [items] end
+       *           island_state?: string[]
+       *         }
+       *       }
        *       // [title] 点位关联组ID
        *       linkageId?: string
        *     }>
@@ -5426,8 +5859,53 @@ declare global {
        *     refreshTime?: number
        *     // [title] 隐藏标志
        *     hiddenFlag?: number
-       *     // [title] 额外特殊字段
-       *     extra?: Record<string, object>
+       *     // [title] 点位附加数据前端封装
+       *     extra?: {
+       *       // [title] 分层层级数据
+       *       underground?: {
+       *         // [title] 是否是分层层级
+       *         is_underground?: boolean
+       *         // [title] 是否是非地面层级
+       *         is_global?: boolean
+       *         // [title] 分层区域
+       *         // 分层区域标签
+       *         // [items] start
+       *         // [title] 分层区域
+       *         // 分层区域标签
+       *         // [items] end
+       *         region_levels?: string[]
+       *       }
+       *       // [title] 图标覆盖数据
+       *       iconOverride?: {
+       *         // [title] 图标ID
+       *         id?: number
+       *         // [title] 最小可见缩放级别
+       *         // 最小可见缩放级别，大于该值可见
+       *         minZoom?: number
+       *         // [title] 最大可见缩放级别
+       *         // 最大可见缩放级别，小于该值可见
+       *         maxZoom?: number
+       *       }
+       *       // [title] 1.6 海岛数据
+       *       // 海岛阶段数组
+       *       // [items] start
+       *       // [title] 1.6 海岛数据
+       *       // 海岛阶段数组
+       *       // [items] end
+       *       '1_6_island'?: string[]
+       *       // [title] 2.8 海岛数据
+       *       '2_8_island'?: {
+       *         // [title] 海岛名
+       *         island_name?: string
+       *         // [title] 海岛状态
+       *         // 海岛状态标签
+       *         // [items] start
+       *         // [title] 海岛状态
+       *         // 海岛状态标签
+       *         // [items] end
+       *         island_state?: string[]
+       *       }
+       *     }
        *     // [title] 点位关联组ID
        *     linkageId?: string
        *   }>
@@ -5553,8 +6031,53 @@ declare global {
        *     refreshTime?: number
        *     // [title] 隐藏标志
        *     hiddenFlag?: number
-       *     // [title] 额外特殊字段
-       *     extra?: Record<string, object>
+       *     // [title] 点位附加数据前端封装
+       *     extra?: {
+       *       // [title] 分层层级数据
+       *       underground?: {
+       *         // [title] 是否是分层层级
+       *         is_underground?: boolean
+       *         // [title] 是否是非地面层级
+       *         is_global?: boolean
+       *         // [title] 分层区域
+       *         // 分层区域标签
+       *         // [items] start
+       *         // [title] 分层区域
+       *         // 分层区域标签
+       *         // [items] end
+       *         region_levels?: string[]
+       *       }
+       *       // [title] 图标覆盖数据
+       *       iconOverride?: {
+       *         // [title] 图标ID
+       *         id?: number
+       *         // [title] 最小可见缩放级别
+       *         // 最小可见缩放级别，大于该值可见
+       *         minZoom?: number
+       *         // [title] 最大可见缩放级别
+       *         // 最大可见缩放级别，小于该值可见
+       *         maxZoom?: number
+       *       }
+       *       // [title] 1.6 海岛数据
+       *       // 海岛阶段数组
+       *       // [items] start
+       *       // [title] 1.6 海岛数据
+       *       // 海岛阶段数组
+       *       // [items] end
+       *       '1_6_island'?: string[]
+       *       // [title] 2.8 海岛数据
+       *       '2_8_island'?: {
+       *         // [title] 海岛名
+       *         island_name?: string
+       *         // [title] 海岛状态
+       *         // 海岛状态标签
+       *         // [items] start
+       *         // [title] 海岛状态
+       *         // 海岛状态标签
+       *         // [items] end
+       *         island_state?: string[]
+       *       }
+       *     }
        *     // [title] 点位关联组ID
        *     linkageId?: string
        *   }>
@@ -9719,8 +10242,53 @@ declare global {
        *       position?: string
        *       // [title] 点位说明
        *       content?: string
-       *       // [title] 额外特殊字段
-       *       extra?: Record<string, object>
+       *       // [title] 点位附加数据前端封装
+       *       extra?: {
+       *         // [title] 分层层级数据
+       *         underground?: {
+       *           // [title] 是否是分层层级
+       *           is_underground?: boolean
+       *           // [title] 是否是非地面层级
+       *           is_global?: boolean
+       *           // [title] 分层区域
+       *           // 分层区域标签
+       *           // [items] start
+       *           // [title] 分层区域
+       *           // 分层区域标签
+       *           // [items] end
+       *           region_levels?: string[]
+       *         }
+       *         // [title] 图标覆盖数据
+       *         iconOverride?: {
+       *           // [title] 图标ID
+       *           id?: number
+       *           // [title] 最小可见缩放级别
+       *           // 最小可见缩放级别，大于该值可见
+       *           minZoom?: number
+       *           // [title] 最大可见缩放级别
+       *           // 最大可见缩放级别，小于该值可见
+       *           maxZoom?: number
+       *         }
+       *         // [title] 1.6 海岛数据
+       *         // 海岛阶段数组
+       *         // [items] start
+       *         // [title] 1.6 海岛数据
+       *         // 海岛阶段数组
+       *         // [items] end
+       *         '1_6_island'?: string[]
+       *         // [title] 2.8 海岛数据
+       *         '2_8_island'?: {
+       *           // [title] 海岛名
+       *           island_name?: string
+       *           // [title] 海岛状态
+       *           // 海岛状态标签
+       *           // [items] start
+       *           // [title] 海岛状态
+       *           // 海岛状态标签
+       *           // [items] end
+       *           island_state?: string[]
+       *         }
+       *       }
        *       // [title] 点位图片
        *       picture?: string
        *       // [title] 点位初始标记者
@@ -9848,8 +10416,53 @@ declare global {
        *     position?: string
        *     // [title] 点位说明
        *     content?: string
-       *     // [title] 额外特殊字段
-       *     extra?: Record<string, object>
+       *     // [title] 点位附加数据前端封装
+       *     extra?: {
+       *       // [title] 分层层级数据
+       *       underground?: {
+       *         // [title] 是否是分层层级
+       *         is_underground?: boolean
+       *         // [title] 是否是非地面层级
+       *         is_global?: boolean
+       *         // [title] 分层区域
+       *         // 分层区域标签
+       *         // [items] start
+       *         // [title] 分层区域
+       *         // 分层区域标签
+       *         // [items] end
+       *         region_levels?: string[]
+       *       }
+       *       // [title] 图标覆盖数据
+       *       iconOverride?: {
+       *         // [title] 图标ID
+       *         id?: number
+       *         // [title] 最小可见缩放级别
+       *         // 最小可见缩放级别，大于该值可见
+       *         minZoom?: number
+       *         // [title] 最大可见缩放级别
+       *         // 最大可见缩放级别，小于该值可见
+       *         maxZoom?: number
+       *       }
+       *       // [title] 1.6 海岛数据
+       *       // 海岛阶段数组
+       *       // [items] start
+       *       // [title] 1.6 海岛数据
+       *       // 海岛阶段数组
+       *       // [items] end
+       *       '1_6_island'?: string[]
+       *       // [title] 2.8 海岛数据
+       *       '2_8_island'?: {
+       *         // [title] 海岛名
+       *         island_name?: string
+       *         // [title] 海岛状态
+       *         // 海岛状态标签
+       *         // [items] start
+       *         // [title] 海岛状态
+       *         // 海岛状态标签
+       *         // [items] end
+       *         island_state?: string[]
+       *       }
+       *     }
        *     // [title] 点位图片
        *     picture?: string
        *     // [title] 点位初始标记者
@@ -9951,8 +10564,53 @@ declare global {
        *     position?: string
        *     // [title] 点位说明
        *     content?: string
-       *     // [title] 额外特殊字段
-       *     extra?: Record<string, object>
+       *     // [title] 点位附加数据前端封装
+       *     extra?: {
+       *       // [title] 分层层级数据
+       *       underground?: {
+       *         // [title] 是否是分层层级
+       *         is_underground?: boolean
+       *         // [title] 是否是非地面层级
+       *         is_global?: boolean
+       *         // [title] 分层区域
+       *         // 分层区域标签
+       *         // [items] start
+       *         // [title] 分层区域
+       *         // 分层区域标签
+       *         // [items] end
+       *         region_levels?: string[]
+       *       }
+       *       // [title] 图标覆盖数据
+       *       iconOverride?: {
+       *         // [title] 图标ID
+       *         id?: number
+       *         // [title] 最小可见缩放级别
+       *         // 最小可见缩放级别，大于该值可见
+       *         minZoom?: number
+       *         // [title] 最大可见缩放级别
+       *         // 最大可见缩放级别，小于该值可见
+       *         maxZoom?: number
+       *       }
+       *       // [title] 1.6 海岛数据
+       *       // 海岛阶段数组
+       *       // [items] start
+       *       // [title] 1.6 海岛数据
+       *       // 海岛阶段数组
+       *       // [items] end
+       *       '1_6_island'?: string[]
+       *       // [title] 2.8 海岛数据
+       *       '2_8_island'?: {
+       *         // [title] 海岛名
+       *         island_name?: string
+       *         // [title] 海岛状态
+       *         // 海岛状态标签
+       *         // [items] start
+       *         // [title] 海岛状态
+       *         // 海岛状态标签
+       *         // [items] end
+       *         island_state?: string[]
+       *       }
+       *     }
        *     // [title] 点位图片
        *     picture?: string
        *     // [title] 点位初始标记者
@@ -11010,6 +11668,23 @@ declare global {
       >(
         config: Config
       ): Alova2Method<string[], 'marker_doc.listPageMarkerByBinary', Config>;
+      /**
+       * ---
+       *
+       * [GET] 返回所有点位
+       *
+       * **path:** /api/marker_doc/list_markers
+       *
+       * ---
+       *
+       * **Response**
+       * ```ts
+       * type Response = string[]
+       * ```
+       */
+      listMarkersByBinary<Config extends Alova2MethodConfig<string[]>>(
+        config?: Config
+      ): Alova2Method<string[], 'marker_doc.listMarkersByBinary', Config>;
       /**
        * ---
        *

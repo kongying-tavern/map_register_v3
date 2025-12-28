@@ -103,6 +103,7 @@ export default {
   'marker_link_doc.graphAllMarkerLinkageBinaryMD5': ['GET', '/api/marker_link_doc/all_graph_bin_md5'],
   'marker_doc.listMarkerBinaryMD5': ['GET', '/api/marker_doc/list_page_bin_md5'],
   'marker_doc.listPageMarkerByBinary': ['GET', '/api/marker_doc/list_page_bin/{md5}'],
+  'marker_doc.listMarkersByBinary': ['GET', '/api/marker_doc/list_markers'],
   'marker_doc.listMarkerDiffSnapshotByBinary': ['GET', '/api/marker_doc/list_diff_snapshot'],
   'item_doc.listItemBinaryMD5': ['GET', '/api/item_doc/list_page_bin_md5'],
   'item_doc.listPageItemByBinary': ['GET', '/api/item_doc/list_page_bin/{md5}'],

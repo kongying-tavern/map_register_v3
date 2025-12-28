@@ -1,9 +1,11 @@
+import type { MarkerDiffSnapshotProtobuf } from '@/api/protobuf/typings'
 import { createAlova } from 'alova'
 import { createClientTokenAuthentication } from 'alova/client'
 import fetchAdapter from 'alova/fetch'
 import VueHook from 'alova/vue'
+import protoUrl from '@/api/protobuf/MarkerDiffSnapshotVo.proto?url'
 import { useUserStore } from '@/stores'
-import { Logger } from '@/utils'
+import { compileProtobufDecoder, Logger } from '@/utils'
 import { createApis, withConfigType } from './createApis'
 
 const logger = new Logger('Alova')
@@ -69,7 +71,16 @@ export const alovaInstance = createAlova({
   },
 })
 
-export const $$userConfigMap = withConfigType({})
+export const $$userConfigMap = withConfigType({
+  'marker_doc.listMarkerDiffSnapshotByBinary': {
+    meta: { raw: true },
+    transform: async (res) => {
+      const buffer = await (res as unknown as Response).arrayBuffer()
+      const decoder = await compileProtobufDecoder(protoUrl, 'protobuf.MarkerDiffSnapshotVoList')
+      return decoder.decode(new Uint8Array(buffer)) as unknown as MarkerDiffSnapshotProtobuf
+    },
+  },
+})
 
 const Apis = createApis(alovaInstance, $$userConfigMap)
 
