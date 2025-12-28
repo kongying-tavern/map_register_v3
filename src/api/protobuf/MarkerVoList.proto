@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+import "MarkerVo.proto";
+import "SysUserSmallVo.proto";
+
+package protobuf;
+
+message MarkerVoList {
+    repeated MarkerVo markers = 1;
+    map<uint64, SysUserSmallVo> users = 2;
+}

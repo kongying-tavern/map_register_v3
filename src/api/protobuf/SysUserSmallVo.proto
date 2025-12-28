@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package protobuf;
+
+message SysUserSmallVo {
+    string username = 1;
+    string nickname = 2;
+    string qq = 3;
+    optional string phone = 4;
+    optional string logo = 5;
+    optional string remark = 15;
+}
