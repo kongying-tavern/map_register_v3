@@ -2,14 +2,14 @@
  * 为点位选择主要渲染图标
  * @todo 可能需要根据设置来选择策略
  */
-export const pickMainItem = ({ itemList = [], extra }: API.MarkerVo, itemIdMap: Map<number, API.ItemVo>) => {
+export const pickMainItem = ({ itemList, extra }: API.MarkerVo, itemIdMap: Map<number, API.ItemVo>) => {
   const restItemIds: number[] = []
   const restIconTags: string[] = []
 
   let index = -1
   let mainItem: API.ItemVo | undefined
 
-  itemList.forEach(({ itemId = -1 }) => {
+  itemList?.forEach(({ itemId = -1 }) => {
     const item = itemIdMap.get(itemId)
     if (!item)
       return
