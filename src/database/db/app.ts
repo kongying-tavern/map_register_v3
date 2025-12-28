@@ -1,25 +1,26 @@
-import type { Hash, ScoreGeneratedCache, UserArchiveBody } from 'types/database'
+import type { ScoreGeneratedCache, UserArchiveBody } from 'types/database'
+import type * as API2 from '@/api/alova/globals'
 import { Dexie } from 'dexie'
 
 /** 本地通用数据库 */
 export class AppDexie extends Dexie {
   /** 地区 @全量接口 */
-  declare area: Dexie.Table<Hash<API.AreaVo>, number>
+  declare area: Dexie.Table<API2.AreaVo, number>
 
   /** 图标 @全量接口 */
-  declare icon: Dexie.Table<Hash<API.IconVo>, string>
+  declare icon: Dexie.Table<API2.IconVo, string>
 
   /** 物品 @全量接口 */
-  declare item: Dexie.Table<Hash<API.ItemVo>, number>
+  declare item: Dexie.Table<API2.ItemVo, number>
 
   /** 物品类型 @分页接口 */
-  declare itemType: Dexie.Table<Hash<API.ItemTypeVo>, number>
+  declare itemType: Dexie.Table<API2.ItemTypeVo, number>
 
   /** 点位 @全量接口 */
-  declare marker: Dexie.Table<Hash<API.MarkerVo>, number>
+  declare marker: Dexie.Table<API2.MarkerVo, number>
 
   /** 点位关联 @全量接口 */
-  declare markerLink: Dexie.Table<Hash<API.MarkerLinkageVo>, number>
+  declare markerLink: Dexie.Table<API2.MarkerLinkageVo, number>
 
   /** 用户存档 @仅限本地 */
   declare userArchive: Dexie.Table<UserArchiveBody, number>
@@ -34,15 +35,15 @@ export class AppDexie extends Dexie {
   declare scoreCache: Dexie.Table<ScoreGeneratedCache, string>
 
   /** 数据库结构版本 */
-  readonly VERSION = 1
+  readonly VERSION = 2
 
   readonly STORES = {
-    area: '&id, __hash',
-    icon: '&id, __hash',
-    item: '&id, __hash',
-    itemType: '&id, __hash',
-    marker: '&id, __hash',
-    markerLink: '&id, groupId, __hash',
+    area: '&id',
+    icon: '&id',
+    item: '&id',
+    itemType: '&id',
+    marker: '&id',
+    markerLink: '&id, groupId',
     userArchive: '&id',
     websocketEvents: '&key, time',
     scoreCache: '&id',
