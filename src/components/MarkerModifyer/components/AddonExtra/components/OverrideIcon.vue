@@ -10,7 +10,7 @@ const iconStore = useIconStore()
 const cacheText = ref('')
 const [query, setQuery] = useState('')
 
-const tagList = computed(() => {
+const iconList = computed(() => {
   const queryText = toValue(query).trim()
   if (!queryText)
     return iconStore.iconList
@@ -19,6 +19,12 @@ const tagList = computed(() => {
 
 const modelValue = defineModel<API.MarkerExtra['iconOverride'] | undefined>({
   required: true,
+})
+
+const meta = computed(() => {
+  if (!modelValue.value?.id)
+    return undefined
+  return iconStore.idMap.get(modelValue.value.id)
 })
 
 /**
@@ -50,11 +56,11 @@ const marks = Object.fromEntries(Array.from({ length: 5 }).map((_, i) => {
   return [num, `${num}`]
 }))
 
-const toggleTag = (tag: API.IconVo) => {
+const toggleTag = (icon: API.IconVo) => {
   const value = toValue(modelValue)
-  if (!value || value.id !== tag.tag) {
+  if (!value || value.id !== icon.id) {
     const [minZoom, maxZoom] = zoomRange.value
-    modelValue.value = { id: tag.tag!, minZoom, maxZoom }
+    modelValue.value = { id: icon.id!, minZoom, maxZoom }
     return
   }
   modelValue.value = undefined
@@ -84,20 +90,20 @@ const toggleTag = (tag: API.IconVo) => {
 
       <div class="h-[258px] flex gap-1 overflow-hidden">
         <AppVirtualTable
-          :data="tagList"
+          :data="iconList"
           :item-width="48"
           :item-height="48"
           :item-gap="[4, 4]"
           class="w-[268px] flex-shrink-0 rounded border border-[var(--el-border-color)]"
         >
-          <template #default="{ item: tag }">
+          <template #default="{ item: icon }">
             <div
               class="tag-item"
-              :class="{ 'is-actived': modelValue?.id === tag.tag }"
-              @click="() => toggleTag(tag)"
+              :class="{ 'is-actived': modelValue?.id === icon.id }"
+              @click="() => toggleTag(icon)"
             >
               <ElIcon
-                v-if="modelValue?.id === tag.tag"
+                v-if="modelValue?.id === icon.tag"
                 class="checked-anime-in top-0 right-0 bg-[var(--el-color-primary)] rounded-[0_3px_0_4px] p-0.5 z-10"
                 style="position: absolute"
                 color="var(--el-color-primary-light-7)"
@@ -107,7 +113,7 @@ const toggleTag = (tag: API.IconVo) => {
               </ElIcon>
               <AppIconTagRenderer
                 :src="iconStore.iconTextureUrl"
-                :mapping="iconStore.iconCoordMap.get(tag.tag!)"
+                :mapping="iconStore.iconCoordMap.get(icon.id!)"
                 class="w-10 h-10 rounded-[20px] bg-[var(--el-color-info-light-9)]"
               />
             </div>
@@ -117,9 +123,8 @@ const toggleTag = (tag: API.IconVo) => {
         <div class="flex-1 flex flex-col items-center">
           <div
             class="w-[112px] text-center text-sm flex-shrink-0 pt-4 whitespace-nowrap text-ellipsis overflow-hidden"
-            :title="modelValue?.id"
           >
-            {{ modelValue?.id ?? '<选择图标>' }}
+            {{ meta ? meta.tag : '<选择图标>' }}
           </div>
 
           <div class="flex-1 w-full grid place-content-center">

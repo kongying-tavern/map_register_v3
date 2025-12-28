@@ -1,31 +1,33 @@
-import type { Root, Type } from 'protobufjs'
-import type { Hash } from 'types/database'
+import type * as API2 from '@/api/alova/globals'
+import type { MarkerDiffSnapshot } from '@/api/protobuf/typings'
+import type { WorkerInput } from '@/worker/idb.worker'
 import { AddLocation, DeleteLocation, Location } from '@element-plus/icons-vue'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { load } from 'protobufjs'
 import Apis from '@/api/alova'
-import Api from '@/api/api'
-import ProtobufUrl from '@/api/protobuf/marker-diff-snapshot.proto?url'
 import db from '@/database/db'
-import { HashFlag } from '@/shared'
 import { formatByteSize } from '@/utils'
+import BulkPutWorker from '@/worker/idb.worker?worker'
 import { useAccessStore, useSocketStore, useUserStore } from '.'
 import { useManager } from './hooks'
-import { isAccessible } from './utils'
+import { getCostTime, isAccessible } from './utils'
 
 interface ManagerContext {
-  timer: Ref<number>
   startTime: Ref<number>
   message: Ref<string>
+  tag: Ref<string>
 }
 
-interface MarkerDiffSnapshot {
-  id: number
-  version: number
+interface DiffData {
+  updateList: API2.MarkerVo[]
+  deleteIds: number[]
+  clear?: boolean
 }
 
-interface MarkerDiffSnapshotProtobuf {
-  snapshots: MarkerDiffSnapshot[]
+const getMarkersByIds = async (ids: number[]) => {
+  if (!ids.length)
+    return []
+  const { data = [] } = await Apis.marker.listMarkerById({ data: { markerIdList: ids } })
+  return data
 }
 
 const getAllMarkers = async (context: ManagerContext) => {
@@ -43,7 +45,7 @@ const getAllMarkers = async (context: ManagerContext) => {
     transform: async (res) => {
       const { body } = res as unknown as Response
       if (!body)
-        return [] as API.MarkerVo[]
+        return [] as API2.MarkerVo[]
       const decoder = new TextDecoder()
       let text = ''
       let totalBytes = 0
@@ -52,11 +54,36 @@ const getAllMarkers = async (context: ManagerContext) => {
         context.message.value = `正在下载点位列表: ${formatByteSize(totalBytes)}`
         text += decoder.decode(chunk, { stream: true })
       }
-      const { data: markerList = [] } = JSON.parse(text) as { data: API.MarkerVo[] }
-      return markerList as API.MarkerVo[]
+      const { data: markerList = [] } = JSON.parse(text) as { data: API2.MarkerVo[] }
+      return markerList as API2.MarkerVo[]
     },
   })
   return markerList
+}
+
+const diffMapMarkers = async (
+  snapshots: MarkerDiffSnapshot[],
+  markerMap: Map<number, API2.MarkerVo>,
+) => {
+  const deleteIds = new Set(markerMap.keys())
+  const updateIds = new Set<number>()
+  let count = 0
+  const { length } = snapshots
+  for (let i = 0; i < length; i++) {
+    count++
+    if (count % 2000 === 0)
+      await scheduler.yield() // 每 2000 个点位等一次，避免卡顿
+    const { id, version } = snapshots[i]
+    deleteIds.delete(id)
+    const currentMarker = markerMap.get(id)
+    if (currentMarker && (currentMarker.version ?? 0) >= version)
+      continue
+    updateIds.add(id)
+  }
+  return {
+    updateIds: [...updateIds],
+    deleteIds: [...deleteIds],
+  }
 }
 
 /** 全量点位的全局数据 */
@@ -65,48 +92,43 @@ export const useMarkerStore = defineStore('global-marker', () => {
   const socketStore = useSocketStore()
   const userStore = useUserStore()
 
-  const protobufDecoderRef = shallowRef<Type | null>(null)
+  // ============================== 内部状态 ==============================
 
-  // ==================== 内部状态 ====================
+  /** 点位 id 索引表 */
+  const localMarkerMap = shallowRef(new Map<number, API2.MarkerVo>())
 
-  /** 原始点位 id 到点位对象的映射 */
-  const localMarkerMap = shallowRef(new Map<number, API.MarkerVo>())
-
-  /** 点位序列 */
-  const markerIdList = computed(() => [...localMarkerMap.value.keys()])
+  // ============================== 代理方法 ==============================
 
   /**
    * @local 更新本地点位
-   * @param markers 点位数据
+   * - 已包含 version 比较逻辑
    */
-  const updateLocal = (markers: Hash<API.MarkerVo>[]) => {
-    if (!markers.length)
+  const updateLocal = (options: {
+    updateList?: API2.MarkerVo[]
+    deleteIds?: number[]
+  }) => {
+    const { updateList = [], deleteIds = [] } = options
+    if (!updateList.length && !deleteIds.length)
       return
-    const ids = new Set(markerIdList.value)
-    const markersMap = new Map<number, Hash<API.MarkerVo>>(localMarkerMap.value)
-    const { length } = markers
-    for (let i = 0; i < length; i++) {
-      const marker = markers[i]
-      const { id } = marker
-      if (!id)
-        continue
-      ids.add(id)
-      markersMap.set(id, marker)
+    const { length: deleteLength } = deleteIds
+    for (let i = 0; i < deleteLength; i++) {
+      const id = deleteIds[i]
+      localMarkerMap.value.delete(id)
     }
-    localMarkerMap.value = markersMap
-  }
-
-  /** @local 删除点位 */
-  const deleteLocal = (markerIds: number[]) => {
-    const deleteIds = new Set(markerIds)
-    const markersMap = new Map<number, Hash<API.MarkerVo>>(localMarkerMap.value)
-    deleteIds.forEach(id => markersMap.delete(id))
-    localMarkerMap.value = markersMap
+    const { length: updateLength } = updateList
+    for (let i = 0; i < updateLength; i++) {
+      const marker = updateList[i]
+      const { id, version = 0 } = marker
+      if (!id || (version <= (localMarkerMap.value.get(id)?.version ?? 0)))
+        continue
+      localMarkerMap.value.set(id, marker)
+    }
+    triggerRef(localMarkerMap)
   }
 
   /** @server 创建点位 */
-  const createMarker = async (markerForm: API.MarkerVo) => {
-    const { data: markerId } = await Api.marker.createMarker(markerForm)
+  const createMarker = async (markerForm: API2.MarkerVo) => {
+    const { data: markerId } = await Apis.marker.createMarker({ data: markerForm })
     if (!markerId)
       throw new Error('服务器未返回新点位 id')
     const { data: [marker] = [] } = await Apis.marker.listMarkerById({
@@ -114,15 +136,14 @@ export const useMarkerStore = defineStore('global-marker', () => {
     })
     if (!marker)
       throw new Error('服务器未返回新点位数据')
-    const hashMarker: Hash<API.MarkerVo> = { ...marker, __hash: HashFlag.LOCAL }
-    updateLocal([hashMarker])
+    updateLocal({ updateList: [marker] })
   }
 
   /** @server 更新点位 */
-  const updateMarker = async (markerForm: API.MarkerVo) => {
+  const updateMarker = async (markerForm: API2.MarkerVo) => {
     if (!markerForm.id)
       throw new Error('点位 id 为空')
-    const { data: isSuccess, message } = await Api.marker.updateMarker(markerForm)
+    const { data: isSuccess, message } = await Apis.marker.updateMarker({ data: markerForm })
     if (!isSuccess)
       throw new Error(message)
     const { data: [marker] = [] } = await Apis.marker.listMarkerById({
@@ -130,48 +151,42 @@ export const useMarkerStore = defineStore('global-marker', () => {
     })
     if (!marker)
       throw new Error('服务器未返回新点位数据')
-    const hashMarker: Hash<API.MarkerVo> = { ...marker, __hash: HashFlag.LOCAL }
-    updateLocal([hashMarker])
+    updateLocal({ updateList: [marker] })
   }
 
   /** @server 删除点位 */
   const deleteMarker = async (markerId: number) => {
-    const { data: isSuccess, message } = await Api.marker.deleteMarker({ markerId })
+    const { data: isSuccess, message } = await Apis.marker.deleteMarker({
+      pathParams: { markerId },
+    })
     if (!isSuccess)
       throw new Error(message)
-    deleteLocal([markerId])
+    updateLocal({ deleteIds: [markerId] })
   }
 
   /** @server 批量操作点位 */
-  const tweakMarkers = async (tweaks: API.TweakVo[]) => {
-    const { data = [] } = await Api.marker.tweakMarkers(tweaks)
-    updateLocal(data.map(marker => ({ ...marker, __hash: HashFlag.LOCAL })))
+  const tweakMarkers = async (tweaks: API2.TweakVo[]) => {
+    const { data = [] } = await Apis.marker.tweakMarkers({ data: tweaks })
+    updateLocal({ updateList: data })
   }
 
-  // ==================== 外部状态 ====================
+  // ============================== 外部状态 ==============================
 
   /** 经过 hiddenFlag 过滤后的点位列表 */
   const list = computed(() => {
-    const res: API.MarkerVo[] = []
-    const { length } = markerIdList.value
+    const res: API2.MarkerVo[] = []
     const { userHiddenFlagMask } = accessStore
-    for (let i = 0; i < length; i++) {
-      const id = markerIdList.value[i]
-      if (!id)
-        continue
-      const marker = localMarkerMap.value.get(id)
-      if (!marker)
-        continue
+    localMarkerMap.value.forEach((marker) => {
       if (!isAccessible(userHiddenFlagMask, marker.hiddenFlag))
-        continue
+        return
       res.push(marker)
-    }
+    })
     return res
   })
 
   const total = computed(() => list.value.length)
 
-  // ==================== 数据更新 ====================
+  // ============================== 数据更新 ==============================
 
   const {
     context,
@@ -180,104 +195,84 @@ export const useMarkerStore = defineStore('global-marker', () => {
     nextUpdateTime,
     loading: updateLoading,
     update,
-  } = useManager<ManagerContext, void | API.MarkerVo[]>({
+  } = useManager<ManagerContext, DiffData | void>({
     timeoutPull: {
       time: 60 * 60 * 1000,
       condition: () => userStore.info?.roleId !== undefined,
     },
 
     context: {
-      timer: ref(-1),
-      startTime: ref(Date.now()),
+      startTime: ref(0),
       message: ref(''),
+      tag: ref(''),
+    },
+
+    syncState: async (data, context) => {
+      if (!data)
+        return
+      if (!data.updateList.length && !data.deleteIds.length) {
+        context.message.value = [
+          `[${context.tag.value}] `,
+          '没有需要更新的数据，',
+          `耗时 ${getCostTime(context.startTime.value).toFixed(1)}s`,
+        ].join('')
+        return
+      }
+      const { updateList, deleteIds } = data
+      updateLocal(data)
+      context.message.value = [
+        `[${context.tag.value}] `,
+        `更新(${updateList.length})，`,
+        `删除(${deleteIds.length})，`,
+        `耗时：${getCostTime(context.startTime.value).toFixed(1)}s`,
+      ].join('')
+    },
+
+    commit: (data) => {
+      if (!data || (!data.updateList.length && !data.deleteIds.length))
+        return
+      const worker = new BulkPutWorker({ name: '点位更新线程' })
+      worker.addEventListener('message', () => {
+        worker.terminate()
+      })
+      worker.postMessage(<WorkerInput<number, API2.MarkerVo>>{
+        tableName: 'marker',
+        clear: data.clear,
+        bulkPutData: data.updateList,
+        bulkDeleteKeys: data.deleteIds,
+      })
     },
 
     init: async (context) => {
-      window.clearTimeout(context.timer.value)
       context.startTime.value = Date.now()
-      context.message.value = '初始化点位数据'
-      return db.app.marker.toArray()
-    },
-
-    syncState: async (data) => {
-      if (!data)
-        return
-      const map = new Map<number, API.MarkerVo>(localMarkerMap.value)
-      const { length } = data
-      for (let i = 0; i < length; i++) {
-        const newMarker = data[i]
-        const oldMarker = map.get(newMarker.id!)
-        if (oldMarker && (oldMarker.version ?? 0) > (newMarker.version ?? 0))
-          continue
-        map.set(newMarker.id!, newMarker)
-      }
-      localMarkerMap.value = map
-      const costTime = (Date.now() - context.startTime.value) / 1000
-      context.message.value += `，耗时：${costTime.toFixed(2)}s`
+      context.tag.value = '初始化'
+      context.message.value = `[${context.tag.value}] 拉取冷数据...`
+      const localMarkers = await db.app.marker.toArray()
+      updateLocal({ updateList: localMarkers })
     },
 
     diff: async (context) => {
       context.startTime.value = Date.now()
-      context.message.value = '正在对比点位数据'
-      const newMarkerMap = new Map(localMarkerMap.value)
-      const deleteIds = new Set(newMarkerMap.keys())
-      const updateIds = new Set<number>()
-      if (!protobufDecoderRef.value) {
-        const root = await new Promise<Root>((resolve, reject) => {
-          load(ProtobufUrl, (err, root) => {
-            if (err)
-              return reject(err)
-            if (!root)
-              return reject(new Error('Protobuf 加载失败'))
-            resolve(root)
-          })
-        })
-        protobufDecoderRef.value = root.lookupType('protobuf.MarkerDiffSnapshotVoList')
-      }
-      const buffer = await Apis.marker_doc.listMarkerDiffSnapshotByBinary({
-        meta: { raw: true },
-        transform: async (res) => {
-          const buffer = await (res as unknown as Response).arrayBuffer()
-          return buffer
-        },
-      })
-      const data = protobufDecoderRef.value.decode(new Uint8Array(buffer)) as unknown as MarkerDiffSnapshotProtobuf
-      const { length } = data.snapshots
-      for (let i = 0; i < length; i++) {
-        const { id, version } = data.snapshots[i]
-        deleteIds.delete(id)
-        const localMarker = localMarkerMap.value.get(id)
-        if (localMarker && (localMarker.version ?? 0) >= version)
-          continue
-        updateIds.add(id)
-      }
-      deleteIds.forEach(id => newMarkerMap.delete(id))
-      const { data: markerList = [] } = await Apis.marker.listMarkerById({
-        data: { markerIdList: Array.from(updateIds) },
-      })
-      context.message.value = `更新 ${updateIds.size} 项，删除 ${deleteIds.size} 项`
-      markerList.forEach(marker => newMarkerMap.set(marker.id!, marker))
-      return Array.from(newMarkerMap.values())
+      context.tag.value = '差异'
+      context.message.value = `[${context.tag.value}] 拉取比对快照...`
+      const { snapshots } = await Apis.marker_doc.listMarkerDiffSnapshotByBinary()
+      context.message.value = `[${context.tag.value}] 计算差异...`
+      const { updateIds, deleteIds } = await diffMapMarkers(snapshots, localMarkerMap.value)
+      context.message.value = `[${context.tag.value}] 拉取更新数据...`
+      const updateList = await getMarkersByIds(updateIds)
+      return { updateList, deleteIds }
     },
 
     full: async (context) => {
-      window.clearTimeout(context.timer.value)
       context.startTime.value = Date.now()
-      context.message.value = '正在重新获取点位数据'
-      const markerList = await getAllMarkers(context)
-      context.message.value = `更新 ${markerList.length} 项`
-      return markerList
-    },
-
-    commit: async (data) => {
-      if (!data)
-        return
-      await db.app.marker.clear()
-      await db.app.marker.bulkPut(data)
+      context.tag.value = '全量'
+      context.message.value = `[${context.tag.value}] 正在获取点位数据...`
+      const updateList = await getAllMarkers(context)
+      return { updateList, deleteIds: [] as number[], clear: true }
     },
   })
 
-  // ==================== 外部响应 ====================
+  // ============================== 外部响应 ==============================
 
   // 单个点位更新
   socketStore.appEvent.on('MarkerUpdated', async (markerInfo, userInfo) => {
@@ -285,12 +280,12 @@ export const useMarkerStore = defineStore('global-marker', () => {
     if (!id)
       return
     const { username = `(uid: ${updaterId})`, nickname } = userInfo
+    updateLocal({ updateList: [markerInfo] })
     socketStore.notice('MarkerUpdated', {
       message: `${nickname ?? username} 更新了点位 ${markerTitle} (id:${id})`,
       icon: Location,
       customClass: 'text-[var(--el-color-primary)]',
     })
-    updateLocal([{ ...markerInfo, __hash: HashFlag.LOCAL }])
   })
 
   // 单个点位新增
@@ -299,12 +294,12 @@ export const useMarkerStore = defineStore('global-marker', () => {
     if (!id)
       return
     const { username = `(uid: ${creatorId})`, nickname } = userInfo
+    updateLocal({ updateList: [markerInfo] })
     socketStore.notice('MarkerAdded', {
       message: `${nickname ?? username} 新增了点位 ${markerTitle} (id:${id})`,
       icon: AddLocation,
       customClass: 'text-[var(--el-color-success)]',
     })
-    updateLocal([{ ...markerInfo, __hash: HashFlag.LOCAL }])
   })
 
   // 单个点位删除
@@ -313,12 +308,12 @@ export const useMarkerStore = defineStore('global-marker', () => {
     if (!id)
       return
     const { username = `(uid: ${creatorId})`, nickname } = userInfo
+    updateLocal({ deleteIds: [id] })
     socketStore.notice('MarkerDeleted', {
       message: `${nickname ?? username} 删除了点位 ${markerTitle} (id:${id})`,
       icon: DeleteLocation,
       customClass: 'text-[var(--el-color-danger)]',
     })
-    deleteLocal([markerInfo.id!])
   })
 
   // 点位批量更新
@@ -327,12 +322,12 @@ export const useMarkerStore = defineStore('global-marker', () => {
       return
     const [{ updaterId }] = data
     const { username = `(uid: ${updaterId})`, nickname } = userInfo
+    updateLocal({ updateList: data })
     socketStore.notice('MarkerTweaked', {
       message: `${nickname ?? username} 批量更新了 ${data.length} 个点位`,
       icon: Location,
       customClass: 'text-[var(--el-color-success)]',
     })
-    updateLocal(data.map(info => ({ ...info, __hash: HashFlag.LOCAL })))
   })
 
   return {

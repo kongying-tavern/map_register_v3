@@ -2,7 +2,7 @@
  * 为点位选择主要渲染图标
  * @todo 可能需要根据设置来选择策略
  */
-export const pickMainItem = ({ itemList = [], extra = {} }: API.MarkerVo, itemIdMap: Map<number, API.ItemVo>) => {
+export const pickMainItem = ({ itemList = [], extra }: API.MarkerVo, itemIdMap: Map<number, API.ItemVo>) => {
   const restItemIds: number[] = []
   const restIconTags: string[] = []
 
@@ -29,7 +29,7 @@ export const pickMainItem = ({ itemList = [], extra = {} }: API.MarkerVo, itemId
     index = sortIndex
   })
 
-  const { iconOverride } = extra as API.MarkerExtra
+  const { iconOverride } = (extra ?? {}) as API.MarkerExtra
 
   return {
     mainItemId: mainItem?.id ?? -1,

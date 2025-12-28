@@ -280,7 +280,7 @@ const render = async (options: WorkerInput, logger: Logger): Promise<WorkerSucce
       if (width > textureSizeLimit || height > textureSizeLimit)
         throw new Error('缓存的纹理不符合限制要求')
       if (width !== canvasW || height !== canvasH)
-        throw new Error('纹理尺寸不统一')
+        throw new Error(`纹理尺寸不统一，缓存: ${width}x${height}，当前: ${canvasW}x${canvasH}`)
       if (Object.keys(cacheMarkerSprite.mapping).length !== totalRenders)
         throw new Error('状态总数不统一')
       return cacheMarkerSprite

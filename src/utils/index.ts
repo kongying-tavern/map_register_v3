@@ -1,6 +1,7 @@
 export * from './array2tree'
 export * from './base64'
 export * from './BinaryMask'
+export { compileProtobufDecoder } from './compile-protobuf-decoder'
 export * from './createWorkerHelper'
 export * from './ensureFrom'
 export * from './EventBus'

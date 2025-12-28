@@ -2,12 +2,14 @@ import dayjs from 'dayjs'
 import { ElMessage } from 'element-plus'
 import Api from '@/api/api'
 import Resource from '@/api/resource'
-import db from '@/database/db'
 import { useFetchHook } from '@/hooks'
+import { useIconStore } from '@/stores'
 import { getDigest, toBlob } from '@/utils'
 
 export const useIconCreate = (form: Ref<API.IconVo>, options: IconCreateOptions = {}) => {
   const { type = 'png' } = options
+
+  const iconStore = useIconStore()
 
   const stash = shallowRef<Record<string, HTMLCanvasElement>>({})
 
@@ -74,7 +76,7 @@ export const useIconCreate = (form: Ref<API.IconVo>, options: IconCreateOptions 
         return acc
       }, {} as Record<string, string>)
 
-      const { data: iconId, message: createMessage } = await Api.icon.createIcon({
+      await iconStore.createIcon({
         description,
         id,
         tag,
@@ -82,19 +84,6 @@ export const useIconCreate = (form: Ref<API.IconVo>, options: IconCreateOptions 
         url: defaultVariant,
         urlVariants,
       })
-
-      try {
-        if (iconId === undefined)
-          throw new Error(createMessage)
-        const { data = {}, error, message = '' } = await Api.icon.getIcon({ iconId })
-        if (error)
-          throw new Error(message)
-        await db.app.icon.put(data)
-      }
-      catch (err) {
-        const message = err instanceof Error ? err.message : JSON.stringify(err)
-        ElMessage.warning(`创建图标成功，但在确认图标信息时出现了错误: ${message}。稍后将会同步此图标的信息。`)
-      }
     },
   })
 

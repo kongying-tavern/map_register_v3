@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Setting } from '@element-plus/icons-vue'
+import { useIconStore } from '@/stores'
 import { AddonTeleporter } from '..'
 import { useAddonActive } from '../../hooks'
 import { OverrideIcon, RegionCommon, RegionIsland16, RegionIsland28 } from './components'
@@ -48,14 +49,17 @@ const regionIsland16Map = computed(() => {
 const tagParser: Record<string, (data: unknown) => TagInfo | TagInfo[]> = {
   'iconOverride': (data: unknown) => {
     if (typeof data !== 'object' || !data)
-      return []
-    const { id: tag } = (data as API.MarkerExtra['iconOverride']) ?? {}
-    if (!tag)
-      return []
+      return [] as TagInfo[]
+    const { id } = (data as API.MarkerExtra['iconOverride']) ?? {}
+    if (!id)
+      return [] as TagInfo[]
+    const icon = useIconStore().idMap.get(id)
+    if (!icon)
+      return [] as TagInfo[]
     return {
       type: '覆盖图标',
-      label: tag,
-    }
+      label: icon.tag,
+    } as TagInfo
   },
 
   'underground': (data: unknown) => {

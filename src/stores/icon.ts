@@ -1,42 +1,57 @@
-import type { Hash } from 'types/database'
-import type { ShallowRef } from 'vue'
-import type { WorkerInput, WorkerOutput } from '@/worker/idb.worker'
+import type * as API2 from '@/api/alova/globals'
+import type { WorkerInput } from '@/worker/idb.worker'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import Api from '@/api/api'
-import db from '@/database'
-import { HashFlag } from '@/shared'
-import { Zip } from '@/utils'
 import BulkPutWorker from '@/worker/idb.worker?worker'
-import { useSocketStore, useUserStore } from '.'
+import { useUserStore } from '.'
 import { useIconTextureRender, useManager, useMarkerTextureRender } from './hooks'
+import { getCostTime } from './utils'
+
+interface ManagerContext {
+  startTime: Ref<number>
+  message: Ref<string>
+  tag: Ref<string>
+}
+
+interface DiffData {
+  updateMap: Map<number, API2.IconVo>
+  deleteIds: number[]
+  clear?: boolean
+}
+
+const getAllIcons = async (context: ManagerContext) => {
+  context.message.value = '正在获取图标列表'
+  const { data: { total = 0 } = {} } = await Apis.icon.listIcon({ data: { current: 1, size: 1 } })
+  const missionTotal = Math.ceil(total / 500)
+  const iconMap = new Map<number, API2.IconVo>()
+  let finished = 0
+  await Promise.allSettled(Array.from({ length: missionTotal }).map(async (_, index) => {
+    const { data: { record = [] } = {} } = await Apis.icon.listIcon({
+      data: {
+        current: index + 1,
+        size: 500,
+      },
+    })
+    const { length } = record
+    for (let i = 0; i < length; i++) {
+      const icon = record[i]
+      iconMap.set(icon.id!, icon)
+    }
+    finished += 1
+    context.message.value = `正在获取图标列表 (${finished}/${total})`
+  }))
+  return iconMap
+}
 
 /** 本地图标数据 */
 export const useIconStore = defineStore('global-icon', () => {
-  const socketStore = useSocketStore()
   const userStore = useUserStore()
 
-  // ==================== 内部状态 ====================
-  /** 原始图标 id 到图标对象的映射（与 markerStore 对齐） */
-  const localIconMap = shallowRef(new Map<number, Hash<API.IconVo>>())
+  // ============================== 内部状态 ==============================
 
-  /** 图标 id 序列（与 markerStore 对齐） */
-  const iconIdList = ref<number[]>([])
+  const localIconMap = shallowRef(new Map<number, API2.IconVo>())
 
-  // ==================== 外部状态 ====================
-  const list = computed(() => {
-    const result: API.IconVo[] = []
-    const { length } = iconIdList.value
-    for (let i = 0; i < length; i++) {
-      const id = iconIdList.value[i]
-      if (!id)
-        continue
-      const icon = localIconMap.value.get(id)
-      if (!icon)
-        continue
-      result.push(icon)
-    }
-    return result
-  })
+  // ============================== 外部状态 ==============================
+  const list = computed(() => [...localIconMap.value.values()])
 
   const total = computed(() => list.value.length)
 
@@ -56,71 +71,39 @@ export const useIconStore = defineStore('global-icon', () => {
     iconTexture,
   })
 
-  /**
-   * @local 刷新图标精灵图
-   * 与 `iconIdList` / `localIconMap` 当前状态保持一致
-   */
-  const refreshSpriteByState = () => {
-    const allIcons: API.IconVo[] = []
-    const { length } = iconIdList.value
-    for (let i = 0; i < length; i++) {
-      const id = iconIdList.value[i]
-      const icon = localIconMap.value.get(id)
-      if (icon)
-        allIcons.push(icon)
-    }
-    refreshIconSprite(allIcons)
-  }
+  watch(list, data => refreshIconSprite(data))
 
   /**
    * @local 更新本地图标
-   * @param icons 图标数据
+   * - 已包含 version 比较逻辑
    */
-  const updateLocal = (icons: Hash<API.IconVo>[]) => {
-    if (!icons.length)
-      return
-    const ids = new Set(iconIdList.value)
-    const iconMap = new Map<number, Hash<API.IconVo>>(localIconMap.value)
-    const { length } = icons
-    for (let i = 0; i < length; i++) {
-      const icon = icons[i]
-      const { id } = icon
-      if (!id)
-        continue
-      ids.add(id)
-      iconMap.set(id, icon)
+  const updateLocal = (options: {
+    updateList?: API2.IconVo[]
+    deleteIds?: number[]
+  }) => {
+    const { updateList = [], deleteIds = [] } = options
+
+    // 处理删除
+    const { length: deleteLength } = deleteIds
+    for (let i = 0; i < deleteLength; i++) {
+      const id = deleteIds[i]
+      localIconMap.value.delete(id)
     }
-    iconIdList.value = [...ids]
-    localIconMap.value = iconMap
-    db.icon.bulkPut(toRaw(icons))
-    refreshSpriteByState()
+
+    // 处理更新
+    const { length: updateLength } = updateList
+    for (let i = 0; i < updateLength; i++) {
+      const icon = updateList[i]
+      const { id, version = 0 } = icon
+      if (!id || (version <= (localIconMap.value.get(id)?.version ?? 0)))
+        continue
+      localIconMap.value.set(id, icon)
+    }
+
+    triggerRef(localIconMap)
   }
 
-  /** @local 删除本地图标 */
-  const deleteLocal = (iconIds: number[]) => {
-    const deleteIds = new Set(iconIds)
-    const iconMap = new Map<number, Hash<API.IconVo>>(localIconMap.value)
-    deleteIds.forEach(id => iconMap.delete(id))
-    iconIdList.value = iconIdList.value.filter(id => !deleteIds.has(id))
-    localIconMap.value = iconMap
-    db.icon.bulkDelete(toRaw(iconIds) as unknown as string[])
-    refreshSpriteByState()
-  }
-
-  // ==================== 数据更新 ====================
-
-  interface DiffContext {
-    controller: ShallowRef<AbortController>
-    startTime: Ref<number>
-    message: Ref<string>
-    updateCount: Ref<number>
-  }
-
-  interface DiffData {
-    bulkPutData?: Hash<API.IconVo>[]
-    bulkDeleteKeys?: number[]
-    clear?: boolean
-  }
+  // ============================== 数据更新 ==============================
 
   const {
     context,
@@ -129,223 +112,99 @@ export const useIconStore = defineStore('global-icon', () => {
     nextUpdateTime,
     loading: updateLoading,
     update,
-  } = useManager<DiffContext, DiffData | void>({
+  } = useManager<ManagerContext, DiffData | void>({
     timeoutPull: {
-      time: 20 * 60 * 1000,
+      time: 60 * 60 * 1000,
       condition: () => userStore.info?.roleId !== undefined,
     },
 
     context: {
-      controller: shallowRef(new AbortController()),
-      startTime: ref(Date.now()),
+      startTime: ref(0),
       message: ref(''),
-      updateCount: ref(0),
-    } as DiffContext,
-
-    init: async (ctx, full) => {
-      const dbList = await db.icon.toArray()
-      if (!dbList.length)
-        return full(ctx)
-      return {
-        bulkPutData: dbList,
-        clear: true,
-      } as DiffData
+      tag: ref(''),
     },
 
-    diff: async ({ startTime, message, updateCount, controller }) => {
-      controller.value.abort()
-      const ac = new AbortController()
-      controller.value = ac
-      startTime.value = Date.now()
-
-      message.value = '获取签名列表'
-      const { data: digestData = {} } = await Api.iconDoc.listAllIconBinaryMd5()
-      if (ac.signal.aborted)
+    syncState: async (data, context) => {
+      if (!data)
         return
-      const { md5: digest = '', time: newUpdateTime = 0 } = digestData
-      if (!digest)
+      if (!data.updateMap.size && !data.deleteIds.length) {
+        context.message.value = [
+          `[${context.tag.value}] `,
+          '没有需要更新的数据，',
+          `耗时 ${getCostTime(context.startTime.value).toFixed(1)}s`,
+        ].join('')
         return
-
-      // 计算本地数据的最新更新时间
-      let oldUpdateTime = 0
-      localIconMap.value.forEach((icon) => {
-        const time = new Date(icon.updateTime || 0).getTime()
-        if (time > oldUpdateTime)
-          oldUpdateTime = time
-      })
-
-      // 远程数据没有比本地更新，跳过
-      if (newUpdateTime <= oldUpdateTime)
-        return
-
-      message.value = '获取更新数据'
-
-      const buffer = await <Promise<ArrayBuffer>>(<unknown>Api.iconDoc.listAllIconBinary({ responseType: 'arraybuffer' }))
-      if (ac.signal.aborted)
-        return
-      const data = await Zip.decompressAs<API.IconVo[]>(new Uint8Array(buffer), { name: `icon-${digest}` })
-      const remoteIconMap = new Map<number, Hash<API.IconVo>>()
-      const { length: remoteLength } = data
-      for (let i = 0; i < remoteLength; i++) {
-        const icon = data[i]
-        if (!icon.id)
-          continue
-        remoteIconMap.set(icon.id, { ...icon, __hash: digest })
       }
-
-      // 计算需要更新与删除的图标
-      const needUpdateIcons: Hash<API.IconVo>[] = []
-      const needDeleteIconIds: number[] = []
-      const localIconMapCopy = new Map(localIconMap.value)
-
-      // 1. 处理新增或版本领先的远程图标
-      for (const [id, remoteIcon] of remoteIconMap) {
-        const localIcon = localIconMapCopy.get(id)
-        // 本地不存在，直接新增
-        if (!localIcon) {
-          needUpdateIcons.push(remoteIcon)
-          continue
-        }
-        // 版本对比，远程版本领先则更新
-        if ((remoteIcon.version ?? 0) > (localIcon.version ?? 0))
-          needUpdateIcons.push(remoteIcon)
-      }
-
-      // 2. 处理需要删除的本地图标
-      for (const [id, localIcon] of localIconMapCopy) {
-        // 本地 LOCAL 标记的图标认为是“本地优先”，即使远程没有也不删除
-        if (localIcon.__hash === HashFlag.LOCAL)
-          continue
-        // 远程不存在该 id，认为已被删除
-        if (!remoteIconMap.has(id))
-          needDeleteIconIds.push(id)
-      }
-
-      updateCount.value = needUpdateIcons.length + needDeleteIconIds.length
-      if (!updateCount.value)
-        return
-
-      return {
-        bulkPutData: needUpdateIcons,
-        bulkDeleteKeys: needDeleteIconIds,
-        clear: false,
-      } as DiffData
+      if (data.clear)
+        localIconMap.value = new Map<number, API2.IconVo>()
+      const { updateMap: updateList, deleteIds } = data
+      updateLocal(data)
+      context.message.value = [
+        `[${context.tag.value}] `,
+        `更新(${updateList.size})，`,
+        `删除(${deleteIds.length})，`,
+        `耗时：${getCostTime(context.startTime.value).toFixed(1)}s`,
+      ].join('')
     },
 
-    full: async ({ startTime, message, updateCount }) => {
-      startTime.value = Date.now()
-
-      message.value = '获取签名列表'
-      const { data: digestData = {} } = await Api.iconDoc.listAllIconBinaryMd5()
-      const { md5: hash = '' } = digestData
-      if (!hash) {
-        return {
-          bulkPutData: [],
-          bulkDeleteKeys: [],
-          clear: false,
-        } as DiffData
-      }
-
-      message.value = '获取更新数据'
-      const buffer = await <Promise<ArrayBuffer>>(<unknown>Api.iconDoc.listAllIconBinary({ responseType: 'arraybuffer' }))
-      const data = await Zip.decompressAs<API.IconVo[]>(new Uint8Array(buffer), { name: `icon-${hash}` })
-      const newData = data.map(newOne => (<Hash<API.IconVo>>{ ...newOne, __hash: hash }))
-
-      updateCount.value = newData.length
-
-      return {
-        bulkPutData: newData,
-        bulkDeleteKeys: [],
-        clear: true,
-      } as DiffData
-    },
-
-    syncState: (options, _ctx, isInit) => {
-      if (!options)
+    commit: (data) => {
+      if (!data || (!data.updateMap.size && !data.deleteIds.length))
         return
-      const {
-        bulkPutData = [],
-        bulkDeleteKeys = [],
-        clear,
-      } = options
-      const deletedIds = new Set<number>(bulkDeleteKeys as number[])
-
-      // 更新本地状态（与 markerStore 对齐的 Map + idList 结构）
-      const isNew = !!(isInit || clear)
-
-      const newIconMap = isNew
-        ? new Map<number, Hash<API.IconVo>>()
-        : new Map<number, Hash<API.IconVo>>(localIconMap.value)
-
-      const newIdList: number[] = []
-      if (!isNew) {
-        const { length: originLength } = iconIdList.value
-        for (let i = 0; i < originLength; i++) {
-          const id = iconIdList.value[i]
-          if (!deletedIds.has(id)) {
-            newIdList.push(id)
-          }
-        }
-      }
-
-      const { length } = bulkPutData
-      for (let i = 0; i < length; i++) {
-        const icon = bulkPutData[i]
-        const id = icon.id
-        if (!id)
-          continue
-        newIconMap.set(id, icon)
-        if (isNew) {
-          newIdList.push(id)
-        }
-        else if (!deletedIds.has(id) && !iconIdList.value.includes(id)) {
-          newIdList.push(id)
-        }
-      }
-
-      localIconMap.value = newIconMap
-      iconIdList.value = newIdList
-
-      // 刷新图标精灵图，保持与 iconList 顺序一致
-      refreshSpriteByState()
-    },
-
-    commit: async (options, { message, startTime, updateCount }) => {
-      if (!options || !updateCount.value) {
-        message.value = '没有需要更新的数据'
-        return
-      }
-      message.value = '写入更新数据'
-      const { resolve, promise } = Promise.withResolvers<WorkerOutput>()
       const worker = new BulkPutWorker({ name: '图标更新线程' })
-      worker.addEventListener('message', (ev: MessageEvent<WorkerOutput>) => resolve(ev.data))
-      worker.postMessage({ tableName: 'icon', ...options } as WorkerInput<number, Hash<API.IconVo>>)
-      const { error, message: workerMsg } = await promise
-      worker.terminate()
-      if (error) {
-        message.value = workerMsg
-        return
-      }
-      message.value = `更新 ${updateCount.value} 项, 耗时: ${((Date.now() - startTime.value) / 1000).toFixed(1)}s`
+      worker.addEventListener('message', () => {
+        worker.terminate()
+      })
+      worker.postMessage(<WorkerInput<number, API2.IconVo>>{
+        tableName: 'icon',
+        clear: data.clear,
+        bulkPutData: Array.from(data.updateMap.values()),
+        bulkDeleteKeys: data.deleteIds,
+      })
+    },
+
+    init: async (context) => {
+      context.startTime.value = Date.now()
+      context.tag.value = '初始化'
+      context.message.value = `[${context.tag.value}] 拉取最新数据...`
+      const updateMap = await getAllIcons(context)
+      updateLocal({ updateList: Array.from(updateMap.values()) })
+      context.message.value = `[${context.tag.value}] 完毕: ${getCostTime(context.startTime.value).toFixed(1)}s`
+    },
+
+    diff: async (context) => {
+      context.startTime.value = Date.now()
+      context.tag.value = '差异'
+      context.message.value = '图标数据暂不支持差异更新'
+      // no diff for items
+    },
+
+    full: async (context) => {
+      context.startTime.value = Date.now()
+      context.tag.value = '全量'
+      const updateMap = await getAllIcons(context)
+      return { updateMap, deleteIds: [] }
     },
   })
+
+  /** @server 创建图标（封装 Api.icon.createIcon 与本地更新逻辑） */
+  const createIcon = async (iconForm: API.IconVo) => {
+    const { data: id } = await Apis.icon.createIcon({ data: iconForm })
+    updateLocal({ updateList: [{ ...iconForm, id }] })
+  }
 
   /** @server 更新图标（封装 Api.icon.updateIcon 与本地更新逻辑） */
   const updateIcon = async (iconForm: API.IconVo) => {
     if (!iconForm.id)
       throw new Error('图标 id 为空')
-
-    const { data: isSuccess, message } = await Api.icon.updateIcon(iconForm)
-    if (!isSuccess)
-      throw new Error(message)
-
+    await Apis.icon.updateIcon({ data: iconForm })
     // 再次从服务器获取最新数据并写入本地
     try {
-      const { data = {}, error, message: getMsg = '' } = await Api.icon.getIcon({ iconId: iconForm.id })
+      const { data = {}, error, message: getMsg = '' } = await Apis.icon.getIcon({
+        pathParams: { iconId: iconForm.id },
+      })
       if (error)
         throw new Error(getMsg)
-      const hashIcon: Hash<API.IconVo> = { ...data, __hash: HashFlag.LOCAL }
-      updateLocal([hashIcon])
+      updateLocal({ updateList: [data] })
     }
     catch {
       // 同步本地失败不影响整体更新流程，等待后续全量同步修正
@@ -354,15 +213,13 @@ export const useIconStore = defineStore('global-icon', () => {
 
   /** @server 删除图标（封装 Api.icon.deleteIcon 与本地更新逻辑） */
   const deleteIcon = async (iconId: number) => {
-    const { data: isSuccess, message } = await Api.icon.deleteIcon({ iconId })
+    const { data: isSuccess, message } = await Apis.icon.deleteIcon({ pathParams: { iconId } })
     if (!isSuccess)
       throw new Error(message)
-    deleteLocal([iconId])
+    updateLocal({ deleteIds: [iconId] })
   }
 
-  // ==================== 外部响应 ====================
-
-  socketStore.appEvent.on('IconBinaryPurged', () => update())
+  // ============================== 外部响应 ==============================
 
   return {
     // 数据更新
@@ -386,17 +243,17 @@ export const useIconStore = defineStore('global-icon', () => {
 
     // 本地操作
     updateLocal,
-    deleteLocal,
 
     // 服务器操作
+    createIcon,
     updateIcon,
     deleteIcon,
 
     // 计算状态
-    iconList: list as Readonly<ShallowRef<API.IconVo[]>>,
+    iconList: list,
     total,
     /** 与 markerStore 一致，直接暴露本地 id -> icon 映射表 */
-    idMap: localIconMap as unknown as Readonly<ShallowRef<Map<number, API.IconVo>>>,
+    idMap: localIconMap,
   }
 })
 

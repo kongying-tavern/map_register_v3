@@ -1,6 +1,10 @@
 <script setup lang="ts">
-import type { GSMarkerInfo, MarkerLinkMission } from '@/packages/map'
 import type { ModifyLinkOptions } from './MarkerLink'
+import type { GSMarkerInfo, MarkerLinkMission } from '@/packages/map'
+import { useSubscription } from '@vueuse/rxjs'
+import { ElMessage } from 'element-plus'
+import { animate } from 'popmotion'
+import { filter, finalize, map, race, repeat, switchMap, takeUntil, tap } from 'rxjs'
 import { AppWindowTeleporter } from '@/components'
 import { GSLinkLayer, GSMarkerLayer } from '@/packages/map'
 import {
@@ -11,10 +15,6 @@ import {
   TempLayerIndex,
 } from '@/shared'
 import { useMapStateStore, useMarkerLinkStore, useMarkerStore } from '@/stores'
-import { useSubscription } from '@vueuse/rxjs'
-import { ElMessage } from 'element-plus'
-import { animate } from 'popmotion'
-import { filter, finalize, map, race, repeat, switchMap, takeUntil, tap } from 'rxjs'
 import { useLinkOperate } from '../hooks'
 import BarItem from './BarItem.vue'
 import {

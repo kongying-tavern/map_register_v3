@@ -11,13 +11,13 @@ export interface ManagerOptions<C, T> {
   /** 自定义上下文 */
   context: C
   /** 初始化上下文 */
-  init?: (context: C, full: () => Promise<T>) => Promise<T>
+  init?: (context: C) => Promise<void> | void
   /** 差异更新数据 */
   diff?: (context: C) => Promise<T>
   /** 全量更新数据 */
   full: (context: C) => Promise<T>
   /** 写入数据 */
-  commit: (data: T, context: C) => Promise<void>
+  commit: (data: Awaited<T> | void, context: C) => Promise<void> | void
   /**
    * 用于同步本地状态
    * @param data 要同步的数据，通常是 diff 或 full 返回的数据
@@ -42,34 +42,29 @@ export const useManager = <C, T>(options: ManagerOptions<C, T>) => {
     syncState,
   } = options
 
-  const isInit = ref(false)
-  const error = ref('')
+  const errorMessage = ref('')
 
-  const initPromise = init?.(context, () => full(context))
-    .then((initData) => {
-      if (initData === undefined || !syncState)
-        return
-      return syncState(initData, context, true)
-    })
-    .finally(() => {
-      isInit.value = true
-    })
+  const initFlag = ref(false)
 
   const { refresh: update, loading, onError, ...rest } = useFetchHook({
     onRequest: async (options: ManagerUpdateOptions = {}) => {
-      if (!isInit.value)
-        return
-      error.value = ''
-      await initPromise
+      errorMessage.value = ''
       const { isFull = false } = options
-      const data = await (isFull ? full : diff ?? full)(context)
-      await syncState?.(data, context, false)
+      const isInit = !initFlag.value
+      const data = await (async () => {
+        if (!initFlag.value) {
+          await init?.(context)
+          initFlag.value = true
+        }
+        return (isFull ? full : diff ?? full)(context)
+      })()
+      await syncState?.(data, context, isInit)
       await commit(data, context)
     },
   })
 
   onError((err) => {
-    error.value = err.message
+    errorMessage.value = err.message
   })
 
   /** 下一次更新的时间 */
@@ -98,7 +93,7 @@ export const useManager = <C, T>(options: ManagerOptions<C, T>) => {
   }
 
   return {
-    error,
+    error: errorMessage,
     context,
     update,
     onError,

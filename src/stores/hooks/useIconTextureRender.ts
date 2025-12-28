@@ -7,7 +7,12 @@ export const useIconTextureRender = () => {
   const texture = shallowRef<Blob>()
 
   /** 图标纹理 url */
-  const textureUrl = useObjectUrl(texture)
+  const textureUrl = ref<string | undefined>()
+
+  watch(texture, () => {
+    textureUrl.value && URL.revokeObjectURL(textureUrl.value)
+    textureUrl.value = texture.value ? URL.createObjectURL(texture.value) : undefined
+  })
 
   /** 图标到坐标的映射 */
   const positionList = shallowRef<DBType.IconSprite['positionList']>([])

@@ -1,17 +1,52 @@
-import type { Hash } from 'types/database'
-import type { HashGroupMeta } from './utils'
-import type { WorkerInput, WorkerOutput } from '@/worker/idb.worker'
+import type * as API2 from '@/api/alova/globals'
+import type { WorkerInput } from '@/worker/idb.worker'
 import { Box } from '@element-plus/icons-vue'
-import { liveQuery } from 'dexie'
-import { defineStore } from 'pinia'
-import Api from '@/api/api'
-import db from '@/database'
-import { HashFlag } from '@/shared'
-import { Zip } from '@/utils'
+import { acceptHMRUpdate, defineStore } from 'pinia'
 import BulkPutWorker from '@/worker/idb.worker?worker'
 import { useAccessStore, useSocketStore, useUserStore } from '.'
-import { useAfterUpdated, useManager } from './hooks'
-import { createHashGroupMap } from './utils'
+import { useManager } from './hooks'
+import { getCostTime } from './utils'
+
+interface ManagerContext {
+  startTime: Ref<number>
+  message: Ref<string>
+  tag: Ref<string>
+}
+
+interface DiffData {
+  updateMap: Map<number, API2.ItemVo>
+  deleteIds: number[]
+  clear?: boolean
+}
+
+const getAllItems = async (context: ManagerContext) => {
+  context.message.value = '正在获取区域列表'
+  const areaIds = await Apis.area.listArea({
+    data: { isTraverse: true },
+    transform: res => (res.data ?? []).filter(area => area.parentId !== -1).map(({ id }) => id!),
+  })
+  context.message.value = '正在准备获取物品列表'
+  const itemMap = new Map<number, API2.ItemVo>()
+  const total = areaIds.length
+  let finished = 0
+  await Promise.allSettled(areaIds.map(async (areaId) => {
+    const { data: { record = [] } = {} } = await Apis.item.listItemIdByType({
+      data: {
+        areaIdList: [areaId],
+        current: 1,
+        size: 500,
+      },
+    })
+    const { length } = record
+    for (let i = 0; i < length; i++) {
+      const item = record[i]
+      itemMap.set(item.id!, item)
+    }
+    finished += 1
+    context.message.value = `正在获取物品列表 (${finished}/${total})`
+  }))
+  return itemMap
+}
 
 /** 本地物品数据 */
 export const useItemStore = defineStore('global-item', () => {
@@ -19,203 +54,141 @@ export const useItemStore = defineStore('global-item', () => {
   const socketStore = useSocketStore()
   const userStore = useUserStore()
 
-  // ==================== 内部状态 ====================
-  const hashGroupMap = shallowRef(new Map<string, HashGroupMeta<Hash<API.ItemVo>>>())
+  // ============================== 内部状态 ==============================
 
-  const idHashMap = computed(() => {
-    const result = new Map<number, string>()
-    hashGroupMap.value.forEach(({ list }) => {
-      list.forEach(({ id, __hash = HashFlag.DEFAULT }) => {
-        result.set(id!, __hash)
-      })
-    })
-    return result
-  })
+  /** 物品 id 索引表 */
+  const localItemMap = shallowRef(new Map<number, API2.ItemVo>())
 
-  // ==================== 外部状态 ====================
+  // ============================== 代理方法 ==============================
+
+  /**
+   * @local 更新本地物品
+   * - 已包含 version 比较逻辑
+   */
+  const updateLocal = (options: {
+    updateList?: Map<number, API2.ItemVo>
+    deleteIds?: number[]
+  }) => {
+    const { updateList = new Map(), deleteIds = [] } = options
+    if (!updateList.size && !deleteIds.length)
+      return
+    const { length: deleteLength } = deleteIds
+    for (let i = 0; i < deleteLength; i++) {
+      const id = deleteIds[i]
+      localItemMap.value.delete(id)
+    }
+    for (const [_, item] of updateList.entries()) {
+      const { id, version = 0 } = item
+      if (!id || (version <= (localItemMap.value.get(id)?.version ?? 0)))
+        continue
+      localItemMap.value.set(id, item)
+    }
+    triggerRef(localItemMap)
+  }
+
+  // ============================== 外部状态 ==============================
+
   const list = computed(() => {
-    const res: API.ItemVo[] = []
-    hashGroupMap.value.forEach(({ list: scopeList }) => {
-      for (let i = 0; i < scopeList.length; i++) {
-        const itemInfo = scopeList[i]
-        if (!accessStore.checkHiddenFlag(itemInfo.hiddenFlag))
-          continue
-        res.push(itemInfo)
-      }
+    const res: API2.ItemVo[] = []
+    localItemMap.value.forEach((item) => {
+      if (!accessStore.checkHiddenFlag(item.hiddenFlag))
+        return
+      res.push(item)
     })
     return res.sort(({ sortIndex: ia = 0 }, { sortIndex: ib = 0 }) => ib - ia)
   })
 
   const total = computed(() => list.value.length)
 
-  const idMap = computed(() => {
-    const map = new Map<number, API.ItemVo>()
-    const { length } = list.value
-    for (let i = 0; i < length; i++) {
-      const item = list.value[i]
-      map.set(item.id!, item)
-    }
-    return map
-  })
+  // ============================== 数据更新 ==============================
 
-  const itemIdMap = computed(() => list.value.reduce((seed, item) => {
-    seed.set(item.id!, item)
-    return seed
-  }, new Map<number, API.ItemVo>()))
-
-  // ==================== 数据更新 ====================
-
-  const { context, isActive, error: managerError, nextUpdateTime, loading: updateLoading, update } = useManager({
+  const {
+    context,
+    isActive,
+    error: managerError,
+    nextUpdateTime,
+    loading: updateLoading,
+    update,
+  } = useManager<ManagerContext, DiffData | void>({
     timeoutPull: {
-      time: 20 * 60 * 1000,
+      time: 60 * 60 * 1000,
       condition: () => userStore.info?.roleId !== undefined,
     },
 
     context: {
-      updateCount: ref(0),
-      startTime: ref(Date.now()),
+      startTime: ref(0),
       message: ref(''),
+      tag: ref(''),
     },
 
-    init: async () => {
-      const dbList = await db.item.toArray()
-      hashGroupMap.value = createHashGroupMap(dbList)
-      triggerRef(hashGroupMap)
-    },
-
-    diff: async ({ updateCount, startTime, message }) => {
-      startTime.value = Date.now()
-
-      message.value = '获取签名列表'
-      const { data: hashList = [] } = await Api.itemDoc.listItemBinaryMD5()
-
-      let oldUpdateTime = 0
-      hashGroupMap.value.forEach(({ time }) => {
-        if (time > oldUpdateTime)
-          oldUpdateTime = time
-      })
-
-      /** newHashSet 的最晚更新时间 */
-      let newUpdateTime = 0
-      hashList.forEach(({ time = 0 }) => {
-        if (time > newUpdateTime)
-          newUpdateTime = time
-      })
-
-      // 如果 newHashSet 的最晚更新时间小于 oldHashSet 的最晚更新时间，则表示压缩数据落后于本地，跳过更新
-      if (newUpdateTime <= oldUpdateTime) {
-        return {
-          bulkPutData: [],
-          bulkDeleteKeys: [],
-          clear: false,
-        }
-      }
-
-      const newHashSet = new Set(hashList.map(({ md5 = '' }) => md5))
-      const oldHashSet = new Set(hashGroupMap.value.keys())
-
-      const needUpdateHashList = [...newHashSet.difference(oldHashSet)]
-
-      const needDeleteKeys: number[] = []
-
-      message.value = '获取更新数据'
-      const newData = (await Promise.all(needUpdateHashList.map(async (hash) => {
-        const buffer = await <Promise<ArrayBuffer>>(<unknown>Api.itemDoc.listPageItemByBinary({ md5: hash }, { responseType: 'arraybuffer' }))
-        const data = await Zip.decompressAs<API.ItemVo[]>(new Uint8Array(buffer), { name: `item-${hash}` })
-        return data.map(newOne => (<Hash<API.ItemVo>>{ ...newOne, __hash: hash }))
-      }))).flat(1)
-
-      hashGroupMap.value.forEach(({ time, list }, oldHash) => {
-        if (newHashSet.has(oldHash) || time >= newUpdateTime)
-          return
-        for (let i = 0; i < list.length; i++) {
-          const item = list[i]
-          if (new Date(item.updateTime!).getTime() >= newUpdateTime)
-            continue
-          needDeleteKeys.push(item.id!)
-        }
-      })
-
-      updateCount.value = newData.length
-
-      return {
-        bulkPutData: newData,
-        bulkDeleteKeys: needDeleteKeys,
-        clear: false,
-      }
-    },
-
-    full: async ({ updateCount, startTime, message }) => {
-      startTime.value = Date.now()
-
-      message.value = '获取签名列表'
-      const { data: hashList = [] } = await Api.itemDoc.listItemBinaryMD5()
-
-      message.value = '获取更新数据'
-      const newData = (await Promise.all(hashList.map(async ({ md5: hash = '' }) => {
-        if (!hash)
-          return []
-        const buffer = await <Promise<ArrayBuffer>>(<unknown>Api.itemDoc.listPageItemByBinary({ md5: hash }, { responseType: 'arraybuffer' }))
-        const data = await Zip.decompressAs<API.ItemVo[]>(new Uint8Array(buffer), { name: `item-${hash}` })
-        return data.map(newOne => (<Hash<API.ItemVo>>{ ...newOne, __hash: hash }))
-      }))).flat(1)
-
-      updateCount.value = newData.length
-
-      return {
-        bulkPutData: newData,
-        bulkDeleteKeys: [],
-        clear: true,
-      }
-    },
-
-    commit: async (options, { message, startTime, updateCount }) => {
-      message.value = '写入更新数据'
-      const { resolve, promise } = Promise.withResolvers<WorkerOutput>()
-      const worker = new BulkPutWorker({ name: '物品更新线程' })
-      worker.addEventListener('message', (ev: MessageEvent<WorkerOutput>) => resolve(ev.data))
-      worker.postMessage(<WorkerInput<number, Hash<API.ItemVo>>>{ tableName: 'item', ...options })
-      const { error, message: workerMsg } = await promise
-      worker.terminate()
-      if (error) {
-        message.value = workerMsg
+    syncState: async (data, context) => {
+      if (!data)
+        return
+      if (!data.updateMap.size && !data.deleteIds.length) {
+        context.message.value = [
+          `[${context.tag.value}] `,
+          '没有需要更新的数据，',
+          `耗时 ${getCostTime(context.startTime.value).toFixed(1)}s`,
+        ].join('')
         return
       }
-      message.value = `更新 ${updateCount.value} 项, 耗时: ${((Date.now() - startTime.value) / 1000).toFixed(1)}s`
+      const { updateMap: updateList, deleteIds } = data
+      updateLocal(data)
+      context.message.value = [
+        `[${context.tag.value}] `,
+        `更新(${updateList.size})，`,
+        `删除(${deleteIds.length})，`,
+        `耗时：${getCostTime(context.startTime.value).toFixed(1)}s`,
+      ].join('')
+    },
+
+    commit: (data) => {
+      if (!data || (!data.updateMap.size && !data.deleteIds.length))
+        return
+      const worker = new BulkPutWorker({ name: '物品更新线程' })
+      worker.addEventListener('message', () => {
+        worker.terminate()
+      })
+      worker.postMessage(<WorkerInput<number, API2.ItemVo>>{
+        tableName: 'item',
+        clear: data.clear,
+        bulkPutData: Array.from(data.updateMap.values()),
+        bulkDeleteKeys: data.deleteIds,
+      })
+    },
+
+    init: async (context) => {
+      context.startTime.value = Date.now()
+      context.tag.value = '初始化'
+      context.message.value = `[${context.tag.value}] 拉取最新数据...`
+      const localItems = await getAllItems(context)
+      updateLocal({ updateList: localItems })
+      context.message.value = `[${context.tag.value}] 完毕: ${getCostTime(context.startTime.value).toFixed(1)}s`
+    },
+
+    diff: async () => {
+      context.startTime.value = Date.now()
+      context.tag.value = '差异'
+      context.message.value = '物品数据暂不支持差异更新'
+      // no diff for items
+    },
+
+    full: async () => {
+      context.startTime.value = Date.now()
+      context.tag.value = '全量'
+      const localItems = await getAllItems(context)
+      return { updateMap: localItems, deleteIds: [] }
     },
   })
 
-  const { waitForUpdate, afterUpdated, triggerUpdated } = useAfterUpdated<number, API.ItemVo>({
-    getData: async (ids) => {
-      const { data = [] } = await Api.item.listItemById(ids)
-      return data.map(newOne => ({ ...newOne, __hash: idHashMap.value.get(newOne.id!) }))
-    },
-    getKey: item => item.id!,
-    commit: async (data) => {
-      await db.item.bulkPut(data)
-    },
-  })
-
-  liveQuery(() => db.item.toArray()).subscribe((dbList) => {
-    if (waitForUpdate.value.size > 0)
-      return
-    hashGroupMap.value = createHashGroupMap(dbList)
-    triggerRef(hashGroupMap)
-    triggerUpdated()
-  })
-
-  // ==================== 外部响应 ====================
-  socketStore.appEvent.on('ItemBinaryPurged', () => update())
-
+  // ============================== 外部响应 ==============================
   socketStore.appEvent.on('ItemAdded', async (itemInfo, userInfo) => {
     const { id, name, updaterId } = itemInfo
-    if (!id || waitForUpdate.value.has(id))
+    if (!id)
       return
-    await db.item.put({
-      ...itemInfo,
-      __hash: idHashMap.value.get(itemInfo.id!),
-    })
     const { username = `(uid: ${updaterId})`, nickname } = userInfo
+    localItemMap.value.set(id, itemInfo)
+    triggerRef(localItemMap)
     socketStore.notice('ItemAdded', {
       message: `${nickname ?? username} 添加了物品 ${name} (id:${id})`,
       icon: Box,
@@ -225,13 +198,11 @@ export const useItemStore = defineStore('global-item', () => {
 
   socketStore.appEvent.on('ItemUpdated', async (itemInfo, userInfo) => {
     const { id, name, updaterId } = itemInfo
-    if (!id || waitForUpdate.value.has(id))
+    if (!id)
       return
-    await db.item.put({
-      ...itemInfo,
-      __hash: idHashMap.value.get(itemInfo.id!),
-    })
     const { username = `(uid: ${updaterId})`, nickname } = userInfo
+    localItemMap.value.set(id, itemInfo)
+    triggerRef(localItemMap)
     socketStore.notice('ItemUpdated', {
       message: `${nickname ?? username} 更新了物品 ${name} (id:${id})`,
       icon: Box,
@@ -240,9 +211,10 @@ export const useItemStore = defineStore('global-item', () => {
   })
 
   socketStore.appEvent.on('ItemDeleted', async (itemInfo, userInfo) => {
-    await db.item.delete(itemInfo.id!)
     const { id, name, creatorId } = itemInfo
     const { username = `(uid: ${creatorId})`, nickname } = userInfo
+    localItemMap.value.delete(id!)
+    triggerRef(localItemMap)
     socketStore.notice('ItemDeleted', {
       message: `${nickname ?? username} 删除了物品 ${name} (id:${id})`,
       icon: Box,
@@ -258,12 +230,15 @@ export const useItemStore = defineStore('global-item', () => {
     nextUpdateTime,
     updateLoading,
     update,
-    afterUpdated,
 
     // 计算状态
     itemList: list,
     total,
-    idMap,
-    itemIdMap,
+    idMap: localItemMap,
+    itemIdMap: localItemMap,
   }
 })
+
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useItemStore, import.meta.hot))
+}

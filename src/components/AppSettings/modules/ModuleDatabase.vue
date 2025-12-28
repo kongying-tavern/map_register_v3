@@ -139,10 +139,10 @@ const deleteDatabase = async () => {
             :striped="store.loading.value"
             :striped-flow="store.loading.value"
             :status="store.error.value ? 'exception' : store.loading.value ? '' : 'success'"
-            style="width: 210px; --progress-radius: 2px"
+            style="height: 16px; --progress-radius: 2px; container-type: size;"
           >
-            <div class="w-[200px] text-left">
-              {{ store.error.value || store.message.value || '就绪' }}
+            <div class="text-left w-[100cqw]">
+              {{ store.error.value || store.message.value }}
             </div>
           </el-progress>
         </template>
