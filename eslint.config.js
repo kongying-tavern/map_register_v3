@@ -21,6 +21,8 @@ export default antfu({
   ignores: [
     '**/dist',
     '**/node_modules',
+    'src/api/protobuf/compiled.js',
+    'src/api/protobuf/compiled.d.ts',
   ],
 
   stylistic: {

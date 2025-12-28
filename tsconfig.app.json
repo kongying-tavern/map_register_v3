@@ -4,6 +4,9 @@
     "types/**/*",
     "src/**/*"
   ],
+  "exclude": [
+    "./src/api/protobuf/compiled.js"
+  ],
   "compilerOptions": {
     "incremental": true,
     "noUnusedLocals": true,
