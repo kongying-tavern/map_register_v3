@@ -236,8 +236,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
       context.startTime.value = Date.now()
       context.tag.value = '全量'
       context.message.value = `[${context.tag.value}] 正在获取点位数据...`
-      const { markers } = await Apis.marker_doc.listMarkersByBinary()
-      const updateList = markers as API2.MarkerVo[]
+      const updateList = await Apis.marker_doc.listMarkersByBinary()
       return { updateList, deleteIds: [] as number[], clear: true }
     },
   })

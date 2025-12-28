@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type * as API2 from '@/api/alova/globals'
 import { Setting } from '@element-plus/icons-vue'
 import { useIconStore } from '@/stores'
 import { AddonTeleporter } from '..'
@@ -11,7 +12,7 @@ const props = defineProps<{
   isIconOverridable?: boolean
 }>()
 
-const modelValue = defineModel<API.MarkerExtra>('modelValue', {
+const modelValue = defineModel<API2.MarkerExtraVo>('modelValue', {
   required: false,
   default: {},
 })
@@ -50,7 +51,7 @@ const tagParser: Record<string, (data: unknown) => TagInfo | TagInfo[]> = {
   'iconOverride': (data: unknown) => {
     if (typeof data !== 'object' || !data)
       return [] as TagInfo[]
-    const { id } = (data as API.MarkerExtra['iconOverride']) ?? {}
+    const { id } = (data as API2.IconOverride) ?? {}
     if (!id)
       return [] as TagInfo[]
     const icon = useIconStore().idMap.get(id)
@@ -69,7 +70,7 @@ const tagParser: Record<string, (data: unknown) => TagInfo | TagInfo[]> = {
       region_levels: levels = [],
       is_underground: isUnderground,
       is_global: isGlobal,
-    } = (data as API.MarkerExtra['underground']) ?? {}
+    } = (data as API2.Underground) ?? {}
     if (!isUnderground)
       return []
     const defaultInfo = { type: '非地面', label: 'unknown' }
@@ -91,7 +92,7 @@ const tagParser: Record<string, (data: unknown) => TagInfo | TagInfo[]> = {
   '2_8_island': (data: unknown) => {
     if (typeof data !== 'object' || !data)
       return []
-    const { island_name: parentValue, island_state: children } = (data as API.MarkerExtra['2_8_island']) ?? {}
+    const { island_name: parentValue, island_state: children } = (data as API2.V2_8_Island) ?? {}
     if (!parentValue)
       return []
     const defaultInfo = { type: '2.8 海岛', label: 'unknown' }
@@ -110,7 +111,7 @@ const tagParser: Record<string, (data: unknown) => TagInfo | TagInfo[]> = {
   '1_6_island': (data: unknown) => {
     if (typeof data !== 'object' || !data)
       return []
-    const levels = (data as API.MarkerExtra['1_6_island']) ?? []
+    const levels = (data as string[]) ?? []
     if (!levels.length)
       return []
     const defaultInfo = { type: '1.6 海岛', label: 'unknown' }
@@ -125,8 +126,11 @@ const tagParser: Record<string, (data: unknown) => TagInfo | TagInfo[]> = {
   },
 }
 
-const parseTags = (data: API.MarkerExtra) => Object.entries(data).reduce((seed, [key, value]) => {
-  const res = tagParser[key](value)
+const parseTags = (data: API2.MarkerExtraVo) => Object.entries(data).reduce((seed, [key, value]) => {
+  const parser = tagParser[key]
+  if (!parser)
+    return seed
+  const res = parser(value)
   if (Array.isArray(res))
     res.forEach(item => seed.push(item))
   else

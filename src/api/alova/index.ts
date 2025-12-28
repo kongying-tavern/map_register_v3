@@ -1,3 +1,4 @@
+import type * as API2 from './globals'
 import { createAlova } from 'alova'
 import { createClientTokenAuthentication } from 'alova/client'
 import fetchAdapter from 'alova/fetch'
@@ -78,7 +79,65 @@ export const $$userConfigMap = withConfigType({
       const buffer = await (res as unknown as Response).arrayBuffer()
       const decompressedData = await Zip.decompress(new Uint8Array(buffer))
       const data = compiled.protobuf.MarkerVoList.decode(decompressedData)
-      return data
+      const markers = data.markers
+      const len = markers.length
+      const result: API2.MarkerVo[] = Array.from({ length: len })
+      for (let i = 0; i < len; i++) {
+        const marker = markers[i]
+        const createTime = marker.createTime
+        const updateTime = marker.updateTime
+        const extra = marker.extra
+        const itemList = marker.itemList
+        const rewrite: API2.MarkerVo = {
+          version: marker.version,
+          id: marker.id,
+          creatorId: marker.creatorId,
+          updaterId: marker.updaterId,
+          markerStamp: marker.markerStamp ?? undefined,
+          markerTitle: marker.markerTitle ?? undefined,
+          position: marker.position ?? undefined,
+          itemList: itemList ? itemList.map(item => ({ itemId: item.itemId, iconId: item.iconId, count: item.count ?? undefined })) : undefined,
+          content: marker.content ?? undefined,
+          picture: marker.picture ?? undefined,
+          markerCreatorId: marker.markerCreatorId,
+          pictureCreatorId: marker.pictureCreatorId,
+          videoPath: marker.videoPath ?? undefined,
+          refreshTime: marker.refreshTime ?? undefined,
+          hiddenFlag: marker.hiddenFlag ?? undefined,
+          linkageId: marker.linkageId ?? undefined,
+          createTime: createTime ?? undefined,
+          updateTime: updateTime ?? undefined,
+        }
+        if (extra) {
+          const v16 = extra.v_1_6Island
+          const v28 = extra.v_2_8Island
+          const underground = extra.underground
+          const iconOverride = extra.iconOverride
+          if (v16 || v28 || underground || iconOverride) {
+            const extra: API2.MarkerExtraVo = {}
+            if (v16)
+              extra['1_6_island'] = v16
+            if (v28) {
+              extra['2_8_island'] = {
+                island_name: v28.islandName ?? undefined,
+                island_state: v28.islandState ?? undefined,
+              }
+            }
+            if (underground) {
+              extra.underground = {
+                is_underground: underground.isUnderground ?? false,
+                is_global: underground.isGlobal ?? undefined,
+                region_levels: underground.regionLevels ?? undefined,
+              }
+            }
+            if (iconOverride)
+              extra.iconOverride = { id: iconOverride.id, minZoom: iconOverride.minZoom ?? undefined, maxZoom: iconOverride.maxZoom ?? undefined }
+            rewrite.extra = extra
+          }
+        }
+        result[i] = rewrite
+      }
+      return result
     },
   },
   'marker_doc.listMarkerDiffSnapshotByBinary': {

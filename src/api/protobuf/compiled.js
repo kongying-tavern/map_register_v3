@@ -508,9 +508,9 @@ export const protobuf = $root.protobuf = (() => {
          * @property {number|Long|null} [version] MarkerVo version
          * @property {number|Long|null} [id] MarkerVo id
          * @property {number|Long|null} [creatorId] MarkerVo creatorId
-         * @property {google.protobuf.ITimestamp|null} [createTime] MarkerVo createTime
+         * @property {number|Long|null} [createTime] MarkerVo createTime
          * @property {number|Long|null} [updaterId] MarkerVo updaterId
-         * @property {google.protobuf.ITimestamp|null} [updateTime] MarkerVo updateTime
+         * @property {number|Long|null} [updateTime] MarkerVo updateTime
          * @property {string|null} [markerTitle] MarkerVo markerTitle
          * @property {string|null} [position] MarkerVo position
          * @property {string|null} [content] MarkerVo content
@@ -568,7 +568,7 @@ export const protobuf = $root.protobuf = (() => {
 
         /**
          * MarkerVo createTime.
-         * @member {google.protobuf.ITimestamp|null|undefined} createTime
+         * @member {number|Long|null|undefined} createTime
          * @memberof protobuf.MarkerVo
          * @instance
          */
@@ -584,7 +584,7 @@ export const protobuf = $root.protobuf = (() => {
 
         /**
          * MarkerVo updateTime.
-         * @member {google.protobuf.ITimestamp|null|undefined} updateTime
+         * @member {number|Long|null|undefined} updateTime
          * @memberof protobuf.MarkerVo
          * @instance
          */
@@ -752,11 +752,11 @@ export const protobuf = $root.protobuf = (() => {
             if (message.creatorId != null && Object.hasOwnProperty.call(message, "creatorId"))
                 writer.uint32(/* id 3, wireType 0 =*/24).uint64(message.creatorId);
             if (message.createTime != null && Object.hasOwnProperty.call(message, "createTime"))
-                $root.google.protobuf.Timestamp.encode(message.createTime, writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
+                writer.uint32(/* id 4, wireType 0 =*/32).uint64(message.createTime);
             if (message.updaterId != null && Object.hasOwnProperty.call(message, "updaterId"))
                 writer.uint32(/* id 5, wireType 0 =*/40).uint64(message.updaterId);
             if (message.updateTime != null && Object.hasOwnProperty.call(message, "updateTime"))
-                $root.google.protobuf.Timestamp.encode(message.updateTime, writer.uint32(/* id 6, wireType 2 =*/50).fork()).ldelim();
+                writer.uint32(/* id 6, wireType 0 =*/48).uint64(message.updateTime);
             if (message.markerTitle != null && Object.hasOwnProperty.call(message, "markerTitle"))
                 writer.uint32(/* id 8, wireType 2 =*/66).string(message.markerTitle);
             if (message.position != null && Object.hasOwnProperty.call(message, "position"))
@@ -833,7 +833,7 @@ export const protobuf = $root.protobuf = (() => {
                         break;
                     }
                 case 4: {
-                        message.createTime = $root.google.protobuf.Timestamp.decode(reader, reader.uint32());
+                        message.createTime = reader.uint64();
                         break;
                     }
                 case 5: {
@@ -841,7 +841,7 @@ export const protobuf = $root.protobuf = (() => {
                         break;
                     }
                 case 6: {
-                        message.updateTime = $root.google.protobuf.Timestamp.decode(reader, reader.uint32());
+                        message.updateTime = reader.uint64();
                         break;
                     }
                 case 8: {
@@ -945,22 +945,16 @@ export const protobuf = $root.protobuf = (() => {
                     return "creatorId: integer|Long expected";
             if (message.createTime != null && message.hasOwnProperty("createTime")) {
                 properties._createTime = 1;
-                {
-                    let error = $root.google.protobuf.Timestamp.verify(message.createTime);
-                    if (error)
-                        return "createTime." + error;
-                }
+                if (!$util.isInteger(message.createTime) && !(message.createTime && $util.isInteger(message.createTime.low) && $util.isInteger(message.createTime.high)))
+                    return "createTime: integer|Long expected";
             }
             if (message.updaterId != null && message.hasOwnProperty("updaterId"))
                 if (!$util.isInteger(message.updaterId) && !(message.updaterId && $util.isInteger(message.updaterId.low) && $util.isInteger(message.updaterId.high)))
                     return "updaterId: integer|Long expected";
             if (message.updateTime != null && message.hasOwnProperty("updateTime")) {
                 properties._updateTime = 1;
-                {
-                    let error = $root.google.protobuf.Timestamp.verify(message.updateTime);
-                    if (error)
-                        return "updateTime." + error;
-                }
+                if (!$util.isInteger(message.updateTime) && !(message.updateTime && $util.isInteger(message.updateTime.low) && $util.isInteger(message.updateTime.high)))
+                    return "updateTime: integer|Long expected";
             }
             if (message.markerTitle != null && message.hasOwnProperty("markerTitle"))
                 if (!$util.isString(message.markerTitle))
@@ -1055,11 +1049,15 @@ export const protobuf = $root.protobuf = (() => {
                     message.creatorId = object.creatorId;
                 else if (typeof object.creatorId === "object")
                     message.creatorId = new $util.LongBits(object.creatorId.low >>> 0, object.creatorId.high >>> 0).toNumber(true);
-            if (object.createTime != null) {
-                if (typeof object.createTime !== "object")
-                    throw TypeError(".protobuf.MarkerVo.createTime: object expected");
-                message.createTime = $root.google.protobuf.Timestamp.fromObject(object.createTime);
-            }
+            if (object.createTime != null)
+                if ($util.Long)
+                    (message.createTime = $util.Long.fromValue(object.createTime)).unsigned = true;
+                else if (typeof object.createTime === "string")
+                    message.createTime = parseInt(object.createTime, 10);
+                else if (typeof object.createTime === "number")
+                    message.createTime = object.createTime;
+                else if (typeof object.createTime === "object")
+                    message.createTime = new $util.LongBits(object.createTime.low >>> 0, object.createTime.high >>> 0).toNumber(true);
             if (object.updaterId != null)
                 if ($util.Long)
                     (message.updaterId = $util.Long.fromValue(object.updaterId)).unsigned = true;
@@ -1069,11 +1067,15 @@ export const protobuf = $root.protobuf = (() => {
                     message.updaterId = object.updaterId;
                 else if (typeof object.updaterId === "object")
                     message.updaterId = new $util.LongBits(object.updaterId.low >>> 0, object.updaterId.high >>> 0).toNumber(true);
-            if (object.updateTime != null) {
-                if (typeof object.updateTime !== "object")
-                    throw TypeError(".protobuf.MarkerVo.updateTime: object expected");
-                message.updateTime = $root.google.protobuf.Timestamp.fromObject(object.updateTime);
-            }
+            if (object.updateTime != null)
+                if ($util.Long)
+                    (message.updateTime = $util.Long.fromValue(object.updateTime)).unsigned = true;
+                else if (typeof object.updateTime === "string")
+                    message.updateTime = parseInt(object.updateTime, 10);
+                else if (typeof object.updateTime === "number")
+                    message.updateTime = object.updateTime;
+                else if (typeof object.updateTime === "object")
+                    message.updateTime = new $util.LongBits(object.updateTime.low >>> 0, object.updateTime.high >>> 0).toNumber(true);
             if (object.markerTitle != null)
                 message.markerTitle = String(object.markerTitle);
             if (object.position != null)
@@ -1202,7 +1204,10 @@ export const protobuf = $root.protobuf = (() => {
                 else
                     object.creatorId = options.longs === String ? $util.Long.prototype.toString.call(message.creatorId) : options.longs === Number ? new $util.LongBits(message.creatorId.low >>> 0, message.creatorId.high >>> 0).toNumber(true) : message.creatorId;
             if (message.createTime != null && message.hasOwnProperty("createTime")) {
-                object.createTime = $root.google.protobuf.Timestamp.toObject(message.createTime, options);
+                if (typeof message.createTime === "number")
+                    object.createTime = options.longs === String ? String(message.createTime) : message.createTime;
+                else
+                    object.createTime = options.longs === String ? $util.Long.prototype.toString.call(message.createTime) : options.longs === Number ? new $util.LongBits(message.createTime.low >>> 0, message.createTime.high >>> 0).toNumber(true) : message.createTime;
                 if (options.oneofs)
                     object._createTime = "createTime";
             }
@@ -1212,7 +1217,10 @@ export const protobuf = $root.protobuf = (() => {
                 else
                     object.updaterId = options.longs === String ? $util.Long.prototype.toString.call(message.updaterId) : options.longs === Number ? new $util.LongBits(message.updaterId.low >>> 0, message.updaterId.high >>> 0).toNumber(true) : message.updaterId;
             if (message.updateTime != null && message.hasOwnProperty("updateTime")) {
-                object.updateTime = $root.google.protobuf.Timestamp.toObject(message.updateTime, options);
+                if (typeof message.updateTime === "number")
+                    object.updateTime = options.longs === String ? String(message.updateTime) : message.updateTime;
+                else
+                    object.updateTime = options.longs === String ? $util.Long.prototype.toString.call(message.updateTime) : options.longs === Number ? new $util.LongBits(message.updateTime.low >>> 0, message.updateTime.high >>> 0).toNumber(true) : message.updateTime;
                 if (options.oneofs)
                     object._updateTime = "updateTime";
             }
@@ -1581,7 +1589,7 @@ export const protobuf = $root.protobuf = (() => {
          * @property {protobuf.IMarkerExtraUnderground|null} [underground] MarkerExtra underground
          * @property {protobuf.IMarkerExtraIconOverride|null} [iconOverride] MarkerExtra iconOverride
          * @property {Array.<string>|null} [v_1_6Island] MarkerExtra v_1_6Island
-         * @property {protobuf.IMarkerExtra2_8_Island|null} [v_2_8Island] MarkerExtra v_2_8Island
+         * @property {protobuf.IMarkerExtra28Island|null} [v_2_8Island] MarkerExtra v_2_8Island
          */
 
         /**
@@ -1626,7 +1634,7 @@ export const protobuf = $root.protobuf = (() => {
 
         /**
          * MarkerExtra v_2_8Island.
-         * @member {protobuf.IMarkerExtra2_8_Island|null|undefined} v_2_8Island
+         * @member {protobuf.IMarkerExtra28Island|null|undefined} v_2_8Island
          * @memberof protobuf.MarkerExtra
          * @instance
          */
@@ -1685,7 +1693,7 @@ export const protobuf = $root.protobuf = (() => {
                 for (let i = 0; i < message.v_1_6Island.length; ++i)
                     writer.uint32(/* id 100, wireType 2 =*/802).string(message.v_1_6Island[i]);
             if (message.v_2_8Island != null && Object.hasOwnProperty.call(message, "v_2_8Island"))
-                $root.protobuf.MarkerExtra2_8_Island.encode(message.v_2_8Island, writer.uint32(/* id 101, wireType 2 =*/810).fork()).ldelim();
+                $root.protobuf.MarkerExtra28Island.encode(message.v_2_8Island, writer.uint32(/* id 101, wireType 2 =*/810).fork()).ldelim();
             return writer;
         };
 
@@ -1737,7 +1745,7 @@ export const protobuf = $root.protobuf = (() => {
                         break;
                     }
                 case 101: {
-                        message.v_2_8Island = $root.protobuf.MarkerExtra2_8_Island.decode(reader, reader.uint32());
+                        message.v_2_8Island = $root.protobuf.MarkerExtra28Island.decode(reader, reader.uint32());
                         break;
                     }
                 default:
@@ -1802,7 +1810,7 @@ export const protobuf = $root.protobuf = (() => {
             if (message.v_2_8Island != null && message.hasOwnProperty("v_2_8Island")) {
                 properties._v_2_8Island = 1;
                 {
-                    let error = $root.protobuf.MarkerExtra2_8_Island.verify(message.v_2_8Island);
+                    let error = $root.protobuf.MarkerExtra28Island.verify(message.v_2_8Island);
                     if (error)
                         return "v_2_8Island." + error;
                 }
@@ -1842,7 +1850,7 @@ export const protobuf = $root.protobuf = (() => {
             if (object.v_2_8Island != null) {
                 if (typeof object.v_2_8Island !== "object")
                     throw TypeError(".protobuf.MarkerExtra.v_2_8Island: object expected");
-                message.v_2_8Island = $root.protobuf.MarkerExtra2_8_Island.fromObject(object.v_2_8Island);
+                message.v_2_8Island = $root.protobuf.MarkerExtra28Island.fromObject(object.v_2_8Island);
             }
             return message;
         };
@@ -1878,7 +1886,7 @@ export const protobuf = $root.protobuf = (() => {
                     object.v_1_6Island[j] = message.v_1_6Island[j];
             }
             if (message.v_2_8Island != null && message.hasOwnProperty("v_2_8Island")) {
-                object.v_2_8Island = $root.protobuf.MarkerExtra2_8_Island.toObject(message.v_2_8Island, options);
+                object.v_2_8Island = $root.protobuf.MarkerExtra28Island.toObject(message.v_2_8Island, options);
                 if (options.oneofs)
                     object._v_2_8Island = "v_2_8Island";
             }
@@ -2462,25 +2470,25 @@ export const protobuf = $root.protobuf = (() => {
         return MarkerExtraIconOverride;
     })();
 
-    protobuf.MarkerExtra2_8_Island = (function() {
+    protobuf.MarkerExtra28Island = (function() {
 
         /**
-         * Properties of a MarkerExtra2_8_Island.
+         * Properties of a MarkerExtra28Island.
          * @memberof protobuf
-         * @interface IMarkerExtra2_8_Island
-         * @property {string|null} [islandName] MarkerExtra2_8_Island islandName
-         * @property {Array.<string>|null} [islandState] MarkerExtra2_8_Island islandState
+         * @interface IMarkerExtra28Island
+         * @property {string|null} [islandName] MarkerExtra28Island islandName
+         * @property {Array.<string>|null} [islandState] MarkerExtra28Island islandState
          */
 
         /**
-         * Constructs a new MarkerExtra2_8_Island.
+         * Constructs a new MarkerExtra28Island.
          * @memberof protobuf
-         * @classdesc Represents a MarkerExtra2_8_Island.
-         * @implements IMarkerExtra2_8_Island
+         * @classdesc Represents a MarkerExtra28Island.
+         * @implements IMarkerExtra28Island
          * @constructor
-         * @param {protobuf.IMarkerExtra2_8_Island=} [properties] Properties to set
+         * @param {protobuf.IMarkerExtra28Island=} [properties] Properties to set
          */
-        function MarkerExtra2_8_Island(properties) {
+        function MarkerExtra28Island(properties) {
             this.islandState = [];
             if (properties)
                 for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -2489,43 +2497,43 @@ export const protobuf = $root.protobuf = (() => {
         }
 
         /**
-         * MarkerExtra2_8_Island islandName.
+         * MarkerExtra28Island islandName.
          * @member {string} islandName
-         * @memberof protobuf.MarkerExtra2_8_Island
+         * @memberof protobuf.MarkerExtra28Island
          * @instance
          */
-        MarkerExtra2_8_Island.prototype.islandName = "";
+        MarkerExtra28Island.prototype.islandName = "";
 
         /**
-         * MarkerExtra2_8_Island islandState.
+         * MarkerExtra28Island islandState.
          * @member {Array.<string>} islandState
-         * @memberof protobuf.MarkerExtra2_8_Island
+         * @memberof protobuf.MarkerExtra28Island
          * @instance
          */
-        MarkerExtra2_8_Island.prototype.islandState = $util.emptyArray;
+        MarkerExtra28Island.prototype.islandState = $util.emptyArray;
 
         /**
-         * Creates a new MarkerExtra2_8_Island instance using the specified properties.
+         * Creates a new MarkerExtra28Island instance using the specified properties.
          * @function create
-         * @memberof protobuf.MarkerExtra2_8_Island
+         * @memberof protobuf.MarkerExtra28Island
          * @static
-         * @param {protobuf.IMarkerExtra2_8_Island=} [properties] Properties to set
-         * @returns {protobuf.MarkerExtra2_8_Island} MarkerExtra2_8_Island instance
+         * @param {protobuf.IMarkerExtra28Island=} [properties] Properties to set
+         * @returns {protobuf.MarkerExtra28Island} MarkerExtra28Island instance
          */
-        MarkerExtra2_8_Island.create = function create(properties) {
-            return new MarkerExtra2_8_Island(properties);
+        MarkerExtra28Island.create = function create(properties) {
+            return new MarkerExtra28Island(properties);
         };
 
         /**
-         * Encodes the specified MarkerExtra2_8_Island message. Does not implicitly {@link protobuf.MarkerExtra2_8_Island.verify|verify} messages.
+         * Encodes the specified MarkerExtra28Island message. Does not implicitly {@link protobuf.MarkerExtra28Island.verify|verify} messages.
          * @function encode
-         * @memberof protobuf.MarkerExtra2_8_Island
+         * @memberof protobuf.MarkerExtra28Island
          * @static
-         * @param {protobuf.IMarkerExtra2_8_Island} message MarkerExtra2_8_Island message or plain object to encode
+         * @param {protobuf.IMarkerExtra28Island} message MarkerExtra28Island message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        MarkerExtra2_8_Island.encode = function encode(message, writer) {
+        MarkerExtra28Island.encode = function encode(message, writer) {
             if (!writer)
                 writer = $Writer.create();
             if (message.islandName != null && Object.hasOwnProperty.call(message, "islandName"))
@@ -2537,33 +2545,33 @@ export const protobuf = $root.protobuf = (() => {
         };
 
         /**
-         * Encodes the specified MarkerExtra2_8_Island message, length delimited. Does not implicitly {@link protobuf.MarkerExtra2_8_Island.verify|verify} messages.
+         * Encodes the specified MarkerExtra28Island message, length delimited. Does not implicitly {@link protobuf.MarkerExtra28Island.verify|verify} messages.
          * @function encodeDelimited
-         * @memberof protobuf.MarkerExtra2_8_Island
+         * @memberof protobuf.MarkerExtra28Island
          * @static
-         * @param {protobuf.IMarkerExtra2_8_Island} message MarkerExtra2_8_Island message or plain object to encode
+         * @param {protobuf.IMarkerExtra28Island} message MarkerExtra28Island message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        MarkerExtra2_8_Island.encodeDelimited = function encodeDelimited(message, writer) {
+        MarkerExtra28Island.encodeDelimited = function encodeDelimited(message, writer) {
             return this.encode(message, writer).ldelim();
         };
 
         /**
-         * Decodes a MarkerExtra2_8_Island message from the specified reader or buffer.
+         * Decodes a MarkerExtra28Island message from the specified reader or buffer.
          * @function decode
-         * @memberof protobuf.MarkerExtra2_8_Island
+         * @memberof protobuf.MarkerExtra28Island
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
          * @param {number} [length] Message length if known beforehand
-         * @returns {protobuf.MarkerExtra2_8_Island} MarkerExtra2_8_Island
+         * @returns {protobuf.MarkerExtra28Island} MarkerExtra28Island
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        MarkerExtra2_8_Island.decode = function decode(reader, length, error) {
+        MarkerExtra28Island.decode = function decode(reader, length, error) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.protobuf.MarkerExtra2_8_Island();
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.protobuf.MarkerExtra28Island();
             while (reader.pos < end) {
                 let tag = reader.uint32();
                 if (tag === error)
@@ -2588,30 +2596,30 @@ export const protobuf = $root.protobuf = (() => {
         };
 
         /**
-         * Decodes a MarkerExtra2_8_Island message from the specified reader or buffer, length delimited.
+         * Decodes a MarkerExtra28Island message from the specified reader or buffer, length delimited.
          * @function decodeDelimited
-         * @memberof protobuf.MarkerExtra2_8_Island
+         * @memberof protobuf.MarkerExtra28Island
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-         * @returns {protobuf.MarkerExtra2_8_Island} MarkerExtra2_8_Island
+         * @returns {protobuf.MarkerExtra28Island} MarkerExtra28Island
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        MarkerExtra2_8_Island.decodeDelimited = function decodeDelimited(reader) {
+        MarkerExtra28Island.decodeDelimited = function decodeDelimited(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
             return this.decode(reader, reader.uint32());
         };
 
         /**
-         * Verifies a MarkerExtra2_8_Island message.
+         * Verifies a MarkerExtra28Island message.
          * @function verify
-         * @memberof protobuf.MarkerExtra2_8_Island
+         * @memberof protobuf.MarkerExtra28Island
          * @static
          * @param {Object.<string,*>} message Plain object to verify
          * @returns {string|null} `null` if valid, otherwise the reason why it is not
          */
-        MarkerExtra2_8_Island.verify = function verify(message) {
+        MarkerExtra28Island.verify = function verify(message) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
             if (message.islandName != null && message.hasOwnProperty("islandName"))
@@ -2628,22 +2636,22 @@ export const protobuf = $root.protobuf = (() => {
         };
 
         /**
-         * Creates a MarkerExtra2_8_Island message from a plain object. Also converts values to their respective internal types.
+         * Creates a MarkerExtra28Island message from a plain object. Also converts values to their respective internal types.
          * @function fromObject
-         * @memberof protobuf.MarkerExtra2_8_Island
+         * @memberof protobuf.MarkerExtra28Island
          * @static
          * @param {Object.<string,*>} object Plain object
-         * @returns {protobuf.MarkerExtra2_8_Island} MarkerExtra2_8_Island
+         * @returns {protobuf.MarkerExtra28Island} MarkerExtra28Island
          */
-        MarkerExtra2_8_Island.fromObject = function fromObject(object) {
-            if (object instanceof $root.protobuf.MarkerExtra2_8_Island)
+        MarkerExtra28Island.fromObject = function fromObject(object) {
+            if (object instanceof $root.protobuf.MarkerExtra28Island)
                 return object;
-            let message = new $root.protobuf.MarkerExtra2_8_Island();
+            let message = new $root.protobuf.MarkerExtra28Island();
             if (object.islandName != null)
                 message.islandName = String(object.islandName);
             if (object.islandState) {
                 if (!Array.isArray(object.islandState))
-                    throw TypeError(".protobuf.MarkerExtra2_8_Island.islandState: array expected");
+                    throw TypeError(".protobuf.MarkerExtra28Island.islandState: array expected");
                 message.islandState = [];
                 for (let i = 0; i < object.islandState.length; ++i)
                     message.islandState[i] = String(object.islandState[i]);
@@ -2652,15 +2660,15 @@ export const protobuf = $root.protobuf = (() => {
         };
 
         /**
-         * Creates a plain object from a MarkerExtra2_8_Island message. Also converts values to other types if specified.
+         * Creates a plain object from a MarkerExtra28Island message. Also converts values to other types if specified.
          * @function toObject
-         * @memberof protobuf.MarkerExtra2_8_Island
+         * @memberof protobuf.MarkerExtra28Island
          * @static
-         * @param {protobuf.MarkerExtra2_8_Island} message MarkerExtra2_8_Island
+         * @param {protobuf.MarkerExtra28Island} message MarkerExtra28Island
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
-        MarkerExtra2_8_Island.toObject = function toObject(message, options) {
+        MarkerExtra28Island.toObject = function toObject(message, options) {
             if (!options)
                 options = {};
             let object = {};
@@ -2679,32 +2687,32 @@ export const protobuf = $root.protobuf = (() => {
         };
 
         /**
-         * Converts this MarkerExtra2_8_Island to JSON.
+         * Converts this MarkerExtra28Island to JSON.
          * @function toJSON
-         * @memberof protobuf.MarkerExtra2_8_Island
+         * @memberof protobuf.MarkerExtra28Island
          * @instance
          * @returns {Object.<string,*>} JSON object
          */
-        MarkerExtra2_8_Island.prototype.toJSON = function toJSON() {
+        MarkerExtra28Island.prototype.toJSON = function toJSON() {
             return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
         };
 
         /**
-         * Gets the default type url for MarkerExtra2_8_Island
+         * Gets the default type url for MarkerExtra28Island
          * @function getTypeUrl
-         * @memberof protobuf.MarkerExtra2_8_Island
+         * @memberof protobuf.MarkerExtra28Island
          * @static
          * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
          * @returns {string} The default type url
          */
-        MarkerExtra2_8_Island.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+        MarkerExtra28Island.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
             if (typeUrlPrefix === undefined) {
                 typeUrlPrefix = "type.googleapis.com";
             }
-            return typeUrlPrefix + "/protobuf.MarkerExtra2_8_Island";
+            return typeUrlPrefix + "/protobuf.MarkerExtra28Island";
         };
 
-        return MarkerExtra2_8_Island;
+        return MarkerExtra28Island;
     })();
 
     protobuf.MarkerVoList = (function() {

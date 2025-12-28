@@ -3,7 +3,7 @@ defineProps<{
   config: API.ExtraConfig
 }>()
 
-const modelValue = defineModel<API.MarkerExtra['1_6_island'] | undefined>({
+const modelValue = defineModel<string[] | undefined>({
   required: true,
 })
 </script>
