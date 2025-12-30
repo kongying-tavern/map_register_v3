@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { LinkActionEnum } from '@/shared'
 import type { ModifyLinkOptions } from '..'
-import { LINK_ACTION_NAME_MAP, LINK_CONFIG_MAP } from '@/shared'
+import type { LinkActionEnum } from '@/shared'
 import { Delete, EditPen, RefreshLeft } from '@element-plus/icons-vue'
+import { LINK_ACTION_NAME_MAP, LINK_CONFIG_MAP } from '@/shared'
 import LinkMarkerInfo from './LinkMarkerInfo.vue'
 
 const props = defineProps<{

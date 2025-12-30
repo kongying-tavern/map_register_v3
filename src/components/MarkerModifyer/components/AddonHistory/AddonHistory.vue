@@ -1,7 +1,7 @@
 <script lang="ts" setup>
+import { Clock, CopyDocument } from '@element-plus/icons-vue'
 import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
-import { Clock, CopyDocument } from '@element-plus/icons-vue'
 import { AddonTeleporter } from '..'
 import { useMarkerHistory } from '../../hooks'
 import HistoryStatistic from './HistoryStatistic.vue'
