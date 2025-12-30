@@ -1,5 +1,5 @@
-import type { Mission, MissionTypeMap } from '@/packages/map'
 import type { ComputedRef } from 'vue'
+import type { Mission, MissionTypeMap } from '@/packages/map'
 import { Subject } from 'rxjs'
 
 // ============================== ↓ 共享地址而不是使用闭包，以避免订阅过多时导致的卡顿问题 ↓ ==============================

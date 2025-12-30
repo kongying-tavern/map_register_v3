@@ -1,5 +1,5 @@
 import type { DeckProps, IconLayerProps, OrthographicView, OrthographicViewState } from 'deck.gl'
-
+import type * as API2 from '@/api/alova/globals'
 import type { AreaTagTuple } from '@/configs'
 
 type OrthographicViewMapProps = DeckProps<OrthographicView>
@@ -181,7 +181,7 @@ export interface MLRenderUnit {
 }
 
 /** 包含元信息的点位关联对象 */
-export interface MarkerLinkMission extends API.MarkerLinkageVo {
+export interface MarkerLinkMission extends API2.MarkerLinkageVo {
   meta: {
     key: string
   }
