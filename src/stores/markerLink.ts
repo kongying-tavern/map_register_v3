@@ -105,7 +105,10 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
   // ============================== 代理方法 ==============================
 
   /** @server 创建点位关联 */
-  const linkMarker = async (links: API2.MarkerLinkageVo[]) => {
+  const linkMarker = async (
+    links: API2.MarkerLinkageVo[],
+    deleteLinks: API2.MarkerLinkageVo[] = [],
+  ) => {
     if (!links.length)
       throw new Error('提交的关联项为空')
 
@@ -135,8 +138,11 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
       result.add(toId)
       return result
     }, new Set<number>())
-    oldEffectedMarkerIdSet.delete(-1) // 优化: 添加默认值然后删除的操作比起在循环里判断是否为数值再添加更快
-    const oldEffectedMarkerIds = Array.from(oldEffectedMarkerIdSet)
+    oldEffectedMarkerIdSet.delete(-1)
+    deleteLinks?.forEach(({ fromId = -1, toId = -1 }) => {
+      oldEffectedMarkerIdSet.add(fromId)
+      oldEffectedMarkerIdSet.add(toId)
+    })
 
     // 4. 收集新关联影响的全部点位 id
     const newEffectedMarkerIdSet = newLinks.reduce((result, { fromId = -1, toId = -1 }) => {
@@ -145,33 +151,19 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
       return result
     }, new Set<number>())
     newEffectedMarkerIdSet.delete(-1)
-    const newEffectedMarkerIds = Array.from(newEffectedMarkerIdSet)
 
     // 5. 合并所有受影响的点位 id
-    const allEffectedMarkerIds = Array.from(new Set([...oldEffectedMarkerIds, ...newEffectedMarkerIds]))
-
-    // 6. 获取所有受影响的点位数据并更新 linkageId
-    const updatedMarkers: API2.MarkerVo[] = []
-    const newEffectedMarkerIdSetForUpdate = new Set(newEffectedMarkerIds)
-    for (const markerId of allEffectedMarkerIds) {
-      const marker = markerStore.idMap.get(markerId)
-      if (!marker)
-        continue
-      const updatedMarker: API2.MarkerVo = {
-        ...marker,
-        linkageId: newEffectedMarkerIdSetForUpdate.has(markerId) ? newLinkageId : '',
-      }
-      updatedMarkers.push(updatedMarker)
-    }
+    const allEffectedMarkerIds = Array.from(new Set([...oldEffectedMarkerIdSet, ...newEffectedMarkerIdSet]))
 
     // 7. 更新本地数据
     // 7.1 更新本地关联表
     updateLocal({ updateList: newLinks })
 
-    // 7.2 更新受影响的点位数据
-    if (updatedMarkers.length) {
+    Apis.marker.listMarkerById({
+      data: { markerIdList: allEffectedMarkerIds },
+    }).then(({ data: updatedMarkers = [] }) => {
       markerStore.updateLocal({ updateList: updatedMarkers })
-    }
+    }).catch(() => false)
 
     return newLinkageId
   }

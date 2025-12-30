@@ -255,7 +255,9 @@ const toggleMission = () => {
 }
 
 /** 提交表单 */
-const submitLink = () => submit(linkMission.value)
+const submitLink = () => {
+  submit(linkMission.value, modifyLinks.value)
+}
 
 /** 自动更新任务 */
 watch(previewLinkGroups, (groups) => {

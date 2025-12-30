@@ -143,11 +143,14 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
             >
               ID {{ cachedMarkerVo.id }}
             </div>
-            <div class="info-tag">
+            <div v-if="hiddenFlagType !== undefined" class="info-tag">
               {{ hiddenFlagType }}
             </div>
             <div class="info-tag">
               {{ refreshTimeText || '不刷新' }}
+            </div>
+            <div class="info-tag">
+              {{ cachedMarkerVo.linkageId?.slice(0, 8) }}
             </div>
             <div
               v-if="cachedMarkerVo.videoPath"

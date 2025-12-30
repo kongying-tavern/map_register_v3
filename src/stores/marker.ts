@@ -29,7 +29,11 @@ const getMarkersByIds = async (ids: number[]) => {
 }
 
 const diffMapMarkers = async (
-  snapshots: { id?: number | null, version?: number | null }[],
+  snapshots: {
+    id?: number | null
+    version?: number | null
+    linkageId?: string | null
+  }[],
   markerMap: Map<number, API2.MarkerVo>,
 ) => {
   const deleteIds = new Set(markerMap.keys())
@@ -40,14 +44,23 @@ const diffMapMarkers = async (
     count++
     if (count % 2000 === 0)
       await scheduler.yield() // 每 2000 个点位等一次，避免卡顿
-    const { id, version } = snapshots[i]
+    const { id, version, linkageId } = snapshots[i]
     if (!id || !version)
       continue
     deleteIds.delete(id)
     const currentMarker = markerMap.get(id)
-    if (currentMarker && (currentMarker.version ?? 0) >= version)
+    if (!currentMarker) {
+      updateIds.add(id)
       continue
-    updateIds.add(id)
+    }
+    if ((currentMarker.version ?? 0) < version) {
+      updateIds.add(id)
+      continue
+    }
+    if ((linkageId ?? '') !== (currentMarker.linkageId ?? '')) {
+      updateIds.add(id)
+      continue
+    }
   }
   return {
     updateIds: [...updateIds],
@@ -87,10 +100,13 @@ export const useMarkerStore = defineStore('global-marker', () => {
     const { length: updateLength } = updateList
     for (let i = 0; i < updateLength; i++) {
       const marker = updateList[i]
-      const { id, version = 0 } = marker
-      if (!id || (version <= (localMarkerMap.value.get(id)?.version ?? 0)))
+      const { id, version = 0, linkageId } = marker
+      const localMarker = localMarkerMap.value.get(id!)
+      // 1. version 小于等于本地版本
+      // 2. linkageId 等于本地 linkageId (点位关联变更不会影响 version)
+      if ((version <= (localMarker?.version ?? 0)) && (linkageId === localMarker?.linkageId))
         continue
-      localMarkerMap.value.set(id, marker)
+      localMarkerMap.value.set(id!, marker)
     }
     triggerRef(localMarkerMap)
   }
