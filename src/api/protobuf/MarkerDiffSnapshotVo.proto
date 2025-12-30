@@ -6,6 +6,7 @@ package protobuf;
 message MarkerDiffSnapshotVo {
     uint64 version = 1;
     uint64 id = 2;
+    optional string linkage_id = 15;
 }
 
 // 点位快照数组

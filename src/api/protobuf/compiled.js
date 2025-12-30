@@ -24,6 +24,7 @@ export const protobuf = $root.protobuf = (() => {
          * @interface IMarkerDiffSnapshotVo
          * @property {number|Long|null} [version] MarkerDiffSnapshotVo version
          * @property {number|Long|null} [id] MarkerDiffSnapshotVo id
+         * @property {string|null} [linkageId] MarkerDiffSnapshotVo linkageId
          */
 
         /**
@@ -58,6 +59,23 @@ export const protobuf = $root.protobuf = (() => {
         MarkerDiffSnapshotVo.prototype.id = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
 
         /**
+         * MarkerDiffSnapshotVo linkageId.
+         * @member {string|null|undefined} linkageId
+         * @memberof protobuf.MarkerDiffSnapshotVo
+         * @instance
+         */
+        MarkerDiffSnapshotVo.prototype.linkageId = null;
+
+        // OneOf field names bound to virtual getters and setters
+        let $oneOfFields;
+
+        // Virtual OneOf for proto3 optional field
+        Object.defineProperty(MarkerDiffSnapshotVo.prototype, "_linkageId", {
+            get: $util.oneOfGetter($oneOfFields = ["linkageId"]),
+            set: $util.oneOfSetter($oneOfFields)
+        });
+
+        /**
          * Creates a new MarkerDiffSnapshotVo instance using the specified properties.
          * @function create
          * @memberof protobuf.MarkerDiffSnapshotVo
@@ -85,6 +103,8 @@ export const protobuf = $root.protobuf = (() => {
                 writer.uint32(/* id 1, wireType 0 =*/8).uint64(message.version);
             if (message.id != null && Object.hasOwnProperty.call(message, "id"))
                 writer.uint32(/* id 2, wireType 0 =*/16).uint64(message.id);
+            if (message.linkageId != null && Object.hasOwnProperty.call(message, "linkageId"))
+                writer.uint32(/* id 15, wireType 2 =*/122).string(message.linkageId);
             return writer;
         };
 
@@ -129,6 +149,10 @@ export const protobuf = $root.protobuf = (() => {
                         message.id = reader.uint64();
                         break;
                     }
+                case 15: {
+                        message.linkageId = reader.string();
+                        break;
+                    }
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -164,12 +188,18 @@ export const protobuf = $root.protobuf = (() => {
         MarkerDiffSnapshotVo.verify = function verify(message) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
+            let properties = {};
             if (message.version != null && message.hasOwnProperty("version"))
                 if (!$util.isInteger(message.version) && !(message.version && $util.isInteger(message.version.low) && $util.isInteger(message.version.high)))
                     return "version: integer|Long expected";
             if (message.id != null && message.hasOwnProperty("id"))
                 if (!$util.isInteger(message.id) && !(message.id && $util.isInteger(message.id.low) && $util.isInteger(message.id.high)))
                     return "id: integer|Long expected";
+            if (message.linkageId != null && message.hasOwnProperty("linkageId")) {
+                properties._linkageId = 1;
+                if (!$util.isString(message.linkageId))
+                    return "linkageId: string expected";
+            }
             return null;
         };
 
@@ -203,6 +233,8 @@ export const protobuf = $root.protobuf = (() => {
                     message.id = object.id;
                 else if (typeof object.id === "object")
                     message.id = new $util.LongBits(object.id.low >>> 0, object.id.high >>> 0).toNumber(true);
+            if (object.linkageId != null)
+                message.linkageId = String(object.linkageId);
             return message;
         };
 
@@ -241,6 +273,11 @@ export const protobuf = $root.protobuf = (() => {
                     object.id = options.longs === String ? String(message.id) : message.id;
                 else
                     object.id = options.longs === String ? $util.Long.prototype.toString.call(message.id) : options.longs === Number ? new $util.LongBits(message.id.low >>> 0, message.id.high >>> 0).toNumber(true) : message.id;
+            if (message.linkageId != null && message.hasOwnProperty("linkageId")) {
+                object.linkageId = message.linkageId;
+                if (options.oneofs)
+                    object._linkageId = "linkageId";
+            }
             return object;
         };
 

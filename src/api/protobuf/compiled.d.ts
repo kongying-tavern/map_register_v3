@@ -11,6 +11,9 @@ export namespace protobuf {
 
         /** MarkerDiffSnapshotVo id */
         id?: (number|Long|null);
+
+        /** MarkerDiffSnapshotVo linkageId */
+        linkageId?: (string|null);
     }
 
     /** Represents a MarkerDiffSnapshotVo. */
@@ -27,6 +30,9 @@ export namespace protobuf {
 
         /** MarkerDiffSnapshotVo id. */
         public id: (number|Long);
+
+        /** MarkerDiffSnapshotVo linkageId. */
+        public linkageId?: (string|null);
 
         /**
          * Creates a new MarkerDiffSnapshotVo instance using the specified properties.
