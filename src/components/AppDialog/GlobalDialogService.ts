@@ -1,7 +1,7 @@
 /* eslint-disable ts/no-explicit-any */
-import type { AnyObject } from '@/shared'
 import type { Component } from 'vue'
 import type { GlobalDialogOptions, GlobalDialogPropsHack, GlobalDialogServiceImpl } from './types'
+import type { AnyObject } from '@/shared'
 import { context } from './context'
 import { GlobalDialogController } from './GlobalDialogController'
 

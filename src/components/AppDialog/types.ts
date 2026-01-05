@@ -1,5 +1,5 @@
-import type { AnyObject } from '@/shared'
 import type { DialogProps } from 'element-plus'
+import type { AnyObject } from '@/shared'
 
 // element-dialog 缺少一些常规属性的类型
 export interface GlobalDialogPropsHack extends Omit<Partial<DialogProps>, 'modelValue' | 'value'> {

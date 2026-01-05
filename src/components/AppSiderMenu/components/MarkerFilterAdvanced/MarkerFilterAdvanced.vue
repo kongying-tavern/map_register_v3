@@ -1,7 +1,7 @@
 <script lang="ts" setup>
+import { DeleteFilled, MapLocation, Plus, QuestionFilled } from '@element-plus/icons-vue'
 import { GSButton } from '@/components'
 import { useMapStateStore } from '@/stores'
-import { DeleteFilled, MapLocation, Plus, QuestionFilled } from '@element-plus/icons-vue'
 import {
   MapTilePicker,
   ModelComponent,

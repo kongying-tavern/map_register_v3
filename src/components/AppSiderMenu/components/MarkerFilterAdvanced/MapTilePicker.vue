@@ -1,7 +1,7 @@
 <script lang="ts" setup>
+import { storeToRefs } from 'pinia'
 import { GSButton, GSDivider } from '@/components'
 import { usePreferenceStore, useTileStore } from '@/stores'
-import { storeToRefs } from 'pinia'
 import { SelectList } from '../SelectList'
 
 const emits = defineEmits<{

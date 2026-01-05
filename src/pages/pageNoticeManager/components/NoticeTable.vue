@@ -1,7 +1,7 @@
 <script lang="ts" setup>
+import { Delete } from '@element-plus/icons-vue'
 import { NOTICE_NAME_MAP, now } from '@/shared'
 import { timeFormatter } from '@/utils'
-import { Delete } from '@element-plus/icons-vue'
 
 const props = defineProps<{
   loading: boolean

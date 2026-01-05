@@ -1,7 +1,7 @@
 <script lang="ts" setup>
+import { CirclePlus } from '@element-plus/icons-vue'
 import { PgUnit, useGlobalDialog, usePagination } from '@/hooks'
 import { ManagerModule } from '@/shared'
-import { CirclePlus } from '@element-plus/icons-vue'
 import { UserCreator, UserFilter, UserIntegratedPanel, UserTable } from './components'
 import { useUserList } from './hooks'
 

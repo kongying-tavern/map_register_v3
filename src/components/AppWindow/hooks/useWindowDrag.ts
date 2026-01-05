@@ -1,4 +1,6 @@
 import type { WindowContext } from '../core'
+import { useSubscription } from '@vueuse/rxjs'
+import { filter, finalize, map, merge, race, switchMap, takeUntil } from 'rxjs'
 import {
   globalPointerDown$,
   globalPointerMove$,
@@ -7,8 +9,6 @@ import {
   globalTouchmove$,
   mapContainerKey,
 } from '@/shared'
-import { useSubscription } from '@vueuse/rxjs'
-import { filter, finalize, map, merge, race, switchMap, takeUntil } from 'rxjs'
 
 export const useWindowDrag = (context: WindowContext) => {
   const mapContainer = inject(mapContainerKey, ref())

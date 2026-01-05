@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { GSButton } from '@/components'
 import { CloseBold } from '@element-plus/icons-vue'
+import { GSButton } from '@/components'
 import { contentRefKey, tabNameRefKey } from '.'
 
 const props = defineProps<{

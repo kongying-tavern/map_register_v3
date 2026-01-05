@@ -1,7 +1,7 @@
 import type { EventBus } from '@/utils'
-import db from '@/database'
 import { useSubscription } from '@vueuse/rxjs'
 import { liveQuery } from 'dexie'
+import db from '@/database'
 
 export const useMessageList = (messageEvent: EventBus<Socket.DataEventMap>) => {
   const _messageList = shallowRef<Socket.DataEventRecord[]>([])

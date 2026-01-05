@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { AppDraggableTable } from '@/components'
 import { ArrowLeft, ArrowRight } from '@element-plus/icons-vue'
+import { AppDraggableTable } from '@/components'
 
 const props = defineProps<{
   options: { label: string, key: string }[]

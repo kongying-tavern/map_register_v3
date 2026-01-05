@@ -1,5 +1,8 @@
 <script lang="ts" setup>
 import type { GenshinMapViewState } from '../types'
+import { CloseBold, SemiSelect } from '@element-plus/icons-vue'
+import { useSubscription } from '@vueuse/rxjs'
+import { filter, map, race, switchMap, takeUntil } from 'rxjs'
 import {
   globalPointerDown$,
   globalPointerMove$,
@@ -8,9 +11,6 @@ import {
   globalTouchmove$,
   globalTouchstart$,
 } from '@/shared'
-import { CloseBold, SemiSelect } from '@element-plus/icons-vue'
-import { useSubscription } from '@vueuse/rxjs'
-import { filter, map, race, switchMap, takeUntil } from 'rxjs'
 import { EaseoutInterpolator } from '../interpolator'
 
 const props = withDefaults(defineProps<{

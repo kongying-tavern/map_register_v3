@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { CirclePlus } from '@element-plus/icons-vue'
 import { WinDialog, WinDialogTitleBar } from '@/components/WinUI'
 import { useCountDown } from '@/hooks'
-import { CirclePlus } from '@element-plus/icons-vue'
 import { useRegisterForm } from '../hooks'
 
 const props = defineProps<{

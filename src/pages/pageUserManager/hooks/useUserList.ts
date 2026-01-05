@@ -1,9 +1,9 @@
 import type { PaginationState } from '@/hooks/usePagination'
-import Api from '@/api/api'
-import { useFetchHook } from '@/hooks'
 import { ElMessage } from 'element-plus'
 import _ from 'lodash'
 import { ref } from 'vue'
+import Api from '@/api/api'
+import { useFetchHook } from '@/hooks'
 
 interface UserListHookOptions {
   pagination: Ref<PaginationState>

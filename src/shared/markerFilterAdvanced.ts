@@ -1,3 +1,4 @@
+import { MapLocation } from '@element-plus/icons-vue'
 import {
   IconApplication,
   IconArrowDottedNeSw,
@@ -17,7 +18,6 @@ import {
   IconTitleSerif,
   IconVideoPlay,
 } from '@/components/AppIcons'
-import { MapLocation } from '@element-plus/icons-vue'
 
 export enum MAFModelId {
   /** 基础字段 */

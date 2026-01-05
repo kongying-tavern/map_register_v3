@@ -1,6 +1,6 @@
+import type { Modifier, ModifierConstructorOptions } from '../core'
 import type { HiddenFlagEnum } from '@/shared'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
-import type { Modifier, ModifierConstructorOptions } from '../core'
 import { HIDDEN_FLAG_OPTIONS } from '@/shared'
 import { useArchiveStore } from '@/stores'
 import { Logger, messageFrom } from '@/utils'

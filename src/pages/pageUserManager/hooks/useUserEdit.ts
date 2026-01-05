@@ -1,7 +1,7 @@
 import type { ElForm } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
-import { ElMessage } from 'element-plus'
 
 export const useUserEdit = (form: Ref<API.SysUserVo>, options: { loading: Ref<boolean> }) => {
   const { loading } = options

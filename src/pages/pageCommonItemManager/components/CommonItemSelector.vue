@@ -1,8 +1,8 @@
 <script lang="ts" setup>
+import { ElMessage } from 'element-plus'
 import Api from '@/api/api'
 import { AppItemSelecter } from '@/components'
 import { useFetchHook } from '@/hooks'
-import { ElMessage } from 'element-plus'
 
 const emits = defineEmits<{
   success: []

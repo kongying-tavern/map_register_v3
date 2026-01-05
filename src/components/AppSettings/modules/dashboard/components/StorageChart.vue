@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { UsageItem } from '../types'
-import { useTheme } from '@/hooks'
 import { Chart } from '@antv/g2'
 import { useTemplateRef } from 'vue'
+import { useTheme } from '@/hooks'
 
 const props = defineProps<{
   data: UsageItem[]

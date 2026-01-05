@@ -1,7 +1,7 @@
 import type { FormatedScore, ScoreVo } from '../shared'
+import { ElMessage } from 'element-plus'
 import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
-import { ElMessage } from 'element-plus'
 
 export interface ScoreFilterParmas {
   range: [number, number]

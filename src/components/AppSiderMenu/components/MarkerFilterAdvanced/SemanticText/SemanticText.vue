@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import type { MAFSemanticUnit } from '@/stores/types'
-import { useMapStateStore } from '@/stores'
 import { cloneDeep } from 'lodash'
 import { storeToRefs } from 'pinia'
+import { useMapStateStore } from '@/stores'
 import { SemanticBlock } from '.'
 
 const { markerAdvancedComposed, markerAdvancedCacheCount } = storeToRefs(useMapStateStore())

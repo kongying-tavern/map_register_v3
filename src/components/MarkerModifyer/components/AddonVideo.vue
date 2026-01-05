@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { AppBilibiliVideoPlayer } from '@/components'
 import { Setting } from '@element-plus/icons-vue'
 import { ElButton, ElInput } from 'element-plus'
+import { AppBilibiliVideoPlayer } from '@/components'
 import { AddonTeleporter } from '.'
 import { useAddonActive } from '../hooks'
 

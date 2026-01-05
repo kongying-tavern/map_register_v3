@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import type { ModifyLinkOptions } from '../shared/types'
 import type { GSMarkerInfo } from '@/packages/map'
 import type { LinkActionEnum } from '@/shared'
-import type { ModifyLinkOptions } from '../shared/types'
 import { Check, Close } from '@element-plus/icons-vue'
 import LinkActionSelect from './LinkActionSelect.vue'
 import LinkGroupViewer from './LinkGroupViewer.vue'

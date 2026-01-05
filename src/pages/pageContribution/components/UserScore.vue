@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import type { S2DataConfig, S2Options, S2Theme } from '@antv/s2'
-import { useTheme } from '@/hooks'
-import { DATA_START_TIME } from '@/shared/constant'
 import { TableSheet } from '@antv/s2'
 import { useTemplateRef } from 'vue'
+import { useTheme } from '@/hooks'
+import { DATA_START_TIME } from '@/shared/constant'
 import { useScoreData } from '../hooks'
 import { disabledDate, shortcuts } from '../shared'
 

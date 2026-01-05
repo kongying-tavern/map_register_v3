@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import { Avatar } from '@element-plus/icons-vue'
+import { ElIcon, ElImage } from 'element-plus'
 import { GSButton } from '@/components'
 import { ExitLeft } from '@/components/GenshinUI/GSIcon'
 import { useUserStore } from '@/stores'
-import { Avatar } from '@element-plus/icons-vue'
-import { ElIcon, ElImage } from 'element-plus'
 
 const userStore = useUserStore()
 

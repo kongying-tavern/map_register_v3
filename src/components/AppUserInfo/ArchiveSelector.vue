@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { useArchiveStore, useAreaStore, useItemStore, useMarkerStore } from '@/stores'
 import { Flag } from '@element-plus/icons-vue'
 import dayjs from 'dayjs'
 import { storeToRefs } from 'pinia'
+import { useArchiveStore, useAreaStore, useItemStore, useMarkerStore } from '@/stores'
 import { ArchiveCreator, ArchiveViewer } from '.'
 
 const areaStore = useAreaStore()

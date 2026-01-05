@@ -1,5 +1,5 @@
-import type { FetchHookOptions } from '@/hooks'
 import type { Ref } from 'vue'
+import type { FetchHookOptions } from '@/hooks'
 import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 

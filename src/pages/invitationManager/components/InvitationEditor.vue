@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { ElForm, FormItemRule } from 'element-plus'
+import * as ElIcons from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 import { WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 import { GROUPED_ACCESS_POLICY_OPTIONS, RouteQuery } from '@/shared'
 import { useUserStore } from '@/stores'
-import * as ElIcons from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
 import { useInvitationCreate, useInvitationUpdate } from '../hooks'
 
 const props = defineProps<{

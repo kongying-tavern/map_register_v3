@@ -1,7 +1,7 @@
 import type { AppImageCropperProps } from '../types'
-import { getObjectFitSize } from '@/utils'
 import Konva from 'konva'
 import { clamp } from 'lodash'
+import { getObjectFitSize } from '@/utils'
 import { loadKonvaImage } from '../utils'
 
 export interface ImageInfoHookOptions {

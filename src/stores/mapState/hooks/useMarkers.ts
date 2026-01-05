@@ -8,8 +8,8 @@ import type {
   useTileStore,
 } from '@/stores'
 import type { MAFMeta } from '@/stores/types'
-import { createRenderMarkers } from '@/stores/utils'
 import { toValue } from 'vue'
+import { createRenderMarkers } from '@/stores/utils'
 import { useMarkerAdvancedFilter, useMarkerFilter } from '.'
 
 interface MarkerHookOptions {

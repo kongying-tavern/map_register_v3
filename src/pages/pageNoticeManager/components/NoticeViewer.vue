@@ -1,7 +1,8 @@
 <script lang="ts" setup>
+import type { ComputedRef } from 'vue'
 import type { ElFormType } from '@/shared'
 import type { ItemFormRules } from '@/utils'
-import type { ComputedRef } from 'vue'
+import { Check, Close } from '@element-plus/icons-vue'
 import {
   AppRichtextEditor,
   WinDialog,
@@ -11,7 +12,6 @@ import {
 } from '@/components'
 import { useFetchHook } from '@/hooks'
 import { NOTICE_NAME_MAP } from '@/shared'
-import { Check, Close } from '@element-plus/icons-vue'
 import { useNoticeCreate, useNoticeUpdate } from '../hooks'
 
 const props = defineProps<{

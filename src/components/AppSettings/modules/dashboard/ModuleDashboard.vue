@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { StorageEstimateExpand, UsageItem } from './types'
+import { Odometer, PictureRounded } from '@element-plus/icons-vue'
+import * as ElIcons from '@element-plus/icons-vue'
 import { useFetchHook } from '@/hooks'
 import { useBroadcastStore, useUserStore } from '@/stores'
 import { formatByteSize } from '@/utils'
-import { Odometer, PictureRounded } from '@element-plus/icons-vue'
-import * as ElIcons from '@element-plus/icons-vue'
 import { SettingBar, SettingGroup, SettingPanel } from '../../components'
 import { StorageChart } from './components'
 

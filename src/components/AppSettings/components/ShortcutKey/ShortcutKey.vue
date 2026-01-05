@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { KEYBOARD_ALIAS } from '@/shared'
-import { ShortcutKeyUtil } from '@/utils'
 import { EditPen } from '@element-plus/icons-vue'
 import { ElDialog } from 'element-plus'
+import { KEYBOARD_ALIAS } from '@/shared'
+import { ShortcutKeyUtil } from '@/utils'
 import ShortcutConfiger from './ShortcutConfiger.vue'
 
 const props = withDefaults(defineProps<{

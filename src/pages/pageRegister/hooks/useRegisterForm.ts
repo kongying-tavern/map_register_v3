@@ -1,12 +1,12 @@
 import type { ElFormType } from '@/shared'
 import type { ItemFormRules } from '@/utils'
+import { ElMessage } from 'element-plus'
+import { reactive, ref } from 'vue'
 import Api from '@/api/api'
 import Oauth from '@/api/oauth'
 import { useFetchHook } from '@/hooks'
 import { useArchiveStore, useUserStore } from '@/stores'
 import { passwordCheck, qqCheck } from '@/utils'
-import { ElMessage } from 'element-plus'
-import { reactive, ref } from 'vue'
 
 /** 注册逻辑封装 */
 export const useRegisterForm = () => {

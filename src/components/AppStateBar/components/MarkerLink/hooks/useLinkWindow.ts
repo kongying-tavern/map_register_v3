@@ -1,5 +1,5 @@
-import { useAppWindow } from '@/components'
 import { Subject } from 'rxjs'
+import { useAppWindow } from '@/components'
 
 interface LinkWindowHookOptions {
   loading: Ref<boolean>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useNoticeStore } from '@/stores'
 import { ChatLineRound } from '@element-plus/icons-vue'
+import { useNoticeStore } from '@/stores'
 import { context } from './context'
 
 const noticeStore = useNoticeStore()

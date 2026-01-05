@@ -1,5 +1,5 @@
-import { useTheme } from '@/hooks'
 import { Chart } from '@antv/g2'
+import { useTheme } from '@/hooks'
 
 interface HistoryChartHookOptions {
   data: Ref<(API.HistoryVo & { diffs: Set<string> })[]>

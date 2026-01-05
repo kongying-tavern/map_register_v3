@@ -1,6 +1,6 @@
 import type { MAFGroup, MBFItem } from '@/stores/types'
-import { usePreferenceStore, useUserStore } from '@/stores'
 import { cloneDeep } from 'lodash'
+import { usePreferenceStore, useUserStore } from '@/stores'
 
 export interface PresetHookOptions {
   nameToSave: Ref<string>

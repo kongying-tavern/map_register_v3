@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { WinDialog, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 import { ElDialog } from 'element-plus'
+import { WinDialog, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 import { useHistoryChart } from './hooks'
 
 const props = defineProps<{

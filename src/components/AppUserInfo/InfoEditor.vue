@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import type { ElFormType } from '@/shared'
 import type { FormRules } from 'element-plus'
+import type { ElFormType } from '@/shared'
 import Api from '@/api/api'
 import { GSButton, GSDivider, GSInput } from '@/components'
 import { useFetchHook } from '@/hooks'

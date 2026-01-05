@@ -1,5 +1,5 @@
-import type { RoleTypeEnum } from '@/shared'
 import type * as ElIcons from '@element-plus/icons-vue'
+import type { RoleTypeEnum } from '@/shared'
 import 'vue-router'
 
 declare module 'vue-router' {

@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import type { InputInstance } from 'element-plus'
-import { useDadianStore, useItemStore } from '@/stores'
 import { Setting } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
+import { useDadianStore, useItemStore } from '@/stores'
 import { AddonTeleporter } from '.'
 
 const props = withDefaults(defineProps<{

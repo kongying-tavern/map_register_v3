@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import type { AreaWithExtraConfig } from '@/stores'
 import type { MAFMetaUndergroundLayer } from '@/stores/types'
-import { useListBubbleDrag } from '@/hooks'
 import { keyBy } from 'lodash'
+import { useListBubbleDrag } from '@/hooks'
 import { SelectList } from '../../../SelectList'
 
 const props = defineProps<{

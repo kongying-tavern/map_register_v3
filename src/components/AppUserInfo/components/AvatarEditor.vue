@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import type { MiyousheAvatar } from '../hooks'
+import { pick } from 'lodash'
 import Api from '@/api/api'
 import { AppVirtualTable, GSButton } from '@/components'
 import { useFetchHook } from '@/hooks'
 import { useUserStore } from '@/stores'
-import { pick } from 'lodash'
 import { AvatarPreview } from '.'
 import { useAvatarList } from '../hooks'
 

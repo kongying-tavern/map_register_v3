@@ -1,10 +1,10 @@
 <script lang="ts" setup>
+import { Delete, QuestionFilled, VideoCamera } from '@element-plus/icons-vue'
 import { AppBilibiliVideoPlayer } from '@/components'
 import { useGlobalDialog } from '@/hooks'
 import { HIDDEN_FLAG_NAME_MAP } from '@/shared'
 import { useAreaStore, useItemStore } from '@/stores'
 import { refreshTimeFormatter } from '@/utils'
-import { Delete, QuestionFilled, VideoCamera } from '@element-plus/icons-vue'
 
 defineProps<{
   markerList: API.MarkerVo[]

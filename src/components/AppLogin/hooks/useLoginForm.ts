@@ -1,8 +1,8 @@
 import type { ElFormType } from '@/shared'
 import type { ItemFormRules } from '@/utils'
+import { ElMessage } from 'element-plus'
 import { useFetchHook } from '@/hooks'
 import { useUserStore } from '@/stores'
-import { ElMessage } from 'element-plus'
 import { useValidateStatus } from './useValidateStatus'
 
 /** 登录逻辑封装 */

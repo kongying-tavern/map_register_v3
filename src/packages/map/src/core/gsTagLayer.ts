@@ -1,7 +1,7 @@
-import type { AreaTagTuple } from '@/configs'
 import type { CompositeLayerProps, Layer, LayersList, UpdateParameters } from 'deck.gl'
-
 import type { GSTagLayerProps } from '../types'
+
+import type { AreaTagTuple } from '@/configs'
 import { CompositeLayer, TextLayer } from 'deck.gl'
 
 export class GSTagLayer extends CompositeLayer<GSTagLayerProps> {

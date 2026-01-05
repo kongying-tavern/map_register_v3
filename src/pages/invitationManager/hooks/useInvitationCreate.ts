@@ -1,7 +1,7 @@
 import type { Awaitable } from '@vueuse/core'
+import { ElMessage } from 'element-plus'
 import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
-import { ElMessage } from 'element-plus'
 
 interface InvitationCreateHookOptions {
   form: Ref<API.SysUserInvitationVo>

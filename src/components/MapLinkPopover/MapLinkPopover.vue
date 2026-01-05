@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import type { LinkActionEnum } from '@/shared'
+import * as ElIcons from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 import { useGlobalDialog } from '@/hooks'
 import { GSLinkLayer } from '@/packages/map'
 import { LINK_ACTION_NAME_MAP, LINK_CONFIG_MAP } from '@/shared'
 import { useMapStateStore, useMarkerLinkStore } from '@/stores'
-import * as ElIcons from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
 import { useLinkOperate } from '../AppStateBar'
 import { MapAffix } from '../MapAffix'
 import { LinkDeleteConfirm } from './components'

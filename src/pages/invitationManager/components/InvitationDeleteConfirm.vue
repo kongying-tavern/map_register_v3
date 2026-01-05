@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import { Check, Close, Delete } from '@element-plus/icons-vue'
 import {
   WinDialog,
   WinDialogFooter,
   WinDialogTitleBar,
 } from '@/components'
-import { Check, Close, Delete } from '@element-plus/icons-vue'
 import { useInvitationDelete } from '../hooks'
 
 const props = defineProps<{

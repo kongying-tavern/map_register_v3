@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { useFetchHook, useTheme } from '@/hooks'
-import { useBroadcastStore, useUserStore } from '@/stores'
-import { formatByteSize } from '@/utils'
 import { Chart } from '@antv/g2'
 import { Odometer, PictureRounded } from '@element-plus/icons-vue'
 import * as ElIcons from '@element-plus/icons-vue'
 import { useTemplateRef } from 'vue'
+import { useFetchHook, useTheme } from '@/hooks'
+import { useBroadcastStore, useUserStore } from '@/stores'
+import { formatByteSize } from '@/utils'
 import { SettingBar, SettingGroup, SettingPanel } from '../components'
 
 interface StorageEstimateExpand extends StorageEstimate {

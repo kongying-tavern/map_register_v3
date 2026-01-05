@@ -17,7 +17,6 @@ export class AppSocket extends EventTarget {
   constructor(url: string) {
     super()
     this.#url = url
-    console.log(this)
     super.dispatchEvent(new SocketLogEvent(`SocketAdapter initialized with URL: "${url}"`))
   }
 

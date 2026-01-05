@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { FormItemRule } from 'element-plus'
+import { CircleCheck, Delete, PictureFilled, RefreshLeft } from '@element-plus/icons-vue'
 import { WinDialog, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 import { ExitLeft } from '@/components/GenshinUI/GSIcon'
 import { GROUPED_ACCESS_POLICY_OPTIONS } from '@/shared'
 import { useUserStore } from '@/stores'
-import { CircleCheck, Delete, PictureFilled, RefreshLeft } from '@element-plus/icons-vue'
 import { usePasswordUpdate, useUserEdit } from '../hooks'
 import UserDeleteConfirm from './UserDeleteConfirm.vue'
 import UserDevice from './UserDevice.vue'

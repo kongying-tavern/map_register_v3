@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { PgUnit, usePagination } from '@/hooks'
-import { DeviceStatus } from '@/shared'
 import dayjs from 'dayjs'
 import { UAParser } from 'ua-parser-js'
+import { PgUnit, usePagination } from '@/hooks'
+import { DeviceStatus } from '@/shared'
 import { useUserDevice, useUserDeviceEdit } from '../hooks'
 import { isUnknown } from '../utils'
 import DeviceCard from './DeviceCard.vue'

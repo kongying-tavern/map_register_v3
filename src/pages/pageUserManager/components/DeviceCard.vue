@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { DeviceStatus } from '@/shared'
 import dayjs from 'dayjs'
 import { UAParser } from 'ua-parser-js'
+import { DeviceStatus } from '@/shared'
 import { isUnknown } from '../utils'
 
 const props = defineProps<{

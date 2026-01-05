@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import type { MAFGroup, MBFItem } from '@/stores/types'
-import { GSButton, GSDivider } from '@/components'
 import { CloseBold, DocumentCopy, Download } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
+import { GSButton, GSDivider } from '@/components'
 import { usePresetsCode } from '../hooks'
 
 const props = defineProps<{

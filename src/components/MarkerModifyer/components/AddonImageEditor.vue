@@ -1,7 +1,7 @@
 <script lang="ts" setup>
+import { CircleCheck, Delete, Plus, Setting } from '@element-plus/icons-vue'
 import { AppImageCropper } from '@/components'
 import { formatByteSize } from '@/utils'
-import { CircleCheck, Delete, Plus, Setting } from '@element-plus/icons-vue'
 import { AddonTeleporter } from '.'
 import { useLocalPicture, useMarkerPicture } from '../hooks'
 

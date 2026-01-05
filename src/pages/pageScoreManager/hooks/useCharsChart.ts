@@ -1,7 +1,7 @@
 import type { ShallowRef } from 'vue'
 import type { FormatedScore } from '../shared'
-import { useTheme } from '@/hooks'
 import { Chart, Dark, Light } from '@antv/g2'
+import { useTheme } from '@/hooks'
 
 export const useCharsChart = (container: Ref<HTMLElement | undefined>, data: Ref<FormatedScore[]>) => {
   const chartRef = shallowRef<Chart>()

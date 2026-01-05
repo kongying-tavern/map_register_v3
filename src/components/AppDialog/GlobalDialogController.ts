@@ -1,6 +1,6 @@
-import type { AnyObject } from '@/shared'
 import type { GlobalDialogService } from './GlobalDialogService'
 import type { GlobalDialogControllerImpl } from './types'
+import type { AnyObject } from '@/shared'
 import { context } from './context'
 
 /**

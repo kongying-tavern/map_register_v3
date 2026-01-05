@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import type { ElSwitch } from 'element-plus'
+import * as El from '@element-plus/icons-vue'
 import { useTheme } from '@/hooks'
 import { usePreferenceStore } from '@/stores'
 import { transitionToggleSchema } from '@/utils'
-import * as El from '@element-plus/icons-vue'
 import {
   ModuleAbout,
   ModuleApp,

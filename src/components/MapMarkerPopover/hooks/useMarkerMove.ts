@@ -1,5 +1,5 @@
-import type { GSMarkerInfo } from '@/packages/map'
 import type { ShallowRef } from 'vue'
+import type { GSMarkerInfo } from '@/packages/map'
 import { useMapStateStore } from '@/stores'
 
 export const useMarkerMove = (markerInfo: ShallowRef<GSMarkerInfo | null>) => {
