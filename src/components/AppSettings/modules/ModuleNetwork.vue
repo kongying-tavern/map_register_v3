@@ -5,21 +5,11 @@ import { liveQuery } from 'dexie'
 import { WEBSOCKET_WORKER_CONFIG } from '@/configs'
 import { wsdb } from '@/database'
 import { useFetchHook } from '@/hooks'
-import { usePreferenceStore, useSocketStore, useUserStore } from '@/stores'
+import { usePreferenceStore, useSocketStore } from '@/stores'
 import { SettingBar, SettingGroup, SettingPanel } from '../components'
 
 const socketStore = useSocketStore()
-const userStore = useUserStore()
 const preferenceStore = usePreferenceStore()
-
-const linkDisabled = computed(() => {
-  if (!userStore.info)
-    return true
-  const { status } = socketStore.context
-  if (status === 'OPEN' || status === 'CONNECTING')
-    return true
-  return false
-})
 
 const wsEvents: { label: string, value: API.WSEventType, divider?: boolean }[] = [
   // 物品
@@ -115,14 +105,6 @@ const { refresh: clearLogs, loading: clearLoading } = useFetchHook({
               清空日志
             </el-button>
           </div>
-        </template>
-      </SettingBar>
-
-      <SettingBar label="操作">
-        <template #setting>
-          <el-button :disabled="linkDisabled" @click="socketStore.connect">
-            连接
-          </el-button>
         </template>
       </SettingBar>
 
