@@ -14,7 +14,7 @@ interface ManagerContext {
 }
 
 interface DiffData {
-  updateMap: Map<number, API2.ItemVo>
+  updateList: API2.ItemVo[]
   deleteIds: number[]
   clear?: boolean
 }
@@ -45,7 +45,7 @@ const getAllItems = async (context: ManagerContext) => {
     finished += 1
     context.message.value = `正在获取物品列表 (${finished}/${total})`
   }))
-  return itemMap
+  return Array.from(itemMap.values())
 }
 
 /** 本地物品数据 */
@@ -66,24 +66,69 @@ export const useItemStore = defineStore('global-item', () => {
    * - 已包含 version 比较逻辑
    */
   const updateLocal = (options: {
-    updateList?: Map<number, API2.ItemVo>
+    updateList?: API2.ItemVo[]
     deleteIds?: number[]
   }) => {
-    const { updateList = new Map(), deleteIds = [] } = options
-    if (!updateList.size && !deleteIds.length)
+    const { updateList = [], deleteIds = [] } = options
+    if (!updateList.length && !deleteIds.length)
       return
     const { length: deleteLength } = deleteIds
     for (let i = 0; i < deleteLength; i++) {
       const id = deleteIds[i]
       localItemMap.value.delete(id)
     }
-    for (const [_, item] of updateList.entries()) {
-      const { id, version = 0 } = item
-      if (!id || (version <= (localItemMap.value.get(id)?.version ?? 0)))
+    const { length: updateLength } = updateList
+    for (let i = 0; i < updateLength; i++) {
+      const item = updateList[i]
+      const { id = 0, version = 0 } = item
+      const localItem = localItemMap.value.get(id!)
+      if ((version < (localItem?.version ?? 0)))
         continue
       localItemMap.value.set(id, item)
     }
     triggerRef(localItemMap)
+  }
+
+  /** @server */
+  const createItem = async (itemForm: API2.ItemVo) => {
+    const { data: itemId } = await Apis.item.createItem({ data: itemForm })
+    if (!itemId)
+      throw new Error('服务器未返回新物品 id')
+    Apis.item
+      .listItemById({ data: [itemId] })
+      .then(({ data: [item] = [] }) => {
+        if (!item)
+          return
+        updateLocal({ updateList: [item] })
+      })
+  }
+
+  /** @server */
+  const updateItem = async (itemForm: API2.ItemVo) => {
+    if (!itemForm.id)
+      throw new Error('物品 id 为空')
+    const { data: isSuccess, message } = await Apis.item.updateItem({
+      pathParams: { editSame: 0 },
+      data: [itemForm],
+    })
+    if (!isSuccess)
+      throw new Error(message)
+    Apis.item.listItemById({
+      data: [itemForm.id],
+    }).then(({ data: [item] = [] }) => {
+      if (!item)
+        return
+      updateLocal({ updateList: [item] })
+    })
+  }
+
+  const deleteItem = async (itemId: number) => {
+    const { data: isSuccess, message } = await Apis.item.deleteItem({
+      pathParams: { itemId },
+    })
+    if (!isSuccess)
+      throw new Error(message)
+    updateLocal({ deleteIds: [itemId] })
   }
 
   // ============================== 外部状态 ==============================
@@ -124,7 +169,7 @@ export const useItemStore = defineStore('global-item', () => {
     syncState: async (data, context) => {
       if (!data)
         return
-      if (!data.updateMap.size && !data.deleteIds.length) {
+      if (!data.updateList.length && !data.deleteIds.length) {
         context.message.value = [
           `[${context.tag.value}] `,
           '没有需要更新的数据，',
@@ -132,18 +177,18 @@ export const useItemStore = defineStore('global-item', () => {
         ].join('')
         return
       }
-      const { updateMap: updateList, deleteIds } = data
+      const { updateList, deleteIds } = data
       updateLocal(data)
       context.message.value = [
         `[${context.tag.value}] `,
-        `更新(${updateList.size})，`,
+        `更新(${updateList.length})，`,
         `删除(${deleteIds.length})，`,
         `耗时：${getCostTime(context.startTime.value).toFixed(1)}s`,
       ].join('')
     },
 
     commit: (data) => {
-      if (!data || (!data.updateMap.size && !data.deleteIds.length))
+      if (!data || (!data.updateList.length && !data.deleteIds.length))
         return
       const worker = new BulkPutWorker({ name: '物品更新线程' })
       worker.addEventListener('message', () => {
@@ -152,7 +197,7 @@ export const useItemStore = defineStore('global-item', () => {
       worker.postMessage(<WorkerInput<number, API2.ItemVo>>{
         tableName: 'item',
         clear: data.clear,
-        bulkPutData: Array.from(data.updateMap.values()),
+        bulkPutData: data.updateList,
         bulkDeleteKeys: data.deleteIds,
       })
     },
@@ -176,8 +221,8 @@ export const useItemStore = defineStore('global-item', () => {
     full: async () => {
       context.startTime.value = Date.now()
       context.tag.value = '全量'
-      const localItems = await getAllItems(context)
-      return { updateMap: localItems, deleteIds: [] }
+      const updateList = await getAllItems(context)
+      return { updateList, deleteIds: [] }
     },
   })
 
@@ -230,6 +275,9 @@ export const useItemStore = defineStore('global-item', () => {
     nextUpdateTime,
     updateLoading,
     update,
+    createItem,
+    updateItem,
+    deleteItem,
 
     // 计算状态
     itemList: list,

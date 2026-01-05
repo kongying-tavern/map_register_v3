@@ -1,9 +1,9 @@
 import type { ItemDetailForm } from '../components'
-import Api from '@/api/api'
+import type * as API2 from '@/api/alova/globals'
 import { GSMessageService } from '@/components'
 import { useFetchHook } from '@/hooks'
 import { HiddenFlagEnum, IconStyle } from '@/shared'
-import { useSocketStore } from '@/stores'
+import { useItemStore } from '@/stores'
 
 export interface ItemCreateHookOptions {
   /** 用于控制事件监听器只会被附加一次的 flag */
@@ -11,18 +11,15 @@ export interface ItemCreateHookOptions {
 }
 
 export const useItemCreate = () => {
-  const socketStore = useSocketStore()
+  const itemStore = useItemStore()
 
   const { refresh: submit, onSuccess, onError, ...rest } = useFetchHook({
-    onRequest: async (item: API.ItemVo) => {
-      const { error, message } = await Api.item.createItem(item)
-      if (error)
-        throw new Error(message)
-      socketStore.socketEvent.emit('ItemAdded', item.id!)
+    onRequest: async (item: API2.ItemVo) => {
+      await itemStore.createItem(item)
     },
   })
 
-  const initFormData = (): API.ItemVo => ({
+  const initFormData = (): API2.ItemVo => ({
     defaultCount: 1,
     defaultRefreshTime: 0,
     typeIdList: [],
@@ -33,7 +30,7 @@ export const useItemCreate = () => {
   })
 
   const detailFormRef = ref<InstanceType<typeof ItemDetailForm> | null>(null)
-  const formData = ref<API.ItemVo>(initFormData())
+  const formData = ref<API2.ItemVo>(initFormData())
 
   const handleSubmit = async () => {
     const isValid = await detailFormRef.value?.validate()

@@ -1,18 +1,16 @@
 import type { ItemDetailForm } from '../components'
+import type * as API2 from '@/api/alova/globals'
 import { pick } from 'lodash'
-import Api from '@/api/api'
 import { GSMessageService } from '@/components'
 import { useFetchHook } from '@/hooks'
-import { useSocketStore } from '@/stores'
+import { useItemStore } from '@/stores'
 
 export interface ItemEditHookOptions {
-  initFormData?: () => API.ItemVo
+  initFormData?: () => API2.ItemVo
 }
 
-const sharedEditSame = ref<0 | 1>(0)
-
 /** 只选择需要的字段 */
-const pickRequiredKeys = (item: API.ItemVo): API.ItemVo => pick(item, [
+const pickRequiredKeys = (item: API2.ItemVo): API2.ItemVo => pick(item, [
   'id',
   'name',
   'areaId',
@@ -31,25 +29,22 @@ const pickRequiredKeys = (item: API.ItemVo): API.ItemVo => pick(item, [
 export const useItemEdit = (options: ItemEditHookOptions = {}) => {
   const { initFormData } = options
 
-  const socketStore = useSocketStore()
+  const itemStore = useItemStore()
 
   const { refresh: submit, onSuccess, onError, ...rest } = useFetchHook({
-    onRequest: async (editSame: 0 | 1, item: API.ItemVo) => {
-      const { error, message } = await Api.item.updateItem({ editSame }, [pickRequiredKeys(item)])
-      if (error)
-        throw new Error(message)
-      socketStore.socketEvent.emit('ItemUpdated', item.id!)
+    onRequest: async (item: API2.ItemVo) => {
+      await itemStore.updateItem(pickRequiredKeys(item))
     },
   })
 
   const detailFormRef = ref<InstanceType<typeof ItemDetailForm> | null>(null)
-  const formData = ref<API.ItemVo>(initFormData?.() ?? {})
+  const formData = ref<API2.ItemVo>(initFormData?.() ?? {})
 
   const handleSubmit = async () => {
     const isValid = await detailFormRef.value?.validate()
     if (!isValid)
       return
-    await submit(sharedEditSame.value, formData.value)
+    await submit(formData.value)
   }
 
   onSuccess(() => {

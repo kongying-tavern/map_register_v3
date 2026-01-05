@@ -1,15 +1,14 @@
-import Api from '@/api/api'
-import { useFetchHook } from '@/hooks'
-import { useSocketStore } from '@/stores'
+import type * as API2 from '@/api/alova/globals'
 import { ElMessage } from 'element-plus'
+import { useFetchHook } from '@/hooks'
+import { useItemStore } from '@/stores'
 
 export const useItemDelete = () => {
-  const socketStore = useSocketStore()
+  const itemStore = useItemStore()
 
   const { loading, refresh: deleteItem, onSuccess, onError, ...rest } = useFetchHook({
-    onRequest: async (item: API.ItemVo) => {
-      await Api.item.deleteItem({ itemId: item.id! })
-      socketStore.socketEvent.emit('ItemDeleted', item.id!)
+    onRequest: async (item: API2.ItemVo) => {
+      await itemStore.deleteItem(item.id!)
       return item
     },
   })
