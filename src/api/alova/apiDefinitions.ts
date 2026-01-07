@@ -68,7 +68,6 @@ export default {
   'marker_link.getMarkerLinkageGraph': ['POST', '/api/marker_link/get/graph'],
   'marker.tweakMarkers': ['POST', '/api/marker/tweak'],
   'marker.listMarkerPage': ['POST', '/api/marker/get/page'],
-  'marker.listRenderMarkerById': ['POST', '/api/marker/get/list_render_byid'],
   'marker.searchMarker': ['POST', '/api/marker/get/list_byinfo'],
   'marker.listMarkerById': ['POST', '/api/marker/get/list_byid'],
   'marker.searchMarkerId': ['POST', '/api/marker/get/id'],
