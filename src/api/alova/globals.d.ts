@@ -7156,7 +7156,9 @@ declare global {
        *   errorStatus?: number
        *   errorData?: object
        *   message?: string
-       *   data?: boolean
+       *   // [items] start
+       *   // [items] end
+       *   data?: number[]
        *   users?: Record<
        *     string,
        *     {
@@ -7179,7 +7181,7 @@ declare global {
        * ```
        */
       updateItem<
-        Config extends Alova2MethodConfig<RBoolean> & {
+        Config extends Alova2MethodConfig<RListLong> & {
           pathParams: {
             editSame: number;
           };
@@ -7187,7 +7189,7 @@ declare global {
         }
       >(
         config: Config
-      ): Alova2Method<RBoolean, 'item.updateItem', Config>;
+      ): Alova2Method<RListLong, 'item.updateItem', Config>;
       /**
        * ---
        *
