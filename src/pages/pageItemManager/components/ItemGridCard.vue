@@ -2,7 +2,7 @@
 import type { TagProps } from 'element-plus'
 import { Delete } from '@element-plus/icons-vue'
 import { AppIconTagRenderer } from '@/components'
-import { useRefreshTime } from '@/hooks'
+import { useBinaryFlag, useRefreshTime } from '@/hooks'
 import { HIDDEN_FLAG_NAME_MAP, HiddenFlagEnum, ICON_STYLE_META_MAP, IconStyle } from '@/shared'
 import { useAreaStore, useIconStore } from '@/stores'
 
@@ -22,6 +22,16 @@ const iconStore = useIconStore()
 const areaName = computed(() => {
   const { areaId } = props.data
   return areaStore.areaIdMap.get(areaId!)?.name ?? `(AreaId: ${areaId})`
+})
+
+const {
+  isCaveEntrance,
+  isIconCustomizable,
+  isTeleportable,
+} = useBinaryFlag(computed(() => props.data.specialFlag), {
+  isTeleportable: 0,
+  isIconCustomizable: 1,
+  isCaveEntrance: 2,
 })
 
 const iconStyleMeta = computed(() => {
@@ -96,6 +106,18 @@ const { humanFriendlyTimeText } = useRefreshTime(computed(() => props.data.defau
       <div class="inline-sperator">
         {{ humanFriendlyTimeText }}
       </div>
+    </div>
+
+    <div class="flex gap-1">
+      <el-tag v-if="isTeleportable" size="small" type="info" class="mt-2">
+        可传送
+      </el-tag>
+      <el-tag v-if="isIconCustomizable" size="small" type="info" class="mt-2">
+        自定义图标
+      </el-tag>
+      <el-tag v-if="isCaveEntrance" size="small" type="info" class="mt-2">
+        洞口
+      </el-tag>
     </div>
 
     <el-divider style="margin: 8px 0" />

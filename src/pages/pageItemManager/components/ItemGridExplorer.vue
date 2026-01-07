@@ -39,7 +39,7 @@ const markerCountMap = computed(() => markerStore.markerList.reduce((map, { item
       </el-icon>
     </div>
 
-    <div v-else class="min-h-full p-4 flex gap-4 flex-wrap content-start">
+    <div v-else class="min-h-full p-4 flex gap-4 flex-wrap content-start items-start">
       <ItemGridCard
         v-for="item in itemList"
         :key="item.id"
