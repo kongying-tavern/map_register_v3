@@ -107,14 +107,12 @@ export const useItemStore = defineStore('global-item', () => {
   const updateItem = async (itemForm: API2.ItemVo) => {
     if (!itemForm.id)
       throw new Error('物品 id 为空')
-    const { data: isSuccess, message } = await Apis.item.updateItem({
+    const { data: ids = [] } = await Apis.item.updateItem({
       pathParams: { editSame: 0 },
       data: [itemForm],
     })
-    if (!isSuccess)
-      throw new Error(message)
     Apis.item.listItemById({
-      data: [itemForm.id],
+      data: ids,
     }).then(({ data: [item] = [] }) => {
       if (!item)
         return

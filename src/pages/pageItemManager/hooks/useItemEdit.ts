@@ -1,7 +1,7 @@
 import type { ItemDetailForm } from '../components'
 import type * as API2 from '@/api/alova/globals'
+import { ElMessage } from 'element-plus'
 import { pick } from 'lodash'
-import { GSMessageService } from '@/components'
 import { useFetchHook } from '@/hooks'
 import { useItemStore } from '@/stores'
 
@@ -48,17 +48,11 @@ export const useItemEdit = (options: ItemEditHookOptions = {}) => {
   }
 
   onSuccess(() => {
-    GSMessageService.info('编辑成功', {
-      type: 'success',
-      duration: 3000,
-    })
+    ElMessage.success('编辑成功')
   })
 
   onError((err) => {
-    GSMessageService.info(`编辑失败: ${err.message}`, {
-      type: 'error',
-      duration: 50000,
-    })
+    ElMessage.error(`编辑失败，原因为：${err.message}`)
   })
 
   return { detailFormRef, formData, handleSubmit, onSuccess, onError, ...rest }
