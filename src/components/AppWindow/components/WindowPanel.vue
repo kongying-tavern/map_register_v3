@@ -148,6 +148,7 @@ const isResizerEnable = computed(() => {
 
   &.is-manual {
     transition: none;
+    will-change: transform;
   }
 
   &.is-minimize {
