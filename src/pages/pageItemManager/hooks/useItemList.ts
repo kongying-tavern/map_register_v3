@@ -1,13 +1,14 @@
 import type { Ref } from 'vue'
 import type { PaginationState } from '@/hooks'
 import { ElMessage } from 'element-plus'
-import Api from '@/api/api'
+import Apis from '@/api/alova'
 import { useFetchHook } from '@/hooks'
 
 export interface ItemQueryForm {
   name?: string
   areaId?: number
   itemTypeId?: number
+  specialFlag?: number
 }
 
 export interface ItemHookOptions {
@@ -30,16 +31,19 @@ export const useItemList = (options: ItemHookOptions) => {
 
   const { refresh: updateItemList, onSuccess, onError, loading, ...rest } = useFetchHook({
     immediate: true,
-    onRequest: () => {
+    onRequest: async () => {
       const { current, pageSize: size } = pagination.value
-      const { areaId, itemTypeId, name = '' } = getParams()
-      return Api.item.listItemIdByType({
-        current,
-        size,
-        sort: ['sortIndex-'],
-        areaIdList: !areaId ? [] : [areaId],
-        typeIdList: !itemTypeId ? [] : [itemTypeId],
-        name,
+      const { areaId, itemTypeId, name = '', specialFlag } = getParams()
+      return Apis.item.listItemIdByType({
+        data: {
+          current,
+          size,
+          sort: ['sortIndex-'],
+          areaIdList: !areaId ? [] : [areaId],
+          typeIdList: !itemTypeId ? [] : [itemTypeId],
+          name,
+          specialFlag,
+        },
       })
     },
   })

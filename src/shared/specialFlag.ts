@@ -15,7 +15,19 @@ export const specialMask = new BinaryMask([
 ] as const)
 
 export const SPECIALFLAG_OPTIONS = [
-  { label: '可传送', value: 'isTeleportable' },
-  { label: '可自定义图标', value: 'isIconCustomizable' },
-  { label: '洞口', value: 'isCaveEntrance' },
+  {
+    label: '可传送',
+    value: 'isTeleportable',
+    mask: specialMask.active(0, 'isTeleportable'),
+  },
+  {
+    label: '可自定义图标',
+    value: 'isIconCustomizable',
+    mask: specialMask.active(0, 'isIconCustomizable'),
+  },
+  {
+    label: '洞口',
+    value: 'isCaveEntrance',
+    mask: specialMask.active(0, 'isCaveEntrance'),
+  },
 ]

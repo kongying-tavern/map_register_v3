@@ -109,13 +109,13 @@ const { humanFriendlyTimeText } = useRefreshTime(computed(() => props.data.defau
     </div>
 
     <div class="flex gap-1">
-      <el-tag v-if="isTeleportable" size="small" type="info" class="mt-2">
+      <el-tag v-if="isTeleportable" size="small" type="info" class="mt-2" disable-transitions>
         可传送
       </el-tag>
-      <el-tag v-if="isIconCustomizable" size="small" type="info" class="mt-2">
+      <el-tag v-if="isIconCustomizable" size="small" type="info" class="mt-2" disable-transitions>
         自定义图标
       </el-tag>
-      <el-tag v-if="isCaveEntrance" size="small" type="info" class="mt-2">
+      <el-tag v-if="isCaveEntrance" size="small" type="info" class="mt-2" disable-transitions>
         洞口
       </el-tag>
     </div>

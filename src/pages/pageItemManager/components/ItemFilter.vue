@@ -3,6 +3,7 @@ import type { ItemQueryForm } from '../hooks'
 import { CirclePlus, Menu, RefreshRight } from '@element-plus/icons-vue'
 import { AppDropdown } from '@/components'
 import { IconListView } from '@/components/AppIcons'
+import { SPECIALFLAG_OPTIONS } from '@/shared'
 import { useAreaStore, useItemTypeStore } from '@/stores'
 import { ExplorerType } from '../shared'
 
@@ -57,7 +58,7 @@ const dropdownKey = ref('')
     :disabled="loading"
     @submit.prevent=""
   >
-    <div class="flow-grid grid gap-y-1 gap-x-8">
+    <div class="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-y-1 gap-x-8">
       <el-form-item label="物品名称" style="margin-bottom: 0">
         <el-input
           v-model="modelValue.name"
@@ -84,6 +85,17 @@ const dropdownKey = ref('')
           v-model="modelValue.itemTypeId"
           :options="typeList"
           :props="{ label: 'name', value: 'id' }"
+          clearable
+          filterable
+          @change="() => $emit('change')"
+        />
+      </el-form-item>
+
+      <el-form-item label="物品属性" style="margin-bottom: 0">
+        <el-select-v2
+          v-model="modelValue.specialFlag"
+          :options="SPECIALFLAG_OPTIONS"
+          :props="{ label: 'label', value: 'mask' }"
           clearable
           filterable
           @change="() => $emit('change')"
@@ -151,6 +163,6 @@ const dropdownKey = ref('')
 
 <style scoped>
 .flow-grid {
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
 }
 </style>
