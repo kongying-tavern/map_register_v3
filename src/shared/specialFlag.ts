@@ -16,6 +16,11 @@ export const specialMask = new BinaryMask([
 
 export const SPECIALFLAG_OPTIONS = [
   {
+    label: '无',
+    value: 'none',
+    mask: 0,
+  },
+  {
     label: '可传送',
     value: 'isTeleportable',
     mask: specialMask.active(0, 'isTeleportable'),

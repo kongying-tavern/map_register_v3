@@ -110,7 +110,7 @@ defineExpose({
       <el-form-item label="物品属性" prop="specialFlag">
         <el-select-v2
           v-model="specialFlag"
-          :options="SPECIALFLAG_OPTIONS"
+          :options="SPECIALFLAG_OPTIONS.filter(option => option.value !== 'none')"
           filterable
           collapse-tags
           collapse-tags-tooltip
