@@ -13,6 +13,7 @@ export enum IconStyle {
 export interface IconStyleMeta {
   name: string
   description: string
+  disabled?: boolean
 }
 
 /**
@@ -34,5 +35,6 @@ export const ICON_STYLE_META_MAP = new Map<IconStyle, IconStyleMeta>([
   [IconStyle.DEPRECATED, {
     name: '--弃用--',
     description: '--弃用--',
+    disabled: true,
   }],
 ])

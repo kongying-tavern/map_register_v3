@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { ElFormType, IconStyle } from '@/shared'
+import type { ElFormType } from '@/shared'
 import type { ItemFormRules } from '@/utils'
 import { AppTimeSelect } from '@/components'
 import { useIconList, useRefreshTime } from '@/hooks'
@@ -81,9 +81,8 @@ const iconList = computed(() => rawIconList.value.map(icon => ({
 const iconStyleOptions = [...ICON_STYLE_META_MAP.entries()].map(([key, meta]) => ({
   label: meta.name,
   value: key,
+  disabled: meta.disabled,
 }))
-
-const previewMarkered = ref(false)
 
 // ==================== 刷新时间 ====================
 const refreshTime = computed({
@@ -185,22 +184,23 @@ defineExpose({
       </el-form-item>
 
       <el-form-item label="图标预览">
-        <div class="flex items-center gap-4">
-          <el-tooltip
-            :content="ICON_STYLE_META_MAP.get(formData.iconStyleType as IconStyle)?.description"
-            placement="top"
-          >
-            <div class="w-8 h-8 relative" :class="[previewMarkered ? 'is-markered' : '', `icon-type-${formData.iconStyleType}`]">
-              <img
-                v-if="formData.iconId"
-                class="w-8 h-8 object-contain overflow-hidden absolute left-0 top-0"
-                :src="iconStore.idMap.get(formData.iconId)?.url"
-                draggable="false"
-                crossorigin=""
-              >
-            </div>
-          </el-tooltip>
-          <el-checkbox v-model="previewMarkered" label="预览标记状态" />
+        <div v-if="formData.iconId" class="flex items-center gap-4">
+          <div class="w-8 h-8 relative" :class="`icon-type-${formData.iconStyleType}`">
+            <img
+              class="w-8 h-8 object-contain overflow-hidden absolute left-0 top-0"
+              :src="iconStore.idMap.get(formData.iconId)?.url"
+              draggable="false"
+              crossorigin=""
+            >
+          </div>
+          <div class="w-8 h-8 relative is-markered" :class="`icon-type-${formData.iconStyleType}`">
+            <img
+              class="w-8 h-8 object-contain overflow-hidden absolute left-0 top-0"
+              :src="iconStore.idMap.get(formData.iconId)?.url"
+              draggable="false"
+              crossorigin=""
+            >
+          </div>
         </div>
       </el-form-item>
 
