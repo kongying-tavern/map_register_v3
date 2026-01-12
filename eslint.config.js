@@ -35,8 +35,8 @@ export default antfu({
     // 顶层函数允许使用箭头函数
     'antfu/top-level-function': 'off',
 
-    // 断行符号使用 CRLF
-    'style/linebreak-style': ['error', 'windows'],
+    // 断行符号使用 LF
+    'style/linebreak-style': ['error', 'unix'],
 
     // 文件末尾保留空行
     'style/eol-last': 'error',

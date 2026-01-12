@@ -1,5 +1,5 @@
-*.vue text eol=crlf
-*.ts text eol=crlf
-*.js text eol=crlf
-*.css text eol=crlf
-*.scss text eol=crlf
+*.vue text eol=lf
+*.ts text eol=lf
+*.js text eol=lf
+*.css text eol=lf
+*.scss text eol=lf
