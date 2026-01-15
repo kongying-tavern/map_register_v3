@@ -66,8 +66,8 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
       for (let groupIndex = 0; groupIndex < mergedOverlayGroups.value[areaCode].length; groupIndex++) {
         const {
           id: groupId,
-          label: groupLabel = 'unknown',
-          value: groupValue = '',
+          label: groupLabel = 'unknown group',
+          value: groupValue = `[G]${crypto.randomUUID()}`,
           items,
           url: groupUrl,
           urlTemplate: groupUrlTemplate,
@@ -97,15 +97,15 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
         group.areaIndexes.set(areaCode, groupIndex)
 
         for (const {
-          label: itemLabel = groupLabel,
-          value: itemValue = groupValue,
+          label: itemLabel = 'unknown item',
+          value: itemValue = `[I]${crypto.randomUUID()}`,
           url: itemUrl = groupUrl,
           urlTemplate: itemUrlTemplate = groupUrlTemplate,
           bounds: itemBounds = groupBounds,
           chunks = [],
         } of items) {
           const item = {
-            id: `item-${crypto.randomUUID()}`,
+            id: `${groupValue}-${itemValue}`,
             name: itemLabel,
           }
 
@@ -124,10 +124,8 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
             const { center: [cx, cy] } = tileConfigInArea.tile
             const [[xmin, ymin], [xmax, ymax]] = itemBounds
 
-            const { host, pathname } = new URL(url)
-
-            resultMap.set(url, {
-              id: `chunk://${host}${pathname}`,
+            resultMap.set(item.id, {
+              id: item.id,
               areaCodes: new Set<string>([areaCode]),
               label: itemLabel,
               url,
@@ -139,8 +137,8 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
           }
 
           for (const {
-            label: chunkLabel = itemLabel,
-            value: chunkValue = itemValue,
+            label: chunkLabel = 'unknown chunk',
+            value: chunkValue = `[C]${crypto.randomUUID()}`,
             url: chunkUrl = itemUrl,
             bounds: chunkBounds = itemBounds,
           } of chunks) {
@@ -158,8 +156,8 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
             const { center: [cx, cy] } = tileConfigInArea.tile
             const [[xmin, ymin], [xmax, ymax]] = chunkBounds
 
-            resultMap.set(url, {
-              id: `chunk-${crypto.randomUUID()}`,
+            resultMap.set(chunkValue, {
+              id: chunkValue,
               areaCodes: new Set<string>([areaCode]),
               label: chunkLabel,
               url,
