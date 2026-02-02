@@ -1,3 +1,4 @@
+import type * as API2 from '@/api/alova/globals'
 import type {
   MAFConfig,
   MAFMetaDummy,
@@ -35,7 +36,7 @@ export class ItemSize implements MAFConfig<MAFValueNumberRange, MAFOptionRange, 
     ]
   }
 
-  filter(val: MAFValueNumberRange, _opt: MAFOptionRange, _meta: MAFMetaDummy, marker: API.MarkerVo): boolean {
+  filter(val: MAFValueNumberRange, _opt: MAFOptionRange, _meta: MAFMetaDummy, marker: API2.MarkerVo): boolean {
     const minVal: number = val.nMin === undefined || val.nMin === null ? Number.NEGATIVE_INFINITY : val.nMin
     const maxVal: number = val.nMax === undefined || val.nMax === null ? Number.POSITIVE_INFINITY : val.nMax
     const itemList = marker.itemList ?? []

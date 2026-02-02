@@ -1,3 +1,4 @@
+import type * as API2 from '@/api/alova/globals'
 import type {
   MAFConfig,
   MAFMetaDummy,
@@ -33,7 +34,7 @@ export class ContentContain implements MAFConfig<MAFValueString, MAFOptionInput,
     ]
   }
 
-  filter(val: MAFValueString, _opt: MAFOptionInput, _meta: MAFMetaDummy, marker: API.MarkerVo): boolean {
+  filter(val: MAFValueString, _opt: MAFOptionInput, _meta: MAFMetaDummy, marker: API2.MarkerVo): boolean {
     if (!val.s)
       return false
     return (marker.content ?? '').includes(val.s)

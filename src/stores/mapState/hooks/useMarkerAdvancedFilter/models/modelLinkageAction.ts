@@ -1,3 +1,4 @@
+import type * as API2 from '@/api/alova/globals'
 import type {
   MAFConfig,
   MAFMetaLinkageAction,
@@ -64,11 +65,11 @@ export class LinkageAction implements MAFConfig<MAFValueStringArray, MAFOptionSe
       { type: 'text', text: '点位关联' },
       opposite ? { type: 'opposite-indicator', text: '不' } : null,
       { type: 'text', text: '包含' },
-      ...meta.tagList.map(tag => ({ type: 'tag', text: tag })),
+      ...meta.tagList.map(tag => ({ type: 'tag', text: tag } as const)),
     ]
   }
 
-  filter(val: MAFValueStringArray, _opt: MAFOptionSelect<OptionType>, meta: MAFMetaLinkageAction, marker: API.MarkerVo): boolean {
+  filter(val: MAFValueStringArray, _opt: MAFOptionSelect<OptionType>, meta: MAFMetaLinkageAction, marker: API2.MarkerVo): boolean {
     if (marker.linkageId && meta.linkActionMap.has(marker.linkageId)) {
       const linkActions: Set<string> = meta.linkActionMap.get(marker.linkageId)!
       for (const action of val.sa) {

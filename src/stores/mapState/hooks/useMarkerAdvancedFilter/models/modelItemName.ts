@@ -1,3 +1,4 @@
+import type * as API2 from '@/api/alova/globals'
 import type {
   MAFConfig,
   MAFMetaItemName,
@@ -52,11 +53,11 @@ export class ItemName implements MAFConfig<MAFValueString, MAFOptionInput, MAFMe
       { type: 'text', text: '物品名' },
       opposite ? { type: 'opposite-indicator', text: '不' } : null,
       { type: 'text', text: '为' },
-      ...meta.tagList.map(tag => ({ type: 'tag', text: tag })),
+      ...meta.tagList.map(tag => ({ type: 'tag', text: tag } as const)),
     ]
   }
 
-  filter(_val: MAFValueString, _opt: MAFOptionInput, meta: MAFMetaItemName, marker: API.MarkerVo): boolean {
+  filter(_val: MAFValueString, _opt: MAFOptionInput, meta: MAFMetaItemName, marker: API2.MarkerVo): boolean {
     const itemIds: number[] = (marker.itemList ?? []).map(item => item.itemId!).filter(v => v)
     for (const itemId of itemIds) {
       if (meta.itemIds.has(itemId))

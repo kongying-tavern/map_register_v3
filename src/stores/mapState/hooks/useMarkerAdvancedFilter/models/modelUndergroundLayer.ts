@@ -1,3 +1,4 @@
+import type * as API2 from '@/api/alova/globals'
 import type { AreaWithExtraConfig } from '@/stores'
 import type {
   MAFConfig,
@@ -108,12 +109,12 @@ export class UndergroundLayer implements MAFConfig<MAFValueStringArray, OptionTy
       { type: 'text', text: '分层层级' },
       opposite ? { type: 'opposite-indicator', text: '不' } : null,
       { type: 'text', text: '属于' },
-      ...meta.tagList.map<MAFSemanticUnit>(tag => ({ type: 'tag', text: tag })),
+      ...meta.tagList.map<MAFSemanticUnit>(tag => ({ type: 'tag', text: tag } as const)),
     ]
   }
 
-  filter(val: MAFValueStringArray, _opt: OptionType, _meta: MAFMetaUndergroundLayer, marker: API.MarkerVo): boolean {
-    const extra = (marker.extra?.underground ?? {}) as API.MarkerExtra['underground']
+  filter(val: MAFValueStringArray, _opt: OptionType, _meta: MAFMetaUndergroundLayer, marker: API2.MarkerVo): boolean {
+    const extra = (marker.extra?.underground ?? {}) as API2.MarkerExtraVo['underground']
     const regionLevels = extra?.region_levels ?? []
     for (const regionLevel of regionLevels) {
       if (val.sa.includes(regionLevel))

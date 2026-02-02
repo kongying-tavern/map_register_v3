@@ -1,3 +1,4 @@
+import type * as API2 from '@/api/alova/globals'
 import type {
   MAFConfig,
   MAFMetaVisibility,
@@ -52,11 +53,11 @@ export class Visibility implements MAFConfig<MAFValueNumberArray, OptionType, MA
       { type: 'text', text: '可见范围' },
       opposite ? { type: 'opposite-indicator', text: '不' } : null,
       { type: 'text', text: '为' },
-      ...meta.tagList.map(tag => ({ type: 'tag', text: tag })),
+      ...meta.tagList.map(tag => ({ type: 'tag', text: tag } as const)),
     ]
   }
 
-  filter(val: MAFValueNumberArray, _opt: OptionType, _meta: MAFMetaVisibility, marker: API.MarkerVo): boolean {
+  filter(val: MAFValueNumberArray, _opt: OptionType, _meta: MAFMetaVisibility, marker: API2.MarkerVo): boolean {
     return (val.na ?? []).includes(marker.hiddenFlag!)
   }
 }

@@ -1,3 +1,4 @@
+import type * as API2 from '@/api/alova/globals'
 import type {
   MAFConfig,
   MAFMetaContentRegex,
@@ -47,7 +48,7 @@ export class ContentRegex implements MAFConfig<MAFValueString, MAFOptionInput, M
     ]
   }
 
-  filter(_val: MAFValueString, _opt: MAFOptionInput, meta: MAFMetaContentRegex, marker: API.MarkerVo): boolean {
+  filter(_val: MAFValueString, _opt: MAFOptionInput, meta: MAFMetaContentRegex, marker: API2.MarkerVo): boolean {
     if (!meta.re)
       return false
     return meta.re.test(marker.content ?? '')

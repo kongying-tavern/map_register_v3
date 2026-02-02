@@ -1,3 +1,4 @@
+import type * as API2 from '@/api/alova/globals'
 import type {
   MAFConfig,
   MAFMetaDummy,
@@ -32,7 +33,7 @@ export class Linkage implements MAFConfig<MAFValueBoolean, MAFOptionSwitch, MAFM
     ]
   }
 
-  filter(val: MAFValueBoolean, _opt: MAFOptionSwitch, _meta: MAFMetaDummy, marker: API.MarkerVo): boolean {
+  filter(val: MAFValueBoolean, _opt: MAFOptionSwitch, _meta: MAFMetaDummy, marker: API2.MarkerVo): boolean {
     return val.b ? !!marker.linkageId : !marker.linkageId
   }
 }

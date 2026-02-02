@@ -1,3 +1,4 @@
+import type * as API2 from '@/api/alova/globals'
 import type {
   MAFConfig,
   MAFMetaItemType,
@@ -8,7 +9,7 @@ import type {
 import { MAF_MODEL_NAME_MAP, MAFModelId } from '@/shared'
 import { useItemStore, useItemTypeStore } from '@/stores'
 
-type OptionType = MAFOptionSelect<API.ItemTypeVo>
+type OptionType = MAFOptionSelect<API2.ItemTypeVo>
 
 export class ItemType implements MAFConfig<MAFValueNumberArray, OptionType, MAFMetaItemType> {
   id = MAFModelId.ITEM_TYPE
@@ -75,7 +76,7 @@ export class ItemType implements MAFConfig<MAFValueNumberArray, OptionType, MAFM
     ]
   }
 
-  filter(_val: MAFValueNumberArray, _opt: OptionType, meta: MAFMetaItemType, marker: API.MarkerVo): boolean {
+  filter(_val: MAFValueNumberArray, _opt: OptionType, meta: MAFMetaItemType, marker: API2.MarkerVo): boolean {
     const itemIds: number[] = (marker.itemList ?? []).map(v => v.itemId!).filter(v => v)
     for (const itemId of itemIds) {
       if (meta.itemIds.has(itemId))

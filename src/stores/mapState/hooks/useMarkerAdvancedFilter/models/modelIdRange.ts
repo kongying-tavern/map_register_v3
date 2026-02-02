@@ -1,3 +1,4 @@
+import type * as API2 from '@/api/alova/globals'
 import type {
   MAFConfig,
   MAFMetaIdRange,
@@ -81,7 +82,7 @@ export class IdRange implements MAFConfig<MAFValueString, MAFOptionInput, MAFMet
     ]
   }
 
-  filter(_val: MAFValueString, _opt: MAFOptionInput, meta: MAFMetaIdRange, marker: API.MarkerVo): boolean {
+  filter(_val: MAFValueString, _opt: MAFOptionInput, meta: MAFMetaIdRange, marker: API2.MarkerVo): boolean {
     return meta.idSet.has(marker.id!)
   }
 }

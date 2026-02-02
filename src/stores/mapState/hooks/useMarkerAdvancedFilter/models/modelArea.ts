@@ -1,3 +1,4 @@
+import type * as API2 from '@/api/alova/globals'
 import type { AreaWithChildren } from '@/stores'
 import type {
   MAFConfig,
@@ -72,7 +73,7 @@ export class Area implements MAFConfig<MAFValueNumberArray, OptionType, MAFMetaA
     ]
   }
 
-  filter(_val: MAFValueNumberArray, _opt: OptionType, meta: MAFMetaArea, marker: API.MarkerVo): boolean {
+  filter(_val: MAFValueNumberArray, _opt: OptionType, meta: MAFMetaArea, marker: API2.MarkerVo): boolean {
     const itemIds: number[] = (marker.itemList ?? []).map(v => v.itemId!).filter(v => v)
     for (const itemId of itemIds) {
       if (meta.itemIds.has(itemId))
