@@ -113,6 +113,13 @@ const removeArea = (area: AreaWithExtraConfig) => {
   modelValue.value = Array.from(valueSet)
 }
 
+// 添加/移除地区内层级
+const toggleArea = (area: AreaWithExtraConfig) => {
+  const key = area.id ?? 0
+  const matchTotal = layerTotalMatch.value[key]
+  matchTotal ? removeArea(area) : addArea(area)
+}
+
 // 添加分组内层级
 const addGroup = (item: ConfigLayerUnit) => {
   const shallowCopyValue = [...modelValue.value]
@@ -131,6 +138,15 @@ const removeGroup = (item: ConfigLayerUnit) => {
     valueSet.delete(layer.value)
   })
   modelValue.value = Array.from(valueSet)
+}
+
+// 添加/移除分组内层级
+const toggleGroup = (item: ConfigLayerUnit) => {
+  const areaId = selectedAreaId.value
+  const layerKey = item.value ?? ''
+  const key = `${areaId}-${layerKey}`
+  const matchTotal = layerTotalMatch.value[key]
+  matchTotal ? removeGroup(item) : addGroup(item)
 }
 
 /* --------------------------------------------------
@@ -179,7 +195,10 @@ const {
             :data-drag-area-id="item.id"
           >
             <span class="flex-none mr-1">
-              <MarkerFilterButton theme="dark" @click.stop="addArea(item)">
+              <MarkerFilterButton
+                :theme="layerTotalMatch[item.id!] ? 'light' : 'dark'"
+                @click.stop="toggleArea(item)"
+              >
                 <template #icon>
                   <IconLayersFilled />
                 </template>
@@ -218,8 +237,12 @@ const {
         >
           <div class="flex pt-2 pb-1 gap-2 items-end">
             <span
-              class="flex-none text-base leading-loose underline underline-offset-4 decoration-dashed hover:decoration-double"
-              @click.stop="addGroup(layerGroup)"
+              class="flex-none text-base leading-loose select-none underline underline-offset-4"
+              :class="layerTotalMatch[`${selectedAreaId}-${layerGroup.value}`]
+                ? ['decoration-solid', 'hover:decoration-dotted']
+                : ['decoration-dashed', 'hover:decoration-double']
+              "
+              @click.stop="toggleGroup(layerGroup)"
             >
               {{ layerGroup.label }}
             </span>
