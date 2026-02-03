@@ -37,6 +37,7 @@ export class UndergroundLayer implements MAFConfig<MAFValueStringArray, OptionTy
 
     return {
       dialogTitle: '选择分层层级',
+      dialogListClass: 'w-[650px]',
       options: undergroundOptions,
       optionSelectMultiple: true,
       optionLabel: 'label',
