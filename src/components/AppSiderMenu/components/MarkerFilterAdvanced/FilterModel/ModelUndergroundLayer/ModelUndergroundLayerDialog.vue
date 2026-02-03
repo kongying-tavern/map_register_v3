@@ -62,6 +62,31 @@ const layerCountMap = computed(() => {
   return countMap
 })
 
+const layerTotalMap = computed(() => {
+  const totalMap: Record<string | number, number> = {}
+  props.list.forEach((item) => {
+    const { id: areaId = 0, extraConfig = {} } = item
+    const { underground = {} } = extraConfig
+    const { levels = [] } = underground
+    levels.forEach((group) => {
+      totalMap[areaId] = (totalMap[areaId] ?? 0) + group.children.length
+      totalMap[`${areaId}-${group.value}`] = (totalMap[`${areaId}-${group.value}`] ?? 0) + group.children.length
+    })
+  })
+
+  return totalMap
+})
+
+const layerTotalMatch = computed(() => {
+  const matchMap: Record<string | number, boolean> = {}
+  for (const key in layerTotalMap.value) {
+    const totalCount = layerTotalMap.value[key] ?? 0
+    const selectedCount = layerCountMap.value[key] ?? 0
+    matchMap[key] = selectedCount >= totalCount
+  }
+  return matchMap
+})
+
 /* --------------------------------------------------
  * 层级标签处理方案
  * --------------------------------------------------
@@ -164,7 +189,7 @@ const {
             <el-button
               v-if="layerCountMap[item.id!]"
               class="flex-none"
-              type="primary"
+              :type="layerTotalMatch[item.id!] ? 'warning' : 'primary'"
               size="small"
               round
               .draggable="true"
@@ -202,7 +227,7 @@ const {
               <el-button
                 v-if="layerCountMap[`${selectedAreaId}-${layerGroup.value}`]"
                 class="mb-[8px]"
-                type="primary"
+                :type="layerTotalMatch[`${selectedAreaId}-${layerGroup.value}`] ? 'warning' : 'primary'"
                 size="small"
                 round
                 .draggable="true"
