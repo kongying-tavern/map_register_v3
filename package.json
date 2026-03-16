@@ -7,7 +7,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "cz": "czg",
+    "cz": "pnpm exec lint-staged && czg",
     "dev": "vite",
     "build": "vite build",
     "build:stage": "vite build --mode stage",
@@ -21,8 +21,7 @@
     "type-check": "vue-tsc --build --force",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "proto:build": "pbjs -t static-module -w es6 -o src/api/protobuf/compiled.js src/api/protobuf/*.proto && pbts -o src/api/protobuf/compiled.d.ts src/api/protobuf/compiled.js",
-    "prepare": "husky"
+    "proto:build": "pbjs -t static-module -w es6 -o src/api/protobuf/compiled.js src/api/protobuf/*.proto && pbts -o src/api/protobuf/compiled.d.ts src/api/protobuf/compiled.js"
   },
   "dependencies": {
     "7z-wasm": "1.1.0",
@@ -77,7 +76,6 @@
     "cz-git": "1.11.1",
     "czg": "1.11.1",
     "eslint": "9.21.0",
-    "husky": "9.1.7",
     "less": "4.2.2",
     "lint-staged": "15.5.0",
     "openapi2ts": "1.1.7",
