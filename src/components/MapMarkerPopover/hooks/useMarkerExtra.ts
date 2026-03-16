@@ -1,8 +1,9 @@
 import type { ShallowRef } from 'vue'
+import type * as API2 from '@/api/alova/globals'
 import { useRefreshTime } from '@/hooks'
 import { HIDDEN_FLAG_NAME_MAP } from '@/shared'
 
-export const useMarkerExtra = (markerInfo: ShallowRef<API.MarkerVo | null>) => {
+export const useMarkerExtra = (markerInfo: ShallowRef<API2.MarkerVo | null>) => {
   const extraObject = computed(() => (markerInfo.value?.extra ?? {}) as API.MarkerExtra)
 
   const isUnderground = computed(() => extraObject.value.underground?.is_underground ?? false)

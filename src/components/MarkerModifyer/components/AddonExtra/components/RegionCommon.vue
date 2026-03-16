@@ -27,12 +27,12 @@ const isGlobal = computed({
     if (!modelValue.value)
       return false
     if (!bool) {
-      modelValue.value.is_global = undefined
-      modelValue.value.region_levels = []
+      Reflect.set(modelValue.value, 'is_global', null)
+      Reflect.set(modelValue.value, 'region_levels', [])
       return true
     }
-    modelValue.value.is_global = true
-    modelValue.value.region_levels = undefined
+    Reflect.set(modelValue.value, 'is_global', true)
+    Reflect.set(modelValue.value, 'region_levels', null)
   },
 })
 

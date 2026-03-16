@@ -1,3 +1,4 @@
+import type * as API2 from '@/api/alova/globals'
 import type { GSMarkerInfo, TempMarkerType, TempMarkerTypeMap } from '@/packages/map'
 import type {
   useArchiveStore,
@@ -79,7 +80,7 @@ export const useMarkers = (options: MarkerHookOptions) => {
     const breakBool = (v: boolean | null, op: boolean): boolean => (v === true && !op) || (v === false && op)
 
     const metaCache = new Map<string, MAFMeta>()
-    const res = markerStore.markerList.filter((marker: API.MarkerVo) => {
+    const res = markerStore.markerList.filter((marker: API2.MarkerVo) => {
       let globalVal: boolean | null = null
       for (let groupIndex = 0; groupIndex < advancedFilter.value.length; groupIndex++) {
         const group = advancedFilter.value[groupIndex]
@@ -108,7 +109,7 @@ export const useMarkers = (options: MarkerHookOptions) => {
             itemMeta = filterPrepare(item.value, toValue(filterOption))
             metaCache.set(itemMetaKey, itemMeta)
           }
-          let itemVal: boolean = filterAction(item.value, filterOption, itemMeta, marker)
+          let itemVal: boolean = filterAction(item.value, toValue(filterOption), itemMeta, marker)
           if (item.opposite)
             itemVal = !itemVal
           groupVal = operateBool(groupVal, itemVal, item.operator)

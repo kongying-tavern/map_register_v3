@@ -133,7 +133,7 @@ export interface GSLinkLayerProps extends ArrowShapeOptions {
 }
 
 // ============================== Marker ==============================
-export interface GSMarkerInfo extends API.MarkerVo {
+export interface GSMarkerInfo extends API2.MarkerVo {
   /** 是否为快照 */
   __gs_isSnapshot?: boolean
 
@@ -143,7 +143,7 @@ export interface GSMarkerInfo extends API.MarkerVo {
     position: Coordinate2D
 
     /** 点位地区 */
-    area: API.AreaVo
+    area: API2.AreaVo
 
     /** 点位所属的底图 */
     tileCode: string

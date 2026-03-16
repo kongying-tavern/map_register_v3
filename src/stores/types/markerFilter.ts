@@ -1,4 +1,5 @@
 import type { MaybeComputedRef } from '@vueuse/core'
+import type * as API2 from '@/api/alova/globals'
 
 // ==================== 基础筛选模型 ====================
 interface PresetType {
@@ -56,7 +57,7 @@ export interface MAFItemComposed {
   option: MaybeComputedRef<MAFOption>
   meta: MAFMeta
   semantic?: (val: MAFValue, opt: MAFOption, meta: MAFMeta, opposite: boolean) => MAFSemanticUnit[]
-  filter?: (val: MAFValue, opt: MAFOption, meta: MAFMeta, marker: API.MarkerVo) => boolean
+  filter?: (val: MAFValue, opt: MAFOption, meta: MAFMeta, marker: API2.MarkerVo) => boolean
 }
 
 export type MAFSemanticType =
@@ -86,7 +87,7 @@ export interface MAFConfig<
   readonly defaultVal: V
   prepare: (val: V, opt: O) => M
   semantic: (val: V, opt: O, meta: M, opposite: boolean) => (MAFSemanticUnit | null)[]
-  filter: (val: V, opt: O, meta: M, marker: API.MarkerVo) => boolean
+  filter: (val: V, opt: O, meta: M, marker: API2.MarkerVo) => boolean
 }
 
 // ==================== 数据模型 ====================
