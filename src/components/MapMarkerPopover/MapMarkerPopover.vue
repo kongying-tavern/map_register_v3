@@ -5,7 +5,7 @@ import { ElMessage } from 'element-plus'
 import { storeToRefs } from 'pinia'
 import { AppBilibiliVideoPlayer, AppIconTagRenderer, GSButton } from '@/components'
 import { CloseFilled } from '@/components/GenshinUI/GSIcon'
-import { useGlobalDialog, useMarkerControl } from '@/hooks'
+import { useFetchHook, useGlobalDialog, useMarkerControl } from '@/hooks'
 import { useAccessStore, useIconStore, useMapStateStore } from '@/stores'
 import { MapAffix } from '../MapAffix'
 import { MarkerEditor } from '../MarkerModifyer'
@@ -44,10 +44,32 @@ const {
   clear: clearEditting,
 } = mapStateStore.subscribeMission('markerEditting', () => undefined)
 
+const {
+  loading: queryMarkerLoading,
+  refresh: queryMarker,
+} = useFetchHook({
+  onRequest: async (markerId: number) => {
+    const markers = await Apis.marker.listMarkerById({
+      data: {
+        markerIdList: [markerId],
+      },
+    })
+    const target = markers.data?.[0]
+    if (!target)
+      throw new Error('无法查询到点位信息，点位可能已经被删除')
+    return target
+  },
+})
+
 const editMarker = async () => {
   if (!isEditable.value || !focus.value)
     return
   updateEditting(focus.value.id)
+  if (!focus.value.id)
+    return
+  const marker = await queryMarker(focus.value.id)
+  if (!marker)
+    return
   await DialogService
     .config({
       width: 'fit-content',
@@ -57,7 +79,7 @@ const editMarker = async () => {
       closeOnPressEscape: false,
     })
     .props({
-      markerInfo: focus.value,
+      markerInfo: marker,
     })
     .open(MarkerEditor)
     .afterClosed<GSMarkerInfo>()
@@ -149,9 +171,6 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
             <div class="info-tag">
               {{ refreshTimeText || '不刷新' }}
             </div>
-            <div class="info-tag">
-              {{ cachedMarkerVo.linkageId?.slice(0, 8) }}
-            </div>
             <div
               v-if="cachedMarkerVo.videoPath"
               class="info-tag is-interactive"
@@ -188,6 +207,7 @@ const hasMapMission = computed(() => Boolean(mapStateStore.mission))
                 v-if="accessStore.get('MARKER_EDIT')"
                 size="small"
                 theme="dark"
+                :loading="queryMarkerLoading"
                 :disabled="hasMapMission"
                 @click="editMarker"
               >
