@@ -98,14 +98,14 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
 
         for (const {
           label: itemLabel = 'unknown item',
-          value: itemValue = `[I]${crypto.randomUUID()}`,
+          value: itemValue = crypto.randomUUID(),
           url: itemUrl = groupUrl,
           urlTemplate: itemUrlTemplate = groupUrlTemplate,
           bounds: itemBounds = groupBounds,
           chunks = [],
         } of items) {
           const item = {
-            id: `${groupValue}-${itemValue}`,
+            id: `${groupValue}-->${itemValue}`,
             name: itemLabel,
           }
 
@@ -138,7 +138,7 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
 
           for (const {
             label: chunkLabel = 'unknown chunk',
-            value: chunkValue = `[C]${crypto.randomUUID()}`,
+            value: chunkValue = crypto.randomUUID(),
             url: chunkUrl = itemUrl,
             bounds: chunkBounds = itemBounds,
           } of chunks) {
@@ -156,8 +156,10 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
             const { center: [cx, cy] } = tileConfigInArea.tile
             const [[xmin, ymin], [xmax, ymax]] = chunkBounds
 
-            resultMap.set(chunkValue, {
-              id: chunkValue,
+            const chunkId = `${item.id}-->${chunkValue}`
+
+            resultMap.set(chunkId, {
+              id: chunkId,
               areaCodes: new Set<string>([areaCode]),
               label: chunkLabel,
               url,
