@@ -38,8 +38,13 @@ export const useMarkerCreate = (markerData: Ref<API.MarkerVo | null>) => {
     },
   })
 
+  const isProcessing = ref(false)
+
   const createMarker = async () => {
+    if (isProcessing.value)
+      return
     try {
+      isProcessing.value = true
       const isValid = await editorRef.value?.validate()
       if (!isValid)
         return
@@ -47,6 +52,9 @@ export const useMarkerCreate = (markerData: Ref<API.MarkerVo | null>) => {
     }
     catch {
       // validate, no error
+    }
+    finally {
+      isProcessing.value = false
     }
   }
 
