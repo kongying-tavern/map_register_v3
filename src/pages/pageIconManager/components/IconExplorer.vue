@@ -1,14 +1,12 @@
 <script setup lang="ts">
-import { AppVirtualTable, IconRenderer } from '@/components'
-import { useIconStore } from '@/stores'
+import { AppVirtualTable } from '@/components'
+import IconImage from './IconImage.vue'
 
 defineProps<{
   data: API.IconVo[]
 }>()
 
 const ICON_SIZE = 100
-
-const iconStore = useIconStore()
 
 const activedIcon = defineModel<number | undefined>('activedItem', {
   required: true,
@@ -19,9 +17,6 @@ const activedIcon = defineModel<number | undefined>('activedItem', {
   <div
     class="border-r-[1px] border-[var(--el-border-color-light)] h-full overflow-hidden"
     element-loading-text="正在处理..."
-    :style="{
-      '--sprite-image': `url(${iconStore.iconTextureUrl})`,
-    }"
   >
     <AppVirtualTable
       :data="data"
@@ -38,9 +33,9 @@ const activedIcon = defineModel<number | undefined>('activedItem', {
           }"
           @click="activedIcon = icon.id"
         >
-          <IconRenderer
-            class="w-12 h-12 text-[#AB9073]"
-            :icon-id="icon.id"
+          <IconImage
+            :url="icon.url"
+            :alt="icon.tag"
           />
           <div class="item-label">
             {{ icon.tag }}
@@ -81,14 +76,6 @@ const activedIcon = defineModel<number | undefined>('activedItem', {
     --bg-color: var(--el-color-primary-light-7);
     border-radius: 4px;
   }
-}
-
-.item-image {
-  width: 64px;
-  height: 64px;
-  scale: 0.75;
-  background: var(--sprite-image);
-  background-position: var(--x) var(--y);
 }
 
 .item-label {

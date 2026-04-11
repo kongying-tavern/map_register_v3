@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { Expand, Fold } from '@element-plus/icons-vue'
 import { ElTree } from 'element-plus'
 import { useGlobalDialog, useIconType } from '@/hooks'
 import { useIconStore } from '@/stores'
@@ -13,6 +14,8 @@ const previewIcon = computed(() => {
     return
   return iconStore.idMap.get(previewIconId.value)
 })
+
+const sidebarCollapsed = ref(false)
 
 const queryIconName = ref('')
 const queryIconType = ref<API.IconTypeVo>({
@@ -87,7 +90,10 @@ const openIconCreator = () => {
 </script>
 
 <template>
-  <div class="icon-manager grid grid-cols-[200px_1fr_auto] grid-rows-[auto_1fr_auto] h-full overflow-hidden text-xs">
+  <div
+    class="icon-manager grid grid-rows-[auto_1fr_auto] h-full overflow-hidden text-xs"
+    :class="sidebarCollapsed ? 'grid-cols-[auto_1fr_auto]' : 'grid-cols-[200px_1fr_auto]'"
+  >
     <IconExplorerHeader
       v-model:query-name="queryIconName"
       v-model:query-type="queryIconType"
@@ -96,12 +102,23 @@ const openIconCreator = () => {
       @create-icon="openIconCreator"
     />
 
-    <div class="h-full border-r-[1px] border-[var(--el-border-color-lighter)] overflow-auto">
+    <div class="h-full border-r-[1px] border-[var(--el-border-color-lighter)] flex flex-col">
+      <div class="flex items-center justify-between p-2 border-b-[1px] border-[var(--el-border-color-lighter)]">
+        <span v-show="!sidebarCollapsed" class="font-medium">图标分类</span>
+        <el-button
+          :icon="sidebarCollapsed ? Expand : Fold"
+          size="small"
+          text
+          @click="sidebarCollapsed = !sidebarCollapsed"
+        />
+      </div>
       <ElTree
+        v-show="!sidebarCollapsed"
         lazy
         accordion
         node-key="id"
         highlight-current
+        class="flex-1 overflow-auto"
         :current-node-key="-1"
         :default-expanded-keys="[-1]"
         :expand-on-click-node="false"
