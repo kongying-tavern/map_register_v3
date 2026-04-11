@@ -165,6 +165,7 @@ const variants = computed(() => {
           :src="previewVariant ? icon.urlVariants?.[previewVariant] : icon.url"
           class="hover:bg-[var(--el-color-primary)] max-w-full max-h-full object-contain"
           crossorigin=""
+          draggable="false"
         >
       </div>
 
@@ -195,11 +196,27 @@ const variants = computed(() => {
           </el-form-item>
 
           <el-form-item label="分辨率" class="margin-bottom-0">
-            <el-text>{{ isLoading ? '......' : `${state.size?.[0]} x ${state.size?.[1]}` }}</el-text>
+            <el-text v-if="isLoading" type="warning">
+              加载中...
+            </el-text>
+            <el-text v-else-if="!state.size" type="danger">
+              加载失败
+            </el-text>
+            <el-text v-else>
+              {{ `${state.size[0]} x ${state.size[1]}` }}
+            </el-text>
           </el-form-item>
 
           <el-form-item label="文件大小" class="margin-bottom-0">
-            <el-text>{{ isLoading ? '......' : formatByteSize(state.byteLength ?? 0) }}</el-text>
+            <el-text v-if="isLoading" type="warning">
+              加载中...
+            </el-text>
+            <el-text v-else-if="!state.byteLength" type="danger">
+              加载失败
+            </el-text>
+            <el-text v-else>
+              {{ formatByteSize(state.byteLength ?? 0) }}
+            </el-text>
           </el-form-item>
 
           <el-form-item label="描述" class="margin-bottom-0">
