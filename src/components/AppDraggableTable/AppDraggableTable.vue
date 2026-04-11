@@ -181,9 +181,11 @@ useSubscription(dragstart.pipe(
 
     filter(({ fromIndex, toIndex }) => fromIndex !== undefined && toIndex !== undefined),
 
-    tap(({ fromIndex, toIndex }) => document.startViewTransition(() => {
-      move(fromIndex!, toIndex!)
-    })),
+    tap(({ fromIndex, toIndex }) => {
+      document.startViewTransition(() => {
+        move(fromIndex!, toIndex!)
+      })
+    }),
 
     takeUntil(dragend),
 

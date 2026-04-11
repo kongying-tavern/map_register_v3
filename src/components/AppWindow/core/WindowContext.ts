@@ -93,7 +93,7 @@ export class WindowContext implements MapWindow.Context {
     this.#transitionId.value = params.id
     await document.startViewTransition?.(() => {
       this.panels.value.set(params.id, info)
-    }).ready ?? this.panels.value.set(params.id, info)
+    })?.ready ?? this.panels.value.set(params.id, info)
     this.#transitionId.value = ''
 
     this.cachedInfos.set(params.id, info)
@@ -156,12 +156,7 @@ export class WindowContext implements MapWindow.Context {
       iPanel.order -= 1
     })
 
-    this.#transitionId.value = id
-    await document.startViewTransition?.(() => {
-      this.panels.value.delete(id)
-    })?.finished ?? this.panels.value.delete(id)
-    this.#transitionId.value = ''
-
+    this.panels.value.delete(id)
     this.closeHook.trigger(id)
   }
 

@@ -303,8 +303,7 @@ useSubscription(start$.pipe(
       map(({ info }) => {
         if (!info.layer
           || !GSMarkerLayer.isInstance(info.layer)
-          || !info.object
-        ) {
+          || !info.object) {
           return undefined
         }
         return info.object as GSMarkerInfo
@@ -324,8 +323,7 @@ useSubscription(start$.pipe(
         hoverMarker.value = markerInfo
         if (!prev
           || prev.id === markerInfo.id
-          || nextMarker.value !== undefined
-        ) {
+          || nextMarker.value !== undefined) {
           stopAnimation.value?.()
           return
         }
@@ -382,8 +380,7 @@ useSubscription(start$.pipe(
         if (!info.layer
           || !GSMarkerLayer.isInstance(info.layer)
           || !info.object
-          || prevMarker.value?.id === (info.object as GSMarkerInfo).id
-        ) {
+          || prevMarker.value?.id === (info.object as GSMarkerInfo).id) {
           clearSelect()
         }
 
