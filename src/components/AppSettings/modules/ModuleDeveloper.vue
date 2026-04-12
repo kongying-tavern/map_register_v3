@@ -104,6 +104,16 @@ const downloadIconSprite = () => {
   a.remove()
 }
 
+const downloadMarkerTexture = () => {
+  if (!iconStore.markerSpriteUrl)
+    return
+  const a = document.createElement('a')
+  a.href = iconStore.markerSpriteUrl
+  a.download = 'marker-sprite.png'
+  a.click()
+  a.remove()
+}
+
 const printIconSpriteMapping = () => {
   // eslint-disable-next-line no-console
   console.log('[mapping]', {
@@ -202,6 +212,17 @@ const printIconSpriteMapping = () => {
           <el-button
             class="shrink-0"
             @click="downloadIconSprite"
+          >
+            下载
+          </el-button>
+        </template>
+      </SettingBar>
+
+      <SettingBar label="下载点位纹理图">
+        <template #setting>
+          <el-button
+            class="shrink-0"
+            @click="downloadMarkerTexture"
           >
             下载
           </el-button>

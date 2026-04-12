@@ -10,6 +10,9 @@ import { GSMarkerRenderLayer } from './gsMarkerRenderLayer'
  * 的总和
  */
 const ATTACH_TOTAL = 5
+const FALLBACK_ICON_ID = 239
+const ICON_SIZE = 64
+let cachedFallbackIconId: string | null = null
 
 /**
  * # 点位图层
@@ -75,12 +78,25 @@ export class GSMarkerLayer extends CompositeLayer<GSMarkerLayerProps> {
       return markerLevelMask + markerStateMask
     }
 
-    const fallbackIconId = Object.keys(iconMapping)[0]
+    if (cachedFallbackIconId === null) {
+      if (typeof iconMapping === 'object') {
+        for (const key in iconMapping) {
+          const { x, y } = iconMapping[key]
+          if (x !== 0 || y !== ICON_SIZE)
+            continue
+          cachedFallbackIconId = key
+          break
+        }
+      }
+    }
+    const fallbackMappingKey = `${cachedFallbackIconId ?? FALLBACK_ICON_ID}`
 
     const getIcon = typeof iconMapping === 'object'
       ? (info: GSMarkerInfo) => {
           const iconId = (info.extra as API.MarkerExtra | undefined)?.iconOverride?.id ?? info.render.mainIconId
-          return iconMapping[iconId] ? `${iconId}` : fallbackIconId
+          if (iconId <= 0)
+            return fallbackMappingKey
+          return iconMapping[iconId] ? `${iconId}` : fallbackMappingKey
         }
       : (info: GSMarkerInfo) => {
           const iconId = (info.extra as API.MarkerExtra | undefined)?.iconOverride?.id ?? info.render.mainIconId
