@@ -23,13 +23,13 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
   })
 
   const mergedPlugins = computed(() => {
-    const { plugins = {}, pluginsNeigui = {} } = dadianStore.raw
-    return accessStore.hasNeigui
-      ? merge(plugins, pluginsNeigui)
+    const { plugins = {}, pluginsBeta = {} } = dadianStore.raw
+    return accessStore.hasBeta
+      ? merge(plugins, pluginsBeta)
       : plugins
   })
 
-  /** 合并了 neigui 权限下的配置 */
+  /** 合并了 BETA 权限下的配置 */
   const mergedOverlayGroups = computed((): MergedOverlayGroups => {
     const overlayGroups: MergedOverlayGroups = {}
     for (const areaCode in mergedPlugins.value) {

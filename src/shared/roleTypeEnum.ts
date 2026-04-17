@@ -5,7 +5,7 @@ export const RoleTypeEnum = {
   /** 地图管理员 */
   MAP_MANAGER: 'MAP_MANAGER',
   /** 测试打点员 */
-  MAP_NEIGUI: 'MAP_NEIGUI',
+  MAP_BETA: 'MAP_BETA',
   /** 地图打点员 */
   MAP_PUNCTUATE: 'MAP_PUNCTUATE',
   /** 地图用户 */
@@ -17,7 +17,7 @@ export const RoleTypeEnum = {
 export const ROLE_MASK_MAP: Record<string, number> = {
   [RoleTypeEnum.ADMIN]: 5,
   [RoleTypeEnum.MAP_MANAGER]: 4,
-  [RoleTypeEnum.MAP_NEIGUI]: 3,
+  [RoleTypeEnum.MAP_BETA]: 3,
   [RoleTypeEnum.MAP_PUNCTUATE]: 2,
   [RoleTypeEnum.MAP_USER]: 1,
   [RoleTypeEnum.VISITOR]: 0,

@@ -44,7 +44,7 @@ const hiddenFlagType = computed(() => {
     return 'warning'
   return {
     [HiddenFlagEnum.SHOW]: 'success',
-    [HiddenFlagEnum.NEIGUI]: 'info',
+    [HiddenFlagEnum.BETA]: 'info',
     [HiddenFlagEnum.EASTER]: 'primary',
     [HiddenFlagEnum.HIDDEN]: 'danger',
   }[hiddenFlag] as TagProps['type']

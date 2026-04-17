@@ -42,7 +42,7 @@ const handleCellClick = (row: API.ItemVo, col: { property?: string }) => {
 const hiddenFlagMap: Record<number, string> = {
   [HiddenFlagEnum.SHOW]: '显示',
   [HiddenFlagEnum.HIDDEN]: '隐藏',
-  [HiddenFlagEnum.NEIGUI]: '测试服',
+  [HiddenFlagEnum.BETA]: '测试',
 }
 
 // ==================== 事件代理 ====================

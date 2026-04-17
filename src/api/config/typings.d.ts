@@ -4,9 +4,9 @@ declare namespace API {
     application?: ApplicationConfig
     editor?: API.EditorConfig
     plugins?: Record<string, API.PluginConfig>
-    pluginsNeigui?: Record<string, API.PluginConfig>
+    pluginsBeta?: Record<string, API.PluginConfig>
     tiles?: Record<string, API.TileConfig>
-    tilesNeigui?: Record<string, API.TileConfig>
+    tilesBeta?: Record<string, API.TileConfig>
   }
 
   type Coordinate2D = [number, number]

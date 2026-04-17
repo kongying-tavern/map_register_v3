@@ -4,8 +4,8 @@ export enum HiddenFlagEnum {
   SHOW = 0,
   /** 隐藏 */
   HIDDEN = 1,
-  /** 内鬼（测试服） */
-  NEIGUI = 2,
+  /** 测试 */
+  BETA = 2,
   /** 彩蛋 */
   EASTER = 3,
 }
@@ -13,7 +13,7 @@ export enum HiddenFlagEnum {
 export const HIDDEN_FLAG_NAME_MAP: Record<string, string> = {
   [HiddenFlagEnum.SHOW]: '显示',
   [HiddenFlagEnum.HIDDEN]: '隐藏',
-  [HiddenFlagEnum.NEIGUI]: '测试服',
+  [HiddenFlagEnum.BETA]: '测试',
   [HiddenFlagEnum.EASTER]: '彩蛋',
 }
 

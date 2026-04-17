@@ -8,13 +8,13 @@ import { isAccessible } from './utils'
  * 从低位到高位分别对应:
  * 0. 显示
  * 1. 隐藏
- * 2. 测试服
+ * 2. 测试
  * 3. 彩蛋
  */
 const HIDDEN_FLAG_BINARY_MASK: Record<string, number> = {
   [RoleTypeEnum.ADMIN]: 0b1111,
   [RoleTypeEnum.MAP_MANAGER]: 0b1011,
-  [RoleTypeEnum.MAP_NEIGUI]: 0b1111,
+  [RoleTypeEnum.MAP_BETA]: 0b1111,
   [RoleTypeEnum.MAP_PUNCTUATE]: 0b1011,
   [RoleTypeEnum.MAP_USER]: 0b1001,
   [RoleTypeEnum.VISITOR]: 0b1001,
@@ -52,8 +52,8 @@ export const ACCESS_BINARY_MASK = {
   /** 点位批量编辑 */
   MARKER_BATCH_EDIT: 0b110000,
 
-  /** 测试服项目 */
-  HIDDEN_FLAG_NEIGUI: 0b101000,
+  /** 测试项目 */
+  HIDDEN_FLAG_BETA: 0b101000,
 
   /** 隐藏项目 */
   HIDDEN_FLAG_HIDDEN: 0b111100,
@@ -84,10 +84,10 @@ export const useAccessStore = defineStore('global-access', () => {
     return (1 << roleBinaryMask.value & ACCESS_BINARY_MASK[key]) > 0
   }
 
-  const hasNeigui = computed(() => get('HIDDEN_FLAG_NEIGUI'))
+  const hasBeta = computed(() => get('HIDDEN_FLAG_BETA'))
 
   return {
-    hasNeigui,
+    hasBeta,
     userHiddenFlagMask,
     get,
     checkHiddenFlag,

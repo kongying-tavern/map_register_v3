@@ -8,17 +8,17 @@ export const useMarkerExtraStore = defineStore('global-marker-extra', () => {
   const dadianStore = useDadianStore()
 
   const mergedAreaExtraConfigs = computed(() => {
-    const { plugins = {}, pluginsNeigui = {} } = dadianStore.raw
+    const { plugins = {}, pluginsBeta = {} } = dadianStore.raw
 
-    const isNegui = accessStore.hasNeigui
+    const isNegui = accessStore.hasBeta
 
     const areaExtraConfigs: Record<string, API.ExtraConfig> = {}
     for (const areaCode in plugins) {
       const { extra = [], extraConfig = {} } = plugins[areaCode]
-      const { extra: extraNeigui = [], extraConfig: extraConfigNeigui = {} } = pluginsNeigui[areaCode] ?? {}
-      const extraKeys = isNegui ? [...extra, ...extraNeigui] : extra
+      const { extra: extraBeta = [], extraConfig: extraConfigBeta = {} } = pluginsBeta[areaCode] ?? {}
+      const extraKeys = isNegui ? [...extra, ...extraBeta] : extra
       if (isNegui)
-        defaultsDeep(extraConfig, extraConfigNeigui)
+        defaultsDeep(extraConfig, extraConfigBeta)
       areaExtraConfigs[areaCode] = pick(extraConfig, extraKeys)
     }
 

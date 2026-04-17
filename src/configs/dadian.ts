@@ -294,7 +294,7 @@ const DADIAN_SCHEMA: JSONSchema7 = {
       type: 'object',
       additionalProperties: { $ref: '#/$defs/pluginConfig' },
     },
-    pluginsNeigui: {
+    pluginsBeta: {
       type: 'object',
       additionalProperties: { $ref: '#/$defs/pluginConfig' },
     },
@@ -302,7 +302,7 @@ const DADIAN_SCHEMA: JSONSchema7 = {
       type: 'object',
       additionalProperties: { $ref: '#/$defs/tileConfig' },
     },
-    tilesNeigui: {
+    tilesBeta: {
       type: 'object',
       additionalProperties: { $ref: '#/$defs/tileConfig' },
     },
