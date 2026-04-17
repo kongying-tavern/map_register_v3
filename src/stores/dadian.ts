@@ -17,29 +17,29 @@ const getVersion = (config: API.DadianJSON) => {
 }
 
 /** 订阅的打点配置 */
-export const useDadianStore = defineStore('global-dadian-json', () => {
+export const useDadianStore = defineStore('system-config', () => {
   const userStore = useUserStore()
 
   // 直接请求新的配置，当请求失败时回退到本地缓存
-  const { data, refresh: update, loading, onError } = useFetchHook({
+  const { data, refresh: update, loading } = useFetchHook({
     initialValue: {
       json: {},
       hash: '',
     },
     onRequest: async () => {
-      const currentDadianData = await Api.getDadianConfig()
-      const currentDadianJSON = await Zip.decompressAs<API.DadianJSON>(new Uint8Array(currentDadianData), {
-        name: 'dadian',
+      const currentSystemConfigData = await Api.getSystemConfig()
+      const currentSystemConfig = await Zip.decompressAs<API.DadianJSON>(new Uint8Array(currentSystemConfigData), {
+        name: 'system-config',
       })
-      const currentDadianDigest = await getDigest(currentDadianData)
-      await db.cache.dadianJson.clear()
-      await db.cache.dadianJson.put({
-        digest: currentDadianDigest,
-        json: currentDadianJSON,
+      const currentSystemConfigDigest = await getDigest(currentSystemConfigData)
+      await db.cache.systemConfig.clear()
+      await db.cache.systemConfig.put({
+        digest: currentSystemConfigDigest,
+        json: currentSystemConfig,
       })
       return {
-        json: currentDadianJSON,
-        hash: currentDadianDigest,
+        json: currentSystemConfig,
+        hash: currentSystemConfigDigest,
       }
     },
   })
@@ -53,16 +53,6 @@ export const useDadianStore = defineStore('global-dadian-json', () => {
     version: getVersion(data.value.json),
   }))
 
-  onError(async () => {
-    const [cachedDadianData] = await db.cache.dadianJson.toArray()
-    if (!cachedDadianData?.json)
-      return
-    data.value = {
-      json: cachedDadianData.json,
-      hash: cachedDadianData.digest,
-    }
-  })
-
   const loadDadianJSON = async () => {
     try {
       const [fileHandle] = await window.showOpenFilePicker().catch(() => [] as FileSystemFileHandle[])
@@ -71,7 +61,7 @@ export const useDadianStore = defineStore('global-dadian-json', () => {
       const file = await fileHandle.getFile()
       if (file.type !== 'application/json')
         return
-      const newDadianDigest = await getDigest(await file.arrayBuffer())
+      const newSystemConfigDigest = await getDigest(await file.arrayBuffer())
       const text = await file.text()
       const json = JSON.parse(text)
       const { valid, errors } = validateDadianJSON(json)
@@ -79,7 +69,7 @@ export const useDadianStore = defineStore('global-dadian-json', () => {
         throw new Error(errors ? errors[0]?.message : 'unknown')
       data.value = {
         json,
-        hash: newDadianDigest,
+        hash: newSystemConfigDigest,
       }
       ElMessage.success('加载成功')
     }

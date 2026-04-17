@@ -3,8 +3,8 @@ import { Dexie } from 'dexie'
 
 /** 本地缓存数据库 */
 export class CacheDexie extends Dexie {
-  /** dadian json 订阅数据 */
-  declare dadianJson: Dexie.Table<DBType.DadianJSON, string>
+  /** 下发配置 */
+  declare systemConfig: Dexie.Table<DBType.DadianJSON, string>
 
   /** 用户评分 */
   declare userScore: Dexie.Table<ScoreGeneratedCache, string>
@@ -19,11 +19,11 @@ export class CacheDexie extends Dexie {
   declare file: Dexie.Table<DBType.FileCache, string>
 
   /** 结构版本 */
-  readonly VERSION = 2
+  readonly VERSION = 4
 
   /** 表结构 */
   readonly STORES = {
-    dadianJson: '&digest',
+    systemConfig: '&digest',
     iconSprite: '&digest',
     markerSprite: '&digest',
     userScore: '&id',
