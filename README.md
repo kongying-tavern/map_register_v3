@@ -34,50 +34,60 @@
 
 空荧酒馆原神地图前后台一体应用。
 
+## 项目数据与版权声明
+
+本项目为**非官方**的第三方项目，特此就数据来源与美术资产版权作出如下声明：
+
+1. 项目所展示的全部地图数据、点位信息、内容标注等，均由社区玩家自愿整理、分享与共同维护，数据来源于玩家日常游戏经验总结与集体贡献，**并非源自游戏官方数据源，亦未通过逆向解析、直接读取游戏客户端 / 服务端数据等方式获取**。
+
+2. 项目中所使用的游戏图标、场景素材、角色形象、界面样式等全部美术资产，其知识产权、著作权、商标权等一切合法权利，**均归属于对应游戏开发商所有**。本项目仅出于内容展示与玩家交流目的进行非商业性使用，不用于任何盈利场景，亦不主张对上述资产拥有任何权利。
+
+3. 本项目严格遵守相关知识产权法律法规及游戏用户协议，仅为玩家提供便利化参考工具，无意侵犯任何方合法权益。若涉及版权争议，相关权利方可与项目方联系，我们将第一时间配合整改或移除相关内容。
+
 ## 相关项目
 
 1. [地图标记系统后端 (java)](https://github.com/kongying-tavern/genshin-map-cloud)
 2. [地图标记系统后端 (rust)](https://github.com/kongying-tavern/genshin-cloud-rust)
 3. [地图文档 (vitepress)](https://github.com/kongying-tavern/docs)
 
-### 地图页预览
+## 应用预览
 
 <div align="center">
   <img
-    src="https://github.com/kongying-tavern/map_register_v3/assets/27633284/9f4afe24-22bc-4681-9c86-76da515b66af"
-    alt="预览图"
+    src="https://github.com/user-attachments/assets/129aab31-8d89-41e5-b306-d8410517f14c"
+    alt="map-preview"
   >
+  <div>地图主界面</div>
 </div>
 
-#### 基于 CSS Houdini 实现的原神风格化 UI 组件
-
-##### 1. 个人中心
+---
 
 <div align="center">
   <img
-    src="https://github.com/kongying-tavern/map_register_v3/assets/27633284/e11320d6-55fe-436c-8584-05bb73047b87"
+    src="https://github.com/user-attachments/assets/7986c08c-aa0d-4557-b577-09fce239f2d1"
+    alt="map-marker"
+  >
+  <div>点位详情与关联网络</div>
+</div>
+
+---
+
+<div align="center">
+  <img
+    src="https://github.com/user-attachments/assets/c975482b-6c18-450f-8509-eb6620697a63"
     alt="个人中心"
   >
+  <div>基于 CSS Houdini 实现的原神风格化个人中心面板</div>
 </div>
 
-##### 2. 筛选预设管理器
+---
 
 <div align="center">
   <img
-    src="https://github.com/kongying-tavern/map_register_v3/assets/27633284/28f20340-3585-4690-96f6-23b419392973"
-    alt="筛选预设管理器"
+    src="https://github.com/user-attachments/assets/371962b1-fdf2-4552-aa23-36965b376dbe"
+    alt="窗口化管理组件"
   >
-</div>
-
-### 管理页预览
-
-#### 为公告模块开发的富文本编辑器
-
-<div align="center">
-  <img
-    src="https://github.com/kongying-tavern/map_register_v3/assets/27633284/d37d5310-8c66-44b4-8855-49393a03fb7e"
-    alt="富文本编辑器"
-  >
+  <div>窗口化管理组件</div>
 </div>
 
 ## 开发手册
