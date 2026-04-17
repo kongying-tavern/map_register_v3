@@ -1478,6 +1478,7 @@ export interface MarkerLinkageVo {
   extra?: Record<string, object>;
 }
 export interface MarkerLinkageSearchVo {
+  isTraverse?: boolean;
   groupIds?: string[];
 }
 export interface TweakConfigMetaVo {
@@ -10778,6 +10779,7 @@ declare global {
        * **RequestBody**
        * ```ts
        * type RequestBody = {
+       *   isTraverse?: boolean
        *   // [items] start
        *   // [items] end
        *   groupIds?: string[]
@@ -10896,6 +10898,7 @@ declare global {
        * **RequestBody**
        * ```ts
        * type RequestBody = {
+       *   isTraverse?: boolean
        *   // [items] start
        *   // [items] end
        *   groupIds?: string[]
