@@ -23,25 +23,12 @@ interface DiffData {
   clear?: boolean
 }
 
-const getAllMarkerLinks = async (context: ManagerContext, markerList: API2.MarkerVo[]) => {
-  const linkGroupIdSet = new Set<string>()
-
-  context.message.value = `[${context.tag.value}] 收集关联组...`
-  const { length } = markerList
-  let iteratorCount = 0
-  for (let i = 0; i < length; i++) {
-    iteratorCount++
-    if (iteratorCount % 2000 === 0)
-      await scheduler.yield()
-    const marker = markerList[i]
-    if (!marker.linkageId)
-      continue
-    linkGroupIdSet.add(marker.linkageId)
-  }
-
+const getAllMarkerLinks = async (context: ManagerContext) => {
   context.message.value = `[${context.tag.value}] 获取关联数据...`
   const { data: linkGroups = {} } = await Apis.marker_link.getMarkerLinkageList({
-    data: { groupIds: [...linkGroupIdSet] },
+    data: {
+      isTraverse: true,
+    },
   })
 
   const updateList: API2.MarkerLinkageVo[] = []
@@ -275,14 +262,13 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
     diff: async (context) => {
       context.startTime.value = Date.now()
       context.tag.value = '差异'
-      const data = await getAllMarkerLinks(context, markerStore.markerList)
-      return data
+      context.message.value = '关联数据暂不支持差异更新'
     },
 
     full: async (context) => {
       context.startTime.value = Date.now()
       context.tag.value = '全量'
-      const data = await getAllMarkerLinks(context, markerStore.markerList)
+      const data = await getAllMarkerLinks(context)
       return data
     },
   })
