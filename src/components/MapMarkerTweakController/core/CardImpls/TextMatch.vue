@@ -29,7 +29,7 @@ const text = computed<string>({
     v-model="text"
     placeholder="请输入文本..."
     clearable
-    :type="options.matchMultiline ? 'textarea' : 'text'"
-    :autosize="options.matchMultiline ? { minRows: 2, maxRows: 4 } : false"
+    type="textarea"
+    :autosize="{ minRows: 2, maxRows: 4 }"
   />
 </template>

@@ -50,13 +50,19 @@ const text = computed<string>({
 
 <template>
   <div class="flex flex-col gap-2">
-    <el-input v-model="searchText" placeholder="查找" clearable />
+    <el-input
+      v-model="searchText"
+      placeholder="查找"
+      clearable
+      type="textarea"
+      :autosize="{ minRows: 2, maxRows: 4 }"
+    />
     <el-input
       v-model="text"
       placeholder="替换为"
       clearable
-      :type="options.replaceMultiline ? 'textarea' : 'text'"
-      :autosize="options.replaceMultiline ? { minRows: 2, maxRows: 4 } : false"
+      type="textarea"
+      :autosize="{ minRows: 2, maxRows: 4 }"
     />
   </div>
 </template>
