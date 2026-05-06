@@ -2,7 +2,7 @@
 import type { ElFormType } from '@/shared'
 import type { ItemFormRules } from '@/utils'
 import { AppTimeSelect } from '@/components'
-import { useIconList, useRefreshTime } from '@/hooks'
+import { useRefreshTime } from '@/hooks'
 import { HIDDEN_FLAG_OPTIONS, ICON_STYLE_META_MAP, SPECIALFLAG_OPTIONS } from '@/shared'
 import { useAccessStore, useAreaStore, useIconStore, useItemTypeStore } from '@/stores'
 import { lengthCheck, requireCheck } from '@/utils'
@@ -69,9 +69,7 @@ const itemTypeList = computed(() => itemTypeStore.itemTypeList
 const hiddenFlagOptions = useArrayFilter(HIDDEN_FLAG_OPTIONS, ({ value }) => accessStore.checkHiddenFlag(value))
 
 // ==================== 物品图标 ====================
-const { iconList: rawIconList } = useIconList()
-
-const iconList = computed(() => rawIconList.value.map(icon => ({
+const iconList = computed(() => iconStore.iconList.map(icon => ({
   label: icon.tag ?? '',
   value: icon.id,
   url: icon.url,
