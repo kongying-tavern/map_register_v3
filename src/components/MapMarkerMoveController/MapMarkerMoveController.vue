@@ -51,11 +51,17 @@ useSubscription(shortcutStore.shortcut$.pipe(
 // 处理拖拽逻辑
 useSubscription(MapSubject.dragStart.pipe(
   filter(({ info }) => [
+    // 是否正在拖拽
     isDraggingProcessing.value,
+    // 是否是点位层
     (info.layer?.constructor as (undefined | typeof Layer))?.layerName === GSMarkerLayer.layerName,
+    // 是否是点位对象
     info.object,
+    // 是否是视口
     info.viewport,
+    // 是否正在加载
     !loading.value,
+    // 是否满足可同时移动的点位数量限制
     preferenceStore.markerDraggingCount <= 0 || draggingMission.value.size < preferenceStore.markerDraggingCount,
   ].every(Boolean)),
 
