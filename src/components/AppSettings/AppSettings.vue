@@ -24,7 +24,7 @@ const preferenceStore = usePreferenceStore()
 
 const settingOptions: { key: string, name: string, is: Component, icon?: Component }[] = [
   { key: 'dashboard', name: '基本信息', is: ModuleDashboard, icon: El.Monitor },
-  { key: 'app', name: '应用', is: ModuleApp, icon: El.Box },
+  { key: 'app', name: '快捷键', is: ModuleApp, icon: El.Box },
   { key: 'mapsetting', name: '地图', is: ModuleMapSetting, icon: El.MapLocation },
   { key: 'manager', name: '管理组件', is: ModuleManager, icon: El.Files },
   { key: 'database', name: '数据库', is: ModuleDatabase, icon: El.Coin },
