@@ -26,6 +26,14 @@ const historyPageSize = usePageSize(ManagerModule.History)
 
 <template>
   <SettingPanel>
+    <SettingGroup name="点位编辑">
+      <SettingBar label="同时编辑点位数量" note="未填或为 0 时表示不限制">
+        <template #setting>
+          <el-input-number v-model="preferenceStore.markerDraggingCount" :min="0" :max="10000" :step="1" />
+        </template>
+      </SettingBar>
+    </SettingGroup>
+
     <SettingGroup name="列表组件的分页数量">
       <SettingBar label="物品管理">
         <template #setting>

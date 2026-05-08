@@ -91,6 +91,9 @@ export interface UserPreference {
   /** 分页列表，每页项目数设置 */
   'manager.setting.pageSize'?: [ManagerModule, number][]
 
+  /** 点位移动时可以同时编辑的数量，未填或为 0 时表示不限制 */
+  'manager.setting.markerDraggingCount'?: number
+
   // ====================     数据库     ====================
 
   /** 数据库全量更新间隔（毫秒） */

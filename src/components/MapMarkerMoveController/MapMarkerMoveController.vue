@@ -6,13 +6,14 @@ import { filter, finalize, switchMap, takeUntil, tap } from 'rxjs'
 import { GSButton } from '@/components'
 import { GSMarkerLayer } from '@/packages/map'
 import { mapCanvasRef, MapSubject } from '@/shared'
-import { useAccessStore, useArchiveStore, useMapStateStore, useShortcutStore } from '@/stores'
+import { useAccessStore, useArchiveStore, useMapStateStore, usePreferenceStore, useShortcutStore } from '@/stores'
 import { useMarkerPositionEdit } from './hooks'
 
 const accessStore = useAccessStore()
 const archiveStore = useArchiveStore()
 const mapStateStore = useMapStateStore()
 const shortcutStore = useShortcutStore()
+const preferenceStore = usePreferenceStore()
 
 // ==================== 移动点位 ====================
 const {
@@ -55,6 +56,7 @@ useSubscription(MapSubject.dragStart.pipe(
     info.object,
     info.viewport,
     !loading.value,
+    preferenceStore.markerDraggingCount <= 0 || draggingMission.value.size < preferenceStore.markerDraggingCount,
   ].every(Boolean)),
 
   switchMap(({ info, event: startEvent }) => {
