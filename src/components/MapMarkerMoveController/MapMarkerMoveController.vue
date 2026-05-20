@@ -50,20 +50,33 @@ useSubscription(shortcutStore.shortcut$.pipe(
 
 // 处理拖拽逻辑
 useSubscription(MapSubject.dragStart.pipe(
-  filter(({ info }) => [
-    // 是否正在拖拽
-    isDraggingProcessing.value,
-    // 是否是点位层
-    (info.layer?.constructor as (undefined | typeof Layer))?.layerName === GSMarkerLayer.layerName,
-    // 是否是点位对象
-    info.object,
-    // 是否是视口
-    info.viewport,
-    // 是否正在加载
-    !loading.value,
+  filter(({ info }) => {
+    // 硬性条件
+    const common = [
+      // 是否正在加载
+      !loading.value,
+      // 是否正在拖拽
+      isDraggingProcessing.value,
+      // 是否是视口
+      info.viewport,
+      // 是否是点位对象
+      info.object && (info.layer?.constructor as (undefined | typeof Layer))?.layerName === GSMarkerLayer.layerName,
+    ].every(Boolean)
+    if (!common)
+      return false
+
     // 是否满足可同时移动的点位数量限制
-    preferenceStore.markerDraggingCount <= 0 || draggingMission.value.size < preferenceStore.markerDraggingCount,
-  ].every(Boolean)),
+    // 1. 限制 <= 0: 不限制
+    if (preferenceStore.markerDraggingCount <= 0)
+      return true
+
+    // 2. 点位已在任务中: 允许继续拖拽更新位置
+    if (draggingMission.value.has(info.object.id))
+      return true
+
+    // 3. 点位不在任务中: 检查任务大小是否小于限制
+    return draggingMission.value.size < preferenceStore.markerDraggingCount
+  }),
 
   switchMap(({ info, event: startEvent }) => {
     mapStateStore.setViewPortLocked(true)
