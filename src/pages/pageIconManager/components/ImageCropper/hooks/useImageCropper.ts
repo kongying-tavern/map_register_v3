@@ -20,7 +20,6 @@ export const useImageCropper = (
 ) => {
   const {
     disabled = false,
-    keepRatio = false,
     variant = 'default',
   } = options
 
@@ -33,6 +32,8 @@ export const useImageCropper = (
     stage: shallowRef<Konva.Stage | null>(null),
     /** 图层 */
     layer: shallowRef<Konva.Layer | null>(null),
+    /** 图片 */
+    image: shallowRef<Konva.Image | null>(null),
     /** 控件 */
     transformer: shallowRef<Konva.Transformer | null>(null),
     /** 渲染回调 */
@@ -78,6 +79,7 @@ export const useImageCropper = (
     context.stage.value.destroy()
     cancelAnimationFrame(context.animationFrame.value)
     context.stage.value = null
+    context.image.value = null
     context.layer.value = null
     context.transformer.value = null
     context.animationFrame.value = -1
@@ -125,17 +127,21 @@ export const useImageCropper = (
       y: dy,
       width: dw,
       height: dh,
+      draggable: true,
     })
+    context.image.value = image
     layer.add(image)
     // 创建选区
+    const rectSize = Math.min(dw, dh)
     const rect = new Konva.Rect({
       x: dx,
       y: dy,
-      width: dw,
-      height: dh,
+      width: rectSize,
+      height: rectSize,
       draggable: true,
       dragBoundFunc({ x, y }) {
         const { width: w, height: h } = this.getClientRect()
+        const { x: dx, y: dy, width: dw, height: dh } = image.getClientRect()
         return {
           x: Math.round(clamp(x, dx, dx + dw - w)),
           y: Math.round(clamp(y, dy, dy + dh - h)),
@@ -143,20 +149,25 @@ export const useImageCropper = (
       },
     })
     const isDisabled = toValue(disabled)
+    // 创建变换器
     const tr = new Konva.Transformer({
       nodes: [rect],
       rotateEnabled: false,
-      keepRatio: toValue(keepRatio),
+      keepRatio: true,
       borderStroke: isDisabled ? 'transparent' : config.anchorStroke,
       anchorFill: isDisabled ? 'transparent' : config.anchorFill,
       anchorStroke: isDisabled ? 'transparent' : config.anchorStroke,
       anchorSize: 6,
       boundBoxFunc: ({ width: ow, height: oh }, { x, y, width: w, height: h }) => {
+        const { x: dx, y: dy, width: dw, height: dh } = image.getClientRect()
+        const newW = Math.round(clamp(w, 32, dw))
+        const newH = Math.round(clamp(h, 32, dh))
+        const newSize = Math.min(newW, newH)
         const rect = {
           x: Math.round(clamp(x, dx, dx + dw - ow)),
           y: Math.round(clamp(y, dy, dy + dh - oh)),
-          width: Math.round(clamp(w, 32, dw)),
-          height: Math.round(clamp(h, 32, dh)),
+          width: newSize,
+          height: newSize,
           rotation: 0,
         }
         return rect
@@ -188,15 +199,6 @@ export const useImageCropper = (
       context.animationFrame.value = requestAnimationFrame(render)
     }
     context.animationFrame.value = requestAnimationFrame(render)
-  }
-
-  if (isRef(keepRatio)) {
-    watch(keepRatio, (v) => {
-      const tr = context.transformer.value
-      if (!tr)
-        return
-      tr.keepRatio(v)
-    })
   }
 
   if (isRef(disabled)) {
@@ -291,6 +293,50 @@ export const useImageCropper = (
     container && setup(container)
   }, { immediate: true })
 
+  // 滚轮缩放图片
+  useEventListener(containerRef, 'wheel', (ev: WheelEvent) => {
+    const image = context.image.value
+    if (!image)
+      return
+
+    // 1. 获取容器的中心点（相对于容器左上角的像素坐标）
+    // 如果 containerRef 可以拿到 DOM，建议动态获取 clientWidth/Height
+    const container = containerRef.value
+    if (!container)
+      return
+
+    const pointer = {
+      x: container.clientWidth / 2,
+      y: container.clientHeight / 2,
+    }
+
+    // 2. 记住缩放前的 旧缩放比例
+    const oldScaleX = image.scaleX()
+    const oldScaleY = image.scaleY()
+
+    // 3. 计算 缩放前 中心点在图层内部的世界坐标
+    const mousePointTo = {
+      x: (pointer.x - image.x()) / oldScaleX,
+      y: (pointer.y - image.y()) / oldScaleY,
+    }
+
+    // 4. 计算 新的缩放比例
+    const factor = 1 - ev.deltaY / 1000
+    const newScaleX = oldScaleX * factor
+    const newScaleY = oldScaleY * factor
+
+    // 5. 应用新缩放
+    image.scale({ x: newScaleX, y: newScaleY })
+
+    // 6. 根据“世界坐标在缩放后应对齐同一屏幕位置”的反向公式，计算出图层新的【绝对坐标】
+    const newPos = {
+      x: pointer.x - mousePointTo.x * newScaleX,
+      y: pointer.y - mousePointTo.y * newScaleY,
+    }
+
+    image.position(newPos)
+  })
+
   return {
     ready,
     destory,
@@ -305,8 +351,6 @@ export const useImageCropper = (
 interface ImageCropperOptions {
   /** 是否禁用裁切器 */
   disabled?: MaybeRef<boolean>
-  /** 是否保持选区宽高比 */
-  keepRatio?: MaybeRef<boolean>
   /** 图标变体类型 */
   variant?: MaybeRef<IconVariant>
 }

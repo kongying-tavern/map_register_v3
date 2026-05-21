@@ -38,7 +38,7 @@ const config = ref({
   /** 圆形裁切 */
   clipCircle: false,
   /** 保持比例 */
-  keepRatio: true,
+  keepRatio: false,
 })
 
 /** 初始图像 */
@@ -77,7 +77,6 @@ const {
 } = useImageCropper(containerRef, {
   disabled: disabledEdit,
   variant: computed(() => props.variant),
-  keepRatio: computed(() => config.value.keepRatio),
 })
 
 const cleanups = ref<(() => void)[]>([])
@@ -151,6 +150,7 @@ const frameHook = onFrame(({ rect, image }) => {
     const { sx, sy, sw, sh, dx, dy, dw, dh } = getObjectFitSize('contain', cw, ch, w, h)
     outputSize.value = { w: dw, h: dh }
     ctx.drawImage(image.toCanvas(), x + sx - ix, y + sy - iy, sw, sh, dx, dy, dw, dh)
+    image.toCanvas().remove()
     emits('outputChange', outputSize.value)
   }
   ctx.restore()
@@ -269,25 +269,13 @@ onBeforeUnmount(() => {
 
     <!-- 底部操作栏 -->
     <div class="h-[32px] flex items-center">
-      <div class="shrink-0 flex gap-4 items-center">
-        <el-checkbox
-          v-model="config.clipCircle"
-          :disabled="disabledEdit"
-          label="圆形裁切"
-          style="margin: 0"
-        />
-        <el-checkbox
-          v-model="config.rawSize"
-          :disabled="disabledEdit"
-          label="原始尺寸"
-          style="margin: 0"
-        />
-        <el-checkbox
-          v-model="config.keepRatio"
-          :disabled="disabledEdit"
-          label="保持比例"
-          style="margin: 0"
-        />
+      <div class="shrink-0 flex gap-2 items-center">
+        <el-check-tag v-model:checked="config.clipCircle">
+          圆形裁切
+        </el-check-tag>
+        <el-check-tag v-model:checked="config.rawSize">
+          原始尺寸
+        </el-check-tag>
       </div>
     </div>
   </div>
