@@ -41,6 +41,9 @@ const config = ref({
   keepRatio: false,
 })
 
+/** 缓存圆形裁剪路径 */
+const clipPathCache = shallowRef<Path2D | null>(null)
+
 /** 初始图像 */
 const oldImage = shallowRef<ImageBitmap | null>(null)
 /** 新图像 */
@@ -119,14 +122,18 @@ const frameHook = onFrame(({ rect, image }) => {
   const { width: cw, height: ch } = ctx.canvas
   ctx.clearRect(0, 0, cw, ch)
   ctx.save()
-  const maxEdge = Math.max(cw, ch)
-  const ccw = cw / 2
-  const cch = ch / 2
-  const r = maxEdge / 2
-  const clipPath = new Path2D()
-  clipPath.arc(ccw, cch, r, 0, 2 * Math.PI)
-  if (config.value.clipCircle)
-    ctx.clip(clipPath)
+  if (config.value.clipCircle) {
+    // 缓存裁剪路径，只在尺寸变化时重建
+    if (!clipPathCache.value) {
+      const maxEdge = Math.max(cw, ch)
+      const ccw = cw / 2
+      const cch = ch / 2
+      const r = maxEdge / 2
+      clipPathCache.value = new Path2D()
+      clipPathCache.value.arc(ccw, cch, r, 0, 2 * Math.PI)
+    }
+    ctx.clip(clipPathCache.value)
+  }
   // 基于原图尺寸渲染
   if (config.value.rawSize) {
     const { width: rawW, height: rawH } = raw
@@ -136,26 +143,37 @@ const frameHook = onFrame(({ rect, image }) => {
     const y = rawH * (rectY - baseY) / baseH
     const w = Math.round(rawW * rectW / baseW)
     const h = Math.round(rawH * rectH / baseH)
-    if (outputSize.value.w !== w)
-      outputSize.value.w = w
-    if (outputSize.value.h !== h)
-      outputSize.value.h = h
+    outputSize.value = { w, h }
     ctx.drawImage(raw, x, y, w, h, 0, 0, w, h)
-    emits('outputChange', outputSize.value)
   }
   // 基于缩比场景渲染
   else {
-    const { x: ix, y: iy } = image.getClientRect()
-    const { x, y, width: w, height: h } = rect.getClientRect()
-    const { sx, sy, sw, sh, dx, dy, dw, dh } = getObjectFitSize('contain', cw, ch, w, h)
+    const { width: rawW, height: rawH } = raw
+    const { x: baseX, y: baseY, width: baseW, height: baseH } = image.getClientRect()
+    const { x: rectX, y: rectY, width: rectW, height: rectH } = rect.getClientRect()
+    // 计算裁剪区域在原始图像上的坐标和尺寸
+    const sx = rawW * (rectX - baseX) / baseW
+    const sy = rawH * (rectY - baseY) / baseH
+    const sw = Math.round(rawW * rectW / baseW)
+    const sh = Math.round(rawH * rectH / baseH)
+    // 计算在预览画布上的目标尺寸
+    const { dx, dy, dw, dh } = getObjectFitSize('contain', cw, ch, sw, sh)
     outputSize.value = { w: dw, h: dh }
-    ctx.drawImage(image.toCanvas(), x + sx - ix, y + sy - iy, sw, sh, dx, dy, dw, dh)
-    image.toCanvas().remove()
-    emits('outputChange', outputSize.value)
+    ctx.drawImage(raw, sx, sy, sw, sh, dx, dy, dw, dh)
   }
   ctx.restore()
 })
 cleanups.value.push(frameHook.off)
+
+// 只在尺寸真正变化时才触发 emits
+watch(outputSize, (size) => {
+  emits('outputChange', size)
+}, { deep: true })
+
+// 预览尺寸变化时清除裁剪路径缓存
+watch(previewerSize, () => {
+  clipPathCache.value = null
+})
 
 /** 绘制裁切预览 */
 onMounted(() => {
@@ -190,23 +208,14 @@ onBeforeUnmount(() => {
       <div class="flex-1 h-[240px] flex flex-col gap-1">
         <div class="flex gap-1">
           <el-button
-            style="width: 100%"
-            :icon="FolderOpened"
-            :disabled="loading"
-            size="small"
+            style="width: 100%" :icon="FolderOpened" :disabled="loading" size="small"
             @click="() => loadFromFile()"
           >
             选择
           </el-button>
           <el-button
-            v-if="variant !== 'default'"
-            style="margin-left: 0"
-            type="danger"
-            plain
-            :icon="Delete"
-            :disabled="loading || props.disabledDelete"
-            size="small"
-            @click="() => emits('delete', variant)"
+            v-if="variant !== 'default'" style="margin-left: 0" type="danger" plain :icon="Delete"
+            :disabled="loading || props.disabledDelete" size="small" @click="() => emits('delete', variant)"
           />
         </div>
 
@@ -214,16 +223,17 @@ onBeforeUnmount(() => {
         <div class="flex-1 flex flex-col gap-0.5 items-center justify-center select-none">
           <template v-if="oldImage">
             <img
-              class="w-[66px] h-[66px] border border-[var(--el-border-color)] object-contain"
-              :src="props.raw"
-              draggable="false"
-              crossorigin=""
+              class="w-[66px] h-[66px] border border-[var(--el-border-color)] object-contain" :src="props.raw"
+              draggable="false" crossorigin=""
             >
             <div class="shrink-0 text-xs">
               {{ `${(oldImage.width).toFixed(2)} x ${(oldImage.height).toFixed(2)}` }}
             </div>
           </template>
-          <div v-else class="w-[66px] h-[66px] text-xs grid place-content-center border border-[var(--el-border-color)]">
+          <div
+            v-else
+            class="w-[66px] h-[66px] text-xs grid place-content-center border border-[var(--el-border-color)]"
+          >
             无
           </div>
         </div>
@@ -236,24 +246,15 @@ onBeforeUnmount(() => {
         </div>
 
         <!-- 修改后预览 -->
-        <div
-          v-show="props.showPreview"
-          class="flex-1 flex flex-col gap-0.5 items-center justify-center"
-        >
+        <div v-show="props.showPreview" class="flex-1 flex flex-col gap-0.5 items-center justify-center">
           <div class="w-[66px] h-[66px] border border-[var(--el-border-color)] relative scale-container">
             <canvas
-              v-show="newImage"
-              ref="previewerRef"
-              class="scale-to-container"
-              :style="{
+              v-show="newImage" ref="previewerRef" class="scale-to-container" :style="{
                 '--w': previewerSize.w,
                 '--h': previewerSize.h,
-              }"
-              :class="{
+              }" :class="{
                 'raw-size': config.rawSize,
-              }"
-              :width="previewerSize.w"
-              :height="previewerSize.h"
+              }" :width="previewerSize.w" :height="previewerSize.h"
             />
             <div v-show="!newImage" class="w-full h-full text-xs grid place-content-center select-none">
               无
@@ -286,16 +287,14 @@ onBeforeUnmount(() => {
   --s: 32px;
   --color-a: transparent;
   --color-b: var(--el-fill-color-darker);
-  background: conic-gradient(
-    from 0deg at 50% 50%,
-    var(--color-a) 25%,
-    var(--color-b) 25%,
-    var(--color-b) 50%,
-    var(--color-a) 50%,
-    var(--color-a) 75%,
-    var(--color-b) 75%,
-    var(--color-b) 100%
-  );
+  background: conic-gradient(from 0deg at 50% 50%,
+      var(--color-a) 25%,
+      var(--color-b) 25%,
+      var(--color-b) 50%,
+      var(--color-a) 50%,
+      var(--color-a) 75%,
+      var(--color-b) 75%,
+      var(--color-b) 100%);
   background-size: var(--s) var(--s);
 }
 
@@ -308,6 +307,7 @@ onBeforeUnmount(() => {
   --scale: 1;
   transform-origin: center;
   transform: scale(var(--scale));
+
   &.raw-size {
     --scale: calc(min(64 / var(--w), 64 / var(--h)));
   }

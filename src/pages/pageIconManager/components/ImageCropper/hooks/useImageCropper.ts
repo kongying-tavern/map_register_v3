@@ -36,6 +36,8 @@ export const useImageCropper = (
     image: shallowRef<Konva.Image | null>(null),
     /** 控件 */
     transformer: shallowRef<Konva.Transformer | null>(null),
+    /** 选区矩形 */
+    rect: shallowRef<Konva.Rect | null>(null),
     /** 渲染回调 */
     animationFrame: shallowRef(-1),
     /** 内部事件处理器 */
@@ -70,19 +72,40 @@ export const useImageCropper = (
     errorHook.trigger(error)
   }
 
+  /** 关闭 ImageBitmap 释放 GPU 内存 */
+  const closeImageBitmap = (img: Konva.Image | null) => {
+    if (!img)
+      return
+    const bmp = img.image()
+    if (bmp && typeof (bmp as ImageBitmap).close === 'function') {
+      try {
+        (bmp as ImageBitmap).close()
+      }
+      catch {
+        // 忽略关闭错误
+      }
+    }
+  }
+
   /** 清除裁切器 */
   const destory = () => {
     if (!context.stage.value)
       return
+    // 先关闭 ImageBitmap 释放资源
+    closeImageBitmap(context.image.value)
+    // 取消动画帧
+    if (context.animationFrame.value !== -1) {
+      cancelAnimationFrame(context.animationFrame.value)
+      context.animationFrame.value = -1
+    }
     context.subscriptions.forEach(({ unsubscribe }) => unsubscribe())
     context.subscriptions = []
     context.stage.value.destroy()
-    cancelAnimationFrame(context.animationFrame.value)
     context.stage.value = null
     context.image.value = null
     context.layer.value = null
     context.transformer.value = null
-    context.animationFrame.value = -1
+    context.rect.value = null
   }
 
   /** 初始化裁切器 */
@@ -111,6 +134,8 @@ export const useImageCropper = (
     const stage = context.stage.value
     if (!stage)
       throw new Error('裁切器未初始化')
+    // 先关闭旧的 ImageBitmap 释放 GPU 内存
+    closeImageBitmap(context.image.value)
     if (context.layer.value) {
       context.layer.value.destroy()
       context.layer.value = null
@@ -188,17 +213,39 @@ export const useImageCropper = (
     // 添加到场景
     stage.add(layer)
     context.layer.value = layer
-    cancelAnimationFrame(context.animationFrame.value)
-    const render = () => {
-      frameHook.trigger({
-        stage,
-        rect,
-        image,
-        circle: false,
-      })
-      context.animationFrame.value = requestAnimationFrame(render)
+    context.rect.value = rect
+
+    // 基于 rAF 的渲染循环
+    const renderLoop = () => {
+      const stage = context.stage.value
+      const image = context.image.value
+      const rect = context.rect.value
+      if (stage && image && rect) {
+        frameHook.trigger({
+          stage,
+          rect,
+          image,
+          circle: false,
+        })
+      }
+      context.animationFrame.value = requestAnimationFrame(renderLoop)
     }
-    context.animationFrame.value = requestAnimationFrame(render)
+
+    // 启动渲染循环
+    if (context.animationFrame.value !== -1) {
+      cancelAnimationFrame(context.animationFrame.value)
+    }
+    context.animationFrame.value = requestAnimationFrame(renderLoop)
+
+    // 清理渲染循环
+    context.subscriptions.push({
+      unsubscribe: () => {
+        if (context.animationFrame.value !== -1) {
+          cancelAnimationFrame(context.animationFrame.value)
+          context.animationFrame.value = -1
+        }
+      },
+    })
   }
 
   if (isRef(disabled)) {
@@ -335,7 +382,7 @@ export const useImageCropper = (
     }
 
     image.position(newPos)
-  })
+  }, { passive: true })
 
   return {
     ready,
