@@ -22,6 +22,8 @@ const accessStore = useAccessStore()
 
 const formData = ref(cloneDeep(props.modelValue))
 
+const enableCopyItems = ref(false)
+
 const isInternalUpdate = ref(false)
 
 watch(() => props.modelValue, (data) => {
@@ -110,6 +112,10 @@ defineExpose({
         <el-input v-model="formData.content" type="textarea" :rows="3" resize="none" />
       </el-form-item>
 
+      <el-form-item label="复制物品">
+        <el-switch v-model="enableCopyItems" />
+      </el-form-item>
+
       <el-form-item label="地区图标" prop="iconId">
         <div class="w-full flex gap-2">
           <AppIconTagRenderer
@@ -127,6 +133,7 @@ defineExpose({
             :remote-method="getTagList"
             :loading="loading"
             :options="tagOptions"
+            style="width: 12rem"
             @clear="formData.iconId = -1"
           >
             <template #default="{ item }">
@@ -148,13 +155,27 @@ defineExpose({
       </el-form-item>
     </el-form>
 
-    <AppItemSelecter
-      v-if="selectedItems !== undefined"
-      v-model="selectedItems"
-      title="复制以下物品"
-      class="border-left pl-2 row-span-2"
-      style="height: 400px"
-    />
+    <Transition
+      appear
+      mode="out-in"
+      enter-from-class="w-0 opacity-0"
+      enter-to-class="w-[521px] opacity-100"
+      enter-active-class="transition-all duration-300"
+      leave-from-class="w-[521px] opacity-100"
+      leave-to-class="w-0 opacity-0"
+      leave-active-class="transition-all duration-300"
+    >
+      <div
+        v-if="enableCopyItems && selectedItems !== undefined"
+        class="h-[441px] overflow-hidden border-left pl-2"
+      >
+        <AppItemSelecter
+          v-model="selectedItems"
+          title="复制以下物品"
+          style="width: 521px; height: 441px"
+        />
+      </div>
+    </Transition>
   </div>
 </template>
 
