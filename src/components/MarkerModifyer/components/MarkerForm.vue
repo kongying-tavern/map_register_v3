@@ -144,6 +144,14 @@ const isExtraEditable = computed(() => {
   return toValue(isIconOverridable) || Object.keys(availableExtraConfig.value).length > 0
 })
 
+// 如果不能自定义图标，则设置 iconOverride 为 null
+watch(() => isIconOverridable.value, (avaliable) => {
+  if (!form.value.extra || avaliable) {
+    return
+  }
+  Reflect.set((form.value.extra as API.MarkerExtra), 'iconOverride', null)
+})
+
 // ==================== 拓展面板 ====================
 const addonPanelRef = ref<HTMLDivElement>()
 provide(addonPanelRefKey, addonPanelRef)

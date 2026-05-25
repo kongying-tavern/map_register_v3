@@ -111,6 +111,8 @@ watch(() => modelValue.value.itemList, (newItemList = []) => {
     internalUpdateFlag.value = false
     return
   }
+
+  // 更新内置的地区选择器所选中的地区
   areaCodeForAdding.value = newItemList.reduce((seed, { itemId }) => {
     const item = itemStore.itemIdMap.get(itemId!)
     if (!item)
@@ -121,6 +123,8 @@ watch(() => modelValue.value.itemList, (newItemList = []) => {
     seed.push(area.code!)
     return seed
   }, [] as string[])
+
+  // 更新内置的地区分组物品列表
   const newItemsGroup = calculateItemsGroup()
   itemsGroup.value.forEach((_, key) => {
     itemsGroup.value.set(key, [])

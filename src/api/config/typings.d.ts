@@ -215,7 +215,7 @@ declare namespace API {
       minZoom?: number
       /** 最大可见缩放级别，小于该值可见 */
       maxZoom?: number
-    }
+    } | null
 
     /**
      * 洞口关联
