@@ -25,6 +25,7 @@ const colorMap: Record<string, string> = {
   XM: '#ABDD54',
   FD: '#0FABF4',
   NT: '#FEA56F',
+  NDKL: 'l(45) 0.3:#D6E4EF 1:#EDF3F9',
   APPLE: 'l(45) 0.3:#FFD700 1:#00DAFF',
   VELURIYAM: 'l(45) 0.3:#00DAFF 1:#ABDD54',
   SIMULANKA: 'l(45) 0.3:#C99CC4 1:#81EBD8',
