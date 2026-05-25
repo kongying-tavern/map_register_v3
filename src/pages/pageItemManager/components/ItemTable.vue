@@ -80,7 +80,7 @@ const proxySelectionChange = (selections: API.ItemVo[]) => {
 
       <el-table-column label="物品名称" prop="name" :width="150" />
 
-      <el-table-column label="图标类型" :width="150">
+      <el-table-column label="图标类型" :width="100">
         <template #default="{ row }">
           {{ ICON_STYLE_META_MAP.get(row.iconStyleType)?.name }}
         </template>
@@ -106,25 +106,31 @@ const proxySelectionChange = (selections: API.ItemVo[]) => {
         </template>
       </el-table-column>
 
-      <el-table-column label="描述模板" prop="defaultContent" width="200" show-overflow-tooltip />
+      <el-table-column label="描述模板" prop="defaultContent" width="500 " show-overflow-tooltip />
 
       <el-table-column label="刷新时间" prop="defaultRefreshTime" width="100" :formatter="refreshTimeFormatter" />
 
-      <el-table-column label="创建人" prop="creatorId" :width="150">
+      <el-table-column label="最后修改" prop="updateTime" width="170">
         <template #default="{ row }">
-          {{ userMap[row.creatorId]?.nickname ?? `(id: ${row.creatorId})` }}
+          <div>
+            {{ timeFormatter(undefined, undefined, row.updateTime) }}
+          </div>
+          <div :title="userMap[row.updaterId]?.nickname" class="w-[9rem] overflow-hidden  text-ellipsis whitespace-nowrap">
+            {{ userMap[row.updaterId]?.nickname ?? `(id: ${row.updaterId})` }}
+          </div>
         </template>
       </el-table-column>
 
-      <el-table-column label="创建时间" prop="createTime" width="170" :formatter="timeFormatter" />
-
-      <el-table-column label="修改人" prop="updaterId" :width="150">
+      <el-table-column label="创建者" prop="createTime" width="170">
         <template #default="{ row }">
-          {{ userMap[row.updaterId]?.nickname ?? `(id: ${row.updaterId})` }}
+          <div>
+            {{ timeFormatter(undefined, undefined, row.createTime) }}
+          </div>
+          <div :title="userMap[row.creatorId]?.nickname" class="w-[9rem] overflow-hidden  text-ellipsis whitespace-nowrap">
+            {{ userMap[row.creatorId]?.nickname ?? `(id: ${row.creatorId})` }}
+          </div>
         </template>
       </el-table-column>
-
-      <el-table-column label="修改时间" prop="updateTime" width="170" :formatter="timeFormatter" />
 
       <el-table-column fixed="right" label="操作" :width="60">
         <template #default="{ row }">
