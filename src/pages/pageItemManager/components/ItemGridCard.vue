@@ -5,6 +5,7 @@ import { AppIconTagRenderer } from '@/components'
 import { useBinaryFlag, useRefreshTime } from '@/hooks'
 import { HIDDEN_FLAG_NAME_MAP, HiddenFlagEnum, ICON_STYLE_META_MAP, IconStyle } from '@/shared'
 import { useAreaStore, useIconStore } from '@/stores'
+import UnknownIconUrl from '/icons/unknown.webp?url'
 
 const props = defineProps<{
   data: API.ItemVo
@@ -65,7 +66,9 @@ const { humanFriendlyTimeText } = useRefreshTime(computed(() => props.data.defau
         :mapping="iconStore.iconCoordMap.get(props.data.iconId ?? -1)"
         :class="`type-${props.data.iconStyleType ?? IconStyle.DEFAULT}`"
         class="item-icon"
-      />
+      >
+        <img draggable="false" :src="UnknownIconUrl">
+      </AppIconTagRenderer>
 
       <div class="mx-3 h-12 flex-1 flex-col overflow-hidden" style="contain: layout;">
         <div
