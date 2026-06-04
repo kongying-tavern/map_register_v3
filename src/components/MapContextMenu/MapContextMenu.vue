@@ -15,6 +15,8 @@ import {
 import { MapAffix } from '../MapAffix'
 import { MarkerCreator } from '../MarkerModifyer'
 
+const isDev = import.meta.env.DEV
+
 const accessStore = useAccessStore()
 const mapStateStore = useMapStateStore()
 const tileStore = useTileStore()
@@ -56,6 +58,11 @@ const openMarkerCreator = async () => {
   closeContextmenu()
 }
 
+const copyCoordinate = (coord: API.Coordinate2D) => {
+  const text = `[${coord.map(x => x.toFixed(0)).join(', ')}]`
+  navigator.clipboard.writeText(text)
+}
+
 const openSettingDialog = () => {
   DialogService
     .config({
@@ -81,6 +88,14 @@ const openSettingDialog = () => {
             </el-icon>
           </template>
           添加点位
+        </GSButton>
+
+        <GSButton v-if="isDev" @click="copyCoordinate(coordinate!)">
+          原始坐标: [{{ coordinate[0].toFixed(0) }}, {{ coordinate[1].toFixed(0) }}]
+        </GSButton>
+
+        <GSButton v-if="isDev" @click="copyCoordinate(tileStore.toMarkerCoordinate(coordinate!))">
+          标记坐标: {{ `[${tileStore.toMarkerCoordinate(coordinate).map(x => x.toFixed(0)).join(', ')}]` }}
         </GSButton>
 
         <GSButton @click="openSettingDialog">
