@@ -18,6 +18,19 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
   /** 当前激活的 overlay 单元（激活状态并不代表显示状态） */
   const activedItemIds = ref(new Set<string>())
 
+  /** 切换 overlay item 的激活状态，并维护操作顺序 */
+  const toggleItem = (itemId: string, visible: boolean) => {
+    const newSet = new Set(activedItemIds.value)
+    if (visible) {
+      newSet.delete(itemId)
+      newSet.add(itemId)
+    }
+    else {
+      newSet.delete(itemId)
+    }
+    activedItemIds.value = newSet
+  }
+
   const showOverlay = computed(() => {
     return archiveStore.currentArchive.body.Preference['map.state.showOverlay']
   })
@@ -237,15 +250,19 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
 
   /** 只存在于当前图层内且可见的 chunks */
   const visibleChunks = computed(() => {
-    return existOverlays.value.reduce((seed, chunk) => {
-      if (!activedItemIds.value.has(chunk.item.id))
-        return seed
-      seed[chunk.group.role].push(chunk.id)
-      return seed
-    }, {
+    const result = {
       default: [] as string[],
       tile: [] as string[],
-    })
+    }
+    // 按照 activedItemIds 的顺序遍历，确保最新激活的 item 的 chunks 在后方
+    for (const itemId of activedItemIds.value) {
+      for (const chunk of existOverlays.value) {
+        if (chunk.item.id === itemId) {
+          result[chunk.group.role].push(chunk.id)
+        }
+      }
+    }
+    return result
   })
 
   const isOverlaysHasMask = computed(() => {
@@ -270,6 +287,9 @@ export const useOverlayStore = defineStore('global-map-overlays', () => {
   return {
     // state
     activedItemIds,
+
+    // actions
+    toggleItem,
 
     // getters
     items,

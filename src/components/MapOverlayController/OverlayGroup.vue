@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { OverlayChunk, OverlayChunkGroup } from '@/packages/map'
-import { ElCheckbox, ElRadio } from 'element-plus'
+import { ElRadio } from 'element-plus'
 import { useOverlayStore } from '@/stores'
 
 const props = defineProps<{
@@ -32,8 +32,6 @@ const items = computed(() => {
   })
 })
 
-Reflect.set(globalThis, 'items', items)
-
 const tileModelValue = computed({
   get: () => {
     const item = [...items.value.entries()].find(([{ id: itemId }]) => {
@@ -44,20 +42,41 @@ const tileModelValue = computed({
     return item[0].id
   },
   set: (itemId) => {
-    items.value.forEach((_, { id }) => overlayStore.activedItemIds.delete(id))
-    overlayStore.activedItemIds.add(itemId)
+    const newSet = new Set(overlayStore.activedItemIds)
+    items.value.forEach((_, { id }) => newSet.delete(id))
+    newSet.delete(itemId)
+    newSet.add(itemId)
+    overlayStore.activedItemIds = newSet
   },
 })
 
 const resetItemVisible = () => {
+  const newSet = new Set(overlayStore.activedItemIds)
   items.value.forEach((_, { id }) => {
-    overlayStore.activedItemIds.delete(id)
+    newSet.delete(id)
   })
+  overlayStore.activedItemIds = newSet
 }
 
 const toggleOverlayItem = (itemId: string, bool: boolean) => {
-  overlayStore.activedItemIds[bool ? 'add' : 'delete'](itemId)
+  overlayStore.toggleItem(itemId, bool)
 }
+
+const itemOrderMap = computed(() => {
+  const orderMap = new Map<string, number>()
+  const groupItemIds = [...items.value.keys()].map(item => item.id)
+  const activedArray = [...overlayStore.activedItemIds]
+
+  const activeItemsInGroup = groupItemIds
+    .filter(id => overlayStore.activedItemIds.has(id))
+    .sort((a, b) => activedArray.indexOf(a) - activedArray.indexOf(b))
+
+  activeItemsInGroup.forEach((id, index) => {
+    orderMap.set(id, index)
+  })
+
+  return orderMap
+})
 </script>
 
 <template>
@@ -104,6 +123,7 @@ const toggleOverlayItem = (itemId: string, bool: boolean) => {
     </div>
 
     <div class="flex flex-wrap p-1 gap-1">
+      <!-- 单选图层 -->
       <template v-if="!group.multiple">
         <ElRadio
           v-for="([item]) in items"
@@ -114,8 +134,8 @@ const toggleOverlayItem = (itemId: string, bool: boolean) => {
           :class="{
             'is-actived': overlayStore.activedItemIds.has(item.id),
           }"
-          class="overlay-item"
-          style="margin-right: 0"
+          class="overlay-item px-2"
+          style="margin-right: 0; --el-radio-input-bg-color: white; --el-radio-input-border: 1px solid white;"
         >
           <div class="text-container">
             {{ item.name }}
@@ -123,23 +143,29 @@ const toggleOverlayItem = (itemId: string, bool: boolean) => {
         </ElRadio>
       </template>
 
+      <!-- 多选图层 -->
       <template v-else>
-        <ElCheckbox
+        <div
           v-for="([item]) in items"
           :key="item.id"
-          class="overlay-item"
+          class="overlay-item py-0.5 pl-1 pr-2"
           :class="{
             'is-actived': overlayStore.activedItemIds.has(item.id),
           }"
-          style="margin-right: 0"
-          :model-value="overlayStore.activedItemIds.has(item.id)"
           :title="item.name"
-          @update:model-value="v => toggleOverlayItem(item.id, Boolean(v))"
+          @click="toggleOverlayItem(item.id, !overlayStore.activedItemIds.has(item.id))"
         >
-          <div class="text-container">
+          <div
+            v-if="overlayStore.activedItemIds.has(item.id)"
+            class="order-badge w-4 h-4 rounded"
+          >
+            <code>{{ itemOrderMap.get(item.id) }}</code>
+          </div>
+          <div v-else class="w-4 h-4 shrink-0 rounded bg-white" />
+          <div class="text-container select-none">
             {{ item.name }}
           </div>
-        </ElCheckbox>
+        </div>
       </template>
     </div>
   </div>
@@ -164,12 +190,14 @@ const toggleOverlayItem = (itemId: string, bool: boolean) => {
 .overlay-item {
   width: 200px;
   color: #495366;
-  padding: 0 8px;
   overflow: hidden;
-  text-overflow: ellipsis;
   border: 2px solid transparent;
   background: #D6AD8540;
   border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
 
   &:hover {
     border-color: #D6AD8520;
@@ -191,8 +219,23 @@ const toggleOverlayItem = (itemId: string, bool: boolean) => {
   }
 }
 
+.order-badge {
+  background: #D6AD85;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  flex-shrink: 0;
+
+  &.is-hidden {
+    visibility: hidden;
+  }
+}
+
 .text-container {
   display: inline-flex;
+  white-space: nowrap;
   animation: marquee 3s linear infinite both alternate;
 }
 </style>
