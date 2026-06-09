@@ -148,7 +148,7 @@ const itemOrderMap = computed(() => {
         <div
           v-for="([item]) in items"
           :key="item.id"
-          class="overlay-item py-0.5 pl-1 pr-2"
+          class="overlay-item gap-2 h-8 py-0.5 pl-1 pr-2"
           :class="{
             'is-actived': overlayStore.activedItemIds.has(item.id),
           }"
@@ -162,8 +162,10 @@ const itemOrderMap = computed(() => {
             <code>{{ itemOrderMap.get(item.id) }}</code>
           </div>
           <div v-else class="w-4 h-4 shrink-0 rounded bg-white" />
-          <div class="text-container select-none">
-            {{ item.name }}
+          <div class="flex-1 overflow-hidden" style="container-type: inline-size;">
+            <div class="text-container w-full text-sm select-none">
+              {{ item.name }}
+            </div>
           </div>
         </div>
       </template>
@@ -196,7 +198,6 @@ const itemOrderMap = computed(() => {
   border-radius: 4px;
   display: flex;
   align-items: center;
-  gap: 4px;
   cursor: pointer;
 
   &:hover {
@@ -234,7 +235,7 @@ const itemOrderMap = computed(() => {
 }
 
 .text-container {
-  display: inline-flex;
+  width: max-content;
   white-space: nowrap;
   animation: marquee 3s linear infinite both alternate;
 }
