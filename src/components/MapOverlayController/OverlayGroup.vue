@@ -221,7 +221,7 @@ const itemOrderMap = computed(() => {
 }
 
 .order-badge {
-  background: #D6AD85;
+  background: var(--el-color-primary);
   color: white;
   display: flex;
   align-items: center;
