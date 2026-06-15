@@ -226,7 +226,36 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
         return
       }
       const { updateList, deleteIds } = data
+
+      // 收集更新前受影响的点位 id（包括被删除关联涉及的点位）
+      const effectedMarkerIds = new Set<number>()
+      deleteIds.forEach((linkId) => {
+        const link = localLinkMap.value.get(linkId)
+        if (link) {
+          if (link.fromId)
+            effectedMarkerIds.add(link.fromId)
+          if (link.toId)
+            effectedMarkerIds.add(link.toId)
+        }
+      })
+      updateList.forEach(({ fromId, toId }) => {
+        if (fromId)
+          effectedMarkerIds.add(fromId)
+        if (toId)
+          effectedMarkerIds.add(toId)
+      })
+
       updateLocal(data)
+
+      // 异步更新受影响的点位数据
+      if (effectedMarkerIds.size > 0) {
+        Apis.marker.listMarkerById({
+          data: { markerIdList: Array.from(effectedMarkerIds) },
+        }).then(({ data: updatedMarkers = [] }) => {
+          markerStore.updateLocal({ updateList: updatedMarkers })
+        }).catch(() => false)
+      }
+
       context.message.value = [
         `[${context.tag.value}] `,
         `更新(${updateList.length})，`,
