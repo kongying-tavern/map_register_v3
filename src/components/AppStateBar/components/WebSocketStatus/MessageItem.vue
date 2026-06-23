@@ -25,6 +25,7 @@ const modules: {
   MarkerUpdated: defineAsyncComponent(() => import('./components/IMarkerUpdate.vue')),
   MarkerDeleted: defineAsyncComponent(() => import('./components/IMarkerDelete.vue')),
   MarkerLinked: defineAsyncComponent(() => import('./components/IMarkerLinked.vue')),
+  MarkerTweaked: defineAsyncComponent(() => import('./components/IMarkerTweak.vue')),
 }
 </script>
 
