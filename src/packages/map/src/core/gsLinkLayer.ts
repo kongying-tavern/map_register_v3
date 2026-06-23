@@ -20,6 +20,7 @@ class LinkLayerContent extends CompositeLayer<GSLinkLayerProps> {
     yb: number,
     arrowLength: number,
     gap: number,
+    maxArrows: number = 100,
   ) => {
     const unitLength = arrowLength + gap
     const dx = xb - xa
@@ -28,7 +29,11 @@ class LinkLayerContent extends CompositeLayer<GSLinkLayerProps> {
     const angle = Math.atan2(dy, dx)
     if (length + gap <= unitLength)
       return { n: 1, ox: 0, oy: 0, angle, realUnitLength: length }
-    const n = Math.floor((length + gap) / (arrowLength + gap))
+    let n = Math.floor((length + gap) / (arrowLength + gap))
+    // 限制最大箭头数量，避免因连线过长达到绘制上限导致箭头消失
+    if (n > maxArrows) {
+      n = maxArrows
+    }
     const realUnitLength = ((length - n * gap) / n) + gap
     const ox = realUnitLength * Math.cos(angle)
     const oy = realUnitLength * Math.sin(angle)
@@ -147,6 +152,7 @@ class LinkLayerContent extends CompositeLayer<GSLinkLayerProps> {
       outlineWidth = 2,
       scale = 1,
       colorOpacity: opacity = 255,
+      maxArrows = 100,
     } = this.props
 
     const abl = arrowBodyLength
@@ -165,7 +171,7 @@ class LinkLayerContent extends CompositeLayer<GSLinkLayerProps> {
         n,
         ox,
         oy,
-      } = this.calculateArrowLayout(xa, ya, xb, yb, abl + ahr, gap)
+      } = this.calculateArrowLayout(xa, ya, xb, yb, abl + ahr, gap, maxArrows)
       const { points, pointCount } = this.calculateArrowTemplate(angle, {
         arrowBodyLength: realUnitLength - gap,
         arrowBodyRadius: abr,

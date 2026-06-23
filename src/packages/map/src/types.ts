@@ -130,6 +130,8 @@ export interface GSLinkLayerProps extends ArrowShapeOptions {
   focusIds?: Set<string>
   /** 缩放系数（不影响长度尺寸） */
   scale?: number
+  /** 最大箭头数量 @default 100 */
+  maxArrows?: number
 }
 
 // ============================== Marker ==============================
