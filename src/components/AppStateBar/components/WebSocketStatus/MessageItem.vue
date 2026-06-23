@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Avatar } from '@element-plus/icons-vue'
 import dayjs from 'dayjs'
 import ILoading from './components/ILoading.vue'
 
@@ -23,6 +24,7 @@ const modules: {
   MarkerAdded: defineAsyncComponent(() => import('./components/IMarkerAdd.vue')),
   MarkerUpdated: defineAsyncComponent(() => import('./components/IMarkerUpdate.vue')),
   MarkerDeleted: defineAsyncComponent(() => import('./components/IMarkerDelete.vue')),
+  MarkerLinked: defineAsyncComponent(() => import('./components/IMarkerLinked.vue')),
 }
 </script>
 
@@ -35,7 +37,11 @@ const modules: {
     }"
   >
     <div class="w-8 shrink-0 overflow-hidden">
-      <img class="w-8 h-8 object-cover rounded-[16px] bg-[var(--el-bg-color)]" :src="data.user.logo">
+      <el-avatar :size="32" shape="circle" :src="data.user.logo" fit="cover">
+        <el-icon :size="24">
+          <Avatar />
+        </el-icon>
+      </el-avatar>
     </div>
 
     <div
