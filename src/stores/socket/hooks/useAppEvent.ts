@@ -86,15 +86,28 @@ export const useAppEvent = (ipc: PageIPC<AppSocket.MainEventMap, AppSocket.Worke
     appEvent.emit('MarkerLinkageBinaryPurged')
   })
 
-  ipc.on('MarkerLinked', async ({ markers: ids }) => {
-    const { data = [], users = {} } = await Apis.marker.listMarkerById({
-      data: { markerIdList: ids },
+  ipc.on('MarkerLinked', async ({ markers, groups }) => {
+    const { data: markerList } = await Apis.marker.listMarkerById({
+      data: {
+        markerIdList: markers,
+      },
     })
-    if (!data.length)
+    const { data } = await Apis.marker_link.getMarkerLinkageList({
+      data: {
+        groupIds: groups,
+      },
+    })
+    if (!data)
       return
-    const [{ updaterId }] = data
-    const userInfo = Object.assign({ id: updaterId }, users[updaterId!])
-    appEvent.emit('MarkerLinked', data, userInfo)
+    const link = Object.values(data).flat(1)?.[0]
+    if (!link)
+      return
+    const { data: user } = await Apis.user.getUserInfo({
+      pathParams: { userId: link.updaterId! },
+    })
+    if (!user)
+      return
+    appEvent.emit('MarkerLinked', markerList ?? [], user)
   })
 
   ipc.on('MarkerTweaked', async (ids) => {
