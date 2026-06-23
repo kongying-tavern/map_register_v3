@@ -7,7 +7,7 @@ import Apis from '@/api/alova'
 import db from '@/database/db'
 import { useManager } from '@/stores/hooks'
 import BulkPutWorker from '@/worker/idb.worker?worker'
-import { useUserStore } from '.'
+import { useSocketStore, useUserStore } from '.'
 import { useMarkerStore } from './marker'
 import { getCostTime } from './utils'
 
@@ -303,6 +303,31 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
   })
 
   // ============================== 外部响应 ==============================
+
+  const socketStore = useSocketStore()
+
+  // 点位关联更新
+  socketStore.appEvent.on('MarkerLinked', async (markers) => {
+    // 从受影响点位中收集关联组 id
+    const groupIds = [...new Set(markers.map(m => m.linkageId).filter(Boolean))] as string[]
+    if (!groupIds.length)
+      return
+
+    // 获取最新的关联数据
+    const { data: linkGroups = {} } = await Apis.marker_link.getMarkerLinkageList({
+      data: { groupIds },
+    })
+    const links = Object.values(linkGroups).flat(1)
+    updateLocal({ updateList: links })
+
+    // 更新受影响的点位数据
+    markerStore.updateLocal({ updateList: markers })
+  })
+
+  // 关联数据缓存刷新（全量重载）
+  socketStore.appEvent.on('MarkerLinkageBinaryPurged', () => {
+    update()
+  })
 
   return {
     total,
