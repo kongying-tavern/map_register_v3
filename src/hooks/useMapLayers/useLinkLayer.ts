@@ -117,6 +117,7 @@ export const useLinkLayer = () => {
     onWatcherCleanup(() => {
       isCurrent = false
     })
+    renderRealLinks.value = []
     const { data: linkGroups = {} } = await Apis.marker_link.getMarkerLinkageList({
       cacheFor: {
         mode: 'memory',
