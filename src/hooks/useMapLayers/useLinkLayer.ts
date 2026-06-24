@@ -148,6 +148,7 @@ export const useLinkLayer = () => {
     })
   })
 
+  /** 实际可见的关联连线 */
   const renderLinks = computed(() => {
     const set = missionLinks.value.reduce((cur, { meta }) => {
       return cur.add(meta.key)
@@ -155,9 +156,11 @@ export const useLinkLayer = () => {
     const links = [...renderRealLinks.value, ...renderTempLinks.value]
     if (!isLinking.value)
       return links
+    // 如果正在处理关联任务，则过滤掉【待删除】的连线
     return links.filter(({ meta }) => set.has(meta.key))
   })
 
+  // 渲染被关联带出的点位
   watch(renderLinks, () => {
     if (!renderLinks.value?.length) {
       mapStateStore.setTempMarkers('markerLink', [])
