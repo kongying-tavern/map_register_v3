@@ -32,7 +32,7 @@ export const useLinkLayer = () => {
   const tileStore = useTileStore()
 
   const { data: rewritePositions } = mapStateStore.subscribeMission('markerDragging', () => new Map())
-  const { data: missionLinks } = mapStateStore.subscribeMission('markerLink', () => [])
+  const { isProcessing: isLinking, data: missionLinks } = mapStateStore.subscribeMission('markerLink', () => [])
   const { isProcessing: isMultiSelecting } = mapStateStore.subscribeMission('markerMultiSelect', () => '')
 
   // 点位关联 focus 逻辑
@@ -152,7 +152,10 @@ export const useLinkLayer = () => {
     const set = missionLinks.value.reduce((cur, { meta }) => {
       return cur.add(meta.key)
     }, new Set<string>())
-    return [...renderRealLinks.value, ...renderTempLinks.value].filter(({ meta }) => set.has(meta.key))
+    const links = [...renderRealLinks.value, ...renderTempLinks.value]
+    if (!isLinking.value)
+      return links
+    return links.filter(({ meta }) => set.has(meta.key))
   })
 
   watch(renderLinks, () => {
