@@ -6,6 +6,25 @@ import { GSLinkLayer, GSMarkerLayer } from '@/packages/map'
 import { LINK_CONFIG_MAP, MapSubject } from '@/shared'
 import { useMapStateStore, useMarkerLinkStore, useMarkerStore, useTileStore } from '@/stores'
 
+const isEqualArray = (a: string[], b: string[]) => {
+  // 1. 严格引用相等（最快路径）
+  if (a === b)
+    return true
+  // 2. 判空与长度检查
+  if (!a || !b)
+    return false
+  const len = a.length
+  if (len !== b.length)
+    return false
+  // 3. 倒序 while 循环（减少反向查找和局部变量比较开销）
+  let i = len
+  while (i--) {
+    if (a[i] !== b[i])
+      return false
+  }
+  return true
+}
+
 export const useLinkLayer = () => {
   const markerStore = useMarkerStore()
   const markerLinkStore = useMarkerLinkStore()
@@ -59,48 +78,89 @@ export const useLinkLayer = () => {
     mapStateStore.interaction.setHover(GSMarkerLayer.layerName, new Set([link.fromId!, link.toId!]))
   }))
 
-  /** 用于渲染的关联组 */
-  const links = computed(() => {
+  /** 用于渲染的真实关联组 id */
+  const renderRealLinkGroupIds = computed<string[]>(() => {
     if (isMultiSelecting.value)
       return []
-    const linkIds = new Set<string>()
-    const result: MarkerLinkMission[] = []
-    missionLinks.value.forEach((link) => {
-      if (linkIds.has(link.meta.key))
-        return
-      result.push(link)
-      linkIds.add(link.meta.key)
+    const linkGroupIds = new Set<string>()
+    missionLinks.value.forEach(({ fromId, toId }) => {
+      const fromMarker = markerStore.idMap.get(fromId!)
+      if (fromMarker?.linkageId)
+        linkGroupIds.add(fromMarker.linkageId)
+      const toMarker = markerStore.idMap.get(toId!)
+      if (toMarker?.linkageId)
+        linkGroupIds.add(toMarker.linkageId)
     })
     const focusMarkerIds = mapStateStore.interaction.focusElements.get(GSMarkerLayer.layerName) as (Set<number> | undefined)
     if (!focusMarkerIds?.size)
-      return result
-    return [...focusMarkerIds].reduce((resultLinks, markerId) => {
+      return [...linkGroupIds]
+    focusMarkerIds.forEach((markerId) => {
       const markerInfo = markerStore.idMap.get(markerId)
       if (!markerInfo?.linkageId)
-        return resultLinks
-      const markerLinks = markerLinkStore.groupIdMap.get(markerInfo.linkageId)
-      if (!markerLinks?.length)
-        return resultLinks
-      markerLinks.forEach((link) => {
-        const key = `${link.id}`
-        if (linkIds.has(key))
-          return
-        resultLinks.push({
-          ...link,
-          meta: { key },
-        })
-        linkIds.add(key)
-      })
-      return resultLinks
-    }, result)
+        return
+      linkGroupIds.add(markerInfo.linkageId)
+    })
+    return [...linkGroupIds]
   })
 
-  watch(links, () => {
-    if (!links.value?.length) {
+  /** 用于渲染的真实关联连线（后端有实际数据） */
+  const renderRealLinks = shallowRef<MarkerLinkMission[]>([])
+  // 异步查询实际的关联数据（避免本地污染）
+  watch(() => renderRealLinkGroupIds.value, async (groupIds, oldGroupIds = []) => {
+    if (isEqualArray(groupIds, oldGroupIds))
+      return
+    if (!groupIds.length) {
+      renderRealLinks.value = []
+      return
+    }
+    let isCurrent = true
+    onWatcherCleanup(() => {
+      isCurrent = false
+    })
+    const { data: linkGroups = {} } = await Apis.marker_link.getMarkerLinkageList({
+      cacheFor: {
+        mode: 'memory',
+        expire: 60 * 1000,
+      },
+      data: {
+        groupIds,
+      },
+    })
+    if (!isCurrent)
+      return
+    const links = Object.values(linkGroups)
+      .flat(1)
+      .map(link => ({
+        ...link,
+        meta: {
+          key: `${link.id}`,
+        },
+      }))
+    renderRealLinks.value = links
+  }, { immediate: true })
+
+  /** 用于渲染的临时关联 id */
+  const renderTempLinks = computed(() => {
+    if (isMultiSelecting.value)
+      return []
+    return missionLinks.value.filter(({ groupId }) => {
+      return !groupId
+    })
+  })
+
+  const renderLinks = computed(() => {
+    const set = missionLinks.value.reduce((cur, { meta }) => {
+      return cur.add(meta.key)
+    }, new Set<string>())
+    return [...renderRealLinks.value, ...renderTempLinks.value].filter(({ meta }) => set.has(meta.key))
+  })
+
+  watch(renderLinks, () => {
+    if (!renderLinks.value?.length) {
       mapStateStore.setTempMarkers('markerLink', [])
       return
     }
-    const result = links.value.reduce((result, link) => {
+    const result = renderLinks.value.reduce((result, link) => {
       const markerFrom = markerStore.idMap.get(link.fromId!)
       markerFrom && result.push(markerFrom)
       const markerTo = markerStore.idMap.get(link.toId!)
@@ -112,12 +172,12 @@ export const useLinkLayer = () => {
 
   /** 关联图层建立 */
   const linkLayer = computed<GSLinkLayer | undefined>(() => {
-    if (!links.value.length)
+    if (!renderLinks.value.length)
       return
 
     const positionCache = new Map<number, Coordinate2D>()
 
-    const data = links.value.reduce((result, { fromId, toId, linkAction, meta }) => {
+    const data = renderLinks.value.reduce((result, { fromId, toId, linkAction, meta }) => {
       const from = markerStore.idMap.get(fromId!)
       if (!from?.position)
         return result

@@ -269,6 +269,7 @@ watch(previewLinkGroups, (groups) => {
     if (isDelete)
       return
     result.push({
+      groupId: raw.groupId,
       meta: {
         key: raw.id ? `${raw.id}` : key,
       },
