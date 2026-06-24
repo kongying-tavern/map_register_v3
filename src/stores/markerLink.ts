@@ -292,6 +292,8 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
       context.startTime.value = Date.now()
       context.tag.value = '差异'
       context.message.value = '关联数据暂不支持差异更新'
+      const data = await getAllMarkerLinks(context)
+      return data
     },
 
     full: async (context) => {
