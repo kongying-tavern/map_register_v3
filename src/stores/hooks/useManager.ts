@@ -54,6 +54,7 @@ export const useManager = <C, T>(options: ManagerOptions<C, T>) => {
       const data = await (async () => {
         if (!initFlag.value) {
           await init?.(context)
+          await (diff ?? full)?.(context)
           initFlag.value = true
         }
         return (isFull ? full : diff ?? full)(context)
