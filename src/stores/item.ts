@@ -213,7 +213,8 @@ export const useItemStore = defineStore('global-item', () => {
       context.startTime.value = Date.now()
       context.tag.value = '差异'
       context.message.value = '物品数据暂不支持差异更新'
-      // no diff for items
+      const updateList = await getAllItems(context)
+      return { updateList, deleteIds: [] }
     },
 
     full: async () => {
