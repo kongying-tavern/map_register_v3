@@ -6,25 +6,6 @@ import { GSLinkLayer, GSMarkerLayer } from '@/packages/map'
 import { LINK_CONFIG_MAP, MapSubject } from '@/shared'
 import { useMapStateStore, useMarkerLinkStore, useMarkerStore, useTileStore } from '@/stores'
 
-const isEqualArray = (a: string[], b: string[]) => {
-  // 1. 严格引用相等（最快路径）
-  if (a === b)
-    return true
-  // 2. 判空与长度检查
-  if (!a || !b)
-    return false
-  const len = a.length
-  if (len !== b.length)
-    return false
-  // 3. 倒序 while 循环（减少反向查找和局部变量比较开销）
-  let i = len
-  while (i--) {
-    if (a[i] !== b[i])
-      return false
-  }
-  return true
-}
-
 export const useLinkLayer = () => {
   const markerStore = useMarkerStore()
   const markerLinkStore = useMarkerLinkStore()
@@ -105,29 +86,21 @@ export const useLinkLayer = () => {
 
   /** 用于渲染的真实关联连线（后端有实际数据） */
   const renderRealLinks = shallowRef<MarkerLinkMission[]>([])
-  // 异步查询实际的关联数据（避免本地污染）
-  watch(() => renderRealLinkGroupIds.value, async (groupIds, oldGroupIds = []) => {
-    if (isEqualArray(groupIds, oldGroupIds))
-      return
+
+  let fetchSeq = 0
+  const fetchRenderRealLinks = async (groupIds: string[]) => {
     if (!groupIds.length) {
       renderRealLinks.value = []
       return
     }
-    let isCurrent = true
-    onWatcherCleanup(() => {
-      isCurrent = false
-    })
+    const currentSeq = ++fetchSeq
     renderRealLinks.value = []
     const { data: linkGroups = {} } = await Apis.marker_link.getMarkerLinkageList({
-      cacheFor: {
-        mode: 'memory',
-        expire: 60 * 1000,
-      },
       data: {
         groupIds,
       },
     })
-    if (!isCurrent)
+    if (currentSeq !== fetchSeq)
       return
     const links = Object.values(linkGroups)
       .flat(1)
@@ -138,7 +111,19 @@ export const useLinkLayer = () => {
         },
       }))
     renderRealLinks.value = links
+  }
+
+  // 异步查询实际的关联数据（避免本地污染）
+  watch(() => renderRealLinkGroupIds.value, async (groupIds) => {
+    await fetchRenderRealLinks(groupIds)
   }, { immediate: true })
+
+  // 监听关联数据版本变化，强制刷新当前渲染的关联组数据
+  watch(() => markerLinkStore.updateVersion, () => {
+    const groupIds = renderRealLinkGroupIds.value
+    if (groupIds.length)
+      fetchRenderRealLinks(groupIds)
+  })
 
   /** 用于渲染的临时关联 id */
   const renderTempLinks = computed(() => {

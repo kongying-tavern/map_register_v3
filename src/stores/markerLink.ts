@@ -48,6 +48,9 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
   /** 原始点位关联 id 到点位关联对象的映射 */
   const localLinkMap = shallowRef(new Map<number, API2.MarkerLinkageVo>())
 
+  /** 关联数据更新版本号，每次 updateLocal 调用后递增，用于触发外部刷新 */
+  const updateVersion = ref(0)
+
   /**
    * @local 更新本地点位关联
    */
@@ -59,7 +62,7 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
     const { updateList = [], deleteIds = [], clear = false } = options
     if (clear)
       localLinkMap.value = new Map<number, API2.MarkerLinkageVo>()
-    if (!updateList.length && !deleteIds.length)
+    if (!updateList.length && !deleteIds.length && !clear)
       return
     const { length: deleteLength } = deleteIds
     for (let i = 0; i < deleteLength; i++) {
@@ -75,6 +78,7 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
       localLinkMap.value.set(id, link)
     }
     triggerRef(localLinkMap)
+    updateVersion.value++
   }
 
   // ============================== 外部状态 ==============================
@@ -336,6 +340,7 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
     markerLinkList: list as Readonly<ShallowRef<API2.MarkerLinkageVo[]>>,
     idMap: localLinkMap,
     groupIdMap,
+    updateVersion,
 
     // 数据更新
     context,
