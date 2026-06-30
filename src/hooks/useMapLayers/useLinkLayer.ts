@@ -6,6 +6,10 @@ import { GSLinkLayer, GSMarkerLayer } from '@/packages/map'
 import { LINK_CONFIG_MAP, MapSubject } from '@/shared'
 import { useMapStateStore, useMarkerLinkStore, useMarkerStore, useTileStore } from '@/stores'
 
+const isSameSet = <T>(a: Set<T>, b: Set<T>): boolean => {
+  return (a.size === b.size) && a.isSubsetOf(b)
+}
+
 export const useLinkLayer = () => {
   const markerStore = useMarkerStore()
   const markerLinkStore = useMarkerLinkStore()
@@ -60,28 +64,29 @@ export const useLinkLayer = () => {
   }))
 
   /** 用于渲染的真实关联组 id */
-  const renderRealLinkGroupIds = computed<string[]>(() => {
+  const renderRealLinkGroupIds = computed<string[]>((oldGroupIds = []) => {
     if (isMultiSelecting.value)
       return []
-    const linkGroupIds = new Set<string>()
+    const oldGroupIdSet = new Set(oldGroupIds)
+    const newGroupIdSet = new Set<string>()
     missionLinks.value.forEach(({ fromId, toId }) => {
       const fromMarker = markerStore.idMap.get(fromId!)
       if (fromMarker?.linkageId)
-        linkGroupIds.add(fromMarker.linkageId)
+        newGroupIdSet.add(fromMarker.linkageId)
       const toMarker = markerStore.idMap.get(toId!)
       if (toMarker?.linkageId)
-        linkGroupIds.add(toMarker.linkageId)
+        newGroupIdSet.add(toMarker.linkageId)
     })
     const focusMarkerIds = mapStateStore.interaction.focusElements.get(GSMarkerLayer.layerName) as (Set<number> | undefined)
     if (!focusMarkerIds?.size)
-      return [...linkGroupIds]
+      return isSameSet(oldGroupIdSet, newGroupIdSet) ? oldGroupIds : [...newGroupIdSet]
     focusMarkerIds.forEach((markerId) => {
       const markerInfo = markerStore.idMap.get(markerId)
       if (!markerInfo?.linkageId)
         return
-      linkGroupIds.add(markerInfo.linkageId)
+      newGroupIdSet.add(markerInfo.linkageId)
     })
-    return [...linkGroupIds]
+    return isSameSet(oldGroupIdSet, newGroupIdSet) ? oldGroupIds : [...newGroupIdSet]
   })
 
   /** 用于渲染的真实关联连线（后端有实际数据） */
