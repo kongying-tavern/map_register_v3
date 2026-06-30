@@ -92,22 +92,15 @@ export const useLinkLayer = () => {
   /** 用于渲染的真实关联连线（后端有实际数据） */
   const renderRealLinks = shallowRef<MarkerLinkMission[]>([])
 
-  let fetchSeq = 0
-  const fetchRenderRealLinks = async (groupIds: string[]) => {
-    if (!groupIds.length) {
-      renderRealLinks.value = []
-      return
-    }
-    const currentSeq = ++fetchSeq
-    renderRealLinks.value = []
+  const fetchRenderRealLinks = async (groupIds: string[]): Promise<MarkerLinkMission[]> => {
+    if (!groupIds.length)
+      return []
     const { data: linkGroups = {} } = await Apis.marker_link.getMarkerLinkageList({
       data: {
         groupIds,
       },
     })
-    if (currentSeq !== fetchSeq)
-      return
-    const links = Object.values(linkGroups)
+    const links: MarkerLinkMission[] = Object.values(linkGroups)
       .flat(1)
       .map(link => ({
         ...link,
@@ -115,20 +108,24 @@ export const useLinkLayer = () => {
           key: `${link.id}`,
         },
       }))
-    renderRealLinks.value = links
+    return links
   }
 
   // 异步查询实际的关联数据（避免本地污染）
-  watch(() => renderRealLinkGroupIds.value, async (groupIds) => {
-    await fetchRenderRealLinks(groupIds)
+  watch(() => [renderRealLinkGroupIds.value, markerLinkStore.updateVersion] as const, async ([groupIds], oldState) => {
+    const oldIdSet = new Set(oldState?.[0])
+    const newIdSet = new Set(groupIds)
+    if (isSameSet(oldIdSet, newIdSet))
+      return
+    let expired = false
+    onWatcherCleanup(() => {
+      expired = true
+    })
+    const newMission = await fetchRenderRealLinks(groupIds)
+    if (expired)
+      return
+    renderRealLinks.value = newMission
   }, { immediate: true })
-
-  // 监听关联数据版本变化，强制刷新当前渲染的关联组数据
-  watch(() => markerLinkStore.updateVersion, () => {
-    const groupIds = renderRealLinkGroupIds.value
-    if (groupIds.length)
-      fetchRenderRealLinks(groupIds)
-  })
 
   /** 用于渲染的临时关联 id */
   const renderTempLinks = computed(() => {
