@@ -45,7 +45,7 @@ export default antfu({
   overrides: {
     javascript: {
       // 一般情况下不允许使用 console
-      'no-console': 'warn',
+      'no-console': ['warn', { allow: ['warn', 'error'] }],
 
       // 默认参数必须放在最后
       'default-param-last': 'error',
