@@ -78,10 +78,10 @@ export const useIconStore = defineStore('global-icon', () => {
    * - 已包含 version 比较逻辑
    */
   const updateLocal = (options: {
-    updateList?: API2.IconVo[]
+    updateMap?: Map<number, API2.IconVo>
     deleteIds?: number[]
   }) => {
-    const { updateList = [], deleteIds = [] } = options
+    const { updateMap, deleteIds = [] } = options
 
     // 处理删除
     const { length: deleteLength } = deleteIds
@@ -91,14 +91,12 @@ export const useIconStore = defineStore('global-icon', () => {
     }
 
     // 处理更新
-    const { length: updateLength } = updateList
-    for (let i = 0; i < updateLength; i++) {
-      const icon = updateList[i]
+    updateMap?.forEach((icon) => {
       const { id, version = 0 } = icon
       if (!id || (version <= (localIconMap.value.get(id)?.version ?? 0)))
-        continue
+        return
       localIconMap.value.set(id, icon)
-    }
+    })
 
     triggerRef(localIconMap)
   }
@@ -137,11 +135,11 @@ export const useIconStore = defineStore('global-icon', () => {
       }
       if (data.clear)
         localIconMap.value = new Map<number, API2.IconVo>()
-      const { updateMap: updateList, deleteIds } = data
+      const { updateMap, deleteIds } = data
       updateLocal(data)
       context.message.value = [
         `[${context.tag.value}] `,
-        `更新(${updateList.size})，`,
+        `更新(${updateMap.size})，`,
         `删除(${deleteIds.length})，`,
         `耗时：${getCostTime(context.startTime.value).toFixed(1)}s`,
       ].join('')
@@ -167,7 +165,7 @@ export const useIconStore = defineStore('global-icon', () => {
       context.tag.value = '初始化'
       context.message.value = `[${context.tag.value}] 拉取最新数据...`
       const updateMap = await getAllIcons(context)
-      updateLocal({ updateList: Array.from(updateMap.values()) })
+      updateLocal({ updateMap })
       context.message.value = `[${context.tag.value}] 完毕: ${getCostTime(context.startTime.value).toFixed(1)}s`
     },
 
@@ -189,7 +187,19 @@ export const useIconStore = defineStore('global-icon', () => {
   /** @server 创建图标（封装 Api.icon.createIcon 与本地更新逻辑） */
   const createIcon = async (iconForm: API.IconVo) => {
     const { data: id } = await Apis.icon.createIcon({ data: iconForm })
-    updateLocal({ updateList: [{ ...iconForm, id }] })
+    if (!id)
+      throw new Error('新增失败，返回 id 为空')
+    try {
+      const { data = {}, error, message: getMsg = '' } = await Apis.icon.getIcon({
+        pathParams: { iconId: id },
+      })
+      if (error)
+        throw new Error(getMsg)
+      updateLocal({ updateMap: new Map([[data.id!, data]]) })
+    }
+    catch (error) {
+      console.warn('createIcon 本地更新失败', error)
+    }
   }
 
   /** @server 更新图标（封装 Api.icon.updateIcon 与本地更新逻辑） */
@@ -197,17 +207,16 @@ export const useIconStore = defineStore('global-icon', () => {
     if (!iconForm.id)
       throw new Error('图标 id 为空')
     await Apis.icon.updateIcon({ data: iconForm })
-    // 再次从服务器获取最新数据并写入本地
     try {
       const { data = {}, error, message: getMsg = '' } = await Apis.icon.getIcon({
         pathParams: { iconId: iconForm.id },
       })
       if (error)
         throw new Error(getMsg)
-      updateLocal({ updateList: [data] })
+      updateLocal({ updateMap: new Map([[data.id!, data]]) })
     }
-    catch {
-      // 同步本地失败不影响整体更新流程，等待后续全量同步修正
+    catch (error) {
+      console.warn('updateIcon 本地更新失败', error)
     }
   }
 
