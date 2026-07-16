@@ -31,6 +31,11 @@ export const symbolPlus = (x: number, y: number, r: number) => [
   ['L', x, y + r - 4],
 ]
 
+export const symbolMinus = (x: number, y: number, r: number) => [
+  ['M', x - r + 4, y],
+  ['L', x - r + 2 * r - 4, y],
+]
+
 export const symbolDelete = (x: number, y: number, r: number) => [
   ['M', x, y - 0.75 * r],
   ['L', x, y - 0.5 * r],

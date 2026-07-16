@@ -2,7 +2,7 @@ import type { IG6GraphEvent, TreeGraphData } from '@antv/g6'
 import G6 from '@antv/g6'
 import dayjs from 'dayjs'
 import { array2Tree } from '@/utils'
-import { symbolDelete, symbolPlus } from '../utils'
+import { symbolDelete, symbolMinus, symbolPlus } from '../utils'
 
 const opacityMap = {
   container: 0.6,
@@ -16,6 +16,9 @@ const opacityMap = {
   deleteButton: 0.6,
   deleteButtonHover: 0.8,
   deleteButtonClick: 0.7,
+  collapseButton: 0.6,
+  collapseButtonHover: 0.8,
+  collapseButtonClick: 0.7,
 }
 
 const colorMap: Record<string, string> = {
@@ -60,6 +63,18 @@ export const useGraph = (options: {
       getPid: item => item.pid,
       rootId: '-1',
     })
+
+    // 默认折叠最后一级节点（子节点全为叶子节点的父节点）
+    const setDefaultCollapsed = (node: TreeGraphData) => {
+      if (!node.children?.length)
+        return
+      const allChildrenAreLeaves = node.children.every(child => !child.children?.length)
+      if (allChildrenAreLeaves)
+        node.collapsed = true
+      else
+        node.children.forEach(setDefaultCollapsed)
+    }
+    tree.forEach(setDefaultCollapsed)
 
     return {
       id: '-1',
@@ -283,6 +298,51 @@ export const useGraph = (options: {
         })
       }
 
+      /** 折叠按钮 */
+      if (Array.isArray(cfg.children) && cfg.children?.length) {
+        const isCollapsed = Boolean(cfg.collapsed)
+
+        group.addShape('rect', {
+          attrs: {
+            x: 124,
+            y: sharedProps.height + 8,
+            width: 72,
+            height: 32,
+            fill: '#CCC',
+            fillOpacity: opacityMap.collapseButton,
+            radius: 8,
+            cursor: 'pointer',
+          },
+          name: 'collapse-button',
+        })
+
+        group.addShape('marker', {
+          attrs: {
+            x: 140,
+            y: sharedProps.height + 24,
+            r: 12,
+            stroke: '#333',
+            lineWidth: 1,
+            symbol: isCollapsed ? symbolPlus : symbolMinus,
+          },
+          name: 'collapse-icon',
+          capture: false,
+        })
+
+        group.addShape('text', {
+          attrs: {
+            x: 156,
+            y: sharedProps.height + 32,
+            text: isCollapsed ? '展开' : '折叠',
+            fontSize: 14,
+            fill: '#333',
+            fillOpacity: 1,
+          },
+          name: 'collapse-text',
+          capture: false,
+        })
+      }
+
       return container
     },
 
@@ -365,6 +425,25 @@ export const useGraph = (options: {
           deleteButton.attr('cursor', 'inherit')
         })
       }
+
+      const collapseButton = group!.find(element => element.get('name') === 'collapse-button')
+      if (collapseButton) {
+        // hover
+        collapseButton.on('mouseenter', () => collapseButton.attr({
+          fillOpacity: opacityMap.collapseButtonHover,
+          cursor: 'pointer',
+        }))
+        collapseButton.on('mouseleave', () => collapseButton.attr({
+          fillOpacity: opacityMap.collapseButton,
+        }))
+        // active
+        collapseButton.on('mousedown', () => collapseButton.attr({
+          fillOpacity: opacityMap.collapseButtonClick,
+        }))
+        collapseButton.on('mouseup', () => collapseButton.attr({
+          fillOpacity: opacityMap.collapseButton,
+        }))
+      }
     },
   })
 
@@ -430,15 +509,21 @@ export const useGraph = (options: {
         case 'border-box': {
           // 按住 ctrl 点击节点，切换折叠
           if (originalEvent instanceof MouseEvent && originalEvent.ctrlKey) {
-            model.collapsed = !model.collapsed
+            const newCollapsed = !model.collapsed
+            graph.updateItem(item, { collapsed: newCollapsed })
             graph.layout()
-            graph.setItemState(item, 'collapse', model.collapsed as boolean)
             break
           }
           const area = model.raw as API.AreaVo | undefined
           if (!area)
             break
           editHook.trigger([area, areaMap.value.get(area.parentId!)])
+          break
+        }
+        case 'collapse-button': {
+          const newCollapsed = !model.collapsed
+          graph.updateItem(item, { collapsed: newCollapsed })
+          graph.layout()
           break
         }
       }
