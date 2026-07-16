@@ -1,8 +1,8 @@
 ---
-alwaysApply: true
+alwaysApply: false
+description: 只在生成 git commit 提交信息时使用
 scene: git_message
 ---
-
 <rules>
   <rule>
     <desc>必须使用中文提交信息，遵循中外混排规则，中文和字母或数字之间必须保留一个空格。</desc>
