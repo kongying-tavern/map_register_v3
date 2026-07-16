@@ -114,4 +114,12 @@ export default antfu({
       ],
     },
   },
+}, {
+  // CSS Houdini paint worklet 运行时提供的全局变量
+  files: ['src/style/CSSHoudini/*.js'],
+  languageOptions: {
+    globals: {
+      registerPaint: 'readonly',
+    },
+  },
 })
