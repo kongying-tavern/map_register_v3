@@ -1,6 +1,6 @@
 import type { WorkerInput } from '@/worker/zip.worker'
 import SevenZipWasmUrl from '7z-wasm/7zz.wasm?url'
-import db from '@/database/db'
+import { cache } from '@/database'
 import ZipWorker from '@/worker/zip.worker?worker'
 import { createWorkerHelper } from '.'
 
@@ -11,15 +11,15 @@ export class Zip {
   static getWasmBinary = async () => {
     if (this.#zipWasmBinary)
       return this.#zipWasmBinary
-    const cache = await db.cache.file.get('7zz.wasm')
-    if (cache) {
-      this.#zipWasmBinary = cache.buffer
-      return cache.buffer
+    const cachedFile = await cache.file.get('7zz.wasm')
+    if (cachedFile) {
+      this.#zipWasmBinary = cachedFile.buffer
+      return cachedFile.buffer
     }
     const res = await fetch(SevenZipWasmUrl)
     const buffer = await res.arrayBuffer()
     this.#zipWasmBinary = buffer
-    await db.cache.file.put({ buffer, name: '7zz.wasm' })
+    await cache.file.put({ buffer, name: '7zz.wasm' })
     return buffer
   }
 

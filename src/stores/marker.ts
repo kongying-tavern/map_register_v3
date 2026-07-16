@@ -3,7 +3,7 @@ import type { WorkerInput } from '@/worker/idb.worker'
 import { AddLocation, DeleteLocation, Location } from '@element-plus/icons-vue'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import Apis from '@/api/alova'
-import db from '@/database/db'
+import db from '@/database'
 import BulkPutWorker from '@/worker/idb.worker?worker'
 import { useAccessStore, useSocketStore, useUserStore } from '.'
 import { useManager } from './hooks'
@@ -232,7 +232,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
       context.startTime.value = Date.now()
       context.tag.value = '初始化'
       context.message.value = `[${context.tag.value}] 拉取冷数据...`
-      const localMarkers = await db.app.marker.toArray()
+      const localMarkers = await db.marker.toArray()
       updateLocal({ updateList: localMarkers })
     },
 

@@ -1,5 +1,5 @@
 import type { Logger } from '@/utils/logger'
-import db from '@/database/db'
+import { CacheDexie } from '@/database/db/cache'
 import { useLoggerWorker } from '@/hooks/useWorkerLogger'
 import { getDigest } from '@/utils/getDigest'
 import { getObjectFitSize } from '@/utils/getObjectFitSize'
@@ -7,6 +7,8 @@ import { limitPromiseAll } from '@/utils/limitPromiseAll'
 import UnknownIcon from '/icons/unknown.webp?inline'
 
 declare const globalThis: DedicatedWorkerGlobalScope
+
+const cacheDb = new CacheDexie()
 
 const CACHE_VERSION = 1
 
@@ -84,13 +86,17 @@ const render = async (params: WorkerInput, logger: Logger): Promise<WorkerSucces
   /** 检查缓存是否可用 */
   const cache = await (async () => {
     try {
-      const cacheIconSprite = await db.cache.iconSprite.get(digest)
-      if (!cacheIconSprite || cacheIconSprite.version !== CACHE_VERSION)
-        throw new Error('没有可用的图标预渲染纹理缓存')
+      const cacheIconSprite = await cacheDb.iconSprite.get(digest)
+      if (!cacheIconSprite || cacheIconSprite.version !== CACHE_VERSION) {
+        // 缓存不存在或版本不匹配，清空旧缓存
+        await cacheDb.iconSprite.clear().catch(() => {})
+        logger.warn('没有可用的图标预渲染纹理缓存')
+        return
+      }
       return cacheIconSprite
     }
     catch (err) {
-      await db.cache.iconSprite.clear()
+      // 数据库操作失败（如 reopen），不清空缓存
       logger.warn(err instanceof Error ? err.message : `Can't get icon cache cause: ${JSON.stringify(err)}`)
     }
   })()
@@ -177,7 +183,7 @@ const render = async (params: WorkerInput, logger: Logger): Promise<WorkerSucces
   const texture = await (await canvas.convertToBlob({ type: 'image/png' })).arrayBuffer()
   logger.info('绘制结果', { byteLength: texture.byteLength })
 
-  await db.cache.iconSprite.put({
+  await cacheDb.iconSprite.put({
     version: CACHE_VERSION,
     digest,
     positionList,

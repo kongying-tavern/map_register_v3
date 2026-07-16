@@ -4,8 +4,5 @@ import { AppDexie } from './app'
 export class WorkerThreadDB extends AppDexie {
   constructor() {
     super()
-    this
-      .version(this.VERSION)
-      .stores(this.STORES)
   }
 }

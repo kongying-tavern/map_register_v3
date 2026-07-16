@@ -1,10 +1,12 @@
 import type { IconLayer } from 'deck.gl'
 import type { Logger } from '@/utils/logger'
-import db from '@/database/db'
+import { CacheDexie } from '@/database/db/cache'
 import { useLoggerWorker } from '@/hooks/useWorkerLogger'
 import { getDigest } from '@/utils/getDigest'
 
 declare const globalThis: DedicatedWorkerGlobalScope
+
+const cacheDb = new CacheDexie()
 
 /** 主线程输入数据 */
 export interface WorkerInput {
@@ -270,10 +272,23 @@ const render = async (options: WorkerInput, logger: Logger): Promise<WorkerSucce
 
   // 如果存在缓存，则跳过绘制步骤，只生成 mapping
   const cache = await (async () => {
+    // 1. 读取缓存（可能因数据库 reopen 失败）
+    let cacheMarkerSprite: DBType.MarkerSprite | undefined
     try {
-      const [cacheMarkerSprite] = await db.cache.markerSprite.toArray()
-      if (!cacheMarkerSprite)
-        throw new Error('没有可用的点位预渲染纹理缓存')
+      const [result] = await cacheDb.markerSprite.toArray()
+      cacheMarkerSprite = result
+    }
+    catch (err) {
+      // 数据库操作失败，不清空缓存
+      logger.warn(err instanceof Error ? err.message : JSON.stringify(err))
+      return
+    }
+
+    // 2. 校验缓存内容（失败时清空无效缓存）
+    if (!cacheMarkerSprite)
+      return // 无缓存，正常进入渲染流程
+
+    try {
       if (cacheMarkerSprite.iconSpriteDigest !== iconSpriteDigest)
         throw new Error('点位预渲染纹理缓存所使用的图标缓存已过期')
       const { width, height } = await createImageBitmap(new Blob([cacheMarkerSprite.texture], { type: 'image/png' }))
@@ -286,7 +301,7 @@ const render = async (options: WorkerInput, logger: Logger): Promise<WorkerSucce
       return cacheMarkerSprite
     }
     catch (err) {
-      await db.cache.markerSprite.clear()
+      await cacheDb.markerSprite.clear().catch(() => {})
       logger.warn(err instanceof Error ? err.message : JSON.stringify(err))
     }
   })()
@@ -361,7 +376,7 @@ const render = async (options: WorkerInput, logger: Logger): Promise<WorkerSucce
   // 更新缓存
   const digest = await getDigest(image, 'SHA-256')
 
-  await db.cache.markerSprite.put({
+  await cacheDb.markerSprite.put({
     digest,
     texture: image,
     mapping,

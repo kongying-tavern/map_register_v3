@@ -2,7 +2,7 @@ import { ElMessage } from 'element-plus'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import Api from '@/api/config'
 import { validateDadianJSON } from '@/configs'
-import db from '@/database/db'
+import { cache } from '@/database'
 import { useFetchHook } from '@/hooks'
 import { Zip } from '@/utils'
 import { useUserStore } from './user'
@@ -32,8 +32,8 @@ export const useDadianStore = defineStore('system-config', () => {
         name: 'system-config',
       })
       const currentSystemConfigDigest = await getDigest(currentSystemConfigData)
-      await db.cache.systemConfig.clear()
-      await db.cache.systemConfig.put({
+      await cache.systemConfig.clear()
+      await cache.systemConfig.put({
         digest: currentSystemConfigDigest,
         json: currentSystemConfig,
       })

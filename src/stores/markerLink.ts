@@ -4,7 +4,7 @@ import type { WorkerInput } from '@/worker/idb.worker'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed, ref, shallowRef, triggerRef } from 'vue'
 import Apis from '@/api/alova'
-import db from '@/database/db'
+import db from '@/database'
 import { useManager } from '@/stores/hooks'
 import BulkPutWorker from '@/worker/idb.worker?worker'
 import { useSocketStore, useUserStore } from '.'
@@ -287,7 +287,7 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
       context.startTime.value = Date.now()
       context.tag.value = '初始化'
       context.message.value = `[${context.tag.value}] 拉取冷数据...`
-      const localLinks = await db.app.markerLink.toArray()
+      const localLinks = await db.markerLink.toArray()
       updateLocal({ updateList: localLinks })
       context.message.value = `[${context.tag.value}] 完毕: ${getCostTime(context.startTime.value).toFixed(1)}s`
     },
