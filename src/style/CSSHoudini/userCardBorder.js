@@ -1,9 +1,16 @@
-/** 用户中心卡片背景的绘制类 */
+/**
+ * 用户中心卡片背景的绘制类
+ *
+ * @implements {IPaintClass}
+ */
 class UserCardBorder {
   static get inputProperties() {
     return ['--paint-padding']
   }
 
+  /**
+   * @param {PaintRenderingContext2D} ctx
+   */
   drawPart(ctx) {
     ctx.fillStyle = '#D5C5B3'
     ctx.beginPath()
@@ -32,6 +39,11 @@ class UserCardBorder {
     ctx.fill()
   }
 
+  /**
+   * @param {PaintRenderingContext2D} ctx
+   * @param {PaintSize} size
+   * @param {StylePropertyMapReadOnly} properties
+   */
   paint(ctx, size, properties) {
     const { width, height } = size
     const padding = Number(properties.get('--paint-padding'))
@@ -79,4 +91,4 @@ class UserCardBorder {
   }
 }
 
-globalThis.registerPaint('user-card-border', UserCardBorder)
+registerPaint?.('user-card-border', UserCardBorder)

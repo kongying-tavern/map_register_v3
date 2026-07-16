@@ -120,3 +120,71 @@ declare const scheduler: {
    */
   yield: () => Promise<void>
 }
+
+interface PaintRenderingContext2D extends CanvasCompositing, CanvasDrawImage, CanvasDrawPath, CanvasFillStrokeStyles, CanvasFilters, CanvasImageSmoothing, CanvasPath, CanvasPathDrawingStyles, CanvasRect, CanvasSettings, CanvasShadowStyles, CanvasState, CanvasTransform {}
+
+/**
+ * 表示绘制输出位图的尺寸。
+ *
+ * @see https://drafts.css-houdini.org/css-paint-api-1/#paintsize
+ */
+interface PaintSize {
+  /** 输出位图的宽度（以 CSS 像素为单位） */
+  readonly width: number
+  /** 输出位图的高度（以 CSS 像素为单位） */
+  readonly height: number
+}
+
+/**
+ * 绘制画布所关联的渲染上下文设置。
+ *
+ * @see https://drafts.css-houdini.org/css-paint-api-1/#dictdef-paintrenderingcontext2dsettings
+ */
+interface PaintRenderingContext2DSettings {
+  /** 是否允许 alpha 透明度。默认为 `true`。设置为 `false` 时，所有颜色都将完全不透明 */
+  alpha: boolean
+}
+
+/**
+ * 自定义绘制类实例需要实现的接口。
+ *
+ * @see https://drafts.css-houdini.org/css-paint-api-1/#registering-custom-paint
+ */
+interface IPaintClass {
+  /**
+   * 渲染引擎在绘制阶段调用的回调方法，用于在位图上执行自定义绘制。
+   *
+   * @param ctx - 2D 渲染上下文，是 HTML Canvas API 的子集（不包含 CanvasImageData、CanvasUserInterface、CanvasText、CanvasTextDrawingStyles）
+   * @param size - 输出位图的尺寸
+   * @param properties - 包含 `inputProperties` 中声明的 CSS 属性（含自定义属性）的只读属性映射
+   * @param args - 从 CSS `paint()` 函数传递的输入参数，对应 `inputArguments` 中声明的语法
+   */
+  paint(
+    ctx: PaintRenderingContext2D,
+    size: PaintSize,
+    properties: StylePropertyMapReadOnly,
+    args: CSSStyleValue[]
+  ): void
+}
+
+/**
+ * 自定义绘制类构造器接口。
+ *
+ * 静态 getter `inputProperties`、`inputArguments`、`contextOptions` 为可选的类级配置，
+ * 由渲染引擎在注册时读取。
+ *
+ * @see https://drafts.css-houdini.org/css-paint-api-1/#registering-custom-paint
+ */
+interface PaintClass {
+  new (): IPaintClass
+  /** 声明需要监听的 CSS 属性列表（包括自定义属性），其值变化会触发重绘 */
+  readonly inputProperties?: string[]
+  /** 声明可从 CSS `paint()` 函数传递的参数的 CSS 语法字符串列表 */
+  readonly inputArguments?: string[]
+  /** 渲染上下文的设置，控制是否允许 alpha 透明度 */
+  readonly contextOptions?: PaintRenderingContext2DSettings
+}
+
+declare const registerPaint: {
+  (name: string, classRef: PaintClass): void
+} | undefined

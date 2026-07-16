@@ -1,5 +1,12 @@
-/** 用户中心左侧信息部分的卡片背景绘制类 */
+/**
+ * 用户中心左侧信息部分的卡片背景绘制类
+ *
+ * @implements {IPaintClass}
+ */
 class UserCardInfoBorder {
+  /**
+   * @param {PaintRenderingContext2D} ctx
+   */
   drawAddonCorner(ctx) {
     ctx.fillStyle = '#E4D8C1'
     ctx.beginPath()
@@ -26,6 +33,10 @@ class UserCardInfoBorder {
     ctx.fill()
   }
 
+  /**
+   * @param {PaintRenderingContext2D} ctx
+   * @param {PaintSize} size
+   */
   paint(ctx, size) {
     const { width, height } = size
 
@@ -45,4 +56,4 @@ class UserCardInfoBorder {
   }
 }
 
-globalThis.registerPaint('user-card-info-border', UserCardInfoBorder)
+registerPaint?.('user-card-info-border', UserCardInfoBorder)

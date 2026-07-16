@@ -1,4 +1,8 @@
-/** 暗色卡片背景的绘制类 */
+/**
+ * 暗色卡片背景的绘制类
+ *
+ * @implements {IPaintClass}
+ */
 class DarkCardBorder {
   /**
    * @param {number} w
@@ -25,7 +29,7 @@ class DarkCardBorder {
   }
 
   /**
-   * @param {CanvasRenderingContext2D} ctx
+   * @param {PaintRenderingContext2D} ctx
    */
   #drawCorner(ctx) {
     ctx.shadowBlur = 2
@@ -42,8 +46,8 @@ class DarkCardBorder {
   }
 
   /**
-   * @param {CanvasRenderingContext2D} ctx
-   * @param {{ width: number; height: number }} size
+   * @param {PaintRenderingContext2D} ctx
+   * @param {PaintSize} size
    */
   paint(ctx, size) {
     const { width, height } = size
@@ -74,4 +78,4 @@ class DarkCardBorder {
   }
 }
 
-globalThis.registerPaint('dark-card-border', DarkCardBorder)
+registerPaint?.('dark-card-border', DarkCardBorder)

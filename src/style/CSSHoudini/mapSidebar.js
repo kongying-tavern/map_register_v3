@@ -1,13 +1,18 @@
-/** 地图左侧条形菜单绘制类 */
+/**
+ * 地图左侧条形菜单绘制类
+ *
+ * @implements {IPaintClass}
+ */
 class MapSidebar {
   static get inputProperties() {
     return ['--border-width']
   }
 
-  #cachedIconPath = []
+  /** @type {[number, Path2D]} */
+  #cachedIconPath = [0, new Path2D()]
 
   /**
-   * @param {CanvasRenderingContext2D} ctx
+   * @param {PaintRenderingContext2D} ctx
    * @param {number} w
    */
   #drawTopIcon = (ctx, w) => {
@@ -59,9 +64,9 @@ class MapSidebar {
   }
 
   /**
-   * @param {CanvasRenderingContext2D} ctx
-   * @param {{ width: number; height: number }} size
-   * @param {Map} properties
+   * @param {PaintRenderingContext2D} ctx
+   * @param {PaintSize} size
+   * @param {StylePropertyMapReadOnly} properties
    */
   paint(ctx, size, properties) {
     const { width: w, height: h } = size
@@ -77,4 +82,4 @@ class MapSidebar {
   }
 }
 
-globalThis.registerPaint('map-sidebar', MapSidebar)
+registerPaint?.('map-sidebar', MapSidebar)
