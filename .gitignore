@@ -45,5 +45,8 @@ auto-imports.d.ts
 # VSCode
 .vscode/**/*.code-snippets
 
+# Trae temp file
+.trae/documents
+
 # 临时文件
 temp
