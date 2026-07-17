@@ -38,7 +38,7 @@ const config = ref({
   /** 圆形裁切 */
   clipCircle: false,
   /** 保持比例 */
-  keepRatio: false,
+  keepRatio: true,
 })
 
 /** 缓存圆形裁剪路径 */
@@ -80,6 +80,7 @@ const {
 } = useImageCropper(containerRef, {
   disabled: disabledEdit,
   variant: computed(() => props.variant),
+  keepRatio: computed(() => config.value.keepRatio),
 })
 
 const cleanups = ref<(() => void)[]>([])
@@ -276,6 +277,9 @@ onBeforeUnmount(() => {
         </el-check-tag>
         <el-check-tag v-model:checked="config.rawSize">
           原始尺寸
+        </el-check-tag>
+        <el-check-tag v-model:checked="config.keepRatio">
+          锁定比例
         </el-check-tag>
       </div>
     </div>

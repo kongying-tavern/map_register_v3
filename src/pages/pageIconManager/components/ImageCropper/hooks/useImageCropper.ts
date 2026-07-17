@@ -21,6 +21,7 @@ export const useImageCropper = (
   const {
     disabled = false,
     variant = 'default',
+    keepRatio = true,
   } = options
 
   /** 裁切器是否已经初始化完毕 */
@@ -178,7 +179,7 @@ export const useImageCropper = (
     const tr = new Konva.Transformer({
       nodes: [rect],
       rotateEnabled: false,
-      keepRatio: true,
+      keepRatio: toValue(keepRatio),
       borderStroke: isDisabled ? 'transparent' : config.anchorStroke,
       anchorFill: isDisabled ? 'transparent' : config.anchorFill,
       anchorStroke: isDisabled ? 'transparent' : config.anchorStroke,
@@ -187,12 +188,14 @@ export const useImageCropper = (
         const { x: dx, y: dy, width: dw, height: dh } = image.getClientRect()
         const newW = Math.round(clamp(w, 32, dw))
         const newH = Math.round(clamp(h, 32, dh))
-        const newSize = Math.min(newW, newH)
+        const keep = toValue(keepRatio)
+        const outW = keep ? Math.min(newW, newH) : newW
+        const outH = keep ? Math.min(newW, newH) : newH
         const rect = {
           x: Math.round(clamp(x, dx, dx + dw - ow)),
           y: Math.round(clamp(y, dy, dy + dh - oh)),
-          width: newSize,
-          height: newSize,
+          width: outW,
+          height: outH,
           rotation: 0,
         }
         return rect
@@ -258,6 +261,26 @@ export const useImageCropper = (
         transformer.anchorFill(v ? 'transparent' : config.anchorFill)
         transformer.anchorStroke(v ? 'transparent' : config.anchorStroke)
         transformer.borderStroke(v ? 'transparent' : config.anchorStroke)
+      }
+    })
+  }
+
+  if (isRef(keepRatio)) {
+    watch(keepRatio, (v) => {
+      const transformer = context.transformer.value
+      const rect = context.rect.value
+      const image = context.image.value
+      if (!transformer || !rect || !image)
+        return
+      transformer.keepRatio(v)
+      if (v) {
+        // 开启时将选区收敛为正方形，保持 1:1 语义
+        const { x: ix, y: iy, width: iw, height: ih } = image.getClientRect()
+        const size = Math.min(rect.width(), rect.height())
+        const nx = Math.round(clamp(rect.x(), ix, ix + iw - size))
+        const ny = Math.round(clamp(rect.y(), iy, iy + ih - size))
+        rect.setAttrs({ x: nx, y: ny, width: size, height: size })
+        transformer.forceUpdate()
       }
     })
   }
@@ -400,4 +423,6 @@ interface ImageCropperOptions {
   disabled?: MaybeRef<boolean>
   /** 图标变体类型 */
   variant?: MaybeRef<IconVariant>
+  /** 是否保持 1:1 正方形比例 */
+  keepRatio?: MaybeRef<boolean>
 }
