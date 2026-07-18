@@ -1,6 +1,25 @@
-import type { FilterPreset, MAFGroup, MAFItem, MBFItem } from '@/stores/types'
-import { useAreaStore, useItemTypeStore, usePreferenceStore, useUserStore } from '@/stores'
-import { base64ToUint8Array, strToUint8, uint8ArrayToBase64, uint8ToStr, uint8ToUint32, uint32ToUint8, Zip } from '@/utils'
+import type {
+  FilterPreset,
+  MAFGroup,
+  MAFItem,
+  MBFItem,
+} from '@/stores/types'
+import { decode, encode } from 'base32768'
+import {
+  useAreaStore,
+  useItemTypeStore,
+  usePreferenceStore,
+  useUserStore,
+} from '@/stores'
+import {
+  base64ToUint8Array,
+  strToUint8,
+  uint8ArrayToBase64,
+  uint8ToStr,
+  uint8ToUint32,
+  uint32ToUint8,
+  Zip,
+} from '@/utils'
 
 export interface PresetCodeHookOptions {
   nameToPreview: Ref<string>
@@ -188,8 +207,8 @@ export const usePresetsCode = (options: PresetCodeHookOptions) => {
     const compressedData = await Zip.compressFrom(object, {
       name: `preset-code-${name}`,
     })
-    const base64 = uint8ArrayToBase64(compressedData)
-    return base64
+    const binCode = encode(compressedData)
+    return binCode
   }
 
   /** 获取预设分享码：基础预设 */
@@ -203,8 +222,8 @@ export const usePresetsCode = (options: PresetCodeHookOptions) => {
     const compressedData = await Zip.compressFrom(object, {
       name: `preset-code-${name}`,
     })
-    const base64 = uint8ArrayToBase64(compressedData)
-    return base64
+    const binCode = encode(compressedData)
+    return binCode
   }
 
   /** 获取预设分享码：高级预设 */
@@ -218,8 +237,8 @@ export const usePresetsCode = (options: PresetCodeHookOptions) => {
     const compressedData = await Zip.compressFrom(object, {
       name: `preset-code-${name}`,
     })
-    const base64 = uint8ArrayToBase64(compressedData)
-    return base64
+    const binCode = encode(compressedData)
+    return binCode
   }
 
   /** 获取预设分享码 */
@@ -244,10 +263,10 @@ export const usePresetsCode = (options: PresetCodeHookOptions) => {
   })
 
   /** 导入预设分享码 */
-  const importCode = async (base64: string) => {
+  const importCode = async (binCode: string) => {
     if (userStore.info?.id === undefined)
       return
-    if (!base64)
+    if (!binCode)
       return
 
     try {
@@ -258,7 +277,7 @@ export const usePresetsCode = (options: PresetCodeHookOptions) => {
       const findPreset = presets[findIndex]
 
       const importName = findPreset === undefined ? '' : name
-      const compressedData = base64ToUint8Array(base64)
+      const compressedData = decode(binCode)
       const object = await Zip.decompressAs<PresetPack>(compressedData, {
         utfLabel: 'utf-8',
         name: `preset-code-${importName}`,
