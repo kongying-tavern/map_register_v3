@@ -1,3 +1,4 @@
+import type { FilterConditions } from '../types'
 import type {
   FilterPreset,
   MAFGroup,
@@ -20,13 +21,14 @@ import {
   uint32ToUint8,
   Zip,
 } from '@/utils'
+import { isAdvancedFilter, toConditionsBaseMap } from '../utils'
 
 export interface PresetCodeHookOptions {
   nameToPreview: Ref<string>
   nameToImport: Ref<string>
   importCallback: (success: boolean) => void
   conditionGetter: ComputedRef<Map<string, MBFItem> | MAFGroup[]>
-  presetSaver: (conditions: Map<string, MBFItem> | Record<string, MBFItem> | MAFGroup[]) => void
+  presetSaver: (conditions: FilterConditions) => void
 }
 
 interface PresetPack {
@@ -67,7 +69,7 @@ export const usePresetsCode = (options: PresetCodeHookOptions) => {
 
   /** 压缩预设条件：基础预设 */
   const zipBaseCode = (conditions: Map<string, MBFItem> | Record<string, MBFItem>): Uint8Array => {
-    const newConditions = conditions instanceof Map ? conditions : new Map(Object.entries(conditions))
+    const newConditions = toConditionsBaseMap(conditions)
     const chunks: Uint8Array[] = []
     newConditions
       .entries()
@@ -111,6 +113,13 @@ export const usePresetsCode = (options: PresetCodeHookOptions) => {
 
     const chunksInt = chunks.reduce<number[]>((arr, uint) => arr.concat(Array.from(uint)), [] as number[])
     return Uint8Array.from(chunksInt)
+  }
+
+  /** 压缩预设条件 */
+  const zipCode = (conditions: FilterConditions): Uint8Array => {
+    return isAdvancedFilter(conditions)
+      ? zipAdvancedCode(conditions)
+      : zipBaseCode(toConditionsBaseMap(conditions))
   }
 
   /** 解压预设条件：基础预设 */
@@ -190,19 +199,21 @@ export const usePresetsCode = (options: PresetCodeHookOptions) => {
     return conditions
   }
 
+  /** 解压预设条件 */
+  const unzipCode = (type: 'basic' | 'advanced', zipped: Uint8Array): FilterConditions => {
+    return type === 'advanced'
+      ? unzipAdvancedCode(zipped)
+      : unzipBaseCode(zipped)
+  }
+
   /** 获取预设分享码：当前配置 */
   const getCurrentCode = async () => {
     const name = ''
     const conditions = conditionGetter.value
-    const object: PresetPack = conditions instanceof Map
-      ? {
-          type: 'basic' as const,
-          conditions: uint8ArrayToBase64(zipBaseCode(conditions)),
-        }
-      : {
-          type: 'advanced' as const,
-          conditions: uint8ArrayToBase64(zipAdvancedCode(conditions)),
-        }
+    const object: PresetPack = {
+      type: isAdvancedFilter(conditions) ? 'advanced' : 'basic',
+      conditions: uint8ArrayToBase64(zipCode(conditions)),
+    }
 
     const compressedData = await Zip.compressFrom(object, {
       name: `preset-code-${name}`,
@@ -216,7 +227,7 @@ export const usePresetsCode = (options: PresetCodeHookOptions) => {
     const name = nameToPreview.value
     const object: PresetPack = {
       type: 'basic' as const,
-      conditions: uint8ArrayToBase64(zipBaseCode(conditions)),
+      conditions: uint8ArrayToBase64(zipCode(conditions)),
     }
 
     const compressedData = await Zip.compressFrom(object, {
@@ -231,7 +242,7 @@ export const usePresetsCode = (options: PresetCodeHookOptions) => {
     const name = nameToPreview.value
     const object: PresetPack = {
       type: 'advanced' as const,
-      conditions: uint8ArrayToBase64(zipAdvancedCode(conditions)),
+      conditions: uint8ArrayToBase64(zipCode(conditions)),
     }
 
     const compressedData = await Zip.compressFrom(object, {
@@ -282,9 +293,7 @@ export const usePresetsCode = (options: PresetCodeHookOptions) => {
         utfLabel: 'utf-8',
         name: `preset-code-${importName}`,
       })
-      object.type === 'basic'
-        ? presetSaver(unzipBaseCode(base64ToUint8Array(object.conditions)))
-        : presetSaver(unzipAdvancedCode(base64ToUint8Array(object.conditions)))
+      presetSaver(unzipCode(object.type, base64ToUint8Array(object.conditions)))
       importCallback(true)
     }
     catch {

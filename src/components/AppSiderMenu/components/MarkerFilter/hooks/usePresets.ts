@@ -1,6 +1,8 @@
+import type { FilterConditions } from '../types'
 import type { MAFGroup, MBFItem } from '@/stores/types'
 import { cloneDeep } from 'lodash'
 import { usePreferenceStore, useUserStore } from '@/stores'
+import { isAdvancedFilter, toConditionsBaseRecord } from '../utils'
 
 export interface PresetHookOptions {
   nameToSave: Ref<string>
@@ -17,7 +19,7 @@ export const usePresets = (options: PresetHookOptions) => {
   /** 保存适配器：基础预设 */
   const saveBasePreset = (conditions: Map<string, MBFItem> | Record<string, MBFItem>) => {
     const name = nameToSave.value
-    const newConditions = conditions instanceof Map ? Object.fromEntries(conditions.entries()) : conditions
+    const newConditions = toConditionsBaseRecord(conditions)
     const presetList = [...preferenceStore.presets]
 
     const object = {
@@ -58,14 +60,14 @@ export const usePresets = (options: PresetHookOptions) => {
   }
 
   /** 保存预设 */
-  const savePreset = (customConditions?: Map<string, MBFItem> | Record<string, MBFItem> | MAFGroup[]) => {
+  const savePreset = (customConditions?: FilterConditions) => {
     if (userStore.info?.id === undefined)
       return
 
     const conditions = customConditions ?? conditionGetter.value
-    !Array.isArray(conditions)
-      ? saveBasePreset(conditions)
-      : saveAdvancedPreset(conditions)
+    isAdvancedFilter(conditions)
+      ? saveAdvancedPreset(conditions)
+      : saveBasePreset(conditions)
   }
 
   /** 删除预设 */
