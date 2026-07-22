@@ -101,6 +101,15 @@ export const useGraph = (options: {
     }
   })
 
+  const reload = () => {
+    const graph = graphRef.value
+    if (!graph)
+      return
+    graph.data(graphData.value)
+    graph.render()
+    graph.fitView(20)
+  }
+
   useResizeObserver(containerRef, ([entry]) => {
     const { width, height } = entry.contentRect
     graphRef.value?.changeSize(width, height)
@@ -541,6 +550,7 @@ export const useGraph = (options: {
 
   return {
     graph: graphRef,
+    reload,
     onEditClick: editHook.on,
     onAddClick: addHook.on,
     onDeleteClick: deleteHook.on,

@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { RefreshRight } from '@element-plus/icons-vue'
 import { useGlobalDialog } from '@/hooks'
 import { AreaCreator, AreaDeleteConfirm, AreaEditor } from './components'
 import { useAreaList, useGraph } from './hooks'
@@ -11,17 +12,23 @@ const getDialogConfig = () => ({
   closeOnPressEscape: false,
 })
 
-const { data, updateAreaList } = useAreaList()
+const { data, loading, updateAreaList } = useAreaList()
 
 // ==================== 地图图表 ====================
 const containerRef = ref<HTMLElement>()
 const minimapRef = ref<HTMLDivElement>()
 
-const { graph, onEditClick, onAddClick, onDeleteClick } = useGraph({
+const { graph, reload, onEditClick, onAddClick, onDeleteClick } = useGraph({
   containerRef,
   minimapRef,
   data,
 })
+
+// ==================== 刷新地区列表 ====================
+const handleRefresh = async () => {
+  await updateAreaList()
+  reload()
+}
 
 // ==================== 新增地区 ====================
 const openAreaCreator = (parent?: API.AreaVo) => DialogService
@@ -81,5 +88,14 @@ onDeleteClick(([area]) => deleteArea(area))
   <div class="h-full overflow-hidden relative">
     <div ref="containerRef" class="w-full h-full select-none" />
     <div ref="minimapRef" class="absolute left-4 bottom-4 border border-[var(--el-border-color)] bg-[var(--el-bg-color)]" />
+    <el-tooltip content="刷新" placement="bottom">
+      <el-button
+        class="absolute right-4 top-4"
+        :loading="loading"
+        :icon="RefreshRight"
+        circle
+        @click="handleRefresh"
+      />
+    </el-tooltip>
   </div>
 </template>
