@@ -2,8 +2,8 @@
 import type { MAFGroup, MBFItem } from '@/stores/types'
 import { GSButton, GSDivider, GSInput } from '@/components'
 import { usePreferenceStore } from '@/stores'
-import { SelectList } from '../../SelectList'
-import { usePresets } from '../hooks'
+import { SelectList } from '../SelectList'
+import { usePresets } from './hooks'
 
 const props = defineProps<{
   modelValue: boolean

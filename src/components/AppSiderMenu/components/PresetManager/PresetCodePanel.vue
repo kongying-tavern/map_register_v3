@@ -3,7 +3,7 @@ import type { MAFGroup, MBFItem } from '@/stores/types'
 import { CloseBold, DocumentCopy, Download } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { GSButton, GSDivider } from '@/components'
-import { usePresetsShare } from '../hooks'
+import { usePresetsShare } from './hooks'
 
 const props = defineProps<{
   conditions: Map<string, MBFItem> | MAFGroup[]
