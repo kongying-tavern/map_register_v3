@@ -31,7 +31,6 @@ const {
   importCode,
 } = usePresetsCode({
   nameToPreview: presetName,
-  nameToImport: presetName,
   importCallback: (success) => {
     if (success) {
       isEditingCode.value = false
