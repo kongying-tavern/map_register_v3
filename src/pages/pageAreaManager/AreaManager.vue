@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { RefreshRight } from '@element-plus/icons-vue'
 import { useGlobalDialog } from '@/hooks'
-import { AreaCreator, AreaDeleteConfirm, AreaEditor } from './components'
+import { AreaCreator, AreaDeleteConfirm, AreaEditor, AreaGraphSkeleton } from './components'
 import { useAreaList, useGraph } from './hooks'
 
 const { DialogService } = useGlobalDialog()
@@ -88,9 +88,10 @@ onDeleteClick(([area]) => deleteArea(area))
   <div class="h-full overflow-hidden relative">
     <div ref="containerRef" class="w-full h-full select-none" />
     <div ref="minimapRef" class="absolute left-4 bottom-4 border border-[var(--el-border-color)] bg-[var(--el-bg-color)]" />
+    <AreaGraphSkeleton v-if="loading && !data.length" />
     <el-tooltip content="刷新" placement="bottom">
       <el-button
-        class="absolute right-4 top-4"
+        class="absolute right-4 top-4 z-20"
         :loading="loading"
         :icon="RefreshRight"
         circle
