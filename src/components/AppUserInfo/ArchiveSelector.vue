@@ -20,6 +20,8 @@ const AREA_IMG_URLS: Record<string, string> = {
   DQ: 'https://uploadstatic.mihoyo.com/contentweb/20210719/2021071918001232800.jpg',
   XM: 'https://webstatic.mihoyo.com/upload/contentweb/2022/08/15/8969f683b92839ac427c875d0d742be2_4825576482548821743.jpg',
   FD: 'https://act-webstatic.mihoyo.com/upload/contentweb/hk4e/721a74c43614d7aeb25b046cabfb57be_2012964858524199390.jpg',
+  NT: 'https://fastcdn.mihoyo.com/content-v2/hk4e/125133/b86e153b41b5106f287d7bcb0e801a14_1435745599367653211.jpg',
+  NDKL: 'https://fastcdn.mihoyo.com/content-v2/hk4e/159347/cbfdfee5c271ee8fa07a121b1809982f_4021873944712892023.jpg',
 }
 
 const lastestMarkerArea = computed(() => {
@@ -212,11 +214,10 @@ const timeFormater = (time?: string) => time
     --add-icon-visible: block;
   }
   &.actived {
-    background-color: #7F6B5B;
-    color: white;
+    outline: 2px solid #26cd6f;
   }
   &.has-slot {
-    --title-bg-color: #E9E5DC80;
+    --title-bg-color: #E9E5DC;
   }
 }
 
