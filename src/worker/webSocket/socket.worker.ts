@@ -74,11 +74,12 @@ const startHeartbeat = (
   id: string,
   ipc: WorkerIPC<AppSocket.MainEventMap, AppSocket.WorkerEventMap>,
 ) => {
-  // eslint-disable-next-line ts/no-unused-vars, unused-imports/no-unused-vars
   let pingTimer: number | null = null
   let disconnectTimer: number | null = null
 
   const startNextPing = () => {
+    if (pingTimer)
+      globalThis.clearTimeout(pingTimer)
     pingTimer = globalThis.setTimeout(() => {
       ipc.emit('ping', id)
       disconnectTimer = globalThis.setTimeout(() => {
