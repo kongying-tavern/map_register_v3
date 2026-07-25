@@ -232,7 +232,7 @@ const _useMarkerAdvancedFilter = (options: MarkerAdvancedFilterHookOptions) => {
   }
 
   const appendConditionGroup = () => {
-    advancedFilterCache.value.push(createEmptyGroup())
+    advancedFilterCache.value = [...advancedFilterCache.value, createEmptyGroup()]
   }
 
   const insertConditionGroup = (groupIndex: number) => {
