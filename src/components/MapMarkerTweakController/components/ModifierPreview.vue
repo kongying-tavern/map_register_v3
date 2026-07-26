@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import type { Modifier } from '../core'
-import type { GSMapState } from '@/stores/types/genshin-map-state'
+import type { TweakConfigMetaVo } from '@/api/alova/globals'
+import type { GSMarkerInfo } from '@/packages/map'
 
 defineProps<{
   modifier: Modifier
-  meta: API.TweakConfigMetaVo
-  data: GSMapState.MarkerWithRenderConfig
-  oldData?: GSMapState.MarkerWithRenderConfig
+  meta: TweakConfigMetaVo
+  data: GSMarkerInfo
+  oldData?: GSMarkerInfo
 }>()
 </script>
 

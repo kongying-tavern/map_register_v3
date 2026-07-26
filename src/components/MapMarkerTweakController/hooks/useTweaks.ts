@@ -1,6 +1,7 @@
 import type { Modifier, ModifierConstructorOptions } from '../core'
+import type { TweakConfigMetaVo } from '@/api/alova/globals'
+import type { GSMarkerInfo } from '@/packages/map'
 import type { HiddenFlagEnum } from '@/shared'
-import type { GSMapState } from '@/stores/types/genshin-map-state'
 import { HIDDEN_FLAG_OPTIONS } from '@/shared'
 import { useArchiveStore } from '@/stores'
 import { Logger, messageFrom } from '@/utils'
@@ -114,7 +115,7 @@ const options = [
   },
 ]
 
-export const useTweaks = (markerList: ComputedRef<GSMapState.MarkerWithRenderConfig[]>) => {
+export const useTweaks = (markerList: ComputedRef<GSMarkerInfo[]>) => {
   const logger = new Logger('批量修改')
 
   const archiveStore = useArchiveStore()
@@ -174,7 +175,7 @@ export const useTweaks = (markerList: ComputedRef<GSMapState.MarkerWithRenderCon
     })())
 
   const tweakList = shallowRef<TweakControlInfo[]>([])
-  const tweakData = ref(new Map<string, API.TweakConfigMetaVo>())
+  const tweakData = ref(new Map<string, TweakConfigMetaVo>())
   const selectedIndex = ref(-1)
 
   const modifiedMarkerList = computed(() => {

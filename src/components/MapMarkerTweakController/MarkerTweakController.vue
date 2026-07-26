@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { CascaderValue } from 'element-plus'
 import { ArrowDown, Check, CirclePlus, Close } from '@element-plus/icons-vue'
 import { ElCascaderPanel, ElDropdown, ElIcon } from 'element-plus'
 import { AppIconTagRenderer, AppVirtualTable, AppWindowTeleporter } from '@/components'
@@ -19,7 +20,6 @@ const {
   width,
   height,
   isMatched,
-  finalizeMission,
   closeWindow,
   onFinalize,
 } = useMultiSelect()
@@ -47,8 +47,14 @@ const { submit, isDisabled, loading } = useMarkerTweaks({
 const drownRef = ref<InstanceType<typeof ElDropdown>>()
 const cascaderPanelRef = ref<InstanceType<typeof ElCascaderPanel>>()
 
-const createTweak = (value?: string[]) => {
-  _createTweak(value)
+const createTweak = (value?: CascaderValue | null) => {
+  if (!value) {
+    console.error()
+    return
+  }
+  if (!Array.isArray(value))
+    return
+  _createTweak(value as string[])
   drownRef.value?.handleClose()
   cascaderPanelRef.value?.clearCheckedNodes()
 }
@@ -80,7 +86,7 @@ onFinalize(() => {
       </div>
     </MapMissionInfo>
 
-    <AppWindowTeleporter :info="windowInfo" @close="finalizeMission">
+    <AppWindowTeleporter :info="windowInfo">
       <div class="h-full flex overflow-hidden p-2">
         <div class="h-full w-[300px] flex flex-col pr-2">
           <div class="pb-2">

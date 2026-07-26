@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Modifier } from '../core'
+import type { TweakConfigVo } from '@/api/alova/globals'
 import { Delete } from '@element-plus/icons-vue'
 
 const props = defineProps<{
@@ -11,7 +12,7 @@ defineEmits<{
   remove: []
 }>()
 
-const modelValue = defineModel<Required<API.TweakConfigVo>['meta']>('modelValue', {
+const modelValue = defineModel<Required<TweakConfigVo>['meta']>('modelValue', {
   required: true,
 })
 

@@ -1,4 +1,5 @@
-import type { GSMapState } from '@/stores/types/genshin-map-state'
+import type { MarkerVo } from '@/api/alova/globals'
+import type { GSMarkerInfo } from '@/packages/map'
 
 export type ModifierConstructorOptions<T = void> = {
   /** 旧内容表头 */
@@ -14,13 +15,13 @@ export type ModifierConstructorOptions<T = void> = {
    */
   previewHeight?: number
   /** 字段名 */
-  field: keyof GSMapState.MarkerWithRenderConfig
+  field: keyof GSMarkerInfo
   /** 修改类型 */
   type: string
   /** 用于自定义修改行为，当设置此值时，将会跳过通过接口进行的修改 */
-  customModify?: (markers: API.MarkerVo[], meta: API.TweakConfigMetaVo) => void | Promise<void>
+  customModify?: (markers: MarkerVo[], meta: API.TweakConfigMetaVo) => void | Promise<void>
   /** 将会覆盖 Modifier 的 getValue 行为 */
-  customGetValue?: (data: GSMapState.MarkerWithRenderConfig, isOld: boolean, meta?: API.TweakConfigMetaVo) => unknown
+  customGetValue?: (data: GSMarkerInfo, isOld: boolean, meta?: API.TweakConfigMetaVo) => unknown
 } & T
 
 interface Strategy<T> {
@@ -35,9 +36,9 @@ export abstract class Modifier<T = void> {
   abstract previewer: Component
   card: Component
   typeLabel: string
-  modify: Strategy<GSMapState.MarkerWithRenderConfig>['modify']
+  modify: Strategy<GSMarkerInfo>['modify']
 
-  getValue = (data: GSMapState.MarkerWithRenderConfig, isOld: boolean, meta?: API.TweakConfigMetaVo) => {
+  getValue = (data: GSMarkerInfo, isOld: boolean, meta?: API.TweakConfigMetaVo) => {
     const { field, customGetValue } = this.options
     if (customGetValue)
       return customGetValue(data, isOld, meta)
@@ -46,7 +47,7 @@ export abstract class Modifier<T = void> {
 
   constructor(
     options: ModifierConstructorOptions<T>,
-    strategies: Record<string, Strategy<GSMapState.MarkerWithRenderConfig>>,
+    strategies: Record<string, Strategy<GSMarkerInfo>>,
   ) {
     const {
       replaceLabel = '修改为',

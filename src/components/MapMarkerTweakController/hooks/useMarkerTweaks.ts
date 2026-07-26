@@ -1,12 +1,13 @@
 import type { TweakControlInfo } from '.'
+import type { MarkerVo, TweakConfigMetaVo, TweakConfigVo, TweakVo } from '@/api/alova/globals'
 import { ElMessage } from 'element-plus'
 import { useFetchHook } from '@/hooks'
 import { useMarkerStore } from '@/stores'
 
 export interface TweakHookOptions {
-  markerList: Ref<API.MarkerVo[]>
+  markerList: Ref<MarkerVo[]>
   tweakList: Ref<TweakControlInfo[]>
-  tweakData: Ref<Map<string, API.TweakConfigMetaVo>>
+  tweakData: Ref<Map<string, TweakConfigMetaVo>>
 }
 
 export const useMarkerTweaks = (options: TweakHookOptions) => {
@@ -30,15 +31,15 @@ export const useMarkerTweaks = (options: TweakHookOptions) => {
       // 处理通用批量修改
       const tweaks = tweakList.value.map(({ id, prop, modifier }) => {
         const meta = tweakData.value.get(id)!
-        const config: API.TweakConfigVo = {
+        const config: TweakConfigVo = {
           prop,
           type: modifier.options.type,
           meta,
-        } as API.TweakConfigVo
+        }
         return config
       })
 
-      const payload: API.TweakVo[] = [{
+      const payload: TweakVo[] = [{
         markerIds,
         tweaks,
       }]
