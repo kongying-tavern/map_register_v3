@@ -31,8 +31,30 @@ export const useMapMission = () => {
 
   const cache = shallowRef(new Map<string, unknown>())
 
+  /** 清除当前任务并通知所有已注册类型的订阅者 */
+  const clearAll = () => {
+    if (!mission.value)
+      return
+    mission.value = null
+    // 遍历所有已创建的订阅者，统一触发结束事件，
+    // 确保无论当前任务类型是否匹配，各订阅者的 end$ / clearEventHook 都能被触发，
+    // 避免因竞态导致任务状态残留。
+    cache.value.forEach((subscriber) => {
+      const s = subscriber as { end$: Subject<void>, clearEventHook: ReturnType<typeof createEventHook<void>> }
+      s.end$.next()
+      s.clearEventHook.trigger()
+    })
+  }
+
   /** 仅限不关注任务类型的情况下调用 */
   const setMission = (newMission: Mission | null) => {
+    if (newMission === null) {
+      clearAll()
+      return
+    }
+    // 若当前已有任务，先通知结束再切换，避免旧任务订阅者状态残留
+    if (mission.value)
+      clearAll()
     mission.value = newMission
   }
 
@@ -59,14 +81,13 @@ export const useMapMission = () => {
         const clearEventHook = createEventHook<void>()
 
         const update: UpdateFunction<K> = (value: MissionTypeMap[K] | null) => {
-          if (mission.value && mission.value.type !== type)
-            return
           if (value === null) {
-            mission.value = null
-            end$.next()
-            clearEventHook.trigger()
+            // 统一走 clearAll 路径，确保所有订阅者都能收到结束通知
+            clearAll()
             return
           }
+          if (mission.value && mission.value.type !== type)
+            return
           if (!mission.value)
             start$.next(value)
           mission.value = { type, value } as Mission
@@ -82,11 +103,8 @@ export const useMapMission = () => {
         }
 
         const clear = () => {
-          if (mission.value?.type !== type)
-            return
-          mission.value = null
-          end$.next()
-          clearEventHook.trigger()
+          // 统一走 update(null) 路径，保证与 setMission(null) / update(null) 行为一致
+          update(null)
         }
 
         return {
@@ -96,6 +114,7 @@ export const useMapMission = () => {
           isEnable,
           isProcessing,
           data,
+          clearEventHook,
           update,
           updateBy,
           clear,
