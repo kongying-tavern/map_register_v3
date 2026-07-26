@@ -62,14 +62,14 @@ const {
 })
 
 const editMarker = async () => {
-  if (!isEditable.value || !focus.value)
+  if (!isEditable.value || !focus.value?.id)
     return
   updateEditting(focus.value.id)
-  if (!focus.value.id)
-    return
   const marker = await queryMarker(focus.value.id)
-  if (!marker)
+  if (!marker) {
+    clearEditting()
     return
+  }
   await DialogService
     .config({
       width: 'fit-content',
