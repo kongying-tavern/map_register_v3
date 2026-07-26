@@ -51,6 +51,8 @@ export const useMessageList = (messageEvent: EventBus<Socket.DataEventMap>) => {
 
   messageEvent.on('MarkerTweaked', async (markers, user) => {
     const [first] = markers
+    if (!first)
+      return
     const data: Socket.DataEventRecord<'MarkerTweaked'> = {
       key: crypto.randomUUID(),
       type: 'MarkerTweaked',
@@ -63,6 +65,8 @@ export const useMessageList = (messageEvent: EventBus<Socket.DataEventMap>) => {
 
   messageEvent.on('MarkerLinked', async (markers, user) => {
     const [first] = markers
+    if (!first)
+      return
     const data: Socket.DataEventRecord<'MarkerLinked'> = {
       key: crypto.randomUUID(),
       type: 'MarkerLinked',
