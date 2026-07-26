@@ -59,7 +59,9 @@ useSubscription(start$.subscribe(() => {
 }))
 
 useSubscription(end$.subscribe(() => {
-  close()
+  // 注意：此处不再调用 close()，避免与 close$ 形成循环调用
+  // 窗口关闭由用户操作触发（关闭按钮 / 取消 / 提交成功）
+  // close$ 订阅中会负责清除任务
   mapStateStore.interaction.resumeFocus(GSMarkerLayer.layerName)
   mapStateStore.interaction.setIsPopoverOnHover(false)
   modifyLinks.value.clear()
@@ -67,7 +69,9 @@ useSubscription(end$.subscribe(() => {
 }))
 
 useSubscription(close$.subscribe(() => {
-  isProcessing.value && clearMission()
+  // 窗口关闭时统一清除任务，避免 end$ → close() → close$ → clearMission() 的循环竞态
+  if (isProcessing.value)
+    clearMission()
 }))
 
 // ==================== 表单状态 ====================
@@ -249,6 +253,7 @@ const toggleMission = () => {
     return
   if (isProcessing.value) {
     clearMission()
+    close()
     return
   }
   update([])
@@ -464,7 +469,12 @@ useSubscription(start$.pipe(
   clearSelect()
 }))
 
-onBeforeUnmount(() => clearMission())
+onBeforeUnmount(() => {
+  if (isProcessing.value) {
+    clearMission()
+    close()
+  }
+})
 </script>
 
 <template>
