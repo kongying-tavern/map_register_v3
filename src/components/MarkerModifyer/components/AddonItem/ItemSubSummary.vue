@@ -44,6 +44,17 @@ const setRestItems = (target: HTMLElement | undefined, items: number[] = []) => 
   virtualRef.value = target
   popoverItems.value = items
 }
+
+const copyCleanText = (ev: ClipboardEvent) => {
+  const selection = document.getSelection()
+  if (!selection)
+    return
+  const cleanText = selection.toString().trim()
+  if (!cleanText)
+    return
+  ev.clipboardData?.setData('text/plain', cleanText)
+  ev.preventDefault()
+}
 </script>
 
 <template>
@@ -52,6 +63,7 @@ const setRestItems = (target: HTMLElement | undefined, items: number[] = []) => 
       item-sub-summary flex items-center pr-1 text-xs
       hover:bg-[var(--el-color-primary-light-9)]
     "
+    @copy="copyCleanText"
   >
     <div class="w-8 h-8 p-0.5">
       <AppIconTagRenderer
@@ -81,7 +93,7 @@ const setRestItems = (target: HTMLElement | undefined, items: number[] = []) => 
         v-if="data._raw.typeIdList.length > 1"
         class="
           h-5 leading-5 px-1 rounded-sm
-          flex items-center
+          items-center
           bg-[var(--el-color-warning-light-9)]
           text-[var(--el-color-warning)]
         "
