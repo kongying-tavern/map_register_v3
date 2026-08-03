@@ -4,6 +4,7 @@ import { Delete } from '@element-plus/icons-vue'
 import { useFormItem } from 'element-plus'
 import { AppIconTagRenderer } from '@/components'
 import { useIconStore, useItemTypeStore } from '@/stores'
+import { vCopyCleanText } from '@/utils'
 
 defineProps<{
   data: InternalItemData
@@ -44,26 +45,15 @@ const setRestItems = (target: HTMLElement | undefined, items: number[] = []) => 
   virtualRef.value = target
   popoverItems.value = items
 }
-
-const copyCleanText = (ev: ClipboardEvent) => {
-  const selection = document.getSelection()
-  if (!selection)
-    return
-  const cleanText = selection.toString().trim()
-  if (!cleanText)
-    return
-  ev.clipboardData?.setData('text/plain', cleanText)
-  ev.preventDefault()
-}
 </script>
 
 <template>
   <div
+    v-copy-clean-text
     class="
       item-sub-summary flex items-center pr-1 text-xs
       hover:bg-[var(--el-color-primary-light-9)]
     "
-    @copy="copyCleanText"
   >
     <div class="w-8 h-8 p-0.5">
       <AppIconTagRenderer

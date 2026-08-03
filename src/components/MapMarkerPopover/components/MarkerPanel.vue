@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { vCopyCleanText } from '@/utils'
+
 withDefaults(defineProps<{
   actived: boolean
   zoom?: number
@@ -17,7 +19,10 @@ withDefaults(defineProps<{
     }"
   >
     <div class="popover-content flex flex-col">
-      <div class="popover-header relative flex justify-between items-center p-1">
+      <div
+        v-copy-clean-text
+        class="popover-header relative flex justify-between items-center p-1"
+      >
         <slot name="header" />
       </div>
 
