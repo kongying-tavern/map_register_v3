@@ -6,10 +6,12 @@ const props = withDefaults(defineProps<{
   tabs: { title: string, value: string }[]
   size?: 'small' | 'medium' | 'large'
   divider?: boolean
+  theme?: 'light' | 'dark'
 }>(), {
   tabs: () => [],
   size: 'medium',
   divider: false,
+  theme: 'light',
 })
 
 const emits = defineEmits<{
@@ -18,7 +20,7 @@ const emits = defineEmits<{
 </script>
 
 <template>
-  <div v-if="tabs.length" class="gs-tab" :class="`gs-tab--size-${size}`">
+  <div v-if="tabs.length" class="gs-tab" :class="[`gs-tab--size-${size}`, `gs-tab--theme-${theme}`]">
     <div class="gs-tab-title">
       <div
         v-for="tab in tabs"
@@ -48,11 +50,31 @@ const emits = defineEmits<{
   --tab-font-size: 20px;
   --tab-item-min-width: 150px;
   --tab-item-padding: 6px 24px;
+  // light theme
+  --tab-bg: #DCCAA8;
+  --tab-arrow-bg: #E2D3B8;
+  --tab-border-color: transparent;
+  --tab-text-color: #7F6B5B;
+  --tab-hover-color: #FFF;
+  --tab-active-bg: #F7F3EC;
+  --tab-active-border: #ECE5D8;
+  --tab-active-color: #7F6B5B;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   overflow: hidden;
+}
+
+.gs-tab--theme-dark {
+  --tab-bg: #2A3444;
+  --tab-arrow-bg: #6B7A92;
+  --tab-border-color: #6B7A92;
+  --tab-text-color: #A9B4C4;
+  --tab-hover-color: #D3BC8E;
+  --tab-active-bg: #3E4556;
+  --tab-active-border: #D3BC8E;
+  --tab-active-color: #F7D98A;
 }
 
 .gs-tab--size-small {
@@ -83,7 +105,8 @@ const emits = defineEmits<{
 .gs-tab-title {
   --arrow-size: 20px;
   font-size: var(--tab-font-size);
-  background: #DCCAA8;
+  background: var(--tab-bg);
+  border: 1px solid var(--tab-border-color);
   border-radius: 999px;
   display: flex;
   justify-content: center;
@@ -96,7 +119,7 @@ const emits = defineEmits<{
     position: absolute;
     left: calc(0px - var(--arrow-size));
     top: calc(50% - (var(--arrow-size) / 2));
-    background: #E2D3B8;
+    background: var(--tab-arrow-bg);
     width: var(--arrow-size);
     height: var(--arrow-size);
     scale: 1.4;
@@ -108,7 +131,7 @@ const emits = defineEmits<{
     position: absolute;
     left: calc(100%);
     top: calc(50% - (var(--arrow-size) / 2));
-    background: #E2D3B8;
+    background: var(--tab-arrow-bg);
     width: var(--arrow-size);
     height: var(--arrow-size);
     scale: 1.4;
@@ -124,7 +147,7 @@ const emits = defineEmits<{
   cursor: pointer;
   text-align: center;
   min-width: var(--tab-item-min-width);
-  color: #7F6B5B;
+  color: var(--tab-text-color);
   border-radius: 999px;
   padding: var(--tab-item-padding);
   position: relative;
@@ -142,17 +165,17 @@ const emits = defineEmits<{
     border-radius: 999px;
   }
   &:hover {
-    color: #FFF;
+    color: var(--tab-hover-color);
   }
   &:active {
-    background: #F7F3EC;
-    color: #7F6B5B;
-    --border-color: #ECE5D8;
+    background: var(--tab-active-bg);
+    color: var(--tab-active-color);
+    --border-color: var(--tab-active-border);
   }
   &.actived {
-    background: #F7F3EC;
-    color: #7F6B5B;
-    --border-color: #ECE5D8;
+    background: var(--tab-active-bg);
+    color: var(--tab-active-color);
+    --border-color: var(--tab-active-border);
   }
 }
 

@@ -68,7 +68,7 @@ const handlePresetLoad = () => {
 
       <GSDivider />
 
-      <GSTab v-model="activeTab" :tabs="tabs" size="small" class="preset-manager-tab flex-1">
+      <GSTab v-model="activeTab" :tabs="tabs" size="small" theme="dark" class="preset-manager-tab flex-1">
         <template #list>
           <PresetListPanel
             v-model:preset-name="presetName"
