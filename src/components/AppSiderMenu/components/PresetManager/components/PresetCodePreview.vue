@@ -50,7 +50,7 @@ const copyCode = async () => {
   </div>
 
   <el-scrollbar class="flex-1 overflow-hidden">
-    <div class="text-wrap break-all max-h-0 pr-1">
+    <div class="text-wrap break-all max-h-0 pr-1" :class="{ 'text-center': !shareCode }">
       {{ shareCode || '暂无分享码' }}
     </div>
   </el-scrollbar>
