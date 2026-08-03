@@ -76,7 +76,7 @@ const TRANSITION_DURATION = 150
 const viewState: Ref<GenshinMapViewState> = ref({
   zoom: -1,
   minZoom: -4,
-  maxZoom: 2,
+  maxZoom: 4,
   target: [328, 6660],
   transitionDuration: TRANSITION_DURATION,
   transitionEasing: t => t,
