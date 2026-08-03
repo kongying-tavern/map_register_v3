@@ -1,10 +1,16 @@
 <script lang="ts" setup>
 import { GSDivider } from '.'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   modelValue: string
   tabs: { title: string, value: string }[]
-}>()
+  size?: 'small' | 'medium' | 'large'
+  divider?: boolean
+}>(), {
+  tabs: () => [],
+  size: 'medium',
+  divider: false,
+})
 
 const emits = defineEmits<{
   (e: 'update:modelValue', v: string): void
@@ -12,7 +18,7 @@ const emits = defineEmits<{
 </script>
 
 <template>
-  <div v-if="tabs.length" class="gs-tab">
+  <div v-if="tabs.length" class="gs-tab" :class="`gs-tab--size-${size}`">
     <div class="gs-tab-title">
       <div
         v-for="tab in tabs"
@@ -25,7 +31,7 @@ const emits = defineEmits<{
       </div>
     </div>
 
-    <GSDivider />
+    <GSDivider v-if="divider" />
 
     <div class="gs-tab-content">
       <KeepAlive>
@@ -39,11 +45,26 @@ const emits = defineEmits<{
 
 <style lang="scss" scoped>
 .gs-tab {
+  --tab-font-size: 20px;
+  --tab-item-min-width: 150px;
+  --tab-item-padding: 6px 24px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   overflow: hidden;
+}
+
+.gs-tab--size-small {
+  --tab-font-size: 16px;
+  --tab-item-min-width: 120px;
+  --tab-item-padding: 3px 16px;
+}
+
+.gs-tab--size-large {
+  --tab-font-size: 24px;
+  --tab-item-min-width: 180px;
+  --tab-item-padding: 8px 30px;
 }
 
 @mixin clip-shape() {
@@ -61,7 +82,7 @@ const emits = defineEmits<{
 
 .gs-tab-title {
   --arrow-size: 20px;
-  font-size: 20px;
+  font-size: var(--tab-font-size);
   background: #DCCAA8;
   border-radius: 999px;
   display: flex;
@@ -102,10 +123,10 @@ const emits = defineEmits<{
   --border-width: 2px;
   cursor: pointer;
   text-align: center;
-  min-width: 150px;
+  min-width: var(--tab-item-min-width);
   color: #7F6B5B;
   border-radius: 999px;
-  padding: 6px 24px;
+  padding: var(--tab-item-padding);
   position: relative;
   transition: all 200ms ease;
   user-select: none;

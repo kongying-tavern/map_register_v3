@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { MAFGroup, MBFItem } from '@/stores/types'
-import { GSDivider } from '@/components'
+import { GSDivider, GSTab } from '@/components'
 import { PresetListPanel } from './components'
 import { usePresets } from './hooks'
 
@@ -26,6 +26,11 @@ const presetName = controlledRef('', {
     return false
   },
 })
+
+const tabs: { title: string, value: string }[] = [
+  { title: '预设列表', value: 'list' },
+]
+const activeTab = shallowRef<string>('list')
 
 const handleClosed = () => {
   presetName.value = ''
@@ -61,14 +66,26 @@ const handlePresetLoad = () => {
         点位筛选条件预设
       </div>
 
-      <GSDivider color="#76716A" />
+      <GSDivider />
 
-      <PresetListPanel
-        v-model:preset-name="presetName"
-        @save="savePreset()"
-        @delete="deletePreset"
-        @load="handlePresetLoad()"
-      />
+      <GSTab v-model="activeTab" :tabs="tabs" size="small" class="preset-manager-tab flex-1">
+        <template #list>
+          <PresetListPanel
+            v-model:preset-name="presetName"
+            @save="savePreset()"
+            @delete="deletePreset"
+            @load="handlePresetLoad()"
+          />
+        </template>
+      </GSTab>
     </div>
   </el-dialog>
 </template>
+
+<style scoped lang="scss">
+.preset-manager-tab {
+  :deep(.gs-tab-title) {
+    margin-bottom: 16px;
+  }
+}
+</style>

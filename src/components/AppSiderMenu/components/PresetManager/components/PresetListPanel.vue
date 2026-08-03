@@ -15,14 +15,14 @@ const preferenceStore = usePreferenceStore()
 </script>
 
 <template>
-  <div class="flex gap-2 pb-3">
-    <GSInput v-model="presetName" class="flex-1" placeholder="请输入预设名称" />
-    <GSButton icon="submit" :disabled="!presetName" @click="emit('save')">
-      保存
-    </GSButton>
-  </div>
+  <div class="flex flex-col h-full">
+    <div class="flex gap-2 pb-3">
+      <GSInput v-model="presetName" class="flex-1" placeholder="请输入预设名称" />
+      <GSButton icon="submit" :disabled="!presetName" @click="emit('save')">
+        保存
+      </GSButton>
+    </div>
 
-  <div class="flex flex-col flex-1 overflow-hidden">
     <div class="text-white pt-4 pb-2">
       · 预设列表
     </div>
