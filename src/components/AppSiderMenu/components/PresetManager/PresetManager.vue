@@ -66,12 +66,13 @@ const handlePresetLoad = () => {
         点位筛选条件预设
       </div>
 
-      <GSDivider />
+      <GSDivider :height="12" />
 
       <GSTab v-model="activeTab" :tabs="tabs" size="small" theme="dark" class="preset-manager-tab flex-1">
         <template #list>
           <PresetListPanel
             v-model:preset-name="presetName"
+            class="pt-1"
             @save="savePreset()"
             @delete="deletePreset"
             @load="handlePresetLoad()"
@@ -85,7 +86,8 @@ const handlePresetLoad = () => {
 <style scoped lang="scss">
 .preset-manager-tab {
   :deep(.gs-tab-title) {
-    margin-bottom: 16px;
+    margin-top: 8px;
+    margin-bottom: 4px;
   }
 }
 </style>

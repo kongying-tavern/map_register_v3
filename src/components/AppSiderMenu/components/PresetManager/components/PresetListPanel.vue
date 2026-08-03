@@ -16,14 +16,7 @@ const preferenceStore = usePreferenceStore()
 
 <template>
   <div class="flex flex-col h-full">
-    <div class="flex gap-2 pb-3">
-      <GSInput v-model="presetName" class="flex-1" placeholder="请输入预设名称" />
-      <GSButton icon="submit" :disabled="!presetName" @click="emit('save')">
-        保存
-      </GSButton>
-    </div>
-
-    <div class="text-white pt-4 pb-2">
+    <div class="text-white pb-2">
       · 预设列表
     </div>
     <el-scrollbar class="flex-1">
@@ -51,9 +44,16 @@ const preferenceStore = usePreferenceStore()
       </SelectList>
     </el-scrollbar>
 
-    <GSDivider color="#76716A" />
+    <div class="flex gap-2 pt-3">
+      <GSInput v-model="presetName" class="flex-1" placeholder="请输入预设名称" />
+      <GSButton icon="submit" :disabled="!presetName" @click="emit('save')">
+        保存
+      </GSButton>
+    </div>
 
-    <div class="flex gap-4">
+    <GSDivider :height="24" color="#76716A" />
+
+    <div class="flex gap-4 pt-3">
       <GSButton
         :disabled="!presetName"
         class="flex-1"
