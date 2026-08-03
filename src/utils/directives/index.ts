@@ -1,0 +1,1 @@
+export { vCopyCleanText } from './copyCleanText'
