@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { GSButton, GSDivider, GSInput } from '@/components'
 import { usePreferenceStore } from '@/stores'
-import { SelectList } from '../../../SelectList'
+import { SelectList } from '../../SelectList'
 
 const emit = defineEmits<{
   save: []

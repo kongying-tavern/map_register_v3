@@ -1,8 +1,7 @@
 import type { FilterConditions } from '../types'
 import type { FilterPreset, MAFGroup, MBFItem } from '@/stores/types'
 import { usePreferenceStore, useUserStore } from '@/stores'
-import { usePresetsCode } from '.'
-import { PresetsUnzipper, PresetsZipper } from '../utils'
+import { usePresetsUnzip, usePresetsZip } from '.'
 
 export interface PresetShareOptions {
   nameToPreview: Ref<string>
@@ -19,7 +18,7 @@ export const usePresetsShare = (options: PresetShareOptions) => {
     presetSaver,
   } = options
 
-  const { shareCode: currentShareCode } = usePresetsCode(conditionGetter)
+  const { shareCode: currentShareCode } = usePresetsZip(conditionGetter)
 
   const userStore = useUserStore()
   const preferenceStore = usePreferenceStore()
@@ -37,13 +36,17 @@ export const usePresetsShare = (options: PresetShareOptions) => {
 
   const isUsingFilter = computed(() => previewConditions.value === null)
 
+  const previewBinary = usePresetsZip(computed(() => previewConditions.value?.conditions ?? []))
+
   const shareCode = computed(() => {
     if (previewConditions.value === null)
       return currentShareCode.value
 
-    const zipper = new PresetsZipper()
-    return zipper.zipToCode(previewConditions.value.conditions)
+    return previewBinary.shareCode.value
   })
+
+  const importCodeText = ref<string>('')
+  const { conditions: importConditions } = usePresetsUnzip(importCodeText)
 
   /** 导入预设分享码 */
   const importCode = async (binCode: string) => {
@@ -53,8 +56,8 @@ export const usePresetsShare = (options: PresetShareOptions) => {
       return
 
     try {
-      const unzipper = new PresetsUnzipper()
-      presetSaver(unzipper.unzipFromCode(binCode))
+      importCodeText.value = binCode
+      presetSaver(importConditions.value)
       importCallback(true)
     }
     catch {
