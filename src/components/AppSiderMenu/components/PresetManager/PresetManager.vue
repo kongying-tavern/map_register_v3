@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { FilterConditions } from './types'
 import { GSDivider, GSTab } from '@/components'
-import { PresetListPanel } from './components'
+import { PresetCurrentCodePanel, PresetListPanel } from './components'
 
 defineProps<{
   conditions: FilterConditions
@@ -13,6 +13,7 @@ const modelValue = defineModel<boolean>('modelValue', {
 
 const tabs: { title: string, value: string }[] = [
   { title: '预设列表', value: 'list' },
+  { title: '当前分享码', value: 'currentCode' },
 ]
 const activeTab = shallowRef<string>('list')
 
@@ -50,6 +51,10 @@ const handlePresetLoad = () => {
             class="pt-1"
             @load="handlePresetLoad()"
           />
+        </template>
+
+        <template #currentCode>
+          <PresetCurrentCodePanel class="pt-1" />
         </template>
       </GSTab>
     </div>

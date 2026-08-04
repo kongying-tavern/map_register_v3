@@ -4,11 +4,12 @@ import type {
   FilterConditionsBasic,
 } from '../types'
 import { encode } from 'base32768'
+import { isNil } from 'lodash'
 import { ByteWriter } from '@/utils/ByteAccessor'
 import { isAdvancedFilter, toConditionsBaseMap } from '../utils'
 
 /** 将原始数据压缩为二进制与分享码（依赖 store 数据） */
-export function usePresetsZip(conditions: MaybeRef<FilterConditions>) {
+export function usePresetsZip(conditions: MaybeRef<FilterConditions | null | undefined>) {
   const binary = computed(() => zip(unref(conditions)))
   const shareCode = computed(() => encode(binary.value))
 
@@ -52,8 +53,9 @@ function zipAdvanced(_conditions: FilterConditionsAdvanced): Uint8Array {
   return new Uint8Array()
 }
 
-function zip(conditions: FilterConditions): Uint8Array {
-  // TODO: embed type marker + encode conditions
+function zip(conditions: FilterConditions | null | undefined): Uint8Array {
+  if (isNil(conditions))
+    return new Uint8Array()
   return isAdvancedFilter(conditions)
     ? zipAdvanced(conditions)
     : zipBasic(conditions)

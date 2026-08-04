@@ -4,10 +4,14 @@ import type {
   FilterConditionsBasic,
 } from '../types'
 import { decode } from 'base32768'
+import { isNil } from 'lodash'
 
 /** 将分享码解压为二进制与原始数据（依赖 store 数据） */
-export function usePresetsUnzip(code: MaybeRef<string>) {
-  const binary = computed(() => decode(unref(code)))
+export function usePresetsUnzip(code: MaybeRef<string | null | undefined>) {
+  const binary = computed(() => {
+    const value = unref(code)
+    return isNil(value) ? new Uint8Array() : decode(value)
+  })
   const conditions = computed(() => unzip(binary.value))
 
   return {

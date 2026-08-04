@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import type { FilterConditions } from '../types'
-import type { MAFGroup, MBFItem } from '@/stores/types'
 import { Share } from '@element-plus/icons-vue'
 import { GSButton, GSDivider, GSInput } from '@/components'
 import { usePreferenceStore } from '@/stores'
@@ -21,12 +20,8 @@ const preferenceStore = usePreferenceStore()
 
 const presetName = usePresetName()
 
-const currentPreset = computed(() => {
+const currentSelectedPreset = computed(() => {
   return preferenceStore.presets.find(preset => preset.name === presetName.value) ?? null
-})
-
-const previewPresetConditions = computed<FilterConditions | null>(() => {
-  return currentPreset.value?.conditions ?? null
 })
 
 const togglePreviewCode = () => {
@@ -106,7 +101,7 @@ const handlePresetLoad = () => {
         <div class="w-px bg-[#76716A]" />
         <div class="flex flex-col flex-1 min-w-0">
           <PresetCodePreview
-            :conditions="previewPresetConditions ?? []"
+            :conditions="currentSelectedPreset?.conditions"
             title="预设分享码"
             tip="再次点击【分享码】按钮可收起预览"
           />
