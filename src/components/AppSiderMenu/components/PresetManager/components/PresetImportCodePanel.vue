@@ -2,8 +2,8 @@
 import { ElMessage } from 'element-plus'
 import { GSButton, GSInput } from '@/components'
 import {
+  usePresetImport,
   usePresetName,
-  usePresetsImport,
 } from '../hooks'
 
 const presetName = usePresetName()
@@ -24,7 +24,7 @@ const importCallback = (success: boolean) => {
   }
 }
 
-const { importCode } = usePresetsImport({
+const { importCode } = usePresetImport({
   code,
   name: presetName,
   importCallback,

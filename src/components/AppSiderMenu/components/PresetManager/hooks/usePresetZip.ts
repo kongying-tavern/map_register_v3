@@ -9,7 +9,7 @@ import { ByteWriter } from '@/utils/ByteAccessor'
 import { isAdvancedFilter, toConditionsBaseMap } from '../utils'
 
 /** 将原始数据压缩为二进制与分享码（依赖 store 数据） */
-export function usePresetsZip(conditions: MaybeRef<FilterConditions | null | undefined>) {
+export function usePresetZip(conditions: MaybeRef<FilterConditions | null | undefined>) {
   const binary = computed(() => zip(unref(conditions)))
   const shareCode = computed(() => encode(binary.value))
 

@@ -1,5 +1,5 @@
 import { useUserStore } from '@/stores'
-import { usePresetSave, usePresetsUnzip } from '.'
+import { usePresetSave, usePresetUnzip } from '.'
 
 export interface PresetImportOptions {
   code?: MaybeRef<string>
@@ -8,13 +8,13 @@ export interface PresetImportOptions {
 }
 
 /** 导入预设分享码 */
-export const usePresetsImport = (options: PresetImportOptions) => {
+export const usePresetImport = (options: PresetImportOptions) => {
   const { name, importCallback } = options
 
   const userStore = useUserStore()
 
   const code = options.code ?? shallowRef<string>('')
-  const { conditions: importConditions } = usePresetsUnzip(code)
+  const { conditions: importConditions } = usePresetUnzip(code)
   const { savePreset } = usePresetSave({ name })
 
   const importCode = () => {

@@ -4,7 +4,7 @@ import { DocumentCopy } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { isNil } from 'lodash'
 import { GSButton } from '@/components'
-import { usePresetsZip } from '../hooks'
+import { usePresetZip } from '../hooks'
 
 const props = withDefaults(defineProps<{
   conditions: FilterConditions | null
@@ -16,7 +16,7 @@ const props = withDefaults(defineProps<{
   tip: '',
 })
 
-const { shareCode } = usePresetsZip(toRef(props, 'conditions'))
+const { shareCode } = usePresetZip(toRef(props, 'conditions'))
 
 const displayShareCode = computed(() => (isNil(props.conditions) ? '' : shareCode.value))
 
