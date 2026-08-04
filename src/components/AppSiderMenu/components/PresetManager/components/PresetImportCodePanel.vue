@@ -1,0 +1,80 @@
+<script lang="ts" setup>
+import { ElMessage } from 'element-plus'
+import { GSButton, GSInput } from '@/components'
+import {
+  usePresetName,
+  usePresetsImport,
+} from '../hooks'
+
+const presetName = usePresetName()
+const code = shallowRef<string>('')
+
+const importCallback = (success: boolean) => {
+  if (success) {
+    ElMessage.success({
+      message: '导入成功',
+    })
+    code.value = ''
+    presetName.value = ''
+  }
+  else {
+    ElMessage.error({
+      message: '导入失败，分享码无效',
+    })
+  }
+}
+
+const { importCode } = usePresetsImport({
+  code,
+  name: presetName,
+  importCallback,
+})
+</script>
+
+<template>
+  <div class="flex flex-col h-full gap-3 pt-1">
+    <el-input
+      v-model="code"
+      class="share-code-input flex-1 min-h-0"
+      type="textarea"
+      resize="none"
+      placeholder="请输入分享码"
+    />
+    <div class="flex gap-3 items-center">
+      <GSInput v-model="presetName" class="flex-1 box-border" placeholder="请输入预设名称" />
+      <GSButton :disabled="!code || !presetName" class="box-border" icon="submit" @click="importCode()">
+        导入
+      </GSButton>
+    </div>
+  </div>
+</template>
+
+<style scoped lang="scss">
+.share-code-input {
+  :deep(.el-textarea) {
+    height: 100%;
+  }
+
+  :deep(.el-textarea__inner) {
+    height: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    background: #2A3444;
+    border: 1px solid #6B7A92;
+    box-shadow: none;
+    color: #D3BC8E;
+    font-family: 'HYWenHei-85W';
+    font-size: 14px;
+    line-height: 1.6;
+
+    &::placeholder {
+      color: #6B7A92;
+    }
+
+    &:focus {
+      border-color: #6B7A92;
+      box-shadow: none;
+    }
+  }
+}
+</style>
