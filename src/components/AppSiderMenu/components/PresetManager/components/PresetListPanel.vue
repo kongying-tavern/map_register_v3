@@ -8,7 +8,7 @@ import { PresetCodePreview, PresetList } from '.'
 import { usePresetName, usePresets } from '../hooks'
 
 const props = defineProps<{
-  conditions: Map<string, MBFItem> | MAFGroup[]
+  conditions: FilterConditions
 }>()
 
 const emit = defineEmits<{

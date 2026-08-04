@@ -3,7 +3,7 @@ import type { FilterConditions } from './types'
 import { GSDivider, GSTab } from '@/components'
 import { PresetListPanel } from './components'
 
-const props = defineProps<{
+defineProps<{
   conditions: FilterConditions
 }>()
 
@@ -46,7 +46,7 @@ const handlePresetLoad = () => {
         <template #list>
           <PresetListPanel
             v-model:preview-visible="previewVisible"
-            :conditions="props.conditions"
+            :conditions="conditions"
             class="pt-1"
             @load="handlePresetLoad()"
           />
