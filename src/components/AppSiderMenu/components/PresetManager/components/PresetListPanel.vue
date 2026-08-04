@@ -1,21 +1,25 @@
 <script lang="ts" setup>
 import type { FilterConditions } from '../types'
+import type { MAFGroup, MBFItem } from '@/stores/types'
 import { Share } from '@element-plus/icons-vue'
 import { GSButton, GSDivider, GSInput } from '@/components'
 import { usePreferenceStore } from '@/stores'
 import { PresetCodePreview, PresetList } from '.'
+import { usePresetName, usePresets } from '../hooks'
 
-const emit = defineEmits<{
-  save: []
-  delete: []
-  load: []
+const props = defineProps<{
+  conditions: Map<string, MBFItem> | MAFGroup[]
 }>()
 
-const presetName = defineModel<string>('presetName', { required: true })
+const emit = defineEmits<{
+  load: []
+}>()
 
 const previewVisible = defineModel<boolean>('previewVisible', { default: false })
 
 const preferenceStore = usePreferenceStore()
+
+const presetName = usePresetName()
 
 const currentPreset = computed(() => {
   return preferenceStore.presets.find(preset => preset.name === presetName.value) ?? null
@@ -27,6 +31,17 @@ const previewPresetConditions = computed<FilterConditions | null>(() => {
 
 const togglePreviewCode = () => {
   previewVisible.value = !previewVisible.value
+}
+
+const { savePreset, deletePreset, loadPreset } = usePresets({
+  nameToSave: presetName,
+  nameToLoad: presetName,
+  conditionGetter: toRef(props, 'conditions'),
+})
+
+const handlePresetLoad = () => {
+  loadPreset()
+  emit('load')
 }
 </script>
 
@@ -55,7 +70,7 @@ const togglePreviewCode = () => {
 
       <div class="flex gap-2">
         <GSInput v-model="presetName" class="flex-1" placeholder="请输入预设名称" />
-        <GSButton icon="submit" :disabled="!presetName" @click="emit('save')">
+        <GSButton icon="submit" :disabled="!presetName" @click="savePreset()">
           保存
         </GSButton>
       </div>
@@ -66,7 +81,7 @@ const togglePreviewCode = () => {
         <GSButton
           :disabled="!presetName"
           class="flex-1"
-          @click="emit('delete')"
+          @click="deletePreset()"
         >
           <template #icon>
             <el-icon color="var(--gs-color-danger)">
@@ -79,7 +94,7 @@ const togglePreviewCode = () => {
           :disabled="!presetName"
           class="flex-1"
           icon="submit"
-          @click="emit('load')"
+          @click="handlePresetLoad()"
         >
           读取
         </GSButton>

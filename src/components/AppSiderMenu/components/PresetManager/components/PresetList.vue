@@ -12,7 +12,14 @@ withDefaults(defineProps<{
   disabled: false,
 })
 
-const presetName = defineModel<string>('presetName', { default: '' })
+const presetName = defineModel<string>('presetName', {
+  default: '',
+})
+
+const selectedPresetName = computed<string>({
+  get: () => presetName.value ?? '',
+  set: value => presetName.value = value ?? '',
+})
 </script>
 
 <template>
@@ -31,7 +38,7 @@ const presetName = defineModel<string>('presetName', { default: '' })
 
     <el-scrollbar class="flex-1">
       <SelectList
-        v-model="presetName"
+        v-model="selectedPresetName"
         class="h-full max-h-0"
         :list="list"
         value-key="name"

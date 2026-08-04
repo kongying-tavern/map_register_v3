@@ -7,7 +7,7 @@ import { isAdvancedFilter, toConditionsBaseRecord } from '../utils'
 export interface PresetHookOptions {
   nameToSave: Ref<string>
   nameToLoad: Ref<string>
-  conditionGetter: ComputedRef<Map<string, MBFItem> | MAFGroup[]>
+  conditionGetter: Ref<FilterConditions>
 }
 
 export const usePresets = (options: PresetHookOptions) => {
