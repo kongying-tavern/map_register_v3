@@ -3,6 +3,7 @@ import { useUserStore } from '@/stores'
 import { usePresetsUnzip } from '.'
 
 export interface PresetImportOptions {
+  code?: MaybeRef<string>
   presetSaver: (conditions: FilterConditions) => void
   importCallback: (success: boolean) => void
 }
@@ -13,17 +14,16 @@ export const usePresetsImport = (options: PresetImportOptions) => {
 
   const userStore = useUserStore()
 
-  const importCodeText = ref<string>('')
-  const { conditions: importConditions } = usePresetsUnzip(importCodeText)
+  const code = options.code ?? shallowRef<string>('')
+  const { conditions: importConditions } = usePresetsUnzip(code)
 
-  const importCode = async (binCode: string) => {
+  const importCode = () => {
     if (userStore.info?.id === undefined)
       return
-    if (!binCode)
+    if (!unref(code))
       return
 
     try {
-      importCodeText.value = binCode
       presetSaver(importConditions.value)
       importCallback(true)
     }
