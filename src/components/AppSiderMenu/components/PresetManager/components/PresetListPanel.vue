@@ -4,7 +4,12 @@ import { Share } from '@element-plus/icons-vue'
 import { GSButton, GSDivider, GSInput } from '@/components'
 import { usePreferenceStore } from '@/stores'
 import { PresetCodePreview, PresetList } from '.'
-import { usePresetName, usePresets } from '../hooks'
+import {
+  usePresetDelete,
+  usePresetLoad,
+  usePresetName,
+  usePresetSave,
+} from '../hooks'
 
 const props = defineProps<{
   conditions: FilterConditions
@@ -28,10 +33,15 @@ const togglePreviewCode = () => {
   expanded.value = !expanded.value
 }
 
-const { savePreset, deletePreset, loadPreset } = usePresets({
-  nameToSave: presetName,
-  nameToLoad: presetName,
+const { savePreset } = usePresetSave({
+  name: presetName,
   conditionGetter: toRef(props, 'conditions'),
+})
+const { deletePreset } = usePresetDelete({
+  name: presetName,
+})
+const { loadPreset } = usePresetLoad({
+  name: presetName,
 })
 
 const handlePresetLoad = () => {

@@ -1,7 +1,10 @@
 <script lang="ts" setup>
 import type { FilterConditions } from './types'
 import { GSDivider, GSTab } from '@/components'
-import { PresetCurrentCodePanel, PresetListPanel } from './components'
+import {
+  PresetCurrentCodePanel,
+  PresetListPanel,
+} from './components'
 
 defineProps<{
   conditions: FilterConditions
@@ -43,7 +46,7 @@ const handlePresetLoad = () => {
   >
     <div
       class="genshin-dark-card flex flex-col overflow-hidden font-['HYWenHei-85W'] h-[600px] max-w-[100dvw] max-h-[100dvh] transition-[width] duration-200"
-      :class="isPanelExpanded ? 'w-[720px]' : 'w-[400px]'"
+      :class="isPanelExpanded ? 'w-[850px]' : 'w-[530px]'"
     >
       <div class="text-xl text-center">
         点位筛选条件预设
