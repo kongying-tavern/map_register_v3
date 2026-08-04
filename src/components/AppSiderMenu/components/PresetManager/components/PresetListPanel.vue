@@ -14,18 +14,18 @@ const emit = defineEmits<{
   load: []
 }>()
 
-const previewVisible = defineModel<boolean>('previewVisible', { default: false })
-
 const preferenceStore = usePreferenceStore()
 
 const presetName = usePresetName()
+
+const expanded = shallowRef<boolean>(false)
 
 const currentSelectedPreset = computed(() => {
   return preferenceStore.presets.find(preset => preset.name === presetName.value) ?? null
 })
 
 const togglePreviewCode = () => {
-  previewVisible.value = !previewVisible.value
+  expanded.value = !expanded.value
 }
 
 const { savePreset, deletePreset, loadPreset } = usePresets({
@@ -38,6 +38,10 @@ const handlePresetLoad = () => {
   loadPreset()
   emit('load')
 }
+
+defineExpose({
+  expanded,
+})
 </script>
 
 <template>
@@ -97,7 +101,7 @@ const handlePresetLoad = () => {
     </div>
 
     <Transition name="code-preview">
-      <div v-if="previewVisible" class="flex gap-5 flex-1 min-w-0">
+      <div v-if="expanded" class="flex gap-5 flex-1 min-w-0">
         <div class="w-px bg-[#76716A]" />
         <div class="flex flex-col flex-1 min-w-0">
           <PresetCodePreview

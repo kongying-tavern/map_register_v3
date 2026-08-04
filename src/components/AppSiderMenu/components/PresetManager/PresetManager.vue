@@ -17,7 +17,15 @@ const tabs: { title: string, value: string }[] = [
 ]
 const activeTab = shallowRef<string>('list')
 
-const previewVisible = shallowRef<boolean>(false)
+const presetListPanelRef = useTemplateRef<ComponentExposed<typeof PresetListPanel> | null>('presetListPanelRef')
+
+/** 面板是否应展开：当前标签页可展开，且当前标签页内已展开 */
+const isPanelExpanded = computed(() => {
+  return (
+    activeTab.value === 'list'
+    && presetListPanelRef.value?.expanded === true
+  )
+})
 
 const handlePresetLoad = () => {
   modelValue.value = false
@@ -35,7 +43,7 @@ const handlePresetLoad = () => {
   >
     <div
       class="genshin-dark-card flex flex-col overflow-hidden font-['HYWenHei-85W'] h-[600px] max-w-[100dvw] max-h-[100dvh] transition-[width] duration-200"
-      :class="previewVisible ? 'w-[720px]' : 'w-[400px]'"
+      :class="isPanelExpanded ? 'w-[720px]' : 'w-[400px]'"
     >
       <div class="text-xl text-center">
         点位筛选条件预设
@@ -46,7 +54,7 @@ const handlePresetLoad = () => {
       <GSTab v-model="activeTab" :tabs="tabs" size="small" theme="dark" class="preset-manager-tab flex-1">
         <template #list>
           <PresetListPanel
-            v-model:preview-visible="previewVisible"
+            ref="presetListPanelRef"
             :conditions="conditions"
             class="pt-1"
             @load="handlePresetLoad()"
