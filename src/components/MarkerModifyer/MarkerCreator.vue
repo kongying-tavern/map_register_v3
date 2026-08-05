@@ -39,7 +39,8 @@ const initFormData = (): API.MarkerVo => {
 /** 表单数据 */
 const form = ref(initFormData())
 
-const { editorRef, loading, createMarker, onSuccess } = useMarkerCreate(form)
+const editorRef = ref<InstanceType<typeof MarkerForm> | null>(null)
+const { loading, isSuccess, submit, onSuccess } = useMarkerCreate(form, editorRef)
 
 onSuccess(() => emits('close'))
 </script>
@@ -54,7 +55,7 @@ onSuccess(() => emits('close'))
   >
     <template #footer>
       <div class="w-full flex justify-end">
-        <el-button :icon="Check" :loading="loading" type="primary" @click="createMarker">
+        <el-button :icon="Check" :loading="loading" :disabled="isSuccess" type="primary" @click="submit">
           添加
         </el-button>
         <el-button :icon="Close" :disabled="loading" @click="() => emits('close')">

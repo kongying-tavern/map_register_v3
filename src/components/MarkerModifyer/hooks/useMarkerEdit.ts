@@ -54,7 +54,7 @@ export const useMarkerEdit = (
 
   const { tryUploadPicture } = usePictureUpload()
 
-  const { refresh: editMarker, onSuccess, onError, ...rest } = useFetchHook({
+  const { refresh: submit, onSuccess, onError, ...rest } = useFetchHook({
     onRequest: async () => {
       const localMarker = markerData.value
       if (!localMarker)
@@ -78,5 +78,5 @@ export const useMarkerEdit = (
     })
   })
 
-  return { editMarker, onSuccess, onError, ...rest }
+  return { submit, onSuccess, onError, ...rest }
 }

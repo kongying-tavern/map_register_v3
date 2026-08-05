@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import type { MarkerVo } from '@/api/alova/globals'
 import type { GSMapState } from '@/stores/types/genshin-map-state'
 import { Check, Close, Right } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
@@ -47,7 +48,7 @@ const editorRef = ref<InstanceType<typeof MarkerForm> | null>(null)
 
 const {
   loading,
-  editMarker,
+  submit,
   onSuccess,
 } = useMarkerEdit(form, editorRef)
 
@@ -110,7 +111,7 @@ watch(
  * 冲突处理：用户未修改过的字段直接覆盖，用户修改过的字段忽略
  * version 字段始终用远程数据覆盖（不由用户控制）
  */
-const mergeRemoteData = (remote: API.MarkerVo) => {
+const mergeRemoteData = (remote: MarkerVo) => {
   const merged = cloneDeep(form.value)
 
   // version 字段始终用远程数据覆盖（不由用户控制）
@@ -313,7 +314,7 @@ const copyId = async () => {
           type="primary"
           :disabled="isOfflineMode"
           :loading="loading"
-          @click="editMarker"
+          @click="submit"
         >
           保存
         </el-button>

@@ -7,12 +7,13 @@ import { useMarkerStore, useUserStore } from '@/stores'
 import { usePictureUpload } from './usePictureUpload'
 
 /** 新增点位，已自动处理 version 和 methodType 字段 */
-export const useMarkerCreate = (markerData: Ref<API.MarkerVo | null>) => {
+export const useMarkerCreate = (
+  markerData: Ref<API.MarkerVo | null>,
+  editorRef: Ref<InstanceType<typeof MarkerForm> | null>,
+
+) => {
   const userStore = useUserStore()
   const markerStore = useMarkerStore()
-
-  /** 编辑器实例 */
-  const editorRef = ref<InstanceType<typeof MarkerForm> | null>(null)
 
   const commonKeys: (keyof API.MarkerVo)[] = [
     'updateTime',
@@ -28,37 +29,25 @@ export const useMarkerCreate = (markerData: Ref<API.MarkerVo | null>) => {
 
   const { tryUploadPicture } = usePictureUpload()
 
+  /**
+   * 用于解决以下问题:
+   * 在请求成功到弹窗关闭的间隙内 loading 会重置，此时双击提交会导致重复请求。
+   */
+  const isSuccess = ref(false)
+
   const { refresh: submit, onSuccess, onError, ...rest } = useFetchHook({
     onRequest: async () => {
       if (!markerData.value)
         throw new Error('表单数据为空')
+      await editorRef.value?.validate()
       const form = buildAdminMarkerForm(markerData.value)
       await tryUploadPicture(form)
       await markerStore.createMarker(form)
     },
   })
 
-  const isProcessing = ref(false)
-
-  const createMarker = async () => {
-    if (isProcessing.value)
-      return
-    try {
-      isProcessing.value = true
-      const isValid = await editorRef.value?.validate()
-      if (!isValid)
-        return
-      await submit()
-    }
-    catch {
-      // validate, no error
-    }
-    finally {
-      isProcessing.value = false
-    }
-  }
-
   onSuccess(async () => {
+    isSuccess.value = true
     ElMessage.success({
       message: '新增点位成功',
     })
@@ -68,5 +57,5 @@ export const useMarkerCreate = (markerData: Ref<API.MarkerVo | null>) => {
     message: `新增点位失败，原因为：${err.message}`,
   }))
 
-  return { editorRef, createMarker, onSuccess, onError, ...rest }
+  return { isSuccess, submit, onSuccess, onError, ...rest }
 }
