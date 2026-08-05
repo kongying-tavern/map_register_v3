@@ -42,11 +42,13 @@ function zipBasic(conditions: FilterConditionsBasic): Uint8Array {
   const entries = toConditionsBaseMap(conditions)
 
   for (const condition of entries.values()) {
+    // item 数量以 clamp 后的编码值为准遍历，保持与长度字节一致
+    const itemCount = Math.min(condition.items.length, 0b1111_1111)
     writer.writeUint32LE(condition.area.id ?? 0, 'clamp')
     writer.writeUint32LE(condition.type.id ?? 0, 'clamp')
-    writer.writeUint8(condition.items.length, 'clamp')
-    for (const itemId of condition.items)
-      writer.writeUint32LE(itemId, 'clamp')
+    writer.writeUint8(itemCount, 'clamp')
+    for (let i = 0; i < itemCount; i++)
+      writer.writeUint32LE(condition.items[i], 'clamp')
   }
 
   return writer.toUint8Array()
