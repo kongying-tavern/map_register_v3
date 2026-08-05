@@ -11,7 +11,7 @@ const scale = computed(() => {
   return Math.min(width.value / DESIGN_W, height.value / DESIGN_H, 1)
 })
 
-interface CardPos { x: number; y: number; hasChildren?: boolean }
+interface CardPos { x: number, y: number, hasChildren?: boolean }
 
 // 卡片尺寸与 useGraph 中保持一致：240 x 120，圆角 8
 const cards: CardPos[] = [
