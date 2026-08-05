@@ -4,7 +4,7 @@ import { LinkActionEnum } from '@/shared/linkAction'
 import { ByteReader, ByteWriter } from '@/utils/ByteAccessor'
 
 /** 关联动作 → 位图 bit 位置映射（1-based，MSB-first） */
-const LINK_ACTION_BITS: Array<readonly [action: LinkActionEnum, bit: number]> = [
+const LINK_ACTION_BITS: (readonly [action: LinkActionEnum, bit: number])[] = [
   [LinkActionEnum.TRIGGER, 4],
   [LinkActionEnum.TRIGGER_ALL, 3],
   [LinkActionEnum.TRIGGER_ANY, 2],
@@ -40,7 +40,7 @@ const decode = (bytes: Uint8Array): MAFValueStringArray => {
   const sa: string[] = []
 
   for (const [action, bit] of LINK_ACTION_BITS) {
-    if (reader.readBit(bit, bit))
+    if (reader.readBit(bit, bit, 'blank'))
       sa.push(action)
   }
 

@@ -70,25 +70,28 @@ const encode = (value: MAFValue): Uint8Array => {
 
 const decode = (bytes: Uint8Array): MAFValueString => {
   const reader = new ByteReader(bytes)
-  const count = Number(reader.readUint8())
+  const count = Number(reader.readUint8('blank'))
   const bitmapBytes = Math.ceil(count / 8)
 
   // 读取类型位图
   const isRanges: boolean[] = []
   for (let i = 0; i < count; i++)
-    isRanges.push(Boolean(reader.readBit(i + 1, i + 1)))
+    isRanges.push(Boolean(reader.readBit(i + 1, i + 1, 'blank')))
   reader.moveBy(bitmapBytes)
 
   // 读取数据区
   const parts: string[] = []
   for (let i = 0; i < count; i++) {
-    const num1 = Number(reader.readUint32LE())
     if (isRanges[i]) {
-      const num2 = Number(reader.readUint32LE())
-      parts.push(`${num1}-${num2}`)
+      const num1 = Number(reader.readUint32LE('blank'))
+      const num2 = Number(reader.readUint32LE('blank'))
+      if (isValidNumber(num1) && isValidNumber(num2) && num2 > num1)
+        parts.push(`${num1}-${num2}`)
     }
     else {
-      parts.push(`${num1}`)
+      const num = Number(reader.readUint32LE('blank'))
+      if (isValidNumber(num))
+        parts.push(`${num}`)
     }
   }
   return { s: parts.join(',') }
