@@ -2,12 +2,18 @@
 import type { LocationQueryValue } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { AppLogin } from '@/components'
-import { useGlobalDialog } from '@/hooks'
+import { onRoleChange, useGlobalDialog, useRoleWatch } from '@/hooks'
 import { RouteQuery } from '@/shared'
 
 const router = useRouter()
 
 const { DialogService } = useGlobalDialog()
+
+// 启动角色轮询监听（5min 轮询 + visibilitychange）
+useRoleWatch()
+onRoleChange(() => {
+  window.location.reload()
+})
 
 const queryHandlers = new Map<string, (value: LocationQueryValue | LocationQueryValue[]) => void | Promise<void>>([
   [RouteQuery.Invitation.getKey(), (value) => {
