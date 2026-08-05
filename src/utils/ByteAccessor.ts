@@ -1,4 +1,8 @@
+/** 写入越界模式：'truncate' 按位截断，'error' 越界抛错，'clamp' 钳制到取值范围边界 */
 export type ByteAccessorTruncateMode = 'truncate' | 'error' | 'clamp'
+
+/** 读取越界模式：'error' 越界抛错，'blank' 越界补 0，'fill' 越界补 1 */
+export type ByteAccessorReadMode = 'error' | 'blank' | 'fill'
 
 // #region ByteWriter
 export class ByteWriter {
@@ -442,21 +446,30 @@ export class ByteReader {
   get remaining() { return this.#buffer.length - this.#pointer }
 
   // #region internal
-  #checkReadable(bytes: number) {
+  #checkReadable(bytes: number, mode: ByteAccessorReadMode = 'error') {
     if (this.#pointer + bytes > this.#buffer.length) {
+      if (mode === 'blank' || mode === 'fill')
+        return
       throw new RangeError(`Cannot read ${bytes} bytes: only ${this.remaining} bytes remaining`)
     }
+  }
+
+  #readByte(pos: number, mode: ByteAccessorReadMode): number {
+    const byte = this.#buffer[pos]
+    return byte ?? (mode === 'fill' ? 1 : 0)
   }
   // #endregion internal
 
   // #region uint8 / byte
-  readUint8(): bigint {
-    this.#checkReadable(1)
-    return BigInt(this.#buffer[this.#pointer++])
+  readUint8(mode: ByteAccessorReadMode = 'error'): bigint {
+    const v = this.getUint8(mode)
+    this.#pointer += 1
+    return v
   }
 
-  getUint8(): bigint {
-    return BigInt(this.#buffer[this.#pointer] ?? 0)
+  getUint8(mode: ByteAccessorReadMode = 'error'): bigint {
+    this.#checkReadable(1, mode)
+    return BigInt(this.#readByte(this.#pointer, mode))
   }
 
   readByte = this.readUint8
@@ -464,221 +477,212 @@ export class ByteReader {
   // #endregion uint8 / byte
 
   // #region int8
-  readInt8(): bigint {
-    const value = this.readUint8()
+  readInt8(mode: ByteAccessorReadMode = 'error'): bigint {
+    const value = this.readUint8(mode)
     return value >= 0x80n ? value - 0x100n : value
   }
 
-  getInt8(): bigint {
-    const value = this.getUint8()
+  getInt8(mode: ByteAccessorReadMode = 'error'): bigint {
+    const value = this.getUint8(mode)
     return value >= 0x80n ? value - 0x100n : value
   }
   // #endregion int8
 
   // #region uint16LE
-  readUint16LE(): bigint {
-    this.#checkReadable(2)
-    const v = BigInt(this.#buffer[this.#pointer]) | (BigInt(this.#buffer[this.#pointer + 1]) << 8n)
+  readUint16LE(mode: ByteAccessorReadMode = 'error'): bigint {
+    const v = this.getUint16LE(mode)
     this.#pointer += 2
     return v
   }
 
-  getUint16LE(): bigint {
-    return BigInt(this.#buffer[this.#pointer] ?? 0) | (BigInt(this.#buffer[this.#pointer + 1] ?? 0) << 8n)
+  getUint16LE(mode: ByteAccessorReadMode = 'error'): bigint {
+    this.#checkReadable(2, mode)
+    return BigInt(this.#readByte(this.#pointer, mode)) | (BigInt(this.#readByte(this.#pointer + 1, mode)) << 8n)
   }
   // #endregion uint16LE
 
   // #region int16LE
-  readInt16LE(): bigint {
-    const value = this.readUint16LE()
+  readInt16LE(mode: ByteAccessorReadMode = 'error'): bigint {
+    const value = this.readUint16LE(mode)
     return value >= 0x8000n ? value - 0x1_0000n : value
   }
 
-  getInt16LE(): bigint {
-    const value = this.getUint16LE()
+  getInt16LE(mode: ByteAccessorReadMode = 'error'): bigint {
+    const value = this.getUint16LE(mode)
     return value >= 0x8000n ? value - 0x1_0000n : value
   }
   // #endregion int16LE
 
   // #region uint16BE
-  readUint16BE(): bigint {
-    this.#checkReadable(2)
-    const v = (BigInt(this.#buffer[this.#pointer]) << 8n) | BigInt(this.#buffer[this.#pointer + 1])
+  readUint16BE(mode: ByteAccessorReadMode = 'error'): bigint {
+    const v = this.getUint16BE(mode)
     this.#pointer += 2
     return v
   }
 
-  getUint16BE(): bigint {
-    return (BigInt(this.#buffer[this.#pointer] ?? 0) << 8n) | BigInt(this.#buffer[this.#pointer + 1] ?? 0)
+  getUint16BE(mode: ByteAccessorReadMode = 'error'): bigint {
+    this.#checkReadable(2, mode)
+    return (BigInt(this.#readByte(this.#pointer, mode)) << 8n) | BigInt(this.#readByte(this.#pointer + 1, mode))
   }
   // #endregion uint16BE
 
   // #region int16BE
-  readInt16BE(): bigint {
-    const value = this.readUint16BE()
+  readInt16BE(mode: ByteAccessorReadMode = 'error'): bigint {
+    const value = this.readUint16BE(mode)
     return value >= 0x8000n ? value - 0x1_0000n : value
   }
 
-  getInt16BE(): bigint {
-    const value = this.getUint16BE()
+  getInt16BE(mode: ByteAccessorReadMode = 'error'): bigint {
+    const value = this.getUint16BE(mode)
     return value >= 0x8000n ? value - 0x1_0000n : value
   }
   // #endregion int16BE
 
   // #region uint32LE
-  readUint32LE(): bigint {
-    this.#checkReadable(4)
-    const v
-      = BigInt(this.#buffer[this.#pointer])
-        | (BigInt(this.#buffer[this.#pointer + 1]) << 8n)
-        | (BigInt(this.#buffer[this.#pointer + 2]) << 16n)
-        | (BigInt(this.#buffer[this.#pointer + 3]) << 24n)
+  readUint32LE(mode: ByteAccessorReadMode = 'error'): bigint {
+    const v = this.getUint32LE(mode)
     this.#pointer += 4
     return v
   }
 
-  getUint32LE(): bigint {
-    return BigInt(this.#buffer[this.#pointer] ?? 0)
-      | (BigInt(this.#buffer[this.#pointer + 1] ?? 0) << 8n)
-      | (BigInt(this.#buffer[this.#pointer + 2] ?? 0) << 16n)
-      | (BigInt(this.#buffer[this.#pointer + 3] ?? 0) << 24n)
+  getUint32LE(mode: ByteAccessorReadMode = 'error'): bigint {
+    this.#checkReadable(4, mode)
+    return BigInt(this.#readByte(this.#pointer, mode))
+      | (BigInt(this.#readByte(this.#pointer + 1, mode)) << 8n)
+      | (BigInt(this.#readByte(this.#pointer + 2, mode)) << 16n)
+      | (BigInt(this.#readByte(this.#pointer + 3, mode)) << 24n)
   }
   // #endregion uint32LE
 
   // #region int32LE
-  readInt32LE(): bigint {
-    const value = this.readUint32LE()
+  readInt32LE(mode: ByteAccessorReadMode = 'error'): bigint {
+    const value = this.readUint32LE(mode)
     return value >= 0x8000_0000n ? value - 0x1_0000_0000n : value
   }
 
-  getInt32LE(): bigint {
-    const value = this.getUint32LE()
+  getInt32LE(mode: ByteAccessorReadMode = 'error'): bigint {
+    const value = this.getUint32LE(mode)
     return value >= 0x8000_0000n ? value - 0x1_0000_0000n : value
   }
   // #endregion int32LE
 
   // #region uint32BE
-  readUint32BE(): bigint {
-    this.#checkReadable(4)
-    const v
-      = (BigInt(this.#buffer[this.#pointer]) << 24n)
-        | (BigInt(this.#buffer[this.#pointer + 1]) << 16n)
-        | (BigInt(this.#buffer[this.#pointer + 2]) << 8n)
-        | BigInt(this.#buffer[this.#pointer + 3])
+  readUint32BE(mode: ByteAccessorReadMode = 'error'): bigint {
+    const v = this.getUint32BE(mode)
     this.#pointer += 4
     return v
   }
 
-  getUint32BE(): bigint {
-    return (BigInt(this.#buffer[this.#pointer] ?? 0) << 24n)
-      | (BigInt(this.#buffer[this.#pointer + 1] ?? 0) << 16n)
-      | (BigInt(this.#buffer[this.#pointer + 2] ?? 0) << 8n)
-      | BigInt(this.#buffer[this.#pointer + 3] ?? 0)
+  getUint32BE(mode: ByteAccessorReadMode = 'error'): bigint {
+    this.#checkReadable(4, mode)
+    return (BigInt(this.#readByte(this.#pointer, mode)) << 24n)
+      | (BigInt(this.#readByte(this.#pointer + 1, mode)) << 16n)
+      | (BigInt(this.#readByte(this.#pointer + 2, mode)) << 8n)
+      | BigInt(this.#readByte(this.#pointer + 3, mode))
   }
   // #endregion uint32BE
 
   // #region int32BE
-  readInt32BE(): bigint {
-    const value = this.readUint32BE()
+  readInt32BE(mode: ByteAccessorReadMode = 'error'): bigint {
+    const value = this.readUint32BE(mode)
     return value >= 0x8000_0000n ? value - 0x1_0000_0000n : value
   }
 
-  getInt32BE(): bigint {
-    const value = this.getUint32BE()
+  getInt32BE(mode: ByteAccessorReadMode = 'error'): bigint {
+    const value = this.getUint32BE(mode)
     return value >= 0x8000_0000n ? value - 0x1_0000_0000n : value
   }
   // #endregion int32BE
 
   // #region uint64LE
-  readUint64LE(): bigint {
-    this.#checkReadable(8)
-    let value = 0n
-    for (let i = 7; i >= 0; i--)
-      value = (value << 8n) | BigInt(this.#buffer[this.#pointer + i])
+  readUint64LE(mode: ByteAccessorReadMode = 'error'): bigint {
+    const v = this.getUint64LE(mode)
     this.#pointer += 8
-    return value
+    return v
   }
 
-  getUint64LE(): bigint {
+  getUint64LE(mode: ByteAccessorReadMode = 'error'): bigint {
+    this.#checkReadable(8, mode)
     let value = 0n
     for (let i = 7; i >= 0; i--)
-      value = (value << 8n) | BigInt(this.#buffer[this.#pointer + i] ?? 0)
+      value = (value << 8n) | BigInt(this.#readByte(this.#pointer + i, mode))
     return value
   }
   // #endregion uint64LE
 
   // #region int64LE
-  readInt64LE(): bigint {
-    const value = this.readUint64LE()
+  readInt64LE(mode: ByteAccessorReadMode = 'error'): bigint {
+    const value = this.readUint64LE(mode)
     return value >= 0x8000_0000_0000_0000n ? value - 0x1_0000_0000_0000_0000n : value
   }
 
-  getInt64LE(): bigint {
-    const value = this.getUint64LE()
+  getInt64LE(mode: ByteAccessorReadMode = 'error'): bigint {
+    const value = this.getUint64LE(mode)
     return value >= 0x8000_0000_0000_0000n ? value - 0x1_0000_0000_0000_0000n : value
   }
   // #endregion int64LE
 
   // #region uint64BE
-  readUint64BE(): bigint {
-    this.#checkReadable(8)
-    let value = 0n
-    for (let i = 0; i < 8; i++)
-      value = (value << 8n) | BigInt(this.#buffer[this.#pointer + i])
+  readUint64BE(mode: ByteAccessorReadMode = 'error'): bigint {
+    const v = this.getUint64BE(mode)
     this.#pointer += 8
-    return value
+    return v
   }
 
-  getUint64BE(): bigint {
+  getUint64BE(mode: ByteAccessorReadMode = 'error'): bigint {
+    this.#checkReadable(8, mode)
     let value = 0n
     for (let i = 0; i < 8; i++)
-      value = (value << 8n) | BigInt(this.#buffer[this.#pointer + i] ?? 0)
+      value = (value << 8n) | BigInt(this.#readByte(this.#pointer + i, mode))
     return value
   }
   // #endregion uint64BE
 
   // #region int64BE
-  readInt64BE(): bigint {
-    const value = this.readUint64BE()
+  readInt64BE(mode: ByteAccessorReadMode = 'error'): bigint {
+    const value = this.readUint64BE(mode)
     return value >= 0x8000_0000_0000_0000n ? value - 0x1_0000_0000_0000_0000n : value
   }
 
-  getInt64BE(): bigint {
-    const value = this.getUint64BE()
+  getInt64BE(mode: ByteAccessorReadMode = 'error'): bigint {
+    const value = this.getUint64BE(mode)
     return value >= 0x8000_0000_0000_0000n ? value - 0x1_0000_0000_0000_0000n : value
   }
   // #endregion int64BE
 
   // #region bytes
-  readBytes(length: number) {
-    this.#checkReadable(length)
-    const chunk = this.#buffer.slice(this.#pointer, this.#pointer + length)
+  readBytes(length: number, mode: ByteAccessorReadMode = 'error') {
+    const chunk = this.getBytes(length, mode)
     this.#pointer += length
     return chunk
   }
 
-  getBytes(length: number) {
-    return this.#buffer.slice(this.#pointer, this.#pointer + length)
+  getBytes(length: number, mode: ByteAccessorReadMode = 'error') {
+    this.#checkReadable(length, mode)
+    const chunk = new Uint8Array(length)
+    for (let i = 0; i < length; i++)
+      chunk[i] = this.#readByte(this.#pointer + i, mode)
+    return chunk
   }
   // #endregion bytes
 
   // #region string
-  readString(length: number) {
-    return new TextDecoder().decode(this.readBytes(length))
+  readString(length: number, mode: ByteAccessorReadMode = 'error') {
+    return new TextDecoder().decode(this.readBytes(length, mode))
   }
 
-  getString(length: number) {
-    return new TextDecoder().decode(this.#buffer.slice(this.#pointer, this.#pointer + length))
+  getString(length: number, mode: ByteAccessorReadMode = 'error') {
+    return new TextDecoder().decode(this.getBytes(length, mode))
   }
   // #endregion string
 
   // #region bit
-  readBit(bitPosStart: number, bitPosEnd: number) {
+  readBit(bitPosStart: number, bitPosEnd: number, mode: ByteAccessorReadMode = 'error') {
     if (bitPosStart < 1 || bitPosEnd < bitPosStart)
       throw new RangeError('Invalid bit range')
     const bitCount = bitPosEnd - bitPosStart + 1
     const endByte = Math.floor((bitPosEnd - 1) / 8)
-    this.#checkReadable(endByte + 1)
+    this.#checkReadable(endByte + 1, mode)
     let value = 0
     let remaining = bitCount
     let msb0 = bitPosStart - 1
@@ -688,7 +692,7 @@ export class ByteReader {
       const bitsInThisByte = Math.min(8 - byteMsb0, remaining)
       const lsbEnd = 7 - byteMsb0 - bitsInThisByte + 1
       const mask = ((1 << bitsInThisByte) - 1) << lsbEnd
-      const byteVal = (this.#buffer[this.#pointer + byteIndex] & mask) >> lsbEnd
+      const byteVal = (this.#readByte(this.#pointer + byteIndex, mode) & mask) >> lsbEnd
       value = (value << bitsInThisByte) | byteVal
       remaining -= bitsInThisByte
       msb0 += bitsInThisByte
