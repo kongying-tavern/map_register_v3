@@ -24,15 +24,6 @@
       overflow: hidden;
     }
 
-    @keyframes app-init {
-      from {
-        transform: translate(-50%, -50%) rotate(0deg);
-      }
-      to {
-        transform: translate(-50%, -50%) rotate(360deg);
-      }
-    }
-
     #first-loading {
       width: 100%;
       height: 100%;
@@ -40,49 +31,135 @@
       display: grid;
       place-items: center;
       place-content: center;
+      gap: 24px;
       color: #ECE5D8;
       background-color: #25313F;
       line-height: 2em;
+
       &.is-end {
         opacity: 0;
         transition: opacity ease 300ms;
-        &::before {
-          clip-path: xywh(0 0 100% 100%);
-          animation-play-state: paused;
-        }
       }
+
       h1 {
         font-size: 24px;
         font-weight: bolder;
+        margin-top: 8px;
       }
-      &::before {
-        content: '';
-        position: absolute;
-        box-sizing: border-box;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        border: 4px solid #ECE5D8F0;
-        clip-path: xywh(0 0 50% 50%);
+
+      .loading-ring {
+        position: relative;
         width: 256px;
         height: 256px;
-        border-radius: 128px;
-        pointer-events: none;
-        animation: app-init linear 2s infinite;
+
+        .progress-ring {
+          width: 100%;
+          height: 100%;
+          transform: rotate(-90deg);
+
+          .progress-ring-bg {
+            fill: none;
+            stroke: #ECE5D860;
+            stroke-width: 2;
+            stroke-dasharray: 4 6;
+          }
+
+          .progress-ring-fg {
+            fill: none;
+            stroke: #ECE5D8F0;
+            stroke-width: 4;
+            stroke-linecap: round;
+            stroke-dasharray: 326.73;
+            stroke-dashoffset: 326.73;
+            transition: stroke-dashoffset ease 200ms;
+          }
+        }
+
+        .progress-text {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          transform: translate(-50%, -50%);
+          font-size: 28px;
+          font-weight: bold;
+          letter-spacing: 1px;
+        }
       }
-      &::after {
-        content: '';
-        position: absolute;
-        box-sizing: border-box;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        border: 2px dashed #ECE5D860;
-        width: 254px;
-        height: 254px;
-        border-radius: 128px;
-        pointer-events: none;
+
+      .loading-list {
+        width: min(480px, 80vw);
+        max-height: 40vh;
+        overflow-y: auto;
+        gap: 4px;
+        padding: 8px 12px;
+        border: 1px solid #ECE5D820;
+        border-radius: 8px;
+        background-color: #ECE5D808;
+        font-size: 13px;
+        line-height: 1.6;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+        &::-webkit-scrollbar {
+          width: 6px;
+        }
+        &::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        &::-webkit-scrollbar-thumb {
+          background: #ECE5D830;
+          border-radius: 3px;
+        }
+        &::-webkit-scrollbar-thumb:hover {
+          background: #ECE5D850;
+        }
+
+        .loading-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          color: #ECE5D840;
+          flex-shrink: 0;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+
+          .loading-item-icon {
+            flex-shrink: 0;
+            width: 14px;
+            height: 14px;
+            display: inline-grid;
+            place-items: center;
+            font-size: 10px;
+          }
+
+          .loading-item-name {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+
+          &.is-loading {
+            color: #ECE5D8;
+
+            .loading-item-icon {
+              animation: loading-pulse 1s ease-in-out infinite;
+            }
+          }
+
+          &.is-loaded {
+            color: #ECE5D8;
+          }
+
+          &.is-error {
+            color: #F87171;
+          }
+        }
       }
+    }
+
+    @keyframes loading-pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.7); }
     }
   </style>
 </head>
@@ -90,27 +167,152 @@
 <body>
   <div id="app">
     <div id="first-loading">
+      <div class="loading-ring">
+        <svg class="progress-ring" viewBox="0 0 120 120">
+          <circle class="progress-ring-bg" cx="60" cy="60" r="52" />
+          <circle class="progress-ring-fg" cx="60" cy="60" r="52" />
+        </svg>
+        <div class="progress-text">
+          <span id="progress-percent">0%</span>
+        </div>
+      </div>
       <h1>初始化应用</h1>
-      <div>前面的区域，马上就能探索~</div>
+      <div id="loading-list" class="loading-list"></div>
     </div>
   </div>
 
   <script type="module" async defer>
-    const text = (() => {
-      if (!window.isSecureContext)
-        return '网站处于非安全上下文中，Web 应用无法正常运行。'
-      return ''
-    })()
-
     const app = document.getElementById('app')
     const loading = document.getElementById('first-loading')
+    const percentEl = document.getElementById('progress-percent')
+    const listEl = document.getElementById('loading-list')
+    const progressFg = document.querySelector('.progress-ring-fg')
+    const RING_CIRCUMFERENCE = 326.73
 
-    if (text) {
+    function setProgress(loaded, total) {
+      const pct = total > 0 ? loaded / total : 0
+      percentEl.textContent = `${Math.round(pct * 100)}%`
+      if (progressFg)
+        progressFg.style.strokeDashoffset = `${RING_CIRCUMFERENCE * (1 - pct)}`
+    }
+
+    function createItem(src) {
+      const item = document.createElement('div')
+      item.className = 'loading-item'
+      const icon = document.createElement('span')
+      icon.className = 'loading-item-icon'
+      icon.textContent = '○'
+      const name = document.createElement('span')
+      name.className = 'loading-item-name'
+      name.textContent = src.replace(/^\//, '')
+      name.title = src.replace(/^\//, '')
+      item.appendChild(icon)
+      item.appendChild(name)
+      listEl.appendChild(item)
+      return { item, icon, name }
+    }
+
+    function setItemLoading(el) {
+      el.item.classList.add('is-loading')
+      el.icon.textContent = '●'
+    }
+
+    function setItemLoaded(el, isError) {
+      el.item.classList.remove('is-loading')
+      if (!isError) {
+        // 加载成功：从列表中移除
+        el.item.remove()
+        return
+      }
+      el.item.classList.add('is-error')
+      el.icon.textContent = '✕'
+    }
+
+    function preloadAsset(src) {
+      return new Promise((resolve) => {
+        const lower = src.toLowerCase()
+        let el
+
+        if (lower.endsWith('.js') || lower.endsWith('.mjs')) {
+          el = document.createElement('link')
+          el.rel = 'modulepreload'
+          el.href = src
+        }
+        else if (lower.endsWith('.css')) {
+          el = document.createElement('link')
+          el.rel = 'stylesheet'
+          el.href = src
+        }
+        else {
+          el = document.createElement('link')
+          el.rel = 'preload'
+          el.href = src
+          if (/\.(png|jpe?g|gif|svg|webp|avif|ico)$/i.test(src)) {
+            el.as = 'image'
+          }
+          else if (/\.(woff2?|ttf|otf|eot)$/i.test(src)) {
+            el.as = 'font'
+            el.crossOrigin = 'anonymous'
+          }
+          else if (/\.(mp4|webm|ogg)$/i.test(src)) {
+            el.as = 'video'
+          }
+          else if (/\.(mp3|wav|flac|aac)$/i.test(src)) {
+            el.as = 'audio'
+          }
+          else {
+            el.as = 'fetch'
+          }
+        }
+
+        const done = (isError) => resolve(isError)
+        el.onload = () => done(false)
+        el.onerror = () => done(true)
+        document.head.appendChild(el)
+      })
+    }
+
+    function startApp() {
+      import('./src/main.ts').then(() => {
+        loading.classList.add('is-end')
+        setTimeout(() => loading.remove(), 300)
+      })
+    }
+
+    if (!window.isSecureContext) {
       app.removeChild(loading)
-      app.innerText = text
+      app.innerText = '网站处于非安全上下文中，Web 应用无法正常运行。'
     }
     else {
-      import('./src/main.ts')
+      const manifest = window.__ASSETS_MANIFEST__
+
+      // 开发环境或无清单时直接启动
+      if (!manifest || manifest.length === 0) {
+        startApp()
+      }
+      else {
+        const total = manifest.length
+        let loaded = 0
+
+        // 创建所有列表项
+        const items = manifest.map(src => createItem(src))
+
+        // 逐个加载（并发）
+        manifest.forEach((src, index) => {
+          const item = items[index]
+          // 在下一个 tick 标记为加载中，制造视觉差
+          requestAnimationFrame(() => setItemLoading(item))
+
+          preloadAsset(src).then((isError) => {
+            loaded++
+            setItemLoaded(item, isError)
+            setProgress(loaded, total)
+
+            if (loaded >= total)
+              startApp()
+          })
+        })
+      }
     }
   </script>
 </body>

@@ -7,6 +7,7 @@ import { simpleGit } from 'simple-git'
 import AutoImport from 'unplugin-auto-import/vite'
 import { defineConfig, loadEnv } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
+import { injectAssetsManifest } from './plugins'
 
 export default defineConfig(async ({ mode }) => {
   const git = simpleGit()
@@ -24,6 +25,7 @@ export default defineConfig(async ({ mode }) => {
   }
 
   const plugins: Plugin[] = [
+    injectAssetsManifest(),
     Vue({
       script: {
         defineModel: true,

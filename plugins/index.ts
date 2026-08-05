@@ -1,1 +1,1 @@
-export * from './openapi2ts'
+export { injectAssetsManifest } from './inject-assets-manifest'
