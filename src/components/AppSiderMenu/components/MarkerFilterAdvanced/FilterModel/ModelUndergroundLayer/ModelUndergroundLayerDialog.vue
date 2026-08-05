@@ -175,7 +175,7 @@ const {
 
 <template>
   <div
-    class="w-full flex-1 flex gap-2 overflow-hidden"
+    class="w-[700px] flex-1 flex gap-2 overflow-hidden"
     :class="listClass"
   >
     <el-scrollbar class="flex-[10]">
