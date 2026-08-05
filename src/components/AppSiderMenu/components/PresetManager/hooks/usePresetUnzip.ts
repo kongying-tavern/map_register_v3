@@ -3,7 +3,8 @@ import type {
   FilterConditionsAdvanced,
   FilterConditionsBasic,
 } from '../types'
-import type { MBFItem } from '@/stores/types'
+import type { MAFModelId } from '@/shared'
+import type { MAFGroup, MAFItem, MBFItem } from '@/stores/types'
 import { decode } from 'base32768'
 import { isNil } from 'lodash'
 import { storeToRefs } from 'pinia'
@@ -11,6 +12,7 @@ import { useAreaStore, useItemTypeStore } from '@/stores'
 import { ByteReader } from '@/utils/ByteAccessor'
 import {
   getBinaryFilterType,
+  getValuePacker,
   isValidBinaryHead,
 } from '../utils'
 
@@ -71,11 +73,60 @@ function unzipBasic(
 }
 
 function unzipAdvanced(
-  _reader: ByteReader,
+  reader: ByteReader,
   _context: PresetUnzipContext,
 ): FilterConditionsAdvanced {
-  // TODO: 读取高级预设二进制
-  return []
+  const result: FilterConditionsAdvanced = []
+
+  // 二进制布局：
+  //   Group：
+  //     bit 1-2 : operator + opposite
+  //     bit 3-8 : children count(6bit)
+  //   Children：
+  //     bit 1-2 : operator + opposite
+  //     bit 3-8 : blank
+  //     u16     : id
+  //     u32     : value 字节长度
+  //     bytes   : value 字节
+  while (reader.remaining > 0) {
+    // 读取 Group：readBit 只读不移动指针，读完整个字节后需手动 moveBy(1) 对齐到下一字节
+    const group: MAFGroup = {
+      key: crypto.randomUUID(),
+      operator: Boolean(reader.readBit(1, 1)),
+      opposite: Boolean(reader.readBit(2, 2)),
+      children: [],
+    }
+    const childrenCount = reader.readBit(3, 8)
+    reader.moveBy(1)
+
+    for (let i = 0; i < childrenCount; i++) {
+      // 读取 Children 的 meta 字节（bit 1-2：operator + opposite，bit 3-8：blank）
+      const child: MAFItem = {
+        key: crypto.randomUUID(),
+        operator: Boolean(reader.readBit(1, 1)),
+        opposite: Boolean(reader.readBit(2, 2)),
+        id: 0 as MAFModelId,
+        value: {},
+      }
+      reader.moveBy(1)
+      // u16：id（0 为未选中占位，实际值来自压缩时的 MAFModelId）
+      child.id = Number(reader.readUint16LE()) as MAFModelId
+
+      // u32：value 字节长度；长度为 0 表示压缩端因溢出保护未写入数据（value 溢出 u32 范围），此时跳过读取
+      const valueLength = Number(reader.readUint32LE())
+      if (valueLength > 0) {
+        const valueBytes = reader.readBytes(valueLength)
+        // 按 id 选择对应 packer 解码
+        child.value = getValuePacker(child.id).decode(valueBytes)
+      }
+
+      group.children.push(child)
+    }
+
+    result.push(group)
+  }
+
+  return result
 }
 
 function unzip(
