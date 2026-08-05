@@ -84,8 +84,8 @@ function unzipAdvanced(
   //     bit 3-8 : children count(6bit)
   //   Children：
   //     bit 1-2 : operator + opposite
-  //     bit 3-8 : blank
-  //     u16     : id
+  //     bit 3-8 : id 高位(6bit)
+  //     u8      : id 低位(8bit)（id 共 14bit）
   //     u32     : value 字节长度
   //     bytes   : value 字节
   while (reader.remaining > 0) {
@@ -100,7 +100,7 @@ function unzipAdvanced(
     reader.moveBy(1)
 
     for (let i = 0; i < childrenCount; i++) {
-      // 读取 Children 的 meta 字节（bit 1-2：operator + opposite，bit 3-8：blank）
+      // 读取 Children 的 meta 字节（bit 1-2：operator + opposite，bit 3-8：id 高位）
       const child: MAFItem = {
         key: crypto.randomUUID(),
         operator: Boolean(reader.readBit(1, 1)),
@@ -108,9 +108,17 @@ function unzipAdvanced(
         id: 0 as MAFModelId,
         value: {},
       }
+
+      // id 共 14bit：高 6 位在 meta 字节 bit 3-8，低 8 位在下一字节 bit 1-8
+      // readBit 只读不移动指针，读取后需手动 moveBy 对齐到下一字节
+      // 高 6 位
+      const idHigh = reader.readBit(3, 8)
       reader.moveBy(1)
-      // u16：id（0 为未选中占位，实际值来自压缩时的 MAFModelId）
-      child.id = Number(reader.readUint16LE()) as MAFModelId
+      // 低 8 位
+      const idLow = reader.readBit(1, 8)
+      reader.moveBy(1)
+      // 拼回完整 id
+      child.id = ((idHigh << 8) | idLow) as MAFModelId
 
       // u32：value 字节长度；长度为 0 表示压缩端因溢出保护未写入数据（value 溢出 u32 范围），此时跳过读取
       const valueLength = Number(reader.readUint32LE())

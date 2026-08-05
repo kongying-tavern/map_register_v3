@@ -72,8 +72,8 @@ function zipAdvanced(conditions: FilterConditionsAdvanced): Uint8Array {
   //     bit 3-8 : children count(6bit, clamp)
   //   Children：
   //     bit 1-2 : operator + opposite
-  //     bit 3-8 : blank
-  //     u16     : id
+  //     bit 3-8 : id 高位(6bit)
+  //     u8      : id 低位(8bit)（id 共 14bit）
   //     u32     : value 字节长度
   //     bytes   : value 字节
   for (const group of conditions) {
@@ -89,12 +89,18 @@ function zipAdvanced(conditions: FilterConditionsAdvanced): Uint8Array {
     for (let i = 0; i < childrenCount; i++) {
       const child = group.children[i]
 
+      // id 共 14bit，手动拆分以固定位序：高 6 位在 meta 字节 bit 3-8，低 8 位在下一字节 bit 1-8
+      const idHigh = (child.id >> 8) & 0b111111
+      const idLow = child.id & 0xFF
+
       writer
         .setBit(0b0, 1, 8)
         .setBit(child.operator ? 0b1 : 0b0, 1, 1)
         .setBit(child.opposite ? 0b1 : 0b0, 2, 2)
+        .setBit(idHigh, 3, 8, 'clamp')
         .moveBy(1)
-      writer.writeUint16LE(child.id, 'clamp')
+        .setBit(idLow, 1, 8, 'clamp')
+        .moveBy(1)
 
       const valueBytes = getValuePacker(child.id).encode(child.value)
 
