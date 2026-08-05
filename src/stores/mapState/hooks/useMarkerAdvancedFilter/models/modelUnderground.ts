@@ -6,7 +6,7 @@ import type {
   MAFSemanticUnit,
   MAFValueNumberExact,
 } from '@/stores/types'
-import { MAF_MODEL_NAME_MAP, MAFModelId } from '@/shared'
+import { MAF_MODEL_META_MAP, MAFModelId } from '@/shared'
 
 enum OptionValue {
   UNLAYERED = 0,
@@ -18,7 +18,7 @@ type OptionType = MAFOptionSelect<{ label: string, value: number }>
 
 export class Underground implements MAFConfig<MAFValueNumberExact, OptionType, MAFMetaUnderground> {
   id = MAFModelId.UNDERGROUND
-  name = MAF_MODEL_NAME_MAP[MAFModelId.UNDERGROUND]
+  name = MAF_MODEL_META_MAP[MAFModelId.UNDERGROUND].name
   option: OptionType = {
     options: [
       { label: '非分层', value: OptionValue.UNLAYERED },

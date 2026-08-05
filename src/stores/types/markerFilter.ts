@@ -1,5 +1,6 @@
 import type { MaybeComputedRef } from '@vueuse/core'
 import type * as API2 from '@/api/alova/globals'
+import type { MAFModelId } from '@/shared'
 
 // ==================== 基础筛选模型 ====================
 interface PresetType {
@@ -34,7 +35,7 @@ export interface MAFGroup {
 
 export interface MAFItem {
   key: string
-  id: number
+  id: MAFModelId
   // true 为 AND，false 为 OR
   operator: boolean
   opposite: boolean
@@ -50,7 +51,7 @@ export interface MAFGroupComposed {
 
 export interface MAFItemComposed {
   key: string
-  id: number
+  id: MAFModelId
   operator: boolean
   opposite: boolean
   value: MAFValue
@@ -81,7 +82,7 @@ export interface MAFConfig<
   O extends MAFOption = MAFOption,
   M extends MAFMeta = MAFMeta,
 > {
-  readonly id: number
+  readonly id: MAFModelId
   readonly name: string
   readonly option: MaybeComputedRef<O>
   readonly defaultVal: V

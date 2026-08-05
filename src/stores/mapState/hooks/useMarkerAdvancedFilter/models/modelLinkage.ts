@@ -6,11 +6,11 @@ import type {
   MAFSemanticUnit,
   MAFValueBoolean,
 } from '@/stores/types'
-import { MAF_MODEL_NAME_MAP, MAFModelId } from '@/shared'
+import { MAF_MODEL_META_MAP, MAFModelId } from '@/shared'
 
 export class Linkage implements MAFConfig<MAFValueBoolean, MAFOptionSwitch, MAFMetaDummy> {
   id = MAFModelId.LINKAGE
-  name = MAF_MODEL_NAME_MAP[MAFModelId.LINKAGE]
+  name = MAF_MODEL_META_MAP[MAFModelId.LINKAGE].name
   option: MAFOptionSwitch = {
     textInactive: '不存在',
     textActive: '存在',

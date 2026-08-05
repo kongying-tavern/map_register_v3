@@ -6,14 +6,14 @@ import type {
   MAFSemanticUnit,
   MAFValueNumberArray,
 } from '@/stores/types'
-import { MAF_MODEL_NAME_MAP, MAFModelId } from '@/shared'
+import { MAF_MODEL_META_MAP, MAFModelId } from '@/shared'
 import { useItemStore, useItemTypeStore } from '@/stores'
 
 type OptionType = MAFOptionSelect<API2.ItemTypeVo>
 
 export class ItemType implements MAFConfig<MAFValueNumberArray, OptionType, MAFMetaItemType> {
   id = MAFModelId.ITEM_TYPE
-  name = MAF_MODEL_NAME_MAP[MAFModelId.ITEM_TYPE]
+  name = MAF_MODEL_META_MAP[MAFModelId.ITEM_TYPE].name
   option: ComputedRef<OptionType> = computed(() => {
     const { itemTypeList } = useItemTypeStore()
 

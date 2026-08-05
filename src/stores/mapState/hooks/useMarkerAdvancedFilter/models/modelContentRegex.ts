@@ -6,11 +6,11 @@ import type {
   MAFSemanticUnit,
   MAFValueString,
 } from '@/stores/types'
-import { MAF_MODEL_NAME_MAP, MAFModelId } from '@/shared'
+import { MAF_MODEL_META_MAP, MAFModelId } from '@/shared'
 
 export class ContentRegex implements MAFConfig<MAFValueString, MAFOptionInput, MAFMetaContentRegex> {
   id = MAFModelId.CONTENT_REGEX
-  name = MAF_MODEL_NAME_MAP[MAFModelId.CONTENT_REGEX]
+  name = MAF_MODEL_META_MAP[MAFModelId.CONTENT_REGEX].name
   option: MAFOptionInput = {
     placeholder: '',
   }

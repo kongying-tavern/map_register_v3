@@ -28,7 +28,7 @@ export const useMarkerFilter = (options: MarkerFilterHookOptions) => {
       default:
         return markerBasicFilters.value
     }
-  }) as ComputedRef<Map<string, MBFItem> | MAFGroup[]>
+  })
 
   const markerFilterSize = computed(() => {
     switch (markerFilterType.value) {

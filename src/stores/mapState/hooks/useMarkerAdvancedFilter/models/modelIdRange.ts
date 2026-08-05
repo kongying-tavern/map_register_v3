@@ -6,11 +6,11 @@ import type {
   MAFSemanticUnit,
   MAFValueString,
 } from '@/stores/types'
-import { MAF_MODEL_NAME_MAP, MAFModelId } from '@/shared'
+import { MAF_MODEL_META_MAP, MAFModelId } from '@/shared'
 
 export class IdRange implements MAFConfig<MAFValueString, MAFOptionInput, MAFMetaIdRange> {
   id = MAFModelId.ID_RANGE
-  name = MAF_MODEL_NAME_MAP[MAFModelId.ID_RANGE]
+  name = MAF_MODEL_META_MAP[MAFModelId.ID_RANGE].name
   option: MAFOptionInput = {
     placeholder: '格式：1,2,3-5',
   }

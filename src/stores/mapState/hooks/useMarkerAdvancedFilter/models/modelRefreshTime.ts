@@ -8,13 +8,13 @@ import type {
   MAFValueNumberRange,
 } from '@/stores/types'
 import { useRefreshTimeOptions } from '@/hooks'
-import { MAF_MODEL_NAME_MAP, MAFModelId } from '@/shared'
+import { MAF_MODEL_META_MAP, MAFModelId } from '@/shared'
 
 type OptionType = MAFOptionRange & MAFOptionSelect<{ label: string, value: number }>
 
 export class RefreshTime implements MAFConfig<MAFValueNumberRange, OptionType, MAFMetaRefreshTime> {
   id = MAFModelId.REFRESH_TIME
-  name = MAF_MODEL_NAME_MAP[MAFModelId.REFRESH_TIME]
+  name = MAF_MODEL_META_MAP[MAFModelId.REFRESH_TIME].name
   option: ComputedRef<OptionType> = computed(() => {
     const { refreshTimeOptions } = useRefreshTimeOptions()
 
