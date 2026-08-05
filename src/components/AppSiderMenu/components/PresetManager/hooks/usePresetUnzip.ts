@@ -3,28 +3,29 @@ import type {
   FilterConditionsAdvanced,
   FilterConditionsBasic,
 } from '../types'
+import type { PresetPackContext } from '../utils'
 import type { MAFModelId } from '@/shared'
 import type { MAFGroup, MAFItem, MBFItem } from '@/stores/types'
 import { decode } from 'base32768'
 import { isNil } from 'lodash'
 import { storeToRefs } from 'pinia'
 import { useAreaStore, useItemTypeStore } from '@/stores'
-import { ByteReader } from '@/utils/ByteAccessor'
+import { ByteReader } from '@/utils'
+import { usePackUndergroundLayerContext } from '.'
 import {
   getBinaryFilterType,
   getValuePacker,
   isValidBinaryHead,
 } from '../utils'
 
-interface PresetUnzipContext {
-  areaIdMap: Map<number, API.AreaVo>
-  itemTypeIdMap: Map<number, API.ItemTypeVo>
-}
-
 /** 将分享码解压为二进制与原始数据（依赖 store 数据） */
 export function usePresetUnzip(code: MaybeRef<string | null | undefined>) {
   const { areaIdMap } = storeToRefs(useAreaStore())
   const { itemTypeIdMap } = storeToRefs(useItemTypeStore())
+  const {
+    codeToHashMap: undergroundCodeToHashMap,
+    hashToCodeMap: undergroundHashToCodeMap,
+  } = usePackUndergroundLayerContext()
 
   const binary = computed(() => {
     const value = unref(code)
@@ -34,6 +35,8 @@ export function usePresetUnzip(code: MaybeRef<string | null | undefined>) {
     return unzip(binary.value, {
       areaIdMap: areaIdMap.value,
       itemTypeIdMap: itemTypeIdMap.value,
+      undergroundCodeToHashMap: undergroundCodeToHashMap.value,
+      undergroundHashToCodeMap: undergroundHashToCodeMap.value,
     })
   })
 
@@ -47,7 +50,7 @@ export function usePresetUnzip(code: MaybeRef<string | null | undefined>) {
 
 function unzipBasic(
   reader: ByteReader,
-  context: PresetUnzipContext,
+  context: PresetPackContext,
 ): FilterConditionsBasic {
   const { areaIdMap, itemTypeIdMap } = context
   const result = new Map<string, MBFItem>()
@@ -74,7 +77,7 @@ function unzipBasic(
 
 function unzipAdvanced(
   reader: ByteReader,
-  _context: PresetUnzipContext,
+  context: PresetPackContext,
 ): FilterConditionsAdvanced {
   const result: FilterConditionsAdvanced = []
 
@@ -125,7 +128,7 @@ function unzipAdvanced(
       if (valueLength > 0) {
         const valueBytes = reader.readBytes(valueLength, 'blank')
         // 按 id 选择对应 packer 解码
-        child.value = getValuePacker(child.id).decode(valueBytes)
+        child.value = getValuePacker(child.id).decode(valueBytes, context)
       }
 
       group.children.push(child)
@@ -139,7 +142,7 @@ function unzipAdvanced(
 
 function unzip(
   data: Uint8Array,
-  context: PresetUnzipContext,
+  context: PresetPackContext,
 ): FilterConditions {
   if (data.length === 0)
     return new Map()

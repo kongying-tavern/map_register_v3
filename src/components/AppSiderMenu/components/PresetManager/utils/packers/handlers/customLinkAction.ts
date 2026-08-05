@@ -1,7 +1,7 @@
 import type { ValuePacker } from './types'
 import type { MAFValue, MAFValueStringArray } from '@/stores/types'
 import { LinkActionEnum } from '@/shared/linkAction'
-import { ByteReader, ByteWriter } from '@/utils/ByteAccessor'
+import { ByteReader, ByteWriter } from '@/utils'
 
 /** 关联动作 → 位图 bit 位置映射（1-based，MSB-first） */
 const LINK_ACTION_BITS: (readonly [action: LinkActionEnum, bit: number])[] = [

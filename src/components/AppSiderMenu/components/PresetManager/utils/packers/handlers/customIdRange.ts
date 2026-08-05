@@ -1,6 +1,6 @@
 import type { ValuePacker } from './types'
 import type { MAFValue, MAFValueString } from '@/stores/types'
-import { ByteReader, ByteWriter } from '@/utils/ByteAccessor'
+import { ByteReader, ByteWriter } from '@/utils'
 
 const isValidNumber = (num: number): boolean => (
   Number.isInteger(num)

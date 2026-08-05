@@ -5,7 +5,7 @@ import type {
 } from '../types'
 import { encode } from 'base32768'
 import { isNil } from 'lodash'
-import { ByteWriter } from '@/utils/ByteAccessor'
+import { ByteWriter } from '@/utils'
 import {
   getValuePacker,
   isAdvancedFilter,
