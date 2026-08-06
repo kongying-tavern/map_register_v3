@@ -84,5 +84,9 @@ const handlePresetLoad = () => {
     margin-top: 8px;
     margin-bottom: 4px;
   }
+
+  :deep(.gs-tab-content) {
+    padding: 0 8px;
+  }
 }
 </style>

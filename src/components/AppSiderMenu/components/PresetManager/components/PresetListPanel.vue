@@ -56,7 +56,7 @@ defineExpose({
 
 <template>
   <div class="flex h-full gap-5">
-    <div class="flex flex-col h-full flex-1 overflow-hidden gap-3">
+    <div class="flex flex-col h-full flex-1 gap-3">
       <PresetList
         v-model:preset-name="presetName"
         title="预设列表"
