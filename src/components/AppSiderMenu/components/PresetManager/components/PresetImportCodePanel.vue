@@ -1,10 +1,15 @@
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
-import { GSButton, GSInput } from '@/components'
+import { GSButton, GSDivider, GSInput } from '@/components'
 import {
   usePresetImport,
+  usePresetLoad,
   usePresetName,
 } from '../hooks'
+
+const emit = defineEmits<{
+  load: []
+}>()
 
 const presetName = usePresetName()
 const code = shallowRef<string>('')
@@ -24,11 +29,33 @@ const importCallback = (success: boolean) => {
   }
 }
 
-const { importCode } = usePresetImport({
+const { importCode, importConditions } = usePresetImport({
   code,
   name: presetName,
   importCallback,
 })
+const { loadConditions } = usePresetLoad({
+  name: presetName,
+})
+
+const handleLoad = () => {
+  if (!code.value)
+    return
+  try {
+    loadConditions(importConditions.value)
+    ElMessage.success({
+      message: '加载成功',
+    })
+    code.value = ''
+    presetName.value = ''
+    emit('load')
+  }
+  catch {
+    ElMessage.error({
+      message: '加载失败，分享码无效',
+    })
+  }
+}
 </script>
 
 <template>
@@ -40,9 +67,21 @@ const { importCode } = usePresetImport({
       resize="none"
       placeholder="请输入分享码"
     />
-    <div class="flex gap-3 items-center">
-      <GSInput v-model="presetName" class="flex-1 box-border" placeholder="请输入预设名称" />
-      <GSButton :disabled="!code || !presetName" class="box-border" icon="submit" @click="importCode()">
+    <GSInput v-model="presetName" class="box-border" placeholder="请输入预设名称" />
+
+    <GSDivider :height="24" color="#76716A" />
+
+    <div class="flex gap-3">
+      <GSButton
+        :disabled="!code"
+        class="flex-1 box-border"
+        icon="submit"
+        :style="{ '--icon-color': 'var(--gs-color-success)' }"
+        @click="handleLoad()"
+      >
+        加载
+      </GSButton>
+      <GSButton :disabled="!code || !presetName" class="flex-1 box-border" icon="submit" @click="importCode()">
         导入
       </GSButton>
     </div>

@@ -1,6 +1,8 @@
+import type { FilterConditions } from '../types'
 import type { MAFGroup, MBFItem } from '@/stores/types'
 import { cloneDeep } from 'lodash'
 import { usePreferenceStore, useUserStore } from '@/stores'
+import { isAdvancedFilter, toConditionsBaseRecord } from '../utils'
 
 export interface PresetLoadOptions {
   name: Ref<string>
@@ -60,7 +62,18 @@ export const usePresetLoad = (options: PresetLoadOptions) => {
       : loadAdvancedPreset(conditions)
   }
 
+  /** 直接加载指定预设条件（不依赖已保存的预设） */
+  const loadConditions = (conditions: FilterConditions) => {
+    if (userStore.info?.id === undefined)
+      return
+
+    isAdvancedFilter(conditions)
+      ? loadAdvancedPreset(conditions)
+      : loadBasePreset(toConditionsBaseRecord(conditions))
+  }
+
   return {
     loadPreset,
+    loadConditions,
   }
 }

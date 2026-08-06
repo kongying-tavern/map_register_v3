@@ -71,7 +71,7 @@ const handlePresetLoad = () => {
         </template>
 
         <template #importPreset>
-          <PresetImportCodePanel class="pt-1" />
+          <PresetImportCodePanel class="pt-1" @load="handlePresetLoad()" />
         </template>
       </GSTab>
     </div>
