@@ -42,11 +42,11 @@ const { deletePreset } = usePresetDelete({
 })
 const { loadPreset } = usePresetLoad({
   name: presetName,
+  loadCallback: () => emit('load'),
 })
 
 const handlePresetLoad = () => {
   loadPreset()
-  emit('load')
 }
 
 defineExpose({

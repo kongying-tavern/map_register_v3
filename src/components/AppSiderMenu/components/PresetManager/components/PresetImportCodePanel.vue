@@ -34,15 +34,9 @@ const { importCode, importConditions } = usePresetImport({
   name: presetName,
   importCallback,
 })
-const { loadConditions } = usePresetLoad({
-  name: presetName,
-})
 
-const handleLoad = () => {
-  if (!code.value)
-    return
-  try {
-    loadConditions(importConditions.value)
+const loadCallback = (success: boolean) => {
+  if (success) {
     ElMessage.success({
       message: '加载成功',
     })
@@ -50,12 +44,17 @@ const handleLoad = () => {
     presetName.value = ''
     emit('load')
   }
-  catch {
+  else {
     ElMessage.error({
       message: '加载失败，分享码无效',
     })
   }
 }
+
+const { loadPreset } = usePresetLoad({
+  name: presetName,
+  loadCallback,
+})
 </script>
 
 <template>
@@ -77,7 +76,7 @@ const handleLoad = () => {
         class="flex-1 box-border"
         icon="submit"
         :style="{ '--icon-color': 'var(--gs-color-success)' }"
-        @click="handleLoad()"
+        @click="loadPreset(importConditions)"
       >
         加载
       </GSButton>

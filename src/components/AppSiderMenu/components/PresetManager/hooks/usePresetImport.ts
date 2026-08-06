@@ -4,7 +4,7 @@ import { usePresetSave, usePresetUnzip } from '.'
 export interface PresetImportOptions {
   code?: MaybeRef<string>
   name: Ref<string>
-  importCallback: (success: boolean) => void
+  importCallback?: (success: boolean) => void
 }
 
 /** 导入预设分享码 */
@@ -27,10 +27,10 @@ export const usePresetImport = (options: PresetImportOptions) => {
 
     try {
       savePreset(importConditions.value)
-      importCallback(true)
+      importCallback?.(true)
     }
     catch {
-      importCallback(false)
+      importCallback?.(false)
     }
   }
 

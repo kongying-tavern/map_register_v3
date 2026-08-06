@@ -6,10 +6,11 @@ import { isAdvancedFilter, toConditionsBaseRecord } from '../utils'
 
 export interface PresetLoadOptions {
   name: Ref<string>
+  loadCallback?: (success: boolean) => void
 }
 
 export const usePresetLoad = (options: PresetLoadOptions) => {
-  const { name } = options
+  const { name, loadCallback } = options
 
   const userStore = useUserStore()
   const preferenceStore = usePreferenceStore()
@@ -48,32 +49,27 @@ export const usePresetLoad = (options: PresetLoadOptions) => {
   }
 
   /** 读取预设 */
-  const loadPreset = () => {
+  const loadPreset = (customConditions?: FilterConditions) => {
     if (userStore.info?.id === undefined)
       return
 
-    const findIndex = preferenceStore.presets.findIndex(preset => preset.name === name.value)
-    if (findIndex < 0)
-      return
+    try {
+      const conditions = customConditions
+        ?? preferenceStore.presets.find(preset => preset.name === name.value)?.conditions
+      if (!conditions)
+        return
 
-    const { conditions, type: presetType } = preferenceStore.presets[findIndex]
-    presetType === 'basic'
-      ? loadBasePreset(conditions)
-      : loadAdvancedPreset(conditions)
-  }
-
-  /** 直接加载指定预设条件（不依赖已保存的预设） */
-  const loadConditions = (conditions: FilterConditions) => {
-    if (userStore.info?.id === undefined)
-      return
-
-    isAdvancedFilter(conditions)
-      ? loadAdvancedPreset(conditions)
-      : loadBasePreset(toConditionsBaseRecord(conditions))
+      isAdvancedFilter(conditions)
+        ? loadAdvancedPreset(conditions)
+        : loadBasePreset(toConditionsBaseRecord(conditions))
+      loadCallback?.(true)
+    }
+    catch {
+      loadCallback?.(false)
+    }
   }
 
   return {
     loadPreset,
-    loadConditions,
   }
 }
