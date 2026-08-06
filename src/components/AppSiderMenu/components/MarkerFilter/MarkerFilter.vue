@@ -4,7 +4,7 @@ import { IconSetting } from '@/components/AppIcons'
 import { useArchiveStore, useMapStateStore } from '@/stores'
 import { MarkerFilterAdvanced } from '../MarkerFilterAdvanced'
 import { MarkerFilterBasic } from '../MarkerFilterBasic'
-import { PresetManager } from './PresetManager'
+import { PresetManager } from '../PresetManager'
 
 const archiveStore = useArchiveStore()
 const mapStateStore = useMapStateStore()

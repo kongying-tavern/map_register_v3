@@ -7,14 +7,14 @@ import type {
   MAFSemanticUnit,
   MAFValueStringArray,
 } from '@/stores/types'
-import { MAF_MODEL_NAME_MAP, MAFModelId } from '@/shared'
+import { MAF_MODEL_META_MAP, MAFModelId } from '@/shared'
 import { useAreaStore, useMarkerExtraStore } from '@/stores'
 
 type OptionType = MAFOptionSelect<AreaWithExtraConfig>
 
 export class UndergroundLayer implements MAFConfig<MAFValueStringArray, OptionType, MAFMetaUndergroundLayer> {
   id = MAFModelId.UNDERGROUND_LAYER
-  name = MAF_MODEL_NAME_MAP[MAFModelId.UNDERGROUND_LAYER]
+  name = MAF_MODEL_META_MAP[MAFModelId.UNDERGROUND_LAYER].name
   option: ComputedRef<OptionType> = computed(() => {
     const { areaCodeMap } = useAreaStore()
     const { mergedAreaExtraConfigs } = useMarkerExtraStore()

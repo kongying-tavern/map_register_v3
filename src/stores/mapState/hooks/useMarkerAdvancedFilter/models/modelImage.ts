@@ -6,11 +6,11 @@ import type {
   MAFSemanticUnit,
   MAFValueBoolean,
 } from '@/stores/types'
-import { MAF_MODEL_NAME_MAP, MAFModelId } from '@/shared'
+import { MAF_MODEL_META_MAP, MAFModelId } from '@/shared'
 
 export class Image implements MAFConfig<MAFValueBoolean, MAFOptionSwitch, MAFMetaDummy> {
   id = MAFModelId.IMAGE
-  name = MAF_MODEL_NAME_MAP[MAFModelId.IMAGE]
+  name = MAF_MODEL_META_MAP[MAFModelId.IMAGE].name
   option: MAFOptionSwitch = {
     textInactive: '不存在',
     textActive: '存在',

@@ -35,7 +35,7 @@ const tab = ref('archive')
     </div>
 
     <div class="user-action">
-      <GSTab v-model="tab" :tabs="tabs" class="h-full">
+      <GSTab v-model="tab" :tabs="tabs" divider class="h-full">
         <template #archive>
           <ArchiveSelector />
         </template>

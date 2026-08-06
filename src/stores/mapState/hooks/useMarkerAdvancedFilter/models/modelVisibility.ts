@@ -7,13 +7,13 @@ import type {
   MAFValueNumberArray,
 } from '@/stores/types'
 import { useHiddenFlagOptions } from '@/hooks'
-import { MAF_MODEL_NAME_MAP, MAFModelId } from '@/shared'
+import { MAF_MODEL_META_MAP, MAFModelId } from '@/shared'
 
 type OptionType = MAFOptionSelect<{ label: string, value: number }>
 
 export class Visibility implements MAFConfig<MAFValueNumberArray, OptionType, MAFMetaVisibility> {
   id = MAFModelId.VISIBILITY
-  name = MAF_MODEL_NAME_MAP[MAFModelId.VISIBILITY]
+  name = MAF_MODEL_META_MAP[MAFModelId.VISIBILITY].name
   option: ComputedRef<OptionType> = computed(() => {
     const { hiddenFlagOptions } = useHiddenFlagOptions()
 

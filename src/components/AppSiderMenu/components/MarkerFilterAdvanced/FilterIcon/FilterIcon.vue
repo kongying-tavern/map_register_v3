@@ -1,14 +1,14 @@
 <script lang="ts" setup>
 import type { MAFModelId } from '@/shared'
-import { MAF_MODEL_ICON_MAP } from '@/shared'
+import { MAF_MODEL_META_MAP } from '@/shared'
 
 const props = defineProps<{
   id: MAFModelId
 }>()
 
 const iconComponent = computed(() => {
-  return MAF_MODEL_ICON_MAP[props.id]
-}) as ComputedRef<Component>
+  return MAF_MODEL_META_MAP[props.id].icon
+})
 </script>
 
 <template>

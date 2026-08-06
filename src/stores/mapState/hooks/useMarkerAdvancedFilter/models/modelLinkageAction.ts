@@ -6,7 +6,7 @@ import type {
   MAFSemanticUnit,
   MAFValueStringArray,
 } from '@/stores/types'
-import { MAF_MODEL_NAME_MAP, MAFModelId } from '@/shared'
+import { MAF_MODEL_META_MAP, MAFModelId } from '@/shared'
 import { LINK_ACTION_NAME_MAP, LINK_ACTION_OPTIONS, LinkActionEnum } from '@/shared/linkAction'
 import { useMarkerLinkStore } from '@/stores'
 
@@ -14,7 +14,7 @@ type OptionType = typeof LINK_ACTION_OPTIONS[0]
 
 export class LinkageAction implements MAFConfig<MAFValueStringArray, MAFOptionSelect<OptionType>, MAFMetaLinkageAction> {
   id = MAFModelId.LINKAGE_ACTION
-  name = MAF_MODEL_NAME_MAP[MAFModelId.LINKAGE_ACTION]
+  name = MAF_MODEL_META_MAP[MAFModelId.LINKAGE_ACTION].name
   option: MAFOptionSelect<OptionType> = {
     dialogTitle: '选择关联类型',
     dialogListClass: 'grid grid-cols-2',

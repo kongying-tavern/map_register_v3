@@ -7,14 +7,14 @@ import type {
   MAFSemanticUnit,
   MAFValueNumberArray,
 } from '@/stores/types'
-import { MAF_MODEL_NAME_MAP, MAFModelId } from '@/shared'
+import { MAF_MODEL_META_MAP, MAFModelId } from '@/shared'
 import { useAreaStore, useItemStore } from '@/stores'
 
 type OptionType = MAFOptionSelect<AreaWithChildren>
 
 export class Area implements MAFConfig<MAFValueNumberArray, OptionType, MAFMetaArea> {
   id = MAFModelId.AREA
-  name = MAF_MODEL_NAME_MAP[MAFModelId.AREA]
+  name = MAF_MODEL_META_MAP[MAFModelId.AREA].name
   option: ComputedRef<OptionType> = computed(() => {
     const { areaTree } = useAreaStore()
 

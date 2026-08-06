@@ -1,3 +1,4 @@
+import type { MAFModelId } from '@/shared'
 import type { useArchiveStore } from '@/stores'
 import type {
   MAFConfig,
@@ -56,7 +57,7 @@ const configList = [
   new ItemCount(),
 ]
 
-const configMap: Record<number, MAFConfig> = keyBy(configList as unknown as MAFConfig[], 'id')
+const configMap: Record<MAFModelId, MAFConfig> = keyBy(configList as unknown as MAFConfig[], 'id') as Record<MAFModelId, MAFConfig>
 
 const createEmptyGroup = (): MAFGroup => ({
   key: crypto.randomUUID(),
@@ -66,7 +67,7 @@ const createEmptyGroup = (): MAFGroup => ({
 })
 
 const createEmptyItem = (): MAFItem => ({
-  id: 0,
+  id: 0 as MAFModelId,
   key: crypto.randomUUID(),
   operator: true,
   opposite: false,
@@ -92,8 +93,8 @@ const _useMarkerAdvancedFilter = (options: MarkerAdvancedFilterHookOptions) => {
     },
   })
 
-  const getMAFConfig = (id: number): MAFConfig => configMap[id] ?? {
-    id: 0,
+  const getMAFConfig = (id: MAFModelId): MAFConfig => configMap[id] ?? {
+    id: 0 as MAFModelId,
     name: '',
     option: {},
     defaultVal: {},
@@ -126,7 +127,7 @@ const _useMarkerAdvancedFilter = (options: MarkerAdvancedFilterHookOptions) => {
         children.forEach((child) => {
           const {
             key,
-            id = 0,
+            id = 0 as MAFModelId,
             operator: itemOperator,
             opposite: itemOpposite,
             value = {},
@@ -174,7 +175,7 @@ const _useMarkerAdvancedFilter = (options: MarkerAdvancedFilterHookOptions) => {
         } = group
         const convertedChildren: MAFItem[] = children.map((child) => {
           const {
-            id = 0,
+            id = 0 as MAFModelId,
             key,
             operator: itemOperator = true,
             opposite: itemOpposite = false,
@@ -272,7 +273,7 @@ const _useMarkerAdvancedFilter = (options: MarkerAdvancedFilterHookOptions) => {
       item.opposite = !(item.opposite ?? false)
   }
 
-  const appendCondition = (groupIndex: number, id: number = 0) => {
+  const appendCondition = (groupIndex: number, id: MAFModelId = 0 as MAFModelId) => {
     if (advancedFilterCache.value[groupIndex].children) {
       const conditionModel = getMAFConfig(id)
       const newItem = createEmptyItem()
@@ -282,7 +283,7 @@ const _useMarkerAdvancedFilter = (options: MarkerAdvancedFilterHookOptions) => {
     }
   }
 
-  const insertCondition = (groupIndex: number, itemIndex: number, id: number = 0) => {
+  const insertCondition = (groupIndex: number, itemIndex: number, id: MAFModelId = 0 as MAFModelId) => {
     if (!advancedFilterCache.value[groupIndex])
       return
 
