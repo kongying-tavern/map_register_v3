@@ -54,8 +54,14 @@ const copyCode = async () => {
   </div>
 
   <el-scrollbar class="flex-1 overflow-hidden">
-    <div class="text-wrap break-all max-h-0 pr-1" :class="{ 'text-center': !displayShareCode }">
+    <div class="text-wrap break-all max-h-0 pr-1 share-code-text" :class="{ 'text-center': !displayShareCode }">
       {{ displayShareCode || '暂无分享码' }}
     </div>
   </el-scrollbar>
 </template>
+
+<style scoped lang="scss">
+.share-code-text {
+  font-variant-emoji: text;
+}
+</style>

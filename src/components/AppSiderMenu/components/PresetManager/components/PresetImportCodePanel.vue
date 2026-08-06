@@ -104,6 +104,7 @@ const { loadPreset } = usePresetLoad({
     font-family: 'HYWenHei-85W';
     font-size: 14px;
     line-height: 1.6;
+    font-variant-emoji: text;
 
     &::placeholder {
       color: #6B7A92;
