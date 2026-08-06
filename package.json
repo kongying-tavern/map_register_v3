@@ -14,10 +14,6 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview --mode development",
     "preview:stage": "vite preview --mode stage",
-    "patch:apply": "pnpm patch-commit patch-edit && pnpm patch:install",
-    "patch:clean": "rimraf patch-edit",
-    "patch:init": "pnpm patch:clean && pnpm patch --edit-dir patch-edit openapi2ts",
-    "patch:install": "pnpm i --force --prefer-offline",
     "type-check": "vue-tsc --build --force",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -78,7 +74,6 @@
     "eslint": "9.21.0",
     "less": "4.2.2",
     "lint-staged": "15.5.0",
-    "openapi2ts": "1.1.7",
     "postcss": "8.4.31",
     "postcss-load-config": "5.0.2",
     "protobufjs-cli": "2.0.0",
@@ -101,15 +96,11 @@
     "pnpm": ">=8.0.0"
   },
   "pnpm": {
-    "patchedDependencies": {
-      "openapi2ts@1.1.7": "patches/openapi2ts@1.1.7.patch"
-    },
     "onlyBuiltDependencies": [
       "@vaadin/vaadin-usage-statistics",
       "core-js",
       "es5-ext",
       "esbuild",
-      "openapi2ts",
       "protobufjs",
       "unrs-resolver",
       "vue-demi"
