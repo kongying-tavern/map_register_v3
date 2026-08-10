@@ -1,4 +1,4 @@
-import type * as API2 from '@/api/alova/globals'
+import type { AreaVo, ItemVo, MarkerVo } from '@/api/alova/globals'
 import type { GSMarkerInfo } from '@/packages/map'
 import type { AreaTileConfig } from '@/stores'
 import { useAreaStore, useItemStore, useTileStore } from '@/stores'
@@ -6,15 +6,15 @@ import { pickMainItem } from '@/utils'
 
 export interface NormalizeMarkerOptions {
   tileConfigs?: Record<string, AreaTileConfig>
-  itemIdMap?: Map<number, API2.ItemVo>
-  areaIdMap?: Map<number, API2.AreaVo>
+  itemIdMap?: Map<number, ItemVo>
+  areaIdMap?: Map<number, AreaVo>
   isTemporary?: boolean
   reset?: boolean
 }
 
 /** 为点位列表附加渲染配置 */
 export const createRenderMarkers = (
-  markers: (API2.MarkerVo | GSMarkerInfo)[],
+  markers: (MarkerVo | GSMarkerInfo)[],
   options: NormalizeMarkerOptions = {},
 ) => {
   const {
@@ -26,7 +26,7 @@ export const createRenderMarkers = (
   } = options
 
   /** 缓存从物品 id 查询到的地区信息和底图配置，减少索引时间复杂度 */
-  const cacheMap = new Map<number, { area: API2.AreaVo, tileConfig: AreaTileConfig }>()
+  const cacheMap = new Map<number, { area: AreaVo, tileConfig: AreaTileConfig }>()
 
   const normalizedMarkers: GSMarkerInfo[] = []
 
@@ -71,7 +71,7 @@ export const createRenderMarkers = (
         area,
         tileCode: tileConfig.tile.code,
         position: [Number(strX) + ox, Number(strY) + oy],
-        isUnderground: (marker.extra as API.MarkerExtra)?.underground?.is_underground ?? false,
+        isUnderground: marker.extra?.underground?.is_underground ?? false,
         isTemporary,
       },
     })

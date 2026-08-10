@@ -1,4 +1,4 @@
-import type * as API2 from '@/api/alova/globals'
+import type { TweakVo } from '@/api/alova/globals'
 import { ElMessage } from 'element-plus'
 import { useFetchHook } from '@/hooks'
 import { useMapStateStore, useMarkerStore, useTileStore } from '@/stores'
@@ -27,7 +27,7 @@ export const useMarkerPositionEdit = () => {
       const { currentMarkerIdMap } = mapStateStore
       const missions = draggingMission.value
 
-      const payload: API2.TweakVo[] = []
+      const payload: TweakVo[] = []
 
       missions.forEach(([x, y], id) => {
         const marker = currentMarkerIdMap.get(id)

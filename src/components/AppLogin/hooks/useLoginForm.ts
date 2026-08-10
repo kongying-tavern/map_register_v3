@@ -11,7 +11,7 @@ export const useLoginForm = () => {
 
   const formRef = ref<ElFormType | null>(null)
 
-  const loginForm = ref<API.SysTokenVO>({
+  const loginForm = ref<OauthAPI.SysTokenVO>({
     grant_type: 'password',
     username: import.meta.env.VITE_AUTO_COMPLETE_USERNAME ?? '',
     password: import.meta.env.VITE_AUTO_COMPLETE_PASSWORD ?? '',
@@ -21,7 +21,7 @@ export const useLoginForm = () => {
     keys: [],
   })
 
-  const rules: ItemFormRules<API.SysTokenVO> = {
+  const rules: ItemFormRules<OauthAPI.SysTokenVO> = {
     username: {
       required: true,
       validator: (_, v: string, callback) => {

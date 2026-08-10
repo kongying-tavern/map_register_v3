@@ -1,13 +1,17 @@
+import type { SysUserInvitationVo } from '@/api/alova/globals'
 import { ElMessage } from 'element-plus'
-import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 
 export const useInvitationDelete = () => {
   const { onSuccess, onError, ...rest } = useFetchHook({
-    onRequest: async ({ id: invitationId }: API.SysUserInvitationVo) => {
+    onRequest: async ({ id: invitationId }: SysUserInvitationVo) => {
       if (invitationId === undefined)
         throw new Error('ID 为空')
-      await Api.invitation.deleteInvitation({ invitationId })
+      await Apis.invitation.deleteInvitation({
+        pathParams: {
+          invitationId,
+        },
+      })
       return invitationId
     },
   })

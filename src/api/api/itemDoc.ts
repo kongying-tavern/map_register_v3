@@ -1,9 +1,10 @@
 import type { AxiosRequestConfig } from 'axios'
+import type { RListBinaryMD5Vo } from '../alova/globals'
 import { request } from '@/utils'
 
 /** 返回物品分页的md5数组 返回物品分页的md5数组 GET /api/item_doc/list_page_bin_md5 */
 export async function listItemBinaryMD5(options?: AxiosRequestConfig) {
-  return request<API.RListBinaryMD5Vo>('/api/item_doc/list_page_bin_md5', {
+  return request<RListBinaryMD5Vo>('/api/item_doc/list_page_bin_md5', {
     method: 'GET',
     ...(options || {}),
   })

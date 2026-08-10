@@ -11,7 +11,7 @@ export const useCountChart = (container: Ref<HTMLElement | undefined>, data: Ref
   const getData = () => {
     const raw = toValue(data)
     // 取前 5
-    const res = raw.toSorted(({ totalCount: countA }, { totalCount: countB }) => countB - countA).slice(0, 5)
+    const res = raw.toSorted(({ totalCount: a = 0 }, { totalCount: b = 0 }) => b - a).slice(0, 5)
     return res
   }
 

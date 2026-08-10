@@ -1,21 +1,21 @@
 import type { Hash } from 'types/database'
 import type { HashGroupMeta } from './utils'
+import type { AreaVo } from '@/api/alova/globals'
 import type { WorkerInput, WorkerOutput } from '@/worker/idb.worker'
 import { liveQuery } from 'dexie'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import Api from '@/api/api'
 import db from '@/database'
 import BulkPutWorker from '@/worker/idb.worker?worker'
 import { useAccessStore, useUserStore } from '.'
 import { useManager } from './hooks'
 import { createHashGroupMap } from './utils'
 
-export interface AreaWithChildren extends API.AreaVo {
+export interface AreaWithChildren extends AreaVo {
   children?: AreaWithChildren[]
 }
 
-export interface AreaWithExtraConfig extends API.AreaVo {
-  extraConfig?: API.ExtraConfig
+export interface AreaWithExtraConfig extends AreaVo {
+  extraConfig?: DTO.ExtraConfig
 }
 
 /** 本地地区数据 */
@@ -24,12 +24,12 @@ export const useAreaStore = defineStore('global-area', () => {
   const userStore = useUserStore()
 
   // ==================== 内部状态 ====================
-  const hashGroupMap = shallowRef(new Map<string, HashGroupMeta<Hash<API.AreaVo>>>())
+  const hashGroupMap = shallowRef(new Map<string, HashGroupMeta<Hash<AreaVo>>>())
 
   // ==================== 外部状态 ====================
 
   const list = computed(() => {
-    const result: API.AreaVo[] = []
+    const result: AreaVo[] = []
     hashGroupMap.value.forEach(({ list: scopeList }) => {
       scopeList.forEach((area) => {
         if (!accessStore.checkHiddenFlag(area.hiddenFlag))
@@ -43,7 +43,7 @@ export const useAreaStore = defineStore('global-area', () => {
   const total = computed(() => list.value.length)
 
   /** @deprecated 使用 `areaIdMap` 代替 */
-  const areaMap = computed<Record<string, API.AreaVo>>(() => (Object.fromEntries(list.value.map(area => [
+  const areaMap = computed<Record<string, AreaVo>>(() => (Object.fromEntries(list.value.map(area => [
     area.id as number,
     area,
   ]))))
@@ -51,17 +51,17 @@ export const useAreaStore = defineStore('global-area', () => {
   const idMap = computed(() => list.value.reduce((seed, area) => {
     seed.set(area.id!, area)
     return seed
-  }, new Map<number, API.AreaVo>()))
+  }, new Map<number, AreaVo>()))
 
   const codeMap = computed(() => list.value.reduce((seed, area) => {
     seed.set(area.code!, area)
     return seed
-  }, new Map<string, API.AreaVo>()))
+  }, new Map<string, AreaVo>()))
 
-  const parentAreaList = computed<API.AreaVo[]>(() => list.value.filter(area => !area.isFinal))
-  const childrenAreaList = computed<API.AreaVo[]>(() => list.value.filter(area => area.isFinal))
+  const parentAreaList = computed<AreaVo[]>(() => list.value.filter(area => !area.isFinal))
+  const childrenAreaList = computed<AreaVo[]>(() => list.value.filter(area => area.isFinal))
   const areaTree = computed<AreaWithChildren[]>(() => parentAreaList.value.map(parentArea => ({ ...parentArea, children: childrenAreaList.value.filter(childArea => childArea.parentId === parentArea.id) })))
-  const childrenAreaParentMap = computed<Record<number, API.AreaVo[]>>(() => Object.fromEntries(areaTree.value.map(area => [area.id!, area.children ?? []])))
+  const childrenAreaParentMap = computed<Record<number, AreaVo[]>>(() => Object.fromEntries(areaTree.value.map(area => [area.id!, area.children ?? []])))
 
   // ==================== 数据更新 ====================
 
@@ -87,7 +87,12 @@ export const useAreaStore = defineStore('global-area', () => {
 
       // 由于 area 接口暂无档案版，直接跳过 diff 进行覆盖更新
       message.value = '获取更新数据'
-      const { data = [] } = await Api.area.listArea({ parentId: -1, isTraverse: true })
+      const { data = [] } = await Apis.area.listArea({
+        data: {
+          parentId: -1,
+          isTraverse: true,
+        },
+      })
 
       message.value = '获取签名'
       const source = new TextEncoder().encode(JSON.stringify(data))
@@ -112,7 +117,7 @@ export const useAreaStore = defineStore('global-area', () => {
       const { resolve, promise } = Promise.withResolvers<WorkerOutput>()
       const worker = new BulkPutWorker({ name: '地区更新线程' })
       worker.addEventListener('message', (ev: MessageEvent<WorkerOutput>) => resolve(ev.data))
-      worker.postMessage(<WorkerInput<number, Hash<API.AreaVo>>>{ tableName: 'area', ...options })
+      worker.postMessage(<WorkerInput<number, Hash<AreaVo>>>{ tableName: 'area', ...options })
       const { error, message: workerMsg } = await promise
       worker.terminate()
       if (error) {

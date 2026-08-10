@@ -1,6 +1,6 @@
 import { ElMessage } from 'element-plus'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import Api from '@/api/config'
+import { getSystemConfig } from '@/api/config'
 import { validateDadianJSON } from '@/configs'
 import { cache } from '@/database'
 import { useFetchHook } from '@/hooks'
@@ -12,7 +12,7 @@ const getDigest = async (data: ArrayBuffer) => {
   return [...new Uint8Array(hash)].map(num => num.toString(16).padStart(2, '0')).join('')
 }
 
-const getVersion = (config: API.DadianJSON) => {
+const getVersion = (config: DTO.DadianJSON) => {
   return `${config.tiles?.['提瓦特-base0']?.code ?? '-NA-'} / ${config.tilesBeta?.['提瓦特-base0']?.code ?? '-NA-'}`
 }
 
@@ -27,8 +27,8 @@ export const useDadianStore = defineStore('system-config', () => {
       hash: '',
     },
     onRequest: async () => {
-      const currentSystemConfigData = await Api.getSystemConfig()
-      const currentSystemConfig = await Zip.decompressAs<API.DadianJSON>(new Uint8Array(currentSystemConfigData), {
+      const currentSystemConfigData = await getSystemConfig()
+      const currentSystemConfig = await Zip.decompressAs<DTO.DadianJSON>(new Uint8Array(currentSystemConfigData), {
         name: 'system-config',
       })
       const currentSystemConfigDigest = await getDigest(currentSystemConfigData)
@@ -113,7 +113,7 @@ export const useDadianStore = defineStore('system-config', () => {
     if (nameCard.label)
       map.set(nameCard.label, nameCard)
     return map
-  }, new Map<string, API.NameCardOption>()))
+  }, new Map<string, DTO.NameCardOption>()))
 
   return {
     raw,

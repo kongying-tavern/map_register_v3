@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import type * as API2 from '@/api/alova/globals'
+import type { IconVo, SysUserVo } from '@/api/alova/globals.js'
 import { Delete } from '@element-plus/icons-vue'
 import dayjs from 'dayjs'
-import Api from '@/api/api'
 import { useFetchHook, useGlobalDialog } from '@/hooks'
 import { useIconStore } from '@/stores'
 import { formatByteSize } from '@/utils'
@@ -28,19 +27,19 @@ const icon = computed(() => {
 })
 
 // ==================== 用户信息 ====================
-const userCache = ref<Record<number, API.SysUserVo>>({})
+const userCache = ref<Record<number, SysUserVo>>({})
 
-const { refresh: getUserInfo, loading: isUserInfoLoading, onSuccess } = useFetchHook<API.SysUserVo[], [userIds: number[]]>({
+const { refresh: getUserInfo, loading: isUserInfoLoading, onSuccess } = useFetchHook<SysUserVo[], [userIds: number[]]>({
   onRequest: (userIds: number[]) => Promise.all([...new Set(userIds)].reduce((seed, userId) => {
     if (userCache.value[userId] === undefined) {
-      seed.push(Api.user
-        .getUserInfo({ userId })
+      seed.push(Apis.user
+        .getUserInfo({ pathParams: { userId } })
         .then(({ data = {} }) => data)
-        .catch(() => ({ id: userId } as API.SysUserVo)),
+        .catch(() => ({ id: userId } as SysUserVo)),
       )
     }
     return seed
-  }, [] as Promise<API.SysUserVo>[])),
+  }, [] as Promise<SysUserVo>[])),
 })
 
 watch(() => icon.value, (icon) => {
@@ -103,7 +102,7 @@ const showIconEditor = () => {
 }
 
 // ==================== 删除图标 ====================
-const showIconDeleteConfirm = (icon: API2.IconVo) => {
+const showIconDeleteConfirm = (icon: IconVo) => {
   DialogService
     .props({
       title: '删除地区',

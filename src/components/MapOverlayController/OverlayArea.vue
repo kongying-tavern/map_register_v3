@@ -98,8 +98,8 @@ const childrenAreaList = computed(() => {
       <GSSelect
         v-model="archiveParentAreaCode"
         :options="areaStore.parentAreaList"
-        label-key="name"
-        value-key="code"
+        :get-label="item => item.name ?? ''"
+        :get-value="item => item.code ?? ''"
         class="flex-1 text-sm"
       >
         <template #label="{ label, option }">
@@ -132,8 +132,8 @@ const childrenAreaList = computed(() => {
       <GSSelect
         v-model="archiveAreaCode"
         :options="childrenAreaList"
-        label-key="name"
-        value-key="code"
+        :get-label="item => item.name ?? ''"
+        :get-value="item => item.code ?? ''"
         class="flex-1 text-sm"
       >
         <template #missed>

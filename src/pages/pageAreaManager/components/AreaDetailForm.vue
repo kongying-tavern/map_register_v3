@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import type { AreaVo, ItemVo } from '@/api/alova/globals'
 import type { ElFormType } from '@/shared'
 import type { ItemFormRules } from '@/utils'
 import { cloneDeep } from 'lodash'
@@ -8,14 +9,14 @@ import { useAccessStore, useIconStore } from '@/stores'
 import { useIconOptions } from '../hooks'
 
 const props = defineProps<{
-  parent?: API.AreaVo
-  items?: API.ItemVo[]
-  modelValue: API.AreaVo
+  parent?: AreaVo
+  items?: ItemVo[]
+  modelValue: AreaVo
 }>()
 
 const emits = defineEmits<{
-  'update:modelValue': [area: API.AreaVo]
-  'update:items': [items?: API.ItemVo[]]
+  'update:modelValue': [area: AreaVo]
+  'update:items': [items?: ItemVo[]]
 }>()
 
 const accessStore = useAccessStore()
@@ -67,7 +68,7 @@ const selectedItems = computed({
   set: v => emits('update:items', v),
 })
 
-const rules: ItemFormRules<API.AreaVo> = {
+const rules: ItemFormRules<AreaVo> = {
   name: [
     { required: true, message: '地区名称不能为空' },
   ],

@@ -1,6 +1,6 @@
+import type { HistoryVo, SysUserSmallVo } from '@/api/alova/globals'
 import type { PaginationState } from '@/hooks'
 import type { HistoryActionType } from '@/shared'
-import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 
 export const useHistoryList = (options: {
@@ -10,18 +10,20 @@ export const useHistoryList = (options: {
 }) => {
   const { historyType, pagination, editType } = options
 
-  const historyList = shallowRef<API.HistoryVo[]>([])
-  const userMap = shallowRef<Record<string, API.SysUserSmallVo>>({})
+  const historyList = shallowRef<HistoryVo[]>([])
+  const userMap = shallowRef<Record<string, SysUserSmallVo>>({})
 
   const { refresh: updateHistoryList, onSuccess, ...rest } = useFetchHook({
     immediate: true,
     onRequest: async () => {
-      const { data: { record = [], total = 0 } = {}, users = {} } = await Api.history.searchHistory({
-        type: historyType.value,
-        current: pagination.value.current,
-        size: pagination.value.pageSize,
-        sort: ['updateTime-'],
-        editType: editType.value === undefined ? undefined : `${editType.value}`,
+      const { data: { record = [], total = 0 } = {}, users = {} } = await Apis.history.searchHistory({
+        data: {
+          type: historyType.value,
+          current: pagination.value.current,
+          size: pagination.value.pageSize,
+          sort: ['updateTime-'],
+          editType: editType.value === undefined ? undefined : `${editType.value}`,
+        },
       })
 
       return { list: record, total, users }

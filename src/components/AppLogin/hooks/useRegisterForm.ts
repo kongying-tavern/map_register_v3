@@ -1,7 +1,6 @@
 import type { ElFormType } from '@/shared'
 import type { ItemFormRules } from '@/utils'
 import { ElMessage } from 'element-plus'
-import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 import { useUserStore } from '@/stores'
 import { useValidateStatus } from './useValidateStatus'
@@ -86,11 +85,13 @@ export const useRegisterForm = (init: RegisterForm = {}) => {
       if (!isFormValid)
         throw new Error('表单校验未通过')
       const { code, username, nickname, password } = form.value
-      const { data, message } = await Api.invitation.consumeInvitation({
-        code,
-        nickname,
-        username,
-        password,
+      const { data, message } = await Apis.invitation.consumeInvitation({
+        data: {
+          code,
+          nickname,
+          username,
+          password,
+        },
       })
       if (!data)
         throw new Error(message ?? '无效的注册码')

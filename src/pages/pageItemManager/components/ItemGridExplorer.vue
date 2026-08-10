@@ -1,18 +1,19 @@
 <script lang="ts" setup>
+import type { ItemVo, SysUserSmallVo } from '@/api/alova/globals.js'
 import { IconLoading } from '@/components/AppIcons'
 import { useMarkerStore } from '@/stores'
 import ItemGridCard from './ItemGridCard.vue'
 
 defineProps<{
   loading: boolean
-  itemList: API.ItemVo[]
-  userMap: Record<string, API.SysUserSmallVo>
+  itemList: ItemVo[]
+  userMap: Record<string, SysUserSmallVo>
 }>()
 
 const emits = defineEmits<{
-  selectionChange: [selections: API.ItemVo[]]
-  review: [API.ItemVo]
-  delete: [API.ItemVo]
+  selectionChange: [selections: ItemVo[]]
+  review: [ItemVo]
+  delete: [ItemVo]
 }>()
 
 const markerStore = useMarkerStore()

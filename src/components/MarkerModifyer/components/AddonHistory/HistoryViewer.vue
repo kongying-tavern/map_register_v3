@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { MarkerVo } from '@/api/alova/globals.js'
 import DifferCoord from './DifferCoord.vue'
 import DifferExtra from './DifferExtra.vue'
 import DifferHiddenFlag from './DifferHiddenFlag.vue'
@@ -11,8 +12,8 @@ import HistoryDifferItem from './HistoryDifferItem.vue'
 const props = defineProps<{
   loading?: boolean
   diffs?: Set<string>
-  newContent: API.MarkerVo
-  oldContent: API.MarkerVo
+  newContent: MarkerVo
+  oldContent: MarkerVo
   autoCollapse?: boolean
 }>()
 

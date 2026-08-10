@@ -1,9 +1,9 @@
 import type { MessageHandler } from 'element-plus'
+import type { SysRoleVo, SysUserVo } from '@/api/alova/globals'
 import { ElMessage } from 'element-plus'
 import { camelCase } from 'lodash'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { defer, lastValueFrom, retry } from 'rxjs'
-import Api from '@/api/api'
 import Oauth from '@/api/oauth'
 import { useFetchHook } from '@/hooks'
 import { ROLE_MASK_MAP, USERAUTH_KEY } from '@/shared'
@@ -16,6 +16,19 @@ interface AppUserAuth {
   expiresTime: number
   accessToken: string
   tokenType: string
+}
+
+interface AppUserInfo extends SysUserVo {
+  id: number
+  username: string
+  roleId: number
+  role?: {
+    mask: number
+    id?: number | undefined
+    name?: string | undefined
+    code?: string | undefined
+    sort?: number | undefined
+  }
 }
 
 const logger = new Logger('鉴权')
@@ -44,7 +57,7 @@ export const useUserStore = defineStore('global-user', () => {
     return expiresTime > Date.now()
   }
 
-  const setAuth = (newAuth: API.SysToken) => {
+  const setAuth = (newAuth: OauthAPI.SysToken) => {
     const { refreshToken, userId, expiresIn, tokenType, accessToken } = toCamelCaseObject(newAuth)
     auth.value = {
       refreshToken,
@@ -57,32 +70,29 @@ export const useUserStore = defineStore('global-user', () => {
   }
 
   // ==================== 角色信息 ====================
+  const roleList = shallowRef<SysRoleVo[]>([])
+  const userInfo = shallowRef<AppUserInfo | null>(null)
+
   const {
-    data: roleList,
     loading: roleListLoading,
     refresh: refreshRoleList,
   } = useFetchHook({
-    initialValue: [],
-    shallow: true,
     onRequest: async () => {
-      const { data: newRoleList = [] } = await Api.role.listRole()
-      return newRoleList
+      const { data = [] } = await Apis.role.listRole()
+      roleList.value = data
     },
   })
 
   const roleMap = computed(() => roleList.value.reduce((map, role) => {
     return map.set(role.id!, role)
-  }, new Map<number, API.SysRoleVo>()))
+  }, new Map<number, SysRoleVo>()))
 
   // ==================== 用户信息 ====================
   const {
-    data: info,
     loading: isInfoLoading,
     refresh: refreshUserInfo,
     onError: onFetchInfoError,
   } = useFetchHook({
-    shallow: true,
-    initialValue: null,
     onRequest: async (userId: number | undefined = auth.value.userId) => {
       if (!userId)
         return null
@@ -90,11 +100,15 @@ export const useUserStore = defineStore('global-user', () => {
       if (!roleList.value.length)
         await refreshRoleList()
 
-      const { data = {} } = await Api.user.getUserInfo({ userId })
+      const { data = {} } = await Apis.user.getUserInfo({
+        pathParams: {
+          userId,
+        },
+      })
       const { roleId = -1, username = '', ...rest } = data
       const role = roleMap.value.get(roleId)
 
-      return {
+      const info: AppUserInfo = {
         id: userId,
         username,
         role: role
@@ -106,18 +120,19 @@ export const useUserStore = defineStore('global-user', () => {
         roleId,
         ...rest,
       }
+      userInfo.value = info
     },
   })
 
   const isLogin = computed(() => {
     if (!auth.value.accessToken)
       return false
-    return info.value !== undefined
+    return userInfo.value !== null
   })
 
   const logoutMessageHandler = shallowRef<MessageHandler>()
 
-  const login = async (form: API.SysTokenVO) => {
+  const login = async (form: OauthAPI.SysTokenVO) => {
     const authData = await Oauth.oauth.token(form)
     setAuth(authData)
     logoutMessageHandler.value?.close()
@@ -126,7 +141,7 @@ export const useUserStore = defineStore('global-user', () => {
 
   const clearLoginState = () => {
     auth.value = {}
-    info.value = null
+    userInfo.value = null
     logoutMessageHandler.value?.close()
   }
 
@@ -223,7 +238,7 @@ export const useUserStore = defineStore('global-user', () => {
     roleList,
     roleListLoading,
     roleMap,
-    info,
+    info: userInfo,
     isInfoLoading,
     isAutoRefreshActive,
     isLogin,

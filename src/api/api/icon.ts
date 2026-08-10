@@ -1,9 +1,10 @@
 import type { AxiosRequestConfig } from 'axios'
+import type { IconSearchVo, IconVo, RBoolean, RIconVo, RLong, RPageListVoIconVo } from '../alova/globals'
 import { request } from '@/utils'
 
 /** 新增图标 无需指定icon的id，id由系统自动生成并在响应中返回,一组name和updater需要唯一（允许单一重复） PUT /api/icon/add */
-export async function createIcon(body: API.IconVo, options?: AxiosRequestConfig) {
-  return request<API.RLong>('/api/icon/add', {
+export async function createIcon(body: IconVo, options?: AxiosRequestConfig) {
+  return request<RLong>('/api/icon/add', {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -14,8 +15,8 @@ export async function createIcon(body: API.IconVo, options?: AxiosRequestConfig)
 }
 
 /** 修改图标信息 由icon_id定位修改一个icon POST /api/icon/update */
-export async function updateIcon(body: API.IconVo, options?: AxiosRequestConfig) {
-  return request<API.RBoolean>('/api/icon/update', {
+export async function updateIcon(body: IconVo, options?: AxiosRequestConfig) {
+  return request<RBoolean>('/api/icon/update', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -34,7 +35,7 @@ export async function getIcon(
   options?: AxiosRequestConfig,
 ) {
   const { iconId: param0, ...queryParams } = params
-  return request<API.RIconVo>(`/api/icon/get/single/${param0}`, {
+  return request<RIconVo>(`/api/icon/get/single/${param0}`, {
     method: 'POST',
     params: { ...queryParams },
     ...(options || {}),
@@ -42,8 +43,8 @@ export async function getIcon(
 }
 
 /** 列出图标 可按照分类和上传者进行查询，也可根据ID批量查询，可分页 POST /api/icon/get/list */
-export async function listIcon(body: API.IconSearchVo, options?: AxiosRequestConfig) {
-  return request<API.RPageListVoIconVo>('/api/icon/get/list', {
+export async function listIcon(body: IconSearchVo, options?: AxiosRequestConfig) {
+  return request<RPageListVoIconVo>('/api/icon/get/list', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -62,7 +63,7 @@ export async function deleteIcon(
   options?: AxiosRequestConfig,
 ) {
   const { iconId: param0, ...queryParams } = params
-  return request<API.RBoolean>(`/api/icon/delete/${param0}`, {
+  return request<RBoolean>(`/api/icon/delete/${param0}`, {
     method: 'DELETE',
     params: { ...queryParams },
     ...(options || {}),

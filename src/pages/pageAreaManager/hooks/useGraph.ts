@@ -1,4 +1,5 @@
 import type { IG6GraphEvent, TreeGraphData } from '@antv/g6'
+import type { AreaVo } from '@/api/alova/globals'
 import G6 from '@antv/g6'
 import dayjs from 'dayjs'
 import { array2Tree } from '@/utils'
@@ -37,7 +38,7 @@ const colorMap: Record<string, string> = {
 export const useGraph = (options: {
   containerRef: Ref<HTMLElement | undefined>
   minimapRef: Ref<HTMLDivElement | undefined>
-  data: Ref<API.AreaVo[]>
+  data: Ref<AreaVo[]>
 }) => {
   const { containerRef, minimapRef, data } = options
 
@@ -86,7 +87,7 @@ export const useGraph = (options: {
   const areaMap = computed(() => data.value.reduce((map, area) => {
     map.set(area.id!, area)
     return map
-  }, new Map<number, API.AreaVo>()))
+  }, new Map<number, AreaVo>()))
 
   const graphRef = shallowRef<InstanceType<typeof G6.TreeGraph> | null>(null)
 
@@ -115,9 +116,9 @@ export const useGraph = (options: {
     graphRef.value?.changeSize(width, height)
   })
 
-  const editHook = createEventHook<[area: API.AreaVo, parent?: API.AreaVo]>()
-  const addHook = createEventHook<[parent?: API.AreaVo]>()
-  const deleteHook = createEventHook<[area: API.AreaVo]>()
+  const editHook = createEventHook<[area: AreaVo, parent?: AreaVo]>()
+  const addHook = createEventHook<[parent?: AreaVo]>()
+  const deleteHook = createEventHook<[area: AreaVo]>()
 
   const sharedProps = {
     width: 240,
@@ -135,7 +136,7 @@ export const useGraph = (options: {
   G6.registerNode('area-card', {
     draw: (cfg, group) => {
       const { label = '' } = cfg
-      const { id, code = '', updateTime = '' } = (cfg.raw ?? {}) as API.AreaVo
+      const { id, code = '', updateTime = '' } = (cfg.raw ?? {}) as AreaVo
       const { 1: zone = '', length: unitsLength } = code.split(':')
 
       /** 包围盒 */
@@ -356,7 +357,7 @@ export const useGraph = (options: {
     },
 
     afterDraw: (cfg, group) => {
-      const area = cfg?.raw as API.AreaVo | undefined
+      const area = cfg?.raw as AreaVo | undefined
 
       const borderBox = group!.find(element => element.get('name') === 'border-box')!
       const border = group!.find(element => element.get('name') === 'border')!
@@ -523,7 +524,7 @@ export const useGraph = (options: {
             graph.layout()
             break
           }
-          const area = model.raw as API.AreaVo | undefined
+          const area = model.raw as AreaVo | undefined
           if (!area)
             break
           editHook.trigger([area, areaMap.value.get(area.parentId!)])

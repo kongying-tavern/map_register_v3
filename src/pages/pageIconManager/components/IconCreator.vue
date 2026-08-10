@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { IconVariant } from '../types'
+import type { IconVo } from '@/api/alova/globals'
 import { Check, Close } from '@element-plus/icons-vue'
 import { WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 import { useIconType } from '@/hooks'
@@ -12,7 +13,7 @@ const emits = defineEmits<{
 }>()
 
 /** 绑定表单 */
-const form = ref<API.IconVo>({
+const form = ref<IconVo>({
   urlVariants: {},
 })
 

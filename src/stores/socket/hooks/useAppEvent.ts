@@ -1,5 +1,5 @@
+import type { ItemVo, MarkerVo } from '@/api/alova/globals'
 import type { PageIPC } from '@/utils/worker'
-import Api from '@/api/api'
 import { HistoryRecordType } from '@/shared'
 import { EventBus } from '@/utils'
 
@@ -22,7 +22,9 @@ export const useAppEvent = (ipc: PageIPC<AppSocket.MainEventMap, AppSocket.Worke
 
   // ==================== 物品 ====================
   ipc.on('ItemAdded', async (id) => {
-    const { data: [itemInfo] = [], users = {} } = await Api.item.listItemById([id])
+    const { data: [itemInfo] = [], users = {} } = await Apis.item.listItemById({
+      data: [id],
+    })
     if (!itemInfo)
       return
     const userInfo = Object.assign({ id: itemInfo.creatorId }, users[itemInfo.creatorId!])
@@ -30,7 +32,9 @@ export const useAppEvent = (ipc: PageIPC<AppSocket.MainEventMap, AppSocket.Worke
   })
 
   ipc.on('ItemUpdated', async (id) => {
-    const { data: [itemInfo] = [], users = {} } = await Api.item.listItemById([id])
+    const { data: [itemInfo] = [], users = {} } = await Apis.item.listItemById({
+      data: [id],
+    })
     if (!itemInfo)
       return
     const userInfo = Object.assign({ id: itemInfo.creatorId }, users[itemInfo.creatorId!])
@@ -38,14 +42,16 @@ export const useAppEvent = (ipc: PageIPC<AppSocket.MainEventMap, AppSocket.Worke
   })
 
   ipc.on('ItemDeleted', async (id) => {
-    const { data: { record: [history] = [] } = {}, users = {} } = await Api.history.searchHistory({
-      current: 0,
-      id: [id],
-      size: 1,
-      type: HistoryRecordType.ITEM,
-      sort: ['updateTime-'],
+    const { data: { record: [history] = [] } = {}, users = {} } = await Apis.history.searchHistory({
+      data: {
+        current: 0,
+        id: [id],
+        size: 1,
+        type: HistoryRecordType.ITEM,
+        sort: ['updateTime-'],
+      },
     })
-    const itemInfo = JSON.parse(history.content!) as API.ItemVo
+    const itemInfo = JSON.parse(history.content!) as ItemVo
     const userInfo = Object.assign({ id: history.creatorId }, users[history.creatorId!])
     appEvent.emit('ItemDeleted', itemInfo, userInfo)
   })
@@ -70,14 +76,16 @@ export const useAppEvent = (ipc: PageIPC<AppSocket.MainEventMap, AppSocket.Worke
   })
 
   ipc.on('MarkerDeleted', async (id) => {
-    const { data: { record: [history] = [] } = {}, users = {} } = await Api.history.searchHistory({
-      current: 0,
-      id: [id],
-      size: 1,
-      type: HistoryRecordType.MARKER,
-      sort: ['updateTime-'],
+    const { data: { record: [history] = [] } = {}, users = {} } = await Apis.history.searchHistory({
+      data: {
+        current: 0,
+        id: [id],
+        size: 1,
+        type: HistoryRecordType.MARKER,
+        sort: ['updateTime-'],
+      },
     })
-    const markerInfo = JSON.parse(history.content!) as API.MarkerVo
+    const markerInfo = JSON.parse(history.content!) as MarkerVo
     const userInfo = Object.assign({ id: history.creatorId }, users[history.creatorId!])
     appEvent.emit('MarkerDeleted', markerInfo, userInfo)
   })

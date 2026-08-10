@@ -1,5 +1,7 @@
+import type { SysUserSmallVo } from '@/api/alova/globals'
+
 export interface TransformedScore {
-  user: API.SysUserSmallVo & {
+  user: SysUserSmallVo & {
     id: number
   }
   count: number

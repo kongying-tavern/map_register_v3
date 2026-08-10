@@ -1,5 +1,6 @@
 <script lang="ts" setup generic="T">
 import type { TypeManager } from '../config'
+import type { SysUserSmallVo } from '@/api/alova/globals'
 import { ElTable } from 'element-plus'
 import { AppRowImage, AppUserPopover } from '@/components'
 import { useUserPopover } from '@/hooks'
@@ -9,7 +10,7 @@ import { timeFormatter } from '@/utils'
 
 const props = defineProps<{
   data: T[]
-  userMap: Record<string, API.SysUserSmallVo>
+  userMap: Record<string, SysUserSmallVo>
   loading: boolean
   manager: TypeManager<T>
 }>()

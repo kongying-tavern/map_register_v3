@@ -1,5 +1,4 @@
 import { ElMessage } from 'element-plus'
-import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 
 export const useAreaList = () => {
@@ -9,9 +8,11 @@ export const useAreaList = () => {
     immediate: true,
     initialValue: [],
     onRequest: async () => {
-      const { data = [] } = await Api.area.listArea({
-        isTraverse: true,
-        parentId: -1,
+      const { data = [] } = await Apis.area.listArea({
+        data: {
+          isTraverse: true,
+          parentId: -1,
+        },
       })
       return data
     },

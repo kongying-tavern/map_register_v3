@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { SysUserPasswordUpdateVo } from '@/api/alova/globals'
 import type { ElFormType } from '@/shared'
 import type { ItemFormRules } from '@/utils'
 import { Check } from '@element-plus/icons-vue'
@@ -13,7 +14,7 @@ const emits = defineEmits<{
   submit: []
 }>()
 
-const modelValue = defineModel<API.SysUserPasswordUpdateVo>('modelValue', {
+const modelValue = defineModel<SysUserPasswordUpdateVo>('modelValue', {
   required: true,
 })
 

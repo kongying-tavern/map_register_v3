@@ -1,16 +1,16 @@
 <script lang="ts" setup>
 import type { UnwrapRef } from 'vue'
+import type { SysRoleVo, SysUserVo } from '@/api/alova/globals'
 import type { ElFormType } from '@/shared'
 import type { ItemFormRules } from '@/utils'
 import { Check, Close } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import Api from '@/api/api'
 import { WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 import { useFetchHook } from '@/hooks'
 
 const props = defineProps<{
-  data: API.SysUserVo
-  roleList: API.SysRoleVo[]
+  data: SysUserVo
+  roleList: SysRoleVo[]
 }>()
 
 const emits = defineEmits<{
@@ -38,7 +38,7 @@ const rules: ItemFormRules<UnwrapRef<typeof formData>> = {
 }
 
 const { loading, refresh: submit, onSuccess, onError } = useFetchHook({
-  onRequest: () => Api.user.updateUser(formData.value),
+  onRequest: () => Apis.user.updateUser({ data: formData.value }),
 })
 
 onSuccess(() => {

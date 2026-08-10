@@ -1,7 +1,8 @@
 import type { Ref } from 'vue'
+import type { ItemVo } from '@/api/alova/globals'
 
 interface FormTimeRefreshParamHooksOptions {
-  formData: Ref<API.ItemVo>
+  formData: Ref<ItemVo>
 }
 
 interface RefreshTimeObj {

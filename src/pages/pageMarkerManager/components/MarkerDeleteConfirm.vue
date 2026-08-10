@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { MarkerVo } from '@/api/alova/globals'
 import { Check, Close, Delete } from '@element-plus/icons-vue'
 import {
   WinDialog,
@@ -10,7 +11,7 @@ import { useMarkerStore } from '@/stores'
 
 const props = defineProps<{
   title: string
-  marker: API.MarkerVo
+  marker: MarkerVo
 }>()
 
 const emits = defineEmits<{
@@ -21,7 +22,7 @@ const emits = defineEmits<{
 const markerStore = useMarkerStore()
 
 const { loading, refresh: deleteMarker, onSuccess } = useFetchHook({
-  onRequest: async (marker: API.MarkerVo) => {
+  onRequest: async (marker: MarkerVo) => {
     await markerStore.deleteMarker(marker.id!)
   },
 })

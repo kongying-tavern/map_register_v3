@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import Api from '@/api/api'
 import { useFetchHook, useGlobalDialog } from '@/hooks'
 import PushConfirm from './components/PushConfirm.vue'
 
 const { DialogService } = useGlobalDialog()
 
 const { loading, refresh: pushUpdate } = useFetchHook({
-  onRequest: () => Api.app.triggerAppUpdate(),
+  onRequest: () => Apis.app.triggerAppUpdate(),
 })
 
 const confirmPush = async () => {

@@ -1,4 +1,4 @@
-import type { ValuePacker } from './types'
+import type { ValuePacker } from '../types'
 import type { MAFValue, MAFValueStringArray } from '@/stores/types'
 import { LinkActionEnum } from '@/shared/linkAction'
 import { ByteReader, ByteWriter } from '@/utils'

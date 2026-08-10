@@ -45,7 +45,7 @@ export declare namespace WS {
     /**
      * @worker
      */
-    [SocketWorkerEvent.Message]: API.WSData
+    [SocketWorkerEvent.Message]: WebSocketAPI.WSData
 
     /**
      * @main Port Id

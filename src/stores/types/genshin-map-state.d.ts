@@ -1,4 +1,5 @@
 import type { OrthographicViewState } from 'deck.gl'
+import type { AreaVo, MarkerLinkageVo, MarkerVo } from '@/api/alova/globals'
 import type { LinkActionEnum } from '@/shared'
 
 declare namespace GSMapState {
@@ -7,18 +8,18 @@ declare namespace GSMapState {
     zoom: number
     minZoom: number
     maxZoom: number
-    target: API.Coordinate2D
+    target: DTO.Coordinate2D
   }
 
   /** 附加了渲染信息的点位对象 */
-  interface MarkerWithRenderConfig extends API.MarkerVo {
+  interface MarkerWithRenderConfig extends MarkerVo {
     /** 用于渲染的附加属性，避免在渲染层进行计算 */
     render: {
       /** 点位坐标 */
-      position: API.Coordinate2D
+      position: DTO.Coordinate2D
 
       /** 点位地区 */
-      area: API.AreaVo
+      area: AreaVo
 
       /** 点位所属的底图 */
       tileCode: string
@@ -57,8 +58,8 @@ declare namespace GSMapState {
 
   /** 任务类型表 */
   interface MissionTypeMap {
-    markerDragging: Record<number, API.Coordinate2D>
-    markerLink: API.MarkerLinkageVo[]
+    markerDragging: Record<number, DTO.Coordinate2D>
+    markerLink: MarkerLinkageVo[]
     markerMultiSelect: boolean
     markerBulkState: boolean
     unknown: unknown
@@ -69,11 +70,11 @@ declare namespace GSMapState {
 
   /**
    * 临时点位类型表
-   * @note value 只能为 `API.MarkerVo` 或 `MarkerWithRenderConfig`
+   * @note value 只能为 `MarkerVo` 或 `MarkerWithRenderConfig`
    */
   interface TempMarkerTypeMap {
     focus: MarkerWithRenderConfig[]
-    markerLink: API.MarkerVo[]
+    markerLink: MarkerVo[]
     markerMultiSelect: MarkerWithRenderConfig[]
     markerDragging: MarkerWithRenderConfig[]
   }

@@ -1,4 +1,4 @@
-import type * as API2 from '@/api/alova/globals'
+import type { ItemVo } from '@/api/alova/globals'
 import type { WorkerInput } from '@/worker/idb.worker'
 import { Box } from '@element-plus/icons-vue'
 import { acceptHMRUpdate, defineStore } from 'pinia'
@@ -14,7 +14,7 @@ interface ManagerContext {
 }
 
 interface DiffData {
-  updateList: API2.ItemVo[]
+  updateList: ItemVo[]
   deleteIds: number[]
   clear?: boolean
 }
@@ -26,7 +26,7 @@ const getAllItems = async (context: ManagerContext) => {
     transform: res => (res.data ?? []).filter(area => area.parentId !== -1).map(({ id }) => id!),
   })
   context.message.value = '正在准备获取物品列表'
-  const itemMap = new Map<number, API2.ItemVo>()
+  const itemMap = new Map<number, ItemVo>()
   const total = areaIds.length
   let finished = 0
   await Promise.allSettled(areaIds.map(async (areaId) => {
@@ -57,7 +57,7 @@ export const useItemStore = defineStore('global-item', () => {
   // ============================== 内部状态 ==============================
 
   /** 物品 id 索引表 */
-  const localItemMap = shallowRef(new Map<number, API2.ItemVo>())
+  const localItemMap = shallowRef(new Map<number, ItemVo>())
 
   // ============================== 代理方法 ==============================
 
@@ -66,7 +66,7 @@ export const useItemStore = defineStore('global-item', () => {
    * - 已包含 version 比较逻辑
    */
   const updateLocal = (options: {
-    updateList?: API2.ItemVo[]
+    updateList?: ItemVo[]
     deleteIds?: number[]
   }) => {
     const { updateList = [], deleteIds = [] } = options
@@ -90,7 +90,7 @@ export const useItemStore = defineStore('global-item', () => {
   }
 
   /** @server */
-  const createItem = async (itemForm: API2.ItemVo) => {
+  const createItem = async (itemForm: ItemVo) => {
     const { data: itemId } = await Apis.item.createItem({ data: itemForm })
     if (!itemId)
       throw new Error('服务器未返回新物品 id')
@@ -104,7 +104,7 @@ export const useItemStore = defineStore('global-item', () => {
   }
 
   /** @server */
-  const updateItem = async (itemForm: API2.ItemVo) => {
+  const updateItem = async (itemForm: ItemVo) => {
     if (!itemForm.id)
       throw new Error('物品 id 为空')
     const { data: ids = [] } = await Apis.item.updateItem({
@@ -132,7 +132,7 @@ export const useItemStore = defineStore('global-item', () => {
   // ============================== 外部状态 ==============================
 
   const list = computed(() => {
-    const res: API2.ItemVo[] = []
+    const res: ItemVo[] = []
     localItemMap.value.forEach((item) => {
       if (!accessStore.checkHiddenFlag(item.hiddenFlag))
         return
@@ -192,7 +192,7 @@ export const useItemStore = defineStore('global-item', () => {
       worker.addEventListener('message', () => {
         worker.terminate()
       })
-      worker.postMessage(<WorkerInput<number, API2.ItemVo>>{
+      worker.postMessage(<WorkerInput<number, ItemVo>>{
         tableName: 'item',
         clear: data.clear,
         bulkPutData: data.updateList,

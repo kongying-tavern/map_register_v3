@@ -11,7 +11,7 @@ export const useCharsChart = (container: Ref<HTMLElement | undefined>, data: Ref
   // 取前 5
   const getData = () => {
     const raw = toValue(data)
-    const res = raw.toSorted(({ totalChars: ca }, { totalChars: cb }) => cb - ca).slice(0, 5)
+    const res = raw.toSorted(({ totalChars: a = 0 }, { totalChars: b = 0 }) => b - a).slice(0, 5)
     return res
   }
 

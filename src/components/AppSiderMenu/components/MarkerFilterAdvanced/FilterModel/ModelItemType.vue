@@ -1,11 +1,12 @@
 <script lang="ts" setup>
+import type { ItemTypeVo } from '@/api/alova/globals'
 import type { MAFMetaItemType, MAFOptionSelect, MAFValueNumberArray } from '@/stores/types'
 import { IconApplication } from '@/components/AppIcons'
 import { MarkerFilterButton } from '../../MarkerFilterComponent'
 import { SelectBase } from '../FilterModelComponent'
 
 defineProps<{
-  options: MAFOptionSelect<API.ItemTypeVo>
+  options: MAFOptionSelect<ItemTypeVo>
   meta: MAFMetaItemType
 }>()
 

@@ -1,6 +1,6 @@
+import type { SysUserVo } from '@/api/alova/globals'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { ref } from 'vue'
-import Api from '@/api/api'
 import { messageFrom } from '@/utils'
 
 export interface SelectedHookOptions {
@@ -14,11 +14,11 @@ export interface SelectedHookOptions {
 export const useSelected = (options: SelectedHookOptions = {}) => {
   const { onBatchDeleteSuccess } = options
 
-  const selected = ref<API.SysUserVo[]>([])
+  const selected = ref<SysUserVo[]>([])
   const selectedText = computed(() => selected.value.length ? `已选择 ${selected.value.length} 个用户` : '')
   const batchDeleteLoading = ref(false)
 
-  const changeSelected = (list: API.SysUserVo[]) => {
+  const changeSelected = (list: SysUserVo[]) => {
     selected.value = list
   }
 
@@ -28,10 +28,15 @@ export const useSelected = (options: SelectedHookOptions = {}) => {
     const res = await ElMessageBox.confirm(`共有 ${selected.value.length} 个用户将被删除，确认操作？`, '批量删除').catch(() => false)
     if (!res)
       return
-    const missions = selected.value.map(({ id }) => {
+    const missions = selected.value.map(async ({ id }) => {
       if (!id)
         return undefined
-      return Api.user.deleteUser({ workId: id })
+      const res = await Apis.user.deleteUser({
+        pathParams: {
+          workId: id,
+        },
+      })
+      return res
     })
     try {
       batchDeleteLoading.value = true

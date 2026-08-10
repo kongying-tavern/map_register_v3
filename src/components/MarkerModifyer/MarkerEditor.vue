@@ -22,10 +22,10 @@ const isOfflineMode = import.meta.env.VITE_DEVELOPMENT_MODE === 'offline'
 const form = ref(cloneDeep(props.markerInfo))
 
 /** 原始表单数据（进入 editor 时的快照） */
-const originalForm = ref<API.MarkerVo>(cloneDeep(props.markerInfo))
+const originalForm = ref<MarkerVo>(cloneDeep(props.markerInfo))
 
 /** 已修改的字段集合 */
-const modifiedFields = ref<Set<keyof API.MarkerVo>>(new Set())
+const modifiedFields = ref<Set<keyof MarkerVo>>(new Set())
 
 /** 最后一次处理的远程版本号 */
 const lastHandledRemoteVersion = ref<number | undefined>(props.markerInfo.version)
@@ -66,10 +66,10 @@ const deepEqual = (a: unknown, b: unknown): boolean => {
  * version 字段不由用户控制，不参与修改检测
  */
 const detectFieldChanges = () => {
-  const changedFields = new Set<keyof API.MarkerVo>()
+  const changedFields = new Set<keyof MarkerVo>()
 
   // 需要比较的字段（排除系统字段、render 属性和 version 字段）
-  const fieldsToCheck: (keyof API.MarkerVo)[] = [
+  const fieldsToCheck: (keyof MarkerVo)[] = [
     'markerTitle',
     'position',
     'itemList',
@@ -120,7 +120,7 @@ const mergeRemoteData = (remote: MarkerVo) => {
   }
 
   // 需要合并的字段（排除 version，已单独处理）
-  const fieldsToMerge: (keyof API.MarkerVo)[] = [
+  const fieldsToMerge: (keyof MarkerVo)[] = [
     'markerTitle',
     'position',
     'itemList',

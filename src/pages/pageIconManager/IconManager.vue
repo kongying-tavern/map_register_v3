@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import type { IconTypeVo, IconVo } from '@/api/alova/globals'
 import { Expand, Fold } from '@element-plus/icons-vue'
 import { ElTree } from 'element-plus'
 import { useGlobalDialog, useIconType } from '@/hooks'
@@ -18,7 +19,7 @@ const previewIcon = computed(() => {
 const sidebarCollapsed = ref(false)
 
 const queryIconName = ref('')
-const queryIconType = ref<API.IconTypeVo>({
+const queryIconType = ref<IconTypeVo>({
   id: -1,
   name: '全部类型',
 })
@@ -43,7 +44,7 @@ const filteredIconList = computed(() => {
     })
   }
 
-  const localSortKey = sortKey.value as keyof API.IconVo
+  const localSortKey = sortKey.value as keyof IconVo
   const isAscending = sortType.value === '+'
 
   return result.toSorted((pre, next) => {
@@ -75,7 +76,7 @@ const filteredIconList = computed(() => {
   })
 })
 
-const handleCurrentChange = (iconType: API.IconTypeVo) => {
+const handleCurrentChange = (iconType: IconTypeVo) => {
   queryIconType.value = iconType
   previewIconId.value = undefined
 }

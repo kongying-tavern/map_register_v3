@@ -1,5 +1,5 @@
 import type { MaybeComputedRef } from '@vueuse/core'
-import type * as API2 from '@/api/alova/globals'
+import type { AreaVo, ItemTypeVo, MarkerVo } from '@/api/alova/globals'
 import type { MAFModelId } from '@/shared'
 
 // ==================== 基础筛选模型 ====================
@@ -19,8 +19,8 @@ export interface ExtractFilter<K extends FilterType> {
 export type FilterPreset = ExtractFilter<'basic'> | ExtractFilter<'advanced'>
 
 export interface MBFItem {
-  area: API.AreaVo
-  type: API.ItemTypeVo
+  area: AreaVo
+  type: ItemTypeVo
   items: number[]
 }
 
@@ -49,16 +49,20 @@ export interface MAFGroupComposed {
   children: MAFItemComposed[]
 }
 
-export interface MAFItemComposed {
+export interface MAFItemComposed<
+  V extends MAFValue = MAFValue,
+  O extends MAFOption = MAFOption,
+  M extends MAFMeta = MAFMeta,
+> {
   key: string
   id: MAFModelId
   operator: boolean
   opposite: boolean
-  value: MAFValue
-  option: MaybeComputedRef<MAFOption>
-  meta: MAFMeta
-  semantic?: (val: MAFValue, opt: MAFOption, meta: MAFMeta, opposite: boolean) => MAFSemanticUnit[]
-  filter?: (val: MAFValue, opt: MAFOption, meta: MAFMeta, marker: API2.MarkerVo) => boolean
+  value: V
+  option: MaybeComputedRef<O>
+  meta: M
+  semantic?: (val: V, opt: O, meta: M, opposite: boolean) => (MAFSemanticUnit | null)[]
+  filter?: (val: V, opt: O, meta: M, marker: MarkerVo) => boolean
 }
 
 export type MAFSemanticType =
@@ -88,7 +92,7 @@ export interface MAFConfig<
   readonly defaultVal: V
   prepare: (val: V, opt: O) => M
   semantic: (val: V, opt: O, meta: M, opposite: boolean) => (MAFSemanticUnit | null)[]
-  filter: (val: V, opt: O, meta: M, marker: API2.MarkerVo) => boolean
+  filter: (val: V, opt: O, meta: M, marker: MarkerVo) => boolean
 }
 
 // ==================== 数据模型 ====================

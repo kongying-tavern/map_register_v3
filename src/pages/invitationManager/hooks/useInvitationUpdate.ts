@@ -1,10 +1,10 @@
 import type { Awaitable } from '@vueuse/core'
+import type { SysUserInvitationVo } from '@/api/alova/globals'
 import { ElMessage } from 'element-plus'
-import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 
 interface InvitationUpdateHookOptions {
-  form: Ref<API.SysUserInvitationVo>
+  form: Ref<SysUserInvitationVo>
   validate: () => Awaitable<boolean | undefined>
 }
 
@@ -19,13 +19,15 @@ export const useInvitationUpdate = (options: InvitationUpdateHookOptions) => {
       if (!isValid)
         throw new Error('校验未通过', { cause: 'validate' })
       const { id, code, username, accessPolicy, roleId, remark } = form.value
-      return await Api.invitation.updateInvitation({
-        id,
-        code,
-        username,
-        accessPolicy,
-        roleId,
-        remark,
+      return await Apis.invitation.updateInvitation({
+        data: {
+          id,
+          code,
+          username,
+          accessPolicy,
+          roleId,
+          remark,
+        },
       })
     },
   })

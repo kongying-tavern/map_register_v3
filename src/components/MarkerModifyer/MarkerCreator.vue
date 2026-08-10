@@ -1,12 +1,14 @@
 <script lang="ts" setup>
+import type { ShallowRef } from 'vue'
+import type { ItemVo, MarkerVo } from '@/api/alova/globals'
 import { Check, Close } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores'
 import { MarkerForm } from './components'
 import { useMarkerCreate } from './hooks'
 
 const props = defineProps<{
-  coordinate: API.Coordinate2D
-  defaultItem?: API.ItemVo
+  coordinate: DTO.Coordinate2D
+  defaultItem?: ItemVo
 }>()
 
 const emits = defineEmits<{
@@ -16,7 +18,7 @@ const emits = defineEmits<{
 const userStore = useUserStore()
 
 /** 初始化新增点位信息 */
-const initFormData = (): API.MarkerVo => {
+const initFormData = (): MarkerVo => {
   const [x, y] = props.coordinate
   return {
     markerTitle: props.defaultItem?.name ?? '',
@@ -38,9 +40,9 @@ const initFormData = (): API.MarkerVo => {
 
 /** 表单数据 */
 const form = ref(initFormData())
+const editorRef = useTemplateRef('editorRef')
 
-const editorRef = ref<InstanceType<typeof MarkerForm> | null>(null)
-const { loading, isSuccess, submit, onSuccess } = useMarkerCreate(form, editorRef)
+const { loading, isSuccess, submit, onSuccess } = useMarkerCreate(form, editorRef as ShallowRef<InstanceType<typeof MarkerForm>>)
 
 onSuccess(() => emits('close'))
 </script>

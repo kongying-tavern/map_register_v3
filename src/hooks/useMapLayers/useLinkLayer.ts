@@ -1,4 +1,5 @@
-import type { Coordinate2D, GSLinkLayerProps, MarkerLinkMission } from '@/packages/map'
+import type { MarkerVo } from '@/api/alova/globals'
+import type { GSLinkLayerProps, MarkerLinkMission } from '@/packages/map'
 import type { LinkActionEnum } from '@/shared'
 import { useSubscription } from '@vueuse/rxjs'
 import { filter } from 'rxjs'
@@ -160,7 +161,7 @@ export const useLinkLayer = () => {
       const markerTo = markerStore.idMap.get(link.toId!)
       markerTo && result.push(markerTo)
       return result
-    }, [] as API.MarkerVo[])
+    }, [] as MarkerVo[])
     mapStateStore.setTempMarkers('markerLink', result)
   }, { immediate: true })
 
@@ -169,7 +170,7 @@ export const useLinkLayer = () => {
     if (!renderLinks.value.length)
       return
 
-    const positionCache = new Map<number, Coordinate2D>()
+    const positionCache = new Map<number, DTO.Coordinate2D>()
 
     const data = renderLinks.value.reduce((result, { fromId, toId, linkAction, meta }) => {
       const from = markerStore.idMap.get(fromId!)
@@ -179,7 +180,7 @@ export const useLinkLayer = () => {
         const fromPosition = from.position.split(',').map(Number)
         if (fromPosition.length < 2)
           return result
-        positionCache.set(fromId!, fromPosition as Coordinate2D)
+        positionCache.set(fromId!, fromPosition as DTO.Coordinate2D)
       }
       const to = markerStore.idMap.get(toId!)
       if (!to?.position)
@@ -188,7 +189,7 @@ export const useLinkLayer = () => {
         const toPosition = to.position.split(',').map(Number)
         if (toPosition.length < 2)
           return result
-        positionCache.set(toId!, toPosition as Coordinate2D)
+        positionCache.set(toId!, toPosition as DTO.Coordinate2D)
       }
       const color = LINK_CONFIG_MAP.get(linkAction as LinkActionEnum)?.lineColor
       if (!color)
@@ -202,8 +203,8 @@ export const useLinkLayer = () => {
       return result
     }, [] as {
       id: string
-      from: Coordinate2D
-      to: Coordinate2D
+      from: DTO.Coordinate2D
+      to: DTO.Coordinate2D
       color: [r: number, g: number, b: number]
     }[])
 

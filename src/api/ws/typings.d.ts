@@ -1,4 +1,4 @@
-declare namespace API {
+declare namespace WebSocketAPI {
   /** WebSocket 接收的数据 */
   interface WSReceviedData<K extends WSEventType> {
     event: K
@@ -95,7 +95,7 @@ declare namespace API {
 
     /**
      * 点位关联
-     * @see `API.WSMarkerLinkData`
+     * @see `WebSocketAPI.WSMarkerLinkData`
      */
     MarkerLinked: [WSMarkerLinkData]
 

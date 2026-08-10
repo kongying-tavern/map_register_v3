@@ -45,11 +45,9 @@ export class ImageComparer {
       return offset + FSIZE * size
     }, 0)
 
-    this.#canvas = canvas
     this.#gl = gl
   }
 
-  #canvas: OffscreenCanvas
   #gl: WebGL2RenderingContext
 
   #vertexCount = 4
@@ -62,7 +60,7 @@ export class ImageComparer {
   #uniform = {
     u_imageA: null as WebGLUniformLocation | null,
     u_imegaB: null as WebGLUniformLocation | null,
-  }
+  } as Record<string, WebGLUniformLocation | null>
 
   #textures = new Set<WebGLTexture>()
 

@@ -46,7 +46,7 @@ const cancel = () => {
         <slot
           name="list"
           v-bind="{ modelValue, listClass, list, labelKey, valueKey }"
-          @update:model-value="(v) => emits('update:modelValue', v)"
+          @update:model-value="(v: ValueType[]) => emits('update:modelValue', v)"
         />
       </template>
       <template v-else>

@@ -1,7 +1,8 @@
+import type { RListItemVo } from '@/api/alova/globals'
 import type { FetchHookOptions } from '@/hooks'
 import { useItemStore } from '@/stores'
 
-interface ItemListHookOption extends Omit<FetchHookOptions<API.RListItemVo>, 'immediate'> {
+interface ItemListHookOption extends Omit<FetchHookOptions<RListItemVo>, 'immediate'> {
   params?: () => {
     typeIdList?: number[]
     areaIdList?: number[]

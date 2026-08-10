@@ -11,7 +11,7 @@ import { SettingBar, SettingGroup, SettingPanel } from '../components'
 const socketStore = useSocketStore()
 const preferenceStore = usePreferenceStore()
 
-const wsEvents: { label: string, value: API.WSEventType, divider?: boolean }[] = [
+const wsEvents: { label: string, value: WebSocketAPI.WSEventType, divider?: boolean }[] = [
   // 物品
   { label: '物品新增', value: 'ItemAdded' },
   { label: '物品删除', value: 'ItemDeleted' },

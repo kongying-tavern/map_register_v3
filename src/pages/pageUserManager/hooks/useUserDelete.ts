@@ -1,14 +1,18 @@
+import type { SysUserVo } from '@/api/alova/globals'
 import { ElMessage } from 'element-plus'
-import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 
-export const useUserDelete = (form: Ref<API.SysUserVo>) => {
+export const useUserDelete = (form: Ref<SysUserVo>) => {
   const { refresh: submit, onSuccess, onError, ...rest } = useFetchHook({
     onRequest: async () => {
       const { id } = toValue(form)
       if (id === undefined)
         throw new Error('用户 id 为空')
-      await Api.user.deleteUser({ workId: id })
+      await Apis.user.deleteUser({
+        pathParams: {
+          workId: id,
+        },
+      })
     },
   })
 

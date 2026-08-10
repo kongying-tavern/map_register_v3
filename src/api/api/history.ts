@@ -1,12 +1,13 @@
 import type { AxiosRequestConfig } from 'axios'
+import type { HistorySearchVo, RPageListVoHistoryVo } from '../alova/globals'
 import { request } from '@/utils'
 
 /** 历史记录分页 历史记录分页 POST /api/history/get/list */
 export async function searchHistory(
-  body: API.HistorySearchVo,
+  body: HistorySearchVo,
   options?: AxiosRequestConfig,
 ) {
-  return request<API.RPageListVoHistoryVo>('/api/history/get/list', {
+  return request<RPageListVoHistoryVo>('/api/history/get/list', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

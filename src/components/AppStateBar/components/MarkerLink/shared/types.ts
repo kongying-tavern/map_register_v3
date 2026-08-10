@@ -1,11 +1,11 @@
-import type * as API2 from '@/api/alova/globals'
+import type { MarkerLinkageVo } from '@/api/alova/globals'
 
 /** 关联项配置 */
 export interface ModifyLinkOptions {
   /** `${linkId}` */
   id: string
   /** 原始数据 */
-  raw: API2.MarkerLinkageVo
+  raw: MarkerLinkageVo
   /** 是否反向 */
   isReverse: boolean
   /** 是否为删除项 */

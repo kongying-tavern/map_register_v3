@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import type { MarkerItemLinkVo } from '@/api/alova/globals'
 import { AppIconTagRenderer } from '@/components'
 import { useIconStore, useItemStore } from '@/stores'
 
 const props = withDefaults(defineProps<{
-  history?: API.MarkerItemLinkVo[]
-  current?: API.MarkerItemLinkVo[]
+  history?: MarkerItemLinkVo[]
+  current?: MarkerItemLinkVo[]
 }>(), {
   history: () => [],
   current: () => [],

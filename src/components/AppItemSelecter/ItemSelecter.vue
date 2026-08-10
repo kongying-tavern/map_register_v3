@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import type { AreaVo, ItemVo } from '@/api/alova/globals'
 import { Search } from '@element-plus/icons-vue'
 import { ElScrollbar } from 'element-plus'
 import { AppAreaCodeSelecter } from '@/components'
@@ -8,7 +9,7 @@ import ItemSelectButton from './ItemSelectButton.vue'
 import TypeSelectButton from './TypeSelectButton.vue'
 
 const props = withDefaults(defineProps<{
-  modelValue: API.ItemVo[]
+  modelValue: ItemVo[]
   areaCode?: string
   title?: string
   totalDirection?: 'row' | 'column'
@@ -16,7 +17,7 @@ const props = withDefaults(defineProps<{
   width?: string
   showTotal?: boolean
   showAreaSelector?: boolean
-  isAreaDisabled?: (area: API.AreaVo) => boolean
+  isAreaDisabled?: (area: AreaVo) => boolean
 }>(), {
   showTotal: true,
   showAreaSelector: true,
@@ -24,7 +25,7 @@ const props = withDefaults(defineProps<{
 })
 
 const emits = defineEmits<{
-  'update:modelValue': [API.ItemVo[]]
+  'update:modelValue': [ItemVo[]]
   'update:areaCode': [string]
 }>()
 
@@ -99,7 +100,7 @@ const itemList = computed(() => {
 // ==================== 已选物品 ====================
 const selectionsMap = computed(() => props.modelValue.reduce((seed, item) => {
   return seed.set(item.id!, item)
-}, new Map<number, API.ItemVo>()))
+}, new Map<number, ItemVo>()))
 
 const selectionItems = computed({
   get: () => props.modelValue,
@@ -113,9 +114,9 @@ const groupedItems = computed(() => selectionItems.value.reduce((seed, item) => 
     seed[typeId].push(item)
   })
   return seed
-}, {} as { [typeId: string]: API.ItemVo[] }))
+}, {} as { [typeId: string]: ItemVo[] }))
 
-const toggleItem = (item: API.ItemVo) => {
+const toggleItem = (item: ItemVo) => {
   const map = new Map(selectionsMap.value)
   if (map.has(item.id!))
     map.delete(item.id!)

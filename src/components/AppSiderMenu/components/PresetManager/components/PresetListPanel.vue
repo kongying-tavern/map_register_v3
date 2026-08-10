@@ -115,7 +115,7 @@ defineExpose({
         <div class="w-px bg-[#76716A]" />
         <div class="flex flex-col flex-1 min-w-0">
           <PresetCodePreview
-            :conditions="currentSelectedPreset?.conditions"
+            :conditions="currentSelectedPreset?.conditions || null"
             title="预设分享码"
             tip="再次点击【分享码】按钮可收起预览"
           />

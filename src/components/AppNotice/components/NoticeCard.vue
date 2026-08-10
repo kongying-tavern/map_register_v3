@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { NoticeVo } from '@/api/alova/globals'
 import { GSButton } from '@/components'
 import { CloseFilled, LeftRegular, RightRegular } from '@/components/GenshinUI/GSIcon'
 import { useNoticeStore } from '@/stores'
@@ -16,7 +17,7 @@ watch(isMobileScreen, () => {
   isSiderCollapsed.value = true
 })
 
-const handleTitleSelect = (notice: API.NoticeVo) => {
+const handleTitleSelect = (notice: NoticeVo) => {
   noticeStore.read(notice.id!)
   noticeStore.selected = notice
 }

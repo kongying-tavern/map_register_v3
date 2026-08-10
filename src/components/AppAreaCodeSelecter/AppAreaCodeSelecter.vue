@@ -1,12 +1,13 @@
 <script lang="ts" setup>
 import type { CascaderProps } from 'element-plus'
+import type { AreaVo } from '@/api/alova/globals'
 import { useAreaStore } from '@/stores'
 import { array2Tree } from '@/utils'
 
 const props = withDefaults(defineProps<{
   /** 子地区 code，必须为 `A:${string}:${string}` 格式 */
   modelValue?: string
-  isAreaDisabled?: (area: API.AreaVo) => boolean
+  isAreaDisabled?: (area: AreaVo) => boolean
 }>(), {
   modelValue: undefined,
 })

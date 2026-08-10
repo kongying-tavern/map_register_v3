@@ -1,3 +1,4 @@
+import type { MarkerVo } from '@/api/alova/globals'
 import type { GSMarkerInfo } from '@/packages/map'
 import { ElMessage } from 'element-plus'
 import { EaseoutInterpolator, GSMarkerLayer } from '@/packages/map'
@@ -88,7 +89,7 @@ const _useMarkerControl = () => {
     mapStateStore.setTempMarkers('focus', [])
   })
 
-  const normalizeMarker = (markerVo: API.MarkerVo | GSMarkerInfo): GSMarkerInfo => {
+  const normalizeMarker = (markerVo: MarkerVo | GSMarkerInfo): GSMarkerInfo => {
     return 'render' in markerVo
       ? markerVo
       : createRenderMarkers([markerVo])[0]
@@ -109,7 +110,7 @@ const _useMarkerControl = () => {
     blur(id)
   })
 
-  const focusMarker = (markerVo: API.MarkerVo, {
+  const focusMarker = (markerVo: MarkerVo, {
     delay = 0,
     duration = 400,
   }: {
@@ -170,7 +171,7 @@ const _useMarkerControl = () => {
     }
   }
 
-  const hoverMarker = (markerVo: API.MarkerVo | null) => {
+  const hoverMarker = (markerVo: MarkerVo | null) => {
     if (!markerVo) {
       removeHover(MARKER_INTERACTION_KEY)
       return

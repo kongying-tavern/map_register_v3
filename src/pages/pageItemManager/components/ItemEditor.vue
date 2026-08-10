@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import type { ItemVo } from '@/api/alova/globals'
 import { Check, Close } from '@element-plus/icons-vue'
 import { cloneDeep } from 'lodash'
 import { WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
@@ -6,7 +7,7 @@ import { ItemDetailForm } from '.'
 import { useItemEdit } from '../hooks'
 
 interface ItemEditorProps {
-  item: API.ItemVo
+  item: ItemVo
   editSame?: 0 | 1
 }
 
@@ -19,7 +20,9 @@ const emits = defineEmits<{
   close: []
 }>()
 
-const { detailFormRef, formData, loading, handleSubmit, onSuccess } = useItemEdit({
+const detailFormRef = ref<InstanceType<typeof ItemDetailForm> | null>(null)
+
+const { formData, loading, handleSubmit, onSuccess } = useItemEdit(detailFormRef, {
   initFormData: () => cloneDeep(props.item),
 })
 

@@ -1,12 +1,14 @@
+import type { SysUserSmallVo } from '@/api/alova/globals'
+
 export interface UserPopoverHookOptions {
-  getUser: (index: number) => API.SysUserSmallVo
+  getUser: (index: number) => SysUserSmallVo
 }
 
 export const useUserPopover = (options: UserPopoverHookOptions) => {
   const { getUser } = options
 
   const triggerRef = shallowRef<HTMLElement | null>(null)
-  const userData = shallowRef<API.SysUserSmallVo | null>(null)
+  const userData = shallowRef<SysUserSmallVo | null>(null)
 
   const IDENTIFICATION_SYMBOL = crypto.randomUUID()
 

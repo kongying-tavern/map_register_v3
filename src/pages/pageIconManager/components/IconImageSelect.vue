@@ -1,13 +1,13 @@
 <script setup lang="ts">
+import type { IconVo } from '@/api/alova/globals'
 import { Loading, Search } from '@element-plus/icons-vue'
-import Api from '@/api/api'
 import { PgUnit, useFetchHook, usePagination } from '@/hooks'
 
-const modelValue = defineModel<API.IconVo | null>('modelValue', {
+const modelValue = defineModel<IconVo | null>('modelValue', {
   default: null,
 })
 
-const iconList = ref<API.IconVo[]>([])
+const iconList = ref<IconVo[]>([])
 
 const { state, isLoading, execute } = useAsyncState<{ url?: string, size?: number[], byteLength?: number }>(async () => {
   if (!modelValue.value?.url)
@@ -38,10 +38,12 @@ const { pagination, layout } = usePagination({
 const { loading, refresh: updateIconList, onSuccess } = useFetchHook({
   immediate: true,
   onRequest: async () => {
-    const { data: { record = [], total = 0 } = {} } = await Api.icon.listIcon({
-      current: pagination.value.current,
-      size: pagination.value.pageSize,
-      name: iconQuery.value,
+    const { data: { record = [], total = 0 } = {} } = await Apis.icon.listIcon({
+      data: {
+        current: pagination.value.current,
+        size: pagination.value.pageSize,
+        name: iconQuery.value,
+      },
     })
     return { record, total }
   },
@@ -49,7 +51,7 @@ const { loading, refresh: updateIconList, onSuccess } = useFetchHook({
 
 watchDebounced(iconQuery, updateIconList, { debounce: 500 })
 
-function activeImage(icon: API.IconVo) {
+function activeImage(icon: IconVo) {
   if (modelValue.value?.id === icon.id)
     return
   modelValue.value = icon
@@ -112,7 +114,7 @@ onSuccess(({ record, total }) => {
         class="w-full h-[23px] overflow-hidden
           text-xs text-center
           leading-[23px] whitespace-nowrap text-ellipsis"
-        :title="modelValue?.name"
+        :title="modelValue?.tag"
       >
         {{ modelValue ? `id: ${modelValue.id}` : '<选择图标>' }}
       </div>

@@ -1,16 +1,17 @@
 <script setup lang="ts">
+import type { SysUserDeviceVo } from '@/api/alova/globals'
 import dayjs from 'dayjs'
 import { UAParser } from 'ua-parser-js'
 import { DeviceStatus } from '@/shared'
 import { isUnknown } from '../utils'
 
 const props = defineProps<{
-  data: API.SysUserDeviceVo
+  data: SysUserDeviceVo
   isSelected?: boolean
 }>()
 
 const emits = defineEmits<{
-  selectDevice: [API.SysUserDeviceVo]
+  selectDevice: [SysUserDeviceVo]
 }>()
 
 const ua = computed(() => {
@@ -19,8 +20,9 @@ const ua = computed(() => {
 
 const statusLabel = computed(() => {
   return {
-    [DeviceStatus.VALID]: { type: 'success', label: '允许' },
-    [DeviceStatus.BLOCKED]: { type: 'danger', label: '禁用' },
+    [DeviceStatus.VALID]: { type: 'success' as const, label: '允许' },
+    [DeviceStatus.BLOCKED]: { type: 'danger' as const, label: '禁用' },
+    [DeviceStatus.UNKNOWN]: { type: 'info' as const, label: '默认' },
   }[props.data.status!]
 })
 </script>

@@ -1,11 +1,11 @@
+import type { NoticeSearchVo } from '@/api/alova/globals'
 import type { PaginationState } from '@/hooks'
 import { ElMessage } from 'element-plus'
-import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 
 interface NoticeHookOptions {
   pagination: Ref<PaginationState>
-  getParams: () => Omit<API.NoticeSearchVo, 'current' | 'size'>
+  getParams: () => Omit<NoticeSearchVo, 'current' | 'size'>
 }
 
 export const useNoticeList = (options: NoticeHookOptions) => {
@@ -18,13 +18,15 @@ export const useNoticeList = (options: NoticeHookOptions) => {
     onRequest: async () => {
       const { current, pageSize } = toValue(pagination)
       const { channels = [], getValid, sort = [], title } = getParams()
-      const { data: { record = [], total = 0 } = {} } = await Api.notice.listNotice({
-        current,
-        size: pageSize,
-        channels,
-        getValid: getValid || undefined,
-        sort,
-        title,
+      const { data: { record = [], total = 0 } = {} } = await Apis.notice.listNotice({
+        data: {
+          current,
+          size: pageSize,
+          channels,
+          getValid: getValid || undefined,
+          sort,
+          title,
+        },
       })
       pagination.value.total = total
       return record

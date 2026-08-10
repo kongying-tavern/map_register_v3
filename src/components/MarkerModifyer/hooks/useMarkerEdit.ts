@@ -1,5 +1,6 @@
 import type { Ref } from 'vue'
 import type { MarkerForm } from '../components'
+import type { MarkerVo } from '@/api/alova/globals'
 import { ElMessage } from 'element-plus'
 import { omit } from 'lodash'
 import { useFetchHook } from '@/hooks'
@@ -8,7 +9,7 @@ import { usePictureUpload } from './usePictureUpload'
 
 /** 编辑点位，已自动处理 methodType 字段 */
 export const useMarkerEdit = (
-  markerData: Ref<API.MarkerVo | null>,
+  markerData: Ref<MarkerVo | null>,
   editorRef: Ref<InstanceType<typeof MarkerForm> | null>,
 ) => {
   const userStore = useUserStore()
@@ -18,7 +19,7 @@ export const useMarkerEdit = (
    * 基于 url 参数传递来判断 picture 是否已经更改
    * 此处对 picture 传递过来的 url 上的参数 timestamp、和 last-modified 进行判断和处理
    */
-  const checkPictureChange = (marker: API.MarkerVo) => {
+  const checkPictureChange = (marker: MarkerVo) => {
     const { picture = '' } = marker
     if (!picture)
       return false
@@ -39,12 +40,12 @@ export const useMarkerEdit = (
     return isChanged
   }
 
-  const commonKeys: (keyof API.MarkerVo)[] = [
+  const commonKeys: (keyof MarkerVo)[] = [
     'updateTime',
     'createTime',
   ]
 
-  const buildAdminMarkerForm = (marker: API.MarkerVo): API.MarkerVo => {
+  const buildAdminMarkerForm = (marker: MarkerVo): MarkerVo => {
     const isPictureChanged = checkPictureChange(marker)
     return {
       ...omit(marker, commonKeys),

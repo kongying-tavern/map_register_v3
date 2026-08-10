@@ -1,7 +1,9 @@
 <script lang="ts" setup>
+import type { SysUserSmallVo } from '@/api/alova/globals'
+
 defineProps<{
   triggerRef?: HTMLElement | null
-  data?: API.SysUserSmallVo | null
+  data?: SysUserSmallVo | null
 }>()
 </script>
 

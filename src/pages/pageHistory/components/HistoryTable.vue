@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import type { HistoryVo, SysUserSmallVo } from '@/api/alova/globals'
 import type { EditTypeEnum } from '@/shared'
 import { AppUserPopover } from '@/components'
 import { useUserPopover } from '@/hooks'
@@ -7,8 +8,8 @@ import { timeFormatter } from '@/utils'
 
 const props = defineProps<{
   loading: boolean
-  data: API.HistoryVo[]
-  userMap: Record<string, API.SysUserSmallVo>
+  data: HistoryVo[]
+  userMap: Record<string, SysUserSmallVo>
   historyName: string
 }>()
 

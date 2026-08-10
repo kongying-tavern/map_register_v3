@@ -1,9 +1,9 @@
 import type { Hash } from 'types/database'
 import type { HashGroupMeta } from './utils'
+import type { ItemTypeVo } from '@/api/alova/globals'
 import type { WorkerInput, WorkerOutput } from '@/worker/idb.worker'
 import { liveQuery } from 'dexie'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import Api from '@/api/api'
 import db from '@/database'
 import BulkPutWorker from '@/worker/idb.worker?worker'
 import { useAccessStore, useUserStore } from '.'
@@ -16,11 +16,11 @@ export const useItemTypeStore = defineStore('global-item-type', () => {
   const userStore = useUserStore()
 
   // ==================== 内部状态 ====================
-  const hashGroupMap = shallowRef(new Map<string, HashGroupMeta<Hash<API.ItemTypeVo>>>())
+  const hashGroupMap = shallowRef(new Map<string, HashGroupMeta<Hash<ItemTypeVo>>>())
 
   // ==================== 外部状态 ====================
   const list = computed(() => {
-    const result: API.ItemTypeVo[] = []
+    const result: ItemTypeVo[] = []
     hashGroupMap.value.forEach(({ list: scopeList }) => {
       scopeList.forEach((itemType) => {
         if (!accessStore.checkHiddenFlag(itemType.hiddenFlag))
@@ -37,12 +37,12 @@ export const useItemTypeStore = defineStore('global-item-type', () => {
   const itemTypeMap = computed(() => (Object.fromEntries(list.value.map(itemType => [
     itemType.id as number,
     itemType,
-  ])) as Record<string, API.ItemTypeVo>))
+  ])) as Record<string, ItemTypeVo>))
 
   const idMap = computed(() => list.value.reduce((seed, itemType) => {
     seed.set(itemType.id!, itemType)
     return seed
-  }, new Map<number, API.ItemTypeVo>()))
+  }, new Map<number, ItemTypeVo>()))
 
   // ==================== 数据更新 ====================
 
@@ -69,7 +69,7 @@ export const useItemTypeStore = defineStore('global-item-type', () => {
 
       // 由于 itemType 接口暂无档案版，直接跳过 diff 进行覆盖更新
       message.value = '获取更新数据'
-      const { data = [] } = await Api.itemType.listItemType({})
+      const { data = [] } = await Apis.item_type.listItemType({})
 
       message.value = '获取签名'
       const source = new TextEncoder().encode(JSON.stringify(data))
@@ -94,7 +94,7 @@ export const useItemTypeStore = defineStore('global-item-type', () => {
       const { resolve, promise } = Promise.withResolvers<WorkerOutput>()
       const worker = new BulkPutWorker({ name: '物品类型更新线程' })
       worker.addEventListener('message', (ev: MessageEvent<WorkerOutput>) => resolve(ev.data))
-      worker.postMessage({ tableName: 'itemType', ...options } as WorkerInput<number, Hash<API.ItemTypeVo>>)
+      worker.postMessage({ tableName: 'itemType', ...options } as WorkerInput<number, Hash<ItemTypeVo>>)
       const { error, message: workerMsg } = await promise
       worker.terminate()
       if (error) {

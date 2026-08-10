@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { IconTypeVo } from '@/api/alova/globals'
 import { ArrowDown, CircleCheck, CirclePlus, Sort } from '@element-plus/icons-vue'
 
 const emits = defineEmits<{
@@ -9,7 +10,7 @@ const queryName = defineModel<string>('queryName', {
   required: true,
 })
 
-const queryType = defineModel<API.IconTypeVo>('queryType', {
+const queryType = defineModel<IconTypeVo>('queryType', {
   required: true,
 })
 

@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 import { useDadianStore } from '@/stores'
 
 const dadianStore = useDadianStore()
 
 const { refresh: refreshApp, loading: refreshLoading } = useFetchHook({
-  onRequest: () => Api.app.triggerAppUpdate(),
+  onRequest: () => Apis.app.triggerAppUpdate(),
 })
 
 const showDadianJson = () => {

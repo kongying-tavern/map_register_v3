@@ -1,7 +1,9 @@
-const selection = ref<API.ItemVo[]>([])
+import type { ItemVo } from '@/api/alova/globals'
+
+const selection = ref<ItemVo[]>([])
 
 export const useItemTable = () => {
-  const handleSelectionChange = (items: API.ItemVo[]) => {
+  const handleSelectionChange = (items: ItemVo[]) => {
     selection.value = items
   }
 

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { AreaVo } from '@/api/alova/globals'
 import { Check, Close, Delete } from '@element-plus/icons-vue'
 import {
   WinDialog,
@@ -9,11 +10,11 @@ import { useAreaDelete } from '../hooks'
 
 const props = defineProps<{
   title: string
-  area: API.AreaVo
+  area: AreaVo
 }>()
 
 const emits = defineEmits<{
-  success: [API.AreaVo]
+  success: [AreaVo]
   close: [boolean]
 }>()
 

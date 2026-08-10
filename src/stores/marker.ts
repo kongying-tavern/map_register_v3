@@ -1,4 +1,4 @@
-import type * as API2 from '@/api/alova/globals'
+import type { MarkerVo, TweakVo } from '@/api/alova/globals'
 import type { WorkerInput } from '@/worker/idb.worker'
 import { AddLocation, DeleteLocation, Location } from '@element-plus/icons-vue'
 import { acceptHMRUpdate, defineStore } from 'pinia'
@@ -16,7 +16,7 @@ interface ManagerContext {
 }
 
 interface DiffData {
-  updateList: API2.MarkerVo[]
+  updateList: MarkerVo[]
   deleteIds: number[]
   clear?: boolean
 }
@@ -34,7 +34,7 @@ const diffMapMarkers = async (
     version?: number | null
     linkageId?: string | null
   }[],
-  markerMap: Map<number, API2.MarkerVo>,
+  markerMap: Map<number, MarkerVo>,
 ) => {
   const deleteIds = new Set(markerMap.keys())
   const updateIds = new Set<number>()
@@ -77,7 +77,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
   // ============================== 内部状态 ==============================
 
   /** 点位 id 索引表 */
-  const localMarkerMap = shallowRef(new Map<number, API2.MarkerVo>())
+  const localMarkerMap = shallowRef(new Map<number, MarkerVo>())
 
   // ============================== 代理方法 ==============================
 
@@ -86,7 +86,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
    * - 已包含 version 比较逻辑
    */
   const updateLocal = (options: {
-    updateList?: API2.MarkerVo[]
+    updateList?: MarkerVo[]
     deleteIds?: number[]
   }) => {
     const { updateList = [], deleteIds = [] } = options
@@ -112,7 +112,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
   }
 
   /** @server 创建点位 */
-  const createMarker = async (markerForm: API2.MarkerVo) => {
+  const createMarker = async (markerForm: MarkerVo) => {
     const { data: markerId } = await Apis.marker.createMarker({ data: markerForm })
     if (!markerId)
       throw new Error('服务器未返回新点位 id')
@@ -125,7 +125,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
   }
 
   /** @server 更新点位 */
-  const updateMarker = async (markerForm: API2.MarkerVo) => {
+  const updateMarker = async (markerForm: MarkerVo) => {
     if (!markerForm.id)
       throw new Error('点位 id 为空')
     const { data: isSuccess, message } = await Apis.marker.updateMarker({ data: markerForm })
@@ -150,7 +150,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
   }
 
   /** @server 批量操作点位 */
-  const tweakMarkers = async (tweaks: API2.TweakVo[]) => {
+  const tweakMarkers = async (tweaks: TweakVo[]) => {
     const { data = [] } = await Apis.marker.tweakMarkers({ data: tweaks })
     updateLocal({ updateList: data })
   }
@@ -159,7 +159,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
 
   /** 经过 hiddenFlag 过滤后的点位列表 */
   const list = computed(() => {
-    const res: API2.MarkerVo[] = []
+    const res: MarkerVo[] = []
     const { userHiddenFlagMask } = accessStore
     localMarkerMap.value.forEach((marker) => {
       if (!isAccessible(userHiddenFlagMask, marker.hiddenFlag))
@@ -220,7 +220,7 @@ export const useMarkerStore = defineStore('global-marker', () => {
       worker.addEventListener('message', () => {
         worker.terminate()
       })
-      worker.postMessage(<WorkerInput<number, API2.MarkerVo>>{
+      worker.postMessage(<WorkerInput<number, MarkerVo>>{
         tableName: 'marker',
         clear: data.clear,
         bulkPutData: data.updateList,

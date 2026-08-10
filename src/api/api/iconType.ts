@@ -1,12 +1,13 @@
 import type { AxiosRequestConfig } from 'axios'
+import type { IconTypeVo, PageAndTypeSearchVo, RBoolean, RLong, RPageListVoIconTypeVo } from '../alova/globals'
 import { request } from '@/utils'
 
 /** 新增分类 类型id在创建后返回 PUT /api/icon_type/add */
 export async function addIconType(
-  body: API.IconTypeVo,
+  body: IconTypeVo,
   options?: AxiosRequestConfig,
 ) {
-  return request<API.RLong>('/api/icon_type/add', {
+  return request<RLong>('/api/icon_type/add', {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -18,10 +19,10 @@ export async function addIconType(
 
 /** 修改分类 由类型ID来定位修改一个分类 POST /api/icon_type/update */
 export async function updateIconType(
-  body: API.IconTypeVo,
+  body: IconTypeVo,
   options?: AxiosRequestConfig,
 ) {
-  return request<API.RBoolean>('/api/icon_type/update', {
+  return request<RBoolean>('/api/icon_type/update', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -33,10 +34,10 @@ export async function updateIconType(
 
 /** 列出分类 列出图标的分类，parentID为-1的时候为列出所有的根分类，isTraverse为1时遍历所有子分类，默认为1，可分页 POST /api/icon_type/get/list */
 export async function listIconType(
-  body: API.PageAndTypeSearchVo,
+  body: PageAndTypeSearchVo,
   options?: AxiosRequestConfig,
 ) {
-  return request<API.RPageListVoIconTypeVo>('/api/icon_type/get/list', {
+  return request<RPageListVoIconTypeVo>('/api/icon_type/get/list', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -55,7 +56,7 @@ export async function deleteIconType(
   options?: AxiosRequestConfig,
 ) {
   const { typeId: param0, ...queryParams } = params
-  return request<API.RBoolean>(`/api/icon_type/delete/${param0}`, {
+  return request<RBoolean>(`/api/icon_type/delete/${param0}`, {
     method: 'DELETE',
     params: { ...queryParams },
     ...(options || {}),

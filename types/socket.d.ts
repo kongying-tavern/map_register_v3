@@ -57,8 +57,8 @@ declare namespace AppSocket {
       return: void
     }
   } & {
-    [K in keyof API.WSEventMap]: {
-      args: API.WSEventMap[K]
+    [K in keyof WebSocketAPI.WSEventMap]: {
+      args: WebSocketAPI.WSEventMap[K]
       return: void
     }
   }

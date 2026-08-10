@@ -1,3 +1,4 @@
+import type { MarkerLinkageVo } from '@/api/alova/globals'
 import { ElMessage } from 'element-plus'
 import { useFetchHook } from '@/hooks'
 import { useMarkerLinkStore } from '@/stores'
@@ -6,7 +7,7 @@ export const useLinkDelete = () => {
   const markerLinkStore = useMarkerLinkStore()
 
   const { onSuccess, onError, ...rest } = useFetchHook({
-    onRequest: async (link: API.MarkerLinkageVo) => {
+    onRequest: async (link: MarkerLinkageVo) => {
       const { id } = link
       if (id === undefined)
         throw new Error('此关联的 id 为空')

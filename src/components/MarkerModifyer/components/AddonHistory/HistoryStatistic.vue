@@ -1,11 +1,12 @@
 <script setup lang="ts">
+import type { HistoryVo, SysUserSmallVo } from '@/api/alova/globals'
 import { ElDialog } from 'element-plus'
 import { WinDialog, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 import { useHistoryChart } from './hooks'
 
 const props = defineProps<{
-  record: (API.HistoryVo & { diffs: Set<string> })[]
-  users: Map<string, API.SysUserSmallVo>
+  record: (HistoryVo & { diffs: Set<string> })[]
+  users: Map<string, SysUserSmallVo>
 }>()
 
 const visible = defineModel<boolean>('visible', {

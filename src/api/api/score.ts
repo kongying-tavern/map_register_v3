@@ -1,12 +1,13 @@
 import type { AxiosRequestConfig } from 'axios'
+import type { RObject, ScoreParamsVo } from '../alova/globals'
 import { request } from '@/utils'
 
 /** 生成评分 生成评分数据 POST /api/score/generate */
 export async function generate(
-  body: API.ScoreParamsVo,
+  body: ScoreParamsVo,
   options?: AxiosRequestConfig,
 ) {
-  return request<API.RObject>('/api/score/generate', {
+  return request<RObject>('/api/score/generate', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -17,8 +18,8 @@ export async function generate(
 }
 
 /** 获取评分 获取评分数据 POST /api/score/data */
-export async function getData(body: API.ScoreParamsVo, options?: AxiosRequestConfig) {
-  return request<API.RObject>('/api/score/data', {
+export async function getData(body: ScoreParamsVo, options?: AxiosRequestConfig) {
+  return request<RObject>('/api/score/data', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

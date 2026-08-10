@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { InputInstance } from 'element-plus'
+import type { MarkerItemLinkVo } from '@/api/alova/globals'
 import { Setting } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { useDadianStore, useItemStore } from '@/stores'
@@ -8,7 +9,7 @@ import { AddonTeleporter } from '.'
 const props = withDefaults(defineProps<{
   modelValue?: string
   addonId: string
-  itemList?: API.MarkerItemLinkVo[]
+  itemList?: MarkerItemLinkVo[]
 }>(), {
   itemList: () => [],
 })

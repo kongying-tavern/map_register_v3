@@ -1,8 +1,8 @@
+import type { SysUserPasswordUpdateVo } from '@/api/alova/globals'
 import { ElMessage } from 'element-plus'
-import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 
-export const usePasswordUpdate = (form: Ref<API.SysUserPasswordUpdateVo>, options: { loading: Ref<boolean> }) => {
+export const usePasswordUpdate = (form: Ref<SysUserPasswordUpdateVo>, options: { loading: Ref<boolean> }) => {
   const { loading } = options
 
   const { refresh: submit, onError, onSuccess, ...rest } = useFetchHook({
@@ -17,10 +17,12 @@ export const usePasswordUpdate = (form: Ref<API.SysUserPasswordUpdateVo>, option
       if (userId === undefined)
         throw new Error('表单信息中用户 id 为空')
 
-      await Api.user.updateUserPasswordByAdmin({
-        userId,
-        password,
-        oldPassword,
+      await Apis.user.updateUserPasswordByAdmin({
+        data: {
+          userId,
+          password,
+          oldPassword,
+        },
       })
     },
   })

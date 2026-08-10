@@ -1,9 +1,10 @@
 <script lang="ts" setup>
+import type { ItemVo } from '@/api/alova/globals'
 import { CircleCloseFilled } from '@element-plus/icons-vue'
 import { AppIconTagRenderer } from '@/components'
 
 defineProps<{
-  item: API.ItemVo
+  item: ItemVo
   src?: string
   mapping?: [number, number]
 }>()

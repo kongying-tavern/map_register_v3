@@ -9,7 +9,8 @@ const emits = defineEmits<{
   close: []
 }>()
 
-const { detailFormRef, formData, loading, handleSubmit, onSuccess } = useItemCreate()
+const detailFormRef = useTemplateRef('detailFormRef')
+const { formData, loading, handleSubmit, onSuccess } = useItemCreate(detailFormRef)
 
 onSuccess(() => {
   emits('close')

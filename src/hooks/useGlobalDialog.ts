@@ -29,7 +29,7 @@ export const useGlobalDialog = () => {
       return this
     }
 
-    static listeners = <T extends unknown[]>(listenersObj: Record<string, (...args: T) => void>) => {
+    static listeners = <T extends Record<string, (...args: any[]) => void>>(listenersObj: T) => {
       dialog.listeners(listenersObj)
       return this
     }

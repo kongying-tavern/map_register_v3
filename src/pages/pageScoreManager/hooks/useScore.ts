@@ -1,6 +1,6 @@
 import type { FormatedScore, ScoreVo } from '../shared'
+import type { ScoreParamsVo } from '@/api/alova/globals'
 import { ElMessage } from 'element-plus'
-import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 
 export interface ScoreFilterParmas {
@@ -17,30 +17,34 @@ export const useScore = (form: Ref<ScoreFilterParmas>) => {
       const { range } = toValue(form)
       const [startTime, endTime] = range
 
-      const payload: API.ScoreParamsVo = {
+      const payload: ScoreParamsVo = {
         startTime: startTime as unknown as string,
         endTime: endTime as unknown as string,
         span: 'DAY',
         scope: 'PUNCTUATE',
       }
 
-      const { data: status, message = '' } = await Api.score.generate(payload)
-      if (status !== 'ok')
+      const { data: status, message = '' } = await Apis.score.generate({
+        data: payload,
+      })
+      if (`${status}` !== 'ok')
         throw new Error(message)
 
-      const { data = [] } = await Api.score.getData(payload)
+      const { data = [] } = await Apis.score.getData({
+        data: payload,
+      })
 
       const formatedData: FormatedScore[] = (data as ScoreVo[]).map(({ data, userId, user, ...rest }) => ({
         ...rest,
         ...user,
-        nickname: user.nickname || user.username || `(id:${userId})`,
+        nickname: user?.nickname || user?.username || `(id:${userId})`,
         data,
         userId,
-        totalChars: Object.values(data.chars).reduce((sum, count = 0) => sum + count, 0),
-        totalCount: Object.values(data.fields).reduce((sum, count = 0) => sum + count, 0),
+        totalChars: data?.chars ? Object.values(data.chars).reduce((sum, count = 0) => sum + count, 0) : 0,
+        totalCount: data?.fields ? Object.values(data.fields).reduce((sum, count = 0) => sum + count, 0) : 0,
       }))
 
-      const res = formatedData.toSorted(({ userId: idA }, { userId: idB }) => {
+      const res = formatedData.toSorted(({ userId: idA = 0 }, { userId: idB = 0 }) => {
         return idA - idB
       })
 

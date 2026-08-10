@@ -1,26 +1,28 @@
+import type { IconSearchVo, IconVo, SysUserSmallVo } from '@/api/alova/globals'
 import type { PaginationState } from '@/hooks'
 import { ElMessage } from 'element-plus'
-import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 
 export interface IconListHookOptions {
   pagination: Ref<PaginationState>
-  getParams: () => Omit<API.IconSearchVo, 'current' | 'size'>
+  getParams: () => Omit<IconSearchVo, 'current' | 'size'>
 }
 
 /** 图标列表 hook */
 export const useIconList = (options: IconListHookOptions) => {
   const { pagination, getParams } = options
 
-  const iconList = ref<API.IconVo[]>([])
-  const userMap = ref<Record<string, API.SysUserSmallVo>>({})
+  const iconList = ref<IconVo[]>([])
+  const userMap = ref<Record<string, SysUserSmallVo>>({})
 
   const { refresh: updateIconList, onSuccess, onError, ...rest } = useFetchHook({
     immediate: true,
-    onRequest: () => Api.icon.listIcon({
-      ...getParams(),
-      current: pagination.value.current,
-      size: pagination.value.pageSize,
+    onRequest: () => Apis.icon.listIcon({
+      data: {
+        ...getParams(),
+        current: pagination.value.current,
+        size: pagination.value.pageSize,
+      },
     }),
   })
 

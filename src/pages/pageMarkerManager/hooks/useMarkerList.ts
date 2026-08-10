@@ -1,6 +1,6 @@
 import type { Ref } from 'vue'
+import type { ItemVo, MarkerVo, SysUserVo } from '@/api/alova/globals'
 import type { PaginationState } from '@/hooks'
-import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 import { useAreaStore, useItemStore, useItemTypeStore, useMarkerStore } from '@/stores'
 
@@ -16,7 +16,7 @@ export interface MarkerSearchHookOptions {
   getParams: () => MarkerSearchParams
 }
 
-const markerList = ref<API.MarkerVo[]>([]) as Ref<API.MarkerVo[]>
+const markerList = ref<MarkerVo[]>([]) as Ref<MarkerVo[]>
 
 /** 根据各种条件筛选查询点位信息 支持根据末端地区、末端类型、物品来进行查询，不填默认分页查询 */
 // TODO 接口分页
@@ -29,7 +29,7 @@ export const useSearchMarkerList = (options: MarkerSearchHookOptions) => {
   const itemTypeStore = useItemTypeStore()
 
   const lastQueryFlag = shallowRef<string>('')
-  const lastQueryCache = shallowRef<API.MarkerVo[]>([])
+  const lastQueryCache = shallowRef<MarkerVo[]>([])
 
   const { refresh: updateMarkerList, onSuccess, ...rest } = useFetchHook({
     immediate: true,
@@ -58,7 +58,7 @@ export const useSearchMarkerList = (options: MarkerSearchHookOptions) => {
               const item = itemIdMap.get(itemId) ?? { id: itemId }
               seed.push(item)
               return seed
-            }, [] as API.ItemVo[])
+            }, [] as ItemVo[])
 
             // 1. 筛选包含地区
             if (areaIds.size > 0) {
@@ -108,15 +108,17 @@ export const useSearchMarkerList = (options: MarkerSearchHookOptions) => {
     },
   })
 
-  const cacheUserInfo = ref(new Map<number, API.SysUserVo>())
+  const cacheUserInfo = ref(new Map<number, SysUserVo>())
 
   const cachedUserIds = ref(new Set<number>())
 
-  const fetchUserInfo = async (markers: API.MarkerVo[]) => {
+  const fetchUserInfo = async (markers: MarkerVo[]) => {
     const userIds = new Set(markers.map(({ creatorId }) => creatorId!)).difference(cachedUserIds.value)
 
     await Promise.allSettled([...userIds].map(async (userId) => {
-      const { data = {} } = await Api.user.getUserInfo({ userId }).catch(() => ({ data: {} }))
+      const { data = {} } = await Apis.user
+        .getUserInfo({ pathParams: { userId } })
+        .catch(() => ({ data: {} }))
       cachedUserIds.value.add(userId)
       cacheUserInfo.value.set(userId, data)
     }))

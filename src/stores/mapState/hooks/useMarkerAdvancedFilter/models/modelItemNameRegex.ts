@@ -1,4 +1,4 @@
-import type * as API2 from '@/api/alova/globals'
+import type { MarkerVo } from '@/api/alova/globals'
 import type {
   MAFConfig,
   MAFMetaItemNameRegex,
@@ -62,7 +62,7 @@ export class ItemNameRegex implements MAFConfig<MAFValueString, MAFOptionInput, 
     ]
   }
 
-  filter(_val: MAFValueString, _opt: MAFOptionInput, meta: MAFMetaItemNameRegex, marker: API2.MarkerVo): boolean {
+  filter(_val: MAFValueString, _opt: MAFOptionInput, meta: MAFMetaItemNameRegex, marker: MarkerVo): boolean {
     const itemIds: number[] = (marker.itemList ?? []).map(item => item.itemId!).filter(v => v)
     for (const itemId of itemIds) {
       if (meta.itemIds.has(itemId))

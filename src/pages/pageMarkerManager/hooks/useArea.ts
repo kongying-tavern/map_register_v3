@@ -1,4 +1,3 @@
-import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 
 /** 拉取地区列表 */
@@ -11,9 +10,11 @@ export const useArea = () => {
   const { refresh: getArea, onSuccess, ...rest } = useFetchHook({
     immediate: true,
     onRequest: async () => {
-      return Api.area.listArea({
-        parentId: -1,
-        isTraverse: true,
+      return Apis.area.listArea({
+        data: {
+          parentId: -1,
+          isTraverse: true,
+        },
       })
     },
   })

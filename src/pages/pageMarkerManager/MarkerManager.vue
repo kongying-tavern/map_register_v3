@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { MarkerSearchParams } from './hooks'
+import type { MarkerVo } from '@/api/alova/globals'
 import { ref } from 'vue'
 import { PgUnit, useGlobalDialog, usePagination } from '@/hooks'
 import { ManagerModule } from '@/shared'
@@ -53,7 +54,7 @@ watch(itemOptions, (options) => {
 
 const { DialogService } = useGlobalDialog()
 
-const handleDeleteMarker = (marker: API.MarkerVo) => {
+const handleDeleteMarker = (marker: MarkerVo) => {
   DialogService
     .config({
       alignCenter: true,

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import * as ElIcons from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import Api from '@/api/api'
 import { AppVirtualTable } from '@/components'
 import { useFetchHook } from '@/hooks'
 import { useAccessStore, useDadianStore, useDevStore, useIconStore, usePreferenceStore } from '@/stores'
@@ -53,7 +52,7 @@ const initLogInfo = (args: unknown[]) => {
 
 const { refresh: refreshApp, loading: refreshLoading } = useFetchHook({
   onRequest: async () => {
-    await Api.app.triggerAppUpdate()
+    await Apis.app.triggerAppUpdate()
   },
 })
 

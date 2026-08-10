@@ -1,5 +1,5 @@
 import type { ModifyLinkOptions } from '../shared'
-import type * as API2 from '@/api/alova/globals'
+import type { MarkerLinkageVo } from '@/api/alova/globals'
 import type { MarkerLinkMission } from '@/packages/map'
 import { ElMessage } from 'element-plus'
 import { useFetchHook } from '@/hooks'
@@ -10,7 +10,7 @@ export const useLinkCreate = () => {
 
   const { onSuccess, onError, ...rest } = useFetchHook({
     onRequest: async (links: MarkerLinkMission[], modifyLinks: Map<string, ModifyLinkOptions>) => {
-      const deleteLinks: API2.MarkerLinkageVo[] = []
+      const deleteLinks: MarkerLinkageVo[] = []
       modifyLinks.forEach((group) => {
         if (!group.isDelete)
           return

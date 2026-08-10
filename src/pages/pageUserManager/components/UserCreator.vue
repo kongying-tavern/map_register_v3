@@ -1,9 +1,9 @@
 <script lang="ts" setup>
+import type { SysUserRegisterVo } from '@/api/alova/globals'
 import type { ElFormType } from '@/shared'
 import type { ItemFormRules } from '@/utils'
 import { Check, Close } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import Api from '@/api/api'
 import { WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 import { useFetchHook } from '@/hooks'
 
@@ -12,7 +12,7 @@ const emits = defineEmits<{
   close: []
 }>()
 
-type UserRegisterVo = Required<API.SysUserRegisterVo & {
+type UserRegisterVo = Required<SysUserRegisterVo & {
   confirmPassword?: string
 }>
 
@@ -39,7 +39,9 @@ const rules: ItemFormRules<UserRegisterVo> = {
 const { loading, refresh: submit, onSuccess, onError } = useFetchHook({
   onRequest: async () => {
     const { username, password } = formData.value
-    await Api.user.registerUser({ username, password })
+    await Apis.user.registerUser({
+      data: { username, password },
+    })
   },
 })
 

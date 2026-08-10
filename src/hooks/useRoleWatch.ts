@@ -38,8 +38,8 @@ export const useRoleWatch = (options: UseRoleWatchOptions = {}) => {
   const check = async () => {
     if (!userStore.isLogin)
       return
-    const newInfo = await userStore.refreshUserInfo()
-    const newRoleId = newInfo?.roleId
+    await userStore.refreshUserInfo()
+    const newRoleId = userStore.info?.roleId
     if (prevRoleId !== undefined && prevRoleId !== newRoleId) {
       roleChangeHook.trigger({ oldRoleId: prevRoleId, newRoleId })
     }

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { TagProps } from 'element-plus'
+import type { ItemVo } from '@/api/alova/globals'
 import { Delete } from '@element-plus/icons-vue'
 import { AppIconTagRenderer } from '@/components'
 import { useBinaryFlag, useRefreshTime } from '@/hooks'
@@ -8,13 +9,13 @@ import { useAreaStore, useIconStore } from '@/stores'
 import UnknownIconUrl from '/icons/unknown.webp?url'
 
 const props = defineProps<{
-  data: API.ItemVo
+  data: ItemVo
   count?: number
 }>()
 
 const emits = defineEmits<{
-  delete: [API.ItemVo]
-  review: [API.ItemVo]
+  delete: [ItemVo]
+  review: [ItemVo]
 }>()
 
 const areaStore = useAreaStore()

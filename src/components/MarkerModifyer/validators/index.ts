@@ -1,4 +1,5 @@
 import type { FormRules } from 'element-plus'
+import type { MarkerItemLinkVo } from '@/api/alova/globals'
 import { useAreaStore, useItemStore, useItemTypeStore } from '@/stores'
 import { requireCheck } from '@/utils'
 
@@ -27,7 +28,7 @@ export const useRules = () => {
     ],
 
     itemList: [{
-      validator: (_, itemList: API.MarkerItemLinkVo[], callback) => {
+      validator: (_, itemList: MarkerItemLinkVo[], callback) => {
         try {
           if (itemList?.length < 1)
             throw new Error('至少需要选择一项物品')

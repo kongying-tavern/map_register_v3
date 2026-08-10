@@ -1,10 +1,10 @@
-<script setup lang="ts" generic="T, LK extends keyof T, VK extends keyof T">
+<script setup lang="ts" generic="T">
 import { Select } from '@element-plus/icons-vue'
 
 const props = defineProps<{
   options: T[]
-  labelKey: LK
-  valueKey: VK
+  getLabel: (item: T) => string
+  getValue: (item: T) => string
   placeholder?: string
   getDisabled?: (option: T) => boolean
   /** 是否禁用选择选项后自动隐藏选项列表 */
@@ -12,13 +12,56 @@ const props = defineProps<{
 }>()
 
 const emits = defineEmits<{
-  change: [value: T[VK]]
   dropdownVisibleChange: [boolean]
 }>()
+
+interface NormalizedOption {
+  label: string
+  value: string
+  disabled: boolean
+  raw: T
+}
 
 const dropdownVisible = ref(false)
 const listRef = ref<HTMLElement>()
 const labelRef = ref<HTMLElement>()
+
+const wrapperOptions = computed<NormalizedOption[]>(() => {
+  const { options, getLabel, getValue, getDisabled } = props
+  return options.map(option => ({
+    label: getLabel(option),
+    value: getValue(option),
+    disabled: getDisabled?.(option) ?? false,
+    raw: option,
+  }))
+})
+
+const valueMap = computed(() => {
+  return wrapperOptions.value.reduce((map, option) => {
+    return map.set(option.value, option)
+  }, new Map<string, NormalizedOption>())
+})
+
+const modelValue = defineModel<string>('modelValue', {
+  required: false,
+  default: undefined,
+})
+
+const openOptionList = () => {
+  dropdownVisible.value = !dropdownVisible.value
+  emits('dropdownVisibleChange', dropdownVisible.value)
+}
+
+const selectValue = (option: NormalizedOption) => {
+  const { disabledAutoHidden = false } = props
+  if (option.disabled)
+    return
+  modelValue.value = option.value
+  if (disabledAutoHidden)
+    return
+  dropdownVisible.value = false
+  emits('dropdownVisibleChange', false)
+}
 
 useEventListener('pointerdown', (ev) => {
   if (!dropdownVisible.value)
@@ -31,52 +74,20 @@ useEventListener('pointerdown', (ev) => {
   dropdownVisible.value = false
   emits('dropdownVisibleChange', false)
 })
-
-const openOptionList = () => {
-  dropdownVisible.value = !dropdownVisible.value
-  emits('dropdownVisibleChange', dropdownVisible.value)
-}
-
-const itemMap = computed(() => props.options.reduce((map, item) => {
-  return map.set(item[props.valueKey as string], item)
-}, new Map<VK, T>()))
-
-const nameMap = computed(() => props.options.reduce((map, item) => {
-  return map.set(item[props.valueKey as string], item[props.labelKey as string])
-}, new Map<VK, LK>()))
-
-const modelValue = defineModel<T[VK]>('modelValue', {
-  required: false,
-  default: undefined,
-})
-
-const selectValue = (option: T) => {
-  const { disabledAutoHidden = false, valueKey, getDisabled } = props
-  const isDisabled = getDisabled ? getDisabled(option) : false
-  if (isDisabled)
-    return
-  const value = option[valueKey as string]
-  modelValue.value = value
-  emits('change', value)
-  if (disabledAutoHidden)
-    return
-  dropdownVisible.value = false
-  emits('dropdownVisibleChange', false)
-}
 </script>
 
 <template>
   <div class="gs-select gs-select-variable">
     <div ref="labelRef" class="label-content" @click="openOptionList">
       <slot
-        v-if="nameMap.get(modelValue as VK)"
+        v-if="valueMap.has(modelValue)"
         name="label"
-        :label="itemMap.get(modelValue as VK)?.[labelKey as string]"
-        :value="itemMap.get(modelValue as VK)?.[valueKey as string]"
-        :option="itemMap.get(modelValue as VK)"
+        :label="valueMap.get(modelValue)?.label"
+        :value="`${modelValue}`"
+        :option="valueMap.get(modelValue)"
         :dropdown-visible
       >
-        {{ nameMap.get(modelValue as VK) }}
+        {{ valueMap.get(modelValue)?.label ?? `${modelValue}` }}
       </slot>
 
       <slot
@@ -97,26 +108,26 @@ const selectValue = (option: T) => {
     >
       <el-scrollbar height="100%">
         <div
-          v-for="option in options"
-          :key="`${option[valueKey as string]}`"
+          v-for="option in wrapperOptions"
+          :key="option.value"
           class="option"
           :class="{
-            'is-active': option[valueKey as string] === modelValue,
+            'is-active': option.value === modelValue,
           }"
           @click="() => selectValue(option)"
         >
           <slot
             name="default"
-            :label="option[labelKey as string]"
-            :value="option[valueKey as string]"
-            :option="option"
+            :label="option.label"
+            :value="option.value"
+            :option="option.raw"
           >
             <div class="flex-1 overflow-hidden whitespace-nowrap text-ellipsis">
-              {{ option[labelKey as string] }}
+              {{ option.label }}
             </div>
           </slot>
 
-          <el-icon v-if="option[valueKey as string] === modelValue" class="absolute right-0 top-0">
+          <el-icon v-if="option.value === modelValue" class="absolute right-0 top-0">
             <Select />
           </el-icon>
         </div>

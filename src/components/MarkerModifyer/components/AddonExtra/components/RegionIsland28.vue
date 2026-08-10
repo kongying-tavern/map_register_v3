@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import type { CascaderOption } from 'element-plus'
-import type * as API2 from '@/api/alova/globals'
+import type { V2_8_Island } from '@/api/alova/globals'
 
 const props = defineProps<{
-  config: API.ExtraConfig
+  config: DTO.ExtraConfig
 }>()
 
-const modelValue = defineModel<API2.V2_8_Island | undefined>({
+const modelValue = defineModel<V2_8_Island | undefined>({
   required: true,
 })
 

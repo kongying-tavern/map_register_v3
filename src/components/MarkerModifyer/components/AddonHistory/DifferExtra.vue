@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import type { MarkerExtraVo } from '@/api/alova/globals'
 import { Right } from '@element-plus/icons-vue'
 import { ElIcon } from 'element-plus'
 
 const props = withDefaults(defineProps<{
-  history?: API.MarkerExtra
-  current?: API.MarkerExtra
+  history?: MarkerExtraVo
+  current?: MarkerExtraVo
   isDifferent?: boolean
 }>(), {
   history: () => ({}),
@@ -12,8 +13,8 @@ const props = withDefaults(defineProps<{
 })
 
 const isIsland16Different = computed(() => {
-  const a = new Set(props.current['1_6_island'] ?? [])
-  const b = new Set(props.history['1_6_island'] ?? [])
+  const a = new Set(props.current['1_6_island'])
+  const b = new Set(props.history['1_6_island'])
   return a.symmetricDifference(b).size > 0
 })
 

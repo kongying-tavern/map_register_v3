@@ -7,11 +7,11 @@ import { WorkerIPC } from '@/utils/worker/worker-ipc'
 declare const globalThis: WorkerGlobalScope
 
 type ServerEvents = {
-  [K in keyof API.WSEventMap]: {
+  [K in keyof WebSocketAPI.WSEventMap]: {
     event: K
-    data: API.WSEventMap[K][0]
+    data: WebSocketAPI.WSEventMap[K][0]
   }
-}[keyof API.WSEventMap]
+}[keyof WebSocketAPI.WSEventMap]
 
 /** 10 秒发送一次 ping */
 const heartbeatInterval = 10000
@@ -74,13 +74,10 @@ const startHeartbeat = (
   id: string,
   ipc: WorkerIPC<AppSocket.MainEventMap, AppSocket.WorkerEventMap>,
 ) => {
-  let pingTimer: number | null = null
   let disconnectTimer: number | null = null
 
   const startNextPing = () => {
-    if (pingTimer)
-      globalThis.clearTimeout(pingTimer)
-    pingTimer = globalThis.setTimeout(() => {
+    globalThis.setTimeout(() => {
       ipc.emit('ping', id)
       disconnectTimer = globalThis.setTimeout(() => {
         context.ports.delete(id)

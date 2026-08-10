@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { ItemQueryForm } from './hooks'
+import type { ItemVo } from '@/api/alova/globals'
 import { PgUnit, useGlobalDialog, usePagination } from '@/hooks'
 import { ManagerModule } from '@/shared'
 import { ItemCreator, ItemDeleteConfirm, ItemEditor, ItemFilter, ItemGridExplorer, ItemTable } from './components'
@@ -47,7 +48,7 @@ const openItemCreatorDialog = () => {
 }
 
 // ==================== 编辑物品 ====================
-const openItemEditorDialog = (item: API.ItemVo) => {
+const openItemEditorDialog = (item: ItemVo) => {
   DialogService
     .config(COMMON_CONFIG)
     .props({ item })
@@ -57,7 +58,7 @@ const openItemEditorDialog = (item: API.ItemVo) => {
 
 // ==================== 删除物品 ====================
 
-const confirmDelete = (item: API.ItemVo) => {
+const confirmDelete = (item: ItemVo) => {
   DialogService
     .config(COMMON_CONFIG)
     .props({ item })

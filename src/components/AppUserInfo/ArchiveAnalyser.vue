@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import type { AreaVo } from '@/api/alova/globals'
 import { AppIconTagRenderer, GSSwitch } from '@/components'
 import { fallbackToStaticIcon } from '@/configs'
 import { useArchiveStore, useAreaStore, useIconStore, useItemStore, useMarkerStore, usePreferenceStore } from '@/stores'
@@ -57,7 +58,7 @@ const itemAreaIdMap = computed(() => {
     map.set(itemId, parentArea)
 
     return map
-  }, new Map<number, API.AreaVo>())
+  }, new Map<number, AreaVo>())
 })
 
 /** 为每个宝箱点位匹配其地区数据 */
@@ -66,7 +67,7 @@ const countMap = computed(() => {
     if (!area.isFinal)
       map.set(area.id!, { area, count: 0, total: 0 })
     return map
-  }, new Map<number, { area: API.AreaVo, count: number, total: number }>())
+  }, new Map<number, { area: AreaVo, count: number, total: number }>())
 
   return markerStore.markerList.reduce((map, { id: markerId = -1, itemList = [] }) => {
     itemList.forEach(({ itemId = -1 }) => {

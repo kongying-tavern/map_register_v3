@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { NoticeSearchVo, NoticeVo } from '@/api/alova/globals'
 import { PgUnit, useGlobalDialog, usePagination } from '@/hooks'
 import { ManagerModule, NoticeChannel } from '@/shared'
 import { useArchiveStore } from '@/stores'
@@ -21,7 +22,7 @@ const { pagination, layout, onChange: onPaginationChange } = usePagination({
   module: ManagerModule.Notice,
 })
 
-const filterParams = ref<Omit<API.NoticeSearchVo, 'current' | 'size'>>({
+const filterParams = ref<Omit<NoticeSearchVo, 'current' | 'size'>>({
   channels: [
     NoticeChannel.APPLICATION,
     NoticeChannel.CLIENT_APP,
@@ -59,7 +60,7 @@ const handleCreateNotice = () => {
     .open(NoticeViewer)
 }
 
-const handleReviewNotice = (notice: API.NoticeVo) => {
+const handleReviewNotice = (notice: NoticeVo) => {
   DialogService
     .props({
       notice,
@@ -71,7 +72,7 @@ const handleReviewNotice = (notice: API.NoticeVo) => {
     .open(NoticeViewer)
 }
 
-const handleDeleteNotice = (notice: API.NoticeVo) => {
+const handleDeleteNotice = (notice: NoticeVo) => {
   DialogService
     .props({
       title: '删除公告',

@@ -9,7 +9,7 @@ export const useSocket = () => {
     status: 'INIT',
   })
 
-  const socketEvent = new EventBus<API.WSEventMap>()
+  const socketEvent = new EventBus<WebSocketAPI.WSEventMap>()
 
   const openHook = createEventHook<void>()
   const closeHook = createEventHook<void>()

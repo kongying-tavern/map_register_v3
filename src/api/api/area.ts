@@ -1,9 +1,10 @@
 import type { AxiosRequestConfig } from 'axios'
+import type { AreaSearchVo, AreaVo, RAreaVo, RBoolean, RListAreaVo, RLong } from '../alova/globals'
 import { request } from '@/utils'
 
 /** 新增地区 返回新增地区ID PUT /api/area/add */
-export async function createArea(body: API.AreaVo, options?: AxiosRequestConfig) {
-  return request<API.RLong>('/api/area/add', {
+export async function createArea(body: AreaVo, options?: AxiosRequestConfig) {
+  return request<RLong>('/api/area/add', {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -14,8 +15,8 @@ export async function createArea(body: API.AreaVo, options?: AxiosRequestConfig)
 }
 
 /** 修改地区 修改地区 POST /api/area/update */
-export async function updateArea(body: API.AreaVo, options?: AxiosRequestConfig) {
-  return request<API.RBoolean>('/api/area/update', {
+export async function updateArea(body: AreaVo, options?: AxiosRequestConfig) {
+  return request<RBoolean>('/api/area/update', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -34,7 +35,7 @@ export async function getArea(
   options?: AxiosRequestConfig,
 ) {
   const { areaId: param0, ...queryParams } = params
-  return request<API.RAreaVo>(`/api/area/get/${param0}`, {
+  return request<RAreaVo>(`/api/area/get/${param0}`, {
     method: 'POST',
     params: { ...queryParams },
     ...(options || {}),
@@ -42,8 +43,8 @@ export async function getArea(
 }
 
 /** 列出地区 可根据父级地区id列出子地区列表 POST /api/area/get/list */
-export async function listArea(body: API.AreaSearchVo, options?: AxiosRequestConfig) {
-  return request<API.RListAreaVo>('/api/area/get/list', {
+export async function listArea(body: AreaSearchVo, options?: AxiosRequestConfig) {
+  return request<RListAreaVo>('/api/area/get/list', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -62,7 +63,7 @@ export async function deleteArea(
   options?: AxiosRequestConfig,
 ) {
   const { areaId: param0, ...queryParams } = params
-  return request<API.RBoolean>(`/api/area/${param0}`, {
+  return request<RBoolean>(`/api/area/${param0}`, {
     method: 'DELETE',
     params: { ...queryParams },
     ...(options || {}),

@@ -1,4 +1,4 @@
-import type * as API2 from '@/api/alova/globals'
+import type { MarkerVo } from '@/api/alova/globals'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useFetchHook } from '@/hooks'
 import { useMarkerStore } from '@/stores'
@@ -12,7 +12,7 @@ export const useMarkerDelete = () => {
     },
   })
 
-  const confirmDeleteMarker = async (marker: API2.MarkerVo | null) => {
+  const confirmDeleteMarker = async (marker: MarkerVo | null) => {
     if (!marker)
       return
     ElMessageBox.confirm(

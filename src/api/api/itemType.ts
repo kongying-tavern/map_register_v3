@@ -1,12 +1,13 @@
 import type { AxiosRequestConfig } from 'axios'
+import type { ItemTypeVo, PageAndTypeSearchVo, RBoolean, RListItemTypeVo, RLong, RPageListVoItemTypeVo } from '../alova/globals'
 import { request } from '@/utils'
 
 /** 添加物品类型 成功后返回新的类型ID PUT /api/item_type/add */
 export async function addItemType(
-  body: API.ItemTypeVo,
+  body: ItemTypeVo,
   options?: AxiosRequestConfig,
 ) {
-  return request<API.RLong>('/api/item_type/add', {
+  return request<RLong>('/api/item_type/add', {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -18,10 +19,10 @@ export async function addItemType(
 
 /** 修改物品类型 修改物品类型 POST /api/item_type/update */
 export async function updateItemType(
-  body: API.ItemTypeVo,
+  body: ItemTypeVo,
   options?: AxiosRequestConfig,
 ) {
-  return request<API.RBoolean>('/api/item_type/update', {
+  return request<RBoolean>('/api/item_type/update', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -41,7 +42,7 @@ export async function moveItemType(
   options?: AxiosRequestConfig,
 ) {
   const { targetTypeId: param0, ...queryParams } = params
-  return request<API.RBoolean>(`/api/item_type/move/${param0}`, {
+  return request<RBoolean>(`/api/item_type/move/${param0}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -54,7 +55,7 @@ export async function moveItemType(
 
 /** 列出所有物品类型 返回所有可访问的物品类型 POST /api/item_type/get/list_all */
 export async function listItemType(options?: AxiosRequestConfig) {
-  return request<API.RListItemTypeVo>('/api/item_type/get/list_all', {
+  return request<RListItemTypeVo>('/api/item_type/get/list_all', {
     method: 'POST',
     ...(options || {}),
   })
@@ -66,11 +67,11 @@ export async function listItemType1(
     // path
     self: number
   },
-  body: API.PageAndTypeSearchVo,
+  body: PageAndTypeSearchVo,
   options?: AxiosRequestConfig,
 ) {
   const { self: param0, ...queryParams } = params
-  return request<API.RPageListVoItemTypeVo>(`/api/item_type/get/list/${param0}`, {
+  return request<RPageListVoItemTypeVo>(`/api/item_type/get/list/${param0}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -90,7 +91,7 @@ export async function deleteItemType(
   options?: AxiosRequestConfig,
 ) {
   const { itemTypeId: param0, ...queryParams } = params
-  return request<API.RBoolean>(`/api/item_type/delete/${param0}`, {
+  return request<RBoolean>(`/api/item_type/delete/${param0}`, {
     method: 'DELETE',
     params: { ...queryParams },
     ...(options || {}),

@@ -1,4 +1,4 @@
-import type * as API2 from '@/api/alova/globals'
+import type { MarkerVo } from '@/api/alova/globals'
 import type {
   MAFConfig,
   MAFMetaLinkageAction,
@@ -69,7 +69,7 @@ export class LinkageAction implements MAFConfig<MAFValueStringArray, MAFOptionSe
     ]
   }
 
-  filter(val: MAFValueStringArray, _opt: MAFOptionSelect<OptionType>, meta: MAFMetaLinkageAction, marker: API2.MarkerVo): boolean {
+  filter(val: MAFValueStringArray, _opt: MAFOptionSelect<OptionType>, meta: MAFMetaLinkageAction, marker: MarkerVo): boolean {
     if (marker.linkageId && meta.linkActionMap.has(marker.linkageId)) {
       const linkActions: Set<string> = meta.linkActionMap.get(marker.linkageId)!
       for (const action of val.sa) {

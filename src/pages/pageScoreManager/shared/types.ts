@@ -1,3 +1,5 @@
+import type { SysUserSmallVo } from '@/api/alova/globals'
+
 export interface ScoreVo {
   data?: {
     /** 字数 */
@@ -23,6 +25,20 @@ export interface ScoreVo {
   }
   scope?: string
   span?: string
-  user?: API.SysUserSmallVo
+  user?: SysUserSmallVo
   userId?: number
+}
+
+export interface FormatedScore extends ScoreVo {
+  scope?: string
+  span?: string
+  username?: string
+  nickname?: string
+  qq?: string
+  phone?: string
+  logo?: string
+  remark?: string
+  userId?: number
+  totalChars?: number
+  totalCount?: number
 }

@@ -1,5 +1,6 @@
+import type { ShallowRef } from 'vue'
 import type { ItemDetailForm } from '../components'
-import type * as API2 from '@/api/alova/globals'
+import type { ItemVo } from '@/api/alova/globals'
 import { GSMessageService } from '@/components'
 import { useFetchHook } from '@/hooks'
 import { HiddenFlagEnum, IconStyle } from '@/shared'
@@ -10,16 +11,16 @@ export interface ItemCreateHookOptions {
   isRoot?: boolean
 }
 
-export const useItemCreate = () => {
+export const useItemCreate = (formRef: ShallowRef<InstanceType<typeof ItemDetailForm> | null>) => {
   const itemStore = useItemStore()
 
   const { refresh: submit, onSuccess, onError, ...rest } = useFetchHook({
-    onRequest: async (item: API2.ItemVo) => {
+    onRequest: async (item: ItemVo) => {
       await itemStore.createItem(item)
     },
   })
 
-  const initFormData = (): API2.ItemVo => ({
+  const initFormData = (): ItemVo => ({
     defaultCount: 1,
     defaultRefreshTime: 0,
     typeIdList: [],
@@ -29,11 +30,10 @@ export const useItemCreate = () => {
     sortIndex: 0,
   })
 
-  const detailFormRef = ref<InstanceType<typeof ItemDetailForm> | null>(null)
-  const formData = ref<API2.ItemVo>(initFormData())
+  const formData = ref<ItemVo>(initFormData())
 
   const handleSubmit = async () => {
-    const isValid = await detailFormRef.value?.validate()
+    const isValid = await formRef.value?.validate()
     if (!isValid)
       return
     await submit(formData.value)
@@ -51,5 +51,5 @@ export const useItemCreate = () => {
     duration: 5000,
   }))
 
-  return { formData, detailFormRef, initFormData, handleSubmit, onSuccess, ...rest }
+  return { formData, detailFormRef: formRef, initFormData, handleSubmit, onSuccess, ...rest }
 }

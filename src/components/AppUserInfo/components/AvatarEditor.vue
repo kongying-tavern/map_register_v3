@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import type { MiyousheAvatar } from '../hooks'
 import { pick } from 'lodash'
-import Api from '@/api/api'
 import { AppVirtualTable, GSButton } from '@/components'
 import { useFetchHook } from '@/hooks'
 import { useUserStore } from '@/stores'
@@ -22,10 +21,12 @@ const { loading, refresh: updateUserInfo } = useFetchHook({
       throw new Error('未登录')
     if (!selectedAvatar.value?.icon)
       throw new Error('头像地址为空')
-    await Api.user.updateUser({
-      ...pick(userStore.info, 'nickname', 'qq', 'phone', 'roleId'),
-      userId: userStore.info.id,
-      logo: selectedAvatar.value.icon,
+    await Apis.user.updateUser({
+      data: {
+        ...pick(userStore.info, 'nickname', 'qq', 'phone', 'roleId'),
+        userId: userStore.info.id,
+        logo: selectedAvatar.value.icon,
+      },
     })
     await userStore.refreshUserInfo()
   },

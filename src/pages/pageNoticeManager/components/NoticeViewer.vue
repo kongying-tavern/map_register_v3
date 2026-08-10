@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { ComputedRef } from 'vue'
+import type { NoticeVo } from '@/api/alova/globals'
 import type { ElFormType } from '@/shared'
 import type { ItemFormRules } from '@/utils'
 import { Check, Close } from '@element-plus/icons-vue'
@@ -15,7 +16,7 @@ import { NOTICE_NAME_MAP } from '@/shared'
 import { useNoticeCreate, useNoticeUpdate } from '../hooks'
 
 const props = defineProps<{
-  notice?: API.NoticeVo
+  notice?: NoticeVo
   status: 'create' | 'update'
 }>()
 
@@ -24,11 +25,11 @@ const emits = defineEmits<{
   close: []
 }>()
 
-const formData = ref<API.NoticeVo>(JSON.parse(JSON.stringify(props.notice ?? {})))
+const formData = ref<NoticeVo>(JSON.parse(JSON.stringify(props.notice ?? {})))
 
 const formRef = ref<ElFormType | null>(null)
 
-const rules: ComputedRef<ItemFormRules<API.NoticeVo>> = computed(() => ({
+const rules: ComputedRef<ItemFormRules<NoticeVo>> = computed(() => ({
   channel: [
     { required: true, message: '频道不能为空', trigger: 'change' },
   ],

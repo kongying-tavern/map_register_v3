@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import type { ModifierConstructorOptions } from '..'
 import type { TextModifierProps } from '../modifiers'
+import type { TweakConfigVo } from '@/api/alova/globals'
 
 defineProps<{
   options: ModifierConstructorOptions<TextModifierProps>
 }>()
 
-const modelValue = defineModel<Required<API.TweakConfigVo>['meta']>('modelValue', {
+const modelValue = defineModel<Required<TweakConfigVo>['meta']>('modelValue', {
   required: true,
   default: {},
 })
@@ -18,7 +19,7 @@ const text = computed<string>({
   set: (newText) => {
     modelValue.value = {
       ...modelValue.value,
-      value: newText,
+      value: newText as unknown as object,
     }
   },
 })

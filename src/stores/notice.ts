@@ -1,5 +1,5 @@
+import type { NoticeVo } from '@/api/alova/globals'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import Api from '@/api/api'
 import { context as noticeContext } from '@/components/AppNotice/context'
 import { useFetchHook } from '@/hooks'
 import { NoticeChannel } from '@/shared'
@@ -14,11 +14,13 @@ export const useNoticeStore = defineStore('global-notice', () => {
     shallow: true,
     initialValue: [],
     onRequest: async () => {
-      const { data: { record = [] } = {} } = await Api.notice.listNotice({
-        channels: [NoticeChannel.COMMON, NoticeChannel.DASHBOARD],
-        sort: ['sortIndex-'],
-        getValid: true,
-        size: 100,
+      const { data: { record = [] } = {} } = await Apis.notice.listNotice({
+        data: {
+          channels: [NoticeChannel.COMMON, NoticeChannel.DASHBOARD],
+          sort: ['sortIndex-'],
+          getValid: true,
+          size: 100,
+        },
       })
       return record
     },
@@ -30,7 +32,7 @@ export const useNoticeStore = defineStore('global-notice', () => {
   const noticeIdMap = computed(() => noticeList.value.reduce((map, notice) => {
     map.set(notice.id!, notice)
     return map
-  }, new Map<number, API.NoticeVo>()))
+  }, new Map<number, NoticeVo>()))
 
   const clear = () => {
     noticeContext.close()
@@ -81,7 +83,7 @@ export const useNoticeStore = defineStore('global-notice', () => {
     preferenceStore.noticeRead = [...readMap.entries()]
   }
 
-  const selected = shallowRef<API.NoticeVo>()
+  const selected = shallowRef<NoticeVo>()
 
   onSuccess(async (list) => {
     const [first] = list

@@ -1,4 +1,6 @@
-export const isMarkerVo = (v: unknown): v is API.MarkerVo => {
+import type { ItemVo, MarkerVo } from '@/api/alova/globals'
+
+export const isMarkerVo = (v: unknown): v is MarkerVo => {
   if (typeof v !== 'object' || v === null)
     return false
   for (const key of ['id', 'markerTitle', 'position', 'itemList']) {
@@ -8,7 +10,7 @@ export const isMarkerVo = (v: unknown): v is API.MarkerVo => {
   return true
 }
 
-export const isMovingMarker = (v: unknown): v is { origin: API.MarkerVo, offset: API.Coordinate2D } => {
+export const isMovingMarker = (v: unknown): v is { origin: MarkerVo, offset: DTO.Coordinate2D } => {
   if (typeof v !== 'object' || v === null)
     return false
   if (!isMarkerVo((v as Record<string, unknown>).origin))
@@ -18,7 +20,7 @@ export const isMovingMarker = (v: unknown): v is { origin: API.MarkerVo, offset:
   return true
 }
 
-export const isItemVo = (v: unknown): v is API.ItemVo => {
+export const isItemVo = (v: unknown): v is ItemVo => {
   if (typeof v !== 'object' || v === null)
     return false
   for (const key of ['id', 'areaId', 'name', 'defaultCount', 'typeIdList']) {

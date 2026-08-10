@@ -81,7 +81,7 @@ export interface UserPreference {
   'map.setting.zoomTransitionDuration': number
 
   /** 地图最后停留的中心点位置 @todo 保留，可能有性能问题 */
-  'map.viewState.target'?: API.Coordinate2D
+  'map.viewState.target'?: DTO.Coordinate2D
 
   /** 显示附加图层 */
   'map.state.showOverlay'?: boolean
@@ -153,7 +153,7 @@ export interface UserPreference {
   'socket.setting.enableNotice'?: boolean
 
   /** 允许弹出通知的 web socket 事件 */
-  'socket.setting.noticeEvents'?: API.WSEventType[]
+  'socket.setting.noticeEvents'?: WebSocketAPI.WSEventType[]
 
   // ====================      开发者      ====================
 

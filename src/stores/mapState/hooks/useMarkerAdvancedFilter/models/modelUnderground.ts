@@ -1,4 +1,4 @@
-import type * as API2 from '@/api/alova/globals'
+import type { MarkerExtraVo, MarkerVo } from '@/api/alova/globals'
 import type {
   MAFConfig,
   MAFMetaUnderground,
@@ -56,8 +56,8 @@ export class Underground implements MAFConfig<MAFValueNumberExact, OptionType, M
     ]
   }
 
-  filter(val: MAFValueNumberExact, _opt: OptionType, _meta: MAFMetaUnderground, marker: API2.MarkerVo): boolean {
-    const underground = (marker.extra?.underground ?? {}) as API2.MarkerExtraVo['underground']
+  filter(val: MAFValueNumberExact, _opt: OptionType, _meta: MAFMetaUnderground, marker: MarkerVo): boolean {
+    const underground = (marker.extra?.underground ?? {}) as MarkerExtraVo['underground']
     switch (val.nx) {
       case OptionValue.UNLAYERED:
         return !underground?.is_underground

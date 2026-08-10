@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import type { SysUserVo } from '@/api/alova/globals'
 import { CirclePlus } from '@element-plus/icons-vue'
 import { PgUnit, useGlobalDialog, usePagination } from '@/hooks'
 import { ManagerModule } from '@/shared'
@@ -37,7 +38,7 @@ const openUserCreator = () => DialogService
   .open(UserCreator)
 
 // ==================== 编辑用户 ====================
-const openUserEditor = (data: API.SysUserVo) => DialogService
+const openUserEditor = (data: SysUserVo) => DialogService
   .props({ data })
   .listeners({
     success: updateUserList,

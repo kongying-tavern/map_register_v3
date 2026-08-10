@@ -5,7 +5,7 @@ defineEmits<{
   change: []
 }>()
 
-const modelValue = defineModel<number[]>('modelValue', {
+const modelValue = defineModel<[number, number]>('modelValue', {
   required: true,
 })
 
@@ -53,7 +53,6 @@ const getDisabledData = (date: Date) => {
   <div class="p-2 flex justify-end border-b-[1px] border-[var(--el-border-color-lighter)]">
     <div>
       <el-date-picker
-        v-model="modelValue"
         type="datetimerange"
         range-separator="To"
         start-placeholder="Start date"
@@ -63,6 +62,7 @@ const getDisabledData = (date: Date) => {
         :clearable="false"
         :shortcuts="shortcuts"
         :disabled-date="getDisabledData"
+        :model-value="modelValue"
         @change="() => $emit('change')"
       />
     </div>

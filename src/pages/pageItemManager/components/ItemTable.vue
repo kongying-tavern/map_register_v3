@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import type { ItemVo, SysUserSmallVo } from '@/api/alova/globals'
 import { Delete } from '@element-plus/icons-vue'
 import { AppRowImage } from '@/components'
 import { HiddenFlagEnum, ICON_STYLE_META_MAP } from '@/shared'
@@ -7,14 +8,14 @@ import { refreshTimeFormatter, timeFormatter } from '@/utils'
 
 defineProps<{
   loading: boolean
-  itemList: API.ItemVo[]
-  userMap: Record<string, API.SysUserSmallVo>
+  itemList: ItemVo[]
+  userMap: Record<string, SysUserSmallVo>
 }>()
 
 const emits = defineEmits<{
-  selectionChange: [selections: API.ItemVo[]]
-  review: [API.ItemVo]
-  delete: [API.ItemVo]
+  selectionChange: [selections: ItemVo[]]
+  review: [ItemVo]
+  delete: [ItemVo]
 }>()
 
 const areaStore = useAreaStore()
@@ -32,7 +33,7 @@ const getCellClassName = (cell: { column: { property?: string }, rowIndex: numbe
   return `prop-${property}`
 }
 
-const handleCellClick = (row: API.ItemVo, col: { property?: string }) => {
+const handleCellClick = (row: ItemVo, col: { property?: string }) => {
   if (col.property !== 'name')
     return
   emits('review', row)
@@ -46,7 +47,7 @@ const hiddenFlagMap: Record<number, string> = {
 }
 
 // ==================== 事件代理 ====================
-const proxySelectionChange = (selections: API.ItemVo[]) => {
+const proxySelectionChange = (selections: ItemVo[]) => {
   emits('selectionChange', selections)
 }
 </script>

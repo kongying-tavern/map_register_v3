@@ -1,15 +1,15 @@
+import type { SysUserDeviceVo, SysUserVo } from '@/api/alova/globals'
 import type { PaginationState } from '@/hooks'
-import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 
 interface UserDeviceHookOptions {
   pagination: Ref<PaginationState>
 }
 
-export const useUserDevice = (form: Ref<API.SysUserVo>, options: UserDeviceHookOptions) => {
+export const useUserDevice = (form: Ref<SysUserVo>, options: UserDeviceHookOptions) => {
   const { pagination } = options
 
-  const deviceList = shallowRef<API.SysUserDeviceVo[]>([])
+  const deviceList = shallowRef<SysUserDeviceVo[]>([])
 
   const { onSuccess, ...rest } = useFetchHook({
     immediate: true,
@@ -20,11 +20,13 @@ export const useUserDevice = (form: Ref<API.SysUserVo>, options: UserDeviceHookO
 
       const { current, pageSize } = toValue(pagination)
 
-      const { data: { record = [], total = 0 } = {} } = await Api.device.searchPage({
-        current,
-        sort: ['lastLoginTime-'],
-        size: pageSize,
-        userId,
+      const { data: { record = [], total = 0 } = {} } = await Apis.device.searchPage({
+        data: {
+          current,
+          sort: ['lastLoginTime-'],
+          size: pageSize,
+          userId,
+        },
       })
 
       return { record, total }

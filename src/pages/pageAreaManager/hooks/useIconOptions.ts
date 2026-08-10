@@ -1,8 +1,9 @@
+import type { IconVo } from '@/api/alova/globals'
 import db from '@/database'
 import { useFetchHook } from '@/hooks'
 
 export const useIconOptions = () => {
-  const tagOptions = ref<(API.IconVo & { label: string, value: string })[]>([])
+  const tagOptions = ref<(IconVo & { label: string, value: string })[]>([])
 
   const { loading, refresh: getTagList, onSuccess, ...rest } = useFetchHook({
     immediate: true,

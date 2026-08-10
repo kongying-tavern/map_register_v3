@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { NoticeVo } from '@/api/alova/globals'
 import { Check, Close, Delete } from '@element-plus/icons-vue'
 import {
   WinDialog,
@@ -9,11 +10,11 @@ import { useNoticeDelete } from '../hooks'
 
 const props = defineProps<{
   title: string
-  notice: API.NoticeVo
+  notice: NoticeVo
 }>()
 
 const emits = defineEmits<{
-  success: [API.NoticeVo]
+  success: [NoticeVo]
   close: [boolean]
 }>()
 

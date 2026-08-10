@@ -1,35 +1,46 @@
 <script lang="ts" setup>
+import type { AreaVo, ItemVo } from '@/api/alova/globals'
 import { Check, Close } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import Api from '@/api/api'
 import { WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 import { useFetchHook } from '@/hooks'
 import { AreaDetailForm } from '.'
 
 const props = defineProps<{
-  parent?: API.AreaVo
+  parent?: AreaVo
 }>()
 
 const emits = defineEmits<{
-  success: [API.AreaVo]
+  success: [AreaVo]
   close: []
 }>()
 
-const formData = ref<API.AreaVo>({
+const formData = ref<AreaVo>({
   parentId: props.parent?.id ?? -1,
   iconId: -1,
   isFinal: Boolean(props.parent),
 })
 
-const copyItems = shallowRef<API.ItemVo[]>([])
+const copyItems = shallowRef<ItemVo[]>([])
 
 const { loading, refresh: submit, onSuccess, onError } = useFetchHook({
   onRequest: async () => {
-    const { data: areaId } = await Api.area.createArea(formData.value)
+    const { data: areaId } = await Apis.area.createArea({ data: formData.value })
     if (!areaId)
       throw new Error('无法确认新增地区的id')
-    copyItems.value.length > 0 && await Api.item.copyItemToArea({ areaId }, copyItems.value.map(item => item.id!))
-    const { data = {} } = await Api.area.getArea({ areaId })
+    if (copyItems.value.length) {
+      await Apis.item.copyItemToArea({
+        pathParams: {
+          areaId,
+        },
+        data: copyItems.value.map(item => item.id!),
+      })
+    }
+    const { data = {} } = await Apis.area.getArea({
+      pathParams: {
+        areaId,
+      },
+    })
     return data
   },
 })

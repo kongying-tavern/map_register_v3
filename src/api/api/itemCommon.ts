@@ -1,9 +1,10 @@
 import type { AxiosRequestConfig } from 'axios'
+import type { PageSearchVo, RBoolean, RPageListVoItemAreaPublicVo } from '../alova/globals'
 import { request } from '@/utils'
 
 /** 新增地区公用物品 通过ID列表批量添加地区公用物品 PUT /api/item_common/add */
 export async function addCommonItem(body: number[], options?: AxiosRequestConfig) {
-  return request<API.RBoolean>('/api/item_common/add', {
+  return request<RBoolean>('/api/item_common/add', {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -15,10 +16,10 @@ export async function addCommonItem(body: number[], options?: AxiosRequestConfig
 
 /** 列出地区公用物品 列出地区公用物品 POST /api/item_common/get/list */
 export async function listCommonItem(
-  body: API.PageSearchVo,
+  body: PageSearchVo,
   options?: AxiosRequestConfig,
 ) {
-  return request<API.RPageListVoItemAreaPublicVo>('/api/item_common/get/list', {
+  return request<RPageListVoItemAreaPublicVo>('/api/item_common/get/list', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -37,7 +38,7 @@ export async function deleteCommonItem(
   options?: AxiosRequestConfig,
 ) {
   const { itemId: param0, ...queryParams } = params
-  return request<API.RBoolean>(`/api/item_common/delete/${param0}`, {
+  return request<RBoolean>(`/api/item_common/delete/${param0}`, {
     method: 'DELETE',
     params: { ...queryParams },
     ...(options || {}),

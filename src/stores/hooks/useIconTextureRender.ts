@@ -1,4 +1,5 @@
 import type { ShallowRef } from 'vue'
+import type { IconVo } from '@/api/alova/globals'
 import { renderTagSprite } from '@/worker/tagSpriteRenderer'
 
 /** 图标纹理 - 预渲染 */
@@ -38,7 +39,7 @@ export const useIconTextureRender = () => {
   }, new Map<number, [x: number, y: number]>()))
 
   /** 预渲染标签精灵图 */
-  const refresh = async (list: API.IconVo[]) => {
+  const refresh = async (list: IconVo[]) => {
     const renderResult = await renderTagSprite({
       // oss 限制最大并发 50，这里给个保守值
       maxRequests: 40,

@@ -1,3 +1,5 @@
+import type { AreaVo } from '@/api/alova/globals'
+
 /**
  * ## 地区附加配置
  * - 用于优化地图渲染或交互体验的，这是一个规范性配置，其作用取决于具体实现。
@@ -11,7 +13,7 @@ export interface AreaAdditionalConfig {
    * - 该配置可以覆盖来自下发配置中 `tiles[AREA_CODE].settings.center` 的配置
    * @注意 应当使用点位坐标而非地图坐标
    */
-  target?: API.Coordinate2D
+  target?: DTO.Coordinate2D
 
   /**
    * ### 地区的边界坐标点集
@@ -19,7 +21,7 @@ export interface AreaAdditionalConfig {
    * @注意 应当使用点位坐标而非地图坐标
    * @todo 暂未实现
    */
-  bounds?: API.Coordinate2D[]
+  bounds?: DTO.Coordinate2D[]
 
   /**
    * ### 地区图标
@@ -44,7 +46,7 @@ export type AreaTagTuple = [
   text: string,
 
   /** 坐标表达式 */
-  pos: API.Coordinate2D,
+  pos: DTO.Coordinate2D,
 
   /**
    * 字体级别
@@ -517,7 +519,7 @@ export const AREA_ADDITIONAL_CONFIG_MAP: Record<string, AreaAdditionalConfig> = 
 }
 
 /** 使用静态配置中的图标 */
-export const fallbackToStaticIcon = (area?: API.AreaVo) => {
+export const fallbackToStaticIcon = (area?: AreaVo) => {
   if (!area)
     return ''
   const { code } = area

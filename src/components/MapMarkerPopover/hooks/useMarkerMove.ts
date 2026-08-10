@@ -13,7 +13,7 @@ export const useMarkerMove = (markerInfo: ShallowRef<GSMarkerInfo | null>) => {
     return data.value.get(markerInfo.value.id!)
   })
 
-  const position = computed<API.Coordinate2D>(() => {
+  const position = computed<DTO.Coordinate2D>(() => {
     if (!markerInfo.value)
       return [0, 0]
     return draggingPosition.value ?? markerInfo.value.render.position

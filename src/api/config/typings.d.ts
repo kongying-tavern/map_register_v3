@@ -1,12 +1,12 @@
-declare namespace API {
+declare namespace DTO {
   /** 订阅的总配置项 */
   interface DadianJSON {
     application?: ApplicationConfig
-    editor?: API.EditorConfig
-    plugins?: Record<string, API.PluginConfig>
-    pluginsBeta?: Record<string, API.PluginConfig>
-    tiles?: Record<string, API.TileConfig>
-    tilesBeta?: Record<string, API.TileConfig>
+    editor?: EditorConfig
+    plugins?: Record<string, PluginConfig>
+    pluginsBeta?: Record<string, PluginConfig>
+    tiles?: Record<string, TileConfig>
+    tilesBeta?: Record<string, TileConfig>
   }
 
   type Coordinate2D = [number, number]
@@ -104,20 +104,20 @@ declare namespace API {
     bounds?: OverlayBounds
   }
 
-  interface OverlayOption extends API.OverlayChunkOption {
+  interface OverlayOption extends OverlayChunkOption {
     /** 图片地址生成模板 */
     urlTemplate?: string
     /** 叠层项分片，通常用于一个叠层图由多张图片构成的情况，可选 */
     chunks?: OverlayChunkOption[]
   }
 
-  interface OverlayGroupOption extends Omit<API.OverlayOption, 'chunks'> {
+  interface OverlayGroupOption extends Omit<OverlayOption, 'chunks'> {
     /** 该分组内叠层是否可以同时开启 */
     multiple?: boolean
     /** 叠层项 */
-    children?: API.OverlayOption[]
+    children?: OverlayOption[]
     /** overlay 组角色 */
-    role?: API.OverlayRole
+    role?: OverlayRole
   }
 
   interface OverlayConfig {
@@ -147,17 +147,17 @@ declare namespace API {
     /** 同一组内叠层是否可以同时开启 */
     multiple?: boolean
     /** 叠层分组 */
-    overlays?: API.OverlayGroupOption[]
+    overlays?: OverlayGroupOption[]
   }
 
   interface PluginConfig {
     /** 开启的 extra 插件 */
-    extra?: keyof API.ExtraConfig
+    extra?: keyof ExtraConfig
     /** extra 插件具体配置 */
-    extraConfig?: API.ExtraConfig
+    extraConfig?: ExtraConfig
     /** 是否启用叠层 */
     overlay?: boolean
-    overlayConfig?: API.OverlayConfig
+    overlayConfig?: OverlayConfig
   }
 
   interface TileConfig {
@@ -173,21 +173,21 @@ declare namespace API {
     /**
      * 坐标系原点所在位置（相对于 tile 定位坐标本身）
      */
-    center?: API.Coordinate2D
+    center?: DTO.Coordinate2D
     /** 文件扩展名 */
     extension?: string
     /** 地图图片的总宽高（像素） */
-    size?: API.Coordinate2D
+    size?: DTO.Coordinate2D
     /**
      * Leaflet.js <Map options> 的配置
      * @note 在新后台中用作初始化视口配置
      */
     settings?: {
-      center?: API.Coordinate2D
+      center?: DTO.Coordinate2D
       zoom?: number
     }
     /** 瓦片偏移量（像素） */
-    tilesOffset?: API.Coordinate2D
+    tilesOffset?: DTO.Coordinate2D
   }
 
   interface MarkerExtra {

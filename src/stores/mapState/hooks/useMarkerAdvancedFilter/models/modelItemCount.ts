@@ -1,4 +1,4 @@
-import type * as API2 from '@/api/alova/globals'
+import type { MarkerItemLinkVo, MarkerVo } from '@/api/alova/globals'
 import type {
   MAFConfig,
   MAFMetaDummy,
@@ -46,11 +46,11 @@ export class ItemCount implements MAFConfig<ValueType, OptionType, MAFMetaDummy>
     ]
   }
 
-  filter(val: ValueType, _opt: OptionType, _meta: MAFMetaDummy, marker: API2.MarkerVo): boolean {
+  filter(val: ValueType, _opt: OptionType, _meta: MAFMetaDummy, marker: MarkerVo): boolean {
     const minVal: number = val.nMin === undefined || val.nMin === null ? Number.NEGATIVE_INFINITY : val.nMin
     const maxVal: number = val.nMax === undefined || val.nMax === null ? Number.POSITIVE_INFINITY : val.nMax
     const itemList = marker.itemList ?? []
-    const isMatch = (item: API2.MarkerItemLinkVo): boolean => item.count! >= minVal && item.count! <= maxVal
+    const isMatch = (item: MarkerItemLinkVo): boolean => item.count! >= minVal && item.count! <= maxVal
     return val.b ? itemList.every(isMatch) : itemList.some(isMatch)
   }
 }

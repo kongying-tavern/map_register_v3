@@ -1,36 +1,44 @@
 import type { PageListQueryParams, TypeManager } from '../config'
-import Api from '@/api/api'
+import type { IconTypeVo } from '@/api/alova/globals'
 
-export class IconTypeManager implements TypeManager<API.IconTypeVo> {
+export class IconTypeManager implements TypeManager<IconTypeVo> {
   get info() {
     return {
       label: '图标类型',
     }
   }
 
-  getId = (data: API.IconTypeVo) => data.id
+  getId = (data: IconTypeVo) => data.id
 
-  getName = (data: API.IconTypeVo) => `${data.name ?? `(id:${data.id})`}`
+  getName = (data: IconTypeVo) => `${data.name ?? `(id:${data.id})`}`
 
-  getIsLeaf = (data: API.IconTypeVo) => data.isFinal
+  getIsLeaf = (data: IconTypeVo) => data.isFinal
 
-  list = (params: PageListQueryParams<API.IconTypeVo>) => {
+  list = (params: PageListQueryParams<IconTypeVo>) => {
     const { node, ...rest } = params
-    return Api.iconType.listIconType({
-      typeIdList: node === undefined ? [-1] : [node.id!],
-      ...rest,
+    return Apis.icon_type.listIconType({
+      data: {
+        typeIdList: node === undefined ? [-1] : [node.id!],
+        ...rest,
+      },
     })
   }
 
-  create = (IconType: API.IconTypeVo, parent?: API.IconTypeVo) => {
-    const { name } = IconType
-    return Api.iconType.addIconType({
-      name,
-      parentId: parent?.id ?? -1,
+  create = (data: IconTypeVo, parent?: IconTypeVo) => {
+    const { name } = data
+    return Apis.icon_type.addIconType({
+      data: {
+        name,
+        parentId: parent?.id ?? -1,
+      },
     })
   }
 
-  delete = (IconType: API.IconTypeVo) => Api.iconType.deleteIconType({ typeId: IconType.id! })
+  delete = (data: IconTypeVo) => Apis.icon_type.deleteIconType({
+    pathParams: {
+      typeId: data.id!,
+    },
+  })
 
-  update = (IconType: API.IconTypeVo) => Api.iconType.updateIconType(IconType)
+  update = (data: IconTypeVo) => Apis.icon_type.updateIconType({ data })
 }

@@ -1,11 +1,11 @@
-import type * as API2 from '@/api/alova/globals'
+import type { ItemTypeVo, ItemVo, MarkerVo } from '@/api/alova/globals'
 
 interface TypeCountHookOptions {
-  archivedMarkers: Ref<API2.MarkerVo[]>
+  archivedMarkers: Ref<MarkerVo[]>
   visibleItemIds: Ref<Set<number>>
-  markerList: Ref<API2.MarkerVo[]>
-  itemIdMap: Ref<Map<number, API2.ItemVo>>
-  itemTypeIdMap: Ref<Map<number, API.ItemTypeVo>>
+  markerList: Ref<MarkerVo[]>
+  itemIdMap: Ref<Map<number, ItemVo>>
+  itemTypeIdMap: Ref<Map<number, ItemTypeVo>>
 }
 
 export const useTypeCount = (options: TypeCountHookOptions) => {
@@ -25,7 +25,7 @@ export const useTypeCount = (options: TypeCountHookOptions) => {
    * 2025-08-28 应用户 [鈴(QQ 717818652)] 要求，添加如下特殊逻辑：
    * 当【物品分类】为【宝箱品质】时，【选择全部】的点位计数不包含名为【宝箱相关】物品的点位计数
    */
-  const calculateTypeCount = (markers: API2.MarkerVo[]) => {
+  const calculateTypeCount = (markers: MarkerVo[]) => {
     return markers.reduce((map, marker) => {
       marker.itemList?.forEach(({ itemId, count = 0 }) => {
         if (!visibleItemIds.value.has(itemId!))

@@ -1,5 +1,6 @@
-import type { Ref } from 'vue'
+import type { Ref, ShallowRef } from 'vue'
 import type { MarkerForm } from '../components'
+import type { MarkerVo } from '@/api/alova/globals'
 import { ElMessage } from 'element-plus'
 import { omit } from 'lodash'
 import { useFetchHook } from '@/hooks'
@@ -7,20 +8,16 @@ import { useMarkerStore, useUserStore } from '@/stores'
 import { usePictureUpload } from './usePictureUpload'
 
 /** 新增点位，已自动处理 version 和 methodType 字段 */
-export const useMarkerCreate = (
-  markerData: Ref<API.MarkerVo | null>,
-  editorRef: Ref<InstanceType<typeof MarkerForm> | null>,
-
-) => {
+export const useMarkerCreate = (markerData: Ref<MarkerVo | null>, editorRef: ShallowRef<InstanceType<typeof MarkerForm>>) => {
   const userStore = useUserStore()
   const markerStore = useMarkerStore()
 
-  const commonKeys: (keyof API.MarkerVo)[] = [
+  const commonKeys: (keyof MarkerVo)[] = [
     'updateTime',
     'createTime',
   ]
 
-  const buildAdminMarkerForm = (marker: API.MarkerVo): API.MarkerVo => {
+  const buildAdminMarkerForm = (marker: MarkerVo): MarkerVo => {
     return {
       ...omit(marker, commonKeys),
       pictureCreatorId: marker.picture ? userStore.info?.id : undefined,

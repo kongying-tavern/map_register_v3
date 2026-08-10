@@ -1,4 +1,4 @@
-import type { PresetPackContext, ValuePacker } from './types'
+import type { PresetPackContext, ValuePacker } from '../types'
 import type { MAFValue, MAFValueStringArray } from '@/stores/types'
 import { ByteReader, ByteWriter, md5ToBigInt } from '@/utils'
 

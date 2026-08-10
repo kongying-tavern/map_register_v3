@@ -1,19 +1,20 @@
 <script lang="ts" setup>
+import type { AreaVo, SysUserSmallVo } from '@/api/alova/globals'
 import { AppRowImage, AppUserPopover } from '@/components'
 import { useUserPopover } from '@/hooks'
 import { useIconStore } from '@/stores'
 import { timeFormatter } from '@/utils'
 
 const props = defineProps<{
-  areaList: API.AreaVo[]
+  areaList: AreaVo[]
   loading: boolean
-  userMap: Record<string, API.SysUserSmallVo>
-  parentPath: API.AreaVo[]
+  userMap: Record<string, SysUserSmallVo>
+  parentPath: AreaVo[]
 }>()
 
 const emits = defineEmits<{
-  'selectionChange': [selections: API.AreaVo[]]
-  'update:parentPath': [path: API.AreaVo[]]
+  'selectionChange': [selections: AreaVo[]]
+  'update:parentPath': [path: AreaVo[]]
 }>()
 
 const tableContainerRef = ref<HTMLElement>()
@@ -25,9 +26,9 @@ const { IDENTIFICATION_SYMBOL, userData, triggerRef, trigger, close } = useUserP
   getUser: userId => props.userMap[userId],
 })
 
-const proxySelectionChange = (areas: API.AreaVo[]) => emits('selectionChange', areas)
+const proxySelectionChange = (areas: AreaVo[]) => emits('selectionChange', areas)
 
-const typeAssert = (row: unknown) => row as API.AreaVo
+const typeAssert = (row: unknown) => row as AreaVo
 </script>
 
 <template>

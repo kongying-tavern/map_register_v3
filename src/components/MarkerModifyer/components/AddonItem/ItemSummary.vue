@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { InternalItemData } from './types'
+import type { AreaVo, MarkerVo } from '@/api/alova/globals'
 import { Plus, Setting } from '@element-plus/icons-vue'
 import { ElDropdown } from 'element-plus'
 import { useAreaStore, useItemStore } from '@/stores'
@@ -9,7 +10,7 @@ import ItemTabs from './ItemTabs.vue'
 const areaStore = useAreaStore()
 const itemStore = useItemStore()
 
-const modelValue = defineModel<API.MarkerVo>({
+const modelValue = defineModel<MarkerVo>({
   required: true,
 })
 
@@ -79,10 +80,10 @@ const calculateItemsGroup = () => itemDataList.value.reduce((map, item) => {
   map.set(area, items)
 
   return map
-}, new Map<API.AreaVo, InternalItemData[]>())
+}, new Map<AreaVo, InternalItemData[]>())
 
 /** 按地区分类的物品列表 */
-const itemsGroup = defineModel<Map<API.AreaVo, InternalItemData[]>>('itemsGroup', {
+const itemsGroup = defineModel<Map<AreaVo, InternalItemData[]>>('itemsGroup', {
   required: true,
 })
 itemsGroup.value = calculateItemsGroup()
@@ -157,7 +158,7 @@ const handleAddArea = (area = areaForAdding.value) => {
   areaCode.value = area.code!
 }
 
-const handleRemoveArea = (area: API.AreaVo) => {
+const handleRemoveArea = (area: AreaVo) => {
   const itemsGroupMap = new Map(itemsGroup.value)
 
   const items = itemsGroupMap.get(area)

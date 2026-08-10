@@ -3,7 +3,7 @@ import { request } from '@/utils'
 
 /** 登录 - 密码模式 */
 export async function token(
-  body: API.SysTokenVO,
+  body: OauthAPI.SysTokenVO,
   options: AxiosRequestConfig = {},
 ) {
   const form = new FormData()
@@ -11,7 +11,7 @@ export async function token(
     const value = body[key as keyof typeof body]
     form.append(key, value)
   }
-  return request<API.SysToken>('/oauth/token', {
+  return request<OauthAPI.SysToken>('/oauth/token', {
     method: 'POST',
     headers: {
       'Content-Type': 'multipart/form-data',
@@ -26,13 +26,13 @@ export async function token(
 }
 
 export async function refresh(
-  header: API.SysRefreshVO,
+  header: OauthAPI.SysRefreshVO,
   options: AxiosRequestConfig = {},
 ) {
   const params = new URLSearchParams()
   for (const key in header)
-    params.append(key, header[key as keyof API.SysRefreshVO])
-  return request<API.SysToken>(`/oauth/token?${params.toString()}`, {
+    params.append(key, header[key as keyof OauthAPI.SysRefreshVO])
+  return request<OauthAPI.SysToken>(`/oauth/token?${params.toString()}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json;charset=UTF-8',

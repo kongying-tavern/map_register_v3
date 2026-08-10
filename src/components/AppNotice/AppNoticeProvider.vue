@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import type { NoticeVo } from '@/api/alova/globals'
 import { NoticeCard } from './components'
 import { context } from './context'
 
-const selectedNotice = shallowRef<API.NoticeVo>()
+const selectedNotice = shallowRef<NoticeVo>()
 </script>
 
 <template>

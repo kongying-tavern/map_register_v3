@@ -25,7 +25,7 @@ const { itemIdMap } = storeToRefs(useItemStore())
 
 const markingItem = computed(() => itemIdMap.value.get(preferenceStore.defaultMarkingItemId))
 
-const coordinate = shallowRef<API.Coordinate2D | null>(null)
+const coordinate = shallowRef<DTO.Coordinate2D | null>(null)
 
 const closeContextmenu = () => {
   coordinate.value = null
@@ -36,7 +36,7 @@ watch(() => mapStateStore.mission, closeContextmenu)
 useSubscription(MapSubject.click.subscribe(({ info, event }) => {
   if (!event.rightButton || mapStateStore.mission)
     return closeContextmenu()
-  coordinate.value = info.coordinate as API.Coordinate2D
+  coordinate.value = info.coordinate as DTO.Coordinate2D
 }))
 
 const { DialogService } = useGlobalDialog()
@@ -51,14 +51,14 @@ const openMarkerCreator = async () => {
       closeOnPressEscape: false,
     })
     .props({
-      coordinate: tileStore.toMarkerCoordinate(coordinate.value as API.Coordinate2D),
+      coordinate: tileStore.toMarkerCoordinate(coordinate.value as DTO.Coordinate2D),
       defaultItem: markingItem.value,
     })
     .open(MarkerCreator)
   closeContextmenu()
 }
 
-const copyCoordinate = (coord: API.Coordinate2D) => {
+const copyCoordinate = (coord: DTO.Coordinate2D) => {
   const text = `[${coord.map(x => x.toFixed(0)).join(', ')}]`
   navigator.clipboard.writeText(text)
 }

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { MarkerVo } from '@/api/alova/globals'
 import dayjs from 'dayjs'
 import { AppIconTagRenderer } from '@/components'
 import { useMarkerControl } from '@/hooks'
@@ -69,7 +70,7 @@ const linkColorHover = computed(() => {
   return `rgba(${r}, ${g}, ${b}, 0.15)`
 })
 
-const getIconId = (marker: API.MarkerVo) => {
+const getIconId = (marker: MarkerVo) => {
   const { mainIconId } = pickMainItem(marker, itemStore.itemIdMap)
   return mainIconId
 }

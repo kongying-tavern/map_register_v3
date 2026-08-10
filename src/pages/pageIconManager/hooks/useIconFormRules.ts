@@ -1,8 +1,9 @@
 import type { FormItemRule } from 'element-plus'
+import type { IconVo } from '@/api/alova/globals'
 
-export const useIconFormRules = (form: Ref<API.IconVo>) => {
+export const useIconFormRules = (form: Ref<IconVo>) => {
   /** 校验规则 */
-  const rules: Partial<Record<keyof API.IconVo, FormItemRule>> = {
+  const rules: Partial<Record<keyof IconVo, FormItemRule>> = {
     tag: {
       required: true,
       trigger: 'change',

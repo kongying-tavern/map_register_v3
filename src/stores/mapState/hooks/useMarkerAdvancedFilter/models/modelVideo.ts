@@ -1,4 +1,4 @@
-import type * as API2 from '@/api/alova/globals'
+import type { MarkerVo } from '@/api/alova/globals'
 import type {
   MAFConfig,
   MAFMetaDummy,
@@ -33,7 +33,7 @@ export class Video implements MAFConfig<MAFValueBoolean, MAFOptionSwitch, MAFMet
     ]
   }
 
-  filter(val: MAFValueBoolean, _opt: MAFOptionSwitch, _meta: MAFMetaDummy, marker: API2.MarkerVo): boolean {
+  filter(val: MAFValueBoolean, _opt: MAFOptionSwitch, _meta: MAFMetaDummy, marker: MarkerVo): boolean {
     return val.b ? !!marker.videoPath : !marker.videoPath
   }
 }

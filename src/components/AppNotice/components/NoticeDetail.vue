@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import type { NoticeVo } from '@/api/alova/globals'
 import { AppRichtextEditor } from '@/components'
 
 const props = defineProps<{
-  data?: API.NoticeVo
+  data?: NoticeVo
 }>()
 </script>
 

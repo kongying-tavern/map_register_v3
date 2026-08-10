@@ -3,7 +3,6 @@ import {
   AppBreadCrumb,
   AppLogo,
   AppNotice,
-  AppSidemenu,
   AppUpdatePush,
   AppUserAvatar,
 } from '@/components'

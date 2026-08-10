@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { SysUserInvitationVo } from '@/api/alova/globals'
 import { Check, Close, Delete } from '@element-plus/icons-vue'
 import {
   WinDialog,
@@ -8,7 +9,7 @@ import {
 import { useInvitationDelete } from '../hooks'
 
 const props = defineProps<{
-  data: API.SysUserInvitationVo
+  data: SysUserInvitationVo
 }>()
 
 const emits = defineEmits<{

@@ -1,28 +1,37 @@
 <script lang="ts" setup>
+import type { AreaVo, ItemVo } from '@/api/alova/globals'
 import { Check, Close } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import Api from '@/api/api'
 import { WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 import { useFetchHook } from '@/hooks'
 import { AreaDetailForm } from '.'
 
 const props = defineProps<{
-  area: API.AreaVo
-  parent?: API.AreaVo
+  area: AreaVo
+  parent?: AreaVo
 }>()
 
 const emits = defineEmits<{
-  success: [API.AreaVo]
+  success: [AreaVo]
   close: []
 }>()
 
-const formData = ref<API.AreaVo>(props.area)
-const copyItems = shallowRef<API.ItemVo[]>([])
+const formData = ref<AreaVo>(props.area)
+const copyItems = shallowRef<ItemVo[]>([])
 
 const { loading, refresh: submit, onSuccess, onError } = useFetchHook({
   onRequest: async () => {
-    await Api.area.updateArea(formData.value)
-    copyItems.value.length > 0 && await Api.item.copyItemToArea({ areaId: formData.value.id! }, copyItems.value.map(item => item.id!))
+    await Apis.area.updateArea({
+      data: formData.value,
+    })
+    if (copyItems.value.length > 0) {
+      await Apis.item.copyItemToArea({
+        pathParams: {
+          areaId: formData.value.id!,
+        },
+        data: copyItems.value.map(item => item.id!),
+      })
+    }
     return formData.value
   },
 })

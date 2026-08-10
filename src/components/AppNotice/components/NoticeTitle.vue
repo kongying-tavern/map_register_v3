@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import type { NoticeVo } from '@/api/alova/globals'
+
 defineProps<{
-  notice: API.NoticeVo
+  notice: NoticeVo
   hidden: boolean
   isSelected: boolean
 }>()

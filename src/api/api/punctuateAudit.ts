@@ -1,4 +1,5 @@
 import type { AxiosRequestConfig } from 'axios'
+import type { PageSearchVo, PunctuateSearchVo, RBoolean, RListLong, RListMarkerPunctuateVo, RLong, RPageListVoMarkerPunctuateVo } from '../alova/globals'
 import { request } from '@/utils'
 
 /** 驳回点位审核 驳回的点位和通过额外字段关联的点位会回到暂存区 POST /api/punctuate_audit/reject/${param0} */
@@ -11,7 +12,7 @@ export async function rejectPunctuate(
   options?: AxiosRequestConfig,
 ) {
   const { punctuateId: param0, ...queryParams } = params
-  return request<API.RBoolean>(`/api/punctuate_audit/reject/${param0}`, {
+  return request<RBoolean>(`/api/punctuate_audit/reject/${param0}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -31,7 +32,7 @@ export async function passPunctuate(
   options?: AxiosRequestConfig,
 ) {
   const { punctuateId: param0, ...queryParams } = params
-  return request<API.RLong>(`/api/punctuate_audit/pass/${param0}`, {
+  return request<RLong>(`/api/punctuate_audit/pass/${param0}`, {
     method: 'POST',
     params: { ...queryParams },
     ...(options || {}),
@@ -40,10 +41,10 @@ export async function passPunctuate(
 
 /** 分页查询所有打点信息（包括暂存） 分页查询所有打点信息（包括暂存） POST /api/punctuate_audit/get/page/all */
 export async function listAllPunctuatePage(
-  body: API.PageSearchVo,
+  body: PageSearchVo,
   options?: AxiosRequestConfig,
 ) {
-  return request<API.RPageListVoMarkerPunctuateVo>('/api/punctuate_audit/get/page/all', {
+  return request<RPageListVoMarkerPunctuateVo>('/api/punctuate_audit/get/page/all', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -55,10 +56,10 @@ export async function listAllPunctuatePage(
 
 /** 根据各种条件筛选打点信息 支持根据末端地区、末端类型、物品、提交者来进行查询，地区、类型、物品查询不能同时生效，同时存在时报错 POST /api/punctuate_audit/get/list_byinfo */
 export async function searchPunctuate(
-  body: API.PunctuateSearchVo,
+  body: PunctuateSearchVo,
   options?: AxiosRequestConfig,
 ) {
-  return request<API.RListMarkerPunctuateVo>('/api/punctuate_audit/get/list_byinfo', {
+  return request<RListMarkerPunctuateVo>('/api/punctuate_audit/get/list_byinfo', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -73,7 +74,7 @@ export async function listPunctuateById(
   body: number[],
   options?: AxiosRequestConfig,
 ) {
-  return request<API.RListMarkerPunctuateVo>('/api/punctuate_audit/get/list_byid', {
+  return request<RListMarkerPunctuateVo>('/api/punctuate_audit/get/list_byid', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -85,10 +86,10 @@ export async function listPunctuateById(
 
 /** 根据各种条件筛选打点ID 支持根据末端地区、末端类型、物品、提交者来进行查询，地区、类型、物品查询不能同时生效，同时存在时报错 POST /api/punctuate_audit/get/id */
 export async function searchPunctuateId(
-  body: API.PunctuateSearchVo,
+  body: PunctuateSearchVo,
   options?: AxiosRequestConfig,
 ) {
-  return request<API.RListLong>('/api/punctuate_audit/get/id', {
+  return request<RListLong>('/api/punctuate_audit/get/id', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -107,7 +108,7 @@ export async function deletePunctuate(
   options?: AxiosRequestConfig,
 ) {
   const { punctuateId: param0, ...queryParams } = params
-  return request<API.RBoolean>(`/api/punctuate_audit/delete/${param0}`, {
+  return request<RBoolean>(`/api/punctuate_audit/delete/${param0}`, {
     method: 'DELETE',
     params: { ...queryParams },
     ...(options || {}),

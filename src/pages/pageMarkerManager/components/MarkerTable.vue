@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import type { MarkerVo, SysUserVo } from '@/api/alova/globals'
 import { Delete, QuestionFilled, VideoCamera } from '@element-plus/icons-vue'
 import { AppBilibiliVideoPlayer } from '@/components'
 import { useGlobalDialog } from '@/hooks'
@@ -7,12 +8,12 @@ import { useAreaStore, useItemStore } from '@/stores'
 import { refreshTimeFormatter } from '@/utils'
 
 defineProps<{
-  markerList: API.MarkerVo[]
-  cacheUserInfo: Map<number, API.SysUserVo>
+  markerList: MarkerVo[]
+  cacheUserInfo: Map<number, SysUserVo>
 }>()
 
 defineEmits<{
-  delete: [API.MarkerVo]
+  delete: [MarkerVo]
 }>()
 
 const areaStore = useAreaStore()
@@ -23,7 +24,7 @@ const { width, height } = useElementSize(tableContainerRef)
 
 const { DialogService } = useGlobalDialog()
 
-const playBilibiliVideo = (row: API.MarkerVo) => {
+const playBilibiliVideo = (row: MarkerVo) => {
   DialogService
     .props({
       url: row.videoPath,
@@ -33,7 +34,7 @@ const playBilibiliVideo = (row: API.MarkerVo) => {
     .open(AppBilibiliVideoPlayer)
 }
 
-const getItemAreaNames = ({ itemList = [] }: API.MarkerVo) => {
+const getItemAreaNames = ({ itemList = [] }: MarkerVo) => {
   return itemList.reduce((set, { itemId }) => {
     const item = itemStore.itemIdMap.get(itemId!)
     if (!item)

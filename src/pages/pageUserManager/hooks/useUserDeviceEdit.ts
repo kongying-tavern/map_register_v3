@@ -1,23 +1,22 @@
+import type { SysUserDeviceVo } from '@/api/alova/globals'
 import { ElMessage } from 'element-plus'
-import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 
-export const useUserDeviceEdit = (data: Ref<API.SysUserDeviceVo | undefined>, options: { loading: Ref<boolean> }) => {
+export const useUserDeviceEdit = (data: Ref<SysUserDeviceVo | undefined>, options: { loading: Ref<boolean> }) => {
   const { loading } = options
 
   const { refresh: submit, onSuccess, onError, ...rest } = useFetchHook({
     loading,
-    onRequest: async (status: unknown) => {
+    onRequest: async (status: SysUserDeviceVo['status']) => {
       const { id } = toValue(data) ?? {}
       if (id === undefined)
         throw new Error('设备 id 为空')
 
-      await Api.device.updateDevice({
-        id,
-        status: status as API.SysUserDeviceVo['status'],
+      await Apis.device.updateDevice({
+        data: { id, status },
       })
 
-      return status as API.SysUserDeviceVo['status']
+      return status
     },
   })
 

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
+import type { MarkerVo } from '@/api/alova/globals'
 import { Clock, CopyDocument } from '@element-plus/icons-vue'
-import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 import { AddonTeleporter } from '..'
 import { useMarkerHistory } from '../../hooks'
@@ -12,7 +12,7 @@ defineProps<{
 }>()
 
 defineEmits<{
-  useHistory: [API.MarkerVo]
+  useHistory: [MarkerVo]
 }>()
 
 const addonId = defineModel<string | undefined>('addonId', {
@@ -26,7 +26,7 @@ const isAddonActived = computed({
   },
 })
 
-const markerVo = defineModel<API.MarkerVo>('markerVo', {
+const markerVo = defineModel<MarkerVo>('markerVo', {
   required: true,
 })
 
@@ -37,7 +37,11 @@ const { data: creator } = useFetchHook({
     const { creatorId } = toValue(markerVo)
     if (creatorId === undefined)
       return {}
-    const { data = {} } = await Api.user.getUserInfo({ userId: creatorId })
+    const { data = {} } = await Apis.user.getUserInfo({
+      pathParams: {
+        userId: creatorId,
+      },
+    })
     return data
   },
 })

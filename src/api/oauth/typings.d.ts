@@ -1,18 +1,16 @@
 /* eslint-disable */
 
-declare namespace API {
+declare namespace OauthAPI {
   type SysTokenVO = {
     grant_type: 'password'
     username: string
     password: string
-  };
+  }
 
   type SysRefreshVO = {
     grant_type: 'refresh_token'
     refresh_token: string
-  };
-
-  type SysOauthHeader = SysTokenVO | SysRefreshVO;
+  }
 
   type SysToken = {
     access_token: string
@@ -24,5 +22,5 @@ declare namespace API {
     userId: number
     jti: string,
     message?: string
-  };
+  }
 }

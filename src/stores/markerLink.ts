@@ -1,5 +1,5 @@
 import type { ShallowRef } from 'vue'
-import type * as API2 from '@/api/alova/globals'
+import type { MarkerLinkageVo } from '@/api/alova/globals'
 import type { WorkerInput } from '@/worker/idb.worker'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed, ref, shallowRef, triggerRef } from 'vue'
@@ -18,7 +18,7 @@ interface ManagerContext {
 }
 
 interface DiffData {
-  updateList: API2.MarkerLinkageVo[]
+  updateList: MarkerLinkageVo[]
   deleteIds: number[]
   clear?: boolean
 }
@@ -31,7 +31,7 @@ const getAllMarkerLinks = async (context: ManagerContext) => {
     },
   })
 
-  const updateList: API2.MarkerLinkageVo[] = []
+  const updateList: MarkerLinkageVo[] = []
   Object.values(linkGroups).forEach((links) => {
     updateList.push(...links)
   })
@@ -46,7 +46,7 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
   // ============================== 内部状态 ==============================
 
   /** 原始点位关联 id 到点位关联对象的映射 */
-  const localLinkMap = shallowRef(new Map<number, API2.MarkerLinkageVo>())
+  const localLinkMap = shallowRef(new Map<number, MarkerLinkageVo>())
 
   /** 关联数据更新版本号，每次 updateLocal 调用后递增，用于触发外部刷新 */
   const updateVersion = ref(0)
@@ -55,13 +55,13 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
    * @local 更新本地点位关联
    */
   const updateLocal = (options: {
-    updateList?: API2.MarkerLinkageVo[]
+    updateList?: MarkerLinkageVo[]
     deleteIds?: number[]
     clear?: boolean
   }) => {
     const { updateList = [], deleteIds = [], clear = false } = options
     if (clear)
-      localLinkMap.value = new Map<number, API2.MarkerLinkageVo>()
+      localLinkMap.value = new Map<number, MarkerLinkageVo>()
     if (!updateList.length && !deleteIds.length && !clear)
       return
     const { length: deleteLength } = deleteIds
@@ -91,14 +91,14 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
       map.set(link.groupId!, [])
     map.get(link.groupId!)!.push(link)
     return map
-  }, new Map<string, API2.MarkerLinkageVo[]>()))
+  }, new Map<string, MarkerLinkageVo[]>()))
 
   // ============================== 代理方法 ==============================
 
   /** @server 创建点位关联 */
   const linkMarker = async (
-    links: API2.MarkerLinkageVo[],
-    deleteLinks: API2.MarkerLinkageVo[] = [],
+    links: MarkerLinkageVo[],
+    deleteLinks: MarkerLinkageVo[] = [],
   ) => {
     if (!links.length)
       throw new Error('提交的关联项为空')
@@ -121,7 +121,7 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
       data: { groupIds: [newLinkageId] },
     })
 
-    const newLinks: API2.MarkerLinkageVo[] = Object.values(linkGroups).flat(1)
+    const newLinks: MarkerLinkageVo[] = Object.values(linkGroups).flat(1)
 
     // 3. 收集旧关联影响的全部点位 id
     const oldEffectedMarkerIdSet = links.reduce((result, { fromId = -1, toId = -1 }) => {
@@ -275,7 +275,7 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
       worker.addEventListener('message', () => {
         worker.terminate()
       })
-      worker.postMessage(<WorkerInput<number, API2.MarkerLinkageVo>>{
+      worker.postMessage(<WorkerInput<number, MarkerLinkageVo>>{
         tableName: 'markerLink',
         clear: data.clear,
         bulkPutData: data.updateList,
@@ -337,7 +337,7 @@ export const useMarkerLinkStore = defineStore('global-marker-link', () => {
 
   return {
     total,
-    markerLinkList: list as Readonly<ShallowRef<API2.MarkerLinkageVo[]>>,
+    markerLinkList: list as Readonly<ShallowRef<MarkerLinkageVo[]>>,
     idMap: localLinkMap,
     groupIdMap,
     updateVersion,

@@ -3,7 +3,7 @@ import { mapContainerHeightKey, mapContainerWidthKey, mapViewStateKey } from '@/
 import { useTileStore } from '@/stores'
 
 export interface MapProjectionHookOptions {
-  coord: API.Coordinate2D | Ref<API.Coordinate2D | undefined>
+  coord: DTO.Coordinate2D | Ref<DTO.Coordinate2D | undefined>
   noCovertCoord?: boolean | Ref<boolean>
   integer?: boolean | Ref<boolean>
 }
@@ -28,10 +28,10 @@ export const useMapProjection = (options: MapProjectionHookOptions) => {
   const scaleRatio = computed(() => 2 ** (viewState.value.zoom))
 
   /** 视口中心坐标 */
-  const center = computed<API.Coordinate2D>(() => [width.value / 2, height.value / 2])
+  const center = computed<DTO.Coordinate2D>(() => [width.value / 2, height.value / 2])
 
   /** 投影后元素显示在视口上的坐标 */
-  const position = computed<API.Coordinate2D>(() => {
+  const position = computed<DTO.Coordinate2D>(() => {
     if (!tileStore.currentTileConfig)
       return [0, 0]
     const rawCoord = unref(coord)

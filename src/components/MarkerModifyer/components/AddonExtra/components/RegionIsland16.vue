@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineProps<{
-  config: API.ExtraConfig
+  config: DTO.ExtraConfig
 }>()
 
 const modelValue = defineModel<string[] | undefined>({

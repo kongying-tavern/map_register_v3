@@ -1,6 +1,6 @@
+import type { SysArchiveSlotVo, SysArchiveVo } from '@/api/alova/globals'
 import type { UserPreference } from '@/stores/types/userPreference'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import Api from '@/api/api'
 import db from '@/database'
 import { useFetchHook } from '@/hooks'
 import { useUserStore } from '@/stores'
@@ -26,12 +26,12 @@ export interface ArchiveData {
   historyIndex?: number
 }
 
-export interface ArchiveSlotData extends API.SysArchiveSlotVo {
+export interface ArchiveSlotData extends SysArchiveSlotVo {
   archiveList: ArchiveData[]
   timestamp: number
 }
 
-const parserArchive = ({ archive = '', time = '', historyIndex }: API.SysArchiveVo, options: { slotIndex: number, userId: number }): ArchiveData => {
+const parserArchive = ({ archive = '', time = '', historyIndex }: SysArchiveVo, options: { slotIndex: number, userId: number }): ArchiveData => {
   const { Data_KYJG: datas = [], Time_KYJG: times = {}, Preference: preference = {} } = JSON.parse(archive) as {
     Data_KYJG?: (string | number)[]
     Time_KYJG?: Record<number, string>
@@ -97,7 +97,7 @@ export const useArchiveStore = defineStore('global-archive', () => {
       const slots = initArchiveList()
       if (!userStore.validateToken())
         return slots
-      const { data = [] } = await Api.archive.getAllHistoryArchive({})
+      const { data = [] } = await Apis.archive.getAllHistoryArchive({})
       data.forEach(({ archive: historyArchives = [], slotIndex = -1, updateTime, ...rest } = {}) => {
         const archive: ArchiveSlotData = {
           ...rest,
@@ -138,10 +138,16 @@ export const useArchiveStore = defineStore('global-archive', () => {
   ) => {
     if (slotIndex < 0 || slotIndex >= 5)
       throw new Error(`无效的存档槽位 ${slotIndex}`)
-    const body = saveCurrent
+    const data = saveCurrent
       ? getJSONArchive()
       : JSON.stringify({ Data_KYJG: [], Time_KYJG: {}, Preference: {} })
-    await Api.archive.createSlotAndSaveArchive({ slot_index: slotIndex, name }, body)
+    await Apis.archive.createSlotAndSaveArchive({
+      pathParams: {
+        slot_index: slotIndex,
+        name,
+      },
+      data,
+    })
   }
 
   /** 将当前存档存入指定的存档槽位 */
@@ -170,8 +176,14 @@ export const useArchiveStore = defineStore('global-archive', () => {
       })),
       timestamp,
     })
-    if (slotIndex > 0 && slotIndex <= 5)
-      await Api.archive.saveArchive({ slot_index: slotIndex }, getJSONArchive())
+    if (slotIndex > 0 && slotIndex <= 5) {
+      await Apis.archive.saveArchive({
+        pathParams: {
+          slot_index: slotIndex,
+        },
+        data: getJSONArchive(),
+      })
+    }
   }
 
   /** 删除指定槽位的存档 */
@@ -180,7 +192,9 @@ export const useArchiveStore = defineStore('global-archive', () => {
       return
     if (slotIndex === currentArchive.value.slotIndex)
       currentArchive.value.slotIndex = -1
-    await Api.archive.removeArchive({ slot_index: slotIndex })
+    await Apis.archive.removeArchive({
+      pathParams: { slot_index: slotIndex },
+    })
     await fetchArchive()
   }
 

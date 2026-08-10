@@ -1,3 +1,5 @@
-export type UserDetailVo = API.SysUserUpdateVo & API.SysUserRegisterVo & {
+import type { SysUserRegisterVo, SysUserUpdateVo } from '@/api/alova/globals'
+
+export type UserDetailVo = SysUserUpdateVo & SysUserRegisterVo & {
   confirmPassword?: string
 }

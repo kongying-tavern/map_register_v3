@@ -1,4 +1,4 @@
-declare namespace API {
+declare namespace ResourceAPI {
   interface UploadResourceVo {
     file: File
     filePath: string

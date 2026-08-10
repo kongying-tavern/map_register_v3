@@ -1,4 +1,4 @@
-import type { MarkerVo } from '@/api/alova/globals'
+import type { MarkerVo, TweakConfigVo } from '@/api/alova/globals'
 import type { GSMarkerInfo } from '@/packages/map'
 
 export type ModifierConstructorOptions<T = void> = {
@@ -26,7 +26,7 @@ export type ModifierConstructorOptions<T = void> = {
 
 interface Strategy<T> {
   label: string
-  modify: (data: T, meta: Required<API.TweakConfigVo>['meta']) => T
+  modify: (data: T, meta: Required<TweakConfigVo>['meta']) => T
   cardComp: () => Promise<Component>
 }
 

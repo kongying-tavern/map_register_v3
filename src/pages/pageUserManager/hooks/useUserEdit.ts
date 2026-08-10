@@ -1,17 +1,20 @@
 import type { ElForm } from 'element-plus'
+import type { ShallowRef } from 'vue'
+import type { SysUserVo } from '@/api/alova/globals'
 import { ElMessage } from 'element-plus'
-import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 
-export const useUserEdit = (form: Ref<API.SysUserVo>, options: { loading: Ref<boolean> }) => {
+export const useUserEdit = (
+  formData: Ref<SysUserVo>,
+  form: ShallowRef<InstanceType<typeof ElForm>>,
+  options: { loading: Ref<boolean> },
+) => {
   const { loading } = options
-
-  const formRef = shallowRef<InstanceType<typeof ElForm>>()
 
   const { refresh: submit, onError, onSuccess, ...rest } = useFetchHook({
     loading,
     onRequest: async () => {
-      const isValid = formRef.value?.validate().then(() => true).catch(() => false)
+      const isValid = form.value?.validate().then(() => true).catch(() => false)
       if (!isValid)
         throw new Error('表单校验未通过')
 
@@ -24,20 +27,22 @@ export const useUserEdit = (form: Ref<API.SysUserVo>, options: { loading: Ref<bo
         qq = '',
         roleId,
         remark = '',
-      } = toValue(form)
+      } = toValue(formData)
 
       if (id === undefined)
         throw new Error('表单信息中用户 id 为空')
 
-      await Api.user.updateUser({
-        userId: id,
-        accessPolicy,
-        logo,
-        nickname,
-        phone,
-        qq,
-        roleId,
-        remark,
+      await Apis.user.updateUser({
+        data: {
+          userId: id,
+          accessPolicy,
+          logo,
+          nickname,
+          phone,
+          qq,
+          roleId,
+          remark,
+        },
       })
     },
   })
@@ -55,7 +60,6 @@ export const useUserEdit = (form: Ref<API.SysUserVo>, options: { loading: Ref<bo
   })
 
   return {
-    formRef,
     submit,
     onSuccess,
     onError,

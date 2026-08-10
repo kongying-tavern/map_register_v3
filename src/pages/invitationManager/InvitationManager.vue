@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { InvitationFilterOptions, InvitationSortOptions } from './types'
+import type { SysUserInvitationVo, SysUserSmallVo } from '@/api/alova/globals'
 import * as ElIcons from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import Api from '@/api/api'
 import { PgUnit, useFetchHook, useGlobalDialog, usePagination } from '@/hooks'
 import { ManagerModule } from '@/shared'
 import { useUserStore } from '@/stores'
@@ -47,19 +47,21 @@ const { data, loading, refresh, onSuccess } = useFetchHook({
     const { key: filterKey, value: filterValue = '' } = filter.value
     const { key: sortKey, type: sortType } = sorts.value
     const trimedFilterValue = filterValue.trim()
-    const { data: { record = [], total = 0 } = {}, users = {} } = await Api.invitation.listInvitation({
-      sort: [`${sortKey}${sortType}`],
-      current,
-      size,
-      ...(trimedFilterValue.length
-        ? {
-            [filterKey]: trimedFilterValue,
-          }
-        : {}),
+    const { data: { record = [], total = 0 } = {}, users = {} } = await Apis.invitation.listInvitation({
+      data: {
+        sort: [`${sortKey}${sortType}`],
+        current,
+        size,
+        ...(trimedFilterValue.length
+          ? {
+              [filterKey]: trimedFilterValue,
+            }
+          : {}),
+      },
     })
     const userMap = Object.entries(users).reduce((map, [userId, userInfo]) => {
       return map.set(Number(userId), userInfo)
-    }, new Map<number, API.SysUserSmallVo>())
+    }, new Map<number, SysUserSmallVo>())
     return { record, total, users: userMap }
   },
 })
@@ -82,7 +84,7 @@ const openInvitationCreator = () => {
     .open(InvitationEditor)
 }
 
-const openInvitationEditor = (data: API.SysUserInvitationVo) => {
+const openInvitationEditor = (data: SysUserInvitationVo) => {
   DialogService
     .config({
       width: 300,
@@ -97,7 +99,7 @@ const openInvitationEditor = (data: API.SysUserInvitationVo) => {
     .open(InvitationEditor)
 }
 
-const openInvitationDeleteConfirm = (data: API.SysUserInvitationVo) => {
+const openInvitationDeleteConfirm = (data: SysUserInvitationVo) => {
   DialogService
     .config({
       width: 300,
@@ -111,14 +113,14 @@ const openInvitationDeleteConfirm = (data: API.SysUserInvitationVo) => {
     .open(InvitationDeleteConfirm)
 }
 
-const copyInvitationCode = async (data: API.SysUserInvitationVo) => {
+const copyInvitationCode = async (data: SysUserInvitationVo) => {
   if (!data.code)
     return
   await navigator.clipboard.writeText(data.code)
   ElMessage.success('已复制邀请码到剪贴板')
 }
 
-const handleRowClick = (data: API.SysUserInvitationVo, col: { property?: string } = {}) => {
+const handleRowClick = (data: SysUserInvitationVo, col: { property?: string } = {}) => {
   const { property = '' } = col
   return ({
     username: () => openInvitationEditor(data),

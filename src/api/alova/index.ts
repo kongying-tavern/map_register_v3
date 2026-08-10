@@ -1,4 +1,4 @@
-import type * as API2 from './globals'
+import type { MarkerExtraVo, MarkerVo } from './globals'
 import { createAlova } from 'alova'
 import { createClientTokenAuthentication } from 'alova/client'
 import fetchAdapter from 'alova/fetch'
@@ -81,14 +81,14 @@ export const $$userConfigMap = withConfigType({
       const data = compiled.protobuf.MarkerVoList.decode(decompressedData)
       const markers = data.markers
       const len = markers.length
-      const result: API2.MarkerVo[] = Array.from({ length: len })
+      const result: MarkerVo[] = Array.from({ length: len })
       for (let i = 0; i < len; i++) {
         const marker = markers[i]
         const createTime = marker.createTime
         const updateTime = marker.updateTime
         const extra = marker.extra
         const itemList = marker.itemList
-        const rewrite: API2.MarkerVo = {
+        const rewrite: MarkerVo = {
           version: marker.version,
           id: marker.id,
           creatorId: marker.creatorId,
@@ -114,7 +114,7 @@ export const $$userConfigMap = withConfigType({
           const underground = extra.underground
           const iconOverride = extra.iconOverride
           if (v16 || v28 || underground || iconOverride) {
-            const extra: API2.MarkerExtraVo = {}
+            const extra: MarkerExtraVo = {}
             if (v16)
               extra['1_6_island'] = v16
             if (v28) {

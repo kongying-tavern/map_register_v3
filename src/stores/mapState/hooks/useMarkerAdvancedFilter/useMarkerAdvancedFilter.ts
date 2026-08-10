@@ -141,7 +141,7 @@ const _useMarkerAdvancedFilter = (options: MarkerAdvancedFilterHookOptions) => {
           let meta: MAFMeta = {}
           if (prepare && typeof prepare === 'function')
             meta = prepare(value, toValue(option))
-          itemComposed.push({
+          const obj = {
             key,
             id,
             operator: itemOperator,
@@ -151,7 +151,8 @@ const _useMarkerAdvancedFilter = (options: MarkerAdvancedFilterHookOptions) => {
             meta,
             semantic,
             filter,
-          })
+          } satisfies MAFItemComposed
+          itemComposed.push(obj)
         })
 
         groupComposed.push({

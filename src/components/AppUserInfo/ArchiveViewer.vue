@@ -1,9 +1,7 @@
 <script lang="ts" setup>
 import type { ArchiveData, ArchiveSlotData } from '@/stores'
-// TODO 逻辑拆分
 import { CaretBottom, CaretTop, DeleteFilled, Edit } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import Api from '@/api/api'
 import { GSButton, GSCard, GSDivider, GSInput } from '@/components'
 import { useFetchHook } from '@/hooks'
 import { useArchiveStore } from '@/stores'
@@ -57,9 +55,11 @@ const { refresh: submitNameChanged, loading: renameLoading, onSuccess: onSlotRen
     cachedArchiveName.value = cachedArchiveName.value.trim()
     if (!cachedArchiveName.value.length)
       throw new Error('名称不能为空')
-    await Api.archive.renameSlot({
-      slot_index: archiveSlot.value.slotIndex!,
-      new_name: cachedArchiveName.value,
+    await Apis.archive.renameSlot({
+      pathParams: {
+        slot_index: archiveSlot.value.slotIndex!,
+        new_name: cachedArchiveName.value,
+      },
     })
   },
 })

@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import type { FormInstance, FormRules } from 'element-plus'
-import Api from '@/api/api'
 import { GSButton, GSInput } from '@/components'
 import { useFetchHook } from '@/hooks'
 import { useUserStore } from '@/stores'
@@ -47,10 +46,12 @@ const { loading, refresh: updatePassword, onSuccess } = useFetchHook({
       throw new Error('用户 id 为空')
 
     const { oldPassword, password } = form.value
-    await Api.user.updateUserPassword({
-      userId: userStore.info.id,
-      oldPassword,
-      password,
+    await Apis.user.updateUserPassword({
+      data: {
+        userId: userStore.info.id,
+        oldPassword,
+        password,
+      },
     })
   },
 })

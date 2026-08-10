@@ -1,8 +1,9 @@
 <script lang="ts" setup>
+import type { ItemTypeVo } from '@/api/alova/globals'
 import { AppIconTagRenderer } from '@/components'
 
 withDefaults(defineProps<{
-  itemType: API.ItemTypeVo
+  itemType: ItemTypeVo
   nums?: number
   actived: boolean
   src?: string

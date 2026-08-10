@@ -1,14 +1,15 @@
+import type { MarkerVo } from '@/api/alova/globals'
 import type { GSMarkerInfo, MLRenderUnit, TempMarkerType } from '@/packages/map'
 import type { useMarkerLinkStore } from '@/stores'
 import { useFetchHook } from '@/hooks'
 
 interface MarkerLinkHookOptions {
-  markerIdMap: Map<number, API.MarkerVo>
+  markerIdMap: Map<number, MarkerVo>
   markerLinkStore: ReturnType<typeof useMarkerLinkStore>
   currentMarkerIdMap: ComputedRef<Map<number, GSMarkerInfo>>
   focusElements: Ref<Map<string, Set<unknown>>>
   staticMarkerIds: ComputedRef<Set<number>>
-  setTempMarkers: (type: TempMarkerType, markers: API.MarkerVo[]) => void
+  setTempMarkers: (type: TempMarkerType, markers: MarkerVo[]) => void
 }
 
 /** 点位关联处理 hook */
@@ -33,7 +34,7 @@ export const useMarkerLink = (options: MarkerLinkHookOptions) => {
         tempMarkerIds.add(source!)
         tempMarkerIds.add(target!)
       })
-      const tempMarkers: API.MarkerVo[] = []
+      const tempMarkers: MarkerVo[] = []
       tempMarkerIds.forEach((id) => {
         const marker = markerIdMap.get(id)
         marker && tempMarkers.push(marker)

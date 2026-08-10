@@ -1,4 +1,4 @@
-import type { ValuePacker } from './types'
+import type { ValuePacker } from '../types'
 import type { MAFValue } from '@/stores/types'
 import {
   decode as msgpackDecode,

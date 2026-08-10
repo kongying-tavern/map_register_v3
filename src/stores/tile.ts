@@ -1,11 +1,10 @@
 import type { AreaTagTuple } from '@/configs'
-import type { Coordinate2D } from '@/packages/map'
 import { defaultsDeep, merge } from 'lodash'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { AREA_ADDITIONAL_CONFIG_MAP } from '@/configs'
 import { useAccessStore, useArchiveStore, useAreaStore, useDadianStore } from '@/stores'
 
-export interface TileInfo extends Required<Pick<API.TileConfig, | 'code'
+export interface TileInfo extends Required<Pick<DTO.TileConfig, | 'code'
   | 'name'
   | 'extension'
   | 'tilesOffset'
@@ -27,7 +26,7 @@ export interface AreaTileConfig {
   tile: TileInfo
   /** 导航到该地区时的默认视口状态 */
   initViewState: {
-    target: API.Coordinate2D
+    target: DTO.Coordinate2D
     zoom: number
   }
   /** 地区标签 */
@@ -241,7 +240,7 @@ export const useTileStore = defineStore('global-map-tile', () => {
   })
 
   /** 将地图坐标转换为点位坐标 */
-  const toMarkerCoordinate = ([x, y]: Coordinate2D): Coordinate2D => {
+  const toMarkerCoordinate = ([x, y]: DTO.Coordinate2D): DTO.Coordinate2D => {
     if (!currentTileConfig.value)
       return [x, y]
     const { center: [ox, oy] } = currentTileConfig.value.tile
@@ -249,7 +248,7 @@ export const useTileStore = defineStore('global-map-tile', () => {
   }
 
   /** 将点位坐标转换为地图坐标 */
-  const toMapCoordinate = ([x, y]: Coordinate2D): Coordinate2D => {
+  const toMapCoordinate = ([x, y]: DTO.Coordinate2D): DTO.Coordinate2D => {
     if (!currentTileConfig.value)
       return [x, y]
     const { center: [ox, oy] } = currentTileConfig.value.tile

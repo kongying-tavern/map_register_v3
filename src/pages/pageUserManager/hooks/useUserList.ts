@@ -1,8 +1,8 @@
+import type { SysUserVo } from '@/api/alova/globals'
 import type { PaginationState } from '@/hooks/usePagination'
 import { ElMessage } from 'element-plus'
 import _ from 'lodash'
 import { ref } from 'vue'
-import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 
 interface UserListHookOptions {
@@ -14,7 +14,7 @@ interface UserListHookOptions {
 export const useUserList = (options: UserListHookOptions) => {
   const { pagination, sortInfo } = options
 
-  const userList = ref<API.SysUserVo[]>([])
+  const userList = ref<SysUserVo[]>([])
 
   // 搜索
   const filterKey = ref('nickname')
@@ -22,17 +22,20 @@ export const useUserList = (options: UserListHookOptions) => {
 
   const { refresh: updateUserList, onSuccess, onError, ...rest } = useFetchHook({
     immediate: true,
-    onRequest: () => {
+    onRequest: async () => {
       const { current, pageSize: size } = toValue(pagination)
       const { key: sortKey, type: sortType } = toValue(sortInfo)
       const filter = {}
       _.set(filter, filterKey.value, filterValue.value)
-      return Api.user.getUserList({
-        ...filter,
-        sort: [`${sortKey}${sortType}`],
-        current,
-        size,
+      const res = await Apis.user.getUserList({
+        data: {
+          ...filter,
+          sort: [`${sortKey}${sortType}`],
+          current,
+          size,
+        },
       })
+      return res
     },
   })
 

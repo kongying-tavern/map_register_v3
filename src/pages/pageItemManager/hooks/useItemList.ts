@@ -1,4 +1,5 @@
 import type { Ref } from 'vue'
+import type { ItemVo, SysUserSmallVo } from '@/api/alova/globals'
 import type { PaginationState } from '@/hooks'
 import { ElMessage } from 'element-plus'
 import Apis from '@/api/alova'
@@ -20,14 +21,14 @@ export interface ItemHookOptions {
 export const useItemList = (options: ItemHookOptions) => {
   const { pagination, getParams } = options
 
-  const itemList = ref<API.ItemVo[]>([]) as Ref<API.ItemVo[]>
-  const userMap = ref<Record<string, API.SysUserSmallVo>>({})
+  const itemList = ref<ItemVo[]>([]) as Ref<ItemVo[]>
+  const userMap = ref<Record<string, SysUserSmallVo>>({})
 
   /** 共享的物品id → 物品对象映射表 */
   const itemMap = computed(() => itemList.value.reduce((seed, item) => {
     item.id !== undefined && (seed[item.id] = item)
     return seed
-  }, {} as Record<number, API.ItemVo>))
+  }, {} as Record<number, ItemVo>))
 
   const { refresh: updateItemList, onSuccess, onError, loading, ...rest } = useFetchHook({
     immediate: true,

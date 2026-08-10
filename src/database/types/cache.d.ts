@@ -44,7 +44,7 @@ declare namespace DBType {
   /** dadian json 订阅缓存 */
   interface DadianJSON {
     digest: string
-    json: API.DadianJSON
+    json: DTO.DadianJSON
   }
 
   /** file 缓存 */
@@ -57,7 +57,7 @@ declare namespace DBType {
   interface CacheTypes {
     iconSprite: IconSprite
     markerSprite: MarkerSprite
-    dadian: API.DadianJSON
+    dadian: DTO.DadianJSON
   }
 
   /** 实体缓存 */

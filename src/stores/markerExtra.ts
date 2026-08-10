@@ -12,7 +12,7 @@ export const useMarkerExtraStore = defineStore('global-marker-extra', () => {
 
     const isNegui = accessStore.hasBeta
 
-    const areaExtraConfigs: Record<string, API.ExtraConfig> = {}
+    const areaExtraConfigs: Record<string, DTO.ExtraConfig> = {}
     for (const areaCode in plugins) {
       const { extra = [], extraConfig = {} } = plugins[areaCode]
       const { extra: extraBeta = [], extraConfig: extraConfigBeta = {} } = pluginsBeta[areaCode] ?? {}

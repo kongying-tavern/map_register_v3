@@ -1,7 +1,8 @@
 import type { ShallowRef } from 'vue'
+import type { RBoolean } from '@/api/alova/globals'
 import { messageFrom } from '@/utils'
 
-interface BasicResponseBody extends Omit<API.RBoolean, 'data'> {
+interface BasicResponseBody extends Omit<RBoolean, 'data'> {
 }
 
 const isBasicResponse = (v: unknown): v is BasicResponseBody => {
@@ -10,7 +11,7 @@ const isBasicResponse = (v: unknown): v is BasicResponseBody => {
   return true
 }
 
-export interface FetchHookOptions<T, A extends unknown[] = [], S extends boolean = false> {
+export interface FetchHookOptions<T, A = unknown, S extends boolean = false> {
   /** loading 值，可以使用外部响应式值 */
   loading?: Ref<boolean>
   /** 是否在函数执行后立即发起请求 */
@@ -25,19 +26,19 @@ export interface FetchHookOptions<T, A extends unknown[] = [], S extends boolean
   /** 检测 data 是否发生变化，如果没变则不触发 onSuccess 回调 */
   diff?: (oldData: T, newData: T) => boolean
   /** 发起网络请求或其他异步操作，错误已被捕获，可以直接在过程中抛出 */
-  onRequest?: (...args: A) => Promise<T>
+  onRequest?: (...args: A extends unknown[] ? A : never) => Promise<T>
 }
 
-interface FetchHookReturn<T, A extends unknown[], S extends boolean = false> {
+interface FetchHookReturn<T, A, S extends boolean = false> {
   data: S extends true ? ShallowRef<T> : Ref<T>
   loading: Ref<boolean>
-  refresh: (...args: A) => Promise<T | undefined>
+  refresh: (...args: A extends unknown[] ? A : never) => Promise<T | undefined>
   onSuccess: (callback: (data: T) => void) => void
   onError: (callback: (error: Error) => void) => void
   onFinish: (callback: () => void) => void
 }
 
-export const useFetchHook = <T, A extends unknown[] = [], S extends boolean = false>(
+export const useFetchHook = <T, A, S extends boolean = false>(
   options: FetchHookOptions<T, A, S>,
 ): FetchHookReturn<T, A, S> => {
   const {
@@ -59,7 +60,7 @@ export const useFetchHook = <T, A extends unknown[] = [], S extends boolean = fa
 
   const abortController = shallowRef<AbortController>()
 
-  const refresh = async (...args: A) => {
+  const refresh = async (...args: A extends unknown[] ? A : never) => {
     if (abortController.value) {
       abortController.value.abort()
       abortController.value = undefined

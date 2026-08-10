@@ -22,7 +22,7 @@ const tabs: { title: string, value: string }[] = [
 ]
 const activeTab = shallowRef<string>('list')
 
-const presetListPanelRef = useTemplateRef<ComponentExposed<typeof PresetListPanel> | null>('presetListPanelRef')
+const presetListPanelRef = useTemplateRef<InstanceType<typeof PresetListPanel> | null>('presetListPanelRef')
 
 /** 面板是否应展开：当前标签页可展开，且当前标签页内已展开 */
 const isPanelExpanded = computed(() => {

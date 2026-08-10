@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { ItemVo } from '@/api/alova/globals'
 import { Check, Close, Delete } from '@element-plus/icons-vue'
 import {
   AppIconTagRenderer,
@@ -10,11 +11,11 @@ import { useAreaStore, useIconStore } from '@/stores'
 import { useItemDelete } from '../hooks'
 
 const props = defineProps<{
-  item: API.ItemVo
+  item: ItemVo
 }>()
 
 const emits = defineEmits<{
-  success: [API.ItemVo]
+  success: [ItemVo]
   close: [boolean]
 }>()
 

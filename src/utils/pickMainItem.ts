@@ -1,15 +1,15 @@
-import type * as API2 from '@/api/alova/globals'
+import type { ItemVo, MarkerExtraVo, MarkerVo } from '@/api/alova/globals'
 
 /**
  * 为点位选择主要渲染图标
  * @todo 可能需要根据设置来选择策略
  */
-export const pickMainItem = ({ itemList, extra }: API2.MarkerVo, itemIdMap: Map<number, API2.ItemVo>) => {
+export const pickMainItem = ({ itemList, extra }: MarkerVo, itemIdMap: Map<number, ItemVo>) => {
   const restItemIds: number[] = []
   const restIconTags: string[] = []
 
   let index = -1
-  let mainItem: API2.ItemVo | undefined
+  let mainItem: ItemVo | undefined
 
   itemList?.forEach(({ itemId = -1 }) => {
     const item = itemIdMap.get(itemId)
@@ -31,7 +31,7 @@ export const pickMainItem = ({ itemList, extra }: API2.MarkerVo, itemIdMap: Map<
     index = sortIndex
   })
 
-  const { iconOverride } = (extra ?? {}) as API.MarkerExtra
+  const { iconOverride } = (extra ?? {}) as MarkerExtraVo
 
   return {
     mainItemId: mainItem?.id ?? -1,

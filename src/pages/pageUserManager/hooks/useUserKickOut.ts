@@ -1,14 +1,18 @@
+import type { SysUserVo } from '@/api/alova/globals'
 import { ElMessage } from 'element-plus'
-import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 
-export const useUserKickOut = (form: Ref<API.SysUserVo>) => {
+export const useUserKickOut = (form: Ref<SysUserVo>) => {
   const { refresh: submit, onError, onSuccess, ...rest } = useFetchHook({
     onRequest: async () => {
       const { id } = toValue(form)
       if (id === undefined)
         throw new Error('用户 id 为空')
-      await Api.user.kickOutUser({ workId: id })
+      await Apis.user.kickOutUser({
+        pathParams: {
+          workId: id,
+        },
+      })
     },
   })
 

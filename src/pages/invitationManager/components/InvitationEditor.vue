@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ElForm, FormItemRule } from 'element-plus'
+import type { RSysUserInvitationSmallVo, SysUserInvitationVo } from '@/api/alova/globals'
 import * as ElIcons from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
@@ -9,12 +10,12 @@ import { useInvitationCreate, useInvitationUpdate } from '../hooks'
 
 const props = defineProps<{
   title: string
-  data?: API.SysUserInvitationVo
+  data?: SysUserInvitationVo
 }>()
 
 const emits = defineEmits<{
   success: []
-  close: [data?: API.RSysUserInvitationSmallVo]
+  close: [data?: RSysUserInvitationSmallVo]
 }>()
 
 const userStore = useUserStore()
@@ -23,9 +24,9 @@ const isUpdateMode = props.data?.code !== undefined
 
 const formRef = shallowRef<InstanceType<typeof ElForm>>()
 
-const raw = JSON.parse(JSON.stringify(props.data ?? {})) as API.SysUserInvitationVo
+const raw = JSON.parse(JSON.stringify(props.data ?? {})) as SysUserInvitationVo
 
-const form = ref<API.SysUserInvitationVo>({
+const form = ref<SysUserInvitationVo>({
   accessPolicy: [
     'ip:same_last_ip',
     'dev:same_last_device',
@@ -55,7 +56,7 @@ onSuccess(() => {
   emits('success')
 })
 
-const rules: Partial<Record<keyof API.SysUserInvitationVo, FormItemRule>> = {
+const rules: Partial<Record<keyof SysUserInvitationVo, FormItemRule>> = {
   username: {
     required: true,
     validator: (_, v: string, cb) => {

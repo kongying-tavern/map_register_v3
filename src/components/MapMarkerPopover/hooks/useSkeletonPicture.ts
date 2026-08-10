@@ -1,7 +1,8 @@
 import type { ShallowRef } from 'vue'
+import type { MarkerVo } from '@/api/alova/globals'
 import { useFetchHook } from '@/hooks'
 
-export const useSkeletonPicture = (markerInfo: ShallowRef<API.MarkerVo | null>) => {
+export const useSkeletonPicture = (markerInfo: ShallowRef<MarkerVo | null>) => {
   const { data: image, refresh, loading, ...rest } = useFetchHook({
     onRequest: async () => {
       const { picture } = toValue(markerInfo) ?? {}

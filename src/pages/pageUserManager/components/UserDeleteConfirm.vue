@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { SysUserVo } from '@/api/alova/globals'
 import { Check, Close } from '@element-plus/icons-vue'
 import {
   WinDialog,
@@ -8,7 +9,7 @@ import {
 import { useUserDelete } from '../hooks'
 
 const props = defineProps<{
-  data: API.SysUserVo
+  data: SysUserVo
 }>()
 
 const emits = defineEmits<{

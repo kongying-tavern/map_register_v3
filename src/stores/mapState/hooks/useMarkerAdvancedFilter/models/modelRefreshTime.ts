@@ -1,4 +1,4 @@
-import type * as API2 from '@/api/alova/globals'
+import type { MarkerVo } from '@/api/alova/globals'
 import type {
   MAFConfig,
   MAFMetaRefreshTime,
@@ -67,7 +67,7 @@ export class RefreshTime implements MAFConfig<MAFValueNumberRange, OptionType, M
     ]
   }
 
-  filter(val: MAFValueNumberRange, _opt: OptionType, meta: MAFMetaRefreshTime, marker: API2.MarkerVo): boolean {
+  filter(val: MAFValueNumberRange, _opt: OptionType, meta: MAFMetaRefreshTime, marker: MarkerVo): boolean {
     const minVal: number = meta.isCustom ? (val.nMin === undefined || val.nMin === null ? Number.NEGATIVE_INFINITY : val.nMin * 3600 * 1000) : (val.nMin as number)
     const maxVal: number = meta.isCustom ? (val.nMax === undefined || val.nMax === null ? Number.POSITIVE_INFINITY : val.nMax * 3600 * 1000) : (val.nMin as number)
     return marker.refreshTime! >= minVal && marker.refreshTime! <= maxVal

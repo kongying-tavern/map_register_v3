@@ -1,40 +1,49 @@
 import type { PageListQueryParams, TypeManager } from '../config'
-import Api from '@/api/api'
+import type { ItemTypeVo } from '@/api/alova/globals'
 
-export class ItemTypeManager implements TypeManager<API.ItemTypeVo> {
+export class ItemTypeManager implements TypeManager<ItemTypeVo> {
   get info() {
     return {
       label: '物品类型',
     }
   }
 
-  getId = (data: API.ItemTypeVo) => data.id
+  getId = (data: ItemTypeVo) => data.id
 
-  getName = (data: API.ItemTypeVo) => `${data.name ?? `(id:${data.id})`}`
+  getName = (data: ItemTypeVo) => `${data.name ?? `(id:${data.id})`}`
 
-  getIsLeaf = (data: API.ItemTypeVo) => data.isFinal
+  getIsLeaf = (data: ItemTypeVo) => data.isFinal
 
-  list = (params: PageListQueryParams<API.ItemTypeVo>) => {
+  list = (params: PageListQueryParams<ItemTypeVo>) => {
     const { node, ...rest } = params
-    return Api.itemType.listItemType1({ self: 1 }, {
-      typeIdList: node === undefined ? [-1] : [node.id!],
-      ...rest,
+    return Apis.item_type.listItemType_1({
+      pathParams: { self: 1 },
+      data: {
+        typeIdList: node === undefined ? [-1] : [node.id!],
+        ...rest,
+      },
     })
   }
 
-  create = (data: API.ItemTypeVo, parent?: API.ItemTypeVo) => {
+  create = (data: ItemTypeVo, parent?: ItemTypeVo) => {
     const { name, content = '', iconId, sortIndex, hiddenFlag } = data
-    return Api.itemType.addItemType({
-      name,
-      content,
-      iconId,
-      sortIndex,
-      hiddenFlag,
-      parentId: parent?.id ?? -1,
+    return Apis.item_type.addItemType({
+      data: {
+        name,
+        content,
+        iconId,
+        sortIndex,
+        hiddenFlag,
+        parentId: parent?.id ?? -1,
+      },
     })
   }
 
-  delete = (data: API.ItemTypeVo) => Api.itemType.deleteItemType({ itemTypeId: data.id! })
+  delete = (data: ItemTypeVo) => Apis.item_type.deleteItemType({
+    pathParams: {
+      itemTypeId: data.id!,
+    },
+  })
 
-  update = (data: API.ItemTypeVo) => Api.itemType.updateItemType(data)
+  update = (data: ItemTypeVo) => Apis.item_type.updateItemType({ data })
 }

@@ -1,12 +1,13 @@
 import type { AxiosRequestConfig } from 'axios'
+import type { RBoolean, RPageListVoSysUserInvitationVo, RSysUserInvitationConsumeResultVo, RSysUserInvitationSmallVo, SysUserInvitationConsumeVo, SysUserInvitationSearchVo, SysUserInvitationSmallVo, SysUserInvitationVo } from '../alova/globals'
 import { request } from '@/utils'
 
 /** 新增/更新用户邀请 新增/更新用户邀请 POST /system/invitation/update */
 export async function updateInvitation(
-  body: API.SysUserInvitationVo,
+  body: SysUserInvitationVo,
   options?: AxiosRequestConfig,
 ) {
-  return request<API.RSysUserInvitationSmallVo>('/system/invitation/update', {
+  return request<RSysUserInvitationSmallVo>('/system/invitation/update', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -18,10 +19,10 @@ export async function updateInvitation(
 
 /** 列出用户邀请 列出用户邀请 POST /system/invitation/list */
 export async function listInvitation(
-  body: API.SysUserInvitationSearchVo,
+  body: SysUserInvitationSearchVo,
   options?: AxiosRequestConfig,
 ) {
-  return request<API.RPageListVoSysUserInvitationVo>('/system/invitation/list', {
+  return request<RPageListVoSysUserInvitationVo>('/system/invitation/list', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -33,10 +34,10 @@ export async function listInvitation(
 
 /** 检查用户邀请数据 检查用户邀请数据 POST /system/invitation/info */
 export async function checkInvitation(
-  body: API.SysUserInvitationSmallVo,
+  body: SysUserInvitationSmallVo,
   options?: AxiosRequestConfig,
 ) {
-  return request<API.RSysUserInvitationSmallVo>('/system/invitation/info', {
+  return request<RSysUserInvitationSmallVo>('/system/invitation/info', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -48,10 +49,10 @@ export async function checkInvitation(
 
 /** 检查用户邀请数据 检查用户邀请数据 POST /system/invitation/consume */
 export async function consumeInvitation(
-  body: API.SysUserInvitationConsumeVo,
+  body: SysUserInvitationConsumeVo,
   options?: AxiosRequestConfig,
 ) {
-  return request<API.RSysUserInvitationConsumeResultVo>('/system/invitation/consume', {
+  return request<RSysUserInvitationConsumeResultVo>('/system/invitation/consume', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -70,7 +71,7 @@ export async function deleteInvitation(
   options?: AxiosRequestConfig,
 ) {
   const { invitationId: param0, ...queryParams } = params
-  return request<API.RBoolean>(`/system/invitation/${param0}`, {
+  return request<RBoolean>(`/system/invitation/${param0}`, {
     method: 'DELETE',
     params: { ...queryParams },
     ...(options || {}),

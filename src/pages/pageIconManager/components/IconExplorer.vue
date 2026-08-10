@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import type { IconVo } from '@/api/alova/globals.js'
 import { AppVirtualTable } from '@/components'
 import IconImage from './IconImage.vue'
 
 defineProps<{
-  data: API.IconVo[]
+  data: IconVo[]
 }>()
 
 const ICON_SIZE = 100

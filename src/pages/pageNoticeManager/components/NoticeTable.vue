@@ -1,16 +1,17 @@
 <script lang="ts" setup>
+import type { NoticeVo } from '@/api/alova/globals'
 import { Delete } from '@element-plus/icons-vue'
 import { NOTICE_NAME_MAP, now } from '@/shared'
 import { timeFormatter } from '@/utils'
 
 const props = defineProps<{
   loading: boolean
-  data: API.NoticeVo[]
+  data: NoticeVo[]
 }>()
 
 const emits = defineEmits<{
-  review: [v: API.NoticeVo]
-  delete: [v: API.NoticeVo]
+  review: [v: NoticeVo]
+  delete: [v: NoticeVo]
 }>()
 
 const covertNoticeList = computed(() => props.data.map(notice => ({
@@ -43,7 +44,7 @@ const getCellClassName = (cell: { column: { property?: string }, rowIndex: numbe
   return `is-${property} is-${stateList.value[cell.rowIndex].type}`
 }
 
-const handleCellClick = (row: API.NoticeVo, col: { property?: string }) => {
+const handleCellClick = (row: NoticeVo, col: { property?: string }) => {
   if (col.property !== 'title')
     return
   emits('review', row)

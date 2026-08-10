@@ -1,3 +1,4 @@
+import type { ItemTypeVo, RPageListVoItemTypeVo } from '@/api/alova/globals'
 import type { FetchHookOptions } from '@/hooks'
 import { useSubscription } from '@vueuse/rxjs'
 import { liveQuery } from 'dexie'
@@ -6,11 +7,11 @@ import { useFetchHook } from '@/hooks'
 import { array2Tree } from '@/utils'
 
 /** 物品类型列表与相关操作方法 */
-export const useTypeList = (options: FetchHookOptions<API.RPageListVoItemTypeVo> = {}) => {
+export const useTypeList = (options: FetchHookOptions<RPageListVoItemTypeVo> = {}) => {
   const { immediate, loading: scopedLoading } = options
 
   /** 物品类型列表 */
-  const typeList = ref<API.ItemTypeVo[]>([])
+  const typeList = ref<ItemTypeVo[]>([])
   /** 物品类型列表加载态 */
   const loading = ref(false)
   /** 物品类型树 */
@@ -24,7 +25,7 @@ export const useTypeList = (options: FetchHookOptions<API.RPageListVoItemTypeVo>
   const typeMap = computed(() => typeList.value.reduce((seed, typeObj) => {
     typeObj.id !== undefined && (seed[typeObj.id] = typeObj)
     return seed
-  }, {} as Record<number, API.ItemTypeVo>))
+  }, {} as Record<number, ItemTypeVo>))
 
   const { refresh: updateTypeList, onSuccess, ...rest } = useFetchHook({
     immediate,

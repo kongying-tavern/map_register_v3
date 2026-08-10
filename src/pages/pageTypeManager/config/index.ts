@@ -1,9 +1,11 @@
+import type { IconTypeVo, ItemTypeVo, SysUserSmallVo } from '@/api/alova/globals'
+
 export interface PageListResponse<T> {
   data?: {
     record?: T[]
     total?: number
   }
-  users?: Record<string, API.SysUserSmallVo>
+  users?: Record<string, SysUserSmallVo>
 }
 
 export interface PageListQueryParams<T = unknown> {
@@ -12,7 +14,7 @@ export interface PageListQueryParams<T = unknown> {
   node?: T
 }
 
-export type TypeObject = API.ItemTypeVo & API.IconTypeVo & Record<string, unknown>
+export type TypeObject = ItemTypeVo & IconTypeVo & Record<string, unknown>
 
 /** 实现类型表的增删改查所需要实现的方法 */
 export interface TypeManager<T = unknown> {

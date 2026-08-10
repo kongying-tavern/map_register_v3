@@ -1,5 +1,5 @@
 /** 从订阅源获取打点的相关依赖配置 */
-const getSystemConfig = async (options: {
+export const getSystemConfig = async (options: {
   timeout?: number
 } = {}) => {
   const { timeout = 10000 } = options

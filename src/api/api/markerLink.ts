@@ -1,12 +1,13 @@
 import type { AxiosRequestConfig } from 'axios'
+import type { LinkDeleteQueryVo, MarkerLinkageSearchVo, MarkerLinkageVo, RLinkDeleteVo, RMapStringGraphVo, RMapStringListMarkerLinkageVo, RString } from '../alova/globals'
 import { request } from '@/utils'
 
 /** 关联点位 关联点位数据 POST /api/marker_link/link */
 export async function linkMarker(
-  body: API.MarkerLinkageVo[],
+  body: MarkerLinkageVo[],
   options?: AxiosRequestConfig,
 ) {
-  return request<API.RString>('/api/marker_link/link', {
+  return request<RString>('/api/marker_link/link', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -18,10 +19,10 @@ export async function linkMarker(
 
 /** 关联点位列表 关联点位列表 POST /api/marker_link/get/list */
 export async function getMarkerLinkageList(
-  body: API.MarkerLinkageSearchVo,
+  body: MarkerLinkageSearchVo,
   options?: AxiosRequestConfig,
 ) {
-  return request<API.RMapStringListMarkerLinkageVo>('/api/marker_link/get/list', {
+  return request<RMapStringListMarkerLinkageVo>('/api/marker_link/get/list', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -33,10 +34,10 @@ export async function getMarkerLinkageList(
 
 /** 关联点位图数据 关联点位图数据 POST /api/marker_link/get/graph */
 export async function getMarkerLinkageGraph(
-  body: API.MarkerLinkageSearchVo,
+  body: MarkerLinkageSearchVo,
   options?: AxiosRequestConfig,
 ) {
-  return request<API.RMapStringGraphVo>('/api/marker_link/get/graph', {
+  return request<RMapStringGraphVo>('/api/marker_link/get/graph', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -48,10 +49,10 @@ export async function getMarkerLinkageGraph(
 
 /** 删除点位关联 删除点位关联 DELETE /api/marker_link/delete */
 export async function deleteMarkerLinkage(
-  body: API.LinkDeleteQueryVo,
+  body: LinkDeleteQueryVo,
   options?: AxiosRequestConfig,
 ) {
-  return request<API.RLinkDeleteVo>('/api/marker_link/delete', {
+  return request<RLinkDeleteVo>('/api/marker_link/delete', {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',

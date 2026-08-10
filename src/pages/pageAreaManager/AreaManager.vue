@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import type { AreaVo } from '@/api/alova/globals'
 import { RefreshRight } from '@element-plus/icons-vue'
 import { useGlobalDialog } from '@/hooks'
 import { AreaCreator, AreaDeleteConfirm, AreaEditor, AreaGraphSkeleton } from './components'
@@ -31,11 +32,11 @@ const handleRefresh = async () => {
 }
 
 // ==================== 新增地区 ====================
-const openAreaCreator = (parent?: API.AreaVo) => DialogService
+const openAreaCreator = (parent?: AreaVo) => DialogService
   .config(getDialogConfig())
   .props({ parent })
   .listeners({
-    success: (form: API.AreaVo) => {
+    success: (form: AreaVo) => {
       graph.value?.addChild({
         id: `${form.id}`,
         pid: `${form.parentId}`,
@@ -48,11 +49,11 @@ const openAreaCreator = (parent?: API.AreaVo) => DialogService
   .open(AreaCreator)
 
 // ==================== 编辑地区 ====================
-const openAreaEditor = (area: API.AreaVo, parent?: API.AreaVo) => DialogService
+const openAreaEditor = (area: AreaVo, parent?: AreaVo) => DialogService
   .config(getDialogConfig())
   .props({ area, parent })
   .listeners({
-    success: (form: API.AreaVo) => {
+    success: (form: AreaVo) => {
       graph.value?.update(`${form.id}`, {
         id: `${form.id}`,
         pid: `${form.parentId}`,
@@ -65,14 +66,14 @@ const openAreaEditor = (area: API.AreaVo, parent?: API.AreaVo) => DialogService
   .open(AreaEditor)
 
 // ==================== 删除地区 ====================
-const deleteArea = (area: API.AreaVo) => DialogService
+const deleteArea = (area: AreaVo) => DialogService
   .config(getDialogConfig())
   .props({
     title: '删除地区',
     area,
   })
   .listeners({
-    success: (form: API.AreaVo) => {
+    success: (form: AreaVo) => {
       graph.value?.removeChild(`${form.id}`)
       updateAreaList()
     },

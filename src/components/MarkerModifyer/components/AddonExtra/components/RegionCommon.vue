@@ -1,9 +1,9 @@
 <script setup lang="ts">
 const props = defineProps<{
-  config: API.ExtraConfig
+  config: DTO.ExtraConfig
 }>()
 
-const modelValue = defineModel<API.MarkerExtra['underground'] | undefined>({
+const modelValue = defineModel<DTO.MarkerExtra['underground'] | undefined>({
   required: true,
 })
 

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { AreaVo } from '@/api/alova/globals'
 import type { GSMarkerInfo } from '@/packages/map'
 import { AppIconTagRenderer } from '@/components'
 import { useAreaStore, useIconStore, useItemStore } from '@/stores'
@@ -29,7 +30,7 @@ const areas = computed(() => {
     seed.push(area)
     areaIds.add(area.id!)
     return seed
-  }, [] as API.AreaVo[]) ?? []
+  }, [] as AreaVo[]) ?? []
 })
 </script>
 

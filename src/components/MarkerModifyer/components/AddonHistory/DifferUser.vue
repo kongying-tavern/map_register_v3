@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import type { SysUserSmallVo } from '@/api/alova/globals'
+
 withDefaults(defineProps<{
-  updator?: API.SysUserSmallVo
+  updator?: SysUserSmallVo
   userId?: number
 }>(), {
   updator: () => ({}),

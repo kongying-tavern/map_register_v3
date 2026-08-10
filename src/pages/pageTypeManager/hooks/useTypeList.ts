@@ -1,5 +1,6 @@
 import type { PageListQueryParams, TypeManager } from '../config'
 import type { TYPE_MANAGER_KEY_MAP, TypeManagerKeys, TypeManagerMap } from '../definitions'
+import type { SysUserSmallVo } from '@/api/alova/globals'
 
 import type { PaginationState } from '@/hooks'
 import { useFetchHook } from '@/hooks'
@@ -26,7 +27,7 @@ export const useTypeList = <K extends keyof typeof TYPE_MANAGER_KEY_MAP>(options
   const params = computed(() => getParams())
 
   const typeList = shallowRef<ExtractListType<K>>([])
-  const userMap = shallowRef<Record<string, API.SysUserSmallVo>>({})
+  const userMap = shallowRef<Record<string, SysUserSmallVo>>({})
 
   const { refresh: updateTypeList, onSuccess, ...rest } = useFetchHook({
     immediate: true,

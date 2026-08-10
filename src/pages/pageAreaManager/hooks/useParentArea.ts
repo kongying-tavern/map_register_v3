@@ -1,9 +1,11 @@
+import type { AreaVo } from '@/api/alova/globals'
+
 export const useParentArea = () => {
-  const parentPath = ref<API.AreaVo[]>([])
+  const parentPath = ref<AreaVo[]>([])
 
   const parent = computed(() => parentPath.value.at(-1))
 
-  const goto = (newParent?: API.AreaVo) => {
+  const goto = (newParent?: AreaVo) => {
     if (!newParent) {
       parentPath.value = []
       return

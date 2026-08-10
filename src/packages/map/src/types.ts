@@ -1,9 +1,8 @@
 import type { DeckProps, IconLayerProps, OrthographicView, OrthographicViewState } from 'deck.gl'
-import type * as API2 from '@/api/alova/globals'
+import type { AreaVo, MarkerLinkageVo, MarkerVo } from '@/api/alova/globals'
 import type { AreaTagTuple } from '@/configs'
 
 type OrthographicViewMapProps = DeckProps<OrthographicView>
-export type Coordinate2D = [x: number, y: number]
 
 // ============================== Map ==============================
 export interface GenshinMapProps extends Omit<OrthographicViewMapProps, 'canvas'> {
@@ -53,7 +52,7 @@ export interface GSTileLayerProps {
   extension?: string
 
   /** 图元偏移量 */
-  tilesOffset?: Coordinate2D
+  tilesOffset?: DTO.Coordinate2D
 }
 
 export interface GSTagLayerProps {
@@ -64,7 +63,7 @@ export interface GSTagLayerProps {
   visible?: boolean
 
   /** 坐标偏移量 */
-  offset?: Coordinate2D
+  offset?: DTO.Coordinate2D
 
   /** 字体 */
   fontFamily?: string
@@ -88,7 +87,7 @@ export interface GSMarkerLayerProps {
   hoverMarkerIds?: Set<number>
   focusMarkerIds?: Set<number>
   markedMarkerIds?: Set<number>
-  rewritePositions?: Map<number, Coordinate2D>
+  rewritePositions?: Map<number, DTO.Coordinate2D>
 }
 
 export interface ArrowShapeOptions {
@@ -112,9 +111,9 @@ export interface GSLinkLayerProps extends ArrowShapeOptions {
     /** 关联连线的唯一 id */
     id: string
     /** 起始点 */
-    from: Coordinate2D
+    from: DTO.Coordinate2D
     /** 终止点 */
-    to: Coordinate2D
+    to: DTO.Coordinate2D
     /** 指示线（箭）的颜色 */
     color: [r: number, g: number, b: number]
   }[]
@@ -135,17 +134,17 @@ export interface GSLinkLayerProps extends ArrowShapeOptions {
 }
 
 // ============================== Marker ==============================
-export interface GSMarkerInfo extends API2.MarkerVo {
+export interface GSMarkerInfo extends MarkerVo {
   /** 是否为快照 */
   __gs_isSnapshot?: boolean
 
   /** 用于渲染的附加属性，避免在渲染层进行计算 */
   render: {
     /** 点位坐标 */
-    position: Coordinate2D
+    position: DTO.Coordinate2D
 
     /** 点位地区 */
-    area: API2.AreaVo
+    area: AreaVo
 
     /** 点位所属的底图 */
     tileCode: string
@@ -183,7 +182,7 @@ export interface MLRenderUnit {
 }
 
 /** 包含元信息的点位关联对象 */
-export interface MarkerLinkMission extends API2.MarkerLinkageVo {
+export interface MarkerLinkMission extends MarkerLinkageVo {
   meta: {
     key: string
   }
@@ -192,7 +191,7 @@ export interface MarkerLinkMission extends API2.MarkerLinkageVo {
 /** 任务类型表 */
 export interface MissionTypeMap {
   markerEditting: number | undefined
-  markerDragging: Map<number, Coordinate2D>
+  markerDragging: Map<number, DTO.Coordinate2D>
   markerLink: MarkerLinkMission[]
   markerMultiSelect: string
   markerBulkState: boolean
@@ -204,11 +203,11 @@ export type Mission = MapToSchema<MissionTypeMap>
 
 /**
  * 临时点位类型表
- * @note value 只能为 `API.MarkerVo` 或 `MarkerWithRenderConfig`
+ * @note value 只能为 `MarkerVo` 或 `MarkerWithRenderConfig`
  */
 export interface TempMarkerTypeMap {
   focus: GSMarkerInfo[]
-  markerLink: API.MarkerVo[]
+  markerLink: MarkerVo[]
   markerMultiSelect: GSMarkerInfo[]
   markerDragging: GSMarkerInfo[]
 }
@@ -225,24 +224,24 @@ export interface CustomEventTypeMap {
 
 export interface OverlayGroup {
   id: string
-  label?: API.OverlayGroupOption['label']
-  value?: API.OverlayGroupOption['value']
-  multiple: API.OverlayConfig['multiple']
-  mask: API.OverlayConfig['overlayMask']
-  url?: API.OverlayGroupOption['url']
-  urlTemplate?: API.OverlayGroupOption['urlTemplate']
-  bounds?: API.OverlayBounds
-  items: API.OverlayOption[]
-  role: API.OverlayRole
+  label?: DTO.OverlayGroupOption['label']
+  value?: DTO.OverlayGroupOption['value']
+  multiple: DTO.OverlayConfig['multiple']
+  mask: DTO.OverlayConfig['overlayMask']
+  url?: DTO.OverlayGroupOption['url']
+  urlTemplate?: DTO.OverlayGroupOption['urlTemplate']
+  bounds?: DTO.OverlayBounds
+  items: DTO.OverlayOption[]
+  role: DTO.OverlayRole
 }
 
 export interface OverlayUnit {
   id: string
   label?: string
   value?: string
-  url?: API.OverlayOption['url']
-  urlTemplate?: API.OverlayOption['urlTemplate']
-  bounds?: API.OverlayBounds
+  url?: DTO.OverlayOption['url']
+  urlTemplate?: DTO.OverlayOption['urlTemplate']
+  bounds?: DTO.OverlayBounds
 }
 
 export interface OverlayChunk {
@@ -265,21 +264,21 @@ export interface OverlayChunk {
   /** overlay 图片地址 */
   url: string
   /** overlay 区域 */
-  bounds: API.OverlayBounds
+  bounds: DTO.OverlayBounds
 }
 
 export interface OverlayChunkGroup {
   id: string
   name: string
   mask: boolean
-  role: API.OverlayRole
+  role: DTO.OverlayRole
   multiple: boolean
   areaCodes: Set<string>
   areaIndexes: Map<string, number>
 }
 
 export interface OverlayControlGroup extends OverlayChunkGroup {
-  bounds: API.OverlayBounds
+  bounds: DTO.OverlayBounds
   items: { id: string, name: string }[]
 }
 

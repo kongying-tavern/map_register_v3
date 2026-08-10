@@ -14,9 +14,9 @@ export const useSocketStore = defineStore('socket', () => {
   })
 
   /** 正在通知的事件 */
-  const isNoticing = ref(new Map<API.WSEventType, NotificationHandle>())
+  const isNoticing = ref(new Map<WebSocketAPI.WSEventType, NotificationHandle>())
 
-  const notice = (key: API.WSEventType, ...options: Parameters<typeof ElNotification>) => {
+  const notice = (key: WebSocketAPI.WSEventType, ...options: Parameters<typeof ElNotification>) => {
     // 检查用户设置是否允许通知
     if (!noticeEvents.value.has(key))
       return

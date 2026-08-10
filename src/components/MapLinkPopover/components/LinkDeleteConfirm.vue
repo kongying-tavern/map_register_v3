@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { MarkerLinkageVo } from '@/api/alova/globals'
 import { Check, Close, Delete } from '@element-plus/icons-vue'
 import {
   WinDialog,
@@ -8,7 +9,7 @@ import {
 import { useLinkDelete } from '../hooks'
 
 const props = defineProps<{
-  link: API.MarkerLinkageVo
+  link: MarkerLinkageVo
 }>()
 
 const emits = defineEmits<{

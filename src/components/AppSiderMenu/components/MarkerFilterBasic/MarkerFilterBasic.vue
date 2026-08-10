@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import type { AreaVo, ItemTypeVo, ItemVo } from '@/api/alova/globals'
 import { DeleteFilled } from '@element-plus/icons-vue'
 import { storeToRefs } from 'pinia'
 import { AppIconTagRenderer, GSButton } from '@/components'
@@ -48,7 +49,7 @@ const selectedParentArea = computed(() => {
   return areaCodeMap.value.get(preferenceStore.parentAreaCode)
 })
 
-const selectedChildrenAreaList = computed<API.AreaVo[]>(() => {
+const selectedChildrenAreaList = computed<AreaVo[]>(() => {
   if (!selectedParentArea.value)
     return []
   return childrenAreaList.value.filter(({ parentId }) => parentId === selectedParentArea.value?.id)
@@ -57,7 +58,7 @@ const selectedChildrenAreaList = computed<API.AreaVo[]>(() => {
 const selectedArea = computed(() => areaCodeMap.value.get(preferenceStore.areaCode))
 
 // ==================== 分类 ====================
-const accessItemTypeList = computed<API.ItemTypeVo[]>(() => itemTypeList.value.filter(type => Boolean(type.isFinal)))
+const accessItemTypeList = computed<ItemTypeVo[]>(() => itemTypeList.value.filter(type => Boolean(type.isFinal)))
 
 const selectedType = computed(() => {
   return itemTypeIdMap.value.get(preferenceStore.itemTypeId)
@@ -75,7 +76,7 @@ const accessItemList = computed(() => {
 })
 
 /** 当前分类可用的全部物品 */
-const visibleItemList = computed<API.ItemVo[]>(() => {
+const visibleItemList = computed<ItemVo[]>(() => {
   const type = selectedType.value
   if (!type)
     return []

@@ -1,4 +1,4 @@
-import type * as API2 from '@/api/alova/globals'
+import type { MarkerVo } from '@/api/alova/globals'
 import type {
   MAFConfig,
   MAFMetaVisibility,
@@ -57,7 +57,7 @@ export class Visibility implements MAFConfig<MAFValueNumberArray, OptionType, MA
     ]
   }
 
-  filter(val: MAFValueNumberArray, _opt: OptionType, _meta: MAFMetaVisibility, marker: API2.MarkerVo): boolean {
+  filter(val: MAFValueNumberArray, _opt: OptionType, _meta: MAFMetaVisibility, marker: MarkerVo): boolean {
     return (val.na ?? []).includes(marker.hiddenFlag!)
   }
 }

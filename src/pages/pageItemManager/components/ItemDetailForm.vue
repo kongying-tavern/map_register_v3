@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import type { ItemVo } from '@/api/alova/globals'
 import type { ElFormType } from '@/shared'
 import type { ItemFormRules } from '@/utils'
 import { AppTimeSelect } from '@/components'
@@ -9,11 +10,11 @@ import { lengthCheck, requireCheck } from '@/utils'
 import { useSpecialFlag } from '../hooks'
 
 const props = defineProps<{
-  modelValue: API.ItemVo
+  modelValue: ItemVo
 }>()
 
 const emits = defineEmits<{
-  'update:modelValue': [item: API.ItemVo]
+  'update:modelValue': [item: ItemVo]
 }>()
 
 const accessStore = useAccessStore()
@@ -40,7 +41,7 @@ watch(formData, () => {
 // ==================== 表单校验 ====================
 const formRef = ref<ElFormType | null>(null)
 
-const rules: ItemFormRules<API.ItemVo> = {
+const rules: ItemFormRules<ItemVo> = {
   name: [lengthCheck('blur', '名称', 10)],
   areaId: [requireCheck('change', '地区')],
   hiddenFlag: [requireCheck('change', '显示类型')],

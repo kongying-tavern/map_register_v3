@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { FormRules } from 'element-plus'
+import type { SysUserUpdateVo } from '@/api/alova/globals'
 import type { ElFormType } from '@/shared'
-import Api from '@/api/api'
 import { GSButton, GSDivider, GSInput } from '@/components'
 import { useFetchHook } from '@/hooks'
 import { useUserStore } from '@/stores'
@@ -9,7 +9,7 @@ import { AvatarEditor } from './components'
 
 const userStore = useUserStore()
 
-const form = ref<API.SysUserUpdateVo>({
+const form = ref<SysUserUpdateVo>({
   ...userStore.info,
 })
 
@@ -44,7 +44,7 @@ const { refresh: updateUserInfo, loading } = useFetchHook({
     const isValid = await formRef.value?.validate().catch(() => false)
     if (!isValid)
       return
-    await Api.user.updateUser(form.value)
+    await Apis.user.updateUser({ data: form.value })
     await userStore.refreshUserInfo()
   },
 })

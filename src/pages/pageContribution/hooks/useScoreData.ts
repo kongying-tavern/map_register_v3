@@ -1,7 +1,6 @@
 import type { SheetableData } from '../types'
 import type { ScoreVo } from '@/pages/pageScoreManager/shared'
 import dayjs from 'dayjs'
-import Api from '@/api/api'
 import db from '@/database'
 import { useFetchHook } from '@/hooks'
 import { useMarkerStore } from '@/stores'
@@ -52,15 +51,16 @@ export const useScoreData = (options: ScoreDataHookOptions) => {
             note.value = `正在生成评分: ${(100 * ++generatedCount / result.length).toFixed(2)}%`
             return
           }
-          const { data: status, message = '' } = await Api.score.generate({
-            span: 'DAY',
-            scope: 'PUNCTUATE',
-            startTime: startTime as unknown as string,
-            endTime: endTime as unknown as string,
-          }, {
+          const { data: status, message = '' } = await Apis.score.generate({
+            data: {
+              span: 'DAY',
+              scope: 'PUNCTUATE',
+              startTime: startTime as unknown as string,
+              endTime: endTime as unknown as string,
+            },
             signal: newAbortController.signal,
           })
-          if (status !== 'ok')
+          if (`${status}` !== 'ok')
             throw new Error(message)
           const splitedEndtime = dayjs(endTime)
           const endOfMonth = splitedEndtime.endOf('month')
@@ -80,11 +80,13 @@ export const useScoreData = (options: ScoreDataHookOptions) => {
       note.value = '正在汇总评分...'
 
       // 查询评分
-      const { data: list = [] } = await Api.score.getData({
-        span: 'DAY',
-        scope: 'PUNCTUATE',
-        startTime: rangeStartTime as unknown as string,
-        endTime: rangeEndTime as unknown as string,
+      const { data: list = [] } = await Apis.score.getData({
+        data: {
+          span: 'DAY',
+          scope: 'PUNCTUATE',
+          startTime: rangeStartTime as unknown as string,
+          endTime: rangeEndTime as unknown as string,
+        },
       })
 
       const userScoreMap = new Map<number, SheetableData>()

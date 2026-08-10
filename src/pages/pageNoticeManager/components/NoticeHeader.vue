@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { NoticeSearchVo } from '@/api/alova/globals.js'
 import type { PaginationState } from '@/hooks'
 import { CirclePlus, Filter, Search, Sort } from '@element-plus/icons-vue'
 import { AppDropdown } from '@/components'
@@ -10,7 +11,7 @@ const emits = defineEmits<{
   create: []
 }>()
 
-const filterParams = defineModel<Omit<API.NoticeSearchVo, 'current' | 'size'>>('modelValue', {
+const filterParams = defineModel<Omit<NoticeSearchVo, 'current' | 'size'>>('modelValue', {
   required: true,
 })
 

@@ -4,7 +4,7 @@ import { useMarkerExtraStore } from '@/stores'
 import { md5ToBigInt } from '@/utils'
 
 /** 汇总所有地区的地下分层层级 code */
-const collectLayerCodes = (areaExtraConfigs: Record<string, API.ExtraConfig>): string[] => {
+const collectLayerCodes = (areaExtraConfigs: Record<string, DTO.ExtraConfig>): string[] => {
   const codes: string[] = []
   for (const areaCode in areaExtraConfigs) {
     const { underground = {} } = areaExtraConfigs[areaCode]

@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { IconVariant } from '../types'
+import type { IconVo } from '@/api/alova/globals'
 import { Check, Close } from '@element-plus/icons-vue'
 import { IconRenderer, WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 import { useIconType } from '@/hooks'
@@ -7,7 +8,7 @@ import { useIconFormRules, useIconUpdate } from '../hooks'
 import { ImageCropper } from './ImageCropper'
 
 const props = defineProps<{
-  icon: API.IconVo
+  icon: IconVo
 }>()
 
 const emits = defineEmits<{
@@ -16,7 +17,7 @@ const emits = defineEmits<{
 }>()
 
 /** 表单 */
-const form = ref<API.IconVo>(JSON.parse(JSON.stringify(props.icon)))
+const form = ref<IconVo>(JSON.parse(JSON.stringify(props.icon)))
 
 /** 图标变体 */
 const variant = ref('default')

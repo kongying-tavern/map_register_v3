@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import type { FormItemRule } from 'element-plus'
+import type { ElForm, FormItemRule } from 'element-plus'
+import type { ShallowRef } from 'vue'
+import type { SysUserPasswordUpdateVo, SysUserVo } from '@/api/alova/globals'
 import { CircleCheck, Delete, PictureFilled, RefreshLeft } from '@element-plus/icons-vue'
 import { WinDialog, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 import { ExitLeft } from '@/components/GenshinUI/GSIcon'
@@ -12,7 +14,7 @@ import UserKickoutConfirm from './UserKickoutConfirm.vue'
 import UserPasswordEditor from './UserPasswordEditor.vue'
 
 const props = defineProps<{
-  data: API.SysUserVo
+  data: SysUserVo
 }>()
 
 const emits = defineEmits<{
@@ -48,9 +50,9 @@ const onDeleteSuccess = () => {
 }
 
 // ==================== 修改信息 ====================
-const useInfoRaw = ref<API.SysUserVo>(JSON.parse(JSON.stringify(props.data)))
+const useInfoRaw = ref<SysUserVo>(JSON.parse(JSON.stringify(props.data)))
 
-const userInfoForm = ref<API.SysUserVo>(JSON.parse(JSON.stringify(props.data)))
+const userInfoForm = ref<SysUserVo>(JSON.parse(JSON.stringify(props.data)))
 
 const isChanged = computed(() => JSON.stringify(userInfoForm.value) !== JSON.stringify(useInfoRaw.value))
 
@@ -58,14 +60,15 @@ const resetUserInfo = () => {
   userInfoForm.value = JSON.parse(JSON.stringify(props.data))
 }
 
-const rules: Partial<Record<keyof API.SysUserVo, FormItemRule>> = {
+const rules: Partial<Record<keyof SysUserVo, FormItemRule>> = {
   roleId: {
     required: true,
     message: '角色不能为空',
   },
 }
 
-const { formRef, submit, onSuccess: onEditSuccess } = useUserEdit(userInfoForm, {
+const formRef = shallowRef<InstanceType<typeof ElForm>>()
+const { submit, onSuccess: onEditSuccess } = useUserEdit(userInfoForm, formRef as ShallowRef<InstanceType<typeof ElForm>>, {
   loading: panelLoading,
 })
 
@@ -76,7 +79,7 @@ onEditSuccess(() => {
 })
 
 // ==================== 修改密码 ====================
-const passwordForm = ref<API.SysUserPasswordUpdateVo>({
+const passwordForm = ref<SysUserPasswordUpdateVo>({
   userId: props.data.id,
   password: '',
 })

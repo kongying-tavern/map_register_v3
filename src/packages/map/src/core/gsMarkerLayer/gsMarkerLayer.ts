@@ -93,13 +93,13 @@ export class GSMarkerLayer extends CompositeLayer<GSMarkerLayerProps> {
 
     const getIcon = typeof iconMapping === 'object'
       ? (info: GSMarkerInfo) => {
-          const iconId = (info.extra as API.MarkerExtra | undefined)?.iconOverride?.id ?? info.render.mainIconId
+          const iconId = info.extra?.iconOverride?.id ?? info.render.mainIconId
           if (iconId <= 0)
             return fallbackMappingKey
           return iconMapping[iconId] ? `${iconId}` : fallbackMappingKey
         }
       : (info: GSMarkerInfo) => {
-          const iconId = (info.extra as API.MarkerExtra | undefined)?.iconOverride?.id ?? info.render.mainIconId
+          const iconId = info.extra?.iconOverride?.id ?? info.render.mainIconId
           return `${iconId}`
         }
 

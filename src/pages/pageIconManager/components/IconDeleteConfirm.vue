@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { IconVo } from '@/api/alova/globals'
 import { Check, Close } from '@element-plus/icons-vue'
 import {
   IconRenderer,
@@ -10,11 +11,11 @@ import { useIconDelete } from '../hooks'
 
 const props = defineProps<{
   title: string
-  icon: API.IconVo
+  icon: IconVo
 }>()
 
 const emits = defineEmits<{
-  success: [API.IconVo]
+  success: [IconVo]
   close: [boolean]
 }>()
 

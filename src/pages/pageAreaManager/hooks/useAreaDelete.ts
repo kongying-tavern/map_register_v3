@@ -1,11 +1,15 @@
+import type { AreaVo } from '@/api/alova/globals'
 import { ElMessage } from 'element-plus'
-import Api from '@/api/api'
 import { useFetchHook } from '@/hooks'
 
 export const useAreaDelete = () => {
   const { loading, refresh: deleteArea, onSuccess, onError, ...rest } = useFetchHook({
-    onRequest: async (area: API.AreaVo) => {
-      await Api.area.deleteArea({ areaId: area.id! })
+    onRequest: async (area: AreaVo) => {
+      await Apis.area.deleteArea({
+        pathParams: {
+          areaId: area.id!,
+        },
+      })
       return area
     },
   })

@@ -1,26 +1,26 @@
 import type { ScoreGeneratedCache, UserArchiveBody } from 'types/database'
-import type * as API2 from '@/api/alova/globals'
+import type { AreaVo, IconVo, ItemTypeVo, ItemVo, MarkerLinkageVo, MarkerVo } from '@/api/alova/globals'
 import { Dexie } from 'dexie'
 
 /** 本地通用数据库 */
 export class AppDexie extends Dexie {
   /** 地区 @全量接口 */
-  declare area: Dexie.Table<API2.AreaVo, number>
+  declare area: Dexie.Table<AreaVo, number>
 
   /** 图标 @全量接口 */
-  declare icon: Dexie.Table<API2.IconVo, string>
+  declare icon: Dexie.Table<IconVo, string>
 
   /** 物品 @全量接口 */
-  declare item: Dexie.Table<API2.ItemVo, number>
+  declare item: Dexie.Table<ItemVo, number>
 
   /** 物品类型 @分页接口 */
-  declare itemType: Dexie.Table<API2.ItemTypeVo, number>
+  declare itemType: Dexie.Table<ItemTypeVo, number>
 
   /** 点位 @全量接口 */
-  declare marker: Dexie.Table<API2.MarkerVo, number>
+  declare marker: Dexie.Table<MarkerVo, number>
 
   /** 点位关联 @全量接口 */
-  declare markerLink: Dexie.Table<API2.MarkerLinkageVo, number>
+  declare markerLink: Dexie.Table<MarkerLinkageVo, number>
 
   /** 用户存档 @仅限本地 */
   declare userArchive: Dexie.Table<UserArchiveBody, number>

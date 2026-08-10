@@ -1,4 +1,4 @@
-import Api from '@/api/api'
+import type { MarkerVo } from '@/api/alova/globals'
 import { useFetchHook } from '@/hooks'
 import { HistoryRecordType } from '@/shared'
 import { MarkerCollator } from '../utils'
@@ -25,11 +25,11 @@ import { MarkerCollator } from '../utils'
  *   [Record C]   |              |              |  <- old one  |
  * ```
  */
-export const useMarkerHistory = (markerVo: Ref<API.MarkerVo>) => {
-  const clonedMarkerVo = ref(JSON.parse(JSON.stringify(markerVo.value)) as API.MarkerVo)
+export const useMarkerHistory = (markerVo: Ref<MarkerVo>) => {
+  const clonedMarkerVo = ref(JSON.parse(JSON.stringify(markerVo.value)) as MarkerVo)
 
   const refreshSource = () => {
-    clonedMarkerVo.value = JSON.parse(JSON.stringify(markerVo.value)) as API.MarkerVo
+    clonedMarkerVo.value = JSON.parse(JSON.stringify(markerVo.value)) as MarkerVo
   }
 
   /**
@@ -52,21 +52,25 @@ export const useMarkerHistory = (markerVo: Ref<API.MarkerVo>) => {
       if (id === undefined)
         throw new Error('点位 id 为空')
 
-      const { data: { record = [], total = 0 } = {}, users: _users = {} } = await Api.history.searchHistory({
-        current: 1,
-        size: 100,
-        id: [id],
-        type: HistoryRecordType.MARKER,
-        sort: ['updateTime-'],
-      })
-
-      if (total > 100) {
-        const { data: { record = [] } = {}, users: _users = {} } = await Api.history.searchHistory({
+      const { data: { record = [], total = 0 } = {}, users: _users = {} } = await Apis.history.searchHistory({
+        data: {
           current: 1,
-          size: total,
+          size: 100,
           id: [id],
           type: HistoryRecordType.MARKER,
           sort: ['updateTime-'],
+        },
+      })
+
+      if (total > 100) {
+        const { data: { record = [] } = {}, users: _users = {} } = await Apis.history.searchHistory({
+          data: {
+            current: 1,
+            size: total,
+            id: [id],
+            type: HistoryRecordType.MARKER,
+            sort: ['updateTime-'],
+          },
         })
         const users = new Map(Object.entries(_users))
         return { record, users }
@@ -81,7 +85,7 @@ export const useMarkerHistory = (markerVo: Ref<API.MarkerVo>) => {
   const users = computed(() => data.value.users)
 
   const historyContents = computed(() => data.value.record.map(({ content, ...rest }) => {
-    const oldContent = JSON.parse(content ?? '{}') as API.MarkerVo
+    const oldContent = JSON.parse(content ?? '{}') as MarkerVo
     return {
       ...rest,
       content,

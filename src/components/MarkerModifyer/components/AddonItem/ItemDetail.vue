@@ -1,11 +1,12 @@
 <script lang="ts" setup>
+import type { AreaVo, ItemVo } from '@/api/alova/globals'
 import { AppItemSelecter } from '@/components'
 
 defineProps<{
-  isAreaDisabled?: (area: API.AreaVo) => boolean
+  isAreaDisabled?: (area: AreaVo) => boolean
 }>()
 
-const modelValue = defineModel<API.ItemVo[]>({
+const modelValue = defineModel<ItemVo[]>({
   required: false,
   default: () => [],
 })

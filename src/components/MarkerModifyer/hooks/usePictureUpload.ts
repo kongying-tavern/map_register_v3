@@ -1,16 +1,13 @@
-import type { AxiosRequestConfig } from 'axios'
+import type { MarkerVo } from '@/api/alova/globals'
 import dayjs from 'dayjs'
 import { useUserStore } from '@/stores'
-import { getDigest, request } from '@/utils'
+import { getDigest } from '@/utils'
 
 /** 图片上传 hook */
 export const usePictureUpload = () => {
   const userStore = useUserStore()
 
-  /**
-   * @note 不要使用 Api.resource.uploadImage，该接口生成存在 bug
-   */
-  const uploadImage = (body: { file?: File, filePath?: string }, options?: AxiosRequestConfig) => {
+  const uploadImage = async (body: { file?: File, filePath?: string }) => {
     const formData = new FormData()
 
     const { file, filePath } = body
@@ -20,21 +17,23 @@ export const usePictureUpload = () => {
     formData.append('file', file)
     formData.append('filePath', filePath)
 
-    return request<API.RResourceUploadVo>('/api/res/upload/image', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'multipart/form-data',
+    const res = await Apis.resource.uploadImage({
+      data: {
+        file,
+        uploadVo: {
+          filePath,
+        },
       },
-      data: formData,
-      ...options,
     })
+
+    return res
   }
 
   /**
    * 检测 picture 是否为数据地址，是则处理图片上传逻辑
    * @note 该函数可能会修改对象属性值
    */
-  const tryUploadPicture = async (form: API.MarkerVo) => {
+  const tryUploadPicture = async (form: MarkerVo) => {
     if (!form.picture?.toLowerCase().startsWith('blob:'))
       return
 

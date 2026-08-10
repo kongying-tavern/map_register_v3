@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { InternalItemData } from './AddonItem/types'
+import type { AreaVo, MarkerVo } from '@/api/alova/globals'
 import type { ElFormType } from '@/shared'
 import { WinDialog, WinDialogFooter, WinDialogTabPanel, WinDialogTitleBar } from '@/components'
 import { HiddenFlagEnum, specialMask } from '@/shared'
@@ -16,7 +17,7 @@ import AddonVideo from './AddonVideo.vue'
 
 const props = defineProps<{
   /** 双向绑定点位表单数据 */
-  modelValue: API.MarkerVo
+  modelValue: MarkerVo
   /** 加载状态 */
   loading?: boolean
   /** 标题 */
@@ -24,7 +25,7 @@ const props = defineProps<{
 }>()
 
 const emits = defineEmits<{
-  'update:modelValue': [API.MarkerVo]
+  'update:modelValue': [MarkerVo]
   'close': []
 }>()
 
@@ -33,7 +34,7 @@ const itemStore = useItemStore()
 const accessStore = useAccessStore()
 
 /** 表单数据 */
-const form = ref<API.MarkerVo>({
+const form = ref<MarkerVo>({
   ...props.modelValue,
   picture: props.modelValue.picture ?? '',
   extra: props.modelValue.extra ?? {},
@@ -45,7 +46,7 @@ watch(form, () => {
   emits('update:modelValue', form.value)
 }, { deep: true })
 
-const handleUsingHistory = (history: API.MarkerVo) => {
+const handleUsingHistory = (history: MarkerVo) => {
   Object.assign(form.value, history)
 }
 
@@ -63,7 +64,7 @@ const formRef = ref<ElFormType>()
 // ==================== 点位 extra ====================
 const markerExtraStore = useMarkerExtraStore()
 
-const itemsGroup = ref<Map<API.AreaVo, InternalItemData[]>>(new Map())
+const itemsGroup = ref<Map<AreaVo, InternalItemData[]>>(new Map())
 
 const areaCode = ref((() => {
   const first = form.value.itemList?.[0]
@@ -95,7 +96,7 @@ const availableExtraConfig = computed(() => {
       })
     }
     return Object.assign(config, rest)
-  }, {} as API.ExtraConfig)
+  }, {} as DTO.ExtraConfig)
   return config
 })
 
@@ -104,7 +105,7 @@ const availableExtraConfig = computed(() => {
 // 假如用户设置点位为海岛层级，然后修改了地区
 // 此时海岛的层级选项会被筛选掉，但实际值未变，导致用户无法去掉点位的海岛层级
 watch(() => availableExtraConfig.value, (config) => {
-  const extraData = (toValue(form).extra ?? {}) as API.MarkerExtra
+  const extraData = (toValue(form).extra ?? {}) as DTO.MarkerExtra
   const { region_levels, is_underground } = extraData.underground ?? {}
   if (region_levels) {
     const { levels = [] } = config.underground ?? {}
@@ -149,7 +150,7 @@ watch(() => isIconOverridable.value, (avaliable) => {
   if (!form.value.extra || avaliable) {
     return
   }
-  Reflect.set((form.value.extra as API.MarkerExtra), 'iconOverride', null)
+  Reflect.set((form.value.extra as DTO.MarkerExtra), 'iconOverride', null)
 })
 
 // ==================== 拓展面板 ====================

@@ -1,9 +1,10 @@
+import type { HistoryVo, SysUserSmallVo } from '@/api/alova/globals'
 import { Chart } from '@antv/g2'
 import { useTheme } from '@/hooks'
 
 interface HistoryChartHookOptions {
-  data: Ref<(API.HistoryVo & { diffs: Set<string> })[]>
-  users: Ref<Map<string, API.SysUserSmallVo>>
+  data: Ref<(HistoryVo & { diffs: Set<string> })[]>
+  users: Ref<Map<string, SysUserSmallVo>>
 }
 
 export const useHistoryChart = (element: Ref<HTMLElement | undefined>, options: HistoryChartHookOptions) => {

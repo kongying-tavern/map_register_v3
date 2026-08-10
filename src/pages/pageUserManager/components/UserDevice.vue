@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { SysUserDeviceVo, SysUserVo } from '@/api/alova/globals'
 import dayjs from 'dayjs'
 import { UAParser } from 'ua-parser-js'
 import { PgUnit, usePagination } from '@/hooks'
@@ -8,7 +9,7 @@ import { isUnknown } from '../utils'
 import DeviceCard from './DeviceCard.vue'
 
 const props = defineProps<{
-  data: API.SysUserVo
+  data: SysUserVo
 }>()
 
 const panelLoading = defineModel<boolean>('loading', {
@@ -28,7 +29,7 @@ const { deviceList, loading, refresh, onSuccess: onListFetchSuccess } = useUserD
   pagination,
 })
 
-const selectedDeviceData = ref<API.SysUserDeviceVo>()
+const selectedDeviceData = ref<SysUserDeviceVo>()
 
 onListFetchSuccess(({ record: [first] = [] }) => {
   if (selectedDeviceData.value || !first)
@@ -44,7 +45,7 @@ onEditSuccess(() => {
   refresh()
 })
 
-const handleSelectDevice = (data: API.SysUserDeviceVo) => {
+const handleSelectDevice = (data: SysUserDeviceVo) => {
   if (editLoading.value)
     return
   selectedDeviceData.value = data
@@ -117,7 +118,7 @@ const ua = computed(() => {
           <el-radio-group
             :model-value="selectedDeviceData.status"
             size="small"
-            @update:model-value="v => submit(v)"
+            @update:model-value="v => submit(v as SysUserDeviceVo['status'])"
           >
             <el-radio-button :value="DeviceStatus.UNKNOWN">
               默认

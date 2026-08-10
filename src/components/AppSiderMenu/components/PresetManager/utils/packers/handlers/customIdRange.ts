@@ -1,4 +1,4 @@
-import type { ValuePacker } from './types'
+import type { ValuePacker } from '../types'
 import type { MAFValue, MAFValueString } from '@/stores/types'
 import { ByteReader, ByteWriter } from '@/utils'
 

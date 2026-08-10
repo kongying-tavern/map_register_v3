@@ -1,12 +1,12 @@
+import type { IconVo } from '@/api/alova/globals'
 import dayjs from 'dayjs'
 import { ElMessage } from 'element-plus'
-import Api from '@/api/api'
 import Resource from '@/api/resource'
 import { useFetchHook } from '@/hooks'
 import { useIconStore } from '@/stores'
 import { getDigest, toBlob } from '@/utils'
 
-export const useIconCreate = (form: Ref<API.IconVo>, options: IconCreateOptions = {}) => {
+export const useIconCreate = (form: Ref<IconVo>, options: IconCreateOptions = {}) => {
   const { type = 'png' } = options
 
   const iconStore = useIconStore()
@@ -52,7 +52,7 @@ export const useIconCreate = (form: Ref<API.IconVo>, options: IconCreateOptions 
         /** @example '2025-09-09/abcdefg.png' */
         const filePath = `${folderName}/${fileName}`
         // 如果资源已经存在，直接返回已存在的链接
-        const { data } = await Api.resource.getResource({ filePath })
+        const { data } = await Apis.resource.getResource({ params: { filePath } })
         if (data?.fileUrl)
           return { variant, url: data.fileUrl }
         // 资源不存在，上传资源

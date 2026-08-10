@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { InternalItemData } from './types'
+import type { AreaVo, ItemVo } from '@/api/alova/globals'
 import { formItemContextKey, useFormItem } from 'element-plus'
 import { useAreaStore, useItemStore, useItemTypeStore } from '@/stores'
 import { AddonTeleporter } from '..'
@@ -7,8 +8,8 @@ import ItemDetail from './ItemDetail.vue'
 import ItemSubSummary from './ItemSubSummary.vue'
 
 const emits = defineEmits<{
-  removeArea: [API.AreaVo]
-  addArea: [API.AreaVo]
+  removeArea: [AreaVo]
+  addArea: [AreaVo]
   active: []
 }>()
 
@@ -26,12 +27,12 @@ const modelValue = defineModel<InternalItemData[]>('modelValue', {
   default: () => [],
 })
 
-const itemsGroup = defineModel<Map<API.AreaVo, InternalItemData[]>>('itemsGroup', {
+const itemsGroup = defineModel<Map<AreaVo, InternalItemData[]>>('itemsGroup', {
   required: false,
   default: () => new Map(),
 })
 
-const deleteItem = (item: API.ItemVo) => {
+const deleteItem = (item: ItemVo) => {
   const area = areaStore.areaIdMap.get(item.areaId!)
   if (!area)
     return
@@ -82,7 +83,7 @@ watch(itemList, () => formItem?.validate('change')?.catch(() => false))
 
 const isAreaDisabled = computed(() => {
   const areaSet = new Set([...itemsGroup.value.keys()].map(area => area.code!))
-  return (area: API.AreaVo) => area.code !== areaCode.value && areaSet.has(area.code!)
+  return (area: AreaVo) => area.code !== areaCode.value && areaSet.has(area.code!)
 })
 
 // 切换地区时使用新地区的同名物品进行替换
@@ -109,7 +110,7 @@ const changeArea = (newAreaCode: string, oldAreaCode: string) => {
     const items = map.get(itemName)!
     items.push(item)
     return map
-  }, new Map<string, API.ItemVo[]>())
+  }, new Map<string, ItemVo[]>())
 
   /** 构建旧地区物品名称与数量映射表 */
   const itemCountNameMap = (itemsGroup.value.get(oldArea) ?? []).reduce((map, item) => {
@@ -118,7 +119,7 @@ const changeArea = (newAreaCode: string, oldAreaCode: string) => {
   }, new Map<string, number>())
 
   /** 新地区物品分组 */
-  const newItemsGroup = new Map<API.AreaVo, InternalItemData[]>()
+  const newItemsGroup = new Map<AreaVo, InternalItemData[]>()
 
   // 用新地区替换旧地区，保持 map 内键的顺序不变
   itemsGroup.value.forEach((items, area) => {

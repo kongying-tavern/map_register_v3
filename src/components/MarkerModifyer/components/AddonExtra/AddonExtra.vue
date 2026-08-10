@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type * as API2 from '@/api/alova/globals'
+import type { IconOverride, MarkerExtraVo, MarkerItemLinkVo, Underground, V2_8_Island } from '@/api/alova/globals'
 import { Setting } from '@element-plus/icons-vue'
 import { useIconStore } from '@/stores'
 import { AddonTeleporter } from '..'
@@ -7,12 +7,12 @@ import { useAddonActive } from '../../hooks'
 import { OverrideIcon, RegionCommon, RegionIsland16, RegionIsland28 } from './components'
 
 const props = defineProps<{
-  config: API.ExtraConfig
-  itemList?: API.MarkerItemLinkVo[]
+  config: DTO.ExtraConfig
+  itemList?: MarkerItemLinkVo[]
   isIconOverridable?: boolean
 }>()
 
-const modelValue = defineModel<API2.MarkerExtraVo>('modelValue', {
+const modelValue = defineModel<MarkerExtraVo>('modelValue', {
   required: false,
   default: {},
 })
@@ -51,7 +51,7 @@ const tagParser: Record<string, (data: unknown) => TagInfo | TagInfo[]> = {
   'iconOverride': (data: unknown) => {
     if (typeof data !== 'object' || !data)
       return [] as TagInfo[]
-    const { id } = (data as API2.IconOverride) ?? {}
+    const { id } = (data as IconOverride) ?? {}
     if (!id)
       return [] as TagInfo[]
     const icon = useIconStore().idMap.get(id)
@@ -70,7 +70,7 @@ const tagParser: Record<string, (data: unknown) => TagInfo | TagInfo[]> = {
       region_levels: levels = [],
       is_underground: isUnderground,
       is_global: isGlobal,
-    } = (data as API2.Underground) ?? {}
+    } = (data as Underground) ?? {}
     if (!isUnderground)
       return []
     const defaultInfo = { type: '非地面', label: 'unknown' }
@@ -92,7 +92,7 @@ const tagParser: Record<string, (data: unknown) => TagInfo | TagInfo[]> = {
   '2_8_island': (data: unknown) => {
     if (typeof data !== 'object' || !data)
       return []
-    const { island_name: parentValue, island_state: children } = (data as API2.V2_8_Island) ?? {}
+    const { island_name: parentValue, island_state: children } = (data as V2_8_Island) ?? {}
     if (!parentValue)
       return []
     const defaultInfo = { type: '2.8 海岛', label: 'unknown' }
@@ -126,7 +126,7 @@ const tagParser: Record<string, (data: unknown) => TagInfo | TagInfo[]> = {
   },
 }
 
-const parseTags = (data: API2.MarkerExtraVo) => Object.entries(data).reduce((seed, [key, value]) => {
+const parseTags = (data: MarkerExtraVo) => Object.entries(data).reduce((seed, [key, value]) => {
   const parser = tagParser[key]
   if (!parser)
     return seed

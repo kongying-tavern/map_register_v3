@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import type { TweakConfigVo } from '@/api/alova/globals'
 import { AppTimeSelect } from '@/components'
 import { useRefreshTime } from '@/hooks'
 
-const modelValue = defineModel<Required<API.TweakConfigVo>['meta']>('modelValue', {
+const modelValue = defineModel<Required<TweakConfigVo>['meta']>('modelValue', {
   required: true,
   default: {},
 })
@@ -14,7 +15,7 @@ const time = computed<number>({
   set: (newTime) => {
     modelValue.value = {
       ...modelValue.value,
-      value: newTime,
+      value: newTime as unknown as object,
     }
   },
 })

@@ -1,5 +1,7 @@
+import type { MarkerItemLinkVo, MarkerVo } from '@/api/alova/globals'
+
 export class MarkerCollator {
-  static compare = (a: API.MarkerVo, b: API.MarkerVo) => {
+  static compare = (a: MarkerVo, b: MarkerVo) => {
     const differentKeys = new Set<string>()
 
     const checkDifferent = (key: string, condition: boolean) => {
@@ -21,7 +23,7 @@ export class MarkerCollator {
     return differentKeys
   }
 
-  private static isItemDifferent = (a: API.MarkerItemLinkVo[] = [], b: API.MarkerItemLinkVo[] = []) => {
+  private static isItemDifferent = (a: MarkerItemLinkVo[] = [], b: MarkerItemLinkVo[] = []) => {
     const itemCountMap = a.reduce((map, { itemId, count = 0 }) => map.set(itemId!, count), new Map<number, number>())
 
     b.forEach(({ itemId, count = 0 }) => {

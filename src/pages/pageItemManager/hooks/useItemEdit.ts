@@ -1,16 +1,16 @@
 import type { ItemDetailForm } from '../components'
-import type * as API2 from '@/api/alova/globals'
+import type { ItemVo } from '@/api/alova/globals'
 import { ElMessage } from 'element-plus'
 import { pick } from 'lodash'
 import { useFetchHook } from '@/hooks'
 import { useItemStore } from '@/stores'
 
 export interface ItemEditHookOptions {
-  initFormData?: () => API2.ItemVo
+  initFormData?: () => ItemVo
 }
 
 /** 只选择需要的字段 */
-const pickRequiredKeys = (item: API2.ItemVo): API2.ItemVo => pick(item, [
+const pickRequiredKeys = (item: ItemVo): ItemVo => pick(item, [
   'id',
   'name',
   'areaId',
@@ -26,19 +26,21 @@ const pickRequiredKeys = (item: API2.ItemVo): API2.ItemVo => pick(item, [
   'version',
 ])
 
-export const useItemEdit = (options: ItemEditHookOptions = {}) => {
+export const useItemEdit = (
+  detailFormRef: Ref<InstanceType<typeof ItemDetailForm> | null>,
+  options: ItemEditHookOptions = {},
+) => {
   const { initFormData } = options
 
   const itemStore = useItemStore()
 
   const { refresh: submit, onSuccess, onError, ...rest } = useFetchHook({
-    onRequest: async (item: API2.ItemVo) => {
+    onRequest: async (item: ItemVo) => {
       await itemStore.updateItem(pickRequiredKeys(item))
     },
   })
 
-  const detailFormRef = ref<InstanceType<typeof ItemDetailForm> | null>(null)
-  const formData = ref<API2.ItemVo>(initFormData?.() ?? {})
+  const formData = ref<ItemVo>(initFormData?.() ?? {})
 
   const handleSubmit = async () => {
     const isValid = await detailFormRef.value?.validate()

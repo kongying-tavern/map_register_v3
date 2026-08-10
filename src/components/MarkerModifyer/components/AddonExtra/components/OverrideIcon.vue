@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { IconVo } from '@/api/alova/globals'
 import { QuestionFilled, Search } from '@element-plus/icons-vue'
 import { ElButton, ElButtonGroup, ElIcon, ElInput, ElPopover, ElSlider } from 'element-plus'
 import { AppIconTagRenderer, AppVirtualTable } from '@/components'
@@ -17,7 +18,7 @@ const iconList = computed(() => {
   return iconStore.iconList.filter(({ tag = '' }) => tag.includes(queryText))
 })
 
-const modelValue = defineModel<API.MarkerExtra['iconOverride'] | undefined>({
+const modelValue = defineModel<DTO.MarkerExtra['iconOverride'] | undefined>({
   required: true,
 })
 
@@ -56,7 +57,7 @@ const marks = Object.fromEntries(Array.from({ length: 5 }).map((_, i) => {
   return [num, `${num}`]
 }))
 
-const toggleTag = (icon: API.IconVo) => {
+const toggleTag = (icon: IconVo) => {
   const value = toValue(modelValue)
   if (!value || value.id !== icon.id) {
     const [minZoom, maxZoom] = zoomRange.value

@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import type { SysUserVo } from '@/api/alova/globals'
 import { Chart } from '@antv/g2'
 import { lines } from '@antv/g-pattern'
 import { useTemplateRef } from 'vue'
-import Api from '@/api/api'
 import { useFetchHook, useTheme } from '@/hooks'
 import { DATA_START_TIME } from '@/shared/constant'
 import { useMarkerStore } from '@/stores'
@@ -18,7 +18,7 @@ const CHART_HEIGHT = 380
 const markerStore = useMarkerStore()
 const { isDark } = useTheme()
 
-const userMap = ref(new Map<number, API.SysUserVo>())
+const userMap = ref(new Map<number, SysUserVo>())
 const note = ref('完成')
 const containerRef = useTemplateRef('container')
 
@@ -59,7 +59,7 @@ const { refresh: updateUsers, onSuccess: onUpdateUsers } = useFetchHook({
       return ids
     }, [] as number[])
 
-    const missions: (() => Promise<API.SysUserVo>)[] = []
+    const missions: (() => Promise<SysUserVo>)[] = []
 
     let sum = 0
 
@@ -68,7 +68,11 @@ const { refresh: updateUsers, onSuccess: onUpdateUsers } = useFetchHook({
         return
       missions.push(async () => {
         try {
-          const { data = { id: userId } } = await Api.user.getUserInfo({ userId })
+          const { data = { id: userId } } = await Apis.user.getUserInfo({
+            pathParams: {
+              userId,
+            },
+          })
           return data
         }
         catch {
@@ -87,7 +91,7 @@ const { refresh: updateUsers, onSuccess: onUpdateUsers } = useFetchHook({
 
     return userList.reduce((map, user) => {
       return map.set(user.id!, user)
-    }, new Map<number, API.SysUserVo>())
+    }, new Map<number, SysUserVo>())
   },
 })
 

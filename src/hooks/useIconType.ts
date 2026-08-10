@@ -1,17 +1,19 @@
 import type { Props } from 'element-plus/es/components/select-v2/src/useProps.mjs'
 import type Node from 'element-plus/es/components/tree/src/model/node.mjs'
 import type { TreeOptionProps } from 'element-plus/es/components/tree/src/tree.type.mjs'
-import Api from '@/api/api'
+import type { IconTypeVo } from '@/api/alova/globals'
 
-const cache = ref<Map<number, API.IconTypeVo[]>>(new Map())
+const cache = ref<Map<number, IconTypeVo[]>>(new Map())
 
 const getIconTypeList = async (parentId = -1, size = 128, useCache = false) => {
   if (useCache && cache.value.has(parentId))
     return cache.value.get(parentId)!
-  const { data: { record = [] } = {} } = await Api.iconType.listIconType({
-    typeIdList: [parentId],
-    current: 1,
-    size,
+  const { data: { record = [] } = {} } = await Apis.icon_type.listIconType({
+    data: {
+      typeIdList: [parentId],
+      current: 1,
+      size,
+    },
   })
   cache.value.set(parentId, record)
   return record
@@ -28,7 +30,7 @@ export const useIconType = (useCache = true) => {
   const loading = ref(false)
 
   /** 懒加载树形类型列表 */
-  const load = (node: Node, resolve: (data: API.IconTypeVo[]) => void) => {
+  const load = (node: Node, resolve: (data: IconTypeVo[]) => void) => {
     loading.value = true
     if (node.level === 0) {
       getIconTypeList(-1, 128, useCache)
@@ -39,7 +41,7 @@ export const useIconType = (useCache = true) => {
         })
       return
     }
-    const { id } = node.data as API.IconTypeVo
+    const { id } = node.data as IconTypeVo
     if (id === undefined) {
       loading.value = false
       resolve([])
