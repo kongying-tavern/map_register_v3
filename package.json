@@ -14,7 +14,7 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview --mode development",
     "preview:stage": "vite preview --mode stage",
-    "type-check": "vue-tsc --build --force",
+    "typecheck": "vue-tsc --build --force",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "proto:build": "pbjs -t static-module -w es6 -o src/api/protobuf/compiled.js src/api/protobuf/*.proto && pbts -o src/api/protobuf/compiled.d.ts src/api/protobuf/compiled.js"
