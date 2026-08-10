@@ -23,7 +23,7 @@ const tab = ref('archive')
 </script>
 
 <template>
-  <div class="user-info-dialog">
+  <div class="user-info-dialog overflow-hidden">
     <div class="absolute right-[-48px] top-[2px]">
       <GSButton icon="cancel" theme="plain" style="--icon-color: #816D51" @click="() => emits('close')" />
     </div>
@@ -34,8 +34,8 @@ const tab = ref('archive')
       <ArchiveAnalyser />
     </div>
 
-    <div class="user-action">
-      <GSTab v-model="tab" :tabs="tabs" divider class="h-full">
+    <div class="user-action overflow-hidden">
+      <GSTab v-model="tab" :tabs="tabs" divider class="h-full overflow-hidden">
         <template #archive>
           <ArchiveSelector />
         </template>
@@ -122,6 +122,5 @@ const tab = ref('archive')
   width: 540px;
   height: calc(100% - 64px);
   animation: user-action-anime-in 400ms forwards;
-  overflow: hidden;
 }
 </style>

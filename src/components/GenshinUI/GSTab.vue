@@ -21,7 +21,7 @@ const emits = defineEmits<{
 
 <template>
   <div v-if="tabs.length" class="gs-tab" :class="[`gs-tab--size-${size}`, `gs-tab--theme-${theme}`]">
-    <div class="gs-tab-title">
+    <div class="gs-tab-title shrink-0">
       <div
         v-for="tab in tabs"
         :key="tab.value"
@@ -35,7 +35,7 @@ const emits = defineEmits<{
 
     <GSDivider v-if="divider" />
 
-    <div class="gs-tab-content">
+    <div class="gs-tab-content overflow-hidden">
       <KeepAlive>
         <template v-for="tab in tabs">
           <slot v-if="tab.value === modelValue" :key="tab.value" :name="tab.value" />

@@ -54,6 +54,7 @@ const { refresh: updateUserInfo, loading } = useFetchHook({
   <div class="h-full flex flex-col justify-center items-center overflow-hidden">
     <el-form
       ref="formRef"
+      class="shrink-0"
       style="
         --el-form-label-font-size: 18px;
         width: 370px;
