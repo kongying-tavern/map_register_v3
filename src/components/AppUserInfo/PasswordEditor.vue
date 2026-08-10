@@ -76,13 +76,13 @@ onSuccess(() => {
       :rules="rules"
     >
       <el-form-item label="旧密码" prop="oldPassword">
-        <GSInput v-model="form.oldPassword" style="width: 100%" />
+        <GSInput v-model="form.oldPassword" type="password" style="width: 100%" />
       </el-form-item>
       <el-form-item label="新密码" prop="password">
-        <GSInput v-model="form.password" style="width: 100%" />
+        <GSInput v-model="form.password" type="password" style="width: 100%" />
       </el-form-item>
       <el-form-item label="确认密码" prop="password">
-        <GSInput v-model="form.repeat" style="width: 100%" />
+        <GSInput v-model="form.repeat" type="password" style="width: 100%" />
       </el-form-item>
     </el-form>
 

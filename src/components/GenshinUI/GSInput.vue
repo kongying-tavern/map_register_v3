@@ -3,6 +3,7 @@ import type { Ref } from 'vue'
 
 export interface GSInputProps {
   modelValue?: string
+  type?: 'text' | 'password'
   disabled?: boolean
   placeholder?: string
   autofocus?: boolean
@@ -16,6 +17,7 @@ export interface GSInputEmits {
 
 const props = withDefaults(defineProps<GSInputProps>(), {
   modelValue: '',
+  type: 'text',
   disabled: false,
 })
 const emits = defineEmits<GSInputEmits>()
@@ -65,7 +67,7 @@ onMounted(() => {
     <div v-if="$slots.prepend" class="gs-input__prepend">
       <slot name="prepend" />
     </div>
-    <input ref="nativeInputRef" :placeholder="placeholder" :disabled="disabled" class="gs-input__internal">
+    <input ref="nativeInputRef" :type="type" :placeholder="placeholder" :disabled="disabled" class="gs-input__internal">
     <div v-if="$slots.append" class="gs-input__append">
       <slot name="append" />
     </div>
