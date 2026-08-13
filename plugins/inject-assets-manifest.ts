@@ -20,7 +20,9 @@ export const injectAssetsManifest = (): Plugin => {
       if (!bundle)
         return html
 
-      const assets = Object.values(bundle).map(chunk => `${base}${chunk.fileName}`)
+      const assets = Object.values(bundle)
+        .filter(chunk => !chunk.fileName.endsWith('.wasm'))
+        .map(chunk => `${base}${chunk.fileName}`)
       const script = `<script>window.__ASSETS_MANIFEST__ = ${JSON.stringify(assets)};</script>`
       return html.replace('</head>', `${script}\n</head>`)
     },
