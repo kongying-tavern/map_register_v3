@@ -40,7 +40,9 @@ export const useRoleWatch = (options: UseRoleWatchOptions = {}) => {
       return
     await userStore.refreshUserInfo()
     const newRoleId = userStore.info?.roleId
-    if (prevRoleId !== undefined && prevRoleId !== newRoleId) {
+    // 仅当新旧角色都存在且不同时才触发变更事件
+    // 排除「从登出态（无角色）恢复登录」和「角色变为空」等非典型场景
+    if (prevRoleId !== undefined && newRoleId !== undefined && prevRoleId !== newRoleId) {
       roleChangeHook.trigger({ oldRoleId: prevRoleId, newRoleId })
     }
     prevRoleId = newRoleId
