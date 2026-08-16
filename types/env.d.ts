@@ -20,20 +20,8 @@ interface ImportMetaEnv {
   /** 路由创建历史记录的模式 */
   readonly VITE_ROUTER_MODE: 'history' | 'hash' | 'memory'
 
-  /** @dev 顶部指示环境的置顶文本 */
-  readonly VITE_ENV_BANNER: string
-
-  /** @dev 开发信息的可见性 */
-  readonly VITE_DEV_INFO_VISIBLE: 'on' | 'off'
-
   /** 个人信息面板 banner 展示图 */
   readonly VITE_BANNER_IMAGE: string
-
-  /**
-   * token 有效期小于多长时刷新（秒）
-   * @default 600
-   */
-  readonly VITE_TOKEN_REFRESH_REST_TIME: number
 
   /** @dev 下自动填充用户名 */
   readonly VITE_AUTO_COMPLETE_USERNAME: string
