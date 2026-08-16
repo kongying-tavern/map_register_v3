@@ -7,7 +7,7 @@ import { defer, lastValueFrom, retry } from 'rxjs'
 import Oauth from '@/api/oauth'
 import { useFetchHook } from '@/hooks'
 import { ROLE_MASK_MAP, USERAUTH_KEY } from '@/shared'
-import { Logger } from '@/utils'
+import { isNetworkError, Logger } from '@/utils'
 
 interface AppUserAuth {
   refreshToken: string
@@ -168,7 +168,10 @@ export const useUserStore = defineStore('global-user', () => {
     })
   }
 
-  onFetchInfoError(() => {
+  onFetchInfoError((err) => {
+    // 纯网络错误不触发登出，避免因 VPN / 网络波动导致用户被误踢下线
+    if (isNetworkError(err))
+      return
     logout()
   })
 

@@ -5,6 +5,7 @@ import axios from 'axios'
 import { upperFirst } from 'lodash'
 import { useUserStore } from '@/stores'
 import { Logger } from '@/utils'
+import { isNetworkError } from './isNetworkError'
 
 const logger = new Logger('Axios')
 
@@ -40,6 +41,11 @@ const onResponseFulfilled = (response: AxiosResponse<any, any>) => {
 
 instance.interceptors.response.use(onResponseFulfilled, (error: AxiosError) => {
   logger.error('Response Error:', error)
+
+  // 纯网络错误不触发登出，避免因 VPN / 网络波动导致用户被误踢下线
+  if (isNetworkError(error))
+    return Promise.reject(error)
+
   const { status, data } = error.response ?? {}
   switch (status) {
     case 401:
