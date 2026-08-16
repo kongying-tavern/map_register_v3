@@ -20,9 +20,7 @@ export const usePictureUpload = () => {
     const res = await Apis.resource.uploadImage({
       data: {
         file,
-        uploadVo: {
-          filePath,
-        },
+        filePath,
       },
     })
 
