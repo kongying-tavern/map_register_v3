@@ -55,7 +55,6 @@ export async function token(body: OauthAPI.SysTokenVO) {
   }
   return await oauthInstance.Post<OauthAPI.SysToken>('/oauth/token', form, {
     headers: {
-      'Content-Type': 'multipart/form-data',
       'Authorization': basicAuth,
     },
   })
