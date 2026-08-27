@@ -131,5 +131,14 @@ export default defineConfig(async ({ mode }) => {
     },
 
     plugins,
+
+    optimizeDeps: {
+      // 在启动时预打包这些仅被 Web Worker 动态引用的依赖，
+      // 避免运行时首次加载 worker 时触发重新优化导致整页刷新
+      include: [
+        'socket.io-client',
+        '7z-wasm',
+      ],
+    },
   }
 })
