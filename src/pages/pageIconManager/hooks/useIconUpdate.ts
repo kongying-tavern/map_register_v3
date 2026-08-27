@@ -1,7 +1,7 @@
 import type { IconVo } from '@/api/alova/globals'
 import dayjs from 'dayjs'
 import { ElMessage } from 'element-plus'
-import Resource from '@/api/resource'
+import { getOrUploadImage } from '@/api/resource/upload'
 import { useFetchHook } from '@/hooks'
 import { useIconStore } from '@/stores/icon'
 import { getDigest, toBlob } from '@/utils'
@@ -70,21 +70,8 @@ export const useIconUpdate = (form: Ref<IconVo>, options: IconUpdateOptions = {}
         const folderName = time.format('YYYY-MM-DD')
         /** @example '2025-09-09/abcdefg.png' */
         const filePath = `${folderName}/${fileName}`
-        // 如果资源已经存在，直接返回已存在的链接
-        const { data } = await Apis.resource.getResource({ params: { filePath } })
-        if (data?.fileUrl)
-          return { variant, url: data.fileUrl }
-        // 资源不存在，上传资源
-        const file = new File([blob], fileName, { type: blob.type })
-        const {
-          message = `上传 ${filePath} 失败`,
-          data: {
-            fileUrl = '',
-          } = {},
-        } = await Resource.image.upload({ file, filePath })
-        if (!fileUrl)
-          throw new Error(message)
-        return { variant, url: fileUrl }
+        const url = await getOrUploadImage({ file: new File([blob], fileName, { type: blob.type }), filePath })
+        return { variant, url }
       })
 
       const urls = await Promise.all(mission)
