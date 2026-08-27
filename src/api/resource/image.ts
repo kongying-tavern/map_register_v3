@@ -1,9 +1,8 @@
-import type { AxiosRequestConfig } from 'axios'
 import type { RResourceUploadVo } from '../alova/globals'
-import { request } from '@/utils'
+import { alovaInstance } from '../alova'
 
 /** 上传图片 上传图片至图床并返回访问地址 PUT /api/res/upload/image */
-export const upload = (body: ResourceAPI.UploadResourceVo, options?: AxiosRequestConfig) => {
+export const upload = (body: ResourceAPI.UploadResourceVo) => {
   const formData = new FormData()
 
   for (const key in body) {
@@ -13,12 +12,9 @@ export const upload = (body: ResourceAPI.UploadResourceVo, options?: AxiosReques
     formData.append(key, item)
   }
 
-  return request<RResourceUploadVo>('/api/res/upload/image', {
-    method: 'PUT',
+  return alovaInstance.Put<RResourceUploadVo>('/api/res/upload/image', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
-    data: formData,
-    ...options,
   })
 }

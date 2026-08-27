@@ -1,4 +1,4 @@
-import type { MarkerVo, TweakConfigVo } from '@/api/alova/globals'
+import type { MarkerVo, TweakConfigMetaVo, TweakConfigVo } from '@/api/alova/globals'
 import type { GSMarkerInfo } from '@/packages/map'
 
 export type ModifierConstructorOptions<T = void> = {
@@ -19,9 +19,9 @@ export type ModifierConstructorOptions<T = void> = {
   /** 修改类型 */
   type: string
   /** 用于自定义修改行为，当设置此值时，将会跳过通过接口进行的修改 */
-  customModify?: (markers: MarkerVo[], meta: API.TweakConfigMetaVo) => void | Promise<void>
+  customModify?: (markers: MarkerVo[], meta: TweakConfigMetaVo) => void | Promise<void>
   /** 将会覆盖 Modifier 的 getValue 行为 */
-  customGetValue?: (data: GSMarkerInfo, isOld: boolean, meta?: API.TweakConfigMetaVo) => unknown
+  customGetValue?: (data: GSMarkerInfo, isOld: boolean, meta?: TweakConfigMetaVo) => unknown
 } & T
 
 interface Strategy<T> {
@@ -38,7 +38,7 @@ export abstract class Modifier<T = void> {
   typeLabel: string
   modify: Strategy<GSMarkerInfo>['modify']
 
-  getValue = (data: GSMarkerInfo, isOld: boolean, meta?: API.TweakConfigMetaVo) => {
+  getValue = (data: GSMarkerInfo, isOld: boolean, meta?: TweakConfigMetaVo) => {
     const { field, customGetValue } = this.options
     if (customGetValue)
       return customGetValue(data, isOld, meta)
