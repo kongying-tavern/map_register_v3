@@ -46,13 +46,23 @@ export const usePictureUpload = () => {
     const thumbImage = await (await fetch(thumbUrl)).blob()
     const thumbImageName = `${await getDigest(thumbImage, 'SHA-256')}.png`
 
-    // 上传缩略图
-    const { data: { fileUrl } = {} } = await uploadImage({
-      file: new File([thumbImage], thumbImageName, { type: 'image/png', lastModified }),
-      filePath: `${folder}/${thumbImageName}`,
-    })
+    const file = new File([thumbImage], thumbImageName, { type: 'image/png', lastModified })
+    const filePath = `${folder}/${thumbImageName}`
 
-    form.picture = fileUrl
+    // 如果资源已经存在，直接复用已存在的链接
+    const { data: existing } = await Apis.resource.getResource({ params: { filePath } })
+    const existingUrl = existing?.fileUrl
+    if (!existingUrl) {
+      const { data: { fileUrl } = {} } = await uploadImage({ file, filePath })
+      if (!fileUrl)
+        throw new Error(`上传 ${filePath} 失败`)
+
+      form.picture = fileUrl
+    }
+    else {
+      form.picture = existingUrl
+    }
+
     form.pictureCreatorId = userStore.info?.id
   }
 
