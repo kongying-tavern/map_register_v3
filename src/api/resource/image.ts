@@ -12,9 +12,5 @@ export const upload = (body: ResourceAPI.UploadResourceVo) => {
     formData.append(key, item)
   }
 
-  return alovaInstance.Put<RResourceUploadVo>('/api/res/upload/image', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  })
+  return alovaInstance.Put<RResourceUploadVo>('/api/res/upload/image', formData)
 }
