@@ -19,6 +19,7 @@ export const useUserList = (options: UserListHookOptions) => {
   // 搜索
   const filterKey = ref('nickname')
   const filterValue = ref('')
+  const filterRoleIds = ref<number[]>([])
 
   const { refresh: updateUserList, onSuccess, onError, ...rest } = useFetchHook({
     immediate: true,
@@ -27,6 +28,8 @@ export const useUserList = (options: UserListHookOptions) => {
       const { key: sortKey, type: sortType } = toValue(sortInfo)
       const filter = {}
       _.set(filter, filterKey.value, filterValue.value)
+      if (filterRoleIds.value.length)
+        _.set(filter, 'roleIds', filterRoleIds.value)
       const res = await Apis.user.getUserList({
         data: {
           ...filter,
@@ -60,6 +63,7 @@ export const useUserList = (options: UserListHookOptions) => {
     userList,
     filterKey,
     filterValue,
+    filterRoleIds,
     updateUserList,
     resetCurrent,
     onError,

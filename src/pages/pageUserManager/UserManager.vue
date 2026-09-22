@@ -23,6 +23,7 @@ const {
   loading,
   filterKey,
   filterValue,
+  filterRoleIds,
   updateUserList,
   resetCurrent,
 } = useUserList({
@@ -52,6 +53,7 @@ const openUserEditor = (data: SysUserVo) => DialogService
       v-model="filterValue"
       v-model:sort-info="sortInfo"
       v-model:filter-key="filterKey"
+      v-model:filter-role-ids="filterRoleIds"
       @change="resetCurrent"
     >
       <template #footer>

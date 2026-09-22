@@ -1,9 +1,12 @@
 <script lang="ts" setup>
 import { ArrowDown, CircleCheck, Search, Sort } from '@element-plus/icons-vue'
+import { useUserStore } from '@/stores/user'
 
 const emits = defineEmits<{
   change: []
 }>()
+
+const userStore = useUserStore()
 
 const filterValue = defineModel<string>('modelValue', {
   required: true,
@@ -12,6 +15,8 @@ const filterValue = defineModel<string>('modelValue', {
 const filterKey = defineModel<string>('filterKey', {
   required: true,
 })
+
+const filterRoleIds = defineModel<number[]>('filterRoleIds')
 
 const sortInfo = defineModel<Record<string, string>>('sortInfo', {
   required: true,
@@ -35,6 +40,15 @@ const handleSortCommand = (command: string) => {
 <template>
   <div class="col-span-3 flex justify-end items-center p-2 border-b-[1px] border-[var(--el-border-color-lighter)]">
     <div class="flex gap-1">
+      <el-select v-model="filterRoleIds" multiple clearable collapse-tags placeholder="角色" style="width: 320px" @change="() => $emit('change')">
+        <el-option
+          v-for="role in userStore.roleList"
+          :key="role.id!"
+          :label="role.name"
+          :value="role.id!"
+        />
+      </el-select>
+
       <el-select v-model="filterKey" style="width: 130px" @change="() => $emit('change')">
         <el-option label="昵称" value="nickname" />
         <el-option label="用户名" value="username" />
