@@ -108,7 +108,7 @@ const ua = computed(() => {
           登录时间
         </div>
         <div class="info-content col-span-3">
-          {{ dayjs(selectedDeviceData.lastLoginTime).format('YYYY-MM-DD HH:mm:ss') }}
+          {{ dayjs(selectedDeviceData.createTime).format('YYYY-MM-DD HH:mm:ss') }}
         </div>
 
         <div class="info-label">

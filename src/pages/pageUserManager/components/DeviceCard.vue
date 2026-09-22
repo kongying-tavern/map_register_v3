@@ -40,25 +40,22 @@ const statusLabel = computed(() => {
         <el-tag
           v-if="statusLabel"
           :type="statusLabel.type"
+          disable-transitions
           size="small"
           class="ml-[.5]"
-          round
         >
           {{ statusLabel.label }}
         </el-tag>
-        {{ isUnknown(ua.os) ? 'unknown' : `${ua.os.name} ${ua.os.version}` }}
-      </div>
-      <div>
-        {{ isUnknown(ua.browser) ? 'unknown' : `${ua.browser.name} ${ua.browser.version}` }}
+        {{ isUnknown(ua.os) ? '未知设备' : `${ua.os.name} ${ua.os.version}` }}
       </div>
     </div>
 
     <div class="flex-1 text-right">
       <div>
-        {{ data.lastLoginTime ? dayjs(data.lastLoginTime).format('YYYY-MM-DD HH:mm:ss') : '' }}
+        {{ data.createTime ? dayjs(data.createTime).format('YYYY-MM-DD HH:mm:ss') : '' }}
       </div>
       <div>
-        {{ data.ipRegion?.isUnknown ? '' : `${data.ipRegion?.country} ${data.ipRegion?.province} ${data.ipRegion?.city} ${data.ipRegion?.region} ${data.ipRegion?.isp}` }}
+        {{ data.ipRegion?.isUnknown ? '' : `${data.ipRegion?.country} ${data.ipRegion?.province}` }}
       </div>
     </div>
   </div>
