@@ -922,7 +922,7 @@ export interface SysUserSearchVo {
    * 角色ID
    * ---
    */
-  roleIds?: string[];
+  roleIds?: number[];
   /**
    * 排序条件
    * ---
@@ -8814,7 +8814,7 @@ declare global {
        *   // [items] start
        *   // [title] 角色ID
        *   // [items] end
-       *   roleIds?: string[]
+       *   roleIds?: number[]
        *   // [title] 排序条件
        *   // [items] start
        *   // [title] 排序条件
