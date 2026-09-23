@@ -1,7 +1,6 @@
-import type { SysUserVo } from '@/api/alova/globals'
+import type { SysUserSearchVo, SysUserVo } from '@/api/alova/globals'
 import type { PaginationState } from '@/hooks/usePagination'
 import { ElMessage } from 'element-plus'
-import _ from 'lodash'
 import { ref } from 'vue'
 import { useFetchHook } from '@/hooks'
 
@@ -10,6 +9,8 @@ interface UserListHookOptions {
   sortInfo: Ref<{ key: string, type: string }>
 }
 
+type SearchKey = keyof Pick<SysUserSearchVo, 'nickname' | 'username'>
+
 /** 列表数据与核心操作封装 */
 export const useUserList = (options: UserListHookOptions) => {
   const { pagination, sortInfo } = options
@@ -17,7 +18,7 @@ export const useUserList = (options: UserListHookOptions) => {
   const userList = ref<SysUserVo[]>([])
 
   // 搜索
-  const filterKey = ref('nickname')
+  const filterKey = ref<SearchKey>('nickname')
   const filterValue = ref('')
   const filterRoleIds = ref<number[]>([])
 
@@ -26,18 +27,15 @@ export const useUserList = (options: UserListHookOptions) => {
     onRequest: async () => {
       const { current, pageSize: size } = toValue(pagination)
       const { key: sortKey, type: sortType } = toValue(sortInfo)
-      const filter = {}
-      _.set(filter, filterKey.value, filterValue.value)
+      const data: SysUserSearchVo = {
+        current,
+        size,
+        sort: [`${sortKey}${sortType}`],
+      }
+      data[filterKey.value] = filterValue.value
       if (filterRoleIds.value.length)
-        _.set(filter, 'roleIds', filterRoleIds.value)
-      const res = await Apis.user.getUserList({
-        data: {
-          ...filter,
-          sort: [`${sortKey}${sortType}`],
-          current,
-          size,
-        },
-      })
+        data.roleIds = filterRoleIds.value
+      const res = await Apis.user.getUserList({ data })
       return res
     },
   })
