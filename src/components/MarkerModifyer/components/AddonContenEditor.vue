@@ -138,6 +138,7 @@ const textareaRows = computed(() => Math.floor((height.value - 20) / 21))
           <el-input
             ref="addonInputRef"
             v-model="internalBind"
+            class="font-['SarasaMono']"
             type="textarea"
             resize="none"
             :rows="textareaRows"
