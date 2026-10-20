@@ -44,6 +44,12 @@ interface ImportMetaEnv {
   /** WebSocket 地址 */
   readonly VITE_WS_BASE: string
 
+  /** @test 接口集成测试账号 */
+  readonly VITE_TEST_USERNAME: string
+
+  /** @test 接口集成测试口令 */
+  readonly VITE_TEST_PASSWORD: string
+
   /** @ignore */
   readonly APP_VERSION: string
   /** @ignore */
