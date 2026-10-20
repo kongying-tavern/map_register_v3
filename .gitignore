@@ -53,3 +53,4 @@ auto-imports.d.ts
 
 # 临时文件
 temp
+reference/
