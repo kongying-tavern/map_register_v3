@@ -10,6 +10,9 @@ node_modules
 dist
 build
 
+# 测试覆盖率报告
+coverage
+
 # visualizer files
 stats.html
 
