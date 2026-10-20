@@ -4,6 +4,7 @@ import { acceptHMRUpdate, defineStore } from 'pinia'
 import db from '@/database'
 import { useFetchHook } from '@/hooks'
 import { useUserStore } from '@/stores'
+import { Logger, messageFrom, sleep } from '@/utils'
 import { getDefaultPreference } from './types'
 
 export interface ArchiveBody {
@@ -30,6 +31,13 @@ export interface ArchiveSlotData extends SysArchiveSlotVo {
   archiveList: ArchiveData[]
   timestamp: number
 }
+
+/** 自动同步的去抖间隔（ms） */
+const SYNC_DEBOUNCE_DELAY = 300
+/** 同步失败后的重试间隔（ms），实际间隔会随尝试次数递增 */
+const SYNC_RETRY_DELAY = 2000
+/** 单次同步的最大尝试次数 */
+const SYNC_RETRY_LIMIT = 3
 
 const parserArchive = ({ archive = '', time = '', historyIndex }: SysArchiveVo, options: { slotIndex: number, userId: number }): ArchiveData => {
   const { Data_KYJG: datas = [], Time_KYJG: times = {}, Preference: preference = {} } = JSON.parse(archive) as {
@@ -68,6 +76,7 @@ const initArchive = (): ArchiveData => ({
 /** 存档管理 */
 export const useArchiveStore = defineStore('global-archive', () => {
   const userStore = useUserStore()
+  const logger = new Logger('存档同步')
 
   const currentArchive = ref<ArchiveData>(initArchive())
 
@@ -84,12 +93,113 @@ export const useArchiveStore = defineStore('global-archive', () => {
     Preference: currentArchive.value.body.Preference,
   })
 
-  /** 该 flag 用于跳过存档云同步 */
-  const escapeReactive = ref(false)
+  // ==================== 同步队列 ====================
+  /** 最近一次成功同步（本地 + 远程）的存档内容快照，用于跳过无变化的同步 */
+  let syncedSnapshot = getJSONArchive()
+  /** 自动同步的去抖定时器 */
+  let syncTimer: ReturnType<typeof setTimeout> | undefined
+  /** 串行同步链，保证同一时刻只有一个同步任务执行，避免远端写入乱序 */
+  let syncQueue: Promise<void> = Promise.resolve()
+
+  /** 捕获当前存档内容快照 */
+  const captureSnapshot = () => ({
+    json: getJSONArchive(),
+    timestamp: currentArchive.value.timestamp,
+  })
+
+  /** 将存档写入本地数据库 */
+  const persistLocalArchive = async (json: string, timestamp: number) => {
+    await db.userArchive.put({
+      // 未登录时存入 id 为 -1 的本地用户存档
+      id: userStore.validateToken() ? userStore.auth.userId! : -1,
+      body: JSON.parse(json),
+      timestamp,
+    })
+  }
+
+  /** 带重试地写入远程槽位 */
+  const saveRemoteArchive = async (slotIndex: number, json: string) => {
+    for (let attempt = 1; ; attempt += 1) {
+      try {
+        await Apis.archive.saveArchive({
+          pathParams: { slot_index: slotIndex },
+          data: json,
+        })
+        return
+      }
+      catch (err) {
+        if (attempt >= SYNC_RETRY_LIMIT)
+          throw err
+        await sleep(SYNC_RETRY_DELAY * attempt)
+      }
+    }
+  }
+
+  /**
+   * 执行一次同步
+   * @param force 忽略「内容未变化」的跳过判断，强制执行写入
+   * @param slotIndex 远程目标槽位
+   * @returns 是否同步成功，失败时保留脏数据以便重试
+   */
+  const performSync = async (force: boolean, slotIndex: number) => {
+    const { json, timestamp } = captureSnapshot()
+    // 内容未变化且非强制时跳过，避免重复写入
+    if (!force && json === syncedSnapshot)
+      return true
+    try {
+      await persistLocalArchive(json, timestamp)
+      // 仅登录且目标为有效远程槽位时才写入远程
+      if (slotIndex > 0 && slotIndex <= 5 && userStore.validateToken())
+        await saveRemoteArchive(slotIndex, json)
+      // 仅当同步期间内容未再变化时，才将该快照标记为已同步，避免覆盖加载后的新快照
+      if (captureSnapshot().json === json)
+        syncedSnapshot = json
+      return true
+    }
+    catch (err) {
+      logger.error(`槽位 ${slotIndex} 同步失败：${messageFrom(err)}`)
+      return false
+    }
+  }
+
+  /** 将同步任务排入串行队列，保证同步顺序执行，失败时自动重试 */
+  const enqueueSync = (force: boolean, slotIndex?: number) => {
+    if (syncTimer !== undefined) {
+      clearTimeout(syncTimer)
+      syncTimer = undefined
+    }
+    const target = slotIndex ?? currentArchive.value.slotIndex
+    const task = syncQueue.then(async () => {
+      const synced = await performSync(force, target)
+      // 同步失败时保留脏数据，稍后自动重试
+      if (!synced) {
+        syncTimer = setTimeout(() => {
+          syncTimer = undefined
+          enqueueSync(false)
+        }, SYNC_RETRY_DELAY)
+      }
+    })
+    syncQueue = task.catch(() => {})
+    return task
+  }
+
+  /** 延迟执行自动同步（去抖合并连续变更） */
+  const scheduleSync = (delay = SYNC_DEBOUNCE_DELAY) => {
+    if (syncTimer !== undefined)
+      clearTimeout(syncTimer)
+    syncTimer = setTimeout(() => {
+      syncTimer = undefined
+      enqueueSync(false)
+    }, delay)
+  }
+
+  /** 立即执行一次同步（跳过去抖等待） */
+  const flush = () => enqueueSync(false)
 
   const setArchive = (archiveData: ArchiveData) => {
-    escapeReactive.value = true
     currentArchive.value = archiveData
+    // 将加载的存档视为已同步，避免 watcher 将其回写
+    syncedSnapshot = getJSONArchive()
   }
 
   const { data: archiveSlots, loading: fetchLoading, refresh: fetchArchive } = useFetchHook({
@@ -150,41 +260,11 @@ export const useArchiveStore = defineStore('global-archive', () => {
     })
   }
 
-  /** 将当前存档存入指定的存档槽位 */
-  const saveArchiveToSlot = async (slotIndex = -1) => {
-    const { body, timestamp } = currentArchive.value
-    // 如果未登录，则存入 id 为 -1 的本地用户存档
-    if (!userStore.validateToken()) {
-      await db.userArchive.put({
-        id: -1,
-        body: JSON.parse(JSON.stringify({
-          Data_KYJG: [...body.Data_KYJG],
-          Time_KYJG: body.Time_KYJG,
-          Preference: body.Preference,
-        })),
-        timestamp,
-      })
-      return
-    }
-    // 同时存入本地数据库
-    await db.userArchive.put({
-      id: userStore.auth.userId!,
-      body: JSON.parse(JSON.stringify({
-        Data_KYJG: [...body.Data_KYJG],
-        Time_KYJG: body.Time_KYJG,
-        Preference: body.Preference,
-      })),
-      timestamp,
-    })
-    if (slotIndex > 0 && slotIndex <= 5) {
-      await Apis.archive.saveArchive({
-        pathParams: {
-          slot_index: slotIndex,
-        },
-        data: getJSONArchive(),
-      })
-    }
-  }
+  /**
+   * 将当前存档写入指定槽位（强制写入，用于「保存到存档」等显式操作）
+   * @param slotIndex 目标槽位，默认取当前存档槽位
+   */
+  const saveArchiveToSlot = (slotIndex = -1) => enqueueSync(true, slotIndex)
 
   /** 删除指定槽位的存档 */
   const deleteArchiveSlot = async (slotIndex = -1) => {
@@ -272,13 +352,14 @@ export const useArchiveStore = defineStore('global-archive', () => {
       await fetchArchive()
       await loadLatestArchive()
     }, { immediate: true })
-    watch(currentArchive, async (arcihve) => {
-      if (escapeReactive.value) {
-        escapeReactive.value = false
-        return
-      }
-      await saveArchiveToSlot(arcihve.slotIndex)
-    }, { deep: true, immediate: true })
+    // 监听存档内容变化并去抖同步；仅监听 body，避免 slotIndex / timestamp 造成无意义同步
+    watch(() => currentArchive.value.body, () => scheduleSync(), { deep: true, immediate: true })
+    // 页面隐藏 / 关闭前尽力同步一次，避免去抖窗口内的变更丢失
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden')
+        flush()
+    })
+    window.addEventListener('pagehide', () => flush())
   }
 
   return {
@@ -294,6 +375,7 @@ export const useArchiveStore = defineStore('global-archive', () => {
     loadArchiveSlot,
     loadHistoryArchive,
     loadLatestArchive,
+    flush,
     init,
   }
 })

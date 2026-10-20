@@ -160,7 +160,7 @@ export const useTweaks = (markerList: ComputedRef<GSMarkerInfo[]>) => {
           markerList.forEach(({ id }) => {
             archiveStore.currentArchive.body.Data_KYJG[value ? 'add' : 'delete'](id!)
           })
-          await archiveStore.saveArchiveToSlot(archiveStore.currentArchive.slotIndex)
+          await archiveStore.flush()
         },
         customGetValue: ({ id }, isOld, meta = {}) => {
           if (isOld)

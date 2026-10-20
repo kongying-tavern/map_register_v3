@@ -26,7 +26,7 @@ export const useMarkerFinished = (markerInfo: ShallowRef<MarkerVo | null>) => {
 
   const toggle = async () => {
     isFinished.value = !isFinished.value
-    await archiveStore.saveArchiveToSlot(archiveStore.currentArchive.slotIndex)
+    await archiveStore.flush()
   }
 
   return { isFinished, toggle }

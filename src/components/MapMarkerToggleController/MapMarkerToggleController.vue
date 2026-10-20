@@ -140,7 +140,7 @@ const core$ = start$.pipe(switchMap(() => MapSubject.dragStart.pipe(
         ids.clear()
         mapStateStore.setCursor()
         mapStateStore.interaction.removeFocus(GSMarkerLayer.layerName)
-        await archiveStore.saveArchiveToSlot(archiveStore.currentArchive.slotIndex)
+        await archiveStore.flush()
       }),
     )
   }),
