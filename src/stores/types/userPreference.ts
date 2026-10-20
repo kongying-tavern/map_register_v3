@@ -46,20 +46,8 @@ export interface UserPreference {
   // ====================      公告      ====================
 
   /**
-   * 公告阅读记录
-   * id - 公告 id
-   * time - 阅读记录时的公告时间戳，需要比对更新时间来判断公告阅读记录是否有效
-   */
-  'notice.state.read'?: [id: number, time: number][]
-
-  /**
-   * 公告的弹窗时间
-   * - 将此时间与公告列表的最新更新时间进行对比来判断是否应该弹窗
-   */
-  'notice.state.showTime'?: number
-
-  /**
    * 公告的排序规则
+   * @note 公告的阅读记录与弹窗时间已移至独立的本地存储，见 `NOTICE_STATE_KEY`
    */
   'notice.setting.sort'?: string[]
 

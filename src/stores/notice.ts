@@ -2,13 +2,56 @@ import type { NoticeVo } from '@/api/alova/globals'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { context as noticeContext } from '@/components/AppNotice/context'
 import { useFetchHook } from '@/hooks'
-import { NoticeChannel } from '@/shared'
-import { usePreferenceStore, useSocketStore, useUserStore } from '.'
+import { NOTICE_STATE_KEY, NoticeChannel } from '@/shared'
+import { useSocketStore, useUserStore } from '.'
+
+/** 公告弹窗状态，独立于存档持久化，避免被档案加载 / 切换槽位覆盖 */
+interface NoticeState {
+  /**
+   * 弹窗展示基准时间
+   * - 与公告列表的最新 updateTime 比较，决定是否应当弹窗
+   */
+  showTime: number
+  /**
+   * 公告阅读记录
+   * id - 公告 id
+   * time - 阅读记录时的公告时间戳，需要比对更新时间来判断公告阅读记录是否有效
+   */
+  read: [id: number, time: number][]
+}
+
+const NOTICE_STATE_DEFAULT: NoticeState = { showTime: 0, read: [] }
 
 export const useNoticeStore = defineStore('global-notice', () => {
   const userStore = useUserStore()
   const socketStore = useSocketStore()
-  const preferenceStore = usePreferenceStore()
+
+  // ==================== 公告弹窗状态 ====================
+  /** 所有用户的公告状态，以 userId 为键 */
+  const noticeStateMap = ref<Record<string, NoticeState>>({})
+  try {
+    const cached = JSON.parse(localStorage.getItem(NOTICE_STATE_KEY) ?? '{}') as Record<string, NoticeState> | null
+    noticeStateMap.value = cached && typeof cached === 'object' ? cached : {}
+  }
+  catch {
+    noticeStateMap.value = {}
+  }
+
+  /** 当前用户（未登录为 -1）的公告状态 */
+  const stateKey = computed(() => String(userStore.auth.userId ?? -1))
+  const noticeState = computed<NoticeState>(() => noticeStateMap.value[stateKey.value] ?? NOTICE_STATE_DEFAULT)
+
+  const updateNoticeState = (patch: Partial<NoticeState>) => {
+    const key = stateKey.value
+    noticeStateMap.value = {
+      ...noticeStateMap.value,
+      [key]: { ...(noticeStateMap.value[key] ?? NOTICE_STATE_DEFAULT), ...patch },
+    }
+  }
+
+  watch(noticeStateMap, () => {
+    localStorage.setItem(NOTICE_STATE_KEY, JSON.stringify(noticeStateMap.value))
+  }, { deep: true })
 
   const { data: noticeList, refresh, onSuccess, ...rest } = useFetchHook({
     shallow: true,
@@ -44,7 +87,7 @@ export const useNoticeStore = defineStore('global-notice', () => {
     await refresh()
   }, 20 * 60 * 1000, { immediate: false })
 
-  const readArchive = computed(() => preferenceStore.noticeRead.reduce((record, [id, time]) => {
+  const readArchive = computed(() => noticeState.value.read.reduce((record, [id, time]) => {
     record.set(id, time)
     return record
   }, new Map<number, number>()))
@@ -80,7 +123,7 @@ export const useNoticeStore = defineStore('global-notice', () => {
     const readMap = new Map(readArchive.value)
     readMap.set(id, Number(notice.updateTime))
 
-    preferenceStore.noticeRead = [...readMap.entries()]
+    updateNoticeState({ read: [...readMap.entries()] })
   }
 
   const selected = shallowRef<NoticeVo>()
@@ -94,10 +137,10 @@ export const useNoticeStore = defineStore('global-notice', () => {
       return updateTime > lastTime ? updateTime : lastTime
     }, 0)
 
-    if (preferenceStore.noticeShowTime >= maxUpdateTime)
+    if (noticeState.value.showTime >= maxUpdateTime)
       return
 
-    preferenceStore.noticeShowTime = maxUpdateTime
+    updateNoticeState({ showTime: maxUpdateTime })
     noticeContext.show()
   })
 
