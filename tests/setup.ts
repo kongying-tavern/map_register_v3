@@ -23,6 +23,30 @@ if (!globalThis.matchMedia) {
   })) as unknown as typeof globalThis.matchMedia
 }
 
+// jsdom 未实现 Worker，而部分工具模块（如 WorkerInterval）在模块初始化时就会创建 worker
+if (!globalThis.Worker) {
+  globalThis.Worker = class Worker {
+    onmessage = null
+    onerror = null
+    postMessage = () => {}
+    terminate = () => {}
+    addEventListener = () => {}
+    removeEventListener = () => {}
+  } as unknown as typeof globalThis.Worker
+}
+
+// jsdom 自行实现了 FormData / Blob，但全局 fetch 仍是 Node 的原生实现，
+// 直接把 jsdom 的表单体交过去会丢失内容（被序列化成非表单数据）。
+// vitest 已提供兼容的 Request（自动把 jsdom FormData / Blob 转成 Node 版本），
+// 因此带表单体的请求统一先经过一次 Request 构造再发出。
+const nativeFetch = globalThis.fetch
+globalThis.fetch = ((input: Parameters<typeof fetch>[0], init?: RequestInit) => {
+  const { body } = init ?? {}
+  if (body instanceof FormData || body instanceof Blob)
+    return nativeFetch(new Request(input, init))
+  return nativeFetch(input, init)
+}) as typeof globalThis.fetch
+
 // 每个用例结束后清理 DOM，避免残留节点影响后续断言
 afterEach(() => {
   document.body.innerHTML = ''
