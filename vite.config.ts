@@ -103,19 +103,23 @@ export default defineConfig(async ({ mode }) => {
     build: {
       rollupOptions: {
         output: {
-          manualChunks: {
-            'vue': ['vue', 'vue-router', 'pinia'],
-            'element-plus': ['element-plus'],
-            'element-plus-icons': ['@element-plus/icons-vue'],
-            'deck': ['deck.gl'],
-            'dexie': ['dexie'],
-            'rxjs': ['rxjs'],
-            'antv-pattern': ['@antv/g-pattern'],
-            'antv-g2': ['@antv/g2'],
-            'antv-g6': ['@antv/g6'],
-            'antv-s2': ['@antv/s2'],
-            'tiptap': ['@tiptap/core', '@tiptap/extension-text-align', '@tiptap/starter-kit', '@tiptap/vue-3'],
-            'vueuse': ['@vueuse/core', '@vueuse/rxjs'],
+          // Rolldown 不再支持 `manualChunks` 的对象写法，改用 `codeSplitting.groups`。
+          // 先声明的分组优先级更高，因此把会被其他包依赖的公共包（如 vue）放在最前面。
+          codeSplitting: {
+            groups: [
+              { name: 'vue', test: /node_modules[\\/](?:vue|vue-router|pinia)[\\/]/ },
+              { name: 'element-plus-icons', test: /node_modules[\\/]@element-plus[\\/]icons-vue[\\/]/ },
+              { name: 'element-plus', test: /node_modules[\\/]element-plus[\\/]/ },
+              { name: 'deck', test: /node_modules[\\/]deck\.gl[\\/]/ },
+              { name: 'dexie', test: /node_modules[\\/]dexie[\\/]/ },
+              { name: 'rxjs', test: /node_modules[\\/]rxjs[\\/]/ },
+              { name: 'antv-pattern', test: /node_modules[\\/]@antv[\\/]g-pattern[\\/]/ },
+              { name: 'antv-g2', test: /node_modules[\\/]@antv[\\/]g2[\\/]/ },
+              { name: 'antv-g6', test: /node_modules[\\/]@antv[\\/]g6[\\/]/ },
+              { name: 'antv-s2', test: /node_modules[\\/]@antv[\\/]s2[\\/]/ },
+              { name: 'tiptap', test: /node_modules[\\/]@tiptap[\\/](?:core|extension-text-align|starter-kit|vue-3)[\\/]/ },
+              { name: 'vueuse', test: /node_modules[\\/]@vueuse[\\/](?:core|rxjs)[\\/]/ },
+            ],
           },
         },
       },
