@@ -7,6 +7,21 @@ const createdUserIds = new Set<number>()
 /** 本次测试过程中创建的后端地区 id */
 const createdAreaIds = new Set<number>()
 
+/** 本次测试过程中创建的后端物品分类 id */
+const createdItemTypeIds = new Set<number>()
+
+/** 本次测试过程中创建的后端物品 id */
+const createdItemIds = new Set<number>()
+
+/** 本次测试过程中创建的后端图标分类 id */
+const createdIconTypeIds = new Set<number>()
+
+/** 本次测试过程中创建的后端图标 id */
+const createdIconIds = new Set<number>()
+
+/** 本次测试过程中创建的后端点位 id */
+const createdMarkerIds = new Set<number>()
+
 /** 登记待清理的用户 */
 export const registerUserForCleanup = (userId: number) => {
   createdUserIds.add(userId)
@@ -15,6 +30,31 @@ export const registerUserForCleanup = (userId: number) => {
 /** 登记待清理的地区 */
 export const registerAreaForCleanup = (areaId: number) => {
   createdAreaIds.add(areaId)
+}
+
+/** 登记待清理的物品分类 */
+export const registerItemTypeForCleanup = (itemTypeId: number) => {
+  createdItemTypeIds.add(itemTypeId)
+}
+
+/** 登记待清理的物品 */
+export const registerItemForCleanup = (itemId: number) => {
+  createdItemIds.add(itemId)
+}
+
+/** 登记待清理的图标分类 */
+export const registerIconTypeForCleanup = (iconTypeId: number) => {
+  createdIconTypeIds.add(iconTypeId)
+}
+
+/** 登记待清理的图标 */
+export const registerIconForCleanup = (iconId: number) => {
+  createdIconIds.add(iconId)
+}
+
+/** 登记待清理的点位 */
+export const registerMarkerForCleanup = (markerId: number) => {
+  createdMarkerIds.add(markerId)
 }
 
 /**
@@ -54,4 +94,86 @@ export const cleanupCreatedAreas = async () => {
     await Apis.area.deleteArea({ pathParams: { areaId } }).catch(() => {})
 
   createdAreaIds.clear()
+}
+
+/** 删除本次测试创建的全部点位；点位可能已被用例删除或随地区级联删除 */
+export const cleanupCreatedMarkers = async () => {
+  if (!createdMarkerIds.size)
+    return
+
+  await loginAsTestAccount().catch(() => {})
+
+  for (const markerId of [...createdMarkerIds])
+    await Apis.marker.deleteMarker({ pathParams: { markerId } }).catch(() => {})
+
+  createdMarkerIds.clear()
+}
+
+/** 删除本次测试创建的全部物品；删除物品会同时清理其分类与点位关联 */
+export const cleanupCreatedItems = async () => {
+  if (!createdItemIds.size)
+    return
+
+  await loginAsTestAccount().catch(() => {})
+
+  for (const itemId of [...createdItemIds])
+    await Apis.item.deleteItem({ pathParams: { itemId } }).catch(() => {})
+
+  createdItemIds.clear()
+}
+
+/** 删除本次测试创建的全部物品分类（会递归删除子分类与分类关联） */
+export const cleanupCreatedItemTypes = async () => {
+  if (!createdItemTypeIds.size)
+    return
+
+  await loginAsTestAccount().catch(() => {})
+
+  for (const itemTypeId of [...createdItemTypeIds])
+    await Apis.item_type.deleteItemType({ pathParams: { itemTypeId } }).catch(() => {})
+
+  createdItemTypeIds.clear()
+}
+
+/** 删除本次测试创建的全部图标 */
+export const cleanupCreatedIcons = async () => {
+  if (!createdIconIds.size)
+    return
+
+  await loginAsTestAccount().catch(() => {})
+
+  for (const iconId of [...createdIconIds])
+    await Apis.icon.deleteIcon({ pathParams: { iconId } }).catch(() => {})
+
+  createdIconIds.clear()
+}
+
+/** 删除本次测试创建的全部图标分类（会递归删除子分类与分类关联） */
+export const cleanupCreatedIconTypes = async () => {
+  if (!createdIconTypeIds.size)
+    return
+
+  await loginAsTestAccount().catch(() => {})
+
+  for (const iconTypeId of [...createdIconTypeIds])
+    await Apis.icon_type.deleteIconType({ pathParams: { typeId: iconTypeId } }).catch(() => {})
+
+  createdIconTypeIds.clear()
+}
+
+/**
+ * 统一回收本次测试创建的全部数据。
+ *
+ * 顺序按引用关系从叶子到根：点位 → 物品 → 图标 → 物品分类 → 图标分类 → 地区 → 用户。
+ * 地区删除虽然会尝试级联处理点位与物品，但后端实现存在缺陷（详见跨实体用例），
+ * 因此不能依赖地区回收来代替显式删除。
+ */
+export const cleanupCreatedTestData = async () => {
+  await cleanupCreatedMarkers()
+  await cleanupCreatedItems()
+  await cleanupCreatedIcons()
+  await cleanupCreatedItemTypes()
+  await cleanupCreatedIconTypes()
+  await cleanupCreatedAreas()
+  await cleanupCreatedUsers()
 }
