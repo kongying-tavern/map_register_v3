@@ -57,11 +57,16 @@ export const useSocketStore = defineStore('socket', () => {
   const { event: appEvent } = useAppEvent(ipc)
   const { messageList, clearMessageList } = useMessageList(appEvent)
 
-  watch(() => userStore.info?.id, (userId) => {
-    if (userId === undefined)
-      return close()
-    open(`${userId}`)
-  })
+  // token 由页面传入 SharedWorker（worker 无法读取 localStorage）；刷新 token 时重建连接
+  watch(
+    [() => userStore.info?.id, () => userStore.auth.accessToken],
+    ([userId, accessToken]) => {
+      if (userId === undefined || !accessToken)
+        return close()
+      open(`${userId}`, accessToken)
+    },
+    { immediate: true },
+  )
 
   return {
     context,

@@ -7,13 +7,11 @@ declare namespace AppSocket {
       args: [pageId: string]
       return: void
     }
-    /** 开启 socket 连接 */
+    /** 开启裸 WebSocket 连接（token 由页面传入，worker 不读 localStorage） */
     open: {
-      args: [url: string, options: {
-        path: string
-        query: {
-          userId: string
-        }
+      args: [options: {
+        userId: string
+        token: string
       }]
       return: 'created' | 'reused'
     }
@@ -61,14 +59,6 @@ declare namespace AppSocket {
       args: WebSocketAPI.WSEventMap[K]
       return: void
     }
-  }
-
-  interface SocketEventMap {
-    rttcheck: [feedback: {
-      id: string
-      receiveTimestamp: number
-      sendTimestamp: number
-    }]
   }
 
   /** 主线程 ws 上下文 */

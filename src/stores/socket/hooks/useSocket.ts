@@ -53,14 +53,8 @@ export const useSocket = () => {
     await ipc.invoke('close')
   }
 
-  const open = async (userId: string) => {
-    const url = new URL(import.meta.env.VITE_WS_BASE)
-    await ipc.invoke('open', url.origin, {
-      path: url.pathname,
-      query: {
-        userId,
-      },
-    })
+  const open = async (userId: string, token: string) => {
+    await ipc.invoke('open', { userId, token })
   }
 
   return {
