@@ -80,7 +80,7 @@
     "protobufjs-cli": "2.0.0",
     "rimraf": "5.0.5",
     "sass": "1.70.0",
-    "simple-git": "3.27.0",
+    "simple-git": "4.0.1",
     "stylelint": "16.2.1",
     "typescript": "5.6.3",
     "unplugin-auto-import": "19.1.0",
