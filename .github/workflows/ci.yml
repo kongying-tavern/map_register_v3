@@ -30,7 +30,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: pnpm
+          # 仓库未入库 pnpm-lock.yaml（.gitignore 忽略），setup-node 的 pnpm 缓存
+          # 会因缺少锁文件在 "Setup Node.js" 步骤直接失败（#167 合并版本即此问题）。
+          # 如后续决定入库锁文件，可恢复 cache: pnpm
 
       # 仓库未入库 pnpm-lock.yaml（.gitignore 忽略），故不能使用 --frozen-lockfile
       - name: Install dependencies
