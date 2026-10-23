@@ -13,6 +13,8 @@ declare namespace AppSocket {
         path: string
         query: {
           userId: string
+          /** 后端握手鉴权：Rust `WS_AUTH_REQUIRED` 要求 token（query 或 Authorization 头） */
+          token?: string
         }
       }]
       return: 'created' | 'reused'
