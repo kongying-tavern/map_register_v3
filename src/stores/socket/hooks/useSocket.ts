@@ -1,3 +1,4 @@
+import { useUserStore } from '@/stores/user'
 import { EventBus } from '@/utils'
 import { PageIPC } from '@/utils/worker'
 import SocketWorkerURL from '@/worker/webSocket/socket.worker?worker&url'
@@ -55,10 +56,14 @@ export const useSocket = () => {
 
   const open = async (userId: string) => {
     const url = new URL(import.meta.env.VITE_WS_BASE)
+    // 后端（Rust WS_AUTH_REQUIRED）要求握手携带 token，否则 401
+    const { auth } = useUserStore()
+    const { accessToken } = auth
     await ipc.invoke('open', url.origin, {
       path: url.pathname,
       query: {
         userId,
+        ...(accessToken ? { token: accessToken } : {}),
       },
     })
   }
