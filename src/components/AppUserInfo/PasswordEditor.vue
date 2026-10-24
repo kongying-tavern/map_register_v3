@@ -81,7 +81,7 @@ onSuccess(() => {
       <el-form-item label="新密码" prop="password">
         <GSInput v-model="form.password" type="password" style="width: 100%" />
       </el-form-item>
-      <el-form-item label="确认密码" prop="password">
+      <el-form-item label="确认密码" prop="repeat">
         <GSInput v-model="form.repeat" type="password" style="width: 100%" />
       </el-form-item>
     </el-form>
