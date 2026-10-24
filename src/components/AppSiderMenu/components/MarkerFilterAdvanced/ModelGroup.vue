@@ -15,7 +15,7 @@ const modelValue = defineModel<MAFGroupComposed[]>('modelValue', {
 
 const mapStateStore = useMapStateStore()
 
-const { toggleMAFGroupOperator, toggleMAFGroupOpposite, deleteMAFGroup } = mapStateStore
+const { toggleMAFGroupOperator, toggleMAFGroupOpposite, deleteMAFGroup, reorderMAFItems } = mapStateStore
 
 // ------------------------------------------------
 // 模型选择器相关
@@ -54,6 +54,7 @@ const openPicker = (groupIndex: number) => {
         @toggle-opposite="() => toggleMAFGroupOpposite(groupIndex)"
         @delete-group="() => deleteMAFGroup(groupIndex)"
         @append-item="() => openPicker(groupIndex)"
+        @reorder-items="orderedKeys => reorderMAFItems(groupIndex, orderedKeys)"
       >
         <template
           #default="{

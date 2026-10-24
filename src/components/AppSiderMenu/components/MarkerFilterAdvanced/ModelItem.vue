@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { MaybeComputedRef } from '@vueuse/core'
-import type { MAFGroupComposed } from '@/stores/types'
+import type { MAFGroupComposed, MAFItemComposed } from '@/stores/types'
 import { ArrowDownBold, ArrowUpBold, DeleteFilled } from '@element-plus/icons-vue'
 import { AppDraggableTable } from '@/components'
 import { MarkerFilterButton } from '../MarkerFilterComponent'
@@ -21,6 +21,7 @@ const emits = defineEmits<{
   moveDownGroup: []
   deleteGroup: []
   appendItem: []
+  reorderItems: [orderedKeys: string[]]
 }>()
 
 const composedConditionValue = computed(() => toValue(props.composedCondition))
@@ -59,6 +60,12 @@ const handleAppendItem = () => {
   if (props.disabled)
     return
   emits('appendItem')
+}
+
+const handleReorderItems = (orderedChildren: MAFItemComposed[]) => {
+  if (props.disabled)
+    return
+  emits('reorderItems', orderedChildren.map(({ key }) => key))
 }
 </script>
 
@@ -135,9 +142,10 @@ const handleAppendItem = () => {
 
     <AppDraggableTable
       v-if="composedConditionValue.children.length > 0"
-      v-model="composedConditionValue.children"
+      :model-value="composedConditionValue.children"
       class="flex flex-col gap-1"
       :get-key="i => i.key"
+      @change="handleReorderItems"
     >
       <template #default="{ item, index: itemIndex, isGrabbing: isItemGrabbing, isDragging: isItemDragging }">
         <slot
