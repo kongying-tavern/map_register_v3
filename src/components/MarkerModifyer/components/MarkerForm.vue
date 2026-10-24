@@ -120,7 +120,8 @@ watch(() => availableExtraConfig.value, (config) => {
           region_levels: validRegions,
         }
       : {
-          is_underground,
+          // 目标地区已无对应层级，同步关闭分层层级的开启状态
+          is_underground: false,
           region_levels: [],
         }
   }
