@@ -322,6 +322,24 @@ const _useMarkerAdvancedFilter = (options: MarkerAdvancedFilterHookOptions) => {
     }
   }
 
+  const reorderCondition = (groupIndex: number, orderedKeys: string[]) => {
+    const group = advancedFilterCache.value[groupIndex]
+    if (!group?.children.length)
+      return
+    const { children } = group
+    if (!orderedKeys.length || orderedKeys.length !== children.length)
+      return
+    // 拖拽未改变顺序时跳过，避免触发无意义的缓存写入
+    if (orderedKeys.every((key, index) => children[index].key === key))
+      return
+    const childMap = new Map(children.map(child => [child.key, child]))
+    const reordered = orderedKeys.map(key => childMap.get(key))
+    // 存在无法匹配的 key 时放弃写回，避免拖拽态与缓存不一致时丢失条目
+    if (reordered.some(child => !child))
+      return
+    group.children = reordered as MAFItem[]
+  }
+
   const copyConditions = () => {
     advancedFilter.value = cloneDeep(advancedFilterCache.value)
   }
@@ -354,6 +372,7 @@ const _useMarkerAdvancedFilter = (options: MarkerAdvancedFilterHookOptions) => {
     appendMAFItem: appendCondition,
     insertMAFItem: insertCondition,
     swapMAFItem: swapCondition,
+    reorderMAFItems: reorderCondition,
     deleteMAFItem: deleteCondition,
   }
 }
