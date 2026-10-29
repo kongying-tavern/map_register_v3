@@ -3,7 +3,7 @@ import * as ElIcons from '@element-plus/icons-vue'
 import { SettingGroup, SettingPanel } from '../components'
 
 const gotoGithub = () => {
-  window.open('https://github.com/kongying-tavern/map_register_v3', '_blank')
+  window.open('https://github.com/kongying-tavern/genshin-admin-v3', '_blank')
 }
 
 const gotoSponsor = () => {

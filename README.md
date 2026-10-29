@@ -25,7 +25,7 @@
     <a href="https://dexie.org" target="_blank">
       <img src="https://img.shields.io/badge/dexie.js-3-B77546">
     </a>
-    <a href="https://deepwiki.com/kongying-tavern/map_register_v3" target="_blank">
+    <a href="https://deepwiki.com/kongying-tavern/genshin-admin-v3" target="_blank">
       <img src="https://deepwiki.com/badge.svg">
     </a>
 </div>
@@ -92,7 +92,7 @@
 
 ## 开发手册
 
-详见 [空荧后厨 Wiki](https://github.com/kongying-tavern/map_register_v3/wiki)
+详见 [空荧后厨 Wiki](https://github.com/kongying-tavern/genshin-admin-v3/wiki)
 
 ## 项目贡献
 

@@ -37,12 +37,12 @@ const stack = computed<undefined | { label: string, codes: string[] }>(() => {
     <div>
       <div>请将错误反馈至开发团队。</div>
       <a
-        href="https://github.com/kongying-tavern/map_register_v3/issues"
+        href="https://github.com/kongying-tavern/genshin-admin-v3/issues"
         target="_blank"
         rel="noreferrer"
         class="underline underline-offset-[6px]"
       >
-        https://github.com/kongying-tavern/map_register_v3/issues
+        https://github.com/kongying-tavern/genshin-admin-v3/issues
       </a>
     </div>
   </div>
